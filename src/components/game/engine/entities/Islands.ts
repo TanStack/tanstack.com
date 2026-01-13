@@ -14,6 +14,12 @@ function seededRandom(seed: number) {
   return x - Math.floor(x)
 }
 
+interface WaveRing {
+  mesh: THREE.Mesh
+  baseRadius: number
+  offset: number
+}
+
 interface IslandInstance {
   data: IslandData
   group: THREE.Group
@@ -21,6 +27,7 @@ interface IslandInstance {
   flagGroup: THREE.Group | null
   beacon: THREE.PointLight | null
   confetti: ConfettiParticle[]
+  waveRings: WaveRing[]
   flagPosition: number
   scaleVelocity: number
   currentScale: number
@@ -28,7 +35,7 @@ interface IslandInstance {
   infoScaleVelocity: number
   wasDiscovered: boolean
   confettiSpawned: boolean
-  debugCircles: THREE.Line[] // Collision debug circles
+  debugCircles: THREE.Line[]
 }
 
 interface ConfettiParticle {
@@ -181,28 +188,23 @@ export class Islands {
       data.elongation,
       seed,
       sphereCenterY,
+      data.scale,
     )
     const islandMesh = new THREE.Mesh(
       islandGeo,
-      new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.85 }),
+      new THREE.MeshStandardMaterial({
+        vertexColors: true,
+        roughness: 0.85,
+        transparent: true,
+      }),
     )
     islandMesh.position.y = sphereCenterY
     islandMesh.castShadow = true
     islandMesh.receiveShadow = true
     group.add(islandMesh)
 
-    // Foam ring (white edge around island - shallow water handled by ocean shader)
-    const foamRing = new THREE.Mesh(
-      new THREE.RingGeometry(islandRadius * 0.97, islandRadius * 1.03, 64),
-      new THREE.MeshStandardMaterial({
-        color: '#FFFFFF',
-        transparent: true,
-        opacity: 0.6,
-      }),
-    )
-    foamRing.rotation.x = -Math.PI / 2
-    foamRing.position.y = 0.08
-    group.add(foamRing)
+    // Wave rings will be added in world space after instance creation
+    const waveRings: WaveRing[] = []
 
     // Palm tints (used for main island and lobes)
     const palmTints = ['#AAFFAA', '#CCFFCC', '#88FF88', '#BBFFBB', '#99FF99']
@@ -229,32 +231,47 @@ export class Islands {
         lobeElongation,
         seed + 1000 + i * 100,
         lobeSphereY,
+        data.scale * lobe.scale,
       )
       const lobeMesh = new THREE.Mesh(
         lobeGeo,
-        new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.85 }),
+        new THREE.MeshStandardMaterial({
+          vertexColors: true,
+          roughness: 0.85,
+          transparent: true,
+        }),
       )
       lobeMesh.position.y = lobeSphereY
       lobeMesh.castShadow = true
       lobeMesh.receiveShadow = true
       lobeGroup.add(lobeMesh)
 
-      // Lobe foam ring (shallow water handled by ocean shader)
-      const lobeFoam = new THREE.Mesh(
-        new THREE.RingGeometry(
-          lobeIslandRadius * 0.97,
-          lobeIslandRadius * 1.03,
-          32,
-        ),
-        new THREE.MeshStandardMaterial({
-          color: '#FFFFFF',
+      // Wave rings for lobe (use pre-calculated world positions from lobe data)
+      const lobeWorldRadius = lobeIslandRadius * data.scale * lobe.scale
+      const lobeWorldX = lobe.worldX
+      const lobeWorldZ = lobe.worldZ
+      for (let w = 0; w < 2; w++) {
+        const innerRadius = lobeWorldRadius + 2.0 + w * 0.8
+        const outerRadius = innerRadius + 0.5
+        const waveRingGeo = new THREE.RingGeometry(innerRadius, outerRadius, 48)
+        const opacity = 0.12 - w * 0.03
+        const waveRingMat = new THREE.MeshStandardMaterial({
+          color: w === 0 ? '#FFFFFF' : '#40E0D0',
           transparent: true,
-          opacity: 0.5,
-        }),
-      )
-      lobeFoam.rotation.x = -Math.PI / 2
-      lobeFoam.position.y = 0.08
-      lobeGroup.add(lobeFoam)
+          opacity,
+          depthWrite: false,
+        })
+        const waveRingMesh = new THREE.Mesh(waveRingGeo, waveRingMat)
+        waveRingMesh.rotation.x = -Math.PI / 2
+        waveRingMesh.position.set(lobeWorldX, -0.7, lobeWorldZ)
+        waveRingMesh.renderOrder = -1
+        this.group.add(waveRingMesh)
+        waveRings.push({
+          mesh: waveRingMesh,
+          baseRadius: (innerRadius + outerRadius) / 2,
+          offset: w * 0.7 + i * 0.3,
+        })
+      }
 
       // Add palm trees to lobe (1-2 based on lobe size)
       const lobeSeed = seed + 1000 + i * 100
@@ -419,6 +436,32 @@ export class Islands {
     infoGroup.scale.setScalar(0.001)
     this.group.add(infoGroup)
 
+    // Wave rings around island (in world space, underwater)
+    const worldRadius = islandRadius * data.scale
+    const waveRingCount = 2
+    for (let w = 0; w < waveRingCount; w++) {
+      const innerRadius = worldRadius + 2.2 + w * 0.6
+      const outerRadius = innerRadius + 0.2
+      const waveRingGeo = new THREE.RingGeometry(innerRadius, outerRadius, 64)
+      const opacity = 0.2 - w * 0.05
+      const waveRingMat = new THREE.MeshStandardMaterial({
+        color: w === 0 ? '#FFFFFF' : '#40E0D0',
+        transparent: true,
+        opacity,
+        depthWrite: false, // Don't write to depth buffer so water renders on top
+      })
+      const waveRingMesh = new THREE.Mesh(waveRingGeo, waveRingMat)
+      waveRingMesh.rotation.x = -Math.PI / 2
+      waveRingMesh.position.set(data.position[0], -0.7, data.position[2])
+      waveRingMesh.renderOrder = -1 // Render before water surface
+      this.group.add(waveRingMesh)
+      waveRings.push({
+        mesh: waveRingMesh,
+        baseRadius: (innerRadius + outerRadius) / 2,
+        offset: w * 0.7,
+      })
+    }
+
     return {
       data,
       group,
@@ -426,6 +469,7 @@ export class Islands {
       flagGroup,
       beacon,
       confetti: [],
+      waveRings,
       flagPosition: 0,
       scaleVelocity: 0,
       currentScale: 0,
@@ -442,6 +486,7 @@ export class Islands {
     elongation: number,
     seed: number,
     sphereCenterY: number,
+    scale: number = 1,
   ): THREE.BufferGeometry {
     const geo = new THREE.SphereGeometry(
       sphereRadius,
@@ -455,11 +500,19 @@ export class Islands {
     const posAttr = geo.attributes.position
     const colors: number[] = []
 
+    const shallowColor = new THREE.Color('#40E0D0')
     const foamColor = new THREE.Color('#E8F4F8')
     const sandColorLight = new THREE.Color(COLORS.sand.light)
     const sandColorMid = new THREE.Color(COLORS.sand.mid)
     const grassColorDark = new THREE.Color('#1B5E20')
     const grassColorLight = new THREE.Color('#2E7D32')
+
+    // Absolute Y thresholds (in world units, not affected by scale)
+    const transparentY = -1.2 / scale // Fully transparent below this
+    const shallowY = -0.4 / scale // Start fading to transparent
+    const foamY = -0.35 / scale
+    const sandY = -0.2 / scale
+    const grassY = -0.05 / scale // Lower threshold = more grass coverage
 
     for (let i = 0; i < posAttr.count; i++) {
       const x = posAttr.getX(i)
@@ -470,21 +523,32 @@ export class Islands {
       const absoluteY = y + sphereCenterY
       const colorNoise = Math.sin(angle * 7 + seed) * 0.5 + 0.5
 
-      // Start at foam line - shallow water is handled by ocean shader
-      const foamY = -0.35
-      const sandY = -0.25
-      const grassY = 0.0
-
       let color: THREE.Color
+      let alpha = 1.0
 
-      if (absoluteY < foamY) {
-        // Below foam line - use foam/white color (will be under water visually)
-        color = foamColor.clone()
-        color.lerp(new THREE.Color('#FFFFFF'), colorNoise * 0.3)
+      if (absoluteY < transparentY) {
+        // Deep underwater - fully transparent (shows sea floor)
+        color = shallowColor.clone()
+        alpha = 0.0
+      } else if (absoluteY < shallowY) {
+        // Fade from transparent to shallow
+        const progress = THREE.MathUtils.smoothstep(
+          absoluteY,
+          transparentY,
+          shallowY,
+        )
+        color = shallowColor.clone()
+        color.lerp(new THREE.Color('#00AAEE'), colorNoise * 0.2)
+        alpha = progress
+      } else if (absoluteY < foamY) {
+        const progress = THREE.MathUtils.smoothstep(absoluteY, shallowY, foamY)
+        color = shallowColor.clone().lerp(foamColor, progress)
+        color.lerp(new THREE.Color('#FFFFFF'), colorNoise * 0.2)
       } else if (absoluteY < sandY) {
         const sandProgress = THREE.MathUtils.smoothstep(absoluteY, foamY, sandY)
         const wetSand = sandColorLight.clone().lerp(foamColor, 0.15)
-        color = wetSand.clone().lerp(sandColorMid, sandProgress)
+        color = foamColor.clone().lerp(wetSand, sandProgress * 0.5)
+        color.lerp(sandColorMid, sandProgress)
         color.lerp(sandColorMid.clone().multiplyScalar(0.95), colorNoise * 0.15)
       } else {
         const grassProgress = THREE.MathUtils.smoothstep(
@@ -501,10 +565,10 @@ export class Islands {
         color = sandColorMid.clone().lerp(grassColor, grassProgress)
       }
 
-      colors.push(color.r, color.g, color.b)
+      colors.push(color.r, color.g, color.b, alpha)
     }
 
-    geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3))
+    geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 4))
     geo.computeVertexNormals()
     return geo
   }
@@ -1267,9 +1331,12 @@ export class Islands {
         }
       }
 
-      // Update info card with scale animation
+      // Update info card with scale animation (cull at distance)
       if (instance.infoGroup) {
-        const shouldShow = isNearby || isDiscovered
+        const infoVisibleDistance = 80 // Only show info cards within this distance
+        const shouldShow =
+          (isNearby || isDiscovered) &&
+          distSq < infoVisibleDistance * infoVisibleDistance
         const targetInfoScale = shouldShow ? 1 : 0
 
         // Spring animation for info card scale
@@ -1298,6 +1365,15 @@ export class Islands {
 
       // Update confetti
       this.updateConfetti(instance, 0.016)
+
+      // Animate wave rings (pulsing scale)
+      if (instance.group.visible) {
+        for (const ring of instance.waveRings) {
+          const pulse = Math.sin(time * 0.6 + ring.offset) * 0.03
+          const scale = 1 + pulse
+          ring.mesh.scale.set(scale, scale, 1)
+        }
+      }
 
       // Update debug collision circles
       const hasDebugCircles = instance.debugCircles.length > 0
@@ -1437,6 +1513,13 @@ export class Islands {
       p.mesh.geometry.dispose()
       ;(p.mesh.material as THREE.Material).dispose()
     })
+
+    // Dispose wave rings
+    for (const ring of instance.waveRings) {
+      ring.mesh.geometry.dispose()
+      ;(ring.mesh.material as THREE.Material).dispose()
+      this.group.remove(ring.mesh)
+    }
   }
 
   dispose(): void {

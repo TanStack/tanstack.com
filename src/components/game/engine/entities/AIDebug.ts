@@ -26,14 +26,24 @@ export class AIDebug {
     if (!this.group.visible || !this.aiSystem) return
 
     const territories = this.aiSystem.getDebugTerritories()
-    const leashRadius = this.aiSystem.getLeashRadius()
 
     // Update or create territory circles
     for (const territory of territories) {
-      const { id, homePosition, color } = territory
+      const { id, homePosition, color, leashRadius } = territory
 
-      // Territory circle
-      if (!this.circles.has(id)) {
+      // Territory circle - recreate if radius changed or doesn't exist
+      const existingCircle = this.circles.get(id)
+      const needsNewCircle =
+        !existingCircle || existingCircle.userData.leashRadius !== leashRadius
+
+      if (needsNewCircle) {
+        // Remove old circle if exists
+        if (existingCircle) {
+          this.group.remove(existingCircle)
+          existingCircle.geometry.dispose()
+          ;(existingCircle.material as THREE.Material).dispose()
+        }
+
         const geometry = new THREE.BufferGeometry()
         const segments = 64
         const positions = new Float32Array((segments + 1) * 3)
@@ -58,11 +68,11 @@ export class AIDebug {
 
         const circle = new THREE.Line(geometry, material)
         circle.position.set(homePosition[0], 0, homePosition[1])
+        circle.userData.leashRadius = leashRadius
         this.circles.set(id, circle)
         this.group.add(circle)
       } else {
-        const circle = this.circles.get(id)!
-        circle.position.set(homePosition[0], 0, homePosition[1])
+        existingCircle.position.set(homePosition[0], 0, homePosition[1])
       }
 
       // Home marker (small sphere)

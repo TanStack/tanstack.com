@@ -144,6 +144,7 @@ export class BoatControlSystem {
       islands,
       expandedIslands,
       showcaseIslands,
+      cornerIslands,
       stage,
       rockColliders,
       coinsCollected,
@@ -155,10 +156,10 @@ export class BoatControlSystem {
       fireGatling,
     } = state
 
-    // Combine islands for collision in battle stage (includes partner and showcase islands)
+    // Combine islands for collision in battle stage (includes partner, showcase, and corner islands)
     const allIslands =
       stage === 'battle'
-        ? [...islands, ...expandedIslands, ...showcaseIslands]
+        ? [...islands, ...expandedIslands, ...showcaseIslands, ...cornerIslands]
         : islands
 
     // Fire gatling while space is held

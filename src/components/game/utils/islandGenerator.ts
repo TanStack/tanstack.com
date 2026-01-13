@@ -181,10 +181,10 @@ export function generateIslands(libraries: LibrarySlim[]): IslandData[] {
 
 // Corner boss islands - 4 mysterious islands in the corners guarded by boss AIs
 const CORNER_POSITIONS: Array<[number, number]> = [
-  [420, 420], // NE
-  [-420, 420], // NW
-  [-420, -420], // SW
-  [420, -420], // SE
+  [480, 480], // NE
+  [-480, 480], // NW
+  [-480, -480], // SW
+  [480, -480], // SE
 ]
 
 const CORNER_ISLAND_NAMES = [

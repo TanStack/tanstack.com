@@ -14,6 +14,7 @@ import { IslandIndicator } from './ui/IslandIndicator'
 import { Shop } from './ui/Shop'
 import { CompassIndicator } from './ui/CompassIndicator'
 import { GameOverOverlay } from './ui/GameOverOverlay'
+import { WinOverlay } from './ui/WinOverlay'
 import { StatsHUD } from './ui/StatsHUD'
 
 function LoadingOverlay() {
@@ -57,6 +58,7 @@ export default function IslandExplorer() {
       <UpgradeOverlay />
       <CompleteOverlay />
       <GameOverOverlay />
+      <WinOverlay />
       <GameHUD />
       <StatsHUD />
       <Minimap />

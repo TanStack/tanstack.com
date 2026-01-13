@@ -114,33 +114,37 @@ export class OceanRocks {
           seededRandom(rockSeed + 8) * Math.PI * 2,
           seededRandom(rockSeed + 9) * 0.4,
         )
-        rockMesh.position.set(localX, -0.1 - baseScale * 0.1, localZ)
+        rockMesh.position.set(localX, -0.5 - baseScale * 0.1, localZ)
         rockMesh.castShadow = true
         rockMesh.receiveShadow = true
         groupObj.add(rockMesh)
 
-        // Foam ring
-        const foamGeo = this.getRingGeometry(rockSize * 0.9, rockSize * 1.3)
+        // Foam ring - thinner and more subtle
+        const foamGeo = this.getRingGeometry(rockSize * 1.0, rockSize * 1.15)
         const foamMat = new THREE.MeshStandardMaterial({
           color: '#FFFFFF',
           transparent: true,
-          opacity: 0.4,
+          opacity: 0.25,
+          depthWrite: false,
         })
         const foamMesh = new THREE.Mesh(foamGeo, foamMat)
         foamMesh.rotation.x = -Math.PI / 2
-        foamMesh.position.set(localX, -0.15, localZ)
+        foamMesh.position.set(localX, -0.6, localZ)
+        foamMesh.renderOrder = -1
         groupObj.add(foamMesh)
 
-        // Water ring
-        const waterGeo = this.getRingGeometry(rockSize * 1.2, rockSize * 1.8)
+        // Water ring - thinner and more subtle
+        const waterGeo = this.getRingGeometry(rockSize * 1.15, rockSize * 1.3)
         const waterMat = new THREE.MeshStandardMaterial({
           color: '#40E0D0',
           transparent: true,
-          opacity: 0.2,
+          opacity: 0.15,
+          depthWrite: false,
         })
         const waterMesh = new THREE.Mesh(waterGeo, waterMat)
         waterMesh.rotation.x = -Math.PI / 2
-        waterMesh.position.set(localX, -0.18, localZ)
+        waterMesh.position.set(localX, -0.65, localZ)
+        waterMesh.renderOrder = -1
         groupObj.add(waterMesh)
 
         rocks.push({

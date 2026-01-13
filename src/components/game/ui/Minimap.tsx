@@ -16,11 +16,11 @@ function getMinimapSize() {
 }
 
 // AI territory constants (must match AISystem.ts)
-import { ROAM_RADIUS, ROAM_LEASH } from '../engine/systems/AISystem'
-
-interface AIShipWithHome extends OtherPlayer {
-  homePosition?: [number, number]
-}
+import {
+  ROAM_LEASH,
+  OUTER_RIM_ROAM_LEASH,
+  CORNER_BOSS_ROAM_LEASH,
+} from '../engine/systems/AISystem'
 
 export function Minimap() {
   const {
@@ -37,7 +37,7 @@ export function Minimap() {
     rotation: 0,
     worldBoundary: 85,
   })
-  const [aiShips, setAiShips] = useState<AIShipWithHome[]>([])
+  const [aiShips, setAiShips] = useState<OtherPlayer[]>([])
   const [debugMode, setDebugMode] = useState(false)
 
   // Handle resize
@@ -65,21 +65,8 @@ export function Minimap() {
         worldBoundary,
       })
       setDebugMode(showCollisionDebug)
-      // Calculate home positions based on AI index (same logic as AISystem)
-      const ais = otherPlayers
-        .filter((p) => p.isAI)
-        .map((ai, i, arr) => {
-          const sectorAngle = (i / arr.length) * Math.PI * 2
-          // Match AISystem: 60-85% of world boundary, use midpoint
-          const radius = worldBoundary * 0.725
-          return {
-            ...ai,
-            homePosition: [
-              Math.cos(sectorAngle) * radius,
-              Math.sin(sectorAngle) * radius,
-            ] as [number, number],
-          }
-        })
+      // Use actual home positions from AI data
+      const ais = otherPlayers.filter((p) => p.isAI)
       setAiShips(ais)
     }, 50)
 
@@ -171,7 +158,7 @@ export function Minimap() {
               )
             })}
 
-          {/* Debug: AI aggro boundaries (smaller, solid) */}
+          {/* Debug: AI max chase boundaries (leash distance) */}
           {debugMode &&
             aiShips.map((ai) => {
               if (!ai.homePosition) return null
@@ -179,14 +166,21 @@ export function Minimap() {
                 ai.homePosition[0],
                 ai.homePosition[1],
               )
-              // Aggro distance varies by difficulty, use ROAM_RADIUS as proxy
-              const aggroRadiusNormalized =
-                ROAM_RADIUS / boatState.worldBoundary
-              const rx = aggroRadiusNormalized * (W / 2) * 0.9 * 0.5
-              const ry = aggroRadiusNormalized * (H / 2) * 0.9 * 0.5
+              // Use leash distance (max chase range) based on AI type
+              const isBoss = ai.difficulty === 'boss'
+              const isOuterRim =
+                ai.difficulty === 'elite' || ai.difficulty === 'hard'
+              const leashDistance = isBoss
+                ? CORNER_BOSS_ROAM_LEASH
+                : isOuterRim
+                  ? OUTER_RIM_ROAM_LEASH
+                  : ROAM_LEASH
+              const leashNormalized = leashDistance / boatState.worldBoundary
+              const rx = leashNormalized * (W / 2) * 0.9 * 0.5
+              const ry = leashNormalized * (H / 2) * 0.9 * 0.5
               return (
                 <ellipse
-                  key={`aggro-${ai.id}`}
+                  key={`leash-${ai.id}`}
                   cx={homePos.x}
                   cy={homePos.y}
                   rx={rx}

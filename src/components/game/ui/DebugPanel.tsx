@@ -39,6 +39,8 @@ export function DebugPanel() {
     expandedIslands,
     showcaseIslands,
     showcaseUnlocked,
+    cornersUnlocked,
+    cornerIslands,
     coins,
     discoveredIslands,
     coinsCollected,
@@ -47,6 +49,8 @@ export function DebugPanel() {
     boatHealth,
     showCollisionDebug,
     setShowCollisionDebug,
+    debugZoomOut,
+    setDebugZoomOut,
   } = useGameStore()
 
   if (!canAccess) return null
@@ -117,6 +121,22 @@ export function DebugPanel() {
     if (undiscovered) {
       discoverIsland(undiscovered.id)
     }
+  }
+
+  const discoverNextCorner = () => {
+    const { cornerIslands, discoveredIslands, discoverIsland } =
+      useGameStore.getState()
+    const undiscovered = cornerIslands.find((i) => !discoveredIslands.has(i.id))
+    if (undiscovered) {
+      discoverIsland(undiscovered.id)
+    }
+  }
+
+  const discoverAllCorners = () => {
+    const { cornerIslands, discoverIsland } = useGameStore.getState()
+    cornerIslands.forEach((island) => {
+      discoverIsland(island.id)
+    })
   }
 
   const grantNextUpgrade = () => {
@@ -231,6 +251,22 @@ export function DebugPanel() {
                   Discover Next Showcase
                 </button>
               )}
+              {cornersUnlocked && (
+                <>
+                  <button
+                    onClick={discoverNextCorner}
+                    className="block w-full px-2 py-1 bg-rose-600 hover:bg-rose-500 rounded"
+                  >
+                    Discover Next Corner
+                  </button>
+                  <button
+                    onClick={discoverAllCorners}
+                    className="block w-full px-2 py-1 bg-rose-700 hover:bg-rose-600 rounded"
+                  >
+                    Discover All Corners
+                  </button>
+                </>
+              )}
               <button
                 onClick={grantNextUpgrade}
                 className="block w-full px-2 py-1 bg-cyan-600 hover:bg-cyan-500 rounded"
@@ -285,6 +321,16 @@ export function DebugPanel() {
           </button>
 
           <label className="flex items-center gap-2 mt-2 pt-2 border-t border-gray-600 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={debugZoomOut}
+              onChange={(e) => setDebugZoomOut(e.target.checked)}
+              className="rounded"
+            />
+            <span>Zoom Out (Full Map)</span>
+          </label>
+
+          <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
               checked={showCollisionDebug}

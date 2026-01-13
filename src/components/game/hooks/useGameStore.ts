@@ -31,6 +31,7 @@ interface PersistedState {
   boatType: BoatType
   showcaseUnlocked: boolean // Whether showcase expansion is unlocked
   cornersUnlocked: boolean // Whether corner boss islands are unlocked
+  gameWon: boolean // Whether the player has captured all 4 corners
 
   // Position
   boatPosition: [number, number, number]
@@ -42,19 +43,13 @@ interface PersistedState {
   speedBoostEndTime: number | null
 }
 
-// Debounced save to localStorage
-let saveTimeout: ReturnType<typeof setTimeout> | null = null
-const SAVE_DEBOUNCE_MS = 2000
-
+// Save to localStorage (immediate, no debounce)
 function saveToLocalStorage(state: PersistedState): void {
-  if (saveTimeout) clearTimeout(saveTimeout)
-  saveTimeout = setTimeout(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
-    } catch {
-      // Ignore storage errors
-    }
-  }, SAVE_DEBOUNCE_MS)
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+  } catch {
+    // Ignore storage errors
+  }
 }
 
 function loadFromLocalStorage(): PersistedState | null {
@@ -82,6 +77,7 @@ function extractPersistedState(state: {
   boatType: BoatType
   showcaseUnlocked: boolean
   cornersUnlocked: boolean
+  gameWon: boolean
   boatPosition: [number, number, number]
   boatRotation: number
   boatHealth: number
@@ -100,6 +96,7 @@ function extractPersistedState(state: {
     boatType: state.boatType,
     showcaseUnlocked: state.showcaseUnlocked,
     cornersUnlocked: state.cornersUnlocked,
+    gameWon: state.gameWon,
     boatPosition: state.boatPosition,
     boatRotation: state.boatRotation,
     boatHealth: state.boatHealth,
@@ -132,6 +129,7 @@ export interface OtherPlayer {
   health: number
   maxHealth?: number // For AI ships
   difficulty?: AIDifficulty // For AI ships
+  homePosition?: [number, number] // For AI ships - where they patrol around
 }
 
 // Cannonball projectile
@@ -208,6 +206,7 @@ interface GameState {
   cornerIslands: IslandData[] // Corner boss islands
   showcaseUnlocked: boolean // Whether showcase expansion is unlocked
   cornersUnlocked: boolean // Whether corner boss islands are unlocked
+  gameWon: boolean // Whether the player has captured all 4 corners
   setIslands: (islands: IslandData[]) => void
   setExpandedIslands: (islands: IslandData[]) => void
   setShowcaseIslands: (islands: IslandData[]) => void
@@ -267,6 +266,8 @@ interface GameState {
   // Debug
   showCollisionDebug: boolean
   setShowCollisionDebug: (show: boolean) => void
+  debugZoomOut: boolean
+  setDebugZoomOut: (zoom: boolean) => void
 
   // Stats tracking
   kills: number
@@ -318,6 +319,7 @@ const initialState = {
   cornerIslands: [] as IslandData[],
   showcaseUnlocked: false,
   cornersUnlocked: false,
+  gameWon: false,
   rockColliders: [] as RockCollider[],
   coins: [] as CoinData[],
   coinsCollected: 0,
@@ -511,6 +513,24 @@ export const useGameStore = create<GameState>()((set, get) => ({
             get().unlockCorners()
           }
         }
+
+        // Check if a corner island was discovered
+        const { cornerIslands, gameWon } = get()
+        const cornerIsland = cornerIslands.find((i) => i.id === id)
+        if (cornerIsland && !gameWon) {
+          // Count discovered corner islands
+          const discoveredCornerCount = Array.from(newDiscovered).filter(
+            (discoveredId) => cornerIslands.some((i) => i.id === discoveredId),
+          ).length
+
+          // Check if all 4 corners discovered - player wins!
+          if (
+            discoveredCornerCount === cornerIslands.length &&
+            cornerIslands.length === 4
+          ) {
+            set({ gameWon: true })
+          }
+        }
       }
     }
   },
@@ -599,6 +619,8 @@ export const useGameStore = create<GameState>()((set, get) => ({
   toggleMute: () => set((state) => ({ isMuted: !state.isMuted })),
 
   setShowCollisionDebug: (show) => set({ showCollisionDebug: show }),
+  debugZoomOut: false,
+  setDebugZoomOut: (zoom) => set({ debugZoomOut: zoom }),
 
   addKill: () => set((state) => ({ kills: state.kills + 1 })),
   addDeath: () => set((state) => ({ deaths: state.deaths + 1 })),
@@ -816,6 +838,7 @@ export const useGameStore = create<GameState>()((set, get) => ({
       cornerIslands: [], // Clear corner islands
       showcaseUnlocked: false,
       cornersUnlocked: false,
+      gameWon: false,
       rockColliders: get().rockColliders,
       coins: get().coins.map((c) => ({ ...c, collected: false })),
       discoveredIslands: new Set<string>(),
@@ -838,7 +861,7 @@ export const useGameStore = create<GameState>()((set, get) => ({
     } = get()
 
     // World boundary depends on showcase unlock status
-    const worldBoundary = showcaseUnlocked ? 500 : EXPANDED_WORLD_BOUNDARY
+    const worldBoundary = showcaseUnlocked ? 520 : EXPANDED_WORLD_BOUNDARY
 
     set({
       phase: 'playing',
@@ -878,27 +901,20 @@ export const useGameStore = create<GameState>()((set, get) => ({
   },
 }))
 
-// Periodic auto-save (every 5 seconds) instead of on every state change
-setInterval(() => {
-  const state = useGameStore.getState()
-  // Only save if game is active
-  if (state.phase === 'playing' || state.phase === 'gameover') {
-    saveToLocalStorage(extractPersistedState(state))
-  }
-}, 5000)
-
-// Also save when page is about to unload
+// Periodic auto-save and beforeunload handler (client-side only)
 if (typeof window !== 'undefined') {
+  // Auto-save every 5 seconds
+  setInterval(() => {
+    const state = useGameStore.getState()
+    // Only save if game is active
+    if (state.phase === 'playing' || state.phase === 'gameover') {
+      saveToLocalStorage(extractPersistedState(state))
+    }
+  }, 5000)
+
+  // Also save when page is about to unload
   window.addEventListener('beforeunload', () => {
     const state = useGameStore.getState()
-    // Immediate save (bypass debounce)
-    try {
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(extractPersistedState(state)),
-      )
-    } catch {
-      // Ignore
-    }
+    saveToLocalStorage(extractPersistedState(state))
   })
 }

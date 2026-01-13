@@ -80,14 +80,14 @@ const AI_STATS: Record<AIDifficulty, AIStats> = {
   },
 }
 
-// Difficulty distribution for base 6 AI ships (battle stage)
+// Difficulty distribution for base 6 AI ships (battle stage) - easier mix
 const DIFFICULTY_DISTRIBUTION: AIDifficulty[] = [
+  'easy',
+  'easy',
   'easy',
   'medium',
   'medium',
   'hard',
-  'hard',
-  'elite',
 ]
 
 // Difficulty distribution for outer rim AIs (showcase stage) - much tougher
@@ -103,31 +103,34 @@ const OUTER_RIM_DISTRIBUTION: AIDifficulty[] = [
 ]
 
 // Territorial behavior
-// Roam radius: how far AI will patrol from home (larger, near edges)
-const ROAM_RADIUS = 50
+// Roam radius: how far AI will patrol from home
+const ROAM_RADIUS = 35
 // Roam leash: hard limit before AI gets pulled back
-const ROAM_LEASH = 70
+const ROAM_LEASH = 50
 // Pull strength when outside roam radius
-const ROAM_PULL_STRENGTH = 0.3
+const ROAM_PULL_STRENGTH = 0.5
+// Min distance from center (keep AI away from starting area)
+const MIN_CENTER_DISTANCE = 60
 
-// Outer rim AI territorial behavior (much larger)
-const OUTER_RIM_ROAM_RADIUS = 120
-const OUTER_RIM_ROAM_LEASH = 160
+// Outer rim AI territorial behavior (larger but still bounded)
+const OUTER_RIM_ROAM_RADIUS = 80
+const OUTER_RIM_ROAM_LEASH = 120
 
-// Corner boss AI territorial behavior (tiny, tight patrol)
-const CORNER_BOSS_ROAM_RADIUS = 15
-const CORNER_BOSS_ROAM_LEASH = 25
+// Corner boss AI territorial behavior (very tight, protect the island)
+const CORNER_BOSS_ROAM_RADIUS = 8
+const CORNER_BOSS_ROAM_LEASH = 60 // Hard leash - boss MUST return if beyond this
+const BOSS_DEAGGRO_DISTANCE = 50 // Boss gives up chase if player gets this far
 
-// Corner positions (just inside world boundary corners)
+// Corner positions (right at the corners)
 const CORNER_POSITIONS: Array<[number, number]> = [
-  [420, 420], // NE
-  [-420, 420], // NW
-  [-420, -420], // SW
-  [420, -420], // SE
+  [480, 480], // NE
+  [-480, 480], // NW
+  [-480, -480], // SW
+  [480, -480], // SE
 ]
 
 // Combat
-const AI_OPTIMAL_DISTANCE = 18
+const AI_OPTIMAL_DISTANCE = 12 // Distance AI tries to maintain while circling
 const AI_LEAD_FACTOR = 0.5
 
 // Avoidance
@@ -138,7 +141,7 @@ const BOUNDARY_MARGIN = 15
 const BATTLE_WORLD_BOUNDARY = 180
 
 // Export for debug visualization
-export { ROAM_RADIUS, ROAM_LEASH }
+export { ROAM_RADIUS, ROAM_LEASH, OUTER_RIM_ROAM_LEASH, CORNER_BOSS_ROAM_LEASH }
 
 interface AIState {
   homePosition: [number, number]
@@ -187,7 +190,9 @@ function generateAIOpponents(
     const startZ = homeZ + (Math.random() - 0.5) * startOffset
 
     const id = `ai-${startIndex + i}`
-    const difficulty = distribution[i % distribution.length]
+    // Pick random difficulty from distribution
+    const difficulty =
+      distribution[Math.floor(Math.random() * distribution.length)]
     const stats = AI_STATS[difficulty]
     const colors = AI_COLORS_BY_DIFFICULTY[difficulty]
     const color = colors[Math.floor(Math.random() * colors.length)]
@@ -203,6 +208,7 @@ function generateAIOpponents(
       health: stats.health,
       maxHealth: stats.health,
       difficulty,
+      homePosition: [homeX, homeZ],
     })
 
     states.set(id, {
@@ -249,6 +255,7 @@ function generateCornerBosses(startIndex = 0): {
       health: stats.health,
       maxHealth: stats.health,
       difficulty: 'boss',
+      homePosition: [homeX, homeZ],
     })
 
     states.set(id, {
@@ -372,12 +379,14 @@ export class AISystem {
     homePosition: [number, number]
     color: string
     id: string
+    leashRadius: number
   }> {
     const { otherPlayers } = useGameStore.getState()
     const territories: Array<{
       homePosition: [number, number]
       color: string
       id: string
+      leashRadius: number
     }> = []
 
     for (const player of otherPlayers) {
@@ -388,15 +397,12 @@ export class AISystem {
           homePosition: state.homePosition,
           color: player.color,
           id: player.id,
+          leashRadius: state.roamLeash,
         })
       }
     }
 
     return territories
-  }
-
-  getLeashRadius(): number {
-    return ROAM_LEASH
   }
 
   update(delta: number): void {
@@ -467,14 +473,27 @@ export class AISystem {
       const bossTriggered = isBoss && aiState.patrolTimer === -999
       const shouldTriggerBoss = isBoss && distToPlayer < stats.aggroDistance
       if (shouldTriggerBoss && !bossTriggered) {
-        aiState.patrolTimer = -999 // Mark as permanently triggered
+        aiState.patrolTimer = -999 // Mark as triggered
+      }
+
+      // Boss de-aggros if player escapes far enough
+      if (isBoss && bossTriggered && distToPlayer > BOSS_DEAGGRO_DISTANCE) {
+        aiState.patrolTimer = Math.random() * 5 // Reset to patrol mode
       }
 
       const isAggro =
-        bossTriggered || shouldTriggerBoss || distToPlayer < aggroDistance
+        (bossTriggered && distToPlayer <= BOSS_DEAGGRO_DISTANCE) ||
+        shouldTriggerBoss ||
+        distToPlayer < aggroDistance
       const isInAttackRange = distToPlayer < stats.attackDistance
-      const isBeyondLeash = !isBoss && distToHome > aiRoamLeash // Bosses ignore leash
+      // Bosses also have a hard leash - they MUST return if too far from home
+      const isBeyondLeash = distToHome > aiRoamLeash
       const isTooFarFromHome = !isBoss && distToHome > aiRoamRadius && !isAggro
+
+      // Check if AI is too close to center (only for non-outer-rim AIs)
+      const distFromCenter = Math.sqrt(px * px + pz * pz)
+      const isTooCloseToCenter =
+        !aiState.isOuterRim && !isBoss && distFromCenter < MIN_CENTER_DISTANCE
 
       let targetAngle: number
       let speed: number
@@ -482,23 +501,31 @@ export class AISystem {
       if (isBeyondLeash) {
         targetAngle = Math.atan2(dxToHome, dzToHome)
         speed = stats.speed * 1.2
+      } else if (isTooCloseToCenter) {
+        // Push away from center back toward home
+        targetAngle = Math.atan2(dxToHome, dzToHome)
+        speed = stats.speed * 1.1
       } else if (isTooFarFromHome) {
         targetAngle = Math.atan2(dxToHome, dzToHome)
         speed = stats.speed
       } else if (isInAttackRange) {
         const angleToPlayer = Math.atan2(dxToPlayer, dzToPlayer)
 
-        if (distToPlayer < AI_OPTIMAL_DISTANCE - 3) {
+        if (distToPlayer < AI_OPTIMAL_DISTANCE - 2) {
+          // Too close, back off while circling
           targetAngle =
             angleToPlayer + Math.PI + (aiState.circleDirection * Math.PI) / 3
-        } else if (distToPlayer > AI_OPTIMAL_DISTANCE + 3) {
-          targetAngle = angleToPlayer + (aiState.circleDirection * Math.PI) / 4
+        } else if (distToPlayer > AI_OPTIMAL_DISTANCE + 4) {
+          // Too far, approach more directly
+          targetAngle = angleToPlayer + (aiState.circleDirection * Math.PI) / 6
         } else {
-          targetAngle = angleToPlayer + (aiState.circleDirection * Math.PI) / 2
+          // Good distance, circle to get broadside angle
+          targetAngle =
+            angleToPlayer + (aiState.circleDirection * Math.PI) / 2.5
         }
 
         // Bosses circle faster and closer
-        speed = isBoss ? stats.speed * 0.9 : stats.speed * 0.8
+        speed = isBoss ? stats.speed * 0.9 : stats.speed * 0.85
       } else if (isAggro) {
         targetAngle = Math.atan2(dxToPlayer, dzToPlayer)
         // Bosses pursue at full speed

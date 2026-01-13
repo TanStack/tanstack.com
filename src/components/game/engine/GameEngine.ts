@@ -78,6 +78,7 @@ export class GameEngine {
   private islands: Islands
   private oceanRocks: OceanRocks
   private boundaryWalls: BoundaryWalls
+  private directionalLight: THREE.DirectionalLight | null = null
   private aiShips: AIShips
   private cannonballs: Cannonballs
   private aiDebug: AIDebug
@@ -110,8 +111,15 @@ export class GameEngine {
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping
     this.renderer.toneMappingExposure = 1.2
 
+    // PCSS disabled - was causing shader compilation errors
+    // this.setupPCSS()
+
     // Create scene
     this.scene = new THREE.Scene()
+
+    // Add atmospheric fog - matches horizon color for seamless blend
+    // Extended far range so edges of 520-unit world aren't cut off
+    this.scene.fog = new THREE.Fog('#B0E0E6', 200, 800)
 
     // Create camera
     this.camera = new THREE.PerspectiveCamera(
@@ -176,12 +184,21 @@ export class GameEngine {
     this.initializeGameData()
 
     // Add entities to scene
+    // Render order: lower = renders first (back to front for transparency)
     this.scene.add(this.sky.mesh)
+
+    this.ocean.seaFloor.renderOrder = 0 // Sea floor first (deepest)
+    this.scene.add(this.ocean.seaFloor)
+
+    this.islands.group.renderOrder = 1 // Islands above sea floor
+    this.scene.add(this.islands.group)
+
+    this.ocean.mesh.renderOrder = 2 // Water surface on top
     this.scene.add(this.ocean.mesh)
+
     this.scene.add(this.boat.group)
     this.scene.add(this.boat.getWakeMesh())
     this.scene.add(this.coins.group)
-    this.scene.add(this.islands.group)
     this.scene.add(this.oceanRocks.group)
     this.scene.add(this.boundaryWalls.group)
     this.scene.add(this.aiShips.group)
@@ -208,15 +225,18 @@ export class GameEngine {
     const directional = new THREE.DirectionalLight('#FFF5E0', 1.3)
     directional.position.set(50, 100, 50)
     directional.castShadow = true
-    directional.shadow.mapSize.set(2048, 2048)
-    directional.shadow.camera.far = 250
-    directional.shadow.camera.left = -100
-    directional.shadow.camera.right = 100
-    directional.shadow.camera.top = 100
-    directional.shadow.camera.bottom = -100
-    directional.shadow.bias = -0.0001
-    directional.shadow.normalBias = 0.04
+    directional.shadow.mapSize.set(4096, 4096)
+    directional.shadow.camera.far = 150
+    directional.shadow.camera.near = 20
+    directional.shadow.camera.left = -40
+    directional.shadow.camera.right = 40
+    directional.shadow.camera.top = 40
+    directional.shadow.camera.bottom = -40
+    directional.shadow.bias = -0.0003
+    directional.shadow.normalBias = 0.02
     this.scene.add(directional)
+    this.scene.add(directional.target)
+    this.directionalLight = directional
 
     // Fill light
     const fill = new THREE.DirectionalLight('#87CEEB', 0.4)
@@ -226,6 +246,91 @@ export class GameEngine {
     // Hemisphere light
     const hemi = new THREE.HemisphereLight('#87CEEB', '#8B4513', 0.5)
     this.scene.add(hemi)
+  }
+
+  private setupPCSS(): void {
+    // PCSS - Percentage Closer Soft Shadows
+    // Shadows are sharp near caster, soft far from caster
+    const pcssShaderChunk = /* glsl */ `
+      #define LIGHT_WORLD_SIZE 0.05
+      #define LIGHT_FRUSTUM_WIDTH 80.0
+      #define LIGHT_SIZE_UV (LIGHT_WORLD_SIZE / LIGHT_FRUSTUM_WIDTH)
+      #define NEAR_PLANE 20.0
+      #define NUM_SAMPLES 17
+      #define NUM_RINGS 11
+      #define BLOCKER_SEARCH_NUM_SAMPLES NUM_SAMPLES
+
+      vec2 poissonDisk[NUM_SAMPLES];
+
+      void initPoissonSamples(const in vec2 randomSeed) {
+        float ANGLE_STEP = PI2 * float(NUM_RINGS) / float(NUM_SAMPLES);
+        float INV_NUM_SAMPLES = 1.0 / float(NUM_SAMPLES);
+        float angle = rand(randomSeed) * PI2;
+        float radius = INV_NUM_SAMPLES;
+        float radiusStep = radius;
+        for (int i = 0; i < NUM_SAMPLES; i++) {
+          poissonDisk[i] = vec2(cos(angle), sin(angle)) * pow(radius, 0.75);
+          radius += radiusStep;
+          angle += ANGLE_STEP;
+        }
+      }
+
+      float penumbraSize(const in float zReceiver, const in float zBlocker) {
+        return (zReceiver - zBlocker) / zBlocker;
+      }
+
+      float findBlocker(sampler2D shadowMap, const in vec2 uv, const in float zReceiver) {
+        float searchRadius = LIGHT_SIZE_UV * (zReceiver - NEAR_PLANE) / zReceiver;
+        float blockerDepthSum = 0.0;
+        int numBlockers = 0;
+        for (int i = 0; i < BLOCKER_SEARCH_NUM_SAMPLES; i++) {
+          float shadowMapDepth = unpackRGBAToDepth(texture2D(shadowMap, uv + poissonDisk[i] * searchRadius));
+          if (shadowMapDepth < zReceiver) {
+            blockerDepthSum += shadowMapDepth;
+            numBlockers++;
+          }
+        }
+        if (numBlockers == 0) return -1.0;
+        return blockerDepthSum / float(numBlockers);
+      }
+
+      float PCF_Filter(sampler2D shadowMap, vec2 uv, float zReceiver, float filterRadius) {
+        float sum = 0.0;
+        for (int i = 0; i < NUM_SAMPLES; i++) {
+          float depth = unpackRGBAToDepth(texture2D(shadowMap, uv + poissonDisk[i] * filterRadius));
+          if (zReceiver <= depth) sum += 1.0;
+        }
+        for (int i = 0; i < NUM_SAMPLES; i++) {
+          float depth = unpackRGBAToDepth(texture2D(shadowMap, uv + -poissonDisk[i].yx * filterRadius));
+          if (zReceiver <= depth) sum += 1.0;
+        }
+        return sum / (2.0 * float(NUM_SAMPLES));
+      }
+
+      float PCSS(sampler2D shadowMap, vec4 coords) {
+        vec2 uv = coords.xy;
+        float zReceiver = coords.z;
+        initPoissonSamples(uv);
+        float avgBlockerDepth = findBlocker(shadowMap, uv, zReceiver);
+        if (avgBlockerDepth == -1.0) return 1.0;
+        float penumbraRatio = penumbraSize(zReceiver, avgBlockerDepth);
+        float filterRadius = penumbraRatio * LIGHT_SIZE_UV * NEAR_PLANE / zReceiver;
+        return PCF_Filter(shadowMap, uv, zReceiver, filterRadius);
+      }
+    `
+
+    // Override Three.js shadow sampling
+    let shader = THREE.ShaderChunk.shadowmap_pars_fragment
+    shader = shader.replace(
+      '#ifdef USE_SHADOWMAP',
+      '#ifdef USE_SHADOWMAP\n' + pcssShaderChunk,
+    )
+    shader = shader.replace(
+      '#if defined( SHADOWMAP_TYPE_PCF )',
+      `return PCSS(shadowMap, shadowCoord);
+      #if defined( SHADOWMAP_TYPE_PCF_DISABLED )`,
+    )
+    THREE.ShaderChunk.shadowmap_pars_fragment = shader
   }
 
   private initializeGameData(): void {
@@ -429,7 +534,7 @@ export class GameEngine {
           prevShowcaseUnlocked = true
 
           // Expand world boundary for showcase zone
-          state.setWorldBoundary(500)
+          state.setWorldBoundary(520)
 
           // Spawn tough outer rim AIs for the showcase zone
           this.aiSystem.spawn(8, true)
@@ -580,7 +685,8 @@ export class GameEngine {
   private update(delta: number, time: number): void {
     const state = useGameStore.getState()
 
-    // Always update ocean animation
+    // Always update sky and ocean animation
+    this.sky.update(time)
     this.ocean.update(time)
 
     // Only update game systems when playing
@@ -616,6 +722,21 @@ export class GameEngine {
       this.boundaryWalls.update(delta)
       this.aiShips.update(time)
       this.cannonballs.update(delta)
+
+      // Update shadow camera to follow boat for better shadow quality
+      if (this.directionalLight) {
+        this.directionalLight.position.set(
+          boatPosition[0] + 50,
+          100,
+          boatPosition[2] + 50,
+        )
+        this.directionalLight.target.position.set(
+          boatPosition[0],
+          0,
+          boatPosition[2],
+        )
+        this.directionalLight.target.updateMatrixWorld()
+      }
     }
   }
 

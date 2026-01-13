@@ -3,6 +3,7 @@
 
 export const COLORS = {
   ocean: {
+    floor: '#005570', // sea floor deep color
     deep: '#0066CC', // rich deep blue
     mid: '#0088DD', // mid blue
     surface: '#00AAEE', // bright surface blue

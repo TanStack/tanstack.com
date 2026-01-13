@@ -41,7 +41,10 @@ export class Cannonballs {
     this.splashMaterial = new THREE.MeshBasicMaterial({
       color: '#FFFFFF',
       transparent: true,
-      opacity: 0.8,
+      opacity: 0.9,
+      depthWrite: false,
+      fog: false,
+      blending: THREE.AdditiveBlending,
     })
   }
 
@@ -79,10 +82,10 @@ export class Cannonballs {
     const splashGroup = new THREE.Group()
     splashGroup.position.set(...position)
 
-    const splashMesh = new THREE.Mesh(
-      this.splashGeometry,
-      this.splashMaterial.clone(),
-    )
+    const mat = this.splashMaterial.clone()
+    mat.color.setHex(0xffffff) // Ensure white
+    const splashMesh = new THREE.Mesh(this.splashGeometry, mat)
+    splashMesh.renderOrder = 100 // Render on top
     splashGroup.add(splashMesh)
 
     const splash: SplashEffect = {

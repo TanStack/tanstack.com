@@ -9,7 +9,9 @@ const MAX_ISLANDS = 64
 
 export class Ocean {
   mesh: THREE.Mesh
+  seaFloor: THREE.Mesh
   private material: THREE.ShaderMaterial | THREE.MeshStandardMaterial
+  private seaFloorMaterial: THREE.ShaderMaterial
 
   constructor() {
     const geometry = new THREE.PlaneGeometry(
@@ -19,6 +21,55 @@ export class Ocean {
       USE_SIMPLE_OCEAN ? 1 : 400,
     )
     geometry.rotateX(-Math.PI / 2)
+
+    // Create sea floor (depth layer)
+    const seaFloorGeo = new THREE.PlaneGeometry(2000, 2000, 1, 1)
+    seaFloorGeo.rotateX(-Math.PI / 2)
+
+    this.seaFloorMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        uDeepColor: { value: new THREE.Color(COLORS.ocean.floor) },
+        uShallowColor: { value: new THREE.Color(COLORS.ocean.shallow) },
+        uIslandPositions: { value: new Float32Array(MAX_ISLANDS * 2) },
+        uIslandCount: { value: 0 },
+      },
+      vertexShader: `
+        varying vec3 vWorldPos;
+        void main() {
+          vWorldPos = (modelMatrix * vec4(position, 1.0)).xyz;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform vec3 uDeepColor;
+        uniform vec3 uShallowColor;
+        uniform float uIslandPositions[128];
+        uniform int uIslandCount;
+        varying vec3 vWorldPos;
+        
+        void main() {
+          // Calculate proximity to any island
+          float islandProximity = 0.0;
+          for (int i = 0; i < 64; i++) {
+            if (i >= uIslandCount) break;
+            vec2 islandPos = vec2(uIslandPositions[i * 2], uIslandPositions[i * 2 + 1]);
+            float dist = length(vWorldPos.xz - islandPos);
+            float gradientRadius = 15.0;
+            float proximity = 1.0 - clamp(dist / gradientRadius, 0.0, 1.0);
+            proximity = proximity * proximity;
+            islandProximity = max(islandProximity, proximity);
+          }
+          
+          // Blend from deep to shallow near islands
+          vec3 color = mix(uDeepColor, uShallowColor, islandProximity);
+          
+          gl_FragColor = vec4(color, 1.0);
+        }
+      `,
+    })
+
+    this.seaFloor = new THREE.Mesh(seaFloorGeo, this.seaFloorMaterial)
+    this.seaFloor.position.y = -2.5 // Deep below water surface
 
     if (USE_SIMPLE_OCEAN) {
       this.material = new THREE.MeshStandardMaterial({
@@ -141,7 +192,8 @@ export class Ocean {
         }
         
         void main() {
-          float distFromCenter = length(vWorldPos.xz);
+          // Use square distance (Chebyshev) for consistent fog at rectangular boundaries
+          float distFromCenter = max(abs(vWorldPos.x), abs(vWorldPos.z));
           
           // Calculate proximity to any island (for shallow water gradient)
           float islandProximity = 0.0;
@@ -149,16 +201,14 @@ export class Ocean {
             if (i >= uIslandCount) break;
             vec2 islandPos = vec2(uIslandPositions[i * 2], uIslandPositions[i * 2 + 1]);
             float dist = length(vWorldPos.xz - islandPos);
-            // Gradient radius around each island
             float gradientRadius = 40.0;
             float proximity = 1.0 - clamp(dist / gradientRadius, 0.0, 1.0);
-            // Smooth falloff
             proximity = proximity * proximity * (3.0 - 2.0 * proximity);
             islandProximity = max(islandProximity, proximity);
           }
           
-          // Depth factor now considers island proximity
-          float baseDepthFactor = clamp(distFromCenter / 80.0, 0.0, 1.0);
+          // Depth factor considers island proximity (scaled for larger world)
+          float baseDepthFactor = clamp(distFromCenter / 600.0, 0.0, 1.0);
           float depthFactor = baseDepthFactor * (1.0 - islandProximity * 0.8);
           
           float normElev = clamp((vElevation + 0.8) / 1.6, 0.0, 1.0);
@@ -167,7 +217,7 @@ export class Ocean {
           vec3 farColor = mix(uDeepColor, uMidColor, normElev * 0.5);
           vec3 color = mix(nearColor, farColor, depthFactor * 0.7);
           
-          // Extra shallow tint near islands
+          // Shallow tint near islands
           if (islandProximity > 0.0) {
             vec3 shallowTint = mix(uSurfaceColor, uShallowColor, 0.6);
             color = mix(color, shallowTint, islandProximity * 0.5);
@@ -176,6 +226,17 @@ export class Ocean {
           float colorNoise = snoise(vWorldPos.xz * 0.02) * 0.5 + 0.5;
           color = mix(color, color * 0.9, colorNoise * 0.15);
           
+          // Subsurface scattering - static teal glow in shallow/mid areas
+          vec3 sssColor = vec3(0.0, 0.5, 0.4);
+          float sssAmount = (1.0 - depthFactor) * 0.15;
+          color = color + sssColor * sssAmount;
+          
+          // Fresnel effect - subtle sky reflection at edges (based on distance, not normal)
+          float edgeFresnel = pow(depthFactor, 2.0) * 0.2;
+          vec3 skyReflect = vec3(0.53, 0.81, 0.92);
+          color = mix(color, skyReflect, edgeFresnel);
+          
+          // Refraction color shifts
           float refractionNoise1 = snoise(vWorldPos.xz * 0.08 + uTime * 0.12);
           float refractionNoise2 = snoise(vWorldPos.xz * 0.12 - uTime * 0.08);
           vec3 tealTint = vec3(0.1, 0.6, 0.5);
@@ -184,13 +245,15 @@ export class Ocean {
           color = mix(color, mix(color, tealTint, 0.4), refractionAmount * (1.0 - depthFactor));
           color = mix(color, mix(color, blueTint, 0.3), refractionNoise2 * 0.15);
           
+          // Specular highlights
           vec3 lightDir = normalize(vec3(0.5, 0.8, 0.3));
           vec3 viewDir = normalize(vec3(0.0, 1.0, 0.5));
           vec3 halfDir = normalize(lightDir + viewDir);
           float spec = pow(max(dot(vNormal, halfDir), 0.0), 64.0);
-          float shimmer = snoise(vWorldPos.xz * 0.5 + uTime * 0.8) * 0.3 + 0.7;
+          float shimmer = snoise(vWorldPos.xz * 0.5 + uTime * 0.3) * 0.3 + 0.7;
           color += vec3(1.0, 0.98, 0.9) * spec * 0.5 * shimmer;
           
+          // Foam on wave peaks
           float foamNoise = snoise(vWorldPos.xz * 0.3 + uTime * 0.2) * 0.5 + 0.5;
           float foamThreshold = 0.3;
           if (vElevation > foamThreshold) {
@@ -199,6 +262,7 @@ export class Ocean {
             color = mix(color, uFoamColor, foamStrength * 0.5);
           }
           
+          // Caustics
           float caustic1 = snoise(vWorldPos.xz * 0.15 + uTime * 0.15);
           float caustic2 = snoise(vWorldPos.xz * 0.25 - uTime * 0.1 + vec2(50.0, 30.0));
           float caustic3 = snoise(vWorldPos.xz * 0.08 + uTime * 0.05);
@@ -207,10 +271,25 @@ export class Ocean {
           vec3 causticColor = vec3(0.15, 0.55, 0.6);
           color += causticColor * causticPattern * 0.2;
           
-          gl_FragColor = vec4(color, 0.97);
+          // Distance fog - blend to horizon color (extended for larger world)
+          vec3 fogColor = vec3(0.69, 0.88, 0.9); // Matches sky horizon
+          float fogStart = 150.0;
+          float fogEnd = 600.0;
+          float fogFactor = clamp((distFromCenter - fogStart) / (fogEnd - fogStart), 0.0, 1.0);
+          fogFactor = fogFactor * fogFactor; // Quadratic falloff
+          color = mix(color, fogColor, fogFactor * 0.6);
+          
+          // More transparent near islands to show depth/sea floor
+          float baseAlpha = 0.85;
+          float nearIslandAlpha = 0.6; // More see-through near islands
+          float alpha = mix(baseAlpha, nearIslandAlpha, islandProximity * 0.8);
+          alpha = alpha - fogFactor * 0.1;
+          
+          gl_FragColor = vec4(color, alpha);
         }
       `,
       transparent: true,
+      depthWrite: false, // Don't write to depth so things below show through
     })
 
     this.mesh = new THREE.Mesh(geometry, this.material)
@@ -238,11 +317,22 @@ export class Ocean {
     }
 
     this.material.uniforms.uIslandCount.value = count
+
+    // Also update sea floor
+    const seaFloorPosArray = this.seaFloorMaterial.uniforms.uIslandPositions
+      .value as Float32Array
+    for (let i = 0; i < count; i++) {
+      seaFloorPosArray[i * 2] = positions[i][0]
+      seaFloorPosArray[i * 2 + 1] = positions[i][1]
+    }
+    this.seaFloorMaterial.uniforms.uIslandCount.value = count
   }
 
   dispose(): void {
     this.mesh.geometry.dispose()
     this.material.dispose()
+    this.seaFloor.geometry.dispose()
+    this.seaFloorMaterial.dispose()
   }
 }
 

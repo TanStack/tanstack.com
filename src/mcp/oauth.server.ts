@@ -333,28 +333,30 @@ export async function validateOAuthToken(token: string): Promise<AuthResult> {
 
 /**
  * List connected OAuth apps for a user
+ * Uses refresh tokens since they persist longer than access tokens
  */
 export async function listConnectedApps(userId: string): Promise<
   Array<{
     clientId: string
-    scope: string
-    createdAt: Date
-    lastUsedAt: Date | null
+    createdAt: string
+    lastUsedAt: string | null
   }>
 > {
-  // Get unique clients with their most recent token info
+  // Get unique clients from refresh tokens (more persistent than access tokens)
   const result = await db
     .select({
-      clientId: oauthMcpAccessTokens.clientId,
-      scope: oauthMcpAccessTokens.scope,
-      createdAt: sql<Date>`MIN(${oauthMcpAccessTokens.createdAt})`,
-      lastUsedAt: sql<Date | null>`MAX(${oauthMcpAccessTokens.lastUsedAt})`,
+      clientId: oauthMcpRefreshTokens.clientId,
+      createdAt: sql<string>`MIN(${oauthMcpRefreshTokens.createdAt})::text`,
     })
-    .from(oauthMcpAccessTokens)
-    .where(eq(oauthMcpAccessTokens.userId, userId))
-    .groupBy(oauthMcpAccessTokens.clientId, oauthMcpAccessTokens.scope)
+    .from(oauthMcpRefreshTokens)
+    .where(eq(oauthMcpRefreshTokens.userId, userId))
+    .groupBy(oauthMcpRefreshTokens.clientId)
 
-  return result
+  return result.map((r) => ({
+    clientId: r.clientId,
+    createdAt: r.createdAt,
+    lastUsedAt: null,
+  }))
 }
 
 /**

@@ -24,7 +24,7 @@ No API key needed. Your client handles the OAuth flow automatically.
 For clients that don't support OAuth, or if you prefer manual key management:
 
 1. [Sign in to your TanStack account](/login)
-2. Go to [API Keys](/account/api-keys)
+2. Go to [Integrations](/account/integrations)
 3. Click "New Key" and give it a descriptive name
 4. Copy the key immediately (you won't see it again)
 

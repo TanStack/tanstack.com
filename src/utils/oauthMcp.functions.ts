@@ -19,9 +19,8 @@ export const listConnectedApps = createServerFn({ method: 'POST' }).handler(
 
     return apps.map((app) => ({
       clientId: app.clientId,
-      scope: app.scope,
-      createdAt: app.createdAt.toISOString(),
-      lastUsedAt: app.lastUsedAt?.toISOString() ?? null,
+      createdAt: app.createdAt,
+      lastUsedAt: app.lastUsedAt,
     }))
   },
 )

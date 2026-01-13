@@ -80,7 +80,7 @@ function AccountLayout() {
             </Link>
             {canApiKeys && (
               <Link
-                to="/account/api-keys"
+                to="/account/integrations"
                 className="pb-4 px-1 border-b-2 font-medium text-sm transition-colors"
                 activeProps={{
                   className: 'border-blue-600 text-blue-600 dark:text-blue-400',
@@ -90,7 +90,7 @@ function AccountLayout() {
                     'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300',
                 }}
               >
-                API Keys
+                Integrations
               </Link>
             )}
           </nav>

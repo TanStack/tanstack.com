@@ -43,7 +43,7 @@ function McpVersionIndex() {
               Get Started
             </Button>
             {canApiKeys && (
-              <Button as={Link} to="/account/api-keys">
+              <Button as={Link} to="/account/integrations">
                 <Key className="w-3.5 h-3.5" />
                 Get API Key
               </Button>

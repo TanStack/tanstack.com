@@ -26,11 +26,11 @@ import {
   Clock,
   Link2,
 } from 'lucide-react'
-export const Route = createFileRoute('/_libraries/account/api-keys')({
-  component: ApiKeysPage,
+export const Route = createFileRoute('/_libraries/account/integrations')({
+  component: IntegrationsPage,
 })
 
-function ApiKeysPage() {
+function IntegrationsPage() {
   const queryClient = useQueryClient()
   const { notify } = useToast()
   const [isCreating, setIsCreating] = React.useState(false)

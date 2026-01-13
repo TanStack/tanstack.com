@@ -85,8 +85,8 @@ import { Route as LibrariesFeedIdRouteImport } from './routes/_libraries/feed.$i
 import { Route as LibrariesBlogSplatRouteImport } from './routes/_libraries/blog.$'
 import { Route as LibrariesAccountSubmissionsRouteImport } from './routes/_libraries/account/submissions'
 import { Route as LibrariesAccountNotesRouteImport } from './routes/_libraries/account/notes'
+import { Route as LibrariesAccountIntegrationsRouteImport } from './routes/_libraries/account/integrations'
 import { Route as LibrariesAccountFeedbackRouteImport } from './routes/_libraries/account/feedback'
-import { Route as LibrariesAccountApiKeysRouteImport } from './routes/_libraries/account/api-keys'
 import { Route as LibraryIdVersionDocsRouteImport } from './routes/$libraryId/$version.docs'
 import { Route as LibrariesVirtualVersionIndexRouteImport } from './routes/_libraries/virtual.$version.index'
 import { Route as LibrariesTableVersionIndexRouteImport } from './routes/_libraries/table.$version.index'
@@ -496,17 +496,18 @@ const LibrariesAccountNotesRoute = LibrariesAccountNotesRouteImport.update({
   path: '/notes',
   getParentRoute: () => LibrariesAccountRoute,
 } as any)
+const LibrariesAccountIntegrationsRoute =
+  LibrariesAccountIntegrationsRouteImport.update({
+    id: '/integrations',
+    path: '/integrations',
+    getParentRoute: () => LibrariesAccountRoute,
+  } as any)
 const LibrariesAccountFeedbackRoute =
   LibrariesAccountFeedbackRouteImport.update({
     id: '/feedback',
     path: '/feedback',
     getParentRoute: () => LibrariesAccountRoute,
   } as any)
-const LibrariesAccountApiKeysRoute = LibrariesAccountApiKeysRouteImport.update({
-  id: '/api-keys',
-  path: '/api-keys',
-  getParentRoute: () => LibrariesAccountRoute,
-} as any)
 const LibraryIdVersionDocsRoute = LibraryIdVersionDocsRouteImport.update({
   id: '/docs',
   path: '/docs',
@@ -709,8 +710,8 @@ export interface FileRoutesByFullPath {
   '/showcase': typeof ShowcaseIndexRoute
   '/stats': typeof StatsIndexRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsRouteWithChildren
-  '/account/api-keys': typeof LibrariesAccountApiKeysRoute
   '/account/feedback': typeof LibrariesAccountFeedbackRoute
+  '/account/integrations': typeof LibrariesAccountIntegrationsRoute
   '/account/notes': typeof LibrariesAccountNotesRoute
   '/account/submissions': typeof LibrariesAccountSubmissionsRoute
   '/blog/$': typeof LibrariesBlogSplatRoute
@@ -809,8 +810,8 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/showcase': typeof ShowcaseIndexRoute
   '/stats': typeof StatsIndexRoute
-  '/account/api-keys': typeof LibrariesAccountApiKeysRoute
   '/account/feedback': typeof LibrariesAccountFeedbackRoute
+  '/account/integrations': typeof LibrariesAccountIntegrationsRoute
   '/account/notes': typeof LibrariesAccountNotesRoute
   '/account/submissions': typeof LibrariesAccountSubmissionsRoute
   '/blog/$': typeof LibrariesBlogSplatRoute
@@ -916,8 +917,8 @@ export interface FileRoutesById {
   '/showcase/': typeof ShowcaseIndexRoute
   '/stats/': typeof StatsIndexRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsRouteWithChildren
-  '/_libraries/account/api-keys': typeof LibrariesAccountApiKeysRoute
   '/_libraries/account/feedback': typeof LibrariesAccountFeedbackRoute
+  '/_libraries/account/integrations': typeof LibrariesAccountIntegrationsRoute
   '/_libraries/account/notes': typeof LibrariesAccountNotesRoute
   '/_libraries/account/submissions': typeof LibrariesAccountSubmissionsRoute
   '/_libraries/blog/$': typeof LibrariesBlogSplatRoute
@@ -1023,8 +1024,8 @@ export interface FileRouteTypes {
     | '/showcase'
     | '/stats'
     | '/$libraryId/$version/docs'
-    | '/account/api-keys'
     | '/account/feedback'
+    | '/account/integrations'
     | '/account/notes'
     | '/account/submissions'
     | '/blog/$'
@@ -1123,8 +1124,8 @@ export interface FileRouteTypes {
     | '/admin'
     | '/showcase'
     | '/stats'
-    | '/account/api-keys'
     | '/account/feedback'
+    | '/account/integrations'
     | '/account/notes'
     | '/account/submissions'
     | '/blog/$'
@@ -1229,8 +1230,8 @@ export interface FileRouteTypes {
     | '/showcase/'
     | '/stats/'
     | '/$libraryId/$version/docs'
-    | '/_libraries/account/api-keys'
     | '/_libraries/account/feedback'
+    | '/_libraries/account/integrations'
     | '/_libraries/account/notes'
     | '/_libraries/account/submissions'
     | '/_libraries/blog/$'
@@ -1854,18 +1855,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibrariesAccountNotesRouteImport
       parentRoute: typeof LibrariesAccountRoute
     }
+    '/_libraries/account/integrations': {
+      id: '/_libraries/account/integrations'
+      path: '/integrations'
+      fullPath: '/account/integrations'
+      preLoaderRoute: typeof LibrariesAccountIntegrationsRouteImport
+      parentRoute: typeof LibrariesAccountRoute
+    }
     '/_libraries/account/feedback': {
       id: '/_libraries/account/feedback'
       path: '/feedback'
       fullPath: '/account/feedback'
       preLoaderRoute: typeof LibrariesAccountFeedbackRouteImport
-      parentRoute: typeof LibrariesAccountRoute
-    }
-    '/_libraries/account/api-keys': {
-      id: '/_libraries/account/api-keys'
-      path: '/api-keys'
-      fullPath: '/account/api-keys'
-      preLoaderRoute: typeof LibrariesAccountApiKeysRouteImport
       parentRoute: typeof LibrariesAccountRoute
     }
     '/$libraryId/$version/docs': {
@@ -2115,16 +2116,16 @@ const LibraryIdRouteRouteWithChildren = LibraryIdRouteRoute._addFileChildren(
 )
 
 interface LibrariesAccountRouteChildren {
-  LibrariesAccountApiKeysRoute: typeof LibrariesAccountApiKeysRoute
   LibrariesAccountFeedbackRoute: typeof LibrariesAccountFeedbackRoute
+  LibrariesAccountIntegrationsRoute: typeof LibrariesAccountIntegrationsRoute
   LibrariesAccountNotesRoute: typeof LibrariesAccountNotesRoute
   LibrariesAccountSubmissionsRoute: typeof LibrariesAccountSubmissionsRoute
   LibrariesAccountIndexRoute: typeof LibrariesAccountIndexRoute
 }
 
 const LibrariesAccountRouteChildren: LibrariesAccountRouteChildren = {
-  LibrariesAccountApiKeysRoute: LibrariesAccountApiKeysRoute,
   LibrariesAccountFeedbackRoute: LibrariesAccountFeedbackRoute,
+  LibrariesAccountIntegrationsRoute: LibrariesAccountIntegrationsRoute,
   LibrariesAccountNotesRoute: LibrariesAccountNotesRoute,
   LibrariesAccountSubmissionsRoute: LibrariesAccountSubmissionsRoute,
   LibrariesAccountIndexRoute: LibrariesAccountIndexRoute,

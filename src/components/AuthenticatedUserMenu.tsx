@@ -69,9 +69,12 @@ export function AuthenticatedUserMenu({
         </DropdownItem>
         {canApiKeys && (
           <DropdownItem asChild>
-            <Link to="/account/api-keys" className="flex items-center gap-2">
+            <Link
+              to="/account/integrations"
+              className="flex items-center gap-2"
+            >
               <Key className="w-4 h-4" />
-              <span>API Keys</span>
+              <span>Integrations</span>
             </Link>
           </DropdownItem>
         )}

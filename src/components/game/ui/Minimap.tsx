@@ -245,24 +245,25 @@ export function Minimap() {
               )
             })}
 
-          {/* AI ships */}
-          {aiShips.map((ai) => {
-            const pos = worldToMinimap(ai.position[0], ai.position[2])
-            const rotation = -ai.rotation * (180 / Math.PI) + 225
-            return (
-              <g
-                key={ai.id}
-                transform={`translate(${pos.x}, ${pos.y}) rotate(${rotation}) scale(${scale})`}
-              >
-                <polygon
-                  points="0,-4 3,3 0,1.5 -3,3"
-                  fill={ai.color || '#e74c3c'}
-                  stroke="white"
-                  strokeWidth={1}
-                />
-              </g>
-            )
-          })}
+          {/* AI ships (debug only) */}
+          {debugMode &&
+            aiShips.map((ai) => {
+              const pos = worldToMinimap(ai.position[0], ai.position[2])
+              const rotation = -ai.rotation * (180 / Math.PI) + 225
+              return (
+                <g
+                  key={ai.id}
+                  transform={`translate(${pos.x}, ${pos.y}) rotate(${rotation}) scale(${scale})`}
+                >
+                  <polygon
+                    points="0,-4 3,3 0,1.5 -3,3"
+                    fill={ai.color || '#e74c3c'}
+                    stroke="white"
+                    strokeWidth={1}
+                  />
+                </g>
+              )
+            })}
 
           {/* Boat arrow */}
           <g
@@ -278,9 +279,11 @@ export function Minimap() {
         </g>
 
         {/* Debug: show AI count and world boundary */}
-        <text x={5} y={12} fill="yellow" fontSize={8 * scale}>
-          AI: {aiShips.length} | WB: {boatState.worldBoundary}
-        </text>
+        {debugMode && (
+          <text x={5} y={12} fill="yellow" fontSize={8 * scale}>
+            AI: {aiShips.length} | WB: {boatState.worldBoundary}
+          </text>
+        )}
       </svg>
     </div>
   )

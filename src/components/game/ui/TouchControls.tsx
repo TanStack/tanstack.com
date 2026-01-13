@@ -96,6 +96,7 @@ export function TouchControls() {
     }
 
     const onTouchMove = (e: TouchEvent) => {
+      e.preventDefault()
       const touch = e.touches[0]
       handleMove(touch.clientX, touch.clientY)
     }
@@ -105,7 +106,7 @@ export function TouchControls() {
     }
 
     window.addEventListener('touchstart', onTouchStart, { passive: true })
-    window.addEventListener('touchmove', onTouchMove, { passive: true })
+    window.addEventListener('touchmove', onTouchMove, { passive: false })
     window.addEventListener('touchend', onTouchEnd)
     window.addEventListener('touchcancel', onTouchEnd)
 

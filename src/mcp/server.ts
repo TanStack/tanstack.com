@@ -6,6 +6,7 @@ import { doc, docSchema } from './tools/doc'
 import { searchDocs, searchDocsSchema } from './tools/search-docs'
 import { npmStats, npmStatsSchema } from './tools/npm-stats'
 import { ecosystem, ecosystemSchema } from './tools/ecosystem'
+import { env } from '~/utils/env'
 
 export type McpAuthContext = {
   userId: string
@@ -81,7 +82,7 @@ export const ALL_TOOL_NAMES = [
 export type ToolName = (typeof ALL_TOOL_NAMES)[number]
 
 function getEnabledTools(): Set<ToolName> | undefined {
-  const envVar = process.env.TANSTACK_MCP_ENABLED_TOOLS
+  const envVar = env.TANSTACK_MCP_ENABLED_TOOLS
   if (!envVar) return undefined
 
   const validTools = new Set<ToolName>()

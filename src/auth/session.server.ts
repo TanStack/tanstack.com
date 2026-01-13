@@ -244,11 +244,12 @@ export function createOAuthStateCookie(
   state: string,
   isProduction: boolean,
 ): string {
-  return `oauth_state=${encodeURIComponent(state)}; HttpOnly; Path=/; Max-Age=${10 * 60}; SameSite=Lax${isProduction ? '; Secure' : ''}`
+  // Use SameSite=Strict for OAuth state to prevent CSRF during OAuth flow
+  return `oauth_state=${encodeURIComponent(state)}; HttpOnly; Path=/; Max-Age=${10 * 60}; SameSite=Strict${isProduction ? '; Secure' : ''}`
 }
 
 export function clearOAuthStateCookie(isProduction: boolean): string {
-  return `oauth_state=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax${isProduction ? '; Secure' : ''}`
+  return `oauth_state=; HttpOnly; Path=/; Max-Age=0; SameSite=Strict${isProduction ? '; Secure' : ''}`
 }
 
 export function getOAuthStateCookie(request: Request): string | null {

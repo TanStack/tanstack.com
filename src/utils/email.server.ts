@@ -5,11 +5,10 @@ import {
   sendTestNotification,
 } from './discord.server'
 import type { Capability } from '~/db/types'
+import { env } from '~/utils/env'
 
 // Keep Resend configured for future email needs
-const resend = process.env.RESEND_API_KEY
-  ? new Resend(process.env.RESEND_API_KEY)
-  : null
+const resend = env.RESEND_API_KEY ? new Resend(env.RESEND_API_KEY) : null
 
 const FROM_EMAIL = 'TanStack <notifications@tanstack.com>'
 

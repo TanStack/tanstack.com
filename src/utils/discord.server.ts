@@ -1,4 +1,6 @@
-const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL
+import { env } from '~/utils/env'
+
+const DISCORD_WEBHOOK_URL = env.DISCORD_WEBHOOK_URL
 
 type EmbedField = {
   name: string

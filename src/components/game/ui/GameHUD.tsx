@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useGameStore } from '../hooks/useGameStore'
-import { Compass, Map, Coins, ShoppingBag } from 'lucide-react'
+import { Map, Coins, ShoppingBag, Zap } from 'lucide-react'
 
 export function GameHUD() {
   const {
@@ -13,7 +13,7 @@ export function GameHUD() {
     cornerIslands,
     showcaseUnlocked,
     cornersUnlocked,
-    boatRotation,
+
     coinsCollected,
     boatHealth,
     shipStats,
@@ -22,6 +22,7 @@ export function GameHUD() {
     clearLastUnlockedUpgrade,
     openShop,
     setPhase,
+    fireCannon,
   } = useGameStore()
 
   // Cooldown progress (0-1, 1 = ready)
@@ -116,22 +117,6 @@ export function GameHUD() {
 
   if (phase !== 'playing') return null
 
-  // Convert rotation to compass direction
-  const getCompassDirection = (rotation: number) => {
-    // Normalize to 0-360
-    const degrees = ((rotation * 180) / Math.PI + 360) % 360
-
-    if (degrees >= 337.5 || degrees < 22.5) return 'N'
-    if (degrees >= 22.5 && degrees < 67.5) return 'NW'
-    if (degrees >= 67.5 && degrees < 112.5) return 'W'
-    if (degrees >= 112.5 && degrees < 157.5) return 'SW'
-    if (degrees >= 157.5 && degrees < 202.5) return 'S'
-    if (degrees >= 202.5 && degrees < 247.5) return 'SE'
-    if (degrees >= 247.5 && degrees < 292.5) return 'E'
-    if (degrees >= 292.5 && degrees < 337.5) return 'NE'
-    return 'N'
-  }
-
   // lastUnlockedUpgrade is now the full Upgrade object
   const upgradeInfo = lastUnlockedUpgrade
 
@@ -140,7 +125,16 @@ export function GameHUD() {
       {/* Coin hint */}
       {showCoinHint && (
         <div className="absolute top-16 left-1/2 -translate-x-1/2 animate-in fade-in slide-in-from-top-2 duration-300">
-          <div className="bg-black/60 backdrop-blur-sm rounded-xl px-4 py-2 text-center text-white text-sm max-w-xs">
+          <div className="bg-black/60 backdrop-blur-sm rounded-xl px-4 py-2 text-center text-white text-sm max-w-xs relative">
+            <button
+              onClick={() => {
+                setShowCoinHint(false)
+                setCoinHintDismissed(true)
+              }}
+              className="absolute -top-1 -right-1 w-5 h-5 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center text-white/60 hover:text-white transition-colors pointer-events-auto"
+            >
+              ×
+            </button>
             <span className="text-yellow-400 font-medium">Coins</span> make you
             faster and can be spent in the{' '}
             <span className="text-yellow-400 font-medium">shop</span>!
@@ -149,15 +143,7 @@ export function GameHUD() {
       )}
 
       {/* Top bar */}
-      <div className="flex justify-between items-start p-4">
-        {/* Compass */}
-        <div className="pointer-events-auto bg-black/30 backdrop-blur-sm rounded-xl px-4 py-2 flex items-center gap-2 text-white">
-          <Compass className="w-5 h-5" />
-          <span className="font-mono font-bold text-lg w-8">
-            {getCompassDirection(boatRotation)}
-          </span>
-        </div>
-
+      <div className="flex justify-end items-start p-4">
         {/* Coin counter + Shop button */}
         <button
           onClick={openShop}
@@ -169,7 +155,7 @@ export function GameHUD() {
         </button>
 
         {/* Island counter */}
-        <div className="pointer-events-auto bg-black/30 backdrop-blur-sm rounded-xl px-4 py-2 flex items-center gap-2 text-white">
+        <div className="pointer-events-auto bg-black/30 backdrop-blur-sm rounded-xl px-4 py-2 flex items-center gap-2 text-white ml-2">
           <Map className="w-5 h-5" />
           <span className="font-bold">
             {discoveredIslands.size} / {totalIslands}
@@ -182,15 +168,27 @@ export function GameHUD() {
 
       {/* Bottom bar - Battle stage only */}
       {stage === 'battle' && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
+        <div
+          className={`absolute bottom-4 flex flex-col items-center gap-2 ${'max-md:right-4 max-md:left-auto max-md:translate-x-0 left-1/2 -translate-x-1/2'}`}
+        >
+          {/* Touch fire button - only visible on touch devices */}
+          <button
+            onClick={fireCannon}
+            className="md:hidden pointer-events-auto bg-red-500/80 backdrop-blur-sm rounded-full p-4 flex items-center justify-center text-white hover:bg-red-600/80 active:scale-95 transition-all shadow-lg"
+            aria-label="Fire cannons"
+          >
+            <Zap className="w-6 h-6" />
+          </button>
           {/* Health bar */}
           <div
             className={`backdrop-blur-sm rounded-full px-4 py-2 flex items-center gap-3 transition-colors duration-75 ${
               damageFlash ? 'bg-red-500/70' : 'bg-black/40'
-            }`}
+            } max-md:px-3 max-md:py-1.5`}
           >
-            <span className="text-red-400 text-sm font-medium">HP</span>
-            <div className="w-32 h-3 bg-black/50 rounded-full overflow-hidden">
+            <span className="text-red-400 text-sm font-medium max-md:text-xs">
+              HP
+            </span>
+            <div className="w-32 h-3 bg-black/50 rounded-full overflow-hidden max-md:w-20 max-md:h-2">
               <div
                 className="h-full bg-gradient-to-r from-red-600 to-red-400"
                 style={{
@@ -198,15 +196,17 @@ export function GameHUD() {
                 }}
               />
             </div>
-            <span className="text-white text-sm font-mono w-12">
+            <span className="text-white text-sm font-mono w-12 max-md:text-xs max-md:w-10">
               {Math.round(boatHealth)}/{shipStats.maxHealth}
             </span>
           </div>
 
           {/* Cooldown gauge */}
-          <div className="bg-black/40 backdrop-blur-sm rounded-full px-4 py-2 flex items-center gap-3">
-            <span className="text-cyan-400 text-sm font-medium">CANNON</span>
-            <div className="w-24 h-2 bg-black/50 rounded-full overflow-hidden">
+          <div className="bg-black/40 backdrop-blur-sm rounded-full px-4 py-2 flex items-center gap-3 max-md:px-3 max-md:py-1.5">
+            <span className="text-cyan-400 text-sm font-medium max-md:text-xs">
+              CANNON
+            </span>
+            <div className="w-24 h-2 bg-black/50 rounded-full overflow-hidden max-md:w-16 max-md:h-1.5">
               <div
                 className={`h-full transition-all duration-75 ${
                   cooldownProgress >= 1
@@ -216,7 +216,7 @@ export function GameHUD() {
                 style={{ width: `${cooldownProgress * 100}%` }}
               />
             </div>
-            <span className="text-white/60 text-xs w-12">
+            <span className="text-white/60 text-xs w-12 max-md:text-[10px] max-md:w-10">
               {cooldownProgress >= 1 ? 'READY' : 'LOADING'}
             </span>
           </div>

@@ -10,8 +10,13 @@ export const Route = createFileRoute('/oauth/token')({
   server: {
     handlers: {
       POST: async ({ request }: { request: Request }) => {
-        // Set CORS headers for all responses
-        setResponseHeader('Access-Control-Allow-Origin', '*')
+        // CORS: Allow any origin for OAuth token endpoint
+        // This is secure because:
+        // 1. PKCE (code_verifier) is required - attacker cannot forge this
+        // 2. Authorization code is one-time use and short-lived
+        // 3. No cookies are used - tokens are returned in response body
+        const origin = request.headers.get('Origin')
+        setResponseHeader('Access-Control-Allow-Origin', origin || '*')
         setResponseHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
         setResponseHeader(
           'Access-Control-Allow-Headers',
@@ -135,11 +140,12 @@ export const Route = createFileRoute('/oauth/token')({
           { status: 400 },
         )
       },
-      OPTIONS: async () => {
+      OPTIONS: async ({ request }: { request: Request }) => {
+        const origin = request.headers.get('Origin')
         return new Response(null, {
           status: 204,
           headers: {
-            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Origin': origin || '*',
             'Access-Control-Allow-Methods': 'POST, OPTIONS',
             'Access-Control-Allow-Headers': 'Content-Type, Authorization',
           },

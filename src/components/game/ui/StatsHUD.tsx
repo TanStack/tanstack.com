@@ -91,7 +91,7 @@ export function StatsHUD() {
         : '-'
 
   return (
-    <div className="absolute top-16 right-4 z-10 pointer-events-auto">
+    <div className="absolute top-16 right-4 z-10 pointer-events-auto hidden md:block">
       <div className="bg-black/40 backdrop-blur-sm rounded-lg px-4 py-3 text-xs text-white min-w-[150px] border border-white/5">
         {/* Speed */}
         <div className="space-y-1 mb-2">

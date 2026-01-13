@@ -11,6 +11,11 @@ const serverEnvSchema = v.object({
   SITE_URL: v.optional(v.string()), // Base URL for OAuth redirects (e.g., https://tanstack.com or http://localhost:3000)
   DATABASE_URL: v.optional(v.string()),
   SESSION_SECRET: v.optional(v.string()), // Secret key for signing session cookies (required in production)
+  DISCORD_WEBHOOK_URL: v.optional(v.string()),
+  RESEND_API_KEY: v.optional(v.string()),
+  POSTHOG_API_KEY: v.optional(v.string()),
+  SENTRY_DSN: v.optional(v.string()),
+  TANSTACK_MCP_ENABLED_TOOLS: v.optional(v.string()),
 })
 
 const clientEnvSchema = v.object({

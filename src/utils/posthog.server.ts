@@ -1,10 +1,11 @@
 import { PostHog } from 'posthog-node'
+import { env } from '~/utils/env'
 
 let posthogClient: PostHog | null = null
 
 function getPostHogClient(): PostHog | null {
   if (!posthogClient) {
-    const apiKey = process.env.POSTHOG_API_KEY
+    const apiKey = env.POSTHOG_API_KEY
     if (!apiKey) {
       return null
     }

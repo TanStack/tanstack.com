@@ -300,11 +300,9 @@ export const searchFeedEntries = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => {
     const limit = data.limit ?? 20
 
-    // Use PostgreSQL full-text search
-    const searchQuery = data.search
-      .split(/\s+/)
-      .map((term) => `'${term.replace(/'/g, "''")}'`)
-      .join(' & ')
+    // Use PostgreSQL full-text search with plainto_tsquery for safe input handling
+    // plainto_tsquery automatically handles special characters and escaping
+    const searchInput = data.search.trim()
 
     const entries = await db
       .select()
@@ -312,7 +310,7 @@ export const searchFeedEntries = createServerFn({ method: 'POST' })
       .where(
         and(
           eq(feedEntries.showInFeed, true),
-          sql`to_tsvector('english', ${feedEntries.title} || ' ' || ${feedEntries.content} || ' ' || COALESCE(${feedEntries.excerpt}, '')) @@ to_tsquery('english', ${searchQuery})`,
+          sql`to_tsvector('english', ${feedEntries.title} || ' ' || ${feedEntries.content} || ' ' || COALESCE(${feedEntries.excerpt}, '')) @@ plainto_tsquery('english', ${searchInput})`,
         ),
       )
       .limit(limit)
@@ -568,7 +566,9 @@ export const setFeedConfig = createServerFn({ method: 'POST' })
     }),
   )
   .handler(async ({ data }) => {
-    // No admin check - config can be set by sync actions
+    // Require admin capability for modifying feed configuration
+    await requireAdmin()
+
     const existing = await db.query.feedConfig.findFirst({
       where: eq(feedConfig.key, data.key),
     })

@@ -12,8 +12,14 @@ export const Route = createFileRoute('/oauth/register')({
   server: {
     handlers: {
       POST: async ({ request }: { request: Request }) => {
+        // CORS: Allow any origin for OAuth client registration
+        // This is secure because:
+        // 1. Registration only generates deterministic client IDs
+        // 2. No secrets are issued (PKCE public clients)
+        // 3. Redirect URIs are validated for localhost or HTTPS
+        const origin = request.headers.get('Origin')
         setResponseHeader('Content-Type', 'application/json')
-        setResponseHeader('Access-Control-Allow-Origin', '*')
+        setResponseHeader('Access-Control-Allow-Origin', origin || '*')
         setResponseHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
         setResponseHeader(
           'Access-Control-Allow-Headers',
@@ -85,11 +91,12 @@ export const Route = createFileRoute('/oauth/register')({
           )
         }
       },
-      OPTIONS: async () => {
+      OPTIONS: async ({ request }: { request: Request }) => {
+        const origin = request.headers.get('Origin')
         return new Response(null, {
           status: 204,
           headers: {
-            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Origin': origin || '*',
             'Access-Control-Allow-Methods': 'POST, OPTIONS',
             'Access-Control-Allow-Headers': 'Content-Type, Authorization',
           },

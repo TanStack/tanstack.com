@@ -107,15 +107,11 @@ export const listUsers = createServerFn({ method: 'POST' })
       data.capabilityFilter.length > 0 &&
       !useEffectiveCapabilities
     ) {
-      // Use PostgreSQL array overlap operator (&&)
-      // Check if user's capabilities array overlaps with filter array
-      // Format: ARRAY['admin', 'feed']::capability[]
-      const filterArrayValues = data.capabilityFilter
-        .map((c) => `'${c}'`)
-        .join(',')
+      // Use PostgreSQL array overlap operator (&&) with parameterized values
       conditions.push(
-        sql`${users.capabilities} && ARRAY[${sql.raw(
-          filterArrayValues,
+        sql`${users.capabilities} && ARRAY[${sql.join(
+          data.capabilityFilter.map((c) => sql`${c}`),
+          sql`, `,
         )}]::capability[]`,
       )
     }
@@ -583,12 +579,21 @@ export const bulkUpdateUserCapabilities = createServerFn({ method: 'POST' })
 export const revokeUserSessions = createServerFn({ method: 'POST' })
   .inputValidator(
     v.object({
-      userId: v.string(),
+      userId: v.pipe(v.string(), v.uuid()),
     }),
   )
   .handler(async ({ data: { userId } }) => {
-    // Get current user for audit log
+    // Get current user for audit log and authorization check
     const currentUser = await getAuthenticatedUser()
+
+    // Authorization: users can only revoke their own sessions, unless they're admin
+    const isAdmin = currentUser.capabilities.includes('admin')
+    const isOwnSession = currentUser.userId === userId
+    if (!isAdmin && !isOwnSession) {
+      throw new Error(
+        'Unauthorized: You can only revoke your own sessions unless you are an admin',
+      )
+    }
 
     const user = await db.query.users.findFirst({
       where: eq(users.id, userId),

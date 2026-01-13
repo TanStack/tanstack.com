@@ -1,7 +1,7 @@
 import * as React from 'react'
 import {
   createFileRoute,
-  getRouteApi,
+  useMatch,
   redirect,
   Link,
 } from '@tanstack/react-router'
@@ -11,8 +11,6 @@ import type { LibraryId } from '~/libraries'
 import { seo } from '~/utils/seo'
 import { ossStatsQuery } from '~/queries/stats'
 import { Button } from '~/components/Button'
-
-const versionRouteApi = getRouteApi('/$libraryId/$version')
 
 // Lazy-loaded landing components for each library
 const landingComponents: Partial<
@@ -68,7 +66,8 @@ export const Route = createFileRoute('/$libraryId/$version/')({
 function LibraryVersionIndex() {
   const { libraryId, version } = Route.useParams()
   const library = getLibrary(libraryId)
-  const { config } = versionRouteApi.useLoaderData()
+  const versionMatch = useMatch({ from: '/$libraryId/$version' })
+  const { config } = versionMatch.loaderData
 
   const LandingComponent = landingComponents[libraryId as LibraryId]
 

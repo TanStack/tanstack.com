@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { ClientOnly, createFileRoute, Link } from '@tanstack/react-router'
 
 import { Footer } from '~/components/Footer'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
@@ -133,30 +133,32 @@ function Index() {
             xl:[--ship-x:80px] xl:[--ship-y:2.5rem]
             2xl:[--ship-x:90px] 2xl:[--ship-y:3rem]"
             >
-              {/* Ship behind splash */}
-              <div className="absolute left-1/3 bottom-[25%] z-0 animate-ship-peek">
-                <NetlifyImage
-                  src="/images/ship.png"
-                  alt=""
-                  width={80}
-                  height={80}
-                  className="w-16 xl:w-20"
-                />
-              </div>
-              {/* Invisible clickable ship in front */}
-              <Link
-                to="/explore"
-                className="absolute left-1/3 bottom-[25%] z-20 animate-ship-peek-clickable"
-                title="Explore TanStack"
-              >
-                <NetlifyImage
-                  src="/images/ship.png"
-                  alt="Explore TanStack"
-                  width={80}
-                  height={80}
-                  className="w-16 xl:w-20 opacity-0"
-                />
-              </Link>
+              <ClientOnly>
+                {/* Ship behind splash */}
+                <div className="absolute left-1/3 bottom-[25%] z-0 animate-ship-peek">
+                  <NetlifyImage
+                    src="/images/ship.png"
+                    alt=""
+                    width={80}
+                    height={80}
+                    className="w-16 xl:w-20"
+                  />
+                </div>
+                {/* Invisible clickable ship in front */}
+                <Link
+                  to="/explore"
+                  className="absolute left-1/3 bottom-[25%] z-20 animate-ship-peek-clickable"
+                  title="Explore TanStack"
+                >
+                  <NetlifyImage
+                    src="/images/ship.png"
+                    alt="Explore TanStack"
+                    width={80}
+                    height={80}
+                    className="w-16 xl:w-20 opacity-0"
+                  />
+                </Link>
+              </ClientOnly>
               <BrandContextMenu className="cursor-pointer relative z-10">
                 <NetlifyImage
                   src="/images/logos/splash-light.png"

@@ -1,9 +1,7 @@
-import { Outlet, createFileRoute, getRouteApi } from '@tanstack/react-router'
+import { Outlet, createFileRoute, useMatch } from '@tanstack/react-router'
 import { DocsLayout } from '~/components/DocsLayout'
 import { getLibrary } from '~/libraries'
 import { seo } from '~/utils/seo'
-
-const versionRouteApi = getRouteApi('/$libraryId/$version')
 
 export const Route = createFileRoute('/$libraryId/$version/docs')({
   head: (ctx) => {
@@ -29,7 +27,8 @@ export const Route = createFileRoute('/$libraryId/$version/docs')({
 function DocsRoute() {
   const { libraryId, version } = Route.useParams()
   const library = getLibrary(libraryId)
-  const { config } = versionRouteApi.useLoaderData()
+  const versionMatch = useMatch({ from: '/$libraryId/$version' })
+  const { config } = versionMatch.loaderData
 
   return (
     <DocsLayout

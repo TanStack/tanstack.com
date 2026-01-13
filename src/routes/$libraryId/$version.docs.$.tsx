@@ -7,11 +7,9 @@ import {
   notFound,
   createFileRoute,
   useLocation,
-  getRouteApi,
+  useMatch,
   isNotFound,
 } from '@tanstack/react-router'
-
-const docsRouteApi = getRouteApi('/$libraryId/$version/docs')
 
 export const Route = createFileRoute('/$libraryId/$version/docs/$')({
   staleTime: 1000 * 60 * 5,
@@ -87,7 +85,8 @@ export const Route = createFileRoute('/$libraryId/$version/docs/$')({
 function Docs() {
   const { version, libraryId, _splat } = Route.useParams()
   const { title, content, filePath } = Route.useLoaderData()
-  const { config } = docsRouteApi.useLoaderData()
+  const versionMatch = useMatch({ from: '/$libraryId/$version' })
+  const { config } = versionMatch.loaderData
   const library = getLibrary(libraryId)
   const branch = getBranch(library, version)
   const location = useLocation()

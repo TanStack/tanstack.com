@@ -26,6 +26,9 @@ import { Route as LibrariesIndexRouteImport } from './routes/_libraries/index'
 import { Route as LibraryIdIndexRouteImport } from './routes/$libraryId/index'
 import { Route as ShowcaseSubmitRouteImport } from './routes/showcase/submit'
 import { Route as ShowcaseIdRouteImport } from './routes/showcase/$id'
+import { Route as OauthTokenRouteImport } from './routes/oauth/token'
+import { Route as OauthRegisterRouteImport } from './routes/oauth/register'
+import { Route as OauthAuthorizeRouteImport } from './routes/oauth/authorize'
 import { Route as AuthSignoutRouteImport } from './routes/auth/signout'
 import { Route as AuthPopupSuccessRouteImport } from './routes/auth/popup-success'
 import { Route as ApiUploadthingRouteImport } from './routes/api/uploadthing'
@@ -52,6 +55,7 @@ import { Route as LibrariesBrandGuideRouteImport } from './routes/_libraries/bra
 import { Route as LibrariesBlogRouteImport } from './routes/_libraries/blog'
 import { Route as LibrariesAdsRouteImport } from './routes/_libraries/ads'
 import { Route as LibrariesAccountRouteImport } from './routes/_libraries/account'
+import { Route as DotwellKnownOauthAuthorizationServerRouteImport } from './routes/[.]well-known/oauth-authorization-server'
 import { Route as LibraryIdVersionRouteImport } from './routes/$libraryId/$version'
 import { Route as StatsNpmIndexRouteImport } from './routes/stats/npm/index'
 import { Route as ApiMcpIndexRouteImport } from './routes/api/mcp/index'
@@ -194,6 +198,21 @@ const ShowcaseIdRoute = ShowcaseIdRouteImport.update({
   path: '/showcase/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OauthTokenRoute = OauthTokenRouteImport.update({
+  id: '/oauth/token',
+  path: '/oauth/token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OauthRegisterRoute = OauthRegisterRouteImport.update({
+  id: '/oauth/register',
+  path: '/oauth/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OauthAuthorizeRoute = OauthAuthorizeRouteImport.update({
+  id: '/oauth/authorize',
+  path: '/oauth/authorize',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthSignoutRoute = AuthSignoutRouteImport.update({
   id: '/auth/signout',
   path: '/auth/signout',
@@ -325,6 +344,12 @@ const LibrariesAccountRoute = LibrariesAccountRouteImport.update({
   path: '/account',
   getParentRoute: () => LibrariesRouteRoute,
 } as any)
+const DotwellKnownOauthAuthorizationServerRoute =
+  DotwellKnownOauthAuthorizationServerRouteImport.update({
+    id: '/.well-known/oauth-authorization-server',
+    path: '/.well-known/oauth-authorization-server',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const LibraryIdVersionRoute = LibraryIdVersionRouteImport.update({
   id: '/$version',
   path: '/$version',
@@ -646,6 +671,7 @@ export interface FileRoutesByFullPath {
   '/rss.xml': typeof RssDotxmlRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
+  '/.well-known/oauth-authorization-server': typeof DotwellKnownOauthAuthorizationServerRoute
   '/account': typeof LibrariesAccountRouteWithChildren
   '/ads': typeof LibrariesAdsRoute
   '/blog': typeof LibrariesBlogRouteWithChildren
@@ -672,6 +698,9 @@ export interface FileRoutesByFullPath {
   '/api/uploadthing': typeof ApiUploadthingRoute
   '/auth/popup-success': typeof AuthPopupSuccessRoute
   '/auth/signout': typeof AuthSignoutRoute
+  '/oauth/authorize': typeof OauthAuthorizeRoute
+  '/oauth/register': typeof OauthRegisterRoute
+  '/oauth/token': typeof OauthTokenRoute
   '/showcase/$id': typeof ShowcaseIdRoute
   '/showcase/submit': typeof ShowcaseSubmitRoute
   '/$libraryId/': typeof LibraryIdIndexRoute
@@ -745,6 +774,7 @@ export interface FileRoutesByTo {
   '/rss.xml': typeof RssDotxmlRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
+  '/.well-known/oauth-authorization-server': typeof DotwellKnownOauthAuthorizationServerRoute
   '/ads': typeof LibrariesAdsRoute
   '/brand-guide': typeof LibrariesBrandGuideRoute
   '/dashboard': typeof LibrariesDashboardRoute
@@ -769,6 +799,9 @@ export interface FileRoutesByTo {
   '/api/uploadthing': typeof ApiUploadthingRoute
   '/auth/popup-success': typeof AuthPopupSuccessRoute
   '/auth/signout': typeof AuthSignoutRoute
+  '/oauth/authorize': typeof OauthAuthorizeRoute
+  '/oauth/register': typeof OauthRegisterRoute
+  '/oauth/token': typeof OauthTokenRoute
   '/showcase/$id': typeof ShowcaseIdRoute
   '/showcase/submit': typeof ShowcaseSubmitRoute
   '/$libraryId': typeof LibraryIdIndexRoute
@@ -845,6 +878,7 @@ export interface FileRoutesById {
   '/rss.xml': typeof RssDotxmlRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
+  '/.well-known/oauth-authorization-server': typeof DotwellKnownOauthAuthorizationServerRoute
   '/_libraries/account': typeof LibrariesAccountRouteWithChildren
   '/_libraries/ads': typeof LibrariesAdsRoute
   '/_libraries/blog': typeof LibrariesBlogRouteWithChildren
@@ -871,6 +905,9 @@ export interface FileRoutesById {
   '/api/uploadthing': typeof ApiUploadthingRoute
   '/auth/popup-success': typeof AuthPopupSuccessRoute
   '/auth/signout': typeof AuthSignoutRoute
+  '/oauth/authorize': typeof OauthAuthorizeRoute
+  '/oauth/register': typeof OauthRegisterRoute
+  '/oauth/token': typeof OauthTokenRoute
   '/showcase/$id': typeof ShowcaseIdRoute
   '/showcase/submit': typeof ShowcaseSubmitRoute
   '/$libraryId/': typeof LibraryIdIndexRoute
@@ -948,6 +985,7 @@ export interface FileRouteTypes {
     | '/rss.xml'
     | '/sponsors-embed'
     | '/$libraryId/$version'
+    | '/.well-known/oauth-authorization-server'
     | '/account'
     | '/ads'
     | '/blog'
@@ -974,6 +1012,9 @@ export interface FileRouteTypes {
     | '/api/uploadthing'
     | '/auth/popup-success'
     | '/auth/signout'
+    | '/oauth/authorize'
+    | '/oauth/register'
+    | '/oauth/token'
     | '/showcase/$id'
     | '/showcase/submit'
     | '/$libraryId/'
@@ -1047,6 +1088,7 @@ export interface FileRouteTypes {
     | '/rss.xml'
     | '/sponsors-embed'
     | '/$libraryId/$version'
+    | '/.well-known/oauth-authorization-server'
     | '/ads'
     | '/brand-guide'
     | '/dashboard'
@@ -1071,6 +1113,9 @@ export interface FileRouteTypes {
     | '/api/uploadthing'
     | '/auth/popup-success'
     | '/auth/signout'
+    | '/oauth/authorize'
+    | '/oauth/register'
+    | '/oauth/token'
     | '/showcase/$id'
     | '/showcase/submit'
     | '/$libraryId'
@@ -1146,6 +1191,7 @@ export interface FileRouteTypes {
     | '/rss.xml'
     | '/sponsors-embed'
     | '/$libraryId/$version'
+    | '/.well-known/oauth-authorization-server'
     | '/_libraries/account'
     | '/_libraries/ads'
     | '/_libraries/blog'
@@ -1172,6 +1218,9 @@ export interface FileRouteTypes {
     | '/api/uploadthing'
     | '/auth/popup-success'
     | '/auth/signout'
+    | '/oauth/authorize'
+    | '/oauth/register'
+    | '/oauth/token'
     | '/showcase/$id'
     | '/showcase/submit'
     | '/$libraryId/'
@@ -1248,9 +1297,13 @@ export interface RootRouteChildren {
   PartnersEmbedRoute: typeof PartnersEmbedRoute
   RssDotxmlRoute: typeof RssDotxmlRoute
   SponsorsEmbedRoute: typeof SponsorsEmbedRoute
+  DotwellKnownOauthAuthorizationServerRoute: typeof DotwellKnownOauthAuthorizationServerRoute
   ApiUploadthingRoute: typeof ApiUploadthingRoute
   AuthPopupSuccessRoute: typeof AuthPopupSuccessRoute
   AuthSignoutRoute: typeof AuthSignoutRoute
+  OauthAuthorizeRoute: typeof OauthAuthorizeRoute
+  OauthRegisterRoute: typeof OauthRegisterRoute
+  OauthTokenRoute: typeof OauthTokenRoute
   ShowcaseIdRoute: typeof ShowcaseIdRoute
   ShowcaseSubmitRoute: typeof ShowcaseSubmitRoute
   ShowcaseIndexRoute: typeof ShowcaseIndexRoute
@@ -1386,6 +1439,27 @@ declare module '@tanstack/react-router' {
       path: '/showcase/$id'
       fullPath: '/showcase/$id'
       preLoaderRoute: typeof ShowcaseIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/oauth/token': {
+      id: '/oauth/token'
+      path: '/oauth/token'
+      fullPath: '/oauth/token'
+      preLoaderRoute: typeof OauthTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/oauth/register': {
+      id: '/oauth/register'
+      path: '/oauth/register'
+      fullPath: '/oauth/register'
+      preLoaderRoute: typeof OauthRegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/oauth/authorize': {
+      id: '/oauth/authorize'
+      path: '/oauth/authorize'
+      fullPath: '/oauth/authorize'
+      preLoaderRoute: typeof OauthAuthorizeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/signout': {
@@ -1569,6 +1643,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/account'
       preLoaderRoute: typeof LibrariesAccountRouteImport
       parentRoute: typeof LibrariesRouteRoute
+    }
+    '/.well-known/oauth-authorization-server': {
+      id: '/.well-known/oauth-authorization-server'
+      path: '/.well-known/oauth-authorization-server'
+      fullPath: '/.well-known/oauth-authorization-server'
+      preLoaderRoute: typeof DotwellKnownOauthAuthorizationServerRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/$libraryId/$version': {
       id: '/$libraryId/$version'
@@ -2213,9 +2294,14 @@ const rootRouteChildren: RootRouteChildren = {
   PartnersEmbedRoute: PartnersEmbedRoute,
   RssDotxmlRoute: RssDotxmlRoute,
   SponsorsEmbedRoute: SponsorsEmbedRoute,
+  DotwellKnownOauthAuthorizationServerRoute:
+    DotwellKnownOauthAuthorizationServerRoute,
   ApiUploadthingRoute: ApiUploadthingRoute,
   AuthPopupSuccessRoute: AuthPopupSuccessRoute,
   AuthSignoutRoute: AuthSignoutRoute,
+  OauthAuthorizeRoute: OauthAuthorizeRoute,
+  OauthRegisterRoute: OauthRegisterRoute,
+  OauthTokenRoute: OauthTokenRoute,
   ShowcaseIdRoute: ShowcaseIdRoute,
   ShowcaseSubmitRoute: ShowcaseSubmitRoute,
   ShowcaseIndexRoute: ShowcaseIndexRoute,

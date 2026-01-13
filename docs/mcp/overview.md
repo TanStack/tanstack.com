@@ -15,18 +15,13 @@ AI assistants are trained on snapshots of documentation that become stale over t
 
 ## Quick Start
 
-Copy and paste the following instructions to your AI agent:
-
-> [!NOTE]
-> Replace `YOUR_API_KEY` with an API key from [tanstack.com/account/api-keys](/account/api-keys)
+Most MCP clients support OAuth authentication. Just add the server URL:
 
 ```
-Connect to the TanStack MCP server with these settings:
-
-URL: https://tanstack.com/api/mcp
-Transport: Streamable HTTP
-Authorization Header: Bearer YOUR_API_KEY
+https://tanstack.com/api/mcp
 ```
+
+Your client will open a browser window to authorize access on first use. No API key needed.
 
 See [Connecting](./connecting) for client-specific setup instructions.
 

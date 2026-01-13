@@ -1,6 +1,7 @@
 import { db } from '~/db/client'
-import { mcpApiKeys, mcpRateLimits, users } from '~/db/schema'
+import { mcpApiKeys, mcpRateLimits } from '~/db/schema'
 import { eq, sql } from 'drizzle-orm'
+import { validateOAuthToken } from './oauth.server'
 
 export type AuthResult =
   | { success: true; keyId: string; userId: string; rateLimitPerMinute: number }
@@ -39,10 +40,10 @@ export async function generateApiKey(): Promise<{
 }
 
 /**
- * Validate an API key from the Authorization header
- * Also checks that the user has the 'mcp' capability
+ * Validate MCP authentication from the Authorization header
+ * Supports both API keys (ts_...) and OAuth tokens (mcp_...)
  */
-export async function validateApiKey(
+export async function validateMcpAuth(
   authHeader: string | null,
 ): Promise<AuthResult> {
   if (!authHeader) {
@@ -62,10 +63,23 @@ export async function validateApiKey(
     }
   }
 
-  const rawKey = match[1]
+  const rawToken = match[1]
+
+  // OAuth access token: mcp_...
+  if (rawToken.startsWith('mcp_')) {
+    return validateOAuthToken(rawToken)
+  }
+
+  // API key: ts_... (or legacy keys without prefix)
+  return validateApiKey(rawToken)
+}
+
+/**
+ * Validate an API key
+ */
+async function validateApiKey(rawKey: string): Promise<AuthResult> {
   const keyHash = await hashApiKey(rawKey)
 
-  // Query API key with user to check capabilities
   const result = await db
     .select({
       id: mcpApiKeys.id,
@@ -73,10 +87,8 @@ export async function validateApiKey(
       expiresAt: mcpApiKeys.expiresAt,
       rateLimitPerMinute: mcpApiKeys.rateLimitPerMinute,
       userId: mcpApiKeys.userId,
-      userCapabilities: users.capabilities,
     })
     .from(mcpApiKeys)
-    .leftJoin(users, eq(mcpApiKeys.userId, users.id))
     .where(eq(mcpApiKeys.keyHash, keyHash))
     .limit(1)
 
@@ -111,16 +123,6 @@ export async function validateApiKey(
       success: false,
       error: 'API key has expired',
       status: 401,
-    }
-  }
-
-  // Check that user has 'mcp' capability or is admin
-  const capabilities = apiKey.userCapabilities ?? []
-  if (!capabilities.includes('mcp') && !capabilities.includes('admin')) {
-    return {
-      success: false,
-      error: 'User does not have MCP access',
-      status: 403,
     }
   }
 

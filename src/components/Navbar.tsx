@@ -196,7 +196,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     (ADMIN_ACCESS_CAPABILITIES as readonly string[]).includes(cap),
   )
 
-  const canApiKeys = hasCapability(capabilities, 'api-keys')
+  const canApiKeys = !!user // Any logged-in user can access API keys
 
   const containerRef = React.useRef<HTMLDivElement>(null)
 

@@ -3,11 +3,25 @@ id: connecting
 title: Connecting
 ---
 
-The TanStack MCP Server is available at `https://tanstack.com/api/mcp` and uses the Streamable HTTP transport. Authentication via API key is required.
+The TanStack MCP Server is available at `https://tanstack.com/api/mcp` and uses the Streamable HTTP transport.
 
-## Getting an API Key
+## Authentication Options
 
-Before connecting, you'll need to create an API key:
+There are two ways to authenticate with the TanStack MCP server:
+
+### OAuth (Recommended)
+
+MCP clients that support OAuth can authenticate automatically. Just use the server URL and your client will open a browser window to authorize access:
+
+```
+https://tanstack.com/api/mcp
+```
+
+No API key needed. Your client handles the OAuth flow automatically.
+
+### API Keys
+
+For clients that don't support OAuth, or if you prefer manual key management:
 
 1. [Sign in to your TanStack account](/login)
 2. Go to [API Keys](/account/api-keys)
@@ -17,9 +31,154 @@ Before connecting, you'll need to create an API key:
 > [!NOTE]
 > Replace `YOUR_API_KEY` in the examples below with your actual API key.
 
+## Claude Desktop
+
+Claude Desktop supports OAuth authentication. Add to your config:
+
+**macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+**Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "tanstack": {
+      "url": "https://tanstack.com/api/mcp"
+    }
+  }
+}
+```
+
+Restart Claude Desktop. On first use, a browser window will open to authorize access.
+
+<details>
+<summary>Using an API key instead</summary>
+
+```json
+{
+  "mcpServers": {
+    "tanstack": {
+      "command": "npx",
+      "args": ["mcp-remote", "https://tanstack.com/api/mcp"],
+      "env": {
+        "MCP_HEADERS": "Authorization: Bearer YOUR_API_KEY"
+      }
+    }
+  }
+}
+```
+
+</details>
+
+## Claude Code
+
+```bash
+claude mcp add tanstack https://tanstack.com/api/mcp
+```
+
+On first use, a browser window will open to authorize access.
+
+<details>
+<summary>Using an API key instead</summary>
+
+```bash
+claude mcp add --transport http tanstack https://tanstack.com/api/mcp --header "Authorization: Bearer YOUR_API_KEY"
+```
+
+</details>
+
+## Cursor
+
+Add to your Cursor MCP configuration:
+
+```json
+{
+  "mcpServers": {
+    "tanstack": {
+      "url": "https://tanstack.com/api/mcp"
+    }
+  }
+}
+```
+
+<details>
+<summary>Using an API key instead</summary>
+
+```json
+{
+  "mcpServers": {
+    "tanstack": {
+      "command": "npx",
+      "args": ["mcp-remote", "https://tanstack.com/api/mcp"],
+      "env": {
+        "MCP_HEADERS": "Authorization: Bearer YOUR_API_KEY"
+      }
+    }
+  }
+}
+```
+
+</details>
+
+## VS Code
+
+Add to your VS Code settings or `.vscode/mcp.json`:
+
+```json
+{
+  "servers": {
+    "tanstack": {
+      "url": "https://tanstack.com/api/mcp"
+    }
+  }
+}
+```
+
+<details>
+<summary>Using an API key instead</summary>
+
+```json
+{
+  "servers": {
+    "tanstack": {
+      "type": "http",
+      "url": "https://tanstack.com/api/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_KEY"
+      }
+    }
+  }
+}
+```
+
+</details>
+
 ## OpenCode
 
 Add to your OpenCode MCP configuration in `~/.config/opencode/config.json`:
+
+```json
+{
+  "mcp": {
+    "servers": {
+      "tanstack": {
+        "type": "remote",
+        "url": "https://tanstack.com/api/mcp"
+      }
+    }
+  }
+}
+```
+
+After adding the config, run the auth flow manually the first time:
+
+```bash
+npx mcp-remote auth https://tanstack.com/api/mcp
+```
+
+This opens a browser to authorize access. After that, OpenCode will connect automatically.
+
+<details>
+<summary>Using an API key instead</summary>
 
 ```json
 {
@@ -37,74 +196,24 @@ Add to your OpenCode MCP configuration in `~/.config/opencode/config.json`:
 }
 ```
 
-## Claude Code
-
-```bash
-claude mcp add --transport http tanstack https://tanstack.com/api/mcp --header "Authorization: Bearer YOUR_API_KEY"
-```
-
-## Cursor
-
-Add to your Cursor MCP configuration:
-
-```json
-{
-  "mcpServers": {
-    "tanstack": {
-      "command": "npx",
-      "args": ["mcp-remote", "https://tanstack.com/api/mcp"],
-      "env": {
-        "MCP_HEADERS": "Authorization: Bearer YOUR_API_KEY"
-      }
-    }
-  }
-}
-```
-
-## VS Code
-
-Add to your VS Code settings or `.vscode/mcp.json`:
-
-```json
-{
-  "servers": {
-    "tanstack": {
-      "type": "http",
-      "url": "https://tanstack.com/api/mcp",
-      "headers": {
-        "Authorization": "Bearer YOUR_API_KEY"
-      }
-    }
-  }
-}
-```
-
-## Claude Desktop
-
-Add the following to your Claude Desktop configuration file:
-
-**macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
-**Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
-
-```json
-{
-  "mcpServers": {
-    "tanstack": {
-      "command": "npx",
-      "args": ["mcp-remote", "https://tanstack.com/api/mcp"],
-      "env": {
-        "MCP_HEADERS": "Authorization: Bearer YOUR_API_KEY"
-      }
-    }
-  }
-}
-```
-
-Restart Claude Desktop after updating the configuration.
+</details>
 
 ## Windsurf
 
 Add to your Windsurf MCP configuration:
+
+```json
+{
+  "mcpServers": {
+    "tanstack": {
+      "serverUrl": "https://tanstack.com/api/mcp"
+    }
+  }
+}
+```
+
+<details>
+<summary>Using an API key instead</summary>
 
 ```json
 {
@@ -119,13 +228,24 @@ Add to your Windsurf MCP configuration:
 }
 ```
 
+</details>
+
 ## MCP Inspector
 
 Use the MCP Inspector to test the server interactively:
 
 ```bash
+npx @modelcontextprotocol/inspector https://tanstack.com/api/mcp
+```
+
+<details>
+<summary>Using an API key instead</summary>
+
+```bash
 npx @modelcontextprotocol/inspector https://tanstack.com/api/mcp --header "Authorization: Bearer YOUR_API_KEY"
 ```
+
+</details>
 
 ## Custom Integration
 
@@ -134,9 +254,20 @@ For custom integrations, the server accepts standard MCP requests via HTTP:
 - **Endpoint:** `https://tanstack.com/api/mcp`
 - **Transport:** Streamable HTTP (stateless)
 - **Methods:** POST (for requests), GET (for server-sent events), DELETE (for session cleanup)
-- **Authentication:** Bearer token via Authorization header
+- **Authentication:** OAuth 2.1 (recommended) or Bearer token via Authorization header
 
-Example request using curl:
+### OAuth 2.1 Flow
+
+The server supports OAuth 2.1 with PKCE for secure authentication:
+
+1. Discover endpoints via `/.well-known/oauth-authorization-server`
+2. Redirect user to `/oauth/authorize` with PKCE challenge
+3. Exchange authorization code at `/oauth/token`
+4. Use the access token as a Bearer token
+
+### API Key Authentication
+
+Example request using curl with an API key:
 
 ```bash
 curl -X POST https://tanstack.com/api/mcp \

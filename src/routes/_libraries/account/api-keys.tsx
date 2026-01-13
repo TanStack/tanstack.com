@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { createFileRoute, Link, redirect } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   listMcpApiKeys,
@@ -7,6 +7,10 @@ import {
   revokeMcpApiKey,
   deleteMcpApiKey,
 } from '~/utils/mcpApiKeys.functions'
+import {
+  listConnectedApps,
+  revokeConnectedApp,
+} from '~/utils/oauthMcp.functions'
 import { useToast } from '~/components/ToastProvider'
 import { Card } from '~/components/Card'
 import { Button } from '~/components/Button'
@@ -20,18 +24,10 @@ import {
   Check,
   AlertTriangle,
   Clock,
+  Link2,
 } from 'lucide-react'
-import { requireCapability } from '~/utils/auth.server'
-
 export const Route = createFileRoute('/_libraries/account/api-keys')({
   component: ApiKeysPage,
-  beforeLoad: async () => {
-    try {
-      await requireCapability({ data: { capability: 'api-keys' } })
-    } catch {
-      throw redirect({ to: '/account' })
-    }
-  },
 })
 
 function ApiKeysPage() {
@@ -105,6 +101,23 @@ function ApiKeysPage() {
     },
   })
 
+  const connectedAppsQuery = useQuery({
+    queryKey: ['connected-apps'],
+    queryFn: () => listConnectedApps(),
+  })
+
+  const revokeAppMutation = useMutation({
+    mutationFn: revokeConnectedApp,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['connected-apps'] })
+      notify(
+        <div>
+          <div className="font-medium">App access revoked</div>
+        </div>,
+      )
+    },
+  })
+
   const handleCreate = () => {
     if (!newKeyName.trim()) return
     createMutation.mutate({
@@ -134,6 +147,14 @@ function ApiKeysPage() {
   const isExpired = (dateStr: string | null) => {
     if (!dateStr) return false
     return new Date(dateStr) < new Date()
+  }
+
+  const formatClientId = (clientId: string) => {
+    // Format client IDs for display (e.g., truncate long UUIDs)
+    if (clientId.length > 32) {
+      return clientId.slice(0, 16) + '...' + clientId.slice(-8)
+    }
+    return clientId
   }
 
   return (
@@ -354,19 +375,93 @@ function ApiKeysPage() {
         )}
       </Card>
 
+      {/* Connected Apps Section */}
+      <div className="flex items-start justify-between mt-4">
+        <div>
+          <h3 className="font-bold text-lg text-gray-900 dark:text-white">
+            Connected Apps
+          </h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            Apps that have access to your account via OAuth
+          </p>
+        </div>
+      </div>
+
+      <Card className="divide-y divide-gray-200 dark:divide-gray-700">
+        {connectedAppsQuery.isLoading ? (
+          <div className="p-4 text-sm text-gray-500">Loading...</div>
+        ) : connectedAppsQuery.data?.length === 0 ? (
+          <div className="p-8 text-center">
+            <Link2 className="w-10 h-10 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+            <p className="text-gray-500 dark:text-gray-400 text-sm">
+              No connected apps
+            </p>
+            <p className="text-gray-400 dark:text-gray-500 text-xs mt-1">
+              Apps you authorize will appear here
+            </p>
+          </div>
+        ) : (
+          connectedAppsQuery.data?.map((app) => (
+            <div
+              key={app.clientId}
+              className="p-4 flex items-center justify-between gap-4"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="p-2 rounded-lg bg-purple-50 dark:bg-purple-950/30">
+                  <Link2 className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium text-gray-900 dark:text-white text-sm truncate font-mono">
+                      {formatClientId(app.clientId)}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3 mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      Connected {formatDate(app.createdAt)}
+                    </span>
+                    {app.lastUsedAt && (
+                      <span>Last used {formatDate(app.lastUsedAt)}</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <Button
+                  onClick={() =>
+                    revokeAppMutation.mutate({
+                      data: { clientId: app.clientId },
+                    })
+                  }
+                  disabled={revokeAppMutation.isPending}
+                  title="Revoke access"
+                  className="text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
+                >
+                  <Ban className="w-3.5 h-3.5" />
+                  Revoke
+                </Button>
+              </div>
+            </div>
+          ))
+        )}
+      </Card>
+
       <div>
         <h4 className="font-medium text-gray-900 dark:text-white text-sm mb-2">
-          Using your API key with MCP
+          Using API keys with MCP
         </h4>
         <p className="text-xs text-gray-600 dark:text-gray-300 mb-3">
-          Add your API key to your MCP client configuration. See the{' '}
+          Most MCP clients support OAuth and don't need an API key. For clients
+          that require manual authentication, add your API key to the
+          configuration. See the{' '}
           <Link
             to="/mcp/latest/docs/connecting"
             className="text-blue-600 dark:text-blue-400 hover:underline"
           >
             MCP connection guide
           </Link>{' '}
-          for setup instructions for different clients.
+          for setup instructions.
         </p>
         <CodeBlock data-code-title="mcp.json">
           <code className="language-json">{`{

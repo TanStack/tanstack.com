@@ -4,11 +4,17 @@
     "playwright": {
       "type": "local",
       "command": ["npx", "-y", "@playwright/mcp@latest"],
-      "enabled": true
+      "enabled": false
     },
     "Sentry": {
       "type": "remote",
-      "url": "https://mcp.sentry.dev/mcp"
+      "url": "https://mcp.sentry.dev/mcp",
+      "enabled": false
+    },
+    "tanstack": {
+      "type": "remote",
+      "url": "http://localhost:3000/api/mcp",
+      "enabled": false
     }
   }
 }

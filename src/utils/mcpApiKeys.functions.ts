@@ -3,14 +3,14 @@ import * as v from 'valibot'
 import { db } from '~/db/client'
 import { mcpApiKeys } from '~/db/schema'
 import { eq, and, desc } from 'drizzle-orm'
-import { requireCapabilityUser } from './auth.server'
+import { requireAuth } from './auth.server'
 import { generateApiKey } from '~/mcp/auth.server'
 
 /**
- * Require api-keys capability and return user
+ * Require authenticated user
  */
 async function requireApiKeysAccess() {
-  return requireCapabilityUser('api-keys')
+  return requireAuth()
 }
 
 /**

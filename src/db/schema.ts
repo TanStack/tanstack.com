@@ -1073,3 +1073,151 @@ export const mcpApiKeysRelations = relations(mcpApiKeys, ({ one }) => ({
     references: [users.id],
   }),
 }))
+
+// ============================================================================
+// OAuth MCP Tables
+// ============================================================================
+
+// OAuth MCP Authorization Codes (short-lived, 10 min)
+export const oauthMcpAuthorizationCodes = pgTable(
+  'oauth_mcp_authorization_codes',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    codeHash: varchar('code_hash', { length: 64 }).notNull().unique(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    clientId: varchar('client_id', { length: 255 }).notNull(),
+    redirectUri: text('redirect_uri').notNull(),
+    codeChallenge: varchar('code_challenge', { length: 128 }).notNull(),
+    codeChallengeMethod: varchar('code_challenge_method', { length: 8 })
+      .notNull()
+      .default('S256'),
+    scope: text('scope').notNull().default('mcp'),
+    expiresAt: timestamp('expires_at', {
+      withTimezone: true,
+      mode: 'date',
+    }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    codeHashIdx: index('oauth_mcp_auth_codes_hash_idx').on(table.codeHash),
+    expiresAtIdx: index('oauth_mcp_auth_codes_expires_idx').on(table.expiresAt),
+  }),
+)
+
+export type OAuthMcpAuthorizationCode = InferSelectModel<
+  typeof oauthMcpAuthorizationCodes
+>
+export type NewOAuthMcpAuthorizationCode = InferInsertModel<
+  typeof oauthMcpAuthorizationCodes
+>
+
+// OAuth MCP Access Tokens (1 hour TTL)
+export const oauthMcpAccessTokens = pgTable(
+  'oauth_mcp_access_tokens',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    tokenHash: varchar('token_hash', { length: 64 }).notNull().unique(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    clientId: varchar('client_id', { length: 255 }).notNull(),
+    scope: text('scope').notNull().default('mcp'),
+    expiresAt: timestamp('expires_at', {
+      withTimezone: true,
+      mode: 'date',
+    }).notNull(),
+    lastUsedAt: timestamp('last_used_at', { withTimezone: true, mode: 'date' }),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    tokenHashIdx: index('oauth_mcp_access_tokens_hash_idx').on(table.tokenHash),
+    userIdIdx: index('oauth_mcp_access_tokens_user_idx').on(table.userId),
+    expiresAtIdx: index('oauth_mcp_access_tokens_expires_idx').on(
+      table.expiresAt,
+    ),
+  }),
+)
+
+export type OAuthMcpAccessToken = InferSelectModel<typeof oauthMcpAccessTokens>
+export type NewOAuthMcpAccessToken = InferInsertModel<
+  typeof oauthMcpAccessTokens
+>
+
+// OAuth MCP Refresh Tokens (30 day TTL)
+export const oauthMcpRefreshTokens = pgTable(
+  'oauth_mcp_refresh_tokens',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    tokenHash: varchar('token_hash', { length: 64 }).notNull().unique(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    clientId: varchar('client_id', { length: 255 }).notNull(),
+    accessTokenId: uuid('access_token_id').references(
+      () => oauthMcpAccessTokens.id,
+      { onDelete: 'set null' },
+    ),
+    expiresAt: timestamp('expires_at', {
+      withTimezone: true,
+      mode: 'date',
+    }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    tokenHashIdx: index('oauth_mcp_refresh_tokens_hash_idx').on(
+      table.tokenHash,
+    ),
+    userIdIdx: index('oauth_mcp_refresh_tokens_user_idx').on(table.userId),
+  }),
+)
+
+export type OAuthMcpRefreshToken = InferSelectModel<
+  typeof oauthMcpRefreshTokens
+>
+export type NewOAuthMcpRefreshToken = InferInsertModel<
+  typeof oauthMcpRefreshTokens
+>
+
+// OAuth MCP relations
+export const oauthMcpAuthorizationCodesRelations = relations(
+  oauthMcpAuthorizationCodes,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [oauthMcpAuthorizationCodes.userId],
+      references: [users.id],
+    }),
+  }),
+)
+
+export const oauthMcpAccessTokensRelations = relations(
+  oauthMcpAccessTokens,
+  ({ one, many }) => ({
+    user: one(users, {
+      fields: [oauthMcpAccessTokens.userId],
+      references: [users.id],
+    }),
+    refreshTokens: many(oauthMcpRefreshTokens),
+  }),
+)
+
+export const oauthMcpRefreshTokensRelations = relations(
+  oauthMcpRefreshTokens,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [oauthMcpRefreshTokens.userId],
+      references: [users.id],
+    }),
+    accessToken: one(oauthMcpAccessTokens, {
+      fields: [oauthMcpRefreshTokens.accessTokenId],
+      references: [oauthMcpAccessTokens.id],
+    }),
+  }),
+)

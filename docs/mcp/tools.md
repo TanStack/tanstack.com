@@ -3,9 +3,7 @@ id: tools
 title: Available Tools
 ---
 
-The TanStack MCP Server exposes tools for accessing documentation and managing showcase submissions.
-
-## Documentation Tools
+The TanStack MCP Server provides 5 tools for accessing documentation, NPM statistics, and ecosystem recommendations.
 
 ## list_libraries
 
@@ -18,8 +16,6 @@ List all available TanStack libraries with their metadata.
 | `group`   | string | No       | Filter by group: `state`, `headlessUI`, `performance`, or `tooling` |
 
 ### Response
-
-Returns an object containing:
 
 - `group` - The group name or "All Libraries"
 - `count` - Number of libraries returned
@@ -38,7 +34,7 @@ Returns an object containing:
 
 ---
 
-## get_doc
+## doc
 
 Fetch a specific documentation page by library and path.
 
@@ -52,8 +48,6 @@ Fetch a specific documentation page by library and path.
 
 ### Response
 
-Returns an object containing:
-
 - `title` - Document title from frontmatter
 - `content` - Full markdown content of the document
 - `url` - Canonical URL to the documentation page
@@ -64,7 +58,7 @@ Returns an object containing:
 
 ```json
 {
-  "name": "get_doc",
+  "name": "doc",
   "arguments": {
     "library": "query",
     "path": "framework/react/guides/queries",
@@ -101,8 +95,6 @@ Full-text search across all TanStack documentation.
 
 ### Response
 
-Returns an object containing:
-
 - `query` - The search query
 - `totalHits` - Total number of matching documents
 - `results` - Array of search results with `title`, `url`, `snippet`, `library`, and `breadcrumb`
@@ -123,13 +115,140 @@ Returns an object containing:
 
 ---
 
+## npm_stats
+
+NPM download statistics for TanStack org, individual libraries, or package comparisons.
+
+### Parameters
+
+| Parameter     | Type     | Required | Description                                                         |
+| ------------- | -------- | -------- | ------------------------------------------------------------------- |
+| `library`     | string   | No       | TanStack library ID (e.g., `query`, `router`)                       |
+| `packages`    | string[] | No       | NPM packages to compare (max 10)                                    |
+| `preset`      | string   | No       | Preset comparison ID (e.g., `data-fetching`)                        |
+| `listPresets` | boolean  | No       | List available preset comparisons                                   |
+| `range`       | string   | No       | Time range: `30d`, `90d`, `180d`, `1y`, `2y`, `all`. Default: `90d` |
+| `bin`         | string   | No       | Aggregation: `monthly`, `weekly`, `daily`. Default: `monthly`       |
+
+### Modes
+
+The tool operates in different modes based on which parameters are provided:
+
+1. **No parameters** - Returns TanStack org summary with library breakdown
+2. **`library`** - Returns stats for a specific TanStack library with package details
+3. **`packages`** - Compares arbitrary NPM packages
+4. **`preset`** - Uses a preset comparison (e.g., `data-fetching`, `state-management`)
+5. **`listPresets: true`** - Lists all available presets
+
+### Response Examples
+
+**Org summary (no params):**
+
+```json
+{
+  "org": "tanstack",
+  "totalDownloads": 1234567890,
+  "ratePerDay": 5000000,
+  "libraries": [{ "id": "query", "downloads": 500000000, "packages": 12 }]
+}
+```
+
+**Package comparison:**
+
+```json
+{
+  "range": { "start": "2024-01-01", "end": "2024-03-31" },
+  "bin": "monthly",
+  "packages": [
+    {
+      "name": "@tanstack/react-query",
+      "total": 15000000,
+      "avgPerDay": 165000,
+      "data": [{ "date": "2024-01-01", "downloads": 5000000 }]
+    }
+  ]
+}
+```
+
+### Examples
+
+```json
+// Org summary
+{ "name": "npm_stats", "arguments": {} }
+
+// Library breakdown
+{ "name": "npm_stats", "arguments": { "library": "query" } }
+
+// Compare packages
+{
+  "name": "npm_stats",
+  "arguments": {
+    "packages": ["@tanstack/react-query", "swr", "@apollo/client"],
+    "range": "1y",
+    "bin": "monthly"
+  }
+}
+
+// Use preset
+{ "name": "npm_stats", "arguments": { "preset": "data-fetching" } }
+
+// List presets
+{ "name": "npm_stats", "arguments": { "listPresets": true } }
+```
+
+### Available Presets
+
+Use `listPresets: true` to see all available presets. Common ones include:
+
+- `data-fetching` - React Query, SWR, Apollo, tRPC
+- `state-management` - Redux, MobX, Zustand, Jotai, Valtio
+- `routing-react` - React Router, TanStack Router, Next, Wouter
+- `data-grids` - AG Grid, TanStack Table, Handsontable
+- `virtualization` - TanStack Virtual, react-window, react-virtuoso
+- `frameworks` - React, Vue, Angular, Svelte, Solid
+- `forms` - React Hook Form, TanStack Form, Conform
+- `validation` - Zod, Yup, Valibot, ArkType
+
+---
+
+## ecosystem
+
+Ecosystem partner recommendations filtered by category or TanStack library.
+
+### Parameters
+
+| Parameter  | Type   | Required | Description                                                                                                              |
+| ---------- | ------ | -------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `category` | string | No       | Filter by category: `database`, `auth`, `deployment`, `monitoring`, `cms`, `api`, `data-grid`, `code-review`, `learning` |
+| `library`  | string | No       | Filter by TanStack library (e.g., `start`, `router`, `query`)                                                            |
+
+### Response
+
+- `query` - The filters applied
+- `count` - Number of partners returned
+- `partners` - Array of partners with `id`, `name`, `tagline`, `description`, `category`, `categoryLabel`, `url`, `libraries`
+
+### Example
+
+```json
+{
+  "name": "ecosystem",
+  "arguments": {
+    "category": "database",
+    "library": "start"
+  }
+}
+```
+
+---
+
 ## Usage Tips
 
 ### Finding Documentation
 
 1. **Start with `list_libraries`** to discover available libraries and their IDs
 2. **Use `search_docs`** to find specific topics when you don't know the exact path
-3. **Use `get_doc`** to fetch the full content once you know the path
+3. **Use `doc`** to fetch the full content once you know the path
 
 ### Version Handling
 
@@ -144,348 +263,24 @@ Search results include URLs that reveal the documentation path structure. For ex
 - Library: `query`
 - Path: `framework/react/guides/queries`
 
----
+### Deep Source Code Exploration
 
-## Showcase Tools
+For understanding library internals beyond what documentation provides (implementation details, type definitions, test patterns), clone the relevant repository directly:
 
-These tools allow you to interact with the TanStack showcase, a gallery of projects built with TanStack libraries.
+| Library      | Clone Command                                             |
+| ------------ | --------------------------------------------------------- |
+| Query        | `git clone --depth 1 https://github.com/tanstack/query`   |
+| Router/Start | `git clone --depth 1 https://github.com/tanstack/router`  |
+| Table        | `git clone --depth 1 https://github.com/tanstack/table`   |
+| Form         | `git clone --depth 1 https://github.com/tanstack/form`    |
+| Virtual      | `git clone --depth 1 https://github.com/tanstack/virtual` |
+| Store        | `git clone --depth 1 https://github.com/tanstack/store`   |
+| DB           | `git clone --depth 1 https://github.com/tanstack/db`      |
 
-### search_showcases
-
-Search approved showcase projects. No authentication required.
-
-#### Parameters
-
-| Parameter       | Type     | Required | Description                                                  |
-| --------------- | -------- | -------- | ------------------------------------------------------------ |
-| `query`         | string   | No       | Text search across name, tagline, description, and URL       |
-| `libraryIds`    | string[] | No       | Filter by TanStack library IDs (e.g., `["query", "router"]`) |
-| `useCases`      | string[] | No       | Filter by use cases (e.g., `["saas", "dashboard"]`)          |
-| `hasSourceCode` | boolean  | No       | Filter to only open source projects                          |
-| `featured`      | boolean  | No       | Filter to only featured projects                             |
-| `limit`         | number   | No       | Max results (default: 20, max: 100)                          |
-| `offset`        | number   | No       | Pagination offset (default: 0)                               |
-
-#### Valid Library IDs
-
-`query`, `router`, `start`, `table`, `form`, `virtual`, `ranger`, `store`, `pacer`, `db`, `ai`, `config`, `devtools`
-
-#### Valid Use Cases
-
-`blog`, `e-commerce`, `saas`, `dashboard`, `documentation`, `portfolio`, `social`, `developer-tool`, `marketing`, `media`
-
-#### Example
-
-```json
-{
-  "name": "search_showcases",
-  "arguments": {
-    "libraryIds": ["query", "router"],
-    "useCases": ["saas"],
-    "limit": 10
-  }
-}
-```
-
----
-
-### get_showcase
-
-Get details of a specific showcase project by ID.
-
-#### Parameters
-
-| Parameter | Type   | Required | Description   |
-| --------- | ------ | -------- | ------------- |
-| `id`      | string | Yes      | Showcase UUID |
-
-#### Example
-
-```json
-{
-  "name": "get_showcase",
-  "arguments": {
-    "id": "550e8400-e29b-41d4-a716-446655440000"
-  }
-}
-```
-
----
-
-### submit_showcase
-
-Submit a new project to the TanStack showcase. **Requires authentication.** Submissions are reviewed by moderators before appearing publicly.
-
-#### Parameters
-
-| Parameter       | Type     | Required | Description                            |
-| --------------- | -------- | -------- | -------------------------------------- |
-| `name`          | string   | Yes      | Project name (max 255 characters)      |
-| `tagline`       | string   | Yes      | Short description (max 500 characters) |
-| `description`   | string   | No       | Full description                       |
-| `url`           | string   | Yes      | Project URL                            |
-| `screenshotUrl` | string   | Yes      | Screenshot URL                         |
-| `sourceUrl`     | string   | No       | Source code URL (GitHub, etc.)         |
-| `logoUrl`       | string   | No       | Logo URL                               |
-| `libraries`     | string[] | Yes      | TanStack library IDs used              |
-| `useCases`      | string[] | Yes      | Use case categories                    |
-
-#### Example
-
-```json
-{
-  "name": "submit_showcase",
-  "arguments": {
-    "name": "My Awesome App",
-    "tagline": "A dashboard built with TanStack Query and Router",
-    "url": "https://myapp.com",
-    "screenshotUrl": "https://myapp.com/screenshot.png",
-    "sourceUrl": "https://github.com/user/myapp",
-    "libraries": ["query", "router"],
-    "useCases": ["dashboard", "saas"]
-  }
-}
-```
-
----
-
-### update_showcase
-
-Update an existing showcase submission. **Requires authentication and ownership.** Updates reset the showcase to pending review.
-
-#### Parameters
-
-| Parameter       | Type     | Required | Description                      |
-| --------------- | -------- | -------- | -------------------------------- |
-| `id`            | string   | Yes      | Showcase UUID to update          |
-| `name`          | string   | Yes      | Project name                     |
-| `tagline`       | string   | Yes      | Short description                |
-| `description`   | string   | No       | Full description                 |
-| `url`           | string   | Yes      | Project URL                      |
-| `screenshotUrl` | string   | Yes      | Screenshot URL                   |
-| `sourceUrl`     | string   | No       | Source code URL (null to remove) |
-| `logoUrl`       | string   | No       | Logo URL (null to remove)        |
-| `libraries`     | string[] | Yes      | TanStack library IDs             |
-| `useCases`      | string[] | Yes      | Use case categories              |
-
-#### Example
-
-```json
-{
-  "name": "update_showcase",
-  "arguments": {
-    "id": "550e8400-e29b-41d4-a716-446655440000",
-    "name": "My Updated App",
-    "tagline": "Now with TanStack Form!",
-    "url": "https://myapp.com",
-    "screenshotUrl": "https://myapp.com/new-screenshot.png",
-    "libraries": ["query", "router", "form"],
-    "useCases": ["dashboard", "saas"]
-  }
-}
-```
-
----
-
-### delete_showcase
-
-Delete a showcase submission. **Requires authentication and ownership.**
-
-#### Parameters
-
-| Parameter | Type   | Required | Description             |
-| --------- | ------ | -------- | ----------------------- |
-| `id`      | string | Yes      | Showcase UUID to delete |
-
-#### Example
-
-```json
-{
-  "name": "delete_showcase",
-  "arguments": {
-    "id": "550e8400-e29b-41d4-a716-446655440000"
-  }
-}
-```
-
----
-
-### list_my_showcases
-
-List your own showcase submissions. **Requires authentication.** Returns all your submissions including pending and denied ones.
-
-#### Parameters
-
-| Parameter | Type   | Required | Description                                       |
-| --------- | ------ | -------- | ------------------------------------------------- |
-| `status`  | string | No       | Filter by status: `pending`, `approved`, `denied` |
-| `limit`   | number | No       | Max results (default: 20, max: 100)               |
-| `offset`  | number | No       | Pagination offset (default: 0)                    |
-
-#### Example
-
-```json
-{
-  "name": "list_my_showcases",
-  "arguments": {
-    "status": "pending",
-    "limit": 10
-  }
-}
-```
+Then use native file tools (grep, read) to explore implementations, types, and tests.
 
 ---
 
 ## Rate Limits
 
-- **Read operations** (documentation, search, stats): 60 requests per minute
-- **Write operations** (submit, update, delete): 10 requests per hour
-- **Pending submission limit**: Maximum 5 pending submissions per user
-
----
-
-## NPM Stats Tools
-
-These tools provide access to NPM download statistics for package analysis and comparison.
-
-### get_npm_stats
-
-Get aggregated NPM download statistics for the TanStack org or a specific library.
-
-#### Parameters
-
-| Parameter | Type   | Required | Description                                                                   |
-| --------- | ------ | -------- | ----------------------------------------------------------------------------- |
-| `library` | string | No       | Filter to specific library (e.g., `query`, `router`). Omit for org-wide stats |
-
-#### Response
-
-For org-wide stats:
-
-- `org` - Organization name ("tanstack")
-- `totalDownloads` - Total downloads across all packages
-- `ratePerDay` - Current download rate per day
-- `updatedAt` - When stats were last updated
-- `libraries` - Breakdown by library with `id`, `totalDownloads`, `packageCount`
-
-For library-specific stats:
-
-- `library` - Library ID
-- `totalDownloads` - Total downloads for this library
-- `ratePerDay` - Current download rate per day
-- `packageCount` - Number of packages in this library
-- `packages` - Array of packages with `name`, `downloads`, `ratePerDay`
-
-#### Example
-
-```json
-{
-  "name": "get_npm_stats",
-  "arguments": {
-    "library": "query"
-  }
-}
-```
-
----
-
-### list_npm_comparisons
-
-List available preset package comparisons for common categories like Data Fetching, State Management, Routing, etc.
-
-#### Parameters
-
-| Parameter  | Type   | Required | Description                                              |
-| ---------- | ------ | -------- | -------------------------------------------------------- |
-| `category` | string | No       | Filter by category name (case-insensitive partial match) |
-
-#### Response
-
-- `comparisons` - Array of comparisons with `id`, `name`, `packages`
-- `total` - Number of comparisons returned
-
-#### Available Categories
-
-Data Fetching, State Management, Routing (React), Data Grids, Virtualization, Frameworks, Styling, Build Tools, Testing, Forms, UI Components, Animation, Date & Time, Validation, Documentation, All TanStack Packages
-
-#### Example
-
-```json
-{
-  "name": "list_npm_comparisons",
-  "arguments": {
-    "category": "state"
-  }
-}
-```
-
----
-
-### compare_npm_packages
-
-Compare NPM download statistics for multiple packages over a time range. Returns binned download data for analysis.
-
-#### Parameters
-
-| Parameter  | Type     | Required | Description                                                                                                    |
-| ---------- | -------- | -------- | -------------------------------------------------------------------------------------------------------------- |
-| `packages` | string[] | Yes      | Package names to compare (max 10)                                                                              |
-| `range`    | string   | No       | Time range: `7-days`, `30-days`, `90-days`, `180-days`, `365-days`, `730-days`, `all-time`. Default: `30-days` |
-| `binType`  | string   | No       | Aggregation: `daily`, `weekly`, `monthly`. Default: `weekly`                                                   |
-
-#### Response
-
-- `packages` - Array of package data with:
-  - `name` - Package name
-  - `totalDownloads` - Total downloads in range
-  - `averagePerDay` - Average downloads per day
-  - `data` - Array of `{ date, downloads }` binned by `binType`
-- `range` - Object with `start` and `end` dates
-- `binType` - The aggregation level used
-
-#### Example
-
-```json
-{
-  "name": "compare_npm_packages",
-  "arguments": {
-    "packages": ["@tanstack/react-query", "swr", "@apollo/client"],
-    "range": "90-days",
-    "binType": "weekly"
-  }
-}
-```
-
----
-
-### get_npm_package_downloads
-
-Get detailed historical download data for a single NPM package.
-
-#### Parameters
-
-| Parameter | Type   | Required | Description                                             |
-| --------- | ------ | -------- | ------------------------------------------------------- |
-| `package` | string | Yes      | Package name (e.g., `@tanstack/react-query`)            |
-| `year`    | string | No       | Year in YYYY format or `current`. Default: current year |
-
-#### Response
-
-- `package` - Package name
-- `year` - The year requested
-- `totalDownloads` - Total downloads for the year
-- `dayCount` - Number of days with data
-- `averagePerDay` - Average downloads per day
-- `data` - Array of daily downloads with `{ day, downloads }`
-
-#### Example
-
-```json
-{
-  "name": "get_npm_package_downloads",
-  "arguments": {
-    "package": "@tanstack/react-query",
-    "year": "2024"
-  }
-}
-```
+- **All operations**: 60 requests per minute

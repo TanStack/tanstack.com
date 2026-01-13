@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { findLibrary, getBranch } from '~/libraries'
 import { fetchRepoFile, extractFrontMatter } from '~/utils/documents.server'
 
-export const getDocSchema = z.object({
+export const docSchema = z.object({
   library: z.string().describe('Library ID (e.g., query, router, table, form)'),
   path: z
     .string()
@@ -13,12 +13,11 @@ export const getDocSchema = z.object({
     .describe('Version (e.g., v5, v1). Defaults to latest'),
 })
 
-export type GetDocInput = z.infer<typeof getDocSchema>
+export type DocInput = z.infer<typeof docSchema>
 
-export async function getDoc(input: GetDocInput) {
+export async function doc(input: DocInput) {
   const { library: libraryId, path, version = 'latest' } = input
 
-  // Validate library exists
   const library = findLibrary(libraryId)
   if (!library) {
     throw new Error(
@@ -26,21 +25,14 @@ export async function getDoc(input: GetDocInput) {
     )
   }
 
-  // Validate version
   if (version !== 'latest' && !library.availableVersions.includes(version)) {
     throw new Error(
-      `Version "${version}" not found for ${library.name}. Available versions: ${library.availableVersions.join(', ')}`,
+      `Version "${version}" not found for ${library.name}. Available: ${library.availableVersions.join(', ')}`,
     )
   }
 
-  // Get branch for version
   const branch = getBranch(library, version)
-
-  // Build file path
-  const docsRoot = library.docsRoot || 'docs'
-  const filePath = `${docsRoot}/${path}.md`
-
-  // Fetch the document
+  const filePath = `${library.docsRoot || 'docs'}/${path}.md`
   const file = await fetchRepoFile(library.repo, branch, filePath)
 
   if (!file) {
@@ -49,16 +41,12 @@ export async function getDoc(input: GetDocInput) {
     )
   }
 
-  // Extract frontmatter and content
   const frontMatter = extractFrontMatter(file)
-
-  // Build canonical URL
-  const canonicalUrl = `https://tanstack.com/${libraryId}/${version}/docs/${path}`
 
   return {
     title: frontMatter.data?.title || path.split('/').pop() || 'Untitled',
     content: frontMatter.content,
-    url: canonicalUrl,
+    url: `https://tanstack.com/${libraryId}/${version}/docs/${path}`,
     library: library.name,
     version: version === 'latest' ? library.latestVersion : version,
   }

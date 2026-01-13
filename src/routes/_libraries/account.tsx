@@ -1,7 +1,5 @@
 import { createFileRoute, Outlet, Link, redirect } from '@tanstack/react-router'
 import { requireAuth } from '~/utils/auth.server'
-import { useCapabilities } from '~/hooks/useCapabilities'
-import { hasCapability } from '~/db/types'
 
 export const Route = createFileRoute('/_libraries/account')({
   component: AccountLayout,
@@ -17,8 +15,7 @@ export const Route = createFileRoute('/_libraries/account')({
 })
 
 function AccountLayout() {
-  const capabilities = useCapabilities()
-  const canApiKeys = hasCapability(capabilities, 'api-keys')
+  const canApiKeys = true // Any logged-in user can access API keys
 
   return (
     <div className="min-h-screen mx-auto p-4 md:p-8 w-full">

@@ -10,7 +10,6 @@ import {
   useNavigate,
 } from '@tanstack/react-router'
 import {
-  ChevronRight,
   Code,
   Users,
   Music,
@@ -25,7 +24,6 @@ import {
   Menu,
   X,
   Rss,
-  Home,
   Grid2X2,
   Sparkles,
 } from 'lucide-react'
@@ -66,11 +64,7 @@ const LazyAuthenticatedUserMenu = React.lazy(() =>
 )
 import { authClient } from '~/utils/auth.client'
 import { useToast } from '~/components/ToastProvider'
-import {
-  Collapsible,
-  CollapsibleTrigger,
-  CollapsibleContent,
-} from '~/components/Collapsible'
+
 import { Card } from '~/components/Card'
 
 type LogoProps = {
@@ -479,113 +473,43 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                       ) : null}
                     </Link>
                   </MobileCard>
-                  {/* Desktop: Collapsible */}
-                  <div className="hidden md:block">
-                    <Collapsible defaultOpen={isActive}>
-                      {({ open }) => (
-                        <>
-                          <CollapsibleTrigger
-                            className={twMerge(
-                              linkClasses,
-                              'w-full',
-                              isActive
-                                ? 'bg-gray-500/10 dark:bg-gray-500/30'
-                                : '',
-                            )}
-                          >
-                            <span
-                              className={twMerge(
-                                'w-3 h-3 rounded-sm',
-                                library.bgStyle,
-                              )}
-                            />
-                            <span
-                              style={{
-                                viewTransitionName: `library-name-${library.id}`,
-                              }}
-                              className={twMerge(
-                                'flex-1 text-left',
-                                isActive ? 'font-bold' : '',
-                              )}
-                            >
-                              {name}
-                            </span>
-                            <div className="flex items-center gap-1">
-                              {library.badge ? (
-                                <span
-                                  className={twMerge(
-                                    `px-2 py-px uppercase font-black rounded-md text-[.6rem]`,
-                                    'border bg-transparent',
-                                    'border-current text-current',
-                                    'opacity-90 group-hover:opacity-100 transition-opacity',
-                                    library.textColor,
-                                  )}
-                                >
-                                  {library.badge}
-                                </span>
-                              ) : null}
-                              <ChevronRight
-                                className={twMerge(
-                                  'w-4 h-4 transition-transform duration-200',
-                                  open && 'rotate-90',
-                                )}
-                              />
-                            </div>
-                          </CollapsibleTrigger>
-                          <CollapsibleContent>
-                            <div
-                              className={twMerge(
-                                'ml-2 my-1 p-1 border-l-2 flex flex-col gap-px',
-                                library.borderStyle,
-                              )}
-                            >
-                              <Link
-                                to={`${library.to}/latest`}
-                                className={twMerge(
-                                  'flex gap-2 items-center px-2 py-0.5',
-                                  'rounded-lg hover:bg-gray-500/10 dark:hover:bg-gray-500/20',
-                                )}
-                                activeOptions={{ exact: true }}
-                                activeProps={{
-                                  className:
-                                    'bg-gray-500/10 dark:bg-gray-500/20 font-bold',
-                                }}
-                              >
-                                <Home className="w-4 h-4" />
-                                Home
-                              </Link>
-                              <Link
-                                to={`/${library.id}/latest/docs`}
-                                className={twMerge(
-                                  'flex gap-2 items-center px-2 py-0.5',
-                                  'rounded-lg hover:bg-gray-500/10 dark:hover:bg-gray-500/20',
-                                )}
-                                activeProps={{
-                                  className:
-                                    'bg-gray-500/10 dark:bg-gray-500/20 font-bold',
-                                }}
-                              >
-                                <BookOpen className="w-4 h-4" />
-                                Docs
-                              </Link>
-                              <a
-                                href={`https://github.com/${library.repo}`}
-                                className={twMerge(
-                                  'flex gap-2 items-center px-2 py-0.5',
-                                  'rounded-lg hover:bg-gray-500/10 dark:hover:bg-gray-500/20',
-                                )}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                              >
-                                <GithubIcon className="w-4 h-4" />
-                                GitHub
-                              </a>
-                            </div>
-                          </CollapsibleContent>
-                        </>
+                  {/* Desktop: Simple link */}
+                  <Link
+                    to={`${library.to}/latest`}
+                    className={twMerge(
+                      linkClasses,
+                      'hidden md:flex',
+                      isActive ? 'bg-gray-500/10 dark:bg-gray-500/30' : '',
+                    )}
+                  >
+                    <span
+                      className={twMerge('w-3 h-3 rounded-sm', library.bgStyle)}
+                    />
+                    <span
+                      style={{
+                        viewTransitionName: `library-name-${library.id}`,
+                      }}
+                      className={twMerge(
+                        'flex-1 text-left',
+                        isActive ? 'font-bold' : '',
                       )}
-                    </Collapsible>
-                  </div>
+                    >
+                      {name}
+                    </span>
+                    {library.badge ? (
+                      <span
+                        className={twMerge(
+                          `px-2 py-px uppercase font-black rounded-md text-[.6rem]`,
+                          'border bg-transparent',
+                          'border-current text-current',
+                          'opacity-90 group-hover:opacity-100 transition-opacity',
+                          library.textColor,
+                        )}
+                      >
+                        {library.badge}
+                      </span>
+                    ) : null}
+                  </Link>
                 </>
               )}
             </div>

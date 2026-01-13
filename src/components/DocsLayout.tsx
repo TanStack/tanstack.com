@@ -7,7 +7,7 @@ import { useLocalStorage } from '~/utils/useLocalStorage'
 import { useClickOutside } from '~/hooks/useClickOutside'
 import { last } from '~/utils/utils'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
-import { Framework } from '~/libraries'
+import { Framework, LibraryId } from '~/libraries'
 import { frameworkOptions } from '~/libraries/frameworks'
 import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
 import { twMerge } from 'tailwind-merge'
@@ -447,6 +447,7 @@ type DocsLayoutProps = {
   versions: string[]
   repo: string
   children: React.ReactNode
+  isLandingPage?: boolean
 }
 
 export function DocsLayout({
@@ -457,10 +458,11 @@ export function DocsLayout({
   frameworks,
   repo,
   children,
+  isLandingPage = false,
 }: DocsLayoutProps) {
   const { libraryId, version } = useParams({
-    from: '/$libraryId/$version/docs',
-  })
+    strict: false,
+  }) as { libraryId: LibraryId; version: string }
   const { _splat } = useParams({ strict: false })
   const menuConfig = useMenuConfig({ config, frameworks, repo })
 
@@ -736,100 +738,108 @@ export function DocsLayout({
         >
           {smallMenu}
           {largeMenu}
-          <div className="flex flex-col max-w-full min-w-0 flex-1 min-h-0 relative px-4 sm:px-8">
+          <div
+            className={twMerge(
+              'flex flex-col max-w-full min-w-0 flex-1 min-h-0 relative',
+              !isLandingPage && 'px-4 sm:px-8',
+            )}
+          >
             <div
               className={twMerge(
-                `max-w-full min-w-0 flex flex-col justify-center w-full min-h-[88dvh] sm:min-h-0`,
-                !isExample && !isFullWidth && 'mx-auto w-[900px]', // page width
+                `max-w-full min-w-0 flex flex-col justify-center w-full`,
+                !isLandingPage && 'min-h-[88dvh] sm:min-h-0',
+                !isLandingPage &&
+                  !isExample &&
+                  !isFullWidth &&
+                  'mx-auto w-[900px]',
               )}
             >
               {children}
             </div>
-            <AdGate>
-              {/* <div className="flex border-t border-gray-500/20">
-              <div className="py-4 px-2 xl:px-4 mx-auto max-w-full justify-center">
-                <GamFooter popupPosition="top" />
-              </div>
-            </div> */}
-              <div className="py-8 lg:py-12 xl:py-16 max-w-full">
-                <GamHeader />
-              </div>
-            </AdGate>
-          </div>
-          <div
-            className="w-full sm:w-[300px] shrink-0 sm:sticky
-        sm:top-[var(--navbar-height)]
-        "
-          >
-            <div className="sm:sticky sm:top-[var(--navbar-height)] ml-auto flex flex-wrap flex-row justify-center sm:flex-col gap-4 pb-4 max-w-full overflow-hidden">
-              <div className="flex flex-wrap items-stretch border-l border-gray-500/20 rounded-bl-lg overflow-hidden w-full">
-                <div className="w-full flex gap-2 justify-between border-b border-gray-500/20 px-3 py-2">
-                  <Link
-                    className="font-medium opacity-60 hover:opacity-100 text-xs"
-                    to="/partners"
-                  >
-                    Partners
-                  </Link>
-                  <a
-                    href="https://docs.google.com/document/d/1Hg2MzY2TU6U3hFEZ3MLe2oEOM3JS4-eByti3kdJU3I8"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-medium opacity-60 hover:opacity-100 text-xs hover:underline"
-                  >
-                    Become a Partner
-                  </a>
+            {!isLandingPage && (
+              <AdGate>
+                <div className="py-8 lg:py-12 xl:py-16 max-w-full">
+                  <GamHeader />
                 </div>
-                {activePartners
-                  .filter((d) => d.id !== 'ui-dev')
-                  .map((partner) => {
-                    // flexBasis as percentage based on score, flexGrow to fill remaining row space
-                    const widthPercent = Math.round(partner.score * 100)
+              </AdGate>
+            )}
+          </div>
+          {!isLandingPage && (
+            <div
+              className="w-full sm:w-[300px] shrink-0 sm:sticky
+          sm:top-[var(--navbar-height)]
+          "
+            >
+              <div className="sm:sticky sm:top-[var(--navbar-height)] ml-auto flex flex-wrap flex-row justify-center sm:flex-col gap-4 pb-4 max-w-full overflow-hidden">
+                <div className="flex flex-wrap items-stretch border-l border-gray-500/20 rounded-bl-lg overflow-hidden w-full">
+                  <div className="w-full flex gap-2 justify-between border-b border-gray-500/20 px-3 py-2">
+                    <Link
+                      className="font-medium opacity-60 hover:opacity-100 text-xs"
+                      to="/partners"
+                    >
+                      Partners
+                    </Link>
+                    <a
+                      href="https://docs.google.com/document/d/1Hg2MzY2TU6U3hFEZ3MLe2oEOM3JS4-eByti3kdJU3I8"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-medium opacity-60 hover:opacity-100 text-xs hover:underline"
+                    >
+                      Become a Partner
+                    </a>
+                  </div>
+                  {activePartners
+                    .filter((d) => d.id !== 'ui-dev')
+                    .map((partner) => {
+                      // flexBasis as percentage based on score, flexGrow to fill remaining row space
+                      const widthPercent = Math.round(partner.score * 100)
 
-                    return (
-                      <a
-                        key={partner.name}
-                        href={partner.href}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center justify-center px-3 py-2
-                          border-r border-b border-gray-500/20
-                          hover:bg-gray-500/10 transition-colors duration-150 ease-out"
-                        style={{
-                          flexBasis: `${widthPercent}%`,
-                          flexGrow: 1,
-                          flexShrink: 0,
-                        }}
-                      >
-                        <div
+                      return (
+                        <a
+                          key={partner.name}
+                          href={partner.href}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center justify-center px-3 py-2
+                            border-r border-b border-gray-500/20
+                            hover:bg-gray-500/10 transition-colors duration-150 ease-out"
                           style={{
-                            width: Math.max(
-                              60 + Math.round(140 * partner.score),
-                              70,
-                            ),
+                            flexBasis: `${widthPercent}%`,
+                            flexGrow: 1,
+                            flexShrink: 0,
                           }}
                         >
-                          <PartnerImage
-                            config={partner.image}
-                            alt={partner.name}
-                          />
-                        </div>
-                      </a>
-                    )
-                  })}
-              </div>
-              <AdGate>
-                <GamVrec1
-                  popupPosition="top"
-                  borderClassName="rounded-l-xl rounded-r-none"
-                />
-              </AdGate>
-              {libraryId === 'query' ? (
-                <div className="p-4 bg-white/70 dark:bg-black/40 rounded-lg flex flex-col">
-                  <DocsCalloutQueryGG />
+                          <div
+                            style={{
+                              width: Math.max(
+                                60 + Math.round(140 * partner.score),
+                                70,
+                              ),
+                            }}
+                          >
+                            <PartnerImage
+                              config={partner.image}
+                              alt={partner.name}
+                            />
+                          </div>
+                        </a>
+                      )
+                    })}
                 </div>
-              ) : null}
+                <AdGate>
+                  <GamVrec1
+                    popupPosition="top"
+                    borderClassName="rounded-l-xl rounded-r-none"
+                  />
+                </AdGate>
+                {libraryId === 'query' ? (
+                  <div className="p-4 bg-white/70 dark:bg-black/40 rounded-lg flex flex-col">
+                    <DocsCalloutQueryGG />
+                  </div>
+                ) : null}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </DocNavigationContext.Provider>
     </WidthToggleContext.Provider>

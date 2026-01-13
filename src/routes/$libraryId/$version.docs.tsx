@@ -1,25 +1,11 @@
-import { Outlet, createFileRoute } from '@tanstack/react-router'
+import { Outlet, createFileRoute, getRouteApi } from '@tanstack/react-router'
 import { DocsLayout } from '~/components/DocsLayout'
-import { getBranch, getLibrary } from '~/libraries'
-import { getTanstackDocsConfig } from '~/utils/config'
+import { getLibrary } from '~/libraries'
 import { seo } from '~/utils/seo'
 
-export const Route = createFileRoute('/$libraryId/$version/docs')({
-  staleTime: 1000 * 60 * 5,
-  loader: async (ctx) => {
-    const { libraryId, version } = ctx.params
-    const library = getLibrary(libraryId)
-    const branch = getBranch(library, version)
-    const config = await getTanstackDocsConfig({
-      data: {
-        repo: library.repo,
-        branch,
-        docsRoot: library.docsRoot || 'docs',
-      },
-    })
+const versionRouteApi = getRouteApi('/$libraryId/$version')
 
-    return { config }
-  },
+export const Route = createFileRoute('/$libraryId/$version/docs')({
   head: (ctx) => {
     const { libraryId } = ctx.params
     const library = getLibrary(libraryId)
@@ -43,7 +29,7 @@ export const Route = createFileRoute('/$libraryId/$version/docs')({
 function DocsRoute() {
   const { libraryId, version } = Route.useParams()
   const library = getLibrary(libraryId)
-  const { config } = Route.useLoaderData()
+  const { config } = versionRouteApi.useLoaderData()
 
   return (
     <DocsLayout

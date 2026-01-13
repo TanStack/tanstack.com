@@ -1,7 +1,7 @@
 import { ErrorComponent } from '@tanstack/react-router'
 import React from 'react'
 import { Spinner } from '~/components/Spinner'
-import { SignInForm } from '~/routes/_libraries/login'
+import { SignInForm } from '~/routes/login'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { hasCapability } from '~/db/types'
 

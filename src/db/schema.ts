@@ -1075,11 +1075,12 @@ export const mcpApiKeysRelations = relations(mcpApiKeys, ({ one }) => ({
 }))
 
 // ============================================================================
-// OAuth MCP Tables
+// OAuth Client Authorization Tables
 // ============================================================================
 
-// OAuth MCP Authorization Codes (short-lived, 10 min)
-export const oauthMcpAuthorizationCodes = pgTable(
+// OAuth Authorization Codes (short-lived, 10 min)
+// Note: Uses existing oauth_mcp_* tables for backwards compatibility
+export const oauthAuthorizationCodes = pgTable(
   'oauth_mcp_authorization_codes',
   {
     id: uuid('id').primaryKey().defaultRandom(),
@@ -1093,7 +1094,7 @@ export const oauthMcpAuthorizationCodes = pgTable(
     codeChallengeMethod: varchar('code_challenge_method', { length: 8 })
       .notNull()
       .default('S256'),
-    scope: text('scope').notNull().default('mcp'),
+    scope: text('scope').notNull().default('api'),
     expiresAt: timestamp('expires_at', {
       withTimezone: true,
       mode: 'date',
@@ -1108,15 +1109,23 @@ export const oauthMcpAuthorizationCodes = pgTable(
   }),
 )
 
-export type OAuthMcpAuthorizationCode = InferSelectModel<
-  typeof oauthMcpAuthorizationCodes
+export type OAuthAuthorizationCode = InferSelectModel<
+  typeof oauthAuthorizationCodes
 >
-export type NewOAuthMcpAuthorizationCode = InferInsertModel<
-  typeof oauthMcpAuthorizationCodes
+export type NewOAuthAuthorizationCode = InferInsertModel<
+  typeof oauthAuthorizationCodes
 >
 
-// OAuth MCP Access Tokens (1 hour TTL)
-export const oauthMcpAccessTokens = pgTable(
+// Backwards compatibility aliases
+/** @deprecated Use oauthAuthorizationCodes instead */
+export const oauthMcpAuthorizationCodes = oauthAuthorizationCodes
+/** @deprecated Use OAuthAuthorizationCode instead */
+export type OAuthMcpAuthorizationCode = OAuthAuthorizationCode
+/** @deprecated Use NewOAuthAuthorizationCode instead */
+export type NewOAuthMcpAuthorizationCode = NewOAuthAuthorizationCode
+
+// OAuth Access Tokens (1 hour TTL)
+export const oauthAccessTokens = pgTable(
   'oauth_mcp_access_tokens',
   {
     id: uuid('id').primaryKey().defaultRandom(),
@@ -1125,7 +1134,7 @@ export const oauthMcpAccessTokens = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
     clientId: varchar('client_id', { length: 255 }).notNull(),
-    scope: text('scope').notNull().default('mcp'),
+    scope: text('scope').notNull().default('api'),
     expiresAt: timestamp('expires_at', {
       withTimezone: true,
       mode: 'date',
@@ -1144,13 +1153,19 @@ export const oauthMcpAccessTokens = pgTable(
   }),
 )
 
-export type OAuthMcpAccessToken = InferSelectModel<typeof oauthMcpAccessTokens>
-export type NewOAuthMcpAccessToken = InferInsertModel<
-  typeof oauthMcpAccessTokens
->
+export type OAuthAccessToken = InferSelectModel<typeof oauthAccessTokens>
+export type NewOAuthAccessToken = InferInsertModel<typeof oauthAccessTokens>
 
-// OAuth MCP Refresh Tokens (30 day TTL)
-export const oauthMcpRefreshTokens = pgTable(
+// Backwards compatibility aliases
+/** @deprecated Use oauthAccessTokens instead */
+export const oauthMcpAccessTokens = oauthAccessTokens
+/** @deprecated Use OAuthAccessToken instead */
+export type OAuthMcpAccessToken = OAuthAccessToken
+/** @deprecated Use NewOAuthAccessToken instead */
+export type NewOAuthMcpAccessToken = NewOAuthAccessToken
+
+// OAuth Refresh Tokens (30 day TTL)
+export const oauthRefreshTokens = pgTable(
   'oauth_mcp_refresh_tokens',
   {
     id: uuid('id').primaryKey().defaultRandom(),
@@ -1160,7 +1175,7 @@ export const oauthMcpRefreshTokens = pgTable(
       .references(() => users.id, { onDelete: 'cascade' }),
     clientId: varchar('client_id', { length: 255 }).notNull(),
     accessTokenId: uuid('access_token_id').references(
-      () => oauthMcpAccessTokens.id,
+      () => oauthAccessTokens.id,
       { onDelete: 'set null' },
     ),
     expiresAt: timestamp('expires_at', {
@@ -1179,45 +1194,58 @@ export const oauthMcpRefreshTokens = pgTable(
   }),
 )
 
-export type OAuthMcpRefreshToken = InferSelectModel<
-  typeof oauthMcpRefreshTokens
->
-export type NewOAuthMcpRefreshToken = InferInsertModel<
-  typeof oauthMcpRefreshTokens
->
+export type OAuthRefreshToken = InferSelectModel<typeof oauthRefreshTokens>
+export type NewOAuthRefreshToken = InferInsertModel<typeof oauthRefreshTokens>
 
-// OAuth MCP relations
-export const oauthMcpAuthorizationCodesRelations = relations(
-  oauthMcpAuthorizationCodes,
+// Backwards compatibility aliases
+/** @deprecated Use oauthRefreshTokens instead */
+export const oauthMcpRefreshTokens = oauthRefreshTokens
+/** @deprecated Use OAuthRefreshToken instead */
+export type OAuthMcpRefreshToken = OAuthRefreshToken
+/** @deprecated Use NewOAuthRefreshToken instead */
+export type NewOAuthMcpRefreshToken = NewOAuthRefreshToken
+
+// OAuth relations
+export const oauthAuthorizationCodesRelations = relations(
+  oauthAuthorizationCodes,
   ({ one }) => ({
     user: one(users, {
-      fields: [oauthMcpAuthorizationCodes.userId],
+      fields: [oauthAuthorizationCodes.userId],
       references: [users.id],
     }),
   }),
 )
 
-export const oauthMcpAccessTokensRelations = relations(
-  oauthMcpAccessTokens,
+export const oauthAccessTokensRelations = relations(
+  oauthAccessTokens,
   ({ one, many }) => ({
     user: one(users, {
-      fields: [oauthMcpAccessTokens.userId],
+      fields: [oauthAccessTokens.userId],
       references: [users.id],
     }),
-    refreshTokens: many(oauthMcpRefreshTokens),
+    refreshTokens: many(oauthRefreshTokens),
   }),
 )
 
-export const oauthMcpRefreshTokensRelations = relations(
-  oauthMcpRefreshTokens,
+export const oauthRefreshTokensRelations = relations(
+  oauthRefreshTokens,
   ({ one }) => ({
     user: one(users, {
-      fields: [oauthMcpRefreshTokens.userId],
+      fields: [oauthRefreshTokens.userId],
       references: [users.id],
     }),
-    accessToken: one(oauthMcpAccessTokens, {
-      fields: [oauthMcpRefreshTokens.accessTokenId],
-      references: [oauthMcpAccessTokens.id],
+    accessToken: one(oauthAccessTokens, {
+      fields: [oauthRefreshTokens.accessTokenId],
+      references: [oauthAccessTokens.id],
     }),
   }),
 )
+
+// Backwards compatibility relation aliases
+/** @deprecated Use oauthAuthorizationCodesRelations instead */
+export const oauthMcpAuthorizationCodesRelations =
+  oauthAuthorizationCodesRelations
+/** @deprecated Use oauthAccessTokensRelations instead */
+export const oauthMcpAccessTokensRelations = oauthAccessTokensRelations
+/** @deprecated Use oauthRefreshTokensRelations instead */
+export const oauthMcpRefreshTokensRelations = oauthRefreshTokensRelations

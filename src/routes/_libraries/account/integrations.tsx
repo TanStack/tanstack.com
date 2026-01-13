@@ -10,7 +10,7 @@ import {
 import {
   listConnectedApps,
   revokeConnectedApp,
-} from '~/utils/oauthMcp.functions'
+} from '~/utils/oauthClient.functions'
 import { useToast } from '~/components/ToastProvider'
 import { Card } from '~/components/Card'
 import { Button } from '~/components/Button'
@@ -446,36 +446,6 @@ function IntegrationsPage() {
           ))
         )}
       </Card>
-
-      <div>
-        <h4 className="font-medium text-gray-900 dark:text-white text-sm mb-2">
-          Using API keys with MCP
-        </h4>
-        <p className="text-xs text-gray-600 dark:text-gray-300 mb-3">
-          Most MCP clients support OAuth and don't need an API key. For clients
-          that require manual authentication, add your API key to the
-          configuration. See the{' '}
-          <Link
-            to="/mcp/latest/docs/connecting"
-            className="text-blue-600 dark:text-blue-400 hover:underline"
-          >
-            MCP connection guide
-          </Link>{' '}
-          for setup instructions.
-        </p>
-        <CodeBlock data-code-title="mcp.json">
-          <code className="language-json">{`{
-  "mcpServers": {
-    "tanstack": {
-      "url": "https://tanstack.com/api/mcp",
-      "headers": {
-        "Authorization": "Bearer YOUR_API_KEY"
-      }
-    }
-  }
-}`}</code>
-        </CodeBlock>
-      </div>
     </div>
   )
 }

@@ -3,7 +3,7 @@ import { setResponseHeader } from '@tanstack/react-start/server'
 import {
   exchangeAuthorizationCode,
   refreshAccessToken,
-} from '~/mcp/oauth.server'
+} from '~/auth/oauthClient.server'
 
 export const Route = createFileRoute('/oauth/token')({
   // @ts-expect-error server property not in route types yet

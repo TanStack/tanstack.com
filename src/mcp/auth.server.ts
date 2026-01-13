@@ -1,7 +1,10 @@
 import { db } from '~/db/client'
 import { mcpApiKeys, mcpRateLimits } from '~/db/schema'
 import { eq, sql } from 'drizzle-orm'
-import { validateOAuthToken } from './oauth.server'
+import {
+  validateOAuthToken,
+  isOAuthClientToken,
+} from '~/auth/oauthClient.server'
 
 export type AuthResult =
   | { success: true; keyId: string; userId: string; rateLimitPerMinute: number }
@@ -65,9 +68,18 @@ export async function validateMcpAuth(
 
   const rawToken = match[1]
 
-  // OAuth access token: mcp_...
-  if (rawToken.startsWith('mcp_')) {
-    return validateOAuthToken(rawToken)
+  // OAuth access token: oa_... or mcp_... (legacy)
+  if (isOAuthClientToken(rawToken)) {
+    const oauthResult = await validateOAuthToken(rawToken)
+    if (!oauthResult.success) {
+      return oauthResult
+    }
+    return {
+      success: true,
+      keyId: oauthResult.tokenId,
+      userId: oauthResult.userId,
+      rateLimitPerMinute: 200, // Default rate limit for OAuth tokens
+    }
   }
 
   // API key: ts_... (or legacy keys without prefix)

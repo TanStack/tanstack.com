@@ -4,9 +4,8 @@ import { setResponseHeader } from '@tanstack/react-start/server'
 /**
  * OAuth 2.0 Dynamic Client Registration (RFC 7591)
  *
- * For MCP, we implement a simplified registration that accepts any client
- * and returns a client_id. Since we use PKCE and public clients, we don't
- * need client secrets.
+ * Simplified registration that accepts any client and returns a client_id.
+ * Since we use PKCE and public clients, we don't need client secrets.
  */
 export const Route = createFileRoute('/oauth/register')({
   // @ts-expect-error server property not in route types yet
@@ -25,7 +24,7 @@ export const Route = createFileRoute('/oauth/register')({
           const body = await request.json()
 
           // Extract client metadata from request
-          const clientName = body.client_name || 'MCP Client'
+          const clientName = body.client_name || 'OAuth Client'
           const redirectUris = body.redirect_uris || []
 
           // Validate redirect URIs
@@ -115,7 +114,7 @@ function generateClientId(clientName: string): string {
     hash = hash & hash // Convert to 32bit integer
   }
   const hashStr = Math.abs(hash).toString(16).padStart(8, '0')
-  return `mcp-${hashStr}-${clientName
+  return `ts-${hashStr}-${clientName
     .toLowerCase()
     .replace(/[^a-z0-9]/g, '-')
     .slice(0, 20)}`

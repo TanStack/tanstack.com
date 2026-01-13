@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import * as v from 'valibot'
-import { createAuthorizationCode } from '~/utils/oauthMcp.functions'
+import { createAuthorizationCode } from '~/utils/oauthClient.functions'
 import { getCurrentUser } from '~/utils/auth.server'
 import { Card } from '~/components/Card'
 import { Button } from '~/components/Button'
@@ -129,7 +129,7 @@ export const Route = createFileRoute('/oauth/authorize')({
       codeChallenge: deps.code_challenge,
       codeChallengeMethod: deps.code_challenge_method || 'S256',
       state: deps.state,
-      scope: deps.scope || 'mcp',
+      scope: deps.scope || 'api',
     }
   },
 })
@@ -231,7 +231,7 @@ function AuthorizePage() {
         </h1>
 
         <p className="text-gray-600 dark:text-gray-400 text-sm text-center mb-6">
-          This application wants to access TanStack MCP on your behalf.
+          This application wants to access the TanStack API on your behalf.
         </p>
 
         <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 mb-6">

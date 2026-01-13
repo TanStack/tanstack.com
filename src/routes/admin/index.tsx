@@ -540,11 +540,22 @@ function ActivityTab({
             <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
               WAU (7 days)
             </div>
-            <div className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-              {dauStats.wau}
+            <div className="flex items-center gap-3 mb-2">
+              <div className="text-4xl font-bold text-gray-900 dark:text-white">
+                {dauStats.wau}
+              </div>
+              {dauStats.wauPrevious > 0 && (
+                <ChangeIndicator
+                  value={
+                    ((dauStats.wau - dauStats.wauPrevious) /
+                      dauStats.wauPrevious) *
+                    100
+                  }
+                />
+              )}
             </div>
             <div className="text-xs text-gray-500 dark:text-gray-400">
-              Weekly active users
+              vs previous 7 days ({dauStats.wauPrevious})
             </div>
           </Card>
 
@@ -552,11 +563,22 @@ function ActivityTab({
             <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
               MAU (30 days)
             </div>
-            <div className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-              {dauStats.mau}
+            <div className="flex items-center gap-3 mb-2">
+              <div className="text-4xl font-bold text-gray-900 dark:text-white">
+                {dauStats.mau}
+              </div>
+              {dauStats.mauPrevious > 0 && (
+                <ChangeIndicator
+                  value={
+                    ((dauStats.mau - dauStats.mauPrevious) /
+                      dauStats.mauPrevious) *
+                    100
+                  }
+                />
+              )}
             </div>
             <div className="text-xs text-gray-500 dark:text-gray-400">
-              Monthly active users
+              vs previous 30 days ({dauStats.mauPrevious})
             </div>
           </Card>
 
@@ -608,11 +630,23 @@ function ActivityTab({
             <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
               Active Users Today
             </div>
-            <div className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-              {activityStats.activeUsers.today}
+            <div className="flex items-center gap-3 mb-2">
+              <div className="text-4xl font-bold text-gray-900 dark:text-white">
+                {activityStats.activeUsers.today}
+              </div>
+              {activityStats.activeUsers.yesterday > 0 && (
+                <ChangeIndicator
+                  value={
+                    ((activityStats.activeUsers.today -
+                      activityStats.activeUsers.yesterday) /
+                      activityStats.activeUsers.yesterday) *
+                    100
+                  }
+                />
+              )}
             </div>
             <div className="text-xs text-gray-500 dark:text-gray-400">
-              Unique users who logged in
+              vs yesterday ({activityStats.activeUsers.yesterday})
             </div>
           </Card>
 
@@ -620,11 +654,23 @@ function ActivityTab({
             <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
               Active Users (7d)
             </div>
-            <div className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-              {activityStats.activeUsers.last7Days}
+            <div className="flex items-center gap-3 mb-2">
+              <div className="text-4xl font-bold text-gray-900 dark:text-white">
+                {activityStats.activeUsers.last7Days}
+              </div>
+              {activityStats.activeUsers.previous7Days > 0 && (
+                <ChangeIndicator
+                  value={
+                    ((activityStats.activeUsers.last7Days -
+                      activityStats.activeUsers.previous7Days) /
+                      activityStats.activeUsers.previous7Days) *
+                    100
+                  }
+                />
+              )}
             </div>
             <div className="text-xs text-gray-500 dark:text-gray-400">
-              Last 7 days
+              vs previous 7 days ({activityStats.activeUsers.previous7Days})
             </div>
           </Card>
 
@@ -632,11 +678,23 @@ function ActivityTab({
             <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
               Active Users (30d)
             </div>
-            <div className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-              {activityStats.activeUsers.last30Days}
+            <div className="flex items-center gap-3 mb-2">
+              <div className="text-4xl font-bold text-gray-900 dark:text-white">
+                {activityStats.activeUsers.last30Days}
+              </div>
+              {activityStats.activeUsers.previous30Days > 0 && (
+                <ChangeIndicator
+                  value={
+                    ((activityStats.activeUsers.last30Days -
+                      activityStats.activeUsers.previous30Days) /
+                      activityStats.activeUsers.previous30Days) *
+                    100
+                  }
+                />
+              )}
             </div>
             <div className="text-xs text-gray-500 dark:text-gray-400">
-              Last 30 days
+              vs previous 30 days ({activityStats.activeUsers.previous30Days})
             </div>
           </Card>
         </div>

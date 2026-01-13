@@ -1,5 +1,5 @@
 import { twMerge } from 'tailwind-merge'
-import { Fan } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 
 interface SpinnerProps {
   className?: string
@@ -7,7 +7,7 @@ interface SpinnerProps {
 
 export function Spinner({ className }: SpinnerProps) {
   return (
-    <Fan
+    <Loader2
       className={twMerge(
         'animate-spin text-gray-900 dark:text-white text-2xl',
         className,

@@ -276,15 +276,47 @@ export const getActivityStats = createServerFn({ method: 'POST' }).handler(
       .from(loginHistory)
       .where(gte(loginHistory.createdAt, today))
 
+    const [uniqueActiveYesterday] = await db
+      .select({ count: sql<number>`count(distinct ${loginHistory.userId})` })
+      .from(loginHistory)
+      .where(
+        and(
+          gte(loginHistory.createdAt, yesterday),
+          lte(loginHistory.createdAt, today),
+        ),
+      )
+
     const [uniqueActiveLast7Days] = await db
       .select({ count: sql<number>`count(distinct ${loginHistory.userId})` })
       .from(loginHistory)
       .where(gte(loginHistory.createdAt, last7Days))
 
+    const last14Days = new Date(today.getTime() - 14 * 24 * 60 * 60 * 1000)
+    const [uniqueActivePrevious7Days] = await db
+      .select({ count: sql<number>`count(distinct ${loginHistory.userId})` })
+      .from(loginHistory)
+      .where(
+        and(
+          gte(loginHistory.createdAt, last14Days),
+          lte(loginHistory.createdAt, last7Days),
+        ),
+      )
+
     const [uniqueActiveLast30Days] = await db
       .select({ count: sql<number>`count(distinct ${loginHistory.userId})` })
       .from(loginHistory)
       .where(gte(loginHistory.createdAt, last30Days))
+
+    const last60Days = new Date(today.getTime() - 60 * 24 * 60 * 60 * 1000)
+    const [uniqueActivePrevious30Days] = await db
+      .select({ count: sql<number>`count(distinct ${loginHistory.userId})` })
+      .from(loginHistory)
+      .where(
+        and(
+          gte(loginHistory.createdAt, last60Days),
+          lte(loginHistory.createdAt, last30Days),
+        ),
+      )
 
     // Provider breakdown
     const providerStats = await db
@@ -353,8 +385,11 @@ export const getActivityStats = createServerFn({ method: 'POST' }).handler(
       },
       activeUsers: {
         today: Number(uniqueActiveToday.count),
+        yesterday: Number(uniqueActiveYesterday.count),
         last7Days: Number(uniqueActiveLast7Days.count),
+        previous7Days: Number(uniqueActivePrevious7Days.count),
         last30Days: Number(uniqueActiveLast30Days.count),
+        previous30Days: Number(uniqueActivePrevious30Days.count),
       },
       providerBreakdown: providerStats.reduce(
         (acc, { provider, count }) => {

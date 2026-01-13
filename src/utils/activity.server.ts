@@ -107,6 +107,8 @@ export async function getActiveUserStats(): Promise<{
   wau: number
   mau: number
   dauYesterday: number
+  wauPrevious: number
+  mauPrevious: number
 }> {
   const today = getTodayDate()
   const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000)
@@ -115,7 +117,13 @@ export async function getActiveUserStats(): Promise<{
   const last7Days = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
     .toISOString()
     .split('T')[0]
+  const last14Days = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .split('T')[0]
   const last30Days = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .split('T')[0]
+  const last60Days = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000)
     .toISOString()
     .split('T')[0]
 
@@ -134,16 +142,40 @@ export async function getActiveUserStats(): Promise<{
     .from(userActivity)
     .where(gte(userActivity.date, last7Days))
 
+  // Previous 7 days (day 8-14)
+  const [wauPreviousResult] = await db
+    .select({ count: sql<number>`count(distinct ${userActivity.userId})` })
+    .from(userActivity)
+    .where(
+      and(
+        gte(userActivity.date, last14Days),
+        sql`${userActivity.date} < ${last7Days}`,
+      ),
+    )
+
   const [mauResult] = await db
     .select({ count: sql<number>`count(distinct ${userActivity.userId})` })
     .from(userActivity)
     .where(gte(userActivity.date, last30Days))
 
+  // Previous 30 days (day 31-60)
+  const [mauPreviousResult] = await db
+    .select({ count: sql<number>`count(distinct ${userActivity.userId})` })
+    .from(userActivity)
+    .where(
+      and(
+        gte(userActivity.date, last60Days),
+        sql`${userActivity.date} < ${last30Days}`,
+      ),
+    )
+
   return {
     dau: Number(dauResult.count),
     dauYesterday: Number(dauYesterdayResult.count),
     wau: Number(wauResult.count),
+    wauPrevious: Number(wauPreviousResult.count),
     mau: Number(mauResult.count),
+    mauPrevious: Number(mauPreviousResult.count),
   }
 }
 

@@ -47,6 +47,7 @@ import { useAdminGuard } from '~/hooks/useAdminGuard'
 import { useToggleArray } from '~/hooks/useToggleArray'
 import { handleAdminError } from '~/utils/adminErrors'
 import { requireCapability } from '~/utils/auth.server'
+import { Badge } from '~/ui'
 
 // User type for table - matches the shape returned by listUsers
 type User = {
@@ -129,12 +130,9 @@ function UserRolesCell({
   return (
     <div className="flex flex-wrap gap-1">
       {(userRoles || []).map((role) => (
-        <span
-          key={role._id}
-          className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300"
-        >
+        <Badge key={role._id} variant="purple">
           {role.name}
-        </span>
+        </Badge>
       ))}
       {(!userRoles || userRoles.length === 0) && (
         <span className="text-sm text-gray-500 dark:text-gray-400">
@@ -163,12 +161,9 @@ function EffectiveCapabilitiesCell({
   return (
     <div className="flex flex-wrap gap-1">
       {(effectiveCapabilities || []).map((capability: string) => (
-        <span
-          key={capability}
-          className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
-        >
+        <Badge key={capability} variant="success">
           {capability}
-        </span>
+        </Badge>
       ))}
       {(!effectiveCapabilities || effectiveCapabilities.length === 0) && (
         <span className="text-sm text-gray-500 dark:text-gray-400">None</span>
@@ -230,14 +225,6 @@ function UsersPage() {
   const useEffectiveCapabilities = search.useEffectiveCapabilities ?? true
   const sortBy = search.sortBy
   const sortDir = search.sortDir
-
-  const hasActiveFilters =
-    emailFilter !== '' ||
-    nameFilter !== '' ||
-    capabilityFilters.length > 0 ||
-    noCapabilitiesFilter ||
-    adsDisabledFilter !== 'all' ||
-    waitlistFilter !== 'all'
 
   const handleClearFilters = () => {
     navigate({
@@ -479,23 +466,6 @@ function UsersPage() {
     [adminSetAdsDisabled],
   )
 
-  const handleCapabilityToggle = useCallback(
-    (capability: string) => {
-      const newFilters = capabilityFilters.includes(capability)
-        ? capabilityFilters.filter((c: string) => c !== capability)
-        : [...capabilityFilters, capability]
-      navigate({
-        resetScroll: false,
-        search: (prev: UsersSearch) => ({
-          ...prev,
-          cap: newFilters.length > 0 ? newFilters : undefined,
-          page: 0,
-        }),
-      })
-    },
-    [capabilityFilters, navigate],
-  )
-
   const handleSort = useCallback(
     (column: Column<User, unknown>) => {
       const columnId = column.id
@@ -627,12 +597,9 @@ function UsersPage() {
           ) : (
             <div className="flex flex-wrap gap-1">
               {(user.capabilities || []).map((capability: string) => (
-                <span
-                  key={capability}
-                  className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
-                >
+                <Badge key={capability} variant="info">
                   {capability}
-                </span>
+                </Badge>
               ))}
               {(!user.capabilities || user.capabilities.length === 0) && (
                 <span className="text-sm text-gray-500 dark:text-gray-400">
@@ -710,15 +677,9 @@ function UsersPage() {
           const user = row.original
           const onWaitlist = Boolean(user.interestedInHidingAds)
           return (
-            <span
-              className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                onWaitlist
-                  ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                  : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
-              }`}
-            >
+            <Badge variant={onWaitlist ? 'success' : 'default'}>
               {onWaitlist ? 'Yes' : 'No'}
-            </span>
+            </Badge>
           )
         },
       },

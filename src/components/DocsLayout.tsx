@@ -789,7 +789,7 @@ export function DocsLayout({
                     </a>
                   </div>
                   {activePartners
-                    .filter((d) => d.id !== 'ui-dev')
+                    .filter((d) => d.id !== 'fireship')
                     .map((partner) => {
                       // flexBasis as percentage based on score, flexGrow to fill remaining row space
                       const widthPercent = Math.round(partner.score * 100)

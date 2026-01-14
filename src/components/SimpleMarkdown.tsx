@@ -8,7 +8,7 @@ import parse, {
   HTMLReactParserOptions,
 } from 'html-react-parser'
 import { renderMarkdown } from '~/utils/markdown'
-import { getNetlifyImageUrl } from '~/utils/netlifyImage'
+import { InlineCode, MarkdownImg } from '~/ui'
 
 /**
  * Lightweight markdown renderer for simple content like excerpts.
@@ -18,16 +18,7 @@ import { getNetlifyImageUrl } from '~/utils/netlifyImage'
 
 const markdownComponents: Record<string, React.FC<any>> = {
   a: MarkdownLink,
-  code: function Code({ className, ...rest }: HTMLProps<HTMLElement>) {
-    return (
-      <span
-        className={`border border-gray-500/20 bg-gray-500/10 rounded px-1 py-0.5${
-          className ? ` ${className}` : ''
-        }`}
-        {...rest}
-      />
-    )
-  },
+  code: InlineCode,
   pre: function Pre({ children, ...rest }: HTMLProps<HTMLPreElement>) {
     return (
       <pre
@@ -38,22 +29,7 @@ const markdownComponents: Record<string, React.FC<any>> = {
       </pre>
     )
   },
-  img: ({
-    alt,
-    src,
-    className,
-    children: _,
-    ...props
-  }: HTMLProps<HTMLImageElement>) => (
-    <img
-      {...props}
-      src={src ? getNetlifyImageUrl(src) : undefined}
-      alt={alt ?? ''}
-      className={`max-w-full h-auto rounded-lg shadow-md ${className ?? ''}`}
-      loading="lazy"
-      decoding="async"
-    />
-  ),
+  img: MarkdownImg,
 }
 
 const options: HTMLReactParserOptions = {

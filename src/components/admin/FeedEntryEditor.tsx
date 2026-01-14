@@ -18,6 +18,7 @@ import {
   Calendar,
   Check,
 } from 'lucide-react'
+import { FormInput } from '~/ui'
 
 interface FeedEntryEditorProps {
   entry: FeedEntry | null
@@ -150,8 +151,6 @@ export function FeedEntryEditor({
     'px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50'
   const labelClass =
     'block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2'
-  const inputClass =
-    'w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow'
   const chipBase = 'px-3 py-1.5 rounded-full text-sm font-medium transition-all'
   const chipUnselected =
     'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
@@ -217,11 +216,10 @@ export function FeedEntryEditor({
                 <label htmlFor="title" className={labelClass}>
                   Title <span className="text-red-500">*</span>
                 </label>
-                <input
+                <FormInput
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className={inputClass}
                   placeholder="Enter a descriptive title"
                 />
               </div>
@@ -255,7 +253,7 @@ export function FeedEntryEditor({
                   value={excerpt}
                   onChange={(e) => setExcerpt(e.target.value)}
                   rows={2}
-                  className={inputClass}
+                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
                   placeholder="Brief summary for feed previews"
                 />
               </div>
@@ -266,11 +264,10 @@ export function FeedEntryEditor({
                   <Calendar className="inline mr-2 w-4 h-4 text-gray-400" />
                   Published Date <span className="text-red-500">*</span>
                 </label>
-                <input
+                <FormInput
                   type="date"
                   value={publishedAt}
                   onChange={(e) => setPublishedAt(e.target.value)}
-                  className={inputClass}
                 />
               </div>
             </div>
@@ -366,11 +363,10 @@ export function FeedEntryEditor({
                     (comma-separated)
                   </span>
                 </label>
-                <input
+                <FormInput
                   type="text"
                   value={tags}
                   onChange={(e) => setTags(e.target.value)}
-                  className={inputClass}
                   placeholder="e.g., release:major, breaking-change"
                 />
               </div>

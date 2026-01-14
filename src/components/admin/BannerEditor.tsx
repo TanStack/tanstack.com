@@ -22,6 +22,7 @@ import {
   Gift,
   ExternalLink,
 } from 'lucide-react'
+import { FormInput } from '~/ui'
 
 interface BannerEditorProps {
   banner: BannerWithMeta | null
@@ -186,8 +187,6 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
     'px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50'
   const labelClass =
     'block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2'
-  const inputClass =
-    'w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow'
 
   return (
     <div className="min-h-full">
@@ -250,11 +249,10 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
                 <label htmlFor="title" className={labelClass}>
                   Title <span className="text-red-500">*</span>
                 </label>
-                <input
+                <FormInput
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className={inputClass}
                   placeholder="Enter banner title"
                 />
               </div>
@@ -271,7 +269,7 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   rows={2}
-                  className={inputClass}
+                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
                   placeholder="Optional additional details"
                 />
               </div>
@@ -301,11 +299,10 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
                 <label htmlFor="linkUrl" className={labelClass}>
                   Link URL
                 </label>
-                <input
+                <FormInput
                   type="url"
                   value={linkUrl}
                   onChange={(e) => setLinkUrl(e.target.value)}
-                  className={inputClass}
                   placeholder="https://example.com/page"
                 />
               </div>
@@ -318,11 +315,10 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
                     (Button text - defaults to "Learn More")
                   </span>
                 </label>
-                <input
+                <FormInput
                   type="text"
                   value={linkText}
                   onChange={(e) => setLinkText(e.target.value)}
-                  className={inputClass}
                   placeholder="Learn More"
                 />
               </div>
@@ -484,7 +480,7 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
 
                   {/* Custom path input */}
                   <div className="flex gap-2 mb-3">
-                    <input
+                    <FormInput
                       type="text"
                       value={newPathPrefix}
                       onChange={(e) => setNewPathPrefix(e.target.value)}
@@ -495,7 +491,8 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
                         }
                       }}
                       placeholder="/custom/path"
-                      className="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      focusRing="purple"
+                      className="flex-1 px-3 py-2 text-sm"
                     />
                     <button
                       type="button"
@@ -589,11 +586,11 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
                     (Optional - shows immediately if empty)
                   </span>
                 </label>
-                <input
+                <FormInput
                   type="datetime-local"
                   value={startsAt}
                   onChange={(e) => setStartsAt(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-shadow"
+                  focusRing="orange"
                 />
               </div>
 
@@ -605,11 +602,11 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
                     (Optional - never expires if empty)
                   </span>
                 </label>
-                <input
+                <FormInput
                   type="datetime-local"
                   value={expiresAt}
                   onChange={(e) => setExpiresAt(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-shadow"
+                  focusRing="orange"
                 />
               </div>
 
@@ -621,11 +618,11 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
                     (Higher = shown first when multiple banners match)
                   </span>
                 </label>
-                <input
+                <FormInput
                   type="number"
                   value={priority}
                   onChange={(e) => setPriority(parseInt(e.target.value) || 0)}
-                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-shadow"
+                  focusRing="orange"
                 />
               </div>
             </div>

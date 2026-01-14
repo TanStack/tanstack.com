@@ -1,19 +1,14 @@
+import type { HTMLProps } from 'react'
 import * as React from 'react'
 import { MarkdownLink } from './MarkdownLink'
-import type { HTMLProps } from 'react'
 
-import parse, {
-  attributesToProps,
-  domToReact,
-  Element,
-  HTMLReactParserOptions,
-} from 'html-react-parser'
+import parse, { attributesToProps, domToReact, Element, HTMLReactParserOptions, } from 'html-react-parser'
 
 import { renderMarkdown } from '~/utils/markdown'
-import { getNetlifyImageUrl } from '~/utils/netlifyImage'
 import { CodeBlock } from './CodeBlock'
 import { handleTabsComponent } from './MarkdownTabsHandler'
 import { handleFrameworkComponent } from './MarkdownFrameworkHandler'
+import { InlineCode, MarkdownImg } from '~/ui'
 
 type HeadingLevel = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
 
@@ -67,39 +62,6 @@ const makeHeading =
     />
   )
 
-const InlineCode = React.memo(function InlineCode({
-  className,
-  ...rest
-}: HTMLProps<HTMLElement>) {
-  return (
-    <span
-      className={`border border-gray-500/20 bg-gray-500/10 rounded px-1 py-0.5${
-        className ? ` ${className}` : ''
-      }`}
-      {...rest}
-    />
-  )
-})
-
-const MarkdownImage = React.memo(function MarkdownImage({
-  alt,
-  src,
-  className,
-  children: _,
-  ...props
-}: HTMLProps<HTMLImageElement>) {
-  return (
-    <img
-      {...props}
-      src={src ? getNetlifyImageUrl(src) : undefined}
-      alt={alt ?? ''}
-      className={`max-w-full h-auto rounded-lg shadow-md ${className ?? ''}`}
-      loading="lazy"
-      decoding="async"
-    />
-  )
-})
-
 const MarkdownIframe = React.memo(function MarkdownIframe(
   props: HTMLProps<HTMLIFrameElement>,
 ) {
@@ -117,7 +79,7 @@ const markdownComponents: Record<string, React.FC> = {
   h6: makeHeading('h6'),
   code: InlineCode,
   iframe: MarkdownIframe,
-  img: MarkdownImage,
+  img: MarkdownImg,
 }
 
 const options: HTMLReactParserOptions = {
@@ -178,13 +140,11 @@ export const Markdown = React.memo(function Markdown({
     return { markup: '', headings: [] }
   }, [rawContent, htmlMarkup])
 
-  const parsed = React.useMemo(() => {
+  return React.useMemo(() => {
     if (!rendered.markup) {
       return null
     }
 
     return parse(rendered.markup, options)
   }, [rendered.markup])
-
-  return parsed
 })

@@ -18,6 +18,7 @@ const STORAGE_KEY = 'tanstack-island-explorer'
 interface PurchasedBoosts {
   permSpeed: number // Number of permanent speed boosts purchased
   permAccel: number // Number of permanent acceleration boosts purchased
+  permHealth: number // Number of permanent health boosts purchased (+25 each, max 8)
   rapidFire: boolean // Whether rapid fire (auto-loader) is purchased
 }
 
@@ -119,6 +120,7 @@ export interface CoinData {
   id: number
   position: [number, number, number]
   collected: boolean
+  collectedAt?: number // Timestamp when collected (for respawn timer)
 }
 
 export type BoatType = 'dinghy' | 'ship'
@@ -233,6 +235,7 @@ interface GameState {
   coinsCollected: number
   setCoins: (coins: CoinData[]) => void
   collectCoin: (id: number) => void
+  respawnCoins: () => void // Respawn coins that have been collected for long enough
 
   // Boundary collision (which edges are being hit)
   boundaryEdges: {
@@ -351,6 +354,7 @@ const initialState = {
   purchasedBoosts: {
     permSpeed: 0,
     permAccel: 0,
+    permHealth: 0,
     rapidFire: false,
   } as PurchasedBoosts,
 }
@@ -636,9 +640,28 @@ export const useGameStore = create<GameState>()((set, get) => ({
     const coin = coins.find((c) => c.id === id)
     if (coin && !coin.collected) {
       const newCoins = coins.map((c) =>
-        c.id === id ? { ...c, collected: true } : c,
+        c.id === id ? { ...c, collected: true, collectedAt: Date.now() } : c,
       )
       set({ coins: newCoins, coinsCollected: coinsCollected + 1 })
+    }
+  },
+
+  respawnCoins: () => {
+    const { coins } = get()
+    const now = Date.now()
+    const RESPAWN_DELAY = 60000 // 60 seconds to respawn
+
+    let hasChanges = false
+    const newCoins = coins.map((c) => {
+      if (c.collected && c.collectedAt && now - c.collectedAt > RESPAWN_DELAY) {
+        hasChanges = true
+        return { ...c, collected: false, collectedAt: undefined }
+      }
+      return c
+    })
+
+    if (hasChanges) {
+      set({ coins: newCoins })
     }
   },
 
@@ -835,8 +858,9 @@ export const useGameStore = create<GameState>()((set, get) => ({
         break
       }
       case 'healthPack': {
-        // Restore 50 health, up to max
-        const newHealth = Math.min(boatHealth + 50, shipStats.maxHealth)
+        // Restore 50 health, up to max (including purchased health boosts)
+        const maxHealth = shipStats.maxHealth + purchasedBoosts.permHealth * 25
+        const newHealth = Math.min(boatHealth + 50, maxHealth)
         set({ boatHealth: newHealth })
         break
       }
@@ -857,6 +881,20 @@ export const useGameStore = create<GameState>()((set, get) => ({
             ...purchasedBoosts,
             permAccel: purchasedBoosts.permAccel + 1,
           },
+        })
+        break
+      }
+      case 'permHealth': {
+        // Permanent +25 max health boost
+        const newPermHealth = purchasedBoosts.permHealth + 1
+        const healthBonus = 25 // Each purchase adds 25 max health
+        set({
+          purchasedBoosts: {
+            ...purchasedBoosts,
+            permHealth: newPermHealth,
+          },
+          // Also increase current health by the bonus amount
+          boatHealth: boatHealth + healthBonus,
         })
         break
       }
@@ -930,19 +968,58 @@ export const useGameStore = create<GameState>()((set, get) => ({
       unlockedUpgrades,
       shipStats,
       purchasedBoosts,
+      boatPosition,
     } = get()
 
     // World boundary depends on showcase unlock status
     const worldBoundary = showcaseUnlocked ? 520 : EXPANDED_WORLD_BOUNDARY
 
+    // Find nearest discovered island to respawn at
+    const allIslands = [
+      ...islands,
+      ...expandedIslands,
+      ...showcaseIslands,
+      ...cornerIslands,
+    ]
+    const discoveredIslandsList = allIslands.filter((i) =>
+      discoveredIslands.has(i.id),
+    )
+
+    let spawnPosition: [number, number, number] = [0, 0, 0]
+    if (discoveredIslandsList.length > 0) {
+      // Find nearest discovered island to death position
+      let nearestIsland = discoveredIslandsList[0]
+      let nearestDist = Infinity
+      for (const island of discoveredIslandsList) {
+        const dx = island.position[0] - boatPosition[0]
+        const dz = island.position[2] - boatPosition[2]
+        const dist = dx * dx + dz * dz
+        if (dist < nearestDist) {
+          nearestDist = dist
+          nearestIsland = island
+        }
+      }
+      // Spawn slightly away from the island (not inside it)
+      const spawnOffset = 8
+      const angle = Math.random() * Math.PI * 2
+      spawnPosition = [
+        nearestIsland.position[0] + Math.cos(angle) * spawnOffset,
+        0,
+        nearestIsland.position[2] + Math.sin(angle) * spawnOffset,
+      ]
+    }
+
+    // Calculate total max health (upgrades + purchased boosts)
+    const totalMaxHealth = shipStats.maxHealth + purchasedBoosts.permHealth * 25
+
     set({
       phase: 'playing',
       stage: 'battle',
       boatType: 'ship',
-      boatPosition: [0, 0, 0],
+      boatPosition: spawnPosition,
       boatRotation: 0,
       boatVelocity: 0,
-      boatHealth: shipStats.maxHealth,
+      boatHealth: totalMaxHealth,
       isMovingForward: false,
       isMovingBackward: false,
       isTurningLeft: false,

@@ -68,13 +68,13 @@ const AI_STATS: Record<AIDifficulty, AIStats> = {
     aggroDistance: 90,
     attackDistance: 38,
   },
-  // Corner boss - absolutely insane
+  // Corner boss - tough but beatable
   boss: {
-    health: 500,
-    fireCooldown: 200, // Extremely fast fire
-    speed: 12,
-    turnSpeed: 5.0,
-    accuracy: 0.98,
+    health: 350,
+    fireCooldown: 350, // Fast fire but not overwhelming
+    speed: 10,
+    turnSpeed: 4.0,
+    accuracy: 0.9,
     aggroDistance: 30, // Tiny aggro range - must get close
     attackDistance: 25,
   },

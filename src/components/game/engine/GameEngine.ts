@@ -739,16 +739,22 @@ export class GameEngine {
       this.coinSystem.update(delta, this.coins)
       this.cameraSystem.update(delta, time)
 
+      // Respawn coins that have been collected for long enough
+      useGameStore.getState().respawnCoins()
+
       if (state.stage === 'battle') {
         this.aiSystem.update(delta)
         this.cannonballSystem.update(delta, this.cannonballs)
         this.aiDebug.update()
 
         // Health regeneration
-        const { boatHealth, shipStats, setBoatHealth } = useGameStore.getState()
-        if (boatHealth < shipStats.maxHealth && shipStats.healthRegen > 0) {
+        const { boatHealth, shipStats, purchasedBoosts, setBoatHealth } =
+          useGameStore.getState()
+        const totalMaxHealth =
+          shipStats.maxHealth + purchasedBoosts.permHealth * 25
+        if (boatHealth < totalMaxHealth && shipStats.healthRegen > 0) {
           const newHealth = Math.min(
-            shipStats.maxHealth,
+            totalMaxHealth,
             boatHealth + shipStats.healthRegen * delta,
           )
           setBoatHealth(newHealth)

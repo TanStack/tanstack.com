@@ -154,7 +154,6 @@ const searchClient = liteClient(
   '10c34d6a5c89f6048cf644d601e65172',
 )
 
-// Context to share filter state between components
 const SearchFiltersContext = React.createContext<{
   selectedLibrary: string
   selectedFramework: string
@@ -166,15 +165,19 @@ const SearchFiltersContext = React.createContext<{
     value: string
     label: string
     count: number
-    isRefined: boolean
   }>
   frameworkItems: Array<{
     value: string
     label: string
     count: number
-    isRefined: boolean
   }>
+
+  libraryDropdownOpen: boolean
+  setLibraryDropdownOpen: (open: boolean) => void
+  frameworkDropdownOpen: boolean
+  setFrameworkDropdownOpen: (open: boolean) => void
 } | null>(null)
+
 
 function useSearchFilters() {
   const context = React.useContext(SearchFiltersContext)
@@ -190,7 +193,10 @@ function SearchFiltersProvider({ children }: { children: React.ReactNode }) {
   const userQuery = useCurrentUserQuery()
   const [selectedLibrary, setSelectedLibrary] = React.useState('')
   const lastUsedFramework = userQuery.data?.lastUsedFramework
-
+  const [libraryDropdownOpen, setLibraryDropdownOpen] =
+    React.useState(false)
+  const [frameworkDropdownOpen, setFrameworkDropdownOpen] =
+    React.useState(false)
   // Get initial framework from user preference (DB if logged in, localStorage otherwise)
   const getInitialFramework = React.useCallback(() => {
     if (lastUsedFramework) {
@@ -290,8 +296,13 @@ function SearchFiltersProvider({ children }: { children: React.ReactNode }) {
         refineFramework: selectFramework,
         libraryItems,
         frameworkItems,
+        libraryDropdownOpen,
+        setLibraryDropdownOpen,
+        frameworkDropdownOpen,
+        setFrameworkDropdownOpen,
       }}
     >
+
       {children}
     </SearchFiltersContext.Provider>
   )
@@ -556,16 +567,24 @@ const Hit = ({
 }
 
 function LibraryRefinement() {
-  const {
-    selectedLibrary,
-    setSelectedLibrary,
-    libraryItems: items,
-  } = useSearchFilters()
+const {
+  selectedLibrary,
+  setSelectedLibrary,
+  libraryItems: items,
+  libraryDropdownOpen,
+  setLibraryDropdownOpen,
+} = useSearchFilters()
+
 
   const currentLibrary = libraries.find((l) => l.id === selectedLibrary)
 
+
   return (
-    <Dropdown>
+      <Dropdown
+        open={libraryDropdownOpen}
+        onOpenChange={setLibraryDropdownOpen}
+      >
+
       <DropdownTrigger asChild={false}>
         <button className="flex items-center gap-1 text-sm focus:outline-none cursor-pointer font-bold">
           {currentLibrary ? (
@@ -585,20 +604,27 @@ function LibraryRefinement() {
         align="start"
         className="max-h-[60vh] w-64 overflow-auto"
       >
-        <DropdownItem
-          onSelect={() => setSelectedLibrary('')}
-          className="font-bold"
-        >
-          All Libraries
-        </DropdownItem>
+      <DropdownItem
+        onSelect={() => {
+          setSelectedLibrary('')
+          setLibraryDropdownOpen(false)
+        }}
+        className="font-bold"
+      >
+        All Libraries
+      </DropdownItem>
+
         {items.map((item) => {
           const lib = libraries.find((l) => l.id === item.value)
           return (
             <DropdownItem
-              key={item.value}
-              onSelect={() => setSelectedLibrary(item.value)}
-              className="justify-between"
-            >
+                key={item.value}
+                onSelect={() => {
+                  setSelectedLibrary(item.value)
+                  setLibraryDropdownOpen(false)
+                }}
+                className="justify-between"
+              >
               <span className="uppercase font-black [letter-spacing:-.05em]">
                 <span className="opacity-50">TanStack</span>{' '}
                 <span className={lib?.textStyle ?? ''}>
@@ -617,16 +643,19 @@ function LibraryRefinement() {
 }
 
 function FrameworkRefinement() {
-  const {
-    selectedFramework,
-    setSelectedFramework,
-    frameworkItems: items,
-  } = useSearchFilters()
+const {
+  selectedFramework,
+  setSelectedFramework,
+  frameworkItems: items,
+  frameworkDropdownOpen,
+  setFrameworkDropdownOpen,
+} = useSearchFilters()
 
   const persistFramework = usePersistFrameworkPreference()
 
   const handleSelect = (value: string) => {
     setSelectedFramework(value)
+    setFrameworkDropdownOpen(false)
     if (value) {
       persistFramework(value)
     }
@@ -637,7 +666,12 @@ function FrameworkRefinement() {
   )
 
   return (
-    <Dropdown>
+      <Dropdown
+        open={frameworkDropdownOpen}
+        onOpenChange={setFrameworkDropdownOpen}
+        modal={true}
+      >
+
       <DropdownTrigger asChild={false}>
         <button className="flex items-center gap-1 text-sm font-bold focus:outline-none cursor-pointer">
           {currentFramework && (
@@ -659,7 +693,7 @@ function FrameworkRefinement() {
         align="start"
         className="max-h-[60vh] w-52 overflow-auto"
       >
-        <DropdownItem onSelect={() => handleSelect('')} className="font-bold">
+        <DropdownItem onSelect={() => {handleSelect('')}} className="font-bold">
           All Frameworks
         </DropdownItem>
         {items.map((item) => {

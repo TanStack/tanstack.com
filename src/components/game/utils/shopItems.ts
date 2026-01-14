@@ -1,6 +1,12 @@
 // Shop items that can be purchased with coins
 
-export type ShopItemType = 'compass' | 'speedBoost' | 'healthPack'
+export type ShopItemType =
+  | 'compass'
+  | 'speedBoost'
+  | 'healthPack'
+  | 'permSpeed'
+  | 'permAccel'
+  | 'rapidFire'
 
 export interface ShopItem {
   type: ShopItemType
@@ -10,6 +16,10 @@ export interface ShopItem {
   icon: string
   // Which stages this item is available in
   stages: ('exploration' | 'battle')[]
+  // Whether this item can be purchased multiple times (stacks)
+  stackable?: boolean
+  // For stackable items, max number of stacks (0 = unlimited)
+  maxStacks?: number
 }
 
 export const SHOP_ITEMS: ShopItem[] = [
@@ -36,6 +46,35 @@ export const SHOP_ITEMS: ShopItem[] = [
     cost: 15,
     icon: '💊',
     stages: ['battle'],
+  },
+  {
+    type: 'permSpeed',
+    name: 'Engine Upgrade',
+    description: 'Permanent +10% max speed',
+    cost: 25,
+    icon: '🚤',
+    stages: ['battle'],
+    stackable: true,
+    maxStacks: 0, // Unlimited
+  },
+  {
+    type: 'permAccel',
+    name: 'Turbo Intake',
+    description: 'Permanent +15% acceleration',
+    cost: 20,
+    icon: '💨',
+    stages: ['battle'],
+    stackable: true,
+    maxStacks: 0, // Unlimited
+  },
+  {
+    type: 'rapidFire',
+    name: 'Auto-Loader',
+    description: 'Hold fire to auto-shoot side cannons',
+    cost: 50,
+    icon: '🔁',
+    stages: ['battle'],
+    stackable: false,
   },
 ]
 

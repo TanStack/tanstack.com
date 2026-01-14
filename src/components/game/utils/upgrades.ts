@@ -24,26 +24,26 @@ export interface Upgrade {
 
 // All upgrade tiers - stackable upgrades have multiple tiers
 export const UPGRADES: Upgrade[] = [
-  // Sail Speed tiers (stackable: 1.15x each)
+  // Sail Speed tiers (stackable: 1.25x each)
   {
     type: 'sailSpeed',
     tier: 1,
     name: 'Swift Sails I',
-    description: 'Sail speed +15%',
+    description: 'Sail speed +25%',
     icon: '⚓',
   },
   {
     type: 'sailSpeed',
     tier: 2,
     name: 'Swift Sails II',
-    description: 'Sail speed +15%',
+    description: 'Sail speed +25%',
     icon: '⚓',
   },
   {
     type: 'sailSpeed',
     tier: 3,
     name: 'Swift Sails III',
-    description: 'Sail speed +15%',
+    description: 'Sail speed +25%',
     icon: '⚓',
   },
 
@@ -302,7 +302,7 @@ export function applyUpgrade(stats: ShipStats, upgrade: Upgrade): ShipStats {
 
   switch (upgrade.type) {
     case 'sailSpeed':
-      newStats.sailSpeed = stats.sailSpeed * 1.15
+      newStats.sailSpeed = stats.sailSpeed * 1.25
       break
     case 'turnRate':
       newStats.turnRate = stats.turnRate * 1.2

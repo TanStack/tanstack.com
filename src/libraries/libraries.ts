@@ -57,7 +57,7 @@ export const router: LibrarySlim = {
   ogImage: 'https://github.com/tanstack/router/raw/main/media/header.png',
   docsRoot: 'docs/router',
   defaultDocs: 'framework/react/overview',
-  installPath: 'framework/$framework/installation',
+  installPath: 'framework/$framework/quick-start',
   legacyPackages: ['react-location'],
   hideCodesandboxUrl: true,
   showNetlifyUrl: true,

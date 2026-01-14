@@ -805,16 +805,18 @@ export const fetchRecentDownloadStats = createServerFn({ method: 'POST' })
     // Add HTTP caching headers - shorter cache for recent data
     setResponseHeaders(
       new Headers({
-        'Cache-Control':
-          'public, max-age=300, stale-while-revalidate=600',
+        'Cache-Control': 'public, max-age=300, stale-while-revalidate=600',
         'Netlify-CDN-Cache-Control':
           'public, max-age=300, durable, stale-while-revalidate=600',
       }),
     )
 
     // Import db functions dynamically
-    const { getRegisteredPackages, getBatchNpmDownloadChunks, setCachedNpmDownloadChunk } =
-      await import('./stats-db.server')
+    const {
+      getRegisteredPackages,
+      getBatchNpmDownloadChunks,
+      setCachedNpmDownloadChunk,
+    } = await import('./stats-db.server')
 
     // Get all registered packages for this library (includes framework adapters)
     let packageNames = await getRegisteredPackages(data.library.id)
@@ -828,17 +830,41 @@ export const fetchRecentDownloadStats = createServerFn({ method: 'POST' })
     const todayStr = today.toISOString().substring(0, 10)
 
     // Calculate date ranges
-    const dailyStart = new Date(today.getTime() - 24 * 60 * 60 * 1000).toISOString().substring(0, 10)
-    const weeklyStart = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().substring(0, 10)
-    const monthlyStart = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString().substring(0, 10)
+    const dailyStart = new Date(today.getTime() - 24 * 60 * 60 * 1000)
+      .toISOString()
+      .substring(0, 10)
+    const weeklyStart = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .substring(0, 10)
+    const monthlyStart = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .substring(0, 10)
 
     // Create chunk requests for all packages and time periods
     const chunkRequests = []
     for (const packageName of packageNames) {
       chunkRequests.push(
-        { packageName, dateFrom: dailyStart, dateTo: todayStr, binSize: 'daily' as const, period: 'daily' },
-        { packageName, dateFrom: weeklyStart, dateTo: todayStr, binSize: 'daily' as const, period: 'weekly' },
-        { packageName, dateFrom: monthlyStart, dateTo: todayStr, binSize: 'daily' as const, period: 'monthly' },
+        {
+          packageName,
+          dateFrom: dailyStart,
+          dateTo: todayStr,
+          binSize: 'daily' as const,
+          period: 'daily',
+        },
+        {
+          packageName,
+          dateFrom: weeklyStart,
+          dateTo: todayStr,
+          binSize: 'daily' as const,
+          period: 'weekly',
+        },
+        {
+          packageName,
+          dateFrom: monthlyStart,
+          dateTo: todayStr,
+          binSize: 'daily' as const,
+          period: 'monthly',
+        },
       )
     }
 
@@ -908,7 +934,10 @@ export const fetchRecentDownloadStats = createServerFn({ method: 'POST' })
             dateFrom: req.dateFrom,
             dateTo: req.dateTo,
             binSize: req.binSize,
-            totalDownloads: downloads.reduce((sum: number, d: any) => sum + d.downloads, 0),
+            totalDownloads: downloads.reduce(
+              (sum: number, d: any) => sum + d.downloads,
+              0,
+            ),
             dailyData: downloads,
             isImmutable: false, // Recent data is mutable
             updatedAt: Date.now(),
@@ -916,7 +945,10 @@ export const fetchRecentDownloadStats = createServerFn({ method: 'POST' })
 
           // Cache this chunk asynchronously
           setCachedNpmDownloadChunk(chunkData).catch((err) =>
-            console.warn(`Failed to cache recent downloads for ${req.packageName}:`, err)
+            console.warn(
+              `Failed to cache recent downloads for ${req.packageName}:`,
+              err,
+            ),
           )
 
           return {
@@ -924,7 +956,10 @@ export const fetchRecentDownloadStats = createServerFn({ method: 'POST' })
             data: chunkData,
           }
         } catch (error) {
-          console.error(`Failed to fetch recent downloads for ${req.packageName}:`, error)
+          console.error(
+            `Failed to fetch recent downloads for ${req.packageName}:`,
+            error,
+          )
           // Return zero data on error
           return {
             key: `${req.packageName}|${req.dateFrom}|${req.dateTo}|${req.binSize}`,

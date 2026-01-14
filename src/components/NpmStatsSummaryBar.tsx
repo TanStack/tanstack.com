@@ -26,7 +26,9 @@ function isValidMetric(value: number | undefined | null): boolean {
 
 function NpmStatsSummaryContent({ library }: { library: LibrarySlim }) {
   const { data: stats } = useSuspenseQuery(ossStatsQuery({ library }))
-  const { data: recentStats } = useSuspenseQuery(recentDownloadStatsQuery({ library }))
+  const { data: recentStats } = useSuspenseQuery(
+    recentDownloadStatsQuery({ library }),
+  )
 
   const npmDownloads = stats.npm?.totalDownloads ?? 0
   const hasNpmDownloads = isValidMetric(npmDownloads)
@@ -46,11 +48,7 @@ function NpmStatsSummaryContent({ library }: { library: LibrarySlim }) {
         {/* All Time Downloads (Animated with ref callback) */}
         <div className="text-left">
           <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 relative">
-            {hasNpmDownloads ? (
-              <span ref={counterRef}>0</span>
-            ) : (
-              <span>0</span>
-            )}
+            {hasNpmDownloads ? <span ref={counterRef}>0</span> : <span>0</span>}
           </div>
           <div className="text-sm text-gray-500 dark:text-gray-400 font-medium mt-1">
             All Time Downloads
@@ -91,7 +89,11 @@ function NpmStatsSummaryContent({ library }: { library: LibrarySlim }) {
   )
 }
 
-export default function NpmStatsSummaryBar({ library }: { library: LibrarySlim }) {
+export default function NpmStatsSummaryBar({
+  library,
+}: {
+  library: LibrarySlim
+}) {
   return (
     <Suspense
       fallback={

@@ -1,5 +1,5 @@
 import { queryOptions } from '@tanstack/react-query'
-import { getOSSStats } from '~/utils/stats.server'
+import { getOSSStats, fetchRecentDownloadStats } from '~/utils/stats.server'
 import type { StatsQueryParams } from '~/utils/stats.server'
 import type { LibrarySlim } from '~/libraries'
 
@@ -25,4 +25,23 @@ export function ossStatsQuery({ library }: { library?: LibrarySlim } = {}) {
         }
       : undefined,
   })
+}
+
+export const recentDownloadStatsQueryOptions = (library: LibrarySlim) =>
+  queryOptions({
+    queryKey: ['stats', 'recent-downloads', library.id],
+    queryFn: () => fetchRecentDownloadStats({
+      data: {
+        library: {
+          id: library.id,
+          repo: library.repo,
+          frameworks: library.frameworks,
+        },
+      },
+    }),
+    staleTime: 1000 * 60 * 10, // Cache for 10 minutes (fresher than all-time stats)
+  })
+
+export function recentDownloadStatsQuery({ library }: { library: LibrarySlim }) {
+  return recentDownloadStatsQueryOptions(library)
 }

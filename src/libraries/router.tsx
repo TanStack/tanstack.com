@@ -16,6 +16,7 @@ export const routerProject = {
   defaultDocs: 'framework/react/overview',
   installPath: 'framework/$framework/quick-start',
   legacyPackages: ['react-location'],
+  competitors: ['react-router-dom', '@reach/router', 'next', 'remix'],
   hideCodesandboxUrl: true as const,
   showVercelUrl: false,
   showNetlifyUrl: true,

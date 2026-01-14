@@ -12,6 +12,7 @@ export const formProject = {
   latestBranch: 'main',
   bgRadial: 'from-yellow-500 via-yellow-600/50 to-transparent',
   textColor: 'text-yellow-600',
+  competitors: ['react-hook-form', 'formik', 'react-final-form', 'final-form'],
   testimonials: [
     {
       quote:

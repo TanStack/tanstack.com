@@ -786,3 +786,193 @@ export const fetchNpmDownloadChunk = createServerFn({ method: 'GET' })
       throw error
     }
   })
+
+/**
+ * Fetch recent download statistics (daily, weekly, monthly) for a library
+ * Uses getRegisteredPackages to include all framework adapters
+ */
+export const fetchRecentDownloadStats = createServerFn({ method: 'POST' })
+  .inputValidator(
+    v.object({
+      library: v.object({
+        id: v.string(),
+        repo: v.string(),
+        frameworks: v.optional(v.array(v.string())),
+      }),
+    }),
+  )
+  .handler(async ({ data }) => {
+    // Add HTTP caching headers - shorter cache for recent data
+    setResponseHeaders(
+      new Headers({
+        'Cache-Control':
+          'public, max-age=300, stale-while-revalidate=600',
+        'Netlify-CDN-Cache-Control':
+          'public, max-age=300, durable, stale-while-revalidate=600',
+      }),
+    )
+
+    // Import db functions dynamically
+    const { getRegisteredPackages, getBatchNpmDownloadChunks, setCachedNpmDownloadChunk } =
+      await import('./stats-db.server')
+
+    // Get all registered packages for this library (includes framework adapters)
+    let packageNames = await getRegisteredPackages(data.library.id)
+
+    // If no packages registered, fall back to basic package name
+    if (packageNames.length === 0) {
+      packageNames = [`@tanstack/${data.library.id}`]
+    }
+
+    const today = new Date()
+    const todayStr = today.toISOString().substring(0, 10)
+
+    // Calculate date ranges
+    const dailyStart = new Date(today.getTime() - 24 * 60 * 60 * 1000).toISOString().substring(0, 10)
+    const weeklyStart = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().substring(0, 10)
+    const monthlyStart = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString().substring(0, 10)
+
+    // Create chunk requests for all packages and time periods
+    const chunkRequests = []
+    for (const packageName of packageNames) {
+      chunkRequests.push(
+        { packageName, dateFrom: dailyStart, dateTo: todayStr, binSize: 'daily' as const, period: 'daily' },
+        { packageName, dateFrom: weeklyStart, dateTo: todayStr, binSize: 'daily' as const, period: 'weekly' },
+        { packageName, dateFrom: monthlyStart, dateTo: todayStr, binSize: 'daily' as const, period: 'monthly' },
+      )
+    }
+
+    // Try to get cached data first
+    const cachedChunks = await getBatchNpmDownloadChunks(chunkRequests)
+    const needsFetch: typeof chunkRequests = []
+    const results = new Map<string, any>()
+
+    // Check what we have in cache vs what needs fetching
+    for (const req of chunkRequests) {
+      const cacheKey = `${req.packageName}|${req.dateFrom}|${req.dateTo}|${req.binSize}`
+      const cached = cachedChunks.get(cacheKey)
+
+      if (cached) {
+        // Check if cache is recent enough (within last hour for recent data)
+        const cacheAge = Date.now() - (cached.updatedAt ?? 0)
+        const isStale = cacheAge > 60 * 60 * 1000 // 1 hour
+
+        if (!isStale) {
+          results.set(cacheKey, cached)
+          continue
+        }
+      }
+
+      needsFetch.push(req)
+    }
+
+    // Fetch missing/stale data from NPM API
+    if (needsFetch.length > 0) {
+      const fetchPromises = needsFetch.map(async (req) => {
+        try {
+          const response = await fetch(
+            `https://api.npmjs.org/downloads/range/${req.dateFrom}:${req.dateTo}/${req.packageName}`,
+            {
+              headers: {
+                Accept: 'application/json',
+                'User-Agent': 'TanStack-Stats',
+              },
+            },
+          )
+
+          if (!response.ok) {
+            if (response.status === 404) {
+              // Package not found, return zero data
+              return {
+                key: `${req.packageName}|${req.dateFrom}|${req.dateTo}|${req.binSize}`,
+                data: {
+                  packageName: req.packageName,
+                  dateFrom: req.dateFrom,
+                  dateTo: req.dateTo,
+                  binSize: req.binSize,
+                  dailyData: [],
+                  totalDownloads: 0,
+                  isImmutable: false,
+                  updatedAt: Date.now(),
+                },
+              }
+            }
+            throw new Error(`NPM API error: ${response.status}`)
+          }
+
+          const result = await response.json()
+          const downloads = result.downloads || []
+
+          const chunkData = {
+            packageName: req.packageName,
+            dateFrom: req.dateFrom,
+            dateTo: req.dateTo,
+            binSize: req.binSize,
+            totalDownloads: downloads.reduce((sum: number, d: any) => sum + d.downloads, 0),
+            dailyData: downloads,
+            isImmutable: false, // Recent data is mutable
+            updatedAt: Date.now(),
+          }
+
+          // Cache this chunk asynchronously
+          setCachedNpmDownloadChunk(chunkData).catch((err) =>
+            console.warn(`Failed to cache recent downloads for ${req.packageName}:`, err)
+          )
+
+          return {
+            key: `${req.packageName}|${req.dateFrom}|${req.dateTo}|${req.binSize}`,
+            data: chunkData,
+          }
+        } catch (error) {
+          console.error(`Failed to fetch recent downloads for ${req.packageName}:`, error)
+          // Return zero data on error
+          return {
+            key: `${req.packageName}|${req.dateFrom}|${req.dateTo}|${req.binSize}`,
+            data: {
+              packageName: req.packageName,
+              dateFrom: req.dateFrom,
+              dateTo: req.dateTo,
+              binSize: req.binSize,
+              dailyData: [],
+              totalDownloads: 0,
+              isImmutable: false,
+              updatedAt: Date.now(),
+            },
+          }
+        }
+      })
+
+      const fetchResults = await Promise.all(fetchPromises)
+      for (const result of fetchResults) {
+        results.set(result.key, result.data)
+      }
+    }
+
+    // Aggregate results by time period
+    let dailyTotal = 0
+    let weeklyTotal = 0
+    let monthlyTotal = 0
+
+    for (const req of chunkRequests) {
+      const cacheKey = `${req.packageName}|${req.dateFrom}|${req.dateTo}|${req.binSize}`
+      const chunk = results.get(cacheKey)
+
+      if (chunk) {
+        const downloads = chunk.totalDownloads || 0
+
+        if (req.period === 'daily') {
+          dailyTotal += downloads
+        } else if (req.period === 'weekly') {
+          weeklyTotal += downloads
+        } else if (req.period === 'monthly') {
+          monthlyTotal += downloads
+        }
+      }
+    }
+
+    return {
+      dailyDownloads: dailyTotal,
+      weeklyDownloads: weeklyTotal,
+      monthlyDownloads: monthlyTotal,
+    }
+  })

@@ -17,6 +17,7 @@ export const queryProject = {
   defaultDocs: 'framework/react/overview',
   installPath: 'framework/$framework/installation',
   legacyPackages: ['react-query'],
+  competitors: ['swr', '@apollo/client', 'relay-runtime', '@urql/core'],
   handleRedirects: (href: string) => {
     handleRedirects(
       reactQueryV3List,

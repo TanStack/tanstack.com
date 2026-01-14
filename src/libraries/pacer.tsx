@@ -12,6 +12,7 @@ export const pacerProject = {
   bgRadial: 'from-lime-500 via-lime-700/50 to-transparent',
   textColor: `text-lime-700`,
   defaultDocs: 'overview',
+  competitors: ['lodash.debounce', 'lodash.throttle', 'p-queue', 'bottleneck'],
   featureHighlights: [
     {
       title: 'Flexible & Type-Safe',

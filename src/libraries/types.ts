@@ -68,6 +68,7 @@ export type LibrarySlim = {
   legacyPackages?: string[]
   installPath?: string
   corePackageName?: string
+  competitors?: string[]
   handleRedirects?: (href: string) => void
   /**
    * If false, the library is hidden from sidebar navigation and pages have noindex meta tag.

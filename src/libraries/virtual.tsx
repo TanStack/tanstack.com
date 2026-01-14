@@ -14,6 +14,7 @@ export const virtualProject = {
   textColor: 'text-purple-600',
   defaultDocs: 'introduction',
   legacyPackages: ['react-virtual'],
+  competitors: ['react-window', 'react-virtualized', '@tanstack/virtual-core'],
   testimonials: [
     {
       quote:

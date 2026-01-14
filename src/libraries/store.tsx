@@ -12,6 +12,7 @@ export const storeProject = {
   bgRadial: 'from-twine-500 via-twine-700/50 to-transparent',
   textColor: 'text-twine-700',
   defaultDocs: 'overview',
+  competitors: ['zustand', 'redux', 'mobx', 'jotai', 'valtio'],
   featureHighlights: [
     {
       title: 'Battle-Tested',

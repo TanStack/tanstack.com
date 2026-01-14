@@ -9,31 +9,26 @@ import { getPointerState } from '../../ui/TouchControls'
 
 import type { ShipStats } from '../../utils/upgrades'
 
-const MIN_BOAT_SPEED = 3
-const MAX_BOAT_SPEED = 10
-const MIN_REVERSE_SPEED = 1.5
-const MAX_REVERSE_SPEED = 5
+// Base speed increased - coins no longer affect speed
+const BASE_BOAT_SPEED = 8
+const BASE_REVERSE_SPEED = 4
 const BASE_TURN_SPEED = 2.2
 const DRAG = 0.96
-const BASE_ACCELERATION = 0.12
+const BASE_ACCELERATION = 0.15
 const BOAT_RADIUS = 0.8
-const MAX_COINS = 50
 
 function getMaxSpeed(
-  coinsCollected: number,
   isReverse: boolean,
   hasSpeedBoost: boolean,
   shipStats: ShipStats,
+  permSpeedBoosts: number,
 ): number {
-  const ratio = Math.min(coinsCollected / MAX_COINS, 1)
-  let speed: number
-  if (isReverse) {
-    speed = MIN_REVERSE_SPEED + ratio * (MAX_REVERSE_SPEED - MIN_REVERSE_SPEED)
-  } else {
-    speed = MIN_BOAT_SPEED + ratio * (MAX_BOAT_SPEED - MIN_BOAT_SPEED)
-  }
+  // Base speed, no longer affected by coins
+  let speed = isReverse ? BASE_REVERSE_SPEED : BASE_BOAT_SPEED
   // Apply sail speed upgrade multiplier
   speed *= shipStats.sailSpeed
+  // Apply purchased permanent speed boosts (+10% each)
+  speed *= Math.pow(1.1, permSpeedBoosts)
   // Apply speed boost from shop item
   return hasSpeedBoost ? speed * 2 : speed
 }
@@ -99,7 +94,9 @@ export class BoatControlSystem {
     }
     if (e.code === 'Space' && !e.repeat) {
       e.preventDefault()
-      if (shipStats.gatlingGuns) {
+      const { purchasedBoosts } = useGameStore.getState()
+      // Track space held for gatling or rapid fire (auto-loader)
+      if (shipStats.gatlingGuns || purchasedBoosts.rapidFire) {
         this.spaceHeld = true
       }
       fireCannon()
@@ -147,9 +144,9 @@ export class BoatControlSystem {
       cornerIslands,
       stage,
       rockColliders,
-      coinsCollected,
       shipStats,
       speedBoostEndTime,
+      purchasedBoosts,
       setBoatPosition,
       setBoatRotation,
       setBoatVelocity,
@@ -167,27 +164,36 @@ export class BoatControlSystem {
       fireGatling()
     }
 
+    // Fire side cannons while space is held (auto-loader)
+    if (this.spaceHeld && purchasedBoosts.rapidFire) {
+      const { fireCannon } = useGameStore.getState()
+      fireCannon()
+    }
+
     const dt = Math.min(delta, 0.1)
 
     const hasSpeedBoost = !!(
       speedBoostEndTime && Date.now() < speedBoostEndTime
     )
     const maxForwardSpeed = getMaxSpeed(
-      coinsCollected,
       false,
       hasSpeedBoost,
       shipStats,
+      purchasedBoosts.permSpeed,
     )
     const maxReverseSpeed = getMaxSpeed(
-      coinsCollected,
       true,
       hasSpeedBoost,
       shipStats,
+      purchasedBoosts.permSpeed,
     )
 
-    // Apply upgrade multipliers
+    // Apply upgrade multipliers + purchased permanent boosts
     const turnSpeed = BASE_TURN_SPEED * shipStats.turnRate
-    const acceleration = BASE_ACCELERATION * shipStats.acceleration
+    const acceleration =
+      BASE_ACCELERATION *
+      shipStats.acceleration *
+      Math.pow(1.15, purchasedBoosts.permAccel)
 
     const pointer = getPointerState()
 

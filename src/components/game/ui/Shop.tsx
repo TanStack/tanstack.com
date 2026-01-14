@@ -2,8 +2,14 @@ import { useGameStore } from '../hooks/useGameStore'
 import { getAvailableItems } from '../utils/shopItems'
 
 export function Shop() {
-  const { isShopOpen, closeShop, purchaseItem, coinsCollected, stage } =
-    useGameStore()
+  const {
+    isShopOpen,
+    closeShop,
+    purchaseItem,
+    coinsCollected,
+    stage,
+    purchasedBoosts,
+  } = useGameStore()
 
   if (!isShopOpen) return null
 
@@ -24,26 +30,59 @@ export function Shop() {
           {availableItems.map((item) => {
             const canAfford = coinsCollected >= item.cost
 
+            // Get current stack count for stackable items
+            const stackCount =
+              item.type === 'permSpeed'
+                ? purchasedBoosts.permSpeed
+                : item.type === 'permAccel'
+                  ? purchasedBoosts.permAccel
+                  : 0
+
+            // Check if already owned (non-stackable)
+            const alreadyOwned =
+              item.type === 'rapidFire' && purchasedBoosts.rapidFire
+
+            // Check if max stacks reached
+            const maxStacksReached =
+              item.stackable &&
+              item.maxStacks &&
+              item.maxStacks > 0 &&
+              stackCount >= item.maxStacks
+
+            const canPurchase = canAfford && !alreadyOwned && !maxStacksReached
+
             return (
               <button
                 key={item.type}
                 onClick={() => purchaseItem(item.type)}
-                disabled={!canAfford}
+                disabled={!canPurchase}
                 className={`w-full p-4 rounded-lg border transition-all flex items-center gap-4 ${
-                  canAfford
+                  canPurchase
                     ? 'bg-gray-800 border-gray-600 hover:border-yellow-500 hover:bg-gray-700 cursor-pointer'
                     : 'bg-gray-800/50 border-gray-700 opacity-50 cursor-not-allowed'
                 }`}
               >
                 <span className="text-3xl">{item.icon}</span>
                 <div className="flex-1 text-left">
-                  <div className="text-white font-semibold">{item.name}</div>
+                  <div className="text-white font-semibold flex items-center gap-2">
+                    {item.name}
+                    {item.stackable && stackCount > 0 && (
+                      <span className="text-xs bg-cyan-600 px-1.5 py-0.5 rounded">
+                        x{stackCount}
+                      </span>
+                    )}
+                    {alreadyOwned && (
+                      <span className="text-xs bg-green-600 px-1.5 py-0.5 rounded">
+                        Owned
+                      </span>
+                    )}
+                  </div>
                   <div className="text-gray-400 text-sm">
                     {item.description}
                   </div>
                 </div>
                 <div
-                  className={`font-bold ${canAfford ? 'text-yellow-400' : 'text-gray-500'}`}
+                  className={`font-bold ${canPurchase ? 'text-yellow-400' : 'text-gray-500'}`}
                 >
                   🪙 {item.cost}
                 </div>

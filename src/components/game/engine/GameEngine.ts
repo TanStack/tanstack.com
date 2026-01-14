@@ -364,6 +364,13 @@ export class GameEngine {
     const initialState = useGameStore.getState()
 
     // Handle loading directly into battle stage (page reload while in battle)
+    console.log('[Game Init] State:', {
+      stage: initialState.stage,
+      phase: initialState.phase,
+      showcaseUnlocked: initialState.showcaseUnlocked,
+      showcaseIslandsCount: initialState.showcaseIslands.length,
+      worldBoundary: initialState.worldBoundary,
+    })
     if (initialState.stage === 'battle' && initialState.phase === 'playing') {
       // Generate expanded islands if needed
       if (initialState.expandedIslands.length === 0) {
@@ -382,10 +389,21 @@ export class GameEngine {
       }
 
       if (initialState.showcaseUnlocked && showcaseIslands.length === 0) {
+        console.log(
+          '[Game Init] Showcase was unlocked but no islands - fetching...',
+        )
         // Fetch and generate showcase islands async
         fetchGameShowcases().then((showcases) => {
+          console.log(
+            '[Game Init] Fetched showcases for reload:',
+            showcases.length,
+          )
           if (showcases.length > 0) {
             const generated = generateShowcaseIslands(showcases)
+            console.log(
+              '[Game Init] Generated showcase islands:',
+              generated.length,
+            )
             initialState.setShowcaseIslands(generated)
             this.islands.setIslands(
               initialState.islands,
@@ -400,6 +418,11 @@ export class GameEngine {
               cornerIslands,
             )
           }
+        })
+      } else {
+        console.log('[Game Init] Showcase state:', {
+          showcaseUnlocked: initialState.showcaseUnlocked,
+          showcaseIslandsCount: showcaseIslands.length,
         })
       }
 
@@ -530,8 +553,19 @@ export class GameEngine {
         }
 
         // Showcase unlock (generate showcase islands - NOT corner islands yet)
+        // Debug: Log showcase state on every subscription tick
+        if (state.showcaseUnlocked !== prevShowcaseUnlocked) {
+          console.log('[Game] Showcase state changed:', {
+            showcaseUnlocked: state.showcaseUnlocked,
+            prevShowcaseUnlocked,
+            showcaseIslandsCount: state.showcaseIslands.length,
+          })
+        }
         if (state.showcaseUnlocked && !prevShowcaseUnlocked) {
           prevShowcaseUnlocked = true
+          console.log(
+            '[Game] Showcase unlocked! Expanding world and generating showcase islands...',
+          )
 
           // Expand world boundary for showcase zone
           state.setWorldBoundary(520)
@@ -541,24 +575,32 @@ export class GameEngine {
 
           // Fetch and generate showcase islands async (no corner islands yet)
           if (state.showcaseIslands.length === 0) {
+            console.log('[Game] Fetching showcase data...')
             fetchGameShowcases().then((showcases) => {
+              console.log('[Game] Fetched showcases:', showcases.length)
               if (showcases.length > 0) {
                 const generated = generateShowcaseIslands(showcases)
-                state.setShowcaseIslands(generated)
+                console.log(
+                  '[Game] Generated showcase islands:',
+                  generated.length,
+                )
+                // Get fresh state for current islands
+                const currentState = useGameStore.getState()
+                currentState.setShowcaseIslands(generated)
 
                 // Update islands entity with showcase islands
                 this.islands.setIslands(
-                  state.islands,
-                  state.expandedIslands,
+                  currentState.islands,
+                  currentState.expandedIslands,
                   generated,
-                  state.cornerIslands,
+                  currentState.cornerIslands,
                 )
                 // Update ocean gradients
                 this.updateOceanIslandPositions(
-                  state.islands,
-                  state.expandedIslands,
+                  currentState.islands,
+                  currentState.expandedIslands,
                   generated,
-                  state.cornerIslands,
+                  currentState.cornerIslands,
                 )
               }
             })

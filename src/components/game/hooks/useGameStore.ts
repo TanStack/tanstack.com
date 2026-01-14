@@ -14,6 +14,13 @@ import { type ShopItemType, SHOP_ITEMS } from '../utils/shopItems'
 // Keys for localStorage persistence
 const STORAGE_KEY = 'tanstack-island-explorer'
 
+// Purchased permanent shop boosts (stackable items)
+interface PurchasedBoosts {
+  permSpeed: number // Number of permanent speed boosts purchased
+  permAccel: number // Number of permanent acceleration boosts purchased
+  rapidFire: boolean // Whether rapid fire (auto-loader) is purchased
+}
+
 // State that gets persisted to localStorage
 // This is the SINGLE SOURCE OF TRUTH for what gets saved
 interface PersistedState {
@@ -25,6 +32,7 @@ interface PersistedState {
   shipStats: ShipStats
   kills: number
   deaths: number
+  purchasedBoosts: PurchasedBoosts
 
   // Game state
   stage: GameStage
@@ -73,6 +81,7 @@ function extractPersistedState(state: {
   shipStats: ShipStats
   kills: number
   deaths: number
+  purchasedBoosts: PurchasedBoosts
   stage: GameStage
   boatType: BoatType
   showcaseUnlocked: boolean
@@ -92,6 +101,7 @@ function extractPersistedState(state: {
     shipStats: state.shipStats,
     kills: state.kills,
     deaths: state.deaths,
+    purchasedBoosts: state.purchasedBoosts,
     stage: state.stage,
     boatType: state.boatType,
     showcaseUnlocked: state.showcaseUnlocked,
@@ -275,6 +285,9 @@ interface GameState {
   addKill: () => void
   addDeath: () => void
 
+  // Purchased permanent boosts
+  purchasedBoosts: PurchasedBoosts
+
   // Upgrade to ship (called when all core islands discovered)
   upgradeToShip: () => void
 
@@ -332,8 +345,14 @@ const initialState = {
   compassTarget: null as IslandData | null,
   speedBoostEndTime: null as number | null,
   showCollisionDebug: false,
+  debugZoomOut: false,
   kills: 0,
   deaths: 0,
+  purchasedBoosts: {
+    permSpeed: 0,
+    permAccel: 0,
+    rapidFire: false,
+  } as PurchasedBoosts,
 }
 
 // Load initial state from localStorage if available
@@ -372,12 +391,15 @@ export const useGameStore = create<GameState>()((set, get) => ({
           loadedState.discoveredIslands.length > 0
             ? ('playing' as const)
             : ('intro' as const),
-        worldBoundary:
-          loadedState.stage === 'battle'
+        worldBoundary: loadedState.showcaseUnlocked
+          ? 520 // Showcase zone boundary
+          : loadedState.stage === 'battle'
             ? EXPANDED_WORLD_BOUNDARY
             : INITIAL_WORLD_BOUNDARY,
         showcaseUnlocked: loadedState.showcaseUnlocked ?? false,
         cornersUnlocked: loadedState.cornersUnlocked ?? false,
+        purchasedBoosts:
+          loadedState.purchasedBoosts ?? initialState.purchasedBoosts,
       }
     : {}),
 
@@ -478,10 +500,14 @@ export const useGameStore = create<GameState>()((set, get) => ({
           const totalPartnerIslands = expandedIslands.filter(
             (i) => i.type === 'partner',
           ).length
+          console.log(
+            `[Game] Partner discovered: ${discoveredPartnerCount}/${totalPartnerIslands}, showcaseUnlocked: ${showcaseUnlocked}`,
+          )
           if (
             !showcaseUnlocked &&
             discoveredPartnerCount === totalPartnerIslands
           ) {
+            console.log('[Game] All partners discovered! Unlocking showcase...')
             get().unlockShowcase()
           }
         }
@@ -763,12 +789,27 @@ export const useGameStore = create<GameState>()((set, get) => ({
       islands,
       expandedIslands,
       discoveredIslands,
+      purchasedBoosts,
     } = get()
     const item = SHOP_ITEMS.find((i) => i.type === itemType)
 
     if (!item) return false
     if (coinsCollected < item.cost) return false
     if (!item.stages.includes(stage)) return false
+
+    // Check max stacks for stackable items
+    if (item.stackable && item.maxStacks && item.maxStacks > 0) {
+      const currentStacks =
+        itemType === 'permSpeed'
+          ? purchasedBoosts.permSpeed
+          : itemType === 'permAccel'
+            ? purchasedBoosts.permAccel
+            : 0
+      if (currentStacks >= item.maxStacks) return false
+    }
+
+    // Check if non-stackable item already owned
+    if (itemType === 'rapidFire' && purchasedBoosts.rapidFire) return false
 
     // Deduct coins
     set({ coinsCollected: coinsCollected - item.cost })
@@ -797,6 +838,36 @@ export const useGameStore = create<GameState>()((set, get) => ({
         // Restore 50 health, up to max
         const newHealth = Math.min(boatHealth + 50, shipStats.maxHealth)
         set({ boatHealth: newHealth })
+        break
+      }
+      case 'permSpeed': {
+        // Permanent +10% speed boost
+        set({
+          purchasedBoosts: {
+            ...purchasedBoosts,
+            permSpeed: purchasedBoosts.permSpeed + 1,
+          },
+        })
+        break
+      }
+      case 'permAccel': {
+        // Permanent +15% acceleration boost
+        set({
+          purchasedBoosts: {
+            ...purchasedBoosts,
+            permAccel: purchasedBoosts.permAccel + 1,
+          },
+        })
+        break
+      }
+      case 'rapidFire': {
+        // Unlock auto-loader (rapid fire side cannons)
+        set({
+          purchasedBoosts: {
+            ...purchasedBoosts,
+            rapidFire: true,
+          },
+        })
         break
       }
     }
@@ -858,6 +929,7 @@ export const useGameStore = create<GameState>()((set, get) => ({
       discoveredIslands,
       unlockedUpgrades,
       shipStats,
+      purchasedBoosts,
     } = get()
 
     // World boundary depends on showcase unlock status
@@ -884,7 +956,7 @@ export const useGameStore = create<GameState>()((set, get) => ({
       speedBoostEndTime: null,
       nearbyIsland: null,
       discoveryProgress: 0,
-      coinsCollected: Math.floor(get().coinsCollected / 2), // Lose half coins on death
+      coinsCollected: get().coinsCollected, // Keep all coins on death
       // Keep these
       islands,
       expandedIslands,
@@ -893,10 +965,11 @@ export const useGameStore = create<GameState>()((set, get) => ({
       showcaseUnlocked,
       cornersUnlocked,
       rockColliders,
-      coins,
+      coins: coins.map((c) => ({ ...c, collected: false })), // Respawn all coins
       discoveredIslands,
       unlockedUpgrades,
       shipStats,
+      purchasedBoosts,
     })
   },
 }))

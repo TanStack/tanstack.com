@@ -31,9 +31,11 @@ export function GameHUD() {
   const [showCoinHint, setShowCoinHint] = useState(false)
   const [coinHintDismissed, setCoinHintDismissed] = useState(false)
   const [showShowcaseUnlock, setShowShowcaseUnlock] = useState(false)
-  const [showcaseUnlockShown, setShowcaseUnlockShown] = useState(false)
+  // Don't re-show notification if it was already unlocked before this session
+  const [showcaseUnlockShown, setShowcaseUnlockShown] =
+    useState(showcaseUnlocked)
   const [showCornersUnlock, setShowCornersUnlock] = useState(false)
-  const [cornersUnlockShown, setCornersUnlockShown] = useState(false)
+  const [cornersUnlockShown, setCornersUnlockShown] = useState(cornersUnlocked)
   const [damageFlash, setDamageFlash] = useState(false)
   const [prevHealth, setPrevHealth] = useState(boatHealth)
 

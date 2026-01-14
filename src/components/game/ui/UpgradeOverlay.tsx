@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useGameStore } from '../hooks/useGameStore'
+import { Badge } from './BadgeOverlay'
+import { BADGE_INFO } from '../machines/GameMachineProvider'
 
 export function UpgradeOverlay() {
   const { phase, setPhase, setBoatType } = useGameStore()
@@ -17,6 +19,7 @@ export function UpgradeOverlay() {
       setTimeout(() => setAnimationStep(2), 800),
       setTimeout(() => setAnimationStep(3), 1300),
       setTimeout(() => setAnimationStep(4), 1800),
+      setTimeout(() => setAnimationStep(5), 2300),
     ]
 
     return () => timers.forEach(clearTimeout)
@@ -29,6 +32,8 @@ export function UpgradeOverlay() {
 
   if (phase !== 'upgrading') return null
 
+  const badgeInfo = BADGE_INFO.explorer
+
   return (
     <div className="absolute inset-0 z-50 flex items-center justify-center p-8">
       {/* Animated background */}
@@ -36,8 +41,7 @@ export function UpgradeOverlay() {
         className="absolute inset-0 transition-opacity duration-700"
         style={{
           opacity: animationStep >= 1 ? 1 : 0,
-          background:
-            'radial-gradient(ellipse at center, rgba(6, 78, 117, 0.95) 0%, rgba(0, 0, 0, 0.98) 100%)',
+          background: `radial-gradient(ellipse at center, ${badgeInfo.color}30 0%, rgba(0, 0, 0, 0.98) 100%)`,
         }}
       />
 
@@ -60,23 +64,38 @@ export function UpgradeOverlay() {
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
           }}
         >
-          {/* Trophy/Star icon */}
+          {/* Badge */}
           <div
-            className="transition-all duration-500 mb-4"
+            className="transition-all duration-700 mb-4"
             style={{
               opacity: animationStep >= 1 ? 1 : 0,
-              transform: animationStep >= 1 ? 'scale(1)' : 'scale(0.5)',
+              transform:
+                animationStep >= 1
+                  ? 'scale(1) rotate(0deg)'
+                  : 'scale(0) rotate(-180deg)',
             }}
           >
-            <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-yellow-400 to-amber-600 flex items-center justify-center shadow-lg">
-              <svg
-                className="w-10 h-10 text-white"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-              </svg>
-            </div>
+            <Badge tier="explorer" size="lg" showLabel={false} />
+          </div>
+
+          {/* Badge earned text */}
+          <div
+            className="transition-all duration-500 mb-2"
+            style={{
+              opacity: animationStep >= 2 ? 1 : 0,
+              transform:
+                animationStep >= 2 ? 'translateY(0)' : 'translateY(-10px)',
+            }}
+          >
+            <p className="text-white/60 text-xs uppercase tracking-widest">
+              Badge Earned
+            </p>
+            <h2
+              className="text-2xl font-bold"
+              style={{ color: badgeInfo.color }}
+            >
+              {badgeInfo.name}
+            </h2>
           </div>
 
           {/* Title */}
@@ -100,7 +119,7 @@ export function UpgradeOverlay() {
           <div
             className="my-6 h-px transition-all duration-500"
             style={{
-              opacity: animationStep >= 2 ? 0.3 : 0,
+              opacity: animationStep >= 3 ? 0.3 : 0,
               background:
                 'linear-gradient(90deg, transparent, white, transparent)',
             }}
@@ -146,21 +165,50 @@ export function UpgradeOverlay() {
             </p>
           </div>
 
-          {/* Button */}
+          {/* Share + Continue */}
           <div
-            className="mt-8 transition-all duration-500"
+            className="mt-6 transition-all duration-500"
             style={{
               opacity: animationStep >= 4 ? 1 : 0,
               transform:
                 animationStep >= 4 ? 'translateY(0)' : 'translateY(10px)',
             }}
           >
+            <p className="text-white/50 text-xs mb-3">
+              Share your achievement!
+            </p>
+            <div className="flex gap-3 justify-center mb-4">
+              <button
+                onClick={() => {
+                  const text = `I just earned the ${badgeInfo.name} badge in TanStack Island Explorer! ${badgeInfo.icon} Discovered all the TanStack libraries!`
+                  const url = 'https://tanstack.com/explore'
+                  window.open(
+                    `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
+                    '_blank',
+                  )
+                }}
+                className="px-4 py-2 rounded-lg bg-[#1DA1F2]/20 hover:bg-[#1DA1F2]/30 text-[#1DA1F2] text-sm font-medium transition-colors"
+              >
+                Share on X
+              </button>
+            </div>
+          </div>
+
+          {/* Button */}
+          <div
+            className="transition-all duration-500"
+            style={{
+              opacity: animationStep >= 5 ? 1 : 0,
+              transform:
+                animationStep >= 5 ? 'translateY(0)' : 'translateY(10px)',
+            }}
+          >
             <button
               onClick={handleContinue}
               className="w-full py-3 px-6 rounded-xl font-semibold text-lg text-white transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
               style={{
-                background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
-                boxShadow: '0 4px 15px rgba(6, 182, 212, 0.4)',
+                background: `linear-gradient(135deg, ${badgeInfo.color} 0%, ${badgeInfo.color}cc 100%)`,
+                boxShadow: `0 4px 15px ${badgeInfo.color}66`,
               }}
             >
               Set Sail!

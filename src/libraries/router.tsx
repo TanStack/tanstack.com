@@ -14,7 +14,7 @@ export const routerProject = {
   bgRadial: 'from-emerald-500 via-lime-600/50 to-transparent',
   textColor: textStyles,
   defaultDocs: 'framework/react/overview',
-  installPath: 'framework/$framework/installation',
+  installPath: 'framework/$framework/quick-start',
   legacyPackages: ['react-location'],
   hideCodesandboxUrl: true as const,
   showVercelUrl: false,

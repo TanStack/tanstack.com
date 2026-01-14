@@ -1,8 +1,4 @@
-import {
-  createFileRoute,
-  Link,
-  redirect,
-} from '@tanstack/react-router'
+import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { getUser } from '~/utils/users.server'
 import { getUserRoles } from '~/utils/roles.functions'

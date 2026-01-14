@@ -2,7 +2,12 @@ import type { HTMLProps } from 'react'
 import * as React from 'react'
 import { MarkdownLink } from './MarkdownLink'
 
-import parse, { attributesToProps, domToReact, Element, HTMLReactParserOptions, } from 'html-react-parser'
+import parse, {
+  attributesToProps,
+  domToReact,
+  Element,
+  HTMLReactParserOptions,
+} from 'html-react-parser'
 
 import { renderMarkdown } from '~/utils/markdown'
 import { CodeBlock } from './CodeBlock'

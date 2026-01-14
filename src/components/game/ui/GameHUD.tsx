@@ -17,6 +17,7 @@ export function GameHUD() {
     coinsCollected,
     boatHealth,
     shipStats,
+    purchasedBoosts,
     lastFireTime,
     lastUnlockedUpgrade,
     clearLastUnlockedUpgrade,
@@ -24,6 +25,9 @@ export function GameHUD() {
     setPhase,
     fireCannon,
   } = useGameStore()
+
+  // Calculate total max health including purchased boosts
+  const totalMaxHealth = shipStats.maxHealth + purchasedBoosts.permHealth * 25
 
   // Cooldown progress (0-1, 1 = ready)
   const [cooldownProgress, setCooldownProgress] = useState(1)
@@ -194,12 +198,12 @@ export function GameHUD() {
               <div
                 className="h-full bg-gradient-to-r from-red-600 to-red-400"
                 style={{
-                  width: `${(boatHealth / shipStats.maxHealth) * 100}%`,
+                  width: `${(boatHealth / totalMaxHealth) * 100}%`,
                 }}
               />
             </div>
             <span className="text-white text-sm font-mono w-12 max-md:text-xs max-md:w-10">
-              {Math.round(boatHealth)}/{shipStats.maxHealth}
+              {Math.round(boatHealth)}/{totalMaxHealth}
             </span>
           </div>
 

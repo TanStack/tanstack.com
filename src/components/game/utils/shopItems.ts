@@ -6,6 +6,7 @@ export type ShopItemType =
   | 'healthPack'
   | 'permSpeed'
   | 'permAccel'
+  | 'permHealth'
   | 'rapidFire'
 
 export interface ShopItem {
@@ -66,6 +67,16 @@ export const SHOP_ITEMS: ShopItem[] = [
     stages: ['battle'],
     stackable: true,
     maxStacks: 0, // Unlimited
+  },
+  {
+    type: 'permHealth',
+    name: 'Hull Plating',
+    description: 'Permanent +25 max health',
+    cost: 30,
+    icon: '🛡️',
+    stages: ['battle'],
+    stackable: true,
+    maxStacks: 8, // Max 200 bonus health (300 total with base 100)
   },
   {
     type: 'rapidFire',

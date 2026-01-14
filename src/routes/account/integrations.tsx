@@ -13,7 +13,7 @@ import {
 } from '~/utils/oauthClient.functions'
 import { useToast } from '~/components/ToastProvider'
 import { Card } from '~/components/Card'
-import { Button } from '~/components/Button'
+import { Button, FormInput } from '~/ui'
 import {
   Key,
   Plus,
@@ -25,7 +25,6 @@ import {
   Clock,
   Link2,
 } from 'lucide-react'
-import { FormInput } from '~/ui'
 export const Route = createFileRoute('/account/integrations')({
   component: IntegrationsPage,
 })

@@ -18,7 +18,7 @@ import {
   Calendar,
   Check,
 } from 'lucide-react'
-import { FormInput } from '~/ui'
+import { FormInput, Button } from '~/ui'
 
 interface FeedEntryEditorProps {
   entry: FeedEntry | null
@@ -171,21 +171,14 @@ export function FeedEntryEditor({
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <button
-              onClick={onCancel}
-              className="px-4 py-2 text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-2"
-            >
+            <Button variant="secondary" onClick={onCancel}>
               <X className="w-4 h-4" />
               Cancel
-            </button>
-            <button
-              onClick={handleSave}
-              disabled={saving || !isValid}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
-            >
+            </Button>
+            <Button onClick={handleSave} disabled={saving || !isValid}>
               <Save className="w-4 h-4" />
               {saving ? 'Saving...' : 'Save Entry'}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

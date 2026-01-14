@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useTheme } from './ThemeProvider'
 import { Moon, Sun, SunMoon } from 'lucide-react'
-import { Button } from './Button'
+import { Button } from '~/ui'
 
 export function ThemeToggle() {
   const { themeMode, toggleMode } = useTheme()
@@ -16,7 +16,7 @@ export function ThemeToggle() {
     themeMode === 'auto' ? 'Auto' : themeMode === 'light' ? 'Light' : 'Dark'
 
   return (
-    <Button onClick={handleToggleMode}>
+    <Button variant="ghost" size="xs" onClick={handleToggleMode}>
       {themeMode === 'auto' ? (
         <SunMoon className="w-3.5 h-3.5" />
       ) : (

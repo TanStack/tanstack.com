@@ -26,7 +26,7 @@ import {
   Users,
 } from 'lucide-react'
 import { Card } from '~/components/Card'
-import { Badge } from '~/ui'
+import { Badge, Button } from '~/ui'
 import * as v from 'valibot'
 import { TimeSeriesChart } from '~/components/charts/TimeSeriesChart'
 import { ChartControls } from '~/components/charts/ChartControls'
@@ -74,11 +74,8 @@ function AdminPage() {
           <p className="text-gray-600 dark:text-gray-400 mb-4">
             You don't have permission to access the admin area.
           </p>
-          <Link
-            to="/"
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
-          >
-            Back to Home
+          <Link to="/">
+            <Button>Back to Home</Button>
           </Link>
         </div>
       </div>
@@ -483,11 +480,8 @@ function UsersTab({
               View and manage individual user accounts, roles, and capabilities.
             </p>
           </div>
-          <Link
-            to="/admin/users"
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Manage Users
+          <Link to="/admin/users">
+            <Button>Manage Users</Button>
           </Link>
         </div>
       </Card>

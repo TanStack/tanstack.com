@@ -1,7 +1,7 @@
 import * as React from 'react'
 import type { LinkProps } from '@tanstack/react-router'
 import { Link } from '@tanstack/react-router'
-import { Button } from './Button'
+import { Button } from '~/ui'
 
 type BottomCTAProps = {
   linkProps: Omit<LinkProps, 'className' | 'children'>

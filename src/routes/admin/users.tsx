@@ -47,7 +47,7 @@ import { useAdminGuard } from '~/hooks/useAdminGuard'
 import { useToggleArray } from '~/hooks/useToggleArray'
 import { handleAdminError } from '~/utils/adminErrors'
 import { requireCapability } from '~/utils/auth.server'
-import { Badge } from '~/ui'
+import { Badge, Button } from '~/ui'
 
 // User type for table - matches the shape returned by listUsers
 type User = {
@@ -835,13 +835,13 @@ function UsersPage() {
                       </option>
                     ))}
                   </select>
-                  <button
+                  <Button
                     onClick={handleBulkAssignRole}
                     disabled={!bulkActionRoleId}
-                    className="px-4 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    size="sm"
                   >
                     Assign
-                  </button>
+                  </Button>
                 </div>
                 <div className="flex items-center gap-2">
                   <label
@@ -851,20 +851,22 @@ function UsersPage() {
                     Set Capabilities:
                   </label>
                   {availableCapabilities.map((capability) => (
-                    <button
+                    <Button
                       key={capability}
                       onClick={() => handleBulkUpdateCapabilities([capability])}
-                      className="px-3 py-1 text-sm bg-green-600 text-white rounded-md hover:bg-green-700"
+                      color="green"
+                      size="sm"
                     >
                       Add {capability}
-                    </button>
+                    </Button>
                   ))}
-                  <button
+                  <Button
                     onClick={() => handleBulkUpdateCapabilities([])}
-                    className="px-3 py-1 text-sm bg-red-600 text-white rounded-md hover:bg-red-700"
+                    color="red"
+                    size="sm"
                   >
                     Clear All
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>

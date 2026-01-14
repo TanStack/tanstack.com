@@ -4,7 +4,7 @@ import { partners } from '~/utils/partners'
 import { PartnersGrid } from './PartnersGrid'
 import { PartnershipCallout } from './PartnershipCallout'
 import { LibraryId } from '~/libraries'
-import { Button } from './Button'
+import { Button } from '~/ui'
 
 type PartnersSectionProps = {
   libraryId?: LibraryId
@@ -45,7 +45,7 @@ export function PartnersSection({
                     : { status: 'inactive' }) as any
                 }
               >
-                View Previous Partners →
+                View Previous Partners
               </Button>
             </div>
           ) : null}

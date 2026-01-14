@@ -13,9 +13,8 @@ import {
 } from '~/utils/showcase.client'
 import { useToast } from './ToastProvider'
 import { Check, AlertCircle } from 'lucide-react'
-import { Button } from './Button'
+import { Button, FormInput } from '~/ui'
 import { ImageUpload } from './ImageUpload'
-import { FormInput } from '~/ui'
 import { FormEvent, useMemo, useState } from 'react'
 
 // Filter to only show libraries with proper configuration
@@ -35,9 +34,7 @@ export function ShowcaseSubmitForm({ showcase }: ShowcaseSubmitFormProps) {
 
   const [name, setName] = useState(showcase?.name ?? '')
   const [tagline, setTagline] = useState(showcase?.tagline ?? '')
-  const [description, setDescription] = useState(
-    showcase?.description ?? '',
-  )
+  const [description, setDescription] = useState(showcase?.description ?? '')
   const [url, setUrl] = useState(showcase?.url ?? '')
   const [logoUrl, setLogoUrl] = useState<string | undefined>(
     showcase?.logoUrl ?? undefined,
@@ -48,9 +45,9 @@ export function ShowcaseSubmitForm({ showcase }: ShowcaseSubmitFormProps) {
   const [selectedLibraries, setSelectedLibraries] = useState<string[]>(
     showcase?.libraries ?? [],
   )
-  const [selectedUseCases, setSelectedUseCases] = useState<
-    ShowcaseUseCase[]
-  >(showcase?.useCases ?? [])
+  const [selectedUseCases, setSelectedUseCases] = useState<ShowcaseUseCase[]>(
+    showcase?.useCases ?? [],
+  )
   const [isOpenSource, setIsOpenSource] = useState(!!showcase?.sourceUrl)
   const [sourceUrl, setSourceUrl] = useState(showcase?.sourceUrl ?? '')
 

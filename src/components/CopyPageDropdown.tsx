@@ -2,7 +2,7 @@
 import * as React from 'react'
 import { ChevronDown, Copy, Check } from 'lucide-react'
 import { useToast } from '~/components/ToastProvider'
-import { Button } from './Button'
+import { Button } from '~/ui'
 import { ButtonGroup } from './ButtonGroup'
 import {
   Dropdown,
@@ -242,7 +242,13 @@ export function CopyPageDropdown({
 
   return (
     <ButtonGroup>
-      <Button className="border-0 rounded-none" onClick={handleCopyPage}>
+      <Button
+        variant="ghost"
+        size="xs"
+        rounded="none"
+        className="border-0"
+        onClick={handleCopyPage}
+      >
         {copied ? (
           <>
             <Check className="w-3 h-3" />
@@ -257,7 +263,12 @@ export function CopyPageDropdown({
       </Button>
       <Dropdown open={open} onOpenChange={setOpen}>
         <DropdownTrigger>
-          <Button className="border-0 rounded-none px-1.5">
+          <Button
+            variant="ghost"
+            size="xs"
+            rounded="none"
+            className="border-0 px-1.5"
+          >
             <ChevronDown className="w-3 h-3" />
           </Button>
         </DropdownTrigger>

@@ -17,8 +17,7 @@ import {
   AlertTriangle,
 } from 'lucide-react'
 import { Card } from '~/components/Card'
-import { Button } from '~/components/Button'
-import { Badge } from '~/ui'
+import { Badge, Button } from '~/ui'
 import { format } from '~/utils/dates'
 
 export const Route = createFileRoute('/admin/feedback_/$id')({

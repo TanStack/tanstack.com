@@ -13,7 +13,7 @@ import {
 import { ArrowLeft, Lock, Trash, User, Users } from 'lucide-react'
 import { requireCapability } from '~/utils/auth.server'
 import { hasCapability } from '~/db/types'
-import { Badge } from '~/ui'
+import { Badge, Button } from '~/ui'
 
 export const Route = createFileRoute('/admin/roles/$roleId')({
   beforeLoad: async () => {
@@ -298,7 +298,7 @@ function RoleDetailPage() {
             <span className="text-sm font-medium text-gray-900 dark:text-white">
               {selectedUserIds.size} user(s) selected
             </span>
-            <button
+            <Button
               onClick={() => {
                 if (
                   window.confirm(
@@ -308,10 +308,10 @@ function RoleDetailPage() {
                   handleRemoveUsers()
                 }
               }}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              color="red"
             >
               Remove from Role
-            </button>
+            </Button>
           </div>
         )}
 
@@ -325,13 +325,13 @@ function RoleDetailPage() {
                 Remove {confirmRemove.name} from role &quot;{role?.name}&quot;?
               </p>
               <div className="flex gap-2 justify-end">
-                <button
+                <Button
                   onClick={() => setConfirmRemove(null)}
-                  className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600"
+                  variant="secondary"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={async () => {
                     try {
                       await removeUsersFromRole.mutateAsync({
@@ -353,10 +353,10 @@ function RoleDetailPage() {
                       )
                     }
                   }}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                  color="red"
                 >
                   Remove
-                </button>
+                </Button>
               </div>
             </div>
           </div>

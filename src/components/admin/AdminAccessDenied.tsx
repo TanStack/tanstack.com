@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { Lock } from 'lucide-react'
+import { Button } from '~/ui'
 
 export function AdminAccessDenied() {
   return (
@@ -10,11 +11,8 @@ export function AdminAccessDenied() {
         <p className="text-gray-600 dark:text-gray-400 mb-4">
           You don't have permission to access the admin area.
         </p>
-        <Link
-          to="/"
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
-        >
-          Back to Home
+        <Link to="/">
+          <Button>Back to Home</Button>
         </Link>
       </div>
     </div>

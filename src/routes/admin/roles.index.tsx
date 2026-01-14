@@ -41,7 +41,7 @@ import { useAdminGuard } from '~/hooks/useAdminGuard'
 import { requireCapability } from '~/utils/auth.server'
 import { useToggleArray } from '~/hooks/useToggleArray'
 import { useDeleteWithConfirmation } from '~/hooks/useDeleteWithConfirmation'
-import { Badge, FormInput } from '~/ui'
+import { Badge, Button, FormInput } from '~/ui'
 
 // Role type for table - matches the shape returned by listRoles
 interface Role {
@@ -422,13 +422,10 @@ function RolesPage() {
           isLoading={rolesQuery.isFetching}
           actions={
             !isCreating && (
-              <button
-                onClick={handleCreateRole}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
+              <Button onClick={handleCreateRole}>
                 <Plus className="w-4 h-4" />
                 Create Role
-              </button>
+              </Button>
             )
           }
         />
@@ -458,14 +455,15 @@ function RolesPage() {
                   </option>
                 ))}
               </select>
-              <button
+              <Button
                 onClick={handleSendTestEmail}
                 disabled={testEmailStatus.loading}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 text-sm bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50 transition-colors"
+                color="gray"
+                size="sm"
               >
                 <Mail className="w-4 h-4" />
                 {testEmailStatus.loading ? 'Sending...' : 'Test Email'}
-              </button>
+              </Button>
             </div>
           }
         />
@@ -531,20 +529,14 @@ function RolesPage() {
                   </div>
                 </div>
                 <div className="flex space-x-2">
-                  <button
-                    onClick={handleSaveRole}
-                    className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                  >
+                  <Button onClick={handleSaveRole} color="green">
                     <Save className="w-4 h-4" />
                     Save
-                  </button>
-                  <button
-                    onClick={handleCancelEdit}
-                    className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-                  >
+                  </Button>
+                  <Button onClick={handleCancelEdit} color="gray">
                     <X className="w-4 h-4" />
                     Cancel
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>

@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
-import { Button } from './Button'
+import { Button } from '~/ui'
 
 declare global {
   interface Window {
@@ -184,22 +184,13 @@ export default function CookieConsent() {
             for details.
           </span>
           <div className="flex gap-2 flex-wrap items-center">
-            <Button
-              onClick={rejectAllCookies}
-              className="bg-rose-500 border-rose-500 hover:bg-rose-600 text-white"
-            >
+            <Button color="red" onClick={rejectAllCookies}>
               Reject All
             </Button>
-            <Button
-              onClick={openSettings}
-              className="bg-gray-500 border-gray-500 hover:bg-gray-600 text-white"
-            >
+            <Button color="gray" onClick={openSettings}>
               Customize
             </Button>
-            <Button
-              onClick={acceptAllCookies}
-              className="bg-emerald-500 border-emerald-500 hover:bg-emerald-600 text-white"
-            >
+            <Button color="emerald" onClick={acceptAllCookies}>
               Accept All
             </Button>
           </div>
@@ -264,10 +255,7 @@ export default function CookieConsent() {
                 </label>
               </div>
               <div className="mt-6">
-                <Button
-                  onClick={closeSettings}
-                  className="bg-emerald-500 border-emerald-500 hover:bg-emerald-600 text-white"
-                >
+                <Button color="emerald" onClick={closeSettings}>
                   Save
                 </Button>
               </div>

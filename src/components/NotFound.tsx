@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { Ghost } from 'lucide-react'
-import { Button } from './Button'
+import { Button } from '~/ui'
 
 export function NotFound({ children }: { children?: any }) {
   return (
@@ -13,17 +13,10 @@ export function NotFound({ children }: { children?: any }) {
         <p>The page you are looking for does not exist.</p>
         {children || (
           <p className="flex items-center gap-2 flex-wrap">
-            <Button
-              onClick={() => window.history.back()}
-              className="bg-emerald-500 border-emerald-500 hover:bg-emerald-600 text-white"
-            >
+            <Button color="emerald" onClick={() => window.history.back()}>
               Go back
             </Button>
-            <Button
-              as={Link}
-              to="/"
-              className="bg-cyan-600 border-cyan-600 hover:bg-cyan-700 text-white"
-            >
+            <Button as={Link} to="/" color="cyan">
               Start Over
             </Button>
           </p>

@@ -16,8 +16,7 @@ import {
   Pencil,
 } from 'lucide-react'
 import type { Showcase } from '~/db/types'
-import { Button, buttonStyles } from '~/components/Button'
-import { Badge } from '~/ui'
+import { Badge, Button } from '~/ui'
 
 export const Route = createFileRoute('/account/submissions')({
   loader: async ({ context: { queryClient } }) => {
@@ -194,13 +193,11 @@ function AccountSubmissionsPage() {
                       <ExternalLink className="w-3 h-3" />
                       Visit
                     </Button>
-                    <Link
-                      to="/showcase/edit/$id"
-                      params={{ id: showcase.id }}
-                      className={buttonStyles}
-                    >
-                      <Pencil className="w-3 h-3" />
-                      Edit
+                    <Link to="/showcase/edit/$id" params={{ id: showcase.id }}>
+                      <Button variant="ghost" size="xs">
+                        <Pencil className="w-3 h-3" />
+                        Edit
+                      </Button>
                     </Link>
                     <Button onClick={() => handleDelete(showcase.id)}>
                       <Trash2 className="w-3 h-3" />

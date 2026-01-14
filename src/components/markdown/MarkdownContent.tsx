@@ -5,7 +5,7 @@ import { DocTitle } from '~/components/DocTitle'
 import { Markdown } from './Markdown'
 import { CopyPageDropdown } from '~/components/CopyPageDropdown'
 import { DocFeedbackProvider } from '~/components/DocFeedbackProvider'
-import { Button } from '~/components/Button'
+import { Button } from '~/ui'
 
 type MarkdownContentProps = {
   title: string
@@ -93,6 +93,8 @@ export function MarkdownContent({
       <div className="w-full h-px bg-gray-500 opacity-30" />
       <div className="flex py-4">
         <Button
+          variant="ghost"
+          size="xs"
           as="a"
           href={`https://github.com/${repo}/edit/${branch}/${filePath}`}
         >

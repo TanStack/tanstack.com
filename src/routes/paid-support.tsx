@@ -8,6 +8,7 @@ import {
   MaintainerRowCard,
 } from '~/components/MaintainerCard'
 import { Grid2x2, Grid3X3, LayoutList, Mail } from 'lucide-react'
+import { Button } from '~/ui'
 
 export const Route = createFileRoute('/paid-support')({
   component: PaidSupportComp,
@@ -136,11 +137,8 @@ function PaidSupportComp() {
                 We also offer professional workshops on TanStack libraries,
                 delivered remotely or in-person by our creators and maintainers.
               </p>
-              <Link
-                to="/workshops"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-all duration-200"
-              >
-                Learn More About Workshops
+              <Link to="/workshops">
+                <Button size="sm">Learn More About Workshops</Button>
               </Link>
             </div>
           </div>

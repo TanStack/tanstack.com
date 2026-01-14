@@ -4,7 +4,7 @@ import * as v from 'valibot'
 import { createAuthorizationCode } from '~/utils/oauthClient.functions'
 import { getCurrentUser } from '~/utils/auth.server'
 import { Card } from '~/components/Card'
-import { Button } from '~/components/Button'
+import { Button } from '~/ui'
 import { useIsDark } from '~/hooks/useIsDark'
 import { BrandContextMenu } from '~/components/BrandContextMenu'
 

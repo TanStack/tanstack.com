@@ -22,7 +22,7 @@ import {
   ThumbsDown,
 } from 'lucide-react'
 import { libraries } from '~/libraries'
-import { Badge } from '~/ui'
+import { Badge, Button } from '~/ui'
 import { Fragment, useState } from 'react'
 
 interface ShowcaseModerationListProps {
@@ -361,26 +361,33 @@ export function ShowcaseModerationList({
                     ) : (
                       <div className="flex gap-1">
                         {showcase.status !== 'approved' && (
-                          <button
+                          <Button
+                            variant="icon"
+                            color="green"
+                            size="icon-sm"
                             onClick={() =>
                               handleModerate(showcase.id, 'approve')
                             }
-                            className="p-1.5 text-xs font-medium text-white bg-green-600 hover:bg-green-700 rounded transition-colors"
                             title="Approve"
                           >
                             <Check className="w-3.5 h-3.5" />
-                          </button>
+                          </Button>
                         )}
                         {showcase.status !== 'denied' && (
-                          <button
+                          <Button
+                            variant="icon"
+                            color="orange"
+                            size="icon-sm"
                             onClick={() => handleModerate(showcase.id, 'deny')}
-                            className="p-1.5 text-xs font-medium text-white bg-orange-600 hover:bg-orange-700 rounded transition-colors"
                             title="Deny"
                           >
                             <X className="w-3.5 h-3.5" />
-                          </button>
+                          </Button>
                         )}
-                        <button
+                        <Button
+                          variant="icon"
+                          color="red"
+                          size="icon-sm"
                           onClick={() => {
                             if (
                               confirm(
@@ -390,11 +397,10 @@ export function ShowcaseModerationList({
                               onDelete(showcase.id)
                             }
                           }}
-                          className="p-1.5 text-xs font-medium text-white bg-red-600 hover:bg-red-700 rounded transition-colors"
                           title="Delete"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                        </Button>
                       </div>
                     )}
                   </TableCell>

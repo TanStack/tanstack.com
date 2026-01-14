@@ -1,7 +1,7 @@
 import agGridDarkSvg from '~/images/ag-grid-dark.svg'
 import agGridLightSvg from '~/images/ag-grid-light.svg'
 import nozzleImage from '~/images/nozzle.png'
-import bytesUidotdevImage from '~/images/bytes-uidotdev.png'
+import bytesFireshipImage from '~/images/bytes-fireship.png'
 import vercelLightSvg from '~/images/vercel-light.svg'
 import vercelDarkSvg from '~/images/vercel-dark.svg'
 import netlifyLightSvg from '~/images/netlify-light.svg'
@@ -443,19 +443,19 @@ const sentry = (() => {
   }
 })()
 
-const uiDev = (() => {
+const fireship = (() => {
   const href = 'https://bytes.dev?utm_source-tanstack&utm_campaign=tanstack'
 
   return {
-    name: 'UI.dev',
-    id: 'ui-dev',
+    name: 'Fireship',
+    id: 'fireship',
     libraries: [],
     status: 'active' as const,
     score: 0.014,
     href,
     tagline: 'Dev Education',
     image: {
-      src: bytesUidotdevImage,
+      src: bytesFireshipImage,
     },
     llmDescription:
       'Educational platform and Bytes.dev newsletter. Official learning resources and news partner for the TanStack ecosystem.',
@@ -472,14 +472,14 @@ const uiDev = (() => {
             className="text-blue-500 underline cursor-pointer p-0 m-0 bg-transparent border-none inline"
             onClick={() =>
               window.open(
-                'https://ui.dev/?utm_source=tanstack&utm_campaign=tanstack',
+                'https://fireship.dev/?utm_source=tanstack&utm_campaign=tanstack',
                 '_blank',
                 'noopener,noreferrer',
               )
             }
             tabIndex={0}
           >
-            ui.dev
+            Fireship
           </button>{' '}
           to <strong>provide best-in-class education</strong> about TanStack
           products. It doesn't stop at TanStack though, with their sister
@@ -842,7 +842,7 @@ export const partners: Partner[] = [
   prisma,
   strapi,
   unkey,
-  uiDev,
+  fireship,
   nozzle,
   vercel,
   speakeasy,

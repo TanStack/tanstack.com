@@ -78,7 +78,7 @@ function LearnPage() {
                 <div className="text-sm opacity-70 mt-2">
                   Created by{' '}
                   <span className="font-bold">Dominik Dorfmeister</span> and{' '}
-                  <span className="font-bold">ui.dev</span>
+                  <span className="font-bold">Fireship</span>
                 </div>
               </div>
 

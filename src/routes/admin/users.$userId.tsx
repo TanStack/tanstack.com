@@ -1,7 +1,6 @@
 import {
   createFileRoute,
   Link,
-  notFound,
   redirect,
 } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
@@ -12,6 +11,7 @@ import { ArrowLeft, User, Shield, Calendar, Mail, AtSign } from 'lucide-react'
 import { requireCapability } from '~/utils/auth.server'
 import { Card } from '~/components/Card'
 import { format } from '~/utils/dates'
+import { Badge } from '~/ui'
 
 export const Route = createFileRoute('/admin/users/$userId')({
   beforeLoad: async () => {
@@ -198,12 +198,9 @@ function UserDetailPage() {
                 <div className="flex flex-wrap gap-2">
                   {user.capabilities && user.capabilities.length > 0 ? (
                     user.capabilities.map((cap: string) => (
-                      <span
-                        key={cap}
-                        className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
-                      >
+                      <Badge key={cap} variant="info">
                         {cap}
-                      </span>
+                      </Badge>
                     ))
                   ) : (
                     <span className="text-sm text-gray-500 dark:text-gray-400">
@@ -224,9 +221,10 @@ function UserDetailPage() {
                         key={role._id}
                         to="/admin/roles/$roleId"
                         params={{ roleId: role._id }}
-                        className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-900/50"
                       >
-                        {role.name}
+                        <Badge variant="purple" className="hover:opacity-80">
+                          {role.name}
+                        </Badge>
                       </Link>
                     ))
                   ) : (
@@ -244,12 +242,9 @@ function UserDetailPage() {
                 <div className="flex flex-wrap gap-2">
                   {effectiveCapabilities.length > 0 ? (
                     effectiveCapabilities.map((cap) => (
-                      <span
-                        key={cap}
-                        className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
-                      >
+                      <Badge key={cap} variant="success">
                         {cap}
-                      </span>
+                      </Badge>
                     ))
                   ) : (
                     <span className="text-sm text-gray-500 dark:text-gray-400">
@@ -272,15 +267,9 @@ function UserDetailPage() {
                   Ads Disabled
                 </dt>
                 <dd className="mt-1">
-                  <span
-                    className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                      user.adsDisabled
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                        : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
-                    }`}
-                  >
+                  <Badge variant={user.adsDisabled ? 'success' : 'default'}>
                     {user.adsDisabled ? 'Yes' : 'No'}
-                  </span>
+                  </Badge>
                 </dd>
               </div>
               <div>
@@ -288,15 +277,11 @@ function UserDetailPage() {
                   Interested in Hiding Ads
                 </dt>
                 <dd className="mt-1">
-                  <span
-                    className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                      user.interestedInHidingAds
-                        ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300'
-                        : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
-                    }`}
+                  <Badge
+                    variant={user.interestedInHidingAds ? 'purple' : 'default'}
                   >
                     {user.interestedInHidingAds ? 'Yes' : 'No'}
-                  </span>
+                  </Badge>
                 </dd>
               </div>
             </dl>

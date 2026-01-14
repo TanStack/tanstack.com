@@ -18,7 +18,7 @@ export const FormInput = React.forwardRef<HTMLInputElement, FormInputProps>(
       <input
         ref={ref}
         className={twMerge(
-          'w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:border-transparent transition-shadow',
+          'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent transition-shadow',
           ringStyles[focusRing],
           className,
         )}

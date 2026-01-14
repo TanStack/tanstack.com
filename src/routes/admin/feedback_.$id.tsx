@@ -13,12 +13,12 @@ import {
   FileText,
   Check,
   X,
-  ExternalLink,
   Clock,
   AlertTriangle,
 } from 'lucide-react'
 import { Card } from '~/components/Card'
 import { Button } from '~/components/Button'
+import { Badge } from '~/ui'
 import { format } from '~/utils/dates'
 
 export const Route = createFileRoute('/admin/feedback_/$id')({
@@ -92,19 +92,16 @@ function FeedbackDetailPage() {
   const { feedback, user } = data
   const library = libraries.find((l) => l.id === feedback.libraryId)
 
-  const statusColors = {
-    pending:
-      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
-    approved:
-      'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
-    denied: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
-  }
+  const statusVariant = {
+    pending: 'warning',
+    approved: 'success',
+    denied: 'error',
+  } as const
 
-  const typeColors = {
-    improvement:
-      'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
-    note: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
-  }
+  const typeVariant = {
+    improvement: 'info',
+    note: 'purple',
+  } as const
 
   return (
     <div className="w-full p-4">
@@ -128,16 +125,20 @@ function FeedbackDetailPage() {
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                   Feedback
                 </h1>
-                <span
-                  className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${statusColors[feedback.status as keyof typeof statusColors]}`}
+                <Badge
+                  variant={
+                    statusVariant[feedback.status as keyof typeof statusVariant]
+                  }
                 >
                   {feedback.status}
-                </span>
-                <span
-                  className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${typeColors[feedback.type as keyof typeof typeColors]}`}
+                </Badge>
+                <Badge
+                  variant={
+                    typeVariant[feedback.type as keyof typeof typeVariant]
+                  }
                 >
                   {feedback.type}
-                </span>
+                </Badge>
                 {feedback.isDetached && (
                   <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300">
                     <AlertTriangle className="w-3 h-3" />

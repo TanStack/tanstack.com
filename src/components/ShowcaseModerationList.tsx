@@ -1,4 +1,3 @@
-import * as React from 'react'
 import { Link } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 import {
@@ -23,6 +22,8 @@ import {
   ThumbsDown,
 } from 'lucide-react'
 import { libraries } from '~/libraries'
+import { Badge } from '~/ui'
+import { Fragment, useState } from 'react'
 
 interface ShowcaseModerationListProps {
   data:
@@ -77,8 +78,8 @@ export function ShowcaseModerationList({
   onVote,
   isModeratingId,
 }: ShowcaseModerationListProps) {
-  const [expandedIds, setExpandedIds] = React.useState<Set<string>>(new Set())
-  const [moderationNotes, setModerationNotes] = React.useState<
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
+  const [moderationNotes, setModerationNotes] = useState<
     Record<string, string>
   >({})
 
@@ -206,7 +207,7 @@ export function ShowcaseModerationList({
             const isModeratingThis = isModeratingId === showcase.id
 
             return (
-              <React.Fragment key={showcase.id}>
+              <Fragment key={showcase.id}>
                 <TableRow
                   className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"
                   onClick={() => toggleExpanded(showcase.id)}
@@ -239,20 +240,18 @@ export function ShowcaseModerationList({
                     </div>
                   </TableCell>
                   <TableCell>
-                    <span
-                      className={twMerge(
-                        'px-2 py-1 text-xs font-medium rounded-full',
-                        showcase.status === 'pending' &&
-                          'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
-                        showcase.status === 'approved' &&
-                          'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
-                        showcase.status === 'denied' &&
-                          'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
-                      )}
+                    <Badge
+                      variant={
+                        showcase.status === 'pending'
+                          ? 'warning'
+                          : showcase.status === 'approved'
+                            ? 'success'
+                            : 'error'
+                      }
                     >
                       {showcase.status.charAt(0).toUpperCase() +
                         showcase.status.slice(1)}
-                    </span>
+                    </Badge>
                   </TableCell>
                   <TableCell>
                     <div>
@@ -575,7 +574,7 @@ export function ShowcaseModerationList({
                     </TableCell>
                   </TableRow>
                 )}
-              </React.Fragment>
+              </Fragment>
             )
           })}
         </TableBody>

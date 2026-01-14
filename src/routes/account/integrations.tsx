@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   listMcpApiKeys,
@@ -14,7 +14,6 @@ import {
 import { useToast } from '~/components/ToastProvider'
 import { Card } from '~/components/Card'
 import { Button } from '~/components/Button'
-import { CodeBlock } from '~/components/markdown'
 import {
   Key,
   Plus,
@@ -26,6 +25,7 @@ import {
   Clock,
   Link2,
 } from 'lucide-react'
+import { FormInput } from '~/ui'
 export const Route = createFileRoute('/account/integrations')({
   component: IntegrationsPage,
 })
@@ -225,13 +225,13 @@ function IntegrationsPage() {
               >
                 Name
               </label>
-              <input
+              <FormInput
                 id="key-name"
                 type="text"
                 value={newKeyName}
                 onChange={(e) => setNewKeyName(e.target.value)}
                 placeholder="e.g., My Claude Desktop"
-                className="w-full max-w-sm border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                className="max-w-sm text-sm rounded-md"
               />
             </div>
             <div>

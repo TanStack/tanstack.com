@@ -13,6 +13,7 @@ import {
 import { ArrowLeft, Lock, Trash, User, Users } from 'lucide-react'
 import { requireCapability } from '~/utils/auth.server'
 import { hasCapability } from '~/db/types'
+import { Badge } from '~/ui'
 
 export const Route = createFileRoute('/admin/roles/$roleId')({
   beforeLoad: async () => {
@@ -169,12 +170,9 @@ function RoleDetailPage() {
           return (
             <div className="flex flex-wrap gap-1">
               {(user.capabilities || []).map((capability: string) => (
-                <span
-                  key={capability}
-                  className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
-                >
+                <Badge key={capability} variant="info">
                   {capability}
-                </span>
+                </Badge>
               ))}
               {(!user.capabilities || user.capabilities.length === 0) && (
                 <span className="text-sm text-gray-500 dark:text-gray-400">
@@ -288,12 +286,9 @@ function RoleDetailPage() {
           </div>
           <div className="flex flex-wrap gap-1">
             {role.capabilities.map((capability) => (
-              <span
-                key={capability}
-                className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
-              >
+              <Badge key={capability} variant="info">
                 {capability}
-              </span>
+              </Badge>
             ))}
           </div>
         </div>

@@ -41,6 +41,7 @@ import { useAdminGuard } from '~/hooks/useAdminGuard'
 import { requireCapability } from '~/utils/auth.server'
 import { useToggleArray } from '~/hooks/useToggleArray'
 import { useDeleteWithConfirmation } from '~/hooks/useDeleteWithConfirmation'
+import { Badge, FormInput } from '~/ui'
 
 // Role type for table - matches the shape returned by listRoles
 interface Role {
@@ -205,22 +206,6 @@ function RolesPage() {
     itemLabel: 'role',
   })
 
-  const handleCapabilityFilterToggle = useCallback(
-    (capability: string) => {
-      const newFilters = capabilityFilters.includes(capability)
-        ? capabilityFilters.filter((c: string) => c !== capability)
-        : [...capabilityFilters, capability]
-      navigate({
-        resetScroll: false,
-        search: (prev: { name?: string; cap?: string | string[] }) => ({
-          ...prev,
-          cap: newFilters.length > 0 ? newFilters : undefined,
-        }),
-      })
-    },
-    [capabilityFilters, navigate],
-  )
-
   const handleSendTestEmail = useCallback(async () => {
     setTestEmailStatus({ loading: true })
     try {
@@ -312,12 +297,9 @@ function RolesPage() {
           ) : (
             <div className="flex flex-wrap gap-1">
               {(role.capabilities || []).map((capability) => (
-                <span
-                  key={capability}
-                  className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
-                >
+                <Badge key={capability} variant="info">
                   {capability}
-                </span>
+                </Badge>
               ))}
               {(!role.capabilities || role.capabilities.length === 0) && (
                 <span className="text-sm text-gray-500 dark:text-gray-400">
@@ -502,11 +484,11 @@ function RolesPage() {
                   >
                     Name
                   </label>
-                  <input
+                  <FormInput
                     type="text"
                     value={editingName}
                     onChange={(e) => setEditingName(e.target.value)}
-                    className="w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
+                    className="rounded-md"
                     placeholder="Role name"
                   />
                 </div>
@@ -517,11 +499,11 @@ function RolesPage() {
                   >
                     Description
                   </label>
-                  <input
+                  <FormInput
                     type="text"
                     value={editingDescription}
                     onChange={(e) => setEditingDescription(e.target.value)}
-                    className="w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
+                    className="rounded-md"
                     placeholder="Role description"
                   />
                 </div>

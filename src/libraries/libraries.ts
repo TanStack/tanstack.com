@@ -259,6 +259,7 @@ export const pacer: LibrarySlim = {
   badge: 'beta',
   repo: 'tanstack/pacer',
   frameworks: ['react', 'preact', 'solid'],
+  legacyPackages: ['@tanstack/pacer-lite'],
   latestVersion: 'v0',
   latestBranch: 'main',
   availableVersions: ['v0'],

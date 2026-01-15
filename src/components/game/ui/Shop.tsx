@@ -36,7 +36,9 @@ export function Shop() {
                 ? purchasedBoosts.permSpeed
                 : item.type === 'permAccel'
                   ? purchasedBoosts.permAccel
-                  : 0
+                  : item.type === 'permHealth'
+                    ? purchasedBoosts.permHealth
+                    : 0
 
             // Check if already owned (non-stackable)
             const alreadyOwned =

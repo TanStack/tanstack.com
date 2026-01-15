@@ -28,6 +28,7 @@ export function Minimap() {
     islands,
     expandedIslands,
     showcaseIslands,
+    cornerIslands,
     discoveredIslands,
   } = useGameStore()
   const [minimapSize, setMinimapSize] = useState(getMinimapSize)
@@ -77,8 +78,13 @@ export function Minimap() {
 
   const { width: W, height: H } = minimapSize
 
-  // All islands (core + expanded + showcase)
-  const allIslands = [...islands, ...expandedIslands, ...showcaseIslands]
+  // All islands (core + expanded + showcase + corners)
+  const allIslands = [
+    ...islands,
+    ...expandedIslands,
+    ...showcaseIslands,
+    ...cornerIslands,
+  ]
 
   // Convert world position to isometric minimap position
   const worldToMinimap = (worldX: number, worldZ: number) => {
@@ -197,14 +203,17 @@ export function Minimap() {
           {/* Discovered islands */}
           {discoveredIslandsList.map((island) => {
             const pos = worldToMinimap(island.position[0], island.position[2])
+            const isCorner = island.id.startsWith('corner-')
             const color =
               island.type === 'library' && island.library
                 ? getLibraryColor(island.library.id)
                 : island.type === 'partner'
                   ? '#f59e0b' // Amber for partners
-                  : island.type === 'showcase'
-                    ? '#8b5cf6' // Purple for showcases
-                    : '#8b5cf6'
+                  : isCorner
+                    ? '#ef4444' // Red for corner boss islands
+                    : island.type === 'showcase'
+                      ? '#8b5cf6' // Purple for showcases
+                      : '#8b5cf6'
             const size = (1.5 + island.scale * 1) * scale
 
             return (

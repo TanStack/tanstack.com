@@ -22,6 +22,28 @@ export const Route = createFileRoute('/$libraryId/$version/docs')({
       'cdn-cache-control': 'max-age=300, stale-while-revalidate=300, durable',
     }
   },
+  // @ts-expect-error server property not in route types yet
+  server: {
+    handlers: {
+      GET: async ({ request }: { request: Request }) => {
+        const acceptHeader = request.headers.get('Accept') || ''
+
+        // Redirect to markdown version if AI/LLM requests text/markdown
+        if (acceptHeader.includes('text/markdown')) {
+          const url = new URL(request.url)
+          return new Response(null, {
+            status: 303,
+            headers: {
+              Location: `${url.pathname}.md`,
+            },
+          })
+        }
+
+        // Return undefined to continue with normal route handling
+        return undefined
+      },
+    },
+  },
 })
 
 function DocsRoute() {

@@ -422,9 +422,7 @@ function RolesPage() {
           isLoading={rolesQuery.isFetching}
           actions={
             !isCreating && (
-              <Button
-                size="xs"
-                onClick={handleCreateRole}>
+              <Button size="xs" onClick={handleCreateRole}>
                 <Plus className="w-4 h-4" />
                 Create Role
               </Button>

@@ -72,7 +72,7 @@ Restart Claude Desktop. On first use, a browser window will open to authorize ac
 ## Claude Code
 
 ```bash
-claude mcp add tanstack https://tanstack.com/api/mcp
+claude mcp add --transport http tanstack https://tanstack.com/api/mcp
 ```
 
 On first use, a browser window will open to authorize access.

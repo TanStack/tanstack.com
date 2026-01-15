@@ -55,7 +55,7 @@ export function FeedPage({
   const mounted = useMounted()
 
   // Load saved filter preferences from localStorage (only on client)
-  const [savedFilters, setSavedFilters] = useState<typeof search | null>(null)
+  const [_savedFilters, setSavedFilters] = useState<typeof search | null>(null)
   const [savedViewMode, setSavedViewMode] = useState<string | null>(null)
 
   useEffect(() => {
@@ -71,6 +71,7 @@ export function FeedPage({
               v === null ? undefined : v,
             ]),
           )
+          // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional hydration from localStorage after SSR
           setSavedFilters(restored as typeof search)
         } catch {
           // Ignore parse errors

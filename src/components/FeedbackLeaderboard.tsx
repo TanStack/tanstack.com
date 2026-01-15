@@ -17,8 +17,8 @@ import { twMerge } from 'tailwind-merge'
 import { Award, Medal, Trophy } from 'lucide-react'
 
 export function FeedbackLeaderboard() {
-  const navigate = useNavigate({ from: '/_libraries/feedback-leaderboard' })
-  const search = useSearch({ from: '/_libraries/feedback-leaderboard' })
+  const navigate = useNavigate({ from: '/feedback-leaderboard' })
+  const search = useSearch({ from: '/feedback-leaderboard' })
   const { page, pageSize } = search
 
   const { data, isLoading, error } = useQuery(

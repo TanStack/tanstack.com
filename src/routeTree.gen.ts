@@ -54,6 +54,8 @@ import { Route as BlogSplatRouteImport } from './routes/blog.$'
 import { Route as AuthSignoutRouteImport } from './routes/auth/signout'
 import { Route as AuthPopupSuccessRouteImport } from './routes/auth/popup-success'
 import { Route as ApiUploadthingRouteImport } from './routes/api/uploadthing'
+import { Route as ApiInitialPayloadRouteImport } from './routes/api/initial-payload'
+import { Route as ApiDryRunCreateAppRouteImport } from './routes/api/dry-run-create-app'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as AdminNpmStatsRouteImport } from './routes/admin/npm-stats'
 import { Route as AdminLoginsRouteImport } from './routes/admin/logins'
@@ -324,6 +326,16 @@ const AuthPopupSuccessRoute = AuthPopupSuccessRouteImport.update({
 const ApiUploadthingRoute = ApiUploadthingRouteImport.update({
   id: '/api/uploadthing',
   path: '/api/uploadthing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiInitialPayloadRoute = ApiInitialPayloadRouteImport.update({
+  id: '/api/initial-payload',
+  path: '/api/initial-payload',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDryRunCreateAppRoute = ApiDryRunCreateAppRouteImport.update({
+  id: '/api/dry-run-create-app',
+  path: '/api/dry-run-create-app',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminUsersRoute = AdminUsersRouteImport.update({
@@ -609,6 +621,8 @@ export interface FileRoutesByFullPath {
   '/admin/logins': typeof AdminLoginsRoute
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
+  '/api/dry-run-create-app': typeof ApiDryRunCreateAppRoute
+  '/api/initial-payload': typeof ApiInitialPayloadRoute
   '/api/uploadthing': typeof ApiUploadthingRoute
   '/auth/popup-success': typeof AuthPopupSuccessRoute
   '/auth/signout': typeof AuthSignoutRoute
@@ -697,6 +711,8 @@ export interface FileRoutesByTo {
   '/admin/logins': typeof AdminLoginsRoute
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
+  '/api/dry-run-create-app': typeof ApiDryRunCreateAppRoute
+  '/api/initial-payload': typeof ApiInitialPayloadRoute
   '/api/uploadthing': typeof ApiUploadthingRoute
   '/auth/popup-success': typeof AuthPopupSuccessRoute
   '/auth/signout': typeof AuthSignoutRoute
@@ -790,6 +806,8 @@ export interface FileRoutesById {
   '/admin/logins': typeof AdminLoginsRoute
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
+  '/api/dry-run-create-app': typeof ApiDryRunCreateAppRoute
+  '/api/initial-payload': typeof ApiInitialPayloadRoute
   '/api/uploadthing': typeof ApiUploadthingRoute
   '/auth/popup-success': typeof AuthPopupSuccessRoute
   '/auth/signout': typeof AuthSignoutRoute
@@ -885,6 +903,8 @@ export interface FileRouteTypes {
     | '/admin/logins'
     | '/admin/npm-stats'
     | '/admin/users'
+    | '/api/dry-run-create-app'
+    | '/api/initial-payload'
     | '/api/uploadthing'
     | '/auth/popup-success'
     | '/auth/signout'
@@ -973,6 +993,8 @@ export interface FileRouteTypes {
     | '/admin/logins'
     | '/admin/npm-stats'
     | '/admin/users'
+    | '/api/dry-run-create-app'
+    | '/api/initial-payload'
     | '/api/uploadthing'
     | '/auth/popup-success'
     | '/auth/signout'
@@ -1065,6 +1087,8 @@ export interface FileRouteTypes {
     | '/admin/logins'
     | '/admin/npm-stats'
     | '/admin/users'
+    | '/api/dry-run-create-app'
+    | '/api/initial-payload'
     | '/api/uploadthing'
     | '/auth/popup-success'
     | '/auth/signout'
@@ -1149,6 +1173,8 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   WorkshopsRoute: typeof WorkshopsRoute
   DotwellKnownOauthAuthorizationServerRoute: typeof DotwellKnownOauthAuthorizationServerRoute
+  ApiDryRunCreateAppRoute: typeof ApiDryRunCreateAppRoute
+  ApiInitialPayloadRoute: typeof ApiInitialPayloadRoute
   ApiUploadthingRoute: typeof ApiUploadthingRoute
   AuthPopupSuccessRoute: typeof AuthPopupSuccessRoute
   AuthSignoutRoute: typeof AuthSignoutRoute
@@ -1488,6 +1514,20 @@ declare module '@tanstack/react-router' {
       path: '/api/uploadthing'
       fullPath: '/api/uploadthing'
       preLoaderRoute: typeof ApiUploadthingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/initial-payload': {
+      id: '/api/initial-payload'
+      path: '/api/initial-payload'
+      fullPath: '/api/initial-payload'
+      preLoaderRoute: typeof ApiInitialPayloadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dry-run-create-app': {
+      id: '/api/dry-run-create-app'
+      path: '/api/dry-run-create-app'
+      fullPath: '/api/dry-run-create-app'
+      preLoaderRoute: typeof ApiDryRunCreateAppRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/users': {
@@ -1998,6 +2038,8 @@ const rootRouteChildren: RootRouteChildren = {
   WorkshopsRoute: WorkshopsRoute,
   DotwellKnownOauthAuthorizationServerRoute:
     DotwellKnownOauthAuthorizationServerRoute,
+  ApiDryRunCreateAppRoute: ApiDryRunCreateAppRoute,
+  ApiInitialPayloadRoute: ApiInitialPayloadRoute,
   ApiUploadthingRoute: ApiUploadthingRoute,
   AuthPopupSuccessRoute: AuthPopupSuccessRoute,
   AuthSignoutRoute: AuthSignoutRoute,

@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
+import { redirect, useNavigate, createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { createAuthorizationCode } from '~/utils/oauthClient.functions'
 import { getCurrentUser } from '~/utils/auth.server'

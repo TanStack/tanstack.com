@@ -6,7 +6,6 @@ import {
   getBattlePhase,
   BADGE_INFO,
   type BadgeTier,
-  type ProgressionContext,
 } from './progressionMachine'
 import { useGameStore } from '../hooks/useGameStore'
 

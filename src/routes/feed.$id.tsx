@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound } from '@tanstack/react-router'
+import { Link, notFound, createFileRoute } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { seo } from '~/utils/seo'
 import { useCapabilities } from '~/hooks/useCapabilities'

@@ -1,6 +1,6 @@
 import { findLibrary, getBranch } from '~/libraries'
 import { loadDocs } from '~/utils/docs'
-import { createFileRoute, notFound } from '@tanstack/react-router'
+import { notFound, createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute(
   '/$libraryId/$version/docs/framework/$framework/{$}.md',
@@ -20,7 +20,7 @@ export const Route = createFileRoute(
           _splat: string
         }
       }) => {
-        const url = new URL(request.url)
+        const _url = new URL(request.url)
 
         const { libraryId, version, framework, _splat: docsPath } = params
         const library = findLibrary(libraryId)

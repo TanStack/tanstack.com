@@ -1,4 +1,4 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
+import { redirect, createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { seo } from '~/utils/seo'
 import { FeedbackModerationPage } from '~/components/FeedbackModerationPage'

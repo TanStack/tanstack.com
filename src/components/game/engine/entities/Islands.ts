@@ -7,7 +7,7 @@ import { useGameStore } from '../../hooks/useGameStore'
 import { Text } from 'troika-three-text'
 
 const CULL_DISTANCE = 80
-const INFO_SHOW_DISTANCE = 10
+const _INFO_SHOW_DISTANCE = 10
 
 function seededRandom(seed: number) {
   const x = Math.sin(seed) * 10000

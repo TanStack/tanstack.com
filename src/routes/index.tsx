@@ -1,4 +1,4 @@
-import { ClientOnly, createFileRoute, Link } from '@tanstack/react-router'
+import { ClientOnly, Link, createFileRoute } from '@tanstack/react-router'
 
 import { Footer } from '~/components/Footer'
 import { LazySponsorSection } from '~/components/LazySponsorSection'

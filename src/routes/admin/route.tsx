@@ -3,8 +3,8 @@ import {
   Link,
   LinkOptions,
   Outlet,
-  createFileRoute,
   redirect,
+  createFileRoute,
 } from '@tanstack/react-router'
 import {
   X,

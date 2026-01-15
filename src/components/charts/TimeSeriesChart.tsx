@@ -1,6 +1,5 @@
 import * as React from 'react'
 import * as Plot from '@observablehq/plot'
-import * as d3 from 'd3'
 import { type BinType, binTimeSeriesData } from '~/utils/chart'
 
 export type ChartVariant = 'area' | 'bar' | 'cumulative'
@@ -90,7 +89,7 @@ function getMarksForVariant(
   color: string,
   binType: BinType,
 ): Plot.Markish[] {
-  const tipFormat = {
+  const _tipFormat = {
     x: (d: Date) =>
       d.toLocaleDateString('en-US', {
         month: 'long',

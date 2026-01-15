@@ -194,13 +194,19 @@ Since `listRoles` is wrapped in `createServerFn`, TanStack Start will properly h
 
 This is a visual website, not a library. Assume changes work unless the user reports otherwise. Running builds after every change wastes time and context.
 
+### Run Linting After Code Changes
+
+**After making code changes, always run `pnpm lint` to verify the code passes linting.**
+
+Do NOT run tests after every change. Tests are run automatically by the pre-commit hook and CI. Linting is fast and catches most issues immediately.
+
 ### Debugging Visual Issues
 
 When the user reports something doesn't work or look right:
 
 1. Use the Playwright MCP to view the page and debug visually
 2. Use builds (`pnpm build`) only when investigating build/bundler issues
-3. Use TypeScript compilation (`pnpm tsc --noEmit`) for type errors
+3. Use linting (`pnpm lint`) to check for code issues
 
 ### Use `build` for Build-Specific Issues
 

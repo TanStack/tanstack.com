@@ -1,4 +1,4 @@
-import { createFileRoute, isNotFound, notFound } from '@tanstack/react-router'
+import { isNotFound, notFound, createFileRoute } from '@tanstack/react-router'
 import {
   queryOptions,
   useQuery,

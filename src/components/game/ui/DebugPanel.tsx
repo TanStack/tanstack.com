@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useGameStore } from '../hooks/useGameStore'
 import {
-  UPGRADES,
   PARTNER_UPGRADE_ORDER,
   SHOWCASE_UPGRADE_ORDER,
 } from '../utils/upgrades'
@@ -28,6 +27,7 @@ export function DebugPanel() {
   // Default to open for admins/maintainers once we know they have access
   useEffect(() => {
     if (canAccess) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Auto-expand for admins
       setIsCollapsed(false)
     }
   }, [canAccess])
@@ -35,18 +35,18 @@ export function DebugPanel() {
   const {
     phase,
     stage,
-    islands,
+    islands: _islands,
     expandedIslands,
     showcaseIslands,
     showcaseUnlocked,
     cornersUnlocked,
-    cornerIslands,
-    coins,
+    cornerIslands: _cornerIslands,
+    coins: _coins,
     discoveredIslands,
-    coinsCollected,
-    unlockedUpgrades,
-    shipStats,
-    boatHealth,
+    coinsCollected: _coinsCollected,
+    unlockedUpgrades: _unlockedUpgrades,
+    shipStats: _shipStats,
+    boatHealth: _boatHealth,
     showCollisionDebug,
     setShowCollisionDebug,
     debugZoomOut,
@@ -189,10 +189,10 @@ export function DebugPanel() {
   }
 
   const partnerIslands = expandedIslands.filter((i) => i.type === 'partner')
-  const discoveredPartners = partnerIslands.filter((i) =>
+  const _discoveredPartners = partnerIslands.filter((i) =>
     discoveredIslands.has(i.id),
   ).length
-  const discoveredShowcases = showcaseIslands.filter((i) =>
+  const _discoveredShowcases = showcaseIslands.filter((i) =>
     discoveredIslands.has(i.id),
   ).length
 

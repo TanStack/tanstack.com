@@ -123,6 +123,7 @@ export function CodeBlock({
 }: React.HTMLProps<HTMLPreElement> & {
   isEmbedded?: boolean
   showTypeCopyButton?: boolean
+  dataCodeTitle?: string
 }) {
   // Extract title from data-code-title attribute, handling both camelCase and kebab-case
   const rawTitle = ((props as any)?.dataCodeTitle ||

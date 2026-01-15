@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect -- game animation state sync */
 import { useEffect, useState } from 'react'
 import {
   useProgression,
@@ -120,6 +121,7 @@ export function BadgeOverlay() {
   return (
     <div className="absolute inset-0 z-[60] flex items-center justify-center p-8">
       {/* Background */}
+      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- Game overlay dismiss */}
       <div
         className="absolute inset-0 transition-opacity duration-500"
         style={{

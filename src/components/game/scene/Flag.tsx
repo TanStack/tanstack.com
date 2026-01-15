@@ -30,7 +30,7 @@ export function Flag({
   position,
   color,
   libraryId,
-  partnerId,
+  partnerId: _partnerId,
   partnerHref,
   islandId,
 }: FlagProps) {

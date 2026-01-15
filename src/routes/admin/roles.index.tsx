@@ -1,4 +1,4 @@
-import { createFileRoute, Link, redirect } from '@tanstack/react-router'
+import { Link, redirect, createFileRoute } from '@tanstack/react-router'
 import { RolesTopBarFilters } from '~/components/RolesTopBarFilters'
 import {
   Table,
@@ -145,6 +145,7 @@ function RolesPage() {
     setEditingName('')
     setEditingDescription('')
     setEditingCapabilities([])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const handleEditRole = useCallback((role: Role) => {
@@ -153,6 +154,7 @@ function RolesPage() {
     setEditingDescription(role.description || '')
     setEditingCapabilities((role.capabilities || []) as Capability[])
     setIsCreating(false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const handleSaveRole = useCallback(async () => {
@@ -180,6 +182,7 @@ function RolesPage() {
       console.error('Failed to save role:', error)
       alert(error instanceof Error ? error.message : 'Failed to save role')
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     isCreating,
     editingRoleId,

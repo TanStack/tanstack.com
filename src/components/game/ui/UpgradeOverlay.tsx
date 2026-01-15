@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect -- game animation state sync */
 import { useEffect, useState } from 'react'
 import { useGameStore } from '../hooks/useGameStore'
 import { Badge } from './BadgeOverlay'

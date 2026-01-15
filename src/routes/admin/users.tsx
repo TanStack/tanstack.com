@@ -1,4 +1,4 @@
-import { Link, createFileRoute, redirect } from '@tanstack/react-router'
+import { Link, redirect, createFileRoute } from '@tanstack/react-router'
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { PaginationControls } from '~/components/PaginationControls'
@@ -331,6 +331,7 @@ function UsersPage() {
     setEditingUserId(user._id)
     setEditingCapabilities((user.capabilities || []) as Capability[])
     setEditingRoleIds([])
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- setters are stable
   }, [])
 
   // Fetch user roles when editing starts
@@ -358,6 +359,7 @@ function UsersPage() {
     } else if (!editingUserId) {
       setEditingRoleIds([])
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- setter is stable
   }, [editingUserRoles, editingUserId])
 
   const handleSaveUser = useCallback(async () => {

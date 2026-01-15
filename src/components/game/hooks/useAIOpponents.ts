@@ -31,7 +31,7 @@ interface AIState {
 // Generate initial AI opponents
 function generateAIOpponents(
   count: number,
-  worldBoundary: number,
+  _worldBoundary: number,
 ): OtherPlayer[] {
   const opponents: OtherPlayer[] = []
 

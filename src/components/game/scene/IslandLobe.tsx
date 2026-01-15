@@ -128,7 +128,7 @@ export function IslandLobe({
     geo.computeVertexNormals()
 
     return geo
-  }, [sphereRadius, seed, elongation, scale, sphereCenterY])
+  }, [sphereRadius, seed, scale, sphereCenterY])
 
   return (
     <group position={position} scale={scale}>

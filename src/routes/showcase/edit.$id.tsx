@@ -1,4 +1,4 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
+import { redirect, createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { ShowcaseSubmitForm } from '~/components/ShowcaseSubmitForm'
 import { requireAuth } from '~/utils/auth.server'

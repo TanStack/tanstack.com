@@ -6,16 +6,7 @@ import {
   type ShowcaseStatus,
   type ShowcaseUseCase,
 } from '~/db/schema'
-import {
-  and,
-  eq,
-  or,
-  sql,
-  desc,
-  inArray,
-  arrayContains,
-  isNotNull,
-} from 'drizzle-orm'
+import { and, eq, or, sql, desc, arrayContains, isNotNull } from 'drizzle-orm'
 import { requireCapability } from './auth.server'
 import { getEffectiveCapabilities } from './capabilities.server'
 import { libraryIds } from '~/libraries'

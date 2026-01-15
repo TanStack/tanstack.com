@@ -41,7 +41,9 @@ const tests: TestCase[] = [
   },
 ]
 
-async function runTest(test: TestCase): Promise<{ pass: boolean; error?: string }> {
+async function runTest(
+  test: TestCase,
+): Promise<{ pass: boolean; error?: string }> {
   try {
     const url = `${BASE_URL}${test.path}`
     const response = await fetch(url, {
@@ -62,7 +64,10 @@ async function runTest(test: TestCase): Promise<{ pass: boolean; error?: string 
 
     return { pass: true }
   } catch (err) {
-    return { pass: false, error: err instanceof Error ? err.message : String(err) }
+    return {
+      pass: false,
+      error: err instanceof Error ? err.message : String(err),
+    }
   }
 }
 

@@ -45,7 +45,9 @@ const repoDirApiContentsQueryOptions = (
     staleTime: Infinity, // We can cache this forever. A refresh can invalidate the cache if necessary.
   })
 
-export const Route = createFileRoute('/$libraryId/$version/docs/framework/$framework/examples/$')({
+export const Route = createFileRoute(
+  '/$libraryId/$version/docs/framework/$framework/examples/$',
+)({
   component: RouteComponent,
   validateSearch: v.object({
     path: v.optional(v.string()),

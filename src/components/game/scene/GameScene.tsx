@@ -157,7 +157,6 @@ function SceneContent() {
   useEffect(() => {
     const state = useGameStore.getState()
     if (state.islands.length > 0) {
-       
       setLocalIslands(state.islands)
       return
     }

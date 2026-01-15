@@ -59,7 +59,6 @@ export function GameHUD() {
   // Show upgrade notification when new upgrade unlocked
   useEffect(() => {
     if (lastUnlockedUpgrade) {
-       
       setShowUpgradeNotification(true)
       const timer = setTimeout(() => {
         setShowUpgradeNotification(false)

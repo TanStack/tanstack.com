@@ -215,7 +215,6 @@ export function ExplorerPanel({
         >
           Terminal
         </button>
-
       </div>
 
       {/* Content area */}

@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useGameStore } from '../hooks/useGameStore'
-import { PARTNER_UPGRADE_ORDER, SHOWCASE_UPGRADE_ORDER } from '../utils/upgrades'
+import {
+  PARTNER_UPGRADE_ORDER,
+  SHOWCASE_UPGRADE_ORDER,
+} from '../utils/upgrades'
 
 const UPGRADE_ORDER = [...PARTNER_UPGRADE_ORDER, ...SHOWCASE_UPGRADE_ORDER]
 import { getCurrentUser } from '~/utils/auth.server'

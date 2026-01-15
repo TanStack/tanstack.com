@@ -73,7 +73,10 @@ export function ShowcaseSection({
 
   const { data, isLoading } = useQuery(queryOptions)
 
-  const showcases = React.useMemo(() => data?.showcases || [], [data?.showcases])
+  const showcases = React.useMemo(
+    () => data?.showcases || [],
+    [data?.showcases],
+  )
   const placeholdersNeeded = Math.max(0, minItems - showcases.length)
 
   const showcaseIds = React.useMemo(

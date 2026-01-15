@@ -7,7 +7,9 @@ import { DocContainer } from '~/components/DocContainer'
 import { DocTitle } from '~/components/DocTitle'
 import { twMerge } from 'tailwind-merge'
 
-export const Route = createFileRoute('/$libraryId/$version/docs/framework/$framework/')({
+export const Route = createFileRoute(
+  '/$libraryId/$version/docs/framework/$framework/',
+)({
   staleTime: 1000 * 60 * 5,
   loader: (ctx) => {
     const { framework } = ctx.params

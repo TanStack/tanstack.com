@@ -112,7 +112,7 @@ export function getLibraryMainPackage(library: LibrarySlim): string {
 
   // Use corePackageName if specified (e.g., table-core)
   if (library.corePackageName) {
-    return `@tanstack/${library.corePackageName}`
+    return library.corePackageName
   }
 
   return `@tanstack/${library.id}`

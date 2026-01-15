@@ -130,7 +130,7 @@ export const table: LibrarySlim = {
   scarfId: 'dc8b39e1-3fe9-4f3a-8e56-d4e2cf420a9e',
   ogImage: 'https://github.com/tanstack/table/raw/main/media/repo-header.png',
   defaultDocs: 'introduction',
-  corePackageName: 'table-core',
+  corePackageName: '@tanstack/table-core',
   legacyPackages: ['react-table'],
 }
 

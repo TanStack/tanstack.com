@@ -168,7 +168,7 @@ function IntegrationsPage() {
           </p>
         </div>
         {!isCreating && (
-          <Button onClick={() => setIsCreating(true)}>
+          <Button variant="ghost" size="xs" onClick={() => setIsCreating(true)}>
             <Plus className="w-3.5 h-3.5" />
             New Key
           </Button>

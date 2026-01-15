@@ -235,6 +235,8 @@ function AccountSettingsPage() {
           </div>
           <div className="flex flex-col gap-2">
             <Button
+              variant="ghost"
+              size="xs"
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
             >
@@ -242,13 +244,23 @@ function AccountSettingsPage() {
               {isUploading ? 'Uploading...' : 'Change photo'}
             </Button>
             {canRevert && (
-              <Button onClick={handleRevertToOAuth} disabled={isReverting}>
+              <Button
+                variant="ghost"
+                size="xs"
+                onClick={handleRevertToOAuth}
+                disabled={isReverting}
+              >
                 <RotateCcw className="w-3.5 h-3.5" />
                 {isReverting ? 'Reverting...' : 'Revert to original'}
               </Button>
             )}
             {hasAnyImage && (
-              <Button onClick={handleRemovePhoto} disabled={isRemoving}>
+              <Button
+                variant="ghost"
+                size="xs"
+                onClick={handleRemovePhoto}
+                disabled={isRemoving}
+              >
                 <Trash2 className="w-3.5 h-3.5" />
                 {isRemoving ? 'Removing...' : 'Remove photo'}
               </Button>
@@ -355,7 +367,7 @@ function AccountSettingsPage() {
         ) : null}
       </div>
       <div>
-        <Button onClick={signOut}>
+        <Button variant="ghost" size="xs" onClick={signOut}>
           <LogOut className="w-3.5 h-3.5" />
           Logout
         </Button>

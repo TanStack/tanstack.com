@@ -20,6 +20,8 @@
       "content-collections": ["./.content-collections/generated"]
     },
     "types": ["vite/client"],
-    "noEmit": true
+    "noEmit": true,
+    "incremental": true,
+    "tsBuildInfoFile": ".tsbuildinfo"
   }
 }

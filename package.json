@@ -11,7 +11,7 @@
     "dev:frontend": "pnpm run with-env vite dev",
     "build": "vite build && cp src/instrument.server.mjs dist/server",
     "start": "vite start",
-    "lint": "eslint --ext .ts,.tsx ./src",
+    "lint": "eslint --cache --ext .ts,.tsx ./src",
     "format": "prettier --experimental-cli --ignore-unknown '**/*' --write",
     "linkAll": "node scripts/link.js",
     "db:generate": "drizzle-kit generate",

@@ -36,3 +36,12 @@ export {
 export { StatsTable, type StatsTableProps } from './StatsTable'
 
 export { NPMSummary } from './NPMSummary'
+
+export { ChartControls, type ChartControlsProps } from './ChartControls'
+
+export {
+  PackagePill,
+  PackagePills,
+  type PackagePillProps,
+  type PackagePillsProps,
+} from './PackagePills'

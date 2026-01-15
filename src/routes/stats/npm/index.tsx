@@ -2,9 +2,8 @@ import * as React from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { useThrottledCallback } from '@tanstack/react-pacer'
-import { X, Plus, Eye, EyeOff, Pin, EllipsisVertical } from 'lucide-react'
+import { X } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
-import { Tooltip } from '~/components/Tooltip'
 import { Card } from '~/components/Card'
 import { seo } from '~/utils/seo'
 import {
@@ -14,21 +13,16 @@ import {
 } from './-comparisons'
 import { GamHeader, GamVrec1 } from '~/components/Gam'
 import { AdGate } from '~/contexts/AdsContext'
-import { twMerge } from 'tailwind-merge'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@radix-ui/react-dropdown-menu'
 import { Spinner } from '~/components/Spinner'
-import { defaultColors } from '~/utils/npm-packages'
 import {
   NPMStatsChart,
   PackageSearch,
   Resizable,
   ColorPickerPopover,
   StatsTable,
+  PopularComparisons,
+  ChartControls,
+  PackagePills,
   npmQueryOptions,
   type PackageGroup,
   type TimeRange,
@@ -36,12 +30,9 @@ import {
   type TransformMode,
   type ShowDataMode,
   type FacetValue,
-  binningOptions,
   binningOptionsByType,
-  timeRanges,
   defaultRangeBinTypes,
   getPackageColor,
-  isBinningOptionValidForRange,
 } from '~/components/npm-stats'
 
 const transformModeSchema = v.picklist(['none', 'normalize-y'])
@@ -215,26 +206,6 @@ type NpmStatsSearch = {
   showDataMode?: 'all' | 'complete'
   height?: number
 }
-
-const dropdownButtonStyles = {
-  base: 'bg-gray-500/10 rounded-md px-2 py-1 text-sm flex items-center gap-1',
-  active: 'bg-gray-500/20',
-} as const
-
-const showDataModeOptions = [
-  { value: 'all', label: 'All Data' },
-  { value: 'complete', label: 'Hide Partial Data' },
-] as const
-
-const transformOptions = [
-  { value: 'none', label: 'Actual Values' },
-  { value: 'normalize-y', label: 'Relative Change' },
-] as const
-
-const facetOptions = [
-  { value: 'name', label: 'Package' },
-  // Add more options here in the future
-] as const
 
 function RouteComponent() {
   const search = Route.useSearch()
@@ -589,489 +560,33 @@ function RouteComponent() {
         <Card className="flex-1 space-y-4 p-4 max-w-full">
           <div className="flex gap-2 flex-wrap items-center">
             <PackageSearch onSelect={handleAddPackage} />
-            <DropdownMenu>
-              <Tooltip content="Select time range">
-                <DropdownMenuTrigger asChild>
-                  <button className={twMerge(dropdownButtonStyles.base)}>
-                    {timeRanges.find((r) => r.value === range)?.label}
-                    <EllipsisVertical className="w-3 h-3" />
-                  </button>
-                </DropdownMenuTrigger>
-              </Tooltip>
-              <DropdownMenuContent className="min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 z-50">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium">Time Range</span>
-                </div>
-                {timeRanges.map(({ value, label }) => (
-                  <DropdownMenuItem
-                    key={value}
-                    onSelect={() => handleRangeChange(value)}
-                    className={twMerge(
-                      'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
-                      value === range ? 'text-blue-500 bg-blue-500/10' : '',
-                      'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500',
-                    )}
-                  >
-                    {label}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <DropdownMenu>
-              <Tooltip content="Select binning interval">
-                <DropdownMenuTrigger asChild>
-                  <button
-                    className={twMerge(
-                      dropdownButtonStyles.base,
-                      binType !== 'weekly' && dropdownButtonStyles.active,
-                    )}
-                  >
-                    {binningOptions.find((b) => b.value === binType)?.label}
-                    <EllipsisVertical className="w-3 h-3" />
-                  </button>
-                </DropdownMenuTrigger>
-              </Tooltip>
-              <DropdownMenuContent className="min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 z-50">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium">Binning Interval</span>
-                </div>
-                {binningOptions.map(({ label, value }) => (
-                  <DropdownMenuItem
-                    key={value}
-                    onSelect={() => handleBinnedChange(value)}
-                    disabled={!isBinningOptionValidForRange(range, value)}
-                    className={twMerge(
-                      'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
-                      binType === value ? 'text-blue-500 bg-blue-500/10' : '',
-                      'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500',
-                      !isBinningOptionValidForRange(range, value)
-                        ? 'opacity-50 cursor-not-allowed'
-                        : '',
-                    )}
-                  >
-                    {label}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <DropdownMenu>
-              <Tooltip content="Transform the Y-axis to show relative changes between packages. 'None' shows actual download numbers, while 'Normalize Y' shows percentage changes relative to the first data point.">
-                <DropdownMenuTrigger asChild>
-                  <button
-                    className={twMerge(
-                      dropdownButtonStyles.base,
-                      transform !== 'none' && dropdownButtonStyles.active,
-                    )}
-                  >
-                    {
-                      transformOptions.find((opt) => opt.value === transform)
-                        ?.label
-                    }
-                    <EllipsisVertical className="w-3 h-3" />
-                  </button>
-                </DropdownMenuTrigger>
-              </Tooltip>
-              <DropdownMenuContent className="min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 z-50">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium">Y-Axis Transform</span>
-                </div>
-                {transformOptions.map(({ value, label }) => (
-                  <DropdownMenuItem
-                    key={value}
-                    onSelect={() =>
-                      handleTransformChange(value as TransformMode)
-                    }
-                    className={twMerge(
-                      'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
-                      transform === value ? 'text-blue-500 bg-blue-500/10' : '',
-                      'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500',
-                    )}
-                  >
-                    {label}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <DropdownMenu>
-              <Tooltip content="Split the visualization horizontally by package">
-                <DropdownMenuTrigger asChild>
-                  <button
-                    className={twMerge(
-                      dropdownButtonStyles.base,
-                      facetX && dropdownButtonStyles.active,
-                    )}
-                  >
-                    {facetX
-                      ? `Facet X by ${
-                          facetOptions.find((opt) => opt.value === facetX)
-                            ?.label
-                        }`
-                      : 'No Facet X'}
-                    <EllipsisVertical className="w-3 h-3" />
-                  </button>
-                </DropdownMenuTrigger>
-              </Tooltip>
-              <DropdownMenuContent className="min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 z-50">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium">Horizontal Facet</span>
-                </div>
-                <DropdownMenuItem
-                  onSelect={() => handleFacetXChange(undefined)}
-                  className={twMerge(
-                    'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
-                    !facetX ? 'text-blue-500 bg-blue-500/10' : '',
-                    'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500',
-                  )}
-                >
-                  No Facet
-                </DropdownMenuItem>
-                {facetOptions.map(({ value, label }) => (
-                  <DropdownMenuItem
-                    key={value}
-                    onSelect={() => handleFacetXChange(value)}
-                    className={twMerge(
-                      'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
-                      facetX === value ? 'text-blue-500 bg-blue-500/10' : '',
-                      'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500',
-                    )}
-                  >
-                    {label}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <DropdownMenu>
-              <Tooltip content="Split the visualization vertically by package">
-                <DropdownMenuTrigger asChild>
-                  <button
-                    className={twMerge(
-                      dropdownButtonStyles.base,
-                      facetY && dropdownButtonStyles.active,
-                    )}
-                  >
-                    {facetY
-                      ? `Facet Y by ${
-                          facetOptions.find((opt) => opt.value === facetY)
-                            ?.label
-                        }`
-                      : 'No Facet Y'}
-                    <EllipsisVertical className="w-3 h-3" />
-                  </button>
-                </DropdownMenuTrigger>
-              </Tooltip>
-              <DropdownMenuContent className="min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 z-50">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium">Vertical Facet</span>
-                </div>
-                <DropdownMenuItem
-                  onSelect={() => handleFacetYChange(undefined)}
-                  className={twMerge(
-                    'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
-                    !facetY ? 'text-blue-500 bg-blue-500/10' : '',
-                    'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500',
-                  )}
-                >
-                  No Facet
-                </DropdownMenuItem>
-                {facetOptions.map(({ value, label }) => (
-                  <DropdownMenuItem
-                    key={value}
-                    onSelect={() => handleFacetYChange(value)}
-                    className={twMerge(
-                      'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
-                      facetY === value ? 'text-blue-500 bg-blue-500/10' : '',
-                      'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500',
-                    )}
-                  >
-                    {label}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <DropdownMenu>
-              <Tooltip
-                content={
-                  transform === 'normalize-y'
-                    ? 'Only complete data is shown when using relative change'
-                    : 'Control how data is displayed'
-                }
-              >
-                <DropdownMenuTrigger asChild>
-                  <button
-                    className={twMerge(
-                      dropdownButtonStyles.base,
-                      showDataModeParam !== 'all' &&
-                        dropdownButtonStyles.active,
-                      transform === 'normalize-y' &&
-                        'opacity-50 cursor-not-allowed',
-                    )}
-                    disabled={transform === 'normalize-y'}
-                  >
-                    {
-                      showDataModeOptions.find(
-                        (opt) => opt.value === showDataModeParam,
-                      )?.label
-                    }
-                    <EllipsisVertical className="w-3 h-3" />
-                  </button>
-                </DropdownMenuTrigger>
-              </Tooltip>
-              <DropdownMenuContent className="min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 z-50">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium">Data Display Mode</span>
-                </div>
-                {showDataModeOptions.map(({ value, label }) => (
-                  <DropdownMenuItem
-                    key={value}
-                    onSelect={() => handleShowDataModeChange(value)}
-                    disabled={transform === 'normalize-y'}
-                    className={twMerge(
-                      'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
-                      showDataModeParam === value
-                        ? 'text-blue-500 bg-blue-500/10'
-                        : '',
-                      'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500',
-                      transform === 'normalize-y'
-                        ? 'opacity-50 cursor-not-allowed'
-                        : '',
-                    )}
-                  >
-                    {label}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <ChartControls
+              range={range}
+              binType={binType}
+              transform={transform}
+              showDataMode={showDataModeParam}
+              onRangeChange={handleRangeChange}
+              onBinTypeChange={handleBinnedChange}
+              onTransformChange={handleTransformChange}
+              onShowDataModeChange={handleShowDataModeChange}
+              facetX={facetX}
+              facetY={facetY}
+              onFacetXChange={handleFacetXChange}
+              onFacetYChange={handleFacetYChange}
+            />
           </div>
-          <div className="flex flex-wrap gap-1 sm:gap-2">
-            {packageGroups.map((pkg, index) => {
-              const mainPackage = pkg.packages[0]
-              if (!mainPackage) return null
-              const packageList = pkg.packages
-              const isCombined = packageList.length > 1
-              const subPackages = packageList.filter(
-                (p) => p.name !== mainPackage.name,
-              )
-              const color = getPackageColor(mainPackage.name, packageGroups)
-
-              // Get error for this package if any
-              const packageError = npmQuery.data?.[index]?.error
-
-              return (
-                <div
-                  key={mainPackage.name}
-                  className={`flex flex-col items-start
-                    rounded-md text-gray-900
-                    px-1 py-0.5
-                    sm:px-2 sm:py-1
-                    dark:text-gray-100 text-xs sm:text-sm`}
-                  style={{
-                    backgroundColor: `${color}20`,
-                  }}
-                >
-                  <div className="flex items-center gap-1 w-full">
-                    {pkg.baseline ? (
-                      <>
-                        <Tooltip content="Remove baseline">
-                          <button
-                            onClick={() =>
-                              handleBaselineChange(mainPackage.name)
-                            }
-                            className="hover:text-blue-500"
-                          >
-                            <Pin className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500" />
-                          </button>
-                        </Tooltip>
-                        <span>{mainPackage.name}</span>
-                      </>
-                    ) : (
-                      <>
-                        <Tooltip content="Change color">
-                          <button
-                            onClick={(e) =>
-                              handleColorClick(mainPackage.name, e)
-                            }
-                            className="hover:opacity-80"
-                          >
-                            <div
-                              className="w-3 h-3 sm:w-4 sm:h-4 rounded"
-                              style={{ backgroundColor: color }}
-                            />
-                          </button>
-                        </Tooltip>
-                        <Tooltip content="Toggle package visibility">
-                          <button
-                            onClick={() =>
-                              togglePackageVisibility(index, mainPackage.name)
-                            }
-                            className={twMerge(
-                              'hover:text-blue-500 flex items-center gap-1',
-                              mainPackage.hidden ? 'opacity-50' : '',
-                            )}
-                          >
-                            {mainPackage.name}
-                            {mainPackage.hidden ? (
-                              <EyeOff className="w-3 h-3 sm:w-4 sm:h-4" />
-                            ) : null}
-                          </button>
-                        </Tooltip>
-                      </>
-                    )}
-                    {isCombined ? (
-                      <span className="text-black/70 dark:text-white/70 text-[.7em] font-black py-0.5 px-1 leading-none rounded-md border-[1.5px] border-current opacity-80">
-                        + {subPackages.length}
-                      </span>
-                    ) : null}
-                    <div className="relative flex items-center">
-                      <DropdownMenu
-                        open={openMenuPackage === mainPackage.name}
-                        onOpenChange={(open) =>
-                          handleMenuOpenChange(mainPackage.name, open)
-                        }
-                      >
-                        <Tooltip content="More options">
-                          <DropdownMenuTrigger asChild>
-                            <button className="px-0.5 sm:px-1 hover:text-blue-500">
-                              <EllipsisVertical className="w-3 h-3 sm:w-4 sm:h-4" />
-                            </button>
-                          </DropdownMenuTrigger>
-                        </Tooltip>
-                        <DropdownMenuContent
-                          className="min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 z-50"
-                          sideOffset={5}
-                        >
-                          <div className="flex justify-between items-center mb-2">
-                            <span className="text-sm font-medium">Options</span>
-                          </div>
-                          <div className="space-y-1">
-                            <DropdownMenuItem
-                              onSelect={(e) => {
-                                e.preventDefault()
-                                togglePackageVisibility(index, mainPackage.name)
-                              }}
-                              className="w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer"
-                            >
-                              {mainPackage.hidden ? (
-                                <EyeOff className="text-sm" />
-                              ) : (
-                                <Eye className="text-sm" />
-                              )}
-                              {mainPackage.hidden
-                                ? 'Show Package'
-                                : 'Hide Package'}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onSelect={(e) => {
-                                e.preventDefault()
-                                handleBaselineChange(mainPackage.name)
-                              }}
-                              className={twMerge(
-                                'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
-                                pkg.baseline ? 'text-blue-500' : '',
-                              )}
-                            >
-                              <Pin className="text-sm" />
-                              {pkg.baseline
-                                ? 'Remove Baseline'
-                                : 'Set as Baseline'}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onSelect={(e) => {
-                                e.preventDefault()
-                                handleColorClick(
-                                  mainPackage.name,
-                                  e as unknown as React.MouseEvent,
-                                )
-                              }}
-                              className="w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer"
-                            >
-                              <div
-                                className="w-3 h-3 rounded-full"
-                                style={{ backgroundColor: color }}
-                              />
-                              Change Color
-                            </DropdownMenuItem>
-                            {isCombined && (
-                              <>
-                                <div className="h-px bg-gray-500/20 my-1" />
-                                <div className="px-2 py-1 text-xs font-medium text-gray-500">
-                                  Sub-packages
-                                </div>
-                                {subPackages.map((subPackage) => (
-                                  <DropdownMenuItem
-                                    key={subPackage.name}
-                                    onSelect={(e) => {
-                                      e.preventDefault()
-                                      togglePackageVisibility(
-                                        index,
-                                        subPackage.name,
-                                      )
-                                    }}
-                                    className="w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer"
-                                  >
-                                    <div className="flex-1 flex items-center justify-between">
-                                      <div className="flex items-center gap-2">
-                                        {subPackage.hidden ? (
-                                          <EyeOff className="text-sm" />
-                                        ) : (
-                                          <Eye className="text-sm" />
-                                        )}
-                                        <span
-                                          className={
-                                            subPackage.hidden
-                                              ? 'opacity-50'
-                                              : ''
-                                          }
-                                        >
-                                          {subPackage.name}
-                                        </span>
-                                      </div>
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation()
-                                          handleRemoveFromGroup(
-                                            mainPackage.name,
-                                            subPackage.name,
-                                          )
-                                        }}
-                                        className="p-1 text-gray-400 hover:text-red-500"
-                                      >
-                                        <X className="w-3 h-3" />
-                                      </button>
-                                    </div>
-                                  </DropdownMenuItem>
-                                ))}
-                              </>
-                            )}
-                            <DropdownMenuItem
-                              onSelect={(e) => {
-                                e.preventDefault()
-                                handleCombinePackage(mainPackage.name)
-                              }}
-                              className="w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer"
-                            >
-                              <Plus className="text-sm" />
-                              Add Packages
-                            </DropdownMenuItem>
-                          </div>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                    <button
-                      onClick={() => handleRemovePackageName(index)}
-                      className="ml-auto pl-0.5 sm:pl-1 text-gray-500 hover:text-red-500"
-                    >
-                      <X className="w-3 h-3 sm:w-4 sm:h-4" />
-                    </button>
-                  </div>
-                  {packageError && (
-                    <div className="mt-1 text-xs font-mono text-red-500 px-1 font-medium bg-red-500/10 rounded">
-                      {packageError}
-                    </div>
-                  )}
-                </div>
-              )
-            })}
-          </div>
+          <PackagePills
+            packageGroups={packageGroups}
+            queryData={npmQuery.data}
+            onColorClick={handleColorClick}
+            onToggleVisibility={togglePackageVisibility}
+            onRemove={handleRemovePackageName}
+            onBaselineChange={handleBaselineChange}
+            onCombinePackage={handleCombinePackage}
+            onRemoveFromGroup={handleRemoveFromGroup}
+            openMenuPackage={openMenuPackage}
+            onMenuOpenChange={handleMenuOpenChange}
+          />
 
           {/* Combine Package Dialog */}
           {combiningPackage && (
@@ -1168,67 +683,7 @@ function RouteComponent() {
           ) : null}
 
           {/* Popular Comparisons Section */}
-          <div>
-            <h2 className="text-xl font-semibold mb-4">Popular Comparisons</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {getPopularComparisons().map((comparison) => {
-                const baselinePackage = comparison.packageGroups.find(
-                  (pg) => pg.baseline,
-                )
-                return (
-                  <Link
-                    key={comparison.title}
-                    to="."
-                    search={(prev: NpmStatsSearch) => ({
-                      ...prev,
-                      packageGroups: comparison.packageGroups,
-                    })}
-                    resetScroll={false}
-                    onClick={(e) => {
-                      window.scrollTo({
-                        top: 0,
-                        behavior: 'smooth',
-                      })
-                    }}
-                    className="block p-4 bg-gray-500/10 hover:bg-gray-500/20 rounded-lg transition-colors space-y-4"
-                  >
-                    <div className="space-y-2">
-                      <div>
-                        <h3 className="font-medium">{comparison.title}</h3>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {comparison.packageGroups
-                          .filter((d) => !d.baseline)
-                          .map((packageGroup) => (
-                            <div
-                              key={packageGroup.packages[0].name}
-                              className="flex items-center gap-1.5 text-sm"
-                            >
-                              <div
-                                className="w-3 h-3 rounded-full"
-                                style={{
-                                  backgroundColor:
-                                    packageGroup.color || defaultColors[0],
-                                }}
-                              />
-                              <span>{packageGroup.packages[0].name}</span>
-                            </div>
-                          ))}
-                      </div>
-                    </div>
-                    {baselinePackage && (
-                      <div className="flex items-center gap-1 text-sm">
-                        <div className="font-medium">Baseline:</div>
-                        <div className="bg-gray-500/10 rounded-md px-2 py-1 leading-none font-bold text-sm">
-                          {baselinePackage.packages[0].name}
-                        </div>
-                      </div>
-                    )}
-                  </Link>
-                )
-              })}
-            </div>
-          </div>
+          <PopularComparisons comparisons={getPopularComparisons()} />
         </Card>
         <div className="hidden lg:block w-[290px] xl:w-[332px] shrink-0">
           <div className="sticky top-4 space-y-4">

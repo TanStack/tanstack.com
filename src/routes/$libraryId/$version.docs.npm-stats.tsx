@@ -330,14 +330,6 @@ function RouteComponent() {
               onTransformChange={handleTransformChange}
               onShowDataModeChange={handleShowDataModeChange}
             />
-
-            <Link
-              to="/stats/npm"
-              search={{ packageGroups }}
-              className="ml-auto text-sm text-blue-500 hover:text-blue-600 hover:underline"
-            >
-              Open in full stats page
-            </Link>
           </div>
 
           {/* Package Pills */}

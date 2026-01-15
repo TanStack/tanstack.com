@@ -101,13 +101,10 @@ export function getFrameworkPackageName(
 export function getLibraryMainPackage(library: LibrarySlim): string {
   // Special cases
   if (library.id === 'start') {
-    return '@tanstack/start'
+    return '@tanstack/start-client-core'
   }
   if (library.id === 'config') {
-    return '@tanstack/config'
-  }
-  if (library.id === 'mcp') {
-    return '@anthropic-ai/model-context-protocol'
+    return '@tanstack/vite-config'
   }
   if (library.id === 'create-tsrouter-app') {
     return 'create-tsrouter-app'
@@ -116,12 +113,6 @@ export function getLibraryMainPackage(library: LibrarySlim): string {
   // Use corePackageName if specified (e.g., table-core)
   if (library.corePackageName) {
     return `@tanstack/${library.corePackageName}`
-  }
-
-  // Default: use first framework if available, otherwise just the id
-  const firstFramework = library.frameworks[0]
-  if (firstFramework && firstFramework !== 'vanilla') {
-    return `@tanstack/${firstFramework}-${library.id}`
   }
 
   return `@tanstack/${library.id}`

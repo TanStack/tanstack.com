@@ -119,6 +119,11 @@ function NPMSummaryContent({ library }: { library: Library }) {
         different time periods and track usage trends.
       </p>
 
+      <p className="text-xs text-gray-400 dark:text-gray-500 mt-3 italic">
+        *These top summary stats account for core packages, legacy package
+        names, and all framework adapters.
+      </p>
+
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
         <StatCard label="All Time Downloads" animated npmData={ossStats.npm} />
         <StatCard
@@ -131,11 +136,6 @@ function NPMSummaryContent({ library }: { library: Library }) {
         />
         <StatCard value={recentStats.dailyDownloads} label="Daily Downloads" />
       </div>
-
-      <p className="text-xs text-gray-400 dark:text-gray-500 mt-3 italic">
-        *These top summary stats account for core packages, legacy package
-        names, and all framework adapters.
-      </p>
     </div>
   )
 }

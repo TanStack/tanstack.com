@@ -9,6 +9,7 @@ import {
   useMatches,
   useNavigate,
 } from '@tanstack/react-router'
+import { NetlifyImage } from './NetlifyImage'
 import {
   Code,
   Users,
@@ -117,9 +118,10 @@ const LogoSection = ({
         className={twMerge(`inline-flex items-center gap-1.5 cursor-pointer`)}
       >
         <div className="w-[30px] inline-grid items-center grid-cols-1 grid-rows-1 [&>*]:transition-opacity [&>*]:duration-1000">
-          <img
-            src={'/images/logos/logo-color-100.png'}
+          <NetlifyImage
+            src="/images/logos/logo-color-100.png"
             alt=""
+            width={30}
             className="row-start-1 col-start-1 w-full group-hover:opacity-0"
           />
           <img
@@ -554,48 +556,46 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         <div className="bg-gray-500/10 h-px" />
       </div>
       <div className="contents md:block">
-        <Authenticated>
-          {/* Mobile: Builder card */}
-          {capabilities.some((capability: string) =>
-            (['builder', 'admin'] as const).includes(
-              capability as 'builder' | 'admin',
-            ),
-          ) ? (
-            <>
-              <MobileCard>
-                <Link
-                  to="/builder"
-                  className={twMerge(linkClasses, 'font-normal md:hidden')}
-                  activeProps={{
-                    className: twMerge(
-                      'font-bold! bg-gray-500/10 dark:bg-gray-500/30',
-                    ),
-                  }}
-                >
-                  <div className="flex items-center gap-2">
-                    <Hammer className="w-5 h-5" />
-                    <div>Builder</div>
-                  </div>
-                </Link>
-              </MobileCard>
-              {/* Desktop: Builder link */}
-              <Link
-                to="/builder"
-                className={twMerge(linkClasses, 'font-normal hidden md:flex')}
-                activeProps={{
-                  className: twMerge(
-                    'font-bold! bg-gray-500/10 dark:bg-gray-500/30',
-                  ),
-                }}
-              >
-                <div className="flex items-center gap-2">
-                  <Hammer className="w-4 h-4" />
-                  <div>Builder</div>
-                </div>
-              </Link>
-            </>
-          ) : null}
-        </Authenticated>
+        {/* Mobile: Builder card */}
+        <MobileCard>
+          <Link
+            to="/builder"
+            className={twMerge(linkClasses, 'font-normal md:hidden')}
+            activeProps={{
+              className: twMerge(
+                'font-bold! bg-gray-500/10 dark:bg-gray-500/30',
+              ),
+            }}
+          >
+            <div className="flex items-center gap-2 w-full">
+              <Hammer className="w-5 h-5" />
+              <div className="flex items-center justify-between flex-1 gap-2">
+                <span>Builder</span>
+                <span className="px-1.5 py-0.5 text-[.6rem] font-black border border-amber-500 text-amber-500 rounded-md uppercase">
+                  Alpha
+                </span>
+              </div>
+            </div>
+          </Link>
+        </MobileCard>
+        {/* Desktop: Builder link */}
+        <Link
+          to="/builder"
+          className={twMerge(linkClasses, 'font-normal hidden md:flex')}
+          activeProps={{
+            className: twMerge('font-bold! bg-gray-500/10 dark:bg-gray-500/30'),
+          }}
+        >
+          <div className="flex items-center gap-2 w-full">
+            <Hammer className="w-4 h-4" />
+            <div className="flex items-center justify-between flex-1 gap-2">
+              <span>Builder</span>
+              <span className="px-1.5 py-0.5 text-[.6rem] font-black border border-amber-500 text-amber-500 rounded-md uppercase">
+                Alpha
+              </span>
+            </div>
+          </div>
+        </Link>
         {[
           {
             label: (

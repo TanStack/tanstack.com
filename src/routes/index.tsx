@@ -139,8 +139,8 @@ function Index() {
                   <NetlifyImage
                     src="/images/ship.png"
                     alt=""
-                    width={80}
-                    height={80}
+                    width={240}
+                    height={240}
                     className="w-16 xl:w-20"
                   />
                 </div>
@@ -153,8 +153,8 @@ function Index() {
                   <NetlifyImage
                     src="/images/ship.png"
                     alt="Explore TanStack"
-                    width={80}
-                    height={80}
+                    width={240}
+                    height={240}
                     className="w-16 xl:w-20 opacity-0"
                   />
                 </Link>

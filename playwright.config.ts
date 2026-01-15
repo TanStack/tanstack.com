@@ -1,5 +1,8 @@
 import { defineConfig } from '@playwright/test'
 
+const port = process.env.PORT || '3000'
+const baseURL = `http://localhost:${port}`
+
 export default defineConfig({
   testDir: './tests',
   testMatch: '**/*.spec.ts',
@@ -10,14 +13,14 @@ export default defineConfig({
   reporter: 'list',
   timeout: 30000,
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL,
     trace: 'off',
     video: 'off',
     screenshot: 'off',
   },
   webServer: {
-    command: 'pnpm dev',
-    url: 'http://localhost:3000',
+    command: `PORT=${port} pnpm dev`,
+    url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
   },

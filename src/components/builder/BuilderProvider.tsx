@@ -1,5 +1,5 @@
 /**
- * BuilderProvider wraps CTA providers and handles initialization
+ * BuilderProvider - Wraps CTA providers and handles initialization
  */
 
 import * as React from 'react'
@@ -14,22 +14,54 @@ import {
   useBuilderSearch,
   useInitializeAddonsFromUrl,
 } from './hooks/useBuilderSearch'
+import { useCapabilities } from '~/hooks/useCapabilities'
+import { hasCapability } from '~/db/types'
 
 type BuilderProviderProps = {
   children: React.ReactNode
 }
 
-function BuilderProviderInner({ children }: BuilderProviderProps) {
-  // Initialize manager to start CTA engine
-  useManager()
+// Context for lazy preview activation
+type PreviewContextValue = {
+  canPreview: boolean
+  previewActivated: boolean
+  activatePreview: () => void
+}
 
-  // Sync URL state with CTA state
+const PreviewContext = React.createContext<PreviewContextValue>({
+  canPreview: false,
+  previewActivated: false,
+  activatePreview: () => {},
+})
+
+export function usePreviewContext() {
+  return React.useContext(PreviewContext)
+}
+
+// Inner component that only runs after CTA is ready
+// This avoids calling useAddOns before data is loaded (which has a bug)
+function BuilderReadyInner({ children }: BuilderProviderProps) {
+  // Sync URL state with CTA state (uses useAddOns internally)
   useBuilderSearch()
 
   // Initialize addons from URL after registry loads
   useInitializeAddonsFromUrl()
 
-  const ready = useReady()
+  // Check if user can use preview (admin only for now)
+  const capabilities = useCapabilities()
+  const canPreview = hasCapability(capabilities, 'admin')
+
+  // Lazy preview activation - only start WebContainer when user clicks Preview
+  const [previewActivated, setPreviewActivated] = React.useState(false)
+  const activatePreview = React.useCallback(() => {
+    setPreviewActivated(true)
+  }, [])
+
+  const previewContextValue = React.useMemo(
+    () => ({ canPreview, previewActivated, activatePreview }),
+    [canPreview, previewActivated, activatePreview],
+  )
+
   const dryRun = useDryRun()
 
   // Convert dry run files to WebContainer format
@@ -42,15 +74,58 @@ function BuilderProviderInner({ children }: BuilderProviderProps) {
     }))
   }, [dryRunFiles])
 
-  if (!ready) {
-    return <BuilderLoading />
+  // Only load WebContainer if user can preview AND has activated it
+  if (!canPreview || !previewActivated) {
+    return (
+      <PreviewContext.Provider value={previewContextValue}>
+        {children}
+      </PreviewContext.Provider>
+    )
   }
 
   return (
-    <WebContainerProvider projectFiles={projectFiles}>
-      {children}
-    </WebContainerProvider>
+    <PreviewContext.Provider value={previewContextValue}>
+      <WebContainerProvider projectFiles={projectFiles}>
+        {children}
+      </WebContainerProvider>
+    </PreviewContext.Provider>
   )
+}
+
+function BuilderProviderInner({ children }: BuilderProviderProps) {
+  // Initialize manager to start CTA engine
+  useManager()
+
+  const ready = useReady()
+
+  // Delay showing loading state to avoid flash during HMR
+  // HMR typically re-initializes within ~100ms, so we wait a bit before showing loading
+  const [showLoading, setShowLoading] = React.useState(false)
+
+  React.useEffect(() => {
+    if (ready) {
+      setShowLoading(false)
+      return
+    }
+
+    // Only show loading after a short delay to avoid HMR flash
+    const timeout = setTimeout(() => {
+      setShowLoading(true)
+    }, 150)
+
+    return () => clearTimeout(timeout)
+  }, [ready])
+
+  if (!ready && showLoading) {
+    return <BuilderLoading />
+  }
+
+  if (!ready) {
+    // Brief moment before showing loading - render nothing or a minimal placeholder
+    return null
+  }
+
+  return <BuilderReadyInner>{children}</BuilderReadyInner>
 }
 
 export function BuilderProvider({ children }: BuilderProviderProps) {

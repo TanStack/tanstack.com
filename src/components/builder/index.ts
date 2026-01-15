@@ -7,7 +7,7 @@ export { BuilderLayout } from './BuilderLayout'
 
 // Config components
 export { ConfigPanel } from './config/ConfigPanel'
-export { StarterCarousel } from './config/StarterCarousel'
+export { TemplatePicker } from './config/TemplatePicker'
 export { ProjectConfig } from './config/ProjectConfig'
 export { AddOnSection } from './config/AddOnSection'
 export { AddOnCard } from './config/AddOnCard'

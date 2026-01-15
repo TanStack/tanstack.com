@@ -54,8 +54,11 @@ import { Route as BlogSplatRouteImport } from './routes/blog.$'
 import { Route as AuthSignoutRouteImport } from './routes/auth/signout'
 import { Route as AuthPopupSuccessRouteImport } from './routes/auth/popup-success'
 import { Route as ApiUploadthingRouteImport } from './routes/api/uploadthing'
+import { Route as ApiLoadStarterRouteImport } from './routes/api/load-starter'
+import { Route as ApiLoadRemoteAddOnRouteImport } from './routes/api/load-remote-add-on'
 import { Route as ApiInitialPayloadRouteImport } from './routes/api/initial-payload'
 import { Route as ApiDryRunCreateAppRouteImport } from './routes/api/dry-run-create-app'
+import { Route as ApiDryRunAddToAppRouteImport } from './routes/api/dry-run-add-to-app'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as AdminNpmStatsRouteImport } from './routes/admin/npm-stats'
 import { Route as AdminLoginsRouteImport } from './routes/admin/logins'
@@ -328,6 +331,16 @@ const ApiUploadthingRoute = ApiUploadthingRouteImport.update({
   path: '/api/uploadthing',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiLoadStarterRoute = ApiLoadStarterRouteImport.update({
+  id: '/api/load-starter',
+  path: '/api/load-starter',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiLoadRemoteAddOnRoute = ApiLoadRemoteAddOnRouteImport.update({
+  id: '/api/load-remote-add-on',
+  path: '/api/load-remote-add-on',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiInitialPayloadRoute = ApiInitialPayloadRouteImport.update({
   id: '/api/initial-payload',
   path: '/api/initial-payload',
@@ -336,6 +349,11 @@ const ApiInitialPayloadRoute = ApiInitialPayloadRouteImport.update({
 const ApiDryRunCreateAppRoute = ApiDryRunCreateAppRouteImport.update({
   id: '/api/dry-run-create-app',
   path: '/api/dry-run-create-app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDryRunAddToAppRoute = ApiDryRunAddToAppRouteImport.update({
+  id: '/api/dry-run-add-to-app',
+  path: '/api/dry-run-add-to-app',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminUsersRoute = AdminUsersRouteImport.update({
@@ -621,8 +639,11 @@ export interface FileRoutesByFullPath {
   '/admin/logins': typeof AdminLoginsRoute
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
+  '/api/dry-run-add-to-app': typeof ApiDryRunAddToAppRoute
   '/api/dry-run-create-app': typeof ApiDryRunCreateAppRoute
   '/api/initial-payload': typeof ApiInitialPayloadRoute
+  '/api/load-remote-add-on': typeof ApiLoadRemoteAddOnRoute
+  '/api/load-starter': typeof ApiLoadStarterRoute
   '/api/uploadthing': typeof ApiUploadthingRoute
   '/auth/popup-success': typeof AuthPopupSuccessRoute
   '/auth/signout': typeof AuthSignoutRoute
@@ -711,8 +732,11 @@ export interface FileRoutesByTo {
   '/admin/logins': typeof AdminLoginsRoute
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
+  '/api/dry-run-add-to-app': typeof ApiDryRunAddToAppRoute
   '/api/dry-run-create-app': typeof ApiDryRunCreateAppRoute
   '/api/initial-payload': typeof ApiInitialPayloadRoute
+  '/api/load-remote-add-on': typeof ApiLoadRemoteAddOnRoute
+  '/api/load-starter': typeof ApiLoadStarterRoute
   '/api/uploadthing': typeof ApiUploadthingRoute
   '/auth/popup-success': typeof AuthPopupSuccessRoute
   '/auth/signout': typeof AuthSignoutRoute
@@ -806,8 +830,11 @@ export interface FileRoutesById {
   '/admin/logins': typeof AdminLoginsRoute
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
+  '/api/dry-run-add-to-app': typeof ApiDryRunAddToAppRoute
   '/api/dry-run-create-app': typeof ApiDryRunCreateAppRoute
   '/api/initial-payload': typeof ApiInitialPayloadRoute
+  '/api/load-remote-add-on': typeof ApiLoadRemoteAddOnRoute
+  '/api/load-starter': typeof ApiLoadStarterRoute
   '/api/uploadthing': typeof ApiUploadthingRoute
   '/auth/popup-success': typeof AuthPopupSuccessRoute
   '/auth/signout': typeof AuthSignoutRoute
@@ -903,8 +930,11 @@ export interface FileRouteTypes {
     | '/admin/logins'
     | '/admin/npm-stats'
     | '/admin/users'
+    | '/api/dry-run-add-to-app'
     | '/api/dry-run-create-app'
     | '/api/initial-payload'
+    | '/api/load-remote-add-on'
+    | '/api/load-starter'
     | '/api/uploadthing'
     | '/auth/popup-success'
     | '/auth/signout'
@@ -993,8 +1023,11 @@ export interface FileRouteTypes {
     | '/admin/logins'
     | '/admin/npm-stats'
     | '/admin/users'
+    | '/api/dry-run-add-to-app'
     | '/api/dry-run-create-app'
     | '/api/initial-payload'
+    | '/api/load-remote-add-on'
+    | '/api/load-starter'
     | '/api/uploadthing'
     | '/auth/popup-success'
     | '/auth/signout'
@@ -1087,8 +1120,11 @@ export interface FileRouteTypes {
     | '/admin/logins'
     | '/admin/npm-stats'
     | '/admin/users'
+    | '/api/dry-run-add-to-app'
     | '/api/dry-run-create-app'
     | '/api/initial-payload'
+    | '/api/load-remote-add-on'
+    | '/api/load-starter'
     | '/api/uploadthing'
     | '/auth/popup-success'
     | '/auth/signout'
@@ -1173,8 +1209,11 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   WorkshopsRoute: typeof WorkshopsRoute
   DotwellKnownOauthAuthorizationServerRoute: typeof DotwellKnownOauthAuthorizationServerRoute
+  ApiDryRunAddToAppRoute: typeof ApiDryRunAddToAppRoute
   ApiDryRunCreateAppRoute: typeof ApiDryRunCreateAppRoute
   ApiInitialPayloadRoute: typeof ApiInitialPayloadRoute
+  ApiLoadRemoteAddOnRoute: typeof ApiLoadRemoteAddOnRoute
+  ApiLoadStarterRoute: typeof ApiLoadStarterRoute
   ApiUploadthingRoute: typeof ApiUploadthingRoute
   AuthPopupSuccessRoute: typeof AuthPopupSuccessRoute
   AuthSignoutRoute: typeof AuthSignoutRoute
@@ -1516,6 +1555,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiUploadthingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/load-starter': {
+      id: '/api/load-starter'
+      path: '/api/load-starter'
+      fullPath: '/api/load-starter'
+      preLoaderRoute: typeof ApiLoadStarterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/load-remote-add-on': {
+      id: '/api/load-remote-add-on'
+      path: '/api/load-remote-add-on'
+      fullPath: '/api/load-remote-add-on'
+      preLoaderRoute: typeof ApiLoadRemoteAddOnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/initial-payload': {
       id: '/api/initial-payload'
       path: '/api/initial-payload'
@@ -1528,6 +1581,13 @@ declare module '@tanstack/react-router' {
       path: '/api/dry-run-create-app'
       fullPath: '/api/dry-run-create-app'
       preLoaderRoute: typeof ApiDryRunCreateAppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dry-run-add-to-app': {
+      id: '/api/dry-run-add-to-app'
+      path: '/api/dry-run-add-to-app'
+      fullPath: '/api/dry-run-add-to-app'
+      preLoaderRoute: typeof ApiDryRunAddToAppRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/users': {
@@ -2038,8 +2098,11 @@ const rootRouteChildren: RootRouteChildren = {
   WorkshopsRoute: WorkshopsRoute,
   DotwellKnownOauthAuthorizationServerRoute:
     DotwellKnownOauthAuthorizationServerRoute,
+  ApiDryRunAddToAppRoute: ApiDryRunAddToAppRoute,
   ApiDryRunCreateAppRoute: ApiDryRunCreateAppRoute,
   ApiInitialPayloadRoute: ApiInitialPayloadRoute,
+  ApiLoadRemoteAddOnRoute: ApiLoadRemoteAddOnRoute,
+  ApiLoadStarterRoute: ApiLoadStarterRoute,
   ApiUploadthingRoute: ApiUploadthingRoute,
   AuthPopupSuccessRoute: AuthPopupSuccessRoute,
   AuthSignoutRoute: AuthSignoutRoute,

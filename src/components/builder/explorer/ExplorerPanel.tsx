@@ -10,6 +10,7 @@ import { CodeViewer } from './CodeViewer'
 import { LivePreview } from '../preview/LivePreview'
 import { Terminal } from '../preview/Terminal'
 import { useDryRun } from '@tanstack/cta-ui-base/dist/store/project'
+import { usePreviewContext } from '../BuilderProvider'
 import type { ExplorerTab } from '../types'
 
 type ExplorerPanelProps = {
@@ -83,8 +84,18 @@ export function ExplorerPanel({
 }: ExplorerPanelProps) {
   const navigate = useNavigate({ from: '/builder' })
   const search = useSearch({ from: '/builder' })
+  const { canPreview, previewActivated, activatePreview } = usePreviewContext()
 
-  const activeTab = search.tab ?? 'files'
+  // Force files tab if preview is disabled or not activated
+  const activeTab =
+    canPreview && previewActivated ? (search.tab ?? 'files') : 'files'
+
+  const handlePreviewClick = () => {
+    if (!previewActivated) {
+      activatePreview()
+    }
+    setActiveTab('preview')
+  }
   const selectedFile = search.file ?? null
   const isTerminalOpen = search.terminal ?? true
 
@@ -193,28 +204,32 @@ export function ExplorerPanel({
           isActive={activeTab === 'files'}
           onClick={() => setActiveTab('files')}
         />
-        <TabButton
-          label="Preview"
-          isActive={activeTab === 'preview'}
-          onClick={() => setActiveTab('preview')}
-        />
+        {canPreview && (
+          <TabButton
+            label="Preview"
+            isActive={activeTab === 'preview'}
+            onClick={handlePreviewClick}
+          />
+        )}
 
         {/* Spacer */}
         <div className="flex-1" />
 
-        {/* Terminal toggle */}
-        <button
-          type="button"
-          onClick={() => setIsTerminalOpen((p) => !p)}
-          className={twMerge(
-            'px-3 py-2 text-xs font-medium transition-colors',
-            isTerminalOpen
-              ? 'text-blue-600 dark:text-blue-400'
-              : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300',
-          )}
-        >
-          Terminal
-        </button>
+        {/* Terminal toggle - only show when preview is activated */}
+        {canPreview && previewActivated && (
+          <button
+            type="button"
+            onClick={() => setIsTerminalOpen((p) => !p)}
+            className={twMerge(
+              'px-3 py-2 text-xs font-medium transition-colors',
+              isTerminalOpen
+                ? 'text-blue-600 dark:text-blue-400'
+                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300',
+            )}
+          >
+            Terminal
+          </button>
+        )}
       </div>
 
       {/* Content area */}
@@ -239,14 +254,14 @@ export function ExplorerPanel({
               />
             </div>
           </div>
-        ) : (
+        ) : canPreview && previewActivated ? (
           <div className="flex-1 overflow-hidden">
             <LivePreview />
           </div>
-        )}
+        ) : null}
 
-        {/* Terminal panel */}
-        {isTerminalOpen && (
+        {/* Terminal panel - only show when preview is activated */}
+        {canPreview && previewActivated && isTerminalOpen && (
           <Terminal onClose={() => setIsTerminalOpen(false)} />
         )}
       </div>

@@ -11,6 +11,7 @@ import {
   useAddOns,
   useProjectStarter,
   useProjectOptions,
+  useReady,
   setProjectName,
   setRouterMode,
   setTypeScript,
@@ -40,14 +41,16 @@ function useDebouncedCallback<TArgs extends unknown[]>(
 
 export function useBuilderSearch() {
   const navigate = useNavigate()
+  const ready = useReady()
 
   // Get current search params - this will be typed by the route
   const search = useSearch({ from: '/builder' }) as BuilderSearchParams
 
-  // CTA state hooks
+  // CTA state hooks - only use useAddOns when ready to avoid iteration bug
   const projectName = useProjectName()
   const routerMode = useRouterMode()
-  const { chosenAddOns } = useAddOns()
+  const addOnsResult = useAddOns()
+  const chosenAddOns = ready ? addOnsResult.chosenAddOns : []
   const projectStarter = useProjectStarter((s) => s.projectStarter)
   const typescript = useProjectOptions((s) => s.typescript)
   const tailwind = useProjectOptions((s) => s.tailwind)
@@ -137,11 +140,18 @@ export function useBuilderSearch() {
 
 // Hook for initializing addons from URL after registry loads
 export function useInitializeAddonsFromUrl() {
+  const ready = useReady()
   const search = useSearch({ from: '/builder' }) as BuilderSearchParams
-  const { availableAddOns, toggleAddOn, chosenAddOns } = useAddOns()
+  const addOnsResult = useAddOns()
   const initialized = React.useRef(false)
 
+  // Only access addOns properties when ready
+  const availableAddOns = ready ? addOnsResult.availableAddOns : []
+  const chosenAddOns = ready ? addOnsResult.chosenAddOns : []
+  const toggleAddOn = addOnsResult.toggleAddOn
+
   React.useEffect(() => {
+    if (!ready) return
     if (initialized.current) return
     if (!search.addons) return
     if (availableAddOns.length === 0) return
@@ -156,5 +166,5 @@ export function useInitializeAddonsFromUrl() {
         toggleAddOn(addonId)
       }
     }
-  }, [search.addons, availableAddOns, toggleAddOn, chosenAddOns])
+  }, [ready, search.addons, availableAddOns, toggleAddOn, chosenAddOns])
 }

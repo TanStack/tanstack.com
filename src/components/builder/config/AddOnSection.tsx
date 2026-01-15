@@ -16,11 +16,16 @@ type AddOnInfo = {
   priority?: number
 }
 
+type PartnerInfo = {
+  brandColor?: string
+}
+
 type AddOnSectionProps = {
   title: string
   description: string
   addons: AddOnInfo[]
   defaultExpanded?: boolean
+  partnerInfo?: Map<string, PartnerInfo>
 }
 
 export function AddOnSection({
@@ -28,6 +33,7 @@ export function AddOnSection({
   description,
   addons,
   defaultExpanded = true,
+  partnerInfo,
 }: AddOnSectionProps) {
   const [isCollapsed, setIsCollapsed] = React.useState(!defaultExpanded)
 
@@ -75,7 +81,11 @@ export function AddOnSection({
       {!isCollapsed && (
         <div className="grid grid-cols-1 gap-2">
           {sortedAddons.map((addon) => (
-            <AddOnCard key={addon.id} addon={addon} />
+            <AddOnCard
+              key={addon.id}
+              addon={addon}
+              partnerInfo={partnerInfo?.get(addon.id.toLowerCase())}
+            />
           ))}
         </div>
       )}

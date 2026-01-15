@@ -1,13 +1,8 @@
-import { redirect, createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { z } from 'zod'
-import { useCapabilities } from '~/hooks/useCapabilities'
-import { hasCapability } from '~/db/types'
-import { requireCapability } from '~/utils/auth.server'
 import { seo } from '~/utils/seo'
 import styles from '~/styles/builder.css?url'
 import { BuilderProvider, BuilderLayout } from '~/components/builder'
-
-const isDev = import.meta.env.DEV
 
 // Search params schema for shareable URLs
 const builderSearchSchema = z.object({
@@ -37,18 +32,6 @@ export const Route = createFileRoute('/builder')({
       </Link>
     ),
   },
-  beforeLoad: async () => {
-    // Bypass auth in dev mode
-    if (isDev) {
-      return { user: null }
-    }
-    try {
-      const user = await requireCapability({ data: { capability: 'builder' } })
-      return { user }
-    } catch {
-      throw redirect({ to: '/login' })
-    }
-  },
   head: () => ({
     links: [
       {
@@ -64,17 +47,6 @@ export const Route = createFileRoute('/builder')({
 })
 
 function RouteComponent() {
-  const capabilities = useCapabilities()
-  const canAccess = isDev || hasCapability(capabilities, 'builder')
-
-  if (!canAccess) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        You are not authorized to access this page. Please contact support.
-      </div>
-    )
-  }
-
   return (
     <div className="builder-root h-[calc(100dvh-var(--navbar-height))] w-full overflow-hidden">
       <BuilderProvider>

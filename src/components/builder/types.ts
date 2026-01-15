@@ -16,32 +16,36 @@ export type BuilderSearchParams = {
 export type AddOnCategory =
   | 'auth'
   | 'database'
+  | 'data'
   | 'ui'
   | 'tooling'
   | 'deployment'
   | 'example'
-  | 'other'
 
 // Category metadata for display
 export const ADD_ON_CATEGORIES: Record<
   AddOnCategory,
   { label: string; description: string }
 > = {
-  auth: {
-    label: 'Authentication',
-    description: 'User authentication and authorization',
-  },
   database: {
     label: 'Database',
     description: 'Database clients and ORMs',
   },
+  auth: {
+    label: 'Authentication',
+    description: 'User authentication and authorization',
+  },
+  data: {
+    label: 'Data & APIs',
+    description: 'Data fetching, state management, and API integrations',
+  },
   ui: {
-    label: 'UI Components',
-    description: 'Component libraries and styling',
+    label: 'UI & Forms',
+    description: 'Component libraries, forms, and styling',
   },
   tooling: {
     label: 'Tooling',
-    description: 'Development tools and utilities',
+    description: 'Development tools, testing, and utilities',
   },
   deployment: {
     label: 'Deployment',
@@ -51,15 +55,67 @@ export const ADD_ON_CATEGORIES: Record<
     label: 'Examples',
     description: 'Example code and templates',
   },
-  other: {
-    label: 'Other',
-    description: 'Additional add-ons',
-  },
+}
+
+// Explicit category overrides for specific add-on IDs
+const ADDON_CATEGORY_OVERRIDES: Record<string, AddOnCategory> = {
+  // Database
+  neon: 'database',
+  drizzle: 'database',
+  prisma: 'database',
+  convex: 'database',
+  turso: 'database',
+
+  // Auth
+  clerk: 'auth',
+  workos: 'auth',
+
+  // Data & APIs
+  query: 'data',
+  'tanstack-query': 'data',
+  'apollo-client': 'data',
+  trpc: 'data',
+  orpc: 'data',
+  store: 'data',
+  'tanstack-store': 'data',
+  ai: 'data',
+
+  // UI & Forms
+  shadcn: 'ui',
+  form: 'ui',
+  'tanstack-form': 'ui',
+  table: 'ui',
+  'tanstack-table': 'ui',
+
+  // Tooling
+  biome: 'tooling',
+  eslint: 'tooling',
+  sentry: 'tooling',
+  storybook: 'tooling',
+  compiler: 'tooling',
+  't3-env': 'tooling',
+  t3env: 'tooling',
+  paraglide: 'tooling',
+  mcp: 'tooling',
+  strapi: 'tooling',
+
+  // Deployment
+  netlify: 'deployment',
+  cloudflare: 'deployment',
+  vercel: 'deployment',
+  nitro: 'deployment',
 }
 
 // Map add-on type from CTA to our categories
 export function getAddOnCategory(type: string, id: string): AddOnCategory {
-  // First check the type field
+  const idLower = id.toLowerCase()
+
+  // Check explicit overrides first
+  if (ADDON_CATEGORY_OVERRIDES[idLower]) {
+    return ADDON_CATEGORY_OVERRIDES[idLower]
+  }
+
+  // Check type field from CTA
   switch (type) {
     case 'deployment':
       return 'deployment'
@@ -70,13 +126,10 @@ export function getAddOnCategory(type: string, id: string): AddOnCategory {
   }
 
   // Fallback: infer from ID patterns
-  const idLower = id.toLowerCase()
-
   if (
     idLower.includes('auth') ||
     idLower.includes('clerk') ||
-    idLower.includes('lucia') ||
-    idLower.includes('supabase-auth')
+    idLower.includes('lucia')
   ) {
     return 'auth'
   }
@@ -89,16 +142,27 @@ export function getAddOnCategory(type: string, id: string): AddOnCategory {
     idLower.includes('postgres') ||
     idLower.includes('sqlite') ||
     idLower.includes('turso') ||
+    idLower.includes('neon') ||
     idLower.includes('db')
   ) {
     return 'database'
   }
 
   if (
+    idLower.includes('query') ||
+    idLower.includes('apollo') ||
+    idLower.includes('trpc') ||
+    idLower.includes('orpc') ||
+    idLower.includes('store')
+  ) {
+    return 'data'
+  }
+
+  if (
     idLower.includes('shadcn') ||
     idLower.includes('radix') ||
-    idLower.includes('ui') ||
-    idLower.includes('component')
+    idLower.includes('form') ||
+    idLower.includes('table')
   ) {
     return 'ui'
   }
@@ -108,7 +172,10 @@ export function getAddOnCategory(type: string, id: string): AddOnCategory {
     idLower.includes('prettier') ||
     idLower.includes('biome') ||
     idLower.includes('test') ||
-    idLower.includes('vitest')
+    idLower.includes('vitest') ||
+    idLower.includes('sentry') ||
+    idLower.includes('storybook') ||
+    idLower.includes('compiler')
   ) {
     return 'tooling'
   }
@@ -117,12 +184,14 @@ export function getAddOnCategory(type: string, id: string): AddOnCategory {
     idLower.includes('vercel') ||
     idLower.includes('netlify') ||
     idLower.includes('cloudflare') ||
-    idLower.includes('docker')
+    idLower.includes('docker') ||
+    idLower.includes('nitro')
   ) {
     return 'deployment'
   }
 
-  return 'other'
+  // Default to tooling instead of "other" since most uncategorized things are tools
+  return 'tooling'
 }
 
 // File tree node structure (converted from flat file map)
@@ -223,9 +292,10 @@ export function generateCliCommand(options: {
 export type ExplorerTab = 'files' | 'preview'
 
 // WebContainer setup steps for progress display
+// These match the CTA WebContainer store states
 export type SetupStep =
   | 'idle'
-  | 'booting'
+  | 'mounting'
   | 'installing'
   | 'starting'
   | 'ready'
@@ -233,7 +303,7 @@ export type SetupStep =
 
 export const SETUP_STEP_LABELS: Record<SetupStep, string> = {
   idle: 'Waiting...',
-  booting: 'Booting WebContainer...',
+  mounting: 'Mounting files...',
   installing: 'Installing dependencies...',
   starting: 'Starting dev server...',
   ready: 'Ready',

@@ -1,16 +1,13 @@
 /**
  * Lightweight smoke tests using fetch - no browser required
  * Verifies pages return 200 and contain expected content
- *
- * Usage:
- *   tsx tests/smoke.ts          # Requires running server
- *   tsx tests/smoke.ts --server # Starts server automatically
+ * Uses existing server on :3000 if available, otherwise starts one
  */
 
 import { spawn, type ChildProcess } from 'child_process'
+import { createServer } from 'net'
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
-const START_SERVER = process.argv.includes('--server')
+const DEFAULT_URL = 'http://localhost:3000'
 
 type TestCase = {
   name: string
@@ -41,11 +38,28 @@ const tests: TestCase[] = [
   },
 ]
 
+async function getAvailablePort(): Promise<number> {
+  return new Promise((resolve, reject) => {
+    const server = createServer()
+    server.listen(0, () => {
+      const address = server.address()
+      if (address && typeof address === 'object') {
+        const port = address.port
+        server.close(() => resolve(port))
+      } else {
+        reject(new Error('Failed to get port'))
+      }
+    })
+    server.on('error', reject)
+  })
+}
+
 async function runTest(
+  baseUrl: string,
   test: TestCase,
 ): Promise<{ pass: boolean; error?: string }> {
   try {
-    const url = `${BASE_URL}${test.path}`
+    const url = `${baseUrl}${test.path}`
     const response = await fetch(url, {
       headers: { Accept: 'text/html' },
     })
@@ -85,18 +99,37 @@ async function waitForServer(url: string, timeout = 60000): Promise<boolean> {
   return false
 }
 
+async function checkExistingServer(): Promise<boolean> {
+  try {
+    const res = await fetch(DEFAULT_URL)
+    if (!res.ok) return false
+    const html = await res.text()
+    return html.includes('TanStack')
+  } catch {
+    return false
+  }
+}
+
 async function main() {
   let serverProcess: ChildProcess | null = null
+  let baseUrl = DEFAULT_URL
 
-  if (START_SERVER) {
-    console.log('Starting dev server...')
+  const existingServer = await checkExistingServer()
+  if (existingServer) {
+    console.log('Using existing server on :3000\n')
+  } else {
+    const port = await getAvailablePort()
+    baseUrl = `http://localhost:${port}`
+
+    console.log(`Starting dev server on port ${port}...`)
     serverProcess = spawn('pnpm', ['dev'], {
       stdio: 'ignore',
       detached: true,
       shell: true,
+      env: { ...process.env, PORT: String(port) },
     })
 
-    const ready = await waitForServer(BASE_URL)
+    const ready = await waitForServer(baseUrl)
     if (!ready) {
       console.error('Server failed to start within timeout')
       serverProcess.kill()
@@ -105,13 +138,13 @@ async function main() {
     console.log('Server ready\n')
   }
 
-  console.log(`Running smoke tests against ${BASE_URL}\n`)
+  console.log(`Running smoke tests against ${baseUrl}\n`)
 
   let passed = 0
   let failed = 0
 
   for (const test of tests) {
-    const result = await runTest(test)
+    const result = await runTest(baseUrl, test)
     if (result.pass) {
       console.log(`  ✓ ${test.name}`)
       passed++
@@ -124,7 +157,6 @@ async function main() {
   console.log(`\n${passed} passed, ${failed} failed\n`)
 
   if (serverProcess) {
-    // Kill the server process group
     process.kill(-serverProcess.pid!, 'SIGTERM')
   }
 

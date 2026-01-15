@@ -70,12 +70,12 @@ export function PreviewLoading({ setupStep, error }: PreviewLoadingProps) {
         {/* Progress steps */}
         <div className="flex items-center gap-2">
           <ProgressStep
-            label="Boot"
-            isActive={setupStep === 'booting'}
-            isComplete={isStepComplete('booting', setupStep as SetupStep)}
+            label="Mount"
+            isActive={setupStep === 'mounting'}
+            isComplete={isStepComplete('mounting', setupStep as SetupStep)}
           />
           <ProgressConnector
-            isComplete={isStepComplete('booting', setupStep as SetupStep)}
+            isComplete={isStepComplete('mounting', setupStep as SetupStep)}
           />
           <ProgressStep
             label="Install"
@@ -99,7 +99,7 @@ export function PreviewLoading({ setupStep, error }: PreviewLoadingProps) {
 function isStepComplete(step: SetupStep, currentStep: SetupStep): boolean {
   const order: SetupStep[] = [
     'idle',
-    'booting',
+    'mounting',
     'installing',
     'starting',
     'ready',

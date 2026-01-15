@@ -10,7 +10,7 @@ import netlify from '@netlify/vite-plugin-tanstack-start'
 
 export default defineConfig({
   server: {
-    port: 3000,
+    port: Number(process.env.PORT) || 3000,
     // WebContainer headers for /builder route (SharedArrayBuffer support)
     headers: {
       'Cross-Origin-Opener-Policy': 'same-origin',

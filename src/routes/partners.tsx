@@ -8,6 +8,7 @@ import { useState } from 'react'
 import * as React from 'react'
 import { ListFilter, X } from 'lucide-react'
 import { Button } from '~/ui'
+import { NetlifyImage } from '~/components/NetlifyImage'
 import { startProject } from '~/libraries/start'
 import { routerProject } from '~/libraries/router'
 import { queryProject } from '~/libraries/query'
@@ -530,7 +531,7 @@ function RouteComp() {
             months.
           </p>
           <div className="flex justify-center">
-            <img
+            <NetlifyImage
               src="/images/total-support-share.png"
               alt="Lifetime Support Share chart showing percentage-based contribution of partners to TanStack"
               className="rounded-lg shadow-lg"

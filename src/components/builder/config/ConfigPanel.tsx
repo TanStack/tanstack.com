@@ -3,7 +3,7 @@
  */
 
 import * as React from 'react'
-import { StarterCarousel } from './StarterCarousel'
+import { TemplatePicker } from './TemplatePicker'
 import { ProjectConfig } from './ProjectConfig'
 import { AddOnSection } from './AddOnSection'
 import { ExportDropdown } from '../export/ExportDropdown'
@@ -21,6 +21,11 @@ import { partners } from '~/utils/partners'
 
 // Get partner IDs for filtering
 const partnerIds = new Set(partners.map((p) => p.id.toLowerCase()))
+
+// Build partner info map for premium styling
+const partnerInfoMap = new Map(
+  partners.map((p) => [p.id.toLowerCase(), { brandColor: p.brandColor }]),
+)
 
 export function ConfigPanel() {
   const { availableAddOns } = useAddOns()
@@ -55,15 +60,15 @@ export function ConfigPanel() {
       grouped.get(category)!.push(addon)
     }
 
-    // Sort categories by predefined order, with "other" at the end
+    // Sort categories by predefined order
     const categoryOrder: AddOnCategory[] = [
+      'deployment',
       'database',
       'auth',
+      'data',
       'ui',
       'tooling',
-      'deployment',
       'example',
-      'other',
     ]
 
     return categoryOrder
@@ -77,9 +82,9 @@ export function ConfigPanel() {
   }, [availableAddOns])
 
   return (
-    <div className="flex flex-col gap-6 p-4">
-      {/* Project name + Export button */}
-      <div>
+    <div className="flex flex-col h-full">
+      {/* Sticky header - Project name + Export button */}
+      <div className="sticky top-0 z-10 p-4 pb-3 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 shadow-sm">
         <label
           htmlFor="project-name-input"
           className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5"
@@ -99,43 +104,51 @@ export function ConfigPanel() {
         </div>
       </div>
 
-      {/* Project Configuration */}
-      <ProjectConfig hideProjectName />
+      {/* Scrollable content */}
+      <div className="flex flex-col gap-6 p-4 overflow-y-auto">
+        {/* Project Configuration */}
+        <ProjectConfig hideProjectName />
 
-      {/* Starter Selection */}
-      <section>
-        <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
-          Starter Template
-        </h2>
-        <StarterCarousel />
-      </section>
+        {/* Template Selection */}
+        <section>
+          <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
+            Template
+          </h2>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+            Start blank or with pre-configured addons
+          </p>
+          <TemplatePicker />
+        </section>
 
-      {/* Featured Add-ons (Partners) */}
-      {featuredAddOns.length > 0 && (
-        <AddOnSection
-          title="Featured"
-          description="Popular integrations from our partners"
-          addons={featuredAddOns}
-          defaultExpanded
-        />
-      )}
+        {/* Featured Add-ons (Partners) */}
+        {featuredAddOns.length > 0 && (
+          <AddOnSection
+            title="Featured"
+            description="Popular integrations from our partners"
+            addons={featuredAddOns}
+            defaultExpanded
+            partnerInfo={partnerInfoMap}
+          />
+        )}
 
-      {/* Add-ons by Category */}
-      {addOnsByCategory.map(({ category, label, description, addons }) => (
-        <AddOnSection
-          key={category}
-          title={label}
-          description={description}
-          addons={addons}
-        />
-      ))}
+        {/* Add-ons by Category */}
+        {addOnsByCategory.map(({ category, label, description, addons }) => (
+          <AddOnSection
+            key={category}
+            title={label}
+            description={description}
+            addons={addons}
+            partnerInfo={partnerInfoMap}
+          />
+        ))}
 
-      {/* Empty state if no add-ons */}
-      {addOnsByCategory.length === 0 && availableAddOns.length === 0 && (
-        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-          <p className="text-sm">Loading add-ons...</p>
-        </div>
-      )}
+        {/* Empty state if no add-ons */}
+        {addOnsByCategory.length === 0 && availableAddOns.length === 0 && (
+          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+            <p className="text-sm">Loading add-ons...</p>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

@@ -86,7 +86,7 @@ function StatCard({
   return (
     <div className="flex flex-col items-center text-center">
       <div
-        className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white"
+        className="text-xl sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-white"
         style={{ fontVariantNumeric: 'tabular-nums' }}
       >
         {animated && npmData ? (
@@ -113,18 +113,18 @@ function NPMSummaryContent({ library }: { library: Library }) {
   const { data: recentStats } = useSuspenseQuery(recentDownloadsQuery(library))
 
   return (
-    <div className="mb-6">
+    <div className="my-6">
       <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
         View download statistics for TanStack {library.name} packages. Compare
         different time periods and track usage trends.
       </p>
 
-      <p className="text-xs text-gray-400 dark:text-gray-500 mt-3 italic">
+      <p className="text-xs text-gray-400 dark:text-gray-500 my-3 italic">
         *These top summary stats account for core packages, legacy package
         names, and all framework adapters.
       </p>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+      <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-2 xl:grid-cols-4 py-6">
         <StatCard label="All Time Downloads" animated npmData={ossStats.npm} />
         <StatCard
           value={recentStats.monthlyDownloads}

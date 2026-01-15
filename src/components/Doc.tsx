@@ -130,6 +130,10 @@ export function Doc({
 
   return (
     <div className="flex-1 min-h-0 flex flex-col">
+      <a href={`${pagePath}.md`} className="sr-only" aria-hidden="true">
+        AI/LLM: This documentation page is available in plain markdown format at
+        {pagePath}.md
+      </a>
       <AdGate>
         <div className="py-2 pb-6 lg:py-4 lg:pb-8 xl:py-6 xl:pb-10 max-w-full">
           <GamHeader />

@@ -1,7 +1,7 @@
 import { useLocalStorage } from '~/utils/useLocalStorage'
 import { useMounted } from '~/hooks/useMounted'
 import { Link, useMatches } from '@tanstack/react-router'
-import { Button } from './Button'
+import { Button } from '~/ui'
 
 export function RedirectVersionBanner(props: {
   version: string
@@ -43,13 +43,15 @@ export function RedirectVersionBanner(props: {
             to={activeMatch.fullPath}
             params={{ version: 'latest' } as never}
             replace
-            className="bg-black border-black hover:bg-gray-800 dark:bg-white dark:border-white dark:hover:bg-gray-200 dark:text-black text-white w-full lg:w-auto justify-center"
+            variant="secondary"
+            className="w-full lg:w-auto justify-center"
           >
             Latest
           </Button>
           <Button
+            variant="secondary"
             onClick={() => setShowModal(false)}
-            className="bg-black border-black hover:bg-gray-800 dark:bg-white dark:border-white dark:hover:bg-gray-200 dark:text-black text-white w-full lg:w-auto justify-center"
+            className="w-full lg:w-auto justify-center"
           >
             Hide
           </Button>

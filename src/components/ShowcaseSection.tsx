@@ -8,7 +8,7 @@ import {
 } from '~/queries/showcases'
 import { voteShowcase } from '~/utils/showcase.functions'
 import { ShowcaseCard, ShowcaseCardSkeleton } from './ShowcaseCard'
-import { buttonStyles } from './Button'
+import { Button } from '~/ui'
 import { ArrowRight, Plus } from 'lucide-react'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useLoginModal } from '~/contexts/LoginModalContext'
@@ -73,7 +73,10 @@ export function ShowcaseSection({
 
   const { data, isLoading } = useQuery(queryOptions)
 
-  const showcases = data?.showcases || []
+  const showcases = React.useMemo(
+    () => data?.showcases || [],
+    [data?.showcases],
+  )
   const placeholdersNeeded = Math.max(0, minItems - showcases.length)
 
   const showcaseIds = React.useMemo(
@@ -232,13 +235,11 @@ export function ShowcaseSection({
 
       {showViewAll && (
         <div className="mt-8 flex justify-center">
-          <Link
-            to="/showcase"
-            search={libraryId ? { libraryId } : undefined}
-            className={buttonStyles}
-          >
-            View all projects
-            <ArrowRight className="w-4 h-4" />
+          <Link to="/showcase" search={libraryId ? { libraryId } : undefined}>
+            <Button variant="ghost" size="xs">
+              View all projects
+              <ArrowRight className="w-4 h-4" />
+            </Button>
           </Link>
         </div>
       )}

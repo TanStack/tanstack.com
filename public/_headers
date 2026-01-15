@@ -1,0 +1,5 @@
+# WebContainer requires these headers for SharedArrayBuffer support
+# Only apply to /builder route to avoid affecting other pages
+/builder
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: require-corp

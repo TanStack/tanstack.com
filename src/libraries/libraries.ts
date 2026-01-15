@@ -50,6 +50,7 @@ export const router: LibrarySlim = {
   badge: undefined,
   repo: 'tanstack/router',
   frameworks: ['react', 'solid'],
+  corePackageName: '@tanstack/router-core',
   latestVersion: 'v1',
   latestBranch: 'main',
   availableVersions: ['v1'],
@@ -129,7 +130,7 @@ export const table: LibrarySlim = {
   scarfId: 'dc8b39e1-3fe9-4f3a-8e56-d4e2cf420a9e',
   ogImage: 'https://github.com/tanstack/table/raw/main/media/repo-header.png',
   defaultDocs: 'introduction',
-  corePackageName: 'table-core',
+  corePackageName: '@tanstack/table-core',
   legacyPackages: ['react-table'],
 }
 
@@ -150,6 +151,7 @@ export const form: LibrarySlim = {
   bgRadial: 'from-yellow-500 via-yellow-600/50 to-transparent',
   badge: 'new',
   repo: 'tanstack/form',
+  corePackageName: '@tanstack/form-core',
   frameworks: ['react', 'vue', 'angular', 'solid', 'lit', 'svelte'],
   latestVersion: 'v1',
   latestBranch: 'main',
@@ -176,6 +178,7 @@ export const virtual: LibrarySlim = {
   badge: undefined,
   repo: 'tanstack/virtual',
   frameworks: ['react', 'solid', 'vue', 'svelte', 'lit', 'angular'],
+  corePackageName: '@tanstack/virtual-core',
   latestVersion: 'v3',
   latestBranch: 'main',
   availableVersions: ['v3'],

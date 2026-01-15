@@ -7,6 +7,7 @@ import { Library } from '~/libraries'
 import { useState } from 'react'
 import * as React from 'react'
 import { ListFilter, X } from 'lucide-react'
+import { Button } from '~/ui'
 import { startProject } from '~/libraries/start'
 import { routerProject } from '~/libraries/router'
 import { queryProject } from '~/libraries/query'
@@ -482,12 +483,12 @@ function RouteComp() {
                 <p className="text-lg mb-4">
                   No partners found for the selected filters.
                 </p>
-                <button
+                <Button
+                  size="sm"
                   onClick={() => navigate({ search: {}, replace: true })}
-                  className="inline-block px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-sm"
                 >
                   View All Partners
-                </button>
+                </Button>
               </div>
             ) : (
               <p>No partners to display.</p>

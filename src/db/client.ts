@@ -24,7 +24,7 @@ function getDb() {
 
 // Use a getter to lazily initialize db on first access
 export const db = new Proxy({} as ReturnType<typeof drizzle<typeof schema>>, {
-  get(target, prop, receiver) {
+  get(_target, prop, _receiver) {
     const realDb = getDb()
     const value = Reflect.get(realDb, prop, realDb)
     if (typeof value === 'function') {

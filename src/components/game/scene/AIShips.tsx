@@ -49,7 +49,7 @@ function AIShip({ id, color }: AIShipProps) {
     if (!player || !groupRef.current) return
 
     const time = state.clock.elapsedTime
-    const [px, py, pz] = player.position
+    const [px, _py, pz] = player.position
 
     const waveY = getWaveHeight(px, pz, time)
     const bobY = Math.sin(time * 1.8 + px * 0.1) * 0.03

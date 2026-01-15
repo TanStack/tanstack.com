@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect -- game animation state sync */
 import { useEffect, useRef, useState } from 'react'
 import { Canvas, useThree, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
@@ -64,7 +65,7 @@ function NearbyIslandInfo() {
       }, 300)
       return () => clearTimeout(timer)
     }
-  }, [nearbyIsland?.id])
+  }, [nearbyIsland?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Detect when island gets discovered while we're near it
   useEffect(() => {

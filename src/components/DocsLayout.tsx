@@ -255,7 +255,7 @@ function DocsMenuStrip({
 }
 
 // Helper to get text color class from framework badge
-const getFrameworkTextColor = (frameworkValue: string | undefined) => {
+const _getFrameworkTextColor = (frameworkValue: string | undefined) => {
   if (!frameworkValue) return 'text-gray-500'
   const framework = frameworkOptions.find((f) => f.value === frameworkValue)
 

@@ -7,18 +7,8 @@ import {
   users,
   auditLogs,
   type ShowcaseStatus,
-  type ShowcaseUseCase,
 } from '~/db/schema'
-import {
-  eq,
-  and,
-  or,
-  sql,
-  desc,
-  inArray,
-  arrayContains,
-  isNotNull,
-} from 'drizzle-orm'
+import { eq, and, or, sql, desc, inArray, arrayContains } from 'drizzle-orm'
 import { getAuthenticatedUser } from './auth.server-helpers'
 import {
   requireModerateShowcases,

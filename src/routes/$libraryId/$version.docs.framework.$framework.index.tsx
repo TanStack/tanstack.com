@@ -1,5 +1,5 @@
-import { seo } from '~/utils/seo'
 import { createFileRoute } from '@tanstack/react-router'
+import { seo } from '~/utils/seo'
 import { Framework, getLibrary } from '~/libraries'
 import { getFrameworkOptions } from '~/libraries/frameworks'
 import { capitalize } from '~/utils/utils'

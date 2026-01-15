@@ -1,4 +1,4 @@
-import { Link, createFileRoute, redirect } from '@tanstack/react-router'
+import { Link, redirect, createFileRoute } from '@tanstack/react-router'
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { PaginationControls } from '~/components/PaginationControls'
@@ -47,6 +47,7 @@ import { useAdminGuard } from '~/hooks/useAdminGuard'
 import { useToggleArray } from '~/hooks/useToggleArray'
 import { handleAdminError } from '~/utils/adminErrors'
 import { requireCapability } from '~/utils/auth.server'
+import { Badge, Button } from '~/ui'
 
 // User type for table - matches the shape returned by listUsers
 type User = {
@@ -129,12 +130,9 @@ function UserRolesCell({
   return (
     <div className="flex flex-wrap gap-1">
       {(userRoles || []).map((role) => (
-        <span
-          key={role._id}
-          className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300"
-        >
+        <Badge key={role._id} variant="purple">
           {role.name}
-        </span>
+        </Badge>
       ))}
       {(!userRoles || userRoles.length === 0) && (
         <span className="text-sm text-gray-500 dark:text-gray-400">
@@ -163,12 +161,9 @@ function EffectiveCapabilitiesCell({
   return (
     <div className="flex flex-wrap gap-1">
       {(effectiveCapabilities || []).map((capability: string) => (
-        <span
-          key={capability}
-          className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
-        >
+        <Badge key={capability} variant="success">
           {capability}
-        </span>
+        </Badge>
       ))}
       {(!effectiveCapabilities || effectiveCapabilities.length === 0) && (
         <span className="text-sm text-gray-500 dark:text-gray-400">None</span>
@@ -230,14 +225,6 @@ function UsersPage() {
   const useEffectiveCapabilities = search.useEffectiveCapabilities ?? true
   const sortBy = search.sortBy
   const sortDir = search.sortDir
-
-  const hasActiveFilters =
-    emailFilter !== '' ||
-    nameFilter !== '' ||
-    capabilityFilters.length > 0 ||
-    noCapabilitiesFilter ||
-    adsDisabledFilter !== 'all' ||
-    waitlistFilter !== 'all'
 
   const handleClearFilters = () => {
     navigate({
@@ -344,6 +331,7 @@ function UsersPage() {
     setEditingUserId(user._id)
     setEditingCapabilities((user.capabilities || []) as Capability[])
     setEditingRoleIds([])
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- setters are stable
   }, [])
 
   // Fetch user roles when editing starts
@@ -371,6 +359,7 @@ function UsersPage() {
     } else if (!editingUserId) {
       setEditingRoleIds([])
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- setter is stable
   }, [editingUserRoles, editingUserId])
 
   const handleSaveUser = useCallback(async () => {
@@ -477,23 +466,6 @@ function UsersPage() {
       })
     },
     [adminSetAdsDisabled],
-  )
-
-  const handleCapabilityToggle = useCallback(
-    (capability: string) => {
-      const newFilters = capabilityFilters.includes(capability)
-        ? capabilityFilters.filter((c: string) => c !== capability)
-        : [...capabilityFilters, capability]
-      navigate({
-        resetScroll: false,
-        search: (prev: UsersSearch) => ({
-          ...prev,
-          cap: newFilters.length > 0 ? newFilters : undefined,
-          page: 0,
-        }),
-      })
-    },
-    [capabilityFilters, navigate],
   )
 
   const handleSort = useCallback(
@@ -627,12 +599,9 @@ function UsersPage() {
           ) : (
             <div className="flex flex-wrap gap-1">
               {(user.capabilities || []).map((capability: string) => (
-                <span
-                  key={capability}
-                  className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
-                >
+                <Badge key={capability} variant="info">
                   {capability}
-                </span>
+                </Badge>
               ))}
               {(!user.capabilities || user.capabilities.length === 0) && (
                 <span className="text-sm text-gray-500 dark:text-gray-400">
@@ -710,15 +679,9 @@ function UsersPage() {
           const user = row.original
           const onWaitlist = Boolean(user.interestedInHidingAds)
           return (
-            <span
-              className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                onWaitlist
-                  ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                  : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
-              }`}
-            >
+            <Badge variant={onWaitlist ? 'success' : 'default'}>
               {onWaitlist ? 'Yes' : 'No'}
-            </span>
+            </Badge>
           )
         },
       },
@@ -874,13 +837,13 @@ function UsersPage() {
                       </option>
                     ))}
                   </select>
-                  <button
+                  <Button
                     onClick={handleBulkAssignRole}
                     disabled={!bulkActionRoleId}
-                    className="px-4 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    size="sm"
                   >
                     Assign
-                  </button>
+                  </Button>
                 </div>
                 <div className="flex items-center gap-2">
                   <label
@@ -890,20 +853,22 @@ function UsersPage() {
                     Set Capabilities:
                   </label>
                   {availableCapabilities.map((capability) => (
-                    <button
+                    <Button
                       key={capability}
                       onClick={() => handleBulkUpdateCapabilities([capability])}
-                      className="px-3 py-1 text-sm bg-green-600 text-white rounded-md hover:bg-green-700"
+                      color="green"
+                      size="sm"
                     >
                       Add {capability}
-                    </button>
+                    </Button>
                   ))}
-                  <button
+                  <Button
                     onClick={() => handleBulkUpdateCapabilities([])}
-                    className="px-3 py-1 text-sm bg-red-600 text-white rounded-md hover:bg-red-700"
+                    color="red"
+                    size="sm"
                   >
                     Clear All
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>

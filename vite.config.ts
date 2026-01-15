@@ -11,13 +11,31 @@ import netlify from '@netlify/vite-plugin-tanstack-start'
 export default defineConfig({
   server: {
     port: 3000,
+    // WebContainer headers for /builder route (SharedArrayBuffer support)
+    headers: {
+      'Cross-Origin-Opener-Policy': 'same-origin',
+      'Cross-Origin-Embedder-Policy': 'require-corp',
+    },
   },
   ssr: {
-    external: ['postgres'],
-    noExternal: ['drizzle-orm'],
+    external: [
+      'postgres',
+      // CTA packages use execa which has a broken unicorn-magic dependency
+      '@tanstack/cta-engine',
+      '@tanstack/cta-ui',
+      '@tanstack/cta-framework-react-cra',
+    ],
+    // Bundle cta-ui-base so Vite resolves its extensionless imports
+    noExternal: ['drizzle-orm', '@tanstack/cta-ui-base'],
   },
   optimizeDeps: {
-    exclude: ['postgres'],
+    exclude: [
+      'postgres',
+      // CTA packages use execa which has a broken unicorn-magic dependency
+      '@tanstack/cta-engine',
+      '@tanstack/cta-ui',
+      '@tanstack/cta-framework-react-cra',
+    ],
   },
   build: {
     sourcemap: process.env.NODE_ENV === 'production',

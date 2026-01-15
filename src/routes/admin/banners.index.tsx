@@ -21,6 +21,7 @@ import {
   ExternalLink,
   Flag,
 } from 'lucide-react'
+import { Button } from '~/ui'
 import * as v from 'valibot'
 import { formatDistanceToNow } from '~/utils/dates'
 import {
@@ -125,13 +126,11 @@ function BannersAdminPage() {
           title="Banner Management"
           isLoading={bannersQuery.isLoading}
           actions={
-            <Link
-              to="/admin/banners/$id"
-              params={{ id: 'new' }}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors text-sm"
-            >
-              <Plus className="w-4 h-4" />
-              Create Banner
+            <Link to="/admin/banners/$id" params={{ id: 'new' }}>
+              <Button size="sm">
+                <Plus className="w-4 h-4" />
+                Create Banner
+              </Button>
             </Link>
           }
         />

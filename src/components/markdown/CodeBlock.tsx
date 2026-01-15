@@ -5,7 +5,7 @@ import { Copy } from 'lucide-react'
 import type { Mermaid } from 'mermaid'
 import { transformerNotationDiff } from '@shikijs/transformers'
 import { createHighlighter, type HighlighterGeneric } from 'shiki'
-import { Button } from '../Button'
+import { Button } from '~/ui'
 
 // Language aliases mapping
 const LANG_ALIASES: Record<string, string> = {
@@ -123,6 +123,7 @@ export function CodeBlock({
 }: React.HTMLProps<HTMLPreElement> & {
   isEmbedded?: boolean
   showTypeCopyButton?: boolean
+  dataCodeTitle?: string
 }) {
   // Extract title from data-code-title attribute, handling both camelCase and kebab-case
   const rawTitle = ((props as any)?.dataCodeTitle ||
@@ -221,6 +222,8 @@ export function CodeBlock({
           </div>
 
           <Button
+            variant="ghost"
+            size="xs"
             className={twMerge('border-0 rounded-md transition-opacity')}
             onClick={() => {
               let copyContent =

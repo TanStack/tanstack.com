@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { useNavigate, createFileRoute } from '@tanstack/react-router'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { authClient } from '~/utils/auth.client'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
@@ -22,7 +22,7 @@ import {
   Trash2,
 } from 'lucide-react'
 import { Card } from '~/components/Card'
-import { Button } from '~/components/Button'
+import { Button } from '~/ui'
 import { Avatar } from '~/components/Avatar'
 import { AvatarCropModal } from '~/components/AvatarCropModal'
 import { useUploadThing } from '~/utils/uploadthing'
@@ -235,6 +235,8 @@ function AccountSettingsPage() {
           </div>
           <div className="flex flex-col gap-2">
             <Button
+              variant="ghost"
+              size="xs"
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
             >
@@ -242,13 +244,23 @@ function AccountSettingsPage() {
               {isUploading ? 'Uploading...' : 'Change photo'}
             </Button>
             {canRevert && (
-              <Button onClick={handleRevertToOAuth} disabled={isReverting}>
+              <Button
+                variant="ghost"
+                size="xs"
+                onClick={handleRevertToOAuth}
+                disabled={isReverting}
+              >
                 <RotateCcw className="w-3.5 h-3.5" />
                 {isReverting ? 'Reverting...' : 'Revert to original'}
               </Button>
             )}
             {hasAnyImage && (
-              <Button onClick={handleRemovePhoto} disabled={isRemoving}>
+              <Button
+                variant="ghost"
+                size="xs"
+                onClick={handleRemovePhoto}
+                disabled={isRemoving}
+              >
                 <Trash2 className="w-3.5 h-3.5" />
                 {isRemoving ? 'Removing...' : 'Remove photo'}
               </Button>
@@ -355,7 +367,7 @@ function AccountSettingsPage() {
         ) : null}
       </div>
       <div>
-        <Button onClick={signOut}>
+        <Button variant="ghost" size="xs" onClick={signOut}>
           <LogOut className="w-3.5 h-3.5" />
           Logout
         </Button>

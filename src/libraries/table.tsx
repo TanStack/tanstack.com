@@ -14,7 +14,6 @@ export const tableProject = {
   bgRadial: 'from-cyan-500 via-blue-600/50 to-transparent',
   textColor: 'text-blue-600',
   defaultDocs: 'introduction',
-  corePackageName: 'table-core',
   legacyPackages: ['react-table'],
   handleRedirects: (href: string) => {
     handleRedirects(

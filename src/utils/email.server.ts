@@ -99,7 +99,7 @@ Review it at: https://tanstack.com/admin/feedback`
 /**
  * Send a test notification to verify the system is working.
  */
-export async function sendTestEmail(capability: Capability): Promise<{
+export async function sendTestEmail(_capability: Capability): Promise<{
   success: boolean
   emails: Array<string>
   error?: string

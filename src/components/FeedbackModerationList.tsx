@@ -16,6 +16,7 @@ import type { DocFeedback } from '~/db/types'
 import { calculatePoints } from '~/utils/docFeedback.client'
 import { Check, Lightbulb, TriangleAlert } from 'lucide-react'
 import { MessageSquare, X } from 'lucide-react'
+import { Badge, Button } from '~/ui'
 
 interface FeedbackModerationListProps {
   data:
@@ -192,20 +193,18 @@ export function FeedbackModerationList({
                     </Link>
                   </TableCell>
                   <TableCell>
-                    <span
-                      className={twMerge(
-                        'px-2 py-1 text-xs font-medium rounded-full',
-                        feedback.status === 'pending' &&
-                          'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
-                        feedback.status === 'approved' &&
-                          'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
-                        feedback.status === 'denied' &&
-                          'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
-                      )}
+                    <Badge
+                      variant={
+                        feedback.status === 'pending'
+                          ? 'warning'
+                          : feedback.status === 'approved'
+                            ? 'success'
+                            : 'error'
+                      }
                     >
                       {feedback.status.charAt(0).toUpperCase() +
                         feedback.status.slice(1)}
-                    </span>
+                    </Badge>
                   </TableCell>
                   <TableCell>
                     <div>
@@ -238,20 +237,24 @@ export function FeedbackModerationList({
                   <TableCell onClick={(e) => e.stopPropagation()}>
                     {isPending && !isModeratingThis && (
                       <div className="flex gap-2">
-                        <button
+                        <Button
+                          variant="icon"
+                          color="green"
+                          size="icon-sm"
                           onClick={() => handleModerate(feedback.id, 'approve')}
-                          className="px-3 py-1 text-xs font-medium text-white bg-green-600 hover:bg-green-700 rounded transition-colors"
                           title="Approve"
                         >
                           <Check />
-                        </button>
-                        <button
+                        </Button>
+                        <Button
+                          variant="icon"
+                          color="red"
+                          size="icon-sm"
                           onClick={() => handleModerate(feedback.id, 'deny')}
-                          className="px-3 py-1 text-xs font-medium text-white bg-red-600 hover:bg-red-700 rounded transition-colors"
                           title="Deny"
                         >
                           <X />
-                        </button>
+                        </Button>
                       </div>
                     )}
                     {isModeratingThis && (

@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { lazy, Suspense } from 'react'
 
 // Lazy load the entire game to keep it out of main bundle

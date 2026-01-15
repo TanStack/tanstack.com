@@ -1,16 +1,16 @@
 import * as React from 'react'
 import {
-  createFileRoute,
   useMatch,
   redirect,
   Link,
+  createFileRoute,
 } from '@tanstack/react-router'
 import { DocsLayout } from '~/components/DocsLayout'
 import { getLibrary } from '~/libraries'
 import type { LibraryId } from '~/libraries'
 import { seo } from '~/utils/seo'
 import { ossStatsQuery } from '~/queries/stats'
-import { Button } from '~/components/Button'
+import { Button } from '~/ui'
 
 // Lazy-loaded landing components for each library
 const landingComponents: Partial<

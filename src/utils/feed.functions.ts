@@ -11,7 +11,7 @@ import {
   buildFeedQueryConditions,
   filterByReleaseLevel,
 } from './feed.server'
-import { entryTypeSchema, releaseLevelSchema } from './schemas'
+import { entryTypeSchema } from './schemas'
 
 // Transform database entry to API response format
 function transformFeedEntry(entry: typeof feedEntries.$inferSelect) {

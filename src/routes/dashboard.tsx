@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect -- animation trigger on mount */
 import { createFileRoute } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
 import { ArrowRight, Hand } from 'lucide-react'

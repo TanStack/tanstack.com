@@ -1,4 +1,4 @@
-import { ClientOnly, createFileRoute, Link } from '@tanstack/react-router'
+import { ClientOnly, Link, createFileRoute } from '@tanstack/react-router'
 
 import { Footer } from '~/components/Footer'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
@@ -28,7 +28,7 @@ import { ArrowRight, Code2, Layers, Shield, Zap } from 'lucide-react'
 import { Card } from '~/components/Card'
 import LibraryCard from '~/components/LibraryCard'
 import { FeaturedShowcases } from '~/components/ShowcaseSection'
-import { Button } from '~/components/Button'
+import { Button } from '~/ui'
 
 export const textColors = [
   `text-rose-500`,
@@ -295,7 +295,7 @@ function Index() {
 
         <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto mt-8 flex justify-center">
           <Button as={Link} to="/libraries">
-            More Libraries →
+            More Libraries
           </Button>
         </div>
 
@@ -534,7 +534,7 @@ function Index() {
           </div>
           <div className="flex justify-center mt-6">
             <Button as={Link} to="/maintainers">
-              View All Maintainers →
+              View All Maintainers
             </Button>
           </div>
         </div>

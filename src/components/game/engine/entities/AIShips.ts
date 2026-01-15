@@ -29,8 +29,8 @@ export class AIShips {
     }
   }
 
-  spawn(count: number): void {
-    const { otherPlayers } = useGameStore.getState()
+  spawn(_count: number): void {
+    const _otherPlayers = useGameStore.getState().otherPlayers
     // Ships will be created in updatePlayers when AI system adds them
   }
 
@@ -125,7 +125,7 @@ export class AIShips {
       if (!ship.group.visible) continue
 
       // Update position with wave height and bob
-      const [px, py, pz] = player.position
+      const [px, _py, pz] = player.position
       const waveY = getWaveHeight(px, pz, time)
       const bobY = Math.sin(time * 1.8 + px * 0.1) * 0.03
       const bobRoll = Math.sin(time * 1.5 + pz * 0.1) * 0.03

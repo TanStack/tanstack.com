@@ -1,4 +1,4 @@
-import { createFileRoute, Link, redirect } from '@tanstack/react-router'
+import { Link, redirect, createFileRoute } from '@tanstack/react-router'
 import { useState, useMemo, useCallback } from 'react'
 import { useRemoveUsersFromRole } from '~/utils/mutations'
 import { useQuery } from '@tanstack/react-query'
@@ -13,6 +13,7 @@ import {
 import { ArrowLeft, Lock, Trash, User, Users } from 'lucide-react'
 import { requireCapability } from '~/utils/auth.server'
 import { hasCapability } from '~/db/types'
+import { Badge, Button } from '~/ui'
 
 export const Route = createFileRoute('/admin/roles/$roleId')({
   beforeLoad: async () => {
@@ -169,12 +170,9 @@ function RoleDetailPage() {
           return (
             <div className="flex flex-wrap gap-1">
               {(user.capabilities || []).map((capability: string) => (
-                <span
-                  key={capability}
-                  className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
-                >
+                <Badge key={capability} variant="info">
                   {capability}
-                </span>
+                </Badge>
               ))}
               {(!user.capabilities || user.capabilities.length === 0) && (
                 <span className="text-sm text-gray-500 dark:text-gray-400">
@@ -288,12 +286,9 @@ function RoleDetailPage() {
           </div>
           <div className="flex flex-wrap gap-1">
             {role.capabilities.map((capability) => (
-              <span
-                key={capability}
-                className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
-              >
+              <Badge key={capability} variant="info">
                 {capability}
-              </span>
+              </Badge>
             ))}
           </div>
         </div>
@@ -303,7 +298,7 @@ function RoleDetailPage() {
             <span className="text-sm font-medium text-gray-900 dark:text-white">
               {selectedUserIds.size} user(s) selected
             </span>
-            <button
+            <Button
               onClick={() => {
                 if (
                   window.confirm(
@@ -313,10 +308,10 @@ function RoleDetailPage() {
                   handleRemoveUsers()
                 }
               }}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              color="red"
             >
               Remove from Role
-            </button>
+            </Button>
           </div>
         )}
 
@@ -330,13 +325,13 @@ function RoleDetailPage() {
                 Remove {confirmRemove.name} from role &quot;{role?.name}&quot;?
               </p>
               <div className="flex gap-2 justify-end">
-                <button
+                <Button
                   onClick={() => setConfirmRemove(null)}
-                  className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600"
+                  variant="secondary"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={async () => {
                     try {
                       await removeUsersFromRole.mutateAsync({
@@ -358,10 +353,10 @@ function RoleDetailPage() {
                       )
                     }
                   }}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                  color="red"
                 >
                   Remove
-                </button>
+                </Button>
               </div>
             </div>
           </div>

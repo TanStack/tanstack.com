@@ -1,4 +1,4 @@
-import { createFileRoute, notFound, redirect } from '@tanstack/react-router'
+import { notFound, redirect, createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { PostNotFound } from './blog'
 import { createServerFn } from '@tanstack/react-start'

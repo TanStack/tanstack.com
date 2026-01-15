@@ -1,10 +1,6 @@
 import { useGameStore } from '../../hooks/useGameStore'
 import { findNearestIsland } from '../../utils/islandGenerator'
-import {
-  checkIslandCollision,
-  checkRockCollision,
-  checkShipCollision,
-} from '../../utils/collision'
+import { checkIslandCollision, checkRockCollision } from '../../utils/collision'
 import { getPointerState } from '../../ui/TouchControls'
 
 import type { ShipStats } from '../../utils/upgrades'

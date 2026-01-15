@@ -6,6 +6,7 @@ import {
 } from '~/utils/mutations'
 import * as v from 'valibot'
 import { Plus } from 'lucide-react'
+import { Button } from '~/ui'
 import { FeedEntry } from '~/components/FeedEntry'
 import { FeedSyncStatus } from '~/components/admin/FeedSyncStatus'
 import { FeedPage as FeedPageComponent } from '~/components/FeedPage'
@@ -121,13 +122,11 @@ function FeedAdminPage() {
     <div className="flex-1 min-w-0 flex flex-col gap-4 pt-4 pb-0 min-h-0">
       <div className="px-2 sm:px-4 flex items-center justify-between">
         <h1 className="text-3xl font-black">Feed Admin</h1>
-        <Link
-          to="/admin/feed/$id"
-          params={{ id: 'new' }}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors text-sm"
-        >
-          <Plus />
-          Create Entry
+        <Link to="/admin/feed/$id" params={{ id: 'new' }}>
+          <Button size="sm">
+            <Plus />
+            Create Entry
+          </Button>
         </Link>
       </div>
       <div className="px-2 sm:px-4">

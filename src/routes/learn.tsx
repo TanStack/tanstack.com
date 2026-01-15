@@ -1,7 +1,7 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { Users, Video, MapPin, Star } from 'lucide-react'
-import { LogoQueryGG } from '~/components/LogoQueryGG'
+import { LogoQueryGG } from '~/ui'
 import { CheckCircleIcon } from '~/components/icons/CheckCircleIcon'
 
 export const Route = createFileRoute('/learn')({

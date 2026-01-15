@@ -30,7 +30,6 @@ export function Toc({
   // Filter headings based on framework scope
   const visibleHeadings = React.useMemo(() => {
     return headings.filter((heading) => {
-      console.log(heading)
       if (heading.framework) {
         return (
           currentFramework &&

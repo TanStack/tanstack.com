@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { Link } from '@tanstack/react-router'
+import { Button } from '~/ui'
 
 type AdminEmptyStateProps = {
   icon: React.ReactNode
@@ -32,11 +33,8 @@ export function AdminEmptyState({
       )}
       {action && (
         <div className="mt-6">
-          <Link
-            to={action.to}
-            className="inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500"
-          >
-            {action.label}
+          <Link to={action.to}>
+            <Button size="sm">{action.label}</Button>
           </Link>
         </div>
       )}

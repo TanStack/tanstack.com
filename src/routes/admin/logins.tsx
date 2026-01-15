@@ -22,6 +22,7 @@ import {
 import * as v from 'valibot'
 import { listLoginHistory } from '~/utils/audit.functions'
 import { LogIn } from 'lucide-react'
+import { Badge } from '~/ui'
 import {
   AdminAccessDenied,
   AdminLoading,
@@ -120,8 +121,6 @@ function LoginsPage() {
     placeholderData: keepPreviousData,
   })
 
-  const hasActiveFilters = userIdFilter !== '' || !!providerFilter
-
   const handleClearFilters = () => {
     navigate({
       resetScroll: false,
@@ -205,15 +204,9 @@ function LoginsPage() {
         cell: ({ getValue }) => {
           const provider = getValue() as string
           return (
-            <span
-              className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                provider === 'github'
-                  ? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
-                  : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
-              }`}
-            >
+            <Badge variant={provider === 'github' ? 'default' : 'info'}>
               {provider}
-            </span>
+            </Badge>
           )
         },
       },
@@ -223,15 +216,9 @@ function LoginsPage() {
         cell: ({ getValue }) => {
           const isNew = getValue() as boolean
           return (
-            <span
-              className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                isNew
-                  ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                  : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
-              }`}
-            >
+            <Badge variant={isNew ? 'success' : 'default'}>
               {isNew ? 'Signup' : 'Login'}
-            </span>
+            </Badge>
           )
         },
       },

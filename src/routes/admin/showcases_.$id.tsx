@@ -28,7 +28,7 @@ import {
   RotateCcw,
 } from 'lucide-react'
 import { Card } from '~/components/Card'
-import { Button } from '~/components/Button'
+import { Badge, Button, FormInput } from '~/ui'
 import { ImageUpload } from '~/components/ImageUpload'
 import { format } from '~/utils/dates'
 import {
@@ -230,16 +230,12 @@ function ShowcaseDetailPage() {
     .map((libId: string) => libraries.find((l) => l.id === libId))
     .filter(Boolean)
 
-  const statusColors = {
-    pending:
-      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
-    approved:
-      'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
-    denied: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
-  }
+  const statusVariant = {
+    pending: 'warning',
+    approved: 'success',
+    denied: 'error',
+  } as const
 
-  const inputClass =
-    'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent'
   const labelClass =
     'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
 
@@ -330,7 +326,7 @@ function ShowcaseDetailPage() {
             <div className="flex-1">
               {isEditing ? (
                 <div className="space-y-3">
-                  <input
+                  <FormInput
                     type="text"
                     value={formData?.name || ''}
                     onChange={(e) =>
@@ -338,10 +334,10 @@ function ShowcaseDetailPage() {
                         prev ? { ...prev, name: e.target.value } : null,
                       )
                     }
-                    className={`${inputClass} text-xl font-bold`}
+                    className="text-xl font-bold"
                     placeholder="Showcase name"
                   />
-                  <input
+                  <FormInput
                     type="text"
                     value={formData?.tagline || ''}
                     onChange={(e) =>
@@ -349,7 +345,6 @@ function ShowcaseDetailPage() {
                         prev ? { ...prev, tagline: e.target.value } : null,
                       )
                     }
-                    className={inputClass}
                     placeholder="Tagline"
                   />
                 </div>
@@ -359,15 +354,17 @@ function ShowcaseDetailPage() {
                     <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                       {showcase.name}
                     </h1>
-                    <span
-                      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${statusColors[showcase.status as keyof typeof statusColors]}`}
+                    <Badge
+                      variant={
+                        statusVariant[
+                          showcase.status as keyof typeof statusVariant
+                        ]
+                      }
                     >
                       {showcase.status}
-                    </span>
+                    </Badge>
                     {showcase.isFeatured && (
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
-                        Featured
-                      </span>
+                      <Badge variant="purple">Featured</Badge>
                     )}
                   </div>
                   <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
@@ -417,7 +414,7 @@ function ShowcaseDetailPage() {
                   <label htmlFor="url" className={labelClass}>
                     URL
                   </label>
-                  <input
+                  <FormInput
                     id="url"
                     type="text"
                     value={formData?.url || ''}
@@ -426,7 +423,6 @@ function ShowcaseDetailPage() {
                         prev ? { ...prev, url: e.target.value } : null,
                       )
                     }
-                    className={inputClass}
                     placeholder="https://..."
                   />
                 </div>
@@ -446,7 +442,7 @@ function ShowcaseDetailPage() {
                   <label htmlFor="src" className={labelClass}>
                     Source Code URL (optional)
                   </label>
-                  <input
+                  <FormInput
                     id="src"
                     type="url"
                     value={formData?.sourceUrl || ''}
@@ -457,7 +453,6 @@ function ShowcaseDetailPage() {
                           : null,
                       )
                     }
-                    className={inputClass}
                     placeholder="https://github.com/..."
                   />
                   <p className="mt-1 text-xs text-gray-500">
@@ -476,7 +471,7 @@ function ShowcaseDetailPage() {
                         prev ? { ...prev, description: e.target.value } : null,
                       )
                     }
-                    className={`${inputClass} min-h-[100px]`}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[100px]"
                     placeholder="Describe the showcase..."
                   />
                 </div>
@@ -484,7 +479,7 @@ function ShowcaseDetailPage() {
                   <label htmlFor="trancoRank" className={labelClass}>
                     Tranco Rank
                   </label>
-                  <input
+                  <FormInput
                     id="trancoRank"
                     type="number"
                     value={formData?.trancoRank ?? ''}
@@ -500,7 +495,6 @@ function ShowcaseDetailPage() {
                           : null,
                       )
                     }
-                    className={inputClass}
                     placeholder="e.g. 1000"
                   />
                   <p className="mt-1 text-xs text-gray-500">
@@ -511,7 +505,7 @@ function ShowcaseDetailPage() {
                   <label htmlFor="voteScore" className={labelClass}>
                     Vote Score
                   </label>
-                  <input
+                  <FormInput
                     id="voteScore"
                     type="number"
                     value={formData?.voteScore ?? 0}
@@ -525,7 +519,6 @@ function ShowcaseDetailPage() {
                           : null,
                       )
                     }
-                    className={inputClass}
                   />
                 </div>
               </div>
@@ -788,7 +781,7 @@ function ShowcaseDetailPage() {
                         : null,
                     )
                   }
-                  className={inputClass}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   {SHOWCASE_STATUSES.map((status) => (
                     <option key={status} value={status}>
@@ -839,7 +832,7 @@ function ShowcaseDetailPage() {
                       prev ? { ...prev, moderationNote: e.target.value } : null,
                     )
                   }
-                  className={`${inputClass} min-h-[80px]`}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[80px]"
                   placeholder="Add a note about this moderation decision..."
                 />
               </div>

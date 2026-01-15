@@ -5,6 +5,7 @@ import { getBanner, type BannerWithMeta } from '~/utils/banner.functions'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { hasCapability } from '~/db/types'
+import { Button } from '~/ui'
 import * as v from 'valibot'
 
 export const Route = createFileRoute('/admin/banners/$id')({
@@ -62,12 +63,12 @@ function BannerEditorPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-2">Banner Not Found</h1>
-          <button
+          <Button
+            className="mt-4"
             onClick={() => navigate({ to: '/admin/banners' })}
-            className="mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg"
           >
             Back to Banners
-          </button>
+          </Button>
         </div>
       </div>
     )

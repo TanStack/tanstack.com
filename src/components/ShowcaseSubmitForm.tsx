@@ -1,4 +1,3 @@
-import * as React from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { submitShowcase, updateShowcase } from '~/utils/showcase.functions'
@@ -14,8 +13,9 @@ import {
 } from '~/utils/showcase.client'
 import { useToast } from './ToastProvider'
 import { Check, AlertCircle } from 'lucide-react'
-import { Button } from './Button'
+import { Button, FormInput } from '~/ui'
 import { ImageUpload } from './ImageUpload'
+import { FormEvent, useMemo, useState } from 'react'
 
 // Filter to only show libraries with proper configuration
 const selectableLibraries = libraries.filter(
@@ -32,29 +32,27 @@ export function ShowcaseSubmitForm({ showcase }: ShowcaseSubmitFormProps) {
   const { notify } = useToast()
   const isEditMode = !!showcase
 
-  const [name, setName] = React.useState(showcase?.name ?? '')
-  const [tagline, setTagline] = React.useState(showcase?.tagline ?? '')
-  const [description, setDescription] = React.useState(
-    showcase?.description ?? '',
-  )
-  const [url, setUrl] = React.useState(showcase?.url ?? '')
-  const [logoUrl, setLogoUrl] = React.useState<string | undefined>(
+  const [name, setName] = useState(showcase?.name ?? '')
+  const [tagline, setTagline] = useState(showcase?.tagline ?? '')
+  const [description, setDescription] = useState(showcase?.description ?? '')
+  const [url, setUrl] = useState(showcase?.url ?? '')
+  const [logoUrl, setLogoUrl] = useState<string | undefined>(
     showcase?.logoUrl ?? undefined,
   )
-  const [screenshotUrl, setScreenshotUrl] = React.useState<string | undefined>(
+  const [screenshotUrl, setScreenshotUrl] = useState<string | undefined>(
     showcase?.screenshotUrl ?? undefined,
   )
-  const [selectedLibraries, setSelectedLibraries] = React.useState<string[]>(
+  const [selectedLibraries, setSelectedLibraries] = useState<string[]>(
     showcase?.libraries ?? [],
   )
-  const [selectedUseCases, setSelectedUseCases] = React.useState<
-    ShowcaseUseCase[]
-  >(showcase?.useCases ?? [])
-  const [isOpenSource, setIsOpenSource] = React.useState(!!showcase?.sourceUrl)
-  const [sourceUrl, setSourceUrl] = React.useState(showcase?.sourceUrl ?? '')
+  const [selectedUseCases, setSelectedUseCases] = useState<ShowcaseUseCase[]>(
+    showcase?.useCases ?? [],
+  )
+  const [isOpenSource, setIsOpenSource] = useState(!!showcase?.sourceUrl)
+  const [sourceUrl, setSourceUrl] = useState(showcase?.sourceUrl ?? '')
 
   // Get auto-included libraries based on selection
-  const autoIncluded = React.useMemo(
+  const autoIncluded = useMemo(
     () => getAutoIncludedLibraries(selectedLibraries),
     [selectedLibraries],
   )
@@ -121,7 +119,7 @@ export function ShowcaseSubmitForm({ showcase }: ShowcaseSubmitFormProps) {
     )
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
 
     if (selectedLibraries.length === 0) {
@@ -207,14 +205,14 @@ export function ShowcaseSubmitForm({ showcase }: ShowcaseSubmitFormProps) {
             >
               Project Name *
             </label>
-            <input
+            <FormInput
               type="text"
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
               maxLength={255}
-              className="mt-1 block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="mt-1 px-4 py-3"
               placeholder="My Awesome App"
             />
           </div>
@@ -227,13 +225,13 @@ export function ShowcaseSubmitForm({ showcase }: ShowcaseSubmitFormProps) {
             >
               Project URL *
             </label>
-            <input
+            <FormInput
               type="url"
               id="url"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               required
-              className="mt-1 block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="mt-1 px-4 py-3"
               placeholder="https://your-project.com"
             />
           </div>
@@ -246,14 +244,14 @@ export function ShowcaseSubmitForm({ showcase }: ShowcaseSubmitFormProps) {
             >
               Tagline *
             </label>
-            <input
+            <FormInput
               type="text"
               id="tagline"
               value={tagline}
               onChange={(e) => setTagline(e.target.value)}
               required
               maxLength={500}
-              className="mt-1 block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="mt-1 px-4 py-3"
               placeholder="A brief description of your project"
             />
             <p className="mt-1 text-xs text-gray-500">
@@ -323,13 +321,13 @@ export function ShowcaseSubmitForm({ showcase }: ShowcaseSubmitFormProps) {
                 >
                   Source Code URL *
                 </label>
-                <input
+                <FormInput
                   type="url"
                   id="sourceUrl"
                   value={sourceUrl}
                   onChange={(e) => setSourceUrl(e.target.value)}
                   required
-                  className="mt-1 block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="mt-1 px-4 py-3"
                   placeholder="https://github.com/username/repo"
                 />
                 <p className="mt-1 text-xs text-gray-500">

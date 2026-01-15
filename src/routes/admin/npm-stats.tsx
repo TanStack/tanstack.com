@@ -27,6 +27,7 @@ import { formatDistanceToNow } from '~/utils/dates'
 import { Download, RefreshCw } from 'lucide-react'
 import { NpmIcon } from '~/components/icons/NpmIcon'
 import { Card } from '~/components/Card'
+import { Button } from '~/ui'
 
 type NpmPackage = {
   id: string
@@ -249,18 +250,18 @@ function NpmStatsAdmin() {
         id: 'actions',
         header: 'Actions',
         cell: ({ row }) => (
-          <button
+          <Button
+            size="sm"
             onClick={() =>
               refreshPackageMutation.mutate(row.original.packageName)
             }
             disabled={refreshPackageMutation.isPending}
-            className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
           >
             <RefreshCw
               className={refreshPackageMutation.isPending ? 'animate-spin' : ''}
             />
             Refresh
-          </button>
+          </Button>
         ),
       },
     ],
@@ -304,13 +305,13 @@ function NpmStatsAdmin() {
               rebuild all caches.
             </p>
           </div>
-          <button
+          <Button
+            color="green"
             onClick={() => {
               console.log('[Admin UI] Refresh button clicked')
               refreshAllMutation.mutate('tanstack')
             }}
             disabled={refreshAllMutation.isPending}
-            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
             title="Complete refresh: discover packages, fetch fresh stats with growth rates, and rebuild all caches"
           >
             <RefreshCw
@@ -319,7 +320,7 @@ function NpmStatsAdmin() {
             {refreshAllMutation.isPending
               ? 'Refreshing...'
               : 'Refresh All Stats'}
-          </button>
+          </Button>
         </div>
 
         {/* Org Stats Section - Top of Page */}

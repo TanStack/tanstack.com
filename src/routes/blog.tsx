@@ -1,6 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
-import { Button } from '~/components/Button'
+import { Button } from '~/ui'
 
 export const Route = createFileRoute('/blog')({
   head: () => ({

@@ -12,7 +12,7 @@ import { PaginationControls } from './PaginationControls'
 import { ShowcaseTopBarFilters } from './ShowcaseTopBarFilters'
 import type { ShowcaseUseCase } from '~/db/types'
 import { Plus } from 'lucide-react'
-import { Button } from './Button'
+import { Button } from '~/ui'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useLoginModal } from '~/contexts/LoginModalContext'
 

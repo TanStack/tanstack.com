@@ -7,7 +7,7 @@ import { mcpProject } from '~/libraries/mcp'
 import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
-import { Button } from '~/components/Button'
+import { Button } from '~/ui'
 import { MaintainersSection } from '~/components/MaintainersSection'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { Key } from 'lucide-react'
@@ -23,11 +23,7 @@ export default function McpLanding() {
         project={mcpProject}
         actions={
           <>
-            <Button
-              as="a"
-              href={`/mcp/latest/docs`}
-              className="bg-black dark:bg-white border-black dark:border-white hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-black"
-            >
+            <Button as="a" href={`/mcp/latest/docs`} variant="secondary">
               Get Started
             </Button>
             {canApiKeys && (

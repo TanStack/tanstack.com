@@ -3,7 +3,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { ArrowRight } from 'lucide-react'
 import { useIntersectionObserver } from '~/hooks/useIntersectionObserver'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
-import { Button } from './Button'
+import { Button } from '~/ui'
 import SponsorPack from './SponsorPack'
 import PlaceholderSponsorPack from './PlaceholderSponsorPack'
 

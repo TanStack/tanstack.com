@@ -2,7 +2,7 @@ import * as React from 'react'
 import { Await } from '@tanstack/react-router'
 import { Spinner } from '~/components/Spinner'
 import SponsorPack from '~/components/SponsorPack'
-import { Button } from '~/components/Button'
+import { Button } from '~/ui'
 import { twMerge } from 'tailwind-merge'
 
 type SponsorsSectionProps = {

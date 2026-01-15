@@ -9,7 +9,7 @@ import {
   Sparkles,
   Code,
 } from 'lucide-react'
-import { Button } from './Button'
+import { Button } from '~/ui'
 import { twMerge } from 'tailwind-merge'
 import { libraries, type LibraryId } from '~/libraries'
 import { USE_CASE_LABELS } from '~/utils/showcase.client'

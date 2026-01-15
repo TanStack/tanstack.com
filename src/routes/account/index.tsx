@@ -22,7 +22,7 @@ import {
   Trash2,
 } from 'lucide-react'
 import { Card } from '~/components/Card'
-import { Button } from '~/components/Button'
+import { Button } from '~/ui'
 import { Avatar } from '~/components/Avatar'
 import { AvatarCropModal } from '~/components/AvatarCropModal'
 import { useUploadThing } from '~/utils/uploadthing'

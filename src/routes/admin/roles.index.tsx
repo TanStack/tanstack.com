@@ -41,6 +41,7 @@ import { useAdminGuard } from '~/hooks/useAdminGuard'
 import { requireCapability } from '~/utils/auth.server'
 import { useToggleArray } from '~/hooks/useToggleArray'
 import { useDeleteWithConfirmation } from '~/hooks/useDeleteWithConfirmation'
+import { Badge, Button, FormInput } from '~/ui'
 
 // Role type for table - matches the shape returned by listRoles
 interface Role {
@@ -205,22 +206,6 @@ function RolesPage() {
     itemLabel: 'role',
   })
 
-  const handleCapabilityFilterToggle = useCallback(
-    (capability: string) => {
-      const newFilters = capabilityFilters.includes(capability)
-        ? capabilityFilters.filter((c: string) => c !== capability)
-        : [...capabilityFilters, capability]
-      navigate({
-        resetScroll: false,
-        search: (prev: { name?: string; cap?: string | string[] }) => ({
-          ...prev,
-          cap: newFilters.length > 0 ? newFilters : undefined,
-        }),
-      })
-    },
-    [capabilityFilters, navigate],
-  )
-
   const handleSendTestEmail = useCallback(async () => {
     setTestEmailStatus({ loading: true })
     try {
@@ -312,12 +297,9 @@ function RolesPage() {
           ) : (
             <div className="flex flex-wrap gap-1">
               {(role.capabilities || []).map((capability) => (
-                <span
-                  key={capability}
-                  className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
-                >
+                <Badge key={capability} variant="info">
                   {capability}
-                </span>
+                </Badge>
               ))}
               {(!role.capabilities || role.capabilities.length === 0) && (
                 <span className="text-sm text-gray-500 dark:text-gray-400">
@@ -440,13 +422,10 @@ function RolesPage() {
           isLoading={rolesQuery.isFetching}
           actions={
             !isCreating && (
-              <button
-                onClick={handleCreateRole}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
+              <Button onClick={handleCreateRole}>
                 <Plus className="w-4 h-4" />
                 Create Role
-              </button>
+              </Button>
             )
           }
         />
@@ -476,14 +455,15 @@ function RolesPage() {
                   </option>
                 ))}
               </select>
-              <button
+              <Button
                 onClick={handleSendTestEmail}
                 disabled={testEmailStatus.loading}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 text-sm bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50 transition-colors"
+                color="gray"
+                size="sm"
               >
                 <Mail className="w-4 h-4" />
                 {testEmailStatus.loading ? 'Sending...' : 'Test Email'}
-              </button>
+              </Button>
             </div>
           }
         />
@@ -502,11 +482,11 @@ function RolesPage() {
                   >
                     Name
                   </label>
-                  <input
+                  <FormInput
                     type="text"
                     value={editingName}
                     onChange={(e) => setEditingName(e.target.value)}
-                    className="w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
+                    className="rounded-md"
                     placeholder="Role name"
                   />
                 </div>
@@ -517,11 +497,11 @@ function RolesPage() {
                   >
                     Description
                   </label>
-                  <input
+                  <FormInput
                     type="text"
                     value={editingDescription}
                     onChange={(e) => setEditingDescription(e.target.value)}
-                    className="w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
+                    className="rounded-md"
                     placeholder="Role description"
                   />
                 </div>
@@ -549,20 +529,14 @@ function RolesPage() {
                   </div>
                 </div>
                 <div className="flex space-x-2">
-                  <button
-                    onClick={handleSaveRole}
-                    className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                  >
+                  <Button onClick={handleSaveRole} color="green">
                     <Save className="w-4 h-4" />
                     Save
-                  </button>
-                  <button
-                    onClick={handleCancelEdit}
-                    className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-                  >
+                  </Button>
+                  <Button onClick={handleCancelEdit} color="gray">
                     <X className="w-4 h-4" />
                     Cancel
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>

@@ -2,7 +2,7 @@ import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import { Link, LinkProps } from '@tanstack/react-router'
 import type { Library } from '~/libraries'
-import { Button } from './Button'
+import { Button } from '~/ui'
 
 type LibraryHeroProps = {
   project: Library

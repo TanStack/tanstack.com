@@ -6,6 +6,7 @@ import { useCapabilities } from '~/hooks/useCapabilities'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { hasCapability } from '~/db/types'
 import { getFeedEntryQueryOptions } from '~/queries/feed'
+import { Button } from '~/ui'
 import * as v from 'valibot'
 export const Route = createFileRoute('/admin/feed/$id')({
   component: FeedEditorPage,
@@ -60,12 +61,12 @@ function FeedEditorPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-2">Entry Not Found</h1>
-          <button
+          <Button
+            className="mt-4"
             onClick={() => navigate({ to: '/admin/feed' })}
-            className="mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg"
           >
             Back to Feed Admin
-          </button>
+          </Button>
         </div>
       </div>
     )

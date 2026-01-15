@@ -1,20 +1,20 @@
-import * as React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { getUserDocFeedbackQueryOptions } from '~/queries/docFeedback'
-import { twMerge } from 'tailwind-merge'
 import { PaginationControls } from './PaginationControls'
 import { Spinner } from './Spinner'
 import { calculatePoints } from '~/utils/docFeedback.client'
 import { Award, ExternalLink, Lightbulb, MessageSquare } from 'lucide-react'
+import { Badge } from '~/ui'
+import { useState } from 'react'
 
 interface UserFeedbackSectionProps {
   userId: string
 }
 
 export function UserFeedbackSection({}: UserFeedbackSectionProps) {
-  const [page, setPage] = React.useState(1)
-  const [pageSize, setPageSize] = React.useState(10)
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
 
   const { data, isLoading } = useQuery(
     getUserDocFeedbackQueryOptions({
@@ -154,20 +154,18 @@ export function UserFeedbackSection({}: UserFeedbackSectionProps) {
 
                     {/* Status & Points */}
                     <div className="flex flex-col items-end gap-2">
-                      <span
-                        className={twMerge(
-                          'px-2 py-1 text-xs font-medium rounded-full whitespace-nowrap',
-                          item.status === 'pending' &&
-                            'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
-                          item.status === 'approved' &&
-                            'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
-                          item.status === 'denied' &&
-                            'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
-                        )}
+                      <Badge
+                        variant={
+                          item.status === 'pending'
+                            ? 'warning'
+                            : item.status === 'approved'
+                              ? 'success'
+                              : 'error'
+                        }
                       >
                         {item.status.charAt(0).toUpperCase() +
                           item.status.slice(1)}
-                      </span>
+                      </Badge>
                       <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">
                         {calculatePoints(
                           item.characterCount,

@@ -8,7 +8,7 @@ import {
 } from '@tanstack/react-router'
 import * as Sentry from '@sentry/tanstackstart-react'
 
-import { Button } from './Button'
+import { Button } from '~/ui'
 import { useEffect } from 'react'
 
 // type DefaultCatchBoundaryType = {
@@ -67,26 +67,20 @@ export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
       <ErrorComponent error={error} />
       <div className="flex gap-2 items-center flex-wrap">
         <Button
+          color="gray"
           onClick={() => {
             router.invalidate()
           }}
-          className="bg-gray-600 border-gray-600 hover:bg-gray-700 text-white"
         >
           Try Again
         </Button>
         {isRoot ? (
-          <Button
-            as={Link}
-            to="/"
-            className="bg-gray-600 border-gray-600 hover:bg-gray-700 text-white"
-          >
+          <Button as={Link} to="/" color="gray">
             TanStack Home
           </Button>
         ) : (
           <Button
-            as={Link}
-            to="/"
-            className="bg-gray-600 border-gray-600 hover:bg-gray-700 text-white"
+            color="gray"
             onClick={(e: React.MouseEvent) => {
               e.preventDefault()
               window.history.back()

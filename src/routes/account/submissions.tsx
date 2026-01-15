@@ -16,7 +16,7 @@ import {
   Pencil,
 } from 'lucide-react'
 import type { Showcase } from '~/db/types'
-import { Button, buttonStyles } from '~/components/Button'
+import { Badge, Button } from '~/ui'
 
 export const Route = createFileRoute('/account/submissions')({
   loader: async ({ context: { queryClient } }) => {
@@ -79,24 +79,24 @@ function AccountSubmissionsPage() {
     switch (status) {
       case 'pending':
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
+          <Badge variant="warning" className="gap-1">
             <Clock className="w-3 h-3" />
             Pending Review
-          </span>
+          </Badge>
         )
       case 'approved':
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+          <Badge variant="success" className="gap-1">
             <Check className="w-3 h-3" />
             Approved
-          </span>
+          </Badge>
         )
       case 'denied':
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
+          <Badge variant="error" className="gap-1">
             <X className="w-3 h-3" />
             Denied
-          </span>
+          </Badge>
         )
     }
   }
@@ -193,13 +193,11 @@ function AccountSubmissionsPage() {
                       <ExternalLink className="w-3 h-3" />
                       Visit
                     </Button>
-                    <Link
-                      to="/showcase/edit/$id"
-                      params={{ id: showcase.id }}
-                      className={buttonStyles}
-                    >
-                      <Pencil className="w-3 h-3" />
-                      Edit
+                    <Link to="/showcase/edit/$id" params={{ id: showcase.id }}>
+                      <Button variant="ghost" size="xs">
+                        <Pencil className="w-3 h-3" />
+                        Edit
+                      </Button>
                     </Link>
                     <Button onClick={() => handleDelete(showcase.id)}>
                       <Trash2 className="w-3 h-3" />

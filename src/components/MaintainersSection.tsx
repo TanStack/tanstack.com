@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { LibraryId } from '~/libraries'
 import { getLibraryMaintainers } from '~/libraries/maintainers'
-import { Button } from './Button'
+import { Button } from '~/ui'
 import { CompactMaintainerCard } from './MaintainerCard'
 
 type MaintainersSectionProps = {
@@ -33,7 +33,7 @@ export function MaintainersSection({ libraryId }: MaintainersSectionProps) {
             to="/$libraryId/$version/docs/contributors"
             params={{ libraryId, version: 'latest' } as never}
           >
-            View All Maintainers →
+            View All Maintainers
           </Button>
         </div>
       </div>

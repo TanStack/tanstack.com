@@ -378,6 +378,10 @@ const useMenuConfig = ({
         label: 'Contributors',
         to: '/$libraryId/$version/docs/contributors',
       },
+      {
+        label: 'NPM Stats',
+        to: '/$libraryId/$version/docs/npm-stats',
+      },
       ...(config.sections.find((d) => d.label === 'Community Resources')
         ? [
             {
@@ -470,6 +474,8 @@ export function DocsLayout({
   const lastMatch = last(matches)
 
   const isExample = matches.some((d) => d.pathname.includes('/examples/'))
+
+  const isNpmStats = matches.some((d) => d.pathname.includes('/docs/npm-stats'))
 
   const detailsRef = React.useRef<HTMLElement>(null!)
 
@@ -750,6 +756,7 @@ export function DocsLayout({
                 !isLandingPage && 'min-h-[88dvh] sm:min-h-0',
                 !isLandingPage &&
                   !isExample &&
+                  !isNpmStats &&
                   !isFullWidth &&
                   'mx-auto w-[900px]',
               )}

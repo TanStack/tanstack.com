@@ -194,11 +194,11 @@ Since `listRoles` is wrapped in `createServerFn`, TanStack Start will properly h
 
 This is a visual website, not a library. Assume changes work unless the user reports otherwise. Running builds after every change wastes time and context.
 
-### Run Linting After Code Changes
+### Run Tests after Code Changes
 
-**After making code changes, always run `pnpm lint` to verify the code passes linting.**
+**After making code changes, always run `pnpm test` to verify the code passes basic tests.**
 
-Do NOT run tests after every change. Tests are run automatically by the pre-commit hook and CI. Linting is fast and catches most issues immediately.
+Do NOT run tests after every tiny small change, just at the end of your known tasks. Tests are run automatically by the pre-commit hook and CI. Linting is fast and catches most issues immediately.
 
 ### Debugging Visual Issues
 

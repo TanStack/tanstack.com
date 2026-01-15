@@ -23,10 +23,10 @@ export default defineConfig({
       // CTA packages use execa which has a broken unicorn-magic dependency
       '@tanstack/cta-engine',
       '@tanstack/cta-ui',
-      '@tanstack/cta-ui-base',
       '@tanstack/cta-framework-react-cra',
     ],
-    noExternal: ['drizzle-orm'],
+    // Bundle cta-ui-base so Vite resolves its extensionless imports
+    noExternal: ['drizzle-orm', '@tanstack/cta-ui-base'],
   },
   optimizeDeps: {
     exclude: [
@@ -34,7 +34,6 @@ export default defineConfig({
       // CTA packages use execa which has a broken unicorn-magic dependency
       '@tanstack/cta-engine',
       '@tanstack/cta-ui',
-      '@tanstack/cta-ui-base',
       '@tanstack/cta-framework-react-cra',
     ],
   },

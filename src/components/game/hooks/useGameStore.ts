@@ -459,7 +459,7 @@ export const useGameStore = create<GameState>()((set, get) => ({
       showcaseUnlocked,
       cornersUnlocked,
       stage,
-      unlockedUpgrades,
+      unlockedUpgrades: _unlockedUpgrades,
       compassTarget,
     } = get()
     if (!discoveredIslands.has(id)) {

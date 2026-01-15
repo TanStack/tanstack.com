@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   adminGetDocFeedback,
@@ -13,7 +13,6 @@ import {
   FileText,
   Check,
   X,
-  ExternalLink,
   Clock,
   AlertTriangle,
 } from 'lucide-react'

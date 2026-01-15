@@ -13,7 +13,7 @@ export const Route = createFileRoute('/$libraryId/$version/docs/{$}.md')({
         request: Request
         params: { libraryId: string; version: string; _splat: string }
       }) => {
-        const url = new URL(request.url)
+        const _url = new URL(request.url)
 
         const { libraryId, version, _splat: docsPath } = params
         const library = getLibrary(libraryId as LibraryId)

@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import { useGameStore } from '../../hooks/useGameStore'
 
 const BASE_FOV = 20
-const DEBUG_ZOOM_HEIGHT = 400
+const _DEBUG_ZOOM_HEIGHT = 400
 const DEBUG_ZOOM_FOV = 45
 
 export class CameraSystem {

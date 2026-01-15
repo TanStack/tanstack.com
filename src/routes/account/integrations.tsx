@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   listMcpApiKeys,
@@ -14,7 +14,7 @@ import {
 import { useToast } from '~/components/ToastProvider'
 import { Card } from '~/components/Card'
 import { Button } from '~/components/Button'
-import { CodeBlock } from '~/components/markdown'
+import { CodeBlock as _CodeBlock } from '~/components/markdown'
 import {
   Key,
   Plus,

@@ -9,6 +9,7 @@ export const CAPABILITIES = [
   'feed',
   'moderate-feedback',
   'moderate-showcases',
+  'mcp',
 ] as const
 
 export const OAUTH_PROVIDERS = ['github', 'google'] as const

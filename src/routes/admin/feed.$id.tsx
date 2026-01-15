@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { useNavigate, createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { FeedEntryEditor } from '~/components/admin/FeedEntryEditor'
 import type { FeedEntry } from '~/components/FeedEntry'

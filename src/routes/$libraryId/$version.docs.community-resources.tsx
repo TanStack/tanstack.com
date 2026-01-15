@@ -6,9 +6,7 @@ import { findLibrary, getBranch, getLibrary } from '~/libraries'
 import { seo } from '~/utils/seo'
 import { loadDocs } from '~/utils/docs'
 
-export const Route = createFileRoute(
-  '/$libraryId/$version/docs/community-resources',
-)({
+export const Route = createFileRoute('/$libraryId/$version/docs/community-resources')({
   staleTime: 1000 * 60 * 5,
   loader: async (ctx) => {
     const { libraryId, version } = ctx.params

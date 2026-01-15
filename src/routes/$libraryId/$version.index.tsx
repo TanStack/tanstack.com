@@ -1,10 +1,5 @@
 import * as React from 'react'
-import {
-  createFileRoute,
-  useMatch,
-  redirect,
-  Link,
-} from '@tanstack/react-router'
+import { useMatch, redirect, Link, createFileRoute } from '@tanstack/react-router'
 import { DocsLayout } from '~/components/DocsLayout'
 import { getLibrary } from '~/libraries'
 import type { LibraryId } from '~/libraries'

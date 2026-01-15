@@ -72,7 +72,7 @@ export function Island({ data, isDiscovered }: IslandProps) {
 
     // Flag exclusion zone - flag is at +X, +Z diagonal (45 degrees)
     // We need to check in LOCAL space after accounting for island rotation
-    const flagAngle = Math.PI * 0.25 // 45 degrees
+    const _flagAngle = Math.PI * 0.25 // 45 degrees
     const flagRadius = 1.8
     const flagExclusionRadius = 0.6 // Smaller exclusion for flag pole vs old sign
 
@@ -241,7 +241,7 @@ export function Island({ data, isDiscovered }: IslandProps) {
 
       // Water level adapts to elongation - larger islands need higher foam threshold
       // elongation ~1.0 = small island, ~1.3 = large island
-      const waterLevel = 0.38 + (elongation - 1.0) * 0.25
+      const _waterLevel = 0.38 + (elongation - 1.0) * 0.25
 
       // Add irregularity to shoreline and color variation
       for (let i = 0; i < posAttr.count; i++) {

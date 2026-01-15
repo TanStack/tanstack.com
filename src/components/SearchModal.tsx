@@ -753,7 +753,7 @@ function NoResults({
   )
 }
 
-const submitIconComponent = () => {
+const _submitIconComponent = () => {
   return <Search />
 }
 
@@ -908,7 +908,7 @@ function SearchResults({ focusedIndex }: { focusedIndex: number }) {
     selectedFramework,
     setSelectedLibrary,
     setSelectedFramework,
-    libraryItems,
+    libraryItems: _libraryItems,
     frameworkItems,
   } = useSearchFilters()
 

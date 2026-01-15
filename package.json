@@ -18,8 +18,11 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "test": "pnpm run test:smoke",
-    "test:smoke": "playwright test",
+    "husky": "pnpm run format && pnpm run test",
+    "test": "tsc && pnpm run lint && pnpm run test:smoke",
+    "test:smoke": "tsx tests/smoke.ts",
+    "test:smoke:ci": "tsx tests/smoke.ts --server",
+    "test:e2e": "playwright test",
     "prepare": "husky"
   },
   "dependencies": {

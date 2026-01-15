@@ -99,7 +99,7 @@ export class Cannonballs {
     this.group.add(splashGroup)
   }
 
-  update(delta: number): void {
+  update(_delta: number): void {
     const now = Date.now()
     const toRemove: SplashEffect[] = []
 

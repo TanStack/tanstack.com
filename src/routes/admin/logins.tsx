@@ -1,4 +1,4 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
+import { redirect, createFileRoute } from '@tanstack/react-router'
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { useMemo, useCallback } from 'react'
 import { PaginationControls } from '~/components/PaginationControls'
@@ -120,7 +120,7 @@ function LoginsPage() {
     placeholderData: keepPreviousData,
   })
 
-  const hasActiveFilters = userIdFilter !== '' || !!providerFilter
+  const _hasActiveFilters = userIdFilter !== '' || !!providerFilter
 
   const handleClearFilters = () => {
     navigate({

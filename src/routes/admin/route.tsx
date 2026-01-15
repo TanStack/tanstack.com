@@ -1,11 +1,5 @@
 import * as React from 'react'
-import {
-  Link,
-  LinkOptions,
-  Outlet,
-  createFileRoute,
-  redirect,
-} from '@tanstack/react-router'
+import { Link, LinkOptions, Outlet, redirect, createFileRoute } from '@tanstack/react-router'
 import {
   X,
   TextAlignStart,

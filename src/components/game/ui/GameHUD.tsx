@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect -- game animation state sync */
 import { useEffect, useState } from 'react'
 import { useGameStore } from '../hooks/useGameStore'
 import { Map, Coins, ShoppingBag, Zap } from 'lucide-react'
@@ -58,6 +59,7 @@ export function GameHUD() {
   // Show upgrade notification when new upgrade unlocked
   useEffect(() => {
     if (lastUnlockedUpgrade) {
+       
       setShowUpgradeNotification(true)
       const timer = setTimeout(() => {
         setShowUpgradeNotification(false)

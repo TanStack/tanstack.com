@@ -7,7 +7,6 @@ import {
   users,
   auditLogs,
   type ShowcaseStatus,
-  type ShowcaseUseCase,
 } from '~/db/schema'
 import {
   eq,
@@ -17,7 +16,6 @@ import {
   desc,
   inArray,
   arrayContains,
-  isNotNull,
 } from 'drizzle-orm'
 import { getAuthenticatedUser } from './auth.server-helpers'
 import {

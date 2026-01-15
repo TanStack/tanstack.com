@@ -48,6 +48,7 @@ export function useLocalStorage<T>(
 
   useEffect(() => {
     const item = getWithExpiry<T>(key)
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional hydration from localStorage after SSR
     if (item !== undefined) setValue(item)
   }, [key])
 

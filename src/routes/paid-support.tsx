@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { useState } from 'react'
 import { coreMaintainers } from '~/libraries/maintainers'

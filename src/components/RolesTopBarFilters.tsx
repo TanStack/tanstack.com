@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { VALID_CAPABILITIES, type Capability } from '~/db/types'
+import { VALID_CAPABILITIES } from '~/db/types'
 import {
   TopBarFilter,
   FilterChip,

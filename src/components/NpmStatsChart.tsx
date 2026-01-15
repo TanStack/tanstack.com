@@ -66,12 +66,11 @@ export function NpmStatsChart({ stats }: { stats: NpmStats[] }) {
       },
     })
 
-    plotRef.current.appendChild(chart)
+    const plotEl = plotRef.current
+    plotEl.appendChild(chart)
 
     return () => {
-      if (plotRef.current) {
-        plotRef.current.innerHTML = ''
-      }
+      plotEl.innerHTML = ''
     }
   }, [stats])
 

@@ -1,4 +1,4 @@
-import { createFileRoute, useSearch, Link } from '@tanstack/react-router'
+import { useSearch, Link, createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { hasCapability } from '~/db/types'

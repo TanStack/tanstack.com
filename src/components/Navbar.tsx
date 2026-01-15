@@ -43,7 +43,7 @@ import {
   SIDEBAR_LIBRARY_IDS,
   type LibrarySlim,
 } from '~/libraries'
-import { ADMIN_ACCESS_CAPABILITIES, hasCapability } from '~/db/types'
+import { ADMIN_ACCESS_CAPABILITIES } from '~/db/types'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useClickOutside } from '~/hooks/useClickOutside'

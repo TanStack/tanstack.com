@@ -1,4 +1,4 @@
-import { Link, createFileRoute, redirect } from '@tanstack/react-router'
+import { Link, redirect, createFileRoute } from '@tanstack/react-router'
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { PaginationControls } from '~/components/PaginationControls'
@@ -128,7 +128,7 @@ function DetailsCell({ details }: { details: string | null }) {
   }
 
   const formatted = JSON.stringify(parsed, null, 2)
-  const isLong = formatted.length > 100
+  const _isLong = formatted.length > 100
 
   return (
     <div className="max-w-xs">
@@ -191,7 +191,7 @@ function AuditPage() {
     staleTime: 0,
   })
 
-  const hasActiveFilters =
+  const _hasActiveFilters =
     actorIdFilter !== '' || actionFilter !== '' || targetTypeFilter !== ''
 
   const handleClearFilters = () => {

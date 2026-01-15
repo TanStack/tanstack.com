@@ -6,6 +6,7 @@ import * as v from 'valibot'
 import { THEME_COLORS } from '~/utils/utils'
 
 const themeModeSchema = v.picklist(['light', 'dark', 'auto'])
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- used for type inference
 const resolvedThemeSchema = v.picklist(['light', 'dark'])
 const themeKey = 'theme'
 
@@ -120,6 +121,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
 
   // Sync resolved theme from DOM on mount (handles SSR -> client transition)
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional hydration after SSR
     setResolvedTheme(getResolvedThemeFromDOM())
   }, [])
 

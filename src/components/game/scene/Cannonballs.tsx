@@ -1,4 +1,4 @@
-import { useRef, useMemo } from 'react'
+import { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { useGameStore } from '../hooks/useGameStore'
@@ -95,7 +95,7 @@ export function Cannonballs() {
     const {
       cannonballs,
       updateCannonballs,
-      removeCannonball,
+      removeCannonball: _removeCannonball,
       otherPlayers,
       setOtherPlayers,
     } = useGameStore.getState()

@@ -30,8 +30,9 @@ import {
   getPackageColor,
 } from '~/components/npm-stats'
 import {
-  getLibraryComparisonPackages,
+  getLibraryNpmPackages,
   getAvailableFrameworkAdapters,
+  getAvailableCompetitors,
   frameworkMeta,
   defaultColors,
 } from '~/utils/npm-packages'
@@ -86,8 +87,8 @@ function RouteComponent() {
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
 
-  // Get library-specific packages with comparison packages
-  const libraryPackages = getLibraryComparisonPackages(library)
+  // Get library-specific packages (without competitors - they're shown as suggestions)
+  const libraryPackages = getLibraryNpmPackages(library)
 
   // Use search params or default to library packages
   const packageGroups: PackageGroup[] = search.packageGroups ?? libraryPackages
@@ -222,6 +223,9 @@ function RouteComponent() {
     library,
     packageGroups,
   )
+
+  // Get available competitor packages that aren't already in the chart
+  const availableCompetitors = getAvailableCompetitors(library, packageGroups)
 
   const handleBaselineChange = (packageName: string) => {
     navigate({
@@ -358,11 +362,39 @@ function RouteComponent() {
                   >
                     <Plus className="w-3 h-3" />
                     <span className="font-medium" style={{ color }}>
-                      {frameworkMeta[framework]?.name ?? framework}
+                      🌴 {frameworkMeta[framework]?.name ?? framework}-
+                      {library.id.charAt(0).toUpperCase() + library.id.slice(1)}
                     </span>
                   </button>
                 </Tooltip>
               ))}
+            </div>
+          )}
+
+          {/* Suggested Competitor Packages */}
+          {availableCompetitors.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2 mb-4">
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                Compare with:
+              </span>
+              {availableCompetitors.map((competitor) => {
+                const mainPackage = competitor.packages[0]?.name
+                if (!mainPackage) return null
+                const color = competitor.color ?? defaultColors[0]
+                return (
+                  <Tooltip key={mainPackage} content={`Add ${mainPackage}`}>
+                    <button
+                      onClick={() => handleAddPackage(mainPackage, color)}
+                      className="flex items-center gap-1.5 px-2 py-1 text-xs rounded-md bg-gray-500/10 hover:bg-gray-500/20 transition-colors"
+                    >
+                      <Plus className="w-3 h-3" />
+                      <span className="font-medium" style={{ color }}>
+                        {mainPackage}
+                      </span>
+                    </button>
+                  </Tooltip>
+                )
+              })}
             </div>
           )}
 

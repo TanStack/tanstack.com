@@ -206,7 +206,30 @@ export function getLibraryNpmPackages(library: LibrarySlim): PackageGroup[] {
 }
 
 /**
+ * Get available competitor packages for a library that aren't already in the current packages.
+ */
+export function getAvailableCompetitors(
+  library: LibrarySlim,
+  currentPackages: PackageGroup[],
+): PackageGroup[] {
+  const competitors = libraryCompetitors[library.id] ?? []
+  if (competitors.length === 0) return []
+
+  // Get all package names currently in the chart
+  const currentPackageNames = new Set(
+    currentPackages.flatMap((pg) => pg.packages.map((p) => p.name)),
+  )
+
+  // Filter out competitors that are already added
+  return competitors.filter((competitor) => {
+    const mainPackageName = competitor.packages[0]?.name
+    return mainPackageName && !currentPackageNames.has(mainPackageName)
+  })
+}
+
+/**
  * Get comparison packages for a library (library + competitors).
+ * @deprecated Use getLibraryNpmPackages for default packages and getAvailableCompetitors for suggestions
  */
 export function getLibraryComparisonPackages(
   library: LibrarySlim,

@@ -5,6 +5,7 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import { useNavigate, useSearch } from '@tanstack/react-router'
+import { useIsFetching } from '@tanstack/react-query'
 import { FileExplorer } from '~/components/FileExplorer'
 import { CodeViewer } from './CodeViewer'
 import { LivePreview } from '../preview/LivePreview'
@@ -121,18 +122,34 @@ export function ExplorerPanel({
   }
 
   const dryRun = useDryRun()
+  const isFetchingDryRun = useIsFetching({ queryKey: ['dry-run'] }) > 0
   const files = React.useMemo(
     () => (dryRun?.files ?? {}) as Record<string, string>,
     [dryRun?.files],
   )
+  const hasFiles = Object.keys(files).length > 0
+
+  // Keep track of previous files to avoid blank state during loading
+  const previousFilesRef = React.useRef<Record<string, string>>(files)
+  React.useEffect(() => {
+    if (hasFiles) {
+      previousFilesRef.current = files
+    }
+  }, [files, hasFiles])
+
+  // Use previous files while loading to avoid blank state
+  const displayFiles = hasFiles ? files : previousFilesRef.current
 
   // Convert flat files to tree structure for FileExplorer
-  const fileTree = React.useMemo(() => filesToGitHubTree(files), [files])
+  const fileTree = React.useMemo(
+    () => filesToGitHubTree(displayFiles),
+    [displayFiles],
+  )
 
   // Auto-select first file if none selected
   React.useEffect(() => {
-    if (!selectedFile && Object.keys(files).length > 0) {
-      const fileKeys = Object.keys(files)
+    if (!selectedFile && Object.keys(displayFiles).length > 0) {
+      const fileKeys = Object.keys(displayFiles)
       const preferredFiles = [
         'src/routes/index.tsx',
         'src/routes/__root.tsx',
@@ -157,17 +174,17 @@ export function ExplorerPanel({
       setSelectedFile(fileKeys[0].replace(/^\.\//, ''))
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- setSelectedFile is stable from useState
-  }, [files, selectedFile])
+  }, [displayFiles, selectedFile])
 
   // Try to find file content - files may have ./ prefix or not
   const selectedFileContent = selectedFile
-    ? (files[selectedFile] ?? files[`./${selectedFile}`] ?? null)
+    ? (displayFiles[selectedFile] ?? displayFiles[`./${selectedFile}`] ?? null)
     : null
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full min-h-0 overflow-hidden">
       {/* Tab bar */}
-      <div className="flex items-center border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
+      <div className="flex items-center shrink-0 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
         {/* Mobile config toggle */}
         <button
           type="button"
@@ -233,7 +250,7 @@ export function ExplorerPanel({
       </div>
 
       {/* Content area */}
-      <div className="flex-1 overflow-hidden flex flex-col">
+      <div className="flex-1 overflow-hidden flex flex-col relative">
         {activeTab === 'files' ? (
           <div className="flex-1 flex min-h-0 overflow-hidden">
             {/* File tree sidebar using existing FileExplorer */}
@@ -263,6 +280,18 @@ export function ExplorerPanel({
         {/* Terminal panel - only show when preview is activated */}
         {canPreview && previewActivated && isTerminalOpen && (
           <Terminal onClose={() => setIsTerminalOpen(false)} />
+        )}
+
+        {/* Loading overlay */}
+        {isFetchingDryRun && (
+          <div className="absolute inset-0 bg-white/50 dark:bg-gray-900/50 backdrop-blur-[1px] flex items-center justify-center z-10">
+            <div className="flex items-center gap-3 px-4 py-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+              <div className="w-5 h-5 border-2 border-gray-300 dark:border-gray-600 border-t-blue-500 rounded-full animate-spin" />
+              <span className="text-sm text-gray-600 dark:text-gray-300">
+                Generating...
+              </span>
+            </div>
+          </div>
         )}
       </div>
     </div>

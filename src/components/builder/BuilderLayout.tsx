@@ -29,7 +29,7 @@ export function BuilderLayout() {
       {/* Right panel - Explorer/Preview */}
       <div
         className={`
-          flex-1 min-w-0
+          flex-1 min-w-0 min-h-0 overflow-hidden
           bg-white dark:bg-gray-900
           ${isMobileConfigOpen ? 'hidden md:flex' : 'flex'}
           flex-col

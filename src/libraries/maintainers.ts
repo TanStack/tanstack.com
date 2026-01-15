@@ -294,9 +294,11 @@ export const allMaintainers: Maintainer[] = [
       'virtual',
     ],
     frameworkExpertise: ['react', 'solid'],
-    specialties: ['Documentation'],
+    specialties: ['Documentation', 'Architecture'],
     social: {
       bluesky: 'https://bsky.app/profile/ladybluenotes.dev',
+      twitter: 'https://x.com/ladybluenotes',
+      website: 'https://sarahgerrard.me',
     },
   },
   {

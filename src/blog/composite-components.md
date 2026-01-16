@@ -13,7 +13,7 @@ React Server Components (RSC) are a genuine leap for React. They reduce bundle s
 
 But existing implementations come with a tradeoff: the server owns the component tree. Your client code opts into interactivity with `'use client'`, and composition flows one direction: server decides, client receives.
 
-What if RSCs  were actually components that the client could fetch, cache, and compose on its own terms?
+What if RSCs were actually components that the client could fetch, cache, and compose on its own terms?
 
 That's what we built in **TanStack Start**.
 
@@ -346,8 +346,6 @@ RSC support is experimental in TanStack Start RC and will remain experimental in
 **Serialization:** This release uses React's native Flight protocol. TanStack Start's usual serialization features aren't available within server components for now.
 
 **API surface:** The `createServerComponent` API and slot patterns are stable in design but may see refinements.
-
-
 
 If you hit rough edges, [open an issue](https://github.com/tanstack/router/issues) or join the [Discord](https://tlinz.com/discord).
 

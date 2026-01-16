@@ -1,33 +1,17 @@
 import { WandSparkles, Zap } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { CogsIcon } from '~/components/icons/CogsIcon'
-
-const repo = 'tanstack/form'
+import { form } from './libraries'
 
 const textStyles = 'text-yellow-600 dark:text-yellow-300'
 
 export const formProject = {
-  id: 'form',
-  name: 'TanStack Form',
-  cardStyles: `text-yellow-500 hover:border-current`,
-  to: '/form',
-  tagline: `Headless UI for building performant and type-safe forms`,
+  ...form,
   description: `Headless, performant, and type-safe form state management for TS/JS, React, Vue, Angular, Solid, Lit and Svelte.`,
   ogImage: 'https://github.com/tanstack/form/raw/main/media/repo-header.png',
-  badge: 'new',
-  bgStyle: 'bg-yellow-500',
-  borderStyle: 'border-yellow-500/50',
-  textStyle: 'text-yellow-500',
-  repo,
   latestBranch: 'main',
-  latestVersion: 'v1',
-  availableVersions: ['v1'],
   bgRadial: 'from-yellow-500 via-yellow-600/50 to-transparent',
-  colorFrom: 'from-yellow-500',
-  colorTo: 'to-yellow-600',
   textColor: 'text-yellow-600',
-  frameworks: ['react', 'vue', 'angular', 'solid', 'lit', 'svelte'],
-  scarfId: '72ec4452-5d77-427c-b44a-57515d2d83aa',
   testimonials: [
     {
       quote:

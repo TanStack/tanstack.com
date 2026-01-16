@@ -23,8 +23,6 @@ export const Route = createFileRoute(
         repo: library.repo,
         branch: getBranch(library, version),
         docsPath: `${root}/community-resources`,
-        currentPath: ctx.location.pathname,
-        redirectPath: `/${library.id}/${version}/docs/overview`,
       })
 
       return { doc }
@@ -38,6 +36,7 @@ export const Route = createFileRoute(
       meta: seo({
         title: `${library.name} Community Resources`,
         description: `A collection of community resources for ${library.name}.`,
+        noindex: library.visible === false,
       }),
     }
   },

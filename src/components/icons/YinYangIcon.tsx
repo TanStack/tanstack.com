@@ -10,7 +10,7 @@ export function YinYangIcon({
     <svg
       stroke="currentColor"
       fill="currentColor"
-      stroke-width="0"
+      strokeWidth="0"
       viewBox="0 0 496 512"
       width={width}
       height={height}

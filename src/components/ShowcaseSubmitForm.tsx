@@ -1,17 +1,21 @@
-import * as React from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import { submitShowcase } from '~/utils/showcase.functions'
+import { submitShowcase, updateShowcase } from '~/utils/showcase.functions'
 import { libraries } from '~/libraries'
-import { SHOWCASE_USE_CASES, type ShowcaseUseCase } from '~/db/schema'
+import {
+  SHOWCASE_USE_CASES_UI,
+  type Showcase,
+  type ShowcaseUseCase,
+} from '~/db/types'
 import {
   getAutoIncludedLibraries,
   USE_CASE_LABELS,
 } from '~/utils/showcase.client'
 import { useToast } from './ToastProvider'
 import { Check, AlertCircle } from 'lucide-react'
-import { Button } from './Button'
+import { Button, FormInput } from '~/ui'
 import { ImageUpload } from './ImageUpload'
+import { FormEvent, useMemo, useState } from 'react'
 
 // Filter to only show libraries with proper configuration
 const selectableLibraries = libraries.filter(
@@ -19,51 +23,82 @@ const selectableLibraries = libraries.filter(
     lib.name && lib.id !== 'react-charts' && lib.id !== 'create-tsrouter-app',
 )
 
-export function ShowcaseSubmitForm() {
+interface ShowcaseSubmitFormProps {
+  showcase?: Showcase
+}
+
+export function ShowcaseSubmitForm({ showcase }: ShowcaseSubmitFormProps) {
   const navigate = useNavigate()
   const { notify } = useToast()
+  const isEditMode = !!showcase
 
-  const [name, setName] = React.useState('')
-  const [tagline, setTagline] = React.useState('')
-  const [description, setDescription] = React.useState('')
-  const [url, setUrl] = React.useState('')
-  const [logoUrl, setLogoUrl] = React.useState<string | undefined>()
-  const [screenshotUrl, setScreenshotUrl] = React.useState<string | undefined>()
-  const [selectedLibraries, setSelectedLibraries] = React.useState<string[]>([])
-  const [selectedUseCases, setSelectedUseCases] = React.useState<
-    ShowcaseUseCase[]
-  >([])
+  const [name, setName] = useState(showcase?.name ?? '')
+  const [tagline, setTagline] = useState(showcase?.tagline ?? '')
+  const [description, setDescription] = useState(showcase?.description ?? '')
+  const [url, setUrl] = useState(showcase?.url ?? '')
+  const [logoUrl, setLogoUrl] = useState<string | undefined>(
+    showcase?.logoUrl ?? undefined,
+  )
+  const [screenshotUrl, setScreenshotUrl] = useState<string | undefined>(
+    showcase?.screenshotUrl ?? undefined,
+  )
+  const [selectedLibraries, setSelectedLibraries] = useState<string[]>(
+    showcase?.libraries ?? [],
+  )
+  const [selectedUseCases, setSelectedUseCases] = useState<ShowcaseUseCase[]>(
+    showcase?.useCases ?? [],
+  )
+  const [isOpenSource, setIsOpenSource] = useState(!!showcase?.sourceUrl)
+  const [sourceUrl, setSourceUrl] = useState(showcase?.sourceUrl ?? '')
 
   // Get auto-included libraries based on selection
-  const autoIncluded = React.useMemo(
+  const autoIncluded = useMemo(
     () => getAutoIncludedLibraries(selectedLibraries),
     [selectedLibraries],
   )
 
-  const submitMutation = useMutation({
+  const onSuccess = () => {
+    notify(
+      <div>
+        <div className="font-medium">
+          {isEditMode ? 'Showcase updated!' : 'Showcase submitted!'}
+        </div>
+        <div className="text-gray-500 dark:text-gray-400 text-xs">
+          {isEditMode
+            ? 'Your changes are pending review. Votes have been preserved.'
+            : "Your project is pending review. We'll notify you when it's approved."}
+        </div>
+      </div>,
+    )
+    navigate({ to: '/account/submissions' })
+  }
+
+  const onError = (error: Error) => {
+    notify(
+      <div>
+        <div className="font-medium">
+          {isEditMode ? 'Update failed' : 'Submission failed'}
+        </div>
+        <div className="text-gray-500 dark:text-gray-400 text-xs">
+          {error.message}
+        </div>
+      </div>,
+    )
+  }
+
+  const createMutation = useMutation({
     mutationFn: submitShowcase,
-    onSuccess: () => {
-      notify(
-        <div>
-          <div className="font-medium">Showcase submitted!</div>
-          <div className="text-gray-500 dark:text-gray-400 text-xs">
-            Your project is pending review. We'll notify you when it's approved.
-          </div>
-        </div>,
-      )
-      navigate({ to: '/showcase/mine' })
-    },
-    onError: (error: Error) => {
-      notify(
-        <div>
-          <div className="font-medium">Submission failed</div>
-          <div className="text-gray-500 dark:text-gray-400 text-xs">
-            {error.message}
-          </div>
-        </div>,
-      )
-    },
+    onSuccess,
+    onError,
   })
+
+  const editMutation = useMutation({
+    mutationFn: updateShowcase,
+    onSuccess,
+    onError,
+  })
+
+  const isPending = createMutation.isPending || editMutation.isPending
 
   const toggleLibrary = (libraryId: string) => {
     // Can't toggle auto-included libraries
@@ -84,7 +119,7 @@ export function ShowcaseSubmitForm() {
     )
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
 
     if (selectedLibraries.length === 0) {
@@ -105,29 +140,60 @@ export function ShowcaseSubmitForm() {
       return
     }
 
-    submitMutation.mutate({
-      data: {
-        name,
-        tagline,
-        description: description || undefined,
-        url,
-        logoUrl,
-        screenshotUrl,
-        libraries: selectedLibraries,
-        useCases: selectedUseCases,
-      },
-    })
+    // Validate source URL is provided when open source is checked
+    if (isOpenSource && !sourceUrl) {
+      notify(
+        <div>
+          <div className="font-medium">Source code URL is required</div>
+          <div className="text-gray-500 dark:text-gray-400 text-xs">
+            Please provide a link to your source code repository.
+          </div>
+        </div>,
+      )
+      return
+    }
+
+    // Warn user if editing an approved showcase
+    if (isEditMode && showcase.status === 'approved') {
+      const confirmed = confirm(
+        'Saving changes will reset your showcase to pending review until re-approved. Your votes will be preserved. Continue?',
+      )
+      if (!confirmed) {
+        return
+      }
+    }
+
+    const formData = {
+      name,
+      tagline,
+      description: description || undefined,
+      url,
+      logoUrl,
+      screenshotUrl,
+      sourceUrl: isOpenSource ? sourceUrl : undefined,
+      libraries: selectedLibraries,
+      useCases: selectedUseCases,
+    }
+
+    if (isEditMode) {
+      editMutation.mutate({
+        data: { ...formData, showcaseId: showcase.id },
+      })
+    } else {
+      createMutation.mutate({ data: formData })
+    }
   }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <div className="max-w-2xl mx-auto px-4 py-12">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-          Submit Your Project
+          {isEditMode ? 'Edit Your Project' : 'Submit Your Project'}
         </h1>
         <p className="mt-2 text-gray-600 dark:text-gray-400">
-          Share what you've built with TanStack libraries. Your submission will
-          be reviewed before appearing in the showcase.
+          {isEditMode
+            ? 'Update your showcase submission. Changes will require re-approval but votes will be preserved.'
+            : "Share what you've built with TanStack libraries. Your submission will be reviewed before appearing in the showcase."}
         </p>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
@@ -139,15 +205,34 @@ export function ShowcaseSubmitForm() {
             >
               Project Name *
             </label>
-            <input
+            <FormInput
               type="text"
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
               maxLength={255}
-              className="mt-1 block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="mt-1 px-4 py-3"
               placeholder="My Awesome App"
+            />
+          </div>
+
+          {/* Project URL */}
+          <div>
+            <label
+              htmlFor="url"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              Project URL *
+            </label>
+            <FormInput
+              type="url"
+              id="url"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              required
+              className="mt-1 px-4 py-3"
+              placeholder="https://your-project.com"
             />
           </div>
 
@@ -159,14 +244,14 @@ export function ShowcaseSubmitForm() {
             >
               Tagline *
             </label>
-            <input
+            <FormInput
               type="text"
               id="tagline"
               value={tagline}
               onChange={(e) => setTagline(e.target.value)}
               required
               maxLength={500}
-              className="mt-1 block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="mt-1 px-4 py-3"
               placeholder="A brief description of your project"
             />
             <p className="mt-1 text-xs text-gray-500">
@@ -192,25 +277,6 @@ export function ShowcaseSubmitForm() {
             />
           </div>
 
-          {/* Project URL */}
-          <div>
-            <label
-              htmlFor="url"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              Project URL *
-            </label>
-            <input
-              type="url"
-              id="url"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              required
-              className="mt-1 block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="https://your-project.com"
-            />
-          </div>
-
           {/* Screenshot */}
           <ImageUpload
             value={screenshotUrl}
@@ -230,8 +296,50 @@ export function ShowcaseSubmitForm() {
             aspectRatio="square"
           />
 
+          {/* Open Source */}
+          <div className="space-y-3">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isOpenSource}
+                onChange={(e) => {
+                  setIsOpenSource(e.target.checked)
+                  if (!e.target.checked) setSourceUrl('')
+                }}
+                className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500"
+              />
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                This project is open source
+              </span>
+            </label>
+
+            {isOpenSource && (
+              <div>
+                <label
+                  htmlFor="sourceUrl"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  Source Code URL *
+                </label>
+                <FormInput
+                  type="url"
+                  id="sourceUrl"
+                  value={sourceUrl}
+                  onChange={(e) => setSourceUrl(e.target.value)}
+                  required
+                  className="mt-1 px-4 py-3"
+                  placeholder="https://github.com/username/repo"
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  Link to GitHub, GitLab, or other repository
+                </p>
+              </div>
+            )}
+          </div>
+
           {/* Libraries */}
           <div>
+            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
               TanStack Libraries Used *
             </label>
@@ -277,11 +385,12 @@ export function ShowcaseSubmitForm() {
 
           {/* Use Cases */}
           <div>
+            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
               Use Cases
             </label>
             <div className="flex flex-wrap gap-2">
-              {SHOWCASE_USE_CASES.map((useCase) => {
+              {SHOWCASE_USE_CASES_UI.map((useCase) => {
                 const isSelected = selectedUseCases.includes(useCase)
 
                 return (
@@ -306,17 +415,30 @@ export function ShowcaseSubmitForm() {
           </div>
 
           {/* Submit Button */}
-          <div className="pt-4">
+          <div className="pt-4 flex gap-3">
+            {isEditMode && (
+              <Button
+                type="button"
+                onClick={() => navigate({ to: '/account/submissions' })}
+                className="flex-1 justify-center px-6 py-3 font-medium rounded-lg"
+              >
+                Cancel
+              </Button>
+            )}
             <Button
               type="submit"
               disabled={
-                submitMutation.isPending ||
-                selectedLibraries.length === 0 ||
-                !screenshotUrl
+                isPending || selectedLibraries.length === 0 || !screenshotUrl
               }
-              className="w-full justify-center px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-lg border-none"
+              className={`${isEditMode ? 'flex-1' : 'w-full'} justify-center px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-lg border-none`}
             >
-              {submitMutation.isPending ? 'Submitting...' : 'Submit for Review'}
+              {isPending
+                ? isEditMode
+                  ? 'Saving...'
+                  : 'Submitting...'
+                : isEditMode
+                  ? 'Save Changes'
+                  : 'Submit for Review'}
             </Button>
           </div>
         </form>

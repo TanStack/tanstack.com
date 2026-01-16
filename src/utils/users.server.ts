@@ -1,12 +1,19 @@
 import { createServerFn } from '@tanstack/react-start'
 import { db } from '~/db/client'
 import { users } from '~/db/schema'
-import { eq, and, or, ilike, sql } from 'drizzle-orm'
+import { eq, and, or, ilike, sql, asc, desc } from 'drizzle-orm'
+import type { InferSelectModel } from 'drizzle-orm'
 import { getAuthenticatedUser } from './auth.server-helpers'
 import { getBulkEffectiveCapabilities } from './capabilities.server'
 import { recordAuditLog } from './audit.server'
-import { z } from 'zod'
-import type { Capability } from '~/db/schema'
+import * as v from 'valibot'
+import { VALID_CAPABILITIES, type Capability } from '~/db/types'
+
+type UserRecord = InferSelectModel<typeof users>
+
+const capabilityPicklist = v.picklist(
+  VALID_CAPABILITIES as unknown as [Capability, ...Capability[]],
+)
 
 // Helper function to validate user capability
 // Optimized: getEffectiveCapabilities is already called in getAuthenticatedUser,
@@ -33,24 +40,27 @@ const requireCapability = createServerFn({ method: 'POST' })
 // Server function wrapper for listUsers
 export const listUsers = createServerFn({ method: 'POST' })
   .inputValidator(
-    z
-      .object({
-        pagination: z.object({
-          limit: z.number(),
-          page: z.number().optional(),
+    v.pipe(
+      v.object({
+        pagination: v.object({
+          limit: v.number(),
+          page: v.optional(v.number()),
         }),
-        emailFilter: z.string().optional(),
-        nameFilter: z.string().optional(),
-        capabilityFilter: z.array(z.string()).optional(),
-        noCapabilitiesFilter: z.boolean().optional(),
-        adsDisabledFilter: z.boolean().optional(),
-        interestedInHidingAdsFilter: z.boolean().optional(),
-        useEffectiveCapabilities: z.boolean().optional().default(true),
-      })
-      .transform((data) => ({
+        emailFilter: v.optional(v.string()),
+        nameFilter: v.optional(v.string()),
+        capabilityFilter: v.optional(v.array(v.string())),
+        noCapabilitiesFilter: v.optional(v.boolean()),
+        adsDisabledFilter: v.optional(v.boolean()),
+        interestedInHidingAdsFilter: v.optional(v.boolean()),
+        useEffectiveCapabilities: v.optional(v.boolean(), true),
+        sortBy: v.optional(v.string()),
+        sortDir: v.optional(v.picklist(['asc', 'desc'])),
+      }),
+      v.transform((data) => ({
         ...data,
         capabilityFilter: data.capabilityFilter as Capability[] | undefined,
       })),
+    ),
   )
   .handler(async ({ data }) => {
     if (!data || !data.pagination) {
@@ -97,15 +107,11 @@ export const listUsers = createServerFn({ method: 'POST' })
       data.capabilityFilter.length > 0 &&
       !useEffectiveCapabilities
     ) {
-      // Use PostgreSQL array overlap operator (&&)
-      // Check if user's capabilities array overlaps with filter array
-      // Format: ARRAY['admin', 'feed']::capability[]
-      const filterArrayValues = data.capabilityFilter
-        .map((c) => `'${c}'`)
-        .join(',')
+      // Use PostgreSQL array overlap operator (&&) with parameterized values
       conditions.push(
-        sql`${users.capabilities} && ARRAY[${sql.raw(
-          filterArrayValues,
+        sql`${users.capabilities} && ARRAY[${sql.join(
+          data.capabilityFilter.map((c) => sql`${c}`),
+          sql`, `,
         )}]::capability[]`,
       )
     }
@@ -125,12 +131,28 @@ export const listUsers = createServerFn({ method: 'POST' })
     // Get filtered users with proper SQL pagination
     const whereClause = conditions.length > 0 ? and(...conditions) : undefined
 
+    // Build order by clause
+    const getOrderByClause = () => {
+      const dir = data.sortDir === 'asc' ? asc : desc
+      switch (data.sortBy) {
+        case 'email':
+          return dir(users.email)
+        case 'user':
+          return dir(users.name)
+        case 'createdAt':
+          return dir(users.createdAt)
+        default:
+          return desc(users.createdAt)
+      }
+    }
+    const orderByClause = getOrderByClause()
+
     const queryStartTime = Date.now()
 
     // If filtering by effective capabilities, we need to fetch all matching users first,
     // then filter by effective capabilities in memory, then paginate
-    let allMatchingUsers: any[] = []
-    let filteredUsers: any[] = []
+    let allMatchingUsers: UserRecord[] = []
+    let filteredUsers: UserRecord[] = []
 
     if (
       useEffectiveCapabilities &&
@@ -141,7 +163,7 @@ export const listUsers = createServerFn({ method: 'POST' })
         .select()
         .from(users)
         .where(whereClause)
-        .orderBy(sql`${users.createdAt} DESC`)
+        .orderBy(orderByClause)
 
       // Get effective capabilities for all matching users
       const userIds = allMatchingUsers.map((u) => u.id)
@@ -201,7 +223,7 @@ export const listUsers = createServerFn({ method: 'POST' })
       }
 
       // Transform to match expected format
-      const transformedPage = page.map((user: any) => ({
+      const transformedPage = page.map((user) => ({
         _id: user.id,
         userId: user.id,
         email: user.email,
@@ -244,7 +266,7 @@ export const listUsers = createServerFn({ method: 'POST' })
         .select()
         .from(users)
         .where(whereClause)
-        .orderBy(sql`${users.createdAt} DESC`)
+        .orderBy(orderByClause)
         .limit(limit)
         .offset(offset)
 
@@ -273,7 +295,7 @@ export const listUsers = createServerFn({ method: 'POST' })
       }
 
       // Transform to match expected format
-      const transformedPage = page.map((user: any) => ({
+      const transformedPage = page.map((user) => ({
         _id: user.id,
         userId: user.id,
         email: user.email,
@@ -299,9 +321,41 @@ export const listUsers = createServerFn({ method: 'POST' })
     }
   })
 
+// Get a single user by ID (admin only)
+export const getUser = createServerFn({ method: 'POST' })
+  .inputValidator(v.object({ userId: v.pipe(v.string(), v.uuid()) }))
+  .handler(async ({ data }) => {
+    await requireCapability({ data: { capability: 'admin' } })
+
+    const user = await db.query.users.findFirst({
+      where: eq(users.id, data.userId),
+    })
+
+    if (!user) {
+      return null
+    }
+
+    return {
+      _id: user.id,
+      userId: user.id,
+      email: user.email,
+      name: user.name,
+      image: user.image,
+      oauthImage: user.oauthImage,
+      displayUsername: user.displayUsername,
+      capabilities: user.capabilities,
+      adsDisabled: user.adsDisabled,
+      interestedInHidingAds: user.interestedInHidingAds,
+      lastUsedFramework: user.lastUsedFramework,
+      sessionVersion: user.sessionVersion,
+      createdAt: user.createdAt.getTime(),
+      updatedAt: user.updatedAt.getTime(),
+    }
+  })
+
 // Server function wrapper for updateAdPreference
 export const updateAdPreference = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({ adsDisabled: z.boolean() }))
+  .inputValidator(v.object({ adsDisabled: v.boolean() }))
   .handler(async ({ data }) => {
     const user = await getAuthenticatedUser()
 
@@ -318,7 +372,7 @@ export const updateAdPreference = createServerFn({ method: 'POST' })
 
 // Server function wrapper for setInterestedInHidingAds
 export const setInterestedInHidingAds = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({ interested: z.boolean() }))
+  .inputValidator(v.object({ interested: v.boolean() }))
   .handler(async ({ data }) => {
     const user = await getAuthenticatedUser()
 
@@ -344,7 +398,11 @@ export const setInterestedInHidingAds = createServerFn({ method: 'POST' })
 
 // Server function to update user's last used framework preference
 export const updateLastUsedFramework = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({ framework: z.string().min(1).max(50) }))
+  .inputValidator(
+    v.object({
+      framework: v.pipe(v.string(), v.minLength(1), v.maxLength(50)),
+    }),
+  )
   .handler(async ({ data }) => {
     const user = await getAuthenticatedUser()
 
@@ -362,9 +420,9 @@ export const updateLastUsedFramework = createServerFn({ method: 'POST' })
 // Server function wrapper for updateUserCapabilities (admin only)
 export const updateUserCapabilities = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      userId: z.string().uuid(),
-      capabilities: z.array(z.enum(['admin', 'disableAds', 'builder', 'feed'])),
+    v.object({
+      userId: v.pipe(v.string(), v.uuid()),
+      capabilities: v.array(capabilityPicklist),
     }),
   )
   .handler(async ({ data }) => {
@@ -408,9 +466,9 @@ export const updateUserCapabilities = createServerFn({ method: 'POST' })
 // Server function wrapper for adminSetAdsDisabled (admin only)
 export const adminSetAdsDisabled = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      userId: z.string().uuid(),
-      adsDisabled: z.boolean(),
+    v.object({
+      userId: v.pipe(v.string(), v.uuid()),
+      adsDisabled: v.boolean(),
     }),
   )
   .handler(async ({ data }) => {
@@ -453,9 +511,9 @@ export const adminSetAdsDisabled = createServerFn({ method: 'POST' })
 // Server function wrapper for bulkUpdateUserCapabilities (admin only)
 export const bulkUpdateUserCapabilities = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      userIds: z.array(z.string().uuid()),
-      capabilities: z.array(z.enum(['admin', 'disableAds', 'builder', 'feed'])),
+    v.object({
+      userIds: v.array(v.pipe(v.string(), v.uuid())),
+      capabilities: v.array(capabilityPicklist),
     }),
   )
   .handler(async ({ data }) => {
@@ -520,13 +578,22 @@ export const bulkUpdateUserCapabilities = createServerFn({ method: 'POST' })
 // This invalidates all signed cookies for the user
 export const revokeUserSessions = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      userId: z.string(),
+    v.object({
+      userId: v.pipe(v.string(), v.uuid()),
     }),
   )
   .handler(async ({ data: { userId } }) => {
-    // Get current user for audit log
+    // Get current user for audit log and authorization check
     const currentUser = await getAuthenticatedUser()
+
+    // Authorization: users can only revoke their own sessions, unless they're admin
+    const isAdmin = currentUser.capabilities.includes('admin')
+    const isOwnSession = currentUser.userId === userId
+    if (!isAdmin && !isOwnSession) {
+      throw new Error(
+        'Unauthorized: You can only revoke your own sessions unless you are an admin',
+      )
+    }
 
     const user = await db.query.users.findFirst({
       where: eq(users.id, userId),

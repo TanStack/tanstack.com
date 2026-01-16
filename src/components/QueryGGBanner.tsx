@@ -52,7 +52,7 @@ export function QueryGGBanner() {
             {body}
             <a
               href="https://query.gg?s=tanstack"
-              className="mt-4 mb-1 xl:mb-2 px-6 py-2 inline-block bg-[#fcba28] text-[#231f20] rounded-full uppercase border border-black cursor-pointer font-black"
+              className="mt-4 mb-1 xl:mb-2 px-6 py-2 inline-block bg-[#fcba28] text-[#231f20] rounded-full border border-black cursor-pointer font-black"
             >
               {ppp?.discount ? `Get ${ppp.discount * 100}% off` : 'Join now'}
             </a>

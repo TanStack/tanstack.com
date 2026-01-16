@@ -1,12 +1,9 @@
 import * as React from 'react'
 import { LinkProps } from '@tanstack/react-router'
 import type { Library } from '~/libraries'
-import { useIsDark } from '~/hooks/useIsDark'
 import { ChatPanel } from './ChatPanel'
-import {
-  useAILibraryHeroAnimationStore,
-  AnimationPhase,
-} from '~/stores/aiLibraryHeroAnimation'
+import { AnimationPhase } from '~/stores/aiLibraryHeroAnimation'
+import { useAILibraryHeroAnimation } from '~/hooks/useAILibraryHeroAnimation'
 import { AILibraryHeroCard } from './AILibraryHeroCard'
 import { AILibraryHeroBox } from './AILibraryHeroBox'
 import { AILibraryHeroServiceCard } from './AILibraryHeroServiceCard'
@@ -30,7 +27,6 @@ import {
   BOX_FONT_SIZE,
   BOX_FONT_WEIGHT,
   SERVICE_WIDTH,
-  SERVICE_GUTTER,
   SERVICE_LOCATIONS,
   SERVICE_Y_OFFSET,
   SERVICE_Y_CENTER,
@@ -44,9 +40,6 @@ import {
   SERVER_CARD_HEIGHT,
 } from '~/stores/aiLibraryHeroAnimation'
 
-// Get the store instance for accessing getState in closures
-const getStoreState = () => useAILibraryHeroAnimationStore.getState()
-
 type AILibraryHeroProps = {
   project: Library
   cta?: {
@@ -57,47 +50,15 @@ type AILibraryHeroProps = {
   actions?: React.ReactNode
 }
 
-const FRAMEWORKS = ['vanilla', 'react', 'solid', '?'] as const
-const SERVICES = ['ollama', 'openai', 'anthropic', 'gemini'] as const
-const SERVERS = ['typescript', 'php', 'python', '?'] as const
-
-const MESSAGES = [
-  {
-    user: 'What makes TanStack AI different?',
-    assistant:
-      'TanStack AI is completely agnostic - server agnostic, client agnostic, and service agnostic. Use any backend (TypeScript, PHP, Python), any client (vanilla JS, React, Solid), and any AI service (OpenAI, Anthropic, Gemini, Ollama). We provide the libraries and standards, you choose your stack.',
-  },
-  {
-    user: 'Do you support tools?',
-    assistant:
-      'Yes! We have full support for both client and server tooling, including tool approvals. You can execute tools on either side with complete type safety and control.',
-  },
-  {
-    user: 'What about thinking models?',
-    assistant:
-      "We fully support thinking and reasoning models. All thinking and reasoning tokens are sent to the client, giving you complete visibility into the model's reasoning process.",
-  },
-  {
-    user: 'How type-safe is it?',
-    assistant:
-      'We have total type safety across providers, models, and model options. Every interaction is fully typed from end to end, catching errors at compile time.',
-  },
-  {
-    user: 'What about developer experience?',
-    assistant:
-      'We have next-generation dev tools that show you everything happening with your AI connection in real-time. Debug, inspect, and optimize with complete visibility.',
-  },
-  {
-    user: 'Is this a service I have to pay for?',
-    assistant:
-      "No! TanStack AI is pure open source software. We don't have a service to promote or charge for. This is an ecosystem of libraries and standards connecting you with the services you choose - completely community supported.",
-  },
-]
+const HIGHLIGHT_COLOR = 'rgba(255, 255, 240, 0.95)'
 
 export function AILibraryHero({}: AILibraryHeroProps) {
-  const isDark = useIsDark()
-  const strokeColor = isDark ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.6)'
-  const textColor = isDark ? '#ffffff' : '#000000'
+  const strokeColor = 'var(--hero-stroke)'
+  const textColor = 'var(--hero-text)'
+  const glassGradientStart = 'var(--hero-glass-start)'
+  const glassGradientEnd = 'var(--hero-glass-end)'
+  // Use the animation hook - handles all animation state and orchestration
+  const { store } = useAILibraryHeroAnimation()
 
   const {
     phase,
@@ -111,258 +72,7 @@ export function AILibraryHero({}: AILibraryHeroProps) {
     messages,
     typingUserMessage,
     connectionPulseDirection,
-    setPhase,
-    setSelectedFramework,
-    setSelectedService,
-    setSelectedServer,
-    setRotatingFramework,
-    setRotatingServer,
-    setRotatingService,
-    setServiceOffset,
-    addMessage,
-    updateCurrentAssistantMessage,
-    setCurrentMessageStreaming,
-    clearMessages,
-    setTypingUserMessage,
-    clearTypingUserMessage,
-    setConnectionPulseDirection,
-    addTimeout,
-    clearTimeouts,
-  } = useAILibraryHeroAnimationStore()
-
-  React.useEffect(() => {
-    const addTimeoutHelper = (fn: () => void, delay: number) => {
-      const timeout = setTimeout(fn, delay)
-      addTimeout(timeout)
-      return timeout
-    }
-
-    const getRandomIndex = (length: number, exclude?: number) => {
-      let index
-      do {
-        index = Math.floor(Math.random() * length)
-      } while (exclude !== undefined && index === exclude)
-      return index
-    }
-
-    const selectFrameworkServiceServer = (onComplete: () => void) => {
-      // Phase 2: DESELECTING
-      setPhase(AnimationPhase.DESELECTING)
-      addTimeoutHelper(() => {
-        // Phase 3: SELECTING_FRAMEWORK
-        setPhase(AnimationPhase.SELECTING_FRAMEWORK)
-        const targetFramework = getRandomIndex(FRAMEWORKS.length)
-        let currentIndex = Math.floor(Math.random() * FRAMEWORKS.length)
-        const rotationCount = 8 + Math.floor(Math.random() * 4) // 8-11 rotations
-
-        const rotateFramework = (iteration: number) => {
-          if (iteration < rotationCount - 1) {
-            setRotatingFramework(currentIndex)
-            currentIndex = (currentIndex + 1) % FRAMEWORKS.length
-            const delay =
-              iteration < rotationCount - 4
-                ? 100
-                : 150 + (iteration - (rotationCount - 4)) * 50
-            addTimeoutHelper(() => rotateFramework(iteration + 1), delay)
-          } else {
-            // Final iteration - ensure we land on target
-            setRotatingFramework(targetFramework)
-            addTimeoutHelper(() => {
-              setSelectedFramework(targetFramework)
-              setRotatingFramework(null)
-              addTimeoutHelper(() => {
-                // Phase 4: SELECTING_SERVICE
-                setPhase(AnimationPhase.SELECTING_SERVICE)
-                // Always pick a different service so it has to scroll
-                const currentSelectedService = getStoreState().selectedService
-                const targetService = getRandomIndex(
-                  SERVICES.length,
-                  currentSelectedService ?? undefined,
-                )
-                let currentServiceIndex = Math.floor(
-                  Math.random() * SERVICES.length,
-                )
-                const serviceRotationCount = 6 + Math.floor(Math.random() * 3)
-
-                const rotateService = (iteration: number) => {
-                  if (iteration < serviceRotationCount - 1) {
-                    setRotatingService(currentServiceIndex)
-                    currentServiceIndex =
-                      (currentServiceIndex + 1) % SERVICES.length
-                    const delay =
-                      iteration < serviceRotationCount - 3
-                        ? 120
-                        : 180 + (iteration - (serviceRotationCount - 3)) * 60
-                    addTimeoutHelper(() => rotateService(iteration + 1), delay)
-                  } else {
-                    // Final iteration - ensure we land on target
-                    setRotatingService(targetService)
-                    addTimeoutHelper(() => {
-                      setSelectedService(targetService)
-                      setRotatingService(null)
-                      const targetX =
-                        0 -
-                        SERVICE_WIDTH / 2 -
-                        SERVICE_GUTTER / 2 -
-                        targetService * (SERVICE_WIDTH + SERVICE_GUTTER)
-                      setServiceOffset(targetX)
-
-                      addTimeoutHelper(() => {
-                        // Phase 5: SELECTING_SERVER
-                        setPhase(AnimationPhase.SELECTING_SERVER)
-                        const targetServer = getRandomIndex(SERVERS.length)
-                        let currentServerIndex = Math.floor(
-                          Math.random() * SERVERS.length,
-                        )
-                        const serverRotationCount =
-                          8 + Math.floor(Math.random() * 4)
-
-                        const rotateServer = (iteration: number) => {
-                          if (iteration < serverRotationCount - 1) {
-                            setRotatingServer(currentServerIndex)
-                            currentServerIndex =
-                              (currentServerIndex + 1) % SERVERS.length
-                            const delay =
-                              iteration < serverRotationCount - 4
-                                ? 100
-                                : 150 +
-                                  (iteration - (serverRotationCount - 4)) * 50
-                            addTimeoutHelper(
-                              () => rotateServer(iteration + 1),
-                              delay,
-                            )
-                          } else {
-                            // Final iteration - ensure we land on target
-                            setRotatingServer(targetServer)
-                            addTimeoutHelper(() => {
-                              setSelectedServer(targetServer)
-                              setRotatingServer(null)
-                              addTimeoutHelper(() => {
-                                // Selection complete, call callback
-                                onComplete()
-                              }, 800)
-                            }, 1000)
-                          }
-                        }
-                        rotateServer(0)
-                      }, 1000)
-                    }, 800)
-                  }
-                }
-                rotateService(0)
-              }, 800)
-            }, 500)
-          }
-        }
-        rotateFramework(0)
-      }, 500)
-    }
-
-    const processNextMessage = (messageIndex: number) => {
-      if (messageIndex >= MESSAGES.length) {
-        // All messages shown, clear and restart
-        clearMessages()
-        addTimeoutHelper(() => {
-          // Phase 1: STARTING (initial state)
-          setPhase(AnimationPhase.STARTING)
-          addTimeoutHelper(() => {
-            // Start first message with selection
-            selectFrameworkServiceServer(() => {
-              processNextMessage(0)
-            })
-          }, 1000)
-        }, 1000)
-        return
-      }
-
-      const message = MESSAGES[messageIndex]
-
-      // Phase 6: SHOWING_CHAT - Type user message in input field first
-      setPhase(AnimationPhase.SHOWING_CHAT)
-      clearTypingUserMessage()
-
-      // Type the user message character by character in the input field
-      let typingIndex = 0
-      const typeUserMessage = () => {
-        if (typingIndex < message.user.length) {
-          setTypingUserMessage(message.user.slice(0, typingIndex + 1))
-          typingIndex++
-          const delay = 30 + Math.floor(Math.random() * 40) // 30-70ms per character
-          addTimeoutHelper(typeUserMessage, delay)
-        } else {
-          // Typing complete, wait a moment then clear input and show as bubble
-          addTimeoutHelper(() => {
-            clearTypingUserMessage()
-            addMessage(message.user)
-            addTimeoutHelper(() => {
-              // Phase 7: PULSING_CONNECTIONS
-              setPhase(AnimationPhase.PULSING_CONNECTIONS)
-              setConnectionPulseDirection('down')
-              addTimeoutHelper(() => {
-                // Phase 8: STREAMING_RESPONSE
-                setPhase(AnimationPhase.STREAMING_RESPONSE)
-                setConnectionPulseDirection('up')
-                const fullMessage = message.assistant
-                setCurrentMessageStreaming(true)
-                let currentIndex = 0
-
-                const streamChunk = () => {
-                  if (currentIndex < fullMessage.length) {
-                    // Random chunk size between 2 and 8 characters
-                    const chunkSize = 2 + Math.floor(Math.random() * 7)
-                    const nextIndex = Math.min(
-                      currentIndex + chunkSize,
-                      fullMessage.length,
-                    )
-                    updateCurrentAssistantMessage(
-                      fullMessage.slice(0, nextIndex),
-                    )
-                    currentIndex = nextIndex
-                    // Random delay between 20ms and 80ms
-                    const delay = 20 + Math.floor(Math.random() * 60)
-                    addTimeoutHelper(streamChunk, delay)
-                  } else {
-                    setCurrentMessageStreaming(false)
-                    addTimeoutHelper(() => {
-                      // Phase 9: HOLDING - brief pause before next message
-                      setPhase(AnimationPhase.HOLDING)
-                      addTimeoutHelper(() => {
-                        // Select new combination for next message
-                        selectFrameworkServiceServer(() => {
-                          // Move to next message
-                          processNextMessage(messageIndex + 1)
-                        })
-                      }, 2000)
-                    }, 500)
-                  }
-                }
-                streamChunk()
-              }, 2000)
-            }, 500)
-          }, 300)
-        }
-      }
-      typeUserMessage()
-    }
-
-    const startAnimationSequence = () => {
-      // Phase 1: STARTING (initial state)
-      setPhase(AnimationPhase.STARTING)
-      addTimeoutHelper(() => {
-        // Start first message with selection
-        selectFrameworkServiceServer(() => {
-          processNextMessage(0)
-        })
-      }, 1000)
-    }
-
-    startAnimationSequence()
-
-    return () => {
-      clearTimeouts()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  } = store
 
   const getOpacity = (
     index: number,
@@ -436,8 +146,7 @@ export function AILibraryHero({}: AILibraryHeroProps) {
     // Active path: selected framework -> client -> ai -> selected server
     // Only return off-white if we're in a highlighting phase AND this is the active path
     if (isFrameworkSelected && isServerSelected) {
-      // Off-white color when active
-      return isDark ? 'rgba(255, 255, 240, 0.95)' : 'rgba(255, 255, 240, 0.95)'
+      return HIGHLIGHT_COLOR
     }
 
     // Not the active path, return original color
@@ -471,6 +180,18 @@ export function AILibraryHero({}: AILibraryHeroProps) {
       <style
         dangerouslySetInnerHTML={{
           __html: `
+            :root {
+              --hero-stroke: rgba(0, 0, 0, 0.6);
+              --hero-text: #000000;
+              --hero-glass-start: rgba(255, 255, 255, 0.8);
+              --hero-glass-end: rgba(255, 255, 255, 0.6);
+            }
+            :root.dark {
+              --hero-stroke: rgba(255, 255, 255, 0.8);
+              --hero-text: #ffffff;
+              --hero-glass-start: rgba(255, 255, 255, 0.55);
+              --hero-glass-end: rgba(255, 255, 255, 0.55);
+            }
             @keyframes pulse-down {
               0% {
                 opacity: 0.6;
@@ -512,12 +233,12 @@ export function AILibraryHero({}: AILibraryHeroProps) {
       />
       <div className="relative flex flex-col items-center gap-8 text-center px-4 overflow-visible">
         {/* Diagram and Chat Panel Container */}
-        <div
-          className="relative z-10 w-full max-w-7xl mx-auto flex flex-row flex-wrap gap-8 lg:gap-12"
-          style={{ height: SVG_HEIGHT }}
-        >
+        <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center lg:items-stretch gap-8 lg:gap-12">
           {/* SVG Diagram */}
-          <div className="relative w-full lg:flex-1 overflow-visible h-full">
+          <div
+            className="relative w-full lg:flex-1 overflow-visible"
+            style={{ height: SVG_HEIGHT }}
+          >
             <svg
               key={`${phase}-${selectedFramework}-${selectedServer}`}
               xmlns="http://www.w3.org/2000/svg"
@@ -576,20 +297,12 @@ export function AILibraryHero({}: AILibraryHeroProps) {
                 >
                   <stop
                     offset="0%"
-                    stopColor={
-                      isDark
-                        ? 'rgba(255, 255, 255, 0.55)'
-                        : 'rgba(255, 255, 255, 0.8)'
-                    }
+                    stopColor={glassGradientStart}
                     stopOpacity="1"
                   />
                   <stop
                     offset="100%"
-                    stopColor={
-                      isDark
-                        ? 'rgba(255, 255, 255, 0.55)'
-                        : 'rgba(255, 255, 255, 0.6)'
-                    }
+                    stopColor={glassGradientEnd}
                     stopOpacity="1"
                   />
                 </linearGradient>
@@ -604,20 +317,12 @@ export function AILibraryHero({}: AILibraryHeroProps) {
                 >
                   <stop
                     offset="0%"
-                    stopColor={
-                      isDark
-                        ? 'rgba(255, 255, 255, 0.55)'
-                        : 'rgba(255, 255, 255, 0.75)'
-                    }
+                    stopColor={glassGradientStart}
                     stopOpacity="1"
                   />
                   <stop
                     offset="100%"
-                    stopColor={
-                      isDark
-                        ? 'rgba(255, 255, 255, 0.55)'
-                        : 'rgba(255, 255, 255, 0.55)'
-                    }
+                    stopColor={glassGradientEnd}
                     stopOpacity="1"
                   />
                 </linearGradient>
@@ -904,9 +609,7 @@ export function AILibraryHero({}: AILibraryHeroProps) {
                       phase === AnimationPhase.SHOWING_CHAT ||
                         phase === AnimationPhase.PULSING_CONNECTIONS ||
                         phase === AnimationPhase.STREAMING_RESPONSE
-                      ? isDark
-                        ? 'rgba(255, 255, 240, 0.95)'
-                        : 'rgba(255, 255, 240, 0.95)'
+                      ? HIGHLIGHT_COLOR
                       : strokeColor
                 }
                 strokeWidth={
@@ -1117,7 +820,10 @@ export function AILibraryHero({}: AILibraryHeroProps) {
           </div>
 
           {/* Chat Panel */}
-          <div className="w-full md:w-[400px] flex-shrink-0 h-full">
+          <div
+            className="w-full max-w-[400px] lg:w-[400px] flex-shrink-0"
+            style={{ height: SVG_HEIGHT }}
+          >
             <ChatPanel
               messages={messages}
               typingUserMessage={typingUserMessage}

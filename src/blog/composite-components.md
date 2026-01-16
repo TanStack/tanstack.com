@@ -1,6 +1,7 @@
 ---
 title: 'Composite Components: Server Components with Client-Led Composition'
-published: 2025-01-15
+published: 2026-01-15
+draft: true
 authors:
   - Manuel Schiller
   - Tanner Linsley

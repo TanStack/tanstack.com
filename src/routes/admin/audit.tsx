@@ -1,9 +1,8 @@
-import { Link, createFileRoute } from '@tanstack/react-router'
+import { Link, redirect, createFileRoute } from '@tanstack/react-router'
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { PaginationControls } from '~/components/PaginationControls'
-import { Spinner } from '~/components/Spinner'
-import { FilterBar, FilterSearch } from '~/components/FilterComponents'
+import { AuditTopBarFilters } from '~/components/AuditTopBarFilters'
 import {
   Table,
   TableHeader,
@@ -19,11 +18,19 @@ import {
   flexRender,
   type ColumnDef,
 } from '@tanstack/react-table'
-import { z } from 'zod'
-import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
+import * as v from 'valibot'
 import { listAuditLogs } from '~/utils/audit.functions'
-import { Lock, Shield, User, ChevronDown, ChevronUp } from 'lucide-react'
-import { Card } from '~/components/Card'
+import { Shield, ChevronDown, ChevronUp } from 'lucide-react'
+import {
+  AdminAccessDenied,
+  AdminLoading,
+  AdminPageHeader,
+  AdminEmptyState,
+  UserAvatar,
+  StatsCard,
+} from '~/components/admin'
+import { useAdminGuard } from '~/hooks/useAdminGuard'
+import { requireCapability } from '~/utils/auth.server'
 
 type AuditLogEntry = {
   id: string
@@ -80,14 +87,26 @@ const ACTION_COLORS: Record<string, string> = {
 }
 
 export const Route = createFileRoute('/admin/audit')({
+  beforeLoad: async () => {
+    try {
+      const user = await requireCapability({ data: { capability: 'admin' } })
+      return { user }
+    } catch {
+      throw redirect({ to: '/login' })
+    }
+  },
   component: AuditPage,
-  validateSearch: z.object({
-    actorId: z.string().optional(),
-    action: z.string().optional(),
-    targetType: z.string().optional(),
-    page: z.number().int().nonnegative().optional(),
-    pageSize: z.number().int().positive().optional(),
-  }),
+  validateSearch: (search) =>
+    v.parse(
+      v.object({
+        actorId: v.optional(v.string()),
+        action: v.optional(v.string()),
+        targetType: v.optional(v.string()),
+        page: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0))),
+        pageSize: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
+      }),
+      search,
+    ),
 })
 
 function DetailsCell({ details }: { details: string | null }) {
@@ -109,7 +128,7 @@ function DetailsCell({ details }: { details: string | null }) {
   }
 
   const formatted = JSON.stringify(parsed, null, 2)
-  const isLong = formatted.length > 100
+  const _isLong = formatted.length > 100
 
   return (
     <div className="max-w-xs">
@@ -134,6 +153,7 @@ function DetailsCell({ details }: { details: string | null }) {
 }
 
 function AuditPage() {
+  const guard = useAdminGuard()
   const navigate = Route.useNavigate()
   const search = Route.useSearch()
   const actorIdFilter = search.actorId ?? ''
@@ -142,9 +162,6 @@ function AuditPage() {
 
   const currentPageIndex = search.page ?? 0
   const pageSize = search.pageSize ?? 25
-
-  const userQuery = useCurrentUserQuery()
-  const user = userQuery.data
 
   const auditQuery = useQuery({
     queryKey: [
@@ -171,9 +188,10 @@ function AuditPage() {
         },
       }),
     placeholderData: keepPreviousData,
+    staleTime: 0,
   })
 
-  const hasActiveFilters =
+  const _hasActiveFilters =
     actorIdFilter !== '' || actionFilter !== '' || targetTypeFilter !== ''
 
   const handleClearFilters = () => {
@@ -196,19 +214,7 @@ function AuditPage() {
           const displayName = entry.actorName || entry.actorEmail || 'Unknown'
           return (
             <div className="flex items-center gap-3">
-              <div className="flex-shrink-0 h-8 w-8">
-                {entry.actorImage ? (
-                  <img
-                    className="h-8 w-8 rounded-full"
-                    src={entry.actorImage}
-                    alt=""
-                  />
-                ) : (
-                  <div className="h-8 w-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
-                    <User className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                  </div>
-                )}
-              </div>
+              <UserAvatar image={entry.actorImage} name={entry.actorName} />
               <div>
                 <div className="text-sm font-medium text-gray-900 dark:text-white">
                   {displayName}
@@ -246,6 +252,44 @@ function AuditPage() {
         header: 'Target',
         cell: ({ row }) => {
           const entry = row.original
+
+          // Determine if we can link to a detail page
+          const getTargetLink = () => {
+            switch (entry.targetType) {
+              case 'user':
+                return {
+                  to: '/admin/users/$userId',
+                  params: { userId: entry.targetId },
+                }
+              case 'role':
+                return {
+                  to: '/admin/roles/$roleId',
+                  params: { roleId: entry.targetId },
+                }
+              case 'banner':
+                return {
+                  to: '/admin/banners/$id',
+                  params: { id: entry.targetId },
+                }
+              case 'feed_entry':
+                return { to: '/admin/feed/$id', params: { id: entry.targetId } }
+              case 'showcase':
+                return {
+                  to: '/admin/showcases_/$id',
+                  params: { id: entry.targetId },
+                }
+              case 'feedback':
+                return {
+                  to: '/admin/feedback_/$id',
+                  params: { id: entry.targetId },
+                }
+              default:
+                return null
+            }
+          }
+
+          const linkProps = getTargetLink()
+
           // If target is a user and we have their info, show it
           if (
             entry.targetType === 'user' &&
@@ -253,21 +297,13 @@ function AuditPage() {
           ) {
             const displayName =
               entry.targetUserName || entry.targetUserEmail || 'Unknown'
-            return (
+            const content = (
               <div className="flex items-center gap-2">
-                <div className="flex-shrink-0 h-6 w-6">
-                  {entry.targetUserImage ? (
-                    <img
-                      className="h-6 w-6 rounded-full"
-                      src={entry.targetUserImage}
-                      alt=""
-                    />
-                  ) : (
-                    <div className="h-6 w-6 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
-                      <User className="w-3 h-3 text-gray-500 dark:text-gray-400" />
-                    </div>
-                  )}
-                </div>
+                <UserAvatar
+                  image={entry.targetUserImage}
+                  name={entry.targetUserName}
+                  size="sm"
+                />
                 <div>
                   <div className="text-sm text-gray-900 dark:text-white">
                     {displayName}
@@ -278,17 +314,33 @@ function AuditPage() {
                 </div>
               </div>
             )
+            return linkProps ? (
+              <Link {...linkProps} className="hover:opacity-80">
+                {content}
+              </Link>
+            ) : (
+              content
+            )
           }
+
           // For non-user targets, show type and ID
-          return (
+          const content = (
             <div>
               <span className="text-sm text-gray-600 dark:text-gray-400 capitalize">
-                {entry.targetType}
+                {entry.targetType.replace('_', ' ')}
               </span>
               <div className="text-xs text-gray-500 dark:text-gray-400 font-mono">
                 {entry.targetId.substring(0, 8)}...
               </div>
             </div>
+          )
+
+          return linkProps ? (
+            <Link {...linkProps} className="hover:opacity-80 block">
+              {content}
+            </Link>
+          ) : (
+            content
           )
         },
       },
@@ -322,35 +374,12 @@ function AuditPage() {
     manualPagination: true,
   })
 
-  // Check auth
-  if (user === undefined) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div>Loading...</div>
-      </div>
-    )
+  // Auth guard
+  if (guard.status === 'loading') {
+    return <AdminLoading />
   }
-
-  const capabilities = user?.capabilities || []
-  const canAdmin = capabilities.includes('admin')
-  if (user && !canAdmin) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <Lock className="text-4xl text-red-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            You don't have permission to access the admin area.
-          </p>
-          <Link
-            to="/"
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
-          >
-            Back to Home
-          </Link>
-        </div>
-      </div>
-    )
+  if (guard.status === 'denied') {
+    return <AdminAccessDenied />
   }
 
   const canGoPrevious = currentPageIndex > 0
@@ -358,113 +387,42 @@ function AuditPage() {
 
   return (
     <div className="w-full p-4">
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Sidebar Filters */}
-        <aside className="lg:w-64 lg:flex-shrink-0">
-          <FilterBar
-            title="Filters"
-            onClearFilters={handleClearFilters}
-            hasActiveFilters={hasActiveFilters}
-          >
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
-                Actor ID
-              </label>
-              <FilterSearch
-                value={actorIdFilter}
-                onChange={(value) => {
-                  navigate({
-                    resetScroll: false,
-                    search: {
-                      ...search,
-                      actorId: value || undefined,
-                      page: 0,
-                    },
-                  })
-                }}
-                placeholder="Filter by actor ID"
-              />
-            </div>
+      <div className="flex flex-col gap-4">
+        <AdminPageHeader
+          icon={<Shield />}
+          title="Audit Logs"
+          isLoading={auditQuery.isFetching}
+        />
 
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
-                Action
-              </label>
-              <select
-                value={actionFilter}
-                onChange={(e) => {
-                  navigate({
-                    resetScroll: false,
-                    search: {
-                      ...search,
-                      action: e.target.value || undefined,
-                      page: 0,
-                    },
-                  })
-                }}
-                className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">All actions</option>
-                {Object.entries(ACTION_LABELS).map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
-                Target Type
-              </label>
-              <select
-                value={targetTypeFilter}
-                onChange={(e) => {
-                  navigate({
-                    resetScroll: false,
-                    search: {
-                      ...search,
-                      targetType: e.target.value || undefined,
-                      page: 0,
-                    },
-                  })
-                }}
-                className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">All types</option>
-                <option value="user">User</option>
-                <option value="role">Role</option>
-                <option value="banner">Banner</option>
-                <option value="feed_entry">Feed Entry</option>
-                <option value="feedback">Feedback</option>
-              </select>
-            </div>
-          </FilterBar>
-        </aside>
+        {/* Top Bar Filters */}
+        <AuditTopBarFilters
+          filters={{
+            actorId: actorIdFilter || undefined,
+            action: actionFilter || undefined,
+            targetType: targetTypeFilter || undefined,
+          }}
+          onFilterChange={(newFilters) => {
+            navigate({
+              resetScroll: false,
+              search: {
+                ...search,
+                ...newFilters,
+                page: 0,
+              },
+            })
+          }}
+          onClearFilters={handleClearFilters}
+        />
 
         {/* Main Content */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-3 mb-4">
-            <Shield className="text-2xl text-blue-500" />
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Audit Logs
-            </h1>
-            {auditQuery.isFetching && (
-              <Spinner className="text-gray-500 dark:text-gray-400" />
-            )}
-          </div>
-
           {/* Stats Cards */}
           {auditQuery.data && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <Card className="p-4">
-                <div className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  Total Records
-                </div>
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {auditQuery.data.counts.total.toLocaleString()}
-                </div>
-              </Card>
+              <StatsCard
+                label="Total Records"
+                value={auditQuery.data.counts.total}
+              />
             </div>
           )}
 
@@ -503,15 +461,11 @@ function AuditPage() {
           </Table>
 
           {(!auditQuery.data || auditQuery.data?.page.length === 0) && (
-            <div className="text-center py-12">
-              <Shield className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
-                No audit records found
-              </h3>
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Admin actions will be recorded here.
-              </p>
-            </div>
+            <AdminEmptyState
+              icon={<Shield className="w-12 h-12" />}
+              title="No audit records found"
+              description="Admin actions will be recorded here."
+            />
           )}
 
           {/* Pagination */}

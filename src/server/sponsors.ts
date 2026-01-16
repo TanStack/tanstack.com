@@ -36,13 +36,15 @@ export const getSponsorsForSponsorPack = createServerFn({
 
   // In recent @tanstack/react-start versions, getEvent is no longer exported.
   // Headers can be set unconditionally here; framework will merge appropriately.
-  setResponseHeaders({
-    'Cache-Control': 'public, max-age=0, must-revalidate',
-    'Netlify-CDN-Cache-Control':
-      'public, max-age=300, durable, stale-while-revalidate=300',
-  })
+  setResponseHeaders(
+    new Headers({
+      'Cache-Control': 'public, max-age=0, must-revalidate',
+      'Netlify-CDN-Cache-Control':
+        'public, max-age=300, durable, stale-while-revalidate=300',
+    }),
+  )
 
-  const amountExtent = extent(sponsors, (d) => d.amount).map((d) => d!)
+  const amountExtent = extent(sponsors, (d) => d.amount) as [number, number]
   const scale = scaleLinear().domain(amountExtent).range([0, 1])
 
   return sponsors
@@ -134,6 +136,32 @@ async function getGithubSponsors() {
         },
       )
 
+      type SponsorshipEdge = {
+        node: {
+          createdAt: string
+          sponsorEntity: {
+            name: string
+            login: string
+          } | null
+          tier: {
+            monthlyPriceInDollars: number
+          } | null
+          privacyLevel: string
+        }
+      }
+
+      type GraphQLResponse = {
+        viewer: {
+          sponsorshipsAsMaintainer: {
+            pageInfo: {
+              hasNextPage: boolean
+              endCursor: string
+            }
+            edges: Array<SponsorshipEdge>
+          }
+        }
+      }
+
       const {
         viewer: {
           sponsorshipsAsMaintainer: {
@@ -141,11 +169,10 @@ async function getGithubSponsors() {
             edges,
           },
         },
-      } = res as any
+      } = res as GraphQLResponse
 
-      sponsors = [
-        ...sponsors,
-        ...edges.map((edge: any) => {
+      const mapped = edges
+        .map((edge) => {
           const {
             node: { createdAt, sponsorEntity, tier, privacyLevel },
           } = edge
@@ -162,9 +189,13 @@ async function getGithubSponsors() {
             amount: tier?.monthlyPriceInDollars || 0,
             createdAt,
             private: privacyLevel === 'PRIVATE',
+            imageUrl: '',
+            linkUrl: '',
           }
-        }),
-      ]
+        })
+        .filter((d): d is Sponsor => d !== null)
+
+      sponsors = [...sponsors, ...mapped]
 
       if (hasNextPage) {
         await fetchPage(endCursor)
@@ -173,9 +204,10 @@ async function getGithubSponsors() {
 
     await fetchPage()
 
-    return sponsors.filter(Boolean)
-  } catch (err: any) {
-    if (err.status === 401) {
+    return sponsors
+  } catch (err) {
+    const error = err as { status?: number }
+    if (error.status === 401) {
       console.error('Missing github credentials, returning mock data.')
       return [
         'tannerlinsley',
@@ -186,7 +218,7 @@ async function getGithubSponsors() {
         'seancassiere',
         'schiller-manuel',
       ].flatMap((d) =>
-        new Array(20).fill(d).map((d, i2) => ({
+        new Array(20).fill(d).map((_, i2) => ({
           login: d,
           name: d,
           amount: (20 - i2) / 20 + Math.random(),
@@ -197,7 +229,7 @@ async function getGithubSponsors() {
         })),
       )
     }
-    if (err.status === 403) {
+    if (error.status === 403) {
       console.error('GitHub rate limit exceeded, returning empty sponsors.')
       return []
     }
@@ -208,7 +240,7 @@ async function getGithubSponsors() {
 async function getSponsorsMeta(): Promise<SponsorMeta[]> {
   try {
     return sponsorMetaData.filter((sponsor) => !sponsor.private)
-  } catch (err: any) {
+  } catch (err) {
     console.error('Error reading sponsor metadata from JSON file:', err)
     return []
   }

@@ -3,7 +3,7 @@
  */
 
 import { createServerFn } from '@tanstack/react-start'
-import { z } from 'zod'
+import * as v from 'valibot'
 import { db } from '~/db/client'
 import { githubStatsCache, npmPackages, npmOrgStatsCache } from '~/db/schema'
 import { eq, desc, and, like } from 'drizzle-orm'
@@ -40,8 +40,8 @@ export const listGitHubStatsCache = createServerFn({ method: 'POST' }).handler(
  */
 export const refreshGitHubStats = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      cacheKey: z.string(), // e.g., "tanstack/query" or "org:tanstack"
+    v.object({
+      cacheKey: v.string(), // e.g., "tanstack/query" or "org:tanstack"
     }),
   )
   .handler(async ({ data }) => {
@@ -173,9 +173,9 @@ export const refreshAllGitHubStats = createServerFn({ method: 'POST' }).handler(
  */
 export const listNpmPackages = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      libraryId: z.string().optional(),
-      search: z.string().optional(),
+    v.object({
+      libraryId: v.optional(v.string()),
+      search: v.optional(v.string()),
     }),
   )
   .handler(async ({ data }) => {
@@ -219,8 +219,8 @@ export const listNpmPackages = createServerFn({ method: 'POST' })
  */
 export const refreshNpmPackageStats = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      packageName: z.string(),
+    v.object({
+      packageName: v.string(),
     }),
   )
   .handler(async ({ data }) => {
@@ -319,7 +319,7 @@ export const listNpmOrgStatsCache = createServerFn({ method: 'POST' }).handler(
           orgName: entry.orgName,
           totalDownloads: entry.totalDownloads,
           ratePerDay: totalRatePerDay > 0 ? totalRatePerDay : undefined,
-          packageStats: entry.packageStats as {},
+          packageStats: entry.packageStats as never,
           expiresAt: entry.expiresAt,
           createdAt: entry.createdAt,
           updatedAt: entry.updatedAt,
@@ -391,8 +391,8 @@ export const getLibraryNpmStats = createServerFn({ method: 'POST' }).handler(
  */
 export const refreshAllNpmStats = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      org: z.string().default('tanstack'),
+    v.object({
+      org: v.optional(v.string(), 'tanstack'),
     }),
   )
   .handler(async ({ data }) => {

@@ -1,4 +1,4 @@
-import { LogoQueryGGSmall } from '~/components/LogoQueryGGSmall'
+import { LogoQueryGG } from '~/ui'
 import { useQueryGGPPPDiscount } from '~/hooks/useQueryGGPPPDiscount'
 
 export function DocsCalloutQueryGG() {
@@ -15,7 +15,7 @@ export function DocsCalloutQueryGG() {
         <h6 className="text-[.7rem] uppercase font-black opacity-50">
           Want to Skip the Docs?
         </h6>
-        <LogoQueryGGSmall className="w-full" />
+        <LogoQueryGG size="small" className="w-full" />
 
         <blockquote className="text-sm -indent-[.45em] pl-2">
           “If you’re serious about *really* understanding React Query, there’s

@@ -5,16 +5,15 @@ import { findLibrary, getBranch, getLibrary } from '~/libraries'
 import { DocContainer } from '~/components/DocContainer'
 import {
   notFound,
-  createFileRoute,
   useLocation,
-  getRouteApi,
+  useMatch,
+  isNotFound,
+  createFileRoute,
 } from '@tanstack/react-router'
-
-const docsRouteApi = getRouteApi('/$libraryId/$version/docs')
 
 export const Route = createFileRoute('/$libraryId/$version/docs/$')({
   staleTime: 1000 * 60 * 5,
-  loader: (ctx) => {
+  loader: async (ctx) => {
     const { _splat: docsPath, version, libraryId } = ctx.params
     const library = findLibrary(libraryId)
 
@@ -22,13 +21,21 @@ export const Route = createFileRoute('/$libraryId/$version/docs/$')({
       throw notFound()
     }
 
-    return loadDocs({
-      repo: library.repo,
-      branch: getBranch(library, version),
-      docsPath: `${library.docsRoot || 'docs'}/${docsPath}`,
-      currentPath: ctx.location.pathname,
-      redirectPath: `/${library.id}/${version}/docs/overview`,
-    })
+    try {
+      return await loadDocs({
+        repo: library.repo,
+        branch: getBranch(library, version),
+        docsPath: `${library.docsRoot || 'docs'}/${docsPath}`,
+      })
+    } catch (error) {
+      const isNotFoundError =
+        isNotFound(error) ||
+        (error && typeof error === 'object' && 'isNotFound' in error)
+      if (isNotFoundError) {
+        throw notFound()
+      }
+      throw error
+    }
   },
   head: ({ loaderData, params }) => {
     const { libraryId } = params
@@ -42,6 +49,7 @@ export const Route = createFileRoute('/$libraryId/$version/docs/$')({
       meta: seo({
         title: `${loaderData?.title} | ${library.name} Docs`,
         description: loaderData?.description,
+        noindex: library.visible === false,
       }),
     }
   },
@@ -77,7 +85,8 @@ export const Route = createFileRoute('/$libraryId/$version/docs/$')({
 function Docs() {
   const { version, libraryId, _splat } = Route.useParams()
   const { title, content, filePath } = Route.useLoaderData()
-  const { config } = docsRouteApi.useLoaderData()
+  const versionMatch = useMatch({ from: '/$libraryId/$version' })
+  const { config } = versionMatch.loaderData
   const library = getLibrary(libraryId)
   const branch = getBranch(library, version)
   const location = useLocation()

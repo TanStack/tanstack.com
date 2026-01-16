@@ -1,19 +1,13 @@
-import { Link, createFileRoute } from '@tanstack/react-router'
+import { Link, redirect, createFileRoute } from '@tanstack/react-router'
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { PaginationControls } from '~/components/PaginationControls'
-import { Spinner } from '~/components/Spinner'
-import {
-  FilterBar,
-  FilterSearch,
-  FilterCheckbox,
-  FilterSection,
-} from '~/components/FilterComponents'
+import { UsersTopBarFilters } from '~/components/UsersTopBarFilters'
 import {
   Table,
   TableHeader,
   TableHeaderRow,
-  TableHeaderCell,
+  SortableTableHeaderCell,
   TableBody,
   TableRow,
   TableCell,
@@ -23,6 +17,7 @@ import {
   getCoreRowModel,
   flexRender,
   type ColumnDef,
+  type Column,
 } from '@tanstack/react-table'
 import {
   useUpdateUserCapabilities,
@@ -31,8 +26,8 @@ import {
   useBulkAssignRolesToUsers,
   useBulkUpdateUserCapabilities,
 } from '~/utils/mutations'
-import { z } from 'zod'
-import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
+import { VALID_CAPABILITIES, type Capability } from '~/db/types'
+import * as v from 'valibot'
 import { listUsersQueryOptions } from '~/queries/users'
 import {
   listRolesQueryOptions,
@@ -40,18 +35,47 @@ import {
   getBulkEffectiveCapabilitiesQueryOptions,
 } from '~/queries/roles'
 import { getUserRoles } from '~/utils/roles.functions'
-import { Lock, Save, SquarePen, X, User } from 'lucide-react'
+import { Save, SquarePen, X, Users } from 'lucide-react'
+import {
+  AdminAccessDenied,
+  AdminLoading,
+  AdminPageHeader,
+  AdminEmptyState,
+  UserAvatar,
+} from '~/components/admin'
+import { useAdminGuard } from '~/hooks/useAdminGuard'
+import { useToggleArray } from '~/hooks/useToggleArray'
+import { handleAdminError } from '~/utils/adminErrors'
+import { requireCapability } from '~/utils/auth.server'
+import { Badge, Button } from '~/ui'
 
-// User type for table
+// User type for table - matches the shape returned by listUsers
 type User = {
   _id: string
+  userId: string
   email: string
+  name: string | null
+  displayUsername: string | null
+  image: string | null
+  capabilities: Capability[]
+  adsDisabled: boolean | null
+  interestedInHidingAds: boolean | null
+  createdAt: number
+  updatedAt: number
+}
+
+type UsersSearch = {
+  email?: string
   name?: string
-  displayUsername?: string
-  image?: string
-  capabilities?: string[]
-  adsDisabled?: boolean
-  interestedInHidingAds?: boolean
+  cap?: string | string[]
+  noCapabilities?: boolean
+  ads?: 'all' | 'true' | 'false'
+  waitlist?: 'all' | 'true' | 'false'
+  page?: number
+  pageSize?: number
+  useEffectiveCapabilities?: boolean
+  sortBy?: string
+  sortDir?: 'asc' | 'desc'
 }
 
 // Component to display/edit user roles (now uses bulk data)
@@ -106,12 +130,9 @@ function UserRolesCell({
   return (
     <div className="flex flex-wrap gap-1">
       {(userRoles || []).map((role) => (
-        <span
-          key={role._id}
-          className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300"
-        >
+        <Badge key={role._id} variant="purple">
           {role.name}
-        </span>
+        </Badge>
       ))}
       {(!userRoles || userRoles.length === 0) && (
         <span className="text-sm text-gray-500 dark:text-gray-400">
@@ -140,12 +161,9 @@ function EffectiveCapabilitiesCell({
   return (
     <div className="flex flex-wrap gap-1">
       {(effectiveCapabilities || []).map((capability: string) => (
-        <span
-          key={capability}
-          className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
-        >
+        <Badge key={capability} variant="success">
           {capability}
-        </span>
+        </Badge>
       ))}
       {(!effectiveCapabilities || effectiveCapabilities.length === 0) && (
         <span className="text-sm text-gray-500 dark:text-gray-400">None</span>
@@ -155,40 +173,43 @@ function EffectiveCapabilitiesCell({
 }
 
 export const Route = createFileRoute('/admin/users')({
+  beforeLoad: async () => {
+    try {
+      const user = await requireCapability({ data: { capability: 'admin' } })
+      return { user }
+    } catch {
+      throw redirect({ to: '/login' })
+    }
+  },
   component: UsersPage,
-  validateSearch: z.object({
-    email: z.string().optional(),
-    name: z.string().optional(),
-    cap: z.union([z.string(), z.array(z.string())]).optional(),
-    noCapabilities: z.boolean().optional(),
-    ads: z.enum(['all', 'true', 'false']).optional(),
-    waitlist: z.enum(['all', 'true', 'false']).optional(),
-    page: z.number().int().nonnegative().optional(),
-    pageSize: z.number().int().positive().optional(),
-    useEffectiveCapabilities: z.boolean().optional().default(true),
-  }),
+  validateSearch: (search) =>
+    v.parse(
+      v.object({
+        email: v.optional(v.string()),
+        name: v.optional(v.string()),
+        cap: v.optional(v.union([v.string(), v.array(v.string())])),
+        noCapabilities: v.optional(v.boolean()),
+        ads: v.optional(v.picklist(['all', 'true', 'false'])),
+        waitlist: v.optional(v.picklist(['all', 'true', 'false'])),
+        page: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0))),
+        pageSize: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
+        useEffectiveCapabilities: v.optional(v.boolean(), true),
+        sortBy: v.optional(v.string()),
+        sortDir: v.optional(v.picklist(['asc', 'desc'])),
+      }),
+      search,
+    ),
 })
 
 function UsersPage() {
+  const guard = useAdminGuard()
   const [editingUserId, setEditingUserId] = useState<string | null>(null)
-  const [editingCapabilities, setEditingCapabilities] = useState<string[]>([])
-  const [editingRoleIds, setEditingRoleIds] = useState<string[]>([])
+  const [editingCapabilities, toggleCapability, setEditingCapabilities] =
+    useToggleArray<Capability>([])
+  const [editingRoleIds, toggleRole, setEditingRoleIds] =
+    useToggleArray<string>([])
   const [selectedUserIds, setSelectedUserIds] = useState<Set<string>>(new Set())
   const [bulkActionRoleId, setBulkActionRoleId] = useState<string | null>(null)
-  const [expandedSections, setExpandedSections] = useState<
-    Record<string, boolean>
-  >({
-    capabilities: true,
-    ads: true,
-  })
-
-  const toggleSection = (section: string) => {
-    setExpandedSections((prev) => ({
-      ...prev,
-      [section]: !prev[section],
-    }))
-  }
-
   const navigate = Route.useNavigate()
   const search = Route.useSearch()
   const emailFilter = search.email ?? ''
@@ -202,14 +223,8 @@ function UsersPage() {
   const adsDisabledFilter = search.ads ?? 'all'
   const waitlistFilter = search.waitlist ?? 'all'
   const useEffectiveCapabilities = search.useEffectiveCapabilities ?? true
-
-  const hasActiveFilters =
-    emailFilter !== '' ||
-    nameFilter !== '' ||
-    capabilityFilters.length > 0 ||
-    noCapabilitiesFilter ||
-    adsDisabledFilter !== 'all' ||
-    waitlistFilter !== 'all'
+  const sortBy = search.sortBy
+  const sortDir = search.sortDir
 
   const handleClearFilters = () => {
     navigate({
@@ -221,219 +236,45 @@ function UsersPage() {
     })
   }
 
-  const renderFilterContent = () => (
-    <>
-      {/* Capability Filter Mode Toggle */}
-      <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-        <label className="flex items-center cursor-pointer">
-          <input
-            type="checkbox"
-            checked={useEffectiveCapabilities}
-            onChange={(e) => {
-              navigate({
-                resetScroll: false,
-                search: (prev) => ({
-                  ...prev,
-                  useEffectiveCapabilities: e.target.checked,
-                  page: 0,
-                }),
-              })
-            }}
-            className="mr-2 h-4 w-4 accent-blue-600"
-          />
-          <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-            Filter by effective capabilities
-          </span>
-        </label>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 ml-6">
-          {useEffectiveCapabilities
-            ? 'Includes capabilities from roles'
-            : 'Direct capabilities only'}
-        </p>
-      </div>
-
-      {/* Email Filter */}
-      <div className="mb-2">
-        <label
-          htmlFor="email-filter"
-          className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2"
-        >
-          Email
-        </label>
-        <FilterSearch
-          value={emailFilter}
-          onChange={(value) => {
-            navigate({
-              resetScroll: false,
-              search: (prev) => ({
-                ...prev,
-                email: value || undefined,
-                page: 0,
-              }),
-            })
-          }}
-          placeholder="Filter by email"
-        />
-      </div>
-
-      {/* Name Filter */}
-      <div className="mb-2">
-        <label
-          htmlFor="name-filter"
-          className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2"
-        >
-          Name
-        </label>
-        <FilterSearch
-          value={nameFilter}
-          onChange={(value) => {
-            navigate({
-              resetScroll: false,
-              search: (prev) => ({
-                ...prev,
-                name: value || undefined,
-                page: 0,
-              }),
-            })
-          }}
-          placeholder="Filter by name"
-        />
-      </div>
-
-      {/* Capabilities Filter */}
-      <FilterSection
-        title={
-          useEffectiveCapabilities
-            ? 'Capabilities (Effective)'
-            : 'Capabilities (Direct)'
-        }
-        sectionKey="capabilities"
-        onSelectAll={() => {
-          navigate({
-            resetScroll: false,
-            search: (prev) => ({
-              ...prev,
-              cap: availableCapabilities,
-              page: 0,
-            }),
-          })
-        }}
-        onSelectNone={() => {
-          navigate({
-            resetScroll: false,
-            search: (prev) => ({
-              ...prev,
-              cap: undefined,
-              noCapabilities: undefined,
-              page: 0,
-            }),
-          })
-        }}
-        isAllSelected={
-          capabilityFilters.length === availableCapabilities.length &&
-          !noCapabilitiesFilter
-        }
-        isSomeSelected={
-          (capabilityFilters.length > 0 &&
-            capabilityFilters.length < availableCapabilities.length) ||
-          noCapabilitiesFilter
-        }
-        expandedSections={expandedSections}
-        onToggleSection={toggleSection}
-      >
-        <FilterCheckbox
-          label="No capabilities"
-          checked={noCapabilitiesFilter}
-          onChange={() => {
-            navigate({
-              resetScroll: false,
-              search: (prev) => ({
-                ...prev,
-                noCapabilities: !noCapabilitiesFilter || undefined,
-                page: 0,
-              }),
-            })
-          }}
-        />
-        {availableCapabilities.map((cap) => (
-          <FilterCheckbox
-            key={cap}
-            label={cap}
-            checked={capabilityFilters.includes(cap)}
-            onChange={() => handleCapabilityToggle(cap)}
-          />
-        ))}
-      </FilterSection>
-
-      {/* Ads Filters */}
-      <FilterSection
-        title="Ads"
-        sectionKey="ads"
-        expandedSections={expandedSections}
-        onToggleSection={toggleSection}
-      >
-        <div className="mb-2">
-          <label
-            htmlFor="ads-disabled-filter"
-            className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2"
-          >
-            Status
-          </label>
-          <select
-            value={adsDisabledFilter}
-            onChange={(e) => {
-              const value = e.target.value
-              navigate({
-                resetScroll: false,
-                search: (prev) => ({
-                  ...prev,
-                  ads: value,
-                  page: 0,
-                }),
-              })
-            }}
-            className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="all">All ad statuses</option>
-            <option value="true">Ads disabled</option>
-            <option value="false">Ads enabled</option>
-          </select>
-        </div>
-        <div>
-          <label
-            htmlFor="waitlist-filter"
-            className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2"
-          >
-            Waitlist
-          </label>
-          <select
-            value={waitlistFilter}
-            onChange={(e) => {
-              const value = e.target.value
-              navigate({
-                resetScroll: false,
-                search: (prev) => ({
-                  ...prev,
-                  waitlist: value,
-                  page: 0,
-                }),
-              })
-            }}
-            className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="all">All ads waitlist statuses</option>
-            <option value="true">On ads waitlist</option>
-            <option value="false">Not on ads waitlist</option>
-          </select>
-        </div>
-      </FilterSection>
-    </>
+  const handleFiltersChange = useCallback(
+    (newFilters: {
+      email?: string
+      name?: string
+      capabilities?: string[]
+      noCapabilities?: boolean
+      adsDisabled?: 'all' | 'true' | 'false'
+      waitlist?: 'all' | 'true' | 'false'
+      useEffectiveCapabilities?: boolean
+    }) => {
+      navigate({
+        resetScroll: false,
+        search: (prev: UsersSearch) => ({
+          ...prev,
+          email: 'email' in newFilters ? newFilters.email : prev.email,
+          name: 'name' in newFilters ? newFilters.name : prev.name,
+          cap:
+            'capabilities' in newFilters ? newFilters.capabilities : prev.cap,
+          noCapabilities:
+            'noCapabilities' in newFilters
+              ? newFilters.noCapabilities
+              : prev.noCapabilities,
+          ads: 'adsDisabled' in newFilters ? newFilters.adsDisabled : prev.ads,
+          waitlist:
+            'waitlist' in newFilters ? newFilters.waitlist : prev.waitlist,
+          useEffectiveCapabilities:
+            'useEffectiveCapabilities' in newFilters
+              ? newFilters.useEffectiveCapabilities
+              : prev.useEffectiveCapabilities,
+          page: 0,
+        }),
+      })
+    },
+    [navigate],
   )
-  const currentPageIndex = search.page ?? 0
 
-  const userQuery = useCurrentUserQuery()
-  const user = userQuery.data
+  const currentPageIndex = search.page ?? 0
   const pageSize = search.pageSize ?? 10
+
   const usersQuery = useQuery({
     ...listUsersQueryOptions({
       pagination: {
@@ -450,6 +291,8 @@ function UsersPage() {
       interestedInHidingAdsFilter:
         waitlistFilter === 'all' ? undefined : waitlistFilter === 'true',
       useEffectiveCapabilities,
+      sortBy,
+      sortDir,
     }),
     placeholderData: keepPreviousData,
   })
@@ -482,15 +325,13 @@ function UsersPage() {
   })
   const bulkEffectiveCapabilities = bulkEffectiveCapabilitiesQuery.data
 
-  const availableCapabilities = useMemo(
-    () => ['admin', 'disableAds', 'builder', 'feed', 'moderate-feedback'],
-    [],
-  )
+  const availableCapabilities = VALID_CAPABILITIES
 
   const handleEditUser = useCallback((user: User) => {
     setEditingUserId(user._id)
-    setEditingCapabilities(user.capabilities || [])
+    setEditingCapabilities((user.capabilities || []) as Capability[])
     setEditingRoleIds([])
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- setters are stable
   }, [])
 
   // Fetch user roles when editing starts
@@ -518,6 +359,7 @@ function UsersPage() {
     } else if (!editingUserId) {
       setEditingRoleIds([])
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- setter is stable
   }, [editingUserRoles, editingUserId])
 
   const handleSaveUser = useCallback(async () => {
@@ -537,11 +379,7 @@ function UsersPage() {
       setEditingUserId(null)
       setEditingRoleIds([])
     } catch (error) {
-      console.error(
-        'Failed to update user:',
-        error instanceof Error ? error.message : 'Unknown error',
-      )
-      alert(error instanceof Error ? error.message : 'Failed to update user')
+      handleAdminError(error, 'Failed to update user')
     }
   }, [
     editingUserId,
@@ -549,37 +387,14 @@ function UsersPage() {
     editingRoleIds,
     updateUserCapabilities,
     assignRolesToUser,
+    setEditingRoleIds,
   ])
 
   const handleCancelEdit = useCallback(() => {
     setEditingUserId(null)
     setEditingCapabilities([])
     setEditingRoleIds([])
-  }, [])
-
-  const toggleCapability = useCallback(
-    (capability: string) => {
-      if (editingCapabilities.includes(capability)) {
-        setEditingCapabilities(
-          editingCapabilities.filter((c) => c !== capability),
-        )
-      } else {
-        setEditingCapabilities([...editingCapabilities, capability])
-      }
-    },
-    [editingCapabilities],
-  )
-
-  const toggleRole = useCallback(
-    (roleId: string) => {
-      if (editingRoleIds.includes(roleId)) {
-        setEditingRoleIds(editingRoleIds.filter((id) => id !== roleId))
-      } else {
-        setEditingRoleIds([...editingRoleIds, roleId])
-      }
-    },
-    [editingRoleIds],
-  )
+  }, [setEditingCapabilities, setEditingRoleIds])
 
   const toggleUserSelection = useCallback(
     (userId: string) => {
@@ -614,16 +429,12 @@ function UsersPage() {
       setSelectedUserIds(new Set())
       setBulkActionRoleId(null)
     } catch (error) {
-      console.error(
-        'Failed to assign role to users:',
-        error instanceof Error ? error.message : 'Unknown error',
-      )
-      alert(error instanceof Error ? error.message : 'Failed to assign role')
+      handleAdminError(error, 'Failed to assign role')
     }
   }, [selectedUserIds, bulkActionRoleId, bulkAssignRolesToUsers])
 
   const handleBulkUpdateCapabilities = useCallback(
-    async (capabilities: string[]) => {
+    async (caps: Capability[]) => {
       if (selectedUserIds.size === 0) return
 
       if (
@@ -637,19 +448,11 @@ function UsersPage() {
       try {
         await bulkUpdateUserCapabilities.mutateAsync({
           userIds: Array.from(selectedUserIds),
-          capabilities: capabilities,
+          capabilities: caps,
         })
         setSelectedUserIds(new Set())
       } catch (error) {
-        console.error(
-          'Failed to update user capabilities:',
-          error instanceof Error ? error.message : 'Unknown error',
-        )
-        alert(
-          error instanceof Error
-            ? error.message
-            : 'Failed to update capabilities',
-        )
+        handleAdminError(error, 'Failed to update capabilities')
       }
     },
     [selectedUserIds, bulkUpdateUserCapabilities],
@@ -665,21 +468,46 @@ function UsersPage() {
     [adminSetAdsDisabled],
   )
 
-  const handleCapabilityToggle = useCallback(
-    (capability: string) => {
-      const newFilters = capabilityFilters.includes(capability)
-        ? capabilityFilters.filter((c) => c !== capability)
-        : [...capabilityFilters, capability]
-      navigate({
-        resetScroll: false,
-        search: (prev) => ({
-          ...prev,
-          cap: newFilters.length > 0 ? newFilters : undefined,
-          page: 0,
-        }),
-      })
+  const handleSort = useCallback(
+    (column: Column<User, unknown>) => {
+      const columnId = column.id
+      const sortDescFirst = column.columnDef.meta?.sortDescFirst ?? false
+
+      if (sortBy !== columnId) {
+        // New column: apply default direction
+        navigate({
+          resetScroll: false,
+          search: (prev: UsersSearch) => ({
+            ...prev,
+            sortBy: columnId,
+            sortDir: sortDescFirst ? 'desc' : 'asc',
+            page: 0,
+          }),
+        })
+      } else if (sortDescFirst ? sortDir === 'desc' : sortDir === 'asc') {
+        // First click was default, flip to opposite
+        navigate({
+          resetScroll: false,
+          search: (prev: UsersSearch) => ({
+            ...prev,
+            sortDir: sortDescFirst ? 'asc' : 'desc',
+            page: 0,
+          }),
+        })
+      } else {
+        // Third click: clear sort
+        navigate({
+          resetScroll: false,
+          search: (prev: UsersSearch) => ({
+            ...prev,
+            sortBy: undefined,
+            sortDir: undefined,
+            page: 0,
+          }),
+        })
+      }
     },
-    [capabilityFilters, navigate],
+    [sortBy, sortDir, navigate],
   )
 
   // Define columns using the column helper
@@ -712,36 +540,35 @@ function UsersPage() {
       {
         id: 'user',
         header: 'User',
+        meta: { sortable: true },
         cell: ({ row }) => {
-          const user = row.original
-          const displayName = user.name || user.displayUsername || ''
+          const userData = row.original
+          const displayName = userData.name || userData.displayUsername || ''
           return (
-            <div className="flex items-center gap-3">
-              <div className="flex-shrink-0 h-10 w-10">
-                {user.image ? (
-                  <img
-                    className="h-10 w-10 rounded-full"
-                    src={user.image}
-                    alt=""
-                  />
-                ) : (
-                  <div className="h-10 w-10 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
-                    <User className="text-gray-500 dark:text-gray-400 text-xs" />
-                  </div>
-                )}
-              </div>
+            <Link
+              to="/admin/users/$userId"
+              params={{ userId: userData._id }}
+              className="flex items-center gap-3 hover:opacity-80"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <UserAvatar
+                image={userData.image}
+                name={userData.name}
+                size="lg"
+              />
               {displayName && (
                 <div className="text-sm font-medium text-gray-900 dark:text-white">
                   {displayName}
                 </div>
               )}
-            </div>
+            </Link>
           )
         },
       },
       {
         accessorKey: 'email',
         header: 'Email',
+        meta: { sortable: true },
         cell: ({ getValue }) => (
           <div className="text-sm text-gray-900 dark:text-white">
             {getValue()}
@@ -772,12 +599,9 @@ function UsersPage() {
           ) : (
             <div className="flex flex-wrap gap-1">
               {(user.capabilities || []).map((capability: string) => (
-                <span
-                  key={capability}
-                  className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
-                >
+                <Badge key={capability} variant="info">
                   {capability}
-                </span>
+                </Badge>
               ))}
               {(!user.capabilities || user.capabilities.length === 0) && (
                 <span className="text-sm text-gray-500 dark:text-gray-400">
@@ -855,15 +679,9 @@ function UsersPage() {
           const user = row.original
           const onWaitlist = Boolean(user.interestedInHidingAds)
           return (
-            <span
-              className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                onWaitlist
-                  ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                  : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
-              }`}
-            >
+            <Badge variant={onWaitlist ? 'success' : 'default'}>
               {onWaitlist ? 'Yes' : 'No'}
-            </span>
+            </Badge>
           )
         },
       },
@@ -925,42 +743,18 @@ function UsersPage() {
 
   // Create table instance
   const table = useReactTable({
-    data: usersQuery?.data?.page || [],
+    data: (usersQuery?.data?.page || []) as User[],
     columns,
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,
   })
 
-  // If not authenticated, show loading
-  if (user === undefined) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div>Loading...</div>
-      </div>
-    )
+  // Auth guard
+  if (guard.status === 'loading') {
+    return <AdminLoading />
   }
-
-  // If authenticated but no admin capability, show unauthorized
-  const capabilities = user?.capabilities || []
-  const canAdmin = capabilities.includes('admin')
-  if (user && !canAdmin) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <Lock className="text-4xl text-red-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            You don't have permission to access the admin area.
-          </p>
-          <Link
-            to="/"
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
-          >
-            Back to Home
-          </Link>
-        </div>
-      </div>
-    )
+  if (guard.status === 'denied') {
+    return <AdminAccessDenied />
   }
 
   if (!usersQuery) {
@@ -985,29 +779,29 @@ function UsersPage() {
 
   return (
     <div className="w-full p-4">
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Sidebar Filters */}
-        <aside className="lg:w-64 lg:flex-shrink-0">
-          <FilterBar
-            title="Filters"
-            onClearFilters={handleClearFilters}
-            hasActiveFilters={hasActiveFilters}
-          >
-            {renderFilterContent()}
-          </FilterBar>
-        </aside>
+      <div className="flex flex-col gap-4">
+        <AdminPageHeader
+          icon={<Users />}
+          title="Manage Users"
+          isLoading={usersQuery.isFetching}
+        />
 
-        {/* Main Content */}
+        <UsersTopBarFilters
+          filters={{
+            email: emailFilter || undefined,
+            name: nameFilter || undefined,
+            capabilities:
+              capabilityFilters.length > 0 ? capabilityFilters : undefined,
+            noCapabilities: noCapabilitiesFilter || undefined,
+            adsDisabled: adsDisabledFilter,
+            waitlist: waitlistFilter,
+            useEffectiveCapabilities,
+          }}
+          onFilterChange={handleFiltersChange}
+          onClearFilters={handleClearFilters}
+        />
+
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-3 mb-4">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Manage Users
-            </h1>
-            {usersQuery.isFetching && (
-              <Spinner className="text-gray-500 dark:text-gray-400" />
-            )}
-          </div>
-
           {selectedUserIds.size > 0 && (
             <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
               <div className="flex items-center justify-between mb-4">
@@ -1043,13 +837,13 @@ function UsersPage() {
                       </option>
                     ))}
                   </select>
-                  <button
+                  <Button
                     onClick={handleBulkAssignRole}
                     disabled={!bulkActionRoleId}
-                    className="px-4 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    size="sm"
                   >
                     Assign
-                  </button>
+                  </Button>
                 </div>
                 <div className="flex items-center gap-2">
                   <label
@@ -1059,20 +853,22 @@ function UsersPage() {
                     Set Capabilities:
                   </label>
                   {availableCapabilities.map((capability) => (
-                    <button
+                    <Button
                       key={capability}
                       onClick={() => handleBulkUpdateCapabilities([capability])}
-                      className="px-3 py-1 text-sm bg-green-600 text-white rounded-md hover:bg-green-700"
+                      color="green"
+                      size="sm"
                     >
                       Add {capability}
-                    </button>
+                    </Button>
                   ))}
-                  <button
+                  <Button
                     onClick={() => handleBulkUpdateCapabilities([])}
-                    className="px-3 py-1 text-sm bg-red-600 text-white rounded-md hover:bg-red-700"
+                    color="red"
+                    size="sm"
                   >
                     Clear All
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -1084,13 +880,18 @@ function UsersPage() {
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableHeaderRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
-                    <TableHeaderCell
+                    <SortableTableHeaderCell
                       key={header.id}
                       align={
                         header.column.columnDef.meta?.align === 'right'
                           ? 'right'
                           : 'left'
                       }
+                      sortable={header.column.columnDef.meta?.sortable}
+                      sortDirection={
+                        sortBy === header.column.id ? sortDir || false : false
+                      }
+                      onSort={() => handleSort(header.column)}
                     >
                       {header.isPlaceholder
                         ? null
@@ -1098,7 +899,7 @@ function UsersPage() {
                             header.column.columnDef.header,
                             header.getContext(),
                           )}
-                    </TableHeaderCell>
+                    </SortableTableHeaderCell>
                   ))}
                 </TableHeaderRow>
               ))}
@@ -1128,15 +929,11 @@ function UsersPage() {
           </Table>
 
           {(!usersQuery.data || usersQuery.data?.page.length === 0) && (
-            <div className="text-center py-12">
-              <User className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
-                No users found
-              </h3>
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                There are currently no users in the system.
-              </p>
-            </div>
+            <AdminEmptyState
+              icon={<Users className="w-12 h-12" />}
+              title="No users found"
+              description="There are currently no users in the system."
+            />
           )}
 
           {/* Pagination Controls - Bottom (Sticky) */}
@@ -1153,13 +950,13 @@ function UsersPage() {
               onPageChange={(page) => {
                 navigate({
                   resetScroll: false,
-                  search: (prev) => ({ ...prev, page }),
+                  search: (prev: UsersSearch) => ({ ...prev, page }),
                 })
               }}
               onPageSizeChange={(newPageSize) => {
                 navigate({
                   resetScroll: false,
-                  search: (prev) => ({
+                  search: (prev: UsersSearch) => ({
                     ...prev,
                     pageSize: newPageSize,
                     page: 0,

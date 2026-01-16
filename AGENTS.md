@@ -40,6 +40,38 @@ const value = getValue() // Type inferred from function implementation
 
 If types need to be fixed, fix them at the source (schema, API definition, function signature) rather than casting at the point of use.
 
+### Generic Type Parameter Naming
+
+**All generic type parameters must be prefixed with `T`.**
+
+This convention makes it immediately clear that a name refers to a type parameter rather than a concrete type or value.
+
+❌ **Bad:**
+
+```typescript
+function withCapability<Args extends unknown[], R>(
+  handler: (user: AuthUser, ...args: Args) => R,
+) { ... }
+```
+
+✅ **Good:**
+
+```typescript
+function withCapability<TArgs extends unknown[], TReturn>(
+  handler: (user: AuthUser, ...args: TArgs) => TReturn,
+) { ... }
+```
+
+Common examples:
+
+- `T` for a single generic type
+- `TArgs` for argument types
+- `TReturn` for return types
+- `TData` for data types
+- `TError` for error types
+- `TKey` for key types
+- `TValue` for value types
+
 ## Route Loaders
 
 ### loaderDeps Must Be Specific
@@ -162,13 +194,19 @@ Since `listRoles` is wrapped in `createServerFn`, TanStack Start will properly h
 
 This is a visual website, not a library. Assume changes work unless the user reports otherwise. Running builds after every change wastes time and context.
 
+### Run Tests after Code Changes
+
+**After making code changes, always run `pnpm test` to verify the code passes basic tests.**
+
+Do NOT run tests after every tiny small change, just at the end of your known tasks. Tests are run automatically by the pre-commit hook and CI. Linting is fast and catches most issues immediately.
+
 ### Debugging Visual Issues
 
 When the user reports something doesn't work or look right:
 
 1. Use the Playwright MCP to view the page and debug visually
 2. Use builds (`pnpm build`) only when investigating build/bundler issues
-3. Use TypeScript compilation (`pnpm tsc --noEmit`) for type errors
+3. Use linting (`pnpm lint`) to check for code issues
 
 ### Use `build` for Build-Specific Issues
 

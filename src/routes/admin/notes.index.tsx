@@ -1,13 +1,10 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
-import { z } from 'zod'
+import { redirect, createFileRoute } from '@tanstack/react-router'
+import * as v from 'valibot'
 import { seo } from '~/utils/seo'
 import { NotesModerationPage } from '~/components/NotesModerationPage'
 import { listDocFeedbackForModerationQueryOptions } from '~/queries/docFeedback'
 import { requireCapability } from '~/utils/auth.server'
-import { libraries, type LibraryId } from '~/libraries'
-
-const libraryIds = libraries.map((lib) => lib.id) as readonly LibraryId[]
-const librarySchema = z.enum(libraryIds as [LibraryId, ...LibraryId[]])
+import { libraryIdSchema } from '~/utils/schemas'
 
 export const Route = createFileRoute('/admin/notes/')({
   staleTime: 1000 * 60 * 5, // 5 minutes
@@ -22,16 +19,20 @@ export const Route = createFileRoute('/admin/notes/')({
     }
   },
   validateSearch: (search) => {
-    const parsed = z
-      .object({
-        page: z.number().optional().default(1).catch(1),
-        pageSize: z.number().int().positive().optional().default(50).catch(50),
-        libraryId: librarySchema.optional().catch(undefined),
-        isDetached: z.boolean().optional().catch(undefined),
-        dateFrom: z.string().optional().catch(undefined),
-        dateTo: z.string().optional().catch(undefined),
-      })
-      .parse(search)
+    const parsed = v.parse(
+      v.object({
+        page: v.optional(v.number(), 1),
+        pageSize: v.optional(
+          v.pipe(v.number(), v.integer(), v.minValue(1)),
+          50,
+        ),
+        libraryId: v.optional(libraryIdSchema),
+        isDetached: v.optional(v.boolean()),
+        dateFrom: v.optional(v.string()),
+        dateTo: v.optional(v.string()),
+      }),
+      search,
+    )
 
     return parsed
   },

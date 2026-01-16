@@ -21,7 +21,26 @@ import {
 // ============================================================================
 
 function getSessionSecret(): string {
-  return process.env.SESSION_SECRET || 'dev-secret-key-change-in-production'
+  const secret = process.env.SESSION_SECRET
+  if (!secret) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error(
+        'SESSION_SECRET environment variable is required in production',
+      )
+    }
+    // In development, require explicit opt-in to use insecure default
+    if (process.env.ALLOW_INSECURE_SESSION_SECRET !== 'true') {
+      throw new Error(
+        'SESSION_SECRET environment variable is required. ' +
+          'Set ALLOW_INSECURE_SESSION_SECRET=true to use insecure default in development.',
+      )
+    }
+    console.warn(
+      '[Auth] WARNING: Using insecure session secret for development. Do NOT use in production.',
+    )
+    return 'dev-secret-key-change-in-production'
+  }
+  return secret
 }
 
 function isProduction(): boolean {

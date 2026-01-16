@@ -11,14 +11,14 @@ export const Route = createFileRoute('/$libraryId')({
     },
   },
   beforeLoad: (ctx) => {
-    const library = findLibrary(ctx.params.libraryId as any)
+    const library = findLibrary(ctx.params.libraryId)
 
     if (!library) {
       throw notFound()
     }
   },
   loader: (ctx) => {
-    const library = findLibrary(ctx.params.libraryId as any)
+    const library = findLibrary(ctx.params.libraryId)
 
     if (!library) {
       throw notFound()
@@ -49,6 +49,7 @@ export const Route = createFileRoute('/$libraryId')({
           : '',
         description: library.description,
         image: library.ogImage,
+        noindex: library.visible === false,
       }),
     }
   },

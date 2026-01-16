@@ -341,42 +341,50 @@ async function fetchNpmPackageCreationDate(
 }
 
 /**
- * Normalize date ranges into consistent chunk boundaries
- * Uses fixed 500-day chunks aligned to calendar dates for cache consistency
+ * Normalize date ranges into consistent year-based chunk boundaries
+ * Uses calendar years for stable cache keys that don't shift daily
  *
  * This ensures the same date ranges are used across all fetches, preventing
- * duplicate cache entries with different keys (e.g., 2025-12-06 vs 2025-12-07)
+ * duplicate cache entries. Historical years are immutable (Jan 1 - Dec 31),
+ * current year ends at today's date.
  */
 function generateNormalizedChunks(
   startDate: string,
   endDate: string,
 ): Array<{ from: string; to: string }> {
-  const CHUNK_DAYS = 500 // Stay well under 18-month (549 day) limit
+  const NPM_STATS_START_DATE = '2015-01-10'
   const chunks: Array<{ from: string; to: string }> = []
 
-  let currentFrom = new Date(startDate)
-  const finalDate = new Date(endDate)
+  const startYear = new Date(startDate).getFullYear()
+  const endYear = new Date(endDate).getFullYear()
+  const currentYear = new Date().getFullYear()
+  const today = new Date().toISOString().substring(0, 10)
 
-  while (currentFrom <= finalDate) {
-    const from = currentFrom.toISOString().substring(0, 10)
+  for (let year = startYear; year <= endYear; year++) {
+    let from = `${year}-01-01`
+    let to = `${year}-12-31`
 
-    // Calculate chunk end: either CHUNK_DAYS later or finalDate, whichever is earlier
-    const potentialTo = new Date(currentFrom)
-    potentialTo.setDate(potentialTo.getDate() + CHUNK_DAYS - 1) // -1 because inclusive
+    // Adjust start date if before npm stats started
+    if (from < NPM_STATS_START_DATE) {
+      from = NPM_STATS_START_DATE
+    }
 
-    const to =
-      potentialTo > finalDate
-        ? finalDate.toISOString().substring(0, 10)
-        : potentialTo.toISOString().substring(0, 10)
+    // Current year ends at today
+    if (year === currentYear) {
+      to = today
+    }
+
+    // Skip if the entire chunk is before npm stats started
+    if (to < NPM_STATS_START_DATE) {
+      continue
+    }
+
+    // Skip future years
+    if (year > currentYear) {
+      continue
+    }
 
     chunks.push({ from, to })
-
-    // Move to next chunk (day after current chunk ends)
-    currentFrom = new Date(to)
-    currentFrom.setDate(currentFrom.getDate() + 1)
-
-    // Prevent infinite loop if we've reached the end
-    if (to === endDate) break
   }
 
   return chunks
@@ -711,6 +719,15 @@ export async function computeNpmOrgStats(org: string): Promise<NpmStats> {
       let failCount = 0
 
       await new Promise<void>((resolve) => {
+        const checkIdle = () => {
+          if (successCount + failCount >= packageNames.length) {
+            console.log(
+              `[NPM Stats] Completed: ${successCount} successful, ${failCount} failed`,
+            )
+            resolve()
+          }
+        }
+
         const queue = new AsyncQueuer(
           async (packageName: string) => {
             return await fetchSingleNpmPackageFresh(packageName, 3)
@@ -731,6 +748,7 @@ export async function computeNpmOrgStats(org: string): Promise<NpmStats> {
                   } packages`,
                 )
               }
+              checkIdle()
             },
             onError: (error, packageName) => {
               failCount++
@@ -740,18 +758,18 @@ export async function computeNpmOrgStats(org: string): Promise<NpmStats> {
               // Store 0 for failed packages
               const zeroStats = { downloads: 0 }
               results.set(packageName, zeroStats)
-            },
-            onIdle: () => {
-              console.log(
-                `[NPM Stats] Completed: ${successCount} successful, ${failCount} failed`,
-              )
-              resolve()
+              checkIdle()
             },
           },
         )
 
         // Add all packages to the queue
         packageNames.forEach((packageName) => queue.addItem(packageName))
+
+        // Handle edge case where no packages to process
+        if (packageNames.length === 0) {
+          resolve()
+        }
       })
 
       // Calculate total downloads, aggregate rate, and find most recent update

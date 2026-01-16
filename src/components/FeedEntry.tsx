@@ -1,5 +1,5 @@
-import { format, formatDistanceToNow } from 'date-fns'
-import { Markdown } from '~/components/Markdown'
+import { format, formatDistanceToNow } from '~/utils/dates'
+import { Markdown } from '~/components/markdown'
 import { libraries } from '~/libraries'
 import { partners } from '~/utils/partners'
 import { twMerge } from 'tailwind-merge'
@@ -40,6 +40,7 @@ interface FeedEntryProps {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 export function FeedEntry({
   entry,
   showFullContent = false,
@@ -55,13 +56,13 @@ export function FeedEntry({
   // Get library info
   const entryLibraries = entry.libraryIds
     .map((id) => libraries.find((lib) => lib.id === id))
-    .filter(Boolean)
+    .filter((lib): lib is (typeof libraries)[number] => lib !== undefined)
 
   // Get partner info
   const entryPartners = entry.partnerIds
     ? entry.partnerIds
         .map((id) => partners.find((p) => p.id === id))
-        .filter(Boolean)
+        .filter((p): p is (typeof partners)[number] => p !== undefined)
     : []
 
   // Determine entry type badge
@@ -256,7 +257,6 @@ export function FeedEntry({
           <Link
             to="/feed/$id"
             params={{ id: entry._id }}
-            search={{} as any}
             onClick={(e) => e.stopPropagation()}
             className="text-xs font-semibold text-gray-900 dark:text-gray-100 truncate hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
           >
@@ -292,7 +292,7 @@ export function FeedEntry({
             )}
             {entryLibraries.length > 0 && (
               <span className="text-[11px] text-gray-500 dark:text-gray-400 truncate">
-                {entryLibraries.map((lib) => lib!.name).join(', ')}
+                {entryLibraries.map((lib) => lib.name).join(', ')}
               </span>
             )}
           </div>
@@ -372,10 +372,10 @@ export function FeedEntry({
                     <div className="flex gap-1">
                       {entryLibraries.map((lib) => (
                         <span
-                          key={lib!.id}
+                          key={lib.id}
                           className="px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200"
                         >
-                          {lib!.name}
+                          {lib.name}
                         </span>
                       ))}
                     </div>
@@ -387,10 +387,10 @@ export function FeedEntry({
                     <div className="flex gap-1">
                       {entryPartners.map((partner) => (
                         <span
-                          key={partner!.id}
+                          key={partner.id}
                           className="px-1.5 py-0.5 rounded bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200"
                         >
-                          {partner!.name}
+                          {partner.name}
                         </span>
                       ))}
                     </div>

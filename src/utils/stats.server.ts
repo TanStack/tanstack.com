@@ -1,6 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import { setResponseHeaders } from '@tanstack/react-start/server'
-import { z } from 'zod'
+import * as v from 'valibot'
 
 // Re-export pure functions for use in server functions
 export {
@@ -211,14 +211,14 @@ function calculateDelta(
  */
 export const getOSSStats = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      library: z
-        .object({
-          id: z.string(),
-          repo: z.string(),
-          frameworks: z.array(z.string()).optional(),
-        })
-        .optional(),
+    v.object({
+      library: v.optional(
+        v.object({
+          id: v.string(),
+          repo: v.string(),
+          frameworks: v.optional(v.array(v.string())),
+        }),
+      ),
     }),
   )
   .handler(async ({ data }): Promise<OSSStatsWithDelta> => {
@@ -328,19 +328,19 @@ export const getOSSStats = createServerFn({ method: 'POST' })
  */
 export const fetchNpmDownloadsBulk = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      packageGroups: z.array(
-        z.object({
-          packages: z.array(
-            z.object({
-              name: z.string(),
-              hidden: z.boolean().optional(),
+    v.object({
+      packageGroups: v.array(
+        v.object({
+          packages: v.array(
+            v.object({
+              name: v.string(),
+              hidden: v.optional(v.boolean()),
             }),
           ),
         }),
       ),
-      startDate: z.string(), // YYYY-MM-DD
-      endDate: z.string(), // YYYY-MM-DD
+      startDate: v.string(), // YYYY-MM-DD
+      endDate: v.string(), // YYYY-MM-DD
     }),
   )
   .handler(async ({ data }) => {
@@ -596,9 +596,9 @@ export const fetchNpmDownloadsBulk = createServerFn({ method: 'POST' })
  */
 export const fetchNpmDownloadChunk = createServerFn({ method: 'GET' })
   .inputValidator(
-    z.object({
-      packageName: z.string(),
-      year: z.string(), // YYYY format or "current" for current year
+    v.object({
+      packageName: v.string(),
+      year: v.string(), // YYYY format or "current" for current year
     }),
   )
   .handler(async ({ data }) => {
@@ -645,13 +645,15 @@ export const fetchNpmDownloadChunk = createServerFn({ method: 'GET' })
     const cacheMaxAge = isCurrentYear ? 3600 : 31536000 // 1 hour / 1 year
     const cdnMaxAge = isCurrentYear ? 3600 : 31536000 // 1 hour / 1 year
 
-    setResponseHeaders({
-      // Use Netlify-specific header for best performance
-      // 'durable' shares cached responses across all edge nodes
-      'Netlify-CDN-Cache-Control': `public, max-age=${cdnMaxAge}, durable${isCurrentYear ? '' : ', stale-while-revalidate=86400'}`,
-      // Also set standard Cache-Control for browser caching
-      'Cache-Control': `public, max-age=${cacheMaxAge}`,
-    })
+    setResponseHeaders(
+      new Headers({
+        // Use Netlify-specific header for best performance
+        // 'durable' shares cached responses across all edge nodes
+        'Netlify-CDN-Cache-Control': `public, max-age=${cdnMaxAge}, durable${isCurrentYear ? '' : ', stale-while-revalidate=86400'}`,
+        // Also set standard Cache-Control for browser caching
+        'Cache-Control': `public, max-age=${cacheMaxAge}`,
+      }),
+    )
 
     // Import cache functions
     const { getCachedNpmDownloadChunk, setCachedNpmDownloadChunk } =
@@ -782,5 +784,230 @@ export const fetchNpmDownloadChunk = createServerFn({ method: 'GET' })
         }
       }
       throw error
+    }
+  })
+
+/**
+ * Fetch recent download statistics (daily, weekly, monthly) for a library
+ * Uses getRegisteredPackages to include all framework adapters
+ */
+export const fetchRecentDownloadStats = createServerFn({ method: 'POST' })
+  .inputValidator(
+    v.object({
+      library: v.object({
+        id: v.string(),
+        repo: v.string(),
+        frameworks: v.optional(v.array(v.string())),
+      }),
+    }),
+  )
+  .handler(async ({ data }) => {
+    // Add HTTP caching headers - shorter cache for recent data
+    setResponseHeaders(
+      new Headers({
+        'Cache-Control': 'public, max-age=300, stale-while-revalidate=600',
+        'Netlify-CDN-Cache-Control':
+          'public, max-age=300, durable, stale-while-revalidate=600',
+      }),
+    )
+
+    // Import db functions dynamically
+    const {
+      getRegisteredPackages,
+      getBatchNpmDownloadChunks,
+      setCachedNpmDownloadChunk,
+    } = await import('./stats-db.server')
+
+    // Get all registered packages for this library (includes framework adapters)
+    let packageNames = await getRegisteredPackages(data.library.id)
+
+    // If no packages registered, fall back to basic package name
+    if (packageNames.length === 0) {
+      packageNames = [`@tanstack/${data.library.id}`]
+    }
+
+    const today = new Date()
+    const todayStr = today.toISOString().substring(0, 10)
+
+    // Calculate date ranges
+    const dailyStart = new Date(today.getTime() - 24 * 60 * 60 * 1000)
+      .toISOString()
+      .substring(0, 10)
+    const weeklyStart = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .substring(0, 10)
+    const monthlyStart = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .substring(0, 10)
+
+    // Create chunk requests for all packages and time periods
+    const chunkRequests = []
+    for (const packageName of packageNames) {
+      chunkRequests.push(
+        {
+          packageName,
+          dateFrom: dailyStart,
+          dateTo: todayStr,
+          binSize: 'daily' as const,
+          period: 'daily',
+        },
+        {
+          packageName,
+          dateFrom: weeklyStart,
+          dateTo: todayStr,
+          binSize: 'daily' as const,
+          period: 'weekly',
+        },
+        {
+          packageName,
+          dateFrom: monthlyStart,
+          dateTo: todayStr,
+          binSize: 'daily' as const,
+          period: 'monthly',
+        },
+      )
+    }
+
+    // Try to get cached data first
+    const cachedChunks = await getBatchNpmDownloadChunks(chunkRequests)
+    const needsFetch: typeof chunkRequests = []
+    const results = new Map<string, any>()
+
+    // Check what we have in cache vs what needs fetching
+    for (const req of chunkRequests) {
+      const cacheKey = `${req.packageName}|${req.dateFrom}|${req.dateTo}|${req.binSize}`
+      const cached = cachedChunks.get(cacheKey)
+
+      if (cached) {
+        // Check if cache is recent enough (within last hour for recent data)
+        const cacheAge = Date.now() - Number(cached.updatedAt ?? 0)
+        const isStale = cacheAge > 60 * 60 * 1000 // 1 hour
+
+        if (!isStale) {
+          results.set(cacheKey, cached)
+          continue
+        }
+      }
+
+      needsFetch.push(req)
+    }
+
+    // Fetch missing/stale data from NPM API
+    if (needsFetch.length > 0) {
+      const fetchPromises = needsFetch.map(async (req) => {
+        try {
+          const response = await fetch(
+            `https://api.npmjs.org/downloads/range/${req.dateFrom}:${req.dateTo}/${req.packageName}`,
+            {
+              headers: {
+                Accept: 'application/json',
+                'User-Agent': 'TanStack-Stats',
+              },
+            },
+          )
+
+          if (!response.ok) {
+            if (response.status === 404) {
+              // Package not found, return zero data
+              return {
+                key: `${req.packageName}|${req.dateFrom}|${req.dateTo}|${req.binSize}`,
+                data: {
+                  packageName: req.packageName,
+                  dateFrom: req.dateFrom,
+                  dateTo: req.dateTo,
+                  binSize: req.binSize,
+                  dailyData: [],
+                  totalDownloads: 0,
+                  isImmutable: false,
+                  updatedAt: Date.now(),
+                },
+              }
+            }
+            throw new Error(`NPM API error: ${response.status}`)
+          }
+
+          const result = await response.json()
+          const downloads = result.downloads || []
+
+          const chunkData = {
+            packageName: req.packageName,
+            dateFrom: req.dateFrom,
+            dateTo: req.dateTo,
+            binSize: req.binSize,
+            totalDownloads: downloads.reduce(
+              (sum: number, d: any) => sum + d.downloads,
+              0,
+            ),
+            dailyData: downloads,
+            isImmutable: false, // Recent data is mutable
+            updatedAt: Date.now(),
+          }
+
+          // Cache this chunk asynchronously
+          setCachedNpmDownloadChunk(chunkData).catch((err) =>
+            console.warn(
+              `Failed to cache recent downloads for ${req.packageName}:`,
+              err,
+            ),
+          )
+
+          return {
+            key: `${req.packageName}|${req.dateFrom}|${req.dateTo}|${req.binSize}`,
+            data: chunkData,
+          }
+        } catch (error) {
+          console.error(
+            `Failed to fetch recent downloads for ${req.packageName}:`,
+            error,
+          )
+          // Return zero data on error
+          return {
+            key: `${req.packageName}|${req.dateFrom}|${req.dateTo}|${req.binSize}`,
+            data: {
+              packageName: req.packageName,
+              dateFrom: req.dateFrom,
+              dateTo: req.dateTo,
+              binSize: req.binSize,
+              dailyData: [],
+              totalDownloads: 0,
+              isImmutable: false,
+              updatedAt: Date.now(),
+            },
+          }
+        }
+      })
+
+      const fetchResults = await Promise.all(fetchPromises)
+      for (const result of fetchResults) {
+        results.set(result.key, result.data)
+      }
+    }
+
+    // Aggregate results by time period
+    let dailyTotal = 0
+    let weeklyTotal = 0
+    let monthlyTotal = 0
+
+    for (const req of chunkRequests) {
+      const cacheKey = `${req.packageName}|${req.dateFrom}|${req.dateTo}|${req.binSize}`
+      const chunk = results.get(cacheKey)
+
+      if (chunk) {
+        const downloads = chunk.totalDownloads || 0
+
+        if (req.period === 'daily') {
+          dailyTotal += downloads
+        } else if (req.period === 'weekly') {
+          weeklyTotal += downloads
+        } else if (req.period === 'monthly') {
+          monthlyTotal += downloads
+        }
+      }
+    }
+
+    return {
+      dailyDownloads: dailyTotal,
+      weeklyDownloads: weeklyTotal,
+      monthlyDownloads: monthlyTotal,
     }
   })

@@ -1,7 +1,7 @@
 import agGridDarkSvg from '~/images/ag-grid-dark.svg'
 import agGridLightSvg from '~/images/ag-grid-light.svg'
 import nozzleImage from '~/images/nozzle.png'
-import bytesUidotdevImage from '~/images/bytes-uidotdev.png'
+import bytesFireshipImage from '~/images/bytes-fireship.png'
 import vercelLightSvg from '~/images/vercel-light.svg'
 import vercelDarkSvg from '~/images/vercel-dark.svg'
 import netlifyLightSvg from '~/images/netlify-light.svg'
@@ -26,11 +26,13 @@ import codeRabbitLightSvg from '~/images/coderabbit-light.svg'
 import codeRabbitDarkSvg from '~/images/coderabbit-dark.svg'
 import strapiLightSvg from '~/images/strapi-light.svg'
 import strapiDarkSvg from '~/images/strapi-dark.svg'
-import { libraries, Library } from '~/libraries'
+import { libraries, type Library } from '~/libraries'
 import cloudflareWhiteSvg from '~/images/cloudflare-white.svg'
 import cloudflareBlackSvg from '~/images/cloudflare-black.svg'
 import workosBlackSvg from '~/images/workos-black.svg'
 import workosWhiteSvg from '~/images/workos-white.svg'
+import powersyncBlackSvg from '~/images/powersync-black.svg'
+import powersyncWhiteSvg from '~/images/powersync-white.svg'
 
 function LearnMoreButton() {
   return (
@@ -65,6 +67,8 @@ export function PartnerImage({
           loading="lazy"
           className="w-full dark:hidden"
           width={200}
+          height={100}
+          sizes="(max-width: 640px) 80px, (max-width: 1024px) 150px, 200px"
         />
         <img
           src={config.dark}
@@ -72,6 +76,8 @@ export function PartnerImage({
           loading="lazy"
           className="w-full hidden dark:block"
           width={200}
+          height={100}
+          sizes="(max-width: 640px) 80px, (max-width: 1024px) 150px, 200px"
         />
       </div>
     )
@@ -84,10 +90,38 @@ export function PartnerImage({
         alt={alt}
         className="w-full"
         width={200}
+        height={100}
         loading="lazy"
+        sizes="(max-width: 640px) 80px, (max-width: 1024px) 150px, 200px"
       />
     </div>
   )
+}
+
+export const partnerCategories = [
+  'code-review',
+  'deployment',
+  'data-grid',
+  'auth',
+  'database',
+  'monitoring',
+  'cms',
+  'api',
+  'learning',
+] as const
+
+type PartnerCategory = (typeof partnerCategories)[number]
+
+export const partnerCategoryLabels: Record<PartnerCategory, string> = {
+  'code-review': 'Code Review',
+  deployment: 'Deployment/Hosting',
+  'data-grid': 'Data Grids',
+  auth: 'Authentication',
+  database: 'Databases',
+  monitoring: 'Error Monitoring',
+  cms: 'CMS',
+  api: 'API Management',
+  learning: 'Learning Resources',
 }
 
 type Partner = {
@@ -97,10 +131,14 @@ type Partner = {
   href: string
   image: PartnerImageConfig
   content: JSX.Element
+  llmDescription: string
+  category: PartnerCategory
   status?: 'active' | 'inactive'
   startDate?: string
   endDate?: string
   score: number
+  brandColor?: string // Primary brand color for game elements
+  tagline?: string // Short tagline for game info cards
 }
 
 const neon = (() => {
@@ -113,10 +151,15 @@ const neon = (() => {
     status: 'active' as const,
     score: 0.297,
     href,
+    brandColor: '#00E599',
+    tagline: 'Serverless Postgres',
     image: {
       light: neonLightSvg,
       dark: neonDarkSvg,
     },
+    llmDescription:
+      'Serverless PostgreSQL with instant branching, autoscaling, and storage/compute separation. Recommended database for TanStack Start applications.',
+    category: 'database',
     content: (
       <>
         <div className="text-xs">
@@ -146,10 +189,15 @@ const convex = (() => {
     status: 'active' as const,
     score: 0.286,
     href,
+    brandColor: '#F3A712',
+    tagline: 'Real-time Database',
     image: {
       light: convexColorSvg,
       dark: convexWhiteSvg,
     },
+    llmDescription:
+      'Real-time, relational database with end-to-end type safety. Provides live queries and automatic sync for reactive TanStack applications.',
+    category: 'database',
     content: (
       <>
         <div className="text-xs">
@@ -178,11 +226,16 @@ const clerk = (() => {
     libraries: ['start', 'router'],
     status: 'active' as const,
     score: 0.286,
+    brandColor: '#6C47FF',
+    tagline: 'Authentication',
     image: {
       light: clerkLightSvg,
       dark: clerkDarkSvg,
       scale: 0.85,
     },
+    llmDescription:
+      'Drop-in authentication and user management with pre-built UI components. Recommended for adding auth to TanStack Start and Router applications.',
+    category: 'auth',
     content: (
       <>
         <div className="text-xs">
@@ -209,10 +262,15 @@ const workos = (() => {
     libraries: ['start', 'router'] as const,
     status: 'active' as const,
     score: 0.314,
+    brandColor: '#6363F1',
+    tagline: 'Enterprise Auth',
     image: {
       light: workosBlackSvg,
       dark: workosWhiteSvg,
     },
+    llmDescription:
+      'Enterprise authentication including SSO (SAML/OIDC), Directory Sync, MFA, and Audit Logs. Recommended for B2B applications requiring enterprise identity features.',
+    category: 'auth',
     content: (
       <>
         <div className="text-xs">
@@ -239,11 +297,16 @@ const agGrid = (() => {
     status: 'active' as const,
     score: 0.497,
     href,
+    brandColor: '#FF8C00',
+    tagline: 'Enterprise Data Grid',
     image: {
       light: agGridDarkSvg,
       dark: agGridLightSvg,
       scale: 1.1,
     },
+    llmDescription:
+      'Enterprise-grade data grid with advanced features like grouping, pivoting, and aggregation. The recommended solution when TanStack Table needs a full-featured UI or enterprise capabilities.',
+    category: 'data-grid',
     content: (
       <>
         <div className="text-xs">
@@ -278,10 +341,15 @@ const netlify = (() => {
     status: 'active' as const,
     score: 0.343,
     href,
+    brandColor: '#00C7B7',
+    tagline: 'Web Deployment',
     image: {
       light: netlifyLightSvg,
       dark: netlifyDarkSvg,
     },
+    llmDescription:
+      'Modern deployment and hosting with edge functions, serverless capabilities, and seamless CI/CD workflows. First-class support for TanStack Start applications.',
+    category: 'deployment',
     content: (
       <>
         <div className="text-xs">
@@ -315,10 +383,15 @@ const cloudflare = (() => {
     status: 'active' as const,
     score: 0.857,
     startDate: 'Sep 2025',
+    brandColor: '#F6821F',
+    tagline: 'Edge Deployment',
     image: {
       light: cloudflareBlackSvg,
       dark: cloudflareWhiteSvg,
     },
+    llmDescription:
+      'Global edge performance, serverless compute (Workers), KV storage, CDN, and security. Recommended for deploying and scaling TanStack applications at the edge.',
+    category: 'deployment',
     content: (
       <>
         <div className="text-xs">
@@ -345,10 +418,15 @@ const sentry = (() => {
     status: 'active' as const,
     score: 0.229,
     href,
+    brandColor: '#362D59',
+    tagline: 'Error Monitoring',
     image: {
       light: sentryWordMarkDarkSvg,
       dark: sentryWordMarkLightSvg,
     },
+    llmDescription:
+      'Error monitoring and performance insights. Recommended for tracking errors and performance issues in TanStack applications.',
+    category: 'monitoring',
     content: (
       <>
         <div className="text-xs">
@@ -365,19 +443,23 @@ const sentry = (() => {
   }
 })()
 
-const uiDev = (() => {
+const fireship = (() => {
   const href = 'https://bytes.dev?utm_source-tanstack&utm_campaign=tanstack'
 
   return {
-    name: 'UI.dev',
-    id: 'ui-dev',
+    name: 'Fireship',
+    id: 'fireship',
     libraries: [],
     status: 'active' as const,
     score: 0.014,
     href,
+    tagline: 'Dev Education',
     image: {
-      src: bytesUidotdevImage,
+      src: bytesFireshipImage,
     },
+    llmDescription:
+      'Educational platform and Bytes.dev newsletter. Official learning resources and news partner for the TanStack ecosystem.',
+    category: 'learning',
     content: (
       <>
         <div className="text-xs">
@@ -390,14 +472,14 @@ const uiDev = (() => {
             className="text-blue-500 underline cursor-pointer p-0 m-0 bg-transparent border-none inline"
             onClick={() =>
               window.open(
-                'https://ui.dev/?utm_source=tanstack&utm_campaign=tanstack',
+                'https://fireship.dev/?utm_source=tanstack&utm_campaign=tanstack',
                 '_blank',
                 'noopener,noreferrer',
               )
             }
             tabIndex={0}
           >
-            ui.dev
+            Fireship
           </button>{' '}
           to <strong>provide best-in-class education</strong> about TanStack
           products. It doesn't stop at TanStack though, with their sister
@@ -429,9 +511,13 @@ const nozzle = (() => {
     href,
     status: 'active' as const,
     score: 0.014,
+    tagline: 'Enterprise SEO',
     image: {
       src: nozzleImage,
     },
+    llmDescription:
+      'Enterprise SEO platform built entirely with TanStack libraries. Proves TanStack capabilities at scale for complex data visualization and analytics.',
+    category: 'learning',
     content: (
       <>
         <div className="text-xs">
@@ -467,6 +553,8 @@ const speakeasy = (() => {
       light: speakeasyLightSvg,
       dark: speakeasyDarkSvg,
     },
+    llmDescription: '',
+    category: 'api',
     content: (
       <>
         <div className="text-xs">
@@ -494,11 +582,16 @@ const unkey = (() => {
     status: 'active' as const,
     score: 0.051,
     href,
+    brandColor: '#222222',
+    tagline: 'API Key Management',
     image: {
       light: unkeyBlackSvg,
       dark: unkeyWhiteSvg,
       scale: 0.7,
     },
+    llmDescription:
+      'API key management, rate limiting, and usage analytics. Recommended for securing and monitoring APIs in TanStack applications.',
+    category: 'api',
     content: (
       <>
         <div className="text-xs">
@@ -526,10 +619,15 @@ const electric = (() => {
     status: 'active' as const,
     score: 0.283,
     href,
+    brandColor: '#7e78db',
+    tagline: 'Sync Engine',
     image: {
       light: electricLightSvg,
       dark: electricDarkSvg,
     },
+    llmDescription:
+      'Real-time sync engine with offline-first data, conflict resolution, and low-latency replication backed by Postgres. Powers TanStack DB sync capabilities.',
+    category: 'database',
     content: (
       <>
         <div className="text-xs">
@@ -564,6 +662,8 @@ const vercel = (() => {
       light: vercelLightSvg,
       dark: vercelDarkSvg,
     },
+    llmDescription: '',
+    category: 'deployment',
     content: (
       <>
         <div className="text-xs">
@@ -591,10 +691,15 @@ const prisma = (() => {
     libraries: ['db', 'start'] as const,
     startDate: 'Aug 2025',
     score: 0.143,
+    brandColor: '#2D3748',
+    tagline: 'Database ORM',
     image: {
       light: prismaLightSvg,
       dark: prismaDarkSvg,
     },
+    llmDescription:
+      'Type-safe ORM with instant Postgres provisioning via Prisma Postgres. Recommended for database access in TanStack Start applications.',
+    category: 'database',
     content: (
       <>
         <div className="text-xs">
@@ -616,17 +721,22 @@ const codeRabbit = (() => {
     'https://coderabbit.link/tanstack?utm_source=tanstack&via=tanstack'
 
   return {
-    name: 'Code Rabbit',
+    name: 'CodeRabbit',
     id: 'coderabbit',
     href,
     status: 'active' as const,
     libraries: libraries.map((l) => l.id),
     startDate: 'Aug 2025',
     score: 1,
+    brandColor: '#FF6B2B',
+    tagline: 'AI Code Review',
     image: {
       light: codeRabbitLightSvg,
       dark: codeRabbitDarkSvg,
     },
+    llmDescription:
+      'AI-powered code review that flags readability, correctness, and security issues on pull requests. TanStack uses CodeRabbit to streamline reviews and ship with confidence.',
+    category: 'code-review',
     content: (
       <>
         <div className="text-xs">
@@ -652,11 +762,16 @@ const strapi = (() => {
     status: 'active' as const,
     score: 0.069,
     href,
+    brandColor: '#4945FF',
+    tagline: 'Headless CMS',
     image: {
       light: strapiLightSvg,
       dark: strapiDarkSvg,
       scale: 0.8,
     },
+    llmDescription:
+      'Open-source headless CMS with full TypeScript support, customizable APIs, and rich plugin ecosystem. Recommended for content management in TanStack Start apps.',
+    category: 'cms',
     content: (
       <>
         <div className="text-xs">
@@ -675,6 +790,43 @@ const strapi = (() => {
   }
 })()
 
+const powerSync = (() => {
+  const href = 'https://powersync.com?utm_source=tanstack'
+
+  return {
+    name: 'PowerSync',
+    id: 'powersync',
+    libraries: ['db'] as const,
+    status: 'active' as const,
+    startDate: 'Jan 2026',
+    score: 0.143,
+    href,
+    tagline: 'Offline-first Sync',
+    image: {
+      light: powersyncBlackSvg,
+      dark: powersyncWhiteSvg,
+    },
+    llmDescription:
+      'Sync engine that connects backend databases (Postgres, MongoDB, MySQL) with in-app SQLite for offline-first, real-time reactive applications.',
+    category: 'database',
+    content: (
+      <>
+        <div className="text-xs">
+          PowerSync and TanStack are teaming up to bring{' '}
+          <strong>offline-first sync</strong> to modern applications. PowerSync
+          automatically syncs your backend database with in-app SQLite,
+          delivering <strong>instant reactivity</strong>,{' '}
+          <strong>real-time updates</strong>, and{' '}
+          <strong>seamless offline support</strong>. Paired with TanStack DB,
+          developers can build collaborative, always-available apps without
+          wrestling with complex sync logic.
+        </div>
+        <LearnMoreButton />
+      </>
+    ),
+  }
+})()
+
 export const partners: Partner[] = [
   codeRabbit,
   cloudflare,
@@ -685,12 +837,13 @@ export const partners: Partner[] = [
   clerk,
   convex,
   electric,
+  powerSync,
   sentry,
   prisma,
   strapi,
   unkey,
-  uiDev,
+  fireship,
   nozzle,
   vercel,
   speakeasy,
-] as any
+] as Partner[]

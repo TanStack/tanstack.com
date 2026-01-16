@@ -2,7 +2,7 @@ import * as React from 'react'
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { listFeedEntriesQueryOptions } from '~/queries/feed'
 import { Link } from '@tanstack/react-router'
-import { formatDistanceToNow } from 'date-fns'
+import { formatDistanceToNow } from '~/utils/dates'
 import { libraries } from '~/libraries'
 
 const DISPLAY_DURATION = 7000 // 7 seconds in milliseconds
@@ -115,7 +115,6 @@ export function FeedTicker() {
       <Link
         to="/feed/$id"
         params={{ id: entry._id }}
-        search={{} as any}
         className="flex items-center gap-1.5 px-2 py-1 rounded-lg hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-colors group"
       >
         {/* Entry type badge */}

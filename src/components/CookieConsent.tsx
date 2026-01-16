@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
+import { Button } from '~/ui'
 
 declare global {
   interface Window {
@@ -44,10 +45,18 @@ const EU_COUNTRIES = [
 export default function CookieConsent() {
   const [showBanner, setShowBanner] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
-  const consentSettings =
-    typeof document !== 'undefined'
-      ? JSON.parse(localStorage.getItem('cookie_consent') || '{}')
-      : { analytics: false, ads: false }
+  const consentSettings = (() => {
+    if (typeof document === 'undefined') {
+      return { analytics: false, ads: false }
+    }
+    try {
+      const stored = localStorage.getItem('cookie_consent')
+      if (!stored) return { analytics: false, ads: false }
+      return JSON.parse(stored) as { analytics: boolean; ads: boolean }
+    } catch {
+      return { analytics: false, ads: false }
+    }
+  })()
 
   const blockGoogleScripts = () => {
     document.querySelectorAll('script').forEach((script) => {
@@ -174,25 +183,16 @@ export default function CookieConsent() {
             </Link>{' '}
             for details.
           </span>
-          <div className="flex gap-2 flex-wrap items-center text-white font-black">
-            <button
-              onClick={rejectAllCookies}
-              className="rounded-md px-2 py-0.5 bg-rose-500 uppercase hover:bg-rose-600"
-            >
+          <div className="flex gap-2 flex-wrap items-center">
+            <Button color="red" onClick={rejectAllCookies}>
               Reject All
-            </button>
-            <button
-              onClick={openSettings}
-              className="rounded-md px-2 py-0.5 bg-gray-500 uppercase hover:bg-gray-600"
-            >
+            </Button>
+            <Button color="gray" onClick={openSettings}>
               Customize
-            </button>
-            <button
-              onClick={acceptAllCookies}
-              className="rounded-md px-2 py-0.5 bg-emerald-500 uppercase hover:bg-emerald-600"
-            >
+            </Button>
+            <Button color="emerald" onClick={acceptAllCookies}>
               Accept All
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -255,12 +255,9 @@ export default function CookieConsent() {
                 </label>
               </div>
               <div className="mt-6">
-                <button
-                  onClick={closeSettings}
-                  className="bg-emerald-500 text-white px-4 py-2 rounded-md hover:bg-emerald-600"
-                >
+                <Button color="emerald" onClick={closeSettings}>
                   Save
-                </button>
+                </Button>
               </div>
             </div>
           </div>

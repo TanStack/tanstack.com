@@ -1,8 +1,9 @@
 import { ErrorComponent } from '@tanstack/react-router'
 import React from 'react'
 import { Spinner } from '~/components/Spinner'
-import { SignInForm } from '~/routes/_libraries/login'
+import { SignInForm } from '~/routes/login'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
+import { hasCapability } from '~/db/types'
 
 const baseClasses = 'p-4 flex flex-col items-center justify-center gap-4'
 
@@ -63,7 +64,7 @@ export function ClientAdminAuth({ children }: { children: React.ReactNode }) {
   }
 
   const capabilities = userQuery.data?.capabilities || []
-  const canAdmin = capabilities.includes('admin')
+  const canAdmin = hasCapability(capabilities, 'admin')
 
   if (!canAdmin) {
     return (

@@ -1,14 +1,16 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { useNavigate, createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { BannerEditor } from '~/components/admin/BannerEditor'
 import { getBanner, type BannerWithMeta } from '~/utils/banner.functions'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
-import { z } from 'zod'
+import { hasCapability } from '~/db/types'
+import { Button } from '~/ui'
+import * as v from 'valibot'
 
 export const Route = createFileRoute('/admin/banners/$id')({
   component: BannerEditorPage,
-  validateSearch: z.object({}),
+  validateSearch: (search) => v.parse(v.object({}), search),
 })
 
 function BannerEditorPage() {
@@ -22,7 +24,7 @@ function BannerEditorPage() {
 
   const bannerQuery = useQuery({
     queryKey: ['banner', id],
-    queryFn: () => getBanner({ id }),
+    queryFn: () => getBanner({ data: { id } }),
     enabled: !isNew,
   })
 
@@ -34,7 +36,7 @@ function BannerEditorPage() {
     )
   }
 
-  const canAdmin = capabilities.includes('admin')
+  const canAdmin = hasCapability(capabilities, 'admin')
   if (user && !canAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -61,12 +63,12 @@ function BannerEditorPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-2">Banner Not Found</h1>
-          <button
+          <Button
+            className="mt-4"
             onClick={() => navigate({ to: '/admin/banners' })}
-            className="mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg"
           >
             Back to Banners
-          </button>
+          </Button>
         </div>
       </div>
     )

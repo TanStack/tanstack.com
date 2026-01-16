@@ -1,4 +1,4 @@
-import type { ShowcaseUseCase } from '~/db/schema'
+import type { ShowcaseUseCase } from '~/db/types'
 
 /**
  * Library dependencies: Start automatically includes Router
@@ -55,4 +55,5 @@ export const USE_CASE_LABELS: Record<ShowcaseUseCase, string> = {
   'developer-tool': 'Developer Tool',
   marketing: 'Marketing',
   media: 'Media',
+  'open-source': 'Open Source', // Kept for backward compatibility, not shown in UI
 }

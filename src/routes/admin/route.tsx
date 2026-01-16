@@ -3,8 +3,8 @@ import {
   Link,
   LinkOptions,
   Outlet,
-  createFileRoute,
   redirect,
+  createFileRoute,
 } from '@tanstack/react-router'
 import {
   X,
@@ -27,6 +27,7 @@ import { useCapabilities } from '~/hooks/useCapabilities'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { NpmIcon } from '~/components/icons/NpmIcon'
 import { Sparkles } from 'lucide-react'
+import { hasCapability, type Capability } from '~/db/types'
 
 export const Route = createFileRoute('/admin')({
   beforeLoad: async () => {
@@ -68,7 +69,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const allAdminItems: (LinkOptions & {
     label: string
     icon: React.ReactNode
-    requiredCapability?: string
+    requiredCapability?: Capability
   })[] = [
     {
       label: 'Dashboard',
@@ -79,21 +80,25 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       label: 'Users',
       icon: <Users />,
       to: '/admin/users',
+      requiredCapability: 'admin',
     },
     {
       label: 'Roles',
       icon: <ShieldHalf />,
       to: '/admin/roles',
+      requiredCapability: 'admin',
     },
     {
       label: 'Login History',
       icon: <LogIn />,
       to: '/admin/logins',
+      requiredCapability: 'admin',
     },
     {
       label: 'Audit Logs',
       icon: <Shield />,
       to: '/admin/audit',
+      requiredCapability: 'admin',
     },
     {
       label: 'Feedback',
@@ -138,12 +143,11 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   // Filter menu items based on required capabilities
   // Admin users have access to everything
   // Non-admin users only see items they have specific capability for
-  const isAdmin = capabilities.includes('admin')
   const adminItems = allAdminItems.filter((item) => {
-    // Items without requiredCapability are admin-only
-    if (!item.requiredCapability) return isAdmin
-    // Items with requiredCapability: admin sees all, others need the capability
-    return isAdmin || capabilities.includes(item.requiredCapability as any)
+    // Items without requiredCapability are visible to all admin-access users
+    if (!item.requiredCapability) return true
+    // hasCapability checks for admin OR the specific capability
+    return hasCapability(capabilities, item.requiredCapability)
   })
 
   const menuItems = (

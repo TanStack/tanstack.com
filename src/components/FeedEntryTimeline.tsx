@@ -1,6 +1,6 @@
 import * as React from 'react'
-import { format, formatDistanceToNow } from 'date-fns'
-import { Markdown } from '~/components/Markdown'
+import { format, formatDistanceToNow } from '~/utils/dates'
+import { Markdown } from '~/components/markdown'
 import { Card } from '~/components/Card'
 import { libraries } from '~/libraries'
 import { partners } from '~/utils/partners'
@@ -197,7 +197,6 @@ export function FeedEntryTimeline({
           <Link
             to="/feed/$id"
             params={{ id: entry._id }}
-            search={{} as any}
             className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors block"
           >
             {entry.title}

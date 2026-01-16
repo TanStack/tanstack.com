@@ -19,13 +19,16 @@ import {
   createFeedEntry,
   updateFeedEntry,
 } from './feed.functions'
+import type { Capability } from '~/db/types'
 
 // User mutations
 export function useUpdateUserCapabilities() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (data: { userId: string; capabilities: string[] }) =>
-      updateUserCapabilities({ data }),
+    mutationFn: (data: { userId: string; capabilities: Capability[] }) =>
+      updateUserCapabilities({
+        data: data as Parameters<typeof updateUserCapabilities>[0]['data'],
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries()
     },
@@ -46,8 +49,10 @@ export function useAdminSetAdsDisabled() {
 export function useBulkUpdateUserCapabilities() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (data: { userIds: string[]; capabilities: string[] }) =>
-      bulkUpdateUserCapabilities({ data }),
+    mutationFn: (data: { userIds: string[]; capabilities: Capability[] }) =>
+      bulkUpdateUserCapabilities({
+        data: data as Parameters<typeof bulkUpdateUserCapabilities>[0]['data'],
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries()
     },
@@ -61,8 +66,11 @@ export function useCreateRole() {
     mutationFn: (data: {
       name: string
       description?: string
-      capabilities: string[]
-    }) => createRole({ data }),
+      capabilities: Capability[]
+    }) =>
+      createRole({
+        data: data as Parameters<typeof createRole>[0]['data'],
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries()
     },
@@ -76,8 +84,11 @@ export function useUpdateRole() {
       roleId: string
       name?: string
       description?: string
-      capabilities?: string[]
-    }) => updateRole({ data }),
+      capabilities?: Capability[]
+    }) =>
+      updateRole({
+        data: data as Parameters<typeof updateRole>[0]['data'],
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries()
     },

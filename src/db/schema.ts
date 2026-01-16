@@ -12,164 +12,80 @@ import {
   real,
   index,
   uniqueIndex,
+  unique,
   date,
 } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 import type { InferSelectModel, InferInsertModel } from 'drizzle-orm'
 
-// Enums
-export const capabilityEnum = pgEnum('capability', [
-  'admin',
-  'disableAds',
-  'builder',
-  'feed',
-  'moderate-feedback',
-  'moderate-showcases',
-])
+// Re-export client-safe types and constants
+export type {
+  Capability,
+  OAuthProvider,
+  DocFeedbackType,
+  DocFeedbackStatus,
+  BannerScope,
+  BannerStyle,
+  EntryType,
+  ShowcaseStatus,
+  ShowcaseUseCase,
+  AuditAction,
+  ReleaseLevel,
+} from './types'
+
+import {
+  CAPABILITIES,
+  OAUTH_PROVIDERS,
+  DOC_FEEDBACK_TYPES,
+  DOC_FEEDBACK_STATUSES,
+  BANNER_SCOPES,
+  BANNER_STYLES,
+  ENTRY_TYPES,
+  SHOWCASE_STATUSES,
+  SHOWCASE_USE_CASES,
+  AUDIT_ACTIONS,
+} from './types'
+
+export {
+  CAPABILITIES,
+  VALID_CAPABILITIES,
+  OAUTH_PROVIDERS,
+  DOC_FEEDBACK_TYPES,
+  DOC_FEEDBACK_STATUSES,
+  BANNER_SCOPES,
+  BANNER_STYLES,
+  ENTRY_TYPES,
+  SHOWCASE_STATUSES,
+  SHOWCASE_USE_CASES,
+  AUDIT_ACTIONS,
+  RELEASE_LEVELS,
+  MANUAL_ENTRY_TYPES,
+} from './types'
+
+// Enums - using imported constants as single source of truth
+export const capabilityEnum = pgEnum('capability', CAPABILITIES)
 // Note: feed_category enum was dropped in migration 0011
-export const oauthProviderEnum = pgEnum('oauth_provider', ['github', 'google'])
-export const docFeedbackTypeEnum = pgEnum('doc_feedback_type', [
-  'note',
-  'improvement',
-])
-export const docFeedbackStatusEnum = pgEnum('doc_feedback_status', [
-  'pending',
-  'approved',
-  'denied',
-])
-export const bannerScopeEnum = pgEnum('banner_scope', ['global', 'targeted'])
-export const auditActionEnum = pgEnum('audit_action', [
-  'user.capabilities.update',
-  'user.adsDisabled.update',
-  'user.sessions.revoke',
-  'role.create',
-  'role.update',
-  'role.delete',
-  'role.assignment.create',
-  'role.assignment.delete',
-  'banner.create',
-  'banner.update',
-  'banner.delete',
-  'feed.entry.create',
-  'feed.entry.update',
-  'feed.entry.delete',
-  'feedback.moderate',
-  'showcase.create',
-  'showcase.update',
-  'showcase.delete',
-  'showcase.moderate',
-])
-export const bannerStyleEnum = pgEnum('banner_style', [
-  'info',
-  'warning',
-  'success',
-  'promo',
-])
-export const entryTypeEnum = pgEnum('entry_type', [
-  'release',
-  'blog',
-  'announcement',
-])
+export const oauthProviderEnum = pgEnum('oauth_provider', OAUTH_PROVIDERS)
+export const docFeedbackTypeEnum = pgEnum(
+  'doc_feedback_type',
+  DOC_FEEDBACK_TYPES,
+)
+export const docFeedbackStatusEnum = pgEnum(
+  'doc_feedback_status',
+  DOC_FEEDBACK_STATUSES,
+)
+export const bannerScopeEnum = pgEnum('banner_scope', BANNER_SCOPES)
+export const bannerStyleEnum = pgEnum('banner_style', BANNER_STYLES)
+export const entryTypeEnum = pgEnum('entry_type', ENTRY_TYPES)
+export const showcaseStatusEnum = pgEnum('showcase_status', SHOWCASE_STATUSES)
+export const showcaseUseCaseEnum = pgEnum(
+  'showcase_use_case',
+  SHOWCASE_USE_CASES,
+)
+export const auditActionEnum = pgEnum('audit_action', AUDIT_ACTIONS)
 
-export const showcaseStatusEnum = pgEnum('showcase_status', [
-  'pending',
-  'approved',
-  'denied',
-])
-
-export const showcaseUseCaseEnum = pgEnum('showcase_use_case', [
-  'blog',
-  'e-commerce',
-  'saas',
-  'dashboard',
-  'documentation',
-  'portfolio',
-  'social',
-  'developer-tool',
-  'marketing',
-  'media',
-])
-
-// Type exports
-export type Capability =
-  | 'admin'
-  | 'disableAds'
-  | 'builder'
-  | 'feed'
-  | 'moderate-feedback'
-  | 'moderate-showcases'
-// Note: FeedCategory type was removed - use EntryType instead
-export type OAuthProvider = 'github' | 'google'
-export type DocFeedbackType = 'note' | 'improvement'
-export type DocFeedbackStatus = 'pending' | 'approved' | 'denied'
-export type BannerScope = 'global' | 'targeted'
-export type BannerStyle = 'info' | 'warning' | 'success' | 'promo'
-export type EntryType = 'release' | 'blog' | 'announcement'
-export type ShowcaseStatus = 'pending' | 'approved' | 'denied'
-export type ShowcaseUseCase =
-  | 'blog'
-  | 'e-commerce'
-  | 'saas'
-  | 'dashboard'
-  | 'documentation'
-  | 'portfolio'
-  | 'social'
-  | 'developer-tool'
-  | 'marketing'
-  | 'media'
-export type AuditAction =
-  | 'user.capabilities.update'
-  | 'user.adsDisabled.update'
-  | 'user.sessions.revoke'
-  | 'role.create'
-  | 'role.update'
-  | 'role.delete'
-  | 'role.assignment.create'
-  | 'role.assignment.delete'
-  | 'banner.create'
-  | 'banner.update'
-  | 'banner.delete'
-  | 'feed.entry.create'
-  | 'feed.entry.update'
-  | 'feed.entry.delete'
-  | 'feedback.moderate'
-  | 'showcase.create'
-  | 'showcase.update'
-  | 'showcase.delete'
-  | 'showcase.moderate'
-
-// Constants
-export const VALID_CAPABILITIES: readonly Capability[] = [
-  'admin',
-  'disableAds',
-  'builder',
-  'feed',
-  'moderate-feedback',
-  'moderate-showcases',
-] as const
-
-export const SHOWCASE_USE_CASES: readonly ShowcaseUseCase[] = [
-  'blog',
-  'e-commerce',
-  'saas',
-  'dashboard',
-  'documentation',
-  'portfolio',
-  'social',
-  'developer-tool',
-  'marketing',
-  'media',
-] as const
-export const RELEASE_LEVELS = ['major', 'minor', 'patch'] as const
-export type ReleaseLevel = (typeof RELEASE_LEVELS)[number]
-export const ENTRY_TYPES: readonly EntryType[] = [
-  'release',
-  'blog',
-  'announcement',
-] as const
-export const MANUAL_ENTRY_TYPES: readonly EntryType[] = [
-  'announcement',
-] as const
+// Note: Types and constants are defined in ./types.ts and re-exported above
+// This keeps client-safe exports separate from server-only drizzle schema
 
 // Users table
 export const users = pgTable(
@@ -872,6 +788,7 @@ export const showcases = pgTable(
     url: text('url').notNull(),
     logoUrl: text('logo_url'),
     screenshotUrl: text('screenshot_url').notNull(),
+    sourceUrl: text('source_url'),
 
     // Libraries (stored as array of library IDs)
     libraries: text('libraries').array().notNull(),
@@ -900,6 +817,9 @@ export const showcases = pgTable(
       mode: 'date',
     }),
 
+    // Vote score (cached sum of upvotes - downvotes)
+    voteScore: integer('vote_score').notNull().default(0),
+
     // Timestamps
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
       .notNull()
@@ -915,12 +835,42 @@ export const showcases = pgTable(
     createdAtIdx: index('showcases_created_at_idx').on(table.createdAt),
     moderatedByIdx: index('showcases_moderated_by_idx').on(table.moderatedBy),
     trancoRankIdx: index('showcases_tranco_rank_idx').on(table.trancoRank),
+    voteScoreIdx: index('showcases_vote_score_idx').on(table.voteScore),
     // Note: GIN indexes for libraries and useCases arrays created via SQL migration
   }),
 )
 
 export type Showcase = InferSelectModel<typeof showcases>
 export type NewShowcase = InferInsertModel<typeof showcases>
+
+// Showcase votes table (user votes on showcases)
+export const showcaseVotes = pgTable(
+  'showcase_votes',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    showcaseId: uuid('showcase_id')
+      .notNull()
+      .references(() => showcases.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    value: integer('value').notNull(), // 1 for upvote, -1 for downvote
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    showcaseUserUnique: unique().on(table.showcaseId, table.userId),
+    showcaseIdIdx: index('showcase_votes_showcase_id_idx').on(table.showcaseId),
+    userIdIdx: index('showcase_votes_user_id_idx').on(table.userId),
+  }),
+)
+
+export type ShowcaseVote = InferSelectModel<typeof showcaseVotes>
+export type NewShowcaseVote = InferInsertModel<typeof showcaseVotes>
 
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
@@ -934,6 +884,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   auditLogs: many(auditLogs),
   userActivity: many(userActivity),
   showcases: many(showcases),
+  showcaseVotes: many(showcaseVotes),
 }))
 
 export const rolesRelations = relations(roles, ({ many }) => ({
@@ -1028,7 +979,7 @@ export const userActivityRelations = relations(userActivity, ({ one }) => ({
   }),
 }))
 
-export const showcasesRelations = relations(showcases, ({ one }) => ({
+export const showcasesRelations = relations(showcases, ({ one, many }) => ({
   user: one(users, {
     fields: [showcases.userId],
     references: [users.id],
@@ -1037,4 +988,264 @@ export const showcasesRelations = relations(showcases, ({ one }) => ({
     fields: [showcases.moderatedBy],
     references: [users.id],
   }),
+  votes: many(showcaseVotes),
 }))
+
+export const showcaseVotesRelations = relations(showcaseVotes, ({ one }) => ({
+  showcase: one(showcases, {
+    fields: [showcaseVotes.showcaseId],
+    references: [showcases.id],
+  }),
+  user: one(users, {
+    fields: [showcaseVotes.userId],
+    references: [users.id],
+  }),
+}))
+
+// MCP API Keys table (for authenticating MCP server requests)
+export const mcpApiKeys = pgTable(
+  'mcp_api_keys',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    // The hashed API key (SHA-256)
+    keyHash: varchar('key_hash', { length: 64 }).notNull().unique(),
+    // First 8 chars of key for identification (e.g., "mcp_abc1...")
+    keyPrefix: varchar('key_prefix', { length: 12 }).notNull(),
+    // Human-readable name for the key
+    name: varchar('name', { length: 255 }).notNull(),
+    // Optional user association
+    userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }),
+    // Rate limit tier (requests per minute)
+    rateLimitPerMinute: integer('rate_limit_per_minute').notNull().default(200),
+    // Key state
+    isActive: boolean('is_active').notNull().default(true),
+    lastUsedAt: timestamp('last_used_at', { withTimezone: true, mode: 'date' }),
+    expiresAt: timestamp('expires_at', { withTimezone: true, mode: 'date' }),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    keyHashIdx: index('mcp_api_keys_key_hash_idx').on(table.keyHash),
+    userIdIdx: index('mcp_api_keys_user_id_idx').on(table.userId),
+    isActiveIdx: index('mcp_api_keys_is_active_idx').on(table.isActive),
+  }),
+)
+
+export type McpApiKey = InferSelectModel<typeof mcpApiKeys>
+export type NewMcpApiKey = InferInsertModel<typeof mcpApiKeys>
+
+// MCP Rate Limits table (sliding window rate limiting)
+export const mcpRateLimits = pgTable(
+  'mcp_rate_limits',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    // Identifier for rate limiting (API key ID or IP address)
+    identifier: varchar('identifier', { length: 255 }).notNull(),
+    // Type of identifier
+    identifierType: varchar('identifier_type', { length: 20 }).notNull(), // 'api_key' or 'ip'
+    // Window start (minute granularity)
+    windowStart: timestamp('window_start', {
+      withTimezone: true,
+      mode: 'date',
+    }).notNull(),
+    // Request count in this window
+    requestCount: integer('request_count').notNull().default(1),
+  },
+  (table) => ({
+    identifierWindowUnique: uniqueIndex(
+      'mcp_rate_limits_identifier_window_unique',
+    ).on(table.identifier, table.windowStart),
+    identifierIdx: index('mcp_rate_limits_identifier_idx').on(table.identifier),
+    windowStartIdx: index('mcp_rate_limits_window_start_idx').on(
+      table.windowStart,
+    ),
+  }),
+)
+
+export type McpRateLimit = InferSelectModel<typeof mcpRateLimits>
+export type NewMcpRateLimit = InferInsertModel<typeof mcpRateLimits>
+
+// MCP relations
+export const mcpApiKeysRelations = relations(mcpApiKeys, ({ one }) => ({
+  user: one(users, {
+    fields: [mcpApiKeys.userId],
+    references: [users.id],
+  }),
+}))
+
+// ============================================================================
+// OAuth Client Authorization Tables
+// ============================================================================
+
+// OAuth Authorization Codes (short-lived, 10 min)
+// Note: Uses existing oauth_mcp_* tables for backwards compatibility
+export const oauthAuthorizationCodes = pgTable(
+  'oauth_mcp_authorization_codes',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    codeHash: varchar('code_hash', { length: 64 }).notNull().unique(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    clientId: varchar('client_id', { length: 255 }).notNull(),
+    redirectUri: text('redirect_uri').notNull(),
+    codeChallenge: varchar('code_challenge', { length: 128 }).notNull(),
+    codeChallengeMethod: varchar('code_challenge_method', { length: 8 })
+      .notNull()
+      .default('S256'),
+    scope: text('scope').notNull().default('api'),
+    expiresAt: timestamp('expires_at', {
+      withTimezone: true,
+      mode: 'date',
+    }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    codeHashIdx: index('oauth_mcp_auth_codes_hash_idx').on(table.codeHash),
+    expiresAtIdx: index('oauth_mcp_auth_codes_expires_idx').on(table.expiresAt),
+  }),
+)
+
+export type OAuthAuthorizationCode = InferSelectModel<
+  typeof oauthAuthorizationCodes
+>
+export type NewOAuthAuthorizationCode = InferInsertModel<
+  typeof oauthAuthorizationCodes
+>
+
+// Backwards compatibility aliases
+/** @deprecated Use oauthAuthorizationCodes instead */
+export const oauthMcpAuthorizationCodes = oauthAuthorizationCodes
+/** @deprecated Use OAuthAuthorizationCode instead */
+export type OAuthMcpAuthorizationCode = OAuthAuthorizationCode
+/** @deprecated Use NewOAuthAuthorizationCode instead */
+export type NewOAuthMcpAuthorizationCode = NewOAuthAuthorizationCode
+
+// OAuth Access Tokens (1 hour TTL)
+export const oauthAccessTokens = pgTable(
+  'oauth_mcp_access_tokens',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    tokenHash: varchar('token_hash', { length: 64 }).notNull().unique(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    clientId: varchar('client_id', { length: 255 }).notNull(),
+    scope: text('scope').notNull().default('api'),
+    expiresAt: timestamp('expires_at', {
+      withTimezone: true,
+      mode: 'date',
+    }).notNull(),
+    lastUsedAt: timestamp('last_used_at', { withTimezone: true, mode: 'date' }),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    tokenHashIdx: index('oauth_mcp_access_tokens_hash_idx').on(table.tokenHash),
+    userIdIdx: index('oauth_mcp_access_tokens_user_idx').on(table.userId),
+    expiresAtIdx: index('oauth_mcp_access_tokens_expires_idx').on(
+      table.expiresAt,
+    ),
+  }),
+)
+
+export type OAuthAccessToken = InferSelectModel<typeof oauthAccessTokens>
+export type NewOAuthAccessToken = InferInsertModel<typeof oauthAccessTokens>
+
+// Backwards compatibility aliases
+/** @deprecated Use oauthAccessTokens instead */
+export const oauthMcpAccessTokens = oauthAccessTokens
+/** @deprecated Use OAuthAccessToken instead */
+export type OAuthMcpAccessToken = OAuthAccessToken
+/** @deprecated Use NewOAuthAccessToken instead */
+export type NewOAuthMcpAccessToken = NewOAuthAccessToken
+
+// OAuth Refresh Tokens (30 day TTL)
+export const oauthRefreshTokens = pgTable(
+  'oauth_mcp_refresh_tokens',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    tokenHash: varchar('token_hash', { length: 64 }).notNull().unique(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    clientId: varchar('client_id', { length: 255 }).notNull(),
+    accessTokenId: uuid('access_token_id').references(
+      () => oauthAccessTokens.id,
+      { onDelete: 'set null' },
+    ),
+    expiresAt: timestamp('expires_at', {
+      withTimezone: true,
+      mode: 'date',
+    }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    tokenHashIdx: index('oauth_mcp_refresh_tokens_hash_idx').on(
+      table.tokenHash,
+    ),
+    userIdIdx: index('oauth_mcp_refresh_tokens_user_idx').on(table.userId),
+  }),
+)
+
+export type OAuthRefreshToken = InferSelectModel<typeof oauthRefreshTokens>
+export type NewOAuthRefreshToken = InferInsertModel<typeof oauthRefreshTokens>
+
+// Backwards compatibility aliases
+/** @deprecated Use oauthRefreshTokens instead */
+export const oauthMcpRefreshTokens = oauthRefreshTokens
+/** @deprecated Use OAuthRefreshToken instead */
+export type OAuthMcpRefreshToken = OAuthRefreshToken
+/** @deprecated Use NewOAuthRefreshToken instead */
+export type NewOAuthMcpRefreshToken = NewOAuthRefreshToken
+
+// OAuth relations
+export const oauthAuthorizationCodesRelations = relations(
+  oauthAuthorizationCodes,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [oauthAuthorizationCodes.userId],
+      references: [users.id],
+    }),
+  }),
+)
+
+export const oauthAccessTokensRelations = relations(
+  oauthAccessTokens,
+  ({ one, many }) => ({
+    user: one(users, {
+      fields: [oauthAccessTokens.userId],
+      references: [users.id],
+    }),
+    refreshTokens: many(oauthRefreshTokens),
+  }),
+)
+
+export const oauthRefreshTokensRelations = relations(
+  oauthRefreshTokens,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [oauthRefreshTokens.userId],
+      references: [users.id],
+    }),
+    accessToken: one(oauthAccessTokens, {
+      fields: [oauthRefreshTokens.accessTokenId],
+      references: [oauthAccessTokens.id],
+    }),
+  }),
+)
+
+// Backwards compatibility relation aliases
+/** @deprecated Use oauthAuthorizationCodesRelations instead */
+export const oauthMcpAuthorizationCodesRelations =
+  oauthAuthorizationCodesRelations
+/** @deprecated Use oauthAccessTokensRelations instead */
+export const oauthMcpAccessTokensRelations = oauthAccessTokensRelations
+/** @deprecated Use oauthRefreshTokensRelations instead */
+export const oauthMcpRefreshTokensRelations = oauthRefreshTokensRelations

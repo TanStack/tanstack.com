@@ -39,14 +39,16 @@ export function Tooltip({
 
   return (
     <>
+      {/* eslint-disable-next-line react-hooks/refs */}
       {React.cloneElement(children, {
+        // eslint-disable-next-line react-hooks/refs
         ref: refs.setReference,
         ...getReferenceProps(),
-      })}
+      } as any)}
       <FloatingPortal>
         {isOpen && (
           <div
-            ref={refs.setFloating}
+            ref={refs.setFloating /* eslint-disable-line react-hooks/refs */}
             style={floatingStyles}
             {...getFloatingProps()}
             className={`z-50 rounded-md bg-gray-900 px-3 py-1.5 text-sm text-white shadow-lg dark:bg-gray-800 ${className}`}

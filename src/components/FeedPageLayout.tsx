@@ -2,9 +2,9 @@ import * as React from 'react'
 import { ReactNode, createContext, useContext } from 'react'
 import { FeedList } from '~/components/FeedList'
 import {
-  FeedFilters as FeedFiltersComponent,
+  FeedTopBarFilters,
   FeedFacetCounts,
-} from '~/components/FeedFilters'
+} from '~/components/FeedTopBarFilters'
 import { FeedEntry } from '~/components/FeedEntry'
 import { UseQueryResult } from '@tanstack/react-query'
 import { libraries } from '~/libraries'
@@ -15,6 +15,7 @@ import {
   type FeedFilters,
 } from '~/queries/feed'
 import { Spinner } from '~/components/Spinner'
+import type { FeedViewMode } from '~/db/types'
 
 // Re-export FeedFilters as FeedFiltersState for backwards compatibility
 export type FeedFiltersState = FeedFilters
@@ -29,8 +30,8 @@ interface FeedPageLayoutContextValue {
   onClearFilters: () => void
   onPageChange: (page: number) => void
   onPageSizeChange: (pageSize: number) => void
-  viewMode?: 'table' | 'timeline'
-  onViewModeChange?: (viewMode: 'table' | 'timeline') => void
+  viewMode?: FeedViewMode
+  onViewModeChange?: (viewMode: FeedViewMode) => void
   expandedIds?: string[]
   onExpandedChange?: (expandedIds: string[]) => void
   adminActions?: {
@@ -64,8 +65,8 @@ interface FeedPageLayoutRootProps {
   onClearFilters: () => void
   onPageChange: (page: number) => void
   onPageSizeChange: (pageSize: number) => void
-  viewMode?: 'table' | 'timeline'
-  onViewModeChange?: (viewMode: 'table' | 'timeline') => void
+  viewMode?: FeedViewMode
+  onViewModeChange?: (viewMode: FeedViewMode) => void
   expandedIds?: string[]
   onExpandedChange?: (expandedIds: string[]) => void
   adminActions?: {
@@ -181,27 +182,25 @@ function FeedPageLayoutFilters() {
   } = useFeedPageLayout()
 
   return (
-    <aside className="lg:w-64 flex-shrink-0 lg:self-start">
-      <FeedFiltersComponent
-        libraries={libraries.filter(
-          (lib): lib is import('~/libraries/types').Library => 'tagline' in lib,
-        )}
-        partners={partners}
-        selectedEntryTypes={filters.entryTypes}
-        selectedLibraries={filters.libraries}
-        selectedPartners={filters.partners}
-        selectedTags={filters.tags}
-        selectedReleaseLevels={filters.releaseLevels}
-        includePrerelease={filters.includePrerelease}
-        featured={filters.featured}
-        search={filters.search}
-        facetCounts={facetCountsQuery.data}
-        viewMode={viewMode}
-        onViewModeChange={onViewModeChange}
-        onFiltersChange={onFiltersChange}
-        onClearFilters={onClearFilters}
-      />
-    </aside>
+    <FeedTopBarFilters
+      libraries={libraries.filter(
+        (lib): lib is import('~/libraries/types').Library => 'tagline' in lib,
+      )}
+      partners={partners}
+      selectedEntryTypes={filters.entryTypes}
+      selectedLibraries={filters.libraries}
+      selectedPartners={filters.partners}
+      selectedTags={filters.tags}
+      selectedReleaseLevels={filters.releaseLevels}
+      includePrerelease={filters.includePrerelease}
+      featured={filters.featured}
+      search={filters.search}
+      facetCounts={facetCountsQuery.data}
+      viewMode={viewMode}
+      onViewModeChange={onViewModeChange}
+      onFiltersChange={onFiltersChange}
+      onClearFilters={onClearFilters}
+    />
   )
 }
 

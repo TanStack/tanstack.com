@@ -40,7 +40,7 @@ const isCommentNode = (value: unknown) =>
   )
 
 export const rehypeParseCommentComponents = () => {
-  return (tree) => {
+  return (tree: any) => {
     visit(tree, 'comment', (node, index, parent) => {
       if (!isCommentNode(node) || parent == null || typeof index !== 'number') {
         return

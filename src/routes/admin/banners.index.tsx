@@ -19,17 +19,29 @@ import {
   ToggleRight,
   ToggleLeft,
   ExternalLink,
+  Flag,
 } from 'lucide-react'
-import { z } from 'zod'
-import { useCapabilities } from '~/hooks/useCapabilities'
-import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
-import { formatDistanceToNow } from 'date-fns'
+import { Button } from '~/ui'
+import * as v from 'valibot'
+import { formatDistanceToNow } from '~/utils/dates'
+import {
+  AdminAccessDenied,
+  AdminLoading,
+  AdminPageHeader,
+  AdminEmptyState,
+} from '~/components/admin'
+import { useAdminGuard } from '~/hooks/useAdminGuard'
+import { useDeleteWithConfirmation } from '~/hooks/useDeleteWithConfirmation'
 
 export const Route = createFileRoute('/admin/banners/')({
   component: BannersAdminPage,
-  validateSearch: z.object({
-    includeInactive: z.boolean().optional().default(true).catch(true),
-  }),
+  validateSearch: (search) =>
+    v.parse(
+      v.object({
+        includeInactive: v.optional(v.boolean(), true),
+      }),
+      search,
+    ),
 })
 
 const STYLE_CONFIG = {
@@ -56,28 +68,27 @@ const STYLE_CONFIG = {
 }
 
 function BannersAdminPage() {
+  const guard = useAdminGuard()
   const navigate = Route.useNavigate()
   const search = Route.useSearch()
   const queryClient = useQueryClient()
 
-  const userQuery = useCurrentUserQuery()
-  const user = userQuery.data
-  const capabilities = useCapabilities()
-
   const bannersQuery = useQuery({
     queryKey: ['banners', { includeInactive: search.includeInactive }],
-    queryFn: () => listBanners({ includeInactive: search.includeInactive }),
+    queryFn: () =>
+      listBanners({ data: { includeInactive: search.includeInactive } }),
   })
 
   const toggleActiveMutation = useMutation({
-    mutationFn: toggleBannerActive,
+    mutationFn: (params: { id: string; isActive: boolean }) =>
+      toggleBannerActive({ data: params }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['banners'] })
     },
   })
 
   const deleteMutation = useMutation({
-    mutationFn: deleteBanner,
+    mutationFn: (params: { id: string }) => deleteBanner({ data: params }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['banners'] })
     },
@@ -90,53 +101,39 @@ function BannersAdminPage() {
     })
   }
 
-  const handleDelete = async (banner: BannerWithMeta) => {
-    if (window.confirm(`Are you sure you want to delete "${banner.title}"?`)) {
+  const { handleDelete } = useDeleteWithConfirmation({
+    getItemName: (banner: BannerWithMeta) => banner.title,
+    deleteFn: async (banner) => {
       await deleteMutation.mutateAsync({ id: banner.id })
-    }
-  }
+    },
+    itemLabel: 'banner',
+  })
 
-  if (user === undefined) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div>Loading...</div>
-      </div>
-    )
+  if (guard.status === 'loading') {
+    return <AdminLoading />
   }
-
-  const canAdmin = capabilities.includes('admin')
-  if (user && !canAdmin) {
-    return (
-      <div className="flex-1 min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            You don't have permission to access the admin area.
-          </p>
-        </div>
-      </div>
-    )
+  if (guard.status === 'denied') {
+    return <AdminAccessDenied />
   }
 
   const banners = bannersQuery.data ?? []
 
   return (
     <div className="flex-1 min-w-0 flex flex-col gap-4 pt-4 pb-4">
-      <div className="px-4 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-black">Banner Management</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            Create and manage site-wide banners
-          </p>
-        </div>
-        <Link
-          to="/admin/banners/$id"
-          params={{ id: 'new' }}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors text-sm"
-        >
-          <Plus className="w-4 h-4" />
-          Create Banner
-        </Link>
+      <div className="px-4">
+        <AdminPageHeader
+          icon={<Flag />}
+          title="Banner Management"
+          isLoading={bannersQuery.isLoading}
+          actions={
+            <Link to="/admin/banners/$id" params={{ id: 'new' }}>
+              <Button size="sm">
+                <Plus className="w-4 h-4" />
+                Create Banner
+              </Button>
+            </Link>
+          }
+        />
       </div>
 
       {/* Filters */}
@@ -147,7 +144,10 @@ function BannersAdminPage() {
             checked={search.includeInactive}
             onChange={(e) =>
               navigate({
-                search: (s) => ({ ...s, includeInactive: e.target.checked }),
+                search: (s: { includeInactive?: boolean }) => ({
+                  ...s,
+                  includeInactive: e.target.checked,
+                }),
                 replace: true,
               })
             }
@@ -164,27 +164,22 @@ function BannersAdminPage() {
             Loading banners...
           </div>
         ) : banners.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-500 dark:text-gray-400 mb-4">
-              No banners found.
-            </p>
-            <Link
-              to="/admin/banners/$id"
-              params={{ id: 'new' }}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors text-sm"
-            >
-              <Plus className="w-4 h-4" />
-              Create your first banner
-            </Link>
-          </div>
+          <AdminEmptyState
+            icon={<Flag className="w-12 h-12" />}
+            title="No banners found"
+            description="Create your first banner to get started."
+            action={{ label: 'Create Banner', to: '/admin/banners/new' }}
+          />
         ) : (
           <div className="space-y-4">
             {banners.map((banner) => {
               const styleConfig = STYLE_CONFIG[banner.style]
               const Icon = styleConfig.icon
               const isExpired =
+                // eslint-disable-next-line react-hooks/purity
                 banner.expiresAt && banner.expiresAt < Date.now()
               const hasntStarted =
+                // eslint-disable-next-line react-hooks/purity
                 banner.startsAt && banner.startsAt > Date.now()
 
               return (

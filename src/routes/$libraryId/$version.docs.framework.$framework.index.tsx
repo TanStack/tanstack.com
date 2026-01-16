@@ -1,5 +1,5 @@
-import { seo } from '~/utils/seo'
 import { createFileRoute } from '@tanstack/react-router'
+import { seo } from '~/utils/seo'
 import { Framework, getLibrary } from '~/libraries'
 import { getFrameworkOptions } from '~/libraries/frameworks'
 import { capitalize } from '~/utils/utils'
@@ -17,7 +17,7 @@ export const Route = createFileRoute(
     const [frameworkOption] = getFrameworkOptions([framework as Framework])
 
     return {
-      title: frameworkOption.label,
+      title: frameworkOption?.label ?? capitalize(framework),
     }
   },
   head: (ctx) => {
@@ -29,7 +29,7 @@ export const Route = createFileRoute(
         title: ctx.loaderData?.title
           ? `${ctx.loaderData.title} | ${tail}`
           : tail,
-        description: ctx.loaderData?.description,
+        noindex: library.visible === false,
       }),
     }
   },
@@ -52,7 +52,7 @@ function Comp() {
           className={twMerge('flex overflow-auto flex-col w-full p-4 lg:p-6')}
         >
           <DocTitle>
-            TanStack {frameworkOption.label}{' '}
+            TanStack {frameworkOption?.label ?? capitalize(framework)}{' '}
             {library.name.replace('TanStack ', '')} Documentation
           </DocTitle>
           <div className="h-4" />

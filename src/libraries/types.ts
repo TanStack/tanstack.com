@@ -11,63 +11,81 @@ export type Framework =
   | 'vanilla'
   | 'vue'
 
-export type Library = {
-  id:
-    | 'start'
-    | 'router'
-    | 'query'
-    | 'table'
-    | 'form'
-    | 'virtual'
-    | 'ranger'
-    | 'store'
-    | 'pacer'
-    | 'db'
-    | 'ai'
-    | 'config'
-    | 'devtools'
-    | 'react-charts'
-    | 'create-tsrouter-app'
+export type LibraryId =
+  | 'start'
+  | 'router'
+  | 'query'
+  | 'table'
+  | 'form'
+  | 'virtual'
+  | 'ranger'
+  | 'store'
+  | 'pacer'
+  | 'db'
+  | 'ai'
+  | 'config'
+  | 'devtools'
+  | 'mcp'
+  | 'react-charts'
+  | 'create-tsrouter-app'
+
+// Base library type - used for navigation, docs, and most UI
+export type LibrarySlim = {
+  id: LibraryId
   name: string
-  cardStyles: string
   to?: string
   tagline: string
-  description: string
-  ogImage?: string
+  description?: string
+  cardStyles: string
   bgStyle: string
   borderStyle: string
   textStyle: string
-  badge?: 'new' | 'soon' | 'alpha' | 'beta' | 'fresh' | 'RC'
-  repo: string
-  latestBranch: string
-  latestVersion: string
-  availableVersions: string[]
-  bgRadial: string
+  textColor?: string
   colorFrom: string
   colorTo: string
-  textColor: string
+  // Accent colors for docs UI (sidebar, TOC, prev/next) - defaults to colorFrom/colorTo if not set
+  accentColorFrom?: string
+  accentColorTo?: string
+  accentTextColor?: string
+  badgeTextStyle?: string
+  bgRadial?: string
+  badge?: 'new' | 'soon' | 'alpha' | 'beta' | 'fresh' | 'RC'
+  repo: string
   frameworks: Framework[]
+  latestVersion: string
+  latestBranch?: string
+  availableVersions: string[]
   scarfId?: string
   defaultDocs?: string
-  handleRedirects?: (href: string) => void
+  docsRoot?: string
+  ogImage?: string
   hideCodesandboxUrl?: true
   hideStackblitzUrl?: true
   showVercelUrl?: boolean
   showNetlifyUrl?: boolean
   showCloudflareUrl?: boolean
+  embedEditor?: 'codesandbox' | 'stackblitz'
+  legacyPackages?: string[]
+  installPath?: string
+  corePackageName?: string
+  handleRedirects?: (href: string) => void
+  /**
+   * If false, the library is hidden from sidebar navigation and pages have noindex meta tag.
+   * Use for alpha/private libraries not ready for public visibility.
+   * Defaults to true.
+   */
+  visible?: boolean
+}
+
+// Extended library type - adds React node content for landing pages
+// This is code-split with the library landing pages
+export type Library = LibrarySlim & {
   featureHighlights?: {
     title: string
     icon: React.ReactNode
     description: React.ReactNode
   }[]
   testimonials?: Testimonial[]
-  docsRoot?: string
-  embedEditor?: 'codesandbox' | 'stackblitz'
-  visible?: boolean
-  // Legacy npm packages (non-@tanstack scope) to include in stats
-  legacyPackages?: string[]
-  installPath?: string
-  corePackageName?: string
 }
 
 export type Testimonial = {
@@ -77,5 +95,3 @@ export type Testimonial = {
   company: string
   avatar?: string
 }
-
-export type LibraryId = Library['id']

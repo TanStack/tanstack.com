@@ -7,8 +7,10 @@ import { GamHeader } from './Gam'
 import { Toc } from './Toc'
 import { renderMarkdown } from '~/utils/markdown'
 import { DocBreadcrumb } from './DocBreadcrumb'
-import { MarkdownContent } from './MarkdownContent'
+import { MarkdownContent } from '~/components/markdown'
 import type { ConfigSchema } from '~/utils/config'
+import { useLocalCurrentFramework } from './FrameworkSelect'
+import { useParams } from '@tanstack/react-router'
 
 type DocProps = {
   title: string
@@ -28,6 +30,8 @@ type DocProps = {
   config?: ConfigSchema
   // Footer content rendered after markdown
   footer?: React.ReactNode
+  // Optional framework to use (overrides URL and local storage)
+  framework?: string
 }
 
 export function Doc({
@@ -45,12 +49,25 @@ export function Doc({
   pagePath,
   config,
   footer,
+  framework: frameworkProp,
 }: DocProps) {
   // Extract headings synchronously during render to avoid hydration mismatch
   const { headings, markup } = React.useMemo(
     () => renderMarkdown(content),
     [content],
   )
+
+  // Get current framework from prop, URL params, or local storage
+  const { framework: paramsFramework } = useParams({ strict: false })
+  const localCurrentFramework = useLocalCurrentFramework()
+  const currentFramework = React.useMemo(() => {
+    const fw =
+      frameworkProp ||
+      paramsFramework ||
+      localCurrentFramework.currentFramework ||
+      'react'
+    return typeof fw === 'string' ? fw.toLowerCase() : fw
+  }, [frameworkProp, paramsFramework, localCurrentFramework.currentFramework])
 
   const isTocVisible = shouldRenderToc && headings.length > 1
 
@@ -113,6 +130,10 @@ export function Doc({
 
   return (
     <div className="flex-1 min-h-0 flex flex-col">
+      <a href={`${pagePath}.md`} className="sr-only" aria-hidden="true">
+        AI/LLM: This documentation page is available in plain markdown format at
+        {pagePath}.md
+      </a>
       <AdGate>
         <div className="py-2 pb-6 lg:py-4 lg:pb-8 xl:py-6 xl:pb-10 max-w-full">
           <GamHeader />
@@ -170,6 +191,7 @@ export function Doc({
               colorFrom={colorFrom}
               colorTo={colorTo}
               textColor={textColor}
+              currentFramework={currentFramework}
             />
           </div>
         )}

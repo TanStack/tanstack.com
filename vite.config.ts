@@ -10,20 +10,69 @@ import netlify from '@netlify/vite-plugin-tanstack-start'
 
 export default defineConfig({
   server: {
-    port: 3000,
+    port: Number(process.env.PORT) || 3000,
+    // WebContainer headers for /builder route (SharedArrayBuffer support)
+    headers: {
+      'Cross-Origin-Opener-Policy': 'same-origin',
+      'Cross-Origin-Embedder-Policy': 'require-corp',
+    },
   },
   ssr: {
-    external: ['postgres'],
-    noExternal: ['drizzle-orm'],
+    external: [
+      'postgres',
+      // CTA packages use execa which has a broken unicorn-magic dependency
+      '@tanstack/cta-engine',
+      '@tanstack/cta-ui',
+      '@tanstack/cta-framework-react-cra',
+    ],
+    // Bundle cta-ui-base so Vite resolves its extensionless imports
+    noExternal: ['drizzle-orm', '@tanstack/cta-ui-base'],
   },
   optimizeDeps: {
-    exclude: ['postgres'],
+    exclude: [
+      'postgres',
+      // CTA packages use execa which has a broken unicorn-magic dependency
+      '@tanstack/cta-engine',
+      '@tanstack/cta-ui',
+      '@tanstack/cta-framework-react-cra',
+    ],
   },
   build: {
+    sourcemap: process.env.NODE_ENV === 'production',
     rollupOptions: {
       external: (id) => {
         // Externalize postgres from client bundle
         return id.includes('postgres')
+      },
+      output: {
+        manualChunks: (id) => {
+          // Vendor chunk splitting for better caching
+          if (id.includes('node_modules')) {
+            // Search-related deps (only loaded when search modal opens)
+            if (
+              id.includes('algoliasearch') ||
+              id.includes('instantsearch') ||
+              id.includes('react-instantsearch')
+            ) {
+              return 'search'
+            }
+            // Charting deps (only loaded on stats/admin pages)
+            if (
+              id.includes('@observablehq/plot') ||
+              (id.includes('d3') && !id.includes('d3-'))
+            ) {
+              return 'd3-charts'
+            }
+            // Visualization deps
+            if (id.includes('@visx/')) {
+              return 'visx'
+            }
+            // Lucide icons (tree-shaken but still significant)
+            if (id.includes('lucide-react')) {
+              return 'icons'
+            }
+          }
+        },
       },
     },
   },
@@ -32,7 +81,21 @@ export default defineConfig({
       projects: ['./tsconfig.json'],
     }),
 
-    tanstackStart(),
+    tanstackStart({
+      router: {
+        codeSplittingOptions: {
+          defaultBehavior: [
+            [
+              'component',
+              'pendingComponent',
+              'errorComponent',
+              'notFoundComponent',
+              'loader',
+            ],
+          ],
+        },
+      },
+    }),
     // Only enable Netlify plugin during build or when NETLIFY env is set
     ...(process.env.NETLIFY || process.env.NODE_ENV === 'production'
       ? [netlify()]
@@ -46,10 +109,14 @@ export default defineConfig({
     }),
     contentCollections(),
     tailwindcss(),
-    analyzer({
-      enabled: false,
-      openAnalyzer: true,
-      defaultSizes: 'gzip',
-    }),
+    ...(process.env.ANALYZE
+      ? [
+          analyzer({
+            analyzerMode: 'json',
+            fileName: 'bundle-analysis',
+            defaultSizes: 'stat',
+          }),
+        ]
+      : []),
   ],
 })

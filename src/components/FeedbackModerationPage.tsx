@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { listDocFeedbackForModerationQueryOptions } from '~/queries/docFeedback'
 import { moderateDocFeedback } from '~/utils/docFeedback.functions'
-import { FeedbackModerationFilters } from './FeedbackModerationFilters'
+import { FeedbackModerationTopBar } from './FeedbackModerationTopBar'
 import { FeedbackModerationList } from './FeedbackModerationList'
 import { useToast } from '~/components/ToastProvider'
 import { Spinner } from '~/components/Spinner'
@@ -60,7 +60,7 @@ export function FeedbackModerationPage() {
 
   const handleFilterChange = (filters: Partial<typeof search>) => {
     navigate({
-      search: (prev) => ({
+      search: (prev: typeof search) => ({
         ...prev,
         ...filters,
         page: 1, // Reset to first page on filter change
@@ -70,13 +70,13 @@ export function FeedbackModerationPage() {
 
   const handlePageChange = (newPage: number) => {
     navigate({
-      search: (prev) => ({ ...prev, page: newPage }),
+      search: (prev: typeof search) => ({ ...prev, page: newPage }),
     })
   }
 
   const handlePageSizeChange = (newPageSize: number) => {
     navigate({
-      search: (prev) => ({
+      search: (prev: typeof search) => ({
         ...prev,
         pageSize: newPageSize,
         page: 1,
@@ -100,32 +100,28 @@ export function FeedbackModerationPage() {
 
   return (
     <div className="w-full p-4">
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Sidebar Filters */}
-        <aside className="lg:w-64 lg:flex-shrink-0">
-          <FeedbackModerationFilters
-            filters={{
-              status: search.status,
-              libraryId: search.libraryId,
-              isDetached: search.isDetached,
-              dateFrom: search.dateFrom,
-              dateTo: search.dateTo,
-            }}
-            onFilterChange={handleFilterChange}
-          />
-        </aside>
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center gap-3">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Moderate Feedback
+          </h1>
+          {isLoading && (
+            <Spinner className="text-gray-500 dark:text-gray-400" />
+          )}
+        </div>
 
-        {/* Main Content */}
+        <FeedbackModerationTopBar
+          filters={{
+            status: search.status,
+            libraryId: search.libraryId,
+            isDetached: search.isDetached,
+            dateFrom: search.dateFrom,
+            dateTo: search.dateTo,
+          }}
+          onFilterChange={handleFilterChange}
+        />
+
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-3 mb-4">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Moderate Feedback
-            </h1>
-            {isLoading && (
-              <Spinner className="text-gray-500 dark:text-gray-400" />
-            )}
-          </div>
-
           <FeedbackModerationList
             data={data}
             isLoading={isLoading}

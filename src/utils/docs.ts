@@ -6,7 +6,7 @@ import {
 import removeMarkdown from 'remove-markdown'
 import { notFound } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { z } from 'zod'
+import * as v from 'valibot'
 import { setResponseHeader } from '@tanstack/react-start/server'
 
 export const loadDocs = async ({
@@ -39,7 +39,7 @@ export const loadDocs = async ({
 
 export const fetchDocs = createServerFn({ method: 'GET' })
   .inputValidator(
-    z.object({ repo: z.string(), branch: z.string(), filePath: z.string() }),
+    v.object({ repo: v.string(), branch: v.string(), filePath: v.string() }),
   )
   .handler(async ({ data: { repo, branch, filePath } }) => {
     const file = await fetchRepoFile(repo, branch, filePath)
@@ -70,7 +70,7 @@ export const fetchDocs = createServerFn({ method: 'GET' })
 
 export const fetchFile = createServerFn({ method: 'GET' })
   .inputValidator(
-    z.object({ repo: z.string(), branch: z.string(), filePath: z.string() }),
+    v.object({ repo: v.string(), branch: v.string(), filePath: v.string() }),
   )
   .handler(async ({ data: { repo, branch, filePath } }) => {
     const file = await fetchRepoFile(repo, branch, filePath)
@@ -94,14 +94,18 @@ export const fetchRepoDirectoryContents = createServerFn({
   method: 'GET',
 })
   .inputValidator(
-    z.object({
-      repo: z.string(),
-      branch: z.string(),
-      startingPath: z.string(),
+    v.object({
+      repo: v.string(),
+      branch: v.string(),
+      startingPath: v.string(),
     }),
   )
   .handler(async ({ data: { repo, branch, startingPath } }) => {
     const githubContents = await fetchApiContents(repo, branch, startingPath)
+
+    if (!githubContents) {
+      throw notFound()
+    }
 
     // Cache for 60 minutes on shared cache
     // Revalidate in the background

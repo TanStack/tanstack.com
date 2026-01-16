@@ -3,6 +3,7 @@ import * as DialogPrimitive from '@radix-ui/react-dialog'
 import Cropper from 'react-easy-crop'
 import type { Area, Point } from 'react-easy-crop'
 import { X } from 'lucide-react'
+import { Button } from '~/ui'
 
 interface AvatarCropModalProps {
   open: boolean
@@ -134,10 +135,14 @@ export function AvatarCropModal({
           </div>
 
           <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label
+              htmlFor="zoom"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
               Zoom
             </label>
             <input
+              id="zoom"
               type="range"
               min={1}
               max={3}
@@ -149,21 +154,20 @@ export function AvatarCropModal({
           </div>
 
           <div className="mt-6 flex gap-3 justify-end">
-            <button
-              type="button"
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={() => onOpenChange(false)}
-              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
             >
               Cancel
-            </button>
-            <button
-              type="button"
+            </Button>
+            <Button
+              size="sm"
               onClick={handleSave}
               disabled={isProcessing || !croppedAreaPixels}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
             >
               {isProcessing ? 'Processing...' : 'Save'}
-            </button>
+            </Button>
           </div>
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>

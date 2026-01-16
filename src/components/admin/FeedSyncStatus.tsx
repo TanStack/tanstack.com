@@ -8,6 +8,7 @@ import {
 } from '~/utils/admin'
 import { Spinner } from '~/components/Spinner'
 import { RefreshCw } from 'lucide-react'
+import { Button } from '~/ui'
 
 export function FeedSyncStatus({
   onSyncComplete,
@@ -63,10 +64,10 @@ export function FeedSyncStatus({
       <div className="flex items-center justify-between mb-2">
         <h2 className="text-sm font-semibold">Sync Status</h2>
         <div className="flex items-center gap-2">
-          <button
+          <Button
+            size="xs"
             onClick={handleSyncAll}
             disabled={syncingAll || Object.values(syncingSources).some(Boolean)}
-            className="px-2 py-1 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5"
           >
             {syncingAll ? (
               <Spinner className="text-xs" />
@@ -74,7 +75,7 @@ export function FeedSyncStatus({
               <RefreshCw className="w-3 h-3" />
             )}
             Sync All
-          </button>
+          </Button>
         </div>
       </div>
 

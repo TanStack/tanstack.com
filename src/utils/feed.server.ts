@@ -104,34 +104,42 @@ export function buildFeedQueryConditions(
     conditions.push(inArray(feedEntries.entryType, filters.entryTypes))
   }
 
-  // Library filter (array overlap)
+  // Library filter (array overlap) - use parameterized array
   if (
     excludeFacet !== 'libraries' &&
     filters.libraries &&
     filters.libraries.length > 0
   ) {
-    const libraryArray = `{${filters.libraries.map((l) => `"${l}"`).join(',')}}`
     conditions.push(
-      sql`${feedEntries.libraryIds} && ${sql.raw(libraryArray)}::text[]`,
+      sql`${feedEntries.libraryIds} && ARRAY[${sql.join(
+        filters.libraries.map((l) => sql`${l}`),
+        sql`, `,
+      )}]::text[]`,
     )
   }
 
-  // Partner filter (array overlap)
+  // Partner filter (array overlap) - use parameterized array
   if (
     excludeFacet !== 'partners' &&
     filters.partners &&
     filters.partners.length > 0
   ) {
-    const partnerArray = `{${filters.partners.map((p) => `"${p}"`).join(',')}}`
     conditions.push(
-      sql`${feedEntries.partnerIds} && ${sql.raw(partnerArray)}::text[]`,
+      sql`${feedEntries.partnerIds} && ARRAY[${sql.join(
+        filters.partners.map((p) => sql`${p}`),
+        sql`, `,
+      )}]::text[]`,
     )
   }
 
-  // Tag filter (array overlap)
+  // Tag filter (array overlap) - use parameterized array
   if (excludeFacet !== 'tags' && filters.tags && filters.tags.length > 0) {
-    const tagArray = `{${filters.tags.map((t) => `"${t}"`).join(',')}}`
-    conditions.push(sql`${feedEntries.tags} && ${sql.raw(tagArray)}::text[]`)
+    conditions.push(
+      sql`${feedEntries.tags} && ARRAY[${sql.join(
+        filters.tags.map((t) => sql`${t}`),
+        sql`, `,
+      )}]::text[]`,
+    )
   }
 
   // Featured filter
@@ -145,14 +153,11 @@ export function buildFeedQueryConditions(
     filters.search &&
     filters.search.length > 0
   ) {
-    // Use PostgreSQL full-text search on textsearch column
-    // Note: This requires the textsearch column and index to be set up (see migrations README)
-    const searchQuery = filters.search
-      .split(/\s+/)
-      .map((term) => `'${term.replace(/'/g, "''")}'`)
-      .join(' & ')
+    // Use PostgreSQL full-text search with plainto_tsquery for safe input handling
+    // plainto_tsquery automatically handles special characters and escaping
+    const searchInput = filters.search.trim()
     conditions.push(
-      sql`to_tsvector('english', ${feedEntries.title} || ' ' || ${feedEntries.content} || ' ' || COALESCE(${feedEntries.excerpt}, '')) @@ to_tsquery('english', ${searchQuery})`,
+      sql`to_tsvector('english', ${feedEntries.title} || ' ' || ${feedEntries.content} || ' ' || COALESCE(${feedEntries.excerpt}, '')) @@ plainto_tsquery('english', ${searchInput})`,
     )
   }
 

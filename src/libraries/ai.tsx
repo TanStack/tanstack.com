@@ -2,33 +2,17 @@ import { Library } from '.'
 import { Plug, Zap } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { CogsIcon } from '~/components/icons/CogsIcon'
-
-const repo = 'tanstack/ai'
+import { ai } from './libraries'
 
 const textStyles = `text-pink-600 dark:text-pink-500`
 
 export const aiProject = {
-  id: 'ai',
-  name: 'TanStack AI',
-  cardStyles: `text-pink-500 dark:text-pink-400 hover:border-current`,
-  to: '/ai',
-  tagline: `A powerful, open-source AI SDK with a unified interface across multiple providers`,
+  ...ai,
   description: `A powerful, open-source AI SDK with a unified interface across multiple providers. No vendor lock-in, no proprietary formats, just clean TypeScript and honest open source.`,
   ogImage: 'https://github.com/tanstack/ai/raw/main/media/repo-header.png',
-  badge: 'alpha',
-  bgStyle: `bg-pink-700`,
-  borderStyle: 'border-pink-700/50',
-  textStyle: `text-pink-500`,
-  repo,
   latestBranch: 'main',
-  latestVersion: 'v0',
-  availableVersions: ['v0'],
   bgRadial: 'from-pink-500 via-pink-700/50 to-transparent',
-  colorFrom: `from-pink-500`,
-  colorTo: `to-pink-700`,
   textColor: `text-pink-700`,
-  frameworks: ['react', 'solid', 'vanilla'],
-  scarfId: undefined,
   defaultDocs: 'getting-started/overview',
   featureHighlights: [
     {

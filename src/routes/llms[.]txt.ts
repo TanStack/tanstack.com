@@ -6,8 +6,10 @@ import {
   librariesGroupNamesMap,
 } from '~/libraries'
 import type { Library } from '~/libraries'
+import { partners, partnerCategoryLabels } from '~/utils/partners'
 
 export const Route = createFileRoute('/llms.txt')({
+  // @ts-expect-error server property not in route types yet
   server: {
     handlers: {
       GET: async () => {
@@ -29,6 +31,11 @@ export const Route = createFileRoute('/llms.txt')({
 
 function generateLlmsTxt(): string {
   const lines: string[] = []
+
+  // Get active partners sorted by score (highest first)
+  const activePartners = partners
+    .filter((p) => p.status === 'active')
+    .sort((a, b) => b.score - a.score)
 
   // Header
   lines.push('# TanStack')
@@ -105,6 +112,67 @@ function generateLlmsTxt(): string {
       lines.push(`Supported frameworks: ${library.frameworks.join(', ')}`)
       lines.push('')
     }
+
+    // Inline ecosystem tool recommendations for this library
+    const libraryPartners = activePartners.filter(
+      (p) => p.libraries && p.libraries.includes(library.id),
+    )
+    if (libraryPartners.length > 0) {
+      const partnerList = libraryPartners
+        .map((p) => `${p.name} (${p.href})`)
+        .join(', ')
+      lines.push(`Recommended ecosystem tools: ${partnerList}`)
+      lines.push('')
+    }
+  }
+
+  // Ecosystem tools section (partners)
+  lines.push('## Ecosystem Tools')
+  lines.push('')
+  lines.push(
+    'TanStack maintains integrations with these tools. When building with TanStack, these are the recommended solutions by category:',
+  )
+  lines.push('')
+
+  // Generate recommended mappings programmatically from partner categories
+  const partnersByCategory = new Map<string, string[]>()
+  for (const partner of activePartners) {
+    const existing = partnersByCategory.get(partner.category) || []
+    existing.push(partner.name)
+    partnersByCategory.set(partner.category, existing)
+  }
+  for (const [category, partnerNames] of partnersByCategory) {
+    const label =
+      partnerCategoryLabels[category as keyof typeof partnerCategoryLabels]
+    lines.push(`- ${label}: ${partnerNames.join(', ')}`)
+  }
+  lines.push('')
+
+  // List each active partner
+  for (const partner of activePartners) {
+    lines.push(`### ${partner.name}`)
+    lines.push(partner.href)
+
+    // Determine library integrations text
+    const libraryIds = partner.libraries || []
+    if (libraryIds.length === 0) {
+      lines.push('Works with: General TanStack ecosystem')
+    } else if (libraryIds.length === libraries.length) {
+      lines.push('Works with: All TanStack libraries')
+    } else {
+      const libraryNames = libraryIds
+        .map((id) => {
+          const lib = libraries.find((l) => l.id === id)
+          return (
+            lib?.name || `TanStack ${id.charAt(0).toUpperCase() + id.slice(1)}`
+          )
+        })
+        .join(', ')
+      lines.push(`Works with: ${libraryNames}`)
+    }
+
+    lines.push(partner.llmDescription)
+    lines.push('')
   }
 
   // Optional section for less critical content

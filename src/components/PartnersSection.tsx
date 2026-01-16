@@ -4,6 +4,7 @@ import { partners } from '~/utils/partners'
 import { PartnersGrid } from './PartnersGrid'
 import { PartnershipCallout } from './PartnershipCallout'
 import { LibraryId } from '~/libraries'
+import { Button } from '~/ui'
 
 type PartnersSectionProps = {
   libraryId?: LibraryId
@@ -30,24 +31,22 @@ export function PartnersSection({
     <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto mx-auto max-w-full">
       {filtered.length ? (
         <div className="space-y-8">
-          <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
-            {title}
-          </h3>
+          <h3 className="text-3xl font-bold">{title}</h3>
           <PartnersGrid />
           <PartnershipCallout libraryId={libraryId} />
           {showPreviousLink ? (
-            <div className="text-center mt-6">
-              <Link
+            <div className="flex justify-center mt-6">
+              <Button
+                as={Link}
                 to="/partners"
                 search={
-                  libraryId
+                  (libraryId
                     ? { libraries: [libraryId], status: 'inactive' }
-                    : { status: 'inactive' }
+                    : { status: 'inactive' }) as any
                 }
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-xs hover:shadow-sm hover:border-gray-400 dark:hover:border-gray-700 transition-all"
               >
-                View Previous Partners →
-              </Link>
+                View Previous Partners
+              </Button>
             </div>
           ) : null}
         </div>

@@ -1,13 +1,10 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
-import { z } from 'zod'
+import { redirect, createFileRoute } from '@tanstack/react-router'
+import * as v from 'valibot'
 import { seo } from '~/utils/seo'
 import { ShowcaseModerationPage } from '~/components/ShowcaseModerationPage'
 import { listShowcasesForModerationQueryOptions } from '~/queries/showcases'
 import { requireCapability } from '~/utils/auth.server'
-import { libraries, type LibraryId } from '~/libraries'
-
-const libraryIds = libraries.map((lib) => lib.id) as readonly LibraryId[]
-const librarySchema = z.enum(libraryIds as [LibraryId, ...LibraryId[]])
+import { libraryIdSchema, showcaseStatusSchema } from '~/utils/schemas'
 
 export const Route = createFileRoute('/admin/showcases/')({
   staleTime: 1000 * 60 * 5, // 5 minutes
@@ -22,18 +19,19 @@ export const Route = createFileRoute('/admin/showcases/')({
     }
   },
   validateSearch: (search) => {
-    const parsed = z
-      .object({
-        page: z.number().optional().default(1).catch(1),
-        pageSize: z.number().int().positive().optional().default(50).catch(50),
-        status: z
-          .array(z.enum(['pending', 'approved', 'denied']))
-          .optional()
-          .catch(undefined),
-        libraryId: librarySchema.optional().catch(undefined),
-        isFeatured: z.boolean().optional().catch(undefined),
-      })
-      .parse(search)
+    const parsed = v.parse(
+      v.object({
+        page: v.optional(v.number(), 1),
+        pageSize: v.optional(
+          v.pipe(v.number(), v.integer(), v.minValue(1)),
+          50,
+        ),
+        status: v.optional(v.array(showcaseStatusSchema)),
+        libraryId: v.optional(v.array(libraryIdSchema)),
+        isFeatured: v.optional(v.boolean()),
+      }),
+      search,
+    )
 
     return parsed
   },

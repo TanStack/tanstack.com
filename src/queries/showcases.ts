@@ -6,8 +6,10 @@ import {
   getFeaturedShowcases,
   listShowcasesForModeration,
   getShowcase,
+  getMyShowcaseVotes,
+  getRelatedShowcases,
 } from '~/utils/showcase.functions'
-import type { ShowcaseStatus, ShowcaseUseCase } from '~/db/schema'
+import type { ShowcaseStatus, ShowcaseUseCase } from '~/db/types'
 
 export interface ShowcasePagination {
   page: number
@@ -16,7 +18,7 @@ export interface ShowcasePagination {
 
 export interface ShowcaseFilters {
   status?: ShowcaseStatus[]
-  libraryId?: string
+  libraryId?: string[]
   useCases?: ShowcaseUseCase[]
   userId?: string
   isFeatured?: boolean
@@ -34,9 +36,11 @@ export const getMyShowcasesQueryOptions = (params: {
 export const getApprovedShowcasesQueryOptions = (params: {
   pagination: ShowcasePagination
   filters?: {
-    libraryId?: string
+    libraryIds?: string[]
     useCases?: ShowcaseUseCase[]
     featured?: boolean
+    hasSourceCode?: boolean
+    q?: string
   }
 }) =>
   queryOptions({
@@ -69,10 +73,36 @@ export const listShowcasesForModerationQueryOptions = (params: {
   queryOptions({
     queryKey: ['showcases', 'moderation', params],
     queryFn: () => listShowcasesForModeration({ data: params }),
+    staleTime: 0,
   })
 
 export const getShowcaseQueryOptions = (showcaseId: string) =>
   queryOptions({
     queryKey: ['showcases', 'detail', showcaseId],
     queryFn: () => getShowcase({ data: { showcaseId } }),
+  })
+
+export const getMyShowcaseVotesQueryOptions = (showcaseIds: string[]) =>
+  queryOptions({
+    queryKey: ['showcases', 'votes', 'mine', showcaseIds],
+    queryFn: () => getMyShowcaseVotes({ data: { showcaseIds } }),
+    enabled: showcaseIds.length > 0,
+  })
+
+export const getRelatedShowcasesQueryOptions = (params: {
+  showcaseId: string
+  libraries: string[]
+  limit?: number
+}) =>
+  queryOptions({
+    queryKey: ['showcases', 'related', params.showcaseId],
+    queryFn: () =>
+      getRelatedShowcases({
+        data: {
+          showcaseId: params.showcaseId,
+          libraries: params.libraries,
+          limit: params.limit ?? 4,
+        },
+      }),
+    enabled: params.libraries.length > 0,
   })

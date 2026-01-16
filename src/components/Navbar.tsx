@@ -1,15 +1,16 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
-import { BrandContextMenu } from './BrandContextMenu'
+const LazyBrandContextMenu = React.lazy(() =>
+  import('./BrandContextMenu').then((m) => ({ default: m.BrandContextMenu })),
+)
 import {
   Link,
   useLocation,
   useMatches,
   useNavigate,
 } from '@tanstack/react-router'
+import { NetlifyImage } from './NetlifyImage'
 import {
-  ChevronRight,
-  ChevronDown,
   Code,
   Users,
   Music,
@@ -21,24 +22,29 @@ import {
   Paintbrush,
   Hammer,
   User,
-  Lock,
   Menu,
   X,
   Rss,
-  Home,
   Grid2X2,
-  LogOut,
-  Settings,
+  Sparkles,
 } from 'lucide-react'
 import { ThemeToggle } from './ThemeToggle'
 import { SearchButton } from './SearchButton'
-import { FeedTicker } from './FeedTicker'
+// const LazyFeedTicker = React.lazy(() =>
+//   import('./FeedTicker').then((m) => ({ default: m.FeedTicker })),
+// )
 import {
   Authenticated,
   Unauthenticated,
   AuthLoading,
 } from '~/components/AuthComponents'
-import { libraries, findLibrary } from '~/libraries'
+import {
+  libraries,
+  findLibrary,
+  SIDEBAR_LIBRARY_IDS,
+  type LibrarySlim,
+} from '~/libraries'
+import { ADMIN_ACCESS_CAPABILITIES } from '~/db/types'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useClickOutside } from '~/hooks/useClickOutside'
@@ -47,22 +53,110 @@ import { DiscordIcon } from '~/components/icons/DiscordIcon'
 import { InstagramIcon } from '~/components/icons/InstagramIcon'
 import { BSkyIcon } from '~/components/icons/BSkyIcon'
 import { BrandXIcon } from '~/components/icons/BrandXIcon'
-import { AnnouncementBanner } from '~/components/AnnouncementBanner'
-import { Avatar } from '~/components/Avatar'
-import {
-  Dropdown,
-  DropdownTrigger,
-  DropdownContent,
-  DropdownItem,
-  DropdownSeparator,
-} from '~/components/Dropdown'
+const LazyAnnouncementBanner = React.lazy(() =>
+  import('~/components/AnnouncementBanner').then((m) => ({
+    default: m.AnnouncementBanner,
+  })),
+)
+const LazyAuthenticatedUserMenu = React.lazy(() =>
+  import('~/components/AuthenticatedUserMenu').then((m) => ({
+    default: m.AuthenticatedUserMenu,
+  })),
+)
 import { authClient } from '~/utils/auth.client'
 import { useToast } from '~/components/ToastProvider'
-import {
-  Collapsible,
-  CollapsibleTrigger,
-  CollapsibleContent,
-} from '~/components/Collapsible'
+
+import { Card } from '~/components/Card'
+
+type LogoProps = {
+  showMenu: boolean
+  setShowMenu: React.Dispatch<React.SetStateAction<boolean>>
+  menuButtonRef: React.RefObject<HTMLButtonElement | null>
+  title?: React.ComponentType<any> | null
+}
+
+const LogoSection = ({
+  showMenu,
+  setShowMenu,
+  menuButtonRef,
+  title,
+}: LogoProps) => {
+  const pointerInsideButtonRef = React.useRef(false)
+  const toggleMenu = () => {
+    setShowMenu((prev) => !prev)
+  }
+  return (
+    <>
+      <button
+        aria-label="Open Menu"
+        className={twMerge(
+          'flex items-center justify-center',
+          'transition-all duration-300 h-8 px-2 py-1 lg:px-0',
+          // At lg: only visible when Title exists (flyout mode)
+          // Below lg: always visible
+          title
+            ? 'lg:w-9 lg:opacity-100 lg:translate-x-0'
+            : 'lg:w-0 lg:opacity-0 lg:-translate-x-full',
+        )}
+        ref={menuButtonRef}
+        onClick={toggleMenu}
+        onPointerEnter={(e) => {
+          // Enable hover to open flyout at md+ (but not touch)
+          if (window.innerWidth < 768 || e.pointerType === 'touch') return
+          if (pointerInsideButtonRef.current) return
+          pointerInsideButtonRef.current = true
+          setShowMenu(true)
+        }}
+        onPointerLeave={() => {
+          pointerInsideButtonRef.current = false
+        }}
+      >
+        {showMenu ? <X /> : <Menu />}
+      </button>
+      <Link
+        to="/"
+        className={twMerge(`inline-flex items-center gap-1.5 cursor-pointer`)}
+      >
+        <div className="w-[30px] inline-grid items-center grid-cols-1 grid-rows-1 [&>*]:transition-opacity [&>*]:duration-1000">
+          <NetlifyImage
+            src="/images/logos/logo-color-100.png"
+            alt=""
+            width={30}
+            className="row-start-1 col-start-1 w-full group-hover:opacity-0"
+          />
+          <img
+            src={'/images/logos/logo-black.svg'}
+            alt=""
+            className="row-start-1 col-start-1 w-full dark:opacity-0 opacity-0 group-hover:opacity-100"
+          />
+          <img
+            src={'/images/logos/logo-white.svg'}
+            alt=""
+            className="row-start-1 col-start-1 w-full light:opacity-0 dark:block opacity-0 group-hover:opacity-100"
+          />
+        </div>
+        <div>TanStack</div>
+      </Link>
+    </>
+  )
+}
+
+const MobileCard = ({
+  children,
+  isActive,
+}: {
+  children: React.ReactNode
+  isActive?: boolean
+}) => (
+  <Card
+    className={twMerge(
+      'md:contents border-gray-200/50 dark:border-gray-700/50 shadow-sm',
+      isActive && 'ring-2 ring-gray-400/30 dark:ring-gray-500/30',
+    )}
+  >
+    {children}
+  </Card>
+)
 
 export function Navbar({ children }: { children: React.ReactNode }) {
   const matches = useMatches()
@@ -95,10 +189,10 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   }, [matches])
 
   const canAdmin = capabilities.some((cap) =>
-    (['admin', 'moderate-feedback', 'moderate-showcases'] as const).includes(
-      cap,
-    ),
+    (ADMIN_ACCESS_CAPABILITIES as readonly string[]).includes(cap),
   )
+
+  const canApiKeys = !!user // Any logged-in user can access API keys
 
   const containerRef = React.useRef<HTMLDivElement>(null)
 
@@ -122,8 +216,6 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   }, [])
 
   const [showMenu, setShowMenu] = React.useState(false)
-  const pointerInsideButtonRef = React.useRef(false)
-
   const largeMenuRef = React.useRef<HTMLDivElement>(null)
   const menuButtonRef = React.useRef<HTMLButtonElement>(null)
 
@@ -133,10 +225,6 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     onClickOutside: () => setShowMenu(false),
     additionalRefs: [largeMenuRef, menuButtonRef],
   })
-
-  const toggleMenu = () => {
-    setShowMenu((prev) => !prev)
-  }
 
   const loginButton = (
     <>
@@ -163,46 +251,14 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       })()}
 
       <Authenticated>
-        <Dropdown>
-          <DropdownTrigger>
-            <div className="flex items-center gap-1 cursor-pointer h-[26px]">
-              <Avatar
-                image={user?.image}
-                oauthImage={user?.oauthImage}
-                name={user?.name}
-                email={user?.email}
-                size="xs"
-                className="w-[26px] h-[26px]"
-              />
-              <ChevronDown className="w-3 h-3 opacity-50" />
-            </div>
-          </DropdownTrigger>
-          <DropdownContent align="end">
-            <div className="px-2 py-1.5 text-xs text-gray-500 dark:text-gray-400">
-              {user?.email}
-            </div>
-            <DropdownSeparator />
-            <DropdownItem asChild>
-              <Link to="/account" className="flex items-center gap-2">
-                <Settings className="w-4 h-4" />
-                <span>Account</span>
-              </Link>
-            </DropdownItem>
-            {canAdmin && (
-              <DropdownItem asChild>
-                <Link to="/admin" className="flex items-center gap-2">
-                  <Lock className="w-4 h-4" />
-                  <span>Admin</span>
-                </Link>
-              </DropdownItem>
-            )}
-            <DropdownSeparator />
-            <DropdownItem onSelect={signOut}>
-              <LogOut className="w-4 h-4" />
-              <span>Sign out</span>
-            </DropdownItem>
-          </DropdownContent>
-        </Dropdown>
+        <React.Suspense fallback={<div className="w-[26px] h-[26px]" />}>
+          <LazyAuthenticatedUserMenu
+            user={user}
+            canAdmin={canAdmin}
+            canApiKeys={canApiKeys}
+            onSignOut={signOut}
+          />
+        </React.Suspense>
       </Authenticated>
     </>
   )
@@ -245,71 +301,51 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       )}
       ref={containerRef}
     >
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2 font-black text-xl uppercase">
-          <BrandContextMenu
-            className={twMerge(`flex items-center gap-1.5 group`)}
+      <div className="flex items-center min-w-0">
+        <div className="flex items-center gap-2 font-black text-xl uppercase min-w-0">
+          <React.Suspense
+            fallback={
+              <LogoSection
+                menuButtonRef={menuButtonRef}
+                setShowMenu={setShowMenu}
+                showMenu={showMenu}
+                title={Title}
+              />
+            }
           >
-            <button
-              aria-label="Open Menu"
-              className={twMerge(
-                'flex items-center justify-center',
-                'transition-all duration-300 h-8 px-2 py-1 lg:px-0',
-                Title
-                  ? 'lg:w-9 lg:opacity-100 lg:translate-x-0'
-                  : 'lg:w-0 lg:opacity-0 lg:-translate-x-full',
-              )}
-              ref={menuButtonRef}
-              onClick={toggleMenu}
-              onPointerEnter={(e) => {
-                // Only open on hover for desktop pointer devices
-                if (window.innerWidth < 1024 || e.pointerType === 'touch') {
-                  return
-                }
-                // Don't reopen if pointer is already inside (e.g. after clicking X)
-                if (pointerInsideButtonRef.current) {
-                  return
-                }
-                pointerInsideButtonRef.current = true
-                setShowMenu(true)
-              }}
-              onPointerLeave={() => {
-                pointerInsideButtonRef.current = false
-              }}
+            <LazyBrandContextMenu
+              className={twMerge(`flex items-center group flex-shrink-0`)}
             >
-              {showMenu ? <X /> : <Menu />}
-            </button>
-            <Link
-              to="/"
-              className={twMerge(
-                `inline-flex items-center gap-1.5 cursor-pointer`,
-              )}
-            >
-              <div className="w-[30px] inline-grid items-center grid-cols-1 grid-rows-1 [&>*]:transition-opacity [&>*]:duration-1000">
-                <img
-                  src={'/images/logos/logo-color-100.png'}
-                  alt=""
-                  className="row-start-1 col-start-1 w-full group-hover:opacity-0"
-                />
-                <img
-                  src={'/images/logos/logo-black.svg'}
-                  alt=""
-                  className="row-start-1 col-start-1 w-full dark:opacity-0 opacity-0 group-hover:opacity-100"
-                />
-                <img
-                  src={'/images/logos/logo-white.svg'}
-                  alt=""
-                  className="row-start-1 col-start-1 w-full light:opacity-0 dark:block opacity-0 group-hover:opacity-100"
-                />
-              </div>
-              <div>TanStack</div>
-            </Link>
-          </BrandContextMenu>
-          {Title ? <Title /> : null}
+              <LogoSection
+                menuButtonRef={menuButtonRef}
+                setShowMenu={setShowMenu}
+                showMenu={showMenu}
+                title={Title}
+              />
+            </LazyBrandContextMenu>
+          </React.Suspense>
+          {Title ? (
+            <div className="truncate">
+              <Title />
+            </div>
+          ) : null}
         </div>
       </div>
       <div className="hidden xl:flex flex-1 justify-end min-w-0">
-        <FeedTicker />
+        <Link
+          to="/mcp"
+          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md
+            bg-gradient-to-r from-emerald-600 to-teal-700
+            hover:from-emerald-500 hover:to-teal-600
+            text-white text-xs font-medium
+            shadow-sm hover:shadow-md
+            transition-all duration-200"
+        >
+          <span className="px-1 py-px text-[9px] font-bold bg-white/20 rounded uppercase">
+            Alpha
+          </span>
+          <span>Try TanStack MCP</span>
+        </Link>
       </div>
       <div className="flex items-center gap-2">
         <div className="hidden min-[750px]:block">{socialLinks}</div>
@@ -317,7 +353,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           <SearchButton />
         </div>
         <ThemeToggle />
-        <div className="hidden xs:flex items-center gap-2">{loginButton}</div>
+        <div className="flex items-center gap-2">{loginButton}</div>
       </div>
     </div>
   )
@@ -330,156 +366,178 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     },
   })
 
-  const linkClasses = `flex items-center justify-between group px-2 py-1 rounded-lg hover:bg-gray-500/10 font-black`
+  const linkClasses = `flex items-center justify-between gap-2 group px-3 py-3 md:px-2 md:py-1 rounded-lg hover:bg-gray-500/10 font-bold text-base md:text-sm`
 
   const items = (
-    <div className="md:flex gap-2 [&>*]:flex-1 lg:block">
-      <div>
+    <div className="contents md:block">
+      <div className="contents md:block">
         {(() => {
-          const sidebarLibraryIds = [
-            'start',
-            'router',
-            'query',
-            'table',
-            'db',
-            'ai',
-            'form',
-            'virtual',
-            'pacer',
-            'store',
-            'devtools',
-          ]
           return libraries
             .filter(
               (
                 d,
-              ): d is Library & {
+              ): d is LibrarySlim & {
                 to: string
                 textStyle: string
                 badge?: string
                 colorFrom: string
-              } => d.to !== undefined && sidebarLibraryIds.includes(d.id),
+              } =>
+                d.to !== undefined &&
+                d.visible !== false &&
+                (SIDEBAR_LIBRARY_IDS as readonly string[]).includes(d.id),
             )
             .sort((a, b) => {
-              const indexA = sidebarLibraryIds.indexOf(a.id)
-              const indexB = sidebarLibraryIds.indexOf(b.id)
+              const indexA = SIDEBAR_LIBRARY_IDS.indexOf(
+                a.id as (typeof SIDEBAR_LIBRARY_IDS)[number],
+              )
+              const indexB = SIDEBAR_LIBRARY_IDS.indexOf(
+                b.id as (typeof SIDEBAR_LIBRARY_IDS)[number],
+              )
               return indexA - indexB
             })
         })().map((library, i) => {
-          const [prefix, name] = library.name.split(' ')
+          const [_, name] = library.name.split(' ')
           const isActive = library.to === activeLibrary?.to
 
           return (
-            <div key={i}>
+            <div key={i} className="contents md:block">
               {library.to?.startsWith('http') ? (
-                <a href={library.to} className={linkClasses}>
-                  <span className={library.textStyle}>{name}</span>
-                </a>
-              ) : (
-                <Collapsible defaultOpen={isActive}>
-                  {({ open }) => (
-                    <>
-                      <CollapsibleTrigger
+                <>
+                  {/* Mobile: Card wrapper */}
+                  <MobileCard>
+                    <a
+                      href={library.to}
+                      className={twMerge(linkClasses, 'md:hidden')}
+                    >
+                      <span
                         className={twMerge(
-                          linkClasses,
-                          'w-full',
-                          isActive ? 'bg-gray-500/10 dark:bg-gray-500/30' : '',
+                          'w-4 h-4 md:w-3 md:h-3 rounded-sm border border-white/50',
+                          library.bgStyle,
+                        )}
+                      />
+                      {name}
+                    </a>
+                  </MobileCard>
+                  {/* Desktop: no card */}
+                  <a
+                    href={library.to}
+                    className={twMerge(linkClasses, 'hidden md:flex')}
+                  >
+                    <span
+                      className={twMerge(
+                        'w-3 h-3 rounded-sm border border-white/50',
+                        library.bgStyle,
+                      )}
+                    />
+                    {name}
+                  </a>
+                </>
+              ) : (
+                <>
+                  {/* Mobile: Direct link with Card */}
+                  <MobileCard isActive={isActive}>
+                    <Link
+                      to={`${library.to}/latest`}
+                      className={twMerge(
+                        linkClasses,
+                        'md:hidden',
+                        isActive ? 'bg-gray-500/5' : '',
+                      )}
+                    >
+                      <span
+                        className={twMerge(
+                          'w-4 h-4 md:w-3 md:h-3 rounded-sm',
+                          library.bgStyle,
+                        )}
+                      />
+                      <span
+                        style={{
+                          viewTransitionName: `library-name-${library.id}`,
+                        }}
+                        className={twMerge(
+                          'flex-1 text-left',
+                          isActive ? 'font-bold' : '',
                         )}
                       >
+                        {name}
+                      </span>
+                      {library.badge ? (
                         <span
-                          style={{
-                            viewTransitionName: `library-name-${library.id}`,
-                          }}
                           className={twMerge(
+                            `px-2 py-px uppercase font-black rounded-md text-[.65rem]`,
+                            'border-2 bg-transparent',
                             library.textStyle,
-                            isActive ? 'font-bold' : '',
-                          )}
-                        >
-                          {name}
-                        </span>
-                        <div className="flex items-center gap-1">
-                          {library.badge ? (
-                            <span
-                              className={twMerge(
-                                `px-2 py-px uppercase font-black bg-gray-500/10 dark:bg-gray-500/30 rounded-md text-[.7rem] text-white`,
-                                'opacity-90 group-hover:opacity-100 transition-opacity',
-                                'bg-gradient-to-r',
-                                library.colorFrom,
-                                library.colorTo,
-                                'text-[.6rem]',
-                              )}
-                            >
-                              {library.badge}
-                            </span>
-                          ) : null}
-                          <ChevronRight
-                            className={twMerge(
-                              'w-4 h-4 transition-transform duration-200',
-                              open && 'rotate-90',
-                            )}
-                          />
-                        </div>
-                      </CollapsibleTrigger>
-                      <CollapsibleContent>
-                        <div
-                          className={twMerge(
-                            'ml-2 my-1 p-1 border-l-2 flex flex-col gap-px',
                             library.borderStyle,
                           )}
                         >
-                          <Link
-                            to={`${library.to}/latest`}
-                            className={twMerge(
-                              'flex gap-2 items-center px-2 py-0.5',
-                              'rounded-lg hover:bg-gray-500/10 dark:hover:bg-gray-500/20',
-                            )}
-                            activeOptions={{ exact: true }}
-                            activeProps={{
-                              className:
-                                'bg-gray-500/10 dark:bg-gray-500/20 font-bold',
-                            }}
-                          >
-                            <Home className="w-4 h-4" />
-                            Home
-                          </Link>
-                          <Link
-                            to={`/${library.id}/latest/docs`}
-                            className={twMerge(
-                              'flex gap-2 items-center px-2 py-0.5',
-                              'rounded-lg hover:bg-gray-500/10 dark:hover:bg-gray-500/20',
-                            )}
-                            activeProps={{
-                              className:
-                                'bg-gray-500/10 dark:bg-gray-500/20 font-bold',
-                            }}
-                          >
-                            <BookOpen className="w-4 h-4" />
-                            Docs
-                          </Link>
-                          <a
-                            href={`https://github.com/${library.repo}`}
-                            className={twMerge(
-                              'flex gap-2 items-center px-2 py-0.5',
-                              'rounded-lg hover:bg-gray-500/10 dark:hover:bg-gray-500/20',
-                            )}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <GithubIcon className="w-4 h-4" />
-                            GitHub
-                          </a>
-                        </div>
-                      </CollapsibleContent>
-                    </>
-                  )}
-                </Collapsible>
+                          {library.badge}
+                        </span>
+                      ) : null}
+                    </Link>
+                  </MobileCard>
+                  {/* Desktop: Simple link */}
+                  <Link
+                    to={`${library.to}/latest`}
+                    className={twMerge(
+                      linkClasses,
+                      'hidden md:flex',
+                      isActive ? 'bg-gray-500/10 dark:bg-gray-500/30' : '',
+                    )}
+                  >
+                    <span
+                      className={twMerge('w-3 h-3 rounded-sm', library.bgStyle)}
+                    />
+                    <span
+                      style={{
+                        viewTransitionName: `library-name-${library.id}`,
+                      }}
+                      className={twMerge(
+                        'flex-1 text-left',
+                        isActive ? 'font-bold' : '',
+                      )}
+                    >
+                      {name}
+                    </span>
+                    {library.badge ? (
+                      <span
+                        className={twMerge(
+                          `px-2 py-px uppercase font-black rounded-md text-[.6rem]`,
+                          'border bg-transparent',
+                          'border-current text-current',
+                          'opacity-90 group-hover:opacity-100 transition-opacity',
+                          library.textColor,
+                        )}
+                      >
+                        {library.badge}
+                      </span>
+                    ) : null}
+                  </Link>
+                </>
               )}
             </div>
           )
         })}
+        {/* Mobile: More Libraries card */}
+        <MobileCard>
+          <Link
+            to="/libraries"
+            className={twMerge(linkClasses, 'font-normal md:hidden')}
+            activeProps={{
+              className: twMerge(
+                'font-bold! bg-gray-500/10 dark:bg-gray-500/30',
+              ),
+            }}
+          >
+            <div className="flex items-center gap-2">
+              <Grid2X2 className="w-5 h-5 md:w-4 md:h-4" />
+              <div>More Libraries</div>
+            </div>
+          </Link>
+        </MobileCard>
+        {/* Desktop: More Libraries link */}
         <Link
           to="/libraries"
-          className={twMerge(linkClasses, 'font-normal')}
+          className={twMerge(linkClasses, 'font-normal hidden md:flex')}
           activeProps={{
             className: twMerge('font-bold! bg-gray-500/10 dark:bg-gray-500/30'),
           }}
@@ -489,133 +547,169 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             <div>More Libraries</div>
           </div>
         </Link>
-        <div className="py-2">
+        <div className="py-2 hidden md:block col-span-2">
           <div className="bg-gray-500/10 h-px" />
         </div>
       </div>
-      <div>
-        <Authenticated>
-          {capabilities.some((capability) =>
-            (['builder', 'admin'] as const).includes(
-              capability as 'builder' | 'admin',
-            ),
-          ) ? (
-            <Link
-              to="/builder"
-              className={twMerge(linkClasses, 'font-normal')}
-              activeProps={{
-                className: twMerge(
-                  'font-bold! bg-gray-500/10 dark:bg-gray-500/30',
-                ),
-              }}
-            >
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-4 justify-between">
-                  <Hammer />
-                </div>
-                <div>Builder</div>
+      {/* Mobile separator */}
+      <div className="col-span-2 sm:col-span-3 py-3 md:hidden">
+        <div className="bg-gray-500/10 h-px" />
+      </div>
+      <div className="contents md:block">
+        {/* Mobile: Builder card */}
+        <MobileCard>
+          <Link
+            to="/builder"
+            className={twMerge(linkClasses, 'font-normal md:hidden')}
+            activeProps={{
+              className: twMerge(
+                'font-bold! bg-gray-500/10 dark:bg-gray-500/30',
+              ),
+            }}
+          >
+            <div className="flex items-center gap-2 w-full">
+              <Hammer className="w-5 h-5" />
+              <div className="flex items-center justify-between flex-1 gap-2">
+                <span>Builder</span>
+                <span className="px-1.5 py-0.5 text-[.6rem] font-black border border-amber-500 text-amber-500 rounded-md uppercase">
+                  Alpha
+                </span>
               </div>
-            </Link>
-          ) : null}
-        </Authenticated>
+            </div>
+          </Link>
+        </MobileCard>
+        {/* Desktop: Builder link */}
+        <Link
+          to="/builder"
+          className={twMerge(linkClasses, 'font-normal hidden md:flex')}
+          activeProps={{
+            className: twMerge('font-bold! bg-gray-500/10 dark:bg-gray-500/30'),
+          }}
+        >
+          <div className="flex items-center gap-2 w-full">
+            <Hammer className="w-4 h-4" />
+            <div className="flex items-center justify-between flex-1 gap-2">
+              <span>Builder</span>
+              <span className="px-1.5 py-0.5 text-[.6rem] font-black border border-amber-500 text-amber-500 rounded-md uppercase">
+                Alpha
+              </span>
+            </div>
+          </div>
+        </Link>
         {[
           {
             label: (
               <>
                 <span>Feed</span>
-                <span className="px-1.5 py-0.5 text-[.6rem] font-black bg-gradient-to-r from-blue-400 to-blue-600 text-white rounded-md uppercase">
+                <span className="px-1.5 py-0.5 text-[.6rem] font-black border border-blue-500 text-blue-500 rounded-md uppercase">
                   Beta
                 </span>
               </>
             ),
-            icon: <Rss />,
+            icon: Rss,
             to: '/feed',
           },
           {
             label: 'Maintainers',
-            icon: <Code />,
+            icon: Code,
             to: '/maintainers',
           },
           {
             label: 'Partners',
-            icon: <Users />,
+            icon: Users,
             to: '/partners',
           },
           {
+            label: 'Showcase',
+            icon: Sparkles,
+            to: '/showcase',
+          },
+          {
             label: 'Blog',
-            icon: <Music />,
+            icon: Music,
             to: '/blog',
           },
           {
             label: (
               <>
                 <span>Learn</span>
-                <span className="px-1.5 py-0.5 text-[.6rem] font-black bg-gradient-to-r from-green-400 to-green-600 text-white rounded-md uppercase">
+                <span className="px-1.5 py-0.5 text-[.6rem] font-black border border-green-500 text-green-500 rounded-md uppercase">
                   NEW
                 </span>
               </>
             ),
-            icon: <BookOpen />,
+            icon: BookOpen,
             to: '/learn',
           },
           {
             label: 'Support',
-            icon: <HelpCircle />,
+            icon: HelpCircle,
             to: '/support',
           },
           {
             label: 'Stats',
-            icon: <TrendingUp />,
+            icon: TrendingUp,
             to: '/stats/npm',
           },
           {
             label: 'Discord',
-            icon: <DiscordIcon />,
+            icon: DiscordIcon,
             to: 'https://tlinz.com/discord',
             target: '_blank',
           },
           {
             label: 'Merch',
-            icon: <Shirt />,
+            icon: Shirt,
             to: '/merch',
           },
           {
             label: 'GitHub',
-            icon: <GithubIcon />,
+            icon: GithubIcon,
             to: 'https://github.com/tanstack',
           },
           {
             label: 'Ethos',
-            icon: <ShieldCheck />,
+            icon: ShieldCheck,
             to: '/ethos',
           },
           {
             label: 'Tenets',
-            icon: <BookOpen />,
+            icon: BookOpen,
             to: '/tenets',
           },
           {
             label: 'Brand Guide',
-            icon: <Paintbrush />,
+            icon: Paintbrush,
             to: '/brand-guide',
           },
-        ]
-          .filter((item) => {
-            // Filter out items that require capabilities the user doesn't have
-            if (item.requiresCapability) {
-              return (
-                capabilities.includes(item.requiresCapability) ||
-                capabilities.includes('admin')
-              )
-            }
-            return true
-          })
-          .map((item, i) => {
-            return (
+        ].map((item, i) => {
+          const Icon = item.icon
+          return (
+            <React.Fragment key={i}>
+              {/* Mobile: Card */}
+              <MobileCard>
+                <Link
+                  to={item.to}
+                  className={twMerge(linkClasses, 'font-normal md:hidden')}
+                  activeProps={{
+                    className: twMerge(
+                      'font-bold! bg-gray-500/10 dark:bg-gray-500/30',
+                    ),
+                  }}
+                  target={item.to.startsWith('http') ? '_blank' : undefined}
+                >
+                  <div className="flex items-center gap-2 w-full">
+                    <Icon className="w-5 h-5" />
+                    <div className="flex items-center justify-between flex-1 gap-2">
+                      {item.label}
+                    </div>
+                  </div>
+                </Link>
+              </MobileCard>
+              {/* Desktop: Link */}
               <Link
                 to={item.to}
-                key={i}
-                className={twMerge(linkClasses, 'font-normal')}
+                className={twMerge(linkClasses, 'font-normal hidden md:flex')}
                 activeProps={{
                   className: twMerge(
                     'font-bold! bg-gray-500/10 dark:bg-gray-500/30',
@@ -624,16 +718,15 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                 target={item.to.startsWith('http') ? '_blank' : undefined}
               >
                 <div className="flex items-center gap-2 w-full">
-                  <div className="flex items-center gap-4 justify-between">
-                    {item.icon}
-                  </div>
+                  <Icon className="w-4 h-4" />
                   <div className="flex items-center justify-between flex-1 gap-2">
-                    {typeof item.label === 'string' ? item.label : item.label}
+                    {item.label}
                   </div>
                 </div>
               </Link>
-            )
-          })}
+            </React.Fragment>
+          )
+        })}
       </div>
     </div>
   )
@@ -641,7 +734,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   const smallMenu = showMenu ? (
     <div
       ref={smallMenuRef}
-      className="lg:hidden bg-white/50 dark:bg-black/60 backdrop-blur-[20px] z-50
+      className="md:hidden bg-white/50 dark:bg-black/60 backdrop-blur-[20px] z-50
     fixed top-[var(--navbar-height)] left-0 right-0 max-h-[calc(100dvh-var(--navbar-height))] overflow-y-auto
     "
     >
@@ -661,13 +754,10 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             }
           }}
         >
-          <div className="flex items-center justify-between p-2 gap-2">
-            <div className="flex-1">
-              <SearchButton />
-            </div>
-            <div className="xs:hidden">{loginButton}</div>
+          <div className="px-3 pt-3 sm:hidden">
+            <SearchButton className="w-full py-3 text-base [&_svg]:w-5 [&_svg]:h-5" />
           </div>
-          <div className="space-y-px text-sm p-2 border-b border-gray-500/20">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-base p-3 border-b border-gray-500/20">
             {items}
           </div>
           <div className="p-4 sm:hidden">{socialLinks}</div>
@@ -685,15 +775,22 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       <div
         ref={largeMenuRef}
         className={twMerge(
-          `px] hidden lg:flex flex-col
-      h-[calc(100dvh-var(--navbar-height))] sticky top-[var(--navbar-height)] z-20
+          `hidden md:flex flex-col
+      h-[calc(100dvh-var(--navbar-height))] z-20
       bg-white/50 dark:bg-black/30 border-r border-gray-500/20`,
           'transition-all duration-300',
           'z-50',
+          // md breakpoint: always flyout
+          'md:fixed md:top-[var(--navbar-height)] md:bg-white md:dark:bg-black/90 md:backdrop-blur-lg md:shadow-xl',
+          !showMenu && 'md:-translate-x-full',
+          showMenu && 'md:translate-x-0',
+          // lg breakpoint: inline when no Title, flyout when Title
+          inlineMenu &&
+            'lg:sticky lg:top-[var(--navbar-height)] lg:translate-x-0 lg:bg-white/50 lg:dark:bg-black/30 lg:backdrop-blur-none lg:shadow-none',
           !inlineMenu &&
-            'fixed bg-white dark:bg-black/90 backdrop-blur-lg shadow-xl',
-          !inlineMenu && !showMenu && '-translate-x-full',
-          !inlineMenu && showMenu && 'translate-x-0',
+            'lg:fixed lg:top-[var(--navbar-height)] lg:bg-white lg:dark:bg-black/90 lg:backdrop-blur-lg lg:shadow-xl',
+          !inlineMenu && !showMenu && 'lg:-translate-x-full',
+          !inlineMenu && showMenu && 'lg:translate-x-0',
         )}
         onPointerEnter={(e) => {
           if (e.pointerType === 'touch') return
@@ -718,12 +815,14 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       {navbar}
       {/* Sticky announcement banners below the nav */}
       <div className="sticky top-[var(--navbar-height)] z-[99]">
-        <AnnouncementBanner />
+        <React.Suspense fallback={null}>
+          <LazyAnnouncementBanner />
+        </React.Suspense>
       </div>
       <div
         className={twMerge(
           `min-h-[calc(100dvh-var(--navbar-height))] flex flex-col
-          min-w-0 lg:flex-row w-full transition-all duration-300
+          min-w-0 md:flex-row w-full transition-all duration-300
           pt-[var(--navbar-height)]`,
         )}
       >

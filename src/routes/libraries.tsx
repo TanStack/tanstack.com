@@ -1,5 +1,5 @@
-import * as React from 'react'
 import { createFileRoute } from '@tanstack/react-router'
+import * as React from 'react'
 import { libraries, Library } from '~/libraries'
 import { reactChartsProject } from '~/libraries/react-charts'
 import LibraryCard from '~/components/LibraryCard'
@@ -20,7 +20,7 @@ export const Route = createFileRoute('/libraries')({
 })
 
 function LibrariesPage() {
-  const allLibraries = libraries.filter((d) => d.to)
+  const allLibraries = libraries.filter((d) => d.to && d.visible !== false)
   const others = allLibraries.filter(
     (l) => l.id !== 'ranger' && l.id !== 'config' && l.id !== 'react-charts',
   )
@@ -50,12 +50,10 @@ function LibrariesPage() {
         sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3`}
       >
         {ordered.map((library, i) => {
-          const isRanger = library.id === 'ranger'
           return (
             <LibraryCard
               key={library.id}
               library={library as Library}
-              isGeneric={isRanger}
               index={i}
             />
           )

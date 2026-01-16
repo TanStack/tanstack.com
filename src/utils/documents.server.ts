@@ -42,12 +42,37 @@ async function fetchRemote(
 }
 
 /**
+ * Validate that a filepath doesn't attempt path traversal
+ */
+function isValidFilepath(filepath: string): boolean {
+  const normalized = path.normalize(filepath)
+  return (
+    !normalized.startsWith('..') &&
+    !normalized.includes('/../') &&
+    !path.isAbsolute(normalized)
+  )
+}
+
+/**
  * Return text content of file from local file system
  */
 async function fetchFs(repo: string, filepath: string) {
-  // const __dirname = fileURLToPath(new URL('.', import.meta.url))
+  if (!isValidFilepath(filepath)) {
+    console.warn(`[fetchFs] Invalid filepath rejected: ${filepath}\n`)
+    return ''
+  }
+
   const dirname = import.meta.url.split('://').at(-1)!
-  const localFilePath = path.resolve(dirname, `../../../../${repo}`, filepath)
+  const baseDir = path.resolve(dirname, `../../../../${repo}`)
+  const localFilePath = path.resolve(baseDir, filepath)
+
+  if (!localFilePath.startsWith(baseDir)) {
+    console.warn(
+      `[fetchFs] Path traversal attempt blocked: ${filepath} resolved to ${localFilePath}\n`,
+    )
+    return ''
+  }
+
   const exists = fs.existsSync(localFilePath)
   if (!exists) {
     console.warn(
@@ -441,22 +466,37 @@ async function fetchApiContentsFs(
   async function getContentsForPath(
     filePath: string,
   ): Promise<Array<GitHubFile>> {
-    const list = await fsp.readdir(filePath, { withFileTypes: true })
-    return list
-      .filter((item) => !dirsAndFilesToIgnore.includes(item.name))
-      .map((item) => {
-        return {
-          name: item.name,
-          path: path.join(filePath, item.name),
-          type: item.isDirectory() ? 'dir' : 'file',
-          _links: {
-            self: path.join(filePath, item.name),
-          },
-        }
-      })
+    try {
+      const list = await fsp.readdir(filePath, { withFileTypes: true })
+      return list
+        .filter((item) => !dirsAndFilesToIgnore.includes(item.name))
+        .map((item) => {
+          return {
+            name: item.name,
+            path: path.join(filePath, item.name),
+            type: item.isDirectory() ? 'dir' : 'file',
+            _links: {
+              self: path.join(filePath, item.name),
+            },
+          }
+        })
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        'code' in error &&
+        error.code === 'ENOENT'
+      ) {
+        return []
+      }
+      throw error
+    }
   }
 
   const data = await getContentsForPath(fsStartPath)
+
+  if (data.length === 0) {
+    return null
+  }
 
   async function buildFileTree(
     nodes: Array<GitHubFile> | undefined,
@@ -514,6 +554,9 @@ async function fetchApiContentsRemote(
   )
 
   if (!res.ok) {
+    if (res.status === 404) {
+      return null
+    }
     throw new Error(
       `Failed to fetch repo contents for ${repo}/${branch}/${startingPath}: Status is ${res.statusText} - ${res.status}`,
     )

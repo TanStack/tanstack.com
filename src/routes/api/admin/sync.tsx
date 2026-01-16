@@ -4,6 +4,7 @@ import { getAuthenticatedUser } from '~/utils/auth.server-helpers'
 import { getEffectiveCapabilities } from '~/utils/capabilities.server'
 
 export const Route = createFileRoute('/api/admin/sync')({
+  // @ts-expect-error server property not in route types yet
   server: {
     handlers: {
       POST: async () => {

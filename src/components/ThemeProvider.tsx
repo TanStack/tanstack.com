@@ -2,22 +2,23 @@ import { ScriptOnce } from '@tanstack/react-router'
 import { createClientOnlyFn, createIsomorphicFn } from '@tanstack/react-start'
 import * as React from 'react'
 import { createContext, ReactNode, useEffect, useState } from 'react'
-import { z } from 'zod'
+import * as v from 'valibot'
 import { THEME_COLORS } from '~/utils/utils'
 
-const themeModeSchema = z.enum(['light', 'dark', 'auto'])
-const resolvedThemeSchema = z.enum(['light', 'dark'])
+const themeModeSchema = v.picklist(['light', 'dark', 'auto'])
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- used for type inference
+const resolvedThemeSchema = v.picklist(['light', 'dark'])
 const themeKey = 'theme'
 
-type ThemeMode = z.infer<typeof themeModeSchema>
-type ResolvedTheme = z.infer<typeof resolvedThemeSchema>
+type ThemeMode = v.InferOutput<typeof themeModeSchema>
+type ResolvedTheme = v.InferOutput<typeof resolvedThemeSchema>
 
 const getStoredThemeMode = createIsomorphicFn()
   .server((): ThemeMode => 'auto')
   .client((): ThemeMode => {
     try {
       const storedTheme = localStorage.getItem(themeKey)
-      return themeModeSchema.parse(storedTheme)
+      return v.parse(themeModeSchema, storedTheme)
     } catch {
       return 'auto'
     }
@@ -25,7 +26,7 @@ const getStoredThemeMode = createIsomorphicFn()
 
 const setStoredThemeMode = createClientOnlyFn((theme: ThemeMode) => {
   try {
-    const parsedTheme = themeModeSchema.parse(theme)
+    const parsedTheme = v.parse(themeModeSchema, theme)
     localStorage.setItem(themeKey, parsedTheme)
   } catch {}
 })
@@ -55,13 +56,6 @@ const updateThemeClass = createClientOnlyFn((themeMode: ThemeMode) => {
       newTheme === 'dark' ? THEME_COLORS.dark : THEME_COLORS.light,
     )
   }
-})
-
-const setupPreferredListener = createClientOnlyFn(() => {
-  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-  const handler = () => updateThemeClass('auto')
-  mediaQuery.addEventListener('change', handler)
-  return () => mediaQuery.removeEventListener('change', handler)
 })
 
 const getNextTheme = createClientOnlyFn((current: ThemeMode): ThemeMode => {
@@ -111,20 +105,43 @@ const ThemeContext = createContext<ThemeContextProps | undefined>(undefined)
 type ThemeProviderProps = {
   children: ReactNode
 }
+const getResolvedThemeFromDOM = createIsomorphicFn()
+  .server((): ResolvedTheme => 'light')
+  .client((): ResolvedTheme => {
+    return document.documentElement.classList.contains('dark')
+      ? 'dark'
+      : 'light'
+  })
+
 export function ThemeProvider({ children }: ThemeProviderProps) {
   const [themeMode, setThemeMode] = useState<ThemeMode>(getStoredThemeMode)
+  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(
+    getResolvedThemeFromDOM,
+  )
 
+  // Sync resolved theme from DOM on mount (handles SSR -> client transition)
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional hydration after SSR
+    setResolvedTheme(getResolvedThemeFromDOM())
+  }, [])
+
+  // Listen for system theme changes when in auto mode
   useEffect(() => {
     if (themeMode !== 'auto') return
-    return setupPreferredListener()
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    const handler = () => {
+      updateThemeClass('auto')
+      setResolvedTheme(getSystemTheme())
+    }
+    mediaQuery.addEventListener('change', handler)
+    return () => mediaQuery.removeEventListener('change', handler)
   }, [themeMode])
-
-  const resolvedTheme = themeMode === 'auto' ? getSystemTheme() : themeMode
 
   const setTheme = (newTheme: ThemeMode) => {
     setThemeMode(newTheme)
     setStoredThemeMode(newTheme)
     updateThemeClass(newTheme)
+    setResolvedTheme(newTheme === 'auto' ? getSystemTheme() : newTheme)
   }
 
   const toggleMode = () => {

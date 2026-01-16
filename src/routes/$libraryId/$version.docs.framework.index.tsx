@@ -20,8 +20,7 @@ function getPackageName(
 ): string {
   if (frameworkValue === 'vanilla') {
     // For vanilla, use corePackageName if provided, otherwise just libraryId
-    const coreName = library.corePackageName || libraryId
-    return `@tanstack/${coreName}`
+    return library.corePackageName ?? `@tanstack/${libraryId}`
   }
   // Special case: Angular Query uses experimental package
   if (frameworkValue === 'angular' && libraryId === 'query') {

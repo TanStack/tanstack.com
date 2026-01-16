@@ -14,7 +14,7 @@ jobs:
           fetch-depth: 0
       - name: Setup Tools
         uses: tanstack/config/.github/setup@main
-      - name: Run Lint
-        run: pnpm lint
       - name: Run Build
         run: pnpm build
+      - name: Run Tests
+        run: pnpm test

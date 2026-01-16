@@ -5,7 +5,7 @@ import {
   getDocFeedbackLeaderboard,
   getDocFeedbackForPage,
 } from '~/utils/docFeedback.functions'
-import type { DocFeedbackStatus, DocFeedbackType } from '~/db/schema'
+import type { DocFeedbackStatus, DocFeedbackType } from '~/db/types'
 
 export interface DocFeedbackFilters {
   status?: DocFeedbackStatus[]
@@ -42,6 +42,7 @@ export const listDocFeedbackForModerationQueryOptions = (params: {
   queryOptions({
     queryKey: ['docFeedback', 'moderation', params],
     queryFn: () => listDocFeedbackForModeration({ data: params }),
+    staleTime: 0,
   })
 
 export const getDocFeedbackLeaderboardQueryOptions = (params: {

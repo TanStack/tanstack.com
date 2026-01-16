@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useMounted } from '~/hooks/useMounted'
 import { FeedList } from '~/components/FeedList'
-import { FeedFilters as FeedFiltersComponent } from '~/components/FeedFilters'
+import { FeedTopBarFilters } from '~/components/FeedTopBarFilters'
 import { useFeedQuery } from '~/hooks/useFeedQuery'
 import { useFeedInfiniteQuery } from '~/hooks/useFeedInfiniteQuery'
 import { FeedEntry } from '~/components/FeedEntry'
@@ -13,6 +13,7 @@ import {
   getFeedFacetCountsQueryOptions,
   type FeedFilters,
 } from '~/queries/feed'
+import type { FeedViewMode } from '~/db/types'
 
 // Re-export FeedFilters as FeedFiltersState for backwards compatibility
 export type FeedFiltersState = FeedFilters
@@ -21,7 +22,7 @@ interface FeedPageProps {
   search: FeedFiltersState & {
     page?: number
     pageSize?: number
-    viewMode?: 'table' | 'timeline'
+    viewMode?: FeedViewMode
     expanded?: string[]
   }
   onNavigate: (updates: {
@@ -29,7 +30,7 @@ interface FeedPageProps {
       FeedFiltersState & {
         page?: number
         pageSize?: number
-        viewMode?: 'table' | 'timeline'
+        viewMode?: FeedViewMode
         expanded?: string[]
       }
     >
@@ -54,7 +55,7 @@ export function FeedPage({
   const mounted = useMounted()
 
   // Load saved filter preferences from localStorage (only on client)
-  const [savedFilters, setSavedFilters] = useState<typeof search | null>(null)
+  const [_savedFilters, setSavedFilters] = useState<typeof search | null>(null)
   const [savedViewMode, setSavedViewMode] = useState<string | null>(null)
 
   useEffect(() => {
@@ -62,7 +63,16 @@ export function FeedPage({
       const saved = localStorage.getItem('feedFilters')
       if (saved) {
         try {
-          setSavedFilters(JSON.parse(saved))
+          const parsed = JSON.parse(saved)
+          // Convert null values back to undefined (they were nullified for JSON serialization)
+          const restored = Object.fromEntries(
+            Object.entries(parsed).map(([k, v]) => [
+              k,
+              v === null ? undefined : v,
+            ]),
+          )
+          // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional hydration from localStorage after SSR
+          setSavedFilters(restored as typeof search)
         } catch {
           // Ignore parse errors
         }
@@ -74,9 +84,11 @@ export function FeedPage({
     }
   }, [mounted])
 
-  // Merge saved filters with URL params (URL params take precedence)
+  // Use search params directly - savedFilters is only used to restore preferences
+  // when navigating back to the page (the filters are already in the URL from the
+  // previous save). We only fall back to savedFilters for viewMode since that's
+  // not always in the URL.
   const effectiveFilters = {
-    ...savedFilters,
     ...search,
     viewMode:
       search.viewMode ??
@@ -155,9 +167,22 @@ export function FeedPage({
     })
 
     // Save to localStorage
+    // Note: JSON.stringify strips undefined values, so we need to explicitly
+    // null out fields that are being cleared to overwrite saved values
     if (typeof window !== 'undefined') {
-      const updatedFilters = { ...search, ...newFilters, page: 1 }
-      localStorage.setItem('feedFilters', JSON.stringify(updatedFilters))
+      const updatedFilters = {
+        ...search,
+        ...newFilters,
+        page: 1,
+      }
+      // Convert undefined to null for JSON serialization, then back on parse
+      const forStorage = Object.fromEntries(
+        Object.entries(updatedFilters).map(([k, v]) => [
+          k,
+          v === undefined ? null : v,
+        ]),
+      )
+      localStorage.setItem('feedFilters', JSON.stringify(forStorage))
       setSavedFilters(updatedFilters)
     }
   }
@@ -198,7 +223,7 @@ export function FeedPage({
     })
   }
 
-  const handleViewModeChange = (viewMode: 'table' | 'timeline') => {
+  const handleViewModeChange = (viewMode: FeedViewMode) => {
     onNavigate({
       search: {
         ...search,
@@ -238,31 +263,29 @@ export function FeedPage({
 
   return (
     <div className="p-2 sm:p-4 pb-0 flex flex-col max-w-full gap-2 sm:gap-4 relative">
-      <div className="flex-1 space-y-2 sm:space-y-4 w-full max-w-7xl mx-auto flex flex-col lg:flex-row gap-2 min-h-0">
-        <aside className="lg:w-64 flex-shrink-0 lg:self-start sticky top-[calc(var(--navbar-height)+1rem)] z-10">
-          <FeedFiltersComponent
-            libraries={libraries.filter(
-              (lib): lib is import('~/libraries/types').Library =>
-                'tagline' in lib,
-            )}
-            partners={partners}
-            selectedEntryTypes={effectiveFilters.entryTypes}
-            selectedLibraries={effectiveFilters.libraries}
-            selectedPartners={effectiveFilters.partners}
-            selectedTags={effectiveFilters.tags}
-            selectedReleaseLevels={
-              effectiveFilters.releaseLevels ?? [...FEED_DEFAULTS.releaseLevels]
-            }
-            includePrerelease={effectiveFilters.includePrerelease}
-            featured={effectiveFilters.featured}
-            search={effectiveFilters.search}
-            facetCounts={facetCountsQuery.data}
-            viewMode={viewMode}
-            onViewModeChange={handleViewModeChange}
-            onFiltersChange={handleFiltersChange}
-            onClearFilters={handleClearFilters}
-          />
-        </aside>
+      <div className="w-full max-w-7xl mx-auto space-y-3">
+        <FeedTopBarFilters
+          libraries={libraries.filter(
+            (lib): lib is import('~/libraries/types').Library =>
+              'tagline' in lib,
+          )}
+          partners={partners}
+          selectedEntryTypes={effectiveFilters.entryTypes}
+          selectedLibraries={effectiveFilters.libraries}
+          selectedPartners={effectiveFilters.partners}
+          selectedTags={effectiveFilters.tags}
+          selectedReleaseLevels={
+            effectiveFilters.releaseLevels ?? [...FEED_DEFAULTS.releaseLevels]
+          }
+          includePrerelease={effectiveFilters.includePrerelease}
+          featured={effectiveFilters.featured}
+          search={effectiveFilters.search}
+          facetCounts={facetCountsQuery.data}
+          viewMode={viewMode}
+          onViewModeChange={handleViewModeChange}
+          onFiltersChange={handleFiltersChange}
+          onClearFilters={handleClearFilters}
+        />
         <main className="flex-1 min-w-0 relative flex flex-col">
           <FeedList
             query={isTimelineMode ? undefined : feedQuery}

@@ -1,9 +1,9 @@
 import {
-  createFileRoute,
   isNotFound,
   redirect,
   useLocation,
-  getRouteApi,
+  useMatch,
+  createFileRoute,
 } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { Doc } from '~/components/Doc'
@@ -11,8 +11,6 @@ import { loadDocs } from '~/utils/docs'
 import { getBranch, getLibrary } from '~/libraries'
 import { capitalize } from '~/utils/utils'
 import { DocContainer } from '~/components/DocContainer'
-
-const docsRouteApi = getRouteApi('/$libraryId/$version/docs')
 
 export const Route = createFileRoute(
   '/$libraryId/$version/docs/framework/$framework/$',
@@ -30,8 +28,6 @@ export const Route = createFileRoute(
         docsPath: `${
           library.docsRoot || 'docs'
         }/framework/${framework}/${docsPath}`,
-        currentPath: ctx.location.pathname,
-        redirectPath: `/${library.id}/${version}/docs/overview`,
       })
     } catch (error) {
       // If doc not found, redirect to framework docs root instead of showing 404
@@ -60,6 +56,7 @@ export const Route = createFileRoute(
           ? `${ctx.loaderData.title} | ${tail}`
           : tail,
         description: ctx.loaderData?.description,
+        noindex: library.visible === false,
       }),
     }
   },
@@ -67,8 +64,9 @@ export const Route = createFileRoute(
 
 function Docs() {
   const { title, content, filePath } = Route.useLoaderData()
-  const { config } = docsRouteApi.useLoaderData()
-  const { version, libraryId } = Route.useParams()
+  const versionMatch = useMatch({ from: '/$libraryId/$version' })
+  const { config } = versionMatch.loaderData
+  const { version, libraryId, framework } = Route.useParams()
   const library = getLibrary(libraryId)
   const branch = getBranch(library, version)
   const location = useLocation()
@@ -90,6 +88,7 @@ function Docs() {
         libraryVersion={version === 'latest' ? library.latestVersion : version}
         pagePath={location.pathname}
         config={config}
+        framework={framework}
       />
     </DocContainer>
   )

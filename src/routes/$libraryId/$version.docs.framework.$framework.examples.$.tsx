@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { isNotFound, notFound, createFileRoute } from '@tanstack/react-router'
 import {
   queryOptions,
   useQuery,
@@ -15,7 +15,7 @@ import {
 } from '~/utils/sandbox'
 import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
-import { z } from 'zod'
+import * as v from 'valibot'
 import { CodeExplorer } from '~/components/CodeExplorer'
 import type { GitHubFileNode } from '~/utils/documents.server'
 import { ExternalLink } from 'lucide-react'
@@ -49,9 +49,9 @@ export const Route = createFileRoute(
   '/$libraryId/$version/docs/framework/$framework/examples/$',
 )({
   component: RouteComponent,
-  validateSearch: z.object({
-    path: z.string().optional(),
-    panel: z.string().optional(),
+  validateSearch: v.object({
+    path: v.optional(v.string()),
+    panel: v.optional(v.string()),
   }),
   loaderDeps: ({ search }) => ({ path: search.path }),
   loader: async ({ params, context: { queryClient }, deps: { path } }) => {
@@ -62,35 +62,49 @@ export const Route = createFileRoute(
     // Used to tell the github contents api where to start looking for files in the target repository
     const repoStartingDirPath = `examples/${examplePath}`
 
-    // Fetching and Caching the contents of the target directory
-    const githubContents = await queryClient.ensureQueryData(
-      repoDirApiContentsQueryOptions(library.repo, branch, repoStartingDirPath),
-    )
+    try {
+      // Fetching and Caching the contents of the target directory
+      const githubContents = await queryClient.ensureQueryData(
+        repoDirApiContentsQueryOptions(
+          library.repo,
+          branch,
+          repoStartingDirPath,
+        ),
+      )
 
-    // Used to determine the starting file name for the explorer
-    // It's either the selected path in the search params or a default we can derive
-    // i.e. app.tsx, main.tsx, src/routes/__root.tsx, etc.
-    // This value is not absolutely guaranteed to be available, so further resolution may be necessary
-    const explorerCandidateStartingFileName =
-      path ||
-      getExampleStartingPath(params.framework as Framework, params.libraryId)
+      // Used to determine the starting file name for the explorer
+      // It's either the selected path in the search params or a default we can derive
+      // i.e. app.tsx, main.tsx, src/routes/__root.tsx, etc.
+      // This value is not absolutely guaranteed to be available, so further resolution may be necessary
+      const explorerCandidateStartingFileName =
+        path ||
+        getExampleStartingPath(params.framework as Framework, params.libraryId)
 
-    // Using the fetched contents, get the actual starting file-path for the explorer
-    // The `explorerCandidateStartingFileName` is used for matching, but the actual file-path may differ
-    const currentPath = determineStartingFilePath(
-      githubContents,
-      explorerCandidateStartingFileName,
-      params.framework as Framework,
-      params.libraryId,
-    )
+      // Using the fetched contents, get the actual starting file-path for the explorer
+      // The `explorerCandidateStartingFileName` is used for matching, but the actual file-path may differ
+      const currentPath = determineStartingFilePath(
+        githubContents,
+        explorerCandidateStartingFileName,
+        params.framework as Framework,
+        params.libraryId,
+      )
 
-    // Now that we've resolved the starting file path, we can
-    // fetching and caching the file content for the starting file path
-    await queryClient.ensureQueryData(
-      fileQueryOptions(library.repo, branch, currentPath),
-    )
+      // Now that we've resolved the starting file path, we can
+      // fetching and caching the file content for the starting file path
+      await queryClient.ensureQueryData(
+        fileQueryOptions(library.repo, branch, currentPath),
+      )
 
-    return { repoStartingDirPath, currentPath }
+      return { repoStartingDirPath, currentPath }
+    } catch (error) {
+      const isNotFoundError =
+        isNotFound(error) ||
+        (error && typeof error === 'object' && 'isNotFound' in error)
+      if (isNotFoundError) {
+        throw notFound()
+      }
+      throw error
+    }
   },
   head: ({ params }) => {
     const library = getLibrary(params.libraryId)
@@ -103,6 +117,7 @@ export const Route = createFileRoute(
         description: `An example showing how to implement ${slugToTitle(
           params._splat || '',
         )} in ${capitalize(params.framework)} using ${library.name}.`,
+        noindex: library.visible === false,
       }),
     }
   },

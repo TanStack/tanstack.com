@@ -3,6 +3,8 @@ import { env } from '~/utils/env'
 import {
   getOAuthStateCookie,
   clearOAuthStateCookie,
+  isOAuthPopupMode,
+  clearOAuthPopupCookie,
   getSessionService,
   getOAuthService,
   getUserRepository,
@@ -17,9 +19,10 @@ import { recordLogin } from '~/utils/audit.server'
 import { recordDailyActivity } from '~/utils/activity.server'
 
 export const Route = createFileRoute('/api/auth/callback/$provider')({
+  // @ts-expect-error server property not in route types yet
   server: {
     handlers: {
-      GET: async ({ request, params }) => {
+      GET: async ({ request, params }: { request: Request; params: { provider: string } }) => {
         const isProduction = process.env.NODE_ENV === 'production'
 
         try {
@@ -162,12 +165,20 @@ export const Route = createFileRoute('/api/auth/callback/$provider')({
             SESSION_MAX_AGE_SECONDS,
           )
 
+          // Check if this was a popup OAuth flow
+          const isPopup = isOAuthPopupMode(request)
+          const redirectUrl = isPopup
+            ? new URL('/auth/popup-success', request.url).toString()
+            : new URL('/account', request.url).toString()
+
           // Return Response with Set-Cookie headers and redirect
-          const accountUrl = new URL('/account', request.url).toString()
           const headers = new Headers()
-          headers.set('Location', accountUrl)
+          headers.set('Location', redirectUrl)
           headers.append('Set-Cookie', clearStateCookieHeader)
           headers.append('Set-Cookie', sessionCookie)
+          if (isPopup) {
+            headers.append('Set-Cookie', clearOAuthPopupCookie(isProduction))
+          }
 
           return new Response(null, {
             status: 302,

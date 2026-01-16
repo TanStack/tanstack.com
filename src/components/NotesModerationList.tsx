@@ -11,9 +11,10 @@ import {
 } from './TableComponents'
 import { PaginationControls } from './PaginationControls'
 import { Spinner } from './Spinner'
-import type { DocFeedback } from '~/db/schema'
+import type { DocFeedback } from '~/db/types'
 import { calculatePoints } from '~/utils/docFeedback.client'
 import { ExternalLink, TriangleAlert } from 'lucide-react'
+import { Badge } from '~/ui'
 
 interface NotesModerationListProps {
   data:
@@ -130,15 +131,12 @@ export function NotesModerationList({
               (feedback.content.length > 100 ? '...' : '')
             const charCount = feedback.content.length
 
-            // Status badge styling
-            const statusStyles = {
-              pending:
-                'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-              approved:
-                'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-              denied:
-                'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-            }
+            // Status badge variant mapping
+            const statusVariants = {
+              pending: 'warning',
+              approved: 'success',
+              denied: 'error',
+            } as const
 
             return (
               <React.Fragment key={feedback.id}>
@@ -153,14 +151,9 @@ export function NotesModerationList({
                     {(page - 1) * pageSize + index + 1}
                   </TableCell>
                   <TableCell>
-                    <span
-                      className={twMerge(
-                        'inline-flex items-center px-2 py-1 rounded-full text-xs font-medium',
-                        statusStyles[feedback.status],
-                      )}
-                    >
+                    <Badge variant={statusVariants[feedback.status]}>
                       {feedback.status}
-                    </span>
+                    </Badge>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">

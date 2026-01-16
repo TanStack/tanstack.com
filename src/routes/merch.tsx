@@ -1,5 +1,5 @@
-import * as React from 'react'
 import { createFileRoute } from '@tanstack/react-router'
+import * as React from 'react'
 import { Footer } from '~/components/Footer'
 import { seo } from '~/utils/seo'
 import { Shirt, ShoppingBag, Smartphone, Tag, Circle } from 'lucide-react'

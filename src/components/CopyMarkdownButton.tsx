@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react'
 import { type MouseEventHandler, useEffect, useRef } from 'react'
 import { useToast } from '~/components/ToastProvider'
 import { Check, Copy } from 'lucide-react'
-import { Button } from './Button'
+import { Button } from '~/ui'
 
 export function useCopyButton(
   onCopy: () => void | Promise<void>,

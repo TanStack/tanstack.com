@@ -18,7 +18,13 @@ const NpmDownloadCounter = ({
   }
 }) => {
   const ref = useNpmDownloadCounter(npmData)
-  return <span ref={ref} style={{ fontVariantNumeric: 'tabular-nums' }} />
+  // Provide initial SSR value, hook will update it on client
+  const initialCount = npmData.totalDownloads ?? 0
+  return (
+    <span ref={ref} style={{ fontVariantNumeric: 'tabular-nums' }}>
+      {initialCount.toLocaleString()}
+    </span>
+  )
 }
 
 function isValidMetric(value: number | undefined | null): boolean {
@@ -144,9 +150,55 @@ function OssStatsContent({ library }: { library?: Library }) {
   )
 }
 
+function OssStatsSkeleton() {
+  return (
+    <Card
+      className="relative p-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8 items-center
+      justify-center xl:place-items-center rounded-[2rem]"
+    >
+      <div className="flex gap-4 items-center">
+        <Download className="text-2xl" />
+        <div>
+          <div className="text-2xl font-bold opacity-80 h-7 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+          <div className="text-sm opacity-60 font-medium italic">
+            NPM Downloads
+          </div>
+        </div>
+      </div>
+      <div className="flex gap-4 items-center">
+        <Star className="text-2xl" />
+        <div>
+          <div className="text-2xl font-bold opacity-80 h-7 w-20 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+          <div className="text-sm opacity-60 font-medium italic -mt-1">
+            Stars on Github
+          </div>
+        </div>
+      </div>
+      <div className="flex gap-4 items-center">
+        <Users className="text-2xl" />
+        <div>
+          <div className="text-2xl font-bold opacity-80 h-7 w-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+          <div className="text-sm opacity-60 font-medium italic -mt-1">
+            Contributors on GitHub
+          </div>
+        </div>
+      </div>
+      <div className="flex gap-4 items-center">
+        <Box className="text-2xl" />
+        <div>
+          <div className="text-2xl font-bold opacity-80 h-7 w-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+          <div className="text-sm opacity-60 font-medium italic -mt-1">
+            Dependents on GitHub
+          </div>
+        </div>
+      </div>
+    </Card>
+  )
+}
+
 export default function OssStats({ library }: { library?: Library }) {
   return (
-    <Suspense fallback={<></>}>
+    <Suspense fallback={<OssStatsSkeleton />}>
       <BlankErrorBoundary>
         <OssStatsContent library={library} />
       </BlankErrorBoundary>

@@ -2,6 +2,7 @@ import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import { Link, LinkProps } from '@tanstack/react-router'
 import type { Library } from '~/libraries'
+import { Button } from '~/ui'
 
 type LibraryHeroProps = {
   project: Library
@@ -15,7 +16,12 @@ type LibraryHeroProps = {
 
 export function LibraryHero({ project, cta, actions }: LibraryHeroProps) {
   const resolvedName = project.name.replace('TanStack ', '')
-  const gradientText = `pr-1 inline-block text-transparent bg-clip-text bg-linear-to-r ${project.colorFrom} ${project.colorTo}`
+  const hasColor =
+    project.colorFrom && !project.colorFrom.includes('from-black')
+  // For colorless libraries, use a gray-to-black gradient to create contrast with the black TanStack text
+  const gradientText = hasColor
+    ? `pr-1 inline-block text-transparent bg-clip-text bg-linear-to-r ${project.colorFrom} ${project.colorTo}`
+    : 'pr-1 inline-block text-transparent bg-clip-text bg-linear-to-r from-gray-400 to-black dark:from-gray-500 dark:to-white'
 
   return (
     <div className="flex flex-col items-center gap-8 text-center px-4">
@@ -46,17 +52,15 @@ export function LibraryHero({ project, cta, actions }: LibraryHeroProps) {
         </p>
       ) : null}
       {actions ? (
-        <div>{actions}</div>
+        <div className="flex flex-wrap gap-2 justify-center">{actions}</div>
       ) : cta ? (
-        <Link
+        <Button
+          as={Link}
           {...cta.linkProps}
-          className={twMerge(
-            'inline-block py-2 px-4 rounded uppercase font-extrabold transition-colors',
-            cta.className,
-          )}
+          className={twMerge('py-2 px-4 text-sm', cta.className)}
         >
           {cta.label}
-        </Link>
+        </Button>
       ) : null}
     </div>
   )

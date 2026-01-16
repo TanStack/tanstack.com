@@ -1,15 +1,22 @@
-import { z } from 'zod'
+import * as v from 'valibot'
 
-// Shared schemas for npm stats routes
-export const transformModeSchema = z.enum(['none', 'normalize-y'])
-export const binTypeSchema = z.enum(['yearly', 'monthly', 'weekly', 'daily'])
-export const showDataModeSchema = z.enum(['all', 'complete'])
+// Re-export shared types from chart utils
+export {
+  binTypeSchema,
+  type BinType,
+  binningOptions,
+  getBinFunction,
+} from '~/utils/chart'
 
-export type TransformMode = z.infer<typeof transformModeSchema>
-export type BinType = z.infer<typeof binTypeSchema>
-export type ShowDataMode = z.infer<typeof showDataModeSchema>
+// NPM-specific schemas (extends shared with additional time ranges)
+export const transformModeSchema = v.picklist(['none', 'normalize-y'])
+export const showDataModeSchema = v.picklist(['all', 'complete'])
 
-export const timeRangeSchema = z.enum([
+export type TransformMode = v.InferOutput<typeof transformModeSchema>
+export type ShowDataMode = v.InferOutput<typeof showDataModeSchema>
+
+// NPM stats has additional time ranges (730 days, 1825 days) beyond shared chart utils
+export const timeRangeSchema = v.picklist([
   '7-days',
   '30-days',
   '90-days',
@@ -20,7 +27,7 @@ export const timeRangeSchema = z.enum([
   'all-time',
 ])
 
-export type TimeRange = z.infer<typeof timeRangeSchema>
+export type TimeRange = v.InferOutput<typeof timeRangeSchema>
 
 // URL encoding/decoding for package names
 // @tanstack/react-query -> @tanstack__react-query

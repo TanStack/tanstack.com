@@ -1,12 +1,15 @@
-import { createFileRoute, useSearch, Link } from '@tanstack/react-router'
+import { useSearch, Link, createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { useCapabilities } from '~/hooks/useCapabilities'
+import { hasCapability } from '~/db/types'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
-import { getUserStats } from '~/utils/user-stats.server'
-import { getActivityStats } from '~/utils/audit.functions'
-import { getActivityStatsAdmin } from '~/utils/activity.functions'
-import * as Plot from '@observablehq/plot'
-import { useEffect, useRef } from 'react'
+import { getUserStats, getSignupsChartData } from '~/utils/user-stats.server'
+import { getActivityStats, getLoginsChartData } from '~/utils/audit.functions'
+import {
+  getActivityStatsAdmin,
+  getDauChartData,
+} from '~/utils/activity.functions'
+import { useState } from 'react'
 import {
   ArrowDown,
   ArrowUp,
@@ -23,17 +26,28 @@ import {
   Users,
 } from 'lucide-react'
 import { Card } from '~/components/Card'
-import { z } from 'zod'
-
-const searchSchema = z.object({
-  tab: z
-    .enum(['overview', 'users', 'activity', 'ads'])
-    .optional()
-    .default('overview'),
-})
+import { Badge, Button } from '~/ui'
+import * as v from 'valibot'
+import { TimeSeriesChart } from '~/components/charts/TimeSeriesChart'
+import { ChartControls } from '~/components/charts/ChartControls'
+import {
+  type TimeRange,
+  type BinType,
+  timeRangeToDays,
+  defaultBinForRange,
+} from '~/utils/chart'
 
 export const Route = createFileRoute('/admin/')({
-  validateSearch: searchSchema,
+  validateSearch: (search) =>
+    v.parse(
+      v.object({
+        tab: v.optional(
+          v.picklist(['overview', 'users', 'activity', 'ads']),
+          'overview',
+        ),
+      }),
+      search,
+    ),
   component: AdminPage,
 })
 
@@ -50,7 +64,7 @@ function AdminPage() {
     )
   }
 
-  const canAdmin = capabilities.includes('admin')
+  const canAdmin = hasCapability(capabilities, 'admin')
   if (user && !canAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -60,11 +74,8 @@ function AdminPage() {
           <p className="text-gray-600 dark:text-gray-400 mb-4">
             You don't have permission to access the admin area.
           </p>
-          <Link
-            to="/"
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
-          >
-            Back to Home
+          <Link to="/">
+            <Button>Back to Home</Button>
           </Link>
         </div>
       </div>
@@ -80,16 +91,19 @@ function AdminDashboard() {
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ['admin', 'user-stats'],
     queryFn: () => getUserStats(),
+    staleTime: 0,
   })
 
   const { data: activityStats, isLoading: activityLoading } = useQuery({
     queryKey: ['admin', 'activity-stats'],
     queryFn: () => getActivityStats(),
+    staleTime: 0,
   })
 
   const { data: dauStats, isLoading: dauLoading } = useQuery({
     queryKey: ['admin', 'dau-stats'],
     queryFn: () => getActivityStatsAdmin(),
+    staleTime: 0,
   })
 
   const tabs = [
@@ -115,22 +129,24 @@ function AdminDashboard() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 mb-6 border-b border-gray-200 dark:border-gray-700">
-          {tabs.map((t) => (
-            <Link
-              key={t.id}
-              to="/admin"
-              search={{ tab: t.id }}
-              className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-                tab === t.id
-                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-              }`}
-            >
-              {t.icon}
-              {t.label}
-            </Link>
-          ))}
+        <div className="flex gap-1 mb-6 border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
+          <div className="flex gap-1 min-w-max">
+            {tabs.map((t) => (
+              <Link
+                key={t.id}
+                to="/admin"
+                search={{ tab: t.id }}
+                className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                  tab === t.id
+                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+                }`}
+              >
+                {t.icon}
+                {t.label}
+              </Link>
+            ))}
+          </div>
         </div>
 
         {/* Tab Content */}
@@ -244,49 +260,16 @@ function OverviewTab({
       </div>
 
       {/* Overview Charts - One from each category */}
+      {/* Overview Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* User Signups Chart */}
-        <Card className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-              <Users className="text-blue-500" />
-              User Signups
-            </h3>
-            <Link
-              to="/admin"
-              search={{ tab: 'users' }}
-              className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400"
-            >
-              View details →
-            </Link>
-          </div>
-          <CumulativeSignupsChart data={stats.signupsPerDay} height={200} />
-        </Card>
-
-        {/* Daily Active Users Chart */}
-        <Card className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-              <Flame className="text-orange-500" />
-              Daily Active Users
-            </h3>
-            <Link
-              to="/admin"
-              search={{ tab: 'activity' }}
-              className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400"
-            >
-              View details →
-            </Link>
-          </div>
-          {dauStats ? (
-            <DailyActiveUsersChart
-              data={dauStats.dailyActiveUsers}
-              height={200}
-            />
-          ) : (
-            <div className="text-center py-8 text-gray-500">Loading...</div>
-          )}
-        </Card>
+        <SignupsChartCard
+          title="User Signups"
+          variant="cumulative"
+          defaultTimeRange="all-time"
+          color="#3b82f6"
+          height={200}
+        />
+        <DauChartCard title="Daily Active Users" height={200} />
       </div>
 
       {/* Quick Stats */}
@@ -470,19 +453,20 @@ function UsersTab({
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Daily Signups
-          </h3>
-          <DailySignupsChart data={stats.signupsPerDay} />
-        </Card>
-
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Cumulative User Signups Over Time
-          </h3>
-          <CumulativeSignupsChart data={stats.signupsPerDay} />
-        </Card>
+        <SignupsChartCard
+          title="Daily Signups"
+          variant="bar"
+          defaultTimeRange="90-days"
+          color="#10b981"
+          height={300}
+        />
+        <SignupsChartCard
+          title="Cumulative User Signups"
+          variant="cumulative"
+          defaultTimeRange="all-time"
+          color="#3b82f6"
+          height={300}
+        />
       </div>
 
       {/* User Management Link */}
@@ -496,11 +480,8 @@ function UsersTab({
               View and manage individual user accounts, roles, and capabilities.
             </p>
           </div>
-          <Link
-            to="/admin/users"
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Manage Users
+          <Link to="/admin/users">
+            <Button>Manage Users</Button>
           </Link>
         </div>
       </Card>
@@ -554,11 +535,22 @@ function ActivityTab({
             <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
               WAU (7 days)
             </div>
-            <div className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-              {dauStats.wau}
+            <div className="flex items-center gap-3 mb-2">
+              <div className="text-4xl font-bold text-gray-900 dark:text-white">
+                {dauStats.wau}
+              </div>
+              {dauStats.wauPrevious > 0 && (
+                <ChangeIndicator
+                  value={
+                    ((dauStats.wau - dauStats.wauPrevious) /
+                      dauStats.wauPrevious) *
+                    100
+                  }
+                />
+              )}
             </div>
             <div className="text-xs text-gray-500 dark:text-gray-400">
-              Weekly active users
+              vs previous 7 days ({dauStats.wauPrevious})
             </div>
           </Card>
 
@@ -566,11 +558,22 @@ function ActivityTab({
             <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
               MAU (30 days)
             </div>
-            <div className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-              {dauStats.mau}
+            <div className="flex items-center gap-3 mb-2">
+              <div className="text-4xl font-bold text-gray-900 dark:text-white">
+                {dauStats.mau}
+              </div>
+              {dauStats.mauPrevious > 0 && (
+                <ChangeIndicator
+                  value={
+                    ((dauStats.mau - dauStats.mauPrevious) /
+                      dauStats.mauPrevious) *
+                    100
+                  }
+                />
+              )}
             </div>
             <div className="text-xs text-gray-500 dark:text-gray-400">
-              Monthly active users
+              vs previous 30 days ({dauStats.mauPrevious})
             </div>
           </Card>
 
@@ -622,11 +625,23 @@ function ActivityTab({
             <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
               Active Users Today
             </div>
-            <div className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-              {activityStats.activeUsers.today}
+            <div className="flex items-center gap-3 mb-2">
+              <div className="text-4xl font-bold text-gray-900 dark:text-white">
+                {activityStats.activeUsers.today}
+              </div>
+              {activityStats.activeUsers.yesterday > 0 && (
+                <ChangeIndicator
+                  value={
+                    ((activityStats.activeUsers.today -
+                      activityStats.activeUsers.yesterday) /
+                      activityStats.activeUsers.yesterday) *
+                    100
+                  }
+                />
+              )}
             </div>
             <div className="text-xs text-gray-500 dark:text-gray-400">
-              Unique users who logged in
+              vs yesterday ({activityStats.activeUsers.yesterday})
             </div>
           </Card>
 
@@ -634,11 +649,23 @@ function ActivityTab({
             <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
               Active Users (7d)
             </div>
-            <div className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-              {activityStats.activeUsers.last7Days}
+            <div className="flex items-center gap-3 mb-2">
+              <div className="text-4xl font-bold text-gray-900 dark:text-white">
+                {activityStats.activeUsers.last7Days}
+              </div>
+              {activityStats.activeUsers.previous7Days > 0 && (
+                <ChangeIndicator
+                  value={
+                    ((activityStats.activeUsers.last7Days -
+                      activityStats.activeUsers.previous7Days) /
+                      activityStats.activeUsers.previous7Days) *
+                    100
+                  }
+                />
+              )}
             </div>
             <div className="text-xs text-gray-500 dark:text-gray-400">
-              Last 7 days
+              vs previous 7 days ({activityStats.activeUsers.previous7Days})
             </div>
           </Card>
 
@@ -646,11 +673,23 @@ function ActivityTab({
             <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
               Active Users (30d)
             </div>
-            <div className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-              {activityStats.activeUsers.last30Days}
+            <div className="flex items-center gap-3 mb-2">
+              <div className="text-4xl font-bold text-gray-900 dark:text-white">
+                {activityStats.activeUsers.last30Days}
+              </div>
+              {activityStats.activeUsers.previous30Days > 0 && (
+                <ChangeIndicator
+                  value={
+                    ((activityStats.activeUsers.last30Days -
+                      activityStats.activeUsers.previous30Days) /
+                      activityStats.activeUsers.previous30Days) *
+                    100
+                  }
+                />
+              )}
             </div>
             <div className="text-xs text-gray-500 dark:text-gray-400">
-              Last 30 days
+              vs previous 30 days ({activityStats.activeUsers.previous30Days})
             </div>
           </Card>
         </div>
@@ -658,25 +697,8 @@ function ActivityTab({
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* DAU Chart */}
-        {dauStats && (
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Daily Active Users (30 days)
-            </h3>
-            <DailyActiveUsersChart data={dauStats.dailyActiveUsers} />
-          </Card>
-        )}
-
-        {/* Daily Logins Chart */}
-        {activityStats && (
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Daily Logins (30 days)
-            </h3>
-            <DailyLoginsChart data={activityStats.dailyLogins} />
-          </Card>
-        )}
+        <DauChartCard title="Daily Active Users" />
+        <LoginsChartCard title="Daily Logins" />
       </div>
 
       {/* Login Providers & Top Users */}
@@ -701,15 +723,9 @@ function ActivityTab({
                     key={provider}
                     className="flex items-center justify-between"
                   >
-                    <span
-                      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                        provider === 'github'
-                          ? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
-                          : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
-                      }`}
-                    >
+                    <Badge variant={provider === 'github' ? 'default' : 'info'}>
                       {provider}
-                    </span>
+                    </Badge>
                     <div className="flex items-center gap-2">
                       <span className="text-lg font-semibold text-gray-900 dark:text-white">
                         {count.toLocaleString()}
@@ -1072,323 +1088,188 @@ function ChangeIndicator({ value }: { value: number }) {
   )
 }
 
-// Charts
-function DailyActiveUsersChart({
-  data,
+// Chart Card Components with Time Range Controls
+
+function SignupsChartCard({
+  title,
+  variant = 'bar',
+  defaultTimeRange = '30-days',
+  color = '#10b981',
+  height = 200,
+  linkTo,
+}: {
+  title: string
+  variant?: 'bar' | 'area' | 'cumulative'
+  defaultTimeRange?: TimeRange
+  color?: string
+  height?: number
+  linkTo?: string
+}) {
+  const [timeRange, setTimeRange] = useState<TimeRange>(defaultTimeRange)
+  const [binType, setBinType] = useState<BinType>(
+    defaultBinForRange[defaultTimeRange],
+  )
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['admin', 'signups-chart', timeRange],
+    queryFn: () =>
+      getSignupsChartData({ data: { days: timeRangeToDays(timeRange) } }),
+  })
+
+  return (
+    <Card className="p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+          <Users className="text-blue-500" />
+          {title}
+        </h3>
+        <div className="flex items-center gap-2">
+          <ChartControls
+            timeRange={timeRange}
+            onTimeRangeChange={setTimeRange}
+            binType={binType}
+            onBinTypeChange={setBinType}
+          />
+          {linkTo && (
+            <Link
+              to={linkTo}
+              className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400"
+            >
+              Details
+            </Link>
+          )}
+        </div>
+      </div>
+      {isLoading ? (
+        <div className="h-[200px] flex items-center justify-center text-gray-500">
+          Loading...
+        </div>
+      ) : (
+        <TimeSeriesChart
+          data={data ?? []}
+          binType={binType}
+          variant={variant}
+          color={color}
+          height={height}
+          yLabel={variant === 'cumulative' ? 'Total Users' : 'Signups'}
+        />
+      )}
+    </Card>
+  )
+}
+
+function DauChartCard({
+  title,
+  defaultTimeRange = '30-days',
+  height = 200,
+  linkTo,
+}: {
+  title: string
+  defaultTimeRange?: TimeRange
+  height?: number
+  linkTo?: string
+}) {
+  const [timeRange, setTimeRange] = useState<TimeRange>(defaultTimeRange)
+  const [binType, setBinType] = useState<BinType>(
+    defaultBinForRange[defaultTimeRange],
+  )
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['admin', 'dau-chart', timeRange],
+    queryFn: () =>
+      getDauChartData({ data: { days: timeRangeToDays(timeRange) } }),
+  })
+
+  return (
+    <Card className="p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+          <Flame className="text-orange-500" />
+          {title}
+        </h3>
+        <div className="flex items-center gap-2">
+          <ChartControls
+            timeRange={timeRange}
+            onTimeRangeChange={setTimeRange}
+            binType={binType}
+            onBinTypeChange={setBinType}
+          />
+          {linkTo && (
+            <Link
+              to={linkTo}
+              className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400"
+            >
+              Details
+            </Link>
+          )}
+        </div>
+      </div>
+      {isLoading ? (
+        <div className="h-[200px] flex items-center justify-center text-gray-500">
+          Loading...
+        </div>
+      ) : (
+        <TimeSeriesChart
+          data={data ?? []}
+          binType={binType}
+          variant="area"
+          color="#10b981"
+          height={height}
+          yLabel="Active Users"
+        />
+      )}
+    </Card>
+  )
+}
+
+function LoginsChartCard({
+  title,
+  defaultTimeRange = '30-days',
   height = 200,
 }: {
-  data: Array<{ date: string; count: number }>
+  title: string
+  defaultTimeRange?: TimeRange
   height?: number
 }) {
-  const containerRef = useRef<HTMLDivElement>(null)
+  const [timeRange, setTimeRange] = useState<TimeRange>(defaultTimeRange)
+  const [binType, setBinType] = useState<BinType>(
+    defaultBinForRange[defaultTimeRange],
+  )
 
-  useEffect(() => {
-    if (!containerRef.current || data.length === 0) return
+  const { data, isLoading } = useQuery({
+    queryKey: ['admin', 'logins-chart', timeRange],
+    queryFn: () =>
+      getLoginsChartData({ data: { days: timeRangeToDays(timeRange) } }),
+  })
 
-    const container = containerRef.current
-
-    const renderChart = () => {
-      if (!container) return
-      container.innerHTML = ''
-
-      const plot = Plot.plot({
-        width: container.clientWidth,
-        height,
-        marginLeft: 50,
-        marginRight: 20,
-        marginTop: 20,
-        marginBottom: 40,
-        x: { label: 'Date', type: 'utc', grid: true },
-        y: { label: 'Active Users', grid: true },
-        marks: [
-          Plot.areaY(data, {
-            x: (d) => new Date(d.date),
-            y: 'count',
-            fill: '#10b981',
-            fillOpacity: 0.2,
-            curve: 'monotone-x',
-          }),
-          Plot.lineY(data, {
-            x: (d) => new Date(d.date),
-            y: 'count',
-            stroke: '#10b981',
-            strokeWidth: 2,
-            curve: 'monotone-x',
-          }),
-          Plot.dot(data, {
-            x: (d) => new Date(d.date),
-            y: 'count',
-            fill: '#10b981',
-            r: 3,
-          }),
-          Plot.tip(
-            data,
-            Plot.pointerX({
-              x: (d) => new Date(d.date),
-              y: 'count',
-              title: (d) =>
-                `${d.date}\n${d.count.toLocaleString()} active users`,
-            }),
-          ),
-        ],
-        style: { background: 'transparent', fontSize: '12px' },
-      })
-
-      container.appendChild(plot)
-    }
-
-    renderChart()
-    const resizeObserver = new ResizeObserver(() => renderChart())
-    resizeObserver.observe(container)
-    return () => {
-      resizeObserver.disconnect()
-      container.innerHTML = ''
-    }
-  }, [data, height])
-
-  if (data.length === 0) {
-    return (
-      <div className="text-center py-8 text-gray-600 dark:text-gray-400">
-        No activity data available yet
+  return (
+    <Card className="p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+          <LogIn className="text-cyan-500" />
+          {title}
+        </h3>
+        <ChartControls
+          timeRange={timeRange}
+          onTimeRangeChange={setTimeRange}
+          binType={binType}
+          onBinTypeChange={setBinType}
+        />
       </div>
-    )
-  }
-
-  return <div ref={containerRef} className="w-full" />
-}
-
-function DailyLoginsChart({
-  data,
-}: {
-  data: Array<{ date: string; count: number }>
-}) {
-  const containerRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (!containerRef.current || data.length === 0) return
-
-    const container = containerRef.current
-
-    const renderChart = () => {
-      if (!container) return
-      container.innerHTML = ''
-
-      const plot = Plot.plot({
-        width: container.clientWidth,
-        height: 200,
-        marginLeft: 50,
-        marginRight: 20,
-        marginTop: 20,
-        marginBottom: 40,
-        x: { label: 'Date', type: 'utc', grid: true },
-        y: { label: 'Logins', grid: true },
-        marks: [
-          Plot.rectY(data, {
-            x: (d) => new Date(d.date),
-            y: 'count',
-            fill: '#06b6d4',
-            fillOpacity: 0.8,
-            interval: 'day',
-          }),
-          Plot.tip(
-            data,
-            Plot.pointerX({
-              x: (d) => new Date(d.date),
-              y: 'count',
-              title: (d) => `${d.date}\n${d.count.toLocaleString()} logins`,
-            }),
-          ),
-        ],
-        style: { background: 'transparent', fontSize: '12px' },
-      })
-
-      container.appendChild(plot)
-    }
-
-    renderChart()
-    const resizeObserver = new ResizeObserver(() => renderChart())
-    resizeObserver.observe(container)
-    return () => {
-      resizeObserver.disconnect()
-      container.innerHTML = ''
-    }
-  }, [data])
-
-  if (data.length === 0) {
-    return (
-      <div className="text-center py-8 text-gray-600 dark:text-gray-400">
-        No login data available yet
-      </div>
-    )
-  }
-
-  return <div ref={containerRef} className="w-full" />
-}
-
-function DailySignupsChart({
-  data,
-}: {
-  data: Array<{ date: string; count: number }>
-}) {
-  const containerRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (!containerRef.current || data.length === 0) return
-
-    const container = containerRef.current
-
-    const renderChart = () => {
-      if (!container) return
-      container.innerHTML = ''
-
-      const plot = Plot.plot({
-        width: container.clientWidth,
-        height: 300,
-        marginLeft: 60,
-        marginRight: 20,
-        marginTop: 20,
-        marginBottom: 40,
-        x: { label: 'Date', type: 'utc', grid: true },
-        y: { label: 'Daily Signups', grid: true },
-        marks: [
-          Plot.rectY(data, {
-            x: (d) => new Date(d.date),
-            y: 'count',
-            fill: '#10b981',
-            fillOpacity: 0.8,
-            interval: 'day',
-          }),
-          Plot.tip(
-            data,
-            Plot.pointerX({
-              x: (d) => new Date(d.date),
-              y: 'count',
-              title: (d) => `${d.date}\n${d.count.toLocaleString()} signups`,
-            }),
-          ),
-        ],
-        style: { background: 'transparent', fontSize: '12px' },
-      })
-
-      container.appendChild(plot)
-    }
-
-    renderChart()
-    const resizeObserver = new ResizeObserver(() => renderChart())
-    resizeObserver.observe(container)
-    return () => {
-      resizeObserver.disconnect()
-      container.innerHTML = ''
-    }
-  }, [data])
-
-  if (data.length === 0) {
-    return (
-      <div className="text-center py-12 text-gray-600 dark:text-gray-400">
-        No signup data available yet
-      </div>
-    )
-  }
-
-  return <div ref={containerRef} className="w-full" />
-}
-
-function CumulativeSignupsChart({
-  data,
-  height = 300,
-}: {
-  data: Array<{ date: string; count: number }>
-  height?: number
-}) {
-  const containerRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (!containerRef.current || data.length === 0) return
-
-    const container = containerRef.current
-
-    const renderChart = () => {
-      if (!container) return
-      container.innerHTML = ''
-
-      const plot = Plot.plot({
-        width: container.clientWidth,
-        height,
-        marginLeft: 60,
-        marginRight: 20,
-        marginTop: 20,
-        marginBottom: 40,
-        x: { label: 'Date', type: 'utc', grid: true },
-        y: { label: 'Total Users', grid: true },
-        marks: [
-          Plot.areaY(
-            data,
-            Plot.mapY('cumsum', {
-              x: (d) => new Date(d.date),
-              y: 'count',
-              fill: '#3b82f6',
-              fillOpacity: 0.2,
-              curve: 'monotone-x',
-            }),
-          ),
-          Plot.lineY(
-            data,
-            Plot.mapY('cumsum', {
-              x: (d) => new Date(d.date),
-              y: 'count',
-              stroke: '#3b82f6',
-              strokeWidth: 2,
-              curve: 'monotone-x',
-            }),
-          ),
-          Plot.dot(
-            data,
-            Plot.mapY('cumsum', {
-              x: (d) => new Date(d.date),
-              y: 'count',
-              fill: '#3b82f6',
-              r: 3,
-            }),
-          ),
-          Plot.tip(
-            data,
-            Plot.pointerX(
-              Plot.mapY('cumsum', {
-                x: (d) => new Date(d.date),
-                y: 'count',
-                title: (d, i) => {
-                  let cumSum = 0
-                  for (let j = 0; j <= i; j++) {
-                    cumSum += data[j].count
-                  }
-                  return `${d.date}\n${cumSum.toLocaleString()} total users`
-                },
-              }),
-            ),
-          ),
-        ],
-        style: { background: 'transparent', fontSize: '12px' },
-      })
-
-      container.appendChild(plot)
-    }
-
-    renderChart()
-    const resizeObserver = new ResizeObserver(() => renderChart())
-    resizeObserver.observe(container)
-    return () => {
-      resizeObserver.disconnect()
-      container.innerHTML = ''
-    }
-  }, [data, height])
-
-  if (data.length === 0) {
-    return (
-      <div className="text-center py-12 text-gray-600 dark:text-gray-400">
-        No signup data available yet
-      </div>
-    )
-  }
-
-  return <div ref={containerRef} className="w-full" />
+      {isLoading ? (
+        <div className="h-[200px] flex items-center justify-center text-gray-500">
+          Loading...
+        </div>
+      ) : (
+        <TimeSeriesChart
+          data={data ?? []}
+          binType={binType}
+          variant="bar"
+          color="#06b6d4"
+          height={height}
+          yLabel="Logins"
+        />
+      )}
+    </Card>
+  )
 }

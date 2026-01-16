@@ -244,6 +244,8 @@ export function createOAuthStateCookie(
   state: string,
   isProduction: boolean,
 ): string {
+  // Use SameSite=Lax to allow the cookie to be sent on OAuth redirects back from providers
+  // Strict would block the cookie since the redirect comes from an external domain (GitHub/Google)
   return `oauth_state=${encodeURIComponent(state)}; HttpOnly; Path=/; Max-Age=${10 * 60}; SameSite=Lax${isProduction ? '; Secure' : ''}`
 }
 
@@ -262,6 +264,19 @@ export function getOAuthStateCookie(request: Request): string | null {
   }
 
   return decodeURIComponent(stateCookie.split('=').slice(1).join('=').trim())
+}
+
+export function createOAuthPopupCookie(isProduction: boolean): string {
+  return `oauth_popup=1; HttpOnly; Path=/; Max-Age=${10 * 60}; SameSite=Lax${isProduction ? '; Secure' : ''}`
+}
+
+export function clearOAuthPopupCookie(isProduction: boolean): string {
+  return `oauth_popup=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax${isProduction ? '; Secure' : ''}`
+}
+
+export function isOAuthPopupMode(request: Request): boolean {
+  const cookies = request.headers.get('cookie') || ''
+  return cookies.split(';').some((c) => c.trim().startsWith('oauth_popup=1'))
 }
 
 // ============================================================================

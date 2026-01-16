@@ -7,66 +7,55 @@ import rehypeRaw from 'rehype-raw'
 import rehypeSlug from 'rehype-slug'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import rehypeStringify from 'rehype-stringify'
-import { visit } from 'unist-util-visit'
-import { toString } from 'hast-util-to-string'
+
 import {
   rehypeCollectHeadings,
   rehypeParseCommentComponents,
   rehypeTransformCommentComponents,
+  rehypeTransformFrameworkComponents,
+  type MarkdownHeading,
 } from '~/utils/markdown/plugins'
+import { extractCodeMeta } from '~/utils/markdown/plugins/extractCodeMeta'
 
-export type MarkdownHeading = {
-  id: string
-  text: string
-  level: number
-}
+export type { MarkdownHeading } from '~/utils/markdown/plugins'
 
 export type MarkdownRenderResult = {
   markup: string
   headings: MarkdownHeading[]
 }
 
-export function renderMarkdown(content): MarkdownRenderResult {
+export function renderMarkdown(content: string): MarkdownRenderResult {
   const headings: MarkdownHeading[] = []
 
   const processor = unified()
     .use(remarkParse)
     .use(remarkGfm)
     .use(remarkRehype, { allowDangerousHtml: true })
+    .use(extractCodeMeta)
     .use(rehypeRaw)
     .use(rehypeParseCommentComponents)
     .use(rehypeCallouts, {
       theme: 'github',
       props: {
-        containerProps(node, type) {
-          return {
-            className: `markdown-alert markdown-alert-${type}`,
-            children: node.children,
-          }
-        },
-        titleIconProps() {
-          return {
-            className: 'octicon octicon-info mr-2',
-          }
-        },
-        titleProps() {
-          return {
-            className: 'markdown-alert-title',
-          }
-        },
-        titleTextProps() {
-          return {
-            className: 'markdown-alert-title',
-          }
-        },
-        contentProps() {
-          return {
-            className: 'markdown-alert-content',
-          }
-        },
+        containerProps: (_node: any, type: string) => ({
+          className: `markdown-alert markdown-alert-${type}`,
+        }),
+        titleIconProps: () => ({
+          className: 'octicon octicon-info mr-2',
+        }),
+        titleProps: () => ({
+          className: 'markdown-alert-title',
+        }),
+        titleTextProps: () => ({
+          className: 'markdown-alert-title',
+        }),
+        contentProps: () => ({
+          className: 'markdown-alert-content',
+        }),
       },
-    })
+    } as any)
     .use(rehypeSlug)
+    .use(rehypeTransformFrameworkComponents)
     .use(rehypeTransformCommentComponents)
     .use(rehypeAutolinkHeadings, {
       behavior: 'wrap',
@@ -74,9 +63,10 @@ export function renderMarkdown(content): MarkdownRenderResult {
         className: ['anchor-heading'],
       },
     })
-    .use((tree, file) => rehypeCollectHeadings(tree, file, headings))
+    .use(() => rehypeCollectHeadings(headings))
+    .use(rehypeStringify)
 
-  const file = processor.use(rehypeStringify).processSync(content)
+  const file = processor.processSync(content)
 
   return {
     markup: String(file),

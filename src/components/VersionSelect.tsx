@@ -59,10 +59,7 @@ function useCurrentVersion(versions: string[]) {
   const setVersion = React.useCallback(
     (version: string) => {
       navigate({
-        params: (prev: Record<string, string>) => ({
-          ...prev,
-          version,
-        }),
+        params: { version } as never,
       })
       localCurrentVersion.setCurrentVersion(version)
     },

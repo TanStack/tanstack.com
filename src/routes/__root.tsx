@@ -12,14 +12,22 @@ import { QueryClient } from '@tanstack/react-query'
 import appCss from '~/styles/app.css?url'
 import { seo } from '~/utils/seo'
 import ogImage from '~/images/og.png'
-import { TanStackRouterDevtoolsInProd } from '@tanstack/react-router-devtools'
+const LazyRouterDevtools = React.lazy(() =>
+  import('@tanstack/react-router-devtools').then((m) => ({
+    default: m.TanStackRouterDevtoolsInProd,
+  })),
+)
 import { NotFound } from '~/components/NotFound'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { GamScripts } from '~/components/Gam'
 
 import { SearchProvider } from '~/contexts/SearchContext'
-import { SearchModal } from '~/components/SearchModal'
 import { ToastProvider } from '~/components/ToastProvider'
+import { LoginModalProvider } from '~/contexts/LoginModalContext'
+
+const LazySearchModal = React.lazy(() =>
+  import('~/components/SearchModal').then((m) => ({ default: m.SearchModal })),
+)
 import { Spinner } from '~/components/Spinner'
 import { ThemeProvider } from '~/components/ThemeProvider'
 import { Navbar } from '~/components/Navbar'
@@ -190,36 +198,38 @@ function HtmlWrapper({ children }: { children: React.ReactNode }) {
         <GamScripts />
       </head>
       <body className="overflow-x-hidden">
-        <ToastProvider>
-          <React.Suspense fallback={null}>
-            {hideNavbar ? children : <Navbar>{children}</Navbar>}
-          </React.Suspense>
-          {showDevtools ? (
-            <TanStackRouterDevtoolsInProd position="bottom-right" />
-          ) : null}
-          {canShowLoading ? (
-            <div
-              className={`fixed top-0 left-0 h-[300px] w-full
+        <LoginModalProvider>
+          <ToastProvider>
+            <React.Suspense fallback={null}>
+              {hideNavbar ? children : <Navbar>{children}</Navbar>}
+            </React.Suspense>
+            {showDevtools ? (
+              <LazyRouterDevtools position="bottom-right" />
+            ) : null}
+            {canShowLoading ? (
+              <div
+                className={`fixed top-0 left-0 h-[300px] w-full
         transition-all duration-300 pointer-events-none
         z-30 dark:h-[200px] dark:bg-white/10! dark:rounded-[100%] ${
           isLoading
             ? 'delay-500 opacity-1 -translate-y-1/2'
             : 'delay-0 opacity-0 -translate-y-full'
         }`}
-              style={{
-                background: `radial-gradient(closest-side, rgba(0,10,40,0.2) 0%, rgba(0,0,0,0) 100%)`,
-              }}
-            >
-              <div
-                className={`absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-[30px] p-2 bg-white/80 dark:bg-gray-800
-        rounded-lg shadow-lg`}
+                style={{
+                  background: `radial-gradient(closest-side, rgba(0,10,40,0.2) 0%, rgba(0,0,0,0) 100%)`,
+                }}
               >
-                <Spinner className="text-5xl" />
+                <div
+                  className={`absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-[30px] p-2 bg-white/80 dark:bg-gray-800
+        rounded-lg shadow-lg`}
+                >
+                  <Spinner className="text-5xl" />
+                </div>
               </div>
-            </div>
-          ) : null}
-          <SearchModal />
-        </ToastProvider>
+            ) : null}
+            <LazySearchModal />
+          </ToastProvider>
+        </LoginModalProvider>
         <noscript>
           <iframe
             src="https://www.googletagmanager.com/ns.html?id=GTM-5N57KQT4"

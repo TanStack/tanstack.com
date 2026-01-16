@@ -6,6 +6,10 @@ import {
   useMatch,
   useRouter,
 } from '@tanstack/react-router'
+import * as Sentry from '@sentry/tanstackstart-react'
+
+import { Button } from '~/ui'
+import { useEffect } from 'react'
 
 // type DefaultCatchBoundaryType = {
 //   status: number
@@ -14,8 +18,37 @@ import {
 //   isRoot?: boolean
 // }
 
+function isChunkLoadError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false
+  return (
+    error.message.includes('Failed to fetch dynamically imported module') ||
+    error.message.includes('error loading dynamically imported module') ||
+    error.message.includes('Importing a module script failed') ||
+    error.name === 'ChunkLoadError'
+  )
+}
+
 export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
   const router = useRouter()
+
+  useEffect(() => {
+    // Handle chunk loading errors (version skew) by reloading the page
+    if (isChunkLoadError(error) && typeof window !== 'undefined') {
+      const reloadKey = 'chunk-error-reload'
+      const lastReload = sessionStorage.getItem(reloadKey)
+      const now = Date.now()
+
+      // Only reload if we haven't reloaded in the last 10 seconds (prevent loop)
+      if (!lastReload || now - parseInt(lastReload, 10) > 10000) {
+        sessionStorage.setItem(reloadKey, now.toString())
+        window.location.reload()
+        return
+      }
+    }
+
+    Sentry.captureException(error)
+  }, [error])
+
   const isRoot = useMatch({
     strict: false,
     select: (state) => state.id === rootRouteId,
@@ -33,32 +66,28 @@ export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
       </h1>
       <ErrorComponent error={error} />
       <div className="flex gap-2 items-center flex-wrap">
-        <button
+        <Button
+          color="gray"
           onClick={() => {
             router.invalidate()
           }}
-          className={`px-2 py-1 bg-gray-600 dark:bg-gray-700 rounded text-white uppercase font-extrabold`}
         >
           Try Again
-        </button>
+        </Button>
         {isRoot ? (
-          <Link
-            to="/"
-            className={`px-2 py-1 bg-gray-600 dark:bg-gray-700 rounded text-white uppercase font-extrabold`}
-          >
+          <Button as={Link} to="/" color="gray">
             TanStack Home
-          </Link>
+          </Button>
         ) : (
-          <Link
-            to="/"
-            className={`px-2 py-1 bg-gray-600 dark:bg-gray-700 rounded text-white uppercase font-extrabold`}
-            onClick={(e) => {
+          <Button
+            color="gray"
+            onClick={(e: React.MouseEvent) => {
               e.preventDefault()
               window.history.back()
             }}
           >
             Go Back
-          </Link>
+          </Button>
         )}
       </div>
     </div>

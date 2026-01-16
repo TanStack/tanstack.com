@@ -1,37 +1,20 @@
 import { WandSparkles, Zap } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { CogsIcon } from '~/components/icons/CogsIcon'
+import { devtools } from './libraries'
 
-const repo = 'tanstack/devtools'
-
-const textStyles = 'text-gray-700 dark:text-gray-500'
+const textStyles = 'text-black dark:text-gray-100'
 
 export const devtoolsProject = {
-  id: 'devtools',
-  name: 'TanStack Devtools',
-  cardStyles: `text-slate-400 hover:border-current`,
-  to: '/devtools',
-  tagline: `Centralized devtools panel for TanStack libraries and other custom devtools`,
+  ...devtools,
   description: `A unified devtools panel that houses all TanStack devtools and allows you to create and integrate your own custom devtools.`,
   ogImage:
     'https://github.com/tanstack/devtools/raw/main/media/repo-header.png',
-  badge: 'alpha',
-  bgStyle: 'bg-slate-400',
-  borderStyle: 'border-slate-400/50',
-  textStyle: 'text-slate-400',
-  repo,
   latestBranch: 'main',
-  latestVersion: 'v0',
-  availableVersions: ['v0'],
-  bgRadial: 'from-slate-400 via-slate-600/50 to-transparent',
-  colorFrom: 'from-slate-400',
-  colorTo: 'to-slate-600',
-  textColor: 'text-slate-600',
-  frameworks: ['react', 'preact', 'solid', 'vanilla'],
   featureHighlights: [
     {
       title: 'Unified Devtools Panel',
-      icon: <WandSparkles className="text-slate-400" />,
+      icon: <WandSparkles className="text-black dark:text-gray-100" />,
       description: (
         <div>
           TanStack Devtools provides a centralized panel that houses all
@@ -46,7 +29,7 @@ export const devtoolsProject = {
     },
     {
       title: 'Framework Agnostic',
-      icon: <Zap className="text-slate-500" />,
+      icon: <Zap className="text-black dark:text-gray-100" />,
       description: (
         <div>
           Built with Solid.js for lightweight performance, but designed to work
@@ -61,7 +44,7 @@ export const devtoolsProject = {
     },
     {
       title: 'Custom Devtools Support',
-      icon: <CogsIcon className="text-slate-600" />,
+      icon: <CogsIcon className="text-black dark:text-gray-100" />,
       description: (
         <div>
           Extend the devtools panel with your own custom devtools. The platform

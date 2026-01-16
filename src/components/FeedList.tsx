@@ -10,6 +10,7 @@ import { Spinner } from '~/components/Spinner'
 import { PaginationControls } from '~/components/PaginationControls'
 import { useIntersectionObserver } from '~/hooks/useIntersectionObserver'
 import type { FeedFilters } from '~/queries/feed'
+import type { FeedViewMode } from '~/db/types'
 import {
   Table,
   TableHeader,
@@ -42,10 +43,10 @@ interface FeedListProps {
   pageSize: number
   onPageChange: (page: number) => void
   onPageSizeChange: (pageSize: number) => void
-  viewMode?: 'table' | 'timeline'
+  viewMode?: FeedViewMode
   expandedIds?: string[]
   onExpandedChange?: (expandedIds: string[]) => void
-  onViewModeChange?: (viewMode: 'table' | 'timeline') => void
+  onViewModeChange?: (viewMode: FeedViewMode) => void
   onFiltersChange?: (filters: Partial<FeedFilters>) => void
   adminActions?: {
     onEdit?: (entry: FeedEntry) => void
@@ -141,11 +142,7 @@ export function FeedList({
   if (isTimelineMode && infiniteQuery?.data) {
     // Flatten all pages from InfiniteData structure
     // infiniteQuery.data is InfiniteData which has a pages array
-    const pages = (infiniteQuery.data as any).pages as Array<{
-      page: FeedEntry[]
-      isDone: boolean
-      counts: { total: number; pages: number }
-    }>
+    const pages = infiniteQuery.data.pages
     allEntries = pages.flatMap((page) => page.page)
     // Use first page's counts for reference
     const firstPage = pages[0]

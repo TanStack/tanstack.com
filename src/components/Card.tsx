@@ -1,28 +1,31 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 
-type CardProps<T extends React.ElementType = 'div'> = {
-  as?: T
+type CardOwnProps<TElement extends React.ElementType = 'div'> = {
+  as?: TElement
   children: React.ReactNode
   className?: string
-} & Omit<React.ComponentPropsWithoutRef<T>, 'as' | 'className' | 'children'>
+}
 
-export function Card<T extends React.ElementType = 'div'>({
-  as,
-  children,
-  className,
-  ...props
-}: CardProps<T>) {
+type CardProps<TElement extends React.ElementType = 'div'> =
+  CardOwnProps<TElement> &
+    Omit<React.ComponentPropsWithoutRef<TElement>, keyof CardOwnProps<TElement>>
+
+type CardComponent = <TElement extends React.ElementType = 'div'>(
+  props: CardProps<TElement>,
+) => React.ReactNode
+
+export const Card: CardComponent = ({ as, children, className, ...props }) => {
   const Component = as || 'div'
-  return (
-    <Component
-      className={twMerge(
+  return React.createElement(
+    Component,
+    {
+      className: twMerge(
         'bg-white dark:bg-gray-900 rounded-lg shadow-md border border-gray-200 dark:border-gray-800',
         className,
-      )}
-      {...props}
-    >
-      {children}
-    </Component>
+      ),
+      ...props,
+    },
+    children,
   )
 }

@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { Link } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 import {
   Table,
@@ -11,10 +12,11 @@ import {
 } from './TableComponents'
 import { PaginationControls } from './PaginationControls'
 import { Spinner } from './Spinner'
-import type { DocFeedback } from '~/db/schema'
+import type { DocFeedback } from '~/db/types'
 import { calculatePoints } from '~/utils/docFeedback.client'
 import { Check, Lightbulb, TriangleAlert } from 'lucide-react'
 import { MessageSquare, X } from 'lucide-react'
+import { Badge, Button } from '~/ui'
 
 interface FeedbackModerationListProps {
   data:
@@ -164,10 +166,22 @@ export function FeedbackModerationList({
                   onClick={() => toggleExpanded(feedback.id)}
                 >
                   <TableCell className="font-mono text-xs">
-                    {(page - 1) * pageSize + index + 1}
+                    <Link
+                      to="/admin/feedback/$id"
+                      params={{ id: feedback.id }}
+                      className="hover:text-blue-600 dark:hover:text-blue-400"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {(page - 1) * pageSize + index + 1}
+                    </Link>
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-2">
+                    <Link
+                      to="/admin/feedback/$id"
+                      params={{ id: feedback.id }}
+                      className="flex items-center gap-2 hover:opacity-80"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       {feedback.type === 'note' ? (
                         <MessageSquare className="text-blue-500" />
                       ) : (
@@ -176,23 +190,21 @@ export function FeedbackModerationList({
                       <span className="text-xs">
                         {feedback.type === 'note' ? 'Note' : 'Improvement'}
                       </span>
-                    </div>
+                    </Link>
                   </TableCell>
                   <TableCell>
-                    <span
-                      className={twMerge(
-                        'px-2 py-1 text-xs font-medium rounded-full',
-                        feedback.status === 'pending' &&
-                          'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
-                        feedback.status === 'approved' &&
-                          'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
-                        feedback.status === 'denied' &&
-                          'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
-                      )}
+                    <Badge
+                      variant={
+                        feedback.status === 'pending'
+                          ? 'warning'
+                          : feedback.status === 'approved'
+                            ? 'success'
+                            : 'error'
+                      }
                     >
                       {feedback.status.charAt(0).toUpperCase() +
                         feedback.status.slice(1)}
-                    </span>
+                    </Badge>
                   </TableCell>
                   <TableCell>
                     <div>
@@ -225,20 +237,24 @@ export function FeedbackModerationList({
                   <TableCell onClick={(e) => e.stopPropagation()}>
                     {isPending && !isModeratingThis && (
                       <div className="flex gap-2">
-                        <button
+                        <Button
+                          variant="icon"
+                          color="green"
+                          size="icon-sm"
                           onClick={() => handleModerate(feedback.id, 'approve')}
-                          className="px-3 py-1 text-xs font-medium text-white bg-green-600 hover:bg-green-700 rounded transition-colors"
                           title="Approve"
                         >
                           <Check />
-                        </button>
-                        <button
+                        </Button>
+                        <Button
+                          variant="icon"
+                          color="red"
+                          size="icon-sm"
                           onClick={() => handleModerate(feedback.id, 'deny')}
-                          className="px-3 py-1 text-xs font-medium text-white bg-red-600 hover:bg-red-700 rounded transition-colors"
                           title="Deny"
                         >
                           <X />
-                        </button>
+                        </Button>
                       </div>
                     )}
                     {isModeratingThis && (
@@ -258,10 +274,22 @@ export function FeedbackModerationList({
                       className="bg-gray-50 dark:bg-gray-900"
                     >
                       <div className="p-4 space-y-4">
-                        {/* Content */}
+                        {/* Original Block Content */}
+                        {feedback.blockMarkdown && (
+                          <div>
+                            <h4 className="text-sm font-semibold mb-2">
+                              Original Block Content:
+                            </h4>
+                            <div className="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-700 font-mono text-xs max-h-40 overflow-auto">
+                              {feedback.blockMarkdown}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Feedback */}
                         <div>
                           <h4 className="text-sm font-semibold mb-2">
-                            Content:
+                            Feedback:
                           </h4>
                           <div className="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-700">
                             {feedback.content}

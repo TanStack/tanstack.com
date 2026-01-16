@@ -11,6 +11,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { getRequest } from '@tanstack/react-start/server'
 import { getAuthService, getAuthGuards } from '~/auth/index.server'
 import type { Capability } from '~/auth/index.server'
+import { ADMIN_ACCESS_CAPABILITIES } from '~/db/types'
 
 /**
  * Server function to get the current user
@@ -83,15 +84,8 @@ export async function requireCapabilityUser(capability: string) {
   }
 }
 
-/**
- * Capabilities that grant access to the admin area
- */
-export const ADMIN_CAPABILITIES: readonly Capability[] = [
-  'admin',
-  'moderate-feedback',
-  'moderate-showcases',
-  'feed',
-] as const
+/** @deprecated Import from ~/db/types instead */
+export { ADMIN_ACCESS_CAPABILITIES as ADMIN_CAPABILITIES } from '~/db/types'
 
 /**
  * Server function to require any admin-like capability
@@ -100,16 +94,22 @@ export const ADMIN_CAPABILITIES: readonly Capability[] = [
 export const requireAnyAdminCapability = createServerFn({
   method: 'POST',
 }).handler(async () => {
+  console.log('[requireAnyAdminCapability] Starting...')
   const request = getRequest()
+  console.log('[requireAnyAdminCapability] Got request')
   const authService = getAuthService()
+  console.log(
+    '[requireAnyAdminCapability] Got authService, calling getCurrentUser...',
+  )
   const user = await authService.getCurrentUser(request)
+  console.log('[requireAnyAdminCapability] Got user:', user?.email)
 
   if (!user) {
     throw new Error('Not authenticated')
   }
 
   const hasAdminCapability = user.capabilities.some((cap) =>
-    ADMIN_CAPABILITIES.includes(cap as Capability),
+    (ADMIN_ACCESS_CAPABILITIES as readonly string[]).includes(cap),
   )
 
   if (!hasAdminCapability) {

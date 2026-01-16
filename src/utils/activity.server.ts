@@ -1,6 +1,7 @@
 import { db } from '~/db/client'
 import { userActivity, users } from '~/db/schema'
 import { eq, sql, desc, gte, and } from 'drizzle-orm'
+import { ALL_TIME_FLOOR_DATE } from './chart'
 
 // Get today's date in YYYY-MM-DD format (UTC)
 export function getTodayDate(): string {
@@ -58,7 +59,7 @@ export async function getUserStreak(userId: string): Promise<{
   let currentStreak = 0
   if (lastActiveDate === today || lastActiveDate === yesterday) {
     currentStreak = 1
-    let expectedDate = new Date(lastActiveDate)
+    const expectedDate = new Date(lastActiveDate)
 
     for (let i = 1; i < dates.length; i++) {
       expectedDate.setDate(expectedDate.getDate() - 1)
@@ -106,6 +107,8 @@ export async function getActiveUserStats(): Promise<{
   wau: number
   mau: number
   dauYesterday: number
+  wauPrevious: number
+  mauPrevious: number
 }> {
   const today = getTodayDate()
   const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000)
@@ -114,7 +117,13 @@ export async function getActiveUserStats(): Promise<{
   const last7Days = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
     .toISOString()
     .split('T')[0]
+  const last14Days = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .split('T')[0]
   const last30Days = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .split('T')[0]
+  const last60Days = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000)
     .toISOString()
     .split('T')[0]
 
@@ -133,20 +142,45 @@ export async function getActiveUserStats(): Promise<{
     .from(userActivity)
     .where(gte(userActivity.date, last7Days))
 
+  // Previous 7 days (day 8-14)
+  const [wauPreviousResult] = await db
+    .select({ count: sql<number>`count(distinct ${userActivity.userId})` })
+    .from(userActivity)
+    .where(
+      and(
+        gte(userActivity.date, last14Days),
+        sql`${userActivity.date} < ${last7Days}`,
+      ),
+    )
+
   const [mauResult] = await db
     .select({ count: sql<number>`count(distinct ${userActivity.userId})` })
     .from(userActivity)
     .where(gte(userActivity.date, last30Days))
 
+  // Previous 30 days (day 31-60)
+  const [mauPreviousResult] = await db
+    .select({ count: sql<number>`count(distinct ${userActivity.userId})` })
+    .from(userActivity)
+    .where(
+      and(
+        gte(userActivity.date, last60Days),
+        sql`${userActivity.date} < ${last30Days}`,
+      ),
+    )
+
   return {
     dau: Number(dauResult.count),
     dauYesterday: Number(dauYesterdayResult.count),
     wau: Number(wauResult.count),
+    wauPrevious: Number(wauPreviousResult.count),
     mau: Number(mauResult.count),
+    mauPrevious: Number(mauPreviousResult.count),
   }
 }
 
 // Get top users by streak (for admin leaderboard)
+// Optimized to use a single query to fetch all activity data
 export async function getStreakLeaderboard(limit: number = 10): Promise<
   Array<{
     userId: string
@@ -158,23 +192,93 @@ export async function getStreakLeaderboard(limit: number = 10): Promise<
     totalActiveDays: number
   }>
 > {
-  // Get users who have been active in the last 30 days
+  const today = getTodayDate()
+  const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000)
+    .toISOString()
+    .split('T')[0]
+
+  // Single query: get all activity for users active in last 30 days, with user info
   const last30Days = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
     .toISOString()
     .split('T')[0]
 
-  const activeUsers = await db
-    .selectDistinct({ userId: userActivity.userId })
+  // Get all activity dates for active users in one query
+  const allActivity = await db
+    .select({
+      userId: userActivity.userId,
+      date: userActivity.date,
+    })
     .from(userActivity)
-    .where(gte(userActivity.date, last30Days))
+    .where(
+      sql`${userActivity.userId} IN (
+        SELECT DISTINCT ${userActivity.userId} 
+        FROM ${userActivity} 
+        WHERE ${userActivity.date} >= ${last30Days}
+      )`,
+    )
+    .orderBy(userActivity.userId, desc(userActivity.date))
+
+  // Group by user and calculate streaks in memory
+  const userActivities = new Map<string, string[]>()
+  for (const row of allActivity) {
+    const dates = userActivities.get(row.userId) || []
+    dates.push(row.date)
+    userActivities.set(row.userId, dates)
+  }
 
   // Calculate streaks for each user
-  const streakData = await Promise.all(
-    activeUsers.map(async ({ userId }) => {
-      const streak = await getUserStreak(userId)
-      return { userId, ...streak }
-    }),
-  )
+  const streakData: Array<{
+    userId: string
+    currentStreak: number
+    longestStreak: number
+    totalActiveDays: number
+  }> = []
+
+  for (const [userId, dates] of userActivities) {
+    const lastActiveDate = dates[0]
+
+    // Current streak: must include today or yesterday
+    let currentStreak = 0
+    if (lastActiveDate === today || lastActiveDate === yesterday) {
+      currentStreak = 1
+      const expectedDate = new Date(lastActiveDate)
+
+      for (let i = 1; i < dates.length; i++) {
+        expectedDate.setDate(expectedDate.getDate() - 1)
+        const expectedDateStr = expectedDate.toISOString().split('T')[0]
+        if (dates[i] === expectedDateStr) {
+          currentStreak++
+        } else {
+          break
+        }
+      }
+    }
+
+    // Longest streak
+    let longestStreak = 1
+    let tempStreak = 1
+    for (let i = 1; i < dates.length; i++) {
+      const prevDate = new Date(dates[i - 1])
+      const currDate = new Date(dates[i])
+      const diffDays = Math.round(
+        (prevDate.getTime() - currDate.getTime()) / (24 * 60 * 60 * 1000),
+      )
+      if (diffDays === 1) {
+        tempStreak++
+      } else {
+        longestStreak = Math.max(longestStreak, tempStreak)
+        tempStreak = 1
+      }
+    }
+    longestStreak = Math.max(longestStreak, tempStreak)
+
+    streakData.push({
+      userId,
+      currentStreak,
+      longestStreak,
+      totalActiveDays: dates.length,
+    })
+  }
 
   // Sort by current streak, then longest streak
   streakData.sort((a, b) => {
@@ -184,13 +288,14 @@ export async function getStreakLeaderboard(limit: number = 10): Promise<
     return b.longestStreak - a.longestStreak
   })
 
-  // Get top N and fetch user info
+  // Get top N
   const topUsers = streakData.slice(0, limit)
 
   if (topUsers.length === 0) {
     return []
   }
 
+  // Fetch user info for top users
   const userIds = topUsers.map((u) => u.userId)
   const userInfos = await db
     .select({
@@ -218,13 +323,17 @@ export async function getStreakLeaderboard(limit: number = 10): Promise<
   })
 }
 
-// Get daily active user counts for chart (last 30 days)
-export async function getDailyActiveUserCounts(): Promise<
-  Array<{ date: string; count: number }>
-> {
-  const last30Days = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-    .toISOString()
-    .split('T')[0]
+// Get daily active user counts for chart with configurable time range
+// days = null means all time (from ALL_TIME_FLOOR_DATE)
+export async function getDailyActiveUserCounts(
+  days: number | null = 30,
+): Promise<Array<{ date: string; count: number }>> {
+  const startDate =
+    days === null
+      ? ALL_TIME_FLOOR_DATE.toISOString().split('T')[0]
+      : new Date(Date.now() - days * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split('T')[0]
 
   const results = await db
     .select({
@@ -232,7 +341,7 @@ export async function getDailyActiveUserCounts(): Promise<
       count: sql<number>`count(distinct ${userActivity.userId})`,
     })
     .from(userActivity)
-    .where(gte(userActivity.date, last30Days))
+    .where(gte(userActivity.date, startDate))
     .groupBy(userActivity.date)
     .orderBy(userActivity.date)
 

@@ -1,23 +1,26 @@
 import { createServerFn } from '@tanstack/react-start'
-import { z } from 'zod'
+import * as v from 'valibot'
 import { requireAdmin } from './roles.server'
 import { db } from '~/db/client'
 import { loginHistory, auditLogs, users, type AuditAction } from '~/db/schema'
-import { desc, eq, sql, and, gte, lte } from 'drizzle-orm'
+import { desc, asc, eq, sql, and, gte, lte } from 'drizzle-orm'
 import { alias } from 'drizzle-orm/pg-core'
+import { ALL_TIME_FLOOR_DATE } from './chart'
 
 // Query login history (admin only)
 export const listLoginHistory = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      pagination: z.object({
-        limit: z.number(),
-        page: z.number().optional(),
+    v.object({
+      pagination: v.object({
+        limit: v.number(),
+        page: v.optional(v.number()),
       }),
-      userId: z.string().uuid().optional(),
-      provider: z.enum(['github', 'google']).optional(),
-      dateFrom: z.string().optional(),
-      dateTo: z.string().optional(),
+      userId: v.optional(v.pipe(v.string(), v.uuid())),
+      provider: v.optional(v.picklist(['github', 'google'])),
+      dateFrom: v.optional(v.string()),
+      dateTo: v.optional(v.string()),
+      sortBy: v.optional(v.string()),
+      sortDir: v.optional(v.picklist(['asc', 'desc'])),
     }),
   )
   .handler(async ({ data }) => {
@@ -47,6 +50,18 @@ export const listLoginHistory = createServerFn({ method: 'POST' })
 
     const whereClause = conditions.length > 0 ? and(...conditions) : undefined
 
+    // Build order by clause
+    const getOrderByClause = () => {
+      const dir = data.sortDir === 'asc' ? asc : desc
+      switch (data.sortBy) {
+        case 'createdAt':
+          return dir(loginHistory.createdAt)
+        default:
+          return desc(loginHistory.createdAt)
+      }
+    }
+    const orderByClause = getOrderByClause()
+
     // Get total count
     const [countResult] = await db
       .select({ count: sql<number>`count(*)` })
@@ -72,7 +87,7 @@ export const listLoginHistory = createServerFn({ method: 'POST' })
       .from(loginHistory)
       .leftJoin(users, eq(loginHistory.userId, users.id))
       .where(whereClause)
-      .orderBy(desc(loginHistory.createdAt))
+      .orderBy(orderByClause)
       .limit(limit)
       .offset(offset)
 
@@ -93,17 +108,17 @@ export const listLoginHistory = createServerFn({ method: 'POST' })
 // Query audit logs (admin only)
 export const listAuditLogs = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      pagination: z.object({
-        limit: z.number(),
-        page: z.number().optional(),
+    v.object({
+      pagination: v.object({
+        limit: v.number(),
+        page: v.optional(v.number()),
       }),
-      actorId: z.string().uuid().optional(),
-      action: z.string().optional(),
-      targetType: z.string().optional(),
-      targetId: z.string().optional(),
-      dateFrom: z.string().optional(),
-      dateTo: z.string().optional(),
+      actorId: v.optional(v.pipe(v.string(), v.uuid())),
+      action: v.optional(v.string()),
+      targetType: v.optional(v.string()),
+      targetId: v.optional(v.string()),
+      dateFrom: v.optional(v.string()),
+      dateTo: v.optional(v.string()),
     }),
   )
   .handler(async ({ data }) => {
@@ -261,15 +276,47 @@ export const getActivityStats = createServerFn({ method: 'POST' }).handler(
       .from(loginHistory)
       .where(gte(loginHistory.createdAt, today))
 
+    const [uniqueActiveYesterday] = await db
+      .select({ count: sql<number>`count(distinct ${loginHistory.userId})` })
+      .from(loginHistory)
+      .where(
+        and(
+          gte(loginHistory.createdAt, yesterday),
+          lte(loginHistory.createdAt, today),
+        ),
+      )
+
     const [uniqueActiveLast7Days] = await db
       .select({ count: sql<number>`count(distinct ${loginHistory.userId})` })
       .from(loginHistory)
       .where(gte(loginHistory.createdAt, last7Days))
 
+    const last14Days = new Date(today.getTime() - 14 * 24 * 60 * 60 * 1000)
+    const [uniqueActivePrevious7Days] = await db
+      .select({ count: sql<number>`count(distinct ${loginHistory.userId})` })
+      .from(loginHistory)
+      .where(
+        and(
+          gte(loginHistory.createdAt, last14Days),
+          lte(loginHistory.createdAt, last7Days),
+        ),
+      )
+
     const [uniqueActiveLast30Days] = await db
       .select({ count: sql<number>`count(distinct ${loginHistory.userId})` })
       .from(loginHistory)
       .where(gte(loginHistory.createdAt, last30Days))
+
+    const last60Days = new Date(today.getTime() - 60 * 24 * 60 * 60 * 1000)
+    const [uniqueActivePrevious30Days] = await db
+      .select({ count: sql<number>`count(distinct ${loginHistory.userId})` })
+      .from(loginHistory)
+      .where(
+        and(
+          gte(loginHistory.createdAt, last60Days),
+          lte(loginHistory.createdAt, last30Days),
+        ),
+      )
 
     // Provider breakdown
     const providerStats = await db
@@ -338,8 +385,11 @@ export const getActivityStats = createServerFn({ method: 'POST' }).handler(
       },
       activeUsers: {
         today: Number(uniqueActiveToday.count),
+        yesterday: Number(uniqueActiveYesterday.count),
         last7Days: Number(uniqueActiveLast7Days.count),
+        previous7Days: Number(uniqueActivePrevious7Days.count),
         last30Days: Number(uniqueActiveLast30Days.count),
+        previous30Days: Number(uniqueActivePrevious30Days.count),
       },
       providerBreakdown: providerStats.reduce(
         (acc, { provider, count }) => {
@@ -373,3 +423,38 @@ export const getActivityStats = createServerFn({ method: 'POST' }).handler(
     }
   },
 )
+
+/**
+ * Get daily login data for charts with configurable time range
+ */
+export const getLoginsChartData = createServerFn({ method: 'POST' })
+  .inputValidator(
+    v.object({
+      days: v.optional(v.nullable(v.number())), // null = all time
+    }),
+  )
+  .handler(async ({ data: { days } }) => {
+    await requireAdmin()
+
+    // Calculate start date based on days parameter
+    const startDate =
+      days === null || days === undefined
+        ? ALL_TIME_FLOOR_DATE
+        : new Date(Date.now() - days * 24 * 60 * 60 * 1000)
+
+    // Get daily login counts from start date
+    const dailyLogins = await db
+      .select({
+        date: sql<string>`date(${loginHistory.createdAt})`,
+        count: sql<number>`count(*)`,
+      })
+      .from(loginHistory)
+      .where(gte(loginHistory.createdAt, startDate))
+      .groupBy(sql`date(${loginHistory.createdAt})`)
+      .orderBy(sql`date(${loginHistory.createdAt})`)
+
+    return dailyLogins.map((d) => ({
+      date: d.date,
+      count: Number(d.count),
+    }))
+  })

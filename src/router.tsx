@@ -61,11 +61,11 @@ export function getRouter() {
       // Filter out third-party ad script errors (Publift Fuse and NoBid)
       beforeSend(event, hint) {
         const error = hint.originalException
-        
+
         // Check if error is from third-party ad scripts
         const isAdScriptError = event.exception?.values?.some((exception) => {
           const frames = exception.stacktrace?.frames || []
-          
+
           // Check if any frame in the stack trace is from ad scripts
           const hasAdScriptFrame = frames.some((frame) => {
             const filename = frame.filename || ''
@@ -76,17 +76,17 @@ export function getRouter() {
               filename.includes('/nobid/blocking_script.js')
             )
           })
-          
+
           // Check if error message matches known patterns
           const errorMessage = exception.value || ''
           const hasKnownErrorPattern =
             errorMessage.includes('contextWindow.parent') ||
             errorMessage.includes('null is not an object') ||
             errorMessage.includes('is not a function')
-          
+
           return hasAdScriptFrame && hasKnownErrorPattern
         })
-        
+
         // Also check the error object directly if available
         const isAdScriptErrorFromHint =
           error &&
@@ -96,13 +96,13 @@ export function getRouter() {
           (error.message.includes('contextWindow.parent') ||
             error.message.includes('null is not an object') ||
             error.message.includes('is not a function'))
-        
+
         // Drop the event if it's from ad scripts
         if (isAdScriptError || isAdScriptErrorFromHint) {
           console.debug('Filtered out ad script error from Sentry:', event)
           return null
         }
-        
+
         return event
       },
     })

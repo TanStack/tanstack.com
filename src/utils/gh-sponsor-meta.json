@@ -297,9 +297,9 @@
   },
   {
     "login": "yogesharc",
-    "name": "Promptmonitor",
-    "imageUrl": "https://bvatwanklwlvzlcxrcxn.supabase.co/storage/v1/object/public/assets/promptmonitor-icon-brandfill.png",
-    "linkUrl": "https://www.promptmonitor.io/?utm_source=tanstack"
+    "name": "Supalytics",
+    "imageUrl": "https://www.supalytics.co/supalytics-icon-filled.png",
+    "linkUrl": "https://www.supalytics.co/?utm_source=tanstack"
   },
   {
     "login": "TextToHuman",

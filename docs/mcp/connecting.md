@@ -172,7 +172,7 @@ Add to your OpenCode MCP configuration in `~/.config/opencode/config.json`:
 After adding the config, run the auth flow manually the first time:
 
 ```bash
-npx mcp-remote auth https://tanstack.com/api/mcp
+npx mcp-remote https://tanstack.com/api/mcp auth
 ```
 
 This opens a browser to authorize access. After that, OpenCode will connect automatically.

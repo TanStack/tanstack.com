@@ -12,6 +12,8 @@ The home of the TanStack ecosystem. Built with [TanStack Router](https://tanstac
 
 ## Development
 
+### Quick Start
+
 From your terminal:
 
 ```sh
@@ -21,7 +23,7 @@ pnpm dev
 
 This starts your app in development mode, rebuilding assets on file changes.
 
-## Local Setup for Docs & Commits
+### Local Setup
 
 The documentation for all TanStack projects (except `React Charts`) is hosted on [tanstack.com](https://tanstack.com). In production, doc pages are fetched from GitHub. In development, they're read from your local file system.
 
@@ -50,7 +52,7 @@ tanstack/
 > [!WARNING]
 > Directory names must match repo names exactly (e.g., `query` not `tanstack-query`). The app finds docs by looking for sibling directories by name.
 
-## Editing Docs
+### Editing Docs
 
 To edit docs for a project, make changes in its `docs/` folder (e.g., `../form/docs/`) and visit http://localhost:3000/form/latest/docs/overview to preview.
 

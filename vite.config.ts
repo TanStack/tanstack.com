@@ -1,4 +1,4 @@
-import { sentryVitePlugin } from '@sentry/vite-plugin'
+import { sentryTanstackStart } from '@sentry/tanstackstart-react'
 import { defineConfig } from 'vite'
 import contentCollections from '@content-collections/vite'
 import tsConfigPaths from 'vite-tsconfig-paths'
@@ -102,7 +102,7 @@ export default defineConfig({
       : []),
     viteReact(),
 
-    sentryVitePlugin({
+    sentryTanstackStart({
       authToken: process.env.SENTRY_AUTH_TOKEN,
       org: 'tanstack',
       project: 'tanstack-com',

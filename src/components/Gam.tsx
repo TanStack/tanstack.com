@@ -71,7 +71,8 @@ export const GamScripts = () => (
           source.includes('/media/native/') ||
           source.includes('fuse.js') ||
           source.includes('fuseplatform.net') ||
-          source.includes('/nobid/blocking_script.js')
+          source.includes('/nobid/blocking_script.js') ||
+          source.includes('adform.net')
         ) && (
           (message && typeof message === 'string' && (
             message.includes('contextWindow.parent') ||

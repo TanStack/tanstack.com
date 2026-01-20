@@ -69,9 +69,6 @@ importers:
       '@sentry/tanstackstart-react':
         specifier: ^10.35.0
         version: 10.35.0(react@19.2.0)
-      '@sentry/vite-plugin':
-        specifier: ^4.7.0
-        version: 4.7.0
       '@stackblitz/sdk':
         specifier: ^1.11.0
         version: 1.11.0

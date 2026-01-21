@@ -111,9 +111,6 @@ export function buildFeedQueryConditions(
     filters.libraries.length > 0
   ) {
     conditions.push(arrayOverlaps(feedEntries.libraryIds, filters.libraries))
-    // conditions.push(
-    //   sql`${feedEntries.libraryIds} && ${filters.libraries}::text[]`,
-    // )
   }
 
   // Partner filter (array overlap) - use parameterized array

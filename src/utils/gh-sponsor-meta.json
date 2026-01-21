@@ -312,5 +312,11 @@
     "name": "Detecting-AI",
     "imageUrl": "https://detecting-ai.com/images/favicon.png",
     "linkUrl": "https://detecting-ai.com/"
+  },
+  {
+    "login": "fingerprintjs",
+    "name": "Fingerprint",
+    "imageUrl": "https://fingerprint.com/img/uploads/fingerprint_white_on_orange.png",
+    "linkUrl": "https://fingerprint.com"
   }
 ]

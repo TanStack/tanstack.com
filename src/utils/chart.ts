@@ -74,14 +74,22 @@ export function getBinFunction(binType: BinType) {
   return option?.bin ?? d3.utcDay
 }
 
+// Get the start of the current (incomplete) bin period
+export function getCurrentBinStart(binType: BinType): Date {
+  const binFn = getBinFunction(binType)
+  return binFn.floor(new Date())
+}
+
 // Bin time series data using d3 rollup
 export function binTimeSeriesData(
   data: Array<{ date: string; count: number }>,
   binType: BinType,
+  options?: { includeIncomplete?: boolean },
 ): Array<{ date: Date; count: number }> {
   if (data.length === 0) return []
 
   const binFn = getBinFunction(binType)
+  const includeIncomplete = options?.includeIncomplete ?? true
 
   const parsed = data.map((d) => ({
     date: new Date(d.date),
@@ -94,9 +102,17 @@ export function binTimeSeriesData(
     (d) => binFn.floor(d.date),
   )
 
-  return Array.from(binned, ([date, count]) => ({ date, count })).sort(
+  const sorted = Array.from(binned, ([date, count]) => ({ date, count })).sort(
     (a, b) => a.date.getTime() - b.date.getTime(),
   )
+
+  // Filter out the current incomplete bin if explicitly requested
+  if (!includeIncomplete) {
+    const currentBinStart = getCurrentBinStart(binType)
+    return sorted.filter((d) => d.date.getTime() < currentBinStart.getTime())
+  }
+
+  return sorted
 }
 
 // Format date for display based on bin type

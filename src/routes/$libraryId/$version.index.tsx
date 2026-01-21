@@ -28,8 +28,8 @@ const landingComponents: Partial<
   config: React.lazy(() => import('~/components/landing/ConfigLanding')),
   db: React.lazy(() => import('~/components/landing/DbLanding')),
   ai: React.lazy(() => import('~/components/landing/AiLanding')),
-  mcp: React.lazy(() => import('~/components/landing/McpLanding')),
   devtools: React.lazy(() => import('~/components/landing/DevtoolsLanding')),
+  cli: React.lazy(() => import('~/components/landing/CliLanding')),
 }
 
 export const Route = createFileRoute('/$libraryId/$version/')({
@@ -71,7 +71,6 @@ function LibraryVersionIndex() {
 
   const LandingComponent = landingComponents[libraryId as LibraryId]
 
-  // Fallback for libraries without landing components (shouldn't happen due to redirect)
   if (!LandingComponent) {
     return (
       <DocsLayout

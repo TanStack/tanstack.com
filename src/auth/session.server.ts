@@ -279,6 +279,30 @@ export function isOAuthPopupMode(request: Request): boolean {
   return cookies.split(';').some((c) => c.trim().startsWith('oauth_popup=1'))
 }
 
+export function createOAuthReturnToCookie(
+  returnTo: string,
+  isProduction: boolean,
+): string {
+  return `oauth_return_to=${encodeURIComponent(returnTo)}; HttpOnly; Path=/; Max-Age=${10 * 60}; SameSite=Lax${isProduction ? '; Secure' : ''}`
+}
+
+export function clearOAuthReturnToCookie(isProduction: boolean): string {
+  return `oauth_return_to=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax${isProduction ? '; Secure' : ''}`
+}
+
+export function getOAuthReturnTo(request: Request): string | null {
+  const cookies = request.headers.get('cookie') || ''
+  const returnToCookie = cookies
+    .split(';')
+    .find((c) => c.trim().startsWith('oauth_return_to='))
+
+  if (!returnToCookie) {
+    return null
+  }
+
+  return decodeURIComponent(returnToCookie.split('=').slice(1).join('=').trim())
+}
+
 // ============================================================================
 // Session Constants
 // ============================================================================

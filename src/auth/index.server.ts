@@ -67,6 +67,9 @@ export {
   createOAuthPopupCookie,
   clearOAuthPopupCookie,
   isOAuthPopupMode,
+  createOAuthReturnToCookie,
+  clearOAuthReturnToCookie,
+  getOAuthReturnTo,
   SESSION_DURATION_MS,
   SESSION_MAX_AGE_SECONDS,
 } from './session.server'

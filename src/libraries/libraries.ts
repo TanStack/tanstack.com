@@ -1,6 +1,7 @@
 // Base library data - lightweight, stays in main bundle
 // Extended library data (with React nodes, testimonials, etc.) is in individual library files
 
+import { redirect } from '@tanstack/react-router'
 import type { LibrarySlim, LibraryId } from './types'
 
 export const query: LibrarySlim = {
@@ -412,6 +413,46 @@ export const mcp: LibrarySlim = {
   docsRoot: 'docs/mcp',
   defaultDocs: 'overview',
   visible: false,
+  handleRedirects: (href: string) => {
+    const pathMap: Record<string, string> = {
+      overview: 'mcp/mcp-overview',
+      connecting: 'mcp/mcp-connecting',
+      tools: 'mcp/mcp-tools',
+    }
+    const mcpDocsMatch = href.match(/\/mcp\/(latest|v1)\/docs\/(.*)/)
+    if (mcpDocsMatch) {
+      const newPath = pathMap[mcpDocsMatch[2]] || 'mcp/mcp-overview'
+      throw redirect({ href: `/cli/latest/docs/${newPath}` })
+    }
+    if (/\/mcp(\/latest)?$/.test(href)) {
+      throw redirect({ href: '/cli/latest/docs/mcp/mcp-overview' })
+    }
+  },
+}
+
+export const cli: LibrarySlim = {
+  id: 'cli',
+  name: 'TanStack CLI',
+  cardStyles: 'text-indigo-500 dark:text-indigo-400 hover:border-current',
+  to: '/cli',
+  tagline: 'CLI, MCP server, and AI toolkit for TanStack',
+  description:
+    'A CLI, MCP server, and AI toolkit for TanStack. Create and customize TanStack Start apps, search docs, integrate with AI agents, and more.',
+  badge: 'alpha',
+  bgStyle: 'bg-indigo-500',
+  borderStyle: 'border-indigo-500/50',
+  textStyle: 'text-indigo-500 dark:text-indigo-400',
+  textColor: 'text-indigo-600 dark:text-indigo-400',
+  colorFrom: 'from-indigo-500',
+  colorTo: 'to-violet-600',
+  bgRadial: 'from-indigo-500 via-violet-600/50 to-transparent',
+  repo: 'tanstack/cli',
+  frameworks: [],
+  latestVersion: 'v0',
+  latestBranch: 'main',
+  availableVersions: ['v0'],
+  ogImage: 'https://github.com/tanstack/cli/raw/main/media/repo-header.png',
+  defaultDocs: 'overview',
 }
 
 export const libraries: LibrarySlim[] = [
@@ -429,6 +470,7 @@ export const libraries: LibrarySlim[] = [
   config,
   devtools,
   mcp,
+  cli,
   {
     id: 'react-charts',
     name: 'React Charts',
@@ -469,7 +511,7 @@ export const librariesByGroup = {
   state: [start, router, query, db, store, ai],
   headlessUI: [table, form],
   performance: [virtual, pacer],
-  tooling: [devtools, config, mcp],
+  tooling: [devtools, config, cli],
 }
 
 export const librariesGroupNamesMap = {
@@ -507,5 +549,5 @@ export const SIDEBAR_LIBRARY_IDS = [
   'pacer',
   'store',
   'devtools',
-  'mcp',
+  'cli',
 ] as const satisfies readonly LibraryId[]

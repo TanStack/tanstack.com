@@ -1,6 +1,12 @@
 {
   "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules", "tests", "scripts"],
+  "exclude": [
+    "node_modules",
+    "tests",
+    "scripts",
+    "packages",
+    "src/builder/features/*/files"
+  ],
   "compilerOptions": {
     "strict": true,
     "esModuleInterop": true,

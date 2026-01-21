@@ -94,7 +94,8 @@ Add to your Cursor MCP configuration:
 {
   "mcpServers": {
     "tanstack": {
-      "url": "https://tanstack.com/api/mcp"
+      "command": "npx",
+      "args": ["mcp-remote", "https://tanstack.com/api/mcp"]
     }
   }
 }

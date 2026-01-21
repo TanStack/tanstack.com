@@ -1,34 +1,23 @@
 /**
- * Builder component exports
+ * Builder v2 Components
+ *
+ * New builder implementation using the internal builder engine API.
  */
 
-export { BuilderProvider } from './BuilderProvider'
+export { BuilderProvider, useBuilderContext } from './BuilderProvider'
 export { BuilderLayout } from './BuilderLayout'
-
-// Config components
-export { ConfigPanel } from './config/ConfigPanel'
-export { TemplatePicker } from './config/TemplatePicker'
-export { ProjectConfig } from './config/ProjectConfig'
-export { AddOnSection } from './config/AddOnSection'
-export { AddOnCard } from './config/AddOnCard'
-
-// Explorer components
-export { ExplorerPanel } from './explorer/ExplorerPanel'
-export { CodeViewer } from './explorer/CodeViewer'
-
-// Preview components
-export { LivePreview } from './preview/LivePreview'
-export { PreviewLoading } from './preview/PreviewLoading'
-export { Terminal } from './preview/Terminal'
-
-// Export components
-export { ExportDropdown } from './export/ExportDropdown'
-
-// Types
-export * from './types'
-
-// Hooks
+export { ConfigPanel } from './ConfigPanel'
+export { ExplorerPanel } from './ExplorerPanel'
+export { FeaturePicker, FeatureOptions } from './FeaturePicker'
 export {
-  useBuilderSearch,
-  useInitializeAddonsFromUrl,
-} from './hooks/useBuilderSearch'
+  useBuilderStore,
+  useProjectName,
+  useFeatures,
+  useAvailableFeatures,
+  useFeaturesLoaded,
+  useCompiledOutput,
+  useIsCompiling,
+  useCompileError,
+  useFeatureState,
+} from './store'
+export { useBuilderUrl, useCliCommand } from './useBuilderUrl'

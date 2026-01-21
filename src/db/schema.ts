@@ -211,6 +211,8 @@ export const oauthAccounts = pgTable(
       length: 255,
     }).notNull(),
     email: varchar('email', { length: 255 }).notNull(),
+    accessToken: text('access_token'),
+    tokenScope: text('token_scope'),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
       .notNull()
       .defaultNow(),

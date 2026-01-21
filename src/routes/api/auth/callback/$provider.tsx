@@ -5,6 +5,8 @@ import {
   clearOAuthStateCookie,
   isOAuthPopupMode,
   clearOAuthPopupCookie,
+  getOAuthReturnTo,
+  clearOAuthReturnToCookie,
   getSessionService,
   getOAuthService,
   getUserRepository,
@@ -88,6 +90,7 @@ export const Route = createFileRoute('/api/auth/callback/$provider')({
             name?: string
             image?: string
           }
+          let tokenInfo: { accessToken: string; scope: string } | undefined
 
           if (provider === 'github') {
             const clientId = env.GITHUB_OAUTH_CLIENT_ID
@@ -96,13 +99,14 @@ export const Route = createFileRoute('/api/auth/callback/$provider')({
               throw new Error('GitHub OAuth credentials not configured')
             }
 
-            const accessToken = await exchangeGitHubCode(
+            const githubToken = await exchangeGitHubCode(
               code,
               clientId,
               clientSecret,
               redirectUri,
             )
-            userProfile = await fetchGitHubProfile(accessToken)
+            tokenInfo = githubToken
+            userProfile = await fetchGitHubProfile(githubToken.accessToken)
           } else {
             // Google
             const clientId = env.GOOGLE_OAUTH_CLIENT_ID
@@ -125,6 +129,7 @@ export const Route = createFileRoute('/api/auth/callback/$provider')({
           const result = await oauthService.upsertOAuthAccount(
             provider,
             userProfile,
+            tokenInfo,
           )
 
           // Get user to access sessionVersion
@@ -167,9 +172,29 @@ export const Route = createFileRoute('/api/auth/callback/$provider')({
 
           // Check if this was a popup OAuth flow
           const isPopup = isOAuthPopupMode(request)
-          const redirectUrl = isPopup
-            ? new URL('/auth/popup-success', request.url).toString()
-            : new URL('/account', request.url).toString()
+
+          // Check for custom returnTo URL
+          const returnTo = getOAuthReturnTo(request)
+
+          let redirectUrl: string
+          if (isPopup) {
+            redirectUrl = new URL('/auth/popup-success', request.url).toString()
+          } else if (returnTo) {
+            // Validate returnTo is a same-origin URL to prevent open redirect
+            try {
+              const returnToUrl = new URL(returnTo, request.url)
+              const currentOrigin = new URL(request.url).origin
+              if (returnToUrl.origin === currentOrigin) {
+                redirectUrl = returnToUrl.toString()
+              } else {
+                redirectUrl = new URL('/account', request.url).toString()
+              }
+            } catch {
+              redirectUrl = new URL('/account', request.url).toString()
+            }
+          } else {
+            redirectUrl = new URL('/account', request.url).toString()
+          }
 
           // Return Response with Set-Cookie headers and redirect
           const headers = new Headers()
@@ -178,6 +203,9 @@ export const Route = createFileRoute('/api/auth/callback/$provider')({
           headers.append('Set-Cookie', sessionCookie)
           if (isPopup) {
             headers.append('Set-Cookie', clearOAuthPopupCookie(isProduction))
+          }
+          if (returnTo) {
+            headers.append('Set-Cookie', clearOAuthReturnToCookie(isProduction))
           }
 
           return new Response(null, {

@@ -459,7 +459,6 @@ async function fetchApiContentsFs(
     '.vercel',
     '.DS_Store',
     '.nitro',
-    '.vinxi',
     '.tanstack-start/build',
   ]
 

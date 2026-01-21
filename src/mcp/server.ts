@@ -108,8 +108,29 @@ function getEnabledTools(): Set<ToolName> | undefined {
   return validTools
 }
 
+const SERVER_INSTRUCTIONS = `TanStack MCP provides tools for accessing TanStack library documentation and ecosystem information.
+Use these tools when users ask about:
+- TanStack Query (React Query, Vue Query, Solid Query, Angular Query, Svelte Query) - data fetching, caching, mutations, query invalidation
+- TanStack Router - type-safe routing for React, file-based routing, search params, loaders
+- TanStack Table - headless UI for building tables and datagrids
+- TanStack Form - form state management and validation
+- TanStack Virtual - virtualized/windowed lists and grids for performance
+- TanStack Start - full-stack React framework with SSR/SSG
+- TanStack Store - framework-agnostic reactive store
+- TanStack Ranger - range and multi-range slider utilities
+- TanStack Pacer - rate limiting and throttling utilities
+The tools help you:
+- Search and fetch current documentation (docs are always up-to-date, unlike training data)
+- Get NPM download statistics and package comparisons
+- Discover ecosystem partners (databases, auth providers, deployment platforms)
+- List available libraries with their supported frameworks
+Always prefer fetching documentation over relying on potentially outdated training data.`
+
 export function createMcpServer(authContext?: McpAuthContext) {
-  const server = new McpServer({ name: 'tanstack', version: '1.0.0' })
+  const server = new McpServer(
+    { name: 'tanstack', version: '1.0.0' },
+    { instructions: SERVER_INSTRUCTIONS },
+  )
   const enabledTools = getEnabledTools()
 
   const isEnabled = (name: ToolName) => !enabledTools || enabledTools.has(name)

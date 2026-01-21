@@ -1,0 +1,169 @@
+/**
+ * Builder URL Sync Hook (v2)
+ *
+ * Bidirectional sync between URL search params and builder store.
+ */
+
+import { useEffect, useRef } from 'react'
+import { useNavigate, useSearch } from '@tanstack/react-router'
+import { useDebouncedCallback } from '@tanstack/react-pacer'
+import { useBuilderStore } from './store'
+import type { FeatureId, TemplateInfo } from '~/builder/api'
+
+export interface BuilderSearchParams {
+  name?: string
+  features?: string // comma-separated feature IDs
+  // Feature options serialized as: featureId.optionKey=value
+  [key: string]: string | undefined
+}
+
+export function useBuilderUrl() {
+  const navigate = useNavigate()
+  const search = useSearch({ strict: false }) as BuilderSearchParams
+  const isSyncingFromUrl = useRef(false)
+
+  const projectName = useBuilderStore((s) => s.projectName)
+  const features = useBuilderStore((s) => s.features)
+  const featureOptions = useBuilderStore((s) => s.featureOptions)
+  const featuresLoaded = useBuilderStore((s) => s.featuresLoaded)
+  const availableTemplates = useBuilderStore((s) => s.availableTemplates)
+  const setProjectName = useBuilderStore((s) => s.setProjectName)
+  const setFeatures = useBuilderStore((s) => s.setFeatures)
+  const setFeatureOption = useBuilderStore((s) => s.setFeatureOption)
+  const applyTemplate = useBuilderStore((s) => s.applyTemplate)
+
+  // Initialize from URL on mount (only once when features load)
+  const initializedRef = useRef(false)
+  useEffect(() => {
+    if (!featuresLoaded || initializedRef.current) return
+    initializedRef.current = true
+
+    isSyncingFromUrl.current = true
+
+    // Set project name
+    if (search.name) {
+      setProjectName(search.name)
+    }
+
+    // Set features from URL, or apply default template (first one, typically "Blank")
+    if (search.features) {
+      const featureList = search.features
+        .split(',')
+        .filter(Boolean) as Array<FeatureId>
+      setFeatures(featureList)
+    } else if (availableTemplates.length > 0) {
+      // No features in URL - apply default template
+      applyTemplate(availableTemplates[0] as TemplateInfo)
+    }
+
+    // Set feature options (keys like "drizzle.database")
+    for (const [key, value] of Object.entries(search)) {
+      if (key.includes('.') && value) {
+        const [featureId, optionKey] = key.split('.')
+        setFeatureOption(featureId as FeatureId, optionKey, value)
+      }
+    }
+
+    // Allow state changes to trigger URL sync after initial load
+    setTimeout(() => {
+      isSyncingFromUrl.current = false
+    }, 100)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [featuresLoaded])
+
+  // Debounced URL sync to avoid lag when typing
+  const syncToUrl = useDebouncedCallback(
+    (
+      name: string,
+      feats: Array<FeatureId>,
+      opts: Record<string, Record<string, unknown>>,
+    ) => {
+      navigate({
+        to: '/builder',
+        search: (prev: any) => {
+          const params: Record<string, unknown> = { ...prev }
+
+          // Update project name
+          if (name && name !== 'my-tanstack-app') {
+            params.name = name
+          } else {
+            delete params.name
+          }
+
+          // Update features
+          if (feats.length > 0) {
+            params.features = feats.join(',')
+          } else {
+            delete params.features
+          }
+
+          // Clear old feature options (keys with dots)
+          for (const key of Object.keys(params)) {
+            if (key.includes('.')) {
+              delete params[key]
+            }
+          }
+
+          // Serialize current feature options
+          for (const [featureId, options] of Object.entries(opts)) {
+            for (const [optionKey, value] of Object.entries(options)) {
+              if (value !== undefined && value !== null) {
+                params[`${featureId}.${optionKey}`] = String(value)
+              }
+            }
+          }
+
+          return params
+        },
+        replace: true,
+      })
+    },
+    { wait: 300 },
+  )
+
+  // Sync state changes to URL (debounced)
+  useEffect(() => {
+    if (!featuresLoaded || isSyncingFromUrl.current) return
+    syncToUrl(projectName, features, featureOptions)
+  }, [projectName, features, featureOptions, featuresLoaded, syncToUrl])
+}
+
+/**
+ * Generate CLI command from current state
+ */
+export function useCliCommand(): string {
+  const projectName = useBuilderStore((s) => s.projectName)
+  const features = useBuilderStore((s) => s.features)
+  const _featureOptions = useBuilderStore((s) => s.featureOptions) // TODO: Add to CLI command
+  const tailwind = useBuilderStore((s) => s.tailwind)
+  const packageManager = useBuilderStore((s) => s.packageManager)
+  const skipInstall = useBuilderStore((s) => s.skipInstall)
+  const skipGit = useBuilderStore((s) => s.skipGit)
+
+  let cmd = `npx @tanstack/cli@latest create ${projectName}`
+
+  // Always add -y to skip prompts
+  cmd += ' -y'
+
+  if (packageManager !== 'pnpm') {
+    cmd += ` --package-manager ${packageManager}`
+  }
+
+  if (!tailwind) {
+    cmd += ' --no-tailwind'
+  }
+
+  if (features.length > 0) {
+    cmd += ` --integrations ${features.join(',')}`
+  }
+
+  if (skipInstall) {
+    cmd += ' --no-install'
+  }
+
+  if (skipGit) {
+    cmd += ' --no-git'
+  }
+
+  return cmd
+}

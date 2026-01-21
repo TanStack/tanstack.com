@@ -22,6 +22,7 @@ export {
   ai,
   config,
   devtools,
+  cli,
 } from './libraries'
 
 // Re-export types

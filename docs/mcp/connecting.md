@@ -88,17 +88,27 @@ claude mcp add --transport http tanstack https://tanstack.com/api/mcp --header "
 
 ## Cursor
 
-Add to your Cursor MCP configuration:
+Click to add the TanStack MCP server to Cursor:
+
+[![Add to Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en-US/install-mcp?name=tanstack&config=eyJjb21tYW5kIjoibnB4IG1jcC1yZW1vdGUgaHR0cHM6Ly90YW5zdGFjay5jb20vYXBpL21jcCJ9)
+
+On first use, a browser window will open to authorize access.
+
+<details>
+<summary>Or add manually to your config</summary>
 
 ```json
 {
   "mcpServers": {
     "tanstack": {
-      "url": "https://tanstack.com/api/mcp"
+      "command": "npx",
+      "args": ["mcp-remote", "https://tanstack.com/api/mcp"]
     }
   }
 }
 ```
+
+</details>
 
 <details>
 <summary>Using an API key instead</summary>

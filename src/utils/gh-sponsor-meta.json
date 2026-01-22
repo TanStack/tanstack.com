@@ -317,6 +317,6 @@
     "login": "fingerprintjs",
     "name": "Fingerprint",
     "imageUrl": "https://fingerprint.com/img/uploads/fingerprint_white_on_orange.png",
-    "linkUrl": "https://fingerprint.com"
+    "linkUrl": "https://fingerprint.com?utm_source=tanstack"
   }
 ]

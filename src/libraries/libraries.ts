@@ -1,7 +1,6 @@
 // Base library data - lightweight, stays in main bundle
 // Extended library data (with React nodes, testimonials, etc.) is in individual library files
 
-import { redirect } from '@tanstack/react-router'
 import type { LibrarySlim, LibraryId } from './types'
 
 export const query: LibrarySlim = {
@@ -413,21 +412,6 @@ export const mcp: LibrarySlim = {
   docsRoot: 'docs/mcp',
   defaultDocs: 'overview',
   visible: false,
-  handleRedirects: (href: string) => {
-    const pathMap: Record<string, string> = {
-      overview: 'mcp/mcp-overview',
-      connecting: 'mcp/mcp-connecting',
-      tools: 'mcp/mcp-tools',
-    }
-    const mcpDocsMatch = href.match(/\/mcp\/(latest|v1)\/docs\/(.*)/)
-    if (mcpDocsMatch) {
-      const newPath = pathMap[mcpDocsMatch[2]] || 'mcp/mcp-overview'
-      throw redirect({ href: `/cli/latest/docs/${newPath}` })
-    }
-    if (/\/mcp(\/latest)?$/.test(href)) {
-      throw redirect({ href: '/cli/latest/docs/mcp/mcp-overview' })
-    }
-  },
 }
 
 export const cli: LibrarySlim = {

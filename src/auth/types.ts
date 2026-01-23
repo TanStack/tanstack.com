@@ -118,13 +118,29 @@ export interface IOAuthAccountRepository {
   findByProviderAndAccountId(
     provider: OAuthProvider,
     providerAccountId: string,
-  ): Promise<{ userId: string } | null>
+  ): Promise<{
+    userId: string
+    accessToken: string | null
+    tokenScope: string | null
+  } | null>
+  findByUserId(
+    userId: string,
+    provider: OAuthProvider,
+  ): Promise<{ accessToken: string | null; tokenScope: string | null } | null>
   create(data: {
     userId: string
     provider: OAuthProvider
     providerAccountId: string
     email: string
+    accessToken?: string
+    tokenScope?: string
   }): Promise<void>
+  updateToken(
+    userId: string,
+    provider: OAuthProvider,
+    accessToken: string,
+    tokenScope: string,
+  ): Promise<void>
 }
 
 /**
@@ -169,6 +185,7 @@ export interface IOAuthService {
   upsertOAuthAccount(
     provider: OAuthProvider,
     profile: OAuthProfile,
+    tokenInfo?: { accessToken: string; scope: string },
   ): Promise<OAuthResult>
 }
 

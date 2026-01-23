@@ -4,12 +4,13 @@
 // Enum constants - single source of truth for both TypeScript types and Drizzle pgEnums
 export const CAPABILITIES = [
   'admin',
+  'api-keys',
   'disableAds',
   'builder',
   'feed',
+  'mcp',
   'moderate-feedback',
   'moderate-showcases',
-  'mcp',
 ] as const
 
 export const OAUTH_PROVIDERS = ['github', 'google'] as const

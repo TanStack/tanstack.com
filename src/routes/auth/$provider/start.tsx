@@ -4,6 +4,7 @@ import {
   generateOAuthState,
   createOAuthStateCookie,
   createOAuthPopupCookie,
+  createOAuthReturnToCookie,
   buildGitHubAuthUrl,
   buildGoogleAuthUrl,
 } from '~/auth/index.server'
@@ -39,9 +40,19 @@ export const Route = createFileRoute('/auth/$provider/start')({
           ? createOAuthPopupCookie(isProduction)
           : null
 
+        // Check for returnTo URL (for redirect after auth)
+        const returnTo = url.searchParams.get('returnTo')
+        const returnToCookie = returnTo
+          ? createOAuthReturnToCookie(returnTo, isProduction)
+          : null
+
         // Build OAuth URL based on provider
         const origin = env.SITE_URL || new URL(request.url).origin
         const redirectUri = `${origin}/api/auth/callback/${provider}`
+
+        // Check for additional scopes (e.g., public_repo for deploy flow)
+        const additionalScopes =
+          url.searchParams.get('scope')?.split(',').filter(Boolean) ?? []
 
         let authUrl: string
 
@@ -50,7 +61,12 @@ export const Route = createFileRoute('/auth/$provider/start')({
           if (!clientId) {
             throw new Error('GITHUB_OAUTH_CLIENT_ID is not configured')
           }
-          authUrl = buildGitHubAuthUrl(clientId, redirectUri, state)
+          authUrl = buildGitHubAuthUrl(
+            clientId,
+            redirectUri,
+            state,
+            additionalScopes,
+          )
         } else {
           // Google
           const clientId = env.GOOGLE_OAUTH_CLIENT_ID
@@ -66,6 +82,9 @@ export const Route = createFileRoute('/auth/$provider/start')({
         headers.append('Set-Cookie', stateCookie)
         if (popupCookie) {
           headers.append('Set-Cookie', popupCookie)
+        }
+        if (returnToCookie) {
+          headers.append('Set-Cookie', returnToCookie)
         }
 
         return new Response(null, {

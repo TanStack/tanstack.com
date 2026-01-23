@@ -1,44 +1,42 @@
 /**
- * BuilderLayout - Main 2-panel layout for the builder
- * Left panel: Configuration (starters, options, add-ons)
- * Right panel: File explorer and preview tabs
+ * Builder Layout (v2)
+ *
+ * Main layout component for the builder, arranging ConfigPanel and ExplorerPanel.
+ * Uses proper theme support.
  */
 
-import * as React from 'react'
-import { ConfigPanel } from './config/ConfigPanel'
-import { ExplorerPanel } from './explorer/ExplorerPanel'
+import { useEffect } from 'react'
+import { ConfigPanel } from './ConfigPanel'
+import { ExplorerPanel } from './ExplorerPanel'
+import { useBuilderUrl } from './useBuilderUrl'
+import { useBuilderStore } from './store'
 
 export function BuilderLayout() {
-  const [isMobileConfigOpen, setIsMobileConfigOpen] = React.useState(true)
+  // Sync URL with store
+  useBuilderUrl()
+
+  // Auto-compile on mount and when config changes
+  const features = useBuilderStore((s) => s.features)
+  const tailwind = useBuilderStore((s) => s.tailwind)
+  const featuresLoaded = useBuilderStore((s) => s.featuresLoaded)
+  const compile = useBuilderStore((s) => s.compile)
+
+  useEffect(() => {
+    if (featuresLoaded) {
+      compile()
+    }
+  }, [features, tailwind, featuresLoaded, compile])
 
   return (
-    <div className="flex h-full w-full overflow-hidden bg-gray-50 dark:bg-gray-950">
-      {/* Left panel - Config */}
-      <div
-        className={`
-          w-full md:w-[400px] lg:w-[440px] shrink-0
-          border-r border-gray-200 dark:border-gray-800
-          bg-white dark:bg-gray-900
-          overflow-y-auto
-          ${isMobileConfigOpen ? 'block' : 'hidden md:block'}
-        `}
-      >
+    <div className="h-full flex bg-gray-50 dark:bg-gray-950">
+      {/* Left Panel - Config */}
+      <div className="w-full md:w-96 lg:w-[26rem] xl:w-[30rem] 2xl:w-[40rem] shrink-0">
         <ConfigPanel />
       </div>
 
-      {/* Right panel - Explorer/Preview */}
-      <div
-        className={`
-          flex-1 min-w-0 min-h-0 overflow-hidden
-          bg-white dark:bg-gray-900
-          ${isMobileConfigOpen ? 'hidden md:flex' : 'flex'}
-          flex-col
-        `}
-      >
-        <ExplorerPanel
-          isMobileConfigOpen={isMobileConfigOpen}
-          onToggleMobileConfig={() => setIsMobileConfigOpen((p) => !p)}
-        />
+      {/* Right Panel - Explorer (hidden on small screens) */}
+      <div className="hidden md:block flex-1 min-w-0 overflow-hidden">
+        <ExplorerPanel />
       </div>
     </div>
   )

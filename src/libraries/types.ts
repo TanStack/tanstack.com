@@ -26,6 +26,7 @@ export type LibraryId =
   | 'config'
   | 'devtools'
   | 'mcp'
+  | 'cli'
   | 'react-charts'
   | 'create-tsrouter-app'
 

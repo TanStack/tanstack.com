@@ -34,6 +34,7 @@ export class OAuthService implements IOAuthService {
   async upsertOAuthAccount(
     provider: OAuthProvider,
     profile: OAuthProfile,
+    tokenInfo?: { accessToken: string; scope: string },
   ): Promise<OAuthResult> {
     try {
       // Check if OAuth account already exists
@@ -78,6 +79,16 @@ export class OAuthService implements IOAuthService {
         if (Object.keys(updates).length > 0) {
           updates.updatedAt = new Date()
           await this.userRepository.update(existingAccount.userId, updates)
+        }
+
+        // Update token if provided
+        if (tokenInfo) {
+          await this.oauthAccountRepository.updateToken(
+            existingAccount.userId,
+            provider,
+            tokenInfo.accessToken,
+            tokenInfo.scope,
+          )
         }
 
         return {
@@ -138,12 +149,14 @@ export class OAuthService implements IOAuthService {
         userId = newUser.id
       }
 
-      // Create OAuth account link
+      // Create OAuth account link with token if provided
       await this.oauthAccountRepository.create({
         userId,
         provider,
         providerAccountId: profile.id,
         email: profile.email,
+        accessToken: tokenInfo?.accessToken,
+        tokenScope: tokenInfo?.scope,
       })
 
       return {
@@ -181,12 +194,14 @@ export function buildGitHubAuthUrl(
   clientId: string,
   redirectUri: string,
   state: string,
+  additionalScopes?: Array<string>,
 ): string {
+  const scopes = ['user:email', ...(additionalScopes ?? [])].join(' ')
   return `https://github.com/login/oauth/authorize?client_id=${encodeURIComponent(
     clientId,
   )}&redirect_uri=${encodeURIComponent(
     redirectUri,
-  )}&scope=user:email&state=${encodeURIComponent(state)}`
+  )}&scope=${encodeURIComponent(scopes)}&state=${encodeURIComponent(state)}`
 }
 
 /**
@@ -204,6 +219,11 @@ export function buildGoogleAuthUrl(
   )}&response_type=code&scope=openid email profile&state=${encodeURIComponent(state)}`
 }
 
+export interface GitHubTokenResult {
+  accessToken: string
+  scope: string
+}
+
 /**
  * Exchange GitHub authorization code for access token
  */
@@ -212,7 +232,7 @@ export async function exchangeGitHubCode(
   clientId: string,
   clientSecret: string,
   redirectUri: string,
-): Promise<string> {
+): Promise<GitHubTokenResult> {
   const tokenResponse = await fetch(
     'https://github.com/login/oauth/access_token',
     {
@@ -245,7 +265,10 @@ export async function exchangeGitHubCode(
     throw new AuthError('No access token received from GitHub', 'OAUTH_ERROR')
   }
 
-  return tokenData.access_token
+  return {
+    accessToken: tokenData.access_token,
+    scope: tokenData.scope ?? '',
+  }
 }
 
 /**

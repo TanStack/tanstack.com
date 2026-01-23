@@ -1,13 +1,27 @@
 /**
  * Lightweight smoke tests using fetch - no browser required
  * Verifies pages return 200 and contain expected content
- * Uses existing server on :3000 if available, otherwise starts one
+ *
+ * Prerequisites:
+ * - Dev server running on :3000 (or will start one)
+ * - Library repos cloned as siblings (query, router, table, etc.)
+ *   Dev mode reads docs from local filesystem: ../../../../{repo}
+ *
+ * Skipped in CI because:
+ * - No standalone production server (Netlify serverless deployment)
+ * - Library repos not available as siblings
  */
 
 import { spawn, type ChildProcess } from 'child_process'
 import { createServer } from 'net'
 
 const DEFAULT_URL = 'http://localhost:3000'
+
+// Skip in CI - this app deploys to Netlify serverless, no standalone server
+if (process.env.CI === 'true') {
+  console.log('Skipping smoke tests in CI (Netlify serverless deployment)')
+  process.exit(0)
+}
 
 type TestCase = {
   name: string

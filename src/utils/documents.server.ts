@@ -595,11 +595,19 @@ async function fetchApiContentsRemote(
         const directoryFiles =
           (await directoryFilesResponse.json()) as Array<GitHubFile>
 
-        file.children = await buildFileTree(
-          directoryFiles,
-          depth + 1,
-          `${parentPath}${file.path}/`,
-        )
+        if (!Array.isArray(directoryFiles)) {
+          console.warn(
+            `Expected an array of files from GitHub API for directory ${file.path}, but received:\n`,
+            JSON.stringify(directoryFiles),
+          )
+          // Leave file.children undefined
+        } else {
+          file.children = await buildFileTree(
+            directoryFiles,
+            depth + 1,
+            `${parentPath}${file.path}/`,
+          )
+        }
       }
 
       result.push(file)

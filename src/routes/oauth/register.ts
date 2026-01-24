@@ -16,7 +16,7 @@ export const Route = createFileRoute('/oauth/register')({
         // This is secure because:
         // 1. Registration only generates deterministic client IDs
         // 2. No secrets are issued (PKCE public clients)
-        // 3. Redirect URIs are validated for localhost or HTTPS
+        // 3. Redirect URIs block insecure HTTP to remote hosts
         const origin = request.headers.get('Origin')
         setResponseHeader('Content-Type', 'application/json')
         setResponseHeader('Access-Control-Allow-Origin', origin || '*')
@@ -41,14 +41,14 @@ export const Route = createFileRoute('/oauth/register')({
                 url.hostname === 'localhost' ||
                 url.hostname === '127.0.0.1' ||
                 url.hostname === '[::1]'
-              const isHttps = url.protocol === 'https:'
 
-              if (!isLocalhost && !isHttps) {
+              // Block only HTTP to non-localhost (allows custom schemes like cursor://)
+              if (url.protocol === 'http:' && !isLocalhost) {
                 return new Response(
                   JSON.stringify({
                     error: 'invalid_redirect_uri',
                     error_description:
-                      'Redirect URIs must be localhost or HTTPS',
+                      'HTTP redirect URIs are only allowed for localhost',
                   }),
                   { status: 400 },
                 )

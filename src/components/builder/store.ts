@@ -133,14 +133,23 @@ export const useBuilderStore = create<BuilderState>()(
         const feature = availableFeatures.find((f) => f.id === id)
         if (!feature) return
 
-        // Check for conflicts
-        const conflicts = feature.conflicts.filter((c) =>
-          features.includes(c as FeatureId),
-        )
-        if (conflicts.length > 0) {
-          // Remove conflicting features first
+        // Find features that share exclusive types with the new feature
+        const exclusiveConflicts = new Set<FeatureId>()
+        if (feature.exclusive.length > 0) {
+          for (const existingId of features) {
+            const existing = availableFeatures.find((f) => f.id === existingId)
+            if (
+              existing?.exclusive.some((e) => feature.exclusive.includes(e))
+            ) {
+              exclusiveConflicts.add(existingId)
+            }
+          }
+        }
+
+        if (exclusiveConflicts.size > 0) {
+          // Remove features with overlapping exclusive types
           const withoutConflicts = features.filter(
-            (f) => !conflicts.includes(f),
+            (f) => !exclusiveConflicts.has(f),
           )
           set({
             features: [...withoutConflicts, ...feature.requires, id],
@@ -192,7 +201,7 @@ export const useBuilderStore = create<BuilderState>()(
         description: integration.description,
         category: integration.category ?? 'other',
         requires: integration.dependsOn ?? [],
-        conflicts: integration.conflicts ?? [],
+        exclusive: integration.exclusive ?? [],
         hasOptions: !!integration.options,
         link: integration.link,
         color: '#8B5CF6', // Purple for custom integrations
@@ -322,7 +331,7 @@ export const useCustomTemplate = () => useBuilderStore((s) => s.customTemplate)
 export const useIntegrationSearch = () =>
   useBuilderStore((s) => s.integrationSearch)
 
-// Feature state with conflict/requirement analysis
+// Feature state with exclusive/requirement analysis
 export function useFeatureState(id: FeatureId) {
   const features = useBuilderStore((s) => s.features)
   const tailwind = useBuilderStore((s) => s.tailwind)
@@ -334,7 +343,7 @@ export function useFeatureState(id: FeatureId) {
       selected: false,
       enabled: false,
       disabledReason: null as string | null,
-      conflict: null as FeatureId | null,
+      exclusiveConflict: null as FeatureId | null,
       requiredBy: null as FeatureId | null,
     }
   }
@@ -344,10 +353,16 @@ export function useFeatureState(id: FeatureId) {
   // Check if disabled due to Tailwind requirement
   const needsTailwind = feature.requiresTailwind && !tailwind
 
-  // Check if there's a conflicting feature selected (for UI indication, not disabling)
-  const conflict = feature.conflicts.find((c) =>
-    features.includes(c as FeatureId),
-  ) as FeatureId | null
+  // Check if there's a feature with overlapping exclusive type selected
+  const exclusiveConflict =
+    feature.exclusive.length > 0
+      ? (availableFeatures.find(
+          (f) =>
+            f.id !== id &&
+            features.includes(f.id) &&
+            f.exclusive.some((e) => feature.exclusive.includes(e)),
+        )?.id as FeatureId | null)
+      : null
 
   // Check if required by another selected feature (truly disables toggling off)
   const requiredBy = availableFeatures.find(
@@ -365,7 +380,7 @@ export function useFeatureState(id: FeatureId) {
     selected,
     enabled: !needsTailwind,
     disabledReason,
-    conflict,
+    exclusiveConflict,
     requiredBy: requiredBy || null,
   }
 }

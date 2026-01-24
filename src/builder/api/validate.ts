@@ -79,18 +79,27 @@ export async function validateHandler(
     }
   }
 
-  // Check for conflicts
+  // Check for exclusive type conflicts
+  // Build a map of exclusive type -> list of selected integrations with that type
+  const exclusiveTypeMap = new Map<string, Array<string>>()
   for (const featureId of definition.features) {
     const integration = integrationMap.get(featureId)
-    if (integration?.conflicts) {
-      for (const conflictId of integration.conflicts) {
-        if (definition.features.includes(conflictId)) {
-          errors.push({
-            field: 'features',
-            message: `'${featureId}' conflicts with '${conflictId}'`,
-          })
-        }
+    if (integration?.exclusive) {
+      for (const exclusiveType of integration.exclusive) {
+        const existing = exclusiveTypeMap.get(exclusiveType) || []
+        existing.push(featureId)
+        exclusiveTypeMap.set(exclusiveType, existing)
       }
+    }
+  }
+
+  // Report conflicts for exclusive types with more than one integration
+  for (const [exclusiveType, integrationIds] of exclusiveTypeMap) {
+    if (integrationIds.length > 1) {
+      errors.push({
+        field: 'features',
+        message: `Only one ${exclusiveType} integration allowed. Selected: ${integrationIds.join(', ')}`,
+      })
     }
   }
 

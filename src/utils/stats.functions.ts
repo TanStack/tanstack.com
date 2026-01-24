@@ -5,7 +5,7 @@
 
 import * as cheerio from 'cheerio'
 import { envFunctions } from './env.functions'
-import type { GitHubStats, NpmPackageStats, NpmStats } from './stats.server'
+import type { GitHubStats, NpmPackageStats, NpmStats } from './stats.types'
 
 /**
  * Parse number from string, removing commas

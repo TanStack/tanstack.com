@@ -1,11 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { captureEvent } from '~/utils/posthog.server'
 import { withSentrySpan, captureException } from '~/utils/sentry.server'
-import { listLibraries, listLibrariesSchema } from './tools/list-libraries'
-import { doc, docSchema } from './tools/doc'
-import { searchDocs, searchDocsSchema } from './tools/search-docs'
 import { npmStats, npmStatsSchema } from './tools/npm-stats'
-import { ecosystem, ecosystemSchema } from './tools/ecosystem'
 import { env } from '~/utils/env'
 
 export type McpAuthContext = {
@@ -20,12 +16,8 @@ type ToolResult = {
 
 type ToolHandler<TArgs> = (args: TArgs) => Promise<ToolResult>
 
-function textResult(text: string): ToolResult {
-  return { content: [{ type: 'text', text }] }
-}
-
 function jsonResult(data: unknown): ToolResult {
-  return textResult(JSON.stringify(data))
+  return { content: [{ type: 'text', text: JSON.stringify(data) }] }
 }
 
 function errorResult(error: unknown): ToolResult {
@@ -71,13 +63,9 @@ function withAnalytics<TArgs>(
   }
 }
 
-export const ALL_TOOL_NAMES = [
-  'list_libraries',
-  'doc',
-  'search_docs',
-  'npm_stats',
-  'ecosystem',
-] as const
+// Tools that require authentication live here on tanstack.com
+// Documentation tools have moved to @tanstack/cli - run `npx @tanstack/cli mcp` or `tanstack mcp`
+export const ALL_TOOL_NAMES = ['npm_stats'] as const
 
 export type ToolName = (typeof ALL_TOOL_NAMES)[number]
 
@@ -108,23 +96,26 @@ function getEnabledTools(): Set<ToolName> | undefined {
   return validTools
 }
 
-const SERVER_INSTRUCTIONS = `TanStack MCP provides tools for accessing TanStack library documentation and ecosystem information.
-Use these tools when users ask about:
-- TanStack Query (React Query, Vue Query, Solid Query, Angular Query, Svelte Query) - data fetching, caching, mutations, query invalidation
-- TanStack Router - type-safe routing for React, file-based routing, search params, loaders
-- TanStack Table - headless UI for building tables and datagrids
-- TanStack Form - form state management and validation
-- TanStack Virtual - virtualized/windowed lists and grids for performance
-- TanStack Start - full-stack React framework with SSR/SSG
-- TanStack Store - framework-agnostic reactive store
-- TanStack Ranger - range and multi-range slider utilities
-- TanStack Pacer - rate limiting and throttling utilities
-The tools help you:
-- Search and fetch current documentation (docs are always up-to-date, unlike training data)
-- Get NPM download statistics and package comparisons
-- Discover ecosystem partners (databases, auth providers, deployment platforms)
-- List available libraries with their supported frameworks
-Always prefer fetching documentation over relying on potentially outdated training data.`
+const SERVER_INSTRUCTIONS = `TanStack MCP Server (tanstack.com)
+
+IMPORTANT: Most TanStack MCP tools have moved to @tanstack/cli for better local development experience.
+
+To use the full TanStack MCP toolkit, run:
+  npx @tanstack/cli mcp
+
+Or if installed globally:
+  tanstack mcp
+
+The CLI provides these tools:
+- tanstack_list_libraries: List TanStack libraries with metadata
+- tanstack_doc: Fetch documentation pages
+- tanstack_search_docs: Search documentation via Algolia
+- tanstack_ecosystem: Browse ecosystem partners
+- listTanStackIntegrations: List available project integrations
+- createTanStackApplication: Create new TanStack Start projects
+
+This server (tanstack.com) provides authenticated tools:
+- npm_stats: NPM download statistics (requires API key)`
 
 export function createMcpServer(authContext?: McpAuthContext) {
   const server = new McpServer(
@@ -134,67 +125,6 @@ export function createMcpServer(authContext?: McpAuthContext) {
   const enabledTools = getEnabledTools()
 
   const isEnabled = (name: ToolName) => !enabledTools || enabledTools.has(name)
-
-  if (isEnabled('list_libraries')) {
-    server.tool(
-      'list_libraries',
-      'List TanStack libraries with metadata, frameworks, and docs URLs.',
-      listLibrariesSchema.shape,
-      withAnalytics(
-        'list_libraries',
-        async (args) =>
-          jsonResult(await listLibraries(listLibrariesSchema.parse(args))),
-        authContext,
-      ),
-    )
-  }
-
-  if (isEnabled('doc')) {
-    server.tool(
-      'doc',
-      'Fetch a TanStack documentation page by library and path.',
-      docSchema.shape,
-      withAnalytics(
-        'doc',
-        async (args) => {
-          try {
-            const result = await doc(docSchema.parse(args))
-            return {
-              content: [
-                {
-                  type: 'text',
-                  text: JSON.stringify({
-                    title: result.title,
-                    url: result.url,
-                    library: result.library,
-                    version: result.version,
-                  }),
-                },
-                { type: 'text', text: `\n---\n\n${result.content}` },
-              ],
-            }
-          } catch (error) {
-            return errorResult(error)
-          }
-        },
-        authContext,
-      ),
-    )
-  }
-
-  if (isEnabled('search_docs')) {
-    server.tool(
-      'search_docs',
-      'Search TanStack documentation. Returns matching pages with snippets.',
-      searchDocsSchema.shape,
-      withAnalytics(
-        'search_docs',
-        async (args) =>
-          jsonResult(await searchDocs(searchDocsSchema.parse(args))),
-        authContext,
-      ),
-    )
-  }
 
   if (isEnabled('npm_stats')) {
     server.tool(
@@ -206,25 +136,6 @@ export function createMcpServer(authContext?: McpAuthContext) {
         async (args) => {
           try {
             return jsonResult(await npmStats(npmStatsSchema.parse(args)))
-          } catch (error) {
-            return errorResult(error)
-          }
-        },
-        authContext,
-      ),
-    )
-  }
-
-  if (isEnabled('ecosystem')) {
-    server.tool(
-      'ecosystem',
-      'Ecosystem partner recommendations. Filter by category (database, auth, deployment, monitoring, cms, api, data-grid) or library.',
-      ecosystemSchema.shape,
-      withAnalytics(
-        'ecosystem',
-        async (args) => {
-          try {
-            return jsonResult(await ecosystem(ecosystemSchema.parse(args)))
           } catch (error) {
             return errorResult(error)
           }

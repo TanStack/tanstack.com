@@ -13,7 +13,7 @@ import {
   npmDownloadChunks,
 } from '~/db/schema'
 import { eq, inArray, and } from 'drizzle-orm'
-import type { GitHubStats, NpmPackageStats, NpmStats } from './stats.server'
+import type { GitHubStats, NpmPackageStats, NpmStats } from './stats.types'
 
 /**
  * Batch fetch cached NPM package stats for multiple packages

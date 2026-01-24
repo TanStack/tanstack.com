@@ -1,6 +1,5 @@
 import { create } from 'zustand'
 import type { IslandData } from '../utils/islandGenerator'
-import type { RockCollider } from '../utils/collision'
 import {
   type Upgrade,
   type ShipStats,
@@ -10,47 +9,32 @@ import {
   SHOWCASE_UPGRADE_ORDER,
 } from '../utils/upgrades'
 import { type ShopItemType, SHOP_ITEMS } from '../utils/shopItems'
+import type {
+  RockCollider,
+  BoatType,
+  GameStage,
+  AIDifficulty,
+  OtherPlayer,
+  CoinData,
+  Cannonball,
+  PurchasedBoosts,
+  PersistedState,
+} from '../types'
+
+// Re-export types for consumers
+export type {
+  RockCollider,
+  BoatType,
+  GameStage,
+  AIDifficulty,
+  OtherPlayer,
+  CoinData,
+  Cannonball,
+  PurchasedBoosts,
+}
 
 // Keys for localStorage persistence
 const STORAGE_KEY = 'tanstack-island-explorer'
-
-// Purchased permanent shop boosts (stackable items)
-interface PurchasedBoosts {
-  permSpeed: number // Number of permanent speed boosts purchased
-  permAccel: number // Number of permanent acceleration boosts purchased
-  permHealth: number // Number of permanent health boosts purchased (+25 each, max 8)
-  rapidFire: boolean // Whether rapid fire (auto-loader) is purchased
-}
-
-// State that gets persisted to localStorage
-// This is the SINGLE SOURCE OF TRUTH for what gets saved
-interface PersistedState {
-  // Progress
-  discoveredIslands: string[]
-  coinsCollected: number
-  collectedCoinIds: number[] // Which specific coins are collected
-  unlockedUpgrades: Upgrade[]
-  shipStats: ShipStats
-  kills: number
-  deaths: number
-  purchasedBoosts: PurchasedBoosts
-
-  // Game state
-  stage: GameStage
-  boatType: BoatType
-  showcaseUnlocked: boolean // Whether showcase expansion is unlocked
-  cornersUnlocked: boolean // Whether corner boss islands are unlocked
-  gameWon: boolean // Whether the player has captured all 4 corners
-
-  // Position
-  boatPosition: [number, number, number]
-  boatRotation: number
-  boatHealth: number
-
-  // Active effects
-  compassTargetId: string | null // Store ID, not full object
-  speedBoostEndTime: number | null
-}
 
 // Save to localStorage (immediate, no debounce)
 function saveToLocalStorage(state: PersistedState): void {
@@ -114,44 +98,6 @@ function extractPersistedState(state: {
     compassTargetId: state.compassTarget?.id ?? null,
     speedBoostEndTime: state.speedBoostEndTime,
   }
-}
-
-export interface CoinData {
-  id: number
-  position: [number, number, number]
-  collected: boolean
-  collectedAt?: number // Timestamp when collected (for respawn timer)
-}
-
-export type BoatType = 'dinghy' | 'ship'
-export type GameStage = 'exploration' | 'battle'
-
-// Other players/AI in the world
-// AI difficulty tier (affects stats)
-export type AIDifficulty = 'easy' | 'medium' | 'hard' | 'elite' | 'boss'
-
-export interface OtherPlayer {
-  id: string
-  isAI: boolean
-  position: [number, number, number]
-  rotation: number
-  velocity: number
-  boatType: BoatType
-  color: string
-  health: number
-  maxHealth?: number // For AI ships
-  difficulty?: AIDifficulty // For AI ships
-  homePosition?: [number, number] // For AI ships - where they patrol around
-}
-
-// Cannonball projectile
-export interface Cannonball {
-  id: number
-  position: [number, number, number]
-  velocity: [number, number, number]
-  ownerId: string // 'player' or AI id
-  createdAt: number
-  isGatling?: boolean // Gatling rounds are smaller/faster
 }
 
 interface GameState {

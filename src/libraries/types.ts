@@ -65,6 +65,7 @@ export type LibrarySlim = {
   showVercelUrl?: boolean
   showNetlifyUrl?: boolean
   showCloudflareUrl?: boolean
+  showRailwayUrl?: boolean
   embedEditor?: 'codesandbox' | 'stackblitz'
   legacyPackages?: string[]
   installPath?: string

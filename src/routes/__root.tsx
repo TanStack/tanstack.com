@@ -29,7 +29,7 @@ const LazySearchModal = React.lazy(() =>
   import('~/components/SearchModal').then((m) => ({ default: m.SearchModal })),
 )
 import { Spinner } from '~/components/Spinner'
-import { ThemeProvider } from '~/components/ThemeProvider'
+import { ThemeProvider, useHtmlClass } from '~/components/ThemeProvider'
 import { Navbar } from '~/components/Navbar'
 import { THEME_COLORS } from '~/utils/utils'
 import { useHubSpotChat } from '~/hooks/useHubSpotChat'
@@ -95,6 +95,10 @@ export const Route = createRootRouteWithContext<{
       },
     ],
     scripts: [
+      // Theme detection script - must run before body renders to prevent flash
+      {
+        children: `(function(){try{var t=localStorage.getItem('theme')||'auto';var v=['light','dark','auto'].includes(t)?t:'auto';if(v==='auto'){var a=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.classList.add(a,'auto')}else{document.documentElement.classList.add(v)}}catch(e){var a=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.classList.add(a,'auto')}})()`,
+      },
       // Google Tag Manager script
       {
         children: `
@@ -123,41 +127,23 @@ export const Route = createRootRouteWithContext<{
     // Use undefined instead of null to distinguish between "not loaded" and "no user"
   },
   staleTime: Infinity,
-  errorComponent: (props) => {
+  shellComponent: ({ children }) => {
     return (
-      <HtmlWrapper>
-        <DefaultCatchBoundary {...props} />
-      </HtmlWrapper>
+      <ThemeProvider>
+        <SearchProvider>
+          <ShellComponent>{children}</ShellComponent>
+        </SearchProvider>
+      </ThemeProvider>
     )
   },
-  notFoundComponent: () => {
-    return (
-      <DocumentWrapper>
-        <NotFound />
-      </DocumentWrapper>
-    )
-  },
-  component: () => {
-    return (
-      <DocumentWrapper>
-        <Outlet />
-      </DocumentWrapper>
-    )
-  },
+  errorComponent: DefaultCatchBoundary,
+  notFoundComponent: () => <NotFound />,
 })
 
-function DocumentWrapper({ children }: { children: React.ReactNode }) {
-  return (
-    <ThemeProvider>
-      <SearchProvider>
-        <HtmlWrapper>{children}</HtmlWrapper>
-      </SearchProvider>
-    </ThemeProvider>
-  )
-}
-
-function HtmlWrapper({ children }: { children: React.ReactNode }) {
-  const matches = useMatches()
+function ShellComponent({ children }: { children: React.ReactNode }) {
+  const hasBaseParent = useMatches({
+    select: (matches) => matches.find((d) => d.staticData?.baseParent),
+  })
 
   // HubSpot chat loads on configured pages (see useHubSpotChat hook)
   useHubSpotChat()
@@ -188,21 +174,19 @@ function HtmlWrapper({ children }: { children: React.ReactNode }) {
     select: (s) => s.some((d) => d.staticData?.showNavbar === false),
   })
 
+  const htmlClass = useHtmlClass()
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className={htmlClass} suppressHydrationWarning>
       <head>
         <HeadContent />
-        {matches.find((d) => d.staticData?.baseParent) ? (
-          <base target="_parent" />
-        ) : null}
+        {hasBaseParent ? <base target="_parent" /> : null}
         <GamScripts />
       </head>
       <body className="overflow-x-hidden">
         <LoginModalProvider>
           <ToastProvider>
-            <React.Suspense fallback={null}>
-              {hideNavbar ? children : <Navbar>{children}</Navbar>}
-            </React.Suspense>
+            {hideNavbar ? children : <Navbar>{children}</Navbar>}
             {showDevtools ? (
               <LazyRouterDevtools position="bottom-right" />
             ) : null}

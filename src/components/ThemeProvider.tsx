@@ -1,4 +1,3 @@
-import { ScriptOnce } from '@tanstack/react-router'
 import { createClientOnlyFn, createIsomorphicFn } from '@tanstack/react-start'
 import * as React from 'react'
 import { createContext, ReactNode, useEffect, useState } from 'react'
@@ -66,34 +65,6 @@ const getNextTheme = createClientOnlyFn((current: ThemeMode): ThemeMode => {
   return themes[(themes.indexOf(current) + 1) % themes.length]
 })
 
-const themeDetectorScript = (function () {
-  function themeFn() {
-    try {
-      const storedTheme = localStorage.getItem('theme') || 'auto'
-      const validTheme = ['light', 'dark', 'auto'].includes(storedTheme)
-        ? storedTheme
-        : 'auto'
-
-      if (validTheme === 'auto') {
-        const autoTheme = window.matchMedia('(prefers-color-scheme: dark)')
-          .matches
-          ? 'dark'
-          : 'light'
-        document.documentElement.classList.add(autoTheme, 'auto')
-      } else {
-        document.documentElement.classList.add(validTheme)
-      }
-    } catch (e) {
-      const autoTheme = window.matchMedia('(prefers-color-scheme: dark)')
-        .matches
-        ? 'dark'
-        : 'light'
-      document.documentElement.classList.add(autoTheme, 'auto')
-    }
-  }
-  return `(${themeFn.toString()})();`
-})()
-
 type ThemeContextProps = {
   themeMode: ThemeMode
   resolvedTheme: ResolvedTheme
@@ -118,12 +89,6 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(
     getResolvedThemeFromDOM,
   )
-
-  // Sync resolved theme from DOM on mount (handles SSR -> client transition)
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional hydration after SSR
-    setResolvedTheme(getResolvedThemeFromDOM())
-  }, [])
 
   // Listen for system theme changes when in auto mode
   useEffect(() => {
@@ -152,7 +117,6 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     <ThemeContext.Provider
       value={{ themeMode, resolvedTheme, setTheme, toggleMode }}
     >
-      <ScriptOnce children={themeDetectorScript} />
       {children}
     </ThemeContext.Provider>
   )
@@ -164,4 +128,14 @@ export const useTheme = () => {
     throw new Error('useTheme must be used within a ThemeProvider')
   }
   return context
+}
+
+// Returns the class string for <html> element
+// Reads from DOM on client (matches what head script set), empty on server
+const getHtmlClass = createIsomorphicFn()
+  .server(() => '')
+  .client(() => document.documentElement.className)
+
+export function useHtmlClass(): string {
+  return getHtmlClass()
 }

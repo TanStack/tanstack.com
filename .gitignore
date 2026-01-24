@@ -32,3 +32,4 @@ test-results
 .claude/CLAUDE.md
 .eslintcache
 .tsbuildinfo
+src/routeTree.gen.ts

@@ -19,6 +19,10 @@ import * as v from 'valibot'
 import { CodeExplorer } from '~/components/CodeExplorer'
 import type { GitHubFileNode } from '~/utils/documents.server'
 import { ExternalLink } from 'lucide-react'
+import {
+  ExampleDeployDialog,
+  type DeployProvider,
+} from '~/components/ExampleDeployDialog'
 
 const fileQueryOptions = (repo: string, branch: string, filePath: string) => {
   return queryOptions({
@@ -150,6 +154,19 @@ function PageComponent() {
   )
 
   const [isDark, setIsDark] = React.useState(true)
+  const [deployDialogOpen, setDeployDialogOpen] = React.useState(false)
+  const [deployProvider, setDeployProvider] =
+    React.useState<DeployProvider | null>(null)
+
+  const openDeployDialog = (provider: DeployProvider) => {
+    setDeployProvider(provider)
+    setDeployDialogOpen(true)
+  }
+
+  const closeDeployDialog = () => {
+    setDeployDialogOpen(false)
+    setDeployProvider(null)
+  }
 
   const activeTab = Route.useSearch({
     select: (s) => {
@@ -200,9 +217,7 @@ function PageComponent() {
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
   }, [])
 
-  const repoUrl = `https://github.com/${library.repo}`
   const githubUrl = `https://github.com/${library.repo}/tree/${branch}/examples/${examplePath}`
-  const githubExamplePath = `examples/${examplePath}`
 
   // preset=node can be removed once Stackblitz runs Angular as webcontainer by default
   // See https://github.com/stackblitz/core/issues/2957
@@ -227,37 +242,43 @@ function PageComponent() {
           </span>
           <div className="flex items-center gap-4 flex-wrap font-normal text-xs">
             {library.showCloudflareUrl ? (
-              <a
-                href={`https://deploy.workers.cloudflare.com/?url=${githubUrl}`}
+              <button
+                type="button"
+                onClick={() => openDeployDialog('cloudflare')}
+                className="hover:opacity-80 transition-opacity"
               >
                 <img
                   src="https://deploy.workers.cloudflare.com/button"
                   loading="lazy"
                   alt="Deploy to Cloudflare"
                 />
-              </a>
+              </button>
             ) : null}
             {library.showNetlifyUrl ? (
-              <a
-                href={`https://app.netlify.com/start/deploy?repository=${repoUrl}&create_from_path=${githubExamplePath}`}
+              <button
+                type="button"
+                onClick={() => openDeployDialog('netlify')}
+                className="hover:opacity-80 transition-opacity"
               >
                 <img
                   src="https://www.netlify.com/img/deploy/button.svg"
                   loading="lazy"
                   alt="Deploy with Netlify"
                 />
-              </a>
+              </button>
             ) : null}
-            {library.showVercelUrl ? (
-              <a
-                href={`https://vercel.com/new/clone?repository-url=${githubUrl}`}
+            {library.showRailwayUrl ? (
+              <button
+                type="button"
+                onClick={() => openDeployDialog('railway')}
+                className="hover:opacity-80 transition-opacity"
               >
                 <img
-                  src="https://vercel.com/button"
+                  src="https://railway.com/button.svg"
                   loading="lazy"
-                  alt="Deploy with Vercel"
+                  alt="Deploy on Railway"
                 />
-              </a>
+              </button>
             ) : null}
             <a
               href={githubUrl}
@@ -305,6 +326,18 @@ function PageComponent() {
           stackBlitzUrl={stackBlitzUrl}
         />
       </div>
+      {deployProvider && (
+        <ExampleDeployDialog
+          isOpen={deployDialogOpen}
+          onClose={closeDeployDialog}
+          provider={deployProvider}
+          repo={library.repo}
+          branch={branch}
+          examplePath={examplePath}
+          exampleName={slugToTitle(_splat!)}
+          libraryName={library.name}
+        />
+      )}
     </div>
   )
 }

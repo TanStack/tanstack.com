@@ -18,6 +18,7 @@ export const startProject = {
   installPath: 'framework/$framework/build-from-scratch',
   showNetlifyUrl: true,
   showCloudflareUrl: true,
+  showRailwayUrl: true,
   // hide stackblitz until they support Async Local Storage
   hideStackblitzUrl: true as const,
   testimonials: [

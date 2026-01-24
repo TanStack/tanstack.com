@@ -1,7 +1,8 @@
 /**
- * Deploy Dialog Component
+ * Example Deploy Dialog Component
  *
- * Dialog for deploying a project to GitHub and then to a cloud provider.
+ * Dialog for deploying a library example to GitHub and then to a cloud provider.
+ * Based on the builder's DeployDialog but fetches example files instead of compiling.
  */
 
 import { useState, useEffect, useCallback } from 'react'
@@ -18,18 +19,19 @@ import {
 import { twMerge } from 'tailwind-merge'
 import { useAsyncDebouncer } from '@tanstack/react-pacer'
 import { Button } from '~/ui'
-import { useDeployAuth } from './useDeployAuth'
-import {
-  useFeatures,
-  useFeatureOptions,
-  useTailwind,
-  useProjectName,
-} from './store'
+import { useDeployAuth } from './builder/useDeployAuth'
 
-interface DeployDialogProps {
+export type DeployProvider = 'cloudflare' | 'netlify' | 'railway'
+
+interface ExampleDeployDialogProps {
   isOpen: boolean
   onClose: () => void
-  provider?: 'cloudflare' | 'netlify' | 'railway' | null
+  provider: DeployProvider
+  repo: string
+  branch: string
+  examplePath: string
+  exampleName: string
+  libraryName: string
 }
 
 const PROVIDER_INFO = {
@@ -48,8 +50,6 @@ const PROVIDER_INFO = {
   railway: {
     name: 'Railway',
     color: '#9B4DCA',
-    // Railway doesn't support direct deploy URLs from arbitrary repos
-    // Users need to select their repo from the dashboard
     deployUrl: () => `https://railway.com/new/github`,
   },
 }
@@ -96,21 +96,32 @@ function validateRepoNameFormat(name: string): {
   return { valid: true }
 }
 
-export function DeployDialog({ isOpen, onClose, provider }: DeployDialogProps) {
-  const auth = useDeployAuth()
-  const features = useFeatures()
-  const featureOptions = useFeatureOptions()
-  const tailwind = useTailwind()
-  const projectName = useProjectName()
+function generateDefaultRepoName(examplePath: string): string {
+  // Convert "react/start-basic" to "start-basic"
+  const parts = examplePath.split('/')
+  return parts[parts.length - 1] || 'my-tanstack-app'
+}
 
+export function ExampleDeployDialog({
+  isOpen,
+  onClose,
+  provider,
+  repo,
+  branch,
+  examplePath,
+  exampleName,
+  libraryName,
+}: ExampleDeployDialogProps) {
+  const auth = useDeployAuth()
+  const providerInfo = PROVIDER_INFO[provider]
+
+  const defaultRepoName = generateDefaultRepoName(examplePath)
   const [state, setState] = useState<DeployState>({ step: 'auth-check' })
-  const [repoName, setRepoName] = useState(projectName)
+  const [repoName, setRepoName] = useState(defaultRepoName)
   const [isPrivate, setIsPrivate] = useState(false)
   const [countdown, setCountdown] = useState<number | null>(null)
   const [repoNameStatus, setRepoNameStatus] = useState<RepoNameStatus>('idle')
   const [repoNameError, setRepoNameError] = useState<string | null>(null)
-
-  const providerInfo = provider ? PROVIDER_INFO[provider] : null
 
   // Debounced repo name availability check
   const nameCheckDebouncer = useAsyncDebouncer(
@@ -127,24 +138,23 @@ export function DeployDialog({ isOpen, onClose, provider }: DeployDialogProps) {
     {
       wait: 500,
       onError: () => {
-        // On error, reset to idle (don't block the user)
         setRepoNameStatus('idle')
         setRepoNameError(null)
       },
     },
   )
 
-  // Update repo name when project name changes
+  // Reset repo name when dialog opens with new example
   useEffect(() => {
-    setRepoName(projectName)
-  }, [projectName])
+    if (isOpen) {
+      setRepoName(defaultRepoName)
+    }
+  }, [isOpen, defaultRepoName])
 
   // Validate and check repo name
   useEffect(() => {
-    // Reset error
     setRepoNameError(null)
 
-    // Validate format first
     const validation = validateRepoNameFormat(repoName)
     if (!validation.valid) {
       setRepoNameStatus(validation.error ? 'invalid' : 'idle')
@@ -152,7 +162,6 @@ export function DeployDialog({ isOpen, onClose, provider }: DeployDialogProps) {
       return
     }
 
-    // Only check availability if authenticated with repo scope
     if (!auth.hasRepoScope) {
       setRepoNameStatus('idle')
       return
@@ -196,13 +205,12 @@ export function DeployDialog({ isOpen, onClose, provider }: DeployDialogProps) {
     auth.hasRepoScope,
   ])
 
-  // Auto-redirect countdown (only when there's a provider)
+  // Auto-redirect countdown
   useEffect(() => {
-    if (state.step !== 'success' || countdown === null || !providerInfo) return
+    if (state.step !== 'success' || countdown === null) return
 
     if (countdown <= 0) {
-      // Redirect to provider deploy page
-      setCountdown(null) // Prevent double-open
+      setCountdown(null)
       const deployUrl = providerInfo.deployUrl(state.owner, state.repoName)
       window.open(deployUrl, '_blank')
       return
@@ -210,22 +218,24 @@ export function DeployDialog({ isOpen, onClose, provider }: DeployDialogProps) {
 
     const timer = setTimeout(() => setCountdown(countdown - 1), 1000)
     return () => clearTimeout(timer)
-  }, [state, countdown, providerInfo, onClose])
+  }, [state, countdown, providerInfo])
 
   const handleDeploy = useCallback(async () => {
-    setState({ step: 'deploying', message: 'Creating repository...' })
+    setState({ step: 'deploying', message: 'Fetching example files...' })
 
     try {
-      const response = await fetch('/api/builder/deploy/github', {
+      const response = await fetch('/api/example/deploy', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           repoName,
           isPrivate,
-          projectName,
-          features,
-          featureOptions,
-          tailwind,
+          sourceRepo: repo,
+          branch,
+          examplePath,
+          provider,
+          libraryName,
+          exampleName,
         }),
       })
 
@@ -246,17 +256,23 @@ export function DeployDialog({ isOpen, onClose, provider }: DeployDialogProps) {
         owner: data.owner,
         repoName: data.repoName,
       })
-      // Only start countdown if there's a provider to redirect to
-      if (providerInfo) {
-        setCountdown(3)
-      }
+      setCountdown(3)
     } catch (error) {
       setState({
         step: 'error',
         message: error instanceof Error ? error.message : 'Deployment failed',
       })
     }
-  }, [repoName, isPrivate, projectName, features, featureOptions, tailwind])
+  }, [
+    repoName,
+    isPrivate,
+    repo,
+    branch,
+    examplePath,
+    provider,
+    libraryName,
+    exampleName,
+  ])
 
   if (!isOpen) return null
 
@@ -275,40 +291,21 @@ export function DeployDialog({ isOpen, onClose, provider }: DeployDialogProps) {
         {/* Header */}
         <div
           className="px-6 py-4 border-b border-gray-200 dark:border-gray-700"
-          style={
-            providerInfo
-              ? { backgroundColor: `${providerInfo.color}10` }
-              : undefined
-          }
+          style={{ backgroundColor: `${providerInfo.color}10` }}
         >
           <div className="flex items-center gap-3">
             <div
-              className={twMerge(
-                'w-10 h-10 rounded-lg flex items-center justify-center',
-                !providerInfo && 'bg-gray-800',
-              )}
-              style={
-                providerInfo
-                  ? { backgroundColor: providerInfo.color }
-                  : undefined
-              }
+              className="w-10 h-10 rounded-lg flex items-center justify-center"
+              style={{ backgroundColor: providerInfo.color }}
             >
-              {providerInfo ? (
-                <Rocket className="w-5 h-5 text-white" />
-              ) : (
-                <Github className="w-5 h-5 text-white" />
-              )}
+              <Rocket className="w-5 h-5 text-white" />
             </div>
             <div>
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                {providerInfo
-                  ? `Deploy to ${providerInfo.name}`
-                  : 'Create GitHub Repository'}
+                Deploy to {providerInfo.name}
               </h2>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                {providerInfo
-                  ? 'Create a GitHub repo and deploy'
-                  : 'Push your project to GitHub'}
+                {exampleName}
               </p>
             </div>
           </div>
@@ -334,8 +331,8 @@ export function DeployDialog({ isOpen, onClose, provider }: DeployDialogProps) {
                 GitHub Authorization Required
               </h3>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-                To deploy, we need permission to create repositories on your
-                GitHub account.
+                To deploy this example, we need permission to create a
+                repository on your GitHub account.
               </p>
               <Button
                 variant="primary"
@@ -423,12 +420,10 @@ export function DeployDialog({ isOpen, onClose, provider }: DeployDialogProps) {
                 </div>
               </div>
 
-              {features.length > 0 && (
-                <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                  <span className="font-medium">Integrations: </span>
-                  {features.join(', ')}
-                </div>
-              )}
+              <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                <span className="font-medium">Source: </span>
+                {libraryName} / {examplePath}
+              </div>
 
               <div className="flex gap-3 pt-2">
                 <Button
@@ -450,7 +445,7 @@ export function DeployDialog({ isOpen, onClose, provider }: DeployDialogProps) {
                   className="flex-1 gap-2"
                 >
                   <Github className="w-4 h-4" />
-                  {providerInfo ? 'Create & Deploy' : 'Create Repository'}
+                  Create & Deploy
                 </Button>
               </div>
             </div>
@@ -482,35 +477,27 @@ export function DeployDialog({ isOpen, onClose, provider }: DeployDialogProps) {
                 {state.owner}/{state.repoName}
                 <ExternalLink className="w-3 h-3" />
               </a>
-              {providerInfo ? (
-                <>
-                  {countdown !== null && countdown > 0 && (
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                      Redirecting to {providerInfo.name} in {countdown}s...
-                    </p>
-                  )}
-                  <Button
-                    variant="primary"
-                    onClick={() => {
-                      setCountdown(null) // Cancel auto-redirect
-                      const deployUrl = providerInfo.deployUrl(
-                        state.owner,
-                        state.repoName,
-                      )
-                      window.open(deployUrl, '_blank')
-                    }}
-                    className="gap-2"
-                    style={{ backgroundColor: providerInfo.color }}
-                  >
-                    <Rocket className="w-4 h-4" />
-                    Deploy Now
-                  </Button>
-                </>
-              ) : (
-                <Button variant="secondary" onClick={onClose}>
-                  Done
-                </Button>
+              {countdown !== null && countdown > 0 && (
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                  Redirecting to {providerInfo.name} in {countdown}s...
+                </p>
               )}
+              <Button
+                variant="primary"
+                onClick={() => {
+                  setCountdown(null)
+                  const deployUrl = providerInfo.deployUrl(
+                    state.owner,
+                    state.repoName,
+                  )
+                  window.open(deployUrl, '_blank')
+                }}
+                className="gap-2"
+                style={{ backgroundColor: providerInfo.color }}
+              >
+                <Rocket className="w-4 h-4" />
+                Deploy Now
+              </Button>
             </div>
           )}
 

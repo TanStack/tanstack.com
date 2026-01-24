@@ -1,10 +1,7 @@
 import type { IslandData } from './islandGenerator'
-import type { OtherPlayer } from '../hooks/useGameStore'
+import type { OtherPlayer, RockCollider } from '../types'
 
-export interface RockCollider {
-  position: [number, number]
-  radius: number
-}
+export type { RockCollider }
 
 // Seeded random for consistent rock generation
 function seededRandom(seed: number) {

@@ -48,51 +48,62 @@ const partnerScores = new Map(
 
 const CATEGORY_INFO: Record<
   FeatureCategory,
-  { label: string; description: string }
+  { label: string; description: string; color: string }
 > = {
   tanstack: {
     label: 'TanStack',
     description: 'Official TanStack libraries',
+    color: '#00D1B2', // TanStack cyan/teal
   },
   database: {
     label: 'Database',
     description: 'Database providers and real-time backends',
+    color: '#3B82F6', // Blue
   },
   orm: {
     label: 'ORM',
     description: 'Object-relational mapping and query builders',
+    color: '#6366F1', // Indigo
   },
   auth: {
     label: 'Authentication',
     description: 'User authentication and authorization',
+    color: '#8B5CF6', // Purple
   },
   deploy: {
     label: 'Deployment',
     description: 'Hosting and deployment platforms',
+    color: '#EC4899', // Pink
   },
   monitoring: {
     label: 'Monitoring',
     description: 'Observability, error tracking, and performance monitoring',
+    color: '#F59E0B', // Amber
   },
   cms: {
     label: 'CMS',
     description: 'Content management systems',
+    color: '#10B981', // Emerald
   },
   tooling: {
     label: 'Tooling',
     description: 'Development tools, linting, and utilities',
+    color: '#F472B6', // Pink-400
   },
   api: {
     label: 'API',
     description: 'Type-safe APIs and RPC frameworks',
+    color: '#EF4444', // Red
   },
   i18n: {
     label: 'i18n',
     description: 'Internationalization and localization',
+    color: '#14B8A6', // Teal
   },
   other: {
     label: 'Other',
     description: 'Additional tools and integrations',
+    color: '#A78BFA', // Violet-400
   },
 }
 
@@ -174,6 +185,7 @@ export function FeaturePicker() {
           title="Featured"
           description="Popular integrations from our partners"
           features={partnerFeatures}
+          categoryColor="#F59E0B"
           defaultOpen
         />
       )}
@@ -190,6 +202,7 @@ export function FeaturePicker() {
             title={info.label}
             description={info.description}
             features={features}
+            categoryColor={info.color}
             defaultOpen
             forceOpen={isSearching}
           />
@@ -213,6 +226,7 @@ interface FeatureSectionProps {
   title: string
   description: string
   features: Array<FeatureInfo>
+  categoryColor: string
   defaultOpen?: boolean
   forceOpen?: boolean
 }
@@ -221,6 +235,7 @@ function FeatureSection({
   title,
   description,
   features,
+  categoryColor,
   defaultOpen = false,
   forceOpen = false,
 }: FeatureSectionProps) {
@@ -249,7 +264,11 @@ function FeatureSection({
       <CollapsibleContent>
         <div className="mt-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 xl:grid-cols-2 gap-1 px-1 pb-2">
           {features.map((feature) => (
-            <FeatureCard key={feature.id} feature={feature} />
+            <FeatureCard
+              key={feature.id}
+              feature={feature}
+              categoryColor={categoryColor}
+            />
           ))}
         </div>
       </CollapsibleContent>
@@ -259,12 +278,13 @@ function FeatureSection({
 
 interface FeatureCardProps {
   feature: FeatureInfo
+  categoryColor: string
 }
 
-function FeatureCard({ feature }: FeatureCardProps) {
+function FeatureCard({ feature, categoryColor }: FeatureCardProps) {
   const toggleFeature = useBuilderStore((s) => s.toggleFeature)
   const getFeatureInfo = useBuilderStore((s) => s.getFeatureInfo)
-  const { selected, enabled, disabledReason, conflict, requiredBy } =
+  const { selected, enabled, disabledReason, exclusiveConflict, requiredBy } =
     useFeatureState(feature.id)
 
   const handleClick = () => {
@@ -283,11 +303,12 @@ function FeatureCard({ feature }: FeatureCardProps) {
   // Build tooltip content
   const tooltipContent = disabledReason
     ? disabledReason
-    : conflict
-      ? `Replaces ${getFeatureInfo(conflict)?.name ?? conflict}`
+    : exclusiveConflict
+      ? `Replaces ${getFeatureInfo(exclusiveConflict)?.name ?? exclusiveConflict}`
       : null
 
-  const featureColor = feature.color ?? '#6b7280'
+  // Use feature color for the dot, but category color for selected state
+  const dotColor = feature.color ?? categoryColor
 
   const cardContent = (
     <button
@@ -304,8 +325,8 @@ function FeatureCard({ feature }: FeatureCardProps) {
       style={
         selected
           ? {
-              borderColor: featureColor,
-              backgroundColor: `${featureColor}15`,
+              borderColor: categoryColor,
+              backgroundColor: `${categoryColor}15`,
             }
           : undefined
       }
@@ -316,7 +337,7 @@ function FeatureCard({ feature }: FeatureCardProps) {
           'w-3 h-3 shrink-0 rounded-full',
           !enabled && 'opacity-50',
         )}
-        style={{ backgroundColor: featureColor }}
+        style={{ backgroundColor: dotColor }}
       />
 
       {/* Content */}

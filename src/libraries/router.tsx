@@ -18,8 +18,9 @@ export const routerProject = {
   legacyPackages: ['react-location'],
   hideCodesandboxUrl: true as const,
   showVercelUrl: false,
-  showNetlifyUrl: true,
-  showCloudflareUrl: true,
+  showNetlifyUrl: false,
+  showCloudflareUrl: false,
+  showRailwayUrl: false,
   testimonials: [
     {
       quote:

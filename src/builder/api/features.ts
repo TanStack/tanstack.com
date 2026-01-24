@@ -27,7 +27,8 @@ export interface FeatureInfo {
   description: string
   category: string
   requires: Array<string>
-  conflicts: Array<string>
+  // Exclusive types - only one feature per exclusive type can be selected
+  exclusive: Array<string>
   hasOptions: boolean
   options?: Array<FeatureOption>
   link?: string
@@ -60,7 +61,7 @@ function toFeatureInfo(integration: ManifestIntegration): FeatureInfo {
     description: integration.description,
     category: integration.category ?? 'other',
     requires: integration.dependsOn ?? [],
-    conflicts: integration.conflicts ?? [],
+    exclusive: integration.exclusive ?? [],
     hasOptions: integration.hasOptions ?? false,
     link: normalizeUrl(integration.link),
     color: integration.color,

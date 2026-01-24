@@ -41,7 +41,7 @@ import {
 } from './store'
 import { useCliCommand } from './useBuilderUrl'
 import { FeaturePicker, FeatureOptions } from './FeaturePicker'
-import { CustomTemplateSection } from './CustomTemplateDialog'
+import { CustomTemplateItem } from './CustomTemplateDialog'
 import { DeployDialog } from './DeployDialog'
 import { Button } from '~/ui'
 import {
@@ -111,7 +111,11 @@ const TEMPLATE_COLORS: Record<string, { bg: string; text: string }> = {
 
 const DEPLOY_PROVIDERS: Record<
   string,
-  { name: string; color: string; provider: 'cloudflare' | 'netlify' }
+  {
+    name: string
+    color: string
+    provider: 'cloudflare' | 'netlify' | 'railway'
+  }
 > = {
   netlify: {
     name: 'Netlify',
@@ -123,6 +127,11 @@ const DEPLOY_PROVIDERS: Record<
     color: '#F38020',
     provider: 'cloudflare',
   },
+  railway: {
+    name: 'Railway',
+    color: '#9B4DCA',
+    provider: 'railway',
+  },
 }
 
 export function ConfigPanel() {
@@ -132,7 +141,7 @@ export function ConfigPanel() {
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [deployDialogOpen, setDeployDialogOpen] = useState(false)
   const [deployDialogProvider, setDeployDialogProvider] = useState<
-    'cloudflare' | 'netlify' | null
+    'cloudflare' | 'netlify' | 'railway' | null
   >(null)
 
   const deployProvider = useMemo(() => {
@@ -140,7 +149,9 @@ export function ConfigPanel() {
     return providerId ? DEPLOY_PROVIDERS[providerId] : null
   }, [features])
 
-  const openDeployDialog = (provider: 'cloudflare' | 'netlify' | null) => {
+  const openDeployDialog = (
+    provider: 'cloudflare' | 'netlify' | 'railway' | null,
+  ) => {
     setDeployDialogProvider(provider)
     setDeployDialogOpen(true)
   }
@@ -200,8 +211,17 @@ export function ConfigPanel() {
             Your project's foundation
           </p>
           <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-100 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-600 cursor-not-allowed">
-            <div className="w-8 h-8 rounded-lg bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-              <span className="text-lg">🚀</span>
+            <div className="w-8 h-8 flex items-center justify-center">
+              <img
+                src="/images/logos/logo-black.svg"
+                alt="TanStack"
+                className="w-full h-full dark:hidden"
+              />
+              <img
+                src="/images/logos/logo-white.svg"
+                alt="TanStack"
+                className="w-full h-full hidden dark:block"
+              />
             </div>
             <div className="flex-1">
               <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -232,7 +252,6 @@ export function ConfigPanel() {
         {/* Template Section */}
         <div className="p-4 pb-0">
           <TemplatePicker />
-          <CustomTemplateSection />
         </div>
 
         {/* Integration Search */}
@@ -262,15 +281,15 @@ function IntegrationSearch() {
   const setSearch = useBuilderStore((s) => s.setIntegrationSearch)
 
   return (
-    <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 p-4 border-b border-gray-200 dark:border-gray-700">
+    <div className="p-4 pb-0">
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search integrations..."
-          className="w-full pl-9 pr-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-cyan-500"
+          className="w-full h-8 pl-7 pr-2 text-xs bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-cyan-500"
         />
       </div>
     </div>
@@ -330,6 +349,7 @@ function TemplatePicker() {
   const templates = useAvailableTemplates()
   const applyTemplate = useBuilderStore((s) => s.applyTemplate)
   const features = useFeatures()
+  const [customExpanded, setCustomExpanded] = useState(false)
 
   if (templates.length === 0) return null
 
@@ -398,6 +418,10 @@ function TemplatePicker() {
             </button>
           )
         })}
+        <CustomTemplateItem
+          isExpanded={customExpanded}
+          onToggle={() => setCustomExpanded(!customExpanded)}
+        />
       </div>
     </div>
   )
@@ -610,7 +634,7 @@ function BuildProjectDropdown({
           {/* Create GitHub Repo */}
           <div>
             <Button
-              variant="secondary"
+              variant="primary"
               className="w-full flex items-center justify-center gap-2"
               onClick={onCreateRepo}
             >
@@ -623,7 +647,7 @@ function BuildProjectDropdown({
           <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
             <div className="flex gap-2">
               <Button
-                variant="secondary"
+                variant="primary"
                 className="flex-1 flex items-center justify-center gap-2"
                 onClick={downloadZip}
                 disabled={!compiledOutput?.files || isGeneratingZip}

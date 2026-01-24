@@ -81,7 +81,10 @@ import { Route as ShowcaseEditIdRouteImport } from './routes/showcase/edit.$id'
 import { Route as AuthProviderStartRouteImport } from './routes/auth/$provider/start'
 import { Route as ApiMcpSplatRouteImport } from './routes/api/mcp/$'
 import { Route as ApiGithubWebhookRouteImport } from './routes/api/github/webhook'
+import { Route as ApiExampleDeployRouteImport } from './routes/api/example/deploy'
 import { Route as ApiDiscordInteractionsRouteImport } from './routes/api/discord/interactions'
+import { Route as ApiDataPartnersRouteImport } from './routes/api/data/partners'
+import { Route as ApiDataLibrariesRouteImport } from './routes/api/data/libraries'
 import { Route as ApiBuilderValidateRouteImport } from './routes/api/builder/validate'
 import { Route as ApiBuilderSuggestRouteImport } from './routes/api/builder/suggest'
 import { Route as ApiBuilderLoadRemoteTemplateRouteImport } from './routes/api/builder/load-remote-template'
@@ -475,9 +478,24 @@ const ApiGithubWebhookRoute = ApiGithubWebhookRouteImport.update({
   path: '/api/github/webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiExampleDeployRoute = ApiExampleDeployRouteImport.update({
+  id: '/api/example/deploy',
+  path: '/api/example/deploy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiDiscordInteractionsRoute = ApiDiscordInteractionsRouteImport.update({
   id: '/api/discord/interactions',
   path: '/api/discord/interactions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDataPartnersRoute = ApiDataPartnersRouteImport.update({
+  id: '/api/data/partners',
+  path: '/api/data/partners',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDataLibrariesRoute = ApiDataLibrariesRouteImport.update({
+  id: '/api/data/libraries',
+  path: '/api/data/libraries',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiBuilderValidateRoute = ApiBuilderValidateRouteImport.update({
@@ -728,7 +746,10 @@ export interface FileRoutesByFullPath {
   '/api/builder/load-remote-template': typeof ApiBuilderLoadRemoteTemplateRoute
   '/api/builder/suggest': typeof ApiBuilderSuggestRoute
   '/api/builder/validate': typeof ApiBuilderValidateRoute
+  '/api/data/libraries': typeof ApiDataLibrariesRoute
+  '/api/data/partners': typeof ApiDataPartnersRoute
   '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
+  '/api/example/deploy': typeof ApiExampleDeployRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
@@ -827,7 +848,10 @@ export interface FileRoutesByTo {
   '/api/builder/load-remote-template': typeof ApiBuilderLoadRemoteTemplateRoute
   '/api/builder/suggest': typeof ApiBuilderSuggestRoute
   '/api/builder/validate': typeof ApiBuilderValidateRoute
+  '/api/data/libraries': typeof ApiDataLibrariesRoute
+  '/api/data/partners': typeof ApiDataPartnersRoute
   '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
+  '/api/example/deploy': typeof ApiExampleDeployRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
@@ -934,7 +958,10 @@ export interface FileRoutesById {
   '/api/builder/load-remote-template': typeof ApiBuilderLoadRemoteTemplateRoute
   '/api/builder/suggest': typeof ApiBuilderSuggestRoute
   '/api/builder/validate': typeof ApiBuilderValidateRoute
+  '/api/data/libraries': typeof ApiDataLibrariesRoute
+  '/api/data/partners': typeof ApiDataPartnersRoute
   '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
+  '/api/example/deploy': typeof ApiExampleDeployRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
@@ -1042,7 +1069,10 @@ export interface FileRouteTypes {
     | '/api/builder/load-remote-template'
     | '/api/builder/suggest'
     | '/api/builder/validate'
+    | '/api/data/libraries'
+    | '/api/data/partners'
     | '/api/discord/interactions'
+    | '/api/example/deploy'
     | '/api/github/webhook'
     | '/api/mcp/$'
     | '/auth/$provider/start'
@@ -1141,7 +1171,10 @@ export interface FileRouteTypes {
     | '/api/builder/load-remote-template'
     | '/api/builder/suggest'
     | '/api/builder/validate'
+    | '/api/data/libraries'
+    | '/api/data/partners'
     | '/api/discord/interactions'
+    | '/api/example/deploy'
     | '/api/github/webhook'
     | '/api/mcp/$'
     | '/auth/$provider/start'
@@ -1247,7 +1280,10 @@ export interface FileRouteTypes {
     | '/api/builder/load-remote-template'
     | '/api/builder/suggest'
     | '/api/builder/validate'
+    | '/api/data/libraries'
+    | '/api/data/partners'
     | '/api/discord/interactions'
+    | '/api/example/deploy'
     | '/api/github/webhook'
     | '/api/mcp/$'
     | '/auth/$provider/start'
@@ -1330,7 +1366,10 @@ export interface RootRouteChildren {
   ApiBuilderLoadRemoteTemplateRoute: typeof ApiBuilderLoadRemoteTemplateRoute
   ApiBuilderSuggestRoute: typeof ApiBuilderSuggestRoute
   ApiBuilderValidateRoute: typeof ApiBuilderValidateRoute
+  ApiDataLibrariesRoute: typeof ApiDataLibrariesRoute
+  ApiDataPartnersRoute: typeof ApiDataPartnersRoute
   ApiDiscordInteractionsRoute: typeof ApiDiscordInteractionsRoute
+  ApiExampleDeployRoute: typeof ApiExampleDeployRoute
   ApiGithubWebhookRoute: typeof ApiGithubWebhookRoute
   ApiMcpSplatRoute: typeof ApiMcpSplatRoute
   AuthProviderStartRoute: typeof AuthProviderStartRoute
@@ -1849,11 +1888,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiGithubWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/example/deploy': {
+      id: '/api/example/deploy'
+      path: '/api/example/deploy'
+      fullPath: '/api/example/deploy'
+      preLoaderRoute: typeof ApiExampleDeployRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/discord/interactions': {
       id: '/api/discord/interactions'
       path: '/api/discord/interactions'
       fullPath: '/api/discord/interactions'
       preLoaderRoute: typeof ApiDiscordInteractionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/data/partners': {
+      id: '/api/data/partners'
+      path: '/api/data/partners'
+      fullPath: '/api/data/partners'
+      preLoaderRoute: typeof ApiDataPartnersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/data/libraries': {
+      id: '/api/data/libraries'
+      path: '/api/data/libraries'
+      fullPath: '/api/data/libraries'
+      preLoaderRoute: typeof ApiDataLibrariesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/builder/validate': {
@@ -2294,7 +2354,10 @@ const rootRouteChildren: RootRouteChildren = {
   ApiBuilderLoadRemoteTemplateRoute: ApiBuilderLoadRemoteTemplateRoute,
   ApiBuilderSuggestRoute: ApiBuilderSuggestRoute,
   ApiBuilderValidateRoute: ApiBuilderValidateRoute,
+  ApiDataLibrariesRoute: ApiDataLibrariesRoute,
+  ApiDataPartnersRoute: ApiDataPartnersRoute,
   ApiDiscordInteractionsRoute: ApiDiscordInteractionsRoute,
+  ApiExampleDeployRoute: ApiExampleDeployRoute,
   ApiGithubWebhookRoute: ApiGithubWebhookRoute,
   ApiMcpSplatRoute: ApiMcpSplatRoute,
   AuthProviderStartRoute: AuthProviderStartRoute,

@@ -7,7 +7,13 @@
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
-import { Loader2, AlertCircle, Rocket, X, HelpCircle } from 'lucide-react'
+import {
+  Loader2,
+  AlertCircle,
+  Link as LinkIcon,
+  X,
+  HelpCircle,
+} from 'lucide-react'
 import { useBuilderStore, useCustomTemplate } from './store'
 import type { CustomTemplateCompiled } from '~/builder/api'
 
@@ -175,7 +181,7 @@ export function CustomTemplateSection() {
       <div className="p-3 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <Rocket className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+            <LinkIcon className="w-4 h-4 text-purple-600 dark:text-purple-400" />
             <div>
               <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
                 {customTemplate.name}
@@ -214,7 +220,7 @@ export function CustomTemplateSection() {
           </>
         ) : (
           <>
-            <Rocket className="w-4 h-4" />
+            <LinkIcon className="w-4 h-4" />
             Custom Template
             <Link
               to="/builder/docs"
@@ -233,5 +239,103 @@ export function CustomTemplateSection() {
         </div>
       )}
     </div>
+  )
+}
+
+/**
+ * Custom template item for use in template grid
+ */
+export function CustomTemplateItem({
+  isExpanded,
+  onToggle,
+}: {
+  isExpanded: boolean
+  onToggle: () => void
+}) {
+  const customTemplate = useCustomTemplate()
+  const setCustomTemplate = useBuilderStore((s) => s.setCustomTemplate)
+
+  if (customTemplate) {
+    return (
+      <div className="col-span-full">
+        <div className="p-3 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400">
+                <LinkIcon className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  {customTemplate.name}
+                </span>
+                <span className="block text-xs text-gray-500 dark:text-gray-400">
+                  Custom Template
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={() => setCustomTemplate(null)}
+              className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <>
+      <button
+        onClick={onToggle}
+        className={twMerge(
+          'p-3 rounded-lg border text-left transition-all flex items-start gap-2 border-dashed',
+          isExpanded
+            ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-500 dark:border-purple-500'
+            : 'bg-white dark:bg-gray-800/50 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800',
+        )}
+      >
+        <div
+          className={twMerge(
+            'w-8 h-8 rounded-lg flex items-center justify-center shrink-0',
+            isExpanded
+              ? 'bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400'
+              : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400',
+          )}
+        >
+          <LinkIcon className="w-4 h-4" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <span
+              className={twMerge(
+                'font-medium text-sm',
+                isExpanded
+                  ? 'text-purple-700 dark:text-purple-300'
+                  : 'text-gray-900 dark:text-gray-100',
+              )}
+            >
+              Custom Template
+            </span>
+            <Link
+              to="/builder/docs"
+              onClick={(e) => e.stopPropagation()}
+              className="p-0.5 text-gray-400 hover:text-blue-600 dark:hover:text-cyan-400"
+            >
+              <HelpCircle className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+          <div className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">
+            Import from URL
+          </div>
+        </div>
+      </button>
+      {isExpanded && (
+        <div className="col-span-full p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg">
+          <CustomTemplateDialog onClose={onToggle} />
+        </div>
+      )}
+    </>
   )
 }

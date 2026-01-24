@@ -62,8 +62,6 @@ export const router: LibrarySlim = {
   installPath: 'framework/$framework/quick-start',
   legacyPackages: ['react-location'],
   hideCodesandboxUrl: true,
-  showNetlifyUrl: true,
-  showCloudflareUrl: true,
 }
 
 export const start: LibrarySlim = {
@@ -95,6 +93,7 @@ export const start: LibrarySlim = {
   embedEditor: 'codesandbox',
   showNetlifyUrl: true,
   showCloudflareUrl: true,
+  showRailwayUrl: true,
   hideStackblitzUrl: true,
 }
 

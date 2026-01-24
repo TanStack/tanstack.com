@@ -33,6 +33,8 @@ import workosBlackSvg from '~/images/workos-black.svg'
 import workosWhiteSvg from '~/images/workos-white.svg'
 import powersyncBlackSvg from '~/images/powersync-black.svg'
 import powersyncWhiteSvg from '~/images/powersync-white.svg'
+import railwayBlackSvg from '~/images/railway-black.svg'
+import railwayWhiteSvg from '~/images/railway-white.svg'
 
 function LearnMoreButton() {
   return (
@@ -827,10 +829,48 @@ const powerSync = (() => {
   }
 })()
 
+const railway = (() => {
+  const href = 'https://railway.com?utm_source=tanstack'
+
+  return {
+    name: 'Railway',
+    id: 'railway',
+    libraries: libraries.map((l) => l.id),
+    status: 'active' as const,
+    score: 0.145,
+    href,
+    brandColor: '#0B0D0E',
+    tagline: 'Instant Deployment',
+    image: {
+      light: railwayBlackSvg,
+      dark: railwayWhiteSvg,
+    },
+    llmDescription:
+      'Infrastructure platform with instant deployments, automatic scaling, and built-in databases. Deploy TanStack applications with zero configuration.',
+    category: 'deployment',
+    content: (
+      <>
+        <div className="text-xs">
+          Railway and TanStack are partnering to deliver{' '}
+          <strong>instant, zero-config deployments</strong> for modern web
+          applications. Railway's platform provides{' '}
+          <strong>
+            automatic scaling, built-in databases, and seamless CI/CD
+          </strong>{' '}
+          so you can focus on building with TanStack instead of managing
+          infrastructure.
+        </div>
+        <LearnMoreButton />
+      </>
+    ),
+  }
+})()
+
 export const partners: Partner[] = [
   codeRabbit,
   cloudflare,
   agGrid,
+  railway,
   netlify,
   neon,
   workos,

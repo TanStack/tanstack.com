@@ -169,11 +169,10 @@ Add to your OpenCode MCP configuration in `~/.config/opencode/config.json`:
 ```json
 {
   "mcp": {
-    "servers": {
-      "tanstack": {
-        "type": "remote",
-        "url": "https://tanstack.com/api/mcp"
-      }
+    "tanstack": {
+      "type": "remote",
+      "url": "https://tanstack.com/api/mcp",
+      "enabled": true
     }
   }
 }
@@ -193,14 +192,13 @@ This opens a browser to authorize access. After that, OpenCode will connect auto
 ```json
 {
   "mcp": {
-    "servers": {
-      "tanstack": {
-        "type": "remote",
-        "url": "https://tanstack.com/api/mcp",
-        "headers": {
-          "Authorization": "Bearer YOUR_API_KEY"
-        }
-      }
+    "tanstack": {
+      "type": "remote",
+      "url": "https://tanstack.com/api/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_KEY"
+      },
+      "enabled": true
     }
   }
 }

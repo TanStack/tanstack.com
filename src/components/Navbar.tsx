@@ -333,10 +333,10 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       </div>
       <div className="hidden xl:flex flex-1 justify-end min-w-0">
         <Link
-          to="/mcp"
+          to="/cli"
           className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md
-            bg-gradient-to-r from-emerald-600 to-teal-700
-            hover:from-emerald-500 hover:to-teal-600
+            bg-gradient-to-r from-indigo-600 to-violet-700
+            hover:from-indigo-500 hover:to-violet-600
             text-white text-xs font-medium
             shadow-sm hover:shadow-md
             transition-all duration-200"
@@ -344,7 +344,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           <span className="px-1 py-px text-[9px] font-bold bg-white/20 rounded uppercase">
             Alpha
           </span>
-          <span>Try TanStack MCP</span>
+          <span>Try TanStack CLI</span>
         </Link>
       </div>
       <div className="flex items-center gap-2">

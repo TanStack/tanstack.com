@@ -409,21 +409,10 @@ export const mcp: LibrarySlim = {
   latestVersion: 'v1',
   latestBranch: 'main',
   availableVersions: ['v1'],
-  docsRoot: 'docs/mcp',
-  defaultDocs: 'overview',
   visible: false,
   handleRedirects: (href: string) => {
-    const pathMap: Record<string, string> = {
-      overview: 'mcp/mcp-overview',
-      connecting: 'mcp/mcp-connecting',
-      tools: 'mcp/mcp-tools',
-    }
-    const mcpDocsMatch = href.match(/\/mcp\/(latest|v1)\/docs\/(.*)/)
-    if (mcpDocsMatch) {
-      const newPath = pathMap[mcpDocsMatch[2]] || 'mcp/mcp-overview'
-      throw redirect({ href: `/cli/latest/docs/${newPath}` })
-    }
-    if (/\/mcp(\/latest)?$/.test(href)) {
+    // All /mcp routes redirect to CLI MCP docs
+    if (/\/mcp(\/|$)/.test(href)) {
       throw redirect({ href: '/cli/latest/docs/mcp/mcp-overview' })
     }
   },

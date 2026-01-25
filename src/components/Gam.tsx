@@ -58,20 +58,21 @@ export const GamScripts = () => (
     <script
       dangerouslySetInnerHTML={{
         __html: `
-  // Add global error handler to suppress Publift Fuse cross-origin errors
+  // Add global error handler to suppress ad network cross-origin errors
   // These errors occur in iOS Safari due to strict Same-Origin Policy enforcement
-  // when the ad viewability script tries to access parent window properties
+  // when the ad viewability scripts try to access parent window properties
   // Also suppress race condition errors during navigation
   (function() {
     var originalErrorHandler = window.onerror;
     window.onerror = function(message, source, lineno, colno, error) {
-      // Check if this is a Publift Fuse cross-origin error
+      // Check if this is an ad network cross-origin error
       if (
         source && (
           source.includes('/media/native/') ||
           source.includes('fuse.js') ||
           source.includes('fuseplatform.net') ||
-          source.includes('/nobid/blocking_script.js')
+          source.includes('/nobid/blocking_script.js') ||
+          source.includes('adform.net')
         ) && (
           (message && typeof message === 'string' && (
             message.includes('contextWindow.parent') ||
@@ -86,7 +87,7 @@ export const GamScripts = () => (
         )
       ) {
         // Suppress the error - log to console in debug mode
-        console.debug('Suppressed Publift Fuse cross-origin error:', message, source);
+        console.debug('Suppressed ad network cross-origin error:', message, source);
         return true; // Prevent default error handling
       }
       // Call original error handler for other errors

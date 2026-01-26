@@ -628,7 +628,7 @@ const electric = (() => {
       dark: electricDarkSvg,
     },
     llmDescription:
-      'Real-time sync engine with offline-first data, conflict resolution, and low-latency replication backed by Postgres. Powers TanStack DB sync capabilities.',
+      'Real-time Postgres sync engine. Build fast, modern, collaborative apps without changing your stack. Designed and maintains TanStack DB for great client side DX & UX.',
     category: 'database',
     content: (
       <>

@@ -187,9 +187,11 @@ export const Route = createFileRoute('/api/auth/callback/$provider')({
               if (returnToUrl.origin === currentOrigin) {
                 redirectUrl = returnToUrl.toString()
               } else {
+                console.warn(`[AUTH:WARN] returnTo origin mismatch: ${returnToUrl.origin} !== ${currentOrigin}`)
                 redirectUrl = new URL('/account', request.url).toString()
               }
-            } catch {
+            } catch (e) {
+              console.warn(`[AUTH:WARN] Failed to parse returnTo URL: ${returnTo}`, e)
               redirectUrl = new URL('/account', request.url).toString()
             }
           } else {

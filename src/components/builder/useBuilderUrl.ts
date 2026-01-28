@@ -8,10 +8,13 @@ import { useEffect, useRef } from 'react'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { useDebouncedCallback } from '@tanstack/react-pacer'
 import { useBuilderStore } from './store'
-import type { FeatureId, TemplateInfo } from '~/builder/api'
+import type { FeatureId } from '~/builder/api'
+import type { FrameworkId } from '~/builder/frameworks' // Used in syncToUrl type
 
-export interface BuilderSearchParams {
+interface BuilderSearchParams {
   name?: string
+  framework?: string // react-cra, solid-cra, etc.
+  template?: string // template preset ID
   features?: string // comma-separated feature IDs
   // Feature options serialized as: featureId.optionKey=value
   [key: string]: string | undefined
@@ -23,14 +26,15 @@ export function useBuilderUrl() {
   const isSyncingFromUrl = useRef(false)
 
   const projectName = useBuilderStore((s) => s.projectName)
+  const framework = useBuilderStore((s) => s.framework)
   const features = useBuilderStore((s) => s.features)
   const featureOptions = useBuilderStore((s) => s.featureOptions)
+  const selectedTemplate = useBuilderStore((s) => s.selectedTemplate)
   const featuresLoaded = useBuilderStore((s) => s.featuresLoaded)
-  const availableTemplates = useBuilderStore((s) => s.availableTemplates)
   const setProjectName = useBuilderStore((s) => s.setProjectName)
   const setFeatures = useBuilderStore((s) => s.setFeatures)
   const setFeatureOption = useBuilderStore((s) => s.setFeatureOption)
-  const applyTemplate = useBuilderStore((s) => s.applyTemplate)
+  const setTemplate = useBuilderStore((s) => s.setTemplate)
 
   // Initialize from URL on mount (only once when features load)
   const initializedRef = useRef(false)
@@ -45,15 +49,18 @@ export function useBuilderUrl() {
       setProjectName(search.name)
     }
 
-    // Set features from URL, or apply default template (first one, typically "Blank")
-    if (search.features) {
+    // Note: framework is set in BuilderProvider before features load
+
+    // Apply template if specified (this sets features)
+    if (search.template) {
+      setTemplate(search.template)
+    }
+    // Otherwise set features from URL
+    else if (search.features) {
       const featureList = search.features
         .split(',')
         .filter(Boolean) as Array<FeatureId>
       setFeatures(featureList)
-    } else if (availableTemplates.length > 0) {
-      // No features in URL - apply default template
-      applyTemplate(availableTemplates[0] as TemplateInfo)
     }
 
     // Set feature options (keys like "drizzle.database")
@@ -75,8 +82,10 @@ export function useBuilderUrl() {
   const syncToUrl = useDebouncedCallback(
     (
       name: string,
+      fw: FrameworkId,
       feats: Array<FeatureId>,
       opts: Record<string, Record<string, unknown>>,
+      template: string | null,
     ) => {
       navigate({
         to: '/builder',
@@ -88,6 +97,20 @@ export function useBuilderUrl() {
             params.name = name
           } else {
             delete params.name
+          }
+
+          // Update framework (skip if default react-cra)
+          if (fw && fw !== 'react-cra') {
+            params.framework = fw
+          } else {
+            delete params.framework
+          }
+
+          // Update template (skip if blank)
+          if (template && template !== 'blank') {
+            params.template = template
+          } else {
+            delete params.template
           }
 
           // Update features
@@ -124,8 +147,22 @@ export function useBuilderUrl() {
   // Sync state changes to URL (debounced)
   useEffect(() => {
     if (!featuresLoaded || isSyncingFromUrl.current) return
-    syncToUrl(projectName, features, featureOptions)
-  }, [projectName, features, featureOptions, featuresLoaded, syncToUrl])
+    syncToUrl(
+      projectName,
+      framework,
+      features,
+      featureOptions,
+      selectedTemplate,
+    )
+  }, [
+    projectName,
+    framework,
+    features,
+    featureOptions,
+    selectedTemplate,
+    featuresLoaded,
+    syncToUrl,
+  ])
 }
 
 /**

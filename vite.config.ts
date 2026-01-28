@@ -32,6 +32,7 @@ export default defineConfig({
       '@tanstack/cta-engine',
       '@tanstack/cta-ui',
       '@tanstack/cta-framework-react-cra',
+      '@tanstack/cta-framework-solid',
       // Externalize CLI so server reloads it on changes
       '@tanstack/cli',
     ],
@@ -45,6 +46,7 @@ export default defineConfig({
       '@tanstack/cta-engine',
       '@tanstack/cta-ui',
       '@tanstack/cta-framework-react-cra',
+      '@tanstack/cta-framework-solid',
       // Don't pre-bundle CLI so we always get fresh changes during dev
       ...(isDev ? ['@tanstack/cli'] : []),
     ],

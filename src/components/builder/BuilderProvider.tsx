@@ -7,12 +7,14 @@
 
 import {
   createContext,
-  useContext,
   useEffect,
+  useRef,
   useState,
   type ReactNode,
 } from 'react'
+import { useSearch } from '@tanstack/react-router'
 import { useBuilderStore } from './store'
+import type { FrameworkId } from '~/builder/frameworks'
 
 interface BuilderContextValue {
   ready: boolean
@@ -20,22 +22,28 @@ interface BuilderContextValue {
 
 const BuilderContext = createContext<BuilderContextValue>({ ready: false })
 
-export function useBuilderContext() {
-  return useContext(BuilderContext)
-}
-
 interface BuilderProviderProps {
   children: ReactNode
 }
 
 export function BuilderProvider({ children }: BuilderProviderProps) {
   const [ready, setReady] = useState(false)
+  const search = useSearch({ strict: false }) as { framework?: string }
   const loadFeatures = useBuilderStore((s) => s.loadFeatures)
   const featuresLoaded = useBuilderStore((s) => s.featuresLoaded)
+  const initializedRef = useRef(false)
 
+  // Set framework from URL before loading features (only once on mount)
   useEffect(() => {
+    if (initializedRef.current) return
+    initializedRef.current = true
+
+    // Set framework directly in store without triggering loadFeatures
+    if (search.framework) {
+      useBuilderStore.setState({ framework: search.framework as FrameworkId })
+    }
     loadFeatures()
-  }, [loadFeatures])
+  }, [loadFeatures, search.framework])
 
   useEffect(() => {
     if (featuresLoaded) {

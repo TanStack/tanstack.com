@@ -10,6 +10,7 @@ import { useState, useMemo, useEffect, useCallback } from 'react'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 import { createHighlighter, type HighlighterGeneric } from 'shiki'
+import { Code, Play } from 'lucide-react'
 import {
   useCompiledOutput,
   useIsCompiling,
@@ -18,6 +19,7 @@ import {
   useBuilderStore,
 } from './store'
 import { partners } from '~/utils/partners'
+import { PreviewPanel } from './webcontainer'
 import type { FeatureId, AttributedCompileOutput } from '~/builder/api'
 
 // Lazy highlighter singleton for syntax highlighting
@@ -69,6 +71,37 @@ interface FileTreeNode {
   path: string
   type: 'file' | 'directory'
   children?: Array<FileTreeNode>
+}
+
+// Image file extensions and their MIME types
+const IMAGE_EXTENSIONS: Record<string, string> = {
+  png: 'image/png',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  gif: 'image/gif',
+  webp: 'image/webp',
+  svg: 'image/svg+xml',
+  ico: 'image/x-icon',
+}
+
+function isImageFile(filename: string): boolean {
+  const ext = filename.split('.').pop()?.toLowerCase() || ''
+  return ext in IMAGE_EXTENSIONS
+}
+
+function getImageMimeType(filename: string): string {
+  const ext = filename.split('.').pop()?.toLowerCase() || ''
+  return IMAGE_EXTENSIONS[ext] || 'image/png'
+}
+
+function isBinaryContent(content: string): boolean {
+  return content.startsWith('base64::')
+}
+
+function getBinaryDataUrl(content: string, mimeType: string): string {
+  // Content format: "base64::<data>"
+  const base64Data = content.slice(8) // Remove "base64::" prefix
+  return `data:${mimeType};base64,${base64Data}`
 }
 
 function getFileIconPath(filename: string): string {
@@ -184,6 +217,24 @@ export function ExplorerPanel() {
 
   // File search filter
   const [fileSearch, setFileSearch] = useState('')
+
+  // View mode from URL: 'code' for file viewer, 'preview' for live preview
+  const urlTab = (search.tab as string) || 'code'
+  const viewMode = urlTab === 'preview' ? 'preview' : 'code'
+
+  const setViewMode = useCallback(
+    (mode: 'code' | 'preview') => {
+      navigate({
+        to: '/builder',
+        search: (prev: Record<string, unknown>) => ({
+          ...prev,
+          tab: mode === 'code' ? undefined : mode,
+        }),
+        replace: true,
+      })
+    },
+    [navigate],
+  )
 
   // Fetch artifacts for all selected features
   useEffect(() => {
@@ -731,89 +782,138 @@ export function ExplorerPanel() {
 
   return (
     <div className="h-full w-full flex flex-col bg-white dark:bg-gray-900">
+      {/* Tab bar */}
+      <div className="shrink-0 flex items-center gap-1 px-3 py-2 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
+        <button
+          type="button"
+          onClick={() => setViewMode('code')}
+          className={twMerge(
+            'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors',
+            viewMode === 'code'
+              ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm'
+              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200',
+          )}
+        >
+          <Code className="w-4 h-4" />
+          Code
+        </button>
+        <button
+          type="button"
+          onClick={() => setViewMode('preview')}
+          className={twMerge(
+            'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors',
+            viewMode === 'preview'
+              ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm'
+              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200',
+          )}
+        >
+          <Play className="w-4 h-4" />
+          Preview
+        </button>
+      </div>
+
       {/* Main content */}
       <div className="flex-1 min-h-0 flex overflow-hidden">
-        {/* Left sidebar with addons + file tree */}
-        <div className="w-64 shrink-0 border-r border-gray-200 dark:border-gray-800 overflow-auto bg-gray-50 dark:bg-gray-900/50">
-          {/* Addon selector */}
-          <div className="p-2">
-            {/* All Files option */}
-            <button
-              onClick={() => setSelectedAddon(null)}
-              className={twMerge(
-                'w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-colors',
-                isAllFilesMode
-                  ? 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100'
-                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700',
-              )}
-            >
-              <div className="w-3 h-3 rounded-sm shrink-0 bg-gray-400 dark:bg-gray-500" />
-              <div className="flex-1 min-w-0 text-xs font-medium">
-                All Files
-              </div>
-              <div className="flex items-center gap-1.5 shrink-0">
-                {allFilesTotalAddedLines > 0 ? (
-                  <span className="text-[10px] font-bold tabular-nums text-emerald-600 dark:text-emerald-400">
-                    +{allFilesTotalAddedLines}
-                  </span>
+        {viewMode === 'preview' ? (
+          /* Full-width preview */
+          <div className="flex-1 min-w-0 h-full">
+            <PreviewPanel files={compiledOutput?.files || null} />
+          </div>
+        ) : (
+          <>
+            {/* Left sidebar with addons + file tree */}
+            <div className="w-64 shrink-0 border-r border-gray-200 dark:border-gray-800 overflow-auto bg-gray-50 dark:bg-gray-900/50">
+              {/* Addon selector */}
+              <div className="p-2">
+                {/* All Files option */}
+                <button
+                  onClick={() => setSelectedAddon(null)}
+                  className={twMerge(
+                    'w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-colors',
+                    isAllFilesMode
+                      ? 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700',
+                  )}
+                >
+                  <div className="w-3 h-3 rounded-sm shrink-0 bg-gray-400 dark:bg-gray-500" />
+                  <div className="flex-1 min-w-0 text-xs font-medium">
+                    All Files
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {allFilesTotalAddedLines > 0 ? (
+                      <span className="text-[10px] font-bold tabular-nums text-emerald-600 dark:text-emerald-400">
+                        +{allFilesTotalAddedLines}
+                      </span>
+                    ) : (
+                      <span className="text-[10px] text-gray-500 dark:text-gray-400">
+                        {allFileList.length}
+                      </span>
+                    )}
+                  </div>
+                </button>
+
+                {/* Divider */}
+                {sortedFeatures.length > 0 && (
+                  <div className="border-t border-gray-200 dark:border-gray-700 my-2" />
+                )}
+
+                {/* Selected addons */}
+                {sortedFeatures.length > 0 ? (
+                  <div className="space-y-1">
+                    {sortedFeatures.map(renderAddonItem)}
+                  </div>
                 ) : (
-                  <span className="text-[10px] text-gray-500 dark:text-gray-400">
-                    {allFileList.length}
-                  </span>
+                  <div className="text-center text-gray-400 dark:text-gray-500 text-xs py-4">
+                    No integrations selected
+                  </div>
                 )}
               </div>
-            </button>
 
-            {/* Divider */}
-            {sortedFeatures.length > 0 && (
-              <div className="border-t border-gray-200 dark:border-gray-700 my-2" />
-            )}
-
-            {/* Selected addons */}
-            {sortedFeatures.length > 0 ? (
-              <div className="space-y-1">
-                {sortedFeatures.map(renderAddonItem)}
+              {/* File tree - stacked below addons */}
+              <div className="border-t border-gray-200 dark:border-gray-800">
+                <div className="p-2">{renderFileTree()}</div>
               </div>
-            ) : (
-              <div className="text-center text-gray-400 dark:text-gray-500 text-xs py-4">
-                No integrations selected
-              </div>
-            )}
-          </div>
-
-          {/* File tree - stacked below addons */}
-          <div className="border-t border-gray-200 dark:border-gray-800">
-            <div className="p-2">{renderFileTree()}</div>
-          </div>
-        </div>
-
-        {/* Code viewer */}
-        <div className="flex-1 min-w-0 overflow-hidden flex flex-col">
-          {selectedFileContent ? (
-            <CodeViewer
-              filename={selectedFile || ''}
-              content={selectedFileContent}
-              attributions={selectedFileAttributions}
-              showAttributions={isAllFilesMode}
-              highlightedLines={selectedFileHighlights}
-            />
-          ) : (
-            <div className="h-full flex items-center justify-center text-gray-500 dark:text-gray-400">
-              Select a file to view
             </div>
-          )}
-        </div>
-      </div>
 
-      {/* Footer with stats */}
-      <div className="border-t border-gray-200 dark:border-gray-800 px-4 py-2 text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50">
-        <span>{allFileList.length} files</span>
-        {compiledOutput.warnings.length > 0 && (
-          <span className="ml-4 text-yellow-600 dark:text-yellow-500">
-            {compiledOutput.warnings.length} warnings
-          </span>
+            {/* Code/Image viewer */}
+            <div className="flex-1 min-w-0 overflow-hidden flex flex-col">
+              {selectedFileContent ? (
+                isImageFile(selectedFile || '') &&
+                isBinaryContent(selectedFileContent) ? (
+                  <ImageViewer
+                    filename={selectedFile || ''}
+                    content={selectedFileContent}
+                  />
+                ) : (
+                  <CodeViewer
+                    filename={selectedFile || ''}
+                    content={selectedFileContent}
+                    attributions={selectedFileAttributions}
+                    showAttributions={isAllFilesMode}
+                    highlightedLines={selectedFileHighlights}
+                  />
+                )
+              ) : (
+                <div className="h-full flex items-center justify-center text-gray-500 dark:text-gray-400">
+                  Select a file to view
+                </div>
+              )}
+            </div>
+          </>
         )}
       </div>
+
+      {/* Footer with stats (only show in code mode) */}
+      {viewMode === 'code' && (
+        <div className="border-t border-gray-200 dark:border-gray-800 px-4 py-2 text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50">
+          <span>{allFileList.length} files</span>
+          {compiledOutput.warnings.length > 0 && (
+            <span className="ml-4 text-yellow-600 dark:text-yellow-500">
+              {compiledOutput.warnings.length} warnings
+            </span>
+          )}
+        </div>
+      )}
     </div>
   )
 }
@@ -997,6 +1097,36 @@ function FileTreeItem({
         )}
       </button>
     </li>
+  )
+}
+
+interface ImageViewerProps {
+  filename: string
+  content: string
+}
+
+function ImageViewer({ filename, content }: ImageViewerProps) {
+  const mimeType = getImageMimeType(filename)
+  const dataUrl = getBinaryDataUrl(content, mimeType)
+
+  return (
+    <div className="h-full flex flex-col overflow-hidden">
+      {/* Filename header */}
+      <div className="shrink-0 px-4 py-2 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+        <span className="text-sm text-gray-600 dark:text-gray-400 font-mono">
+          {filename}
+        </span>
+      </div>
+
+      {/* Image display */}
+      <div className="flex-1 overflow-auto flex items-center justify-center p-8 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PHJlY3Qgd2lkdGg9IjEwIiBoZWlnaHQ9IjEwIiBmaWxsPSIjZjBmMGYwIi8+PHJlY3QgeD0iMTAiIHk9IjEwIiB3aWR0aD0iMTAiIGhlaWdodD0iMTAiIGZpbGw9IiNmMGYwZjAiLz48cmVjdCB4PSIxMCIgd2lkdGg9IjEwIiBoZWlnaHQ9IjEwIiBmaWxsPSIjZmZmIi8+PHJlY3QgeT0iMTAiIHdpZHRoPSIxMCIgaGVpZ2h0PSIxMCIgZmlsbD0iI2ZmZiIvPjwvc3ZnPg==')] dark:bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PHJlY3Qgd2lkdGg9IjEwIiBoZWlnaHQ9IjEwIiBmaWxsPSIjMjgyODI4Ii8+PHJlY3QgeD0iMTAiIHk9IjEwIiB3aWR0aD0iMTAiIGhlaWdodD0iMTAiIGZpbGw9IiMyODI4MjgiLz48cmVjdCB4PSIxMCIgd2lkdGg9IjEwIiBoZWlnaHQ9IjEwIiBmaWxsPSIjMWYxZjFmIi8+PHJlY3QgeT0iMTAiIHdpZHRoPSIxMCIgaGVpZ2h0PSIxMCIgZmlsbD0iIzFmMWYxZiIvPjwvc3ZnPg==')]">
+        <img
+          src={dataUrl}
+          alt={filename}
+          className="max-w-full max-h-full object-contain shadow-lg rounded"
+        />
+      </div>
+    </div>
   )
 }
 

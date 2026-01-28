@@ -1,14 +1,14 @@
-import { loadRemoteIntegration, loadTemplate } from '@tanstack/cli'
-import type { IntegrationCompiled, CustomTemplateCompiled } from '@tanstack/cli'
+import { loadRemoteAddOn, loadStarter } from '@tanstack/cta-engine'
+import { type AddOnCompiled, type StarterCompiled } from './compile'
 import { validateRemoteUrl } from '~/utils/url-validation.server'
 
 export interface RemoteIntegrationResponse {
-  integration?: IntegrationCompiled
+  integration?: AddOnCompiled
   error?: string
 }
 
 export interface RemoteTemplateResponse {
-  template?: CustomTemplateCompiled
+  template?: StarterCompiled
   error?: string
 }
 
@@ -19,14 +19,18 @@ export async function loadRemoteIntegrationHandler(
     return { error: 'URL is required' }
   }
 
-  // SSRF protection: validate URL before fetching
   const validation = validateRemoteUrl(url)
   if (!validation.valid) {
     return { error: validation.error }
   }
 
   try {
-    const integration = await loadRemoteIntegration(validation.normalizedUrl!)
+    const addOn = await loadRemoteAddOn(validation.normalizedUrl!)
+    const integration: AddOnCompiled = {
+      ...addOn,
+      files: addOn.files || {},
+      deletedFiles: [],
+    }
     return { integration }
   } catch (error) {
     return {
@@ -43,14 +47,20 @@ export async function loadRemoteTemplateHandler(
     return { error: 'URL is required' }
   }
 
-  // SSRF protection: validate URL before fetching
   const validation = validateRemoteUrl(url)
   if (!validation.valid) {
     return { error: validation.error }
   }
 
   try {
-    const template = await loadTemplate(validation.normalizedUrl!)
+    const starter = await loadStarter(validation.normalizedUrl!)
+    const template = {
+      ...starter,
+      files: starter.files || {},
+      deletedFiles: starter.deletedFiles || [],
+      phase: 'setup' as const,
+      modes: [starter.mode || 'file-router'],
+    } as unknown as StarterCompiled
     return { template }
   } catch (error) {
     return {

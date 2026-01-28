@@ -252,6 +252,14 @@ export async function pushFiles(
     branch = 'main',
   } = options
 
+  // Log file paths for debugging
+  const paths = Object.keys(files)
+  console.log(
+    `[Deploy] Pushing ${paths.length} files:`,
+    paths.slice(0, 10),
+    paths.length > 10 ? `... and ${paths.length - 10} more` : '',
+  )
+
   const baseUrl = `https://api.github.com/repos/${owner}/${repo}`
   const headers = {
     Authorization: `Bearer ${accessToken}`,

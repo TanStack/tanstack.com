@@ -1,12 +1,12 @@
 /**
  * Validate API Handler (v2)
  *
- * Uses @tanstack/cli to validate project definitions.
+ * Uses cta-engine to validate project definitions.
  */
 
-import { fetchManifest } from '@tanstack/cli'
+import { getAllAddOns, type AddOn } from '@tanstack/cta-engine'
 import type { ProjectDefinition } from './compile'
-import { getAddonsBasePath } from './config'
+import { getFramework, DEFAULT_MODE } from './config'
 
 export interface ValidationError {
   field: string
@@ -30,16 +30,14 @@ export interface ValidateResponse {
 export async function validateHandler(
   definition: ProjectDefinition,
 ): Promise<ValidateResponse> {
-  const basePath = getAddonsBasePath()
-  const manifest = await fetchManifest(basePath)
+  const framework = getFramework()
+  const allAddOns = getAllAddOns(framework, DEFAULT_MODE)
 
   const errors: Array<ValidationError> = []
   const suggestions: Array<ValidationSuggestion> = []
 
-  // Build integration lookup
-  const integrationMap = new Map(manifest.integrations.map((i) => [i.id, i]))
+  const addOnMap = new Map(allAddOns.map((a: AddOn) => [a.id, a]))
 
-  // Validate project name
   if (!definition.name || definition.name.trim() === '') {
     errors.push({
       field: 'name',
@@ -53,9 +51,8 @@ export async function validateHandler(
     })
   }
 
-  // Validate features exist
   for (const featureId of definition.features) {
-    if (!integrationMap.has(featureId)) {
+    if (!addOnMap.has(featureId)) {
       errors.push({
         field: 'features',
         message: `Unknown feature: ${featureId}`,
@@ -63,11 +60,10 @@ export async function validateHandler(
     }
   }
 
-  // Check for missing dependencies
   for (const featureId of definition.features) {
-    const integration = integrationMap.get(featureId)
-    if (integration?.dependsOn) {
-      for (const requiredId of integration.dependsOn) {
+    const addOn = addOnMap.get(featureId) as AddOn | undefined
+    if (addOn?.dependsOn) {
+      for (const requiredId of addOn.dependsOn) {
         if (!definition.features.includes(requiredId)) {
           suggestions.push({
             type: 'add',
@@ -76,30 +72,6 @@ export async function validateHandler(
           })
         }
       }
-    }
-  }
-
-  // Check for exclusive type conflicts
-  // Build a map of exclusive type -> list of selected integrations with that type
-  const exclusiveTypeMap = new Map<string, Array<string>>()
-  for (const featureId of definition.features) {
-    const integration = integrationMap.get(featureId)
-    if (integration?.exclusive) {
-      for (const exclusiveType of integration.exclusive) {
-        const existing = exclusiveTypeMap.get(exclusiveType) || []
-        existing.push(featureId)
-        exclusiveTypeMap.set(exclusiveType, existing)
-      }
-    }
-  }
-
-  // Report conflicts for exclusive types with more than one integration
-  for (const [exclusiveType, integrationIds] of exclusiveTypeMap) {
-    if (integrationIds.length > 1) {
-      errors.push({
-        field: 'features',
-        message: `Only one ${exclusiveType} integration allowed. Selected: ${integrationIds.join(', ')}`,
-      })
     }
   }
 

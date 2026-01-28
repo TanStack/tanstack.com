@@ -12,19 +12,27 @@ import type {
   FeatureInfo,
   ProjectDefinition,
   AttributedCompileOutput,
-  TemplateInfo,
   IntegrationCompiled,
   CustomTemplateCompiled,
 } from '~/builder/api'
+import type { FrameworkId } from '~/builder/frameworks'
+import { TEMPLATES } from '~/builder/templates'
 
 type PackageManager = 'pnpm' | 'npm' | 'yarn' | 'bun'
 
 interface BuilderState {
   // Project configuration
   projectName: string
+  framework: FrameworkId
   tailwind: boolean
   features: Array<FeatureId>
   featureOptions: Record<string, Record<string, unknown>>
+
+  // Selected example (single-select, locks its dependencies)
+  selectedExample: FeatureId | null
+
+  // Selected template preset
+  selectedTemplate: string | null
 
   // CLI options
   packageManager: PackageManager
@@ -37,7 +45,7 @@ interface BuilderState {
 
   // Registry data (loaded from API)
   availableFeatures: Array<FeatureInfo>
-  availableTemplates: Array<TemplateInfo>
+  availableExamples: Array<FeatureInfo>
   featuresLoaded: boolean
 
   // UI state
@@ -50,6 +58,7 @@ interface BuilderState {
 
   // Actions
   setProjectName: (name: string) => void
+  setFramework: (framework: FrameworkId) => void
   setTailwind: (enabled: boolean) => void
   toggleFeature: (id: FeatureId) => void
   setFeatureOption: (
@@ -58,14 +67,15 @@ interface BuilderState {
     value: unknown,
   ) => void
   setFeatures: (features: Array<FeatureId>) => void
+  selectExample: (id: FeatureId | null) => void
   setPackageManager: (pm: PackageManager) => void
   setSkipInstall: (skip: boolean) => void
   setSkipGit: (skip: boolean) => void
-  applyTemplate: (template: TemplateInfo) => void
   addCustomIntegration: (integration: IntegrationCompiled) => void
   removeCustomIntegration: (id: string) => void
   setCustomTemplate: (template: CustomTemplateCompiled | null) => void
   setIntegrationSearch: (search: string) => void
+  setTemplate: (id: string | null) => void
   loadFeatures: () => Promise<void>
   compile: () => Promise<void>
   reset: () => void
@@ -73,21 +83,26 @@ interface BuilderState {
   // Derived state helpers
   hasFeature: (id: FeatureId) => boolean
   getFeatureInfo: (id: FeatureId) => FeatureInfo | undefined
+  getExampleInfo: (id: FeatureId) => FeatureInfo | undefined
   getDefinition: () => ProjectDefinition
+  isFeatureLockedByExample: (id: FeatureId) => boolean
 }
 
 const initialState = {
   projectName: 'my-tanstack-app',
+  framework: 'react-cra' as FrameworkId,
   tailwind: true,
   features: [] as Array<FeatureId>,
   featureOptions: {} as Record<string, Record<string, unknown>>,
+  selectedExample: null as FeatureId | null,
+  selectedTemplate: 'blank' as string | null,
   packageManager: 'pnpm' as PackageManager,
   skipInstall: false,
   skipGit: false,
   customIntegrations: [] as Array<IntegrationCompiled>,
   customTemplate: null as CustomTemplateCompiled | null,
   availableFeatures: [] as Array<FeatureInfo>,
-  availableTemplates: [] as Array<TemplateInfo>,
+  availableExamples: [] as Array<FeatureInfo>,
   integrationSearch: '',
   featuresLoaded: false,
   compiledOutput: null as AttributedCompileOutput | null,
@@ -101,10 +116,24 @@ export const useBuilderStore = create<BuilderState>()(
 
     setProjectName: (name) => set({ projectName: name }),
 
+    setFramework: (framework) => {
+      set({
+        framework,
+        features: [],
+        featureOptions: {},
+        selectedExample: null,
+        selectedTemplate: 'blank',
+        availableFeatures: [],
+        availableExamples: [],
+        featuresLoaded: false,
+        compiledOutput: null,
+      })
+      get().loadFeatures()
+    },
+
     setTailwind: (enabled) => {
       const { features, availableFeatures } = get()
       if (!enabled) {
-        // Remove features that require Tailwind
         const filtered = features.filter((id) => {
           const feature = availableFeatures.find((f) => f.id === id)
           return !feature?.requiresTailwind
@@ -116,11 +145,24 @@ export const useBuilderStore = create<BuilderState>()(
     },
 
     toggleFeature: (id) => {
-      const { features, availableFeatures } = get()
+      const {
+        features,
+        availableFeatures,
+        selectedExample,
+        availableExamples,
+      } = get()
+
+      // Check if this feature is locked by selected example
+      if (selectedExample) {
+        const example = availableExamples.find((e) => e.id === selectedExample)
+        if (example?.requires.includes(id)) {
+          return // Can't toggle features locked by example
+        }
+      }
+
       const isSelected = features.includes(id)
 
       if (isSelected) {
-        // Remove feature and any features that required it
         const toRemove = new Set([id])
         for (const f of availableFeatures) {
           if (f.requires.includes(id) && features.includes(f.id)) {
@@ -129,11 +171,9 @@ export const useBuilderStore = create<BuilderState>()(
         }
         set({ features: features.filter((f) => !toRemove.has(f)) })
       } else {
-        // Add feature and its requirements
         const feature = availableFeatures.find((f) => f.id === id)
         if (!feature) return
 
-        // Find features that share exclusive types with the new feature
         const exclusiveConflicts = new Set<FeatureId>()
         if (feature.exclusive.length > 0) {
           for (const existingId of features) {
@@ -147,7 +187,6 @@ export const useBuilderStore = create<BuilderState>()(
         }
 
         if (exclusiveConflicts.size > 0) {
-          // Remove features with overlapping exclusive types
           const withoutConflicts = features.filter(
             (f) => !exclusiveConflicts.has(f),
           )
@@ -155,7 +194,6 @@ export const useBuilderStore = create<BuilderState>()(
             features: [...withoutConflicts, ...feature.requires, id],
           })
         } else {
-          // Add feature with requirements
           const newFeatures = new Set([...features, ...feature.requires, id])
           set({ features: Array.from(newFeatures) })
         }
@@ -177,36 +215,58 @@ export const useBuilderStore = create<BuilderState>()(
 
     setFeatures: (features) => set({ features }),
 
+    selectExample: (id) => {
+      const { availableExamples, features } = get()
+
+      if (id === null) {
+        // Deselecting example - remove its locked dependencies from features
+        const currentExample = get().selectedExample
+        if (currentExample) {
+          const example = availableExamples.find((e) => e.id === currentExample)
+          if (example) {
+            const lockedFeatures = new Set(example.requires)
+            set({
+              selectedExample: null,
+              features: features.filter((f) => !lockedFeatures.has(f)),
+            })
+            return
+          }
+        }
+        set({ selectedExample: null })
+        return
+      }
+
+      const example = availableExamples.find((e) => e.id === id)
+      if (!example) return
+
+      // Add example's required features (locked)
+      const newFeatures = new Set([...features, ...example.requires])
+
+      set({
+        selectedExample: id,
+        features: Array.from(newFeatures),
+      })
+    },
+
     setPackageManager: (pm) => set({ packageManager: pm }),
     setSkipInstall: (skip) => set({ skipInstall: skip }),
     setSkipGit: (skip) => set({ skipGit: skip }),
 
-    applyTemplate: (template) => {
-      set({
-        tailwind: template.tailwind ?? true,
-        features: template.features ?? [],
-        featureOptions: {},
-      })
-    },
-
     addCustomIntegration: (integration) => {
       const { customIntegrations, features, availableFeatures } = get()
-      // Don't add duplicates
       if (customIntegrations.some((i) => i.id === integration.id)) return
 
-      // Convert to FeatureInfo for UI compatibility
       const featureInfo: FeatureInfo = {
         id: integration.id,
         name: integration.name,
         description: integration.description,
-        category: integration.category ?? 'other',
+        category: 'other',
         requires: integration.dependsOn ?? [],
-        exclusive: integration.exclusive ?? [],
+        exclusive: [],
         hasOptions: !!integration.options,
         link: integration.link,
-        color: '#8B5CF6', // Purple for custom integrations
-        requiresTailwind: integration.requiresTailwind,
-        demoRequiresTailwind: integration.demoRequiresTailwind,
+        color: '#8B5CF6',
+        requiresTailwind: integration.tailwind === false ? true : undefined,
       }
 
       set({
@@ -233,16 +293,40 @@ export const useBuilderStore = create<BuilderState>()(
       set({ integrationSearch: search })
     },
 
+    setTemplate: (id) => {
+      const template = TEMPLATES.find((t) => t.id === id)
+      if (!template) return
+
+      const { availableFeatures } = get()
+
+      // Filter to only features that exist in current framework
+      const validFeatures = template.features.filter((f) =>
+        availableFeatures.some((af) => af.id === f),
+      )
+
+      set({
+        selectedTemplate: id,
+        features: validFeatures,
+        featureOptions: {},
+        selectedExample: null,
+      })
+    },
+
     loadFeatures: async () => {
       try {
-        const response = await fetch('/api/builder/features')
+        const { framework } = get()
+        const response = await fetch(
+          `/api/builder/features?framework=${framework}`,
+        )
         if (!response.ok) throw new Error('Failed to load features')
         const data = await response.json()
         set({
           availableFeatures: data.features,
-          availableTemplates: data.templates || [],
+          availableExamples: data.examples || [],
           featuresLoaded: true,
         })
+        // Apply blank template after features load to set default features
+        get().setTemplate('blank')
       } catch (error) {
         console.error('Failed to load features:', error)
         set({ featuresLoaded: true })
@@ -252,28 +336,31 @@ export const useBuilderStore = create<BuilderState>()(
     compile: async () => {
       const {
         projectName,
+        framework,
         tailwind,
         features,
         featureOptions,
         customIntegrations,
         customTemplate,
+        selectedExample,
       } = get()
 
       set({ isCompiling: true, compileError: null })
 
       try {
-        // Use attributed endpoint to get line-by-line contribution tracking
         const response = await fetch('/api/builder/compile-attributed', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             definition: {
               name: projectName,
+              framework,
               tailwind,
               features,
               featureOptions,
               customIntegrations,
               customTemplate,
+              selectedExample,
             },
             format: 'full',
           }),
@@ -301,26 +388,40 @@ export const useBuilderStore = create<BuilderState>()(
 
     getFeatureInfo: (id) => get().availableFeatures.find((f) => f.id === id),
 
+    getExampleInfo: (id) => get().availableExamples.find((e) => e.id === id),
+
     getDefinition: () => ({
       name: get().projectName,
+      framework: get().framework,
       features: get().features,
       featureOptions: get().featureOptions,
+      selectedExample: get().selectedExample ?? undefined,
     }),
+
+    isFeatureLockedByExample: (id) => {
+      const { selectedExample, availableExamples } = get()
+      if (!selectedExample) return false
+      const example = availableExamples.find((e) => e.id === selectedExample)
+      return example?.requires.includes(id) ?? false
+    },
   })),
 )
 
 // Selector hooks for common patterns
 export const useProjectName = () => useBuilderStore((s) => s.projectName)
+export const useFramework = () => useBuilderStore((s) => s.framework)
 export const useTailwind = () => useBuilderStore((s) => s.tailwind)
 export const useFeatures = () => useBuilderStore((s) => s.features)
 export const useFeatureOptions = () => useBuilderStore((s) => s.featureOptions)
+export const useSelectedExample = () =>
+  useBuilderStore((s) => s.selectedExample)
 export const usePackageManager = () => useBuilderStore((s) => s.packageManager)
 export const useSkipInstall = () => useBuilderStore((s) => s.skipInstall)
 export const useSkipGit = () => useBuilderStore((s) => s.skipGit)
 export const useAvailableFeatures = () =>
   useBuilderStore((s) => s.availableFeatures)
-export const useAvailableTemplates = () =>
-  useBuilderStore((s) => s.availableTemplates)
+export const useAvailableExamples = () =>
+  useBuilderStore((s) => s.availableExamples)
 export const useFeaturesLoaded = () => useBuilderStore((s) => s.featuresLoaded)
 export const useCompiledOutput = () => useBuilderStore((s) => s.compiledOutput)
 export const useIsCompiling = () => useBuilderStore((s) => s.isCompiling)
@@ -330,12 +431,18 @@ export const useCustomIntegrations = () =>
 export const useCustomTemplate = () => useBuilderStore((s) => s.customTemplate)
 export const useIntegrationSearch = () =>
   useBuilderStore((s) => s.integrationSearch)
+export const useSelectExample = () => useBuilderStore((s) => s.selectExample)
+export const useSelectedTemplate = () =>
+  useBuilderStore((s) => s.selectedTemplate)
 
 // Feature state with exclusive/requirement analysis
 export function useFeatureState(id: FeatureId) {
   const features = useBuilderStore((s) => s.features)
   const tailwind = useBuilderStore((s) => s.tailwind)
   const availableFeatures = useBuilderStore((s) => s.availableFeatures)
+  const isFeatureLockedByExample = useBuilderStore(
+    (s) => s.isFeatureLockedByExample,
+  )
 
   const feature = availableFeatures.find((f) => f.id === id)
   if (!feature) {
@@ -345,10 +452,12 @@ export function useFeatureState(id: FeatureId) {
       disabledReason: null as string | null,
       exclusiveConflict: null as FeatureId | null,
       requiredBy: null as FeatureId | null,
+      lockedByExample: false,
     }
   }
 
   const selected = features.includes(id)
+  const lockedByExample = isFeatureLockedByExample(id)
 
   // Check if disabled due to Tailwind requirement
   const needsTailwind = feature.requiresTailwind && !tailwind
@@ -372,9 +481,11 @@ export function useFeatureState(id: FeatureId) {
   // Determine disabled reason
   const disabledReason = needsTailwind
     ? 'Requires Tailwind CSS'
-    : requiredBy
-      ? `Required by ${availableFeatures.find((f) => f.id === requiredBy)?.name ?? requiredBy}`
-      : null
+    : lockedByExample
+      ? 'Required by selected example'
+      : requiredBy
+        ? `Required by ${availableFeatures.find((f) => f.id === requiredBy)?.name ?? requiredBy}`
+        : null
 
   return {
     selected,
@@ -382,5 +493,6 @@ export function useFeatureState(id: FeatureId) {
     disabledReason,
     exclusiveConflict,
     requiredBy: requiredBy || null,
+    lockedByExample,
   }
 }

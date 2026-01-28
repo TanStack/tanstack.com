@@ -1,18 +1,14 @@
-import {
-  compileWithAttribution,
-  fetchIntegrations,
-  type IntegrationCompiled,
-  type RouterMode,
-  type PackageManager,
-} from '@tanstack/cli'
-import { getAddonsBasePath } from './config'
+import { type AddOnCompiled } from './compile'
+import { compileWithAttributionHandler, type ProjectDefinition } from './compile'
+import { type FrameworkId } from './config'
 
 export interface FeatureArtifactsRequest {
   features: Array<string>
   projectName?: string
+  framework?: FrameworkId
   tailwind?: boolean
   featureOptions?: Record<string, Record<string, unknown>>
-  customIntegrations?: Array<IntegrationCompiled>
+  customIntegrations?: Array<AddOnCompiled>
 }
 
 export interface FeatureArtifact {
@@ -39,59 +35,38 @@ export async function featureArtifactsHandler(
     return { artifacts: {} }
   }
 
-  const basePath = getAddonsBasePath()
   const projectName = request.projectName || 'my-app'
   const tailwind = request.tailwind ?? true
 
-  const customIds = new Set(
-    (request.customIntegrations ?? []).map((i) => i.id),
-  )
-  const manifestFeatures = request.features.filter((id) => !customIds.has(id))
-
-  const manifestIntegrations =
-    manifestFeatures.length > 0
-      ? await fetchIntegrations(manifestFeatures, basePath)
-      : []
-
-  const allIntegrations = [
-    ...manifestIntegrations,
-    ...(request.customIntegrations ?? []),
-  ]
-
-  // Compile with ALL integrations to get accurate attributions
-  const output = compileWithAttribution({
-    projectName,
-    framework: 'react',
-    mode: 'file-router' as RouterMode,
-    typescript: true,
+  const definition: ProjectDefinition = {
+    name: projectName,
+    framework: request.framework,
     tailwind,
-    packageManager: 'pnpm' as PackageManager,
-    chosenIntegrations: allIntegrations,
-    integrationOptions: request.featureOptions ?? {},
-  })
+    features: request.features,
+    featureOptions: request.featureOptions ?? {},
+    customIntegrations: request.customIntegrations,
+  }
 
-  // Build artifacts per integration from the attributed output
+  const output = await compileWithAttributionHandler(definition)
+
   const artifacts: Record<string, FeatureArtifact> = {}
 
-  // Initialize artifacts for each integration
-  for (const integration of allIntegrations) {
-    artifacts[integration.id] = {
+  for (const featureId of request.features) {
+    artifacts[featureId] = {
       files: {},
       injections: {},
       packages: {
-        dependencies: integration.packageAdditions?.dependencies,
-        devDependencies: integration.packageAdditions?.devDependencies,
+        dependencies: {},
+        devDependencies: {},
       },
-      envVars: integration.envVars,
+      envVars: [],
     }
   }
 
-  // Process each file and its attributions
   for (const [path, fileData] of Object.entries(output.attributedFiles)) {
     const content = output.files[path]
     if (!content || !fileData.attributions) continue
 
-    // Group lines by featureId
     const linesByFeature = new Map<string, Array<number>>()
     let hasBaseLines = false
 
@@ -100,33 +75,28 @@ export async function featureArtifactsHandler(
         hasBaseLines = true
         continue
       }
-      
+
       if (!linesByFeature.has(attr.featureId)) {
         linesByFeature.set(attr.featureId, [])
       }
       linesByFeature.get(attr.featureId)!.push(attr.lineNumber)
     }
 
-    // Assign to each integration's artifacts
     for (const [featureId, lines] of linesByFeature) {
       if (!artifacts[featureId]) continue
 
       if (hasBaseLines) {
-        // File has mix of base and integration lines - it's an injection
         artifacts[featureId].injections[path] = {
           content,
           highlightedLines: lines,
         }
       } else {
-        // File is entirely from this integration - it's a new file
-        // Only add if ALL lines are from this integration
         const allLinesFromThis = fileData.attributions.every(
           (a) => a.featureId === featureId,
         )
         if (allLinesFromThis) {
           artifacts[featureId].files[path] = content
         } else {
-          // Multiple integrations contribute to this file
           artifacts[featureId].injections[path] = {
             content,
             highlightedLines: lines,

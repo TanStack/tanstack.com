@@ -830,7 +830,8 @@ const powerSync = (() => {
 })()
 
 const railway = (() => {
-  const href = 'https://railway.com?utm_source=tanstack'
+  const href =
+    'https://railway.com/?utm_medium=sponsor&utm_source=oss&utm_campaign=tanstack'
 
   return {
     name: 'Railway',

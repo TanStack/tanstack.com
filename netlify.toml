@@ -21,3 +21,17 @@
   for = "/*"
   [headers.values]
     Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+
+# WebContainer requires SharedArrayBuffer which needs COOP/COEP headers
+# Only apply to /builder to avoid breaking external resources on other pages
+[[headers]]
+  for = "/builder"
+  [headers.values]
+    Cross-Origin-Opener-Policy = "same-origin"
+    Cross-Origin-Embedder-Policy = "require-corp"
+
+[[headers]]
+  for = "/builder/*"
+  [headers.values]
+    Cross-Origin-Opener-Policy = "same-origin"
+    Cross-Origin-Embedder-Policy = "require-corp"

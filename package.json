@@ -6,7 +6,7 @@
   "packageManager": "pnpm@10.26.0",
   "type": "module",
   "scripts": {
-    "dev": "pnpm link ../cli/packages/cli && pnpm run with-env vite dev",
+    "dev": "node scripts/link-packages.mjs && pnpm run with-env vite dev",
     "with-env": "dotenv -e ../../.env",
     "dev:frontend": "pnpm run with-env vite dev",
     "build": "vite build && cp src/instrument.server.mjs dist/server",
@@ -48,7 +48,9 @@
     "@stackblitz/sdk": "^1.11.0",
     "@tailwindcss/typography": "^0.5.13",
     "@tailwindcss/vite": "^4.1.11",
-    "@tanstack/cli": "^0.0.8",
+    "@tanstack/cta-engine": "0.49.0",
+    "@tanstack/cta-framework-react-cra": "^0.48.0",
+    "@tanstack/cta-framework-solid": "^0.48.0",
     "@tanstack/pacer": "^0.16.4",
     "@tanstack/react-pacer": "^0.17.4",
     "@tanstack/react-query": "^5.90.12",
@@ -62,6 +64,7 @@
     "@visx/hierarchy": "^2.10.0",
     "@visx/responsive": "^2.10.0",
     "@vitejs/plugin-react": "^4.3.3",
+    "@webcontainer/api": "^1.6.1",
     "@xstate/react": "^6.0.0",
     "algoliasearch": "^5.23.4",
     "cheerio": "^1.1.2",
@@ -159,7 +162,9 @@
       "js-yaml": "^3.14.2",
       "brace-expansion": ">=1.1.12",
       "unicorn-magic": "^0.4.0",
-      "@tanstack/cli": "link:../cli/packages/cli"
+      "@tanstack/cta-engine": "link:../create-tsrouter-app/packages/cta-engine",
+      "@tanstack/cta-framework-react-cra": "link:../create-tsrouter-app/frameworks/react-cra",
+      "@tanstack/cta-framework-solid": "link:../create-tsrouter-app/frameworks/solid"
     }
   }
 }

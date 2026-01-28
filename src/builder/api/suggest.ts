@@ -1,6 +1,6 @@
-import { fetchManifest } from '@tanstack/cli'
+import { getAllAddOns, type AddOn } from '@tanstack/cta-engine'
 import type { ProjectDefinition } from './compile'
-import { getAddonsBasePath } from './config'
+import { getFramework, DEFAULT_MODE } from './config'
 
 export interface SuggestRequest {
   description?: string
@@ -34,16 +34,10 @@ const FEATURE_KEYWORDS: Record<
     { keyword: 'react query', weight: 1 },
     { keyword: 'tanstack query', weight: 1 },
   ],
-  'tanstack-form': [
+  form: [
     { keyword: 'form', weight: 1 },
     { keyword: 'validation', weight: 0.8 },
     { keyword: 'input', weight: 0.5 },
-  ],
-  'tanstack-table': [
-    { keyword: 'table', weight: 1 },
-    { keyword: 'grid', weight: 0.8 },
-    { keyword: 'data grid', weight: 1 },
-    { keyword: 'sorting', weight: 0.7 },
   ],
   drizzle: [
     { keyword: 'database', weight: 0.9 },
@@ -68,11 +62,6 @@ const FEATURE_KEYWORDS: Record<
     { keyword: 'self-hosted', weight: 1 },
     { keyword: 'better-auth', weight: 1 },
   ],
-  trpc: [
-    { keyword: 'trpc', weight: 1 },
-    { keyword: 'type-safe api', weight: 0.9 },
-    { keyword: 'rpc', weight: 0.7 },
-  ],
   ai: [
     { keyword: 'ai', weight: 1 },
     { keyword: 'llm', weight: 0.9 },
@@ -92,28 +81,36 @@ const FEATURE_KEYWORDS: Record<
 }
 
 const INTENT_FEATURES: Record<string, Array<string>> = {
-  'full-stack': ['tanstack-query', 'drizzle', 'shadcn', 'biome'],
-  'api-only': ['tanstack-query', 'drizzle', 'trpc'],
+  'full-stack': ['drizzle', 'shadcn'],
+  'api-only': ['drizzle'],
   database: ['drizzle'],
   auth: ['clerk'],
-  deploy: ['netlify'],
+  deploy: [],
+}
+
+function getCategoryFromType(type: string): string {
+  switch (type) {
+    case 'deployment':
+      return 'deploy'
+    case 'toolchain':
+      return 'tooling'
+    default:
+      return 'other'
+  }
 }
 
 export async function suggestHandler(
   request: SuggestRequest,
 ): Promise<SuggestResponse> {
-  const basePath = getAddonsBasePath()
-  const manifest = await fetchManifest(basePath)
-  const integrationMap = new Map(
-    manifest.integrations.map((i) => [i.id, i] as const),
-  )
+  const framework = getFramework()
+  const allAddOns = getAllAddOns(framework, DEFAULT_MODE)
+  const addOnMap = new Map(allAddOns.map((a: AddOn) => [a.id, a] as const))
 
   const suggestions: Array<FeatureSuggestion> = []
   const reasons: Array<string> = []
 
   const currentFeatures = new Set(request.current?.features || [])
 
-  // Score features based on description
   if (request.description) {
     const description = request.description.toLowerCase()
 
@@ -131,14 +128,14 @@ export async function suggestHandler(
       }
 
       if (score > 0) {
-        const integration = integrationMap.get(featureId)
-        if (integration) {
+        const addOn = addOnMap.get(featureId) as AddOn | undefined
+        if (addOn) {
           suggestions.push({
             id: featureId,
-            name: integration.name,
+            name: addOn.name,
             reason: `Matches: ${matchedKeywords.join(', ')}`,
             confidence: score >= 1 ? 'high' : score >= 0.5 ? 'medium' : 'low',
-            category: integration.category ?? 'other',
+            category: getCategoryFromType(addOn.type),
           })
         }
       }
@@ -158,14 +155,14 @@ export async function suggestHandler(
       if (currentFeatures.has(featureId)) continue
       if (suggestions.some((s) => s.id === featureId)) continue
 
-      const integration = integrationMap.get(featureId)
-      if (integration) {
+      const addOn = addOnMap.get(featureId) as AddOn | undefined
+      if (addOn) {
         suggestions.push({
           id: featureId,
-          name: integration.name,
+          name: addOn.name,
           reason: `Recommended for ${request.intent} projects`,
           confidence: 'high',
-          category: integration.category ?? 'other',
+          category: getCategoryFromType(addOn.type),
         })
       }
     }
@@ -179,21 +176,21 @@ export async function suggestHandler(
   )
 
   for (const suggestion of [...suggestions]) {
-    const integration = integrationMap.get(suggestion.id)
-    if (integration?.dependsOn) {
-      for (const required of integration.dependsOn) {
+    const addOn = addOnMap.get(suggestion.id) as AddOn | undefined
+    if (addOn?.dependsOn) {
+      for (const required of addOn.dependsOn) {
         if (
           !currentFeatures.has(required) &&
           !suggestions.some((s) => s.id === required)
         ) {
-          const requiredIntegration = integrationMap.get(required)
-          if (requiredIntegration) {
+          const requiredAddOn = addOnMap.get(required) as AddOn | undefined
+          if (requiredAddOn) {
             suggestions.push({
               id: required,
-              name: requiredIntegration.name,
+              name: requiredAddOn.name,
               reason: `Required by ${suggestion.name}`,
               confidence: 'high',
-              category: requiredIntegration.category ?? 'other',
+              category: getCategoryFromType(requiredAddOn.type),
             })
           }
         }

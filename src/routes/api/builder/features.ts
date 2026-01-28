@@ -1,13 +1,15 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { getFeaturesHandler } from '~/builder/api'
+import { getFeaturesHandler, type FrameworkId } from '~/builder/api'
 
 export const Route = createFileRoute('/api/builder/features')({
   // @ts-expect-error server property not in route types yet
   server: {
     handlers: {
-      GET: async () => {
+      GET: async ({ request }: { request: Request }) => {
         try {
-          const response = await getFeaturesHandler()
+          const url = new URL(request.url)
+          const framework = (url.searchParams.get('framework') ?? 'react-cra') as FrameworkId
+          const response = await getFeaturesHandler(framework)
           return new Response(JSON.stringify(response), {
             headers: { 'Content-Type': 'application/json' },
           })

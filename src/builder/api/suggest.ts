@@ -89,6 +89,14 @@ const FEATURE_KEYWORDS: Record<
     { keyword: 'monitoring', weight: 0.8 },
     { keyword: 'sentry', weight: 1 },
   ],
+  posthog: [
+    { keyword: 'analytics', weight: 1 },
+    { keyword: 'posthog', weight: 1 },
+    { keyword: 'tracking', weight: 0.8 },
+    { keyword: 'feature flags', weight: 0.9 },
+    { keyword: 'session replay', weight: 1 },
+    { keyword: 'product analytics', weight: 1 },
+  ],
 }
 
 const INTENT_FEATURES: Record<string, Array<string>> = {

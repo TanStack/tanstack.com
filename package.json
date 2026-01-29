@@ -160,8 +160,7 @@
       "jws": ">=3.2.3",
       "qs": ">=6.14.1",
       "js-yaml": "^3.14.2",
-      "brace-expansion": ">=1.1.12",
-      "@tanstack/cta-engine": "link:../create-tsrouter-app/packages/cta-engine"
+      "brace-expansion": ">=1.1.12"
     }
   }
 }

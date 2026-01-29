@@ -29,24 +29,17 @@ export default defineConfig({
     external: [
       'postgres',
       // CTA packages use execa which has a broken unicorn-magic dependency
-      '@tanstack/cta-engine',
-      '@tanstack/cta-ui',
-      '@tanstack/cta-framework-react-cra',
-      '@tanstack/cta-framework-solid',
+      '@tanstack/create',
       // Externalize CLI so server reloads it on changes
       '@tanstack/cli',
     ],
-    // Bundle cta-ui-base so Vite resolves its extensionless imports
-    noExternal: ['drizzle-orm', '@tanstack/cta-ui-base'],
+    noExternal: ['drizzle-orm'],
   },
   optimizeDeps: {
     exclude: [
       'postgres',
       // CTA packages use execa which has a broken unicorn-magic dependency
-      '@tanstack/cta-engine',
-      '@tanstack/cta-ui',
-      '@tanstack/cta-framework-react-cra',
-      '@tanstack/cta-framework-solid',
+      '@tanstack/create',
       // Don't pre-bundle CLI so we always get fresh changes during dev
       ...(isDev ? ['@tanstack/cli'] : []),
     ],

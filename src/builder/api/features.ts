@@ -1,4 +1,4 @@
-import { getAllAddOns, type AddOn, type AddOnOption } from '@tanstack/cta-engine'
+import { getAllAddOns, type AddOn, type AddOnOption } from '@tanstack/create'
 import { getFramework, DEFAULT_MODE, DEFAULT_REQUIRED_ADDONS, type FrameworkId } from './config'
 import { partners } from '~/utils/partners'
 

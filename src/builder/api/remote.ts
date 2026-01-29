@@ -1,4 +1,4 @@
-import { loadRemoteAddOn, loadStarter } from '@tanstack/cta-engine'
+import { loadRemoteAddOn, loadStarter } from '@tanstack/create'
 import { type AddOnCompiled, type StarterCompiled } from './compile'
 import { validateRemoteUrl } from '~/utils/url-validation.server'
 

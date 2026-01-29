@@ -8,7 +8,7 @@ import {
   type Starter,
   type LineAttribution as CtaLineAttribution,
   type AttributedFile as CtaAttributedFile,
-} from '@tanstack/cta-engine'
+} from '@tanstack/create'
 
 type AddOnType = 'add-on' | 'example' | 'starter' | 'toolchain' | 'deployment'
 type AddOnPhase = 'setup' | 'add-on'

@@ -2,6 +2,15 @@ import { createFileRoute } from '@tanstack/react-router'
 import JSZip from 'jszip'
 import { compileHandler } from '~/builder/api'
 
+const BASE64_PREFIX = 'base64::'
+
+function decodeBase64File(content: string): Buffer | null {
+  if (content.startsWith(BASE64_PREFIX)) {
+    return Buffer.from(content.slice(BASE64_PREFIX.length), 'base64')
+  }
+  return null
+}
+
 export const Route = createFileRoute('/api/builder/download')({
   // @ts-expect-error server property not in route types yet
   server: {
@@ -44,7 +53,13 @@ export const Route = createFileRoute('/api/builder/download')({
           }
 
           for (const [filePath, content] of Object.entries(result.files)) {
-            rootFolder.file(filePath, content)
+            // Handle base64-encoded binary files (SVGs, images, etc.)
+            const binaryContent = decodeBase64File(content)
+            if (binaryContent) {
+              rootFolder.file(filePath, binaryContent, { binary: true })
+            } else {
+              rootFolder.file(filePath, content)
+            }
           }
 
           const blob = await zip.generateAsync({ type: 'arraybuffer' })

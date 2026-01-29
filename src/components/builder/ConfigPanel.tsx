@@ -7,7 +7,7 @@
 
 import { useState, useCallback, useMemo } from 'react'
 import { Link } from '@tanstack/react-router'
-import JSZip from 'jszip'
+
 import {
   Copy,
   Download,
@@ -16,7 +16,6 @@ import {
   Rocket,
   Check,
   HelpCircle,
-  Loader2,
   Search,
   Github,
 } from 'lucide-react'
@@ -430,7 +429,6 @@ function BuildProjectDropdown({
   const [showTemplateExport, setShowTemplateExport] = useState(false)
   const [templateName, setTemplateName] = useState('')
   const [templateDescription, setTemplateDescription] = useState('')
-  const [isGeneratingZip, setIsGeneratingZip] = useState(false)
 
   const copyToClipboard = async (text: string, type: string) => {
     await navigator.clipboard.writeText(text)
@@ -458,30 +456,9 @@ function BuildProjectDropdown({
     return `${window.location.origin}/api/builder/download?${params.toString()}`
   }, [projectName, features, tailwind, featureOptions])
 
-  const downloadZip = useCallback(async () => {
-    if (!compiledOutput?.files) return
-
-    setIsGeneratingZip(true)
-    try {
-      const zip = new JSZip()
-      const rootFolder = zip.folder(projectName)
-      if (!rootFolder) return
-
-      for (const [filePath, content] of Object.entries(compiledOutput.files)) {
-        rootFolder.file(filePath, content)
-      }
-
-      const blob = await zip.generateAsync({ type: 'blob' })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `${projectName}.zip`
-      a.click()
-      URL.revokeObjectURL(url)
-    } finally {
-      setIsGeneratingZip(false)
-    }
-  }, [compiledOutput?.files, projectName])
+  const downloadZip = useCallback(() => {
+    window.location.href = getDownloadUrl()
+  }, [getDownloadUrl])
 
   const generateTemplateJson = () => {
     const template = {
@@ -540,14 +517,10 @@ function BuildProjectDropdown({
                 variant="primary"
                 className="flex-1 flex items-center justify-center gap-2"
                 onClick={downloadZip}
-                disabled={!compiledOutput?.files || isGeneratingZip}
+                disabled={!compiledOutput?.files}
               >
-                {isGeneratingZip ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Download className="w-4 h-4" />
-                )}
-                {isGeneratingZip ? 'Generating...' : 'Download ZIP'}
+                <Download className="w-4 h-4" />
+                Download ZIP
               </Button>
               <Button
                 variant="ghost"

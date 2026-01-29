@@ -12,10 +12,7 @@ overrides:
   qs: '>=6.14.1'
   js-yaml: ^3.14.2
   brace-expansion: '>=1.1.12'
-  unicorn-magic: ^0.4.0
   '@tanstack/cta-engine': link:../create-tsrouter-app/packages/cta-engine
-  '@tanstack/cta-framework-react-cra': link:../create-tsrouter-app/frameworks/react-cra
-  '@tanstack/cta-framework-solid': link:../create-tsrouter-app/frameworks/solid
 
 importers:
 
@@ -91,11 +88,11 @@ importers:
         specifier: link:../create-tsrouter-app/packages/cta-engine
         version: link:../create-tsrouter-app/packages/cta-engine
       '@tanstack/cta-framework-react-cra':
-        specifier: link:../create-tsrouter-app/frameworks/react-cra
-        version: link:../create-tsrouter-app/frameworks/react-cra
+        specifier: ^0.48.3
+        version: 0.48.3
       '@tanstack/cta-framework-solid':
-        specifier: link:../create-tsrouter-app/frameworks/solid
-        version: link:../create-tsrouter-app/frameworks/solid
+        specifier: ^0.48.3
+        version: 0.48.3
       '@tanstack/pacer':
         specifier: ^0.16.4
         version: 0.16.4
@@ -3011,6 +3008,12 @@ packages:
     resolution: {integrity: sha512-RHYhrR3hku0MJFRV+fN2gNbDNEh3dwKvY8XJvTxCSXeMOsCRSr+uKvDWQcbizrHgjML6ZmTE5OwMrl5wKcujCw==}
     peerDependencies:
       vite: ^5.2.0 || ^6 || ^7
+
+  '@tanstack/cta-framework-react-cra@0.48.3':
+    resolution: {integrity: sha512-rUGQh+S+AwmV0i7vfBuIHLJ8gl9ZIqAvMbgTm0L5F6BCTME+4K/q1wptftNyKSLNRE9jFgVpoJ9Pfi3HgXesjw==}
+
+  '@tanstack/cta-framework-solid@0.48.3':
+    resolution: {integrity: sha512-El2C81ya6em0zSb2nXxghAwXG/q8olypp1TL5tj/BMJVZW4GOcDYloOlDL7b2VrHZ9kzQUzl+aQK4gHM/LeIhQ==}
 
   '@tanstack/devtools-event-client@0.3.5':
     resolution: {integrity: sha512-RL1f5ZlfZMpghrCIdzl6mLOFLTuhqmPNblZgBaeKfdtk5rfbjykurv+VfYydOFXj0vxVIoA2d/zT7xfD7Ph8fw==}
@@ -7775,9 +7778,9 @@ packages:
     resolution: {integrity: sha512-Vqs8HTzjpQXZeXdpsfChQTlafcMQaaIwnGwLam1wudSSjlJeQ3bw1j+TLPePgrCnCpUXx7Ba5Pdpf5OBih62NQ==}
     engines: {node: '>=20.18.1'}
 
-  unicorn-magic@0.4.0:
-    resolution: {integrity: sha512-wH590V9VNgYH9g3lH9wWjTrUoKsjLF6sGLjhR4sH1LWpLmCOH0Zf7PukhDA8BiS7KHe4oPNkcTHqYkj7SOGUOw==}
-    engines: {node: '>=20'}
+  unicorn-magic@0.1.0:
+    resolution: {integrity: sha512-lRfVq8fE8gz6QMBuDM6a+LO3IAzTi05H6gCVaUpir2E1Rwpo4ZUog45KpNXKC/Mn3Yb9UDuHumeFTo9iV/D9FQ==}
+    engines: {node: '>=18'}
 
   unified@11.0.5:
     resolution: {integrity: sha512-xKvGhPWw3k84Qjh8bI3ZeJjqnyadK+GEFtazSfZv/rKeTkTjOJho6mFqh2SM96iIcZokxiOpg78GazTSg8+KHA==}
@@ -11000,6 +11003,14 @@ snapshots:
       tailwindcss: 4.1.11
       vite: 7.1.7(@types/node@24.3.0)(jiti@2.6.0)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.21.0)(yaml@2.8.1)
 
+  '@tanstack/cta-framework-react-cra@0.48.3':
+    dependencies:
+      '@tanstack/cta-engine': link:../create-tsrouter-app/packages/cta-engine
+
+  '@tanstack/cta-framework-solid@0.48.3':
+    dependencies:
+      '@tanstack/cta-engine': link:../create-tsrouter-app/packages/cta-engine
+
   '@tanstack/devtools-event-client@0.3.5': {}
 
   '@tanstack/directive-functions-plugin@1.141.0(vite@7.1.7(@types/node@24.3.0)(jiti@2.6.0)(lightningcss@1.30.1)(terser@5.44.0)(tsx@4.21.0)(yaml@2.8.1))':
@@ -13567,7 +13578,7 @@ snapshots:
     dependencies:
       locate-path: 7.2.0
       path-exists: 5.0.0
-      unicorn-magic: 0.4.0
+      unicorn-magic: 0.1.0
 
   flat-cache@4.0.1:
     dependencies:
@@ -15734,7 +15745,7 @@ snapshots:
       normalize-package-data: 6.0.2
       parse-json: 8.3.0
       type-fest: 4.41.0
-      unicorn-magic: 0.4.0
+      unicorn-magic: 0.1.0
 
   readable-stream@2.3.8:
     dependencies:
@@ -16720,7 +16731,7 @@ snapshots:
 
   undici@7.14.0: {}
 
-  unicorn-magic@0.4.0: {}
+  unicorn-magic@0.1.0: {}
 
   unified@11.0.5:
     dependencies:

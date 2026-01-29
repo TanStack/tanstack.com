@@ -58,6 +58,43 @@ export function getRouter() {
       // Session Replay
       replaysSessionSampleRate: 0.1, // This sets the sample rate at 10%. You may want to change it to 100% while in development and then sample at a lower rate in production.
       replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
+      // Filter out ad-related errors from third-party scripts
+      beforeSend(event, hint) {
+        const error = hint.originalException
+        const errorMessage =
+          typeof error === 'string'
+            ? error
+            : error instanceof Error
+              ? error.message
+              : ''
+
+        // Check if the error is from ad-related scripts
+        const isAdRelatedScript = event.exception?.values?.some((exception) => {
+          return exception.stacktrace?.frames?.some((frame) => {
+            const filename = frame.filename || ''
+            return (
+              filename.includes('/nobid/blocking_script.js') ||
+              filename.includes('/media/native/') ||
+              filename.includes('fuse.js') ||
+              filename.includes('fuseplatform.net')
+            )
+          })
+        })
+
+        // Check if the error message contains known ad-related error patterns
+        const hasAdRelatedErrorPattern =
+          errorMessage.includes('is not a function') ||
+          errorMessage.includes('contextWindow.parent') ||
+          errorMessage.includes('null is not an object')
+
+        // Filter out ad-related errors
+        if (isAdRelatedScript && hasAdRelatedErrorPattern) {
+          console.debug('Filtered ad-related error:', errorMessage)
+          return null // Drop the event
+        }
+
+        return event
+      },
     })
   }
 

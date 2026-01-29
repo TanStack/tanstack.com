@@ -6,7 +6,7 @@
   "packageManager": "pnpm@10.26.0",
   "type": "module",
   "scripts": {
-    "dev": "node scripts/link-packages.mjs && pnpm run with-env vite dev",
+    "dev": "pnpm run with-env vite dev",
     "with-env": "dotenv -e ../../.env",
     "dev:frontend": "pnpm run with-env vite dev",
     "build": "vite build && cp src/instrument.server.mjs dist/server",
@@ -48,7 +48,7 @@
     "@stackblitz/sdk": "^1.11.0",
     "@tailwindcss/typography": "^0.5.13",
     "@tailwindcss/vite": "^4.1.11",
-    "@tanstack/cta-engine": "link:../create-tsrouter-app/packages/cta-engine",
+    "@tanstack/cta-engine": "^0.49.1",
     "@tanstack/cta-framework-react-cra": "^0.48.3",
     "@tanstack/cta-framework-solid": "^0.48.3",
     "@tanstack/pacer": "^0.16.4",

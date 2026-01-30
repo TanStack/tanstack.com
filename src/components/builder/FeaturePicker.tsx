@@ -94,7 +94,7 @@ const CATEGORY_INFO: Record<
   },
   analytics: {
     label: 'Analytics',
-    description: 'Analytics and tracking tools',
+    description: 'Analytics and user behavior tracking',
     color: '#00bcff', // Sky-400
   },
   api: {
@@ -124,8 +124,8 @@ const CATEGORY_ORDER: Array<FeatureCategory> = [
   'api',
   'i18n',
   'cms',
-  'tooling',
   'analytics',
+  'tooling',
   'other',
 ]
 

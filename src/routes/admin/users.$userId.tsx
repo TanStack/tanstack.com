@@ -67,7 +67,6 @@ function UserDetailPage() {
             </p>
             <Link
               to="/admin/users"
-              search={{ page: 0, pageSize: 10, useEffectiveCapabilities: true }}
               className="mt-4 inline-flex items-center gap-2 text-blue-600 hover:text-blue-700"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -90,7 +89,6 @@ function UserDetailPage() {
         <div className="mb-6">
           <Link
             to="/admin/users"
-            search={{ page: 0, pageSize: 10, useEffectiveCapabilities: true }}
             className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-4"
           >
             <ArrowLeft className="w-4 h-4" />

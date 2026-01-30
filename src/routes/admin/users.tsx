@@ -172,6 +172,20 @@ function EffectiveCapabilitiesCell({
   )
 }
 
+const searchSchema = v.object({
+  email: v.optional(v.string()),
+  name: v.optional(v.string()),
+  cap: v.optional(v.union([v.string(), v.array(v.string())])),
+  noCapabilities: v.optional(v.boolean()),
+  ads: v.optional(v.picklist(['all', 'true', 'false'])),
+  waitlist: v.optional(v.picklist(['all', 'true', 'false'])),
+  page: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0))),
+  pageSize: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
+  useEffectiveCapabilities: v.optional(v.boolean(), true),
+  sortBy: v.optional(v.string()),
+  sortDir: v.optional(v.picklist(['asc', 'desc'])),
+});
+
 export const Route = createFileRoute('/admin/users')({
   beforeLoad: async () => {
     try {
@@ -182,23 +196,7 @@ export const Route = createFileRoute('/admin/users')({
     }
   },
   component: UsersPage,
-  validateSearch: (search) =>
-    v.parse(
-      v.object({
-        email: v.optional(v.string()),
-        name: v.optional(v.string()),
-        cap: v.optional(v.union([v.string(), v.array(v.string())])),
-        noCapabilities: v.optional(v.boolean()),
-        ads: v.optional(v.picklist(['all', 'true', 'false'])),
-        waitlist: v.optional(v.picklist(['all', 'true', 'false'])),
-        page: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0))),
-        pageSize: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
-        useEffectiveCapabilities: v.optional(v.boolean(), true),
-        sortBy: v.optional(v.string()),
-        sortDir: v.optional(v.picklist(['asc', 'desc'])),
-      }),
-      search,
-    ),
+  validateSearch: searchSchema,
 })
 
 function UsersPage() {
@@ -232,7 +230,6 @@ function UsersPage() {
       search: {
         page: 0,
         pageSize: search.pageSize,
-        useEffectiveCapabilities,
       },
     })
   }
@@ -341,8 +338,8 @@ function UsersPage() {
   // Pass userId only if it's valid, otherwise pass undefined (query handles it)
   const validEditingUserId =
     editingUserId &&
-    typeof editingUserId === 'string' &&
-    editingUserId.trim() !== ''
+      typeof editingUserId === 'string' &&
+      editingUserId.trim() !== ''
       ? editingUserId
       : undefined
   const editingUserRolesQuery = useQuery({
@@ -523,7 +520,7 @@ function UsersPage() {
             checked={
               usersQuery?.data?.page
                 ? selectedUserIds.size === usersQuery.data.page.length &&
-                  usersQuery.data.page.length > 0
+                usersQuery.data.page.length > 0
                 : false
             }
             onChange={toggleAllSelection}
@@ -552,7 +549,6 @@ function UsersPage() {
               params={{ userId: userData._id }}
               className="flex items-center gap-3 hover:opacity-80"
               onClick={(e) => e.stopPropagation()}
-              search={{ useEffectiveCapabilities }}
             >
               <UserAvatar
                 image={userData.image}
@@ -900,9 +896,9 @@ function UsersPage() {
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
                     </SortableTableHeaderCell>
                   ))}
                 </TableHeaderRow>

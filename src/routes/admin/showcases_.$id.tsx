@@ -102,7 +102,7 @@ function ShowcaseDetailPage() {
     mutationFn: () => adminDeleteShowcase({ data: { showcaseId: id } }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'showcases'] })
-      navigate({ to: '/admin/showcases', search: { page: 0, pageSize: 10 } })
+      navigate({ to: '/admin/showcases' })
     },
   })
 
@@ -199,7 +199,6 @@ function ShowcaseDetailPage() {
             </p>
             <Link
               to="/admin/showcases"
-              search={{ page: 0, pageSize: 10 }}
               className="mt-4 inline-flex items-center gap-2 text-blue-600 hover:text-blue-700"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -248,7 +247,6 @@ function ShowcaseDetailPage() {
           <div className="flex items-center justify-between mb-4">
             <Link
               to="/admin/showcases"
-              search={{ page: 0, pageSize: 10 }}
               className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -359,7 +357,7 @@ function ShowcaseDetailPage() {
                     <Badge
                       variant={
                         statusVariant[
-                          showcase.status as keyof typeof statusVariant
+                        showcase.status as keyof typeof statusVariant
                         ]
                       }
                     >
@@ -489,11 +487,11 @@ function ShowcaseDetailPage() {
                       setFormData((prev) =>
                         prev
                           ? {
-                              ...prev,
-                              trancoRank: e.target.value
-                                ? parseInt(e.target.value, 10)
-                                : null,
-                            }
+                            ...prev,
+                            trancoRank: e.target.value
+                              ? parseInt(e.target.value, 10)
+                              : null,
+                          }
                           : null,
                       )
                     }
@@ -515,9 +513,9 @@ function ShowcaseDetailPage() {
                       setFormData((prev) =>
                         prev
                           ? {
-                              ...prev,
-                              voteScore: parseInt(e.target.value, 10) || 0,
-                            }
+                            ...prev,
+                            voteScore: parseInt(e.target.value, 10) || 0,
+                          }
                           : null,
                       )
                     }
@@ -593,13 +591,12 @@ function ShowcaseDetailPage() {
                         <ThumbsUp className="w-4 h-4" />
                       </button>
                       <span
-                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-sm font-medium ${
-                          showcase.voteScore > 0
-                            ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300'
-                            : showcase.voteScore < 0
-                              ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
-                              : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
-                        }`}
+                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-sm font-medium ${showcase.voteScore > 0
+                          ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300'
+                          : showcase.voteScore < 0
+                            ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+                            : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                          }`}
                       >
                         {showcase.voteScore > 0 ? '+' : ''}
                         {showcase.voteScore}
@@ -688,11 +685,10 @@ function ShowcaseDetailPage() {
                           return { ...prev, libraries: newLibs }
                         })
                       }
-                      className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                        isSelected
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                      }`}
+                      className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium transition-colors ${isSelected
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                        }`}
                     >
                       {lib.name}
                     </button>
@@ -735,11 +731,10 @@ function ShowcaseDetailPage() {
                           return { ...prev, useCases: newUseCases }
                         })
                       }
-                      className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                        isSelected
-                          ? 'bg-purple-600 text-white'
-                          : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                      }`}
+                      className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium transition-colors ${isSelected
+                        ? 'bg-purple-600 text-white'
+                        : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                        }`}
                     >
                       {USE_CASE_LABELS[useCase] || useCase}
                     </button>
@@ -810,16 +805,14 @@ function ShowcaseDetailPage() {
                         prev ? { ...prev, isFeatured: !prev.isFeatured } : null,
                       )
                     }
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      formData?.isFeatured
-                        ? 'bg-purple-600'
-                        : 'bg-gray-300 dark:bg-gray-600'
-                    }`}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${formData?.isFeatured
+                      ? 'bg-purple-600'
+                      : 'bg-gray-300 dark:bg-gray-600'
+                      }`}
                   >
                     <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        formData?.isFeatured ? 'translate-x-6' : 'translate-x-1'
-                      }`}
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${formData?.isFeatured ? 'translate-x-6' : 'translate-x-1'
+                        }`}
                     />
                   </button>
                   <span className="text-sm text-gray-700 dark:text-gray-300">

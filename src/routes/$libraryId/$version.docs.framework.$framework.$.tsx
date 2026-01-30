@@ -26,9 +26,8 @@ export const Route = createFileRoute(
       return await loadDocs({
         repo: library.repo,
         branch: getBranch(library, version),
-        docsPath: `${
-          library.docsRoot || 'docs'
-        }/framework/${framework}/${docsPath}`,
+        docsPath: `${library.docsRoot || 'docs'
+          }/framework/${framework}/${docsPath}`,
       })
     } catch (error) {
       // If doc not found, redirect to framework docs root instead of showing 404

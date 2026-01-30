@@ -239,7 +239,6 @@ export function ShowcaseSection({
           <Link
             to="/showcase"
             search={{
-              page: 1,
               libraryIds: libraryId ? [libraryId] : undefined,
             }}
           >

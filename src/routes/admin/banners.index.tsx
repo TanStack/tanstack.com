@@ -33,15 +33,13 @@ import {
 import { useAdminGuard } from '~/hooks/useAdminGuard'
 import { useDeleteWithConfirmation } from '~/hooks/useDeleteWithConfirmation'
 
+const searchSchema = v.object({
+  includeInactive: v.optional(v.boolean(), true),
+});
+
 export const Route = createFileRoute('/admin/banners/')({
   component: BannersAdminPage,
-  validateSearch: (search) =>
-    v.parse(
-      v.object({
-        includeInactive: v.optional(v.boolean(), true),
-      }),
-      search,
-    ),
+  validateSearch: searchSchema,
 })
 
 const STYLE_CONFIG = {
@@ -185,9 +183,8 @@ function BannersAdminPage() {
               return (
                 <div
                   key={banner.id}
-                  className={`bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden ${
-                    !banner.isActive ? 'opacity-60' : ''
-                  }`}
+                  className={`bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden ${!banner.isActive ? 'opacity-60' : ''
+                    }`}
                 >
                   <div className="p-4">
                     <div className="flex items-start gap-4">
@@ -285,11 +282,10 @@ function BannersAdminPage() {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleToggleActive(banner)}
-                          className={`p-2 rounded-lg transition-colors ${
-                            banner.isActive
-                              ? 'text-green-600 hover:bg-green-100 dark:hover:bg-green-900/30'
-                              : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
-                          }`}
+                          className={`p-2 rounded-lg transition-colors ${banner.isActive
+                            ? 'text-green-600 hover:bg-green-100 dark:hover:bg-green-900/30'
+                            : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                            }`}
                           title={banner.isActive ? 'Deactivate' : 'Activate'}
                         >
                           {banner.isActive ? (

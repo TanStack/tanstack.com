@@ -77,7 +77,6 @@ function FeedbackDetailPage() {
             </p>
             <Link
               to="/admin/feedback"
-              search={{ page: 0, pageSize: 10 }}
               className="mt-4 inline-flex items-center gap-2 text-blue-600 hover:text-blue-700"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -110,7 +109,6 @@ function FeedbackDetailPage() {
         <div className="mb-6">
           <Link
             to="/admin/feedback"
-            search={{ page: 0, pageSize: 10 }}
             className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-4"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -229,11 +227,6 @@ function FeedbackDetailPage() {
               <Link
                 to="/admin/users/$userId"
                 params={{ userId: user.id }}
-                search={{
-                  page: 0,
-                  pageSize: 10,
-                  useEffectiveCapabilities: true,
-                }}
                 className="flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-800 p-2 rounded-lg -m-2"
               >
                 {user.image ? (

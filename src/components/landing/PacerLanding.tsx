@@ -22,7 +22,7 @@ export default function PacerLanding() {
         cta={{
           linkProps: {
             to: '/$libraryId/$version/docs',
-            params: { libraryId: library.id, version: 'latest' },
+            params: { libraryId: library.id },
           },
           label: 'Get Started',
           className: 'bg-lime-600 border-lime-600 hover:bg-lime-700 text-white',
@@ -70,7 +70,7 @@ export default function PacerLanding() {
       <BottomCTA
         linkProps={{
           to: '/$libraryId/$version/docs',
-          params: { libraryId: library.id, version: 'latest' },
+          params: { libraryId: library.id },
         }}
         label="Get Started!"
         className="bg-lime-600 border-lime-600 hover:bg-lime-700 hover:border-lime-700 text-white"

@@ -22,7 +22,7 @@ export default function DevtoolsLanding() {
         cta={{
           linkProps: {
             to: '/$libraryId/$version/docs',
-            params: { libraryId: library.id, version: 'latest' },
+            params: { libraryId: library.id },
           },
           label: 'Get Started',
           className:
@@ -72,7 +72,7 @@ export default function DevtoolsLanding() {
       <BottomCTA
         linkProps={{
           to: '/$libraryId/$version/docs',
-          params: { libraryId: library.id, version: 'latest' },
+          params: { libraryId: library.id },
         }}
         label="Get Started!"
         className="bg-slate-500 border-slate-500 hover:bg-slate-600 hover:border-slate-600 text-white"

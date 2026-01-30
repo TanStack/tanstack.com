@@ -6,7 +6,16 @@ import {
   type ShowcaseStatus,
   type ShowcaseUseCase,
 } from '~/db/schema'
-import { and, eq, or, sql, desc, arrayContains, isNotNull } from 'drizzle-orm'
+import {
+  and,
+  eq,
+  or,
+  sql,
+  desc,
+  arrayContains,
+  isNotNull,
+  arrayOverlaps,
+} from 'drizzle-orm'
 import { requireCapability } from './auth.server'
 import { getEffectiveCapabilities } from './capabilities.server'
 import { libraryIds } from '~/libraries'
@@ -525,10 +534,7 @@ export async function searchShowcasesCore(
 
   if (filters.useCases && filters.useCases.length > 0) {
     conditions.push(
-      sql`${showcases.useCases} && ARRAY[${sql.join(
-        filters.useCases.map((uc) => sql`${uc}`),
-        sql`, `,
-      )}]::showcase_use_case[]`,
+      arrayOverlaps(showcases.useCases, filters.useCases as ShowcaseUseCase[]),
     )
   }
 

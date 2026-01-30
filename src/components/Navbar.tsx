@@ -790,9 +790,9 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           showMenu && 'md:translate-x-0',
           // lg breakpoint: inline when no Title, flyout when Title
           inlineMenu &&
-          'lg:sticky lg:top-[var(--navbar-height)] lg:translate-x-0 lg:bg-white/50 lg:dark:bg-black/30 lg:backdrop-blur-none lg:shadow-none',
+            'lg:sticky lg:top-[var(--navbar-height)] lg:translate-x-0 lg:bg-white/50 lg:dark:bg-black/30 lg:backdrop-blur-none lg:shadow-none',
           !inlineMenu &&
-          'lg:fixed lg:top-[var(--navbar-height)] lg:bg-white lg:dark:bg-black/90 lg:backdrop-blur-lg lg:shadow-xl',
+            'lg:fixed lg:top-[var(--navbar-height)] lg:bg-white lg:dark:bg-black/90 lg:backdrop-blur-lg lg:shadow-xl',
           !inlineMenu && !showMenu && 'lg:-translate-x-full',
           !inlineMenu && showMenu && 'lg:translate-x-0',
         )}

@@ -8,16 +8,13 @@ import { libraryIdSchema, docFeedbackStatusSchema } from '~/utils/schemas'
 
 const searchSchema = v.object({
   page: v.optional(v.number(), 1),
-  pageSize: v.optional(
-    v.pipe(v.number(), v.integer(), v.minValue(1)),
-    50,
-  ),
+  pageSize: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1)), 50),
   status: v.optional(v.array(docFeedbackStatusSchema)),
   libraryId: v.optional(libraryIdSchema),
   isDetached: v.optional(v.boolean()),
   dateFrom: v.optional(v.string()),
   dateTo: v.optional(v.string()),
-});
+})
 
 export const Route = createFileRoute('/admin/feedback/')({
   staleTime: 1000 * 60 * 5, // 5 minutes

@@ -11,7 +11,7 @@ const searchSchema = v.object({
   useCases: v.optional(v.array(showcaseUseCaseSchema)),
   hasSourceCode: v.optional(v.boolean()),
   q: v.optional(v.string()),
-});
+})
 
 export const Route = createFileRoute('/showcase/')({
   validateSearch: searchSchema,

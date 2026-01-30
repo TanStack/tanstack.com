@@ -360,7 +360,7 @@ export function ShowcaseGallery() {
                   totalItems={data.pagination.total}
                   pageSize={24}
                   onPageChange={handlePageChange}
-                  onPageSizeChange={() => { }}
+                  onPageSizeChange={() => {}}
                   canGoPrevious={search.page > 1}
                   canGoNext={search.page < data.pagination.totalPages}
                   itemLabel="projects"

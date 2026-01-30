@@ -184,7 +184,7 @@ const searchSchema = v.object({
   useEffectiveCapabilities: v.optional(v.boolean(), true),
   sortBy: v.optional(v.string()),
   sortDir: v.optional(v.picklist(['asc', 'desc'])),
-});
+})
 
 export const Route = createFileRoute('/admin/users')({
   beforeLoad: async () => {
@@ -338,8 +338,8 @@ function UsersPage() {
   // Pass userId only if it's valid, otherwise pass undefined (query handles it)
   const validEditingUserId =
     editingUserId &&
-      typeof editingUserId === 'string' &&
-      editingUserId.trim() !== ''
+    typeof editingUserId === 'string' &&
+    editingUserId.trim() !== ''
       ? editingUserId
       : undefined
   const editingUserRolesQuery = useQuery({
@@ -520,7 +520,7 @@ function UsersPage() {
             checked={
               usersQuery?.data?.page
                 ? selectedUserIds.size === usersQuery.data.page.length &&
-                usersQuery.data.page.length > 0
+                  usersQuery.data.page.length > 0
                 : false
             }
             onChange={toggleAllSelection}
@@ -896,9 +896,9 @@ function UsersPage() {
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
                     </SortableTableHeaderCell>
                   ))}
                 </TableHeaderRow>

@@ -8,14 +8,11 @@ import { libraryIdSchema, showcaseStatusSchema } from '~/utils/schemas'
 
 const searchSchema = v.object({
   page: v.optional(v.number(), 1),
-  pageSize: v.optional(
-    v.pipe(v.number(), v.integer(), v.minValue(1)),
-    50,
-  ),
+  pageSize: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1)), 50),
   status: v.optional(v.array(showcaseStatusSchema)),
   libraryId: v.optional(v.array(libraryIdSchema)),
   isFeatured: v.optional(v.boolean()),
-});
+})
 
 export const Route = createFileRoute('/admin/showcases/')({
   staleTime: 1000 * 60 * 5, // 5 minutes

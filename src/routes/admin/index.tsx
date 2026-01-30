@@ -42,7 +42,7 @@ const searchSchema = v.object({
     v.picklist(['overview', 'users', 'activity', 'ads']),
     'overview',
   ),
-});
+})
 
 export const Route = createFileRoute('/admin/')({
   validateSearch: searchSchema,
@@ -134,10 +134,11 @@ function AdminDashboard() {
                 key={t.id}
                 to="/admin"
                 search={{ tab: t.id }}
-                className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition-colors ${tab === t.id
-                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-                  }`}
+                className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                  tab === t.id
+                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+                }`}
               >
                 {t.icon}
                 {t.label}
@@ -194,8 +195,8 @@ function OverviewTab({
     stats.yesterdaySignups === 0
       ? 0
       : ((stats.todaySignups - stats.yesterdaySignups) /
-        stats.yesterdaySignups) *
-      100
+          stats.yesterdaySignups) *
+        100
 
   return (
     <div className="space-y-6">
@@ -331,12 +332,13 @@ function OverviewTab({
                 >
                   <div className="flex items-center gap-2">
                     <span
-                      className={`text-sm font-bold w-5 ${index === 0
-                        ? 'text-amber-500'
-                        : index === 1
-                          ? 'text-gray-400'
-                          : 'text-amber-700'
-                        }`}
+                      className={`text-sm font-bold w-5 ${
+                        index === 0
+                          ? 'text-amber-500'
+                          : index === 1
+                            ? 'text-gray-400'
+                            : 'text-amber-700'
+                      }`}
                     >
                       #{index + 1}
                     </span>
@@ -383,8 +385,8 @@ function UsersTab({
     stats.yesterdaySignups === 0
       ? 0
       : ((stats.todaySignups - stats.yesterdaySignups) /
-        stats.yesterdaySignups) *
-      100
+          stats.yesterdaySignups) *
+        100
 
   return (
     <div className="space-y-6">
@@ -476,8 +478,7 @@ function UsersTab({
               View and manage individual user accounts, roles, and capabilities.
             </p>
           </div>
-          <Link
-            to="/admin/users">
+          <Link to="/admin/users">
             <Button>Manage Users</Button>
           </Link>
         </div>
@@ -809,14 +810,15 @@ function ActivityTab({
               >
                 <div className="flex items-center gap-3">
                   <span
-                    className={`text-sm font-bold w-6 ${index === 0
-                      ? 'text-amber-500'
-                      : index === 1
-                        ? 'text-gray-400'
-                        : index === 2
-                          ? 'text-amber-700'
-                          : 'text-gray-500'
-                      }`}
+                    className={`text-sm font-bold w-6 ${
+                      index === 0
+                        ? 'text-amber-500'
+                        : index === 1
+                          ? 'text-gray-400'
+                          : index === 2
+                            ? 'text-amber-700'
+                            : 'text-gray-500'
+                    }`}
                   >
                     #{index + 1}
                   </span>
@@ -1064,12 +1066,13 @@ function ChangeIndicator({ value }: { value: number }) {
 
   return (
     <div
-      className={`flex items-center gap-1 text-sm font-medium ${isPositive
-        ? 'text-green-600 dark:text-green-400'
-        : isNegative
-          ? 'text-red-600 dark:text-red-400'
-          : 'text-gray-600 dark:text-gray-400'
-        }`}
+      className={`flex items-center gap-1 text-sm font-medium ${
+        isPositive
+          ? 'text-green-600 dark:text-green-400'
+          : isNegative
+            ? 'text-red-600 dark:text-red-400'
+            : 'text-gray-600 dark:text-gray-400'
+      }`}
     >
       {isPositive ? (
         <ArrowUp className="w-4 h-4" />

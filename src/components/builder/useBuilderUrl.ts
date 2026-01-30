@@ -16,6 +16,7 @@ interface BuilderSearchParams {
   framework?: string // react-cra, solid-cra, etc.
   template?: string // template preset ID
   features?: string // comma-separated feature IDs
+  pm?: string // package manager: pnpm, npm, yarn, bun
   // Feature options serialized as: featureId.optionKey=value
   [key: string]: string | undefined
 }
@@ -30,11 +31,13 @@ export function useBuilderUrl() {
   const features = useBuilderStore((s) => s.features)
   const featureOptions = useBuilderStore((s) => s.featureOptions)
   const selectedTemplate = useBuilderStore((s) => s.selectedTemplate)
+  const packageManager = useBuilderStore((s) => s.packageManager)
   const featuresLoaded = useBuilderStore((s) => s.featuresLoaded)
   const setProjectName = useBuilderStore((s) => s.setProjectName)
   const setFeatures = useBuilderStore((s) => s.setFeatures)
   const setFeatureOption = useBuilderStore((s) => s.setFeatureOption)
   const setTemplate = useBuilderStore((s) => s.setTemplate)
+  const setPackageManager = useBuilderStore((s) => s.setPackageManager)
 
   // Initialize from URL on mount (only once when features load)
   const initializedRef = useRef(false)
@@ -47,6 +50,11 @@ export function useBuilderUrl() {
     // Set project name
     if (search.name) {
       setProjectName(search.name)
+    }
+
+    // Set package manager
+    if (search.pm && ['pnpm', 'npm', 'yarn', 'bun'].includes(search.pm)) {
+      setPackageManager(search.pm as 'pnpm' | 'npm' | 'yarn' | 'bun')
     }
 
     // Note: framework is set in BuilderProvider before features load
@@ -86,6 +94,7 @@ export function useBuilderUrl() {
       feats: Array<FeatureId>,
       opts: Record<string, Record<string, unknown>>,
       template: string | null,
+      pm: string,
     ) => {
       navigate({
         to: '/builder',
@@ -111,6 +120,13 @@ export function useBuilderUrl() {
             params.template = template
           } else {
             delete params.template
+          }
+
+          // Update package manager (skip if default pnpm)
+          if (pm && pm !== 'pnpm') {
+            params.pm = pm
+          } else {
+            delete params.pm
           }
 
           // Update features
@@ -153,6 +169,7 @@ export function useBuilderUrl() {
       features,
       featureOptions,
       selectedTemplate,
+      packageManager,
     )
   }, [
     projectName,
@@ -160,6 +177,7 @@ export function useBuilderUrl() {
     features,
     featureOptions,
     selectedTemplate,
+    packageManager,
     featuresLoaded,
     syncToUrl,
   ])
@@ -170,6 +188,7 @@ export function useBuilderUrl() {
  */
 export function useCliCommand(): string {
   const projectName = useBuilderStore((s) => s.projectName)
+  const framework = useBuilderStore((s) => s.framework)
   const features = useBuilderStore((s) => s.features)
   const _featureOptions = useBuilderStore((s) => s.featureOptions) // TODO: Add to CLI command
   const tailwind = useBuilderStore((s) => s.tailwind)
@@ -179,19 +198,23 @@ export function useCliCommand(): string {
 
   let cmd = `npx @tanstack/cli@latest create ${projectName}`
 
-  // Always add -y to skip prompts
-  cmd += ' -y'
+  // Map internal framework ID to CLI framework name
+  if (framework === 'solid') {
+    cmd += ' --framework Solid'
+  }
 
   if (packageManager !== 'pnpm') {
     cmd += ` --package-manager ${packageManager}`
   }
 
-  if (!tailwind) {
+  if (tailwind) {
+    cmd += ' --tailwind'
+  } else {
     cmd += ' --no-tailwind'
   }
 
   if (features.length > 0) {
-    cmd += ` --integrations ${features.join(',')}`
+    cmd += ` --add-ons ${features.join(',')}`
   }
 
   if (skipInstall) {

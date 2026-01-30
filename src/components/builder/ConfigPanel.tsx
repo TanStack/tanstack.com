@@ -74,6 +74,8 @@ export function ConfigPanel() {
   const features = useFeatures()
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [deployDialogOpen, setDeployDialogOpen] = useState(false)
+  const [cliCopied, setCliCopied] = useState(false)
+  const cliCommand = useCliCommand()
   const [deployDialogProvider, setDeployDialogProvider] = useState<
     'cloudflare' | 'netlify' | 'railway' | null
   >(null)
@@ -94,31 +96,56 @@ export function ConfigPanel() {
     <div className="h-full flex flex-col bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800">
       {/* Header - Project Name + Build Button */}
       <div className="shrink-0 p-4 border-b border-gray-200 dark:border-gray-800">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <input
             type="text"
             value={projectName}
             onChange={(e) => setProjectName(e.target.value)}
-            className="min-w-0 flex-1 h-8 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md px-2 text-gray-900 dark:text-white font-mono text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-cyan-500 focus:border-transparent"
+            className="min-w-[140px] flex-1 h-8 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md px-2 text-gray-900 dark:text-white font-mono text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-cyan-500 focus:border-transparent"
             placeholder="my-tanstack-app"
           />
-          <BuildProjectDropdown
-            onOpenChange={setDropdownOpen}
-            onCreateRepo={() => openDeployDialog(null)}
-          />
-          {deployProvider && (
-            <button
-              onClick={() => openDeployDialog(deployProvider.provider)}
-              className="shrink-0 h-8 px-2.5 text-xs text-white rounded-md transition-opacity hover:opacity-90 whitespace-nowrap flex items-center gap-1"
-              style={{ backgroundColor: deployProvider.color }}
-            >
-              <Rocket className="w-3.5 h-3.5" />
-              <span className="font-medium">Deploy</span>
-              <span className="opacity-80 text-[10px]">
-                to {deployProvider.name}
-              </span>
-            </button>
-          )}
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="relative">
+              <button
+                onClick={async () => {
+                  await navigator.clipboard.writeText(cliCommand)
+                  setCliCopied(true)
+                  setTimeout(() => setCliCopied(false), 2000)
+                }}
+                className="shrink-0 h-8 px-2 flex items-center justify-center gap-1.5 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-600 hover:text-gray-900 dark:hover:text-white transition-colors text-xs font-medium"
+                title="Copy CLI command"
+              >
+                {cliCopied ? (
+                  <Check className="w-3.5 h-3.5 text-green-500" />
+                ) : (
+                  <Copy className="w-3.5 h-3.5" />
+                )}
+                CLI
+              </button>
+              {cliCopied && (
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 px-2 py-1 text-xs font-medium text-white bg-gray-900 dark:bg-white dark:text-gray-900 rounded shadow-lg whitespace-nowrap z-10">
+                  Copied!
+                </div>
+              )}
+            </div>
+            <BuildProjectDropdown
+              onOpenChange={setDropdownOpen}
+              onCreateRepo={() => openDeployDialog(null)}
+            />
+            {deployProvider && (
+              <button
+                onClick={() => openDeployDialog(deployProvider.provider)}
+                className="shrink-0 h-8 px-2.5 text-xs text-white rounded-md transition-opacity hover:opacity-90 whitespace-nowrap flex items-center gap-1"
+                style={{ backgroundColor: deployProvider.color }}
+              >
+                <Rocket className="w-3.5 h-3.5" />
+                <span className="font-medium">Deploy</span>
+                <span className="opacity-80 text-[10px]">
+                  to {deployProvider.name}
+                </span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -148,6 +175,11 @@ export function ConfigPanel() {
         {/* Styles Section */}
         <div className="p-4 pb-0">
           <StylesPicker />
+        </div>
+
+        {/* Package Manager */}
+        <div className="p-4 pb-0">
+          <PackageManagerPicker />
         </div>
 
         {/* Feature Picker */}
@@ -184,11 +216,7 @@ function IntegrationSearch() {
   )
 }
 
-const PACKAGE_MANAGERS = ['pnpm', 'npm', 'yarn', 'bun'] as const
-
 function CliOptionsInline() {
-  const packageManager = useBuilderStore((s) => s.packageManager)
-  const setPackageManager = useBuilderStore((s) => s.setPackageManager)
   const skipInstall = useBuilderStore((s) => s.skipInstall)
   const setSkipInstall = useBuilderStore((s) => s.setSkipInstall)
   const skipGit = useBuilderStore((s) => s.skipGit)
@@ -196,20 +224,6 @@ function CliOptionsInline() {
 
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-gray-600 dark:text-gray-400">
-      <select
-        value={packageManager}
-        onChange={(e) =>
-          setPackageManager(e.target.value as (typeof PACKAGE_MANAGERS)[number])
-        }
-        className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 dark:focus:ring-cyan-500"
-      >
-        {PACKAGE_MANAGERS.map((pm) => (
-          <option key={pm} value={pm}>
-            {pm}
-          </option>
-        ))}
-      </select>
-
       <label className="flex items-center gap-1.5 cursor-pointer">
         <input
           type="checkbox"
@@ -364,6 +378,43 @@ function StylesPicker() {
           {tailwind && <Check className="w-3 h-3 text-white" />}
         </div>
       </button>
+    </div>
+  )
+}
+
+const PACKAGE_MANAGERS = ['pnpm', 'npm', 'yarn', 'bun'] as const
+
+function PackageManagerPicker() {
+  const packageManager = useBuilderStore((s) => s.packageManager)
+  const setPackageManager = useBuilderStore((s) => s.setPackageManager)
+
+  return (
+    <div>
+      <h3 className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-1">
+        Package Manager
+      </h3>
+      <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+        CLI tool for dependencies
+      </p>
+      <div className="flex gap-1">
+        {PACKAGE_MANAGERS.map((pm) => {
+          const isSelected = packageManager === pm
+          return (
+            <button
+              key={pm}
+              onClick={() => setPackageManager(pm)}
+              className={twMerge(
+                'flex-1 px-2 py-1.5 text-xs font-medium rounded-md border-2 transition-all',
+                isSelected
+                  ? 'bg-blue-50 dark:bg-cyan-950 border-blue-500 dark:border-cyan-500 text-blue-700 dark:text-cyan-300'
+                  : 'bg-white dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600',
+              )}
+            >
+              {pm}
+            </button>
+          )
+        })}
+      </div>
     </div>
   )
 }

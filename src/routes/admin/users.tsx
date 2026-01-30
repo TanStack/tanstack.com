@@ -64,7 +64,7 @@ type User = {
   updatedAt: number
 }
 
-type UsersSearch = {
+type _UsersSearch = {
   email?: string
   name?: string
   cap?: string | string[]
@@ -232,6 +232,7 @@ function UsersPage() {
       search: {
         page: 0,
         pageSize: search.pageSize,
+        useEffectiveCapabilities,
       },
     })
   }
@@ -248,7 +249,7 @@ function UsersPage() {
     }) => {
       navigate({
         resetScroll: false,
-        search: (prev: UsersSearch) => ({
+        search: (prev) => ({
           ...prev,
           email: 'email' in newFilters ? newFilters.email : prev.email,
           name: 'name' in newFilters ? newFilters.name : prev.name,
@@ -263,7 +264,7 @@ function UsersPage() {
             'waitlist' in newFilters ? newFilters.waitlist : prev.waitlist,
           useEffectiveCapabilities:
             'useEffectiveCapabilities' in newFilters
-              ? newFilters.useEffectiveCapabilities
+              ? newFilters.useEffectiveCapabilities!
               : prev.useEffectiveCapabilities,
           page: 0,
         }),
@@ -283,6 +284,7 @@ function UsersPage() {
       },
       emailFilter: emailFilter || undefined,
       nameFilter: nameFilter || undefined,
+      // @ts-expect-error not sure how to type this
       capabilityFilter:
         capabilityFilters.length > 0 ? capabilityFilters : undefined,
       noCapabilitiesFilter: noCapabilitiesFilter || undefined,
@@ -477,7 +479,7 @@ function UsersPage() {
         // New column: apply default direction
         navigate({
           resetScroll: false,
-          search: (prev: UsersSearch) => ({
+          search: (prev) => ({
             ...prev,
             sortBy: columnId,
             sortDir: sortDescFirst ? 'desc' : 'asc',
@@ -488,7 +490,7 @@ function UsersPage() {
         // First click was default, flip to opposite
         navigate({
           resetScroll: false,
-          search: (prev: UsersSearch) => ({
+          search: (prev) => ({
             ...prev,
             sortDir: sortDescFirst ? 'asc' : 'desc',
             page: 0,
@@ -498,7 +500,7 @@ function UsersPage() {
         // Third click: clear sort
         navigate({
           resetScroll: false,
-          search: (prev: UsersSearch) => ({
+          search: (prev) => ({
             ...prev,
             sortBy: undefined,
             sortDir: undefined,
@@ -550,6 +552,7 @@ function UsersPage() {
               params={{ userId: userData._id }}
               className="flex items-center gap-3 hover:opacity-80"
               onClick={(e) => e.stopPropagation()}
+              search={{ useEffectiveCapabilities }}
             >
               <UserAvatar
                 image={userData.image}
@@ -734,6 +737,7 @@ function UsersPage() {
       usersQuery,
       bulkUserRoles,
       bulkEffectiveCapabilities,
+      useEffectiveCapabilities,
     ],
   )
 
@@ -950,13 +954,13 @@ function UsersPage() {
               onPageChange={(page) => {
                 navigate({
                   resetScroll: false,
-                  search: (prev: UsersSearch) => ({ ...prev, page }),
+                  search: (prev) => ({ ...prev, page }),
                 })
               }}
               onPageSizeChange={(newPageSize) => {
                 navigate({
                   resetScroll: false,
-                  search: (prev: UsersSearch) => ({
+                  search: (prev) => ({
                     ...prev,
                     pageSize: newPageSize,
                     page: 0,

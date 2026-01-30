@@ -65,7 +65,12 @@ function BannerEditorPage() {
           <h1 className="text-2xl font-bold mb-2">Banner Not Found</h1>
           <Button
             className="mt-4"
-            onClick={() => navigate({ to: '/admin/banners' })}
+            onClick={() =>
+              navigate({
+                to: '/admin/banners',
+                search: { includeInactive: true },
+              })
+            }
           >
             Back to Banners
           </Button>
@@ -79,8 +84,18 @@ function BannerEditorPage() {
       <div className="max-w-6xl mx-auto">
         <BannerEditor
           banner={isNew ? null : (bannerQuery.data as BannerWithMeta)}
-          onSave={() => navigate({ to: '/admin/banners' })}
-          onCancel={() => navigate({ to: '/admin/banners' })}
+          onSave={() =>
+            navigate({
+              to: '/admin/banners',
+              search: { includeInactive: true },
+            })
+          }
+          onCancel={() =>
+            navigate({
+              to: '/admin/banners',
+              search: { includeInactive: true },
+            })
+          }
         />
       </div>
     </div>

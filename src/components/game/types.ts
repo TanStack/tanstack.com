@@ -3,7 +3,8 @@
  * Extracted to break circular dependencies
  */
 
-import type { IslandData } from './utils/islandGenerator'
+// IslandData type is referenced in other game components
+import type { IslandData as _IslandData } from './utils/islandGenerator'
 
 export interface RockCollider {
   position: [number, number]

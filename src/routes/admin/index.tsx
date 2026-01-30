@@ -480,7 +480,10 @@ function UsersTab({
               View and manage individual user accounts, roles, and capabilities.
             </p>
           </div>
-          <Link to="/admin/users">
+          <Link
+            to="/admin/users"
+            search={{ page: 0, pageSize: 10, useEffectiveCapabilities: true }}
+          >
             <Button>Manage Users</Button>
           </Link>
         </div>

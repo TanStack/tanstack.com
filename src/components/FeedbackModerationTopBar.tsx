@@ -1,4 +1,4 @@
-import { libraries } from '~/libraries'
+import { libraries, type LibraryId } from '~/libraries'
 import { DOC_FEEDBACK_STATUSES, type DocFeedbackStatus } from '~/db/types'
 import {
   TopBarFilter,
@@ -13,14 +13,14 @@ import { FormInput } from '~/ui'
 interface FeedbackModerationTopBarProps {
   filters: {
     status?: DocFeedbackStatus[]
-    libraryId?: string
+    libraryId?: LibraryId
     isDetached?: boolean
     dateFrom?: string
     dateTo?: string
   }
   onFilterChange: (filters: {
     status?: DocFeedbackStatus[]
-    libraryId?: string
+    libraryId?: LibraryId
     isDetached?: boolean
     dateFrom?: string
     dateTo?: string
@@ -63,7 +63,7 @@ export function FeedbackModerationTopBar({
     filters.dateTo,
   )
 
-  const getLibraryName = (id: string) =>
+  const getLibraryName = (id: LibraryId) =>
     libraries.find((l) => l.id === id)?.name || id
 
   const formatDateRange = () => {
@@ -130,7 +130,11 @@ export function FeedbackModerationTopBar({
           <select
             value={filters.libraryId || ''}
             onChange={(e) =>
-              onFilterChange({ libraryId: e.target.value || undefined })
+              onFilterChange({
+                libraryId: (e.target.value || undefined) as
+                  | LibraryId
+                  | undefined,
+              })
             }
             className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
           >

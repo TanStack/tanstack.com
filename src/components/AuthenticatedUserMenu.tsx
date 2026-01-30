@@ -80,7 +80,11 @@ export function AuthenticatedUserMenu({
         )}
         {canAdmin && (
           <DropdownItem asChild>
-            <Link to="/admin" className="flex items-center gap-2">
+            <Link
+              to="/admin"
+              search={{ tab: 'overview' }}
+              className="flex items-center gap-2"
+            >
               <Lock className="w-4 h-4" />
               <span>Admin</span>
             </Link>

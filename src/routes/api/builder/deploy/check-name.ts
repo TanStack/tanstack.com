@@ -4,7 +4,6 @@ import { getGitHubAuthState } from '~/auth/github.server'
 import { checkRepoNameAvailable } from '~/utils/github-repo.server'
 
 export const Route = createFileRoute('/api/builder/deploy/check-name' as any)({
-  // @ts-expect-error server property not in route types yet
   server: {
     handlers: {
       GET: async ({ request }: { request: Request }) => {

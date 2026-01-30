@@ -20,9 +20,8 @@ export default function DbLanding() {
         project={dbProject}
         cta={{
           linkProps: {
-            from: '/$libraryId/$version',
-            to: './docs',
-            params: { libraryId: library.id },
+            to: '/$libraryId/$version/docs',
+            params: { libraryId: library.id, version: 'latest' },
           },
           label: 'Get Started',
           className:
@@ -80,9 +79,8 @@ export default function DbLanding() {
 
       <BottomCTA
         linkProps={{
-          from: '/$libraryId/$version',
-          to: './docs',
-          params: { libraryId: library.id },
+          to: '/$libraryId/$version/docs',
+          params: { libraryId: library.id, version: 'latest' },
         }}
         label="Get Started!"
         className="bg-orange-500 border-orange-500 hover:bg-orange-600 text-white"

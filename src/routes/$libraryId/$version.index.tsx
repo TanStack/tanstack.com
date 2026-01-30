@@ -11,6 +11,7 @@ import type { LibraryId } from '~/libraries'
 import { seo } from '~/utils/seo'
 import { ossStatsQuery } from '~/queries/stats'
 import { Button } from '~/ui'
+import type { ConfigSchema } from '~/utils/config'
 
 // Lazy-loaded landing components for each library
 const landingComponents: Partial<
@@ -54,11 +55,14 @@ export const Route = createFileRoute('/$libraryId/$version/')({
         params: { libraryId, version } as never,
       })
     }
+    return undefined as never
   },
-  loader: async ({ params, context: { queryClient } }) => {
-    const { libraryId } = params
+  // @ts-expect-error - TanStack Router type inference issue: child route loader return type
+  loader: async (ctx) => {
+    const { libraryId } = ctx.params
     const library = getLibrary(libraryId)
-    await queryClient.ensureQueryData(ossStatsQuery({ library }))
+    await ctx.context.queryClient.ensureQueryData(ossStatsQuery({ library }))
+    // This route prefetches data for rendering but doesn't return loader data
   },
   component: LibraryVersionIndex,
 })
@@ -67,7 +71,7 @@ function LibraryVersionIndex() {
   const { libraryId, version } = Route.useParams()
   const library = getLibrary(libraryId)
   const versionMatch = useMatch({ from: '/$libraryId/$version' })
-  const { config } = versionMatch.loaderData
+  const { config } = versionMatch.loaderData as { config: ConfigSchema }
 
   const LandingComponent = landingComponents[libraryId as LibraryId]
 

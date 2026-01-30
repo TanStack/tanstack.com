@@ -30,19 +30,18 @@ interface DeployError {
   success: false
   error: string
   code:
-    | 'NOT_AUTHENTICATED'
-    | 'NO_GITHUB_ACCOUNT'
-    | 'MISSING_REPO_SCOPE'
-    | 'INVALID_REPO_NAME'
-    | 'REPO_NAME_TAKEN'
-    | 'REPO_CREATION_FAILED'
-    | 'PUSH_FAILED'
-    | 'COMPILE_FAILED'
-    | 'INVALID_REQUEST'
+  | 'NOT_AUTHENTICATED'
+  | 'NO_GITHUB_ACCOUNT'
+  | 'MISSING_REPO_SCOPE'
+  | 'INVALID_REPO_NAME'
+  | 'REPO_NAME_TAKEN'
+  | 'REPO_CREATION_FAILED'
+  | 'PUSH_FAILED'
+  | 'COMPILE_FAILED'
+  | 'INVALID_REQUEST'
 }
 
 export const Route = createFileRoute('/api/builder/deploy/github')({
-  // @ts-expect-error server property not in route types yet
   server: {
     handlers: {
       /**

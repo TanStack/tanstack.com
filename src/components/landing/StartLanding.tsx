@@ -129,9 +129,8 @@ export default function StartLanding() {
 
       <BottomCTA
         linkProps={{
-          from: '/$libraryId/$version',
-          to: './docs',
-          params: { libraryId: library.id },
+          to: '/$libraryId/$version/docs',
+          params: { libraryId: library.id, version: 'latest' },
         }}
         label="Get Started!"
         className="bg-cyan-500 border-cyan-500 hover:bg-cyan-600 text-white"

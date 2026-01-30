@@ -102,7 +102,7 @@ function ShowcaseDetailPage() {
     mutationFn: () => adminDeleteShowcase({ data: { showcaseId: id } }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'showcases'] })
-      navigate({ to: '/admin/showcases' })
+      navigate({ to: '/admin/showcases', search: { page: 0, pageSize: 10 } })
     },
   })
 
@@ -199,6 +199,7 @@ function ShowcaseDetailPage() {
             </p>
             <Link
               to="/admin/showcases"
+              search={{ page: 0, pageSize: 10 }}
               className="mt-4 inline-flex items-center gap-2 text-blue-600 hover:text-blue-700"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -247,6 +248,7 @@ function ShowcaseDetailPage() {
           <div className="flex items-center justify-between mb-4">
             <Link
               to="/admin/showcases"
+              search={{ page: 0, pageSize: 10 }}
               className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -631,6 +633,11 @@ function ShowcaseDetailPage() {
             {user ? (
               <Link
                 to="/admin/users/$userId"
+                search={{
+                  page: 0,
+                  pageSize: 10,
+                  useEffectiveCapabilities: true,
+                }}
                 params={{ userId: user.id }}
                 className="flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-800 p-2 rounded-lg -m-2"
               >

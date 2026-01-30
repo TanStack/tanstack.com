@@ -20,9 +20,8 @@ export default function StoreLanding() {
         project={storeProject}
         cta={{
           linkProps: {
-            from: '/$libraryId/$version',
-            to: './docs',
-            params: { libraryId: library.id },
+            to: '/$libraryId/$version/docs',
+            params: { libraryId: library.id, version: 'latest' },
           },
           label: 'Get Started',
           className:
@@ -43,9 +42,8 @@ export default function StoreLanding() {
 
       <BottomCTA
         linkProps={{
-          from: '/$libraryId/$version',
-          to: './docs',
-          params: { libraryId: library.id },
+          to: '/$libraryId/$version/docs',
+          params: { libraryId: library.id, version: 'latest' },
         }}
         label="Get Started!"
         className="bg-stone-700 border-stone-700 hover:bg-stone-800 text-white"

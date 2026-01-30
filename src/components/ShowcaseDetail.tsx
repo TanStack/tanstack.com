@@ -203,6 +203,7 @@ export function ShowcaseDetail({ showcaseId }: ShowcaseDetailProps) {
           </p>
           <Link
             to="/showcase"
+            search={{ page: 1 }}
             className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -225,6 +226,7 @@ export function ShowcaseDetail({ showcaseId }: ShowcaseDetailProps) {
         {/* Back link */}
         <Link
           to="/showcase"
+          search={{ page: 1 }}
           className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-6"
         >
           <ArrowLeft className="w-4 h-4" />

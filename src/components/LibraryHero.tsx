@@ -1,13 +1,15 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
-import { Link, LinkProps } from '@tanstack/react-router'
-import type { Library } from '~/libraries'
-import { Button } from '~/ui'
+import { Link } from '@tanstack/react-router'
+import type { Library, LibraryId } from '~/libraries'
 
 type LibraryHeroProps = {
   project: Library
   cta?: {
-    linkProps: LinkProps
+    linkProps: {
+      to: '/$libraryId/$version/docs'
+      params: { libraryId: LibraryId; version?: string }
+    }
     label: string
     className?: string
   }
@@ -54,13 +56,19 @@ export function LibraryHero({ project, cta, actions }: LibraryHeroProps) {
       {actions ? (
         <div className="flex flex-wrap gap-2 justify-center">{actions}</div>
       ) : cta ? (
-        <Button
-          as={Link}
-          {...cta.linkProps}
-          className={twMerge('py-2 px-4 text-sm', cta.className)}
+        <Link
+          to={cta.linkProps.to}
+          params={{
+            ...cta.linkProps.params,
+            version: cta.linkProps.params.version ?? 'latest',
+          }}
+          className={twMerge(
+            'inline-flex items-center justify-center gap-2 cursor-pointer transition-colors py-2 px-4 text-sm rounded-lg border font-medium bg-blue-600 text-white border-blue-600 hover:bg-blue-700',
+            cta.className,
+          )}
         >
           {cta.label}
-        </Button>
+        </Link>
       ) : null}
     </div>
   )

@@ -4,7 +4,6 @@ import { env } from '~/utils/env'
 
 export const Route = createFileRoute('/.well-known/oauth-authorization-server')(
   {
-    // @ts-expect-error server property not in route types yet
     server: {
       handlers: {
         GET: async ({ request }: { request: Request }) => {

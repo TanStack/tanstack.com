@@ -9,7 +9,6 @@ import type { Library } from '~/libraries'
 import { partners, partnerCategoryLabels } from '~/utils/partners'
 
 export const Route = createFileRoute('/llms.txt')({
-  // @ts-expect-error server property not in route types yet
   server: {
     handlers: {
       GET: async () => {

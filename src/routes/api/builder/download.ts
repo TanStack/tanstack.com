@@ -12,7 +12,6 @@ function decodeBase64File(content: string): Buffer | null {
 }
 
 export const Route = createFileRoute('/api/builder/download')({
-  // @ts-expect-error server property not in route types yet
   server: {
     handlers: {
       GET: async ({ request }: { request: Request }) => {

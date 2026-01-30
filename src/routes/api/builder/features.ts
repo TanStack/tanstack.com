@@ -2,7 +2,6 @@ import { createFileRoute } from '@tanstack/react-router'
 import { getFeaturesHandler, type FrameworkId } from '~/builder/api'
 
 export const Route = createFileRoute('/api/builder/features')({
-  // @ts-expect-error server property not in route types yet
   server: {
     handlers: {
       GET: async ({ request }: { request: Request }) => {

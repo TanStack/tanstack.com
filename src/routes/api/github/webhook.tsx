@@ -18,7 +18,6 @@ function verifyGitHubSignature(
 }
 
 export const Route = createFileRoute('/api/github/webhook')({
-  // @ts-expect-error server property not in route types yet
   server: {
     handlers: {
       POST: async ({ request }: { request: Request }) => {

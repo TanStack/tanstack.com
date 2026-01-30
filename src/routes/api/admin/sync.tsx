@@ -4,7 +4,6 @@ import { getAuthenticatedUser } from '~/utils/auth.server-helpers'
 import { getEffectiveCapabilities } from '~/utils/capabilities.server'
 
 export const Route = createFileRoute('/api/admin/sync')({
-  // @ts-expect-error server property not in route types yet
   server: {
     handlers: {
       POST: async () => {
@@ -12,7 +11,7 @@ export const Route = createFileRoute('/api/admin/sync')({
           // Require admin capability
           const user = await getAuthenticatedUser()
           const capabilities = await getEffectiveCapabilities(user.userId)
-          
+
           if (!capabilities.includes('admin')) {
             return new Response(
               JSON.stringify({ error: 'Admin capability required' }),
@@ -24,18 +23,18 @@ export const Route = createFileRoute('/api/admin/sync')({
           }
 
           console.log('[admin/sync] Starting sync all sources...')
-          
+
           const result = await syncAllSources()
-          
+
           console.log('[admin/sync] Sync completed:', result)
-          
+
           return new Response(JSON.stringify(result), {
             status: 200,
             headers: { 'Content-Type': 'application/json' },
           })
         } catch (error) {
           console.error('[admin/sync] Error:', error)
-          
+
           return new Response(
             JSON.stringify({
               success: false,

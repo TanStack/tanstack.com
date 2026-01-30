@@ -42,13 +42,13 @@ export function GamOnPageChange() {
       try {
         window.fusetag.pageInit()
       } catch (error) {
-        // Suppress cross-origin errors from Publift Fuse ad viewability measurement
+        // Suppress cross-origin errors from ad network scripts (Publift Fuse, Adform, etc.)
         // These can occur on iOS Safari due to strict Same-Origin Policy enforcement
         console.debug('Error during fusetag.pageInit():', error)
       }
     })
   } catch (error) {
-    // Suppress cross-origin errors from Publift Fuse ad viewability measurement
+    // Suppress cross-origin errors from ad network scripts
     console.debug('Error calling fusetag.que.push():', error)
   }
 }
@@ -58,20 +58,21 @@ export const GamScripts = () => (
     <script
       dangerouslySetInnerHTML={{
         __html: `
-  // Add global error handler to suppress Publift Fuse cross-origin errors
+  // Add global error handler to suppress ad network cross-origin errors
   // These errors occur in iOS Safari due to strict Same-Origin Policy enforcement
-  // when the ad viewability script tries to access parent window properties
+  // when ad scripts (Publift Fuse, Adform, NoBid) try to access parent window properties
   // Also suppress race condition errors during navigation
   (function() {
     var originalErrorHandler = window.onerror;
     window.onerror = function(message, source, lineno, colno, error) {
-      // Check if this is a Publift Fuse cross-origin error
+      // Check if this is an ad network cross-origin error
       if (
         source && (
           source.includes('/media/native/') ||
           source.includes('fuse.js') ||
           source.includes('fuseplatform.net') ||
-          source.includes('/nobid/blocking_script.js')
+          source.includes('/nobid/blocking_script.js') ||
+          source.includes('adform.net')
         ) && (
           (message && typeof message === 'string' && (
             message.includes('contextWindow.parent') ||
@@ -86,7 +87,7 @@ export const GamScripts = () => (
         )
       ) {
         // Suppress the error - log to console in debug mode
-        console.debug('Suppressed Publift Fuse cross-origin error:', message, source);
+        console.debug('Suppressed ad network cross-origin error:', message, source);
         return true; // Prevent default error handling
       }
       // Call original error handler for other errors
@@ -103,7 +104,7 @@ export const GamScripts = () => (
       async
       src="https://cdn.fuseplatform.net/publift/tags/2/4019/fuse.js"
       onError={(e) => {
-        // Suppress script loading errors from Publift Fuse
+        // Suppress script loading errors from ad network scripts
         console.debug('Error loading fuse.js:', e)
       }}
     />

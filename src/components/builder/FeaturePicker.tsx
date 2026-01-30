@@ -36,6 +36,7 @@ type FeatureCategory =
   | 'auth'
   | 'deploy'
   | 'tooling'
+  | 'analytics'
   | 'monitoring'
   | 'api'
   | 'i18n'
@@ -91,6 +92,11 @@ const CATEGORY_INFO: Record<
     description: 'Development tools, linting, and utilities',
     color: '#F472B6', // Pink-400
   },
+  analytics: {
+    label: 'Analytics',
+    description: 'Analytics and user behavior tracking',
+    color: '#00bcff', // Sky-400
+  },
   api: {
     label: 'API',
     description: 'Type-safe APIs and RPC frameworks',
@@ -118,6 +124,7 @@ const CATEGORY_ORDER: Array<FeatureCategory> = [
   'api',
   'i18n',
   'cms',
+  'analytics',
   'tooling',
   'other',
 ]

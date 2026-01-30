@@ -286,6 +286,8 @@ Directives should be rare, stable, standardized and especially used judiciously 
 
 It’s tempting to compare criticism of directives to the early skepticism around React’s JSX or the virtual DOM. The failure modes are different. JSX and the VDOM did not masquerade as language features; they came with explicit imports, provenance, and tooling boundaries. Directives, by contrast, live at the top-level of files and look like the platform, which creates ecosystem expectations and tooling burdens without a shared spec.
 
+There was pushback then that JSX wasn’t “real” syntax or couldn’t be made type‑safe. In practice, it was not only possible but natural to make JSX/React type‑safe and have it behave like valid syntax, while still preserving clear library boundaries via imports.
+
 ---
 
 ### The bottom line

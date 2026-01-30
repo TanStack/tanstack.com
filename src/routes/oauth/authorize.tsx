@@ -9,23 +9,23 @@ import { Button } from '~/ui'
 import { BrandContextMenu } from '~/components/BrandContextMenu'
 
 /**
- * Validate redirect URI - must be localhost or HTTPS
+ * Validate redirect URI - block only HTTP to non-localhost
+ * Allows: HTTPS, localhost (any protocol), custom schemes (cursor://, vscode://, etc.)
  * Inlined here to avoid pulling in server-only dependencies
  */
 function validateRedirectUri(uri: string): boolean {
   try {
     const url = new URL(uri)
-    if (
-      url.hostname === 'localhost' ||
-      url.hostname === '127.0.0.1' ||
-      url.hostname === '[::1]'
-    ) {
-      return true
+    // Block only HTTP to non-localhost
+    if (url.protocol === 'http:') {
+      return (
+        url.hostname === 'localhost' ||
+        url.hostname === '127.0.0.1' ||
+        url.hostname === '[::1]'
+      )
     }
-    if (url.protocol === 'https:') {
-      return true
-    }
-    return false
+    // Allow everything else: HTTPS, custom schemes
+    return true
   } catch {
     return false
   }
@@ -84,7 +84,7 @@ export const Route = createFileRoute('/oauth/authorize')({
     if (!validateRedirectUri(deps.redirect_uri)) {
       return {
         error: 'invalid_request',
-        errorDescription: 'redirect_uri must be localhost or HTTPS',
+        errorDescription: 'HTTP redirect URIs are only allowed for localhost',
       }
     }
 

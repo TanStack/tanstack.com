@@ -8,7 +8,7 @@ const builderSearchSchema = z
   .object({
     name: z.string().optional(),
     features: z.string().optional(), // comma-separated feature IDs
-    tab: z.enum(['files', 'addons']).optional(),
+    tab: z.enum(['files', 'addons', 'preview']).optional(),
     file: z.string().optional(), // selected file in files tab
     addon: z.string().optional(), // selected addon in addons tab
     addonFile: z.string().optional(), // selected file in addon view

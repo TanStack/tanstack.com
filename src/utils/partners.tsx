@@ -830,7 +830,8 @@ const powerSync = (() => {
 })()
 
 const railway = (() => {
-  const href = 'https://railway.com?utm_source=tanstack'
+  const href =
+    'https://railway.com/?utm_medium=sponsor&utm_source=oss&utm_campaign=tanstack'
 
   return {
     name: 'Railway',
@@ -870,7 +871,6 @@ export const partners: Partner[] = [
   codeRabbit,
   cloudflare,
   agGrid,
-  railway,
   netlify,
   neon,
   workos,
@@ -879,6 +879,7 @@ export const partners: Partner[] = [
   electric,
   powerSync,
   sentry,
+  railway,
   prisma,
   strapi,
   unkey,

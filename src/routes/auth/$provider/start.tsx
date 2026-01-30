@@ -46,6 +46,10 @@ export const Route = createFileRoute('/auth/$provider/start')({
           ? createOAuthReturnToCookie(returnTo, isProduction)
           : null
 
+        if (returnTo) {
+          console.log(`[AUTH:INFO] Setting returnTo cookie for: ${returnTo}`)
+        }
+
         // Build OAuth URL based on provider
         const origin = env.SITE_URL || new URL(request.url).origin
         const redirectUri = `${origin}/api/auth/callback/${provider}`

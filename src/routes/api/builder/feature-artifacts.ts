@@ -8,9 +8,10 @@ export const Route = createFileRoute('/api/builder/feature-artifacts')({
       POST: async ({ request }: { request: Request }) => {
         try {
           const body = await request.json()
-          const { features, projectName, featureOptions, tailwind, customIntegrations } = body as {
+          const { features, projectName, framework, featureOptions, tailwind, customIntegrations } = body as {
             features: Array<string>
             projectName?: string
+            framework?: 'react-cra' | 'solid'
             featureOptions?: Record<string, Record<string, unknown>>
             tailwind?: boolean
             customIntegrations?: Array<unknown>
@@ -29,6 +30,7 @@ export const Route = createFileRoute('/api/builder/feature-artifacts')({
           const response = await featureArtifactsHandler({
             features,
             projectName,
+            framework,
             featureOptions,
             tailwind,
             customIntegrations: customIntegrations as Parameters<typeof featureArtifactsHandler>[0]['customIntegrations'],

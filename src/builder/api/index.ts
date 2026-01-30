@@ -3,7 +3,6 @@ export {
   type FeaturesResponse,
   type FeatureInfo,
   type FeatureOption,
-  type TemplateInfo,
 } from './features'
 
 export {
@@ -13,6 +12,9 @@ export {
   type CompileRequest,
   type CompileResponse,
   type CompileHandlerOptions,
+  type AttributedCompileOutput,
+  type AttributedFile,
+  type LineAttribution,
 } from './compile'
 
 export {
@@ -43,10 +45,8 @@ export {
   type RemoteTemplateResponse,
 } from './remote'
 
-export type {
-  AttributedCompileOutput,
-  IntegrationCompiled,
-  CustomTemplateCompiled,
-} from '@tanstack/cli'
+export type { AddOnCompiled as IntegrationCompiled, StarterCompiled as CustomTemplateCompiled } from './compile'
 
 export type FeatureId = string
+
+export { type FrameworkId, FRAMEWORKS } from './config'

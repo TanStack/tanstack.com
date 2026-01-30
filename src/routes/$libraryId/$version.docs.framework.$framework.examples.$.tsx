@@ -274,7 +274,7 @@ function PageComponent() {
                 className="hover:opacity-80 transition-opacity"
               >
                 <img
-                  src="https://railway.com/button.svg"
+                  src="https://railway.com/button.svg?utm_medium=sponsor&utm_source=oss&utm_campaign=tanstack"
                   loading="lazy"
                   alt="Deploy on Railway"
                 />

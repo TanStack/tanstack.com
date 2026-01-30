@@ -4,7 +4,7 @@
  * New builder implementation using the internal builder engine API.
  */
 
-export { BuilderProvider, useBuilderContext } from './BuilderProvider'
+export { BuilderProvider } from './BuilderProvider'
 export { BuilderLayout } from './BuilderLayout'
 export { ConfigPanel } from './ConfigPanel'
 export { ExplorerPanel } from './ExplorerPanel'

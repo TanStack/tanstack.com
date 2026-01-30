@@ -87,6 +87,7 @@ import { Route as ApiDataPartnersRouteImport } from './routes/api/data/partners'
 import { Route as ApiDataLibrariesRouteImport } from './routes/api/data/libraries'
 import { Route as ApiBuilderValidateRouteImport } from './routes/api/builder/validate'
 import { Route as ApiBuilderSuggestRouteImport } from './routes/api/builder/suggest'
+import { Route as ApiBuilderLoadTemplateRouteImport } from './routes/api/builder/load-template'
 import { Route as ApiBuilderLoadRemoteTemplateRouteImport } from './routes/api/builder/load-remote-template'
 import { Route as ApiBuilderLoadRemoteAddonRouteImport } from './routes/api/builder/load-remote-addon'
 import { Route as ApiBuilderFeaturesRouteImport } from './routes/api/builder/features'
@@ -508,6 +509,11 @@ const ApiBuilderSuggestRoute = ApiBuilderSuggestRouteImport.update({
   path: '/api/builder/suggest',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiBuilderLoadTemplateRoute = ApiBuilderLoadTemplateRouteImport.update({
+  id: '/api/builder/load-template',
+  path: '/api/builder/load-template',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiBuilderLoadRemoteTemplateRoute =
   ApiBuilderLoadRemoteTemplateRouteImport.update({
     id: '/api/builder/load-remote-template',
@@ -744,6 +750,7 @@ export interface FileRoutesByFullPath {
   '/api/builder/features': typeof ApiBuilderFeaturesRoute
   '/api/builder/load-remote-addon': typeof ApiBuilderLoadRemoteAddonRoute
   '/api/builder/load-remote-template': typeof ApiBuilderLoadRemoteTemplateRoute
+  '/api/builder/load-template': typeof ApiBuilderLoadTemplateRoute
   '/api/builder/suggest': typeof ApiBuilderSuggestRoute
   '/api/builder/validate': typeof ApiBuilderValidateRoute
   '/api/data/libraries': typeof ApiDataLibrariesRoute
@@ -846,6 +853,7 @@ export interface FileRoutesByTo {
   '/api/builder/features': typeof ApiBuilderFeaturesRoute
   '/api/builder/load-remote-addon': typeof ApiBuilderLoadRemoteAddonRoute
   '/api/builder/load-remote-template': typeof ApiBuilderLoadRemoteTemplateRoute
+  '/api/builder/load-template': typeof ApiBuilderLoadTemplateRoute
   '/api/builder/suggest': typeof ApiBuilderSuggestRoute
   '/api/builder/validate': typeof ApiBuilderValidateRoute
   '/api/data/libraries': typeof ApiDataLibrariesRoute
@@ -956,6 +964,7 @@ export interface FileRoutesById {
   '/api/builder/features': typeof ApiBuilderFeaturesRoute
   '/api/builder/load-remote-addon': typeof ApiBuilderLoadRemoteAddonRoute
   '/api/builder/load-remote-template': typeof ApiBuilderLoadRemoteTemplateRoute
+  '/api/builder/load-template': typeof ApiBuilderLoadTemplateRoute
   '/api/builder/suggest': typeof ApiBuilderSuggestRoute
   '/api/builder/validate': typeof ApiBuilderValidateRoute
   '/api/data/libraries': typeof ApiDataLibrariesRoute
@@ -1067,6 +1076,7 @@ export interface FileRouteTypes {
     | '/api/builder/features'
     | '/api/builder/load-remote-addon'
     | '/api/builder/load-remote-template'
+    | '/api/builder/load-template'
     | '/api/builder/suggest'
     | '/api/builder/validate'
     | '/api/data/libraries'
@@ -1169,6 +1179,7 @@ export interface FileRouteTypes {
     | '/api/builder/features'
     | '/api/builder/load-remote-addon'
     | '/api/builder/load-remote-template'
+    | '/api/builder/load-template'
     | '/api/builder/suggest'
     | '/api/builder/validate'
     | '/api/data/libraries'
@@ -1278,6 +1289,7 @@ export interface FileRouteTypes {
     | '/api/builder/features'
     | '/api/builder/load-remote-addon'
     | '/api/builder/load-remote-template'
+    | '/api/builder/load-template'
     | '/api/builder/suggest'
     | '/api/builder/validate'
     | '/api/data/libraries'
@@ -1364,6 +1376,7 @@ export interface RootRouteChildren {
   ApiBuilderFeaturesRoute: typeof ApiBuilderFeaturesRoute
   ApiBuilderLoadRemoteAddonRoute: typeof ApiBuilderLoadRemoteAddonRoute
   ApiBuilderLoadRemoteTemplateRoute: typeof ApiBuilderLoadRemoteTemplateRoute
+  ApiBuilderLoadTemplateRoute: typeof ApiBuilderLoadTemplateRoute
   ApiBuilderSuggestRoute: typeof ApiBuilderSuggestRoute
   ApiBuilderValidateRoute: typeof ApiBuilderValidateRoute
   ApiDataLibrariesRoute: typeof ApiDataLibrariesRoute
@@ -1930,6 +1943,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiBuilderSuggestRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/builder/load-template': {
+      id: '/api/builder/load-template'
+      path: '/api/builder/load-template'
+      fullPath: '/api/builder/load-template'
+      preLoaderRoute: typeof ApiBuilderLoadTemplateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/builder/load-remote-template': {
       id: '/api/builder/load-remote-template'
       path: '/api/builder/load-remote-template'
@@ -2352,6 +2372,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiBuilderFeaturesRoute: ApiBuilderFeaturesRoute,
   ApiBuilderLoadRemoteAddonRoute: ApiBuilderLoadRemoteAddonRoute,
   ApiBuilderLoadRemoteTemplateRoute: ApiBuilderLoadRemoteTemplateRoute,
+  ApiBuilderLoadTemplateRoute: ApiBuilderLoadTemplateRoute,
   ApiBuilderSuggestRoute: ApiBuilderSuggestRoute,
   ApiBuilderValidateRoute: ApiBuilderValidateRoute,
   ApiDataLibrariesRoute: ApiDataLibrariesRoute,

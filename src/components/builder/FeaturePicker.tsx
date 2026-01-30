@@ -10,12 +10,14 @@
 
 import { useState, useMemo } from 'react'
 import { twMerge } from 'tailwind-merge'
-import { Star, ExternalLink, ChevronDown } from 'lucide-react'
+import { Star, ExternalLink, ChevronDown, Sparkles, X } from 'lucide-react'
 import { matchSorter } from 'match-sorter'
 import {
   useBuilderStore,
   useFeatureState,
   useAvailableFeatures,
+  useAvailableExamples,
+  useSelectedExample,
   useIntegrationSearch,
 } from './store'
 import { partners } from '~/utils/partners'
@@ -26,7 +28,6 @@ import {
   CollapsibleContent,
 } from '~/components/Collapsible'
 import type { FeatureId, FeatureInfo } from '~/builder/api'
-import { CustomAddonButton } from './CustomAddonDialog'
 
 type FeatureCategory =
   | 'tanstack'
@@ -186,6 +187,9 @@ export function FeaturePicker() {
 
   return (
     <div className="p-4 space-y-2">
+      {/* Example Picker */}
+      {!isSearching && <ExamplePicker />}
+
       {/* Featured section */}
       {partnerFeatures.length > 0 && !isSearching && (
         <FeatureSection
@@ -222,9 +226,6 @@ export function FeaturePicker() {
           No add-ons found for "{search}"
         </div>
       )}
-
-      {/* Custom addon import */}
-      <CustomAddonButton />
     </div>
   )
 }
@@ -314,8 +315,8 @@ function FeatureCard({ feature, categoryColor }: FeatureCardProps) {
       ? `Replaces ${getFeatureInfo(exclusiveConflict)?.name ?? exclusiveConflict}`
       : null
 
-  // Use feature color for the dot, but category color for selected state
-  const dotColor = feature.color ?? categoryColor
+  // Use feature color for the dot and selected state
+  const featureColor = feature.color ?? categoryColor
 
   const cardContent = (
     <button
@@ -332,8 +333,8 @@ function FeatureCard({ feature, categoryColor }: FeatureCardProps) {
       style={
         selected
           ? {
-              borderColor: categoryColor,
-              backgroundColor: `${categoryColor}15`,
+              borderColor: featureColor,
+              backgroundColor: `${featureColor}15`,
             }
           : undefined
       }
@@ -344,7 +345,7 @@ function FeatureCard({ feature, categoryColor }: FeatureCardProps) {
           'w-3 h-3 shrink-0 rounded-full',
           !enabled && 'opacity-50',
         )}
-        style={{ backgroundColor: dotColor }}
+        style={{ backgroundColor: featureColor }}
       />
 
       {/* Content */}
@@ -471,5 +472,97 @@ export function FeatureOptions({ featureId }: FeatureOptionsProps) {
         </div>
       ))}
     </div>
+  )
+}
+
+/**
+ * Example Picker - Single-select section for full demo apps
+ */
+function ExamplePicker() {
+  const examples = useAvailableExamples()
+  const selectedExample = useSelectedExample()
+  const selectExample = useBuilderStore((s) => s.selectExample)
+  const [isOpen, setIsOpen] = useState(true)
+
+  if (examples.length === 0) return null
+
+  return (
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <CollapsibleTrigger className="w-full flex items-center justify-between py-3">
+        <div className="text-left">
+          <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">
+            Examples
+          </h2>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Start with a complete demo app
+          </p>
+        </div>
+        <ChevronDown
+          className={twMerge(
+            'w-4 h-4 text-gray-400 transition-transform duration-200',
+            isOpen && 'rotate-180',
+          )}
+        />
+      </CollapsibleTrigger>
+
+      <CollapsibleContent>
+        <div className="mt-1 grid grid-cols-1 gap-1 px-1 pb-2">
+          {examples.map((example) => {
+            const isSelected = selectedExample === example.id
+
+            return (
+              <button
+                key={example.id}
+                onClick={() =>
+                  selectExample(isSelected ? null : (example.id as any))
+                }
+                className={twMerge(
+                  'relative w-full flex items-center gap-3 p-3 rounded-lg border text-left transition-all',
+                  isSelected
+                    ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-500 dark:border-purple-400'
+                    : 'bg-white dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800',
+                )}
+              >
+                {/* Icon */}
+                <div
+                  className={twMerge(
+                    'w-8 h-8 shrink-0 rounded-lg flex items-center justify-center',
+                    isSelected
+                      ? 'bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400',
+                  )}
+                >
+                  <Sparkles className="w-4 h-4" />
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                  <h3
+                    className={twMerge(
+                      'font-medium text-sm',
+                      isSelected
+                        ? 'text-purple-700 dark:text-purple-300'
+                        : 'text-gray-900 dark:text-gray-100',
+                    )}
+                  >
+                    {example.name}
+                  </h3>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">
+                    {example.description}
+                  </p>
+                </div>
+
+                {/* Deselect button when selected */}
+                {isSelected && (
+                  <div className="shrink-0 p-1 text-purple-600 dark:text-purple-400">
+                    <X className="w-4 h-4" />
+                  </div>
+                )}
+              </button>
+            )
+          })}
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
   )
 }

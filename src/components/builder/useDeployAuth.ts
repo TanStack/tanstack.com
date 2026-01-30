@@ -66,12 +66,29 @@ export function useDeployAuth(): UseDeployAuthReturn {
   }, [])
 
   const redirectToGitHubAuth = useCallback(() => {
-    // Redirect to GitHub OAuth with public_repo scope
-    // Include return URL so we can redirect back after auth
-    const returnUrl = window.location.href
-    const authUrl = `/auth/github/start?popup=false&scope=public_repo&returnTo=${encodeURIComponent(returnUrl)}`
-    window.location.href = authUrl
-  }, [])
+    // Open GitHub OAuth in a popup so user doesn't lose their place
+    const authUrl = `/auth/github/start?popup=true&scope=public_repo`
+    const width = 500
+    const height = 700
+    const left = window.screenX + (window.outerWidth - width) / 2
+    const top = window.screenY + (window.outerHeight - height) / 2
+    const popup = window.open(
+      authUrl,
+      'github-auth',
+      `width=${width},height=${height},left=${left},top=${top},popup=yes`,
+    )
+
+    // Poll for popup close and refresh auth state
+    if (popup) {
+      const checkClosed = setInterval(() => {
+        if (popup.closed) {
+          clearInterval(checkClosed)
+          // Refresh auth state after popup closes
+          fetchAuthState()
+        }
+      }, 500)
+    }
+  }, [fetchAuthState])
 
   return {
     ...state,

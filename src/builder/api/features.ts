@@ -1,6 +1,11 @@
-import { fetchManifest } from '@tanstack/cli'
-import type { ManifestIntegration } from '@tanstack/cli'
-import { getAddonsBasePath } from './config'
+import { getAllAddOns, type AddOn, type AddOnOption } from '@tanstack/create'
+import { getFramework, DEFAULT_MODE, DEFAULT_REQUIRED_ADDONS, type FrameworkId } from './config'
+import { partners } from '~/utils/partners'
+
+// Set of active partner IDs for matching addons to partners
+const activePartnerIds = new Set(
+  partners.filter((p) => p.status === 'active').map((p) => p.id),
+)
 
 const isDev = process.env.NODE_ENV !== 'production'
 
@@ -27,7 +32,6 @@ export interface FeatureInfo {
   description: string
   category: string
   requires: Array<string>
-  // Exclusive types - only one feature per exclusive type can be selected
   exclusive: Array<string>
   hasOptions: boolean
   options?: Array<FeatureOption>
@@ -35,62 +39,87 @@ export interface FeatureInfo {
   color?: string
   partnerId?: string
   requiresTailwind?: boolean
-  demoRequiresTailwind?: boolean
-}
-
-export interface TemplateInfo {
-  id: string
-  name: string
-  description: string
-  banner?: string
-  icon?: string
-  features?: Array<string>
-  tailwind?: boolean
 }
 
 export interface FeaturesResponse {
   features: Array<FeatureInfo>
-  templates: Array<TemplateInfo>
+  examples: Array<FeatureInfo>
   version: string
 }
 
-function toFeatureInfo(integration: ManifestIntegration): FeatureInfo {
-  return {
-    id: integration.id,
-    name: integration.name,
-    description: integration.description,
-    category: integration.category ?? 'other',
-    requires: integration.dependsOn ?? [],
-    exclusive: integration.exclusive ?? [],
-    hasOptions: integration.hasOptions ?? false,
-    link: normalizeUrl(integration.link),
-    color: integration.color,
-    partnerId: integration.partnerId,
-    requiresTailwind: integration.requiresTailwind,
-    demoRequiresTailwind: integration.demoRequiresTailwind,
+function mapAddOnOptions(addOn: AddOn): Array<FeatureOption> | undefined {
+  if (!addOn.options) return undefined
+
+  return Object.entries(addOn.options).map(([key, opt]) => {
+    const option = opt as AddOnOption
+    return {
+      key,
+      type: option.type,
+      label: option.label,
+      description: option.description,
+      default: option.default,
+      choices: option.type === 'select' ? option.options : undefined,
+    }
+  })
+}
+
+function getCategoryFromType(type: string): string {
+  switch (type) {
+    case 'deployment':
+      return 'deploy'
+    case 'toolchain':
+      return 'tooling'
+    case 'example':
+      return 'example'
+    default:
+      return 'other'
   }
 }
 
-export async function getFeaturesHandler(): Promise<FeaturesResponse> {
-  const basePath = getAddonsBasePath()
-  const manifest = await fetchManifest(basePath)
+function toFeatureInfo(addOn: AddOn): FeatureInfo {
+  // Type assertion for new fields that may not be in the cta-engine types yet
+  const addon = addOn as AddOn & {
+    category?: string
+    exclusive?: Array<string>
+    color?: string
+  }
 
-  const features = manifest.integrations
-    .filter((i) => ['integration', 'deployment', 'toolchain'].includes(i.type))
+  return {
+    id: addon.id,
+    name: addon.name,
+    description: addon.description,
+    category: addon.category ?? getCategoryFromType(addon.type),
+    requires: addon.dependsOn ?? [],
+    exclusive: addon.exclusive ?? [],
+    hasOptions: !!addon.options,
+    options: mapAddOnOptions(addon),
+    link: normalizeUrl(addon.link),
+    color: addon.color,
+    partnerId: activePartnerIds.has(addon.id) ? addon.id : undefined,
+    requiresTailwind: addon.tailwind === true ? undefined : !addon.tailwind,
+  }
+}
+
+export async function getFeaturesHandler(
+  frameworkId: FrameworkId = 'react-cra',
+): Promise<FeaturesResponse> {
+  const framework = getFramework(frameworkId)
+  const allAddOns = getAllAddOns(framework, DEFAULT_MODE)
+
+  const features = allAddOns
+    .filter((addOn: AddOn) => {
+      if (DEFAULT_REQUIRED_ADDONS.includes(addOn.id)) return false
+      return ['add-on', 'deployment', 'toolchain'].includes(addOn.type)
+    })
     .map(toFeatureInfo)
 
-  const templates = manifest.customTemplates ?? []
+  const examples = allAddOns
+    .filter((addOn: AddOn) => addOn.type === 'example')
+    .map(toFeatureInfo)
 
   return {
     features,
-    templates: templates.map((t) => ({
-      id: t.id,
-      name: t.name,
-      description: t.description,
-      banner: t.banner,
-      icon: t.icon,
-      features: t.features,
-    })),
-    version: manifest.version,
+    examples,
+    version: '1.0.0',
   }
 }

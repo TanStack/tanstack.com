@@ -7,25 +7,15 @@
 
 import { useState, useCallback, useMemo } from 'react'
 import { Link } from '@tanstack/react-router'
-import JSZip from 'jszip'
+
 import {
   Copy,
   Download,
   Share2,
   ChevronDown,
-  Plus,
   Rocket,
-  Sparkles,
-  LayoutDashboard,
-  FileText,
-  Server,
-  Radio,
-  Globe,
-  Database,
-  Cpu,
   Check,
   HelpCircle,
-  Loader2,
   Search,
   Github,
 } from 'lucide-react'
@@ -34,14 +24,17 @@ import {
   useBuilderStore,
   useFeatures,
   useFeatureOptions,
-  useAvailableTemplates,
   useTailwind,
   useCompiledOutput,
   useProjectName,
+  useFramework,
 } from './store'
+import { FRAMEWORKS, type FrameworkId } from '~/builder/frameworks'
+import reactLogo from '~/images/react-logo.svg'
+import solidLogo from '~/images/solid-logo.svg'
 import { useCliCommand } from './useBuilderUrl'
 import { FeaturePicker, FeatureOptions } from './FeaturePicker'
-import { CustomTemplateItem } from './CustomTemplateDialog'
+import { TemplatePicker } from './TemplatePicker'
 import { DeployDialog } from './DeployDialog'
 import { Button } from '~/ui'
 import {
@@ -49,65 +42,6 @@ import {
   DropdownTrigger,
   DropdownContent,
 } from '~/components/Dropdown'
-
-const TEMPLATE_ICONS: Record<
-  string,
-  React.ComponentType<{ className?: string }>
-> = {
-  plus: Plus,
-  rocket: Rocket,
-  sparkles: Sparkles,
-  layout: LayoutDashboard,
-  'file-text': FileText,
-  server: Server,
-  radio: Radio,
-  globe: Globe,
-  database: Database,
-  cpu: Cpu,
-}
-
-const TEMPLATE_COLORS: Record<string, { bg: string; text: string }> = {
-  plus: {
-    bg: 'bg-gray-100 dark:bg-gray-700',
-    text: 'text-gray-600 dark:text-gray-400',
-  },
-  rocket: {
-    bg: 'bg-cyan-100 dark:bg-cyan-900/50',
-    text: 'text-cyan-600 dark:text-cyan-400',
-  },
-  sparkles: {
-    bg: 'bg-purple-100 dark:bg-purple-900/50',
-    text: 'text-purple-600 dark:text-purple-400',
-  },
-  layout: {
-    bg: 'bg-blue-100 dark:bg-blue-900/50',
-    text: 'text-blue-600 dark:text-blue-400',
-  },
-  'file-text': {
-    bg: 'bg-amber-100 dark:bg-amber-900/50',
-    text: 'text-amber-600 dark:text-amber-400',
-  },
-  server: {
-    bg: 'bg-emerald-100 dark:bg-emerald-900/50',
-    text: 'text-emerald-600 dark:text-emerald-400',
-  },
-  radio: {
-    bg: 'bg-orange-100 dark:bg-orange-900/50',
-    text: 'text-orange-600 dark:text-orange-400',
-  },
-  globe: {
-    bg: 'bg-indigo-100 dark:bg-indigo-900/50',
-    text: 'text-indigo-600 dark:text-indigo-400',
-  },
-  database: {
-    bg: 'bg-teal-100 dark:bg-teal-900/50',
-    text: 'text-teal-600 dark:text-teal-400',
-  },
-  cpu: {
-    bg: 'bg-violet-100 dark:bg-violet-900/50',
-    text: 'text-violet-600 dark:text-violet-400',
-  },
-}
 
 const DEPLOY_PROVIDERS: Record<
   string,
@@ -140,6 +74,8 @@ export function ConfigPanel() {
   const features = useFeatures()
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [deployDialogOpen, setDeployDialogOpen] = useState(false)
+  const [cliCopied, setCliCopied] = useState(false)
+  const cliCommand = useCliCommand()
   const [deployDialogProvider, setDeployDialogProvider] = useState<
     'cloudflare' | 'netlify' | 'railway' | null
   >(null)
@@ -160,31 +96,56 @@ export function ConfigPanel() {
     <div className="h-full flex flex-col bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800">
       {/* Header - Project Name + Build Button */}
       <div className="shrink-0 p-4 border-b border-gray-200 dark:border-gray-800">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <input
             type="text"
             value={projectName}
             onChange={(e) => setProjectName(e.target.value)}
-            className="min-w-0 flex-1 h-8 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md px-2 text-gray-900 dark:text-white font-mono text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-cyan-500 focus:border-transparent"
+            className="min-w-[140px] flex-1 h-8 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md px-2 text-gray-900 dark:text-white font-mono text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-cyan-500 focus:border-transparent"
             placeholder="my-tanstack-app"
           />
-          <BuildProjectDropdown
-            onOpenChange={setDropdownOpen}
-            onCreateRepo={() => openDeployDialog(null)}
-          />
-          {deployProvider && (
-            <button
-              onClick={() => openDeployDialog(deployProvider.provider)}
-              className="shrink-0 h-8 px-2.5 text-xs text-white rounded-md transition-opacity hover:opacity-90 whitespace-nowrap flex items-center gap-1"
-              style={{ backgroundColor: deployProvider.color }}
-            >
-              <Rocket className="w-3.5 h-3.5" />
-              <span className="font-medium">Deploy</span>
-              <span className="opacity-80 text-[10px]">
-                to {deployProvider.name}
-              </span>
-            </button>
-          )}
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="relative">
+              <button
+                onClick={async () => {
+                  await navigator.clipboard.writeText(cliCommand)
+                  setCliCopied(true)
+                  setTimeout(() => setCliCopied(false), 2000)
+                }}
+                className="shrink-0 h-8 px-2 flex items-center justify-center gap-1.5 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-600 hover:text-gray-900 dark:hover:text-white transition-colors text-xs font-medium"
+                title="Copy CLI command"
+              >
+                {cliCopied ? (
+                  <Check className="w-3.5 h-3.5 text-green-500" />
+                ) : (
+                  <Copy className="w-3.5 h-3.5" />
+                )}
+                CLI
+              </button>
+              {cliCopied && (
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 px-2 py-1 text-xs font-medium text-white bg-gray-900 dark:bg-white dark:text-gray-900 rounded shadow-lg whitespace-nowrap z-10">
+                  Copied!
+                </div>
+              )}
+            </div>
+            <BuildProjectDropdown
+              onOpenChange={setDropdownOpen}
+              onCreateRepo={() => openDeployDialog(null)}
+            />
+            {deployProvider && (
+              <button
+                onClick={() => openDeployDialog(deployProvider.provider)}
+                className="shrink-0 h-8 px-2.5 text-xs text-white rounded-md transition-opacity hover:opacity-90 whitespace-nowrap flex items-center gap-1"
+                style={{ backgroundColor: deployProvider.color }}
+              >
+                <Rocket className="w-3.5 h-3.5" />
+                <span className="font-medium">Deploy</span>
+                <span className="opacity-80 text-[10px]">
+                  to {deployProvider.name}
+                </span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -203,56 +164,10 @@ export function ConfigPanel() {
         )}
       >
         {/* Framework Section */}
-        <div className="p-4 pb-0">
-          <h3 className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-1">
-            Framework
-          </h3>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-            Your project's foundation
-          </p>
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-100 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-600 cursor-not-allowed">
-            <div className="w-8 h-8 flex items-center justify-center">
-              <img
-                src="/images/logos/logo-black.svg"
-                alt="TanStack"
-                className="w-full h-full dark:hidden"
-              />
-              <img
-                src="/images/logos/logo-white.svg"
-                alt="TanStack"
-                className="w-full h-full hidden dark:block"
-              />
-            </div>
-            <div className="flex-1">
-              <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                TanStack Start
-              </span>
-              <span className="block text-xs text-gray-500 dark:text-gray-400">
-                Full-stack React with TanStack Router
-              </span>
-            </div>
-            <div className="w-5 h-5 rounded-full bg-blue-500 dark:bg-cyan-500 flex items-center justify-center">
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="3"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="text-white"
-              >
-                <path d="M20 6L9 17l-5-5" />
-              </svg>
-            </div>
-          </div>
-        </div>
+        <FrameworkPicker />
 
-        {/* Template Section */}
-        <div className="p-4 pb-0">
-          <TemplatePicker />
-        </div>
+        {/* Template Presets */}
+        <TemplatePicker />
 
         {/* Integration Search */}
         <IntegrationSearch />
@@ -260,6 +175,11 @@ export function ConfigPanel() {
         {/* Styles Section */}
         <div className="p-4 pb-0">
           <StylesPicker />
+        </div>
+
+        {/* Package Manager */}
+        <div className="p-4 pb-0">
+          <PackageManagerPicker />
         </div>
 
         {/* Feature Picker */}
@@ -296,11 +216,7 @@ function IntegrationSearch() {
   )
 }
 
-const PACKAGE_MANAGERS = ['pnpm', 'npm', 'yarn', 'bun'] as const
-
 function CliOptionsInline() {
-  const packageManager = useBuilderStore((s) => s.packageManager)
-  const setPackageManager = useBuilderStore((s) => s.setPackageManager)
   const skipInstall = useBuilderStore((s) => s.skipInstall)
   const setSkipInstall = useBuilderStore((s) => s.setSkipInstall)
   const skipGit = useBuilderStore((s) => s.skipGit)
@@ -308,20 +224,6 @@ function CliOptionsInline() {
 
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-gray-600 dark:text-gray-400">
-      <select
-        value={packageManager}
-        onChange={(e) =>
-          setPackageManager(e.target.value as (typeof PACKAGE_MANAGERS)[number])
-        }
-        className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 dark:focus:ring-cyan-500"
-      >
-        {PACKAGE_MANAGERS.map((pm) => (
-          <option key={pm} value={pm}>
-            {pm}
-          </option>
-        ))}
-      </select>
-
       <label className="flex items-center gap-1.5 cursor-pointer">
         <input
           type="checkbox"
@@ -345,83 +247,84 @@ function CliOptionsInline() {
   )
 }
 
-function TemplatePicker() {
-  const templates = useAvailableTemplates()
-  const applyTemplate = useBuilderStore((s) => s.applyTemplate)
-  const features = useFeatures()
-  const [customExpanded, setCustomExpanded] = useState(false)
+const FRAMEWORK_LOGOS: Record<FrameworkId, string> = {
+  'react-cra': reactLogo,
+  solid: solidLogo,
+}
 
-  if (templates.length === 0) return null
+const FRAMEWORK_COLORS: Record<FrameworkId, string> = {
+  'react-cra': '#61DAFB',
+  solid: '#2C4F7C',
+}
+
+function FrameworkPicker() {
+  const framework = useFramework()
+  const setFramework = useBuilderStore((s) => s.setFramework)
 
   return (
-    <div>
+    <div className="p-4 pb-0">
       <h3 className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-1">
-        Template
+        Framework
       </h3>
       <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-        Start blank or with pre-configured integrations
+        Your project's foundation
       </p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 xl:grid-cols-2 gap-2">
-        {templates.map((template) => {
-          const isActive =
-            JSON.stringify((template.features ?? []).sort()) ===
-            JSON.stringify([...features].sort())
-          const Icon = TEMPLATE_ICONS[template.icon || 'plus'] || Plus
-          const colors =
-            TEMPLATE_COLORS[template.icon || 'plus'] || TEMPLATE_COLORS.plus
-
-          const addonCount = template.features?.length ?? 0
-
+      <div className="space-y-2">
+        {FRAMEWORKS.map((fw) => {
+          const isSelected = framework === fw.id
+          const color = FRAMEWORK_COLORS[fw.id]
           return (
             <button
-              key={template.id}
-              onClick={() => applyTemplate(template)}
+              key={fw.id}
+              onClick={() => setFramework(fw.id)}
               className={twMerge(
-                'p-3 rounded-lg border text-left transition-all flex items-start gap-2',
-                isActive
-                  ? 'bg-blue-50 dark:bg-cyan-900/30 border-blue-500 dark:border-cyan-500'
-                  : 'bg-white dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800',
+                'w-full flex items-center gap-3 p-3 rounded-lg border transition-all',
+                isSelected
+                  ? 'border-2'
+                  : 'bg-white dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600',
               )}
+              style={
+                isSelected
+                  ? {
+                      backgroundColor: `${color}15`,
+                      borderColor: `${color}80`,
+                    }
+                  : undefined
+              }
             >
+              <div className="w-8 h-8 flex items-center justify-center">
+                <img
+                  src={FRAMEWORK_LOGOS[fw.id]}
+                  alt={fw.name}
+                  className="w-full h-full"
+                />
+              </div>
+              <div className="flex-1 text-left">
+                <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  {fw.name}
+                </span>
+                <span className="block text-xs text-gray-500 dark:text-gray-400">
+                  {fw.description}
+                </span>
+              </div>
               <div
                 className={twMerge(
-                  'w-8 h-8 rounded-lg flex items-center justify-center shrink-0',
-                  colors.bg,
-                  colors.text,
+                  'w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors',
+                  isSelected
+                    ? 'border-current'
+                    : 'border-gray-300 dark:border-gray-600',
                 )}
+                style={
+                  isSelected
+                    ? { backgroundColor: color, borderColor: color }
+                    : undefined
+                }
               >
-                <Icon className="w-4 h-4" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <span
-                    className={twMerge(
-                      'font-medium text-sm',
-                      isActive
-                        ? 'text-blue-700 dark:text-cyan-300'
-                        : 'text-gray-900 dark:text-gray-100',
-                    )}
-                  >
-                    {template.name}
-                  </span>
-                  {addonCount > 0 && (
-                    <span className="text-[10px] font-medium text-gray-400 dark:text-gray-500">
-                      {addonCount}{' '}
-                      {addonCount === 1 ? 'integration' : 'integrations'}
-                    </span>
-                  )}
-                </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">
-                  {template.description}
-                </div>
+                {isSelected && <Check className="w-3 h-3 text-white" />}
               </div>
             </button>
           )
         })}
-        <CustomTemplateItem
-          isExpanded={customExpanded}
-          onToggle={() => setCustomExpanded(!customExpanded)}
-        />
       </div>
     </div>
   )
@@ -475,6 +378,43 @@ function StylesPicker() {
           {tailwind && <Check className="w-3 h-3 text-white" />}
         </div>
       </button>
+    </div>
+  )
+}
+
+const PACKAGE_MANAGERS = ['pnpm', 'npm', 'yarn', 'bun'] as const
+
+function PackageManagerPicker() {
+  const packageManager = useBuilderStore((s) => s.packageManager)
+  const setPackageManager = useBuilderStore((s) => s.setPackageManager)
+
+  return (
+    <div>
+      <h3 className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-1">
+        Package Manager
+      </h3>
+      <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+        CLI tool for dependencies
+      </p>
+      <div className="flex gap-1">
+        {PACKAGE_MANAGERS.map((pm) => {
+          const isSelected = packageManager === pm
+          return (
+            <button
+              key={pm}
+              onClick={() => setPackageManager(pm)}
+              className={twMerge(
+                'flex-1 px-2 py-1.5 text-xs font-medium rounded-md border-2 transition-all',
+                isSelected
+                  ? 'bg-blue-50 dark:bg-cyan-950 border-blue-500 dark:border-cyan-500 text-blue-700 dark:text-cyan-300'
+                  : 'bg-white dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600',
+              )}
+            >
+              {pm}
+            </button>
+          )
+        })}
+      </div>
     </div>
   )
 }
@@ -540,7 +480,6 @@ function BuildProjectDropdown({
   const [showTemplateExport, setShowTemplateExport] = useState(false)
   const [templateName, setTemplateName] = useState('')
   const [templateDescription, setTemplateDescription] = useState('')
-  const [isGeneratingZip, setIsGeneratingZip] = useState(false)
 
   const copyToClipboard = async (text: string, type: string) => {
     await navigator.clipboard.writeText(text)
@@ -568,30 +507,9 @@ function BuildProjectDropdown({
     return `${window.location.origin}/api/builder/download?${params.toString()}`
   }, [projectName, features, tailwind, featureOptions])
 
-  const downloadZip = useCallback(async () => {
-    if (!compiledOutput?.files) return
-
-    setIsGeneratingZip(true)
-    try {
-      const zip = new JSZip()
-      const rootFolder = zip.folder(projectName)
-      if (!rootFolder) return
-
-      for (const [filePath, content] of Object.entries(compiledOutput.files)) {
-        rootFolder.file(filePath, content)
-      }
-
-      const blob = await zip.generateAsync({ type: 'blob' })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `${projectName}.zip`
-      a.click()
-      URL.revokeObjectURL(url)
-    } finally {
-      setIsGeneratingZip(false)
-    }
-  }, [compiledOutput?.files, projectName])
+  const downloadZip = useCallback(() => {
+    window.location.href = getDownloadUrl()
+  }, [getDownloadUrl])
 
   const generateTemplateJson = () => {
     const template = {
@@ -650,14 +568,10 @@ function BuildProjectDropdown({
                 variant="primary"
                 className="flex-1 flex items-center justify-center gap-2"
                 onClick={downloadZip}
-                disabled={!compiledOutput?.files || isGeneratingZip}
+                disabled={!compiledOutput?.files}
               >
-                {isGeneratingZip ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Download className="w-4 h-4" />
-                )}
-                {isGeneratingZip ? 'Generating...' : 'Download ZIP'}
+                <Download className="w-4 h-4" />
+                Download ZIP
               </Button>
               <Button
                 variant="ghost"

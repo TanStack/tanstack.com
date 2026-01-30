@@ -20,8 +20,16 @@ import { twMerge } from 'tailwind-merge'
 import { useAsyncDebouncer } from '@tanstack/react-pacer'
 import { Button } from '~/ui'
 import { useDeployAuth } from './builder/useDeployAuth'
+import {
+  type DeployProvider,
+  type DeployState,
+  type RepoNameStatus,
+  PROVIDER_INFO,
+  checkRepoNameAvailability,
+  validateRepoNameFormat,
+} from './deploy/shared'
 
-export type DeployProvider = 'cloudflare' | 'netlify' | 'railway'
+export type { DeployProvider }
 
 interface ExampleDeployDialogProps {
   isOpen: boolean
@@ -34,70 +42,7 @@ interface ExampleDeployDialogProps {
   libraryName: string
 }
 
-const PROVIDER_INFO = {
-  cloudflare: {
-    name: 'Cloudflare',
-    color: '#F38020',
-    deployUrl: (owner: string, repo: string) =>
-      `https://deploy.workers.cloudflare.com/?url=https://github.com/${owner}/${repo}`,
-  },
-  netlify: {
-    name: 'Netlify',
-    color: '#00C7B7',
-    deployUrl: (owner: string, repo: string) =>
-      `https://app.netlify.com/start/deploy?repository=https://github.com/${owner}/${repo}`,
-  },
-  railway: {
-    name: 'Railway',
-    color: '#9B4DCA',
-    deployUrl: () => `https://railway.com/new/github`,
-  },
-}
-
-type DeployState =
-  | { step: 'auth-check' }
-  | { step: 'needs-auth' }
-  | { step: 'form' }
-  | { step: 'deploying'; message: string }
-  | { step: 'success'; repoUrl: string; owner: string; repoName: string }
-  | { step: 'error'; message: string; code?: string }
-
-type RepoNameStatus = 'idle' | 'checking' | 'available' | 'taken' | 'invalid'
-
-async function checkRepoNameAvailability(
-  name: string,
-): Promise<{ available: boolean }> {
-  const response = await fetch(
-    `/api/builder/deploy/check-name?name=${encodeURIComponent(name)}`,
-  )
-  return response.json()
-}
-
-function validateRepoNameFormat(name: string): {
-  valid: boolean
-  error?: string
-} {
-  if (!name.trim()) {
-    return { valid: false }
-  }
-
-  const validPattern = /^[a-zA-Z0-9][a-zA-Z0-9._-]*$/
-  if (!validPattern.test(name)) {
-    return {
-      valid: false,
-      error: 'Letters, numbers, hyphens, underscores, and periods only',
-    }
-  }
-
-  if (name.length > 100) {
-    return { valid: false, error: 'Must be 100 characters or less' }
-  }
-
-  return { valid: true }
-}
-
 function generateDefaultRepoName(examplePath: string): string {
-  // Convert "react/start-basic" to "start-basic"
   const parts = examplePath.split('/')
   return parts[parts.length - 1] || 'my-tanstack-app'
 }

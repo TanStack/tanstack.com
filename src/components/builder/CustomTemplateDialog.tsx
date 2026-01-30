@@ -148,9 +148,9 @@ export function CustomTemplateDialog({ onClose }: CustomTemplateDialogProps) {
                 TypeScript
               </span>
             )}
-            {preview.integrations && preview.integrations.length > 0 && (
+            {preview.dependsOn && preview.dependsOn.length > 0 && (
               <span className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded">
-                {preview.integrations.length} integrations
+                {preview.dependsOn.length} add-ons
               </span>
             )}
           </div>

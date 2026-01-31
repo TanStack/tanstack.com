@@ -1,12 +1,9 @@
 import * as React from 'react'
-import { Link } from '@tanstack/react-router'
-import type { LibraryId } from '~/libraries'
+import { Link, LinkProps } from '@tanstack/react-router'
+import { Button } from '~/ui'
 
 type BottomCTAProps = {
-  linkProps: {
-    to: '/$libraryId/$version/docs'
-    params: { libraryId: LibraryId; version?: string }
-  }
+  linkProps: LinkProps
   label?: string
   className?: string
 }
@@ -25,16 +22,14 @@ export function BottomCTA({
         Only one thing left to do...
       </div>
       <div>
-        <Link
-          to={linkProps.to}
-          params={{
-            ...linkProps.params,
-            version: linkProps.params.version ?? 'latest',
-          }}
-          className={`inline-flex items-center justify-center gap-2 cursor-pointer transition-colors py-2 px-4 text-sm shadow-xs hover:shadow-sm rounded-lg border font-medium bg-blue-600 text-white border-blue-600 hover:bg-blue-700 ${className}`}
+        {/* @ts-expect-error - LinkProps is not assignable to ButtonProps */}
+        <Button
+          as={Link}
+          {...linkProps}
+          className={`py-2 px-4 text-sm shadow-xs hover:shadow-sm ${className}`}
         >
           {label}
-        </Link>
+        </Button>
       </div>
     </div>
   )

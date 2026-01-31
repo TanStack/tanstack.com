@@ -733,7 +733,6 @@ function UsersPage() {
       usersQuery,
       bulkUserRoles,
       bulkEffectiveCapabilities,
-      useEffectiveCapabilities,
     ],
   )
 

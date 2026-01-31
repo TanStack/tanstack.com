@@ -631,11 +631,6 @@ function ShowcaseDetailPage() {
             {user ? (
               <Link
                 to="/admin/users/$userId"
-                search={{
-                  page: 0,
-                  pageSize: 10,
-                  useEffectiveCapabilities: true,
-                }}
                 params={{ userId: user.id }}
                 className="flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-800 p-2 rounded-lg -m-2"
               >

@@ -11,7 +11,7 @@ import type { LibraryId } from '~/libraries'
 import { seo } from '~/utils/seo'
 import { ossStatsQuery } from '~/queries/stats'
 import { Button } from '~/ui'
-import type { ConfigSchema } from '~/utils/config'
+import { ConfigSchema } from '~/utils/config'
 
 // Lazy-loaded landing components for each library
 const landingComponents: Partial<
@@ -57,12 +57,11 @@ export const Route = createFileRoute('/$libraryId/$version/')({
     }
     return undefined as never
   },
-  // @ts-expect-error - TanStack Router type inference issue: child route loader return type
-  loader: async (ctx) => {
-    const { libraryId } = ctx.params
+  // @ts-expect-error - not sure why this is erroring
+  loader: async ({ params, context: { queryClient } }) => {
+    const { libraryId } = params
     const library = getLibrary(libraryId)
-    await ctx.context.queryClient.ensureQueryData(ossStatsQuery({ library }))
-    // This route prefetches data for rendering but doesn't return loader data
+    await queryClient.ensureQueryData(ossStatsQuery({ library }))
   },
   component: LibraryVersionIndex,
 })

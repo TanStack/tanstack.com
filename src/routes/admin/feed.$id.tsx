@@ -63,17 +63,7 @@ function FeedEditorPage() {
           <h1 className="text-2xl font-bold mb-2">Entry Not Found</h1>
           <Button
             className="mt-4"
-            onClick={() =>
-              navigate({
-                to: '/admin/feed',
-                search: {
-                  page: 1,
-                  pageSize: 50,
-                  viewMode: 'table',
-                  releaseLevels: undefined,
-                },
-              })
-            }
+            onClick={() => navigate({ to: '/admin/feed' })}
           >
             Back to Feed Admin
           </Button>
@@ -89,28 +79,8 @@ function FeedEditorPage() {
           entry={
             isNew ? null : ((entryQuery.data as FeedEntry | undefined) ?? null)
           }
-          onSave={() =>
-            navigate({
-              to: '/admin/feed',
-              search: {
-                page: 1,
-                pageSize: 50,
-                viewMode: 'table',
-                releaseLevels: undefined,
-              },
-            })
-          }
-          onCancel={() =>
-            navigate({
-              to: '/admin/feed',
-              search: {
-                page: 1,
-                pageSize: 50,
-                viewMode: 'table',
-                releaseLevels: undefined,
-              },
-            })
-          }
+          onSave={() => navigate({ to: '/admin/feed' })}
+          onCancel={() => navigate({ to: '/admin/feed' })}
         />
       </div>
     </div>

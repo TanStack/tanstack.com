@@ -59,9 +59,11 @@ TanStack Start gives you two RSC helpers, and you can use either, both, or neith
 import { createServerFn } from '@tanstack/react-start'
 import { renderToReadableStream } from '@tanstack/react-start/rsc'
 
-export const getGreeting = createServerFn({ method: 'GET' }).handler(async () => {
-  return await renderToReadableStream(<h1>Hello from the server</h1>)
-})
+export const getGreeting = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    return await renderToReadableStream(<h1>Hello from the server</h1>)
+  },
+)
 
 // Client
 import { createFromReadableStream } from '@tanstack/react-start/rsc'
@@ -71,7 +73,7 @@ function Greeting() {
 
   useEffect(() => {
     getGreeting().then((stream) =>
-      createFromReadableStream(stream).then(setContent)
+      createFromReadableStream(stream).then(setContent),
     )
   }, [])
 
@@ -82,7 +84,10 @@ function Greeting() {
 **`createCompositeComponent`** is for when you need slots—places where the client can inject its own components with full interactivity:
 
 ```tsx
-import { CompositeComponent, createCompositeComponent } from '@tanstack/react-start/rsc'
+import {
+  CompositeComponent,
+  createCompositeComponent,
+} from '@tanstack/react-start/rsc'
 
 const getCard = createServerFn().handler(async () => {
   const src = await createCompositeComponent(
@@ -349,11 +354,11 @@ The patterns above cover most use cases. But if you want to serve RSCs from API 
 
 ### The Primitives
 
-| Function                   | Where it runs | What it does                                       |
-| -------------------------- | ------------- | -------------------------------------------------- |
-| `renderToReadableStream`   | Server only   | Renders React elements to a Flight stream          |
-| `createFromFetch`          | Client        | Decodes a Flight stream from a fetch response      |
-| `createFromReadableStream` | Client/SSR    | Decodes a Flight stream from any `ReadableStream`  |
+| Function                   | Where it runs | What it does                                      |
+| -------------------------- | ------------- | ------------------------------------------------- |
+| `renderToReadableStream`   | Server only   | Renders React elements to a Flight stream         |
+| `createFromFetch`          | Client        | Decodes a Flight stream from a fetch response     |
+| `createFromReadableStream` | Client/SSR    | Decodes a Flight stream from any `ReadableStream` |
 
 ### Example: RSC via API Route
 
@@ -370,7 +375,7 @@ const getFlightStream = createServerFn({ method: 'GET' }).handler(async () => {
     <div>
       <h1>Hello from the server</h1>
       <p>This is a Flight stream served via API route.</p>
-    </div>
+    </div>,
   )
 })
 

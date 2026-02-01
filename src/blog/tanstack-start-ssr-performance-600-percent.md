@@ -1,5 +1,5 @@
 ---
-title: "600% faster SSR: profiling and eliminating server hot paths in TanStack Router"
+title: '600% faster SSR: profiling and eliminating server hot paths in TanStack Router'
 published: 2026-02-04
 authors:
   - Manuel Schiller
@@ -190,4 +190,5 @@ There were many other improvements (client and server) not covered here. SSR per
 ## References
 
 [^v8-fast-properties]: V8 team, “Fast properties in V8” `https://v8.dev/blog/fast-properties`
+
 [^webkit-delete-ic]: WebKit, “A Tour of Inline Caching with Delete” `https://webkit.org/blog/10298/inline-caching-delete/`

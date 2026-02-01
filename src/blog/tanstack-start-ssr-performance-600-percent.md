@@ -1,6 +1,6 @@
 ---
 id: ssr-performance-600-percent
-title: "From 3000ms to 14ms: profiling hot paths and eliminating bottlenecks in TanStack Start"
+title: 'From 3000ms to 14ms: profiling hot paths and eliminating bottlenecks in TanStack Start'
 ---
 
 ## Executive summary
@@ -83,6 +83,7 @@ Placeholders you should replace with real screenshots:
 **Environment:**
 
 Our benchmarks were stable enough to produce very similar results on a range of setups. However here are the exact environment details we used to run the benchmarks:
+
 - Node.js: v24.12.0
 - Hardware: Macbook Pro M3
 - OS: macOS 15.7
@@ -90,14 +91,15 @@ Our benchmarks were stable enough to produce very similar results on a range of 
 **Running the benchmark:**
 
 For fast iteration, we setup a single `pnpm bench` command what would concurrently
+
 - start the built server through `@platformatic/flame` to profile it
-   ```sh
-   flame run ./dist/server.mjs
-   ```
+  ```sh
+  flame run ./dist/server.mjs
+  ```
 - run `autocannon` to stress the server by firing many requests at it
-   ```sh
-   autocannon -d 30 -c 100 --warmup [ -d 2 -c 20 ] http://localhost:3000/bench/links-100
-   ```
+  ```sh
+  autocannon -d 30 -c 100 --warmup [ -d 2 -c 20 ] http://localhost:3000/bench/links-100
+  ```
 
 ## Finding 1: `URL` is expensive in server hot paths
 
@@ -159,7 +161,9 @@ This is the difference between "server = a function" and "client = a reactive sy
 
 ```typescript
 // Before: same code path for client and server
-store.subscribe(() => { /* ... */ }) // overhead on server
+store.subscribe(() => {
+  /* ... */
+}) // overhead on server
 const next = replaceEqualDeep(prev, value) // unnecessary structural sharing
 
 // After: server gets a simple snapshot
@@ -277,6 +281,9 @@ There were many other improvements (client and server) not covered here. SSR per
 ## References
 
 [^v8-fast-properties]: V8 team, "Fast properties in V8" `https://v8.dev/blog/fast-properties`
+
 [^webkit-delete-ic]: WebKit, "A Tour of Inline Caching with Delete" `https://webkit.org/blog/10298/inline-caching-delete/`
+
 [^structural-sharing]: Structural sharing is a pattern from immutable data libraries (Immer, React Query, TanStack Store) where unchanged portions of data structures are reused by reference to minimize allocation and enable cheap equality checks.
+
 [^ssr-streaming]: With streaming SSR and Suspense, the server may render multiple chunks, but each chunk is still a single-pass render with no reactive updates.

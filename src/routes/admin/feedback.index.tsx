@@ -6,6 +6,16 @@ import { listDocFeedbackForModerationQueryOptions } from '~/queries/docFeedback'
 import { requireCapability } from '~/utils/auth.server'
 import { libraryIdSchema, docFeedbackStatusSchema } from '~/utils/schemas'
 
+const searchSchema = v.object({
+  page: v.optional(v.number(), 1),
+  pageSize: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1)), 50),
+  status: v.optional(v.array(docFeedbackStatusSchema)),
+  libraryId: v.optional(libraryIdSchema),
+  isDetached: v.optional(v.boolean()),
+  dateFrom: v.optional(v.string()),
+  dateTo: v.optional(v.string()),
+})
+
 export const Route = createFileRoute('/admin/feedback/')({
   staleTime: 1000 * 60 * 5, // 5 minutes
   beforeLoad: async () => {
@@ -18,25 +28,7 @@ export const Route = createFileRoute('/admin/feedback/')({
       throw redirect({ to: '/login' })
     }
   },
-  validateSearch: (search) => {
-    const parsed = v.parse(
-      v.object({
-        page: v.optional(v.number(), 1),
-        pageSize: v.optional(
-          v.pipe(v.number(), v.integer(), v.minValue(1)),
-          50,
-        ),
-        status: v.optional(v.array(docFeedbackStatusSchema)),
-        libraryId: v.optional(libraryIdSchema),
-        isDetached: v.optional(v.boolean()),
-        dateFrom: v.optional(v.string()),
-        dateTo: v.optional(v.string()),
-      }),
-      search,
-    )
-
-    return parsed
-  },
+  validateSearch: searchSchema,
   loaderDeps: ({ search }) => ({
     page: search.page,
     pageSize: search.pageSize,

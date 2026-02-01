@@ -33,15 +33,13 @@ import {
 import { useAdminGuard } from '~/hooks/useAdminGuard'
 import { useDeleteWithConfirmation } from '~/hooks/useDeleteWithConfirmation'
 
+const searchSchema = v.object({
+  includeInactive: v.optional(v.boolean(), true),
+})
+
 export const Route = createFileRoute('/admin/banners/')({
   component: BannersAdminPage,
-  validateSearch: (search) =>
-    v.parse(
-      v.object({
-        includeInactive: v.optional(v.boolean(), true),
-      }),
-      search,
-    ),
+  validateSearch: searchSchema,
 })
 
 const STYLE_CONFIG = {

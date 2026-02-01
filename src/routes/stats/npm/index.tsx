@@ -191,7 +191,7 @@ export const Route = createFileRoute('/stats/npm/')({
   },
 })
 
-type NpmStatsSearch = {
+type _NpmStatsSearch = {
   packageGroups?: Array<{
     name?: string
     color?: string
@@ -238,7 +238,7 @@ function RouteComponent() {
   const handleBinnedChange = (value: BinType) => {
     navigate({
       to: '.',
-      search: (prev: NpmStatsSearch) => ({
+      search: (prev) => ({
         ...prev,
         binType: value,
       }),
@@ -249,7 +249,7 @@ function RouteComponent() {
   const handleBaselineChange = (packageName: string) => {
     navigate({
       to: '.',
-      search: (prev: NpmStatsSearch) => {
+      search: (prev) => {
         return {
           ...prev,
           packageGroups: prev.packageGroups?.map((pkg) => {
@@ -270,7 +270,7 @@ function RouteComponent() {
   const handleShowDataModeChange = (mode: ShowDataMode) => {
     navigate({
       to: '.',
-      search: (prev: NpmStatsSearch) => ({
+      search: (prev) => ({
         ...prev,
         showDataMode: mode,
       }),
@@ -281,7 +281,7 @@ function RouteComponent() {
   const togglePackageVisibility = (index: number, packageName: string) => {
     navigate({
       to: '.',
-      search: (prev: NpmStatsSearch) => ({
+      search: (prev) => ({
         ...prev,
         packageGroups: prev.packageGroups?.map((pkg, i) =>
           i === index
@@ -327,7 +327,7 @@ function RouteComponent() {
 
     navigate({
       to: '.',
-      search: (prev: NpmStatsSearch) => ({
+      search: (prev) => ({
         ...prev,
         packageGroups: newPackages,
       }),
@@ -338,7 +338,7 @@ function RouteComponent() {
   const handleRemovePackageName = (packageGroupIndex: number) => {
     navigate({
       to: '.',
-      search: (prev: NpmStatsSearch) => ({
+      search: (prev) => ({
         ...prev,
         packageGroups: prev.packageGroups?.filter(
           (_: unknown, i: number) => i !== packageGroupIndex,
@@ -351,7 +351,7 @@ function RouteComponent() {
   const setBinningOption = (newBinningOption: BinType) => {
     navigate({
       to: '.',
-      search: (prev: NpmStatsSearch) => ({
+      search: (prev) => ({
         ...prev,
         binType: newBinningOption,
       }),
@@ -365,7 +365,7 @@ function RouteComponent() {
 
     navigate({
       to: '.',
-      search: (prev: NpmStatsSearch) => ({
+      search: (prev) => ({
         ...prev,
         range: newRange,
       }),
@@ -375,7 +375,7 @@ function RouteComponent() {
   const handleTransformChange = (mode: TransformMode) => {
     navigate({
       to: '.',
-      search: (prev: NpmStatsSearch) => ({
+      search: (prev) => ({
         ...prev,
         transform: mode,
       }),
@@ -397,7 +397,7 @@ function RouteComponent() {
     (packageName: string, color: string | null) => {
       navigate({
         to: '.',
-        search: (prev: NpmStatsSearch) => {
+        search: (prev) => {
           const packageGroup = packageGroups.find((pkg) =>
             pkg.packages.some((p) => p.name === packageName),
           )
@@ -429,7 +429,7 @@ function RouteComponent() {
     (height: number) => {
       navigate({
         to: '.',
-        search: (prev: NpmStatsSearch) => ({ ...prev, height }),
+        search: (prev) => ({ ...prev, height }),
         resetScroll: false,
       })
     },
@@ -449,7 +449,7 @@ function RouteComponent() {
   const handleFacetXChange = (value: FacetValue | undefined) => {
     navigate({
       to: '.',
-      search: (prev: NpmStatsSearch) => ({
+      search: (prev) => ({
         ...prev,
         facetX: value,
       }),
@@ -460,7 +460,7 @@ function RouteComponent() {
   const handleFacetYChange = (value: FacetValue | undefined) => {
     navigate({
       to: '.',
-      search: (prev: NpmStatsSearch) => ({
+      search: (prev) => ({
         ...prev,
         facetY: value,
       }),
@@ -471,7 +471,7 @@ function RouteComponent() {
   const handleAddPackage = (packageName: string) => {
     navigate({
       to: '.',
-      search: (prev: NpmStatsSearch) => ({
+      search: (prev) => ({
         ...prev,
         packageGroups: [
           ...(prev.packageGroups ?? []),
@@ -505,7 +505,7 @@ function RouteComponent() {
 
       navigate({
         to: '.',
-        search: (prev: NpmStatsSearch) => ({
+        search: (prev) => ({
           ...prev,
           packageGroups: newPackages,
         }),
@@ -515,7 +515,7 @@ function RouteComponent() {
       // Create new package group
       navigate({
         to: '.',
-        search: (prev: NpmStatsSearch) => ({
+        search: (prev) => ({
           ...prev,
           packageGroups: [
             ...packageGroups,

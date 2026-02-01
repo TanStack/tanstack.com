@@ -2,7 +2,6 @@ import { createFileRoute } from '@tanstack/react-router'
 import { getSessionService, getUserRepository } from '~/auth/index.server'
 
 export const Route = createFileRoute('/auth/signout')({
-  // @ts-expect-error server property not in route types yet
   server: {
     handlers: {
       GET: async ({ request }: { request: Request }) => {

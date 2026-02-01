@@ -21,8 +21,7 @@ export default function PacerLanding() {
         project={pacerProject}
         cta={{
           linkProps: {
-            from: '/$libraryId/$version',
-            to: './docs',
+            to: '/$libraryId/$version/docs',
             params: { libraryId: library.id },
           },
           label: 'Get Started',
@@ -70,8 +69,7 @@ export default function PacerLanding() {
 
       <BottomCTA
         linkProps={{
-          from: '/$libraryId/$version',
-          to: './docs',
+          to: '/$libraryId/$version/docs',
           params: { libraryId: library.id },
         }}
         label="Get Started!"

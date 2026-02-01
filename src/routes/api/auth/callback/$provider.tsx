@@ -21,7 +21,6 @@ import { recordLogin } from '~/utils/audit.server'
 import { recordDailyActivity } from '~/utils/activity.server'
 
 export const Route = createFileRoute('/api/auth/callback/$provider')({
-  // @ts-expect-error server property not in route types yet
   server: {
     handlers: {
       GET: async ({ request, params }: { request: Request; params: { provider: string } }) => {

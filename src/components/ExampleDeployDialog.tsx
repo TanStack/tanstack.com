@@ -92,12 +92,14 @@ export function ExampleDeployDialog({
   // Reset repo name when dialog opens with new example
   useEffect(() => {
     if (isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setRepoName(defaultRepoName)
     }
   }, [isOpen, defaultRepoName])
 
   // Validate and check repo name
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setRepoNameError(null)
 
     const validation = validateRepoNameFormat(repoName)
@@ -126,6 +128,7 @@ export function ExampleDeployDialog({
   // Check auth state when dialog opens or auth changes
   useEffect(() => {
     if (!isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setState({ step: 'auth-check' })
       setCountdown(null)
       return
@@ -155,6 +158,7 @@ export function ExampleDeployDialog({
     if (state.step !== 'success' || countdown === null) return
 
     if (countdown <= 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCountdown(null)
       const deployUrl = providerInfo.deployUrl(state.owner, state.repoName)
       window.open(deployUrl, '_blank')

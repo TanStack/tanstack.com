@@ -15,6 +15,7 @@ import { Plus } from 'lucide-react'
 import { Button } from '~/ui'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useLoginModal } from '~/contexts/LoginModalContext'
+import type { LibraryId } from '~/libraries'
 
 export function ShowcaseGallery() {
   const navigate = useNavigate({ from: '/showcase/' })
@@ -186,13 +187,13 @@ export function ShowcaseGallery() {
     voteMutation.mutate({ showcaseId, value })
   }
 
-  const handleLibraryToggle = (libraryId: string) => {
+  const handleLibraryToggle = (libraryId: LibraryId) => {
     const current = search.libraryIds || []
     const updated = current.includes(libraryId)
-      ? current.filter((id: string) => id !== libraryId)
+      ? current.filter((id) => id !== libraryId)
       : [...current, libraryId]
     navigate({
-      search: (prev: typeof search) => ({
+      search: (prev) => ({
         ...prev,
         libraryIds: updated.length > 0 ? updated : undefined,
         page: 1,

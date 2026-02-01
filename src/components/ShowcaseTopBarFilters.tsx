@@ -3,12 +3,12 @@ import {
   FacetFilterButton,
   FilterCheckbox,
 } from '~/components/FilterComponents'
-import { libraries } from '~/libraries'
+import { libraries, type LibraryId } from '~/libraries'
 import { SHOWCASE_USE_CASES_UI, type ShowcaseUseCase } from '~/db/types'
 import { USE_CASE_LABELS } from '~/utils/showcase.client'
 
 interface ShowcaseFilters {
-  libraryIds?: string[]
+  libraryIds?: LibraryId[]
   useCases?: ShowcaseUseCase[]
   hasSourceCode?: boolean
   q?: string
@@ -16,7 +16,7 @@ interface ShowcaseFilters {
 
 interface ShowcaseTopBarFiltersProps {
   filters: ShowcaseFilters
-  onLibraryToggle: (libraryId: string) => void
+  onLibraryToggle: (libraryId: LibraryId) => void
   onClearLibraries: () => void
   onUseCaseToggle: (useCase: ShowcaseUseCase) => void
   onClearUseCases: () => void

@@ -37,17 +37,15 @@ import {
   defaultBinForRange,
 } from '~/utils/chart'
 
+const searchSchema = v.object({
+  tab: v.optional(
+    v.picklist(['overview', 'users', 'activity', 'ads']),
+    'overview',
+  ),
+})
+
 export const Route = createFileRoute('/admin/')({
-  validateSearch: (search) =>
-    v.parse(
-      v.object({
-        tab: v.optional(
-          v.picklist(['overview', 'users', 'activity', 'ads']),
-          'overview',
-        ),
-      }),
-      search,
-    ),
+  validateSearch: searchSchema,
   component: AdminPage,
 })
 

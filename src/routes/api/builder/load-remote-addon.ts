@@ -3,7 +3,6 @@ import { loadRemoteIntegrationHandler } from '~/builder/api'
 import { checkIpRateLimit, rateLimitedResponse, RATE_LIMITS } from '~/utils/rateLimit.server'
 
 export const Route = createFileRoute('/api/builder/load-remote-addon')({
-  // @ts-expect-error server property not in route types yet
   server: {
     handlers: {
       GET: async ({ request }: { request: Request }) => {

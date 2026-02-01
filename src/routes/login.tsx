@@ -10,6 +10,7 @@ import { Card } from '~/components/Card'
 
 const searchSchema = v.object({
   error: v.optional(v.string()),
+  redirect: v.optional(v.string()),
 })
 
 export const Route = createFileRoute('/login')({

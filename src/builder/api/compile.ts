@@ -174,7 +174,7 @@ function extractWarnings(addOns: Array<AddOn>): Array<string> {
     .map((a) => `${a.name}: ${a.warning}`)
 }
 
-function convertToStarter(template: StarterCompiled): Starter {
+function _convertToStarter(template: StarterCompiled): Starter {
   return {
     ...template,
     getFiles: () => Promise.resolve(Object.keys(template.files)),

@@ -200,7 +200,15 @@ export function DeployDialog({ isOpen, onClose, provider }: DeployDialogProps) {
         message: error instanceof Error ? error.message : 'Deployment failed',
       })
     }
-  }, [repoName, isPrivate, projectName, features, featureOptions, tailwind])
+  }, [
+    repoName,
+    isPrivate,
+    projectName,
+    features,
+    featureOptions,
+    tailwind,
+    providerInfo,
+  ])
 
   if (!isOpen) return null
 

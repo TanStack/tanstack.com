@@ -7,10 +7,11 @@ import {
   getFeedFacetCounts,
 } from '~/utils/feed.functions'
 import type { EntryType, ReleaseLevel } from '~/db/types'
+import type { LibraryId } from '~/libraries'
 
 export interface FeedFilters {
   entryTypes?: EntryType[]
-  libraries?: string[]
+  libraries?: LibraryId[]
   partners?: string[]
   tags?: string[]
   releaseLevels?: ReleaseLevel[]

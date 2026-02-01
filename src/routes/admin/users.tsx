@@ -64,7 +64,7 @@ type User = {
   updatedAt: number
 }
 
-type UsersSearch = {
+type _UsersSearch = {
   email?: string
   name?: string
   cap?: string | string[]
@@ -172,6 +172,20 @@ function EffectiveCapabilitiesCell({
   )
 }
 
+const searchSchema = v.object({
+  email: v.optional(v.string()),
+  name: v.optional(v.string()),
+  cap: v.optional(v.union([v.string(), v.array(v.string())])),
+  noCapabilities: v.optional(v.boolean()),
+  ads: v.optional(v.picklist(['all', 'true', 'false'])),
+  waitlist: v.optional(v.picklist(['all', 'true', 'false'])),
+  page: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0))),
+  pageSize: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
+  useEffectiveCapabilities: v.optional(v.boolean(), true),
+  sortBy: v.optional(v.string()),
+  sortDir: v.optional(v.picklist(['asc', 'desc'])),
+})
+
 export const Route = createFileRoute('/admin/users')({
   beforeLoad: async () => {
     try {
@@ -182,23 +196,7 @@ export const Route = createFileRoute('/admin/users')({
     }
   },
   component: UsersPage,
-  validateSearch: (search) =>
-    v.parse(
-      v.object({
-        email: v.optional(v.string()),
-        name: v.optional(v.string()),
-        cap: v.optional(v.union([v.string(), v.array(v.string())])),
-        noCapabilities: v.optional(v.boolean()),
-        ads: v.optional(v.picklist(['all', 'true', 'false'])),
-        waitlist: v.optional(v.picklist(['all', 'true', 'false'])),
-        page: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0))),
-        pageSize: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
-        useEffectiveCapabilities: v.optional(v.boolean(), true),
-        sortBy: v.optional(v.string()),
-        sortDir: v.optional(v.picklist(['asc', 'desc'])),
-      }),
-      search,
-    ),
+  validateSearch: searchSchema,
 })
 
 function UsersPage() {
@@ -248,7 +246,7 @@ function UsersPage() {
     }) => {
       navigate({
         resetScroll: false,
-        search: (prev: UsersSearch) => ({
+        search: (prev) => ({
           ...prev,
           email: 'email' in newFilters ? newFilters.email : prev.email,
           name: 'name' in newFilters ? newFilters.name : prev.name,
@@ -263,7 +261,7 @@ function UsersPage() {
             'waitlist' in newFilters ? newFilters.waitlist : prev.waitlist,
           useEffectiveCapabilities:
             'useEffectiveCapabilities' in newFilters
-              ? newFilters.useEffectiveCapabilities
+              ? newFilters.useEffectiveCapabilities!
               : prev.useEffectiveCapabilities,
           page: 0,
         }),
@@ -283,6 +281,7 @@ function UsersPage() {
       },
       emailFilter: emailFilter || undefined,
       nameFilter: nameFilter || undefined,
+      // @ts-expect-error not sure how to type this
       capabilityFilter:
         capabilityFilters.length > 0 ? capabilityFilters : undefined,
       noCapabilitiesFilter: noCapabilitiesFilter || undefined,
@@ -477,7 +476,7 @@ function UsersPage() {
         // New column: apply default direction
         navigate({
           resetScroll: false,
-          search: (prev: UsersSearch) => ({
+          search: (prev) => ({
             ...prev,
             sortBy: columnId,
             sortDir: sortDescFirst ? 'desc' : 'asc',
@@ -488,7 +487,7 @@ function UsersPage() {
         // First click was default, flip to opposite
         navigate({
           resetScroll: false,
-          search: (prev: UsersSearch) => ({
+          search: (prev) => ({
             ...prev,
             sortDir: sortDescFirst ? 'asc' : 'desc',
             page: 0,
@@ -498,7 +497,7 @@ function UsersPage() {
         // Third click: clear sort
         navigate({
           resetScroll: false,
-          search: (prev: UsersSearch) => ({
+          search: (prev) => ({
             ...prev,
             sortBy: undefined,
             sortDir: undefined,
@@ -950,13 +949,13 @@ function UsersPage() {
               onPageChange={(page) => {
                 navigate({
                   resetScroll: false,
-                  search: (prev: UsersSearch) => ({ ...prev, page }),
+                  search: (prev) => ({ ...prev, page }),
                 })
               }}
               onPageSizeChange={(newPageSize) => {
                 navigate({
                   resetScroll: false,
-                  search: (prev: UsersSearch) => ({
+                  search: (prev) => ({
                     ...prev,
                     pageSize: newPageSize,
                     page: 0,

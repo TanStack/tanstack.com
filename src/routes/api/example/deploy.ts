@@ -13,7 +13,7 @@ import {
 import {
   applyProviderConfig,
   generateExampleDescription,
-  isStartApp,
+  isStartApp as _isStartApp,
   type DeployProvider,
 } from '~/utils/provider-config.server'
 import {
@@ -44,19 +44,18 @@ interface DeployError {
   success: false
   error: string
   code:
-    | 'NOT_AUTHENTICATED'
-    | 'NO_GITHUB_ACCOUNT'
-    | 'MISSING_REPO_SCOPE'
-    | 'INVALID_REPO_NAME'
-    | 'REPO_NAME_TAKEN'
-    | 'REPO_CREATION_FAILED'
-    | 'PUSH_FAILED'
-    | 'FETCH_FAILED'
-    | 'INVALID_REQUEST'
+  | 'NOT_AUTHENTICATED'
+  | 'NO_GITHUB_ACCOUNT'
+  | 'MISSING_REPO_SCOPE'
+  | 'INVALID_REPO_NAME'
+  | 'REPO_NAME_TAKEN'
+  | 'REPO_CREATION_FAILED'
+  | 'PUSH_FAILED'
+  | 'FETCH_FAILED'
+  | 'INVALID_REQUEST'
 }
 
 export const Route = createFileRoute('/api/example/deploy')({
-  // @ts-expect-error server property not in route types yet
   server: {
     handlers: {
       /**

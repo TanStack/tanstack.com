@@ -3,7 +3,6 @@ import { loadRemoteTemplateHandler } from '~/builder/api'
 import { checkIpRateLimit, rateLimitedResponse, RATE_LIMITS } from '~/utils/rateLimit.server'
 
 export const Route = createFileRoute('/api/builder/load-template')({
-  // @ts-expect-error server property not in route types yet
   server: {
     handlers: {
       POST: async ({ request }: { request: Request }) => {

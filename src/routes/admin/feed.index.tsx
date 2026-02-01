@@ -20,41 +20,27 @@ import { AdminAccessDenied, AdminLoading } from '~/components/admin'
 import { useAdminGuard } from '~/hooks/useAdminGuard'
 import { useDeleteWithConfirmation } from '~/hooks/useDeleteWithConfirmation'
 
+const searchSchema = v.object({
+  entryTypes: v.optional(v.array(entryTypeSchema)),
+  libraries: v.optional(v.array(libraryIdSchema)),
+  partners: v.optional(v.array(v.string())),
+  tags: v.optional(v.array(v.string())),
+  releaseLevels: v.optional(v.array(releaseLevelSchema)),
+  includePrerelease: v.optional(v.boolean()),
+  featured: v.optional(v.boolean()),
+  search: v.optional(v.string()),
+  page: v.optional(v.number(), 1),
+  pageSize: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1)), 50),
+  viewMode: v.optional(
+    v.fallback(v.picklist(['table', 'timeline']), 'table'),
+    'table',
+  ),
+  expanded: v.optional(v.array(v.string())),
+})
+
 export const Route = createFileRoute('/admin/feed/')({
   component: FeedAdminPage,
-  validateSearch: (search: Record<string, unknown>) => {
-    const hasReleaseLevels = 'releaseLevels' in search
-    const releaseLevelsValue = search.releaseLevels
-
-    return v.parse(
-      v.object({
-        entryTypes: v.optional(v.array(entryTypeSchema)),
-        libraries: v.optional(v.array(libraryIdSchema)),
-        partners: v.optional(v.array(v.string())),
-        tags: v.optional(v.array(v.string())),
-        releaseLevels: hasReleaseLevels
-          ? v.fallback(
-              v.array(releaseLevelSchema),
-              Array.isArray(releaseLevelsValue) ? releaseLevelsValue : [],
-            )
-          : v.optional(v.array(releaseLevelSchema)),
-        includePrerelease: v.optional(v.boolean()),
-        featured: v.optional(v.boolean()),
-        search: v.optional(v.string()),
-        page: v.optional(v.number(), 1),
-        pageSize: v.optional(
-          v.pipe(v.number(), v.integer(), v.minValue(1)),
-          50,
-        ),
-        viewMode: v.optional(
-          v.fallback(v.picklist(['table', 'timeline']), 'table'),
-          'table',
-        ),
-        expanded: v.optional(v.array(v.string())),
-      }),
-      search,
-    )
-  },
+  validateSearch: searchSchema,
 })
 
 function FeedAdminPage() {

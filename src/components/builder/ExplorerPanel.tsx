@@ -195,7 +195,7 @@ export function ExplorerPanel() {
   const isCompiling = useIsCompiling()
   const compileError = useCompileError()
   const navigate = useNavigate()
-  const search = useSearch({ from: '/builder' })
+  const search = useSearch({ from: '/builder/' })
 
   // URL state: addon can be a featureId or undefined for all files
   const urlSelectedAddon = (search.addon as string) || null
@@ -281,16 +281,26 @@ export function ExplorerPanel() {
 
   const isAllFilesMode = selectedAddon === null
 
-  // All files from compiled output
-  const allFiles = compiledOutput?.files || {}
+  // All files from compiled output - memoized to avoid dependency issues
+  const allFiles = useMemo(
+    () => compiledOutput?.files || {},
+    [compiledOutput?.files],
+  )
   const allFileList = useMemo(() => Object.keys(allFiles), [allFiles])
 
   // For single addon mode, get that addon's artifacts
   const currentArtifacts = selectedAddon
     ? featureArtifacts[selectedAddon]
     : null
-  const currentFiles = currentArtifacts?.files || {}
-  const currentInjections = currentArtifacts?.injections || {}
+  // Memoize to avoid dependency issues in useMemo hooks
+  const currentFiles = useMemo(
+    () => currentArtifacts?.files || {},
+    [currentArtifacts?.files],
+  )
+  const currentInjections = useMemo(
+    () => currentArtifacts?.injections || {},
+    [currentArtifacts?.injections],
+  )
   const currentPackages = currentArtifacts?.packages || {}
 
   // Merge files and injections for single addon view

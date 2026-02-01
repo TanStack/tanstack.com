@@ -126,7 +126,9 @@ function RolesPage() {
         data: {
           nameFilter: nameFilter || undefined,
           capabilityFilter:
-            capabilityFilters.length > 0 ? capabilityFilters : undefined,
+            capabilityFilters.length > 0
+              ? (capabilityFilters as Capability[])
+              : undefined,
         },
       })
     },

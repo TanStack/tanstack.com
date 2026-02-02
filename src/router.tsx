@@ -58,6 +58,46 @@ export function getRouter() {
       // Session Replay
       replaysSessionSampleRate: 0.1, // This sets the sample rate at 10%. You may want to change it to 100% while in development and then sample at a lower rate in production.
       replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
+      // Filter out known third-party ad script errors
+      beforeSend(event, hint) {
+        const error = hint.originalException
+        const errorMessage =
+          typeof error === 'string'
+            ? error
+            : error instanceof Error
+              ? error.message
+              : ''
+
+        // Check if the error comes from third-party ad scripts
+        const frames = event.exception?.values?.[0]?.stacktrace?.frames || []
+        const isAdScriptError = frames.some((frame) => {
+          const filename = frame.filename || ''
+          return (
+            filename.includes('/nobid/blocking_script.js') ||
+            filename.includes('/media/native/') ||
+            filename.includes('fuse.js') ||
+            filename.includes('fuseplatform.net')
+          )
+        })
+
+        // Check if the error message matches known ad script errors
+        const isKnownAdError =
+          errorMessage.includes('is not a function') ||
+          errorMessage.includes('null is not an object') ||
+          errorMessage.includes('contextWindow.parent')
+
+        if (isAdScriptError && isKnownAdError) {
+          // Suppress the error - log to console in debug mode
+          console.debug(
+            'Suppressed third-party ad script error:',
+            errorMessage,
+            frames.map((f) => f.filename),
+          )
+          return null // Don't send this event to Sentry
+        }
+
+        return event
+      },
     })
   }
 

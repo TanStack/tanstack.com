@@ -56,50 +56,6 @@ export function GamOnPageChange() {
 export const GamScripts = () => (
   <>
     <script
-      dangerouslySetInnerHTML={{
-        __html: `
-  // Add global error handler to suppress Publift Fuse cross-origin errors
-  // These errors occur in iOS Safari due to strict Same-Origin Policy enforcement
-  // when the ad viewability script tries to access parent window properties
-  // Also suppress race condition errors during navigation
-  (function() {
-    var originalErrorHandler = window.onerror;
-    window.onerror = function(message, source, lineno, colno, error) {
-      // Check if this is a Publift Fuse cross-origin error
-      if (
-        source && (
-          source.includes('/media/native/') ||
-          source.includes('fuse.js') ||
-          source.includes('fuseplatform.net') ||
-          source.includes('/nobid/blocking_script.js')
-        ) && (
-          (message && typeof message === 'string' && (
-            message.includes('contextWindow.parent') ||
-            message.includes('null is not an object') ||
-            message.includes('is not a function')
-          )) ||
-          (error && error.message && (
-            error.message.includes('contextWindow.parent') ||
-            error.message.includes('null is not an object') ||
-            error.message.includes('is not a function')
-          ))
-        )
-      ) {
-        // Suppress the error - log to console in debug mode
-        console.debug('Suppressed Publift Fuse cross-origin error:', message, source);
-        return true; // Prevent default error handling
-      }
-      // Call original error handler for other errors
-      if (originalErrorHandler) {
-        return originalErrorHandler.apply(this, arguments);
-      }
-      return false;
-    };
-  })();
-`,
-      }}
-    />
-    <script
       async
       src="https://cdn.fuseplatform.net/publift/tags/2/4019/fuse.js"
       onError={(e) => {

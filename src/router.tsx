@@ -74,11 +74,16 @@ export function getRouter() {
         const frames = event.exception?.values?.[0]?.stacktrace?.frames || []
         const hasAdScriptFrame = frames.some((frame) => {
           const filename = frame.filename || ''
+          const functionName = frame.function || ''
           return (
             filename.includes('/media/native/') ||
             filename.includes('fuse.js') ||
             filename.includes('fuseplatform.net') ||
-            filename.includes('/nobid/blocking_script.js')
+            filename.includes('/nobid/blocking_script.js') ||
+            // Check for known ad script function names (e.g., getViewportGeometry from Publift Fuse)
+            functionName.includes('getViewportGeometry') ||
+            functionName.includes('AdSlot') ||
+            functionName.includes('adSlot')
           )
         })
 

@@ -63,7 +63,7 @@ export function getRouter() {
         // These errors occur in iOS Safari and during navigation due to strict Same-Origin Policy
         // and race conditions with ad script initialization
         const error = hint.originalException
-        
+
         // Extract error message from multiple sources
         let errorMessage = ''
         if (typeof error === 'string') {
@@ -71,13 +71,14 @@ export function getRouter() {
         } else if (error instanceof Error) {
           errorMessage = error.message
         }
-        
+
         // Also check the event exception structure as a fallback
         const eventErrorMessage = event.exception?.values?.[0]?.value || ''
         const eventErrorType = event.exception?.values?.[0]?.type || ''
-        
+
         // Combine error messages for comprehensive checking
-        const fullErrorMessage = `${errorMessage} ${eventErrorMessage} ${eventErrorType}`.toLowerCase()
+        const fullErrorMessage =
+          `${errorMessage} ${eventErrorMessage} ${eventErrorType}`.toLowerCase()
 
         // Check if this is an ad script error we want to suppress
         const frames = event.exception?.values?.[0]?.stacktrace?.frames || []

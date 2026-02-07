@@ -413,7 +413,7 @@ export const mcp: LibrarySlim = {
   handleRedirects: (href: string) => {
     // All /mcp routes redirect to CLI MCP docs
     if (/\/mcp(\/|$)/.test(href)) {
-      throw redirect({ href: '/cli/latest/docs/mcp/mcp-overview' })
+      throw redirect({ href: '/cli/latest/docs/mcp/overview' })
     }
   },
 }

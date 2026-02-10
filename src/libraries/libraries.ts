@@ -22,7 +22,7 @@ export const query: LibrarySlim = {
   bgRadial: 'from-red-500 via-red-500/60 to-transparent',
   badge: undefined,
   repo: 'tanstack/query',
-  frameworks: ['react', 'solid', 'vue', 'svelte', 'angular'],
+  frameworks: ['react', 'preact', 'solid', 'vue', 'svelte', 'angular'],
   latestVersion: 'v5',
   latestBranch: 'main',
   availableVersions: ['v5', 'v4', 'v3'],

@@ -106,7 +106,11 @@ export default defineConfig({
     rollupOptions: {
       external: (id) => {
         // Externalize postgres from client bundle
-        return id.includes('postgres')
+        if (id.includes('postgres')) return true
+        // Externalize Node.js built-in modules that linked packages import
+        // These should never be in client bundles
+        if (id.startsWith('node:')) return true
+        return false
       },
       output: {
         manualChunks: (id) => {

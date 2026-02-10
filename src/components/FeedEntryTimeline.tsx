@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { format, formatDistanceToNow } from '~/utils/dates'
-import { Markdown } from '~/components/markdown'
+// TODO: Fix feed to use server-rendered markdown
+// import { Markdown } from '~/components/markdown'
 import { Card } from '~/components/Card'
 import { libraries } from '~/libraries'
 import { partners } from '~/utils/partners'
@@ -333,7 +334,8 @@ export function FeedEntryTimeline({
             !expanded && 'line-clamp-6',
           )}
         >
-          <Markdown rawContent={entry.content} />
+          {/* TODO: Fix feed to use server-rendered markdown */}
+          <div>{entry.content}</div>
         </div>
 
         {/* Show more/less button */}

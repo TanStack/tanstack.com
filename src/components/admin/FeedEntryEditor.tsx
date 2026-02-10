@@ -2,7 +2,8 @@ import * as React from 'react'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { FeedEntry } from '~/components/FeedEntry'
-import { Markdown } from '~/components/markdown'
+// TODO: Fix feed editor to use server-rendered markdown
+// import { Markdown } from '~/components/markdown'
 import { libraries } from '~/libraries'
 import { partners } from '~/utils/partners'
 import { currentUserQueryOptions } from '~/queries/auth'
@@ -475,7 +476,8 @@ export function FeedEntryEditor({
                       {excerpt}
                     </p>
                   )}
-                  <Markdown rawContent={content || '*No content yet*'} />
+                  {/* TODO: Fix feed editor to use server-rendered markdown */}
+                  <div>{content || '*No content yet*'}</div>
                 </div>
               ) : (
                 <div className="text-center py-12 text-gray-400 dark:text-gray-500">

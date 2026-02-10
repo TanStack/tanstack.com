@@ -2,7 +2,6 @@ import * as React from 'react'
 import { SquarePen } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { DocTitle } from '~/components/DocTitle'
-import { Markdown } from './Markdown'
 import { CopyPageDropdown } from '~/components/CopyPageDropdown'
 import { DocFeedbackProvider } from '~/components/DocFeedbackProvider'
 import { Button } from '~/ui'
@@ -12,10 +11,8 @@ type MarkdownContentProps = {
   repo: string
   branch: string
   filePath: string
-  /** Pre-rendered HTML markup (from renderMarkdown). If not provided, rawContent will be rendered. */
-  htmlMarkup?: string
-  /** Raw markdown content to render. Used if htmlMarkup is not provided. */
-  rawContent?: string
+  /** RSC-rendered content */
+  contentRsc: React.ReactNode
   /** Additional elements to render in the title bar (e.g., width toggle button) */
   titleBarActions?: React.ReactNode
   /** Additional class names for the prose container */
@@ -33,8 +30,7 @@ export function MarkdownContent({
   repo,
   branch,
   filePath,
-  htmlMarkup,
-  rawContent,
+  contentRsc,
   titleBarActions,
   proseClassName,
   containerRef,
@@ -43,12 +39,6 @@ export function MarkdownContent({
   pagePath,
 }: MarkdownContentProps) {
   const renderMarkdownContent = () => {
-    const markdownElement = htmlMarkup ? (
-      <Markdown htmlMarkup={htmlMarkup} />
-    ) : rawContent ? (
-      <Markdown rawContent={rawContent} />
-    ) : null
-
     if (libraryId && libraryVersion && pagePath) {
       return (
         <DocFeedbackProvider
@@ -56,12 +46,12 @@ export function MarkdownContent({
           libraryId={libraryId}
           libraryVersion={libraryVersion}
         >
-          {markdownElement}
+          {contentRsc}
         </DocFeedbackProvider>
       )
     }
 
-    return markdownElement
+    return contentRsc
   }
 
   return (

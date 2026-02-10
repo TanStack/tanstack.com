@@ -1,3 +1,5 @@
+'use client'
+
 import type { HTMLProps } from 'react'
 import * as React from 'react'
 import { MarkdownLink } from './MarkdownLink'
@@ -9,7 +11,6 @@ import parse, {
   HTMLReactParserOptions,
 } from 'html-react-parser'
 
-import { renderMarkdown } from '~/utils/markdown'
 import { CodeBlock } from './CodeBlock'
 import { handleTabsComponent } from './MarkdownTabsHandler'
 import { handleFrameworkComponent } from './MarkdownFrameworkHandler'
@@ -125,31 +126,17 @@ const options: HTMLReactParserOptions = {
 }
 
 type MarkdownProps = {
-  rawContent?: string
-  htmlMarkup?: string
+  htmlMarkup: string
 }
 
 export const Markdown = React.memo(function Markdown({
-  rawContent,
   htmlMarkup,
 }: MarkdownProps) {
-  const rendered = React.useMemo(() => {
-    if (rawContent) {
-      return renderMarkdown(rawContent)
-    }
-
-    if (htmlMarkup) {
-      return { markup: htmlMarkup, headings: [] }
-    }
-
-    return { markup: '', headings: [] }
-  }, [rawContent, htmlMarkup])
-
   return React.useMemo(() => {
-    if (!rendered.markup) {
+    if (!htmlMarkup) {
       return null
     }
 
-    return parse(rendered.markup, options)
-  }, [rendered.markup])
+    return parse(htmlMarkup, options)
+  }, [htmlMarkup])
 })

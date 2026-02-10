@@ -1,9 +1,11 @@
+'use client'
+
 import { useLocalCurrentFramework } from '../FrameworkSelect'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { useParams } from '@tanstack/react-router'
 import { create } from 'zustand'
 import { Tabs, type TabDefinition } from './Tabs'
-import { CodeBlock } from './CodeBlock'
+import { PlainCodeBlock } from './CodeBlock'
 import type { Framework } from '~/libraries/types'
 
 type PackageManager = 'bun' | 'npm' | 'pnpm' | 'yarn'
@@ -190,11 +192,7 @@ export function PackageManagerTabs({
   const children = PACKAGE_MANAGERS.map((pm) => {
     const commands = getInstallCommand(pm, packageGroups, mode)
     const commandText = commands.join('\n')
-    return (
-      <CodeBlock key={pm}>
-        <code className="language-bash">{commandText}</code>
-      </CodeBlock>
-    )
+    return <PlainCodeBlock key={pm} code={commandText} lang="bash" />
   })
 
   return (

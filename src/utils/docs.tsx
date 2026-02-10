@@ -6,8 +6,11 @@ import {
 import removeMarkdown from 'remove-markdown'
 import { notFound } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
+import { renderServerComponent } from '@tanstack/react-start/rsc'
 import * as v from 'valibot'
-import { setResponseHeader } from '@tanstack/react-start/server'
+import { setResponseHeader } from '~/utils/headers.server'
+import { renderMarkdownToJsx } from '~/utils/markdown'
+import { DocContent } from '~/components/markdown/DocContent'
 
 export const loadDocs = async ({
   repo,
@@ -51,6 +54,14 @@ export const fetchDocs = createServerFn({ method: 'GET' })
     const frontMatter = extractFrontMatter(file)
     const description = removeMarkdown(frontMatter.excerpt ?? '')
 
+    // Render markdown directly to JSX on the server
+    const { content, headings } = await renderMarkdownToJsx(frontMatter.content)
+
+    // Wrap in RSC stream for client hydration
+    const contentRsc = await renderServerComponent(
+      <DocContent>{content}</DocContent>,
+    )
+
     // Cache for 5 minutes on shared cache
     // Revalidate in the background
     setResponseHeader('Cache-Control', 'public, max-age=0, must-revalidate')
@@ -63,7 +74,9 @@ export const fetchDocs = createServerFn({ method: 'GET' })
       title: frontMatter.data?.title,
       description,
       filePath,
-      content: frontMatter.content,
+      content: frontMatter.content, // Raw markdown content for .md routes
+      contentRsc,
+      headings,
       frontmatter: frontMatter.data,
     }
   })

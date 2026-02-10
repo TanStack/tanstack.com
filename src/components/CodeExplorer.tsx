@@ -1,5 +1,5 @@
 import React from 'react'
-import { CodeBlock } from '~/components/markdown'
+import { HighlightedCodeBlock } from '~/components/markdown'
 import { FileExplorer } from './FileExplorer'
 import { InteractiveSandbox } from './InteractiveSandbox'
 import { CodeExplorerTopBar } from './CodeExplorerTopBar'
@@ -7,38 +7,41 @@ import type { GitHubFileNode } from '~/utils/documents.server'
 import type { Library } from '~/libraries'
 import { twMerge } from 'tailwind-merge'
 
-function overrideExtension(ext: string | undefined) {
-  if (!ext) return 'txt'
+function getLanguageFromPath(path: string): string {
+  const ext = path.split('.').pop() || ''
 
-  // Override some extensions
-  if (['cts', 'mts'].includes(ext)) return 'ts'
-  if (['cjs', 'mjs'].includes(ext)) return 'js'
-  if (['prettierrc', 'babelrc', 'webmanifest'].includes(ext)) return 'json'
-  if (['env', 'example'].includes(ext)) return 'sh'
-  if (
-    [
-      'gitignore',
-      'prettierignore',
-      'log',
-      'gitattributes',
-      'editorconfig',
-      'lock',
-      'opts',
-      'Dockerfile',
-      'dockerignore',
-      'npmrc',
-      'nvmrc',
-    ].includes(ext)
-  )
-    return 'txt'
+  const langMap: Record<string, string> = {
+    ts: 'typescript',
+    tsx: 'tsx',
+    js: 'javascript',
+    jsx: 'jsx',
+    mts: 'typescript',
+    cts: 'typescript',
+    mjs: 'javascript',
+    cjs: 'javascript',
+    json: 'json',
+    md: 'markdown',
+    html: 'html',
+    css: 'css',
+    scss: 'scss',
+    yaml: 'yaml',
+    yml: 'yaml',
+    toml: 'toml',
+    sh: 'bash',
+    bash: 'bash',
+    sql: 'sql',
+    vue: 'vue',
+    svelte: 'svelte',
+  }
 
-  return ext
+  return langMap[ext] || 'text'
 }
 
 interface CodeExplorerProps {
   activeTab: 'code' | 'sandbox'
   codeSandboxUrl: string
-  currentCode: string
+  /** Pre-highlighted HTML from server-side Shiki */
+  currentCodeHtml: string
   currentPath: string
   examplePath: string
   githubContents: GitHubFileNode[] | undefined
@@ -52,7 +55,7 @@ interface CodeExplorerProps {
 export function CodeExplorer({
   activeTab,
   codeSandboxUrl,
-  currentCode,
+  currentCodeHtml,
   currentPath,
   examplePath,
   githubContents,
@@ -84,6 +87,8 @@ export function CodeExplorer({
     window.addEventListener('closeSidebar', handleCloseSidebar)
     return () => window.removeEventListener('closeSidebar', handleCloseSidebar)
   }, [])
+
+  const lang = getLanguageFromPath(currentPath)
 
   return (
     <div
@@ -117,21 +122,15 @@ export function CodeExplorer({
             setCurrentPath={setCurrentPath}
           />
           <div className="flex-1 overflow-auto relative">
-            <CodeBlock
+            <HighlightedCodeBlock
+              html={currentCodeHtml}
+              lang={lang}
               isEmbedded
               className={twMerge(
                 'h-full border-0',
                 isFullScreen ? 'max-h-[90dvh]' : 'max-h-[80dvh]',
               )}
-            >
-              <code
-                className={`language-${overrideExtension(
-                  currentPath.split('.').pop(),
-                )}`}
-              >
-                {currentCode}
-              </code>
-            </CodeBlock>
+            />
           </div>
         </div>
         <InteractiveSandbox

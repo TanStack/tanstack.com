@@ -1,7 +1,7 @@
 import { useParams } from '@tanstack/react-router'
 import { Breadcrumbs } from './Breadcrumbs'
 import type { ConfigSchema } from '~/utils/config'
-import type { MarkdownHeading } from '~/utils/markdown/processor'
+import type { MarkdownHeading } from '~/utils/markdown/types'
 
 function findSectionForDoc(
   config: ConfigSchema,

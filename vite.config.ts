@@ -6,11 +6,45 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import tailwindcss from '@tailwindcss/vite'
 import { analyzer } from 'vite-bundle-analyzer'
 import viteReact from '@vitejs/plugin-react'
+import rsc from '@vitejs/plugin-rsc'
 import netlify from '@netlify/vite-plugin-tanstack-start'
+import { fileURLToPath } from 'url'
+import { dirname, resolve } from 'path'
 
+const __dirname = dirname(fileURLToPath(import.meta.url))
 const isDev = process.env.NODE_ENV !== 'production'
 
+// Packages that must be externalized due to CJS/ESM interop issues with RSC
+// These packages use patterns that conflict with Vite's ESM module runner
+// NOTE: html-react-parser and domhandler were removed to allow RSC to use Markdown component
+const rscExternals = [
+  // HTML parsing (cheerio uses iconv-lite which has CJS module issues)
+  'cheerio',
+  'iconv-lite',
+  'encoding-sniffer',
+  'parse5',
+  'parse5-parser-stream',
+  // Discord SDK has crypto import issues
+  'discord-interactions',
+  // OpenTelemetry uses require-in-the-middle which is CJS-only
+  'require-in-the-middle',
+  '@opentelemetry/instrumentation',
+  // jszip has CJS module transformation issues
+  'jszip',
+  'pako',
+]
+
 export default defineConfig({
+  resolve: {
+    alias: {
+      // Force react-is to resolve to the local node_modules version
+      // This ensures Vite can pre-bundle the CJS module for browser use
+      'react-is': resolve(
+        __dirname,
+        'node_modules/.pnpm/react-is@19.2.4/node_modules/react-is',
+      ),
+    },
+  },
   server: {
     port: Number(process.env.PORT) || 3000,
     // WebContainer headers for /builder route (SharedArrayBuffer support)
@@ -25,6 +59,17 @@ export default defineConfig({
         }
       : undefined,
   },
+  // RSC environment needs to externalize packages that import react-dom/server
+  environments: {
+    rsc: {
+      resolve: {
+        external: [
+          '@tanstack/react-start-server',
+          '@tanstack/react-router/ssr/server',
+        ],
+      },
+    },
+  },
   ssr: {
     external: [
       'postgres',
@@ -32,10 +77,22 @@ export default defineConfig({
       '@tanstack/create',
       // Externalize CLI so server reloads it on changes
       '@tanstack/cli',
+      // RSC compatibility externals
+      ...rscExternals,
     ],
-    noExternal: ['drizzle-orm'],
+    noExternal: [
+      'drizzle-orm',
+      // react-is is CJS but used by @tanstack/react-start-rsc in client code
+      // noExternal forces Vite to bundle it (converting CJS to ESM)
+      'react-is',
+    ],
   },
   optimizeDeps: {
+    include: [
+      // react-is is CJS-only but start-rsc imports it in 'use client' code
+      // Pre-bundling allows Vite to create proper ESM wrappers for browser
+      'react-is',
+    ],
     exclude: [
       'postgres',
       // CTA packages use execa which has a broken unicorn-magic dependency
@@ -89,6 +146,9 @@ export default defineConfig({
     }),
 
     tanstackStart({
+      rsc: {
+        enabled: true,
+      },
       router: {
         codeSplittingOptions: {
           defaultBehavior: [
@@ -102,6 +162,11 @@ export default defineConfig({
           ],
         },
       },
+    }),
+    rsc({
+      // Disable CSS link precedence to prevent React 19 SSR suspension
+      // TanStack Start handles CSS preloading via manifest injection instead
+      cssLinkPrecedence: false,
     }),
     // Only enable Netlify plugin during build or when NETLIFY env is set
     ...(process.env.NETLIFY || process.env.NODE_ENV === 'production'

@@ -1,5 +1,6 @@
 import { format, formatDistanceToNow } from '~/utils/dates'
-import { Markdown } from '~/components/markdown'
+// TODO: Fix feed to use server-rendered markdown
+// import { Markdown } from '~/components/markdown'
 import { libraries } from '~/libraries'
 import { partners } from '~/utils/partners'
 import { twMerge } from 'tailwind-merge'
@@ -415,7 +416,8 @@ export function FeedEntry({
 
               {/* Content */}
               <div className="text-xs text-gray-900 dark:text-gray-100 leading-snug mb-3">
-                <Markdown rawContent={entry.content} />
+                {/* TODO: Fix feed to use server-rendered markdown */}
+                <div>{entry.content}</div>
               </div>
 
               {/* External Link */}

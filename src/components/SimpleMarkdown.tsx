@@ -1,5 +1,7 @@
+'use client'
+
 import * as React from 'react'
-import { MarkdownLink } from '~/components/markdown'
+import { MarkdownLink } from '~/components/markdown/MarkdownLink'
 import type { HTMLProps } from 'react'
 import parse, {
   attributesToProps,
@@ -7,13 +9,12 @@ import parse, {
   Element,
   HTMLReactParserOptions,
 } from 'html-react-parser'
-import { renderMarkdown } from '~/utils/markdown'
 import { InlineCode, MarkdownImg } from '~/ui'
 
 /**
  * Lightweight markdown renderer for simple content like excerpts.
  * Does NOT include syntax highlighting (shiki) or diagram rendering (mermaid).
- * Use the full <Markdown> component for documentation with code blocks.
+ * Expects pre-rendered HTML markup from the server.
  */
 
 const markdownComponents: Record<string, React.FC<any>> = {
@@ -49,31 +50,15 @@ const options: HTMLReactParserOptions = {
 }
 
 type SimpleMarkdownProps = {
-  rawContent?: string
-  htmlMarkup?: string
+  htmlMarkup: string
 }
 
-export function SimpleMarkdown({
-  rawContent,
-  htmlMarkup,
-}: SimpleMarkdownProps) {
-  const rendered = React.useMemo(() => {
-    if (rawContent) {
-      return renderMarkdown(rawContent)
-    }
-
-    if (htmlMarkup) {
-      return { markup: htmlMarkup, headings: [] }
-    }
-
-    return { markup: '', headings: [] }
-  }, [rawContent, htmlMarkup])
-
+export function SimpleMarkdown({ htmlMarkup }: SimpleMarkdownProps) {
   return React.useMemo(() => {
-    if (!rendered.markup) {
+    if (!htmlMarkup) {
       return null
     }
 
-    return parse(rendered.markup, options)
-  }, [rendered.markup])
+    return parse(htmlMarkup, options)
+  }, [htmlMarkup])
 }

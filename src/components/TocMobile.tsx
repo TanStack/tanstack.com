@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from '@tanstack/react-router'
-import { MarkdownHeading } from '~/utils/markdown/processor'
+import type { MarkdownHeading } from '~/utils/markdown/types'
 import { ChevronDown, ChevronRight } from 'lucide-react'
 
 interface TocMobileProps {

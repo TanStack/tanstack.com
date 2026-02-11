@@ -138,6 +138,7 @@ export function PreviewPanel({ files }: PreviewPanelProps) {
   // Reset history when preview URL changes (new project)
   useEffect(() => {
     if (previewUrl) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setNavHistory({ entries: ['/'], index: 0 })
     }
   }, [previewUrl])

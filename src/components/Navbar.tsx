@@ -180,7 +180,8 @@ export function Navbar({ children }: { children: React.ReactNode }) {
 
   const { Title, library } = React.useMemo(() => {
     const match = [...matches].reverse().find((m) => m.staticData.Title)
-    const libraryId = match?.params?.libraryId
+    const params = match?.params as { libraryId?: string } | undefined
+    const libraryId = params?.libraryId
 
     return {
       Title: match?.staticData.Title ?? null,
@@ -253,7 +254,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       <Authenticated>
         <React.Suspense fallback={<div className="w-[26px] h-[26px]" />}>
           <LazyAuthenticatedUserMenu
-            user={user}
+            user={user ?? null}
             canAdmin={canAdmin}
             canApiKeys={canApiKeys}
             onSignOut={signOut}
@@ -333,7 +334,8 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       </div>
       <div className="hidden xl:flex flex-1 justify-end min-w-0">
         <Link
-          to="/cli"
+          to="/$libraryId/$version"
+          params={{ libraryId: 'cli', version: 'latest' }}
           className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md
             bg-gradient-to-r from-indigo-600 to-violet-700
             hover:from-indigo-500 hover:to-violet-600
@@ -437,7 +439,8 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                   {/* Mobile: Direct link with Card */}
                   <MobileCard isActive={isActive}>
                     <Link
-                      to={`${library.to}/latest`}
+                      to="/$libraryId/$version"
+                      params={{ libraryId: library.id, version: 'latest' }}
                       className={twMerge(
                         linkClasses,
                         'md:hidden',
@@ -477,7 +480,8 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                   </MobileCard>
                   {/* Desktop: Simple link */}
                   <Link
-                    to={`${library.to}/latest`}
+                    to="/$libraryId/$version"
+                    params={{ libraryId: library.id, version: 'latest' }}
                     className={twMerge(
                       linkClasses,
                       'hidden md:flex',

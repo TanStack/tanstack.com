@@ -732,9 +732,9 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/builder/': typeof BuilderIndexRoute
-  '/feed': typeof FeedIndexRoute
-  '/showcase': typeof ShowcaseIndexRoute
-  '/stats': typeof StatsIndexRoute
+  '/feed/': typeof FeedIndexRoute
+  '/showcase/': typeof ShowcaseIndexRoute
+  '/stats/': typeof StatsIndexRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsRouteWithChildren
   '/admin/banners/$id': typeof AdminBannersIdRoute
   '/admin/feed/$id': typeof AdminFeedIdRoute
@@ -763,14 +763,14 @@ export interface FileRoutesByFullPath {
   '/showcase/edit/$id': typeof ShowcaseEditIdRoute
   '/stats/npm/$packages': typeof StatsNpmPackagesRoute
   '/$libraryId/$version/': typeof LibraryIdVersionIndexRoute
-  '/admin/banners': typeof AdminBannersIndexRoute
-  '/admin/feed': typeof AdminFeedIndexRoute
-  '/admin/feedback': typeof AdminFeedbackIndexRoute
-  '/admin/notes': typeof AdminNotesIndexRoute
-  '/admin/roles': typeof AdminRolesIndexRoute
-  '/admin/showcases': typeof AdminShowcasesIndexRoute
-  '/api/mcp': typeof ApiMcpIndexRoute
-  '/stats/npm': typeof StatsNpmIndexRoute
+  '/admin/banners/': typeof AdminBannersIndexRoute
+  '/admin/feed/': typeof AdminFeedIndexRoute
+  '/admin/feedback/': typeof AdminFeedbackIndexRoute
+  '/admin/notes/': typeof AdminNotesIndexRoute
+  '/admin/roles/': typeof AdminRolesIndexRoute
+  '/admin/showcases/': typeof AdminShowcasesIndexRoute
+  '/api/mcp/': typeof ApiMcpIndexRoute
+  '/stats/npm/': typeof StatsNpmIndexRoute
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
   '/$libraryId/$version/docs/community-resources': typeof LibraryIdVersionDocsCommunityResourcesRoute
   '/$libraryId/$version/docs/contributors': typeof LibraryIdVersionDocsContributorsRoute
@@ -780,10 +780,10 @@ export interface FileRoutesByFullPath {
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
   '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
   '/$libraryId/$version/docs/': typeof LibraryIdVersionDocsIndexRoute
-  '/$libraryId/$version/docs/framework': typeof LibraryIdVersionDocsFrameworkIndexRoute
+  '/$libraryId/$version/docs/framework/': typeof LibraryIdVersionDocsFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/$': typeof LibraryIdVersionDocsFrameworkFrameworkSplatRoute
   '/$libraryId/$version/docs/framework/$framework/{$}.md': typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRoute
-  '/$libraryId/$version/docs/framework/$framework': typeof LibraryIdVersionDocsFrameworkFrameworkIndexRoute
+  '/$libraryId/$version/docs/framework/$framework/': typeof LibraryIdVersionDocsFrameworkFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/examples/$': typeof LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute
 }
 export interface FileRoutesByTo {
@@ -1058,9 +1058,9 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/blog/'
     | '/builder/'
-    | '/feed'
-    | '/showcase'
-    | '/stats'
+    | '/feed/'
+    | '/showcase/'
+    | '/stats/'
     | '/$libraryId/$version/docs'
     | '/admin/banners/$id'
     | '/admin/feed/$id'
@@ -1089,14 +1089,14 @@ export interface FileRouteTypes {
     | '/showcase/edit/$id'
     | '/stats/npm/$packages'
     | '/$libraryId/$version/'
-    | '/admin/banners'
-    | '/admin/feed'
-    | '/admin/feedback'
-    | '/admin/notes'
-    | '/admin/roles'
-    | '/admin/showcases'
-    | '/api/mcp'
-    | '/stats/npm'
+    | '/admin/banners/'
+    | '/admin/feed/'
+    | '/admin/feedback/'
+    | '/admin/notes/'
+    | '/admin/roles/'
+    | '/admin/showcases/'
+    | '/api/mcp/'
+    | '/stats/npm/'
     | '/$libraryId/$version/docs/$'
     | '/$libraryId/$version/docs/community-resources'
     | '/$libraryId/$version/docs/contributors'
@@ -1106,10 +1106,10 @@ export interface FileRouteTypes {
     | '/api/builder/deploy/check-name'
     | '/api/builder/deploy/github'
     | '/$libraryId/$version/docs/'
-    | '/$libraryId/$version/docs/framework'
+    | '/$libraryId/$version/docs/framework/'
     | '/$libraryId/$version/docs/framework/$framework/$'
     | '/$libraryId/$version/docs/framework/$framework/{$}.md'
-    | '/$libraryId/$version/docs/framework/$framework'
+    | '/$libraryId/$version/docs/framework/$framework/'
     | '/$libraryId/$version/docs/framework/$framework/examples/$'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -1596,21 +1596,21 @@ declare module '@tanstack/react-router' {
     '/stats/': {
       id: '/stats/'
       path: '/stats'
-      fullPath: '/stats'
+      fullPath: '/stats/'
       preLoaderRoute: typeof StatsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/showcase/': {
       id: '/showcase/'
       path: '/showcase'
-      fullPath: '/showcase'
+      fullPath: '/showcase/'
       preLoaderRoute: typeof ShowcaseIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/feed/': {
       id: '/feed/'
       path: '/feed'
-      fullPath: '/feed'
+      fullPath: '/feed/'
       preLoaderRoute: typeof FeedIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -1806,56 +1806,56 @@ declare module '@tanstack/react-router' {
     '/stats/npm/': {
       id: '/stats/npm/'
       path: '/stats/npm'
-      fullPath: '/stats/npm'
+      fullPath: '/stats/npm/'
       preLoaderRoute: typeof StatsNpmIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/mcp/': {
       id: '/api/mcp/'
       path: '/api/mcp'
-      fullPath: '/api/mcp'
+      fullPath: '/api/mcp/'
       preLoaderRoute: typeof ApiMcpIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/showcases/': {
       id: '/admin/showcases/'
       path: '/showcases'
-      fullPath: '/admin/showcases'
+      fullPath: '/admin/showcases/'
       preLoaderRoute: typeof AdminShowcasesIndexRouteImport
       parentRoute: typeof AdminRouteRoute
     }
     '/admin/roles/': {
       id: '/admin/roles/'
       path: '/roles'
-      fullPath: '/admin/roles'
+      fullPath: '/admin/roles/'
       preLoaderRoute: typeof AdminRolesIndexRouteImport
       parentRoute: typeof AdminRouteRoute
     }
     '/admin/notes/': {
       id: '/admin/notes/'
       path: '/notes'
-      fullPath: '/admin/notes'
+      fullPath: '/admin/notes/'
       preLoaderRoute: typeof AdminNotesIndexRouteImport
       parentRoute: typeof AdminRouteRoute
     }
     '/admin/feedback/': {
       id: '/admin/feedback/'
       path: '/feedback'
-      fullPath: '/admin/feedback'
+      fullPath: '/admin/feedback/'
       preLoaderRoute: typeof AdminFeedbackIndexRouteImport
       parentRoute: typeof AdminRouteRoute
     }
     '/admin/feed/': {
       id: '/admin/feed/'
       path: '/feed'
-      fullPath: '/admin/feed'
+      fullPath: '/admin/feed/'
       preLoaderRoute: typeof AdminFeedIndexRouteImport
       parentRoute: typeof AdminRouteRoute
     }
     '/admin/banners/': {
       id: '/admin/banners/'
       path: '/banners'
-      fullPath: '/admin/banners'
+      fullPath: '/admin/banners/'
       preLoaderRoute: typeof AdminBannersIndexRouteImport
       parentRoute: typeof AdminRouteRoute
     }
@@ -2121,14 +2121,14 @@ declare module '@tanstack/react-router' {
     '/$libraryId/$version/docs/framework/': {
       id: '/$libraryId/$version/docs/framework/'
       path: '/framework'
-      fullPath: '/$libraryId/$version/docs/framework'
+      fullPath: '/$libraryId/$version/docs/framework/'
       preLoaderRoute: typeof LibraryIdVersionDocsFrameworkIndexRouteImport
       parentRoute: typeof LibraryIdVersionDocsRoute
     }
     '/$libraryId/$version/docs/framework/$framework/': {
       id: '/$libraryId/$version/docs/framework/$framework/'
       path: '/framework/$framework'
-      fullPath: '/$libraryId/$version/docs/framework/$framework'
+      fullPath: '/$libraryId/$version/docs/framework/$framework/'
       preLoaderRoute: typeof LibraryIdVersionDocsFrameworkFrameworkIndexRouteImport
       parentRoute: typeof LibraryIdVersionDocsRoute
     }

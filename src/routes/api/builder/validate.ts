@@ -2,7 +2,6 @@ import { createFileRoute } from '@tanstack/react-router'
 import { validateHandler } from '~/builder/api'
 
 export const Route = createFileRoute('/api/builder/validate')({
-  // @ts-expect-error server property not in route types yet
   server: {
     handlers: {
       POST: async ({ request }: { request: Request }) => {

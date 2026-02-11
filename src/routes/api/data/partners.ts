@@ -2,7 +2,6 @@ import { createFileRoute } from '@tanstack/react-router'
 import { partners, partnerCategories, partnerCategoryLabels } from '~/utils/partners'
 
 export const Route = createFileRoute('/api/data/partners')({
-  // @ts-expect-error server property not in route types yet
   server: {
     handlers: {
       GET: async () => {

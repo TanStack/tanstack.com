@@ -126,7 +126,8 @@ function RouteComponent() {
             <p className="text-gray-600 dark:text-gray-400 mt-4">
               For full CLI documentation, see the{' '}
               <Link
-                to="/cli"
+                to="/$libraryId/$version/docs"
+                params={{ libraryId: 'cli', version: 'latest' }}
                 className="text-blue-600 dark:text-cyan-400 hover:underline"
               >
                 TanStack CLI docs

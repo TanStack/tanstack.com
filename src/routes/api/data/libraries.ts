@@ -6,7 +6,6 @@ import {
 } from '~/libraries/libraries'
 
 export const Route = createFileRoute('/api/data/libraries')({
-  // @ts-expect-error server property not in route types yet
   server: {
     handlers: {
       GET: async () => {

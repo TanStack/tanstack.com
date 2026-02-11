@@ -5,21 +5,16 @@ import { ShowcaseGallery } from '~/components/ShowcaseGallery'
 import { getApprovedShowcasesQueryOptions } from '~/queries/showcases'
 import { libraryIdSchema, showcaseUseCaseSchema } from '~/utils/schemas'
 
-export const Route = createFileRoute('/showcase/')({
-  validateSearch: (search) => {
-    const parsed = v.parse(
-      v.object({
-        page: v.optional(v.number(), 1),
-        libraryIds: v.optional(v.array(libraryIdSchema)),
-        useCases: v.optional(v.array(showcaseUseCaseSchema)),
-        hasSourceCode: v.optional(v.boolean()),
-        q: v.optional(v.string()),
-      }),
-      search,
-    )
+const searchSchema = v.object({
+  page: v.optional(v.number(), 1),
+  libraryIds: v.optional(v.array(libraryIdSchema)),
+  useCases: v.optional(v.array(showcaseUseCaseSchema)),
+  hasSourceCode: v.optional(v.boolean()),
+  q: v.optional(v.string()),
+})
 
-    return parsed
-  },
+export const Route = createFileRoute('/showcase/')({
+  validateSearch: searchSchema,
   loaderDeps: ({ search }) => ({
     page: search.page,
     libraryIds: search.libraryIds,

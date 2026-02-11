@@ -11,6 +11,7 @@ import type { LibraryId } from '~/libraries'
 import { seo } from '~/utils/seo'
 import { ossStatsQuery } from '~/queries/stats'
 import { Button } from '~/ui'
+import { ConfigSchema } from '~/utils/config'
 
 // Lazy-loaded landing components for each library
 const landingComponents: Partial<
@@ -54,7 +55,9 @@ export const Route = createFileRoute('/$libraryId/$version/')({
         params: { libraryId, version } as never,
       })
     }
+    return undefined as never
   },
+  // @ts-expect-error - not sure why this is erroring
   loader: async ({ params, context: { queryClient } }) => {
     const { libraryId } = params
     const library = getLibrary(libraryId)
@@ -67,7 +70,7 @@ function LibraryVersionIndex() {
   const { libraryId, version } = Route.useParams()
   const library = getLibrary(libraryId)
   const versionMatch = useMatch({ from: '/$libraryId/$version' })
-  const { config } = versionMatch.loaderData
+  const { config } = versionMatch.loaderData as { config: ConfigSchema }
 
   const LandingComponent = landingComponents[libraryId as LibraryId]
 

@@ -8,7 +8,6 @@ import { setResponseHeader } from '@tanstack/react-start/server'
  * Since we use PKCE and public clients, we don't need client secrets.
  */
 export const Route = createFileRoute('/oauth/register')({
-  // @ts-expect-error server property not in route types yet
   server: {
     handlers: {
       POST: async ({ request }: { request: Request }) => {

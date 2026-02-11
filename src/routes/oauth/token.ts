@@ -6,7 +6,6 @@ import {
 } from '~/auth/oauthClient.server'
 
 export const Route = createFileRoute('/oauth/token')({
-  // @ts-expect-error server property not in route types yet
   server: {
     handlers: {
       POST: async ({ request }: { request: Request }) => {

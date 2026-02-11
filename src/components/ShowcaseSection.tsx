@@ -12,11 +12,12 @@ import { Button } from '~/ui'
 import { ArrowRight, Plus } from 'lucide-react'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useLoginModal } from '~/contexts/LoginModalContext'
+import type { LibraryId } from '~/libraries'
 
 interface ShowcaseSectionProps {
   title?: string
   subtitle?: string
-  libraryId?: string
+  libraryId?: LibraryId
   limit?: number
   showViewAll?: boolean
   minItems?: number
@@ -25,7 +26,7 @@ interface ShowcaseSectionProps {
 export function SubmitShowcasePlaceholder({
   libraryId,
 }: {
-  libraryId?: string
+  libraryId?: LibraryId
 }) {
   return (
     <Link
@@ -235,7 +236,12 @@ export function ShowcaseSection({
 
       {showViewAll && (
         <div className="mt-8 flex justify-center">
-          <Link to="/showcase" search={libraryId ? { libraryId } : undefined}>
+          <Link
+            to="/showcase"
+            search={{
+              libraryIds: libraryId ? [libraryId] : undefined,
+            }}
+          >
             <Button variant="ghost" size="xs">
               View all projects
               <ArrowRight className="w-4 h-4" />
@@ -267,7 +273,7 @@ export function LibraryShowcases({
   libraryId,
   libraryName,
 }: {
-  libraryId: string
+  libraryId: LibraryId
   libraryName: string
 }) {
   return (

@@ -465,6 +465,18 @@ export const allMaintainers: Maintainer[] = [
     },
     workshopsAvailable: true,
   },
+  {
+    name: 'Nico Lynzaad',
+    avatar: 'https://github.com/nlynzaad.png',
+    github: 'nlynzaad',
+    maintainerOf: ['router'],
+    frameworkExpertise: ['react'],
+    specialties: [],
+    social: {
+      twitter: 'https://twitter.com/NLynzaad',
+    },
+    workshopsAvailable: false,
+  },
 ]
 
 export const coreMaintainers = allMaintainers.filter(

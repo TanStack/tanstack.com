@@ -2,6 +2,7 @@ import { Outlet, useMatch, createFileRoute } from '@tanstack/react-router'
 import { DocsLayout } from '~/components/DocsLayout'
 import { getLibrary } from '~/libraries'
 import { seo } from '~/utils/seo'
+import type { ConfigSchema } from '~/utils/config'
 
 export const Route = createFileRoute('/$libraryId/$version/docs')({
   head: (ctx) => {
@@ -28,7 +29,7 @@ function DocsRoute() {
   const { libraryId, version } = Route.useParams()
   const library = getLibrary(libraryId)
   const versionMatch = useMatch({ from: '/$libraryId/$version' })
-  const { config } = versionMatch.loaderData
+  const { config } = versionMatch.loaderData as { config: ConfigSchema }
 
   return (
     <DocsLayout

@@ -22,7 +22,7 @@ export const query: LibrarySlim = {
   bgRadial: 'from-red-500 via-red-500/60 to-transparent',
   badge: undefined,
   repo: 'tanstack/query',
-  frameworks: ['react', 'solid', 'vue', 'svelte', 'angular'],
+  frameworks: ['react', 'preact', 'solid', 'vue', 'svelte', 'angular'],
   latestVersion: 'v5',
   latestBranch: 'main',
   availableVersions: ['v5', 'v4', 'v3'],
@@ -126,7 +126,7 @@ export const table: LibrarySlim = {
   ],
   latestVersion: 'v8',
   latestBranch: 'main',
-  availableVersions: ['v8'],
+  availableVersions: ['v8', 'alpha'],
   scarfId: 'dc8b39e1-3fe9-4f3a-8e56-d4e2cf420a9e',
   ogImage: 'https://github.com/tanstack/table/raw/main/media/repo-header.png',
   defaultDocs: 'introduction',
@@ -261,7 +261,7 @@ export const pacer: LibrarySlim = {
   bgRadial: 'from-lime-500 via-lime-700/50 to-transparent',
   badge: 'beta',
   repo: 'tanstack/pacer',
-  frameworks: ['react', 'preact', 'solid'],
+  frameworks: ['react', 'preact', 'solid', 'angular'],
   legacyPackages: ['@tanstack/pacer-lite'],
   latestVersion: 'v0',
   latestBranch: 'main',
@@ -413,7 +413,7 @@ export const mcp: LibrarySlim = {
   handleRedirects: (href: string) => {
     // All /mcp routes redirect to CLI MCP docs
     if (/\/mcp(\/|$)/.test(href)) {
-      throw redirect({ href: '/cli/latest/docs/mcp/mcp-overview' })
+      throw redirect({ href: '/cli/latest/docs/mcp/overview' })
     }
   },
 }

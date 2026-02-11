@@ -3,7 +3,6 @@ import { getBranch, getLibrary, type LibraryId } from '~/libraries'
 import { loadDocs } from '~/utils/docs'
 
 export const Route = createFileRoute('/$libraryId/$version/docs/{$}.md')({
-  // @ts-expect-error server property not in route types yet
   server: {
     handlers: {
       GET: async ({

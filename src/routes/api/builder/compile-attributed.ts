@@ -5,7 +5,6 @@ import {
 } from '~/builder/api'
 
 export const Route = createFileRoute('/api/builder/compile-attributed')({
-  // @ts-expect-error server property not in route types yet
   server: {
     handlers: {
       POST: async ({ request }: { request: Request }) => {

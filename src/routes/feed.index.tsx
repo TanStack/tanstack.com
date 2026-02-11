@@ -97,7 +97,7 @@ function FeedPage() {
       search={search}
       onNavigate={(updates) => {
         navigate({
-          search: (s: typeof search) => ({ ...s, ...updates.search }),
+          search: (s) => ({ ...s, ...updates.search }),
           replace: updates.replace ?? true,
           resetScroll: updates.resetScroll ?? false,
         })

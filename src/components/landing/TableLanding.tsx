@@ -210,8 +210,7 @@ const table = useVueTable({ data, columns, getCoreRowModel: getCoreRowModel() })
     },
     lit: {
       lang: 'ts',
-      code: `
-import { html, LitElement } from 'lit'
+      code: `import { html, LitElement } from 'lit'
 import { customElement } from 'lit/decorators.js'
 import {
 	flexRender,

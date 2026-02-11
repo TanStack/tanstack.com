@@ -1,9 +1,9 @@
 export {
-  renderMarkdown,
   renderMarkdownAsync,
   renderMarkdownToJsx,
-  highlightCode,
   type MarkdownJsxResult,
 } from './processor'
+
+export { renderMarkdownRsc } from './renderRsc'
 
 export type { MarkdownHeading } from './types'

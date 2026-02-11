@@ -13,7 +13,6 @@ import * as jsxRuntime from 'react/jsx-runtime'
 import rehypeShiki from '@shikijs/rehype'
 import { transformerNotationDiff } from '@shikijs/transformers'
 import type { RehypeShikiOptions } from '@shikijs/rehype'
-import { createHighlighter, type Highlighter } from 'shiki'
 
 import {
   rehypeCollectHeadings,
@@ -102,12 +101,9 @@ const shikiOptions: RehypeShikiOptions = {
   },
 }
 
-export async function renderMarkdownAsync(
-  content: string,
-): Promise<MarkdownRenderResult> {
-  const headings: MarkdownHeading[] = []
-
-  const processor = unified()
+// Build the common markdown processing pipeline up to heading collection
+function createBasePipeline(headings: MarkdownHeading[]) {
+  return unified()
     .use(remarkParse)
     .use(remarkGfm)
     .use(remarkRehype, { allowDangerousHtml: true })
@@ -145,135 +141,19 @@ export async function renderMarkdownAsync(
       },
     })
     .use(() => rehypeCollectHeadings(headings))
-    .use(rehypeStringify)
+}
 
+export async function renderMarkdownAsync(
+  content: string,
+): Promise<MarkdownRenderResult> {
+  const headings: MarkdownHeading[] = []
+  const processor = createBasePipeline(headings).use(rehypeStringify)
   const file = await processor.process(content)
 
   return {
     markup: String(file),
     headings,
   }
-}
-
-// Synchronous version for backwards compatibility (doesn't include syntax highlighting)
-export function renderMarkdown(content: string): MarkdownRenderResult {
-  const headings: MarkdownHeading[] = []
-
-  const processor = unified()
-    .use(remarkParse)
-    .use(remarkGfm)
-    .use(remarkRehype, { allowDangerousHtml: true })
-    .use(extractCodeMeta)
-    .use(rehypeRaw)
-    .use(rehypeParseCommentComponents)
-    .use(rehypeCallouts, {
-      theme: 'github',
-      props: {
-        containerProps: (_node: any, type: string) => ({
-          className: `markdown-alert markdown-alert-${type}`,
-        }),
-        titleIconProps: () => ({
-          className: 'octicon octicon-info mr-2',
-        }),
-        titleProps: () => ({
-          className: 'markdown-alert-title',
-        }),
-        titleTextProps: () => ({
-          className: 'markdown-alert-title',
-        }),
-        contentProps: () => ({
-          className: 'markdown-alert-content',
-        }),
-      },
-    } as any)
-    .use(rehypeSlug)
-    .use(rehypeTransformFrameworkComponents)
-    .use(rehypeTransformCommentComponents)
-    .use(rehypeAutolinkHeadings, {
-      behavior: 'wrap',
-      properties: {
-        className: ['anchor-heading'],
-      },
-    })
-    .use(() => rehypeCollectHeadings(headings))
-    .use(rehypeStringify)
-
-  const file = processor.processSync(content)
-
-  return {
-    markup: String(file),
-    headings,
-  }
-}
-
-// Lazy-loaded highlighter singleton for standalone code highlighting
-let highlighterPromise: Promise<Highlighter> | null = null
-
-const SUPPORTED_LANGS = [
-  'typescript',
-  'javascript',
-  'tsx',
-  'jsx',
-  'bash',
-  'json',
-  'html',
-  'css',
-  'markdown',
-  'toml',
-  'yaml',
-  'sql',
-  'diff',
-  'vue',
-  'svelte',
-  'scss',
-  'jsonc',
-  'vue-html',
-  'angular-html',
-  'angular-ts',
-  'text',
-] as const
-
-async function getHighlighter(): Promise<Highlighter> {
-  if (!highlighterPromise) {
-    highlighterPromise = createHighlighter({
-      themes: ['github-light', 'vitesse-dark'],
-      langs: [...SUPPORTED_LANGS],
-    })
-  }
-  return highlighterPromise
-}
-
-/**
- * Highlight code with Shiki (server-side only).
- * Returns HTML string with dual-theme CSS variables for light/dark mode.
- */
-export async function highlightCode(
-  code: string,
-  lang: string,
-): Promise<string> {
-  const highlighter = await getHighlighter()
-
-  // Normalize language alias
-  const normalizedLang = LANG_ALIASES[lang] || lang
-
-  // Check if language is supported, fallback to text
-  const loadedLangs = highlighter.getLoadedLanguages()
-  const effectiveLang = loadedLangs.includes(normalizedLang as any)
-    ? normalizedLang
-    : 'text'
-
-  const html = highlighter.codeToHtml(code.trimEnd(), {
-    lang: effectiveLang,
-    themes: {
-      light: 'github-light',
-      dark: 'vitesse-dark',
-    },
-    defaultColor: false,
-    cssVariablePrefix: '--shiki-',
-    transformers: [transformerNotationDiff()],
-  })
-
-  return html
 }
 
 // Custom heading component - rehype-autolink-headings already wraps with <a>,
@@ -344,6 +224,7 @@ function LinkElement(props: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
   // If this is an anchor-heading link (from rehype-autolink-headings), render as plain <a>
   // to avoid nested anchors when the heading content also has links
   if (props.className?.includes('anchor-heading')) {
+    // eslint-disable-next-line jsx-a11y/anchor-has-content
     return <a {...props} />
   }
   // For all other links, use MarkdownLink which handles relative links
@@ -377,51 +258,12 @@ export async function renderMarkdownToJsx(
   content: string,
 ): Promise<MarkdownJsxResult> {
   const headings: MarkdownHeading[] = []
-
-  const processor = unified()
-    .use(remarkParse)
-    .use(remarkGfm)
-    .use(remarkRehype, { allowDangerousHtml: true })
-    .use(extractCodeMeta)
-    .use(rehypeRaw)
-    .use(rehypeParseCommentComponents)
-    .use(rehypeCallouts, {
-      theme: 'github',
-      props: {
-        containerProps: (_node: any, type: string) => ({
-          className: `markdown-alert markdown-alert-${type}`,
-        }),
-        titleIconProps: () => ({
-          className: 'octicon octicon-info mr-2',
-        }),
-        titleProps: () => ({
-          className: 'markdown-alert-title',
-        }),
-        titleTextProps: () => ({
-          className: 'markdown-alert-title',
-        }),
-        contentProps: () => ({
-          className: 'markdown-alert-content',
-        }),
-      },
-    } as any)
-    .use(rehypeShiki, shikiOptions)
-    .use(rehypeSlug)
-    .use(rehypeTransformFrameworkComponents)
-    .use(rehypeTransformCommentComponents)
-    .use(rehypeAutolinkHeadings, {
-      behavior: 'wrap',
-      properties: {
-        className: ['anchor-heading'],
-      },
-    })
-    .use(() => rehypeCollectHeadings(headings))
-    .use(rehypeReact, {
-      Fragment: jsxRuntime.Fragment,
-      jsx: jsxRuntime.jsx,
-      jsxs: jsxRuntime.jsxs,
-      components: markdownComponents,
-    } as any)
+  const processor = createBasePipeline(headings).use(rehypeReact, {
+    Fragment: jsxRuntime.Fragment,
+    jsx: jsxRuntime.jsx,
+    jsxs: jsxRuntime.jsxs,
+    components: markdownComponents,
+  } as any)
 
   const file = await processor.process(content)
 

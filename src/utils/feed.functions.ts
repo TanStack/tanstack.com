@@ -12,10 +12,14 @@ import {
   filterByReleaseLevel,
 } from './feed.server'
 import { entryTypeSchema } from './schemas'
+import { renderMarkdownRsc } from '~/utils/markdown'
 
-// Transform database entry to API response format
-function transformFeedEntry(entry: typeof feedEntries.$inferSelect) {
-  return {
+// Transform database entry to API response format (with pre-rendered RSC content)
+async function transformFeedEntry(
+  entry: typeof feedEntries.$inferSelect,
+  options?: { renderContent?: boolean },
+) {
+  const base = {
     _id: entry.entryId,
     id: entry.entryId,
     entryType: entry.entryType,
@@ -34,6 +38,14 @@ function transformFeedEntry(entry: typeof feedEntries.$inferSelect) {
     autoSynced: entry.autoSynced,
     lastSyncedAt: entry.lastSyncedAt?.getTime(),
   }
+
+  // Pre-render content as RSC for client-side display
+  if (options?.renderContent && entry.content) {
+    const { contentRsc } = await renderMarkdownRsc(entry.content)
+    return { ...base, contentRsc }
+  }
+
+  return base
 }
 
 export const listFeedEntries = createServerFn({ method: 'POST' })
@@ -109,7 +121,10 @@ export const listFeedEntries = createServerFn({ method: 'POST' })
     const page = allEntries.slice(start, end)
     const hasMore = end < allEntries.length
 
-    const transformedPage = page.map(transformFeedEntry)
+    // Render content HTML for client-side display
+    const transformedPage = await Promise.all(
+      page.map((entry) => transformFeedEntry(entry, { renderContent: true })),
+    )
 
     return {
       page: transformedPage,
@@ -121,7 +136,7 @@ export const listFeedEntries = createServerFn({ method: 'POST' })
     }
   })
 
-// Server function wrapper for getFeedEntry
+// Server function wrapper for getFeedEntry (used by admin, skips content rendering)
 export const getFeedEntry = createServerFn({ method: 'POST' })
   .inputValidator(v.object({ id: v.string() }))
   .handler(async ({ data }) => {
@@ -133,7 +148,8 @@ export const getFeedEntry = createServerFn({ method: 'POST' })
       return null
     }
 
-    return transformFeedEntry(entry)
+    // Skip content rendering for admin edit (raw content is needed for editing)
+    return transformFeedEntry(entry, { renderContent: false })
   })
 
 // Server function wrapper for getFeedEntryById
@@ -148,7 +164,7 @@ export const getFeedEntryById = createServerFn({ method: 'POST' })
       return null
     }
 
-    return transformFeedEntry(entry)
+    return transformFeedEntry(entry, { renderContent: true })
   })
 
 // Server function wrapper for getFeedStats
@@ -315,7 +331,11 @@ export const searchFeedEntries = createServerFn({ method: 'POST' })
       )
       .limit(limit)
 
-    return entries.map(transformFeedEntry)
+    return Promise.all(
+      entries.map((entry) =>
+        transformFeedEntry(entry, { renderContent: true }),
+      ),
+    )
   })
 
 // Server function wrapper for getFeedConfig

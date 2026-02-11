@@ -1,13 +1,10 @@
 import { Link, notFound, createFileRoute } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
-import { renderServerComponent } from '@tanstack/react-start/rsc'
 import { Footer } from '~/components/Footer'
 import { seo } from '~/utils/seo'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { isAdmin } from '~/db/types'
 import * as v from 'valibot'
 import { format, formatDistanceToNow } from '~/utils/dates'
-import { renderMarkdownToJsx } from '~/utils/markdown'
 import { libraries } from '~/libraries'
 import { partners } from '~/utils/partners'
 import { twMerge } from 'tailwind-merge'
@@ -17,24 +14,12 @@ import { ArrowLeft } from 'lucide-react'
 
 const searchSchema = v.object({})
 
-// Server function that renders markdown content as RSC
-const renderFeedContent = createServerFn({ method: 'GET' })
-  .inputValidator((content: string) => content)
-  .handler(async ({ data: content }) => {
-    const { content: jsxContent } = await renderMarkdownToJsx(content)
-    return renderServerComponent(
-      <div className="prose prose-sm dark:prose-invert max-w-none mb-4 prose-headings:mt-4 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 styled-markdown-content">
-        {jsxContent}
-      </div>,
-    )
-  })
-
 export const Route = createFileRoute('/feed/$id')({
   staleTime: 1000 * 60 * 5, // 5 minutes
   loader: async ({ params, context: { queryClient } }) => {
     const entryId = params.id
 
-    // Fetch the feed entry by id
+    // Fetch the feed entry by id (includes pre-rendered contentRsc)
     const entry = await queryClient.ensureQueryData(
       getFeedEntryByIdQueryOptions(entryId),
     )
@@ -43,17 +28,7 @@ export const Route = createFileRoute('/feed/$id')({
       throw notFound()
     }
 
-    // Render markdown content as RSC
-    const ContentRsc = await renderFeedContent({ data: entry.content })
-
-    // Check if entry is visible (unless admin)
-    // Note: We'll check capabilities client-side since they depend on auth
-    // For SSR, we'll allow the entry to load and handle visibility client-side
-
-    return {
-      entry,
-      ContentRsc,
-    }
+    return { entry }
   },
   headers: () => ({
     'cache-control': 'public, max-age=0, must-revalidate',
@@ -106,7 +81,7 @@ export const Route = createFileRoute('/feed/$id')({
 })
 
 function FeedItemPage() {
-  const { entry, ContentRsc } = Route.useLoaderData()
+  const { entry } = Route.useLoaderData()
   const capabilities = useCapabilities()
 
   // Show not found if entry isn't visible (unless admin)
@@ -136,16 +111,10 @@ function FeedItemPage() {
     )
   }
 
-  return <FeedEntryView entry={entry as FeedEntry} ContentRsc={ContentRsc} />
+  return <FeedEntryView entry={entry as FeedEntry} />
 }
 
-function FeedEntryView({
-  entry,
-  ContentRsc,
-}: {
-  entry: FeedEntry
-  ContentRsc: React.ReactNode
-}) {
+function FeedEntryView({ entry }: { entry: FeedEntry }) {
   // Get library info
   const entryLibraries = entry.libraryIds
     .map((id) => libraries.find((lib) => lib.id === id))
@@ -390,7 +359,9 @@ function FeedEntryView({
           )}
 
           {/* Content */}
-          {ContentRsc}
+          <div className="prose prose-sm dark:prose-invert max-w-none mb-4 prose-headings:mt-4 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 styled-markdown-content">
+            {entry.contentRsc ?? entry.content}
+          </div>
 
           {/* External Link */}
           {externalLink && (

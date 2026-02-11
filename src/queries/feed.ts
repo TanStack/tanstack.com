@@ -35,15 +35,17 @@ export const listFeedEntriesQueryOptions = (params: ListFeedEntriesParams) =>
     queryFn: () => listFeedEntries({ data: params }),
   })
 
+// Used by admin edit - returns raw content without RSC rendering
 export const getFeedEntryQueryOptions = (id: string) =>
   queryOptions({
-    queryKey: ['feed', 'entry', id],
+    queryKey: ['feed', 'entry', 'raw', id],
     queryFn: () => getFeedEntry({ data: { id } }),
   })
 
+// Used by detail page - returns pre-rendered contentRsc
 export const getFeedEntryByIdQueryOptions = (id: string) =>
   queryOptions({
-    queryKey: ['feed', 'entryById', id],
+    queryKey: ['feed', 'entry', 'rendered', id],
     queryFn: () => getFeedEntryById({ data: { id } }),
   })
 

@@ -1,6 +1,5 @@
+import type { ReactNode } from 'react'
 import { format, formatDistanceToNow } from '~/utils/dates'
-// TODO: Fix feed to use server-rendered markdown
-// import { Markdown } from '~/components/markdown'
 import { libraries } from '~/libraries'
 import { partners } from '~/utils/partners'
 import { twMerge } from 'tailwind-merge'
@@ -14,6 +13,7 @@ export interface FeedEntry {
   entryType: 'release' | 'blog' | 'announcement'
   title: string
   content: string
+  contentRsc?: ReactNode
   excerpt?: string | null
   publishedAt: number
   createdAt: number
@@ -415,9 +415,8 @@ export function FeedEntry({
               </div>
 
               {/* Content */}
-              <div className="text-xs text-gray-900 dark:text-gray-100 leading-snug mb-3">
-                {/* TODO: Fix feed to use server-rendered markdown */}
-                <div>{entry.content}</div>
+              <div className="text-xs text-gray-900 dark:text-gray-100 leading-snug mb-3 prose prose-xs dark:prose-invert max-w-none">
+                {entry.contentRsc ?? entry.content}
               </div>
 
               {/* External Link */}

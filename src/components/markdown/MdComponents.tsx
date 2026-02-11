@@ -7,6 +7,15 @@ import { PackageManagerTabs } from './PackageManagerTabs'
 import { FileTabs } from './FileTabs'
 import { FrameworkContent } from './FrameworkContent'
 
+// Safe JSON parse that returns null on failure instead of throwing
+function safeJsonParse<T>(str: string): T | null {
+  try {
+    return JSON.parse(str) as T
+  } catch {
+    return null
+  }
+}
+
 type MdCommentComponentProps = {
   'data-component'?: string
   'data-attributes'?: string
@@ -43,8 +52,12 @@ export function MdCommentComponent({
   if (normalizedComponent === 'tabs') {
     // Handle package-manager variant
     if (pmMeta) {
-      try {
-        const { packagesByFramework, mode } = JSON.parse(pmMeta)
+      const parsed = safeJsonParse<{
+        packagesByFramework: Record<string, string[][]>
+        mode: 'install' | 'dev-install' | 'local-install' | 'create' | 'custom'
+      }>(pmMeta)
+      if (parsed) {
+        const { packagesByFramework, mode } = parsed
         const frameworks = Object.keys(packagesByFramework) as Framework[]
 
         return (
@@ -54,28 +67,23 @@ export function MdCommentComponent({
             frameworks={frameworks}
           />
         )
-      } catch {
-        // Fall through to default tabs if parsing fails
       }
     }
 
     // Handle files variant
     if (filesMeta) {
-      try {
-        const tabs = attributes.tabs || []
-        // Children are already React nodes from rehype-react
-        const childArray = React.Children.toArray(children)
-        const panelChildren = childArray.filter(
-          (child): child is React.ReactElement<MdTabPanelProps> =>
-            React.isValidElement(child) &&
-            (child.type === MdTabPanel || child.type === 'md-tab-panel'),
-        )
+      const tabs = attributes.tabs || []
+      // Children are already React nodes from rehype-react
+      const childArray = React.Children.toArray(children)
+      const panelChildren = childArray.filter(
+        (child): child is React.ReactElement<MdTabPanelProps> =>
+          React.isValidElement(child) &&
+          (child.type === MdTabPanel || child.type === 'md-tab-panel'),
+      )
 
+      if (panelChildren.length > 0) {
         const tabContents = panelChildren.map((panel) => panel.props.children)
-
         return <FileTabs tabs={tabs} children={tabContents} />
-      } catch {
-        // Fall through to default tabs if parsing fails
       }
     }
 

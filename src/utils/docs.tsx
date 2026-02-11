@@ -10,7 +10,6 @@ import { renderServerComponent } from '@tanstack/react-start/rsc'
 import * as v from 'valibot'
 import { setResponseHeader } from '~/utils/headers.server'
 import { renderMarkdownToJsx } from '~/utils/markdown'
-import { DocContent } from '~/components/markdown/DocContent'
 
 export const loadDocs = async ({
   repo,
@@ -58,9 +57,7 @@ export const fetchDocs = createServerFn({ method: 'GET' })
     const { content, headings } = await renderMarkdownToJsx(frontMatter.content)
 
     // Wrap in RSC stream for client hydration
-    const contentRsc = await renderServerComponent(
-      <DocContent>{content}</DocContent>,
-    )
+    const contentRsc = await renderServerComponent(<>{content}</>)
 
     // Cache for 5 minutes on shared cache
     // Revalidate in the background

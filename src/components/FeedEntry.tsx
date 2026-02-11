@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import type { AnyCompositeComponent } from '@tanstack/react-start/rsc'
 import { format, formatDistanceToNow } from '~/utils/dates'
 import { libraries } from '~/libraries'
 import { partners } from '~/utils/partners'
@@ -18,7 +19,7 @@ export interface FeedEntry {
   publishedAt: number
   createdAt: number
   updatedAt?: number
-  metadata?: any
+  metadata?: Record<string, string | number | boolean | null | undefined>
   libraryIds: string[]
   partnerIds?: string[]
   tags: string[]
@@ -26,6 +27,9 @@ export interface FeedEntry {
   featured?: boolean
   autoSynced: boolean
   lastSyncedAt?: number
+  // Composite sources for RSC rendering
+  timelineCompositeSrc?: AnyCompositeComponent
+  detailCompositeSrc?: AnyCompositeComponent
 }
 
 interface FeedEntryProps {
@@ -160,12 +164,18 @@ export function FeedEntry({
   const releaseLevelBadge = getReleaseLevelBadge()
 
   // Determine external link if available
-  const getExternalLink = () => {
+  const getExternalLink = (): string | null => {
     if (entry.metadata) {
-      if (entry.entryType === 'release' && entry.metadata.url) {
+      if (
+        entry.entryType === 'release' &&
+        typeof entry.metadata.url === 'string'
+      ) {
         return entry.metadata.url
       }
-      if (entry.entryType === 'blog' && entry.metadata.url) {
+      if (
+        entry.entryType === 'blog' &&
+        typeof entry.metadata.url === 'string'
+      ) {
         return entry.metadata.url
       }
     }

@@ -13,11 +13,19 @@ import {
 } from './feed.server'
 import { entryTypeSchema } from './schemas'
 import { renderMarkdownRsc } from '~/utils/markdown'
+import {
+  createFeedTimelineComposite,
+  createFeedDetailComposite,
+} from './feed.composites'
 
 // Transform database entry to API response format (with pre-rendered RSC content)
 async function transformFeedEntry(
   entry: typeof feedEntries.$inferSelect,
-  options?: { renderContent?: boolean },
+  options?: {
+    renderContent?: boolean
+    createTimelineComposite?: boolean
+    createDetailComposite?: boolean
+  },
 ) {
   const base = {
     _id: entry.entryId,
@@ -29,7 +37,10 @@ async function transformFeedEntry(
     publishedAt: entry.publishedAt.getTime(),
     createdAt: entry.createdAt.getTime(),
     updatedAt: entry.updatedAt.getTime(),
-    metadata: entry.metadata ?? {},
+    metadata: (entry.metadata ?? {}) as Record<
+      string,
+      string | number | boolean | null | undefined
+    >,
     libraryIds: entry.libraryIds,
     partnerIds: entry.partnerIds,
     tags: entry.tags,
@@ -39,13 +50,45 @@ async function transformFeedEntry(
     lastSyncedAt: entry.lastSyncedAt?.getTime(),
   }
 
-  // Pre-render content as RSC for client-side display
-  if (options?.renderContent && entry.content) {
-    const { contentRsc } = await renderMarkdownRsc(entry.content)
-    return { ...base, contentRsc }
+  // Build composite entry data shape
+  const compositeEntryData = {
+    _id: base._id,
+    id: base.id,
+    entryType: base.entryType,
+    title: base.title,
+    content: base.content,
+    excerpt: base.excerpt,
+    publishedAt: base.publishedAt,
+    metadata: base.metadata,
+    libraryIds: base.libraryIds,
+    partnerIds: base.partnerIds,
+    tags: base.tags,
+    showInFeed: base.showInFeed,
+    featured: base.featured,
   }
 
-  return base
+  // Pre-render content as RSC for table view (legacy approach)
+  const contentRsc =
+    options?.renderContent && entry.content
+      ? (await renderMarkdownRsc(entry.content)).contentRsc
+      : undefined
+
+  // Create timeline composite for timeline view
+  const timelineCompositeSrc = options?.createTimelineComposite
+    ? await createFeedTimelineComposite(compositeEntryData)
+    : undefined
+
+  // Create detail composite for detail view
+  const detailCompositeSrc = options?.createDetailComposite
+    ? await createFeedDetailComposite(compositeEntryData)
+    : undefined
+
+  return {
+    ...base,
+    ...(contentRsc ? { contentRsc } : {}),
+    ...(timelineCompositeSrc ? { timelineCompositeSrc } : {}),
+    ...(detailCompositeSrc ? { detailCompositeSrc } : {}),
+  }
 }
 
 export const listFeedEntries = createServerFn({ method: 'POST' })
@@ -121,9 +164,14 @@ export const listFeedEntries = createServerFn({ method: 'POST' })
     const page = allEntries.slice(start, end)
     const hasMore = end < allEntries.length
 
-    // Render content HTML for client-side display
+    // Transform entries with RSC content and timeline composites
     const transformedPage = await Promise.all(
-      page.map((entry) => transformFeedEntry(entry, { renderContent: true })),
+      page.map((entry) =>
+        transformFeedEntry(entry, {
+          renderContent: true,
+          createTimelineComposite: true,
+        }),
+      ),
     )
 
     return {
@@ -164,7 +212,10 @@ export const getFeedEntryById = createServerFn({ method: 'POST' })
       return null
     }
 
-    return transformFeedEntry(entry, { renderContent: true })
+    return transformFeedEntry(entry, {
+      renderContent: true,
+      createDetailComposite: true,
+    })
   })
 
 // Server function wrapper for getFeedStats
@@ -333,7 +384,10 @@ export const searchFeedEntries = createServerFn({ method: 'POST' })
 
     return Promise.all(
       entries.map((entry) =>
-        transformFeedEntry(entry, { renderContent: true }),
+        transformFeedEntry(entry, {
+          renderContent: true,
+          createTimelineComposite: true,
+        }),
       ),
     )
   })

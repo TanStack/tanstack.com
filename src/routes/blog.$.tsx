@@ -2,7 +2,6 @@ import { notFound, redirect, createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { PostNotFound } from './blog'
 import { formatAuthors } from '~/utils/blog'
-import { format } from '~/utils/dates'
 import { allPosts } from 'content-collections'
 import * as React from 'react'
 import { GamHeader } from '~/components/Gam'
@@ -13,6 +12,7 @@ import { DocTitle } from '~/components/DocTitle'
 import { CopyPageDropdown } from '~/components/CopyPageDropdown'
 import { Button } from '~/ui'
 import { SquarePen } from 'lucide-react'
+import { loadBlogPost } from '~/utils/renderBlogContent'
 
 function handleRedirects(docsPath: string) {
   if (docsPath.includes('directives-the-new-framework-lock-in')) {
@@ -25,50 +25,20 @@ function handleRedirects(docsPath: string) {
 export const Route = createFileRoute('/blog/$')({
   staleTime: Infinity,
   loader: async ({ params }) => {
-    const docsPath = params._splat
-    if (!docsPath) {
+    const slug = params._splat
+    if (!slug) {
       throw new Error('Invalid docs path')
     }
 
-    handleRedirects(docsPath)
+    handleRedirects(slug)
 
-    const filePath = `src/blog/${docsPath}.md`
-    const post = allPosts.find((p) => p.slug === docsPath)
-
+    // Check if post exists before calling server function
+    const post = allPosts.find((p) => p.slug === slug)
     if (!post) {
       throw notFound()
     }
 
-    const { setCacheHeaders } = await import('~/utils/headers.server')
-    setCacheHeaders()
-
-    const now = new Date()
-    const publishDate = new Date(post.published)
-    const isUnpublished = post.draft || publishDate > now
-
-    const blogContent = `<small>_by ${formatAuthors(post.authors)} on ${format(
-      new Date(post.published || 0),
-      'MMMM d, yyyy',
-    )}._</small>
-
-${post.content}`
-
-    const { renderMarkdownToJsx } = await import('~/utils/markdown')
-    const { headings } = await renderMarkdownToJsx(blogContent)
-    const { renderBlogContent } = await import('~/utils/renderBlogContent')
-    const ContentRsc = await renderBlogContent({ data: blogContent })
-
-    return {
-      title: post.title,
-      description: post.description,
-      published: post.published,
-      authors: post.authors,
-      headerImage: post.headerImage,
-      filePath,
-      isUnpublished,
-      headings,
-      ContentRsc,
-    }
+    return loadBlogPost({ data: { slug } })
   },
   head: ({ loaderData }) => {
     // Generate optimized social media image URL using Netlify Image CDN

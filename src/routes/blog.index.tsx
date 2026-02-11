@@ -8,6 +8,7 @@ import { Footer } from '~/components/Footer'
 import { PostNotFound } from './blog'
 import { createServerFn } from '@tanstack/react-start'
 import { RssIcon } from 'lucide-react'
+import { setCacheHeaders } from '~/utils/headers.server'
 
 type BlogFrontMatter = {
   slug: string
@@ -19,7 +20,6 @@ type BlogFrontMatter = {
 
 const fetchFrontMatters = createServerFn({ method: 'GET' }).handler(
   async () => {
-    const { setCacheHeaders } = await import('~/utils/headers.server')
     setCacheHeaders()
 
     const posts = getPublishedPosts()

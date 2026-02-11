@@ -19,6 +19,7 @@ import { formatAuthors, getPublishedPosts } from '~/utils/blog'
 import { format } from '~/utils/dates'
 import { SimpleMarkdown } from '~/components/SimpleMarkdown'
 import { renderMarkdownAsync } from '~/utils/markdown'
+import { setCacheHeaders } from '~/utils/headers.server'
 import { NetlifyImage } from '~/components/NetlifyImage'
 import { createServerFn } from '@tanstack/react-start'
 import { AdGate } from '~/contexts/AdsContext'
@@ -63,7 +64,6 @@ type BlogFrontMatter = {
 
 const fetchRecentPosts = createServerFn({ method: 'GET' }).handler(
   async (): Promise<BlogFrontMatter[]> => {
-    const { setCacheHeaders } = await import('~/utils/headers.server')
     setCacheHeaders()
 
     const posts = getPublishedPosts().slice(0, 3)

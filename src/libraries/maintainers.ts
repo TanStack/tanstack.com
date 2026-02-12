@@ -208,6 +208,19 @@ export const allMaintainers: Maintainer[] = [
     specialties: ['Sync Engines', 'Incremental View Maintenance'],
   },
   {
+    name: 'Vedanta Somnathe',
+    avatar: 'https://github.com/theVedanta.png',
+    github: 'theVedanta',
+    maintainerOf: ['query', 'pacer'],
+    frameworkExpertise: ['preact', 'angular'],
+    social: {
+      website: 'https://vedantas.xyz/',
+      twitter: 'https://x.com/thvdnta',
+      bluesky: 'https://bsky.app/profile/thvdnta.bsky.social',
+      linkedIn: 'https://linkedin.com/in/thvdnta',
+    },
+  },
+  {
     name: 'Leonardo Montini',
     avatar: 'https://github.com/Balastrong.png',
     github: 'Balastrong',

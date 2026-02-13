@@ -26,6 +26,7 @@ const landingComponents: Partial<
   virtual: React.lazy(() => import('~/components/landing/VirtualLanding')),
   ranger: React.lazy(() => import('~/components/landing/RangerLanding')),
   pacer: React.lazy(() => import('~/components/landing/PacerLanding')),
+  hotkeys: React.lazy(() => import('~/components/landing/HotkeysLanding')),
   config: React.lazy(() => import('~/components/landing/ConfigLanding')),
   db: React.lazy(() => import('~/components/landing/DbLanding')),
   ai: React.lazy(() => import('~/components/landing/AiLanding')),

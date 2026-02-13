@@ -1,5 +1,5 @@
 import { feedEntries } from '~/db/schema'
-import { eq, and, sql, inArray, gte, lte } from 'drizzle-orm'
+import { eq, and, sql, inArray, gte, lte, arrayOverlaps } from 'drizzle-orm'
 import { getAuthenticatedUser } from './auth.server-helpers'
 import { getEffectiveCapabilities } from './capabilities.server'
 import type { EntryType, ReleaseLevel } from '~/db/schema'
@@ -110,12 +110,7 @@ export function buildFeedQueryConditions(
     filters.libraries &&
     filters.libraries.length > 0
   ) {
-    conditions.push(
-      sql`${feedEntries.libraryIds} && ARRAY[${sql.join(
-        filters.libraries.map((l) => sql`${l}`),
-        sql`, `,
-      )}]::text[]`,
-    )
+    conditions.push(arrayOverlaps(feedEntries.libraryIds, filters.libraries))
   }
 
   // Partner filter (array overlap) - use parameterized array
@@ -124,22 +119,12 @@ export function buildFeedQueryConditions(
     filters.partners &&
     filters.partners.length > 0
   ) {
-    conditions.push(
-      sql`${feedEntries.partnerIds} && ARRAY[${sql.join(
-        filters.partners.map((p) => sql`${p}`),
-        sql`, `,
-      )}]::text[]`,
-    )
+    conditions.push(arrayOverlaps(feedEntries.partnerIds, filters.partners))
   }
 
   // Tag filter (array overlap) - use parameterized array
   if (excludeFacet !== 'tags' && filters.tags && filters.tags.length > 0) {
-    conditions.push(
-      sql`${feedEntries.tags} && ARRAY[${sql.join(
-        filters.tags.map((t) => sql`${t}`),
-        sql`, `,
-      )}]::text[]`,
-    )
+    conditions.push(arrayOverlaps(feedEntries.tags, filters.tags))
   }
 
   // Featured filter

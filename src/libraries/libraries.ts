@@ -22,7 +22,7 @@ export const query: LibrarySlim = {
   bgRadial: 'from-red-500 via-red-500/60 to-transparent',
   badge: undefined,
   repo: 'tanstack/query',
-  frameworks: ['react', 'solid', 'vue', 'svelte', 'angular'],
+  frameworks: ['react', 'preact', 'solid', 'vue', 'svelte', 'angular'],
   latestVersion: 'v5',
   latestBranch: 'main',
   availableVersions: ['v5', 'v4', 'v3'],
@@ -126,7 +126,7 @@ export const table: LibrarySlim = {
   ],
   latestVersion: 'v8',
   latestBranch: 'main',
-  availableVersions: ['v8'],
+  availableVersions: ['v8', 'alpha'],
   scarfId: 'dc8b39e1-3fe9-4f3a-8e56-d4e2cf420a9e',
   ogImage: 'https://github.com/tanstack/table/raw/main/media/repo-header.png',
   defaultDocs: 'introduction',
@@ -261,13 +261,40 @@ export const pacer: LibrarySlim = {
   bgRadial: 'from-lime-500 via-lime-700/50 to-transparent',
   badge: 'beta',
   repo: 'tanstack/pacer',
-  frameworks: ['react', 'preact', 'solid'],
+  frameworks: ['react', 'preact', 'solid', 'angular'],
   legacyPackages: ['@tanstack/pacer-lite'],
   latestVersion: 'v0',
   latestBranch: 'main',
   availableVersions: ['v0'],
   scarfId: '302d0fef-cb3f-43c6-b45c-f055b9745edb',
   ogImage: 'https://github.com/tanstack/pacer/raw/main/media/repo-header.png',
+  defaultDocs: 'overview',
+}
+
+export const hotkeys: LibrarySlim = {
+  id: 'hotkeys',
+  name: 'TanStack Hotkeys',
+  cardStyles: 'text-rose-500 dark:text-rose-400 hover:border-current',
+  to: '/hotkeys',
+  tagline:
+    'Type-safe keyboard shortcuts, sequences, and key state tracking for your apps',
+  description:
+    'A type-safe, cross-platform hotkey library with sequence detection, key state tracking, hotkey recording, and framework adapters for React and more.',
+  badge: 'alpha',
+  bgStyle: 'bg-rose-500',
+  borderStyle: 'border-rose-500/50',
+  textStyle: 'text-rose-500 dark:text-rose-400',
+  textColor: 'text-rose-600 dark:text-rose-400',
+  colorFrom: 'from-rose-500',
+  colorTo: 'to-rose-700',
+  bgRadial: 'from-rose-500 via-rose-700/50 to-transparent',
+  repo: 'tanstack/hotkeys',
+  frameworks: ['react'],
+  corePackageName: '@tanstack/hotkeys',
+  latestVersion: 'v0',
+  latestBranch: 'main',
+  availableVersions: ['v0'],
+  ogImage: 'https://github.com/tanstack/hotkeys/raw/main/media/repo-header.png',
   defaultDocs: 'overview',
 }
 
@@ -413,7 +440,7 @@ export const mcp: LibrarySlim = {
   handleRedirects: (href: string) => {
     // All /mcp routes redirect to CLI MCP docs
     if (/\/mcp(\/|$)/.test(href)) {
-      throw redirect({ href: '/cli/latest/docs/mcp/mcp-overview' })
+      throw redirect({ href: '/cli/latest/docs/mcp/overview' })
     }
   },
 }
@@ -453,6 +480,7 @@ export const libraries: LibrarySlim[] = [
   ai,
   virtual,
   pacer,
+  hotkeys,
   store,
   ranger,
   config,
@@ -497,14 +525,14 @@ export const libraries: LibrarySlim[] = [
 
 export const librariesByGroup = {
   state: [start, router, query, db, store, ai],
-  headlessUI: [table, form],
+  headlessUI: [table, form, hotkeys],
   performance: [virtual, pacer],
   tooling: [devtools, config, cli],
 }
 
 export const librariesGroupNamesMap = {
-  state: 'Data and State Management',
-  headlessUI: 'Headless UI',
+  state: 'Data & State Management',
+  headlessUI: 'UI & UX',
   performance: 'Performance',
   tooling: 'Tooling',
 }
@@ -535,6 +563,7 @@ export const SIDEBAR_LIBRARY_IDS = [
   'form',
   'virtual',
   'pacer',
+  'hotkeys',
   'store',
   'devtools',
   'cli',

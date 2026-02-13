@@ -21,6 +21,7 @@ export type LibraryId =
   | 'ranger'
   | 'store'
   | 'pacer'
+  | 'hotkeys'
   | 'db'
   | 'ai'
   | 'config'

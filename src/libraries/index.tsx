@@ -18,6 +18,7 @@ export {
   ranger,
   store,
   pacer,
+  hotkeys,
   db,
   ai,
   config,

@@ -271,6 +271,33 @@ export const pacer: LibrarySlim = {
   defaultDocs: 'overview',
 }
 
+export const hotkeys: LibrarySlim = {
+  id: 'hotkeys',
+  name: 'TanStack Hotkeys',
+  cardStyles: 'text-rose-500 dark:text-rose-400 hover:border-current',
+  to: '/hotkeys',
+  tagline:
+    'Type-safe keyboard shortcuts, sequences, and key state tracking for your apps',
+  description:
+    'A type-safe, cross-platform hotkey library with sequence detection, key state tracking, hotkey recording, and framework adapters for React and more.',
+  badge: 'alpha',
+  bgStyle: 'bg-rose-500',
+  borderStyle: 'border-rose-500/50',
+  textStyle: 'text-rose-500 dark:text-rose-400',
+  textColor: 'text-rose-600 dark:text-rose-400',
+  colorFrom: 'from-rose-500',
+  colorTo: 'to-rose-700',
+  bgRadial: 'from-rose-500 via-rose-700/50 to-transparent',
+  repo: 'tanstack/hotkeys',
+  frameworks: ['react'],
+  corePackageName: '@tanstack/hotkeys',
+  latestVersion: 'v0',
+  latestBranch: 'main',
+  availableVersions: ['v0'],
+  ogImage: 'https://github.com/tanstack/hotkeys/raw/main/media/repo-header.png',
+  defaultDocs: 'overview',
+}
+
 export const db: LibrarySlim = {
   id: 'db',
   name: 'TanStack DB',
@@ -453,6 +480,7 @@ export const libraries: LibrarySlim[] = [
   ai,
   virtual,
   pacer,
+  hotkeys,
   store,
   ranger,
   config,
@@ -497,14 +525,14 @@ export const libraries: LibrarySlim[] = [
 
 export const librariesByGroup = {
   state: [start, router, query, db, store, ai],
-  headlessUI: [table, form],
+  headlessUI: [table, form, hotkeys],
   performance: [virtual, pacer],
   tooling: [devtools, config, cli],
 }
 
 export const librariesGroupNamesMap = {
-  state: 'Data and State Management',
-  headlessUI: 'Headless UI',
+  state: 'Data & State Management',
+  headlessUI: 'UI & UX',
   performance: 'Performance',
   tooling: 'Tooling',
 }
@@ -535,6 +563,7 @@ export const SIDEBAR_LIBRARY_IDS = [
   'form',
   'virtual',
   'pacer',
+  'hotkeys',
   'store',
   'devtools',
   'cli',

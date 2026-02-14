@@ -9,7 +9,10 @@ export function handleRedirects(
   urlToPathStart: string,
   urlToQueryParams: string,
 ) {
-  const url = new URL(urlFromRequest, 'https://tanstack.com')
+  const url = new URL(
+    urlFromRequest,
+    import.meta.env.DEV ? 'http://localhost:3000' : 'https://tanstack.com',
+  )
 
   redirectItems.forEach((item) => {
     if (url.pathname.startsWith(`${urlFromPathStart}/${item.from}`)) {

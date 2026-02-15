@@ -217,8 +217,6 @@ export const router: LibrarySlim = {
   scarfId: '3d14fff2-f326-4929-b5e1-6ecf953d24f4',
   ogImage: 'https://github.com/tanstack/router/raw/main/media/header.png',
   docsRoot: 'docs/router',
-  defaultDocs: 'framework/react/overview',
-  installPath: 'framework/$framework/quick-start',
   legacyPackages: ['react-location'],
   hideCodesandboxUrl: true,
   handleRedirects: (href) => {
@@ -237,6 +235,23 @@ export const router: LibrarySlim = {
           'router/latest/docs/framework/react/examples/start',
           'start/latest/docs/framework/react/examples/start',
         ),
+      })
+    }
+
+    // Rewrite framework-specific guides to generic guides
+    // e.g. /router/latest/docs/framework/react/overview -> /router/latest/docs/overview
+    // e.g. /router/latest/docs/framework/react/xyz -> /router/latest/docs/xyz
+    // e.g. /router/latest/docs/framework/react/xyz/ssr -> /router/latest/docs/xyz/ssr
+    // However, examples should still point to the framework-specific examples
+    // e.g. /router/latest/docs/framework/react/examples/ssr -> /router/latest/docs/framework/react/examples/ssr
+    // e.g. /router/latest/docs/framework/react/examples/xyz -> /router/latest/docs/framework/react/examples/xyz
+    const frameworkMatch = href.match(
+      /\/router\/([^/]+)\/docs\/framework\/[^/]+\/(.+)/,
+    )
+    if (frameworkMatch && !href.includes('/examples/')) {
+      const [, version, restPath] = frameworkMatch
+      throw redirect({
+        href: `/router/${version}/docs/${restPath}`,
       })
     }
   },

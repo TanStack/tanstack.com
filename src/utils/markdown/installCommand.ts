@@ -15,6 +15,18 @@ export type InstallMode =
   | 'custom'
 
 /**
+ * Get package manager from query parameter, defaulting to 'npm' if not specified or invalid.
+ */
+export function getPackageManager(
+  pm: string | null | undefined,
+): PackageManager {
+  if (pm && PACKAGE_MANAGERS.includes(pm as PackageManager)) {
+    return pm as PackageManager
+  }
+  return 'npm' // default
+}
+
+/**
  * Generate install command(s) for a package manager.
  * Each group of packages becomes one command line.
  */

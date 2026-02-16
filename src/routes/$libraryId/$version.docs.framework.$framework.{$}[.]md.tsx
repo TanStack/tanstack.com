@@ -2,6 +2,7 @@ import { findLibrary, getBranch } from '~/libraries'
 import { loadDocs } from '~/utils/docs'
 import { notFound, createFileRoute } from '@tanstack/react-router'
 import { filterFrameworkContent } from '~/utils/markdown/filterFrameworkContent'
+import { getPackageManager } from '~/utils/markdown/installCommand'
 
 export const Route = createFileRoute(
   '/$libraryId/$version/docs/framework/$framework/{$}.md',
@@ -21,11 +22,7 @@ export const Route = createFileRoute(
         }
       }) => {
         const url = new URL(request.url)
-        const pm = (url.searchParams.get('pm') || 'npm') as
-          | 'npm'
-          | 'pnpm'
-          | 'yarn'
-          | 'bun'
+        const pm = getPackageManager(url.searchParams.get('pm'))
         const keepMarkers = url.searchParams.get('keep_markers') === 'true'
 
         const { libraryId, version, framework, _splat: docsPath } = params

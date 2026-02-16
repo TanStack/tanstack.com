@@ -10,6 +10,7 @@ import {
   DropdownContent,
   DropdownItem,
 } from './Dropdown'
+import { PACKAGE_MANAGERS } from '~/utils/markdown/installCommand'
 
 // Markdown icon component matching the screenshot
 function MarkdownIcon({ className }: { className?: string }) {
@@ -120,7 +121,7 @@ export function CopyPageDropdown({
     // Read package manager from localStorage (same key as PackageManagerTabs)
     if (typeof localStorage !== 'undefined') {
       const pm = localStorage.getItem('packageManager')
-      if (pm && ['npm', 'pnpm', 'yarn', 'bun'].includes(pm)) {
+      if (pm && PACKAGE_MANAGERS.includes(pm as any)) {
         params.set('pm', pm)
       }
     }

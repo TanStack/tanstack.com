@@ -5,6 +5,8 @@
 
 export type PackageManager = 'npm' | 'pnpm' | 'yarn' | 'bun'
 
+export const PACKAGE_MANAGERS: PackageManager[] = ['npm', 'pnpm', 'yarn', 'bun']
+
 export type InstallMode =
   | 'install'
   | 'dev-install'

@@ -7,6 +7,7 @@ import { CodeBlock } from './CodeBlock'
 import type { Framework } from '~/libraries/types'
 import {
   getInstallCommand,
+  PACKAGE_MANAGERS,
   type PackageManager,
   type InstallMode,
 } from '~/utils/markdown/installCommand'
@@ -32,8 +33,6 @@ type PackageManagerTabsProps = {
   mode: InstallMode
   frameworks: Framework[]
 }
-
-const PACKAGE_MANAGERS: PackageManager[] = ['npm', 'pnpm', 'yarn', 'bun']
 
 export function PackageManagerTabs({
   packagesByFramework,

@@ -92,23 +92,41 @@ type CopyPageDropdownProps = {
   branch?: string
   /** File path in the repo (e.g., 'src/blog/my-post.md'). Required if repo is provided. */
   filePath?: string
+  /** Current framework for filtering markdown content (appended as ?framework= query param) */
+  currentFramework?: string
 }
 
 export function CopyPageDropdown({
   repo,
   branch,
   filePath,
+  currentFramework,
 }: CopyPageDropdownProps = {}) {
   const [open, setOpen] = React.useState(false)
   const [copied, setCopied] = React.useState(false)
   const { notify } = useToast()
 
   // Determine if we should fetch from GitHub or use the page URL
-  const useGitHub = repo && branch && filePath
+  const useGitHub = repo === 'tanstack/tanstack.com'
   const gitHubUrl = useGitHub
     ? `https://raw.githubusercontent.com/${repo}/${branch}/${filePath}`
     : null
-  const pageMarkdownUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}${typeof window !== 'undefined' ? window.location.pathname.replace(/\/$/, '') : ''}.md`
+  const pageMarkdownUrl = (() => {
+    const base = `${typeof window !== 'undefined' ? window.location.origin : ''}${typeof window !== 'undefined' ? window.location.pathname.replace(/\/$/, '') : ''}.md`
+    const params = new URLSearchParams()
+    if (currentFramework) {
+      params.set('framework', currentFramework)
+    }
+    // Read package manager from localStorage (same key as PackageManagerTabs)
+    if (typeof localStorage !== 'undefined') {
+      const pm = localStorage.getItem('packageManager')
+      if (pm && ['npm', 'pnpm', 'yarn', 'bun'].includes(pm)) {
+        params.set('pm', pm)
+      }
+    }
+    const queryString = params.toString()
+    return queryString ? `${base}?${queryString}` : base
+  })()
 
   const handleCopyPage = async () => {
     const urlToFetch = gitHubUrl || pageMarkdownUrl

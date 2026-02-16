@@ -1,6 +1,7 @@
 import { findLibrary, getBranch } from '~/libraries'
 import { loadDocs } from '~/utils/docs'
 import { notFound, createFileRoute } from '@tanstack/react-router'
+import { filterFrameworkContent } from '~/utils/markdown/filterFrameworkContent'
 
 export const Route = createFileRoute(
   '/$libraryId/$version/docs/framework/$framework/{$}.md',
@@ -19,7 +20,13 @@ export const Route = createFileRoute(
           _splat: string
         }
       }) => {
-        const _url = new URL(request.url)
+        const url = new URL(request.url)
+        const pm = (url.searchParams.get('pm') || 'npm') as
+          | 'npm'
+          | 'pnpm'
+          | 'yarn'
+          | 'bun'
+        const keepMarkers = url.searchParams.get('keep_markers') === 'true'
 
         const { libraryId, version, framework, _splat: docsPath } = params
         const library = findLibrary(libraryId)
@@ -36,7 +43,14 @@ export const Route = createFileRoute(
           docsPath: `${root}/framework/${framework}/${docsPath}`,
         })
 
-        const markdownContent = `# ${doc.title}\n${doc.content}`
+        // Filter framework-specific content using framework from URL path
+        const filteredContent = filterFrameworkContent(doc.content, {
+          framework,
+          packageManager: pm,
+          keepMarkers,
+        })
+
+        const markdownContent = `# ${doc.title}\n${filteredContent}`
         const filename = (docsPath || 'file').split('/').join('-')
 
         return new Response(markdownContent, {

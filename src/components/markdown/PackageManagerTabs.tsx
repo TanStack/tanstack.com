@@ -5,14 +5,11 @@ import { create } from 'zustand'
 import { Tabs, type TabDefinition } from './Tabs'
 import { CodeBlock } from './CodeBlock'
 import type { Framework } from '~/libraries/types'
-
-type PackageManager = 'bun' | 'npm' | 'pnpm' | 'yarn'
-type InstallMode =
-  | 'install'
-  | 'dev-install'
-  | 'local-install'
-  | 'create'
-  | 'custom'
+import {
+  getInstallCommand,
+  type PackageManager,
+  type InstallMode,
+} from '~/utils/markdown/installCommand'
 
 // Use zustand for cross-component synchronization
 // This ensures all PackageManagerTabs instances on the page stay in sync
@@ -37,117 +34,6 @@ type PackageManagerTabsProps = {
 }
 
 const PACKAGE_MANAGERS: PackageManager[] = ['npm', 'pnpm', 'yarn', 'bun']
-
-function getInstallCommand(
-  packageManager: PackageManager,
-  packageGroups: string[][],
-  mode: InstallMode,
-): string[] {
-  const commands: string[] = []
-
-  if (mode === 'custom') {
-    for (const packages of packageGroups) {
-      const pkgStr = packages.join(' ')
-      switch (packageManager) {
-        case 'npm':
-          commands.push(`npm ${pkgStr}`)
-          break
-        case 'pnpm':
-          commands.push(`pnpm ${pkgStr}`)
-          break
-        case 'yarn':
-          commands.push(`yarn ${pkgStr}`)
-          break
-        case 'bun':
-          commands.push(`bun ${pkgStr}`)
-          break
-      }
-    }
-  }
-
-  if (mode === 'create') {
-    for (const packages of packageGroups) {
-      const pkgStr = packages.join(' ')
-      switch (packageManager) {
-        case 'npm':
-          commands.push(`npm create ${pkgStr}`)
-          break
-        case 'pnpm':
-          commands.push(`pnpm create ${pkgStr}`)
-          break
-        case 'yarn':
-          commands.push(`yarn create ${pkgStr}`)
-          break
-        case 'bun':
-          commands.push(`bun create ${pkgStr}`)
-          break
-      }
-    }
-  }
-
-  if (mode === 'local-install') {
-    // Each group becomes one command line
-    for (const packages of packageGroups) {
-      const pkgStr = packages.join(' ')
-      switch (packageManager) {
-        case 'npm':
-          commands.push(`npx ${pkgStr}`)
-          break
-        case 'pnpm':
-          commands.push(`pnpx ${pkgStr}`)
-          break
-        case 'yarn':
-          commands.push(`yarn dlx ${pkgStr}`)
-          break
-        case 'bun':
-          commands.push(`bunx ${pkgStr}`)
-          break
-      }
-    }
-    return commands
-  }
-
-  if (mode === 'dev-install') {
-    for (const packages of packageGroups) {
-      const pkgStr = packages.join(' ')
-      switch (packageManager) {
-        case 'npm':
-          commands.push(`npm i -D ${pkgStr}`)
-          break
-        case 'pnpm':
-          commands.push(`pnpm add -D ${pkgStr}`)
-          break
-        case 'yarn':
-          commands.push(`yarn add -D ${pkgStr}`)
-          break
-        case 'bun':
-          commands.push(`bun add -d ${pkgStr}`)
-          break
-      }
-    }
-    return commands
-  }
-
-  // install mode
-  for (const packages of packageGroups) {
-    const pkgStr = packages.join(' ')
-    switch (packageManager) {
-      case 'npm':
-        commands.push(`npm i ${pkgStr}`)
-        break
-      case 'pnpm':
-        commands.push(`pnpm add ${pkgStr}`)
-        break
-      case 'yarn':
-        commands.push(`yarn add ${pkgStr}`)
-        break
-      case 'bun':
-        commands.push(`bun add ${pkgStr}`)
-        break
-    }
-  }
-  return commands
-}
 
 export function PackageManagerTabs({
   packagesByFramework,

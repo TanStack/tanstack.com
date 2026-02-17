@@ -115,11 +115,17 @@
     "zustand": "^4.5.2"
   },
   "devDependencies": {
+    "@babel/generator": "^7.29.1",
+    "@babel/parser": "^7.29.0",
+    "@babel/traverse": "^7.29.0",
+    "@babel/types": "^7.29.0",
     "@content-collections/core": "^0.8.2",
     "@content-collections/vite": "^0.2.4",
     "@eslint/js": "^9.39.1",
     "@playwright/test": "^1.57.0",
     "@shikijs/transformers": "^1.10.3",
+    "@types/babel__generator": "^7.27.0",
+    "@types/babel__traverse": "^7.28.0",
     "@types/express": "^5.0.3",
     "@types/hast": "^3.0.4",
     "@types/node": "^24.3.0",
@@ -159,6 +165,11 @@
       "qs": ">=6.14.1",
       "js-yaml": "^3.14.2",
       "brace-expansion": ">=1.1.12"
-    }
+    },
+    "ignoredBuiltDependencies": [
+      "@sentry/cli",
+      "esbuild",
+      "msgpackr-extract"
+    ]
   }
 }

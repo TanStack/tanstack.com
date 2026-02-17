@@ -2,19 +2,18 @@ import fs from 'node:fs'
 import fsp from 'node:fs/promises'
 import path from 'node:path'
 import * as graymatter from 'gray-matter'
+import { transformSolidCodeBlocks } from './solidTransform'
 import { fetchCached } from '~/utils/cache.server'
 import { multiSortBy, removeLeadingSlash } from './utils'
 import { env } from './env'
 
-export type Doc = {
-  filepath: string
-}
-
-export type DocFrontMatter = {
-  title: string
-  published?: string
-  exerpt?: string
-}
+const SOLID_HOOKS_TO_TRANSFORM = [
+  'useQuery',
+  'useMutation',
+  'useQueries',
+  'useInfiniteQuery',
+  'useMutationState',
+]
 
 /**
  * Return text content of file from remote location
@@ -94,8 +93,23 @@ function replaceContent(
   let result = text
   const replace = frontmatter.data.replace as Record<string, string> | undefined
   if (replace) {
+    const solidHookKeys = Object.keys(replace).filter((key) =>
+      SOLID_HOOKS_TO_TRANSFORM.some((hook) => key.includes(hook)),
+    )
+
+    const hasSolidTransform = solidHookKeys.length > 0
+
+    // First: Apply AST transformation to valid code (before any string replacements)
+    if (hasSolidTransform) {
+      result = transformSolidCodeBlocks(result)
+    }
+
+    // Then: Apply string replacements (skip all Solid hook replacements)
     Object.entries(replace).forEach(([key, value]) => {
-      result = result.replace(new RegExp(key, 'g'), value)
+      const isSolidHookReplacement = solidHookKeys.includes(key)
+      if (!isSolidHookReplacement) {
+        result = result.replace(new RegExp(key, 'g'), value)
+      }
     })
   }
 

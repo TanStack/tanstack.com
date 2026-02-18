@@ -24,6 +24,8 @@ export function Tooltip({
   className = '',
 }: TooltipProps) {
   const [isOpen, setIsOpen] = React.useState(false)
+  const [isMounted, setIsMounted] = React.useState(false)
+  const portalRoot = React.useRef<HTMLElement | null>(null)
 
   const { refs, floatingStyles, context } = useFloating({
     open: isOpen,
@@ -37,6 +39,21 @@ export function Tooltip({
 
   const { getReferenceProps, getFloatingProps } = useInteractions([hover])
 
+  // Ensure DOM is ready before rendering the portal
+  React.useEffect(() => {
+    // Only set portalRoot if we're in a browser environment
+    if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+      portalRoot.current = document.body
+      setIsMounted(true)
+    }
+
+    return () => {
+      // Clean up on unmount to prevent memory leaks
+      setIsMounted(false)
+      portalRoot.current = null
+    }
+  }, [])
+
   return (
     <>
       {/* eslint-disable-next-line react-hooks/refs */}
@@ -45,18 +62,20 @@ export function Tooltip({
         ref: refs.setReference,
         ...getReferenceProps(),
       } as any)}
-      <FloatingPortal>
-        {isOpen && (
-          <div
-            ref={refs.setFloating /* eslint-disable-line react-hooks/refs */}
-            style={floatingStyles}
-            {...getFloatingProps()}
-            className={`z-50 rounded-md bg-gray-900 px-3 py-1.5 text-sm text-white shadow-lg dark:bg-gray-800 ${className}`}
-          >
-            {content}
-          </div>
-        )}
-      </FloatingPortal>
+      {isMounted && portalRoot.current && (
+        <FloatingPortal root={portalRoot.current}>
+          {isOpen && (
+            <div
+              ref={refs.setFloating /* eslint-disable-line react-hooks/refs */}
+              style={floatingStyles}
+              {...getFloatingProps()}
+              className={`z-50 rounded-md bg-gray-900 px-3 py-1.5 text-sm text-white shadow-lg dark:bg-gray-800 ${className}`}
+            >
+              {content}
+            </div>
+          )}
+        </FloatingPortal>
+      )}
     </>
   )
 }

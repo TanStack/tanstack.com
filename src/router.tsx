@@ -72,27 +72,42 @@ export function getRouter() {
 
         // Check if this is an ad script error we want to suppress
         const frames = event.exception?.values?.[0]?.stacktrace?.frames || []
-        const hasAdScriptFrame = frames.some((frame) => {
+        
+        // More robust filename checking - check all frames for ad script patterns
+        const hasAdScriptFrame = frames.length > 0 && frames.some((frame) => {
           const filename = frame.filename || ''
+          // Normalize filename to handle both absolute URLs and relative paths
+          const normalizedFilename = filename.toLowerCase()
           return (
-            filename.includes('/media/native/') ||
-            filename.includes('fuse.js') ||
-            filename.includes('fuseplatform.net') ||
-            filename.includes('/nobid/blocking_script.js')
+            normalizedFilename.includes('/media/native/') ||
+            normalizedFilename.includes('fuse.js') ||
+            normalizedFilename.includes('fuseplatform.net') ||
+            normalizedFilename.includes('/nobid/blocking_script.js') ||
+            normalizedFilename.includes('blocking_script.js') ||
+            // Check function name patterns from nobid script
+            frame.function === 'BQ' ||
+            frame.function === 'Navigation.<anonymous>'
           )
         })
 
+        // Check for specific error messages from ad scripts
         const hasExpectedErrorMessage =
           errorMessage.includes('contextWindow.parent') ||
           errorMessage.includes('null is not an object') ||
-          errorMessage.includes('is not a function')
+          errorMessage.includes('is not a function') ||
+          // Specific nobid script errors
+          errorMessage.includes('tG is not a function') ||
+          errorMessage.includes('KShg7B3')
 
         if (hasAdScriptFrame && hasExpectedErrorMessage) {
           // Suppress the error - log to console in debug mode
           console.debug(
             'Suppressed Publift Fuse/ad script error:',
             errorMessage,
+            'Frame:',
             frames[0]?.filename,
+            'Function:',
+            frames[0]?.function,
           )
           return null // Don't send to Sentry
         }

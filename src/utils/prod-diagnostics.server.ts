@@ -65,7 +65,13 @@ function toUrl(input: RequestInfo | URL): URL | null {
 }
 
 function logDiagnostic(payload: Record<string, unknown>): void {
-  console.log(JSON.stringify({ logType: 'prod_diagnostics', ...payload }))
+  console.log(
+    JSON.stringify({
+      logType: 'prod_diagnostics',
+      pid: process.pid,
+      ...payload,
+    }),
+  )
 }
 
 function maybeLogFdHighWatermark(): void {

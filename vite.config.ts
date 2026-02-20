@@ -33,7 +33,13 @@ export default defineConfig({
       // Externalize CLI so server reloads it on changes
       '@tanstack/cli',
     ],
-    noExternal: ['drizzle-orm'],
+    noExternal: [
+      'drizzle-orm',
+      '@uploadthing/react',
+      'file-selector',
+      'normalize-wheel',
+      '@tanstack/react-hotkeys',
+    ],
   },
   optimizeDeps: {
     exclude: [

@@ -13,18 +13,24 @@ import { LibraryStatsSection } from '~/components/LibraryStatsSection'
 import { FeatureGridSection } from '~/components/FeatureGridSection'
 import { formatForDisplay, useHotkey } from '@tanstack/react-hotkeys'
 import { useNavigate } from '@tanstack/react-router'
+import { useEffect } from 'react'
 
 const library = getLibrary('hotkeys')
 
 export default function HotkeysLanding() {
   const navigate = useNavigate()
 
-  useHotkey('Mod+Enter', () => {
-    navigate({
-      to: '/$libraryId/$version/docs',
-      params: { libraryId: library.id, version: 'latest' },
+  // Defer hotkey registration until after component mount to avoid
+  // iOS Safari race condition with lazy-loaded components in Suspense
+  useEffect(() => {
+    const cleanup = useHotkey('Mod+Enter', () => {
+      navigate({
+        to: '/$libraryId/$version/docs',
+        params: { libraryId: library.id, version: 'latest' },
+      })
     })
-  })
+    return cleanup
+  }, [navigate])
 
   return (
     <LibraryPageContainer>

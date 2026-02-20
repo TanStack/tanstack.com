@@ -1,252 +1,89 @@
+'use client'
+
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import { useToast } from '~/components/ToastProvider'
 import { Copy } from 'lucide-react'
-import type { Mermaid } from 'mermaid'
-import { transformerNotationDiff } from '@shikijs/transformers'
-import { createHighlighter, type HighlighterGeneric } from 'shiki'
 import { Button } from '~/ui'
 
-// Language aliases mapping
-const LANG_ALIASES: Record<string, string> = {
-  ts: 'typescript',
-  js: 'javascript',
-  sh: 'bash',
-  shell: 'bash',
-  console: 'bash',
-  zsh: 'bash',
-  cmd: 'bash',
-  md: 'markdown',
-  txt: 'plaintext',
-  text: 'plaintext',
-  yml: 'yaml',
-  json5: 'jsonc',
-  eslintrc: 'jsonc',
-}
-
-// Lazy highlighter singleton
-let highlighterPromise: Promise<HighlighterGeneric<any, any>> | null = null
-let mermaidInstance: Mermaid | null = null
-const genSvgMap = new Map<string, string>()
-const failedLanguages = new Set<string>()
-
-async function getHighlighter(language: string): Promise<{
-  highlighter: HighlighterGeneric<any, any>
-  effectiveLang: string
-}> {
-  if (!highlighterPromise) {
-    highlighterPromise = createHighlighter({
-      themes: ['github-light', 'vitesse-dark'],
-      langs: [
-        'typescript',
-        'javascript',
-        'tsx',
-        'jsx',
-        'bash',
-        'json',
-        'html',
-        'css',
-        'markdown',
-        'plaintext',
-        'toml',
-        'yaml',
-        'sql',
-        'diff',
-        'vue',
-        'svelte',
-        'scss',
-        'jsonc',
-        'vue-html',
-        'angular-html',
-        'angular-ts',
-      ],
-    })
-  }
-
-  const highlighter = await highlighterPromise
-  const normalizedLang = LANG_ALIASES[language] || language
-  const langToLoad = normalizedLang === 'mermaid' ? 'plaintext' : normalizedLang
-
-  // Return plaintext for known failed languages
-  if (failedLanguages.has(langToLoad)) {
-    return { highlighter, effectiveLang: 'plaintext' }
-  }
-
-  // Load language if not already loaded
-  if (!highlighter.getLoadedLanguages().includes(langToLoad as any)) {
-    try {
-      await highlighter.loadLanguage(langToLoad as any)
-    } catch {
-      console.warn(`Shiki: Language "${langToLoad}" not found, using plaintext`)
-      failedLanguages.add(langToLoad)
-      return { highlighter, effectiveLang: 'plaintext' }
-    }
-  }
-
-  return { highlighter, effectiveLang: langToLoad }
-}
-
-// Lazy load mermaid only when needed
-async function getMermaid(): Promise<Mermaid> {
-  if (!mermaidInstance) {
-    const { default: mermaid } = await import('mermaid')
-    mermaid.initialize({ startOnLoad: false, securityLevel: 'loose' })
-    mermaidInstance = mermaid
-  }
-  return mermaidInstance
-}
-
-function extractPreAttributes(html: string): {
-  class: string | null
-  style: string | null
-} {
-  const match = html.match(/<pre\b([^>]*)>/i)
-  if (!match) {
-    return { class: null, style: null }
-  }
-
-  const attributes = match[1]
-
-  const classMatch = attributes.match(/\bclass\s*=\s*["']([^"']*)["']/i)
-  const styleMatch = attributes.match(/\bstyle\s*=\s*["']([^"']*)["']/i)
-
-  return {
-    class: classMatch ? classMatch[1] : null,
-    style: styleMatch ? styleMatch[1] : null,
-  }
-}
-
-export function CodeBlock({
-  isEmbedded,
-  showTypeCopyButton = true,
-  ...props
-}: React.HTMLProps<HTMLPreElement> & {
+type CodeBlockProps = React.HTMLProps<HTMLPreElement> & {
+  /** Optional title to display above code block */
+  'data-code-title'?: string
+  /** Whether to show the copy button */
+  showCopyButton?: boolean
+  /** Whether the code block is embedded (e.g., in a file explorer) */
   isEmbedded?: boolean
-  showTypeCopyButton?: boolean
-  dataCodeTitle?: string
-}) {
-  // Extract title from data-code-title attribute, handling both camelCase and kebab-case
-  const rawTitle = ((props as any)?.dataCodeTitle ||
-    (props as any)?.['data-code-title']) as string | undefined
+}
 
-  // Filter out "undefined" strings, null, and empty strings
-  const title =
-    rawTitle && rawTitle !== 'undefined' && rawTitle.trim().length > 0
-      ? rawTitle.trim()
-      : undefined
-
-  const childElement = props.children as
-    | undefined
-    | { props?: { className?: string; children?: string } }
-  const lang = childElement?.props?.className?.replace('language-', '')
-
-  const children = props.children as
-    | undefined
-    | {
-        props: {
-          children: string
-        }
-      }
-
+/**
+ * CodeBlock wraps pre-highlighted HTML from server-side Shiki with a copy button.
+ * Used by html-react-parser to replace <pre> elements in rendered markdown.
+ */
+export function CodeBlock({
+  children,
+  className,
+  style,
+  'data-code-title': dataCodeTitle,
+  showCopyButton = true,
+  isEmbedded,
+  ...props
+}: CodeBlockProps) {
   const [copied, setCopied] = React.useState(false)
-  const ref = React.useRef<any>(null)
+  const ref = React.useRef<HTMLPreElement>(null)
   const { notify } = useToast()
 
-  const code = children?.props.children
+  // Extract title from data attribute
+  const title =
+    dataCodeTitle && dataCodeTitle !== 'undefined' && dataCodeTitle.trim()
+      ? dataCodeTitle.trim()
+      : undefined
 
-  const [codeElement, setCodeElement] = React.useState(
-    <pre ref={ref} className={`shiki h-full github-light dark:vitesse-dark`}>
-      <code>{lang === 'mermaid' ? <svg /> : code}</code>
-    </pre>,
-  )
+  // Try to extract language from className (e.g., "shiki shiki-themes" or "language-typescript")
+  const lang = React.useMemo(() => {
+    if (!className) return ''
+    // Look for language-* class
+    const langMatch = className.match(/language-(\w+)/)
+    if (langMatch) return langMatch[1]
+    return ''
+  }, [className])
 
-  React[
-    typeof document !== 'undefined' ? 'useLayoutEffect' : 'useEffect'
-  ](() => {
-    ;(async () => {
-      const themes = ['github-light', 'vitesse-dark']
-      const langStr = lang || 'plaintext'
+  const handleCopy = React.useCallback(() => {
+    const copyContent = ref.current?.innerText?.trimEnd() || ''
 
-      const { highlighter, effectiveLang } = await getHighlighter(langStr)
-      // Trim trailing newlines to prevent empty lines at end of code block
-      const trimmedCode = (code || '').trimEnd()
+    navigator.clipboard.writeText(copyContent)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+    notify(
+      <div className="flex flex-col">
+        <span className="font-medium">Copied code</span>
+        <span className="text-gray-500 dark:text-gray-400 text-xs">
+          Code block copied to clipboard
+        </span>
+      </div>,
+    )
+  }, [notify])
 
-      const htmls = await Promise.all(
-        themes.map(async (theme) => {
-          const output = highlighter.codeToHtml(trimmedCode, {
-            lang: effectiveLang,
-            theme,
-            transformers: [transformerNotationDiff()],
-          })
-
-          if (lang === 'mermaid') {
-            const preAttributes = extractPreAttributes(output)
-            let svgHtml = genSvgMap.get(trimmedCode)
-            if (!svgHtml) {
-              const mermaid = await getMermaid()
-              const { svg } = await mermaid.render('foo', trimmedCode)
-              genSvgMap.set(trimmedCode, svg)
-              svgHtml = svg
-            }
-            return `<div class='${preAttributes.class} py-4 bg-neutral-50'>${svgHtml}</div>`
-          }
-
-          return output
-        }),
-      )
-
-      setCodeElement(
-        <div
-          className={twMerge(
-            isEmbedded ? 'h-full [&>pre]:h-full [&>pre]:rounded-none' : '',
-          )}
-          dangerouslySetInnerHTML={{ __html: htmls.join('') }}
-          ref={ref}
-        />,
-      )
-    })()
-  }, [code, lang])
+  // Display language in header
+  const displayLang = lang?.toLowerCase() === 'bash' ? 'sh' : lang
 
   return (
     <div
       className={twMerge(
         'codeblock w-full max-w-full relative not-prose border border-gray-500/20 rounded-md [&_pre]:rounded-md',
-        props.className,
+        isEmbedded && '[&_pre]:rounded-none',
       )}
-      style={props.style}
     >
-      {(title || showTypeCopyButton) && (
+      {(title || showCopyButton) && (
         <div className="flex items-center justify-between px-4 py-2 bg-gray-50 dark:bg-gray-900">
           <div className="text-xs text-gray-700 dark:text-gray-300">
-            {title || (lang?.toLowerCase() === 'bash' ? 'sh' : (lang ?? ''))}
+            {title || displayLang}
           </div>
 
           <Button
             variant="ghost"
             size="xs"
-            className={twMerge('border-0 rounded-md transition-opacity')}
-            onClick={() => {
-              let copyContent =
-                typeof ref.current?.innerText === 'string'
-                  ? ref.current.innerText
-                  : ''
-
-              if (copyContent.endsWith('\n')) {
-                copyContent = copyContent.slice(0, -1)
-              }
-
-              navigator.clipboard.writeText(copyContent)
-              setCopied(true)
-              setTimeout(() => setCopied(false), 2000)
-              notify(
-                <div className="flex flex-col">
-                  <span className="font-medium">Copied code</span>
-                  <span className="text-gray-500 dark:text-gray-400 text-xs">
-                    Code block copied to clipboard
-                  </span>
-                </div>,
-              )
-            }}
+            className="border-0 rounded-md transition-opacity"
+            onClick={handleCopy}
             aria-label="Copy code to clipboard"
           >
             {copied ? (
@@ -257,7 +94,187 @@ export function CodeBlock({
           </Button>
         </div>
       )}
-      {codeElement}
+      <pre
+        ref={ref}
+        className={twMerge(className, isEmbedded && 'h-full')}
+        style={style}
+        {...props}
+      >
+        {children}
+      </pre>
+    </div>
+  )
+}
+
+type HighlightedCodeBlockProps = {
+  /** Pre-highlighted HTML from server-side Shiki */
+  html: string
+  /** Optional title to display above code block */
+  title?: string
+  /** Language for display in header */
+  lang?: string
+  /** Whether to show the copy button */
+  showCopyButton?: boolean
+  /** Whether the code block is embedded (e.g., in a file explorer) */
+  isEmbedded?: boolean
+  className?: string
+  style?: React.CSSProperties
+}
+
+/**
+ * HighlightedCodeBlock renders pre-highlighted HTML from server-side Shiki.
+ * Use this for code blocks outside of markdown (e.g., CodeExplorer, landing pages).
+ */
+export function HighlightedCodeBlock({
+  html,
+  title,
+  lang,
+  showCopyButton = true,
+  isEmbedded,
+  className,
+  style,
+}: HighlightedCodeBlockProps) {
+  const [copied, setCopied] = React.useState(false)
+  const ref = React.useRef<HTMLDivElement>(null)
+  const { notify } = useToast()
+
+  const handleCopy = React.useCallback(() => {
+    const copyContent = ref.current?.innerText?.trimEnd() || ''
+
+    navigator.clipboard.writeText(copyContent)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+    notify(
+      <div className="flex flex-col">
+        <span className="font-medium">Copied code</span>
+        <span className="text-gray-500 dark:text-gray-400 text-xs">
+          Code block copied to clipboard
+        </span>
+      </div>,
+    )
+  }, [notify])
+
+  // Display language in header
+  const displayLang = lang?.toLowerCase() === 'bash' ? 'sh' : (lang ?? '')
+
+  return (
+    <div
+      className={twMerge(
+        'codeblock w-full max-w-full relative not-prose border border-gray-500/20 rounded-md [&_pre]:rounded-md',
+        isEmbedded && '[&_pre]:rounded-none',
+        className,
+      )}
+      style={style}
+    >
+      {(title || showCopyButton) && (
+        <div className="flex items-center justify-between px-4 py-2 bg-gray-50 dark:bg-gray-900">
+          <div className="text-xs text-gray-700 dark:text-gray-300">
+            {title || displayLang}
+          </div>
+
+          <Button
+            variant="ghost"
+            size="xs"
+            className="border-0 rounded-md transition-opacity"
+            onClick={handleCopy}
+            aria-label="Copy code to clipboard"
+          >
+            {copied ? (
+              <span className="text-xs">Copied!</span>
+            ) : (
+              <Copy className="w-4 h-4" />
+            )}
+          </Button>
+        </div>
+      )}
+      <div
+        ref={ref}
+        className={twMerge(isEmbedded && 'h-full [&>pre]:h-full')}
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
+    </div>
+  )
+}
+
+type PlainCodeBlockProps = {
+  /** Code content to display (no highlighting) */
+  code: string
+  /** Optional title to display above code block */
+  title?: string
+  /** Language for display in header */
+  lang?: string
+  /** Whether to show the copy button */
+  showCopyButton?: boolean
+  className?: string
+  style?: React.CSSProperties
+}
+
+/**
+ * PlainCodeBlock displays code without syntax highlighting.
+ * Use this for dynamically generated code (e.g., package manager commands).
+ */
+export function PlainCodeBlock({
+  code,
+  title,
+  lang,
+  showCopyButton = true,
+  className,
+  style,
+}: PlainCodeBlockProps) {
+  const [copied, setCopied] = React.useState(false)
+  const { notify } = useToast()
+
+  const handleCopy = React.useCallback(() => {
+    navigator.clipboard.writeText(code.trimEnd())
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+    notify(
+      <div className="flex flex-col">
+        <span className="font-medium">Copied code</span>
+        <span className="text-gray-500 dark:text-gray-400 text-xs">
+          Code block copied to clipboard
+        </span>
+      </div>,
+    )
+  }, [code, notify])
+
+  // Display language in header
+  const displayLang = lang?.toLowerCase() === 'bash' ? 'sh' : (lang ?? '')
+
+  return (
+    <div
+      className={twMerge(
+        'codeblock w-full max-w-full relative not-prose border border-gray-500/20 rounded-md',
+        className,
+      )}
+      style={style}
+    >
+      {(title || showCopyButton) && (
+        <div className="flex items-center justify-between px-4 py-2 bg-gray-50 dark:bg-gray-900 rounded-t-md">
+          <div className="text-xs text-gray-700 dark:text-gray-300">
+            {title || displayLang}
+          </div>
+
+          <Button
+            variant="ghost"
+            size="xs"
+            className="border-0 rounded-md transition-opacity"
+            onClick={handleCopy}
+            aria-label="Copy code to clipboard"
+          >
+            {copied ? (
+              <span className="text-xs">Copied!</span>
+            ) : (
+              <Copy className="w-4 h-4" />
+            )}
+          </Button>
+        </div>
+      )}
+      <pre className="p-4 overflow-x-auto bg-gray-50 dark:bg-gray-900/50 rounded-b-md">
+        <code className="text-sm font-mono text-gray-800 dark:text-gray-200">
+          {code}
+        </code>
+      </pre>
     </div>
   )
 }

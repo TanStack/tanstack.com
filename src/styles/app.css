@@ -669,12 +669,47 @@ pre .logger.log-log svg {
   margin-right: 9px;
 }
 
-html:not(.dark) .shiki.vitesse-dark {
+/* Hide single-theme Shiki blocks based on current theme.
+   These rules should NOT match dual-theme blocks (which have .shiki-themes class) */
+html:not(.dark) .shiki.vitesse-dark:not(.shiki-themes) {
   display: none;
 }
 
-html.dark .shiki.github-light {
+html.dark .shiki.github-light:not(.shiki-themes) {
   display: none;
+}
+
+/* Shiki CSS variable theme support (server-side rehype-shiki with defaultColor: false) */
+.shiki.shiki-themes,
+.shiki[style*='--shiki-'] {
+  /* Light mode: use --shiki-light values */
+  background-color: var(--shiki-light-bg, #fff) !important;
+  color: var(--shiki-light, inherit);
+}
+
+.shiki.shiki-themes span[style*='--shiki-'],
+.shiki[style*='--shiki-'] span[style*='--shiki-'] {
+  color: var(--shiki-light);
+  background-color: var(--shiki-light-bg);
+  font-style: var(--shiki-light-font-style);
+  font-weight: var(--shiki-light-font-weight);
+  text-decoration: var(--shiki-light-text-decoration);
+}
+
+html.dark .shiki.shiki-themes,
+html.dark .shiki[style*='--shiki-'] {
+  /* Dark mode: use --shiki-dark values */
+  background-color: var(--shiki-dark-bg, #0a0a0a) !important;
+  color: var(--shiki-dark, inherit);
+}
+
+html.dark .shiki.shiki-themes span[style*='--shiki-'],
+html.dark .shiki[style*='--shiki-'] span[style*='--shiki-'] {
+  color: var(--shiki-dark);
+  background-color: var(--shiki-dark-bg);
+  font-style: var(--shiki-dark-font-style);
+  font-weight: var(--shiki-dark-font-weight);
+  text-decoration: var(--shiki-dark-text-decoration);
 }
 
 /* Improve comment contrast in dark mode */

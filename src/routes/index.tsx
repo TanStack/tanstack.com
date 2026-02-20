@@ -18,9 +18,10 @@ import { useToast } from '~/components/ToastProvider'
 import { formatAuthors, getPublishedPosts } from '~/utils/blog'
 import { format } from '~/utils/dates'
 import { SimpleMarkdown } from '~/components/SimpleMarkdown'
+import { renderMarkdownAsync } from '~/utils/markdown'
+import { setCacheHeaders } from '~/utils/headers.server'
 import { NetlifyImage } from '~/components/NetlifyImage'
 import { createServerFn } from '@tanstack/react-start'
-import { setResponseHeaders } from '@tanstack/react-start/server'
 import { AdGate } from '~/contexts/AdsContext'
 import { GamHeader } from '~/components/Gam'
 import { TrustedByMarquee } from '~/components/TrustedByMarquee'
@@ -57,31 +58,28 @@ type BlogFrontMatter = {
   slug: string
   title: string
   published: string
-  excerpt: string | undefined
+  excerptHtml: string | undefined
   authors: string[]
 }
 
 const fetchRecentPosts = createServerFn({ method: 'GET' }).handler(
   async (): Promise<BlogFrontMatter[]> => {
-    setResponseHeaders(
-      new Headers({
-        'Cache-Control': 'public, max-age=0, must-revalidate',
-        'Netlify-CDN-Cache-Control':
-          'public, max-age=300, durable, stale-while-revalidate=300',
-      }),
+    setCacheHeaders()
+
+    const posts = getPublishedPosts().slice(0, 3)
+    const postsWithMarkup = await Promise.all(
+      posts.map(async (post) => ({
+        slug: post.slug,
+        title: post.title,
+        published: post.published,
+        excerptHtml: post.excerpt
+          ? (await renderMarkdownAsync(post.excerpt)).markup
+          : undefined,
+        authors: post.authors,
+      })),
     )
 
-    return getPublishedPosts()
-      .slice(0, 3)
-      .map((post) => {
-        return {
-          slug: post.slug,
-          title: post.title,
-          published: post.published,
-          excerpt: post.excerpt,
-          authors: post.authors,
-        }
-      })
+    return postsWithMarkup
   },
 )
 
@@ -393,7 +391,7 @@ function Index() {
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {recentPosts.map(
-                ({ slug, title, published, excerpt, authors }) => {
+                ({ slug, title, published, excerptHtml, authors }) => {
                   return (
                     <Card
                       as={Link}
@@ -425,11 +423,11 @@ function Index() {
                             ) : null}
                           </p>
                         </div>
-                        {excerpt && (
+                        {excerptHtml && (
                           <div
                             className={`text-xs mt-3 text-gray-600 dark:text-gray-400 line-clamp-2 leading-relaxed`}
                           >
-                            <SimpleMarkdown rawContent={excerpt} />
+                            <SimpleMarkdown htmlMarkup={excerptHtml} />
                           </div>
                         )}
                       </div>

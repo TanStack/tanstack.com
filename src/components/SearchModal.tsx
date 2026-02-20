@@ -566,7 +566,7 @@ function LibraryRefinement() {
 
   return (
     <Dropdown>
-      <DropdownTrigger asChild={false}>
+      <DropdownTrigger>
         <button className="flex items-center gap-1 text-sm focus:outline-none cursor-pointer font-bold">
           {currentLibrary ? (
             <span className="uppercase font-black [letter-spacing:-.05em]">
@@ -638,7 +638,7 @@ function FrameworkRefinement() {
 
   return (
     <Dropdown>
-      <DropdownTrigger asChild={false}>
+      <DropdownTrigger>
         <button className="flex items-center gap-1 text-sm font-bold focus:outline-none cursor-pointer">
           {currentFramework && (
             <img

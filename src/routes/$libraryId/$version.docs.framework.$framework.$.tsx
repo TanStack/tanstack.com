@@ -64,7 +64,7 @@ export const Route = createFileRoute(
 })
 
 function Docs() {
-  const { title, content, filePath } = Route.useLoaderData()
+  const { title, contentRsc, headings, filePath } = Route.useLoaderData()
   const versionMatch = useMatch({ from: '/$libraryId/$version' })
   const { config } = versionMatch.loaderData as { config: ConfigSchema }
   const { version, libraryId, framework } = Route.useParams()
@@ -77,7 +77,8 @@ function Docs() {
       <Doc
         key={filePath}
         title={title}
-        content={content}
+        contentRsc={contentRsc}
+        headings={headings}
         repo={library.repo}
         branch={branch}
         filePath={filePath}

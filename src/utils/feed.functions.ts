@@ -12,10 +12,22 @@ import {
   filterByReleaseLevel,
 } from './feed.server'
 import { entryTypeSchema } from './schemas'
+import { renderMarkdownRsc } from '~/utils/markdown'
+import {
+  createFeedTimelineComposite,
+  createFeedDetailComposite,
+} from './feed.composites'
 
-// Transform database entry to API response format
-function transformFeedEntry(entry: typeof feedEntries.$inferSelect) {
-  return {
+// Transform database entry to API response format (with pre-rendered RSC content)
+async function transformFeedEntry(
+  entry: typeof feedEntries.$inferSelect,
+  options?: {
+    renderContent?: boolean
+    createTimelineComposite?: boolean
+    createDetailComposite?: boolean
+  },
+) {
+  const base = {
     _id: entry.entryId,
     id: entry.entryId,
     entryType: entry.entryType,
@@ -25,7 +37,10 @@ function transformFeedEntry(entry: typeof feedEntries.$inferSelect) {
     publishedAt: entry.publishedAt.getTime(),
     createdAt: entry.createdAt.getTime(),
     updatedAt: entry.updatedAt.getTime(),
-    metadata: entry.metadata ?? {},
+    metadata: (entry.metadata ?? {}) as Record<
+      string,
+      string | number | boolean | null | undefined
+    >,
     libraryIds: entry.libraryIds,
     partnerIds: entry.partnerIds,
     tags: entry.tags,
@@ -33,6 +48,46 @@ function transformFeedEntry(entry: typeof feedEntries.$inferSelect) {
     featured: entry.featured ?? false,
     autoSynced: entry.autoSynced,
     lastSyncedAt: entry.lastSyncedAt?.getTime(),
+  }
+
+  // Build composite entry data shape
+  const compositeEntryData = {
+    _id: base._id,
+    id: base.id,
+    entryType: base.entryType,
+    title: base.title,
+    content: base.content,
+    excerpt: base.excerpt,
+    publishedAt: base.publishedAt,
+    metadata: base.metadata,
+    libraryIds: base.libraryIds,
+    partnerIds: base.partnerIds,
+    tags: base.tags,
+    showInFeed: base.showInFeed,
+    featured: base.featured,
+  }
+
+  // Pre-render content as RSC for table view (legacy approach)
+  const contentRsc =
+    options?.renderContent && entry.content
+      ? (await renderMarkdownRsc(entry.content)).contentRsc
+      : undefined
+
+  // Create timeline composite for timeline view
+  const timelineCompositeSrc = options?.createTimelineComposite
+    ? await createFeedTimelineComposite(compositeEntryData)
+    : undefined
+
+  // Create detail composite for detail view
+  const detailCompositeSrc = options?.createDetailComposite
+    ? await createFeedDetailComposite(compositeEntryData)
+    : undefined
+
+  return {
+    ...base,
+    ...(contentRsc ? { contentRsc } : {}),
+    ...(timelineCompositeSrc ? { timelineCompositeSrc } : {}),
+    ...(detailCompositeSrc ? { detailCompositeSrc } : {}),
   }
 }
 
@@ -109,7 +164,15 @@ export const listFeedEntries = createServerFn({ method: 'POST' })
     const page = allEntries.slice(start, end)
     const hasMore = end < allEntries.length
 
-    const transformedPage = page.map(transformFeedEntry)
+    // Transform entries with RSC content and timeline composites
+    const transformedPage = await Promise.all(
+      page.map((entry) =>
+        transformFeedEntry(entry, {
+          renderContent: true,
+          createTimelineComposite: true,
+        }),
+      ),
+    )
 
     return {
       page: transformedPage,
@@ -121,7 +184,7 @@ export const listFeedEntries = createServerFn({ method: 'POST' })
     }
   })
 
-// Server function wrapper for getFeedEntry
+// Server function wrapper for getFeedEntry (used by admin, skips content rendering)
 export const getFeedEntry = createServerFn({ method: 'POST' })
   .inputValidator(v.object({ id: v.string() }))
   .handler(async ({ data }) => {
@@ -133,7 +196,8 @@ export const getFeedEntry = createServerFn({ method: 'POST' })
       return null
     }
 
-    return transformFeedEntry(entry)
+    // Skip content rendering for admin edit (raw content is needed for editing)
+    return transformFeedEntry(entry, { renderContent: false })
   })
 
 // Server function wrapper for getFeedEntryById
@@ -148,7 +212,10 @@ export const getFeedEntryById = createServerFn({ method: 'POST' })
       return null
     }
 
-    return transformFeedEntry(entry)
+    return transformFeedEntry(entry, {
+      renderContent: true,
+      createDetailComposite: true,
+    })
   })
 
 // Server function wrapper for getFeedStats
@@ -315,7 +382,14 @@ export const searchFeedEntries = createServerFn({ method: 'POST' })
       )
       .limit(limit)
 
-    return entries.map(transformFeedEntry)
+    return Promise.all(
+      entries.map((entry) =>
+        transformFeedEntry(entry, {
+          renderContent: true,
+          createTimelineComposite: true,
+        }),
+      ),
+    )
   })
 
 // Server function wrapper for getFeedConfig

@@ -5,16 +5,17 @@ import { useWidthToggle, DocNavigation } from '~/components/DocsLayout'
 import { AdGate } from '~/contexts/AdsContext'
 import { GamHeader } from './Gam'
 import { Toc } from './Toc'
-import { renderMarkdown } from '~/utils/markdown'
 import { DocBreadcrumb } from './DocBreadcrumb'
 import { MarkdownContent } from '~/components/markdown'
 import type { ConfigSchema } from '~/utils/config'
 import { useLocalCurrentFramework } from './FrameworkSelect'
 import { useParams } from '@tanstack/react-router'
+import type { MarkdownHeading } from '~/utils/markdown/types'
 
 type DocProps = {
   title: string
-  content: string
+  contentRsc: React.ReactNode
+  headings: MarkdownHeading[]
   repo: string
   branch: string
   filePath: string
@@ -36,7 +37,8 @@ type DocProps = {
 
 export function Doc({
   title,
-  content,
+  contentRsc,
+  headings,
   repo,
   branch,
   filePath,
@@ -51,12 +53,6 @@ export function Doc({
   footer,
   framework: frameworkProp,
 }: DocProps) {
-  // Extract headings synchronously during render to avoid hydration mismatch
-  const { headings, markup } = React.useMemo(
-    () => renderMarkdown(content),
-    [content],
-  )
-
   // Get current framework from prop, URL params, or local storage
   const { framework: paramsFramework } = useParams({ strict: false })
   const localCurrentFramework = useLocalCurrentFramework()
@@ -159,7 +155,7 @@ export function Doc({
             repo={repo}
             branch={branch}
             filePath={filePath}
-            htmlMarkup={markup}
+            contentRsc={contentRsc}
             containerRef={markdownContainerRef}
             libraryId={libraryId}
             libraryVersion={libraryVersion}

@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import { Card } from '~/components/Card'
-import { CodeBlock } from '~/components/markdown'
+import { HighlightedCodeBlock } from '~/components/markdown'
 import { FrameworkIconTabs } from '~/components/FrameworkIconTabs'
 import type { Framework } from '~/libraries'
 
 interface CodeExampleCardProps {
   title?: string
   frameworks: Framework[]
-  codeByFramework: Partial<Record<Framework, { lang: string; code: string }>>
+  /** Pre-highlighted HTML by framework (from server-side Shiki) */
+  codeByFramework: Partial<Record<Framework, { lang: string; html: string }>>
 }
 
 export function CodeExampleCard({
@@ -32,9 +33,12 @@ export function CodeExampleCard({
             value={framework}
             onChange={setFramework}
           />
-          <CodeBlock className="mt-0 border-0" showTypeCopyButton={false}>
-            <code className={`language-${selected.lang}`}>{selected.code}</code>
-          </CodeBlock>
+          <HighlightedCodeBlock
+            html={selected.html}
+            lang={selected.lang}
+            showCopyButton={false}
+            className="mt-0 border-0"
+          />
         </div>
       </Card>
     </div>

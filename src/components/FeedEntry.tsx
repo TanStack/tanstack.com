@@ -1,5 +1,6 @@
+import type { ReactNode } from 'react'
+import type { AnyCompositeComponent } from '@tanstack/react-start/rsc'
 import { format, formatDistanceToNow } from '~/utils/dates'
-import { Markdown } from '~/components/markdown'
 import { libraries } from '~/libraries'
 import { partners } from '~/utils/partners'
 import { twMerge } from 'tailwind-merge'
@@ -13,11 +14,12 @@ export interface FeedEntry {
   entryType: 'release' | 'blog' | 'announcement'
   title: string
   content: string
+  contentRsc?: ReactNode
   excerpt?: string | null
   publishedAt: number
   createdAt: number
   updatedAt?: number
-  metadata?: any
+  metadata?: Record<string, string | number | boolean | null | undefined>
   libraryIds: string[]
   partnerIds?: string[]
   tags: string[]
@@ -25,6 +27,9 @@ export interface FeedEntry {
   featured?: boolean
   autoSynced: boolean
   lastSyncedAt?: number
+  // Composite sources for RSC rendering
+  timelineCompositeSrc?: AnyCompositeComponent
+  detailCompositeSrc?: AnyCompositeComponent
 }
 
 interface FeedEntryProps {
@@ -159,12 +164,18 @@ export function FeedEntry({
   const releaseLevelBadge = getReleaseLevelBadge()
 
   // Determine external link if available
-  const getExternalLink = () => {
+  const getExternalLink = (): string | null => {
     if (entry.metadata) {
-      if (entry.entryType === 'release' && entry.metadata.url) {
+      if (
+        entry.entryType === 'release' &&
+        typeof entry.metadata.url === 'string'
+      ) {
         return entry.metadata.url
       }
-      if (entry.entryType === 'blog' && entry.metadata.url) {
+      if (
+        entry.entryType === 'blog' &&
+        typeof entry.metadata.url === 'string'
+      ) {
         return entry.metadata.url
       }
     }
@@ -414,8 +425,8 @@ export function FeedEntry({
               </div>
 
               {/* Content */}
-              <div className="text-xs text-gray-900 dark:text-gray-100 leading-snug mb-3">
-                <Markdown rawContent={entry.content} />
+              <div className="text-xs text-gray-900 dark:text-gray-100 leading-snug mb-3 prose prose-xs dark:prose-invert max-w-none">
+                {entry.contentRsc ?? entry.content}
               </div>
 
               {/* External Link */}

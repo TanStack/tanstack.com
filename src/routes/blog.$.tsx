@@ -1,19 +1,18 @@
 import { notFound, redirect, createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { PostNotFound } from './blog'
-import { createServerFn } from '@tanstack/react-start'
 import { formatAuthors } from '~/utils/blog'
-import { format } from '~/utils/dates'
-import * as v from 'valibot'
-import { setResponseHeaders } from '@tanstack/react-start/server'
 import { allPosts } from 'content-collections'
 import * as React from 'react'
-import { MarkdownContent } from '~/components/markdown'
 import { GamHeader } from '~/components/Gam'
 import { AdGate } from '~/contexts/AdsContext'
 import { Toc } from '~/components/Toc'
 import { Breadcrumbs } from '~/components/Breadcrumbs'
-import { renderMarkdown } from '~/utils/markdown'
+import { DocTitle } from '~/components/DocTitle'
+import { CopyPageDropdown } from '~/components/CopyPageDropdown'
+import { Button } from '~/ui'
+import { SquarePen } from 'lucide-react'
+import { loadBlogPost } from '~/utils/renderBlogContent'
 
 function handleRedirects(docsPath: string) {
   if (docsPath.includes('directives-the-new-framework-lock-in')) {
@@ -23,50 +22,24 @@ function handleRedirects(docsPath: string) {
   }
 }
 
-const fetchBlogPost = createServerFn({ method: 'GET' })
-  .inputValidator(v.optional(v.string()))
-  .handler(async ({ data: docsPath }) => {
-    if (!docsPath) {
+export const Route = createFileRoute('/blog/$')({
+  staleTime: Infinity,
+  loader: async ({ params }) => {
+    const slug = params._splat
+    if (!slug) {
       throw new Error('Invalid docs path')
     }
 
-    handleRedirects(docsPath)
+    handleRedirects(slug)
 
-    const filePath = `src/blog/${docsPath}.md`
-
-    const post = allPosts.find((post) => post.slug === docsPath)
-
+    // Check if post exists before calling server function
+    const post = allPosts.find((p) => p.slug === slug)
     if (!post) {
       throw notFound()
     }
 
-    setResponseHeaders(
-      new Headers({
-        'Cache-Control': 'public, max-age=0, must-revalidate',
-        'Netlify-CDN-Cache-Control':
-          'public, max-age=300, durable, stale-while-revalidate=300',
-      }),
-    )
-
-    const now = new Date()
-    const publishDate = new Date(post.published)
-    const isUnpublished = post.draft || publishDate > now
-
-    return {
-      title: post.title,
-      description: post.description,
-      published: post.published,
-      content: post.content,
-      authors: post.authors,
-      headerImage: post.headerImage,
-      filePath,
-      isUnpublished,
-    }
-  })
-
-export const Route = createFileRoute('/blog/$')({
-  staleTime: Infinity,
-  loader: ({ params }) => fetchBlogPost({ data: params._splat }),
+    return loadBlogPost({ data: { slug } })
+  },
   head: ({ loaderData }) => {
     // Generate optimized social media image URL using Netlify Image CDN
     const getSocialImageUrl = (headerImage?: string) => {
@@ -103,19 +76,10 @@ export const Route = createFileRoute('/blog/$')({
 })
 
 function BlogPost() {
-  const { title, content, filePath, authors, published } = Route.useLoaderData()
+  const { headings, ContentRsc, title, filePath } = Route.useLoaderData()
 
-  const blogContent = `<small>_by ${formatAuthors(authors)} on ${format(
-    new Date(published || 0),
-    'MMMM d, yyyy',
-  )}._</small>
-
-${content}`
-
-  const { headings, markup } = React.useMemo(
-    () => renderMarkdown(blogContent),
-    [blogContent],
-  )
+  const repo = 'tanstack/tanstack.com'
+  const branch = 'main'
 
   const isTocVisible = headings.length > 1
 
@@ -164,9 +128,6 @@ ${content}`
     return () => observer.disconnect()
   }, [headings])
 
-  const repo = 'tanstack/tanstack.com'
-  const branch = 'main'
-
   return (
     <div
       className={`
@@ -200,15 +161,37 @@ ${content}`
                     <div className="max-w-32 md:max-w-36 xl:max-w-44 2xl:max-w-56 w-full hidden md:block" />
                   </div>
                   <div className="w-full flex justify-center">
-                    <div className="flex overflow-auto flex-col w-full max-w-[700px] p-2 lg:p-4 xl:p-6 pt-0">
-                      <MarkdownContent
-                        title={title}
-                        htmlMarkup={markup}
-                        repo={repo}
-                        branch={branch}
-                        filePath={filePath}
-                        containerRef={markdownContainerRef}
-                      />
+                    <div
+                      ref={markdownContainerRef}
+                      className="flex overflow-auto flex-col w-full max-w-[700px] p-2 lg:p-4 xl:p-6 pt-0"
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <DocTitle>{title}</DocTitle>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <CopyPageDropdown
+                            repo={repo}
+                            branch={branch}
+                            filePath={filePath}
+                          />
+                        </div>
+                      </div>
+                      <div className="h-4" />
+                      <div className="h-px bg-gray-500 opacity-20" />
+                      <div className="h-4" />
+                      {ContentRsc}
+                      <div className="h-12" />
+                      <div className="w-full h-px bg-gray-500 opacity-30" />
+                      <div className="flex py-4">
+                        <Button
+                          variant="ghost"
+                          size="xs"
+                          as="a"
+                          href={`https://github.com/${repo}/edit/${branch}/${filePath}`}
+                        >
+                          <SquarePen className="w-3.5 h-3.5" />
+                          Edit on GitHub
+                        </Button>
+                      </div>
                     </div>
                     {isTocVisible && (
                       <div className="pl-4 max-w-32 md:max-w-36 xl:max-w-44 2xl:max-w-56 w-full hidden md:block py-4">

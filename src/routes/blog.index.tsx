@@ -2,40 +2,42 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import { Card } from '~/components/Card'
 import { formatAuthors, getPublishedPosts } from '~/utils/blog'
 import { SimpleMarkdown } from '~/components/SimpleMarkdown'
+import { renderMarkdownAsync } from '~/utils/markdown'
 import { format } from '~/utils/dates'
 import { Footer } from '~/components/Footer'
 import { PostNotFound } from './blog'
 import { createServerFn } from '@tanstack/react-start'
-import { setResponseHeaders } from '@tanstack/react-start/server'
 import { RssIcon } from 'lucide-react'
+import { setCacheHeaders } from '~/utils/headers.server'
 
 type BlogFrontMatter = {
   slug: string
   title: string
   published: string
-  excerpt: string | undefined
+  excerptHtml: string | undefined
   authors: string[]
 }
 
 const fetchFrontMatters = createServerFn({ method: 'GET' }).handler(
   async () => {
-    setResponseHeaders(
-      new Headers({
-        'Cache-Control': 'public, max-age=0, must-revalidate',
-        'Netlify-CDN-Cache-Control':
-          'public, max-age=300, durable, stale-while-revalidate=300',
+    setCacheHeaders()
+
+    const posts = getPublishedPosts()
+    const frontMatters: BlogFrontMatter[] = await Promise.all(
+      posts.map(async (post) => {
+        return {
+          slug: post.slug,
+          title: post.title,
+          published: post.published,
+          excerptHtml: post.excerpt
+            ? (await renderMarkdownAsync(post.excerpt)).markup
+            : undefined,
+          authors: post.authors,
+        }
       }),
     )
 
-    return getPublishedPosts().map((post) => {
-      return {
-        slug: post.slug,
-        title: post.title,
-        published: post.published,
-        excerpt: post.excerpt,
-        authors: post.authors,
-      }
-    })
+    return frontMatters
 
     // return json(frontMatters, {
     //   headers: {
@@ -84,45 +86,49 @@ function BlogIndex() {
           </p>
         </header>
         <section className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
-          {frontMatters.map(({ slug, title, published, excerpt, authors }) => {
-            return (
-              <Card
-                key={slug}
-                as={Link}
-                to="/blog/$"
-                params={{ _splat: slug } as never}
-                className="relative flex flex-col gap-4 justify-between p-4 md:p-8 transition-all hover:shadow-sm hover:border-blue-500"
-              >
-                <div>
-                  <div className={`text-lg font-extrabold`}>{title}</div>
-                  <div className={`text-xs italic font-light mt-1`}>
-                    <p>
-                      by {formatAuthors(authors)}
-                      {published ? (
-                        <time
-                          dateTime={published}
-                          title={format(new Date(published), 'MMM d, yyyy')}
-                        >
-                          {' '}
-                          on {format(new Date(published), 'MMM d, yyyy')}
-                        </time>
+          {frontMatters.map(
+            ({ slug, title, published, excerptHtml, authors }) => {
+              return (
+                <Card
+                  key={slug}
+                  as={Link}
+                  to="/blog/$"
+                  params={{ _splat: slug } as never}
+                  className="relative flex flex-col gap-4 justify-between p-4 md:p-8 transition-all hover:shadow-sm hover:border-blue-500"
+                >
+                  <div>
+                    <div className={`text-lg font-extrabold`}>{title}</div>
+                    <div className={`text-xs italic font-light mt-1`}>
+                      <p>
+                        by {formatAuthors(authors)}
+                        {published ? (
+                          <time
+                            dateTime={published}
+                            title={format(new Date(published), 'MMM d, yyyy')}
+                          >
+                            {' '}
+                            on {format(new Date(published), 'MMM d, yyyy')}
+                          </time>
+                        ) : null}
+                      </p>
+                    </div>
+                    <div
+                      className={`text-sm mt-4 text-black dark:text-white leading-7`}
+                    >
+                      {excerptHtml ? (
+                        <SimpleMarkdown htmlMarkup={excerptHtml} />
                       ) : null}
-                    </p>
+                    </div>
                   </div>
-                  <div
-                    className={`text-sm mt-4 text-black dark:text-white leading-7`}
-                  >
-                    <SimpleMarkdown rawContent={excerpt || ''} />
+                  <div>
+                    <div className="text-blue-500 uppercase font-black text-sm">
+                      Read More
+                    </div>
                   </div>
-                </div>
-                <div>
-                  <div className="text-blue-500 uppercase font-black text-sm">
-                    Read More
-                  </div>
-                </div>
-              </Card>
-            )
-          })}
+                </Card>
+              )
+            },
+          )}
         </section>
       </div>
       <Footer />

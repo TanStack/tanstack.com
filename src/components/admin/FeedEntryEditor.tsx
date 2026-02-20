@@ -1,13 +1,14 @@
 import * as React from 'react'
 import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, queryOptions } from '@tanstack/react-query'
+import { createServerFn } from '@tanstack/react-start'
 import { FeedEntry } from '~/components/FeedEntry'
-import { Markdown } from '~/components/markdown'
 import { libraries } from '~/libraries'
 import { partners } from '~/utils/partners'
 import { currentUserQueryOptions } from '~/queries/auth'
 import { useCreateFeedEntry, useUpdateFeedEntry } from '~/utils/mutations'
 import { generateManualEntryId } from '~/utils/feed-manual'
+import { renderMarkdownRsc } from '~/utils/markdown'
 import {
   Save,
   X,
@@ -19,6 +20,35 @@ import {
   Check,
 } from 'lucide-react'
 import { FormInput, Button } from '~/ui'
+
+// Server function to render markdown preview as RSC
+const renderPreviewRsc = createServerFn({ method: 'POST' })
+  .inputValidator((content: string) => content)
+  .handler(async ({ data: content }) => {
+    if (!content) return null
+    const { contentRsc } = await renderMarkdownRsc(content)
+    return contentRsc
+  })
+
+// Query options for preview - keyed by content hash for deduplication
+const previewQueryOptions = (content: string) =>
+  queryOptions({
+    queryKey: ['feed', 'preview', hashContent(content)],
+    queryFn: () => renderPreviewRsc({ data: content }),
+    staleTime: 1000 * 60 * 5, // Cache preview for 5 minutes
+    enabled: !!content,
+  })
+
+// Simple hash for query key (avoids bloating cache with full content strings)
+function hashContent(str: string): string {
+  let hash = 0
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i)
+    hash = (hash << 5) - hash + char
+    hash |= 0
+  }
+  return hash.toString(36)
+}
 
 interface FeedEntryEditorProps {
   entry: FeedEntry | null
@@ -53,6 +83,16 @@ export function FeedEntryEditor({
   const [showInFeed, setShowInFeed] = useState(entry?.showInFeed ?? true)
   const [featured, setFeatured] = useState(entry?.featured ?? false)
   const [saving, setSaving] = useState(false)
+
+  // Debounced content for preview query
+  const [debouncedContent, setDebouncedContent] = useState(content)
+  React.useEffect(() => {
+    const timer = setTimeout(() => setDebouncedContent(content), 300)
+    return () => clearTimeout(timer)
+  }, [content])
+
+  // RSC preview via useQuery
+  const previewQuery = useQuery(previewQueryOptions(debouncedContent))
 
   const userQuery = useQuery(currentUserQueryOptions())
   const user = userQuery.data
@@ -475,7 +515,15 @@ export function FeedEntryEditor({
                       {excerpt}
                     </p>
                   )}
-                  <Markdown rawContent={content || '*No content yet*'} />
+                  {previewQuery.data ? (
+                    previewQuery.data
+                  ) : previewQuery.isFetching ? (
+                    <div className="text-gray-400">Rendering preview...</div>
+                  ) : content ? (
+                    <div className="text-gray-400">Type to see preview</div>
+                  ) : (
+                    <div className="text-gray-400">No content yet</div>
+                  )}
                 </div>
               ) : (
                 <div className="text-center py-12 text-gray-400 dark:text-gray-500">

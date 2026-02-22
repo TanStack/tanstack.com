@@ -51,7 +51,7 @@ export type ConfigSchema = v.InferOutput<typeof configSchema>
 /**
   Fetch the config file for the project and validate it.
   */
-export const getTanstackDocsConfig = createServerFn({ method: 'GET' })
+export const getTanstackDocsConfig = createServerFn({ method: 'POST' })
   .inputValidator(
     v.object({ repo: v.string(), branch: v.string(), docsRoot: v.string() }),
   )

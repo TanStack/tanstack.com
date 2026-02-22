@@ -153,6 +153,53 @@ const searchClient = liteClient(
   'FQ0DQ6MA3C',
   '10c34d6a5c89f6048cf644d601e65172',
 )
+const algoliaIndexName =
+  (import.meta.env.VITE_ALGOLIA_INDEX_NAME as string | undefined) ??
+  'tanstack-test'
+
+type QueryRewriteRule = {
+  triggers: string[]
+  expansions: string[]
+}
+
+const queryRewriteRules: QueryRewriteRule[] = [
+  {
+    triggers: ['dependency injection', 'di'],
+    expansions: ['context', 'provider', 'injection'],
+  },
+  {
+    triggers: ['api validation', 'input validation', 'schema validation'],
+    expansions: ['zod', 'valibot', 'validate'],
+  },
+  {
+    triggers: ['testing', 'tests', 'test'],
+    expansions: ['vitest', 'jest', 'mocking'],
+  },
+]
+
+function rewriteSearchQuery(query: string): string {
+  const trimmed = query.trim()
+  if (trimmed.length < 2) return query
+
+  const normalized = trimmed.toLowerCase().replace(/\s+/g, ' ')
+  const terms = new Set(trimmed.split(/\s+/).filter(Boolean))
+
+  for (const rule of queryRewriteRules) {
+    const shouldExpand = rule.triggers.some((trigger) =>
+      normalized.includes(trigger),
+    )
+
+    if (!shouldExpand) continue
+
+    for (const expansion of rule.expansions) {
+      if (!normalized.includes(expansion)) {
+        terms.add(expansion)
+      }
+    }
+  }
+
+  return Array.from(terms).join(' ')
+}
 
 // Context to share filter state between components
 const SearchFiltersContext = React.createContext<{
@@ -765,6 +812,12 @@ export function SearchModal() {
   const { isOpen, closeSearch, openSearch } = useSearchContext()
   const [focusedIndex, setFocusedIndex] = React.useState(0)
   const containerRef = React.useRef<HTMLDivElement>(null)
+  const handleQueryHook = React.useCallback(
+    (query: string, search: (value: string) => void) => {
+      search(rewriteSearchQuery(query))
+    },
+    [],
+  )
 
   // Reset focused index when modal opens
   React.useEffect(() => {
@@ -844,7 +897,10 @@ export function SearchModal() {
           ref={containerRef}
           onKeyDown={handleKeyDown}
         >
-          <InstantSearch searchClient={searchClient} indexName="tanstack-test">
+          <InstantSearch
+            searchClient={searchClient}
+            indexName={algoliaIndexName}
+          >
             <SearchFiltersProvider>
               <DynamicFilters />
               <div className="flex items-center gap-2 px-4 py-3 overflow-visible">
@@ -855,6 +911,7 @@ export function SearchModal() {
                 <span className="text-gray-400 dark:text-gray-600">/</span>
                 <SearchBox
                   placeholder="Search..."
+                  queryHook={handleQueryHook}
                   classNames={{
                     root: 'flex-1',
                     form: 'flex items-center',

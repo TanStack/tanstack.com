@@ -39,6 +39,10 @@ export default defineConfig({
       'file-selector',
       'normalize-wheel',
       '@tanstack/react-hotkeys',
+      'c15t',
+      '@c15t/react',
+      '@c15t/scripts',
+      '@c15t/ui',
     ],
   },
   optimizeDeps: {
@@ -48,6 +52,8 @@ export default defineConfig({
       '@tanstack/create',
       // Don't pre-bundle CLI so we always get fresh changes during dev
       ...(isDev ? ['@tanstack/cli'] : []),
+      // c15t core uses rspack chunking that esbuild can't optimize
+      'c15t',
     ],
   },
   build: {

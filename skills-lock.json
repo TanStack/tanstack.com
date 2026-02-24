@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "c15t": {
+      "source": "c15t/skills",
+      "sourceType": "github",
+      "computedHash": "e04d96a7c76ef51923d07a025f1f66606f4565b2f7a0bdcfa6797585d98a6365"
+    }
+  }
+}

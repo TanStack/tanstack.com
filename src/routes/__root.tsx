@@ -32,6 +32,7 @@ import { ThemeProvider, useHtmlClass } from '~/components/ThemeProvider'
 import { Navbar } from '~/components/Navbar'
 import { THEME_COLORS } from '~/utils/utils'
 import { useHubSpotChat } from '~/hooks/useHubSpotChat'
+import { ConsentManager } from '~/components/ConsentManager'
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
@@ -97,16 +98,6 @@ export const Route = createRootRouteWithContext<{
       // Theme detection script - must run before body renders to prevent flash
       {
         children: `(function(){try{var t=localStorage.getItem('theme')||'auto';var v=['light','dark','auto'].includes(t)?t:'auto';if(v==='auto'){var a=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.classList.add(a,'auto')}else{document.documentElement.classList.add(v)}}catch(e){var a=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.classList.add(a,'auto')}})()`,
-      },
-      // Google Tag Manager script
-      {
-        children: `
-          (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-          new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-          'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-          })(window,document,'script','dataLayer','GTM-5N57KQT4');
-        `,
       },
     ],
   }),
@@ -183,45 +174,38 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
         <GamScripts />
       </head>
       <body className="overflow-x-hidden">
-        <LoginModalProvider>
-          <ToastProvider>
-            {hideNavbar ? children : <Navbar>{children}</Navbar>}
-            {showDevtools ? (
-              <LazyRouterDevtools position="bottom-right" />
-            ) : null}
-            {canShowLoading ? (
-              <div
-                className={`fixed top-0 left-0 h-[300px] w-full
+        <ConsentManager>
+          <LoginModalProvider>
+            <ToastProvider>
+              {hideNavbar ? children : <Navbar>{children}</Navbar>}
+              {showDevtools ? (
+                <LazyRouterDevtools position="bottom-right" />
+              ) : null}
+              {canShowLoading ? (
+                <div
+                  className={`fixed top-0 left-0 h-[300px] w-full
         transition-all duration-300 pointer-events-none
         z-30 dark:h-[200px] dark:bg-white/10! dark:rounded-[100%] ${
           isLoading
             ? 'delay-500 opacity-1 -translate-y-1/2'
             : 'delay-0 opacity-0 -translate-y-full'
         }`}
-                style={{
-                  background: `radial-gradient(closest-side, rgba(0,10,40,0.2) 0%, rgba(0,0,0,0) 100%)`,
-                }}
-              >
-                <div
-                  className={`absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-[30px] p-2 bg-white/80 dark:bg-gray-800
-        rounded-lg shadow-lg`}
+                  style={{
+                    background: `radial-gradient(closest-side, rgba(0,10,40,0.2) 0%, rgba(0,0,0,0) 100%)`,
+                  }}
                 >
-                  <Spinner className="text-5xl" />
+                  <div
+                    className={`absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-[30px] p-2 bg-white/80 dark:bg-gray-800
+        rounded-lg shadow-lg`}
+                  >
+                    <Spinner className="text-5xl" />
+                  </div>
                 </div>
-              </div>
-            ) : null}
-            <LazySearchModal />
-          </ToastProvider>
-        </LoginModalProvider>
-        <noscript>
-          <iframe
-            src="https://www.googletagmanager.com/ns.html?id=GTM-5N57KQT4"
-            height="0"
-            width="0"
-            style={{ display: 'none', visibility: 'hidden' }}
-            title="gtm"
-          ></iframe>
-        </noscript>
+              ) : null}
+              <LazySearchModal />
+            </ToastProvider>
+          </LoginModalProvider>
+        </ConsentManager>
         <Scripts />
       </body>
     </html>

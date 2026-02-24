@@ -27,6 +27,8 @@
   },
   "dependencies": {
     "@auth/core": "0.37.0",
+    "@c15t/react": "2.0.0-rc.4",
+    "@c15t/scripts": "2.0.0-rc.1",
     "@floating-ui/react": "^0.27.8",
     "@hono/mcp": "^0.2.3",
     "@modelcontextprotocol/sdk": "^1.25.2",

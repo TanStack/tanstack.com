@@ -1,7 +1,13 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import * as React from 'react'
+import { ClientOnly, createFileRoute, Link } from '@tanstack/react-router'
 import { z } from 'zod'
 import { seo } from '~/utils/seo'
-import { BuilderProvider, BuilderLayout } from '~/components/builder'
+
+const LazyBuilderPage = React.lazy(() =>
+  import('~/components/builder/BuilderPage.client').then((m) => ({
+    default: m.BuilderPage,
+  })),
+)
 
 // Search params schema for shareable URLs
 const builderSearchSchema = z
@@ -44,9 +50,11 @@ export const Route = createFileRoute('/builder/')({
 function RouteComponent() {
   return (
     <div className="h-[calc(100dvh-var(--navbar-height))] w-full overflow-hidden">
-      <BuilderProvider>
-        <BuilderLayout />
-      </BuilderProvider>
+      <ClientOnly>
+        <React.Suspense fallback={null}>
+          <LazyBuilderPage />
+        </React.Suspense>
+      </ClientOnly>
     </div>
   )
 }

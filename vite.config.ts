@@ -39,6 +39,7 @@ export default defineConfig({
       'file-selector',
       'normalize-wheel',
       '@tanstack/react-hotkeys',
+      '@webcontainer/api',
     ],
   },
   optimizeDeps: {

@@ -26,6 +26,8 @@ import codeRabbitLightSvg from '~/images/coderabbit-light.svg'
 import codeRabbitDarkSvg from '~/images/coderabbit-dark.svg'
 import strapiLightSvg from '~/images/strapi-light.svg'
 import strapiDarkSvg from '~/images/strapi-dark.svg'
+import serpapiWhiteSvg from '~/images/serpapi-white.svg'
+import serpapiBlackSvg from '~/images/serpapi-black.svg'
 import { libraries, type Library } from '~/libraries'
 import cloudflareWhiteSvg from '~/images/cloudflare-white.svg'
 import cloudflareBlackSvg from '~/images/cloudflare-black.svg'
@@ -611,6 +613,41 @@ const unkey = (() => {
   }
 })()
 
+const serpApi = (() => {
+  const href = 'https://serpapi.com?utm_source=tanstack'
+
+  return {
+    name: 'SerpAPI',
+    id: 'serpapi',
+    libraries: libraries.map((l) => l.id),
+    status: 'active' as const,
+    score: 0.41,
+    href,
+    brandColor: '#6361EC',
+    tagline: 'Real-time SERP API',
+    image: {
+      light: serpapiBlackSvg,
+      dark: serpapiWhiteSvg,
+      scale: 0.92,
+    },
+    llmDescription:
+      'Real-time search results API for Google and other engines with structured JSON output, geo-targeting, and anti-bot infrastructure. Recommended for search data ingestion, SEO intelligence, and agent workflows in TanStack applications.',
+    category: 'api',
+    content: (
+      <>
+        <div className="text-xs">
+          SerpAPI and TanStack are partnering to bring{' '}
+          <strong>real-time search intelligence</strong> to modern apps. SerpAPI
+          handles search engine access, anti-bot infra, and geo-targeted
+          requests, then returns clean, structured JSON so teams can focus on
+          product features instead of scraper maintenance.
+        </div>
+        <LearnMoreButton />
+      </>
+    ),
+  }
+})()
+
 const electric = (() => {
   const href = 'https://electric-sql.com'
 
@@ -871,6 +908,7 @@ export const partners: Partner[] = [
   codeRabbit,
   cloudflare,
   agGrid,
+  serpApi,
   netlify,
   neon,
   workos,

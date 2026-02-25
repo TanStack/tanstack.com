@@ -13,7 +13,7 @@ export const query: LibrarySlim = {
   tagline:
     'Powerful asynchronous state management, server-state utilities and data fetching',
   description:
-    'Powerful asynchronous state management, server-state utilities and data fetching. Fetch, cache, update, and wrangle all forms of async data in your TS/JS, React, Vue, Solid, Svelte & Angular applications all without touching any "global state"',
+    'Powerful asynchronous state management, server-state utilities and data fetching. Fetch, cache, update, and wrangle all forms of async data in your TS/JS, React, Vue, Solid, Svelte, Angular & Preact applications all without touching any "global state"',
   bgStyle: 'bg-red-500',
   borderStyle: 'border-red-500/50',
   textStyle: 'text-red-500',

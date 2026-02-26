@@ -37,10 +37,14 @@ export function Dropdown({
   children,
   open,
   onOpenChange,
-  modal = false,
+  modal = false, // IMPORTANT DEFAULT
 }: DropdownProps) {
   return (
-    <DropdownMenu.Root open={open} onOpenChange={onOpenChange} modal={modal}>
+    <DropdownMenu.Root
+      open={open}
+      onOpenChange={onOpenChange}
+      modal={modal}
+    >
       {children}
     </DropdownMenu.Root>
   )
@@ -69,6 +73,16 @@ export function DropdownContent({
       <DropdownMenu.Content
         align={align}
         sideOffset={sideOffset}
+        onCloseAutoFocus={(e) => e.preventDefault()}
+        onInteractOutside={(e) => {
+          // Only close if clicking far outside dropdown
+          const target = e.target as HTMLElement
+          if (!target.closest('[role="listbox"]') && 
+              !target.closest('button[class*="dropdown"]')) {
+            return // Allow the close
+          }
+          e.preventDefault() // Block close if clicking dropdown area
+        }}
         className={twMerge(
           'dropdown-content z-[1000] min-w-48 rounded-lg p-1.5',
           'border border-gray-200 dark:border-gray-700',
@@ -82,6 +96,7 @@ export function DropdownContent({
     </DropdownMenu.Portal>
   )
 }
+
 
 export function DropdownItem({
   children,

@@ -6,8 +6,9 @@
  * Includes "Addons" tab for viewing per-feature file artifacts.
  */
 
+import * as React from 'react'
 import { useState, useMemo, useEffect, useCallback } from 'react'
-import { useNavigate, useSearch } from '@tanstack/react-router'
+import { ClientOnly, useNavigate, useSearch } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 import { createHighlighter, type HighlighterGeneric } from 'shiki'
 import { Code, Play } from 'lucide-react'
@@ -19,8 +20,13 @@ import {
   useBuilderStore,
 } from './store'
 import { partners } from '~/utils/partners'
-import { PreviewPanel } from './webcontainer'
 import type { FeatureId, AttributedCompileOutput } from '~/builder/api'
+
+const LazyPreviewPanel = React.lazy(() =>
+  import('~/components/builder/webcontainer/PreviewPanel').then((m) => ({
+    default: m.PreviewPanel,
+  })),
+)
 
 // Lazy highlighter singleton for syntax highlighting
 let highlighterPromise: Promise<HighlighterGeneric<any, any>> | null = null
@@ -827,7 +833,11 @@ export function ExplorerPanel() {
         {viewMode === 'preview' ? (
           /* Full-width preview */
           <div className="flex-1 min-w-0 h-full">
-            <PreviewPanel files={compiledOutput?.files || null} />
+            <ClientOnly>
+              <React.Suspense fallback={null}>
+                <LazyPreviewPanel files={compiledOutput?.files || null} />
+              </React.Suspense>
+            </ClientOnly>
           </div>
         ) : (
           <>

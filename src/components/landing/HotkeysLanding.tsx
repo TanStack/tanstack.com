@@ -1,3 +1,5 @@
+import * as React from 'react'
+import { ClientOnly } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { LibraryHero } from '~/components/LibraryHero'
 import { PartnersSection } from '~/components/PartnersSection'
@@ -11,23 +13,23 @@ import LandingPageGad from '~/components/LandingPageGad'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
 import { FeatureGridSection } from '~/components/FeatureGridSection'
-import { formatForDisplay, useHotkey } from '@tanstack/react-hotkeys'
-import { useNavigate } from '@tanstack/react-router'
 
 const library = getLibrary('hotkeys')
 
+const LazyHotkeysShortcutBinding = React.lazy(() =>
+  import('~/components/landing/HotkeysShortcut.client').then((m) => ({
+    default: m.HotkeysShortcutBinding,
+  })),
+)
+
 export default function HotkeysLanding() {
-  const navigate = useNavigate()
-
-  useHotkey('Mod+Enter', () => {
-    navigate({
-      to: '/$libraryId/$version/docs',
-      params: { libraryId: library.id, version: 'latest' },
-    })
-  })
-
   return (
     <LibraryPageContainer>
+      <ClientOnly>
+        <React.Suspense fallback={null}>
+          <LazyHotkeysShortcutBinding />
+        </React.Suspense>
+      </ClientOnly>
       <LibraryHero
         project={hotkeysProject}
         cta={{
@@ -37,8 +39,7 @@ export default function HotkeysLanding() {
           },
           label: (
             <>
-              Get Started{' '}
-              <kbd className="ml-1">{formatForDisplay('Mod+Enter')}</kbd>
+              Get Started <kbd className="ml-1">Ctrl/Cmd+Enter</kbd>
             </>
           ),
           className: 'bg-rose-600 border-rose-600 hover:bg-rose-700 text-white',

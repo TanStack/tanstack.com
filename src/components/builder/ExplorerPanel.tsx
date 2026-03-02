@@ -34,7 +34,7 @@ let highlighterPromise: Promise<HighlighterGeneric<any, any>> | null = null
 async function getShikiHighlighter(): Promise<HighlighterGeneric<any, any>> {
   if (!highlighterPromise) {
     highlighterPromise = createHighlighter({
-      themes: ['github-light', 'vitesse-dark'],
+      themes: ['github-light', 'aurora-x'],
       langs: [
         'typescript',
         'javascript',
@@ -1439,7 +1439,7 @@ function SyntaxHighlightedCode({
         })
         const darkHtml = highlighter.codeToHtml(content.trimEnd(), {
           lang: effectiveLang,
-          theme: 'vitesse-dark',
+          theme: 'aurora-x',
         })
         if (!cancelled) {
           setHighlightedLight(lightHtml)

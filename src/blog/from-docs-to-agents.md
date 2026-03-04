@@ -1,5 +1,5 @@
 ---
-title: "From Docs to Agents: Shipping Knowledge That Travels With Your Package"
+title: 'From Docs to Agents: Shipping Knowledge That Travels With Your Package'
 published: 2026-03-04
 authors:
   - Sarah Gerrard
@@ -8,7 +8,7 @@ authors:
 
 Your docs are good. Your types are solid. Your agent still gets it wrong.
 
-Not because it's dumb — because nothing connects what you know about your tool to what agents know. Docs target humans who browse. Types check individual API calls but can't encode intent. Training data snapshots the ecosystem as it *was*, mixing versions without flagging which applies. The gap isn't content. It's lifecycle.
+Not because it's dumb — because nothing connects what you know about your tool to what agents know. Docs target humans who browse. Types check individual API calls but can't encode intent. Training data snapshots the ecosystem as it _was_, mixing versions without flagging which applies. The gap isn't content. It's lifecycle.
 
 ## The copy-paste era
 
@@ -34,7 +34,7 @@ pnpm add -D @tanstack/intent
 
 The core idea: **intents are npm packages of skills.** They encode how tools compose, which patterns fit which goals, and what to avoid. Skills travel with the tool via `npm update` — not the model's training cutoff, not community-maintained rules files, not prompt snippets in READMEs. Versioned knowledge the maintainer owns, updated when the package updates.
 
-This matters because the alternative — hoping model providers re-train on your latest docs — is not a strategy. Training data has a permanent version-mixing problem: once a breaking change ships, models contain *both* versions forever with no way to disambiguate. Skills bypass this. They're versioned with your package, and `npm update` brings the latest knowledge with the latest code.
+This matters because the alternative — hoping model providers re-train on your latest docs — is not a strategy. Training data has a permanent version-mixing problem: once a breaking change ships, models contain _both_ versions forever with no way to disambiguate. Skills bypass this. They're versioned with your package, and `npm update` brings the latest knowledge with the latest code.
 
 ![Model training data mixes versions permanently vs. skills pinned to your installed version](./diagram-split-brain.svg)
 
@@ -105,7 +105,7 @@ npx @tanstack/intent meta
 
 ## From skills to intents
 
-A single skill helps an agent use one tool correctly. Real development demands composition — routing *with* server state *with* a data grid *with* client-side storage. No single skill covers how they fit together.
+A single skill helps an agent use one tool correctly. Real development demands composition — routing _with_ server state _with_ a data grid _with_ client-side storage. No single skill covers how they fit together.
 
 Intents are the orchestration layer. A developer says "build a paginated data table with URL-synced filters" and the intent loads the right skills in the right order:
 

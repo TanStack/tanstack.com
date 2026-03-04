@@ -10,7 +10,7 @@ Your docs are good. Your types are solid. Your agent still gets it wrong.
 
 Not because it's dumb — because nothing connects what you know about your tool to what agents know. Docs target humans who browse. Types check individual API calls but can't encode intent. Training data snapshots the ecosystem as it *was*, mixing versions without flagging which applies. The gap isn't content. It's lifecycle.
 
-## Skills as side quests
+## The copy-paste era
 
 The ecosystem already moves toward agent-readable knowledge. Cursor rules, CLAUDE.md files, skills directories — everyone agrees agents need more than docs and types. But delivery hasn't caught up.
 
@@ -34,6 +34,10 @@ pnpm add -D @tanstack/intent
 
 The core idea: **intents are npm packages of skills.** They encode how tools compose, which patterns fit which goals, and what to avoid. Skills travel with the tool via `npm update` — not the model's training cutoff, not community-maintained rules files, not prompt snippets in READMEs. Versioned knowledge the maintainer owns, updated when the package updates.
 
+This matters because the alternative — hoping model providers re-train on your latest docs — is not a strategy. Training data has a permanent version-mixing problem: once a breaking change ships, models contain *both* versions forever with no way to disambiguate. Skills bypass this. They're versioned with your package, and `npm update` brings the latest knowledge with the latest code.
+
+![Model training data mixes versions permanently vs. skills pinned to your installed version](./diagram-split-brain.svg)
+
 A skill is a focused projection of knowledge you already maintain: the critical constraint, the flagged anti-pattern, the composition rule stated once and clearly. Each declares its source docs:
 
 ```
@@ -54,80 +58,90 @@ That `metadata.sources` field is load-bearing. When those docs change, the CLI f
 
 ## Generating and validating skills
 
-You don't author skills from scratch. `intent scaffold` generates them from your library:
+You don't author skills from scratch. `@tanstack/intent scaffold` generates them from your library:
 
 ```bash
-npx intent scaffold
+npx @tanstack/intent scaffold
 ```
 
-The scaffold produces drafts you review, refine, and commit. Once committed, `intent validate` checks that they're well-formed:
+The scaffold produces drafts you review, refine, and commit. Once committed, `@tanstack/intent validate` checks that they're well-formed:
 
 ```bash
-npx intent validate
+npx @tanstack/intent validate
 ```
 
-`intent setup` copies CI workflow templates into your repo so validation runs on every push:
+`@tanstack/intent setup` copies CI workflow templates into your repo so validation runs on every push:
 
 ```bash
-npx intent setup
+npx @tanstack/intent setup
 ```
-
-The alternative — hoping model providers re-train on your latest docs — is not a strategy. Training data has a permanent version-mixing problem: once a breaking change ships, models contain *both* versions forever with no way to disambiguate. Skills bypass this. They're versioned with your package, and `npm update` brings the latest knowledge with the latest code.
-
-![Model training data mixes versions permanently vs. skills pinned to your installed version](./diagram-split-brain.svg)
 
 ## The dependency graph does the discovery
 
-When a developer runs `intent install`, the CLI discovers every intent-enabled package and wires skills into the agent configuration — CLAUDE.md, .cursorrules, whatever the tooling expects.
+That's the maintainer side. For developers using those libraries, the experience is simpler.
+
+When a developer runs `@tanstack/intent install`, the CLI discovers every intent-enabled package and wires skills into the agent configuration — CLAUDE.md, .cursorrules, whatever the tooling expects.
 
 ```bash
-npx intent install
+npx @tanstack/intent install
 ```
 
 ![intent install discovers intent-enabled packages in node_modules and wires skills into agent config](./diagram-discovery.svg)
 
-No per-library setup. No hunting for rules files. Install the package, run `intent install`, and the agent understands the tool. Update the package, and skills update too. Knowledge travels the same channel as code.
+No per-library setup. No hunting for rules files. Install the package, run `@tanstack/intent install`, and the agent understands the tool. Update the package, and skills update too. Knowledge travels the same channel as code.
 
-`intent list` shows you what's available:
+`@tanstack/intent list` shows you what's available:
 
 ```bash
-npx intent list        # See what's intent-enabled in your deps
-npx intent list --json # Machine-readable output
+npx @tanstack/intent list        # See what's intent-enabled in your deps
+npx @tanstack/intent list --json # Machine-readable output
 ```
 
-For library maintainers, `intent meta` surfaces meta-skills — higher-level guidance on authoring and maintaining skills:
+For library maintainers, `@tanstack/intent meta` surfaces meta-skills — higher-level guidance on authoring and maintaining skills:
 
 ```bash
-npx intent meta
+npx @tanstack/intent meta
 ```
 
 ## From skills to intents
 
 A single skill helps an agent use one tool correctly. Real development demands composition — routing *with* server state *with* a data grid *with* client-side storage. No single skill covers how they fit together.
 
-Intents orchestrate. A developer says "build a paginated data table with URL-synced filters" and the intent loads the right skills in the right order — search params, loader/query integration, table columnDefs. Goals map to skill combinations.
+Intents are the orchestration layer. A developer says "build a paginated data table with URL-synced filters" and the intent loads the right skills in the right order:
 
-The more libraries that ship skills, the richer composition becomes.
+```
+---
+name: paginated-data-table
+description: URL-synced paginated data table with TanStack Router, Query, and Table
+skills:
+  - tanstack-router-search-params
+  - tanstack-query-loader-integration
+  - tanstack-table-column-defs
+  - tanstack-table-pagination
+---
+```
+
+Developer goals map to skill combinations. The more libraries in your stack that ship skills, the richer composition becomes.
 
 ## Keeping it current
 
 The real risk with any derived artifact is staleness. You update your docs, ship a new API, and skills silently drift. `@tanstack/intent` treats staleness as a first-class problem.
 
-`intent stale` checks for version drift, flagging skills that have fallen behind their sources:
+`@tanstack/intent stale` checks for version drift, flagging skills that have fallen behind their sources:
 
 ```bash
-npx intent stale           # Human-readable report
-npx intent stale --json    # Machine-readable for CI
+npx @tanstack/intent stale           # Human-readable report
+npx @tanstack/intent stale --json    # Machine-readable for CI
 ```
 
 Run it in CI and you get a failing check when sources change. Skills become part of your release checklist — not something you remember to update, but something your pipeline catches.
 
 ![The intent lifecycle: docs to skills to npm to agent config, with staleness checks and feedback loops](./diagram-lifecycle.svg)
 
-The feedback loop runs both directions. `intent feedback` lets users submit structured reports when a skill produces wrong output — which skill, which version, what broke. That context flows back to you, and the fix ships to everyone on the next `npm update`.
+The feedback loop runs both directions. `@tanstack/intent feedback` lets users submit structured reports when a skill produces wrong output — which skill, which version, what broke. That context flows back to you, and the fix ships to everyone on the next `npm update`.
 
 ```bash
-npx intent feedback
+npx @tanstack/intent feedback
 ```
 
 Skills that keep needing the same workaround signal a deeper problem. Sometimes the fix is a better skill. Sometimes it's a better API. A skill that dissolves because the tool absorbed its lesson is the system working.
@@ -137,5 +151,3 @@ Skills that keep needing the same workaround signal a deeper problem. Sometimes 
 Devtool makers have a new surface to maintain. You shipped code, docs, and types. Now there's a fourth artifact: skills — knowledge encoded for the thing writing most of your code.
 
 Tools that invest here produce developers who build confidently from day one — not through tutorials or toy projects, but through correct patterns absorbed in real work.
-
-The lifecycle is: write your docs, generate skills, ship them with your package, validate and keep them current, learn from how they're used, make your tool better. Repeat.

@@ -78,15 +78,15 @@ The alternative — hoping model providers re-train on your latest docs — is n
 
 ## The dependency graph does the discovery
 
-When a developer runs `intent init`, the CLI discovers every intent-enabled package and wires skills into the agent configuration — CLAUDE.md, .cursorrules, whatever the tooling expects.
+When a developer runs `intent install`, the CLI discovers every intent-enabled package and wires skills into the agent configuration — CLAUDE.md, .cursorrules, whatever the tooling expects.
 
 ```bash
-npx intent init
+npx intent install
 ```
 
-![intent init discovers intent-enabled packages in node_modules and wires skills into agent config](./diagram-discovery.svg)
+![intent install discovers intent-enabled packages in node_modules and wires skills into agent config](./diagram-discovery.svg)
 
-No per-library setup. No hunting for rules files. Install the package, run `intent init`, and the agent understands the tool. Update the package, and skills update too. Knowledge travels the same channel as code.
+No per-library setup. No hunting for rules files. Install the package, run `intent install`, and the agent understands the tool. Update the package, and skills update too. Knowledge travels the same channel as code.
 
 `intent list` shows you what's available:
 
@@ -101,11 +101,11 @@ For library maintainers, `intent meta` surfaces meta-skills — higher-level gui
 npx intent meta
 ```
 
-## From skills to playbooks
+## From skills to intents
 
 A single skill helps an agent use one tool correctly. Real development demands composition — routing *with* server state *with* a data grid *with* client-side storage. No single skill covers how they fit together.
 
-Playbooks orchestrate. A developer says "build a paginated data table with URL-synced filters" and the playbook loads the right skills in the right order — search params, loader/query integration, table columnDefs. Goals map to skill combinations.
+Intents orchestrate. A developer says "build a paginated data table with URL-synced filters" and the intent loads the right skills in the right order — search params, loader/query integration, table columnDefs. Goals map to skill combinations.
 
 The more libraries that ship skills, the richer composition becomes.
 

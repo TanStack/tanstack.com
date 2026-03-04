@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 400" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', monospace">
+  <defs>
+    <filter id="shadow" x="-4%" y="-4%" width="108%" height="108%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.08"/>
+    </filter>
+    <marker id="arrowGreen" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#22c55e" opacity="0.7"/>
+    </marker>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="900" height="400" fill="#0a0a0a" rx="12"/>
+  
+  <!-- Title -->
+  <text x="450" y="38" text-anchor="middle" fill="#737373" font-size="13" font-weight="500" letter-spacing="1.5">npx intent init — DEPENDENCY GRAPH DISCOVERY</text>
+  
+  <!-- node_modules tree -->
+  <text x="60" y="80" fill="#525252" font-size="12">node_modules/</text>
+  
+  <!-- Regular package -->
+  <rect x="80" y="95" width="200" height="34" rx="6" fill="#171717" stroke="#292929" stroke-width="0.5"/>
+  <text x="96" y="116" fill="#525252" font-size="11">react</text>
+  <text x="260" y="116" text-anchor="end" fill="#404040" font-size="9">no skills</text>
+  
+  <!-- Intent-enabled package -->
+  <rect x="80" y="137" width="200" height="34" rx="6" fill="#0a1f0a" stroke="#166534" stroke-width="1"/>
+  <circle cx="96" cy="154" r="4" fill="#22c55e"/>
+  <text x="108" y="158" fill="#86efac" font-size="11" font-weight="600">@tanstack/router</text>
+  
+  <!-- Regular package -->
+  <rect x="80" y="179" width="200" height="34" rx="6" fill="#171717" stroke="#292929" stroke-width="0.5"/>
+  <text x="96" y="200" fill="#525252" font-size="11">tailwindcss</text>
+  <text x="260" y="200" text-anchor="end" fill="#404040" font-size="9">no skills</text>
+  
+  <!-- Intent-enabled package -->
+  <rect x="80" y="221" width="200" height="34" rx="6" fill="#0a1f0a" stroke="#166534" stroke-width="1"/>
+  <circle cx="96" cy="238" r="4" fill="#22c55e"/>
+  <text x="108" y="242" fill="#86efac" font-size="11" font-weight="600">@tanstack/query</text>
+  
+  <!-- Regular package -->
+  <rect x="80" y="263" width="200" height="34" rx="6" fill="#171717" stroke="#292929" stroke-width="0.5"/>
+  <text x="96" y="284" fill="#525252" font-size="11">zod</text>
+  <text x="260" y="284" text-anchor="end" fill="#404040" font-size="9">no skills</text>
+  
+  <!-- Intent-enabled package -->
+  <rect x="80" y="305" width="200" height="34" rx="6" fill="#0a1f0a" stroke="#166534" stroke-width="1"/>
+  <circle cx="96" cy="322" r="4" fill="#22c55e"/>
+  <text x="108" y="326" fill="#86efac" font-size="11" font-weight="600">@tanstack/table</text>
+  
+  <!-- Regular -->
+  <rect x="80" y="347" width="200" height="34" rx="6" fill="#171717" stroke="#292929" stroke-width="0.5"/>
+  <text x="96" y="368" fill="#525252" font-size="11">typescript</text>
+  <text x="260" y="368" text-anchor="end" fill="#404040" font-size="9">no skills</text>
+  
+  <!-- Arrows from intent-enabled to middle -->
+  <line x1="280" y1="154" x2="420" y2="185" stroke="#22c55e" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+  <line x1="280" y1="238" x2="420" y2="210" stroke="#22c55e" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+  <line x1="280" y1="322" x2="420" y2="220" stroke="#22c55e" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+  
+  <!-- intent init process -->
+  <rect x="430" y="170" width="140" height="65" rx="10" fill="#0a1f0a" stroke="#166534" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="500" y="196" text-anchor="middle" fill="#4ade80" font-size="13" font-weight="700">intent init</text>
+  <text x="500" y="214" text-anchor="middle" fill="#166534" font-size="10">discovers + wires</text>
+  
+  <!-- Arrow to output -->
+  <line x1="570" y1="202" x2="630" y2="202" stroke="#22c55e" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+  
+  <!-- Output: Agent config files -->
+  <rect x="640" y="95" width="230" height="220" rx="10" fill="#171717" stroke="#404040" stroke-width="1" filter="url(#shadow)"/>
+  <text x="755" y="122" text-anchor="middle" fill="#a3a3a3" font-size="10" letter-spacing="1.5">AGENT CONFIG</text>
+  
+  <rect x="660" y="138" width="190" height="32" rx="5" fill="#1a1a2e" stroke="#3b3b5c" stroke-width="0.5"/>
+  <text x="755" y="158" text-anchor="middle" fill="#a5b4fc" font-size="11" font-weight="600">CLAUDE.md</text>
+  
+  <rect x="660" y="180" width="190" height="32" rx="5" fill="#1a1a2e" stroke="#3b3b5c" stroke-width="0.5"/>
+  <text x="755" y="200" text-anchor="middle" fill="#a5b4fc" font-size="11" font-weight="600">.cursorrules</text>
+  
+  <rect x="660" y="222" width="190" height="32" rx="5" fill="#1a1a2e" stroke="#3b3b5c" stroke-width="0.5"/>
+  <text x="755" y="242" text-anchor="middle" fill="#a5b4fc" font-size="11" font-weight="600">.windsurfrules</text>
+  
+  <text x="755" y="284" text-anchor="middle" fill="#525252" font-size="10">Router skills ✓</text>
+  <text x="755" y="299" text-anchor="middle" fill="#525252" font-size="10">Query skills ✓</text>
+  <text x="755" y="314" text-anchor="middle" fill="#525252" font-size="10">Table skills ✓</text>
+  
+  <!-- Legend -->
+  <circle cx="420" cy="365" r="4" fill="#22c55e"/>
+  <text x="432" y="369" fill="#525252" font-size="10">intent-enabled package</text>
+  <rect x="560" y="359" width="12" height="12" rx="2" fill="#171717" stroke="#292929" stroke-width="0.5"/>
+  <text x="580" y="369" fill="#525252" font-size="10">standard package (skipped)</text>
+</svg>

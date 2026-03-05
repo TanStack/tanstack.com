@@ -14,7 +14,7 @@ title: '5x SSR Throughput: Profiling SSR Hot Paths in TanStack Start'
 
 ## TL;DR
 
-We improved TanStack Start's SSR performance dramatically. Under sustained load (100 concurrent connections, 30 seconds):
+We improved TanStack Start's SSR performance dramatically. Under sustained load (using our `links-100` stress benchmark with 100 concurrent connections, 30 seconds):
 
 - **Throughput**: 427 req/s → 2357 req/s (**5.5x**)
 - **Average latency**: 424ms → 43ms (**9.9x faster**)
@@ -96,10 +96,10 @@ Placeholders you should replace with real screenshots:
 
 ### Reproducing these benchmarks
 
-Our benchmarks were stable enough to produce very similar results on a range of setups. However here are the exact environment details we used to run most of the benchmarks:
+Our benchmarks were stable enough to produce very similar results on a range of setups. However, here are the exact environment details we used to run most of the benchmarks:
 
 - Node.js: v24.12.0
-- Hardware: Macbook Pro M3 Max
+- Hardware: MacBook Pro (M3 Max)
 - OS: macOS 15.7
 
 The exact benchmark code is available in [our repository](https://github.com/TanStack/router/tree/main/e2e/react-start/flamegraph-bench).
@@ -339,17 +339,19 @@ Taking the example of the `startViewTransition` method, we can see that the tota
 
 Benchmark: placeholder text, should link to Matteo's article.
 
-<!-- we need to wait for matteo's article to be published to link to it. -->
+<!-- we need to wait for Matteo's article to be published to link to it. -->
 
 ### Summary
 
-| Metric        |    Before |      After | Improvement              |
-| ------------- | --------: | ---------: | ------------------------ |
-| Success Rate  |    75.52% |       100% | does not fail under load |
-| Throughput    | 477 req/s | 1041 req/s | +118% (2.2x)             |
-| Avg Latency   |   3,171ms |     13.7ms | 231x faster              |
-| p(90) Latency |  10,001ms |     23.0ms | 435x faster              |
-| p(95) Latency |  10,001ms |     29.1ms | 343x faster              |
+Matteo Collina independently benchmarked Start's SSR performance as part of his [article investigating SSR performance across React meta-frameworks](???) and observed significant improvements after our optimizations. The following table summarizes the before/after results under sustained load:
+
+| Metric          |    Before |      After | Improvement              |
+| --------------- | --------: | ---------: | ------------------------ |
+| Success rate    |    75.52% |       100% | does not fail under load |
+| Throughput      | 477 req/s | 1041 req/s | +118% (2.2x)             |
+| Average latency |   3,171ms |     13.7ms | 231x faster              |
+| p90 latency     |  10,001ms |     23.0ms | 435x faster              |
+| p95 latency     |  10,001ms |     29.1ms | 343x faster              |
 
 The "before" numbers show a server under severe stress: 25% of requests failed (likely timeouts), and p90/p95 hit the 10s timeout ceiling. After the optimizations, the server handles the same load comfortably with sub-30ms tail latency and zero failures.
 
@@ -375,7 +377,7 @@ For reference, the machine on which these were measured reaches 100% event-loop 
 
 ## Conclusion
 
-The biggest gains came from removing whole categories of work from the server hot path. The general lesson is simple: throughput improves when you eliminate repeated work, allocations, and unnecessary generality in the steady state.
+The biggest gains came from removing whole categories of work from the server hot path. Throughput improves when you eliminate repeated work, allocations, and unnecessary generality in the steady state.
 
 There were many other improvements (client and server) not covered here. SSR performance work is ongoing.
 

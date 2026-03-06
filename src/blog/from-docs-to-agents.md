@@ -1,16 +1,16 @@
 ---
-title: "From Docs to Agents: Shipping Knowledge That Travels With Your Package"
+title: 'From Docs to Agents: Shipping Knowledge That Travels With Your Package'
 published: 2026-03-04
 authors:
   - Sarah Gerrard
-  - Kyle Matthews 
+  - Kyle Matthews
 ---
 
 ![From Docs to Agents](/blog-assets/from-docs-to-agents/header.png)
 
 Your docs are good. Your types are solid. Your agent still gets it wrong.
 
-Not because it's dumb — because there's no pipeline between what you know about your tool and what agents know about your tool. Docs are written for humans who browse. Types check individual API calls but can't encode intent. Training data is a snapshot of the ecosystem as it *was*, mixing versions without flagging which one applies. The knowledge gap between your tool and agents using your tool isn't a content problem. It's a lifecycle problem.
+Not because it's dumb — because there's no pipeline between what you know about your tool and what agents know about your tool. Docs are written for humans who browse. Types check individual API calls but can't encode intent. Training data is a snapshot of the ecosystem as it _was_, mixing versions without flagging which one applies. The knowledge gap between your tool and agents using your tool isn't a content problem. It's a lifecycle problem.
 
 ## Skills as side quests
 
@@ -74,7 +74,7 @@ And `intent setup` copies CI workflow templates into your repo so validation run
 npx intent setup
 ```
 
-This matters because the alternative is hoping model providers eventually re-train on your latest docs. That's not a strategy. Training data has a permanent version-mixing problem: once a breaking change ships, models contain *both* versions forever with no mechanism to disambiguate. Skills bypass this entirely. They're versioned with your package, and `npm update` brings the latest knowledge with the latest code.
+This matters because the alternative is hoping model providers eventually re-train on your latest docs. That's not a strategy. Training data has a permanent version-mixing problem: once a breaking change ships, models contain _both_ versions forever with no mechanism to disambiguate. Skills bypass this entirely. They're versioned with your package, and `npm update` brings the latest knowledge with the latest code.
 
 ![Model training data mixes versions permanently vs. skills pinned to your installed version](/blog-assets/from-docs-to-agents/diagram-split-brain.svg)
 
@@ -105,7 +105,7 @@ npx intent meta
 
 ## From skills to playbooks
 
-A single skill helps an agent use one tool correctly. But real development is composition — routing *with* server state *with* a data grid *with* client-side storage. No individual skill covers how they fit together.
+A single skill helps an agent use one tool correctly. But real development is composition — routing _with_ server state _with_ a data grid _with_ client-side storage. No individual skill covers how they fit together.
 
 Playbooks are the orchestration layer. A developer says "build a paginated data table with URL-synced filters" and the playbook knows which skills to load and how they compose — the search params skill, the loader/query integration skill, the table columnDefs skill, in the right order. Developer goals map to skill combinations.
 

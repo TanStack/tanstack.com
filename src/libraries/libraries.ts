@@ -591,7 +591,7 @@ export const intent: LibrarySlim = {
   to: '/intent',
   tagline: 'Developer Infrastructure for AI-Ready Libraries',
   description:
-    'A toolkit for shipping composable, agent-readable knowledge alongside your npm packages. Automatic discovery from node_modules, distributed architecture where skills live in each library\'s repo, and seamless compatibility across package managers.',
+    "A toolkit for shipping composable, agent-readable knowledge alongside your npm packages. Automatic discovery from node_modules, distributed architecture where skills live in each library's repo, and seamless compatibility across package managers.",
   badge: 'alpha',
   bgStyle: 'bg-sky-500',
   borderStyle: 'border-sky-500/50',

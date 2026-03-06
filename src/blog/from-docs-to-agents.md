@@ -28,15 +28,15 @@ Library maintainers already have the knowledge agents need — in docs, migratio
 
 ## Introducing `@tanstack/intent`
 
-`@tanstack/intent` is a CLI for library maintainers to generate, validate, and ship [Agent Skills](https://agentskills.io) alongside their npm packages. Agent Skills is an open standard already adopted by VS Code, GitHub Copilot, OpenAI Codex, Cursor, Claude Code, Goose, Amp, and others.
+`@tanstack/intent` is a CLI for library maintainers to generate, validate, and ship [Agent Skills](https://agentskills.io) alongside their npm packages. The [Agent Skills spec](https://agentskills.io) is an open standard already adopted by VS Code, GitHub Copilot, OpenAI Codex, Cursor, Claude Code, Goose, Amp, and others.
 
 **Skills ship inside your npm package.** They encode how your tool works, which patterns fit which goals, and what to avoid. Skills travel with the tool via `npm update` — not the model's training cutoff, not community-maintained rules files, not prompt snippets in READMEs. Versioned knowledge the maintainer owns, updated when the package updates.
 
-Agents handle popular, stable libraries well — React, Express, Tailwind. Training data is saturated with correct usage. But at the frontier — new tools, major version transitions, novel compositions across packages — agents hallucinate, confuse versions, and miss critical implications. The frontier is bigger than it sounds: every new library, every breaking change, every composition across tools that nobody has written about. And once a breaking change ships, models don't "catch up." They develop a permanent split-brain — training data contains _both_ versions forever with no way to disambiguate. Skills bypass this. They're pinned to the installed version.
+For popular, stable patterns — standard React hooks, Express middleware, Tailwind classes — agents do well. Training data is saturated with correct usage. But at the frontier — new tools, major version transitions, novel compositions across packages — agents hallucinate, confuse versions, and miss critical implications. The frontier is bigger than it sounds: every new library, every breaking change, every composition across tools that nobody has written about. And once a breaking change ships, models don't "catch up." They develop a permanent split-brain — training data contains _both_ versions forever with no way to disambiguate. Skills bypass this. They're pinned to the installed version.
 
 ![Model training data mixes versions permanently vs. skills pinned to your installed version](/blog-assets/from-docs-to-agents/diagram-split-brain.svg)
 
-A skill is a focused projection of knowledge you already maintain: the critical constraint, the flagged anti-pattern, the composition rule stated once and clearly. Each declares its source docs:
+Each skill declares which docs it was derived from:
 
 ```
 ---
@@ -135,13 +135,15 @@ Run it in CI and you get a failing check when sources change. Skills become part
 
 ![The intent lifecycle: docs to skills to npm to agent config, with staleness checks and feedback loops](/blog-assets/from-docs-to-agents/diagram-lifecycle.svg)
 
-The feedback loop runs both directions. `@tanstack/intent feedback` lets users submit structured reports when a skill produces wrong output — which skill, which version, what broke. That context flows back to you as a maintainer, and the fix ships to everyone on the next `npm update`. Every support interaction produces an artifact that prevents the same problem for all future users — not just the one who reported it.
+The feedback loop runs both directions. `@tanstack/intent feedback` lets users submit structured reports when a skill produces wrong output — which skill, which version, what broke.
 
 ```bash
 npx @tanstack/intent feedback
 ```
 
-A skill that persists forever means the tool has a design gap it should close. A skill that disappears because the tool absorbed its lesson is the system working exactly as intended.
+That context flows back to you as a maintainer, and the fix ships to everyone on the next `npm update`. Every support interaction produces an artifact that prevents the same class of problem for all future users — not just the one who reported it. This is what makes skills compound: each fix makes the skill better, and each `npm update` distributes the improvement.
+
+Skills that keep needing the same workaround signal something deeper. Sometimes the fix is a better skill. Sometimes it's a better API — the tool should absorb the lesson directly. A skill that persists forever means the tool has a design gap. A skill that disappears because the tool fixed the underlying problem is the system working exactly as intended.
 
 ## Try it out
 

@@ -71,7 +71,7 @@ filter: z.string().optional(),
 parsing, validation, and defaults.
 ```
 
-That `metadata.sources` field is load-bearing. When those docs change, the CLI flags the skill for review. One source of truth, one derived artifact that stays in sync.
+That `metadata.sources` field is what keeps skills current. When those docs change, the CLI flags the skill for review. One source of truth, one derived artifact that stays in sync.
 
 ## Generating and validating skills
 

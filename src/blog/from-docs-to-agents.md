@@ -3,7 +3,7 @@ title: 'From Docs to Agents: Shipping Knowledge That Travels With Your Package'
 published: 2026-03-04
 authors:
   - Sarah Gerrard
-  - Kyle Matthews
+  - Kyle Mathews
 ---
 
 ![From Docs to Agents](/blog-assets/from-docs-to-agents/header.png)
@@ -29,10 +29,6 @@ Meanwhile, library maintainers already have the knowledge agents need. It lives 
 ## Introducing `@tanstack/intent`
 
 `@tanstack/intent` is the missing lifecycle layer. It's a toolkit for generating, discovering, and maintaining skills for your library — and shipping them as npm packages so they travel with your code.
-
-```bash
-pnpm add -D @tanstack/intent
-```
 
 The core idea: **intents are npm packages of skills.** They encode how tools work together, what patterns apply for which goals, and what to avoid. Skills travel with the tool via `npm update`, not the model's training cutoff. Not community-maintained rules files in separate repos. Not prompt snippets in READMEs. Versioned knowledge the maintainer owns, shipped through npm, updated when the package updates.
 

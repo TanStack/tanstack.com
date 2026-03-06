@@ -589,9 +589,9 @@ export const intent: LibrarySlim = {
   name: 'TanStack Intent',
   cardStyles: 'text-sky-500 dark:text-sky-400 hover:border-current',
   to: '/intent',
-  tagline: 'Developer Infrastructure for AI-Ready Libraries',
+  tagline: 'Ship Agent Skills with Your npm Packages',
   description:
-    "A toolkit for shipping composable, agent-readable knowledge alongside your npm packages. Automatic discovery from node_modules, distributed architecture where skills live in each library's repo, and seamless compatibility across package managers.",
+    "Generate, validate, and ship Agent Skills alongside your library — versioned knowledge that agents discover automatically from node_modules. Skills live in each library's repo and update when the package updates.",
   badge: 'alpha',
   bgStyle: 'bg-sky-500',
   borderStyle: 'border-sky-500/50',

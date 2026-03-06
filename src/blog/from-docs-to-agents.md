@@ -36,7 +36,7 @@ For popular, stable patterns — standard React hooks, Express middleware, Tailw
 
 ![Model training data mixes versions permanently vs. skills pinned to your installed version](/blog-assets/from-docs-to-agents/diagram-split-brain.svg)
 
-Each skill declares which docs it was derived from:
+A skill is a short, versioned document that tells agents how to use a specific capability of your library — correct patterns, common mistakes, and when to apply them. Each skill declares which docs it was derived from:
 
 ```
 ---

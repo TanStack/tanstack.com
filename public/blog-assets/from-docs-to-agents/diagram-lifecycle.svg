@@ -55,7 +55,7 @@
   <rect x="660" y="80" width="210" height="90" rx="10" fill="#171717" stroke="#292929" stroke-width="1" filter="url(#shadow)"/>
   <text x="765" y="108" text-anchor="middle" fill="#a3a3a3" font-size="10" letter-spacing="1">CONSUMER PROJECT</text>
   <text x="765" y="130" text-anchor="middle" fill="#e5e5e5" font-size="12" font-weight="600">npm install / update</text>
-  <text x="765" y="148" text-anchor="middle" fill="#86efac" font-size="13" font-weight="700">intent init</text>
+  <text x="765" y="148" text-anchor="middle" fill="#86efac" font-size="13" font-weight="700">intent install</text>
   <text x="765" y="163" text-anchor="middle" fill="#525252" font-size="10">auto-wires agent config</text>
   
   <!-- Second row: The feedback loop -->

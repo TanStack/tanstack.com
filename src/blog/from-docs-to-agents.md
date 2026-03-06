@@ -28,7 +28,7 @@ Library maintainers already have the knowledge agents need — in docs, migratio
 
 ## Introducing `@tanstack/intent`
 
-`@tanstack/intent` is a CLI for library maintainers to generate, validate, and ship [Agent Skills](https://agentskills.io) alongside their npm packages. The Agent Skills format has been adopted by VS Code, GitHub Copilot, OpenAI Codex, Cursor, Claude Code, Goose, Amp, and others — this isn't a proprietary format, it's an open standard with broad industry adoption.
+`@tanstack/intent` is a CLI for library maintainers to generate, validate, and ship [Agent Skills](https://agentskills.io) alongside their npm packages. Agent Skills is an open standard already adopted by VS Code, GitHub Copilot, OpenAI Codex, Cursor, Claude Code, Goose, Amp, and others.
 
 **Skills ship inside your npm package.** They encode how your tool works, which patterns fit which goals, and what to avoid. Skills travel with the tool via `npm update` — not the model's training cutoff, not community-maintained rules files, not prompt snippets in READMEs. Versioned knowledge the maintainer owns, updated when the package updates. And because skills are editorial — prose, not code contracts — maintaining them is updating documentation, not debugging API compatibility.
 
@@ -68,8 +68,8 @@ filter: z.string().optional(),
 
 ## Common Mistakes
 
-❌ Don't use `useSearchParams()` from React Router — use TanStack
-Router's `useSearch()` hook which is fully type-safe.
+❌ Don't access search params via `window.location` — use
+`useSearch()` which is fully type-safe.
 
 ❌ Don't parse search params manually. `validateSearch` handles
 parsing, validation, and defaults.

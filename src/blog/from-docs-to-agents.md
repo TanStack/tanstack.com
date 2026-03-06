@@ -31,6 +31,7 @@ Library maintainers already have the knowledge agents need — in docs, migratio
 `@tanstack/intent` is a CLI for library maintainers to generate, validate, and ship [Agent Skills](https://agentskills.io) alongside their npm packages. Agent Skills is an open standard already adopted by VS Code, GitHub Copilot, OpenAI Codex, Cursor, Claude Code, Goose, Amp, and others.
 
 **Skills ship inside your npm package.** They encode how your tool works, which patterns fit which goals, and what to avoid. Skills travel with the tool via `npm update` — not the model's training cutoff, not community-maintained rules files, not prompt snippets in READMEs. Versioned knowledge the maintainer owns, updated when the package updates.
+
 Agents handle popular, stable libraries well — React, Express, Tailwind. Training data is saturated with correct usage. But at the frontier — new tools, major version transitions, novel compositions across packages — agents hallucinate, confuse versions, and miss critical implications. The frontier is bigger than it sounds: every new library, every breaking change, every composition across tools that nobody has written about. And once a breaking change ships, models don't "catch up." They develop a permanent split-brain — training data contains _both_ versions forever with no way to disambiguate. Skills bypass this. They're pinned to the installed version.
 
 ![Model training data mixes versions permanently vs. skills pinned to your installed version](/blog-assets/from-docs-to-agents/diagram-split-brain.svg)
@@ -40,11 +41,7 @@ A skill is a focused projection of knowledge you already maintain: the critical 
 ```
 ---
 name: tanstack-router-search-params
-description: Type-safe search param patterns for TanStack Router
-triggers:
-  - search params
-  - query params
-  - validateSearch
+description: Type-safe search param patterns for TanStack Router. Use when working with search params, query params, or validateSearch.
 metadata:
   sources:
     - docs/framework/react/guide/search-params.md

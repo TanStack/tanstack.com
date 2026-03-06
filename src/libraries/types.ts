@@ -24,6 +24,7 @@ export type LibraryId =
   | 'hotkeys'
   | 'db'
   | 'ai'
+  | 'intent'
   | 'config'
   | 'devtools'
   | 'mcp'

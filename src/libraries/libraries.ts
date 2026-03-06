@@ -584,6 +584,32 @@ export const ai: LibrarySlim = {
   defaultDocs: 'getting-started/overview',
 }
 
+export const intent: LibrarySlim = {
+  id: 'intent',
+  name: 'TanStack Intent',
+  cardStyles: 'text-sky-500 dark:text-sky-400 hover:border-current',
+  to: '/intent',
+  tagline:
+    'Ship compositional knowledge for AI coding agents alongside your npm packages',
+  description:
+    'A toolkit for generating, discovering, and maintaining skills — knowledge encoded for AI coding agents — shipped as npm packages that travel with your code.',
+  badge: 'alpha',
+  bgStyle: 'bg-sky-500',
+  borderStyle: 'border-sky-500/50',
+  textStyle: 'text-sky-500 dark:text-sky-400',
+  textColor: 'text-sky-600 dark:text-sky-400',
+  colorFrom: 'from-sky-500',
+  colorTo: 'to-sky-700',
+  bgRadial: 'from-sky-500 via-sky-700/50 to-transparent',
+  repo: 'tanstack/intent',
+  frameworks: [],
+  latestVersion: 'v0',
+  latestBranch: 'main',
+  availableVersions: ['v0'],
+  ogImage: 'https://github.com/tanstack/intent/raw/main/media/repo-header.png',
+  defaultDocs: 'overview',
+}
+
 export const config: LibrarySlim = {
   id: 'config',
   name: 'TanStack Config',
@@ -712,6 +738,7 @@ export const libraries: LibrarySlim[] = [
   form,
   db,
   ai,
+  intent,
   virtual,
   pacer,
   hotkeys,
@@ -761,7 +788,7 @@ export const librariesByGroup = {
   state: [start, router, query, db, store, ai],
   headlessUI: [table, form, hotkeys],
   performance: [virtual, pacer],
-  tooling: [devtools, config, cli],
+  tooling: [devtools, config, cli, intent],
 }
 
 export const librariesGroupNamesMap = {
@@ -801,4 +828,5 @@ export const SIDEBAR_LIBRARY_IDS = [
   'store',
   'devtools',
   'cli',
+  'intent',
 ] as const satisfies readonly LibraryId[]

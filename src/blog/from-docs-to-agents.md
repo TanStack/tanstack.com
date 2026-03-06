@@ -6,6 +6,8 @@ authors:
   - Kyle Matthews 
 ---
 
+![From Docs to Agents](/blog-assets/from-docs-to-agents/header.png)
+
 Your docs are good. Your types are solid. Your agent still gets it wrong.
 
 Not because it's dumb — because there's no pipeline between what you know about your tool and what agents know about your tool. Docs are written for humans who browse. Types check individual API calls but can't encode intent. Training data is a snapshot of the ecosystem as it *was*, mixing versions without flagging which one applies. The knowledge gap between your tool and agents using your tool isn't a content problem. It's a lifecycle problem.
@@ -74,7 +76,7 @@ npx intent setup
 
 This matters because the alternative is hoping model providers eventually re-train on your latest docs. That's not a strategy. Training data has a permanent version-mixing problem: once a breaking change ships, models contain *both* versions forever with no mechanism to disambiguate. Skills bypass this entirely. They're versioned with your package, and `npm update` brings the latest knowledge with the latest code.
 
-![Model training data mixes versions permanently vs. skills pinned to your installed version](./diagram-split-brain.svg)
+![Model training data mixes versions permanently vs. skills pinned to your installed version](/blog-assets/from-docs-to-agents/diagram-split-brain.svg)
 
 ## The dependency graph does the discovery
 
@@ -84,7 +86,7 @@ When a developer runs `intent init`, the CLI discovers every intent-enabled pack
 npx intent init
 ```
 
-![intent init discovers intent-enabled packages in node_modules and wires skills into agent config](./diagram-discovery.svg)
+![intent init discovers intent-enabled packages in node_modules and wires skills into agent config](/blog-assets/from-docs-to-agents/diagram-discovery.svg)
 
 No manual setup per-library. No hunting for rules files. Install the package, run `intent init`, and the agent understands the tool. Update the package, and the skills update with it. Knowledge travels through the same channel as code.
 
@@ -122,7 +124,7 @@ npx intent stale --json    # Machine-readable for CI
 
 Run it in CI and you get a failing check when source material has changed. The skill becomes part of your release checklist — not something you remember to update, something your pipeline catches.
 
-![The intent lifecycle: docs to skills to npm to agent config, with staleness checks and feedback loops](./diagram-lifecycle.svg)
+![The intent lifecycle: docs to skills to npm to agent config, with staleness checks and feedback loops](/blog-assets/from-docs-to-agents/diagram-lifecycle.svg)
 
 The feedback loop runs both directions. `intent feedback` lets users submit structured reports when a skill produces incorrect output — which skill was active, which version, what went wrong. That context flows back to you as a maintainer, and the fix ships to everyone on the next `npm update`.
 

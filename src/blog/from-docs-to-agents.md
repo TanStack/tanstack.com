@@ -60,10 +60,10 @@ Inside the skill, you write what the agent needs to get right — including what
 Use `validateSearch` to define type-safe search params on a route:
 
 const Route = createFileRoute('/products')({
-  validateSearch: z.object({
-    page: z.number().default(1),
-    filter: z.string().optional(),
-  }),
+validateSearch: z.object({
+page: z.number().default(1),
+filter: z.string().optional(),
+}),
 })
 
 ## Common Mistakes

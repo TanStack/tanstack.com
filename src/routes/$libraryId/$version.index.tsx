@@ -32,6 +32,7 @@ const landingComponents: Partial<
   ai: React.lazy(() => import('~/components/landing/AiLanding')),
   devtools: React.lazy(() => import('~/components/landing/DevtoolsLanding')),
   cli: React.lazy(() => import('~/components/landing/CliLanding')),
+  intent: React.lazy(() => import('~/components/landing/IntentLanding')),
 }
 
 export const Route = createFileRoute('/$libraryId/$version/')({

@@ -21,6 +21,7 @@ export {
   hotkeys,
   db,
   ai,
+  intent,
   config,
   devtools,
   cli,

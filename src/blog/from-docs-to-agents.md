@@ -10,17 +10,17 @@ authors:
 
 Your docs are good. Your types are solid. Your agent still gets it wrong.
 
-Not because it's dumb — because nothing connects what you know about your tool to what agents know. Docs target humans who browse. Types check individual API calls but can't encode intent. Training data snapshots the ecosystem as it _was_, mixing versions without flagging which applies. The gap isn't content. It's lifecycle.
+Not because it's dumb — because nothing connects what you know about your tool to what agents know. Docs target humans who browse. Types check individual API calls but can't encode intent. Training data snapshots the ecosystem as it _was_, mixing versions with no way to tell which applies. The gap isn't content. It's lifecycle.
 
 ## The copy-paste era
 
 The ecosystem already moves toward agent-readable knowledge. Cursor rules, CLAUDE.md files, skills directories — everyone agrees agents need more than docs and types. But delivery hasn't caught up.
 
-Right now, if you want your agent to understand TanStack Router, you hunt for a community-maintained rules file in some GitHub repo. Maybe it's in `awesome-cursorrules`. Maybe someone linked it in Discord. You copy it into `.cursorrules` or `CLAUDE.md`. Then you repeat for TanStack Query. And TanStack Table. Each from a different place, a different author, a different point in time.
+Today, if you want your agent to understand TanStack Router, you hunt for a community-maintained rules file on GitHub. Maybe it's in `awesome-cursorrules`. Maybe someone linked it in Discord. You copy it into `.cursorrules` or `CLAUDE.md`. Then you repeat for TanStack Query. And TanStack Table. Each from a different place, author, and point in time.
 
-Multiply that across every tool in your stack. You're managing copy-pasted knowledge files with no versioning, no update path, and no staleness signal. Did TanStack Router ship a breaking change last week? Your rules file doesn't know. Is the Query skill you grabbed written for v4 or v5? Hope you checked.
+Multiply that across every tool in your stack. You're managing copy-pasted knowledge files with no versioning, no update path, and no staleness signal. Did TanStack Router ship a breaking change last week? Your rules file doesn't know. Is that Query skill written for v4 or v5? Hope you checked.
 
-Finding skills is manual. Installing them is manual. Keeping them current is manual. When they drift — and they always drift — you discover it only when your agent starts producing subtly wrong code.
+Finding skills is manual. Installing them is manual. Keeping them current is manual. When they drift — and they always drift — you discover it only when your agent produces subtly wrong code.
 
 Library maintainers already have the knowledge agents need — in docs, migration guides, "common mistakes" GitHub discussions, Discord answers. But none of it reaches agents through a channel the maintainer controls. The knowledge exists. The delivery mechanism doesn't.
 
@@ -32,7 +32,7 @@ Library maintainers already have the knowledge agents need — in docs, migratio
 
 **Skills ship inside your npm package.** They encode how your tool works, which patterns fit which goals, and what to avoid. Skills travel with the tool via `npm update` — not the model's training cutoff, not community-maintained rules files, not prompt snippets in READMEs. Versioned knowledge the maintainer owns, updated when the package updates.
 
-This matters because the alternative — hoping model providers re-train on your latest docs — is not a strategy. Training data has a permanent version-mixing problem: once a breaking change ships, models contain _both_ versions forever with no way to disambiguate. Skills bypass this. They're versioned with your package, and `npm update` brings the latest knowledge with the latest code.
+This matters because the alternative — hoping model providers retrain on your latest docs — is not a strategy. Training data has a permanent version-mixing problem: once a breaking change ships, models contain _both_ versions forever with no way to tell them apart. Skills bypass this. They're versioned with your package, and `npm update` brings the latest knowledge with the latest code.
 
 ![Model training data mixes versions permanently vs. skills pinned to your installed version](/blog-assets/from-docs-to-agents/diagram-split-brain.svg)
 
@@ -76,7 +76,7 @@ npx @tanstack/intent setup-github-actions
 
 ## The dependency graph does the discovery
 
-That's the maintainer side. For developers using those libraries, the experience is simpler.
+That's the maintainer side. For developers, the experience is simpler.
 
 When a developer runs `@tanstack/intent install`, the CLI discovers every intent-enabled package and wires skills into the agent configuration — CLAUDE.md, .cursorrules, whatever the tooling expects.
 
@@ -88,7 +88,7 @@ npx @tanstack/intent install
 
 No per-library setup. No hunting for rules files. Install the package, run `@tanstack/intent install`, and the agent understands the tool. Update the package, and skills update too. Knowledge travels the same channel as code.
 
-`@tanstack/intent list` shows you what's available:
+`@tanstack/intent list` shows what's available:
 
 ```bash
 npx @tanstack/intent list        # See what's intent-enabled in your deps
@@ -126,6 +126,6 @@ Skills that keep needing the same workaround signal a deeper problem. Sometimes 
 
 ## Try it out
 
-We've started rolling out skills in [TanStack DB](https://github.com/TanStack/db/pull/1330) with other TanStack libraries following. If you maintain a library, tell your coding agent to run `npx @tanstack/intent scaffold` and let us know how it goes. We're looking for feedback on the authoring workflow, the skill format, and what's missing. File issues on [GitHub](https://github.com/TanStack/intent) or find us on [Discord](https://tlinz.com/discord).
+We've started rolling out skills in [TanStack DB](https://github.com/TanStack/db/pull/1330) with other TanStack libraries following. If you maintain a library, tell your coding agent to run `npx @tanstack/intent scaffold` and let us know how it goes. We want feedback on the authoring workflow, the skill format, and what's missing. File issues on [GitHub](https://github.com/TanStack/intent) or find us on [Discord](https://tlinz.com/discord).
 
-The lifecycle is: write your docs, generate skills, ship them with your package, validate and keep them current, learn from how they're used, make your tool better. Repeat.
+The lifecycle: write your docs, generate skills, ship them with your package, validate and keep them current, learn from usage, improve your tool. Repeat.

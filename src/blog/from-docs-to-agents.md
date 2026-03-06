@@ -28,11 +28,11 @@ Library maintainers already have the knowledge agents need — in docs, migratio
 
 ## Introducing `@tanstack/intent`
 
-`@tanstack/intent` is a CLI for library maintainers to generate, validate, and ship [Agent Skills](https://agentskills.io) alongside their npm packages.
+`@tanstack/intent` is a CLI for library maintainers to generate, validate, and ship [Agent Skills](https://agentskills.io) alongside their npm packages. The Agent Skills format has been adopted by VS Code, GitHub Copilot, OpenAI Codex, Cursor, Claude Code, Goose, Amp, and others — this isn't a proprietary format, it's an open standard with broad industry adoption.
 
-**Skills ship inside your npm package.** They encode how your tool works, which patterns fit which goals, and what to avoid. Skills travel with the tool via `npm update` — not the model's training cutoff, not community-maintained rules files, not prompt snippets in READMEs. Versioned knowledge the maintainer owns, updated when the package updates.
+**Skills ship inside your npm package.** They encode how your tool works, which patterns fit which goals, and what to avoid. Skills travel with the tool via `npm update` — not the model's training cutoff, not community-maintained rules files, not prompt snippets in READMEs. Versioned knowledge the maintainer owns, updated when the package updates. And because skills are editorial — prose, not code contracts — maintaining them is updating documentation, not debugging API compatibility.
 
-This matters because the alternative — hoping model providers retrain on your latest docs — is not a strategy. Training data has a permanent version-mixing problem: once a breaking change ships, models contain _both_ versions forever with no way to tell them apart. Skills bypass this. They're versioned with your package, and `npm update` brings the latest knowledge with the latest code.
+Agents handle popular, stable libraries well — React, Express, Tailwind. Training data is saturated with correct usage. But at the frontier — new tools, major version transitions, novel compositions across packages — agents hallucinate, confuse versions, and miss critical implications. The frontier is bigger than it sounds: every new library, every breaking change, every composition across tools that nobody has written about. And once a breaking change ships, models don't "catch up." They develop a permanent split-brain — training data contains _both_ versions forever with no way to disambiguate. Skills bypass this. They're pinned to the installed version.
 
 ![Model training data mixes versions permanently vs. skills pinned to your installed version](/blog-assets/from-docs-to-agents/diagram-split-brain.svg)
 
@@ -50,6 +50,29 @@ metadata:
   sources:
     - docs/framework/react/guide/search-params.md
 ---
+```
+
+Inside the skill, you write what the agent needs to get right — including what NOT to do:
+
+```markdown
+## Search Params
+
+Use `validateSearch` to define type-safe search params on a route:
+
+const Route = createFileRoute('/products')({
+  validateSearch: z.object({
+    page: z.number().default(1),
+    filter: z.string().optional(),
+  }),
+})
+
+## Common Mistakes
+
+❌ Don't use `useSearchParams()` from React Router — use TanStack
+Router's `useSearch()` hook which is fully type-safe.
+
+❌ Don't parse search params manually. `validateSearch` handles
+parsing, validation, and defaults.
 ```
 
 That `metadata.sources` field is load-bearing. When those docs change, the CLI flags the skill for review. One source of truth, one derived artifact that stays in sync.
@@ -116,13 +139,13 @@ Run it in CI and you get a failing check when sources change. Skills become part
 
 ![The intent lifecycle: docs to skills to npm to agent config, with staleness checks and feedback loops](/blog-assets/from-docs-to-agents/diagram-lifecycle.svg)
 
-The feedback loop runs both directions. `@tanstack/intent feedback` lets users submit structured reports when a skill produces wrong output — which skill, which version, what broke. That context flows back to you, and the fix ships to everyone on the next `npm update`.
+The feedback loop runs both directions. `@tanstack/intent feedback` lets users submit structured reports when a skill produces wrong output — which skill, which version, what broke. That context flows back to you as a maintainer, and the fix ships to everyone on the next `npm update`. Every support interaction produces an artifact that prevents the same problem for all future users — not just the one who reported it.
 
 ```bash
 npx @tanstack/intent feedback
 ```
 
-Skills that keep needing the same workaround signal a deeper problem. Sometimes the fix is a better skill. Sometimes it's a better API. A skill that dissolves because the tool absorbed its lesson is the system working.
+A skill that persists forever means the tool has a design gap it should close. A skill that disappears because the tool absorbed its lesson is the system working exactly as intended.
 
 ## Try it out
 

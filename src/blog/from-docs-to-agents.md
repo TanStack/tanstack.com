@@ -52,22 +52,22 @@ That `metadata.sources` field is load-bearing. When those docs change, the CLI f
 
 ## Generating and validating skills
 
-You don't author skills from scratch. `@tanstack/intentscaffold` walks you through a guided workflow to generate skills for your library:
+You don't author skills from scratch. `@tanstack/intent scaffold` walks you through a guided workflow to generate skills for your library:
 
 ```bash
-npx @tanstack/intentscaffold
+npx @tanstack/intent scaffold
 ```
 
-The scaffold produces drafts you review, refine, and commit alongside your source code. Once you have skills, `@tanstack/intentvalidate` checks that your skill files are well-formed:
+The scaffold produces drafts you review, refine, and commit alongside your source code. Once you have skills, `@tanstack/intent validate` checks that your skill files are well-formed:
 
 ```bash
-npx @tanstack/intentvalidate
+npx @tanstack/intent validate
 ```
 
-And `@tanstack/intentsetup` copies CI workflow templates into your repo so validation runs automatically on every push:
+And `@tanstack/intent setup-github-actions` copies CI workflow templates into your repo so validation runs automatically on every push:
 
 ```bash
-npx @tanstack/intentsetup
+npx @tanstack/intent setup-github-actions
 ```
 
 This matters because the alternative is hoping model providers eventually re-train on your latest docs. That's not a strategy. Training data has a permanent version-mixing problem: once a breaking change ships, models contain _both_ versions forever with no mechanism to disambiguate. Skills bypass this entirely. They're versioned with your package, and `npm update` brings the latest knowledge with the latest code.
@@ -76,27 +76,27 @@ This matters because the alternative is hoping model providers eventually re-tra
 
 ## The dependency graph does the discovery
 
-When a developer runs `@tanstack/intentinit`, the CLI discovers every intent-enabled package in their project and wires the relevant skills into their agent configuration — CLAUDE.md, .cursorrules, whatever their tooling expects.
+When a developer runs `@tanstack/intent install`, the CLI discovers every intent-enabled package in their project and wires the relevant skills into their agent configuration — CLAUDE.md, .cursorrules, whatever their tooling expects.
 
 ```bash
-npx @tanstack/intentinit
+npx @tanstack/intent install
 ```
 
 ![intent init discovers intent-enabled packages in node_modules and wires skills into agent config](/blog-assets/from-docs-to-agents/diagram-discovery.svg)
 
-No manual setup per-library. No hunting for rules files. Install the package, run `@tanstack/intentinit`, and the agent understands the tool. Update the package, and the skills update with it. Knowledge travels through the same channel as code.
+No manual setup per-library. No hunting for rules files. Install the package, run `@tanstack/intent install`, and the agent understands the tool. Update the package, and the skills update with it. Knowledge travels through the same channel as code.
 
-`@tanstack/intentlist` shows you what's available:
+`@tanstack/intent list` shows you what's available:
 
 ```bash
-npx @tanstack/intentlist        # See what's intent-enabled in your deps
-npx @tanstack/intentlist --json # Machine-readable output
+npx @tanstack/intent list        # See what's intent-enabled in your deps
+npx @tanstack/intent list --json # Machine-readable output
 ```
 
-For library maintainers, `@tanstack/intentmeta` surfaces meta-skills — higher-level guidance for how to author and maintain skills for your library:
+For library maintainers, `@tanstack/intent meta` surfaces meta-skills — higher-level guidance for how to author and maintain skills for your library:
 
 ```bash
-npx @tanstack/intentmeta
+npx @tanstack/intent meta
 ```
 
 ## From skills to playbooks
@@ -111,21 +111,21 @@ The more libraries in your stack that ship skills, the richer the composition st
 
 The real risk with any derived artifact is staleness. You update your docs, ship a new API, and the skills silently drift. `@tanstack/intent` treats this as a first-class problem.
 
-`@tanstack/intentstale` checks your skills for version drift — flagging any that may have fallen behind their source material:
+`@tanstack/intent stale` checks your skills for version drift — flagging any that may have fallen behind their source material:
 
 ```bash
-npx @tanstack/intentstale           # Human-readable report
-npx @tanstack/intentstale --json    # Machine-readable for CI
+npx @tanstack/intent stale           # Human-readable report
+npx @tanstack/intent stale --json    # Machine-readable for CI
 ```
 
 Run it in CI and you get a failing check when source material has changed. The skill becomes part of your release checklist — not something you remember to update, something your pipeline catches.
 
 ![The intent lifecycle: docs to skills to npm to agent config, with staleness checks and feedback loops](/blog-assets/from-docs-to-agents/diagram-lifecycle.svg)
 
-The feedback loop runs both directions. `@tanstack/intentfeedback` lets users submit structured reports when a skill produces incorrect output — which skill was active, which version, what went wrong. That context flows back to you as a maintainer, and the fix ships to everyone on the next `npm update`.
+The feedback loop runs both directions. `@tanstack/intent feedback` lets users submit structured reports when a skill produces incorrect output — which skill was active, which version, what went wrong. That context flows back to you as a maintainer, and the fix ships to everyone on the next `npm update`.
 
 ```bash
-npx @tanstack/intentfeedback
+npx @tanstack/intent feedback
 ```
 
 Skills that keep needing the same workaround are a signal. Sometimes the fix is a better skill. Sometimes it's a better API. A skill that dissolves because the tool absorbed its lesson is the system working as intended.

@@ -12,7 +12,7 @@
   <rect width="900" height="400" fill="#0a0a0a" rx="12"/>
   
   <!-- Title -->
-  <text x="450" y="38" text-anchor="middle" fill="#737373" font-size="13" font-weight="500" letter-spacing="1.5">npx intent init — DEPENDENCY GRAPH DISCOVERY</text>
+  <text x="450" y="38" text-anchor="middle" fill="#737373" font-size="13" font-weight="500" letter-spacing="1.5">npx intent install — DEPENDENCY GRAPH DISCOVERY</text>
   
   <!-- node_modules tree -->
   <text x="60" y="80" fill="#525252" font-size="12">node_modules/</text>
@@ -57,9 +57,9 @@
   <line x1="280" y1="238" x2="420" y2="210" stroke="#22c55e" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
   <line x1="280" y1="322" x2="420" y2="220" stroke="#22c55e" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
   
-  <!-- intent init process -->
+  <!-- intent install process -->
   <rect x="430" y="170" width="140" height="65" rx="10" fill="#0a1f0a" stroke="#166534" stroke-width="1.5" filter="url(#shadow)"/>
-  <text x="500" y="196" text-anchor="middle" fill="#4ade80" font-size="13" font-weight="700">intent init</text>
+  <text x="500" y="196" text-anchor="middle" fill="#4ade80" font-size="13" font-weight="700">intent install</text>
   <text x="500" y="214" text-anchor="middle" fill="#166534" font-size="10">discovers + wires</text>
   
   <!-- Arrow to output -->

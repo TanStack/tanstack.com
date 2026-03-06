@@ -9,17 +9,17 @@ export const intentProject = {
   ...intent,
   featureHighlights: [
     {
-      title: 'Skills as npm Packages',
+      title: 'Agent Skills in npm',
       icon: <Package className={twMerge(textStyles)} />,
       description: (
         <div>
-          Skills are knowledge encoded for AI coding agents, shipped as npm
-          packages. They travel with your tool via{' '}
+          Ship{' '}
           <span className={twMerge('font-semibold', textStyles)}>
-            npm update
+            Agent Skills
           </span>{' '}
-          — not the model's training cutoff, not community-maintained rules
-          files, not prompt snippets in READMEs.
+          — procedural knowledge agents load on demand — as part of your npm
+          package. Skills travel with your library via npm update, not the
+          model's training cutoff or copy-pasted rules files.
         </div>
       ),
     },
@@ -28,13 +28,12 @@ export const intentProject = {
       icon: <BookOpen className={twMerge(textStyles)} />,
       description: (
         <div>
-          Run{' '}
+          Agents discover skills automatically from{' '}
           <span className={twMerge('font-semibold', textStyles)}>
-            intent install
-          </span>{' '}
-          and the CLI discovers every intent-enabled package in your
-          dependencies, wiring skills into your agent configuration — CLAUDE.md,
-          .cursorrules, whatever your tooling expects.
+            node_modules
+          </span>
+          . No manual setup per-library. Install the package and agents can find
+          and use the skills — compatible with the open Agent Skills format.
         </div>
       ),
     },
@@ -45,7 +44,7 @@ export const intentProject = {
         <div>
           Each skill declares its source docs. When those docs change,{' '}
           <span className={twMerge('font-semibold', textStyles)}>
-            intent stale
+            @tanstack/intent stale
           </span>{' '}
           flags the skill for review. Run it in CI and you get a failing check
           when sources drift — skills become part of your release checklist.

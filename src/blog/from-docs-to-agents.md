@@ -134,10 +134,8 @@ npx intent feedback
 
 Skills that keep needing the same workaround are a signal. Sometimes the fix is a better skill. Sometimes it's a better API. A skill that dissolves because the tool absorbed its lesson is the system working as intended.
 
-## The new job
+## Try it out
 
-Devtool makers have a new surface to maintain. You used to ship code, docs, and types. Now there's a fourth artifact: skills — knowledge encoded for the thing writing most of the code.
-
-The tools that invest here will produce developers who build confidently with them from day one. Not through tutorials. Not through toy projects. Through correct patterns absorbed in the context of their own real work.
+We've started rolling out skills in [TanStack DB](https://github.com/TanStack/db/pull/1330) with other TanStack libraries following. If you maintain a library, tell your coding agent to run `npx @tanstack/intent scaffold` and let us know how it goes. We're looking for feedback on the authoring workflow, the skill format, and what's missing. File issues on [GitHub](https://github.com/TanStack/intent) or find us on [Discord](https://tlinz.com/discord).
 
 The lifecycle is: write your docs, generate skills, ship them with your package, validate and keep them current, learn from how they're used, make your tool better. Repeat.

@@ -589,10 +589,9 @@ export const intent: LibrarySlim = {
   name: 'TanStack Intent',
   cardStyles: 'text-sky-500 dark:text-sky-400 hover:border-current',
   to: '/intent',
-  tagline:
-    'Ship compositional knowledge for AI coding agents alongside your npm packages',
+  tagline: 'Developer Infrastructure for AI-Ready Libraries',
   description:
-    'A toolkit for generating, discovering, and maintaining skills — knowledge encoded for AI coding agents — shipped as npm packages that travel with your code.',
+    'A toolkit for shipping composable, agent-readable knowledge alongside your npm packages. Automatic discovery from node_modules, distributed architecture where skills live in each library\'s repo, and seamless compatibility across package managers.',
   badge: 'alpha',
   bgStyle: 'bg-sky-500',
   borderStyle: 'border-sky-500/50',

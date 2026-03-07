@@ -28,7 +28,7 @@ export type BannerWithMeta = ActiveBanner & {
 }
 
 // Server function to get active banners for a given path
-export const getActiveBanners = createServerFn({ method: 'GET' })
+export const getActiveBanners = createServerFn({ method: 'POST' })
   .inputValidator(
     v.object({
       pathname: v.string(),

@@ -87,12 +87,30 @@ export function getRouter() {
           errorMessage.includes('null is not an object') ||
           errorMessage.includes('is not a function')
 
+        // Check for specific Publift Fuse container errors that occur during race conditions
+        // These errors happen when Fuse library tries to access DOM elements before they're ready
+        // Pattern: "null is not an object (evaluating 'this.getContainer().ownerDocument')"
+        const isFuseContainerError =
+          errorMessage.includes('getContainer') &&
+          errorMessage.includes('ownerDocument') &&
+          errorMessage.includes('null is not an object')
+
         if (hasAdScriptFrame && hasExpectedErrorMessage) {
           // Suppress the error - log to console in debug mode
           console.debug(
             'Suppressed Publift Fuse/ad script error:',
             errorMessage,
             frames[0]?.filename,
+          )
+          return null // Don't send to Sentry
+        }
+
+        // Also suppress Fuse container errors even if they don't have ad script frames
+        // (the error may be reported from the page context rather than the external script)
+        if (isFuseContainerError) {
+          console.debug(
+            'Suppressed Publift Fuse container error:',
+            errorMessage,
           )
           return null // Don't send to Sentry
         }

@@ -1,4 +1,4 @@
-﻿[
+[
   {
     "login": "wildfee",
     "name": "AI-Text-Humanizer.com",
@@ -285,7 +285,7 @@
   },
   {
     "login": "__github",
-    "name": "Github",
+    "name": "GitHub",
     "imageUrl": "https://github.githubassets.com/images/modules/logos_page/GitHub-Logo.png",
     "linkUrl": "https://github.com?utm_source=tanstack"
   },

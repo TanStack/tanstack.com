@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import {
   Table,
   List,
@@ -9,7 +9,7 @@ import {
   RotateCcw,
   SlidersHorizontal,
 } from 'lucide-react'
-import { useDebouncedValue } from '@tanstack/react-pacer'
+import { useDebouncedCallback, useDebouncer } from '@tanstack/react-pacer'
 import { twMerge } from 'tailwind-merge'
 import type { FeedViewMode } from '~/db/types'
 
@@ -562,28 +562,37 @@ export function FilterSearch({
   // Local state for immediate UI updates
   const [inputValue, setInputValue] = useState(value || '')
 
-  // Debounce the input value
-  const [debouncedValue] = useDebouncedValue(inputValue, {
-    wait: debounceMs,
-  })
-
-  // Update parent when debounced value changes
-  React.useEffect(() => {
-    onChange(debouncedValue)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedValue])
+  const { maybeExecute, state: isPending } = useDebouncer(
+    onChange,
+    { wait: debounceMs },
+    (state) => ({
+      isPending: state.isPending,
+    }),
+  )
 
   // Sync local state when value prop changes externally
   React.useEffect(() => {
-    setInputValue(value || '')
-  }, [value])
+    const nextValue = value || ''
+
+    setInputValue((currentValue) => {
+      // While the user is editing, keep the local draft authoritative.
+      if (isPending) {
+        return currentValue
+      }
+
+      return nextValue
+    })
+  }, [isPending, value])
 
   return (
     <input
       type="text"
       placeholder={placeholder}
       value={inputValue}
-      onChange={(e) => setInputValue(e.target.value)}
+      onChange={(e) => {
+        setInputValue(e.target.value)
+        maybeExecute(e.target.value)
+      }}
       className={twMerge(
         'border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-black/40 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500',
         size === 'sm' ? 'px-2 py-1 text-xs' : 'px-2 py-1 text-sm',

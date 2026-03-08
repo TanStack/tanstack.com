@@ -5,7 +5,7 @@ import { createAuthorizationCode } from '~/utils/oauthClient.functions'
 import { getCurrentUser } from '~/utils/auth.server'
 import { Card } from '~/components/Card'
 import { Button } from '~/ui'
-import { useIsDark } from '~/hooks/useIsDark'
+
 import { BrandContextMenu } from '~/components/BrandContextMenu'
 
 /**
@@ -135,19 +135,18 @@ export const Route = createFileRoute('/oauth/authorize')({
 })
 
 function SplashImage() {
-  const isDark = useIsDark()
-
   return (
     <div className="flex items-center justify-center mb-4">
       <BrandContextMenu className="cursor-pointer">
         <img
-          src={
-            isDark
-              ? '/images/logos/splash-dark.png'
-              : '/images/logos/splash-light.png'
-          }
+          src="/images/logos/splash-light.png"
           alt="TanStack"
-          className="w-24 h-24"
+          className="w-24 h-24 dark:hidden"
+        />
+        <img
+          src="/images/logos/splash-dark.png"
+          alt="TanStack"
+          className="w-24 h-24 hidden dark:block"
         />
       </BrandContextMenu>
     </div>

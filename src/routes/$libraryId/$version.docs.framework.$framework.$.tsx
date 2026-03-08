@@ -11,6 +11,7 @@ import { loadDocs } from '~/utils/docs'
 import { getBranch, getLibrary } from '~/libraries'
 import { capitalize } from '~/utils/utils'
 import { DocContainer } from '~/components/DocContainer'
+import type { ConfigSchema } from '~/utils/config'
 
 export const Route = createFileRoute(
   '/$libraryId/$version/docs/framework/$framework/$',
@@ -65,7 +66,7 @@ export const Route = createFileRoute(
 function Docs() {
   const { title, content, filePath } = Route.useLoaderData()
   const versionMatch = useMatch({ from: '/$libraryId/$version' })
-  const { config } = versionMatch.loaderData
+  const { config } = versionMatch.loaderData as { config: ConfigSchema }
   const { version, libraryId, framework } = Route.useParams()
   const library = getLibrary(libraryId)
   const branch = getBranch(library, version)

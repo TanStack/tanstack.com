@@ -164,6 +164,7 @@ export function Doc({
             libraryId={libraryId}
             libraryVersion={libraryVersion}
             pagePath={pagePath}
+            currentFramework={currentFramework}
             titleBarActions={
               setIsFullWidth ? (
                 <button

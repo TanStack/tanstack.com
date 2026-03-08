@@ -40,6 +40,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as StatsIndexRouteImport } from './routes/stats/index'
 import { Route as ShowcaseIndexRouteImport } from './routes/showcase/index'
 import { Route as FeedIndexRouteImport } from './routes/feed.index'
+import { Route as BuilderIndexRouteImport } from './routes/builder.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AccountIndexRouteImport } from './routes/account/index'
@@ -50,15 +51,11 @@ import { Route as OauthTokenRouteImport } from './routes/oauth/token'
 import { Route as OauthRegisterRouteImport } from './routes/oauth/register'
 import { Route as OauthAuthorizeRouteImport } from './routes/oauth/authorize'
 import { Route as FeedIdRouteImport } from './routes/feed.$id'
+import { Route as BuilderDocsRouteImport } from './routes/builder.docs'
 import { Route as BlogSplatRouteImport } from './routes/blog.$'
 import { Route as AuthSignoutRouteImport } from './routes/auth/signout'
 import { Route as AuthPopupSuccessRouteImport } from './routes/auth/popup-success'
 import { Route as ApiUploadthingRouteImport } from './routes/api/uploadthing'
-import { Route as ApiLoadStarterRouteImport } from './routes/api/load-starter'
-import { Route as ApiLoadRemoteAddOnRouteImport } from './routes/api/load-remote-add-on'
-import { Route as ApiInitialPayloadRouteImport } from './routes/api/initial-payload'
-import { Route as ApiDryRunCreateAppRouteImport } from './routes/api/dry-run-create-app'
-import { Route as ApiDryRunAddToAppRouteImport } from './routes/api/dry-run-add-to-app'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as AdminNpmStatsRouteImport } from './routes/admin/npm-stats'
 import { Route as AdminLoginsRouteImport } from './routes/admin/logins'
@@ -84,7 +81,20 @@ import { Route as ShowcaseEditIdRouteImport } from './routes/showcase/edit.$id'
 import { Route as AuthProviderStartRouteImport } from './routes/auth/$provider/start'
 import { Route as ApiMcpSplatRouteImport } from './routes/api/mcp/$'
 import { Route as ApiGithubWebhookRouteImport } from './routes/api/github/webhook'
+import { Route as ApiExampleDeployRouteImport } from './routes/api/example/deploy'
 import { Route as ApiDiscordInteractionsRouteImport } from './routes/api/discord/interactions'
+import { Route as ApiDataPartnersRouteImport } from './routes/api/data/partners'
+import { Route as ApiDataLibrariesRouteImport } from './routes/api/data/libraries'
+import { Route as ApiBuilderValidateRouteImport } from './routes/api/builder/validate'
+import { Route as ApiBuilderSuggestRouteImport } from './routes/api/builder/suggest'
+import { Route as ApiBuilderLoadTemplateRouteImport } from './routes/api/builder/load-template'
+import { Route as ApiBuilderLoadRemoteTemplateRouteImport } from './routes/api/builder/load-remote-template'
+import { Route as ApiBuilderLoadRemoteAddonRouteImport } from './routes/api/builder/load-remote-addon'
+import { Route as ApiBuilderFeaturesRouteImport } from './routes/api/builder/features'
+import { Route as ApiBuilderFeatureArtifactsRouteImport } from './routes/api/builder/feature-artifacts'
+import { Route as ApiBuilderDownloadRouteImport } from './routes/api/builder/download'
+import { Route as ApiBuilderCompileAttributedRouteImport } from './routes/api/builder/compile-attributed'
+import { Route as ApiBuilderCompileRouteImport } from './routes/api/builder/compile'
 import { Route as ApiAdminSyncRouteImport } from './routes/api/admin/sync'
 import { Route as AdminUsersUserIdRouteImport } from './routes/admin/users.$userId'
 import { Route as AdminShowcasesIdRouteImport } from './routes/admin/showcases_.$id'
@@ -94,6 +104,8 @@ import { Route as AdminFeedIdRouteImport } from './routes/admin/feed.$id'
 import { Route as AdminBannersIdRouteImport } from './routes/admin/banners.$id'
 import { Route as LibraryIdVersionDocsRouteImport } from './routes/$libraryId/$version.docs'
 import { Route as LibraryIdVersionDocsIndexRouteImport } from './routes/$libraryId/$version.docs.index'
+import { Route as ApiBuilderDeployGithubRouteImport } from './routes/api/builder/deploy/github'
+import { Route as ApiBuilderDeployCheckNameRouteImport } from './routes/api/builder/deploy/check-name'
 import { Route as ApiAuthCallbackProviderRouteImport } from './routes/api/auth/callback/$provider'
 import { Route as LibraryIdVersionDocsChar123Char125DotmdRouteImport } from './routes/$libraryId/$version.docs.{$}[.]md'
 import { Route as LibraryIdVersionDocsNpmStatsRouteImport } from './routes/$libraryId/$version.docs.npm-stats'
@@ -261,6 +273,11 @@ const FeedIndexRoute = FeedIndexRouteImport.update({
   path: '/feed/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BuilderIndexRoute = BuilderIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => BuilderRoute,
+} as any)
 const BlogIndexRoute = BlogIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -311,6 +328,11 @@ const FeedIdRoute = FeedIdRouteImport.update({
   path: '/feed/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BuilderDocsRoute = BuilderDocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
+  getParentRoute: () => BuilderRoute,
+} as any)
 const BlogSplatRoute = BlogSplatRouteImport.update({
   id: '/$',
   path: '/$',
@@ -329,31 +351,6 @@ const AuthPopupSuccessRoute = AuthPopupSuccessRouteImport.update({
 const ApiUploadthingRoute = ApiUploadthingRouteImport.update({
   id: '/api/uploadthing',
   path: '/api/uploadthing',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiLoadStarterRoute = ApiLoadStarterRouteImport.update({
-  id: '/api/load-starter',
-  path: '/api/load-starter',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiLoadRemoteAddOnRoute = ApiLoadRemoteAddOnRouteImport.update({
-  id: '/api/load-remote-add-on',
-  path: '/api/load-remote-add-on',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiInitialPayloadRoute = ApiInitialPayloadRouteImport.update({
-  id: '/api/initial-payload',
-  path: '/api/initial-payload',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiDryRunCreateAppRoute = ApiDryRunCreateAppRouteImport.update({
-  id: '/api/dry-run-create-app',
-  path: '/api/dry-run-create-app',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiDryRunAddToAppRoute = ApiDryRunAddToAppRouteImport.update({
-  id: '/api/dry-run-add-to-app',
-  path: '/api/dry-run-add-to-app',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminUsersRoute = AdminUsersRouteImport.update({
@@ -482,9 +479,78 @@ const ApiGithubWebhookRoute = ApiGithubWebhookRouteImport.update({
   path: '/api/github/webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiExampleDeployRoute = ApiExampleDeployRouteImport.update({
+  id: '/api/example/deploy',
+  path: '/api/example/deploy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiDiscordInteractionsRoute = ApiDiscordInteractionsRouteImport.update({
   id: '/api/discord/interactions',
   path: '/api/discord/interactions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDataPartnersRoute = ApiDataPartnersRouteImport.update({
+  id: '/api/data/partners',
+  path: '/api/data/partners',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDataLibrariesRoute = ApiDataLibrariesRouteImport.update({
+  id: '/api/data/libraries',
+  path: '/api/data/libraries',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiBuilderValidateRoute = ApiBuilderValidateRouteImport.update({
+  id: '/api/builder/validate',
+  path: '/api/builder/validate',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiBuilderSuggestRoute = ApiBuilderSuggestRouteImport.update({
+  id: '/api/builder/suggest',
+  path: '/api/builder/suggest',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiBuilderLoadTemplateRoute = ApiBuilderLoadTemplateRouteImport.update({
+  id: '/api/builder/load-template',
+  path: '/api/builder/load-template',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiBuilderLoadRemoteTemplateRoute =
+  ApiBuilderLoadRemoteTemplateRouteImport.update({
+    id: '/api/builder/load-remote-template',
+    path: '/api/builder/load-remote-template',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiBuilderLoadRemoteAddonRoute =
+  ApiBuilderLoadRemoteAddonRouteImport.update({
+    id: '/api/builder/load-remote-addon',
+    path: '/api/builder/load-remote-addon',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiBuilderFeaturesRoute = ApiBuilderFeaturesRouteImport.update({
+  id: '/api/builder/features',
+  path: '/api/builder/features',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiBuilderFeatureArtifactsRoute =
+  ApiBuilderFeatureArtifactsRouteImport.update({
+    id: '/api/builder/feature-artifacts',
+    path: '/api/builder/feature-artifacts',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiBuilderDownloadRoute = ApiBuilderDownloadRouteImport.update({
+  id: '/api/builder/download',
+  path: '/api/builder/download',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiBuilderCompileAttributedRoute =
+  ApiBuilderCompileAttributedRouteImport.update({
+    id: '/api/builder/compile-attributed',
+    path: '/api/builder/compile-attributed',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiBuilderCompileRoute = ApiBuilderCompileRouteImport.update({
+  id: '/api/builder/compile',
+  path: '/api/builder/compile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAdminSyncRoute = ApiAdminSyncRouteImport.update({
@@ -532,6 +598,17 @@ const LibraryIdVersionDocsIndexRoute =
     id: '/',
     path: '/',
     getParentRoute: () => LibraryIdVersionDocsRoute,
+  } as any)
+const ApiBuilderDeployGithubRoute = ApiBuilderDeployGithubRouteImport.update({
+  id: '/api/builder/deploy/github',
+  path: '/api/builder/deploy/github',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiBuilderDeployCheckNameRoute =
+  ApiBuilderDeployCheckNameRouteImport.update({
+    id: '/api/builder/deploy/check-name',
+    path: '/api/builder/deploy/check-name',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const ApiAuthCallbackProviderRoute = ApiAuthCallbackProviderRouteImport.update({
   id: '/api/auth/callback/$provider',
@@ -607,7 +684,7 @@ export interface FileRoutesByFullPath {
   '/ads': typeof AdsRoute
   '/blog': typeof BlogRouteWithChildren
   '/brand-guide': typeof BrandGuideRoute
-  '/builder': typeof BuilderRoute
+  '/builder': typeof BuilderRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/ethos': typeof EthosRoute
   '/explore': typeof ExploreRoute
@@ -639,15 +716,11 @@ export interface FileRoutesByFullPath {
   '/admin/logins': typeof AdminLoginsRoute
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
-  '/api/dry-run-add-to-app': typeof ApiDryRunAddToAppRoute
-  '/api/dry-run-create-app': typeof ApiDryRunCreateAppRoute
-  '/api/initial-payload': typeof ApiInitialPayloadRoute
-  '/api/load-remote-add-on': typeof ApiLoadRemoteAddOnRoute
-  '/api/load-starter': typeof ApiLoadStarterRoute
   '/api/uploadthing': typeof ApiUploadthingRoute
   '/auth/popup-success': typeof AuthPopupSuccessRoute
   '/auth/signout': typeof AuthSignoutRoute
   '/blog/$': typeof BlogSplatRoute
+  '/builder/docs': typeof BuilderDocsRoute
   '/feed/$id': typeof FeedIdRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
@@ -658,6 +731,7 @@ export interface FileRoutesByFullPath {
   '/account/': typeof AccountIndexRoute
   '/admin/': typeof AdminIndexRoute
   '/blog/': typeof BlogIndexRoute
+  '/builder/': typeof BuilderIndexRoute
   '/feed': typeof FeedIndexRoute
   '/showcase': typeof ShowcaseIndexRoute
   '/stats': typeof StatsIndexRoute
@@ -669,7 +743,20 @@ export interface FileRoutesByFullPath {
   '/admin/showcases/$id': typeof AdminShowcasesIdRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
   '/api/admin/sync': typeof ApiAdminSyncRoute
+  '/api/builder/compile': typeof ApiBuilderCompileRoute
+  '/api/builder/compile-attributed': typeof ApiBuilderCompileAttributedRoute
+  '/api/builder/download': typeof ApiBuilderDownloadRoute
+  '/api/builder/feature-artifacts': typeof ApiBuilderFeatureArtifactsRoute
+  '/api/builder/features': typeof ApiBuilderFeaturesRoute
+  '/api/builder/load-remote-addon': typeof ApiBuilderLoadRemoteAddonRoute
+  '/api/builder/load-remote-template': typeof ApiBuilderLoadRemoteTemplateRoute
+  '/api/builder/load-template': typeof ApiBuilderLoadTemplateRoute
+  '/api/builder/suggest': typeof ApiBuilderSuggestRoute
+  '/api/builder/validate': typeof ApiBuilderValidateRoute
+  '/api/data/libraries': typeof ApiDataLibrariesRoute
+  '/api/data/partners': typeof ApiDataPartnersRoute
   '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
+  '/api/example/deploy': typeof ApiExampleDeployRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
@@ -690,6 +777,8 @@ export interface FileRoutesByFullPath {
   '/$libraryId/$version/docs/npm-stats': typeof LibraryIdVersionDocsNpmStatsRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
+  '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
+  '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
   '/$libraryId/$version/docs/': typeof LibraryIdVersionDocsIndexRoute
   '/$libraryId/$version/docs/framework': typeof LibraryIdVersionDocsFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/$': typeof LibraryIdVersionDocsFrameworkFrameworkSplatRoute
@@ -701,7 +790,6 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ads': typeof AdsRoute
   '/brand-guide': typeof BrandGuideRoute
-  '/builder': typeof BuilderRoute
   '/dashboard': typeof DashboardRoute
   '/ethos': typeof EthosRoute
   '/explore': typeof ExploreRoute
@@ -732,15 +820,11 @@ export interface FileRoutesByTo {
   '/admin/logins': typeof AdminLoginsRoute
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
-  '/api/dry-run-add-to-app': typeof ApiDryRunAddToAppRoute
-  '/api/dry-run-create-app': typeof ApiDryRunCreateAppRoute
-  '/api/initial-payload': typeof ApiInitialPayloadRoute
-  '/api/load-remote-add-on': typeof ApiLoadRemoteAddOnRoute
-  '/api/load-starter': typeof ApiLoadStarterRoute
   '/api/uploadthing': typeof ApiUploadthingRoute
   '/auth/popup-success': typeof AuthPopupSuccessRoute
   '/auth/signout': typeof AuthSignoutRoute
   '/blog/$': typeof BlogSplatRoute
+  '/builder/docs': typeof BuilderDocsRoute
   '/feed/$id': typeof FeedIdRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
@@ -751,6 +835,7 @@ export interface FileRoutesByTo {
   '/account': typeof AccountIndexRoute
   '/admin': typeof AdminIndexRoute
   '/blog': typeof BlogIndexRoute
+  '/builder': typeof BuilderIndexRoute
   '/feed': typeof FeedIndexRoute
   '/showcase': typeof ShowcaseIndexRoute
   '/stats': typeof StatsIndexRoute
@@ -761,7 +846,20 @@ export interface FileRoutesByTo {
   '/admin/showcases/$id': typeof AdminShowcasesIdRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
   '/api/admin/sync': typeof ApiAdminSyncRoute
+  '/api/builder/compile': typeof ApiBuilderCompileRoute
+  '/api/builder/compile-attributed': typeof ApiBuilderCompileAttributedRoute
+  '/api/builder/download': typeof ApiBuilderDownloadRoute
+  '/api/builder/feature-artifacts': typeof ApiBuilderFeatureArtifactsRoute
+  '/api/builder/features': typeof ApiBuilderFeaturesRoute
+  '/api/builder/load-remote-addon': typeof ApiBuilderLoadRemoteAddonRoute
+  '/api/builder/load-remote-template': typeof ApiBuilderLoadRemoteTemplateRoute
+  '/api/builder/load-template': typeof ApiBuilderLoadTemplateRoute
+  '/api/builder/suggest': typeof ApiBuilderSuggestRoute
+  '/api/builder/validate': typeof ApiBuilderValidateRoute
+  '/api/data/libraries': typeof ApiDataLibrariesRoute
+  '/api/data/partners': typeof ApiDataPartnersRoute
   '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
+  '/api/example/deploy': typeof ApiExampleDeployRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
@@ -782,6 +880,8 @@ export interface FileRoutesByTo {
   '/$libraryId/$version/docs/npm-stats': typeof LibraryIdVersionDocsNpmStatsRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
+  '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
+  '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsIndexRoute
   '/$libraryId/$version/docs/framework': typeof LibraryIdVersionDocsFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/$': typeof LibraryIdVersionDocsFrameworkFrameworkSplatRoute
@@ -798,7 +898,7 @@ export interface FileRoutesById {
   '/ads': typeof AdsRoute
   '/blog': typeof BlogRouteWithChildren
   '/brand-guide': typeof BrandGuideRoute
-  '/builder': typeof BuilderRoute
+  '/builder': typeof BuilderRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/ethos': typeof EthosRoute
   '/explore': typeof ExploreRoute
@@ -830,15 +930,11 @@ export interface FileRoutesById {
   '/admin/logins': typeof AdminLoginsRoute
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
-  '/api/dry-run-add-to-app': typeof ApiDryRunAddToAppRoute
-  '/api/dry-run-create-app': typeof ApiDryRunCreateAppRoute
-  '/api/initial-payload': typeof ApiInitialPayloadRoute
-  '/api/load-remote-add-on': typeof ApiLoadRemoteAddOnRoute
-  '/api/load-starter': typeof ApiLoadStarterRoute
   '/api/uploadthing': typeof ApiUploadthingRoute
   '/auth/popup-success': typeof AuthPopupSuccessRoute
   '/auth/signout': typeof AuthSignoutRoute
   '/blog/$': typeof BlogSplatRoute
+  '/builder/docs': typeof BuilderDocsRoute
   '/feed/$id': typeof FeedIdRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
@@ -849,6 +945,7 @@ export interface FileRoutesById {
   '/account/': typeof AccountIndexRoute
   '/admin/': typeof AdminIndexRoute
   '/blog/': typeof BlogIndexRoute
+  '/builder/': typeof BuilderIndexRoute
   '/feed/': typeof FeedIndexRoute
   '/showcase/': typeof ShowcaseIndexRoute
   '/stats/': typeof StatsIndexRoute
@@ -860,7 +957,20 @@ export interface FileRoutesById {
   '/admin/showcases_/$id': typeof AdminShowcasesIdRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
   '/api/admin/sync': typeof ApiAdminSyncRoute
+  '/api/builder/compile': typeof ApiBuilderCompileRoute
+  '/api/builder/compile-attributed': typeof ApiBuilderCompileAttributedRoute
+  '/api/builder/download': typeof ApiBuilderDownloadRoute
+  '/api/builder/feature-artifacts': typeof ApiBuilderFeatureArtifactsRoute
+  '/api/builder/features': typeof ApiBuilderFeaturesRoute
+  '/api/builder/load-remote-addon': typeof ApiBuilderLoadRemoteAddonRoute
+  '/api/builder/load-remote-template': typeof ApiBuilderLoadRemoteTemplateRoute
+  '/api/builder/load-template': typeof ApiBuilderLoadTemplateRoute
+  '/api/builder/suggest': typeof ApiBuilderSuggestRoute
+  '/api/builder/validate': typeof ApiBuilderValidateRoute
+  '/api/data/libraries': typeof ApiDataLibrariesRoute
+  '/api/data/partners': typeof ApiDataPartnersRoute
   '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
+  '/api/example/deploy': typeof ApiExampleDeployRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
@@ -881,6 +991,8 @@ export interface FileRoutesById {
   '/$libraryId/$version/docs/npm-stats': typeof LibraryIdVersionDocsNpmStatsRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
+  '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
+  '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
   '/$libraryId/$version/docs/': typeof LibraryIdVersionDocsIndexRoute
   '/$libraryId/$version/docs/framework/': typeof LibraryIdVersionDocsFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/$': typeof LibraryIdVersionDocsFrameworkFrameworkSplatRoute
@@ -930,15 +1042,11 @@ export interface FileRouteTypes {
     | '/admin/logins'
     | '/admin/npm-stats'
     | '/admin/users'
-    | '/api/dry-run-add-to-app'
-    | '/api/dry-run-create-app'
-    | '/api/initial-payload'
-    | '/api/load-remote-add-on'
-    | '/api/load-starter'
     | '/api/uploadthing'
     | '/auth/popup-success'
     | '/auth/signout'
     | '/blog/$'
+    | '/builder/docs'
     | '/feed/$id'
     | '/oauth/authorize'
     | '/oauth/register'
@@ -949,6 +1057,7 @@ export interface FileRouteTypes {
     | '/account/'
     | '/admin/'
     | '/blog/'
+    | '/builder/'
     | '/feed'
     | '/showcase'
     | '/stats'
@@ -960,7 +1069,20 @@ export interface FileRouteTypes {
     | '/admin/showcases/$id'
     | '/admin/users/$userId'
     | '/api/admin/sync'
+    | '/api/builder/compile'
+    | '/api/builder/compile-attributed'
+    | '/api/builder/download'
+    | '/api/builder/feature-artifacts'
+    | '/api/builder/features'
+    | '/api/builder/load-remote-addon'
+    | '/api/builder/load-remote-template'
+    | '/api/builder/load-template'
+    | '/api/builder/suggest'
+    | '/api/builder/validate'
+    | '/api/data/libraries'
+    | '/api/data/partners'
     | '/api/discord/interactions'
+    | '/api/example/deploy'
     | '/api/github/webhook'
     | '/api/mcp/$'
     | '/auth/$provider/start'
@@ -981,6 +1103,8 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/npm-stats'
     | '/$libraryId/$version/docs/{$}.md'
     | '/api/auth/callback/$provider'
+    | '/api/builder/deploy/check-name'
+    | '/api/builder/deploy/github'
     | '/$libraryId/$version/docs/'
     | '/$libraryId/$version/docs/framework'
     | '/$libraryId/$version/docs/framework/$framework/$'
@@ -992,7 +1116,6 @@ export interface FileRouteTypes {
     | '/'
     | '/ads'
     | '/brand-guide'
-    | '/builder'
     | '/dashboard'
     | '/ethos'
     | '/explore'
@@ -1023,15 +1146,11 @@ export interface FileRouteTypes {
     | '/admin/logins'
     | '/admin/npm-stats'
     | '/admin/users'
-    | '/api/dry-run-add-to-app'
-    | '/api/dry-run-create-app'
-    | '/api/initial-payload'
-    | '/api/load-remote-add-on'
-    | '/api/load-starter'
     | '/api/uploadthing'
     | '/auth/popup-success'
     | '/auth/signout'
     | '/blog/$'
+    | '/builder/docs'
     | '/feed/$id'
     | '/oauth/authorize'
     | '/oauth/register'
@@ -1042,6 +1161,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/admin'
     | '/blog'
+    | '/builder'
     | '/feed'
     | '/showcase'
     | '/stats'
@@ -1052,7 +1172,20 @@ export interface FileRouteTypes {
     | '/admin/showcases/$id'
     | '/admin/users/$userId'
     | '/api/admin/sync'
+    | '/api/builder/compile'
+    | '/api/builder/compile-attributed'
+    | '/api/builder/download'
+    | '/api/builder/feature-artifacts'
+    | '/api/builder/features'
+    | '/api/builder/load-remote-addon'
+    | '/api/builder/load-remote-template'
+    | '/api/builder/load-template'
+    | '/api/builder/suggest'
+    | '/api/builder/validate'
+    | '/api/data/libraries'
+    | '/api/data/partners'
     | '/api/discord/interactions'
+    | '/api/example/deploy'
     | '/api/github/webhook'
     | '/api/mcp/$'
     | '/auth/$provider/start'
@@ -1073,6 +1206,8 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/npm-stats'
     | '/$libraryId/$version/docs/{$}.md'
     | '/api/auth/callback/$provider'
+    | '/api/builder/deploy/check-name'
+    | '/api/builder/deploy/github'
     | '/$libraryId/$version/docs'
     | '/$libraryId/$version/docs/framework'
     | '/$libraryId/$version/docs/framework/$framework/$'
@@ -1120,15 +1255,11 @@ export interface FileRouteTypes {
     | '/admin/logins'
     | '/admin/npm-stats'
     | '/admin/users'
-    | '/api/dry-run-add-to-app'
-    | '/api/dry-run-create-app'
-    | '/api/initial-payload'
-    | '/api/load-remote-add-on'
-    | '/api/load-starter'
     | '/api/uploadthing'
     | '/auth/popup-success'
     | '/auth/signout'
     | '/blog/$'
+    | '/builder/docs'
     | '/feed/$id'
     | '/oauth/authorize'
     | '/oauth/register'
@@ -1139,6 +1270,7 @@ export interface FileRouteTypes {
     | '/account/'
     | '/admin/'
     | '/blog/'
+    | '/builder/'
     | '/feed/'
     | '/showcase/'
     | '/stats/'
@@ -1150,7 +1282,20 @@ export interface FileRouteTypes {
     | '/admin/showcases_/$id'
     | '/admin/users/$userId'
     | '/api/admin/sync'
+    | '/api/builder/compile'
+    | '/api/builder/compile-attributed'
+    | '/api/builder/download'
+    | '/api/builder/feature-artifacts'
+    | '/api/builder/features'
+    | '/api/builder/load-remote-addon'
+    | '/api/builder/load-remote-template'
+    | '/api/builder/load-template'
+    | '/api/builder/suggest'
+    | '/api/builder/validate'
+    | '/api/data/libraries'
+    | '/api/data/partners'
     | '/api/discord/interactions'
+    | '/api/example/deploy'
     | '/api/github/webhook'
     | '/api/mcp/$'
     | '/auth/$provider/start'
@@ -1171,6 +1316,8 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/npm-stats'
     | '/$libraryId/$version/docs/{$}.md'
     | '/api/auth/callback/$provider'
+    | '/api/builder/deploy/check-name'
+    | '/api/builder/deploy/github'
     | '/$libraryId/$version/docs/'
     | '/$libraryId/$version/docs/framework/'
     | '/$libraryId/$version/docs/framework/$framework/$'
@@ -1187,7 +1334,7 @@ export interface RootRouteChildren {
   AdsRoute: typeof AdsRoute
   BlogRoute: typeof BlogRouteWithChildren
   BrandGuideRoute: typeof BrandGuideRoute
-  BuilderRoute: typeof BuilderRoute
+  BuilderRoute: typeof BuilderRouteWithChildren
   DashboardRoute: typeof DashboardRoute
   EthosRoute: typeof EthosRoute
   ExploreRoute: typeof ExploreRoute
@@ -1209,11 +1356,6 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   WorkshopsRoute: typeof WorkshopsRoute
   DotwellKnownOauthAuthorizationServerRoute: typeof DotwellKnownOauthAuthorizationServerRoute
-  ApiDryRunAddToAppRoute: typeof ApiDryRunAddToAppRoute
-  ApiDryRunCreateAppRoute: typeof ApiDryRunCreateAppRoute
-  ApiInitialPayloadRoute: typeof ApiInitialPayloadRoute
-  ApiLoadRemoteAddOnRoute: typeof ApiLoadRemoteAddOnRoute
-  ApiLoadStarterRoute: typeof ApiLoadStarterRoute
   ApiUploadthingRoute: typeof ApiUploadthingRoute
   AuthPopupSuccessRoute: typeof AuthPopupSuccessRoute
   AuthSignoutRoute: typeof AuthSignoutRoute
@@ -1227,7 +1369,20 @@ export interface RootRouteChildren {
   ShowcaseIndexRoute: typeof ShowcaseIndexRoute
   StatsIndexRoute: typeof StatsIndexRoute
   ApiAdminSyncRoute: typeof ApiAdminSyncRoute
+  ApiBuilderCompileRoute: typeof ApiBuilderCompileRoute
+  ApiBuilderCompileAttributedRoute: typeof ApiBuilderCompileAttributedRoute
+  ApiBuilderDownloadRoute: typeof ApiBuilderDownloadRoute
+  ApiBuilderFeatureArtifactsRoute: typeof ApiBuilderFeatureArtifactsRoute
+  ApiBuilderFeaturesRoute: typeof ApiBuilderFeaturesRoute
+  ApiBuilderLoadRemoteAddonRoute: typeof ApiBuilderLoadRemoteAddonRoute
+  ApiBuilderLoadRemoteTemplateRoute: typeof ApiBuilderLoadRemoteTemplateRoute
+  ApiBuilderLoadTemplateRoute: typeof ApiBuilderLoadTemplateRoute
+  ApiBuilderSuggestRoute: typeof ApiBuilderSuggestRoute
+  ApiBuilderValidateRoute: typeof ApiBuilderValidateRoute
+  ApiDataLibrariesRoute: typeof ApiDataLibrariesRoute
+  ApiDataPartnersRoute: typeof ApiDataPartnersRoute
   ApiDiscordInteractionsRoute: typeof ApiDiscordInteractionsRoute
+  ApiExampleDeployRoute: typeof ApiExampleDeployRoute
   ApiGithubWebhookRoute: typeof ApiGithubWebhookRoute
   ApiMcpSplatRoute: typeof ApiMcpSplatRoute
   AuthProviderStartRoute: typeof AuthProviderStartRoute
@@ -1236,6 +1391,8 @@ export interface RootRouteChildren {
   ApiMcpIndexRoute: typeof ApiMcpIndexRoute
   StatsNpmIndexRoute: typeof StatsNpmIndexRoute
   ApiAuthCallbackProviderRoute: typeof ApiAuthCallbackProviderRoute
+  ApiBuilderDeployCheckNameRoute: typeof ApiBuilderDeployCheckNameRoute
+  ApiBuilderDeployGithubRoute: typeof ApiBuilderDeployGithubRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1457,6 +1614,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FeedIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/builder/': {
+      id: '/builder/'
+      path: '/'
+      fullPath: '/builder/'
+      preLoaderRoute: typeof BuilderIndexRouteImport
+      parentRoute: typeof BuilderRoute
+    }
     '/blog/': {
       id: '/blog/'
       path: '/'
@@ -1527,6 +1691,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FeedIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/builder/docs': {
+      id: '/builder/docs'
+      path: '/docs'
+      fullPath: '/builder/docs'
+      preLoaderRoute: typeof BuilderDocsRouteImport
+      parentRoute: typeof BuilderRoute
+    }
     '/blog/$': {
       id: '/blog/$'
       path: '/$'
@@ -1553,41 +1724,6 @@ declare module '@tanstack/react-router' {
       path: '/api/uploadthing'
       fullPath: '/api/uploadthing'
       preLoaderRoute: typeof ApiUploadthingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/load-starter': {
-      id: '/api/load-starter'
-      path: '/api/load-starter'
-      fullPath: '/api/load-starter'
-      preLoaderRoute: typeof ApiLoadStarterRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/load-remote-add-on': {
-      id: '/api/load-remote-add-on'
-      path: '/api/load-remote-add-on'
-      fullPath: '/api/load-remote-add-on'
-      preLoaderRoute: typeof ApiLoadRemoteAddOnRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/initial-payload': {
-      id: '/api/initial-payload'
-      path: '/api/initial-payload'
-      fullPath: '/api/initial-payload'
-      preLoaderRoute: typeof ApiInitialPayloadRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/dry-run-create-app': {
-      id: '/api/dry-run-create-app'
-      path: '/api/dry-run-create-app'
-      fullPath: '/api/dry-run-create-app'
-      preLoaderRoute: typeof ApiDryRunCreateAppRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/dry-run-add-to-app': {
-      id: '/api/dry-run-add-to-app'
-      path: '/api/dry-run-add-to-app'
-      fullPath: '/api/dry-run-add-to-app'
-      preLoaderRoute: typeof ApiDryRunAddToAppRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/users': {
@@ -1765,11 +1901,102 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiGithubWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/example/deploy': {
+      id: '/api/example/deploy'
+      path: '/api/example/deploy'
+      fullPath: '/api/example/deploy'
+      preLoaderRoute: typeof ApiExampleDeployRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/discord/interactions': {
       id: '/api/discord/interactions'
       path: '/api/discord/interactions'
       fullPath: '/api/discord/interactions'
       preLoaderRoute: typeof ApiDiscordInteractionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/data/partners': {
+      id: '/api/data/partners'
+      path: '/api/data/partners'
+      fullPath: '/api/data/partners'
+      preLoaderRoute: typeof ApiDataPartnersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/data/libraries': {
+      id: '/api/data/libraries'
+      path: '/api/data/libraries'
+      fullPath: '/api/data/libraries'
+      preLoaderRoute: typeof ApiDataLibrariesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/builder/validate': {
+      id: '/api/builder/validate'
+      path: '/api/builder/validate'
+      fullPath: '/api/builder/validate'
+      preLoaderRoute: typeof ApiBuilderValidateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/builder/suggest': {
+      id: '/api/builder/suggest'
+      path: '/api/builder/suggest'
+      fullPath: '/api/builder/suggest'
+      preLoaderRoute: typeof ApiBuilderSuggestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/builder/load-template': {
+      id: '/api/builder/load-template'
+      path: '/api/builder/load-template'
+      fullPath: '/api/builder/load-template'
+      preLoaderRoute: typeof ApiBuilderLoadTemplateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/builder/load-remote-template': {
+      id: '/api/builder/load-remote-template'
+      path: '/api/builder/load-remote-template'
+      fullPath: '/api/builder/load-remote-template'
+      preLoaderRoute: typeof ApiBuilderLoadRemoteTemplateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/builder/load-remote-addon': {
+      id: '/api/builder/load-remote-addon'
+      path: '/api/builder/load-remote-addon'
+      fullPath: '/api/builder/load-remote-addon'
+      preLoaderRoute: typeof ApiBuilderLoadRemoteAddonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/builder/features': {
+      id: '/api/builder/features'
+      path: '/api/builder/features'
+      fullPath: '/api/builder/features'
+      preLoaderRoute: typeof ApiBuilderFeaturesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/builder/feature-artifacts': {
+      id: '/api/builder/feature-artifacts'
+      path: '/api/builder/feature-artifacts'
+      fullPath: '/api/builder/feature-artifacts'
+      preLoaderRoute: typeof ApiBuilderFeatureArtifactsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/builder/download': {
+      id: '/api/builder/download'
+      path: '/api/builder/download'
+      fullPath: '/api/builder/download'
+      preLoaderRoute: typeof ApiBuilderDownloadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/builder/compile-attributed': {
+      id: '/api/builder/compile-attributed'
+      path: '/api/builder/compile-attributed'
+      fullPath: '/api/builder/compile-attributed'
+      preLoaderRoute: typeof ApiBuilderCompileAttributedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/builder/compile': {
+      id: '/api/builder/compile'
+      path: '/api/builder/compile'
+      fullPath: '/api/builder/compile'
+      preLoaderRoute: typeof ApiBuilderCompileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/admin/sync': {
@@ -1834,6 +2061,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/$libraryId/$version/docs/'
       preLoaderRoute: typeof LibraryIdVersionDocsIndexRouteImport
       parentRoute: typeof LibraryIdVersionDocsRoute
+    }
+    '/api/builder/deploy/github': {
+      id: '/api/builder/deploy/github'
+      path: '/api/builder/deploy/github'
+      fullPath: '/api/builder/deploy/github'
+      preLoaderRoute: typeof ApiBuilderDeployGithubRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/builder/deploy/check-name': {
+      id: '/api/builder/deploy/check-name'
+      path: '/api/builder/deploy/check-name'
+      fullPath: '/api/builder/deploy/check-name'
+      preLoaderRoute: typeof ApiBuilderDeployCheckNameRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/auth/callback/$provider': {
       id: '/api/auth/callback/$provider'
@@ -2067,6 +2308,19 @@ const BlogRouteChildren: BlogRouteChildren = {
 
 const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
 
+interface BuilderRouteChildren {
+  BuilderDocsRoute: typeof BuilderDocsRoute
+  BuilderIndexRoute: typeof BuilderIndexRoute
+}
+
+const BuilderRouteChildren: BuilderRouteChildren = {
+  BuilderDocsRoute: BuilderDocsRoute,
+  BuilderIndexRoute: BuilderIndexRoute,
+}
+
+const BuilderRouteWithChildren =
+  BuilderRoute._addFileChildren(BuilderRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LibraryIdRouteRoute: LibraryIdRouteRouteWithChildren,
@@ -2075,7 +2329,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdsRoute: AdsRoute,
   BlogRoute: BlogRouteWithChildren,
   BrandGuideRoute: BrandGuideRoute,
-  BuilderRoute: BuilderRoute,
+  BuilderRoute: BuilderRouteWithChildren,
   DashboardRoute: DashboardRoute,
   EthosRoute: EthosRoute,
   ExploreRoute: ExploreRoute,
@@ -2098,11 +2352,6 @@ const rootRouteChildren: RootRouteChildren = {
   WorkshopsRoute: WorkshopsRoute,
   DotwellKnownOauthAuthorizationServerRoute:
     DotwellKnownOauthAuthorizationServerRoute,
-  ApiDryRunAddToAppRoute: ApiDryRunAddToAppRoute,
-  ApiDryRunCreateAppRoute: ApiDryRunCreateAppRoute,
-  ApiInitialPayloadRoute: ApiInitialPayloadRoute,
-  ApiLoadRemoteAddOnRoute: ApiLoadRemoteAddOnRoute,
-  ApiLoadStarterRoute: ApiLoadStarterRoute,
   ApiUploadthingRoute: ApiUploadthingRoute,
   AuthPopupSuccessRoute: AuthPopupSuccessRoute,
   AuthSignoutRoute: AuthSignoutRoute,
@@ -2116,7 +2365,20 @@ const rootRouteChildren: RootRouteChildren = {
   ShowcaseIndexRoute: ShowcaseIndexRoute,
   StatsIndexRoute: StatsIndexRoute,
   ApiAdminSyncRoute: ApiAdminSyncRoute,
+  ApiBuilderCompileRoute: ApiBuilderCompileRoute,
+  ApiBuilderCompileAttributedRoute: ApiBuilderCompileAttributedRoute,
+  ApiBuilderDownloadRoute: ApiBuilderDownloadRoute,
+  ApiBuilderFeatureArtifactsRoute: ApiBuilderFeatureArtifactsRoute,
+  ApiBuilderFeaturesRoute: ApiBuilderFeaturesRoute,
+  ApiBuilderLoadRemoteAddonRoute: ApiBuilderLoadRemoteAddonRoute,
+  ApiBuilderLoadRemoteTemplateRoute: ApiBuilderLoadRemoteTemplateRoute,
+  ApiBuilderLoadTemplateRoute: ApiBuilderLoadTemplateRoute,
+  ApiBuilderSuggestRoute: ApiBuilderSuggestRoute,
+  ApiBuilderValidateRoute: ApiBuilderValidateRoute,
+  ApiDataLibrariesRoute: ApiDataLibrariesRoute,
+  ApiDataPartnersRoute: ApiDataPartnersRoute,
   ApiDiscordInteractionsRoute: ApiDiscordInteractionsRoute,
+  ApiExampleDeployRoute: ApiExampleDeployRoute,
   ApiGithubWebhookRoute: ApiGithubWebhookRoute,
   ApiMcpSplatRoute: ApiMcpSplatRoute,
   AuthProviderStartRoute: AuthProviderStartRoute,
@@ -2125,6 +2387,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiMcpIndexRoute: ApiMcpIndexRoute,
   StatsNpmIndexRoute: StatsNpmIndexRoute,
   ApiAuthCallbackProviderRoute: ApiAuthCallbackProviderRoute,
+  ApiBuilderDeployCheckNameRoute: ApiBuilderDeployCheckNameRoute,
+  ApiBuilderDeployGithubRoute: ApiBuilderDeployGithubRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

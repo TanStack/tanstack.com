@@ -8,7 +8,7 @@ type LibraryHeroProps = {
   project: Library
   cta?: {
     linkProps: LinkProps
-    label: string
+    label: string | React.ReactNode
     className?: string
   }
   actions?: React.ReactNode
@@ -54,6 +54,7 @@ export function LibraryHero({ project, cta, actions }: LibraryHeroProps) {
       {actions ? (
         <div className="flex flex-wrap gap-2 justify-center">{actions}</div>
       ) : cta ? (
+        // @ts-expect-error - LinkProps is not assignable to ButtonProps
         <Button
           as={Link}
           {...cta.linkProps}

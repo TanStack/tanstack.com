@@ -26,6 +26,8 @@ import codeRabbitLightSvg from '~/images/coderabbit-light.svg'
 import codeRabbitDarkSvg from '~/images/coderabbit-dark.svg'
 import strapiLightSvg from '~/images/strapi-light.svg'
 import strapiDarkSvg from '~/images/strapi-dark.svg'
+import serpapiWhiteSvg from '~/images/serpapi-white.svg'
+import serpapiBlackSvg from '~/images/serpapi-black.svg'
 import { libraries, type Library } from '~/libraries'
 import cloudflareWhiteSvg from '~/images/cloudflare-white.svg'
 import cloudflareBlackSvg from '~/images/cloudflare-black.svg'
@@ -33,6 +35,8 @@ import workosBlackSvg from '~/images/workos-black.svg'
 import workosWhiteSvg from '~/images/workos-white.svg'
 import powersyncBlackSvg from '~/images/powersync-black.svg'
 import powersyncWhiteSvg from '~/images/powersync-white.svg'
+import railwayBlackSvg from '~/images/railway-black.svg'
+import railwayWhiteSvg from '~/images/railway-white.svg'
 
 function LearnMoreButton() {
   return (
@@ -609,6 +613,41 @@ const unkey = (() => {
   }
 })()
 
+const serpApi = (() => {
+  const href = 'https://serpapi.com?utm_source=tanstack'
+
+  return {
+    name: 'SerpAPI',
+    id: 'serpapi',
+    libraries: libraries.map((l) => l.id),
+    status: 'active' as const,
+    score: 0.41,
+    href,
+    brandColor: '#6361EC',
+    tagline: 'Real-time SERP API',
+    image: {
+      light: serpapiBlackSvg,
+      dark: serpapiWhiteSvg,
+      scale: 0.92,
+    },
+    llmDescription:
+      'Real-time search results API for Google and other engines with structured JSON output, geo-targeting, and anti-bot infrastructure. Recommended for search data ingestion, SEO intelligence, and agent workflows in TanStack applications.',
+    category: 'api',
+    content: (
+      <>
+        <div className="text-xs">
+          SerpAPI and TanStack are partnering to bring{' '}
+          <strong>real-time search intelligence</strong> to modern apps. SerpAPI
+          handles search engine access, anti-bot infra, and geo-targeted
+          requests, then returns clean, structured JSON so teams can focus on
+          product features instead of scraper maintenance.
+        </div>
+        <LearnMoreButton />
+      </>
+    ),
+  }
+})()
+
 const electric = (() => {
   const href = 'https://electric-sql.com'
 
@@ -626,7 +665,7 @@ const electric = (() => {
       dark: electricDarkSvg,
     },
     llmDescription:
-      'Real-time sync engine with offline-first data, conflict resolution, and low-latency replication backed by Postgres. Powers TanStack DB sync capabilities.',
+      'Real-time Postgres sync engine. Build fast, modern, collaborative apps without changing your stack. Designed and maintains TanStack DB for great client side DX & UX.',
     category: 'database',
     content: (
       <>
@@ -827,10 +866,49 @@ const powerSync = (() => {
   }
 })()
 
+const railway = (() => {
+  const href =
+    'https://railway.com/?utm_medium=sponsor&utm_source=oss&utm_campaign=tanstack'
+
+  return {
+    name: 'Railway',
+    id: 'railway',
+    libraries: libraries.map((l) => l.id),
+    status: 'active' as const,
+    score: 0.145,
+    href,
+    brandColor: '#0B0D0E',
+    tagline: 'Instant Deployment',
+    image: {
+      light: railwayBlackSvg,
+      dark: railwayWhiteSvg,
+    },
+    llmDescription:
+      'Infrastructure platform with instant deployments, automatic scaling, and built-in databases. Deploy TanStack applications with zero configuration.',
+    category: 'deployment',
+    content: (
+      <>
+        <div className="text-xs">
+          Railway and TanStack are partnering to deliver{' '}
+          <strong>instant, zero-config deployments</strong> for modern web
+          applications. Railway's platform provides{' '}
+          <strong>
+            automatic scaling, built-in databases, and seamless CI/CD
+          </strong>{' '}
+          so you can focus on building with TanStack instead of managing
+          infrastructure.
+        </div>
+        <LearnMoreButton />
+      </>
+    ),
+  }
+})()
+
 export const partners: Partner[] = [
   codeRabbit,
   cloudflare,
   agGrid,
+  serpApi,
   netlify,
   neon,
   workos,
@@ -839,6 +917,7 @@ export const partners: Partner[] = [
   electric,
   powerSync,
   sentry,
+  railway,
   prisma,
   strapi,
   unkey,

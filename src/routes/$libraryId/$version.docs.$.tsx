@@ -3,6 +3,7 @@ import { Doc } from '~/components/Doc'
 import { loadDocs } from '~/utils/docs'
 import { findLibrary, getBranch, getLibrary } from '~/libraries'
 import { DocContainer } from '~/components/DocContainer'
+import type { ConfigSchema } from '~/utils/config'
 import {
   notFound,
   useLocation,
@@ -86,7 +87,7 @@ function Docs() {
   const { version, libraryId, _splat } = Route.useParams()
   const { title, content, filePath } = Route.useLoaderData()
   const versionMatch = useMatch({ from: '/$libraryId/$version' })
-  const { config } = versionMatch.loaderData
+  const { config } = versionMatch.loaderData as { config: ConfigSchema }
   const library = getLibrary(libraryId)
   const branch = getBranch(library, version)
   const location = useLocation()

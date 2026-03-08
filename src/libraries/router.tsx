@@ -1,6 +1,5 @@
 import { DatabaseZap, MessageCircleQuestionMark, PlugZap } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
-import { redirect } from '@tanstack/react-router'
 import { router } from './libraries'
 
 const textStyles = 'text-emerald-500 dark:text-emerald-400'
@@ -18,8 +17,9 @@ export const routerProject = {
   legacyPackages: ['react-location'],
   hideCodesandboxUrl: true as const,
   showVercelUrl: false,
-  showNetlifyUrl: true,
-  showCloudflareUrl: true,
+  showNetlifyUrl: false,
+  showCloudflareUrl: false,
+  showRailwayUrl: false,
   testimonials: [
     {
       quote:
@@ -118,23 +118,4 @@ export const routerProject = {
       ),
     },
   ],
-  handleRedirects(href: string) {
-    if (href.includes('router/latest/docs/framework/react/start')) {
-      throw redirect({
-        href: href.replace(
-          'router/latest/docs/framework/react/start',
-          'start/latest/docs/framework/react',
-        ),
-      })
-    }
-
-    if (href.includes('/router/latest/docs/framework/react/examples/start')) {
-      throw redirect({
-        href: href.replace(
-          'router/latest/docs/framework/react/examples/start',
-          'start/latest/docs/framework/react/examples/start',
-        ),
-      })
-    }
-  },
 }

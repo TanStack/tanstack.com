@@ -5,29 +5,10 @@ import {
   type AuditAction,
   type OAuthProvider,
 } from '~/db/schema'
+import { getClientIp } from './request.server'
 
-// Extract IP address from request headers
-export function getClientIp(request: Request): string | undefined {
-  // Check common proxy headers first
-  const forwardedFor = request.headers.get('x-forwarded-for')
-  if (forwardedFor) {
-    // x-forwarded-for can contain multiple IPs, take the first one
-    return forwardedFor.split(',')[0].trim()
-  }
-
-  const realIp = request.headers.get('x-real-ip')
-  if (realIp) {
-    return realIp
-  }
-
-  // Cloudflare
-  const cfConnectingIp = request.headers.get('cf-connecting-ip')
-  if (cfConnectingIp) {
-    return cfConnectingIp
-  }
-
-  return undefined
-}
+// Re-export for backwards compatibility
+export { getClientIp }
 
 // Record a login event
 export async function recordLogin(opts: {

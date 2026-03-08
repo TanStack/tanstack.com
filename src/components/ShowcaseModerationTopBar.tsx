@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { libraries } from '~/libraries'
+import { libraries, type LibraryId } from '~/libraries'
 import { SHOWCASE_STATUSES, type ShowcaseStatus } from '~/db/types'
 import {
   TopBarFilter,
@@ -13,12 +13,12 @@ import {
 interface ShowcaseModerationTopBarProps {
   filters: {
     status?: ShowcaseStatus[]
-    libraryId?: string[]
+    libraryId?: LibraryId[]
     isFeatured?: boolean
   }
   onFilterChange: (filters: {
     status?: ShowcaseStatus[]
-    libraryId?: string[]
+    libraryId?: LibraryId[]
     isFeatured?: boolean
   }) => void
 }
@@ -41,7 +41,7 @@ export function ShowcaseModerationTopBar({
     onFilterChange({ status: updated.length > 0 ? updated : undefined })
   }
 
-  const toggleLibrary = (libraryId: string) => {
+  const toggleLibrary = (libraryId: LibraryId) => {
     const current = filters.libraryId || []
     const updated = current.includes(libraryId)
       ? current.filter((l) => l !== libraryId)
@@ -67,7 +67,7 @@ export function ShowcaseModerationTopBar({
     filters.isFeatured !== undefined,
   )
 
-  const getLibraryName = (id: string) =>
+  const getLibraryName = (id: LibraryId) =>
     libraries.find((l) => l.id === id)?.name || id
 
   return (

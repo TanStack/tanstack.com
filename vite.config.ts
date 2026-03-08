@@ -8,6 +8,8 @@ import { analyzer } from 'vite-bundle-analyzer'
 import viteReact from '@vitejs/plugin-react'
 import netlify from '@netlify/vite-plugin-tanstack-start'
 
+const isDev = process.env.NODE_ENV !== 'production'
+
 export default defineConfig({
   server: {
     port: Number(process.env.PORT) || 3000,
@@ -16,25 +18,37 @@ export default defineConfig({
       'Cross-Origin-Opener-Policy': 'same-origin',
       'Cross-Origin-Embedder-Policy': 'require-corp',
     },
+    // Watch linked @tanstack/cli for hot reload during development
+    watch: isDev
+      ? {
+          ignored: ['!**/node_modules/@tanstack/cli/**'],
+        }
+      : undefined,
   },
   ssr: {
     external: [
       'postgres',
       // CTA packages use execa which has a broken unicorn-magic dependency
-      '@tanstack/cta-engine',
-      '@tanstack/cta-ui',
-      '@tanstack/cta-framework-react-cra',
+      '@tanstack/create',
+      // Externalize CLI so server reloads it on changes
+      '@tanstack/cli',
     ],
-    // Bundle cta-ui-base so Vite resolves its extensionless imports
-    noExternal: ['drizzle-orm', '@tanstack/cta-ui-base'],
+    noExternal: [
+      'drizzle-orm',
+      '@uploadthing/react',
+      'file-selector',
+      'normalize-wheel',
+      '@tanstack/react-hotkeys',
+      '@webcontainer/api',
+    ],
   },
   optimizeDeps: {
     exclude: [
       'postgres',
       // CTA packages use execa which has a broken unicorn-magic dependency
-      '@tanstack/cta-engine',
-      '@tanstack/cta-ui',
-      '@tanstack/cta-framework-react-cra',
+      '@tanstack/create',
+      // Don't pre-bundle CLI so we always get fresh changes during dev
+      ...(isDev ? ['@tanstack/cli'] : []),
     ],
   },
   build: {

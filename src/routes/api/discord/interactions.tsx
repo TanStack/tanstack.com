@@ -38,7 +38,6 @@ function handleUnknownCommand(commandName: string) {
 }
 
 export const Route = createFileRoute('/api/discord/interactions')({
-  // @ts-expect-error server property not in route types yet
   server: {
     handlers: {
       POST: async ({ request }: { request: Request }) => {

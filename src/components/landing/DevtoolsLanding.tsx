@@ -21,8 +21,7 @@ export default function DevtoolsLanding() {
         project={devtoolsProject}
         cta={{
           linkProps: {
-            from: '/$libraryId/$version',
-            to: './docs',
+            to: '/$libraryId/$version/docs',
             params: { libraryId: library.id },
           },
           label: 'Get Started',
@@ -72,8 +71,7 @@ export default function DevtoolsLanding() {
 
       <BottomCTA
         linkProps={{
-          from: '/$libraryId/$version',
-          to: './docs',
+          to: '/$libraryId/$version/docs',
           params: { libraryId: library.id },
         }}
         label="Get Started!"

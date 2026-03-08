@@ -20,6 +20,7 @@ import type {
   IUserRepository,
   OAuthProvider,
 } from './types'
+import { encryptToken, decryptStoredToken } from '~/utils/crypto.server'
 
 // ============================================================================
 // User Repository Implementation
@@ -135,7 +136,11 @@ export class DrizzleOAuthAccountRepository implements IOAuthAccountRepository {
   async findByProviderAndAccountId(
     provider: OAuthProvider,
     providerAccountId: string,
-  ): Promise<{ userId: string } | null> {
+  ): Promise<{
+    userId: string
+    accessToken: string | null
+    tokenScope: string | null
+  } | null> {
     const account = await db.query.oauthAccounts.findFirst({
       where: and(
         eq(oauthAccounts.provider, provider),
@@ -145,7 +150,30 @@ export class DrizzleOAuthAccountRepository implements IOAuthAccountRepository {
 
     if (!account) return null
 
-    return { userId: account.userId }
+    return {
+      userId: account.userId,
+      accessToken: decryptStoredToken(account.accessToken),
+      tokenScope: account.tokenScope,
+    }
+  }
+
+  async findByUserId(
+    userId: string,
+    provider: OAuthProvider,
+  ): Promise<{ accessToken: string | null; tokenScope: string | null } | null> {
+    const account = await db.query.oauthAccounts.findFirst({
+      where: and(
+        eq(oauthAccounts.userId, userId),
+        eq(oauthAccounts.provider, provider),
+      ),
+    })
+
+    if (!account) return null
+
+    return {
+      accessToken: decryptStoredToken(account.accessToken),
+      tokenScope: account.tokenScope,
+    }
   }
 
   async create(data: {
@@ -153,13 +181,39 @@ export class DrizzleOAuthAccountRepository implements IOAuthAccountRepository {
     provider: OAuthProvider
     providerAccountId: string
     email: string
+    accessToken?: string
+    tokenScope?: string
   }): Promise<void> {
     await db.insert(oauthAccounts).values({
       userId: data.userId,
       provider: data.provider,
       providerAccountId: data.providerAccountId,
       email: data.email,
+      accessToken: data.accessToken
+        ? encryptToken(data.accessToken)
+        : undefined,
+      tokenScope: data.tokenScope,
     })
+  }
+
+  async updateToken(
+    userId: string,
+    provider: OAuthProvider,
+    accessToken: string,
+    tokenScope: string,
+  ): Promise<void> {
+    await db
+      .update(oauthAccounts)
+      .set({
+        accessToken: encryptToken(accessToken),
+        tokenScope,
+      })
+      .where(
+        and(
+          eq(oauthAccounts.userId, userId),
+          eq(oauthAccounts.provider, provider),
+        ),
+      )
   }
 }
 

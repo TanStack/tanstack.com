@@ -103,7 +103,7 @@ export const getUserStats = createServerFn({ method: 'POST' }).handler(
     const adsCapabilityResult = await db
       .select({ count: sql<number>`count(*)::int` })
       .from(users)
-      .where(sql`'disableAds' = ANY(${users.capabilities})`)
+      .where(sql`${users.capabilities} && ARRAY['disableAds']::capability[]`)
 
     const adsCapabilityCount = adsCapabilityResult[0]?.count ?? 0
 

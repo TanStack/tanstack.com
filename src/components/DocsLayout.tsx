@@ -508,7 +508,8 @@ export function DocsLayout({
   const [isFullWidth, setIsFullWidth] = useLocalStorage('docsFullWidth', false)
 
   const activePartners = partners.filter(
-    (d) => d.status === 'active' && d.name !== 'Nozzle.io',
+    (d) =>
+      d.status === 'active' && d.name !== 'Nozzle.io' && d.id !== 'fireship',
   )
 
   const menuItems = menuConfig.map((group, i) => {
@@ -795,43 +796,41 @@ export function DocsLayout({
                       Become a Partner
                     </a>
                   </div>
-                  {activePartners
-                    .filter((d) => d.id !== 'fireship')
-                    .map((partner) => {
-                      // flexBasis as percentage based on score, flexGrow to fill remaining row space
-                      const widthPercent = Math.round(partner.score * 100)
+                  {activePartners.map((partner) => {
+                    // flexBasis as percentage based on score, flexGrow to fill remaining row space
+                    const widthPercent = Math.round(partner.score * 100)
 
-                      return (
-                        <a
-                          key={partner.name}
-                          href={partner.href}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="flex items-center justify-center px-3 py-2
+                    return (
+                      <a
+                        key={partner.name}
+                        href={partner.href}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center justify-center px-3 py-2
                             border-r border-b border-gray-500/20
                             hover:bg-gray-500/10 transition-colors duration-150 ease-out"
+                        style={{
+                          flexBasis: `${widthPercent}%`,
+                          flexGrow: 1,
+                          flexShrink: 0,
+                        }}
+                      >
+                        <div
                           style={{
-                            flexBasis: `${widthPercent}%`,
-                            flexGrow: 1,
-                            flexShrink: 0,
+                            width: Math.max(
+                              60 + Math.round(140 * partner.score),
+                              70,
+                            ),
                           }}
                         >
-                          <div
-                            style={{
-                              width: Math.max(
-                                60 + Math.round(140 * partner.score),
-                                70,
-                              ),
-                            }}
-                          >
-                            <PartnerImage
-                              config={partner.image}
-                              alt={partner.name}
-                            />
-                          </div>
-                        </a>
-                      )
-                    })}
+                          <PartnerImage
+                            config={partner.image}
+                            alt={partner.name}
+                          />
+                        </div>
+                      </a>
+                    )
+                  })}
                 </div>
                 <AdGate>
                   <GamVrec1

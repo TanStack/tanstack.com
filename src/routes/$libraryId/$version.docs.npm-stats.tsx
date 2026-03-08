@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { useThrottledCallback } from '@tanstack/react-pacer'
 import { Plus } from 'lucide-react'
@@ -108,7 +108,7 @@ function RouteComponent() {
     x: number
     y: number
   } | null>(null)
-  const [openMenuPackage, setOpenMenuPackage] = React.useState<string | null>(
+  const [_openMenuPackage, setOpenMenuPackage] = React.useState<string | null>(
     null,
   )
 
@@ -299,7 +299,7 @@ function RouteComponent() {
     },
   )
 
-  const handleMenuOpenChange = (packageName: string, open: boolean) => {
+  const _handleMenuOpenChange = (packageName: string, open: boolean) => {
     if (!open) {
       setOpenMenuPackage(null)
     } else {

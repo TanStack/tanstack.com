@@ -3,6 +3,11 @@
  * These functions run in the browser to identify and track document blocks
  */
 
+import { sha256Hex } from './hash'
+
+// Re-export shared utilities
+export { calculatePoints } from './docFeedback.shared'
+
 export interface BlockIdentifier {
   selector: string
   contentHash: string
@@ -66,12 +71,7 @@ export async function generateContentHash(
   element: HTMLElement,
 ): Promise<string> {
   const content = element.textContent?.trim() || ''
-  const encoder = new TextEncoder()
-  const data = encoder.encode(content)
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
-  return hashHex
+  return sha256Hex(content)
 }
 
 /**
@@ -248,32 +248,4 @@ export function highlightBlock(
       element.style.transition = originalTransition
     }, 300)
   }, duration)
-}
-
-/**
- * Calculate points from character count and feedback type (client-side version)
- * Personal notes earn 0 points
- * Improvements: 0.1 points per character, min 1 point (10 chars), soft cap 100 points (1000 chars)
- */
-export function calculatePoints(
-  characterCount: number,
-  type: 'note' | 'improvement',
-): number {
-  // Personal notes don't earn points
-  if (type === 'note') {
-    return 0
-  }
-
-  // Minimum 10 characters = 1 point
-  if (characterCount < 10) {
-    return Math.max(0, characterCount * 0.1)
-  }
-
-  // Soft cap at 1000 characters = 100 points
-  if (characterCount >= 1000) {
-    return 100
-  }
-
-  // Linear scaling between 10 and 1000 characters
-  return characterCount * 0.1
 }

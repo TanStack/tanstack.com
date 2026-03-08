@@ -11,6 +11,7 @@ import type { LibraryId } from '~/libraries'
 import { seo } from '~/utils/seo'
 import { ossStatsQuery } from '~/queries/stats'
 import { Button } from '~/ui'
+import { ConfigSchema } from '~/utils/config'
 
 // Lazy-loaded landing components for each library
 const landingComponents: Partial<
@@ -25,11 +26,13 @@ const landingComponents: Partial<
   virtual: React.lazy(() => import('~/components/landing/VirtualLanding')),
   ranger: React.lazy(() => import('~/components/landing/RangerLanding')),
   pacer: React.lazy(() => import('~/components/landing/PacerLanding')),
+  hotkeys: React.lazy(() => import('~/components/landing/HotkeysLanding')),
   config: React.lazy(() => import('~/components/landing/ConfigLanding')),
   db: React.lazy(() => import('~/components/landing/DbLanding')),
   ai: React.lazy(() => import('~/components/landing/AiLanding')),
-  mcp: React.lazy(() => import('~/components/landing/McpLanding')),
   devtools: React.lazy(() => import('~/components/landing/DevtoolsLanding')),
+  cli: React.lazy(() => import('~/components/landing/CliLanding')),
+  intent: React.lazy(() => import('~/components/landing/IntentLanding')),
 }
 
 export const Route = createFileRoute('/$libraryId/$version/')({
@@ -54,7 +57,9 @@ export const Route = createFileRoute('/$libraryId/$version/')({
         params: { libraryId, version } as never,
       })
     }
+    return undefined as never
   },
+  // @ts-expect-error - not sure why this is erroring
   loader: async ({ params, context: { queryClient } }) => {
     const { libraryId } = params
     const library = getLibrary(libraryId)
@@ -67,11 +72,10 @@ function LibraryVersionIndex() {
   const { libraryId, version } = Route.useParams()
   const library = getLibrary(libraryId)
   const versionMatch = useMatch({ from: '/$libraryId/$version' })
-  const { config } = versionMatch.loaderData
+  const { config } = versionMatch.loaderData as { config: ConfigSchema }
 
   const LandingComponent = landingComponents[libraryId as LibraryId]
 
-  // Fallback for libraries without landing components (shouldn't happen due to redirect)
   if (!LandingComponent) {
     return (
       <DocsLayout

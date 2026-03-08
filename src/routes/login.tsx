@@ -1,5 +1,4 @@
 import { authClient } from '~/utils/auth.client'
-import { useIsDark } from '~/hooks/useIsDark'
 // Using public asset URLs for splash images
 import { BrandContextMenu } from '~/components/BrandContextMenu'
 import { redirect, createFileRoute } from '@tanstack/react-router'
@@ -11,6 +10,7 @@ import { Card } from '~/components/Card'
 
 const searchSchema = v.object({
   error: v.optional(v.string()),
+  redirect: v.optional(v.string()),
 })
 
 export const Route = createFileRoute('/login')({
@@ -26,19 +26,18 @@ export const Route = createFileRoute('/login')({
 })
 
 function SplashImage() {
-  const isDark = useIsDark()
-
   return (
     <div className="flex items-center justify-center mb-4">
       <BrandContextMenu className="cursor-pointer">
         <img
-          src={
-            isDark
-              ? '/images/logos/splash-dark.png'
-              : '/images/logos/splash-light.png'
-          }
-          alt="Waitlist"
-          className="w-48 h-48"
+          src="/images/logos/splash-light.png"
+          alt="TanStack"
+          className="w-48 h-48 dark:hidden"
+        />
+        <img
+          src="/images/logos/splash-dark.png"
+          alt="TanStack"
+          className="w-48 h-48 hidden dark:block"
         />
       </BrandContextMenu>
     </div>

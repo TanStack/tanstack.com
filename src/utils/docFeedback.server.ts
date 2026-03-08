@@ -3,6 +3,11 @@ import { docFeedback, type DocFeedbackStatus } from '~/db/schema'
 import { and, eq, gte, sql } from 'drizzle-orm'
 import { requireCapability } from './auth.server'
 import { getEffectiveCapabilities } from './capabilities.server'
+import { sha256Hex } from './hash'
+import { calculatePoints } from './docFeedback.shared'
+
+// Re-export shared utilities
+export { calculatePoints }
 
 /**
  * Require the user to have the moderate-feedback capability
@@ -11,34 +16,6 @@ export async function requireModerateFeedback() {
   return await requireCapability({
     data: { capability: 'moderate-feedback' },
   })
-}
-
-/**
- * Calculate points from character count and feedback type
- * Personal notes earn 0 points
- * Improvements: 0.1 points per character, min 1 point (10 chars), soft cap 100 points (1000 chars)
- */
-export function calculatePoints(
-  characterCount: number,
-  type: 'note' | 'improvement',
-): number {
-  // Personal notes don't earn points
-  if (type === 'note') {
-    return 0
-  }
-
-  // Minimum 10 characters = 1 point
-  if (characterCount < 10) {
-    return Math.max(0, characterCount * 0.1)
-  }
-
-  // Soft cap at 1000 characters = 100 points
-  if (characterCount >= 1000) {
-    return 100
-  }
-
-  // Linear scaling between 10 and 1000 characters
-  return characterCount * 0.1
 }
 
 /**
@@ -54,15 +31,7 @@ export function generateBlockSelector(
 /**
  * Generate SHA-256 hash of block content for drift detection
  */
-export async function generateContentHash(content: string): Promise<string> {
-  // Use Web Crypto API (available in Node.js 15+)
-  const encoder = new TextEncoder()
-  const data = encoder.encode(content)
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-
-  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
-}
+export const generateContentHash = sha256Hex
 
 /**
  * Check if the user can moderate feedback (has moderate-feedback or admin capability)

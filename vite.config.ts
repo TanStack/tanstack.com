@@ -1,4 +1,4 @@
-import { sentryTanstackStart } from '@sentry/tanstackstart-react'
+import { sentryTanstackStart } from '@sentry/tanstackstart-react/vite'
 import { defineConfig } from 'vite'
 import contentCollections from '@content-collections/vite'
 import tsConfigPaths from 'vite-tsconfig-paths'

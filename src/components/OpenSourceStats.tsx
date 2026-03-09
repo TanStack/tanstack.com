@@ -111,7 +111,7 @@ function OssStatsContent({ library }: { library?: Library }) {
               {hasStarCount ? starCount.toLocaleString() : '0'}
             </div>
             <div className="text-sm opacity-60 font-medium italic -mt-1 group-hover:text-yellow-500 transition-colors duration-200">
-              Stars on Github
+              Stars on GitHub
             </div>
           </div>
         </a>
@@ -170,7 +170,7 @@ function OssStatsSkeleton() {
         <div>
           <div className="text-2xl font-bold opacity-80 h-7 w-20 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
           <div className="text-sm opacity-60 font-medium italic -mt-1">
-            Stars on Github
+            Stars on GitHub
           </div>
         </div>
       </div>

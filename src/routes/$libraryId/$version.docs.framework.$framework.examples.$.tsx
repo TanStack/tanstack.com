@@ -286,7 +286,7 @@ function PageComponent() {
               className="flex gap-1 items-center"
               rel="noreferrer"
             >
-              <ExternalLink /> Github
+              <ExternalLink /> GitHub
             </a>
             {!library.hideStackblitzUrl ? (
               <a

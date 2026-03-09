@@ -523,7 +523,7 @@ export const hotkeys: LibrarySlim = {
   colorTo: 'to-rose-700',
   bgRadial: 'from-rose-500 via-rose-700/50 to-transparent',
   repo: 'tanstack/hotkeys',
-  frameworks: ['react'],
+  frameworks: ['react', 'preact', 'solid', 'svelte', 'vue', 'angular'],
   corePackageName: '@tanstack/hotkeys',
   latestVersion: 'v0',
   latestBranch: 'main',

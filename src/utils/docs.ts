@@ -37,7 +37,7 @@ export const loadDocs = async ({
   })
 }
 
-export const fetchDocs = createServerFn({ method: 'GET' })
+export const fetchDocs = createServerFn({ method: 'POST' })
   .inputValidator(
     v.object({ repo: v.string(), branch: v.string(), filePath: v.string() }),
   )
@@ -68,7 +68,7 @@ export const fetchDocs = createServerFn({ method: 'GET' })
     }
   })
 
-export const fetchFile = createServerFn({ method: 'GET' })
+export const fetchFile = createServerFn({ method: 'POST' })
   .inputValidator(
     v.object({ repo: v.string(), branch: v.string(), filePath: v.string() }),
   )
@@ -91,7 +91,7 @@ export const fetchFile = createServerFn({ method: 'GET' })
   })
 
 export const fetchRepoDirectoryContents = createServerFn({
-  method: 'GET',
+  method: 'POST',
 })
   .inputValidator(
     v.object({

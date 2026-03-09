@@ -1,5 +1,5 @@
 ---
-title: 'Introducing TanStack Intent: Ship Agent Skills with Your npm Packages'
+title: 'Introducing TanStack Intent: Ship Agent Skills with your npm Packages'
 published: 2026-03-04
 authors:
   - Sarah Gerrard

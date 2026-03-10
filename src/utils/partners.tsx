@@ -834,12 +834,13 @@ const strapi = (() => {
 })()
 
 const powerSync = (() => {
-  const href = 'https://powersync.com?utm_source=tanstack'
+  const href =
+    'https://powersync.com?utm_source=tanstack&utm_campaign=tanstack_partner'
 
   return {
     name: 'PowerSync',
     id: 'powersync',
-    libraries: ['db'] as const,
+    libraries: ['db', 'query'] as const,
     status: 'active' as const,
     startDate: 'Jan 2026',
     score: 0.143,
@@ -850,7 +851,7 @@ const powerSync = (() => {
       dark: powersyncWhiteSvg,
     },
     llmDescription:
-      'Sync engine that connects backend databases (Postgres, MongoDB, MySQL) with in-app SQLite for offline-first, real-time reactive applications.',
+      'Sync engine that connects backend databases (Postgres, MongoDB, MySQL, SQL Server) with in-app SQLite for offline-first, real-time reactive applications.',
     category: 'database',
     content: (
       <>

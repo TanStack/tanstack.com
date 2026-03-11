@@ -98,6 +98,10 @@ type CopyPageDropdownProps = {
   filePath?: string
   /** Current framework for filtering markdown content (appended as ?framework= query param) */
   currentFramework?: string
+  /** Raw content to copy directly, bypassing any fetch */
+  content?: string
+  /** Override the copy button label (default: "Copy page") */
+  label?: string
 }
 
 export function CopyPageDropdown({
@@ -105,6 +109,8 @@ export function CopyPageDropdown({
   branch,
   filePath,
   currentFramework,
+  content: rawContent,
+  label = 'Copy page',
 }: CopyPageDropdownProps = {}) {
   const [open, setOpen] = React.useState(false)
   const [copied, setCopied] = React.useState(false)
@@ -132,6 +138,18 @@ export function CopyPageDropdown({
   })()
 
   const handleCopyPage = async () => {
+    if (rawContent) {
+      await navigator.clipboard.writeText(rawContent)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+      notify(
+        <div>
+          <div className="font-medium">Copied to clipboard</div>
+        </div>,
+      )
+      return
+    }
+
     const urlToFetch = gitHubUrl || pageMarkdownUrl
     const cached = markdownCache.get(urlToFetch)
 
@@ -229,12 +247,16 @@ export function CopyPageDropdown({
   }
 
   const menuItems = [
-    {
-      icon: MarkdownIcon,
-      label: 'View as Markdown',
-      description: 'Open this page in Markdown',
-      onSelect: handleViewMarkdown,
-    },
+    ...(!rawContent
+      ? [
+          {
+            icon: MarkdownIcon,
+            label: 'View as Markdown',
+            description: 'Open this page in Markdown',
+            onSelect: handleViewMarkdown,
+          },
+        ]
+      : []),
     {
       icon: ClaudeIcon,
       label: 'Open in Claude',
@@ -278,7 +300,7 @@ export function CopyPageDropdown({
         ) : (
           <>
             <Copy className="w-3 h-3" />
-            Copy page
+            {label}
           </>
         )}
       </Button>

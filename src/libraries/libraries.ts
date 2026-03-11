@@ -523,7 +523,7 @@ export const hotkeys: LibrarySlim = {
   colorTo: 'to-rose-700',
   bgRadial: 'from-rose-500 via-rose-700/50 to-transparent',
   repo: 'tanstack/hotkeys',
-  frameworks: ['react'],
+  frameworks: ['react', 'preact', 'solid', 'svelte', 'vue', 'angular'],
   corePackageName: '@tanstack/hotkeys',
   latestVersion: 'v0',
   latestBranch: 'main',
@@ -589,7 +589,7 @@ export const intent: LibrarySlim = {
   name: 'TanStack Intent',
   cardStyles: 'text-sky-500 dark:text-sky-400 hover:border-current',
   to: '/intent',
-  tagline: 'Ship Agent Skills with Your npm Packages',
+  tagline: 'Ship Agent Skills with your npm Packages',
   description:
     "Generate, validate, and ship Agent Skills alongside your library — versioned knowledge that agents discover automatically from node_modules. Skills live in each library's repo and update when the package updates.",
   badge: 'alpha',

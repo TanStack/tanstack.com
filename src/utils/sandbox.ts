@@ -22,7 +22,7 @@ export function getExampleStartingFileName(
       ? 'app.component'
       : ['svelte', 'vue'].includes(framework)
         ? 'App'
-        : ['form', 'query', 'pacer'].includes(libraryId!)
+        : ['form', 'query', 'pacer', 'hotkeys'].includes(libraryId!)
           ? 'index'
           : 'main'
 

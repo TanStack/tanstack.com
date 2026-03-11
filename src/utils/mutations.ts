@@ -12,13 +12,6 @@ import {
   bulkAssignRolesToUsers,
   removeUsersFromRole,
 } from './roles.functions'
-import {
-  toggleFeedEntryVisibility,
-  setFeedEntryFeatured,
-  deleteFeedEntry,
-  createFeedEntry,
-  updateFeedEntry,
-} from './feed.functions'
 import type { Capability } from '~/db/types'
 
 // User mutations
@@ -132,87 +125,6 @@ export function useRemoveUsersFromRole() {
   return useMutation({
     mutationFn: (data: { roleId: string; userIds: string[] }) =>
       removeUsersFromRole({ data }),
-    onSuccess: () => {
-      queryClient.invalidateQueries()
-    },
-  })
-}
-
-// Feed mutations
-export function useToggleFeedEntryVisibility() {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: (data: { id: string; showInFeed: boolean }) =>
-      toggleFeedEntryVisibility({ data }),
-    onSuccess: () => {
-      queryClient.invalidateQueries()
-    },
-  })
-}
-
-export function useSetFeedEntryFeatured() {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: (data: { id: string; featured: boolean }) =>
-      setFeedEntryFeatured({ data }),
-    onSuccess: () => {
-      queryClient.invalidateQueries()
-    },
-  })
-}
-
-export function useDeleteFeedEntry() {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: (data: { id: string }) => deleteFeedEntry({ data }),
-    onSuccess: () => {
-      queryClient.invalidateQueries()
-    },
-  })
-}
-
-export function useCreateFeedEntry() {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: (data: {
-      id: string
-      entryType: 'release' | 'blog' | 'announcement'
-      title: string
-      content: string
-      excerpt?: string
-      publishedAt: number
-      metadata?: any
-      libraryIds: string[]
-      partnerIds?: string[]
-      tags: string[]
-      showInFeed: boolean
-      featured?: boolean
-      autoSynced: boolean
-    }) => createFeedEntry({ data }),
-    onSuccess: () => {
-      queryClient.invalidateQueries()
-    },
-  })
-}
-
-export function useUpdateFeedEntry() {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: (data: {
-      id: string
-      entryType?: 'release' | 'blog' | 'announcement'
-      title?: string
-      content?: string
-      excerpt?: string
-      publishedAt?: number
-      metadata?: any
-      libraryIds?: string[]
-      partnerIds?: string[]
-      tags?: string[]
-      showInFeed?: boolean
-      featured?: boolean
-      lastSyncedAt?: number
-    }) => updateFeedEntry({ data }),
     onSuccess: () => {
       queryClient.invalidateQueries()
     },

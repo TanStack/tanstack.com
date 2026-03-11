@@ -12,12 +12,12 @@ import {
   LayoutDashboard,
   LogIn,
   MessagesSquare,
-  Rss,
   Shield,
   ShieldHalf,
   StickyNote,
   Users,
   User,
+  BookOpen,
 } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 // Using public asset URL
@@ -119,11 +119,6 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       requiredCapability: 'moderate-showcases',
     },
     {
-      label: 'Feed',
-      icon: <Rss />,
-      to: '/admin/feed',
-    },
-    {
       label: 'GitHub Stats',
       icon: <GithubIcon />,
       to: '/admin/github-stats',
@@ -132,6 +127,11 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       label: 'NPM Stats',
       icon: <NpmIcon />,
       to: '/admin/npm-stats',
+    },
+    {
+      label: 'Intent Skills',
+      icon: <BookOpen />,
+      to: '/admin/intent',
     },
     {
       label: 'My Account',

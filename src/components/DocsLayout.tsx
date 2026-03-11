@@ -352,10 +352,12 @@ const useMenuConfig = ({
   config,
   repo,
   frameworks,
+  libraryId,
 }: {
   config: ConfigSchema
   repo: string
   frameworks: Framework[]
+  libraryId: string
 }): MenuItem[] => {
   const currentFramework = useCurrentFramework(frameworks)
 
@@ -371,6 +373,14 @@ const useMenuConfig = ({
             {
               label: 'Frameworks',
               to: './framework',
+            },
+          ]
+        : []),
+      ...(libraryId === 'intent'
+        ? [
+            {
+              label: 'Skills Registry',
+              to: '/intent/registry',
             },
           ]
         : []),
@@ -468,7 +478,7 @@ export function DocsLayout({
     strict: false,
   }) as { libraryId: LibraryId; version: string }
   const { _splat } = useParams({ strict: false })
-  const menuConfig = useMenuConfig({ config, frameworks, repo })
+  const menuConfig = useMenuConfig({ config, frameworks, repo, libraryId })
 
   const matches = useMatches()
   const lastMatch = last(matches)

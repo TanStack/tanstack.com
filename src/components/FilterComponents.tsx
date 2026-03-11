@@ -11,7 +11,7 @@ import {
 } from 'lucide-react'
 import { useDebouncedValue } from '@tanstack/react-pacer'
 import { twMerge } from 'tailwind-merge'
-import type { FeedViewMode } from '~/db/types'
+type FeedViewMode = 'table' | 'timeline'
 
 // =============================================================================
 // TOP BAR FILTER COMPONENTS

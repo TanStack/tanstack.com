@@ -10,7 +10,7 @@ import {
   intentSkills,
   intentSkillContent,
 } from '~/db/schema'
-import { eq, desc, sql, and, inArray, or, ilike, max } from 'drizzle-orm'
+import { eq, desc, sql, and, inArray, or, ilike } from 'drizzle-orm'
 import type {
   IntentPackage,
   IntentPackageVersion,

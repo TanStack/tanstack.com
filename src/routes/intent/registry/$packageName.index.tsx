@@ -1,10 +1,7 @@
 import * as React from 'react'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import {
-  intentPackageDetailQueryOptions,
-  intentVersionSkillsQueryOptions,
-} from '~/queries/intent'
+import { intentVersionSkillsQueryOptions } from '~/queries/intent'
 import {
   decodePkgName,
   usePackageVersion,

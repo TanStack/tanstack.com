@@ -39,8 +39,7 @@ export const Route = createFileRoute(
 function SkillDetailPage() {
   const { packageName, skillName } = Route.useParams()
   const pkgName = decodePkgName(packageName)
-  const { activeVersion, latestVersion, repositoryUrl } = usePackageVersion()
-  const isLatest = activeVersion === latestVersion
+  const { activeVersion } = usePackageVersion()
 
   const skillsQuery = useSuspenseQuery(
     intentVersionSkillsQueryOptions({

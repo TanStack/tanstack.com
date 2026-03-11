@@ -335,18 +335,18 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       <div className="hidden xl:flex flex-1 justify-end min-w-0">
         <Link
           to="/$libraryId/$version"
-          params={{ libraryId: 'cli', version: 'latest' }}
+          params={{ libraryId: 'intent', version: 'latest' }}
           className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md
-            bg-gradient-to-r from-indigo-600 to-violet-700
-            hover:from-indigo-500 hover:to-violet-600
+            bg-gradient-to-r from-sky-500 to-blue-600
+            hover:from-sky-400 hover:to-blue-500
             text-white text-xs font-medium
             shadow-sm hover:shadow-md
             transition-all duration-200"
         >
           <span className="px-1 py-px text-[9px] font-bold bg-white/20 rounded uppercase">
-            Alpha
+            New
           </span>
-          <span>Try TanStack CLI</span>
+          <span>TanStack Intent</span>
         </Link>
       </div>
       <div className="flex items-center gap-2">

@@ -1199,6 +1199,174 @@ export const oauthRefreshTokens = pgTable(
 export type OAuthRefreshToken = InferSelectModel<typeof oauthRefreshTokens>
 export type NewOAuthRefreshToken = InferInsertModel<typeof oauthRefreshTokens>
 
+// =============================================================================
+// Intent Registry Tables
+// =============================================================================
+// These tables power the /intent/registry skill browser. The design is
+// intentionally lean: we only persist what NPM cannot give us efficiently
+// (the verified list of intent-compatible packages, per-version skill
+// frontmatter for fast listing/filtering/diffing). Full SKILL.md bodies are
+// stored deduplicated by content hash so unchanged skills across versions cost
+// one row, not N.
+// =============================================================================
+
+// Verified intent-compatible packages discovered via NPM keyword search
+export const intentPackages = pgTable('intent_packages', {
+  name: varchar('name', { length: 255 }).primaryKey(),
+  verified: boolean('verified').notNull().default(false),
+  firstSeenAt: timestamp('first_seen_at', { withTimezone: true, mode: 'date' })
+    .notNull()
+    .defaultNow(),
+  lastSyncedAt: timestamp('last_synced_at', {
+    withTimezone: true,
+    mode: 'date',
+  })
+    .notNull()
+    .defaultNow(),
+})
+
+export type IntentPackage = InferSelectModel<typeof intentPackages>
+export type NewIntentPackage = InferInsertModel<typeof intentPackages>
+
+// Per-version snapshot of a package's skills (latest + last 5 versions)
+//
+// syncStatus acts as a durable work queue:
+//   'pending'  -- version discovered, tarball not yet downloaded/extracted
+//   'synced'   -- skills extracted and indexed successfully
+//   'failed'   -- tarball processing failed (will be retried next cycle)
+//
+// This means the scheduled function can be interrupted at any point and
+// resume from where it left off. Only the currently in-flight version is
+// at risk of being re-processed on restart (upserts make that safe).
+export const intentPackageVersions = pgTable(
+  'intent_package_versions',
+  {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    packageName: varchar('package_name', { length: 255 })
+      .notNull()
+      .references(() => intentPackages.name, { onDelete: 'cascade' }),
+    version: varchar('version', { length: 100 }).notNull(),
+    skillCount: integer('skill_count').notNull().default(0),
+    publishedAt: timestamp('published_at', {
+      withTimezone: true,
+      mode: 'date',
+    }),
+    // Tarball URL stored at discovery time so the processing phase doesn't
+    // need to re-fetch the full packument
+    tarballUrl: varchar('tarball_url', { length: 1024 }),
+    syncStatus: varchar('sync_status', { length: 20 })
+      .notNull()
+      .default('pending'),
+    syncedAt: timestamp('synced_at', { withTimezone: true, mode: 'date' }),
+    failureReason: text('failure_reason'),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    packageNameIdx: index('intent_package_versions_package_name_idx').on(
+      table.packageName,
+    ),
+    syncStatusIdx: index('intent_package_versions_sync_status_idx').on(
+      table.syncStatus,
+    ),
+    packageVersionUnique: uniqueIndex(
+      'intent_package_versions_package_version_unique',
+    ).on(table.packageName, table.version),
+  }),
+)
+
+export type IntentPackageVersion = InferSelectModel<
+  typeof intentPackageVersions
+>
+export type NewIntentPackageVersion = InferInsertModel<
+  typeof intentPackageVersions
+>
+
+// Deduplicated SKILL.md bodies -- one row per unique content hash
+// Unchanged skills across versions share a single row here
+export const intentSkillContent = pgTable('intent_skill_content', {
+  contentHash: varchar('content_hash', { length: 64 }).primaryKey(),
+  content: text('content').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+    .notNull()
+    .defaultNow(),
+})
+
+export type IntentSkillContent = InferSelectModel<typeof intentSkillContent>
+export type NewIntentSkillContent = InferInsertModel<typeof intentSkillContent>
+
+// Per-skill frontmatter metadata (name, description, type, framework, etc.)
+export const intentSkills = pgTable(
+  'intent_skills',
+  {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    packageVersionId: integer('package_version_id')
+      .notNull()
+      .references(() => intentPackageVersions.id, { onDelete: 'cascade' }),
+    // Skill path relative to skills/ dir, e.g. "db-core/live-queries"
+    name: varchar('name', { length: 255 }).notNull(),
+    description: text('description'),
+    // Skill type: core | sub-skill | framework | lifecycle | composition | security
+    type: varchar('type', { length: 50 }),
+    // Framework: react | vue | solid | svelte | angular (nullable = framework-agnostic)
+    framework: varchar('framework', { length: 50 }),
+    // Other skills that must be loaded before this one
+    requires: text('requires').array(),
+    // File path within the package's skills/ directory, e.g. "db-core/live-queries"
+    skillPath: varchar('skill_path', { length: 500 }),
+    // SHA-256 of the SKILL.md body (for change detection between versions)
+    contentHash: varchar('content_hash', { length: 64 })
+      .notNull()
+      .references(() => intentSkillContent.contentHash),
+    lineCount: integer('line_count').notNull().default(0),
+  },
+  (table) => ({
+    packageVersionIdIdx: index('intent_skills_package_version_id_idx').on(
+      table.packageVersionId,
+    ),
+    nameIdx: index('intent_skills_name_idx').on(table.name),
+    frameworkIdx: index('intent_skills_framework_idx').on(table.framework),
+    typeIdx: index('intent_skills_type_idx').on(table.type),
+    packageVersionSkillUnique: uniqueIndex(
+      'intent_skills_package_version_skill_unique',
+    ).on(table.packageVersionId, table.name),
+  }),
+)
+
+export type IntentSkill = InferSelectModel<typeof intentSkills>
+export type NewIntentSkill = InferInsertModel<typeof intentSkills>
+
+// Relations
+export const intentPackagesRelations = relations(
+  intentPackages,
+  ({ many }) => ({
+    versions: many(intentPackageVersions),
+  }),
+)
+
+export const intentPackageVersionsRelations = relations(
+  intentPackageVersions,
+  ({ one, many }) => ({
+    package: one(intentPackages, {
+      fields: [intentPackageVersions.packageName],
+      references: [intentPackages.name],
+    }),
+    skills: many(intentSkills),
+  }),
+)
+
+export const intentSkillsRelations = relations(intentSkills, ({ one }) => ({
+  packageVersion: one(intentPackageVersions, {
+    fields: [intentSkills.packageVersionId],
+    references: [intentPackageVersions.id],
+  }),
+  content: one(intentSkillContent, {
+    fields: [intentSkills.contentHash],
+    references: [intentSkillContent.contentHash],
+  }),
+}))
+
 // Backwards compatibility aliases
 /** @deprecated Use oauthRefreshTokens instead */
 export const oauthMcpRefreshTokens = oauthRefreshTokens

@@ -59,6 +59,7 @@ import { Route as ApiUploadthingRouteImport } from './routes/api/uploadthing'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as AdminNpmStatsRouteImport } from './routes/admin/npm-stats'
 import { Route as AdminLoginsRouteImport } from './routes/admin/logins'
+import { Route as AdminIntentRouteImport } from './routes/admin/intent'
 import { Route as AdminGithubStatsRouteImport } from './routes/admin/github-stats'
 import { Route as AdminAuditRouteImport } from './routes/admin/audit'
 import { Route as AccountSubmissionsRouteImport } from './routes/account/submissions'
@@ -68,6 +69,7 @@ import { Route as AccountFeedbackRouteImport } from './routes/account/feedback'
 import { Route as DotwellKnownOauthAuthorizationServerRouteImport } from './routes/[.]well-known/oauth-authorization-server'
 import { Route as LibraryIdVersionRouteImport } from './routes/$libraryId/$version'
 import { Route as StatsNpmIndexRouteImport } from './routes/stats/npm/index'
+import { Route as IntentRegistryIndexRouteImport } from './routes/intent/registry/index'
 import { Route as ApiMcpIndexRouteImport } from './routes/api/mcp/index'
 import { Route as AdminShowcasesIndexRouteImport } from './routes/admin/showcases.index'
 import { Route as AdminRolesIndexRouteImport } from './routes/admin/roles.index'
@@ -78,6 +80,7 @@ import { Route as AdminBannersIndexRouteImport } from './routes/admin/banners.in
 import { Route as LibraryIdVersionIndexRouteImport } from './routes/$libraryId/$version.index'
 import { Route as StatsNpmPackagesRouteImport } from './routes/stats/npm/$packages'
 import { Route as ShowcaseEditIdRouteImport } from './routes/showcase/edit.$id'
+import { Route as IntentRegistryPackageNameRouteImport } from './routes/intent/registry/$packageName'
 import { Route as AuthProviderStartRouteImport } from './routes/auth/$provider/start'
 import { Route as ApiMcpSplatRouteImport } from './routes/api/mcp/$'
 import { Route as ApiGithubWebhookRouteImport } from './routes/api/github/webhook'
@@ -103,7 +106,9 @@ import { Route as AdminFeedbackIdRouteImport } from './routes/admin/feedback_.$i
 import { Route as AdminFeedIdRouteImport } from './routes/admin/feed.$id'
 import { Route as AdminBannersIdRouteImport } from './routes/admin/banners.$id'
 import { Route as LibraryIdVersionDocsRouteImport } from './routes/$libraryId/$version.docs'
+import { Route as IntentRegistryPackageNameIndexRouteImport } from './routes/intent/registry/$packageName.index'
 import { Route as LibraryIdVersionDocsIndexRouteImport } from './routes/$libraryId/$version.docs.index'
+import { Route as IntentRegistryPackageNameSkillNameRouteImport } from './routes/intent/registry/$packageName.$skillName'
 import { Route as ApiBuilderDeployGithubRouteImport } from './routes/api/builder/deploy/github'
 import { Route as ApiBuilderDeployCheckNameRouteImport } from './routes/api/builder/deploy/check-name'
 import { Route as ApiAuthCallbackProviderRouteImport } from './routes/api/auth/callback/$provider'
@@ -368,6 +373,11 @@ const AdminLoginsRoute = AdminLoginsRouteImport.update({
   path: '/logins',
   getParentRoute: () => AdminRouteRoute,
 } as any)
+const AdminIntentRoute = AdminIntentRouteImport.update({
+  id: '/intent',
+  path: '/intent',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 const AdminGithubStatsRoute = AdminGithubStatsRouteImport.update({
   id: '/github-stats',
   path: '/github-stats',
@@ -412,6 +422,11 @@ const LibraryIdVersionRoute = LibraryIdVersionRouteImport.update({
 const StatsNpmIndexRoute = StatsNpmIndexRouteImport.update({
   id: '/stats/npm/',
   path: '/stats/npm/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IntentRegistryIndexRoute = IntentRegistryIndexRouteImport.update({
+  id: '/intent/registry/',
+  path: '/intent/registry/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiMcpIndexRoute = ApiMcpIndexRouteImport.update({
@@ -464,6 +479,12 @@ const ShowcaseEditIdRoute = ShowcaseEditIdRouteImport.update({
   path: '/showcase/edit/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const IntentRegistryPackageNameRoute =
+  IntentRegistryPackageNameRouteImport.update({
+    id: '/intent/registry/$packageName',
+    path: '/intent/registry/$packageName',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthProviderStartRoute = AuthProviderStartRouteImport.update({
   id: '/auth/$provider/start',
   path: '/auth/$provider/start',
@@ -593,11 +614,23 @@ const LibraryIdVersionDocsRoute = LibraryIdVersionDocsRouteImport.update({
   path: '/docs',
   getParentRoute: () => LibraryIdVersionRoute,
 } as any)
+const IntentRegistryPackageNameIndexRoute =
+  IntentRegistryPackageNameIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => IntentRegistryPackageNameRoute,
+  } as any)
 const LibraryIdVersionDocsIndexRoute =
   LibraryIdVersionDocsIndexRouteImport.update({
     id: '/',
     path: '/',
     getParentRoute: () => LibraryIdVersionDocsRoute,
+  } as any)
+const IntentRegistryPackageNameSkillNameRoute =
+  IntentRegistryPackageNameSkillNameRouteImport.update({
+    id: '/$skillName',
+    path: '/$skillName',
+    getParentRoute: () => IntentRegistryPackageNameRoute,
   } as any)
 const ApiBuilderDeployGithubRoute = ApiBuilderDeployGithubRouteImport.update({
   id: '/api/builder/deploy/github',
@@ -713,6 +746,7 @@ export interface FileRoutesByFullPath {
   '/account/submissions': typeof AccountSubmissionsRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/github-stats': typeof AdminGithubStatsRoute
+  '/admin/intent': typeof AdminIntentRoute
   '/admin/logins': typeof AdminLoginsRoute
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
@@ -760,6 +794,7 @@ export interface FileRoutesByFullPath {
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
+  '/intent/registry/$packageName': typeof IntentRegistryPackageNameRouteWithChildren
   '/showcase/edit/$id': typeof ShowcaseEditIdRoute
   '/stats/npm/$packages': typeof StatsNpmPackagesRoute
   '/$libraryId/$version/': typeof LibraryIdVersionIndexRoute
@@ -770,6 +805,7 @@ export interface FileRoutesByFullPath {
   '/admin/roles/': typeof AdminRolesIndexRoute
   '/admin/showcases/': typeof AdminShowcasesIndexRoute
   '/api/mcp/': typeof ApiMcpIndexRoute
+  '/intent/registry/': typeof IntentRegistryIndexRoute
   '/stats/npm/': typeof StatsNpmIndexRoute
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
   '/$libraryId/$version/docs/community-resources': typeof LibraryIdVersionDocsCommunityResourcesRoute
@@ -779,7 +815,9 @@ export interface FileRoutesByFullPath {
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
   '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
+  '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
   '/$libraryId/$version/docs/': typeof LibraryIdVersionDocsIndexRoute
+  '/intent/registry/$packageName/': typeof IntentRegistryPackageNameIndexRoute
   '/$libraryId/$version/docs/framework/': typeof LibraryIdVersionDocsFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/$': typeof LibraryIdVersionDocsFrameworkFrameworkSplatRoute
   '/$libraryId/$version/docs/framework/$framework/{$}.md': typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRoute
@@ -817,6 +855,7 @@ export interface FileRoutesByTo {
   '/account/submissions': typeof AccountSubmissionsRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/github-stats': typeof AdminGithubStatsRoute
+  '/admin/intent': typeof AdminIntentRoute
   '/admin/logins': typeof AdminLoginsRoute
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
@@ -873,6 +912,7 @@ export interface FileRoutesByTo {
   '/admin/roles': typeof AdminRolesIndexRoute
   '/admin/showcases': typeof AdminShowcasesIndexRoute
   '/api/mcp': typeof ApiMcpIndexRoute
+  '/intent/registry': typeof IntentRegistryIndexRoute
   '/stats/npm': typeof StatsNpmIndexRoute
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
   '/$libraryId/$version/docs/community-resources': typeof LibraryIdVersionDocsCommunityResourcesRoute
@@ -882,7 +922,9 @@ export interface FileRoutesByTo {
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
   '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
+  '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsIndexRoute
+  '/intent/registry/$packageName': typeof IntentRegistryPackageNameIndexRoute
   '/$libraryId/$version/docs/framework': typeof LibraryIdVersionDocsFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/$': typeof LibraryIdVersionDocsFrameworkFrameworkSplatRoute
   '/$libraryId/$version/docs/framework/$framework/{$}.md': typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRoute
@@ -927,6 +969,7 @@ export interface FileRoutesById {
   '/account/submissions': typeof AccountSubmissionsRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/github-stats': typeof AdminGithubStatsRoute
+  '/admin/intent': typeof AdminIntentRoute
   '/admin/logins': typeof AdminLoginsRoute
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
@@ -974,6 +1017,7 @@ export interface FileRoutesById {
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
+  '/intent/registry/$packageName': typeof IntentRegistryPackageNameRouteWithChildren
   '/showcase/edit/$id': typeof ShowcaseEditIdRoute
   '/stats/npm/$packages': typeof StatsNpmPackagesRoute
   '/$libraryId/$version/': typeof LibraryIdVersionIndexRoute
@@ -984,6 +1028,7 @@ export interface FileRoutesById {
   '/admin/roles/': typeof AdminRolesIndexRoute
   '/admin/showcases/': typeof AdminShowcasesIndexRoute
   '/api/mcp/': typeof ApiMcpIndexRoute
+  '/intent/registry/': typeof IntentRegistryIndexRoute
   '/stats/npm/': typeof StatsNpmIndexRoute
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
   '/$libraryId/$version/docs/community-resources': typeof LibraryIdVersionDocsCommunityResourcesRoute
@@ -993,7 +1038,9 @@ export interface FileRoutesById {
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
   '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
+  '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
   '/$libraryId/$version/docs/': typeof LibraryIdVersionDocsIndexRoute
+  '/intent/registry/$packageName/': typeof IntentRegistryPackageNameIndexRoute
   '/$libraryId/$version/docs/framework/': typeof LibraryIdVersionDocsFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/$': typeof LibraryIdVersionDocsFrameworkFrameworkSplatRoute
   '/$libraryId/$version/docs/framework/$framework/{$}.md': typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRoute
@@ -1039,6 +1086,7 @@ export interface FileRouteTypes {
     | '/account/submissions'
     | '/admin/audit'
     | '/admin/github-stats'
+    | '/admin/intent'
     | '/admin/logins'
     | '/admin/npm-stats'
     | '/admin/users'
@@ -1086,6 +1134,7 @@ export interface FileRouteTypes {
     | '/api/github/webhook'
     | '/api/mcp/$'
     | '/auth/$provider/start'
+    | '/intent/registry/$packageName'
     | '/showcase/edit/$id'
     | '/stats/npm/$packages'
     | '/$libraryId/$version/'
@@ -1096,6 +1145,7 @@ export interface FileRouteTypes {
     | '/admin/roles/'
     | '/admin/showcases/'
     | '/api/mcp/'
+    | '/intent/registry/'
     | '/stats/npm/'
     | '/$libraryId/$version/docs/$'
     | '/$libraryId/$version/docs/community-resources'
@@ -1105,7 +1155,9 @@ export interface FileRouteTypes {
     | '/api/auth/callback/$provider'
     | '/api/builder/deploy/check-name'
     | '/api/builder/deploy/github'
+    | '/intent/registry/$packageName/$skillName'
     | '/$libraryId/$version/docs/'
+    | '/intent/registry/$packageName/'
     | '/$libraryId/$version/docs/framework/'
     | '/$libraryId/$version/docs/framework/$framework/$'
     | '/$libraryId/$version/docs/framework/$framework/{$}.md'
@@ -1143,6 +1195,7 @@ export interface FileRouteTypes {
     | '/account/submissions'
     | '/admin/audit'
     | '/admin/github-stats'
+    | '/admin/intent'
     | '/admin/logins'
     | '/admin/npm-stats'
     | '/admin/users'
@@ -1199,6 +1252,7 @@ export interface FileRouteTypes {
     | '/admin/roles'
     | '/admin/showcases'
     | '/api/mcp'
+    | '/intent/registry'
     | '/stats/npm'
     | '/$libraryId/$version/docs/$'
     | '/$libraryId/$version/docs/community-resources'
@@ -1208,7 +1262,9 @@ export interface FileRouteTypes {
     | '/api/auth/callback/$provider'
     | '/api/builder/deploy/check-name'
     | '/api/builder/deploy/github'
+    | '/intent/registry/$packageName/$skillName'
     | '/$libraryId/$version/docs'
+    | '/intent/registry/$packageName'
     | '/$libraryId/$version/docs/framework'
     | '/$libraryId/$version/docs/framework/$framework/$'
     | '/$libraryId/$version/docs/framework/$framework/{$}.md'
@@ -1252,6 +1308,7 @@ export interface FileRouteTypes {
     | '/account/submissions'
     | '/admin/audit'
     | '/admin/github-stats'
+    | '/admin/intent'
     | '/admin/logins'
     | '/admin/npm-stats'
     | '/admin/users'
@@ -1299,6 +1356,7 @@ export interface FileRouteTypes {
     | '/api/github/webhook'
     | '/api/mcp/$'
     | '/auth/$provider/start'
+    | '/intent/registry/$packageName'
     | '/showcase/edit/$id'
     | '/stats/npm/$packages'
     | '/$libraryId/$version/'
@@ -1309,6 +1367,7 @@ export interface FileRouteTypes {
     | '/admin/roles/'
     | '/admin/showcases/'
     | '/api/mcp/'
+    | '/intent/registry/'
     | '/stats/npm/'
     | '/$libraryId/$version/docs/$'
     | '/$libraryId/$version/docs/community-resources'
@@ -1318,7 +1377,9 @@ export interface FileRouteTypes {
     | '/api/auth/callback/$provider'
     | '/api/builder/deploy/check-name'
     | '/api/builder/deploy/github'
+    | '/intent/registry/$packageName/$skillName'
     | '/$libraryId/$version/docs/'
+    | '/intent/registry/$packageName/'
     | '/$libraryId/$version/docs/framework/'
     | '/$libraryId/$version/docs/framework/$framework/$'
     | '/$libraryId/$version/docs/framework/$framework/{$}.md'
@@ -1386,9 +1447,11 @@ export interface RootRouteChildren {
   ApiGithubWebhookRoute: typeof ApiGithubWebhookRoute
   ApiMcpSplatRoute: typeof ApiMcpSplatRoute
   AuthProviderStartRoute: typeof AuthProviderStartRoute
+  IntentRegistryPackageNameRoute: typeof IntentRegistryPackageNameRouteWithChildren
   ShowcaseEditIdRoute: typeof ShowcaseEditIdRoute
   StatsNpmPackagesRoute: typeof StatsNpmPackagesRoute
   ApiMcpIndexRoute: typeof ApiMcpIndexRoute
+  IntentRegistryIndexRoute: typeof IntentRegistryIndexRoute
   StatsNpmIndexRoute: typeof StatsNpmIndexRoute
   ApiAuthCallbackProviderRoute: typeof ApiAuthCallbackProviderRoute
   ApiBuilderDeployCheckNameRoute: typeof ApiBuilderDeployCheckNameRoute
@@ -1747,6 +1810,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLoginsRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/admin/intent': {
+      id: '/admin/intent'
+      path: '/intent'
+      fullPath: '/admin/intent'
+      preLoaderRoute: typeof AdminIntentRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/admin/github-stats': {
       id: '/admin/github-stats'
       path: '/github-stats'
@@ -1808,6 +1878,13 @@ declare module '@tanstack/react-router' {
       path: '/stats/npm'
       fullPath: '/stats/npm/'
       preLoaderRoute: typeof StatsNpmIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/intent/registry/': {
+      id: '/intent/registry/'
+      path: '/intent/registry'
+      fullPath: '/intent/registry/'
+      preLoaderRoute: typeof IntentRegistryIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/mcp/': {
@@ -1878,6 +1955,13 @@ declare module '@tanstack/react-router' {
       path: '/showcase/edit/$id'
       fullPath: '/showcase/edit/$id'
       preLoaderRoute: typeof ShowcaseEditIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/intent/registry/$packageName': {
+      id: '/intent/registry/$packageName'
+      path: '/intent/registry/$packageName'
+      fullPath: '/intent/registry/$packageName'
+      preLoaderRoute: typeof IntentRegistryPackageNameRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/$provider/start': {
@@ -2055,12 +2139,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryIdVersionDocsRouteImport
       parentRoute: typeof LibraryIdVersionRoute
     }
+    '/intent/registry/$packageName/': {
+      id: '/intent/registry/$packageName/'
+      path: '/'
+      fullPath: '/intent/registry/$packageName/'
+      preLoaderRoute: typeof IntentRegistryPackageNameIndexRouteImport
+      parentRoute: typeof IntentRegistryPackageNameRoute
+    }
     '/$libraryId/$version/docs/': {
       id: '/$libraryId/$version/docs/'
       path: '/'
       fullPath: '/$libraryId/$version/docs/'
       preLoaderRoute: typeof LibraryIdVersionDocsIndexRouteImport
       parentRoute: typeof LibraryIdVersionDocsRoute
+    }
+    '/intent/registry/$packageName/$skillName': {
+      id: '/intent/registry/$packageName/$skillName'
+      path: '/$skillName'
+      fullPath: '/intent/registry/$packageName/$skillName'
+      preLoaderRoute: typeof IntentRegistryPackageNameSkillNameRouteImport
+      parentRoute: typeof IntentRegistryPackageNameRoute
     }
     '/api/builder/deploy/github': {
       id: '/api/builder/deploy/github'
@@ -2236,6 +2334,7 @@ const AdminUsersRouteWithChildren = AdminUsersRoute._addFileChildren(
 interface AdminRouteRouteChildren {
   AdminAuditRoute: typeof AdminAuditRoute
   AdminGithubStatsRoute: typeof AdminGithubStatsRoute
+  AdminIntentRoute: typeof AdminIntentRoute
   AdminLoginsRoute: typeof AdminLoginsRoute
   AdminNpmStatsRoute: typeof AdminNpmStatsRoute
   AdminUsersRoute: typeof AdminUsersRouteWithChildren
@@ -2256,6 +2355,7 @@ interface AdminRouteRouteChildren {
 const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminAuditRoute: AdminAuditRoute,
   AdminGithubStatsRoute: AdminGithubStatsRoute,
+  AdminIntentRoute: AdminIntentRoute,
   AdminLoginsRoute: AdminLoginsRoute,
   AdminNpmStatsRoute: AdminNpmStatsRoute,
   AdminUsersRoute: AdminUsersRouteWithChildren,
@@ -2321,6 +2421,23 @@ const BuilderRouteChildren: BuilderRouteChildren = {
 const BuilderRouteWithChildren =
   BuilderRoute._addFileChildren(BuilderRouteChildren)
 
+interface IntentRegistryPackageNameRouteChildren {
+  IntentRegistryPackageNameSkillNameRoute: typeof IntentRegistryPackageNameSkillNameRoute
+  IntentRegistryPackageNameIndexRoute: typeof IntentRegistryPackageNameIndexRoute
+}
+
+const IntentRegistryPackageNameRouteChildren: IntentRegistryPackageNameRouteChildren =
+  {
+    IntentRegistryPackageNameSkillNameRoute:
+      IntentRegistryPackageNameSkillNameRoute,
+    IntentRegistryPackageNameIndexRoute: IntentRegistryPackageNameIndexRoute,
+  }
+
+const IntentRegistryPackageNameRouteWithChildren =
+  IntentRegistryPackageNameRoute._addFileChildren(
+    IntentRegistryPackageNameRouteChildren,
+  )
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LibraryIdRouteRoute: LibraryIdRouteRouteWithChildren,
@@ -2382,9 +2499,11 @@ const rootRouteChildren: RootRouteChildren = {
   ApiGithubWebhookRoute: ApiGithubWebhookRoute,
   ApiMcpSplatRoute: ApiMcpSplatRoute,
   AuthProviderStartRoute: AuthProviderStartRoute,
+  IntentRegistryPackageNameRoute: IntentRegistryPackageNameRouteWithChildren,
   ShowcaseEditIdRoute: ShowcaseEditIdRoute,
   StatsNpmPackagesRoute: StatsNpmPackagesRoute,
   ApiMcpIndexRoute: ApiMcpIndexRoute,
+  IntentRegistryIndexRoute: IntentRegistryIndexRoute,
   StatsNpmIndexRoute: StatsNpmIndexRoute,
   ApiAuthCallbackProviderRoute: ApiAuthCallbackProviderRoute,
   ApiBuilderDeployCheckNameRoute: ApiBuilderDeployCheckNameRoute,

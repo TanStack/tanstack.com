@@ -18,6 +18,7 @@ import {
   StickyNote,
   Users,
   User,
+  BookOpen,
 } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 // Using public asset URL
@@ -132,6 +133,11 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       label: 'NPM Stats',
       icon: <NpmIcon />,
       to: '/admin/npm-stats',
+    },
+    {
+      label: 'Intent Skills',
+      icon: <BookOpen />,
+      to: '/admin/intent',
     },
     {
       label: 'My Account',

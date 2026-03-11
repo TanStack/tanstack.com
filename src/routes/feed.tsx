@@ -2,7 +2,8 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { Card } from '~/components/Card'
 import { seo } from '~/utils/seo'
-import { Rss, BookOpen, Github, Twitter } from 'lucide-react'
+import { Rss, BookOpen, Github } from 'lucide-react'
+import { BrandXIcon } from '~/components/icons/BrandXIcon'
 
 export const Route = createFileRoute('/feed')({
   component: RouteComp,
@@ -39,13 +40,13 @@ const alternatives = [
     internal: false,
   },
   {
-    title: 'Twitter / X',
-    icon: Twitter,
+    title: 'X',
+    icon: BrandXIcon,
     gradient: 'from-sky-400 to-blue-500',
     borderColor: 'hover:border-sky-500/50',
     description:
-      'Follow @tannerlinsley for announcements, early previews, and release highlights.',
-    href: 'https://x.com/tannerlinsley',
+      'Follow @tan_stack for announcements, early previews, and release highlights.',
+    href: 'https://x.com/tan_stack',
     label: 'Follow on X',
     internal: false,
   },

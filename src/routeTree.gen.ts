@@ -39,7 +39,6 @@ import { Route as LibraryIdRouteRouteImport } from './routes/$libraryId/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as StatsIndexRouteImport } from './routes/stats/index'
 import { Route as ShowcaseIndexRouteImport } from './routes/showcase/index'
-import { Route as FeedIndexRouteImport } from './routes/feed.index'
 import { Route as BuilderIndexRouteImport } from './routes/builder.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
@@ -50,7 +49,6 @@ import { Route as ShowcaseIdRouteImport } from './routes/showcase/$id'
 import { Route as OauthTokenRouteImport } from './routes/oauth/token'
 import { Route as OauthRegisterRouteImport } from './routes/oauth/register'
 import { Route as OauthAuthorizeRouteImport } from './routes/oauth/authorize'
-import { Route as FeedIdRouteImport } from './routes/feed.$id'
 import { Route as BuilderDocsRouteImport } from './routes/builder.docs'
 import { Route as BlogSplatRouteImport } from './routes/blog.$'
 import { Route as AuthSignoutRouteImport } from './routes/auth/signout'
@@ -75,15 +73,12 @@ import { Route as AdminShowcasesIndexRouteImport } from './routes/admin/showcase
 import { Route as AdminRolesIndexRouteImport } from './routes/admin/roles.index'
 import { Route as AdminNotesIndexRouteImport } from './routes/admin/notes.index'
 import { Route as AdminFeedbackIndexRouteImport } from './routes/admin/feedback.index'
-import { Route as AdminFeedIndexRouteImport } from './routes/admin/feed.index'
-import { Route as AdminBannersIndexRouteImport } from './routes/admin/banners.index'
 import { Route as LibraryIdVersionIndexRouteImport } from './routes/$libraryId/$version.index'
 import { Route as StatsNpmPackagesRouteImport } from './routes/stats/npm/$packages'
 import { Route as ShowcaseEditIdRouteImport } from './routes/showcase/edit.$id'
 import { Route as IntentRegistryPackageNameRouteImport } from './routes/intent/registry/$packageName'
 import { Route as AuthProviderStartRouteImport } from './routes/auth/$provider/start'
 import { Route as ApiMcpSplatRouteImport } from './routes/api/mcp/$'
-import { Route as ApiGithubWebhookRouteImport } from './routes/api/github/webhook'
 import { Route as ApiExampleDeployRouteImport } from './routes/api/example/deploy'
 import { Route as ApiDiscordInteractionsRouteImport } from './routes/api/discord/interactions'
 import { Route as ApiDataPartnersRouteImport } from './routes/api/data/partners'
@@ -98,13 +93,10 @@ import { Route as ApiBuilderFeatureArtifactsRouteImport } from './routes/api/bui
 import { Route as ApiBuilderDownloadRouteImport } from './routes/api/builder/download'
 import { Route as ApiBuilderCompileAttributedRouteImport } from './routes/api/builder/compile-attributed'
 import { Route as ApiBuilderCompileRouteImport } from './routes/api/builder/compile'
-import { Route as ApiAdminSyncRouteImport } from './routes/api/admin/sync'
 import { Route as AdminUsersUserIdRouteImport } from './routes/admin/users.$userId'
 import { Route as AdminShowcasesIdRouteImport } from './routes/admin/showcases_.$id'
 import { Route as AdminRolesRoleIdRouteImport } from './routes/admin/roles.$roleId'
 import { Route as AdminFeedbackIdRouteImport } from './routes/admin/feedback_.$id'
-import { Route as AdminFeedIdRouteImport } from './routes/admin/feed.$id'
-import { Route as AdminBannersIdRouteImport } from './routes/admin/banners.$id'
 import { Route as LibraryIdVersionDocsRouteImport } from './routes/$libraryId/$version.docs'
 import { Route as IntentRegistryPackageNameIndexRouteImport } from './routes/intent/registry/$packageName.index'
 import { Route as LibraryIdVersionDocsIndexRouteImport } from './routes/$libraryId/$version.docs.index'
@@ -273,11 +265,6 @@ const ShowcaseIndexRoute = ShowcaseIndexRouteImport.update({
   path: '/showcase/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const FeedIndexRoute = FeedIndexRouteImport.update({
-  id: '/feed/',
-  path: '/feed/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const BuilderIndexRoute = BuilderIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -326,11 +313,6 @@ const OauthRegisterRoute = OauthRegisterRouteImport.update({
 const OauthAuthorizeRoute = OauthAuthorizeRouteImport.update({
   id: '/oauth/authorize',
   path: '/oauth/authorize',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FeedIdRoute = FeedIdRouteImport.update({
-  id: '/feed/$id',
-  path: '/feed/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BuilderDocsRoute = BuilderDocsRouteImport.update({
@@ -454,16 +436,6 @@ const AdminFeedbackIndexRoute = AdminFeedbackIndexRouteImport.update({
   path: '/feedback/',
   getParentRoute: () => AdminRouteRoute,
 } as any)
-const AdminFeedIndexRoute = AdminFeedIndexRouteImport.update({
-  id: '/feed/',
-  path: '/feed/',
-  getParentRoute: () => AdminRouteRoute,
-} as any)
-const AdminBannersIndexRoute = AdminBannersIndexRouteImport.update({
-  id: '/banners/',
-  path: '/banners/',
-  getParentRoute: () => AdminRouteRoute,
-} as any)
 const LibraryIdVersionIndexRoute = LibraryIdVersionIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -493,11 +465,6 @@ const AuthProviderStartRoute = AuthProviderStartRouteImport.update({
 const ApiMcpSplatRoute = ApiMcpSplatRouteImport.update({
   id: '/api/mcp/$',
   path: '/api/mcp/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiGithubWebhookRoute = ApiGithubWebhookRouteImport.update({
-  id: '/api/github/webhook',
-  path: '/api/github/webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiExampleDeployRoute = ApiExampleDeployRouteImport.update({
@@ -574,11 +541,6 @@ const ApiBuilderCompileRoute = ApiBuilderCompileRouteImport.update({
   path: '/api/builder/compile',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiAdminSyncRoute = ApiAdminSyncRouteImport.update({
-  id: '/api/admin/sync',
-  path: '/api/admin/sync',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AdminUsersUserIdRoute = AdminUsersUserIdRouteImport.update({
   id: '/$userId',
   path: '/$userId',
@@ -597,16 +559,6 @@ const AdminRolesRoleIdRoute = AdminRolesRoleIdRouteImport.update({
 const AdminFeedbackIdRoute = AdminFeedbackIdRouteImport.update({
   id: '/feedback_/$id',
   path: '/feedback/$id',
-  getParentRoute: () => AdminRouteRoute,
-} as any)
-const AdminFeedIdRoute = AdminFeedIdRouteImport.update({
-  id: '/feed/$id',
-  path: '/feed/$id',
-  getParentRoute: () => AdminRouteRoute,
-} as any)
-const AdminBannersIdRoute = AdminBannersIdRouteImport.update({
-  id: '/banners/$id',
-  path: '/banners/$id',
   getParentRoute: () => AdminRouteRoute,
 } as any)
 const LibraryIdVersionDocsRoute = LibraryIdVersionDocsRouteImport.update({
@@ -755,7 +707,6 @@ export interface FileRoutesByFullPath {
   '/auth/signout': typeof AuthSignoutRoute
   '/blog/$': typeof BlogSplatRoute
   '/builder/docs': typeof BuilderDocsRoute
-  '/feed/$id': typeof FeedIdRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
   '/oauth/token': typeof OauthTokenRoute
@@ -766,17 +717,13 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/builder/': typeof BuilderIndexRoute
-  '/feed/': typeof FeedIndexRoute
   '/showcase/': typeof ShowcaseIndexRoute
   '/stats/': typeof StatsIndexRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsRouteWithChildren
-  '/admin/banners/$id': typeof AdminBannersIdRoute
-  '/admin/feed/$id': typeof AdminFeedIdRoute
   '/admin/feedback/$id': typeof AdminFeedbackIdRoute
   '/admin/roles/$roleId': typeof AdminRolesRoleIdRoute
   '/admin/showcases/$id': typeof AdminShowcasesIdRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
-  '/api/admin/sync': typeof ApiAdminSyncRoute
   '/api/builder/compile': typeof ApiBuilderCompileRoute
   '/api/builder/compile-attributed': typeof ApiBuilderCompileAttributedRoute
   '/api/builder/download': typeof ApiBuilderDownloadRoute
@@ -791,15 +738,12 @@ export interface FileRoutesByFullPath {
   '/api/data/partners': typeof ApiDataPartnersRoute
   '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
   '/api/example/deploy': typeof ApiExampleDeployRoute
-  '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
   '/intent/registry/$packageName': typeof IntentRegistryPackageNameRouteWithChildren
   '/showcase/edit/$id': typeof ShowcaseEditIdRoute
   '/stats/npm/$packages': typeof StatsNpmPackagesRoute
   '/$libraryId/$version/': typeof LibraryIdVersionIndexRoute
-  '/admin/banners/': typeof AdminBannersIndexRoute
-  '/admin/feed/': typeof AdminFeedIndexRoute
   '/admin/feedback/': typeof AdminFeedbackIndexRoute
   '/admin/notes/': typeof AdminNotesIndexRoute
   '/admin/roles/': typeof AdminRolesIndexRoute
@@ -864,7 +808,6 @@ export interface FileRoutesByTo {
   '/auth/signout': typeof AuthSignoutRoute
   '/blog/$': typeof BlogSplatRoute
   '/builder/docs': typeof BuilderDocsRoute
-  '/feed/$id': typeof FeedIdRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
   '/oauth/token': typeof OauthTokenRoute
@@ -875,16 +818,12 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/blog': typeof BlogIndexRoute
   '/builder': typeof BuilderIndexRoute
-  '/feed': typeof FeedIndexRoute
   '/showcase': typeof ShowcaseIndexRoute
   '/stats': typeof StatsIndexRoute
-  '/admin/banners/$id': typeof AdminBannersIdRoute
-  '/admin/feed/$id': typeof AdminFeedIdRoute
   '/admin/feedback/$id': typeof AdminFeedbackIdRoute
   '/admin/roles/$roleId': typeof AdminRolesRoleIdRoute
   '/admin/showcases/$id': typeof AdminShowcasesIdRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
-  '/api/admin/sync': typeof ApiAdminSyncRoute
   '/api/builder/compile': typeof ApiBuilderCompileRoute
   '/api/builder/compile-attributed': typeof ApiBuilderCompileAttributedRoute
   '/api/builder/download': typeof ApiBuilderDownloadRoute
@@ -899,14 +838,11 @@ export interface FileRoutesByTo {
   '/api/data/partners': typeof ApiDataPartnersRoute
   '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
   '/api/example/deploy': typeof ApiExampleDeployRoute
-  '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
   '/showcase/edit/$id': typeof ShowcaseEditIdRoute
   '/stats/npm/$packages': typeof StatsNpmPackagesRoute
   '/$libraryId/$version': typeof LibraryIdVersionIndexRoute
-  '/admin/banners': typeof AdminBannersIndexRoute
-  '/admin/feed': typeof AdminFeedIndexRoute
   '/admin/feedback': typeof AdminFeedbackIndexRoute
   '/admin/notes': typeof AdminNotesIndexRoute
   '/admin/roles': typeof AdminRolesIndexRoute
@@ -978,7 +914,6 @@ export interface FileRoutesById {
   '/auth/signout': typeof AuthSignoutRoute
   '/blog/$': typeof BlogSplatRoute
   '/builder/docs': typeof BuilderDocsRoute
-  '/feed/$id': typeof FeedIdRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
   '/oauth/token': typeof OauthTokenRoute
@@ -989,17 +924,13 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/builder/': typeof BuilderIndexRoute
-  '/feed/': typeof FeedIndexRoute
   '/showcase/': typeof ShowcaseIndexRoute
   '/stats/': typeof StatsIndexRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsRouteWithChildren
-  '/admin/banners/$id': typeof AdminBannersIdRoute
-  '/admin/feed/$id': typeof AdminFeedIdRoute
   '/admin/feedback_/$id': typeof AdminFeedbackIdRoute
   '/admin/roles/$roleId': typeof AdminRolesRoleIdRoute
   '/admin/showcases_/$id': typeof AdminShowcasesIdRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
-  '/api/admin/sync': typeof ApiAdminSyncRoute
   '/api/builder/compile': typeof ApiBuilderCompileRoute
   '/api/builder/compile-attributed': typeof ApiBuilderCompileAttributedRoute
   '/api/builder/download': typeof ApiBuilderDownloadRoute
@@ -1014,15 +945,12 @@ export interface FileRoutesById {
   '/api/data/partners': typeof ApiDataPartnersRoute
   '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
   '/api/example/deploy': typeof ApiExampleDeployRoute
-  '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
   '/intent/registry/$packageName': typeof IntentRegistryPackageNameRouteWithChildren
   '/showcase/edit/$id': typeof ShowcaseEditIdRoute
   '/stats/npm/$packages': typeof StatsNpmPackagesRoute
   '/$libraryId/$version/': typeof LibraryIdVersionIndexRoute
-  '/admin/banners/': typeof AdminBannersIndexRoute
-  '/admin/feed/': typeof AdminFeedIndexRoute
   '/admin/feedback/': typeof AdminFeedbackIndexRoute
   '/admin/notes/': typeof AdminNotesIndexRoute
   '/admin/roles/': typeof AdminRolesIndexRoute
@@ -1095,7 +1023,6 @@ export interface FileRouteTypes {
     | '/auth/signout'
     | '/blog/$'
     | '/builder/docs'
-    | '/feed/$id'
     | '/oauth/authorize'
     | '/oauth/register'
     | '/oauth/token'
@@ -1106,17 +1033,13 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/blog/'
     | '/builder/'
-    | '/feed/'
     | '/showcase/'
     | '/stats/'
     | '/$libraryId/$version/docs'
-    | '/admin/banners/$id'
-    | '/admin/feed/$id'
     | '/admin/feedback/$id'
     | '/admin/roles/$roleId'
     | '/admin/showcases/$id'
     | '/admin/users/$userId'
-    | '/api/admin/sync'
     | '/api/builder/compile'
     | '/api/builder/compile-attributed'
     | '/api/builder/download'
@@ -1131,15 +1054,12 @@ export interface FileRouteTypes {
     | '/api/data/partners'
     | '/api/discord/interactions'
     | '/api/example/deploy'
-    | '/api/github/webhook'
     | '/api/mcp/$'
     | '/auth/$provider/start'
     | '/intent/registry/$packageName'
     | '/showcase/edit/$id'
     | '/stats/npm/$packages'
     | '/$libraryId/$version/'
-    | '/admin/banners/'
-    | '/admin/feed/'
     | '/admin/feedback/'
     | '/admin/notes/'
     | '/admin/roles/'
@@ -1204,7 +1124,6 @@ export interface FileRouteTypes {
     | '/auth/signout'
     | '/blog/$'
     | '/builder/docs'
-    | '/feed/$id'
     | '/oauth/authorize'
     | '/oauth/register'
     | '/oauth/token'
@@ -1215,16 +1134,12 @@ export interface FileRouteTypes {
     | '/admin'
     | '/blog'
     | '/builder'
-    | '/feed'
     | '/showcase'
     | '/stats'
-    | '/admin/banners/$id'
-    | '/admin/feed/$id'
     | '/admin/feedback/$id'
     | '/admin/roles/$roleId'
     | '/admin/showcases/$id'
     | '/admin/users/$userId'
-    | '/api/admin/sync'
     | '/api/builder/compile'
     | '/api/builder/compile-attributed'
     | '/api/builder/download'
@@ -1239,14 +1154,11 @@ export interface FileRouteTypes {
     | '/api/data/partners'
     | '/api/discord/interactions'
     | '/api/example/deploy'
-    | '/api/github/webhook'
     | '/api/mcp/$'
     | '/auth/$provider/start'
     | '/showcase/edit/$id'
     | '/stats/npm/$packages'
     | '/$libraryId/$version'
-    | '/admin/banners'
-    | '/admin/feed'
     | '/admin/feedback'
     | '/admin/notes'
     | '/admin/roles'
@@ -1317,7 +1229,6 @@ export interface FileRouteTypes {
     | '/auth/signout'
     | '/blog/$'
     | '/builder/docs'
-    | '/feed/$id'
     | '/oauth/authorize'
     | '/oauth/register'
     | '/oauth/token'
@@ -1328,17 +1239,13 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/blog/'
     | '/builder/'
-    | '/feed/'
     | '/showcase/'
     | '/stats/'
     | '/$libraryId/$version/docs'
-    | '/admin/banners/$id'
-    | '/admin/feed/$id'
     | '/admin/feedback_/$id'
     | '/admin/roles/$roleId'
     | '/admin/showcases_/$id'
     | '/admin/users/$userId'
-    | '/api/admin/sync'
     | '/api/builder/compile'
     | '/api/builder/compile-attributed'
     | '/api/builder/download'
@@ -1353,15 +1260,12 @@ export interface FileRouteTypes {
     | '/api/data/partners'
     | '/api/discord/interactions'
     | '/api/example/deploy'
-    | '/api/github/webhook'
     | '/api/mcp/$'
     | '/auth/$provider/start'
     | '/intent/registry/$packageName'
     | '/showcase/edit/$id'
     | '/stats/npm/$packages'
     | '/$libraryId/$version/'
-    | '/admin/banners/'
-    | '/admin/feed/'
     | '/admin/feedback/'
     | '/admin/notes/'
     | '/admin/roles/'
@@ -1420,16 +1324,13 @@ export interface RootRouteChildren {
   ApiUploadthingRoute: typeof ApiUploadthingRoute
   AuthPopupSuccessRoute: typeof AuthPopupSuccessRoute
   AuthSignoutRoute: typeof AuthSignoutRoute
-  FeedIdRoute: typeof FeedIdRoute
   OauthAuthorizeRoute: typeof OauthAuthorizeRoute
   OauthRegisterRoute: typeof OauthRegisterRoute
   OauthTokenRoute: typeof OauthTokenRoute
   ShowcaseIdRoute: typeof ShowcaseIdRoute
   ShowcaseSubmitRoute: typeof ShowcaseSubmitRoute
-  FeedIndexRoute: typeof FeedIndexRoute
   ShowcaseIndexRoute: typeof ShowcaseIndexRoute
   StatsIndexRoute: typeof StatsIndexRoute
-  ApiAdminSyncRoute: typeof ApiAdminSyncRoute
   ApiBuilderCompileRoute: typeof ApiBuilderCompileRoute
   ApiBuilderCompileAttributedRoute: typeof ApiBuilderCompileAttributedRoute
   ApiBuilderDownloadRoute: typeof ApiBuilderDownloadRoute
@@ -1444,7 +1345,6 @@ export interface RootRouteChildren {
   ApiDataPartnersRoute: typeof ApiDataPartnersRoute
   ApiDiscordInteractionsRoute: typeof ApiDiscordInteractionsRoute
   ApiExampleDeployRoute: typeof ApiExampleDeployRoute
-  ApiGithubWebhookRoute: typeof ApiGithubWebhookRoute
   ApiMcpSplatRoute: typeof ApiMcpSplatRoute
   AuthProviderStartRoute: typeof AuthProviderStartRoute
   IntentRegistryPackageNameRoute: typeof IntentRegistryPackageNameRouteWithChildren
@@ -1670,13 +1570,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShowcaseIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/feed/': {
-      id: '/feed/'
-      path: '/feed'
-      fullPath: '/feed/'
-      preLoaderRoute: typeof FeedIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/builder/': {
       id: '/builder/'
       path: '/'
@@ -1745,13 +1638,6 @@ declare module '@tanstack/react-router' {
       path: '/oauth/authorize'
       fullPath: '/oauth/authorize'
       preLoaderRoute: typeof OauthAuthorizeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/feed/$id': {
-      id: '/feed/$id'
-      path: '/feed/$id'
-      fullPath: '/feed/$id'
-      preLoaderRoute: typeof FeedIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/builder/docs': {
@@ -1922,20 +1808,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminFeedbackIndexRouteImport
       parentRoute: typeof AdminRouteRoute
     }
-    '/admin/feed/': {
-      id: '/admin/feed/'
-      path: '/feed'
-      fullPath: '/admin/feed/'
-      preLoaderRoute: typeof AdminFeedIndexRouteImport
-      parentRoute: typeof AdminRouteRoute
-    }
-    '/admin/banners/': {
-      id: '/admin/banners/'
-      path: '/banners'
-      fullPath: '/admin/banners/'
-      preLoaderRoute: typeof AdminBannersIndexRouteImport
-      parentRoute: typeof AdminRouteRoute
-    }
     '/$libraryId/$version/': {
       id: '/$libraryId/$version/'
       path: '/'
@@ -1976,13 +1848,6 @@ declare module '@tanstack/react-router' {
       path: '/api/mcp/$'
       fullPath: '/api/mcp/$'
       preLoaderRoute: typeof ApiMcpSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/github/webhook': {
-      id: '/api/github/webhook'
-      path: '/api/github/webhook'
-      fullPath: '/api/github/webhook'
-      preLoaderRoute: typeof ApiGithubWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/example/deploy': {
@@ -2083,13 +1948,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiBuilderCompileRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/admin/sync': {
-      id: '/api/admin/sync'
-      path: '/api/admin/sync'
-      fullPath: '/api/admin/sync'
-      preLoaderRoute: typeof ApiAdminSyncRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/admin/users/$userId': {
       id: '/admin/users/$userId'
       path: '/$userId'
@@ -2116,20 +1974,6 @@ declare module '@tanstack/react-router' {
       path: '/feedback/$id'
       fullPath: '/admin/feedback/$id'
       preLoaderRoute: typeof AdminFeedbackIdRouteImport
-      parentRoute: typeof AdminRouteRoute
-    }
-    '/admin/feed/$id': {
-      id: '/admin/feed/$id'
-      path: '/feed/$id'
-      fullPath: '/admin/feed/$id'
-      preLoaderRoute: typeof AdminFeedIdRouteImport
-      parentRoute: typeof AdminRouteRoute
-    }
-    '/admin/banners/$id': {
-      id: '/admin/banners/$id'
-      path: '/banners/$id'
-      fullPath: '/admin/banners/$id'
-      preLoaderRoute: typeof AdminBannersIdRouteImport
       parentRoute: typeof AdminRouteRoute
     }
     '/$libraryId/$version/docs': {
@@ -2339,13 +2183,9 @@ interface AdminRouteRouteChildren {
   AdminNpmStatsRoute: typeof AdminNpmStatsRoute
   AdminUsersRoute: typeof AdminUsersRouteWithChildren
   AdminIndexRoute: typeof AdminIndexRoute
-  AdminBannersIdRoute: typeof AdminBannersIdRoute
-  AdminFeedIdRoute: typeof AdminFeedIdRoute
   AdminFeedbackIdRoute: typeof AdminFeedbackIdRoute
   AdminRolesRoleIdRoute: typeof AdminRolesRoleIdRoute
   AdminShowcasesIdRoute: typeof AdminShowcasesIdRoute
-  AdminBannersIndexRoute: typeof AdminBannersIndexRoute
-  AdminFeedIndexRoute: typeof AdminFeedIndexRoute
   AdminFeedbackIndexRoute: typeof AdminFeedbackIndexRoute
   AdminNotesIndexRoute: typeof AdminNotesIndexRoute
   AdminRolesIndexRoute: typeof AdminRolesIndexRoute
@@ -2360,13 +2200,9 @@ const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminNpmStatsRoute: AdminNpmStatsRoute,
   AdminUsersRoute: AdminUsersRouteWithChildren,
   AdminIndexRoute: AdminIndexRoute,
-  AdminBannersIdRoute: AdminBannersIdRoute,
-  AdminFeedIdRoute: AdminFeedIdRoute,
   AdminFeedbackIdRoute: AdminFeedbackIdRoute,
   AdminRolesRoleIdRoute: AdminRolesRoleIdRoute,
   AdminShowcasesIdRoute: AdminShowcasesIdRoute,
-  AdminBannersIndexRoute: AdminBannersIndexRoute,
-  AdminFeedIndexRoute: AdminFeedIndexRoute,
   AdminFeedbackIndexRoute: AdminFeedbackIndexRoute,
   AdminNotesIndexRoute: AdminNotesIndexRoute,
   AdminRolesIndexRoute: AdminRolesIndexRoute,
@@ -2472,16 +2308,13 @@ const rootRouteChildren: RootRouteChildren = {
   ApiUploadthingRoute: ApiUploadthingRoute,
   AuthPopupSuccessRoute: AuthPopupSuccessRoute,
   AuthSignoutRoute: AuthSignoutRoute,
-  FeedIdRoute: FeedIdRoute,
   OauthAuthorizeRoute: OauthAuthorizeRoute,
   OauthRegisterRoute: OauthRegisterRoute,
   OauthTokenRoute: OauthTokenRoute,
   ShowcaseIdRoute: ShowcaseIdRoute,
   ShowcaseSubmitRoute: ShowcaseSubmitRoute,
-  FeedIndexRoute: FeedIndexRoute,
   ShowcaseIndexRoute: ShowcaseIndexRoute,
   StatsIndexRoute: StatsIndexRoute,
-  ApiAdminSyncRoute: ApiAdminSyncRoute,
   ApiBuilderCompileRoute: ApiBuilderCompileRoute,
   ApiBuilderCompileAttributedRoute: ApiBuilderCompileAttributedRoute,
   ApiBuilderDownloadRoute: ApiBuilderDownloadRoute,
@@ -2496,7 +2329,6 @@ const rootRouteChildren: RootRouteChildren = {
   ApiDataPartnersRoute: ApiDataPartnersRoute,
   ApiDiscordInteractionsRoute: ApiDiscordInteractionsRoute,
   ApiExampleDeployRoute: ApiExampleDeployRoute,
-  ApiGithubWebhookRoute: ApiGithubWebhookRoute,
   ApiMcpSplatRoute: ApiMcpSplatRoute,
   AuthProviderStartRoute: AuthProviderStartRoute,
   IntentRegistryPackageNameRoute: IntentRegistryPackageNameRouteWithChildren,

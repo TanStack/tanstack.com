@@ -12,7 +12,6 @@ import {
   LayoutDashboard,
   LogIn,
   MessagesSquare,
-  Rss,
   Shield,
   ShieldHalf,
   StickyNote,
@@ -118,11 +117,6 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       icon: <Sparkles />,
       to: '/admin/showcases',
       requiredCapability: 'moderate-showcases',
-    },
-    {
-      label: 'Feed',
-      icon: <Rss />,
-      to: '/admin/feed',
     },
     {
       label: 'GitHub Stats',

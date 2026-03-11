@@ -24,9 +24,6 @@ export type {
   OAuthProvider,
   DocFeedbackType,
   DocFeedbackStatus,
-  BannerScope,
-  BannerStyle,
-  EntryType,
   ShowcaseStatus,
   ShowcaseUseCase,
   AuditAction,
@@ -38,9 +35,6 @@ import {
   OAUTH_PROVIDERS,
   DOC_FEEDBACK_TYPES,
   DOC_FEEDBACK_STATUSES,
-  BANNER_SCOPES,
-  BANNER_STYLES,
-  ENTRY_TYPES,
   SHOWCASE_STATUSES,
   SHOWCASE_USE_CASES,
   AUDIT_ACTIONS,
@@ -52,14 +46,10 @@ export {
   OAUTH_PROVIDERS,
   DOC_FEEDBACK_TYPES,
   DOC_FEEDBACK_STATUSES,
-  BANNER_SCOPES,
-  BANNER_STYLES,
-  ENTRY_TYPES,
   SHOWCASE_STATUSES,
   SHOWCASE_USE_CASES,
   AUDIT_ACTIONS,
   RELEASE_LEVELS,
-  MANUAL_ENTRY_TYPES,
 } from './types'
 
 // Enums - using imported constants as single source of truth
@@ -74,9 +64,6 @@ export const docFeedbackStatusEnum = pgEnum(
   'doc_feedback_status',
   DOC_FEEDBACK_STATUSES,
 )
-export const bannerScopeEnum = pgEnum('banner_scope', BANNER_SCOPES)
-export const bannerStyleEnum = pgEnum('banner_style', BANNER_STYLES)
-export const entryTypeEnum = pgEnum('entry_type', ENTRY_TYPES)
 export const showcaseStatusEnum = pgEnum('showcase_status', SHOWCASE_STATUSES)
 export const showcaseUseCaseEnum = pgEnum(
   'showcase_use_case',
@@ -231,86 +218,6 @@ export const oauthAccounts = pgTable(
 
 export type OAuthAccount = InferSelectModel<typeof oauthAccounts>
 export type NewOAuthAccount = InferInsertModel<typeof oauthAccounts>
-
-// Feed entries table
-export const feedEntries = pgTable(
-  'feed_entries',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    // Unique identifier (e.g., "github:tanstack/query:v5.0.0" or UUID for manual)
-    entryId: varchar('entry_id', { length: 255 }).notNull().unique(),
-    // Entry type: release (auto-synced from GitHub), blog (auto-synced), announcement (manual)
-    entryType: entryTypeEnum('entry_type').notNull().default('announcement'),
-    title: text('title').notNull(),
-    content: text('content').notNull(), // Markdown content
-    excerpt: text('excerpt'),
-    publishedAt: timestamp('published_at', {
-      withTimezone: true,
-      mode: 'date',
-    }).notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
-      .notNull()
-      .defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
-      .notNull()
-      .defaultNow(),
-    // Source-specific metadata (JSON blob for debugging)
-    metadata: jsonb('metadata'),
-    // Categorization
-    libraryIds: varchar('library_ids', { length: 255 })
-      .array()
-      .notNull()
-      .default([]),
-    partnerIds: varchar('partner_ids', { length: 255 })
-      .array()
-      .notNull()
-      .default([]),
-    tags: varchar('tags', { length: 255 }).array().notNull().default([]),
-    // Display control
-    showInFeed: boolean('show_in_feed').notNull().default(true),
-    featured: boolean('featured').default(false),
-    // Auto-sync metadata
-    autoSynced: boolean('auto_synced').notNull().default(false),
-    lastSyncedAt: timestamp('last_synced_at', {
-      withTimezone: true,
-      mode: 'date',
-    }),
-  },
-  (table) => ({
-    publishedAtIdx: index('feed_entries_published_at_idx').on(
-      table.publishedAt,
-    ),
-    entryTypeIdx: index('feed_entries_entry_type_idx').on(table.entryType),
-    showInFeedPublishedIdx: index(
-      'feed_entries_show_in_feed_published_at_idx',
-    ).on(table.showInFeed, table.publishedAt),
-    // GIN indexes for array columns (created via SQL migration)
-    // libraryIdsGin: index('feed_entries_library_ids_gin_idx').using('gin', table.libraryIds),
-    // tagsGin: index('feed_entries_tags_gin_idx').using('gin', table.tags),
-  }),
-)
-
-export type FeedEntry = InferSelectModel<typeof feedEntries>
-export type NewFeedEntry = InferInsertModel<typeof feedEntries>
-
-// Feed config table
-export const feedConfig = pgTable(
-  'feed_config',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    key: varchar('key', { length: 255 }).notNull().unique(), // e.g., 'defaultFilters'
-    value: jsonb('value').notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
-      .notNull()
-      .defaultNow(),
-  },
-  (table) => ({
-    keyIdx: index('feed_config_key_idx').on(table.key),
-  }),
-)
-
-export type FeedConfig = InferSelectModel<typeof feedConfig>
-export type NewFeedConfig = InferInsertModel<typeof feedConfig>
 
 // GitHub Stats cache table (for caching expensive GitHub API calls)
 export const githubStatsCache = pgTable(
@@ -581,112 +488,6 @@ export const docFeedback = pgTable(
 export type DocFeedback = InferSelectModel<typeof docFeedback>
 export type NewDocFeedback = InferInsertModel<typeof docFeedback>
 
-// Banners table (separate from feed entries)
-export const banners = pgTable(
-  'banners',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    // Display content
-    title: text('title').notNull(),
-    content: text('content'), // Optional longer content/description
-    // Link (makes banner clickable)
-    linkUrl: text('link_url'),
-    linkText: varchar('link_text', { length: 255 }),
-    // Styling
-    style: bannerStyleEnum('style').notNull().default('info'),
-    // Targeting
-    scope: bannerScopeEnum('scope').notNull().default('global'),
-    pathPrefixes: varchar('path_prefixes', { length: 255 })
-      .array()
-      .notNull()
-      .default([]),
-    // Scheduling
-    isActive: boolean('is_active').notNull().default(true),
-    startsAt: timestamp('starts_at', { withTimezone: true, mode: 'date' }),
-    expiresAt: timestamp('expires_at', { withTimezone: true, mode: 'date' }),
-    // Priority (higher = shown first when multiple banners match)
-    priority: integer('priority').notNull().default(0),
-    // Metadata
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
-      .notNull()
-      .defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
-      .notNull()
-      .defaultNow(),
-  },
-  (table) => ({
-    isActiveIdx: index('banners_is_active_idx').on(table.isActive),
-    priorityIdx: index('banners_priority_idx').on(table.priority),
-    startsAtIdx: index('banners_starts_at_idx').on(table.startsAt),
-    expiresAtIdx: index('banners_expires_at_idx').on(table.expiresAt),
-  }),
-)
-
-export type Banner = InferSelectModel<typeof banners>
-export type NewBanner = InferInsertModel<typeof banners>
-
-// Banner dismissals table (for tracking which banners users have dismissed)
-export const bannerDismissals = pgTable(
-  'banner_dismissals',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    bannerId: uuid('banner_id')
-      .notNull()
-      .references(() => banners.id, { onDelete: 'cascade' }),
-    userId: uuid('user_id')
-      .notNull()
-      .references(() => users.id, { onDelete: 'cascade' }),
-    dismissedAt: timestamp('dismissed_at', { withTimezone: true, mode: 'date' })
-      .notNull()
-      .defaultNow(),
-  },
-  (table) => ({
-    bannerIdIdx: index('banner_dismissals_banner_id_idx').on(table.bannerId),
-    userIdIdx: index('banner_dismissals_user_id_idx').on(table.userId),
-    userBannerUnique: uniqueIndex('banner_dismissals_user_banner_unique').on(
-      table.userId,
-      table.bannerId,
-    ),
-  }),
-)
-
-export type BannerDismissal = InferSelectModel<typeof bannerDismissals>
-export type NewBannerDismissal = InferInsertModel<typeof bannerDismissals>
-
-// Announcement dismissals table (legacy - for tracking which feed entry banners users have dismissed)
-export const announcementDismissals = pgTable(
-  'announcement_dismissals',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    // The feed entry ID (references feedEntries.entryId, not the UUID)
-    announcementId: varchar('announcement_id', { length: 255 }).notNull(),
-    // User who dismissed (nullable for future anonymous tracking if needed)
-    userId: uuid('user_id')
-      .notNull()
-      .references(() => users.id, { onDelete: 'cascade' }),
-    dismissedAt: timestamp('dismissed_at', { withTimezone: true, mode: 'date' })
-      .notNull()
-      .defaultNow(),
-  },
-  (table) => ({
-    announcementIdIdx: index('announcement_dismissals_announcement_id_idx').on(
-      table.announcementId,
-    ),
-    userIdIdx: index('announcement_dismissals_user_id_idx').on(table.userId),
-    // Ensure a user can only dismiss an announcement once
-    userAnnouncementUnique: uniqueIndex(
-      'announcement_dismissals_user_announcement_unique',
-    ).on(table.userId, table.announcementId),
-  }),
-)
-
-export type AnnouncementDismissal = InferSelectModel<
-  typeof announcementDismissals
->
-export type NewAnnouncementDismissal = InferInsertModel<
-  typeof announcementDismissals
->
-
 // Login history table (tracks user logins for analytics and security)
 export const loginHistory = pgTable(
   'login_history',
@@ -880,8 +681,6 @@ export const usersRelations = relations(users, ({ many }) => ({
   oauthAccounts: many(oauthAccounts),
   roleAssignments: many(roleAssignments),
   docFeedback: many(docFeedback),
-  announcementDismissals: many(announcementDismissals),
-  bannerDismissals: many(bannerDismissals),
   loginHistory: many(loginHistory),
   auditLogs: many(auditLogs),
   userActivity: many(userActivity),
@@ -931,34 +730,6 @@ export const docFeedbackRelations = relations(docFeedback, ({ one }) => ({
     references: [users.id],
   }),
 }))
-
-export const announcementDismissalsRelations = relations(
-  announcementDismissals,
-  ({ one }) => ({
-    user: one(users, {
-      fields: [announcementDismissals.userId],
-      references: [users.id],
-    }),
-  }),
-)
-
-export const bannersRelations = relations(banners, ({ many }) => ({
-  dismissals: many(bannerDismissals),
-}))
-
-export const bannerDismissalsRelations = relations(
-  bannerDismissals,
-  ({ one }) => ({
-    banner: one(banners, {
-      fields: [bannerDismissals.bannerId],
-      references: [banners.id],
-    }),
-    user: one(users, {
-      fields: [bannerDismissals.userId],
-      references: [users.id],
-    }),
-  }),
-)
 
 export const loginHistoryRelations = relations(loginHistory, ({ one }) => ({
   user: one(users, {

@@ -24,15 +24,11 @@ import {
   User,
   Menu,
   X,
-  Rss,
   Grid2X2,
   Sparkles,
 } from 'lucide-react'
 import { ThemeToggle } from './ThemeToggle'
 import { SearchButton } from './SearchButton'
-// const LazyFeedTicker = React.lazy(() =>
-//   import('./FeedTicker').then((m) => ({ default: m.FeedTicker })),
-// )
 import {
   Authenticated,
   Unauthenticated,
@@ -53,11 +49,6 @@ import { DiscordIcon } from '~/components/icons/DiscordIcon'
 import { InstagramIcon } from '~/components/icons/InstagramIcon'
 import { BSkyIcon } from '~/components/icons/BSkyIcon'
 import { BrandXIcon } from '~/components/icons/BrandXIcon'
-const LazyAnnouncementBanner = React.lazy(() =>
-  import('~/components/AnnouncementBanner').then((m) => ({
-    default: m.AnnouncementBanner,
-  })),
-)
 const LazyAuthenticatedUserMenu = React.lazy(() =>
   import('~/components/AuthenticatedUserMenu').then((m) => ({
     default: m.AuthenticatedUserMenu,
@@ -602,18 +593,6 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         </Link>
         {[
           {
-            label: (
-              <>
-                <span>Feed</span>
-                <span className="px-1.5 py-0.5 text-[.6rem] font-black border border-blue-500 text-blue-500 rounded-md uppercase">
-                  Beta
-                </span>
-              </>
-            ),
-            icon: Rss,
-            to: '/feed',
-          },
-          {
             label: 'Maintainers',
             icon: Code,
             to: '/maintainers',
@@ -817,12 +796,6 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   return (
     <>
       {navbar}
-      {/* Sticky announcement banners below the nav */}
-      <div className="sticky top-[var(--navbar-height)] z-[99]">
-        <React.Suspense fallback={null}>
-          <LazyAnnouncementBanner />
-        </React.Suspense>
-      </div>
       <div
         className={twMerge(
           `min-h-[calc(100dvh-var(--navbar-height))] flex flex-col

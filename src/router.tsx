@@ -95,7 +95,10 @@ export function getRouter() {
           errorMessage.includes('window.top.document') ||
           errorMessage.includes('isPlacementXdom')
 
-        if (isUnambiguousAdScriptError || (hasAdScriptFrame && hasExpectedErrorMessage)) {
+        if (
+          isUnambiguousAdScriptError ||
+          (hasAdScriptFrame && hasExpectedErrorMessage)
+        ) {
           // Suppress the error - log to console in debug mode
           console.debug(
             'Suppressed Publift Fuse/ad script error:',

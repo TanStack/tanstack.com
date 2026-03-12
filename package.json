@@ -43,7 +43,7 @@
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
     "@sentry/node": "^10.42.0",
-    "@sentry/tanstackstart-react": "^10.42.0",
+    "@sentry/tanstackstart-react": "^10.43.0",
     "@stackblitz/sdk": "^1.11.0",
     "@tailwindcss/typography": "^0.5.13",
     "@tailwindcss/vite": "^4.1.11",

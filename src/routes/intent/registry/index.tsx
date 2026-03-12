@@ -201,11 +201,7 @@ function IntentRegistryPage() {
             </svg>
             <input
               type="search"
-              placeholder={
-                tab === 'skills'
-                  ? 'Search skills by name, description, or content...'
-                  : 'Search packages...'
-              }
+              placeholder="Search packages and skills..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"

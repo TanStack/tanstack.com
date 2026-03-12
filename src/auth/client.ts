@@ -19,8 +19,17 @@ export const authClient = {
     /**
      * Initiate OAuth sign-in with a social provider (full page redirect)
      */
-    social: ({ provider }: { provider: OAuthProvider }) => {
-      window.location.href = `/auth/${provider}/start`
+    social: ({
+      provider,
+      returnTo,
+    }: {
+      provider: OAuthProvider
+      returnTo?: string
+    }) => {
+      const url = returnTo
+        ? `/auth/${provider}/start?returnTo=${encodeURIComponent(returnTo)}`
+        : `/auth/${provider}/start`
+      window.location.href = url
     },
 
     /**

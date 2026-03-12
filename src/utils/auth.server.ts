@@ -10,37 +10,14 @@
 import { createServerFn } from '@tanstack/react-start'
 import { getRequest } from '@tanstack/react-start/server'
 import { getAuthService, getAuthGuards } from '~/auth/index.server'
-import type { AuthUser, Capability } from '~/auth/index.server'
+import type { Capability } from '~/auth/index.server'
 import { ADMIN_ACCESS_CAPABILITIES } from '~/db/types'
-
-// In local dev the codebase is open-source and env vars gate the actual
-// secrets (DB, APIs). Route-level auth checks only block local workflows
-// without adding security, so we skip them. Server function handlers that
-// perform mutations are NOT bypassed here -- they enforce auth independently.
-const IS_DEV = process.env.NODE_ENV === 'development'
-
-// Synthetic dev user returned by UI-facing auth functions in local dev.
-// Only used when IS_DEV -- never reaches production.
-const DEV_USER: AuthUser = {
-  userId: 'dev',
-  email: 'dev@localhost',
-  name: 'Dev User',
-  image: null,
-  oauthImage: null,
-  displayUsername: 'dev',
-  capabilities: ['admin'],
-  adsDisabled: null,
-  interestedInHidingAds: null,
-  lastUsedFramework: null,
-}
 
 /**
  * Server function to get the current user.
- * Returns a synthetic dev user in local dev so the UI renders without a session.
  */
 export const getCurrentUser = createServerFn({ method: 'POST' }).handler(
   async () => {
-    if (IS_DEV) return DEV_USER
     const request = getRequest()
     const authService = getAuthService()
     return authService.getCurrentUser(request)
@@ -49,12 +26,11 @@ export const getCurrentUser = createServerFn({ method: 'POST' }).handler(
 
 /**
  * Server function to require authentication.
- * Called from route beforeLoad guards. Bypassed in local dev.
+ * Called from route beforeLoad guards.
  * Do NOT use this inside server function handlers -- use guards directly.
  */
 export const requireAuth = createServerFn({ method: 'POST' }).handler(
   async () => {
-    if (IS_DEV) return DEV_USER
     const request = getRequest()
     const guards = getAuthGuards()
     return guards.requireAuth(request)
@@ -63,7 +39,7 @@ export const requireAuth = createServerFn({ method: 'POST' }).handler(
 
 /**
  * Server function to require a specific capability.
- * Called from route beforeLoad guards. Bypassed in local dev.
+ * Called from route beforeLoad guards.
  * Do NOT use this inside server function handlers -- use guards directly.
  */
 export const requireCapability = createServerFn({ method: 'POST' })
@@ -71,7 +47,6 @@ export const requireCapability = createServerFn({ method: 'POST' })
     capability: data.capability as Capability,
   }))
   .handler(async ({ data: { capability } }) => {
-    if (IS_DEV) return DEV_USER
     const request = getRequest()
     const guards = getAuthGuards()
     return guards.requireCapability(request, capability)
@@ -119,13 +94,10 @@ export { ADMIN_ACCESS_CAPABILITIES as ADMIN_CAPABILITIES } from '~/db/types'
 /**
  * Server function to require any admin-like capability.
  * Used for accessing the /admin area (each sub-route checks specific capabilities).
- * Bypassed in local dev -- route-level only, server fn handlers enforce independently.
  */
 export const requireAnyAdminCapability = createServerFn({
   method: 'POST',
 }).handler(async () => {
-  if (IS_DEV) return DEV_USER
-
   const request = getRequest()
   const authService = getAuthService()
   const user = await authService.getCurrentUser(request)

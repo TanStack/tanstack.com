@@ -1,0 +1,374 @@
+import { createGunzip } from 'node:zlib'
+import { createHash } from 'node:crypto'
+import { Readable } from 'node:stream'
+import extract from 'tar-stream'
+
+// ---------------------------------------------------------------------------
+// NPM Registry API types
+// ---------------------------------------------------------------------------
+
+export interface NpmSearchResult {
+  objects: Array<{
+    package: {
+      name: string
+      version: string
+      description: string
+      keywords?: Array<string>
+      date: string
+      links: {
+        npm?: string
+        homepage?: string
+        repository?: string
+        bugs?: string
+      }
+      publisher?: { username: string; email: string }
+      maintainers: Array<{ username: string; email: string }>
+    }
+    score: {
+      final: number
+      detail: { quality: number; popularity: number; maintenance: number }
+    }
+    downloads?: { monthly: number; weekly: number }
+  }>
+  total: number
+  time: string
+}
+
+export interface NpmPackument {
+  name: string
+  description?: string
+  'dist-tags': Record<string, string>
+  versions: Record<
+    string,
+    {
+      name: string
+      version: string
+      description?: string
+      keywords?: Array<string>
+      homepage?: string
+      repository?: { type: string; url: string } | string
+      bin?: Record<string, string>
+      dist: {
+        tarball: string
+        shasum: string
+        integrity?: string
+        fileCount?: number
+        unpackedSize?: number
+      }
+      time?: string
+    }
+  >
+  time: Record<string, string>
+}
+
+export interface ParsedSkill {
+  name: string
+  description: string
+  type?: string
+  framework?: string
+  requires?: Array<string>
+  contentHash: string
+  content: string
+  lineCount: number
+  skillPath: string
+}
+
+// ---------------------------------------------------------------------------
+// NPM Registry fetch helpers
+// ---------------------------------------------------------------------------
+
+const NPM_REGISTRY = 'https://registry.npmjs.org'
+
+export async function searchIntentPackages(): Promise<NpmSearchResult> {
+  const results: NpmSearchResult = { objects: [], total: 0, time: '' }
+  let from = 0
+  const size = 250
+
+  while (true) {
+    const url = `${NPM_REGISTRY}/-/v1/search?text=keywords:tanstack-intent&size=${size}&from=${from}`
+    const res = await fetch(url, {
+      headers: { Accept: 'application/json' },
+    })
+    if (!res.ok) {
+      throw new Error(`NPM search failed: ${res.status} ${res.statusText}`)
+    }
+    const page = (await res.json()) as NpmSearchResult
+
+    results.objects.push(...page.objects)
+    results.total = page.total
+    results.time = page.time
+
+    from += size
+    if (from >= page.total || page.objects.length === 0) break
+  }
+
+  return results
+}
+
+export async function fetchPackument(name: string): Promise<NpmPackument> {
+  const encoded = name.startsWith('@')
+    ? `@${encodeURIComponent(name.slice(1))}`
+    : encodeURIComponent(name)
+  const url = `${NPM_REGISTRY}/${encoded}`
+  const res = await fetch(url, {
+    headers: { Accept: 'application/json' },
+  })
+  if (!res.ok) {
+    throw new Error(
+      `Failed to fetch packument for ${name}: ${res.status} ${res.statusText}`,
+    )
+  }
+  return (await res.json()) as NpmPackument
+}
+
+// ---------------------------------------------------------------------------
+// Intent compatibility check
+// ---------------------------------------------------------------------------
+
+export function isIntentCompatible(
+  versionMeta: NpmPackument['versions'][string],
+): boolean {
+  return versionMeta.keywords?.includes('tanstack-intent') ?? false
+}
+
+// ---------------------------------------------------------------------------
+// Version selection: latest + up to 4 prior (total max 5)
+// ---------------------------------------------------------------------------
+
+// Returns versions to enqueue: latest + up to 4 prior, excluding any already
+// known to the DB (regardless of their sync status -- don't re-enqueue what's
+// already pending, failed, or synced).
+export function selectVersionsToSync(
+  packument: NpmPackument,
+  knownVersions: Set<string>,
+): Array<{ version: string; tarball: string; publishedAt: Date | null }> {
+  const latestVersion = packument['dist-tags'].latest
+  if (!latestVersion) return []
+
+  // Collect all versions sorted newest-first by publish time
+  const allVersions = Object.entries(packument.versions)
+    .map(([version, meta]) => ({
+      version,
+      tarball: meta.dist.tarball,
+      publishedAt: packument.time[version]
+        ? new Date(packument.time[version])
+        : null,
+    }))
+    .sort((a, b) => {
+      if (!a.publishedAt || !b.publishedAt) return 0
+      return b.publishedAt.getTime() - a.publishedAt.getTime()
+    })
+
+  const toEnqueue: Array<{
+    version: string
+    tarball: string
+    publishedAt: Date | null
+  }> = []
+
+  // Latest first
+  const latestMeta = packument.versions[latestVersion]
+  if (!knownVersions.has(latestVersion) && latestMeta) {
+    toEnqueue.push({
+      version: latestVersion,
+      tarball: latestMeta.dist.tarball,
+      publishedAt: packument.time[latestVersion]
+        ? new Date(packument.time[latestVersion])
+        : null,
+    })
+  }
+
+  // Fill remaining slots (max 4 more) newest-to-oldest
+  for (const v of allVersions) {
+    if (toEnqueue.length >= 5) break
+    if (v.version === latestVersion) continue
+    if (knownVersions.has(v.version)) continue
+    toEnqueue.push(v)
+  }
+
+  return toEnqueue
+}
+
+// ---------------------------------------------------------------------------
+// Tarball extraction + skill parsing
+// ---------------------------------------------------------------------------
+
+// Extract and parse all SKILL.md files from an npm tarball URL.
+// Only files matching `package/skills/**/SKILL.md` are read; the rest
+// of the tarball is streamed past without buffering.
+export async function extractSkillsFromTarball(
+  tarballUrl: string,
+): Promise<Array<ParsedSkill>> {
+  const res = await fetch(tarballUrl)
+  if (!res.ok) {
+    throw new Error(
+      `Failed to download tarball ${tarballUrl}: ${res.status} ${res.statusText}`,
+    )
+  }
+  if (!res.body) {
+    throw new Error(`Tarball response body is null: ${tarballUrl}`)
+  }
+
+  const skills: Array<ParsedSkill> = []
+
+  await new Promise<void>((resolve, reject) => {
+    const extractor = extract.extract()
+
+    extractor.on(
+      'entry',
+      (
+        header: { name: string },
+        stream: NodeJS.ReadableStream,
+        next: () => void,
+      ) => {
+        // npm tarballs have paths like `package/skills/core/SKILL.md`
+        const isSkillFile = /^package\/skills\/.+\/SKILL\.md$/i.test(
+          header.name,
+        )
+
+        if (!isSkillFile) {
+          // Drain the stream without buffering
+          stream.resume()
+          stream.on('end', next)
+          return
+        }
+
+        // Extract the skill directory path: `package/skills/foo/bar/SKILL.md` -> `foo/bar`
+        const skillPath = header.name
+          .replace(/^package\/skills\//i, '')
+          .replace(/\/SKILL\.md$/i, '')
+
+        const chunks: Array<Buffer> = []
+        stream.on('data', (chunk: Buffer) => chunks.push(chunk))
+        stream.on('end', () => {
+          const content = Buffer.concat(chunks).toString('utf8')
+          const parsed = parseSkillFile(content, skillPath)
+          if (parsed) skills.push(parsed)
+          next()
+        })
+        stream.on('error', reject)
+      },
+    )
+
+    extractor.on('finish', resolve)
+    extractor.on('error', reject)
+
+    // Web ReadableStream -> Node Readable -> gunzip -> tar extractor
+    const nodeReadable = Readable.fromWeb(
+      res.body as import('stream/web').ReadableStream,
+    )
+    nodeReadable.pipe(createGunzip()).pipe(extractor)
+  })
+
+  return skills
+}
+
+// ---------------------------------------------------------------------------
+// SKILL.md frontmatter parser
+// ---------------------------------------------------------------------------
+
+export function parseSkillFile(
+  content: string,
+  skillPath = '',
+): ParsedSkill | null {
+  const lines = content.split('\n')
+  const lineCount = lines.length
+
+  // Frontmatter must start with `---` on line 1
+  if (lines[0]?.trim() !== '---') return null
+
+  const closingIdx = lines.findIndex((l, i) => i > 0 && l.trim() === '---')
+  if (closingIdx === -1) return null
+
+  const frontmatterLines = lines.slice(1, closingIdx)
+  const frontmatter = parseFrontmatter(frontmatterLines)
+
+  const name = frontmatter.name
+  const description = frontmatter.description ?? ''
+
+  if (!name || !description) return null
+
+  const contentHash = createHash('sha256').update(content).digest('hex')
+
+  return {
+    name: String(name),
+    description: String(description),
+    type: frontmatter.type ? String(frontmatter.type) : undefined,
+    framework: frontmatter.framework
+      ? String(frontmatter.framework)
+      : undefined,
+    requires: Array.isArray(frontmatter.requires)
+      ? frontmatter.requires.map(String)
+      : undefined,
+    contentHash,
+    content,
+    lineCount,
+    skillPath,
+  }
+}
+
+// Minimal YAML frontmatter parser covering the subset used in SKILL.md files.
+// Handles: plain scalars, quoted strings, and simple sequence lists (- item).
+function parseFrontmatter(lines: Array<string>): Record<string, unknown> {
+  const result: Record<string, unknown> = {}
+  let currentKey: string | null = null
+  let inList = false
+  let inFolded = false // collecting a `>` or `|` multi-line value
+
+  for (const raw of lines) {
+    const line = raw.trimEnd()
+
+    // Skip comments
+    if (line.trimStart().startsWith('#')) continue
+
+    // Continuation line for folded/literal block scalar
+    if (inFolded && currentKey !== null && line.match(/^\s+/)) {
+      const existing = result[currentKey]
+      const chunk = line.trim()
+      result[currentKey] = existing ? `${existing} ${chunk}` : chunk
+      continue
+    } else {
+      inFolded = false
+    }
+
+    // List item
+    if (line.match(/^\s+-\s+/)) {
+      if (currentKey && inList) {
+        const existing = result[currentKey]
+        const item = line
+          .replace(/^\s+-\s+/, '')
+          .trim()
+          .replace(/^["']|["']$/g, '')
+        if (Array.isArray(existing)) {
+          existing.push(item)
+        } else {
+          result[currentKey] = [item]
+        }
+      }
+      continue
+    }
+
+    // Key: value
+    const kvMatch = line.match(/^(\w[\w_-]*):\s*(.*)$/)
+    if (kvMatch) {
+      inList = false
+      currentKey = kvMatch[1]
+      const rawVal = kvMatch[2].trim()
+
+      if (rawVal === '|' || rawVal === '>') {
+        // Multi-line block scalar -- collect indented continuation lines
+        result[currentKey] = ''
+        inFolded = true
+      } else if (rawVal === '') {
+        result[currentKey] = ''
+      } else if (rawVal === '[]') {
+        result[currentKey] = []
+        inList = true
+      } else {
+        result[currentKey] = rawVal.replace(/^["']|["']$/g, '')
+      }
+      continue
+    }
+  }
+
+  return result
+}

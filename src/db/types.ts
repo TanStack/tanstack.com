@@ -7,7 +7,6 @@ export const CAPABILITIES = [
   'api-keys',
   'disableAds',
   'builder',
-  'feed',
   'mcp',
   'moderate-feedback',
   'moderate-showcases',
@@ -18,12 +17,6 @@ export const OAUTH_PROVIDERS = ['github', 'google'] as const
 export const DOC_FEEDBACK_TYPES = ['note', 'improvement'] as const
 
 export const DOC_FEEDBACK_STATUSES = ['pending', 'approved', 'denied'] as const
-
-export const BANNER_SCOPES = ['global', 'targeted'] as const
-
-export const BANNER_STYLES = ['info', 'warning', 'success', 'promo'] as const
-
-export const ENTRY_TYPES = ['release', 'blog', 'announcement'] as const
 
 export const SHOWCASE_STATUSES = ['pending', 'approved', 'denied'] as const
 
@@ -57,12 +50,6 @@ export const AUDIT_ACTIONS = [
   'role.delete',
   'role.assignment.create',
   'role.assignment.delete',
-  'banner.create',
-  'banner.update',
-  'banner.delete',
-  'feed.entry.create',
-  'feed.entry.update',
-  'feed.entry.delete',
   'feedback.moderate',
   'showcase.create',
   'showcase.update',
@@ -72,21 +59,15 @@ export const AUDIT_ACTIONS = [
 
 export const RELEASE_LEVELS = ['major', 'minor', 'patch'] as const
 
-export const FEED_VIEW_MODES = ['table', 'timeline'] as const
-
 // Derived types from constants
 export type Capability = (typeof CAPABILITIES)[number]
 export type OAuthProvider = (typeof OAUTH_PROVIDERS)[number]
 export type DocFeedbackType = (typeof DOC_FEEDBACK_TYPES)[number]
 export type DocFeedbackStatus = (typeof DOC_FEEDBACK_STATUSES)[number]
-export type BannerScope = (typeof BANNER_SCOPES)[number]
-export type BannerStyle = (typeof BANNER_STYLES)[number]
-export type EntryType = (typeof ENTRY_TYPES)[number]
 export type ShowcaseStatus = (typeof SHOWCASE_STATUSES)[number]
 export type ShowcaseUseCase = (typeof SHOWCASE_USE_CASES)[number]
 export type AuditAction = (typeof AUDIT_ACTIONS)[number]
 export type ReleaseLevel = (typeof RELEASE_LEVELS)[number]
-export type FeedViewMode = (typeof FEED_VIEW_MODES)[number]
 
 // Legacy aliases for backwards compatibility
 /** @deprecated Use CAPABILITIES instead */
@@ -97,11 +78,6 @@ export const ADMIN_ACCESS_CAPABILITIES = [
   'admin',
   'moderate-feedback',
   'moderate-showcases',
-  'feed',
-] as const
-
-export const MANUAL_ENTRY_TYPES: readonly EntryType[] = [
-  'announcement',
 ] as const
 
 // Inferred model types (manually defined to avoid drizzle-orm dependency)

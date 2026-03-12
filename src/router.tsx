@@ -87,7 +87,18 @@ export function getRouter() {
           errorMessage.includes('null is not an object') ||
           errorMessage.includes('is not a function')
 
-        if (hasAdScriptFrame && hasExpectedErrorMessage) {
+        // Some ad script errors (e.g. Publift Fuse cross-origin iframe errors) have
+        // highly specific message patterns that identify them unambiguously, even when
+        // the stack trace has been obscured by Sentry's sentryWrapped helper and no
+        // ad-script frame is visible. Suppress these directly by message alone.
+        const isUnambiguousAdScriptError =
+          errorMessage.includes('window.top.document') ||
+          errorMessage.includes('isPlacementXdom')
+
+        if (
+          isUnambiguousAdScriptError ||
+          (hasAdScriptFrame && hasExpectedErrorMessage)
+        ) {
           // Suppress the error - log to console in debug mode
           console.debug(
             'Suppressed Publift Fuse/ad script error:',

@@ -4,6 +4,7 @@ import { Card } from '~/components/Card'
 import { seo } from '~/utils/seo'
 import { Rss, BookOpen, Github } from 'lucide-react'
 import { BrandXIcon } from '~/components/icons/BrandXIcon'
+import { YouTubeIcon } from '~/components/icons/YouTubeIcon'
 
 export const Route = createFileRoute('/feed')({
   component: RouteComp,
@@ -48,6 +49,17 @@ const alternatives = [
       'Follow @tan_stack for announcements, early previews, and release highlights.',
     href: 'https://x.com/tan_stack',
     label: 'Follow on X',
+    internal: false,
+  },
+  {
+    title: 'YouTube',
+    icon: YouTubeIcon,
+    gradient: 'from-red-500 to-red-700',
+    borderColor: 'hover:border-red-500/50',
+    description:
+      'Tutorials, deep dives, and release walkthroughs on the official TanStack channel.',
+    href: 'https://youtube.com/@tan_stack',
+    label: 'Subscribe on YouTube',
     internal: false,
   },
 ]

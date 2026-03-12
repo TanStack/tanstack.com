@@ -1,8 +1,9 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
-import { Users, Video, MapPin, Star } from 'lucide-react'
+import { Users, Video, MapPin, Star, Play } from 'lucide-react'
 import { LogoQueryGG } from '~/ui'
 import { CheckCircleIcon } from '~/components/icons/CheckCircleIcon'
+import { YouTubeIcon } from '~/components/icons/YouTubeIcon'
 
 export const Route = createFileRoute('/learn')({
   component: LearnPage,
@@ -27,6 +28,48 @@ function LearnPage() {
           </p>
         </header>
         <div className="flex items-stretch flex-wrap gap-4 max-w-full w-[900px] justify-center">
+          <a
+            href="https://youtube.com/@tan_stack"
+            target="_blank"
+            rel="noreferrer"
+            className="min-w-[300px] max-w-[300px] rounded-lg bg-gradient-to-br from-red-500 to-red-700 text-white shadow-black/20 shadow-lg hover:shadow-2xl hover:shadow-black/20 divide-y divide-white/30 transition-all duration-200 hover:scale-105 block relative overflow-visible"
+          >
+            <div className="absolute -top-2 -right-2 z-40 px-2 py-1 rounded-md bg-gradient-to-r from-red-500 to-red-700 uppercase text-white font-black italic text-xs">
+              NEW
+            </div>
+            <div className="p-4 lg:p-8">
+              <div className="flex items-center gap-3 mb-4">
+                <YouTubeIcon className="w-8 h-8" />
+                <h2 className="text-xl font-bold">YouTube Channel</h2>
+              </div>
+              <p className="text-sm mb-4 opacity-90">
+                Free video content from the TanStack team. Tutorials, deep
+                dives, and release walkthroughs.
+              </p>
+              <div className="grid gap-2 text-xs text-left">
+                <div className="flex items-start gap-2">
+                  <Play className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <div>Tutorials & walkthroughs</div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Video className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <div>Deep dives into library internals</div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Star className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <div>Release announcements & demos</div>
+                </div>
+              </div>
+              <div className="mt-6 pt-4 border-t border-white/30">
+                <div className="text-xs opacity-75 text-center mb-2">
+                  Free for everyone
+                </div>
+                <div className="text-xs opacity-90 text-center font-medium">
+                  Subscribe now &rarr;
+                </div>
+              </div>
+            </div>
+          </a>
           <Link
             to="/workshops"
             className="min-w-[300px] max-w-[300px] rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-black/20 shadow-lg hover:shadow-2xl hover:shadow-black/20 divide-y divide-white/30 transition-all duration-200 hover:scale-105 block relative overflow-visible"

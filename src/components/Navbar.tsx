@@ -49,6 +49,7 @@ import { DiscordIcon } from '~/components/icons/DiscordIcon'
 import { InstagramIcon } from '~/components/icons/InstagramIcon'
 import { BSkyIcon } from '~/components/icons/BSkyIcon'
 import { BrandXIcon } from '~/components/icons/BrandXIcon'
+import { YouTubeIcon } from '~/components/icons/YouTubeIcon'
 const LazyAuthenticatedUserMenu = React.lazy(() =>
   import('~/components/AuthenticatedUserMenu').then((m) => ({
     default: m.AuthenticatedUserMenu,
@@ -277,6 +278,12 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         aria-label="Follow TanStack on Instagram"
       >
         <InstagramIcon />
+      </a>
+      <a
+        href="https://youtube.com/@tan_stack"
+        aria-label="Subscribe to TanStack on YouTube"
+      >
+        <YouTubeIcon />
       </a>
       <a href="https://tlinz.com/discord" aria-label="Join TanStack Discord">
         <DiscordIcon />
@@ -633,6 +640,12 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             label: 'Stats',
             icon: TrendingUp,
             to: '/stats/npm',
+          },
+          {
+            label: 'YouTube',
+            icon: YouTubeIcon,
+            to: 'https://youtube.com/@tan_stack',
+            target: '_blank',
           },
           {
             label: 'Discord',

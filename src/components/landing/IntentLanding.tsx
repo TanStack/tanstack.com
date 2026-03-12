@@ -148,17 +148,36 @@ function IntentRegistryPreview() {
                 params={{ packageName: pkg.name.replace('/', '__') }}
                 className="group flex flex-col gap-2 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/50 p-4 hover:border-sky-300 dark:hover:border-sky-700 transition-colors"
               >
-                <div className="flex items-center justify-between gap-2">
+                <div className="flex items-start justify-between gap-2 mb-1">
                   <span className="font-mono text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors truncate">
                     {pkg.name}
                   </span>
+                  <div className="shrink-0 w-20">
+                    {skillHistory[pkg.name] &&
+                    skillHistory[pkg.name].length > 0 ? (
+                      <SkillSparkline
+                        history={skillHistory[pkg.name]}
+                        height={24}
+                        maxSlots={maxSlots}
+                        onVersionClick={(entry: SkillHistoryEntry) => {
+                          navigate({
+                            to: '/intent/registry/$packageName',
+                            params: {
+                              packageName: pkg.name.replace('/', '__'),
+                            },
+                            search: { version: entry.version },
+                          })
+                        }}
+                      />
+                    ) : null}
+                  </div>
+                </div>
+                {/* Stats row */}
+                <div className="flex items-center gap-3 text-[11px] text-gray-400 dark:text-gray-500">
                   <span className="shrink-0 text-xs font-medium text-sky-600 dark:text-sky-400 tabular-nums">
                     {pkg.skillNames.length}{' '}
                     {pkg.skillNames.length === 1 ? 'skill' : 'skills'}
                   </span>
-                </div>
-                {/* Stats row */}
-                <div className="flex items-center gap-3 text-[11px] text-gray-400 dark:text-gray-500">
                   {pkg.monthlyDownloads > 0 && (
                     <span className="tabular-nums">
                       {pkg.monthlyDownloads >= 1_000_000
@@ -179,23 +198,6 @@ function IntentRegistryPreview() {
                     {pkg.description}
                   </p>
                 )}
-                {skillHistory[pkg.name] &&
-                  skillHistory[pkg.name].length > 0 && (
-                    <SkillSparkline
-                      history={skillHistory[pkg.name]}
-                      height={28}
-                      maxSlots={maxSlots}
-                      onVersionClick={(entry: SkillHistoryEntry) => {
-                        navigate({
-                          to: '/intent/registry/$packageName',
-                          params: {
-                            packageName: pkg.name.replace('/', '__'),
-                          },
-                          search: { version: entry.version },
-                        })
-                      }}
-                    />
-                  )}
               </Link>
             ))}
           </div>

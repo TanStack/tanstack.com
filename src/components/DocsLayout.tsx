@@ -2,6 +2,7 @@ import * as React from 'react'
 import { ChevronLeft, ChevronRight, Menu } from 'lucide-react'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { DiscordIcon } from '~/components/icons/DiscordIcon'
+import { YouTubeIcon } from '~/components/icons/YouTubeIcon'
 import { Link, useMatches, useParams } from '@tanstack/react-router'
 import { useLocalStorage } from '~/utils/useLocalStorage'
 import { useClickOutside } from '~/hooks/useClickOutside'
@@ -407,6 +408,14 @@ const useMenuConfig = ({
           </div>
         ),
         to: `https://github.com/${repo}`,
+      },
+      {
+        label: (
+          <div className="flex items-center gap-2">
+            YouTube <YouTubeIcon className="text-lg opacity-20" />
+          </div>
+        ),
+        to: 'https://youtube.com/@tan_stack',
       },
       {
         label: (

@@ -26,6 +26,7 @@ import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
 import { Route as LibrariesRouteImport } from './routes/libraries'
 import { Route as LearnRouteImport } from './routes/learn'
 import { Route as FeedbackLeaderboardRouteImport } from './routes/feedback-leaderboard'
+import { Route as FeedRouteImport } from './routes/feed'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as EthosRouteImport } from './routes/ethos'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -53,6 +54,7 @@ import { Route as BuilderDocsRouteImport } from './routes/builder.docs'
 import { Route as BlogSplatRouteImport } from './routes/blog.$'
 import { Route as AuthSignoutRouteImport } from './routes/auth/signout'
 import { Route as AuthPopupSuccessRouteImport } from './routes/auth/popup-success'
+import { Route as AuthCliRouteImport } from './routes/auth/cli'
 import { Route as ApiUploadthingRouteImport } from './routes/api/uploadthing'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as AdminNpmStatsRouteImport } from './routes/admin/npm-stats'
@@ -103,6 +105,7 @@ import { Route as LibraryIdVersionDocsIndexRouteImport } from './routes/$library
 import { Route as IntentRegistryPackageNameSkillNameRouteImport } from './routes/intent/registry/$packageName.$skillName'
 import { Route as ApiBuilderDeployGithubRouteImport } from './routes/api/builder/deploy/github'
 import { Route as ApiBuilderDeployCheckNameRouteImport } from './routes/api/builder/deploy/check-name'
+import { Route as ApiAuthCliCreateTicketRouteImport } from './routes/api/auth/cli/create-ticket'
 import { Route as ApiAuthCallbackProviderRouteImport } from './routes/api/auth/callback/$provider'
 import { Route as LibraryIdVersionDocsChar123Char125DotmdRouteImport } from './routes/$libraryId/$version.docs.{$}[.]md'
 import { Route as LibraryIdVersionDocsNpmStatsRouteImport } from './routes/$libraryId/$version.docs.npm-stats'
@@ -110,6 +113,7 @@ import { Route as LibraryIdVersionDocsContributorsRouteImport } from './routes/$
 import { Route as LibraryIdVersionDocsCommunityResourcesRouteImport } from './routes/$libraryId/$version.docs.community-resources'
 import { Route as LibraryIdVersionDocsSplatRouteImport } from './routes/$libraryId/$version.docs.$'
 import { Route as LibraryIdVersionDocsFrameworkIndexRouteImport } from './routes/$libraryId/$version.docs.framework.index'
+import { Route as ApiAuthCliStatusTicketIdRouteImport } from './routes/api/auth/cli/status.$ticketId'
 import { Route as LibraryIdVersionDocsFrameworkFrameworkIndexRouteImport } from './routes/$libraryId/$version.docs.framework.$framework.index'
 import { Route as LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRouteImport } from './routes/$libraryId/$version.docs.framework.$framework.{$}[.]md'
 import { Route as LibraryIdVersionDocsFrameworkFrameworkSplatRouteImport } from './routes/$libraryId/$version.docs.framework.$framework.$'
@@ -198,6 +202,11 @@ const LearnRoute = LearnRouteImport.update({
 const FeedbackLeaderboardRoute = FeedbackLeaderboardRouteImport.update({
   id: '/feedback-leaderboard',
   path: '/feedback-leaderboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeedRoute = FeedRouteImport.update({
+  id: '/feed',
+  path: '/feed',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExploreRoute = ExploreRouteImport.update({
@@ -333,6 +342,11 @@ const AuthSignoutRoute = AuthSignoutRouteImport.update({
 const AuthPopupSuccessRoute = AuthPopupSuccessRouteImport.update({
   id: '/auth/popup-success',
   path: '/auth/popup-success',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthCliRoute = AuthCliRouteImport.update({
+  id: '/auth/cli',
+  path: '/auth/cli',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiUploadthingRoute = ApiUploadthingRouteImport.update({
@@ -595,6 +609,11 @@ const ApiBuilderDeployCheckNameRoute =
     path: '/api/builder/deploy/check-name',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiAuthCliCreateTicketRoute = ApiAuthCliCreateTicketRouteImport.update({
+  id: '/api/auth/cli/create-ticket',
+  path: '/api/auth/cli/create-ticket',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthCallbackProviderRoute = ApiAuthCallbackProviderRouteImport.update({
   id: '/api/auth/callback/$provider',
   path: '/api/auth/callback/$provider',
@@ -636,6 +655,12 @@ const LibraryIdVersionDocsFrameworkIndexRoute =
     path: '/framework/',
     getParentRoute: () => LibraryIdVersionDocsRoute,
   } as any)
+const ApiAuthCliStatusTicketIdRoute =
+  ApiAuthCliStatusTicketIdRouteImport.update({
+    id: '/api/auth/cli/status/$ticketId',
+    path: '/api/auth/cli/status/$ticketId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const LibraryIdVersionDocsFrameworkFrameworkIndexRoute =
   LibraryIdVersionDocsFrameworkFrameworkIndexRouteImport.update({
     id: '/framework/$framework/',
@@ -673,6 +698,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/ethos': typeof EthosRoute
   '/explore': typeof ExploreRoute
+  '/feed': typeof FeedRoute
   '/feedback-leaderboard': typeof FeedbackLeaderboardRoute
   '/learn': typeof LearnRoute
   '/libraries': typeof LibrariesRoute
@@ -703,6 +729,7 @@ export interface FileRoutesByFullPath {
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
   '/api/uploadthing': typeof ApiUploadthingRoute
+  '/auth/cli': typeof AuthCliRoute
   '/auth/popup-success': typeof AuthPopupSuccessRoute
   '/auth/signout': typeof AuthSignoutRoute
   '/blog/$': typeof BlogSplatRoute
@@ -757,11 +784,13 @@ export interface FileRoutesByFullPath {
   '/$libraryId/$version/docs/npm-stats': typeof LibraryIdVersionDocsNpmStatsRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
+  '/api/auth/cli/create-ticket': typeof ApiAuthCliCreateTicketRoute
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
   '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
   '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
   '/$libraryId/$version/docs/': typeof LibraryIdVersionDocsIndexRoute
   '/intent/registry/$packageName/': typeof IntentRegistryPackageNameIndexRoute
+  '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
   '/$libraryId/$version/docs/framework/': typeof LibraryIdVersionDocsFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/$': typeof LibraryIdVersionDocsFrameworkFrameworkSplatRoute
   '/$libraryId/$version/docs/framework/$framework/{$}.md': typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRoute
@@ -775,6 +804,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/ethos': typeof EthosRoute
   '/explore': typeof ExploreRoute
+  '/feed': typeof FeedRoute
   '/feedback-leaderboard': typeof FeedbackLeaderboardRoute
   '/learn': typeof LearnRoute
   '/libraries': typeof LibrariesRoute
@@ -804,6 +834,7 @@ export interface FileRoutesByTo {
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
   '/api/uploadthing': typeof ApiUploadthingRoute
+  '/auth/cli': typeof AuthCliRoute
   '/auth/popup-success': typeof AuthPopupSuccessRoute
   '/auth/signout': typeof AuthSignoutRoute
   '/blog/$': typeof BlogSplatRoute
@@ -856,11 +887,13 @@ export interface FileRoutesByTo {
   '/$libraryId/$version/docs/npm-stats': typeof LibraryIdVersionDocsNpmStatsRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
+  '/api/auth/cli/create-ticket': typeof ApiAuthCliCreateTicketRoute
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
   '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
   '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsIndexRoute
   '/intent/registry/$packageName': typeof IntentRegistryPackageNameIndexRoute
+  '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
   '/$libraryId/$version/docs/framework': typeof LibraryIdVersionDocsFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/$': typeof LibraryIdVersionDocsFrameworkFrameworkSplatRoute
   '/$libraryId/$version/docs/framework/$framework/{$}.md': typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRoute
@@ -880,6 +913,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/ethos': typeof EthosRoute
   '/explore': typeof ExploreRoute
+  '/feed': typeof FeedRoute
   '/feedback-leaderboard': typeof FeedbackLeaderboardRoute
   '/learn': typeof LearnRoute
   '/libraries': typeof LibrariesRoute
@@ -910,6 +944,7 @@ export interface FileRoutesById {
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
   '/api/uploadthing': typeof ApiUploadthingRoute
+  '/auth/cli': typeof AuthCliRoute
   '/auth/popup-success': typeof AuthPopupSuccessRoute
   '/auth/signout': typeof AuthSignoutRoute
   '/blog/$': typeof BlogSplatRoute
@@ -964,11 +999,13 @@ export interface FileRoutesById {
   '/$libraryId/$version/docs/npm-stats': typeof LibraryIdVersionDocsNpmStatsRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
+  '/api/auth/cli/create-ticket': typeof ApiAuthCliCreateTicketRoute
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
   '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
   '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
   '/$libraryId/$version/docs/': typeof LibraryIdVersionDocsIndexRoute
   '/intent/registry/$packageName/': typeof IntentRegistryPackageNameIndexRoute
+  '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
   '/$libraryId/$version/docs/framework/': typeof LibraryIdVersionDocsFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/$': typeof LibraryIdVersionDocsFrameworkFrameworkSplatRoute
   '/$libraryId/$version/docs/framework/$framework/{$}.md': typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRoute
@@ -989,6 +1026,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/ethos'
     | '/explore'
+    | '/feed'
     | '/feedback-leaderboard'
     | '/learn'
     | '/libraries'
@@ -1019,6 +1057,7 @@ export interface FileRouteTypes {
     | '/admin/npm-stats'
     | '/admin/users'
     | '/api/uploadthing'
+    | '/auth/cli'
     | '/auth/popup-success'
     | '/auth/signout'
     | '/blog/$'
@@ -1073,11 +1112,13 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/npm-stats'
     | '/$libraryId/$version/docs/{$}.md'
     | '/api/auth/callback/$provider'
+    | '/api/auth/cli/create-ticket'
     | '/api/builder/deploy/check-name'
     | '/api/builder/deploy/github'
     | '/intent/registry/$packageName/$skillName'
     | '/$libraryId/$version/docs/'
     | '/intent/registry/$packageName/'
+    | '/api/auth/cli/status/$ticketId'
     | '/$libraryId/$version/docs/framework/'
     | '/$libraryId/$version/docs/framework/$framework/$'
     | '/$libraryId/$version/docs/framework/$framework/{$}.md'
@@ -1091,6 +1132,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/ethos'
     | '/explore'
+    | '/feed'
     | '/feedback-leaderboard'
     | '/learn'
     | '/libraries'
@@ -1120,6 +1162,7 @@ export interface FileRouteTypes {
     | '/admin/npm-stats'
     | '/admin/users'
     | '/api/uploadthing'
+    | '/auth/cli'
     | '/auth/popup-success'
     | '/auth/signout'
     | '/blog/$'
@@ -1172,11 +1215,13 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/npm-stats'
     | '/$libraryId/$version/docs/{$}.md'
     | '/api/auth/callback/$provider'
+    | '/api/auth/cli/create-ticket'
     | '/api/builder/deploy/check-name'
     | '/api/builder/deploy/github'
     | '/intent/registry/$packageName/$skillName'
     | '/$libraryId/$version/docs'
     | '/intent/registry/$packageName'
+    | '/api/auth/cli/status/$ticketId'
     | '/$libraryId/$version/docs/framework'
     | '/$libraryId/$version/docs/framework/$framework/$'
     | '/$libraryId/$version/docs/framework/$framework/{$}.md'
@@ -1195,6 +1240,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/ethos'
     | '/explore'
+    | '/feed'
     | '/feedback-leaderboard'
     | '/learn'
     | '/libraries'
@@ -1225,6 +1271,7 @@ export interface FileRouteTypes {
     | '/admin/npm-stats'
     | '/admin/users'
     | '/api/uploadthing'
+    | '/auth/cli'
     | '/auth/popup-success'
     | '/auth/signout'
     | '/blog/$'
@@ -1279,11 +1326,13 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/npm-stats'
     | '/$libraryId/$version/docs/{$}.md'
     | '/api/auth/callback/$provider'
+    | '/api/auth/cli/create-ticket'
     | '/api/builder/deploy/check-name'
     | '/api/builder/deploy/github'
     | '/intent/registry/$packageName/$skillName'
     | '/$libraryId/$version/docs/'
     | '/intent/registry/$packageName/'
+    | '/api/auth/cli/status/$ticketId'
     | '/$libraryId/$version/docs/framework/'
     | '/$libraryId/$version/docs/framework/$framework/$'
     | '/$libraryId/$version/docs/framework/$framework/{$}.md'
@@ -1303,6 +1352,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   EthosRoute: typeof EthosRoute
   ExploreRoute: typeof ExploreRoute
+  FeedRoute: typeof FeedRoute
   FeedbackLeaderboardRoute: typeof FeedbackLeaderboardRoute
   LearnRoute: typeof LearnRoute
   LibrariesRoute: typeof LibrariesRoute
@@ -1322,6 +1372,7 @@ export interface RootRouteChildren {
   WorkshopsRoute: typeof WorkshopsRoute
   DotwellKnownOauthAuthorizationServerRoute: typeof DotwellKnownOauthAuthorizationServerRoute
   ApiUploadthingRoute: typeof ApiUploadthingRoute
+  AuthCliRoute: typeof AuthCliRoute
   AuthPopupSuccessRoute: typeof AuthPopupSuccessRoute
   AuthSignoutRoute: typeof AuthSignoutRoute
   OauthAuthorizeRoute: typeof OauthAuthorizeRoute
@@ -1354,8 +1405,10 @@ export interface RootRouteChildren {
   IntentRegistryIndexRoute: typeof IntentRegistryIndexRoute
   StatsNpmIndexRoute: typeof StatsNpmIndexRoute
   ApiAuthCallbackProviderRoute: typeof ApiAuthCallbackProviderRoute
+  ApiAuthCliCreateTicketRoute: typeof ApiAuthCliCreateTicketRoute
   ApiBuilderDeployCheckNameRoute: typeof ApiBuilderDeployCheckNameRoute
   ApiBuilderDeployGithubRoute: typeof ApiBuilderDeployGithubRoute
+  ApiAuthCliStatusTicketIdRoute: typeof ApiAuthCliStatusTicketIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1477,6 +1530,13 @@ declare module '@tanstack/react-router' {
       path: '/feedback-leaderboard'
       fullPath: '/feedback-leaderboard'
       preLoaderRoute: typeof FeedbackLeaderboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/feed': {
+      id: '/feed'
+      path: '/feed'
+      fullPath: '/feed'
+      preLoaderRoute: typeof FeedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/explore': {
@@ -1666,6 +1726,13 @@ declare module '@tanstack/react-router' {
       path: '/auth/popup-success'
       fullPath: '/auth/popup-success'
       preLoaderRoute: typeof AuthPopupSuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/cli': {
+      id: '/auth/cli'
+      path: '/auth/cli'
+      fullPath: '/auth/cli'
+      preLoaderRoute: typeof AuthCliRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/uploadthing': {
@@ -2018,6 +2085,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiBuilderDeployCheckNameRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/auth/cli/create-ticket': {
+      id: '/api/auth/cli/create-ticket'
+      path: '/api/auth/cli/create-ticket'
+      fullPath: '/api/auth/cli/create-ticket'
+      preLoaderRoute: typeof ApiAuthCliCreateTicketRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/callback/$provider': {
       id: '/api/auth/callback/$provider'
       path: '/api/auth/callback/$provider'
@@ -2066,6 +2140,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/$libraryId/$version/docs/framework/'
       preLoaderRoute: typeof LibraryIdVersionDocsFrameworkIndexRouteImport
       parentRoute: typeof LibraryIdVersionDocsRoute
+    }
+    '/api/auth/cli/status/$ticketId': {
+      id: '/api/auth/cli/status/$ticketId'
+      path: '/api/auth/cli/status/$ticketId'
+      fullPath: '/api/auth/cli/status/$ticketId'
+      preLoaderRoute: typeof ApiAuthCliStatusTicketIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/$libraryId/$version/docs/framework/$framework/': {
       id: '/$libraryId/$version/docs/framework/$framework/'
@@ -2286,6 +2367,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   EthosRoute: EthosRoute,
   ExploreRoute: ExploreRoute,
+  FeedRoute: FeedRoute,
   FeedbackLeaderboardRoute: FeedbackLeaderboardRoute,
   LearnRoute: LearnRoute,
   LibrariesRoute: LibrariesRoute,
@@ -2306,6 +2388,7 @@ const rootRouteChildren: RootRouteChildren = {
   DotwellKnownOauthAuthorizationServerRoute:
     DotwellKnownOauthAuthorizationServerRoute,
   ApiUploadthingRoute: ApiUploadthingRoute,
+  AuthCliRoute: AuthCliRoute,
   AuthPopupSuccessRoute: AuthPopupSuccessRoute,
   AuthSignoutRoute: AuthSignoutRoute,
   OauthAuthorizeRoute: OauthAuthorizeRoute,
@@ -2338,8 +2421,10 @@ const rootRouteChildren: RootRouteChildren = {
   IntentRegistryIndexRoute: IntentRegistryIndexRoute,
   StatsNpmIndexRoute: StatsNpmIndexRoute,
   ApiAuthCallbackProviderRoute: ApiAuthCallbackProviderRoute,
+  ApiAuthCliCreateTicketRoute: ApiAuthCliCreateTicketRoute,
   ApiBuilderDeployCheckNameRoute: ApiBuilderDeployCheckNameRoute,
   ApiBuilderDeployGithubRoute: ApiBuilderDeployGithubRoute,
+  ApiAuthCliStatusTicketIdRoute: ApiAuthCliStatusTicketIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

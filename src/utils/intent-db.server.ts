@@ -122,6 +122,19 @@ export async function getSkillsForVersion(
   return rows
 }
 
+// Lightweight query for diffing: only name + contentHash, no content body join
+export async function getSkillFingerprintsForVersion(
+  packageVersionId: number,
+): Promise<Array<{ name: string; contentHash: string }>> {
+  return db
+    .select({
+      name: intentSkills.name,
+      contentHash: intentSkills.contentHash,
+    })
+    .from(intentSkills)
+    .where(eq(intentSkills.packageVersionId, packageVersionId))
+}
+
 // Aggregate stats for the registry hero banner
 export async function getIntentRegistryStats(): Promise<{
   packageCount: number

@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useSuspenseQuery, useQuery } from '@tanstack/react-query'
 import * as v from 'valibot'
 import { seo } from '~/utils/seo'
@@ -7,12 +7,18 @@ import {
   intentStatsQueryOptions,
   intentDirectoryQueryOptions,
   intentSkillSearchQueryOptions,
+  intentSkillHistoryQueryOptions,
 } from '~/queries/intent'
 import type {
   EnrichedIntentPackage,
+  SkillHistoryEntry,
   SkillSearchResult,
 } from '~/utils/intent.functions'
 import { SkillTypeBadge } from './$packageName'
+import {
+  SkillSparkline,
+  SkillSparklinePlaceholder,
+} from '~/components/intent/SkillSparkline'
 
 const searchSchema = v.object({
   q: v.optional(v.string()),
@@ -66,6 +72,22 @@ function IntentRegistryPage() {
 
   const stats = statsQuery.data
   const { packages, total } = directoryQuery.data ?? { packages: [], total: 0 }
+
+  const packageNames = React.useMemo(
+    () => packages.map((p) => p.name),
+    [packages],
+  )
+  const skillHistoryQuery = useQuery(
+    intentSkillHistoryQueryOptions(packageNames),
+  )
+  const skillHistory = React.useMemo(
+    () => skillHistoryQuery.data ?? {},
+    [skillHistoryQuery.data],
+  )
+  const maxSlots = React.useMemo(
+    () => Math.max(...Object.values(skillHistory).map((h) => h.length), 2),
+    [skillHistory],
+  )
 
   const [searchInput, setSearchInput] = React.useState(q ?? '')
 
@@ -123,6 +145,14 @@ function IntentRegistryPage() {
               </span>
               <span className="text-gray-500 dark:text-gray-400">
                 {stats?.skillCount === 1 ? 'skill' : 'skills'}
+              </span>
+            </div>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-2xl font-bold text-sky-600 dark:text-sky-400 tabular-nums">
+                {stats?.versionCount ?? 0}
+              </span>
+              <span className="text-gray-500 dark:text-gray-400">
+                {stats?.versionCount === 1 ? 'version' : 'versions'} indexed
               </span>
             </div>
           </div>
@@ -274,15 +304,52 @@ function IntentRegistryPage() {
                 {q ? ` matching "${q}"` : ''}
               </p>
               {view === 'list' ? (
-                <div className="flex flex-col divide-y divide-gray-100 dark:divide-gray-800 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden">
-                  {packages.map((pkg) => (
-                    <PackageRow key={pkg.name} pkg={pkg} />
-                  ))}
+                <div className="border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden">
+                  <table className="w-full text-left">
+                    <thead>
+                      <tr className="border-b border-gray-200 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-900/60 text-xs text-gray-500 dark:text-gray-400">
+                        <th className="px-4 py-2 font-medium">Package</th>
+                        <th className="px-4 py-2 font-medium">Version</th>
+                        <th className="px-4 py-2 font-medium hidden lg:table-cell">
+                          Description
+                        </th>
+                        <th className="px-4 py-2 font-medium hidden sm:table-cell">
+                          Frameworks
+                        </th>
+                        <th className="px-4 py-2 font-medium text-right">
+                          Skills
+                        </th>
+                        <th className="px-4 py-2 font-medium text-right">
+                          Downloads
+                        </th>
+                        <th className="px-4 py-2 font-medium text-right hidden md:table-cell">
+                          Published
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                      {packages.map((pkg) => (
+                        <PackageRow
+                          key={pkg.name}
+                          pkg={pkg}
+                          history={skillHistory[pkg.name]}
+                          historyLoading={skillHistoryQuery.isLoading}
+                          maxSlots={maxSlots}
+                        />
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {packages.map((pkg) => (
-                    <PackageCard key={pkg.name} pkg={pkg} />
+                    <PackageCard
+                      key={pkg.name}
+                      pkg={pkg}
+                      history={skillHistory[pkg.name]}
+                      historyLoading={skillHistoryQuery.isLoading}
+                      maxSlots={maxSlots}
+                    />
                   ))}
                 </div>
               )}
@@ -356,50 +423,73 @@ function IntentRegistryPage() {
   )
 }
 
-function PackageCard({ pkg }: { readonly pkg: EnrichedIntentPackage }) {
-  const visibleSkills = pkg.skillNames.slice(0, 5)
-  const extraSkills = pkg.skillNames.length - visibleSkills.length
+function PackageCard({
+  pkg,
+  history,
+  historyLoading,
+  maxSlots,
+}: {
+  readonly pkg: EnrichedIntentPackage
+  readonly history?: Array<SkillHistoryEntry>
+  readonly historyLoading?: boolean
+  readonly maxSlots?: number
+}) {
+  const publishedLabel = formatRelativeDate(pkg.publishedAt)
+  const navigate = useNavigate()
+  const pkgSlug = pkg.name.replace('/', '__')
+
+  const handleVersionClick = React.useCallback(
+    (entry: SkillHistoryEntry) => {
+      navigate({
+        to: '/intent/registry/$packageName',
+        params: { packageName: pkgSlug },
+        search: { version: entry.version },
+      })
+    },
+    [navigate, pkgSlug],
+  )
 
   return (
     <Link
       to="/intent/registry/$packageName"
-      params={{ packageName: pkg.name.replace('/', '__') }}
+      params={{ packageName: pkgSlug }}
       className="group flex flex-col rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 hover:border-sky-300 dark:hover:border-sky-700 hover:shadow-sm transition-all"
     >
-      <div className="flex items-start justify-between gap-2 mb-2">
+      <div className="flex items-start justify-between gap-2 mb-1">
         <h3 className="font-mono text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors break-all">
           {pkg.name}
         </h3>
-        {pkg.monthlyDownloads > 0 && (
-          <span className="shrink-0 text-xs text-gray-400 dark:text-gray-500 tabular-nums">
-            {formatDownloads(pkg.monthlyDownloads)}/mo
-          </span>
-        )}
+        <div className="shrink-0 w-20">
+          {history && history.length > 0 ? (
+            <SkillSparkline
+              history={history}
+              height={24}
+              maxSlots={maxSlots}
+              onVersionClick={handleVersionClick}
+            />
+          ) : historyLoading ? (
+            <SkillSparklinePlaceholder height={24} />
+          ) : null}
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3 text-xs text-gray-400 dark:text-gray-500 mb-2">
+        <span className="tabular-nums">
+          {pkg.skillNames.length}{' '}
+          {pkg.skillNames.length === 1 ? 'skill' : 'skills'}
+        </span>
+        <span className="tabular-nums">
+          {pkg.monthlyDownloads > 0
+            ? `${formatDownloads(pkg.monthlyDownloads)}/mo`
+            : '0 downloads'}
+        </span>
+        {publishedLabel && <span>{publishedLabel}</span>}
       </div>
 
       {pkg.description && (
         <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-3">
           {pkg.description}
         </p>
-      )}
-
-      {/* Skill name pills */}
-      {visibleSkills.length > 0 && (
-        <div className="flex flex-wrap gap-1 mb-3">
-          {visibleSkills.map((name) => (
-            <span
-              key={name}
-              className="inline-block px-2 py-0.5 rounded-md font-mono text-xs bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700"
-            >
-              {name}
-            </span>
-          ))}
-          {extraSkills > 0 && (
-            <span className="inline-block px-2 py-0.5 rounded-md text-xs bg-gray-50 dark:bg-gray-800 text-gray-400 dark:text-gray-500">
-              +{extraSkills} more
-            </span>
-          )}
-        </div>
       )}
 
       <div className="flex items-center gap-1 mt-auto">
@@ -421,62 +511,93 @@ function PackageCard({ pkg }: { readonly pkg: EnrichedIntentPackage }) {
   )
 }
 
-function PackageRow({ pkg }: { readonly pkg: EnrichedIntentPackage }) {
+function PackageRow({
+  pkg,
+  history,
+  historyLoading,
+  maxSlots,
+}: {
+  readonly pkg: EnrichedIntentPackage
+  readonly history?: Array<SkillHistoryEntry>
+  readonly historyLoading?: boolean
+  readonly maxSlots?: number
+}) {
+  const publishedLabel = formatRelativeDate(pkg.publishedAt)
+  const navigate = useNavigate()
+  const pkgSlug = pkg.name.replace('/', '__')
+
+  const handleVersionClick = React.useCallback(
+    (entry: SkillHistoryEntry) => {
+      navigate({
+        to: '/intent/registry/$packageName',
+        params: { packageName: pkgSlug },
+        search: { version: entry.version },
+      })
+    },
+    [navigate, pkgSlug],
+  )
+
   return (
-    <Link
-      to="/intent/registry/$packageName"
-      params={{ packageName: pkg.name.replace('/', '__') }}
-      className="group flex items-center gap-4 bg-white dark:bg-gray-900 px-4 py-3 hover:bg-sky-50/40 dark:hover:bg-sky-950/20 transition-colors"
-    >
-      <h3 className="font-mono text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors w-52 shrink-0 truncate">
-        {pkg.name}
-      </h3>
-
-      {pkg.description && (
-        <p className="flex-1 text-sm text-gray-500 dark:text-gray-400 truncate">
-          {pkg.description}
-        </p>
-      )}
-
-      <div className="shrink-0 flex items-center gap-2">
-        {pkg.frameworks.slice(0, 2).map((fw) => (
-          <span
-            key={fw}
-            className="inline-block px-1.5 py-0.5 rounded text-xs bg-sky-50 dark:bg-sky-950/50 text-sky-700 dark:text-sky-300 border border-sky-100 dark:border-sky-900"
-          >
-            {fw}
-          </span>
-        ))}
-        {pkg.frameworks.length > 2 && (
-          <span className="text-xs text-gray-400 dark:text-gray-500">
-            +{pkg.frameworks.length - 2}
+    <tr className="group bg-white dark:bg-gray-900 hover:bg-sky-50/40 dark:hover:bg-sky-950/20 transition-colors">
+      <td className="px-4 py-3 max-w-[14rem]">
+        <Link
+          to="/intent/registry/$packageName"
+          params={{ packageName: pkgSlug }}
+          className="font-mono text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors truncate block"
+        >
+          {pkg.name}
+        </Link>
+      </td>
+      <td className="px-4 py-3 font-mono text-xs text-gray-400 dark:text-gray-500 whitespace-nowrap">
+        v{pkg.latestVersion}
+      </td>
+      <td className="px-4 py-3 hidden lg:table-cell">
+        {pkg.description && (
+          <p className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-sm">
+            {pkg.description}
+          </p>
+        )}
+      </td>
+      <td className="px-4 py-3 hidden sm:table-cell">
+        <div className="flex items-center gap-1.5">
+          {pkg.frameworks.slice(0, 2).map((fw) => (
+            <span
+              key={fw}
+              className="inline-block px-1.5 py-0.5 rounded text-xs bg-sky-50 dark:bg-sky-950/50 text-sky-700 dark:text-sky-300 border border-sky-100 dark:border-sky-900 whitespace-nowrap"
+            >
+              {fw}
+            </span>
+          ))}
+          {pkg.frameworks.length > 2 && (
+            <span className="text-xs text-gray-400 dark:text-gray-500">
+              +{pkg.frameworks.length - 2}
+            </span>
+          )}
+        </div>
+      </td>
+      <td className="px-4 py-3 whitespace-nowrap">
+        {history && history.length > 0 ? (
+          <SkillSparkline
+            history={history}
+            height={24}
+            maxSlots={maxSlots}
+            onVersionClick={handleVersionClick}
+          />
+        ) : historyLoading ? (
+          <SkillSparklinePlaceholder height={24} />
+        ) : (
+          <span className="text-xs text-gray-500 dark:text-gray-400 tabular-nums">
+            {pkg.skillNames.length}
           </span>
         )}
-      </div>
-
-      <div className="shrink-0 flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500 w-16 justify-end">
-        <svg
-          className="w-3.5 h-3.5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={1.5}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"
-          />
-        </svg>
-        <span className="tabular-nums">{pkg.skillNames.length}</span>
-      </div>
-
-      {pkg.monthlyDownloads > 0 && (
-        <span className="shrink-0 text-xs text-gray-400 dark:text-gray-500 tabular-nums w-16 text-right">
-          {formatDownloads(pkg.monthlyDownloads)}/mo
-        </span>
-      )}
-    </Link>
+      </td>
+      <td className="px-4 py-3 text-xs text-gray-500 dark:text-gray-400 tabular-nums text-right whitespace-nowrap">
+        {formatDownloads(pkg.monthlyDownloads)}/mo
+      </td>
+      <td className="px-4 py-3 text-xs text-gray-400 dark:text-gray-500 text-right whitespace-nowrap hidden md:table-cell">
+        {publishedLabel ?? '\u2014'}
+      </td>
+    </tr>
   )
 }
 
@@ -508,8 +629,13 @@ function SkillHitRow({ hit }: { readonly hit: SkillSearchResult }) {
           </p>
         )}
       </div>
-      <div className="shrink-0 text-xs text-gray-400 dark:text-gray-500 tabular-nums">
-        v{hit.version}
+      <div className="shrink-0 flex flex-col items-end gap-1 text-xs text-gray-400 dark:text-gray-500 tabular-nums">
+        <span>v{hit.version}</span>
+        {hit.lineCount > 0 && (
+          <span>
+            {hit.lineCount} {hit.lineCount === 1 ? 'line' : 'lines'}
+          </span>
+        )}
       </div>
     </Link>
   )
@@ -569,4 +695,21 @@ function formatDownloads(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`
   if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K`
   return String(n)
+}
+
+function formatRelativeDate(iso: string | null): string | null {
+  if (!iso) return null
+  const ms = Date.now() - new Date(iso).getTime()
+  const seconds = Math.floor(ms / 1000)
+  const minutes = Math.floor(seconds / 60)
+  const hours = Math.floor(minutes / 60)
+  const days = Math.floor(hours / 24)
+  const months = Math.floor(days / 30)
+  const years = Math.floor(days / 365)
+  if (years > 0) return `${years}y ago`
+  if (months > 0) return `${months}mo ago`
+  if (days > 0) return `${days}d ago`
+  if (hours > 0) return `${hours}h ago`
+  if (minutes > 0) return `${minutes}m ago`
+  return 'just now'
 }

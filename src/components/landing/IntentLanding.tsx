@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { Footer } from '~/components/Footer'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
@@ -17,7 +17,10 @@ import { Button } from '~/ui'
 import {
   intentStatsQueryOptions,
   intentDirectoryQueryOptions,
+  intentSkillHistoryQueryOptions,
 } from '~/queries/intent'
+import { SkillSparkline } from '~/components/intent/SkillSparkline'
+import type { SkillHistoryEntry } from '~/utils/intent.functions'
 
 const library = getLibrary('intent')
 
@@ -81,9 +84,26 @@ function IntentRegistryPreview() {
   )
 
   const stats = statsQuery.data
-  const packages = directoryQuery.data?.packages ?? []
+  const packages = directoryQuery.data?.packages
 
-  // Don't show section if no data and not loading (registry is empty/not synced yet)
+  const packageNames = React.useMemo(
+    () => (packages ?? []).map((p) => p.name),
+    [packages],
+  )
+  const skillHistoryQuery = useQuery(
+    intentSkillHistoryQueryOptions(packageNames),
+  )
+  const skillHistory = React.useMemo(
+    () => skillHistoryQuery.data ?? {},
+    [skillHistoryQuery.data],
+  )
+  const maxSlots = React.useMemo(
+    () => Math.max(...Object.values(skillHistory).map((h) => h.length), 2),
+    [skillHistory],
+  )
+
+  const navigate = useNavigate()
+
   if (!statsQuery.isLoading && (stats?.packageCount ?? 0) === 0) return null
 
   return (
@@ -119,7 +139,7 @@ function IntentRegistryPreview() {
           </Link>
         </div>
 
-        {packages.length > 0 ? (
+        {packages && packages.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {packages.map((pkg) => (
               <Link
@@ -137,28 +157,45 @@ function IntentRegistryPreview() {
                     {pkg.skillNames.length === 1 ? 'skill' : 'skills'}
                   </span>
                 </div>
+                {/* Stats row */}
+                <div className="flex items-center gap-3 text-[11px] text-gray-400 dark:text-gray-500">
+                  {pkg.monthlyDownloads > 0 && (
+                    <span className="tabular-nums">
+                      {pkg.monthlyDownloads >= 1_000_000
+                        ? `${(pkg.monthlyDownloads / 1_000_000).toFixed(1)}M`
+                        : pkg.monthlyDownloads >= 1_000
+                          ? `${Math.floor(pkg.monthlyDownloads / 1_000)}K`
+                          : pkg.monthlyDownloads}
+                      /mo
+                    </span>
+                  )}
+                  <span className="font-mono">v{pkg.latestVersion}</span>
+                  {pkg.frameworks.length > 0 && (
+                    <span>{pkg.frameworks.slice(0, 2).join(', ')}</span>
+                  )}
+                </div>
                 {pkg.description && (
                   <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">
                     {pkg.description}
                   </p>
                 )}
-                {pkg.skillNames.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-0.5">
-                    {pkg.skillNames.slice(0, 7).map((name) => (
-                      <span
-                        key={name}
-                        className="inline-block px-1.5 py-0.5 rounded text-[10px] font-mono bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400"
-                      >
-                        {name}
-                      </span>
-                    ))}
-                    {pkg.skillNames.length > 7 && (
-                      <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-mono text-gray-400 dark:text-gray-500">
-                        +{pkg.skillNames.length - 7}
-                      </span>
-                    )}
-                  </div>
-                )}
+                {skillHistory[pkg.name] &&
+                  skillHistory[pkg.name].length > 0 && (
+                    <SkillSparkline
+                      history={skillHistory[pkg.name]}
+                      height={28}
+                      maxSlots={maxSlots}
+                      onVersionClick={(entry: SkillHistoryEntry) => {
+                        navigate({
+                          to: '/intent/registry/$packageName',
+                          params: {
+                            packageName: pkg.name.replace('/', '__'),
+                          },
+                          search: { version: entry.version },
+                        })
+                      }}
+                    />
+                  )}
               </Link>
             ))}
           </div>

@@ -105,6 +105,71 @@ export async function searchIntentPackages(): Promise<NpmSearchResult> {
   return results
 }
 
+// ---------------------------------------------------------------------------
+// NPM download counts (separate API from the registry)
+// ---------------------------------------------------------------------------
+
+const NPM_DOWNLOADS_API = 'https://api.npmjs.org'
+
+export interface NpmDownloadCounts {
+  [packageName: string]: { downloads: number; start: string; end: string }
+}
+
+// Fetch last-month download counts for a list of package names.
+// Scoped packages (@org/pkg) must be fetched individually; unscoped can be
+// bulk-fetched in a single comma-separated request.
+export async function fetchBulkDownloads(
+  names: Array<string>,
+): Promise<Map<string, number>> {
+  const result = new Map<string, number>()
+  if (names.length === 0) return result
+
+  const scoped = names.filter((n) => n.startsWith('@'))
+  const unscoped = names.filter((n) => !n.startsWith('@'))
+
+  // Bulk fetch unscoped (npm supports comma-separated bulk endpoint)
+  // Chunk into batches of 128 to stay under URL length limits
+  const CHUNK = 128
+  const unscopedFetches: Array<Promise<void>> = []
+  for (let i = 0; i < unscoped.length; i += CHUNK) {
+    const batch = unscoped.slice(i, i + CHUNK)
+    unscopedFetches.push(
+      fetch(
+        `${NPM_DOWNLOADS_API}/downloads/point/last-month/${batch.join(',')}`,
+      )
+        .then((r) => (r.ok ? (r.json() as Promise<NpmDownloadCounts>) : null))
+        .then((data) => {
+          if (!data) return
+          for (const [name, info] of Object.entries(data)) {
+            if (info?.downloads != null) {
+              result.set(name, info.downloads)
+            }
+          }
+        })
+        .catch(() => {}),
+    )
+  }
+
+  // Scoped packages: individual fetches in parallel
+  const scopedFetches = scoped.map((name) =>
+    fetch(`${NPM_DOWNLOADS_API}/downloads/point/last-month/${name}`)
+      .then((r) =>
+        r.ok
+          ? (r.json() as Promise<{ downloads: number; package: string }>)
+          : null,
+      )
+      .then((data) => {
+        if (data?.downloads != null) {
+          result.set(name, data.downloads)
+        }
+      })
+      .catch(() => {}),
+  )
+
+  await Promise.all([...unscopedFetches, ...scopedFetches])
+  return result
+}
+
 export async function fetchPackument(name: string): Promise<NpmPackument> {
   const encoded = name.startsWith('@')
     ? `@${encodeURIComponent(name.slice(1))}`
@@ -132,12 +197,14 @@ export function isIntentCompatible(
 }
 
 // ---------------------------------------------------------------------------
-// Version selection: latest + up to 4 prior (total max 5)
+// Version selection: latest + up to 4 others published today (total max 5)
 // ---------------------------------------------------------------------------
 
-// Returns versions to enqueue: latest + up to 4 prior, excluding any already
-// known to the DB (regardless of their sync status -- don't re-enqueue what's
-// already pending, failed, or synced).
+// Returns versions to enqueue: latest + up to 4 others published today (UTC),
+// excluding any already known to the DB (regardless of their sync status --
+// don't re-enqueue what's already pending, failed, or synced).
+// Versions published before today are skipped to avoid exhausting resources
+// crawling thousands of historical versions that predate skills support.
 export function selectVersionsToSync(
   packument: NpmPackument,
   knownVersions: Set<string>,
@@ -177,11 +244,16 @@ export function selectVersionsToSync(
     })
   }
 
-  // Fill remaining slots (max 4 more) newest-to-oldest
+  // Only consider versions published today (UTC) or later.
+  const startOfToday = new Date()
+  startOfToday.setUTCHours(0, 0, 0, 0)
+
+  // Fill remaining slots (max 4 more) newest-to-oldest, skipping old versions
   for (const v of allVersions) {
     if (toEnqueue.length >= 5) break
     if (v.version === latestVersion) continue
     if (knownVersions.has(v.version)) continue
+    if (!v.publishedAt || v.publishedAt < startOfToday) continue
     toEnqueue.push(v)
   }
 

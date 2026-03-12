@@ -3,17 +3,24 @@ import {
   createFileRoute,
   Link,
   Outlet,
+  useNavigate,
   useParams,
 } from '@tanstack/react-router'
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { useSuspenseQuery, useQuery } from '@tanstack/react-query'
+import * as v from 'valibot'
 import { Copy, Check } from 'lucide-react'
 import { seo } from '~/utils/seo'
 import {
   intentPackageDetailQueryOptions,
   intentVersionSkillsQueryOptions,
+  intentSkillHistoryQueryOptions,
 } from '~/queries/intent'
 import type { IntentPackageDetail } from '~/utils/intent.functions'
 import { useToast } from '~/components/ToastProvider'
+import {
+  SkillSparkline,
+  SkillSparklinePlaceholder,
+} from '~/components/intent/SkillSparkline'
 
 // npm scoped package names (@scope/name) can't go in a URL segment directly.
 // We encode `@scope/name` as `@scope__name` in the URL.
@@ -39,7 +46,15 @@ export function usePackageVersion() {
   return ctx
 }
 
+const searchSchema = v.object({
+  version: v.fallback(v.optional(v.string()), undefined),
+  tab: v.fallback(v.optional(v.picklist(['skills', 'history'])), undefined),
+  expanded: v.fallback(v.optional(v.array(v.string())), undefined),
+  expandedSkills: v.fallback(v.optional(v.array(v.string())), undefined),
+})
+
 export const Route = createFileRoute('/intent/registry/$packageName')({
+  validateSearch: (search) => v.parse(searchSchema, search),
   loader: async ({ params, context: { queryClient } }) => {
     const name = decodePkgName(params.packageName)
     const opts = intentPackageDetailQueryOptions(name)
@@ -76,12 +91,26 @@ function PackageLayout() {
 }
 
 function PackageLayoutContent({ name }: { readonly name: string }) {
+  const { version: searchVersion } = Route.useSearch()
+  const navigate = useNavigate({ from: Route.fullPath })
   const detailQuery = useSuspenseQuery(intentPackageDetailQueryOptions(name))
   const detail = detailQuery.data
 
-  const [version, setVersion] = React.useState<string | null>(null)
   const latestVersion = detail?.versions[0]?.version ?? ''
-  const activeVersion = version ?? latestVersion
+  const activeVersion = searchVersion ?? latestVersion
+
+  const setVersion = React.useCallback(
+    (v: string) => {
+      void navigate({
+        search: (prev) => ({
+          ...prev,
+          version: v === latestVersion ? undefined : v,
+        }),
+        replace: true,
+      })
+    },
+    [navigate, latestVersion],
+  )
 
   if (!detail) return <PackageNotFound />
 
@@ -128,6 +157,12 @@ function PackageLayoutInner({
   )
   const skills = skillsQuery.data?.skills ?? []
 
+  const packageNames = React.useMemo(() => [name], [name])
+  const skillHistoryQuery = useQuery(
+    intentSkillHistoryQueryOptions(packageNames),
+  )
+  const skillHistory = skillHistoryQuery.data?.[name]
+
   return (
     <>
       {/* Breadcrumb + header */}
@@ -158,81 +193,82 @@ function PackageLayoutInner({
             </Link>
           </div>
 
-          <div className="flex flex-wrap items-start gap-4 justify-between">
-            <div>
-              <h1 className="text-2xl font-bold font-mono text-gray-900 dark:text-gray-50">
-                {name}
-              </h1>
-              {detail.description && (
-                <p className="mt-1.5 text-gray-600 dark:text-gray-400">
-                  {detail.description}
-                </p>
-              )}
+          {/* Top row: name + sparkline + version + copy */}
+          <div className="flex items-center gap-3 flex-wrap">
+            <h1 className="text-2xl font-bold font-mono text-gray-900 dark:text-gray-50 mr-auto">
+              {name}
+            </h1>
+
+            <div className="w-24 shrink-0">
+              {skillHistory && skillHistory.length > 0 ? (
+                <SkillSparkline history={skillHistory} height={24} />
+              ) : skillHistoryQuery.isLoading ? (
+                <SkillSparklinePlaceholder height={24} />
+              ) : null}
             </div>
 
-            <div className="flex items-center gap-4">
-              {/* Version selector */}
-              {detail.versions.length > 0 && (
-                <div className="flex items-center gap-2">
-                  <label
-                    htmlFor="pkg-version-select"
-                    className="text-sm text-gray-500 dark:text-gray-400 shrink-0"
-                  >
-                    Version
-                  </label>
-                  <select
-                    id="pkg-version-select"
-                    value={activeVersion}
-                    onChange={(e) => setVersion(e.target.value)}
-                    className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-sky-500"
-                  >
-                    {detail.versions.map((v, i) => (
-                      <option key={v.version} value={v.version}>
-                        {v.version}
-                        {i === 0 ? ' (latest)' : ''} — {v.skillCount}{' '}
-                        {v.skillCount === 1 ? 'skill' : 'skills'}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
+            {detail.versions.length > 0 && (
+              <select
+                id="pkg-version-select"
+                value={activeVersion}
+                onChange={(e) => setVersion(e.target.value)}
+                className="px-2.5 py-1 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-sky-500"
+              >
+                {detail.versions.map((v, i) => (
+                  <option key={v.version} value={v.version}>
+                    {v.version}
+                    {i === 0 ? ' (latest)' : ''} — {v.skillCount}{' '}
+                    {v.skillCount === 1 ? 'skill' : 'skills'}
+                  </option>
+                ))}
+              </select>
+            )}
 
-              {/* External links + install prompt */}
-              <div className="flex items-center gap-3 text-sm">
+            <CopyInstallPromptButton name={name} />
+          </div>
+
+          {/* Bottom row: description + demoted external links */}
+          <div className="flex items-end justify-between gap-4 mt-1.5">
+            {detail.description ? (
+              <p className="text-gray-600 dark:text-gray-400 min-w-0">
+                {detail.description}
+              </p>
+            ) : (
+              <div />
+            )}
+            <div className="flex items-center gap-2.5 shrink-0">
+              <a
+                href={detail.npmUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+                title="npm"
+              >
+                <svg
+                  className="w-3.5 h-3.5"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M0 0v24h6.545V6h5.455v18H24V0H0z" />
+                </svg>
+              </a>
+              {detail.repositoryUrl && (
                 <a
-                  href={detail.npmUrl}
+                  href={detail.repositoryUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 text-gray-500 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                  className="text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+                  title="GitHub"
                 >
                   <svg
-                    className="w-4 h-4"
+                    className="w-3.5 h-3.5"
                     viewBox="0 0 24 24"
                     fill="currentColor"
                   >
-                    <path d="M0 0v24h6.545V6h5.455v18H24V0H0z" />
+                    <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z" />
                   </svg>
-                  npm
                 </a>
-                {detail.repositoryUrl && (
-                  <a
-                    href={detail.repositoryUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 text-gray-500 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-                  >
-                    <svg
-                      className="w-4 h-4"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
-                      <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z" />
-                    </svg>
-                    GitHub
-                  </a>
-                )}
-                <CopyInstallPromptButton name={name} />
-              </div>
+              )}
             </div>
           </div>
         </div>
@@ -345,12 +381,30 @@ function SkillsNav({
       </p>
     )
   }
+
+  const isOnIndex = !activeSkillName
+
   return (
     <>
       <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3">
         Skills
       </p>
       <nav className="space-y-0.5">
+        <Link
+          to="/intent/registry/$packageName"
+          params={{ packageName }}
+          onClick={onNavigate}
+          className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-sm font-medium transition-colors ${
+            isOnIndex
+              ? 'bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300'
+              : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800/60 hover:text-gray-900 dark:hover:text-gray-100'
+          }`}
+        >
+          All Skills
+          <span className="text-xs tabular-nums text-gray-400 dark:text-gray-500">
+            {skills.length}
+          </span>
+        </Link>
         {skills.map((s) => {
           const isActive = activeSkillName === s.name
           return (

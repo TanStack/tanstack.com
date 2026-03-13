@@ -349,10 +349,32 @@ function BlockButton({
   onShowNote?: () => void
 }) {
   const [mounted, setMounted] = React.useState(false)
+  const [scrollY, setScrollY] = React.useState(0)
 
   React.useEffect(() => {
     setMounted(true)
   }, [])
+
+  // Track scroll position to trigger re-renders for navbar overlap check
+  React.useEffect(() => {
+    if (!mounted) return
+
+    const handleScroll = () => {
+      setScrollY(window.scrollY)
+    }
+
+    const handleResize = () => {
+      setScrollY(window.scrollY)
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    window.addEventListener('resize', handleResize)
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [mounted])
 
   if (!mounted) return null
 
@@ -370,6 +392,28 @@ function BlockButton({
 
   // Only show button if hovered or menu is open
   if (!isHovered && !isMenuOpen) return null
+
+  // Check if button would overlap with navbar (synchronous check)
+  // Using scrollY to trigger re-render on scroll
+  const navbarHeightStr = getComputedStyle(
+    document.documentElement,
+  ).getPropertyValue('--navbar-height')
+  const navbarHeight = parseFloat(navbarHeightStr) || 0
+
+  const blockRect = block.getBoundingClientRect()
+
+  // Button appears at top-right of block, shifted up by its own height
+  // The button is approximately 24px (6 * 4 = 24 for w-6 h-6)
+  const buttonHeight = 24
+  const buttonTop = blockRect.top - buttonHeight
+
+  // Hide button if it would appear above or overlapping with navbar
+  if (navbarHeight > 0 && buttonTop < navbarHeight && !isMenuOpen) {
+    return null
+  }
+
+  // Suppress unused state warning - scrollY triggers re-renders
+  void scrollY
 
   // Create portal container for button positioned at top-right of block
   let portalContainer = document.querySelector(

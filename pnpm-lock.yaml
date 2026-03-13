@@ -146,6 +146,9 @@ importers:
       date-fns:
         specifier: ^2.30.0
         version: 2.30.0
+      diff:
+        specifier: ^8.0.3
+        version: 8.0.3
       discord-interactions:
         specifier: ^4.4.0
         version: 4.4.0
@@ -4733,8 +4736,8 @@ packages:
   devlop@1.1.0:
     resolution: {integrity: sha512-RWmIqhcFf1lRYBvNmr7qTNuyCt/7/ns2jbpp1+PalgE/rDQcBT0fioSMUpJ93irlUhC5hrg4cYqe6U+0ImW0rA==}
 
-  diff@8.0.2:
-    resolution: {integrity: sha512-sSuxWU5j5SR9QQji/o2qMvqRNYRDOcBTgsJ/DeCf4iSN4gW+gNMXM7wFIP+fdXZxoNiAnHUTGjCr+TSWXdRDKg==}
+  diff@8.0.3:
+    resolution: {integrity: sha512-qejHi7bcSD4hQAZE0tNAawRK1ZtafHDmMTMkrrIGgSLl7hTnQHmKCeB45xAcbfTqK2zowkM3j3bHt/4b/ARbYQ==}
     engines: {node: '>=0.3.1'}
 
   discord-interactions@4.4.0:
@@ -11624,7 +11627,7 @@ snapshots:
       '@babel/generator': 7.29.0
       '@babel/parser': 7.29.0
       ansis: 4.1.0
-      diff: 8.0.2
+      diff: 8.0.3
       pathe: 2.0.3
       tinyglobby: 0.2.15
     transitivePeerDependencies:
@@ -13264,7 +13267,7 @@ snapshots:
     dependencies:
       dequal: 2.0.3
 
-  diff@8.0.2: {}
+  diff@8.0.3: {}
 
   discord-interactions@4.4.0: {}
 

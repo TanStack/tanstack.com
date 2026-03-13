@@ -827,6 +827,51 @@ export const getIntentPackageChangelog = createServerFn({ method: 'GET' })
   })
 
 // ---------------------------------------------------------------------------
+// Skill content diff between two versions (for inline diff viewer)
+// ---------------------------------------------------------------------------
+
+export const getIntentSkillContentDiff = createServerFn({ method: 'GET' })
+  .inputValidator(
+    v.object({
+      packageName: v.string(),
+      skillName: v.string(),
+      fromVersion: v.string(),
+      toVersion: v.string(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const versions = await getPackageVersions(data.packageName)
+
+    const fromRecord = versions.find((ver) => ver.version === data.fromVersion)
+    const toRecord = versions.find((ver) => ver.version === data.toVersion)
+
+    if (!fromRecord || !toRecord) return null
+
+    const [fromSkills, toSkills] = await Promise.all([
+      fetchCached({
+        key: `intent:skills:${fromRecord.id}`,
+        ttl: 30 * 60 * 1000,
+        fn: () => getSkillsForVersion(fromRecord.id),
+      }),
+      fetchCached({
+        key: `intent:skills:${toRecord.id}`,
+        ttl: 30 * 60 * 1000,
+        fn: () => getSkillsForVersion(toRecord.id),
+      }),
+    ])
+
+    const fromSkill = fromSkills.find((s) => s.name === data.skillName)
+    const toSkill = toSkills.find((s) => s.name === data.skillName)
+
+    return {
+      fromContent: fromSkill?.content ?? null,
+      toContent: toSkill?.content ?? null,
+      fromVersion: data.fromVersion,
+      toVersion: data.toVersion,
+    }
+  })
+
+// ---------------------------------------------------------------------------
 // Single-skill version history (how one skill evolved across versions)
 // ---------------------------------------------------------------------------
 

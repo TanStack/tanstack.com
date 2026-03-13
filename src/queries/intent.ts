@@ -9,6 +9,7 @@ import {
   getIntentSkillHistory,
   getIntentPackageChangelog,
   getIntentSingleSkillHistory,
+  getIntentSkillContentDiff,
 } from '~/utils/intent.functions'
 
 export const intentStatsQueryOptions = () =>
@@ -90,4 +91,16 @@ export const intentSingleSkillHistoryQueryOptions = (params: {
     queryKey: ['intent', 'single-skill-history', params],
     queryFn: () => getIntentSingleSkillHistory({ data: params }),
     staleTime: 10 * 60 * 1000,
+  })
+
+export const intentSkillContentDiffQueryOptions = (params: {
+  packageName: string
+  skillName: string
+  fromVersion: string
+  toVersion: string
+}) =>
+  queryOptions({
+    queryKey: ['intent', 'skill-content-diff', params],
+    queryFn: () => getIntentSkillContentDiff({ data: params }),
+    staleTime: 30 * 60 * 1000,
   })

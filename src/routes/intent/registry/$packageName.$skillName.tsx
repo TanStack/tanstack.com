@@ -3,6 +3,7 @@ import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useSuspenseQuery, useQuery } from '@tanstack/react-query'
 import { seo } from '~/utils/seo'
 import {
+  intentPackageDetailQueryOptions,
   intentVersionSkillsQueryOptions,
   intentSingleSkillHistoryQueryOptions,
 } from '~/queries/intent'
@@ -31,6 +32,23 @@ function stripFrontmatter(content: string): string {
 export const Route = createFileRoute(
   '/intent/registry/$packageName/$skillName',
 )({
+  loaderDeps: ({ search }) => ({ version: search.version }),
+  loader: async ({ params, deps, context: { queryClient } }) => {
+    const name = decodePkgName(params.packageName)
+    const detail = queryClient.getQueryData(
+      intentPackageDetailQueryOptions(name).queryKey,
+    )
+    const latestVersion = detail?.versions[0]?.version ?? ''
+    const activeVersion = deps.version ?? latestVersion
+    if (activeVersion) {
+      await queryClient.ensureQueryData(
+        intentVersionSkillsQueryOptions({
+          packageName: name,
+          version: activeVersion,
+        }),
+      )
+    }
+  },
   head: ({ params }) => {
     const pkgName = decodePkgName(params.packageName)
     return {

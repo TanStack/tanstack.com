@@ -9,6 +9,7 @@ import {
 import { useSuspenseQuery, useQuery } from '@tanstack/react-query'
 import * as v from 'valibot'
 import { Copy, Check } from 'lucide-react'
+import { Collapsible, CollapsibleContent } from '~/components/Collapsible'
 import { seo } from '~/utils/seo'
 import {
   intentPackageDetailQueryOptions,
@@ -57,13 +58,7 @@ export const Route = createFileRoute('/intent/registry/$packageName')({
   validateSearch: (search) => v.parse(searchSchema, search),
   loader: async ({ params, context: { queryClient } }) => {
     const name = decodePkgName(params.packageName)
-    const opts = intentPackageDetailQueryOptions(name)
-
-    if (queryClient.getQueryData(opts.queryKey) !== undefined) {
-      await queryClient.ensureQueryData(opts)
-    } else {
-      void queryClient.prefetchQuery(opts)
-    }
+    await queryClient.ensureQueryData(intentPackageDetailQueryOptions(name))
   },
   head: ({ params }) => {
     const name = decodePkgName(params.packageName)
@@ -212,7 +207,7 @@ function PackageLayoutInner({
                 id="pkg-version-select"
                 value={activeVersion}
                 onChange={(e) => setVersion(e.target.value)}
-                className="px-2.5 py-1 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                className="px-2.5 py-1 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-sky-500 max-w-[12rem]"
               >
                 {detail.versions.map((v, i) => (
                   <option key={v.version} value={v.version}>
@@ -230,7 +225,7 @@ function PackageLayoutInner({
           {/* Bottom row: description + demoted external links */}
           <div className="flex items-end justify-between gap-4 mt-1.5">
             {detail.description ? (
-              <p className="text-gray-600 dark:text-gray-400 min-w-0">
+              <p className="text-gray-600 dark:text-gray-400 min-w-0 line-clamp-2">
                 {detail.description}
               </p>
             ) : (
@@ -274,14 +269,12 @@ function PackageLayoutInner({
         </div>
       </div>
 
-      {/* Mobile: collapsible skills drawer — only on skill detail pages */}
-      {skillName && (
-        <MobileSkillsDrawer
-          skills={skills}
-          packageName={packageName}
-          activeSkillName={skillName}
-        />
-      )}
+      {/* Mobile: collapsible skills drawer */}
+      <MobileSkillsDrawer
+        skills={skills}
+        packageName={packageName}
+        activeSkillName={skillName}
+      />
 
       {/* Desktop: two-column body — sidebar only on skill detail pages */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 flex gap-0 min-h-[calc(100vh-200px)]">
@@ -486,16 +479,18 @@ function MobileSkillsDrawer({
           />
         </svg>
       </button>
-      {open && (
-        <div className="px-4 pb-4">
-          <SkillsNav
-            skills={skills}
-            packageName={packageName}
-            activeSkillName={activeSkillName}
-            onNavigate={() => setOpen(false)}
-          />
-        </div>
-      )}
+      <Collapsible open={open}>
+        <CollapsibleContent>
+          <div className="px-4 pb-4 max-h-64 overflow-y-auto">
+            <SkillsNav
+              skills={skills}
+              packageName={packageName}
+              activeSkillName={activeSkillName}
+              onNavigate={() => setOpen(false)}
+            />
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
     </div>
   )
 }
@@ -532,7 +527,7 @@ export function PackageDetailSkeleton({ name }: { readonly name: string }) {
         </div>
       </div>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 flex gap-0 min-h-[calc(100vh-200px)]">
-        <aside className="w-56 shrink-0 border-r border-gray-200 dark:border-gray-800 py-6 pr-4">
+        <aside className="hidden md:block w-56 shrink-0 border-r border-gray-200 dark:border-gray-800 py-6 pr-4">
           <div className="animate-pulse space-y-2">
             <div className="h-3 w-12 bg-gray-200 dark:bg-gray-800 rounded mb-3" />
             {Array.from({ length: 4 }).map((_, i) => (
@@ -543,7 +538,7 @@ export function PackageDetailSkeleton({ name }: { readonly name: string }) {
             ))}
           </div>
         </aside>
-        <main className="flex-1 min-w-0 py-6 pl-6">
+        <main className="flex-1 min-w-0 py-6 md:pl-6">
           <div className="animate-pulse space-y-3">
             <div className="h-6 w-40 bg-gray-200 dark:bg-gray-800 rounded" />
             <div className="h-4 w-96 bg-gray-100 dark:bg-gray-800/60 rounded" />

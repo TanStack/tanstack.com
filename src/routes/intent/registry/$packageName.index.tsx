@@ -2,10 +2,18 @@ import * as React from 'react'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useSuspenseQuery, useQuery } from '@tanstack/react-query'
 import {
+  intentPackageDetailQueryOptions,
   intentVersionSkillsQueryOptions,
   intentPackageChangelogQueryOptions,
 } from '~/queries/intent'
 import type { ChangelogEntry } from '~/utils/intent.functions'
+import { Collapsible, CollapsibleContent } from '~/components/Collapsible'
+const LazySkillDiffViewer = React.lazy(() =>
+  import('~/components/intent/SkillDiffViewer').then((m) => ({
+    default: m.SkillDiffViewer,
+  })),
+)
+import { SkillDependencyGraph } from '~/components/intent/SkillDependencyGraph'
 import {
   decodePkgName,
   usePackageVersion,
@@ -14,6 +22,23 @@ import {
 import { Route as PackageRoute } from './$packageName'
 
 export const Route = createFileRoute('/intent/registry/$packageName/')({
+  loaderDeps: ({ search }) => ({ version: search.version }),
+  loader: async ({ params, deps, context: { queryClient } }) => {
+    const name = decodePkgName(params.packageName)
+    const detail = queryClient.getQueryData(
+      intentPackageDetailQueryOptions(name).queryKey,
+    )
+    const latestVersion = detail?.versions[0]?.version ?? ''
+    const activeVersion = deps.version ?? latestVersion
+    if (activeVersion) {
+      await queryClient.ensureQueryData(
+        intentVersionSkillsQueryOptions({
+          packageName: name,
+          version: activeVersion,
+        }),
+      )
+    }
+  },
   component: PackageIndexPage,
 })
 
@@ -120,13 +145,20 @@ function PackageIndexPage() {
       </div>
 
       {tab === 'skills' ? (
-        <SkillsList
-          skills={skills}
-          packageName={packageName}
-          expandedSkills={expandedSkillSet}
-          toggleSkillExpanded={toggleSkillExpanded}
-          skillChangeMap={skillChangeMap}
-        />
+        <>
+          {skills.some((s) => s.requires && s.requires.length > 0) && (
+            <div className="mb-5">
+              <SkillDependencyGraph skills={skills} packageName={packageName} />
+            </div>
+          )}
+          <SkillsList
+            skills={skills}
+            packageName={packageName}
+            expandedSkills={expandedSkillSet}
+            toggleSkillExpanded={toggleSkillExpanded}
+            skillChangeMap={skillChangeMap}
+          />
+        </>
       ) : (
         <ChangelogView
           entries={changelogQuery.data}
@@ -290,6 +322,16 @@ function ChangelogView({
     },
     [expandedSet, onExpandedChange],
   )
+
+  // Map each version to its predecessor (for diff viewer)
+  const prevVersionMap = React.useMemo(() => {
+    const map = new Map<string, string>()
+    if (!entries) return map
+    for (let i = 0; i < entries.length - 1; i++) {
+      map.set(entries[i].version, entries[i + 1].version)
+    }
+    return map
+  }, [entries])
 
   // Group entries: consecutive unchanged versions collapse into a single "gap" row
   type ChangelogGroup =
@@ -458,43 +500,52 @@ function ChangelogView({
                 </div>
               </button>
 
-              {isExpanded && entry.diff && hasChanges && (
-                <div className="mt-2 ml-1 space-y-1">
-                  {entry.diff.added.map((skill) => (
-                    <ChangelogSkillRow
-                      key={skill.name}
-                      status="added"
-                      name={skill.name}
-                      type={skill.type}
-                      framework={skill.framework}
-                      lineCount={skill.lineCount}
-                      packageName={packageName}
-                    />
-                  ))}
-                  {entry.diff.modified.map(({ from, to }) => (
-                    <ChangelogSkillRow
-                      key={to.name}
-                      status="modified"
-                      name={to.name}
-                      type={to.type}
-                      framework={to.framework}
-                      lineCount={to.lineCount}
-                      lineCountDelta={to.lineCount - from.lineCount}
-                      packageName={packageName}
-                    />
-                  ))}
-                  {entry.diff.removed.map((skill) => (
-                    <ChangelogSkillRow
-                      key={skill.name}
-                      status="removed"
-                      name={skill.name}
-                      type={skill.type}
-                      framework={skill.framework}
-                      lineCount={skill.lineCount}
-                      packageName={packageName}
-                    />
-                  ))}
-                </div>
+              {entry.diff && hasChanges && (
+                <Collapsible open={isExpanded}>
+                  <CollapsibleContent>
+                    <div className="mt-2 ml-1 space-y-1">
+                      {entry.diff.added.map((skill) => (
+                        <ChangelogSkillRow
+                          key={skill.name}
+                          status="added"
+                          name={skill.name}
+                          type={skill.type}
+                          framework={skill.framework}
+                          lineCount={skill.lineCount}
+                          packageName={packageName}
+                        />
+                      ))}
+                      {entry.diff.modified.map(({ from, to }) => (
+                        <ChangelogSkillRow
+                          key={to.name}
+                          status="modified"
+                          name={to.name}
+                          type={to.type}
+                          framework={to.framework}
+                          lineCount={to.lineCount}
+                          lineCountDelta={to.lineCount - from.lineCount}
+                          packageName={packageName}
+                          diffVersions={{
+                            packageName: decodePkgName(packageName),
+                            fromVersion: prevVersionMap.get(entry.version)!,
+                            toVersion: entry.version,
+                          }}
+                        />
+                      ))}
+                      {entry.diff.removed.map((skill) => (
+                        <ChangelogSkillRow
+                          key={skill.name}
+                          status="removed"
+                          name={skill.name}
+                          type={skill.type}
+                          framework={skill.framework}
+                          lineCount={skill.lineCount}
+                          packageName={packageName}
+                        />
+                      ))}
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
               )}
             </div>
           )
@@ -512,6 +563,7 @@ function ChangelogSkillRow({
   lineCount,
   lineCountDelta,
   packageName,
+  diffVersions,
 }: {
   readonly status: 'added' | 'modified' | 'removed'
   readonly name: string
@@ -520,7 +572,14 @@ function ChangelogSkillRow({
   readonly lineCount: number
   readonly lineCountDelta?: number
   readonly packageName: string
+  readonly diffVersions?: {
+    packageName: string
+    fromVersion: string
+    toVersion: string
+  }
 }) {
+  const [showDiff, setShowDiff] = React.useState(false)
+
   const statusConfig = {
     added: {
       prefix: '+',
@@ -540,41 +599,71 @@ function ChangelogSkillRow({
   }[status]
 
   return (
-    <div
-      className={`flex items-center gap-2 px-3 py-1.5 rounded-lg ${statusConfig.bg}`}
-    >
-      <span className={`font-mono text-xs font-bold w-3 ${statusConfig.color}`}>
-        {statusConfig.prefix}
-      </span>
-      <Link
-        to="/intent/registry/$packageName/$skillName"
-        params={{ packageName, skillName: name }}
-        className="font-mono text-sm text-gray-900 dark:text-gray-100 hover:text-sky-600 dark:hover:text-sky-400 transition-colors truncate"
-      >
-        {name}
-      </Link>
-      {type && <SkillTypeBadge type={type} />}
-      {framework && (
-        <span className="inline-block px-1.5 py-0.5 rounded text-[10px] bg-sky-50 dark:bg-sky-950/50 text-sky-700 dark:text-sky-300 border border-sky-100 dark:border-sky-900">
-          {framework}
+    <div className={`rounded-lg ${statusConfig.bg}`}>
+      <div className="flex items-center gap-2 px-3 py-1.5">
+        <span
+          className={`font-mono text-xs font-bold w-3 ${statusConfig.color}`}
+        >
+          {statusConfig.prefix}
         </span>
-      )}
-      <span className="ml-auto shrink-0 text-xs text-gray-400 dark:text-gray-500 tabular-nums">
-        {lineCount}L
-        {lineCountDelta != null && lineCountDelta !== 0 && (
-          <span
-            className={
-              lineCountDelta > 0
-                ? 'text-emerald-600 dark:text-emerald-400'
-                : 'text-red-500 dark:text-red-400'
-            }
-          >
-            {' '}
-            ({lineCountDelta > 0 ? '+' : ''}
-            {lineCountDelta})
+        <Link
+          to="/intent/registry/$packageName/$skillName"
+          params={{ packageName, skillName: name }}
+          className="font-mono text-sm text-gray-900 dark:text-gray-100 hover:text-sky-600 dark:hover:text-sky-400 transition-colors truncate"
+        >
+          {name}
+        </Link>
+        {type && <SkillTypeBadge type={type} />}
+        {framework && (
+          <span className="inline-block px-1.5 py-0.5 rounded text-[10px] bg-sky-50 dark:bg-sky-950/50 text-sky-700 dark:text-sky-300 border border-sky-100 dark:border-sky-900">
+            {framework}
           </span>
         )}
-      </span>
+        {diffVersions && (
+          <button
+            onClick={() => setShowDiff((d) => !d)}
+            className="text-[10px] font-medium text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 transition-colors"
+          >
+            {showDiff ? 'hide diff' : 'diff'}
+          </button>
+        )}
+        <span className="ml-auto shrink-0 text-xs text-gray-400 dark:text-gray-500 tabular-nums">
+          {lineCount}L
+          {lineCountDelta != null && lineCountDelta !== 0 && (
+            <span
+              className={
+                lineCountDelta > 0
+                  ? 'text-emerald-600 dark:text-emerald-400'
+                  : 'text-red-500 dark:text-red-400'
+              }
+            >
+              {' '}
+              ({lineCountDelta > 0 ? '+' : ''}
+              {lineCountDelta})
+            </span>
+          )}
+        </span>
+      </div>
+      {diffVersions && (
+        <Collapsible open={showDiff}>
+          <CollapsibleContent>
+            <div className="px-3 pb-2">
+              <React.Suspense
+                fallback={
+                  <div className="h-24 rounded-lg bg-gray-50 dark:bg-gray-900/30 animate-pulse" />
+                }
+              >
+                <LazySkillDiffViewer
+                  packageName={diffVersions.packageName}
+                  skillName={name}
+                  fromVersion={diffVersions.fromVersion}
+                  toVersion={diffVersions.toVersion}
+                />
+              </React.Suspense>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      )}
     </div>
   )
 }

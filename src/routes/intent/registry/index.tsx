@@ -250,7 +250,7 @@ function IntentRegistryPage() {
             />
           </div>
 
-          {/* Sort + view toggle (packages only) */}
+          {/* Framework filter + sort + view toggle (packages only) */}
           {tab === 'packages' && (
             <div className="flex items-center gap-2 shrink-0">
               <select
@@ -330,6 +330,23 @@ function IntentRegistryPage() {
             </div>
           )}
         </div>
+
+        {/* Framework filters */}
+        {tab === 'packages' && (
+          <FrameworkFilters
+            packages={packages}
+            activeFramework={framework}
+            onSelect={(fw) =>
+              navigate({
+                search: (s) => ({
+                  ...s,
+                  framework: fw || undefined,
+                  page: 0,
+                }),
+              })
+            }
+          />
+        )}
 
         {/* Packages tab */}
         {tab === 'packages' &&
@@ -451,7 +468,7 @@ function IntentRegistryPage() {
               </p>
               <div className="flex flex-col gap-2">
                 {skillHits.map((hit) => (
-                  <SkillHitRow key={hit.skillId} hit={hit} />
+                  <SkillHitRow key={hit.skillId} hit={hit} query={q ?? ''} />
                 ))}
               </div>
             </>
@@ -543,6 +560,8 @@ function PackageCard({
     [navigate, pkgSlug],
   )
 
+  const isRecent = isRecentlyPublished(pkg.publishedAt)
+
   return (
     <Link
       to="/intent/registry/$packageName"
@@ -550,9 +569,16 @@ function PackageCard({
       className="group flex flex-col rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 hover:border-sky-300 dark:hover:border-sky-700 hover:shadow-sm transition-all"
     >
       <div className="flex items-start justify-between gap-2 mb-1">
-        <h3 className="font-mono text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors break-all">
-          {pkg.name}
-        </h3>
+        <div className="flex items-center gap-2 min-w-0">
+          <h3 className="font-mono text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors break-all">
+            {pkg.name}
+          </h3>
+          {isRecent && (
+            <span className="shrink-0 inline-block px-1.5 py-0.5 rounded text-[10px] leading-tight font-medium bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900">
+              new
+            </span>
+          )}
+        </div>
         <div className="shrink-0 w-20">
           {history && history.length > 0 ? (
             <SkillSparkline
@@ -631,16 +657,25 @@ function PackageRow({
     [navigate, pkgSlug],
   )
 
+  const isRecent = isRecentlyPublished(pkg.publishedAt)
+
   return (
     <tr className="group bg-white dark:bg-gray-900 hover:bg-sky-50/40 dark:hover:bg-sky-950/20 transition-colors">
       <td className="px-4 py-3 max-w-[14rem]">
-        <Link
-          to="/intent/registry/$packageName"
-          params={{ packageName: pkgSlug }}
-          className="font-mono text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors truncate block"
-        >
-          {pkg.name}
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            to="/intent/registry/$packageName"
+            params={{ packageName: pkgSlug }}
+            className="font-mono text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors truncate block"
+          >
+            {pkg.name}
+          </Link>
+          {isRecent && (
+            <span className="shrink-0 inline-block px-1.5 py-0.5 rounded text-[10px] leading-tight font-medium bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900">
+              new
+            </span>
+          )}
+        </div>
       </td>
       <td className="px-4 py-3 font-mono text-xs text-gray-400 dark:text-gray-500 whitespace-nowrap">
         v{pkg.latestVersion}
@@ -695,20 +730,29 @@ function PackageRow({
   )
 }
 
-function SkillHitRow({ hit }: { readonly hit: SkillSearchResult }) {
+function SkillHitRow({
+  hit,
+  query,
+}: {
+  readonly hit: SkillSearchResult
+  readonly query: string
+}) {
   return (
     <Link
-      to="/intent/registry/$packageName"
-      params={{ packageName: hit.packageName.replace('/', '__') }}
+      to="/intent/registry/$packageName/$skillName"
+      params={{
+        packageName: hit.packageName.replace('/', '__'),
+        skillName: hit.skillName,
+      }}
       className="group flex items-start gap-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 hover:border-sky-300 dark:hover:border-sky-700 hover:shadow-sm transition-all"
     >
       <div className="flex-1 min-w-0">
         <div className="font-mono text-xs text-gray-400 dark:text-gray-500 mb-0.5">
-          {hit.packageName}
+          <HighlightMatch text={hit.packageName} query={query} />
         </div>
         <div className="flex items-center gap-2 flex-wrap mb-1">
           <span className="font-mono text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">
-            {hit.skillName}
+            <HighlightMatch text={hit.skillName} query={query} />
           </span>
           {hit.type && <SkillTypeBadge type={hit.type} />}
           {hit.framework && (
@@ -719,7 +763,7 @@ function SkillHitRow({ hit }: { readonly hit: SkillSearchResult }) {
         </div>
         {hit.description && (
           <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
-            {hit.description}
+            <HighlightMatch text={hit.description} query={query} />
           </p>
         )}
       </div>
@@ -732,6 +776,94 @@ function SkillHitRow({ hit }: { readonly hit: SkillSearchResult }) {
         )}
       </div>
     </Link>
+  )
+}
+
+function HighlightMatch({
+  text,
+  query,
+}: {
+  readonly text: string
+  readonly query: string
+}) {
+  if (!query.trim()) return <>{text}</>
+
+  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const parts = text.split(new RegExp(`(${escaped})`, 'gi'))
+
+  return (
+    <>
+      {parts.map((part, i) =>
+        part.toLowerCase() === query.toLowerCase() ? (
+          <mark
+            key={i}
+            className="bg-amber-200/60 dark:bg-amber-500/20 text-inherit rounded-sm px-px"
+          >
+            {part}
+          </mark>
+        ) : (
+          <React.Fragment key={i}>{part}</React.Fragment>
+        ),
+      )}
+    </>
+  )
+}
+
+function FrameworkFilters({
+  packages,
+  activeFramework,
+  onSelect,
+}: {
+  readonly packages: Array<EnrichedIntentPackage>
+  readonly activeFramework: string | undefined
+  readonly onSelect: (framework: string | undefined) => void
+}) {
+  const frameworks = React.useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const pkg of packages) {
+      for (const fw of pkg.frameworks) {
+        counts.set(fw, (counts.get(fw) ?? 0) + 1)
+      }
+    }
+    return Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map(([name, count]) => ({ name, count }))
+  }, [packages])
+
+  if (frameworks.length === 0) return null
+
+  return (
+    <div className="flex items-center gap-1.5 mb-4 flex-wrap">
+      <span className="text-xs text-gray-400 dark:text-gray-500 uppercase tracking-wider font-medium mr-1">
+        Framework
+      </span>
+      <button
+        onClick={() => onSelect(undefined)}
+        className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+          !activeFramework
+            ? 'bg-sky-100 dark:bg-sky-950/50 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800'
+            : 'bg-gray-50 dark:bg-gray-800/60 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+        }`}
+      >
+        All
+      </button>
+      {frameworks.map(({ name, count }) => (
+        <button
+          key={name}
+          onClick={() => onSelect(activeFramework === name ? undefined : name)}
+          className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+            activeFramework === name
+              ? 'bg-sky-100 dark:bg-sky-950/50 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800'
+              : 'bg-gray-50 dark:bg-gray-800/60 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+          }`}
+        >
+          {name}
+          <span className="ml-1 text-gray-400 dark:text-gray-500 tabular-nums">
+            {count}
+          </span>
+        </button>
+      ))}
+    </div>
   )
 }
 
@@ -783,6 +915,13 @@ function EmptyState({ hasSearch }: { readonly hasSearch: boolean }) {
       )}
     </div>
   )
+}
+
+const RECENT_THRESHOLD_MS = 14 * 24 * 60 * 60 * 1000 // 14 days
+
+function isRecentlyPublished(iso: string | null): boolean {
+  if (!iso) return false
+  return Date.now() - new Date(iso).getTime() < RECENT_THRESHOLD_MS
 }
 
 function formatDownloads(n: number): string {

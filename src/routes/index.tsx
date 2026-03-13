@@ -24,7 +24,8 @@ import { setResponseHeaders } from '@tanstack/react-start/server'
 import { AdGate } from '~/contexts/AdsContext'
 import { GamHeader } from '~/components/Gam'
 import { TrustedByMarquee } from '~/components/TrustedByMarquee'
-import { ArrowRight, Code2, Layers, Shield, Zap } from 'lucide-react'
+import { ArrowRight, Code2, Layers, Shield, Zap, Play } from 'lucide-react'
+import { YouTubeIcon } from '~/components/icons/YouTubeIcon'
 import { Card } from '~/components/Card'
 import LibraryCard from '~/components/LibraryCard'
 import { FeaturedShowcases } from '~/components/ShowcaseSection'
@@ -590,6 +591,51 @@ function Index() {
             </div>
           </div>
         </div>
+
+        <div className="px-4 mx-auto max-w-(--breakpoint-lg)">
+          <div
+            className={`
+          rounded-md p-4 grid gap-6
+          bg-gradient-to-br from-red-500 to-red-700 text-white overflow-hidden relative
+          shadow-xl shadow-red-700/30
+          sm:p-8 sm:grid-cols-3 items-center`}
+          >
+            <div
+              className={`absolute transform opacity-10 z-0
+            right-0 top-0 -translate-y-1/3 translate-x-1/3
+            sm:opacity-20`}
+            >
+              <YouTubeIcon width={300} height={300} />
+            </div>
+            <div className={`sm:col-span-2`}>
+              <h3 id="youtube" className="text-3xl font-bold scroll-mt-24">
+                <a
+                  href="#youtube"
+                  className="hover:underline decoration-white/50"
+                >
+                  TanStack on YouTube
+                </a>
+              </h3>
+              <p className={`mt-4`}>
+                The official TanStack YouTube channel. Tutorials, deep dives,
+                release walkthroughs, and more — free for everyone!
+              </p>
+            </div>
+            <div className={`flex items-center justify-center`}>
+              <Button
+                as="a"
+                href="https://youtube.com/@tan_stack"
+                target="_blank"
+                rel="noreferrer"
+                className="w-full mt-4 bg-white border-white hover:bg-gray-100 text-red-600 justify-center shadow-lg text-sm"
+              >
+                <Play className="w-4 h-4" />
+                Subscribe on YouTube
+              </Button>
+            </div>
+          </div>
+        </div>
+
         <div className="h-4" />
         <div className="px-4 mx-auto max-w-(--breakpoint-lg) relative">
           <Card className="rounded-md p-8 md:p-14">

@@ -13,7 +13,6 @@ const capabilityVariants: Record<
   admin: 'error',
   disableAds: 'purple',
   builder: 'info',
-  feed: 'orange',
   'moderate-feedback': 'success',
   'moderate-showcases': 'teal',
 }

@@ -7,16 +7,20 @@ import { libraryIdSchema, showcaseUseCaseSchema } from '~/utils/schemas'
 
 const searchSchema = v.object({
   page: v.optional(v.number(), 1),
+  pageSize: v.optional(v.number(), 24),
   libraryIds: v.optional(v.array(libraryIdSchema)),
   useCases: v.optional(v.array(showcaseUseCaseSchema)),
   hasSourceCode: v.optional(v.boolean()),
   q: v.optional(v.string()),
 })
 
+export const PAGE_SIZE_OPTIONS = [24, 48, 96, 192] as const
+
 export const Route = createFileRoute('/showcase/')({
   validateSearch: searchSchema,
   loaderDeps: ({ search }) => ({
     page: search.page,
+    pageSize: search.pageSize,
     libraryIds: search.libraryIds,
     useCases: search.useCases,
     hasSourceCode: search.hasSourceCode,
@@ -27,7 +31,7 @@ export const Route = createFileRoute('/showcase/')({
       getApprovedShowcasesQueryOptions({
         pagination: {
           page: deps.page,
-          pageSize: 24,
+          pageSize: deps.pageSize,
         },
         filters: {
           libraryIds: deps.libraryIds,

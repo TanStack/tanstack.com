@@ -2,6 +2,7 @@ import * as React from 'react'
 import { ChevronLeft, ChevronRight, Menu } from 'lucide-react'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { DiscordIcon } from '~/components/icons/DiscordIcon'
+import { YouTubeIcon } from '~/components/icons/YouTubeIcon'
 import { Link, useMatches, useParams } from '@tanstack/react-router'
 import { useLocalStorage } from '~/utils/useLocalStorage'
 import { useClickOutside } from '~/hooks/useClickOutside'
@@ -352,10 +353,12 @@ const useMenuConfig = ({
   config,
   repo,
   frameworks,
+  libraryId,
 }: {
   config: ConfigSchema
   repo: string
   frameworks: Framework[]
+  libraryId: string
 }): MenuItem[] => {
   const currentFramework = useCurrentFramework(frameworks)
 
@@ -371,6 +374,14 @@ const useMenuConfig = ({
             {
               label: 'Frameworks',
               to: './framework',
+            },
+          ]
+        : []),
+      ...(libraryId === 'intent'
+        ? [
+            {
+              label: 'Skills Registry',
+              to: '/intent/registry',
             },
           ]
         : []),
@@ -397,6 +408,14 @@ const useMenuConfig = ({
           </div>
         ),
         to: `https://github.com/${repo}`,
+      },
+      {
+        label: (
+          <div className="flex items-center gap-2">
+            YouTube <YouTubeIcon className="text-lg opacity-20" />
+          </div>
+        ),
+        to: 'https://youtube.com/@tan_stack',
       },
       {
         label: (
@@ -468,7 +487,7 @@ export function DocsLayout({
     strict: false,
   }) as { libraryId: LibraryId; version: string }
   const { _splat } = useParams({ strict: false })
-  const menuConfig = useMenuConfig({ config, frameworks, repo })
+  const menuConfig = useMenuConfig({ config, frameworks, repo, libraryId })
 
   const matches = useMatches()
   const lastMatch = last(matches)

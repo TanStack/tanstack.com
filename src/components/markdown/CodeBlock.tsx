@@ -36,7 +36,7 @@ async function getHighlighter(language: string): Promise<{
 }> {
   if (!highlighterPromise) {
     highlighterPromise = createHighlighter({
-      themes: ['github-light', 'vitesse-dark'],
+      themes: ['github-light', 'aurora-x'],
       langs: [
         'typescript',
         'javascript',
@@ -155,7 +155,7 @@ export function CodeBlock({
   const code = children?.props.children
 
   const [codeElement, setCodeElement] = React.useState(
-    <pre ref={ref} className={`shiki h-full github-light dark:vitesse-dark`}>
+    <pre ref={ref} className={`shiki h-full github-light dark:aurora-x`}>
       <code>{lang === 'mermaid' ? <svg /> : code}</code>
     </pre>,
   )
@@ -164,7 +164,7 @@ export function CodeBlock({
     typeof document !== 'undefined' ? 'useLayoutEffect' : 'useEffect'
   ](() => {
     ;(async () => {
-      const themes = ['github-light', 'vitesse-dark']
+      const themes = ['github-light', 'aurora-x']
       const langStr = lang || 'plaintext'
 
       const { highlighter, effectiveLang } = await getHighlighter(langStr)

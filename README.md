@@ -19,6 +19,28 @@ pnpm dev
 
 This starts your app in development mode, rebuilding assets on file changes.
 
+## Authentication in Development
+
+The dev server uses the production database and real OAuth, so dev and production behave identically. To authenticate your local session, run:
+
+```sh
+pnpm auth:login
+```
+
+This opens `tanstack.com` in your browser. Sign in with GitHub or Google, and the resulting session token is saved to `.env.local` as `DEV_SESSION_TOKEN`. Restart the dev server and you will be signed in automatically.
+
+To authenticate against a locally running server instead:
+
+```sh
+pnpm auth:login --url http://localhost:3000
+```
+
+> [!NOTE]
+> The token is a real signed session cookie tied to your production account. It expires in 30 days. Re-run `pnpm auth:login` to refresh it.
+
+> [!NOTE]
+> If you are using an AI agent (Claude, Cursor, etc.) to help develop, run `pnpm auth:login` once before starting your session so the agent can interact with authenticated features on your behalf.
+
 ## Editing and previewing the docs of TanStack projects locally
 
 The documentations for all TanStack projects except for `React Charts` are hosted on [https://tanstack.com](https://tanstack.com), powered by this TanStack Router app.

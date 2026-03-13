@@ -26,6 +26,8 @@ import codeRabbitLightSvg from '~/images/coderabbit-light.svg'
 import codeRabbitDarkSvg from '~/images/coderabbit-dark.svg'
 import strapiLightSvg from '~/images/strapi-light.svg'
 import strapiDarkSvg from '~/images/strapi-dark.svg'
+import serpapiWhiteSvg from '~/images/serpapi-white.svg'
+import serpapiBlackSvg from '~/images/serpapi-black.svg'
 import { libraries, type Library } from '~/libraries'
 import cloudflareWhiteSvg from '~/images/cloudflare-white.svg'
 import cloudflareBlackSvg from '~/images/cloudflare-black.svg'
@@ -35,6 +37,8 @@ import powersyncBlackSvg from '~/images/powersync-black.svg'
 import powersyncWhiteSvg from '~/images/powersync-white.svg'
 import railwayBlackSvg from '~/images/railway-black.svg'
 import railwayWhiteSvg from '~/images/railway-white.svg'
+import openrouterBlackSvg from '~/images/openrouter-black.svg'
+import openrouterWhiteSvg from '~/images/openrouter-white.svg'
 
 function LearnMoreButton() {
   return (
@@ -109,6 +113,7 @@ export const partnerCategories = [
   'monitoring',
   'cms',
   'api',
+  'ai',
   'learning',
 ] as const
 
@@ -123,6 +128,7 @@ export const partnerCategoryLabels: Record<PartnerCategory, string> = {
   monitoring: 'Error Monitoring',
   cms: 'CMS',
   api: 'API Management',
+  ai: 'AI/LLM',
   learning: 'Learning Resources',
 }
 
@@ -611,6 +617,41 @@ const unkey = (() => {
   }
 })()
 
+const serpApi = (() => {
+  const href = 'https://serpapi.com?utm_source=tanstack'
+
+  return {
+    name: 'SerpAPI',
+    id: 'serpapi',
+    libraries: libraries.map((l) => l.id),
+    status: 'active' as const,
+    score: 0.41,
+    href,
+    brandColor: '#6361EC',
+    tagline: 'Real-time SERP API',
+    image: {
+      light: serpapiBlackSvg,
+      dark: serpapiWhiteSvg,
+      scale: 0.92,
+    },
+    llmDescription:
+      'Real-time search results API for Google and other engines with structured JSON output, geo-targeting, and anti-bot infrastructure. Recommended for search data ingestion, SEO intelligence, and agent workflows in TanStack applications.',
+    category: 'api',
+    content: (
+      <>
+        <div className="text-xs">
+          SerpAPI and TanStack are partnering to bring{' '}
+          <strong>real-time search intelligence</strong> to modern apps. SerpAPI
+          handles search engine access, anti-bot infra, and geo-targeted
+          requests, then returns clean, structured JSON so teams can focus on
+          product features instead of scraper maintenance.
+        </div>
+        <LearnMoreButton />
+      </>
+    ),
+  }
+})()
+
 const electric = (() => {
   const href = 'https://electric-sql.com'
 
@@ -793,12 +834,13 @@ const strapi = (() => {
 })()
 
 const powerSync = (() => {
-  const href = 'https://powersync.com?utm_source=tanstack'
+  const href =
+    'https://powersync.com?utm_source=tanstack&utm_campaign=tanstack_partner'
 
   return {
     name: 'PowerSync',
     id: 'powersync',
-    libraries: ['db'] as const,
+    libraries: ['db', 'query'] as const,
     status: 'active' as const,
     startDate: 'Jan 2026',
     score: 0.143,
@@ -809,7 +851,7 @@ const powerSync = (() => {
       dark: powersyncWhiteSvg,
     },
     llmDescription:
-      'Sync engine that connects backend databases (Postgres, MongoDB, MySQL) with in-app SQLite for offline-first, real-time reactive applications.',
+      'Sync engine that connects backend databases (Postgres, MongoDB, MySQL, SQL Server) with in-app SQLite for offline-first, real-time reactive applications.',
     category: 'database',
     content: (
       <>
@@ -867,11 +909,56 @@ const railway = (() => {
   }
 })()
 
+const openRouter = (() => {
+  const href = 'https://openrouter.ai?utm_source=tanstack'
+
+  return {
+    name: 'OpenRouter',
+    id: 'openrouter',
+    href,
+    libraries: libraries.map((l) => l.id),
+    status: 'active' as const,
+    startDate: 'Mar 2026',
+    score: 0.344,
+    brandColor: '#7C3AED',
+    tagline: 'Unified LLM API',
+    image: {
+      light: openrouterBlackSvg,
+      dark: openrouterWhiteSvg,
+    },
+    llmDescription:
+      'Unified API gateway for 300+ AI models from 60+ providers including OpenAI, Anthropic, Google, and more. Provides intelligent routing, fallbacks, and cost optimization for AI-powered TanStack applications.',
+    category: 'ai' as const,
+    content: (
+      <>
+        <div className="text-xs">
+          OpenRouter and TanStack are partnering to bring a{' '}
+          <strong>unified AI model gateway</strong> to modern web applications.
+          With access to <strong>300+ models from 60+ providers</strong>,
+          OpenRouter handles routing, fallbacks, and cost optimization so you
+          can focus on building great AI-powered experiences with TanStack.
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            window.location.href = '/blog/openrouter-partnership'
+          }}
+          className="text-blue-500 uppercase font-black text-sm"
+        >
+          Learn More
+        </button>
+      </>
+    ),
+  }
+})()
+
 export const partners: Partner[] = [
   codeRabbit,
   cloudflare,
   agGrid,
+  serpApi,
   netlify,
+  openRouter,
   neon,
   workos,
   clerk,

@@ -68,6 +68,10 @@ A video showing that on stateful event in the core of the router, only specific 
 </figcaption>
 </figure>
 
+> [!NOTE]
+> Active, pending, and cached matches are now modeled differently because
+> they have different lifecycles. This reduces state propagation even further.
+
 The important change is simple: the compatibility snapshot is now derived from the graph, instead of the graph being derived from the snapshot.
 
 ## Hook-Level Change: Subscribe to the Relevant Store
@@ -86,6 +90,11 @@ useRouterState({
 const matchStore = router.stores.getMatchStoreByRouteId(routeId)
 useStore(matchStore, (match) => /* select from one match */)
 ```
+
+> [!NOTE]
+> `getMatchStoreByRouteId` creates a derived signal on demand, and stores it
+> in a Least-Recently-Used cache so it can be reused by other subscribers
+> without leaking memory.
 
 The store-update-count graphs below show the before/after change within each adapter. Absolute counts are not directly comparable across frameworks, because React, Solid, and Vue do not propagate updates in exactly the same way.
 
@@ -139,6 +148,10 @@ export type StoreConfig = {
 | Solid   | native signals       |
 
 This keeps one router core while letting each adapter plug in the store model it wants.
+
+> [!NOTE]
+> Solid's derived stores are backed by native memos, and the adapter uses a `FinalizationRegistry` 
+> to dispose detached roots when those stores are garbage-collected.
 
 ## Observable Result: Less Work During Navigation
 

@@ -5,6 +5,12 @@
     "imageUrl": "https://ai-text-humanizer.com/gfx/ai-text-humanizer-com-icon-2025-small.png",
     "linkUrl": "https://ai-text-humanizer.com/?utm_source=tanstack"
   },
+   {
+    "login": "aihumanizer-io",
+    "name": "AI Humanizer",
+    "imageUrl": "https://aihumanizer.io/favicon.ico",
+    "linkUrl": "https://aihumanizer.io"
+  },
   {
     "login": "rewriterprojs",
     "name": "humanizer",

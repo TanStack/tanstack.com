@@ -18,6 +18,12 @@
     "linkUrl": "https://automatio.ai"
   },
   {
+    "login": "homeworkaid",
+    "name": "Math Solver",
+    "imageUrl": "https://homeworkaid.ai/favicon.ico",
+    "linkUrl": "https://homeworkaid.ai/ai-math-solver"
+  },
+  {
     "login": "sanity-io",
     "linkUrl": "https://www.sanity.io/?utm_source=tanstack"
   },

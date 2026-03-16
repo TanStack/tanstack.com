@@ -14,7 +14,7 @@ TanStack Router used to center most of its reactivity around one large object: `
 
 This builds on TanStack Store's migration to [alien-signals](https://github.com/stackblitz/alien-signals) in [TanStack Store PR #265](https://github.com/TanStack/store/pull/265), implemented by [@DavidKPiano](https://github.com/davidkpiano). In external benchmarks like [js-reactivity-benchmark](https://github.com/transitive-bullshit/js-reactivity-benchmark), alien-signals is currently the best-performing signals implementation tested. But the main improvement here is not just a faster primitive. It is a different reactive model.
 
-The result is 
+The result is
 - better update locality,
 - fewer store updates during navigation,
 - substantially faster client-side navigation,
@@ -39,9 +39,7 @@ This did not mean every update rerendered everything. Options like `select` and 
 
 Routing is not one thing that changes all at once. A navigation changes specific pieces of state with specific relationships: one match stays active, another becomes pending, one link flips state, some cached matches do not change at all.
 
-The old model captured those pieces of state, but it flattened them into one main subscription surface. That was the mismatch.
-
-This is where the mismatch becomes visible:
+The old model captured those pieces of state, but it flattened them into one main subscription surface. This is where the mismatch becomes visible:
 
 <figure>
 <video src="/blog-assets/tanstack-router-signal-graph/before-router-state-blob.mp4" playsinline loop autoplay muted></video>
@@ -69,7 +67,7 @@ The new picture looks like this:
 <figure>
 <video src="/blog-assets/tanstack-router-signal-graph/after-granular-store-graph.mp4" playsinline loop autoplay muted></video>
 <figcaption>
-A video showing that on stateful event in the core of the router, only specific subset of subscribers are updated in the application.
+A video showing that on each stateful event in the core of the router, only a specific subset of subscribers are updated in the application.
 </figcaption>
 </figure>
 
@@ -88,7 +86,10 @@ Before this refactor, `useMatch` subscribed through the big router store and the
 ```ts
 // Before
 useRouterState({
-  select: (state) => state.matches.find(/* route or match lookup */),
+  select: (state) => {
+    const match = state.matches.find((m) => m.routeId === routeId)
+	 /* select from one match */
+  }
 })
 
 // After
@@ -203,7 +204,6 @@ This graph shows the duration of 10 navigations going from 120ms on <code>main</
 </figure>
 
 #### Vue
-
 
 <figure>
 <img src="/blog-assets/tanstack-router-signal-graph/client-side-nav-vue.png" alt="">

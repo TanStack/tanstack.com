@@ -10,11 +10,15 @@ title: 'From One Big Router Store to a Granular Signal Graph'
 
 ![veins of emerald as a signal graph embedded in the rock of a tropical island](/blog-assets/tanstack-router-signal-graph/header.png)
 
-TanStack Router used to center most of its reactivity around one large object: `router.state`. [This refactor](https://github.com/TanStack/router/pull/6704) replaces that broad store with a graph of smaller stores.
+TanStack Router used to center most of its reactivity around one large object: `router.state`. [This refactor](https://github.com/TanStack/router/pull/6704) replaces that broad store with a graph of smaller stores. `router.state` is no longer the internal source of truth. It is now derived from the store graph.
 
 This builds on TanStack Store's migration to [alien-signals](https://github.com/stackblitz/alien-signals) in [TanStack Store PR #265](https://github.com/TanStack/store/pull/265), implemented by [@DavidKPiano](https://github.com/davidkpiano). In external benchmarks like [js-reactivity-benchmark](https://github.com/transitive-bullshit/js-reactivity-benchmark), alien-signals is currently the best-performing signals implementation tested. But the main improvement here is not just a faster primitive. It is a different reactive model.
 
-The result is better update locality, fewer store updates during navigation, substantially faster client-side navigation, and Solid can now use its native signals.
+The result is 
+- better update locality,
+- fewer store updates during navigation,
+- substantially faster client-side navigation,
+- and Solid can now use its native signals.
 
 ## Old Model: One Broad Router State
 
@@ -27,7 +31,7 @@ That was useful. It made it possible to prototype features quickly and ship a br
 | Location             | `location`, `resolvedLocation`               | `useLocation`, `Link`            |
 | Match lifecycle      | `matches`, `pendingMatches`, `cachedMatches` | `useMatch`, `Matches`, `Outlet`  |
 | Navigation status    | `status`, `isLoading`, `isTransitioning`     | pending UI, transitions          |
-| Routing side effects | `redirect`, `statusCode`                     | navigation and response handling |
+| Side effects | `redirect`, `statusCode`                     | navigation and response handling |
 
 This did not mean every update rerendered everything. Options like `select` and `structuralSharing` could prevent propagation. But many consumers still started from a broader subscription surface than they actually needed.
 
@@ -48,16 +52,17 @@ A video showing that on every stateful event in the core of the router, changes 
 
 The point is that `router.state` was broader than what many consumers actually needed.
 
-## New Model: Split Router State into Stores
+## New Model: The Graph Becomes the Source of Truth
 
-The new model breaks that broad surface into smaller stores with narrower responsibilities.
+The new model is not just "more stores". It inverts the relationship between `router.state` and the reactive graph.
 
-- top-level stores for location, status, loading, transitions, redirects, and similar scalar state
-- separate pools for active matches, pending matches, and cached matches
-- per-match stores inside each pool
-- derived stores for route-level lookups such as "the current active match for route X"
+The broad surface is split into smaller stores with narrower responsibilities.
 
-`router.state` still exists as a compatibility view for public APIs. It is just no longer the primary model that everything else hangs off.
+- **top-level stores** for location, status, loading, transitions, redirects, and similar scalar state
+- **per-match stores** grouped into pools of active matches, pending matches, and cached matches.
+- **derived stores** for specific purposes like "is any match pending"
+
+`router.state` still exists as a compatibility snapshot for public APIs. It is just no longer the primary model that everything else hangs off.
 
 The new picture looks like this:
 
@@ -69,14 +74,14 @@ A video showing that on stateful event in the core of the router, only specific 
 </figure>
 
 > [!NOTE]
-> Active, pending, and cached matches are now modeled differently because
+> Active, pending, and cached matches are now modeled separately because
 > they have different lifecycles. This reduces state propagation even further.
 
-The important change is simple: the compatibility snapshot is now derived from the graph, instead of the graph being derived from the snapshot.
+Before, the graph was derived from `router.state`. Now, `router.state` is derived from the graph. That inversion is the refactor.
 
 ## Hook-Level Change: Subscribe to the Relevant Store
 
-The clearest example is `useMatch`.
+Once the graph becomes the source of truth, hooks can subscribe directly to graph nodes instead of selecting from a broad snapshot. The clearest example is `useMatch`.
 
 Before this refactor, `useMatch` subscribed through the big router store and then searched `state.matches` for the match it cared about. Now it resolves the relevant store first and subscribes directly to it.
 
@@ -96,21 +101,36 @@ useStore(matchStore, (match) => /* select from one match */)
 > in a Least-Recently-Used cache so it can be reused by other subscribers
 > without leaking memory.
 
-The store-update-count graphs below show the before/after change within each adapter. Absolute counts are not directly comparable across frameworks, because React, Solid, and Vue do not propagate updates in exactly the same way.
+The store-update-count graphs below show how many times subscriptions are invoked during various routing scenarios, before (curve is the entire history) and after (last point is this refactor).
 
 <!-- ::start:tabs -->
 
 #### React
 
-![A graph showing the number of times a useRouterState subscription is triggered in various test scenarios, going from a 5 to 18 range down to a 0 to 8 range](/blog-assets/tanstack-router-signal-graph/store-updates-history-react.png)
+<figure>
+<img src="/blog-assets/tanstack-router-signal-graph/store-updates-history-react.png" alt="A graph showing the number of times a useRouterState subscription is triggered in various test scenarios, going from a 5 to 18 range down to a 0 to 8 range">
+<figcaption>
+Absolute counts are not directly comparable across frameworks, because React, Solid, and Vue do not propagate updates in exactly the same way.
+</figcaption>
+</figure>
 
 #### Solid
 
-![A graph showing the number of times a useRouterState subscription is triggered in various test scenarios, going from a 3 to 19 range down to a 0 to 8 range](/blog-assets/tanstack-router-signal-graph/store-updates-history-solid.png)
+<figure>
+<img src="/blog-assets/tanstack-router-signal-graph/store-updates-history-solid.png" alt="A graph showing the number of times a useRouterState subscription is triggered in various test scenarios, going from a 3 to 19 range down to a 0 to 8 range">
+<figcaption>
+Absolute counts are not directly comparable across frameworks, because React, Solid, and Vue do not propagate updates in exactly the same way.
+</figcaption>
+</figure>
 
 #### Vue
 
-![A graph showing the number of times a useRouterState subscription is triggered in various test scenarios, going from a 6 to 46 range down to a 2 to 16 range](/blog-assets/tanstack-router-signal-graph/store-updates-history-vue.png)
+<figure>
+<img src="/blog-assets/tanstack-router-signal-graph/store-updates-history-vue.png" alt="A graph showing the number of times a useRouterState subscription is triggered in various test scenarios, going from a 6 to 46 range down to a 2 to 16 range">
+<figcaption>
+Absolute counts are not directly comparable across frameworks, because React, Solid, and Vue do not propagate updates in exactly the same way.
+</figcaption>
+</figure>
 
 <!-- ::end:tabs -->
 
@@ -127,9 +147,8 @@ export interface RouterReadableStore<TValue> {
   readonly state: TValue
 }
 
-export interface RouterWritableStore<
-  TValue,
-> extends RouterReadableStore<TValue> {
+export interface RouterWritableStore<TValue> {
+  readonly state: TValue
   setState: (updater: (prev: TValue) => TValue) => void
 }
 
@@ -145,19 +164,19 @@ export type StoreConfig = {
 | :------ | :------------------- |
 | React   | TanStack Store       |
 | Vue     | TanStack Store       |
-| Solid   | native signals       |
+| Solid   | Solid signals        |
 
 This keeps one router core while letting each adapter plug in the store model it wants.
 
 > [!NOTE]
-> Solid's derived stores are backed by native memos, and the adapter uses a `FinalizationRegistry` 
+> Solid's derived stores are backed by native memos, and the adapter uses a `FinalizationRegistry`
 > to dispose detached roots when those stores are garbage-collected.
 
 ## Observable Result: Less Work During Navigation
 
 No new public API is required here. `useMatch`, `useLocation`, and `<Link>` keep the same surface. The difference is that navigation and preload flows now wake up fewer subscriptions.
 
-The `benchmarks/client-nav` benchmarks isolate client-side navigation cost on a synthetic rerender-heavy page.
+Our benchmarks isolate client-side navigation cost on a synthetic rerender-heavy page.
 
 - React: `7ms -> 4.5ms`
 - Solid: `12ms -> 8ms`
@@ -167,15 +186,31 @@ The `benchmarks/client-nav` benchmarks isolate client-side navigation cost on a 
 
 #### React
 
-![A graph showing the duration of a single navigation on a synthetic tanstack/react-router app going from about 7ms to about 4.5ms](/blog-assets/tanstack-router-signal-graph/client-side-nav-react.png)
+<figure>
+<img src="/blog-assets/tanstack-router-signal-graph/client-side-nav-react.png" alt="">
+<figcaption>
+This graph shows the duration of 10 navigations going from 70ms on <code>main</code> (grey) to 45ms on <code>refactor-signals</code> (blue).
+</figcaption>
+</figure>
 
 #### Solid
 
-![A graph showing the duration of a single navigation on a synthetic tanstack/solid-router app going from about 12ms to about 8ms](/blog-assets/tanstack-router-signal-graph/client-side-nav-solid.png)
+<figure>
+<img src="/blog-assets/tanstack-router-signal-graph/client-side-nav-solid.png" alt="">
+<figcaption>
+This graph shows the duration of 10 navigations going from 120ms on <code>main</code> (grey) to 80ms on <code>refactor-signals</code> (blue).
+</figcaption>
+</figure>
 
 #### Vue
 
-![A graph showing the duration of a single navigation on a synthetic tanstack/vue-router app going from about 7.5ms to about 6ms](/blog-assets/tanstack-router-signal-graph/client-side-nav-vue.png)
+
+<figure>
+<img src="/blog-assets/tanstack-router-signal-graph/client-side-nav-vue.png" alt="">
+<figcaption>
+This graph shows the duration of 10 navigations going from 75ms on <code>main</code> (grey) to 60ms on <code>refactor-signals</code> (blue).
+</figcaption>
+</figure>
 
 <!-- ::end:tabs -->
 
@@ -189,22 +224,37 @@ There is also a bundle-size tradeoff. In our synthetic bundle-size benchmarks, m
 
 #### React
 
-![A graph the history of the bundle size of a synthetic tanstack/react-router app, gaining 1KiB gzipped with this latest change](/blog-assets/tanstack-router-signal-graph/bundle-size-history-react.png)
+<figure>
+<img src="/blog-assets/tanstack-router-signal-graph/bundle-size-history-react.png" alt="A graph the history of the bundle size of a synthetic tanstack/react-router app, gaining 1KiB gzipped with this latest change">
+<figcaption>
+Only relative changes matter in this benchmark, they are based on arbitrary apps and absolute sizes are not representative.
+</figcaption>
+</figure>
 
 #### Solid
 
-![A graph the history of the bundle size of a synthetic tanstack/solid-router app, shedding 1KiB gzipped with this latest change](/blog-assets/tanstack-router-signal-graph/bundle-size-history-solid.png)
+<figure>
+<img src="/blog-assets/tanstack-router-signal-graph/bundle-size-history-solid.png" alt="A graph the history of the bundle size of a synthetic tanstack/solid-router app, shedding 1KiB gzipped with this latest change">
+<figcaption>
+Only relative changes matter in this benchmark, they are based on arbitrary apps and absolute sizes are not representative.
+</figcaption>
+</figure>
 
 #### Vue
 
-![A graph the history of the bundle size of a synthetic tanstack/vue-router app, gaining 1KiB gzipped with this latest change](/blog-assets/tanstack-router-signal-graph/bundle-size-history-vue.png)
+<figure>
+<img src="/blog-assets/tanstack-router-signal-graph/bundle-size-history-vue.png" alt="A graph the history of the bundle size of a synthetic tanstack/vue-router app, gaining 1KiB gzipped with this latest change">
+<figcaption>
+Only relative changes matter in this benchmark, they are based on arbitrary apps and absolute sizes are not representative.
+</figcaption>
+</figure>
 
 <!-- ::end:tabs -->
 
 ## Closing
 
-This refactor did not just add signals to the old model. It also changed the reactive model itself.
+This refactor did not just add signals to the old model. It inverted the reactivity model.
 
-The old model organized most reactivity around one broad router state. The new model organizes it around a graph of smaller stores with narrower update paths.
+Before, `router.state` was the broad reactive surface and the graph was derived from it. Now the graph is the primary model, and `router.state` is a compatibility snapshot derived from the graph.
 
 Routing is a graph. Now the reactivity is one too.

@@ -43,7 +43,7 @@ export function Breadcrumbs({
         )}
         {showTocToggle && (
           <Dropdown>
-            <DropdownTrigger asChild={false}>
+            <DropdownTrigger>
               <button
                 className={twMerge(
                   hiddenClass,

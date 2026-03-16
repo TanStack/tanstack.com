@@ -600,6 +600,11 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         </Link>
         {[
           {
+            label: 'Blog',
+            icon: Music,
+            to: '/blog',
+          },
+          {
             label: 'Maintainers',
             icon: Code,
             to: '/maintainers',
@@ -615,11 +620,6 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             to: '/showcase',
           },
           {
-            label: 'Blog',
-            icon: Music,
-            to: '/blog',
-          },
-          {
             label: (
               <>
                 <span>Learn</span>
@@ -630,11 +630,6 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             ),
             icon: BookOpen,
             to: '/learn',
-          },
-          {
-            label: 'Support',
-            icon: HelpCircle,
-            to: '/support',
           },
           {
             label: 'Stats',
@@ -657,6 +652,11 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             label: 'Merch',
             icon: Shirt,
             to: '/merch',
+          },
+          {
+            label: 'Support',
+            icon: HelpCircle,
+            to: '/support',
           },
           {
             label: 'GitHub',

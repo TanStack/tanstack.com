@@ -88,7 +88,7 @@ Before this refactor, `useMatch` subscribed through the big router store and the
 useRouterState({
   select: (state) => {
     const match = state.matches.find((m) => m.routeId === routeId)
-	 /* select from one match */
+    return /* select from one match */
   }
 })
 
@@ -190,7 +190,7 @@ Our benchmarks isolate client-side navigation cost on a synthetic rerender-heavy
 <figure>
 <img src="/blog-assets/tanstack-router-signal-graph/client-side-nav-react.png" alt="">
 <figcaption>
-This graph shows the duration of 10 navigations going from 70ms on <code>main</code> (grey) to 45ms on <code>refactor-signals</code> (blue).
+This graph shows the duration of 10 navigations on <code>main</code> (grey) and on <code>refactor-signals</code> (blue).
 </figcaption>
 </figure>
 
@@ -199,7 +199,7 @@ This graph shows the duration of 10 navigations going from 70ms on <code>main</c
 <figure>
 <img src="/blog-assets/tanstack-router-signal-graph/client-side-nav-solid.png" alt="">
 <figcaption>
-This graph shows the duration of 10 navigations going from 120ms on <code>main</code> (grey) to 80ms on <code>refactor-signals</code> (blue).
+This graph shows the duration of 10 navigations on <code>main</code> (grey) and on <code>refactor-signals</code> (blue).
 </figcaption>
 </figure>
 
@@ -208,7 +208,7 @@ This graph shows the duration of 10 navigations going from 120ms on <code>main</
 <figure>
 <img src="/blog-assets/tanstack-router-signal-graph/client-side-nav-vue.png" alt="">
 <figcaption>
-This graph shows the duration of 10 navigations going from 75ms on <code>main</code> (grey) to 60ms on <code>refactor-signals</code> (blue).
+This graph shows the duration of 10 navigations on <code>main</code> (grey) and on <code>refactor-signals</code> (blue).
 </figcaption>
 </figure>
 
@@ -225,7 +225,7 @@ There is also a bundle-size tradeoff. In our synthetic bundle-size benchmarks, m
 #### React
 
 <figure>
-<img src="/blog-assets/tanstack-router-signal-graph/bundle-size-history-react.png" alt="A graph the history of the bundle size of a synthetic tanstack/react-router app, gaining 1KiB gzipped with this latest change">
+<img src="/blog-assets/tanstack-router-signal-graph/bundle-size-history-react.png" alt="A graph of the history of the bundle size of a synthetic tanstack/react-router app, gaining 1KiB gzipped with this latest change">
 <figcaption>
 Only relative changes matter in this benchmark, they are based on arbitrary apps and absolute sizes are not representative.
 </figcaption>
@@ -234,7 +234,7 @@ Only relative changes matter in this benchmark, they are based on arbitrary apps
 #### Solid
 
 <figure>
-<img src="/blog-assets/tanstack-router-signal-graph/bundle-size-history-solid.png" alt="A graph the history of the bundle size of a synthetic tanstack/solid-router app, shedding 1KiB gzipped with this latest change">
+<img src="/blog-assets/tanstack-router-signal-graph/bundle-size-history-solid.png" alt="A graph of the history of the bundle size of a synthetic tanstack/solid-router app, shedding 1KiB gzipped with this latest change">
 <figcaption>
 Only relative changes matter in this benchmark, they are based on arbitrary apps and absolute sizes are not representative.
 </figcaption>
@@ -243,7 +243,7 @@ Only relative changes matter in this benchmark, they are based on arbitrary apps
 #### Vue
 
 <figure>
-<img src="/blog-assets/tanstack-router-signal-graph/bundle-size-history-vue.png" alt="A graph the history of the bundle size of a synthetic tanstack/vue-router app, gaining 1KiB gzipped with this latest change">
+<img src="/blog-assets/tanstack-router-signal-graph/bundle-size-history-vue.png" alt="A graph of the history of the bundle size of a synthetic tanstack/vue-router app, gaining 1KiB gzipped with this latest change">
 <figcaption>
 Only relative changes matter in this benchmark, they are based on arbitrary apps and absolute sizes are not representative.
 </figcaption>

@@ -15,14 +15,12 @@ import LandingPageGad from '~/components/LandingPageGad'
 import { MaintainerCard } from '~/components/MaintainerCard'
 import { coreMaintainers } from '~/libraries/maintainers'
 import { useToast } from '~/components/ToastProvider'
-import { formatAuthors, getPublishedPosts } from '~/utils/blog'
+import { formatAuthors } from '~/utils/blog'
 import { format } from '~/utils/dates'
 import { SimpleMarkdown } from '~/components/SimpleMarkdown'
 import { NetlifyImage } from '~/components/NetlifyImage'
-import { createServerFn } from '@tanstack/react-start'
-import { setResponseHeaders } from '@tanstack/react-start/server'
-import { AdGate } from '~/contexts/AdsContext'
-import { GamHeader } from '~/components/Gam'
+import { fetchRecentPosts, type RecentPost } from '~/server/blog'
+
 import { TrustedByMarquee } from '~/components/TrustedByMarquee'
 import { ArrowRight, Code2, Layers, Shield, Zap, Play } from 'lucide-react'
 import { YouTubeIcon } from '~/components/icons/YouTubeIcon'
@@ -53,38 +51,6 @@ const courses = [
     description: `Learn how to build enterprise quality apps with TanStack's React Query the easy way with our brand new course.`,
   },
 ]
-
-type BlogFrontMatter = {
-  slug: string
-  title: string
-  published: string
-  excerpt: string | undefined
-  authors: string[]
-}
-
-const fetchRecentPosts = createServerFn({ method: 'GET' }).handler(
-  async (): Promise<BlogFrontMatter[]> => {
-    setResponseHeaders(
-      new Headers({
-        'Cache-Control': 'public, max-age=0, must-revalidate',
-        'Netlify-CDN-Cache-Control':
-          'public, max-age=300, durable, stale-while-revalidate=300',
-      }),
-    )
-
-    return getPublishedPosts()
-      .slice(0, 3)
-      .map((post) => {
-        return {
-          slug: post.slug,
-          title: post.title,
-          published: post.published,
-          excerpt: post.excerpt,
-          authors: post.authors,
-        }
-      })
-  },
-)
 
 export const Route = createFileRoute('/')({
   loader: async ({ context: { queryClient } }) => {
@@ -120,7 +86,7 @@ function Index() {
   })
   const { notify } = useToast()
   const { recentPosts } = Route.useLoaderData() as {
-    recentPosts: BlogFrontMatter[]
+    recentPosts: Array<RecentPost>
   }
 
   return (
@@ -225,10 +191,6 @@ function Index() {
             <OpenSourceStats />
           </div>
         </div>
-
-        <AdGate>
-          <GamHeader />
-        </AdGate>
 
         <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
           <TrustedByMarquee

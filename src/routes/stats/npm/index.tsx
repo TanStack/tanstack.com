@@ -11,7 +11,7 @@ import {
   packageGroupSchema,
   defaultPackageGroups,
 } from './-comparisons'
-import { GamHeader, GamVrec1 } from '~/components/Gam'
+import { GamVrec1 } from '~/components/Gam'
 import { AdGate } from '~/contexts/AdsContext'
 import { Spinner } from '~/components/Spinner'
 import {
@@ -696,9 +696,6 @@ function RouteComponent() {
           </div>
         </div>
       </div>
-      <AdGate>
-        <GamHeader />
-      </AdGate>
 
       {/* FAQ Section for SEO */}
       <section className="max-w-4xl mt-8 space-y-6">

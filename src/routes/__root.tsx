@@ -18,8 +18,6 @@ const LazyRouterDevtools = React.lazy(() =>
 )
 import { NotFound } from '~/components/NotFound'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
-import { GamScripts } from '~/components/Gam'
-
 import { SearchProvider } from '~/contexts/SearchContext'
 import { ToastProvider } from '~/components/ToastProvider'
 import { LoginModalProvider } from '~/contexts/LoginModalContext'
@@ -99,6 +97,7 @@ export const Route = createRootRouteWithContext<{
         children: `(function(){try{var t=localStorage.getItem('theme')||'auto';var v=['light','dark','auto'].includes(t)?t:'auto';if(v==='auto'){var a=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.classList.add(a,'auto')}else{document.documentElement.classList.add(v)}}catch(e){var a=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.classList.add(a,'auto')}})()`,
       },
       // Google Tag Manager script
+      // NOTE: Publift/Fuse ad tags need to be removed/paused in the GTM dashboard
       {
         children: `
           (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -180,7 +179,6 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
       <head>
         <HeadContent />
         {hasBaseParent ? <base target="_parent" /> : null}
-        <GamScripts />
       </head>
       <body className="overflow-x-hidden">
         <LoginModalProvider>

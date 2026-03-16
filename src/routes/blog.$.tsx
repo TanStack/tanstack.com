@@ -9,8 +9,7 @@ import { setResponseHeaders } from '@tanstack/react-start/server'
 import { allPosts } from 'content-collections'
 import * as React from 'react'
 import { MarkdownContent } from '~/components/markdown'
-import { GamHeader } from '~/components/Gam'
-import { AdGate } from '~/contexts/AdsContext'
+
 import { Toc } from '~/components/Toc'
 import { Breadcrumbs } from '~/components/Breadcrumbs'
 import { renderMarkdown } from '~/utils/markdown'
@@ -177,15 +176,7 @@ ${content}`
       <div className="flex flex-col max-w-full min-w-0 w-full min-h-0 relative mb-8">
         <div className="min-w-0 flex justify-center w-full min-h-[88dvh] lg:min-h-0 mx-auto">
           <div className="flex-1 flex flex-col w-full">
-            <AdGate>
-              <div
-                className="mt-4 mb-4 bg-white/50 dark:bg-white/5
-              shadow-xl shadow-black/2 flex justify-center w-fit max-w-full mx-auto h-[90px]"
-              >
-                <GamHeader />
-              </div>
-            </AdGate>
-            <div className="px-4">
+            <div className="px-4 pt-4 lg:pt-6">
               <div className="w-full max-w-[1100px] mx-auto">
                 <div className="flex-1 min-h-0 flex flex-col">
                   <div className="w-full flex justify-center">
@@ -224,11 +215,6 @@ ${content}`
             </div>
           </div>
         </div>
-        <AdGate>
-          <div className="py-2 pb-4 lg:py-4 lg:pb-6 xl:py-6 xl:pb-8 max-w-full">
-            <GamHeader />
-          </div>
-        </AdGate>
       </div>
     </div>
   )

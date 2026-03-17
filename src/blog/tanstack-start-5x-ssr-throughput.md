@@ -1,12 +1,8 @@
 ---
-published: 2026-02-01
+published: 2026-03-17
 authors:
   - Manuel Schiller
   - Florian Pellet
-# title: '5x SSR Throughput: CPU profiling of TanStack Start SSR under heavy load'
-# title: 'Profile, Fix, Repeat: 5x SSR Throughput in 20 PRs'
-# title: '10x Latency Reduction in 20 PRs'
-# title: '10x Latency Drop: SSR Flamegraphs under heavy load'
 title: '5x SSR Throughput: Profiling SSR Hot Paths in TanStack Start'
 ---
 

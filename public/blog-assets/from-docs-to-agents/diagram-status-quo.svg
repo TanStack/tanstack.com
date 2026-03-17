@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 500" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', monospace">
+  <defs>
+    <filter id="shadow" x="-4%" y="-4%" width="108%" height="108%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="900" height="500" fill="#0a0a0a" rx="12"/>
+  
+  <!-- Title -->
+  <text x="450" y="42" text-anchor="middle" fill="#737373" font-size="13" font-weight="500" letter-spacing="1.5">THE STATUS QUO</text>
+  
+  <!-- Source repos scattered around -->
+  <!-- Repo 1 -->
+  <rect x="30" y="75" width="195" height="72" rx="8" fill="#171717" stroke="#292929" stroke-width="1" filter="url(#shadow)"/>
+  <text x="48" y="100" fill="#a3a3a3" font-size="10" letter-spacing="0.5">GITHUB REPO</text>
+  <text x="48" y="120" fill="#e5e5e5" font-size="13" font-weight="600">awesome-cursorrules</text>
+  <text x="48" y="137" fill="#525252" font-size="10">Last updated: 4 months ago</text>
+  
+  <!-- Repo 2 -->
+  <rect x="250" y="68" width="195" height="72" rx="8" fill="#171717" stroke="#292929" stroke-width="1" filter="url(#shadow)"/>
+  <text x="268" y="93" fill="#a3a3a3" font-size="10" letter-spacing="0.5">DISCORD MESSAGE</text>
+  <text x="268" y="113" fill="#e5e5e5" font-size="13" font-weight="600">tanstack-router.md</text>
+  <text x="268" y="130" fill="#525252" font-size="10">Author: random_dev_42</text>
+  
+  <!-- Repo 3 -->
+  <rect x="470" y="75" width="195" height="72" rx="8" fill="#171717" stroke="#292929" stroke-width="1" filter="url(#shadow)"/>
+  <text x="488" y="100" fill="#a3a3a3" font-size="10" letter-spacing="0.5">GIST</text>
+  <text x="488" y="120" fill="#e5e5e5" font-size="13" font-weight="600">query-v4-rules.md</text>
+  <text x="488" y="137" fill="#ef4444" font-size="10" font-weight="600">⚠ Written for v4, not v5</text>
+  
+  <!-- Repo 4 -->
+  <rect x="690" y="68" width="185" height="72" rx="8" fill="#171717" stroke="#292929" stroke-width="1" filter="url(#shadow)"/>
+  <text x="708" y="93" fill="#a3a3a3" font-size="10" letter-spacing="0.5">BLOG POST</text>
+  <text x="708" y="113" fill="#e5e5e5" font-size="13" font-weight="600">table-tips.md</text>
+  <text x="708" y="130" fill="#525252" font-size="10">Author: unknown</text>
+  
+  <!-- Dashed arrows converging (manual copy-paste) -->
+  <line x1="128" y1="147" x2="390" y2="270" stroke="#525252" stroke-width="1" stroke-dasharray="5,5"/>
+  <line x1="348" y1="140" x2="420" y2="270" stroke="#525252" stroke-width="1" stroke-dasharray="5,5"/>
+  <line x1="568" y1="147" x2="460" y2="270" stroke="#525252" stroke-width="1" stroke-dasharray="5,5"/>
+  <line x1="783" y1="140" x2="500" y2="270" stroke="#525252" stroke-width="1" stroke-dasharray="5,5"/>
+  
+  <!-- Copy/paste label -->
+  <rect x="180" y="195" width="120" height="26" rx="13" fill="#292929"/>
+  <text x="240" y="212" text-anchor="middle" fill="#ef4444" font-size="11" font-weight="500">copy + paste</text>
+  
+  <rect x="540" y="195" width="120" height="26" rx="13" fill="#292929"/>
+  <text x="600" y="212" text-anchor="middle" fill="#ef4444" font-size="11" font-weight="500">copy + paste</text>
+  
+  <!-- Your project -->
+  <rect x="310" y="270" width="280" height="100" rx="10" fill="#171717" stroke="#404040" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="450" y="298" text-anchor="middle" fill="#a3a3a3" font-size="10" letter-spacing="1.5">YOUR PROJECT</text>
+  <text x="450" y="322" text-anchor="middle" fill="#e5e5e5" font-size="14" font-weight="600">.cursorrules / CLAUDE.md</text>
+  <text x="450" y="345" text-anchor="middle" fill="#525252" font-size="11">Mixed versions · No update mechanism</text>
+  <text x="450" y="362" text-anchor="middle" fill="#525252" font-size="11">No way to detect staleness</text>
+  
+  <!-- Problems at the bottom -->
+  <rect x="100" y="415" width="155" height="52" rx="8" fill="#1c1412" stroke="#7f1d1d" stroke-width="1"/>
+  <text x="178" y="438" text-anchor="middle" fill="#fca5a5" font-size="11" font-weight="500">No versioning</text>
+  <text x="178" y="454" text-anchor="middle" fill="#7f1d1d" font-size="10">Which version is this for?</text>
+  
+  <rect x="280" y="415" width="155" height="52" rx="8" fill="#1c1412" stroke="#7f1d1d" stroke-width="1"/>
+  <text x="358" y="438" text-anchor="middle" fill="#fca5a5" font-size="11" font-weight="500">No updates</text>
+  <text x="358" y="454" text-anchor="middle" fill="#7f1d1d" font-size="10">Silently goes stale</text>
+  
+  <rect x="460" y="415" width="155" height="52" rx="8" fill="#1c1412" stroke="#7f1d1d" stroke-width="1"/>
+  <text x="538" y="438" text-anchor="middle" fill="#fca5a5" font-size="11" font-weight="500">No ownership</text>
+  <text x="538" y="454" text-anchor="middle" fill="#7f1d1d" font-size="10">Who maintains this?</text>
+  
+  <rect x="640" y="415" width="155" height="52" rx="8" fill="#1c1412" stroke="#7f1d1d" stroke-width="1"/>
+  <text x="718" y="438" text-anchor="middle" fill="#fca5a5" font-size="11" font-weight="500">No composition</text>
+  <text x="718" y="454" text-anchor="middle" fill="#7f1d1d" font-size="10">Skills don't know each other</text>
+</svg>

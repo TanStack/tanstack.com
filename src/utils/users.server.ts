@@ -1,7 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import { db } from '~/db/client'
 import { users } from '~/db/schema'
-import { eq, and, or, ilike, sql, asc, desc } from 'drizzle-orm'
+import { eq, and, or, ilike, sql, asc, desc, arrayOverlaps } from 'drizzle-orm'
 import type { InferSelectModel } from 'drizzle-orm'
 import { getAuthenticatedUser } from './auth.server-helpers'
 import { getBulkEffectiveCapabilities } from './capabilities.server'
@@ -109,10 +109,10 @@ export const listUsers = createServerFn({ method: 'POST' })
     ) {
       // Use PostgreSQL array overlap operator (&&) with parameterized values
       conditions.push(
-        sql`${users.capabilities} && ARRAY[${sql.join(
-          data.capabilityFilter.map((c) => sql`${c}`),
-          sql`, `,
-        )}]::capability[]`,
+        arrayOverlaps(
+          users.capabilities,
+          data.capabilityFilter as Capability[],
+        ),
       )
     }
 

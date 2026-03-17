@@ -1,6 +1,7 @@
 ---
 title: 'The ai() Function That Almost Was'
 published: 2025-12-26
+excerpt: We spent eight days building an API we had to kill. One function to rule them all, one function to control all adapters, one function to make it all typesafe — here's what happened.
 authors:
   - Alem Tuzlak
 ---

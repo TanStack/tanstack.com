@@ -16,6 +16,7 @@ import { Button } from '~/ui'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useLoginModal } from '~/contexts/LoginModalContext'
 import type { LibraryId } from '~/libraries'
+import { PAGE_SIZE_OPTIONS } from '~/routes/showcase'
 
 export function ShowcaseGallery() {
   const navigate = useNavigate({ from: '/showcase/' })
@@ -24,11 +25,13 @@ export function ShowcaseGallery() {
   const currentUser = useCurrentUser()
   const { openLoginModal } = useLoginModal()
 
+  const pageSize = search.pageSize ?? 24
+
   const { data, isLoading } = useQuery(
     getApprovedShowcasesQueryOptions({
       pagination: {
         page: search.page,
-        pageSize: 24,
+        pageSize,
       },
       filters: {
         libraryIds: search.libraryIds,
@@ -69,7 +72,7 @@ export function ShowcaseGallery() {
       // Snapshot previous values
       const previousShowcases = queryClient.getQueryData(
         getApprovedShowcasesQueryOptions({
-          pagination: { page: search.page, pageSize: 24 },
+          pagination: { page: search.page, pageSize },
           filters: {
             libraryIds: search.libraryIds,
             useCases: search.useCases as ShowcaseUseCase[],
@@ -113,7 +116,7 @@ export function ShowcaseGallery() {
       // Optimistically update showcase score
       queryClient.setQueryData(
         getApprovedShowcasesQueryOptions({
-          pagination: { page: search.page, pageSize: 24 },
+          pagination: { page: search.page, pageSize },
           filters: {
             libraryIds: search.libraryIds,
             useCases: search.useCases as ShowcaseUseCase[],
@@ -154,7 +157,7 @@ export function ShowcaseGallery() {
       if (context?.previousShowcases) {
         queryClient.setQueryData(
           getApprovedShowcasesQueryOptions({
-            pagination: { page: search.page, pageSize: 24 },
+            pagination: { page: search.page, pageSize },
             filters: {
               libraryIds: search.libraryIds,
               useCases: search.useCases as ShowcaseUseCase[],
@@ -248,6 +251,16 @@ export function ShowcaseGallery() {
   const handlePageChange = (newPage: number) => {
     navigate({
       search: (prev: typeof search) => ({ ...prev, page: newPage + 1 }),
+    })
+  }
+
+  const handlePageSizeChange = (newPageSize: number) => {
+    navigate({
+      search: (prev: typeof search) => ({
+        ...prev,
+        pageSize: newPageSize,
+        page: 1,
+      }),
     })
   }
 
@@ -358,12 +371,14 @@ export function ShowcaseGallery() {
                   currentPage={search.page - 1}
                   totalPages={data.pagination.totalPages}
                   totalItems={data.pagination.total}
-                  pageSize={24}
+                  pageSize={pageSize}
                   onPageChange={handlePageChange}
-                  onPageSizeChange={() => {}}
+                  onPageSizeChange={handlePageSizeChange}
                   canGoPrevious={search.page > 1}
                   canGoNext={search.page < data.pagination.totalPages}
                   itemLabel="projects"
+                  showPageSizeSelector
+                  pageSizeOptions={[...PAGE_SIZE_OPTIONS]}
                 />
               </div>
             )}

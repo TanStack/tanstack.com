@@ -250,6 +250,7 @@ function LoginsPage() {
     [],
   )
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data: (loginsQuery?.data?.page || []) as LoginHistoryEntry[],
     columns,

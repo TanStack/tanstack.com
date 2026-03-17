@@ -1,6 +1,7 @@
 import * as React from 'react'
 import * as Plot from '@observablehq/plot'
 import { type BinType, binTimeSeriesData } from '~/utils/chart'
+import { PlotContainer } from '~/components/charts/PlotContainer'
 
 export type ChartVariant = 'area' | 'bar' | 'cumulative'
 
@@ -21,47 +22,26 @@ export function TimeSeriesChart({
   height = 200,
   yLabel,
 }: TimeSeriesChartProps) {
-  const containerRef = React.useRef<HTMLDivElement>(null)
-
-  React.useEffect(() => {
-    if (!containerRef.current || data.length === 0) return
-
-    const container = containerRef.current
-
-    const renderChart = () => {
-      if (!container) return
-      container.innerHTML = ''
-
+  const options = React.useCallback(
+    (_width: number) => {
       const binnedData = binTimeSeriesData(data, binType)
-      if (binnedData.length === 0) return
+      if (binnedData.length === 0) return { marks: [] }
 
       const marks = getMarksForVariant(variant, binnedData, color, binType)
 
-      const plot = Plot.plot({
-        width: container.clientWidth,
-        height,
+      return {
         marginLeft: 60,
         marginRight: 20,
         marginTop: 20,
         marginBottom: 40,
-        x: { label: 'Date', type: 'utc', grid: true },
+        x: { label: 'Date', type: 'utc' as const, grid: true },
         y: { label: yLabel ?? getDefaultYLabel(variant), grid: true },
         marks,
         style: { background: 'transparent', fontSize: '12px' },
-      })
-
-      container.appendChild(plot)
-    }
-
-    renderChart()
-    const resizeObserver = new ResizeObserver(() => renderChart())
-    resizeObserver.observe(container)
-
-    return () => {
-      resizeObserver.disconnect()
-      container.innerHTML = ''
-    }
-  }, [data, binType, variant, color, height, yLabel])
+      }
+    },
+    [data, binType, variant, color, yLabel],
+  )
 
   if (data.length === 0) {
     return (
@@ -71,7 +51,7 @@ export function TimeSeriesChart({
     )
   }
 
-  return <div ref={containerRef} className="w-full" />
+  return <PlotContainer options={options} height={height} />
 }
 
 function getDefaultYLabel(variant: ChartVariant): string {
@@ -89,15 +69,6 @@ function getMarksForVariant(
   color: string,
   binType: BinType,
 ): Plot.Markish[] {
-  const _tipFormat = {
-    x: (d: Date) =>
-      d.toLocaleDateString('en-US', {
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric',
-      }),
-  }
-
   switch (variant) {
     case 'bar':
       return [

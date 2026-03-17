@@ -55,6 +55,24 @@ function Todos() {
 
 export default Todos`,
     },
+    preact: {
+      lang: 'tsx',
+      code: `import { useQuery } from '@tanstack/preact-query'
+
+function Todos() {
+  const { data, isPending, error } = useQuery({
+    queryKey: ['todos'],
+    queryFn: () => fetch('/api/todos').then(r => r.json()),
+  })
+
+  if (isPending) return <span>Loading...</span>
+  if (error) return <span>Oops!</span>
+
+  return <ul>{data.map(t => <li key={t.id}>{t.title}</li>)}</ul>
+}
+
+export default Todos`,
+    },
     vue: {
       lang: 'vue',
       code: `<script setup lang="ts">

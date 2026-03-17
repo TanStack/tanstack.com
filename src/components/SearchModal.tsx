@@ -762,7 +762,7 @@ const resetIconComponent = () => {
 }
 
 export function SearchModal() {
-  const { isOpen, closeSearch, openSearch } = useSearchContext()
+  const { isOpen, closeSearch } = useSearchContext()
   const [focusedIndex, setFocusedIndex] = React.useState(0)
   const containerRef = React.useRef<HTMLDivElement>(null)
 
@@ -817,23 +817,6 @@ export function SearchModal() {
         break
     }
   }
-
-  React.useEffect(() => {
-    const handleGlobalKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault()
-        if (!isOpen) {
-          openSearch()
-        }
-      }
-    }
-
-    window.addEventListener('keydown', handleGlobalKeyDown)
-
-    return () => {
-      window.removeEventListener('keydown', handleGlobalKeyDown)
-    }
-  }, [isOpen, openSearch])
 
   return (
     <DialogPrimitive.Root open={isOpen} onOpenChange={closeSearch}>

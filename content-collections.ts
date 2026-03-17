@@ -9,11 +9,10 @@ const posts = defineCollection({
     title: z.string(),
     published: z.string().date(),
     draft: z.boolean().optional(),
+    excerpt: z.string(),
     authors: z.string().array(),
   }),
   transform: ({ content, ...post }) => {
-    const frontMatter = extractFrontMatter(content)
-
     // Extract header image (first image after frontmatter)
     const headerImageMatch = content.match(/!\[([^\]]*)\]\(([^)]+)\)/)
     const headerImage = headerImageMatch ? headerImageMatch[2] : undefined
@@ -21,8 +20,6 @@ const posts = defineCollection({
     return {
       ...post,
       slug: post._meta.path,
-      excerpt: frontMatter.excerpt,
-      description: frontMatter.data.description,
       headerImage,
       content,
     }

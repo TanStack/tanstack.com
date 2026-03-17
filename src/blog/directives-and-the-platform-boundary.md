@@ -1,6 +1,7 @@
 ---
 title: Directives and the Platform Boundary
 published: 2025-10-24
+excerpt: Frameworks are inventing top-level directives that look like language features but aren't standardized. A constructive look at portability and keeping a clear boundary between platform and library spaces.
 authors:
   - Tanner Linsley
 description: A constructive look at framework directives, portability, and keeping a clear boundary between platform and library spaces.

@@ -74,7 +74,7 @@ function RouteComponent() {
             Discover resources created by the <strong>{library.name}</strong>{' '}
             community. Have something to share?{' '}
             <a
-              href={`https://github.com/${libraryId}/edit/main/docs/community-resources.md`}
+              href={`https://github.com/${library.repo}/edit/main/docs/community-resources.md`}
               target="_blank"
               rel="noopener noreferrer"
               className="underline"

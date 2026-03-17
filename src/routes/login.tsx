@@ -44,7 +44,7 @@ function SplashImage() {
   )
 }
 
-export function SignInForm() {
+export function SignInForm({ returnTo }: { returnTo?: string } = {}) {
   return (
     <Card className="p-8 w-[100vw] max-w-sm mx-auto">
       <SplashImage />
@@ -55,6 +55,7 @@ export function SignInForm() {
         onClick={() =>
           authClient.signIn.social({
             provider: 'github',
+            returnTo,
           })
         }
         className="w-full bg-black/80 hover:bg-black text-white dark:text-black dark:bg-white/95 dark:hover:bg-white font-semibold py-2 px-4 rounded-md transition-colors"
@@ -65,6 +66,7 @@ export function SignInForm() {
         onClick={() =>
           authClient.signIn.social({
             provider: 'google',
+            returnTo,
           })
         }
         className="w-full bg-[#DB4437]/95 hover:bg-[#DB4437] text-white font-semibold py-2 px-4 rounded-md transition-colors mt-4"

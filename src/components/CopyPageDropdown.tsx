@@ -10,6 +10,10 @@ import {
   DropdownContent,
   DropdownItem,
 } from './Dropdown'
+import {
+  getPackageManager,
+  PACKAGE_MANAGERS,
+} from '~/utils/markdown/installCommand'
 
 // Markdown icon component matching the screenshot
 function MarkdownIcon({ className }: { className?: string }) {
@@ -92,25 +96,60 @@ type CopyPageDropdownProps = {
   branch?: string
   /** File path in the repo (e.g., 'src/blog/my-post.md'). Required if repo is provided. */
   filePath?: string
+  /** Current framework for filtering markdown content (appended as ?framework= query param) */
+  currentFramework?: string
+  /** Raw content to copy directly, bypassing any fetch */
+  content?: string
+  /** Override the copy button label (default: "Copy page") */
+  label?: string
 }
 
 export function CopyPageDropdown({
   repo,
   branch,
   filePath,
+  currentFramework,
+  content: rawContent,
+  label = 'Copy page',
 }: CopyPageDropdownProps = {}) {
   const [open, setOpen] = React.useState(false)
   const [copied, setCopied] = React.useState(false)
   const { notify } = useToast()
 
   // Determine if we should fetch from GitHub or use the page URL
-  const useGitHub = repo && branch && filePath
+  const useGitHub = repo === 'tanstack/tanstack.com'
   const gitHubUrl = useGitHub
     ? `https://raw.githubusercontent.com/${repo}/${branch}/${filePath}`
     : null
-  const pageMarkdownUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}${typeof window !== 'undefined' ? window.location.pathname.replace(/\/$/, '') : ''}.md`
+  const pageMarkdownUrl = (() => {
+    const base = `${typeof window !== 'undefined' ? window.location.origin : ''}${typeof window !== 'undefined' ? window.location.pathname.replace(/\/$/, '') : ''}.md`
+    const params = new URLSearchParams()
+    if (currentFramework) {
+      params.set('framework', currentFramework)
+    }
+    // Read package manager from localStorage (same key as PackageManagerTabs)
+    if (typeof localStorage !== 'undefined') {
+      const pm = localStorage.getItem('packageManager')
+      const validPm = getPackageManager(pm)
+      params.set('pm', validPm)
+    }
+    const queryString = params.toString()
+    return queryString ? `${base}?${queryString}` : base
+  })()
 
   const handleCopyPage = async () => {
+    if (rawContent) {
+      await navigator.clipboard.writeText(rawContent)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+      notify(
+        <div>
+          <div className="font-medium">Copied to clipboard</div>
+        </div>,
+      )
+      return
+    }
+
     const urlToFetch = gitHubUrl || pageMarkdownUrl
     const cached = markdownCache.get(urlToFetch)
 
@@ -208,12 +247,16 @@ export function CopyPageDropdown({
   }
 
   const menuItems = [
-    {
-      icon: MarkdownIcon,
-      label: 'View as Markdown',
-      description: 'Open this page in Markdown',
-      onSelect: handleViewMarkdown,
-    },
+    ...(!rawContent
+      ? [
+          {
+            icon: MarkdownIcon,
+            label: 'View as Markdown',
+            description: 'Open this page in Markdown',
+            onSelect: handleViewMarkdown,
+          },
+        ]
+      : []),
     {
       icon: ClaudeIcon,
       label: 'Open in Claude',
@@ -257,7 +300,7 @@ export function CopyPageDropdown({
         ) : (
           <>
             <Copy className="w-3 h-3" />
-            Copy page
+            {label}
           </>
         )}
       </Button>

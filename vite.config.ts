@@ -1,4 +1,4 @@
-import { sentryVitePlugin } from '@sentry/vite-plugin'
+import { sentryTanstackStart } from '@sentry/tanstackstart-react/vite'
 import { defineConfig } from 'vite'
 import contentCollections from '@content-collections/vite'
 import tsConfigPaths from 'vite-tsconfig-paths'
@@ -33,7 +33,14 @@ export default defineConfig({
       // Externalize CLI so server reloads it on changes
       '@tanstack/cli',
     ],
-    noExternal: ['drizzle-orm'],
+    noExternal: [
+      'drizzle-orm',
+      '@uploadthing/react',
+      'file-selector',
+      'normalize-wheel',
+      '@tanstack/react-hotkeys',
+      '@webcontainer/api',
+    ],
   },
   optimizeDeps: {
     exclude: [
@@ -52,6 +59,7 @@ export default defineConfig({
         return id.includes('postgres')
       },
       output: {
+        onlyExplicitManualChunks: true,
         manualChunks: (id) => {
           // Vendor chunk splitting for better caching
           if (id.includes('node_modules')) {
@@ -63,20 +71,17 @@ export default defineConfig({
             ) {
               return 'search'
             }
-            // Charting deps (only loaded on stats/admin pages)
-            if (
-              id.includes('@observablehq/plot') ||
-              (id.includes('d3') && !id.includes('d3-'))
-            ) {
-              return 'd3-charts'
-            }
-            // Visualization deps
-            if (id.includes('@visx/')) {
-              return 'visx'
-            }
             // Lucide icons (tree-shaken but still significant)
             if (id.includes('lucide-react')) {
               return 'icons'
+            }
+
+            if (
+              id.includes('node_modules/react-dom/') ||
+              id.includes('node_modules/react/') ||
+              id.includes('node_modules/scheduler/')
+            ) {
+              return 'react'
             }
           }
         },
@@ -109,7 +114,7 @@ export default defineConfig({
       : []),
     viteReact(),
 
-    sentryVitePlugin({
+    sentryTanstackStart({
       authToken: process.env.SENTRY_AUTH_TOKEN,
       org: 'tanstack',
       project: 'tanstack-com',

@@ -1,6 +1,7 @@
 ---
 title: 'TanStack AI Alpha: Your AI, Your Way'
 published: 2025-12-04
+excerpt: The current AI landscape has a problem — pick a framework, pick a cloud provider, and suddenly you're locked in. TanStack AI is a framework-agnostic toolkit built for developers who want control.
 authors:
   - Jack Herrington
   - Alem Tuzlak

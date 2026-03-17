@@ -349,7 +349,7 @@ pre.shiki {
 
   @apply bg-white;
 
-  &.vitesse-dark {
+  &.aurora-x {
     @apply text-gray-400 bg-gray-950;
   }
 }
@@ -669,7 +669,7 @@ pre .logger.log-log svg {
   margin-right: 9px;
 }
 
-html:not(.dark) .shiki.vitesse-dark {
+html:not(.dark) .shiki.aurora-x {
   display: none;
 }
 
@@ -678,11 +678,11 @@ html.dark .shiki.github-light {
 }
 
 /* Improve comment contrast in dark mode */
-html.dark .shiki.vitesse-dark .token.comment,
-html.dark .shiki.vitesse-dark span[style*='color:#565F89'],
-html.dark .shiki.vitesse-dark span[style*='color: #565F89'],
-html.dark .shiki.vitesse-dark span[style*='color:#51597D'],
-html.dark .shiki.vitesse-dark span[style*='color: #51597D'] {
+html.dark .shiki.aurora-x .token.comment,
+html.dark .shiki.aurora-x span[style*='color:#546E7A'],
+html.dark .shiki.aurora-x span[style*='color:#546E7A'],
+html.dark .shiki.aurora-x span[style*='color:#546E7A'],
+html.dark .shiki.aurora-x span[style*='color:#546E7A'] {
   color: #9099c0 !important;
 }
 
@@ -798,6 +798,19 @@ mark {
   font-family: 'Inter';
   font-weight: 100 900;
   src: url('/fonts/Inter.woff2') format('woff2');
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    filter: blur(4px);
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: scale(1);
+  }
 }
 
 @keyframes pulseScale {

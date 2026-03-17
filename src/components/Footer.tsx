@@ -10,8 +10,8 @@ const footerLinks = [
   },
   { label: 'GitHub', to: 'https://github.com/tanstack' },
   {
-    label: 'Youtube',
-    to: 'https://www.youtube.com/user/tannerlinsley',
+    label: 'YouTube',
+    to: 'https://youtube.com/@tan_stack',
   },
   {
     label: 'Nozzle.io - Keyword Rank Tracker',

@@ -26,6 +26,8 @@ type MarkdownContentProps = {
   libraryId?: string
   libraryVersion?: string
   pagePath?: string
+  /** Current framework for filtering markdown content */
+  currentFramework?: string
 }
 
 export function MarkdownContent({
@@ -41,6 +43,7 @@ export function MarkdownContent({
   libraryId,
   libraryVersion,
   pagePath,
+  currentFramework,
 }: MarkdownContentProps) {
   const renderMarkdownContent = () => {
     const markdownElement = htmlMarkup ? (
@@ -70,7 +73,12 @@ export function MarkdownContent({
         <div className="flex flex-wrap items-center justify-between gap-2">
           <DocTitle>{title}</DocTitle>
           <div className="flex items-center gap-2 shrink-0">
-            <CopyPageDropdown repo={repo} branch={branch} filePath={filePath} />
+            <CopyPageDropdown
+              repo={repo}
+              branch={branch}
+              filePath={filePath}
+              currentFramework={currentFramework}
+            />
             {titleBarActions}
           </div>
         </div>

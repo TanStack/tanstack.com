@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 420" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', monospace">
+  <defs>
+    <filter id="shadow" x="-4%" y="-4%" width="108%" height="108%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.08"/>
+    </filter>
+    <linearGradient id="flowGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#22c55e" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#22c55e" stop-opacity="0.2"/>
+    </linearGradient>
+    <marker id="arrowGreen" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#22c55e" opacity="0.7"/>
+    </marker>
+    <marker id="arrowAmber" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#f59e0b" opacity="0.7"/>
+    </marker>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="900" height="420" fill="#0a0a0a" rx="12"/>
+  
+  <!-- Title -->
+  <text x="450" y="38" text-anchor="middle" fill="#737373" font-size="13" font-weight="500" letter-spacing="1.5">THE @TANSTACK/INTENT LIFECYCLE</text>
+  
+  <!-- Step 1: Your Docs -->
+  <rect x="30" y="80" width="160" height="90" rx="10" fill="#171717" stroke="#292929" stroke-width="1" filter="url(#shadow)"/>
+  <text x="110" y="108" text-anchor="middle" fill="#a3a3a3" font-size="10" letter-spacing="1">YOUR DOCS</text>
+  <text x="110" y="130" text-anchor="middle" fill="#e5e5e5" font-size="12" font-weight="600">guides/</text>
+  <text x="110" y="148" text-anchor="middle" fill="#e5e5e5" font-size="12" font-weight="600">migration/</text>
+  <text x="110" y="163" text-anchor="middle" fill="#525252" font-size="10">source of truth</text>
+  
+  <!-- Arrow 1 -->
+  <line x1="190" y1="125" x2="230" y2="125" stroke="#22c55e" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+  
+  <!-- Step 2: intent scaffold -->
+  <rect x="240" y="80" width="160" height="90" rx="10" fill="#0a1f0a" stroke="#166534" stroke-width="1" filter="url(#shadow)"/>
+  <text x="320" y="108" text-anchor="middle" fill="#4ade80" font-size="10" letter-spacing="1">CLI</text>
+  <text x="320" y="130" text-anchor="middle" fill="#86efac" font-size="13" font-weight="700">intent scaffold</text>
+  <text x="320" y="150" text-anchor="middle" fill="#166534" font-size="10">guided generation</text>
+  <text x="320" y="163" text-anchor="middle" fill="#166534" font-size="10">+ intent validate</text>
+  
+  <!-- Arrow 2 -->
+  <line x1="400" y1="125" x2="440" y2="125" stroke="#22c55e" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+  
+  <!-- Step 3: Skills in package -->
+  <rect x="450" y="80" width="160" height="90" rx="10" fill="#171717" stroke="#292929" stroke-width="1" filter="url(#shadow)"/>
+  <text x="530" y="108" text-anchor="middle" fill="#a3a3a3" font-size="10" letter-spacing="1">NPM PACKAGE</text>
+  <text x="530" y="130" text-anchor="middle" fill="#e5e5e5" font-size="12" font-weight="600">skills/</text>
+  <text x="530" y="148" text-anchor="middle" fill="#e5e5e5" font-size="12" font-weight="600">SKILL.md</text>
+  <text x="530" y="163" text-anchor="middle" fill="#525252" font-size="10">versioned with code</text>
+  
+  <!-- Arrow 3 -->
+  <line x1="610" y1="125" x2="650" y2="125" stroke="#22c55e" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+  
+  <!-- Step 4: npm update -->
+  <rect x="660" y="80" width="210" height="90" rx="10" fill="#171717" stroke="#292929" stroke-width="1" filter="url(#shadow)"/>
+  <text x="765" y="108" text-anchor="middle" fill="#a3a3a3" font-size="10" letter-spacing="1">CONSUMER PROJECT</text>
+  <text x="765" y="130" text-anchor="middle" fill="#e5e5e5" font-size="12" font-weight="600">npm install / update</text>
+  <text x="765" y="148" text-anchor="middle" fill="#86efac" font-size="13" font-weight="700">intent install</text>
+  <text x="765" y="163" text-anchor="middle" fill="#525252" font-size="10">auto-wires agent config</text>
+  
+  <!-- Second row: The feedback loop -->
+  <!-- Staleness check -->
+  <rect x="240" y="230" width="160" height="80" rx="10" fill="#1a1500" stroke="#713f12" stroke-width="1" filter="url(#shadow)"/>
+  <text x="320" y="255" text-anchor="middle" fill="#fbbf24" font-size="10" letter-spacing="1">STALENESS</text>
+  <text x="320" y="277" text-anchor="middle" fill="#fde68a" font-size="13" font-weight="700">intent stale</text>
+  <text x="320" y="297" text-anchor="middle" fill="#713f12" font-size="10">CI catches drift</text>
+  
+  <!-- Arrow from docs down to stale -->
+  <line x1="110" y1="170" x2="110" y2="265" stroke="#f59e0b" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="110" y1="265" x2="240" y2="265" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arrowAmber)"/>
+  <text x="160" y="240" text-anchor="middle" fill="#713f12" font-size="9">docs change?</text>
+  
+  <!-- Arrow from stale back up to scaffold -->
+  <line x1="320" y1="230" x2="320" y2="178" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arrowAmber)"/>
+  <text x="345" y="208" fill="#713f12" font-size="9">update skill</text>
+  
+  <!-- Feedback -->
+  <rect x="540" y="230" width="160" height="80" rx="10" fill="#1a1500" stroke="#713f12" stroke-width="1" filter="url(#shadow)"/>
+  <text x="620" y="255" text-anchor="middle" fill="#fbbf24" font-size="10" letter-spacing="1">FEEDBACK</text>
+  <text x="620" y="277" text-anchor="middle" fill="#fde68a" font-size="13" font-weight="700">intent feedback</text>
+  <text x="620" y="297" text-anchor="middle" fill="#713f12" font-size="10">structured reports</text>
+  
+  <!-- Arrow from consumer down to feedback -->
+  <line x1="765" y1="170" x2="765" y2="270" stroke="#f59e0b" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="765" y1="270" x2="700" y2="270" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arrowAmber)"/>
+  <text x="748" y="223" text-anchor="end" fill="#713f12" font-size="9">issue?</text>
+  
+  <!-- Arrow from feedback back to stale -->
+  <line x1="540" y1="270" x2="400" y2="270" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arrowAmber)"/>
+  
+  <!-- Bottom summary -->
+  <rect x="150" y="350" width="600" height="48" rx="24" fill="#0a1f0a" stroke="#166534" stroke-width="1"/>
+  <text x="450" y="370" text-anchor="middle" fill="#4ade80" font-size="12" font-weight="600">npm update = latest code + latest knowledge</text>
+  <text x="450" y="388" text-anchor="middle" fill="#166534" font-size="11">Skills travel with the tool, not the model's training cutoff</text>
+</svg>

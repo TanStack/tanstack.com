@@ -8,7 +8,7 @@ type LibraryHeroProps = {
   project: Library
   cta?: {
     linkProps: LinkProps
-    label: string
+    label: string | React.ReactNode
     className?: string
   }
   actions?: React.ReactNode

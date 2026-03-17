@@ -2,6 +2,7 @@ import * as React from 'react'
 import { ChevronLeft, ChevronRight, Menu } from 'lucide-react'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { DiscordIcon } from '~/components/icons/DiscordIcon'
+import { YouTubeIcon } from '~/components/icons/YouTubeIcon'
 import { Link, useMatches, useParams } from '@tanstack/react-router'
 import { useLocalStorage } from '~/utils/useLocalStorage'
 import { useClickOutside } from '~/hooks/useClickOutside'
@@ -12,12 +13,15 @@ import { frameworkOptions } from '~/libraries/frameworks'
 import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
 import { twMerge } from 'tailwind-merge'
 import { partners, PartnerImage } from '~/utils/partners'
-import { GamHeader, GamVrec1 } from './Gam'
+import { Footer } from './Footer'
+import { RecentPostsWidget } from './RecentPostsWidget'
+import { GamVrec1 } from './Gam'
 import { AdGate } from '~/contexts/AdsContext'
 import { SearchButton } from './SearchButton'
 import { FrameworkSelect, useCurrentFramework } from './FrameworkSelect'
 import { VersionSelect } from './VersionSelect'
 import { Card } from './Card'
+import { PartnersRail, RightRail } from './RightRail'
 
 // Mobile partners strip - inline in the docs toggle bar
 function MobilePartnersStrip({
@@ -352,10 +356,12 @@ const useMenuConfig = ({
   config,
   repo,
   frameworks,
+  libraryId,
 }: {
   config: ConfigSchema
   repo: string
   frameworks: Framework[]
+  libraryId: string
 }): MenuItem[] => {
   const currentFramework = useCurrentFramework(frameworks)
 
@@ -371,6 +377,14 @@ const useMenuConfig = ({
             {
               label: 'Frameworks',
               to: './framework',
+            },
+          ]
+        : []),
+      ...(libraryId === 'intent'
+        ? [
+            {
+              label: 'Skills Registry',
+              to: '/intent/registry',
             },
           ]
         : []),
@@ -397,6 +411,14 @@ const useMenuConfig = ({
           </div>
         ),
         to: `https://github.com/${repo}`,
+      },
+      {
+        label: (
+          <div className="flex items-center gap-2">
+            YouTube <YouTubeIcon className="text-lg opacity-20" />
+          </div>
+        ),
+        to: 'https://youtube.com/@tan_stack',
       },
       {
         label: (
@@ -468,7 +490,7 @@ export function DocsLayout({
     strict: false,
   }) as { libraryId: LibraryId; version: string }
   const { _splat } = useParams({ strict: false })
-  const menuConfig = useMenuConfig({ config, frameworks, repo })
+  const menuConfig = useMenuConfig({ config, frameworks, repo, libraryId })
 
   const matches = useMatches()
   const lastMatch = last(matches)
@@ -598,7 +620,7 @@ export function DocsLayout({
 
   const smallMenu = (
     <div
-      className="sm:hidden bg-white/50 sticky top-[var(--navbar-height)]
+      className="md:hidden bg-white/50 sticky top-[var(--navbar-height)]
     max-h-[calc(100dvh-var(--navbar-height))] overflow-y-auto z-20 dark:bg-black/60 backdrop-blur-lg"
     >
       <details
@@ -649,10 +671,10 @@ export function DocsLayout({
 
   const largeMenu = (
     <>
-      {/* Collapsed strip - visible on sm to xl, hidden on xl+. Lower z-index so expanded menu covers it */}
+      {/* Collapsed strip - visible on md to xl, hidden on xl+. Lower z-index so expanded menu covers it */}
       <div
         className={twMerge(
-          'hidden sm:flex xl:hidden flex-col overflow-hidden',
+          'hidden md:flex xl:hidden flex-col overflow-hidden',
           'sticky top-[var(--navbar-height)] h-[calc(100dvh-var(--navbar-height))]',
           'z-10 border-r border-gray-500/20',
           'bg-white/50 dark:bg-black/30',
@@ -683,7 +705,7 @@ export function DocsLayout({
         />
       </div>
 
-      {/* Expanded menu - always visible on xl+, toggleable overlay on sm-xl */}
+      {/* Expanded menu - always visible on xl+, toggleable overlay on md-xl */}
       <div
         ref={expandedMenuRef}
         className={twMerge(
@@ -692,16 +714,16 @@ export function DocsLayout({
           'h-[calc(100dvh-var(--navbar-height))] top-[var(--navbar-height)]',
           'z-20 border-r border-gray-500/20',
           'transition-all duration-300',
-          // Hidden on smallest screens, flex on sm+
-          'hidden sm:flex',
-          // On sm to xl: fixed overlay that slides in from left-0 (covers the strip)
-          'sm:fixed sm:left-0 sm:bg-white sm:dark:bg-black/95 sm:backdrop-blur-lg sm:shadow-xl',
+          // Hidden on smallest screens, flex on md+
+          'hidden md:flex',
+          // On md to xl: fixed overlay that slides in from left-0 (covers the strip)
+          'md:fixed md:left-0 md:bg-white md:dark:bg-black/95 md:backdrop-blur-lg md:shadow-xl',
           // On xl+: sticky positioning, no overlay styling
           'xl:sticky xl:bg-transparent xl:dark:bg-transparent xl:backdrop-blur-none xl:shadow-none',
-          // Slide animation for sm-xl screens (off-screen by default, slides in when shown)
+          // Slide animation for md-xl screens (off-screen by default, slides in when shown)
           // On xl+: always visible (no translate)
-          !showLargeMenu && 'sm:-translate-x-full xl:translate-x-0',
-          showLargeMenu && 'sm:translate-x-0',
+          !showLargeMenu && 'md:-translate-x-full xl:translate-x-0',
+          showLargeMenu && 'md:translate-x-0',
         )}
         onPointerEnter={(e) => {
           if (e.pointerType === 'touch') return
@@ -738,8 +760,8 @@ export function DocsLayout({
       >
         <div
           className={`
-          min-h-[calc(100dvh-var(--navbar-height))]
-          flex flex-col sm:flex-row
+           md:min-h-[calc(100dvh-var(--navbar-height))]
+           flex flex-col md:flex-row
           w-full transition-all duration-300
           [overflow-x:clip]`}
         >
@@ -748,13 +770,13 @@ export function DocsLayout({
           <div
             className={twMerge(
               'flex flex-col max-w-full min-w-0 flex-1 min-h-0 relative',
-              !isLandingPage && 'px-4 sm:px-8',
+              !isLandingPage && 'px-4 md:px-8',
             )}
           >
             <div
               className={twMerge(
                 `max-w-full min-w-0 flex flex-col justify-center w-full`,
-                !isLandingPage && 'min-h-[88dvh] sm:min-h-0',
+
                 !isLandingPage &&
                   !isExample &&
                   !isNpmStats &&
@@ -764,87 +786,36 @@ export function DocsLayout({
             >
               {children}
             </div>
-            {!isLandingPage && (
-              <AdGate>
-                <div className="py-8 lg:py-12 xl:py-16 max-w-full">
-                  <GamHeader />
-                </div>
-              </AdGate>
-            )}
+            {!isLandingPage && <Footer />}
           </div>
           {!isLandingPage && (
-            <div
-              className="w-full sm:w-[300px] shrink-0 sm:sticky
-          sm:top-[var(--navbar-height)]
-          "
-            >
-              <div className="sm:sticky sm:top-[var(--navbar-height)] ml-auto flex flex-wrap flex-row justify-center sm:flex-col gap-4 pb-4 max-w-full overflow-hidden">
-                <div className="flex flex-wrap items-stretch border-l border-gray-500/20 rounded-bl-lg overflow-hidden w-full">
-                  <div className="w-full flex gap-2 justify-between border-b border-gray-500/20 px-3 py-2">
-                    <Link
-                      className="font-medium opacity-60 hover:opacity-100 text-xs"
-                      to="/partners"
-                    >
-                      Partners
-                    </Link>
-                    <a
-                      href="https://docs.google.com/document/d/1Hg2MzY2TU6U3hFEZ3MLe2oEOM3JS4-eByti3kdJU3I8"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="font-medium opacity-60 hover:opacity-100 text-xs hover:underline"
-                    >
-                      Become a Partner
-                    </a>
-                  </div>
-                  {activePartners.map((partner) => {
-                    // flexBasis as percentage based on score, flexGrow to fill remaining row space
-                    const widthPercent = Math.round(partner.score * 100)
-
-                    return (
-                      <a
-                        key={partner.name}
-                        href={partner.href}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center justify-center px-3 py-2
-                            border-r border-b border-gray-500/20
-                            hover:bg-gray-500/10 transition-colors duration-150 ease-out"
-                        style={{
-                          flexBasis: `${widthPercent}%`,
-                          flexGrow: 1,
-                          flexShrink: 0,
-                        }}
-                      >
-                        <div
-                          style={{
-                            width: Math.max(
-                              60 + Math.round(140 * partner.score),
-                              70,
-                            ),
-                          }}
-                        >
-                          <PartnerImage
-                            config={partner.image}
-                            alt={partner.name}
-                          />
-                        </div>
-                      </a>
-                    )
-                  })}
-                </div>
-                <AdGate>
-                  <GamVrec1
-                    popupPosition="top"
-                    borderClassName="rounded-l-xl rounded-r-none"
-                  />
-                </AdGate>
-                {libraryId === 'query' ? (
-                  <div className="p-4 bg-white/70 dark:bg-black/40 rounded-lg flex flex-col">
-                    <DocsCalloutQueryGG />
-                  </div>
-                ) : null}
+            <RightRail breakpoint="md">
+              <div className="relative">
+                <PartnersRail partners={activePartners} />
+                <a
+                  href="https://docs.google.com/document/d/1Hg2MzY2TU6U3hFEZ3MLe2oEOM3JS4-eByti3kdJU3I8"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="absolute right-3 top-2 font-medium opacity-60 hover:opacity-100 text-xs hover:underline"
+                >
+                  Become a Partner
+                </a>
               </div>
-            </div>
+              <div className="hidden md:block border border-gray-500/20 rounded-l-lg overflow-hidden w-full">
+                <RecentPostsWidget />
+              </div>
+              <AdGate>
+                <GamVrec1
+                  popupPosition="top"
+                  borderClassName="rounded-l-xl rounded-r-none"
+                />
+              </AdGate>
+              {libraryId === 'query' ? (
+                <div className="p-4 bg-white/70 dark:bg-black/40 rounded-lg flex flex-col">
+                  <DocsCalloutQueryGG />
+                </div>
+              ) : null}
+            </RightRail>
           )}
         </div>
       </DocNavigationContext.Provider>

@@ -1,6 +1,7 @@
 ---
 title: TanStack Start v1 Release Candidate
 published: 2025-09-23
+excerpt: TanStack Start has officially reached a v1.0 Release Candidate. This is the build we expect to ship as 1.0, pending your final feedback, docs polish, and a few last-mile fixes.
 authors:
   - Tanner Linsley
 ---

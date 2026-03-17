@@ -24,15 +24,11 @@ import {
   User,
   Menu,
   X,
-  Rss,
   Grid2X2,
   Sparkles,
 } from 'lucide-react'
 import { ThemeToggle } from './ThemeToggle'
 import { SearchButton } from './SearchButton'
-// const LazyFeedTicker = React.lazy(() =>
-//   import('./FeedTicker').then((m) => ({ default: m.FeedTicker })),
-// )
 import {
   Authenticated,
   Unauthenticated,
@@ -53,11 +49,7 @@ import { DiscordIcon } from '~/components/icons/DiscordIcon'
 import { InstagramIcon } from '~/components/icons/InstagramIcon'
 import { BSkyIcon } from '~/components/icons/BSkyIcon'
 import { BrandXIcon } from '~/components/icons/BrandXIcon'
-const LazyAnnouncementBanner = React.lazy(() =>
-  import('~/components/AnnouncementBanner').then((m) => ({
-    default: m.AnnouncementBanner,
-  })),
-)
+import { YouTubeIcon } from '~/components/icons/YouTubeIcon'
 const LazyAuthenticatedUserMenu = React.lazy(() =>
   import('~/components/AuthenticatedUserMenu').then((m) => ({
     default: m.AuthenticatedUserMenu,
@@ -287,6 +279,12 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       >
         <InstagramIcon />
       </a>
+      <a
+        href="https://youtube.com/@tan_stack"
+        aria-label="Subscribe to TanStack on YouTube"
+      >
+        <YouTubeIcon />
+      </a>
       <a href="https://tlinz.com/discord" aria-label="Join TanStack Discord">
         <DiscordIcon />
       </a>
@@ -335,18 +333,18 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       <div className="hidden xl:flex flex-1 justify-end min-w-0">
         <Link
           to="/$libraryId/$version"
-          params={{ libraryId: 'cli', version: 'latest' }}
+          params={{ libraryId: 'intent', version: 'latest' }}
           className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md
-            bg-gradient-to-r from-indigo-600 to-violet-700
-            hover:from-indigo-500 hover:to-violet-600
+            bg-gradient-to-r from-sky-500 to-blue-600
+            hover:from-sky-400 hover:to-blue-500
             text-white text-xs font-medium
             shadow-sm hover:shadow-md
             transition-all duration-200"
         >
           <span className="px-1 py-px text-[9px] font-bold bg-white/20 rounded uppercase">
-            Alpha
+            New
           </span>
-          <span>Try TanStack CLI</span>
+          <span>TanStack Intent</span>
         </Link>
       </div>
       <div className="flex items-center gap-2">
@@ -602,16 +600,9 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         </Link>
         {[
           {
-            label: (
-              <>
-                <span>Feed</span>
-                <span className="px-1.5 py-0.5 text-[.6rem] font-black border border-blue-500 text-blue-500 rounded-md uppercase">
-                  Beta
-                </span>
-              </>
-            ),
-            icon: Rss,
-            to: '/feed',
+            label: 'Blog',
+            icon: Music,
+            to: '/blog',
           },
           {
             label: 'Maintainers',
@@ -629,11 +620,6 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             to: '/showcase',
           },
           {
-            label: 'Blog',
-            icon: Music,
-            to: '/blog',
-          },
-          {
             label: (
               <>
                 <span>Learn</span>
@@ -646,14 +632,15 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             to: '/learn',
           },
           {
-            label: 'Support',
-            icon: HelpCircle,
-            to: '/support',
-          },
-          {
             label: 'Stats',
             icon: TrendingUp,
             to: '/stats/npm',
+          },
+          {
+            label: 'YouTube',
+            icon: YouTubeIcon,
+            to: 'https://youtube.com/@tan_stack',
+            target: '_blank',
           },
           {
             label: 'Discord',
@@ -665,6 +652,11 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             label: 'Merch',
             icon: Shirt,
             to: '/merch',
+          },
+          {
+            label: 'Support',
+            icon: HelpCircle,
+            to: '/support',
           },
           {
             label: 'GitHub',
@@ -817,12 +809,6 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   return (
     <>
       {navbar}
-      {/* Sticky announcement banners below the nav */}
-      <div className="sticky top-[var(--navbar-height)] z-[99]">
-        <React.Suspense fallback={null}>
-          <LazyAnnouncementBanner />
-        </React.Suspense>
-      </div>
       <div
         className={twMerge(
           `min-h-[calc(100dvh-var(--navbar-height))] flex flex-col

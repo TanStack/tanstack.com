@@ -67,7 +67,7 @@ flame run ./dist/server.mjs
 This produces:
 
 - a CPU flamegraph
-- a memory heap flamegraph
+- a heap flamegraph
 - and markdown summaries of the captured profile data
 
 ### Load generation with `autocannon`
@@ -334,7 +334,7 @@ Taking the example of the `startViewTransition` method, we can see that the tota
 
 ## Results
 
-### Summary
+### Independent benchmark
 
 Matteo Collina independently benchmarked Start's SSR performance as part of his [article investigating SSR performance across React meta-frameworks](https://blog.platformatic.dev/react-ssr-framework-benchmark-tanstack-start-react-router-nextjs) and observed significant improvements after our optimizations. The following table summarizes the before/after results under sustained load:
 
@@ -354,7 +354,7 @@ To be clear: TanStack Start was not broken before these changes. Under normal tr
 
 The following graphs show event-loop utilization[^elu] against throughput for each feature-focused endpoint, before and after the optimizations. Lower utilization at the same req/s means more headroom; higher req/s at the same utilization means more capacity.
 
-For reference, the machine on which these were measured reaches 100% event-loop utilization at 100k req/s on an empty node http server[^empty-node-http-server].
+For reference, the machine on which these were measured reaches 100% event-loop utilization at 100k req/s on an empty Node HTTP server[^empty-node-http-server].
 
 #### 100 links per page
 
@@ -392,4 +392,4 @@ There were many other improvements (client and server) not covered here. SSR per
 
 [^elu]: Event-loop utilization is the percentage of time the event loop is busy utilizing the CPU. See this [nodesource blog post](https://nodesource.com/blog/event-loop-utilization-nodejs) for more details.
 
-[^empty-node-http-server]: To get a reference for the values we were measuring, we ran a similar `autocannon` benchmark on the smallest possible node http server: `require('http').createServer((q,s)=>s.end()).listen(3000)`. This tells us the _theoretical_ maximum throughput of the machine and test setup.
+[^empty-node-http-server]: To get a reference for the values we were measuring, we ran a similar `autocannon` benchmark on the smallest possible Node HTTP server: `require('http').createServer((q,s)=>s.end()).listen(3000)`. This tells us the _theoretical_ maximum throughput of the machine and test setup.

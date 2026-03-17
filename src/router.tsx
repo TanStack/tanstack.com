@@ -46,6 +46,42 @@ export function getRouter() {
       // Session Replay
       replaysSessionSampleRate: 0.1, // This sets the sample rate at 10%. You may want to change it to 100% while in development and then sample at a lower rate in production.
       replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
+      beforeSend(event, hint) {
+        // Filter out third-party ad script errors that are unactionable.
+        // These originate from Publift Fuse (ftUtils.js / fuseplatform.net)
+        // attempting cross-frame document access and are not bugs in tanstack.com.
+        const error = hint.originalException
+        const errorMessage =
+          typeof error === 'string'
+            ? error
+            : error instanceof Error
+              ? error.message
+              : ''
+
+        const frames = event.exception?.values?.[0]?.stacktrace?.frames ?? []
+        const hasAdScriptFrame = frames.some((frame) => {
+          const filename = frame.filename ?? ''
+          return (
+            filename.includes('fuseplatform.net') ||
+            filename.includes('fuse.js') ||
+            filename.includes('ftUtils.js') ||
+            filename.includes('/media/native/') ||
+            filename.includes('/nobid/blocking_script.js')
+          )
+        })
+
+        const hasExpectedErrorMessage =
+          errorMessage.includes('contextWindow.parent') ||
+          errorMessage.includes('null is not an object') ||
+          errorMessage.includes('Cannot read properties of null') ||
+          errorMessage.includes('is not a function')
+
+        if (hasAdScriptFrame && hasExpectedErrorMessage) {
+          return null
+        }
+
+        return event
+      },
     })
   }
 

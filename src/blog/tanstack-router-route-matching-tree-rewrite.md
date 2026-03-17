@@ -5,9 +5,11 @@ authors:
   - Florian Pellet
 ---
 
-![Big performance number](/blog-assets/tanstack-router-route-matching-tree-rewrite/header.png)
+![Header](/blog-assets/tanstack-router-route-matching-tree-rewrite/header.png)
 
 We achieved a 20,000× performance improvement in route matching in TanStack Router. Let's be honest, this is _definitely_ cherry-picked, but the number is real and comes from a real production application. More importantly, it shows that matching a pathname to a route is no longer bottlenecked by the number of routes in your application.
+
+![Big performance number](/blog-assets/tanstack-router-route-matching-tree-rewrite/big-number.png)
 
 ## The Real Problem: correctness, not speed
 

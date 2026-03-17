@@ -1,13 +1,22 @@
-import { Outlet, redirect, createFileRoute } from '@tanstack/react-router'
+import {
+  Outlet,
+  redirect,
+  notFound,
+  createFileRoute,
+} from '@tanstack/react-router'
 import { RedirectVersionBanner } from '~/components/RedirectVersionBanner'
-import { getBranch, getLibrary } from '~/libraries'
+import { findLibrary, getBranch } from '~/libraries'
 import { getTanstackDocsConfig } from '~/utils/config'
 
 export const Route = createFileRoute('/$libraryId/$version')({
   staleTime: 1000 * 60 * 5,
   beforeLoad: (ctx) => {
     const { libraryId, version } = ctx.params
-    const library = getLibrary(libraryId)
+    const library = findLibrary(libraryId)
+
+    if (!library) {
+      throw notFound()
+    }
 
     library.handleRedirects?.(ctx.location.href)
 
@@ -19,7 +28,12 @@ export const Route = createFileRoute('/$libraryId/$version')({
   },
   loader: async (ctx) => {
     const { libraryId, version } = ctx.params
-    const library = getLibrary(libraryId)
+    const library = findLibrary(libraryId)
+
+    if (!library) {
+      throw notFound()
+    }
+
     const branch = getBranch(library, version)
     const config = await getTanstackDocsConfig({
       data: {
@@ -36,7 +50,11 @@ export const Route = createFileRoute('/$libraryId/$version')({
 
 function RouteForm() {
   const { libraryId, version } = Route.useParams()
-  const library = getLibrary(libraryId)
+  const library = findLibrary(libraryId)
+
+  if (!library) {
+    throw notFound()
+  }
 
   return (
     <>

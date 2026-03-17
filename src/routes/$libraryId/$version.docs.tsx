@@ -1,13 +1,22 @@
-import { Outlet, useMatch, createFileRoute } from '@tanstack/react-router'
+import {
+  Outlet,
+  useMatch,
+  notFound,
+  createFileRoute,
+} from '@tanstack/react-router'
 import { DocsLayout } from '~/components/DocsLayout'
-import { getLibrary } from '~/libraries'
+import { findLibrary } from '~/libraries'
 import { seo } from '~/utils/seo'
 import type { ConfigSchema } from '~/utils/config'
 
 export const Route = createFileRoute('/$libraryId/$version/docs')({
   head: (ctx) => {
     const { libraryId } = ctx.params
-    const library = getLibrary(libraryId)
+    const library = findLibrary(libraryId)
+
+    if (!library) {
+      throw notFound()
+    }
 
     return {
       meta: seo({
@@ -27,7 +36,11 @@ export const Route = createFileRoute('/$libraryId/$version/docs')({
 
 function DocsRoute() {
   const { libraryId, version } = Route.useParams()
-  const library = getLibrary(libraryId)
+  const library = findLibrary(libraryId)
+
+  if (!library) {
+    throw notFound()
+  }
   const versionMatch = useMatch({ from: '/$libraryId/$version' })
   const { config } = versionMatch.loaderData as { config: ConfigSchema }
 

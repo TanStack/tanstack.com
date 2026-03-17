@@ -2,10 +2,11 @@ import {
   useMatch,
   redirect,
   Link,
+  notFound,
   createFileRoute,
 } from '@tanstack/react-router'
 import { DocsLayout } from '~/components/DocsLayout'
-import { getLibrary } from '~/libraries'
+import { findLibrary } from '~/libraries'
 import type { LibraryId } from '~/libraries'
 import { seo } from '~/utils/seo'
 
@@ -52,7 +53,11 @@ const landingComponents: Partial<Record<LibraryId, ComponentType>> = {
 export const Route = createFileRoute('/$libraryId/$version/')({
   head: (ctx) => {
     const { libraryId } = ctx.params
-    const library = getLibrary(libraryId)
+    const library = findLibrary(libraryId)
+
+    if (!library) {
+      throw notFound()
+    }
 
     return {
       meta: seo({
@@ -79,7 +84,11 @@ export const Route = createFileRoute('/$libraryId/$version/')({
 
 function LibraryVersionIndex() {
   const { libraryId, version } = Route.useParams()
-  const library = getLibrary(libraryId)
+  const library = findLibrary(libraryId)
+
+  if (!library) {
+    throw notFound()
+  }
   const versionMatch = useMatch({ from: '/$libraryId/$version' })
   const { config } = versionMatch.loaderData as { config: ConfigSchema }
 

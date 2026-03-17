@@ -534,28 +534,59 @@ export function DocsLayout({
       d.status === 'active' && d.name !== 'Nozzle.io' && d.id !== 'fireship',
   )
 
+  const groupInitialOpenState = React.useMemo(() => {
+    return menuConfig.reduce<Record<string, boolean>>((acc, group, index) => {
+      const isChildActive = group.children.some((child) => child.to === _splat)
+      const key = `${index}:${String(group.label)}`
+
+      acc[key] = isChildActive
+        ? true
+        : typeof group.defaultCollapsed !== 'undefined'
+          ? !group.defaultCollapsed
+          : false
+
+      return acc
+    }, {})
+  }, [menuConfig, _splat])
+
+  const [openGroups, setOpenGroups] = React.useState(groupInitialOpenState)
+
+  React.useEffect(() => {
+    setOpenGroups((prev) => {
+      let hasChanged = false
+      const next = { ...prev }
+
+      Object.entries(groupInitialOpenState).forEach(([key, isOpen]) => {
+        if (!(key in next)) {
+          next[key] = isOpen
+          hasChanged = true
+          return
+        }
+
+        if (isOpen && !next[key]) {
+          next[key] = true
+          hasChanged = true
+        }
+      })
+
+      return hasChanged ? next : prev
+    })
+  }, [groupInitialOpenState])
+
   const menuItems = menuConfig.map((group, i) => {
-    const WrapperComp = group.collapsible ? 'details' : 'div'
-    const LabelComp = group.collapsible ? 'summary' : 'div'
+    const groupKey = `${i}:${String(group.label)}`
 
-    const isChildActive = group.children.some((d) => d.to === _splat)
-    const configGroupOpenState =
-      typeof group.defaultCollapsed !== 'undefined'
-        ? !group.defaultCollapsed // defaultCollapsed is true means the group is closed
-        : undefined
-    const isOpen = isChildActive ? true : (configGroupOpenState ?? false)
-
-    const detailsProps = group.collapsible ? { open: isOpen } : {}
-
-    return (
-      <WrapperComp
-        key={`group-${i}`}
-        className="[&>summary]:before:mr-1 [&>summary]:marker:text-[0.8em] [&>summary]:marker:leading-4 relative select-none"
-        {...detailsProps}
-      >
-        <LabelComp className="text-[.8em] font-bold leading-4 px-2 ts-sidebar-label">
-          {group?.label}
-        </LabelComp>
+    const groupContent = (
+      <>
+        {group.collapsible ? (
+          <summary className="text-[.8em] font-bold leading-4 px-2 ts-sidebar-label">
+            {group.label}
+          </summary>
+        ) : (
+          <div className="text-[.8em] font-bold leading-4 px-2 ts-sidebar-label">
+            {group.label}
+          </div>
+        )}
         <div className="h-2" />
         <ul className="text-[.85em] leading-snug list-none">
           {group?.children?.map((child, i) => {
@@ -580,6 +611,7 @@ export function DocsLayout({
                     onClick={() => {
                       detailsRef.current.removeAttribute('open')
                     }}
+                    preload={false}
                     activeOptions={{
                       exact: true,
                       includeHash: false,
@@ -614,7 +646,32 @@ export function DocsLayout({
             )
           })}
         </ul>
-      </WrapperComp>
+      </>
+    )
+
+    return group.collapsible ? (
+      <details
+        key={`group-${i}`}
+        className="[&>summary]:before:mr-1 [&>summary]:marker:text-[0.8em] [&>summary]:marker:leading-4 relative select-none"
+        open={openGroups[groupKey] ?? false}
+        onToggle={(event) => {
+          const nextOpen = event.currentTarget.open
+          setOpenGroups((prev) =>
+            prev[groupKey] === nextOpen
+              ? prev
+              : { ...prev, [groupKey]: nextOpen },
+          )
+        }}
+      >
+        {groupContent}
+      </details>
+    ) : (
+      <div
+        key={`group-${i}`}
+        className="[&>summary]:before:mr-1 [&>summary]:marker:text-[0.8em] [&>summary]:marker:leading-4 relative select-none"
+      >
+        {groupContent}
+      </div>
     )
   })
 

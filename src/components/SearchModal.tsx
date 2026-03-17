@@ -565,9 +565,12 @@ function LibraryRefinement() {
   const currentLibrary = libraries.find((l) => l.id === selectedLibrary)
 
   return (
-    <Dropdown>
-      <DropdownTrigger asChild={false}>
-        <button className="flex items-center gap-1 text-sm focus:outline-none cursor-pointer font-bold">
+    <Dropdown modal={false}>
+      <DropdownTrigger>
+        <button
+          type="button"
+          className="flex items-center gap-1 text-sm focus:outline-none cursor-pointer font-bold"
+        >
           {currentLibrary ? (
             <span className="uppercase font-black [letter-spacing:-.05em]">
               <span className="opacity-50">TanStack</span>{' '}
@@ -637,9 +640,12 @@ function FrameworkRefinement() {
   )
 
   return (
-    <Dropdown>
-      <DropdownTrigger asChild={false}>
-        <button className="flex items-center gap-1 text-sm font-bold focus:outline-none cursor-pointer">
+    <Dropdown modal={false}>
+      <DropdownTrigger>
+        <button
+          type="button"
+          className="flex items-center gap-1 text-sm font-bold focus:outline-none cursor-pointer"
+        >
           {currentFramework && (
             <img
               src={currentFramework.logo}

@@ -10,10 +10,7 @@ import {
   DropdownContent,
   DropdownItem,
 } from './Dropdown'
-import {
-  getPackageManager,
-  PACKAGE_MANAGERS,
-} from '~/utils/markdown/installCommand'
+import { getPackageManager } from '~/utils/markdown/installCommand'
 
 // Markdown icon component matching the screenshot
 function MarkdownIcon({ className }: { className?: string }) {

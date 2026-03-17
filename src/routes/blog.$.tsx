@@ -1,13 +1,8 @@
-import {
-  notFound,
-  redirect,
-  createFileRoute,
-  Link,
-} from '@tanstack/react-router'
+import { notFound, redirect, createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { PostNotFound } from './blog'
 import { createServerFn } from '@tanstack/react-start'
-import { formatAuthors, getPublishedPosts } from '~/utils/blog'
+import { formatAuthors } from '~/utils/blog'
 import { format } from '~/utils/dates'
 import * as v from 'valibot'
 import { setResponseHeaders } from '@tanstack/react-start/server'
@@ -15,9 +10,10 @@ import { allPosts } from 'content-collections'
 import * as React from 'react'
 import { MarkdownContent } from '~/components/markdown'
 import { Card } from '~/components/Card'
-import { libraries } from '~/libraries'
+import { LibrariesWidget } from '~/components/LibrariesWidget'
 import { partners } from '~/utils/partners'
 import { PartnersRail, RightRail } from '~/components/RightRail'
+import { RecentPostsWidget } from '~/components/RecentPostsWidget'
 
 import { Toc } from '~/components/Toc'
 import { Breadcrumbs } from '~/components/Breadcrumbs'
@@ -59,22 +55,6 @@ const fetchBlogPost = createServerFn({ method: 'GET' })
     const now = new Date()
     const publishDate = new Date(post.published)
     const isUnpublished = post.draft || publishDate > now
-    const recentPosts = getPublishedPosts()
-      .filter((entry) => entry.slug !== docsPath)
-      .slice(0, 5)
-      .map((entry) => ({
-        slug: entry.slug,
-        title: entry.title,
-      }))
-
-    const featuredLibraries = libraries
-      .filter((library) => library.visible !== false)
-      .slice(0, 8)
-      .map((library) => ({
-        id: library.id,
-        name: library.name,
-      }))
-
     return {
       title: post.title,
       description: post.excerpt,
@@ -84,8 +64,6 @@ const fetchBlogPost = createServerFn({ method: 'GET' })
       headerImage: post.headerImage,
       filePath,
       isUnpublished,
-      recentPosts,
-      featuredLibraries,
     }
   })
 
@@ -128,15 +106,7 @@ export const Route = createFileRoute('/blog/$')({
 })
 
 function BlogPost() {
-  const {
-    title,
-    content,
-    filePath,
-    authors,
-    published,
-    recentPosts,
-    featuredLibraries,
-  } = Route.useLoaderData()
+  const { title, content, filePath, authors, published } = Route.useLoaderData()
 
   const blogContent = `<small>_by ${formatAuthors(authors)} on ${format(
     new Date(published || 0),
@@ -201,14 +171,12 @@ ${content}`
   const branch = 'main'
   const activePartners = React.useMemo(
     () =>
-      partners
-        .filter(
-          (d) =>
-            d.status === 'active' &&
-            d.name !== 'Nozzle.io' &&
-            d.id !== 'fireship',
-        )
-        .slice(0, 8),
+      partners.filter(
+        (d) =>
+          d.status === 'active' &&
+          d.name !== 'Nozzle.io' &&
+          d.id !== 'fireship',
+      ),
     [],
   )
 
@@ -274,42 +242,11 @@ ${content}`
           </div>
           <RightRail breakpoint="md">
             <PartnersRail partners={activePartners} />
-            <Card className="p-4">
-              <div className="mb-3 flex items-center justify-between">
-                <Link to="/blog" className="font-semibold text-sm">
-                  Blog Posts
-                </Link>
-              </div>
-              <div className="flex flex-col gap-2">
-                {recentPosts.map((post) => (
-                  <a
-                    key={post.slug}
-                    href={`/blog/${post.slug}`}
-                    className="text-xs opacity-70 hover:opacity-100 hover:underline"
-                  >
-                    {post.title}
-                  </a>
-                ))}
-              </div>
-            </Card>
-
-            <Card className="p-4">
-              <div className="mb-3">
-                <a href="/#libraries" className="font-semibold text-sm">
-                  Libraries
-                </a>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                {featuredLibraries.map((library) => (
-                  <a
-                    key={library.id}
-                    href={`/${library.id}/latest`}
-                    className="text-xs opacity-70 hover:opacity-100 hover:underline"
-                  >
-                    {library.name.replace('TanStack ', '')}
-                  </a>
-                ))}
-              </div>
+            <div className="hidden md:block border border-gray-500/20 rounded-l-lg overflow-hidden w-full">
+              <RecentPostsWidget />
+            </div>
+            <Card>
+              <LibrariesWidget />
             </Card>
           </RightRail>
         </div>

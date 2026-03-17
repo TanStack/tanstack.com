@@ -8,9 +8,10 @@ import { PostNotFound } from './blog'
 import { createServerFn } from '@tanstack/react-start'
 import { setResponseHeaders } from '@tanstack/react-start/server'
 import { RssIcon } from 'lucide-react'
-import { libraries } from '~/libraries'
+import { LibrariesWidget } from '~/components/LibrariesWidget'
 import { partners } from '~/utils/partners'
 import { PartnersRail, RightRail } from '~/components/RightRail'
+import { RecentPostsWidget } from '~/components/RecentPostsWidget'
 
 type BlogFrontMatter = {
   slug: string
@@ -66,20 +67,10 @@ export const Route = createFileRoute('/blog/')({
 
 function BlogIndex() {
   const frontMatters = Route.useLoaderData() as BlogFrontMatter[]
-  const recentPosts = frontMatters.slice(0, 5)
-  const featuredLibraries = libraries
-    .filter((library) => library.visible !== false)
-    .slice(0, 8)
-    .map((library) => ({
-      id: library.id,
-      name: library.name,
-    }))
-  const activePartners = partners
-    .filter(
-      (d) =>
-        d.status === 'active' && d.name !== 'Nozzle.io' && d.id !== 'fireship',
-    )
-    .slice(0, 8)
+  const activePartners = partners.filter(
+    (d) =>
+      d.status === 'active' && d.name !== 'Nozzle.io' && d.id !== 'fireship',
+  )
 
   return (
     <div className="flex flex-col max-w-full min-h-screen gap-12 p-4 md:p-8 pb-0">
@@ -164,41 +155,11 @@ function BlogIndex() {
           </div>
           <RightRail breakpoint="md">
             <PartnersRail partners={activePartners} />
-            <Card className="p-4">
-              <div className="mb-3 flex items-center justify-between">
-                <Link to="/blog" className="font-semibold text-sm">
-                  Latest Posts
-                </Link>
-              </div>
-              <div className="flex flex-col gap-2">
-                {recentPosts.map((post) => (
-                  <a
-                    key={post.slug}
-                    href={`/blog/${post.slug}`}
-                    className="text-xs opacity-70 hover:opacity-100 hover:underline"
-                  >
-                    {post.title}
-                  </a>
-                ))}
-              </div>
-            </Card>
-            <Card className="p-4">
-              <div className="mb-3">
-                <a href="/#libraries" className="font-semibold text-sm">
-                  Libraries
-                </a>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                {featuredLibraries.map((library) => (
-                  <a
-                    key={library.id}
-                    href={`/${library.id}/latest`}
-                    className="text-xs opacity-70 hover:opacity-100 hover:underline"
-                  >
-                    {library.name.replace('TanStack ', '')}
-                  </a>
-                ))}
-              </div>
+            <div className="hidden md:block border border-gray-500/20 rounded-l-lg overflow-hidden w-full">
+              <RecentPostsWidget />
+            </div>
+            <Card>
+              <LibrariesWidget />
             </Card>
           </RightRail>
         </div>

@@ -77,22 +77,17 @@ To record a CPU profile of the server under load, we use [`@platformatic/flame`]
 flame run ./dist/server.mjs
 ```
 
-The resulting flamegraph can be read with a tool like [Speedscope](https://www.speedscope.app/):
+This gives you
 
-<!-- TODO: this section is not good. It doesn't teach anything. Methodology has already been explained. Either teach about flamegraphs, show an easy to understand example, link to a tutorial... or just remove it. -->
+- a CPU flamegraph
+- a memory histogram
+- and even markdown files that can be read by AI agents
+
+To improve SSR performance, we repeated the same steps:
 
 - Focus on **self time** first. That is where the CPU is actually spent, not just where time is waiting on children.
 - Fix one hotspot, re-run, and re-profile.
 - Prefer changes that remove work in the steady state, not just shift it.
-
-<!-- what do we want to say with these flamegraphs? How to understand them? We're already showing flamegraphs for every *finding* below. I'm not really sure what to say here. -->
-
-Placeholders you should replace with real screenshots:
-
-- `<!-- FLAMEGRAPH: links-100 before -->`
-- `<!-- FLAMEGRAPH: links-100 after -->`
-- `<!-- FLAMEGRAPH: layouts-26-with-params before -->`
-- `<!-- FLAMEGRAPH: layouts-26-with-params after -->`
 
 ### Reproducing these benchmarks
 
@@ -337,13 +332,9 @@ Taking the example of the `startViewTransition` method, we can see that the tota
 
 ## Results
 
-Benchmark: placeholder text, should link to Matteo's article.
-
-<!-- we need to wait for Matteo's article to be published to link to it. -->
-
 ### Summary
 
-Matteo Collina independently benchmarked Start's SSR performance as part of his [article investigating SSR performance across React meta-frameworks](???) and observed significant improvements after our optimizations. The following table summarizes the before/after results under sustained load:
+Matteo Collina independently benchmarked Start's SSR performance as part of his [article investigating SSR performance across React meta-frameworks](https://blog.platformatic.dev/react-ssr-framework-benchmark-tanstack-start-react-router-nextjs) and observed significant improvements after our optimizations. The following table summarizes the before/after results under sustained load:
 
 | Metric          |    Before |      After | Improvement              |
 | --------------- | --------: | ---------: | ------------------------ |
@@ -351,7 +342,7 @@ Matteo Collina independently benchmarked Start's SSR performance as part of his 
 | Throughput      | 477 req/s | 1041 req/s | +118% (2.2x)             |
 | Average latency |   3,171ms |     13.7ms | 231x faster              |
 | p90 latency     |  10,001ms |     23.0ms | 435x faster              |
-| p95 latency     |  10,001ms |     29.1ms | 343x faster              |
+| p95 latency     |  10,001ms |     28.1ms | 370x faster              |
 
 The "before" numbers show a server under severe stress: 25% of requests failed (likely timeouts), and p90/p95 hit the 10s timeout ceiling. After the optimizations, the server handles the same load comfortably with sub-30ms tail latency and zero failures.
 

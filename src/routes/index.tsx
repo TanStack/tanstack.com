@@ -1,4 +1,5 @@
 import { ClientOnly, Link, createFileRoute } from '@tanstack/react-router'
+import { queryOptions, useQuery } from '@tanstack/react-query'
 
 import { Footer } from '~/components/Footer'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
@@ -8,7 +9,6 @@ import { librariesByGroup, librariesGroupNamesMap, Library } from '~/libraries'
 import bytesImage from '~/images/bytes.svg'
 import { PartnersGrid } from '~/components/PartnersGrid'
 import OpenSourceStats from '~/components/OpenSourceStats'
-import { ossStatsQuery } from '~/queries/stats'
 // Using public asset URLs for splash images
 import { BrandContextMenu } from '~/components/BrandContextMenu'
 import LandingPageGad from '~/components/LandingPageGad'
@@ -17,9 +17,8 @@ import { coreMaintainers } from '~/libraries/maintainers'
 import { useToast } from '~/components/ToastProvider'
 import { formatAuthors } from '~/utils/blog'
 import { format } from '~/utils/dates'
-import { SimpleMarkdown } from '~/components/SimpleMarkdown'
 import { NetlifyImage } from '~/components/NetlifyImage'
-import { fetchRecentPosts, type RecentPost } from '~/server/blog'
+import { fetchRecentPosts } from '~/server/blog'
 
 import { TrustedByMarquee } from '~/components/TrustedByMarquee'
 import { ArrowRight, Code2, Layers, Shield, Zap, Play } from 'lucide-react'
@@ -53,15 +52,13 @@ const courses = [
 ]
 
 export const Route = createFileRoute('/')({
-  loader: async ({ context: { queryClient } }) => {
-    await queryClient.ensureQueryData(ossStatsQuery())
-    const recentPosts = await fetchRecentPosts()
-
-    return {
-      recentPosts,
-    }
-  },
   component: Index,
+})
+
+const recentPostsQueryOptions = queryOptions({
+  queryKey: ['recentPosts'],
+  queryFn: () => fetchRecentPosts(),
+  staleTime: 1000 * 60 * 5,
 })
 
 async function bytesSignupServerFn({ email }: { email: string }) {
@@ -85,9 +82,9 @@ function Index() {
     fn: bytesSignupServerFn,
   })
   const { notify } = useToast()
-  const { recentPosts } = Route.useLoaderData() as {
-    recentPosts: Array<RecentPost>
-  }
+  const { data: recentPosts = [], isLoading: isRecentPostsLoading } = useQuery(
+    recentPostsQueryOptions,
+  )
 
   return (
     <>
@@ -344,7 +341,7 @@ function Index() {
           <FeaturedShowcases />
         </div>
 
-        {recentPosts && recentPosts.length > 0 && (
+        {(isRecentPostsLoading || recentPosts.length > 0) && (
           <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
             <h3 id="blog" className="text-3xl font-bold mb-6 scroll-mt-24">
               <a
@@ -355,56 +352,87 @@ function Index() {
               </a>
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {recentPosts.map(
-                ({ slug, title, published, excerpt, authors }) => {
-                  return (
+              {isRecentPostsLoading
+                ? Array.from({ length: 3 }).map((_, idx) => (
                     <Card
-                      as={Link}
-                      key={slug}
-                      to="/blog/$"
-                      params={{ _splat: slug } as never}
-                      className={`flex flex-col gap-3 justify-between p-4
+                      key={`recent-post-skeleton-${idx}`}
+                      className="p-4 animate-pulse"
+                    >
+                      <div className="h-5 w-5/6 rounded bg-gray-200 dark:bg-gray-700" />
+                      <div className="mt-3 h-3 w-2/3 rounded bg-gray-200 dark:bg-gray-700" />
+                      <div className="mt-4 space-y-2">
+                        <div className="h-3 rounded bg-gray-100 dark:bg-gray-800" />
+                        <div className="h-3 rounded bg-gray-100 dark:bg-gray-800" />
+                      </div>
+                      <div className="mt-6 h-3 w-20 rounded bg-blue-100 dark:bg-blue-950/50" />
+                    </Card>
+                  ))
+                : recentPosts.map(
+                    ({
+                      slug,
+                      title,
+                      published,
+                      excerpt,
+                      headerImage,
+                      authors,
+                    }) => {
+                      return (
+                        <Card
+                          as={Link}
+                          key={slug}
+                          to="/blog/$"
+                          params={{ _splat: slug } as never}
+                          className={`flex flex-col justify-between overflow-hidden
                       transition-all hover:shadow-md hover:border-blue-500
                     `}
-                    >
-                      <div>
-                        <div className={`text-base font-bold`}>{title}</div>
-                        <div
-                          className={`text-xs italic font-light mt-1 text-gray-600 dark:text-gray-400`}
                         >
-                          <p>
-                            by {formatAuthors(authors)}
-                            {published ? (
-                              <time
-                                dateTime={published}
-                                title={format(
-                                  new Date(published),
-                                  'MMM dd, yyyy',
-                                )}
-                              >
-                                {' '}
-                                on {format(new Date(published), 'MMM dd, yyyy')}
-                              </time>
-                            ) : null}
-                          </p>
-                        </div>
-                        {excerpt && (
-                          <div
-                            className={`text-xs mt-3 text-gray-600 dark:text-gray-400 line-clamp-2 leading-relaxed`}
-                          >
-                            <SimpleMarkdown rawContent={excerpt} />
+                          {headerImage ? (
+                            <div className="aspect-video overflow-hidden bg-gray-100 dark:bg-gray-800">
+                              <img
+                                src={headerImage}
+                                alt=""
+                                loading="lazy"
+                                decoding="async"
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          ) : null}
+                          <div className="p-4 flex flex-col gap-3 flex-1 justify-between">
+                            <div>
+                              <div className="text-base font-bold">{title}</div>
+                              <div className="text-xs italic font-light mt-1 text-gray-600 dark:text-gray-400">
+                                by {formatAuthors(authors)}
+                                {published ? (
+                                  <time
+                                    dateTime={published}
+                                    title={format(
+                                      new Date(published),
+                                      'MMM dd, yyyy',
+                                    )}
+                                  >
+                                    {' '}
+                                    on{' '}
+                                    {format(
+                                      new Date(published),
+                                      'MMM dd, yyyy',
+                                    )}
+                                  </time>
+                                ) : null}
+                              </div>
+                              {excerpt ? (
+                                <p className="text-sm mt-3 text-gray-600 dark:text-gray-400 line-clamp-4 leading-relaxed">
+                                  {excerpt}
+                                </p>
+                              ) : null}
+                            </div>
+                            <div className="text-blue-500 uppercase font-bold text-xs">
+                              Read More →
+                            </div>
                           </div>
-                        )}
-                      </div>
-                      <div>
-                        <div className="text-blue-500 uppercase font-bold text-xs">
-                          Read More →
-                        </div>
-                      </div>
-                    </Card>
-                  )
-                },
-              )}
+                        </Card>
+                      )
+                    },
+                  )}
             </div>
             <div className="flex justify-center mt-6">
               <Button as={Link} to="/blog">

@@ -6,7 +6,8 @@ export type RecentPost = {
   slug: string
   title: string
   published: string
-  excerpt: string | undefined
+  excerpt: string
+  headerImage: string | undefined
   authors: Array<string>
 }
 
@@ -27,6 +28,7 @@ export const fetchRecentPosts = createServerFn({ method: 'GET' }).handler(
         title: post.title,
         published: post.published,
         excerpt: post.excerpt,
+        headerImage: post.headerImage,
         authors: post.authors,
       }))
   },

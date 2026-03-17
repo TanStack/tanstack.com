@@ -2,6 +2,7 @@
 title: 'React Server Components Your Way'
 published: 2026-01-15
 draft: true
+excerpt: RSCs are genuinely exciting — smaller bundles, streaming UI, moving heavy work off the client — but existing implementations force you into a one-size-fits-all pattern. What if you could fetch, cache, and compose them on your own terms?
 authors:
   - Manuel Schiller
   - Tanner Linsley

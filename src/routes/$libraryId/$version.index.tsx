@@ -1,4 +1,3 @@
-import * as React from 'react'
 import {
   useMatch,
   redirect,
@@ -9,30 +8,45 @@ import { DocsLayout } from '~/components/DocsLayout'
 import { getLibrary } from '~/libraries'
 import type { LibraryId } from '~/libraries'
 import { seo } from '~/utils/seo'
-import { ossStatsQuery } from '~/queries/stats'
+
 import { Button } from '~/ui'
 import { ConfigSchema } from '~/utils/config'
+import type { ComponentType } from 'react'
 
-// Lazy-loaded landing components for each library
-const landingComponents: Partial<
-  Record<LibraryId, React.LazyExoticComponent<React.ComponentType>>
-> = {
-  query: React.lazy(() => import('~/components/landing/QueryLanding')),
-  router: React.lazy(() => import('~/components/landing/RouterLanding')),
-  table: React.lazy(() => import('~/components/landing/TableLanding')),
-  form: React.lazy(() => import('~/components/landing/FormLanding')),
-  start: React.lazy(() => import('~/components/landing/StartLanding')),
-  store: React.lazy(() => import('~/components/landing/StoreLanding')),
-  virtual: React.lazy(() => import('~/components/landing/VirtualLanding')),
-  ranger: React.lazy(() => import('~/components/landing/RangerLanding')),
-  pacer: React.lazy(() => import('~/components/landing/PacerLanding')),
-  hotkeys: React.lazy(() => import('~/components/landing/HotkeysLanding')),
-  config: React.lazy(() => import('~/components/landing/ConfigLanding')),
-  db: React.lazy(() => import('~/components/landing/DbLanding')),
-  ai: React.lazy(() => import('~/components/landing/AiLanding')),
-  devtools: React.lazy(() => import('~/components/landing/DevtoolsLanding')),
-  cli: React.lazy(() => import('~/components/landing/CliLanding')),
-  intent: React.lazy(() => import('~/components/landing/IntentLanding')),
+import QueryLanding from '~/components/landing/QueryLanding'
+import RouterLanding from '~/components/landing/RouterLanding'
+import TableLanding from '~/components/landing/TableLanding'
+import FormLanding from '~/components/landing/FormLanding'
+import StartLanding from '~/components/landing/StartLanding'
+import StoreLanding from '~/components/landing/StoreLanding'
+import VirtualLanding from '~/components/landing/VirtualLanding'
+import RangerLanding from '~/components/landing/RangerLanding'
+import PacerLanding from '~/components/landing/PacerLanding'
+import HotkeysLanding from '~/components/landing/HotkeysLanding'
+import ConfigLanding from '~/components/landing/ConfigLanding'
+import DbLanding from '~/components/landing/DbLanding'
+import AiLanding from '~/components/landing/AiLanding'
+import DevtoolsLanding from '~/components/landing/DevtoolsLanding'
+import CliLanding from '~/components/landing/CliLanding'
+import IntentLanding from '~/components/landing/IntentLanding'
+
+const landingComponents: Partial<Record<LibraryId, ComponentType>> = {
+  query: QueryLanding,
+  router: RouterLanding,
+  table: TableLanding,
+  form: FormLanding,
+  start: StartLanding,
+  store: StoreLanding,
+  virtual: VirtualLanding,
+  ranger: RangerLanding,
+  pacer: PacerLanding,
+  hotkeys: HotkeysLanding,
+  config: ConfigLanding,
+  db: DbLanding,
+  ai: AiLanding,
+  devtools: DevtoolsLanding,
+  cli: CliLanding,
+  intent: IntentLanding,
 }
 
 export const Route = createFileRoute('/$libraryId/$version/')({
@@ -59,12 +73,7 @@ export const Route = createFileRoute('/$libraryId/$version/')({
     }
     return undefined as never
   },
-  // @ts-expect-error - not sure why this is erroring
-  loader: async ({ params, context: { queryClient } }) => {
-    const { libraryId } = params
-    const library = getLibrary(libraryId)
-    await queryClient.ensureQueryData(ossStatsQuery({ library }))
-  },
+  // Stats load via Suspense in OpenSourceStats — no need to block the route loader
   component: LibraryVersionIndex,
 })
 
@@ -118,15 +127,7 @@ function LibraryVersionIndex() {
       repo={library.repo}
       isLandingPage
     >
-      <React.Suspense
-        fallback={
-          <div className="flex items-center justify-center min-h-[50vh]">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-500" />
-          </div>
-        }
-      >
-        <LandingComponent />
-      </React.Suspense>
+      <LandingComponent />
     </DocsLayout>
   )
 }

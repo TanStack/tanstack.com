@@ -18,7 +18,7 @@ const LazyRouterDevtools = React.lazy(() =>
 )
 import { NotFound } from '~/components/NotFound'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
-import { SearchProvider } from '~/contexts/SearchContext'
+import { SearchProvider, useSearchContext } from '~/contexts/SearchContext'
 import { ToastProvider } from '~/components/ToastProvider'
 import { LoginModalProvider } from '~/contexts/LoginModalContext'
 
@@ -83,29 +83,11 @@ export const Route = createRootRouteWithContext<{
       },
       { rel: 'manifest', href: '/site.webmanifest', color: '#fffff' },
       { rel: 'icon', href: '/favicon.ico' },
-      {
-        rel: 'preload',
-        href: '/fonts/Inter.woff2',
-        as: 'font',
-        type: 'font/woff2',
-        crossOrigin: '',
-      },
     ],
     scripts: [
       // Theme detection script - must run before body renders to prevent flash
       {
         children: `(function(){try{var t=localStorage.getItem('theme')||'auto';var v=['light','dark','auto'].includes(t)?t:'auto';if(v==='auto'){var a=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.classList.add(a,'auto')}else{document.documentElement.classList.add(v)}}catch(e){var a=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.classList.add(a,'auto')}})()`,
-      },
-      // Google Tag Manager script
-      // NOTE: Publift/Fuse ad tags need to be removed/paused in the GTM dashboard
-      {
-        children: `
-          (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-          new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-          'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-          })(window,document,'script','dataLayer','GTM-5N57KQT4');
-        `,
       },
     ],
   }),
@@ -183,6 +165,7 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
       <body className="overflow-x-hidden">
         <LoginModalProvider>
           <ToastProvider>
+            <IdleGtmLoader />
             {hideNavbar ? children : <Navbar>{children}</Navbar>}
             {showDevtools ? (
               <LazyRouterDevtools position="bottom-right" />
@@ -208,7 +191,7 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
                 </div>
               </div>
             ) : null}
-            <LazySearchModal />
+            <SearchHotkeyController />
           </ToastProvider>
         </LoginModalProvider>
         <noscript>
@@ -224,4 +207,81 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
       </body>
     </html>
   )
+}
+
+function SearchHotkeyController() {
+  const { isOpen, openSearch } = useSearchContext()
+  const [hasOpenedSearch, setHasOpenedSearch] = React.useState(false)
+
+  React.useEffect(() => {
+    const handleGlobalKeyDown = (event: KeyboardEvent) => {
+      if (event.defaultPrevented) return
+      if (!(event.metaKey || event.ctrlKey)) return
+      if (event.key.toLowerCase() !== 'k') return
+
+      event.preventDefault()
+      setHasOpenedSearch(true)
+      openSearch()
+    }
+
+    window.addEventListener('keydown', handleGlobalKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleGlobalKeyDown)
+    }
+  }, [openSearch])
+
+  React.useEffect(() => {
+    if (isOpen) {
+      setHasOpenedSearch(true)
+    }
+  }, [isOpen])
+
+  if (!hasOpenedSearch) return null
+
+  return (
+    <React.Suspense fallback={null}>
+      <LazySearchModal />
+    </React.Suspense>
+  )
+}
+
+function IdleGtmLoader() {
+  React.useEffect(() => {
+    const gtmId = 'GTM-5N57KQT4'
+    const existingScript = document.querySelector<HTMLScriptElement>(
+      `script[src*="googletagmanager.com/gtm.js?id=${gtmId}"]`,
+    )
+
+    if (existingScript) return
+
+    const inject = () => {
+      if (!window.dataLayer) {
+        window.dataLayer = []
+      }
+
+      window.dataLayer.push({
+        'gtm.start': Date.now(),
+        event: 'gtm.js',
+      })
+
+      const script = document.createElement('script')
+      script.async = true
+      script.src = `https://www.googletagmanager.com/gtm.js?id=${gtmId}`
+      document.head.appendChild(script)
+    }
+
+    if ('requestIdleCallback' in window) {
+      const idleHandle = window.requestIdleCallback(inject, { timeout: 2500 })
+      return () => {
+        window.cancelIdleCallback(idleHandle)
+      }
+    }
+
+    const timeoutHandle = globalThis.setTimeout(inject, 2500)
+    return () => {
+      globalThis.clearTimeout(timeoutHandle)
+    }
+  }, [])
+
+  return null
 }

@@ -1,6 +1,7 @@
 ---
 title: How we accidentally made route matching more performant by aiming for correctness
 published: 2025-11-18
+excerpt: A rewrite aimed at fixing edge cases in route matching accidentally delivered a 20,000x performance improvement. Route matching is no longer bottlenecked by the number of routes in your application.
 authors:
   - Florian Pellet
 ---

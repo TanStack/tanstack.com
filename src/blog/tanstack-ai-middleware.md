@@ -1,6 +1,7 @@
 ---
 title: 'TanStack AI Just Got Middleware — And It Changes Everything'
 published: 2026-03-12
+excerpt: Your chat endpoint starts simple, then you need logging, filtering, caching, rate limiting, and suddenly it's a 200-line monster. TanStack AI now ships a first-class middleware system.
 authors:
   - Alem Tuzlak
 ---

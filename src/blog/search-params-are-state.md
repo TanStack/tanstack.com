@@ -1,6 +1,7 @@
 ---
 title: Search Params Are State
 published: 2025-06-03
+excerpt: Search params are global, serializable, and shareable — but in most apps they're hacked together with string parsing and brittle utils. They deserve to be treated as first-class state.
 authors:
   - Tanner Linsley
 ---

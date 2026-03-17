@@ -1,6 +1,7 @@
 ---
 title: 'Lazy Tool Discovery: Scaling AI Tool Systems Without Drowning in Tokens'
 published: 2026-03-12
+excerpt: Every tool definition costs tokens and eats into the context window. Past a certain point it actually makes the model worse. Today we're shipping lazy tool discovery in TanStack AI.
 authors:
   - Alem Tuzlak
 ---

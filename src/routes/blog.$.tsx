@@ -1,14 +1,23 @@
-import { notFound, redirect, createFileRoute } from '@tanstack/react-router'
+import {
+  notFound,
+  redirect,
+  createFileRoute,
+  Link,
+} from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { PostNotFound } from './blog'
 import { createServerFn } from '@tanstack/react-start'
-import { formatAuthors } from '~/utils/blog'
+import { formatAuthors, getPublishedPosts } from '~/utils/blog'
 import { format } from '~/utils/dates'
 import * as v from 'valibot'
 import { setResponseHeaders } from '@tanstack/react-start/server'
 import { allPosts } from 'content-collections'
 import * as React from 'react'
 import { MarkdownContent } from '~/components/markdown'
+import { Card } from '~/components/Card'
+import { libraries } from '~/libraries'
+import { partners } from '~/utils/partners'
+import { PartnersRail, RightRail } from '~/components/RightRail'
 
 import { Toc } from '~/components/Toc'
 import { Breadcrumbs } from '~/components/Breadcrumbs'
@@ -50,16 +59,33 @@ const fetchBlogPost = createServerFn({ method: 'GET' })
     const now = new Date()
     const publishDate = new Date(post.published)
     const isUnpublished = post.draft || publishDate > now
+    const recentPosts = getPublishedPosts()
+      .filter((entry) => entry.slug !== docsPath)
+      .slice(0, 5)
+      .map((entry) => ({
+        slug: entry.slug,
+        title: entry.title,
+      }))
+
+    const featuredLibraries = libraries
+      .filter((library) => library.visible !== false)
+      .slice(0, 8)
+      .map((library) => ({
+        id: library.id,
+        name: library.name,
+      }))
 
     return {
       title: post.title,
-      description: post.description,
+      description: post.excerpt,
       published: post.published,
       content: post.content,
       authors: post.authors,
       headerImage: post.headerImage,
       filePath,
       isUnpublished,
+      recentPosts,
+      featuredLibraries,
     }
   })
 
@@ -102,7 +128,15 @@ export const Route = createFileRoute('/blog/$')({
 })
 
 function BlogPost() {
-  const { title, content, filePath, authors, published } = Route.useLoaderData()
+  const {
+    title,
+    content,
+    filePath,
+    authors,
+    published,
+    recentPosts,
+    featuredLibraries,
+  } = Route.useLoaderData()
 
   const blogContent = `<small>_by ${formatAuthors(authors)} on ${format(
     new Date(published || 0),
@@ -165,6 +199,18 @@ ${content}`
 
   const repo = 'tanstack/tanstack.com'
   const branch = 'main'
+  const activePartners = React.useMemo(
+    () =>
+      partners
+        .filter(
+          (d) =>
+            d.status === 'active' &&
+            d.name !== 'Nozzle.io' &&
+            d.id !== 'fireship',
+        )
+        .slice(0, 8),
+    [],
+  )
 
   return (
     <div
@@ -175,23 +221,35 @@ ${content}`
     >
       <div className="flex flex-col max-w-full min-w-0 w-full min-h-0 relative mb-8">
         <div className="min-w-0 flex justify-center w-full min-h-[88dvh] lg:min-h-0 mx-auto">
-          <div className="flex-1 flex flex-col w-full">
+          <div className="flex-1 flex flex-col w-full min-w-0">
             <div className="px-4 pt-4 lg:pt-6">
               <div className="w-full max-w-[1100px] mx-auto">
                 <div className="flex-1 min-h-0 flex flex-col">
                   <div className="w-full flex justify-center">
-                    <div className="w-full max-w-[700px] p-2 lg:p-4 xl:p-6">
+                    <div
+                      className={[
+                        'w-full p-2 lg:p-4 xl:p-6',
+                        isTocVisible ? 'max-w-full' : 'max-w-[768px]',
+                      ].join(' ')}
+                    >
                       <Breadcrumbs
                         section="Blog"
                         sectionTo="/blog"
                         headings={isTocVisible ? headings : undefined}
-                        tocHiddenBreakpoint="md"
+                        tocHiddenBreakpoint="lg"
                       />
                     </div>
-                    <div className="max-w-32 md:max-w-36 xl:max-w-44 2xl:max-w-56 w-full hidden md:block" />
+                    {isTocVisible && (
+                      <div className="pl-4 w-32 lg:w-36 xl:w-44 2xl:w-56 3xl:w-64 shrink-0 hidden lg:block" />
+                    )}
                   </div>
-                  <div className="w-full flex justify-center">
-                    <div className="flex overflow-auto flex-col w-full max-w-[700px] p-2 lg:p-4 xl:p-6 pt-0">
+                  <div
+                    className={[
+                      'w-full flex justify-center mx-auto',
+                      isTocVisible ? 'max-w-full' : 'max-w-[768px]',
+                    ].join(' ')}
+                  >
+                    <div className="flex overflow-auto flex-col w-full p-2 lg:p-4 xl:p-6 pt-0">
                       <MarkdownContent
                         title={title}
                         htmlMarkup={markup}
@@ -202,7 +260,7 @@ ${content}`
                       />
                     </div>
                     {isTocVisible && (
-                      <div className="pl-4 max-w-32 md:max-w-36 xl:max-w-44 2xl:max-w-56 w-full hidden md:block py-4">
+                      <div className="pl-4 w-32 lg:w-36 xl:w-44 2xl:w-56 3xl:w-64 shrink-0 hidden lg:block py-4 transition-all">
                         <Toc
                           headings={headings}
                           activeHeadings={activeHeadings}
@@ -214,6 +272,46 @@ ${content}`
               </div>
             </div>
           </div>
+          <RightRail breakpoint="md">
+            <PartnersRail partners={activePartners} />
+            <Card className="p-4">
+              <div className="mb-3 flex items-center justify-between">
+                <Link to="/blog" className="font-semibold text-sm">
+                  Blog Posts
+                </Link>
+              </div>
+              <div className="flex flex-col gap-2">
+                {recentPosts.map((post) => (
+                  <a
+                    key={post.slug}
+                    href={`/blog/${post.slug}`}
+                    className="text-xs opacity-70 hover:opacity-100 hover:underline"
+                  >
+                    {post.title}
+                  </a>
+                ))}
+              </div>
+            </Card>
+
+            <Card className="p-4">
+              <div className="mb-3">
+                <a href="/#libraries" className="font-semibold text-sm">
+                  Libraries
+                </a>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {featuredLibraries.map((library) => (
+                  <a
+                    key={library.id}
+                    href={`/${library.id}/latest`}
+                    className="text-xs opacity-70 hover:opacity-100 hover:underline"
+                  >
+                    {library.name.replace('TanStack ', '')}
+                  </a>
+                ))}
+              </div>
+            </Card>
+          </RightRail>
         </div>
       </div>
     </div>

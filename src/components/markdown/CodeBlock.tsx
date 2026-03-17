@@ -193,7 +193,7 @@ export function CodeBlock({
                 genSvgMap.set(trimmedCode, svg)
                 svgHtml = svg
               }
-              return `<div class='${preAttributes.class} py-4 bg-neutral-50'>${svgHtml}</div>`
+              return `<div class='${preAttributes.class ?? ''} py-4 bg-neutral-50'>${svgHtml}</div>`
             }
 
             return output
@@ -218,7 +218,7 @@ export function CodeBlock({
     return () => {
       cancelled = true
     }
-  }, [code, lang])
+  }, [code, lang, isEmbedded])
 
   return (
     <div

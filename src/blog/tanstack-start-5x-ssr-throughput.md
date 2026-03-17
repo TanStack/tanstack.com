@@ -4,6 +4,7 @@ authors:
   - Manuel Schiller
   - Florian Pellet
 title: '5x SSR Throughput: Profiling SSR Hot Paths in TanStack Start'
+excerpt: 'How profiling under sustained load uncovered SSR hot paths in TanStack Start and led to a 5.5x throughput gain by removing unnecessary server-side work.'
 ---
 
 ![A flamegraph island in the tanstack universe](/blog-assets/tanstack-start-5x-ssr-throughput/header.png)

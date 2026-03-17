@@ -6,6 +6,7 @@ authors:
 # title: 'TanStack Router''s Granular Reactivity Rewrite'
 # title: 'Routing Is a Graph. Now Our Reactivity Is Too.'
 title: 'From One Big Router Store to a Granular Signal Graph'
+excerpt: TanStack Router now uses a granular signal graph as its reactive core. State is derived from that graph, narrowing change propagation and making client-side navigation substantially faster.
 ---
 
 ![veins of emerald as a signal graph embedded in the rock of a tropical island](/blog-assets/tanstack-router-signal-graph/header.png)

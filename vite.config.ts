@@ -59,6 +59,7 @@ export default defineConfig({
         return id.includes('postgres')
       },
       output: {
+        onlyExplicitManualChunks: true,
         manualChunks: (id) => {
           // Vendor chunk splitting for better caching
           if (id.includes('node_modules')) {
@@ -69,17 +70,6 @@ export default defineConfig({
               id.includes('react-instantsearch')
             ) {
               return 'search'
-            }
-            // Charting deps (only loaded on stats/admin pages)
-            if (
-              id.includes('@observablehq/plot') ||
-              (id.includes('d3') && !id.includes('d3-'))
-            ) {
-              return 'd3-charts'
-            }
-            // Visualization deps
-            if (id.includes('@visx/')) {
-              return 'visx'
             }
             // Lucide icons (tree-shaken but still significant)
             if (id.includes('lucide-react')) {

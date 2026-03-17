@@ -98,7 +98,6 @@ function Index() {
             2xl:[--ship-x:90px] 2xl:[--ship-y:3rem]"
             >
               <ClientOnly>
-                {/* Ship behind splash */}
                 <div className="absolute left-1/3 bottom-[25%] z-0 animate-ship-peek">
                   <NetlifyImage
                     src="/images/ship.png"
@@ -108,7 +107,6 @@ function Index() {
                     className="w-16 xl:w-20"
                   />
                 </div>
-                {/* Invisible clickable ship in front */}
                 <Link
                   to="/explore"
                   className="absolute left-1/3 bottom-[25%] z-20 animate-ship-peek-clickable"

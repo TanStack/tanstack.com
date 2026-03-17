@@ -155,7 +155,10 @@ export function CodeBlock({
   const code = children?.props.children
 
   const [codeElement, setCodeElement] = React.useState(
-    <pre ref={ref} className={`shiki h-full github-light dark:aurora-x`}>
+    <pre
+      ref={ref}
+      className="h-full p-4 bg-white dark:bg-gray-950 text-gray-800 dark:text-gray-200"
+    >
       <code>{lang === 'mermaid' ? <svg /> : code}</code>
     </pre>,
   )
@@ -163,48 +166,58 @@ export function CodeBlock({
   React[
     typeof document !== 'undefined' ? 'useLayoutEffect' : 'useEffect'
   ](() => {
+    let cancelled = false
     ;(async () => {
-      const themes = ['github-light', 'aurora-x']
-      const langStr = lang || 'plaintext'
+      try {
+        const themes = ['github-light', 'aurora-x']
+        const langStr = lang || 'plaintext'
 
-      const { highlighter, effectiveLang } = await getHighlighter(langStr)
-      // Trim trailing newlines to prevent empty lines at end of code block
-      const trimmedCode = (code || '').trimEnd()
+        const { highlighter, effectiveLang } = await getHighlighter(langStr)
+        // Trim trailing newlines to prevent empty lines at end of code block
+        const trimmedCode = (code || '').trimEnd()
 
-      const htmls = await Promise.all(
-        themes.map(async (theme) => {
-          const output = highlighter.codeToHtml(trimmedCode, {
-            lang: effectiveLang,
-            theme,
-            transformers: [transformerNotationDiff()],
-          })
+        const htmls = await Promise.all(
+          themes.map(async (theme) => {
+            const output = highlighter.codeToHtml(trimmedCode, {
+              lang: effectiveLang,
+              theme,
+              transformers: [transformerNotationDiff()],
+            })
 
-          if (lang === 'mermaid') {
-            const preAttributes = extractPreAttributes(output)
-            let svgHtml = genSvgMap.get(trimmedCode)
-            if (!svgHtml) {
-              const mermaid = await getMermaid()
-              const { svg } = await mermaid.render('foo', trimmedCode)
-              genSvgMap.set(trimmedCode, svg)
-              svgHtml = svg
+            if (lang === 'mermaid') {
+              const preAttributes = extractPreAttributes(output)
+              let svgHtml = genSvgMap.get(trimmedCode)
+              if (!svgHtml) {
+                const mermaid = await getMermaid()
+                const { svg } = await mermaid.render('foo', trimmedCode)
+                genSvgMap.set(trimmedCode, svg)
+                svgHtml = svg
+              }
+              return `<div class='${preAttributes.class} py-4 bg-neutral-50'>${svgHtml}</div>`
             }
-            return `<div class='${preAttributes.class} py-4 bg-neutral-50'>${svgHtml}</div>`
-          }
 
-          return output
-        }),
-      )
+            return output
+          }),
+        )
 
-      setCodeElement(
-        <div
-          className={twMerge(
-            isEmbedded ? 'h-full [&>pre]:h-full [&>pre]:rounded-none' : '',
-          )}
-          dangerouslySetInnerHTML={{ __html: htmls.join('') }}
-          ref={ref}
-        />,
-      )
+        if (!cancelled) {
+          setCodeElement(
+            <div
+              className={twMerge(
+                isEmbedded ? 'h-full [&>pre]:h-full [&>pre]:rounded-none' : '',
+              )}
+              dangerouslySetInnerHTML={{ __html: htmls.join('') }}
+              ref={ref}
+            />,
+          )
+        }
+      } catch (err) {
+        console.warn('Shiki highlighting failed:', err)
+      }
     })()
+    return () => {
+      cancelled = true
+    }
   }, [code, lang])
 
   return (

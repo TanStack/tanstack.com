@@ -15,6 +15,7 @@ TanStack Router used to center most of its reactivity around one large object: `
 This builds on TanStack Store's migration to [alien-signals](https://github.com/stackblitz/alien-signals) in [TanStack Store PR #265](https://github.com/TanStack/store/pull/265), implemented by [@DavidKPiano](https://github.com/davidkpiano). In external benchmarks like [js-reactivity-benchmark](https://github.com/transitive-bullshit/js-reactivity-benchmark), alien-signals is currently the best-performing signals implementation tested. But the main improvement here is not just a faster primitive. It is a different reactive model.
 
 The result is
+
 - better update locality,
 - fewer store updates during navigation,
 - substantially faster client-side navigation,
@@ -26,12 +27,12 @@ The old model had one main reactive surface: `router.state`.
 
 That was useful. It made it possible to prototype features quickly and ship a broad API surface without first designing a perfect internal reactive topology. But it also meant many different concerns shared the same reactive entry point.
 
-| Concern              | Stored under `router.state`                  | Typical consumer                 |
-| -------------------- | -------------------------------------------- | -------------------------------- |
-| Location             | `location`, `resolvedLocation`               | `useLocation`, `Link`            |
-| Match lifecycle      | `matches`, `pendingMatches`, `cachedMatches` | `useMatch`, `Matches`, `Outlet`  |
-| Navigation status    | `status`, `isLoading`, `isTransitioning`     | pending UI, transitions          |
-| Side effects | `redirect`, `statusCode`                     | navigation and response handling |
+| Concern           | Stored under `router.state`                  | Typical consumer                 |
+| ----------------- | -------------------------------------------- | -------------------------------- |
+| Location          | `location`, `resolvedLocation`               | `useLocation`, `Link`            |
+| Match lifecycle   | `matches`, `pendingMatches`, `cachedMatches` | `useMatch`, `Matches`, `Outlet`  |
+| Navigation status | `status`, `isLoading`, `isTransitioning`     | pending UI, transitions          |
+| Side effects      | `redirect`, `statusCode`                     | navigation and response handling |
 
 This did not mean every update rerendered everything. Options like `select` and `structuralSharing` could prevent propagation. But many consumers still started from a broader subscription surface than they actually needed.
 

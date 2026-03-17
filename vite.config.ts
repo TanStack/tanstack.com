@@ -63,14 +63,6 @@ export default defineConfig({
         manualChunks: (id) => {
           // Vendor chunk splitting for better caching
           if (id.includes('node_modules')) {
-            // Search-related deps (only loaded when search modal opens)
-            if (
-              id.includes('algoliasearch') ||
-              id.includes('instantsearch') ||
-              id.includes('react-instantsearch')
-            ) {
-              return 'search'
-            }
             // Lucide icons (tree-shaken but still significant)
             if (id.includes('lucide-react')) {
               return 'icons'

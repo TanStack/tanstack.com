@@ -4,7 +4,8 @@ import { useToast } from '~/components/ToastProvider'
 import { Copy } from 'lucide-react'
 import type { Mermaid } from 'mermaid'
 import { transformerNotationDiff } from '@shikijs/transformers'
-import { createHighlighter, type HighlighterGeneric } from 'shiki'
+import type { HighlighterGeneric } from 'shiki'
+import { createHighlighter } from 'shiki'
 import { Button } from '~/ui'
 
 // Language aliases mapping

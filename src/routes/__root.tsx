@@ -19,9 +19,12 @@ const LazyRouterDevtools = React.lazy(() =>
 import { NotFound } from '~/components/NotFound'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { SearchProvider, useSearchContext } from '~/contexts/SearchContext'
-import { SearchModal } from '~/components/SearchModal'
 import { ToastProvider } from '~/components/ToastProvider'
 import { LoginModalProvider } from '~/contexts/LoginModalContext'
+
+const LazySearchModal = React.lazy(() =>
+  import('~/components/SearchModal').then((m) => ({ default: m.SearchModal })),
+)
 import { Spinner } from '~/components/Spinner'
 import { ThemeProvider, useHtmlClass } from '~/components/ThemeProvider'
 import { Navbar } from '~/components/Navbar'
@@ -207,7 +210,8 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
 }
 
 function SearchHotkeyController() {
-  const { openSearch } = useSearchContext()
+  const { isOpen, openSearch } = useSearchContext()
+  const [hasOpenedSearch, setHasOpenedSearch] = React.useState(false)
 
   React.useEffect(() => {
     const handleGlobalKeyDown = (event: KeyboardEvent) => {
@@ -216,6 +220,7 @@ function SearchHotkeyController() {
       if (event.key.toLowerCase() !== 'k') return
 
       event.preventDefault()
+      setHasOpenedSearch(true)
       openSearch()
     }
 
@@ -225,7 +230,19 @@ function SearchHotkeyController() {
     }
   }, [openSearch])
 
-  return <SearchModal />
+  React.useEffect(() => {
+    if (isOpen) {
+      setHasOpenedSearch(true)
+    }
+  }, [isOpen])
+
+  if (!hasOpenedSearch) return null
+
+  return (
+    <React.Suspense fallback={null}>
+      <LazySearchModal />
+    </React.Suspense>
+  )
 }
 
 function IdleGtmLoader() {

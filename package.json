@@ -42,6 +42,7 @@
     "@radix-ui/react-tooltip": "^1.2.8",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
+    "@sentry/browser": "^10.43.0",
     "@sentry/node": "^10.42.0",
     "@sentry/tanstackstart-react": "^10.43.0",
     "@stackblitz/sdk": "^1.11.0",

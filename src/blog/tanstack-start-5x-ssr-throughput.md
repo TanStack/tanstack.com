@@ -56,9 +56,23 @@ We did not benchmark "a representative app page". We used endpoints that exagger
 
 This is transferable: isolate the subsystem you want to improve, and benchmark that.
 
+### CPU profiling with `@platformatic/flame`
+
+To capture a CPU profile of the server under load, we start the built server with [`@platformatic/flame`](https://github.com/platformatic/flame):
+
+```sh
+flame run ./dist/server.mjs
+```
+
+This produces:
+
+- a CPU flamegraph
+- a memory heap flamegraph
+- and markdown summaries of the captured profile data
+
 ### Load generation with `autocannon`
 
-We used [`autocannon`](https://github.com/mcollina/autocannon) to generate a 30s sustained load. We tracked:
+While `@platformatic/flame` is running in one terminal, we used [`autocannon`](https://github.com/mcollina/autocannon) in another terminal to generate a 30s sustained load. We tracked:
 
 - requests per second (req/s)
 - latency distribution (average, p95, p99)
@@ -69,25 +83,13 @@ Example command (adjust concurrency and route):
 autocannon -d 30 -c 100 --warmup [ -d 2 -c 20 ] http://localhost:3000/bench/links-100
 ```
 
-### CPU profiling with `@platformatic/flame`
+### How to interpret the results
 
-To record a CPU profile of the server under load, we use [`@platformatic/flame`](https://github.com/platformatic/flame) to start the server:
+To improve SSR performance, we repeated the same loop:
 
-```sh
-flame run ./dist/server.mjs
-```
-
-This gives you
-
-- a CPU flamegraph
-- a memory histogram
-- and even markdown files that can be read by AI agents
-
-To improve SSR performance, we repeated the same steps:
-
-- Focus on **self time** first. That is where the CPU is actually spent, not just where time is waiting on children.
-- Fix one hotspot, re-run, and re-profile.
-- Prefer changes that remove work in the steady state, not just shift it.
+- Focus on **self time** first. That is where the CPU is actually spent.
+- Fix one hotspot, re-run the benchmark, and re-profile.
+- Prefer changes that remove work in the steady state.
 
 ### Reproducing these benchmarks
 

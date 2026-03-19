@@ -101,10 +101,10 @@ useStore(matchStore, (match) => /* select from one match */)
 
 > [!NOTE]
 > `getMatchStoreByRouteId` creates a derived signal on demand, and stores it
-> in a Least-Recently-Used cache so it can be reused by other subscribers
+> in a Least-Recently-Used cache[^lru-cache] so it can be reused by other subscribers
 > without leaking memory.
 
-The store-update-count graphs below show how many times subscriptions are invoked during various routing scenarios, before (curve is the entire history) and after (last point is this refactor).
+The store-update-count graphs below show how many times subscriptions are invoked during various routing scenarios, before (curve is the entire history) and after (last point is this refactor).[^store-update-tests]
 
 <!-- ::start:tabs -->
 
@@ -172,14 +172,14 @@ export type StoreConfig = {
 This keeps one router core while letting each adapter plug in the store model it wants.
 
 > [!NOTE]
-> Solid's derived stores are backed by native memos, and the adapter uses a `FinalizationRegistry`
+> Solid's derived stores are backed by native memos, and the adapter uses a `FinalizationRegistry`[^finalization-registry]
 > to dispose detached roots when those stores are garbage-collected.
 
 ## Observable Result: Less Work During Navigation
 
 No new public API is required here. `useMatch`, `useLocation`, and `<Link>` keep the same surface. The difference is that navigation and preload flows now wake up fewer subscriptions.
 
-Our benchmarks isolate client-side navigation cost on a synthetic rerender-heavy page.
+Our benchmarks isolate client-side navigation cost on a synthetic rerender-heavy page.[^client-nav-bench]
 
 - React: `7ms -> 4.5ms`
 - Solid: `12ms -> 8ms`
@@ -216,7 +216,7 @@ This graph shows the duration of 10 navigations on <code>main</code> (grey) and 
 
 <!-- ::end:tabs -->
 
-There is also a bundle-size tradeoff. In our synthetic bundle-size benchmarks, measuring gzipped sizes:
+There is also a bundle-size tradeoff. In our synthetic bundle-size benchmarks, measuring gzipped sizes:[^bundle-size-bench]
 
 - ↗ React increased by `~1KiB`
 - ↗ Vue increased by `~1KiB`
@@ -266,3 +266,13 @@ Routing is a graph. Now the reactivity is one too.
 [^alien-migration]: [TanStack Store PR #265](https://github.com/TanStack/store/pull/265)
 
 [^alien-bench]: [js-reactivity-benchmark](https://github.com/transitive-bullshit/js-reactivity-benchmark) last updated january 2025
+
+[^store-update-tests]: Methodology and exact scenario assertions live in the adapter test files for [React](https://github.com/TanStack/router/blob/refactor-signals/packages/react-router/tests/store-updates-during-navigation.test.tsx), [Solid](https://github.com/TanStack/router/blob/refactor-signals/packages/solid-router/tests/store-updates-during-navigation.test.tsx), and [Vue](https://github.com/TanStack/router/blob/refactor-signals/packages/vue-router/tests/store-updates-during-navigation.test.tsx).
+
+[^lru-cache]: For a great JavaScript-oriented explanation of how LRU caches work, see [Implementing an efficient LRU cache in JavaScript](https://yomguithereal.github.io/posts/lru-cache/).
+
+[^finalization-registry]: A [FinalizationRegistry](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/FinalizationRegistry) allows us to hook into the Garbage Collector to execute arbitrary cleanup functions when an object gets collected.
+
+[^client-nav-bench]: These numbers come from the [`benchmarks/client-nav`](https://github.com/TanStack/router/tree/main/benchmarks/client-nav) CodSpeed suite, which runs a 10-navigation loop against a synthetic page that intentionally mounts many `useParams`, `useSearch`, and `Link` subscribers to amplify propagation costs. See [CodSpeed](https://codspeed.io/TanStack/router), and the [React app fixture](https://github.com/TanStack/router/blob/main/benchmarks/client-nav/react/app.tsx).
+
+[^bundle-size-bench]: These numbers come from the deterministic fixtures in [`benchmarks/bundle-size`](https://github.com/TanStack/router/tree/main/benchmarks/bundle-size), measured from the initial-load JS graph and tracked primarily as gzip deltas. See the [README](https://github.com/TanStack/router/blob/main/benchmarks/bundle-size/README.md).

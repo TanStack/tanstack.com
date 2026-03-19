@@ -81,7 +81,7 @@ Before, the graph was derived from `router.state`. Now, `router.state` is derive
 
 ## Hook-Level Change: Subscribe to the Relevant Store
 
-Once the graph becomes the source of truth, hooks can subscribe directly to graph nodes instead of selecting from a broad snapshot. The clearest example is `useMatch`.
+Once the graph becomes the source of truth, router internals can subscribe directly to graph nodes instead of selecting from a broad snapshot. The clearest example is `useMatch`.
 
 Before this refactor, `useMatch` subscribed through the big router store and then searched `state.matches` for the match it cared about. Now it resolves the relevant store first and subscribes directly to it.
 
@@ -98,6 +98,8 @@ useRouterState({
 const matchStore = router.stores.getMatchStoreByRouteId(routeId)
 useStore(matchStore, (match) => /* select from one match */)
 ```
+
+This is an internal implementation detail, not a new public API surface for application code.
 
 > [!NOTE]
 > `getMatchStoreByRouteId` creates a derived signal on demand, and stores it
@@ -267,7 +269,7 @@ Routing is a graph. Now the reactivity is one too.
 
 [^alien-bench]: [js-reactivity-benchmark](https://github.com/transitive-bullshit/js-reactivity-benchmark) last updated january 2025
 
-[^store-update-tests]: Methodology and exact scenario assertions live in the adapter test files for [React](https://github.com/TanStack/router/blob/refactor-signals/packages/react-router/tests/store-updates-during-navigation.test.tsx), [Solid](https://github.com/TanStack/router/blob/refactor-signals/packages/solid-router/tests/store-updates-during-navigation.test.tsx), and [Vue](https://github.com/TanStack/router/blob/refactor-signals/packages/vue-router/tests/store-updates-during-navigation.test.tsx).
+[^store-update-tests]: Methodology and exact scenario assertions live in the adapter test files for [React](https://github.com/TanStack/router/blob/main/packages/react-router/tests/store-updates-during-navigation.test.tsx), [Solid](https://github.com/TanStack/router/blob/main/packages/solid-router/tests/store-updates-during-navigation.test.tsx), and [Vue](https://github.com/TanStack/router/blob/main/packages/vue-router/tests/store-updates-during-navigation.test.tsx).
 
 [^lru-cache]: For a great JavaScript-oriented explanation of how LRU caches work, see [Implementing an efficient LRU cache in JavaScript](https://yomguithereal.github.io/posts/lru-cache/).
 

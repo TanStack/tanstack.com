@@ -9,7 +9,7 @@ title: 'From One Big Router Store to a Granular Signal Graph'
 excerpt: TanStack Router now uses a granular signal graph as its reactive core. State is derived from that graph, narrowing change propagation and making client-side navigation substantially faster.
 ---
 
-![veins of emerald as a signal graph embedded in the rock of a tropical island](/blog-assets/tanstack-router-signal-graph/header.png)
+![veins of emerald as a signal graph embedded in the rock of a tropical island](/blog-assets/tanstack-router-signal-graph/header.jpg)
 
 TanStack Router used to center most of its reactivity around one large object: `router.state`. [This refactor](https://github.com/TanStack/router/pull/6704) replaces that broad store with a graph of smaller stores. `router.state` is no longer the internal source of truth. It is now derived from the store graph.
 
@@ -44,7 +44,7 @@ Routing is not one thing that changes all at once. A navigation changes specific
 The old model captured those pieces of state, but it flattened them into one main subscription surface. This is where the mismatch becomes visible:
 
 <figure>
-<video src="/blog-assets/tanstack-router-signal-graph/before-granular-store-graph-2.mp4" playsinline loop autoplay muted></video>
+<video src="/blog-assets/tanstack-router-signal-graph/before-granular-store-graph-2.webm" playsinline loop autoplay muted></video>
 <figcaption>
 A video showing that on every stateful event in the core of the router, changes are propagated to every subscription across the entire application.
 </figcaption>
@@ -67,7 +67,7 @@ The broad surface is split into smaller stores with narrower responsibilities.
 The new picture looks like this:
 
 <figure>
-<video src="/blog-assets/tanstack-router-signal-graph/after-granular-store-graph-2.mp4" playsinline loop autoplay muted></video>
+<video src="/blog-assets/tanstack-router-signal-graph/after-granular-store-graph-2.webm" playsinline loop autoplay muted></video>
 <figcaption>
 A video showing that on each stateful event in the core of the router, only a specific subset of subscribers are updated in the application.
 </figcaption>

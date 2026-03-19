@@ -20,7 +20,7 @@ The result is
 - better update locality,
 - fewer store updates during navigation,
 - substantially faster client-side navigation,
-- and Solid can now use its native signals.
+- the Solid adapter now uses native Solid signals internally.
 
 ## Old Model: One Broad Router State
 
@@ -62,7 +62,7 @@ The broad surface is split into smaller stores with narrower responsibilities.
 - **per-match stores** grouped into pools of active matches, pending matches, and cached matches.
 - **derived stores** for specific purposes like "is any match pending"
 
-`router.state` still exists as a compatibility snapshot for public APIs. It is just no longer the primary model that everything else hangs off.
+`router.state` still exists for public APIs, but it is now recomputed from the store graph instead of serving as the internal source of truth.
 
 The new picture looks like this:
 
@@ -139,7 +139,7 @@ Absolute counts are not directly comparable across frameworks, because React, So
 
 <!-- ::end:tabs -->
 
-These graphs are the most direct proof that change propagation got narrower.
+These graphs show that change propagation got narrower.
 
 ## Store Boundary: One Contract, Multiple Implementations
 

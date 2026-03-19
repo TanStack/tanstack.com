@@ -483,7 +483,7 @@ So rather than rushing into a shallow solution, we want design partners. We are 
 
 If that is you, please fill out the design partner form and tell us about your app, your constraints, and what a good SSR story for DB would need to look like. We will set up calls with teams, interview them to understand the requirements, and run proposals past them as we shape the design.
 
-- SSR design partner form link coming soon.
+- [Fill out the SSR design partner form](https://docs.google.com/forms/d/e/1FAIpQLSdoCZ_Z5uODArGpGkVI4tbU7q9qHAcGAXYYEoP9HFq3aKNs3A/viewform?usp=publish-editor).
 
 If you have been waiting for TanStack DB to feel more complete, more durable, and more application-shaped, 0.6 is a big step in that direction.
 

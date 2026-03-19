@@ -13,7 +13,7 @@ excerpt: TanStack Router now uses a granular signal graph as its reactive core. 
 
 TanStack Router used to center most of its reactivity around one large object: `router.state`. [This refactor](https://github.com/TanStack/router/pull/6704) replaces that broad store with a graph of smaller stores. `router.state` is no longer the internal source of truth. It is now derived from the store graph.
 
-This builds on TanStack Store's migration to [alien-signals](https://github.com/stackblitz/alien-signals) in [TanStack Store PR #265](https://github.com/TanStack/store/pull/265), implemented by [@DavidKPiano](https://github.com/davidkpiano). In external benchmarks like [js-reactivity-benchmark](https://github.com/transitive-bullshit/js-reactivity-benchmark), alien-signals is currently the best-performing signals implementation tested. But the main improvement here is not just a faster primitive. It is a different reactive model.
+This builds on TanStack Store's migration[^alien-migration] to [alien-signals](https://github.com/stackblitz/alien-signals), implemented by [@DavidKPiano](https://github.com/davidkpiano). In external benchmarks[^alien-bench], alien-signals is one of the best-performing signals implementations tested. But the main improvement here is not just a faster primitive. It is a different reactive model.
 
 The result is
 
@@ -260,3 +260,9 @@ This refactor did not just add signals to the old model. It inverted the reactiv
 Before, `router.state` was the broad reactive surface and the graph was derived from it. Now the graph is the primary model, and `router.state` is a compatibility snapshot derived from the graph.
 
 Routing is a graph. Now the reactivity is one too.
+
+---
+
+[^alien-migration]: [TanStack Store PR #265](https://github.com/TanStack/store/pull/265)
+
+[^alien-bench]: [js-reactivity-benchmark](https://github.com/transitive-bullshit/js-reactivity-benchmark) last updated january 2025

@@ -833,6 +833,9 @@ export function SearchModal() {
           ref={containerRef}
           onKeyDown={handleKeyDown}
         >
+          <DialogPrimitive.Title className="sr-only">
+            Search TanStack docs
+          </DialogPrimitive.Title>
           <InstantSearch searchClient={searchClient} indexName="tanstack-test">
             <SearchFiltersProvider>
               <DynamicFilters />

@@ -1,3 +1,4 @@
+import * as React from 'react'
 import { ClientOnly, Link, createFileRoute } from '@tanstack/react-router'
 import { queryOptions, useQuery } from '@tanstack/react-query'
 
@@ -10,7 +11,6 @@ import bytesImage from '~/images/bytes.svg'
 import { PartnersGrid } from '~/components/PartnersGrid'
 import OpenSourceStats from '~/components/OpenSourceStats'
 // Using public asset URLs for splash images
-import { BrandContextMenu } from '~/components/BrandContextMenu'
 import LandingPageGad from '~/components/LandingPageGad'
 import { MaintainerCard } from '~/components/MaintainerCard'
 import { coreMaintainers } from '~/libraries/maintainers'
@@ -27,6 +27,12 @@ import { Card } from '~/components/Card'
 import LibraryCard from '~/components/LibraryCard'
 import { FeaturedShowcases } from '~/components/ShowcaseSection'
 import { Button } from '~/ui'
+
+const LazyBrandContextMenu = React.lazy(() =>
+  import('~/components/BrandContextMenu').then((m) => ({
+    default: m.BrandContextMenu,
+  })),
+)
 
 export const textColors = [
   `text-rose-500`,
@@ -121,28 +127,55 @@ function Index() {
                   />
                 </Link>
               </ClientOnly>
-              <BrandContextMenu className="cursor-pointer relative z-10">
-                <NetlifyImage
-                  src="/images/logos/splash-light.png"
-                  width={500}
-                  height={500}
-                  quality={85}
-                  className="w-[300px] pt-8 xl:pt-0 xl:w-[400px] 2xl:w-[500px] dark:hidden"
-                  alt="TanStack Logo"
-                  loading="eager"
-                  fetchPriority="high"
-                />
-                <NetlifyImage
-                  src="/images/logos/splash-dark.png"
-                  width={500}
-                  height={500}
-                  quality={85}
-                  className="w-[300px] pt-8 xl:pt-0 xl:w-[400px] 2xl:w-[500px] hidden dark:block"
-                  alt="TanStack Logo"
-                  loading="eager"
-                  fetchPriority="high"
-                />
-              </BrandContextMenu>
+              <React.Suspense
+                fallback={
+                  <div className="cursor-pointer relative z-10">
+                    <NetlifyImage
+                      src="/images/logos/splash-light.png"
+                      width={500}
+                      height={500}
+                      quality={85}
+                      className="w-[300px] pt-8 xl:pt-0 xl:w-[400px] 2xl:w-[500px] dark:hidden"
+                      alt="TanStack Logo"
+                      loading="eager"
+                      fetchPriority="high"
+                    />
+                    <NetlifyImage
+                      src="/images/logos/splash-dark.png"
+                      width={500}
+                      height={500}
+                      quality={85}
+                      className="w-[300px] pt-8 xl:pt-0 xl:w-[400px] 2xl:w-[500px] hidden dark:block"
+                      alt="TanStack Logo"
+                      loading="eager"
+                      fetchPriority="high"
+                    />
+                  </div>
+                }
+              >
+                <LazyBrandContextMenu className="cursor-pointer relative z-10">
+                  <NetlifyImage
+                    src="/images/logos/splash-light.png"
+                    width={500}
+                    height={500}
+                    quality={85}
+                    className="w-[300px] pt-8 xl:pt-0 xl:w-[400px] 2xl:w-[500px] dark:hidden"
+                    alt="TanStack Logo"
+                    loading="eager"
+                    fetchPriority="high"
+                  />
+                  <NetlifyImage
+                    src="/images/logos/splash-dark.png"
+                    width={500}
+                    height={500}
+                    quality={85}
+                    className="w-[300px] pt-8 xl:pt-0 xl:w-[400px] 2xl:w-[500px] hidden dark:block"
+                    alt="TanStack Logo"
+                    loading="eager"
+                    fetchPriority="high"
+                  />
+                </LazyBrandContextMenu>
+              </React.Suspense>
             </div>
             <div className="flex flex-col items-center gap-6 text-center px-4 xl:text-left xl:items-start">
               <div className="flex gap-2 lg:gap-4 items-center">

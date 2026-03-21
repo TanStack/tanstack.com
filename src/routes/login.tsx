@@ -1,12 +1,18 @@
+import * as React from 'react'
 import { authClient } from '~/utils/auth.client'
 // Using public asset URLs for splash images
-import { BrandContextMenu } from '~/components/BrandContextMenu'
 import { redirect, createFileRoute } from '@tanstack/react-router'
 import { getCurrentUser } from '~/utils/auth.server'
 import * as v from 'valibot'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { GoogleIcon } from '~/components/icons/GoogleIcon'
 import { Card } from '~/components/Card'
+
+const LazyBrandContextMenu = React.lazy(() =>
+  import('~/components/BrandContextMenu').then((m) => ({
+    default: m.BrandContextMenu,
+  })),
+)
 
 const searchSchema = v.object({
   error: v.optional(v.string()),
@@ -28,18 +34,35 @@ export const Route = createFileRoute('/login')({
 function SplashImage() {
   return (
     <div className="flex items-center justify-center mb-4">
-      <BrandContextMenu className="cursor-pointer">
-        <img
-          src="/images/logos/splash-light.png"
-          alt="TanStack"
-          className="w-48 h-48 dark:hidden"
-        />
-        <img
-          src="/images/logos/splash-dark.png"
-          alt="TanStack"
-          className="w-48 h-48 hidden dark:block"
-        />
-      </BrandContextMenu>
+      <React.Suspense
+        fallback={
+          <div className="cursor-pointer">
+            <img
+              src="/images/logos/splash-light.png"
+              alt="TanStack"
+              className="w-48 h-48 dark:hidden"
+            />
+            <img
+              src="/images/logos/splash-dark.png"
+              alt="TanStack"
+              className="w-48 h-48 hidden dark:block"
+            />
+          </div>
+        }
+      >
+        <LazyBrandContextMenu className="cursor-pointer">
+          <img
+            src="/images/logos/splash-light.png"
+            alt="TanStack"
+            className="w-48 h-48 dark:hidden"
+          />
+          <img
+            src="/images/logos/splash-dark.png"
+            alt="TanStack"
+            className="w-48 h-48 hidden dark:block"
+          />
+        </LazyBrandContextMenu>
+      </React.Suspense>
     </div>
   )
 }

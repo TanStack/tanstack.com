@@ -1,6 +1,5 @@
 import {
   useMatch,
-  redirect,
   Link,
   notFound,
   createFileRoute,
@@ -12,43 +11,7 @@ import { seo } from '~/utils/seo'
 
 import { Button } from '~/ui'
 import { ConfigSchema } from '~/utils/config'
-import type { ComponentType } from 'react'
-
-import QueryLanding from '~/components/landing/QueryLanding'
-import RouterLanding from '~/components/landing/RouterLanding'
-import TableLanding from '~/components/landing/TableLanding'
-import FormLanding from '~/components/landing/FormLanding'
-import StartLanding from '~/components/landing/StartLanding'
-import StoreLanding from '~/components/landing/StoreLanding'
-import VirtualLanding from '~/components/landing/VirtualLanding'
-import RangerLanding from '~/components/landing/RangerLanding'
-import PacerLanding from '~/components/landing/PacerLanding'
-import HotkeysLanding from '~/components/landing/HotkeysLanding'
-import ConfigLanding from '~/components/landing/ConfigLanding'
-import DbLanding from '~/components/landing/DbLanding'
-import AiLanding from '~/components/landing/AiLanding'
-import DevtoolsLanding from '~/components/landing/DevtoolsLanding'
-import CliLanding from '~/components/landing/CliLanding'
-import IntentLanding from '~/components/landing/IntentLanding'
-
-const landingComponents: Partial<Record<LibraryId, ComponentType>> = {
-  query: QueryLanding,
-  router: RouterLanding,
-  table: TableLanding,
-  form: FormLanding,
-  start: StartLanding,
-  store: StoreLanding,
-  virtual: VirtualLanding,
-  ranger: RangerLanding,
-  pacer: PacerLanding,
-  hotkeys: HotkeysLanding,
-  config: ConfigLanding,
-  db: DbLanding,
-  ai: AiLanding,
-  devtools: DevtoolsLanding,
-  cli: CliLanding,
-  intent: IntentLanding,
-}
+import { landingComponents } from './$version'
 
 export const Route = createFileRoute('/$libraryId/$version/')({
   head: (ctx) => {
@@ -66,17 +29,6 @@ export const Route = createFileRoute('/$libraryId/$version/')({
         noindex: library.visible === false,
       }),
     }
-  },
-  beforeLoad: ({ params }) => {
-    const { libraryId, version } = params
-    // Libraries without landing pages redirect directly to docs
-    if (!landingComponents[libraryId as LibraryId]) {
-      throw redirect({
-        to: '/$libraryId/$version/docs',
-        params: { libraryId, version } as never,
-      })
-    }
-    return undefined as never
   },
   // Stats load via Suspense in OpenSourceStats — no need to block the route loader
   component: LibraryVersionIndex,

@@ -225,13 +225,14 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         const loginEl = (
           <Link
             to="/login"
-            className="flex items-center gap-1 rounded-md px-2 py-1.5
-            bg-black dark:bg-white text-white dark:text-black
-            hover:bg-gray-800 dark:hover:bg-gray-200
-            transition-colors duration-200 text-xs font-medium"
+            aria-label="Log In"
+            className="flex shrink-0 items-center gap-1 rounded-md px-2 py-1.5 whitespace-nowrap
+             bg-black dark:bg-white text-white dark:text-black
+             hover:bg-gray-800 dark:hover:bg-gray-200
+             transition-colors duration-200 text-xs font-medium"
           >
             <User className="w-3.5 h-3.5" />
-            <span>Log In</span>
+            <span className="hidden min-[430px]:inline">Log In</span>
           </Link>
         )
 
@@ -347,7 +348,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           <span>TanStack Intent</span>
         </Link>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5 sm:gap-2">
         <div className="hidden min-[750px]:block">{socialLinks}</div>
         <div className="hidden sm:block">
           <SearchButton />

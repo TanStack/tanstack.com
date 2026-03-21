@@ -23,7 +23,6 @@ export type {
 } from './stats.types'
 
 import type {
-  GitHubStats,
   NpmPackageStats,
   NpmStats,
   OSSStatsWithDelta,
@@ -87,82 +86,6 @@ export async function fetchNpmPackageStats(
   }
 }
 
-// Database functions moved to stats-db.server.ts
-
-/**
- * Fetch NPM organization statistics with caching
- * Checks cache first, falls back to expired cache if available
- * Never computes fresh stats - scheduled tasks handle that
- */
-async function fetchNpmOrgStats(org: string): Promise<NpmStats> {
-  // Import db functions dynamically to avoid pulling server code into client bundle
-  const { getCachedNpmOrgStats, getExpiredNpmOrgStats } =
-    await import('./stats-db.server')
-
-  // Try cache first
-  const cached = await getCachedNpmOrgStats(org)
-  if (cached !== null) {
-    return cached
-  }
-
-  // Cache expired - try to use expired cache as fallback
-  const expiredCache = await getExpiredNpmOrgStats(org)
-  if (expiredCache !== null) {
-    return expiredCache
-  }
-
-  // No cache available - return zero stats
-  // Scheduled tasks will populate the cache
-  return {
-    totalDownloads: 0,
-    packageStats: {},
-  }
-}
-
-// GitHub cache functions moved to stats-db.server.ts
-
-/**
- * Calculate delta between previous and current stats
- */
-function calculateDelta(
-  previousGitHub: GitHubStats | null,
-  currentGitHub: GitHubStats,
-  previousNpm: NpmStats | null,
-  currentNpm: NpmStats,
-  timeDeltaMs: number,
-): OSSStatsWithDelta {
-  return {
-    github: currentGitHub,
-    npm: currentNpm,
-    delta: {
-      github: previousGitHub
-        ? {
-            starCount: currentGitHub.starCount - previousGitHub.starCount,
-            contributorCount:
-              currentGitHub.contributorCount - previousGitHub.contributorCount,
-            dependentCount:
-              currentGitHub.dependentCount !== undefined &&
-              previousGitHub.dependentCount !== undefined
-                ? currentGitHub.dependentCount - previousGitHub.dependentCount
-                : undefined,
-            forkCount:
-              currentGitHub.forkCount !== undefined &&
-              previousGitHub.forkCount !== undefined
-                ? currentGitHub.forkCount - previousGitHub.forkCount
-                : undefined,
-          }
-        : undefined,
-      npm: previousNpm
-        ? {
-            totalDownloads:
-              currentNpm.totalDownloads - previousNpm.totalDownloads,
-          }
-        : undefined,
-    },
-    timeDelta: timeDeltaMs,
-  }
-}
-
 /**
  * Server function to get OSS statistics
  * GitHub stats are cached separately, NPM stats are aggregated from individual package cache
@@ -180,6 +103,9 @@ export const getOSSStats = createServerFn({ method: 'POST' })
     }),
   )
   .handler(async ({ data }): Promise<OSSStatsWithDelta> => {
+    const scopeType = data.library ? 'library' : 'org'
+    const scopeKey = data.library?.id ?? 'tanstack'
+
     // Add HTTP caching headers for better performance
     // Cache for 5 minutes on CDN, allow stale content for up to 1 hour
     setResponseHeaders(
@@ -191,91 +117,19 @@ export const getOSSStats = createServerFn({ method: 'POST' })
       }),
     )
 
-    let githubCacheKey: string
-    let npmPackageNames: string[]
+    const { getCachedOssStats } = await import('./stats-db.server')
+    const stats = await getCachedOssStats(scopeType, scopeKey)
 
-    // Import db functions dynamically to avoid pulling server code into client bundle
-    const {
-      getRegisteredPackages,
-      getCachedGitHubStats,
-      getExpiredGitHubStats,
-    } = await import('./stats-db.server')
-
-    if (data.library) {
-      // Get stats for a specific library
-      githubCacheKey = data.library.repo
-
-      // Fetch registered packages for this library from the database
-      npmPackageNames = await getRegisteredPackages(data.library.id)
-
-      // If no packages are registered yet, fall back to basic package name
-      // This ensures the system works before the first package discovery run
-      if (npmPackageNames.length === 0) {
-        npmPackageNames = [`@tanstack/${data.library.id}`]
-        console.warn(
-          `[OSS Stats] No registered packages found for ${data.library.id}, using fallback:`,
-          npmPackageNames,
-        )
-      }
-    } else {
-      // Get aggregate stats for TanStack org
-      githubCacheKey = 'org:tanstack'
-      // For org stats, we'll fetch all packages via fetchNpmOrgStats
-      npmPackageNames = []
-    }
-
-    // Try to get GitHub stats from cache (prefer valid cache, fallback to expired)
-    const cachedGitHub = await getCachedGitHubStats(githubCacheKey)
-    let githubStats: GitHubStats
-    let previousGitHubStats: GitHubStats | null
-    let githubTimeDeltaMs: number = 60 * 60 * 1000 // Default 1 hour
-
-    if (cachedGitHub) {
-      githubStats = cachedGitHub.stats
-      previousGitHubStats = cachedGitHub.previousStats
-      githubTimeDeltaMs = cachedGitHub.timeDeltaMs
-    } else {
-      // Cache expired or missing - try to use expired cache as fallback
-      const expiredCache = await getExpiredGitHubStats(githubCacheKey)
-      if (expiredCache) {
-        githubStats = expiredCache.stats
-        previousGitHubStats = expiredCache.previousStats
-        githubTimeDeltaMs = expiredCache.timeDeltaMs
-      } else {
-        // No cache available - return zero stats
-        // Scheduled tasks will populate the cache
-        githubStats = {
+    return (
+      stats ?? {
+        github: {
           starCount: 0,
           contributorCount: 0,
-          // dependentCount not available via GitHub API
-        }
-        previousGitHubStats = null
-        githubTimeDeltaMs = 60 * 60 * 1000
+        },
+        npm: {
+          totalDownloads: 0,
+        },
       }
-    }
-
-    // Get NPM stats (aggregated from individual package cache)
-    let npmStats: NpmStats
-    if (data.library) {
-      npmStats = await fetchNpmPackageStats(npmPackageNames)
-    } else {
-      npmStats = await fetchNpmOrgStats('tanstack')
-    }
-
-    // Ensure totalDownloads is set (should never be undefined, but defensive check)
-    if (npmStats.totalDownloads === undefined) {
-      npmStats.totalDownloads = 0
-    }
-
-    // Calculate delta using GitHub previous stats
-    // For NPM, we'd need to track previous aggregated totals, but individual packages
-    // already have rate info, so we'll use that for interpolation
-    return calculateDelta(
-      previousGitHubStats,
-      githubStats,
-      null, // NPM delta calculated from individual package rates
-      npmStats,
-      githubTimeDeltaMs,
     )
   })
 

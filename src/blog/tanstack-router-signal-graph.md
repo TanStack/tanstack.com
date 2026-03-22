@@ -6,20 +6,20 @@ authors:
 # title: 'TanStack Router''s Granular Reactivity Rewrite'
 # title: 'Routing Is a Graph. Now Our Reactivity Is Too.'
 title: 'From One Big Router Store to a Granular Signal Graph'
-excerpt: TanStack Router now uses a granular signal graph as its reactive core. State is derived from that graph, narrowing change propagation and making client-side navigation substantially faster.
+excerpt: TanStack Router now uses a granular signal graph as its reactive core. State is derived from that graph, which narrows change propagation and makes client-side navigation faster in our benchmarks.
 ---
 
 ![veins of emerald as a signal graph embedded in the rock of a tropical island](/blog-assets/tanstack-router-signal-graph/header.jpg)
 
-TanStack Router used to center most of its reactivity around one large object: `router.state`. [This refactor](https://github.com/TanStack/router/pull/6704) replaces that broad store with a graph of smaller stores. `router.state` is no longer the internal source of truth. It is now derived from the store graph.
+TanStack Router used to keep all of its reactive state in one large object: `router.state`. [This refactor](https://github.com/TanStack/router/pull/6704) replaces that with a graph of smaller stores for the pieces of state that change independently. `router.state` still exists, but it is now derived from those stores instead of serving as the internal source of truth.
 
-This builds on TanStack Store's migration[^alien-migration] to [alien-signals](https://github.com/stackblitz/alien-signals), implemented by [@DavidKPiano](https://github.com/davidkpiano). In external benchmarks[^alien-bench], alien-signals is one of the best-performing signals implementations tested. But the main improvement here is not just a faster primitive. It is a different reactive model.
+This builds on TanStack Store's migration[^alien-migration] to [alien-signals](https://github.com/stackblitz/alien-signals), implemented by [@DavidKPiano](https://github.com/davidkpiano). In external benchmarks[^alien-bench], alien-signals performed very well. The faster primitive helps, but the bigger change is that this allows the router to track state in smaller pieces instead of routing everything through one broad store.
 
-The result is
+Concretely, this means:
 
-- better update locality,
+- more targeted updates,
 - fewer store updates during navigation,
-- substantially faster client-side navigation,
+- faster client-side navigation in our benchmarks,
 - the Solid adapter now uses native Solid signals internally.
 
 ## Old Model: One Broad Router State
@@ -35,13 +35,13 @@ That was useful. It made it possible to prototype features quickly and ship a br
 | Navigation status | `status`, `isLoading`, `isTransitioning`     | pending UI, transitions          |
 | Side effects      | `redirect`, `statusCode`                     | navigation and response handling |
 
-This did not mean every update rerendered everything. Options like `select` and `structuralSharing` could prevent propagation. But many consumers still started from a broader subscription surface than they actually needed.
+This did not mean every update rerendered everything. Options like `select` and `structuralSharing` could prevent propagation. But many consumers still subscribed to more router state than they actually needed.
 
-## Problem: Routing State Has Locality
+## Problem: Routing State Changes in Smaller Pieces
 
-Routing is not one thing that changes all at once. A navigation changes specific pieces of state with specific relationships: one match stays active, another becomes pending, one link flips state, some cached matches do not change at all.
+Routing state does not change as one unit. During a navigation, one match stays active, another becomes pending, one link changes state, and some cached matches do not change at all.
 
-The old model captured those pieces of state, but it flattened them into one main subscription surface. This is where the mismatch becomes visible:
+The old model captured those pieces of state, but all subscriptions still started from the same top-level state object. That mismatch shows up here:
 
 <figure>
 <video src="/blog-assets/tanstack-router-signal-graph/before-granular-store-graph-2.mp4" playsinline loop autoplay muted></video>
@@ -50,19 +50,19 @@ A video showing that on every stateful event in the core of the router, changes 
 </figcaption>
 </figure>
 
-The point is that `router.state` was broader than what many consumers actually needed.
+In practice, many consumers subscribed to more router state than they actually needed.
 
-## New Model: The Graph Becomes the Source of Truth
+## New Model: Smaller Stores Become the Source of Truth
 
-The new model is not just "more stores". It inverts the relationship between `router.state` and the reactive graph.
+The main change is that the smaller stores are now the source of truth, and `router.state` is rebuilt from them.
 
-The broad surface is split into smaller stores with narrower responsibilities.
+Instead of one broad state object, the router keeps separate stores with narrower responsibilities.
 
 - **top-level stores** for location, status, loading, transitions, redirects, and similar scalar state
 - **per-match stores** grouped into pools of active matches, pending matches, and cached matches.
 - **derived stores** for specific purposes like "is any match pending"
 
-`router.state` still exists for public APIs, but it is now recomputed from the store graph instead of serving as the internal source of truth.
+`router.state` still exists for public APIs, but it is now rebuilt from the store graph instead of serving as the internal source of truth.
 
 The new picture looks like this:
 
@@ -75,13 +75,13 @@ A video showing that on each stateful event in the core of the router, only a sp
 
 > [!NOTE]
 > Active, pending, and cached matches are now modeled separately because
-> they have different lifecycles. This reduces state propagation even further.
+> they have different lifecycles. This cuts down updates even further.
 
-Before, the graph was derived from `router.state`. Now, `router.state` is derived from the graph. That inversion is the refactor.
+Before, the smaller pieces of state were derived from `router.state`. Now, `router.state` is derived from the smaller stores. That is the core of this refactor.
 
 ## Hook-Level Change: Subscribe to the Relevant Store
 
-Once the graph becomes the source of truth, router internals can subscribe directly to graph nodes instead of selecting from a broad snapshot. The clearest example is `useMatch`.
+With the smaller stores as the source of truth, router internals can subscribe to the exact store they need instead of selecting from one large snapshot. The clearest example is `useMatch`.
 
 Before this refactor, `useMatch` subscribed through the big router store and then searched `state.matches` for the match it cared about. Now it resolves the relevant store first and subscribes directly to it.
 
@@ -102,11 +102,11 @@ useStore(matchStore, (match) => /* select from one match */)
 This is an internal implementation detail, not a new public API surface for application code.
 
 > [!NOTE]
-> `getMatchStoreByRouteId` creates a derived signal on demand, and stores it
-> in a Least-Recently-Used cache[^lru-cache] so it can be reused by other subscribers
+> `getMatchStoreByRouteId` creates the derived signal on demand and stores it
+> in a Least-Recently-Used cache[^lru-cache] so other subscribers can reuse it
 > without leaking memory.
 
-The store-update-count graphs below show how many times subscriptions are invoked during various routing scenarios, before (curve is the entire history) and after (last point is this refactor).[^store-update-tests]
+The store-update-count graphs below show how many times subscriptions are invoked during various routing scenarios. The last point is this refactor.[^store-update-tests]
 
 <!-- ::start:tabs -->
 
@@ -139,13 +139,13 @@ Absolute counts are not directly comparable across frameworks, because React, So
 
 <!-- ::end:tabs -->
 
-These graphs show that change propagation got narrower.
+These graphs show that fewer subscribers are triggered during navigation.
 
 ## Store Boundary: One Contract, Multiple Implementations
 
-The refactor did not only split router state into smaller stores. It also moved the store implementation behind a contract.
+The refactor also moves the store implementation behind a shared contract.
 
-The core now defines what a router store must do. Each adapter provides the implementation.
+The router core defines the interface. Each adapter provides the implementation.
 
 ```ts
 export interface RouterReadableStore<TValue> {
@@ -179,7 +179,7 @@ This keeps one router core while letting each adapter plug in the store model it
 
 ## Observable Result: Less Work During Navigation
 
-No new public API is required here. `useMatch`, `useLocation`, and `<Link>` keep the same surface. The difference is that navigation and preload flows now wake up fewer subscriptions.
+No new public API is required here. `useMatch`, `useLocation`, and `<Link>` keep the same surface. The difference is that navigation and preload flows now trigger fewer subscriptions.
 
 Our benchmarks isolate client-side navigation cost on a synthetic rerender-heavy page.[^client-nav-bench]
 
@@ -224,6 +224,8 @@ There is also a bundle-size tradeoff. In our synthetic bundle-size benchmarks, m
 - ↗ Vue increased by `~1KiB`
 - ↘ Solid decreased by `~1KiB`
 
+React and Vue increased in size because representing the router as several stores takes more code than representing it as one state object. Solid decreased in size because it no longer depends on `tanstack/store`.
+
 <!-- ::start:tabs -->
 
 #### React
@@ -257,11 +259,11 @@ Only relative changes matter in this benchmark, they are based on arbitrary apps
 
 ## Closing
 
-This refactor did not just add signals to the old model. It inverted the reactivity model.
+This refactor changes how reactivity is structured inside the router.
 
-Before, `router.state` was the broad reactive surface and the graph was derived from it. Now the graph is the primary model, and `router.state` is a compatibility snapshot derived from the graph.
+Before, `router.state` was the broad reactive surface and smaller pieces of state were derived from it. Now the smaller stores are primary, and `router.state` is a derived snapshot kept for the existing public API.
 
-Routing is a graph. Now the reactivity is one too.
+In practice, that means route changes update more locally and trigger less work during navigation.
 
 ---
 

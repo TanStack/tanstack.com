@@ -14,7 +14,7 @@ import { LibraryTestimonials } from '~/components/LibraryTestimonials'
 import { LibraryShowcases } from '~/components/ShowcaseSection'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
-import { CodeExampleCard } from '~/components/CodeExampleCard'
+import { LazyCodeExampleCard } from '~/components/LazyCodeExampleCard'
 import { StackBlitzSection } from '~/components/StackBlitzSection'
 import { FeatureGridSection } from '~/components/FeatureGridSection'
 
@@ -163,7 +163,7 @@ export default function QueryLanding() {
 
       <LibraryStatsSection library={library} />
 
-      <CodeExampleCard
+      <LazyCodeExampleCard
         frameworks={queryProject.frameworks}
         codeByFramework={codeExamples}
       />

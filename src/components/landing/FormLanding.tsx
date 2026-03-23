@@ -14,7 +14,7 @@ import { LibraryTestimonials } from '~/components/LibraryTestimonials'
 import { LibraryShowcases } from '~/components/ShowcaseSection'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
-import { CodeExampleCard } from '~/components/CodeExampleCard'
+import { LazyCodeExampleCard } from '~/components/LazyCodeExampleCard'
 import { StackBlitzSection } from '~/components/StackBlitzSection'
 
 const library = getLibrary('form')
@@ -148,7 +148,7 @@ export default function FormLanding() {
 
       <LibraryTestimonials testimonials={formProject.testimonials} />
 
-      <CodeExampleCard
+      <LazyCodeExampleCard
         frameworks={formProject.frameworks}
         codeByFramework={codeExamples}
       />

@@ -14,7 +14,7 @@ import { LibraryTestimonials } from '~/components/LibraryTestimonials'
 import { LibraryShowcases } from '~/components/ShowcaseSection'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
-import { CodeExampleCard } from '~/components/CodeExampleCard'
+import { LazyCodeExampleCard } from '~/components/LazyCodeExampleCard'
 import { StackBlitzSection } from '~/components/StackBlitzSection'
 
 const library = getLibrary('router')
@@ -78,7 +78,7 @@ export default function RouterLanding() {
 
       <LibraryStatsSection library={library} />
 
-      <CodeExampleCard
+      <LazyCodeExampleCard
         frameworks={routerProject.frameworks}
         codeByFramework={codeExamples}
       />

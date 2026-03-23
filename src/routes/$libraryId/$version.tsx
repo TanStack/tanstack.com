@@ -64,9 +64,15 @@ export const Route = createFileRoute('/$libraryId/$version')({
       })
     }
 
-    await landingComponents[libraryId as LibraryId]?.preload?.()
+    if (!ctx.location.pathname.includes('/docs')) {
+      await landingComponents[libraryId as LibraryId]?.preload?.()
+    }
   },
   loader: async (ctx) => {
+    if (!ctx.location.pathname.includes('/docs')) {
+      return { config: null }
+    }
+
     const { libraryId, version } = ctx.params
     const library = findLibrary(libraryId)
 

@@ -1,16 +1,9 @@
-import {
-  useMatch,
-  Link,
-  notFound,
-  createFileRoute,
-} from '@tanstack/react-router'
-import { DocsLayout } from '~/components/DocsLayout'
+import { Link, notFound, createFileRoute } from '@tanstack/react-router'
 import { findLibrary } from '~/libraries'
 import type { LibraryId } from '~/libraries'
 import { seo } from '~/utils/seo'
 
 import { Button } from '~/ui'
-import { ConfigSchema } from '~/utils/config'
 import { landingComponents } from './$version'
 
 export const Route = createFileRoute('/$libraryId/$version/')({
@@ -41,26 +34,13 @@ function LibraryVersionIndex() {
   if (!library) {
     throw notFound()
   }
-  const versionMatch = useMatch({ from: '/$libraryId/$version' })
-  const { config } = versionMatch.loaderData as { config: ConfigSchema }
 
   const LandingComponent = landingComponents[libraryId as LibraryId]
 
   if (!LandingComponent) {
     return (
-      <DocsLayout
-        name={library.name.replace('TanStack ', '')}
-        version={version === 'latest' ? library.latestVersion : version!}
-        colorFrom={library.accentColorFrom ?? library.colorFrom}
-        colorTo={library.accentColorTo ?? library.colorTo}
-        textColor={library.accentTextColor ?? library.textColor ?? ''}
-        config={config}
-        frameworks={library.frameworks}
-        versions={library.availableVersions}
-        repo={library.repo}
-        isLandingPage
-      >
-        <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
+      <div className="px-4 pt-32 pb-24">
+        <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4 max-w-3xl mx-auto text-center">
           <h1 className="text-2xl font-bold">{library.name}</h1>
           <p className="text-gray-600">{library.description}</p>
           <Button
@@ -71,24 +51,9 @@ function LibraryVersionIndex() {
             View Documentation
           </Button>
         </div>
-      </DocsLayout>
+      </div>
     )
   }
 
-  return (
-    <DocsLayout
-      name={library.name.replace('TanStack ', '')}
-      version={version === 'latest' ? library.latestVersion : version!}
-      colorFrom={library.accentColorFrom ?? library.colorFrom}
-      colorTo={library.accentColorTo ?? library.colorTo}
-      textColor={library.accentTextColor ?? library.textColor ?? ''}
-      config={config}
-      frameworks={library.frameworks}
-      versions={library.availableVersions}
-      repo={library.repo}
-      isLandingPage
-    >
-      <LandingComponent />
-    </DocsLayout>
-  )
+  return <LandingComponent />
 }

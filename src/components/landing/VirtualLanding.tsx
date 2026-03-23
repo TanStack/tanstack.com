@@ -17,7 +17,7 @@ import { MaintainersSection } from '~/components/MaintainersSection'
 import { LibraryTestimonials } from '~/components/LibraryTestimonials'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
-import { CodeExampleCard } from '~/components/CodeExampleCard'
+import { LazyCodeExampleCard } from '~/components/LazyCodeExampleCard'
 
 const library = getLibrary('virtual')
 
@@ -146,7 +146,7 @@ export default function VirtualLanding() {
 
       <LibraryStatsSection library={library} />
 
-      <CodeExampleCard
+      <LazyCodeExampleCard
         frameworks={virtualProject.frameworks}
         codeByFramework={codeExamples}
       />

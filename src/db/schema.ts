@@ -368,6 +368,61 @@ export type NewNpmLibraryStatsCache = InferInsertModel<
   typeof npmLibraryStatsCache
 >
 
+export const ossStatsCache = pgTable(
+  'oss_stats_cache',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    scopeType: varchar('scope_type', { length: 20 }).notNull(),
+    scopeKey: varchar('scope_key', { length: 255 }).notNull(),
+
+    githubStarCount: integer('github_star_count').notNull().default(0),
+    githubContributorCount: integer('github_contributor_count')
+      .notNull()
+      .default(0),
+    githubDependentCount: integer('github_dependent_count'),
+    githubForkCount: integer('github_fork_count'),
+    githubRepositoryCount: integer('github_repository_count'),
+
+    githubDeltaStarCount: integer('github_delta_star_count'),
+    githubDeltaContributorCount: integer('github_delta_contributor_count'),
+    githubDeltaDependentCount: integer('github_delta_dependent_count'),
+    githubDeltaForkCount: integer('github_delta_fork_count'),
+    githubUpdatedAt: timestamp('github_updated_at', {
+      withTimezone: true,
+      mode: 'date',
+    }),
+
+    npmTotalDownloads: bigint('npm_total_downloads', { mode: 'number' })
+      .notNull()
+      .default(0),
+    npmRatePerDay: real('npm_rate_per_day'),
+    npmPackageCount: integer('npm_package_count').notNull().default(0),
+    npmUpdatedAt: timestamp('npm_updated_at', {
+      withTimezone: true,
+      mode: 'date',
+    }),
+
+    timeDeltaMs: bigint('time_delta_ms', { mode: 'number' }),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    scopeUnique: uniqueIndex('oss_stats_cache_scope_unique').on(
+      table.scopeType,
+      table.scopeKey,
+    ),
+    scopeTypeIdx: index('oss_stats_cache_scope_type_idx').on(table.scopeType),
+    scopeKeyIdx: index('oss_stats_cache_scope_key_idx').on(table.scopeKey),
+  }),
+)
+
+export type OssStatsCache = InferSelectModel<typeof ossStatsCache>
+export type NewOssStatsCache = InferInsertModel<typeof ossStatsCache>
+
 // NPM Download Chunks cache table (for caching historical date range downloads)
 // This table stores immutable historical chunks and cacheable recent chunks
 // to avoid repeated API calls and rate limiting

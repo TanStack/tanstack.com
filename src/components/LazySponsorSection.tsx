@@ -1,11 +1,12 @@
 import React from 'react'
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { ArrowRight } from 'lucide-react'
 import { useIntersectionObserver } from '~/hooks/useIntersectionObserver'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
 import { Button } from '~/ui'
-import SponsorPack from './SponsorPack'
 import PlaceholderSponsorPack from './PlaceholderSponsorPack'
+
+const LazySponsorPack = React.lazy(() => import('./SponsorPack'))
 
 type LazySponsorSectionProps = {
   title?: React.ReactNode
@@ -14,13 +15,17 @@ type LazySponsorSectionProps = {
 }
 
 function SponsorPackWithQuery() {
-  const { data: sponsors } = useSuspenseQuery({
+  const { data: sponsors } = useQuery({
     queryKey: ['sponsors'],
     queryFn: () => getSponsorsForSponsorPack(),
     staleTime: 5 * 60 * 1000, // 5 minutes
   })
 
-  return <SponsorPack sponsors={sponsors} />
+  if (!sponsors) {
+    return <PlaceholderSponsorPack />
+  }
+
+  return <LazySponsorPack sponsors={sponsors} />
 }
 
 export function LazySponsorSection({

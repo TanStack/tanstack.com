@@ -9,11 +9,10 @@ import { intentProject } from '~/libraries/intent'
 import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
-import { PartnersSection } from '~/components/PartnersSection'
-import { MaintainersSection } from '~/components/MaintainersSection'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
 import { Button } from '~/ui'
+import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 import {
   intentStatsQueryOptions,
   intentDirectoryQueryOptions,
@@ -59,8 +58,11 @@ export default function IntentLanding() {
         featureHighlights={intentProject.featureHighlights}
       />
 
-      <MaintainersSection libraryId="intent" />
-      <PartnersSection libraryId="intent" />
+      <LazyLandingCommunitySection
+        libraryId="intent"
+        libraryName="TanStack Intent"
+        showShowcases={false}
+      />
       <LazySponsorSection />
       <LandingPageGad />
 

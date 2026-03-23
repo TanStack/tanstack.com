@@ -1,7 +1,5 @@
 import { Footer } from '~/components/Footer'
 import { LibraryHero } from '~/components/LibraryHero'
-import { PartnersSection } from '~/components/PartnersSection'
-import { MaintainersSection } from '~/components/MaintainersSection'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { BottomCTA } from '~/components/BottomCTA'
 import { pacerProject } from '~/libraries/pacer'
@@ -11,6 +9,7 @@ import LandingPageGad from '~/components/LandingPageGad'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
 import { FeatureGridSection } from '~/components/FeatureGridSection'
+import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 
 const library = getLibrary('pacer')
 
@@ -62,8 +61,11 @@ export default function PacerLanding() {
         gridClassName="grid grid-flow-row grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-10 gap-y-4 mx-auto"
       />
 
-      <MaintainersSection libraryId="pacer" />
-      <PartnersSection libraryId="pacer" />
+      <LazyLandingCommunitySection
+        libraryId="pacer"
+        libraryName="TanStack Pacer"
+        showShowcases={false}
+      />
       <LazySponsorSection />
       <LandingPageGad />
 

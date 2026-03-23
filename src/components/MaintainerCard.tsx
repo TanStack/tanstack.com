@@ -224,12 +224,14 @@ export function CompactMaintainerCard({
       aria-label={`View ${maintainer.name}'s GitHub profile`}
       className="group relative aspect-square block rounded-lg shadow-xs border border-gray-200 dark:border-gray-800 overflow-hidden"
       tabIndex={0}
-      style={{
-        backgroundImage: `url(${maintainer.avatar})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }}
     >
+      <img
+        alt={`Avatar of ${maintainer.name}`}
+        className="absolute inset-0 w-full h-full object-cover"
+        src={maintainer.avatar}
+        loading="lazy"
+        decoding="async"
+      />
       <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />
       <div className="absolute inset-0 p-3 flex flex-col justify-end">
         <div className="text-white">

@@ -2,8 +2,6 @@ import * as React from 'react'
 import { ClientOnly } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { LibraryHero } from '~/components/LibraryHero'
-import { PartnersSection } from '~/components/PartnersSection'
-import { MaintainersSection } from '~/components/MaintainersSection'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { BottomCTA } from '~/components/BottomCTA'
 import { hotkeysProject } from '~/libraries/hotkeys'
@@ -13,6 +11,7 @@ import LandingPageGad from '~/components/LandingPageGad'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
 import { FeatureGridSection } from '~/components/FeatureGridSection'
+import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 
 const library = getLibrary('hotkeys')
 
@@ -75,8 +74,11 @@ export default function HotkeysLanding() {
         gridClassName="grid grid-flow-row grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-10 gap-y-4 mx-auto"
       />
 
-      <MaintainersSection libraryId="hotkeys" />
-      <PartnersSection libraryId="hotkeys" />
+      <LazyLandingCommunitySection
+        libraryId="hotkeys"
+        libraryName="TanStack Hotkeys"
+        showShowcases={false}
+      />
       <LazySponsorSection />
       <LandingPageGad />
 

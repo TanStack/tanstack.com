@@ -1,11 +1,8 @@
 ---
-published: 2026-03-15
+published: 2026-03-24
 authors:
   - Florian Pellet
-# title: 'How TanStack Router Became Granularly Reactive'
-# title: 'TanStack Router''s Granular Reactivity Rewrite'
-# title: 'Routing Is a Graph. Now Our Reactivity Is Too.'
-title: 'From One Big Router Store to a Granular Signal Graph'
+title: "TanStack Router's New Reactive Core: A Signal Graph"
 excerpt: TanStack Router now uses a granular signal graph as its reactive core. State is derived from that graph, which narrows change propagation and makes client-side navigation faster in our benchmarks.
 ---
 

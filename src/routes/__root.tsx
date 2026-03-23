@@ -31,6 +31,13 @@ import { Navbar } from '~/components/Navbar'
 import { THEME_COLORS } from '~/utils/utils'
 import { useHubSpotChat } from '~/hooks/useHubSpotChat'
 
+declare global {
+  interface Window {
+    dataLayer: unknown[] | undefined
+    gtag: ((...args: unknown[]) => void) | undefined
+  }
+}
+
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
 }>()({
@@ -194,15 +201,6 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
             <SearchHotkeyController />
           </ToastProvider>
         </LoginModalProvider>
-        <noscript>
-          <iframe
-            src="https://www.googletagmanager.com/ns.html?id=GTM-5N57KQT4"
-            height="0"
-            width="0"
-            style={{ display: 'none', visibility: 'hidden' }}
-            title="gtm"
-          ></iframe>
-        </noscript>
         <Scripts />
       </body>
     </html>
@@ -247,9 +245,9 @@ function SearchHotkeyController() {
 
 function IdleGtmLoader() {
   React.useEffect(() => {
-    const gtmId = 'GTM-5N57KQT4'
+    const gaId = 'G-JMT1Z50SPS'
     const existingScript = document.querySelector<HTMLScriptElement>(
-      `script[src*="googletagmanager.com/gtm.js?id=${gtmId}"]`,
+      `script[src*="googletagmanager.com/gtag/js?id=${gaId}"]`,
     )
 
     if (existingScript) return
@@ -259,14 +257,18 @@ function IdleGtmLoader() {
         window.dataLayer = []
       }
 
-      window.dataLayer.push({
-        'gtm.start': Date.now(),
-        event: 'gtm.js',
-      })
+      if (!window.gtag) {
+        window.gtag = (...args: unknown[]) => {
+          window.dataLayer?.push(args)
+        }
+      }
+
+      window.gtag('js', new Date())
+      window.gtag('config', gaId)
 
       const script = document.createElement('script')
       script.async = true
-      script.src = `https://www.googletagmanager.com/gtm.js?id=${gtmId}`
+      script.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`
       document.head.appendChild(script)
     }
 

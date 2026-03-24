@@ -2,8 +2,11 @@ import { notFound, redirect, createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { PostNotFound } from './blog'
 import { createServerFn } from '@tanstack/react-start'
-import { formatAuthors } from '~/utils/blog'
-import { format } from '~/utils/dates'
+import {
+  formatAuthors,
+  formatPublishedDate,
+  isPublishedDateReleased,
+} from '~/utils/blog'
 import * as v from 'valibot'
 import { setResponseHeaders } from '@tanstack/react-start/server'
 import { allPosts } from 'content-collections'
@@ -52,9 +55,7 @@ const fetchBlogPost = createServerFn({ method: 'GET' })
       }),
     )
 
-    const now = new Date()
-    const publishDate = new Date(post.published)
-    const isUnpublished = post.draft || publishDate > now
+    const isUnpublished = post.draft || !isPublishedDateReleased(post.published)
     return {
       title: post.title,
       description: post.excerpt,
@@ -108,9 +109,8 @@ export const Route = createFileRoute('/blog/$')({
 function BlogPost() {
   const { title, content, filePath, authors, published } = Route.useLoaderData()
 
-  const blogContent = `<small>_by ${formatAuthors(authors)} on ${format(
-    new Date(published || 0),
-    'MMMM d, yyyy',
+  const blogContent = `<small>_by ${formatAuthors(authors)} on ${formatPublishedDate(
+    published || '1970-01-01',
   )}._</small>
 
 ${content}`

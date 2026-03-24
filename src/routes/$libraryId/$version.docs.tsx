@@ -44,6 +44,10 @@ function DocsRoute() {
   const versionMatch = useMatch({ from: '/$libraryId/$version' })
   const { config } = versionMatch.loaderData as { config: ConfigSchema }
 
+  if (!config) {
+    throw notFound()
+  }
+
   return (
     <DocsLayout
       name={library.name.replace('TanStack ', '')}

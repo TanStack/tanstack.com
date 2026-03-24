@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { fetchRecentPosts } from '~/server/blog'
-import { format } from '~/utils/dates'
+import { formatPublishedDate } from '~/utils/blog'
 import { Suspense } from 'react'
 
 function RecentPostsList() {
@@ -34,7 +34,7 @@ function RecentPostsList() {
               {post.title}
             </span>
             <span className="text-[10px] text-gray-500 dark:text-gray-500">
-              {format(new Date(post.published), 'MMM d, yyyy')}
+              {formatPublishedDate(post.published)}
             </span>
           </Link>
         ))}

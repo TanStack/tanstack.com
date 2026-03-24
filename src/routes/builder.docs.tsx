@@ -121,7 +121,9 @@ function RouteComponent() {
               use the CLI directly:
             </p>
             <pre className="bg-gray-100 dark:bg-gray-900 p-4 rounded-lg overflow-x-auto text-sm">
-              {`npx @tanstack/cli create my-app`}
+              <code className="text-gray-800 dark:text-gray-200">
+                npx @tanstack/cli create my-app
+              </code>
             </pre>
             <p className="text-gray-600 dark:text-gray-400 mt-4">
               For full CLI documentation, see the{' '}

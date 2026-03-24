@@ -27,7 +27,9 @@ If you have been watching TanStack DB and waiting for it to feel like a more com
 
 If you're upgrading an existing app, you can jump straight to the [migration notes](#migration-notes).
 
-Finally, we are also putting out [a call for server-side rendering (SSR) design partners](#toward-v1-help-us-get-ssr-right) as we work toward v1.
+We are also putting out [a call for server-side rendering (SSR) design partners](#toward-v1-help-us-get-ssr-right) as we work toward v1.
+
+Finally, [PowerSync](https://www.powersync.com/) and [Trailbase](https://trailbase.io/) now support incremental sync with TanStack DB. We previously announced incremental sync for Query Collections and ElectricSQL in [TanStack DB 0.5: Query-Driven Sync](/blog/tanstack-db-0.5-query-driven-sync), and this extends that model to more sync backends.
 
 ## Shopping List Demo App
 

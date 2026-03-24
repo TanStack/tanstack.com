@@ -6,7 +6,7 @@ authors:
   - Tanner Linsley
 ---
 
-![We Removed Third-Party Ads. tanstack.com Got Faster.](/blog-assets/removing-third-party-ads-made-tanstack-com-faster/header.jpg)
+![We Removed Third-Party Ads. tanstack.com Got Faster.](/blog-assets/removing-third-party-ads/header.jpg)
 
 For a long time, third-party ads on tanstack.com sat in an uncomfortable category for me: useful, but increasingly hard to justify.
 

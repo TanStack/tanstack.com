@@ -69,10 +69,6 @@ export const Route = createFileRoute('/$libraryId/$version')({
     }
   },
   loader: async (ctx) => {
-    if (!ctx.location.pathname.includes('/docs')) {
-      return { config: null }
-    }
-
     const { libraryId, version } = ctx.params
     const library = findLibrary(libraryId)
 

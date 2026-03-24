@@ -16,7 +16,7 @@ import { MaintainerCard } from '~/components/MaintainerCard'
 import { coreMaintainers } from '~/libraries/maintainers'
 import { useToast } from '~/components/ToastProvider'
 import { formatAuthors } from '~/utils/blog'
-import { format } from '~/utils/dates'
+import { formatPublishedDate } from '~/utils/blog'
 import { NetlifyImage } from '~/components/NetlifyImage'
 import { fetchRecentPosts } from '~/server/blog'
 
@@ -436,17 +436,10 @@ function Index() {
                                 {published ? (
                                   <time
                                     dateTime={published}
-                                    title={format(
-                                      new Date(published),
-                                      'MMM dd, yyyy',
-                                    )}
+                                    title={formatPublishedDate(published)}
                                   >
                                     {' '}
-                                    on{' '}
-                                    {format(
-                                      new Date(published),
-                                      'MMM dd, yyyy',
-                                    )}
+                                    on {formatPublishedDate(published)}
                                   </time>
                                 ) : null}
                               </div>

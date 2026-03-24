@@ -1,8 +1,11 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { Card } from '~/components/Card'
-import { formatAuthors, getPublishedPosts } from '~/utils/blog'
+import {
+  formatAuthors,
+  formatPublishedDate,
+  getPublishedPosts,
+} from '~/utils/blog'
 
-import { format } from '~/utils/dates'
 import { Footer } from '~/components/Footer'
 import { PostNotFound } from './blog'
 import { createServerFn } from '@tanstack/react-start'
@@ -125,13 +128,10 @@ function BlogIndex() {
                             {published ? (
                               <time
                                 dateTime={published}
-                                title={format(
-                                  new Date(published),
-                                  'MMM d, yyyy',
-                                )}
+                                title={formatPublishedDate(published)}
                               >
                                 {' '}
-                                on {format(new Date(published), 'MMM d, yyyy')}
+                                on {formatPublishedDate(published)}
                               </time>
                             ) : null}
                           </div>

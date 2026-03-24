@@ -28,6 +28,88 @@ import type {
   OSSStatsWithDelta,
 } from './stats.types'
 
+interface NpmDailyDownload {
+  day: string
+  downloads: number
+}
+
+function toIsoDayUtc(date: Date): string {
+  return date.toISOString().slice(0, 10)
+}
+
+function addUtcDays(day: string, amount: number): string {
+  const date = new Date(`${day}T00:00:00.000Z`)
+  date.setUTCDate(date.getUTCDate() + amount)
+  return toIsoDayUtc(date)
+}
+
+/**
+ * NPM sometimes reports ecosystem-wide zero days.
+ *
+ * For isolated zero days after a package has active traffic, backfill with the
+ * same weekday from the previous week (day - 7), with up to 4 weeks fallback
+ * when consecutive anomaly weeks occur.
+ */
+function backfillZeroAnomalyDays(
+  dailyDownloads: NpmDailyDownload[],
+  today: string,
+): NpmDailyDownload[] {
+  if (dailyDownloads.length < 8) {
+    return dailyDownloads
+  }
+
+  const sorted = [...dailyDownloads].sort((a, b) => a.day.localeCompare(b.day))
+  const originalByDay = new Map(
+    sorted.map((d) => [d.day, d.downloads] as const),
+  )
+  const result = sorted.map((d) => ({ ...d }))
+  const correctedByDay = new Map(
+    result.map((d) => [d.day, d.downloads] as const),
+  )
+
+  let seenNonZero = false
+
+  for (const point of result) {
+    if (point.downloads > 0) {
+      seenNonZero = true
+      continue
+    }
+
+    if (!seenNonZero || point.day === today) {
+      continue
+    }
+
+    let previousWeekDownloads: number | undefined
+    for (let weeksBack = 1; weeksBack <= 4; weeksBack++) {
+      const previousWeekDay = addUtcDays(point.day, -7 * weeksBack)
+      const candidate = correctedByDay.get(previousWeekDay)
+      if (candidate !== undefined && candidate > 0) {
+        previousWeekDownloads = candidate
+        break
+      }
+    }
+
+    if (!previousWeekDownloads) {
+      continue
+    }
+
+    // Guard against filling true inactivity periods.
+    const hasNearbyNonZero = [-3, -2, -1, 1, 2, 3].some((offset) => {
+      const nearbyDownloads = originalByDay.get(addUtcDays(point.day, offset))
+      return nearbyDownloads !== undefined && nearbyDownloads > 0
+    })
+
+    if (!hasNearbyNonZero) {
+      continue
+    }
+
+    point.downloads = previousWeekDownloads
+    correctedByDay.set(point.day, previousWeekDownloads)
+  }
+
+  return result
+}
+
 /**
  * Fetch NPM package statistics for multiple packages
  * Aggregates stats from individual package cache
@@ -370,10 +452,12 @@ export const fetchNpmDownloadsBulk = createServerFn({ method: 'POST' })
               new Date(a.day).getTime() - new Date(b.day).getTime(),
           )
 
+        const correctedDownloads = backfillZeroAnomalyDays(allDownloads, today)
+
         return {
           name: pkg.name,
           hidden: pkg.hidden,
-          downloads: allDownloads,
+          downloads: correctedDownloads,
         }
       })
 

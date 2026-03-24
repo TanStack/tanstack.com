@@ -5,8 +5,6 @@ import { Footer } from '~/components/Footer'
 import { Card } from '~/components/Card'
 import { LibraryHero } from '~/components/LibraryHero'
 import { FeatureGrid } from '~/components/FeatureGrid'
-import { PartnersSection } from '~/components/PartnersSection'
-import { MaintainersSection } from '~/components/MaintainersSection'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { StackBlitzEmbed } from '~/components/StackBlitzEmbed'
 import { FrameworkIconTabs } from '~/components/FrameworkIconTabs'
@@ -17,9 +15,9 @@ import { getExampleStartingPath } from '~/utils/sandbox'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
 import { LibraryTestimonials } from '~/components/LibraryTestimonials'
-import { LibraryShowcases } from '~/components/ShowcaseSection'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
+import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 
 const library = getLibrary('table')
 
@@ -421,12 +419,10 @@ export default function TableLanding() {
         </div>
       </div>
 
-      <MaintainersSection libraryId="table" />
-      <PartnersSection libraryId="table" />
-
-      <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-        <LibraryShowcases libraryId="table" libraryName="TanStack Table" />
-      </div>
+      <LazyLandingCommunitySection
+        libraryId="table"
+        libraryName="TanStack Table"
+      />
 
       <LazySponsorSection />
       <LandingPageGad />

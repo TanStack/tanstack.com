@@ -2,8 +2,6 @@ import { useParams } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { LibraryHero } from '~/components/LibraryHero'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
-import { PartnersSection } from '~/components/PartnersSection'
-import { MaintainersSection } from '~/components/MaintainersSection'
 import { BottomCTA } from '~/components/BottomCTA'
 import { QueryGGBanner } from '~/components/QueryGGBanner'
 import { queryProject } from '~/libraries/query'
@@ -11,10 +9,10 @@ import { Framework, getBranch, getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
 import { LibraryTestimonials } from '~/components/LibraryTestimonials'
-import { LibraryShowcases } from '~/components/ShowcaseSection'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
-import { CodeExampleCard } from '~/components/CodeExampleCard'
+import { LazyCodeExampleCard } from '~/components/LazyCodeExampleCard'
+import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 import { StackBlitzSection } from '~/components/StackBlitzSection'
 import { FeatureGridSection } from '~/components/FeatureGridSection'
 
@@ -163,7 +161,7 @@ export default function QueryLanding() {
 
       <LibraryStatsSection library={library} />
 
-      <CodeExampleCard
+      <LazyCodeExampleCard
         frameworks={queryProject.frameworks}
         codeByFramework={codeExamples}
       />
@@ -223,12 +221,10 @@ export default function QueryLanding() {
         title={(framework) => `tannerlinsley/${framework}-query: basic`}
       />
 
-      <MaintainersSection libraryId="query" />
-      <PartnersSection libraryId="query" />
-
-      <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-        <LibraryShowcases libraryId="query" libraryName="TanStack Query" />
-      </div>
+      <LazyLandingCommunitySection
+        libraryId="query"
+        libraryName="TanStack Query"
+      />
 
       <div className="px-4">
         <QueryGGBanner />

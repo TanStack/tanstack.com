@@ -1,7 +1,5 @@
 import { Footer } from '~/components/Footer'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
-import { PartnersSection } from '~/components/PartnersSection'
-import { MaintainersSection } from '~/components/MaintainersSection'
 import { BottomCTA } from '~/components/BottomCTA'
 import { dbProject } from '~/libraries/db'
 import { LibraryHero } from '~/components/LibraryHero'
@@ -10,6 +8,7 @@ import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
+import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 
 const library = getLibrary('db')
 
@@ -72,8 +71,11 @@ export default function DbLanding() {
         </div>
       </div>
 
-      <MaintainersSection libraryId="db" />
-      <PartnersSection libraryId="db" />
+      <LazyLandingCommunitySection
+        libraryId="db"
+        libraryName="TanStack DB"
+        showShowcases={false}
+      />
       <LazySponsorSection />
       <LandingPageGad />
 

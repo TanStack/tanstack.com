@@ -6,11 +6,10 @@ import { devtoolsProject } from '~/libraries/devtools'
 import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
-import { PartnersSection } from '~/components/PartnersSection'
-import { MaintainersSection } from '~/components/MaintainersSection'
 import { CheckCircleIcon } from '~/components/icons/CheckCircleIcon'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
+import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 
 const library = getLibrary('devtools')
 
@@ -64,8 +63,11 @@ export default function DevtoolsLanding() {
         </div>
       </div>
 
-      <MaintainersSection libraryId="devtools" />
-      <PartnersSection libraryId="devtools" />
+      <LazyLandingCommunitySection
+        libraryId="devtools"
+        libraryName="TanStack Devtools"
+        showShowcases={false}
+      />
       <LazySponsorSection />
       <LandingPageGad />
 

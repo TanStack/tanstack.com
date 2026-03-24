@@ -6,10 +6,9 @@ import { storeProject } from '~/libraries/store'
 import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
-import { PartnersSection } from '~/components/PartnersSection'
-import { MaintainersSection } from '~/components/MaintainersSection'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
+import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 
 const library = getLibrary('store')
 
@@ -35,8 +34,11 @@ export default function StoreLanding() {
         featureHighlights={storeProject.featureHighlights}
       />
 
-      <MaintainersSection libraryId="store" />
-      <PartnersSection libraryId="store" />
+      <LazyLandingCommunitySection
+        libraryId="store"
+        libraryName="TanStack Store"
+        showShowcases={false}
+      />
       <LazySponsorSection />
       <LandingPageGad />
 

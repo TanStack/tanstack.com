@@ -7,11 +7,10 @@ import { LibraryHero } from '~/components/LibraryHero'
 import { getBranch, getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
-import { PartnersSection } from '~/components/PartnersSection'
-import { MaintainersSection } from '~/components/MaintainersSection'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
 import { StackBlitzSection } from '~/components/StackBlitzSection'
+import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 
 const library = getLibrary('ranger')
 
@@ -56,8 +55,11 @@ export default function RangerLanding() {
         title="tannerlinsley/react-ranger: basic"
       />
 
-      <MaintainersSection libraryId="ranger" />
-      <PartnersSection libraryId="ranger" />
+      <LazyLandingCommunitySection
+        libraryId="ranger"
+        libraryName="TanStack Ranger"
+        showShowcases={false}
+      />
       <LazySponsorSection />
       <LandingPageGad />
 

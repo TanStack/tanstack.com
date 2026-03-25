@@ -6,7 +6,7 @@ export const Route = createFileRoute('/sitemap.xml')({
   server: {
     handlers: {
       GET: async ({ request }: { request: Request }) => {
-        const content = generateSitemapXml(getSiteOrigin(request))
+        const content = await generateSitemapXml(getSiteOrigin(request))
 
         setResponseHeader('Content-Type', 'application/xml; charset=utf-8')
         setResponseHeader(

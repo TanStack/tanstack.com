@@ -10,26 +10,26 @@ authors:
 
 ![Persistence, Offline Support, and Hierarchical Data](/blog-assets/tanstack-db-0.6-app-ready-with-persistence-and-includes/header.jpg)
 
-TanStack DB 0.6 is the release that brings some highly anticipated features many of you have been asking for, making it much more ergonomic for app development.
+With v0.6 of TanStack DB, we're bringing some highly anticipated features and improving the ergonomics for app development.
 
-You can now project normalized data into the same hierarchical structure as your UI. You can optionally persist local state with a SQLite-backed persistence layer across runtimes. You can trigger reactive side effects from live queries. You can build outbox views and WhatsApp-like delivery indicators directly from row metadata. And a few APIs that used to rely on implicit magic are now explicit and uniform.
+You can now project normalized data into the same hierarchical shape as your UI, persist local state across runtimes with a SQLite-backed layer, and trigger reactive side effects directly from live queries. Row metadata unlocks outbox views and delivery indicators (think WhatsApp-style), and APIs that previously relied on implicit behavior are now explicit and consistent.
 
-Here is what shipped:
+Here’s what shipped:
 
-- [Persistent local state](#persistent-local-state) with adapters for SQLite persistence across browser, React Native, Expo, Node, Electron, Capacitor, Tauri, and Cloudflare Durable Objects
+- [Persistent local state](#persistent-local-state) via SQLite-backed adapters across browser, React Native, Expo, Node, Electron, Capacitor, Tauri, and Cloudflare Durable Objects
 - [Includes](#includes-project-your-data-into-the-same-shape-as-your-ui) for projecting normalized data into the hierarchical structure of your UI. Similar to GraphQL, but without the need for new infrastructure.
-- [`createEffect`](#createeffect-reactive-side-effects-for-workflows-tools-and-agents) for workflows, side effects, and agent-style automation
-- [Virtual props](#virtual-props-outboxes-delivery-state-and-row-provenance) like `$synced` and `$origin` for outbox views, sync indicators, and provenance-aware queries
-- [`queryOnce`](#queryonce) for one-shot queries using the same query language as live queries
-- Indexes are now opt-in, and we removed the magic return behavior from mutation handlers - see [migration notes](#migration-notes) for details
+- [`createEffect`](#createeffect-reactive-side-effects-for-workflows-tools-and-agents) for reactive workflows, side effects, and agent-style automation
+- [Virtual props](#virtual-props-outboxes-delivery-state-and-row-provenance) (`$synced`, `$origin`) for outbox views, sync indicators, and provenance-aware queries
+- [`queryOnce`](#queryonce) for one-shot queries using the same language as live queries
+- Indexes are now opt-in, and mutation handlers no longer rely on implicit return behavior (see [migration notes](#migration-notes))
 
-If you have been watching TanStack DB and waiting for it to feel like a more complete application data layer, this is the release for you.
+If you have been watching TanStack DB and waiting for it to feel like a more complete application data layer, this release moves it in that direction.
 
-If you're upgrading an existing app, you can jump straight to the [migration notes](#migration-notes).
+If you're upgrading an existing app, jump straight to the [migration notes](#migration-notes).
 
 We are also putting out [a call for server-side rendering (SSR) design partners](#toward-v1-help-us-get-ssr-right) as we work toward v1.
 
-Finally, [PowerSync](https://www.powersync.com/) and [Trailbase](https://trailbase.io/) now support incremental sync with TanStack DB. We previously announced incremental sync for Query Collections and ElectricSQL in [TanStack DB 0.5: Query-Driven Sync](/blog/tanstack-db-0.5-query-driven-sync), and this extends that model to more sync backends.
+Finally, [PowerSync](https://www.powersync.com/) and [Trailbase](https://trailbase.io/) now support incremental sync with TanStack DB. This builds on the incremental sync model introduced for Query Collections and ElectricSQL in [TanStack DB 0.5: Query-Driven Sync](/blog/tanstack-db-0.5-query-driven-sync), extending it to additional backends.
 
 ## Shopping List Demo App
 
@@ -45,32 +45,32 @@ One of the best examples of what 0.6 unlocks is our React Native shopping list d
   allowfullscreen
 ></iframe>
 
-It starts from persisted SQLite state through `op-sqlite`, projects normalized data into a hierarchical UI shape with [includes](#includes-project-your-data-into-the-same-shape-as-your-ui), and still keeps TanStack DB's fine-grained reactivity underneath. But the really important thing is what that persistence unlocks when you pair it with [`@tanstack/offline-transactions`](https://github.com/TanStack/db/tree/main/packages/offline-transactions).
+It starts with persisted SQLite state via `op-sqlite`, projects normalized data into a hierarchical UI shape with [includes](#includes-project-your-data-into-the-same-shape-as-your-ui), and retains TanStack DB’s fine-grained reactivity underneath. The key shift is what that persistence enables when paired with [`@tanstack/offline-transactions`](https://github.com/TanStack/db/tree/main/packages/offline-transactions).
 
 TanStack DB already had the query engine, transaction model, optimistic updates, and the offline transaction API. Persistence was the missing piece. Once local state is durable, that stack can add up to something fully local-first instead of only feeling local while the app is open.
 
 ### More than local-first
 
-Persistence is the feature people asked for, but it does not define TanStack DB. The core idea is simpler: put a real transactional query engine on the client, and let storage and synchronization live wherever they belong. Local-first is one configuration of that. Server-authoritative with fast optimistic updates is another. Both are supported by the same primitives.
+Persistence is the most requested feature, but it does not define TanStack DB. The core idea is simpler: put a real transactional query engine on the client, and let storage and synchronization live wherever they belong. Local-first is one configuration of that. Server-authoritative with fast optimistic updates is another. Both are supported by the same primitives.
 
 ## Persistent local state
 
 Persistence is the biggest practical unlock in 0.6.
 
-We wanted a persistence layer for a while, and a lot of you have asked for it too. The problem space was always broader than just "save some rows to disk":
+We’ve wanted a persistence layer for a while, and many of you have asked for it. The problem space was always broader than just "save some rows to disk":
 
-- persistence is not only about faster startup
-- it needs to compose with synced remote state and optimistic local state
-- it needs to work across multiple runtimes
-- it needs to support large datasets without assuming everything lives in memory
-- it needs to work across multiple tabs and windows
-- and it needs a sane approach to schema evolution
+- not just faster startup
+- must compose with synced remote state and optimistic local state
+- must work across runtimes
+- must handle large datasets without assuming everything lives in memory
+- must support multiple tabs and windows
+- must have a sane approach to schema evolution
 
-That led us to a pragmatic choice: **use SQLite as the persistence layer**.
+That led to a pragmatic choice: **use SQLite as the persistence layer**.
 
-That gives TanStack DB one persistence model that can span:
+This gives TanStack DB a single persistence model that spans:
 
-- browser via a WASM build of SQLite
+- browser (via SQLite WASM)
 - React Native and Expo
 - Node
 - Electron
@@ -78,9 +78,9 @@ That gives TanStack DB one persistence model that can span:
 - Capacitor
 - Cloudflare Durable Objects
 
-Instead of implementing a different storage layer for each environment, we can keep one persistence model and swap in runtime-specific adapters. The result is optional persistent local state that enables local-first applications, without limiting TanStack DB to local-first use cases.
+Instead of building separate storage layers per environment, TanStack DB keeps one model with runtime-specific adapters. The result is optional persistent local state that enables local-first applications without constraining other architectures.
 
-For synced collections, persistence does **not** change the source of truth. The server is still authoritative. Persistence gives you a durable local base to start from quickly, work against offline, and then reconcile back to the upstream source of truth when sync resumes.
+For synced collections, persistence does **not** change the source of truth. The server remains authoritative. Persistence provides a durable local base for fast startup, offline work, and reconciliation back to the upstream source of truth when sync resumes.
 
 In practice, the React Native setup looks like this:
 
@@ -124,7 +124,7 @@ export const shoppingItemsCollection = createCollection(
 )
 ```
 
-That gives you a durable local base for a synced collection. Pair it with `@tanstack/offline-transactions`, and you also get durable writes for a local-first flow.
+That gives you a durable local base for a synced collection. Paired with `@tanstack/offline-transactions`, it also enables durable writes for a local-first flow.
 
 You can also use `persistedCollectionOptions(...)` without wrapping another synced collection config at all. In that mode, it is simply local state persisted to SQLite:
 
@@ -139,28 +139,28 @@ const localDraftsCollection = createCollection(
 )
 ```
 
-`schemaVersion` is the switch that keeps those two modes honest. For synced collections, changing it tells TanStack DB to clear the persisted local copy and re-sync from the server. For unsynced local-only collections, changing it throws and requires the application to migrate the data itself.
+`schemaVersion` is the switch that keeps these modes honest. For synced collections, changing it clears the persisted local copy and triggers a re-sync from the server. For unsynced local-only collections, changing it throws and requires the application to handle migration explicitly.
 
-That same persistence story also opens the door to runtimes outside the UI. As you'll see later in [createEffect](#createeffect-reactive-side-effects-for-workflows-tools-and-agents), a persistent TanStack DB running in something like a Cloudflare Durable Object starts to look a lot like a state engine for workflows and agents.
+This same persistence story also extends beyond UI runtimes. As shown later in [createEffect](#createeffect-reactive-side-effects-for-workflows-tools-and-agents), a persistent TanStack DB running in environments like Cloudflare Durable Objects starts to resemble a state engine for workflows and agents.
 
 ### Why SQLite
 
-Using SQLite in the browser is the pragmatic choice for users and for the project.
+Using SQLite in the browser is a pragmatic choice for both users and the project.
 
-We considered a split design where the browser would use IndexedDB directly to avoid the SQLite WASM download. But that would have meant a more awkward indexing model, more awkward connection management, and a split query architecture where the browser behaved differently from every other runtime. One of the sharpest edges was that adding indexes required disconnecting all active connections first, which does not play well with the dynamic nature of TanStack DB.
+We considered a split design where the browser used IndexedDB directly to avoid the SQLite WASM download. That path introduced tradeoffs: a more awkward indexing model, more complex connection management, and a divergent query architecture where the browser behaved differently from other runtimes. One sharp edge was that adding indexes required disconnecting all active connections, which does not fit well with TanStack DB’s dynamic usage.
 
-Standardizing on one persistence engine keeps the design simpler and lets us carry the same persistence model into mobile, desktop, server, edge, and agent-style runtimes instead of inventing a different system for each one.
+Standardizing on a single persistence engine keeps the model consistent and allows it to extend across mobile, desktop, server, edge, and agent-style runtimes without introducing per-environment complexity.
 
-We also weighed the cost of the WASM bundle. In practice, if users are already syncing data to their devices, the extra cost of shipping SQLite WASM is relatively small. They are already pulling down meaningful application data, so paying a bit more upfront for a much cleaner persistence and query model feels like the right tradeoff.
+We also evaluated the cost of the WASM bundle. In practice, for apps already syncing data to the client, the additional cost is relatively small. The tradeoff favors a more consistent persistence and query model over minimizing initial payload size.
 
 ### Why this matters
 
 In practice, 0.6 gives you:
 
-- fast restarts for your apps
-- local state, both synced and pending mutations, can survive reloads and app restarts
-- offline-friendly UX becomes much more practical
-- the same DB mental model applies to all runtimes: mobile, browser, desktop, server, edge, and even AI agents
+- faster restarts
+- durable local state, including synced data and pending mutations
+- more practical offline-first UX
+- a consistent DB mental model across mobile, browser, desktop, server, edge, and agent runtimes
 
 This is the first _alpha_ release of persistence, and so we want to hear your feedback.
 
@@ -168,11 +168,11 @@ This is the first _alpha_ release of persistence, and so we want to hear your fe
 
 All UIs are hierarchical.
 
-But most data systems make you choose between flat relational queries that you then reshape manually, or nested loading patterns that create N+1 query problems and duplicated work.
+Most data systems force a tradeoff: flat relational queries that require manual reshaping, or nested loading patterns that introduce N+1 queries and duplicated work.
 
 GraphQL tackles a similar problem from the server side: give the UI a hierarchical shape without forcing every client to manually stitch flat records back together.
 
-`includes` is TanStack DB's answer to that same problem from the client side. It lets you retrieve normalized data and project it directly into the hierarchical structure rendered by your UI, over any TanStack DB data source, without needing GraphQL-specific infrastructure.
+`includes` brings that same idea to the client. It lets you retrieve normalized data and project it directly into the hierarchical structure your UI renders—across any TanStack DB data source, without requiring GraphQL infrastructure.
 
 Instead of flattening `projects`, `issues`, and `comments` into repeated rows and rebuilding the tree yourself, you can express the hierarchy directly in the query:
 
@@ -205,22 +205,22 @@ The query above fetches all projects and, for each one, includes its issues and 
 
 ### Why this is different
 
-The key thing here is that the whole nested query is executed as **one incremental query graph**.
+The key detail is that the entire nested query runs as **one incremental query graph**.
 
-- it avoids the N+1 problem
-- it builds one query graph, not one per row
-- if the engine has to go back to the server for multiple rows of an include, it does that once, not once per row
-- it keeps the same fine-grained incremental update model as the rest of TanStack DB
+- avoids the N+1 problem
+- builds a single query graph, not one per row
+- batches server fetches for includes instead of issuing one request per row
+- preserves TanStack DB’s fine-grained incremental update model
 
-So this is not just a nicer projection API. It is also a performance and systems improvement.
+This is not just a projection API—it improves both performance and system behavior.
 
 ### Fine-grained reactivity by default
 
 Includes also keep fine-grained reactivity intact.
 
-By default, each included field is materialized as a **child collection**. The parent row does not need to re-render when the child data changes. You pass the child collection down to a child component, that child component calls `useLiveQuery(childCollection)`, and only that child component re-renders.
+By default, each included field is materialized as a **child collection**. The parent row does not re-render when child data changes. Instead, you pass the child collection to a child component, call `useLiveQuery(childCollection)`, and only that component updates.
 
-That gives you a hierarchical UI shape without giving up TanStack DB's granular reactive behavior, and it centralizes the definition of the data the UI needs in one place instead of scattering it across multiple components and loaders.
+This gives you a hierarchical UI shape without sacrificing TanStack DB’s granular reactivity, while centralizing data requirements instead of scattering them across components and loaders.
 
 ```typescript
 import { useLiveQuery } from '@tanstack/react-db'
@@ -262,7 +262,7 @@ function IssueList({ issuesCollection }) {
 
 ### `toArray()` when you want materialized projections
 
-Sometimes you do not want a child collection. For simple aggregates, short lists like tags, or other places where it's better to avoid a child render boundary, `toArray()` lets you materialize the child query directly in the projection layer.
+Sometimes a child collection is unnecessary. For simple aggregates, small lists (e.g. tags), or cases where a child render boundary adds overhead, `toArray()` lets you materialize the child query directly in the projection layer.
 
 ```typescript
 import { createLiveQueryCollection, eq, toArray } from '@tanstack/db'
@@ -290,22 +290,22 @@ With `toArray()`, the parent row is re-emitted when the child data changes. With
 
 Includes in 0.6 support:
 
-- arbitrarily nested subqueries with nested child collections by default
-- `toArray()` when you want materialized arrays instead
-- aggregates in child subqueries
+- arbitrarily nested subqueries, with child collections by default
+- `toArray()` for materialized arrays when needed
+- aggregates within child subqueries
 - `orderBy()` and `limit()` inside subqueries
-- child subqueries that filter based on their parent row
-- usage patterns that preserve fine-grained updates at each level across all supported frameworks
+- child subqueries filtered by their parent row
+- patterns that preserve fine-grained updates at each level across frameworks
 
-Taken together, this is one of the biggest features in the release. It makes TanStack DB more suitable for building application-shaped views over normalized data.
+Taken together, this is one of the largest additions in the release, making TanStack DB better suited for building application-shaped views over normalized data.
 
 ## `createEffect`: reactive side effects for workflows, tools, and agents
 
 `createEffect` adds a reactive side-effect layer on top of live queries.
 
-You can think of it like a database trigger, except it runs on the result of an arbitrary live query instead of only on writes to a single table. That means you can define side effects from the shape of the data you care about, not just from raw mutations at the storage layer.
+It behaves like a database trigger, but operates on the result of an arbitrary live query rather than writes to a single table. Side effects are defined from the shape of the data you care about, not just low-level mutations.
 
-Effects also do **not** materialize the full result of the query into a collection first. They run incrementally on query-result deltas, which keeps them low-memory and makes them a much better fit for workflow logic than "subscribe to a whole collection and diff it yourself", especially because the query engine itself is already incremental.
+Effects do **not** materialize the full query result into a collection. They run incrementally on query-result deltas, keeping memory usage low and avoiding manual diffing. This aligns with the query engine’s incremental model and makes effects well-suited for workflow logic.
 
 The three event types map directly to query-result transitions:
 
@@ -313,7 +313,7 @@ The three event types map directly to query-result transitions:
 - `update`: a row changed but stayed in the query result
 - `exit`: a row left the query result
 
-Effects can be triggered by local changes and by changes received over sync. That is useful for classic workflow automation, but it gets especially interesting for AI and agent systems. Persist generations or jobs into a collection, define a query for the items that are ready to run, and use `onEnter` to trigger the next step. The state stays in TanStack DB, the workflow reacts to the query result, and the UI updates from the same source of truth.
+Effects can be triggered by both local changes and synced updates. This supports standard workflow automation and extends naturally to agent-style systems: persist jobs or generations in a collection, define a query for items ready to run, and use `onEnter` to trigger the next step. State lives in TanStack DB, workflows react to query results, and the UI updates from the same source of truth.
 
 ```typescript
 import { createEffect, eq } from '@tanstack/db'
@@ -336,7 +336,9 @@ const effect = createEffect({
 await effect.dispose()
 ```
 
-Combined with [persistent local state](#persistent-local-state) in something like a Cloudflare Durable Object, TanStack DB starts to look like a durable state engine for agent workflows, not just a UI data layer. This is only one example, but it shows why the 0.6 features matter together: [includes](#includes-project-your-data-into-the-same-shape-as-your-ui), [virtual props](#virtual-props-outboxes-delivery-state-and-row-provenance), and reactive effects all compose into something much more powerful than any one feature on its own.
+Combined with [persistent local state](#persistent-local-state) in environments like Cloudflare Durable Objects, TanStack DB starts to resemble a durable state engine for agent workflows, not just a UI data layer.
+
+This is one example, but it highlights how the 0.6 features work together: [includes](#includes-project-your-data-into-the-same-shape-as-your-ui), [virtual props](#virtual-props-outboxes-delivery-state-and-row-provenance), and reactive effects compose into something more capable than any single feature in isolation.
 
 ## Virtual props: outboxes, delivery state, and row provenance
 
@@ -349,13 +351,11 @@ They are:
 - `$key`: the row key for the result
 - `$collectionId`: the source collection ID
 
-That gives you access to state that used to be hidden.
+They can be used for workflow automation with `createEffect`, but are also immediately useful in the UI:
 
-You can use them for workflow automation together with `createEffect`, but they are also immediately useful for UI:
-
-- an outbox view of unpersisted data
-- a delivery or sync state badge
-- the little double-tick style UI we are used to from apps like WhatsApp
+- outbox views of unpersisted data
+- delivery or sync state indicators
+- double-tick style UI patterns (e.g. WhatsApp)
 
 Virtual props are one of those deceptively small features that end up being useful everywhere.
 
@@ -377,7 +377,7 @@ const outbox = createLiveQueryCollection({
 })
 ```
 
-That query can power a literal outbox view, or something smaller like a delivery indicator in a chat UI. And because the same props are queryable, they also pair naturally with [createEffect](#createeffect-reactive-side-effects-for-workflows-tools-and-agents) when you want workflow behavior driven by optimistic or confirmed state transitions.
+That query can drive a full outbox view, or smaller UI elements like delivery indicators in a chat interface. Because these props are queryable, they also pair naturally with [createEffect](#createeffect-reactive-side-effects-for-workflows-tools-and-agents) when you want workflows driven by optimistic or confirmed state transitions.
 
 ## queryOnce
 
@@ -412,9 +412,9 @@ const activeUsers = await queryOnce((q) =>
 
 This one is subtle, but important.
 
-TanStack DB uses JavaScript proxies inside the declarative query builder to trace expressions like `dept.name` and turn them into query IR. In outer joins, the _resolved value_ might be optional in the final result, but **inside the query builder the proxy itself still exists**. Previously, the types sometimes exposed joined refs as optional anyway, which implied you needed to write conditional JavaScript logic in the query expression itself. That was misleading, and it led to real bugs.
+TanStack DB uses JavaScript proxies in the declarative query builder to trace expressions like `dept.name` and turn them into query IR. In outer joins, the _resolved value_ may be optional in the final result, but **inside the query builder the proxy itself always exists**. Previously, types sometimes exposed joined refs as optional, implying you needed conditional logic in the query expression. That was misleading and led to bugs.
 
-In 0.6, that optionality has been removed from the proxy shape and moved onto a type parameter on the ref itself. That means editor hints can still tell you the joined side is nullable, and TanStack DB can still project the correct optionality into the final query result type, but the expression-builder API is now much tidier and much more honest about how it actually works.
+In 0.6, optionality has been removed from the proxy shape and moved to a type parameter on the ref itself. Editor hints still reflect nullability, and the final query result type remains correct, but the expression-builder API is now cleaner and more accurate to how it actually works.
 
 Existing code will generally keep working, but stricter type checking may now flag places where code was relying on the old, misleading optional-ref typing.
 
@@ -429,16 +429,16 @@ The key configuration is:
 
 That gives you three practical modes:
 
-- **No indexing**: leave indexing out entirely. You get smaller bundles by default, but TanStack DB may do a full scan of local data on query start for each predicate instead of using an index.
-- **Auto indexing**: choose a `defaultIndexType` and enable `autoIndex: 'eager'`. TanStack DB will create indexes on demand as queries need them.
-- **Manual indexing**: explicitly call [`collection.createIndex(...)`](https://tanstack.com/db/latest/docs/reference/interfaces/Collection#createindex) for the fields you want to index, either using a collection-level `defaultIndexType` or an `indexType` per index.
+- **No indexing**: omit indexing entirely. Smaller bundles, but queries may scan local data on startup.
+- **Auto indexing**: set a `defaultIndexType` and enable `autoIndex: 'eager'`. Indexes are created on demand.
+- **Manual indexing**: call [`collection.createIndex(...)`](https://tanstack.com/db/latest/docs/reference/interfaces/Collection#createindex) for specific fields, using either a collection-level `defaultIndexType` or per-index `indexType`.
 
-Those modes already existed. What changed in 0.6 is that the default indexing code is no longer pulled into the bundle unless you opt into it.
+These modes existed before. The change in 0.6 is that indexing code is no longer included in the bundle unless you opt in.
 
-When you do opt in, there are two built-in index implementations:
+When enabled, two index implementations are available:
 
-- `BasicIndex` from `@tanstack/db/indexing`: the lighter-weight option and a good default when you want indexing with minimal bundle impact. It uses a JavaScript `Map` plus an array internally, which keeps the bundle small but can be slower to update on larger collections.
-- `BTreeIndex` from `@tanstack/db/indexing`: the heavier B+tree-based option for bigger or more demanding collections. It gives you a stronger index structure, but with a correspondingly higher bundle cost.
+- `BasicIndex` from `@tanstack/db/indexing`: lightweight, minimal bundle impact; uses a `Map` + array; slower updates on larger collections
+- `BTreeIndex` from `@tanstack/db/indexing`: heavier B+tree-based option; better for larger or more demanding datasets; higher bundle cost
 
 ```typescript
 import { createCollection } from '@tanstack/db'
@@ -453,13 +453,11 @@ const collection = createCollection({
 
 ### Magic return removal
 
-We are also removing the "magic return" behavior from mutation handlers in favor of a more explicit and uniform model. The explicit options were already there. They are not new in 0.6. What is changing is that we are standardizing on one clear way to do it.
+We are removing the “magic return” behavior from mutation handlers in favor of a more explicit, uniform model. The explicit options already existed; 0.6 standardizes on using them.
 
-The important rule is simple:
+The rule is simple: **when your mutation handler promise resolves, the optimistic state is removed.**
 
-**when your mutation handler promise resolves, the optimistic state is removed.**
-
-If you need to coordinate sync behavior, do it explicitly in the handler rather than through implicit return values. This makes the API easier to reason about and more consistent across collection types.
+If you need to coordinate sync behavior, do it explicitly in the handler rather than relying on implicit return values. This makes the API easier to reason about and consistent across collection types.
 
 ```typescript
 // QueryCollection before: implicit "magic return" behavior
@@ -491,13 +489,13 @@ onInsert: async ({ transaction, collection }) => {
 
 TanStack DB 0.6 closes a lot of the gaps people were experiencing.
 
-But there is still one major missing piece on the path to v1: **server-side rendering (SSR)**, and we want to get it right.
+One major piece remains on the path to v1: **server-side rendering (SSR)**. We want to get this right.
 
-TanStack DB is different from TanStack Query and from a classic API-driven application architecture. The SSR story is not just "do what Query does, but for DB". DB has a different execution model, a different relationship between local and remote state, and a different set of tradeoffs around hydration, persistence, and live updates.
+TanStack DB differs from TanStack Query and traditional API-driven architectures. The SSR story is not simply “do what Query does, but for DB.” It involves a different execution model, a different relationship between local and remote state, and different tradeoffs around hydration, persistence, and live updates.
 
-So rather than rushing into a shallow solution, we want to think this through with design partners. We are actively exploring the shape of SSR support for TanStack DB, and we want to hear from teams interested in using it seriously.
+Rather than shipping a shallow solution, we are working with design partners to shape this properly. We are exploring SSR support and want input from teams planning to use TanStack DB in production.
 
-If that is you, please fill out the design partner form and tell us about your app, your constraints, and what a good SSR story for DB would need to look like. We will set up calls with teams, interview them to understand the requirements and run proposals past them as we shape the design.
+If that applies to you, fill out the form and share details about your app, constraints, and what a strong SSR model would require. We will set up calls with teams, interview them to understand the requirements and run proposals past them as we shape the design.
 
 - [Fill out the SSR design partner form](https://docs.google.com/forms/d/e/1FAIpQLSdoCZ_Z5uODArGpGkVI4tbU7q9qHAcGAXYYEoP9HFq3aKNs3A/viewform?usp=publish-editor).
 

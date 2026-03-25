@@ -91,7 +91,7 @@ import { queryCollectionOptions } from '@tanstack/query-db-collection'
 import {
   createReactNativeSQLitePersistence,
   persistedCollectionOptions,
-} from '@tanstack/db-react-native-sqlite-persisted-collection'
+} from '@tanstack/react-native-db-sqlite-persistence'
 
 type ShoppingItem = {
   id: string

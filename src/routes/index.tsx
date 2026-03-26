@@ -28,12 +28,6 @@ import LibraryCard from '~/components/LibraryCard'
 import { FeaturedShowcases } from '~/components/ShowcaseSection'
 import { Button } from '~/ui'
 
-const LazyBrandContextMenu = React.lazy(() =>
-  import('~/components/BrandContextMenu').then((m) => ({
-    default: m.BrandContextMenu,
-  })),
-)
-
 export const textColors = [
   `text-rose-500`,
   `text-yellow-500`,
@@ -58,11 +52,11 @@ const courses = [
 ]
 
 export const Route = createFileRoute('/')({
-  loader: ({ context: { queryClient } }) => {
-    // Prefetch blog posts server-side (file-based, no DB needed).
+  loader: async ({ context: { queryClient } }) => {
+    // Ensure blog posts are loaded before render (file-based, no DB needed).
     // Stats and showcases are DB-dependent — let them load client-side
     // to avoid hydration mismatches when DATABASE_URL isn't set.
-    queryClient.prefetchQuery(recentPostsQueryOptions)
+    await queryClient.ensureQueryData(recentPostsQueryOptions)
   },
   component: Index,
 })
@@ -228,7 +222,7 @@ function Index() {
                 <h4 className={`text-2xl font-medium capitalize mb-6`}>
                   {
                     librariesGroupNamesMap[
-                      groupName as keyof typeof librariesGroupNamesMap
+                    groupName as keyof typeof librariesGroupNamesMap
                     ]
                   }
                 </h4>
@@ -353,78 +347,78 @@ function Index() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {isRecentPostsLoading
                 ? Array.from({ length: 3 }).map((_, idx) => (
-                    <Card
-                      key={`recent-post-skeleton-${idx}`}
-                      className="p-4 animate-pulse"
-                    >
-                      <div className="h-5 w-5/6 rounded bg-gray-200 dark:bg-gray-700" />
-                      <div className="mt-3 h-3 w-2/3 rounded bg-gray-200 dark:bg-gray-700" />
-                      <div className="mt-4 space-y-2">
-                        <div className="h-3 rounded bg-gray-100 dark:bg-gray-800" />
-                        <div className="h-3 rounded bg-gray-100 dark:bg-gray-800" />
-                      </div>
-                      <div className="mt-6 h-3 w-20 rounded bg-blue-100 dark:bg-blue-950/50" />
-                    </Card>
-                  ))
+                  <Card
+                    key={`recent-post-skeleton-${idx}`}
+                    className="p-4 animate-pulse"
+                  >
+                    <div className="h-5 w-5/6 rounded bg-gray-200 dark:bg-gray-700" />
+                    <div className="mt-3 h-3 w-2/3 rounded bg-gray-200 dark:bg-gray-700" />
+                    <div className="mt-4 space-y-2">
+                      <div className="h-3 rounded bg-gray-100 dark:bg-gray-800" />
+                      <div className="h-3 rounded bg-gray-100 dark:bg-gray-800" />
+                    </div>
+                    <div className="mt-6 h-3 w-20 rounded bg-blue-100 dark:bg-blue-950/50" />
+                  </Card>
+                ))
                 : recentPosts.map(
-                    ({
-                      slug,
-                      title,
-                      published,
-                      excerpt,
-                      headerImage,
-                      authors,
-                    }) => {
-                      return (
-                        <Card
-                          as={Link}
-                          key={slug}
-                          to="/blog/$"
-                          params={{ _splat: slug } as never}
-                          className={`flex flex-col justify-between overflow-hidden
+                  ({
+                    slug,
+                    title,
+                    published,
+                    excerpt,
+                    headerImage,
+                    authors,
+                  }) => {
+                    return (
+                      <Card
+                        as={Link}
+                        key={slug}
+                        to="/blog/$"
+                        params={{ _splat: slug } as never}
+                        className={`flex flex-col justify-between overflow-hidden
                       transition-all hover:shadow-md hover:border-blue-500
                     `}
-                        >
-                          {headerImage ? (
-                            <div className="aspect-video overflow-hidden bg-gray-100 dark:bg-gray-800">
-                              <img
-                                src={headerImage}
-                                alt=""
-                                loading="lazy"
-                                decoding="async"
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-                          ) : null}
-                          <div className="p-4 flex flex-col gap-3 flex-1 justify-between">
-                            <div>
-                              <div className="text-base font-bold">{title}</div>
-                              <div className="text-xs italic font-light mt-1 text-gray-600 dark:text-gray-400">
-                                by {formatAuthors(authors)}
-                                {published ? (
-                                  <time
-                                    dateTime={published}
-                                    title={formatPublishedDate(published)}
-                                  >
-                                    {' '}
-                                    on {formatPublishedDate(published)}
-                                  </time>
-                                ) : null}
-                              </div>
-                              {excerpt ? (
-                                <p className="text-sm mt-3 text-gray-600 dark:text-gray-400 line-clamp-4 leading-relaxed">
-                                  {excerpt}
-                                </p>
+                      >
+                        {headerImage ? (
+                          <div className="aspect-video overflow-hidden bg-gray-100 dark:bg-gray-800">
+                            <img
+                              src={headerImage}
+                              alt=""
+                              loading="lazy"
+                              decoding="async"
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ) : null}
+                        <div className="p-4 flex flex-col gap-3 flex-1 justify-between">
+                          <div>
+                            <div className="text-base font-bold">{title}</div>
+                            <div className="text-xs italic font-light mt-1 text-gray-600 dark:text-gray-400">
+                              by {formatAuthors(authors)}
+                              {published ? (
+                                <time
+                                  dateTime={published}
+                                  title={formatPublishedDate(published)}
+                                >
+                                  {' '}
+                                  on {formatPublishedDate(published)}
+                                </time>
                               ) : null}
                             </div>
-                            <div className="text-blue-500 uppercase font-bold text-xs">
-                              Read More →
-                            </div>
+                            {excerpt ? (
+                              <p className="text-sm mt-3 text-gray-600 dark:text-gray-400 line-clamp-4 leading-relaxed">
+                                {excerpt}
+                              </p>
+                            ) : null}
                           </div>
-                        </Card>
-                      )
-                    },
-                  )}
+                          <div className="text-blue-500 uppercase font-bold text-xs">
+                            Read More →
+                          </div>
+                        </div>
+                      </Card>
+                    )
+                  },
+                )}
             </div>
             <div className="flex justify-center mt-6">
               <Button as={Link} to="/blog">

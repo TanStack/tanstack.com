@@ -126,17 +126,7 @@ function Index() {
                 width={500}
                 height={500}
                 quality={85}
-                className="w-[300px] pt-8 xl:pt-0 xl:w-[400px] 2xl:w-[500px] dark:hidden"
-                alt="TanStack Logo"
-                loading="eager"
-                fetchPriority="high"
-              />
-              <NetlifyImage
-                src="/images/logos/splash-dark.png"
-                width={500}
-                height={500}
-                quality={85}
-                className="w-[300px] pt-8 xl:pt-0 xl:w-[400px] 2xl:w-[500px] hidden dark:block"
+                className="w-[300px] pt-8 xl:pt-0 xl:w-[400px] 2xl:w-[500px]"
                 alt="TanStack Logo"
                 loading="eager"
                 fetchPriority="high"

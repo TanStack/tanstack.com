@@ -76,6 +76,13 @@ export const Route = createRootRouteWithContext<{
       }),
     ],
     links: [
+      {
+        rel: 'preload',
+        href: '/fonts/Inter-latin.woff2',
+        as: 'font',
+        type: 'font/woff2',
+        crossOrigin: 'anonymous',
+      },
       { rel: 'stylesheet', href: appCss },
       {
         rel: 'preload',

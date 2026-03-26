@@ -807,7 +807,7 @@ mark {
 }
 
 @font-face {
-  font-display: swap;
+  font-display: optional;
   font-family: 'Inter';
   font-style: normal;
   font-weight: 100 900;
@@ -819,7 +819,7 @@ mark {
 }
 
 @font-face {
-  font-display: swap;
+  font-display: optional;
   font-family: 'Inter';
   font-style: normal;
   font-weight: 100 900;

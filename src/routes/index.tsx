@@ -26,6 +26,8 @@ import { YouTubeIcon } from '~/components/icons/YouTubeIcon'
 import { Card } from '~/components/Card'
 import LibraryCard from '~/components/LibraryCard'
 import { FeaturedShowcases } from '~/components/ShowcaseSection'
+import { getFeaturedShowcasesQueryOptions } from '~/queries/showcases'
+import { ossStatsQuery } from '~/queries/stats'
 import { Button } from '~/ui'
 
 const LazyBrandContextMenu = React.lazy(() =>
@@ -58,6 +60,13 @@ const courses = [
 ]
 
 export const Route = createFileRoute('/')({
+  loader: ({ context: { queryClient } }) => {
+    // Prefetch data server-side to prevent CLS from skeleton→content transitions.
+    // Use prefetchQuery (fire-and-forget) so DB errors don't block the page.
+    queryClient.prefetchQuery(recentPostsQueryOptions)
+    queryClient.prefetchQuery(ossStatsQuery())
+    queryClient.prefetchQuery(getFeaturedShowcasesQueryOptions({ limit: 6 }))
+  },
   component: Index,
 })
 
@@ -127,55 +136,17 @@ function Index() {
                   />
                 </Link>
               </ClientOnly>
-              <React.Suspense
-                fallback={
-                  <div className="cursor-pointer relative z-10">
-                    <NetlifyImage
-                      src="/images/logos/splash-light.png"
-                      width={500}
-                      height={500}
-                      quality={85}
-                      className="w-[300px] pt-8 xl:pt-0 xl:w-[400px] 2xl:w-[500px] dark:hidden"
-                      alt="TanStack Logo"
-                      loading="eager"
-                      fetchPriority="high"
-                    />
-                    <NetlifyImage
-                      src="/images/logos/splash-dark.png"
-                      width={500}
-                      height={500}
-                      quality={85}
-                      className="w-[300px] pt-8 xl:pt-0 xl:w-[400px] 2xl:w-[500px] hidden dark:block"
-                      alt="TanStack Logo"
-                      loading="eager"
-                      fetchPriority="high"
-                    />
-                  </div>
-                }
-              >
-                <LazyBrandContextMenu className="cursor-pointer relative z-10">
-                  <NetlifyImage
-                    src="/images/logos/splash-light.png"
-                    width={500}
-                    height={500}
-                    quality={85}
-                    className="w-[300px] pt-8 xl:pt-0 xl:w-[400px] 2xl:w-[500px] dark:hidden"
-                    alt="TanStack Logo"
-                    loading="eager"
-                    fetchPriority="high"
-                  />
-                  <NetlifyImage
-                    src="/images/logos/splash-dark.png"
-                    width={500}
-                    height={500}
-                    quality={85}
-                    className="w-[300px] pt-8 xl:pt-0 xl:w-[400px] 2xl:w-[500px] hidden dark:block"
-                    alt="TanStack Logo"
-                    loading="eager"
-                    fetchPriority="high"
-                  />
-                </LazyBrandContextMenu>
-              </React.Suspense>
+              {/* This works great in darkmode too! */}
+              <NetlifyImage
+                src="/images/logos/splash-light.png"
+                width={500}
+                height={500}
+                quality={85}
+                className="w-[300px] pt-8 xl:pt-0 xl:w-[400px] 2xl:w-[500px]"
+                alt="TanStack Logo"
+                loading="eager"
+                fetchPriority="high"
+              />
             </div>
             <div className="flex flex-col items-center gap-6 text-center px-4 xl:text-left xl:items-start">
               <div className="flex gap-2 lg:gap-4 items-center">

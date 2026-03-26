@@ -1,6 +1,4 @@
 import { env } from '~/utils/env'
-import { findLibrary } from '~/libraries'
-
 const DEFAULT_SITE_URL = 'https://tanstack.com'
 const NON_INDEXABLE_PATH_PREFIXES = ['/account', '/admin', '/login'] as const
 
@@ -28,17 +26,6 @@ export function getCanonicalPath(path: string) {
     )
   ) {
     return null
-  }
-
-  const pathSegments = normalizedPath.split('/').filter(Boolean)
-
-  if (pathSegments.length >= 2) {
-    const [libraryId, version, ...rest] = pathSegments
-    const library = findLibrary(libraryId)
-
-    if (library && version !== 'latest') {
-      return normalizePath(`/${library.id}/latest/${rest.join('/')}`)
-    }
   }
 
   return normalizedPath

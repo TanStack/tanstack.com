@@ -58,6 +58,9 @@ const courses = [
 ]
 
 export const Route = createFileRoute('/')({
+  loader: async ({ context: { queryClient } }) => {
+    await queryClient.ensureQueryData(recentPostsQueryOptions)
+  },
   component: Index,
 })
 

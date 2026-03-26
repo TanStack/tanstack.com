@@ -16,6 +16,17 @@ const searchSchema = v.object({
 
 export const PAGE_SIZE_OPTIONS = [24, 48, 96, 192] as const
 
+function hasNonCanonicalSearch(search: v.InferOutput<typeof searchSchema>) {
+  return Boolean(
+    search.page > 1 ||
+    search.pageSize !== PAGE_SIZE_OPTIONS[0] ||
+    search.libraryIds?.length ||
+    search.useCases?.length ||
+    search.hasSourceCode ||
+    search.q,
+  )
+}
+
 export const Route = createFileRoute('/showcase/')({
   validateSearch: searchSchema,
   loaderDeps: ({ search }) => ({
@@ -41,13 +52,18 @@ export const Route = createFileRoute('/showcase/')({
         },
       }),
     )
+
+    return {
+      hasNonCanonicalSearch: hasNonCanonicalSearch(deps),
+    }
   },
   component: ShowcaseGallery,
-  head: () => ({
+  head: ({ loaderData }) => ({
     meta: seo({
       title: 'Showcase | TanStack',
       description:
         'Discover projects built with TanStack libraries. See how developers are using TanStack Query, Router, Table, Form, and more in production.',
+      noindex: loaderData?.hasNonCanonicalSearch,
     }),
   }),
 })

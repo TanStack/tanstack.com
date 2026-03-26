@@ -3,19 +3,15 @@ import * as React from 'react'
 import { libraries, Library } from '~/libraries'
 import { reactChartsProject } from '~/libraries/react-charts'
 import LibraryCard from '~/components/LibraryCard'
+import { seo } from '~/utils/seo'
 
 export const Route = createFileRoute('/libraries')({
   component: LibrariesPage,
   head: () => ({
-    meta: [
-      {
-        title: 'All Libraries - TanStack',
-      },
-      {
-        name: 'description',
-        content: 'Browse all TanStack libraries.',
-      },
-    ],
+    meta: seo({
+      title: 'All Libraries - TanStack',
+      description: 'Browse all TanStack libraries.',
+    }),
   }),
 })
 

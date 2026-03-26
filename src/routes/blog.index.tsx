@@ -15,6 +15,7 @@ import { LibrariesWidget } from '~/components/LibrariesWidget'
 import { partners } from '~/utils/partners'
 import { PartnersRail, RightRail } from '~/components/RightRail'
 import { RecentPostsWidget } from '~/components/RecentPostsWidget'
+import { seo } from '~/utils/seo'
 
 type BlogFrontMatter = {
   slug: string
@@ -60,11 +61,10 @@ export const Route = createFileRoute('/blog/')({
   notFoundComponent: () => <PostNotFound />,
   component: BlogIndex,
   head: () => ({
-    meta: [
-      {
-        title: 'Blog',
-      },
-    ],
+    meta: seo({
+      title: 'Blog | TanStack',
+      description: 'The latest news and blog posts from TanStack.',
+    }),
   }),
 })
 

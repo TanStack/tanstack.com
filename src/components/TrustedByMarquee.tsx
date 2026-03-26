@@ -55,7 +55,9 @@ export function TrustedByMarquee({
                 alt={brand}
                 loading="lazy"
                 decoding="async"
-                className="max-w-24 max-h-14 w-auto h-auto object-contain opacity-50 grayscale hover:opacity-100 transition-all duration-200 dark:invert dark:opacity-70 shrink-0"
+                width={96}
+                height={56}
+                className="max-w-24 max-h-14 w-24 h-14 object-contain opacity-50 grayscale hover:opacity-100 transition-all duration-200 dark:invert dark:opacity-70 shrink-0"
               />
             ) : (
               <span

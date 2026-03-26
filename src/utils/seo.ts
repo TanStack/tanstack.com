@@ -1,16 +1,78 @@
+import { env } from '~/utils/env'
+import { findLibrary } from '~/libraries'
+
+const DEFAULT_SITE_URL = 'https://tanstack.com'
+const NON_INDEXABLE_PATH_PREFIXES = ['/account', '/admin', '/login'] as const
+
+function trimTrailingSlash(value: string) {
+  return value.replace(/\/$/, '')
+}
+
+function normalizePath(path: string) {
+  if (!path || path === '/') {
+    return '/'
+  }
+
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`
+
+  return normalizedPath.replace(/\/$/, '')
+}
+
+export function getCanonicalPath(path: string) {
+  const normalizedPath = normalizePath(path)
+
+  if (
+    NON_INDEXABLE_PATH_PREFIXES.some(
+      (prefix) =>
+        normalizedPath === prefix || normalizedPath.startsWith(`${prefix}/`),
+    )
+  ) {
+    return null
+  }
+
+  const pathSegments = normalizedPath.split('/').filter(Boolean)
+
+  if (pathSegments.length >= 2) {
+    const [libraryId, version, ...rest] = pathSegments
+    const library = findLibrary(libraryId)
+
+    if (library && version !== 'latest') {
+      return normalizePath(`/${library.id}/latest/${rest.join('/')}`)
+    }
+  }
+
+  return normalizedPath
+}
+
+export function shouldIndexPath(path: string) {
+  return getCanonicalPath(path) !== null
+}
+
+export function canonicalUrl(path: string) {
+  const origin = trimTrailingSlash(
+    env.URL ||
+      (import.meta.env.SSR ? env.SITE_URL : undefined) ||
+      DEFAULT_SITE_URL,
+  )
+
+  return `${origin}${normalizePath(path)}`
+}
+
+type SeoOptions = {
+  title: string
+  description?: string
+  image?: string
+  keywords?: string
+  noindex?: boolean
+}
+
 export const seo = ({
   title,
   description,
   keywords,
   image,
   noindex,
-}: {
-  title: string
-  description?: string
-  image?: string
-  keywords?: string
-  noindex?: boolean
-}) => {
+}: SeoOptions) => {
   const tags = [
     { title },
     { name: 'description', content: description },

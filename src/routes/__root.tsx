@@ -9,12 +9,7 @@ import {
 } from '@tanstack/react-router'
 import { QueryClient } from '@tanstack/react-query'
 import appCss from '~/styles/app.css?url'
-import {
-  canonicalUrl,
-  getCanonicalPath,
-  seo,
-  shouldIndexPath,
-} from '~/utils/seo'
+import { seo } from '~/utils/seo'
 import ogImage from '~/images/og.png'
 const LazyRouterDevtools = React.lazy(() =>
   import('@tanstack/react-router-devtools').then((m) => ({
@@ -160,12 +155,6 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
     select: (s) => s.resolvedLocation?.pathname.startsWith('/router'),
   })
 
-  const canonicalPath = useRouterState({
-    select: (s) => s.resolvedLocation?.pathname || '/',
-  })
-
-  const preferredCanonicalPath = getCanonicalPath(canonicalPath)
-
   const showDevtools = canShowLoading && isRouterPage
 
   const hideNavbar = useMatches({
@@ -177,12 +166,6 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={htmlClass} suppressHydrationWarning>
       <head>
-        {preferredCanonicalPath ? (
-          <link rel="canonical" href={canonicalUrl(preferredCanonicalPath)} />
-        ) : null}
-        {!shouldIndexPath(canonicalPath) ? (
-          <meta name="robots" content="noindex, nofollow" />
-        ) : null}
         <HeadContent />
         {hasBaseParent ? <base target="_parent" /> : null}
       </head>

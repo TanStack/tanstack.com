@@ -14,9 +14,7 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TenetsRouteImport } from './routes/tenets'
 import { Route as SupportRouteImport } from './routes/support'
 import { Route as SponsorsEmbedRouteImport } from './routes/sponsors-embed'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as RssDotxmlRouteImport } from './routes/rss[.]xml'
-import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PartnersEmbedRouteImport } from './routes/partners-embed'
 import { Route as PartnersRouteImport } from './routes/partners'
@@ -146,19 +144,9 @@ const SponsorsEmbedRoute = SponsorsEmbedRouteImport.update({
   path: '/sponsors-embed',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const RssDotxmlRoute = RssDotxmlRouteImport.update({
   id: '/rss.xml',
   path: '/rss.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
-  id: '/robots.txt',
-  path: '/robots.txt',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -722,9 +710,7 @@ export interface FileRoutesByFullPath {
   '/partners': typeof PartnersRoute
   '/partners-embed': typeof PartnersEmbedRoute
   '/privacy': typeof PrivacyRoute
-  '/robots.txt': typeof RobotsDottxtRoute
   '/rss.xml': typeof RssDotxmlRoute
-  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/support': typeof SupportRoute
   '/tenets': typeof TenetsRoute
@@ -830,9 +816,7 @@ export interface FileRoutesByTo {
   '/partners': typeof PartnersRoute
   '/partners-embed': typeof PartnersEmbedRoute
   '/privacy': typeof PrivacyRoute
-  '/robots.txt': typeof RobotsDottxtRoute
   '/rss.xml': typeof RssDotxmlRoute
-  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/support': typeof SupportRoute
   '/tenets': typeof TenetsRoute
@@ -941,9 +925,7 @@ export interface FileRoutesById {
   '/partners': typeof PartnersRoute
   '/partners-embed': typeof PartnersEmbedRoute
   '/privacy': typeof PrivacyRoute
-  '/robots.txt': typeof RobotsDottxtRoute
   '/rss.xml': typeof RssDotxmlRoute
-  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/support': typeof SupportRoute
   '/tenets': typeof TenetsRoute
@@ -1056,9 +1038,7 @@ export interface FileRouteTypes {
     | '/partners'
     | '/partners-embed'
     | '/privacy'
-    | '/robots.txt'
     | '/rss.xml'
-    | '/sitemap.xml'
     | '/sponsors-embed'
     | '/support'
     | '/tenets'
@@ -1164,9 +1144,7 @@ export interface FileRouteTypes {
     | '/partners'
     | '/partners-embed'
     | '/privacy'
-    | '/robots.txt'
     | '/rss.xml'
-    | '/sitemap.xml'
     | '/sponsors-embed'
     | '/support'
     | '/tenets'
@@ -1274,9 +1252,7 @@ export interface FileRouteTypes {
     | '/partners'
     | '/partners-embed'
     | '/privacy'
-    | '/robots.txt'
     | '/rss.xml'
-    | '/sitemap.xml'
     | '/sponsors-embed'
     | '/support'
     | '/tenets'
@@ -1388,9 +1364,7 @@ export interface RootRouteChildren {
   PartnersRoute: typeof PartnersRoute
   PartnersEmbedRoute: typeof PartnersEmbedRoute
   PrivacyRoute: typeof PrivacyRoute
-  RobotsDottxtRoute: typeof RobotsDottxtRoute
   RssDotxmlRoute: typeof RssDotxmlRoute
-  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SponsorsEmbedRoute: typeof SponsorsEmbedRoute
   SupportRoute: typeof SupportRoute
   TenetsRoute: typeof TenetsRoute
@@ -1474,25 +1448,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SponsorsEmbedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/rss.xml': {
       id: '/rss.xml'
       path: '/rss.xml'
       fullPath: '/rss.xml'
       preLoaderRoute: typeof RssDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/robots.txt': {
-      id: '/robots.txt'
-      path: '/robots.txt'
-      fullPath: '/robots.txt'
-      preLoaderRoute: typeof RobotsDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -2419,9 +2379,7 @@ const rootRouteChildren: RootRouteChildren = {
   PartnersRoute: PartnersRoute,
   PartnersEmbedRoute: PartnersEmbedRoute,
   PrivacyRoute: PrivacyRoute,
-  RobotsDottxtRoute: RobotsDottxtRoute,
   RssDotxmlRoute: RssDotxmlRoute,
-  SitemapDotxmlRoute: SitemapDotxmlRoute,
   SponsorsEmbedRoute: SponsorsEmbedRoute,
   SupportRoute: SupportRoute,
   TenetsRoute: TenetsRoute,

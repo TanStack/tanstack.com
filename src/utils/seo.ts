@@ -58,32 +58,12 @@ export function canonicalUrl(path: string) {
   return `${origin}${normalizePath(path)}`
 }
 
-export function canonicalLink(path: string) {
-  return [{ rel: 'canonical', href: canonicalUrl(path) }]
-}
-
 type SeoOptions = {
   title: string
   description?: string
   image?: string
   keywords?: string
   noindex?: boolean
-}
-
-type HeadWithCanonical = {
-  meta?: Array<Record<string, string | undefined>>
-  links?: Array<{ rel: string; href: string }>
-}
-
-export function withCanonical(path: string, head: HeadWithCanonical = {}) {
-  return {
-    ...head,
-    links: [...canonicalLink(path), ...(head.links ?? [])],
-  }
-}
-
-export function seoWithCanonical(path: string, options: SeoOptions) {
-  return withCanonical(path, { meta: seo(options) })
 }
 
 export const seo = ({

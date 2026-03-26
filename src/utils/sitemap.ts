@@ -175,8 +175,6 @@ export function generateRobotsTxt(origin: string) {
   return [
     'User-agent: *',
     'Allow: /',
-    'Disallow: /api/',
-    'Disallow: /oauth/',
     '',
     `Sitemap: ${origin}/sitemap.xml`,
   ].join('\n')

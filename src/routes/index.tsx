@@ -26,8 +26,6 @@ import { YouTubeIcon } from '~/components/icons/YouTubeIcon'
 import { Card } from '~/components/Card'
 import LibraryCard from '~/components/LibraryCard'
 import { FeaturedShowcases } from '~/components/ShowcaseSection'
-import { getFeaturedShowcasesQueryOptions } from '~/queries/showcases'
-import { ossStatsQuery } from '~/queries/stats'
 import { Button } from '~/ui'
 
 const LazyBrandContextMenu = React.lazy(() =>
@@ -61,11 +59,10 @@ const courses = [
 
 export const Route = createFileRoute('/')({
   loader: ({ context: { queryClient } }) => {
-    // Prefetch data server-side to prevent CLS from skeleton→content transitions.
-    // Use prefetchQuery (fire-and-forget) so DB errors don't block the page.
+    // Prefetch blog posts server-side (file-based, no DB needed).
+    // Stats and showcases are DB-dependent — let them load client-side
+    // to avoid hydration mismatches when DATABASE_URL isn't set.
     queryClient.prefetchQuery(recentPostsQueryOptions)
-    queryClient.prefetchQuery(ossStatsQuery())
-    queryClient.prefetchQuery(getFeaturedShowcasesQueryOptions({ limit: 6 }))
   },
   component: Index,
 })

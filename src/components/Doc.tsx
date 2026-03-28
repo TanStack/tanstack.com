@@ -2,8 +2,7 @@ import * as React from 'react'
 import { FoldHorizontal, UnfoldHorizontal } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { useWidthToggle, DocNavigation } from '~/components/DocsLayout'
-import { AdGate } from '~/contexts/AdsContext'
-import { GamHeader } from './Gam'
+
 import { Toc } from './Toc'
 import { renderMarkdown } from '~/utils/markdown'
 import { DocBreadcrumb } from './DocBreadcrumb'
@@ -129,16 +128,12 @@ export function Doc({
   }, [headings])
 
   return (
-    <div className="flex-1 min-h-0 flex flex-col">
+    <div className="flex-1 min-h-0 flex flex-col pt-4 lg:pt-6 xl:pt-8">
       <a href={`${pagePath}.md`} className="sr-only" aria-hidden="true">
         AI/LLM: This documentation page is available in plain markdown format at
         {pagePath}.md
       </a>
-      <AdGate>
-        <div className="py-2 pb-6 lg:py-4 lg:pb-8 xl:py-6 xl:pb-10 max-w-full">
-          <GamHeader />
-        </div>
-      </AdGate>
+
       <div
         className={twMerge(
           'w-full flex mx-auto max-w-[768px]',

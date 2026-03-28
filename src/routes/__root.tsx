@@ -9,7 +9,12 @@ import {
 } from '@tanstack/react-router'
 import { QueryClient } from '@tanstack/react-query'
 import appCss from '~/styles/app.css?url'
-import { seo } from '~/utils/seo'
+import {
+  canonicalUrl,
+  getCanonicalPath,
+  seo,
+  shouldIndexPath,
+} from '~/utils/seo'
 import ogImage from '~/images/og.png'
 const LazyRouterDevtools = React.lazy(() =>
   import('@tanstack/react-router-devtools').then((m) => ({
@@ -18,9 +23,7 @@ const LazyRouterDevtools = React.lazy(() =>
 )
 import { NotFound } from '~/components/NotFound'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
-import { GamScripts } from '~/components/Gam'
-
-import { SearchProvider } from '~/contexts/SearchContext'
+import { SearchProvider, useSearchContext } from '~/contexts/SearchContext'
 import { ToastProvider } from '~/components/ToastProvider'
 import { LoginModalProvider } from '~/contexts/LoginModalContext'
 
@@ -32,6 +35,13 @@ import { ThemeProvider, useHtmlClass } from '~/components/ThemeProvider'
 import { Navbar } from '~/components/Navbar'
 import { THEME_COLORS } from '~/utils/utils'
 import { useHubSpotChat } from '~/hooks/useHubSpotChat'
+
+declare global {
+  interface Window {
+    dataLayer: unknown[] | undefined
+    gtag: ((...args: unknown[]) => void) | undefined
+  }
+}
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
@@ -85,28 +95,11 @@ export const Route = createRootRouteWithContext<{
       },
       { rel: 'manifest', href: '/site.webmanifest', color: '#fffff' },
       { rel: 'icon', href: '/favicon.ico' },
-      {
-        rel: 'preload',
-        href: '/fonts/Inter.woff2',
-        as: 'font',
-        type: 'font/woff2',
-        crossOrigin: '',
-      },
     ],
     scripts: [
       // Theme detection script - must run before body renders to prevent flash
       {
         children: `(function(){try{var t=localStorage.getItem('theme')||'auto';var v=['light','dark','auto'].includes(t)?t:'auto';if(v==='auto'){var a=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.classList.add(a,'auto')}else{document.documentElement.classList.add(v)}}catch(e){var a=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.classList.add(a,'auto')}})()`,
-      },
-      // Google Tag Manager script
-      {
-        children: `
-          (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-          new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-          'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-          })(window,document,'script','dataLayer','GTM-5N57KQT4');
-        `,
       },
     ],
   }),
@@ -167,6 +160,12 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
     select: (s) => s.resolvedLocation?.pathname.startsWith('/router'),
   })
 
+  const canonicalPath = useRouterState({
+    select: (s) => s.resolvedLocation?.pathname || '/',
+  })
+
+  const preferredCanonicalPath = getCanonicalPath(canonicalPath)
+
   const showDevtools = canShowLoading && isRouterPage
 
   const hideNavbar = useMatches({
@@ -178,13 +177,19 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={htmlClass} suppressHydrationWarning>
       <head>
+        {preferredCanonicalPath ? (
+          <link rel="canonical" href={canonicalUrl(preferredCanonicalPath)} />
+        ) : null}
+        {!shouldIndexPath(canonicalPath) ? (
+          <meta name="robots" content="noindex, nofollow" />
+        ) : null}
         <HeadContent />
         {hasBaseParent ? <base target="_parent" /> : null}
-        <GamScripts />
       </head>
       <body className="overflow-x-hidden">
         <LoginModalProvider>
           <ToastProvider>
+            <IdleGtmLoader />
             {hideNavbar ? children : <Navbar>{children}</Navbar>}
             {showDevtools ? (
               <LazyRouterDevtools position="bottom-right" />
@@ -210,20 +215,92 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
                 </div>
               </div>
             ) : null}
-            <LazySearchModal />
+            <SearchHotkeyController />
           </ToastProvider>
         </LoginModalProvider>
-        <noscript>
-          <iframe
-            src="https://www.googletagmanager.com/ns.html?id=GTM-5N57KQT4"
-            height="0"
-            width="0"
-            style={{ display: 'none', visibility: 'hidden' }}
-            title="gtm"
-          ></iframe>
-        </noscript>
         <Scripts />
       </body>
     </html>
   )
+}
+
+function SearchHotkeyController() {
+  const { isOpen, openSearch } = useSearchContext()
+  const [hasOpenedSearch, setHasOpenedSearch] = React.useState(false)
+
+  React.useEffect(() => {
+    const handleGlobalKeyDown = (event: KeyboardEvent) => {
+      if (event.defaultPrevented) return
+      if (!(event.metaKey || event.ctrlKey)) return
+      if (event.key.toLowerCase() !== 'k') return
+
+      event.preventDefault()
+      setHasOpenedSearch(true)
+      openSearch()
+    }
+
+    window.addEventListener('keydown', handleGlobalKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleGlobalKeyDown)
+    }
+  }, [openSearch])
+
+  React.useEffect(() => {
+    if (isOpen) {
+      setHasOpenedSearch(true)
+    }
+  }, [isOpen])
+
+  if (!hasOpenedSearch) return null
+
+  return (
+    <React.Suspense fallback={null}>
+      <LazySearchModal />
+    </React.Suspense>
+  )
+}
+
+function IdleGtmLoader() {
+  React.useEffect(() => {
+    const gaId = 'G-JMT1Z50SPS'
+    const existingScript = document.querySelector<HTMLScriptElement>(
+      `script[src*="googletagmanager.com/gtag/js?id=${gaId}"]`,
+    )
+
+    if (existingScript) return
+
+    const inject = () => {
+      if (!window.dataLayer) {
+        window.dataLayer = []
+      }
+
+      if (!window.gtag) {
+        window.gtag = (...args: unknown[]) => {
+          window.dataLayer?.push(args)
+        }
+      }
+
+      window.gtag('js', new Date())
+      window.gtag('config', gaId)
+
+      const script = document.createElement('script')
+      script.async = true
+      script.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`
+      document.head.appendChild(script)
+    }
+
+    if ('requestIdleCallback' in window) {
+      const idleHandle = window.requestIdleCallback(inject, { timeout: 2500 })
+      return () => {
+        window.cancelIdleCallback(idleHandle)
+      }
+    }
+
+    const timeoutHandle = globalThis.setTimeout(inject, 2500)
+    return () => {
+      globalThis.clearTimeout(timeoutHandle)
+    }
+  }, [])
+
+  return null
 }

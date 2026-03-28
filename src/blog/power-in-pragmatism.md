@@ -1,6 +1,7 @@
 ---
 title: The Power in Pragmatism
 published: 2025-05-22
+excerpt: The web ecosystem moves fast. I've chased purity before, but pragmatism usually wins in the long run — especially when you're building tools developers can trust and adopt incrementally.
 authors:
   - Tanner Linsley
 ---

@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 340" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', monospace">
+  <defs>
+    <filter id="shadow" x="-4%" y="-4%" width="108%" height="108%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="900" height="340" fill="#0a0a0a" rx="12"/>
+  
+  <!-- Title -->
+  <text x="450" y="38" text-anchor="middle" fill="#737373" font-size="13" font-weight="500" letter-spacing="1.5">THE VERSION SPLIT-BRAIN PROBLEM</text>
+  
+  <!-- Left side: Training data -->
+  <rect x="40" y="65" width="380" height="230" rx="10" fill="#171717" stroke="#7f1d1d" stroke-width="1" filter="url(#shadow)"/>
+  <text x="230" y="92" text-anchor="middle" fill="#ef4444" font-size="12" font-weight="700" letter-spacing="1">MODEL TRAINING DATA</text>
+  
+  <!-- Mixed v4 and v5 patterns -->
+  <rect x="65" y="110" width="330" height="36" rx="6" fill="#1c1412" stroke="#7f1d1d" stroke-width="0.5"/>
+  <text x="80" y="133" fill="#fca5a5" font-size="11">useQuery({ queryKey, queryFn })</text>
+  <rect x="310" y="116" width="28" height="20" rx="4" fill="#7f1d1d"/>
+  <text x="324" y="131" text-anchor="middle" fill="#fca5a5" font-size="9" font-weight="700">v5</text>
+  
+  <rect x="65" y="155" width="330" height="36" rx="6" fill="#1c1412" stroke="#7f1d1d" stroke-width="0.5"/>
+  <text x="80" y="178" fill="#fca5a5" font-size="11">useQuery(queryKey, queryFn)</text>
+  <rect x="310" y="161" width="28" height="20" rx="4" fill="#7f1d1d"/>
+  <text x="324" y="176" text-anchor="middle" fill="#fca5a5" font-size="9" font-weight="700">v4</text>
+  
+  <rect x="65" y="200" width="330" height="36" rx="6" fill="#1c1412" stroke="#7f1d1d" stroke-width="0.5"/>
+  <text x="80" y="223" fill="#fca5a5" font-size="11">createFileRoute('/posts')</text>
+  <rect x="310" y="206" width="28" height="20" rx="4" fill="#7f1d1d"/>
+  <text x="324" y="221" text-anchor="middle" fill="#fca5a5" font-size="9" font-weight="700">v1</text>
+  
+  <rect x="65" y="245" width="330" height="36" rx="6" fill="#1c1412" stroke="#7f1d1d" stroke-width="0.5"/>
+  <text x="80" y="268" fill="#fca5a5" font-size="11">new Route({ path: '/posts' })</text>
+  <rect x="310" y="251" width="36" height="20" rx="4" fill="#7f1d1d"/>
+  <text x="328" y="266" text-anchor="middle" fill="#fca5a5" font-size="9" font-weight="700">pre-v1</text>
+  
+  <!-- Question mark -->
+  <text x="230" y="308" text-anchor="middle" fill="#7f1d1d" font-size="11">No mechanism to know which applies to your project</text>
+  
+  <!-- VS divider -->
+  <text x="450" y="190" text-anchor="middle" fill="#404040" font-size="16" font-weight="700">vs</text>
+  
+  <!-- Right side: Skills -->
+  <rect x="480" y="65" width="380" height="230" rx="10" fill="#171717" stroke="#166534" stroke-width="1" filter="url(#shadow)"/>
+  <text x="670" y="92" text-anchor="middle" fill="#22c55e" font-size="12" font-weight="700" letter-spacing="1">INTENT SKILLS</text>
+  
+  <!-- Clean, version-locked -->
+  <rect x="505" y="110" width="330" height="48" rx="6" fill="#0a1f0a" stroke="#166534" stroke-width="0.5"/>
+  <text x="520" y="131" fill="#86efac" font-size="11" font-weight="600">@tanstack/query-intent@5.62.0</text>
+  <text x="520" y="148" fill="#166534" font-size="10">Pinned to your installed version</text>
+  
+  <rect x="505" y="170" width="330" height="48" rx="6" fill="#0a1f0a" stroke="#166534" stroke-width="0.5"/>
+  <text x="520" y="191" fill="#86efac" font-size="11" font-weight="600">@tanstack/router-intent@1.95.0</text>
+  <text x="520" y="208" fill="#166534" font-size="10">Pinned to your installed version</text>
+  
+  <rect x="505" y="230" width="330" height="48" rx="6" fill="#0a1f0a" stroke="#166534" stroke-width="0.5"/>
+  <text x="520" y="251" fill="#86efac" font-size="11" font-weight="600">npm update = latest skills</text>
+  <text x="520" y="268" fill="#166534" font-size="10">Knowledge always matches code</text>
+
+  <text x="670" y="308" text-anchor="middle" fill="#166534" font-size="11">Versioned, maintained, unambiguous</text>
+</svg>

@@ -30,6 +30,10 @@ export const query: LibrarySlim = {
   scarfId: '53afb586-3934-4624-a37a-e680c1528e17',
   ogImage: 'https://github.com/tanstack/query/raw/main/media/repo-header.png',
   defaultDocs: 'framework/react/overview',
+  sitemap: {
+    includeLandingPage: true,
+    includeTopLevelDocsPages: true,
+  },
   installPath: 'framework/$framework/installation',
   legacyPackages: ['react-query'],
   handleRedirects: (href) => {
@@ -217,6 +221,10 @@ export const router: LibrarySlim = {
   scarfId: '3d14fff2-f326-4929-b5e1-6ecf953d24f4',
   ogImage: 'https://github.com/tanstack/router/raw/main/media/header.png',
   docsRoot: 'docs/router',
+  sitemap: {
+    includeLandingPage: true,
+    includeTopLevelDocsPages: true,
+  },
   legacyPackages: ['react-location'],
   hideCodesandboxUrl: true,
   handleRedirects: (href) => {
@@ -282,6 +290,10 @@ export const start: LibrarySlim = {
   scarfId: 'b6e2134f-e805-401d-95c3-2a7765d49a3d',
   docsRoot: 'docs/start',
   defaultDocs: 'framework/react/overview',
+  sitemap: {
+    includeLandingPage: true,
+    includeTopLevelDocsPages: true,
+  },
   installPath: 'framework/$framework/build-from-scratch',
   embedEditor: 'codesandbox',
   showNetlifyUrl: true,
@@ -323,6 +335,10 @@ export const table: LibrarySlim = {
   scarfId: 'dc8b39e1-3fe9-4f3a-8e56-d4e2cf420a9e',
   ogImage: 'https://github.com/tanstack/table/raw/main/media/repo-header.png',
   defaultDocs: 'introduction',
+  sitemap: {
+    includeLandingPage: true,
+    includeTopLevelDocsPages: true,
+  },
   corePackageName: '@tanstack/table-core',
   legacyPackages: ['react-table'],
   handleRedirects: (href) => {
@@ -392,6 +408,10 @@ export const form: LibrarySlim = {
   availableVersions: ['v1'],
   scarfId: '72ec4452-5d77-427c-b44a-57515d2d83aa',
   ogImage: 'https://github.com/tanstack/form/raw/main/media/repo-header.png',
+  sitemap: {
+    includeLandingPage: true,
+    includeTopLevelDocsPages: true,
+  },
 }
 
 export const virtual: LibrarySlim = {
@@ -523,7 +543,7 @@ export const hotkeys: LibrarySlim = {
   colorTo: 'to-rose-700',
   bgRadial: 'from-rose-500 via-rose-700/50 to-transparent',
   repo: 'tanstack/hotkeys',
-  frameworks: ['react'],
+  frameworks: ['react', 'preact', 'solid', 'svelte', 'vue', 'angular'],
   corePackageName: '@tanstack/hotkeys',
   latestVersion: 'v0',
   latestBranch: 'main',
@@ -556,6 +576,9 @@ export const db: LibrarySlim = {
   scarfId: '302d0fef-cb3f-43c6-b45c-f055b9745edb',
   ogImage: 'https://github.com/tanstack/db/raw/main/media/repo-header.png',
   defaultDocs: 'overview',
+  sitemap: {
+    includeLandingPage: true,
+  },
 }
 
 export const ai: LibrarySlim = {
@@ -582,6 +605,31 @@ export const ai: LibrarySlim = {
   availableVersions: ['v0'],
   ogImage: 'https://github.com/tanstack/ai/raw/main/media/repo-header.png',
   defaultDocs: 'getting-started/overview',
+}
+
+export const intent: LibrarySlim = {
+  id: 'intent',
+  name: 'TanStack Intent',
+  cardStyles: 'text-sky-500 dark:text-sky-400 hover:border-current',
+  to: '/intent',
+  tagline: 'Ship Agent Skills with your npm Packages',
+  description:
+    "Generate, validate, and ship Agent Skills alongside your library — versioned knowledge that agents discover automatically from node_modules. Skills live in each library's repo and update when the package updates.",
+  badge: 'alpha',
+  bgStyle: 'bg-sky-500',
+  borderStyle: 'border-sky-500/50',
+  textStyle: 'text-sky-500 dark:text-sky-400',
+  textColor: 'text-sky-600 dark:text-sky-400',
+  colorFrom: 'from-sky-500',
+  colorTo: 'to-sky-700',
+  bgRadial: 'from-sky-500 via-sky-700/50 to-transparent',
+  repo: 'tanstack/intent',
+  frameworks: [],
+  latestVersion: 'v0',
+  latestBranch: 'main',
+  availableVersions: ['v0'],
+  ogImage: 'https://github.com/tanstack/intent/raw/main/media/repo-header.png',
+  defaultDocs: 'overview',
 }
 
 export const config: LibrarySlim = {
@@ -712,6 +760,7 @@ export const libraries: LibrarySlim[] = [
   form,
   db,
   ai,
+  intent,
   virtual,
   pacer,
   hotkeys,
@@ -761,7 +810,7 @@ export const librariesByGroup = {
   state: [start, router, query, db, store, ai],
   headlessUI: [table, form, hotkeys],
   performance: [virtual, pacer],
-  tooling: [devtools, config, cli],
+  tooling: [devtools, config, cli, intent],
 }
 
 export const librariesGroupNamesMap = {
@@ -801,4 +850,5 @@ export const SIDEBAR_LIBRARY_IDS = [
   'store',
   'devtools',
   'cli',
+  'intent',
 ] as const satisfies readonly LibraryId[]

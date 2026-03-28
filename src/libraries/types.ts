@@ -24,6 +24,7 @@ export type LibraryId =
   | 'hotkeys'
   | 'db'
   | 'ai'
+  | 'intent'
   | 'config'
   | 'devtools'
   | 'mcp'
@@ -78,6 +79,10 @@ export type LibrarySlim = {
    * Defaults to true.
    */
   visible?: boolean
+  sitemap?: {
+    includeLandingPage?: boolean
+    includeTopLevelDocsPages?: boolean
+  }
 }
 
 // Extended library type - adds React node content for landing pages

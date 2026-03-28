@@ -1,6 +1,4 @@
-import { useSuspenseQuery } from '@tanstack/react-query'
-import { BlankErrorBoundary } from './BlankErrorBoundary'
-import { Suspense } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { Library } from '~/libraries'
 import { ossStatsQuery } from '~/queries/stats'
 import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
@@ -18,7 +16,6 @@ const NpmDownloadCounter = ({
   }
 }) => {
   const ref = useNpmDownloadCounter(npmData)
-  // Provide initial SSR value, hook will update it on client
   const initialCount = npmData.totalDownloads ?? 0
   return (
     <span ref={ref} style={{ fontVariantNumeric: 'tabular-nums' }}>
@@ -37,21 +34,59 @@ function isValidMetric(value: number | undefined | null): boolean {
   )
 }
 
-function OssStatsContent({ library }: { library?: Library }) {
-  const { data: stats } = useSuspenseQuery(ossStatsQuery({ library }))
+function StatValue({
+  loading,
+  placeholder,
+  children,
+}: {
+  loading: boolean
+  placeholder: string
+  children: React.ReactNode
+}) {
+  return (
+    <span className="inline-grid [&>*]:col-start-1 [&>*]:row-start-1">
+      {/* Placeholder — always rendered for sizing, fades out */}
+      <span
+        className={`inline-block rounded transition-all duration-500 ease-out ${
+          loading
+            ? 'bg-gray-200 dark:bg-gray-700 animate-pulse opacity-100'
+            : 'bg-transparent opacity-0 scale-95'
+        }`}
+        aria-hidden
+      >
+        <span className="invisible">{placeholder}</span>
+      </span>
+      {/* Real value — fades in on top */}
+      <span
+        className={`transition-all duration-500 ease-out ${
+          loading
+            ? 'opacity-0 blur-sm scale-105'
+            : 'opacity-100 blur-0 scale-100'
+        }`}
+      >
+        {children}
+      </span>
+    </span>
+  )
+}
 
-  const npmDownloads = stats.npm?.totalDownloads ?? 0
-  const starCount = stats.github?.starCount ?? 0
-  const contributorCount = stats.github?.contributorCount ?? 0
-  const dependentCount = stats.github?.dependentCount ?? 0
+export default function OssStats({ library }: { library?: Library }) {
+  const { data: stats, isLoading } = useQuery(ossStatsQuery({ library }))
 
-  const hasNpmDownloads = isValidMetric(npmDownloads)
-  const hasStarCount = isValidMetric(starCount)
-  const hasContributorCount = isValidMetric(contributorCount)
-  const hasDependentCount = isValidMetric(dependentCount)
+  const npmDownloads = stats?.npm?.totalDownloads ?? 0
+  const starCount = stats?.github?.starCount ?? 0
+  const contributorCount = stats?.github?.contributorCount ?? 0
+  const dependentCount = stats?.github?.dependentCount ?? 0
+
+  const hasNpmDownloads = !isLoading && isValidMetric(npmDownloads)
+  const hasStarCount = !isLoading && isValidMetric(starCount)
+  const hasContributorCount = !isLoading && isValidMetric(contributorCount)
+  const hasDependentCount = !isLoading && isValidMetric(dependentCount)
 
   const hasAnyData =
     hasNpmDownloads || hasStarCount || hasContributorCount || hasDependentCount
+
+  const loading = isLoading || !stats
 
   return (
     <div>
@@ -59,7 +94,7 @@ function OssStatsContent({ library }: { library?: Library }) {
         className="relative p-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8 items-center
       justify-center xl:place-items-center rounded-[2rem]"
       >
-        {!hasAnyData && (
+        {!loading && !hasAnyData && (
           <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-pink-500/10 to-purple-500/10 border border-pink-500/20 dark:border-pink-500/30 backdrop-blur-sm pointer-events-auto">
               <span className="text-2xl">🚀</span>
@@ -76,17 +111,19 @@ function OssStatsContent({ library }: { library?: Library }) {
           target="_blank"
           rel="noreferrer"
           className={`group flex gap-4 items-center ${
-            !hasNpmDownloads ? 'opacity-50' : ''
-          } ${!hasAnyData ? 'blur-sm' : ''}`}
+            !loading && !hasNpmDownloads ? 'opacity-50' : ''
+          } ${!loading && !hasAnyData ? 'blur-sm' : ''}`}
         >
           <Download className="text-2xl group-hover:text-emerald-500 transition-colors duration-200" />
           <div>
             <div className="text-2xl font-bold opacity-80 relative group-hover:text-emerald-500 transition-colors duration-200">
-              {hasNpmDownloads ? (
-                <NpmDownloadCounter npmData={stats.npm} />
-              ) : (
-                <span>0</span>
-              )}
+              <StatValue loading={loading} placeholder="0,000,000,000">
+                {hasNpmDownloads && stats ? (
+                  <NpmDownloadCounter npmData={stats.npm} />
+                ) : (
+                  <span>0</span>
+                )}
+              </StatValue>
             </div>
             <div className="text-sm opacity-60 font-medium italic group-hover:text-emerald-500 transition-colors duration-200">
               NPM Downloads
@@ -102,13 +139,15 @@ function OssStatsContent({ library }: { library?: Library }) {
           target="_blank"
           rel="noreferrer"
           className={`group flex gap-4 items-center ${
-            !hasStarCount ? 'opacity-50' : ''
-          } ${!hasAnyData ? 'blur-sm' : ''}`}
+            !loading && !hasStarCount ? 'opacity-50' : ''
+          } ${!loading && !hasAnyData ? 'blur-sm' : ''}`}
         >
           <Star className="group-hover:text-yellow-500 text-2xl transition-colors duration-200" />
           <div>
-            <div className="text-2xl font-bold opacity-80 leading-none group-hover:text-yellow-500 transition-colors duration-200 relative">
-              {hasStarCount ? starCount.toLocaleString() : '0'}
+            <div className="text-2xl font-bold opacity-80 group-hover:text-yellow-500 transition-colors duration-200 relative">
+              <StatValue loading={loading} placeholder="000,000">
+                {hasStarCount ? starCount.toLocaleString() : '0'}
+              </StatValue>
             </div>
             <div className="text-sm opacity-60 font-medium italic -mt-1 group-hover:text-yellow-500 transition-colors duration-200">
               Stars on GitHub
@@ -117,13 +156,15 @@ function OssStatsContent({ library }: { library?: Library }) {
         </a>
         <div
           className={`flex gap-4 items-center ${
-            !hasContributorCount ? 'opacity-50' : ''
-          } ${!hasAnyData ? 'blur-sm' : ''}`}
+            !loading && !hasContributorCount ? 'opacity-50' : ''
+          } ${!loading && !hasAnyData ? 'blur-sm' : ''}`}
         >
           <Users className="text-2xl" />
-          <div className="">
+          <div>
             <div className="text-2xl font-bold opacity-80 relative">
-              {hasContributorCount ? contributorCount.toLocaleString() : '0'}
+              <StatValue loading={loading} placeholder="0,000">
+                {hasContributorCount ? contributorCount.toLocaleString() : '0'}
+              </StatValue>
             </div>
             <div className="text-sm opacity-60 font-medium italic -mt-1">
               Contributors on GitHub
@@ -132,13 +173,15 @@ function OssStatsContent({ library }: { library?: Library }) {
         </div>
         <div
           className={`flex gap-4 items-center ${
-            !hasDependentCount ? 'opacity-50' : ''
-          } ${!hasAnyData ? 'blur-sm' : ''}`}
+            !loading && !hasDependentCount ? 'opacity-50' : ''
+          } ${!loading && !hasAnyData ? 'blur-sm' : ''}`}
         >
           <Box className="text-2xl" />
-          <div className="">
+          <div>
             <div className="text-2xl font-bold opacity-80 relative">
-              {hasDependentCount ? dependentCount.toLocaleString() : '0'}
+              <StatValue loading={loading} placeholder="0,000,000">
+                {hasDependentCount ? dependentCount.toLocaleString() : '0'}
+              </StatValue>
             </div>
             <div className="text-sm opacity-60 font-medium italic -mt-1">
               Dependents on GitHub
@@ -147,61 +190,5 @@ function OssStatsContent({ library }: { library?: Library }) {
         </div>
       </Card>
     </div>
-  )
-}
-
-function OssStatsSkeleton() {
-  return (
-    <Card
-      className="relative p-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8 items-center
-      justify-center xl:place-items-center rounded-[2rem]"
-    >
-      <div className="flex gap-4 items-center">
-        <Download className="text-2xl" />
-        <div>
-          <div className="text-2xl font-bold opacity-80 h-7 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-          <div className="text-sm opacity-60 font-medium italic">
-            NPM Downloads
-          </div>
-        </div>
-      </div>
-      <div className="flex gap-4 items-center">
-        <Star className="text-2xl" />
-        <div>
-          <div className="text-2xl font-bold opacity-80 h-7 w-20 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-          <div className="text-sm opacity-60 font-medium italic -mt-1">
-            Stars on GitHub
-          </div>
-        </div>
-      </div>
-      <div className="flex gap-4 items-center">
-        <Users className="text-2xl" />
-        <div>
-          <div className="text-2xl font-bold opacity-80 h-7 w-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-          <div className="text-sm opacity-60 font-medium italic -mt-1">
-            Contributors on GitHub
-          </div>
-        </div>
-      </div>
-      <div className="flex gap-4 items-center">
-        <Box className="text-2xl" />
-        <div>
-          <div className="text-2xl font-bold opacity-80 h-7 w-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-          <div className="text-sm opacity-60 font-medium italic -mt-1">
-            Dependents on GitHub
-          </div>
-        </div>
-      </div>
-    </Card>
-  )
-}
-
-export default function OssStats({ library }: { library?: Library }) {
-  return (
-    <Suspense fallback={<OssStatsSkeleton />}>
-      <BlankErrorBoundary>
-        <OssStatsContent library={library} />
-      </BlankErrorBoundary>
-    </Suspense>
   )
 }

@@ -142,6 +142,16 @@ const MaintainerSocialIcons: Record<
       <path d="M5.20238 1.4019C7.95375 3.43816 10.9136 7.56632 12 9.78164V15.6329C12 15.5084 11.9513 15.6491 11.8463 15.9523C11.2793 17.594 9.0645 24.0012 4.00012 18.8791C1.3335 16.1822 2.568 13.4854 7.422 12.6712C4.64512 13.1368 1.52325 12.3672 0.66675 9.34985C0.42 8.48185 0 3.13532 0 2.41322C0 -1.20394 3.21712 -0.066993 5.20238 1.4019ZM18.7976 1.4019C16.0462 3.43816 13.0864 7.56632 12 9.78164V15.6329C12 15.5084 12.0487 15.6491 12.1537 15.9523C12.7207 17.594 14.9355 24.0012 19.9999 18.8791C22.6665 16.1822 21.432 13.4854 16.578 12.6712C19.3549 13.1368 22.4768 12.3672 23.3333 9.34985C23.58 8.48185 24 3.13532 24 2.41322C24 -1.20394 20.7832 -0.066993 18.7976 1.4019Z" />
     </svg>
   ),
+  linkedIn: (
+    <svg
+      viewBox="0 0 24 24"
+      className="w-5 h-5"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+    </svg>
+  ),
   website: (
     <svg
       viewBox="0 0 24 24"
@@ -224,12 +234,14 @@ export function CompactMaintainerCard({
       aria-label={`View ${maintainer.name}'s GitHub profile`}
       className="group relative aspect-square block rounded-lg shadow-xs border border-gray-200 dark:border-gray-800 overflow-hidden"
       tabIndex={0}
-      style={{
-        backgroundImage: `url(${maintainer.avatar})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }}
     >
+      <img
+        alt={`Avatar of ${maintainer.name}`}
+        className="absolute inset-0 w-full h-full object-cover"
+        src={maintainer.avatar}
+        loading="lazy"
+        decoding="async"
+      />
       <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />
       <div className="absolute inset-0 p-3 flex flex-col justify-end">
         <div className="text-white">

@@ -7,11 +7,10 @@ import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
 import { Button } from '~/ui'
-import { PartnersSection } from '~/components/PartnersSection'
-import { MaintainersSection } from '~/components/MaintainersSection'
 import { CheckCircleIcon } from '~/components/icons/CheckCircleIcon'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
+import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 
 const library = getLibrary('config')
 
@@ -62,8 +61,11 @@ export default function ConfigLanding() {
         </div>
       </div>
 
-      <MaintainersSection libraryId="config" />
-      <PartnersSection libraryId="config" />
+      <LazyLandingCommunitySection
+        libraryId="config"
+        libraryName="TanStack Config"
+        showShowcases={false}
+      />
       <LazySponsorSection />
       <LandingPageGad />
 

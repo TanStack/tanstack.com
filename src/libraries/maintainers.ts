@@ -288,6 +288,19 @@ export const allMaintainers: Maintainer[] = [
     },
   },
   {
+    name: 'Wonsuk Choi',
+    avatar: 'https://github.com/sukvvon.png',
+    github: 'sukvvon',
+    maintainerOf: ['query'],
+    frameworkExpertise: ['react'],
+    specialties: ['TypeScript', 'Test'],
+    social: {
+      linkedIn: 'https://www.linkedin.com/in/sukvvon',
+      twitter: 'https://x.com/sukvvon',
+      bluesky: 'https://bsky.app/profile/sukvvon.bsky.social',
+    },
+  },
+  {
     name: 'Sarah Gerrard',
     avatar: 'https://github.com/ladybluenotes.png',
     github: 'ladybluenotes',

@@ -6,6 +6,12 @@
     "linkUrl": "https://ai-text-humanizer.com/?utm_source=tanstack"
   },
   {
+    "login": "aihumanizer-io",
+    "name": "AI Humanizer",
+    "imageUrl": "https://aihumanizer.io/favicon.ico",
+    "linkUrl": "https://aihumanizer.io"
+  },
+  {
     "login": "rewriterprojs",
     "name": "humanizer",
     "imageUrl": "https://superhumanizer.ai/images/logo.png",
@@ -16,6 +22,12 @@
     "name": "Automatio AI",
     "imageUrl": "https://i.imgur.com/42qFfkw.png",
     "linkUrl": "https://automatio.ai"
+  },
+  {
+    "login": "homeworkaid",
+    "name": "Math Solver",
+    "imageUrl": "https://homeworkaid.ai/favicon.ico",
+    "linkUrl": "https://homeworkaid.ai/ai-math-solver"
   },
   {
     "login": "sanity-io",

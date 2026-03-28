@@ -34,7 +34,7 @@ let highlighterPromise: Promise<HighlighterGeneric<any, any>> | null = null
 async function getShikiHighlighter(): Promise<HighlighterGeneric<any, any>> {
   if (!highlighterPromise) {
     highlighterPromise = createHighlighter({
-      themes: ['github-light', 'vitesse-dark'],
+      themes: ['github-light', 'aurora-x'],
       langs: [
         'typescript',
         'javascript',
@@ -669,9 +669,17 @@ export function ExplorerPanel() {
     const isSelected = selectedAddon === featureId
 
     return (
-      <button
+      <div
         key={featureId}
         onClick={() => setSelectedAddon(featureId)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            setSelectedAddon(featureId)
+          }
+        }}
+        role="button"
+        tabIndex={0}
         className={twMerge(
           'w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-colors',
           isSelected
@@ -720,7 +728,7 @@ export function ExplorerPanel() {
             </svg>
           </button>
         </div>
-      </button>
+      </div>
     )
   }
 
@@ -1439,7 +1447,7 @@ function SyntaxHighlightedCode({
         })
         const darkHtml = highlighter.codeToHtml(content.trimEnd(), {
           lang: effectiveLang,
-          theme: 'vitesse-dark',
+          theme: 'aurora-x',
         })
         if (!cancelled) {
           setHighlightedLight(lightHtml)

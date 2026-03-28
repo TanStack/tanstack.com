@@ -8,13 +8,11 @@ import { FeatureGrid } from '~/components/FeatureGrid'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { BottomCTA } from '~/components/BottomCTA'
 import LandingPageGad from '~/components/LandingPageGad'
-import { PartnersSection } from '~/components/PartnersSection'
-import { MaintainersSection } from '~/components/MaintainersSection'
 import { LibraryTestimonials } from '~/components/LibraryTestimonials'
-import { LibraryShowcases } from '~/components/ShowcaseSection'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
-import { CodeExampleCard } from '~/components/CodeExampleCard'
+import { LazyCodeExampleCard } from '~/components/LazyCodeExampleCard'
+import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 import { StackBlitzSection } from '~/components/StackBlitzSection'
 
 const library = getLibrary('form')
@@ -148,7 +146,7 @@ export default function FormLanding() {
 
       <LibraryTestimonials testimonials={formProject.testimonials} />
 
-      <CodeExampleCard
+      <LazyCodeExampleCard
         frameworks={formProject.frameworks}
         codeByFramework={codeExamples}
       />
@@ -192,12 +190,10 @@ export default function FormLanding() {
         title={(framework) => `tanstack//${framework}-form: simple`}
       />
 
-      <MaintainersSection libraryId="form" />
-      <PartnersSection libraryId="form" />
-
-      <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-        <LibraryShowcases libraryId="form" libraryName="TanStack Form" />
-      </div>
+      <LazyLandingCommunitySection
+        libraryId="form"
+        libraryName="TanStack Form"
+      />
 
       <LazySponsorSection />
       <LandingPageGad />

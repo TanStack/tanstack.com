@@ -1,8 +1,6 @@
 import { useParams } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
-import { PartnersSection } from '~/components/PartnersSection'
-import { MaintainersSection } from '~/components/MaintainersSection'
 import { BottomCTA } from '~/components/BottomCTA'
 import { aiProject } from '~/libraries/ai'
 import { AILibraryHero } from '~/components/AILibraryHero'
@@ -12,6 +10,7 @@ import LandingPageGad from '~/components/LandingPageGad'
 import { LibraryHero } from '~/components/LibraryHero'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
+import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 
 const library = getLibrary('ai')
 
@@ -122,8 +121,11 @@ export default function AiLanding() {
         </div>
       </div>
 
-      <MaintainersSection libraryId="ai" />
-      <PartnersSection libraryId="ai" />
+      <LazyLandingCommunitySection
+        libraryId="ai"
+        libraryName="TanStack AI"
+        showShowcases={false}
+      />
       <LazySponsorSection />
       <LandingPageGad />
 

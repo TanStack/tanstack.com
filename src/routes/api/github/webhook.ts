@@ -1,20 +1,15 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Webhooks } from '@octokit/webhooks'
 import { Octokit } from '@octokit/rest'
-import { createAppAuth } from '@octokit/auth-app'
+import { env } from '~/utils/env'
 
 const webhooks = new Webhooks({
-  secret: process.env.GITHUB_WEBHOOK_SECRET ?? 'test',
+  secret: env.GITHUB_WEBHOOK_SECRET,
 })
 
-function getOctokit(installationId: number) {
+function getOctokit() {
   return new Octokit({
-    authStrategy: createAppAuth,
-    auth: {
-      appId: process.env.GITHUB_APP_ID!,
-      privateKey: process.env.GITHUB_PRIVATE_KEY!,
-      installationId,
-    },
+    auth: env.GITHUB_AUTH_TOKEN
   })
 }
 
@@ -22,7 +17,7 @@ function getOctokit(installationId: number) {
 webhooks.on('pull_request.opened', async ({ payload }) => {
   console.log('PR opened:', payload.pull_request.title)
 
-  const octokit = getOctokit(payload.installation!.id)
+  const octokit = getOctokit()
 
   await octokit.issues.createComment({
     owner: payload.repository.owner.login,

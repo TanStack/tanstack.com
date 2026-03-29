@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Webhooks } from '@octokit/webhooks'
 import { Octokit } from '@octokit/rest'
 import { env } from '~/utils/env'
+import { changesetPreview } from "~/github/changesetPreview"
 
 const webhooks = new Webhooks({
   secret: env.GITHUB_WEBHOOK_SECRET,
@@ -14,16 +15,17 @@ function getOctokit() {
 }
 
 // Register event handlers
-webhooks.on('pull_request.opened', async ({ payload }) => {
+webhooks.on(['pull_request.opened', 'pull_request.synchronize'], async ({ payload }) => {
   console.log('PR opened:', payload.pull_request.title)
 
   const octokit = getOctokit()
 
-  await octokit.issues.createComment({
-    owner: payload.repository.owner.login,
-    repo: payload.repository.name,
-    issue_number: payload.pull_request.number,
-    body: `Thanks for opening this PR, @${payload.pull_request.user.login}! 👋`,
+  await changesetPreview({
+    owner: payload.pull_request.head.repo.owner!.login,
+    repo: payload.pull_request.head.repo.name,
+    ref: payload.pull_request.head.ref,
+    pull_number: payload.number,
+    octokit
   })
 })
 

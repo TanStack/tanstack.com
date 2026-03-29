@@ -54,7 +54,7 @@ Another long-standing [discussion from 2021](https://github.com/TanStack/query/d
 
 ### The `queryOptions` API
 
-Now that we have a unified way to call `useQuery` (with just one object as parameter), we can also build better abstractions on top of that. The new [queryOptions](/query/v5/docs/react/typescript#typing-query-options) function gives us a type-safe way to share our query definitions between `useQuery`and imperative methods like `queryClient.prefetchQuery`. On top of that, it can make `queryClient.getQueryData` type-safe as well.
+Now that we have a unified way to call `useQuery` (with just one object as parameter), we can also build better abstractions on top of that. The new [queryOptions](/query/v5/docs/react/typescript#typing-query-options) function gives us a type-safe way to share our query definitions between `useQuery` and imperative methods like `queryClient.prefetchQuery`. On top of that, it can make `queryClient.getQueryData` type-safe as well.
 
 ---
 

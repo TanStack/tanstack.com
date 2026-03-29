@@ -150,7 +150,7 @@ export default function OssStats({ library }: { library?: Library }) {
               </StatValue>
             </div>
             <div className="text-sm opacity-60 font-medium italic -mt-1 group-hover:text-yellow-500 transition-colors duration-200">
-              Stars on Github
+              Stars on GitHub
             </div>
           </div>
         </a>

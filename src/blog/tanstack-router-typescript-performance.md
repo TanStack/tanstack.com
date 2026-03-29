@@ -175,7 +175,7 @@ This change along with other type level changes to conditionally use `ParseRoute
 
 ![Tracing route tree declaration being inferred faster](/blog-assets/tsr-perf-milestone/tracing-faster.png)
 
-The first file to reference a `<Link>` no longer triggers inference from the whole route tree which increases perceived language service speed. significantly
+The first file to reference a `<Link>` no longer triggers inference from the whole route tree which increases perceived language service speed significantly.
 
 By doing this, TypeScript will infer the types required for a specific route when it is referenced by a `<Link>`. This may not translate to overall better TypeScript type-checking time when all routes are being linked to, but it is a significant speed increase for the language service when in a file/region.
 

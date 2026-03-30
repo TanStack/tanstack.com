@@ -302,7 +302,7 @@ function GitHubStatsAdmin() {
     [refreshingKey, refreshAllMutation, refreshMutation],
   )
 
-  // eslint-disable-next-line react-hooks/incompatible-library
+  // oxlint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data: cacheEntries ?? [],
     columns,

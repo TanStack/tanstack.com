@@ -77,7 +77,7 @@ function MobilePartnersStrip({
   }, [isHovered])
 
   return (
-    // eslint-disable-next-line jsx-a11y/no-static-element-interactions,jsx-a11y/click-events-have-key-events
+    // oxlint-disable-next-line jsx-a11y/no-static-element-interactions,jsx-a11y/click-events-have-key-events
     <div
       className="flex-1 flex items-center gap-2 min-w-0"
       onClick={(e) => e.preventDefault()}

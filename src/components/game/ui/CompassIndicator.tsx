@@ -12,7 +12,7 @@ export function CompassIndicator() {
 
   useEffect(() => {
     if (phase !== 'playing' || !compassTarget) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- Clearing indicator when game state changes
+      // oxlint-disable-next-line react-hooks/set-state-in-effect -- Clearing indicator when game state changes
       setIndicator(null)
       return
     }

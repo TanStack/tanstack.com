@@ -856,7 +856,7 @@ export function SearchModal() {
                     reset: 'p-1 opacity-50 hover:opacity-100',
                   }}
                   resetIconComponent={resetIconComponent}
-                  // eslint-disable-next-line jsx-a11y/no-autofocus
+                  // oxlint-disable-next-line jsx-a11y/no-autofocus
                   autoFocus
                 />
               </div>

@@ -132,7 +132,9 @@ export async function resolveDocsRedirect(opts: {
   docsRoot: string
   docsPaths: Array<string>
 }) {
-  const manifest = await getDocsRedirectManifest(opts)
+  const manifest = await fetchDocsRedirectManifest({
+    data: opts,
+  })
 
   for (const docsPath of opts.docsPaths) {
     const normalizedDocsPath = normalizeDocsRedirectPath(docsPath)
@@ -212,6 +214,25 @@ async function getDocsRedirectManifest(opts: {
     },
   })
 }
+
+const fetchDocsRedirectManifest = createServerFn({
+  method: 'GET',
+})
+  .inputValidator(
+    v.object({
+      repo: v.string(),
+      branch: v.string(),
+      docsRoot: v.string(),
+      docsPaths: v.array(v.string()),
+    }),
+  )
+  .handler(async ({ data }) => {
+    return getDocsRedirectManifest({
+      repo: data.repo,
+      branch: data.branch,
+      docsRoot: data.docsRoot,
+    })
+  })
 
 function flattenDocsNodes(nodes: Array<DocsTreeNode>): Array<DocsTreeNode> {
   return nodes.flatMap((node) => [

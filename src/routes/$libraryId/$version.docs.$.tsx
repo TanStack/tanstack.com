@@ -26,6 +26,19 @@ export const Route = createFileRoute('/$libraryId/$version/docs/$')({
     const branch = getBranch(library, version)
     const docsRoot = library.docsRoot || 'docs'
 
+    const redirectPath = await resolveDocsRedirect({
+      repo: library.repo,
+      branch,
+      docsRoot,
+      docsPaths: docsPath ? [docsPath] : [],
+    })
+
+    if (redirectPath !== null) {
+      throw redirect({
+        href: `/${libraryId}/${version}/docs${redirectPath ? `/${redirectPath}` : ''}`,
+      })
+    }
+
     try {
       return await loadDocs({
         repo: library.repo,
@@ -38,19 +51,6 @@ export const Route = createFileRoute('/$libraryId/$version/docs/$')({
         (error && typeof error === 'object' && 'isNotFound' in error)
 
       if (isNotFoundError) {
-        const redirectPath = await resolveDocsRedirect({
-          repo: library.repo,
-          branch,
-          docsRoot,
-          docsPaths: docsPath ? [docsPath] : [],
-        })
-
-        if (redirectPath !== null) {
-          throw redirect({
-            href: `/${libraryId}/${version}/docs${redirectPath ? `/${redirectPath}` : ''}`,
-          })
-        }
-
         throw notFound()
       }
 

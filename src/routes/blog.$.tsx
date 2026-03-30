@@ -21,22 +21,35 @@ import { RecentPostsWidget } from '~/components/RecentPostsWidget'
 import { Toc } from '~/components/Toc'
 import { Breadcrumbs } from '~/components/Breadcrumbs'
 import { renderMarkdown } from '~/utils/markdown'
+import { buildRedirectManifest } from '~/utils/redirects'
 
 function handleRedirects(docsPath: string) {
+  const redirectEntries = allPosts.flatMap((post) =>
+    (post.redirectFrom ?? []).map((redirectFrom) => ({
+      from: normalizeBlogRedirectPath(redirectFrom),
+      to: post.slug,
+      source: post._meta.filePath,
+    })),
+  )
+  const redirectOwners = buildRedirectManifest(redirectEntries, {
+    label: 'blog posts',
+    formatTarget: (target) => `/blog/${target}`,
+  })
+
   const normalizedPaths = new Set([
     normalizeBlogRedirectPath(docsPath),
     normalizeBlogRedirectPath(`/blog/${docsPath}`),
   ])
 
-  const redirectedPost = allPosts.find((post) =>
-    (post.redirectFrom ?? []).some((redirectFrom) =>
-      normalizedPaths.has(normalizeBlogRedirectPath(redirectFrom)),
-    ),
-  )
+  const redirectedPostSlug = Array.from(normalizedPaths).flatMap((path) => {
+    const redirectOwner = redirectOwners[path]
 
-  if (redirectedPost) {
+    return redirectOwner ? [redirectOwner] : []
+  })[0]
+
+  if (redirectedPostSlug) {
     throw redirect({
-      href: `/blog/${redirectedPost.slug}`,
+      href: `/blog/${redirectedPostSlug}`,
     })
   }
 

@@ -9,6 +9,7 @@ import { createServerFn } from '@tanstack/react-start'
 import * as v from 'valibot'
 import { setResponseHeader } from '@tanstack/react-start/server'
 import { fetchCached } from './cache.server'
+import { buildRedirectManifest, type RedirectManifestEntry } from './redirects'
 import { removeLeadingSlash } from './utils'
 
 export const loadDocs = async ({
@@ -176,13 +177,13 @@ async function getDocsRedirectManifest(opts: {
           const canonicalPath = getCanonicalDocsPath(node.path, docsRoot)
 
           if (canonicalPath === null) {
-            return [] as Array<readonly [string, string]>
+            return [] as Array<RedirectManifestEntry>
           }
 
           const file = await fetchRepoFile(repo, branch, node.path)
 
           if (!file) {
-            return [] as Array<readonly [string, string]>
+            return [] as Array<RedirectManifestEntry>
           }
 
           const frontMatter = extractFrontMatter(file)
@@ -194,12 +195,20 @@ async function getDocsRedirectManifest(opts: {
                 return []
               }
 
-              return [[redirectFrom, canonicalPath] as const]
+              return [
+                {
+                  from: redirectFrom,
+                  to: canonicalPath,
+                  source: node.path,
+                },
+              ]
             })
         }),
       )
 
-      return Object.fromEntries(entries.flat())
+      return buildRedirectManifest(entries.flat(), {
+        label: `docs redirects for ${repo}@${branch}:${docsRoot}`,
+      })
     },
   })
 }

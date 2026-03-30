@@ -102,7 +102,7 @@
     "remark-rehype": "^11.1.2",
     "remove-markdown": "^0.5.0",
     "resend": "^6.6.0",
-    "shiki": "^1.4.0",
+    "shiki": "^4.0.2",
     "tailwind-merge": "^1.14.0",
     "tar-stream": "^3.1.8",
     "three": "^0.182.0",
@@ -122,7 +122,7 @@
     "@content-collections/vite": "^0.2.4",
     "@eslint/js": "^9.39.1",
     "@playwright/test": "^1.57.0",
-    "@shikijs/transformers": "^1.10.3",
+    "@shikijs/transformers": "^4.0.2",
     "@types/express": "^5.0.3",
     "@types/hast": "^3.0.4",
     "@types/node": "^24.3.0",
@@ -153,7 +153,7 @@
     "vite": "^8.0.3"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   },
   "pnpm": {
     "overrides": {

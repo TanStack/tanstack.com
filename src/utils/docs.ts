@@ -191,7 +191,9 @@ async function getDocsRedirectManifest(opts: {
           const frontMatter = extractFrontMatter(file)
 
           return (frontMatter.data.redirectFrom ?? [])
-            .map((redirectFrom) => normalizeDocsRedirectPath(redirectFrom))
+            .map((redirectFrom) =>
+              normalizeDocsRedirectPath(redirectFrom, docsRoot),
+            )
             .flatMap((redirectFrom) => {
               if (!redirectFrom || redirectFrom === canonicalPath) {
                 return []
@@ -258,8 +260,34 @@ function getCanonicalDocsPath(filePath: string, docsRoot: string) {
   return relativePath
 }
 
-function normalizeDocsRedirectPath(path: string) {
+function normalizeDocsRedirectPath(path: string, docsRoot?: string) {
   const normalizedPath = removeLeadingSlash(path.trim()).replace(/\/+$/, '')
 
+  if (!normalizedPath) {
+    return null
+  }
+
+  const docsRootPrefix = getDocsRootPrefix(docsRoot)
+
+  if (docsRootPrefix && normalizedPath.startsWith(`${docsRootPrefix}/`)) {
+    return normalizedPath.slice(docsRootPrefix.length + 1) || null
+  }
+
   return normalizedPath || null
+}
+
+function getDocsRootPrefix(docsRoot?: string) {
+  if (!docsRoot) {
+    return null
+  }
+
+  const normalizedDocsRoot = removeLeadingSlash(docsRoot).replace(/\/+$/, '')
+
+  if (!normalizedDocsRoot.startsWith('docs/')) {
+    return null
+  }
+
+  const docsRootPrefix = normalizedDocsRoot.slice('docs/'.length)
+
+  return docsRootPrefix || null
 }

@@ -50,6 +50,7 @@ function handleRedirects(docsPath: string) {
   if (redirectedPostSlug) {
     throw redirect({
       href: `/blog/${redirectedPostSlug}`,
+      statusCode: 308,
     })
   }
 

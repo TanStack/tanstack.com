@@ -36,6 +36,7 @@ export const Route = createFileRoute('/$libraryId/$version/docs/$')({
     if (redirectPath !== null) {
       throw redirect({
         href: `/${libraryId}/${version}/docs${redirectPath ? `/${redirectPath}` : ''}`,
+        statusCode: 308,
       })
     }
 

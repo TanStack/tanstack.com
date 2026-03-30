@@ -126,7 +126,7 @@ export function GameMachineProvider({ children }: { children: ReactNode }) {
         highestBadge,
       })
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, []) // Only on mount
 
   // Sync zustand phase changes to machine (when zustand is source of truth)

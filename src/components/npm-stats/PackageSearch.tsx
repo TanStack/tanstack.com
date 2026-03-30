@@ -111,7 +111,7 @@ export function PackageSearch({
               value={inputValue}
               onValueChange={handleInputChange}
               onFocus={() => setOpen(true)}
-              // eslint-disable-next-line jsx-a11y/no-autofocus
+              // oxlint-disable-next-line jsx-a11y/no-autofocus
               autoFocus={autoFocus}
             />
           </div>

@@ -284,7 +284,7 @@ export const allMaintainers: Maintainer[] = [
     social: {
       twitter: 'https://x.com/manudeli_',
       bluesky: 'https://bsky.app/profile/manudeli.bsky.social',
-      website: 'https://www.linkedin.com/in/jonghyeonko',
+      linkedIn: 'https://www.linkedin.com/in/jonghyeonko',
     },
   },
   {
@@ -383,7 +383,7 @@ export const allMaintainers: Maintainer[] = [
     social: {
       twitter: 'https://x.com/Arnoud_dv',
       bluesky: 'https://bsky.app/profile/arnoud.dev',
-      website: 'https://www.linkedin.com/in/arnouddv/',
+      linkedIn: 'https://www.linkedin.com/in/arnouddv/',
     },
     workshopsAvailable: true,
   },

@@ -36,6 +36,10 @@ import { Navbar } from '~/components/Navbar'
 import { THEME_COLORS } from '~/utils/utils'
 import { useHubSpotChat } from '~/hooks/useHubSpotChat'
 
+const GOOGLE_ANALYTICS_ID = 'G-JMT1Z50SPS'
+const GOOGLE_ANALYTICS_SCRIPT_SRC = `https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ANALYTICS_ID}`
+const GOOGLE_ANALYTICS_BOOTSTRAP = `window.dataLayer = window.dataLayer || [];window.gtag = window.gtag || function(){window.dataLayer.push(arguments);};window.gtag('js', new Date());window.gtag('config', '${GOOGLE_ANALYTICS_ID}');`
+
 declare global {
   interface Window {
     dataLayer: unknown[] | undefined
@@ -100,6 +104,13 @@ export const Route = createRootRouteWithContext<{
       // Theme detection script - must run before body renders to prevent flash
       {
         children: `(function(){try{var t=localStorage.getItem('theme')||'auto';var v=['light','dark','auto'].includes(t)?t:'auto';if(v==='auto'){var a=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.classList.add(a,'auto')}else{document.documentElement.classList.add(v)}}catch(e){var a=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.classList.add(a,'auto')}})()`,
+      },
+      {
+        async: true,
+        src: GOOGLE_ANALYTICS_SCRIPT_SRC,
+      },
+      {
+        children: GOOGLE_ANALYTICS_BOOTSTRAP,
       },
     ],
   }),
@@ -189,7 +200,7 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
       <body className="overflow-x-hidden">
         <LoginModalProvider>
           <ToastProvider>
-            <IdleGtmLoader />
+            <GoogleAnalyticsTracker />
             {hideNavbar ? children : <Navbar>{children}</Navbar>}
             {showDevtools ? (
               <LazyRouterDevtools position="bottom-right" />
@@ -260,7 +271,7 @@ function SearchHotkeyController() {
   )
 }
 
-function IdleGtmLoader() {
+function GoogleAnalyticsTracker() {
   const pagePath = useRouterState({
     select: (s) => {
       const pathname = s.resolvedLocation?.pathname || '/'
@@ -269,38 +280,15 @@ function IdleGtmLoader() {
       return `${pathname}${search}`
     },
   })
-
-  React.useEffect(() => {
-    const gaId = 'G-JMT1Z50SPS'
-    const existingScript = document.querySelector<HTMLScriptElement>(
-      `script[src*="googletagmanager.com/gtag/js?id=${gaId}"]`,
-    )
-
-    if (!window.dataLayer) {
-      window.dataLayer = []
-    }
-
-    if (!window.gtag) {
-      window.gtag = (...args: unknown[]) => {
-        window.dataLayer?.push(args)
-      }
-    }
-
-    window.gtag('js', new Date())
-    window.gtag('config', gaId, {
-      send_page_view: false,
-    })
-
-    if (!existingScript) {
-      const script = document.createElement('script')
-      script.async = true
-      script.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`
-      document.head.appendChild(script)
-    }
-  }, [])
+  const hasTrackedInitialPage = React.useRef(false)
 
   React.useEffect(() => {
     if (!window.gtag) {
+      return
+    }
+
+    if (!hasTrackedInitialPage.current) {
+      hasTrackedInitialPage.current = true
       return
     }
 

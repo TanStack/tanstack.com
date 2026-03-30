@@ -59,7 +59,6 @@ export default defineConfig({
         return id.includes('postgres')
       },
       output: {
-        onlyExplicitManualChunks: true,
         manualChunks: (id) => {
           // Vendor chunk splitting for better caching
           if (id.includes('node_modules')) {

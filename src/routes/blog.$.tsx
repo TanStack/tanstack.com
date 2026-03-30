@@ -23,11 +23,32 @@ import { Breadcrumbs } from '~/components/Breadcrumbs'
 import { renderMarkdown } from '~/utils/markdown'
 
 function handleRedirects(docsPath: string) {
+  const normalizedPaths = new Set([
+    normalizeBlogRedirectPath(docsPath),
+    normalizeBlogRedirectPath(`/blog/${docsPath}`),
+  ])
+
+  const redirectedPost = allPosts.find((post) =>
+    (post.redirectFrom ?? []).some((redirectFrom) =>
+      normalizedPaths.has(normalizeBlogRedirectPath(redirectFrom)),
+    ),
+  )
+
+  if (redirectedPost) {
+    throw redirect({
+      href: `/blog/${redirectedPost.slug}`,
+    })
+  }
+
   if (docsPath.includes('directives-the-new-framework-lock-in')) {
     throw redirect({
       href: '/blog/directives-and-the-platform-boundary',
     })
   }
+}
+
+function normalizeBlogRedirectPath(path: string) {
+  return path.replace(/^\/+|\/+$/g, '')
 }
 
 const fetchBlogPost = createServerFn({ method: 'GET' })

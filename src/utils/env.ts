@@ -3,7 +3,7 @@ import * as v from 'valibot'
 // Define server-only schema
 const serverEnvSchema = v.object({
   GITHUB_AUTH_TOKEN: v.optional(v.string(), 'USE_A_REAL_KEY_IN_PRODUCTION'),
-  GITHUB_WEBHOOK_SECRET: v.optional(v.string()),
+  GITHUB_WEBHOOK_SECRET: v.optional(v.string(), 'USE_A_REAL_KEY_IN_PRODUCTION'),
   GITHUB_OAUTH_CLIENT_ID: v.optional(v.string()),
   GITHUB_OAUTH_CLIENT_SECRET: v.optional(v.string()),
   GOOGLE_OAUTH_CLIENT_ID: v.optional(v.string()),

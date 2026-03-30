@@ -261,46 +261,55 @@ function SearchHotkeyController() {
 }
 
 function IdleGtmLoader() {
+  const pagePath = useRouterState({
+    select: (s) => {
+      const pathname = s.resolvedLocation?.pathname || '/'
+      const search = s.resolvedLocation?.searchStr || ''
+
+      return `${pathname}${search}`
+    },
+  })
+
   React.useEffect(() => {
     const gaId = 'G-JMT1Z50SPS'
     const existingScript = document.querySelector<HTMLScriptElement>(
       `script[src*="googletagmanager.com/gtag/js?id=${gaId}"]`,
     )
 
-    if (existingScript) return
+    if (!window.dataLayer) {
+      window.dataLayer = []
+    }
 
-    const inject = () => {
-      if (!window.dataLayer) {
-        window.dataLayer = []
+    if (!window.gtag) {
+      window.gtag = (...args: unknown[]) => {
+        window.dataLayer?.push(args)
       }
+    }
 
-      if (!window.gtag) {
-        window.gtag = (...args: unknown[]) => {
-          window.dataLayer?.push(args)
-        }
-      }
+    window.gtag('js', new Date())
+    window.gtag('config', gaId, {
+      send_page_view: false,
+    })
 
-      window.gtag('js', new Date())
-      window.gtag('config', gaId)
-
+    if (!existingScript) {
       const script = document.createElement('script')
       script.async = true
       script.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`
       document.head.appendChild(script)
     }
-
-    if ('requestIdleCallback' in window) {
-      const idleHandle = window.requestIdleCallback(inject, { timeout: 2500 })
-      return () => {
-        window.cancelIdleCallback(idleHandle)
-      }
-    }
-
-    const timeoutHandle = globalThis.setTimeout(inject, 2500)
-    return () => {
-      globalThis.clearTimeout(timeoutHandle)
-    }
   }, [])
+
+  React.useEffect(() => {
+    if (!window.gtag) {
+      return
+    }
+
+    window.gtag('event', 'page_view', {
+      page_title: document.title,
+      page_path: pagePath,
+      page_location: window.location.href,
+    })
+  }, [pagePath])
 
   return null
 }

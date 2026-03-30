@@ -51,9 +51,9 @@ Fenced code blocks are supported with language identifiers for syntax highlighti
 export function App() {
   return <div>Hello</div>
 }
-``
+;``
+```
 ````
-
 
 ## Tabs component
 
@@ -88,7 +88,6 @@ body {
 - language comes from the code fence language
 - code text is extracted from the `<code>` node content
 
-
 ### Package manager tabs
 
 Package-manager tabs are a special `tabs` variant. The parser reads framework lines like `react: ...` or `solid: ...`, groups packages, and later generates package-manager-specific commands.
@@ -99,8 +98,10 @@ If you're looking to support a multi-line command, you can add multiple instance
 
 ```md
 <!-- ::start:tabs variant="package-manager" -->
+
 react: <package-1>
 react: <package-2>
+
 <!-- ::end:tabs -->
 ```
 
@@ -123,8 +124,10 @@ npm i <package-2>
 
 ```md
 <!-- ::start:tabs variant="package-manager" mode="install" -->
+
 react: <package>
 solid: <package>
+
 <!-- ::end:tabs -->
 ```
 
@@ -134,13 +137,14 @@ becomes
 npm i <package>
 ```
 
-
 ##### Dev install
 
 ```md
 <!-- ::start:tabs variant="package-manager" mode="dev-install" -->
+
 react: <package>
 solid: <package>
+
 <!-- ::end:tabs -->
 ```
 
@@ -154,8 +158,10 @@ npm i -D <package>
 
 ```md
 <!-- ::start:tabs variant="package-manager" mode="local-install" -->
+
 react: <package>
 solid: <package>
+
 <!-- ::end:tabs -->
 ```
 
@@ -169,8 +175,10 @@ npx <package> --workspace=./path/to/workspace
 
 ```md
 <!-- ::start:tabs variant="package-manager" mode="create" -->
+
 react: <package>
 solid: <package>
+
 <!-- ::end:tabs -->
 ```
 
@@ -184,8 +192,10 @@ npm create <package>
 
 ```md
 <!-- ::start:tabs variant="package-manager" mode="custom" -->
+
 react: <command> <package>
 solid: <command> <package>
+
 <!-- ::end:tabs -->
 ```
 

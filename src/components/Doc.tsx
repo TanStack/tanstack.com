@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { FoldHorizontal, UnfoldHorizontal } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
-import { useWidthToggle, DocNavigation } from '~/components/DocsLayout'
+import { useOptionalWidthToggle, DocNavigation } from '~/components/DocsLayout'
 
 import { Toc } from './Toc'
 import { renderMarkdown } from '~/utils/markdown'
@@ -77,17 +77,9 @@ export function Doc({
     Record<string, IntersectionObserverEntry>
   >({})
 
-  // Try to get the width toggle context from DocsLayout
-  let isFullWidth = false
-  let setIsFullWidth: ((isFullWidth: boolean) => void) | undefined
-
-  try {
-    const context = useWidthToggle()
-    isFullWidth = context.isFullWidth
-    setIsFullWidth = context.setIsFullWidth
-  } catch {
-    // Context not available, that's okay
-  }
+  const widthToggle = useOptionalWidthToggle()
+  const isFullWidth = widthToggle?.isFullWidth ?? false
+  const setIsFullWidth = widthToggle?.setIsFullWidth
 
   React.useEffect(() => {
     const callback = (headingsList: Array<IntersectionObserverEntry>) => {
@@ -129,7 +121,7 @@ export function Doc({
 
   return (
     <div className="flex-1 min-h-0 flex flex-col pt-4 lg:pt-6 xl:pt-8">
-      <a href={`${pagePath}.md`} className="sr-only" aria-hidden="true">
+      <a href={`${pagePath}.md`} className="sr-only">
         AI/LLM: This documentation page is available in plain markdown format at
         {pagePath}.md
       </a>

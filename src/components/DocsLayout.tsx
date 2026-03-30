@@ -280,6 +280,10 @@ export const useWidthToggle = () => {
   return context
 }
 
+export const useOptionalWidthToggle = () => {
+  return React.useContext(WidthToggleContext)
+}
+
 // Create context for doc navigation (prev/next)
 type DocNavItem = { label: React.ReactNode; to: string }
 const DocNavigationContext = React.createContext<{

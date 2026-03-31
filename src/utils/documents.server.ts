@@ -578,7 +578,7 @@ async function fetchApiContentsRemote(
   const fetchOptions: RequestInit = {
     headers: {
       'X-GitHub-Api-Version': '2022-11-28',
-      Authorization: `Bearer ${env.GITHUB_AUTH_TOKEN}`,
+      Authorization: `token ${env.GITHUB_AUTH_TOKEN}`,
     },
   }
   const res = await fetch(

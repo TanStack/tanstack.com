@@ -423,6 +423,7 @@ export function fetchApiContents(
   return fetchCached({
     key: `${repoPair}:${branch}:${startingPath}`,
     ttl: isDev ? 1 : 10 * 60 * 1000, // 10 minute
+    staleOnError: true,
     fn: () => {
       return isDev
         ? fetchApiContentsFs(repoPair, startingPath)

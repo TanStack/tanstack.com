@@ -1,4 +1,4 @@
-/* oxlint-disable react-hooks/set-state-in-effect -- game animation state sync */
+/* eslint-disable react-hooks/set-state-in-effect -- game animation state sync */
 import { useEffect, useState } from 'react'
 import { useGameStore } from '../hooks/useGameStore'
 

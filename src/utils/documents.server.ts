@@ -340,47 +340,13 @@ export function extractFrontMatter(content: string) {
     excerpt: (file: any) => (file.excerpt = createRichExcerpt(file.content)),
   })
 
-  const redirectFrom = normalizeRedirectFrom(result.data.redirect_from)
-
   return {
     ...result,
     data: {
       ...result.data,
       description: createExcerpt(result.content),
-      redirect_from: redirectFrom,
-      redirectFrom,
-    } as { [key: string]: any } & {
-      description: string
-      redirect_from?: Array<string>
-      redirectFrom?: Array<string>
-    },
+    } as { [key: string]: any } & { description: string },
   }
-}
-
-export function normalizeRedirectFrom(value: unknown) {
-  if (!Array.isArray(value)) {
-    return undefined
-  }
-
-  const normalizedPaths = Array.from(
-    new Set(
-      value.flatMap((item) => {
-        if (typeof item !== 'string') {
-          return []
-        }
-
-        const trimmedItem = item.trim()
-
-        if (!trimmedItem) {
-          return []
-        }
-
-        return [trimmedItem.startsWith('/') ? trimmedItem : `/${trimmedItem}`]
-      }),
-    ),
-  )
-
-  return normalizedPaths.length > 0 ? normalizedPaths : undefined
 }
 
 function createExcerpt(text: string, maxLength = 200) {

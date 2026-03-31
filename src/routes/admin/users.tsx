@@ -330,7 +330,7 @@ function UsersPage() {
     setEditingUserId(user._id)
     setEditingCapabilities((user.capabilities || []) as Capability[])
     setEditingRoleIds([])
-    // oxlint-disable-next-line react-hooks/exhaustive-deps -- setters are stable
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- setters are stable
   }, [])
 
   // Fetch user roles when editing starts
@@ -358,7 +358,7 @@ function UsersPage() {
     } else if (!editingUserId) {
       setEditingRoleIds([])
     }
-    // oxlint-disable-next-line react-hooks/exhaustive-deps -- setter is stable
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- setter is stable
   }, [editingUserRoles, editingUserId])
 
   const handleSaveUser = useCallback(async () => {

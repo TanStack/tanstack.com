@@ -21,48 +21,13 @@ import { RecentPostsWidget } from '~/components/RecentPostsWidget'
 import { Toc } from '~/components/Toc'
 import { Breadcrumbs } from '~/components/Breadcrumbs'
 import { renderMarkdown } from '~/utils/markdown'
-import { buildRedirectManifest } from '~/utils/redirects'
 
 function handleRedirects(docsPath: string) {
-  const redirectEntries = allPosts.flatMap((post) =>
-    (post.redirectFrom ?? []).map((redirectFrom) => ({
-      from: normalizeBlogRedirectPath(redirectFrom),
-      to: post.slug,
-      source: post._meta.filePath,
-    })),
-  )
-  const redirectOwners = buildRedirectManifest(redirectEntries, {
-    label: 'blog posts',
-    formatTarget: (target) => `/blog/${target}`,
-  })
-
-  const normalizedPaths = new Set([
-    normalizeBlogRedirectPath(docsPath),
-    normalizeBlogRedirectPath(`/blog/${docsPath}`),
-  ])
-
-  const redirectedPostSlug = Array.from(normalizedPaths).flatMap((path) => {
-    const redirectOwner = redirectOwners[path]
-
-    return redirectOwner ? [redirectOwner] : []
-  })[0]
-
-  if (redirectedPostSlug) {
-    throw redirect({
-      href: `/blog/${redirectedPostSlug}`,
-      statusCode: 308,
-    })
-  }
-
   if (docsPath.includes('directives-the-new-framework-lock-in')) {
     throw redirect({
       href: '/blog/directives-and-the-platform-boundary',
     })
   }
-}
-
-function normalizeBlogRedirectPath(path: string) {
-  return path.replace(/^\/+|\/+$/g, '')
 }
 
 const fetchBlogPost = createServerFn({ method: 'GET' })

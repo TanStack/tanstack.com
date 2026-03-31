@@ -49,7 +49,7 @@ export function useBaseMutation<TVariables, TData, TError = Error>(
     }) as TVariables extends undefined
       ? (variables?: TVariables) => Promise<TData | undefined>
       : (variables: TVariables) => Promise<TData | undefined>,
-    // oxlint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [opts.fn],
   )
 
@@ -58,7 +58,7 @@ export function useBaseMutation<TVariables, TData, TError = Error>(
       e.preventDefault()
       mutate(new FormData((e as any).target) as TVariables)
     },
-    // oxlint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [mutate, variables],
   )
 

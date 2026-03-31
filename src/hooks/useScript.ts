@@ -34,6 +34,6 @@ export function useScript(
 
     return addScript()
 
-    // oxlint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [attrsStringified])
 }

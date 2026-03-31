@@ -322,7 +322,7 @@ export function DocFeedbackNote({
   }
 
   return (
-    // oxlint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions
     <div
       className={twMerge(
         inline ? 'w-full' : 'fixed z-40 w-80 max-w-[calc(100vw-2rem)]',
@@ -359,7 +359,7 @@ export function DocFeedbackNote({
         )}
 
         {/* Header - always visible */}
-        {/* oxlint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
+        {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
         <div
           className={twMerge(
             `flex flex-col gap-1 p-2 ${colors.header}`,

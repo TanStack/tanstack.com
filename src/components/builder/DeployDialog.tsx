@@ -104,14 +104,14 @@ export function DeployDialog({ isOpen, onClose, provider }: DeployDialogProps) {
 
     setRepoNameStatus('checking')
     nameCheckDebouncer.maybeExecute(repoName)
-  }, [repoName, auth.hasRepoScope]) // oxlint-disable-line react-hooks/exhaustive-deps
+  }, [repoName, auth.hasRepoScope]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Refresh auth state when dialog opens
   useEffect(() => {
     if (isOpen) {
       auth.refresh()
     }
-  }, [isOpen]) // oxlint-disable-line react-hooks/exhaustive-deps
+  }, [isOpen]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Check auth state when dialog opens or auth changes
   useEffect(() => {

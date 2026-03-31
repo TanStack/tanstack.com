@@ -570,7 +570,7 @@ export function FilterSearch({
   // Update parent when debounced value changes
   React.useEffect(() => {
     onChange(debouncedValue)
-    // oxlint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedValue])
 
   // Sync local state when value prop changes externally

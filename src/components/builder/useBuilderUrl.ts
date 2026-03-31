@@ -83,7 +83,7 @@ export function useBuilderUrl() {
     setTimeout(() => {
       isSyncingFromUrl.current = false
     }, 100)
-    // oxlint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [featuresLoaded])
 
   // Debounced URL sync to avoid lag when typing

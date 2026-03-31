@@ -27,7 +27,7 @@ export function DebugPanel() {
   // Default to open for admins/maintainers once we know they have access
   useEffect(() => {
     if (canAccess) {
-      // oxlint-disable-next-line react-hooks/set-state-in-effect -- Auto-expand for admins
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Auto-expand for admins
       setIsCollapsed(false)
     }
   }, [canAccess])

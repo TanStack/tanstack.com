@@ -339,7 +339,7 @@ export function ShowcaseSubmitForm({ showcase }: ShowcaseSubmitFormProps) {
 
           {/* Libraries */}
           <div>
-            {/* oxlint-disable-next-line jsx-a11y/label-has-associated-control */}
+            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
               TanStack Libraries Used *
             </label>
@@ -385,7 +385,7 @@ export function ShowcaseSubmitForm({ showcase }: ShowcaseSubmitFormProps) {
 
           {/* Use Cases */}
           <div>
-            {/* oxlint-disable-next-line jsx-a11y/label-has-associated-control */}
+            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
               Use Cases
             </label>

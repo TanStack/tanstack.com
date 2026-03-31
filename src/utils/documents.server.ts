@@ -579,6 +579,7 @@ async function fetchApiContentsRemote(
     headers: {
       'X-GitHub-Api-Version': '2022-11-28',
       Authorization: `Bearer ${env.GITHUB_AUTH_TOKEN}`,
+      'User-Agent': 'TanStack-Docs',
     },
   }
   const res = await fetch(

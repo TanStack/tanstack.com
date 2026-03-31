@@ -92,14 +92,14 @@ export function ExampleDeployDialog({
   // Reset repo name when dialog opens with new example
   useEffect(() => {
     if (isOpen) {
-      // oxlint-disable-next-line react-hooks/set-state-in-effect
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setRepoName(defaultRepoName)
     }
   }, [isOpen, defaultRepoName])
 
   // Validate and check repo name
   useEffect(() => {
-    // oxlint-disable-next-line react-hooks/set-state-in-effect
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setRepoNameError(null)
 
     const validation = validateRepoNameFormat(repoName)
@@ -116,19 +116,19 @@ export function ExampleDeployDialog({
 
     setRepoNameStatus('checking')
     nameCheckDebouncer.maybeExecute(repoName)
-  }, [repoName, auth.hasRepoScope]) // oxlint-disable-line react-hooks/exhaustive-deps
+  }, [repoName, auth.hasRepoScope]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Refresh auth state when dialog opens
   useEffect(() => {
     if (isOpen) {
       auth.refresh()
     }
-  }, [isOpen]) // oxlint-disable-line react-hooks/exhaustive-deps
+  }, [isOpen]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Check auth state when dialog opens or auth changes
   useEffect(() => {
     if (!isOpen) {
-      // oxlint-disable-next-line react-hooks/set-state-in-effect
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setState({ step: 'auth-check' })
       setCountdown(null)
       return
@@ -158,7 +158,7 @@ export function ExampleDeployDialog({
     if (state.step !== 'success' || countdown === null) return
 
     if (countdown <= 0) {
-      // oxlint-disable-next-line react-hooks/set-state-in-effect
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCountdown(null)
       const deployUrl = providerInfo.deployUrl(state.owner, state.repoName)
       window.open(deployUrl, '_blank')

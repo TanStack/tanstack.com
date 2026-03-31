@@ -340,7 +340,7 @@ export function useAILibraryHeroAnimation() {
       clearAllTimeouts()
       hasStartedRef.current = false
     }
-    // oxlint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return { store }

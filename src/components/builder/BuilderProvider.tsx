@@ -47,7 +47,7 @@ export function BuilderProvider({ children }: BuilderProviderProps) {
 
   useEffect(() => {
     if (featuresLoaded) {
-      // oxlint-disable-next-line react-hooks/set-state-in-effect
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setReady(true)
     }
   }, [featuresLoaded])

@@ -606,7 +606,7 @@ function RouteComponent() {
                 <PackageSearch
                   onSelect={handleAddToGroup}
                   placeholder="Search for packages to add..."
-                  // oxlint-disable-next-line jsx-a11y/no-autofocus
+                  // eslint-disable-next-line jsx-a11y/no-autofocus
                   autoFocus={true}
                 />
               </div>

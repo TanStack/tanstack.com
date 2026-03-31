@@ -138,7 +138,7 @@ export function PreviewPanel({ files }: PreviewPanelProps) {
   // Reset history when preview URL changes (new project)
   useEffect(() => {
     if (previewUrl) {
-      // oxlint-disable-next-line react-hooks/set-state-in-effect
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setNavHistory({ entries: ['/'], index: 0 })
     }
   }, [previewUrl])
@@ -502,7 +502,7 @@ function TerminalPanel({
       style={{ height }}
     >
       {/* Header - entire header is draggable for resize except action buttons */}
-      {/* oxlint-disable-next-line jsx-a11y/no-static-element-interactions */}
+      {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
       <div
         className="flex items-center justify-between px-3 py-1.5 border-b border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 cursor-ns-resize select-none"
         onMouseDown={handleMouseDown}
@@ -510,7 +510,7 @@ function TerminalPanel({
         <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
           Terminal
         </span>
-        {/* oxlint-disable-next-line jsx-a11y/no-static-element-interactions */}
+        {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
         <div
           className="flex items-center gap-1 cursor-default"
           onMouseDown={(e) => e.stopPropagation()}

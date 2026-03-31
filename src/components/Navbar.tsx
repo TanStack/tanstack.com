@@ -739,7 +739,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         className="flex flex-col whitespace-nowrap overflow-y-auto
           border-t border-gray-500/20 text-lg bg-white/80 dark:bg-black/90"
       >
-        {/* oxlint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
+        {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
         <div
           onClick={(event) => {
             const target = event.target as HTMLElement

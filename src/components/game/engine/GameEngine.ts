@@ -165,7 +165,7 @@ export class GameEngine {
     this.canvas.addEventListener('pointermove', this.handlePointerMove)
 
     // Store for HMR
-    // oxlint-disable-next-line @typescript-eslint/no-this-alias
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     __hmrEngine = this
   }
 

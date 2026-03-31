@@ -207,7 +207,7 @@ function RoleDetailPage() {
     [selectedUserIds, usersWithRole, toggleAllSelection, toggleUserSelection],
   )
 
-  // oxlint-disable-next-line react-hooks/incompatible-library
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data: usersWithRole || [],
     columns,

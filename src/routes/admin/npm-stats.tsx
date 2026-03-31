@@ -268,7 +268,7 @@ function NpmStatsAdmin() {
     [refreshPackageMutation],
   )
 
-  // oxlint-disable-next-line react-hooks/incompatible-library
+  // eslint-disable-next-line react-hooks/incompatible-library
   const libraryTable = useReactTable({
     data: libraryStats ?? [],
     columns: libraryColumns,

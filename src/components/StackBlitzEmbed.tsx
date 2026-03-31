@@ -23,7 +23,6 @@ export function StackBlitzEmbed({
   const isDark = useIsDark()
   const themeParam = isDark ? 'dark' : 'light'
   const fileParam = file ? `&file=${encodeURIComponent(file)}` : ''
-  const iframeTitle = title ?? `${repo}: ${examplePath}`
 
   const src = `https://stackblitz.com/github/${repo}/tree/${branch}/${examplePath}?embed=1&theme=${themeParam}&preset=${preset}${fileParam}`
 
@@ -31,7 +30,7 @@ export function StackBlitzEmbed({
     <iframe
       key={`${examplePath}-${themeParam}`}
       src={src}
-      title={iframeTitle}
+      title={title || `${repo}: ${examplePath}`}
       sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
       className="shadow-lg"
       loading="lazy"

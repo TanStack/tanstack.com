@@ -52,7 +52,6 @@ const repoDirApiContentsQueryOptions = (
 export const Route = createFileRoute(
   '/$libraryId/$version/docs/framework/$framework/examples/$',
 )({
-  component: RouteComponent,
   validateSearch: v.object({
     path: v.optional(v.string()),
     panel: v.optional(v.string()),
@@ -123,6 +122,32 @@ export const Route = createFileRoute(
         )} in ${capitalize(params.framework)} using ${library.name}.`,
         noindex: library.visible === false,
       }),
+    }
+  },
+  component: RouteComponent,
+  headers: ({ params }) => {
+    const { version, libraryId } = params
+    const library = getLibrary(libraryId)
+
+    const isLatestVersion =
+      version === 'latest' ||
+      version === library.latestVersion ||
+      version === library.latestBranch
+
+    if (isLatestVersion) {
+      return {
+        'cache-control': 'public, max-age=60, must-revalidate',
+        'cdn-cache-control':
+          'max-age=600, stale-while-revalidate=3600, durable',
+        vary: 'Accept-Encoding',
+      }
+    }
+
+    return {
+      'cache-control': 'public, max-age=3600, must-revalidate',
+      'cdn-cache-control':
+        'max-age=86400, stale-while-revalidate=604800, durable',
+      vary: 'Accept-Encoding',
     }
   },
   staleTime: 1000 * 60 * 5, // 5 minutes

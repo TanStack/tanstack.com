@@ -287,6 +287,7 @@ export async function fetchRepoFile(
   const file = await fetchCached({
     key,
     ttl,
+    staleOnError: true,
     fn: async () => {
       const maxDepth = 4
       let currentDepth = 1

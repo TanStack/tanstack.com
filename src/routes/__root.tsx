@@ -35,6 +35,7 @@ import { ThemeProvider, useHtmlClass } from '~/components/ThemeProvider'
 import { Navbar } from '~/components/Navbar'
 import { THEME_COLORS } from '~/utils/utils'
 import { useHubSpotChat } from '~/hooks/useHubSpotChat'
+import { twMerge } from 'tailwind-merge'
 
 const GOOGLE_ANALYTICS_ID = 'G-JMT1Z50SPS'
 const GOOGLE_ANALYTICS_SCRIPT_SRC = `https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ANALYTICS_ID}`
@@ -151,21 +152,38 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
   // HubSpot chat loads on configured pages (see useHubSpotChat hook)
   useHubSpotChat()
 
-  const isLoading = useRouterState({
-    select: (s) => s.status === 'pending',
+  const isNavigating = useRouterState({
+    select: (s) => s.isLoading || s.isTransitioning,
   })
 
-  const [canShowLoading, setShowLoading] = React.useState(false)
+  const [canShowDevtools, setCanShowDevtools] = React.useState(false)
+  const [showNavigationSpinner, setShowNavigationSpinner] =
+    React.useState(false)
 
   React.useEffect(() => {
     const timeout = setTimeout(() => {
-      setShowLoading(true)
+      setCanShowDevtools(true)
     }, 2000)
 
     return () => {
       clearTimeout(timeout)
     }
   }, [])
+
+  React.useEffect(() => {
+    if (!isNavigating) {
+      setShowNavigationSpinner(false)
+      return
+    }
+
+    const timeout = window.setTimeout(() => {
+      setShowNavigationSpinner(true)
+    }, 1000)
+
+    return () => {
+      window.clearTimeout(timeout)
+    }
+  }, [isNavigating])
 
   const isRouterPage = useRouterState({
     select: (s) => s.resolvedLocation?.pathname.startsWith('/router'),
@@ -177,7 +195,7 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
 
   const preferredCanonicalPath = getCanonicalPath(canonicalPath)
 
-  const showDevtools = canShowLoading && isRouterPage
+  const showDevtools = canShowDevtools && isRouterPage
 
   const hideNavbar = useMatches({
     select: (s) => s.some((d) => d.staticData?.showNavbar === false),
@@ -205,27 +223,31 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
             {showDevtools ? (
               <LazyRouterDevtools position="bottom-right" />
             ) : null}
-            {canShowLoading ? (
+            <div
+              aria-hidden="true"
+              className={twMerge(
+                'pointer-events-none fixed top-0 left-0 z-99999999 h-[320px] w-full select-none',
+              )}
+            >
               <div
-                className={`fixed top-0 left-0 h-[300px] w-full
-        transition-all duration-300 pointer-events-none
-        z-30 dark:h-[200px] dark:bg-white/10! dark:rounded-[100%] ${
-          isLoading
-            ? 'delay-500 opacity-1 -translate-y-1/2'
-            : 'delay-0 opacity-0 -translate-y-full'
-        }`}
-                style={{
-                  background: `radial-gradient(closest-side, rgba(0,10,40,0.2) 0%, rgba(0,0,0,0) 100%)`,
-                }}
+                className={twMerge(
+                  'absolute top-0 w-full h-80 rounded-[100%] bg-amber-500/30 blur-3xl transition-all duration-500 dark:bg-sky-400/25',
+                  showNavigationSpinner
+                    ? '-translate-y-1/2 opacity-100'
+                    : '-translate-y-full opacity-0',
+                )}
+              />
+              <div
+                className={twMerge(
+                  'absolute top-6 left-1/2 -translate-x-1/2 rounded-full bg-white/75 p-2 shadow-lg backdrop-blur-lg transition-all duration-300 dark:bg-slate-900/40',
+                  showNavigationSpinner
+                    ? 'translate-y-0 opacity-100'
+                    : '-translate-y-6 opacity-0',
+                )}
               >
-                <div
-                  className={`absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-[30px] p-2 bg-white/80 dark:bg-gray-800
-        rounded-lg shadow-lg`}
-                >
-                  <Spinner className="text-5xl" />
-                </div>
+                <Spinner className="text-4xl" />
               </div>
-            ) : null}
+            </div>
             <SearchHotkeyController />
           </ToastProvider>
         </LoginModalProvider>

@@ -139,7 +139,7 @@ Absolute counts are not directly comparable across frameworks, because React, So
 These graphs show that fewer subscribers are triggered during navigation.
 
 > [!IMPORTANT]
-> Vue Router is mentioned throughout this article as a useful reference. However it is still a work in progress. Vue Vapor (3.6) is on the door step (beta.9 as of last week), so the plan is to do the vapor refactor, and then support that refreshed version.
+> Vue Router is mentioned throughout this article as a useful reference. However it is still a work in progress. Vue Vapor (3.6) is on the doorstep (beta.9 at the time of writing), so the plan is to do the Vapor refactor and then support that refreshed version.
 
 ## Store Boundary: One Contract, Multiple Implementations
 
@@ -269,7 +269,7 @@ In practice, that means route changes update more locally and trigger less work 
 
 [^alien-migration]: [TanStack Store PR #265](https://github.com/TanStack/store/pull/265)
 
-[^alien-bench]: [js-reactivity-benchmark](https://github.com/transitive-bullshit/js-reactivity-benchmark) last updated january 2025
+[^alien-bench]: [js-reactivity-benchmark](https://github.com/transitive-bullshit/js-reactivity-benchmark) last updated January 2025
 
 [^store-update-tests]: Methodology and exact scenario assertions live in the adapter test files for [React](https://github.com/TanStack/router/blob/main/packages/react-router/tests/store-updates-during-navigation.test.tsx), [Solid](https://github.com/TanStack/router/blob/main/packages/solid-router/tests/store-updates-during-navigation.test.tsx), and [Vue](https://github.com/TanStack/router/blob/main/packages/vue-router/tests/store-updates-during-navigation.test.tsx).
 

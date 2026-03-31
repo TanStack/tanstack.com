@@ -1,5 +1,5 @@
 ---
-published: 2026-03-24
+published: 2026-03-31
 authors:
   - Florian Pellet
 title: "TanStack Router's New Reactive Core: A Signal Graph"
@@ -137,6 +137,9 @@ Absolute counts are not directly comparable across frameworks, because React, So
 <!-- ::end:tabs -->
 
 These graphs show that fewer subscribers are triggered during navigation.
+
+> [!IMPORTANT]
+> Vue Router is mentioned throughout this article as a useful reference. However it is still a work in progress. Vue Vapor (3.6) is on the door step (beta.9 as of last week), so the plan is to do the vapor refactor, and then support that refreshed version.
 
 ## Store Boundary: One Contract, Multiple Implementations
 

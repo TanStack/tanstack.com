@@ -1,10 +1,5 @@
 import { isNotFound, notFound, createFileRoute } from '@tanstack/react-router'
-import {
-  queryOptions,
-  useQuery,
-  useQueryClient,
-  useSuspenseQuery,
-} from '@tanstack/react-query'
+import { queryOptions, useQuery, useQueryClient } from '@tanstack/react-query'
 import React from 'react'
 import { DocTitle } from '~/components/DocTitle'
 import { Framework, getBranch, getLibrary } from '~/libraries'
@@ -61,6 +56,9 @@ export const Route = createFileRoute(
     const library = getLibrary(params.libraryId)
     const branch = getBranch(library, params.version)
     const examplePath = [params.framework, params._splat].join('/')
+    const fallbackPath =
+      path ||
+      getExampleStartingPath(params.framework as Framework, params.libraryId)
 
     // Used to tell the github contents api where to start looking for files in the target repository
     const repoStartingDirPath = `examples/${examplePath}`
@@ -79,9 +77,7 @@ export const Route = createFileRoute(
       // It's either the selected path in the search params or a default we can derive
       // i.e. app.tsx, main.tsx, src/routes/__root.tsx, etc.
       // This value is not absolutely guaranteed to be available, so further resolution may be necessary
-      const explorerCandidateStartingFileName =
-        path ||
-        getExampleStartingPath(params.framework as Framework, params.libraryId)
+      const explorerCandidateStartingFileName = fallbackPath
 
       // Using the fetched contents, get the actual starting file-path for the explorer
       // The `explorerCandidateStartingFileName` is used for matching, but the actual file-path may differ
@@ -98,7 +94,11 @@ export const Route = createFileRoute(
         fileQueryOptions(library.repo, branch, currentPath),
       )
 
-      return { repoStartingDirPath, currentPath }
+      return {
+        repoStartingDirPath,
+        currentPath,
+        githubContentsAvailable: true,
+      }
     } catch (error) {
       const isNotFoundError =
         isNotFound(error) ||
@@ -106,7 +106,17 @@ export const Route = createFileRoute(
       if (isNotFoundError) {
         throw notFound()
       }
-      throw error
+
+      console.warn(
+        `Failed to fetch example contents for ${library.repo}@${branch}:${repoStartingDirPath}`,
+        error,
+      )
+
+      return {
+        repoStartingDirPath,
+        currentPath: fallbackPath,
+        githubContentsAvailable: false,
+      }
     }
   },
   head: ({ params }) => {
@@ -159,7 +169,8 @@ function RouteComponent() {
 }
 
 function PageComponent() {
-  const { repoStartingDirPath, currentPath } = Route.useLoaderData()
+  const { repoStartingDirPath, currentPath, githubContentsAvailable } =
+    Route.useLoaderData()
 
   const navigate = Route.useNavigate()
   const queryClient = useQueryClient()
@@ -174,9 +185,14 @@ function PageComponent() {
     libraryId,
   )
 
-  const { data: githubContents } = useSuspenseQuery(
-    repoDirApiContentsQueryOptions(library.repo, branch, repoStartingDirPath),
-  )
+  const { data: githubContents } = useQuery({
+    ...repoDirApiContentsQueryOptions(
+      library.repo,
+      branch,
+      repoStartingDirPath,
+    ),
+    enabled: githubContentsAvailable,
+  })
 
   const [isDark, setIsDark] = React.useState(true)
   const [deployDialogOpen, setDeployDialogOpen] = React.useState(false)
@@ -222,9 +238,10 @@ function PageComponent() {
     })
   }
 
-  const { data: currentCode } = useQuery(
-    fileQueryOptions(library.repo, branch, currentPath),
-  )
+  const { data: currentCode } = useQuery({
+    ...fileQueryOptions(library.repo, branch, currentPath),
+    enabled: githubContentsAvailable,
+  })
 
   const prefetchFileContent = React.useCallback(
     (path: string) => {
@@ -337,19 +354,27 @@ function PageComponent() {
         </DocTitle>
       </div>
       <div className="flex-1 lg:px-6 flex flex-col min-h-0">
-        <CodeExplorer
-          activeTab={activeTab as 'code' | 'sandbox'}
-          codeSandboxUrl={codeSandboxUrl}
-          currentCode={currentCode || ''}
-          currentPath={currentPath}
-          examplePath={examplePath}
-          githubContents={githubContents || undefined}
-          library={library}
-          prefetchFileContent={prefetchFileContent}
-          setActiveTab={setActiveTab}
-          setCurrentPath={setCurrentPath}
-          stackBlitzUrl={stackBlitzUrl}
-        />
+        {githubContentsAvailable && githubContents ? (
+          <CodeExplorer
+            activeTab={activeTab as 'code' | 'sandbox'}
+            codeSandboxUrl={codeSandboxUrl}
+            currentCode={currentCode || ''}
+            currentPath={currentPath}
+            examplePath={examplePath}
+            githubContents={githubContents}
+            library={library}
+            prefetchFileContent={prefetchFileContent}
+            setActiveTab={setActiveTab}
+            setCurrentPath={setCurrentPath}
+            stackBlitzUrl={stackBlitzUrl}
+          />
+        ) : (
+          <div className="flex-1 rounded-xl border border-border/60 bg-background/70 p-6 text-sm text-muted-foreground">
+            The example source browser is temporarily unavailable. You can still
+            open this example on GitHub, StackBlitz, or CodeSandbox using the
+            links above.
+          </div>
+        )}
       </div>
       {deployProvider && (
         <ExampleDeployDialog

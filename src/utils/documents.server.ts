@@ -541,10 +541,16 @@ async function fetchApiContentsRemote(
   branch: string,
   startingPath: string,
 ): Promise<Array<GitHubFileNode> | null> {
+  const githubToken = env.GITHUB_AUTH_TOKEN
+  const hasConfiguredGitHubToken =
+    Boolean(githubToken) && githubToken !== 'USE_A_REAL_KEY_IN_PRODUCTION'
+
   const fetchOptions: RequestInit = {
     headers: {
       'X-GitHub-Api-Version': '2022-11-28',
-      Authorization: `Bearer ${env.GITHUB_AUTH_TOKEN}`,
+      ...(hasConfiguredGitHubToken
+        ? { Authorization: `Bearer ${githubToken}` }
+        : {}),
     },
   }
   const res = await fetch(
@@ -556,8 +562,42 @@ async function fetchApiContentsRemote(
     if (res.status === 404) {
       return null
     }
+
+    const githubRequestId = res.headers.get('x-github-request-id')
+    const rateLimitLimit = res.headers.get('x-ratelimit-limit')
+    const rateLimitRemaining = res.headers.get('x-ratelimit-remaining')
+    const rateLimitReset = res.headers.get('x-ratelimit-reset')
+
+    let errorBody = ''
+    try {
+      errorBody = (await res.text()).replace(/\s+/g, ' ').trim()
+    } catch {
+      // Ignore parse failures for error response body
+    }
+
+    if (res.status === 403) {
+      console.error('[GitHub API] 403 while fetching repository contents', {
+        repo,
+        branch,
+        startingPath,
+        hasConfiguredGitHubToken,
+        githubRequestId,
+        rateLimitLimit,
+        rateLimitRemaining,
+        rateLimitReset,
+        errorBody: errorBody.slice(0, 500),
+      })
+    }
+
+    const hint =
+      res.status === 403
+        ? rateLimitRemaining === '0'
+          ? 'GitHub rate limit exceeded.'
+          : 'GitHub forbidden. Check token permissions/access.'
+        : 'GitHub request failed.'
+
     throw new Error(
-      `Failed to fetch repo contents for ${repo}/${branch}/${startingPath}: Status is ${res.statusText} - ${res.status}`,
+      `${hint} Failed to fetch repo contents for ${repo}/${branch}/${startingPath}: Status is ${res.statusText} - ${res.status}. requestId=${githubRequestId ?? 'unknown'} rateLimitRemaining=${rateLimitRemaining ?? 'unknown'} rateLimitLimit=${rateLimitLimit ?? 'unknown'} rateLimitReset=${rateLimitReset ?? 'unknown'}${errorBody ? ` body=${errorBody.slice(0, 500)}` : ''}`,
     )
   }
 

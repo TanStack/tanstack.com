@@ -164,7 +164,17 @@ async function getDocsRedirectManifest(opts: {
     key: `docs-redirects:${repo}:${branch}:${docsRoot}`,
     ttl: process.env.NODE_ENV === 'production' ? 1000 * 60 * 10 : 1,
     fn: async () => {
-      const nodes = await fetchApiContents(repo, branch, docsRoot)
+      let nodes: Awaited<ReturnType<typeof fetchApiContents>>
+
+      try {
+        nodes = await fetchApiContents(repo, branch, docsRoot)
+      } catch (error) {
+        console.warn(
+          `Failed to build docs redirect manifest for ${repo}@${branch}:${docsRoot}`,
+          error,
+        )
+        return {}
+      }
 
       if (!nodes) {
         return {}

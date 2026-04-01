@@ -611,7 +611,7 @@ export function DocsLayout({
                     onClick={() => {
                       detailsRef.current.removeAttribute('open')
                     }}
-                    preload={false}
+                    preload="intent"
                     activeOptions={{
                       exact: true,
                       includeHash: false,

@@ -14,17 +14,18 @@ import {
 import { eq, desc, sql } from 'drizzle-orm'
 import { requireCapability } from './auth.server'
 import {
-  searchIntentPackages,
   fetchPackument,
-  isIntentCompatible,
   selectVersionsToSync,
   extractSkillsFromTarball,
 } from './intent.server'
 import {
+  discoverIntentPackagesFromNpm,
+  discoverIntentPackagesViaGitHub,
+} from './intent-discovery.server'
+import {
   upsertIntentPackage,
   getKnownVersions,
   enqueuePackageVersion,
-  markPackageVerified,
   replaceSkillsForVersion,
   getPendingVersions,
   markVersionSynced,
@@ -154,48 +155,7 @@ export const triggerIntentDiscover = createServerFn({
 }).handler(async () => {
   await requireCapability({ data: { capability: 'admin' } })
 
-  let packagesDiscovered = 0
-  let packagesVerified = 0
-  let versionsEnqueued = 0
-  const errors: Array<string> = []
-
-  const searchResults = await searchIntentPackages()
-  packagesDiscovered = searchResults.objects.length
-
-  for (const { package: pkg } of searchResults.objects) {
-    try {
-      await upsertIntentPackage({ name: pkg.name, verified: false })
-
-      const packument = await fetchPackument(pkg.name)
-      const latestVersion = packument['dist-tags'].latest
-      if (!latestVersion) continue
-
-      const latestMeta = packument.versions[latestVersion]
-      if (!latestMeta || !isIntentCompatible(latestMeta)) continue
-
-      await markPackageVerified(pkg.name)
-      packagesVerified++
-
-      const knownVersions = await getKnownVersions(pkg.name)
-      const versionsToEnqueue = selectVersionsToSync(packument, knownVersions)
-
-      for (const { version, tarball, publishedAt } of versionsToEnqueue) {
-        await enqueuePackageVersion({
-          packageName: pkg.name,
-          version,
-          tarballUrl: tarball,
-          publishedAt,
-        })
-        versionsEnqueued++
-      }
-    } catch (err) {
-      errors.push(
-        `${pkg.name}: ${err instanceof Error ? err.message : String(err)}`,
-      )
-    }
-  }
-
-  return { packagesDiscovered, packagesVerified, versionsEnqueued, errors }
+  return discoverIntentPackagesFromNpm()
 })
 
 // ---------------------------------------------------------------------------
@@ -294,120 +254,7 @@ export const discoverViaGitHub = createServerFn({ method: 'POST' }).handler(
   async () => {
     await requireCapability({ data: { capability: 'admin' } })
 
-    const token = process.env.GITHUB_AUTH_TOKEN
-    if (!token) throw new Error('GITHUB_AUTH_TOKEN not set')
-
-    const ghHeaders = {
-      Authorization: `Bearer ${token}`,
-      Accept: 'application/vnd.github.v3+json',
-    }
-
-    // Search GitHub for package.json files referencing @tanstack/intent
-    const searchRes = await fetch(
-      'https://api.github.com/search/code?q=%22%40tanstack%2Fintent%22+filename%3Apackage.json&per_page=100',
-      { headers: ghHeaders },
-    )
-    if (!searchRes.ok)
-      throw new Error(`GitHub search failed: ${searchRes.status}`)
-    const searchData = (await searchRes.json()) as {
-      total_count: number
-      items: Array<{
-        path: string
-        repository: { full_name: string }
-        url: string
-      }>
-    }
-
-    // Deduplicate: one package.json per repo+path
-    const seen = new Set<string>()
-    const candidates: Array<{ repo: string; path: string }> = []
-    for (const item of searchData.items) {
-      const key = `${item.repository.full_name}|${item.path}`
-      if (!seen.has(key)) {
-        seen.add(key)
-        candidates.push({ repo: item.repository.full_name, path: item.path })
-      }
-    }
-
-    const results = {
-      searched: candidates.length,
-      checkedOnNpm: 0,
-      hadSkills: 0,
-      enqueued: 0,
-      skipped: 0,
-      errors: [] as Array<string>,
-    }
-
-    for (const { repo, path } of candidates) {
-      try {
-        // Fetch the package.json content from GitHub
-        const contentRes = await fetch(
-          `https://api.github.com/repos/${repo}/contents/${path}`,
-          { headers: ghHeaders },
-        )
-        if (!contentRes.ok) continue
-        const contentData = (await contentRes.json()) as {
-          content?: string
-          encoding?: string
-        }
-        if (!contentData.content) continue
-
-        const pkgJson = JSON.parse(
-          Buffer.from(contentData.content, 'base64').toString('utf-8'),
-        ) as { name?: string; private?: boolean }
-
-        const pkgName = pkgJson.name
-        if (!pkgName || pkgJson.private) continue
-
-        results.checkedOnNpm++
-
-        // Check NPM for the package and its latest tarball
-        const npmRes = await fetch(
-          `https://registry.npmjs.org/${encodeURIComponent(pkgName)}/latest`,
-        )
-        if (!npmRes.ok) continue // not published
-
-        const npmMeta = (await npmRes.json()) as {
-          version?: string
-          dist?: { tarball?: string }
-        }
-        const version = npmMeta.version
-        const tarballUrl = npmMeta.dist?.tarball
-        if (!version || !tarballUrl) continue
-
-        // Peek at tarball for SKILL.md files (stream headers only)
-        const skills = await extractSkillsFromTarball(tarballUrl)
-        if (skills.length === 0) {
-          results.skipped++
-          continue
-        }
-
-        results.hadSkills++
-
-        // Seed into DB
-        await upsertIntentPackage({ name: pkgName, verified: true })
-
-        const knownVersions = await getKnownVersions(pkgName)
-        const packument = await fetchPackument(pkgName)
-        const versionsToEnqueue = selectVersionsToSync(packument, knownVersions)
-
-        for (const v of versionsToEnqueue) {
-          await enqueuePackageVersion({
-            packageName: pkgName,
-            version: v.version,
-            tarballUrl: v.tarball,
-            publishedAt: v.publishedAt,
-          })
-          results.enqueued++
-        }
-      } catch (err) {
-        results.errors.push(
-          `${repo}/${path}: ${err instanceof Error ? err.message : String(err)}`,
-        )
-      }
-    }
-
-    return results
+    return discoverIntentPackagesViaGitHub()
   },
 )
 

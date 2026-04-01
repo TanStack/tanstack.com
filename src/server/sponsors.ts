@@ -1,5 +1,9 @@
-import { fetchCached } from '~/utils/cache.server'
-import { graphqlWithAuth } from '~/server/github'
+import { fetchCachedWithStaleFallback } from '~/utils/cache.server'
+import {
+  graphqlWithAuth,
+  isRecoverableGitHubApiError,
+  normalizeGitHubApiError,
+} from '~/server/github'
 import { createServerFn } from '@tanstack/react-start'
 import { setResponseHeaders } from '@tanstack/react-start/server'
 import sponsorMetaData from '~/utils/gh-sponsor-meta.json'
@@ -24,15 +28,35 @@ export type Sponsor = {
   createdAt: string
 }
 
+const SPONSOR_CACHE_TTL_MS = process.env.NODE_ENV === 'development' ? 1 : 5 * 60 * 1000
+
 export const getSponsorsForSponsorPack = createServerFn({
   method: 'GET',
 }).handler(async () => {
-  const sponsors = await fetchCached({
-    key: 'sponsors',
-    // ttl: process.env.NODE_ENV === 'development' ? 1 : 60 * 60 * 1000,
-    ttl: 60 * 1000,
-    fn: getSponsors,
-  })
+  let sponsors: Sponsor[]
+
+  try {
+    sponsors = await fetchCachedWithStaleFallback({
+      key: 'sponsors',
+      ttl: SPONSOR_CACHE_TTL_MS,
+      fn: getSponsors,
+      shouldFallbackToStale: isRecoverableGitHubApiError,
+      onStaleFallback: (error) => {
+        console.warn('[getSponsorsForSponsorPack] Serving stale sponsors after GitHub failure:', {
+          message: error instanceof Error ? error.message : String(error),
+        })
+      },
+    })
+  } catch (error) {
+    if (isRecoverableGitHubApiError(error)) {
+      console.warn('[getSponsorsForSponsorPack] Falling back to metadata-only sponsors:', {
+        message: error.message,
+      })
+      sponsors = await getSponsorsFromMetadataOnly()
+    } else {
+      throw error
+    }
+  }
 
   // In recent @tanstack/react-start versions, getEvent is no longer exported.
   // Headers can be set unconditionally here; framework will merge appropriately.
@@ -58,14 +82,12 @@ export const getSponsorsForSponsorPack = createServerFn({
     }))
 })
 
-export async function getSponsors() {
-  const [sponsors, sponsorsMeta] = await Promise.all([
-    getGithubSponsors(),
-    getSponsorsMeta(),
-  ])
-
+function mergeSponsorsWithMetadata(
+  sponsors: Sponsor[],
+  sponsorsMeta: SponsorMeta[],
+) {
   sponsorsMeta.forEach((sponsorMeta: SponsorMeta) => {
-    const matchingSponsor = sponsors.find((d) => d.login == sponsorMeta.login)
+    const matchingSponsor = sponsors.find((d) => d.login === sponsorMeta.login)
 
     if (matchingSponsor) {
       Object.assign(matchingSponsor, {
@@ -93,6 +115,19 @@ export async function getSponsors() {
   )
 
   return sponsors
+}
+
+export async function getSponsors() {
+  const [sponsors, sponsorsMeta] = await Promise.all([
+    getGithubSponsors(),
+    getSponsorsMeta(),
+  ])
+
+  return mergeSponsorsWithMetadata(sponsors, sponsorsMeta)
+}
+
+async function getSponsorsFromMetadataOnly() {
+  return mergeSponsorsWithMetadata([], await getSponsorsMeta())
 }
 
 async function getGithubSponsors() {
@@ -205,35 +240,8 @@ async function getGithubSponsors() {
     await fetchPage()
 
     return sponsors
-  } catch (err) {
-    const error = err as { status?: number }
-    if (error.status === 401) {
-      console.error('Missing github credentials, returning mock data.')
-      return [
-        'tannerlinsley',
-        'tkdodo',
-        'crutchcorn',
-        'kevinvandy',
-        'jherr',
-        'seancassiere',
-        'schiller-manuel',
-      ].flatMap((d) =>
-        new Array(20).fill(d).map((_, i2) => ({
-          login: d,
-          name: d,
-          amount: (20 - i2) / 20 + Math.random(),
-          createdAt: new Date().toISOString(),
-          private: false,
-          linkUrl: `https://github.com/${d}`,
-          imageUrl: `https://github.com/${d}.png`,
-        })),
-      )
-    }
-    if (error.status === 403) {
-      console.error('GitHub rate limit exceeded, returning empty sponsors.')
-      return []
-    }
-    throw err
+  } catch (error) {
+    throw normalizeGitHubApiError(error, 'Fetching GitHub sponsors')
   }
 }
 

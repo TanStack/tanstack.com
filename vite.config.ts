@@ -1,16 +1,21 @@
 import { sentryTanstackStart } from '@sentry/tanstackstart-react/vite'
 import { defineConfig } from 'vite'
 import contentCollections from '@content-collections/vite'
-import tsConfigPaths from 'vite-tsconfig-paths'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import tailwindcss from '@tailwindcss/vite'
 import { analyzer } from 'vite-bundle-analyzer'
 import viteReact from '@vitejs/plugin-react'
 import netlify from '@netlify/vite-plugin-tanstack-start'
+import path from 'node:path'
 
 const isDev = process.env.NODE_ENV !== 'production'
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      '~': path.resolve(__dirname, './src'),
+    },
+  },
   server: {
     port: Number(process.env.PORT) || 3000,
     // WebContainer headers for /builder route (SharedArrayBuffer support)
@@ -80,10 +85,6 @@ export default defineConfig({
     },
   },
   plugins: [
-    tsConfigPaths({
-      projects: ['./tsconfig.json'],
-    }),
-
     tanstackStart({
       router: {
         codeSplittingOptions: {

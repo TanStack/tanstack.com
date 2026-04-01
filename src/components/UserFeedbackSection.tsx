@@ -12,7 +12,7 @@ interface UserFeedbackSectionProps {
   userId: string
 }
 
-export function UserFeedbackSection({}: UserFeedbackSectionProps) {
+export function UserFeedbackSection(_props: UserFeedbackSectionProps) {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
 

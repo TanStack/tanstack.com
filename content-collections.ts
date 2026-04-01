@@ -1,13 +1,13 @@
 import { defineCollection, defineConfig } from '@content-collections/core'
-import { extractFrontMatter } from '~/utils/documents.server'
+import { z } from 'zod'
 
 const posts = defineCollection({
   name: 'posts',
   directory: './src/blog',
   include: '*.md',
-  schema: (z) => ({
+  schema: z.object({
     title: z.string(),
-    published: z.string().date(),
+    published: z.iso.date(),
     draft: z.boolean().optional(),
     excerpt: z.string(),
     authors: z.string().array(),

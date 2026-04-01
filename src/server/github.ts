@@ -61,8 +61,7 @@ export function normalizeGitHubApiError(error: unknown, context: string) {
     typeof error === 'object' && error && 'response' in error
       ? (error.response as { headers?: Record<string, string> }).headers
       : undefined
-  const message =
-    error instanceof Error ? error.message : `${context} failed`
+  const message = error instanceof Error ? error.message : `${context} failed`
 
   if (status === 401) {
     return new GitHubApiError({
@@ -72,7 +71,10 @@ export function normalizeGitHubApiError(error: unknown, context: string) {
     })
   }
 
-  if (status === 403 && getHeader(responseHeaders, 'x-ratelimit-remaining') === '0') {
+  if (
+    status === 403 &&
+    getHeader(responseHeaders, 'x-ratelimit-remaining') === '0'
+  ) {
     const resetAt = parseRateLimitReset(responseHeaders)
     return new GitHubApiError({
       kind: 'rate_limited',

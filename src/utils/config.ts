@@ -1,5 +1,8 @@
 import * as v from 'valibot'
-import { fetchRepoFile } from './documents.server'
+import {
+  fetchRepoFile,
+  isRecoverableGitHubContentError,
+} from './documents.server'
 import { createServerFn } from '@tanstack/react-start'
 import { setResponseHeaders } from '@tanstack/react-start/server'
 
@@ -48,6 +51,10 @@ const configSchema = v.object({
 
 export type ConfigSchema = v.InferOutput<typeof configSchema>
 
+const EMPTY_CONFIG: ConfigSchema = {
+  sections: [],
+}
+
 /**
   Fetch the config file for the project and validate it.
   */
@@ -56,7 +63,23 @@ export const getTanstackDocsConfig = createServerFn({ method: 'GET' })
     v.object({ repo: v.string(), branch: v.string(), docsRoot: v.string() }),
   )
   .handler(async ({ data: { repo, branch, docsRoot } }) => {
-    const config = await fetchRepoFile(repo, branch, `${docsRoot}/config.json`)
+    let config: string | null
+
+    try {
+      config = await fetchRepoFile(repo, branch, `${docsRoot}/config.json`)
+    } catch (error) {
+      if (isRecoverableGitHubContentError(error)) {
+        console.warn('[getTanstackDocsConfig] Falling back to empty config:', {
+          repo,
+          branch,
+          docsRoot,
+          message: error instanceof Error ? error.message : String(error),
+        })
+        return EMPTY_CONFIG
+      }
+
+      throw error
+    }
 
     if (!config) {
       throw new Error(`Repo's ${docsRoot}/config.json was not found!`)

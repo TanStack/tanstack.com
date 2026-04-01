@@ -2,9 +2,128 @@ import fs from 'node:fs'
 import fsp from 'node:fs/promises'
 import path from 'node:path'
 import * as graymatter from 'gray-matter'
-import { fetchCached } from '~/utils/cache.server'
+import { fetchCached, fetchCachedWithStaleFallback } from '~/utils/cache.server'
 import { multiSortBy, removeLeadingSlash } from './utils'
 import { env } from './env'
+
+const DOC_FILE_CACHE_TTL_MS =
+  process.env.NODE_ENV === 'development' ? 1 : 10 * 60 * 1000
+
+const DOC_TREE_CACHE_TTL_MS =
+  process.env.NODE_ENV === 'development' ? 1 : 10 * 60 * 1000
+
+type GitHubContentErrorKind =
+  | 'forbidden'
+  | 'invalid_response'
+  | 'not_found'
+  | 'rate_limited'
+  | 'upstream'
+
+export class GitHubContentError extends Error {
+  kind: GitHubContentErrorKind
+  status: number
+  resetAt?: Date
+
+  constructor(opts: {
+    message: string
+    kind: GitHubContentErrorKind
+    status: number
+    resetAt?: Date
+  }) {
+    super(opts.message)
+    this.name = 'GitHubContentError'
+    this.kind = opts.kind
+    this.status = opts.status
+    this.resetAt = opts.resetAt
+  }
+}
+
+export function isGitHubContentError(
+  error: unknown,
+): error is GitHubContentError {
+  return error instanceof GitHubContentError
+}
+
+export function isRecoverableGitHubContentError(error: unknown): boolean {
+  return (
+    isGitHubContentError(error) &&
+    error.kind !== 'not_found' &&
+    error.kind !== 'invalid_response'
+  )
+}
+
+function getGitHubRateLimitReset(headers: Headers): Date | undefined {
+  const reset = headers.get('X-RateLimit-Reset')
+
+  if (!reset) {
+    return undefined
+  }
+
+  const epochSeconds = Number.parseInt(reset, 10)
+
+  if (Number.isNaN(epochSeconds)) {
+    return undefined
+  }
+
+  return new Date(epochSeconds * 1000)
+}
+
+async function createGitHubContentError(
+  response: Response,
+  context: string,
+): Promise<GitHubContentError> {
+  const status = response.status
+  const body = await response.text().catch(() => '')
+  const detail = body.trim().slice(0, 300)
+
+  if (status === 404) {
+    return new GitHubContentError({
+      kind: 'not_found',
+      status,
+      message: `${context} was not found on GitHub`,
+    })
+  }
+
+  if (status === 403 && response.headers.get('X-RateLimit-Remaining') === '0') {
+    const resetAt = getGitHubRateLimitReset(response.headers)
+    return new GitHubContentError({
+      kind: 'rate_limited',
+      status,
+      resetAt,
+      message: resetAt
+        ? `${context} hit the GitHub rate limit until ${resetAt.toISOString()}`
+        : `${context} hit the GitHub rate limit`,
+    })
+  }
+
+  if (status === 403) {
+    return new GitHubContentError({
+      kind: 'forbidden',
+      status,
+      message: detail
+        ? `${context} was forbidden by GitHub: ${detail}`
+        : `${context} was forbidden by GitHub`,
+    })
+  }
+
+  if (status >= 500) {
+    return new GitHubContentError({
+      kind: 'upstream',
+      status,
+      message: detail
+        ? `${context} failed with GitHub ${status}: ${detail}`
+        : `${context} failed with GitHub ${status}`,
+    })
+  }
+
+  return new GitHubContentError({
+    kind: 'invalid_response',
+    status,
+    message: detail
+      ? `${context} returned GitHub ${status}: ${detail}`
+      : `${context} returned GitHub ${status}`,
+  })
+}
 
 export type Doc = {
   filepath: string
@@ -34,8 +153,15 @@ async function fetchRemote(
     headers: { 'User-Agent': `docs:${owner}/${repo}` },
   })
 
-  if (!response.ok) {
+  if (response.status === 404) {
     return null
+  }
+
+  if (!response.ok) {
+    throw await createGitHubContentError(
+      response,
+      `Fetching ${owner}/${repo}/${ref}/${filepath}`,
+    )
   }
 
   return await response.text()
@@ -283,10 +409,18 @@ export async function fetchRepoFile(
   const key = `${repoPair}:${ref}:${filepath}`
   const [owner, repo] = repoPair.split('/')
 
-  const ttl = process.env.NODE_ENV === 'development' ? 1 : 10 * 60 * 1000 // 10 minutes
-  const file = await fetchCached({
+  const file = await fetchCachedWithStaleFallback({
     key,
-    ttl,
+    ttl: DOC_FILE_CACHE_TTL_MS,
+    shouldFallbackToStale: isRecoverableGitHubContentError,
+    onStaleFallback: (error) => {
+      console.warn('[fetchRepoFile] Serving stale cached file after GitHub fetch failure:', {
+        repoPair,
+        ref,
+        filepath,
+        message: error instanceof Error ? error.message : String(error),
+      })
+    },
     fn: async () => {
       const maxDepth = 4
       let currentDepth = 1
@@ -294,15 +428,15 @@ export async function fetchRepoFile(
       while (maxDepth > currentDepth) {
         let text: string | null
         // Read file contents
-        try {
-          if (process.env.NODE_ENV === 'development') {
+        if (process.env.NODE_ENV === 'development') {
+          try {
             text = await fetchFs(repo, filepath)
-          } else {
-            text = await fetchRemote(owner, repo, ref, filepath)
+          } catch (error) {
+            console.error(error)
+            return null
           }
-        } catch (err) {
-          console.error(err)
-          return null
+        } else {
+          text = await fetchRemote(owner, repo, ref, filepath)
         }
 
         if (text === null) {
@@ -419,12 +553,11 @@ export function fetchApiContents(
   branch: string,
   startingPath: string,
 ) {
-  const isDev = process.env.NODE_ENV === 'development'
   return fetchCached({
     key: `${repoPair}:${branch}:${startingPath}`,
-    ttl: isDev ? 1 : 10 * 60 * 1000, // 10 minute
+    ttl: DOC_TREE_CACHE_TTL_MS,
     fn: () => {
-      return isDev
+      return process.env.NODE_ENV === 'development'
         ? fetchApiContentsFs(repoPair, startingPath)
         : fetchApiContentsRemote(repoPair, branch, startingPath)
     },
@@ -552,12 +685,14 @@ async function fetchApiContentsRemote(
     fetchOptions,
   )
 
+  if (res.status === 404) {
+    return null
+  }
+
   if (!res.ok) {
-    if (res.status === 404) {
-      return null
-    }
-    throw new Error(
-      `Failed to fetch repo contents for ${repo}/${branch}/${startingPath}: Status is ${res.statusText} - ${res.status}`,
+    throw await createGitHubContentError(
+      res,
+      `Fetching contents for ${repo}/${branch}/${startingPath}`,
     )
   }
 

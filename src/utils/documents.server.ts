@@ -12,6 +12,8 @@ const DOC_FILE_CACHE_TTL_MS =
 const DOC_TREE_CACHE_TTL_MS =
   process.env.NODE_ENV === 'development' ? 1 : 10 * 60 * 1000
 
+const DOC_GIT_TREE_CACHE_TTL_MS = DOC_TREE_CACHE_TTL_MS
+
 type GitHubContentErrorKind =
   | 'forbidden'
   | 'invalid_response'
@@ -549,6 +551,26 @@ export interface GitHubFileNode extends GitHubFile {
   parentPath?: string
 }
 
+type GitHubTreeEntry = {
+  path: string
+  type: 'blob' | 'tree'
+}
+
+type GitHubBranchResponse = {
+  commit?: {
+    commit?: {
+      tree?: {
+        sha?: string
+      }
+    }
+  }
+}
+
+type GitHubTreeResponse = {
+  truncated?: boolean
+  tree?: Array<GitHubTreeEntry>
+}
+
 const API_CONTENTS_MAX_DEPTH = 3
 
 export function fetchApiContents(
@@ -672,88 +694,208 @@ async function fetchApiContentsFs(
   return fileTree
 }
 
+async function fetchGitTreeRecursive(
+  repo: string,
+  branch: string,
+): Promise<Array<GitHubTreeEntry>> {
+  return fetchCachedWithStaleFallback({
+    key: `git-tree:${repo}:${branch}`,
+    ttl: DOC_GIT_TREE_CACHE_TTL_MS,
+    shouldFallbackToStale: isRecoverableGitHubContentError,
+    onStaleFallback: (error) => {
+      console.warn(
+        '[fetchGitTreeRecursive] Serving stale cached tree after GitHub fetch failure:',
+        {
+          repo,
+          branch,
+          message: error instanceof Error ? error.message : String(error),
+        },
+      )
+    },
+    fn: async () => {
+      const fetchOptions: RequestInit = {
+        headers: {
+          'X-GitHub-Api-Version': '2022-11-28',
+          Authorization: `Bearer ${env.GITHUB_AUTH_TOKEN}`,
+        },
+      }
+
+      const branchResponse = await fetch(
+        `https://api.github.com/repos/${repo}/branches/${branch}`,
+        fetchOptions,
+      )
+
+      if (branchResponse.status === 404) {
+        return []
+      }
+
+      if (!branchResponse.ok) {
+        throw await createGitHubContentError(
+          branchResponse,
+          `Fetching branch metadata for ${repo}/${branch}`,
+        )
+      }
+
+      const branchData = (await branchResponse.json()) as GitHubBranchResponse
+      const treeSha = branchData.commit?.commit?.tree?.sha
+
+      if (!treeSha) {
+        throw new GitHubContentError({
+          kind: 'invalid_response',
+          status: 500,
+          message: `Fetching branch metadata for ${repo}/${branch} returned no tree SHA`,
+        })
+      }
+
+      const treeResponse = await fetch(
+        `https://api.github.com/repos/${repo}/git/trees/${treeSha}?recursive=1`,
+        fetchOptions,
+      )
+
+      if (!treeResponse.ok) {
+        throw await createGitHubContentError(
+          treeResponse,
+          `Fetching recursive git tree for ${repo}/${branch}`,
+        )
+      }
+
+      const treeData = (await treeResponse.json()) as GitHubTreeResponse
+
+      if (!Array.isArray(treeData.tree)) {
+        throw new GitHubContentError({
+          kind: 'invalid_response',
+          status: 500,
+          message: `Recursive git tree for ${repo}/${branch} returned an invalid payload`,
+        })
+      }
+
+      if (treeData.truncated) {
+        console.warn('[fetchGitTreeRecursive] Git tree response was truncated:', {
+          repo,
+          branch,
+        })
+      }
+
+      return treeData.tree
+    },
+  })
+}
+
+function buildGitHubTreeFromRecursiveEntries(
+  repo: string,
+  branch: string,
+  startingPath: string,
+  entries: Array<GitHubTreeEntry>,
+): Array<GitHubFileNode> | null {
+  const normalizedStartingPath = removeLeadingSlash(startingPath).replace(/\/$/, '')
+  const startingPrefix = normalizedStartingPath ? `${normalizedStartingPath}/` : ''
+  const maxNodeDepth = API_CONTENTS_MAX_DEPTH + 1
+
+  const matchingEntries = entries.filter((entry) => {
+    if (entry.path === normalizedStartingPath) {
+      return false
+    }
+
+    if (!normalizedStartingPath) {
+      return true
+    }
+
+    return entry.path.startsWith(startingPrefix)
+  })
+
+  if (matchingEntries.length === 0) {
+    return null
+  }
+
+  type MutableNode = GitHubFileNode & { childMap: Map<string, MutableNode> }
+
+  const rootMap = new Map<string, MutableNode>()
+
+  function sortAndFinalize(nodes: Array<MutableNode>): Array<GitHubFileNode> {
+    const sortedNodes = sortApiContents(nodes as Array<GitHubFile>) as Array<MutableNode>
+
+    return sortedNodes.map((node) => {
+      const children = Array.from(node.childMap.values())
+      return {
+        name: node.name,
+        path: node.path,
+        type: node.type,
+        _links: node._links,
+        depth: node.depth,
+        parentPath: node.parentPath,
+        children: children.length > 0 ? sortAndFinalize(children) : undefined,
+      }
+    })
+  }
+
+  for (const entry of matchingEntries) {
+    const relativePath = normalizedStartingPath
+      ? entry.path.slice(startingPrefix.length)
+      : entry.path
+
+    if (!relativePath) {
+      continue
+    }
+
+    const segments = relativePath.split('/').filter(Boolean)
+
+    if (segments.length - 1 > maxNodeDepth) {
+      continue
+    }
+
+    let currentLevel = rootMap
+    let parentPath = ''
+
+    for (let index = 0; index < segments.length; index++) {
+      const segment = segments[index]
+      const isLeaf = index === segments.length - 1
+      const fullPath = normalizedStartingPath
+        ? `${normalizedStartingPath}/${segments.slice(0, index + 1).join('/')}`
+        : segments.slice(0, index + 1).join('/')
+      let node = currentLevel.get(segment)
+
+      if (!node) {
+        node = {
+          name: segment,
+          path: fullPath,
+          type: isLeaf ? (entry.type === 'tree' ? 'dir' : 'file') : 'dir',
+          _links: {
+            self: `https://api.github.com/repos/${repo}/contents/${fullPath}?ref=${branch}`,
+          },
+          depth: index,
+          parentPath,
+          childMap: new Map(),
+        }
+        currentLevel.set(segment, node)
+      }
+
+      if (!isLeaf) {
+        node.type = 'dir'
+      }
+
+      parentPath = `${node.path}/`
+      currentLevel = node.childMap
+    }
+  }
+
+  return sortAndFinalize(Array.from(rootMap.values()))
+}
+
 async function fetchApiContentsRemote(
   repo: string,
   branch: string,
   startingPath: string,
 ): Promise<Array<GitHubFileNode> | null> {
-  const fetchOptions: RequestInit = {
-    headers: {
-      'X-GitHub-Api-Version': '2022-11-28',
-      Authorization: `Bearer ${env.GITHUB_AUTH_TOKEN}`,
-    },
+  const recursiveTree = await fetchGitTreeRecursive(repo, branch)
+
+  if (recursiveTree.length === 0) {
+    return null
   }
-  const res = await fetch(
-    `https://api.github.com/repos/${repo}/contents/${startingPath}?ref=${branch}`,
-    fetchOptions,
+
+  return buildGitHubTreeFromRecursiveEntries(
+    repo,
+    branch,
+    startingPath,
+    recursiveTree,
   )
-
-  if (res.status === 404) {
-    return null
-  }
-
-  if (!res.ok) {
-    throw await createGitHubContentError(
-      res,
-      `Fetching contents for ${repo}/${branch}/${startingPath}`,
-    )
-  }
-
-  const data = (await res.json()) as Array<GitHubFile> | null
-
-  if (!Array.isArray(data)) {
-    console.warn(
-      'Expected an array of files from GitHub API, but received:\n',
-      JSON.stringify(data),
-    )
-    return null
-  }
-
-  async function buildFileTree(
-    nodes: Array<GitHubFile> | undefined,
-    depth: number,
-    parentPath: string,
-  ) {
-    const result: Array<GitHubFileNode> = []
-
-    const sortedNodes = sortApiContents(nodes ?? [])
-
-    for (const node of sortedNodes) {
-      const file: GitHubFileNode = {
-        ...node,
-        depth,
-        parentPath,
-      }
-
-      if (file.type === 'dir' && depth <= API_CONTENTS_MAX_DEPTH) {
-        const directoryFilesResponse = await fetch(
-          file._links.self,
-          fetchOptions,
-        )
-        const directoryFiles =
-          (await directoryFilesResponse.json()) as Array<GitHubFile>
-
-        if (!Array.isArray(directoryFiles)) {
-          console.warn(
-            `Expected an array of files from GitHub API for directory ${file.path}, but received:\n`,
-            JSON.stringify(directoryFiles),
-          )
-          // Leave file.children undefined
-        } else {
-          file.children = await buildFileTree(
-            directoryFiles,
-            depth + 1,
-            `${parentPath}${file.path}/`,
-          )
-        }
-      }
-
-      result.push(file)
-    }
-
-    return result
-  }
-
-  const fileTree = await buildFileTree(data, 0, '')
-  return fileTree
 }

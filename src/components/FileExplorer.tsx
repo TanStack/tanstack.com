@@ -81,6 +81,8 @@ function getMarginLeft(depth: number) {
   return `${depth * 16 + 4}px`
 }
 
+const PREFETCH_INTENT_DELAY_MS = 180
+
 interface FileExplorerProps {
   currentPath: string | null
   githubContents: GitHubFileNode[] | undefined
@@ -101,6 +103,7 @@ export function FileExplorer({
   const [sidebarWidth, setSidebarWidth] = React.useState(220)
   const [isResizing, setIsResizing] = React.useState(false)
   const MIN_SIDEBAR_WIDTH = 60
+  const prefetchTimeoutRef = React.useRef<number | null>(null)
 
   // Initialize expandedFolders with root-level folders
   const [expandedFolders, setExpandedFolders] = React.useState<Set<string>>(
@@ -190,6 +193,26 @@ export function FileExplorer({
     }
   }, [isResizing, sidebarWidth])
 
+  const clearPrefetchIntent = React.useCallback(() => {
+    if (prefetchTimeoutRef.current !== null) {
+      window.clearTimeout(prefetchTimeoutRef.current)
+      prefetchTimeoutRef.current = null
+    }
+  }, [])
+
+  const schedulePrefetchIntent = React.useCallback(
+    (path: string) => {
+      clearPrefetchIntent()
+      prefetchTimeoutRef.current = window.setTimeout(() => {
+        prefetchTimeoutRef.current = null
+        prefetchFileContent(path)
+      }, PREFETCH_INTENT_DELAY_MS)
+    },
+    [clearPrefetchIntent, prefetchFileContent],
+  )
+
+  React.useEffect(() => clearPrefetchIntent, [clearPrefetchIntent])
+
   const toggleFolder = (path: string) => {
     setExpandedFolders((prev) => {
       const next = new Set(prev)
@@ -223,6 +246,8 @@ export function FileExplorer({
               files={githubContents}
               libraryColor={libraryColor}
               prefetchFileContent={prefetchFileContent}
+              schedulePrefetchIntent={schedulePrefetchIntent}
+              clearPrefetchIntent={clearPrefetchIntent}
               setCurrentPath={setCurrentPath}
               toggleFolder={toggleFolder}
             />
@@ -246,6 +271,8 @@ const RenderFileTree = (props: {
   libraryColor: string
   toggleFolder: (path: string) => void
   prefetchFileContent: (file: string) => void
+  schedulePrefetchIntent: (file: string) => void
+  clearPrefetchIntent: () => void
   expandedFolders: Set<string>
   currentPath: string | null
   setCurrentPath: (file: string) => void
@@ -282,15 +309,25 @@ const RenderFileTree = (props: {
           <div style={{ paddingLeft: getMarginLeft(file.depth) }}>
             <button
               onClick={() => {
+                props.clearPrefetchIntent()
                 if (file.type === 'dir') {
                   props.toggleFolder(file.path)
                 } else {
                   props.setCurrentPath(file.path)
                 }
               }}
-              onMouseEnter={() =>
-                file.type !== 'dir' && props.prefetchFileContent(file.path)
-              }
+              onMouseEnter={() => {
+                if (file.type !== 'dir' && props.currentPath !== file.path) {
+                  props.schedulePrefetchIntent(file.path)
+                }
+              }}
+              onMouseLeave={props.clearPrefetchIntent}
+              onFocus={() => {
+                if (file.type !== 'dir' && props.currentPath !== file.path) {
+                  props.schedulePrefetchIntent(file.path)
+                }
+              }}
+              onBlur={props.clearPrefetchIntent}
               className={twMerge(
                 `px-2 py-1.5 text-left w-full flex items-center gap-2 text-sm rounded transition-colors duration-200 min-w-0`,
                 props.currentPath === file.path

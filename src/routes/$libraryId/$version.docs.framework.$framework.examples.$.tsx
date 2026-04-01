@@ -203,9 +203,20 @@ function PageComponent() {
 
   const prefetchFileContent = React.useCallback(
     (path: string) => {
-      queryClient.prefetchQuery(fileQueryOptions(library.repo, branch, path))
+      if (path === currentPath) {
+        return
+      }
+
+      const query = fileQueryOptions(library.repo, branch, path)
+      const queryState = queryClient.getQueryState(query.queryKey)
+
+      if (queryState?.status === 'success' || queryState?.fetchStatus === 'fetching') {
+        return
+      }
+
+      void queryClient.prefetchQuery(query)
     },
-    [queryClient, library.repo, branch],
+    [branch, currentPath, library.repo, queryClient],
   )
 
   // Update local storage when tab changes

@@ -30,7 +30,7 @@ export async function loadRemoteIntegrationHandler(
       ...addOn,
       files: addOn.files || {},
       deletedFiles: [],
-    } as unknown as StarterCompiled
+    } as AddOnCompiled
     return { integration }
   } catch (error) {
     return {

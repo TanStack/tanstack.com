@@ -166,12 +166,6 @@ importers:
       mermaid:
         specifier: ^11.14.0
         version: 11.14.0
-      oxlint:
-        specifier: ^1.58.0
-        version: 1.58.0(oxlint-tsgolint@0.19.0)
-      oxlint-tsgolint:
-        specifier: ^0.19.0
-        version: 0.19.0
       postgres:
         specifier: ^3.4.8
         version: 3.4.8
@@ -320,6 +314,12 @@ importers:
       oxfmt:
         specifier: ^0.43.0
         version: 0.43.0
+      oxlint:
+        specifier: ^1.58.0
+        version: 1.58.0(oxlint-tsgolint@0.19.0)
+      oxlint-tsgolint:
+        specifier: ^0.19.0
+        version: 0.19.0
       source-map-explorer:
         specifier: ^2.5.3
         version: 2.5.3

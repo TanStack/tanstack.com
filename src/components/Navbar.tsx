@@ -119,11 +119,15 @@ const LogoSection = ({
           <img
             src={'/images/logos/logo-black.svg'}
             alt=""
+            width={30}
+            height={30}
             className="row-start-1 col-start-1 w-full dark:opacity-0 opacity-0 group-hover:opacity-100"
           />
           <img
             src={'/images/logos/logo-white.svg'}
             alt=""
+            width={30}
+            height={30}
             className="row-start-1 col-start-1 w-full light:opacity-0 dark:block opacity-0 group-hover:opacity-100"
           />
         </div>

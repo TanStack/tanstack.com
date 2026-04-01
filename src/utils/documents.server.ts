@@ -414,12 +414,15 @@ export async function fetchRepoFile(
     ttl: DOC_FILE_CACHE_TTL_MS,
     shouldFallbackToStale: isRecoverableGitHubContentError,
     onStaleFallback: (error) => {
-      console.warn('[fetchRepoFile] Serving stale cached file after GitHub fetch failure:', {
-        repoPair,
-        ref,
-        filepath,
-        message: error instanceof Error ? error.message : String(error),
-      })
+      console.warn(
+        '[fetchRepoFile] Serving stale cached file after GitHub fetch failure:',
+        {
+          repoPair,
+          ref,
+          filepath,
+          message: error instanceof Error ? error.message : String(error),
+        },
+      )
     },
     fn: async () => {
       const maxDepth = 4

@@ -518,5 +518,3 @@ export async function pushFiles(
 
   return { success: true, commitSha: commit.sha }
 }
-
-

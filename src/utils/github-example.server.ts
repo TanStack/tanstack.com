@@ -183,12 +183,13 @@ export async function fetchExampleFiles(
     .filter((entry) => entry.type === 'blob')
     .filter(
       (entry) =>
-        entry.path === normalizedExamplePath || entry.path.startsWith(pathPrefix),
+        entry.path === normalizedExamplePath ||
+        entry.path.startsWith(pathPrefix),
     )
     .map((entry) => ({
       relativePath:
         entry.path === normalizedExamplePath
-          ? entry.path.split('/').at(-1) ?? entry.path
+          ? (entry.path.split('/').at(-1) ?? entry.path)
           : entry.path.slice(pathPrefix.length),
       fullPath: entry.path,
     }))

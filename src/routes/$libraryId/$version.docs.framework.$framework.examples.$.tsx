@@ -210,7 +210,10 @@ function PageComponent() {
       const query = fileQueryOptions(library.repo, branch, path)
       const queryState = queryClient.getQueryState(query.queryKey)
 
-      if (queryState?.status === 'success' || queryState?.fetchStatus === 'fetching') {
+      if (
+        queryState?.status === 'success' ||
+        queryState?.fetchStatus === 'fetching'
+      ) {
         return
       }
 

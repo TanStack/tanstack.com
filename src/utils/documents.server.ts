@@ -770,10 +770,13 @@ async function fetchGitTreeRecursive(
       }
 
       if (treeData.truncated) {
-        console.warn('[fetchGitTreeRecursive] Git tree response was truncated:', {
-          repo,
-          branch,
-        })
+        console.warn(
+          '[fetchGitTreeRecursive] Git tree response was truncated:',
+          {
+            repo,
+            branch,
+          },
+        )
       }
 
       return treeData.tree
@@ -787,8 +790,13 @@ function buildGitHubTreeFromRecursiveEntries(
   startingPath: string,
   entries: Array<GitHubTreeEntry>,
 ): Array<GitHubFileNode> | null {
-  const normalizedStartingPath = removeLeadingSlash(startingPath).replace(/\/$/, '')
-  const startingPrefix = normalizedStartingPath ? `${normalizedStartingPath}/` : ''
+  const normalizedStartingPath = removeLeadingSlash(startingPath).replace(
+    /\/$/,
+    '',
+  )
+  const startingPrefix = normalizedStartingPath
+    ? `${normalizedStartingPath}/`
+    : ''
   const maxNodeDepth = API_CONTENTS_MAX_DEPTH + 1
 
   const matchingEntries = entries.filter((entry) => {
@@ -812,7 +820,9 @@ function buildGitHubTreeFromRecursiveEntries(
   const rootMap = new Map<string, MutableNode>()
 
   function sortAndFinalize(nodes: Array<MutableNode>): Array<GitHubFileNode> {
-    const sortedNodes = sortApiContents(nodes as Array<GitHubFile>) as Array<MutableNode>
+    const sortedNodes = sortApiContents(
+      nodes as Array<GitHubFile>,
+    ) as Array<MutableNode>
 
     return sortedNodes.map((node) => {
       const children = Array.from(node.childMap.values())

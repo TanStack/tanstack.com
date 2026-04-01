@@ -26,11 +26,11 @@ export async function loadRemoteIntegrationHandler(
 
   try {
     const addOn = await loadRemoteAddOn(validation.normalizedUrl!)
-    const integration: AddOnCompiled = {
+    const integration = {
       ...addOn,
       files: addOn.files || {},
       deletedFiles: [],
-    }
+    } as unknown as StarterCompiled
     return { integration }
   } catch (error) {
     return {

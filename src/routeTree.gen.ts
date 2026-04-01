@@ -28,7 +28,6 @@ import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
 import { Route as LibrariesRouteImport } from './routes/libraries'
 import { Route as LearnRouteImport } from './routes/learn'
 import { Route as FeedbackLeaderboardRouteImport } from './routes/feedback-leaderboard'
-import { Route as FeedRouteImport } from './routes/feed'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as EthosRouteImport } from './routes/ethos'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -214,11 +213,6 @@ const LearnRoute = LearnRouteImport.update({
 const FeedbackLeaderboardRoute = FeedbackLeaderboardRouteImport.update({
   id: '/feedback-leaderboard',
   path: '/feedback-leaderboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FeedRoute = FeedRouteImport.update({
-  id: '/feed',
-  path: '/feed',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExploreRoute = ExploreRouteImport.update({
@@ -710,7 +704,6 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/ethos': typeof EthosRoute
   '/explore': typeof ExploreRoute
-  '/feed': typeof FeedRoute
   '/feedback-leaderboard': typeof FeedbackLeaderboardRoute
   '/learn': typeof LearnRoute
   '/libraries': typeof LibrariesRoute
@@ -818,7 +811,6 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/ethos': typeof EthosRoute
   '/explore': typeof ExploreRoute
-  '/feed': typeof FeedRoute
   '/feedback-leaderboard': typeof FeedbackLeaderboardRoute
   '/learn': typeof LearnRoute
   '/libraries': typeof LibrariesRoute
@@ -929,7 +921,6 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/ethos': typeof EthosRoute
   '/explore': typeof ExploreRoute
-  '/feed': typeof FeedRoute
   '/feedback-leaderboard': typeof FeedbackLeaderboardRoute
   '/learn': typeof LearnRoute
   '/libraries': typeof LibrariesRoute
@@ -1044,7 +1035,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/ethos'
     | '/explore'
-    | '/feed'
     | '/feedback-leaderboard'
     | '/learn'
     | '/libraries'
@@ -1152,7 +1142,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/ethos'
     | '/explore'
-    | '/feed'
     | '/feedback-leaderboard'
     | '/learn'
     | '/libraries'
@@ -1262,7 +1251,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/ethos'
     | '/explore'
-    | '/feed'
     | '/feedback-leaderboard'
     | '/learn'
     | '/libraries'
@@ -1376,7 +1364,6 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   EthosRoute: typeof EthosRoute
   ExploreRoute: typeof ExploreRoute
-  FeedRoute: typeof FeedRoute
   FeedbackLeaderboardRoute: typeof FeedbackLeaderboardRoute
   LearnRoute: typeof LearnRoute
   LibrariesRoute: typeof LibrariesRoute
@@ -1570,13 +1557,6 @@ declare module '@tanstack/react-router' {
       path: '/feedback-leaderboard'
       fullPath: '/feedback-leaderboard'
       preLoaderRoute: typeof FeedbackLeaderboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/feed': {
-      id: '/feed'
-      path: '/feed'
-      fullPath: '/feed'
-      preLoaderRoute: typeof FeedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/explore': {
@@ -2407,7 +2387,6 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   EthosRoute: EthosRoute,
   ExploreRoute: ExploreRoute,
-  FeedRoute: FeedRoute,
   FeedbackLeaderboardRoute: FeedbackLeaderboardRoute,
   LearnRoute: LearnRoute,
   LibrariesRoute: LibrariesRoute,

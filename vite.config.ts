@@ -6,10 +6,16 @@ import tailwindcss from '@tailwindcss/vite'
 import { analyzer } from 'vite-bundle-analyzer'
 import viteReact from '@vitejs/plugin-react'
 import netlify from '@netlify/vite-plugin-tanstack-start'
+import path from 'node:path'
 
 const isDev = process.env.NODE_ENV !== 'production'
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      '~': path.resolve(__dirname, './src'),
+    },
+  },
   server: {
     port: Number(process.env.PORT) || 3000,
     // WebContainer headers for /builder route (SharedArrayBuffer support)

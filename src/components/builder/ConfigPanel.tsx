@@ -17,7 +17,6 @@ import {
   Check,
   HelpCircle,
   Search,
-  Github,
 } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import {
@@ -36,7 +35,7 @@ import { useCliCommand } from './useBuilderUrl'
 import { FeaturePicker, FeatureOptions } from './FeaturePicker'
 import { TemplatePicker } from './TemplatePicker'
 import { DeployDialog } from './DeployDialog'
-import { Button } from '~/ui'
+import { Button, GitHub } from '~/ui'
 import {
   Dropdown,
   DropdownTrigger,
@@ -556,7 +555,7 @@ function BuildProjectDropdown({
               className="w-full flex items-center justify-center gap-2"
               onClick={onCreateRepo}
             >
-              <Github className="w-4 h-4" />
+              <GitHub className="w-4 h-4" />
               Create GitHub Repository
             </Button>
           </div>

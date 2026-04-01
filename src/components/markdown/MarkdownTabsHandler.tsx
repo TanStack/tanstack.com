@@ -76,7 +76,7 @@ export function handleTabsComponent(
 
       return (
         <React.Suspense fallback={<div>Loading...</div>}>
-          <FileTabs tabs={tabs} children={children as any} />
+          <FileTabs tabs={tabs}>{children as any}</FileTabs>
         </React.Suspense>
       )
     } catch {
@@ -104,7 +104,7 @@ export function handleTabsComponent(
 
   return (
     <React.Suspense fallback={<div>Loading...</div>}>
-      <Tabs tabs={tabs} children={children as any} />
+      <Tabs tabs={tabs}>{children as any}</Tabs>
     </React.Suspense>
   )
 }

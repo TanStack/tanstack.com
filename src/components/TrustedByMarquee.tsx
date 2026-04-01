@@ -72,7 +72,7 @@ export function TrustedByMarquee({
         dangerouslySetInnerHTML={{
           __html: `
           @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-33.333%); } }
-          .animate-\[marquee_linear_infinite\] { animation-name: marquee; animation-timing-function: linear; animation-iteration-count: infinite; }
+          .animate-[marquee_linear_infinite] { animation-name: marquee; animation-timing-function: linear; animation-iteration-count: infinite; }
         `,
         }}
       />

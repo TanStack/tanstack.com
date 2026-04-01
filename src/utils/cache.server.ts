@@ -1,11 +1,13 @@
-import LRUCache from 'lru-cache'
+import { LRUCache } from 'lru-cache'
 
 declare global {
+  // @ts-expect-error - globalThis.docCache is set in the server entrypoint
   var docCache: LRUCache<string, unknown>
 }
 
 const docCache =
   globalThis.docCache ||
+  // @ts-expect-error - globalThis.docCache is set in the server entrypoint
   (globalThis.docCache = new LRUCache<string, unknown>({
     max: 300,
     // ttl: 1,

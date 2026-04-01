@@ -267,7 +267,7 @@ const _getFrameworkTextColor = (frameworkValue: string | undefined) => {
 }
 
 // Create context for width toggle state
-const WidthToggleContext = React.createContext<{
+export const WidthToggleContext = React.createContext<{
   isFullWidth: boolean
   setIsFullWidth: (isFullWidth: boolean) => void
 } | null>(null)

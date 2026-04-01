@@ -28,7 +28,8 @@ export type Sponsor = {
   createdAt: string
 }
 
-const SPONSOR_CACHE_TTL_MS = process.env.NODE_ENV === 'development' ? 1 : 5 * 60 * 1000
+const SPONSOR_CACHE_TTL_MS =
+  process.env.NODE_ENV === 'development' ? 1 : 5 * 60 * 1000
 
 export const getSponsorsForSponsorPack = createServerFn({
   method: 'GET',
@@ -42,16 +43,22 @@ export const getSponsorsForSponsorPack = createServerFn({
       fn: getSponsors,
       shouldFallbackToStale: isRecoverableGitHubApiError,
       onStaleFallback: (error) => {
-        console.warn('[getSponsorsForSponsorPack] Serving stale sponsors after GitHub failure:', {
-          message: error instanceof Error ? error.message : String(error),
-        })
+        console.warn(
+          '[getSponsorsForSponsorPack] Serving stale sponsors after GitHub failure:',
+          {
+            message: error instanceof Error ? error.message : String(error),
+          },
+        )
       },
     })
   } catch (error) {
     if (isRecoverableGitHubApiError(error)) {
-      console.warn('[getSponsorsForSponsorPack] Falling back to metadata-only sponsors:', {
-        message: error.message,
-      })
+      console.warn(
+        '[getSponsorsForSponsorPack] Falling back to metadata-only sponsors:',
+        {
+          message: error.message,
+        },
+      )
       sponsors = await getSponsorsFromMetadataOnly()
     } else {
       throw error

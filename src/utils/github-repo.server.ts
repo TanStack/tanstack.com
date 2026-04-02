@@ -4,9 +4,6 @@
  * Functions for creating and managing GitHub repositories via the API.
  */
 
-import { createHash } from 'node:crypto'
-import { fetchCached } from './cache.server'
-
 export interface CreateRepoOptions {
   name: string
   description?: string
@@ -103,46 +100,6 @@ export async function createRepository(
   }
 }
 
-type GitHubUserResponse = {
-  login?: string
-}
-
-const GITHUB_LOGIN_CACHE_TTL_MS = 5 * 60 * 1000
-
-async function getAuthenticatedGitHubLogin(
-  accessToken: string,
-): Promise<string | null> {
-  const tokenHash = createHash('sha256').update(accessToken).digest('hex')
-
-  return fetchCached({
-    key: `github-user-login:${tokenHash}`,
-    ttl: GITHUB_LOGIN_CACHE_TTL_MS,
-    fn: async () => {
-      const controller = new AbortController()
-      const timeout = setTimeout(() => controller.abort(), 5000)
-
-      try {
-        const userResponse = await fetch('https://api.github.com/user', {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            Accept: 'application/vnd.github.v3+json',
-          },
-          signal: controller.signal,
-        })
-
-        if (!userResponse.ok) {
-          return null
-        }
-
-        const user = (await userResponse.json()) as GitHubUserResponse
-        return user.login ?? null
-      } finally {
-        clearTimeout(timeout)
-      }
-    },
-  })
-}
-
 /**
  * Check if a repository name is available
  */
@@ -154,9 +111,21 @@ export async function checkRepoNameAvailable(
   const timeout = setTimeout(() => controller.abort(), 5000)
 
   try {
-    const username = await getAuthenticatedGitHubLogin(accessToken)
-    if (!username) return true
+    // Get the authenticated user's username
+    const userResponse = await fetch('https://api.github.com/user', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: 'application/vnd.github.v3+json',
+      },
+      signal: controller.signal,
+    })
 
+    if (!userResponse.ok) return true // Assume available on error
+
+    const user = await userResponse.json()
+    const username = user.login
+
+    // Check if repo exists
     const repoResponse = await fetch(
       `https://api.github.com/repos/${username}/${name}`,
       {
@@ -168,8 +137,10 @@ export async function checkRepoNameAvailable(
       },
     )
 
+    // 404 means repo doesn't exist, so name is available
     return repoResponse.status === 404
   } catch {
+    // On timeout or network error, assume available (don't block the user)
     return true
   } finally {
     clearTimeout(timeout)
@@ -518,5 +489,3 @@ export async function pushFiles(
 
   return { success: true, commitSha: commit.sha }
 }
-
-

@@ -4,7 +4,6 @@
  * Functions for fetching example files from GitHub repositories.
  */
 
-import { fetchCached } from './cache.server'
 import { env } from './env'
 
 export interface FetchExampleFilesResult {
@@ -17,211 +16,85 @@ export interface FetchExampleFilesError {
   error: string
 }
 
-type GitHubBranchResponse = {
-  commit?: {
-    commit?: {
-      tree?: {
-        sha?: string
-      }
-    }
-  }
-}
-
-type GitHubTreeEntry = {
-  path: string
-  mode: string
-  type: 'blob' | 'tree' | 'commit'
-  sha: string
-  size?: number
-  url: string
-}
-
-type GitHubTreeResponse = {
-  tree?: Array<GitHubTreeEntry>
-  truncated?: boolean
-}
-
-const EXAMPLE_GIT_TREE_CACHE_TTL_MS = 5 * 60 * 1000
-const EXAMPLE_FETCH_CONCURRENCY = 8
-
-function getGitHubHeaders() {
-  return {
-    'X-GitHub-Api-Version': '2022-11-28',
-    Authorization: `Bearer ${env.GITHUB_AUTH_TOKEN}`,
-  }
-}
-
-async function fetchExampleGitTree(
-  repo: string,
-  branch: string,
-): Promise<Array<GitHubTreeEntry>> {
-  return fetchCached({
-    key: `example-git-tree:${repo}:${branch}`,
-    ttl: EXAMPLE_GIT_TREE_CACHE_TTL_MS,
-    fn: async () => {
-      const headers = getGitHubHeaders()
-
-      const branchResponse = await fetch(
-        `https://api.github.com/repos/${repo}/branches/${branch}`,
-        { headers },
-      )
-
-      if (!branchResponse.ok) {
-        throw new Error(
-          `Failed to fetch branch metadata (${branchResponse.status})`,
-        )
-      }
-
-      const branchData = (await branchResponse.json()) as GitHubBranchResponse
-      const treeSha = branchData.commit?.commit?.tree?.sha
-
-      if (!treeSha) {
-        throw new Error(`Missing tree SHA for ${repo}/${branch}`)
-      }
-
-      const treeResponse = await fetch(
-        `https://api.github.com/repos/${repo}/git/trees/${treeSha}?recursive=1`,
-        { headers },
-      )
-
-      if (!treeResponse.ok) {
-        throw new Error(`Failed to fetch git tree (${treeResponse.status})`)
-      }
-
-      const treeData = (await treeResponse.json()) as GitHubTreeResponse
-
-      if (!Array.isArray(treeData.tree)) {
-        throw new Error(`Invalid git tree response for ${repo}/${branch}`)
-      }
-
-      if (treeData.truncated) {
-        console.warn('[fetchExampleFiles] Git tree response was truncated:', {
-          repo,
-          branch,
-        })
-      }
-
-      return treeData.tree
-    },
-  })
-}
-
-async function fetchRawFile(
-  repo: string,
-  branch: string,
-  filePath: string,
-): Promise<string> {
-  const href = new URL(
-    `${repo}/${branch}/${filePath}`,
-    'https://raw.githubusercontent.com/',
-  ).href
-
-  const response = await fetch(href, {
-    headers: { 'User-Agent': `example-fetch:${repo}` },
-  })
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch ${filePath} (${response.status})`)
-  }
-
-  return response.text()
-}
-
-async function mapWithConcurrency<T>(
-  items: Array<T>,
-  limit: number,
-  fn: (item: T) => Promise<void>,
-) {
-  let index = 0
-
-  async function worker() {
-    while (index < items.length) {
-      const currentIndex = index
-      index += 1
-      await fn(items[currentIndex]!)
-    }
-  }
-
-  await Promise.all(
-    Array.from({ length: Math.min(limit, items.length) }, () => worker()),
-  )
-}
-
 /**
  * Fetch all files from a GitHub example directory
  *
- * Uses the Git tree API to list the branch once, filters excluded paths before
- * download, then fetches only the required file contents from raw GitHub.
+ * Uses the Contents API to get the directory structure,
+ * then fetches each file's content via raw.githubusercontent.com.
  */
 export async function fetchExampleFiles(
   repo: string,
   branch: string,
   examplePath: string,
 ): Promise<FetchExampleFilesResult | FetchExampleFilesError> {
+  const token = env.GITHUB_AUTH_TOKEN
+
+  const headers: Record<string, string> = {
+    'X-GitHub-Api-Version': '2022-11-28',
+    Authorization: `Bearer ${token}`,
+  }
+
+  const files: Record<string, string> = {}
+
+  async function fetchDirectory(dirPath: string): Promise<boolean> {
+    const url = `https://api.github.com/repos/${repo}/contents/${dirPath}?ref=${branch}`
+    const response = await fetch(url, { headers })
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        console.error(`[fetchExampleFiles] Directory not found: ${dirPath}`)
+        return false
+      }
+      const errorBody = await response.text().catch(() => 'no body')
+      console.error('[fetchExampleFiles] Contents fetch failed:', {
+        url,
+        status: response.status,
+        statusText: response.statusText,
+        body: errorBody,
+      })
+      return false
+    }
+
+    const contents = (await response.json()) as Array<{
+      name: string
+      path: string
+      type: 'file' | 'dir'
+      download_url: string | null
+    }>
+
+    // Process files and directories
+    for (const item of contents) {
+      if (item.type === 'dir') {
+        if (shouldExcludeFile(item.name)) continue
+        await fetchDirectory(item.path)
+      } else if (item.type === 'file' && item.download_url) {
+        const fileResponse = await fetch(item.download_url)
+        if (fileResponse.ok) {
+          const content = await fileResponse.text()
+          const relativePath = item.path.slice(examplePath.length + 1)
+          files[relativePath] = content
+        }
+      }
+    }
+
+    return true
+  }
+
   console.log('[fetchExampleFiles] Fetching:', { repo, branch, examplePath })
 
-  let tree: Array<GitHubTreeEntry>
-  try {
-    tree = await fetchExampleGitTree(repo, branch)
-  } catch (error) {
-    console.error('[fetchExampleFiles] Git tree fetch failed:', {
-      repo,
-      branch,
-      examplePath,
-      message: error instanceof Error ? error.message : String(error),
-    })
+  const success = await fetchDirectory(examplePath)
+
+  if (!success) {
     return {
       success: false,
       error: `Failed to fetch example directory: ${examplePath}`,
     }
   }
 
-  const normalizedExamplePath = examplePath.replace(/^\/+|\/+$/g, '')
-  const pathPrefix = `${normalizedExamplePath}/`
-
-  const candidateFiles = tree
-    .filter((entry) => entry.type === 'blob')
-    .filter(
-      (entry) =>
-        entry.path === normalizedExamplePath || entry.path.startsWith(pathPrefix),
-    )
-    .map((entry) => ({
-      relativePath:
-        entry.path === normalizedExamplePath
-          ? entry.path.split('/').at(-1) ?? entry.path
-          : entry.path.slice(pathPrefix.length),
-      fullPath: entry.path,
-    }))
-    .filter((entry) => entry.relativePath.length > 0)
-    .filter((entry) => !shouldExcludeFile(entry.relativePath))
-
-  if (candidateFiles.length === 0) {
+  if (Object.keys(files).length === 0) {
     return {
       success: false,
       error: `No files found in example path: ${examplePath}`,
-    }
-  }
-
-  const files: Record<string, string> = {}
-
-  try {
-    await mapWithConcurrency(
-      candidateFiles,
-      EXAMPLE_FETCH_CONCURRENCY,
-      async ({ fullPath, relativePath }) => {
-        files[relativePath] = await fetchRawFile(repo, branch, fullPath)
-      },
-    )
-  } catch (error) {
-    console.error('[fetchExampleFiles] File content fetch failed:', {
-      repo,
-      branch,
-      examplePath,
-      message: error instanceof Error ? error.message : String(error),
-    })
-    return {
-      success: false,
-      error: `Failed to fetch example files: ${examplePath}`,
     }
   }
 

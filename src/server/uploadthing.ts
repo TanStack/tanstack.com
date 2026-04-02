@@ -1,3 +1,4 @@
+import '@tanstack/react-start/server-only'
 import { createUploadthing, UploadThingError } from 'uploadthing/server'
 import type { FileRouter } from 'uploadthing/server'
 import { getAuthService } from '~/auth/index.server'

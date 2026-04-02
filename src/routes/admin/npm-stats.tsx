@@ -22,7 +22,7 @@ import {
   listNpmOrgStatsCache,
   getLibraryNpmStats,
   refreshAllNpmStats,
-} from '~/utils/stats-admin.server'
+} from '~/utils/stats-admin.functions'
 import { formatDistanceToNow } from '~/utils/dates'
 import { Download, RefreshCw } from 'lucide-react'
 import { NpmIcon } from '~/components/icons/NpmIcon'

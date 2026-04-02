@@ -2,7 +2,7 @@ import React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { ArrowRight } from 'lucide-react'
 import { useIntersectionObserver } from '~/hooks/useIntersectionObserver'
-import { getSponsorsForSponsorPack } from '~/server/sponsors'
+import { getSponsorsForSponsorPack } from '~/utils/sponsors.functions'
 import { Button } from '~/ui'
 import PlaceholderSponsorPack from './PlaceholderSponsorPack'
 

@@ -82,6 +82,7 @@ import { Route as ShowcaseEditIdRouteImport } from './routes/showcase/edit.$id'
 import { Route as IntentRegistryPackageNameRouteImport } from './routes/intent/registry/$packageName'
 import { Route as AuthProviderStartRouteImport } from './routes/auth/$provider/start'
 import { Route as ApiMcpSplatRouteImport } from './routes/api/mcp/$'
+import { Route as ApiGithubWebhookRouteImport } from './routes/api/github/webhook'
 import { Route as ApiExampleDeployRouteImport } from './routes/api/example/deploy'
 import { Route as ApiDiscordInteractionsRouteImport } from './routes/api/discord/interactions'
 import { Route as ApiDataPartnersRouteImport } from './routes/api/data/partners'
@@ -487,6 +488,11 @@ const ApiMcpSplatRoute = ApiMcpSplatRouteImport.update({
   path: '/api/mcp/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiGithubWebhookRoute = ApiGithubWebhookRouteImport.update({
+  id: '/api/github/webhook',
+  path: '/api/github/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiExampleDeployRoute = ApiExampleDeployRouteImport.update({
   id: '/api/example/deploy',
   path: '/api/example/deploy',
@@ -772,6 +778,7 @@ export interface FileRoutesByFullPath {
   '/api/data/partners': typeof ApiDataPartnersRoute
   '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
   '/api/example/deploy': typeof ApiExampleDeployRoute
+  '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
   '/intent/registry/$packageName': typeof IntentRegistryPackageNameRouteWithChildren
@@ -877,6 +884,7 @@ export interface FileRoutesByTo {
   '/api/data/partners': typeof ApiDataPartnersRoute
   '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
   '/api/example/deploy': typeof ApiExampleDeployRoute
+  '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
   '/showcase/edit/$id': typeof ShowcaseEditIdRoute
@@ -989,6 +997,7 @@ export interface FileRoutesById {
   '/api/data/partners': typeof ApiDataPartnersRoute
   '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
   '/api/example/deploy': typeof ApiExampleDeployRoute
+  '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
   '/intent/registry/$packageName': typeof IntentRegistryPackageNameRouteWithChildren
@@ -1103,6 +1112,7 @@ export interface FileRouteTypes {
     | '/api/data/partners'
     | '/api/discord/interactions'
     | '/api/example/deploy'
+    | '/api/github/webhook'
     | '/api/mcp/$'
     | '/auth/$provider/start'
     | '/intent/registry/$packageName'
@@ -1208,6 +1218,7 @@ export interface FileRouteTypes {
     | '/api/data/partners'
     | '/api/discord/interactions'
     | '/api/example/deploy'
+    | '/api/github/webhook'
     | '/api/mcp/$'
     | '/auth/$provider/start'
     | '/showcase/edit/$id'
@@ -1319,6 +1330,7 @@ export interface FileRouteTypes {
     | '/api/data/partners'
     | '/api/discord/interactions'
     | '/api/example/deploy'
+    | '/api/github/webhook'
     | '/api/mcp/$'
     | '/auth/$provider/start'
     | '/intent/registry/$packageName'
@@ -1409,6 +1421,7 @@ export interface RootRouteChildren {
   ApiDataPartnersRoute: typeof ApiDataPartnersRoute
   ApiDiscordInteractionsRoute: typeof ApiDiscordInteractionsRoute
   ApiExampleDeployRoute: typeof ApiExampleDeployRoute
+  ApiGithubWebhookRoute: typeof ApiGithubWebhookRoute
   ApiMcpSplatRoute: typeof ApiMcpSplatRoute
   AuthProviderStartRoute: typeof AuthProviderStartRoute
   IntentRegistryPackageNameRoute: typeof IntentRegistryPackageNameRouteWithChildren
@@ -1937,6 +1950,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiMcpSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/github/webhook': {
+      id: '/api/github/webhook'
+      path: '/api/github/webhook'
+      fullPath: '/api/github/webhook'
+      preLoaderRoute: typeof ApiGithubWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/example/deploy': {
       id: '/api/example/deploy'
       path: '/api/example/deploy'
@@ -2433,6 +2453,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiDataPartnersRoute: ApiDataPartnersRoute,
   ApiDiscordInteractionsRoute: ApiDiscordInteractionsRoute,
   ApiExampleDeployRoute: ApiExampleDeployRoute,
+  ApiGithubWebhookRoute: ApiGithubWebhookRoute,
   ApiMcpSplatRoute: ApiMcpSplatRoute,
   AuthProviderStartRoute: AuthProviderStartRoute,
   IntentRegistryPackageNameRoute: IntentRegistryPackageNameRouteWithChildren,

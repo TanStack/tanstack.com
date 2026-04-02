@@ -21,27 +21,64 @@ import { RecentPostsWidget } from '~/components/RecentPostsWidget'
 import { Toc } from '~/components/Toc'
 import { Breadcrumbs } from '~/components/Breadcrumbs'
 import { renderMarkdown } from '~/utils/markdown'
+import { buildRedirectManifest } from '~/utils/redirects'
 
-function handleRedirects(docsPath: string) {
-  if (docsPath.includes('directives-the-new-framework-lock-in')) {
+const blogRedirectManifest = buildRedirectManifest(
+  allPosts.flatMap((post) =>
+    (post.redirectFrom ?? []).map((redirectFrom: string) => ({
+      from: normalizeBlogRedirectPath(redirectFrom),
+      to: post.slug,
+      source: post._meta.filePath,
+    })),
+  ),
+  {
+    label: 'blog posts',
+    formatTarget: (target) => `/blog/${target}`,
+  },
+)
+
+function handleRedirects(blogPath: string) {
+  const normalizedPaths = new Set([
+    normalizeBlogRedirectPath(blogPath),
+    normalizeBlogRedirectPath(`/blog/${blogPath}`),
+  ])
+
+  for (const path of normalizedPaths) {
+    const redirectedPostSlug = blogRedirectManifest[path]
+
+    if (redirectedPostSlug) {
+      throw redirect({
+        href: `/blog/${redirectedPostSlug}`,
+        statusCode: 308,
+      })
+    }
+  }
+
+  if (blogPath.includes('directives-the-new-framework-lock-in')) {
     throw redirect({
       href: '/blog/directives-and-the-platform-boundary',
     })
   }
 }
 
+function normalizeBlogRedirectPath(path: string) {
+  return path.replace(/^\/+|\/+$/g, '')
+}
+
 const fetchBlogPost = createServerFn({ method: 'GET' })
   .inputValidator(v.optional(v.string()))
-  .handler(async ({ data: docsPath }) => {
-    if (!docsPath) {
-      throw new Error('Invalid docs path')
+  .handler(async ({ data }: { data: string | undefined }) => {
+    const blogPath = data
+
+    if (!blogPath) {
+      throw new Error('Invalid blog path')
     }
 
-    handleRedirects(docsPath)
+    handleRedirects(blogPath)
 
-    const filePath = `src/blog/${docsPath}.md`
+    const filePath = `src/blog/${blogPath}.md`
 
-    const post = allPosts.find((post) => post.slug === docsPath)
+    const post = allPosts.find((post) => post.slug === blogPath)
 
     if (!post) {
       throw notFound()

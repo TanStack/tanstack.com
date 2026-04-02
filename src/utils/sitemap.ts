@@ -1,8 +1,7 @@
 import { getBranch, libraries } from '~/libraries'
 import type { LibrarySlim } from '~/libraries/types'
 import { getPublishedPosts } from '~/utils/blog'
-import { fetchRepoDirectoryContents } from '~/utils/docs'
-import type { GitHubFileNode } from '~/utils/documents.server'
+import { getDocsManifest } from '~/utils/docs'
 import { env } from '~/utils/env'
 
 export type SitemapEntry = {
@@ -55,37 +54,10 @@ function getLibraryEntries(): Array<SitemapEntry> {
   })
 }
 
-function flattenDocsTree(nodes: Array<GitHubFileNode>): Array<GitHubFileNode> {
-  return nodes.flatMap((node) => [
-    node,
-    ...(node.children ? flattenDocsTree(node.children) : []),
-  ])
-}
-
-function toDocsSlug(filePath: string, docsRoot: string) {
-  const docsPrefix = `${docsRoot}/`
-
-  if (!filePath.startsWith(docsPrefix) || !filePath.endsWith('.md')) {
-    return null
-  }
-
-  const slug = filePath.slice(docsPrefix.length, -'.md'.length)
-
-  if (!slug || slug.endsWith('/index')) {
-    return null
-  }
-
-  return slug
-}
-
 function isTopLevelDocsSlug(slug: string) {
   const segments = slug.split('/')
 
   return segments.length <= MAX_DOCS_SITEMAP_DEPTH
-}
-
-function isDefined<T>(value: T | null): value is T {
-  return value !== null
 }
 
 async function getLibraryDocsEntries(
@@ -101,18 +73,14 @@ async function getLibraryDocsEntries(
 
   const docsRoot = library.docsRoot || 'docs'
   const branch = getBranch(library, 'latest')
-  const docsTree = await fetchRepoDirectoryContents({
-    data: {
-      repo: library.repo,
-      branch,
-      startingPath: docsRoot,
-    },
-  }).catch(() => [])
+  const manifest = await getDocsManifest({
+    repo: library.repo,
+    branch,
+    docsRoot,
+  }).catch(() => ({ paths: [], redirects: {} }))
 
-  return flattenDocsTree(docsTree)
-    .filter((node) => node.type === 'file')
-    .map((node) => toDocsSlug(node.path, docsRoot))
-    .filter(isDefined)
+  return manifest.paths
+    .filter(Boolean)
     .filter(isTopLevelDocsSlug)
     .map((slug) => ({
       path: `/${library.id}/latest/docs/${slug}`,

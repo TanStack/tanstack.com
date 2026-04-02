@@ -9,6 +9,9 @@ import netlify from '@netlify/vite-plugin-tanstack-start'
 import path from 'node:path'
 
 const isDev = process.env.NODE_ENV !== 'production'
+const shouldUseSentryPlugin =
+  process.env.NODE_ENV === 'production' &&
+  Boolean(process.env.SENTRY_AUTH_TOKEN)
 
 export default defineConfig({
   resolve: {
@@ -86,6 +89,18 @@ export default defineConfig({
   },
   plugins: [
     tanstackStart({
+      importProtection: {
+        behavior: 'error',
+        client: {
+          files: ['**/*.server.*', '**/server/**'],
+          specifiers: [
+            '@tanstack/react-start/server',
+            'uploadthing/server',
+            /^@modelcontextprotocol\/sdk\/server\//,
+            'discord-interactions',
+          ],
+        },
+      },
       router: {
         codeSplittingOptions: {
           defaultBehavior: [
@@ -106,11 +121,15 @@ export default defineConfig({
       : []),
     viteReact(),
 
-    sentryTanstackStart({
-      authToken: process.env.SENTRY_AUTH_TOKEN,
-      org: 'tanstack',
-      project: 'tanstack-com',
-    }),
+    ...(shouldUseSentryPlugin
+      ? [
+          sentryTanstackStart({
+            authToken: process.env.SENTRY_AUTH_TOKEN,
+            org: 'tanstack',
+            project: 'tanstack-com',
+          }),
+        ]
+      : []),
     contentCollections(),
     tailwindcss(),
     ...(process.env.ANALYZE

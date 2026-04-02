@@ -27,7 +27,7 @@ import {
   resetFailedVersions,
   seedIntentPackage,
   discoverViaGitHub,
-} from '~/utils/intent-admin.server'
+} from '~/utils/intent-admin.functions'
 
 export const Route = createFileRoute('/admin/intent')({
   component: IntentAdminPage,

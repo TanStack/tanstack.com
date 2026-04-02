@@ -46,7 +46,7 @@ import {
 import { useAdminGuard } from '~/hooks/useAdminGuard'
 import { useToggleArray } from '~/hooks/useToggleArray'
 import { handleAdminError } from '~/utils/adminErrors'
-import { requireCapability } from '~/utils/auth.server'
+import { requireCapability } from '~/utils/auth.functions'
 import { Badge, Button } from '~/ui'
 
 // User type for table - matches the shape returned by listUsers

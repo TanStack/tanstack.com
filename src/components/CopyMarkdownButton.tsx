@@ -1,10 +1,5 @@
 'use client'
-import { useState, useTransition } from 'react'
-
-import { type MouseEventHandler, useEffect, useRef } from 'react'
-import { useToast } from '~/components/ToastProvider'
-import { Check, Copy } from 'lucide-react'
-import { Button } from '~/ui'
+import { type MouseEventHandler, useEffect, useRef, useState } from 'react'
 
 export function useCopyButton(
   onCopy: () => void | Promise<void>,

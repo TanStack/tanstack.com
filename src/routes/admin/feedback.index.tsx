@@ -3,7 +3,7 @@ import * as v from 'valibot'
 import { seo } from '~/utils/seo'
 import { FeedbackModerationPage } from '~/components/FeedbackModerationPage'
 import { listDocFeedbackForModerationQueryOptions } from '~/queries/docFeedback'
-import { requireCapability } from '~/utils/auth.server'
+import { requireCapability } from '~/utils/auth.functions'
 import { libraryIdSchema, docFeedbackStatusSchema } from '~/utils/schemas'
 
 const searchSchema = v.object({

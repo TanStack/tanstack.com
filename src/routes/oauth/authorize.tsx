@@ -2,7 +2,7 @@ import * as React from 'react'
 import { redirect, useNavigate, createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { createAuthorizationCode } from '~/utils/oauthClient.functions'
-import { getCurrentUser } from '~/utils/auth.server'
+import { getCurrentUser } from '~/utils/auth.functions'
 import { Card } from '~/components/Card'
 import { Button } from '~/ui'
 

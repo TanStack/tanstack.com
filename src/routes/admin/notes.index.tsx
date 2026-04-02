@@ -3,7 +3,7 @@ import * as v from 'valibot'
 import { seo } from '~/utils/seo'
 import { NotesModerationPage } from '~/components/NotesModerationPage'
 import { listDocFeedbackForModerationQueryOptions } from '~/queries/docFeedback'
-import { requireCapability } from '~/utils/auth.server'
+import { requireCapability } from '~/utils/auth.functions'
 import { libraryIdSchema } from '~/utils/schemas'
 
 export const Route = createFileRoute('/admin/notes/')({

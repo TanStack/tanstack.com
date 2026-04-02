@@ -5,7 +5,7 @@ import {
 } from '~/components/FilterComponents'
 import { libraries, type LibraryId } from '~/libraries'
 import { SHOWCASE_USE_CASES_UI, type ShowcaseUseCase } from '~/db/types'
-import { USE_CASE_LABELS } from '~/utils/showcase.client'
+import { USE_CASE_LABELS } from '~/utils/showcase.shared'
 
 interface ShowcaseFilters {
   libraryIds?: LibraryId[]

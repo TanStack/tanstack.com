@@ -5,15 +5,12 @@ import { Select } from './Select'
 import { Framework, getLibrary, LibraryId } from '~/libraries'
 import { getFrameworkOptions } from '~/libraries/frameworks'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
+import { updateLastUsedFramework } from '~/utils/users.functions'
 
 function persistFrameworkToServer(framework: string) {
-  import('~/utils/users.server')
-    .then(({ updateLastUsedFramework }) =>
-      updateLastUsedFramework({ data: { framework } }),
-    )
-    .catch(() => {
-      // Silently ignore errors - localStorage is the fallback
-    })
+  void updateLastUsedFramework({ data: { framework } }).catch(() => {
+    // Silently ignore errors - localStorage is the fallback
+  })
 }
 
 export function FrameworkSelect({ libraryId }: { libraryId: LibraryId }) {

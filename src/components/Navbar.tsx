@@ -55,7 +55,7 @@ const LazyAuthenticatedUserMenu = React.lazy(() =>
     default: m.AuthenticatedUserMenu,
   })),
 )
-import { authClient } from '~/utils/auth.client'
+import { authClient } from '~/auth/client'
 import { useToast } from '~/components/ToastProvider'
 
 import { Card } from '~/components/Card'

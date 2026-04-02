@@ -18,7 +18,7 @@ import { useToast } from '~/components/ToastProvider'
 import { formatAuthors } from '~/utils/blog'
 import { formatPublishedDate } from '~/utils/blog'
 import { NetlifyImage } from '~/components/NetlifyImage'
-import { fetchRecentPosts } from '~/server/blog'
+import { fetchRecentPosts } from '~/utils/blog.functions'
 
 import { TrustedByMarquee } from '~/components/TrustedByMarquee'
 import { ArrowRight, Code2, Layers, Shield, Zap, Play } from 'lucide-react'
@@ -96,9 +96,9 @@ function Index() {
     <>
       <div className="max-w-full z-10 space-y-24">
         <div className="space-y-8">
-          <div className="flex flex-col xl:flex-row items-center gap-4 xl:pt-24 xl:justify-center">
+          <div className="flex flex-col items-center gap-4 xl:grid xl:grid-cols-[400px_minmax(0,44rem)] 2xl:grid-cols-[500px_minmax(0,48rem)] xl:items-center xl:justify-center xl:gap-8 xl:pt-24">
             <div
-              className="relative [--ship-x:50px] [--ship-y:1.5rem] 
+              className="relative w-[300px] pt-8 xl:w-[400px] xl:pt-0 2xl:w-[500px] [--ship-x:50px] [--ship-y:1.5rem] 
             lg:[--ship-x:50px] lg:[--ship-y:1.5rem]
             xl:[--ship-x:80px] xl:[--ship-y:2.5rem]
             2xl:[--ship-x:90px] 2xl:[--ship-y:3rem]"
@@ -129,13 +129,40 @@ function Index() {
               </ClientOnly>
               <React.Suspense
                 fallback={
-                  <div className="cursor-pointer relative z-10">
+                  <div className="relative z-10 aspect-square">
+                    <div className="cursor-pointer relative h-full w-full">
+                      <NetlifyImage
+                        src="/images/logos/splash-light.png"
+                        width={500}
+                        height={500}
+                        quality={85}
+                        className="absolute inset-0 block h-full w-full object-contain dark:hidden"
+                        alt="TanStack Logo"
+                        loading="eager"
+                        fetchPriority="high"
+                      />
+                      <NetlifyImage
+                        src="/images/logos/splash-dark.png"
+                        width={500}
+                        height={500}
+                        quality={85}
+                        className="absolute inset-0 hidden h-full w-full object-contain dark:block"
+                        alt="TanStack Logo"
+                        loading="eager"
+                        fetchPriority="high"
+                      />
+                    </div>
+                  </div>
+                }
+              >
+                <div className="relative z-10 aspect-square">
+                  <LazyBrandContextMenu className="cursor-pointer relative h-full w-full">
                     <NetlifyImage
                       src="/images/logos/splash-light.png"
                       width={500}
                       height={500}
                       quality={85}
-                      className="w-[300px] pt-8 xl:pt-0 xl:w-[400px] 2xl:w-[500px] dark:hidden"
+                      className="absolute inset-0 block h-full w-full object-contain dark:hidden"
                       alt="TanStack Logo"
                       loading="eager"
                       fetchPriority="high"
@@ -145,39 +172,16 @@ function Index() {
                       width={500}
                       height={500}
                       quality={85}
-                      className="w-[300px] pt-8 xl:pt-0 xl:w-[400px] 2xl:w-[500px] hidden dark:block"
+                      className="absolute inset-0 hidden h-full w-full object-contain dark:block"
                       alt="TanStack Logo"
                       loading="eager"
                       fetchPriority="high"
                     />
-                  </div>
-                }
-              >
-                <LazyBrandContextMenu className="cursor-pointer relative z-10">
-                  <NetlifyImage
-                    src="/images/logos/splash-light.png"
-                    width={500}
-                    height={500}
-                    quality={85}
-                    className="w-[300px] pt-8 xl:pt-0 xl:w-[400px] 2xl:w-[500px] dark:hidden"
-                    alt="TanStack Logo"
-                    loading="eager"
-                    fetchPriority="high"
-                  />
-                  <NetlifyImage
-                    src="/images/logos/splash-dark.png"
-                    width={500}
-                    height={500}
-                    quality={85}
-                    className="w-[300px] pt-8 xl:pt-0 xl:w-[400px] 2xl:w-[500px] hidden dark:block"
-                    alt="TanStack Logo"
-                    loading="eager"
-                    fetchPriority="high"
-                  />
-                </LazyBrandContextMenu>
+                  </LazyBrandContextMenu>
+                </div>
               </React.Suspense>
             </div>
-            <div className="flex flex-col items-center gap-6 text-center px-4 xl:text-left xl:items-start">
+            <div className="flex w-full max-w-md flex-col items-center gap-6 px-4 text-center md:max-w-2xl xl:max-w-[44rem] xl:items-start xl:px-0 xl:text-left 2xl:max-w-[48rem]">
               <div className="flex gap-2 lg:gap-4 items-center">
                 <h1
                   className={`inline-block

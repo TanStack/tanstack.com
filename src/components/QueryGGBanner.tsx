@@ -38,13 +38,33 @@ export function QueryGGBanner() {
           href="https://query.gg?s=tanstack"
           className="xl:w-7/12 pb-4 grid grid-cols-[70px_1fr_70px] sm:grid-cols-[100px_1fr_100px] md:grid-cols-[140px_1fr_140px] xl:grid-cols-[110px_1fr] 2xl:grid-cols-[150px_1fr]"
         >
-          <img src={cornerTopLeft} alt="sun" className="" />
+          <img
+            src={cornerTopLeft}
+            alt="sun"
+            width={242}
+            height={232}
+            loading="lazy"
+            decoding="async"
+            className="h-auto w-full"
+          />
           <img
             src={headerCourse}
             alt="Query.gg - The Official React Query Course"
-            className="-mt-px w-10/12 max-w-[350px] justify-self-center"
+            width={316}
+            height={136}
+            loading="lazy"
+            decoding="async"
+            className="-mt-px h-auto w-10/12 max-w-[350px] justify-self-center"
           />
-          <img src={cornerTopRight} alt="moon" className="xl:hidden" />
+          <img
+            src={cornerTopRight}
+            alt="moon"
+            width={242}
+            height={232}
+            loading="lazy"
+            decoding="async"
+            className="h-auto w-full xl:hidden"
+          />
         </a>
         <div className="hidden xl:block w-[80px] mr-[-55px] bg-[#231f20] border-4 border-r-0 border-[#f9f4da] border-s-[#f9f4da] shadow-[-4px_0_0_#231f20] -skew-x-15 z-0"></div>
         <div className="xl:w-5/12 py-2 xl:pb-0 grid xl:grid-cols-[1fr_90px] 2xl:grid-cols-[1fr_120px] justify-center bg-[#231f20] border-2 xl:border-4 xl:border-l-0 border-[#f9f4da] text-[#f9f4da] z-10">
@@ -60,7 +80,11 @@ export function QueryGGBanner() {
           <img
             src={cornerFishBottomRight}
             alt="mutated fish"
-            className="hidden xl:block self-end"
+            width={242}
+            height={232}
+            loading="lazy"
+            decoding="async"
+            className="hidden h-auto w-full self-end xl:block"
           />
         </div>
       </div>

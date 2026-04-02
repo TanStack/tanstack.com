@@ -5,7 +5,7 @@ import { Avatar } from '~/components/Avatar'
 import { AvatarCropModal } from '~/components/AvatarCropModal'
 import { useToast } from '~/components/ToastProvider'
 import { Button } from '~/ui'
-import { removeProfileImage, revertProfileImage } from '~/utils/users.server'
+import { removeProfileImage, revertProfileImage } from '~/utils/users.functions'
 import { useUploadThing } from '~/utils/uploadthing.client'
 
 type AccountProfileUser = {

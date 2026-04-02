@@ -843,7 +843,11 @@ export function DocsLayout({
             >
               {children}
             </div>
-            {!isLandingPage && <Footer />}
+            {!isLandingPage && (
+              <div className="pt-8 md:pt-12">
+                <Footer />
+              </div>
+            )}
           </div>
           {!isLandingPage && (
             <RightRail breakpoint="md">

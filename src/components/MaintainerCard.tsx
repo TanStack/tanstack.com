@@ -42,7 +42,11 @@ function RoleBadge({
     )
   }
 
-  return <span className="text-gray-500 dark:text-gray-400">{role}</span>
+  return (
+    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-500 text-white">
+      {role}
+    </span>
+  )
 }
 
 function FrameworkChip({ framework }: { framework: Framework }) {

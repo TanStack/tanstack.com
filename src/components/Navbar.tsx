@@ -8,11 +8,7 @@ const LazyNavbarAuthControls = React.lazy(() =>
     default: m.NavbarAuthControls,
   })),
 )
-import {
-  Link,
-  useLocation,
-  useMatches,
-} from '@tanstack/react-router'
+import { Link, useLocation, useMatches } from '@tanstack/react-router'
 import { NetlifyImage } from './NetlifyImage'
 import {
   Code,

@@ -5,20 +5,17 @@ export type DocsWebhookSource = {
   repo: string
 }
 
-const docsWebhookSourceMap = libraries.reduce(
-  (map, library) => {
-    if (!library.latestBranch) {
-      return map
-    }
-
-    const refs = map.get(library.repo) ?? new Set<string>()
-    refs.add(library.latestBranch)
-    map.set(library.repo, refs)
-
+const docsWebhookSourceMap = libraries.reduce((map, library) => {
+  if (!library.latestBranch) {
     return map
-  },
-  new Map<string, Set<string>>(),
-)
+  }
+
+  const refs = map.get(library.repo) ?? new Set<string>()
+  refs.add(library.latestBranch)
+  map.set(library.repo, refs)
+
+  return map
+}, new Map<string, Set<string>>())
 
 export const docsWebhookSources = Array.from(docsWebhookSourceMap.entries())
   .map(([repo, refs]) => ({

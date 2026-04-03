@@ -75,7 +75,9 @@ function createWebhook(repo: string) {
 
 function updateWebhook(repo: string, hookId: number) {
   if (dryRun) {
-    console.log(`[dry-run] update webhook ${hookId} for ${repo} -> ${webhookUrl}`)
+    console.log(
+      `[dry-run] update webhook ${hookId} for ${repo} -> ${webhookUrl}`,
+    )
     return
   }
 

@@ -14,7 +14,9 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TenetsRouteImport } from './routes/tenets'
 import { Route as SupportRouteImport } from './routes/support'
 import { Route as SponsorsEmbedRouteImport } from './routes/sponsors-embed'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as RssDotxmlRouteImport } from './routes/rss[.]xml'
+import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PartnersEmbedRouteImport } from './routes/partners-embed'
 import { Route as PartnersRouteImport } from './routes/partners'
@@ -53,6 +55,7 @@ import { Route as BuilderDocsRouteImport } from './routes/builder.docs'
 import { Route as BlogSplatRouteImport } from './routes/blog.$'
 import { Route as AuthSignoutRouteImport } from './routes/auth/signout'
 import { Route as AuthPopupSuccessRouteImport } from './routes/auth/popup-success'
+import { Route as AuthCliRouteImport } from './routes/auth/cli'
 import { Route as ApiUploadthingRouteImport } from './routes/api/uploadthing'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as AdminNpmStatsRouteImport } from './routes/admin/npm-stats'
@@ -79,6 +82,7 @@ import { Route as ShowcaseEditIdRouteImport } from './routes/showcase/edit.$id'
 import { Route as IntentRegistryPackageNameRouteImport } from './routes/intent/registry/$packageName'
 import { Route as AuthProviderStartRouteImport } from './routes/auth/$provider/start'
 import { Route as ApiMcpSplatRouteImport } from './routes/api/mcp/$'
+import { Route as ApiGithubWebhookRouteImport } from './routes/api/github/webhook'
 import { Route as ApiExampleDeployRouteImport } from './routes/api/example/deploy'
 import { Route as ApiDiscordInteractionsRouteImport } from './routes/api/discord/interactions'
 import { Route as ApiDataPartnersRouteImport } from './routes/api/data/partners'
@@ -103,6 +107,7 @@ import { Route as LibraryIdVersionDocsIndexRouteImport } from './routes/$library
 import { Route as IntentRegistryPackageNameSkillNameRouteImport } from './routes/intent/registry/$packageName.$skillName'
 import { Route as ApiBuilderDeployGithubRouteImport } from './routes/api/builder/deploy/github'
 import { Route as ApiBuilderDeployCheckNameRouteImport } from './routes/api/builder/deploy/check-name'
+import { Route as ApiAuthCliCreateTicketRouteImport } from './routes/api/auth/cli/create-ticket'
 import { Route as ApiAuthCallbackProviderRouteImport } from './routes/api/auth/callback/$provider'
 import { Route as LibraryIdVersionDocsChar123Char125DotmdRouteImport } from './routes/$libraryId/$version.docs.{$}[.]md'
 import { Route as LibraryIdVersionDocsNpmStatsRouteImport } from './routes/$libraryId/$version.docs.npm-stats'
@@ -110,6 +115,7 @@ import { Route as LibraryIdVersionDocsContributorsRouteImport } from './routes/$
 import { Route as LibraryIdVersionDocsCommunityResourcesRouteImport } from './routes/$libraryId/$version.docs.community-resources'
 import { Route as LibraryIdVersionDocsSplatRouteImport } from './routes/$libraryId/$version.docs.$'
 import { Route as LibraryIdVersionDocsFrameworkIndexRouteImport } from './routes/$libraryId/$version.docs.framework.index'
+import { Route as ApiAuthCliStatusTicketIdRouteImport } from './routes/api/auth/cli/status.$ticketId'
 import { Route as LibraryIdVersionDocsFrameworkFrameworkIndexRouteImport } from './routes/$libraryId/$version.docs.framework.$framework.index'
 import { Route as LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRouteImport } from './routes/$libraryId/$version.docs.framework.$framework.{$}[.]md'
 import { Route as LibraryIdVersionDocsFrameworkFrameworkSplatRouteImport } from './routes/$libraryId/$version.docs.framework.$framework.$'
@@ -140,9 +146,19 @@ const SponsorsEmbedRoute = SponsorsEmbedRouteImport.update({
   path: '/sponsors-embed',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RssDotxmlRoute = RssDotxmlRouteImport.update({
   id: '/rss.xml',
   path: '/rss.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
+  id: '/robots.txt',
+  path: '/robots.txt',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -335,6 +351,11 @@ const AuthPopupSuccessRoute = AuthPopupSuccessRouteImport.update({
   path: '/auth/popup-success',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthCliRoute = AuthCliRouteImport.update({
+  id: '/auth/cli',
+  path: '/auth/cli',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiUploadthingRoute = ApiUploadthingRouteImport.update({
   id: '/api/uploadthing',
   path: '/api/uploadthing',
@@ -467,6 +488,11 @@ const ApiMcpSplatRoute = ApiMcpSplatRouteImport.update({
   path: '/api/mcp/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiGithubWebhookRoute = ApiGithubWebhookRouteImport.update({
+  id: '/api/github/webhook',
+  path: '/api/github/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiExampleDeployRoute = ApiExampleDeployRouteImport.update({
   id: '/api/example/deploy',
   path: '/api/example/deploy',
@@ -595,6 +621,11 @@ const ApiBuilderDeployCheckNameRoute =
     path: '/api/builder/deploy/check-name',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiAuthCliCreateTicketRoute = ApiAuthCliCreateTicketRouteImport.update({
+  id: '/api/auth/cli/create-ticket',
+  path: '/api/auth/cli/create-ticket',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthCallbackProviderRoute = ApiAuthCallbackProviderRouteImport.update({
   id: '/api/auth/callback/$provider',
   path: '/api/auth/callback/$provider',
@@ -635,6 +666,12 @@ const LibraryIdVersionDocsFrameworkIndexRoute =
     id: '/framework/',
     path: '/framework/',
     getParentRoute: () => LibraryIdVersionDocsRoute,
+  } as any)
+const ApiAuthCliStatusTicketIdRoute =
+  ApiAuthCliStatusTicketIdRouteImport.update({
+    id: '/api/auth/cli/status/$ticketId',
+    path: '/api/auth/cli/status/$ticketId',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const LibraryIdVersionDocsFrameworkFrameworkIndexRoute =
   LibraryIdVersionDocsFrameworkFrameworkIndexRouteImport.update({
@@ -684,7 +721,9 @@ export interface FileRoutesByFullPath {
   '/partners': typeof PartnersRoute
   '/partners-embed': typeof PartnersEmbedRoute
   '/privacy': typeof PrivacyRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/rss.xml': typeof RssDotxmlRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/support': typeof SupportRoute
   '/tenets': typeof TenetsRoute
@@ -703,6 +742,7 @@ export interface FileRoutesByFullPath {
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
   '/api/uploadthing': typeof ApiUploadthingRoute
+  '/auth/cli': typeof AuthCliRoute
   '/auth/popup-success': typeof AuthPopupSuccessRoute
   '/auth/signout': typeof AuthSignoutRoute
   '/blog/$': typeof BlogSplatRoute
@@ -738,6 +778,7 @@ export interface FileRoutesByFullPath {
   '/api/data/partners': typeof ApiDataPartnersRoute
   '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
   '/api/example/deploy': typeof ApiExampleDeployRoute
+  '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
   '/intent/registry/$packageName': typeof IntentRegistryPackageNameRouteWithChildren
@@ -757,11 +798,13 @@ export interface FileRoutesByFullPath {
   '/$libraryId/$version/docs/npm-stats': typeof LibraryIdVersionDocsNpmStatsRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
+  '/api/auth/cli/create-ticket': typeof ApiAuthCliCreateTicketRoute
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
   '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
   '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
   '/$libraryId/$version/docs/': typeof LibraryIdVersionDocsIndexRoute
   '/intent/registry/$packageName/': typeof IntentRegistryPackageNameIndexRoute
+  '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
   '/$libraryId/$version/docs/framework/': typeof LibraryIdVersionDocsFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/$': typeof LibraryIdVersionDocsFrameworkFrameworkSplatRoute
   '/$libraryId/$version/docs/framework/$framework/{$}.md': typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRoute
@@ -786,7 +829,9 @@ export interface FileRoutesByTo {
   '/partners': typeof PartnersRoute
   '/partners-embed': typeof PartnersEmbedRoute
   '/privacy': typeof PrivacyRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/rss.xml': typeof RssDotxmlRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/support': typeof SupportRoute
   '/tenets': typeof TenetsRoute
@@ -804,6 +849,7 @@ export interface FileRoutesByTo {
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
   '/api/uploadthing': typeof ApiUploadthingRoute
+  '/auth/cli': typeof AuthCliRoute
   '/auth/popup-success': typeof AuthPopupSuccessRoute
   '/auth/signout': typeof AuthSignoutRoute
   '/blog/$': typeof BlogSplatRoute
@@ -838,6 +884,7 @@ export interface FileRoutesByTo {
   '/api/data/partners': typeof ApiDataPartnersRoute
   '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
   '/api/example/deploy': typeof ApiExampleDeployRoute
+  '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
   '/showcase/edit/$id': typeof ShowcaseEditIdRoute
@@ -856,11 +903,13 @@ export interface FileRoutesByTo {
   '/$libraryId/$version/docs/npm-stats': typeof LibraryIdVersionDocsNpmStatsRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
+  '/api/auth/cli/create-ticket': typeof ApiAuthCliCreateTicketRoute
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
   '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
   '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsIndexRoute
   '/intent/registry/$packageName': typeof IntentRegistryPackageNameIndexRoute
+  '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
   '/$libraryId/$version/docs/framework': typeof LibraryIdVersionDocsFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/$': typeof LibraryIdVersionDocsFrameworkFrameworkSplatRoute
   '/$libraryId/$version/docs/framework/$framework/{$}.md': typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRoute
@@ -891,7 +940,9 @@ export interface FileRoutesById {
   '/partners': typeof PartnersRoute
   '/partners-embed': typeof PartnersEmbedRoute
   '/privacy': typeof PrivacyRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/rss.xml': typeof RssDotxmlRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/support': typeof SupportRoute
   '/tenets': typeof TenetsRoute
@@ -910,6 +961,7 @@ export interface FileRoutesById {
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
   '/api/uploadthing': typeof ApiUploadthingRoute
+  '/auth/cli': typeof AuthCliRoute
   '/auth/popup-success': typeof AuthPopupSuccessRoute
   '/auth/signout': typeof AuthSignoutRoute
   '/blog/$': typeof BlogSplatRoute
@@ -945,6 +997,7 @@ export interface FileRoutesById {
   '/api/data/partners': typeof ApiDataPartnersRoute
   '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
   '/api/example/deploy': typeof ApiExampleDeployRoute
+  '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
   '/intent/registry/$packageName': typeof IntentRegistryPackageNameRouteWithChildren
@@ -964,11 +1017,13 @@ export interface FileRoutesById {
   '/$libraryId/$version/docs/npm-stats': typeof LibraryIdVersionDocsNpmStatsRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
+  '/api/auth/cli/create-ticket': typeof ApiAuthCliCreateTicketRoute
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
   '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
   '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
   '/$libraryId/$version/docs/': typeof LibraryIdVersionDocsIndexRoute
   '/intent/registry/$packageName/': typeof IntentRegistryPackageNameIndexRoute
+  '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
   '/$libraryId/$version/docs/framework/': typeof LibraryIdVersionDocsFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/$': typeof LibraryIdVersionDocsFrameworkFrameworkSplatRoute
   '/$libraryId/$version/docs/framework/$framework/{$}.md': typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRoute
@@ -1000,7 +1055,9 @@ export interface FileRouteTypes {
     | '/partners'
     | '/partners-embed'
     | '/privacy'
+    | '/robots.txt'
     | '/rss.xml'
+    | '/sitemap.xml'
     | '/sponsors-embed'
     | '/support'
     | '/tenets'
@@ -1019,6 +1076,7 @@ export interface FileRouteTypes {
     | '/admin/npm-stats'
     | '/admin/users'
     | '/api/uploadthing'
+    | '/auth/cli'
     | '/auth/popup-success'
     | '/auth/signout'
     | '/blog/$'
@@ -1054,6 +1112,7 @@ export interface FileRouteTypes {
     | '/api/data/partners'
     | '/api/discord/interactions'
     | '/api/example/deploy'
+    | '/api/github/webhook'
     | '/api/mcp/$'
     | '/auth/$provider/start'
     | '/intent/registry/$packageName'
@@ -1073,11 +1132,13 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/npm-stats'
     | '/$libraryId/$version/docs/{$}.md'
     | '/api/auth/callback/$provider'
+    | '/api/auth/cli/create-ticket'
     | '/api/builder/deploy/check-name'
     | '/api/builder/deploy/github'
     | '/intent/registry/$packageName/$skillName'
     | '/$libraryId/$version/docs/'
     | '/intent/registry/$packageName/'
+    | '/api/auth/cli/status/$ticketId'
     | '/$libraryId/$version/docs/framework/'
     | '/$libraryId/$version/docs/framework/$framework/$'
     | '/$libraryId/$version/docs/framework/$framework/{$}.md'
@@ -1102,7 +1163,9 @@ export interface FileRouteTypes {
     | '/partners'
     | '/partners-embed'
     | '/privacy'
+    | '/robots.txt'
     | '/rss.xml'
+    | '/sitemap.xml'
     | '/sponsors-embed'
     | '/support'
     | '/tenets'
@@ -1120,6 +1183,7 @@ export interface FileRouteTypes {
     | '/admin/npm-stats'
     | '/admin/users'
     | '/api/uploadthing'
+    | '/auth/cli'
     | '/auth/popup-success'
     | '/auth/signout'
     | '/blog/$'
@@ -1154,6 +1218,7 @@ export interface FileRouteTypes {
     | '/api/data/partners'
     | '/api/discord/interactions'
     | '/api/example/deploy'
+    | '/api/github/webhook'
     | '/api/mcp/$'
     | '/auth/$provider/start'
     | '/showcase/edit/$id'
@@ -1172,11 +1237,13 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/npm-stats'
     | '/$libraryId/$version/docs/{$}.md'
     | '/api/auth/callback/$provider'
+    | '/api/auth/cli/create-ticket'
     | '/api/builder/deploy/check-name'
     | '/api/builder/deploy/github'
     | '/intent/registry/$packageName/$skillName'
     | '/$libraryId/$version/docs'
     | '/intent/registry/$packageName'
+    | '/api/auth/cli/status/$ticketId'
     | '/$libraryId/$version/docs/framework'
     | '/$libraryId/$version/docs/framework/$framework/$'
     | '/$libraryId/$version/docs/framework/$framework/{$}.md'
@@ -1206,7 +1273,9 @@ export interface FileRouteTypes {
     | '/partners'
     | '/partners-embed'
     | '/privacy'
+    | '/robots.txt'
     | '/rss.xml'
+    | '/sitemap.xml'
     | '/sponsors-embed'
     | '/support'
     | '/tenets'
@@ -1225,6 +1294,7 @@ export interface FileRouteTypes {
     | '/admin/npm-stats'
     | '/admin/users'
     | '/api/uploadthing'
+    | '/auth/cli'
     | '/auth/popup-success'
     | '/auth/signout'
     | '/blog/$'
@@ -1260,6 +1330,7 @@ export interface FileRouteTypes {
     | '/api/data/partners'
     | '/api/discord/interactions'
     | '/api/example/deploy'
+    | '/api/github/webhook'
     | '/api/mcp/$'
     | '/auth/$provider/start'
     | '/intent/registry/$packageName'
@@ -1279,11 +1350,13 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/npm-stats'
     | '/$libraryId/$version/docs/{$}.md'
     | '/api/auth/callback/$provider'
+    | '/api/auth/cli/create-ticket'
     | '/api/builder/deploy/check-name'
     | '/api/builder/deploy/github'
     | '/intent/registry/$packageName/$skillName'
     | '/$libraryId/$version/docs/'
     | '/intent/registry/$packageName/'
+    | '/api/auth/cli/status/$ticketId'
     | '/$libraryId/$version/docs/framework/'
     | '/$libraryId/$version/docs/framework/$framework/$'
     | '/$libraryId/$version/docs/framework/$framework/{$}.md'
@@ -1314,7 +1387,9 @@ export interface RootRouteChildren {
   PartnersRoute: typeof PartnersRoute
   PartnersEmbedRoute: typeof PartnersEmbedRoute
   PrivacyRoute: typeof PrivacyRoute
+  RobotsDottxtRoute: typeof RobotsDottxtRoute
   RssDotxmlRoute: typeof RssDotxmlRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SponsorsEmbedRoute: typeof SponsorsEmbedRoute
   SupportRoute: typeof SupportRoute
   TenetsRoute: typeof TenetsRoute
@@ -1322,6 +1397,7 @@ export interface RootRouteChildren {
   WorkshopsRoute: typeof WorkshopsRoute
   DotwellKnownOauthAuthorizationServerRoute: typeof DotwellKnownOauthAuthorizationServerRoute
   ApiUploadthingRoute: typeof ApiUploadthingRoute
+  AuthCliRoute: typeof AuthCliRoute
   AuthPopupSuccessRoute: typeof AuthPopupSuccessRoute
   AuthSignoutRoute: typeof AuthSignoutRoute
   OauthAuthorizeRoute: typeof OauthAuthorizeRoute
@@ -1345,6 +1421,7 @@ export interface RootRouteChildren {
   ApiDataPartnersRoute: typeof ApiDataPartnersRoute
   ApiDiscordInteractionsRoute: typeof ApiDiscordInteractionsRoute
   ApiExampleDeployRoute: typeof ApiExampleDeployRoute
+  ApiGithubWebhookRoute: typeof ApiGithubWebhookRoute
   ApiMcpSplatRoute: typeof ApiMcpSplatRoute
   AuthProviderStartRoute: typeof AuthProviderStartRoute
   IntentRegistryPackageNameRoute: typeof IntentRegistryPackageNameRouteWithChildren
@@ -1354,8 +1431,10 @@ export interface RootRouteChildren {
   IntentRegistryIndexRoute: typeof IntentRegistryIndexRoute
   StatsNpmIndexRoute: typeof StatsNpmIndexRoute
   ApiAuthCallbackProviderRoute: typeof ApiAuthCallbackProviderRoute
+  ApiAuthCliCreateTicketRoute: typeof ApiAuthCliCreateTicketRoute
   ApiBuilderDeployCheckNameRoute: typeof ApiBuilderDeployCheckNameRoute
   ApiBuilderDeployGithubRoute: typeof ApiBuilderDeployGithubRoute
+  ApiAuthCliStatusTicketIdRoute: typeof ApiAuthCliStatusTicketIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1395,11 +1474,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SponsorsEmbedRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/rss.xml': {
       id: '/rss.xml'
       path: '/rss.xml'
       fullPath: '/rss.xml'
       preLoaderRoute: typeof RssDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof RobotsDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -1668,6 +1761,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthPopupSuccessRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/cli': {
+      id: '/auth/cli'
+      path: '/auth/cli'
+      fullPath: '/auth/cli'
+      preLoaderRoute: typeof AuthCliRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/uploadthing': {
       id: '/api/uploadthing'
       path: '/api/uploadthing'
@@ -1850,6 +1950,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiMcpSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/github/webhook': {
+      id: '/api/github/webhook'
+      path: '/api/github/webhook'
+      fullPath: '/api/github/webhook'
+      preLoaderRoute: typeof ApiGithubWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/example/deploy': {
       id: '/api/example/deploy'
       path: '/api/example/deploy'
@@ -2018,6 +2125,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiBuilderDeployCheckNameRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/auth/cli/create-ticket': {
+      id: '/api/auth/cli/create-ticket'
+      path: '/api/auth/cli/create-ticket'
+      fullPath: '/api/auth/cli/create-ticket'
+      preLoaderRoute: typeof ApiAuthCliCreateTicketRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/callback/$provider': {
       id: '/api/auth/callback/$provider'
       path: '/api/auth/callback/$provider'
@@ -2066,6 +2180,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/$libraryId/$version/docs/framework/'
       preLoaderRoute: typeof LibraryIdVersionDocsFrameworkIndexRouteImport
       parentRoute: typeof LibraryIdVersionDocsRoute
+    }
+    '/api/auth/cli/status/$ticketId': {
+      id: '/api/auth/cli/status/$ticketId'
+      path: '/api/auth/cli/status/$ticketId'
+      fullPath: '/api/auth/cli/status/$ticketId'
+      preLoaderRoute: typeof ApiAuthCliStatusTicketIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/$libraryId/$version/docs/framework/$framework/': {
       id: '/$libraryId/$version/docs/framework/$framework/'
@@ -2297,7 +2418,9 @@ const rootRouteChildren: RootRouteChildren = {
   PartnersRoute: PartnersRoute,
   PartnersEmbedRoute: PartnersEmbedRoute,
   PrivacyRoute: PrivacyRoute,
+  RobotsDottxtRoute: RobotsDottxtRoute,
   RssDotxmlRoute: RssDotxmlRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   SponsorsEmbedRoute: SponsorsEmbedRoute,
   SupportRoute: SupportRoute,
   TenetsRoute: TenetsRoute,
@@ -2306,6 +2429,7 @@ const rootRouteChildren: RootRouteChildren = {
   DotwellKnownOauthAuthorizationServerRoute:
     DotwellKnownOauthAuthorizationServerRoute,
   ApiUploadthingRoute: ApiUploadthingRoute,
+  AuthCliRoute: AuthCliRoute,
   AuthPopupSuccessRoute: AuthPopupSuccessRoute,
   AuthSignoutRoute: AuthSignoutRoute,
   OauthAuthorizeRoute: OauthAuthorizeRoute,
@@ -2329,6 +2453,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiDataPartnersRoute: ApiDataPartnersRoute,
   ApiDiscordInteractionsRoute: ApiDiscordInteractionsRoute,
   ApiExampleDeployRoute: ApiExampleDeployRoute,
+  ApiGithubWebhookRoute: ApiGithubWebhookRoute,
   ApiMcpSplatRoute: ApiMcpSplatRoute,
   AuthProviderStartRoute: AuthProviderStartRoute,
   IntentRegistryPackageNameRoute: IntentRegistryPackageNameRouteWithChildren,
@@ -2338,18 +2463,21 @@ const rootRouteChildren: RootRouteChildren = {
   IntentRegistryIndexRoute: IntentRegistryIndexRoute,
   StatsNpmIndexRoute: StatsNpmIndexRoute,
   ApiAuthCallbackProviderRoute: ApiAuthCallbackProviderRoute,
+  ApiAuthCliCreateTicketRoute: ApiAuthCliCreateTicketRoute,
   ApiBuilderDeployCheckNameRoute: ApiBuilderDeployCheckNameRoute,
   ApiBuilderDeployGithubRoute: ApiBuilderDeployGithubRoute,
+  ApiAuthCliStatusTicketIdRoute: ApiAuthCliStatusTicketIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
 
 import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
+import type { startInstance } from './start.ts'
 declare module '@tanstack/react-start' {
   interface Register {
     ssr: true
     router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
   }
 }

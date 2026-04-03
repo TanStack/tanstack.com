@@ -1,12 +1,12 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { seo } from '~/utils/seo'
-import { authClient } from '~/utils/auth.client'
+import { authClient } from '~/auth/client'
 import { Authenticated, Unauthenticated } from '~/components/AuthComponents'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { useToast } from '~/components/ToastProvider'
 import { useEffect, useState } from 'react'
-import { setInterestedInHidingAds } from '~/utils/users.server'
+import { setInterestedInHidingAds } from '~/utils/users.functions'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { CheckCircleIcon } from '~/components/icons/CheckCircleIcon'
 import { GoogleIcon } from '~/components/icons/GoogleIcon'
@@ -15,9 +15,9 @@ export const Route = createFileRoute('/ads')({
   component: RouteComp,
   head: () => ({
     meta: seo({
-      title: 'Why Ads? | TanStack',
+      title: 'Ads & Partnerships | TanStack',
       description:
-        'How we believe ads can tastefully play a part in sustainability for Open Source Software.',
+        'How TanStack approaches ads and partnerships to sustain open source development.',
     }),
   }),
 })
@@ -26,8 +26,8 @@ function RouteComp() {
   return (
     <div className="flex flex-col max-w-full min-h-screen gap-12 p-4 md:p-8 pb-0">
       <div className="flex-1 space-y-12 w-full max-w-3xl mx-auto">
-        <header className="">
-          <h1 className="text-3xl font-black">Why Ads?</h1>
+        <header>
+          <h1 className="text-3xl font-black">Ads & Partnerships</h1>
         </header>
 
         <section
@@ -45,70 +45,78 @@ function RouteComp() {
               <em>forever free</em>
             </strong>{' '}
             for everyone, including companies, without any hidden cost, agenda,
-            paid upsells, or licencing shenanigans. The ads you see help us keep
-            it that way.
-          </p>
-        </section>
-
-        <section className="">
-          <p>
-            If you're seeing ads on TanStack's website, you might be wondering
-            why. After all, ads on open source projects can feel like a
-            throwback to the early web—or worse, a sign that something has gone
-            wrong.
+            paid upsells, or licensing shenanigans. We've removed third-party
+            ads from the site to give you a faster, cleaner experience.
           </p>
         </section>
 
         <section className="space-y-4">
           <p>
-            But here's the reality: TanStack is{' '}
-            <strong>independently operated</strong> with no paid products and no
-            venture capital. We're a small, focused team dedicated to creating
-            open source software used by millions of developers daily. To keep
-            building and maintaining these tools for the long term, we need
-            sustainable funding—and that's where advertising comes in.
+            TanStack is <strong>independently operated</strong> with no paid
+            products and no venture capital. We're a small, focused team
+            dedicated to creating open source software used by millions of
+            developers daily.
+          </p>
+          <p>
+            We previously used third-party programmatic ads to help fund
+            development. While they served us well, they came with trade-offs:
+            heavy scripts, slow page loads, and a cluttered experience. We've
+            decided to move in a different direction.
           </p>
         </section>
 
-        <section id="sustainable-open-source" className="space-y-4 scroll-mt-8">
+        <section id="whats-changed" className="space-y-4 scroll-mt-8">
           <h2 className="text-2xl font-semibold">
-            <Link
-              to="/ads"
-              hash="sustainable-open-source"
-              className="hover:underline"
-            >
-              Sustainable Open Source Through Advertising
+            <Link to="/ads" hash="whats-changed" className="hover:underline">
+              What's Changed
+            </Link>
+          </h2>
+          <ul className="list-disc pl-8 space-y-2">
+            <li>
+              <strong>No more third-party ads.</strong> We've completely removed
+              all external ad networks and their associated scripts from the
+              site.
+            </li>
+            <li>
+              <strong>Faster pages.</strong> Without heavy ad SDKs and chained
+              dependencies, every page loads significantly faster.
+            </li>
+            <li>
+              <strong>Private partnerships only.</strong> Going forward, any ads
+              you see will be from carefully selected TanStack partners — served
+              directly, with no third-party tracking.
+            </li>
+            <li>
+              <strong>Lightweight by design.</strong> Partner placements will be
+              static images or text — no heavy iframes, no auction waterfalls,
+              no surprise JavaScript.
+            </li>
+          </ul>
+        </section>
+
+        <section id="sustainability" className="space-y-4 scroll-mt-8">
+          <h2 className="text-2xl font-semibold">
+            <Link to="/ads" hash="sustainability" className="hover:underline">
+              How We Stay Sustainable
             </Link>
           </h2>
           <p>
-            We believe advertising can support open source sustainability while
-            maintaining our core values. Our approach to ads is guided by a few
-            key principles:
-          </p>
-          <ul className="list-disc pl-8 space-y-2">
-            <li>
-              <strong>Thoughtful placement:</strong> We place ads where they're
-              least disruptive to the core developer experience and
-              documentation.
-            </li>
-            <li>
-              <strong>Quality over quantity:</strong> We work with partners who
-              share our values and respect the developer community.
-            </li>
-            <li>
-              <strong>Transparency:</strong> We're upfront about our funding
-              model and why ads are necessary for sustainability.
-            </li>
-            <li>
-              <strong>User control:</strong> We respect user preferences and
-              provide options to manage ad preferences.
-            </li>
-          </ul>
-          <p>
-            Beyond direct revenue, ad performance also serves as a baseline for
-            our partnership and sponsorship pricing. This helps us stay
-            relevant, grounded, and competitive—ensuring our pricing reflects
-            the real value our platform delivers to partners.
+            TanStack is funded through a combination of{' '}
+            <Link to="/partners" className="underline font-semibold">
+              partnerships
+            </Link>
+            ,{' '}
+            <a
+              href="https://github.com/sponsors/tannerlinsley"
+              className="underline font-semibold"
+              target="_blank"
+              rel="noreferrer"
+            >
+              GitHub sponsors
+            </a>
+            , and direct collaboration with companies that depend on our tools.
+            This model lets us stay independent while keeping everything free
+            and open source.
           </p>
         </section>
 
@@ -125,38 +133,19 @@ function RouteComp() {
             building great tools for developers.
           </p>
           <p>
-            The revenue from ads helps us maintain our libraries, support our
-            community, and continue building the open source tools that millions
-            of developers rely on daily.
-          </p>
-        </section>
-
-        <section id="looking-forward" className="space-y-4 scroll-mt-8">
-          <h2 className="text-2xl font-semibold">
-            <Link to="/ads" hash="looking-forward" className="hover:underline">
-              Looking Forward
-            </Link>
-          </h2>
-          <p>
             <Link to="/ethos" className="underline font-semibold">
-              Check out our ethos
+              Read our ethos
             </Link>{' '}
             to learn more about how we plan on sticking around (and staying
-            relevant) for the long-haul.
-          </p>
-          <p>
-            We're committed to finding sustainable ways to fund open source
-            development that don't compromise our values or your experience. Ads
-            are just one part of that equation, and we're always exploring new
-            approaches that align with our mission.
+            relevant) for the long haul.
           </p>
         </section>
 
         <section id="hide-ads" className="space-y-12 scroll-mt-8">
-          <header className="">
+          <header>
             <h2 className="text-3xl font-black">
               <Link to="/ads" hash="hide-ads" className="hover:underline">
-                Want to hide our ads?
+                Want to hide partner ads?
               </Link>
             </h2>
           </header>
@@ -225,8 +214,6 @@ function OptInButton() {
   const [isInterested, setIsInterested] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
-  // Using server function wrapper to handle authentication via session cookie
-
   useEffect(() => {
     if (
       userQuery.data &&
@@ -253,7 +240,7 @@ function OptInButton() {
           </div>
         </div>,
       )
-    } catch (error) {
+    } catch {
       notify(
         <div>
           <div className="font-medium">Error</div>

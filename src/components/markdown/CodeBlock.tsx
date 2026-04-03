@@ -4,7 +4,8 @@ import { useToast } from '~/components/ToastProvider'
 import { Copy } from 'lucide-react'
 import type { Mermaid } from 'mermaid'
 import { transformerNotationDiff } from '@shikijs/transformers'
-import { createHighlighter, type HighlighterGeneric } from 'shiki'
+import type { HighlighterGeneric } from 'shiki'
+import { createHighlighter } from 'shiki'
 import { Button } from '~/ui'
 
 // Language aliases mapping
@@ -37,29 +38,9 @@ async function getHighlighter(language: string): Promise<{
   if (!highlighterPromise) {
     highlighterPromise = createHighlighter({
       themes: ['github-light', 'aurora-x'],
-      langs: [
-        'typescript',
-        'javascript',
-        'tsx',
-        'jsx',
-        'bash',
-        'json',
-        'html',
-        'css',
-        'markdown',
-        'plaintext',
-        'toml',
-        'yaml',
-        'sql',
-        'diff',
-        'vue',
-        'svelte',
-        'scss',
-        'jsonc',
-        'vue-html',
-        'angular-html',
-        'angular-ts',
-      ],
+      // Load languages on demand so docs pages do not eagerly fetch every
+      // grammar during initial render.
+      langs: ['plaintext'],
     })
   }
 

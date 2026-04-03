@@ -1,6 +1,7 @@
 ---
 title: TanStack + Netlify Partnership
 published: 2025-03-18
+excerpt: Netlify is now the official deployment partner for TanStack Start. Their focus on speed, simplicity, and flexibility aligns perfectly with our vision for full-stack development.
 authors:
   - Tanner Linsley
 ---

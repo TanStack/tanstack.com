@@ -1,16 +1,24 @@
 import { sentryTanstackStart } from '@sentry/tanstackstart-react/vite'
 import { defineConfig } from 'vite'
 import contentCollections from '@content-collections/vite'
-import tsConfigPaths from 'vite-tsconfig-paths'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import tailwindcss from '@tailwindcss/vite'
 import { analyzer } from 'vite-bundle-analyzer'
 import viteReact from '@vitejs/plugin-react'
 import netlify from '@netlify/vite-plugin-tanstack-start'
+import path from 'node:path'
 
 const isDev = process.env.NODE_ENV !== 'production'
+const shouldUseSentryPlugin =
+  process.env.NODE_ENV === 'production' &&
+  Boolean(process.env.SENTRY_AUTH_TOKEN)
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      '~': path.resolve(__dirname, './src'),
+    },
+  },
   server: {
     port: Number(process.env.PORT) || 3000,
     // WebContainer headers for /builder route (SharedArrayBuffer support)
@@ -60,30 +68,54 @@ export default defineConfig({
       },
       output: {
         manualChunks: (id) => {
+          // Keep the app shell and docs runtime from shattering into dozens of
+          // tiny eagerly preloaded chunks.
+          if (
+            id.includes('/src/components/Navbar') ||
+            id.includes('/src/components/Theme') ||
+            id.includes('/src/components/SearchButton') ||
+            id.includes('/src/components/NetlifyImage') ||
+            id.includes('/src/components/Card') ||
+            id.includes('/src/components/Footer') ||
+            id.includes('/src/components/ToastProvider') ||
+            id.includes('/src/components/icons/') ||
+            id.includes('/src/contexts/SearchContext') ||
+            id.includes('/src/hooks/useCurrentUser') ||
+            id.includes('/src/hooks/useCapabilities') ||
+            id.includes('/src/libraries/libraries.ts') ||
+            id.includes('/src/ui/')
+          ) {
+            return 'app-shell'
+          }
+
+          if (
+            id.includes('/node_modules/@tanstack/react-router') ||
+            id.includes('/node_modules/@tanstack/router-core') ||
+            id.includes('/node_modules/@tanstack/history')
+          ) {
+            return 'tanstack-router'
+          }
+
+          if (
+            id.includes('/node_modules/@tanstack/react-query') ||
+            id.includes('/node_modules/@tanstack/query-core')
+          ) {
+            return 'tanstack-query'
+          }
+
           // Vendor chunk splitting for better caching
           if (id.includes('node_modules')) {
-            // Search-related deps (only loaded when search modal opens)
-            if (
-              id.includes('algoliasearch') ||
-              id.includes('instantsearch') ||
-              id.includes('react-instantsearch')
-            ) {
-              return 'search'
-            }
-            // Charting deps (only loaded on stats/admin pages)
-            if (
-              id.includes('@observablehq/plot') ||
-              (id.includes('d3') && !id.includes('d3-'))
-            ) {
-              return 'd3-charts'
-            }
-            // Visualization deps
-            if (id.includes('@visx/')) {
-              return 'visx'
-            }
             // Lucide icons (tree-shaken but still significant)
             if (id.includes('lucide-react')) {
               return 'icons'
+            }
+
+            if (
+              id.includes('node_modules/react-dom/') ||
+              id.includes('node_modules/react/') ||
+              id.includes('node_modules/scheduler/')
+            ) {
+              return 'react'
             }
           }
         },
@@ -91,11 +123,19 @@ export default defineConfig({
     },
   },
   plugins: [
-    tsConfigPaths({
-      projects: ['./tsconfig.json'],
-    }),
-
     tanstackStart({
+      importProtection: {
+        behavior: 'error',
+        client: {
+          files: ['**/*.server.*', '**/server/**'],
+          specifiers: [
+            '@tanstack/react-start/server',
+            'uploadthing/server',
+            /^@modelcontextprotocol\/sdk\/server\//,
+            'discord-interactions',
+          ],
+        },
+      },
       router: {
         codeSplittingOptions: {
           defaultBehavior: [
@@ -116,11 +156,15 @@ export default defineConfig({
       : []),
     viteReact(),
 
-    sentryTanstackStart({
-      authToken: process.env.SENTRY_AUTH_TOKEN,
-      org: 'tanstack',
-      project: 'tanstack-com',
-    }),
+    ...(shouldUseSentryPlugin
+      ? [
+          sentryTanstackStart({
+            authToken: process.env.SENTRY_AUTH_TOKEN,
+            org: 'tanstack',
+            project: 'tanstack-com',
+          }),
+        ]
+      : []),
     contentCollections(),
     tailwindcss(),
     ...(process.env.ANALYZE

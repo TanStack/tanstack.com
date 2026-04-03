@@ -1,10 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { getSessionService, getUserRepository } from '~/auth/index.server'
 
 export const Route = createFileRoute('/auth/signout')({
   server: {
     handlers: {
       GET: async ({ request }: { request: Request }) => {
+        const [{ getSessionService, getUserRepository }] = await Promise.all([
+          import('~/auth/index.server'),
+        ])
         const sessionService = getSessionService()
         const userRepository = getUserRepository()
 

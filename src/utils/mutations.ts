@@ -3,7 +3,7 @@ import {
   updateUserCapabilities,
   adminSetAdsDisabled,
   bulkUpdateUserCapabilities,
-} from './users.server'
+} from './users.functions'
 import {
   createRole,
   updateRole,

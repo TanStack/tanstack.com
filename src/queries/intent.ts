@@ -6,6 +6,10 @@ import {
   getIntentVersionSkills,
   diffIntentVersions,
   searchIntentSkills,
+  getIntentSkillHistory,
+  getIntentPackageChangelog,
+  getIntentSingleSkillHistory,
+  getIntentSkillContentDiff,
 } from '~/utils/intent.functions'
 
 export const intentStatsQueryOptions = () =>
@@ -61,5 +65,42 @@ export const intentVersionDiffQueryOptions = (params: {
   queryOptions({
     queryKey: ['intent', 'diff', params],
     queryFn: () => diffIntentVersions({ data: params }),
+    staleTime: 30 * 60 * 1000,
+  })
+
+export const intentSkillHistoryQueryOptions = (packageNames: Array<string>) =>
+  queryOptions({
+    queryKey: ['intent', 'skill-history', packageNames],
+    queryFn: () => getIntentSkillHistory({ data: { packageNames } }),
+    staleTime: 10 * 60 * 1000,
+    enabled: packageNames.length > 0,
+  })
+
+export const intentPackageChangelogQueryOptions = (packageName: string) =>
+  queryOptions({
+    queryKey: ['intent', 'changelog', packageName],
+    queryFn: () => getIntentPackageChangelog({ data: { packageName } }),
+    staleTime: 10 * 60 * 1000,
+  })
+
+export const intentSingleSkillHistoryQueryOptions = (params: {
+  packageName: string
+  skillName: string
+}) =>
+  queryOptions({
+    queryKey: ['intent', 'single-skill-history', params],
+    queryFn: () => getIntentSingleSkillHistory({ data: params }),
+    staleTime: 10 * 60 * 1000,
+  })
+
+export const intentSkillContentDiffQueryOptions = (params: {
+  packageName: string
+  skillName: string
+  fromVersion: string
+  toVersion: string
+}) =>
+  queryOptions({
+    queryKey: ['intent', 'skill-content-diff', params],
+    queryFn: () => getIntentSkillContentDiff({ data: params }),
     staleTime: 30 * 60 * 1000,
   })

@@ -7,16 +7,14 @@ import { startProject } from '~/libraries/start'
 import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
-import { PartnersSection } from '~/components/PartnersSection'
-import { MaintainersSection } from '~/components/MaintainersSection'
 import { LibraryTestimonials } from '~/components/LibraryTestimonials'
 import { Button } from '~/ui'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { Book, Wallpaper } from 'lucide-react'
 import { BrandXIcon } from '~/components/icons/BrandXIcon'
-import { LibraryShowcases } from '~/components/ShowcaseSection'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
+import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 
 const library = getLibrary('start')
 
@@ -117,12 +115,10 @@ export default function StartLanding() {
         </div>
       </div>
 
-      <MaintainersSection libraryId="start" />
-      <PartnersSection libraryId="start" />
-
-      <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-        <LibraryShowcases libraryId="start" libraryName="TanStack Start" />
-      </div>
+      <LazyLandingCommunitySection
+        libraryId="start"
+        libraryName="TanStack Start"
+      />
 
       <LazySponsorSection />
       <LandingPageGad />

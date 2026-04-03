@@ -3,18 +3,16 @@ import { routerProject } from '~/libraries/router'
 import { Footer } from '~/components/Footer'
 import { LibraryHero } from '~/components/LibraryHero'
 import { FeatureGrid } from '~/components/FeatureGrid'
-import { PartnersSection } from '~/components/PartnersSection'
-import { MaintainersSection } from '~/components/MaintainersSection'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { BottomCTA } from '~/components/BottomCTA'
 import { Framework, getBranch, getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
 import { LibraryTestimonials } from '~/components/LibraryTestimonials'
-import { LibraryShowcases } from '~/components/ShowcaseSection'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
-import { CodeExampleCard } from '~/components/CodeExampleCard'
+import { LazyCodeExampleCard } from '~/components/LazyCodeExampleCard'
+import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 import { StackBlitzSection } from '~/components/StackBlitzSection'
 
 const library = getLibrary('router')
@@ -78,7 +76,7 @@ export default function RouterLanding() {
 
       <LibraryStatsSection library={library} />
 
-      <CodeExampleCard
+      <LazyCodeExampleCard
         frameworks={routerProject.frameworks}
         codeByFramework={codeExamples}
       />
@@ -89,12 +87,10 @@ export default function RouterLanding() {
 
       <LibraryTestimonials testimonials={routerProject.testimonials} />
 
-      <MaintainersSection libraryId="router" />
-      <PartnersSection libraryId="router" />
-
-      <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-        <LibraryShowcases libraryId="router" libraryName="TanStack Router" />
-      </div>
+      <LazyLandingCommunitySection
+        libraryId="router"
+        libraryName="TanStack Router"
+      />
 
       <FeatureGrid
         title="Feature Rich and Lightweight"

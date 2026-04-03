@@ -22,7 +22,7 @@ import {
 import { twMerge } from 'tailwind-merge'
 // Using public asset URL
 import { ClientAdminAuth } from '~/components/ClientAuth'
-import { requireAnyAdminCapability } from '~/utils/auth.server'
+import { requireAnyAdminCapability } from '~/utils/auth.functions'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { NpmIcon } from '~/components/icons/NpmIcon'

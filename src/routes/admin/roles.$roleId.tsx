@@ -11,7 +11,7 @@ import {
   type ColumnDef,
 } from '@tanstack/react-table'
 import { ArrowLeft, Lock, Trash, User, Users } from 'lucide-react'
-import { requireCapability } from '~/utils/auth.server'
+import { requireCapability } from '~/utils/auth.functions'
 import { hasCapability } from '~/db/types'
 import { Badge, Button } from '~/ui'
 
@@ -207,6 +207,7 @@ function RoleDetailPage() {
     [selectedUserIds, usersWithRole, toggleAllSelection, toggleUserSelection],
   )
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data: usersWithRole || [],
     columns,

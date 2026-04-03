@@ -284,7 +284,20 @@ export const allMaintainers: Maintainer[] = [
     social: {
       twitter: 'https://x.com/manudeli_',
       bluesky: 'https://bsky.app/profile/manudeli.bsky.social',
-      website: 'https://www.linkedin.com/in/jonghyeonko',
+      linkedIn: 'https://www.linkedin.com/in/jonghyeonko',
+    },
+  },
+  {
+    name: 'Wonsuk Choi',
+    avatar: 'https://github.com/sukvvon.png',
+    github: 'sukvvon',
+    maintainerOf: ['query'],
+    frameworkExpertise: ['react'],
+    specialties: ['TypeScript', 'Test'],
+    social: {
+      linkedIn: 'https://www.linkedin.com/in/sukvvon',
+      twitter: 'https://x.com/sukvvon',
+      bluesky: 'https://bsky.app/profile/sukvvon.bsky.social',
     },
   },
   {
@@ -370,7 +383,7 @@ export const allMaintainers: Maintainer[] = [
     social: {
       twitter: 'https://x.com/Arnoud_dv',
       bluesky: 'https://bsky.app/profile/arnoud.dev',
-      website: 'https://www.linkedin.com/in/arnouddv/',
+      linkedIn: 'https://www.linkedin.com/in/arnouddv/',
     },
     workshopsAvailable: true,
   },

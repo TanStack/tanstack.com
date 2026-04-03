@@ -5,6 +5,7 @@ import {
   getPackageByName,
   getPackageVersions,
   getSkillsForVersion,
+  getSkillFingerprintsForVersion,
   getIntentRegistryStats,
   searchPackagesByName,
   searchSkills,
@@ -21,6 +22,7 @@ import {
   fetchPackument,
   selectVersionsToSync,
   extractSkillsFromTarball,
+  fetchBulkDownloads,
 } from './intent.server'
 import { fetchCached } from './cache.server'
 import type {
@@ -77,6 +79,14 @@ export interface PackageVersionSummary {
   publishedAt: Date | null
 }
 
+export interface SkillHistoryEntry {
+  version: string
+  total: number
+  added: number
+  removed: number
+  modified: number
+}
+
 // ---------------------------------------------------------------------------
 // Registry stats (for hero banner)
 // ---------------------------------------------------------------------------
@@ -114,7 +124,7 @@ export const getIntentDirectory = createServerFn({ method: 'GET' })
       pageSize = 24,
     } = data
 
-    // Pull live NPM search results (cached 5 min) to get download counts/scores
+    // Pull live NPM search results (cached 5 min) to get metadata/scores
     const npmData = await fetchCached<NpmSearchResult>({
       key: `intent:npm-search:${search ?? ''}`,
       ttl: 5 * 60 * 1000,
@@ -135,6 +145,13 @@ export const getIntentDirectory = createServerFn({ method: 'GET' })
       getAllVerifiedPackages(),
       search ? searchPackagesByName(search) : Promise.resolve([]),
     ])
+
+    // Fetch real download counts from the npm downloads API (cached 5 min)
+    const downloadCounts = await fetchCached({
+      key: 'intent:download-counts',
+      ttl: 5 * 60 * 1000,
+      fn: () => fetchBulkDownloads(verifiedPackages.map((p) => p.name)),
+    })
 
     // Build the set of packages to show: union of NPM results + DB name matches
     const npmByName = new Map(
@@ -191,8 +208,8 @@ export const getIntentDirectory = createServerFn({ method: 'GET' })
           npmPkg?.links.npm ?? `https://www.npmjs.com/package/${pkg.name}`,
         latestVersion: latestVersion?.version ?? 'unknown',
         publishedAt: latestVersion?.publishedAt?.toISOString() ?? null,
-        monthlyDownloads: npmObj?.downloads?.monthly ?? 0,
-        weeklyDownloads: npmObj?.downloads?.weekly ?? 0,
+        monthlyDownloads: downloadCounts.get(pkg.name) ?? 0,
+        weeklyDownloads: 0,
         npmScore: npmObj?.score.final ?? 0,
         skillNames,
         frameworks,
@@ -591,4 +608,386 @@ export const diffIntentVersions = createServerFn({ method: 'GET' })
       toVersion: data.toVersion,
       diff,
     }
+  })
+
+// ---------------------------------------------------------------------------
+// Skill history sparkline data (last N versions per package, batch)
+// ---------------------------------------------------------------------------
+
+export const getIntentSkillHistory = createServerFn({ method: 'GET' })
+  .inputValidator(
+    v.object({
+      packageNames: v.array(v.string()),
+      limit: v.optional(v.number()),
+    }),
+  )
+  .handler(
+    async ({ data }): Promise<Record<string, Array<SkillHistoryEntry>>> => {
+      const { packageNames, limit = 10 } = data
+      const result: Record<string, Array<SkillHistoryEntry>> = {}
+
+      await Promise.all(
+        packageNames.map(async (name) => {
+          const allVersions = await fetchCached({
+            key: `intent:versions:${name}`,
+            ttl: 10 * 60 * 1000,
+            fn: () => getPackageVersions(name),
+          })
+
+          // getPackageVersions returns newest-first; reverse to chronological,
+          // then take the last N
+          const versions = allVersions.slice().reverse().slice(-limit)
+          if (versions.length === 0) {
+            result[name] = []
+            return
+          }
+
+          // Fetch fingerprints for all versions in parallel
+          const fingerprints = await Promise.all(
+            versions.map((ver) =>
+              fetchCached({
+                key: `intent:fingerprints:${ver.id}`,
+                ttl: 30 * 60 * 1000,
+                fn: () => getSkillFingerprintsForVersion(ver.id),
+              }),
+            ),
+          )
+
+          const entries: Array<SkillHistoryEntry> = []
+
+          for (let i = 0; i < versions.length; i++) {
+            const ver = versions[i]
+            const current = fingerprints[i]
+            const currentMap = new Map(
+              current.map((s) => [s.name, s.contentHash]),
+            )
+
+            if (i === 0) {
+              entries.push({
+                version: ver.version,
+                total: current.length,
+                added: current.length,
+                removed: 0,
+                modified: 0,
+              })
+            } else {
+              const prev = fingerprints[i - 1]
+              const prevMap = new Map(prev.map((s) => [s.name, s.contentHash]))
+
+              let added = 0
+              let modified = 0
+              for (const [name, hash] of currentMap) {
+                const prevHash = prevMap.get(name)
+                if (prevHash === undefined) added++
+                else if (prevHash !== hash) modified++
+              }
+
+              let removed = 0
+              for (const name of prevMap.keys()) {
+                if (!currentMap.has(name)) removed++
+              }
+
+              entries.push({
+                version: ver.version,
+                total: current.length,
+                added,
+                removed,
+                modified,
+              })
+            }
+          }
+
+          result[name] = entries
+        }),
+      )
+
+      return result
+    },
+  )
+
+// ---------------------------------------------------------------------------
+// Package changelog (named skill diffs per consecutive version pair)
+// ---------------------------------------------------------------------------
+
+export interface ChangelogEntry {
+  version: string
+  publishedAt: Date | null
+  total: number
+  diff: SkillDiff | null
+}
+
+export const getIntentPackageChangelog = createServerFn({ method: 'GET' })
+  .inputValidator(
+    v.object({
+      packageName: v.string(),
+      limit: v.optional(v.number()),
+    }),
+  )
+  .handler(async ({ data }): Promise<Array<ChangelogEntry>> => {
+    const { packageName, limit = 20 } = data
+
+    const allVersions = await fetchCached({
+      key: `intent:versions:${packageName}`,
+      ttl: 10 * 60 * 1000,
+      fn: () => getPackageVersions(packageName),
+    })
+
+    // Newest-first from DB; reverse to chronological, take last N
+    const versions = allVersions.slice().reverse().slice(-limit)
+    if (versions.length === 0) return []
+
+    // Fetch all skills for each version (uses content-addressed caching)
+    const allSkills = await Promise.all(
+      versions.map((ver) =>
+        fetchCached({
+          key: `intent:skills:${ver.id}`,
+          ttl: 30 * 60 * 1000,
+          fn: () => getSkillsForVersion(ver.id),
+        }),
+      ),
+    )
+
+    const toSummary = (
+      s: (typeof allSkills)[number][number],
+    ): IntentSkillSummary => ({
+      id: s.id,
+      name: s.name,
+      description: s.description,
+      type: s.type,
+      framework: s.framework,
+      requires: s.requires,
+      skillPath: s.skillPath,
+      contentHash: s.contentHash,
+      lineCount: s.lineCount,
+    })
+
+    const entries: Array<ChangelogEntry> = []
+
+    for (let i = 0; i < versions.length; i++) {
+      const ver = versions[i]
+      const currentSkills = allSkills[i]
+
+      if (i === 0) {
+        // First version in window — all skills are "added", no prior to diff against
+        entries.push({
+          version: ver.version,
+          publishedAt: ver.publishedAt,
+          total: currentSkills.length,
+          diff: {
+            added: currentSkills.map(toSummary),
+            removed: [],
+            modified: [],
+            unchanged: [],
+          },
+        })
+        continue
+      }
+
+      const prevSkills = allSkills[i - 1]
+      const prevMap = new Map(prevSkills.map((s) => [s.name, s]))
+      const currMap = new Map(currentSkills.map((s) => [s.name, s]))
+
+      const diff: SkillDiff = {
+        added: [],
+        removed: [],
+        modified: [],
+        unchanged: [],
+      }
+
+      for (const [name, curr] of currMap) {
+        const prev = prevMap.get(name)
+        if (!prev) {
+          diff.added.push(toSummary(curr))
+        } else if (prev.contentHash !== curr.contentHash) {
+          diff.modified.push({
+            from: toSummary(prev),
+            to: toSummary(curr),
+          })
+        } else {
+          diff.unchanged.push(toSummary(curr))
+        }
+      }
+
+      for (const [name, prev] of prevMap) {
+        if (!currMap.has(name)) {
+          diff.removed.push(toSummary(prev))
+        }
+      }
+
+      entries.push({
+        version: ver.version,
+        publishedAt: ver.publishedAt,
+        total: currentSkills.length,
+        diff,
+      })
+    }
+
+    // Return newest-first for display
+    return entries.reverse()
+  })
+
+// ---------------------------------------------------------------------------
+// Skill content diff between two versions (for inline diff viewer)
+// ---------------------------------------------------------------------------
+
+export const getIntentSkillContentDiff = createServerFn({ method: 'GET' })
+  .inputValidator(
+    v.object({
+      packageName: v.string(),
+      skillName: v.string(),
+      fromVersion: v.string(),
+      toVersion: v.string(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const versions = await getPackageVersions(data.packageName)
+
+    const fromRecord = versions.find((ver) => ver.version === data.fromVersion)
+    const toRecord = versions.find((ver) => ver.version === data.toVersion)
+
+    if (!fromRecord || !toRecord) return null
+
+    const [fromSkills, toSkills] = await Promise.all([
+      fetchCached({
+        key: `intent:skills:${fromRecord.id}`,
+        ttl: 30 * 60 * 1000,
+        fn: () => getSkillsForVersion(fromRecord.id),
+      }),
+      fetchCached({
+        key: `intent:skills:${toRecord.id}`,
+        ttl: 30 * 60 * 1000,
+        fn: () => getSkillsForVersion(toRecord.id),
+      }),
+    ])
+
+    const fromSkill = fromSkills.find((s) => s.name === data.skillName)
+    const toSkill = toSkills.find((s) => s.name === data.skillName)
+
+    return {
+      fromContent: fromSkill?.content ?? null,
+      toContent: toSkill?.content ?? null,
+      fromVersion: data.fromVersion,
+      toVersion: data.toVersion,
+    }
+  })
+
+// ---------------------------------------------------------------------------
+// Single-skill version history (how one skill evolved across versions)
+// ---------------------------------------------------------------------------
+
+export interface SkillVersionEntry {
+  version: string
+  publishedAt: Date | null
+  status: 'added' | 'modified' | 'unchanged' | 'removed'
+  skill: IntentSkillSummary | null
+  lineCountDelta: number | null
+}
+
+export const getIntentSingleSkillHistory = createServerFn({ method: 'GET' })
+  .inputValidator(
+    v.object({
+      packageName: v.string(),
+      skillName: v.string(),
+    }),
+  )
+  .handler(async ({ data }): Promise<Array<SkillVersionEntry>> => {
+    const allVersions = await fetchCached({
+      key: `intent:versions:${data.packageName}`,
+      ttl: 10 * 60 * 1000,
+      fn: () => getPackageVersions(data.packageName),
+    })
+
+    // Newest-first from DB; reverse to chronological
+    const versions = allVersions.slice().reverse()
+    if (versions.length === 0) return []
+
+    // Fetch fingerprints for each version (lightweight)
+    const allFingerprints = await Promise.all(
+      versions.map((ver) =>
+        fetchCached({
+          key: `intent:fingerprints:${ver.id}`,
+          ttl: 30 * 60 * 1000,
+          fn: () => getSkillFingerprintsForVersion(ver.id),
+        }),
+      ),
+    )
+
+    // For versions where the skill exists, fetch full skill data
+    const skillDataByVersion = await Promise.all(
+      versions.map(async (ver, i) => {
+        const fp = allFingerprints[i].find((s) => s.name === data.skillName)
+        if (!fp) return null
+        // Fetch full skills and find the one we want
+        const skills = await fetchCached({
+          key: `intent:skills:${ver.id}`,
+          ttl: 30 * 60 * 1000,
+          fn: () => getSkillsForVersion(ver.id),
+        })
+        return skills.find((s) => s.name === data.skillName) ?? null
+      }),
+    )
+
+    const toSummary = (
+      s: NonNullable<(typeof skillDataByVersion)[number]>,
+    ): IntentSkillSummary => ({
+      id: s.id,
+      name: s.name,
+      description: s.description,
+      type: s.type,
+      framework: s.framework,
+      requires: s.requires,
+      skillPath: s.skillPath,
+      contentHash: s.contentHash,
+      lineCount: s.lineCount,
+    })
+
+    const entries: Array<SkillVersionEntry> = []
+
+    for (let i = 0; i < versions.length; i++) {
+      const ver = versions[i]
+      const current = skillDataByVersion[i]
+      const prev = i > 0 ? skillDataByVersion[i - 1] : null
+
+      if (!current) {
+        if (prev) {
+          entries.push({
+            version: ver.version,
+            publishedAt: ver.publishedAt,
+            status: 'removed',
+            skill: null,
+            lineCountDelta: prev ? -prev.lineCount : null,
+          })
+        }
+        continue
+      }
+
+      if (!prev) {
+        entries.push({
+          version: ver.version,
+          publishedAt: ver.publishedAt,
+          status: 'added',
+          skill: toSummary(current),
+          lineCountDelta: current.lineCount,
+        })
+      } else if (prev.contentHash !== current.contentHash) {
+        entries.push({
+          version: ver.version,
+          publishedAt: ver.publishedAt,
+          status: 'modified',
+          skill: toSummary(current),
+          lineCountDelta: current.lineCount - prev.lineCount,
+        })
+      } else {
+        entries.push({
+          version: ver.version,
+          publishedAt: ver.publishedAt,
+          status: 'unchanged',
+          skill: toSummary(current),
+          lineCountDelta: 0,
+        })
+      }
+    }
+
+    // Return newest-first for display
+    return entries.reverse()
   })

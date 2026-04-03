@@ -1,4 +1,6 @@
+import * as React from 'react'
 import { ClientOnly, Link, createFileRoute } from '@tanstack/react-router'
+import { queryOptions, useQuery } from '@tanstack/react-query'
 
 import { Footer } from '~/components/Footer'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
@@ -8,27 +10,29 @@ import { librariesByGroup, librariesGroupNamesMap, Library } from '~/libraries'
 import bytesImage from '~/images/bytes.svg'
 import { PartnersGrid } from '~/components/PartnersGrid'
 import OpenSourceStats from '~/components/OpenSourceStats'
-import { ossStatsQuery } from '~/queries/stats'
 // Using public asset URLs for splash images
-import { BrandContextMenu } from '~/components/BrandContextMenu'
 import LandingPageGad from '~/components/LandingPageGad'
 import { MaintainerCard } from '~/components/MaintainerCard'
 import { coreMaintainers } from '~/libraries/maintainers'
 import { useToast } from '~/components/ToastProvider'
-import { formatAuthors, getPublishedPosts } from '~/utils/blog'
-import { format } from '~/utils/dates'
-import { SimpleMarkdown } from '~/components/SimpleMarkdown'
+import { formatAuthors } from '~/utils/blog'
+import { formatPublishedDate } from '~/utils/blog'
 import { NetlifyImage } from '~/components/NetlifyImage'
-import { createServerFn } from '@tanstack/react-start'
-import { setResponseHeaders } from '@tanstack/react-start/server'
-import { AdGate } from '~/contexts/AdsContext'
-import { GamHeader } from '~/components/Gam'
+import { fetchRecentPosts } from '~/utils/blog.functions'
+
 import { TrustedByMarquee } from '~/components/TrustedByMarquee'
-import { ArrowRight, Code2, Layers, Shield, Zap } from 'lucide-react'
+import { ArrowRight, Code2, Layers, Shield, Zap, Play } from 'lucide-react'
+import { YouTubeIcon } from '~/components/icons/YouTubeIcon'
 import { Card } from '~/components/Card'
 import LibraryCard from '~/components/LibraryCard'
 import { FeaturedShowcases } from '~/components/ShowcaseSection'
 import { Button } from '~/ui'
+
+const LazyBrandContextMenu = React.lazy(() =>
+  import('~/components/BrandContextMenu').then((m) => ({
+    default: m.BrandContextMenu,
+  })),
+)
 
 export const textColors = [
   `text-rose-500`,
@@ -53,48 +57,14 @@ const courses = [
   },
 ]
 
-type BlogFrontMatter = {
-  slug: string
-  title: string
-  published: string
-  excerpt: string | undefined
-  authors: string[]
-}
-
-const fetchRecentPosts = createServerFn({ method: 'GET' }).handler(
-  async (): Promise<BlogFrontMatter[]> => {
-    setResponseHeaders(
-      new Headers({
-        'Cache-Control': 'public, max-age=0, must-revalidate',
-        'Netlify-CDN-Cache-Control':
-          'public, max-age=300, durable, stale-while-revalidate=300',
-      }),
-    )
-
-    return getPublishedPosts()
-      .slice(0, 3)
-      .map((post) => {
-        return {
-          slug: post.slug,
-          title: post.title,
-          published: post.published,
-          excerpt: post.excerpt,
-          authors: post.authors,
-        }
-      })
-  },
-)
-
 export const Route = createFileRoute('/')({
-  loader: async ({ context: { queryClient } }) => {
-    await queryClient.ensureQueryData(ossStatsQuery())
-    const recentPosts = await fetchRecentPosts()
-
-    return {
-      recentPosts,
-    }
-  },
   component: Index,
+})
+
+const recentPostsQueryOptions = queryOptions({
+  queryKey: ['recentPosts'],
+  queryFn: () => fetchRecentPosts(),
+  staleTime: 1000 * 60 * 5,
 })
 
 async function bytesSignupServerFn({ email }: { email: string }) {
@@ -118,23 +88,22 @@ function Index() {
     fn: bytesSignupServerFn,
   })
   const { notify } = useToast()
-  const { recentPosts } = Route.useLoaderData() as {
-    recentPosts: BlogFrontMatter[]
-  }
+  const { data: recentPosts = [], isLoading: isRecentPostsLoading } = useQuery(
+    recentPostsQueryOptions,
+  )
 
   return (
     <>
       <div className="max-w-full z-10 space-y-24">
         <div className="space-y-8">
-          <div className="flex flex-col xl:flex-row items-center gap-4 xl:pt-24 xl:justify-center">
+          <div className="flex flex-col items-center gap-4 xl:grid xl:grid-cols-[400px_minmax(0,44rem)] 2xl:grid-cols-[500px_minmax(0,48rem)] xl:items-center xl:justify-center xl:gap-8 xl:pt-24">
             <div
-              className="relative [--ship-x:50px] [--ship-y:1.5rem] 
+              className="relative w-[300px] pt-8 xl:w-[400px] xl:pt-0 2xl:w-[500px] [--ship-x:50px] [--ship-y:1.5rem] 
             lg:[--ship-x:50px] lg:[--ship-y:1.5rem]
             xl:[--ship-x:80px] xl:[--ship-y:2.5rem]
             2xl:[--ship-x:90px] 2xl:[--ship-y:3rem]"
             >
               <ClientOnly>
-                {/* Ship behind splash */}
                 <div className="absolute left-1/3 bottom-[25%] z-0 animate-ship-peek">
                   <NetlifyImage
                     src="/images/ship.png"
@@ -144,7 +113,6 @@ function Index() {
                     className="w-16 xl:w-20"
                   />
                 </div>
-                {/* Invisible clickable ship in front */}
                 <Link
                   to="/explore"
                   className="absolute left-1/3 bottom-[25%] z-20 animate-ship-peek-clickable"
@@ -159,30 +127,61 @@ function Index() {
                   />
                 </Link>
               </ClientOnly>
-              <BrandContextMenu className="cursor-pointer relative z-10">
-                <NetlifyImage
-                  src="/images/logos/splash-light.png"
-                  width={500}
-                  height={500}
-                  quality={85}
-                  className="w-[300px] pt-8 xl:pt-0 xl:w-[400px] 2xl:w-[500px] dark:hidden"
-                  alt="TanStack Logo"
-                  loading="eager"
-                  fetchPriority="high"
-                />
-                <NetlifyImage
-                  src="/images/logos/splash-dark.png"
-                  width={500}
-                  height={500}
-                  quality={85}
-                  className="w-[300px] pt-8 xl:pt-0 xl:w-[400px] 2xl:w-[500px] hidden dark:block"
-                  alt="TanStack Logo"
-                  loading="eager"
-                  fetchPriority="high"
-                />
-              </BrandContextMenu>
+              <React.Suspense
+                fallback={
+                  <div className="relative z-10 aspect-square">
+                    <div className="cursor-pointer relative h-full w-full">
+                      <NetlifyImage
+                        src="/images/logos/splash-light.png"
+                        width={500}
+                        height={500}
+                        quality={85}
+                        className="absolute inset-0 block h-full w-full object-contain dark:hidden"
+                        alt="TanStack Logo"
+                        loading="eager"
+                        fetchPriority="high"
+                      />
+                      <NetlifyImage
+                        src="/images/logos/splash-dark.png"
+                        width={500}
+                        height={500}
+                        quality={85}
+                        className="absolute inset-0 hidden h-full w-full object-contain dark:block"
+                        alt="TanStack Logo"
+                        loading="eager"
+                        fetchPriority="high"
+                      />
+                    </div>
+                  </div>
+                }
+              >
+                <div className="relative z-10 aspect-square">
+                  <LazyBrandContextMenu className="cursor-pointer relative h-full w-full">
+                    <NetlifyImage
+                      src="/images/logos/splash-light.png"
+                      width={500}
+                      height={500}
+                      quality={85}
+                      className="absolute inset-0 block h-full w-full object-contain dark:hidden"
+                      alt="TanStack Logo"
+                      loading="eager"
+                      fetchPriority="high"
+                    />
+                    <NetlifyImage
+                      src="/images/logos/splash-dark.png"
+                      width={500}
+                      height={500}
+                      quality={85}
+                      className="absolute inset-0 hidden h-full w-full object-contain dark:block"
+                      alt="TanStack Logo"
+                      loading="eager"
+                      fetchPriority="high"
+                    />
+                  </LazyBrandContextMenu>
+                </div>
+              </React.Suspense>
             </div>
-            <div className="flex flex-col items-center gap-6 text-center px-4 xl:text-left xl:items-start">
+            <div className="flex w-full max-w-md flex-col items-center gap-6 px-4 text-center md:max-w-2xl xl:max-w-[44rem] xl:items-start xl:px-0 xl:text-left 2xl:max-w-[48rem]">
               <div className="flex gap-2 lg:gap-4 items-center">
                 <h1
                   className={`inline-block
@@ -224,10 +223,6 @@ function Index() {
             <OpenSourceStats />
           </div>
         </div>
-
-        <AdGate>
-          <GamHeader />
-        </AdGate>
 
         <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
           <TrustedByMarquee
@@ -381,7 +376,7 @@ function Index() {
           <FeaturedShowcases />
         </div>
 
-        {recentPosts && recentPosts.length > 0 && (
+        {(isRecentPostsLoading || recentPosts.length > 0) && (
           <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
             <h3 id="blog" className="text-3xl font-bold mb-6 scroll-mt-24">
               <a
@@ -392,56 +387,80 @@ function Index() {
               </a>
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {recentPosts.map(
-                ({ slug, title, published, excerpt, authors }) => {
-                  return (
+              {isRecentPostsLoading
+                ? Array.from({ length: 3 }).map((_, idx) => (
                     <Card
-                      as={Link}
-                      key={slug}
-                      to="/blog/$"
-                      params={{ _splat: slug } as never}
-                      className={`flex flex-col gap-3 justify-between p-4
+                      key={`recent-post-skeleton-${idx}`}
+                      className="p-4 animate-pulse"
+                    >
+                      <div className="h-5 w-5/6 rounded bg-gray-200 dark:bg-gray-700" />
+                      <div className="mt-3 h-3 w-2/3 rounded bg-gray-200 dark:bg-gray-700" />
+                      <div className="mt-4 space-y-2">
+                        <div className="h-3 rounded bg-gray-100 dark:bg-gray-800" />
+                        <div className="h-3 rounded bg-gray-100 dark:bg-gray-800" />
+                      </div>
+                      <div className="mt-6 h-3 w-20 rounded bg-blue-100 dark:bg-blue-950/50" />
+                    </Card>
+                  ))
+                : recentPosts.map(
+                    ({
+                      slug,
+                      title,
+                      published,
+                      excerpt,
+                      headerImage,
+                      authors,
+                    }) => {
+                      return (
+                        <Card
+                          as={Link}
+                          key={slug}
+                          to="/blog/$"
+                          params={{ _splat: slug } as never}
+                          className={`flex flex-col justify-between overflow-hidden
                       transition-all hover:shadow-md hover:border-blue-500
                     `}
-                    >
-                      <div>
-                        <div className={`text-base font-bold`}>{title}</div>
-                        <div
-                          className={`text-xs italic font-light mt-1 text-gray-600 dark:text-gray-400`}
                         >
-                          <p>
-                            by {formatAuthors(authors)}
-                            {published ? (
-                              <time
-                                dateTime={published}
-                                title={format(
-                                  new Date(published),
-                                  'MMM dd, yyyy',
-                                )}
-                              >
-                                {' '}
-                                on {format(new Date(published), 'MMM dd, yyyy')}
-                              </time>
-                            ) : null}
-                          </p>
-                        </div>
-                        {excerpt && (
-                          <div
-                            className={`text-xs mt-3 text-gray-600 dark:text-gray-400 line-clamp-2 leading-relaxed`}
-                          >
-                            <SimpleMarkdown rawContent={excerpt} />
+                          {headerImage ? (
+                            <div className="aspect-video overflow-hidden bg-gray-100 dark:bg-gray-800">
+                              <img
+                                src={headerImage}
+                                alt=""
+                                loading="lazy"
+                                decoding="async"
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          ) : null}
+                          <div className="p-4 flex flex-col gap-3 flex-1 justify-between">
+                            <div>
+                              <div className="text-base font-bold">{title}</div>
+                              <div className="text-xs italic font-light mt-1 text-gray-600 dark:text-gray-400">
+                                by {formatAuthors(authors)}
+                                {published ? (
+                                  <time
+                                    dateTime={published}
+                                    title={formatPublishedDate(published)}
+                                  >
+                                    {' '}
+                                    on {formatPublishedDate(published)}
+                                  </time>
+                                ) : null}
+                              </div>
+                              {excerpt ? (
+                                <p className="text-sm mt-3 text-gray-600 dark:text-gray-400 line-clamp-4 leading-relaxed">
+                                  {excerpt}
+                                </p>
+                              ) : null}
+                            </div>
+                            <div className="text-blue-500 uppercase font-bold text-xs">
+                              Read More →
+                            </div>
                           </div>
-                        )}
-                      </div>
-                      <div>
-                        <div className="text-blue-500 uppercase font-bold text-xs">
-                          Read More →
-                        </div>
-                      </div>
-                    </Card>
-                  )
-                },
-              )}
+                        </Card>
+                      )
+                    },
+                  )}
             </div>
             <div className="flex justify-center mt-6">
               <Button as={Link} to="/blog">
@@ -590,6 +609,51 @@ function Index() {
             </div>
           </div>
         </div>
+
+        <div className="px-4 mx-auto max-w-(--breakpoint-lg)">
+          <div
+            className={`
+          rounded-md p-4 grid gap-6
+          bg-gradient-to-br from-red-500 to-red-700 text-white overflow-hidden relative
+          shadow-xl shadow-red-700/30
+          sm:p-8 sm:grid-cols-3 items-center`}
+          >
+            <div
+              className={`absolute transform opacity-10 z-0
+            right-0 top-0 -translate-y-1/3 translate-x-1/3
+            sm:opacity-20`}
+            >
+              <YouTubeIcon width={300} height={300} />
+            </div>
+            <div className={`sm:col-span-2`}>
+              <h3 id="youtube" className="text-3xl font-bold scroll-mt-24">
+                <a
+                  href="#youtube"
+                  className="hover:underline decoration-white/50"
+                >
+                  TanStack on YouTube
+                </a>
+              </h3>
+              <p className={`mt-4`}>
+                The official TanStack YouTube channel. Tutorials, deep dives,
+                release walkthroughs, and more — free for everyone!
+              </p>
+            </div>
+            <div className={`flex items-center justify-center`}>
+              <Button
+                as="a"
+                href="https://youtube.com/@tan_stack"
+                target="_blank"
+                rel="noreferrer"
+                className="w-full mt-4 bg-white border-white hover:bg-gray-100 text-red-600 justify-center shadow-lg text-sm"
+              >
+                <Play className="w-4 h-4" />
+                Subscribe on YouTube
+              </Button>
+            </div>
+          </div>
+        </div>
+
         <div className="h-4" />
         <div className="px-4 mx-auto max-w-(--breakpoint-lg) relative">
           <Card className="rounded-md p-8 md:p-14">

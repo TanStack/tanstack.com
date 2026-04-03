@@ -2,11 +2,15 @@ import * as React from 'react'
 import { redirect, useNavigate, createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { createAuthorizationCode } from '~/utils/oauthClient.functions'
-import { getCurrentUser } from '~/utils/auth.server'
+import { getCurrentUser } from '~/utils/auth.functions'
 import { Card } from '~/components/Card'
 import { Button } from '~/ui'
 
-import { BrandContextMenu } from '~/components/BrandContextMenu'
+const LazyBrandContextMenu = React.lazy(() =>
+  import('~/components/BrandContextMenu').then((m) => ({
+    default: m.BrandContextMenu,
+  })),
+)
 
 /**
  * Validate redirect URI - must be localhost or HTTPS
@@ -137,18 +141,35 @@ export const Route = createFileRoute('/oauth/authorize')({
 function SplashImage() {
   return (
     <div className="flex items-center justify-center mb-4">
-      <BrandContextMenu className="cursor-pointer">
-        <img
-          src="/images/logos/splash-light.png"
-          alt="TanStack"
-          className="w-24 h-24 dark:hidden"
-        />
-        <img
-          src="/images/logos/splash-dark.png"
-          alt="TanStack"
-          className="w-24 h-24 hidden dark:block"
-        />
-      </BrandContextMenu>
+      <React.Suspense
+        fallback={
+          <div className="cursor-pointer">
+            <img
+              src="/images/logos/splash-light.png"
+              alt="TanStack"
+              className="w-24 h-24 dark:hidden"
+            />
+            <img
+              src="/images/logos/splash-dark.png"
+              alt="TanStack"
+              className="w-24 h-24 hidden dark:block"
+            />
+          </div>
+        }
+      >
+        <LazyBrandContextMenu className="cursor-pointer">
+          <img
+            src="/images/logos/splash-light.png"
+            alt="TanStack"
+            className="w-24 h-24 dark:hidden"
+          />
+          <img
+            src="/images/logos/splash-dark.png"
+            alt="TanStack"
+            className="w-24 h-24 hidden dark:block"
+          />
+        </LazyBrandContextMenu>
+      </React.Suspense>
     </div>
   )
 }

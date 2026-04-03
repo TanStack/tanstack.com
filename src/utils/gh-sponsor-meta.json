@@ -1,9 +1,15 @@
-﻿[
+[
   {
     "login": "wildfee",
     "name": "AI-Text-Humanizer.com",
     "imageUrl": "https://ai-text-humanizer.com/gfx/ai-text-humanizer-com-icon-2025-small.png",
     "linkUrl": "https://ai-text-humanizer.com/?utm_source=tanstack"
+  },
+  {
+    "login": "aihumanizer-io",
+    "name": "AI Humanizer",
+    "imageUrl": "https://aihumanizer.io/favicon.ico",
+    "linkUrl": "https://aihumanizer.io"
   },
   {
     "login": "rewriterprojs",
@@ -16,6 +22,12 @@
     "name": "Automatio AI",
     "imageUrl": "https://i.imgur.com/42qFfkw.png",
     "linkUrl": "https://automatio.ai"
+  },
+  {
+    "login": "homeworkaid",
+    "name": "Math Solver",
+    "imageUrl": "https://homeworkaid.ai/favicon.ico",
+    "linkUrl": "https://homeworkaid.ai/ai-math-solver"
   },
   {
     "login": "sanity-io",
@@ -285,7 +297,7 @@
   },
   {
     "login": "__github",
-    "name": "Github",
+    "name": "GitHub",
     "imageUrl": "https://github.githubassets.com/images/modules/logos_page/GitHub-Logo.png",
     "linkUrl": "https://github.com?utm_source=tanstack"
   },

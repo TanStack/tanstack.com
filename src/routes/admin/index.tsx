@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { hasCapability } from '~/db/types'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
-import { getUserStats, getSignupsChartData } from '~/utils/user-stats.server'
+import { getUserStats, getSignupsChartData } from '~/utils/user-stats.functions'
 import { getActivityStats, getLoginsChartData } from '~/utils/audit.functions'
 import {
   getActivityStatsAdmin,

@@ -654,26 +654,27 @@ export function ExplorerPanel() {
     const info = getFeatureInfo(featureId)
     const artifacts = featureArtifacts[featureId]
 
-    // Count added lines: new files + highlighted lines in injections
-    let addedLines = 0
-    if (artifacts) {
-      for (const content of Object.values(artifacts.files)) {
-        addedLines += content.split('\n').length
-      }
-      for (const injection of Object.values(artifacts.injections)) {
-        addedLines += injection.highlightedLines?.length || 0
-      }
-    }
+    const addedLines = artifacts
+      ? Object.values(artifacts.files).reduce(
+          (total, content) => total + content.split('\n').length,
+          0,
+        ) +
+        Object.values(artifacts.injections).reduce(
+          (total, injection) =>
+            total + (injection.highlightedLines?.length ?? 0),
+          0,
+        )
+      : 0
 
+    const featureName = info?.name ?? featureId
     const featureColor = info?.color ?? '#6b7280'
     const isSelected = selectedAddon === featureId
 
     return (
-      <button
+      <div
         key={featureId}
-        onClick={() => setSelectedAddon(featureId)}
         className={twMerge(
-          'w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-colors',
+          'w-full flex items-center gap-2 px-3 py-2 rounded-lg transition-colors',
           isSelected
             ? 'text-gray-900 dark:text-gray-100'
             : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700',
@@ -682,45 +683,50 @@ export function ExplorerPanel() {
           isSelected ? { backgroundColor: `${featureColor}20` } : undefined
         }
       >
-        <div
-          className="w-3 h-3 rounded-full shrink-0"
-          style={{ backgroundColor: featureColor }}
-        />
-        <div className="flex-1 min-w-0 text-xs font-medium truncate">
-          {info?.name || featureId}
-        </div>
-        <div className="flex items-center gap-1.5 shrink-0">
+        <button
+          type="button"
+          onClick={() => setSelectedAddon(featureId)}
+          className="flex flex-1 min-w-0 items-center gap-2 text-left"
+          aria-pressed={isSelected}
+        >
+          <span
+            className="w-3 h-3 rounded-full shrink-0"
+            style={{ backgroundColor: featureColor }}
+            aria-hidden="true"
+          />
+          <span className="flex-1 min-w-0 text-xs font-medium truncate">
+            {featureName}
+          </span>
           {addedLines > 0 && (
             <span className="text-[10px] font-bold tabular-nums text-emerald-600 dark:text-emerald-400">
               +{addedLines}
             </span>
           )}
-          {/* Remove button */}
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation()
-              toggleFeature(featureId)
-            }}
-            className="text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
-            title={`Remove ${info?.name || featureId}`}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => toggleFeature(featureId)}
+          className="shrink-0 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+          title={`Remove ${featureName}`}
+          aria-label={`Remove ${featureName}`}
+        >
+          <svg
+            className="w-3 h-3"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
           >
-            <svg
-              className="w-3 h-3"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
-      </button>
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
     )
   }
 

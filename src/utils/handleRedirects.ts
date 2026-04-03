@@ -3,24 +3,21 @@ import { redirect } from '@tanstack/react-router'
 type RedirectItem = { from: string; to: string }
 
 export function handleRedirects(
-  redirectItems: RedirectItem[],
+  redirectItems: Array<RedirectItem>,
   urlFromRequest: string,
   urlFromPathStart: string,
   urlToPathStart: string,
   urlToQueryParams: string,
 ) {
-  const url = new URL(
-    urlFromRequest,
-    import.meta.env.DEV ? 'http://localhost:3000' : 'https://tanstack.com',
-  )
+  const origin =
+    typeof window !== 'undefined'
+      ? window.location.origin
+      : 'https://tanstack.com'
+
+  const url = new URL(urlFromRequest, origin)
 
   redirectItems.forEach((item) => {
     if (url.pathname.startsWith(`${urlFromPathStart}/${item.from}`)) {
-      /*
-        We create a URL object from the destination route before
-        adding the query params to make sure that the URL hash
-        (#this-part) is preserved.
-      */
       const urlTo = new URL(`${url.origin}${urlToPathStart}/${item.to}`)
       urlTo.search = urlToQueryParams
 

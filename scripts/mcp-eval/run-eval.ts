@@ -111,27 +111,6 @@ async function searchDocs(
   const text = response.result?.content[0]?.text || '{}'
   return JSON.parse(text)
 }
-
-async function getDoc(
-  library: string,
-  path: string,
-): Promise<{ title: string; content: string } | null> {
-  try {
-    const response = await callMcp('get_doc', { library, path })
-    if (response.error) return null
-
-    const metaText = response.result?.content[0]?.text || '{}'
-    const contentText = response.result?.content[1]?.text || ''
-
-    return {
-      ...JSON.parse(metaText),
-      content: contentText,
-    }
-  } catch {
-    return null
-  }
-}
-
 function extractPathFromUrl(url: string): string {
   // Extract path from URL like https://tanstack.com/router/latest/docs/integrations/query
   // Also handle anchors like #some-section

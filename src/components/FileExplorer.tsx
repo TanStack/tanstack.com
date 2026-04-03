@@ -250,6 +250,36 @@ const RenderFileTree = (props: {
   currentPath: string | null
   setCurrentPath: (file: string) => void
 }) => {
+  const pendingPrefetchesRef = React.useRef<Record<string, number>>({})
+
+  const cancelPrefetch = (path: string) => {
+    const timeoutId = pendingPrefetchesRef.current[path]
+
+    if (timeoutId !== undefined) {
+      window.clearTimeout(timeoutId)
+      delete pendingPrefetchesRef.current[path]
+    }
+  }
+
+  const schedulePrefetch = (path: string) => {
+    cancelPrefetch(path)
+
+    pendingPrefetchesRef.current[path] = window.setTimeout(() => {
+      delete pendingPrefetchesRef.current[path]
+      props.prefetchFileContent(path)
+    }, 180)
+  }
+
+  React.useEffect(() => {
+    const pendingPrefetches = pendingPrefetchesRef.current
+
+    return () => {
+      for (const timeoutId of Object.values(pendingPrefetches)) {
+        window.clearTimeout(timeoutId)
+      }
+    }
+  }, [])
+
   if (!props.files) return null
 
   return (
@@ -282,15 +312,26 @@ const RenderFileTree = (props: {
           <div style={{ paddingLeft: getMarginLeft(file.depth) }}>
             <button
               onClick={() => {
+                cancelPrefetch(file.path)
+
                 if (file.type === 'dir') {
                   props.toggleFolder(file.path)
                 } else {
                   props.setCurrentPath(file.path)
                 }
               }}
-              onMouseEnter={() =>
-                file.type !== 'dir' && props.prefetchFileContent(file.path)
-              }
+              onMouseEnter={() => {
+                if (file.type !== 'dir') {
+                  schedulePrefetch(file.path)
+                }
+              }}
+              onFocus={() => {
+                if (file.type !== 'dir') {
+                  schedulePrefetch(file.path)
+                }
+              }}
+              onMouseLeave={() => cancelPrefetch(file.path)}
+              onBlur={() => cancelPrefetch(file.path)}
               className={twMerge(
                 `px-2 py-1.5 text-left w-full flex items-center gap-2 text-sm rounded transition-colors duration-200 min-w-0`,
                 props.currentPath === file.path

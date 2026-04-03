@@ -1,6 +1,7 @@
 ---
 title: Stop Re-Rendering. TanStack DB, the Embedded Client Database for TanStack Query
 published: 2025-07-30
+excerpt: Your React dashboard shouldn't grind to a halt because one TODO gets checked. TanStack DB is a client-side database powered by differential dataflow that plugs into your existing useQuery calls.
 authors:
   - Kyle Mathews
   - Sam Willis

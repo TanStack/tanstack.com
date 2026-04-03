@@ -9,10 +9,9 @@ import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
 import { Button } from '~/ui'
-import { PartnersSection } from '~/components/PartnersSection'
-import { MaintainersSection } from '~/components/MaintainersSection'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
+import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 
 const library = getLibrary('cli')
 
@@ -48,8 +47,11 @@ export default function CliLanding() {
         featureHighlights={cliProject.featureHighlights}
       />
 
-      <MaintainersSection libraryId="cli" />
-      <PartnersSection libraryId="cli" />
+      <LazyLandingCommunitySection
+        libraryId="cli"
+        libraryName="TanStack CLI"
+        showShowcases={false}
+      />
       <LazySponsorSection />
       <LandingPageGad />
 

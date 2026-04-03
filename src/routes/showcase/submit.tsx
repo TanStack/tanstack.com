@@ -1,7 +1,7 @@
 import { redirect, createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { ShowcaseSubmitForm } from '~/components/ShowcaseSubmitForm'
-import { requireAuth } from '~/utils/auth.server'
+import { requireAuth } from '~/utils/auth.functions'
 
 export const Route = createFileRoute('/showcase/submit')({
   beforeLoad: async () => {
@@ -9,7 +9,10 @@ export const Route = createFileRoute('/showcase/submit')({
       const user = await requireAuth()
       return { user }
     } catch {
-      throw redirect({ to: '/login', search: { redirect: '/showcase/submit' } })
+      throw redirect({
+        to: '/login',
+        search: { redirect: '/showcase/submit' },
+      })
     }
   },
   component: ShowcaseSubmitForm,

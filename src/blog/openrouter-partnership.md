@@ -1,6 +1,7 @@
 ---
 title: TanStack + OpenRouter Partnership
 published: 2026-03-09
+excerpt: OpenRouter is now an official TanStack sponsor. The most concrete result is already shipped — a first-class TanStack AI adapter giving you access to 300+ models from 60+ providers through a single API.
 authors:
   - Tanner Linsley
 ---

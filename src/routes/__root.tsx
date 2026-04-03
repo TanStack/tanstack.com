@@ -9,7 +9,12 @@ import {
 } from '@tanstack/react-router'
 import { QueryClient } from '@tanstack/react-query'
 import appCss from '~/styles/app.css?url'
-import { seo } from '~/utils/seo'
+import {
+  canonicalUrl,
+  getCanonicalPath,
+  seo,
+  shouldIndexPath,
+} from '~/utils/seo'
 import ogImage from '~/images/og.png'
 const LazyRouterDevtools = React.lazy(() =>
   import('@tanstack/react-router-devtools').then((m) => ({
@@ -18,9 +23,7 @@ const LazyRouterDevtools = React.lazy(() =>
 )
 import { NotFound } from '~/components/NotFound'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
-import { GamScripts } from '~/components/Gam'
-
-import { SearchProvider } from '~/contexts/SearchContext'
+import { SearchProvider, useSearchContext } from '~/contexts/SearchContext'
 import { ToastProvider } from '~/components/ToastProvider'
 import { LoginModalProvider } from '~/contexts/LoginModalContext'
 
@@ -32,6 +35,18 @@ import { ThemeProvider, useHtmlClass } from '~/components/ThemeProvider'
 import { Navbar } from '~/components/Navbar'
 import { THEME_COLORS } from '~/utils/utils'
 import { useHubSpotChat } from '~/hooks/useHubSpotChat'
+import { twMerge } from 'tailwind-merge'
+
+const GOOGLE_ANALYTICS_ID = 'G-JMT1Z50SPS'
+const GOOGLE_ANALYTICS_SCRIPT_SRC = `https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ANALYTICS_ID}`
+const GOOGLE_ANALYTICS_BOOTSTRAP = `window.dataLayer = window.dataLayer || [];window.gtag = window.gtag || function(){window.dataLayer.push(arguments);};window.gtag('js', new Date());window.gtag('config', '${GOOGLE_ANALYTICS_ID}');`
+
+declare global {
+  interface Window {
+    dataLayer: unknown[] | undefined
+    gtag: ((...args: unknown[]) => void) | undefined
+  }
+}
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
@@ -67,6 +82,13 @@ export const Route = createRootRouteWithContext<{
     links: [
       { rel: 'stylesheet', href: appCss },
       {
+        rel: 'preload',
+        href: '/fonts/Inter-latin.woff2',
+        as: 'font',
+        type: 'font/woff2',
+        crossOrigin: 'anonymous',
+      },
+      {
         rel: 'apple-touch-icon',
         sizes: '180x180',
         href: '/apple-touch-icon.png',
@@ -85,28 +107,18 @@ export const Route = createRootRouteWithContext<{
       },
       { rel: 'manifest', href: '/site.webmanifest', color: '#fffff' },
       { rel: 'icon', href: '/favicon.ico' },
-      {
-        rel: 'preload',
-        href: '/fonts/Inter.woff2',
-        as: 'font',
-        type: 'font/woff2',
-        crossOrigin: '',
-      },
     ],
     scripts: [
       // Theme detection script - must run before body renders to prevent flash
       {
         children: `(function(){try{var t=localStorage.getItem('theme')||'auto';var v=['light','dark','auto'].includes(t)?t:'auto';if(v==='auto'){var a=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.classList.add(a,'auto')}else{document.documentElement.classList.add(v)}}catch(e){var a=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.classList.add(a,'auto')}})()`,
       },
-      // Google Tag Manager script
       {
-        children: `
-          (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-          new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-          'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-          })(window,document,'script','dataLayer','GTM-5N57KQT4');
-        `,
+        async: true,
+        src: GOOGLE_ANALYTICS_SCRIPT_SRC,
+      },
+      {
+        children: GOOGLE_ANALYTICS_BOOTSTRAP,
       },
     ],
   }),
@@ -147,15 +159,17 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
   // HubSpot chat loads on configured pages (see useHubSpotChat hook)
   useHubSpotChat()
 
-  const isLoading = useRouterState({
-    select: (s) => s.status === 'pending',
+  const isNavigating = useRouterState({
+    select: (s) => s.isLoading || s.isTransitioning,
   })
 
-  const [canShowLoading, setShowLoading] = React.useState(false)
+  const [canShowDevtools, setCanShowDevtools] = React.useState(false)
+  const [showNavigationSpinner, setShowNavigationSpinner] =
+    React.useState(false)
 
   React.useEffect(() => {
     const timeout = setTimeout(() => {
-      setShowLoading(true)
+      setCanShowDevtools(true)
     }, 2000)
 
     return () => {
@@ -163,11 +177,32 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
+  React.useEffect(() => {
+    if (!isNavigating) {
+      setShowNavigationSpinner(false)
+      return
+    }
+
+    const timeout = window.setTimeout(() => {
+      setShowNavigationSpinner(true)
+    }, 1000)
+
+    return () => {
+      window.clearTimeout(timeout)
+    }
+  }, [isNavigating])
+
   const isRouterPage = useRouterState({
     select: (s) => s.resolvedLocation?.pathname.startsWith('/router'),
   })
 
-  const showDevtools = canShowLoading && isRouterPage
+  const canonicalPath = useRouterState({
+    select: (s) => s.resolvedLocation?.pathname || '/',
+  })
+
+  const preferredCanonicalPath = getCanonicalPath(canonicalPath)
+
+  const showDevtools = canShowDevtools && isRouterPage
 
   const hideNavbar = useMatches({
     select: (s) => s.some((d) => d.staticData?.showNavbar === false),
@@ -178,52 +213,120 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={htmlClass} suppressHydrationWarning>
       <head>
+        {preferredCanonicalPath ? (
+          <link rel="canonical" href={canonicalUrl(preferredCanonicalPath)} />
+        ) : null}
+        {!shouldIndexPath(canonicalPath) ? (
+          <meta name="robots" content="noindex, nofollow" />
+        ) : null}
         <HeadContent />
         {hasBaseParent ? <base target="_parent" /> : null}
-        <GamScripts />
       </head>
       <body className="overflow-x-hidden">
         <LoginModalProvider>
           <ToastProvider>
+            <GoogleAnalyticsTracker />
             {hideNavbar ? children : <Navbar>{children}</Navbar>}
             {showDevtools ? (
               <LazyRouterDevtools position="bottom-right" />
             ) : null}
-            {canShowLoading ? (
+            <div
+              aria-hidden="true"
+              className={twMerge(
+                'pointer-events-none fixed top-0 left-0 z-99999999 h-[320px] w-full select-none',
+              )}
+            >
               <div
-                className={`fixed top-0 left-0 h-[300px] w-full
-        transition-all duration-300 pointer-events-none
-        z-30 dark:h-[200px] dark:bg-white/10! dark:rounded-[100%] ${
-          isLoading
-            ? 'delay-500 opacity-1 -translate-y-1/2'
-            : 'delay-0 opacity-0 -translate-y-full'
-        }`}
-                style={{
-                  background: `radial-gradient(closest-side, rgba(0,10,40,0.2) 0%, rgba(0,0,0,0) 100%)`,
-                }}
+                className={twMerge(
+                  'absolute top-0 w-full h-80 rounded-[100%] bg-amber-500/30 blur-3xl transition-all duration-500 dark:bg-sky-400/25',
+                  showNavigationSpinner
+                    ? '-translate-y-1/2 opacity-100'
+                    : '-translate-y-full opacity-0',
+                )}
+              />
+              <div
+                className={twMerge(
+                  'absolute top-6 left-1/2 -translate-x-1/2 rounded-full bg-white/75 p-2 shadow-lg backdrop-blur-lg transition-all duration-300 dark:bg-slate-900/40',
+                  showNavigationSpinner
+                    ? 'translate-y-0 opacity-100'
+                    : '-translate-y-6 opacity-0',
+                )}
               >
-                <div
-                  className={`absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-[30px] p-2 bg-white/80 dark:bg-gray-800
-        rounded-lg shadow-lg`}
-                >
-                  <Spinner className="text-5xl" />
-                </div>
+                <Spinner className="text-4xl" />
               </div>
-            ) : null}
-            <LazySearchModal />
+            </div>
+            <SearchHotkeyController />
           </ToastProvider>
         </LoginModalProvider>
-        <noscript>
-          <iframe
-            src="https://www.googletagmanager.com/ns.html?id=GTM-5N57KQT4"
-            height="0"
-            width="0"
-            style={{ display: 'none', visibility: 'hidden' }}
-            title="gtm"
-          ></iframe>
-        </noscript>
         <Scripts />
       </body>
     </html>
   )
+}
+
+function SearchHotkeyController() {
+  const { isOpen, openSearch } = useSearchContext()
+  const [hasOpenedSearch, setHasOpenedSearch] = React.useState(false)
+
+  React.useEffect(() => {
+    const handleGlobalKeyDown = (event: KeyboardEvent) => {
+      if (event.defaultPrevented) return
+      if (!(event.metaKey || event.ctrlKey)) return
+      if (event.key.toLowerCase() !== 'k') return
+
+      event.preventDefault()
+      setHasOpenedSearch(true)
+      openSearch()
+    }
+
+    window.addEventListener('keydown', handleGlobalKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleGlobalKeyDown)
+    }
+  }, [openSearch])
+
+  React.useEffect(() => {
+    if (isOpen) {
+      setHasOpenedSearch(true)
+    }
+  }, [isOpen])
+
+  if (!hasOpenedSearch) return null
+
+  return (
+    <React.Suspense fallback={null}>
+      <LazySearchModal />
+    </React.Suspense>
+  )
+}
+
+function GoogleAnalyticsTracker() {
+  const pagePath = useRouterState({
+    select: (s) => {
+      const pathname = s.resolvedLocation?.pathname || '/'
+      const search = s.resolvedLocation?.searchStr || ''
+
+      return `${pathname}${search}`
+    },
+  })
+  const hasTrackedInitialPage = React.useRef(false)
+
+  React.useEffect(() => {
+    if (!window.gtag) {
+      return
+    }
+
+    if (!hasTrackedInitialPage.current) {
+      hasTrackedInitialPage.current = true
+      return
+    }
+
+    window.gtag('event', 'page_view', {
+      page_title: document.title,
+      page_path: pagePath,
+      page_location: window.location.href,
+    })
+  }, [pagePath])
+
+  return null
 }

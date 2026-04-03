@@ -79,12 +79,17 @@ function setContainerPromise(promise: Promise<WebContainer> | null) {
 function cleanTerminalLine(data: string): string {
   let cleaned = data
   // Remove ANSI escape sequences
+  // eslint-disable-next-line no-control-regex
   cleaned = cleaned.replace(/\u001b\[[0-9;]*[a-zA-Z]/g, '')
+  // eslint-disable-next-line no-control-regex
   cleaned = cleaned.replace(/\u001b\][0-9;]*;[^\u0007]*\u0007/g, '')
+  // eslint-disable-next-line no-control-regex
   cleaned = cleaned.replace(/\u001b[=>]/g, '')
   // Remove control characters
   cleaned = cleaned.replace(/\r/g, '')
+
   cleaned = cleaned.replace(
+    // eslint-disable-next-line no-control-regex
     /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f]/g,
     '',
   )

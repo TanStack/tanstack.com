@@ -1,6 +1,7 @@
 ---
 title: TanStack DB 0.5 .  Query-Driven Sync
 published: 2025-11-12
+excerpt: Your component's query is now the API call. No custom endpoint, no GraphQL resolver, no backend change. TanStack DB 0.5 introduces query-driven sync that eliminates the glue code between your UI and your data.
 authors:
   - Sam Willis
   - Kevin De Porre

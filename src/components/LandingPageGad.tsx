@@ -1,12 +1,4 @@
-import { GamFooter } from './Gam'
-import { AdGate } from '~/contexts/AdsContext'
-
+// Landing page ad slot — disabled for now, reserved for future partner campaigns.
 export default function LandingPageGad() {
-  return (
-    <AdGate>
-      <div className={`lg:max-[400px] px-4 mx-auto flex justify-center`}>
-        <GamFooter />
-      </div>
-    </AdGate>
-  )
+  return null
 }

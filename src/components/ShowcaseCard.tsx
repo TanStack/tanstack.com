@@ -46,6 +46,9 @@ export function ShowcaseCard({
           <img
             src={showcase.screenshotUrl}
             alt={showcase.name}
+            loading="lazy"
+            decoding="async"
+            fetchPriority="low"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
           {/* Logo overlay */}
@@ -54,6 +57,8 @@ export function ShowcaseCard({
               <img
                 src={showcase.logoUrl}
                 alt=""
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover"
               />
             </div>

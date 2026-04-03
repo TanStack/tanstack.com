@@ -11,7 +11,7 @@ import { useLoginModal } from '~/contexts/LoginModalContext'
 import {
   findReferenceableBlocks,
   getBlockIdentifier,
-} from '~/utils/docFeedback.client'
+} from '~/utils/docFeedback'
 import type { DocFeedback } from '~/db/types'
 import { Lightbulb, MessageSquare } from 'lucide-react'
 

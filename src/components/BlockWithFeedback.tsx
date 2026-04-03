@@ -3,7 +3,7 @@ import { twMerge } from 'tailwind-merge'
 import { DocFeedbackFloatingButton } from './DocFeedbackFloatingButton'
 import { DocFeedbackNote } from './DocFeedbackNote'
 import { useDocFeedbackRequired } from './DocFeedbackContext'
-import { getBlockIdentifier } from '~/utils/docFeedback.client'
+import { getBlockIdentifier } from '~/utils/docFeedback'
 
 interface BlockWithFeedbackProps {
   children: React.ReactNode

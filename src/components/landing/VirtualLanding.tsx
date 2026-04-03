@@ -12,12 +12,11 @@ import { StackBlitzEmbed } from '~/components/StackBlitzEmbed'
 import { FrameworkIconTabs } from '~/components/FrameworkIconTabs'
 import { Framework, getBranch } from '~/libraries'
 import LandingPageGad from '~/components/LandingPageGad'
-import { PartnersSection } from '~/components/PartnersSection'
-import { MaintainersSection } from '~/components/MaintainersSection'
 import { LibraryTestimonials } from '~/components/LibraryTestimonials'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
-import { CodeExampleCard } from '~/components/CodeExampleCard'
+import { LazyCodeExampleCard } from '~/components/LazyCodeExampleCard'
+import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 
 const library = getLibrary('virtual')
 
@@ -146,7 +145,7 @@ export default function VirtualLanding() {
 
       <LibraryStatsSection library={library} />
 
-      <CodeExampleCard
+      <LazyCodeExampleCard
         frameworks={virtualProject.frameworks}
         codeByFramework={codeExamples}
       />
@@ -218,8 +217,11 @@ export default function VirtualLanding() {
         </div>
       </div>
 
-      <MaintainersSection libraryId="virtual" />
-      <PartnersSection libraryId="virtual" />
+      <LazyLandingCommunitySection
+        libraryId="virtual"
+        libraryName="TanStack Virtual"
+        showShowcases={false}
+      />
       <LazySponsorSection />
       <LandingPageGad />
 

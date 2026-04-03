@@ -86,6 +86,7 @@ export function PackageManagerTabs({
     <div className="package-manager-tabs">
       <Tabs
         tabs={tabs}
+        /* eslint-disable-next-line react/no-children-prop */
         children={children}
         activeSlug={selectedPackageManager}
         onTabChange={(slug) => setPackageManager(slug as PackageManager)}

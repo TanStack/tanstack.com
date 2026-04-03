@@ -3,7 +3,7 @@ import * as v from 'valibot'
 import { seo } from '~/utils/seo'
 import { ShowcaseModerationPage } from '~/components/ShowcaseModerationPage'
 import { listShowcasesForModerationQueryOptions } from '~/queries/showcases'
-import { requireCapability } from '~/utils/auth.server'
+import { requireCapability } from '~/utils/auth.functions'
 import { libraryIdSchema, showcaseStatusSchema } from '~/utils/schemas'
 
 const searchSchema = v.object({

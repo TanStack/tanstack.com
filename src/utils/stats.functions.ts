@@ -84,14 +84,67 @@ function scrapeGitHubDependentCount(repo: string): Promise<number | undefined> {
   return scrapeGitHubCount(repo, 'a[href$="/network/dependents"]', 'dependent')
 }
 
-function scrapeGitHubContributorCount(
+async function scrapeGitHubContributorCount(
   repo: string,
+  maxRetries: number = 3,
 ): Promise<number | undefined> {
-  return scrapeGitHubCount(
-    repo,
-    'a[href$="/graphs/contributors"]',
-    'contributor',
+  const repoName = repo.split('/')[1]
+
+  if (!repoName) {
+    return undefined
+  }
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await fetch(
+        `https://github.com/${repo}/contributors_list?current_repository=${repoName}&deferred=true`,
+        {
+          headers: {
+            'User-Agent': 'TanStack-Stats',
+            Accept: 'text/html',
+          },
+        },
+      )
+
+      if (!response.ok) {
+        console.warn(
+          `[GitHub Scraper] Failed to fetch contributors fragment for ${repo} (${response.status}), attempt ${attempt}/${maxRetries}`,
+        )
+        continue
+      }
+
+      const html = await response.text()
+      const $ = cheerio.load(html)
+      const count = $('a[href$="/graphs/contributors"] span.Counter')
+        .first()
+        .attr('title')
+
+      const parsedCount = parseNumber(count)
+
+      if (parsedCount !== undefined) {
+        return parsedCount
+      }
+
+      console.warn(
+        `[GitHub Scraper] No contributor count found for ${repo}, attempt ${attempt}/${maxRetries}`,
+      )
+    } catch (error) {
+      console.error(
+        `[GitHub Scraper] Error scraping contributors for ${repo}, attempt ${attempt}/${maxRetries}:`,
+        error instanceof Error ? error.message : String(error),
+      )
+    }
+
+    if (attempt < maxRetries) {
+      const waitTime = Math.pow(2, attempt) * 1000
+      await new Promise((resolve) => setTimeout(resolve, waitTime))
+    }
+  }
+
+  console.warn(
+    `[GitHub Scraper] Failed to scrape contributor count for ${repo} after ${maxRetries} attempts`,
   )
+  return undefined
 }
 
 /**
@@ -831,8 +884,11 @@ export async function computeNpmOrgStats(org: string): Promise<NpmStats> {
  */
 export async function refreshNpmOrgStats(org: string): Promise<NpmStats> {
   // Import db functions dynamically to avoid pulling server code into client bundle
-  const { discoverAndRegisterPackages, setCachedNpmOrgStats } =
-    await import('./stats-db.server')
+  const {
+    discoverAndRegisterPackages,
+    setCachedNpmOrgStats,
+    rebuildOssStatsCache,
+  } = await import('./stats-db.server')
 
   // First, discover and register all packages
   try {
@@ -850,6 +906,7 @@ export async function refreshNpmOrgStats(org: string): Promise<NpmStats> {
   // Rebuild library caches after full refresh
   const { rebuildLibraryCaches } = await import('./stats-db.server')
   await rebuildLibraryCaches()
+  await rebuildOssStatsCache(org)
 
   return stats
 }
@@ -863,7 +920,8 @@ export async function refreshGitHubOrgStats(org: string): Promise<{
   libraryResults: Array<{ repo: string; stars: number }>
   libraryErrors: Array<{ repo: string; error: string }>
 }> {
-  const { setCachedGitHubStats } = await import('./stats-db.server')
+  const { setCachedGitHubStats, rebuildOssStatsCache } =
+    await import('./stats-db.server')
 
   // Refresh GitHub org stats
   console.log('[GitHub Stats] Refreshing GitHub org stats...')
@@ -928,6 +986,8 @@ export async function refreshGitHubOrgStats(org: string): Promise<{
       })
     }
   }
+
+  await rebuildOssStatsCache(org)
 
   return {
     orgStats: githubStats,

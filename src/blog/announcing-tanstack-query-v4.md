@@ -1,6 +1,7 @@
 ---
 title: Announcing TanStack Query v4
 published: 2022-07-14
+excerpt: The next version of TanStack Query is here. The rebranding and monorepo restructuring finally allows us to bring the joy of react-query to other frameworks like Vue, Svelte, and Solid.
 authors:
   - Dominik Dorfmeister
 ---

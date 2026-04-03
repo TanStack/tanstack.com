@@ -203,9 +203,27 @@ function PageComponent() {
 
   const prefetchFileContent = React.useCallback(
     (path: string) => {
+      if (path === currentPath) {
+        return
+      }
+
+      const queryState = queryClient.getQueryState([
+        'currentCode',
+        library.repo,
+        branch,
+        path,
+      ])
+
+      if (
+        queryState?.status === 'success' ||
+        queryState?.fetchStatus === 'fetching'
+      ) {
+        return
+      }
+
       queryClient.prefetchQuery(fileQueryOptions(library.repo, branch, path))
     },
-    [queryClient, library.repo, branch],
+    [queryClient, library.repo, branch, currentPath],
   )
 
   // Update local storage when tab changes
@@ -286,7 +304,7 @@ function PageComponent() {
               className="flex gap-1 items-center"
               rel="noreferrer"
             >
-              <ExternalLink /> Github
+              <ExternalLink /> GitHub
             </a>
             {!library.hideStackblitzUrl ? (
               <a

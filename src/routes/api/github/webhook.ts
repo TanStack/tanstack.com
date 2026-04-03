@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { isWatchedDocsWebhookSource } from "~/utils/docs-webhook-sources";
 
 type PushEventPayload = {
   ref: string;
@@ -104,6 +105,17 @@ export const Route = createFileRoute("/api/github/webhook")({
         }
 
         const gitRef = payload.ref.replace(/^refs\/heads\//, "");
+
+        if (!isWatchedDocsWebhookSource(payload.repository.full_name, gitRef)) {
+          return Response.json({
+            ok: true,
+            ignored: true,
+            reason: "unwatched repo/ref",
+            repo: payload.repository.full_name,
+            gitRef,
+          });
+        }
+
         const changedPaths = Array.from(
           new Set(
             payload.commits.flatMap((commit) => [

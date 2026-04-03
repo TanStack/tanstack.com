@@ -3,9 +3,14 @@ import { SquarePen } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { DocTitle } from '~/components/DocTitle'
 import { Markdown } from './Markdown'
-import { CopyPageDropdown } from '~/components/CopyPageDropdown'
 import { DocFeedbackProvider } from '~/components/DocFeedbackProvider'
 import { Button } from '~/ui'
+
+const LazyCopyPageDropdown = React.lazy(() =>
+  import('~/components/CopyPageDropdown').then((m) => ({
+    default: m.CopyPageDropdown,
+  })),
+)
 
 type MarkdownContentProps = {
   title: string
@@ -45,6 +50,35 @@ export function MarkdownContent({
   pagePath,
   currentFramework,
 }: MarkdownContentProps) {
+  const [canLoadCopyControls, setCanLoadCopyControls] = React.useState(false)
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    if (typeof window.requestIdleCallback === 'function') {
+      const idleId = window.requestIdleCallback(
+        () => {
+          setCanLoadCopyControls(true)
+        },
+        { timeout: 2500 },
+      )
+
+      return () => {
+        window.cancelIdleCallback(idleId)
+      }
+    }
+
+    const timeout = window.setTimeout(() => {
+      setCanLoadCopyControls(true)
+    }, 2500)
+
+    return () => {
+      window.clearTimeout(timeout)
+    }
+  }, [])
+
   const renderMarkdownContent = () => {
     const markdownElement = htmlMarkup ? (
       <Markdown htmlMarkup={htmlMarkup} />
@@ -72,13 +106,31 @@ export function MarkdownContent({
       {title ? (
         <div className="flex flex-wrap items-center justify-between gap-2">
           <DocTitle>{title}</DocTitle>
-          <div className="flex items-center gap-2 shrink-0">
-            <CopyPageDropdown
-              repo={repo}
-              branch={branch}
-              filePath={filePath}
-              currentFramework={currentFramework}
-            />
+          <div
+            className="flex items-center gap-2 shrink-0"
+            onFocusCapture={() => {
+              setCanLoadCopyControls(true)
+            }}
+            onPointerEnter={() => {
+              setCanLoadCopyControls(true)
+            }}
+          >
+            {canLoadCopyControls ? (
+              <React.Suspense
+                fallback={
+                  <Button variant="ghost" size="xs" disabled>
+                    Copy page
+                  </Button>
+                }
+              >
+                <LazyCopyPageDropdown
+                  repo={repo}
+                  branch={branch}
+                  filePath={filePath}
+                  currentFramework={currentFramework}
+                />
+              </React.Suspense>
+            ) : null}
             {titleBarActions}
           </div>
         </div>

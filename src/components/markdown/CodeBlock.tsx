@@ -38,29 +38,9 @@ async function getHighlighter(language: string): Promise<{
   if (!highlighterPromise) {
     highlighterPromise = createHighlighter({
       themes: ['github-light', 'aurora-x'],
-      langs: [
-        'typescript',
-        'javascript',
-        'tsx',
-        'jsx',
-        'bash',
-        'json',
-        'html',
-        'css',
-        'markdown',
-        'plaintext',
-        'toml',
-        'yaml',
-        'sql',
-        'diff',
-        'vue',
-        'svelte',
-        'scss',
-        'jsonc',
-        'vue-html',
-        'angular-html',
-        'angular-ts',
-      ],
+      // Load languages on demand so docs pages do not eagerly fetch every
+      // grammar during initial render.
+      langs: ['plaintext'],
     })
   }
 

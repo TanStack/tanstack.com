@@ -68,6 +68,41 @@ export default defineConfig({
       },
       output: {
         manualChunks: (id) => {
+          // Keep the app shell and docs runtime from shattering into dozens of
+          // tiny eagerly preloaded chunks.
+          if (
+            id.includes('/src/components/Navbar') ||
+            id.includes('/src/components/Theme') ||
+            id.includes('/src/components/SearchButton') ||
+            id.includes('/src/components/NetlifyImage') ||
+            id.includes('/src/components/Card') ||
+            id.includes('/src/components/Footer') ||
+            id.includes('/src/components/ToastProvider') ||
+            id.includes('/src/components/icons/') ||
+            id.includes('/src/contexts/SearchContext') ||
+            id.includes('/src/hooks/useCurrentUser') ||
+            id.includes('/src/hooks/useCapabilities') ||
+            id.includes('/src/libraries/libraries.ts') ||
+            id.includes('/src/ui/')
+          ) {
+            return 'app-shell'
+          }
+
+          if (
+            id.includes('/node_modules/@tanstack/react-router') ||
+            id.includes('/node_modules/@tanstack/router-core') ||
+            id.includes('/node_modules/@tanstack/history')
+          ) {
+            return 'tanstack-router'
+          }
+
+          if (
+            id.includes('/node_modules/@tanstack/react-query') ||
+            id.includes('/node_modules/@tanstack/query-core')
+          ) {
+            return 'tanstack-query'
+          }
+
           // Vendor chunk splitting for better caching
           if (id.includes('node_modules')) {
             // Lucide icons (tree-shaken but still significant)

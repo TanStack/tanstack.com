@@ -17,6 +17,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
+    "docs:webhooks:plan": "tsx scripts/sync-docs-webhooks.ts --dry-run",
+    "docs:webhooks:sync": "tsx scripts/sync-docs-webhooks.ts",
     "husky": "pnpm run format && pnpm run test",
     "test": "run-p test:tsc test:imports test:lint test:smoke",
     "test:imports": "pnpm test:imports:api && pnpm test:imports:client",

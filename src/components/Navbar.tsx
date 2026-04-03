@@ -3,11 +3,15 @@ import { twMerge } from 'tailwind-merge'
 const LazyBrandContextMenu = React.lazy(() =>
   import('./BrandContextMenu').then((m) => ({ default: m.BrandContextMenu })),
 )
+const LazyNavbarAuthControls = React.lazy(() =>
+  import('./NavbarAuthControls').then((m) => ({
+    default: m.NavbarAuthControls,
+  })),
+)
 import {
   Link,
   useLocation,
   useMatches,
-  useNavigate,
 } from '@tanstack/react-router'
 import { NetlifyImage } from './NetlifyImage'
 import {
@@ -30,19 +34,11 @@ import {
 import { ThemeToggle } from './ThemeToggle'
 import { SearchButton } from './SearchButton'
 import {
-  Authenticated,
-  Unauthenticated,
-  AuthLoading,
-} from '~/components/AuthComponents'
-import {
   libraries,
   findLibrary,
   SIDEBAR_LIBRARY_IDS,
   type LibrarySlim,
 } from '~/libraries'
-import { ADMIN_ACCESS_CAPABILITIES } from '~/db/types'
-import { useCapabilities } from '~/hooks/useCapabilities'
-import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useClickOutside } from '~/hooks/useClickOutside'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { DiscordIcon } from '~/components/icons/DiscordIcon'
@@ -50,13 +46,6 @@ import { InstagramIcon } from '~/components/icons/InstagramIcon'
 import { BSkyIcon } from '~/components/icons/BSkyIcon'
 import { BrandXIcon } from '~/components/icons/BrandXIcon'
 import { YouTubeIcon } from '~/components/icons/YouTubeIcon'
-const LazyAuthenticatedUserMenu = React.lazy(() =>
-  import('~/components/AuthenticatedUserMenu').then((m) => ({
-    default: m.AuthenticatedUserMenu,
-  })),
-)
-import { authClient } from '~/auth/client'
-import { useToast } from '~/components/ToastProvider'
 
 import { Card } from '~/components/Card'
 
@@ -152,23 +141,6 @@ const MobileCard = ({
 
 export function Navbar({ children }: { children: React.ReactNode }) {
   const matches = useMatches()
-  const capabilities = useCapabilities()
-  const user = useCurrentUser()
-  const navigate = useNavigate()
-  const { notify } = useToast()
-
-  const signOut = async () => {
-    await authClient.signOut()
-    navigate({ to: '/login' })
-    notify(
-      <div>
-        <div className="font-medium">Signed out</div>
-        <div className="text-gray-500 dark:text-gray-400 text-xs">
-          You have been logged out
-        </div>
-      </div>,
-    )
-  }
 
   const { Title, library } = React.useMemo(() => {
     const match = [...matches].reverse().find((m) => m.staticData.Title)
@@ -180,12 +152,6 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       library: libraryId ? findLibrary(libraryId) : null,
     }
   }, [matches])
-
-  const canAdmin = capabilities.some((cap) =>
-    (ADMIN_ACCESS_CAPABILITIES as readonly string[]).includes(cap),
-  )
-
-  const canApiKeys = !!user // Any logged-in user can access API keys
 
   const containerRef = React.useRef<HTMLDivElement>(null)
 
@@ -209,8 +175,36 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   }, [])
 
   const [showMenu, setShowMenu] = React.useState(false)
+  const [canLoadAuthControls, setCanLoadAuthControls] = React.useState(false)
   const largeMenuRef = React.useRef<HTMLDivElement>(null)
   const menuButtonRef = React.useRef<HTMLButtonElement>(null)
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    if (typeof window.requestIdleCallback === 'function') {
+      const idleId = window.requestIdleCallback(
+        () => {
+          setCanLoadAuthControls(true)
+        },
+        { timeout: 3000 },
+      )
+
+      return () => {
+        window.cancelIdleCallback(idleId)
+      }
+    }
+
+    const timeout = window.setTimeout(() => {
+      setCanLoadAuthControls(true)
+    }, 3000)
+
+    return () => {
+      window.clearTimeout(timeout)
+    }
+  }, [])
 
   // Close mobile menu when clicking outside
   const smallMenuRef = useClickOutside<HTMLDivElement>({
@@ -219,42 +213,18 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     additionalRefs: [largeMenuRef, menuButtonRef],
   })
 
-  const loginButton = (
-    <>
-      {(() => {
-        const loginEl = (
-          <Link
-            to="/login"
-            aria-label="Log In"
-            className="flex shrink-0 items-center gap-1 rounded-md px-2 py-1.5 whitespace-nowrap
+  const loginButtonFallback = (
+    <Link
+      to="/login"
+      aria-label="Log In"
+      className="flex shrink-0 items-center gap-1 rounded-md px-2 py-1.5 whitespace-nowrap
              bg-black dark:bg-white text-white dark:text-black
              hover:bg-gray-800 dark:hover:bg-gray-200
              transition-colors duration-200 text-xs font-medium"
-          >
-            <User className="w-3.5 h-3.5" />
-            <span className="hidden min-[430px]:inline">Log In</span>
-          </Link>
-        )
-
-        return (
-          <>
-            <AuthLoading>{loginEl}</AuthLoading>
-            <Unauthenticated>{loginEl}</Unauthenticated>
-          </>
-        )
-      })()}
-
-      <Authenticated>
-        <React.Suspense fallback={<div className="w-[26px] h-[26px]" />}>
-          <LazyAuthenticatedUserMenu
-            user={user ?? null}
-            canAdmin={canAdmin}
-            canApiKeys={canApiKeys}
-            onSignOut={signOut}
-          />
-        </React.Suspense>
-      </Authenticated>
-    </>
+    >
+      <User className="w-3.5 h-3.5" />
+      <span className="hidden min-[430px]:inline">Log In</span>
+    </Link>
   )
 
   const socialLinks = (
@@ -354,7 +324,15 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           <SearchButton />
         </div>
         <ThemeToggle />
-        <div className="flex items-center gap-2">{loginButton}</div>
+        <div className="flex items-center gap-2">
+          {canLoadAuthControls ? (
+            <React.Suspense fallback={loginButtonFallback}>
+              <LazyNavbarAuthControls />
+            </React.Suspense>
+          ) : (
+            loginButtonFallback
+          )}
+        </div>
       </div>
     </div>
   )

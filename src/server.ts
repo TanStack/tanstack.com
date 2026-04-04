@@ -28,13 +28,14 @@ export default createServerEntry(
             url.pathname.includes('/docs/') &&
             !url.pathname.endsWith('.md')
           ) {
-            logRequestEnd(context, 303, { redirectToMarkdown: true })
-            return new Response(null, {
-              status: 303,
-              headers: {
-                Location: `${url.pathname}.md`,
-              },
+            const mdUrl = new URL(request.url)
+            mdUrl.pathname = `${url.pathname}.md`
+            const mdRequest = new Request(mdUrl, request)
+            const mdResponse = await handler.fetch(mdRequest)
+            logRequestEnd(context, mdResponse.status, {
+              rewrittenToMarkdown: true,
             })
+            return mdResponse
           }
 
           const response = await handler.fetch(request)

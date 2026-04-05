@@ -81,7 +81,7 @@ git clone git@github.com:TanStack/form.git
 ```sh
 cd tanstack.com
 pnpm i
-# The app will run on https://localhost:3000 by default
+# The app will run on http://localhost:3000 by default
 pnpm dev
 ```
 

@@ -7,6 +7,7 @@
   "type": "module",
   "scripts": {
     "dev": "pnpm run with-env vite dev",
+    "auth:login": "tsx scripts/auth-login.ts",
     "with-env": "dotenv -e ../../.env",
     "dev:frontend": "pnpm run with-env vite dev",
     "build": "vite build && cp src/instrument.server.mjs dist/server",

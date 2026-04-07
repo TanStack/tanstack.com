@@ -316,7 +316,7 @@ function FeatureCard({ feature, categoryColor }: FeatureCardProps) {
       onClick={handleClick}
       disabled={isDisabled}
       className={twMerge(
-        'relative w-full flex items-center gap-3 p-3 rounded-lg border text-left transition-all',
+        'relative w-full h-full flex items-center gap-3 p-3 rounded-lg border text-left transition-all',
         selected
           ? 'border-current'
           : enabled

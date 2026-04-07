@@ -1,5 +1,5 @@
 ---
-title: "Code Mode: Let Your AI Write Programs, Not Just Call Tools"
+title: 'Code Mode: Let Your AI Write Programs, Not Just Call Tools'
 published: 2026-04-08
 excerpt: One tool call at a time is the bottleneck. TanStack AI Code Mode lets the LLM write and execute TypeScript programs in secure sandboxes, composing your tools with loops, conditionals, and Promise.all in a single shot.
 authors:
@@ -51,21 +51,21 @@ Without Code Mode, the LLM calls `getTopProducts`, waits for the result, then ca
 With Code Mode, the LLM writes this:
 
 ```typescript
-const top = await external_getTopProducts({ limit: 5 });
+const top = await external_getTopProducts({ limit: 5 })
 
 const ratings = await Promise.all(
   top.products.map((p) => external_getProductRatings({ productId: p.id })),
-);
+)
 
 return top.products.map((product, i) => {
-  const scores = ratings[i].ratings.map((r) => r.score);
-  const avg = scores.reduce((sum, s) => sum + s, 0) / scores.length;
+  const scores = ratings[i].ratings.map((r) => r.score)
+  const avg = scores.reduce((sum, s) => sum + s, 0) / scores.length
   return {
     name: product.name,
     sales: product.totalSales,
     averageRating: Math.round(avg * 100) / 100,
-  };
-});
+  }
+})
 ```
 
 One tool call. Five API fetches in parallel. Math computed in JavaScript, not in the model. The averages are correct to the penny. The context window savings compound fast: every round-trip you eliminate is hundreds of tokens you don't spend.
@@ -100,43 +100,43 @@ pnpm add @tanstack/ai-isolate-cloudflare
 Same `toolDefinition()` API you already use. Nothing changes here:
 
 ```typescript
-import { toolDefinition } from "@tanstack/ai";
-import { z } from "zod";
+import { toolDefinition } from '@tanstack/ai'
+import { z } from 'zod'
 
 const fetchWeather = toolDefinition({
-  name: "fetchWeather",
-  description: "Get current weather for a city",
+  name: 'fetchWeather',
+  description: 'Get current weather for a city',
   inputSchema: z.object({ location: z.string() }),
   outputSchema: z.object({
     temperature: z.number(),
     condition: z.string(),
   }),
 }).server(async ({ location }) => {
-  const res = await fetch(`https://api.weather.example/v1?city=${location}`);
-  return res.json();
-});
+  const res = await fetch(`https://api.weather.example/v1?city=${location}`)
+  return res.json()
+})
 ```
 
 ### Create Code Mode and use it with `chat()`
 
 ```typescript
-import { chat } from "@tanstack/ai";
-import { openaiText } from "@tanstack/ai-openai";
-import { createCodeMode } from "@tanstack/ai-code-mode";
-import { createNodeIsolateDriver } from "@tanstack/ai-isolate-node";
+import { chat } from '@tanstack/ai'
+import { openaiText } from '@tanstack/ai-openai'
+import { createCodeMode } from '@tanstack/ai-code-mode'
+import { createNodeIsolateDriver } from '@tanstack/ai-isolate-node'
 
 const { tool, systemPrompt } = createCodeMode({
   driver: createNodeIsolateDriver(),
   tools: [fetchWeather],
   timeout: 30_000,
-});
+})
 
 const result = await chat({
-  adapter: openaiText("gpt-4o"),
-  systemPrompts: ["You are a helpful assistant.", systemPrompt],
+  adapter: openaiText('gpt-4o'),
+  systemPrompts: ['You are a helpful assistant.', systemPrompt],
   tools: [tool],
   messages,
-});
+})
 ```
 
 `createCodeMode` returns two things: the `execute_typescript` tool and a system prompt containing typed function stubs for every tool you passed in. The model sees exact input/output types, so it generates correct calls without guessing parameter shapes. TypeScript annotations are stripped automatically before execution.
@@ -176,12 +176,12 @@ Right now the model rewrites the same logic every time. If it figures out a good
 **High-level**: `codeModeWithSkills()` handles everything. Skill selection via a cheap LLM call, tool registry assembly, system prompt generation.
 
 ```typescript
-import { codeModeWithSkills } from "@tanstack/ai-code-mode-skills";
-import { createFileSkillStorage } from "@tanstack/ai-code-mode-skills/storage";
-import { createNodeIsolateDriver } from "@tanstack/ai-isolate-node";
-import { openaiText } from "@tanstack/ai-openai";
+import { codeModeWithSkills } from '@tanstack/ai-code-mode-skills'
+import { createFileSkillStorage } from '@tanstack/ai-code-mode-skills/storage'
+import { createNodeIsolateDriver } from '@tanstack/ai-isolate-node'
+import { openaiText } from '@tanstack/ai-openai'
 
-const storage = createFileSkillStorage({ directory: "./.skills" });
+const storage = createFileSkillStorage({ directory: './.skills' })
 
 const { toolsRegistry, systemPrompt } = await codeModeWithSkills({
   config: {
@@ -189,17 +189,17 @@ const { toolsRegistry, systemPrompt } = await codeModeWithSkills({
     tools: [myTool1, myTool2],
     timeout: 60_000,
   },
-  adapter: openaiText("gpt-4o-mini"), // cheap model for skill selection
+  adapter: openaiText('gpt-4o-mini'), // cheap model for skill selection
   skills: { storage, maxSkillsInContext: 5 },
   messages,
-});
+})
 
 const stream = chat({
-  adapter: openaiText("gpt-4o"), // strong model for reasoning
+  adapter: openaiText('gpt-4o'), // strong model for reasoning
   toolRegistry: toolsRegistry,
   messages,
-  systemPrompts: ["You are a helpful assistant.", systemPrompt],
-});
+  systemPrompts: ['You are a helpful assistant.', systemPrompt],
+})
 ```
 
 **Manual**: use `createCodeMode`, `skillsToTools`, and `createSkillManagementTools` individually when you want full control over which skills load and how they're assembled.

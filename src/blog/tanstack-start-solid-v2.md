@@ -27,7 +27,7 @@ pnpm add @tanstack/solid-router@^2.0.0-beta.10 @tanstack/solid-start@^2.0.0-beta
 pnpm add -D vite-plugin-solid@3.0.0-next.4
 
 # If you use TanStack Query:
-pnpm add @tanstack/solid-query@6.0.0-beta.3 @tanstack/solid-query-devtools@6.0.0-beta.3
+pnpm add @tanstack/solid-query@6.0.0-beta.3 @tanstack/solid-query-devtools@6.0.0-beta.3 @tanstack/solid-router-ssr-query@2.0.0-beta.12
 ```
 
 Or in `package.json`:
@@ -49,7 +49,8 @@ Or in `package.json`:
 {
   "dependencies": {
     "@tanstack/solid-query": "6.0.0-beta.3",
-    "@tanstack/solid-query-devtools": "6.0.0-beta.3"
+    "@tanstack/solid-query-devtools": "6.0.0-beta.3",
+    "@tanstack/solid-router-ssr-query": "2.0.0-beta.12"
   }
 }
 ```

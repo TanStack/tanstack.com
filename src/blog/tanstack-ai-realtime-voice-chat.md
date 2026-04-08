@@ -35,7 +35,7 @@ import { openaiRealtimeToken } from '@tanstack/ai-openai'
 // In your API route / server function
 const token = await realtimeToken({
   adapter: openaiRealtimeToken({
-    model: 'gpt-4o-realtime-preview',
+    model: 'gpt-realtime-1.5',
   }),
 })
 
@@ -460,7 +460,7 @@ The server token endpoint picks the right adapter too:
 async function handleTokenRequest(provider: string) {
   if (provider === 'openai') {
     return realtimeToken({
-      adapter: openaiRealtimeToken({ model: 'gpt-4o-realtime-preview' }),
+      adapter: openaiRealtimeToken({ model: 'gpt-realtime-1.5' }),
     })
   }
   if (provider === 'elevenlabs') {

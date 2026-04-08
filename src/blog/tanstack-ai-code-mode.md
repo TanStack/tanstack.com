@@ -132,7 +132,7 @@ const { tool, systemPrompt } = createCodeMode({
 })
 
 const result = await chat({
-  adapter: openaiText('gpt-4o'),
+  adapter: openaiText('gpt-5.4'),
   systemPrompts: ['You are a helpful assistant.', systemPrompt],
   tools: [tool],
   messages,
@@ -189,13 +189,13 @@ const { toolsRegistry, systemPrompt } = await codeModeWithSkills({
     tools: [myTool1, myTool2],
     timeout: 60_000,
   },
-  adapter: openaiText('gpt-4o-mini'), // cheap model for skill selection
+  adapter: openaiText('gpt-5.4-mini'), // cheap model for skill selection
   skills: { storage, maxSkillsInContext: 5 },
   messages,
 })
 
 const stream = chat({
-  adapter: openaiText('gpt-4o'), // strong model for reasoning
+  adapter: openaiText('gpt-5.4'), // strong model for reasoning
   toolRegistry: toolsRegistry,
   messages,
   systemPrompts: ['You are a helpful assistant.', systemPrompt],

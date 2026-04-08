@@ -25,6 +25,9 @@ If you're upgrading an existing app, update your dependencies to:
 ```bash
 pnpm add @tanstack/solid-router@^2.0.0-beta.10 @tanstack/solid-start@^2.0.0-beta.11 solid-js@2.0.0-beta.5 @solidjs/web@2.0.0-beta.5
 pnpm add -D vite-plugin-solid@3.0.0-next.4
+
+# If you use TanStack Query:
+pnpm add @tanstack/solid-query@6.0.0-beta.3 @tanstack/solid-query-devtools@6.0.0-beta.3
 ```
 
 Or in `package.json`:
@@ -39,6 +42,14 @@ Or in `package.json`:
   },
   "devDependencies": {
     "vite-plugin-solid": "3.0.0-next.4"
+  }
+}
+
+// If you use TanStack Query, also add:
+{
+  "dependencies": {
+    "@tanstack/solid-query": "6.0.0-beta.3",
+    "@tanstack/solid-query-devtools": "6.0.0-beta.3"
   }
 }
 ```
@@ -66,3 +77,4 @@ If you want to dig deeper into what's changing in Solid itself, check out the [S
 This support is still early, and that's exactly why we want feedback now. If you try TanStack Router or TanStack Start with Solid 2.0 beta, let us know how it goes.
 
 [Join the Discord](https://tlinz.com/discord) and tell us what worked, what felt rough, and what you'd like to see next.
+

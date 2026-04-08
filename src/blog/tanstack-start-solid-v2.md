@@ -23,6 +23,7 @@ If you're upgrading an existing app, update your dependencies to:
 
 ```bash
 pnpm add @tanstack/solid-router@^2.0.0-beta.10 @tanstack/solid-start@^2.0.0-beta.11 solid-js@2.0.0-beta.5 @solidjs/web@2.0.0-beta.5
+pnpm add -D vite-plugin-solid@3.0.0-next.4
 ```
 
 Or in `package.json`:

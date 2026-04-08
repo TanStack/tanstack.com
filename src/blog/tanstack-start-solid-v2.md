@@ -4,6 +4,7 @@ published: 2026-04-08
 excerpt: Solid 2.0 beta support is now available in TanStack Router and TanStack Start, so you can start experimenting with Solid's next major release in real applications today.
 authors:
   - Brenley Dueck
+	- Birk Skyum
 ---
 
 ![Solid 2.0 Beta Support in TanStack Router and Start](/blog-assets/tanstack-router-solid-v2/header.jpg)

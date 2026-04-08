@@ -34,6 +34,9 @@ Or in `package.json`:
     "@tanstack/solid-start": "^2.0.0-beta.11",
     "solid-js": "2.0.0-beta.5",
     "@solidjs/web": "2.0.0-beta.5"
+  },
+  "devDependencies": {
+    "vite-plugin-solid": "3.0.0-next.4"
   }
 }
 ```

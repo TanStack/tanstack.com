@@ -43,7 +43,7 @@ import { chat } from '@tanstack/ai'
 import { openaiText } from '@tanstack/ai-openai'
 
 const stream = chat({
-  adapter: openaiText('gpt-4o'),
+  adapter: openaiText('gpt-5.4'),
   messages: [{ role: 'user', content: 'Explain middleware to me' }],
   middleware: [logger],
 })
@@ -377,7 +377,7 @@ import {
 } from '@tanstack/ai/middlewares'
 
 const stream = chat({
-  adapter: openaiText('gpt-4o'),
+  adapter: openaiText('gpt-5.4'),
   messages: req.body.messages,
   tools: [searchTool, weatherTool, calendarTool],
   context: { tenantId: req.auth.tenantId },

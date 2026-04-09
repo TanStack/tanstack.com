@@ -22,38 +22,25 @@ You can try it today in one of two ways:
 
 If you're upgrading an existing app, update your dependencies to:
 
-```bash
-pnpm add @tanstack/solid-router@^2.0.0-beta.10 @tanstack/solid-start@^2.0.0-beta.11 solid-js@2.0.0-beta.5 @solidjs/web@2.0.0-beta.5
-pnpm add -D vite-plugin-solid@3.0.0-next.4
+<!-- ::start:tabs variant="package-manager" mode="install" -->
 
-# If you use TanStack Query:
-pnpm add @tanstack/solid-query@6.0.0-beta.3 @tanstack/solid-query-devtools@6.0.0-beta.3 @tanstack/solid-router-ssr-query@2.0.0-beta.12
-```
+solid: @tanstack/solid-router@^2.0.0-beta.10 @tanstack/solid-start@^2.0.0-beta.11 solid-js@2.0.0-beta.5 @solidjs/web@2.0.0-beta.5
 
-Or in `package.json`:
+<!-- ::end:tabs -->
 
-```json
-{
-  "dependencies": {
-    "@tanstack/solid-router": "^2.0.0-beta.10",
-    "@tanstack/solid-start": "^2.0.0-beta.11",
-    "solid-js": "2.0.0-beta.5",
-    "@solidjs/web": "2.0.0-beta.5"
-  },
-  "devDependencies": {
-    "vite-plugin-solid": "3.0.0-next.4"
-  }
-}
+<!-- ::start:tabs variant="package-manager" mode="dev-install" -->
 
-// If you use TanStack Query, also add:
-{
-  "dependencies": {
-    "@tanstack/solid-query": "6.0.0-beta.3",
-    "@tanstack/solid-query-devtools": "6.0.0-beta.3",
-    "@tanstack/solid-router-ssr-query": "2.0.0-beta.12"
-  }
-}
-```
+solid: vite-plugin-solid@3.0.0-next.4
+
+<!-- ::end:tabs -->
+
+If you use TanStack Query, also add:
+
+<!-- ::start:tabs variant="package-manager" mode="install" -->
+
+solid: @tanstack/solid-query@6.0.0-beta.3 @tanstack/solid-query-devtools@6.0.0-beta.3 @tanstack/solid-router-ssr-query@2.0.0-beta.12
+
+<!-- ::end:tabs -->
 
 The TanStack APIs are mostly unchanged, but Solid 2.0 itself includes breaking changes. If you're upgrading an existing Solid app, make sure to read the official [Solid 2.0 migration guide](https://github.com/solidjs/solid/blob/next/documentation/solid-2.0/MIGRATION.md).
 

@@ -24,7 +24,7 @@ If you're upgrading an existing app, update your dependencies to:
 
 <!-- ::start:tabs variant="package-manager" mode="install" -->
 
-solid: @tanstack/solid-router@^2.0.0-beta.10 @tanstack/solid-start@^2.0.0-beta.11 solid-js@^2.0.0-beta.5 @solidjs/web@^2.0.0-beta.5
+solid: @tanstack/solid-router@^2.0.0-beta.11 @tanstack/solid-start@^2.0.0-beta.12 @tanstack/solid-router-devtools@^2.0.0-beta.8 solid-js@^2.0.0-beta.5 @solidjs/web@^2.0.0-beta.5
 
 <!-- ::end:tabs -->
 

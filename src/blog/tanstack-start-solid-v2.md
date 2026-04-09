@@ -52,11 +52,12 @@ That makes this a great time to try Solid in larger applications, where routing,
 
 Some of the highlights in Solid 2.0 include:
 
-- Fine-grained non-nullable async
-- Mutable derivations
-- Derived signals
-- Pull-based run-once SSR
-- Pending UI is an expression
+- **Async that just works**: computations can be async, and the reactive graph handles suspension for you. No more nullable async workarounds.
+- **Derived and writable signals**: `createSignal(fn)` lets you derive state from a source while still writing to it locally.
+- **`<Loading>` replaces `<Suspense>`**: a clearer primitive for showing fallbacks during async rendering.
+- **Draft-based store updates**: mutate stores directly with `setStore(s => { s.user.name = "John" })`.
+- **Actions with optimistic UI**: `action()` paired with `createOptimistic` for smooth "update now, confirm later" flows.
+- **Redesigned SSR**: pull-based, run-once server rendering that's more efficient and sets the stage for resumability.
 
 If you want to dig deeper into what's changing in Solid itself, check out the [Solid 2.0 beta discussion](https://github.com/solidjs/solid/discussions/2596) and the [Road to 2.0 discussion](https://github.com/solidjs/solid/discussions/2425).
 

@@ -16,11 +16,13 @@ import {
   shouldIndexPath,
 } from '~/utils/seo'
 import ogImage from '~/images/og.png'
-const LazyRouterDevtools = React.lazy(() =>
-  import('@tanstack/react-router-devtools').then((m) => ({
-    default: m.TanStackRouterDevtoolsInProd,
-  })),
-)
+const LazyAppDevtools = import.meta.env.DEV
+  ? React.lazy(() =>
+      import('~/components/AppDevtools').then((m) => ({
+        default: m.AppDevtools,
+      })),
+    )
+  : null
 import { NotFound } from '~/components/NotFound'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { SearchProvider, useSearchContext } from '~/contexts/SearchContext'
@@ -192,17 +194,14 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
     }
   }, [isNavigating])
 
-  const isRouterPage = useRouterState({
-    select: (s) => s.resolvedLocation?.pathname.startsWith('/router'),
-  })
-
   const canonicalPath = useRouterState({
     select: (s) => s.resolvedLocation?.pathname || '/',
   })
 
   const preferredCanonicalPath = getCanonicalPath(canonicalPath)
+  const pageUrl = canonicalUrl(preferredCanonicalPath ?? canonicalPath)
 
-  const showDevtools = canShowDevtools && isRouterPage
+  const showDevtools = import.meta.env.DEV && canShowDevtools
 
   const hideNavbar = useMatches({
     select: (s) => s.some((d) => d.staticData?.showNavbar === false),
@@ -216,6 +215,8 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
         {preferredCanonicalPath ? (
           <link rel="canonical" href={canonicalUrl(preferredCanonicalPath)} />
         ) : null}
+        <meta property="og:url" content={pageUrl} />
+        <meta name="twitter:url" content={pageUrl} />
         {!shouldIndexPath(canonicalPath) ? (
           <meta name="robots" content="noindex, nofollow" />
         ) : null}
@@ -227,8 +228,10 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
           <ToastProvider>
             <GoogleAnalyticsTracker />
             {hideNavbar ? children : <Navbar>{children}</Navbar>}
-            {showDevtools ? (
-              <LazyRouterDevtools position="bottom-right" />
+            {showDevtools && LazyAppDevtools ? (
+              <React.Suspense fallback={null}>
+                <LazyAppDevtools />
+              </React.Suspense>
             ) : null}
             <div
               aria-hidden="true"

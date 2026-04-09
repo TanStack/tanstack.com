@@ -41,6 +41,7 @@ import { Route as LibraryIdRouteRouteImport } from './routes/$libraryId/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as StatsIndexRouteImport } from './routes/stats/index'
 import { Route as ShowcaseIndexRouteImport } from './routes/showcase/index'
+import { Route as PartnersIndexRouteImport } from './routes/partners.index'
 import { Route as BuilderIndexRouteImport } from './routes/builder.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
@@ -48,6 +49,7 @@ import { Route as AccountIndexRouteImport } from './routes/account/index'
 import { Route as LibraryIdIndexRouteImport } from './routes/$libraryId/index'
 import { Route as ShowcaseSubmitRouteImport } from './routes/showcase/submit'
 import { Route as ShowcaseIdRouteImport } from './routes/showcase/$id'
+import { Route as PartnersPartnerRouteImport } from './routes/partners.$partner'
 import { Route as OauthTokenRouteImport } from './routes/oauth/token'
 import { Route as OauthRegisterRouteImport } from './routes/oauth/register'
 import { Route as OauthAuthorizeRouteImport } from './routes/oauth/authorize'
@@ -62,6 +64,7 @@ import { Route as AdminNpmStatsRouteImport } from './routes/admin/npm-stats'
 import { Route as AdminLoginsRouteImport } from './routes/admin/logins'
 import { Route as AdminIntentRouteImport } from './routes/admin/intent'
 import { Route as AdminGithubStatsRouteImport } from './routes/admin/github-stats'
+import { Route as AdminDocsRouteImport } from './routes/admin/docs'
 import { Route as AdminAuditRouteImport } from './routes/admin/audit'
 import { Route as AccountSubmissionsRouteImport } from './routes/account/submissions'
 import { Route as AccountNotesRouteImport } from './routes/account/notes'
@@ -97,6 +100,7 @@ import { Route as ApiBuilderFeatureArtifactsRouteImport } from './routes/api/bui
 import { Route as ApiBuilderDownloadRouteImport } from './routes/api/builder/download'
 import { Route as ApiBuilderCompileAttributedRouteImport } from './routes/api/builder/compile-attributed'
 import { Route as ApiBuilderCompileRouteImport } from './routes/api/builder/compile'
+import { Route as ApiApplicationStarterResolveRouteImport } from './routes/api/application-starter/resolve'
 import { Route as AdminUsersUserIdRouteImport } from './routes/admin/users.$userId'
 import { Route as AdminShowcasesIdRouteImport } from './routes/admin/showcases_.$id'
 import { Route as AdminRolesRoleIdRouteImport } from './routes/admin/roles.$roleId'
@@ -281,6 +285,11 @@ const ShowcaseIndexRoute = ShowcaseIndexRouteImport.update({
   path: '/showcase/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PartnersIndexRoute = PartnersIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PartnersRoute,
+} as any)
 const BuilderIndexRoute = BuilderIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -315,6 +324,11 @@ const ShowcaseIdRoute = ShowcaseIdRouteImport.update({
   id: '/showcase/$id',
   path: '/showcase/$id',
   getParentRoute: () => rootRouteImport,
+} as any)
+const PartnersPartnerRoute = PartnersPartnerRouteImport.update({
+  id: '/$partner',
+  path: '/$partner',
+  getParentRoute: () => PartnersRoute,
 } as any)
 const OauthTokenRoute = OauthTokenRouteImport.update({
   id: '/oauth/token',
@@ -384,6 +398,11 @@ const AdminIntentRoute = AdminIntentRouteImport.update({
 const AdminGithubStatsRoute = AdminGithubStatsRouteImport.update({
   id: '/github-stats',
   path: '/github-stats',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminDocsRoute = AdminDocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
   getParentRoute: () => AdminRouteRoute,
 } as any)
 const AdminAuditRoute = AdminAuditRouteImport.update({
@@ -567,6 +586,12 @@ const ApiBuilderCompileRoute = ApiBuilderCompileRouteImport.update({
   path: '/api/builder/compile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiApplicationStarterResolveRoute =
+  ApiApplicationStarterResolveRouteImport.update({
+    id: '/api/application-starter/resolve',
+    path: '/api/application-starter/resolve',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AdminUsersUserIdRoute = AdminUsersUserIdRouteImport.update({
   id: '/$userId',
   path: '/$userId',
@@ -718,7 +743,7 @@ export interface FileRoutesByFullPath {
   '/maintainers': typeof MaintainersRoute
   '/merch': typeof MerchRoute
   '/paid-support': typeof PaidSupportRoute
-  '/partners': typeof PartnersRoute
+  '/partners': typeof PartnersRouteWithChildren
   '/partners-embed': typeof PartnersEmbedRoute
   '/privacy': typeof PrivacyRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -736,6 +761,7 @@ export interface FileRoutesByFullPath {
   '/account/notes': typeof AccountNotesRoute
   '/account/submissions': typeof AccountSubmissionsRoute
   '/admin/audit': typeof AdminAuditRoute
+  '/admin/docs': typeof AdminDocsRoute
   '/admin/github-stats': typeof AdminGithubStatsRoute
   '/admin/intent': typeof AdminIntentRoute
   '/admin/logins': typeof AdminLoginsRoute
@@ -750,6 +776,7 @@ export interface FileRoutesByFullPath {
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
   '/oauth/token': typeof OauthTokenRoute
+  '/partners/$partner': typeof PartnersPartnerRoute
   '/showcase/$id': typeof ShowcaseIdRoute
   '/showcase/submit': typeof ShowcaseSubmitRoute
   '/$libraryId/': typeof LibraryIdIndexRoute
@@ -757,6 +784,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/builder/': typeof BuilderIndexRoute
+  '/partners/': typeof PartnersIndexRoute
   '/showcase/': typeof ShowcaseIndexRoute
   '/stats/': typeof StatsIndexRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsRouteWithChildren
@@ -764,6 +792,7 @@ export interface FileRoutesByFullPath {
   '/admin/roles/$roleId': typeof AdminRolesRoleIdRoute
   '/admin/showcases/$id': typeof AdminShowcasesIdRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
+  '/api/application-starter/resolve': typeof ApiApplicationStarterResolveRoute
   '/api/builder/compile': typeof ApiBuilderCompileRoute
   '/api/builder/compile-attributed': typeof ApiBuilderCompileAttributedRoute
   '/api/builder/download': typeof ApiBuilderDownloadRoute
@@ -826,7 +855,6 @@ export interface FileRoutesByTo {
   '/maintainers': typeof MaintainersRoute
   '/merch': typeof MerchRoute
   '/paid-support': typeof PaidSupportRoute
-  '/partners': typeof PartnersRoute
   '/partners-embed': typeof PartnersEmbedRoute
   '/privacy': typeof PrivacyRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -843,6 +871,7 @@ export interface FileRoutesByTo {
   '/account/notes': typeof AccountNotesRoute
   '/account/submissions': typeof AccountSubmissionsRoute
   '/admin/audit': typeof AdminAuditRoute
+  '/admin/docs': typeof AdminDocsRoute
   '/admin/github-stats': typeof AdminGithubStatsRoute
   '/admin/intent': typeof AdminIntentRoute
   '/admin/logins': typeof AdminLoginsRoute
@@ -857,6 +886,7 @@ export interface FileRoutesByTo {
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
   '/oauth/token': typeof OauthTokenRoute
+  '/partners/$partner': typeof PartnersPartnerRoute
   '/showcase/$id': typeof ShowcaseIdRoute
   '/showcase/submit': typeof ShowcaseSubmitRoute
   '/$libraryId': typeof LibraryIdIndexRoute
@@ -864,12 +894,14 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/blog': typeof BlogIndexRoute
   '/builder': typeof BuilderIndexRoute
+  '/partners': typeof PartnersIndexRoute
   '/showcase': typeof ShowcaseIndexRoute
   '/stats': typeof StatsIndexRoute
   '/admin/feedback/$id': typeof AdminFeedbackIdRoute
   '/admin/roles/$roleId': typeof AdminRolesRoleIdRoute
   '/admin/showcases/$id': typeof AdminShowcasesIdRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
+  '/api/application-starter/resolve': typeof ApiApplicationStarterResolveRoute
   '/api/builder/compile': typeof ApiBuilderCompileRoute
   '/api/builder/compile-attributed': typeof ApiBuilderCompileAttributedRoute
   '/api/builder/download': typeof ApiBuilderDownloadRoute
@@ -937,7 +969,7 @@ export interface FileRoutesById {
   '/maintainers': typeof MaintainersRoute
   '/merch': typeof MerchRoute
   '/paid-support': typeof PaidSupportRoute
-  '/partners': typeof PartnersRoute
+  '/partners': typeof PartnersRouteWithChildren
   '/partners-embed': typeof PartnersEmbedRoute
   '/privacy': typeof PrivacyRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -955,6 +987,7 @@ export interface FileRoutesById {
   '/account/notes': typeof AccountNotesRoute
   '/account/submissions': typeof AccountSubmissionsRoute
   '/admin/audit': typeof AdminAuditRoute
+  '/admin/docs': typeof AdminDocsRoute
   '/admin/github-stats': typeof AdminGithubStatsRoute
   '/admin/intent': typeof AdminIntentRoute
   '/admin/logins': typeof AdminLoginsRoute
@@ -969,6 +1002,7 @@ export interface FileRoutesById {
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
   '/oauth/token': typeof OauthTokenRoute
+  '/partners/$partner': typeof PartnersPartnerRoute
   '/showcase/$id': typeof ShowcaseIdRoute
   '/showcase/submit': typeof ShowcaseSubmitRoute
   '/$libraryId/': typeof LibraryIdIndexRoute
@@ -976,6 +1010,7 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/builder/': typeof BuilderIndexRoute
+  '/partners/': typeof PartnersIndexRoute
   '/showcase/': typeof ShowcaseIndexRoute
   '/stats/': typeof StatsIndexRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsRouteWithChildren
@@ -983,6 +1018,7 @@ export interface FileRoutesById {
   '/admin/roles/$roleId': typeof AdminRolesRoleIdRoute
   '/admin/showcases_/$id': typeof AdminShowcasesIdRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
+  '/api/application-starter/resolve': typeof ApiApplicationStarterResolveRoute
   '/api/builder/compile': typeof ApiBuilderCompileRoute
   '/api/builder/compile-attributed': typeof ApiBuilderCompileAttributedRoute
   '/api/builder/download': typeof ApiBuilderDownloadRoute
@@ -1070,6 +1106,7 @@ export interface FileRouteTypes {
     | '/account/notes'
     | '/account/submissions'
     | '/admin/audit'
+    | '/admin/docs'
     | '/admin/github-stats'
     | '/admin/intent'
     | '/admin/logins'
@@ -1084,6 +1121,7 @@ export interface FileRouteTypes {
     | '/oauth/authorize'
     | '/oauth/register'
     | '/oauth/token'
+    | '/partners/$partner'
     | '/showcase/$id'
     | '/showcase/submit'
     | '/$libraryId/'
@@ -1091,6 +1129,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/blog/'
     | '/builder/'
+    | '/partners/'
     | '/showcase/'
     | '/stats/'
     | '/$libraryId/$version/docs'
@@ -1098,6 +1137,7 @@ export interface FileRouteTypes {
     | '/admin/roles/$roleId'
     | '/admin/showcases/$id'
     | '/admin/users/$userId'
+    | '/api/application-starter/resolve'
     | '/api/builder/compile'
     | '/api/builder/compile-attributed'
     | '/api/builder/download'
@@ -1160,7 +1200,6 @@ export interface FileRouteTypes {
     | '/maintainers'
     | '/merch'
     | '/paid-support'
-    | '/partners'
     | '/partners-embed'
     | '/privacy'
     | '/robots.txt'
@@ -1177,6 +1216,7 @@ export interface FileRouteTypes {
     | '/account/notes'
     | '/account/submissions'
     | '/admin/audit'
+    | '/admin/docs'
     | '/admin/github-stats'
     | '/admin/intent'
     | '/admin/logins'
@@ -1191,6 +1231,7 @@ export interface FileRouteTypes {
     | '/oauth/authorize'
     | '/oauth/register'
     | '/oauth/token'
+    | '/partners/$partner'
     | '/showcase/$id'
     | '/showcase/submit'
     | '/$libraryId'
@@ -1198,12 +1239,14 @@ export interface FileRouteTypes {
     | '/admin'
     | '/blog'
     | '/builder'
+    | '/partners'
     | '/showcase'
     | '/stats'
     | '/admin/feedback/$id'
     | '/admin/roles/$roleId'
     | '/admin/showcases/$id'
     | '/admin/users/$userId'
+    | '/api/application-starter/resolve'
     | '/api/builder/compile'
     | '/api/builder/compile-attributed'
     | '/api/builder/download'
@@ -1288,6 +1331,7 @@ export interface FileRouteTypes {
     | '/account/notes'
     | '/account/submissions'
     | '/admin/audit'
+    | '/admin/docs'
     | '/admin/github-stats'
     | '/admin/intent'
     | '/admin/logins'
@@ -1302,6 +1346,7 @@ export interface FileRouteTypes {
     | '/oauth/authorize'
     | '/oauth/register'
     | '/oauth/token'
+    | '/partners/$partner'
     | '/showcase/$id'
     | '/showcase/submit'
     | '/$libraryId/'
@@ -1309,6 +1354,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/blog/'
     | '/builder/'
+    | '/partners/'
     | '/showcase/'
     | '/stats/'
     | '/$libraryId/$version/docs'
@@ -1316,6 +1362,7 @@ export interface FileRouteTypes {
     | '/admin/roles/$roleId'
     | '/admin/showcases_/$id'
     | '/admin/users/$userId'
+    | '/api/application-starter/resolve'
     | '/api/builder/compile'
     | '/api/builder/compile-attributed'
     | '/api/builder/download'
@@ -1384,7 +1431,7 @@ export interface RootRouteChildren {
   MaintainersRoute: typeof MaintainersRoute
   MerchRoute: typeof MerchRoute
   PaidSupportRoute: typeof PaidSupportRoute
-  PartnersRoute: typeof PartnersRoute
+  PartnersRoute: typeof PartnersRouteWithChildren
   PartnersEmbedRoute: typeof PartnersEmbedRoute
   PrivacyRoute: typeof PrivacyRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
@@ -1407,6 +1454,7 @@ export interface RootRouteChildren {
   ShowcaseSubmitRoute: typeof ShowcaseSubmitRoute
   ShowcaseIndexRoute: typeof ShowcaseIndexRoute
   StatsIndexRoute: typeof StatsIndexRoute
+  ApiApplicationStarterResolveRoute: typeof ApiApplicationStarterResolveRoute
   ApiBuilderCompileRoute: typeof ApiBuilderCompileRoute
   ApiBuilderCompileAttributedRoute: typeof ApiBuilderCompileAttributedRoute
   ApiBuilderDownloadRoute: typeof ApiBuilderDownloadRoute
@@ -1663,6 +1711,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShowcaseIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/partners/': {
+      id: '/partners/'
+      path: '/'
+      fullPath: '/partners/'
+      preLoaderRoute: typeof PartnersIndexRouteImport
+      parentRoute: typeof PartnersRoute
+    }
     '/builder/': {
       id: '/builder/'
       path: '/'
@@ -1711,6 +1766,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/showcase/$id'
       preLoaderRoute: typeof ShowcaseIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/partners/$partner': {
+      id: '/partners/$partner'
+      path: '/$partner'
+      fullPath: '/partners/$partner'
+      preLoaderRoute: typeof PartnersPartnerRouteImport
+      parentRoute: typeof PartnersRoute
     }
     '/oauth/token': {
       id: '/oauth/token'
@@ -1808,6 +1870,13 @@ declare module '@tanstack/react-router' {
       path: '/github-stats'
       fullPath: '/admin/github-stats'
       preLoaderRoute: typeof AdminGithubStatsRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/docs': {
+      id: '/admin/docs'
+      path: '/docs'
+      fullPath: '/admin/docs'
+      preLoaderRoute: typeof AdminDocsRouteImport
       parentRoute: typeof AdminRouteRoute
     }
     '/admin/audit': {
@@ -2055,6 +2124,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiBuilderCompileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/application-starter/resolve': {
+      id: '/api/application-starter/resolve'
+      path: '/api/application-starter/resolve'
+      fullPath: '/api/application-starter/resolve'
+      preLoaderRoute: typeof ApiApplicationStarterResolveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/users/$userId': {
       id: '/admin/users/$userId'
       path: '/$userId'
@@ -2298,6 +2374,7 @@ const AdminUsersRouteWithChildren = AdminUsersRoute._addFileChildren(
 
 interface AdminRouteRouteChildren {
   AdminAuditRoute: typeof AdminAuditRoute
+  AdminDocsRoute: typeof AdminDocsRoute
   AdminGithubStatsRoute: typeof AdminGithubStatsRoute
   AdminIntentRoute: typeof AdminIntentRoute
   AdminLoginsRoute: typeof AdminLoginsRoute
@@ -2315,6 +2392,7 @@ interface AdminRouteRouteChildren {
 
 const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminAuditRoute: AdminAuditRoute,
+  AdminDocsRoute: AdminDocsRoute,
   AdminGithubStatsRoute: AdminGithubStatsRoute,
   AdminIntentRoute: AdminIntentRoute,
   AdminLoginsRoute: AdminLoginsRoute,
@@ -2378,6 +2456,20 @@ const BuilderRouteChildren: BuilderRouteChildren = {
 const BuilderRouteWithChildren =
   BuilderRoute._addFileChildren(BuilderRouteChildren)
 
+interface PartnersRouteChildren {
+  PartnersPartnerRoute: typeof PartnersPartnerRoute
+  PartnersIndexRoute: typeof PartnersIndexRoute
+}
+
+const PartnersRouteChildren: PartnersRouteChildren = {
+  PartnersPartnerRoute: PartnersPartnerRoute,
+  PartnersIndexRoute: PartnersIndexRoute,
+}
+
+const PartnersRouteWithChildren = PartnersRoute._addFileChildren(
+  PartnersRouteChildren,
+)
+
 interface IntentRegistryPackageNameRouteChildren {
   IntentRegistryPackageNameSkillNameRoute: typeof IntentRegistryPackageNameSkillNameRoute
   IntentRegistryPackageNameIndexRoute: typeof IntentRegistryPackageNameIndexRoute
@@ -2415,7 +2507,7 @@ const rootRouteChildren: RootRouteChildren = {
   MaintainersRoute: MaintainersRoute,
   MerchRoute: MerchRoute,
   PaidSupportRoute: PaidSupportRoute,
-  PartnersRoute: PartnersRoute,
+  PartnersRoute: PartnersRouteWithChildren,
   PartnersEmbedRoute: PartnersEmbedRoute,
   PrivacyRoute: PrivacyRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
@@ -2439,6 +2531,7 @@ const rootRouteChildren: RootRouteChildren = {
   ShowcaseSubmitRoute: ShowcaseSubmitRoute,
   ShowcaseIndexRoute: ShowcaseIndexRoute,
   StatsIndexRoute: StatsIndexRoute,
+  ApiApplicationStarterResolveRoute: ApiApplicationStarterResolveRoute,
   ApiBuilderCompileRoute: ApiBuilderCompileRoute,
   ApiBuilderCompileAttributedRoute: ApiBuilderCompileAttributedRoute,
   ApiBuilderDownloadRoute: ApiBuilderDownloadRoute,

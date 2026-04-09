@@ -1,4 +1,3 @@
-import '@tanstack/react-start/server-only'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { captureEvent } from '~/utils/posthog.server'
 import { withSentrySpan, captureException } from '~/utils/sentry.server'

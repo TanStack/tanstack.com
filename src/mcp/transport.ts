@@ -1,4 +1,3 @@
-import '@tanstack/react-start/server-only'
 import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js'
 import { createMcpServer, type McpAuthContext } from './server'
 import {

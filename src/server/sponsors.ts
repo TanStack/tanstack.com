@@ -208,7 +208,9 @@ async function getGithubSponsors() {
   } catch (err) {
     const error = err as { status?: number }
     if (error.status === 401) {
-      console.error('Missing github credentials, returning mock data.')
+      console.error(
+        'Invalid or missing GitHub credentials, returning mock data.',
+      )
       return [
         'tannerlinsley',
         'tkdodo',

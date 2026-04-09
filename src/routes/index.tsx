@@ -27,6 +27,8 @@ import { Card } from '~/components/Card'
 import LibraryCard from '~/components/LibraryCard'
 import { FeaturedShowcases } from '~/components/ShowcaseSection'
 import { Button } from '~/ui'
+import { ApplicationStarter } from '~/components/ApplicationStarter'
+import { seo } from '~/utils/seo'
 
 const LazyBrandContextMenu = React.lazy(() =>
   import('~/components/BrandContextMenu').then((m) => ({
@@ -58,6 +60,13 @@ const courses = [
 ]
 
 export const Route = createFileRoute('/')({
+  head: () => ({
+    meta: seo({
+      title: 'TanStack | The open-source application stack for the web.',
+      description:
+        'Headless, type-safe, composable tools for building modern web applications that work naturally for developers and reliably for agents.',
+    }),
+  }),
   component: Index,
 })
 
@@ -204,23 +213,30 @@ function Index() {
             md:text-4xl md:max-w-2xl
             2xl:text-5xl lg:max-w-2xl text-balance"
               >
-                High-quality open-source software for{' '}
-                <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
-                  web developers.
-                </span>
+                The <OpenSourceUnderline /> application stack for the web.
               </h2>
               <p
                 className="text opacity-90 max-w-sm
-            lg:text-xl lg:max-w-2xl text-balance"
+             lg:text-xl lg:max-w-2xl text-balance"
               >
-                Headless, type-safe, & powerful utilities for Web Applications,
-                Routing, State Management, Data Visualization, Datagrids/Tables,
-                and more.
+                Headless, type-safe, composable tools for building modern web
+                applications that work naturally for <strong>developers</strong>{' '}
+                and reliably for <strong>agents</strong>.
               </p>
             </div>
           </div>
-          <div className="w-fit mx-auto px-4">
-            <OpenSourceStats />
+          <div className="mx-auto mt-16 w-full max-w-[1021px] px-4 sm:px-6 md:mt-20 lg:mt-14 xl:mt-12">
+            <ApplicationStarter
+              context="home"
+              enableHotkeys
+              primaryButtonColor="cyan"
+              tone="cyan"
+            />
+          </div>
+          <div className="mx-auto w-full max-w-[1021px] px-4 sm:px-6">
+            <div className="mx-auto w-fit">
+              <OpenSourceStats />
+            </div>
           </div>
         </div>
 
@@ -361,7 +377,7 @@ function Index() {
               Partners
             </a>
           </h3>
-          <PartnersGrid />
+          <PartnersGrid analyticsPlacement="home_partners_grid" />
           <div className="flex justify-center mt-6">
             <Link to="/partners" search={{ status: 'inactive' }}>
               <Button as="span">
@@ -752,5 +768,35 @@ function Index() {
         <Footer />
       </div>
     </>
+  )
+}
+
+function OpenSourceUnderline() {
+  return (
+    <span className="home-open-source-underline">
+      <span className="relative z-10">open-source</span>
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 280 52"
+        preserveAspectRatio="none"
+        className="home-open-source-underline__svg"
+      >
+        <path
+          pathLength="1"
+          className="home-open-source-underline__path home-open-source-underline__path--primary"
+          d="M8 28C24 15 41 40 58 28C75 16 92 40 110 28C128 15 145 40 164 29C183 17 200 40 220 29C239 18 255 33 272 25"
+        />
+        <path
+          pathLength="1"
+          className="home-open-source-underline__path home-open-source-underline__path--secondary"
+          d="M10 31C27 19 44 42 62 30C80 18 97 42 116 30C135 18 152 43 172 31C192 19 210 42 230 31C248 21 261 34 270 28"
+        />
+        <path
+          pathLength="1"
+          className="home-open-source-underline__path home-open-source-underline__path--tertiary"
+          d="M12 34C29 23 47 45 65 33C83 21 101 45 121 33C141 21 159 45 179 34C199 23 217 44 237 34C253 26 264 36 268 32"
+        />
+      </svg>
+    </span>
   )
 }

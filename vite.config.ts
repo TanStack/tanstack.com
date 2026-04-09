@@ -1,6 +1,7 @@
 import { sentryTanstackStart } from '@sentry/tanstackstart-react/vite'
 import { defineConfig } from 'vite'
 import contentCollections from '@content-collections/vite'
+import { devtools as tanstackDevtools } from '@tanstack/devtools-vite'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import tailwindcss from '@tailwindcss/vite'
 import { analyzer } from 'vite-bundle-analyzer'
@@ -123,6 +124,7 @@ export default defineConfig({
     },
   },
   plugins: [
+    ...(isDev ? [tanstackDevtools()] : []),
     tanstackStart({
       importProtection: {
         behavior: 'error',

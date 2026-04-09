@@ -14,6 +14,7 @@ import { LibraryStatsSection } from '~/components/LibraryStatsSection'
 import { LazyCodeExampleCard } from '~/components/LazyCodeExampleCard'
 import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 import { StackBlitzSection } from '~/components/StackBlitzSection'
+import { ApplicationStarter } from '~/components/ApplicationStarter'
 
 const library = getLibrary('router')
 
@@ -74,7 +75,21 @@ export default function RouterLanding() {
         }}
       />
 
-      <LibraryStatsSection library={library} />
+      <div className="space-y-6">
+        <div className="mx-auto w-full max-w-[1021px] px-4 pt-4 sm:px-6">
+          <div className="mx-auto">
+            <ApplicationStarter
+              context="router"
+              forceRouterOnly
+              secondaryActionLabel="Build Router App on Netlify"
+              suggestionContext="start"
+              title="What would you like to build with TanStack Router?"
+              tone="emerald"
+            />
+          </div>
+        </div>
+        <LibraryStatsSection library={library} />
+      </div>
 
       <LazyCodeExampleCard
         frameworks={routerProject.frameworks}

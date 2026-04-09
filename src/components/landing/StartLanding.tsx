@@ -15,6 +15,7 @@ import { BrandXIcon } from '~/components/icons/BrandXIcon'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
 import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
+import { ApplicationStarter } from '~/components/ApplicationStarter'
 
 const library = getLibrary('start')
 
@@ -25,22 +26,6 @@ export default function StartLanding() {
         project={startProject}
         actions={
           <div className="flex justify-center gap-4 flex-wrap">
-            <Button
-              as={Link}
-              from={'/$libraryId/$version'}
-              to={'./docs/framework/$framework/$'}
-              params={
-                {
-                  libraryId: library.id,
-                  framework: 'react',
-                  _splat: 'quick-start',
-                } as never
-              }
-              hash={'impatient'}
-              className="bg-transparent border-cyan-500 dark:border-cyan-600 text-cyan-600 dark:text-cyan-400 hover:bg-cyan-500/10"
-            >
-              Try it in 60 seconds
-            </Button>
             <Button
               as={Link}
               from="/$libraryId/$version"
@@ -54,7 +39,19 @@ export default function StartLanding() {
         }
       />
 
-      <LibraryStatsSection library={library} />
+      <div className="space-y-6">
+        <div className="mx-auto w-full max-w-[1021px] px-4 pt-4 sm:px-6">
+          <div className="mx-auto">
+            <ApplicationStarter
+              context="start"
+              secondaryActionLabel="Build Start on Netlify"
+              title="What would you like to build with TanStack Start?"
+              tone="cyan"
+            />
+          </div>
+        </div>
+        <LibraryStatsSection library={library} />
+      </div>
 
       <LibraryFeatureHighlights
         featureHighlights={startProject.featureHighlights}

@@ -55,7 +55,7 @@ export function DocBreadcrumb({
     <Breadcrumbs
       section={section}
       headings={headings}
-      tocHiddenBreakpoint="lg"
+      tocHiddenBreakpoint="xl"
     />
   )
 }

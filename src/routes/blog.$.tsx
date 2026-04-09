@@ -241,11 +241,11 @@ ${content}`
                         section="Blog"
                         sectionTo="/blog"
                         headings={isTocVisible ? headings : undefined}
-                        tocHiddenBreakpoint="lg"
+                        tocHiddenBreakpoint="xl"
                       />
                     </div>
                     {isTocVisible && (
-                      <div className="pl-4 w-32 lg:w-36 xl:w-44 2xl:w-56 3xl:w-64 shrink-0 hidden lg:block" />
+                      <div className="pl-4 w-32 lg:w-36 xl:w-44 2xl:w-56 3xl:w-64 shrink-0 hidden xl:block" />
                     )}
                   </div>
                   <div
@@ -265,7 +265,7 @@ ${content}`
                       />
                     </div>
                     {isTocVisible && (
-                      <div className="pl-4 w-32 lg:w-36 xl:w-44 2xl:w-56 3xl:w-64 shrink-0 hidden lg:block py-4 transition-all">
+                      <div className="pl-4 w-32 lg:w-36 xl:w-44 2xl:w-56 3xl:w-64 shrink-0 hidden xl:block py-4 transition-all">
                         <Toc
                           headings={headings}
                           activeHeadings={activeHeadings}
@@ -278,7 +278,10 @@ ${content}`
             </div>
           </div>
           <RightRail breakpoint="md">
-            <PartnersRail partners={activePartners} />
+            <PartnersRail
+              analyticsPlacement="blog_right_rail"
+              partners={activePartners}
+            />
             <div className="hidden md:block border border-gray-500/20 rounded-l-lg overflow-hidden w-full">
               <RecentPostsWidget />
             </div>

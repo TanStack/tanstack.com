@@ -38,8 +38,8 @@ import {
 } from '~/utils/chart'
 
 const searchSchema = v.object({
-  tab: v.optional(
-    v.picklist(['overview', 'users', 'activity', 'ads']),
+  tab: v.fallback(
+    v.optional(v.picklist(['overview', 'users', 'activity', 'ads'])),
     'overview',
   ),
 })
@@ -54,7 +54,20 @@ function AdminPage() {
   const user = userQuery.data
   const capabilities = useCapabilities()
 
-  if (user === undefined) {
+  if (userQuery.isError && user === undefined) {
+    return (
+      <ErrorState
+        title="Failed to load admin session"
+        description={
+          userQuery.error instanceof Error
+            ? userQuery.error.message
+            : 'Unable to load the current user.'
+        }
+      />
+    )
+  }
+
+  if (userQuery.isPending && user === undefined) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div>Loading...</div>
@@ -86,23 +99,43 @@ function AdminPage() {
 function AdminDashboard() {
   const { tab } = useSearch({ from: '/admin/' })
 
-  const { data: stats, isLoading: statsLoading } = useQuery({
+  const statsQuery = useQuery({
     queryKey: ['admin', 'user-stats'],
     queryFn: () => getUserStats(),
     staleTime: 0,
   })
 
-  const { data: activityStats, isLoading: activityLoading } = useQuery({
+  const activityStatsQuery = useQuery({
     queryKey: ['admin', 'activity-stats'],
     queryFn: () => getActivityStats(),
     staleTime: 0,
   })
 
-  const { data: dauStats, isLoading: dauLoading } = useQuery({
+  const dauStatsQuery = useQuery({
     queryKey: ['admin', 'dau-stats'],
     queryFn: () => getActivityStatsAdmin(),
     staleTime: 0,
   })
+
+  const stats = statsQuery.data
+  const activityStats = activityStatsQuery.data
+  const dauStats = dauStatsQuery.data
+
+  const dashboardError =
+    statsQuery.error ?? activityStatsQuery.error ?? dauStatsQuery.error
+
+  if (dashboardError) {
+    return (
+      <ErrorState
+        title="Failed to load admin dashboard"
+        description={
+          dashboardError instanceof Error
+            ? dashboardError.message
+            : 'One or more admin queries failed.'
+        }
+      />
+    )
+  }
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: <LayoutDashboard /> },
@@ -153,18 +186,26 @@ function AdminDashboard() {
             stats={stats}
             activityStats={activityStats}
             dauStats={dauStats}
-            isLoading={statsLoading || activityLoading || dauLoading}
+            isLoading={
+              statsQuery.isLoading ||
+              activityStatsQuery.isLoading ||
+              dauStatsQuery.isLoading
+            }
           />
         )}
-        {tab === 'users' && <UsersTab stats={stats} isLoading={statsLoading} />}
+        {tab === 'users' && (
+          <UsersTab stats={stats} isLoading={statsQuery.isLoading} />
+        )}
         {tab === 'activity' && (
           <ActivityTab
             activityStats={activityStats}
             dauStats={dauStats}
-            isLoading={activityLoading || dauLoading}
+            isLoading={activityStatsQuery.isLoading || dauStatsQuery.isLoading}
           />
         )}
-        {tab === 'ads' && <AdsTab stats={stats} isLoading={statsLoading} />}
+        {tab === 'ads' && (
+          <AdsTab stats={stats} isLoading={statsQuery.isLoading} />
+        )}
       </div>
     </div>
   )
@@ -1056,6 +1097,25 @@ function LoadingState() {
   return (
     <div className="text-center py-12">
       <div className="text-gray-600 dark:text-gray-400">Loading...</div>
+    </div>
+  )
+}
+
+function ErrorState({
+  title,
+  description,
+}: {
+  title: string
+  description: string
+}) {
+  return (
+    <div className="text-center py-12">
+      <div className="text-lg font-semibold text-gray-900 dark:text-white">
+        {title}
+      </div>
+      <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+        {description}
+      </div>
     </div>
   )
 }

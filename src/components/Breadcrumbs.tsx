@@ -16,7 +16,7 @@ type BreadcrumbsProps = {
   sectionTo?: string
   headings?: MarkdownHeading[]
   /** Breakpoint at which the TOC toggle is hidden (default: 'lg') */
-  tocHiddenBreakpoint?: 'md' | 'lg'
+  tocHiddenBreakpoint?: 'md' | 'lg' | 'xl'
 }
 
 export function Breadcrumbs({
@@ -26,7 +26,12 @@ export function Breadcrumbs({
   tocHiddenBreakpoint = 'lg',
 }: BreadcrumbsProps) {
   const showTocToggle = headings && headings.length > 1
-  const hiddenClass = tocHiddenBreakpoint === 'md' ? 'md:hidden' : 'lg:hidden'
+  const hiddenClass =
+    tocHiddenBreakpoint === 'md'
+      ? 'md:hidden'
+      : tocHiddenBreakpoint === 'xl'
+        ? 'xl:hidden'
+        : 'lg:hidden'
 
   return (
     <div className="flex flex-col">

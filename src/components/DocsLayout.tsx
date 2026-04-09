@@ -22,13 +22,17 @@ import { FrameworkSelect, useCurrentFramework } from './FrameworkSelect'
 import { VersionSelect } from './VersionSelect'
 import { Card } from './Card'
 import { PartnersRail, RightRail } from './RightRail'
+import { trackPostHogEvent, useTrackedImpression } from '~/utils/posthog'
 
 // Mobile partners strip - inline in the docs toggle bar
 function MobilePartnersStrip({
+  analyticsProperties,
   partners,
   onLabelClick,
 }: {
+  analyticsProperties?: Record<string, unknown>
   partners: Array<{
+    id: string
     name: string
     href: string
     image: Parameters<typeof PartnerImage>[0]['config']
@@ -106,23 +110,77 @@ function MobilePartnersStrip({
           >
             {/* Duplicate partners for seamless loop */}
             {[...partners, ...partners].map((partner, i) => (
-              <a
-                key={`${partner.name}-${i}`}
-                href={partner.href}
-                target="_blank"
-                rel="noreferrer"
-                className="shrink-0 flex items-center opacity-50 hover:opacity-100 transition-opacity"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="h-4 flex items-center [&_img]:h-full [&_img]:w-auto [&_div]:h-full">
-                  <PartnerImage config={partner.image} alt={partner.name} />
-                </div>
-              </a>
+              <MobilePartnerLink
+                key={`${partner.id}-${i}`}
+                analyticsProperties={analyticsProperties}
+                index={i}
+                isDuplicate={i >= partners.length}
+                partner={partner}
+              />
             ))}
           </div>
         </div>
       </div>
     </div>
+  )
+}
+
+function MobilePartnerLink({
+  analyticsProperties,
+  index,
+  isDuplicate,
+  partner,
+}: {
+  analyticsProperties?: Record<string, unknown>
+  index: number
+  isDuplicate: boolean
+  partner: {
+    id: string
+    name: string
+    href: string
+    image: Parameters<typeof PartnerImage>[0]['config']
+  }
+}) {
+  const ref = useTrackedImpression<HTMLAnchorElement>({
+    enabled: !isDuplicate,
+    event: 'partner_impression',
+    properties: {
+      partner_id: partner.id,
+      partner_name: partner.name,
+      placement: 'docs_mobile_strip',
+      slot_index: index,
+      ...analyticsProperties,
+    },
+  })
+
+  return (
+    <a
+      ref={ref}
+      href={partner.href}
+      target="_blank"
+      rel="noreferrer"
+      className="shrink-0 flex items-center opacity-50 hover:opacity-100 transition-opacity"
+      onClick={(event) => {
+        event.stopPropagation()
+
+        if (isDuplicate) {
+          return
+        }
+
+        trackPostHogEvent('partner_click', {
+          partner_id: partner.id,
+          partner_name: partner.name,
+          placement: 'docs_mobile_strip',
+          slot_index: index,
+          destination_host: new URL(partner.href).host,
+          ...analyticsProperties,
+        })
+      }}
+    >
+      <div className="h-4 flex items-center [&_img]:h-full [&_img]:w-auto [&_div]:h-full">
+        <PartnerImage config={partner.image} alt={partner.name} />
+      </div>
+    </a>
   )
 }
 
@@ -692,6 +750,10 @@ export function DocsLayout({
           </div>
           <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 shrink-0" />
           <MobilePartnersStrip
+            analyticsProperties={{
+              framework: currentFramework.framework,
+              library_id: libraryId,
+            }}
             partners={activePartners}
             onLabelClick={() => {
               const details = detailsRef.current as HTMLDetailsElement | null
@@ -850,14 +912,28 @@ export function DocsLayout({
             )}
           </div>
           {!isLandingPage && (
-            <RightRail breakpoint="md">
+            <RightRail breakpoint="md" className="md:w-[280px]">
               <div className="relative">
-                <PartnersRail partners={activePartners} />
+                <PartnersRail
+                  analyticsPlacement="docs_right_rail"
+                  analyticsProperties={{
+                    framework: currentFramework.framework,
+                    library_id: libraryId,
+                  }}
+                  partners={activePartners}
+                />
                 <a
                   href="https://docs.google.com/document/d/1Hg2MzY2TU6U3hFEZ3MLe2oEOM3JS4-eByti3kdJU3I8"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="absolute right-3 top-2 font-medium opacity-60 hover:opacity-100 text-xs hover:underline"
+                  onClick={() => {
+                    trackPostHogEvent('become_partner_clicked', {
+                      framework: currentFramework.framework,
+                      library_id: libraryId,
+                      placement: 'docs_right_rail',
+                    })
+                  }}
                 >
                   Become a Partner
                 </a>

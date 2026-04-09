@@ -178,7 +178,7 @@ export function Doc({
         </div>
 
         {isTocVisible && (
-          <div className="pl-4 w-32 lg:w-36 xl:w-44 2xl:w-56 3xl:w-64 shrink-0 hidden lg:block transition-all">
+          <div className="pl-4 w-32 lg:w-36 xl:w-44 2xl:w-56 3xl:w-64 shrink-0 hidden xl:block transition-all">
             <Toc
               headings={headings}
               activeHeadings={activeHeadings}

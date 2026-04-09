@@ -209,7 +209,39 @@ async function getGithubSponsors() {
     }
 
     await fetchPage()
-  } catch {
+  } catch (err) {
+    const error = err as { status?: number }
+
+    if (error.status === 401) {
+      console.error(
+        'Invalid or missing GitHub credentials, returning mock data.',
+      )
+      return [
+        'tannerlinsley',
+        'tkdodo',
+        'crutchcorn',
+        'kevinvandy',
+        'jherr',
+        'seancassiere',
+        'schiller-manuel',
+      ].flatMap((d) =>
+        new Array(20).fill(d).map((_, i2) => ({
+          login: d,
+          name: d,
+          amount: (20 - i2) / 20 + Math.random(),
+          createdAt: new Date().toISOString(),
+          private: false,
+          linkUrl: `https://github.com/${d}`,
+          imageUrl: `https://github.com/${d}.png`,
+        })),
+      )
+    }
+
+    if (error.status === 403) {
+      console.error('GitHub rate limit exceeded, returning empty sponsors.')
+      return []
+    }
+
     console.error('Failed to fetch GitHub sponsors')
   }
 

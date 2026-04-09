@@ -297,23 +297,6 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           ) : null}
         </div>
       </div>
-      <div className="hidden xl:flex flex-1 justify-end min-w-0">
-        <Link
-          to="/$libraryId/$version"
-          params={{ libraryId: 'intent', version: 'latest' }}
-          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md
-            bg-gradient-to-r from-sky-500 to-blue-600
-            hover:from-sky-400 hover:to-blue-500
-            text-white text-xs font-medium
-            shadow-sm hover:shadow-md
-            transition-all duration-200"
-        >
-          <span className="px-1 py-px text-[9px] font-bold bg-white/20 rounded uppercase">
-            New
-          </span>
-          <span>TanStack Intent</span>
-        </Link>
-      </div>
       <div className="flex items-center gap-1.5 sm:gap-2">
         <div className="hidden min-[750px]:block">{socialLinks}</div>
         <div className="hidden sm:block">
@@ -481,7 +464,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                           `px-2 py-px uppercase font-black rounded-md text-[.6rem]`,
                           'border bg-transparent',
                           'border-current text-current',
-                          'opacity-90 group-hover:opacity-100 transition-opacity',
+                          'opacity-0 group-hover:opacity-100 transition-opacity',
                           library.textColor,
                         )}
                       >
@@ -548,7 +531,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
               <Hammer className="w-5 h-5" />
               <div className="flex items-center justify-between flex-1 gap-2">
                 <span>Builder</span>
-                <span className="px-1.5 py-0.5 text-[.6rem] font-black border border-amber-500 text-amber-500 rounded-md uppercase">
+                <span className="px-1.5 py-0.5 text-[.6rem] font-black border border-amber-500 text-amber-500 rounded-md uppercase md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                   Alpha
                 </span>
               </div>
@@ -567,7 +550,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             <Hammer className="w-4 h-4" />
             <div className="flex items-center justify-between flex-1 gap-2">
               <span>Builder</span>
-              <span className="px-1.5 py-0.5 text-[.6rem] font-black border border-amber-500 text-amber-500 rounded-md uppercase">
+              <span className="px-1.5 py-0.5 text-[.6rem] font-black border border-amber-500 text-amber-500 rounded-md uppercase md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                 Alpha
               </span>
             </div>
@@ -598,7 +581,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             label: (
               <>
                 <span>Learn</span>
-                <span className="px-1.5 py-0.5 text-[.6rem] font-black border border-green-500 text-green-500 rounded-md uppercase">
+                <span className="px-1.5 py-0.5 text-[.6rem] font-black border border-green-500 text-green-500 rounded-md uppercase md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                   NEW
                 </span>
               </>

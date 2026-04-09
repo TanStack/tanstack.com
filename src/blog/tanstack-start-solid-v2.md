@@ -9,11 +9,11 @@ authors:
 
 ![Solid 2.0 Beta Support in TanStack Router and Start](/blog-assets/tanstack-router-solid-v2/header.jpg)
 
-Today we're excited to release beta support for the Solid 2.0 beta in TanStack Router and TanStack Start!
+Today we're excited to release support for the Solid 2.0 beta in TanStack Router and TanStack Start!
 
-Solid 2.0 introduces some genuinely exciting new capabilities, and we wanted to make sure you could try them in real applications, not just small demos. If you're experimenting with Solid 2.0 and need a full-stack app framework, you have come to the right place
+Solid 2.0 introduces some genuinely exciting new capabilities, and we wanted to make sure you could try them in real applications, not just small demos. If you're experimenting with Solid 2.0 and need a full-stack app framework, you have come to the right place.
 
-## How to Use it Today
+## How to Use It Today
 
 You can try it today in one of two ways:
 

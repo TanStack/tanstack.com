@@ -50,6 +50,8 @@ interface UseApplicationBuilderOptions {
   suggestionContext?: ApplicationStarterContext
 }
 
+type CopyTrigger = 'automatic' | 'user'
+
 const starterFeatureLibraryMap: Record<string, LibraryId | undefined> = {
   ai: 'ai',
   form: 'form',
@@ -331,21 +333,40 @@ export function useApplicationBuilder({
   const togglePackageManager = React.useCallback(
     (packageManager: StarterPackageManager) => {
       invalidateResult()
-      setSelectedPackageManager((current) =>
-        current === packageManager ? undefined : packageManager,
-      )
+
+      setSelectedPackageManager((current) => {
+        const nextPackageManager =
+          current === packageManager ? undefined : packageManager
+
+        trackPostHogEvent('application_starter_package_manager_toggled', {
+          ...analyticsProperties,
+          package_manager: packageManager,
+          selected: nextPackageManager === packageManager,
+        })
+
+        return nextPackageManager
+      })
     },
-    [invalidateResult],
+    [analyticsProperties, invalidateResult],
   )
 
   const toggleToolchain = React.useCallback(
     (toolchain: StarterToolchain) => {
       invalidateResult()
-      setSelectedToolchain((current) =>
-        current === toolchain ? undefined : toolchain,
-      )
+
+      setSelectedToolchain((current) => {
+        const nextToolchain = current === toolchain ? undefined : toolchain
+
+        trackPostHogEvent('application_starter_toolchain_toggled', {
+          ...analyticsProperties,
+          selected: nextToolchain === toolchain,
+          toolchain,
+        })
+
+        return nextToolchain
+      })
     },
-    [invalidateResult],
+    [analyticsProperties, invalidateResult],
   )
 
   React.useEffect(() => {
@@ -396,7 +417,10 @@ export function useApplicationBuilder({
   }, [])
 
   const markCopied = React.useCallback(
-    (kind: string, options?: { showPromptNotice?: boolean }) => {
+    (
+      kind: string,
+      options?: { showPromptNotice?: boolean; trigger?: CopyTrigger },
+    ) => {
       setCopiedKind(kind)
       setTimeout(
         () => setCopiedKind((current) => (current === kind ? null : current)),
@@ -410,6 +434,7 @@ export function useApplicationBuilder({
       trackPostHogEvent('application_starter_value_copied', {
         ...analyticsProperties,
         copied_kind: kind,
+        copy_trigger: options?.trigger ?? 'user',
       })
     },
     [analyticsProperties, revealPromptCopyNotice],
@@ -419,10 +444,17 @@ export function useApplicationBuilder({
     async (
       value: string,
       kind: string,
-      options?: { notify?: boolean; showPromptNotice?: boolean },
+      options?: {
+        notify?: boolean
+        showPromptNotice?: boolean
+        trigger?: CopyTrigger
+      },
     ) => {
       await navigator.clipboard.writeText(value)
-      markCopied(kind, { showPromptNotice: options?.showPromptNotice })
+      markCopied(kind, {
+        showPromptNotice: options?.showPromptNotice,
+        trigger: options?.trigger,
+      })
 
       if (options?.notify === false) {
         return
@@ -447,7 +479,10 @@ export function useApplicationBuilder({
       onResolvedResult?.(nextResult)
 
       if (mode !== 'compact') {
-        void handleCopy(nextResult.prompt, 'prompt', { notify: false })
+        void handleCopy(nextResult.prompt, 'prompt', {
+          notify: false,
+          trigger: 'automatic',
+        })
       }
 
       if (!builderIntegration) {
@@ -455,6 +490,14 @@ export function useApplicationBuilder({
       }
 
       const applied = await builderIntegration.applyResult(nextResult)
+
+      trackPostHogEvent('application_starter_builder_result_applied', {
+        ...analyticsProperties,
+        applied,
+        recipe_target: nextResult.recipe.target,
+        result_type: nextResult.resultType,
+      })
+
       if (applied) {
         notify(
           <div>
@@ -466,7 +509,14 @@ export function useApplicationBuilder({
         )
       }
     },
-    [builderIntegration, handleCopy, mode, notify, onResolvedResult],
+    [
+      analyticsProperties,
+      builderIntegration,
+      handleCopy,
+      mode,
+      notify,
+      onResolvedResult,
+    ],
   )
 
   const handleResolveMutate = React.useCallback(() => {
@@ -480,6 +530,11 @@ export function useApplicationBuilder({
         return
       }
 
+      trackPostHogEvent('application_starter_analysis_failed', {
+        ...analyticsProperties,
+        error_message: error instanceof Error ? error.message : 'unknown_error',
+      })
+
       notify(
         <div>
           <div className="font-medium">Could not analyze the prompt</div>
@@ -489,7 +544,7 @@ export function useApplicationBuilder({
         </div>,
       )
     },
-    [notify],
+    [analyticsProperties, notify],
   )
 
   const handleAnalysisSuccess = React.useCallback(
@@ -505,8 +560,20 @@ export function useApplicationBuilder({
       setIsAnalysisStale(false)
       setIsLocked(false)
       setLockMessage(null)
+
+      trackPostHogEvent('application_starter_analyzed', {
+        ...analyticsProperties,
+        analysis_deployment: nextAnalysis.recipe.deployment,
+        analysis_inferred_library_count: nextAnalysis.inferredLibraryIds.length,
+        analysis_inferred_library_ids: nextAnalysis.inferredLibraryIds,
+        analysis_inferred_partner_count: nextAnalysis.inferredPartnerIds.length,
+        analysis_inferred_partner_ids: nextAnalysis.inferredPartnerIds,
+        analysis_package_manager: nextAnalysis.recipe.packageManager,
+        analysis_target: nextAnalysis.recipe.target,
+        analysis_toolchain: nextAnalysis.recipe.toolchain,
+      })
     },
-    [],
+    [analyticsProperties],
   )
 
   const handleResolveError = React.useCallback(

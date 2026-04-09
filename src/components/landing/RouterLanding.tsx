@@ -14,7 +14,7 @@ import { LibraryStatsSection } from '~/components/LibraryStatsSection'
 import { LazyCodeExampleCard } from '~/components/LazyCodeExampleCard'
 import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 import { StackBlitzSection } from '~/components/StackBlitzSection'
-import { ApplicationStarter } from '~/components/ApplicationStarter'
+import { DeferredApplicationStarter } from '~/components/DeferredApplicationStarter'
 
 const library = getLibrary('router')
 
@@ -78,7 +78,7 @@ export default function RouterLanding() {
       <div className="space-y-6">
         <div className="mx-auto w-full max-w-[1021px] px-4 pt-4 sm:px-6">
           <div className="mx-auto">
-            <ApplicationStarter
+            <DeferredApplicationStarter
               context="router"
               forceRouterOnly
               secondaryActionLabel="Build Router App on Netlify"

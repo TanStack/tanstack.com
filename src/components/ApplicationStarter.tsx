@@ -18,7 +18,6 @@ import type {
   ApplicationStarterContext,
   ApplicationStarterResult,
 } from '~/utils/application-starter'
-import { DeployDialog } from '~/components/builder/DeployDialog'
 import {
   Collapsible,
   CollapsibleContent,
@@ -41,7 +40,7 @@ import { useApplicationBuilder } from '~/components/application-builder/useAppli
 import { Button, GitHub } from '~/ui'
 import { trackPostHogEvent } from '~/utils/posthog'
 
-interface ApplicationStarterProps {
+export interface ApplicationStarterProps {
   alwaysShowPostAnalysisSection?: boolean
   builderIntegration?: ApplicationStarterBuilderIntegration
   className?: string
@@ -68,6 +67,12 @@ interface ApplicationStarterProps {
 const LazyApplicationStarterHotkeys = React.lazy(() =>
   import('~/components/ApplicationStarterHotkeys.client').then((m) => ({
     default: m.ApplicationStarterHotkeys,
+  })),
+)
+
+const LazyDeployDialog = React.lazy(() =>
+  import('~/components/builder/DeployDialog').then((m) => ({
+    default: m.DeployDialog,
   })),
 )
 
@@ -238,12 +243,16 @@ export function ApplicationStarter({
         </ClientOnly>
       ) : null}
 
-      <DeployDialog
-        isOpen={isDeployDialogOpen}
-        onClose={() => setIsDeployDialogOpen(false)}
-        provider={deployDialogProvider}
-        starterRecipe={result?.recipe ?? null}
-      />
+      {isDeployDialogOpen ? (
+        <React.Suspense fallback={null}>
+          <LazyDeployDialog
+            isOpen={isDeployDialogOpen}
+            onClose={() => setIsDeployDialogOpen(false)}
+            provider={deployDialogProvider}
+            starterRecipe={result?.recipe ?? null}
+          />
+        </React.Suspense>
+      ) : null}
 
       <div className="relative">
         {compact ? (

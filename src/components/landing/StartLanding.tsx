@@ -15,7 +15,7 @@ import { BrandXIcon } from '~/components/icons/BrandXIcon'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
 import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
-import { ApplicationStarter } from '~/components/ApplicationStarter'
+import { DeferredApplicationStarter } from '~/components/DeferredApplicationStarter'
 
 const library = getLibrary('start')
 
@@ -42,7 +42,7 @@ export default function StartLanding() {
       <div className="space-y-6">
         <div className="mx-auto w-full max-w-[1021px] px-4 pt-4 sm:px-6">
           <div className="mx-auto">
-            <ApplicationStarter
+            <DeferredApplicationStarter
               context="start"
               secondaryActionLabel="Build Start on Netlify"
               title="What would you like to build with TanStack Start?"

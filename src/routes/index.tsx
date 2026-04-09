@@ -27,7 +27,7 @@ import { Card } from '~/components/Card'
 import LibraryCard from '~/components/LibraryCard'
 import { FeaturedShowcases } from '~/components/ShowcaseSection'
 import { Button } from '~/ui'
-import { ApplicationStarter } from '~/components/ApplicationStarter'
+import { DeferredApplicationStarter } from '~/components/DeferredApplicationStarter'
 import { seo } from '~/utils/seo'
 
 const LazyBrandContextMenu = React.lazy(() =>
@@ -226,7 +226,7 @@ function Index() {
             </div>
           </div>
           <div className="mx-auto mt-16 w-full max-w-[1021px] px-4 sm:px-6 md:mt-20 lg:mt-14 xl:mt-12">
-            <ApplicationStarter
+            <DeferredApplicationStarter
               context="home"
               enableHotkeys
               primaryButtonColor="cyan"

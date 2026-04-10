@@ -1,7 +1,7 @@
 ---
-title: 'Solid 2.0 Beta Support in TanStack Router, Start and Query'
+title: 'Solid 2.0 Beta Support in TanStack Router, Start, and Query'
 published: 2026-04-10
-excerpt: Solid 2.0 beta support is now available in TanStack Router, Start and Query, so you can start experimenting with Solid's next major release in real applications today.
+excerpt: TanStack Router, Start, and Query now support the Solid 2.0 beta, so you can try Solid's next major release in real applications today.
 authors:
   - Brenley Dueck
   - Birk Skyum
@@ -9,18 +9,18 @@ authors:
 
 ![Solid 2.0 Beta Support in TanStack Router, Start and Query](/blog-assets/tanstack-start-solid-v2/header.png)
 
-Today we're excited to release support for the Solid 2.0 beta in TanStack Router, Start and Query!
+TanStack Router, Start, and Query now support the Solid 2.0 beta.
 
-Solid 2.0 introduces some genuinely exciting new capabilities, and we wanted to make sure you could try them in real applications, not just small demos. If you're experimenting with Solid 2.0 and need a full-stack app framework, you have come to the right place.
+Solid 2.0 introduces meaningful changes to how async rendering, derived state, and SSR work. We wanted to make sure you could try those changes in real applications, not just isolated demos. If you're evaluating Solid 2.0 and need routing, server rendering, and data fetching to come with it, you can start today.
 
-## How to Use It Today
+## Get Started Today
 
-You can try it today in one of two ways:
+You can get started in one of two ways:
 
 - Start from one of our [Solid examples](https://github.com/TanStack/router/tree/solid-router-v2-pre/examples/solid)
 - Upgrade an existing TanStack Router or TanStack Start app to the beta versions below
 
-If you're upgrading an existing app, update your dependencies to:
+If you're upgrading an existing app, update these dependencies first:
 
 <!-- ::start:tabs variant="package-manager" mode="install" -->
 
@@ -42,13 +42,13 @@ solid: @tanstack/solid-query@^6.0.0-beta.3 @tanstack/solid-query-devtools@^6.0.0
 
 <!-- ::end:tabs -->
 
-The TanStack APIs are mostly unchanged, but Solid 2.0 itself includes breaking changes. If you're upgrading an existing Solid app, make sure to read the official [Solid 2.0 migration guide](https://github.com/solidjs/solid/blob/next/documentation/solid-2.0/MIGRATION.md).
+The TanStack APIs are mostly unchanged. The main breaking changes come from Solid 2.0 itself, so if you're upgrading an existing Solid app, read the official [Solid 2.0 migration guide](https://github.com/solidjs/solid/blob/next/documentation/solid-2.0/MIGRATION.md).
 
 ## Why This Matters
 
-Solid 2.0 is a major step forward for the framework. It unlocks capabilities that were difficult or impossible to express cleanly before, especially around async behavior, derived state, and SSR.
+Solid 2.0 is more than a version bump. It unlocks patterns that were awkward or impossible to express cleanly before, especially around async behavior, derived state, and SSR.
 
-That makes this a great time to try Solid in larger applications, where routing, loading states, and server rendering start to matter a lot more. TanStack Router and TanStack Start are a natural fit there, and we wanted Solid users to be able to explore the new release without waiting around for app-level tooling to catch up.
+That matters most in larger applications, where routing, loading states, and server rendering carry real weight. TanStack Router and TanStack Start are a natural fit there, and we wanted Solid users to be able to explore the new release without waiting for app-level tooling to catch up.
 
 Some of the highlights in Solid 2.0 include:
 
@@ -56,12 +56,14 @@ Some of the highlights in Solid 2.0 include:
 - Mutable derivations
 - Derived signals
 - Pull-based run-once SSR
-- Pending UI is an expression
+- Pending UI as an expression
 
-If you want to dig deeper into what's changing in Solid itself, check out the [Solid 2.0 beta discussion](https://github.com/solidjs/solid/discussions/2596) and the [Road to 2.0 discussion](https://github.com/solidjs/solid/discussions/2425).
+If you want to dig deeper into the release itself, check out the [Solid 2.0 beta discussion](https://github.com/solidjs/solid/discussions/2596) and the [Road to 2.0 discussion](https://github.com/solidjs/solid/discussions/2425).
 
-## Still Early, Please Tell Us What Breaks
+## Still Early — Tell Us What Breaks
 
-This support is still early, and that's exactly why we want feedback now. If you try TanStack Router or TanStack Start with Solid 2.0 beta, let us know how it goes.
+This support is intentionally early. We'd rather get Solid 2.0 support into your hands while the beta is still evolving than wait until every edge case is polished.
+
+If you try TanStack Router, Start, or Query with Solid 2.0 beta, tell us what works, what feels rough, and where the integration breaks down.
 
 [Join the Discord](https://tlinz.com/discord) and tell us what worked, what felt rough, and what you'd like to see next.

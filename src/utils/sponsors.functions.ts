@@ -119,10 +119,12 @@ async function getGithubSponsors() {
                 createdAt
                 sponsorEntity {
                   ... on User {
+                    avatarUrl
                     name
                     login
                   }
                   ... on Organization {
+                    avatarUrl
                     name
                     login
                   }
@@ -146,6 +148,7 @@ async function getGithubSponsors() {
         node: {
           createdAt: string
           sponsorEntity: {
+            avatarUrl: string
             name: string
             login: string
           } | null
@@ -187,7 +190,7 @@ async function getGithubSponsors() {
             return null
           }
 
-          const { name, login } = sponsorEntity
+          const { avatarUrl, name, login } = sponsorEntity
 
           return {
             name,
@@ -195,7 +198,7 @@ async function getGithubSponsors() {
             amount: tier?.monthlyPriceInDollars || 0,
             createdAt,
             private: privacyLevel === 'PRIVATE',
-            imageUrl: '',
+            imageUrl: avatarUrl,
             linkUrl: '',
           }
         })

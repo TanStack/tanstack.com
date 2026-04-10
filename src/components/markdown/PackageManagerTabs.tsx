@@ -52,9 +52,14 @@ export function PackageManagerTabs({
     'react') as Framework
 
   const normalizedFramework = actualFramework.toLowerCase()
-  const packageGroups = packagesByFramework[normalizedFramework]
+  const fallbackFramework = Object.keys(packagesByFramework).find(
+    (framework) => packagesByFramework[framework]?.length,
+  )
+  const packageGroups =
+    packagesByFramework[normalizedFramework] ||
+    (fallbackFramework ? packagesByFramework[fallbackFramework] : undefined)
 
-  // Hide component if current framework not in package list
+  // Fall back to the first available framework so single-framework content still renders.
   if (!packageGroups || packageGroups.length === 0) {
     return null
   }

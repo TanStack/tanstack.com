@@ -64,6 +64,8 @@ If you want to dig deeper into the release itself, check out the [Solid 2.0 beta
 
 This support is intentionally early. We'd rather put Solid 2.0 support in your hands while the beta is still evolving than wait until every edge case is polished.
 
+We plan to track Solid core closely from beta to RC to stable, so TanStack Router, Start, and Query stay aligned throughout the 2.0 rollout.
+
 If you try TanStack Router, Start, or Query with Solid 2.0 beta, tell us what works, what feels rough, and where the integration breaks down. Early feedback here is what helps us make the release solid quickly.
 
 [Join the Discord](https://tlinz.com/discord) and tell us what worked, what felt rough, and what you'd like to see next.

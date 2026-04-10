@@ -89,7 +89,7 @@ export async function getSponsors() {
 
   sponsors.sort(
     (a, b) =>
-      (b.amount || 0) - (a.amount || 0) || (b.createdAt > a.createdAt ? -1 : 1),
+      (b.amount || 0) - (a.amount || 0) || a.login.localeCompare(b.login),
   )
 
   return sponsors
@@ -103,20 +103,21 @@ async function getGithubSponsors() {
         `
       query ($cursor: String) {
         viewer {
-          sponsorshipsAsMaintainer(first: 100, after: $cursor, includePrivate: true) {
+          sponsorshipsAsMaintainer(first: 100, after: $cursor, includePrivate: false) {
             pageInfo {
               hasNextPage
               endCursor
             }
             edges {
               node {
-                createdAt
                 sponsorEntity {
                   ... on User {
+                    avatarUrl
                     name
                     login
                   }
                   ... on Organization {
+                    avatarUrl
                     name
                     login
                   }
@@ -124,7 +125,6 @@ async function getGithubSponsors() {
                 tier {
                   monthlyPriceInDollars
                 }
-                privacyLevel
               }
             }
           }
@@ -138,15 +138,14 @@ async function getGithubSponsors() {
 
       type SponsorshipEdge = {
         node: {
-          createdAt: string
           sponsorEntity: {
+            avatarUrl: string
             name: string
             login: string
           } | null
           tier: {
             monthlyPriceInDollars: number
           } | null
-          privacyLevel: string
         }
       }
 
@@ -174,22 +173,22 @@ async function getGithubSponsors() {
       const mapped = edges
         .map((edge) => {
           const {
-            node: { createdAt, sponsorEntity, tier, privacyLevel },
+            node: { sponsorEntity, tier },
           } = edge
 
           if (!sponsorEntity) {
             return null
           }
 
-          const { name, login } = sponsorEntity
+          const { avatarUrl, name, login } = sponsorEntity
 
           return {
             name,
             login,
             amount: tier?.monthlyPriceInDollars || 0,
-            createdAt,
-            private: privacyLevel === 'PRIVATE',
-            imageUrl: '',
+            createdAt: '',
+            private: false,
+            imageUrl: avatarUrl,
             linkUrl: '',
           }
         })
@@ -235,8 +234,10 @@ async function getGithubSponsors() {
       console.error('GitHub rate limit exceeded, returning empty sponsors.')
       return []
     }
-    throw err
+    console.error('Failed to fetch GitHub sponsors', err)
   }
+
+  return sponsors
 }
 
 async function getSponsorsMeta(): Promise<SponsorMeta[]> {

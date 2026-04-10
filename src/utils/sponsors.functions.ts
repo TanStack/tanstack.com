@@ -94,7 +94,7 @@ async function getSponsors() {
 
   sponsors.sort(
     (a, b) =>
-      (b.amount || 0) - (a.amount || 0) || (b.createdAt > a.createdAt ? -1 : 1),
+      (b.amount || 0) - (a.amount || 0) || a.login.localeCompare(b.login),
   )
 
   return sponsors
@@ -109,14 +109,13 @@ async function getGithubSponsors() {
         `
       query ($cursor: String) {
         viewer {
-          sponsorshipsAsMaintainer(first: 100, after: $cursor, includePrivate: true) {
+          sponsorshipsAsMaintainer(first: 100, after: $cursor, includePrivate: false) {
             pageInfo {
               hasNextPage
               endCursor
             }
             edges {
               node {
-                createdAt
                 sponsorEntity {
                   ... on User {
                     avatarUrl
@@ -132,7 +131,6 @@ async function getGithubSponsors() {
                 tier {
                   monthlyPriceInDollars
                 }
-                privacyLevel
               }
             }
           }
@@ -146,7 +144,6 @@ async function getGithubSponsors() {
 
       type SponsorshipEdge = {
         node: {
-          createdAt: string
           sponsorEntity: {
             avatarUrl: string
             name: string
@@ -155,7 +152,6 @@ async function getGithubSponsors() {
           tier: {
             monthlyPriceInDollars: number
           } | null
-          privacyLevel: string
         }
       }
 
@@ -183,7 +179,7 @@ async function getGithubSponsors() {
       const mapped = edges
         .map((edge) => {
           const {
-            node: { createdAt, sponsorEntity, tier, privacyLevel },
+            node: { sponsorEntity, tier },
           } = edge
 
           if (!sponsorEntity) {
@@ -196,8 +192,8 @@ async function getGithubSponsors() {
             name,
             login,
             amount: tier?.monthlyPriceInDollars || 0,
-            createdAt,
-            private: privacyLevel === 'PRIVATE',
+            createdAt: '',
+            private: false,
             imageUrl: avatarUrl,
             linkUrl: '',
           }
@@ -245,7 +241,7 @@ async function getGithubSponsors() {
       return []
     }
 
-    console.error('Failed to fetch GitHub sponsors')
+    console.error('Failed to fetch GitHub sponsors', err)
   }
 
   return sponsors

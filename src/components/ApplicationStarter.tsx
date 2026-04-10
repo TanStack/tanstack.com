@@ -1105,6 +1105,10 @@ function AnonymousGenerationLimitNotice({
     return null
   }
 
+  if (quota.limit >= 1_000_000) {
+    return null
+  }
+
   return (
     <div className="mt-3 text-xs leading-5 text-gray-500 dark:text-gray-400">
       {quota.remaining > 0

@@ -178,7 +178,7 @@ export const RATE_LIMITS = {
   // Anonymous starter generations before login is required
   applicationStarterAnonymousDaily: {
     keyPrefix: 'application-starter-anon-day',
-    limit: 5,
+    limit: 1_000_000,
     windowMs: 24 * 60 * 60 * 1000,
   },
   // Builder remote loading: 30 requests/minute (generous for UX)

@@ -208,31 +208,56 @@ const table = useVueTable({ data, columns, getCoreRowModel: getCoreRowModel() })
     },
     lit: {
       lang: 'ts',
-      code: `import { LitElement, customElement, html } from 'lit'
-import { createLitTable, getCoreRowModel, flexRender } from '@tanstack/lit-table'
+      code: `import { html, LitElement } from 'lit'
+import { customElement } from 'lit/decorators.js'
+import {
+	flexRender,
+	getCoreRowModel,
+	TableController,
+} from '@tanstack/lit-table'
 
 const data = [{ id: 1, name: 'Ada' }]
 const columns = [{ accessorKey: 'name', header: 'Name' }]
 
 @customElement('simple-table')
 export class SimpleTable extends LitElement {
-  table = createLitTable({ data, columns, getCoreRowModel: getCoreRowModel() })
+	private tableController = new TableController(this)
 
-  render() {
-    return html\`<table>
-      <thead>
-        \${this.table.getHeaderGroups().map((hg) => html\`<tr>
-          \${hg.headers.map((header) => html\`<th>\${flexRender(header.column.columnDef.header, header.getContext())}</th>\`)}
-        </tr>\`)}
-      </thead>
-      <tbody>
-        \${this.table.getRowModel().rows.map((row) => html\`<tr>
-          \${row.getVisibleCells().map((cell) => html\`<td>\${flexRender(cell.column.columnDef.cell, cell.getContext())}</td>\`)}
-        </tr>\`)}
-      </tbody>
-    </table>\`
-  }
-}`,
+	render() {
+		const table = this.tableController.table({
+			columns,
+			data,
+			getCoreRowModel: getCoreRowModel(),
+		})
+		return html\`
+			<table>
+				<thead>
+					\${table.getHeaderGroups().map((hg) => html\`
+						<tr>
+							\${hg.headers.map((header) => html\`
+								<th>
+									\${flexRender(header.column.columnDef.header, header.getContext())}
+								</th>
+							\`)}
+						</tr>
+					\`)}
+				</thead>
+				<tbody>
+					\${table.getRowModel().rows.map((row) => html\`
+						<tr>
+							\${row.getVisibleCells().map((cell) => html\`
+								<td>
+									\${flexRender(cell.column.columnDef.cell, cell.getContext())}
+								</td>
+							\`)}
+						</tr>
+					\`)}
+				</tbody>
+			</table>
+		\`
+	}
+}
+      `,
     },
     qwik: {
       lang: 'tsx',

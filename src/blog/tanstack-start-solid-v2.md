@@ -1,5 +1,5 @@
 ---
-title: 'Solid 2.0 Beta Support in TanStack Router, Start, and Query'
+title: 'Try Solid 2.0 Beta Today with TanStack Router, Start, and Query'
 published: 2026-04-10
 excerpt: Solid 2.0 beta support is now available in TanStack Router, Start, and Query, so you can start building and experimenting with Solid's next major release today.
 authors:
@@ -18,7 +18,7 @@ Solid 2.0 introduces major changes to async rendering, derived state, and SSR, a
 You can get started in one of two ways:
 
 - Start from one of our [Solid examples](https://github.com/TanStack/router/tree/solid-router-v2-pre/examples/solid)
-- Upgrade an existing TanStack Router or TanStack Start app to the beta versions below
+- Upgrade an existing TanStack Router or TanStack Start app using the beta versions below
 
 If you're upgrading an existing app, update these dependencies first:
 

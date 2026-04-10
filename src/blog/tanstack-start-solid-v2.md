@@ -1,7 +1,7 @@
 ---
 title: 'Try Solid 2.0 Beta Today with TanStack Router, Start, and Query'
 published: 2026-04-10
-excerpt: Solid 2.0 beta support is now available in TanStack Router, Start, and Query, so you can start building and experimenting with Solid's next major release today.
+excerpt: TanStack Router, Start, and Query now support the Solid 2.0 beta, so you can try Solid's next major release in real applications today.
 authors:
   - Brenley Dueck
   - Birk Skyum

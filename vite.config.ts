@@ -67,7 +67,11 @@ export default defineConfig({
     },
     ssr: {
       resolve: {
-        external: [...rscSsrExternals, ...sentrySsrExternals, ...dbSsrExternals],
+        external: [
+          ...rscSsrExternals,
+          ...sentrySsrExternals,
+          ...dbSsrExternals,
+        ],
       },
     },
   },

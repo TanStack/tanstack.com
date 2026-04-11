@@ -1,4 +1,5 @@
 import { chat } from '@tanstack/ai'
+import { anthropicText } from '@tanstack/ai-anthropic'
 import { openaiText } from '@tanstack/ai-openai'
 import { z } from 'zod'
 import {
@@ -52,6 +53,11 @@ type ApplicationStarterAnalysisPlan = z.infer<
   typeof applicationStarterAnalysisSchema
 >
 type OpenAIStarterModel = Parameters<typeof openaiText>[0]
+type AnthropicStarterModel = Parameters<typeof anthropicText>[0]
+type ApplicationStarterPromptModel = OpenAIStarterModel | AnthropicStarterModel
+type ApplicationStarterPromptAdapter =
+  | ReturnType<typeof openaiText>
+  | ReturnType<typeof anthropicText>
 
 const applicationStarterAnalysisSchema = z.object({
   deployment: z.enum(['cloudflare', 'netlify', 'nitro', 'railway']).nullable(),
@@ -61,7 +67,7 @@ const applicationStarterAnalysisSchema = z.object({
   template: z.string().trim().min(1).max(80).nullable(),
 })
 
-const supportedApplicationStarterModels = [
+const supportedApplicationStarterAnalysisModels = [
   'gpt-4.1',
   'gpt-4.1-mini',
   'gpt-4.1-nano',
@@ -71,6 +77,13 @@ const supportedApplicationStarterModels = [
   'gpt-5-mini',
   'gpt-5-nano',
 ] as const satisfies Array<OpenAIStarterModel>
+
+const supportedApplicationStarterPromptModels = [
+  ...supportedApplicationStarterAnalysisModels,
+  'claude-haiku-4-5',
+  'claude-sonnet-4-5',
+  'claude-opus-4-5',
+] as const satisfies Array<ApplicationStarterPromptModel>
 
 const deterministicProvider: ApplicationStarterProvider = {
   name: 'deterministic',
@@ -182,7 +195,7 @@ function getRequestedProviderName(): ApplicationStarterProviderName {
     return 'model'
   }
 
-  return process.env.OPENAI_API_KEY ? 'model' : 'deterministic'
+  return hasApplicationStarterModelKey() ? 'model' : 'deterministic'
 }
 
 async function resolveApplicationStarterWithModel(
@@ -228,16 +241,16 @@ async function tryGenerateApplicationStarterPrompt({
   request: ApplicationStarterRequest
   deterministicResult: ApplicationStarterResult
 }): Promise<ApplicationStarterPromptPlan | null> {
-  const apiKey = process.env.OPENAI_API_KEY
+  const adapter = getApplicationStarterPromptAdapter()
 
-  if (!apiKey) {
+  if (!adapter) {
     return null
   }
 
   try {
     return applicationStarterPromptSchema.parse(
       await chat({
-        adapter: openaiText(getApplicationStarterPromptModel()),
+        adapter,
         maxTokens: 900,
         messages: [
           {
@@ -300,13 +313,27 @@ function getApplicationStarterAnalysisModel(): OpenAIStarterModel {
   })
 }
 
-function getApplicationStarterPromptModel(): OpenAIStarterModel {
-  return getConfiguredApplicationStarterModel({
-    fallbackModel: 'gpt-4.1-mini',
+function getApplicationStarterPromptModel(): ApplicationStarterPromptModel {
+  return getConfiguredApplicationStarterPromptModel({
+    fallbackModel: getDefaultApplicationStarterPromptModel(),
     requestedModel:
       process.env.APPLICATION_STARTER_PROMPT_MODEL ??
       process.env.APPLICATION_STARTER_MODEL,
   })
+}
+
+function getApplicationStarterPromptAdapter(): ApplicationStarterPromptAdapter | null {
+  const model = getApplicationStarterPromptModel()
+
+  if (isAnthropicStarterModel(model)) {
+    return process.env.ANTHROPIC_API_KEY ? anthropicText(model) : null
+  }
+
+  return process.env.OPENAI_API_KEY ? openaiText(model) : null
+}
+
+function getDefaultApplicationStarterPromptModel(): ApplicationStarterPromptModel {
+  return 'gpt-4.1-mini'
 }
 
 function getConfiguredApplicationStarterModel({
@@ -320,11 +347,39 @@ function getConfiguredApplicationStarterModel({
     return fallbackModel
   }
 
-  const matchingModel = supportedApplicationStarterModels.find(
+  const matchingModel = supportedApplicationStarterAnalysisModels.find(
     (model) => model === requestedModel,
   )
 
   return matchingModel ?? fallbackModel
+}
+
+function getConfiguredApplicationStarterPromptModel({
+  fallbackModel,
+  requestedModel,
+}: {
+  fallbackModel: ApplicationStarterPromptModel
+  requestedModel: string | undefined
+}) {
+  if (!requestedModel) {
+    return fallbackModel
+  }
+
+  const matchingModel = supportedApplicationStarterPromptModels.find(
+    (model) => model === requestedModel,
+  )
+
+  return matchingModel ?? fallbackModel
+}
+
+function isAnthropicStarterModel(
+  model: ApplicationStarterPromptModel,
+): model is AnthropicStarterModel {
+  return model.startsWith('claude-')
+}
+
+function hasApplicationStarterModelKey() {
+  return Boolean(process.env.OPENAI_API_KEY || process.env.ANTHROPIC_API_KEY)
 }
 
 function buildPromptGenerationRequest({

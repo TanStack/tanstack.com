@@ -46,6 +46,7 @@
     "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.2.2",
     "@tanstack/ai": "^0.10.0",
+    "@tanstack/ai-anthropic": "^0.7.2",
     "@tanstack/ai-client": "^0.7.7",
     "@tanstack/ai-openai": "^0.7.3",
     "@tanstack/create": "^0.63.2",

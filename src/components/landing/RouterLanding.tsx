@@ -1,62 +1,26 @@
 import { useParams } from '@tanstack/react-router'
-import { routerProject } from '~/libraries/router'
-import { Footer } from '~/components/Footer'
-import { LibraryHero } from '~/components/LibraryHero'
-import { FeatureGrid } from '~/components/FeatureGrid'
-import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { BottomCTA } from '~/components/BottomCTA'
-import { Framework, getBranch, getLibrary } from '~/libraries'
+import { DeferredApplicationStarter } from '~/components/DeferredApplicationStarter'
+import { FeatureGrid } from '~/components/FeatureGrid'
+import { Footer } from '~/components/Footer'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
-import LandingPageGad from '~/components/LandingPageGad'
-import { LibraryTestimonials } from '~/components/LibraryTestimonials'
+import { LibraryHero } from '~/components/LibraryHero'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
-import { LazyCodeExampleCard } from '~/components/LazyCodeExampleCard'
+import { LibraryTestimonials } from '~/components/LibraryTestimonials'
 import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
+import { LazySponsorSection } from '~/components/LazySponsorSection'
+import LandingPageGad from '~/components/LandingPageGad'
 import { StackBlitzSection } from '~/components/StackBlitzSection'
-import { DeferredApplicationStarter } from '~/components/DeferredApplicationStarter'
+import { getBranch, getLibrary } from '~/libraries'
+import { routerProject } from '~/libraries/router'
+import type { LandingComponentProps } from '~/routes/$libraryId/$version'
 
 const library = getLibrary('router')
 
-const codeExamples: Partial<Record<Framework, { lang: string; code: string }>> =
-  {
-    react: {
-      lang: 'tsx',
-      code: `import { createRootRoute, createRoute, createRouter, RouterProvider } from '@tanstack/react-router'
-
-const rootRoute = createRootRoute()
-const indexRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/',
-  component: () => <div>Hello World</div>,
-})
-const routeTree = rootRoute.addChildren([indexRoute])
-const router = createRouter({ routeTree })
-
-export default function App() {
-  return <RouterProvider router={router} />
-}`,
-    },
-    solid: {
-      lang: 'tsx',
-      code: `import { createRootRoute, createRoute, createRouter, RouterProvider } from '@tanstack/solid-router'
-
-const rootRoute = createRootRoute()
-const indexRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/',
-  component: () => <div>Hello World</div>,
-})
-const routeTree = rootRoute.addChildren([indexRoute])
-const router = createRouter({ routeTree })
-
-export default function App() {
-  return <RouterProvider router={router} />
-}`,
-    },
-  }
-
-export default function RouterLanding() {
+export default function RouterLanding({
+  landingCodeExampleRsc,
+}: LandingComponentProps) {
   const { version } = useParams({ strict: false })
   const branch = getBranch(routerProject, version)
 
@@ -91,10 +55,7 @@ export default function RouterLanding() {
         <LibraryStatsSection library={library} />
       </div>
 
-      <LazyCodeExampleCard
-        frameworks={routerProject.frameworks}
-        codeByFramework={codeExamples}
-      />
+      {landingCodeExampleRsc}
 
       <LibraryFeatureHighlights
         featureHighlights={routerProject.featureHighlights}

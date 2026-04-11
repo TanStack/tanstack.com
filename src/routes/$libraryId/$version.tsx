@@ -6,13 +6,19 @@ import {
   lazyRouteComponent,
 } from '@tanstack/react-router'
 import type { AsyncRouteComponent } from '@tanstack/react-router'
+import type { ReactNode } from 'react'
 import { RedirectVersionBanner } from '~/components/RedirectVersionBanner'
 import { findLibrary, getBranch } from '~/libraries'
 import type { LibraryId } from '~/libraries'
 import { getTanstackDocsConfig } from '~/utils/config'
+import { fetchLandingCodeExample } from '~/utils/landing-code-example.functions'
+
+export type LandingComponentProps = {
+  landingCodeExampleRsc?: ReactNode
+}
 
 export const landingComponents: Partial<
-  Record<LibraryId, AsyncRouteComponent<object>>
+  Record<LibraryId, AsyncRouteComponent<LandingComponentProps>>
 > = {
   query: lazyRouteComponent(() => import('~/components/landing/QueryLanding')),
   router: lazyRouteComponent(
@@ -85,7 +91,18 @@ export const Route = createFileRoute('/$libraryId/$version')({
       },
     })
 
-    return { config }
+    const landingCodeExample = ctx.location.pathname.includes('/docs')
+      ? null
+      : await fetchLandingCodeExample({
+          data: {
+            libraryId,
+          },
+        })
+
+    return {
+      config,
+      landingCodeExampleRsc: landingCodeExample?.contentRsc ?? null,
+    }
   },
   component: RouteForm,
 })

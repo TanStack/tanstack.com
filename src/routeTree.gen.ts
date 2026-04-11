@@ -108,6 +108,7 @@ import { Route as AdminFeedbackIdRouteImport } from './routes/admin/feedback_.$i
 import { Route as LibraryIdVersionDocsRouteImport } from './routes/$libraryId/$version.docs'
 import { Route as IntentRegistryPackageNameIndexRouteImport } from './routes/intent/registry/$packageName.index'
 import { Route as LibraryIdVersionDocsIndexRouteImport } from './routes/$libraryId/$version.docs.index'
+import { Route as IntentRegistryPackageNameChar123Char125DotmdRouteImport } from './routes/intent/registry/$packageName.{$}[.]md'
 import { Route as IntentRegistryPackageNameSkillNameRouteImport } from './routes/intent/registry/$packageName.$skillName'
 import { Route as ApiBuilderDeployGithubRouteImport } from './routes/api/builder/deploy/github'
 import { Route as ApiBuilderDeployCheckNameRouteImport } from './routes/api/builder/deploy/check-name'
@@ -629,6 +630,12 @@ const LibraryIdVersionDocsIndexRoute =
     path: '/',
     getParentRoute: () => LibraryIdVersionDocsRoute,
   } as any)
+const IntentRegistryPackageNameChar123Char125DotmdRoute =
+  IntentRegistryPackageNameChar123Char125DotmdRouteImport.update({
+    id: '/{$}.md',
+    path: '/{$}.md',
+    getParentRoute: () => IntentRegistryPackageNameRoute,
+  } as any)
 const IntentRegistryPackageNameSkillNameRoute =
   IntentRegistryPackageNameSkillNameRouteImport.update({
     id: '/$skillName',
@@ -831,6 +838,7 @@ export interface FileRoutesByFullPath {
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
   '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
   '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
+  '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   '/$libraryId/$version/docs/': typeof LibraryIdVersionDocsIndexRoute
   '/intent/registry/$packageName/': typeof IntentRegistryPackageNameIndexRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
@@ -939,6 +947,7 @@ export interface FileRoutesByTo {
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
   '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
   '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
+  '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsIndexRoute
   '/intent/registry/$packageName': typeof IntentRegistryPackageNameIndexRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
@@ -1057,6 +1066,7 @@ export interface FileRoutesById {
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
   '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
   '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
+  '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   '/$libraryId/$version/docs/': typeof LibraryIdVersionDocsIndexRoute
   '/intent/registry/$packageName/': typeof IntentRegistryPackageNameIndexRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
@@ -1176,6 +1186,7 @@ export interface FileRouteTypes {
     | '/api/builder/deploy/check-name'
     | '/api/builder/deploy/github'
     | '/intent/registry/$packageName/$skillName'
+    | '/intent/registry/$packageName/{$}.md'
     | '/$libraryId/$version/docs/'
     | '/intent/registry/$packageName/'
     | '/api/auth/cli/status/$ticketId'
@@ -1284,6 +1295,7 @@ export interface FileRouteTypes {
     | '/api/builder/deploy/check-name'
     | '/api/builder/deploy/github'
     | '/intent/registry/$packageName/$skillName'
+    | '/intent/registry/$packageName/{$}.md'
     | '/$libraryId/$version/docs'
     | '/intent/registry/$packageName'
     | '/api/auth/cli/status/$ticketId'
@@ -1401,6 +1413,7 @@ export interface FileRouteTypes {
     | '/api/builder/deploy/check-name'
     | '/api/builder/deploy/github'
     | '/intent/registry/$packageName/$skillName'
+    | '/intent/registry/$packageName/{$}.md'
     | '/$libraryId/$version/docs/'
     | '/intent/registry/$packageName/'
     | '/api/auth/cli/status/$ticketId'
@@ -2180,6 +2193,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryIdVersionDocsIndexRouteImport
       parentRoute: typeof LibraryIdVersionDocsRoute
     }
+    '/intent/registry/$packageName/{$}.md': {
+      id: '/intent/registry/$packageName/{$}.md'
+      path: '/{$}.md'
+      fullPath: '/intent/registry/$packageName/{$}.md'
+      preLoaderRoute: typeof IntentRegistryPackageNameChar123Char125DotmdRouteImport
+      parentRoute: typeof IntentRegistryPackageNameRoute
+    }
     '/intent/registry/$packageName/$skillName': {
       id: '/intent/registry/$packageName/$skillName'
       path: '/$skillName'
@@ -2472,6 +2492,7 @@ const PartnersRouteWithChildren = PartnersRoute._addFileChildren(
 
 interface IntentRegistryPackageNameRouteChildren {
   IntentRegistryPackageNameSkillNameRoute: typeof IntentRegistryPackageNameSkillNameRoute
+  IntentRegistryPackageNameChar123Char125DotmdRoute: typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   IntentRegistryPackageNameIndexRoute: typeof IntentRegistryPackageNameIndexRoute
 }
 
@@ -2479,6 +2500,8 @@ const IntentRegistryPackageNameRouteChildren: IntentRegistryPackageNameRouteChil
   {
     IntentRegistryPackageNameSkillNameRoute:
       IntentRegistryPackageNameSkillNameRoute,
+    IntentRegistryPackageNameChar123Char125DotmdRoute:
+      IntentRegistryPackageNameChar123Char125DotmdRoute,
     IntentRegistryPackageNameIndexRoute: IntentRegistryPackageNameIndexRoute,
   }
 

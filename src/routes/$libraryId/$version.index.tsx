@@ -38,7 +38,7 @@ export const Route = createFileRoute('/$libraryId/$version/')({
 function LibraryVersionIndex() {
   const { libraryId, version } = Route.useParams()
   const library = findLibrary(libraryId)
-  const { config } = versionRouteApi.useLoaderData()
+  const { config, landingCodeExampleRsc } = versionRouteApi.useLoaderData()
 
   if (!library) {
     throw notFound()
@@ -64,7 +64,7 @@ function LibraryVersionIndex() {
       isLandingPage
     >
       {LandingComponent ? (
-        <LandingComponent />
+        <LandingComponent landingCodeExampleRsc={landingCodeExampleRsc} />
       ) : (
         <div className="px-4 pt-32 pb-24">
           <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4 max-w-3xl mx-auto text-center">

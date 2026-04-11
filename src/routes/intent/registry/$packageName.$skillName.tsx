@@ -7,8 +7,7 @@ import {
   intentVersionSkillsQueryOptions,
   intentSingleSkillHistoryQueryOptions,
 } from '~/queries/intent'
-import type { SkillVersionEntry } from '~/utils/intent.functions'
-import { Markdown } from '~/components/markdown'
+import { getIntentSkillPage, type SkillVersionEntry } from '~/utils/intent.functions'
 import { CopyPageDropdown } from '~/components/CopyPageDropdown'
 import { SkillSparkline } from '~/components/intent/SkillSparkline'
 import {
@@ -17,17 +16,6 @@ import {
   usePackageVersion,
 } from './$packageName'
 import { Route as PackageRoute } from './$packageName'
-
-function stripFrontmatter(content: string): string {
-  const lines = content.split('\n')
-  if (lines[0]?.trim() !== '---') return content
-  const closing = lines.findIndex((l, i) => i > 0 && l.trim() === '---')
-  if (closing === -1) return content
-  return lines
-    .slice(closing + 1)
-    .join('\n')
-    .trimStart()
-}
 
 export const Route = createFileRoute(
   '/intent/registry/$packageName/$skillName',
@@ -47,7 +35,17 @@ export const Route = createFileRoute(
           version: activeVersion,
         }),
       )
+
+      return getIntentSkillPage({
+        data: {
+          packageName: name,
+          skillName: params.skillName,
+          version: activeVersion,
+        },
+      })
     }
+
+    return null
   },
   head: ({ params }) => {
     const pkgName = decodePkgName(params.packageName)
@@ -63,6 +61,7 @@ export const Route = createFileRoute(
 
 function SkillDetailPage() {
   const { packageName, skillName } = Route.useParams()
+  const skillPage = Route.useLoaderData()
   const pkgName = decodePkgName(packageName)
   const { activeVersion } = usePackageVersion()
   const { tab: urlTab } = PackageRoute.useSearch()
@@ -154,7 +153,7 @@ function SkillDetailPage() {
                 Source
               </a>
             )}
-            <CopyPageDropdown content={skill.content} label="Copy skill" />
+            <CopyPageDropdown label="Copy skill" />
           </div>
         </div>
 
@@ -213,7 +212,7 @@ function SkillDetailPage() {
           {/* Skill content */}
           <div className="rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden p-6">
             <div className="prose prose-gray dark:prose-invert max-w-none [font-size:16px] styled-markdown-content">
-              <Markdown rawContent={stripFrontmatter(skill.content)} />
+              {skillPage?.contentRsc ?? null}
             </div>
           </div>
         </>

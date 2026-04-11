@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { ChevronDown } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
-import type { MarkdownHeading } from '~/utils/markdown/processor'
+import type { MarkdownHeading } from '~/utils/markdown/processor.rsc'
 import {
   Dropdown,
   DropdownTrigger,

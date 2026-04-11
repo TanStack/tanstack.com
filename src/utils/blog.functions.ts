@@ -93,8 +93,7 @@ export const fetchBlogPost = createServerFn({ method: 'GET' })
 ${post.content}`
 
     const { contentRsc, headings } = await renderMarkdownToRsc(blogContent)
-    const isUnpublished =
-      post.draft || !isPublishedDateReleased(post.published)
+    const isUnpublished = post.draft || !isPublishedDateReleased(post.published)
 
     return {
       authors: post.authors,

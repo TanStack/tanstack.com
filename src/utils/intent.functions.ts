@@ -513,7 +513,10 @@ function stripFrontmatter(content: string) {
     return content
   }
 
-  return lines.slice(closing + 1).join('\n').trimStart()
+  return lines
+    .slice(closing + 1)
+    .join('\n')
+    .trimStart()
 }
 
 export const getIntentSkillPage = createServerFn({ method: 'GET' })
@@ -526,7 +529,9 @@ export const getIntentSkillPage = createServerFn({ method: 'GET' })
   )
   .handler(async ({ data }) => {
     const versions = await getPackageVersions(data.packageName)
-    const versionRecord = versions.find((version) => version.version === data.version)
+    const versionRecord = versions.find(
+      (version) => version.version === data.version,
+    )
 
     if (!versionRecord) {
       return null
@@ -562,7 +567,9 @@ export const getIntentSkillMarkdown = createServerFn({ method: 'GET' })
   )
   .handler(async ({ data }) => {
     const versions = await getPackageVersions(data.packageName)
-    const versionRecord = versions.find((version) => version.version === data.version)
+    const versionRecord = versions.find(
+      (version) => version.version === data.version,
+    )
 
     if (!versionRecord) {
       return null

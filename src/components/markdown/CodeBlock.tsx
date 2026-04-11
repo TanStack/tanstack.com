@@ -12,7 +12,10 @@ import { fetchRenderedCodeBlock } from '~/utils/codeBlock.functions'
 
 const renderCache = new Map<string, Promise<RenderedCodeBlockData>>()
 
-function getRenderPromise(key: string, data: { code: string; lang: string; title?: string }) {
+function getRenderPromise(
+  key: string,
+  data: { code: string; lang: string; title?: string },
+) {
   const cached = renderCache.get(key)
 
   if (cached) {
@@ -27,7 +30,9 @@ function getRenderPromise(key: string, data: { code: string; lang: string; title
 
 export function CodeBlock(props: CodeBlockProps) {
   const { code, lang, title } = extractCodeBlockData(props)
-  const [rendered, setRendered] = React.useState<RenderedCodeBlockData | null>(null)
+  const [rendered, setRendered] = React.useState<RenderedCodeBlockData | null>(
+    null,
+  )
 
   React.useEffect(() => {
     let cancelled = false

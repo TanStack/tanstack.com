@@ -10,9 +10,7 @@ type FrameworkContentProps = {
   children?: ReactNode
 }
 
-function isFrameworkPanel(
-  child: ReactNode,
-): child is React.ReactElement<{
+function isFrameworkPanel(child: ReactNode): child is React.ReactElement<{
   'data-framework': string
   children?: ReactNode
 }> {
@@ -22,9 +20,7 @@ function isFrameworkPanel(
   )
 }
 
-export function FrameworkContent({
-  children,
-}: FrameworkContentProps) {
+export function FrameworkContent({ children }: FrameworkContentProps) {
   const { framework: paramsFramework } = useParams({ strict: false })
   const localCurrentFramework = useLocalCurrentFramework()
   const userQuery = useCurrentUserQuery()
@@ -39,8 +35,9 @@ export function FrameworkContent({
   const panels = Children.toArray(children).filter(isFrameworkPanel)
   const fallbackPanel = panels[0]
   const activePanel =
-    panels.find((child) => child.props['data-framework'] === normalizedFramework) ||
-    fallbackPanel
+    panels.find(
+      (child) => child.props['data-framework'] === normalizedFramework,
+    ) || fallbackPanel
 
   if (!activePanel || !isValidElement(activePanel)) {
     return null

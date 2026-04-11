@@ -7,7 +7,10 @@ import {
   intentVersionSkillsQueryOptions,
   intentSingleSkillHistoryQueryOptions,
 } from '~/queries/intent'
-import { getIntentSkillPage, type SkillVersionEntry } from '~/utils/intent.functions'
+import {
+  getIntentSkillPage,
+  type SkillVersionEntry,
+} from '~/utils/intent.functions'
 import { CopyPageDropdown } from '~/components/CopyPageDropdown'
 import { SkillSparkline } from '~/components/intent/SkillSparkline'
 import {

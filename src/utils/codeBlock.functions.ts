@@ -12,9 +12,8 @@ export const fetchRenderedCodeBlock = createServerFn({ method: 'POST' })
     }),
   )
   .handler(async ({ data }) => {
-    const { renderCodeBlockData } = await import(
-      '~/components/markdown/renderCodeBlock.server'
-    )
+    const { renderCodeBlockData } =
+      await import('~/components/markdown/renderCodeBlock.server')
 
     return renderCodeBlockData(data)
   })

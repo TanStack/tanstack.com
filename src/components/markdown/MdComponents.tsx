@@ -57,7 +57,9 @@ export function MdCommentComponent({
 }: MdCommentComponentProps) {
   const parsedAttributes = parseJson(rawAttributes)
   const attributes =
-    parsedAttributes && typeof parsedAttributes === 'object' ? parsedAttributes : {}
+    parsedAttributes && typeof parsedAttributes === 'object'
+      ? parsedAttributes
+      : {}
 
   const normalizedComponentName = componentName?.toLowerCase()
 
@@ -74,7 +76,10 @@ export function MdCommentComponent({
       typeof parsedPackageManagerMeta.packagesByFramework === 'object'
     ) {
       const frameworkPanels = Object.entries(
-        parsedPackageManagerMeta.packagesByFramework as Record<string, string[][]>,
+        parsedPackageManagerMeta.packagesByFramework as Record<
+          string,
+          string[][]
+        >,
       ).flatMap(([framework, packageGroups]) => {
         return PACKAGE_MANAGERS.map((packageManager) => {
           const commandText = getInstallCommand(
@@ -105,9 +110,14 @@ export function MdCommentComponent({
 
     const parsedFilesMeta = parseJson(filesMeta)
 
-    if (parsedFilesMeta && typeof parsedFilesMeta === 'object' && panels.length) {
+    if (
+      parsedFilesMeta &&
+      typeof parsedFilesMeta === 'object' &&
+      panels.length
+    ) {
       const tabs = Array.isArray((attributes as { tabs?: unknown }).tabs)
-        ? ((attributes as { tabs: Array<{ name: string; slug: string }> }).tabs ?? [])
+        ? ((attributes as { tabs: Array<{ name: string; slug: string }> })
+            .tabs ?? [])
         : []
 
       return (
@@ -118,14 +128,17 @@ export function MdCommentComponent({
     }
 
     const tabs = Array.isArray((attributes as { tabs?: unknown }).tabs)
-      ? ((attributes as { tabs: Array<{ name: string; slug: string }> }).tabs ?? [])
+      ? ((attributes as { tabs: Array<{ name: string; slug: string }> }).tabs ??
+        [])
       : []
 
     if (!tabs.length) {
       return <div>{children}</div>
     }
 
-    return <Tabs tabs={tabs}>{panels.map((panel) => panel.props.children)}</Tabs>
+    return (
+      <Tabs tabs={tabs}>{panels.map((panel) => panel.props.children)}</Tabs>
+    )
   }
 
   if (normalizedComponentName === 'framework') {

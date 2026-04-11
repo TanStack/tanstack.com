@@ -10,9 +10,8 @@ export const fetchLandingCodeExample = createServerFn({ method: 'GET' })
     }),
   )
   .handler(async ({ data }) => {
-    const { renderLandingCodeExample } = await import(
-      '~/components/landing/codeExamples.server'
-    )
+    const { renderLandingCodeExample } =
+      await import('~/components/landing/codeExamples.server')
     const content = renderLandingCodeExample(data.libraryId)
 
     if (!content) {

@@ -43,16 +43,16 @@ Notes:
 
 Gzipped client JS, before vs after.
 
-| Page | Before | After | Delta |
-|---|---:|---:|---:|
-| `/blog/react-server-components` | 547,196 B | 394,207 B | -152,989 B |
-| `/router/latest/docs/overview` | 563,295 B | 410,644 B | -152,651 B |
-| `/router/latest/docs/framework/react/examples/basic` | 421,421 B | 381,079 B | -40,342 B |
-| `/table/latest` | 451,744 B | 409,455 B | -42,289 B |
-| `/query/latest` | 405,185 B | 412,671 B | +7,486 B |
-| `/router/latest` | 403,281 B | 411,259 B | +7,978 B |
-| `/form/latest` | 401,951 B | 409,389 B | +7,438 B |
-| `/virtual/latest` | 401,535 B | 409,044 B | +7,509 B |
+| Page                                                 |    Before |     After |      Delta |
+| ---------------------------------------------------- | --------: | --------: | ---------: |
+| `/blog/react-server-components`                      | 547,196 B | 394,207 B | -152,989 B |
+| `/router/latest/docs/overview`                       | 563,295 B | 410,644 B | -152,651 B |
+| `/router/latest/docs/framework/react/examples/basic` | 421,421 B | 381,079 B |  -40,342 B |
+| `/table/latest`                                      | 451,744 B | 409,455 B |  -42,289 B |
+| `/query/latest`                                      | 405,185 B | 412,671 B |   +7,486 B |
+| `/router/latest`                                     | 403,281 B | 411,259 B |   +7,978 B |
+| `/form/latest`                                       | 401,951 B | 409,389 B |   +7,438 B |
+| `/virtual/latest`                                    | 401,535 B | 409,044 B |   +7,509 B |
 
 ### Bundle Takeaways
 
@@ -145,11 +145,11 @@ Architectural simplifications:
 
 Captured before shipping these changes.
 
-| Page | Score | FCP | LCP | Speed Index | TBT | CLS | Interactive | Bytes | Requests |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| `/query/latest` | 80 | 2.8s | 3.4s | 3.4s | 300ms | 0.001 | 6.1s | 765 KiB | 89 |
-| `/blog/react-server-components` | 52 | 3.3s | 3.7s | 3.6s | 1,200ms | 0.15 | 7.8s | 1,101 KiB | 60 |
-| `/router/latest/docs/overview` | 78 | 3.0s | 3.6s | 3.9s | 280ms | 0.002 | 7.5s | 917 KiB | 81 |
+| Page                            | Score |  FCP |  LCP | Speed Index |     TBT |   CLS | Interactive |     Bytes | Requests |
+| ------------------------------- | ----: | ---: | ---: | ----------: | ------: | ----: | ----------: | --------: | -------: |
+| `/query/latest`                 |    80 | 2.8s | 3.4s |        3.4s |   300ms | 0.001 |        6.1s |   765 KiB |       89 |
+| `/blog/react-server-components` |    52 | 3.3s | 3.7s |        3.6s | 1,200ms |  0.15 |        7.8s | 1,101 KiB |       60 |
+| `/router/latest/docs/overview`  |    78 | 3.0s | 3.6s |        3.9s |   280ms | 0.002 |        7.5s |   917 KiB |       81 |
 
 Notes:
 
@@ -162,11 +162,11 @@ Notes:
 
 Fill this in after deploy to `main` and re-run Lighthouse on the same production URLs.
 
-| Page | Before Score | After Score | Before LCP | After LCP | Before TBT | After TBT | Before Bytes | After Bytes | Notes |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
-| `/query/latest` | 80 |  | 3.4s |  | 300ms |  | 765 KiB |  |  |
-| `/blog/react-server-components` | 52 |  | 3.7s |  | 1,200ms |  | 1,101 KiB |  |  |
-| `/router/latest/docs/overview` | 78 |  | 3.6s |  | 280ms |  | 917 KiB |  |  |
+| Page                            | Before Score | After Score | Before LCP | After LCP | Before TBT | After TBT | Before Bytes | After Bytes | Notes |
+| ------------------------------- | -----------: | ----------: | ---------: | --------: | ---------: | --------: | -----------: | ----------: | ----- |
+| `/query/latest`                 |           80 |             |       3.4s |           |      300ms |           |      765 KiB |             |       |
+| `/blog/react-server-components` |           52 |             |       3.7s |           |    1,200ms |           |    1,101 KiB |             |       |
+| `/router/latest/docs/overview`  |           78 |             |       3.6s |           |      280ms |           |      917 KiB |             |       |
 
 ## Conclusions So Far
 

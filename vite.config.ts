@@ -33,10 +33,7 @@ const rscSsrExternals = [
   'discord-interactions',
 ]
 
-const sentrySsrExternals = [
-  '@sentry/node',
-  '@sentry/tanstackstart-react',
-]
+const sentrySsrExternals = ['@sentry/node', '@sentry/tanstackstart-react']
 
 export default defineConfig({
   resolve: {

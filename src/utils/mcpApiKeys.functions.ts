@@ -3,7 +3,7 @@ import * as v from 'valibot'
 import { db } from '~/db/client'
 import { mcpApiKeys } from '~/db/schema'
 import { eq, and, desc } from 'drizzle-orm'
-import { requireAuth } from './auth.server'
+import { requireAuth } from './auth.functions'
 import { generateApiKey } from '~/mcp/auth.server'
 
 /**

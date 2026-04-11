@@ -1,6 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import * as v from 'valibot'
-import { requireAuth, getCurrentUser } from './auth.server'
+import { requireAuth, getCurrentUser } from './auth.functions'
 import {
   listConnectedApps as listConnectedAppsService,
   revokeTokensForClient,

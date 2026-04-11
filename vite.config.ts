@@ -34,6 +34,7 @@ const rscSsrExternals = [
 ]
 
 const sentrySsrExternals = ['@sentry/node', '@sentry/tanstackstart-react']
+const dbSsrExternals = ['drizzle-orm', 'drizzle-orm/postgres-js']
 
 export default defineConfig({
   resolve: {
@@ -66,13 +67,14 @@ export default defineConfig({
     },
     ssr: {
       resolve: {
-        external: [...rscSsrExternals, ...sentrySsrExternals],
+        external: [...rscSsrExternals, ...sentrySsrExternals, ...dbSsrExternals],
       },
     },
   },
   ssr: {
     external: [
       'postgres',
+      ...dbSsrExternals,
       // CTA packages use execa which has a broken unicorn-magic dependency
       '@tanstack/create',
       // Externalize CLI so server reloads it on changes
@@ -81,7 +83,6 @@ export default defineConfig({
       ...sentrySsrExternals,
     ],
     noExternal: [
-      'drizzle-orm',
       '@uploadthing/react',
       'file-selector',
       'normalize-wheel',

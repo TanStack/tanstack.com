@@ -52,6 +52,7 @@ function DocsRoute() {
 
   return (
     <DocsLayout
+      libraryId={libraryId}
       name={library.name.replace('TanStack ', '')}
       version={version === 'latest' ? library.latestVersion : version!}
       colorFrom={library.accentColorFrom ?? library.colorFrom}

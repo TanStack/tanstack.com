@@ -521,6 +521,7 @@ const useMenuConfig = ({
 }
 
 type DocsLayoutProps = {
+  libraryId: LibraryId
   name: string
   version: string
   colorFrom: string
@@ -535,6 +536,7 @@ type DocsLayoutProps = {
 }
 
 export function DocsLayout({
+  libraryId,
   colorFrom,
   colorTo,
   textColor,
@@ -544,9 +546,9 @@ export function DocsLayout({
   children,
   isLandingPage = false,
 }: DocsLayoutProps) {
-  const { libraryId, version } = useParams({
+  const { version } = useParams({
     strict: false,
-  }) as { libraryId: LibraryId; version: string }
+  }) as { version: string }
   const { _splat } = useParams({ strict: false })
   const menuConfig = useMenuConfig({ config, frameworks, repo, libraryId })
 

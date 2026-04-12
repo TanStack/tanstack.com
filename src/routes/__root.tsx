@@ -42,6 +42,7 @@ import { twMerge } from 'tailwind-merge'
 const GOOGLE_ANALYTICS_ID = 'G-JMT1Z50SPS'
 const GOOGLE_ANALYTICS_SCRIPT_SRC = `https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ANALYTICS_ID}`
 const GOOGLE_ANALYTICS_BOOTSTRAP = `window.dataLayer = window.dataLayer || [];window.gtag = window.gtag || function(){window.dataLayer.push(arguments);};window.gtag('js', new Date());window.gtag('config', '${GOOGLE_ANALYTICS_ID}');`
+const PROMISE_WITH_RESOLVERS_POLYFILL = `(function(){if(typeof Promise.withResolvers!=='function'){Object.defineProperty(Promise,'withResolvers',{configurable:true,writable:true,value:function(){var resolve,reject;var promise=new Promise(function(r,j){resolve=r;reject=j});return{promise:promise,resolve:resolve,reject:reject}}})}})()`
 
 declare global {
   interface Window {
@@ -111,6 +112,9 @@ export const Route = createRootRouteWithContext<{
       { rel: 'icon', href: '/favicon.ico' },
     ],
     scripts: [
+      {
+        children: PROMISE_WITH_RESOLVERS_POLYFILL,
+      },
       // Theme detection script - must run before body renders to prevent flash
       {
         children: `(function(){try{var t=localStorage.getItem('theme')||'auto';var v=['light','dark','auto'].includes(t)?t:'auto';if(v==='auto'){var a=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.classList.add(a,'auto')}else{document.documentElement.classList.add(v)}}catch(e){var a=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.classList.add(a,'auto')}})()`,

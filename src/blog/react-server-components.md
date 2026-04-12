@@ -449,6 +449,40 @@ You choose patterns **per-route, per-component, per-use-case**. The architecture
 
 ---
 
+## What We Saw On TanStack.com
+
+We did not want to make the case with vibes, so we migrated the content-heavy parts of tanstack.com and measured it.
+
+The result was exactly what we hoped for, and also more limited than the hype would suggest.
+
+The best pages got meaningfully smaller:
+
+- **Blog post pages** dropped about **153 KB gzipped** from the client JS graph.
+- **Docs pages** dropped about **153 KB gzipped**.
+- **Docs example pages** dropped about **40 KB gzipped**.
+
+And the real-world numbers moved with them:
+
+- **`/blog/react-server-components`** went from **52 -> 74** in Lighthouse.
+  - Total Blocking Time dropped from **1,200ms -> 260ms**.
+  - Transfer size dropped from **1,101 KiB -> 785 KiB**.
+- **`/router/latest/docs/overview`** went from **78 -> 81**.
+  - Total Blocking Time dropped from **280ms -> 200ms**.
+  - Transfer size dropped from **917 KiB -> 777 KiB**.
+
+That is the point. **Heavy client work stopped shipping to the client.** Markdown parsing went away. Syntax highlighting went away. The browser got less JavaScript and did less work. As a side effect, we also got to delete the old client markdown and highlighting path instead of carrying two versions of the same rendering logic around.
+
+But RSCs are not a universal coupon code for performance. Some landing pages were basically flat, and a few were slightly worse. Pages that are already dominated by interactive UI shell do not automatically get faster just because you used a server component somewhere in the tree.
+
+That is the tradeoff:
+
+- **RSCs are great when the page is content-heavy, dependency-heavy, or both.** Docs, blogs, markdown pipelines, syntax highlighting, slow-changing content, SEO-heavy pages. That is the sweet spot.
+- **RSCs are less obviously useful when the page is already mostly client state and interaction.** Dashboards, builders, long-lived app sessions, and some landing pages can be flat or mixed unless you are removing real client-side work.
+
+That is why we think they matter. Not because every route should become a server component. Because when you use them where they fit, the payoff is measurable and not subtle.
+
+---
+
 ## Current Status: Experimental
 
 RSC support is experimental in TanStack Start RC and will remain experimental into early v1.

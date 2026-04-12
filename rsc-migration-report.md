@@ -1,6 +1,6 @@
 # RSC Migration Report
 
-Status: pre-ship bundle + code audit complete. Current production Lighthouse baseline captured. Post-deploy production compare still pending.
+Status: bundle + code audit complete. Production Lighthouse baseline and post-deploy compare captured.
 
 ## Scope
 
@@ -160,13 +160,11 @@ Notes:
 
 ## Post-Deploy Compare
 
-Fill this in after deploy to `main` and re-run Lighthouse on the same production URLs.
-
 | Page                            | Before Score | After Score | Before LCP | After LCP | Before TBT | After TBT | Before Bytes | After Bytes | Notes |
 | ------------------------------- | -----------: | ----------: | ---------: | --------: | ---------: | --------: | -----------: | ----------: | ----- |
-| `/query/latest`                 |           80 |             |       3.4s |           |      300ms |           |      765 KiB |             |       |
-| `/blog/react-server-components` |           52 |             |       3.7s |           |    1,200ms |           |    1,101 KiB |             |       |
-| `/router/latest/docs/overview`  |           78 |             |       3.6s |           |      280ms |           |      917 KiB |             |       |
+| `/query/latest`                 |           80 |          77 |       3.4s |      3.8s |      300ms |     250ms |      765 KiB |      784 KiB | Roughly flat. Slightly worse score/LCP on this run, slightly better TBT. |
+| `/blog/react-server-components` |           52 |          74 |       3.7s |      3.6s |    1,200ms |     260ms |    1,101 KiB |      785 KiB | Clear win. Huge TBT and transfer-size drop, major score improvement. |
+| `/router/latest/docs/overview`  |           78 |          81 |       3.6s |      3.6s |      280ms |     200ms |      917 KiB |      777 KiB | Modest win. Better score, lower TBT, lower transfer size. |
 
 ## Conclusions So Far
 
@@ -175,3 +173,25 @@ Fill this in after deploy to `main` and re-run Lighthouse on the same production
 - Clear removal of markdown parsing and syntax highlighting from the client bundle
 - Not a universal bundle win across all landing pages yet
 - Best pages to watch post-deploy: blog and docs
+
+## Post-Deploy Read
+
+- Blog got the clearest real-world benefit.
+  - Lighthouse score improved from `52` to `74`
+  - TBT dropped from `1,200ms` to `260ms`
+  - transfer size dropped from `1,101 KiB` to `785 KiB`
+- Docs improved, but less dramatically.
+  - Lighthouse score improved from `78` to `81`
+  - TBT dropped from `280ms` to `200ms`
+  - transfer size dropped from `917 KiB` to `777 KiB`
+- Query landing did not show a Lighthouse win on this run.
+  - Score went from `80` to `77`
+  - LCP worsened slightly from `3.4s` to `3.8s`
+  - TBT improved slightly from `300ms` to `250ms`
+
+Interpretation:
+
+- The bundle-side story predicted this fairly well.
+- The strongest wins landed on markdown-heavy pages where we removed the client markdown/highlighting pipeline.
+- The landing-page story remains mixed because those pages were not dominated by markdown and some of the server-rendered example-shell work traded complexity reduction for slightly more initial shell work.
+- If we want broader Lighthouse wins on library landings, the next work is probably not more RSC conversion. It is targeted landing-page performance work.

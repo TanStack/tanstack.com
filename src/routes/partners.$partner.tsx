@@ -6,7 +6,7 @@ import { Card } from '~/components/Card'
 import { Button } from '~/ui'
 import { seo } from '~/utils/seo'
 import { PartnerImage, partnerCategoryLabels } from '~/utils/partners'
-import { trackPostHogEvent } from '~/utils/posthog'
+import { trackEvent } from '~/utils/analytics'
 import {
   findPartnerForPage,
   getPartnerJsonLd,
@@ -64,7 +64,7 @@ function PartnerDetailPage() {
   const isActive = partner.status === 'active'
 
   React.useEffect(() => {
-    trackPostHogEvent('partner_detail_viewed', {
+    trackEvent('partner_detail_viewed', {
       libraries: partner.libraries,
       partner_category: partner.category,
       partner_id: partner.id,
@@ -139,7 +139,7 @@ function PartnerDetailPage() {
                     target="_blank"
                     rel="noreferrer"
                     onClick={() => {
-                      trackPostHogEvent('partner_click', {
+                      trackEvent('partner_click', {
                         destination_host: new URL(partner.href).host,
                         partner_category: partner.category,
                         partner_id: partner.id,

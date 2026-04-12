@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { partners as allPartners, PartnerImage } from '~/utils/partners'
 import { Card } from '~/components/Card'
-import { trackPostHogEvent, useTrackedImpression } from '~/utils/posthog'
+import { trackEvent, useTrackedImpression } from '~/utils/analytics'
 
 type PartnerItem = (typeof allPartners)[number]
 
@@ -46,7 +46,7 @@ function PartnerGridItem({
         hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors duration-150 ease-out"
       style={{ width, flexGrow: partner.score }}
       onClick={() => {
-        trackPostHogEvent('partner_card_clicked', {
+        trackEvent('partner_card_clicked', {
           partner_id: partner.id,
           partner_name: partner.name,
           destination_host: new URL(partner.href).host,

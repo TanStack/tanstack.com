@@ -22,7 +22,7 @@ import { FrameworkSelect, useCurrentFramework } from './FrameworkSelect'
 import { VersionSelect } from './VersionSelect'
 import { Card } from './Card'
 import { PartnersRail, RightRail } from './RightRail'
-import { trackPostHogEvent, useTrackedImpression } from '~/utils/posthog'
+import { trackEvent, useTrackedImpression } from '~/utils/analytics'
 
 // Mobile partners strip - inline in the docs toggle bar
 function MobilePartnersStrip({
@@ -167,7 +167,7 @@ function MobilePartnerLink({
           return
         }
 
-        trackPostHogEvent('partner_click', {
+        trackEvent('partner_click', {
           partner_id: partner.id,
           partner_name: partner.name,
           placement: 'docs_mobile_strip',
@@ -952,7 +952,7 @@ export function DocsLayout({
                   rel="noopener noreferrer"
                   className="absolute right-3 top-2 font-medium opacity-60 hover:opacity-100 text-xs hover:underline"
                   onClick={() => {
-                    trackPostHogEvent('become_partner_clicked', {
+                    trackEvent('become_partner_clicked', {
                       framework: currentFramework.framework,
                       library_id: libraryId,
                       placement: 'docs_right_rail',

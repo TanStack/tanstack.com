@@ -2,7 +2,7 @@ import * as React from 'react'
 import { Link } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 import { PartnerImage } from '~/utils/partners'
-import { trackPostHogEvent, useTrackedImpression } from '~/utils/posthog'
+import { trackEvent, useTrackedImpression } from '~/utils/analytics'
 
 type RailPartner = {
   id: string
@@ -119,7 +119,7 @@ function PartnersRailItem({
         flexShrink: 0,
       }}
       onClick={() => {
-        trackPostHogEvent('partner_click', {
+        trackEvent('partner_click', {
           partner_id: partner.id,
           partner_name: partner.name,
           placement: analyticsPlacement,

@@ -38,7 +38,7 @@ import {
 } from '~/components/application-builder/shared'
 import { useApplicationBuilder } from '~/components/application-builder/useApplicationBuilder'
 import { Button, GitHub } from '~/ui'
-import { trackPostHogEvent } from '~/utils/posthog'
+import { trackEvent } from '~/utils/analytics'
 
 export interface ApplicationStarterProps {
   alwaysShowPostAnalysisSection?: boolean
@@ -624,14 +624,11 @@ export function ApplicationStarter({
                           size="sm"
                           type="button"
                           onClick={() => {
-                            trackPostHogEvent(
-                              'application_starter_action_clicked',
-                              {
-                                ...analyticsProperties,
-                                action: 'lucky_mode',
-                                surface: 'application_starter',
-                              },
-                            )
+                            trackEvent('application_starter_action_clicked', {
+                              ...analyticsProperties,
+                              action: 'lucky_mode',
+                              surface: 'application_starter',
+                            })
                             enableLuckyActions()
                           }}
                           disabled={!canUseLuckyAction}
@@ -646,14 +643,11 @@ export function ApplicationStarter({
                           size="sm"
                           type="button"
                           onClick={() => {
-                            trackPostHogEvent(
-                              'application_starter_action_clicked',
-                              {
-                                ...analyticsProperties,
-                                action: 'confident_mode',
-                                surface: 'application_starter',
-                              },
-                            )
+                            trackEvent('application_starter_action_clicked', {
+                              ...analyticsProperties,
+                              action: 'confident_mode',
+                              surface: 'application_starter',
+                            })
                             setShowConfidentOptions(true)
                           }}
                         >

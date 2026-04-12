@@ -1,9 +1,10 @@
 import * as React from 'react'
-import { capturePostHogEvent } from './posthog.functions'
-
-const ANONYMOUS_ID_STORAGE_KEY = 'tanstack.posthog.anonymous_id'
-
-type EventProperties = Record<string, unknown>
+import { googleAnalyticsProvider } from './analytics/providers/google'
+import type {
+  AnalyticsPropertyValue,
+  EventPayload,
+  EventProperties,
+} from './analytics/types'
 
 type ImpressionOptions = {
   enabled?: boolean
@@ -40,47 +41,79 @@ function getPageType(pathname: string) {
   return 'page'
 }
 
-function getAnonymousDistinctId() {
-  if (typeof window === 'undefined') {
-    return ''
+function normalizeAnalyticsValue(
+  value: unknown,
+): AnalyticsPropertyValue | undefined {
+  if (
+    typeof value === 'boolean' ||
+    typeof value === 'number' ||
+    typeof value === 'string'
+  ) {
+    return value
   }
 
-  const existingId = window.localStorage.getItem(ANONYMOUS_ID_STORAGE_KEY)
-  if (existingId) {
-    return existingId
+  if (value === null || value === undefined) {
+    return undefined
   }
 
-  const anonymousId = window.crypto.randomUUID()
-  window.localStorage.setItem(ANONYMOUS_ID_STORAGE_KEY, anonymousId)
-  return anonymousId
+  if (Array.isArray(value)) {
+    const normalizedEntries = value
+      .map((entry) => normalizeAnalyticsValue(entry))
+      .filter((entry) => entry !== undefined)
+
+    return normalizedEntries.join(',')
+  }
+
+  try {
+    return JSON.stringify(value)
+  } catch {
+    return String(value)
+  }
 }
 
-function buildProperties(properties?: EventProperties) {
-  if (typeof window === 'undefined') {
-    return properties ?? {}
+function buildEventProperties(properties?: EventProperties): EventPayload {
+  const eventProperties: EventPayload = {}
+
+  if (typeof window !== 'undefined') {
+    eventProperties.page_location = window.location.href
+    eventProperties.page_path = window.location.pathname
+    eventProperties.page_title = document.title
+    eventProperties.page_type = getPageType(window.location.pathname)
   }
 
-  return {
-    page_path: window.location.pathname,
-    page_type: getPageType(window.location.pathname),
-    page_url: window.location.href,
-    ...properties,
+  for (const [key, value] of Object.entries(properties ?? {})) {
+    const normalizedValue = normalizeAnalyticsValue(value)
+
+    if (normalizedValue === undefined) {
+      continue
+    }
+
+    eventProperties[key === 'page_url' ? 'page_location' : key] =
+      normalizedValue
+  }
+
+  return eventProperties
+}
+
+const analyticsProviders = [googleAnalyticsProvider]
+
+export function trackEvent(event: string, properties?: EventProperties) {
+  const eventProperties = buildEventProperties(properties)
+
+  for (const provider of analyticsProviders) {
+    try {
+      provider.trackEvent(event, eventProperties)
+    } catch {
+      // Analytics failures should never affect user flows.
+    }
   }
 }
 
-export function trackPostHogEvent(event: string, properties?: EventProperties) {
-  if (typeof window === 'undefined') {
-    return
-  }
-
-  void capturePostHogEvent({
-    data: {
-      anonymousId: getAnonymousDistinctId(),
-      event,
-      properties: buildProperties(properties),
-    },
-  }).catch(() => {
-    // Analytics failures should never affect user flows.
+export function trackPageView(pagePath: string) {
+  trackEvent('page_view', {
+    page_location: window.location.href,
+    page_path: pagePath,
+    page_title: document.title,
   })
 }
 
@@ -114,7 +147,7 @@ export function useTrackedImpression<TElement extends Element>({
       }
 
       hasTrackedRef.current = true
-      trackPostHogEvent(event, propertiesRef.current)
+      trackEvent(event, propertiesRef.current)
     }
 
     if (typeof IntersectionObserver === 'undefined') {

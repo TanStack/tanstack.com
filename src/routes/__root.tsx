@@ -37,18 +37,12 @@ import { ThemeProvider, useHtmlClass } from '~/components/ThemeProvider'
 import { Navbar } from '~/components/Navbar'
 import { THEME_COLORS } from '~/utils/utils'
 import { useHubSpotChat } from '~/hooks/useHubSpotChat'
+import { trackPageView } from '~/utils/analytics'
 import { twMerge } from 'tailwind-merge'
 
 const GOOGLE_ANALYTICS_ID = 'G-JMT1Z50SPS'
 const GOOGLE_ANALYTICS_SCRIPT_SRC = `https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ANALYTICS_ID}`
 const GOOGLE_ANALYTICS_BOOTSTRAP = `window.dataLayer = window.dataLayer || [];window.gtag = window.gtag || function(){window.dataLayer.push(arguments);};window.gtag('js', new Date());window.gtag('config', '${GOOGLE_ANALYTICS_ID}');`
-
-declare global {
-  interface Window {
-    dataLayer: unknown[] | undefined
-    gtag: ((...args: unknown[]) => void) | undefined
-  }
-}
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
@@ -226,7 +220,7 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
       <body className="overflow-x-hidden">
         <LoginModalProvider>
           <ToastProvider>
-            <GoogleAnalyticsTracker />
+            <PageViewTracker />
             {hideNavbar ? children : <Navbar>{children}</Navbar>}
             {showDevtools && LazyAppDevtools ? (
               <React.Suspense fallback={null}>
@@ -303,7 +297,7 @@ function SearchHotkeyController() {
   )
 }
 
-function GoogleAnalyticsTracker() {
+function PageViewTracker() {
   const pagePath = useRouterState({
     select: (s) => {
       const pathname = s.resolvedLocation?.pathname || '/'
@@ -315,20 +309,12 @@ function GoogleAnalyticsTracker() {
   const hasTrackedInitialPage = React.useRef(false)
 
   React.useEffect(() => {
-    if (!window.gtag) {
-      return
-    }
-
     if (!hasTrackedInitialPage.current) {
       hasTrackedInitialPage.current = true
       return
     }
 
-    window.gtag('event', 'page_view', {
-      page_title: document.title,
-      page_path: pagePath,
-      page_location: window.location.href,
-    })
+    trackPageView(pagePath)
   }, [pagePath])
 
   return null

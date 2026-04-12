@@ -5,7 +5,6 @@ import {
   checkRateLimit,
   cleanupRateLimits,
 } from './auth.server'
-import { flushPostHog } from '~/utils/posthog.server'
 import { initSentryServer } from '~/utils/sentry.server'
 
 /**
@@ -114,8 +113,5 @@ export async function handleMcpRequest(request: Request): Promise<Response> {
       error instanceof Error ? error.message : 'Internal error',
       500,
     )
-  } finally {
-    // Flush PostHog events before serverless function terminates
-    await flushPostHog()
   }
 }

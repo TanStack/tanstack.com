@@ -22,7 +22,7 @@ import { rangerProject } from '~/libraries/ranger'
 import { storeProject } from '~/libraries/store'
 import { virtualProject } from '~/libraries/virtual'
 import { libraryIdSchema } from '~/utils/schemas'
-import { trackPostHogEvent, useTrackedImpression } from '~/utils/posthog'
+import { trackEvent, useTrackedImpression } from '~/utils/analytics'
 import * as v from 'valibot'
 
 const availableLibraries = [
@@ -332,7 +332,7 @@ function PartnerDirectoryCard({
       href={`/partners/${partner.id}`}
       className="block"
       onClick={() => {
-        trackPostHogEvent('partner_card_clicked', {
+        trackEvent('partner_card_clicked', {
           partner_id: partner.id,
           partner_name: partner.name,
           partner_status: partner.status,
@@ -394,7 +394,7 @@ function PartnersIndexPage() {
 
   const trackFiltersChanged = React.useCallback(
     (nextSearch: PartnersSearch, action: string) => {
-      trackPostHogEvent('partners_filter_changed', {
+      trackEvent('partners_filter_changed', {
         action,
         ...getPartnerFilterAnalytics(nextSearch),
         result_count: getFilteredPartners(nextSearch).length,
@@ -529,7 +529,7 @@ function PartnersIndexPage() {
             href="mailto:partners@tanstack.com?subject=TanStack Partnership Inquiry"
             className="inline-block px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
             onClick={() => {
-              trackPostHogEvent('partner_inquiry_clicked', {
+              trackEvent('partner_inquiry_clicked', {
                 placement: 'partners_page_cta',
               })
             }}

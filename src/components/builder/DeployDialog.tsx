@@ -38,7 +38,7 @@ import {
   getRecipeBuilderFeatures,
   type ApplicationStarterRecipe,
 } from '~/utils/application-starter'
-import { trackPostHogEvent } from '~/utils/posthog'
+import { trackEvent } from '~/utils/analytics'
 
 interface DeployDialogProps {
   isOpen: boolean
@@ -83,7 +83,7 @@ export function DeployDialog({
     (
       action: 'repo' | 'provider_auto_redirect' | 'provider_manual_redirect',
     ) => {
-      trackPostHogEvent('application_starter_action_clicked', {
+      trackEvent('application_starter_action_clicked', {
         surface: 'deploy_dialog',
         action,
         provider,

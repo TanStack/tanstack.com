@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useLoginModal } from '~/contexts/LoginModalContext'
 import { useToast } from '~/components/ToastProvider'
-import { trackPostHogEvent, useTrackedImpression } from '~/utils/posthog'
+import { trackEvent, useTrackedImpression } from '~/utils/analytics'
 import {
   extractMigrationRepositoryUrl,
   type ApplicationStarterAnalysis,
@@ -301,7 +301,7 @@ export function useApplicationBuilder({
           next[libraryId] = true
         }
 
-        trackPostHogEvent('application_starter_library_toggled', {
+        trackEvent('application_starter_library_toggled', {
           ...analyticsProperties,
           library_id: libraryId,
           selected: !selected,
@@ -316,7 +316,7 @@ export function useApplicationBuilder({
   const togglePartner = React.useCallback(
     (partner: ApplicationStarterPartnerSuggestion, selected: boolean) => {
       invalidateResult()
-      trackPostHogEvent('application_starter_integration_toggled', {
+      trackEvent('application_starter_integration_toggled', {
         ...analyticsProperties,
         integration: partner.id,
         selected: !selected,
@@ -338,7 +338,7 @@ export function useApplicationBuilder({
         const nextPackageManager =
           current === packageManager ? undefined : packageManager
 
-        trackPostHogEvent('application_starter_package_manager_toggled', {
+        trackEvent('application_starter_package_manager_toggled', {
           ...analyticsProperties,
           package_manager: packageManager,
           selected: nextPackageManager === packageManager,
@@ -357,7 +357,7 @@ export function useApplicationBuilder({
       setSelectedToolchain((current) => {
         const nextToolchain = current === toolchain ? undefined : toolchain
 
-        trackPostHogEvent('application_starter_toolchain_toggled', {
+        trackEvent('application_starter_toolchain_toggled', {
           ...analyticsProperties,
           selected: nextToolchain === toolchain,
           toolchain,
@@ -431,7 +431,7 @@ export function useApplicationBuilder({
         revealPromptCopyNotice()
       }
 
-      trackPostHogEvent('application_starter_value_copied', {
+      trackEvent('application_starter_value_copied', {
         ...analyticsProperties,
         copied_kind: kind,
         copy_trigger: options?.trigger ?? 'user',
@@ -491,7 +491,7 @@ export function useApplicationBuilder({
 
       const applied = await builderIntegration.applyResult(nextResult)
 
-      trackPostHogEvent('application_starter_builder_result_applied', {
+      trackEvent('application_starter_builder_result_applied', {
         ...analyticsProperties,
         applied,
         recipe_target: nextResult.recipe.target,
@@ -530,7 +530,7 @@ export function useApplicationBuilder({
         return
       }
 
-      trackPostHogEvent('application_starter_analysis_failed', {
+      trackEvent('application_starter_analysis_failed', {
         ...analyticsProperties,
         error_message: error instanceof Error ? error.message : 'unknown_error',
       })
@@ -561,7 +561,7 @@ export function useApplicationBuilder({
       setIsLocked(false)
       setLockMessage(null)
 
-      trackPostHogEvent('application_starter_analyzed', {
+      trackEvent('application_starter_analyzed', {
         ...analyticsProperties,
         analysis_deployment: nextAnalysis.recipe.deployment,
         analysis_inferred_library_count: nextAnalysis.inferredLibraryIds.length,
@@ -593,7 +593,7 @@ export function useApplicationBuilder({
         </div>,
       )
 
-      trackPostHogEvent('application_starter_generation_failed', {
+      trackEvent('application_starter_generation_failed', {
         ...analyticsProperties,
         error_message: error instanceof Error ? error.message : 'unknown_error',
         login_required:
@@ -614,7 +614,7 @@ export function useApplicationBuilder({
             : 'Anonymous generations are limited. Sign in to unlock more.',
         )
 
-        trackPostHogEvent('application_starter_login_required', {
+        trackEvent('application_starter_login_required', {
           ...analyticsProperties,
           retry_after: error.retryAfter,
         })
@@ -714,7 +714,7 @@ export function useApplicationBuilder({
         }
       }
 
-      trackPostHogEvent('application_starter_generated', {
+      trackEvent('application_starter_generated', {
         ...analyticsProperties,
         final_deployment: nextResult.recipe.deployment,
         final_feature_count: finalFeatureIds.length,
@@ -735,7 +735,7 @@ export function useApplicationBuilder({
       })
 
       for (const partnerId of finalPromptPartnerIds) {
-        trackPostHogEvent('application_starter_final_partner_in_prompt', {
+        trackEvent('application_starter_final_partner_in_prompt', {
           ...analyticsProperties,
           generation_index: generationCountRef.current,
           inferred: inferredPartnerIds.includes(partnerId),
@@ -745,7 +745,7 @@ export function useApplicationBuilder({
       }
 
       for (const featureId of finalPromptFeatureIds) {
-        trackPostHogEvent('application_starter_final_addon_in_prompt', {
+        trackEvent('application_starter_final_addon_in_prompt', {
           ...analyticsProperties,
           addon_id: featureId,
           generation_index: generationCountRef.current,
@@ -841,10 +841,7 @@ export function useApplicationBuilder({
     const requestId = latestRequestIdRef.current + 1
     latestRequestIdRef.current = requestId
 
-    trackPostHogEvent(
-      'application_starter_continue_clicked',
-      analyticsProperties,
-    )
+    trackEvent('application_starter_continue_clicked', analyticsProperties)
 
     try {
       const nextAnalysis = await analysisMutation.mutateAsync({
@@ -909,7 +906,7 @@ export function useApplicationBuilder({
         setMigrationRepositoryUrl('')
       }
 
-      trackPostHogEvent('application_starter_idea_selected', {
+      trackEvent('application_starter_idea_selected', {
         ...analyticsProperties,
         idea_label: suggestion.label,
       })
@@ -977,7 +974,7 @@ export function useApplicationBuilder({
 
   const trackAction = React.useCallback(
     (action: string, provider?: StarterDeployProvider | null) => {
-      trackPostHogEvent('application_starter_action_clicked', {
+      trackEvent('application_starter_action_clicked', {
         ...analyticsProperties,
         surface: 'application_starter',
         action,
@@ -1091,7 +1088,7 @@ export function useApplicationBuilder({
       return
     }
 
-    trackPostHogEvent('application_starter_action_clicked', {
+    trackEvent('application_starter_action_clicked', {
       ...analyticsProperties,
       surface: 'application_starter',
       action: 'netlify_start',
@@ -1151,10 +1148,7 @@ export function useApplicationBuilder({
       return
     }
 
-    trackPostHogEvent(
-      'application_starter_generate_clicked',
-      analyticsProperties,
-    )
+    trackEvent('application_starter_generate_clicked', analyticsProperties)
     const nextResult = await submit(buildSubmittedInput())
 
     if (!nextResult) {
@@ -1214,10 +1208,7 @@ export function useApplicationBuilder({
 
   const openLogin = React.useCallback(
     (onSuccess?: () => void) => {
-      trackPostHogEvent(
-        'application_starter_login_clicked',
-        analyticsProperties,
-      )
+      trackEvent('application_starter_login_clicked', analyticsProperties)
       openLoginModal({
         onSuccess: () => {
           setIsLocked(false)

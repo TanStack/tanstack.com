@@ -1,7 +1,7 @@
 import { getLibrary, LibraryId } from '~/libraries'
 import { HeartHandshake } from 'lucide-react'
 import { Card } from './Card'
-import { trackPostHogEvent } from '~/utils/posthog'
+import { trackEvent } from '~/utils/analytics'
 
 interface PartnershipCalloutProps {
   libraryId: LibraryId
@@ -29,7 +29,7 @@ export function PartnershipCallout({ libraryId }: PartnershipCalloutProps) {
           href={`mailto:partners@tanstack.com?subject=TanStack ${library.name} Partnership`}
           className="text-blue-500 uppercase font-black text-sm"
           onClick={() => {
-            trackPostHogEvent('partner_inquiry_clicked', {
+            trackEvent('partner_inquiry_clicked', {
               library_id: libraryId,
               placement: 'library_partnership_callout',
             })

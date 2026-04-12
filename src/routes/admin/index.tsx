@@ -9,7 +9,7 @@ import {
   getActivityStatsAdmin,
   getDauChartData,
 } from '~/utils/activity.functions'
-import { useState } from 'react'
+import { Suspense, lazy, useState } from 'react'
 import {
   ArrowDown,
   ArrowUp,
@@ -28,7 +28,6 @@ import {
 import { Card } from '~/components/Card'
 import { Badge, Button } from '~/ui'
 import * as v from 'valibot'
-import { TimeSeriesChart } from '~/components/charts/TimeSeriesChart'
 import { ChartControls } from '~/components/charts/ChartControls'
 import {
   type TimeRange,
@@ -36,6 +35,21 @@ import {
   timeRangeToDays,
   defaultBinForRange,
 } from '~/utils/chart'
+
+const LazyTimeSeriesChart = lazy(() =>
+  import('~/components/charts/TimeSeriesChart').then((m) => ({
+    default: m.TimeSeriesChart,
+  })),
+)
+
+function ChartFallback({ height }: { height: number }) {
+  return (
+    <div
+      className="animate-pulse rounded bg-gray-100 dark:bg-gray-800/40"
+      style={{ height }}
+    />
+  )
+}
 
 const searchSchema = v.object({
   tab: v.fallback(
@@ -1203,14 +1217,16 @@ function SignupsChartCard({
           Loading...
         </div>
       ) : (
-        <TimeSeriesChart
-          data={data ?? []}
-          binType={binType}
-          variant={variant}
-          color={color}
-          height={height}
-          yLabel={variant === 'cumulative' ? 'Total Users' : 'Signups'}
-        />
+        <Suspense fallback={<ChartFallback height={height} />}>
+          <LazyTimeSeriesChart
+            data={data ?? []}
+            binType={binType}
+            variant={variant}
+            color={color}
+            height={height}
+            yLabel={variant === 'cumulative' ? 'Total Users' : 'Signups'}
+          />
+        </Suspense>
       )}
     </Card>
   )
@@ -1267,14 +1283,16 @@ function DauChartCard({
           Loading...
         </div>
       ) : (
-        <TimeSeriesChart
-          data={data ?? []}
-          binType={binType}
-          variant="area"
-          color="#10b981"
-          height={height}
-          yLabel="Active Users"
-        />
+        <Suspense fallback={<ChartFallback height={height} />}>
+          <LazyTimeSeriesChart
+            data={data ?? []}
+            binType={binType}
+            variant="area"
+            color="#10b981"
+            height={height}
+            yLabel="Active Users"
+          />
+        </Suspense>
       )}
     </Card>
   )
@@ -1319,14 +1337,16 @@ function LoginsChartCard({
           Loading...
         </div>
       ) : (
-        <TimeSeriesChart
-          data={data ?? []}
-          binType={binType}
-          variant="bar"
-          color="#06b6d4"
-          height={height}
-          yLabel="Logins"
-        />
+        <Suspense fallback={<ChartFallback height={height} />}>
+          <LazyTimeSeriesChart
+            data={data ?? []}
+            binType={binType}
+            variant="bar"
+            color="#06b6d4"
+            height={height}
+            yLabel="Logins"
+          />
+        </Suspense>
       )}
     </Card>
   )

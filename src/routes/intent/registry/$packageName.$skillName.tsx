@@ -12,13 +12,19 @@ import {
   type SkillVersionEntry,
 } from '~/utils/intent.functions'
 import { CopyPageDropdown } from '~/components/CopyPageDropdown'
-import { SkillSparkline } from '~/components/intent/SkillSparkline'
+import { SkillSparklineFallback } from '~/components/intent/SkillSparklineFallback'
 import {
   SkillTypeBadge,
   decodePkgName,
   usePackageVersion,
 } from './$packageName'
 import { Route as PackageRoute } from './$packageName'
+
+const LazySkillSparkline = React.lazy(() =>
+  import('~/components/intent/SkillSparkline').then((m) => ({
+    default: m.SkillSparkline,
+  })),
+)
 
 export const Route = createFileRoute(
   '/intent/registry/$packageName/$skillName',
@@ -290,7 +296,9 @@ function SkillVersionHistory({
     <div>
       {sparklineHistory && (
         <div className="mb-5 rounded-xl border border-gray-200 dark:border-gray-800 p-3">
-          <SkillSparkline history={sparklineHistory} height={48} />
+          <React.Suspense fallback={<SkillSparklineFallback height={48} />}>
+            <LazySkillSparkline history={sparklineHistory} height={48} />
+          </React.Suspense>
         </div>
       )}
 

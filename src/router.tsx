@@ -1,5 +1,3 @@
-import './utils/promise-with-resolvers'
-
 import { createRouter } from '@tanstack/react-router'
 import { setupRouterSsrQueryIntegration } from '@tanstack/react-router-ssr-query'
 import { routeTree } from './routeTree.gen'

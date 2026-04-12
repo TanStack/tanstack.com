@@ -1,4 +1,3 @@
-import './utils/promise-with-resolvers'
 import './instrument.server.mjs'
 
 import { wrapFetchWithSentry } from '@sentry/tanstackstart-react'

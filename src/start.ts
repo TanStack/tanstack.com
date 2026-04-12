@@ -1,5 +1,3 @@
-import './utils/promise-with-resolvers'
-
 import {
   sentryGlobalFunctionMiddleware,
   sentryGlobalRequestMiddleware,

@@ -160,11 +160,11 @@ Notes:
 
 ## Post-Deploy Compare
 
-| Page                            | Before Score | After Score | Before LCP | After LCP | Before TBT | After TBT | Before Bytes | After Bytes | Notes |
-| ------------------------------- | -----------: | ----------: | ---------: | --------: | ---------: | --------: | -----------: | ----------: | ----- |
-| `/query/latest`                 |           80 |          77 |       3.4s |      3.8s |      300ms |     250ms |      765 KiB |      784 KiB | Roughly flat. Slightly worse score/LCP on this run, slightly better TBT. |
-| `/blog/react-server-components` |           52 |          74 |       3.7s |      3.6s |    1,200ms |     260ms |    1,101 KiB |      785 KiB | Clear win. Huge TBT and transfer-size drop, major score improvement. |
-| `/router/latest/docs/overview`  |           78 |          81 |       3.6s |      3.6s |      280ms |     200ms |      917 KiB |      777 KiB | Modest win. Better score, lower TBT, lower transfer size. |
+| Page                            | Before Score | After Score | Before LCP | After LCP | Before TBT | After TBT | Before Bytes | After Bytes | Notes                                                                    |
+| ------------------------------- | -----------: | ----------: | ---------: | --------: | ---------: | --------: | -----------: | ----------: | ------------------------------------------------------------------------ |
+| `/query/latest`                 |           80 |          77 |       3.4s |      3.8s |      300ms |     250ms |      765 KiB |     784 KiB | Roughly flat. Slightly worse score/LCP on this run, slightly better TBT. |
+| `/blog/react-server-components` |           52 |          74 |       3.7s |      3.6s |    1,200ms |     260ms |    1,101 KiB |     785 KiB | Clear win. Huge TBT and transfer-size drop, major score improvement.     |
+| `/router/latest/docs/overview`  |           78 |          81 |       3.6s |      3.6s |      280ms |     200ms |      917 KiB |     777 KiB | Modest win. Better score, lower TBT, lower transfer size.                |
 
 ## Conclusions So Far
 

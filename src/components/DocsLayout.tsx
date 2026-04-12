@@ -341,6 +341,8 @@ export const useWidthToggle = () => {
 // Create context for doc navigation (prev/next)
 type DocNavItem = { label: React.ReactNode; to: string }
 const DocNavigationContext = React.createContext<{
+  libraryId: LibraryId
+  version: string
   prevItem?: DocNavItem
   nextItem?: DocNavItem
   colorFrom: string
@@ -356,7 +358,15 @@ export function DocNavigation() {
   const context = useDocNavigation()
   if (!context) return null
 
-  const { prevItem, nextItem, colorFrom, colorTo, textColor } = context
+  const {
+    libraryId,
+    version,
+    prevItem,
+    nextItem,
+    colorFrom,
+    colorTo,
+    textColor,
+  } = context
 
   if (!prevItem && !nextItem) return null
 
@@ -368,7 +378,7 @@ export function DocNavigation() {
             as={Link}
             from="/$libraryId/$version/docs"
             to={prevItem.to}
-            params
+            params={{ libraryId, version } as never}
             className="py-1 px-2 sm:py-2 sm:px-3 flex items-center gap-1 sm:gap-2"
           >
             <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -387,7 +397,7 @@ export function DocNavigation() {
             as={Link}
             from="/$libraryId/$version/docs"
             to={nextItem.to}
-            params
+            params={{ libraryId, version } as never}
             className="py-1 px-2 sm:py-2 sm:px-3 flex items-center gap-1 sm:gap-2"
           >
             <div className="flex flex-col items-end">
@@ -651,6 +661,10 @@ export function DocsLayout({
         <ul className="text-[.85em] leading-snug list-none">
           {group?.children?.map((child, i) => {
             const linkClasses = `flex gap-2 items-center justify-between group px-2 py-1.5 rounded-lg hover:bg-gray-500/10 opacity-60 hover:opacity-100`
+            const linkParams =
+              !child.to.startsWith('/') || child.to.includes('/$libraryId')
+                ? ({ libraryId, version } as never)
+                : undefined
 
             return (
               <li key={i}>
@@ -667,7 +681,7 @@ export function DocsLayout({
                   <Link
                     from="/$libraryId/$version/docs"
                     to={child.to}
-                    params
+                    params={linkParams}
                     onClick={() => {
                       detailsRef.current.removeAttribute('open')
                     }}
@@ -877,7 +891,15 @@ export function DocsLayout({
   return (
     <WidthToggleContext.Provider value={{ isFullWidth, setIsFullWidth }}>
       <DocNavigationContext.Provider
-        value={{ prevItem, nextItem, colorFrom, colorTo, textColor }}
+        value={{
+          libraryId,
+          version,
+          prevItem,
+          nextItem,
+          colorFrom,
+          colorTo,
+          textColor,
+        }}
       >
         <div
           className={`

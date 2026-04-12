@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router'
+import { Link, useParams } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { BottomCTA } from '~/components/BottomCTA'
@@ -20,6 +20,9 @@ import { DeferredApplicationStarter } from '~/components/DeferredApplicationStar
 const library = getLibrary('start')
 
 export default function StartLanding() {
+  const { version } = useParams({ strict: false })
+  const resolvedVersion = version ?? library.latestVersion
+
   return (
     <LibraryPageContainer>
       <LibraryHero
@@ -28,9 +31,10 @@ export default function StartLanding() {
           <div className="flex justify-center gap-4 flex-wrap">
             <Button
               as={Link}
-              from="/$libraryId/$version"
-              to="./docs"
-              params={{ libraryId: library.id } as never}
+              to="/$libraryId/$version/docs"
+              params={
+                { libraryId: library.id, version: resolvedVersion } as never
+              }
               className="bg-cyan-500 border-cyan-500 hover:bg-cyan-600 dark:bg-cyan-600 dark:border-cyan-600 text-white"
             >
               Get Started
@@ -74,10 +78,10 @@ export default function StartLanding() {
         </div>
         <div className="grid items-center gap-2 justify-center grid-cols-1 sm:grid-cols-2 w-[600px] max-w-full mx-auto">
           <Link
-            from={'/$libraryId/$version'}
-            to="./docs/framework/$framework/examples/$"
+            to="/$libraryId/$version/docs/framework/$framework/examples/$"
             params={{
               libraryId: library.id,
+              version: resolvedVersion,
               framework: 'react',
               _splat: 'start-basic',
             }}
@@ -86,9 +90,8 @@ export default function StartLanding() {
             <Wallpaper className="min-w-4" /> See an Example
           </Link>
           <Link
-            from={'/$libraryId/$version'}
-            to="./docs"
-            params={{ libraryId: library.id }}
+            to="/$libraryId/$version/docs"
+            params={{ libraryId: library.id, version: resolvedVersion }}
             className="flex items-center gap-2 py-2 px-4 bg-cyan-800 rounded-lg text-white font-black"
           >
             <Book className="min-w-4" /> Try it out!
@@ -123,7 +126,7 @@ export default function StartLanding() {
       <BottomCTA
         linkProps={{
           to: '/$libraryId/$version/docs',
-          params: { libraryId: library.id },
+          params: { libraryId: library.id, version: resolvedVersion },
         }}
         label="Get Started!"
         className="bg-cyan-500 border-cyan-500 hover:bg-cyan-600 text-white"

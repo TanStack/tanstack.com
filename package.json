@@ -9,7 +9,7 @@
     "dev": "pnpm run with-env vite dev",
     "with-env": "dotenv -e .env -e .env.local",
     "dev:frontend": "pnpm run with-env vite dev",
-    "build": "vite build && node scripts/finalize-build.mjs",
+    "build": "vite build",
     "start": "vite start",
     "start:prod": "pnpm run with-env node scripts/run-built-server.mjs",
     "lint": "oxlint --type-aware",

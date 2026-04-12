@@ -199,9 +199,7 @@ export default defineConfig({
         },
       },
     }),
-    rsc({
-      cssLinkPrecedence: false,
-    }),
+    rsc(),
     // Only enable Netlify plugin during build or when NETLIFY env is set
     ...(process.env.NETLIFY || process.env.NODE_ENV === 'production'
       ? [netlify()]

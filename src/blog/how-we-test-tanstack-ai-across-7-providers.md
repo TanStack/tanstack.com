@@ -1,5 +1,5 @@
 ---
-title: "How We Test TanStack AI Across 7 Providers on Every PR"
+title: 'How We Test TanStack AI Across 7 Providers on Every PR'
 published: 2026-04-13
 draft: true
 excerpt: "TanStack AI runs 147 deterministic E2E tests across 7 LLM providers in under 2 minutes. Here's the testing infrastructure that makes it possible."
@@ -55,16 +55,16 @@ Every test gets a unique `X-Test-Id` header. This is what makes parallel executi
 
 147 tests cover 17 features across 7 providers. Here's the matrix:
 
-| Category | Tests | Features |
-|---|---|---|
-| Chat and text | 28 | chat, one-shot-text, multi-turn, structured-output |
-| Tool calling | 38 | single, parallel, approval, text-tool-text, agentic-structured |
-| Multimodal | 10 | image input, structured multimodal |
-| Generation | 20 | summarize, summarize-stream, image-gen, TTS, transcription |
-| Reasoning | 3 | OpenAI, Anthropic, Gemini thinking blocks |
-| Tools-test page | 29 | client tools, approvals, race conditions, server-client sequences |
-| Advanced | 6 | abort, lazy tools, custom events, middleware, error handling |
-| Middleware | 3 | onChunk transform, onBeforeToolCall skip, passthrough |
+| Category        | Tests | Features                                                          |
+| --------------- | ----- | ----------------------------------------------------------------- |
+| Chat and text   | 28    | chat, one-shot-text, multi-turn, structured-output                |
+| Tool calling    | 38    | single, parallel, approval, text-tool-text, agentic-structured    |
+| Multimodal      | 10    | image input, structured multimodal                                |
+| Generation      | 20    | summarize, summarize-stream, image-gen, TTS, transcription        |
+| Reasoning       | 3     | OpenAI, Anthropic, Gemini thinking blocks                         |
+| Tools-test page | 29    | client tools, approvals, race conditions, server-client sequences |
+| Advanced        | 6     | abort, lazy tools, custom events, middleware, error handling      |
+| Middleware      | 3     | onChunk transform, onBeforeToolCall skip, passthrough             |
 
 **Providers:** OpenAI, Anthropic, Gemini, Ollama, Groq, Grok, OpenRouter.
 

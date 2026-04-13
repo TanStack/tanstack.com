@@ -1,7 +1,7 @@
 ---
 title: 'How We Test TanStack AI Across 7 Providers on Every PR'
 published: 2026-04-13
-draft: true
+draft: false
 excerpt: "TanStack AI runs 147 deterministic E2E tests across 7 LLM providers in under 2 minutes. Here's the testing infrastructure that makes it possible."
 authors:
   - Alem Tuzlak
@@ -136,14 +136,4 @@ A single aimock instance starts in `globalSetup` and is shared across all tests.
 
 aimock also has a recording mode: set a real API key, run the tests, and it captures live responses as fixture files. This makes it easy to add new tests or update existing fixtures when provider behavior changes.
 
-## Try It
-
-The entire E2E suite ships with TanStack AI. Clone the repo and run it:
-
-```bash
-pnpm --filter @tanstack/ai-e2e test:e2e
-```
-
-No API keys. No setup. 147 tests across 7 providers in about 2 minutes.
-
-If you want to see what's being tested, browse `testing/e2e/fixtures/` for every fixture or `testing/e2e/tests/` for every spec file. It's all open source.
+This testing infrastructure is one of the things that makes [TanStack AI](https://tanstack.com/ai/latest) a reliable foundation for building AI-powered applications. If you're looking for an AI SDK that takes provider parity seriously, give it a try.

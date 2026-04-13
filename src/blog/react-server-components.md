@@ -362,7 +362,7 @@ They are another tool in the box, not the new mandatory center of gravity.
 
 ### Where should I look for the full technical docs?
 
-The [Server Components docs](/start/latest/docs/server-components). They cover setup, helper APIs, examples, constraints, and the low-level details this post intentionally skips.
+The [Server Components docs](/start/latest/docs/framework/react/guide/server-components). They cover setup, helper APIs, examples, constraints, and the low-level details this post intentionally skips.
 
 ### What about security?
 
@@ -378,7 +378,7 @@ Too much of the ecosystem treats RSCs like they need to become your app architec
 
 TanStack Start's RSC model is available now as an experimental feature. We're excited to see what you build with it.
 
-- [Server Components Docs](/start/latest/docs/server-components)
+- [Server Components Docs](/start/latest/docs/framework/react/guide/server-components)
 - [GitHub](https://github.com/tanstack/router)
 - [Discord](https://tlinz.com/discord)
 

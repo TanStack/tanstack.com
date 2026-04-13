@@ -272,7 +272,10 @@ const getPost = createServerFn().handler(async ({ data }) => {
 
         {/* Slot: server requests client UI here */}
         <footer>
-          {props.renderPostActions?.({ postId: post.id, authorId: post.authorId })}
+          {props.renderPostActions?.({
+            postId: post.id,
+            authorId: post.authorId,
+          })}
         </footer>
 
         {/* Slot: client fills this with children */}

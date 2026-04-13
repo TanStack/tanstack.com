@@ -232,7 +232,7 @@ But we kept pulling on one question: what if the server did not need to decide e
 
 That led us to create something entirely new: **Composite Components**.
 
-`use client` still matters when the server intentionally wants to render a client component. Composite Components are for the opposite case. The server can leave join points for client UI without needing to know what goes there.
+`use client` still works the same way in TanStack Start when the server intentionally wants to render a client component. `use server` does not. Start uses explicit [Server Functions](/start/latest/docs/framework/react/guide/server-functions) instead. Composite Components are not a replacement for `use client`. They are the opposite case: the server can leave join points for client UI without needing to know what goes there, while the client still owns the tree and composition.
 
 That is the part that feels genuinely new to us. Most RSC systems let the server decide where client components render. Composite Components let the server leave that decision open.
 

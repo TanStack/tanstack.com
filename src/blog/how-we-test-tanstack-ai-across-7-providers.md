@@ -139,3 +139,7 @@ A single aimock instance starts in `globalSetup` and is shared across all tests.
 aimock also has a recording mode: set a real API key, run the tests, and it captures live responses as fixture files. This makes it easy to add new tests or update existing fixtures when provider behavior changes.
 
 This testing infrastructure is one of the things that makes [TanStack AI](https://tanstack.com/ai/latest) a reliable foundation for building AI-powered applications. If you're looking for an AI SDK that takes provider parity seriously, give it a try.
+
+---
+
+If you're interested in using aimock for your own project's LLM testing, check out the repo at [github.com/CopilotKit/aimock](https://github.com/CopilotKit/aimock). It's open source and works with any AI SDK, not just TanStack AI.

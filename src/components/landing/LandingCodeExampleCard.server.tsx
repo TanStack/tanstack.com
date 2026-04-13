@@ -1,5 +1,4 @@
 import * as React from 'react'
-import { Card } from '~/components/Card'
 import { CodeBlock } from '~/components/markdown/CodeBlock.server'
 import { Tabs, type TabDefinition } from '~/components/markdown/Tabs'
 import type { Framework } from '~/libraries'

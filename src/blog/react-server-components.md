@@ -1,7 +1,7 @@
 ---
 title: 'React Server Components Your Way'
 published: 2026-04-13
-draft: true
+draft: false
 excerpt: RSCs are genuinely exciting — smaller bundles, streaming UI, moving heavy work off the client — but existing implementations force you into a one-size-fits-all pattern. What if you could fetch, cache, and compose them on your own terms?
 authors:
   - Manuel Schiller
@@ -11,66 +11,90 @@ authors:
 
 ![React Server Components](/blog-assets/react-server-components/header.jpg)
 
-At TanStack we have always strived to build tools that cover the 90% use case with ease, but still give you the flexibility to break out of the box for advanced and powerful use cases. Why? Because we know that when things get serious, **you know what's best for your application and deserve the freedom to take control**. That's always been the TanStack philosophy, and we're happy that it's taken us this long to deliver that same experience with React Server Components.
+At TanStack, we have always strived to build tools that cover the 90% use case with ease, but still give you the flexibility to break out of the box for advanced use cases. Why? Because we know that when things get serious, **you know what's best for your application and deserve the freedom to take control**.
 
-Here's why we got excited about RSCs in the first place: smaller bundles, streaming UI, and moving heavy work off the client. Can they be used to build an entire framework, eliminate client-side waterfalls, and shape your entire application architecture? Yes, but similar to trying to use a single tool to build an entire house, no tool is a silver bullet.
+That's always been the TanStack philosophy, and we're happy that you've trusted us to take our time to deliver that same experience with React Server Components.
+
+## What are server components?
+
+Yeah... no. This is not a server component crash course. If you are not familiar with Server Components by this point, please stop by the [official React Server Components documentation](https://react.dev/reference/rsc/server-components) for a few minutes to get acquainted.
+
+## Why do RSCs matter?
+
+RSCs are a necessary primitive for moving heavy or expensive rendering logic off the client and onto the server.
+
+**Especially static or infrequently changing content** that can be cached consistently and granularly.
+
+Markdown parsers, syntax highlighters, date formatting libraries, search indexing, content transforms, etc. are all great use cases, but certainly not the only ones.
+
+They are a _very powerful primitive_.
 
 ## The RSC Status Quo
 
-In most current server-composed RSC setups, the server owns the component tree, you opt into interactivity with `'use client'`, and the server decides the final shape of the UI. Client components can render and hydrate on the client, but the server still owns the destiny.
+**However**, we do not see RSCs on their own as some kind of silver bullet or magic hammer meant to be applied to every corner of software engineering, let alone an entire framework.
 
-This model only works if you trust that your server can know everything necessary to decide the final shape of the UI, and if you are willing to keep going back to the server to rebuild and reconcile new UI in response to new data and user actions. On paper, this server-first, "RSC-native" experience looks simple and elegant, but in practice it makes the lifecycle of your application artificially constrained by RSCs' trade-offs and tightly coupled to the framework that implements them.
+In most current server-composed RSC frameworks, the server owns the component tree, you opt into interactivity with `'use client'`, and the server decides the final shape of the UI. Client components can render and hydrate on the client, but the server still owns the destiny.
 
-We think you deserve more control than these historically tightly coupled, monolithic, black-box APIs.
+Likewise, the expectation in existing frameworks is that RSCs can only be created and controlled via implicit conventions, deeply integrated into the framework itself.
 
-What if you could use RSCs as granularly as you could fetch JSON? Without giving up control over your component tree? What if the client decided how server-rendered UI gets fetched, cached, and composed?
+This model only works if you trust that both your framework and server can know everything necessary to decide the final shape of the UI, and it only continues working if you are willing to keep going back to the server any time you need to rebuild and reconcile new UI in response to new data and user actions.
 
-In TanStack Start, the core idea is that RSCs are data you can fetch, cache, and render on your terms instead of a server-owned tree. That alone already makes them more composable from the client side. But you know we couldn't help ourselves. We wanted even more flexibility.
+On paper, this server-first, "RSC-native" experience looks simple and elegant, but in practice it can make the lifecycle of your application artificially constrained by both the server and the framework, and tightly couple you to the conventions that implement that lifecycle.
 
-So we built something new called **Composite Components** that pushes client-led composition even further. We'll come back to that. But first...
+Just as it's possible to use a hammer to build an entire home, it's possible to build an entire full-stack framework with RSCs at the heart, but at what cost?
 
----
-
-## Why Do RSCs Matter?
-
-Before we talk APIs or patterns, let's get real about practical cases for RSCs:
-
-- **Heavy dependencies stay on the server.** Markdown parsers, syntax highlighters, date formatting libraries, search indexing, content transforms. If the browser does not need that code, it should not download that code.
-- **Streaming improves responsiveness.** Streaming early markup and data to the client while slower stuff resolves gradually is a boon when users need feedback. RSCs help enable that even more.
-- **Data fetching can live closer to the UI that needs it.** Don't misunderstand though, we do not see RSCs on their own as some automatic waterfall win. TanStack Router already does so much important and hard work on parallel loading and waterfall prevention, but what RSCs add is a different ergonomic: sometimes it is just cleaner to colocate data fetching with the server-rendered UI that uses it.
-
-Sometimes, moving some logic to the server makes the client parts easier to do right, and cheaper too. And that gets a lot more interesting when you **stop assuming the server has to own the whole tree**.
+At TanStack, we know we deserve much better than what has historically been a tightly coupled, monolithic, black-box API.
 
 ## A Different RSC Model
 
-The server-first model is the default most people now associate with RSCs. We get it. Next.js's interpretation of RSCs has dominated the discourse for years now. But something always just felt off. We kept coming back to the same question: why should RSCs have to own your whole tree just to be worth using?
+What if you could use RSCs as granularly as you could fetch JSON on the client? In fact, what if the client decided how server-rendered UI gets fetched, cached, and composed in the first place?
 
-With TanStack Start, RSCs are just React Flight streams. That sounds almost too obvious to say out loud, but that was exactly the point. We did not want them wrapped in a black-box architecture that takes over your whole app.
+In TanStack Start, the core idea is that RSCs are **just streams of data** that you can fetch, cache, and render on your terms at any time on the client instead of a server-owned component tree. This extremely simple change alone makes them **infinitely more composable without changing anything fundamental about how they work** or how a framework can use them.
 
-We wanted RSCs to behave more like any other piece of server data: fetchable, cacheable, renderable, and composable under your control.
+With TanStack Start, RSCs are just React Flight streams. That sounds almost too obvious to say out loud, but that's exactly the point. We did not want them wrapped in a black-box convention with special rules, APIs, and network effects that change everything about the framework.
 
-That means you can return them from a server function, decode them on the client, cache them with Router or Query, and render them where they fit. The server still does the server-rendered work. The client just is not forced to surrender the whole tree up front.
+We wanted RSCs to behave more like any other piece of server data, which means **nothing special should need to happen in a framework to support them** outside of simply supporting streaming as a first-class citizen.
 
-The wire format is still standard React Flight. The mental model is simple: server components are data. You fetch them, you cache them, you render them. If you want setup details and the exact API surface, the [Server Components docs](/start/latest/docs/server-components) are the source of truth.
+What does this mean in practice? You can:
+
+- Create and return them from anywhere on the server (server functions, API routes)
+- Decode them wherever you want (both SSR and on the client)
+- Cache them however you want. They're just streams of bytes. Immediately compatible with all existing tools.
+
+## What do they look like?
 
 Here is an RSC in TanStack Start:
 
+> Naturally, to cut down on server sync logic, we'll use TanStack Query to manage it!
+
 ```tsx
+import { createServerFn } from '@tanstack/react-start'
+import { renderToReadableStream } from '@tanstack/react-start/rsc'
+
+// Create a server function
 const getGreeting = createServerFn().handler(async () => {
-  return renderToReadableStream(<h1>Hello from the server</h1>)
+  // Create an RSC readable stream
+  return renderToReadableStream(
+    // Return JSX
+    <h1>Hello from the server</h1>,
+  )
 })
 
 function Greeting() {
-  const stream = React.use(getGreeting())
-  return React.use(createFromReadableStream(stream))
+  const query = useQuery({
+    queryKey: ['greeting'],
+    queryFn: async () =>
+      // Create a renderable element from the stream
+      createFromReadableStream(
+        // Call our server function to get the stream
+        await getGreeting(),
+      ),
+  })
+
+  // Render!
+  return <>{query.data}</>
 }
 ```
-
-I know what you're thinking... this still looks a little low-level.
-
-**Don’t take this as “how you should render every RSC”** 😅. Consider it a deliberately primitive example to make the base model obvious before we add ergonomic layers. There’s almost nothing hidden here: no special files, no framework-owned tree, **no magic**. Just a server function returning a Flight stream, and the client rendering it.
-
----
 
 ## The Primitive APIs
 
@@ -80,15 +104,17 @@ At the primitive level, the API surface is intentionally small:
 - **`createFromReadableStream`** decodes a Flight stream on the client or during SSR.
 - **`createFromFetch`** decodes directly from a fetch response when that shape is more convenient.
 
-That is enough to build a lot. You can treat RSC output like any other async resource in your app instead of a framework-owned tree that you have to route every decision through.
+Under the hood, the story is straightforward: React renders to a Flight stream on the server, and the client decodes that stream back into a React element tree.
 
-And if you want the exact APIs, examples, constraints, and low-level details, we have that documented in the [Server Components docs](/start/latest/docs/server-components).
+There is no secret extra protocol here. That is the primitive. Standard Flight streams in, standard React elements out.
 
----
+That is enough to build a lot. You can treat RSC output like any other async resource in your app instead of a special-case framework-owned convention that you have to route every decision through.
 
 ## Caching
 
-Once you treat RSCs like data, the caching story gets a lot simpler. And because these are just granular Flight streams delivered plainly over HTTP, they are not only easy to cache on the client, but also anywhere along the way on the server too: in memory, in a database, behind a CDN, or wherever else your architecture already caches bytes and responses.
+Speaking of unnecessary framework convention: caching is not something new to reinvent, and **RSCs are no exception**.
+
+When RSCs become "just data", the caching story gets a lot simpler. And because these are just granular streams delivered plainly over HTTP and handled transparently during rendering, they are not only easy to cache on the client, but also anywhere along the way on the server: in memory, in a database, behind a CDN, or wherever else your architecture already caches bytes, responses, or data.
 
 This equally applies to **caching layers you likely already know on the client** as well, instead of requiring novel approaches and mental model shifts.
 
@@ -118,7 +144,9 @@ function PostPage({ postId }: { postId: string }) {
 
 ### Router: Automatic Route-Based Caching
 
-TanStack Router is even cooler. It can fetch RSC payloads in route loaders and cache the result like any other loader output.
+TanStack Router is even cooler. Because it natively supports streams, RSC payloads in route loaders are, again, "just data".
+
+You can await them, stream them (yes, stream a stream), and naturally cache the result in the router cache just like any other loader output.
 
 ```tsx
 const getGreeting = createServerFn().handler(async () => {
@@ -126,64 +154,49 @@ const getGreeting = createServerFn().handler(async () => {
 })
 
 export const Route = createFileRoute('/hello')({
-  loader: async () => createFromReadableStream(await getGreeting()),
+  loader: async () => ({
+    greeting: getGreeting(),
+  }),
   component: function HelloPage() {
-    const greeting = Route.useLoaderData()
+    const { greeting } = Route.useLoaderData()
     return <>{greeting}</>
   },
 })
 ```
 
-Navigate from `/posts/abc` to `/posts/xyz` and the loader runs again. Navigate back to `/posts/abc` and Router can serve the cached result instantly. That snappy back-button experience falls out of the same loader caching model you are already using.
+> Navigate from `/posts/abc` to `/posts/xyz` and the loader runs again. Navigate back to `/posts/abc` and Router can serve the cached result instantly. That snappy back-button experience falls out of the same loader caching model you are already using.
 
-That is one of the nicest parts of this model. **RSCs stop feeling like a separate universe** and start feeling like something your existing data tools can already work with.
-
----
-
-## Under The Hood
-
-Under the hood, the primitive story is straightforward: React renders to a Flight stream on the server, and the client decodes that stream back into a React element tree.
-
-There is no secret extra protocol here. That is the primitive. Standard Flight streams in, standard React elements out.
-
-If you want the exact serialization contract or the low-level stream APIs, the [Server Components docs](/start/latest/docs/server-components) cover them.
-
----
+With Start, **RSCs are not a separate universe, "mode," or "router"**. They fit naturally into existing data workflows and tools you've been working with.
 
 ## Security: One-Way Data Flow
 
-Let's talk about something important. You may have seen recent CVEs affecting RSC implementations in other frameworks. Here's why TanStack Start isn't vulnerable to those same issues.
+You've probably seen recent CVEs around RSC stacks.
 
-The core difference is simple: **TanStack Start's server functions don't accept or parse incoming Flight data.** Payloads flow in one direction only: server to client.
+We intentionally do not support `'use server'` actions, both because of existing attack vectors and because they can create highly implicit network boundaries.
 
-Other RSC implementations use the `'use server'` directive to create Server Actions that parse Flight data sent _from_ the client. That bidirectional flow is where the vulnerabilities live. When your server parses untrusted Flight payloads, you're exposed to deserialization attacks and prototype pollution.
+TanStack Start requires explicit RPCs via `createServerFn`. The client-server boundary is deliberate, with hardened serialization, validation, and middleware semantics that encourage treating all user input as untrusted by default.
 
-We took a fundamentally different approach. TanStack Start uses `createServerFn` for server functions. These are regular functions that receive JSON input, validate it with your middleware, and return data. They don't accept Flight streams. They don't parse React's wire format from untrusted sources.
-
-The result: server-rendered RSC content streams to your client, but the client never sends Flight data back. No parsing of untrusted RSC payloads means no exposure to those attack vectors.
-
-That said, treat your server functions like any API surface: authenticate requests, validate inputs, and keep React patched. Security is always defense in depth. But you can use TanStack Start's RSC model knowing it is not susceptible to the same class of vulnerabilities that have affected other frameworks.
-
----
+The win is reduced attack surface through explicit communication patterns, not magic. Still treat server functions like any API surface: authenticate, validate, and keep dependencies patched.
 
 ## The Full Spectrum
 
-With RSCs as primitives, TanStack Start covers every frontend use case. And we mean _every_:
+With RSCs as primitives, TanStack Start covers every frontend use case. And we mean _every_ one:
 
 - **Fully Interactive**  
-  No server components at all. Client-first, SPA-style. RSCs are an optimization you add when helpful, not a paradigm you're forced to build around.
+  No server components at all. Client-first, SPA-style. RSCs are an optimization you add when helpful, not a paradigm you're forced to build around. This is where most "apps" already live today.
 
 - **Hybrid**  
-  Server components for static shells, data-heavy regions, or SEO-critical content, with client components where interactivity matters. This is where most apps will land.
+  Server components for static shells, data-heavy regions, or SEO-critical content, with client components where interactivity matters. Mixed "app" and "site" projects (product + marketing) are a clear win here. RSCs will come in handy for "site" stuff way more often.
+
+- **Mostly Static**  
+  Predominantly static content, parsed and rendered server-side as RSCs, but still a powerful and hydrated SPA with bits of client interactivity sprinkled in where needed (e.g. comments, search, dynamic widgets). Think blogs, docs, marketing pages.
 
 - **Fully Static**  
-  Pre-render everything at build time. No hydration, no JavaScript. Just ship HTML.
+  Pre-render everything at build time. Just ship HTML. You might not even need RSCs here if you never need to hydrate!
 
 **One framework. One mental model. The entire spectrum.**  
 You don't have to choose "interactive framework" or "static framework" or "RSC framework."  
 You choose patterns **per-route, per-component, per-use-case**. The architecture supports all of it. Because, again, you know what's best for your app.
-
----
 
 ## What We Saw On TanStack.com
 
@@ -217,15 +230,13 @@ That is the tradeoff:
 
 That is why we think they matter. Not because every route should become a server component. Because when you use them where they fit, the payoff is measurable and not subtle.
 
----
-
-## Then We Pushed It Further
+## Introducing Composite Components, the anti-`'use client'`
 
 Everything above stands on its own. If all TanStack Start did was treat RSCs as fetchable, cacheable, renderable data, we would already think that was a better foundation for RSCs.
 
 But we kept pulling on one question: what if the server did not need to decide every client-shaped part of the UI at all?
 
-That led us to **Composite Components**.
+That led us to create something entirely new: **Composite Components**.
 
 `use client` still matters when the server intentionally wants to render a client component. Composite Components are for the opposite case. The server can leave join points for client UI without needing to know what goes there.
 
@@ -319,8 +330,6 @@ Since a Composite Component is still data, the client can also treat it as a bui
 
 Same mental model as normal React composition. The difference is that the server no longer has to decide every interesting part of the tree ahead of time.
 
----
-
 ## Current Status: Experimental
 
 RSC support is experimental in TanStack Start RC and will remain experimental into early v1.
@@ -330,8 +339,6 @@ RSC support is experimental in TanStack Start RC and will remain experimental in
 **API surface:** The current helpers are stable enough to use, but expect refinements while the feature is experimental. The docs will stay current as the APIs evolve.
 
 If you hit rough edges, [open an issue](https://github.com/tanstack/router/issues) or join the [Discord](https://tlinz.com/discord).
-
----
 
 ## FAQ
 

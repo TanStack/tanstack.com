@@ -63,7 +63,10 @@ Here is an RSC in TanStack Start:
 
 ```tsx
 import { createServerFn } from '@tanstack/react-start'
-import { renderToReadableStream } from '@tanstack/react-start/rsc'
+import {
+  createFromReadableStream,
+  renderToReadableStream,
+} from '@tanstack/react-start/rsc'
 
 // Create a server function
 const getGreeting = createServerFn().handler(async () => {
@@ -119,6 +122,12 @@ Let me explain.
 TanStack Query illustrates this so well. It does not need a special "RSC mode". Once the RSC payload is part of an async query, you still get explicit cache keys, `staleTime`, background refetching, and the rest of Query's toolbox. For static content, just set `staleTime: Infinity` and you are done.
 
 ```tsx
+import { createServerFn } from '@tanstack/react-start'
+import {
+  createFromReadableStream,
+  renderToReadableStream,
+} from '@tanstack/react-start/rsc'
+
 const getGreeting = createServerFn().handler(async () => {
   return renderToReadableStream(<h1>Hello from the server</h1>)
 })
@@ -224,7 +233,7 @@ That is the tradeoff:
 
 That is why we think they matter. Not because every route should become a server component. Because when you use them where they fit, the payoff is measurable and not subtle.
 
-## Introducing Composite Components, the anti-`'use client'`
+## Introducing Composite Components
 
 Everything above stands on its own. If all TanStack Start did was treat RSCs as fetchable, cacheable, renderable data, we would already think that was a better foundation for RSCs.
 
@@ -232,9 +241,11 @@ But we kept pulling on one question: what if the server did not need to decide e
 
 That led us to create something entirely new: **Composite Components**.
 
-`use client` still works the same way in TanStack Start when the server intentionally wants to render a client component. `use server` does not. Start uses explicit [Server Functions](/start/latest/docs/framework/react/guide/server-functions) instead. Composite Components are not a replacement for `use client`. They are the opposite case: the server can leave join points for client UI without needing to know what goes there, while the client still owns the tree and composition.
+`use client` still works the same way in TanStack Start when the server intentionally wants to render a client component. `use server` does not. Start uses explicit [Server Functions](/start/latest/docs/framework/react/guide/server-functions) instead.
 
-That is the part that feels genuinely new to us. Most RSC systems let the server decide where client components render. Composite Components let the server leave that decision open.
+Composite Components are not a replacement for `use client`. They solve a similar composition problem from the opposite direction. Instead of the server deciding which client component renders where, the server can leave join points open and let the client own the tree and decide what fills them.
+
+That is the part that feels genuinely new to us.
 
 ### Slots Inside One Component
 

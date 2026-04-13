@@ -169,6 +169,30 @@ export const Route = createFileRoute('/hello')({
 
 > Navigate from `/posts/abc` to `/posts/xyz` and the loader runs again. Navigate back to `/posts/abc` and Router can serve the cached result instantly. That snappy back-button experience falls out of the same loader caching model you are already using.
 
+### CDN: Cache The GET Response Itself
+
+Because GET server functions are still just HTTP under the hood, you can also cache the response itself at the CDN layer.
+
+```tsx
+import { createServerFn } from '@tanstack/react-start'
+import { renderToReadableStream } from '@tanstack/react-start/rsc'
+import { setResponseHeaders } from '@tanstack/react-start/server'
+
+const getGreeting = createServerFn({ method: 'GET' }).handler(async () => {
+  setResponseHeaders(
+    new Headers({
+      'Cache-Control': 'public, max-age=0, must-revalidate',
+      'Netlify-CDN-Cache-Control':
+        'public, max-age=300, durable, stale-while-revalidate=300',
+    }),
+  )
+
+  return renderToReadableStream(<h1>Hello from the server</h1>)
+})
+```
+
+That is the same pattern we use here for blog and docs content. Browser cache rules can stay conservative while the CDN caches the server function response much more aggressively.
+
 With Start, RSCs fit into the same data workflows you already use.
 
 ## Security: One-Way Data Flow

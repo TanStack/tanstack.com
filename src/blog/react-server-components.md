@@ -63,7 +63,7 @@ Here is an RSC in TanStack Start:
 
 ```tsx
 import { createServerFn } from '@tanstack/react-start'
-import { renderToReadableStream } from '@tanstack/react-start/rsc'
+import { createFromReadableStream, renderToReadableStream } from '@tanstack/react-start/rsc'
 
 // Create a server function
 const getGreeting = createServerFn().handler(async () => {

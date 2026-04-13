@@ -13,7 +13,7 @@ LLM responses are non-deterministic. API calls cost money. And the thing that wo
 
 If you've ever built on an AI SDK, you know the feeling: you trust the library works because the README says it supports your provider. But does it? Has anyone actually verified that tool calling works the same way across OpenAI, Gemini, and Ollama? That streaming structured output doesn't break when you switch from Groq to Anthropic?
 
-We got tired of wondering. So we built an E2E testing infrastructure for TanStack AI that verifies every feature across every provider on every pull request. 147 tests. 7 providers. About 2 minutes. Zero API keys required.
+We got tired of wondering. So we built an E2E testing infrastructure for TanStack AI that verifies every feature across every provider on every pull request. 137 tests. 7 providers. About 2 minutes. Zero API keys required.
 
 Here's how it works and why it matters for the long-term stability of the project.
 
@@ -51,11 +51,11 @@ graph LR
 
 Playwright opens the test app, navigates to a route like `/openai/chat`, and interacts with the UI. The app's provider adapter thinks it's talking to OpenAI, but the `baseURL` points at aimock. aimock matches the request against a fixture file and returns a deterministic response.
 
-Every test gets a unique `X-Test-Id` header. This is what makes parallel execution work: aimock uses the header to route each test to its own fixture sequence, so 147 tests can run simultaneously without stepping on each other.
+Every test gets a unique `X-Test-Id` header. This is what makes parallel execution work: aimock uses the header to route each test to its own fixture sequence, so 137 tests can run simultaneously without stepping on each other.
 
 ## The Numbers
 
-147 tests cover 17 features across 7 providers. Here's the matrix:
+137 tests cover 17 features across 7 providers. Here's the matrix:
 
 | Category        | Tests | Features                                                          |
 | --------------- | ----- | ----------------------------------------------------------------- |

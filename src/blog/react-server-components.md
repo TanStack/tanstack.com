@@ -31,25 +31,19 @@ They are a _very powerful primitive_.
 
 ## The RSC Status Quo
 
-**However**, we do not see RSCs on their own as some kind of silver bullet or magic hammer meant to be applied to every corner of software engineering, let alone an entire framework.
+Most people now think of RSCs in a server-first way: the server owns the tree, `'use client'` marks the interactive parts, and the framework conventions decide how the whole thing fits together.
 
-In most current server-composed RSC frameworks, the server owns the component tree, you opt into interactivity with `'use client'`, and the server decides the final shape of the UI. Client components can render and hydrate on the client, but the server still owns the destiny.
+That model can be compelling. It makes streaming, server rendering, and colocated server-side work feel built in from the start.
 
-Likewise, the expectation in existing frameworks is that RSCs can only be created and controlled via implicit conventions, deeply integrated into the framework itself.
+But it also turns RSCs from a useful primitive into the thing your whole app has to orbit. The framework ends up owning how RSCs are created, where they render, how interactive boundaries are defined, and how UI gets recomposed when data or user actions change.
 
-This model only works if you trust that both your framework and server can know everything necessary to decide the final shape of the UI, and it only continues working if you are willing to keep going back to the server any time you need to rebuild and reconcile new UI in response to new data and user actions.
-
-On paper, this server-first, "RSC-native" experience looks simple and elegant, but in practice it can make the lifecycle of your application artificially constrained by both the server and the framework, and tightly couple you to the conventions that implement that lifecycle.
-
-Just as it's possible to use a hammer to build an entire home, it's possible to build an entire full-stack framework with RSCs at the heart, but at what cost?
-
-At TanStack, we know we deserve much better than what has historically been a tightly coupled, monolithic, black-box API.
+That is the part we kept getting hung up on. We do not think you should have to buy into that whole model up front just to get value out of RSCs.
 
 ## A Different RSC Model
 
 What if you could use RSCs as granularly as you could fetch JSON on the client? In fact, what if the client decided how server-rendered UI gets fetched, cached, and composed in the first place?
 
-In TanStack Start, the core idea is that RSCs are **just streams of data** that you can fetch, cache, and render on your terms at any time on the client instead of a server-owned component tree. This extremely simple change alone makes them **infinitely more composable without changing anything fundamental about how they work** or how a framework can use them.
+In TanStack Start, the core idea is that RSCs are **just streams of data** that you can fetch, cache, and render on your terms at any time on the client instead of a server-owned component tree. That one shift makes them far more composable without changing anything fundamental about how they work.
 
 With TanStack Start, RSCs are just React Flight streams. That sounds almost too obvious to say out loud, but that's exactly the point. We did not want them wrapped in a black-box convention with special rules, APIs, and network effects that change everything about the framework.
 
@@ -166,7 +160,7 @@ export const Route = createFileRoute('/hello')({
 
 > Navigate from `/posts/abc` to `/posts/xyz` and the loader runs again. Navigate back to `/posts/abc` and Router can serve the cached result instantly. That snappy back-button experience falls out of the same loader caching model you are already using.
 
-With Start, **RSCs are not a separate universe, "mode," or "router"**. They fit naturally into existing data workflows and tools you've been working with.
+With Start, RSCs fit into the same data workflows you already use.
 
 ## Security: One-Way Data Flow
 
@@ -176,7 +170,7 @@ We intentionally do not support `'use server'` actions, both because of existing
 
 TanStack Start requires explicit RPCs via `createServerFn`. The client-server boundary is deliberate, with hardened serialization, validation, and middleware semantics that encourage treating all user input as untrusted by default.
 
-The win is reduced attack surface through explicit communication patterns, not magic. Still treat server functions like any API surface: authenticate, validate, and keep dependencies patched.
+This keeps the attack surface smaller because the communication pattern is explicit. Still treat server functions like any API surface: authenticate, validate, and keep dependencies patched.
 
 ## The Full Spectrum
 
@@ -186,7 +180,7 @@ With RSCs as primitives, TanStack Start covers every frontend use case. And we m
   No server components at all. Client-first, SPA-style. RSCs are an optimization you add when helpful, not a paradigm you're forced to build around. This is where most "apps" already live today.
 
 - **Hybrid**  
-  Server components for static shells, data-heavy regions, or SEO-critical content, with client components where interactivity matters. Mixed "app" and "site" projects (product + marketing) are a clear win here. RSCs will come in handy for "site" stuff way more often.
+  Server components for static shells, data-heavy regions, or SEO-critical content, with client components where interactivity matters. Mixed "app" and "site" projects (product + marketing) fit this especially well. In practice, this tends to help the "site" side more often than the "app" side.
 
 - **Mostly Static**  
   Predominantly static content, parsed and rendered server-side as RSCs, but still a powerful and hydrated SPA with bits of client interactivity sprinkled in where needed (e.g. comments, search, dynamic widgets). Think blogs, docs, marketing pages.
@@ -247,7 +241,7 @@ That is the part that feels genuinely new to us. Most RSC systems let the server
 A Composite Component can render server UI while exposing **slots** for client content. Slots use plain React patterns you already know:
 
 - `children`
-- render props (like `renderActions`)
+- render props (like `renderPostActions`)
 
 Because the client owns the component tree, the components you pass into slots are regular client components. No `'use client'` directive required. The server positions them as opaque placeholders but can't inspect, clone, or transform them. That is the point: the server can ask for "something goes here" without needing to know what that something is.
 
@@ -262,7 +256,7 @@ const getPost = createServerFn().handler(async ({ data }) => {
   const src = await createCompositeComponent(
     (props: {
       children?: React.ReactNode
-      renderActions?: (data: {
+      renderPostActions?: (data: {
         postId: string
         authorId: string
       }) => React.ReactNode
@@ -278,7 +272,7 @@ const getPost = createServerFn().handler(async ({ data }) => {
 
         {/* Slot: server requests client UI here */}
         <footer>
-          {props.renderActions?.({ postId: post.id, authorId: post.authorId })}
+          {props.renderPostActions?.({ postId: post.id, authorId: post.authorId })}
         </footer>
 
         {/* Slot: client fills this with children */}
@@ -305,7 +299,7 @@ function PostPage({ postId }) {
   return (
     <CompositeComponent
       src={data.src}
-      renderActions={({ postId, authorId }) => (
+      renderPostActions={({ postId, authorId }) => (
         // Full client interactivity: hooks, state, context
         <PostActions postId={postId} authorId={authorId} />
       )}
@@ -318,8 +312,10 @@ function PostPage({ postId }) {
 
 The server renders the `<Link>` directly and leaves join points for the client:
 
-- A render prop slot for `<PostActions>` with server-provided arguments
+- A `renderPostActions` slot for `<PostActions>` with server-provided arguments
 - A `children` slot for `<Comments>`
+
+Slot names are just props. `renderPostActions` is example code, not special API syntax.
 
 Since a Composite Component is still data, the client can also treat it as a building block:
 

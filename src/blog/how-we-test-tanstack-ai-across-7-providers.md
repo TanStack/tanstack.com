@@ -7,6 +7,8 @@ authors:
   - Alem Tuzlak
 ---
 
+![E2E Testing - All Tests Passed](/blog-assets/how-we-test-tanstack-ai-across-7-providers/cover.png)
+
 LLM responses are non-deterministic. API calls cost money. And the thing that works perfectly with OpenAI might silently break with Anthropic.
 
 If you've ever built on an AI SDK, you know the feeling: you trust the library works because the README says it supports your provider. But does it? Has anyone actually verified that tool calling works the same way across OpenAI, Gemini, and Ollama? That streaming structured output doesn't break when you switch from Groq to Anthropic?

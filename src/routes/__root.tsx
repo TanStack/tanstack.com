@@ -185,7 +185,7 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
   }, [isNavigating])
 
   const canonicalPath = useRouterState({
-    select: (s) => s.resolvedLocation?.pathname || '/',
+    select: (s) => s.location?.pathname || '/',
   })
 
   const preferredCanonicalPath = getCanonicalPath(canonicalPath)

@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm'
+import { and, eq, sql } from 'drizzle-orm'
 import { db } from '~/db/client'
 import {
   docsArtifactCache,
@@ -336,64 +336,94 @@ export async function getCachedDocsArtifact<T>(opts: {
   })
 }
 
-export async function markGitHubContentStale(opts: {
-  gitRef: string
-  repo: string
-}) {
-  const rows = await db.query.githubContentCache.findMany({
-    where: and(
-      eq(githubContentCache.repo, opts.repo),
-      eq(githubContentCache.gitRef, opts.gitRef),
-    ),
-  })
+export async function markGitHubContentStale(
+  opts: {
+    gitRef?: string
+    repo?: string
+  } = {},
+) {
+  const whereConditions = []
 
-  if (rows.length === 0) {
+  if (opts.repo) {
+    whereConditions.push(eq(githubContentCache.repo, opts.repo))
+  }
+
+  if (opts.gitRef) {
+    whereConditions.push(eq(githubContentCache.gitRef, opts.gitRef))
+  }
+
+  const whereClause =
+    whereConditions.length > 0 ? and(...whereConditions) : undefined
+  const [countRow] = whereClause
+    ? await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(githubContentCache)
+        .where(whereClause)
+    : await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(githubContentCache)
+  const rowCount = countRow?.count ?? 0
+
+  if (rowCount === 0) {
     return 0
   }
 
-  await db
-    .update(githubContentCache)
-    .set({
-      staleAt: new Date(0),
-      updatedAt: new Date(),
-    })
-    .where(
-      and(
-        eq(githubContentCache.repo, opts.repo),
-        eq(githubContentCache.gitRef, opts.gitRef),
-      ),
-    )
+  const updateData = {
+    staleAt: new Date(0),
+    updatedAt: new Date(),
+  }
 
-  return rows.length
+  if (whereClause) {
+    await db.update(githubContentCache).set(updateData).where(whereClause)
+  } else {
+    await db.update(githubContentCache).set(updateData)
+  }
+
+  return rowCount
 }
 
-export async function markDocsArtifactsStale(opts: {
-  gitRef: string
-  repo: string
-}) {
-  const rows = await db.query.docsArtifactCache.findMany({
-    where: and(
-      eq(docsArtifactCache.repo, opts.repo),
-      eq(docsArtifactCache.gitRef, opts.gitRef),
-    ),
-  })
+export async function markDocsArtifactsStale(
+  opts: {
+    gitRef?: string
+    repo?: string
+  } = {},
+) {
+  const whereConditions = []
 
-  if (rows.length === 0) {
+  if (opts.repo) {
+    whereConditions.push(eq(docsArtifactCache.repo, opts.repo))
+  }
+
+  if (opts.gitRef) {
+    whereConditions.push(eq(docsArtifactCache.gitRef, opts.gitRef))
+  }
+
+  const whereClause =
+    whereConditions.length > 0 ? and(...whereConditions) : undefined
+  const [countRow] = whereClause
+    ? await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(docsArtifactCache)
+        .where(whereClause)
+    : await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(docsArtifactCache)
+  const rowCount = countRow?.count ?? 0
+
+  if (rowCount === 0) {
     return 0
   }
 
-  await db
-    .update(docsArtifactCache)
-    .set({
-      staleAt: new Date(0),
-      updatedAt: new Date(),
-    })
-    .where(
-      and(
-        eq(docsArtifactCache.repo, opts.repo),
-        eq(docsArtifactCache.gitRef, opts.gitRef),
-      ),
-    )
+  const updateData = {
+    staleAt: new Date(0),
+    updatedAt: new Date(),
+  }
 
-  return rows.length
+  if (whereClause) {
+    await db.update(docsArtifactCache).set(updateData).where(whereClause)
+  } else {
+    await db.update(docsArtifactCache).set(updateData)
+  }
+
+  return rowCount
 }

@@ -15,10 +15,13 @@ import type {
   SkillSearchResult,
 } from '~/utils/intent.functions'
 import { SkillTypeBadge } from './$packageName'
-import {
-  SkillSparkline,
-  SkillSparklinePlaceholder,
-} from '~/components/intent/SkillSparkline'
+import { SkillSparklineFallback } from '~/components/intent/SkillSparklineFallback'
+
+const LazySkillSparkline = React.lazy(() =>
+  import('~/components/intent/SkillSparkline').then((m) => ({
+    default: m.SkillSparkline,
+  })),
+)
 
 const searchSchema = v.object({
   q: v.optional(v.string()),
@@ -581,14 +584,16 @@ function PackageCard({
         </div>
         <div className="shrink-0 w-20">
           {history && history.length > 0 ? (
-            <SkillSparkline
-              history={history}
-              height={24}
-              maxSlots={maxSlots}
-              onVersionClick={handleVersionClick}
-            />
+            <React.Suspense fallback={<SkillSparklineFallback height={24} />}>
+              <LazySkillSparkline
+                history={history}
+                height={24}
+                maxSlots={maxSlots}
+                onVersionClick={handleVersionClick}
+              />
+            </React.Suspense>
           ) : historyLoading ? (
-            <SkillSparklinePlaceholder height={24} />
+            <SkillSparklineFallback height={24} />
           ) : null}
         </div>
       </div>
@@ -706,14 +711,16 @@ function PackageRow({
       </td>
       <td className="px-4 py-3 whitespace-nowrap">
         {history && history.length > 0 ? (
-          <SkillSparkline
-            history={history}
-            height={24}
-            maxSlots={maxSlots}
-            onVersionClick={handleVersionClick}
-          />
+          <React.Suspense fallback={<SkillSparklineFallback height={24} />}>
+            <LazySkillSparkline
+              history={history}
+              height={24}
+              maxSlots={maxSlots}
+              onVersionClick={handleVersionClick}
+            />
+          </React.Suspense>
         ) : historyLoading ? (
-          <SkillSparklinePlaceholder height={24} />
+          <SkillSparklineFallback height={24} />
         ) : (
           <span className="text-xs text-gray-500 dark:text-gray-400 tabular-nums">
             {pkg.skillNames.length}

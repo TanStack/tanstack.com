@@ -18,10 +18,13 @@ import {
 } from '~/queries/intent'
 import type { IntentPackageDetail } from '~/utils/intent.functions'
 import { useToast } from '~/components/ToastProvider'
-import {
-  SkillSparkline,
-  SkillSparklinePlaceholder,
-} from '~/components/intent/SkillSparkline'
+import { SkillSparklineFallback } from '~/components/intent/SkillSparklineFallback'
+
+const LazySkillSparkline = React.lazy(() =>
+  import('~/components/intent/SkillSparkline').then((m) => ({
+    default: m.SkillSparkline,
+  })),
+)
 
 // npm scoped package names (@scope/name) can't go in a URL segment directly.
 // We encode `@scope/name` as `@scope__name` in the URL.
@@ -196,9 +199,13 @@ function PackageLayoutInner({
 
             <div className="w-24 shrink-0">
               {skillHistory && skillHistory.length > 0 ? (
-                <SkillSparkline history={skillHistory} height={24} />
+                <React.Suspense
+                  fallback={<SkillSparklineFallback height={24} />}
+                >
+                  <LazySkillSparkline history={skillHistory} height={24} />
+                </React.Suspense>
               ) : skillHistoryQuery.isLoading ? (
-                <SkillSparklinePlaceholder height={24} />
+                <SkillSparklineFallback height={24} />
               ) : null}
             </div>
 

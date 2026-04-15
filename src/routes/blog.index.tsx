@@ -154,7 +154,10 @@ function BlogIndex() {
             </section>
           </div>
           <RightRail breakpoint="md">
-            <PartnersRail partners={activePartners} />
+            <PartnersRail
+              analyticsPlacement="blog_right_rail"
+              partners={activePartners}
+            />
             <div className="hidden md:block border border-gray-500/20 rounded-l-lg overflow-hidden w-full">
               <RecentPostsWidget />
             </div>

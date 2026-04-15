@@ -1,3 +1,5 @@
+'use client'
+
 import { useParams } from '@tanstack/react-router'
 import * as React from 'react'
 import { frameworkOptions } from '~/libraries/frameworks'

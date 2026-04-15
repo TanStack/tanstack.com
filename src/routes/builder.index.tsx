@@ -13,11 +13,15 @@ const LazyBuilderPage = React.lazy(() =>
 const builderSearchSchema = z
   .object({
     name: z.string().optional(),
+    framework: z.string().optional(),
     features: z.string().optional(), // comma-separated feature IDs
-    tab: z.enum(['files', 'addons', 'preview']).optional(),
+    pm: z.enum(['pnpm', 'npm', 'yarn', 'bun']).optional(),
+    tailwind: z.enum(['false']).optional(),
+    tab: z.enum(['summary', 'code', 'preview']).optional(),
     file: z.string().optional(), // selected file in files tab
     addon: z.string().optional(), // selected addon in addons tab
     addonFile: z.string().optional(), // selected file in addon view
+    template: z.string().optional(),
     // Feature options as key.value params handled dynamically
   })
   .passthrough()

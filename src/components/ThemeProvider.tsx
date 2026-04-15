@@ -1,3 +1,5 @@
+'use client'
+
 import { createClientOnlyFn, createIsomorphicFn } from '@tanstack/react-start'
 import * as React from 'react'
 import { createContext, ReactNode, useEffect, useState } from 'react'

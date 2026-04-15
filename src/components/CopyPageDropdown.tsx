@@ -116,7 +116,10 @@ export function CopyPageDropdown({
   // For docs pages in this repo, prefer the site's markdown endpoint so requests stay behind site caching.
   const pageMarkdownUrl = (() => {
     const base = `${typeof window !== 'undefined' ? window.location.origin : ''}${typeof window !== 'undefined' ? window.location.pathname.replace(/\/$/, '') : ''}.md`
-    const params = new URLSearchParams()
+    const params =
+      typeof window !== 'undefined'
+        ? new URLSearchParams(window.location.search)
+        : new URLSearchParams()
     if (currentFramework) {
       params.set('framework', currentFramework)
     }

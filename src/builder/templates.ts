@@ -44,11 +44,12 @@ export const TEMPLATES: Array<Template> = [
     color: '#F97316', // orange
     features: [
       'cloudflare',
-      'clerk',
+      'better-auth',
       'neon',
+      'drizzle',
       'sentry',
       'shadcn',
-      'tanstack-form',
+      'form',
     ],
   },
   {
@@ -57,7 +58,7 @@ export const TEMPLATES: Array<Template> = [
     description: 'LLM-powered app',
     icon: Bot,
     color: '#8B5CF6', // violet
-    features: ['cloudflare', 'ai', 'tanstack-store', 'shadcn'],
+    features: ['cloudflare', 'ai', 'store', 'shadcn'],
   },
   {
     id: 'dashboard',
@@ -65,13 +66,7 @@ export const TEMPLATES: Array<Template> = [
     description: 'Admin panels, data tables',
     icon: LayoutDashboard,
     color: '#3B82F6', // blue
-    features: [
-      'cloudflare',
-      'tanstack-table',
-      'tanstack-query',
-      'shadcn',
-      'tanstack-form',
-    ],
+    features: ['cloudflare', 'table', 'tanstack-query', 'shadcn', 'form'],
   },
   {
     id: 'blog',
@@ -87,7 +82,7 @@ export const TEMPLATES: Array<Template> = [
     description: 'Type-safe backend APIs',
     icon: Server,
     color: '#10B981', // emerald
-    features: ['cloudflare', 'trpc', 'tanstack-query', 'drizzle'],
+    features: ['cloudflare', 'tRPC', 'tanstack-query', 'drizzle'],
   },
   {
     id: 'realtime',
@@ -111,6 +106,6 @@ export const TEMPLATES: Array<Template> = [
     description: 'Offline-capable, sync-enabled',
     icon: HardDrive,
     color: '#F59E0B', // amber
-    features: ['cloudflare', 'tanstack-db', 'tanstack-query', 'tanstack-store'],
+    features: ['cloudflare', 'db', 'tanstack-query', 'store'],
   },
 ]

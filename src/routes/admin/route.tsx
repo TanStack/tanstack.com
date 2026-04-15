@@ -134,6 +134,11 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       to: '/admin/intent',
     },
     {
+      label: 'Docs Cache',
+      icon: <BookOpen />,
+      to: '/admin/docs',
+    },
+    {
       label: 'My Account',
       icon: <User />,
       to: '/account',

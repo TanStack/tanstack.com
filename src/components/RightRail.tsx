@@ -2,8 +2,10 @@ import * as React from 'react'
 import { Link } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 import { PartnerImage } from '~/utils/partners'
+import { trackEvent, useTrackedImpression } from '~/utils/analytics'
 
 type RailPartner = {
+  id: string
   name: string
   href: string
   score: number
@@ -46,10 +48,14 @@ export function RightRail({
 }
 
 export function PartnersRail({
+  analyticsPlacement = 'partners_rail',
+  analyticsProperties,
   partners,
   title = 'Partners',
   titleTo = '/partners',
 }: {
+  analyticsPlacement?: string
+  analyticsProperties?: Record<string, unknown>
   partners: Array<RailPartner>
   title?: string
   titleTo?: '/partners'
@@ -64,32 +70,72 @@ export function PartnersRail({
           {title}
         </Link>
       </div>
-      {partners.map((partner) => {
-        const widthPercent = Math.round(partner.score * 100)
-
-        return (
-          <a
-            key={partner.name}
-            href={partner.href}
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center justify-center px-3 py-2 border-r border-b border-gray-500/20 hover:bg-gray-500/10 transition-colors duration-150 ease-out"
-            style={{
-              flexBasis: `${widthPercent}%`,
-              flexGrow: 1,
-              flexShrink: 0,
-            }}
-          >
-            <div
-              style={{
-                width: Math.max(60 + Math.round(140 * partner.score), 70),
-              }}
-            >
-              <PartnerImage config={partner.image} alt={partner.name} />
-            </div>
-          </a>
-        )
-      })}
+      {partners.map((partner, index) => (
+        <PartnersRailItem
+          key={partner.id}
+          analyticsPlacement={analyticsPlacement}
+          analyticsProperties={analyticsProperties}
+          index={index}
+          partner={partner}
+        />
+      ))}
     </div>
+  )
+}
+
+function PartnersRailItem({
+  analyticsPlacement,
+  analyticsProperties,
+  index,
+  partner,
+}: {
+  analyticsPlacement: string
+  analyticsProperties?: Record<string, unknown>
+  index: number
+  partner: RailPartner
+}) {
+  const widthPercent = Math.round(partner.score * 100)
+  const ref = useTrackedImpression<HTMLAnchorElement>({
+    event: 'partner_impression',
+    properties: {
+      partner_id: partner.id,
+      partner_name: partner.name,
+      placement: analyticsPlacement,
+      slot_index: index,
+      ...analyticsProperties,
+    },
+  })
+
+  return (
+    <a
+      ref={ref}
+      href={partner.href}
+      target="_blank"
+      rel="noreferrer"
+      className="flex items-center justify-center px-3 py-2 border-r border-b border-gray-500/20 hover:bg-gray-500/10 transition-colors duration-150 ease-out"
+      style={{
+        flexBasis: `${widthPercent}%`,
+        flexGrow: 1,
+        flexShrink: 0,
+      }}
+      onClick={() => {
+        trackEvent('partner_click', {
+          partner_id: partner.id,
+          partner_name: partner.name,
+          placement: analyticsPlacement,
+          slot_index: index,
+          destination_host: new URL(partner.href).host,
+          ...analyticsProperties,
+        })
+      }}
+    >
+      <div
+        style={{
+          width: Math.max(60 + Math.round(140 * partner.score), 70),
+        }}
+      >
+        <PartnerImage config={partner.image} alt={partner.name} />
+      </div>
+    </a>
   )
 }

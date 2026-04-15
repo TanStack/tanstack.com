@@ -1,3 +1,5 @@
+'use client'
+
 import * as React from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { LoginModal } from '~/components/LoginModal'

@@ -1,9 +1,10 @@
 import { seo } from '~/utils/seo'
 import { Doc } from '~/components/Doc'
-import { loadDocs, resolveDocsRedirect } from '~/utils/docs'
+import { loadDocsPage, resolveDocsRedirect } from '~/utils/docs'
 import { findLibrary, getBranch, getLibrary } from '~/libraries'
 import { DocContainer } from '~/components/DocContainer'
 import type { ConfigSchema } from '~/utils/config'
+import { docsContentNegotiationVaryHeader } from '~/utils/http'
 import {
   notFound,
   redirect,
@@ -27,7 +28,7 @@ export const Route = createFileRoute('/$libraryId/$version/docs/$')({
     const docsRoot = library.docsRoot || 'docs'
 
     try {
-      return await loadDocs({
+      return await loadDocsPage({
         repo: library.repo,
         branch,
         docsRoot,
@@ -91,14 +92,14 @@ export const Route = createFileRoute('/$libraryId/$version/docs/$')({
         'cache-control': 'public, max-age=60, must-revalidate',
         'cdn-cache-control':
           'max-age=600, stale-while-revalidate=3600, durable',
-        vary: 'Accept-Encoding',
+        vary: docsContentNegotiationVaryHeader,
       }
     } else {
       return {
         'cache-control': 'public, max-age=3600, must-revalidate',
         'cdn-cache-control':
           'max-age=86400, stale-while-revalidate=604800, durable',
-        vary: 'Accept-Encoding',
+        vary: docsContentNegotiationVaryHeader,
       }
     }
   },
@@ -106,7 +107,7 @@ export const Route = createFileRoute('/$libraryId/$version/docs/$')({
 
 function Docs() {
   const { version, libraryId, _splat } = Route.useParams()
-  const { title, content, filePath } = Route.useLoaderData()
+  const { contentRsc, filePath, headings, title } = Route.useLoaderData()
   const versionMatch = useMatch({ from: '/$libraryId/$version' })
   const { config } = versionMatch.loaderData as { config: ConfigSchema }
   const library = getLibrary(libraryId)
@@ -117,10 +118,11 @@ function Docs() {
     <DocContainer>
       <Doc
         title={title}
-        content={content}
+        contentRsc={contentRsc}
         repo={library.repo}
         branch={branch}
         filePath={filePath}
+        headings={headings}
         colorFrom={library.colorFrom}
         colorTo={library.colorTo}
         textColor={library.textColor}

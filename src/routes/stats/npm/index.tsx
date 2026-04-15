@@ -14,26 +14,39 @@ import {
 import { GamVrec1 } from '~/components/Gam'
 import { AdGate } from '~/contexts/AdsContext'
 import { Spinner } from '~/components/Spinner'
+import { ChartControls } from '~/components/npm-stats/ChartControls'
+import { ColorPickerPopover } from '~/components/npm-stats/ColorPickerPopover'
+import { PackagePills } from '~/components/npm-stats/PackagePills'
+import { PackageSearch } from '~/components/npm-stats/PackageSearch'
+import { PopularComparisons } from '~/components/npm-stats/PopularComparisons'
+import { Resizable } from '~/components/npm-stats/Resizable'
+import { StatsTable } from '~/components/npm-stats/StatsTable'
+import { npmQueryOptions } from '~/components/npm-stats/npmQueryOptions'
 import {
-  NPMStatsChart,
-  PackageSearch,
-  Resizable,
-  ColorPickerPopover,
-  StatsTable,
-  PopularComparisons,
-  ChartControls,
-  PackagePills,
-  npmQueryOptions,
-  type PackageGroup,
-  type TimeRange,
-  type BinType,
-  type TransformMode,
-  type ShowDataMode,
-  type FacetValue,
-  binningOptionsByType,
   defaultRangeBinTypes,
   getPackageColor,
-} from '~/components/npm-stats'
+  type BinType,
+  type FacetValue,
+  type PackageGroup,
+  type ShowDataMode,
+  type TimeRange,
+  type TransformMode,
+} from '~/components/npm-stats/shared'
+
+const LazyNPMStatsChart = React.lazy(() =>
+  import('~/components/npm-stats/NPMStatsChart').then((m) => ({
+    default: m.NPMStatsChart,
+  })),
+)
+
+function ChartFallback({ height }: { height: number }) {
+  return (
+    <div
+      className="animate-pulse rounded bg-gray-100 dark:bg-gray-800/40"
+      style={{ height }}
+    />
+  )
+}
 
 const transformModeSchema = v.picklist(['none', 'normalize-y'])
 const binTypeSchema = v.picklist(['yearly', 'monthly', 'weekly', 'daily'])
@@ -233,7 +246,6 @@ function RouteComponent() {
   )
 
   const binType: BinType = binTypeParam ?? defaultRangeBinTypes[range]
-  const binOption = binningOptionsByType[binType]
 
   const handleBinnedChange = (value: BinType) => {
     navigate({
@@ -656,23 +668,27 @@ function RouteComponent() {
                         </div>
                       </div>
                     ) : (
-                      <NPMStatsChart
-                        range={range}
-                        queryData={npmQuery.data}
-                        transform={transform}
-                        binType={binType}
-                        packages={packageGroups}
-                        facetX={facetX}
-                        facetY={facetY}
-                        showDataMode={showDataModeParam}
-                      />
+                      <React.Suspense
+                        fallback={<ChartFallback height={height} />}
+                      >
+                        <LazyNPMStatsChart
+                          range={range}
+                          queryData={npmQuery.data}
+                          transform={transform}
+                          binType={binType}
+                          packages={packageGroups}
+                          facetX={facetX}
+                          facetY={facetY}
+                          showDataMode={showDataModeParam}
+                        />
+                      </React.Suspense>
                     )}
                   </Resizable>
                 </div>
                 <StatsTable
                   queryData={npmQuery.data}
                   packageGroups={packageGroups}
-                  binOption={binOption}
+                  binType={binType}
                   transform={transform}
                   onColorClick={handleColorClick}
                   onToggleVisibility={togglePackageVisibility}

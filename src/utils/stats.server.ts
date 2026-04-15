@@ -27,11 +27,10 @@ import type {
   NpmStats,
   OSSStatsWithDelta,
 } from './stats.types'
-
-interface NpmDailyDownload {
-  day: string
-  downloads: number
-}
+import {
+  applyManualNpmDownloadOutlierCorrections,
+  type NpmDailyDownload,
+} from './npm-download-outliers'
 
 function toIsoDayUtc(date: Date): string {
   return date.toISOString().slice(0, 10)
@@ -53,7 +52,7 @@ function addUtcDays(day: string, amount: number): string {
 function backfillZeroAnomalyDays(
   dailyDownloads: NpmDailyDownload[],
   today: string,
-): NpmDailyDownload[] {
+) {
   if (dailyDownloads.length < 8) {
     return dailyDownloads
   }
@@ -108,6 +107,18 @@ function backfillZeroAnomalyDays(
   }
 
   return result
+}
+
+function normalizeNpmDownloadSeries(
+  packageName: string,
+  dailyDownloads: NpmDailyDownload[],
+  today: string,
+) {
+  const zeroBackfilledDownloads = backfillZeroAnomalyDays(dailyDownloads, today)
+  return applyManualNpmDownloadOutlierCorrections(
+    packageName,
+    zeroBackfilledDownloads,
+  )
 }
 
 /**
@@ -452,7 +463,11 @@ export const fetchNpmDownloadsBulk = createServerFn({ method: 'POST' })
               new Date(a.day).getTime() - new Date(b.day).getTime(),
           )
 
-        const correctedDownloads = backfillZeroAnomalyDays(allDownloads, today)
+        const correctedDownloads = normalizeNpmDownloadSeries(
+          pkg.name,
+          allDownloads,
+          today,
+        )
 
         return {
           name: pkg.name,
@@ -579,7 +594,11 @@ export const fetchNpmDownloadChunk = createServerFn({ method: 'GET' })
           end: cachedChunk.dateTo,
           package: packageName,
           year,
-          downloads: cachedChunk.dailyData,
+          downloads: normalizeNpmDownloadSeries(
+            packageName,
+            cachedChunk.dailyData,
+            new Date().toISOString().substring(0, 10),
+          ),
         }
       }
       // For current year, check if cache is still fresh (within 1 hour)
@@ -663,7 +682,11 @@ export const fetchNpmDownloadChunk = createServerFn({ method: 'GET' })
         end: result.end || endDate,
         package: packageName,
         year,
-        downloads,
+        downloads: normalizeNpmDownloadSeries(
+          packageName,
+          downloads,
+          new Date().toISOString().substring(0, 10),
+        ),
       }
     } catch (error) {
       // If fetch fails and we have cached data, use that
@@ -676,7 +699,11 @@ export const fetchNpmDownloadChunk = createServerFn({ method: 'GET' })
           end: cachedChunk.dateTo,
           package: packageName,
           year,
-          downloads: cachedChunk.dailyData,
+          downloads: normalizeNpmDownloadSeries(
+            packageName,
+            cachedChunk.dailyData,
+            new Date().toISOString().substring(0, 10),
+          ),
         }
       }
       throw error
@@ -889,7 +916,15 @@ export const fetchRecentDownloadStats = createServerFn({ method: 'POST' })
       const chunk = results.get(cacheKey)
 
       if (chunk) {
-        const downloads = chunk.totalDownloads || 0
+        const normalizedDownloads = normalizeNpmDownloadSeries(
+          req.packageName,
+          chunk.dailyData || [],
+          todayStr,
+        )
+        const downloads = normalizedDownloads.reduce(
+          (sum, point) => sum + point.downloads,
+          0,
+        )
 
         if (req.period === 'daily') {
           dailyTotal += downloads

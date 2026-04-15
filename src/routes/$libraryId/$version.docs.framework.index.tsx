@@ -31,7 +31,7 @@ function getPackageName(
 }
 
 function RouteComponent() {
-  const { libraryId } = Route.useParams()
+  const { libraryId, version } = Route.useParams()
   const library = getLibrary(libraryId)
 
   const frameworks = getFrameworkOptions(library.frameworks)
@@ -68,6 +68,7 @@ function RouteComponent() {
                   key={framework.value}
                   framework={framework}
                   libraryId={libraryId}
+                  version={version}
                   packageName={packageName}
                   index={i}
                   library={library}

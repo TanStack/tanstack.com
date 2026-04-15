@@ -1,3 +1,4 @@
+import { useParams } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { BottomCTA } from '~/components/BottomCTA'
@@ -13,6 +14,8 @@ import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySe
 const library = getLibrary('store')
 
 export default function StoreLanding() {
+  const { version } = useParams({ strict: false })
+
   return (
     <LibraryPageContainer>
       <LibraryHero
@@ -20,7 +23,7 @@ export default function StoreLanding() {
         cta={{
           linkProps: {
             to: '/$libraryId/$version/docs',
-            params: { libraryId: library.id },
+            params: { libraryId: library.id, version },
           },
           label: 'Get Started',
           className:
@@ -45,7 +48,7 @@ export default function StoreLanding() {
       <BottomCTA
         linkProps={{
           to: '/$libraryId/$version/docs',
-          params: { libraryId: library.id },
+          params: { libraryId: library.id, version },
         }}
         label="Get Started!"
         className="bg-stone-700 border-stone-700 hover:bg-stone-800 text-white"

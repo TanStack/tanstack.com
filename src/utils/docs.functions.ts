@@ -9,6 +9,7 @@ import {
   fetchRepoFile,
   isRecoverableGitHubContentError,
 } from '~/utils/documents.server'
+import { renderMarkdownToRsc } from './markdown'
 import { getCachedDocsArtifact } from './github-content-cache.server'
 import { buildRedirectManifest, type RedirectManifestEntry } from './redirects'
 import { removeLeadingSlash } from './utils'
@@ -227,15 +228,35 @@ export const fetchDocs = createServerFn({ method: 'GET' })
 
     const frontMatter = extractFrontMatter(file)
     const description = removeMarkdown(frontMatter.excerpt ?? '')
+    const { contentRsc, headings } = await renderMarkdownToRsc(
+      frontMatter.content,
+    )
 
     setDocsCacheHeaders('max-age=300, stale-while-revalidate=300, durable')
 
     return {
+      content: frontMatter.content,
+      contentRsc,
       title: frontMatter.data?.title ?? 'Content temporarily unavailable',
       description,
       filePath,
-      content: frontMatter.content,
+      headings,
       frontmatter: frontMatter.data,
+    }
+  })
+
+export const fetchDocsPage = createServerFn({ method: 'GET' })
+  .inputValidator(repoFileInput)
+  .handler(async ({ data }: { data: RepoFileRequest }) => {
+    const doc = await fetchDocs({ data })
+
+    return {
+      contentRsc: doc.contentRsc,
+      description: doc.description,
+      filePath: doc.filePath,
+      frontmatter: doc.frontmatter,
+      headings: doc.headings,
+      title: doc.title,
     }
   })
 

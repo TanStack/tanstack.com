@@ -1,10 +1,12 @@
 import { sentryTanstackStart } from '@sentry/tanstackstart-react/vite'
 import { defineConfig } from 'vite'
 import contentCollections from '@content-collections/vite'
+import { devtools as tanstackDevtools } from '@tanstack/devtools-vite'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import tailwindcss from '@tailwindcss/vite'
 import { analyzer } from 'vite-bundle-analyzer'
 import viteReact from '@vitejs/plugin-react'
+import rsc from '@vitejs/plugin-rsc'
 import netlify from '@netlify/vite-plugin-tanstack-start'
 import path from 'node:path'
 
@@ -12,6 +14,27 @@ const isDev = process.env.NODE_ENV !== 'production'
 const shouldUseSentryPlugin =
   process.env.NODE_ENV === 'production' &&
   Boolean(process.env.SENTRY_AUTH_TOKEN)
+
+const rscSsrExternals = [
+  // OpenTelemetry uses require-in-the-middle which is CJS-only and breaks
+  // under Vite's ESM module runner during dev SSR.
+  'require-in-the-middle',
+  '@opentelemetry/instrumentation',
+  // HTML parsing stack has known CJS/ESM interop issues in SSR module runner.
+  'cheerio',
+  'iconv-lite',
+  'encoding-sniffer',
+  'parse5',
+  'parse5-parser-stream',
+  // Compression/archive stack has known CJS transform issues in dev SSR.
+  'jszip',
+  'pako',
+  // These packages also have known CJS/ESM interop issues in the RSC/SSR path.
+  'discord-interactions',
+]
+
+const sentrySsrExternals = ['@sentry/node', '@sentry/tanstackstart-react']
+const dbSsrExternals = ['drizzle-orm', 'drizzle-orm/postgres-js']
 
 export default defineConfig({
   resolve: {
@@ -33,16 +56,37 @@ export default defineConfig({
         }
       : undefined,
   },
+  environments: {
+    rsc: {
+      resolve: {
+        external: [
+          '@tanstack/react-start-server',
+          '@tanstack/react-router/ssr/server',
+        ],
+      },
+    },
+    ssr: {
+      resolve: {
+        external: [
+          ...rscSsrExternals,
+          ...sentrySsrExternals,
+          ...dbSsrExternals,
+        ],
+      },
+    },
+  },
   ssr: {
     external: [
       'postgres',
+      ...dbSsrExternals,
       // CTA packages use execa which has a broken unicorn-magic dependency
       '@tanstack/create',
       // Externalize CLI so server reloads it on changes
       '@tanstack/cli',
+      ...rscSsrExternals,
+      ...sentrySsrExternals,
     ],
     noExternal: [
-      'drizzle-orm',
       '@uploadthing/react',
       'file-selector',
       'normalize-wheel',
@@ -55,6 +99,7 @@ export default defineConfig({
       'postgres',
       // CTA packages use execa which has a broken unicorn-magic dependency
       '@tanstack/create',
+      'discord-interactions',
       // Don't pre-bundle CLI so we always get fresh changes during dev
       ...(isDev ? ['@tanstack/cli'] : []),
     ],
@@ -123,7 +168,11 @@ export default defineConfig({
     },
   },
   plugins: [
+    ...(isDev ? [tanstackDevtools()] : []),
     tanstackStart({
+      rsc: {
+        enabled: true,
+      },
       importProtection: {
         behavior: 'error',
         client: {
@@ -150,6 +199,7 @@ export default defineConfig({
         },
       },
     }),
+    rsc(),
     // Only enable Netlify plugin during build or when NETLIFY env is set
     ...(process.env.NETLIFY || process.env.NODE_ENV === 'production'
       ? [netlify()]

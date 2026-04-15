@@ -314,13 +314,7 @@ export function DocFeedbackProvider({
         const block = blockElements.get(blockId)
         if (!block) return null
 
-        return (
-          <NotePortal
-            key={note.id}
-            block={block}
-            note={note}
-          />
-        )
+        return <NotePortal key={note.id} block={block} note={note} />
       })}
 
       {/* Render improvements inline */}
@@ -335,11 +329,7 @@ export function DocFeedbackProvider({
         if (!block) return null
 
         return (
-          <NotePortal
-            key={improvement.id}
-            block={block}
-            note={improvement}
-          />
+          <NotePortal key={improvement.id} block={block} note={improvement} />
         )
       })}
 
@@ -439,7 +429,13 @@ function BlockButton({
 }
 
 // Component to render note after a block
-function NotePortal({ block, note }: { block: HTMLElement; note: DocFeedback }) {
+function NotePortal({
+  block,
+  note,
+}: {
+  block: HTMLElement
+  note: DocFeedback
+}) {
   const [mounted, setMounted] = React.useState(false)
 
   React.useEffect(() => {
@@ -459,9 +455,10 @@ function NotePortal({ block, note }: { block: HTMLElement; note: DocFeedback }) 
   }
 
   // Create portal container after the insertion point
-  let portalContainer = insertionPoint.parentElement?.querySelector<HTMLElement>(
-    `[data-note-portal="${note.id}"]`,
-  )
+  let portalContainer =
+    insertionPoint.parentElement?.querySelector<HTMLElement>(
+      `[data-note-portal="${note.id}"]`,
+    )
 
   if (!portalContainer) {
     portalContainer = document.createElement('div')
@@ -520,9 +517,10 @@ function CreatingFeedbackPortal({
   }
 
   // Create portal container after the insertion point
-  let portalContainer = insertionPoint.parentElement?.querySelector<HTMLElement>(
-    `[data-creating-portal="${blockId}"]`,
-  )
+  let portalContainer =
+    insertionPoint.parentElement?.querySelector<HTMLElement>(
+      `[data-creating-portal="${blockId}"]`,
+    )
 
   if (!portalContainer) {
     portalContainer = document.createElement('div')

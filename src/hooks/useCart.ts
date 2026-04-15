@@ -1,8 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   addToCart,
+  applyDiscountCode,
   getCart,
   removeCartLine,
+  removeDiscountCode,
   updateCartLine,
 } from '~/utils/shop.functions'
 import type { CartDetail } from '~/utils/shopify-queries'
@@ -151,6 +153,48 @@ export function useRemoveCartLine() {
       qc.setQueryData(CART_QUERY_KEY, cart)
     },
 
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: CART_QUERY_KEY })
+    },
+  })
+}
+
+export function useApplyDiscountCode() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (input: { code: string }) =>
+      applyDiscountCode({ data: { code: input.code } }),
+    onSuccess: (cart) => {
+      qc.setQueryData(CART_QUERY_KEY, cart)
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: CART_QUERY_KEY })
+    },
+  })
+}
+
+export function useRemoveDiscountCode() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: () => removeDiscountCode(),
+    onMutate: async () => {
+      await qc.cancelQueries({ queryKey: CART_QUERY_KEY })
+      const previous = qc.getQueryData<CartDetail | null>(CART_QUERY_KEY)
+      if (previous) {
+        qc.setQueryData<CartDetail | null>(CART_QUERY_KEY, {
+          ...previous,
+          discountCodes: [],
+        })
+      }
+      return { previous }
+    },
+    onError: (_err, _input, ctx) => {
+      if (ctx?.previous !== undefined)
+        qc.setQueryData(CART_QUERY_KEY, ctx.previous)
+    },
+    onSuccess: (cart) => {
+      qc.setQueryData(CART_QUERY_KEY, cart)
+    },
     onSettled: () => {
       qc.invalidateQueries({ queryKey: CART_QUERY_KEY })
     },

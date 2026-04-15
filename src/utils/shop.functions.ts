@@ -9,27 +9,38 @@ import * as v from 'valibot'
 import { shopifyServerFetch } from '~/server/shopify/fetch'
 import {
   CART_CREATE_MUTATION,
+  CART_DISCOUNT_CODES_UPDATE_MUTATION,
   CART_LINES_ADD_MUTATION,
   CART_LINES_REMOVE_MUTATION,
   CART_LINES_UPDATE_MUTATION,
   CART_QUERY,
+  COLLECTION_QUERY,
   COLLECTIONS_QUERY,
+  PAGE_QUERY,
   PRODUCTS_QUERY,
   PRODUCT_QUERY,
+  SEARCH_QUERY,
   SHOP_QUERY,
   type CartCreateResult,
   type CartDetail,
+  type CartDiscountCodesUpdateResult,
   type CartLinesAddResult,
   type CartLinesRemoveResult,
   type CartLinesUpdateResult,
   type CartQueryResult,
   type CartUserError,
+  type CollectionDetail,
   type CollectionListItem,
+  type CollectionQueryResult,
   type CollectionsQueryResult,
+  type PageDetail,
+  type PageQueryResult,
   type ProductDetail,
-  type ProductListItem,
+  type ProductListPage,
   type ProductQueryResult,
   type ProductsQueryResult,
+  type ProductsQueryVariables,
+  type SearchQueryResult,
   type ShopQueryResult,
 } from '~/utils/shopify-queries'
 
@@ -77,19 +88,43 @@ export const getShop = createServerFn({ method: 'GET' }).handler(
   },
 )
 
-export const getProducts = createServerFn({ method: 'GET' }).handler(
-  async (): Promise<Array<ProductListItem>> => {
+const productSortKeys = [
+  'BEST_SELLING',
+  'CREATED_AT',
+  'ID',
+  'PRICE',
+  'PRODUCT_TYPE',
+  'RELEVANCE',
+  'TITLE',
+  'UPDATED_AT',
+  'VENDOR',
+] as const
+
+export const getProducts = createServerFn({ method: 'POST' })
+  .inputValidator(
+    v.object({
+      first: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1)), 24),
+      after: v.optional(v.nullable(v.string())),
+      sortKey: v.optional(v.picklist(productSortKeys)),
+      reverse: v.optional(v.boolean()),
+    }),
+  )
+  .handler(async ({ data }): Promise<ProductListPage> => {
     setBrowseCacheHeaders()
     const result = await shopifyServerFetch<
       ProductsQueryResult,
-      { first: number }
+      ProductsQueryVariables
     >({
       query: PRODUCTS_QUERY,
-      variables: { first: 50 },
+      variables: {
+        first: data.first,
+        after: data.after ?? null,
+        sortKey: data.sortKey ?? null,
+        reverse: data.reverse ?? null,
+      },
     })
-    return result.products.nodes
-  },
-)
+    return result.products
+  })
 
 export const getCollections = createServerFn({ method: 'GET' }).handler(
   async (): Promise<Array<CollectionListItem>> => {
@@ -118,6 +153,101 @@ export const getProduct = createServerFn({ method: 'POST' })
     })
     return result.product
   })
+
+const collectionSortKeys = [
+  'BEST_SELLING',
+  'COLLECTION_DEFAULT',
+  'CREATED',
+  'ID',
+  'MANUAL',
+  'PRICE',
+  'RELEVANCE',
+  'TITLE',
+] as const
+
+export const getCollection = createServerFn({ method: 'POST' })
+  .inputValidator(
+    v.object({
+      handle: v.string(),
+      first: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1)), 24),
+      after: v.optional(v.nullable(v.string())),
+      sortKey: v.optional(v.picklist(collectionSortKeys)),
+      reverse: v.optional(v.boolean()),
+    }),
+  )
+  .handler(async ({ data }): Promise<CollectionDetail | null> => {
+    setBrowseCacheHeaders()
+    const result = await shopifyServerFetch<
+      CollectionQueryResult,
+      {
+        handle: string
+        first: number
+        after: string | null
+        sortKey: (typeof collectionSortKeys)[number] | null
+        reverse: boolean | null
+      }
+    >({
+      query: COLLECTION_QUERY,
+      variables: {
+        handle: data.handle,
+        first: data.first,
+        after: data.after ?? null,
+        sortKey: data.sortKey ?? null,
+        reverse: data.reverse ?? null,
+      },
+    })
+    return result.collection
+  })
+
+export const getPage = createServerFn({ method: 'POST' })
+  .inputValidator(v.object({ handle: v.string() }))
+  .handler(async ({ data }): Promise<PageDetail | null> => {
+    setBrowseCacheHeaders()
+    const result = await shopifyServerFetch<
+      PageQueryResult,
+      { handle: string }
+    >({
+      query: PAGE_QUERY,
+      variables: { handle: data.handle },
+    })
+    return result.page
+  })
+
+export const searchProducts = createServerFn({ method: 'POST' })
+  .inputValidator(
+    v.object({
+      query: v.pipe(v.string(), v.minLength(1)),
+      first: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1)), 24),
+      after: v.optional(v.nullable(v.string())),
+    }),
+  )
+  .handler(
+    async ({
+      data,
+    }): Promise<{
+      totalCount: number
+      pageInfo: { hasNextPage: boolean; endCursor: string | null }
+      products: ProductListPage['nodes']
+    }> => {
+      setBrowseCacheHeaders()
+      const result = await shopifyServerFetch<
+        SearchQueryResult,
+        { query: string; first: number; after: string | null }
+      >({
+        query: SEARCH_QUERY,
+        variables: {
+          query: data.query,
+          first: data.first,
+          after: data.after ?? null,
+        },
+      })
+      return {
+        totalCount: result.search.totalCount,
+        pageInfo: result.search.pageInfo,
+        products: result.search.nodes,
+      }
+    },
+  )
 
 /* ──────────────────────────────────────────────────────────────────────────
  * Cart server functions
@@ -260,3 +390,49 @@ export const removeCartLine = createServerFn({ method: 'POST' })
     if (!cart) throw new Error('Shopify returned no cart after remove.')
     return cart
   })
+
+export const applyDiscountCode = createServerFn({ method: 'POST' })
+  .inputValidator(v.object({ code: v.pipe(v.string(), v.minLength(1)) }))
+  .handler(async ({ data }): Promise<CartDetail> => {
+    setCartResponseHeaders()
+    const cartId = getCookie(CART_COOKIE_NAME)
+    if (!cartId) throw new Error('No cart exists to apply a discount to.')
+    const result = await shopifyServerFetch<CartDiscountCodesUpdateResult>({
+      query: CART_DISCOUNT_CODES_UPDATE_MUTATION,
+      variables: { cartId, discountCodes: [data.code] },
+    })
+    throwIfUserErrors(result.cartDiscountCodesUpdate.userErrors)
+    const cart = result.cartDiscountCodesUpdate.cart
+    if (!cart)
+      throw new Error('Shopify returned no cart after discount update.')
+    // Shopify silently drops invalid codes — surface that to the UI by
+    // checking whether the code we sent is present and applicable.
+    const applied = cart.discountCodes.find(
+      (c) => c.code.toLowerCase() === data.code.toLowerCase(),
+    )
+    if (!applied || !applied.applicable) {
+      throw new CartUserErrorsError([
+        {
+          field: null,
+          message: `Discount code "${data.code}" is not valid or not applicable to this cart.`,
+        },
+      ])
+    }
+    return cart
+  })
+
+export const removeDiscountCode = createServerFn({ method: 'POST' }).handler(
+  async (): Promise<CartDetail> => {
+    setCartResponseHeaders()
+    const cartId = getCookie(CART_COOKIE_NAME)
+    if (!cartId) throw new Error('No cart exists.')
+    const result = await shopifyServerFetch<CartDiscountCodesUpdateResult>({
+      query: CART_DISCOUNT_CODES_UPDATE_MUTATION,
+      variables: { cartId, discountCodes: [] },
+    })
+    throwIfUserErrors(result.cartDiscountCodesUpdate.userErrors)
+    const cart = result.cartDiscountCodesUpdate.cart
+    if (!cart) throw new Error('Shopify returned no cart after discount clear.')
+    return cart
+  },
+)

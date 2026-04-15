@@ -195,6 +195,19 @@ button {
     @apply opacity-50;
   }
 
+  .anchor-heading-link {
+    text-decoration: none !important;
+    @apply ml-2 inline-block opacity-0 transition duration-100;
+  }
+
+  :hover > .anchor-heading-link {
+    @apply opacity-50;
+  }
+
+  .anchor-heading-link:focus {
+    @apply opacity-75;
+  }
+
   :has(+ .anchor-heading) {
     margin-bottom: 0 !important;
   }

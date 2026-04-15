@@ -33,6 +33,10 @@ export type MarkdownJsxResult = {
   headings: MarkdownHeading[]
 }
 
+export type MarkdownRenderOptions = {
+  preserveTabPanels?: boolean
+}
+
 function createHeadingComponent(
   level: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6',
 ) {
@@ -93,25 +97,39 @@ function LinkElement(props: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
   return <MarkdownLink {...props} />
 }
 
-const markdownComponents = {
-  a: LinkElement,
-  code: CodeElement,
-  h1: createHeadingComponent('h1'),
-  h2: createHeadingComponent('h2'),
-  h3: createHeadingComponent('h3'),
-  h4: createHeadingComponent('h4'),
-  h5: createHeadingComponent('h5'),
-  h6: createHeadingComponent('h6'),
-  iframe: MarkdownIframe,
-  img: MarkdownImg,
-  'md-comment-component': MdCommentComponent,
-  'md-framework-panel': MdFrameworkPanel,
-  'md-tab-panel': MdTabPanel,
-  pre: CodeBlock,
+function createMarkdownComponents(options: MarkdownRenderOptions = {}) {
+  function MdCommentComponentWithOptions(
+    props: React.ComponentProps<typeof MdCommentComponent>,
+  ) {
+    return (
+      <MdCommentComponent
+        {...props}
+        preserveTabPanels={options.preserveTabPanels}
+      />
+    )
+  }
+
+  return {
+    a: LinkElement,
+    code: CodeElement,
+    h1: createHeadingComponent('h1'),
+    h2: createHeadingComponent('h2'),
+    h3: createHeadingComponent('h3'),
+    h4: createHeadingComponent('h4'),
+    h5: createHeadingComponent('h5'),
+    h6: createHeadingComponent('h6'),
+    iframe: MarkdownIframe,
+    img: MarkdownImg,
+    'md-comment-component': MdCommentComponentWithOptions,
+    'md-framework-panel': MdFrameworkPanel,
+    'md-tab-panel': MdTabPanel,
+    pre: CodeBlock,
+  }
 }
 
 export async function renderMarkdownToJsx(
   content: string,
+  options?: MarkdownRenderOptions,
 ): Promise<MarkdownJsxResult> {
   const headings: Array<MarkdownHeading> = []
 
@@ -145,18 +163,24 @@ export async function renderMarkdownToJsx(
     .use(rehypeSlug)
     .use(rehypeTransformFrameworkComponents)
     .use(rehypeTransformCommentComponents)
+    .use(() => rehypeCollectHeadings(headings))
     .use(rehypeAutolinkHeadings, {
-      behavior: 'wrap',
+      behavior: 'append',
+      content: {
+        type: 'text',
+        value: '#',
+      },
       properties: {
-        className: ['anchor-heading'],
+        ariaHidden: true,
+        className: ['anchor-heading', 'anchor-heading-link'],
+        tabIndex: -1,
       },
     })
-    .use(() => rehypeCollectHeadings(headings))
     .use(rehypeReact, {
       Fragment: jsxRuntime.Fragment,
       jsx: jsxRuntime.jsx,
       jsxs: jsxRuntime.jsxs,
-      components: markdownComponents,
+      components: createMarkdownComponents(options),
     } as any)
     .process(content)
 

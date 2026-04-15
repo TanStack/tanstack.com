@@ -27,6 +27,7 @@ type MdCommentComponentProps = {
   'data-component'?: string
   'data-files-meta'?: string
   'data-package-manager-meta'?: string
+  preserveTabPanels?: boolean
   children?: React.ReactNode
 }
 
@@ -48,11 +49,25 @@ function isMdFrameworkPanelElement(
   )
 }
 
+function renderPanelChildren(
+  panels: Array<React.ReactElement<MdTabPanelProps>>,
+  preserveTabPanels: boolean,
+) {
+  return panels.map((panel, index) => {
+    if (!preserveTabPanels) {
+      return panel.props.children
+    }
+
+    return <React.Fragment key={index}>{panel.props.children}</React.Fragment>
+  })
+}
+
 export function MdCommentComponent({
   'data-attributes': rawAttributes,
   'data-component': componentName,
   'data-files-meta': filesMeta,
   'data-package-manager-meta': packageManagerMeta,
+  preserveTabPanels = false,
   children,
 }: MdCommentComponentProps) {
   const parsedAttributes = parseJson(rawAttributes)
@@ -122,7 +137,7 @@ export function MdCommentComponent({
 
       return (
         <FileTabs tabs={tabs}>
-          {panels.map((panel) => panel.props.children)}
+          {renderPanelChildren(panels, preserveTabPanels)}
         </FileTabs>
       )
     }
@@ -137,7 +152,7 @@ export function MdCommentComponent({
     }
 
     return (
-      <Tabs tabs={tabs}>{panels.map((panel) => panel.props.children)}</Tabs>
+      <Tabs tabs={tabs}>{renderPanelChildren(panels, preserveTabPanels)}</Tabs>
     )
   }
 

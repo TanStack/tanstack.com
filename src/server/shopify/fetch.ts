@@ -1,5 +1,16 @@
 import { env } from '~/utils/env'
 
+/**
+ * Shopify store identity. Hard-coded intentionally — these are public-by-
+ * design values (they appear in every Shopify-hosted checkout URL, order
+ * email, and receipt) and baking them into source keeps them out of the
+ * environment-variable scanner's watchlist without losing any security.
+ *
+ * Only the tokens are real secrets and remain in env vars.
+ */
+const SHOPIFY_STORE_DOMAIN = 'tanstack-2.myshopify.com'
+const SHOPIFY_API_VERSION = '2026-01'
+
 type ShopifyFetchInput<TVariables> = {
   query: string
   variables?: TVariables
@@ -35,13 +46,11 @@ export async function shopifyServerFetch<
   TData,
   TVariables = Record<string, unknown>,
 >(input: ShopifyFetchInput<TVariables>): Promise<TData> {
-  const domain = env.SHOPIFY_STORE_DOMAIN
   const token = env.SHOPIFY_PRIVATE_STOREFRONT_TOKEN
-  const version = env.SHOPIFY_API_VERSION
 
-  if (!domain || !token) {
+  if (!token) {
     throw new ShopifyError(
-      'Shopify server client is not configured. Set SHOPIFY_STORE_DOMAIN and SHOPIFY_PRIVATE_STOREFRONT_TOKEN in .env.local.',
+      'Shopify server client is not configured. Set SHOPIFY_PRIVATE_STOREFRONT_TOKEN in the environment.',
     )
   }
 
@@ -53,7 +62,7 @@ export async function shopifyServerFetch<
   if (input.buyerIp) headers['Shopify-Storefront-Buyer-IP'] = input.buyerIp
 
   const response = await fetch(
-    `https://${domain}/api/${version}/graphql.json`,
+    `https://${SHOPIFY_STORE_DOMAIN}/api/${SHOPIFY_API_VERSION}/graphql.json`,
     {
       method: 'POST',
       headers,

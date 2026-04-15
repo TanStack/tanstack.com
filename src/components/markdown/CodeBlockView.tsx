@@ -37,7 +37,7 @@ export function CodeBlockView({
       style={style}
     >
       {(title || showTypeCopyButton) && (
-        <div className="flex items-center justify-between px-4 py-2 bg-gray-50 dark:bg-gray-900">
+        <div className="flex items-center justify-between px-4 py-2 bg-gray-50 dark:bg-gray-900 rounded-t-md">
           <div className="text-xs text-gray-700 dark:text-gray-300">
             {title || (lang?.toLowerCase() === 'bash' ? 'sh' : (lang ?? ''))}
           </div>

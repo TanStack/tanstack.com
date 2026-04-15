@@ -163,13 +163,19 @@ export async function renderMarkdownToJsx(
     .use(rehypeSlug)
     .use(rehypeTransformFrameworkComponents)
     .use(rehypeTransformCommentComponents)
+    .use(() => rehypeCollectHeadings(headings))
     .use(rehypeAutolinkHeadings, {
-      behavior: 'wrap',
+      behavior: 'append',
+      content: {
+        type: 'text',
+        value: '#',
+      },
       properties: {
-        className: ['anchor-heading'],
+        ariaHidden: true,
+        className: ['anchor-heading', 'anchor-heading-link'],
+        tabIndex: -1,
       },
     })
-    .use(() => rehypeCollectHeadings(headings))
     .use(rehypeReact, {
       Fragment: jsxRuntime.Fragment,
       jsx: jsxRuntime.jsx,

@@ -1,7 +1,8 @@
-import { Link, useLocation } from '@tanstack/react-router'
+import { useLocation } from '@tanstack/react-router'
 import { ShoppingCart } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { useCart } from '~/hooks/useCart'
+import { useCartDrawerStore } from '~/components/shop/cartDrawerStore'
 
 /**
  * Cart button in the main Navbar.
@@ -10,17 +11,22 @@ import { useCart } from '~/hooks/useCart'
  *   • Always visible on /shop/* routes (even at zero items)
  *   • Site-wide when the cart has at least one item
  *   • Hidden elsewhere when the cart is empty
+ *
+ * Click opens the global CartDrawer — no navigation, so the user keeps
+ * their place in the docs or blog while reviewing their cart.
  */
 export function NavbarCartButton() {
   const { pathname } = useLocation()
   const { totalQuantity } = useCart()
+  const openDrawer = useCartDrawerStore((s) => s.openDrawer)
   const onShopRoute = pathname === '/shop' || pathname.startsWith('/shop/')
 
   if (!onShopRoute && totalQuantity === 0) return null
 
   return (
-    <Link
-      to="/shop/cart"
+    <button
+      type="button"
+      onClick={openDrawer}
       aria-label={totalQuantity > 0 ? `Cart (${totalQuantity} items)` : 'Cart'}
       className={twMerge(
         'relative flex items-center justify-center',
@@ -41,6 +47,6 @@ export function NavbarCartButton() {
           {totalQuantity > 99 ? '99+' : totalQuantity}
         </span>
       ) : null}
-    </Link>
+    </button>
   )
 }

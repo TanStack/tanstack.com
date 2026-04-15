@@ -1,9 +1,17 @@
+import * as React from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { Minus, Plus, ShoppingCart, Trash2 } from 'lucide-react'
+import { Minus, Plus, ShoppingCart, Trash2, X } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
-import { useCart, useRemoveCartLine, useUpdateCartLine } from '~/hooks/useCart'
+import { Breadcrumbs } from '~/components/shop/Breadcrumbs'
+import {
+  useApplyDiscountCode,
+  useCart,
+  useRemoveCartLine,
+  useRemoveDiscountCode,
+  useUpdateCartLine,
+} from '~/hooks/useCart'
 import { formatMoney, shopifyImageUrl } from '~/utils/shopify-format'
-import type { CartLineDetail } from '~/utils/shopify-queries'
+import type { CartDetail, CartLineDetail } from '~/utils/shopify-queries'
 
 export const Route = createFileRoute('/shop/cart')({
   component: CartPage,
@@ -22,6 +30,9 @@ function CartPage() {
 
   return (
     <div className="flex flex-col max-w-4xl mx-auto gap-8 p-4 md:p-8">
+      <Breadcrumbs
+        crumbs={[{ label: 'Shop', href: '/shop' }, { label: 'Cart' }]}
+      />
       <header>
         <h1 className="text-3xl font-black">Cart</h1>
         <p className="text-sm mt-2 text-gray-600 dark:text-gray-400">
@@ -38,6 +49,9 @@ function CartPage() {
 
         <aside className="flex flex-col gap-4 rounded-xl border border-gray-200 dark:border-gray-800 p-6 h-fit">
           <h2 className="font-semibold">Summary</h2>
+
+          <DiscountCodeSection cart={cart} />
+
           <dl className="flex flex-col gap-2 text-sm">
             <div className="flex justify-between">
               <dt className="text-gray-600 dark:text-gray-400">Subtotal</dt>
@@ -65,6 +79,84 @@ function CartPage() {
           </Link>
         </aside>
       </div>
+    </div>
+  )
+}
+
+function DiscountCodeSection({ cart }: { cart: CartDetail }) {
+  const apply = useApplyDiscountCode()
+  const remove = useRemoveDiscountCode()
+  const [input, setInput] = React.useState('')
+
+  const applied = cart.discountCodes.filter((c) => c.applicable)
+
+  // Clear the input after a successful apply so the user can see it landed
+  React.useEffect(() => {
+    if (apply.isSuccess) {
+      setInput('')
+      apply.reset()
+    }
+  }, [apply.isSuccess, apply])
+
+  return (
+    <div className="flex flex-col gap-2 border-t border-gray-200 dark:border-gray-800 pt-3">
+      {applied.length > 0 ? (
+        <ul className="flex flex-col gap-1">
+          {applied.map((d) => (
+            <li
+              key={d.code}
+              className="flex items-center justify-between text-sm"
+            >
+              <span className="inline-flex items-center gap-1.5">
+                <span className="px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-900 font-mono text-xs">
+                  {d.code}
+                </span>
+                <span className="text-xs text-gray-500">applied</span>
+              </span>
+              <button
+                type="button"
+                onClick={() => remove.mutate()}
+                disabled={remove.isPending}
+                aria-label={`Remove discount ${d.code}`}
+                className="p-1 rounded-md text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-900 disabled:opacity-50"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <form
+          onSubmit={(e) => {
+            e.preventDefault()
+            const code = input.trim()
+            if (code) apply.mutate({ code })
+          }}
+          className="flex items-center gap-2"
+        >
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Discount code"
+            className="flex-1 px-3 py-1.5 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-sm"
+          />
+          <button
+            type="submit"
+            disabled={apply.isPending || input.trim().length === 0}
+            className="px-3 py-1.5 rounded-md bg-black text-white dark:bg-white dark:text-black text-sm font-semibold disabled:opacity-50"
+          >
+            {apply.isPending ? 'Applying…' : 'Apply'}
+          </button>
+        </form>
+      )}
+      {apply.isError ? (
+        <p className="text-xs text-red-600 dark:text-red-400">
+          {apply.error instanceof Error
+            ? apply.error.message
+            : 'Could not apply discount.'}
+        </p>
+      ) : null}
     </div>
   )
 }

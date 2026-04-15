@@ -3,8 +3,10 @@ import { Link, useLocation } from '@tanstack/react-router'
 import {
   ChevronLeft,
   ChevronRight,
+  FileText,
   Menu,
   Package,
+  Search,
   ShoppingBag,
   ShoppingCart,
   X,
@@ -12,11 +14,20 @@ import {
 import { twMerge } from 'tailwind-merge'
 import { useLocalStorage } from '~/utils/useLocalStorage'
 import type { CollectionListItem } from '~/utils/shopify-queries'
+import { CartDrawer } from './CartDrawer'
+import { useCartDrawerStore } from './cartDrawerStore'
 
 type ShopLayoutProps = {
   collections: Array<CollectionListItem>
   children: React.ReactNode
 }
+
+const POLICY_PAGES = [
+  { handle: 'shipping-policy', label: 'Shipping' },
+  { handle: 'refund-policy', label: 'Returns' },
+  { handle: 'privacy-policy', label: 'Privacy' },
+  { handle: 'terms-of-service', label: 'Terms' },
+] as const
 
 /**
  * /shop layout: persistent left sidebar on md+, slide-in drawer on mobile.
@@ -139,8 +150,16 @@ export function ShopLayout({ collections, children }: ShopLayoutProps) {
       >
         {children}
       </main>
+
+      <GlobalCartDrawer />
     </div>
   )
+}
+
+function GlobalCartDrawer() {
+  const open = useCartDrawerStore((s) => s.open)
+  const setOpen = useCartDrawerStore((s) => s.setOpen)
+  return <CartDrawer open={open} onOpenChange={setOpen} />
 }
 
 function ShopSidebarNav({
@@ -162,6 +181,13 @@ function ShopSidebarNav({
           showLabels={showLabels}
           onNavigate={onNavigate}
           exact
+        />
+        <SidebarLink
+          to="/shop/search"
+          label="Search"
+          icon={Search}
+          showLabels={showLabels}
+          onNavigate={onNavigate}
         />
         <SidebarLink
           to="/shop/cart"
@@ -187,6 +213,20 @@ function ShopSidebarNav({
           ))}
         </SidebarSection>
       ) : null}
+
+      <SidebarSection label="Info" showLabels={showLabels}>
+        {POLICY_PAGES.map((page) => (
+          <SidebarLink
+            key={page.handle}
+            to="/shop/pages/$handle"
+            params={{ handle: page.handle }}
+            label={page.label}
+            icon={FileText}
+            showLabels={showLabels}
+            onNavigate={onNavigate}
+          />
+        ))}
+      </SidebarSection>
     </nav>
   )
 }

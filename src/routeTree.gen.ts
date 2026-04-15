@@ -51,6 +51,7 @@ import { Route as AccountIndexRouteImport } from './routes/account/index'
 import { Route as LibraryIdIndexRouteImport } from './routes/$libraryId/index'
 import { Route as ShowcaseSubmitRouteImport } from './routes/showcase/submit'
 import { Route as ShowcaseIdRouteImport } from './routes/showcase/$id'
+import { Route as ShopSearchRouteImport } from './routes/shop.search'
 import { Route as ShopCartRouteImport } from './routes/shop.cart'
 import { Route as PartnersPartnerRouteImport } from './routes/partners.$partner'
 import { Route as OauthTokenRouteImport } from './routes/oauth/token'
@@ -102,6 +103,8 @@ import { Route as LibraryIdVersionIndexRouteImport } from './routes/$libraryId/$
 import { Route as StatsNpmPackagesRouteImport } from './routes/stats/npm/$packages'
 import { Route as ShowcaseEditIdRouteImport } from './routes/showcase/edit.$id'
 import { Route as ShopProductsHandleRouteImport } from './routes/shop.products.$handle'
+import { Route as ShopPagesHandleRouteImport } from './routes/shop.pages.$handle'
+import { Route as ShopCollectionsHandleRouteImport } from './routes/shop.collections.$handle'
 import { Route as IntentRegistryPackageNameRouteImport } from './routes/intent/registry/$packageName'
 import { Route as AuthProviderStartRouteImport } from './routes/auth/$provider/start'
 import { Route as ApiMcpSplatRouteImport } from './routes/api/mcp/$'
@@ -355,6 +358,11 @@ const ShowcaseIdRoute = ShowcaseIdRouteImport.update({
   id: '/showcase/$id',
   path: '/showcase/$id',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ShopSearchRoute = ShopSearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => ShopRoute,
 } as any)
 const ShopCartRoute = ShopCartRouteImport.update({
   id: '/cart',
@@ -610,6 +618,16 @@ const ShowcaseEditIdRoute = ShowcaseEditIdRouteImport.update({
 const ShopProductsHandleRoute = ShopProductsHandleRouteImport.update({
   id: '/products/$handle',
   path: '/products/$handle',
+  getParentRoute: () => ShopRoute,
+} as any)
+const ShopPagesHandleRoute = ShopPagesHandleRouteImport.update({
+  id: '/pages/$handle',
+  path: '/pages/$handle',
+  getParentRoute: () => ShopRoute,
+} as any)
+const ShopCollectionsHandleRoute = ShopCollectionsHandleRouteImport.update({
+  id: '/collections/$handle',
+  path: '/collections/$handle',
   getParentRoute: () => ShopRoute,
 } as any)
 const IntentRegistryPackageNameRoute =
@@ -906,6 +924,7 @@ export interface FileRoutesByFullPath {
   '/oauth/token': typeof OauthTokenRoute
   '/partners/$partner': typeof PartnersPartnerRoute
   '/shop/cart': typeof ShopCartRoute
+  '/shop/search': typeof ShopSearchRoute
   '/showcase/$id': typeof ShowcaseIdRoute
   '/showcase/submit': typeof ShowcaseSubmitRoute
   '/$libraryId/': typeof LibraryIdIndexRoute
@@ -941,6 +960,8 @@ export interface FileRoutesByFullPath {
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
   '/intent/registry/$packageName': typeof IntentRegistryPackageNameRouteWithChildren
+  '/shop/collections/$handle': typeof ShopCollectionsHandleRoute
+  '/shop/pages/$handle': typeof ShopPagesHandleRoute
   '/shop/products/$handle': typeof ShopProductsHandleRoute
   '/showcase/edit/$id': typeof ShowcaseEditIdRoute
   '/stats/npm/$packages': typeof StatsNpmPackagesRoute
@@ -1036,6 +1057,7 @@ export interface FileRoutesByTo {
   '/oauth/token': typeof OauthTokenRoute
   '/partners/$partner': typeof PartnersPartnerRoute
   '/shop/cart': typeof ShopCartRoute
+  '/shop/search': typeof ShopSearchRoute
   '/showcase/$id': typeof ShowcaseIdRoute
   '/showcase/submit': typeof ShowcaseSubmitRoute
   '/$libraryId': typeof LibraryIdIndexRoute
@@ -1069,6 +1091,8 @@ export interface FileRoutesByTo {
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
+  '/shop/collections/$handle': typeof ShopCollectionsHandleRoute
+  '/shop/pages/$handle': typeof ShopPagesHandleRoute
   '/shop/products/$handle': typeof ShopProductsHandleRoute
   '/showcase/edit/$id': typeof ShowcaseEditIdRoute
   '/stats/npm/$packages': typeof StatsNpmPackagesRoute
@@ -1173,6 +1197,7 @@ export interface FileRoutesById {
   '/oauth/token': typeof OauthTokenRoute
   '/partners/$partner': typeof PartnersPartnerRoute
   '/shop/cart': typeof ShopCartRoute
+  '/shop/search': typeof ShopSearchRoute
   '/showcase/$id': typeof ShowcaseIdRoute
   '/showcase/submit': typeof ShowcaseSubmitRoute
   '/$libraryId/': typeof LibraryIdIndexRoute
@@ -1208,6 +1233,8 @@ export interface FileRoutesById {
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
   '/intent/registry/$packageName': typeof IntentRegistryPackageNameRouteWithChildren
+  '/shop/collections/$handle': typeof ShopCollectionsHandleRoute
+  '/shop/pages/$handle': typeof ShopPagesHandleRoute
   '/shop/products/$handle': typeof ShopProductsHandleRoute
   '/showcase/edit/$id': typeof ShowcaseEditIdRoute
   '/stats/npm/$packages': typeof StatsNpmPackagesRoute
@@ -1313,6 +1340,7 @@ export interface FileRouteTypes {
     | '/oauth/token'
     | '/partners/$partner'
     | '/shop/cart'
+    | '/shop/search'
     | '/showcase/$id'
     | '/showcase/submit'
     | '/$libraryId/'
@@ -1348,6 +1376,8 @@ export interface FileRouteTypes {
     | '/api/mcp/$'
     | '/auth/$provider/start'
     | '/intent/registry/$packageName'
+    | '/shop/collections/$handle'
+    | '/shop/pages/$handle'
     | '/shop/products/$handle'
     | '/showcase/edit/$id'
     | '/stats/npm/$packages'
@@ -1443,6 +1473,7 @@ export interface FileRouteTypes {
     | '/oauth/token'
     | '/partners/$partner'
     | '/shop/cart'
+    | '/shop/search'
     | '/showcase/$id'
     | '/showcase/submit'
     | '/$libraryId'
@@ -1476,6 +1507,8 @@ export interface FileRouteTypes {
     | '/api/github/webhook'
     | '/api/mcp/$'
     | '/auth/$provider/start'
+    | '/shop/collections/$handle'
+    | '/shop/pages/$handle'
     | '/shop/products/$handle'
     | '/showcase/edit/$id'
     | '/stats/npm/$packages'
@@ -1579,6 +1612,7 @@ export interface FileRouteTypes {
     | '/oauth/token'
     | '/partners/$partner'
     | '/shop/cart'
+    | '/shop/search'
     | '/showcase/$id'
     | '/showcase/submit'
     | '/$libraryId/'
@@ -1614,6 +1648,8 @@ export interface FileRouteTypes {
     | '/api/mcp/$'
     | '/auth/$provider/start'
     | '/intent/registry/$packageName'
+    | '/shop/collections/$handle'
+    | '/shop/pages/$handle'
     | '/shop/products/$handle'
     | '/showcase/edit/$id'
     | '/stats/npm/$packages'
@@ -2049,6 +2085,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShowcaseIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/shop/search': {
+      id: '/shop/search'
+      path: '/search'
+      fullPath: '/shop/search'
+      preLoaderRoute: typeof ShopSearchRouteImport
+      parentRoute: typeof ShopRoute
+    }
     '/shop/cart': {
       id: '/shop/cart'
       path: '/cart'
@@ -2404,6 +2447,20 @@ declare module '@tanstack/react-router' {
       path: '/products/$handle'
       fullPath: '/shop/products/$handle'
       preLoaderRoute: typeof ShopProductsHandleRouteImport
+      parentRoute: typeof ShopRoute
+    }
+    '/shop/pages/$handle': {
+      id: '/shop/pages/$handle'
+      path: '/pages/$handle'
+      fullPath: '/shop/pages/$handle'
+      preLoaderRoute: typeof ShopPagesHandleRouteImport
+      parentRoute: typeof ShopRoute
+    }
+    '/shop/collections/$handle': {
+      id: '/shop/collections/$handle'
+      path: '/collections/$handle'
+      fullPath: '/shop/collections/$handle'
+      preLoaderRoute: typeof ShopCollectionsHandleRouteImport
       parentRoute: typeof ShopRoute
     }
     '/intent/registry/$packageName': {
@@ -2887,13 +2944,19 @@ const PartnersRouteWithChildren = PartnersRoute._addFileChildren(
 
 interface ShopRouteChildren {
   ShopCartRoute: typeof ShopCartRoute
+  ShopSearchRoute: typeof ShopSearchRoute
   ShopIndexRoute: typeof ShopIndexRoute
+  ShopCollectionsHandleRoute: typeof ShopCollectionsHandleRoute
+  ShopPagesHandleRoute: typeof ShopPagesHandleRoute
   ShopProductsHandleRoute: typeof ShopProductsHandleRoute
 }
 
 const ShopRouteChildren: ShopRouteChildren = {
   ShopCartRoute: ShopCartRoute,
+  ShopSearchRoute: ShopSearchRoute,
   ShopIndexRoute: ShopIndexRoute,
+  ShopCollectionsHandleRoute: ShopCollectionsHandleRoute,
+  ShopPagesHandleRoute: ShopPagesHandleRoute,
   ShopProductsHandleRoute: ShopProductsHandleRoute,
 }
 

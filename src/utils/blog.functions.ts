@@ -92,7 +92,9 @@ export const fetchBlogPost = createServerFn({ method: 'GET' })
 
 ${post.content}`
 
-    const { contentRsc, headings } = await renderMarkdownToRsc(blogContent)
+    const { contentRsc, headings } = await renderMarkdownToRsc(blogContent, {
+      preserveTabPanels: true,
+    })
     const isUnpublished = post.draft || !isPublishedDateReleased(post.published)
 
     return {

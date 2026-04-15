@@ -15,6 +15,11 @@ const serverEnvSchema = v.object({
   RESEND_API_KEY: v.optional(v.string()),
   SENTRY_DSN: v.optional(v.string()),
   TANSTACK_MCP_ENABLED_TOOLS: v.optional(v.string()),
+  // Shopify Storefront API — server-only. Cart reads and mutations run
+  // through createServerFn (src/utils/shop.functions.ts), so the public
+  // token is never exposed to the browser. The private token is preferred
+  // for its higher rate limits; the public token is kept as an optional
+  // fallback for environments where a private token isn't provisioned.
   SHOPIFY_STORE_DOMAIN: v.optional(v.string()),
   SHOPIFY_API_VERSION: v.optional(v.string(), '2026-01'),
   SHOPIFY_PUBLIC_STOREFRONT_TOKEN: v.optional(v.string()),
@@ -23,9 +28,6 @@ const serverEnvSchema = v.object({
 
 const clientEnvSchema = v.object({
   URL: v.optional(v.string()),
-  VITE_SHOPIFY_STORE_DOMAIN: v.optional(v.string()),
-  VITE_SHOPIFY_API_VERSION: v.optional(v.string(), '2026-01'),
-  VITE_SHOPIFY_PUBLIC_STOREFRONT_TOKEN: v.optional(v.string()),
 })
 
 // Validate and parse environment variables

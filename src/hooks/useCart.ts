@@ -7,7 +7,7 @@ import {
   removeDiscountCode,
   updateCartLine,
 } from '~/utils/shop.functions'
-import type { CartDetail } from '~/utils/shopify-queries'
+import type { CartDetail, CartLineDetail } from '~/utils/shopify-queries'
 
 /**
  * Shared React Query key for the current user's cart.
@@ -72,12 +72,37 @@ export function useCart() {
   }
 }
 
+/**
+ * Snapshot of the product/variant from the PDP, passed through to
+ * onMutate so a full optimistic cart line can be rendered instantly.
+ */
+type AddToCartLineSnapshot = {
+  productTitle: string
+  productHandle: string
+  variantTitle: string
+  price: { amount: string; currencyCode: string }
+  image: {
+    url: string
+    altText?: string | null
+    width?: number | null
+    height?: number | null
+  } | null
+  selectedOptions: Array<{ name: string; value: string }>
+}
+
+type AddToCartInput = {
+  variantId: string
+  quantity?: number
+  /** Product snapshot for optimistic line rendering. */
+  line?: AddToCartLineSnapshot
+}
+
 export function useAddToCart() {
   const qc = useQueryClient()
 
   return useMutation({
     mutationKey: CART_MUTATION_KEY,
-    mutationFn: (input: { variantId: string; quantity?: number }) =>
+    mutationFn: (input: AddToCartInput) =>
       addToCart({
         data: { variantId: input.variantId, quantity: input.quantity ?? 1 },
       }),
@@ -86,12 +111,64 @@ export function useAddToCart() {
       const quantity = input.quantity ?? 1
       await qc.cancelQueries({ queryKey: CART_QUERY_KEY })
       const previous = qc.getQueryData<CartDetail | null>(CART_QUERY_KEY)
-      if (previous) {
+
+      if (previous && input.line) {
+        const snap = input.line
+
+        // Does this variant already have a line in the cart?
+        const existingIdx = previous.lines.nodes.findIndex(
+          (l) => l.merchandise.id === input.variantId,
+        )
+
+        let nextLines: CartDetail['lines']['nodes']
+        if (existingIdx >= 0) {
+          nextLines = previous.lines.nodes.map((l, i) =>
+            i === existingIdx
+              ? { ...l, quantity: l.quantity + quantity }
+              : l,
+          )
+        } else {
+          const lineTotal = String(Number(snap.price.amount) * quantity)
+          nextLines = [
+            ...previous.lines.nodes,
+            {
+              id: `optimistic-${Date.now()}`,
+              quantity,
+              merchandise: {
+                id: input.variantId,
+                title: snap.variantTitle,
+                availableForSale: true,
+                selectedOptions: snap.selectedOptions,
+                price: snap.price,
+                image: snap.image,
+                product: {
+                  handle: snap.productHandle,
+                  title: snap.productTitle,
+                },
+              },
+              cost: {
+                totalAmount: {
+                  amount: lineTotal,
+                  currencyCode: snap.price.currencyCode,
+                },
+              },
+            } as CartLineDetail,
+          ]
+        }
+
+        qc.setQueryData<CartDetail | null>(CART_QUERY_KEY, {
+          ...previous,
+          totalQuantity: nextLines.reduce((s, l) => s + l.quantity, 0),
+          lines: { ...previous.lines, nodes: nextLines },
+        })
+      } else if (previous) {
+        // No snapshot — fall back to just bumping the count
         qc.setQueryData<CartDetail | null>(CART_QUERY_KEY, {
           ...previous,
           totalQuantity: (previous.totalQuantity ?? 0) + quantity,
         })
       }
+
       return { previous }
     },
 
@@ -100,10 +177,8 @@ export function useAddToCart() {
         qc.setQueryData(CART_QUERY_KEY, ctx.previous)
     },
 
-    // Add-to-cart needs onSuccess to populate the new line item in the
-    // cache — onMutate can only bump totalQuantity since it doesn't have
-    // the full product data. Unlike remove/update, rapid-fire adds are
-    // rare, and the worst case is a brief badge-count fluctuation.
+    // Reconcile: replace the optimistic line (temporary ID, approximate
+    // totals) with the real server response.
     onSuccess: (cart) => {
       qc.setQueryData(CART_QUERY_KEY, cart)
     },

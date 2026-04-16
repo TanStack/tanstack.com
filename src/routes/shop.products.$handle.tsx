@@ -112,7 +112,11 @@ function ProductPage() {
             onChange={(n) => setQuantity(Math.max(1, n))}
           />
 
-          <AddToCartButton variant={selectedVariant} quantity={quantity} />
+          <AddToCartButton
+            variant={selectedVariant}
+            quantity={quantity}
+            product={product}
+          />
 
           {product.descriptionHtml ? (
             <div
@@ -302,9 +306,11 @@ function findMatchingVariant(
 function AddToCartButton({
   variant,
   quantity,
+  product,
 }: {
   variant: ProductDetailVariant | undefined
   quantity: number
+  product: ProductDetail
 }) {
   const addToCart = useAddToCart()
   const openDrawer = useCartDrawerStore((s) => s.openDrawer)
@@ -335,7 +341,18 @@ function AddToCartButton({
         onClick={() => {
           if (!variant) return
           openDrawer()
-          addToCart.mutate({ variantId: variant.id, quantity })
+          addToCart.mutate({
+            variantId: variant.id,
+            quantity,
+            line: {
+              productTitle: product.title,
+              productHandle: product.handle,
+              variantTitle: variant.title,
+              price: variant.price,
+              image: variant.image,
+              selectedOptions: variant.selectedOptions,
+            },
+          })
         }}
         className={twMerge(
           'mt-2 px-6 py-3 rounded-lg font-semibold transition-colors',

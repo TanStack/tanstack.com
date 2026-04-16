@@ -19,6 +19,32 @@ import type { CartDetail } from '~/utils/shopify-queries'
 export const CART_QUERY_KEY = ['shopify', 'cart'] as const
 
 /**
+ * Mutation key shared across all cart-mutating hooks. Used by
+ * `settleWhenIdle` to determine whether other cart mutations are still
+ * in flight before triggering a background refetch.
+ */
+const CART_MUTATION_KEY = ['shopify', 'cart', 'mutate'] as const
+
+/**
+ * Only invalidate (refetch from server) when no other cart mutations are
+ * in flight. This prevents a settled mutation's refetch from overwriting
+ * another mutation's optimistic state with stale server data.
+ *
+ * Each `onMutate` reads the *current* cache (which may already reflect
+ * earlier optimistic writes) and layers its own change on top. When the
+ * last mutation settles, the refetch reconciles everything with the
+ * server's final truth.
+ */
+function settleWhenIdle(qc: ReturnType<typeof useQueryClient>) {
+  // isMutating counts mutations that haven't settled yet. At the time
+  // onSettled fires, the *current* mutation has already decremented, so
+  // 0 means "I was the last one."
+  if (qc.isMutating({ mutationKey: CART_MUTATION_KEY }) === 0) {
+    qc.invalidateQueries({ queryKey: CART_QUERY_KEY })
+  }
+}
+
+/**
  * Read the current cart. Data is loader-seeded on shop routes, so there is
  * no hydration gap — components that call this render with real data on the
  * first frame. On non-shop routes the hook falls back to fetching on mount.
@@ -45,15 +71,12 @@ export function useAddToCart() {
   const qc = useQueryClient()
 
   return useMutation({
+    mutationKey: CART_MUTATION_KEY,
     mutationFn: (input: { variantId: string; quantity?: number }) =>
       addToCart({
         data: { variantId: input.variantId, quantity: input.quantity ?? 1 },
       }),
 
-    // Bump totalQuantity immediately so the navbar badge moves in the same
-    // frame the user clicks. We can't optimistically render new line items
-    // without the full product snapshot, which callers don't have here —
-    // the refetch on settle fills that in.
     onMutate: async (input) => {
       const quantity = input.quantity ?? 1
       await qc.cancelQueries({ queryKey: CART_QUERY_KEY })
@@ -72,19 +95,18 @@ export function useAddToCart() {
         qc.setQueryData(CART_QUERY_KEY, ctx.previous)
     },
 
-    onSuccess: (cart) => {
-      qc.setQueryData(CART_QUERY_KEY, cart)
-    },
+    // No onSuccess — don't overwrite the cache with the server response
+    // while other mutations may be in flight. settleWhenIdle will refetch
+    // from the server once all mutations have landed.
 
-    onSettled: () => {
-      qc.invalidateQueries({ queryKey: CART_QUERY_KEY })
-    },
+    onSettled: () => settleWhenIdle(qc),
   })
 }
 
 export function useUpdateCartLine() {
   const qc = useQueryClient()
   return useMutation({
+    mutationKey: CART_MUTATION_KEY,
     mutationFn: (input: { lineId: string; quantity: number }) =>
       updateCartLine({ data: input }),
 
@@ -112,19 +134,14 @@ export function useUpdateCartLine() {
         qc.setQueryData(CART_QUERY_KEY, ctx.previous)
     },
 
-    onSuccess: (cart) => {
-      qc.setQueryData(CART_QUERY_KEY, cart)
-    },
-
-    onSettled: () => {
-      qc.invalidateQueries({ queryKey: CART_QUERY_KEY })
-    },
+    onSettled: () => settleWhenIdle(qc),
   })
 }
 
 export function useRemoveCartLine() {
   const qc = useQueryClient()
   return useMutation({
+    mutationKey: CART_MUTATION_KEY,
     mutationFn: (input: { lineId: string }) => removeCartLine({ data: input }),
 
     onMutate: async (input) => {
@@ -149,33 +166,29 @@ export function useRemoveCartLine() {
         qc.setQueryData(CART_QUERY_KEY, ctx.previous)
     },
 
-    onSuccess: (cart) => {
-      qc.setQueryData(CART_QUERY_KEY, cart)
-    },
-
-    onSettled: () => {
-      qc.invalidateQueries({ queryKey: CART_QUERY_KEY })
-    },
+    onSettled: () => settleWhenIdle(qc),
   })
 }
 
 export function useApplyDiscountCode() {
   const qc = useQueryClient()
   return useMutation({
+    mutationKey: CART_MUTATION_KEY,
     mutationFn: (input: { code: string }) =>
       applyDiscountCode({ data: { code: input.code } }),
     onSuccess: (cart) => {
+      // Discount apply has no optimistic state, so setting server
+      // response here is safe — it only adds information.
       qc.setQueryData(CART_QUERY_KEY, cart)
     },
-    onSettled: () => {
-      qc.invalidateQueries({ queryKey: CART_QUERY_KEY })
-    },
+    onSettled: () => settleWhenIdle(qc),
   })
 }
 
 export function useRemoveDiscountCode() {
   const qc = useQueryClient()
   return useMutation({
+    mutationKey: CART_MUTATION_KEY,
     mutationFn: () => removeDiscountCode(),
     onMutate: async () => {
       await qc.cancelQueries({ queryKey: CART_QUERY_KEY })
@@ -192,11 +205,6 @@ export function useRemoveDiscountCode() {
       if (ctx?.previous !== undefined)
         qc.setQueryData(CART_QUERY_KEY, ctx.previous)
     },
-    onSuccess: (cart) => {
-      qc.setQueryData(CART_QUERY_KEY, cart)
-    },
-    onSettled: () => {
-      qc.invalidateQueries({ queryKey: CART_QUERY_KEY })
-    },
+    onSettled: () => settleWhenIdle(qc),
   })
 }

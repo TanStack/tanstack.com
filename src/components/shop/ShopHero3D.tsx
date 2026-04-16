@@ -163,7 +163,7 @@ function useFabricTexture(isDark: boolean) {
     const texture = new THREE.CanvasTexture(canvas)
     texture.wrapS = THREE.RepeatWrapping
     texture.wrapT = THREE.RepeatWrapping
-    texture.repeat.set(12, 12)
+    texture.repeat.set(20, 20)
     texture.anisotropy = 8
     return texture
   }, [isDark])
@@ -183,8 +183,8 @@ function useBumpTexture() {
 
     // Draw a jersey-knit V pattern — interlocking V shapes that mimic
     // the face side of a knit cotton tee
-    const stitchW = 8 // width of one stitch column
-    const stitchH = 10 // height of one stitch row
+    const stitchW = 5 // width of one stitch column
+    const stitchH = 6 // height of one stitch row
     ctx.lineWidth = 1.5
     ctx.lineCap = 'round'
 
@@ -238,7 +238,7 @@ function useBumpTexture() {
     const texture = new THREE.CanvasTexture(canvas)
     texture.wrapS = THREE.RepeatWrapping
     texture.wrapT = THREE.RepeatWrapping
-    texture.repeat.set(16, 16)
+    texture.repeat.set(24, 24)
     texture.anisotropy = 8
     return texture
   }, [])
@@ -374,7 +374,7 @@ function ShirtWithDecals({
           map={fabricMap}
           normalMap={bumpMap}
           normalScale={
-            new THREE.Vector2(isDark ? 0.03 : 0.8, isDark ? 0.03 : 0.8)
+            new THREE.Vector2(isDark ? 0.03 : 0.4, isDark ? 0.03 : 0.4)
           }
           roughness={isDark ? 0.9 : 0.7}
           metalness={0}
@@ -394,7 +394,7 @@ function ShirtWithDecals({
             map={decalTexture}
             normalMap={decalNormalMap}
             normalScale={
-              new THREE.Vector2(isDark ? 0.6 : 1.5, isDark ? 0.6 : 1.5)
+              new THREE.Vector2(isDark ? 0.1 : 0.3, isDark ? 0.1 : 0.3)
             }
             transparent
             polygonOffset
@@ -402,7 +402,7 @@ function ShirtWithDecals({
             roughness={0.95}
             metalness={0}
             envMapIntensity={0.3}
-            color={isDark ? '#aaaaaa' : '#bbbbbb'}
+            color={isDark ? '#dddddd' : '#f0f0f0'}
             side={THREE.FrontSide}
           />
         </Decal>

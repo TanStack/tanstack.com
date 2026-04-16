@@ -1,12 +1,7 @@
 import * as React from 'react'
 import * as THREE from 'three'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import {
-  Decal,
-  Environment,
-  useGLTF,
-  useTexture,
-} from '@react-three/drei'
+import { Decal, Environment, useGLTF, useTexture } from '@react-three/drei'
 import { easing } from 'maath'
 
 type ShopHero3DProps = {
@@ -32,19 +27,51 @@ export function ShopHero3D({ isDark = false }: ShopHero3DProps) {
   const images = isDark ? BRAND_IMAGES.dark : BRAND_IMAGES.light
 
   // Debug overrides — these feed into the scene when DEBUG is on
-  const [debugDecal, setDebugDecal] = React.useState({ x: 0.17, y: 0.09, z: 0.1 })
-  const [debugDecalRot, setDebugDecalRot] = React.useState({ x: 0, y: 0.785, z: 0 }) // 0.785 ≈ π*0.25
+  const [debugDecal, setDebugDecal] = React.useState({
+    x: 0.17,
+    y: 0.09,
+    z: 0.1,
+  })
+  const [debugDecalRot, setDebugDecalRot] = React.useState({
+    x: 0,
+    y: 0.785,
+    z: 0,
+  }) // 0.785 ≈ π*0.25
   const [debugScale, setDebugScale] = React.useState(0.05)
-  const [debugShirtPos, setDebugShirtPos] = React.useState({ x: -0.06, y: -0.05, z: 0 })
-  const [debugShirtRot, setDebugShirtRot] = React.useState({ x: 0, y: -0.45, z: 0.02 })
+  const [debugShirtPos, setDebugShirtPos] = React.useState({
+    x: -0.06,
+    y: -0.05,
+    z: 0,
+  })
+  const [debugShirtRot, setDebugShirtRot] = React.useState({
+    x: 0,
+    y: -0.45,
+    z: 0.02,
+  })
 
   const debugValues = DEBUG
     ? {
-        decal: [debugDecal.x, debugDecal.y, debugDecal.z] as [number, number, number],
-        decalRotation: [debugDecalRot.x, debugDecalRot.y, debugDecalRot.z] as [number, number, number],
+        decal: [debugDecal.x, debugDecal.y, debugDecal.z] as [
+          number,
+          number,
+          number,
+        ],
+        decalRotation: [debugDecalRot.x, debugDecalRot.y, debugDecalRot.z] as [
+          number,
+          number,
+          number,
+        ],
         scale: debugScale,
-        shirtPos: [debugShirtPos.x, debugShirtPos.y, debugShirtPos.z] as [number, number, number],
-        shirtRot: [debugShirtRot.x, debugShirtRot.y, debugShirtRot.z] as [number, number, number],
+        shirtPos: [debugShirtPos.x, debugShirtPos.y, debugShirtPos.z] as [
+          number,
+          number,
+          number,
+        ],
+        shirtRot: [debugShirtRot.x, debugShirtRot.y, debugShirtRot.z] as [
+          number,
+          number,
+          number,
+        ],
       }
     : null
 
@@ -78,11 +105,46 @@ export function ShopHero3D({ isDark = false }: ShopHero3DProps) {
         <div className="absolute top-2 right-2 z-50 bg-black/80 text-white text-[10px] p-3 rounded-lg flex flex-col gap-2 max-h-[95%] overflow-y-auto w-56 font-mono">
           <div className="font-bold text-xs mb-1">Decal Editor</div>
 
-          <SliderGroup label="Decal Pos" value={debugDecal} onChange={setDebugDecal} min={-0.3} max={0.3} step={0.005} />
-          <SliderGroup label="Decal Rot" value={debugDecalRot} onChange={setDebugDecalRot} min={-3.14} max={3.14} step={0.01} />
-          <SliderRow label="Scale" value={debugScale} onChange={setDebugScale} min={0.01} max={0.4} step={0.005} />
-          <SliderGroup label="Shirt Pos" value={debugShirtPos} onChange={setDebugShirtPos} min={-0.2} max={0.2} step={0.005} />
-          <SliderGroup label="Shirt Rot" value={debugShirtRot} onChange={setDebugShirtRot} min={-1.5} max={1.5} step={0.01} />
+          <SliderGroup
+            label="Decal Pos"
+            value={debugDecal}
+            onChange={setDebugDecal}
+            min={-0.3}
+            max={0.3}
+            step={0.005}
+          />
+          <SliderGroup
+            label="Decal Rot"
+            value={debugDecalRot}
+            onChange={setDebugDecalRot}
+            min={-3.14}
+            max={3.14}
+            step={0.01}
+          />
+          <SliderRow
+            label="Scale"
+            value={debugScale}
+            onChange={setDebugScale}
+            min={0.01}
+            max={0.4}
+            step={0.005}
+          />
+          <SliderGroup
+            label="Shirt Pos"
+            value={debugShirtPos}
+            onChange={setDebugShirtPos}
+            min={-0.2}
+            max={0.2}
+            step={0.005}
+          />
+          <SliderGroup
+            label="Shirt Rot"
+            value={debugShirtRot}
+            onChange={setDebugShirtRot}
+            min={-1.5}
+            max={1.5}
+            step={0.01}
+          />
 
           <button
             type="button"
@@ -218,7 +280,11 @@ function Scene({
         color="#e8e0f0"
       />
 
-      <RotatingShirt images={images} isDark={isDark} debugOverride={debugOverride} />
+      <RotatingShirt
+        images={images}
+        isDark={isDark}
+        debugOverride={debugOverride}
+      />
     </>
   )
 }
@@ -405,7 +471,8 @@ function RotatingShirt({
 
   // In debug mode, use overrides directly; otherwise use placement presets
   const activeDecalPos = debugOverride?.decal ?? [...placement.decal]
-  const activeDecalRot = debugOverride?.decalRotation ?? (placement.decalRotation ?? [0, 0, 0])
+  const activeDecalRot =
+    debugOverride?.decalRotation ?? placement.decalRotation ?? [0, 0, 0]
   const activeScale = debugOverride?.scale ?? placement.scale
   const activeShirtPos = debugOverride?.shirtPos ?? placement.shirtPos
   const activeShirtRot = debugOverride?.shirtRot ?? placement.shirtRot

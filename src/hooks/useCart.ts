@@ -34,13 +34,18 @@ const CART_MUTATION_KEY = ['shopify', 'cart', 'mutate'] as const
  * earlier optimistic writes) and layers its own change on top. When the
  * last mutation settles, the refetch reconciles everything with the
  * server's final truth.
+ *
+ * Returns the invalidation promise so the mutation stays in `isPending`
+ * until the background refetch completes (per TkDodo's recommendation).
+ *
+ * @see https://tkdodo.eu/blog/concurrent-optimistic-updates-in-react-query
  */
 function settleWhenIdle(qc: ReturnType<typeof useQueryClient>) {
   // isMutating counts mutations that haven't settled yet. At the time
-  // onSettled fires, the *current* mutation has already decremented, so
-  // 0 means "I was the last one."
-  if (qc.isMutating({ mutationKey: CART_MUTATION_KEY }) === 0) {
-    qc.invalidateQueries({ queryKey: CART_QUERY_KEY })
+  // onSettled fires, the *current* mutation is still counted, so
+  // 1 means "I'm the last one in flight."
+  if (qc.isMutating({ mutationKey: CART_MUTATION_KEY }) === 1) {
+    return qc.invalidateQueries({ queryKey: CART_QUERY_KEY })
   }
 }
 

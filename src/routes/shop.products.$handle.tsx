@@ -334,10 +334,8 @@ function AddToCartButton({
         disabled={disabled}
         onClick={() => {
           if (!variant) return
-          addToCart.mutate(
-            { variantId: variant.id, quantity },
-            { onSuccess: () => openDrawer() },
-          )
+          openDrawer()
+          addToCart.mutate({ variantId: variant.id, quantity })
         }}
         className={twMerge(
           'mt-2 px-6 py-3 rounded-lg font-semibold transition-colors',

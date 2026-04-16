@@ -1060,6 +1060,63 @@ mark {
   animation: dropdown-out 100ms ease-in;
 }
 
+/* Cart panel slide-in from right */
+@keyframes cart-panel-in {
+  from {
+    opacity: 0;
+    transform: translateX(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes cart-panel-out {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(1rem);
+  }
+}
+
+@keyframes cart-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes cart-overlay-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.cart-panel[data-state='open'] {
+  animation: cart-panel-in 200ms ease-out;
+}
+
+.cart-panel[data-state='closed'] {
+  animation: cart-panel-out 150ms ease-in;
+}
+
+.cart-overlay[data-state='open'] {
+  animation: cart-overlay-in 200ms ease-out;
+}
+
+.cart-overlay[data-state='closed'] {
+  animation: cart-overlay-out 150ms ease-in;
+}
+
 /* Doc Feedback Styles */
 .doc-feedback-block {
   transition:

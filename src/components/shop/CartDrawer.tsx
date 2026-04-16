@@ -28,14 +28,14 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
       <Dialog.Portal>
         <Dialog.Overlay
           className={twMerge(
-            'fixed inset-0 z-50 bg-black/40',
+            'fixed inset-0 z-[100] bg-black/40',
             'data-[state=open]:animate-in data-[state=open]:fade-in-0',
             'data-[state=closed]:animate-out data-[state=closed]:fade-out-0',
           )}
         />
         <Dialog.Content
           className={twMerge(
-            'fixed right-0 top-0 bottom-0 z-50 w-full sm:max-w-md flex flex-col',
+            'fixed right-0 top-0 bottom-0 z-[100] w-full sm:max-w-md flex flex-col',
             'bg-white dark:bg-gray-950 shadow-xl border-l border-gray-200 dark:border-gray-800',
             'data-[state=open]:animate-in data-[state=open]:slide-in-from-right',
             'data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right',

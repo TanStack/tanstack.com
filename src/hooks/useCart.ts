@@ -26,25 +26,31 @@ export const CART_QUERY_KEY = ['shopify', 'cart'] as const
 const CART_MUTATION_KEY = ['shopify', 'cart', 'mutate'] as const
 
 /**
- * Only invalidate (refetch from server) when no other cart mutations are
- * in flight. This prevents a settled mutation's refetch from overwriting
- * another mutation's optimistic state with stale server data.
- *
- * Each `onMutate` reads the *current* cache (which may already reflect
- * earlier optimistic writes) and layers its own change on top. When the
- * last mutation settles, the refetch reconciles everything with the
- * server's final truth.
+ * Explicit in-flight counter. We don't rely on `queryClient.isMutating()`
+ * because its exact semantics at `onSettled` time (does it still count the
+ * current mutation?) vary across React Query versions and are under-documented.
+ * A module-level counter is unambiguous: increment in onMutate, decrement in
+ * onSettled, invalidate when the count hits zero.
+ */
+let cartMutationsInFlight = 0
+
+function trackMutationStart() {
+  cartMutationsInFlight++
+}
+
+/**
+ * Call from every cart mutation's `onSettled`. Decrements the in-flight
+ * counter, and when the last mutation settles, triggers a single background
+ * refetch to reconcile all accumulated optimistic changes with server truth.
  *
  * Returns the invalidation promise so the mutation stays in `isPending`
- * until the background refetch completes (per TkDodo's recommendation).
+ * until the refetch completes.
  *
  * @see https://tkdodo.eu/blog/concurrent-optimistic-updates-in-react-query
  */
 function settleWhenIdle(qc: ReturnType<typeof useQueryClient>) {
-  // isMutating counts mutations that haven't settled yet. At the time
-  // onSettled fires, the *current* mutation is still counted, so
-  // 1 means "I'm the last one in flight."
-  if (qc.isMutating({ mutationKey: CART_MUTATION_KEY }) === 1) {
+  cartMutationsInFlight = Math.max(0, cartMutationsInFlight - 1)
+  if (cartMutationsInFlight === 0) {
     return qc.invalidateQueries({ queryKey: CART_QUERY_KEY })
   }
 }
@@ -108,6 +114,7 @@ export function useAddToCart() {
       }),
 
     onMutate: async (input) => {
+      trackMutationStart()
       const quantity = input.quantity ?? 1
       await qc.cancelQueries({ queryKey: CART_QUERY_KEY })
       const previous = qc.getQueryData<CartDetail | null>(CART_QUERY_KEY)
@@ -193,6 +200,7 @@ export function useUpdateCartLine() {
       updateCartLine({ data: input }),
 
     onMutate: async (input) => {
+      trackMutationStart()
       await qc.cancelQueries({ queryKey: CART_QUERY_KEY })
       const previous = qc.getQueryData<CartDetail | null>(CART_QUERY_KEY)
       if (previous) {
@@ -227,6 +235,7 @@ export function useRemoveCartLine() {
     mutationFn: (input: { lineId: string }) => removeCartLine({ data: input }),
 
     onMutate: async (input) => {
+      trackMutationStart()
       await qc.cancelQueries({ queryKey: CART_QUERY_KEY })
       const previous = qc.getQueryData<CartDetail | null>(CART_QUERY_KEY)
       if (previous) {
@@ -259,6 +268,7 @@ export function useApplyDiscountCode() {
     mutationFn: (input: { code: string }) =>
       applyDiscountCode({ data: { code: input.code } }),
     onMutate: async () => {
+      trackMutationStart()
       await qc.cancelQueries({ queryKey: CART_QUERY_KEY })
     },
     onSuccess: (cart) => {
@@ -274,6 +284,7 @@ export function useRemoveDiscountCode() {
     mutationKey: CART_MUTATION_KEY,
     mutationFn: () => removeDiscountCode(),
     onMutate: async () => {
+      trackMutationStart()
       await qc.cancelQueries({ queryKey: CART_QUERY_KEY })
       const previous = qc.getQueryData<CartDetail | null>(CART_QUERY_KEY)
       if (previous) {

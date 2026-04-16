@@ -26,24 +26,16 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay
-          className={twMerge(
-            'fixed inset-0 z-[100] bg-black/20',
-            'data-[state=open]:animate-in data-[state=open]:fade-in-0',
-            'data-[state=closed]:animate-out data-[state=closed]:fade-out-0',
-          )}
-        />
+        <Dialog.Overlay className="cart-overlay fixed inset-0 z-[100] bg-black/20" />
         <Dialog.Content
           className={twMerge(
+            'cart-panel',
             'fixed right-4 top-[calc(var(--navbar-height,56px)+0.5rem)] z-[100]',
             'w-[calc(100vw-2rem)] sm:w-[24rem]',
             'max-h-[calc(100dvh-var(--navbar-height,56px)-1rem)]',
             'flex flex-col',
             'rounded-xl shadow-2xl',
             'bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800',
-            'data-[state=open]:animate-in data-[state=open]:slide-in-from-right-5 data-[state=open]:fade-in-0',
-            'data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right-5 data-[state=closed]:fade-out-0',
-            'duration-200',
           )}
           aria-describedby={undefined}
         >

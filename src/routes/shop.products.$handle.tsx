@@ -314,24 +314,25 @@ function AddToCartButton({
 }) {
   const addToCart = useAddToCart()
   const openDrawer = useCartDrawerStore((s) => s.openDrawer)
+  const [showAdded, setShowAdded] = React.useState(false)
 
-  const disabled = !variant || !variant.availableForSale || addToCart.isPending
+  const disabled =
+    !variant || !variant.availableForSale || (addToCart.isPending && !showAdded)
 
-  const label = addToCart.isSuccess
+  const label = showAdded
     ? 'Added ✓'
-    : addToCart.isPending
-      ? 'Adding…'
-      : !variant
-        ? 'Unavailable'
-        : !variant.availableForSale
-          ? 'Sold out'
-          : 'Add to cart'
+    : !variant
+      ? 'Unavailable'
+      : !variant.availableForSale
+        ? 'Sold out'
+        : 'Add to cart'
 
+  // Reset the "Added ✓" confirmation after a moment
   React.useEffect(() => {
-    if (!addToCart.isSuccess) return
-    const id = window.setTimeout(() => addToCart.reset(), 1500)
+    if (!showAdded) return
+    const id = window.setTimeout(() => setShowAdded(false), 1500)
     return () => window.clearTimeout(id)
-  }, [addToCart.isSuccess, addToCart])
+  }, [showAdded])
 
   return (
     <div className="flex flex-col gap-2">
@@ -340,6 +341,7 @@ function AddToCartButton({
         disabled={disabled}
         onClick={() => {
           if (!variant) return
+          setShowAdded(true)
           openDrawer()
           addToCart.mutate({
             variantId: variant.id,

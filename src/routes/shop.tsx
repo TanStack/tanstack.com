@@ -30,7 +30,7 @@ export const Route = createFileRoute('/shop')({
     // sidebar takes over the primary left rail (same behavior as doc pages).
     Title: () => (
       <Link to="/shop" className="relative whitespace-nowrap">
-        <span className="inline-block text-transparent bg-clip-text bg-linear-to-r from-emerald-500 to-lime-500">
+        <span className="inline-block text-transparent bg-clip-text bg-linear-to-r from-blue-500 to-cyan-400">
           Shop
         </span>
       </Link>

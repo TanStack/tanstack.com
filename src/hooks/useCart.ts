@@ -185,9 +185,10 @@ export function useApplyDiscountCode() {
     mutationKey: CART_MUTATION_KEY,
     mutationFn: (input: { code: string }) =>
       applyDiscountCode({ data: { code: input.code } }),
+    onMutate: async () => {
+      await qc.cancelQueries({ queryKey: CART_QUERY_KEY })
+    },
     onSuccess: (cart) => {
-      // Discount apply has no optimistic state, so setting server
-      // response here is safe — it only adds information.
       qc.setQueryData(CART_QUERY_KEY, cart)
     },
     onSettled: () => settleWhenIdle(qc),

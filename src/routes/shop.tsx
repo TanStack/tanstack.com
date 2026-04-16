@@ -29,8 +29,10 @@ export const Route = createFileRoute('/shop')({
     // Providing a Title flips the main Navbar into flyout mode so the shop
     // sidebar takes over the primary left rail (same behavior as doc pages).
     Title: () => (
-      <Link to="/shop" className="whitespace-nowrap font-bold">
-        Shop
+      <Link to="/shop" className="relative whitespace-nowrap">
+        <span className="inline-block text-transparent bg-clip-text bg-linear-to-r from-emerald-500 to-lime-500">
+          Shop
+        </span>
       </Link>
     ),
   },

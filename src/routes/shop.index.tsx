@@ -3,6 +3,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useMutation } from '@tanstack/react-query'
 import * as v from 'valibot'
 import { ProductCard } from '~/components/shop/ProductCard'
+import { useTheme } from '~/components/ThemeProvider'
 
 const LazyShopHero = React.lazy(() =>
   import('~/components/shop/ShopHero3D').then((m) => ({
@@ -98,11 +99,14 @@ function ShopIndex() {
   const products = [...page.nodes, ...accumulated]
 
   return (
-    <div className="flex flex-col max-w-6xl mx-auto gap-8 p-4 md:p-8">
-      <React.Suspense fallback={null}>
-        <LazyShopHero products={products} />
-      </React.Suspense>
+    <div className="flex flex-col">
+      <div className="w-full aspect-[3/1] max-h-[250px]">
+        <React.Suspense fallback={null}>
+          <ShopHeroWithTheme />
+        </React.Suspense>
+      </div>
 
+      <div className="flex flex-col max-w-6xl mx-auto w-full gap-8 p-4 md:p-8">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black">All Products</h1>
@@ -166,6 +170,12 @@ function ShopIndex() {
           ) : null}
         </>
       )}
+      </div>
     </div>
   )
+}
+
+function ShopHeroWithTheme() {
+  const { resolvedTheme } = useTheme()
+  return <LazyShopHero isDark={resolvedTheme === 'dark'} />
 }

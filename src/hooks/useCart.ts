@@ -123,9 +123,7 @@ export function useAddToCart() {
         let nextLines: CartDetail['lines']['nodes']
         if (existingIdx >= 0) {
           nextLines = previous.lines.nodes.map((l, i) =>
-            i === existingIdx
-              ? { ...l, quantity: l.quantity + quantity }
-              : l,
+            i === existingIdx ? { ...l, quantity: l.quantity + quantity } : l,
           )
         } else {
           const lineTotal = String(Number(snap.price.amount) * quantity)

@@ -95,9 +95,13 @@ export function useAddToCart() {
         qc.setQueryData(CART_QUERY_KEY, ctx.previous)
     },
 
-    // No onSuccess — don't overwrite the cache with the server response
-    // while other mutations may be in flight. settleWhenIdle will refetch
-    // from the server once all mutations have landed.
+    // Add-to-cart needs onSuccess to populate the new line item in the
+    // cache — onMutate can only bump totalQuantity since it doesn't have
+    // the full product data. Unlike remove/update, rapid-fire adds are
+    // rare, and the worst case is a brief badge-count fluctuation.
+    onSuccess: (cart) => {
+      qc.setQueryData(CART_QUERY_KEY, cart)
+    },
 
     onSettled: () => settleWhenIdle(qc),
   })

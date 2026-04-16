@@ -3,13 +3,13 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useMutation } from '@tanstack/react-query'
 import * as v from 'valibot'
 import { ProductCard } from '~/components/shop/ProductCard'
-import { useTheme } from '~/components/ThemeProvider'
+// import { useTheme } from '~/components/ThemeProvider'
 
-const LazyShopHero = React.lazy(() =>
-  import('~/components/shop/ShopHero3D').then((m) => ({
-    default: m.ShopHero3D,
-  })),
-)
+// const LazyShopHero = React.lazy(() =>
+//   import('~/components/shop/ShopHero3D').then((m) => ({
+//     default: m.ShopHero3D,
+//   })),
+// )
 import { getProducts } from '~/utils/shop.functions'
 import {
   SORT_OPTIONS,
@@ -100,11 +100,11 @@ function ShopIndex() {
 
   return (
     <div className="flex flex-col">
-      <div className="w-full aspect-[3/1] max-h-[250px]">
+      {/* <div className="w-full aspect-[3/1] max-h-[250px]">
         <React.Suspense fallback={null}>
           <ShopHeroWithTheme />
         </React.Suspense>
-      </div>
+      </div> */}
 
       <div className="flex flex-col max-w-6xl mx-auto w-full gap-8 p-4 md:p-8">
         <header className="flex flex-wrap items-end justify-between gap-4">
@@ -175,7 +175,7 @@ function ShopIndex() {
   )
 }
 
-function ShopHeroWithTheme() {
-  const { resolvedTheme } = useTheme()
-  return <LazyShopHero isDark={resolvedTheme === 'dark'} />
-}
+// function ShopHeroWithTheme() {
+//   const { resolvedTheme } = useTheme()
+//   return <LazyShopHero isDark={resolvedTheme === 'dark'} />
+// }

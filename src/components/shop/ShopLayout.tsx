@@ -14,6 +14,8 @@ import {
 import { twMerge } from 'tailwind-merge'
 import { useLocalStorage } from '~/utils/useLocalStorage'
 import type { CollectionListItem } from '~/utils/shopify-queries'
+import { CartDrawer } from './CartDrawer'
+import { useCartDrawerStore } from './cartDrawerStore'
 
 type ShopLayoutProps = {
   collections: Array<CollectionListItem>
@@ -148,8 +150,16 @@ export function ShopLayout({ collections, children }: ShopLayoutProps) {
       >
         {children}
       </main>
+
+      <ShopCartDrawer />
     </div>
   )
+}
+
+function ShopCartDrawer() {
+  const open = useCartDrawerStore((s) => s.open)
+  const setOpen = useCartDrawerStore((s) => s.setOpen)
+  return <CartDrawer open={open} onOpenChange={setOpen} />
 }
 
 function ShopSidebarNav({

@@ -39,14 +39,6 @@ import { THEME_COLORS } from '~/utils/utils'
 import { useHubSpotChat } from '~/hooks/useHubSpotChat'
 import { trackPageView } from '~/utils/analytics'
 import { twMerge } from 'tailwind-merge'
-import { CartDrawer } from '~/components/shop/CartDrawer'
-import { useCartDrawerStore } from '~/components/shop/cartDrawerStore'
-
-function GlobalCartDrawer() {
-  const open = useCartDrawerStore((s) => s.open)
-  const setOpen = useCartDrawerStore((s) => s.setOpen)
-  return <CartDrawer open={open} onOpenChange={setOpen} />
-}
 
 const GOOGLE_ANALYTICS_ID = 'G-JMT1Z50SPS'
 const GOOGLE_ANALYTICS_SCRIPT_SRC = `https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ANALYTICS_ID}`
@@ -226,7 +218,6 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
           <ToastProvider>
             <PageViewTracker />
             {hideNavbar ? children : <Navbar>{children}</Navbar>}
-            <GlobalCartDrawer />
             {showDevtools && LazyAppDevtools ? (
               <React.Suspense fallback={null}>
                 <LazyAppDevtools />

@@ -128,7 +128,6 @@ export function useAddToCart() {
         } else {
           const lineTotal = String(Number(snap.price.amount) * quantity)
           nextLines = [
-            ...previous.lines.nodes,
             {
               id: `optimistic-${Date.now()}`,
               quantity,
@@ -151,6 +150,7 @@ export function useAddToCart() {
                 },
               },
             } as CartLineDetail,
+            ...previous.lines.nodes,
           ]
         }
 

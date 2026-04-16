@@ -471,8 +471,8 @@ function RotatingShirt({
 
   // In debug mode, use overrides directly; otherwise use placement presets
   const activeDecalPos = debugOverride?.decal ?? [...placement.decal]
-  const activeDecalRot =
-    debugOverride?.decalRotation ?? placement.decalRotation ?? [0, 0, 0]
+  const activeDecalRot = debugOverride?.decalRotation ??
+    placement.decalRotation ?? [0, 0, 0]
   const activeScale = debugOverride?.scale ?? placement.scale
   const activeShirtPos = debugOverride?.shirtPos ?? placement.shirtPos
   const activeShirtRot = debugOverride?.shirtRot ?? placement.shirtRot

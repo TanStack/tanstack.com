@@ -82,6 +82,7 @@
     "jszip": "^3.10.1",
     "lru-cache": "^11.2.7",
     "lucide-react": "^1.7.0",
+    "maath": "^0.10.8",
     "match-sorter": "^8.2.0",
     "mermaid": "^11.14.0",
     "postgres": "^3.4.8",

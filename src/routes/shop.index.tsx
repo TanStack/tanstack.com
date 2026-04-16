@@ -3,6 +3,12 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useMutation } from '@tanstack/react-query'
 import * as v from 'valibot'
 import { ProductCard } from '~/components/shop/ProductCard'
+
+const LazyShopHero = React.lazy(() =>
+  import('~/components/shop/ShopHero3D').then((m) => ({
+    default: m.ShopHero3D,
+  })),
+)
 import { getProducts } from '~/utils/shop.functions'
 import {
   SORT_OPTIONS,
@@ -93,6 +99,10 @@ function ShopIndex() {
 
   return (
     <div className="flex flex-col max-w-6xl mx-auto gap-8 p-4 md:p-8">
+      <React.Suspense fallback={null}>
+        <LazyShopHero products={products} />
+      </React.Suspense>
+
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black">All Products</h1>

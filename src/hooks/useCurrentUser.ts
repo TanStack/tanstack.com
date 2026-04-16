@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useRouteContext } from '@tanstack/react-router'
-import { getCurrentUser } from '~/utils/auth.server'
+import { getCurrentUser } from '~/utils/auth.functions'
 
 export function useCurrentUserQuery() {
   // Get user from route context (set in beforeLoad)

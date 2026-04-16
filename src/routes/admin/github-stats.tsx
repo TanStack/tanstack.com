@@ -20,7 +20,7 @@ import {
   listGitHubStatsCache,
   refreshGitHubStats,
   refreshAllGitHubStats,
-} from '~/utils/stats-admin.server'
+} from '~/utils/stats-admin.functions'
 import { formatDistanceToNow } from '~/utils/dates'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { Box, RefreshCw, Star, Users } from 'lucide-react'

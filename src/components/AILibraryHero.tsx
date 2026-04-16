@@ -52,7 +52,7 @@ type AILibraryHeroProps = {
 
 const HIGHLIGHT_COLOR = 'rgba(255, 255, 240, 0.95)'
 
-export function AILibraryHero({}: AILibraryHeroProps) {
+export function AILibraryHero(_props: AILibraryHeroProps) {
   const strokeColor = 'var(--hero-stroke)'
   const textColor = 'var(--hero-text)'
   const glassGradientStart = 'var(--hero-glass-start)'

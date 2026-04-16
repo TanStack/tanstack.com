@@ -76,7 +76,7 @@ function BlogIndex() {
   )
 
   return (
-    <div className="flex flex-col max-w-full min-h-screen gap-12 p-4 md:p-8 pb-0">
+    <div className="flex flex-col max-w-full min-h-screen gap-16 p-4 md:p-8 pb-0">
       <div className="flex-1 w-full max-w-[1400px] mx-auto">
         <div className="flex gap-8 items-start">
           <div className="flex-1 space-y-12 min-w-0">
@@ -154,7 +154,10 @@ function BlogIndex() {
             </section>
           </div>
           <RightRail breakpoint="md">
-            <PartnersRail partners={activePartners} />
+            <PartnersRail
+              analyticsPlacement="blog_right_rail"
+              partners={activePartners}
+            />
             <div className="hidden md:block border border-gray-500/20 rounded-l-lg overflow-hidden w-full">
               <RecentPostsWidget />
             </div>

@@ -1,16 +1,47 @@
 import { sentryTanstackStart } from '@sentry/tanstackstart-react/vite'
 import { defineConfig } from 'vite'
 import contentCollections from '@content-collections/vite'
-import tsConfigPaths from 'vite-tsconfig-paths'
+import { devtools as tanstackDevtools } from '@tanstack/devtools-vite'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import tailwindcss from '@tailwindcss/vite'
 import { analyzer } from 'vite-bundle-analyzer'
 import viteReact from '@vitejs/plugin-react'
+import rsc from '@vitejs/plugin-rsc'
 import netlify from '@netlify/vite-plugin-tanstack-start'
+import path from 'node:path'
 
 const isDev = process.env.NODE_ENV !== 'production'
+const shouldUseSentryPlugin =
+  process.env.NODE_ENV === 'production' &&
+  Boolean(process.env.SENTRY_AUTH_TOKEN)
+
+const rscSsrExternals = [
+  // OpenTelemetry uses require-in-the-middle which is CJS-only and breaks
+  // under Vite's ESM module runner during dev SSR.
+  'require-in-the-middle',
+  '@opentelemetry/instrumentation',
+  // HTML parsing stack has known CJS/ESM interop issues in SSR module runner.
+  'cheerio',
+  'iconv-lite',
+  'encoding-sniffer',
+  'parse5',
+  'parse5-parser-stream',
+  // Compression/archive stack has known CJS transform issues in dev SSR.
+  'jszip',
+  'pako',
+  // These packages also have known CJS/ESM interop issues in the RSC/SSR path.
+  'discord-interactions',
+]
+
+const sentrySsrExternals = ['@sentry/node', '@sentry/tanstackstart-react']
+const dbSsrExternals = ['drizzle-orm', 'drizzle-orm/postgres-js']
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      '~': path.resolve(__dirname, './src'),
+    },
+  },
   server: {
     port: Number(process.env.PORT) || 3000,
     // WebContainer headers for /builder route (SharedArrayBuffer support)
@@ -25,16 +56,37 @@ export default defineConfig({
         }
       : undefined,
   },
+  environments: {
+    rsc: {
+      resolve: {
+        external: [
+          '@tanstack/react-start-server',
+          '@tanstack/react-router/ssr/server',
+        ],
+      },
+    },
+    ssr: {
+      resolve: {
+        external: [
+          ...rscSsrExternals,
+          ...sentrySsrExternals,
+          ...dbSsrExternals,
+        ],
+      },
+    },
+  },
   ssr: {
     external: [
       'postgres',
+      ...dbSsrExternals,
       // CTA packages use execa which has a broken unicorn-magic dependency
       '@tanstack/create',
       // Externalize CLI so server reloads it on changes
       '@tanstack/cli',
+      ...rscSsrExternals,
+      ...sentrySsrExternals,
     ],
     noExternal: [
-      'drizzle-orm',
       '@uploadthing/react',
       'file-selector',
       'normalize-wheel',
@@ -47,6 +99,7 @@ export default defineConfig({
       'postgres',
       // CTA packages use execa which has a broken unicorn-magic dependency
       '@tanstack/create',
+      'discord-interactions',
       // Don't pre-bundle CLI so we always get fresh changes during dev
       ...(isDev ? ['@tanstack/cli'] : []),
     ],
@@ -59,8 +112,42 @@ export default defineConfig({
         return id.includes('postgres')
       },
       output: {
-        onlyExplicitManualChunks: true,
         manualChunks: (id) => {
+          // Keep the app shell and docs runtime from shattering into dozens of
+          // tiny eagerly preloaded chunks.
+          if (
+            id.includes('/src/components/Navbar') ||
+            id.includes('/src/components/Theme') ||
+            id.includes('/src/components/SearchButton') ||
+            id.includes('/src/components/NetlifyImage') ||
+            id.includes('/src/components/Card') ||
+            id.includes('/src/components/Footer') ||
+            id.includes('/src/components/ToastProvider') ||
+            id.includes('/src/components/icons/') ||
+            id.includes('/src/contexts/SearchContext') ||
+            id.includes('/src/hooks/useCurrentUser') ||
+            id.includes('/src/hooks/useCapabilities') ||
+            id.includes('/src/libraries/libraries.ts') ||
+            id.includes('/src/ui/')
+          ) {
+            return 'app-shell'
+          }
+
+          if (
+            id.includes('/node_modules/@tanstack/react-router') ||
+            id.includes('/node_modules/@tanstack/router-core') ||
+            id.includes('/node_modules/@tanstack/history')
+          ) {
+            return 'tanstack-router'
+          }
+
+          if (
+            id.includes('/node_modules/@tanstack/react-query') ||
+            id.includes('/node_modules/@tanstack/query-core')
+          ) {
+            return 'tanstack-query'
+          }
+
           // Vendor chunk splitting for better caching
           if (id.includes('node_modules')) {
             // Lucide icons (tree-shaken but still significant)
@@ -81,11 +168,23 @@ export default defineConfig({
     },
   },
   plugins: [
-    tsConfigPaths({
-      projects: ['./tsconfig.json'],
-    }),
-
+    ...(isDev ? [tanstackDevtools()] : []),
     tanstackStart({
+      rsc: {
+        enabled: true,
+      },
+      importProtection: {
+        behavior: 'error',
+        client: {
+          files: ['**/*.server.*', '**/server/**'],
+          specifiers: [
+            '@tanstack/react-start/server',
+            'uploadthing/server',
+            /^@modelcontextprotocol\/sdk\/server\//,
+            'discord-interactions',
+          ],
+        },
+      },
       router: {
         codeSplittingOptions: {
           defaultBehavior: [
@@ -100,17 +199,22 @@ export default defineConfig({
         },
       },
     }),
+    rsc(),
     // Only enable Netlify plugin during build or when NETLIFY env is set
     ...(process.env.NETLIFY || process.env.NODE_ENV === 'production'
       ? [netlify()]
       : []),
     viteReact(),
 
-    sentryTanstackStart({
-      authToken: process.env.SENTRY_AUTH_TOKEN,
-      org: 'tanstack',
-      project: 'tanstack-com',
-    }),
+    ...(shouldUseSentryPlugin
+      ? [
+          sentryTanstackStart({
+            authToken: process.env.SENTRY_AUTH_TOKEN,
+            org: 'tanstack',
+            project: 'tanstack-com',
+          }),
+        ]
+      : []),
     contentCollections(),
     tailwindcss(),
     ...(process.env.ANALYZE

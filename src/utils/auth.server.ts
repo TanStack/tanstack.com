@@ -9,9 +9,12 @@
 
 import { createServerFn } from '@tanstack/react-start'
 import { getRequest } from '@tanstack/react-start/server'
-import { getAuthService, getAuthGuards } from '~/auth/index.server'
 import type { Capability } from '~/auth/index.server'
 import { ADMIN_ACCESS_CAPABILITIES } from '~/db/types'
+
+async function loadAuthServer() {
+  return import('~/auth/index.server')
+}
 
 /**
  * Server function to get the current user.
@@ -19,6 +22,7 @@ import { ADMIN_ACCESS_CAPABILITIES } from '~/db/types'
 export const getCurrentUser = createServerFn({ method: 'POST' }).handler(
   async () => {
     const request = getRequest()
+    const { getAuthService } = await loadAuthServer()
     const authService = getAuthService()
     return authService.getCurrentUser(request)
   },
@@ -32,6 +36,7 @@ export const getCurrentUser = createServerFn({ method: 'POST' }).handler(
 export const requireAuth = createServerFn({ method: 'POST' }).handler(
   async () => {
     const request = getRequest()
+    const { getAuthGuards } = await loadAuthServer()
     const guards = getAuthGuards()
     return guards.requireAuth(request)
   },
@@ -48,6 +53,7 @@ export const requireCapability = createServerFn({ method: 'POST' })
   }))
   .handler(async ({ data: { capability } }) => {
     const request = getRequest()
+    const { getAuthGuards } = await loadAuthServer()
     const guards = getAuthGuards()
     return guards.requireCapability(request, capability)
   })
@@ -99,6 +105,7 @@ export const requireAnyAdminCapability = createServerFn({
   method: 'POST',
 }).handler(async () => {
   const request = getRequest()
+  const { getAuthService } = await loadAuthServer()
   const authService = getAuthService()
   const user = await authService.getCurrentUser(request)
 

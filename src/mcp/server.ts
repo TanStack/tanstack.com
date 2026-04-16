@@ -1,5 +1,4 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
-import { captureEvent } from '~/utils/posthog.server'
 import { withSentrySpan, captureException } from '~/utils/sentry.server'
 import { npmStats, npmStatsSchema } from './tools/npm-stats'
 import { env } from '~/utils/env'
@@ -28,37 +27,22 @@ function errorResult(error: unknown): ToolResult {
   }
 }
 
-function withAnalytics<TArgs>(
+function withToolMonitoring<TArgs>(
   toolName: string,
   handler: ToolHandler<TArgs>,
   authContext?: McpAuthContext,
 ): ToolHandler<TArgs> {
   return async (args: TArgs) => {
-    const startTime = performance.now()
-    let success = false
-    let caughtError: Error | null = null
-
     try {
-      const result = await withSentrySpan(`mcp.${toolName}`, 'mcp.tool', () =>
+      return await withSentrySpan(`mcp.${toolName}`, 'mcp.tool', () =>
         handler(args),
       )
-      success = !result.isError
-      return result
     } catch (error) {
-      caughtError = error instanceof Error ? error : new Error(String(error))
+      const caughtError =
+        error instanceof Error ? error : new Error(String(error))
+
       captureException(caughtError, { toolName, userId: authContext?.userId })
       throw error
-    } finally {
-      captureEvent(authContext?.userId ?? 'anonymous', 'mcp_tool_called', {
-        tool: toolName,
-        success,
-        response_time_ms: Math.round(performance.now() - startTime),
-        has_error: caughtError !== null,
-        error_type: caughtError?.name,
-        error_message: caughtError?.message,
-        key_id: authContext?.keyId,
-        environment: process.env.NODE_ENV ?? 'development',
-      })
     }
   }
 }
@@ -131,7 +115,7 @@ export function createMcpServer(authContext?: McpAuthContext) {
       'npm_stats',
       'NPM download statistics. Org summary (default), library breakdown, or package comparison.',
       npmStatsSchema.shape,
-      withAnalytics(
+      withToolMonitoring(
         'npm_stats',
         async (args) => {
           try {

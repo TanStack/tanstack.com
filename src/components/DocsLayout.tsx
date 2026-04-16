@@ -22,13 +22,17 @@ import { FrameworkSelect, useCurrentFramework } from './FrameworkSelect'
 import { VersionSelect } from './VersionSelect'
 import { Card } from './Card'
 import { PartnersRail, RightRail } from './RightRail'
+import { trackEvent, useTrackedImpression } from '~/utils/analytics'
 
 // Mobile partners strip - inline in the docs toggle bar
 function MobilePartnersStrip({
+  analyticsProperties,
   partners,
   onLabelClick,
 }: {
+  analyticsProperties?: Record<string, unknown>
   partners: Array<{
+    id: string
     name: string
     href: string
     image: Parameters<typeof PartnerImage>[0]['config']
@@ -106,23 +110,77 @@ function MobilePartnersStrip({
           >
             {/* Duplicate partners for seamless loop */}
             {[...partners, ...partners].map((partner, i) => (
-              <a
-                key={`${partner.name}-${i}`}
-                href={partner.href}
-                target="_blank"
-                rel="noreferrer"
-                className="shrink-0 flex items-center opacity-50 hover:opacity-100 transition-opacity"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="h-4 flex items-center [&_img]:h-full [&_img]:w-auto [&_div]:h-full">
-                  <PartnerImage config={partner.image} alt={partner.name} />
-                </div>
-              </a>
+              <MobilePartnerLink
+                key={`${partner.id}-${i}`}
+                analyticsProperties={analyticsProperties}
+                index={i}
+                isDuplicate={i >= partners.length}
+                partner={partner}
+              />
             ))}
           </div>
         </div>
       </div>
     </div>
+  )
+}
+
+function MobilePartnerLink({
+  analyticsProperties,
+  index,
+  isDuplicate,
+  partner,
+}: {
+  analyticsProperties?: Record<string, unknown>
+  index: number
+  isDuplicate: boolean
+  partner: {
+    id: string
+    name: string
+    href: string
+    image: Parameters<typeof PartnerImage>[0]['config']
+  }
+}) {
+  const ref = useTrackedImpression<HTMLAnchorElement>({
+    enabled: !isDuplicate,
+    event: 'partner_impression',
+    properties: {
+      partner_id: partner.id,
+      partner_name: partner.name,
+      placement: 'docs_mobile_strip',
+      slot_index: index,
+      ...analyticsProperties,
+    },
+  })
+
+  return (
+    <a
+      ref={ref}
+      href={partner.href}
+      target="_blank"
+      rel="noreferrer"
+      className="shrink-0 flex items-center opacity-50 hover:opacity-100 transition-opacity"
+      onClick={(event) => {
+        event.stopPropagation()
+
+        if (isDuplicate) {
+          return
+        }
+
+        trackEvent('partner_click', {
+          partner_id: partner.id,
+          partner_name: partner.name,
+          placement: 'docs_mobile_strip',
+          slot_index: index,
+          destination_host: new URL(partner.href).host,
+          ...analyticsProperties,
+        })
+      }}
+    >
+      <div className="h-4 flex items-center [&_img]:h-full [&_img]:w-auto [&_div]:h-full">
+        <PartnerImage config={partner.image} alt={partner.name} />
+      </div>
+    </a>
   )
 }
 
@@ -267,7 +325,7 @@ const _getFrameworkTextColor = (frameworkValue: string | undefined) => {
 }
 
 // Create context for width toggle state
-const WidthToggleContext = React.createContext<{
+export const WidthToggleContext = React.createContext<{
   isFullWidth: boolean
   setIsFullWidth: (isFullWidth: boolean) => void
 } | null>(null)
@@ -283,6 +341,8 @@ export const useWidthToggle = () => {
 // Create context for doc navigation (prev/next)
 type DocNavItem = { label: React.ReactNode; to: string }
 const DocNavigationContext = React.createContext<{
+  libraryId: LibraryId
+  version: string
   prevItem?: DocNavItem
   nextItem?: DocNavItem
   colorFrom: string
@@ -298,7 +358,15 @@ export function DocNavigation() {
   const context = useDocNavigation()
   if (!context) return null
 
-  const { prevItem, nextItem, colorFrom, colorTo, textColor } = context
+  const {
+    libraryId,
+    version,
+    prevItem,
+    nextItem,
+    colorFrom,
+    colorTo,
+    textColor,
+  } = context
 
   if (!prevItem && !nextItem) return null
 
@@ -310,7 +378,7 @@ export function DocNavigation() {
             as={Link}
             from="/$libraryId/$version/docs"
             to={prevItem.to}
-            params
+            params={{ libraryId, version } as never}
             className="py-1 px-2 sm:py-2 sm:px-3 flex items-center gap-1 sm:gap-2"
           >
             <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -329,7 +397,7 @@ export function DocNavigation() {
             as={Link}
             from="/$libraryId/$version/docs"
             to={nextItem.to}
-            params
+            params={{ libraryId, version } as never}
             className="py-1 px-2 sm:py-2 sm:px-3 flex items-center gap-1 sm:gap-2"
           >
             <div className="flex flex-col items-end">
@@ -463,6 +531,7 @@ const useMenuConfig = ({
 }
 
 type DocsLayoutProps = {
+  libraryId: LibraryId
   name: string
   version: string
   colorFrom: string
@@ -477,6 +546,7 @@ type DocsLayoutProps = {
 }
 
 export function DocsLayout({
+  libraryId,
   colorFrom,
   colorTo,
   textColor,
@@ -486,9 +556,9 @@ export function DocsLayout({
   children,
   isLandingPage = false,
 }: DocsLayoutProps) {
-  const { libraryId, version } = useParams({
+  const { version } = useParams({
     strict: false,
-  }) as { libraryId: LibraryId; version: string }
+  }) as { version: string }
   const { _splat } = useParams({ strict: false })
   const menuConfig = useMenuConfig({ config, frameworks, repo, libraryId })
 
@@ -591,6 +661,10 @@ export function DocsLayout({
         <ul className="text-[.85em] leading-snug list-none">
           {group?.children?.map((child, i) => {
             const linkClasses = `flex gap-2 items-center justify-between group px-2 py-1.5 rounded-lg hover:bg-gray-500/10 opacity-60 hover:opacity-100`
+            const linkParams =
+              !child.to.startsWith('/') || child.to.includes('/$libraryId')
+                ? ({ libraryId, version } as never)
+                : undefined
 
             return (
               <li key={i}>
@@ -607,11 +681,11 @@ export function DocsLayout({
                   <Link
                     from="/$libraryId/$version/docs"
                     to={child.to}
-                    params
+                    params={linkParams}
                     onClick={() => {
                       detailsRef.current.removeAttribute('open')
                     }}
-                    preload={false}
+                    preload="intent"
                     activeOptions={{
                       exact: true,
                       includeHash: false,
@@ -692,6 +766,10 @@ export function DocsLayout({
           </div>
           <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 shrink-0" />
           <MobilePartnersStrip
+            analyticsProperties={{
+              framework: currentFramework.framework,
+              library_id: libraryId,
+            }}
             partners={activePartners}
             onLabelClick={() => {
               const details = detailsRef.current as HTMLDetailsElement | null
@@ -813,7 +891,15 @@ export function DocsLayout({
   return (
     <WidthToggleContext.Provider value={{ isFullWidth, setIsFullWidth }}>
       <DocNavigationContext.Provider
-        value={{ prevItem, nextItem, colorFrom, colorTo, textColor }}
+        value={{
+          libraryId,
+          version,
+          prevItem,
+          nextItem,
+          colorFrom,
+          colorTo,
+          textColor,
+        }}
       >
         <div
           className={`
@@ -843,17 +929,35 @@ export function DocsLayout({
             >
               {children}
             </div>
-            {!isLandingPage && <Footer />}
+            {!isLandingPage && (
+              <div className="pt-8 md:pt-12">
+                <Footer />
+              </div>
+            )}
           </div>
           {!isLandingPage && (
-            <RightRail breakpoint="md">
+            <RightRail breakpoint="md" className="md:w-[280px]">
               <div className="relative">
-                <PartnersRail partners={activePartners} />
+                <PartnersRail
+                  analyticsPlacement="docs_right_rail"
+                  analyticsProperties={{
+                    framework: currentFramework.framework,
+                    library_id: libraryId,
+                  }}
+                  partners={activePartners}
+                />
                 <a
                   href="https://docs.google.com/document/d/1Hg2MzY2TU6U3hFEZ3MLe2oEOM3JS4-eByti3kdJU3I8"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="absolute right-3 top-2 font-medium opacity-60 hover:opacity-100 text-xs hover:underline"
+                  onClick={() => {
+                    trackEvent('become_partner_clicked', {
+                      framework: currentFramework.framework,
+                      library_id: libraryId,
+                      placement: 'docs_right_rail',
+                    })
+                  }}
                 >
                   Become a Partner
                 </a>

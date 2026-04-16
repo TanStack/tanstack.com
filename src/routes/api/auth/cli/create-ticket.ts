@@ -1,13 +1,13 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { createCliTicket } from '~/auth/cli-tickets.server'
+import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute('/api/auth/cli/create-ticket')({
+export const Route = createFileRoute("/api/auth/cli/create-ticket")({
   server: {
     handlers: {
       POST: async () => {
-        const ticketId = createCliTicket()
-        return Response.json({ ticketId })
+        const { createCliTicket } = await import("~/auth/cli-tickets.server");
+        const ticketId = createCliTicket();
+        return Response.json({ ticketId });
       },
     },
   },
-})
+});

@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from '@radix-ui/react-dropdown-menu'
 import { Tooltip } from '~/components/Tooltip'
-import { type PackageGroup, getPackageColor } from './NPMStatsChart'
+import { type PackageGroup, getPackageColor } from './shared'
 
 export type PackagePillProps = {
   packageGroup: PackageGroup

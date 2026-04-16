@@ -3,7 +3,7 @@
 
 import { redirect } from '@tanstack/react-router'
 import type { LibrarySlim, LibraryId } from './types'
-import { handleRedirects } from '~/utils/handleRedirects.server'
+import { handleRedirects } from '~/utils/handleRedirects'
 
 export const query: LibrarySlim = {
   id: 'query',

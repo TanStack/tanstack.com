@@ -13,7 +13,7 @@ import {
 import { PaginationControls } from './PaginationControls'
 import { Spinner } from './Spinner'
 import type { DocFeedback } from '~/db/types'
-import { calculatePoints } from '~/utils/docFeedback.client'
+import { calculatePoints } from '~/utils/docFeedback.shared'
 import { Check, Lightbulb, TriangleAlert } from 'lucide-react'
 import { MessageSquare, X } from 'lucide-react'
 import { Badge, Button } from '~/ui'

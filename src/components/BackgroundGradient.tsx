@@ -1,5 +1,5 @@
 import { twMerge } from 'tailwind-merge'
-import { useMatches, useParams } from '@tanstack/react-router'
+import { useLocation, useParams } from '@tanstack/react-router'
 import { findLibrary } from '~/libraries'
 
 export function BackgroundGradient() {
@@ -7,15 +7,13 @@ export function BackgroundGradient() {
     select: (p) => p.libraryId,
     strict: false,
   }) as string
-
-  const matches = useMatches()
+  const location = useLocation()
 
   if (!libraryId) {
-    const matchIndex = matches.findIndex((m) => m.routeId === '/_libraries')
-    const match = matches[matchIndex + 1]
-    if (match) {
-      // Route ID format: /_libraries/query/$version/ -> split gives ['', '_libraries', 'query', '$version', '']
-      libraryId = match.routeId.split('/')[2]
+    const pathnameLibraryId = location.pathname.split('/')[1]
+
+    if (pathnameLibraryId) {
+      libraryId = pathnameLibraryId
     }
   }
 

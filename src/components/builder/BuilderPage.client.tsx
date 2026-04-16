@@ -1,10 +1,10 @@
-import { BuilderLayout } from './BuilderLayout'
 import { BuilderProvider } from './BuilderProvider'
+import { BuilderWorkspace } from './BuilderWorkspace'
 
 export function BuilderPage() {
   return (
     <BuilderProvider>
-      <BuilderLayout />
+      <BuilderWorkspace />
     </BuilderProvider>
   )
 }

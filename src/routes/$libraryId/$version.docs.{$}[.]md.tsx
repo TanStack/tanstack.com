@@ -26,7 +26,8 @@ export const Route = createFileRoute('/$libraryId/$version/docs/{$}.md')({
         const doc = await loadDocs({
           repo: library.repo,
           branch: getBranch(library, version),
-          docsPath: `${root}/${docsPath}`,
+          docsRoot: root,
+          docsPath,
         })
 
         // Filter framework-specific content only if framework is explicitly specified

@@ -41,7 +41,7 @@ export function TrustedByMarquee({
         {/* Right fade */}
         <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-[#fdfdfd] dark:from-[#0a0a0a] to-transparent z-10 pointer-events-none" />
         <div
-          className="flex gap-8 items-center whitespace-nowrap will-change-transform animate-[marquee_linear_infinite] group-hover:[animation-play-state:paused]"
+          className="flex min-h-14 gap-8 items-center whitespace-nowrap will-change-transform animate-[marquee_linear_infinite] group-hover:[animation-play-state:paused]"
           style={{
             animationDuration,
           }}
@@ -49,18 +49,24 @@ export function TrustedByMarquee({
           {[...brands, ...brands, ...brands].map((brand, i) => {
             const logoSrc = brandLogos[brand]
             return logoSrc ? (
-              <img
+              <span
                 key={i}
-                src={logoSrc}
-                alt={brand}
-                loading="lazy"
-                decoding="async"
-                className="max-w-24 max-h-14 w-auto h-auto object-contain opacity-50 grayscale hover:opacity-100 transition-all duration-200 dark:invert dark:opacity-70 shrink-0"
-              />
+                className="flex h-14 w-24 items-center justify-center shrink-0"
+              >
+                <img
+                  src={logoSrc}
+                  alt={brand}
+                  width={96}
+                  height={56}
+                  loading="lazy"
+                  decoding="async"
+                  className="max-w-24 max-h-14 w-full h-auto object-contain opacity-50 grayscale hover:opacity-100 transition-all duration-200 dark:invert dark:opacity-70"
+                />
+              </span>
             ) : (
               <span
                 key={i}
-                className="text-lg font-bold opacity-50 dark:opacity-70 shrink-0"
+                className="flex h-14 items-center text-lg font-bold opacity-50 dark:opacity-70 shrink-0"
               >
                 {brand}
               </span>
@@ -72,7 +78,7 @@ export function TrustedByMarquee({
         dangerouslySetInnerHTML={{
           __html: `
           @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-33.333%); } }
-          .animate-\[marquee_linear_infinite\] { animation-name: marquee; animation-timing-function: linear; animation-iteration-count: infinite; }
+          .animate-[marquee_linear_infinite] { animation-name: marquee; animation-timing-function: linear; animation-iteration-count: infinite; }
         `,
         }}
       />

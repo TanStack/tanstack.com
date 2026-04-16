@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useNavigate, createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { seo } from '~/utils/seo'
 import {
@@ -81,7 +81,7 @@ export const Route = createFileRoute('/stats/npm/$packages')({
 function RouteComponent() {
   const { packages } = Route.useLoaderData()
   const search = Route.useSearch()
-  const navigate = useNavigate()
+  const navigate = useNavigate({ from: Route.fullPath })
 
   // Navigate to the main page with packages as search params
   // This happens client-side after SSR renders the meta tags
@@ -89,10 +89,10 @@ function RouteComponent() {
     navigate({
       to: '/stats/npm',
       search: {
+        ...search,
         packageGroups: packages.map((name: string) => ({
           packages: [{ name }],
         })),
-        ...search,
       },
       replace: true,
     })

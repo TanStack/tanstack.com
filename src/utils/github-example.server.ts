@@ -4,7 +4,13 @@
  * Functions for fetching example files from GitHub repositories.
  */
 
-import { env } from './env'
+import {
+  fetchGitHubRecursiveTree,
+  GitHubContentError,
+} from './documents.server'
+import { getCachedGitHubTextFile } from './github-content-cache.server'
+
+const RAW_FETCH_CONCURRENCY = 8
 
 export interface FetchExampleFilesResult {
   success: true
@@ -17,90 +23,151 @@ export interface FetchExampleFilesError {
 }
 
 /**
- * Fetch all files from a GitHub example directory
- *
- * Uses the Contents API to get the directory structure,
- * then fetches each file's content via raw.githubusercontent.com.
+ * Fetch all files from a GitHub example directory.
  */
 export async function fetchExampleFiles(
   repo: string,
   branch: string,
   examplePath: string,
 ): Promise<FetchExampleFilesResult | FetchExampleFilesError> {
-  const token = env.GITHUB_AUTH_TOKEN
-
-  const headers: Record<string, string> = {
-    'X-GitHub-Api-Version': '2022-11-28',
-    Authorization: `Bearer ${token}`,
-  }
-
-  const files: Record<string, string> = {}
-
-  async function fetchDirectory(dirPath: string): Promise<boolean> {
-    const url = `https://api.github.com/repos/${repo}/contents/${dirPath}?ref=${branch}`
-    const response = await fetch(url, { headers })
-
-    if (!response.ok) {
-      if (response.status === 404) {
-        console.error(`[fetchExampleFiles] Directory not found: ${dirPath}`)
-        return false
-      }
-      const errorBody = await response.text().catch(() => 'no body')
-      console.error('[fetchExampleFiles] Contents fetch failed:', {
-        url,
-        status: response.status,
-        statusText: response.statusText,
-        body: errorBody,
-      })
-      return false
-    }
-
-    const contents = (await response.json()) as Array<{
-      name: string
-      path: string
-      type: 'file' | 'dir'
-      download_url: string | null
-    }>
-
-    // Process files and directories
-    for (const item of contents) {
-      if (item.type === 'dir') {
-        if (shouldExcludeFile(item.name)) continue
-        await fetchDirectory(item.path)
-      } else if (item.type === 'file' && item.download_url) {
-        const fileResponse = await fetch(item.download_url)
-        if (fileResponse.ok) {
-          const content = await fileResponse.text()
-          const relativePath = item.path.slice(examplePath.length + 1)
-          files[relativePath] = content
-        }
-      }
-    }
-
-    return true
-  }
-
   console.log('[fetchExampleFiles] Fetching:', { repo, branch, examplePath })
 
-  const success = await fetchDirectory(examplePath)
+  const tree = await fetchGitHubRecursiveTree(repo, branch)
 
-  if (!success) {
+  if (!tree) {
     return {
       success: false,
       error: `Failed to fetch example directory: ${examplePath}`,
     }
   }
 
-  if (Object.keys(files).length === 0) {
+  const normalizedExamplePath = examplePath.replace(/^\/+|\/+$/g, '')
+  const fileEntries = tree.filter(
+    (entry) =>
+      entry.type === 'blob' &&
+      entry.path.startsWith(`${normalizedExamplePath}/`) &&
+      !shouldExcludeFile(entry.path.slice(normalizedExamplePath.length + 1)),
+  )
+
+  if (fileEntries.length === 0) {
     return {
       success: false,
       error: `No files found in example path: ${examplePath}`,
     }
   }
 
-  console.log('[fetchExampleFiles] Fetched', Object.keys(files).length, 'files')
+  try {
+    const files = Object.fromEntries(
+      await mapWithConcurrency(
+        fileEntries,
+        RAW_FETCH_CONCURRENCY,
+        async (entry) => {
+          const relativePath = entry.path.slice(
+            normalizedExamplePath.length + 1,
+          )
+          const content = await fetchRawGitHubFile(repo, branch, entry.path)
 
-  return { success: true, files }
+          if (content === null) {
+            throw new Error(`Missing file content for ${entry.path}`)
+          }
+
+          return [relativePath, content] as const
+        },
+      ),
+    )
+
+    console.log(
+      '[fetchExampleFiles] Fetched',
+      Object.keys(files).length,
+      'files',
+    )
+
+    return { success: true, files }
+  } catch (error) {
+    console.error('[fetchExampleFiles] Failed:', error)
+
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : 'Failed to fetch example files',
+    }
+  }
+}
+
+async function fetchRawGitHubFile(
+  repo: string,
+  branch: string,
+  filePath: string,
+) {
+  return getCachedGitHubTextFile({
+    repo,
+    gitRef: branch,
+    path: filePath,
+    origin: async () => {
+      const href = new URL(
+        `${repo}/${branch}/${filePath}`,
+        'https://raw.githubusercontent.com/',
+      ).href
+
+      let response: Response
+
+      try {
+        response = await fetch(href, {
+          headers: { 'User-Agent': `examples:${repo}` },
+        })
+      } catch (error) {
+        throw new GitHubContentError(
+          'network',
+          `Failed to fetch ${repo}@${branch}:${filePath}`,
+          { cause: error },
+        )
+      }
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          return null
+        }
+
+        throw new GitHubContentError(
+          response.status === 403 || response.status === 429
+            ? 'rate-limit'
+            : response.status >= 500
+              ? 'server'
+              : 'forbidden',
+          `GitHub failed to serve ${repo}@${branch}:${filePath}`,
+          { status: response.status },
+        )
+      }
+
+      return response.text()
+    },
+  })
+}
+
+async function mapWithConcurrency<T, TResult>(
+  values: Array<T>,
+  concurrency: number,
+  fn: (value: T) => Promise<TResult>,
+) {
+  const results = new Array<TResult>(values.length)
+  let index = 0
+
+  const workers = Array.from(
+    { length: Math.min(concurrency, values.length) },
+    async () => {
+      while (index < values.length) {
+        const currentIndex = index
+        index += 1
+        results[currentIndex] = await fn(values[currentIndex])
+      }
+    },
+  )
+
+  await Promise.all(workers)
+
+  return results
 }
 
 /**

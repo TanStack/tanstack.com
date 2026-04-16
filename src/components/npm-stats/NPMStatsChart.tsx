@@ -1,166 +1,18 @@
 import * as React from 'react'
-import * as v from 'valibot'
 import * as Plot from '@observablehq/plot'
 import * as d3 from 'd3'
 import { ParentSize } from '~/components/ParentSize'
-import { packageGroupSchema } from '~/routes/stats/npm/-comparisons'
-import { defaultColors } from '~/utils/npm-packages'
-
-// Types
-export type PackageGroup = v.InferOutput<typeof packageGroupSchema>
-
-export const binTypeSchema = v.picklist([
-  'yearly',
-  'monthly',
-  'weekly',
-  'daily',
-])
-export type BinType = v.InferOutput<typeof binTypeSchema>
-
-export const transformModeSchema = v.picklist(['none', 'normalize-y'])
-export type TransformMode = v.InferOutput<typeof transformModeSchema>
-
-export const showDataModeSchema = v.picklist(['all', 'complete'])
-export type ShowDataMode = v.InferOutput<typeof showDataModeSchema>
-
-export type TimeRange =
-  | '7-days'
-  | '30-days'
-  | '90-days'
-  | '180-days'
-  | '365-days'
-  | '730-days'
-  | '1825-days'
-  | 'all-time'
-
-export type FacetValue = 'name'
-
-// Type for query data returned from npm stats API
-export type NpmQueryData = Array<{
-  packages: Array<{
-    name?: string
-    hidden?: boolean
-    downloads: Array<{ day: string; downloads: number }>
-  }>
-  start: string
-  end: string
-  error?: string
-  actualStartDate?: Date
-}>
-
-// Binning options configuration
-export const binningOptions = [
-  {
-    label: 'Yearly',
-    value: 'yearly',
-    single: 'year',
-    bin: d3.utcYear,
-  },
-  {
-    label: 'Monthly',
-    value: 'monthly',
-    single: 'month',
-    bin: d3.utcMonth,
-  },
-  {
-    label: 'Weekly',
-    value: 'weekly',
-    single: 'week',
-    bin: d3.utcWeek,
-  },
-  {
-    label: 'Daily',
-    value: 'daily',
-    single: 'day',
-    bin: d3.utcDay,
-  },
-] as const
-
-export const binningOptionsByType = binningOptions.reduce(
-  (acc, option) => {
-    acc[option.value] = option
-    return acc
-  },
-  {} as Record<BinType, (typeof binningOptions)[number]>,
-)
-
-export const timeRanges = [
-  { value: '7-days', label: '7 Days' },
-  { value: '30-days', label: '30 Days' },
-  { value: '90-days', label: '90 Days' },
-  { value: '180-days', label: '6 Months' },
-  { value: '365-days', label: '1 Year' },
-  { value: '730-days', label: '2 Years' },
-  { value: '1825-days', label: '5 Years' },
-  { value: 'all-time', label: 'All Time' },
-] as const
-
-export const defaultRangeBinTypes: Record<TimeRange, BinType> = {
-  '7-days': 'daily',
-  '30-days': 'daily',
-  '90-days': 'weekly',
-  '180-days': 'weekly',
-  '365-days': 'weekly',
-  '730-days': 'monthly',
-  '1825-days': 'monthly',
-  'all-time': 'monthly',
-}
-
-// Get or assign colors for packages
-export function getPackageColor(
-  packageName: string,
-  packages: PackageGroup[],
-): string {
-  // Find the package group that contains this package
-  const packageInfo = packages.find((pkg) =>
-    pkg.packages.some((p) => p.name === packageName),
-  )
-  if (packageInfo?.color) {
-    return packageInfo.color
-  }
-
-  // Otherwise, assign a default color based on the package's position
-  const packageIndex = packages.findIndex((pkg) =>
-    pkg.packages.some((p) => p.name === packageName),
-  )
-  return defaultColors[packageIndex % defaultColors.length]
-}
-
-// Custom number formatter for more precise control
-export const formatNumber = (num: number) => {
-  if (num >= 1_000_000) {
-    return `${(num / 1_000_000).toFixed(1)}M`
-  }
-  if (num >= 1_000) {
-    return `${(num / 1_000).toFixed(1)}k`
-  }
-  return num.toString()
-}
-
-// Check if a binning option is valid for a time range
-export function isBinningOptionValidForRange(
-  range: TimeRange,
-  binType: BinType,
-): boolean {
-  switch (range) {
-    case '7-days':
-    case '30-days':
-      return binType === 'daily'
-    case '90-days':
-    case '180-days':
-      return (
-        binType === 'daily' || binType === 'weekly' || binType === 'monthly'
-      )
-    case '365-days':
-      return (
-        binType === 'daily' || binType === 'weekly' || binType === 'monthly'
-      )
-    case '730-days':
-    case '1825-days':
-    case 'all-time':
-      return true
-  }
-}
+import { binningOptionsByType } from './binning'
+import type {
+  BinType,
+  FacetValue,
+  NpmQueryData,
+  PackageGroup,
+  ShowDataMode,
+  TimeRange,
+  TransformMode,
+} from './shared'
+import { getPackageColor } from './shared'
 
 // Plot figure component
 function PlotFigure({ options }: { options: Parameters<typeof Plot.plot>[0] }) {

@@ -1,7 +1,7 @@
 import { useParams } from '@tanstack/react-router'
 import { Breadcrumbs } from './Breadcrumbs'
 import type { ConfigSchema } from '~/utils/config'
-import type { MarkdownHeading } from '~/utils/markdown/processor'
+import type { MarkdownHeading } from '~/utils/markdown/processor.rsc'
 
 function findSectionForDoc(
   config: ConfigSchema,
@@ -55,7 +55,7 @@ export function DocBreadcrumb({
     <Breadcrumbs
       section={section}
       headings={headings}
-      tocHiddenBreakpoint="lg"
+      tocHiddenBreakpoint="xl"
     />
   )
 }

@@ -8,7 +8,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import {
   Loader2,
-  Github,
   ExternalLink,
   AlertCircle,
   Check,
@@ -18,7 +17,7 @@ import {
 } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { useAsyncDebouncer } from '@tanstack/react-pacer'
-import { Button } from '~/ui'
+import { Button, GitHub } from '~/ui'
 import { useDeployAuth } from './builder/useDeployAuth'
 import {
   type DeployProvider,
@@ -274,7 +273,7 @@ export function ExampleDeployDialog({
           {state.step === 'needs-auth' && (
             <div className="flex flex-col items-center text-center py-4">
               <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
-                <Github className="w-8 h-8 text-gray-600 dark:text-gray-400" />
+                <GitHub className="w-8 h-8 text-gray-600 dark:text-gray-400" />
               </div>
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                 GitHub Authorization Required
@@ -288,7 +287,7 @@ export function ExampleDeployDialog({
                 onClick={auth.redirectToGitHubAuth}
                 className="gap-2"
               >
-                <Github className="w-4 h-4" />
+                <GitHub className="w-4 h-4" />
                 Connect GitHub
               </Button>
             </div>
@@ -393,7 +392,7 @@ export function ExampleDeployDialog({
                   }
                   className="flex-1 gap-2"
                 >
-                  <Github className="w-4 h-4" />
+                  <GitHub className="w-4 h-4" />
                   Create & Deploy
                 </Button>
               </div>

@@ -1,3 +1,5 @@
+'use client'
+
 import { createClientOnlyFn, createIsomorphicFn } from '@tanstack/react-start'
 import * as React from 'react'
 import { createContext, ReactNode, useEffect, useState } from 'react'
@@ -76,19 +78,19 @@ const ThemeContext = createContext<ThemeContextProps | undefined>(undefined)
 type ThemeProviderProps = {
   children: ReactNode
 }
-const getResolvedThemeFromDOM = createIsomorphicFn()
-  .server((): ResolvedTheme => 'light')
-  .client((): ResolvedTheme => {
-    return document.documentElement.classList.contains('dark')
-      ? 'dark'
-      : 'light'
-  })
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
-  const [themeMode, setThemeMode] = useState<ThemeMode>(getStoredThemeMode)
-  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(
-    getResolvedThemeFromDOM,
-  )
+  const [themeMode, setThemeMode] = useState<ThemeMode>('auto')
+  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>('light')
+
+  useEffect(() => {
+    const storedThemeMode = getStoredThemeMode()
+    setThemeMode(storedThemeMode)
+    updateThemeClass(storedThemeMode)
+    setResolvedTheme(
+      storedThemeMode === 'auto' ? getSystemTheme() : storedThemeMode,
+    )
+  }, [])
 
   // Listen for system theme changes when in auto mode
   useEffect(() => {

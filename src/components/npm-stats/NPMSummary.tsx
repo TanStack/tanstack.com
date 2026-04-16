@@ -5,7 +5,7 @@ import { queryOptions } from '@tanstack/react-query'
 import { BlankErrorBoundary } from '~/components/BlankErrorBoundary'
 import { ossStatsQuery } from '~/queries/stats'
 import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
-import { fetchRecentDownloadStats } from '~/utils/stats.server'
+import { fetchRecentDownloadStats } from '~/utils/stats-queries.functions'
 import type { Library } from '~/libraries'
 
 /**

@@ -252,6 +252,83 @@ export const githubStatsCache = pgTable(
 
 export type GithubStatsCache = InferSelectModel<typeof githubStatsCache>
 
+export const githubContentCache = pgTable(
+  'github_content_cache',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    repo: varchar('repo', { length: 255 }).notNull(),
+    gitRef: varchar('git_ref', { length: 255 }).notNull(),
+    contentKind: varchar('content_kind', { length: 20 }).notNull(),
+    path: varchar('path', { length: 1024 }).notNull(),
+    isPresent: boolean('is_present').notNull().default(true),
+    textContent: text('text_content'),
+    jsonContent: jsonb('json_content'),
+    staleAt: timestamp('stale_at', {
+      withTimezone: true,
+      mode: 'date',
+    }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    repoRefIdx: index('github_content_cache_repo_ref_idx').on(
+      table.repo,
+      table.gitRef,
+    ),
+    staleAtIdx: index('github_content_cache_stale_at_idx').on(table.staleAt),
+    uniqueContent: uniqueIndex('github_content_cache_unique').on(
+      table.repo,
+      table.gitRef,
+      table.contentKind,
+      table.path,
+    ),
+  }),
+)
+
+export type GithubContentCache = InferSelectModel<typeof githubContentCache>
+
+export const docsArtifactCache = pgTable(
+  'docs_artifact_cache',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    repo: varchar('repo', { length: 255 }).notNull(),
+    gitRef: varchar('git_ref', { length: 255 }).notNull(),
+    docsRoot: varchar('docs_root', { length: 255 }).notNull(),
+    artifactType: varchar('artifact_type', { length: 50 }).notNull(),
+    artifactKey: varchar('artifact_key', { length: 255 }).notNull(),
+    payload: jsonb('payload').notNull(),
+    staleAt: timestamp('stale_at', {
+      withTimezone: true,
+      mode: 'date',
+    }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    repoRefDocsRootIdx: index('docs_artifact_cache_repo_ref_docs_root_idx').on(
+      table.repo,
+      table.gitRef,
+      table.docsRoot,
+    ),
+    staleAtIdx: index('docs_artifact_cache_stale_at_idx').on(table.staleAt),
+    uniqueArtifact: uniqueIndex('docs_artifact_cache_unique').on(
+      table.repo,
+      table.gitRef,
+      table.docsRoot,
+      table.artifactType,
+      table.artifactKey,
+    ),
+  }),
+)
+
 // NPM Packages table (combines registry and stats cache)
 export const npmPackages = pgTable(
   'npm_packages',

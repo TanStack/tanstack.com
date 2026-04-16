@@ -37,14 +37,16 @@ export function ShopHero3D({ products }: ShopHero3DProps) {
   if (images.length === 0) return null
 
   return (
-    <div className="w-full h-[400px] md:h-[500px] relative">
+    <div className="w-full aspect-[2/1] max-h-[400px] relative">
       <Canvas
         shadows
-        camera={{ position: [0, 0, 2.5], fov: 25 }}
+        camera={{ position: [0, 0, 2], fov: 25 }}
         gl={{ preserveDrawingBuffer: true, antialias: true }}
         className="!absolute inset-0"
       >
-        <ambientLight intensity={0.5} />
+        <ambientLight intensity={0.7} />
+        <directionalLight position={[5, 5, 5]} intensity={0.6} />
+        <directionalLight position={[-5, 3, -5]} intensity={0.4} />
         <Environment preset="city" />
         <Backdrop />
         <Center>
@@ -84,7 +86,7 @@ function Backdrop() {
 }
 
 function RotatingShirt({ images }: { images: Array<string> }) {
-  const { nodes, materials } = useGLTF('/shop/shirt.glb') as any
+  const { nodes } = useGLTF('/shop/shirt.glb') as any
   const groupRef = React.useRef<any>(null)
 
   // Cycle through product images
@@ -117,20 +119,19 @@ function RotatingShirt({ images }: { images: Array<string> }) {
       0.25,
       delta,
     )
-
-    // Smooth color to white
-    easing.dampC(materials.lambert1.color, '#ffffff', 0.25, delta)
   })
 
   return (
     <group ref={groupRef}>
-      <mesh
-        castShadow
-        geometry={nodes.T_Shirt_male.geometry}
-        material={materials.lambert1}
-        material-roughness={1}
-        dispose={null}
-      >
+      <mesh castShadow geometry={nodes.T_Shirt_male.geometry} dispose={null}>
+        {/* Replace the flat lambert with a standard PBR material so the
+            Environment map lights all sides evenly — no dark back. */}
+        <meshStandardMaterial
+          color="#ffffff"
+          roughness={0.85}
+          metalness={0}
+          envMapIntensity={0.8}
+        />
         <Decal
           position={[0, 0.04, 0.15]}
           rotation={[0, 0, 0]}

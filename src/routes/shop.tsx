@@ -1,22 +1,27 @@
 import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
 import { ShopLayout } from '~/components/shop/ShopLayout'
 import { CART_QUERY_KEY } from '~/hooks/useCart'
-import { getCart, getCollections } from '~/utils/shop.functions'
+import {
+  getCart,
+  getCollections,
+  getShopPolicies,
+} from '~/utils/shop.functions'
 import { seo } from '~/utils/seo'
 
 export const Route = createFileRoute('/shop')({
   loader: async ({ context }) => {
-    // Fetch collections for the sidebar, and pre-seed the cart into the
-    // React Query cache so any /shop child page (including the cart page)
-    // renders with real data on the very first frame — no hydration gap.
-    const [collections] = await Promise.all([
+    // Fetch collections + policies for the sidebar, and pre-seed the cart
+    // into the React Query cache so any /shop child page (including the
+    // cart page) renders with real data on the very first frame.
+    const [collections, policies] = await Promise.all([
       getCollections(),
+      getShopPolicies(),
       context.queryClient.prefetchQuery({
         queryKey: CART_QUERY_KEY,
         queryFn: () => getCart(),
       }),
     ])
-    return { collections }
+    return { collections, policies }
   },
   head: () => ({
     meta: seo({
@@ -40,9 +45,9 @@ export const Route = createFileRoute('/shop')({
 })
 
 function ShopRoute() {
-  const { collections } = Route.useLoaderData()
+  const { collections, policies } = Route.useLoaderData()
   return (
-    <ShopLayout collections={collections}>
+    <ShopLayout collections={collections} policies={policies}>
       <Outlet />
     </ShopLayout>
   )

@@ -179,6 +179,9 @@ importers:
       lucide-react:
         specifier: ^1.7.0
         version: 1.7.0(react@19.2.3)
+      maath:
+        specifier: ^0.10.8
+        version: 0.10.8(@types/three@0.183.1)(three@0.183.2)
       match-sorter:
         specifier: ^8.2.0
         version: 8.2.0

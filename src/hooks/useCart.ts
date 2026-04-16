@@ -7,7 +7,7 @@ import {
   removeDiscountCode,
   updateCartLine,
 } from '~/utils/shop.functions'
-import type { CartDetail } from '~/utils/shopify-queries'
+import type { CartDetail, CartLineDetail } from '~/utils/shopify-queries'
 
 /**
  * Shared React Query key for the current user's cart.
@@ -17,6 +17,37 @@ import type { CartDetail } from '~/utils/shopify-queries'
  * into this key so the first render already has the data.
  */
 export const CART_QUERY_KEY = ['shopify', 'cart'] as const
+
+/**
+ * Mutation key shared across all cart-mutating hooks. Used by
+ * `settleWhenIdle` to determine whether other cart mutations are still
+ * in flight before triggering a background refetch.
+ */
+const CART_MUTATION_KEY = ['shopify', 'cart', 'mutate'] as const
+
+/**
+ * Only invalidate (refetch from server) when no other cart mutations are
+ * in flight. This prevents a settled mutation's refetch from overwriting
+ * another mutation's optimistic state with stale server data.
+ *
+ * Each `onMutate` reads the *current* cache (which may already reflect
+ * earlier optimistic writes) and layers its own change on top. When the
+ * last mutation settles, the refetch reconciles everything with the
+ * server's final truth.
+ *
+ * Returns the invalidation promise so the mutation stays in `isPending`
+ * until the background refetch completes (per TkDodo's recommendation).
+ *
+ * @see https://tkdodo.eu/blog/concurrent-optimistic-updates-in-react-query
+ */
+function settleWhenIdle(qc: ReturnType<typeof useQueryClient>) {
+  // isMutating counts mutations that haven't settled yet. At the time
+  // onSettled fires, the *current* mutation is still counted, so
+  // 1 means "I'm the last one in flight."
+  if (qc.isMutating({ mutationKey: CART_MUTATION_KEY }) === 1) {
+    return qc.invalidateQueries({ queryKey: CART_QUERY_KEY })
+  }
+}
 
 /**
  * Read the current cart. Data is loader-seeded on shop routes, so there is
@@ -41,29 +72,101 @@ export function useCart() {
   }
 }
 
+/**
+ * Snapshot of the product/variant from the PDP, passed through to
+ * onMutate so a full optimistic cart line can be rendered instantly.
+ */
+type AddToCartLineSnapshot = {
+  productTitle: string
+  productHandle: string
+  variantTitle: string
+  price: { amount: string; currencyCode: string }
+  image: {
+    url: string
+    altText?: string | null
+    width?: number | null
+    height?: number | null
+  } | null
+  selectedOptions: Array<{ name: string; value: string }>
+}
+
+type AddToCartInput = {
+  variantId: string
+  quantity?: number
+  /** Product snapshot for optimistic line rendering. */
+  line?: AddToCartLineSnapshot
+}
+
 export function useAddToCart() {
   const qc = useQueryClient()
 
   return useMutation({
-    mutationFn: (input: { variantId: string; quantity?: number }) =>
+    mutationKey: CART_MUTATION_KEY,
+    mutationFn: (input: AddToCartInput) =>
       addToCart({
         data: { variantId: input.variantId, quantity: input.quantity ?? 1 },
       }),
 
-    // Bump totalQuantity immediately so the navbar badge moves in the same
-    // frame the user clicks. We can't optimistically render new line items
-    // without the full product snapshot, which callers don't have here —
-    // the refetch on settle fills that in.
     onMutate: async (input) => {
       const quantity = input.quantity ?? 1
       await qc.cancelQueries({ queryKey: CART_QUERY_KEY })
       const previous = qc.getQueryData<CartDetail | null>(CART_QUERY_KEY)
-      if (previous) {
+
+      if (previous && input.line) {
+        const snap = input.line
+
+        // Does this variant already have a line in the cart?
+        const existingIdx = previous.lines.nodes.findIndex(
+          (l) => l.merchandise.id === input.variantId,
+        )
+
+        let nextLines: CartDetail['lines']['nodes']
+        if (existingIdx >= 0) {
+          nextLines = previous.lines.nodes.map((l, i) =>
+            i === existingIdx ? { ...l, quantity: l.quantity + quantity } : l,
+          )
+        } else {
+          const lineTotal = String(Number(snap.price.amount) * quantity)
+          nextLines = [
+            ...previous.lines.nodes,
+            {
+              id: `optimistic-${Date.now()}`,
+              quantity,
+              merchandise: {
+                id: input.variantId,
+                title: snap.variantTitle,
+                availableForSale: true,
+                selectedOptions: snap.selectedOptions,
+                price: snap.price,
+                image: snap.image,
+                product: {
+                  handle: snap.productHandle,
+                  title: snap.productTitle,
+                },
+              },
+              cost: {
+                totalAmount: {
+                  amount: lineTotal,
+                  currencyCode: snap.price.currencyCode,
+                },
+              },
+            } as CartLineDetail,
+          ]
+        }
+
+        qc.setQueryData<CartDetail | null>(CART_QUERY_KEY, {
+          ...previous,
+          totalQuantity: nextLines.reduce((s, l) => s + l.quantity, 0),
+          lines: { ...previous.lines, nodes: nextLines },
+        })
+      } else if (previous) {
+        // No snapshot — fall back to just bumping the count
         qc.setQueryData<CartDetail | null>(CART_QUERY_KEY, {
           ...previous,
           totalQuantity: (previous.totalQuantity ?? 0) + quantity,
         })
       }
+
       return { previous }
     },
 
@@ -72,19 +175,20 @@ export function useAddToCart() {
         qc.setQueryData(CART_QUERY_KEY, ctx.previous)
     },
 
+    // Reconcile: replace the optimistic line (temporary ID, approximate
+    // totals) with the real server response.
     onSuccess: (cart) => {
       qc.setQueryData(CART_QUERY_KEY, cart)
     },
 
-    onSettled: () => {
-      qc.invalidateQueries({ queryKey: CART_QUERY_KEY })
-    },
+    onSettled: () => settleWhenIdle(qc),
   })
 }
 
 export function useUpdateCartLine() {
   const qc = useQueryClient()
   return useMutation({
+    mutationKey: CART_MUTATION_KEY,
     mutationFn: (input: { lineId: string; quantity: number }) =>
       updateCartLine({ data: input }),
 
@@ -112,19 +216,14 @@ export function useUpdateCartLine() {
         qc.setQueryData(CART_QUERY_KEY, ctx.previous)
     },
 
-    onSuccess: (cart) => {
-      qc.setQueryData(CART_QUERY_KEY, cart)
-    },
-
-    onSettled: () => {
-      qc.invalidateQueries({ queryKey: CART_QUERY_KEY })
-    },
+    onSettled: () => settleWhenIdle(qc),
   })
 }
 
 export function useRemoveCartLine() {
   const qc = useQueryClient()
   return useMutation({
+    mutationKey: CART_MUTATION_KEY,
     mutationFn: (input: { lineId: string }) => removeCartLine({ data: input }),
 
     onMutate: async (input) => {
@@ -149,33 +248,30 @@ export function useRemoveCartLine() {
         qc.setQueryData(CART_QUERY_KEY, ctx.previous)
     },
 
-    onSuccess: (cart) => {
-      qc.setQueryData(CART_QUERY_KEY, cart)
-    },
-
-    onSettled: () => {
-      qc.invalidateQueries({ queryKey: CART_QUERY_KEY })
-    },
+    onSettled: () => settleWhenIdle(qc),
   })
 }
 
 export function useApplyDiscountCode() {
   const qc = useQueryClient()
   return useMutation({
+    mutationKey: CART_MUTATION_KEY,
     mutationFn: (input: { code: string }) =>
       applyDiscountCode({ data: { code: input.code } }),
+    onMutate: async () => {
+      await qc.cancelQueries({ queryKey: CART_QUERY_KEY })
+    },
     onSuccess: (cart) => {
       qc.setQueryData(CART_QUERY_KEY, cart)
     },
-    onSettled: () => {
-      qc.invalidateQueries({ queryKey: CART_QUERY_KEY })
-    },
+    onSettled: () => settleWhenIdle(qc),
   })
 }
 
 export function useRemoveDiscountCode() {
   const qc = useQueryClient()
   return useMutation({
+    mutationKey: CART_MUTATION_KEY,
     mutationFn: () => removeDiscountCode(),
     onMutate: async () => {
       await qc.cancelQueries({ queryKey: CART_QUERY_KEY })
@@ -192,11 +288,6 @@ export function useRemoveDiscountCode() {
       if (ctx?.previous !== undefined)
         qc.setQueryData(CART_QUERY_KEY, ctx.previous)
     },
-    onSuccess: (cart) => {
-      qc.setQueryData(CART_QUERY_KEY, cart)
-    },
-    onSettled: () => {
-      qc.invalidateQueries({ queryKey: CART_QUERY_KEY })
-    },
+    onSettled: () => settleWhenIdle(qc),
   })
 }

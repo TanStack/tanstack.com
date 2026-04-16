@@ -3,38 +3,48 @@ import { Link, useLocation } from '@tanstack/react-router'
 import {
   ChevronLeft,
   ChevronRight,
+  Code,
   FileText,
   Menu,
-  Package,
   Search,
+  Shirt,
   ShoppingBag,
   ShoppingCart,
+  Sparkles,
+  Tag,
   X,
 } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { useLocalStorage } from '~/utils/useLocalStorage'
-import type { CollectionListItem } from '~/utils/shopify-queries'
+import type { CollectionListItem, PolicySummary } from '~/utils/shopify-queries'
 import { CartDrawer } from './CartDrawer'
 import { useCartDrawerStore } from './cartDrawerStore'
 
+type IconComponent = React.ComponentType<{ className?: string }>
+
 type ShopLayoutProps = {
   collections: Array<CollectionListItem>
+  policies: Array<PolicySummary>
   children: React.ReactNode
 }
 
-const POLICY_PAGES = [
-  { handle: 'shipping-policy', label: 'Shipping' },
-  { handle: 'refund-policy', label: 'Returns' },
-  { handle: 'privacy-policy', label: 'Privacy' },
-  { handle: 'terms-of-service', label: 'Terms' },
-] as const
+/** Map known collection handles to meaningful icons. Defaults to Sparkles. */
+const COLLECTION_ICON_MAP: Record<string, IconComponent> = {
+  apparel: Shirt,
+  accessories: Tag,
+  'library-merch': Code,
+}
 
 /**
  * /shop layout: persistent left sidebar on md+, slide-in drawer on mobile.
  * Collapse state persists to localStorage. When collapsed, hovering the
  * rail expands it as an overlay without shifting the main content.
  */
-export function ShopLayout({ collections, children }: ShopLayoutProps) {
+export function ShopLayout({
+  collections,
+  policies,
+  children,
+}: ShopLayoutProps) {
   const [isCollapsed, setIsCollapsed] = useLocalStorage(
     'shopSidebarCollapsed',
     false,
@@ -105,6 +115,7 @@ export function ShopLayout({ collections, children }: ShopLayoutProps) {
 
         <ShopSidebarNav
           collections={collections}
+          policies={policies}
           showLabels={showExpanded}
           onNavigate={() => setIsMobileOpen(false)}
         />
@@ -151,12 +162,12 @@ export function ShopLayout({ collections, children }: ShopLayoutProps) {
         {children}
       </main>
 
-      <GlobalCartDrawer />
+      <ShopCartDrawer />
     </div>
   )
 }
 
-function GlobalCartDrawer() {
+function ShopCartDrawer() {
   const open = useCartDrawerStore((s) => s.open)
   const setOpen = useCartDrawerStore((s) => s.setOpen)
   return <CartDrawer open={open} onOpenChange={setOpen} />
@@ -164,10 +175,12 @@ function GlobalCartDrawer() {
 
 function ShopSidebarNav({
   collections,
+  policies,
   showLabels,
   onNavigate,
 }: {
   collections: Array<CollectionListItem>
+  policies: Array<PolicySummary>
   showLabels: boolean
   onNavigate: () => void
 }) {
@@ -206,7 +219,7 @@ function ShopSidebarNav({
               to="/shop/collections/$handle"
               params={{ handle: c.handle }}
               label={c.title}
-              icon={Package}
+              icon={COLLECTION_ICON_MAP[c.handle] ?? Sparkles}
               showLabels={showLabels}
               onNavigate={onNavigate}
             />
@@ -214,19 +227,21 @@ function ShopSidebarNav({
         </SidebarSection>
       ) : null}
 
-      <SidebarSection label="Info" showLabels={showLabels}>
-        {POLICY_PAGES.map((page) => (
-          <SidebarLink
-            key={page.handle}
-            to="/shop/pages/$handle"
-            params={{ handle: page.handle }}
-            label={page.label}
-            icon={FileText}
-            showLabels={showLabels}
-            onNavigate={onNavigate}
-          />
-        ))}
-      </SidebarSection>
+      {policies.length > 0 ? (
+        <SidebarSection label="Info" showLabels={showLabels}>
+          {policies.map((policy) => (
+            <SidebarLink
+              key={policy.handle}
+              to="/shop/policies/$handle"
+              params={{ handle: policy.handle }}
+              label={policy.title}
+              icon={FileText}
+              showLabels={showLabels}
+              onNavigate={onNavigate}
+            />
+          ))}
+        </SidebarSection>
+      ) : null}
     </nav>
   )
 }
@@ -254,8 +269,6 @@ function SidebarSection({
     </div>
   )
 }
-
-type IconComponent = React.ComponentType<{ className?: string }>
 
 function SidebarLink({
   to,

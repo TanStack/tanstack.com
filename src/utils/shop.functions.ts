@@ -42,6 +42,11 @@ import {
   type ProductsQueryVariables,
   type SearchQueryResult,
   type ShopQueryResult,
+  SHOP_POLICIES_QUERY,
+  type ShopPoliciesQueryResult,
+  type ShopPolicy,
+  flattenPolicies,
+  type PolicySummary,
 } from '~/utils/shopify-queries'
 
 const CART_COOKIE_NAME = 'tanstack_cart_id'
@@ -212,6 +217,36 @@ export const getPage = createServerFn({ method: 'POST' })
     })
     return result.page
   })
+
+export const getShopPolicies = createServerFn({ method: 'GET' }).handler(
+  async (): Promise<Array<PolicySummary>> => {
+    setBrowseCacheHeaders()
+    const result = await shopifyServerFetch<ShopPoliciesQueryResult>({
+      query: SHOP_POLICIES_QUERY,
+    })
+    return flattenPolicies(result.shop)
+  },
+)
+
+export const getShopPolicy = createServerFn({ method: 'POST' })
+  .inputValidator(v.object({ handle: v.string() }))
+  .handler(
+    async ({
+      data,
+    }): Promise<{ title: string; body: string; handle: string } | null> => {
+      setBrowseCacheHeaders()
+      const result = await shopifyServerFetch<ShopPoliciesQueryResult>({
+        query: SHOP_POLICIES_QUERY,
+      })
+      const all = [
+        result.shop.privacyPolicy,
+        result.shop.refundPolicy,
+        result.shop.termsOfService,
+        result.shop.shippingPolicy,
+      ].filter((p): p is NonNullable<ShopPolicy> => p !== null)
+      return all.find((p) => p.handle === data.handle) ?? null
+    },
+  )
 
 export const searchProducts = createServerFn({ method: 'POST' })
   .inputValidator(

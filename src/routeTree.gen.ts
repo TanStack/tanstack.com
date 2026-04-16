@@ -103,6 +103,7 @@ import { Route as LibraryIdVersionIndexRouteImport } from './routes/$libraryId/$
 import { Route as StatsNpmPackagesRouteImport } from './routes/stats/npm/$packages'
 import { Route as ShowcaseEditIdRouteImport } from './routes/showcase/edit.$id'
 import { Route as ShopProductsHandleRouteImport } from './routes/shop.products.$handle'
+import { Route as ShopPoliciesHandleRouteImport } from './routes/shop.policies.$handle'
 import { Route as ShopPagesHandleRouteImport } from './routes/shop.pages.$handle'
 import { Route as ShopCollectionsHandleRouteImport } from './routes/shop.collections.$handle'
 import { Route as IntentRegistryPackageNameRouteImport } from './routes/intent/registry/$packageName'
@@ -620,6 +621,11 @@ const ShopProductsHandleRoute = ShopProductsHandleRouteImport.update({
   path: '/products/$handle',
   getParentRoute: () => ShopRoute,
 } as any)
+const ShopPoliciesHandleRoute = ShopPoliciesHandleRouteImport.update({
+  id: '/policies/$handle',
+  path: '/policies/$handle',
+  getParentRoute: () => ShopRoute,
+} as any)
 const ShopPagesHandleRoute = ShopPagesHandleRouteImport.update({
   id: '/pages/$handle',
   path: '/pages/$handle',
@@ -962,6 +968,7 @@ export interface FileRoutesByFullPath {
   '/intent/registry/$packageName': typeof IntentRegistryPackageNameRouteWithChildren
   '/shop/collections/$handle': typeof ShopCollectionsHandleRoute
   '/shop/pages/$handle': typeof ShopPagesHandleRoute
+  '/shop/policies/$handle': typeof ShopPoliciesHandleRoute
   '/shop/products/$handle': typeof ShopProductsHandleRoute
   '/showcase/edit/$id': typeof ShowcaseEditIdRoute
   '/stats/npm/$packages': typeof StatsNpmPackagesRoute
@@ -1093,6 +1100,7 @@ export interface FileRoutesByTo {
   '/auth/$provider/start': typeof AuthProviderStartRoute
   '/shop/collections/$handle': typeof ShopCollectionsHandleRoute
   '/shop/pages/$handle': typeof ShopPagesHandleRoute
+  '/shop/policies/$handle': typeof ShopPoliciesHandleRoute
   '/shop/products/$handle': typeof ShopProductsHandleRoute
   '/showcase/edit/$id': typeof ShowcaseEditIdRoute
   '/stats/npm/$packages': typeof StatsNpmPackagesRoute
@@ -1235,6 +1243,7 @@ export interface FileRoutesById {
   '/intent/registry/$packageName': typeof IntentRegistryPackageNameRouteWithChildren
   '/shop/collections/$handle': typeof ShopCollectionsHandleRoute
   '/shop/pages/$handle': typeof ShopPagesHandleRoute
+  '/shop/policies/$handle': typeof ShopPoliciesHandleRoute
   '/shop/products/$handle': typeof ShopProductsHandleRoute
   '/showcase/edit/$id': typeof ShowcaseEditIdRoute
   '/stats/npm/$packages': typeof StatsNpmPackagesRoute
@@ -1378,6 +1387,7 @@ export interface FileRouteTypes {
     | '/intent/registry/$packageName'
     | '/shop/collections/$handle'
     | '/shop/pages/$handle'
+    | '/shop/policies/$handle'
     | '/shop/products/$handle'
     | '/showcase/edit/$id'
     | '/stats/npm/$packages'
@@ -1509,6 +1519,7 @@ export interface FileRouteTypes {
     | '/auth/$provider/start'
     | '/shop/collections/$handle'
     | '/shop/pages/$handle'
+    | '/shop/policies/$handle'
     | '/shop/products/$handle'
     | '/showcase/edit/$id'
     | '/stats/npm/$packages'
@@ -1650,6 +1661,7 @@ export interface FileRouteTypes {
     | '/intent/registry/$packageName'
     | '/shop/collections/$handle'
     | '/shop/pages/$handle'
+    | '/shop/policies/$handle'
     | '/shop/products/$handle'
     | '/showcase/edit/$id'
     | '/stats/npm/$packages'
@@ -2449,6 +2461,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShopProductsHandleRouteImport
       parentRoute: typeof ShopRoute
     }
+    '/shop/policies/$handle': {
+      id: '/shop/policies/$handle'
+      path: '/policies/$handle'
+      fullPath: '/shop/policies/$handle'
+      preLoaderRoute: typeof ShopPoliciesHandleRouteImport
+      parentRoute: typeof ShopRoute
+    }
     '/shop/pages/$handle': {
       id: '/shop/pages/$handle'
       path: '/pages/$handle'
@@ -2948,6 +2967,7 @@ interface ShopRouteChildren {
   ShopIndexRoute: typeof ShopIndexRoute
   ShopCollectionsHandleRoute: typeof ShopCollectionsHandleRoute
   ShopPagesHandleRoute: typeof ShopPagesHandleRoute
+  ShopPoliciesHandleRoute: typeof ShopPoliciesHandleRoute
   ShopProductsHandleRoute: typeof ShopProductsHandleRoute
 }
 
@@ -2957,6 +2977,7 @@ const ShopRouteChildren: ShopRouteChildren = {
   ShopIndexRoute: ShopIndexRoute,
   ShopCollectionsHandleRoute: ShopCollectionsHandleRoute,
   ShopPagesHandleRoute: ShopPagesHandleRoute,
+  ShopPoliciesHandleRoute: ShopPoliciesHandleRoute,
   ShopProductsHandleRoute: ShopProductsHandleRoute,
 }
 

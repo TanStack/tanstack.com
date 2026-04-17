@@ -86,14 +86,14 @@ export function buildOgTree(props: TemplateProps): ReactElement {
             </span>
           ) : null}
         </div>
-        {props.pitch ? (
+        {!props.docTitle && !props.description && props.pitch ? (
           <div
             style={{
               fontSize: 28,
               fontWeight: 500,
               lineHeight: 1.3,
               color: props.accentColor,
-              marginBottom: props.docTitle || props.description ? 22 : 0,
+              marginBottom: 0,
             }}
           >
             {props.pitch}

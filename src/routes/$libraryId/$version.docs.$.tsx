@@ -1,4 +1,5 @@
 import { seo } from '~/utils/seo'
+import { ogImageUrl } from '~/utils/og'
 import { Doc } from '~/components/Doc'
 import { loadDocsPage, resolveDocsRedirect } from '~/utils/docs'
 import { findLibrary, getBranch, getLibrary } from '~/libraries'
@@ -72,6 +73,10 @@ export const Route = createFileRoute('/$libraryId/$version/docs/$')({
       meta: seo({
         title: `${loaderData?.title} | ${library.name} Docs`,
         description: loaderData?.description,
+        image: ogImageUrl(library.id, {
+          title: loaderData?.title,
+          description: loaderData?.description,
+        }),
         noindex: library.visible === false,
       }),
     }

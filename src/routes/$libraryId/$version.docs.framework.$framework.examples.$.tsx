@@ -13,6 +13,7 @@ import {
   getExampleStartingPath,
 } from '~/utils/sandbox'
 import { seo } from '~/utils/seo'
+import { ogImageUrl } from '~/utils/og'
 import { capitalize, slugToTitle } from '~/utils/utils'
 import * as v from 'valibot'
 import { CodeExplorer } from '~/components/CodeExplorer'
@@ -127,6 +128,10 @@ export const Route = createFileRoute(
         description: `An example showing how to implement ${slugToTitle(
           params._splat || '',
         )} in ${capitalize(params.framework)} using ${library.name}.`,
+        image: ogImageUrl(library.id, {
+          title: `${capitalize(params.framework)} ${library.name} ${slugToTitle(params._splat || '')} Example`,
+          description: `An example showing how to implement ${slugToTitle(params._splat || '')} in ${capitalize(params.framework)} using ${library.name}.`,
+        }),
         noindex: library.visible === false,
       }),
     }

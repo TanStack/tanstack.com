@@ -29,6 +29,11 @@ type TestCase = {
   expectedContent: string[]
 }
 
+type ImageTestCase = {
+  name: string
+  path: string
+}
+
 const tests: TestCase[] = [
   {
     name: 'home page',
@@ -49,6 +54,14 @@ const tests: TestCase[] = [
     name: 'table docs',
     path: '/table/latest/docs/introduction',
     expectedContent: ['<html', '</html>', '<h1'],
+  },
+]
+
+const ogTests: ImageTestCase[] = [
+  { name: 'OG image · library landing', path: '/api/og/query.png' },
+  {
+    name: 'OG image · docs page',
+    path: '/api/og/ai.png?title=useQuery&description=Fetch%20data',
   },
 ]
 
@@ -164,6 +177,46 @@ async function main() {
       passed++
     } else {
       console.log(`  ✗ ${test.name}: ${result.error}`)
+      failed++
+    }
+  }
+
+  console.log(`\n${passed} passed, ${failed} failed\n`)
+
+  // Test OG image endpoints
+  console.log('Running OG image tests...\n')
+
+  for (const testCase of ogTests) {
+    const url = `${baseUrl}${testCase.path}`
+    try {
+      const response = await fetch(url)
+
+      if (!response.ok) {
+        console.log(`  ✗ ${testCase.name}: HTTP ${response.status}`)
+        failed++
+        continue
+      }
+
+      const contentType = response.headers.get('content-type')
+      if (contentType !== 'image/png') {
+        console.log(`  ✗ ${testCase.name}: content-type ${contentType}`)
+        failed++
+        continue
+      }
+
+      const body = await response.arrayBuffer()
+      if (body.byteLength === 0) {
+        console.log(`  ✗ ${testCase.name}: empty body`)
+        failed++
+        continue
+      }
+
+      console.log(`  ✓ ${testCase.name} (${body.byteLength} bytes)`)
+      passed++
+    } catch (err) {
+      console.log(
+        `  ✗ ${testCase.name}: ${err instanceof Error ? err.message : String(err)}`,
+      )
       failed++
     }
   }

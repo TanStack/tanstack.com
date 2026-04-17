@@ -153,22 +153,21 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   const containerRef = React.useRef<HTMLDivElement>(null)
 
   React.useEffect(() => {
-    const updateContainerHeight = () => {
-      if (containerRef.current) {
-        const height = containerRef.current.offsetHeight
+    const el = containerRef.current
+    if (!el) return
+
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const height = entry.borderBoxSize?.[0]?.blockSize ?? el.offsetHeight
         document.documentElement.style.setProperty(
           '--navbar-height',
           `${height}px`,
         )
       }
-    }
+    })
 
-    updateContainerHeight() // Initial call to set the height
-
-    window.addEventListener('resize', updateContainerHeight)
-    return () => {
-      window.removeEventListener('resize', updateContainerHeight)
-    }
+    observer.observe(el)
+    return () => observer.disconnect()
   }, [])
 
   const [showMenu, setShowMenu] = React.useState(false)

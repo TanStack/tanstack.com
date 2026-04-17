@@ -6,6 +6,7 @@ import { loadOgAssets } from './assets.server'
 import { getAccentColor } from './colors'
 import { buildOgTree } from './template'
 
+const MAX_TITLE_LENGTH = 80
 const MAX_DESCRIPTION_LENGTH = 160
 
 type GenerateInput = {
@@ -30,10 +31,12 @@ export async function generateOgPng(
   const assets = loadOgAssets()
   const accentColor = getAccentColor(library.id)
   const libraryName = library.name
-  const docTitle = input.title?.trim() || undefined
+  const docTitle = input.title?.trim()
+    ? clampText(input.title.trim(), MAX_TITLE_LENGTH)
+    : undefined
   const rawDescription =
     input.description?.trim() || library.tagline || library.description || ''
-  const description = clampDescription(rawDescription)
+  const description = clampText(rawDescription, MAX_DESCRIPTION_LENGTH)
 
   const tree = buildOgTree({
     libraryName,
@@ -58,7 +61,7 @@ export async function generateOgPng(
   return resvg.render().asPng()
 }
 
-function clampDescription(text: string): string {
-  if (text.length <= MAX_DESCRIPTION_LENGTH) return text
-  return text.slice(0, MAX_DESCRIPTION_LENGTH - 1).trimEnd() + '…'
+function clampText(text: string, max: number): string {
+  if (text.length <= max) return text
+  return text.slice(0, max - 1).trimEnd() + '…'
 }

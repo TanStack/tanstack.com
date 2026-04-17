@@ -1,11 +1,5 @@
 import type { LibraryId } from '~/libraries'
 
-export const OG_BASE_COLORS = {
-  backgroundStops: ['#0c1410', '#070a0a', '#0c070f'] as const,
-  greenAnchor: 'rgba(0, 188, 125, 0.28)',
-  white: '#ffffff',
-} as const
-
 // Each entry matches the textStyle in `src/libraries/libraries.ts`.
 // Values are Tailwind v4 default palette (500 shades) with an override
 // for black/gray-100 libraries so they stay legible on the dark canvas.

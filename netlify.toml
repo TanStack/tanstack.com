@@ -7,6 +7,11 @@ publish = "dist/client"
 
 [functions]
 directory = "netlify/functions"
+included_files = [
+  "public/fonts/Inter-Regular.ttf",
+  "public/fonts/Inter-ExtraBold.ttf",
+  "public/images/logos/splash-dark.png",
+]
 
 [[headers]]
 for = "/*"

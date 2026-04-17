@@ -47,6 +47,7 @@ export function buildOgTree(props: TemplateProps): ReactElement {
       {/* Island */}
       <img
         src={props.islandDataUrl}
+        alt=""
         width={ISLAND_SIZE}
         height={ISLAND_SIZE}
         style={{

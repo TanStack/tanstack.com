@@ -50,8 +50,18 @@ export async function generateOgPng(
     width: 1200,
     height: 630,
     fonts: [
-      { name: 'Inter', data: assets.interRegular, weight: 700, style: 'normal' },
-      { name: 'Inter', data: assets.interExtraBold, weight: 800, style: 'normal' },
+      {
+        name: 'Inter',
+        data: assets.interRegular,
+        weight: 700,
+        style: 'normal',
+      },
+      {
+        name: 'Inter',
+        data: assets.interExtraBold,
+        weight: 800,
+        style: 'normal',
+      },
     ],
   })
 

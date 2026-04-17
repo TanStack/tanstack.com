@@ -31,19 +31,21 @@ export async function generateOgPng(
   const assets = loadOgAssets()
   const accentColor = getAccentColor(library.id)
   const libraryName = library.name
+  const pitch = clampText(library.tagline ?? '', MAX_DESCRIPTION_LENGTH)
   const docTitle = input.title?.trim()
     ? clampText(input.title.trim(), MAX_TITLE_LENGTH)
     : undefined
-  const rawDescription =
-    input.description?.trim() || library.tagline || library.description || ''
-  const description = clampText(rawDescription, MAX_DESCRIPTION_LENGTH)
+  const description = input.description?.trim()
+    ? clampText(input.description.trim(), MAX_DESCRIPTION_LENGTH)
+    : undefined
 
   const tree = buildOgTree({
     libraryName,
     accentColor,
     islandDataUrl: assets.islandDataUrl,
-    description,
+    pitch,
     docTitle,
+    description,
   })
 
   const svg = await satori(tree, {

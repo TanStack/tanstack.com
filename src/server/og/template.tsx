@@ -4,8 +4,9 @@ type TemplateProps = {
   libraryName: string
   accentColor: string
   islandDataUrl: string
-  description: string
+  pitch: string
   docTitle?: string
+  description?: string
 }
 
 const WIDTH = 1200
@@ -72,7 +73,7 @@ export function buildOgTree(props: TemplateProps): ReactElement {
           style={{
             display: 'flex',
             flexDirection: 'column',
-            marginBottom: 24,
+            marginBottom: 22,
             lineHeight: 0.95,
             fontWeight: 800,
             letterSpacing: '-0.02em',
@@ -85,6 +86,19 @@ export function buildOgTree(props: TemplateProps): ReactElement {
             </span>
           ) : null}
         </div>
+        {props.pitch ? (
+          <div
+            style={{
+              fontSize: 28,
+              fontWeight: 500,
+              lineHeight: 1.3,
+              color: props.accentColor,
+              marginBottom: props.docTitle || props.description ? 22 : 0,
+            }}
+          >
+            {props.pitch}
+          </div>
+        ) : null}
         {props.docTitle ? (
           <div
             style={{
@@ -92,23 +106,25 @@ export function buildOgTree(props: TemplateProps): ReactElement {
               fontWeight: 800,
               lineHeight: 1.05,
               letterSpacing: '-0.015em',
-              marginBottom: 16,
+              marginBottom: 14,
               color: props.accentColor,
             }}
           >
             {props.docTitle}
           </div>
         ) : null}
-        <div
-          style={{
-            fontSize: 26,
-            lineHeight: 1.3,
-            fontWeight: 700,
-            color: props.accentColor,
-          }}
-        >
-          {props.description}
-        </div>
+        {props.description ? (
+          <div
+            style={{
+              fontSize: 22,
+              lineHeight: 1.3,
+              fontWeight: 500,
+              color: props.accentColor,
+            }}
+          >
+            {props.description}
+          </div>
+        ) : null}
       </div>
     </div>
   )

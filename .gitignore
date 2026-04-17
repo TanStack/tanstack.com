@@ -34,3 +34,4 @@ test-results
 .eslintcache
 .tsbuildinfo
 src/routeTree.gen.ts
+.og-preview/

@@ -5,6 +5,7 @@ type TemplateProps = {
   accentColor: string
   islandDataUrl: string
   description: string
+  docTitle?: string
 }
 
 const WIDTH = 1200
@@ -84,9 +85,23 @@ export function buildOgTree(props: TemplateProps): ReactElement {
             </span>
           ) : null}
         </div>
+        {props.docTitle ? (
+          <div
+            style={{
+              fontSize: 44,
+              fontWeight: 800,
+              lineHeight: 1.05,
+              letterSpacing: '-0.015em',
+              marginBottom: 16,
+              color: props.accentColor,
+            }}
+          >
+            {props.docTitle}
+          </div>
+        ) : null}
         <div
           style={{
-            fontSize: 28,
+            fontSize: 26,
             lineHeight: 1.3,
             fontWeight: 700,
             color: props.accentColor,

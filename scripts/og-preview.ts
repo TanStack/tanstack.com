@@ -28,7 +28,7 @@ async function main() {
     // Docs-page variant (simulate a per-page title + description)
     const docs = await generateOgPng({
       libraryId: lib.id,
-      title: `${lib.name} · Overview`,
+      title: 'Overview',
       description: `${lib.tagline} Guides, API reference and examples in one place.`,
     })
     if ('kind' in (docs as Record<string, unknown>)) continue

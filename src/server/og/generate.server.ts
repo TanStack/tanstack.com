@@ -29,7 +29,8 @@ export async function generateOgPng(
 
   const assets = loadOgAssets()
   const accentColor = getAccentColor(library.id)
-  const libraryName = input.title?.trim() || library.name
+  const libraryName = library.name
+  const docTitle = input.title?.trim() || undefined
   const rawDescription =
     input.description?.trim() || library.tagline || library.description || ''
   const description = clampDescription(rawDescription)
@@ -39,6 +40,7 @@ export async function generateOgPng(
     accentColor,
     islandDataUrl: assets.islandDataUrl,
     description,
+    docTitle,
   })
 
   const svg = await satori(tree, {

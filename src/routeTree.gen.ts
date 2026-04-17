@@ -108,6 +108,7 @@ import { Route as ShopPagesHandleRouteImport } from './routes/shop.pages.$handle
 import { Route as ShopCollectionsHandleRouteImport } from './routes/shop.collections.$handle'
 import { Route as IntentRegistryPackageNameRouteImport } from './routes/intent/registry/$packageName'
 import { Route as AuthProviderStartRouteImport } from './routes/auth/$provider/start'
+import { Route as ApiOgLibraryDotpngRouteImport } from './routes/api/og/$library[.png]'
 import { Route as ApiMcpSplatRouteImport } from './routes/api/mcp/$'
 import { Route as ApiGithubWebhookRouteImport } from './routes/api/github/webhook'
 import { Route as ApiExampleDeployRouteImport } from './routes/api/example/deploy'
@@ -647,6 +648,11 @@ const AuthProviderStartRoute = AuthProviderStartRouteImport.update({
   path: '/auth/$provider/start',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiOgLibraryDotpngRoute = ApiOgLibraryDotpngRouteImport.update({
+  id: '/api/og/$library.png',
+  path: '/api/og/$library.png',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiMcpSplatRoute = ApiMcpSplatRouteImport.update({
   id: '/api/mcp/$',
   path: '/api/mcp/$',
@@ -964,6 +970,7 @@ export interface FileRoutesByFullPath {
   '/api/example/deploy': typeof ApiExampleDeployRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
+  '/api/og/$library.png': typeof ApiOgLibraryDotpngRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
   '/intent/registry/$packageName': typeof IntentRegistryPackageNameRouteWithChildren
   '/shop/collections/$handle': typeof ShopCollectionsHandleRoute
@@ -1097,6 +1104,7 @@ export interface FileRoutesByTo {
   '/api/example/deploy': typeof ApiExampleDeployRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
+  '/api/og/$library.png': typeof ApiOgLibraryDotpngRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
   '/shop/collections/$handle': typeof ShopCollectionsHandleRoute
   '/shop/pages/$handle': typeof ShopPagesHandleRoute
@@ -1239,6 +1247,7 @@ export interface FileRoutesById {
   '/api/example/deploy': typeof ApiExampleDeployRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
+  '/api/og/$library.png': typeof ApiOgLibraryDotpngRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
   '/intent/registry/$packageName': typeof IntentRegistryPackageNameRouteWithChildren
   '/shop/collections/$handle': typeof ShopCollectionsHandleRoute
@@ -1383,6 +1392,7 @@ export interface FileRouteTypes {
     | '/api/example/deploy'
     | '/api/github/webhook'
     | '/api/mcp/$'
+    | '/api/og/$library.png'
     | '/auth/$provider/start'
     | '/intent/registry/$packageName'
     | '/shop/collections/$handle'
@@ -1516,6 +1526,7 @@ export interface FileRouteTypes {
     | '/api/example/deploy'
     | '/api/github/webhook'
     | '/api/mcp/$'
+    | '/api/og/$library.png'
     | '/auth/$provider/start'
     | '/shop/collections/$handle'
     | '/shop/pages/$handle'
@@ -1657,6 +1668,7 @@ export interface FileRouteTypes {
     | '/api/example/deploy'
     | '/api/github/webhook'
     | '/api/mcp/$'
+    | '/api/og/$library.png'
     | '/auth/$provider/start'
     | '/intent/registry/$packageName'
     | '/shop/collections/$handle'
@@ -1771,6 +1783,7 @@ export interface RootRouteChildren {
   ApiExampleDeployRoute: typeof ApiExampleDeployRoute
   ApiGithubWebhookRoute: typeof ApiGithubWebhookRoute
   ApiMcpSplatRoute: typeof ApiMcpSplatRoute
+  ApiOgLibraryDotpngRoute: typeof ApiOgLibraryDotpngRoute
   AuthProviderStartRoute: typeof AuthProviderStartRoute
   IntentRegistryPackageNameRoute: typeof IntentRegistryPackageNameRouteWithChildren
   ShowcaseEditIdRoute: typeof ShowcaseEditIdRoute
@@ -2496,6 +2509,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthProviderStartRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/og/$library.png': {
+      id: '/api/og/$library.png'
+      path: '/api/og/$library.png'
+      fullPath: '/api/og/$library.png'
+      preLoaderRoute: typeof ApiOgLibraryDotpngRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/mcp/$': {
       id: '/api/mcp/$'
       path: '/api/mcp/$'
@@ -3065,6 +3085,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiExampleDeployRoute: ApiExampleDeployRoute,
   ApiGithubWebhookRoute: ApiGithubWebhookRoute,
   ApiMcpSplatRoute: ApiMcpSplatRoute,
+  ApiOgLibraryDotpngRoute: ApiOgLibraryDotpngRoute,
   AuthProviderStartRoute: AuthProviderStartRoute,
   IntentRegistryPackageNameRoute: IntentRegistryPackageNameRouteWithChildren,
   ShowcaseEditIdRoute: ShowcaseEditIdRoute,

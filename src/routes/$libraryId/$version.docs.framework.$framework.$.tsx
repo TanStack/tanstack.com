@@ -75,6 +75,7 @@ export const Route = createFileRoute(
           ? `${ctx.loaderData.title} | ${tail}`
           : tail,
         description: ctx.loaderData?.description,
+        keywords: ctx.loaderData?.keywords,
         noindex: library.visible === false,
       }),
     }

@@ -72,6 +72,7 @@ export const Route = createFileRoute('/$libraryId/$version/docs/$')({
       meta: seo({
         title: `${loaderData?.title} | ${library.name} Docs`,
         description: loaderData?.description,
+        keywords: loaderData?.keywords,
         noindex: library.visible === false,
       }),
     }

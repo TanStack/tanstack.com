@@ -421,12 +421,17 @@ export function extractFrontMatter(content: string) {
     excerpt: (file: any) => (file.excerpt = createRichExcerpt(file.content)),
   })
   const redirectFrom = normalizeRedirectFrom(result.data.redirect_from)
+  const userDescription =
+    typeof result.data.description === 'string' &&
+    result.data.description.trim().length > 0
+      ? result.data.description
+      : undefined
 
   return {
     ...result,
     data: {
       ...result.data,
-      description: createExcerpt(result.content),
+      description: userDescription ?? createExcerpt(result.content),
       redirect_from: redirectFrom,
       redirectFrom,
     } as { [key: string]: any } & {
@@ -434,6 +439,7 @@ export function extractFrontMatter(content: string) {
       redirect_from?: Array<string>
       redirectFrom?: Array<string>
     },
+    userDescription,
   }
 }
 

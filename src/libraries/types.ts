@@ -61,7 +61,6 @@ export type LibrarySlim = {
   scarfId?: string
   defaultDocs?: string
   docsRoot?: string
-  ogImage?: string
   hideCodesandboxUrl?: true
   hideStackblitzUrl?: true
   showVercelUrl?: boolean

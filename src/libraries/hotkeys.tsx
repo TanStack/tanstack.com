@@ -7,7 +7,6 @@ const textStyles = 'text-rose-600 dark:text-rose-500'
 export const hotkeysProject = {
   ...hotkeys,
   description: `A type-safe, cross-platform hotkey library with sequence detection, key state tracking, hotkey recording, and framework adapters for React and more.`,
-  ogImage: 'https://github.com/tanstack/hotkeys/raw/main/media/repo-header.png',
   latestBranch: 'main',
   bgRadial: 'from-rose-500 via-rose-700/50 to-transparent',
   textColor: 'text-rose-700',

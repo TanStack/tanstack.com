@@ -295,8 +295,8 @@ importers:
         specifier: ^0.6.0
         version: 0.6.0(vite@8.0.3(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.0)(tsx@4.21.0)(yaml@2.8.3))
       '@tanstack/dom-vite':
-        specifier: 0.1.0-alpha.2
-        version: 0.1.0-alpha.2(vite@8.0.3(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.0)(tsx@4.21.0)(yaml@2.8.3))
+        specifier: 0.1.0-alpha.3
+        version: 0.1.0-alpha.3(vite@8.0.3(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.0)(tsx@4.21.0)(yaml@2.8.3))
       '@tanstack/react-devtools':
         specifier: ^0.10.2
         version: 0.10.2(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(csstype@3.2.3)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(solid-js@1.9.12)
@@ -3493,11 +3493,11 @@ packages:
     peerDependencies:
       solid-js: '>=1.9.7'
 
-  '@tanstack/dom-core@0.1.0-alpha.2':
-    resolution: {integrity: sha512-UizkhC4GBVN+nxgXVf9x3FWE5rv3LYylj8ypFGIxKLI+DvOPUjEZIShrgcIXgTGNABu65l+A3h6wCeIyFaEyng==}
+  '@tanstack/dom-core@0.1.0-alpha.3':
+    resolution: {integrity: sha512-H28e7bhNySHyRloQiGSP+N6/XZzfhvG39Y8/j4wZ2LYWCVVAO1HLmpvAxPGR7qlGt1Nb1wa6VJJkenxr3fiZRA==}
 
-  '@tanstack/dom-vite@0.1.0-alpha.2':
-    resolution: {integrity: sha512-bhjIkK860hsWO0Z6ezoKL9nmOEbywI+b6HRjZYmuL0His61Ig3e63nKueYTEOL2GWQeHExWXUe7BMM10ddf4dw==}
+  '@tanstack/dom-vite@0.1.0-alpha.3':
+    resolution: {integrity: sha512-a54xkjDT8dzKePGVMPqJPEsn/vdmXIyOa8aGqlb93UQKxDhA3gpN8yhGvvDpeRbiVQE3tW3UYEkUmtDO0dptZg==}
     peerDependencies:
       vite: '>=5'
 
@@ -3528,11 +3528,11 @@ packages:
       react: '>=16.8'
       react-dom: '>=16.8'
 
-  '@tanstack/react-dom-server@0.1.0-alpha.2':
-    resolution: {integrity: sha512-4HXiksIkl/NmBlIvNDl5MUSjMwOiT4k/Ziu6h36T7DMfNtx7Vh4kaW6a16layfBFMlduY7j+T2JscbRM9Pfjkg==}
+  '@tanstack/react-dom-server@0.1.0-alpha.3':
+    resolution: {integrity: sha512-2/UYgA3jCEj8mhMUhilglT/diYgnedbioNj2ljlnGhGQOhL32Z0UwxEEq4ZBLoAZxBGXQwKRDcoMakiVGl4MJg==}
 
-  '@tanstack/react-dom@0.1.0-alpha.2':
-    resolution: {integrity: sha512-l8EdzkyYFJXYLw+7sn3hJrifzYkc+z7trjMWi7orTTuNtQCOq8j7bNtD/BcCouzUIp0WYa43FYfYCDuuh4dJxA==}
+  '@tanstack/react-dom@0.1.0-alpha.3':
+    resolution: {integrity: sha512-ug/huPkkQ6klJ0BQSaogl6e/eqxbgCu9G9/o8bDr0KH3JlKJtA5feWJTjJpyjL6lAnh1M/ryqnZrosZadXr21Q==}
 
   '@tanstack/react-hotkeys@0.9.1':
     resolution: {integrity: sha512-/qdQUUVkYAHAWRGdFXqFgWpW/S+a6OzkvxWNWKLLDHQODJlO6EPBPa073CglaafBfzig58RK07T09ET+NnZhpg==}
@@ -3639,8 +3639,8 @@ packages:
       react: '>=16.8'
       react-dom: '>=16.8'
 
-  '@tanstack/react@0.1.0-alpha.2':
-    resolution: {integrity: sha512-FBHUsVgoBMGls4n25qp83HOIIYPC57ciL8z5sdPzqgIy62p1qG7JGkUF259dbBz6+DUVtPWhpSR1g8vLX5Mi5w==}
+  '@tanstack/react@0.1.0-alpha.3':
+    resolution: {integrity: sha512-CYjIS8nRfRo1h9iHlNIQs2ihdDDL1lKOGCkAqBKRDfmThqg47smLgQCFJ/oD9dkwiskY8fmtW9Ixw2lTzZL2PQ==}
 
   '@tanstack/router-core@1.168.13':
     resolution: {integrity: sha512-RjFUQDLfa05WnPZLV+xENUni2CUF1ftz3cFLpm/AdrXdN6VFHp0mhu94zHVPgt0XJwXEEcIyNHjQn+9IcXk0JA==}
@@ -3699,8 +3699,8 @@ packages:
     resolution: {integrity: sha512-nRcYw+w2OEgK6VfjirYvGyPLOK+tZQz1jkYcmH5AjMamQ9PycnlxZF2aEZtPpNoUsaceX2bHptn6Ub5hGXqNvw==}
     engines: {node: '>=20.19'}
 
-  '@tanstack/scheduler@0.1.0-alpha.2':
-    resolution: {integrity: sha512-ZJdR19r3+SBHziWSjw+yDUC/dbpKnMjj0f0kntEOwdaS9X5DSiRCEBb71iQZkRZIcI7mqh6Jqtvqw7M5rphF1A==}
+  '@tanstack/scheduler@0.1.0-alpha.3':
+    resolution: {integrity: sha512-RyETyBYefa1xVOEKj8WIRnoXisKL2yc8fG+u07PAiidvFuS5K4+PMgVVWnnaLy5jH98epxTxaoKoxJxQvnkfpw==}
 
   '@tanstack/start-client-core@1.167.15':
     resolution: {integrity: sha512-WT4vy+aoc6kVKJeTt+uTwIiwCvhtQ0Nx2GavRyL4ks3l0YYnzv9qgGgNHPlvDY8crA1zO280v9SYEe/UjDuizQ==}
@@ -11407,15 +11407,15 @@ snapshots:
       - csstype
       - utf-8-validate
 
-  '@tanstack/dom-core@0.1.0-alpha.2': {}
+  '@tanstack/dom-core@0.1.0-alpha.3': {}
 
-  '@tanstack/dom-vite@0.1.0-alpha.2(vite@8.0.3(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.0)(tsx@4.21.0)(yaml@2.8.3))':
+  '@tanstack/dom-vite@0.1.0-alpha.3(vite@8.0.3(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.0)(tsx@4.21.0)(yaml@2.8.3))':
     dependencies:
-      '@tanstack/dom-core': 0.1.0-alpha.2
-      '@tanstack/react': 0.1.0-alpha.2
-      '@tanstack/react-dom': 0.1.0-alpha.2
-      '@tanstack/react-dom-server': 0.1.0-alpha.2
-      '@tanstack/scheduler': 0.1.0-alpha.2
+      '@tanstack/dom-core': 0.1.0-alpha.3
+      '@tanstack/react': 0.1.0-alpha.3
+      '@tanstack/react-dom': 0.1.0-alpha.3
+      '@tanstack/react-dom-server': 0.1.0-alpha.3
+      '@tanstack/scheduler': 0.1.0-alpha.3
       vite: 8.0.3(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.0)(tsx@4.21.0)(yaml@2.8.3)
 
   '@tanstack/history@1.161.6': {}
@@ -11446,15 +11446,15 @@ snapshots:
       - solid-js
       - utf-8-validate
 
-  '@tanstack/react-dom-server@0.1.0-alpha.2':
+  '@tanstack/react-dom-server@0.1.0-alpha.3':
     dependencies:
-      '@tanstack/dom-core': 0.1.0-alpha.2
-      '@tanstack/react': 0.1.0-alpha.2
+      '@tanstack/dom-core': 0.1.0-alpha.3
+      '@tanstack/react': 0.1.0-alpha.3
 
-  '@tanstack/react-dom@0.1.0-alpha.2':
+  '@tanstack/react-dom@0.1.0-alpha.3':
     dependencies:
-      '@tanstack/dom-core': 0.1.0-alpha.2
-      '@tanstack/react': 0.1.0-alpha.2
+      '@tanstack/dom-core': 0.1.0-alpha.3
+      '@tanstack/react': 0.1.0-alpha.3
 
   '@tanstack/react-hotkeys@0.9.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
@@ -11592,9 +11592,9 @@ snapshots:
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
 
-  '@tanstack/react@0.1.0-alpha.2':
+  '@tanstack/react@0.1.0-alpha.3':
     dependencies:
-      '@tanstack/dom-core': 0.1.0-alpha.2
+      '@tanstack/dom-core': 0.1.0-alpha.3
 
   '@tanstack/router-core@1.168.13':
     dependencies:
@@ -11671,7 +11671,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@tanstack/scheduler@0.1.0-alpha.2': {}
+  '@tanstack/scheduler@0.1.0-alpha.3': {}
 
   '@tanstack/start-client-core@1.167.15':
     dependencies:

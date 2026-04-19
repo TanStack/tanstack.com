@@ -1,5 +1,6 @@
 import { sentryTanstackStart } from '@sentry/tanstackstart-react/vite'
 import { defineConfig } from 'vite'
+import { tanstackDom } from '@tanstack/dom-vite'
 import contentCollections from '@content-collections/vite'
 import { devtools as tanstackDevtools } from '@tanstack/devtools-vite'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
@@ -102,6 +103,12 @@ export default defineConfig({
       'discord-interactions',
       // Don't pre-bundle CLI so we always get fresh changes during dev
       ...(isDev ? ['@tanstack/cli'] : []),
+      // `use client` libraries that plugin-rsc pre-bundles inconsistently
+      // across client/ssr/rsc envs when combined with our React shim — each
+      // env resolves `react` to a different target, so the optimizer's hash
+      // diverges. Excluding from optimize keeps resolution deterministic per
+      // env and silences the 50k+ "inconsistently optimized" warning flood.
+      'lucide-react',
     ],
   },
   build: {
@@ -168,6 +175,7 @@ export default defineConfig({
     },
   },
   plugins: [
+    tanstackDom(),
     ...(isDev ? [tanstackDevtools()] : []),
     tanstackStart({
       rsc: {

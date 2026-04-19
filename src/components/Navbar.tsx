@@ -8,6 +8,7 @@ const LazyNavbarAuthControls = React.lazy(() =>
     default: m.NavbarAuthControls,
   })),
 )
+import { NavbarCartButton } from './NavbarCartButton'
 import { Link, useLocation, useMatches } from '@tanstack/react-router'
 import { NetlifyImage } from './NetlifyImage'
 import {
@@ -303,6 +304,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           <SearchButton />
         </div>
         <ThemeToggle />
+        <NavbarCartButton />
         <div className="flex items-center gap-2">
           {canLoadAuthControls ? (
             <React.Suspense fallback={loginButtonFallback}>

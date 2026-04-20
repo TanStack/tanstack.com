@@ -24,32 +24,32 @@
 
 ### Performance score
 
-| URL | form | React | Shim | Δ |
-| --- | :-: | -: | -: | -: |
-| `/` | desktop | 99 | 99 | 0 |
-| `/` | mobile | 87 | 88 | +1 |
-| `/query/latest/docs/framework/react/guides/queries` | desktop | 96 | 96 | 0 |
-| `/query/latest/docs/framework/react/guides/queries` | mobile | 64 | 66 | +2 |
-| `/blog/react-server-components` | desktop | 98 | 96 | −2 |
-| `/blog/react-server-components` | mobile | 70 | 71 | +1 |
+| URL                                                 |  form   | React | Shim |   Δ |
+| --------------------------------------------------- | :-----: | ----: | ---: | --: |
+| `/`                                                 | desktop |    99 |   99 |   0 |
+| `/`                                                 | mobile  |    87 |   88 |  +1 |
+| `/query/latest/docs/framework/react/guides/queries` | desktop |    96 |   96 |   0 |
+| `/query/latest/docs/framework/react/guides/queries` | mobile  |    64 |   66 |  +2 |
+| `/blog/react-server-components`                     | desktop |    98 |   96 |  −2 |
+| `/blog/react-server-components`                     | mobile  |    70 |   71 |  +1 |
 
 ### Web Vitals
 
-| URL | form | FCP (R → S) | LCP (R → S) | TBT (R → S) | CLS (R → S) | TTI (R → S) |
-| --- | :-: | :-: | :-: | :-: | :-: | :-: |
-| `/` | desktop | 0.61s → 0.59s (−4%) | 0.84s → 0.91s (+8%) | 0ms → 0ms | 0 → 0 | 0.84s → 0.92s |
-| `/` | mobile | 2.34s → 2.31s | 3.71s → 3.60s (−3%) | 19ms → 20ms | 0 → 0 | 5.54s → 5.55s |
-| `/query/.../queries` | desktop | 1.05s → 0.92s (−13%) | 1.05s → 1.24s (+18%) | 0ms → 0ms | 0 → 0 | 1.05s → 1.24s |
-| `/query/.../queries` | mobile | 4.66s → 4.13s (−11%) | 6.62s → 6.39s (−3%) | 17ms → 19ms | 0 → 0 | 8.36s → 8.41s |
-| `/blog/react-server-components` | desktop | 0.90s → 0.74s (−17%) | 0.90s → 1.29s (+43%) | 0ms → 0ms | 0 → 0 | 0.90s → 1.29s |
-| `/blog/react-server-components` | mobile | 3.73s → 3.21s (−14%) | 5.32s → 6.23s (+17%) | 34ms → 21ms (−37%) | 0 → 0 | 6.24s → 6.57s |
+| URL                             |  form   |     FCP (R → S)      |     LCP (R → S)      |    TBT (R → S)     | CLS (R → S) |  TTI (R → S)  |
+| ------------------------------- | :-----: | :------------------: | :------------------: | :----------------: | :---------: | :-----------: |
+| `/`                             | desktop | 0.61s → 0.59s (−4%)  | 0.84s → 0.91s (+8%)  |     0ms → 0ms      |    0 → 0    | 0.84s → 0.92s |
+| `/`                             | mobile  |    2.34s → 2.31s     | 3.71s → 3.60s (−3%)  |    19ms → 20ms     |    0 → 0    | 5.54s → 5.55s |
+| `/query/.../queries`            | desktop | 1.05s → 0.92s (−13%) | 1.05s → 1.24s (+18%) |     0ms → 0ms      |    0 → 0    | 1.05s → 1.24s |
+| `/query/.../queries`            | mobile  | 4.66s → 4.13s (−11%) | 6.62s → 6.39s (−3%)  |    17ms → 19ms     |    0 → 0    | 8.36s → 8.41s |
+| `/blog/react-server-components` | desktop | 0.90s → 0.74s (−17%) | 0.90s → 1.29s (+43%) |     0ms → 0ms      |    0 → 0    | 0.90s → 1.29s |
+| `/blog/react-server-components` | mobile  | 3.73s → 3.21s (−14%) | 5.32s → 6.23s (+17%) | 34ms → 21ms (−37%) |    0 → 0    | 6.24s → 6.57s |
 
 ### Bundle size (uncompressed total client JS)
 
-| Build | Total client JS | Notes |
-| --- | -: | --- |
-| Real React | 21,052 KB | Dedicated `react-*.js` chunk = 176 KB (`manualChunks` splits `node_modules/react{,-dom}/`) |
-| Shim | 20,072 KB | No dedicated react chunk; shim code inlines into `app-shell` (+16 KB there). Net **−980 KB (−4.7%)** |
+| Build      | Total client JS | Notes                                                                                                |
+| ---------- | --------------: | ---------------------------------------------------------------------------------------------------- |
+| Real React |       21,052 KB | Dedicated `react-*.js` chunk = 176 KB (`manualChunks` splits `node_modules/react{,-dom}/`)           |
+| Shim       |       20,072 KB | No dedicated react chunk; shim code inlines into `app-shell` (+16 KB there). Net **−980 KB (−4.7%)** |
 
 ## Caveats
 

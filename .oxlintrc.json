@@ -19,7 +19,8 @@
     ".tanstack-start",
     ".netlify",
     "public",
-    "convex/.temp"
+    "convex/.temp",
+    ".claude"
   ],
   "rules": {
     "no-array-constructor": "error",

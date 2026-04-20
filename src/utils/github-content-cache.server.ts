@@ -42,12 +42,6 @@ function isFresh(staleAt: Date) {
   return staleAt.getTime() > Date.now()
 }
 
-function queueRefresh(key: string, fn: () => Promise<unknown>) {
-  void withPendingRefresh(key, fn).catch((error) => {
-    console.error(`[GitHub Cache] Failed to refresh ${key}:`, error)
-  })
-}
-
 function readStoredTextValue(row: GithubContentCache | undefined) {
   if (!row) {
     return undefined
@@ -166,19 +160,8 @@ async function getCachedGitHubContent<T>(opts: {
   const cachedRow = await readRow()
   const storedValue = opts.readStoredValue(cachedRow)
 
-  if (storedValue !== undefined) {
-    if (cachedRow && isFresh(cachedRow.staleAt)) {
-      return storedValue
-    }
-
-    if (storedValue !== null) {
-      queueRefresh(opts.cacheKey, async () => {
-        const value = await opts.origin()
-        await persist(value)
-      })
-
-      return storedValue
-    }
+  if (storedValue !== undefined && cachedRow && isFresh(cachedRow.staleAt)) {
+    return storedValue
   }
 
   return withPendingRefresh(opts.cacheKey, async () => {
@@ -297,16 +280,7 @@ export async function getCachedDocsArtifact<T>(opts: {
   const storedValue =
     cachedRow && opts.isValue(cachedRow.payload) ? cachedRow.payload : undefined
 
-  if (storedValue !== undefined) {
-    if (cachedRow && isFresh(cachedRow.staleAt)) {
-      return storedValue
-    }
-
-    queueRefresh(cacheKey, async () => {
-      const payload = await opts.build()
-      await upsertDocsArtifact({ ...opts, payload })
-    })
-
+  if (storedValue !== undefined && cachedRow && isFresh(cachedRow.staleAt)) {
     return storedValue
   }
 

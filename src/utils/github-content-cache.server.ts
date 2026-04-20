@@ -1,4 +1,4 @@
-import { and, eq, sql } from 'drizzle-orm'
+import { and, eq, lt, sql } from 'drizzle-orm'
 import { db } from '~/db/client'
 import {
   docsArtifactCache,
@@ -380,6 +380,27 @@ export async function markGitHubContentStale(
   }
 
   return rowCount
+}
+
+export async function pruneOldCacheEntries(olderThanMs: number) {
+  const threshold = new Date(Date.now() - olderThanMs)
+
+  const [contentDeleted, artifactDeleted] = await Promise.all([
+    db
+      .delete(githubContentCache)
+      .where(lt(githubContentCache.updatedAt, threshold))
+      .returning({ repo: githubContentCache.repo }),
+    db
+      .delete(docsArtifactCache)
+      .where(lt(docsArtifactCache.updatedAt, threshold))
+      .returning({ repo: docsArtifactCache.repo }),
+  ])
+
+  return {
+    contentDeleted: contentDeleted.length,
+    artifactDeleted: artifactDeleted.length,
+    threshold,
+  }
 }
 
 export async function markDocsArtifactsStale(

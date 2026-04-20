@@ -37,10 +37,28 @@ const rscSsrExternals = [
 const sentrySsrExternals = ['@sentry/node', '@sentry/tanstackstart-react']
 const dbSsrExternals = ['drizzle-orm', 'drizzle-orm/postgres-js']
 
+// Runtime-specific `react-dom/server` variants aren't in @tanstack/dom-vite's
+// default alias map — our shim ships a single universal server build, unlike
+// React which maintains per-runtime forks (edge/node/bun/browser + static.*).
+// @vitejs/plugin-rsc and Netlify's edge adapter import them conditionally, so
+// we funnel them all to `@tanstack/react-dom-server` at the top-level resolve
+// (Vite 8's `EnvironmentResolveOptions` doesn't accept `alias`, so env-scoped
+// aliasing isn't an option).
+const serverVariantAliases: Record<string, string> = {
+  'react-dom/server.edge': '@tanstack/react-dom-server',
+  'react-dom/server.node': '@tanstack/react-dom-server',
+  'react-dom/server.bun': '@tanstack/react-dom-server',
+  'react-dom/server.browser': '@tanstack/react-dom-server',
+  'react-dom/static.edge': '@tanstack/react-dom-server',
+  'react-dom/static.node': '@tanstack/react-dom-server',
+  'react-dom/static': '@tanstack/react-dom-server',
+}
+
 export default defineConfig({
   resolve: {
     alias: {
       '~': path.resolve(__dirname, './src'),
+      ...serverVariantAliases,
     },
   },
   server: {

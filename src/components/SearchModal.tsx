@@ -786,8 +786,6 @@ export function SearchModal() {
   }, [focusedIndex])
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    e.persist()
-
     if (!containerRef.current) return
 
     const items = containerRef.current.querySelectorAll('[role="option"]')

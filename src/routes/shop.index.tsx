@@ -3,13 +3,10 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useMutation } from '@tanstack/react-query'
 import * as v from 'valibot'
 import { ProductCard } from '~/components/shop/ProductCard'
-// import { useTheme } from '~/components/ThemeProvider'
-
-// const LazyShopHero = React.lazy(() =>
-//   import('~/components/shop/ShopHero3D').then((m) => ({
-//     default: m.ShopHero3D,
-//   })),
-// )
+import { ShopHero } from '~/components/shop/ShopHero'
+import { ShopDropCard } from '~/components/shop/ShopDropCard'
+import { ShopStrip } from '~/components/shop/ShopStrip'
+import { ShopButton, ShopSelect, ShopTab } from '~/components/shop/ui'
 import { getProducts } from '~/utils/shop.functions'
 import {
   SORT_OPTIONS,
@@ -28,6 +25,7 @@ const searchSchema = v.object({
       'TITLE',
     ]),
   ),
+  type: v.optional(v.string()),
 })
 
 type ValidSortId = NonNullable<v.InferOutput<typeof searchSchema>['sort']>
@@ -54,9 +52,9 @@ export const Route = createFileRoute('/shop/')({
 function ShopIndex() {
   const { page, sortId } = Route.useLoaderData()
   const navigate = useNavigate({ from: '/shop' })
+  const search = Route.useSearch()
+  const activeType = search.type?.toLowerCase() ?? 'all'
 
-  // Client-side accumulated pages for the "Load More" path. The first page
-  // always comes from the loader (SSR), subsequent pages append on click.
   const [accumulated, setAccumulated] = React.useState<Array<ProductListItem>>(
     [],
   )
@@ -67,8 +65,6 @@ function ShopIndex() {
     page.pageInfo.hasNextPage,
   )
 
-  // Reset accumulated pages whenever the loader-provided first page changes
-  // (e.g. on sort change). The loader's page becomes the new canonical start.
   React.useEffect(() => {
     setAccumulated([])
     setEndCursor(page.pageInfo.endCursor)
@@ -96,86 +92,145 @@ function ShopIndex() {
     },
   })
 
-  const products = [...page.nodes, ...accumulated]
+  const allProducts = React.useMemo(
+    () => [...page.nodes, ...accumulated],
+    [page.nodes, accumulated],
+  )
+
+  // Client-side filter by productType. Counts update as additional pages load.
+  const typeOptions = React.useMemo(() => {
+    const counts = new Map<string, { display: string; count: number }>()
+    for (const p of allProducts) {
+      const t = p.productType?.trim()
+      if (!t) continue
+      const key = t.toLowerCase()
+      const existing = counts.get(key)
+      if (existing) existing.count += 1
+      else counts.set(key, { display: t, count: 1 })
+    }
+    return Array.from(counts.entries())
+      .map(([key, { display, count }]) => ({ key, display, count }))
+      .sort((a, b) => b.count - a.count)
+  }, [allProducts])
+
+  const products =
+    activeType === 'all'
+      ? allProducts
+      : allProducts.filter((p) => p.productType?.toLowerCase() === activeType)
 
   return (
-    <div className="flex flex-col">
-      {/* <div className="w-full aspect-[3/1] max-h-[250px]">
-        <React.Suspense fallback={null}>
-          <ShopHeroWithTheme />
-        </React.Suspense>
-      </div> */}
-
-      <div className="flex flex-col max-w-6xl mx-auto w-full gap-8 p-4 md:p-8">
-        <header className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-black">All Products</h1>
-            <p className="text-sm mt-2 text-gray-600 dark:text-gray-400">
-              {products.length}
-              {hasNextPage ? '+' : ''}{' '}
-              {products.length === 1 ? 'product' : 'products'}
-            </p>
-          </div>
-          <label className="flex items-center gap-2 text-sm">
-            <span className="text-gray-600 dark:text-gray-400">Sort by</span>
-            <select
-              value={sortId}
-              onChange={(e) => {
-                // Cast is safe: the select only emits ids from SORT_OPTIONS
-                // which align with the valibot search schema.
-                const nextId = e.target.value as ValidSortId
-                // Default sort omits the search param entirely for a clean URL
-                navigate({
-                  to: '/shop',
-                  search: nextId === 'BEST_SELLING' ? {} : { sort: nextId },
-                })
-              }}
-              className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-sm"
-            >
-              {SORT_OPTIONS.map((opt) => (
-                <option key={sortOptionId(opt)} value={sortOptionId(opt)}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </label>
-        </header>
-
-        {products.length === 0 ? (
-          <div className="text-center py-24 text-gray-500">
-            No products yet. Check back soon!
-          </div>
-        ) : (
-          <>
-            <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {products.map((product, i) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  loading={i < 8 ? 'eager' : 'lazy'}
-                />
-              ))}
-            </section>
-            {hasNextPage ? (
-              <div className="flex justify-center py-6">
-                <button
-                  type="button"
-                  onClick={() => loadMore.mutate()}
-                  disabled={loadMore.isPending}
-                  className="px-6 py-3 rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {loadMore.isPending ? 'Loading…' : 'Load more'}
-                </button>
-              </div>
-            ) : null}
-          </>
-        )}
+    <div className="p-6 md:p-11 pb-24 max-w-[1280px] mx-auto">
+      <div className="flex flex-wrap justify-between items-start gap-10 pb-5.5 border-b border-shop-line mb-7">
+        <ShopHero
+          title={
+            <>
+              Built in <em>public</em>,<br />
+              worn in <em>production</em>.
+            </>
+          }
+          lede="Official TanStack apparel, accessories, and stickers. Limited runs, ethically produced, shipped worldwide. Rep the libraries that ship your code every day."
+        />
+        <ShopDropCard
+          status="Shop now — free US shipping over $75"
+          headline="Ship code, wear the merch."
+          rows={[
+            { label: 'Worldwide', value: '7–10 days' },
+            { label: 'Returns', value: '30 days' },
+            { label: 'Free ship over', value: '$75' },
+          ]}
+          cta={{ label: 'Shop all products', href: '/shop' }}
+        />
       </div>
+
+      <div className="flex flex-wrap items-center gap-1.5 pb-4.5">
+        <ShopTab
+          isActive={activeType === 'all'}
+          count={allProducts.length}
+          onClick={() =>
+            navigate({
+              to: '/shop',
+              search: (prev) => ({ ...prev, type: undefined }),
+            })
+          }
+        >
+          All
+        </ShopTab>
+        {typeOptions.map((opt) => (
+          <ShopTab
+            key={opt.key}
+            isActive={activeType === opt.key}
+            count={opt.count}
+            onClick={() =>
+              navigate({
+                to: '/shop',
+                search: (prev) => ({ ...prev, type: opt.key }),
+              })
+            }
+          >
+            {opt.display}
+          </ShopTab>
+        ))}
+        <label className="ml-auto flex items-center gap-2 text-[12px] text-shop-muted">
+          <span>Sort</span>
+          <ShopSelect
+            value={sortId}
+            onChange={(e) => {
+              const nextId = e.target.value as ValidSortId
+              navigate({
+                to: '/shop',
+                search: (prev) => ({
+                  ...prev,
+                  sort: nextId === 'BEST_SELLING' ? undefined : nextId,
+                }),
+              })
+            }}
+          >
+            {SORT_OPTIONS.map((opt) => (
+              <option key={sortOptionId(opt)} value={sortOptionId(opt)}>
+                {opt.label}
+              </option>
+            ))}
+          </ShopSelect>
+        </label>
+      </div>
+
+      {products.length === 0 ? (
+        <div className="text-center py-24 text-shop-muted">
+          No products yet. Check back soon!
+        </div>
+      ) : (
+        <>
+          <section className="grid gap-x-4 gap-y-5.5 grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {products.map((product, i) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                loading={i < 8 ? 'eager' : 'lazy'}
+              />
+            ))}
+          </section>
+          {hasNextPage ? (
+            <div className="flex justify-center py-8">
+              <ShopButton
+                onClick={() => loadMore.mutate()}
+                disabled={loadMore.isPending}
+              >
+                {loadMore.isPending ? 'Loading…' : 'Load more'}
+              </ShopButton>
+            </div>
+          ) : null}
+        </>
+      )}
+
+      <ShopStrip
+        items={[
+          'Worldwide shipping',
+          '30-day returns',
+          'Carbon-neutral packing',
+          'Official TanStack',
+          'Proceeds fund open-source',
+        ]}
+      />
     </div>
   )
 }
-
-// function ShopHeroWithTheme() {
-//   const { resolvedTheme } = useTheme()
-//   return <LazyShopHero isDark={resolvedTheme === 'dark'} />
-// }

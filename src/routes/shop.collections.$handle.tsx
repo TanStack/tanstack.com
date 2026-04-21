@@ -2,8 +2,9 @@ import * as React from 'react'
 import { createFileRoute, notFound, useNavigate } from '@tanstack/react-router'
 import { useMutation } from '@tanstack/react-query'
 import * as v from 'valibot'
-import { Breadcrumbs } from '~/components/shop/Breadcrumbs'
 import { ProductCard } from '~/components/shop/ProductCard'
+import { ShopHero } from '~/components/shop/ShopHero'
+import { ShopButton, ShopCrumbs, ShopSelect } from '~/components/shop/ui'
 import { getCollection } from '~/utils/shop.functions'
 import {
   COLLECTION_SORT_OPTIONS,
@@ -109,29 +110,18 @@ function CollectionPage() {
   const products = [...collection.products.nodes, ...accumulated]
 
   return (
-    <div className="flex flex-col max-w-6xl mx-auto gap-8 p-4 md:p-8">
-      <Breadcrumbs
+    <div className="p-6 md:p-11 pb-24 max-w-[1280px] mx-auto">
+      <ShopCrumbs
         crumbs={[{ label: 'Shop', href: '/shop' }, { label: collection.title }]}
       />
 
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-black">{collection.title}</h1>
-          {collection.description ? (
-            <p className="text-sm mt-2 text-gray-600 dark:text-gray-400 max-w-2xl">
-              {collection.description}
-            </p>
-          ) : null}
-        </div>
-        <label className="flex items-center gap-2 text-sm">
-          <span className="text-gray-600 dark:text-gray-400">Sort by</span>
-          <select
+      <div className="flex flex-wrap justify-between items-end gap-4 pb-5.5 border-b border-shop-line mt-6 mb-7">
+        <ShopHero title={collection.title} lede={collection.description} />
+        <label className="flex items-center gap-2 text-[12px] text-shop-muted">
+          <span>Sort</span>
+          <ShopSelect
             value={sortId}
             onChange={(e) => {
-              // Cast is safe: the select only emits ids built from
-              // COLLECTION_SORT_OPTIONS, all of which are valid per the
-              // valibot search schema. The generated CollectionSortOptionId
-              // type is a wider permutation set than the schema accepts.
               const nextId = e.target.value as ValidCollectionSortId
               navigate({
                 to: '/shop/collections/$handle',
@@ -139,7 +129,6 @@ function CollectionPage() {
                 search: nextId === 'COLLECTION_DEFAULT' ? {} : { sort: nextId },
               })
             }}
-            className="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-sm"
           >
             {COLLECTION_SORT_OPTIONS.map((opt) => (
               <option
@@ -149,17 +138,17 @@ function CollectionPage() {
                 {opt.label}
               </option>
             ))}
-          </select>
+          </ShopSelect>
         </label>
-      </header>
+      </div>
 
       {products.length === 0 ? (
-        <div className="text-center py-24 text-gray-500">
+        <div className="text-center py-24 text-shop-muted">
           No products in this collection yet.
         </div>
       ) : (
         <>
-          <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <section className="grid gap-x-4 gap-y-5.5 grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {products.map((product, i) => (
               <ProductCard
                 key={product.id}
@@ -169,15 +158,13 @@ function CollectionPage() {
             ))}
           </section>
           {hasNextPage ? (
-            <div className="flex justify-center py-6">
-              <button
-                type="button"
+            <div className="flex justify-center py-8">
+              <ShopButton
                 onClick={() => loadMore.mutate()}
                 disabled={loadMore.isPending}
-                className="px-6 py-3 rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loadMore.isPending ? 'Loading…' : 'Load more'}
-              </button>
+              </ShopButton>
             </div>
           ) : null}
         </>

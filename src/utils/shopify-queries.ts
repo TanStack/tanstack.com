@@ -53,6 +53,8 @@ const PRODUCT_CARD_FRAGMENT = /* GraphQL */ `
     id
     handle
     title
+    productType
+    tags
     featuredImage {
       url
       altText
@@ -103,7 +105,10 @@ export const PRODUCTS_QUERY = /* GraphQL */ `
   }
 `
 
-export type ProductListItem = Pick<Product, 'id' | 'handle' | 'title'> & {
+export type ProductListItem = Pick<
+  Product,
+  'id' | 'handle' | 'title' | 'productType' | 'tags'
+> & {
   featuredImage:
     | (Pick<StorefrontImage, 'url' | 'altText' | 'width' | 'height'> | null)
     | null

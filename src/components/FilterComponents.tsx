@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import {
   Table,
   List,
@@ -9,7 +9,7 @@ import {
   RotateCcw,
   SlidersHorizontal,
 } from 'lucide-react'
-import { useDebouncedCallback, useDebouncer } from '@tanstack/react-pacer'
+import { useDebouncer } from '@tanstack/react-pacer'
 import { twMerge } from 'tailwind-merge'
 type FeedViewMode = 'table' | 'timeline'
 

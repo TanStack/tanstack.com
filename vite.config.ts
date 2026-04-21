@@ -194,7 +194,20 @@ export default defineConfig({
   },
   plugins: [
     tanstackDom(),
-    ...(isDev ? [tanstackDevtools()] : []),
+    ...(isDev
+      ? [
+          tanstackDevtools({
+            // react-instantsearch's <Configure> forwards all JSX props as
+            // Algolia search parameters. Injecting `data-tsd-source` as a
+            // JSX attr leaks it into the request and Algolia 400s with
+            // "Unknown parameter: data-tsd-source" — breaks site search in dev.
+            injectSource: {
+              enabled: true,
+              ignore: { components: ['Configure'] },
+            },
+          }),
+        ]
+      : []),
     tanstackStart({
       rsc: {
         enabled: true,

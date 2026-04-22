@@ -1,7 +1,7 @@
-import { createFileRoute, notFound } from '@tanstack/react-router'
+import { createFileRoute, notFound, redirect } from '@tanstack/react-router'
 import { getBranch, getLibrary, type LibraryId } from '~/libraries'
 import { isDocsNotFoundError } from '~/utils/docs-errors'
-import { loadDocs } from '~/utils/docs'
+import { loadDocs, resolveDocsRedirect } from '~/utils/docs'
 import { filterFrameworkContent } from '~/utils/markdown/filterFrameworkContent'
 import { getPackageManager } from '~/utils/markdown/installCommand'
 
@@ -35,6 +35,20 @@ export const Route = createFileRoute('/$libraryId/$version/docs/{$}.md')({
           })
         } catch (error) {
           if (isDocsNotFoundError(error)) {
+            const redirectPath = await resolveDocsRedirect({
+              repo: library.repo,
+              branch: getBranch(library, version),
+              docsRoot: root,
+              docsPaths: [docsPath],
+            })
+
+            if (redirectPath !== null) {
+              throw redirect({
+                href: `/${libraryId}/${version}/docs/${redirectPath}.md`,
+                statusCode: 308,
+              })
+            }
+
             throw notFound()
           }
 

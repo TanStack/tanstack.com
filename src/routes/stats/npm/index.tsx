@@ -2,6 +2,7 @@ import * as React from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { useThrottledCallback } from '@tanstack/react-pacer'
+import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { X } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { Card } from '~/components/Card'
@@ -612,29 +613,38 @@ function RouteComponent() {
           />
 
           {/* Combine Package Dialog */}
-          {combiningPackage && (
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4">
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-2 sm:p-4 w-full max-w-md">
-                <div className="flex justify-between items-center mb-2 sm:mb-4">
-                  <h3 className="text-base sm:text-lg font-medium">
+          <DialogPrimitive.Root
+            open={combiningPackage !== null}
+            onOpenChange={(open) => {
+              if (!open) setCombiningPackage(null)
+            }}
+          >
+            <DialogPrimitive.Portal>
+              <DialogPrimitive.Overlay className="fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm" />
+              <DialogPrimitive.Content className="fixed left-1/2 top-1/2 z-[1000] w-[calc(100%-1rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white dark:bg-gray-900 p-4 shadow-xl outline-none">
+                <div className="flex justify-between items-center mb-4">
+                  <DialogPrimitive.Title className="text-base sm:text-lg font-medium text-gray-900 dark:text-gray-100">
                     Add packages to {combiningPackage}
-                  </h3>
-                  <button
-                    onClick={() => setCombiningPackage(null)}
-                    className="p-0.5 sm:p-1 hover:text-red-500"
-                  >
+                  </DialogPrimitive.Title>
+                  <DialogPrimitive.Close className="rounded-full p-1 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500">
                     <X className="w-4 h-4 sm:w-5 sm:h-5" />
-                  </button>
+                  </DialogPrimitive.Close>
                 </div>
-                <PackageSearch
-                  onSelect={handleAddToGroup}
-                  placeholder="Search for packages to add..."
-                  // eslint-disable-next-line jsx-a11y/no-autofocus
-                  autoFocus={true}
-                />
-              </div>
-            </div>
-          )}
+                <DialogPrimitive.Description className="sr-only">
+                  Search for additional npm packages to combine with{' '}
+                  {combiningPackage}.
+                </DialogPrimitive.Description>
+                {combiningPackage && (
+                  <PackageSearch
+                    onSelect={handleAddToGroup}
+                    placeholder="Search for packages to add..."
+                    // eslint-disable-next-line jsx-a11y/no-autofocus
+                    autoFocus={true}
+                  />
+                )}
+              </DialogPrimitive.Content>
+            </DialogPrimitive.Portal>
+          </DialogPrimitive.Root>
 
           {/* Color Picker Popover */}
           {colorPickerPackage && colorPickerPosition && (

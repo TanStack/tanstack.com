@@ -60,16 +60,16 @@ chat({
 
 Omitted categories default to `true`, so the common case is "turn off the one thing that's drowning you." Every category maps to a real pipeline surface:
 
-| Category | What it logs |
-|----------|--------------|
-| `request` | Outgoing call to a provider (model, message count, tool count) |
-| `provider` | Every raw chunk or frame from the provider SDK |
-| `output` | Every chunk or result yielded to the caller |
-| `middleware` | Inputs and outputs around every middleware hook |
-| `tools` | Before and after tool call execution |
-| `agentLoop` | Agent-loop iterations and phase transitions |
-| `config` | Config transforms returned by middleware `onConfig` hooks |
-| `errors` | Every caught error anywhere in the pipeline |
+| Category     | What it logs                                                   |
+| ------------ | -------------------------------------------------------------- |
+| `request`    | Outgoing call to a provider (model, message count, tool count) |
+| `provider`   | Every raw chunk or frame from the provider SDK                 |
+| `output`     | Every chunk or result yielded to the caller                    |
+| `middleware` | Inputs and outputs around every middleware hook                |
+| `tools`      | Before and after tool call execution                           |
+| `agentLoop`  | Agent-loop iterations and phase transitions                    |
+| `config`     | Config transforms returned by middleware `onConfig` hooks      |
+| `errors`     | Every caught error anywhere in the pipeline                    |
 
 Chat-only categories like `tools` and `agentLoop` just don't fire for `summarize()` or `generateImage()`, because they don't exist in those pipelines. You don't have to think about it.
 

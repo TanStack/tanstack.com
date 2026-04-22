@@ -1,5 +1,6 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, notFound } from '@tanstack/react-router'
 import { getBranch, getLibrary, type LibraryId } from '~/libraries'
+import { isDocsNotFoundError } from '~/utils/docs-errors'
 import { loadDocs } from '~/utils/docs'
 import { filterFrameworkContent } from '~/utils/markdown/filterFrameworkContent'
 import { getPackageManager } from '~/utils/markdown/installCommand'
@@ -23,12 +24,22 @@ export const Route = createFileRoute('/$libraryId/$version/docs/{$}.md')({
         const library = getLibrary(libraryId as LibraryId)
         const root = library.docsRoot || 'docs'
 
-        const doc = await loadDocs({
-          repo: library.repo,
-          branch: getBranch(library, version),
-          docsRoot: root,
-          docsPath,
-        })
+        let doc
+
+        try {
+          doc = await loadDocs({
+            repo: library.repo,
+            branch: getBranch(library, version),
+            docsRoot: root,
+            docsPath,
+          })
+        } catch (error) {
+          if (isDocsNotFoundError(error)) {
+            throw notFound()
+          }
+
+          throw error
+        }
 
         // Filter framework-specific content only if framework is explicitly specified
         const filteredContent = framework

@@ -1,4 +1,3 @@
-import { notFound } from '@tanstack/react-router'
 import {
   fetchDocs,
   fetchDocsPage,
@@ -7,6 +6,7 @@ import {
   fetchFile,
   fetchRepoDirectoryContents,
 } from './docs.functions'
+import { createDocsNotFoundError } from './docs-errors'
 import { removeLeadingSlash } from './utils'
 
 export const loadDocs = async ({
@@ -21,11 +21,7 @@ export const loadDocs = async ({
   docsPath: string
 }) => {
   if (!branch || !docsRoot || !docsPath) {
-    throw notFound({
-      data: {
-        message: 'No doc was found here!',
-      },
-    })
+    throw createDocsNotFoundError()
   }
 
   return fetchDocs({
@@ -49,11 +45,7 @@ export const loadDocsPage = async ({
   docsPath: string
 }) => {
   if (!branch || !docsRoot || !docsPath) {
-    throw notFound({
-      data: {
-        message: 'No doc was found here!',
-      },
-    })
+    throw createDocsNotFoundError()
   }
 
   return fetchDocsPage({

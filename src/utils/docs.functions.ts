@@ -1,4 +1,3 @@
-import { notFound } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { setResponseHeader } from '@tanstack/react-start/server'
 import removeMarkdown from 'remove-markdown'
@@ -9,6 +8,7 @@ import {
   fetchRepoFile,
   isRecoverableGitHubContentError,
 } from '~/utils/documents.server'
+import { createDocsNotFoundError } from './docs-errors'
 import { renderMarkdownToRsc } from './markdown'
 import { getCachedDocsArtifact } from './github-content-cache.server'
 import { buildRedirectManifest, type RedirectManifestEntry } from './redirects'
@@ -223,7 +223,7 @@ export const fetchDocs = createServerFn({ method: 'GET' })
     const file = await readRepoFileOrFallback(repo, branch, filePath)
 
     if (!file) {
-      throw notFound()
+      throw createDocsNotFoundError()
     }
 
     const frontMatter = extractFrontMatter(file)
@@ -267,7 +267,7 @@ export const fetchFile = createServerFn({ method: 'GET' })
     const file = await readRepoFileOrFallback(repo, branch, filePath)
 
     if (!file) {
-      throw notFound()
+      throw createDocsNotFoundError()
     }
 
     setDocsCacheHeaders('max-age=3600, stale-while-revalidate=3600, durable')
@@ -284,7 +284,7 @@ export const fetchRepoDirectoryContents = createServerFn({
     const githubContents = await fetchApiContents(repo, branch, startingPath)
 
     if (!githubContents) {
-      throw notFound()
+      throw createDocsNotFoundError()
     }
 
     setDocsCacheHeaders('max-age=3600, stale-while-revalidate=3600, durable')

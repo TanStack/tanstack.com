@@ -7,6 +7,7 @@ import {
 } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { Doc } from '~/components/Doc'
+import { isDocsNotFoundError } from '~/utils/docs-errors'
 import { loadDocsPage, resolveDocsRedirect } from '~/utils/docs'
 import { getBranch, getLibrary } from '~/libraries'
 import { capitalize } from '~/utils/utils'
@@ -36,6 +37,7 @@ export const Route = createFileRoute(
       // This handles cases like switching frameworks where the same doc path doesn't exist
       // Check both isNotFound() and the serialized form from server functions
       const isNotFoundError =
+        isDocsNotFoundError(error) ||
         isNotFound(error) ||
         (error && typeof error === 'object' && 'isNotFound' in error)
 

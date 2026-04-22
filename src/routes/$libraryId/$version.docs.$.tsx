@@ -1,5 +1,6 @@
 import { seo } from '~/utils/seo'
 import { Doc } from '~/components/Doc'
+import { isDocsNotFoundError } from '~/utils/docs-errors'
 import { loadDocsPage, resolveDocsRedirect } from '~/utils/docs'
 import { findLibrary, getBranch, getLibrary } from '~/libraries'
 import { DocContainer } from '~/components/DocContainer'
@@ -36,6 +37,7 @@ export const Route = createFileRoute('/$libraryId/$version/docs/$')({
       })
     } catch (error) {
       const isNotFoundError =
+        isDocsNotFoundError(error) ||
         isNotFound(error) ||
         (error && typeof error === 'object' && 'isNotFound' in error)
 

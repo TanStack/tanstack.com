@@ -20,15 +20,15 @@ A "provider tool" is a native capability the provider hosts for you. Anthropic w
 
 Here's the catch: support is per model, not per provider.
 
-| Model | Provider tools supported |
-|---|---|
-| `claude-3-haiku` | `web_search` only |
-| `claude-3-5-haiku` | web tools only (`web_search`, `web_fetch`) |
-| `claude-opus-4-6` | full superset (web, code execution, computer use, bash, editor, memory) |
-| `gpt-3.5-turbo` | none |
-| `gpt-5` family | full superset |
-| `gemini-3-pro` | full superset |
-| `gemini-lite` | narrower subset |
+| Model              | Provider tools supported                                                |
+| ------------------ | ----------------------------------------------------------------------- |
+| `claude-3-haiku`   | `web_search` only                                                       |
+| `claude-3-5-haiku` | web tools only (`web_search`, `web_fetch`)                              |
+| `claude-opus-4-6`  | full superset (web, code execution, computer use, bash, editor, memory) |
+| `gpt-3.5-turbo`    | none                                                                    |
+| `gpt-5` family     | full superset                                                           |
+| `gemini-3-pro`     | full superset                                                           |
+| `gemini-lite`      | narrower subset                                                         |
 
 If you pass `computerUseTool` to `claude-3-haiku`, the provider either rejects the request, or more commonly, the model ignores the tool and generates a confident-sounding response anyway. No stack trace. No warning. Nothing for your tests to catch, because the response shape is valid, just wrong.
 
@@ -46,7 +46,9 @@ import { computerUseTool } from '@tanstack/ai-anthropic/tools'
 const stream = chat({
   adapter: anthropicText('claude-3-haiku'),
   tools: [
-    computerUseTool({ /* ... */ }),
+    computerUseTool({
+      /* ... */
+    }),
   ],
 })
 ```
@@ -63,7 +65,9 @@ Same code, now:
 const stream = chat({
   adapter: anthropicText('claude-3-haiku'),
   tools: [
-    computerUseTool({ /* ... */ }),
+    computerUseTool({
+      /* ... */
+    }),
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Type 'AnthropicComputerUseTool' is not assignable to type
     // 'Tool & { "~toolKind"?: never } | ProviderTool<string, "web_search">'.
@@ -83,13 +87,17 @@ Gating only makes sense for provider-hosted tools, because only those have per-m
 import { toolDefinition } from '@tanstack/ai'
 import { webSearchTool } from '@tanstack/ai-anthropic/tools'
 
-const myTool = toolDefinition({ /* ... */ })
+const myTool = toolDefinition({
+  /* ... */
+})
 
 chat({
   adapter: anthropicText('claude-3-haiku'),
   tools: [
-    myTool,                       // fine, always
-    webSearchTool({ /* ... */ }), // fine, haiku-3 supports it
+    myTool, // fine, always
+    webSearchTool({
+      /* ... */
+    }), // fine, haiku-3 supports it
   ],
 })
 ```

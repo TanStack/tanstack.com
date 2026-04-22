@@ -829,6 +829,22 @@ export function SearchModal() {
     }
   }, [isOpen])
 
+  React.useEffect(() => {
+    if (!isOpen) return
+
+    const focusSearchInput = () => {
+      const input = containerRef.current?.querySelector<HTMLInputElement>(
+        'input[type="search"]',
+      )
+      input?.focus()
+    }
+
+    const id = window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(focusSearchInput)
+    })
+    return () => window.cancelAnimationFrame(id)
+  }, [isOpen])
+
   const focusedIndexRef = React.useRef(focusedIndex)
 
   React.useEffect(() => {
@@ -889,6 +905,7 @@ export function SearchModal() {
           className="fixed z-[1000] top-8 left-1/2 -translate-x-1/2 w-[98%] xl:w-full max-w-3xl text-left bg-white/80 dark:bg-black/80 shadow-lg rounded-lg xl:rounded-xl divide-y divide-gray-500/20 backdrop-blur-lg dark:border dark:border-white/20 outline-none"
           ref={containerRef}
           onKeyDown={handleKeyDown}
+          onOpenAutoFocus={(event) => event.preventDefault()}
         >
           <DialogPrimitive.Title className="sr-only">
             Search TanStack docs
@@ -916,8 +933,6 @@ export function SearchModal() {
                     reset: 'p-1 opacity-50 hover:opacity-100',
                   }}
                   resetIconComponent={resetIconComponent}
-                  // eslint-disable-next-line jsx-a11y/no-autofocus
-                  autoFocus
                 />
               </div>
               <SearchResults focusedIndex={focusedIndex} />

@@ -51,7 +51,10 @@ export const Route = createFileRoute(
               branch: getBranch(library, version),
               docsRoot: root,
               docsPaths: docsPath
-                ? [`framework/${framework}/${docsPath}`, `${framework}/${docsPath}`]
+                ? [
+                    `framework/${framework}/${docsPath}`,
+                    `${framework}/${docsPath}`,
+                  ]
                 : [],
             })
 

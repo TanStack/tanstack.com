@@ -42,6 +42,8 @@ const getSystemTheme = createIsomorphicFn()
 
 const updateThemeClass = createClientOnlyFn((themeMode: ThemeMode) => {
   const root = document.documentElement
+  root.classList.add('theme-switching')
+
   root.classList.remove('light', 'dark', 'auto')
   const newTheme = themeMode === 'auto' ? getSystemTheme() : themeMode
   root.classList.add(newTheme)
@@ -57,6 +59,15 @@ const updateThemeClass = createClientOnlyFn((themeMode: ThemeMode) => {
       newTheme === 'dark' ? THEME_COLORS.dark : THEME_COLORS.light,
     )
   }
+
+  // Force reflow so the no-transition styles apply to the theme change,
+  // then remove the class on the next frame so subsequent interactions animate.
+  void root.offsetHeight
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      root.classList.remove('theme-switching')
+    })
+  })
 })
 
 const getNextTheme = createClientOnlyFn((current: ThemeMode): ThemeMode => {

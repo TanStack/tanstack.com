@@ -73,8 +73,9 @@ The API is identical to `useGenerateImage` and friends:
 import { useGenerateAudio } from '@tanstack/ai-react'
 
 function MusicGen() {
-  const { generate, result, isLoading, error, stop, reset } =
-    useGenerateAudio({ connection })
+  const { generate, result, isLoading, error, stop, reset } = useGenerateAudio({
+    connection,
+  })
 
   return (
     <>

@@ -1,6 +1,7 @@
 import * as d3 from 'd3'
 import { keepPreviousData, queryOptions } from '@tanstack/react-query'
-import type { PackageGroup, TimeRange, NpmQueryData } from './NPMStatsChart'
+import type { NpmQueryData, PackageGroup, TimeRange } from './shared'
+import { fetchNpmDownloadsBulk } from '~/utils/stats-queries.functions'
 
 /**
  * Shared TanStack Query options for fetching NPM download statistics.
@@ -57,9 +58,6 @@ export function npmQueryOptions({
     ],
     queryFn: async (): Promise<NpmQueryData> => {
       try {
-        // Import the bulk server function for fetching all npm downloads at once
-        const { fetchNpmDownloadsBulk } = await import('~/utils/stats.server')
-
         // Make a single bulk request for all packages
         const results = await fetchNpmDownloadsBulk({
           data: {

@@ -7,7 +7,7 @@ import {
 } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { Doc } from '~/components/Doc'
-import { loadDocs } from '~/utils/docs'
+import { loadDocsPage, resolveDocsRedirect } from '~/utils/docs'
 import { getBranch, getLibrary } from '~/libraries'
 import { capitalize } from '~/utils/utils'
 import { DocContainer } from '~/components/DocContainer'
@@ -21,14 +21,15 @@ export const Route = createFileRoute(
     const { _splat: docsPath, framework, version, libraryId } = ctx.params
 
     const library = getLibrary(libraryId)
+    const branch = getBranch(library, version)
+    const docsRoot = library.docsRoot || 'docs'
 
     try {
-      return await loadDocs({
+      return await loadDocsPage({
         repo: library.repo,
-        branch: getBranch(library, version),
-        docsPath: `${
-          library.docsRoot || 'docs'
-        }/framework/${framework}/${docsPath}`,
+        branch,
+        docsRoot,
+        docsPath: `framework/${framework}/${docsPath ?? ''}`,
       })
     } catch (error) {
       // If doc not found, redirect to framework docs root instead of showing 404
@@ -37,7 +38,24 @@ export const Route = createFileRoute(
       const isNotFoundError =
         isNotFound(error) ||
         (error && typeof error === 'object' && 'isNotFound' in error)
+
       if (isNotFoundError) {
+        const redirectPath = await resolveDocsRedirect({
+          repo: library.repo,
+          branch,
+          docsRoot,
+          docsPaths: docsPath
+            ? [`framework/${framework}/${docsPath}`, `${framework}/${docsPath}`]
+            : [],
+        })
+
+        if (redirectPath !== null) {
+          throw redirect({
+            href: `/${libraryId}/${version}/docs${redirectPath ? `/${redirectPath}` : ''}`,
+            statusCode: 308,
+          })
+        }
+
         throw redirect({
           to: '/$libraryId/$version/docs/framework/$framework',
           params: { libraryId, version, framework },
@@ -64,7 +82,7 @@ export const Route = createFileRoute(
 })
 
 function Docs() {
-  const { title, content, filePath } = Route.useLoaderData()
+  const { contentRsc, filePath, headings, title } = Route.useLoaderData()
   const versionMatch = useMatch({ from: '/$libraryId/$version' })
   const { config } = versionMatch.loaderData as { config: ConfigSchema }
   const { version, libraryId, framework } = Route.useParams()
@@ -77,10 +95,11 @@ function Docs() {
       <Doc
         key={filePath}
         title={title}
-        content={content}
+        contentRsc={contentRsc}
         repo={library.repo}
         branch={branch}
         filePath={filePath}
+        headings={headings}
         colorFrom={library.colorFrom}
         colorTo={library.colorTo}
         textColor={library.textColor}

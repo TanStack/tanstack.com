@@ -1,5 +1,5 @@
 import { Outlet, Link, redirect, createFileRoute } from '@tanstack/react-router'
-import { requireAuth } from '~/utils/auth.server'
+import { requireAuth } from '~/utils/auth.functions'
 
 export const Route = createFileRoute('/account')({
   component: AccountLayout,

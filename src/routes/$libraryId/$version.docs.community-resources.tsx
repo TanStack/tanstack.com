@@ -22,7 +22,8 @@ export const Route = createFileRoute(
       const doc = await loadDocs({
         repo: library.repo,
         branch: getBranch(library, version),
-        docsPath: `${root}/community-resources`,
+        docsRoot: root,
+        docsPath: 'community-resources',
       })
 
       return { doc }

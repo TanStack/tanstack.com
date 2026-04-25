@@ -1,14 +1,13 @@
 import { isNotFound, notFound, createFileRoute } from '@tanstack/react-router'
 import {
   queryOptions,
-  useQuery,
   useQueryClient,
   useSuspenseQuery,
 } from '@tanstack/react-query'
 import React from 'react'
 import { DocTitle } from '~/components/DocTitle'
 import { Framework, getBranch, getLibrary } from '~/libraries'
-import { fetchFile, fetchRepoDirectoryContents } from '~/utils/docs'
+import { fetchRepoDirectoryContents } from '~/utils/docs'
 import {
   getExampleStartingFileName,
   getExampleStartingPath,
@@ -19,16 +18,21 @@ import * as v from 'valibot'
 import { CodeExplorer } from '~/components/CodeExplorer'
 import type { GitHubFileNode } from '~/utils/documents.server'
 import { ExternalLink } from 'lucide-react'
+import { fetchRenderedCodeFile } from '~/utils/codeBlock.functions'
 import {
   ExampleDeployDialog,
   type DeployProvider,
 } from '~/components/ExampleDeployDialog'
 
-const fileQueryOptions = (repo: string, branch: string, filePath: string) => {
+const renderedFileQueryOptions = (
+  repo: string,
+  branch: string,
+  filePath: string,
+) => {
   return queryOptions({
-    queryKey: ['currentCode', repo, branch, filePath],
+    queryKey: ['currentCodeRsc', repo, branch, filePath],
     queryFn: () =>
-      fetchFile({
+      fetchRenderedCodeFile({
         data: { repo, branch, filePath },
       }),
     staleTime: Infinity, // We can cache this forever. A refresh can invalidate the cache if necessary.
@@ -93,13 +97,15 @@ export const Route = createFileRoute(
         params.libraryId,
       )
 
-      // Now that we've resolved the starting file path, we can
-      // fetching and caching the file content for the starting file path
-      await queryClient.ensureQueryData(
-        fileQueryOptions(library.repo, branch, currentPath),
+      const currentCode = await queryClient.ensureQueryData(
+        renderedFileQueryOptions(library.repo, branch, currentPath),
       )
 
-      return { repoStartingDirPath, currentPath }
+      return {
+        currentCodeRsc: currentCode.contentRsc,
+        repoStartingDirPath,
+        currentPath,
+      }
     } catch (error) {
       const isNotFoundError =
         isNotFound(error) ||
@@ -134,7 +140,8 @@ function RouteComponent() {
 }
 
 function PageComponent() {
-  const { repoStartingDirPath, currentPath } = Route.useLoaderData()
+  const { currentCodeRsc, repoStartingDirPath, currentPath } =
+    Route.useLoaderData()
 
   const navigate = Route.useNavigate()
   const queryClient = useQueryClient()
@@ -197,15 +204,31 @@ function PageComponent() {
     })
   }
 
-  const { data: currentCode } = useQuery(
-    fileQueryOptions(library.repo, branch, currentPath),
-  )
-
   const prefetchFileContent = React.useCallback(
     (path: string) => {
-      queryClient.prefetchQuery(fileQueryOptions(library.repo, branch, path))
+      if (path === currentPath) {
+        return
+      }
+
+      const queryState = queryClient.getQueryState([
+        'currentCodeRsc',
+        library.repo,
+        branch,
+        path,
+      ])
+
+      if (
+        queryState?.status === 'success' ||
+        queryState?.fetchStatus === 'fetching'
+      ) {
+        return
+      }
+
+      queryClient.prefetchQuery(
+        renderedFileQueryOptions(library.repo, branch, path),
+      )
     },
-    [queryClient, library.repo, branch],
+    [queryClient, library.repo, branch, currentPath],
   )
 
   // Update local storage when tab changes
@@ -315,7 +338,7 @@ function PageComponent() {
         <CodeExplorer
           activeTab={activeTab as 'code' | 'sandbox'}
           codeSandboxUrl={codeSandboxUrl}
-          currentCode={currentCode || ''}
+          currentCodeRsc={currentCodeRsc}
           currentPath={currentPath}
           examplePath={examplePath}
           githubContents={githubContents || undefined}

@@ -1,11 +1,13 @@
 import { seo } from '~/utils/seo'
 import { Doc } from '~/components/Doc'
-import { loadDocs } from '~/utils/docs'
+import { loadDocsPage, resolveDocsRedirect } from '~/utils/docs'
 import { findLibrary, getBranch, getLibrary } from '~/libraries'
 import { DocContainer } from '~/components/DocContainer'
 import type { ConfigSchema } from '~/utils/config'
+import { docsContentNegotiationVaryHeader } from '~/utils/http'
 import {
   notFound,
+  redirect,
   useLocation,
   useMatch,
   isNotFound,
@@ -22,19 +24,39 @@ export const Route = createFileRoute('/$libraryId/$version/docs/$')({
       throw notFound()
     }
 
+    const branch = getBranch(library, version)
+    const docsRoot = library.docsRoot || 'docs'
+
     try {
-      return await loadDocs({
+      return await loadDocsPage({
         repo: library.repo,
-        branch: getBranch(library, version),
-        docsPath: `${library.docsRoot || 'docs'}/${docsPath}`,
+        branch,
+        docsRoot,
+        docsPath: docsPath ?? '',
       })
     } catch (error) {
       const isNotFoundError =
         isNotFound(error) ||
         (error && typeof error === 'object' && 'isNotFound' in error)
+
       if (isNotFoundError) {
+        const redirectPath = await resolveDocsRedirect({
+          repo: library.repo,
+          branch,
+          docsRoot,
+          docsPaths: docsPath ? [docsPath] : [],
+        })
+
+        if (redirectPath !== null) {
+          throw redirect({
+            href: `/${libraryId}/${version}/docs${redirectPath ? `/${redirectPath}` : ''}`,
+            statusCode: 308,
+          })
+        }
+
         throw notFound()
       }
+
       throw error
     }
   },
@@ -70,14 +92,14 @@ export const Route = createFileRoute('/$libraryId/$version/docs/$')({
         'cache-control': 'public, max-age=60, must-revalidate',
         'cdn-cache-control':
           'max-age=600, stale-while-revalidate=3600, durable',
-        vary: 'Accept-Encoding',
+        vary: docsContentNegotiationVaryHeader,
       }
     } else {
       return {
         'cache-control': 'public, max-age=3600, must-revalidate',
         'cdn-cache-control':
           'max-age=86400, stale-while-revalidate=604800, durable',
-        vary: 'Accept-Encoding',
+        vary: docsContentNegotiationVaryHeader,
       }
     }
   },
@@ -85,7 +107,7 @@ export const Route = createFileRoute('/$libraryId/$version/docs/$')({
 
 function Docs() {
   const { version, libraryId, _splat } = Route.useParams()
-  const { title, content, filePath } = Route.useLoaderData()
+  const { contentRsc, filePath, headings, title } = Route.useLoaderData()
   const versionMatch = useMatch({ from: '/$libraryId/$version' })
   const { config } = versionMatch.loaderData as { config: ConfigSchema }
   const library = getLibrary(libraryId)
@@ -96,10 +118,11 @@ function Docs() {
     <DocContainer>
       <Doc
         title={title}
-        content={content}
+        contentRsc={contentRsc}
         repo={library.repo}
         branch={branch}
         filePath={filePath}
+        headings={headings}
         colorFrom={library.colorFrom}
         colorTo={library.colorTo}
         textColor={library.textColor}

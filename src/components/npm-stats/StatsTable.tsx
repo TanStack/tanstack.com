@@ -2,20 +2,20 @@ import * as React from 'react'
 import * as d3 from 'd3'
 import { X, EyeOff } from 'lucide-react'
 import { Tooltip } from '~/components/Tooltip'
+import { binningOptionsByType } from './binning'
 import {
   type PackageGroup,
   type TransformMode,
   type NpmQueryData,
   type BinType,
-  binningOptionsByType,
   getPackageColor,
   formatNumber,
-} from './NPMStatsChart'
+} from './shared'
 
 export interface StatsTableProps {
   queryData: NpmQueryData | undefined
   packageGroups: PackageGroup[]
-  binOption: (typeof binningOptionsByType)[BinType]
+  binType: BinType
   transform: TransformMode
   onColorClick: (packageName: string, event: React.MouseEvent) => void
   onToggleVisibility: (index: number, packageName: string) => void
@@ -39,9 +39,11 @@ interface PackageStat {
 function calculateStats(
   queryData: NpmQueryData | undefined,
   packageGroups: PackageGroup[],
-  binOption: StatsTableProps['binOption'],
+  binType: BinType,
 ): PackageStat[] {
   if (!queryData) return []
+
+  const binOption = binningOptionsByType[binType]
 
   return queryData
     .map((packageGroupDownloads, index) => {
@@ -108,13 +110,14 @@ function calculateStats(
 export function StatsTable({
   queryData,
   packageGroups,
-  binOption,
+  binType,
   transform,
   onColorClick,
   onToggleVisibility,
   onRemove,
 }: StatsTableProps) {
-  const stats = calculateStats(queryData, packageGroups, binOption)
+  const binOption = binningOptionsByType[binType]
+  const stats = calculateStats(queryData, packageGroups, binType)
   const sortedStats = [...stats].sort((a, b) =>
     transform === 'normalize-y'
       ? b.growth - a.growth

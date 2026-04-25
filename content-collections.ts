@@ -1,4 +1,5 @@
 import { defineCollection, defineConfig } from '@content-collections/core'
+import { normalizeRedirectFrom } from '~/utils/redirects'
 import { z } from 'zod'
 
 const posts = defineCollection({
@@ -11,21 +12,26 @@ const posts = defineCollection({
     draft: z.boolean().optional(),
     excerpt: z.string(),
     authors: z.string().array(),
+    content: z.string(),
+    redirect_from: z.string().array().optional(),
   }),
   transform: ({ content, ...post }) => {
     // Extract header image (first image after frontmatter)
     const headerImageMatch = content.match(/!\[([^\]]*)\]\(([^)]+)\)/)
     const headerImage = headerImageMatch ? headerImageMatch[2] : undefined
+    const redirectFrom = normalizeRedirectFrom(post.redirect_from)
 
     return {
       ...post,
       slug: post._meta.path,
       headerImage,
+      redirect_from: redirectFrom,
+      redirectFrom,
       content,
     }
   },
 })
 
 export default defineConfig({
-  collections: [posts],
+  content: [posts],
 })

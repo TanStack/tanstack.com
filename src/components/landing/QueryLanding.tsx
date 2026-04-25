@@ -1,147 +1,26 @@
 import { useParams } from '@tanstack/react-router'
-import { Footer } from '~/components/Footer'
-import { LibraryHero } from '~/components/LibraryHero'
-import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { BottomCTA } from '~/components/BottomCTA'
-import { QueryGGBanner } from '~/components/QueryGGBanner'
-import { queryProject } from '~/libraries/query'
-import { Framework, getBranch, getLibrary } from '~/libraries'
+import { Footer } from '~/components/Footer'
+import { FeatureGridSection } from '~/components/FeatureGridSection'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
-import LandingPageGad from '~/components/LandingPageGad'
-import { LibraryTestimonials } from '~/components/LibraryTestimonials'
+import { LibraryHero } from '~/components/LibraryHero'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
-import { LazyCodeExampleCard } from '~/components/LazyCodeExampleCard'
+import { LibraryTestimonials } from '~/components/LibraryTestimonials'
 import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
+import { LazySponsorSection } from '~/components/LazySponsorSection'
+import LandingPageGad from '~/components/LandingPageGad'
+import { QueryGGBanner } from '~/components/QueryGGBanner'
 import { StackBlitzSection } from '~/components/StackBlitzSection'
-import { FeatureGridSection } from '~/components/FeatureGridSection'
+import { getBranch, getLibrary } from '~/libraries'
+import { queryProject } from '~/libraries/query'
+import type { LandingComponentProps } from '~/routes/$libraryId/$version'
 
 const library = getLibrary('query')
 
-const codeExamples: Partial<Record<Framework, { lang: string; code: string }>> =
-  {
-    react: {
-      lang: 'tsx',
-      code: `import { useQuery } from '@tanstack/react-query'
-
-function Todos() {
-  const { data, isPending, error } = useQuery({
-    queryKey: ['todos'],
-    queryFn: () => fetch('/api/todos').then(r => r.json()),
-  })
-
-  if (isPending) return <span>Loading...</span>
-  if (error) return <span>Oops!</span>
-
-  return <ul>{data.map(t => <li key={t.id}>{t.title}</li>)}</ul>
-}
-
-export default Todos`,
-    },
-    solid: {
-      lang: 'tsx',
-      code: `import { createQuery } from '@tanstack/solid-query'
-
-function Todos() {
-  const todos = createQuery(() => ({
-    queryKey: ['todos'],
-    queryFn: () => fetch('/api/todos').then(r => r.json()),
-  }))
-
-  return <ul>{todos.data?.map((t) => <li>{t.title}</li>)}</ul>
-}
-
-export default Todos`,
-    },
-    preact: {
-      lang: 'tsx',
-      code: `import { useQuery } from '@tanstack/preact-query'
-
-function Todos() {
-  const { data, isPending, error } = useQuery({
-    queryKey: ['todos'],
-    queryFn: () => fetch('/api/todos').then(r => r.json()),
-  })
-
-  if (isPending) return <span>Loading...</span>
-  if (error) return <span>Oops!</span>
-
-  return <ul>{data.map(t => <li key={t.id}>{t.title}</li>)}</ul>
-}
-
-export default Todos`,
-    },
-    vue: {
-      lang: 'vue',
-      code: `<script setup lang="ts">
-import { useQuery } from '@tanstack/vue-query'
-
-const { data, isPending, error } = useQuery({
-  queryKey: ['todos'],
-  queryFn: () => fetch('/api/todos').then(r => r.json()),
-})
-</script>
-
-<template>
-  <ul v-if="data">
-    <li v-for="t in data" :key="t.id">{{ t.title }}</li>
-  </ul>
-  <span v-else-if="isPending">Loading...</span>
-  <span v-else>Oops!</span>
-</template>`,
-    },
-    svelte: {
-      lang: 'svelte',
-      code: `<script lang="ts">
-  import { createQuery } from '@tanstack/svelte-query'
-  const todos = createQuery({
-    queryKey: ['todos'],
-    queryFn: () => fetch('/api/todos').then(r => r.json()),
-  })
-</script>
-
-{#if $todos.isPending}
-  Loading...
-{:else if $todos.error}
-  Oops!
-{:else}
-  <ul>
-    {#each $todos.data as t}
-      <li>{t.title}</li>
-    {/each}
-  </ul>
-{/if}`,
-    },
-    angular: {
-      lang: 'ts',
-      code: `import { Component } from '@angular/core'
-import { injectQuery } from '@tanstack/angular-query-experimental'
-
-@Component({
-  selector: 'todos',
-  standalone: true,
-  template: \`
-    <ng-container *ngIf="todos.isPending()">
-      Loading...
-    </ng-container>
-    <ul *ngIf="todos.data() as data">
-      <li *ngFor="let t of data">
-        {{ t.title }}
-      </li>
-    </ul>
-  \`,
-})
-export class TodosComponent {
-  todos = injectQuery(() => ({
-    queryKey: ['todos'],
-    queryFn: () => fetch('/api/todos').then(r => r.json()),
-  }))
-}
-`,
-    },
-  }
-
-export default function QueryLanding() {
+export default function QueryLanding({
+  landingCodeExampleRsc,
+}: LandingComponentProps) {
   const { version } = useParams({ strict: false })
   const branch = getBranch(queryProject, version)
 
@@ -161,10 +40,7 @@ export default function QueryLanding() {
 
       <LibraryStatsSection library={library} />
 
-      <LazyCodeExampleCard
-        frameworks={queryProject.frameworks}
-        codeByFramework={codeExamples}
-      />
+      {landingCodeExampleRsc}
 
       <LibraryFeatureHighlights
         featureHighlights={queryProject.featureHighlights}

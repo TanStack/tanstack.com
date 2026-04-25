@@ -12,7 +12,7 @@ import {
 import { PaginationControls } from './PaginationControls'
 import { Spinner } from './Spinner'
 import type { DocFeedback } from '~/db/types'
-import { calculatePoints } from '~/utils/docFeedback.client'
+import { calculatePoints } from '~/utils/docFeedback.shared'
 import { ExternalLink, TriangleAlert } from 'lucide-react'
 import { Badge } from '~/ui'
 

@@ -9,7 +9,7 @@ import {
   voteShowcase,
 } from '~/utils/showcase.functions'
 import { libraries } from '~/libraries'
-import { USE_CASE_LABELS } from '~/utils/showcase.client'
+import { USE_CASE_LABELS } from '~/utils/showcase.shared'
 import {
   ArrowLeft,
   Sparkles,

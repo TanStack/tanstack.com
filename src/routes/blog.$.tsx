@@ -1,15 +1,7 @@
-import { notFound, redirect, createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { PostNotFound } from './blog'
-import { createServerFn } from '@tanstack/react-start'
-import {
-  formatAuthors,
-  formatPublishedDate,
-  isPublishedDateReleased,
-} from '~/utils/blog'
-import * as v from 'valibot'
-import { setResponseHeaders } from '@tanstack/react-start/server'
-import { allPosts } from 'content-collections'
+import { formatAuthors } from '~/utils/blog'
 import * as React from 'react'
 import { MarkdownContent } from '~/components/markdown'
 import { Card } from '~/components/Card'
@@ -20,57 +12,19 @@ import { RecentPostsWidget } from '~/components/RecentPostsWidget'
 
 import { Toc } from '~/components/Toc'
 import { Breadcrumbs } from '~/components/Breadcrumbs'
-import { renderMarkdown } from '~/utils/markdown'
-
-function handleRedirects(docsPath: string) {
-  if (docsPath.includes('directives-the-new-framework-lock-in')) {
-    throw redirect({
-      href: '/blog/directives-and-the-platform-boundary',
-    })
-  }
-}
-
-const fetchBlogPost = createServerFn({ method: 'GET' })
-  .inputValidator(v.optional(v.string()))
-  .handler(async ({ data: docsPath }) => {
-    if (!docsPath) {
-      throw new Error('Invalid docs path')
-    }
-
-    handleRedirects(docsPath)
-
-    const filePath = `src/blog/${docsPath}.md`
-
-    const post = allPosts.find((post) => post.slug === docsPath)
-
-    if (!post) {
-      throw notFound()
-    }
-
-    setResponseHeaders(
-      new Headers({
-        'Cache-Control': 'public, max-age=0, must-revalidate',
-        'Netlify-CDN-Cache-Control':
-          'public, max-age=300, durable, stale-while-revalidate=300',
-      }),
-    )
-
-    const isUnpublished = post.draft || !isPublishedDateReleased(post.published)
-    return {
-      title: post.title,
-      description: post.excerpt,
-      published: post.published,
-      content: post.content,
-      authors: post.authors,
-      headerImage: post.headerImage,
-      filePath,
-      isUnpublished,
-    }
-  })
+import { fetchBlogPost } from '~/utils/blog.functions'
 
 export const Route = createFileRoute('/blog/$')({
   staleTime: Infinity,
-  loader: ({ params }) => fetchBlogPost({ data: params._splat }),
+  loader: async ({ params }) => {
+    const blogPath = params._splat
+
+    if (!blogPath) {
+      throw new Error('Invalid blog path')
+    }
+
+    return fetchBlogPost({ data: blogPath })
+  },
   head: ({ loaderData }) => {
     // Generate optimized social media image URL using Netlify Image CDN
     const getSocialImageUrl = (headerImage?: string) => {
@@ -107,18 +61,7 @@ export const Route = createFileRoute('/blog/$')({
 })
 
 function BlogPost() {
-  const { title, content, filePath, authors, published } = Route.useLoaderData()
-
-  const blogContent = `<small>_by ${formatAuthors(authors)} on ${formatPublishedDate(
-    published || '1970-01-01',
-  )}._</small>
-
-${content}`
-
-  const { headings, markup } = React.useMemo(
-    () => renderMarkdown(blogContent),
-    [blogContent],
-  )
+  const { contentRsc, filePath, headings, title } = Route.useLoaderData()
 
   const isTocVisible = headings.length > 1
 
@@ -204,11 +147,11 @@ ${content}`
                         section="Blog"
                         sectionTo="/blog"
                         headings={isTocVisible ? headings : undefined}
-                        tocHiddenBreakpoint="lg"
+                        tocHiddenBreakpoint="xl"
                       />
                     </div>
                     {isTocVisible && (
-                      <div className="pl-4 w-32 lg:w-36 xl:w-44 2xl:w-56 3xl:w-64 shrink-0 hidden lg:block" />
+                      <div className="pl-4 w-32 lg:w-36 xl:w-44 2xl:w-56 3xl:w-64 shrink-0 hidden xl:block" />
                     )}
                   </div>
                   <div
@@ -220,7 +163,7 @@ ${content}`
                     <div className="flex overflow-auto flex-col w-full p-2 lg:p-4 xl:p-6 pt-0">
                       <MarkdownContent
                         title={title}
-                        htmlMarkup={markup}
+                        contentRsc={contentRsc}
                         repo={repo}
                         branch={branch}
                         filePath={filePath}
@@ -228,7 +171,7 @@ ${content}`
                       />
                     </div>
                     {isTocVisible && (
-                      <div className="pl-4 w-32 lg:w-36 xl:w-44 2xl:w-56 3xl:w-64 shrink-0 hidden lg:block py-4 transition-all">
+                      <div className="pl-4 w-32 lg:w-36 xl:w-44 2xl:w-56 3xl:w-64 shrink-0 hidden xl:block py-4 transition-all">
                         <Toc
                           headings={headings}
                           activeHeadings={activeHeadings}
@@ -241,7 +184,10 @@ ${content}`
             </div>
           </div>
           <RightRail breakpoint="md">
-            <PartnersRail partners={activePartners} />
+            <PartnersRail
+              analyticsPlacement="blog_right_rail"
+              partners={activePartners}
+            />
             <div className="hidden md:block border border-gray-500/20 rounded-l-lg overflow-hidden w-full">
               <RecentPostsWidget />
             </div>

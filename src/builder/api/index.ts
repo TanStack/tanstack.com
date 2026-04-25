@@ -49,4 +49,4 @@ export type { AddOnCompiled as IntegrationCompiled, StarterCompiled as CustomTem
 
 export type FeatureId = string
 
-export { type FrameworkId, FRAMEWORKS } from './config'
+export { type FrameworkId, FRAMEWORKS, normalizeFrameworkId } from './config'

@@ -113,14 +113,13 @@ export function CopyPageDropdown({
   const [copied, setCopied] = React.useState(false)
   const { notify } = useToast()
 
-  // Determine if we should fetch from GitHub or use the page URL
-  const useGitHub = repo === 'tanstack/tanstack.com'
-  const gitHubUrl = useGitHub
-    ? `https://raw.githubusercontent.com/${repo}/${branch}/${filePath}`
-    : null
+  // For docs pages in this repo, prefer the site's markdown endpoint so requests stay behind site caching.
   const pageMarkdownUrl = (() => {
     const base = `${typeof window !== 'undefined' ? window.location.origin : ''}${typeof window !== 'undefined' ? window.location.pathname.replace(/\/$/, '') : ''}.md`
-    const params = new URLSearchParams()
+    const params =
+      typeof window !== 'undefined'
+        ? new URLSearchParams(window.location.search)
+        : new URLSearchParams()
     if (currentFramework) {
       params.set('framework', currentFramework)
     }
@@ -133,6 +132,13 @@ export function CopyPageDropdown({
     const queryString = params.toString()
     return queryString ? `${base}?${queryString}` : base
   })()
+
+  const sourceMarkdownUrl =
+    repo === 'tanstack/tanstack.com'
+      ? pageMarkdownUrl
+      : repo && branch && filePath
+        ? `https://raw.githubusercontent.com/${repo}/${branch}/${filePath}`
+        : pageMarkdownUrl
 
   const handleCopyPage = async () => {
     if (rawContent) {
@@ -147,7 +153,7 @@ export function CopyPageDropdown({
       return
     }
 
-    const urlToFetch = gitHubUrl || pageMarkdownUrl
+    const urlToFetch = sourceMarkdownUrl
     const cached = markdownCache.get(urlToFetch)
 
     const copyContent = async (content: string, source: string) => {
@@ -176,9 +182,9 @@ export function CopyPageDropdown({
       markdownCache.set(urlToFetch, content)
       await copyContent(
         content,
-        gitHubUrl
-          ? 'Markdown content copied from GitHub'
-          : 'Markdown content copied',
+        repo === 'tanstack/tanstack.com'
+          ? 'Markdown content copied from markdown endpoint'
+          : 'Markdown content copied from GitHub',
       )
     } catch {
       // Fallback: try to copy current page content if available
@@ -204,7 +210,7 @@ export function CopyPageDropdown({
   }
 
   const handleViewMarkdown = () => {
-    const url = gitHubUrl || pageMarkdownUrl
+    const url = sourceMarkdownUrl
     window.open(url, '_blank')
   }
 
@@ -308,6 +314,7 @@ export function CopyPageDropdown({
             size="xs"
             rounded="none"
             className="border-0 px-1.5"
+            aria-label={`More ${label} options`}
           >
             <ChevronDown className="w-3 h-3" />
           </Button>

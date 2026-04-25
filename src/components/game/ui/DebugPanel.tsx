@@ -7,7 +7,7 @@ import {
 } from '../utils/upgrades'
 
 const UPGRADE_ORDER = [...PARTNER_UPGRADE_ORDER, ...SHOWCASE_UPGRADE_ORDER]
-import { getCurrentUser } from '~/utils/auth.server'
+import { getCurrentUser } from '~/utils/auth.functions'
 
 export function DebugPanel() {
   const [isCollapsed, setIsCollapsed] = useState(true)

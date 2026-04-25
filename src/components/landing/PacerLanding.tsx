@@ -1,3 +1,4 @@
+import { useParams } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { LibraryHero } from '~/components/LibraryHero'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
@@ -14,6 +15,8 @@ import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySe
 const library = getLibrary('pacer')
 
 export default function PacerLanding() {
+  const { version } = useParams({ strict: false })
+
   return (
     <LibraryPageContainer>
       <LibraryHero
@@ -21,7 +24,7 @@ export default function PacerLanding() {
         cta={{
           linkProps: {
             to: '/$libraryId/$version/docs',
-            params: { libraryId: library.id },
+            params: { libraryId: library.id, version },
           },
           label: 'Get Started',
           className: 'bg-lime-600 border-lime-600 hover:bg-lime-700 text-white',
@@ -72,7 +75,7 @@ export default function PacerLanding() {
       <BottomCTA
         linkProps={{
           to: '/$libraryId/$version/docs',
-          params: { libraryId: library.id },
+          params: { libraryId: library.id, version },
         }}
         label="Get Started!"
         className="bg-lime-600 border-lime-600 hover:bg-lime-700 hover:border-lime-700 text-white"

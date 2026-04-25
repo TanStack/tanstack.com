@@ -30,7 +30,7 @@ import {
   StatsCard,
 } from '~/components/admin'
 import { useAdminGuard } from '~/hooks/useAdminGuard'
-import { requireCapability } from '~/utils/auth.server'
+import { requireCapability } from '~/utils/auth.functions'
 
 type AuditLogEntry = {
   id: string

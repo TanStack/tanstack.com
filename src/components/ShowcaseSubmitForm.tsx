@@ -10,7 +10,7 @@ import {
 import {
   getAutoIncludedLibraries,
   USE_CASE_LABELS,
-} from '~/utils/showcase.client'
+} from '~/utils/showcase.shared'
 import { useToast } from './ToastProvider'
 import { Check, AlertCircle } from 'lucide-react'
 import { Button, FormInput } from '~/ui'

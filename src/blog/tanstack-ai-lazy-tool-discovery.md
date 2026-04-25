@@ -117,7 +117,7 @@ const searchGuitars = toolDefinition({
 
 // Use in chat — lazy tools work automatically
 const stream = chat({
-  adapter: openaiText('gpt-4o'),
+  adapter: openaiText('gpt-5.4'),
   messages,
   tools: [
     getGuitars,

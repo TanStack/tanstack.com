@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router'
+import { Link, useParams } from '@tanstack/react-router'
 import { Layers } from 'lucide-react'
 import { Footer } from '~/components/Footer'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
@@ -16,6 +16,8 @@ import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySe
 const library = getLibrary('cli')
 
 export default function CliLanding() {
+  const { version } = useParams({ strict: false })
+
   return (
     <LibraryPageContainer>
       <LibraryHero
@@ -32,7 +34,7 @@ export default function CliLanding() {
             </Button>
             <Button
               as="a"
-              href="/cli/latest/docs"
+              href={`/cli/${version}/docs`}
               className="bg-indigo-500 border-indigo-500 hover:bg-indigo-600 dark:bg-indigo-600 dark:border-indigo-600 text-white"
             >
               Get Started
@@ -58,7 +60,7 @@ export default function CliLanding() {
       <BottomCTA
         linkProps={{
           to: '/$libraryId/$version/docs',
-          params: { libraryId: library.id },
+          params: { libraryId: library.id, version },
         }}
         label="Get Started!"
         className="bg-indigo-500 border-indigo-500 hover:bg-indigo-600 text-white"

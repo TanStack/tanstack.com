@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { fetchRecentPosts } from '~/server/blog'
+import { fetchRecentPosts } from '~/utils/blog.functions'
 import { formatPublishedDate } from '~/utils/blog'
 import { Suspense } from 'react'
 

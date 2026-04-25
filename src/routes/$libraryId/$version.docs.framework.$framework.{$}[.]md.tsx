@@ -37,7 +37,8 @@ export const Route = createFileRoute(
         const doc = await loadDocs({
           repo: library.repo,
           branch: getBranch(library, version),
-          docsPath: `${root}/framework/${framework}/${docsPath}`,
+          docsRoot: root,
+          docsPath: `framework/${framework}/${docsPath}`,
         })
 
         // Filter framework-specific content using framework from URL path

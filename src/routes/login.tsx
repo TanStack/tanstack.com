@@ -1,8 +1,8 @@
 import * as React from 'react'
-import { authClient } from '~/utils/auth.client'
+import { authClient } from '~/auth/client'
 // Using public asset URLs for splash images
 import { redirect, createFileRoute } from '@tanstack/react-router'
-import { getCurrentUser } from '~/utils/auth.server'
+import { getCurrentUser } from '~/utils/auth.functions'
 import * as v from 'valibot'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { GoogleIcon } from '~/components/icons/GoogleIcon'

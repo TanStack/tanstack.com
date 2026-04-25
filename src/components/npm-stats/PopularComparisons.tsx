@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Link } from '@tanstack/react-router'
-import type { PackageGroup } from './NPMStatsChart'
+import type { PackageGroup } from './shared'
 import { defaultColors } from '~/utils/npm-packages'
 
 export type ComparisonGroup = {

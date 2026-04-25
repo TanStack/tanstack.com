@@ -7,6 +7,15 @@
 @custom-variant auto (&:is(.auto, .auto *));
 @custom-variant aria-current (&[aria-current="location"]);
 
+html.theme-switching,
+html.theme-switching *,
+html.theme-switching *::before,
+html.theme-switching *::after {
+  transition: none !important;
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+}
+
 @theme {
   /* Breakpoints */
   --breakpoint-xs: 480px;
@@ -704,13 +713,6 @@ html.dark .shiki.aurora-x span[style*='color:#546E7A'] {
 .TanStackRouterDevtools > button {
   @apply rotate-90 origin-top-right -translate-y-[50px] translate-x-2 rounded-t-none bg-white dark:bg-gray-900;
   @apply border-t-0 border-gray-500/10 shadow-md text-gray-800;
-}
-
-/* Hubspot */
-
-#hubspot-messages-iframe-container {
-  @apply translate-x-[10px] translate-y-[10px];
-  @apply dark:scheme-dark;
 }
 
 /* Markdown Alerts */

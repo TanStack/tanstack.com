@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { CodeBlockView } from './CodeBlockView'
+import { MermaidBlock } from './MermaidBlock'
 import {
   buildPlainCodeBlockHtml,
   extractCodeBlockData,
@@ -30,6 +31,36 @@ function getRenderPromise(
 
 export function CodeBlock(props: CodeBlockProps) {
   const { code, lang, title } = extractCodeBlockData(props)
+
+  if (lang === 'mermaid') {
+    return (
+      <MermaidBlock
+        className={props.className}
+        code={code}
+        isEmbedded={props.isEmbedded}
+        showTypeCopyButton={props.showTypeCopyButton}
+        style={props.style}
+        title={title}
+      />
+    )
+  }
+
+  return (
+    <HighlightedCodeBlock code={code} lang={lang} props={props} title={title} />
+  )
+}
+
+function HighlightedCodeBlock({
+  code,
+  lang,
+  props,
+  title,
+}: {
+  code: string
+  lang: string
+  props: CodeBlockProps
+  title?: string
+}) {
   const [rendered, setRendered] = React.useState<RenderedCodeBlockData | null>(
     null,
   )

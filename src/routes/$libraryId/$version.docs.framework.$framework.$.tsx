@@ -7,7 +7,7 @@ import {
 } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { Doc } from '~/components/Doc'
-import { loadDocs, resolveDocsRedirect } from '~/utils/docs'
+import { loadDocsPage, resolveDocsRedirect } from '~/utils/docs'
 import { getBranch, getLibrary } from '~/libraries'
 import { capitalize } from '~/utils/utils'
 import { DocContainer } from '~/components/DocContainer'
@@ -25,7 +25,7 @@ export const Route = createFileRoute(
     const docsRoot = library.docsRoot || 'docs'
 
     try {
-      return await loadDocs({
+      return await loadDocsPage({
         repo: library.repo,
         branch,
         docsRoot,
@@ -82,7 +82,7 @@ export const Route = createFileRoute(
 })
 
 function Docs() {
-  const { title, content, filePath } = Route.useLoaderData()
+  const { contentRsc, filePath, headings, title } = Route.useLoaderData()
   const versionMatch = useMatch({ from: '/$libraryId/$version' })
   const { config } = versionMatch.loaderData as { config: ConfigSchema }
   const { version, libraryId, framework } = Route.useParams()
@@ -95,10 +95,11 @@ function Docs() {
       <Doc
         key={filePath}
         title={title}
-        content={content}
+        contentRsc={contentRsc}
         repo={library.repo}
         branch={branch}
         filePath={filePath}
+        headings={headings}
         colorFrom={library.colorFrom}
         colorTo={library.colorTo}
         textColor={library.textColor}

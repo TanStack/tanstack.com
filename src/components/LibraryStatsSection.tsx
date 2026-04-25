@@ -7,8 +7,10 @@ interface LibraryStatsSectionProps {
 
 export function LibraryStatsSection({ library }: LibraryStatsSectionProps) {
   return (
-    <div className="w-fit mx-auto px-4">
-      <OpenSourceStats library={library} />
+    <div className="mx-auto w-full max-w-[1021px] px-4 sm:px-6">
+      <div className="mx-auto w-fit">
+        <OpenSourceStats library={library} />
+      </div>
     </div>
   )
 }

@@ -1,3 +1,4 @@
+import { useParams } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { BottomCTA } from '~/components/BottomCTA'
@@ -14,6 +15,8 @@ import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySe
 const library = getLibrary('devtools')
 
 export default function DevtoolsLanding() {
+  const { version } = useParams({ strict: false })
+
   return (
     <LibraryPageContainer>
       <LibraryHero
@@ -21,7 +24,7 @@ export default function DevtoolsLanding() {
         cta={{
           linkProps: {
             to: '/$libraryId/$version/docs',
-            params: { libraryId: library.id },
+            params: { libraryId: library.id, version },
           },
           label: 'Get Started',
           className:
@@ -74,7 +77,7 @@ export default function DevtoolsLanding() {
       <BottomCTA
         linkProps={{
           to: '/$libraryId/$version/docs',
-          params: { libraryId: library.id },
+          params: { libraryId: library.id, version },
         }}
         label="Get Started!"
         className="bg-slate-500 border-slate-500 hover:bg-slate-600 hover:border-slate-600 text-white"

@@ -101,7 +101,7 @@ function toFeatureInfo(addOn: AddOn): FeatureInfo {
 }
 
 export async function getFeaturesHandler(
-  frameworkId: FrameworkId = 'react-cra',
+  frameworkId: FrameworkId = 'react',
 ): Promise<FeaturesResponse> {
   const framework = getFramework(frameworkId)
   const allAddOns = getAllAddOns(framework, DEFAULT_MODE)

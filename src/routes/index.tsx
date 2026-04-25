@@ -1,32 +1,30 @@
 import * as React from 'react'
-import { ClientOnly, Link, createFileRoute } from '@tanstack/react-router'
-import { queryOptions, useQuery } from '@tanstack/react-query'
+import {
+  ClientOnly,
+  Link,
+  createFileRoute,
+  useRouterState,
+} from '@tanstack/react-router'
 
-import { Footer } from '~/components/Footer'
-import { LazySponsorSection } from '~/components/LazySponsorSection'
 import discordImage from '~/images/discord-logo-white.svg'
-import { useMutation } from '~/hooks/useMutation'
 import { librariesByGroup, librariesGroupNamesMap, Library } from '~/libraries'
-import bytesImage from '~/images/bytes.svg'
-import { PartnersGrid } from '~/components/PartnersGrid'
-import OpenSourceStats from '~/components/OpenSourceStats'
-// Using public asset URLs for splash images
-import LandingPageGad from '~/components/LandingPageGad'
-import { MaintainerCard } from '~/components/MaintainerCard'
-import { coreMaintainers } from '~/libraries/maintainers'
-import { useToast } from '~/components/ToastProvider'
-import { formatAuthors } from '~/utils/blog'
-import { formatPublishedDate } from '~/utils/blog'
 import { NetlifyImage } from '~/components/NetlifyImage'
-import { fetchRecentPosts } from '~/utils/blog.functions'
 
 import { TrustedByMarquee } from '~/components/TrustedByMarquee'
 import { ArrowRight, Code2, Layers, Shield, Zap, Play } from 'lucide-react'
 import { YouTubeIcon } from '~/components/icons/YouTubeIcon'
 import { Card } from '~/components/Card'
 import LibraryCard from '~/components/LibraryCard'
-import { FeaturedShowcases } from '~/components/ShowcaseSection'
+import { HomeApplicationStarter } from '~/components/home/HomeApplicationStarter'
+import { HomeDeferredSection } from '~/components/home/HomeDeferredSection'
+import {
+  HomeBytesFallback,
+  HomeCommunityFallback,
+  HomeSocialProofFallback,
+  HomeStatsFallback,
+} from '~/components/home/HomeSectionFallbacks'
 import { Button } from '~/ui'
+import { seo } from '~/utils/seo'
 
 const LazyBrandContextMenu = React.lazy(() =>
   import('~/components/BrandContextMenu').then((m) => ({
@@ -34,63 +32,78 @@ const LazyBrandContextMenu = React.lazy(() =>
   })),
 )
 
-export const textColors = [
-  `text-rose-500`,
-  `text-yellow-500`,
-  `text-teal-500`,
-  `text-blue-500`,
-]
+const loadHomeSocialProofSection = () =>
+  import('~/components/home/HomeSocialProofSection')
 
-export const gradients = [
-  `from-rose-500 to-yellow-500`,
-  `from-yellow-500 to-teal-500`,
-  `from-teal-500 to-violet-500`,
-  `from-blue-500 to-pink-500`,
-]
+const LazyHomeSocialProofSection = React.lazy(() =>
+  loadHomeSocialProofSection().then((m) => ({
+    default: m.HomeSocialProofSection,
+  })),
+)
 
-const courses = [
-  {
-    name: 'The Official TanStack React Query Course',
-    cardStyles: ``,
-    href: 'https://query.gg/?s=tanstack',
-    description: `Learn how to build enterprise quality apps with TanStack's React Query the easy way with our brand new course.`,
-  },
-]
+const loadHomeCommunitySection = () =>
+  import('~/components/home/HomeCommunitySection')
+
+const LazyHomeCommunitySection = React.lazy(() =>
+  loadHomeCommunitySection().then((m) => ({
+    default: m.HomeCommunitySection,
+  })),
+)
+
+const loadHomeBytesSection = () => import('~/components/home/HomeBytesSection')
+
+const LazyHomeBytesSection = React.lazy(() =>
+  loadHomeBytesSection().then((m) => ({
+    default: m.HomeBytesSection,
+  })),
+)
+
+const loadHomeStatsSection = () => import('~/components/home/HomeStatsSection')
+
+const LazyHomeStatsSection = React.lazy(() =>
+  loadHomeStatsSection().then((m) => ({
+    default: m.HomeStatsSection,
+  })),
+)
+
+function getDeferredSectionStage(hash: string) {
+  const normalizedHash = hash.replace(/^#/, '')
+
+  if (!normalizedHash) {
+    return 0
+  }
+
+  if (['partners', 'blog'].includes(normalizedHash)) {
+    return 1
+  }
+
+  if (['courses', 'sponsors', 'maintainers'].includes(normalizedHash)) {
+    return 2
+  }
+
+  if (normalizedHash === 'bytes') {
+    return 3
+  }
+
+  return 0
+}
 
 export const Route = createFileRoute('/')({
+  head: () => ({
+    meta: seo({
+      title: 'TanStack | The open-source application stack for the web.',
+      description:
+        'Headless, type-safe, composable tools for building modern web applications that work naturally for developers and reliably for agents.',
+    }),
+  }),
   component: Index,
 })
 
-const recentPostsQueryOptions = queryOptions({
-  queryKey: ['recentPosts'],
-  queryFn: () => fetchRecentPosts(),
-  staleTime: 1000 * 60 * 5,
-})
-
-async function bytesSignupServerFn({ email }: { email: string }) {
-  'use server'
-
-  return fetch(`https://bytes.dev/api/bytes-optin-cors`, {
-    method: 'POST',
-    body: JSON.stringify({
-      email,
-      influencer: 'tanstack',
-    }),
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
-  })
-}
-
 function Index() {
-  const bytesSignupMutation = useMutation({
-    fn: bytesSignupServerFn,
+  const locationHash = useRouterState({
+    select: (state) => state.location.hash,
   })
-  const { notify } = useToast()
-  const { data: recentPosts = [], isLoading: isRecentPostsLoading } = useQuery(
-    recentPostsQueryOptions,
-  )
+  const deferredSectionStage = getDeferredSectionStage(locationHash)
 
   return (
     <>
@@ -204,23 +217,33 @@ function Index() {
             md:text-4xl md:max-w-2xl
             2xl:text-5xl lg:max-w-2xl text-balance"
               >
-                High-quality open-source software for{' '}
-                <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
-                  web developers.
-                </span>
+                The <OpenSourceUnderline /> application stack for the web.
               </h2>
               <p
                 className="text opacity-90 max-w-sm
-            lg:text-xl lg:max-w-2xl text-balance"
+             lg:text-xl lg:max-w-2xl text-balance"
               >
-                Headless, type-safe, & powerful utilities for Web Applications,
-                Routing, State Management, Data Visualization, Datagrids/Tables,
-                and more.
+                Headless, type-safe, composable tools for building modern web
+                applications that work naturally for <strong>developers</strong>{' '}
+                and reliably for <strong>agents</strong>.
               </p>
             </div>
           </div>
-          <div className="w-fit mx-auto px-4">
-            <OpenSourceStats />
+          <div className="mx-auto mt-16 w-full max-w-[1021px] px-4 sm:px-6 md:mt-20 lg:mt-14 xl:mt-12">
+            <HomeApplicationStarter />
+          </div>
+          <div className="mx-auto w-full max-w-[1021px] px-4 sm:px-6">
+            <div className="mx-auto w-fit">
+              <HomeDeferredSection
+                forceLoad={deferredSectionStage > 0}
+                fallback={<HomeStatsFallback />}
+                preload={loadHomeStatsSection}
+                rootMargin="10%"
+                timeoutMs={6000}
+              >
+                <LazyHomeStatsSection />
+              </HomeDeferredSection>
+            </div>
           </div>
         </div>
 
@@ -352,213 +375,21 @@ function Index() {
           </div>
         </div>
 
-        <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-          <h3 id="partners" className="text-3xl font-bold mb-6 scroll-mt-24">
-            <a
-              href="#partners"
-              className="hover:underline decoration-gray-400 dark:decoration-gray-600"
-            >
-              Partners
-            </a>
-          </h3>
-          <PartnersGrid />
-          <div className="flex justify-center mt-6">
-            <Link to="/partners" search={{ status: 'inactive' }}>
-              <Button as="span">
-                View Previous Partners
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-            </Link>
-          </div>
-        </div>
+        <HomeDeferredSection
+          forceLoad={deferredSectionStage >= 1}
+          fallback={<HomeSocialProofFallback />}
+          preload={loadHomeSocialProofSection}
+        >
+          <LazyHomeSocialProofSection />
+        </HomeDeferredSection>
 
-        <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-          <FeaturedShowcases />
-        </div>
-
-        {(isRecentPostsLoading || recentPosts.length > 0) && (
-          <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-            <h3 id="blog" className="text-3xl font-bold mb-6 scroll-mt-24">
-              <a
-                href="#blog"
-                className="hover:underline decoration-gray-400 dark:decoration-gray-600"
-              >
-                Latest Blog Posts
-              </a>
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {isRecentPostsLoading
-                ? Array.from({ length: 3 }).map((_, idx) => (
-                    <Card
-                      key={`recent-post-skeleton-${idx}`}
-                      className="p-4 animate-pulse"
-                    >
-                      <div className="h-5 w-5/6 rounded bg-gray-200 dark:bg-gray-700" />
-                      <div className="mt-3 h-3 w-2/3 rounded bg-gray-200 dark:bg-gray-700" />
-                      <div className="mt-4 space-y-2">
-                        <div className="h-3 rounded bg-gray-100 dark:bg-gray-800" />
-                        <div className="h-3 rounded bg-gray-100 dark:bg-gray-800" />
-                      </div>
-                      <div className="mt-6 h-3 w-20 rounded bg-blue-100 dark:bg-blue-950/50" />
-                    </Card>
-                  ))
-                : recentPosts.map(
-                    ({
-                      slug,
-                      title,
-                      published,
-                      excerpt,
-                      headerImage,
-                      authors,
-                    }) => {
-                      return (
-                        <Card
-                          as={Link}
-                          key={slug}
-                          to="/blog/$"
-                          params={{ _splat: slug } as never}
-                          className={`flex flex-col justify-between overflow-hidden
-                      transition-all hover:shadow-md hover:border-blue-500
-                    `}
-                        >
-                          {headerImage ? (
-                            <div className="aspect-video overflow-hidden bg-gray-100 dark:bg-gray-800">
-                              <img
-                                src={headerImage}
-                                alt=""
-                                loading="lazy"
-                                decoding="async"
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-                          ) : null}
-                          <div className="p-4 flex flex-col gap-3 flex-1 justify-between">
-                            <div>
-                              <div className="text-base font-bold">{title}</div>
-                              <div className="text-xs italic font-light mt-1 text-gray-600 dark:text-gray-400">
-                                by {formatAuthors(authors)}
-                                {published ? (
-                                  <time
-                                    dateTime={published}
-                                    title={formatPublishedDate(published)}
-                                  >
-                                    {' '}
-                                    on {formatPublishedDate(published)}
-                                  </time>
-                                ) : null}
-                              </div>
-                              {excerpt ? (
-                                <p className="text-sm mt-3 text-gray-600 dark:text-gray-400 line-clamp-4 leading-relaxed">
-                                  {excerpt}
-                                </p>
-                              ) : null}
-                            </div>
-                            <div className="text-blue-500 uppercase font-bold text-xs">
-                              Read More →
-                            </div>
-                          </div>
-                        </Card>
-                      )
-                    },
-                  )}
-            </div>
-            <div className="flex justify-center mt-6">
-              <Button as={Link} to="/blog">
-                View All Posts
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-        )}
-
-        <div className={`lg:max-w-(--breakpoint-lg) px-4 mx-auto`}>
-          <h3 id="courses" className="text-3xl font-bold mb-6 scroll-mt-24">
-            <a
-              href="#courses"
-              className="hover:underline decoration-gray-400 dark:decoration-gray-600"
-            >
-              Courses
-            </a>
-          </h3>
-          <div className={`mt-4 grid grid-cols-1 gap-4`}>
-            {courses.map((course) => (
-              <Card
-                as="a"
-                key={course.name}
-                href={course.href}
-                className={`flex gap-2 justify-between p-4 md:p-8
-              transition-all hover:shadow-md hover:border-green-500
-              `}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <div
-                  className={`col-span-2
-                    md:col-span-5`}
-                >
-                  <div className={`text-2xl font-bold text-green-600`}>
-                    {course.name}
-                  </div>
-                  <div className={`text-sm mt-2`}>{course.description}</div>
-                  <div
-                    className={`inline-block mt-4 px-4 py-2 bg-green-700 text-white rounded shadow font-black text-sm`}
-                  >
-                    Check it out →
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-
-        <div className={`lg:max-w-(--breakpoint-lg) px-4 mx-auto`}>
-          <div id="sponsors" className="scroll-mt-24">
-            <LazySponsorSection
-              title={
-                <a
-                  href="#sponsors"
-                  className="hover:underline decoration-gray-400 dark:decoration-gray-600"
-                >
-                  OSS Sponsors
-                </a>
-              }
-            />
-          </div>
-          <div className={`h-4`} />
-          <p
-            className={`italic mx-auto max-w-(--breakpoint-sm) text-gray-500 dark:text-gray-400 text-center`}
-          >
-            Sponsors get special perks like{' '}
-            <strong>
-              private discord channels, priority issue requests, direct support
-              and even course vouchers
-            </strong>
-            !
-          </p>
-        </div>
-
-        <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-          <h3 id="maintainers" className="text-3xl font-bold mb-6 scroll-mt-24">
-            <a
-              href="#maintainers"
-              className="hover:underline decoration-gray-400 dark:decoration-gray-600"
-            >
-              Core Maintainers
-            </a>
-          </h3>
-          <div className="grid gap-6 grid-cols-2 lg:grid-cols-3">
-            {coreMaintainers.map((maintainer) => (
-              <MaintainerCard key={maintainer.github} maintainer={maintainer} />
-            ))}
-          </div>
-          <div className="flex justify-center mt-6">
-            <Button as={Link} to="/maintainers">
-              View All Maintainers
-            </Button>
-          </div>
-        </div>
-
-        <LandingPageGad />
+        <HomeDeferredSection
+          forceLoad={deferredSectionStage >= 2}
+          fallback={<HomeCommunityFallback />}
+          preload={loadHomeCommunitySection}
+        >
+          <LazyHomeCommunitySection />
+        </HomeDeferredSection>
 
         <div className="px-4 mx-auto max-w-(--breakpoint-lg)">
           <div
@@ -655,102 +486,45 @@ function Index() {
         </div>
 
         <div className="h-4" />
-        <div className="px-4 mx-auto max-w-(--breakpoint-lg) relative">
-          <Card className="rounded-md p-8 md:p-14">
-            {!bytesSignupMutation.submittedAt ? (
-              <form
-                onSubmit={async (e) => {
-                  e.preventDefault()
-                  const formData = new FormData(e.currentTarget)
-                  const email = formData.get('email_address')?.toString() || ''
-
-                  const result = await bytesSignupMutation.mutate({ email })
-                  if (result?.ok) {
-                    notify(
-                      <div>
-                        <div className="font-medium">
-                          Thanks for subscribing
-                        </div>
-                        <div className="text-gray-500 dark:text-gray-400 text-xs">
-                          Check your email to confirm your subscription
-                        </div>
-                      </div>,
-                    )
-                  } else if (bytesSignupMutation.status === 'error') {
-                    notify(
-                      <div>
-                        <div className="font-medium">Subscription failed</div>
-                        <div className="text-gray-500 dark:text-gray-400 text-xs">
-                          Please try again in a moment
-                        </div>
-                      </div>,
-                    )
-                  }
-                }}
-              >
-                <div>
-                  <div className={`relative inline-block`}>
-                    <h3 id="bytes" className="text-3xl font-bold scroll-mt-24">
-                      <a
-                        href="#bytes"
-                        className="hover:underline decoration-gray-400 dark:decoration-gray-600"
-                      >
-                        Subscribe to Bytes
-                      </a>
-                    </h3>
-                    <figure className={`absolute top-0 right-[-48px]`}>
-                      <img
-                        src={bytesImage}
-                        alt="Bytes Logo"
-                        loading="lazy"
-                        width={40}
-                        height={40}
-                      />
-                    </figure>
-                  </div>
-
-                  <h3 className={`text-lg mt-1`}>
-                    The Best JavaScript Newsletter
-                  </h3>
-                </div>
-                <div className={`grid grid-cols-3 mt-4 gap-2`}>
-                  <input
-                    disabled={bytesSignupMutation.status === 'pending'}
-                    className={`col-span-2 p-3 placeholder-gray-400 text-black bg-gray-200 rounded text-sm outline-none focus:outline-none w-full dark:(text-white bg-gray-700)`}
-                    name="email_address"
-                    placeholder="Your email address"
-                    type="text"
-                    required
-                  />
-                  <Button
-                    type="submit"
-                    className="bg-[#ED203D] border-[#ED203D] hover:bg-[#d41c35] text-white justify-center"
-                  >
-                    {bytesSignupMutation.status === 'pending'
-                      ? 'Loading ...'
-                      : 'Subscribe'}
-                  </Button>
-                </div>
-                {bytesSignupMutation.error ? (
-                  <p
-                    className={`text-sm text-red-500 font-semibold italic mt-2`}
-                  >
-                    Looks like something went wrong. Please try again.
-                  </p>
-                ) : (
-                  <p className={`text-sm opacity-30 font-semibold italic mt-2`}>
-                    Join over 100,000 devs
-                  </p>
-                )}
-              </form>
-            ) : (
-              <p>🎉 Thank you! Please confirm your email</p>
-            )}
-          </Card>
-        </div>
-        <div className={`h-20`} />
-        <Footer />
+        <HomeDeferredSection
+          forceLoad={deferredSectionStage >= 3}
+          fallback={<HomeBytesFallback />}
+          preload={loadHomeBytesSection}
+          rootMargin="10%"
+        >
+          <LazyHomeBytesSection />
+        </HomeDeferredSection>
       </div>
     </>
+  )
+}
+
+function OpenSourceUnderline() {
+  return (
+    <span className="home-open-source-underline">
+      <span className="relative z-10">open-source</span>
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 280 52"
+        preserveAspectRatio="none"
+        className="home-open-source-underline__svg"
+      >
+        <path
+          pathLength="1"
+          className="home-open-source-underline__path home-open-source-underline__path--primary"
+          d="M8 28C24 15 41 40 58 28C75 16 92 40 110 28C128 15 145 40 164 29C183 17 200 40 220 29C239 18 255 33 272 25"
+        />
+        <path
+          pathLength="1"
+          className="home-open-source-underline__path home-open-source-underline__path--secondary"
+          d="M10 31C27 19 44 42 62 30C80 18 97 42 116 30C135 18 152 43 172 31C192 19 210 42 230 31C248 21 261 34 270 28"
+        />
+        <path
+          pathLength="1"
+          className="home-open-source-underline__path home-open-source-underline__path--tertiary"
+          d="M12 34C29 23 47 45 65 33C83 21 101 45 121 33C141 21 159 45 179 34C199 23 217 44 237 34C253 26 264 36 268 32"
+        />
+      </svg>
+    </span>
   )
 }

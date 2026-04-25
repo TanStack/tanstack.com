@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { ClientOnly } from '@tanstack/react-router'
+import { ClientOnly, useParams } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { LibraryHero } from '~/components/LibraryHero'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
@@ -22,6 +22,8 @@ const LazyHotkeysShortcutBinding = React.lazy(() =>
 )
 
 export default function HotkeysLanding() {
+  const { version } = useParams({ strict: false })
+
   return (
     <LibraryPageContainer>
       <ClientOnly>
@@ -34,7 +36,7 @@ export default function HotkeysLanding() {
         cta={{
           linkProps: {
             to: '/$libraryId/$version/docs',
-            params: { libraryId: library.id, version: 'latest' },
+            params: { libraryId: library.id, version },
           },
           label: (
             <>
@@ -85,7 +87,7 @@ export default function HotkeysLanding() {
       <BottomCTA
         linkProps={{
           to: '/$libraryId/$version/docs',
-          params: { libraryId: library.id },
+          params: { libraryId: library.id, version },
         }}
         label="Get Started!"
         className="bg-rose-600 border-rose-600 hover:bg-rose-700 hover:border-rose-700 text-white"

@@ -46,6 +46,9 @@ export function DocFeedbackProvider({
   const [blockMarkdowns, setBlockMarkdowns] = React.useState<
     Map<string, string>
   >(new Map())
+  const [blockElements, setBlockElements] = React.useState<
+    Map<string, HTMLElement>
+  >(new Map())
   const [hoveredBlockId, setHoveredBlockId] = React.useState<string | null>(
     null,
   )
@@ -87,15 +90,28 @@ export function DocFeedbackProvider({
     const selectorMap = new Map<string, string>()
     const hashMap = new Map<string, string>()
     const markdownMap = new Map<string, string>()
+    const elementMap = new Map<string, HTMLElement>()
     const listeners = new Map<
       HTMLElement,
       { enter: (e: MouseEvent) => void; leave: (e: MouseEvent) => void }
     >()
+    const findClosestBlock = (target: HTMLElement): HTMLElement | null => {
+      let closestBlock: HTMLElement | null = null
+
+      for (const candidate of blocks) {
+        if (!candidate.contains(target)) continue
+        if (!closestBlock || closestBlock.contains(candidate)) {
+          closestBlock = candidate
+        }
+      }
+
+      return closestBlock
+    }
 
     Promise.all(
       blocks.map(async (block, index) => {
         const blockId = `block-${index}`
-        block.setAttribute('data-block-id', blockId)
+        elementMap.set(blockId, block)
 
         const identifier = await getBlockIdentifier(block)
         selectorMap.set(blockId, identifier.selector)
@@ -106,8 +122,10 @@ export function DocFeedbackProvider({
         const handleMouseEnter = (e: MouseEvent) => {
           // Only handle hover if this is the most specific block being hovered
           // (prevent parent blocks from showing hover when child blocks are hovered)
-          const target = e.target as HTMLElement
-          const closestBlock = target.closest('[data-block-id]')
+          const target = e.target
+          if (!(target instanceof HTMLElement)) return
+
+          const closestBlock = findClosestBlock(target)
           if (closestBlock === block) {
             setHoveredBlockId(blockId)
             block.style.backgroundColor = 'rgba(59, 130, 246, 0.05)' // blue with low opacity
@@ -118,10 +136,15 @@ export function DocFeedbackProvider({
         const handleMouseLeave = (e: MouseEvent) => {
           // Only clear hover if we're actually leaving this block
           // (not just entering a child element)
-          const relatedTarget = e.relatedTarget as HTMLElement
+          const relatedTarget =
+            e.relatedTarget instanceof HTMLElement ? e.relatedTarget : null
+          const closestBlock = relatedTarget
+            ? findClosestBlock(relatedTarget)
+            : null
           if (
+            !relatedTarget ||
             !block.contains(relatedTarget) ||
-            relatedTarget?.closest('[data-block-id]') !== block
+            closestBlock !== block
           ) {
             setHoveredBlockId((current) =>
               current === blockId ? null : current,
@@ -147,13 +170,14 @@ export function DocFeedbackProvider({
       setBlockSelectors(new Map(selectorMap))
       setBlockContentHashes(new Map(hashMap))
       setBlockMarkdowns(new Map(markdownMap))
+      setBlockElements(new Map(elementMap))
 
       // Visual indicators will be updated by the separate effect below
     })
 
     return () => {
+      setBlockElements(new Map())
       blocks.forEach((block) => {
-        block.removeAttribute('data-block-id')
         block.style.backgroundColor = ''
         block.style.borderRight = ''
         block.style.paddingRight = ''
@@ -173,9 +197,7 @@ export function DocFeedbackProvider({
     if (!user || blockSelectors.size === 0) return
 
     blockSelectors.forEach((selector, blockId) => {
-      const block = document.querySelector(
-        `[data-block-id="${blockId}"]`,
-      ) as HTMLElement
+      const block = blockElements.get(blockId)
       if (!block) return
 
       const hasNote = userNotes.some((n) => n.blockSelector === selector)
@@ -196,7 +218,7 @@ export function DocFeedbackProvider({
         block.style.paddingRight = ''
       }
     })
-  }, [user, userNotes, userImprovements, blockSelectors])
+  }, [user, userNotes, userImprovements, blockSelectors, blockElements])
 
   const handleCloseCreating = React.useCallback(() => {
     setCreatingState(null)
@@ -250,6 +272,8 @@ export function DocFeedbackProvider({
       {Array.from(blockSelectors.keys()).map((blockId) => {
         const selector = blockSelectors.get(blockId)
         if (!selector) return null
+        const block = blockElements.get(blockId)
+        if (!block) return null
 
         // Check if this block has a note or improvement (only for logged-in users)
         const note = user
@@ -264,6 +288,7 @@ export function DocFeedbackProvider({
           <BlockButton
             key={blockId}
             blockId={blockId}
+            block={block}
             isHovered={isHovered}
             hasNote={!!note}
             hasImprovement={!!improvement}
@@ -286,8 +311,10 @@ export function DocFeedbackProvider({
         )?.[0]
 
         if (!blockId) return null
+        const block = blockElements.get(blockId)
+        if (!block) return null
 
-        return <NotePortal key={note.id} blockId={blockId} note={note} />
+        return <NotePortal key={note.id} block={block} note={note} />
       })}
 
       {/* Render improvements inline */}
@@ -298,13 +325,11 @@ export function DocFeedbackProvider({
         )?.[0]
 
         if (!blockId) return null
+        const block = blockElements.get(blockId)
+        if (!block) return null
 
         return (
-          <NotePortal
-            key={improvement.id}
-            blockId={blockId}
-            note={improvement}
-          />
+          <NotePortal key={improvement.id} block={block} note={improvement} />
         )
       })}
 
@@ -312,6 +337,7 @@ export function DocFeedbackProvider({
       {creatingState && (
         <CreatingFeedbackPortal
           blockId={creatingState.blockId}
+          block={blockElements.get(creatingState.blockId)}
           type={creatingState.type}
           blockSelector={blockSelectors.get(creatingState.blockId) || ''}
           blockContentHash={blockContentHashes.get(creatingState.blockId) || ''}
@@ -329,6 +355,7 @@ export function DocFeedbackProvider({
 // Component to render floating button for a block
 function BlockButton({
   blockId,
+  block,
   isHovered,
   hasNote,
   hasImprovement,
@@ -339,6 +366,7 @@ function BlockButton({
   onShowNote,
 }: {
   blockId: string
+  block: HTMLElement
   isHovered: boolean
   hasNote: boolean
   hasImprovement: boolean
@@ -378,12 +406,6 @@ function BlockButton({
 
   if (!mounted) return null
 
-  // Find the block element
-  const block = document.querySelector(
-    `[data-block-id="${blockId}"]`,
-  ) as HTMLElement
-  if (!block) return null
-
   // Don't show button if block is inside an editor or note portal
   if (block.closest('[data-editor-portal], [data-note-portal]')) return null
 
@@ -416,9 +438,9 @@ function BlockButton({
   void scrollY
 
   // Create portal container for button positioned at top-right of block
-  let portalContainer = document.querySelector(
+  let portalContainer = block.querySelector<HTMLElement>(
     `[data-button-portal="${blockId}"]`,
-  ) as HTMLElement
+  )
 
   if (!portalContainer) {
     portalContainer = document.createElement('div')
@@ -451,7 +473,13 @@ function BlockButton({
 }
 
 // Component to render note after a block
-function NotePortal({ blockId, note }: { blockId: string; note: DocFeedback }) {
+function NotePortal({
+  block,
+  note,
+}: {
+  block: HTMLElement
+  note: DocFeedback
+}) {
   const [mounted, setMounted] = React.useState(false)
 
   React.useEffect(() => {
@@ -460,24 +488,21 @@ function NotePortal({ blockId, note }: { blockId: string; note: DocFeedback }) {
 
   if (!mounted) return null
 
-  // Find the block element
-  const block = document.querySelector(`[data-block-id="${blockId}"]`)
-  if (!block) return null
-
   // Don't show note if block is inside an editor portal
   if (block.closest('[data-editor-portal]')) return null
 
   // Find the actual insertion point - if block is inside an anchor-heading, insert after the anchor
-  let insertionPoint = block as HTMLElement
+  let insertionPoint = block
   const anchorParent = block.parentElement
   if (anchorParent?.classList.contains('anchor-heading')) {
     insertionPoint = anchorParent
   }
 
   // Create portal container after the insertion point
-  let portalContainer = insertionPoint.parentElement?.querySelector(
-    `[data-note-portal="${note.id}"]`,
-  ) as HTMLElement
+  let portalContainer =
+    insertionPoint.parentElement?.querySelector<HTMLElement>(
+      `[data-note-portal="${note.id}"]`,
+    )
 
   if (!portalContainer) {
     portalContainer = document.createElement('div')
@@ -498,6 +523,7 @@ function NotePortal({ blockId, note }: { blockId: string; note: DocFeedback }) {
 // Component to render creating feedback interface after a block
 function CreatingFeedbackPortal({
   blockId,
+  block,
   type,
   blockSelector,
   blockContentHash,
@@ -508,6 +534,7 @@ function CreatingFeedbackPortal({
   onClose,
 }: {
   blockId: string
+  block?: HTMLElement
   type: 'note' | 'improvement'
   blockSelector: string
   blockContentHash?: string
@@ -524,22 +551,20 @@ function CreatingFeedbackPortal({
   }, [])
 
   if (!mounted) return null
-
-  // Find the block element
-  const block = document.querySelector(`[data-block-id="${blockId}"]`)
   if (!block) return null
 
   // Find the actual insertion point - if block is inside an anchor-heading, insert after the anchor
-  let insertionPoint = block as HTMLElement
+  let insertionPoint = block
   const anchorParent = block.parentElement
   if (anchorParent?.classList.contains('anchor-heading')) {
     insertionPoint = anchorParent
   }
 
   // Create portal container after the insertion point
-  let portalContainer = insertionPoint.parentElement?.querySelector(
-    `[data-creating-portal="${blockId}"]`,
-  ) as HTMLElement
+  let portalContainer =
+    insertionPoint.parentElement?.querySelector<HTMLElement>(
+      `[data-creating-portal="${blockId}"]`,
+    )
 
   if (!portalContainer) {
     portalContainer = document.createElement('div')

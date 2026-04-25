@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Link, useNavigate } from '@tanstack/react-router'
+import { Link, useNavigate, useParams } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { Footer } from '~/components/Footer'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
@@ -24,6 +24,8 @@ import type { SkillHistoryEntry } from '~/utils/intent.functions'
 const library = getLibrary('intent')
 
 export default function IntentLanding() {
+  const { version } = useParams({ strict: false })
+
   return (
     <LibraryPageContainer>
       <LibraryHero
@@ -39,9 +41,8 @@ export default function IntentLanding() {
             </Button>
             <Button
               as={Link}
-              from="/$libraryId/$version"
-              to="./docs"
-              params={{ libraryId: library.id } as never}
+              to="/$libraryId/$version/docs"
+              params={{ libraryId: library.id, version } as never}
               className="bg-sky-500 border-sky-500 hover:bg-sky-600 dark:bg-sky-600 dark:border-sky-600 text-white"
             >
               Get Started
@@ -69,7 +70,7 @@ export default function IntentLanding() {
       <BottomCTA
         linkProps={{
           to: '/$libraryId/$version/docs',
-          params: { libraryId: library.id },
+          params: { libraryId: library.id, version },
         }}
         label="Get Started!"
         className="bg-sky-500 border-sky-500 hover:bg-sky-600 text-white"

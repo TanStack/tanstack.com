@@ -3,7 +3,18 @@
  * This file is safe to import on the client (no cta-engine dependencies).
  */
 
-export type FrameworkId = 'react-cra' | 'solid'
+export type FrameworkId = 'react' | 'solid'
+
+export function normalizeFrameworkId(id?: string): FrameworkId {
+  switch (id) {
+    case 'solid':
+      return 'solid'
+    case 'react-cra':
+    case 'react':
+    default:
+      return 'react'
+  }
+}
 
 export const FRAMEWORKS: Array<{
   id: FrameworkId
@@ -11,7 +22,7 @@ export const FRAMEWORKS: Array<{
   description: string
 }> = [
   {
-    id: 'react-cra',
+    id: 'react',
     name: 'React',
     description: 'Full-stack React with TanStack Router',
   },

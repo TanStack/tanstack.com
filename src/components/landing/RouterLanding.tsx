@@ -1,63 +1,26 @@
 import { useParams } from '@tanstack/react-router'
-import { routerProject } from '~/libraries/router'
-import { Footer } from '~/components/Footer'
-import { LibraryHero } from '~/components/LibraryHero'
-import { FeatureGrid } from '~/components/FeatureGrid'
-import { PartnersSection } from '~/components/PartnersSection'
-import { MaintainersSection } from '~/components/MaintainersSection'
-import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { BottomCTA } from '~/components/BottomCTA'
-import { Framework, getBranch, getLibrary } from '~/libraries'
+import { DeferredApplicationStarter } from '~/components/DeferredApplicationStarter'
+import { FeatureGrid } from '~/components/FeatureGrid'
+import { Footer } from '~/components/Footer'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
-import LandingPageGad from '~/components/LandingPageGad'
-import { LibraryTestimonials } from '~/components/LibraryTestimonials'
-import { LibraryShowcases } from '~/components/ShowcaseSection'
+import { LibraryHero } from '~/components/LibraryHero'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
-import { CodeExampleCard } from '~/components/CodeExampleCard'
+import { LibraryTestimonials } from '~/components/LibraryTestimonials'
+import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
+import { LazySponsorSection } from '~/components/LazySponsorSection'
+import LandingPageGad from '~/components/LandingPageGad'
 import { StackBlitzSection } from '~/components/StackBlitzSection'
+import { getBranch, getLibrary } from '~/libraries'
+import { routerProject } from '~/libraries/router'
+import type { LandingComponentProps } from '~/routes/$libraryId/$version'
 
 const library = getLibrary('router')
 
-const codeExamples: Partial<Record<Framework, { lang: string; code: string }>> =
-  {
-    react: {
-      lang: 'tsx',
-      code: `import { createRootRoute, createRoute, createRouter, RouterProvider } from '@tanstack/react-router'
-
-const rootRoute = createRootRoute()
-const indexRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/',
-  component: () => <div>Hello World</div>,
-})
-const routeTree = rootRoute.addChildren([indexRoute])
-const router = createRouter({ routeTree })
-
-export default function App() {
-  return <RouterProvider router={router} />
-}`,
-    },
-    solid: {
-      lang: 'tsx',
-      code: `import { createRootRoute, createRoute, createRouter, RouterProvider } from '@tanstack/solid-router'
-
-const rootRoute = createRootRoute()
-const indexRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/',
-  component: () => <div>Hello World</div>,
-})
-const routeTree = rootRoute.addChildren([indexRoute])
-const router = createRouter({ routeTree })
-
-export default function App() {
-  return <RouterProvider router={router} />
-}`,
-    },
-  }
-
-export default function RouterLanding() {
+export default function RouterLanding({
+  landingCodeExampleRsc,
+}: LandingComponentProps) {
   const { version } = useParams({ strict: false })
   const branch = getBranch(routerProject, version)
 
@@ -76,12 +39,23 @@ export default function RouterLanding() {
         }}
       />
 
-      <LibraryStatsSection library={library} />
+      <div className="space-y-6">
+        <div className="mx-auto w-full max-w-[1021px] px-4 pt-4 sm:px-6">
+          <div className="mx-auto">
+            <DeferredApplicationStarter
+              context="router"
+              forceRouterOnly
+              secondaryActionLabel="Build Router App on Netlify"
+              suggestionContext="start"
+              title="What would you like to build with TanStack Router?"
+              tone="emerald"
+            />
+          </div>
+        </div>
+        <LibraryStatsSection library={library} />
+      </div>
 
-      <CodeExampleCard
-        frameworks={routerProject.frameworks}
-        codeByFramework={codeExamples}
-      />
+      {landingCodeExampleRsc}
 
       <LibraryFeatureHighlights
         featureHighlights={routerProject.featureHighlights}
@@ -89,12 +63,10 @@ export default function RouterLanding() {
 
       <LibraryTestimonials testimonials={routerProject.testimonials} />
 
-      <MaintainersSection libraryId="router" />
-      <PartnersSection libraryId="router" />
-
-      <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-        <LibraryShowcases libraryId="router" libraryName="TanStack Router" />
-      </div>
+      <LazyLandingCommunitySection
+        libraryId="router"
+        libraryName="TanStack Router"
+      />
 
       <FeatureGrid
         title="Feature Rich and Lightweight"

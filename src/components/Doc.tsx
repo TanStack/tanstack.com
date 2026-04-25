@@ -1,20 +1,20 @@
 import * as React from 'react'
 import { FoldHorizontal, UnfoldHorizontal } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
-import { useWidthToggle, DocNavigation } from '~/components/DocsLayout'
-import { AdGate } from '~/contexts/AdsContext'
-import { GamHeader } from './Gam'
+import { DocNavigation, WidthToggleContext } from '~/components/DocsLayout'
+
 import { Toc } from './Toc'
-import { renderMarkdown } from '~/utils/markdown'
 import { DocBreadcrumb } from './DocBreadcrumb'
 import { MarkdownContent } from '~/components/markdown'
 import type { ConfigSchema } from '~/utils/config'
 import { useLocalCurrentFramework } from './FrameworkSelect'
 import { useParams } from '@tanstack/react-router'
+import type { MarkdownHeading } from '~/utils/markdown/processor.rsc'
 
 type DocProps = {
   title: string
-  content: string
+  contentRsc: React.ReactNode
+  headings: Array<MarkdownHeading>
   repo: string
   branch: string
   filePath: string
@@ -36,7 +36,8 @@ type DocProps = {
 
 export function Doc({
   title,
-  content,
+  contentRsc,
+  headings,
   repo,
   branch,
   filePath,
@@ -51,12 +52,6 @@ export function Doc({
   footer,
   framework: frameworkProp,
 }: DocProps) {
-  // Extract headings synchronously during render to avoid hydration mismatch
-  const { headings, markup } = React.useMemo(
-    () => renderMarkdown(content),
-    [content],
-  )
-
   // Get current framework from prop, URL params, or local storage
   const { framework: paramsFramework } = useParams({ strict: false })
   const localCurrentFramework = useLocalCurrentFramework()
@@ -78,17 +73,10 @@ export function Doc({
     Record<string, IntersectionObserverEntry>
   >({})
 
-  // Try to get the width toggle context from DocsLayout
-  let isFullWidth = false
-  let setIsFullWidth: ((isFullWidth: boolean) => void) | undefined
+  const widthToggleContext = React.useContext(WidthToggleContext)
 
-  try {
-    const context = useWidthToggle()
-    isFullWidth = context.isFullWidth
-    setIsFullWidth = context.setIsFullWidth
-  } catch {
-    // Context not available, that's okay
-  }
+  const isFullWidth = widthToggleContext?.isFullWidth ?? false
+  const setIsFullWidth = widthToggleContext?.setIsFullWidth
 
   React.useEffect(() => {
     const callback = (headingsList: Array<IntersectionObserverEntry>) => {
@@ -129,16 +117,17 @@ export function Doc({
   }, [headings])
 
   return (
-    <div className="flex-1 min-h-0 flex flex-col">
-      <a href={`${pagePath}.md`} className="sr-only" aria-hidden="true">
+    <div className="flex-1 min-h-0 flex flex-col pt-4 lg:pt-6 xl:pt-8">
+      <a
+        href={`${pagePath}.md`}
+        className="sr-only"
+        tabIndex={-1}
+        aria-hidden="true"
+      >
         AI/LLM: This documentation page is available in plain markdown format at
         {pagePath}.md
       </a>
-      <AdGate>
-        <div className="py-2 pb-6 lg:py-4 lg:pb-8 xl:py-6 xl:pb-10 max-w-full">
-          <GamHeader />
-        </div>
-      </AdGate>
+
       <div
         className={twMerge(
           'w-full flex mx-auto max-w-[768px]',
@@ -159,11 +148,12 @@ export function Doc({
             repo={repo}
             branch={branch}
             filePath={filePath}
-            htmlMarkup={markup}
+            contentRsc={contentRsc}
             containerRef={markdownContainerRef}
             libraryId={libraryId}
             libraryVersion={libraryVersion}
             pagePath={pagePath}
+            currentFramework={currentFramework}
             titleBarActions={
               setIsFullWidth ? (
                 <button
@@ -184,7 +174,7 @@ export function Doc({
         </div>
 
         {isTocVisible && (
-          <div className="pl-4 w-32 lg:w-36 xl:w-44 2xl:w-56 3xl:w-64 shrink-0 hidden lg:block transition-all">
+          <div className="pl-4 w-32 lg:w-36 xl:w-44 2xl:w-56 3xl:w-64 shrink-0 hidden xl:block transition-all">
             <Toc
               headings={headings}
               activeHeadings={activeHeadings}

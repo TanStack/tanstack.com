@@ -1,315 +1,32 @@
 import { useState } from 'react'
 import { useParams } from '@tanstack/react-router'
-import { tableProject } from '~/libraries/table'
-import { Footer } from '~/components/Footer'
-import { Card } from '~/components/Card'
-import { LibraryHero } from '~/components/LibraryHero'
-import { FeatureGrid } from '~/components/FeatureGrid'
-import { PartnersSection } from '~/components/PartnersSection'
-import { MaintainersSection } from '~/components/MaintainersSection'
-import { LazySponsorSection } from '~/components/LazySponsorSection'
-import { StackBlitzEmbed } from '~/components/StackBlitzEmbed'
-import { FrameworkIconTabs } from '~/components/FrameworkIconTabs'
-import { CodeBlock } from '~/components/markdown'
 import { BottomCTA } from '~/components/BottomCTA'
-import { Framework, getBranch, getLibrary } from '~/libraries'
-import { getExampleStartingPath } from '~/utils/sandbox'
+import { FeatureGrid } from '~/components/FeatureGrid'
+import { Footer } from '~/components/Footer'
+import { FrameworkIconTabs } from '~/components/FrameworkIconTabs'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
-import LandingPageGad from '~/components/LandingPageGad'
-import { LibraryTestimonials } from '~/components/LibraryTestimonials'
-import { LibraryShowcases } from '~/components/ShowcaseSection'
+import { LibraryHero } from '~/components/LibraryHero'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
+import { LibraryTestimonials } from '~/components/LibraryTestimonials'
+import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
+import { LazySponsorSection } from '~/components/LazySponsorSection'
+import LandingPageGad from '~/components/LandingPageGad'
+import { StackBlitzEmbed } from '~/components/StackBlitzEmbed'
+import { Framework, getBranch, getLibrary } from '~/libraries'
+import { tableProject } from '~/libraries/table'
+import type { LandingComponentProps } from '~/routes/$libraryId/$version'
+import { getExampleStartingPath } from '~/utils/sandbox'
 
 const library = getLibrary('table')
 
-const codeExamples: Partial<Record<Framework, { lang: string; code: string }>> =
-  {
-    react: {
-      lang: 'tsx',
-      code: `import { useReactTable, getCoreRowModel, flexRender } from '@tanstack/react-table'
-
-const data = [{ id: 1, name: 'Ada' }]
-const columns = [{ accessorKey: 'name', header: 'Name' }]
-
-export default function SimpleTable() {
-  const table = useReactTable({ data, columns, getCoreRowModel: getCoreRowModel() })
-
-  return (
-    <table>
-      <thead>
-        {table.getHeaderGroups().map((hg) => (
-          <tr key={hg.id}>
-            {hg.headers.map((header) => (
-              <th key={header.id}>
-                {flexRender(header.column.columnDef.header, header.getContext())}
-              </th>
-            ))}
-          </tr>
-        ))}
-      </thead>
-      <tbody>
-        {table.getRowModel().rows.map((row) => (
-          <tr key={row.id}>
-            {row.getVisibleCells().map((cell) => (
-              <td key={cell.id}>
-                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-              </td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  )
-}`,
-    },
-    angular: {
-      lang: 'ts',
-      code: `import { Component, signal } from '@angular/core'
-import { createAngularTable, getCoreRowModel, FlexRenderDirective, type ColumnDef } from '@tanstack/angular-table'
-
-type Person = { id: number; name: string }
-
-@Component({
-  standalone: true,
-  selector: 'app-table',
-  imports: [FlexRenderDirective],
-  template: \`
-<table>
-  <thead>
-    @for (hg of table.getHeaderGroups(); track hg.id) {
-      <tr>
-        @for (header of hg.headers; track header.id) {
-          <th>
-            <ng-container *flexRender="header.column.columnDef.header; props: header.getContext()"></ng-container>
-          </th>
-        }
-      </tr>
-    }
-  </thead>
-  <tbody>
-    @for (row of table.getRowModel().rows; track row.id) {
-      <tr>
-        @for (cell of row.getVisibleCells(); track cell.id) {
-          <td>
-            <ng-container *flexRender="cell.column.columnDef.cell; props: cell.getContext()"></ng-container>
-          </td>
-        }
-      </tr>
-    }
-  </tbody>
-</table>
-  \`,
-})
-export class AppComponent {
-  data = signal<Person[]>([{ id: 1, name: 'Ada' }])
-
-  columns: ColumnDef<Person>[] = [
-    { accessorKey: 'name', header: 'Name' },
-  ]
-
-  table = createAngularTable(() => ({
-    data: this.data(),
-    columns: this.columns,
-    getCoreRowModel: getCoreRowModel(),
-  }))
-}`,
-    },
-    solid: {
-      lang: 'tsx',
-      code: `import { createSolidTable, getCoreRowModel, flexRender } from '@tanstack/solid-table'
-
-const data = [{ id: 1, name: 'Ada' }]
-const columns = [{ accessorKey: 'name', header: 'Name' }]
-
-export default function SimpleTable() {
-  const table = createSolidTable({ data, columns, getCoreRowModel: getCoreRowModel() })
-
-  return (
-    <table>
-      <thead>
-        {table.getHeaderGroups().map((hg) => (
-          <tr>
-            {hg.headers.map((header) => (
-              <th>{flexRender(header.column.columnDef.header, header.getContext())}</th>
-            ))}
-          </tr>
-        ))}
-      </thead>
-      <tbody>
-        {table.getRowModel().rows.map((row) => (
-          <tr>
-            {row.getVisibleCells().map((cell) => (
-              <td>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  )
-}`,
-    },
-    vue: {
-      lang: 'vue',
-      code: `<script setup lang="ts">
-import { useVueTable, getCoreRowModel, flexRender } from '@tanstack/vue-table'
-
-const data = [{ id: 1, name: 'Ada' }]
-const columns = [{ accessorKey: 'name', header: 'Name' }]
-const table = useVueTable({ data, columns, getCoreRowModel: getCoreRowModel() })
-</script>
-
-<template>
-  <table>
-    <thead>
-      <tr v-for="hg in table.getHeaderGroups()" :key="hg.id">
-        <th v-for="header in hg.headers" :key="header.id">
-          {{ flexRender(header.column.columnDef.header, header.getContext()) }}
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="row in table.getRowModel().rows" :key="row.id">
-        <td v-for="cell in row.getVisibleCells()" :key="cell.id">
-          {{ flexRender(cell.column.columnDef.cell, cell.getContext()) }}
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</template>`,
-    },
-    svelte: {
-      lang: 'svelte',
-      code: `<script lang="ts">
-  import { createSvelteTable, getCoreRowModel, flexRender } from '@tanstack/svelte-table'
-  const data = [{ id: 1, name: 'Ada' }]
-  const columns = [{ accessorKey: 'name', header: 'Name' }]
-  const table = createSvelteTable({ data, columns, getCoreRowModel: getCoreRowModel() })
-</script>
-
-<table>
-  <thead>
-    {#each table.getHeaderGroups() as hg}
-      <tr>
-        {#each hg.headers as header}
-          <th>{flexRender(header.column.columnDef.header, header.getContext())}</th>
-        {/each}
-      </tr>
-    {/each}
-  </thead>
-  <tbody>
-    {#each table.getRowModel().rows as row}
-      <tr>
-        {#each row.getVisibleCells() as cell}
-          <td>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-        {/each}
-      </tr>
-    {/each}
-  </tbody>
-</table>`,
-    },
-    lit: {
-      lang: 'ts',
-      code: `import { LitElement, customElement, html } from 'lit'
-import { createLitTable, getCoreRowModel, flexRender } from '@tanstack/lit-table'
-
-const data = [{ id: 1, name: 'Ada' }]
-const columns = [{ accessorKey: 'name', header: 'Name' }]
-
-@customElement('simple-table')
-export class SimpleTable extends LitElement {
-  table = createLitTable({ data, columns, getCoreRowModel: getCoreRowModel() })
-
-  render() {
-    return html\`<table>
-      <thead>
-        \${this.table.getHeaderGroups().map((hg) => html\`<tr>
-          \${hg.headers.map((header) => html\`<th>\${flexRender(header.column.columnDef.header, header.getContext())}</th>\`)}
-        </tr>\`)}
-      </thead>
-      <tbody>
-        \${this.table.getRowModel().rows.map((row) => html\`<tr>
-          \${row.getVisibleCells().map((cell) => html\`<td>\${flexRender(cell.column.columnDef.cell, cell.getContext())}</td>\`)}
-        </tr>\`)}
-      </tbody>
-    </table>\`
-  }
-}`,
-    },
-    qwik: {
-      lang: 'tsx',
-      code: `import { component$ } from '@builder.io/qwik'
-import { createQwikTable, getCoreRowModel, flexRender } from '@tanstack/qwik-table'
-
-const data = [{ id: 1, name: 'Ada' }]
-const columns = [{ accessorKey: 'name', header: 'Name' }]
-
-export default component$(() => {
-  const table = createQwikTable({ data, columns, getCoreRowModel: getCoreRowModel() })
-  return (
-    <table>
-      <thead>
-        {table.getHeaderGroups().map((hg) => (
-          <tr>
-            {hg.headers.map((header) => (
-              <th>{flexRender(header.column.columnDef.header, header.getContext())}</th>
-            ))}
-          </tr>
-        ))}
-      </thead>
-      <tbody>
-        {table.getRowModel().rows.map((row) => (
-          <tr>
-            {row.getVisibleCells().map((cell) => (
-              <td>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  )
-})`,
-    },
-    vanilla: {
-      lang: 'ts',
-      code: `import { createTable, getCoreRowModel, flexRender } from '@tanstack/table-core'
-
-const data = [{ id: 1, name: 'Ada' }]
-const columns = [{ accessorKey: 'name', header: 'Name' }]
-
-const table = createTable({ data, columns, getCoreRowModel: getCoreRowModel() })
-
-const thead = document.querySelector('thead')!
-table.getHeaderGroups().forEach((hg) => {
-  const tr = document.createElement('tr')
-  hg.headers.forEach((header) => {
-    const th = document.createElement('th')
-    th.textContent = String(flexRender(header.column.columnDef.header, header.getContext()))
-    tr.appendChild(th)
-  })
-  thead.appendChild(tr)
-})
-
-const tbody = document.querySelector('tbody')!
-table.getRowModel().rows.forEach((row) => {
-  const tr = document.createElement('tr')
-  row.getVisibleCells().forEach((cell) => {
-    const td = document.createElement('td')
-    td.textContent = String(flexRender(cell.column.columnDef.cell, cell.getContext()))
-    tr.appendChild(td)
-  })
-  tbody.appendChild(tr)
-})`,
-    },
-  }
-
-export default function TableLanding() {
+export default function TableLanding({
+  landingCodeExampleRsc,
+}: LandingComponentProps) {
   const { version } = useParams({ strict: false })
   const branch = getBranch(tableProject, version)
   const [framework, setFramework] = useState<Framework>('react')
   const sandboxFirstFileName = getExampleStartingPath(framework)
-
-  const selectedCode = codeExamples[framework]
 
   return (
     <LibraryPageContainer>
@@ -327,37 +44,7 @@ export default function TableLanding() {
 
       <LibraryStatsSection library={library} />
 
-      {/* Custom code example card with fallback for unsupported frameworks */}
-      <div className="px-4 space-y-4 flex flex-col items-center">
-        <div className="text-3xl font-black">Just a quick look...</div>
-        <Card className="group relative overflow-hidden max-w-full mx-auto [&_pre]:bg-transparent! [&_pre]:p-4!">
-          <FrameworkIconTabs
-            frameworks={tableProject.frameworks}
-            value={framework}
-            onChange={setFramework}
-          />
-          {selectedCode ? (
-            <CodeBlock className="mt-0 border-0" showTypeCopyButton={false}>
-              <code className={`language-${selectedCode.lang}`}>
-                {selectedCode.code}
-              </code>
-            </CodeBlock>
-          ) : (
-            <div className="p-6 text-center text-lg w-full bg-gray-900 text-white">
-              Looking for the <strong>@tanstack/{framework}-table</strong>{' '}
-              example? We could use your help to build the{' '}
-              <strong>@tanstack/{framework}-table</strong> adapter! Join the{' '}
-              <a
-                href="https://tlinz.com/discord"
-                className="text-teal-400 font-bold underline"
-              >
-                TanStack Discord Server
-              </a>{' '}
-              and let's get to work!
-            </div>
-          )}
-        </Card>
-      </div>
+      {landingCodeExampleRsc}
 
       <LibraryFeatureHighlights
         featureHighlights={tableProject.featureHighlights}
@@ -421,12 +108,10 @@ export default function TableLanding() {
         </div>
       </div>
 
-      <MaintainersSection libraryId="table" />
-      <PartnersSection libraryId="table" />
-
-      <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-        <LibraryShowcases libraryId="table" libraryName="TanStack Table" />
-      </div>
+      <LazyLandingCommunitySection
+        libraryId="table"
+        libraryName="TanStack Table"
+      />
 
       <LazySponsorSection />
       <LandingPageGad />

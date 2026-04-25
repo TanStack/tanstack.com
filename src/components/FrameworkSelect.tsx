@@ -5,7 +5,13 @@ import { Select } from './Select'
 import { Framework, getLibrary, LibraryId } from '~/libraries'
 import { getFrameworkOptions } from '~/libraries/frameworks'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
-import { updateLastUsedFramework } from '~/utils/users.server'
+import { updateLastUsedFramework } from '~/utils/users.functions'
+
+function persistFrameworkToServer(framework: string) {
+  void updateLastUsedFramework({ data: { framework } }).catch(() => {
+    // Silently ignore errors - localStorage is the fallback
+  })
+}
 
 export function FrameworkSelect({ libraryId }: { libraryId: LibraryId }) {
   const library = getLibrary(libraryId)
@@ -74,9 +80,7 @@ export function usePersistFrameworkPreference() {
       localCurrentFramework.setCurrentFramework(framework)
       // Update DB for logged-in users (fire-and-forget)
       if (userQuery.data) {
-        updateLastUsedFramework({ data: { framework } }).catch(() => {
-          // Silently ignore errors - localStorage is the fallback
-        })
+        persistFrameworkToServer(framework)
       }
     },
     [localCurrentFramework, userQuery.data],
@@ -136,9 +140,7 @@ export function useCurrentFramework(frameworks: Framework[]) {
       localCurrentFramework.setCurrentFramework(framework)
       // Update DB for logged-in users (fire-and-forget)
       if (userQuery.data) {
-        updateLastUsedFramework({ data: { framework } }).catch(() => {
-          // Silently ignore errors - localStorage is the fallback
-        })
+        persistFrameworkToServer(framework)
       }
     },
     [localCurrentFramework, navigate, userQuery.data],

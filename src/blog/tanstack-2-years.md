@@ -1,6 +1,7 @@
 ---
 title: The State of TanStack, Two Years of Full-Time OSS
 published: 2025-11-24
+excerpt: Two years ago I went all in on TanStack. No consulting, no safety nets. What started as a handful of libraries has grown into a real ecosystem powering millions of developers.
 authors:
   - Tanner Linsley
 ---

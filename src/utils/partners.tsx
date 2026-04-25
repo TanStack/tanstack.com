@@ -26,6 +26,8 @@ import codeRabbitLightSvg from '~/images/coderabbit-light.svg'
 import codeRabbitDarkSvg from '~/images/coderabbit-dark.svg'
 import strapiLightSvg from '~/images/strapi-light.svg'
 import strapiDarkSvg from '~/images/strapi-dark.svg'
+import serpapiWhiteSvg from '~/images/serpapi-white.svg'
+import serpapiBlackSvg from '~/images/serpapi-black.svg'
 import { libraries, type Library } from '~/libraries'
 import cloudflareWhiteSvg from '~/images/cloudflare-white.svg'
 import cloudflareBlackSvg from '~/images/cloudflare-black.svg'
@@ -33,6 +35,10 @@ import workosBlackSvg from '~/images/workos-black.svg'
 import workosWhiteSvg from '~/images/workos-white.svg'
 import powersyncBlackSvg from '~/images/powersync-black.svg'
 import powersyncWhiteSvg from '~/images/powersync-white.svg'
+import railwayBlackSvg from '~/images/railway-black.svg'
+import railwayWhiteSvg from '~/images/railway-white.svg'
+import openrouterBlackSvg from '~/images/openrouter-black.svg'
+import openrouterWhiteSvg from '~/images/openrouter-white.svg'
 
 function LearnMoreButton() {
   return (
@@ -46,10 +52,19 @@ type PartnerImageConfig =
   | { light: string; dark: string; scale?: number }
   | { src: string; scale?: number }
 
+type PartnerApplicationStarterIcon = {
+  mode: 'contain' | 'left-crop'
+  src: string
+}
+
+type ApplicationStarterPartnerTier = 1 | 2 | 3
+
 export function PartnerImage({
+  className,
   config,
   alt,
 }: {
+  className?: string
   config: PartnerImageConfig
   alt: string
 }) {
@@ -65,7 +80,9 @@ export function PartnerImage({
           src={config.light}
           alt={alt}
           loading="lazy"
-          className="w-full dark:hidden"
+          className={
+            className ? `${className} dark:hidden` : 'w-full dark:hidden'
+          }
           width={200}
           height={100}
           sizes="(max-width: 640px) 80px, (max-width: 1024px) 150px, 200px"
@@ -74,7 +91,11 @@ export function PartnerImage({
           src={config.dark}
           alt={alt}
           loading="lazy"
-          className="w-full hidden dark:block"
+          className={
+            className
+              ? `${className} hidden dark:block`
+              : 'w-full hidden dark:block'
+          }
           width={200}
           height={100}
           sizes="(max-width: 640px) 80px, (max-width: 1024px) 150px, 200px"
@@ -88,7 +109,7 @@ export function PartnerImage({
       <img
         src={config.src}
         alt={alt}
-        className="w-full"
+        className={className ?? 'w-full'}
         width={200}
         height={100}
         loading="lazy"
@@ -107,6 +128,7 @@ export const partnerCategories = [
   'monitoring',
   'cms',
   'api',
+  'ai',
   'learning',
 ] as const
 
@@ -121,14 +143,17 @@ export const partnerCategoryLabels: Record<PartnerCategory, string> = {
   monitoring: 'Error Monitoring',
   cms: 'CMS',
   api: 'API Management',
+  ai: 'AI/LLM',
   learning: 'Learning Resources',
 }
 
-type Partner = {
+export type Partner = {
+  applicationStarterPromptInstructions?: Array<string>
   name: string
   id: string
   libraries?: Library['id'][]
   href: string
+  applicationStarterIcon?: PartnerApplicationStarterIcon
   image: PartnerImageConfig
   content: JSX.Element
   llmDescription: string
@@ -139,6 +164,90 @@ type Partner = {
   score: number
   brandColor?: string // Primary brand color for game elements
   tagline?: string // Short tagline for game info cards
+}
+
+export type ApplicationStarterPartnerSuggestion = {
+  brandColor?: Partner['brandColor']
+  description: string
+  hint: string
+  iconMode?: 'contain' | 'left-crop'
+  id: string
+  iconSrc?: string
+  image: Partner['image']
+  label: string
+  sortOrder: number
+  tags: Array<string>
+  tier: ApplicationStarterPartnerTier
+}
+
+const APPLICATION_STARTER_GUIDANCE_MARKER = 'Starter guidance:'
+const APPLICATION_STARTER_SELECTED_PARTNERS_MARKER = 'Selected partner ids:'
+const APPLICATION_STARTER_INFERRED_PARTNERS_MARKER = 'Inferred partner ids:'
+const APPLICATION_STARTER_FORCE_ROUTER_ONLY_MARKER = 'Force router-only: true'
+
+export function getApplicationStarterUserBrief(input: string) {
+  const [brief] = input.split(`\n\n${APPLICATION_STARTER_GUIDANCE_MARKER}\n`)
+  return brief?.trim() ?? ''
+}
+
+export function getApplicationStarterGuidanceLines(input: string) {
+  const [, guidance] = input.split(
+    `\n\n${APPLICATION_STARTER_GUIDANCE_MARKER}\n`,
+  )
+
+  if (!guidance) {
+    return []
+  }
+
+  return guidance
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(
+      (line) =>
+        !line.startsWith(APPLICATION_STARTER_SELECTED_PARTNERS_MARKER) &&
+        !line.startsWith(APPLICATION_STARTER_INFERRED_PARTNERS_MARKER) &&
+        line !== APPLICATION_STARTER_FORCE_ROUTER_ONLY_MARKER,
+    )
+    .filter(Boolean)
+}
+
+export function getApplicationStarterForceRouterOnly(input: string) {
+  return input.includes(APPLICATION_STARTER_FORCE_ROUTER_ONLY_MARKER)
+}
+
+function extractApplicationStarterPartnerIdsFromMarker({
+  input,
+  marker,
+}: {
+  input: string
+  marker: string
+}) {
+  const escapedMarker = marker.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const pattern = new RegExp(`${escapedMarker}\\s*([^\\n]+)`, 'i')
+  const value = input.match(pattern)?.[1]?.trim()
+
+  if (!value) {
+    return []
+  }
+
+  return value
+    .split(',')
+    .map((part) => part.trim())
+    .filter(Boolean)
+}
+
+export function getApplicationStarterSelectedPartnerIds(input: string) {
+  return extractApplicationStarterPartnerIdsFromMarker({
+    input,
+    marker: APPLICATION_STARTER_SELECTED_PARTNERS_MARKER,
+  })
+}
+
+export function getApplicationStarterInferredPartnerIds(input: string) {
+  return extractApplicationStarterPartnerIdsFromMarker({
+    input,
+    marker: APPLICATION_STARTER_INFERRED_PARTNERS_MARKER,
+  })
 }
 
 const neon = (() => {
@@ -158,20 +267,15 @@ const neon = (() => {
       dark: neonDarkSvg,
     },
     llmDescription:
-      'Serverless PostgreSQL with instant branching, autoscaling, and storage/compute separation. Recommended database for TanStack Start applications.',
+      'Serverless Postgres platform with branching, autoscaling compute, and separate storage and compute. Neon also publishes a TanStack Start setup prompt and docs for getting TanStack apps running on Postgres quickly.',
     category: 'database',
     content: (
       <>
         <div className="text-xs">
-          Neon and TanStack are joining forces to bring{' '}
-          <strong>serverless PostgreSQL</strong> to the modern web stack. With
-          Neon's{' '}
-          <strong>
-            blazing-fast branching, autoscaling, and storage/compute separation
-          </strong>
-          , developers can instantly spin up production-grade databases for
-          every branch, test, or feature. TanStack's developer-first framework +
-          Neon's cutting-edge infra = next-gen DX.
+          Neon provides <strong>serverless Postgres</strong> with branching,
+          autoscaling compute, and separate storage and compute. That makes it
+          especially useful for preview environments, branch-based workflows,
+          and fast iteration with TanStack Start.
         </div>
         <LearnMoreButton />
       </>
@@ -186,7 +290,9 @@ const convex = (() => {
     name: 'Convex',
     id: 'convex',
     libraries: ['start', 'router'],
-    status: 'active' as const,
+    status: 'inactive' as const,
+    startDate: 'May 2024',
+    endDate: 'Mar 2026',
     score: 0.286,
     href,
     brandColor: '#F3A712',
@@ -196,19 +302,15 @@ const convex = (() => {
       dark: convexWhiteSvg,
     },
     llmDescription:
-      'Real-time, relational database with end-to-end type safety. Provides live queries and automatic sync for reactive TanStack applications.',
+      'Reactive backend platform with a document database, relational data model, TypeScript functions, and realtime query updates. Convex also has an official TanStack Start quickstart.',
     category: 'database',
     content: (
       <>
         <div className="text-xs">
-          Convex has teamed up with TanStack to not only deliver a{' '}
-          <strong>first-class end-to-end type-safe database experience</strong>{' '}
-          to TanStack developers, but to also ensure TanStack is ready for the
-          real-time database arena. Convex's all-in-one platform delivers
-          end-to-end type-safety via a{' '}
-          <strong>revolutionary relational, real-time database</strong> and
-          together, we're elevating what's possible with real-time React
-          applications.
+          Convex provides a <strong>reactive backend</strong> with TypeScript
+          queries, mutations, and realtime updates to clients. For TanStack
+          apps, it is a useful option when you want live data behavior without
+          wiring your own sync layer by hand.
         </div>
         <LearnMoreButton />
       </>
@@ -234,17 +336,16 @@ const clerk = (() => {
       scale: 0.85,
     },
     llmDescription:
-      'Drop-in authentication and user management with pre-built UI components. Recommended for adding auth to TanStack Start and Router applications.',
+      'Authentication and user management platform with prebuilt UI, sessions, organizations, and MFA. Clerk has official SDKs and quickstarts for TanStack React Start and React Router.',
     category: 'auth',
     content: (
       <>
         <div className="text-xs">
-          Clerk and TanStack are partnering to elevate your application's{' '}
-          <strong>security and user experience</strong> with industry-leading{' '}
-          <strong>authentication and user management</strong>. Paired with
-          TanStack's no-nonsense routing and tooling, you'll be equipped to
-          effortlessly deliver top-notch experiences that your users can trust
-          and your developers can rely on.
+          Clerk provides <strong>authentication and user management</strong>
+          with prebuilt UI, sessions, organizations, and MFA. It also publishes
+          official guides for{' '}
+          <strong>TanStack React Start and React Router</strong>, which makes
+          integration straightforward.
         </div>
         <LearnMoreButton />
       </>
@@ -264,21 +365,24 @@ const workos = (() => {
     score: 0.314,
     brandColor: '#6363F1',
     tagline: 'Enterprise Auth',
+    applicationStarterIcon: {
+      mode: 'left-crop',
+      src: workosBlackSvg,
+    },
     image: {
       light: workosBlackSvg,
       dark: workosWhiteSvg,
     },
     llmDescription:
-      'Enterprise authentication including SSO (SAML/OIDC), Directory Sync, MFA, and Audit Logs. Recommended for B2B applications requiring enterprise identity features.',
+      'Enterprise identity platform with SSO, Directory Sync, MFA for AuthKit, RBAC, audit logs, and admin onboarding tools. It is a strong fit for B2B apps that need enterprise auth features.',
     category: 'auth',
     content: (
       <>
         <div className="text-xs">
-          WorkOS and TanStack are partnering to deliver
-          <strong> enterprise-ready authentication</strong>—including
-          <strong> SSO (SAML/OIDC)</strong>, <strong>Directory Sync</strong>,
-          <strong> MFA</strong>, and <strong>Audit Logs</strong>—paired with
-          TanStack's developer-first routing and app tooling.
+          WorkOS focuses on <strong>enterprise identity</strong> features like
+          SSO, Directory Sync, RBAC, audit logs, and admin onboarding, plus MFA
+          in AuthKit. That makes it a practical fit for B2B TanStack apps with
+          organization-level access requirements.
         </div>
         <LearnMoreButton />
       </>
@@ -299,22 +403,30 @@ const agGrid = (() => {
     href,
     brandColor: '#FF8C00',
     tagline: 'Enterprise Data Grid',
+    applicationStarterIcon: {
+      mode: 'contain',
+      src: 'https://www.ag-grid.com/_astro/favicon-32.WDuB-104.png',
+    },
+    applicationStarterPromptInstructions: [
+      'Install ag-grid-react and ag-grid-community and use AG Grid Community by default for a real working demo.',
+      'Only add ag-grid-enterprise if a license key is explicitly provided or explicitly requested.',
+      'Render a real grid with explicit columns, row data, and a container height so the integration is visibly demonstrated in the app.',
+    ],
     image: {
       light: agGridDarkSvg,
       dark: agGridLightSvg,
       scale: 1.1,
     },
     llmDescription:
-      'Enterprise-grade data grid with advanced features like grouping, pivoting, and aggregation. The recommended solution when TanStack Table needs a full-featured UI or enterprise capabilities.',
+      'Data grid library with Community and Enterprise editions. Enterprise features include row grouping, pivoting, aggregation, Excel export, integrated charts, and the server-side row model.',
     category: 'data-grid',
     content: (
       <>
         <div className="text-xs">
-          TanStack Table and AG Grid are respectfully the{' '}
-          <strong>best table/datagrid libraries around</strong> and together are
-          working hard to ensure the highest quality table/datagrid experience
-          for the entire JS/TS ecosystem. Whether it's a lightweight table or a
-          complex datagrid, we've we've got you covered.
+          AG Grid covers the heavier end of the grid spectrum. Its
+          <strong> Enterprise</strong> offering adds row grouping, pivoting,
+          aggregation, Excel export, integrated charts, and a server-side row
+          model when a basic table UI is not enough.
         </div>
         {/* Has to be button for separate link than parent anchor to be valid HTML */}
         <button
@@ -343,27 +455,24 @@ const netlify = (() => {
     href,
     brandColor: '#00C7B7',
     tagline: 'Web Deployment',
+    applicationStarterIcon: {
+      mode: 'contain',
+      src: 'https://www.netlify.com/favicon/icon.svg',
+    },
     image: {
       light: netlifyLightSvg,
       dark: netlifyDarkSvg,
     },
     llmDescription:
-      'Modern deployment and hosting with edge functions, serverless capabilities, and seamless CI/CD workflows. First-class support for TanStack Start applications.',
+      'Deployment platform for web applications with Deploy Previews, Functions, Edge Functions, and an official TanStack Start integration guide.',
     category: 'deployment',
     content: (
       <>
         <div className="text-xs">
-          Netlify and TanStack have joined forces to provide developers with{' '}
-          <strong>world-class deployment and hosting capabilities</strong> for
-          modern web applications. Together we're focused on delivering an
-          exceptional developer experience through{' '}
-          <strong>
-            seamless deployment workflows, edge functions, and serverless
-            capabilities
-          </strong>{' '}
-          that help teams build and ship faster. Our partnership ensures
-          TanStack applications can take full advantage of Netlify's powerful
-          platform features.
+          Netlify provides <strong>Deploy Previews</strong>, Functions, Edge
+          Functions, and a concrete TanStack Start integration path. That makes
+          it useful when the deployment workflow is part of the product
+          workflow, not an afterthought.
         </div>
         <LearnMoreButton />
       </>
@@ -390,17 +499,14 @@ const cloudflare = (() => {
       dark: cloudflareWhiteSvg,
     },
     llmDescription:
-      'Global edge performance, serverless compute (Workers), KV storage, CDN, and security. Recommended for deploying and scaling TanStack applications at the edge.',
+      'Global network and developer platform with Workers, KV, CDN, and security services. Cloudflare also documents deploying TanStack Start apps on Workers.',
     category: 'deployment',
     content: (
       <>
         <div className="text-xs">
-          Cloudflare and TanStack are partnering to bring
-          <strong> global edge performance</strong>,
-          <strong> serverless compute</strong>, and
-          <strong> robust security</strong> to modern apps built with TanStack.
-          From Workers and KV to CDN and security, Cloudflare helps TanStack
-          developers ship faster and scale effortlessly.
+          Cloudflare combines <strong>Workers</strong>, KV, CDN, and security
+          services on a global network. It also documents deploying TanStack
+          Start apps on Workers, including bindings and prerendering support.
         </div>
         <LearnMoreButton />
       </>
@@ -425,17 +531,15 @@ const sentry = (() => {
       dark: sentryWordMarkLightSvg,
     },
     llmDescription:
-      'Error monitoring and performance insights. Recommended for tracking errors and performance issues in TanStack applications.',
+      'Application monitoring platform for error tracking, tracing, replay, profiling, and logs. It also offers TanStack Router integration and an alpha TanStack Start React SDK.',
     category: 'monitoring',
     content: (
       <>
         <div className="text-xs">
-          Sentry and TanStack are on a mission to make sure your apps are
-          <strong> error-free and high-performers</strong>. Sentry's
-          best-in-class error monitoring and performance insights combined with
-          TanStack's cutting-edge libraries ensure that you can deliver the best
-          possible experience to your users. Together, we're committed to making
-          sure that you can build with confidence.
+          Sentry goes beyond basic error collection with{' '}
+          <strong>tracing</strong>, replay, profiling, and logs. For TanStack
+          apps, that makes it easier to debug issues across client behavior,
+          routing, and performance.
         </div>
         <LearnMoreButton />
       </>
@@ -458,14 +562,15 @@ const fireship = (() => {
       src: bytesFireshipImage,
     },
     llmDescription:
-      'Educational platform and Bytes.dev newsletter. Official learning resources and news partner for the TanStack ecosystem.',
+      'Developer education brand behind Fireship courses and content, plus the Bytes JavaScript newsletter. Useful for staying current on web development and ecosystem trends.',
     category: 'learning',
     content: (
       <>
         <div className="text-xs">
-          TanStack's priority is to make its users productive, efficient and
-          knowledgeable about web dev. To help us on this quest, we've partnered
-          with{' '}
+          Fireship produces developer education and Bytes publishes a JavaScript
+          newsletter. Together they are useful for helping more developers stay
+          current on web tooling, patterns, and ecosystem changes. Learn more
+          about{' '}
           {/* Has to be button for separate link than parent anchor to be valid HTML */}
           <button
             type="button"
@@ -481,9 +586,7 @@ const fireship = (() => {
           >
             Fireship
           </button>{' '}
-          to <strong>provide best-in-class education</strong> about TanStack
-          products. It doesn't stop at TanStack though, with their sister
-          product{' '}
+          and{' '}
           <button
             type="button"
             className="text-blue-500 underline cursor-pointer p-0 m-0 bg-transparent border-none inline"
@@ -491,10 +594,8 @@ const fireship = (() => {
             tabIndex={0}
           >
             Bytes.dev
-          </button>{' '}
-          as our official newsletter partner, you'll be able to{' '}
-          <strong>stay up to date with the latest and greatest</strong> in the
-          web dev world regardless.
+          </button>
+          .
         </div>
         <LearnMoreButton />
       </>
@@ -516,20 +617,15 @@ const nozzle = (() => {
       src: nozzleImage,
     },
     llmDescription:
-      'Enterprise SEO platform built entirely with TanStack libraries. Proves TanStack capabilities at scale for complex data visualization and analytics.',
+      'Enterprise keyword rank tracking and SERP monitoring platform with large-scale SEO reporting, share-of-voice analysis, historical data, and export capabilities.',
     category: 'learning',
     content: (
       <>
         <div className="text-xs">
-          Since its founding, Nozzle's SEO platform was the original home for
-          almost all TanStack libraries. They were used to build the{' '}
-          <strong>
-            most technically advanced search engine monitoring platform
-          </strong>{' '}
-          of its kind. Its enterprise rank tracking and keyword research tools
-          continue to set a new bar for quality and scale. Nozzle continues to
-          prove the value of the full gamut of TanStack tools on the front-end
-          with unmatched UI/UX.
+          Nozzle is an <strong>enterprise SEO</strong> product focused on rank
+          tracking, share-of-voice reporting, historical SERP data, and large-
+          scale exports. It remains relevant here because it represents a
+          demanding, data-heavy product category with serious analytics needs.
         </div>
         <LearnMoreButton />
       </>
@@ -553,18 +649,18 @@ const speakeasy = (() => {
       light: speakeasyLightSvg,
       dark: speakeasyDarkSvg,
     },
-    llmDescription: '',
+    llmDescription:
+      'API tooling focused on generating idiomatic SDKs, CLIs, Terraform providers, and hosted MCP servers from OpenAPI specs.',
     category: 'api',
     content: (
       <>
         <div className="text-xs">
-          Speakeasy and TanStack are working together to make{' '}
-          <strong>API management effortless</strong>. With Speakeasy's{' '}
-          <strong>automated SDK generation</strong> and TanStack's robust
-          front-end tooling, developers can move faster than ever. Whether
-          you're integrating APIs or streamlining your developer experience,
-          this partnership ensures you're covered from server to client with{' '}
-          <strong>powerful, type-safe, and optimized solutions</strong>.
+          Speakeasy focuses on generating{' '}
+          <strong>
+            SDKs, CLIs, Terraform providers, and hosted MCP servers
+          </strong>{' '}
+          from OpenAPI specs. That is useful when TanStack frontends depend on
+          well-generated client libraries instead of hand-maintained API code.
         </div>
         <LearnMoreButton />
       </>
@@ -584,24 +680,65 @@ const unkey = (() => {
     href,
     brandColor: '#222222',
     tagline: 'API Key Management',
+    applicationStarterPromptInstructions: [
+      'Use Unkey server-side only and never expose root keys or management credentials in client code.',
+      'Choose one concrete integration path based on the app: API key verification with @unkey/api or endpoint rate limiting with @unkey/ratelimit.',
+      'If the product need is unclear, prefer a minimal server-side TODO or example wrapper instead of inventing both paths at once.',
+    ],
     image: {
       light: unkeyBlackSvg,
       dark: unkeyWhiteSvg,
       scale: 0.7,
     },
     llmDescription:
-      'API key management, rate limiting, and usage analytics. Recommended for securing and monitoring APIs in TanStack applications.',
+      'API infrastructure for API key management, rate limiting, usage tracking, audit logs, and access controls.',
     category: 'api',
     content: (
       <>
         <div className="text-xs">
-          Unkey and TanStack are teaming up to streamline API management for
-          developers. With Unkey's powerful features like{' '}
-          <strong>API key management</strong>, <strong>rate limiting</strong>,
-          and <strong>usage analytics</strong>, integrating with TanStack's
-          developer-first tools becomes seamless. Together, we're enhancing the
-          developer experience by providing secure and scalable solutions for
-          modern web applications.
+          Unkey provides <strong>API key management</strong>, rate limiting,
+          usage tracking, audit logs, and access controls. That makes it a
+          practical fit for TanStack-built products that expose APIs and need
+          straightforward platform controls.
+        </div>
+        <LearnMoreButton />
+      </>
+    ),
+  }
+})()
+
+const serpApi = (() => {
+  const href = 'https://serpapi.com?utm_source=tanstack'
+
+  return {
+    name: 'SerpAPI',
+    id: 'serpapi',
+    libraries: libraries.map((l) => l.id),
+    status: 'active' as const,
+    score: 0.41,
+    href,
+    brandColor: '#6361EC',
+    tagline: 'Real-time SERP API',
+    applicationStarterPromptInstructions: [
+      'Install the official serpapi package and keep all SerpApi usage server-side behind an app-owned endpoint or server function.',
+      'Read SERPAPI_API_KEY from environment variables and choose one explicit search engine instead of pretending to support every engine at once.',
+      'Normalize the response into app-owned data types before sending it to the UI.',
+    ],
+    image: {
+      light: serpapiBlackSvg,
+      dark: serpapiWhiteSvg,
+      scale: 0.92,
+    },
+    llmDescription:
+      'Search engine results API with structured JSON output, geo-targeting controls, CAPTCHA solving, and support for Google, Maps, Shopping, News, and other engines.',
+    category: 'api',
+    content: (
+      <>
+        <div className="text-xs">
+          SerpApi handles search-engine access and returns structured results
+          for Google and other engines, with <strong>geo-targeting</strong>,
+          proxies, and CAPTCHA solving handled for you. That is useful for SEO
+          products, search intelligence, and AI workflows built with TanStack.
         </div>
         <LearnMoreButton />
       </>
@@ -621,25 +758,26 @@ const electric = (() => {
     href,
     brandColor: '#7e78db',
     tagline: 'Sync Engine',
+    applicationStarterPromptInstructions: [
+      'Treat Electric as a platform-level integration, not a small drop-in add-on.',
+      'Do not hand-roll full sync plumbing unless the prompt explicitly asks for that; prefer clear setup notes or TODOs that point to the official Electric starter path.',
+      'If you demonstrate Electric at all, keep it to thin scaffolding and make missing local tooling or service setup explicit.',
+    ],
     image: {
       light: electricLightSvg,
       dark: electricDarkSvg,
     },
     llmDescription:
-      'Real-time sync engine with offline-first data, conflict resolution, and low-latency replication backed by Postgres. Powers TanStack DB sync capabilities.',
+      'Sync-focused data platform for Postgres-backed apps, including Postgres Sync and the partnered TanStack DB project. It is built for reactive and collaborative applications that need live data sync.',
     category: 'database',
     content: (
       <>
         <div className="text-xs">
-          Electric and TanStack are teaming up on TanStack DB to bring
-          <strong>robust real-time sync</strong> to mainstream apps. ElectricSQL
-          delivers <strong>offline-first</strong> data,{' '}
-          <strong>conflict resolution</strong>, and{' '}
-          <strong>low-latency replication</strong>
-          backed by Postgres—no bespoke plumbing required. Paired with TanStack
-          DB's <strong>type-safe APIs</strong> and developer experience, teams
-          can ship collaborative features faster and keep UIs consistent across
-          clients and the edge.
+          Electric is focused on{' '}
+          <strong>sync and reactive data delivery</strong>
+          for Postgres-backed apps, including Postgres Sync and its work with
+          TanStack DB. It is especially relevant for collaborative or local-
+          first apps where live data movement is part of the core product.
         </div>
         <LearnMoreButton />
       </>
@@ -662,17 +800,16 @@ const vercel = (() => {
       light: vercelLightSvg,
       dark: vercelDarkSvg,
     },
-    llmDescription: '',
+    llmDescription:
+      'Cloud platform for deploying and scaling web applications with Git-based workflows, preview environments, global delivery, and Vercel Functions.',
     category: 'deployment',
     content: (
       <>
         <div className="text-xs">
-          TanStack Router/Start and Vercel are a match made in heaven. Vercel's{' '}
-          <strong>cutting-edge deployment and serverless capabilities</strong>{' '}
-          continue to deliver on the TanStack promise for apps to be{' '}
-          <strong>high-performant and scalable</strong>. We're working closely
-          with Vercel to not only ensure a flawless deployment experience, but
-          also push the boundaries of what's possible with TanStack on the web.
+          Vercel provides <strong>Git-based deployments</strong>, preview
+          environments, global delivery, and server-side compute through Vercel
+          Functions. That makes it a familiar deployment option for TanStack
+          Start and Router teams building full-stack apps.
         </div>
         <LearnMoreButton />
       </>
@@ -698,17 +835,15 @@ const prisma = (() => {
       dark: prismaDarkSvg,
     },
     llmDescription:
-      'Type-safe ORM with instant Postgres provisioning via Prisma Postgres. Recommended for database access in TanStack Start applications.',
+      'Open-source TypeScript ORM with Prisma Client, migrations, Prisma Studio, and Prisma Postgres for managed PostgreSQL.',
     category: 'database',
     content: (
       <>
         <div className="text-xs">
-          TanStack and Prisma Postgres: Skip the database setup, get to
-          building. Prisma Postgres provisions production-ready Postgres
-          databases in seconds—no resource config, no infrastructure planning,
-          no late-night "why is my connection pool maxed out?" debugging
-          sessions. Just connect your TanStack app and start building features
-          that matter.
+          Prisma combines <strong>type-safe database access</strong>,
+          migrations, Prisma Studio, and Prisma Postgres into one workflow. It
+          also publishes a TanStack Start guide, which makes it a practical
+          option for full-stack apps that want a polished database layer.
         </div>
         <LearnMoreButton />
       </>
@@ -730,21 +865,25 @@ const codeRabbit = (() => {
     score: 1,
     brandColor: '#FF6B2B',
     tagline: 'AI Code Review',
+    applicationStarterPromptInstructions: [
+      'Do not add runtime app code for CodeRabbit.',
+      'Treat CodeRabbit as external repository tooling configured through the GitHub App, with optional .coderabbit.yaml guidance if useful.',
+      'Mention the GitHub App install/setup path briefly instead of pretending CodeRabbit is an in-app SDK integration.',
+    ],
     image: {
       light: codeRabbitLightSvg,
       dark: codeRabbitDarkSvg,
     },
     llmDescription:
-      'AI-powered code review that flags readability, correctness, and security issues on pull requests. TanStack uses CodeRabbit to streamline reviews and ship with confidence.',
+      'AI code review platform for pull requests, IDEs, and CLI workflows, with automated review comments, one-click fixes, and configurable review rules.',
     category: 'code-review',
     content: (
       <>
         <div className="text-xs">
-          TanStack uses CodeRabbit to streamline reviews and elevate code
-          quality. Its AI flags readability, correctness, and security issues on
-          pull requests, reducing back-and-forth and review time. That lets us
-          focus on architectural decisions and ship with confidence—fewer
-          regressions, faster cycles.
+          CodeRabbit adds automated review, scanner context, and one-click fixes
+          across <strong>pull requests, IDEs, and CLI workflows</strong>. That
+          is useful in TanStack codebases where fast feedback on correctness and
+          API usage helps keep review cycles tight.
         </div>
         <LearnMoreButton />
       </>
@@ -770,19 +909,15 @@ const strapi = (() => {
       scale: 0.8,
     },
     llmDescription:
-      'Open-source headless CMS with full TypeScript support, customizable APIs, and rich plugin ecosystem. Recommended for content management in TanStack Start apps.',
+      'Open-source headless CMS with content modeling, generated REST and GraphQL APIs, TypeScript tooling, and self-hosted or cloud deployment options.',
     category: 'cms',
     content: (
       <>
         <div className="text-xs">
-          Build modern websites with the{' '}
-          <strong>most customizable Headless CMS</strong>. Strapi is the{' '}
-          <strong>open-source Headless CMS</strong> that makes API creation
-          easy, and with <strong>Strapi 5</strong> you get{' '}
-          <strong>100% TypeScript support</strong>, a
-          <strong> fully customizable API</strong>, Draft/Publish, i18n, RBAC,
-          and a rich plugin ecosystem—perfect for TanStack Start apps in the
-          cloud or on your own servers.
+          Strapi gives teams a <strong>headless CMS</strong> with content
+          modeling, generated REST and GraphQL APIs, TypeScript tooling, and
+          self-hosted or cloud deployment options. That works well when a
+          TanStack Start app needs a real content system behind it.
         </div>
         <LearnMoreButton />
       </>
@@ -791,37 +926,121 @@ const strapi = (() => {
 })()
 
 const powerSync = (() => {
-  const href = 'https://powersync.com?utm_source=tanstack'
+  const href =
+    'https://powersync.com?utm_source=tanstack&utm_campaign=tanstack_partner'
 
   return {
     name: 'PowerSync',
     id: 'powersync',
-    libraries: ['db'] as const,
+    libraries: ['db', 'query'] as const,
     status: 'active' as const,
     startDate: 'Jan 2026',
     score: 0.143,
     href,
     tagline: 'Offline-first Sync',
+    applicationStarterPromptInstructions: [
+      'Install the official PowerSync web client packages such as @powersync/web and @journeyapps/wa-sqlite when PowerSync is explicitly requested.',
+      'If TanStack collections or query integration fits, wire the official TanStack PowerSync packages rather than inventing a custom bridge.',
+      'Leave backend connector, auth token, and sync infrastructure setup explicit instead of pretending PowerSync can be fully demoed without backend prerequisites.',
+    ],
     image: {
       light: powersyncBlackSvg,
       dark: powersyncWhiteSvg,
     },
     llmDescription:
-      'Sync engine that connects backend databases (Postgres, MongoDB, MySQL) with in-app SQLite for offline-first, real-time reactive applications.',
+      'Sync engine that keeps backend databases in sync with embedded client-side SQLite for offline-first and realtime applications. Postgres and MongoDB are supported, with MySQL and SQL Server in beta.',
     category: 'database',
     content: (
       <>
         <div className="text-xs">
-          PowerSync and TanStack are teaming up to bring{' '}
-          <strong>offline-first sync</strong> to modern applications. PowerSync
-          automatically syncs your backend database with in-app SQLite,
-          delivering <strong>instant reactivity</strong>,{' '}
-          <strong>real-time updates</strong>, and{' '}
-          <strong>seamless offline support</strong>. Paired with TanStack DB,
-          developers can build collaborative, always-available apps without
-          wrestling with complex sync logic.
+          PowerSync syncs backend data into{' '}
+          <strong>embedded client-side SQLite</strong> for offline-first and
+          realtime apps. That makes it relevant for TanStack users who care
+          about local-first UX, live updates, and resilient client state.
         </div>
         <LearnMoreButton />
+      </>
+    ),
+  }
+})()
+
+const railway = (() => {
+  const href =
+    'https://railway.com/?utm_medium=sponsor&utm_source=oss&utm_campaign=tanstack'
+
+  return {
+    name: 'Railway',
+    id: 'railway',
+    libraries: libraries.map((l) => l.id),
+    status: 'active' as const,
+    score: 0.145,
+    href,
+    brandColor: '#0B0D0E',
+    tagline: 'Instant Deployment',
+    image: {
+      light: railwayBlackSvg,
+      dark: railwayWhiteSvg,
+    },
+    llmDescription:
+      'Application deployment platform for shipping from GitHub, the CLI, Docker images, or templates, with managed networking, observability, and configurable scaling.',
+    category: 'deployment',
+    content: (
+      <>
+        <div className="text-xs">
+          Railway gives teams a simple way to deploy app services, databases,
+          and supporting infrastructure from{' '}
+          <strong>GitHub, the CLI, Docker, or templates</strong>. That is
+          appealing for TanStack teams that want to move quickly without
+          building deployment plumbing first.
+        </div>
+        <LearnMoreButton />
+      </>
+    ),
+  }
+})()
+
+const openRouter = (() => {
+  const href = 'https://openrouter.ai?utm_source=tanstack'
+
+  return {
+    name: 'OpenRouter',
+    id: 'openrouter',
+    href,
+    libraries: libraries.map((l) => l.id),
+    status: 'active' as const,
+    startDate: 'Mar 2026',
+    score: 0.344,
+    brandColor: '#7C3AED',
+    tagline: 'Unified LLM API',
+    applicationStarterPromptInstructions: [
+      'Use the official @openrouter/sdk on the server and read OPENROUTER_API_KEY from environment variables.',
+      'Keep model selection explicit and easy to swap, and do not expose provider keys in client code.',
+      'If AI functionality is demoed, route requests through app-owned server functions instead of calling OpenRouter directly from the browser.',
+    ],
+    image: {
+      light: openrouterBlackSvg,
+      dark: openrouterWhiteSvg,
+    },
+    llmDescription:
+      'Unified API for accessing hundreds of AI models from dozens of providers through a single OpenAI-compatible endpoint, with routing, fallbacks, and privacy controls.',
+    category: 'ai' as const,
+    content: (
+      <>
+        <div className="text-xs">
+          OpenRouter provides a <strong>unified API</strong> for many model
+          providers, with routing, fallbacks, and privacy controls behind a
+          single endpoint. That is useful for TanStack apps experimenting with
+          AI features where provider choice may change over time.
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            window.location.href = '/blog/openrouter-partnership'
+          }}
+          className="text-blue-500 uppercase font-black text-sm"
+        >
+          Learn More
+        </button>
       </>
     ),
   }
@@ -831,7 +1050,9 @@ export const partners: Partner[] = [
   codeRabbit,
   cloudflare,
   agGrid,
+  serpApi,
   netlify,
+  openRouter,
   neon,
   workos,
   clerk,
@@ -839,6 +1060,7 @@ export const partners: Partner[] = [
   electric,
   powerSync,
   sentry,
+  railway,
   prisma,
   strapi,
   unkey,
@@ -847,3 +1069,365 @@ export const partners: Partner[] = [
   vercel,
   speakeasy,
 ] as Partner[]
+
+const applicationStarterPartnerTierOrder = new Map<
+  string,
+  { sortOrder: number; tier: ApplicationStarterPartnerTier }
+>([
+  ['coderabbit', { tier: 1, sortOrder: 0 }],
+  ['cloudflare', { tier: 1, sortOrder: 1 }],
+  ['aggrid', { tier: 2, sortOrder: 0 }],
+  ['supabase', { tier: 2, sortOrder: 1 }],
+  ['serpapi', { tier: 2, sortOrder: 2 }],
+  ['netlify', { tier: 2, sortOrder: 3 }],
+  ['openrouter', { tier: 2, sortOrder: 4 }],
+  ['workos', { tier: 2, sortOrder: 5 }],
+  ['clerk', { tier: 2, sortOrder: 6 }],
+  ['electric', { tier: 2, sortOrder: 7 }],
+  ['railway', { tier: 2, sortOrder: 8 }],
+  ['sentry', { tier: 3, sortOrder: 0 }],
+  ['prisma', { tier: 3, sortOrder: 1 }],
+  ['powersync', { tier: 3, sortOrder: 2 }],
+  ['neon', { tier: 3, sortOrder: 3 }],
+  ['strapi', { tier: 3, sortOrder: 4 }],
+  ['unkey', { tier: 3, sortOrder: 5 }],
+  ['uidev', { tier: 3, sortOrder: 6 }],
+])
+
+const applicationStarterBrandColorOverrides = new Map<string, string>([
+  ['powersync', '#00D5FF'],
+  ['prisma', '#10B981'],
+  ['railway', '#9B4DCA'],
+  ['sentry', '#7C6BFF'],
+  ['unkey', '#7C3AED'],
+])
+
+const applicationStarterInferenceRules: Array<{
+  partnerId: string
+  patterns: Array<RegExp>
+}> = [
+  {
+    partnerId: 'workos',
+    patterns: [
+      /\b(sso|saml|scim|directory sync|enterprise auth|enterprise identity|b2b auth)\b/i,
+    ],
+  },
+  {
+    partnerId: 'clerk',
+    patterns: [
+      /\b(authentication|sign[ -]?in|sign[ -]?up|login|oauth|mfa|user management|sessions?)\b/i,
+    ],
+  },
+  {
+    partnerId: 'cloudflare',
+    patterns: [/\b(cloudflare|workers?|durable objects|r2|d1|kv)\b/i],
+  },
+  {
+    partnerId: 'netlify',
+    patterns: [
+      /\b(netlify|deploy previews?|netlify functions?|edge functions?)\b/i,
+    ],
+  },
+  {
+    partnerId: 'railway',
+    patterns: [/\brailway\b/i],
+  },
+  {
+    partnerId: 'sentry',
+    patterns: [
+      /\b(error tracking|exception monitoring|observability|tracing|trace(s|ing)?|session replay|profiling|application monitoring)\b/i,
+    ],
+  },
+  {
+    partnerId: 'strapi',
+    patterns: [
+      /\b(headless cms|content management system|cms|editorial workflow|content modeling|admin content)\b/i,
+    ],
+  },
+  {
+    partnerId: 'neon',
+    patterns: [
+      /\b(serverless postgres|postgresql|postgres|database branching|branch database)\b/i,
+    ],
+  },
+  {
+    partnerId: 'openrouter',
+    patterns: [
+      /\b(openrouter|openai-compatible|model routing|provider fallbacks?|multiple ai models?)\b/i,
+    ],
+  },
+  {
+    partnerId: 'serpapi',
+    patterns: [
+      /\b(serpapi|search engine results?|google shopping|google maps|serp)\b/i,
+    ],
+  },
+  {
+    partnerId: 'unkey',
+    patterns: [
+      /\b(unkey|api keys?|rate limit(ing)?|usage limits?|access controls?)\b/i,
+    ],
+  },
+  {
+    partnerId: 'ag-grid',
+    patterns: [
+      /\b(ag[ -]?grid|enterprise data grid|excel export|pivoting|spreadsheet-like grid)\b/i,
+    ],
+  },
+  {
+    partnerId: 'powersync',
+    patterns: [/\b(powersync|offline-first sync)\b/i],
+  },
+  {
+    partnerId: 'electric',
+    patterns: [/\b(electric|postgres sync|reactive postgres)\b/i],
+  },
+  {
+    partnerId: 'coderabbit',
+    patterns: [/\b(coderabbit|ai code review|pr review bot)\b/i],
+  },
+]
+
+function normalizeApplicationStarterPartnerKey(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9]/g, '')
+}
+
+function getApplicationStarterPartnerTier(
+  partner: Pick<Partner, 'id' | 'name'>,
+) {
+  return (
+    applicationStarterPartnerTierOrder.get(
+      normalizeApplicationStarterPartnerKey(partner.id),
+    ) ??
+    applicationStarterPartnerTierOrder.get(
+      normalizeApplicationStarterPartnerKey(partner.name),
+    ) ?? {
+      tier: 3 as const,
+      sortOrder: Number.MAX_SAFE_INTEGER,
+    }
+  )
+}
+
+function getApplicationStarterPartnerFaviconUrl(href: string) {
+  return `${new URL(href).origin}/favicon.ico`
+}
+
+function getApplicationStarterPartnerDescription(
+  partner: Pick<Partner, 'llmDescription'>,
+) {
+  const [firstSentence] = partner.llmDescription.split(/(?<=[.!?])\s+/)
+  return firstSentence?.trim() || partner.llmDescription.trim()
+}
+
+function getApplicationStarterPartnerTags(
+  partner: Pick<Partner, 'category' | 'tagline'>,
+) {
+  if (partner.tagline?.trim()) {
+    return [partner.tagline.trim()]
+  }
+
+  return [partnerCategoryLabels[partner.category]]
+}
+
+function inferApplicationStarterPartnerIds(
+  input: string,
+  selectedPartnerIds: Array<string>,
+) {
+  const selectedSourcePartners = partners.filter(
+    (partner) =>
+      partner.status === 'active' && selectedPartnerIds.includes(partner.id),
+  )
+  const blockedCategories = new Set(
+    selectedSourcePartners.map((partner) => partner.category),
+  )
+  const inferredCategories = new Set<PartnerCategory>()
+  const inferredPartnerIds = Array<string>()
+
+  for (const rule of applicationStarterInferenceRules) {
+    const partner = partners.find(
+      (candidate) =>
+        candidate.status === 'active' && candidate.id === rule.partnerId,
+    )
+
+    if (!partner) {
+      continue
+    }
+
+    if (selectedPartnerIds.includes(partner.id)) {
+      continue
+    }
+
+    if (
+      partner.id === 'clerk' &&
+      /\bavoid\s+adding\s+auth\s+and\s+api\s+key\s+providers?\s+that\s+overlap\s+in\s+purpose\b/i.test(
+        input,
+      )
+    ) {
+      continue
+    }
+
+    if (
+      blockedCategories.has(partner.category) ||
+      inferredCategories.has(partner.category)
+    ) {
+      continue
+    }
+
+    if (!rule.patterns.some((pattern) => pattern.test(input))) {
+      continue
+    }
+
+    inferredPartnerIds.push(partner.id)
+    inferredCategories.add(partner.category)
+  }
+
+  return inferredPartnerIds
+}
+
+export function getInferredApplicationStarterPartnerIdsFromUserInput(
+  input: string,
+  selectedPartnerIds: Array<string>,
+) {
+  return inferApplicationStarterPartnerIds(input, selectedPartnerIds)
+}
+
+const applicationStarterPartnerSuggestions: Array<ApplicationStarterPartnerSuggestion> =
+  [...partners]
+    .filter((partner) => partner.status === 'active')
+    .filter((partner) => partner.id !== 'fireship' && partner.id !== 'nozzle')
+    .map((partner) => {
+      const tierConfig = getApplicationStarterPartnerTier(partner)
+      const normalizedPartnerKey = normalizeApplicationStarterPartnerKey(
+        partner.id,
+      )
+      const iconMode: ApplicationStarterPartnerSuggestion['iconMode'] =
+        tierConfig.tier === 2
+          ? (partner.applicationStarterIcon?.mode ?? 'contain')
+          : undefined
+
+      return {
+        id: partner.id,
+        label: partner.name,
+        description: getApplicationStarterPartnerDescription(partner),
+        hint: `${partner.name} (${partnerCategoryLabels[partner.category]})`,
+        iconMode,
+        iconSrc:
+          tierConfig.tier === 2
+            ? (partner.applicationStarterIcon?.src ??
+              getApplicationStarterPartnerFaviconUrl(partner.href))
+            : undefined,
+        image: partner.image,
+        tags: getApplicationStarterPartnerTags(partner),
+        brandColor:
+          applicationStarterBrandColorOverrides.get(normalizedPartnerKey) ??
+          partner.brandColor,
+        ...tierConfig,
+        score: partner.score,
+      }
+    })
+    .sort((left, right) => {
+      if (left.tier !== right.tier) {
+        return left.tier - right.tier
+      }
+
+      if (left.sortOrder !== right.sortOrder) {
+        return left.sortOrder - right.sortOrder
+      }
+
+      return right.score - left.score
+    })
+    .map(({ score: _score, ...partner }) => partner)
+
+export function getApplicationStarterPartnerSuggestions() {
+  return applicationStarterPartnerSuggestions
+}
+
+export function composeApplicationStarterInput(
+  input: string,
+  selectedPartnerIds: Array<string>,
+  inferredPartnerIds: Array<string>,
+  options?: { forceRouterOnly?: boolean },
+) {
+  const trimmedInput = input.trim()
+  const selectedPartners = applicationStarterPartnerSuggestions.filter(
+    (partner) => selectedPartnerIds.includes(partner.id),
+  )
+  const inferredPartners = applicationStarterPartnerSuggestions.filter(
+    (partner) => inferredPartnerIds.includes(partner.id),
+  )
+  const selectedSourcePartners = partners.filter(
+    (partner) =>
+      partner.status === 'active' && selectedPartnerIds.includes(partner.id),
+  )
+  const inferredSourcePartners = partners.filter(
+    (partner) =>
+      partner.status === 'active' && inferredPartnerIds.includes(partner.id),
+  )
+
+  if (selectedPartners.length === 0 && inferredPartners.length === 0) {
+    return trimmedInput
+  }
+
+  const selectedPartnerLine = selectedPartners.length
+    ? `Prefer these integrations where they fit: ${selectedPartners
+        .map((partner) => partner.hint)
+        .join(', ')}.`
+    : null
+  const inferredPartnerLine = inferredPartners.length
+    ? `The request clearly calls for these integrations where they fit: ${inferredPartners
+        .map((partner) => partner.hint)
+        .join(', ')}.`
+    : null
+
+  const partnerInstructions = Array<string>()
+
+  if (selectedPartners.length > 0 || inferredPartners.length > 0) {
+    partnerInstructions.push(
+      'Make sure each requested or clearly implied partner integration is represented in the resulting project somehow. If one cannot be implemented cleanly, explain what was omitted and why instead of silently dropping it.',
+    )
+  }
+
+  const allPromptInstructionPartners = [
+    ...selectedSourcePartners,
+    ...inferredSourcePartners,
+  ]
+  const partnerPromptInstructions = allPromptInstructionPartners.flatMap(
+    (partner) => partner.applicationStarterPromptInstructions ?? [],
+  )
+
+  if (partnerPromptInstructions.length > 0) {
+    partnerInstructions.push(
+      "If a requested or inferred partner is not available as a real TanStack CLI add-on, do not invent one. Follow the partner's official install path, keep secrets server-side, and fall back to setup notes or TODOs when the integration depends on external infra, dashboards, licenses, or GitHub App installs.",
+      ...partnerPromptInstructions,
+    )
+  }
+
+  const allPartnerIds = [...selectedPartnerIds, ...inferredPartnerIds]
+
+  if (allPartnerIds.includes('coderabbit')) {
+    partnerInstructions.push(
+      'Prefer the standard repository integration for pull request reviews first instead of inventing a custom workflow.',
+      'Only add CodeRabbit IDE or CLI workflows if they clearly support the requested developer workflow.',
+    )
+  }
+
+  return [
+    trimmedInput,
+    '',
+    APPLICATION_STARTER_GUIDANCE_MARKER,
+    `${APPLICATION_STARTER_SELECTED_PARTNERS_MARKER} ${selectedPartnerIds.join(', ') || 'none'}`,
+    `${APPLICATION_STARTER_INFERRED_PARTNERS_MARKER} ${inferredPartnerIds.join(', ') || 'none'}`,
+    options?.forceRouterOnly
+      ? APPLICATION_STARTER_FORCE_ROUTER_ONLY_MARKER
+      : null,
+    selectedPartnerLine,
+    inferredPartnerLine,
+    ...partnerInstructions,
+  ]
+    .filter(Boolean)
+    .join('\n\n')
+}
+
+export function getPartnerById(partnerId: string) {
+  return partners.find((partner) => partner.id === partnerId)
+}

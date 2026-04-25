@@ -1,6 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { setResponseHeader } from '@tanstack/react-start/server'
-import { getPublishedPosts, formatAuthors } from '~/utils/blog'
+import {
+  getPublishedPosts,
+  formatAuthors,
+  publishedDateToUTCString,
+} from '~/utils/blog'
 
 function escapeXml(unsafe: string): string {
   return unsafe
@@ -19,7 +23,7 @@ function generateRSSFeed() {
   const rssItems = posts
     .map((post) => {
       const postUrl = `${siteUrl}/blog/${post.slug}`
-      const pubDate = new Date(post.published).toUTCString()
+      const pubDate = publishedDateToUTCString(post.published)
       const author = formatAuthors(post.authors)
 
       // Use excerpt if available, otherwise try to get first paragraph from content
@@ -61,7 +65,6 @@ function generateRSSFeed() {
 }
 
 export const Route = createFileRoute('/rss.xml')({
-  // @ts-expect-error server property not in route types yet
   server: {
     handlers: {
       GET: async () => {

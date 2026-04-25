@@ -1,7 +1,7 @@
 import { redirect, createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { ShowcaseSubmitForm } from '~/components/ShowcaseSubmitForm'
-import { requireAuth } from '~/utils/auth.server'
+import { requireAuth } from '~/utils/auth.functions'
 import { getShowcase } from '~/utils/showcase.functions'
 
 export const Route = createFileRoute('/showcase/edit/$id')({

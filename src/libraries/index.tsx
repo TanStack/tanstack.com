@@ -18,10 +18,13 @@ export {
   ranger,
   store,
   pacer,
+  hotkeys,
   db,
   ai,
+  intent,
   config,
   devtools,
+  cli,
 } from './libraries'
 
 // Re-export types

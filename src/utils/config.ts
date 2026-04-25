@@ -1,5 +1,8 @@
 import * as v from 'valibot'
-import { fetchRepoFile } from './documents.server'
+import {
+  fetchRepoFile,
+  isRecoverableGitHubContentError,
+} from './documents.server'
 import { createServerFn } from '@tanstack/react-start'
 import { setResponseHeaders } from '@tanstack/react-start/server'
 
@@ -48,6 +51,22 @@ const configSchema = v.object({
 
 export type ConfigSchema = v.InferOutput<typeof configSchema>
 
+function getEmptyConfig(): ConfigSchema {
+  return { sections: [] }
+}
+
+function parseDocsConfig(config: string) {
+  const tanstackDocsConfigFromJson = JSON.parse(config)
+  const validationResult = v.safeParse(configSchema, tanstackDocsConfigFromJson)
+
+  if (!validationResult.success) {
+    console.error(JSON.stringify(validationResult.issues, null, 2))
+    throw new Error('Valibot validation failed')
+  }
+
+  return validationResult.output
+}
+
 /**
   Fetch the config file for the project and validate it.
   */
@@ -55,37 +74,45 @@ export const getTanstackDocsConfig = createServerFn({ method: 'GET' })
   .inputValidator(
     v.object({ repo: v.string(), branch: v.string(), docsRoot: v.string() }),
   )
-  .handler(async ({ data: { repo, branch, docsRoot } }) => {
-    const config = await fetchRepoFile(repo, branch, `${docsRoot}/config.json`)
+  .handler(
+    async ({
+      data,
+    }: {
+      data: { repo: string; branch: string; docsRoot: string }
+    }) => {
+      const { repo, branch, docsRoot } = data
 
-    if (!config) {
-      throw new Error(`Repo's ${docsRoot}/config.json was not found!`)
-    }
+      let config: string | null
 
-    try {
-      const tanstackDocsConfigFromJson = JSON.parse(config)
-      const validationResult = v.safeParse(
-        configSchema,
-        tanstackDocsConfigFromJson,
-      )
+      try {
+        config = await fetchRepoFile(repo, branch, `${docsRoot}/config.json`)
+      } catch (error) {
+        if (!isRecoverableGitHubContentError(error)) {
+          throw error
+        }
 
-      if (!validationResult.success) {
-        // Log the issues that come up during validation
-        console.error(JSON.stringify(validationResult.issues, null, 2))
-        throw new Error('Valibot validation failed')
+        return getEmptyConfig()
       }
 
-      setResponseHeaders(
-        new Headers({
-          'Cache-Control': 'public, max-age=0, must-revalidate',
-          'Netlify-CDN-Cache-Control':
-            'public, max-age=300, durable, stale-while-revalidate=300',
-        }),
-      )
+      if (!config) {
+        throw new Error(`Repo's ${docsRoot}/config.json was not found!`)
+      }
 
-      return validationResult.output
-    } catch (e) {
-      console.error(e)
-      throw new Error('Invalid docs/config.json file', { cause: e })
-    }
-  })
+      try {
+        const parsedConfig = parseDocsConfig(config)
+
+        setResponseHeaders(
+          new Headers({
+            'Cache-Control': 'public, max-age=0, must-revalidate',
+            'Netlify-CDN-Cache-Control':
+              'public, max-age=300, durable, stale-while-revalidate=300',
+          }),
+        )
+
+        return parsedConfig
+      } catch (e) {
+        console.error(e)
+        throw new Error('Invalid docs/config.json file', { cause: e })
+      }
+    },
+  )

@@ -1,1 +1,2 @@
-export { renderMarkdown } from './processor'
+export { renderMarkdownToJsx } from './processor.rsc'
+export { renderMarkdownToRsc } from './renderRsc'

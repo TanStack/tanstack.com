@@ -1,4 +1,3 @@
-export { Markdown } from './Markdown'
 export { MarkdownLink } from './MarkdownLink'
 export { MarkdownContent } from './MarkdownContent'
 export {

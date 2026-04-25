@@ -1,6 +1,7 @@
 ---
 title: 'How We Track Billions of Downloads: The NPM Stats API Deep Dive'
 published: 2025-12-02
+excerpt: When you're tracking download stats for 200+ packages with over 4 billion total downloads, you learn a few things about NPM's API. Some lessons are documented. Others you discover the hard way.
 authors:
   - Tanner Linsley
 ---

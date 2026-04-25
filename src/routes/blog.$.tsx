@@ -1,72 +1,30 @@
-import { notFound, redirect, createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { PostNotFound } from './blog'
-import { createServerFn } from '@tanstack/react-start'
 import { formatAuthors } from '~/utils/blog'
-import { format } from '~/utils/dates'
-import * as v from 'valibot'
-import { setResponseHeaders } from '@tanstack/react-start/server'
-import { allPosts } from 'content-collections'
 import * as React from 'react'
 import { MarkdownContent } from '~/components/markdown'
-import { GamHeader } from '~/components/Gam'
-import { AdGate } from '~/contexts/AdsContext'
+import { Card } from '~/components/Card'
+import { LibrariesWidget } from '~/components/LibrariesWidget'
+import { partners } from '~/utils/partners'
+import { PartnersRail, RightRail } from '~/components/RightRail'
+import { RecentPostsWidget } from '~/components/RecentPostsWidget'
+
 import { Toc } from '~/components/Toc'
 import { Breadcrumbs } from '~/components/Breadcrumbs'
-import { renderMarkdown } from '~/utils/markdown'
-
-function handleRedirects(docsPath: string) {
-  if (docsPath.includes('directives-the-new-framework-lock-in')) {
-    throw redirect({
-      href: '/blog/directives-and-the-platform-boundary',
-    })
-  }
-}
-
-const fetchBlogPost = createServerFn({ method: 'GET' })
-  .inputValidator(v.optional(v.string()))
-  .handler(async ({ data: docsPath }) => {
-    if (!docsPath) {
-      throw new Error('Invalid docs path')
-    }
-
-    handleRedirects(docsPath)
-
-    const filePath = `src/blog/${docsPath}.md`
-
-    const post = allPosts.find((post) => post.slug === docsPath)
-
-    if (!post) {
-      throw notFound()
-    }
-
-    setResponseHeaders(
-      new Headers({
-        'Cache-Control': 'public, max-age=0, must-revalidate',
-        'Netlify-CDN-Cache-Control':
-          'public, max-age=300, durable, stale-while-revalidate=300',
-      }),
-    )
-
-    const now = new Date()
-    const publishDate = new Date(post.published)
-    const isUnpublished = post.draft || publishDate > now
-
-    return {
-      title: post.title,
-      description: post.description,
-      published: post.published,
-      content: post.content,
-      authors: post.authors,
-      headerImage: post.headerImage,
-      filePath,
-      isUnpublished,
-    }
-  })
+import { fetchBlogPost } from '~/utils/blog.functions'
 
 export const Route = createFileRoute('/blog/$')({
   staleTime: Infinity,
-  loader: ({ params }) => fetchBlogPost({ data: params._splat }),
+  loader: async ({ params }) => {
+    const blogPath = params._splat
+
+    if (!blogPath) {
+      throw new Error('Invalid blog path')
+    }
+
+    return fetchBlogPost({ data: blogPath })
+  },
   head: ({ loaderData }) => {
     // Generate optimized social media image URL using Netlify Image CDN
     const getSocialImageUrl = (headerImage?: string) => {
@@ -103,19 +61,7 @@ export const Route = createFileRoute('/blog/$')({
 })
 
 function BlogPost() {
-  const { title, content, filePath, authors, published } = Route.useLoaderData()
-
-  const blogContent = `<small>_by ${formatAuthors(authors)} on ${format(
-    new Date(published || 0),
-    'MMMM d, yyyy',
-  )}._</small>
-
-${content}`
-
-  const { headings, markup } = React.useMemo(
-    () => renderMarkdown(blogContent),
-    [blogContent],
-  )
+  const { contentRsc, filePath, headings, title } = Route.useLoaderData()
 
   const isTocVisible = headings.length > 1
 
@@ -166,6 +112,16 @@ ${content}`
 
   const repo = 'tanstack/tanstack.com'
   const branch = 'main'
+  const activePartners = React.useMemo(
+    () =>
+      partners.filter(
+        (d) =>
+          d.status === 'active' &&
+          d.name !== 'Nozzle.io' &&
+          d.id !== 'fireship',
+      ),
+    [],
+  )
 
   return (
     <div
@@ -176,34 +132,38 @@ ${content}`
     >
       <div className="flex flex-col max-w-full min-w-0 w-full min-h-0 relative mb-8">
         <div className="min-w-0 flex justify-center w-full min-h-[88dvh] lg:min-h-0 mx-auto">
-          <div className="flex-1 flex flex-col w-full">
-            <AdGate>
-              <div
-                className="mt-4 mb-4 bg-white/50 dark:bg-white/5
-              shadow-xl shadow-black/2 flex justify-center w-fit max-w-full mx-auto h-[90px]"
-              >
-                <GamHeader />
-              </div>
-            </AdGate>
-            <div className="px-4">
+          <div className="flex-1 flex flex-col w-full min-w-0">
+            <div className="px-4 pt-4 lg:pt-6">
               <div className="w-full max-w-[1100px] mx-auto">
                 <div className="flex-1 min-h-0 flex flex-col">
                   <div className="w-full flex justify-center">
-                    <div className="w-full max-w-[700px] p-2 lg:p-4 xl:p-6">
+                    <div
+                      className={[
+                        'w-full p-2 lg:p-4 xl:p-6',
+                        isTocVisible ? 'max-w-full' : 'max-w-[768px]',
+                      ].join(' ')}
+                    >
                       <Breadcrumbs
                         section="Blog"
                         sectionTo="/blog"
                         headings={isTocVisible ? headings : undefined}
-                        tocHiddenBreakpoint="md"
+                        tocHiddenBreakpoint="xl"
                       />
                     </div>
-                    <div className="max-w-32 md:max-w-36 xl:max-w-44 2xl:max-w-56 w-full hidden md:block" />
+                    {isTocVisible && (
+                      <div className="pl-4 w-32 lg:w-36 xl:w-44 2xl:w-56 3xl:w-64 shrink-0 hidden xl:block" />
+                    )}
                   </div>
-                  <div className="w-full flex justify-center">
-                    <div className="flex overflow-auto flex-col w-full max-w-[700px] p-2 lg:p-4 xl:p-6 pt-0">
+                  <div
+                    className={[
+                      'w-full flex justify-center mx-auto',
+                      isTocVisible ? 'max-w-full' : 'max-w-[768px]',
+                    ].join(' ')}
+                  >
+                    <div className="flex overflow-auto flex-col w-full p-2 lg:p-4 xl:p-6 pt-0">
                       <MarkdownContent
                         title={title}
-                        htmlMarkup={markup}
+                        contentRsc={contentRsc}
                         repo={repo}
                         branch={branch}
                         filePath={filePath}
@@ -211,7 +171,7 @@ ${content}`
                       />
                     </div>
                     {isTocVisible && (
-                      <div className="pl-4 max-w-32 md:max-w-36 xl:max-w-44 2xl:max-w-56 w-full hidden md:block py-4">
+                      <div className="pl-4 w-32 lg:w-36 xl:w-44 2xl:w-56 3xl:w-64 shrink-0 hidden xl:block py-4 transition-all">
                         <Toc
                           headings={headings}
                           activeHeadings={activeHeadings}
@@ -223,12 +183,19 @@ ${content}`
               </div>
             </div>
           </div>
+          <RightRail breakpoint="md">
+            <PartnersRail
+              analyticsPlacement="blog_right_rail"
+              partners={activePartners}
+            />
+            <div className="hidden md:block border border-gray-500/20 rounded-l-lg overflow-hidden w-full">
+              <RecentPostsWidget />
+            </div>
+            <Card>
+              <LibrariesWidget />
+            </Card>
+          </RightRail>
         </div>
-        <AdGate>
-          <div className="py-2 pb-4 lg:py-4 lg:pb-6 xl:py-6 xl:pb-8 max-w-full">
-            <GamHeader />
-          </div>
-        </AdGate>
       </div>
     </div>
   )

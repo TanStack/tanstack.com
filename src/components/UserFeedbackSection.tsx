@@ -3,7 +3,7 @@ import { Link } from '@tanstack/react-router'
 import { getUserDocFeedbackQueryOptions } from '~/queries/docFeedback'
 import { PaginationControls } from './PaginationControls'
 import { Spinner } from './Spinner'
-import { calculatePoints } from '~/utils/docFeedback.client'
+import { calculatePoints } from '~/utils/docFeedback.shared'
 import { Award, ExternalLink, Lightbulb, MessageSquare } from 'lucide-react'
 import { Badge } from '~/ui'
 import { useState } from 'react'
@@ -12,7 +12,7 @@ interface UserFeedbackSectionProps {
   userId: string
 }
 
-export function UserFeedbackSection({}: UserFeedbackSectionProps) {
+export function UserFeedbackSection(_props: UserFeedbackSectionProps) {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
 

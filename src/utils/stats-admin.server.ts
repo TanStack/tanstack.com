@@ -9,7 +9,7 @@ import { githubStatsCache, npmPackages, npmOrgStatsCache } from '~/db/schema'
 import { eq, desc, and, like } from 'drizzle-orm'
 import { fetchGitHubOwnerStats, fetchGitHubRepoStats } from './stats.functions'
 import { refreshNpmOrgStats } from './stats.server'
-import { setCachedGitHubStats } from './stats-db.server'
+import { rebuildOssStatsCache, setCachedGitHubStats } from './stats-db.server'
 import { setCachedNpmPackageStats } from './stats-db.server'
 import { requireCapability } from './auth.server'
 
@@ -58,6 +58,7 @@ export const refreshGitHubStats = createServerFn({ method: 'POST' })
     }
 
     await setCachedGitHubStats(data.cacheKey, stats, 1)
+    await rebuildOssStatsCache('tanstack')
 
     return {
       success: true,
@@ -157,6 +158,8 @@ export const refreshAllGitHubStats = createServerFn({ method: 'POST' }).handler(
         })
       }
     }
+
+    await rebuildOssStatsCache('tanstack')
 
     return {
       success: true,

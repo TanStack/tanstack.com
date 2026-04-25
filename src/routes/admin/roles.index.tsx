@@ -38,7 +38,7 @@ import {
   AdminEmptyState,
 } from '~/components/admin'
 import { useAdminGuard } from '~/hooks/useAdminGuard'
-import { requireCapability } from '~/utils/auth.server'
+import { requireCapability } from '~/utils/auth.functions'
 import { useToggleArray } from '~/hooks/useToggleArray'
 import { useDeleteWithConfirmation } from '~/hooks/useDeleteWithConfirmation'
 import { Badge, Button, FormInput } from '~/ui'
@@ -126,7 +126,9 @@ function RolesPage() {
         data: {
           nameFilter: nameFilter || undefined,
           capabilityFilter:
-            capabilityFilters.length > 0 ? capabilityFilters : undefined,
+            capabilityFilters.length > 0
+              ? (capabilityFilters as Capability[])
+              : undefined,
         },
       })
     },

@@ -1,105 +1,32 @@
-import React from 'react'
-import { Pack, hierarchy } from '@visx/hierarchy'
-import { ParentSize } from './ParentSize'
+function createBubbleStyle(index: number) {
+  const left = ((index * 37) % 100) / 100
+  const top = ((index * 61) % 100) / 100
+  const size = 20 + ((index * 17) % 90)
+  const opacity = 0.14 + ((index * 13) % 12) / 100
 
-// Generate realistic placeholder sponsor data with curved distribution
-// Simulates real sponsor ecosystems: few large sponsors, many small ones
-const generatePlaceholderSponsors = () => {
-  const sponsors = []
-  const totalSponsors = 150 // More realistic number
-
-  for (let i = 0; i < totalSponsors; i++) {
-    const normalizedIndex = i / (totalSponsors - 1)
-    const size = Math.pow(1 - normalizedIndex, 10)
-
-    const jitter = (Math.random() - 0.5) * 0.1
-    const finalSize = Math.max(0.01, Math.min(1.0, size + jitter))
-
-    sponsors.push({
-      login: `placeholder-${i + 1}`,
-      name: '',
-      imageUrl: '',
-      linkUrl: '',
-      size: finalSize,
-    })
+  return {
+    left: `${8 + left * 84}%`,
+    top: `${6 + top * 88}%`,
+    width: `${size}px`,
+    height: `${size}px`,
+    opacity,
   }
-
-  // Sort by size descending (largest first) like real sponsor data
-  return sponsors.sort((a, b) => b.size - a.size)
 }
 
 export default function PlaceholderSponsorPack() {
-  const sponsors = React.useMemo(() => generatePlaceholderSponsors(), [])
-
-  const pack = React.useMemo(
-    () => ({
-      children: sponsors,
-      name: 'root',
-      radius: 0,
-      distance: 0,
-    }),
-    [sponsors],
-  )
-
-  const root = React.useMemo(
-    () =>
-      hierarchy(pack)
-        .sum((d) => 0.0007 + ((d as { size?: number }).size || 0))
-        .sort(
-          (a, b) =>
-            ((b.data as { size?: number })?.size ?? 0) -
-            ((a.data as { size?: number })?.size ?? 0),
-        ),
-    [pack],
-  )
-
   return (
-    <ParentSize>
-      {({ width = 800 }) => {
-        return width < 10 ? null : (
+    <div className="relative w-full h-full overflow-hidden rounded-[2rem] bg-gradient-to-br from-gray-100/80 via-white to-gray-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900">
+      {Array.from({ length: 48 }).map((_, index) => {
+        const style = createBubbleStyle(index)
+
+        return (
           <div
-            style={{
-              width,
-              height: width,
-              position: 'relative',
-            }}
-          >
-            <style
-              dangerouslySetInnerHTML={{
-                __html: `
-                .placeholder-bubble {
-                  background: rgba(156, 163, 175, 0.3);
-                  transform: translate(-50%, -50%);
-                }
-              `,
-              }}
-            />
-            <Pack root={root} size={[width, width]} padding={width * 0.005}>
-              {(packData) => {
-                const circles = packData.descendants().slice(1) // skip first layer
-                return (
-                  <div>
-                    {[...circles].reverse().map((circle, i) => {
-                      return (
-                        <div
-                          key={`placeholder-circle-${i}`}
-                          className="placeholder-bubble absolute rounded-full border border-gray-300/20 dark:border-gray-600/20"
-                          style={{
-                            left: circle.x,
-                            top: circle.y,
-                            width: circle.r * 2,
-                            height: circle.r * 2,
-                          }}
-                        />
-                      )
-                    })}
-                  </div>
-                )
-              }}
-            </Pack>
-          </div>
+            key={index}
+            className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full border border-gray-300/30 bg-gray-300/40 dark:border-gray-700/40 dark:bg-gray-700/30"
+            style={style}
+          />
         )
-      }}
-    </ParentSize>
+      })}
+    </div>
   )
 }

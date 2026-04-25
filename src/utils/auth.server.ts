@@ -9,34 +9,43 @@
 
 import { createServerFn } from '@tanstack/react-start'
 import { getRequest } from '@tanstack/react-start/server'
-import { getAuthService, getAuthGuards } from '~/auth/index.server'
 import type { Capability } from '~/auth/index.server'
 import { ADMIN_ACCESS_CAPABILITIES } from '~/db/types'
 
+async function loadAuthServer() {
+  return import('~/auth/index.server')
+}
+
 /**
- * Server function to get the current user
+ * Server function to get the current user.
  */
 export const getCurrentUser = createServerFn({ method: 'POST' }).handler(
   async () => {
     const request = getRequest()
+    const { getAuthService } = await loadAuthServer()
     const authService = getAuthService()
     return authService.getCurrentUser(request)
   },
 )
 
 /**
- * Server function to require authentication
+ * Server function to require authentication.
+ * Called from route beforeLoad guards.
+ * Do NOT use this inside server function handlers -- use guards directly.
  */
 export const requireAuth = createServerFn({ method: 'POST' }).handler(
   async () => {
     const request = getRequest()
+    const { getAuthGuards } = await loadAuthServer()
     const guards = getAuthGuards()
     return guards.requireAuth(request)
   },
 )
 
 /**
- * Server function to require a specific capability
+ * Server function to require a specific capability.
+ * Called from route beforeLoad guards.
+ * Do NOT use this inside server function handlers -- use guards directly.
  */
 export const requireCapability = createServerFn({ method: 'POST' })
   .inputValidator((data: { capability: string }) => ({
@@ -44,6 +53,7 @@ export const requireCapability = createServerFn({ method: 'POST' })
   }))
   .handler(async ({ data: { capability } }) => {
     const request = getRequest()
+    const { getAuthGuards } = await loadAuthServer()
     const guards = getAuthGuards()
     return guards.requireCapability(request, capability)
   })
@@ -88,21 +98,16 @@ export async function requireCapabilityUser(capability: string) {
 export { ADMIN_ACCESS_CAPABILITIES as ADMIN_CAPABILITIES } from '~/db/types'
 
 /**
- * Server function to require any admin-like capability
- * Used for accessing the /admin area (each sub-route checks specific capabilities)
+ * Server function to require any admin-like capability.
+ * Used for accessing the /admin area (each sub-route checks specific capabilities).
  */
 export const requireAnyAdminCapability = createServerFn({
   method: 'POST',
 }).handler(async () => {
-  console.log('[requireAnyAdminCapability] Starting...')
   const request = getRequest()
-  console.log('[requireAnyAdminCapability] Got request')
+  const { getAuthService } = await loadAuthServer()
   const authService = getAuthService()
-  console.log(
-    '[requireAnyAdminCapability] Got authService, calling getCurrentUser...',
-  )
   const user = await authService.getCurrentUser(request)
-  console.log('[requireAnyAdminCapability] Got user:', user?.email)
 
   if (!user) {
     throw new Error('Not authenticated')

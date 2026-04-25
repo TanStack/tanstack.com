@@ -24,9 +24,6 @@ export type {
   OAuthProvider,
   DocFeedbackType,
   DocFeedbackStatus,
-  BannerScope,
-  BannerStyle,
-  EntryType,
   ShowcaseStatus,
   ShowcaseUseCase,
   AuditAction,
@@ -38,9 +35,6 @@ import {
   OAUTH_PROVIDERS,
   DOC_FEEDBACK_TYPES,
   DOC_FEEDBACK_STATUSES,
-  BANNER_SCOPES,
-  BANNER_STYLES,
-  ENTRY_TYPES,
   SHOWCASE_STATUSES,
   SHOWCASE_USE_CASES,
   AUDIT_ACTIONS,
@@ -52,14 +46,10 @@ export {
   OAUTH_PROVIDERS,
   DOC_FEEDBACK_TYPES,
   DOC_FEEDBACK_STATUSES,
-  BANNER_SCOPES,
-  BANNER_STYLES,
-  ENTRY_TYPES,
   SHOWCASE_STATUSES,
   SHOWCASE_USE_CASES,
   AUDIT_ACTIONS,
   RELEASE_LEVELS,
-  MANUAL_ENTRY_TYPES,
 } from './types'
 
 // Enums - using imported constants as single source of truth
@@ -74,9 +64,6 @@ export const docFeedbackStatusEnum = pgEnum(
   'doc_feedback_status',
   DOC_FEEDBACK_STATUSES,
 )
-export const bannerScopeEnum = pgEnum('banner_scope', BANNER_SCOPES)
-export const bannerStyleEnum = pgEnum('banner_style', BANNER_STYLES)
-export const entryTypeEnum = pgEnum('entry_type', ENTRY_TYPES)
 export const showcaseStatusEnum = pgEnum('showcase_status', SHOWCASE_STATUSES)
 export const showcaseUseCaseEnum = pgEnum(
   'showcase_use_case',
@@ -211,6 +198,8 @@ export const oauthAccounts = pgTable(
       length: 255,
     }).notNull(),
     email: varchar('email', { length: 255 }).notNull(),
+    accessToken: text('access_token'),
+    tokenScope: text('token_scope'),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
       .notNull()
       .defaultNow(),
@@ -229,86 +218,6 @@ export const oauthAccounts = pgTable(
 
 export type OAuthAccount = InferSelectModel<typeof oauthAccounts>
 export type NewOAuthAccount = InferInsertModel<typeof oauthAccounts>
-
-// Feed entries table
-export const feedEntries = pgTable(
-  'feed_entries',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    // Unique identifier (e.g., "github:tanstack/query:v5.0.0" or UUID for manual)
-    entryId: varchar('entry_id', { length: 255 }).notNull().unique(),
-    // Entry type: release (auto-synced from GitHub), blog (auto-synced), announcement (manual)
-    entryType: entryTypeEnum('entry_type').notNull().default('announcement'),
-    title: text('title').notNull(),
-    content: text('content').notNull(), // Markdown content
-    excerpt: text('excerpt'),
-    publishedAt: timestamp('published_at', {
-      withTimezone: true,
-      mode: 'date',
-    }).notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
-      .notNull()
-      .defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
-      .notNull()
-      .defaultNow(),
-    // Source-specific metadata (JSON blob for debugging)
-    metadata: jsonb('metadata'),
-    // Categorization
-    libraryIds: varchar('library_ids', { length: 255 })
-      .array()
-      .notNull()
-      .default([]),
-    partnerIds: varchar('partner_ids', { length: 255 })
-      .array()
-      .notNull()
-      .default([]),
-    tags: varchar('tags', { length: 255 }).array().notNull().default([]),
-    // Display control
-    showInFeed: boolean('show_in_feed').notNull().default(true),
-    featured: boolean('featured').default(false),
-    // Auto-sync metadata
-    autoSynced: boolean('auto_synced').notNull().default(false),
-    lastSyncedAt: timestamp('last_synced_at', {
-      withTimezone: true,
-      mode: 'date',
-    }),
-  },
-  (table) => ({
-    publishedAtIdx: index('feed_entries_published_at_idx').on(
-      table.publishedAt,
-    ),
-    entryTypeIdx: index('feed_entries_entry_type_idx').on(table.entryType),
-    showInFeedPublishedIdx: index(
-      'feed_entries_show_in_feed_published_at_idx',
-    ).on(table.showInFeed, table.publishedAt),
-    // GIN indexes for array columns (created via SQL migration)
-    // libraryIdsGin: index('feed_entries_library_ids_gin_idx').using('gin', table.libraryIds),
-    // tagsGin: index('feed_entries_tags_gin_idx').using('gin', table.tags),
-  }),
-)
-
-export type FeedEntry = InferSelectModel<typeof feedEntries>
-export type NewFeedEntry = InferInsertModel<typeof feedEntries>
-
-// Feed config table
-export const feedConfig = pgTable(
-  'feed_config',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    key: varchar('key', { length: 255 }).notNull().unique(), // e.g., 'defaultFilters'
-    value: jsonb('value').notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
-      .notNull()
-      .defaultNow(),
-  },
-  (table) => ({
-    keyIdx: index('feed_config_key_idx').on(table.key),
-  }),
-)
-
-export type FeedConfig = InferSelectModel<typeof feedConfig>
-export type NewFeedConfig = InferInsertModel<typeof feedConfig>
 
 // GitHub Stats cache table (for caching expensive GitHub API calls)
 export const githubStatsCache = pgTable(
@@ -342,6 +251,83 @@ export const githubStatsCache = pgTable(
 )
 
 export type GithubStatsCache = InferSelectModel<typeof githubStatsCache>
+
+export const githubContentCache = pgTable(
+  'github_content_cache',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    repo: varchar('repo', { length: 255 }).notNull(),
+    gitRef: varchar('git_ref', { length: 255 }).notNull(),
+    contentKind: varchar('content_kind', { length: 20 }).notNull(),
+    path: varchar('path', { length: 1024 }).notNull(),
+    isPresent: boolean('is_present').notNull().default(true),
+    textContent: text('text_content'),
+    jsonContent: jsonb('json_content'),
+    staleAt: timestamp('stale_at', {
+      withTimezone: true,
+      mode: 'date',
+    }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    repoRefIdx: index('github_content_cache_repo_ref_idx').on(
+      table.repo,
+      table.gitRef,
+    ),
+    staleAtIdx: index('github_content_cache_stale_at_idx').on(table.staleAt),
+    uniqueContent: uniqueIndex('github_content_cache_unique').on(
+      table.repo,
+      table.gitRef,
+      table.contentKind,
+      table.path,
+    ),
+  }),
+)
+
+export type GithubContentCache = InferSelectModel<typeof githubContentCache>
+
+export const docsArtifactCache = pgTable(
+  'docs_artifact_cache',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    repo: varchar('repo', { length: 255 }).notNull(),
+    gitRef: varchar('git_ref', { length: 255 }).notNull(),
+    docsRoot: varchar('docs_root', { length: 255 }).notNull(),
+    artifactType: varchar('artifact_type', { length: 50 }).notNull(),
+    artifactKey: varchar('artifact_key', { length: 255 }).notNull(),
+    payload: jsonb('payload').notNull(),
+    staleAt: timestamp('stale_at', {
+      withTimezone: true,
+      mode: 'date',
+    }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    repoRefDocsRootIdx: index('docs_artifact_cache_repo_ref_docs_root_idx').on(
+      table.repo,
+      table.gitRef,
+      table.docsRoot,
+    ),
+    staleAtIdx: index('docs_artifact_cache_stale_at_idx').on(table.staleAt),
+    uniqueArtifact: uniqueIndex('docs_artifact_cache_unique').on(
+      table.repo,
+      table.gitRef,
+      table.docsRoot,
+      table.artifactType,
+      table.artifactKey,
+    ),
+  }),
+)
 
 // NPM Packages table (combines registry and stats cache)
 export const npmPackages = pgTable(
@@ -458,6 +444,61 @@ export type NpmLibraryStatsCache = InferSelectModel<typeof npmLibraryStatsCache>
 export type NewNpmLibraryStatsCache = InferInsertModel<
   typeof npmLibraryStatsCache
 >
+
+export const ossStatsCache = pgTable(
+  'oss_stats_cache',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    scopeType: varchar('scope_type', { length: 20 }).notNull(),
+    scopeKey: varchar('scope_key', { length: 255 }).notNull(),
+
+    githubStarCount: integer('github_star_count').notNull().default(0),
+    githubContributorCount: integer('github_contributor_count')
+      .notNull()
+      .default(0),
+    githubDependentCount: integer('github_dependent_count'),
+    githubForkCount: integer('github_fork_count'),
+    githubRepositoryCount: integer('github_repository_count'),
+
+    githubDeltaStarCount: integer('github_delta_star_count'),
+    githubDeltaContributorCount: integer('github_delta_contributor_count'),
+    githubDeltaDependentCount: integer('github_delta_dependent_count'),
+    githubDeltaForkCount: integer('github_delta_fork_count'),
+    githubUpdatedAt: timestamp('github_updated_at', {
+      withTimezone: true,
+      mode: 'date',
+    }),
+
+    npmTotalDownloads: bigint('npm_total_downloads', { mode: 'number' })
+      .notNull()
+      .default(0),
+    npmRatePerDay: real('npm_rate_per_day'),
+    npmPackageCount: integer('npm_package_count').notNull().default(0),
+    npmUpdatedAt: timestamp('npm_updated_at', {
+      withTimezone: true,
+      mode: 'date',
+    }),
+
+    timeDeltaMs: bigint('time_delta_ms', { mode: 'number' }),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    scopeUnique: uniqueIndex('oss_stats_cache_scope_unique').on(
+      table.scopeType,
+      table.scopeKey,
+    ),
+    scopeTypeIdx: index('oss_stats_cache_scope_type_idx').on(table.scopeType),
+    scopeKeyIdx: index('oss_stats_cache_scope_key_idx').on(table.scopeKey),
+  }),
+)
+
+export type OssStatsCache = InferSelectModel<typeof ossStatsCache>
+export type NewOssStatsCache = InferInsertModel<typeof ossStatsCache>
 
 // NPM Download Chunks cache table (for caching historical date range downloads)
 // This table stores immutable historical chunks and cacheable recent chunks
@@ -578,112 +619,6 @@ export const docFeedback = pgTable(
 
 export type DocFeedback = InferSelectModel<typeof docFeedback>
 export type NewDocFeedback = InferInsertModel<typeof docFeedback>
-
-// Banners table (separate from feed entries)
-export const banners = pgTable(
-  'banners',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    // Display content
-    title: text('title').notNull(),
-    content: text('content'), // Optional longer content/description
-    // Link (makes banner clickable)
-    linkUrl: text('link_url'),
-    linkText: varchar('link_text', { length: 255 }),
-    // Styling
-    style: bannerStyleEnum('style').notNull().default('info'),
-    // Targeting
-    scope: bannerScopeEnum('scope').notNull().default('global'),
-    pathPrefixes: varchar('path_prefixes', { length: 255 })
-      .array()
-      .notNull()
-      .default([]),
-    // Scheduling
-    isActive: boolean('is_active').notNull().default(true),
-    startsAt: timestamp('starts_at', { withTimezone: true, mode: 'date' }),
-    expiresAt: timestamp('expires_at', { withTimezone: true, mode: 'date' }),
-    // Priority (higher = shown first when multiple banners match)
-    priority: integer('priority').notNull().default(0),
-    // Metadata
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
-      .notNull()
-      .defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
-      .notNull()
-      .defaultNow(),
-  },
-  (table) => ({
-    isActiveIdx: index('banners_is_active_idx').on(table.isActive),
-    priorityIdx: index('banners_priority_idx').on(table.priority),
-    startsAtIdx: index('banners_starts_at_idx').on(table.startsAt),
-    expiresAtIdx: index('banners_expires_at_idx').on(table.expiresAt),
-  }),
-)
-
-export type Banner = InferSelectModel<typeof banners>
-export type NewBanner = InferInsertModel<typeof banners>
-
-// Banner dismissals table (for tracking which banners users have dismissed)
-export const bannerDismissals = pgTable(
-  'banner_dismissals',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    bannerId: uuid('banner_id')
-      .notNull()
-      .references(() => banners.id, { onDelete: 'cascade' }),
-    userId: uuid('user_id')
-      .notNull()
-      .references(() => users.id, { onDelete: 'cascade' }),
-    dismissedAt: timestamp('dismissed_at', { withTimezone: true, mode: 'date' })
-      .notNull()
-      .defaultNow(),
-  },
-  (table) => ({
-    bannerIdIdx: index('banner_dismissals_banner_id_idx').on(table.bannerId),
-    userIdIdx: index('banner_dismissals_user_id_idx').on(table.userId),
-    userBannerUnique: uniqueIndex('banner_dismissals_user_banner_unique').on(
-      table.userId,
-      table.bannerId,
-    ),
-  }),
-)
-
-export type BannerDismissal = InferSelectModel<typeof bannerDismissals>
-export type NewBannerDismissal = InferInsertModel<typeof bannerDismissals>
-
-// Announcement dismissals table (legacy - for tracking which feed entry banners users have dismissed)
-export const announcementDismissals = pgTable(
-  'announcement_dismissals',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    // The feed entry ID (references feedEntries.entryId, not the UUID)
-    announcementId: varchar('announcement_id', { length: 255 }).notNull(),
-    // User who dismissed (nullable for future anonymous tracking if needed)
-    userId: uuid('user_id')
-      .notNull()
-      .references(() => users.id, { onDelete: 'cascade' }),
-    dismissedAt: timestamp('dismissed_at', { withTimezone: true, mode: 'date' })
-      .notNull()
-      .defaultNow(),
-  },
-  (table) => ({
-    announcementIdIdx: index('announcement_dismissals_announcement_id_idx').on(
-      table.announcementId,
-    ),
-    userIdIdx: index('announcement_dismissals_user_id_idx').on(table.userId),
-    // Ensure a user can only dismiss an announcement once
-    userAnnouncementUnique: uniqueIndex(
-      'announcement_dismissals_user_announcement_unique',
-    ).on(table.userId, table.announcementId),
-  }),
-)
-
-export type AnnouncementDismissal = InferSelectModel<
-  typeof announcementDismissals
->
-export type NewAnnouncementDismissal = InferInsertModel<
-  typeof announcementDismissals
->
 
 // Login history table (tracks user logins for analytics and security)
 export const loginHistory = pgTable(
@@ -878,8 +813,6 @@ export const usersRelations = relations(users, ({ many }) => ({
   oauthAccounts: many(oauthAccounts),
   roleAssignments: many(roleAssignments),
   docFeedback: many(docFeedback),
-  announcementDismissals: many(announcementDismissals),
-  bannerDismissals: many(bannerDismissals),
   loginHistory: many(loginHistory),
   auditLogs: many(auditLogs),
   userActivity: many(userActivity),
@@ -929,34 +862,6 @@ export const docFeedbackRelations = relations(docFeedback, ({ one }) => ({
     references: [users.id],
   }),
 }))
-
-export const announcementDismissalsRelations = relations(
-  announcementDismissals,
-  ({ one }) => ({
-    user: one(users, {
-      fields: [announcementDismissals.userId],
-      references: [users.id],
-    }),
-  }),
-)
-
-export const bannersRelations = relations(banners, ({ many }) => ({
-  dismissals: many(bannerDismissals),
-}))
-
-export const bannerDismissalsRelations = relations(
-  bannerDismissals,
-  ({ one }) => ({
-    banner: one(banners, {
-      fields: [bannerDismissals.bannerId],
-      references: [banners.id],
-    }),
-    user: one(users, {
-      fields: [bannerDismissals.userId],
-      references: [users.id],
-    }),
-  }),
-)
 
 export const loginHistoryRelations = relations(loginHistory, ({ one }) => ({
   user: one(users, {
@@ -1196,6 +1101,174 @@ export const oauthRefreshTokens = pgTable(
 
 export type OAuthRefreshToken = InferSelectModel<typeof oauthRefreshTokens>
 export type NewOAuthRefreshToken = InferInsertModel<typeof oauthRefreshTokens>
+
+// =============================================================================
+// Intent Registry Tables
+// =============================================================================
+// These tables power the /intent/registry skill browser. The design is
+// intentionally lean: we only persist what NPM cannot give us efficiently
+// (the verified list of intent-compatible packages, per-version skill
+// frontmatter for fast listing/filtering/diffing). Full SKILL.md bodies are
+// stored deduplicated by content hash so unchanged skills across versions cost
+// one row, not N.
+// =============================================================================
+
+// Verified intent-compatible packages discovered via NPM keyword search
+export const intentPackages = pgTable('intent_packages', {
+  name: varchar('name', { length: 255 }).primaryKey(),
+  verified: boolean('verified').notNull().default(false),
+  firstSeenAt: timestamp('first_seen_at', { withTimezone: true, mode: 'date' })
+    .notNull()
+    .defaultNow(),
+  lastSyncedAt: timestamp('last_synced_at', {
+    withTimezone: true,
+    mode: 'date',
+  })
+    .notNull()
+    .defaultNow(),
+})
+
+export type IntentPackage = InferSelectModel<typeof intentPackages>
+export type NewIntentPackage = InferInsertModel<typeof intentPackages>
+
+// Per-version snapshot of a package's skills (latest + last 5 versions)
+//
+// syncStatus acts as a durable work queue:
+//   'pending'  -- version discovered, tarball not yet downloaded/extracted
+//   'synced'   -- skills extracted and indexed successfully
+//   'failed'   -- tarball processing failed (will be retried next cycle)
+//
+// This means the scheduled function can be interrupted at any point and
+// resume from where it left off. Only the currently in-flight version is
+// at risk of being re-processed on restart (upserts make that safe).
+export const intentPackageVersions = pgTable(
+  'intent_package_versions',
+  {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    packageName: varchar('package_name', { length: 255 })
+      .notNull()
+      .references(() => intentPackages.name, { onDelete: 'cascade' }),
+    version: varchar('version', { length: 100 }).notNull(),
+    skillCount: integer('skill_count').notNull().default(0),
+    publishedAt: timestamp('published_at', {
+      withTimezone: true,
+      mode: 'date',
+    }),
+    // Tarball URL stored at discovery time so the processing phase doesn't
+    // need to re-fetch the full packument
+    tarballUrl: varchar('tarball_url', { length: 1024 }),
+    syncStatus: varchar('sync_status', { length: 20 })
+      .notNull()
+      .default('pending'),
+    syncedAt: timestamp('synced_at', { withTimezone: true, mode: 'date' }),
+    failureReason: text('failure_reason'),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    packageNameIdx: index('intent_package_versions_package_name_idx').on(
+      table.packageName,
+    ),
+    syncStatusIdx: index('intent_package_versions_sync_status_idx').on(
+      table.syncStatus,
+    ),
+    packageVersionUnique: uniqueIndex(
+      'intent_package_versions_package_version_unique',
+    ).on(table.packageName, table.version),
+  }),
+)
+
+export type IntentPackageVersion = InferSelectModel<
+  typeof intentPackageVersions
+>
+export type NewIntentPackageVersion = InferInsertModel<
+  typeof intentPackageVersions
+>
+
+// Deduplicated SKILL.md bodies -- one row per unique content hash
+// Unchanged skills across versions share a single row here
+export const intentSkillContent = pgTable('intent_skill_content', {
+  contentHash: varchar('content_hash', { length: 64 }).primaryKey(),
+  content: text('content').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+    .notNull()
+    .defaultNow(),
+})
+
+export type IntentSkillContent = InferSelectModel<typeof intentSkillContent>
+export type NewIntentSkillContent = InferInsertModel<typeof intentSkillContent>
+
+// Per-skill frontmatter metadata (name, description, type, framework, etc.)
+export const intentSkills = pgTable(
+  'intent_skills',
+  {
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    packageVersionId: integer('package_version_id')
+      .notNull()
+      .references(() => intentPackageVersions.id, { onDelete: 'cascade' }),
+    // Skill path relative to skills/ dir, e.g. "db-core/live-queries"
+    name: varchar('name', { length: 255 }).notNull(),
+    description: text('description'),
+    // Skill type: core | sub-skill | framework | lifecycle | composition | security
+    type: varchar('type', { length: 50 }),
+    // Framework: react | vue | solid | svelte | angular (nullable = framework-agnostic)
+    framework: varchar('framework', { length: 50 }),
+    // Other skills that must be loaded before this one
+    requires: text('requires').array(),
+    // File path within the package's skills/ directory, e.g. "db-core/live-queries"
+    skillPath: varchar('skill_path', { length: 500 }),
+    // SHA-256 of the SKILL.md body (for change detection between versions)
+    contentHash: varchar('content_hash', { length: 64 })
+      .notNull()
+      .references(() => intentSkillContent.contentHash),
+    lineCount: integer('line_count').notNull().default(0),
+  },
+  (table) => ({
+    packageVersionIdIdx: index('intent_skills_package_version_id_idx').on(
+      table.packageVersionId,
+    ),
+    nameIdx: index('intent_skills_name_idx').on(table.name),
+    frameworkIdx: index('intent_skills_framework_idx').on(table.framework),
+    typeIdx: index('intent_skills_type_idx').on(table.type),
+    packageVersionSkillUnique: uniqueIndex(
+      'intent_skills_package_version_skill_unique',
+    ).on(table.packageVersionId, table.name),
+  }),
+)
+
+export type IntentSkill = InferSelectModel<typeof intentSkills>
+export type NewIntentSkill = InferInsertModel<typeof intentSkills>
+
+// Relations
+export const intentPackagesRelations = relations(
+  intentPackages,
+  ({ many }) => ({
+    versions: many(intentPackageVersions),
+  }),
+)
+
+export const intentPackageVersionsRelations = relations(
+  intentPackageVersions,
+  ({ one, many }) => ({
+    package: one(intentPackages, {
+      fields: [intentPackageVersions.packageName],
+      references: [intentPackages.name],
+    }),
+    skills: many(intentSkills),
+  }),
+)
+
+export const intentSkillsRelations = relations(intentSkills, ({ one }) => ({
+  packageVersion: one(intentPackageVersions, {
+    fields: [intentSkills.packageVersionId],
+    references: [intentPackageVersions.id],
+  }),
+  content: one(intentSkillContent, {
+    fields: [intentSkills.contentHash],
+    references: [intentSkillContent.contentHash],
+  }),
+}))
 
 // Backwards compatibility aliases
 /** @deprecated Use oauthRefreshTokens instead */

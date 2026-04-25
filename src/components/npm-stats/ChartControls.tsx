@@ -17,7 +17,7 @@ import {
   timeRanges,
   binningOptions,
   isBinningOptionValidForRange,
-} from './NPMStatsChart'
+} from './shared'
 
 const dropdownButtonStyles = {
   base: 'bg-gray-500/10 rounded-md px-2 py-1 text-sm flex items-center gap-1',

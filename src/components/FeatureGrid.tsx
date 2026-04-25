@@ -22,8 +22,8 @@ export function FeatureGrid({ title, items, gridClassName }: FeatureGridProps) {
         }
       >
         {items.map((d, i) => (
-          <span key={i} className="flex items-center gap-2">
-            <CheckCircleIcon className="text-green-500 " /> {d}
+          <span key={i} className="flex gap-2">
+            <CheckCircleIcon className="text-green-500 h-lh w-4 shrink-0" /> {d}
           </span>
         ))}
       </div>

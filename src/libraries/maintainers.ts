@@ -97,11 +97,11 @@ export const allMaintainers: Maintainer[] = [
     isCoreMaintainer: true,
     avatar: 'https://github.com/kevinvandy.png',
     github: 'kevinvandy',
-    creatorOf: ['pacer'],
+    creatorOf: ['pacer', 'hotkeys'],
     maintainerOf: ['table'],
     contributorOf: ['virtual'],
     consultantOf: ['query'],
-    frameworkExpertise: ['react', 'solid', 'svelte'],
+    frameworkExpertise: ['react', 'preact', 'solid'],
     specialties: ['Tables', 'Data Grids', 'Dashboards'],
     social: {
       twitter: 'https://x.com/kevinvancott',
@@ -208,6 +208,19 @@ export const allMaintainers: Maintainer[] = [
     specialties: ['Sync Engines', 'Incremental View Maintenance'],
   },
   {
+    name: 'Vedanta Somnathe',
+    avatar: 'https://github.com/theVedanta.png',
+    github: 'theVedanta',
+    maintainerOf: ['query', 'pacer'],
+    frameworkExpertise: ['preact', 'angular'],
+    social: {
+      website: 'https://vedantas.xyz/',
+      twitter: 'https://x.com/thvdnta',
+      bluesky: 'https://bsky.app/profile/thvdnta.bsky.social',
+      linkedIn: 'https://linkedin.com/in/thvdnta',
+    },
+  },
+  {
     name: 'Leonardo Montini',
     avatar: 'https://github.com/Balastrong.png',
     github: 'Balastrong',
@@ -271,7 +284,20 @@ export const allMaintainers: Maintainer[] = [
     social: {
       twitter: 'https://x.com/manudeli_',
       bluesky: 'https://bsky.app/profile/manudeli.bsky.social',
-      website: 'https://www.linkedin.com/in/jonghyeonko',
+      linkedIn: 'https://www.linkedin.com/in/jonghyeonko',
+    },
+  },
+  {
+    name: 'Wonsuk Choi',
+    avatar: 'https://github.com/sukvvon.png',
+    github: 'sukvvon',
+    maintainerOf: ['query'],
+    frameworkExpertise: ['react'],
+    specialties: ['TypeScript', 'Test'],
+    social: {
+      linkedIn: 'https://www.linkedin.com/in/sukvvon',
+      twitter: 'https://x.com/sukvvon',
+      bluesky: 'https://bsky.app/profile/sukvvon.bsky.social',
     },
   },
   {
@@ -288,6 +314,7 @@ export const allMaintainers: Maintainer[] = [
       'query',
       'ranger',
       'router',
+      'hotkeys',
       'start',
       'store',
       'table',
@@ -356,7 +383,7 @@ export const allMaintainers: Maintainer[] = [
     social: {
       twitter: 'https://x.com/Arnoud_dv',
       bluesky: 'https://bsky.app/profile/arnoud.dev',
-      website: 'https://www.linkedin.com/in/arnouddv/',
+      linkedIn: 'https://www.linkedin.com/in/arnouddv/',
     },
     workshopsAvailable: true,
   },
@@ -464,6 +491,18 @@ export const allMaintainers: Maintainer[] = [
       website: 'https://beaussan.io/',
     },
     workshopsAvailable: true,
+  },
+  {
+    name: 'Nico Lynzaad',
+    avatar: 'https://github.com/nlynzaad.png',
+    github: 'nlynzaad',
+    maintainerOf: ['router'],
+    frameworkExpertise: ['react'],
+    specialties: [],
+    social: {
+      twitter: 'https://twitter.com/NLynzaad',
+    },
+    workshopsAvailable: false,
   },
 ]
 

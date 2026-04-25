@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { useThrottledCallback } from '@tanstack/react-pacer'
 import { Plus } from 'lucide-react'
@@ -10,25 +10,23 @@ import { getLibrary } from '~/libraries'
 import { DocContainer } from '~/components/DocContainer'
 import { Tooltip } from '~/components/Tooltip'
 import { Spinner } from '~/components/Spinner'
+import { ChartControls } from '~/components/npm-stats/ChartControls'
+import { ColorPickerPopover } from '~/components/npm-stats/ColorPickerPopover'
+import { NPMSummary } from '~/components/npm-stats/NPMSummary'
+import { PackagePills } from '~/components/npm-stats/PackagePills'
+import { PackageSearch } from '~/components/npm-stats/PackageSearch'
+import { Resizable } from '~/components/npm-stats/Resizable'
+import { StatsTable } from '~/components/npm-stats/StatsTable'
+import { npmQueryOptions } from '~/components/npm-stats/npmQueryOptions'
 import {
-  NPMStatsChart,
-  Resizable,
-  ColorPickerPopover,
-  StatsTable,
-  PackageSearch,
-  NPMSummary,
-  ChartControls,
-  PackagePills,
-  npmQueryOptions,
-  type PackageGroup,
-  type TimeRange,
-  type BinType,
-  type TransformMode,
-  type ShowDataMode,
-  binningOptionsByType,
   defaultRangeBinTypes,
   getPackageColor,
-} from '~/components/npm-stats'
+  type BinType,
+  type PackageGroup,
+  type ShowDataMode,
+  type TimeRange,
+  type TransformMode,
+} from '~/components/npm-stats/shared'
 import {
   getLibraryNpmPackages,
   getAvailableFrameworkAdapters,
@@ -37,6 +35,21 @@ import {
   defaultColors,
 } from '~/utils/npm-packages'
 import { packageGroupSchema } from '~/routes/stats/npm/-comparisons'
+
+const LazyNPMStatsChart = React.lazy(() =>
+  import('~/components/npm-stats/NPMStatsChart').then((m) => ({
+    default: m.NPMStatsChart,
+  })),
+)
+
+function ChartFallback({ height }: { height: number }) {
+  return (
+    <div
+      className="animate-pulse rounded bg-gray-100 dark:bg-gray-800/40"
+      style={{ height }}
+    />
+  )
+}
 
 const transformModeSchema = v.picklist(['none', 'normalize-y'])
 const binTypeSchema = v.picklist(['yearly', 'monthly', 'weekly', 'daily'])
@@ -99,7 +112,6 @@ function RouteComponent() {
   const height: number = search.height ?? 400
 
   const binType: BinType = binTypeParam ?? defaultRangeBinTypes[range]
-  const binOption = binningOptionsByType[binType]
 
   const [colorPickerPackage, setColorPickerPackage] = React.useState<
     string | null
@@ -108,7 +120,7 @@ function RouteComponent() {
     x: number
     y: number
   } | null>(null)
-  const [openMenuPackage, setOpenMenuPackage] = React.useState<string | null>(
+  const [_openMenuPackage, setOpenMenuPackage] = React.useState<string | null>(
     null,
   )
 
@@ -234,12 +246,20 @@ function RouteComponent() {
         return {
           ...prev,
           packageGroups: prev.packageGroups?.map((pkg) => {
-            const baseline =
-              pkg.packages[0]?.name === packageName ? !pkg.baseline : false
+            const isTarget = pkg.packages[0]?.name === packageName
+            const baseline = isTarget ? !pkg.baseline : false
+
+            const packages =
+              isTarget && baseline
+                ? pkg.packages.map((p, i) =>
+                    i === 0 ? { ...p, hidden: false } : p,
+                  )
+                : pkg.packages
 
             return {
               ...pkg,
               baseline,
+              packages,
             }
           }),
         }
@@ -299,7 +319,7 @@ function RouteComponent() {
     },
   )
 
-  const handleMenuOpenChange = (packageName: string, open: boolean) => {
+  const _handleMenuOpenChange = (packageName: string, open: boolean) => {
     if (!open) {
       setOpenMenuPackage(null)
     } else {
@@ -441,14 +461,18 @@ function RouteComponent() {
                       </div>
                     </div>
                   ) : (
-                    <NPMStatsChart
-                      range={range}
-                      queryData={npmQuery.data}
-                      transform={transform}
-                      binType={binType}
-                      packages={packageGroups}
-                      showDataMode={showDataModeParam}
-                    />
+                    <React.Suspense
+                      fallback={<ChartFallback height={height} />}
+                    >
+                      <LazyNPMStatsChart
+                        range={range}
+                        queryData={npmQuery.data}
+                        transform={transform}
+                        binType={binType}
+                        packages={packageGroups}
+                        showDataMode={showDataModeParam}
+                      />
+                    </React.Suspense>
                   )}
                 </Resizable>
               </div>
@@ -457,7 +481,7 @@ function RouteComponent() {
               <StatsTable
                 queryData={npmQuery.data}
                 packageGroups={packageGroups}
-                binOption={binOption}
+                binType={binType}
                 transform={transform}
                 onColorClick={handleColorClick}
                 onToggleVisibility={togglePackageVisibility}

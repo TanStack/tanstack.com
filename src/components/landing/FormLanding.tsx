@@ -1,127 +1,25 @@
 import { useParams } from '@tanstack/react-router'
+import { BottomCTA } from '~/components/BottomCTA'
+import { FeatureGrid } from '~/components/FeatureGrid'
 import { Footer } from '~/components/Footer'
-import { formProject } from '~/libraries/form'
-import { Framework, getBranch, getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import { LibraryHero } from '~/components/LibraryHero'
-import { FeatureGrid } from '~/components/FeatureGrid'
-import { LazySponsorSection } from '~/components/LazySponsorSection'
-import { BottomCTA } from '~/components/BottomCTA'
-import LandingPageGad from '~/components/LandingPageGad'
-import { PartnersSection } from '~/components/PartnersSection'
-import { MaintainersSection } from '~/components/MaintainersSection'
-import { LibraryTestimonials } from '~/components/LibraryTestimonials'
-import { LibraryShowcases } from '~/components/ShowcaseSection'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
-import { CodeExampleCard } from '~/components/CodeExampleCard'
+import { LibraryTestimonials } from '~/components/LibraryTestimonials'
+import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
+import { LazySponsorSection } from '~/components/LazySponsorSection'
+import LandingPageGad from '~/components/LandingPageGad'
 import { StackBlitzSection } from '~/components/StackBlitzSection'
+import { getBranch, getLibrary } from '~/libraries'
+import { formProject } from '~/libraries/form'
+import type { LandingComponentProps } from '~/routes/$libraryId/$version'
 
 const library = getLibrary('form')
 
-const codeExamples: Partial<Record<Framework, { lang: string; code: string }>> =
-  {
-    react: {
-      lang: 'tsx',
-      code: `import { useForm } from '@tanstack/react-form'
-
-const form = useForm({
-  defaultValues: { name: '' },
-  onSubmit: async ({ value }) => console.log(value),
-})
-// Bind inputs to form.state and form.handleSubmit`,
-    },
-    vue: {
-      lang: 'vue',
-      code: `<script setup lang="ts">
-import { useForm } from '@tanstack/vue-form'
-
-const form = useForm({
-  defaultValues: { name: '' },
-  onSubmit: async ({ value }) => console.log(value),
-})
-</script>
-
-<template>
-  <form @submit.prevent="form.handleSubmit">
-    <input v-model="form.state.values.name" />
-    <button type="submit">Submit</button>
-  </form>
-</template>`,
-    },
-    angular: {
-      lang: 'ts',
-      code: `import { Component } from '@angular/core'
-import { createAngularForm } from '@tanstack/angular-form'
-
-@Component({
-  standalone: true,
-  selector: 'app-form',
-  template: '<form (submit)="form.handleSubmit($event)"><input [value]="form.state().values.name" (input)="form.setFieldValue(\\"name\\", $any($event.target).value)" /><button type="submit">Submit</button></form>',
-})
-export class AppComponent {
-  form = createAngularForm(() => ({
-    defaultValues: { name: '' },
-    onSubmit: async ({ value }) => console.log(value),
-  }))
-}`,
-    },
-    solid: {
-      lang: 'tsx',
-      code: `import { createForm } from '@tanstack/solid-form'
-
-export default function SimpleForm() {
-  const form = createForm({
-    defaultValues: { name: '' },
-    onSubmit: async ({ value }) => console.log(value),
-  })
-
-  return (
-    <form onSubmit={form.handleSubmit}>
-      <input value={form.state.values.name} onInput={(e) => form.setFieldValue('name', e.currentTarget.value)} />
-      <button type="submit">Submit</button>
-    </form>
-  )
-}`,
-    },
-    svelte: {
-      lang: 'svelte',
-      code: `<script lang="ts">
-  import { createForm } from '@tanstack/svelte-form'
-  const form = createForm({
-    defaultValues: { name: '' },
-    onSubmit: async ({ value }) => console.log(value),
-  })
-</script>
-
-<form on:submit|preventDefault={form.handleSubmit}>
-  <input bind:value={form.state.values.name} />
-  <button type="submit">Submit</button>
-</form>`,
-    },
-    lit: {
-      lang: 'ts',
-      code: `import { LitElement, customElement, html } from 'lit'
-import { createLitForm } from '@tanstack/lit-form'
-
-@customElement('simple-form')
-export class SimpleForm extends LitElement {
-  form = createLitForm({
-    defaultValues: { name: '' },
-    onSubmit: async ({ value }) => console.log(value),
-  })
-
-  override render() {
-    return html\`<form @submit=\${(e: Event) => { e.preventDefault(); this.form.handleSubmit(e); }}>
-      <input .value=\${this.form.state.values.name} @input=\${(e: any) => this.form.setFieldValue('name', e.target.value)} />
-      <button type="submit">Submit</button>
-    </form>\`
-  }
-}`,
-    },
-  }
-
-export default function FormLanding() {
+export default function FormLanding({
+  landingCodeExampleRsc,
+}: LandingComponentProps) {
   const { version } = useParams({ strict: false })
   const branch = getBranch(formProject, version)
 
@@ -148,10 +46,7 @@ export default function FormLanding() {
 
       <LibraryTestimonials testimonials={formProject.testimonials} />
 
-      <CodeExampleCard
-        frameworks={formProject.frameworks}
-        codeByFramework={codeExamples}
-      />
+      {landingCodeExampleRsc}
 
       <FeatureGrid
         title="No dependencies. All the Features."
@@ -192,12 +87,10 @@ export default function FormLanding() {
         title={(framework) => `tanstack//${framework}-form: simple`}
       />
 
-      <MaintainersSection libraryId="form" />
-      <PartnersSection libraryId="form" />
-
-      <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-        <LibraryShowcases libraryId="form" libraryName="TanStack Form" />
-      </div>
+      <LazyLandingCommunitySection
+        libraryId="form"
+        libraryName="TanStack Form"
+      />
 
       <LazySponsorSection />
       <LandingPageGad />

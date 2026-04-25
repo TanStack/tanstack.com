@@ -1,31 +1,26 @@
 import * as React from 'react'
-import { useNavigate, createFileRoute } from '@tanstack/react-router'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { authClient } from '~/utils/auth.client'
+import {
+  ClientOnly,
+  useNavigate,
+  createFileRoute,
+} from '@tanstack/react-router'
+import { useQuery } from '@tanstack/react-query'
+import { authClient } from '~/auth/client'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { hasCapability } from '~/db/types'
 import { useToast } from '~/components/ToastProvider'
-import {
-  updateAdPreference,
-  revertProfileImage,
-  removeProfileImage,
-} from '~/utils/users.server'
+import { updateAdPreference } from '~/utils/users.functions'
 import { getMyStreak } from '~/utils/activity.functions'
-import {
-  LogOut,
-  Flame,
-  Trophy,
-  Calendar,
-  Camera,
-  RotateCcw,
-  Trash2,
-} from 'lucide-react'
+import { LogOut, Flame, Trophy, Calendar } from 'lucide-react'
 import { Card } from '~/components/Card'
 import { Button } from '~/ui'
-import { Avatar } from '~/components/Avatar'
-import { AvatarCropModal } from '~/components/AvatarCropModal'
-import { useUploadThing } from '~/utils/uploadthing'
+
+const LazyAccountProfilePictureSection = React.lazy(() =>
+  import('~/components/account/AccountProfilePictureSection.client').then(
+    (m) => ({ default: m.AccountProfilePictureSection }),
+  ),
+)
 
 export const Route = createFileRoute('/account/')({
   component: AccountSettingsPage,
@@ -33,44 +28,9 @@ export const Route = createFileRoute('/account/')({
 
 function AccountSettingsPage() {
   const userQuery = useCurrentUserQuery()
-  const queryClient = useQueryClient()
   const capabilities = useCapabilities()
   const { notify } = useToast()
   const navigate = useNavigate()
-
-  // Avatar upload state
-  const [cropModalOpen, setCropModalOpen] = React.useState(false)
-  const [selectedImage, setSelectedImage] = React.useState<string | null>(null)
-  const [isUploading, setIsUploading] = React.useState(false)
-  const [isReverting, setIsReverting] = React.useState(false)
-  const [isRemoving, setIsRemoving] = React.useState(false)
-  const fileInputRef = React.useRef<HTMLInputElement>(null)
-
-  const { startUpload } = useUploadThing('avatarUploader', {
-    onClientUploadComplete: () => {
-      setIsUploading(false)
-      queryClient.invalidateQueries({ queryKey: ['currentUser'] })
-      notify(
-        <div>
-          <div className="font-medium">Profile picture updated</div>
-          <div className="text-gray-500 dark:text-gray-400 text-xs">
-            Your new avatar is now live
-          </div>
-        </div>,
-      )
-    },
-    onUploadError: (error) => {
-      setIsUploading(false)
-      notify(
-        <div>
-          <div className="font-medium">Upload failed</div>
-          <div className="text-gray-500 dark:text-gray-400 text-xs">
-            {error.message}
-          </div>
-        </div>,
-      )
-    },
-  })
 
   const streakQuery = useQuery({
     queryKey: ['my-streak'],
@@ -85,86 +45,6 @@ function AccountSettingsPage() {
       ? (user.adsDisabled ?? false)
       : false
   const canDisableAds = hasCapability(capabilities, 'disableAds')
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onload = () => {
-        setSelectedImage(reader.result as string)
-        setCropModalOpen(true)
-      }
-      reader.readAsDataURL(file)
-    }
-    // Reset input so same file can be selected again
-    e.target.value = ''
-  }
-
-  const handleCropComplete = async (croppedBlob: Blob) => {
-    setIsUploading(true)
-    const file = new File([croppedBlob], 'avatar.jpg', { type: 'image/jpeg' })
-    await startUpload([file])
-  }
-
-  const handleRevertToOAuth = async () => {
-    if (!user?.oauthImage) return
-
-    setIsReverting(true)
-    try {
-      await revertProfileImage()
-      queryClient.invalidateQueries({ queryKey: ['currentUser'] })
-      notify(
-        <div>
-          <div className="font-medium">Profile picture reverted</div>
-          <div className="text-gray-500 dark:text-gray-400 text-xs">
-            Using your OAuth provider image
-          </div>
-        </div>,
-      )
-    } catch {
-      notify(
-        <div>
-          <div className="font-medium">Error</div>
-          <div className="text-gray-500 dark:text-gray-400 text-xs">
-            Failed to revert profile picture
-          </div>
-        </div>,
-      )
-    } finally {
-      setIsReverting(false)
-    }
-  }
-
-  const handleRemovePhoto = async () => {
-    setIsRemoving(true)
-    try {
-      await removeProfileImage()
-      queryClient.invalidateQueries({ queryKey: ['currentUser'] })
-      notify(
-        <div>
-          <div className="font-medium">Profile picture removed</div>
-          <div className="text-gray-500 dark:text-gray-400 text-xs">
-            Using default avatar
-          </div>
-        </div>,
-      )
-    } catch {
-      notify(
-        <div>
-          <div className="font-medium">Error</div>
-          <div className="text-gray-500 dark:text-gray-400 text-xs">
-            Failed to remove profile picture
-          </div>
-        </div>,
-      )
-    } finally {
-      setIsRemoving(false)
-    }
-  }
-
-  const hasCustomImage = user?.image && user.image !== user.oauthImage
-  const canRevert = hasCustomImage && user?.oauthImage
-  const hasAnyImage = user?.image || user?.oauthImage
 
   const handleToggleAds = async (e: React.ChangeEvent<HTMLInputElement>) => {
     try {
@@ -208,65 +88,11 @@ function AccountSettingsPage() {
         <h3 className="font-bold mb-2 text-lg text-gray-900 dark:text-white">
           Profile Picture
         </h3>
-        <div className="flex items-center gap-4">
-          <div className="relative group">
-            <Avatar
-              image={user?.image}
-              oauthImage={user?.oauthImage}
-              name={user?.name}
-              email={user?.email}
-              size="xl"
-            />
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading}
-              className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer disabled:cursor-not-allowed"
-            >
-              <Camera className="w-6 h-6 text-white" />
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleFileSelect}
-              className="hidden"
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Button
-              variant="ghost"
-              size="xs"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading}
-            >
-              <Camera className="w-3.5 h-3.5" />
-              {isUploading ? 'Uploading...' : 'Change photo'}
-            </Button>
-            {canRevert && (
-              <Button
-                variant="ghost"
-                size="xs"
-                onClick={handleRevertToOAuth}
-                disabled={isReverting}
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                {isReverting ? 'Reverting...' : 'Revert to original'}
-              </Button>
-            )}
-            {hasAnyImage && (
-              <Button
-                variant="ghost"
-                size="xs"
-                onClick={handleRemovePhoto}
-                disabled={isRemoving}
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-                {isRemoving ? 'Removing...' : 'Remove photo'}
-              </Button>
-            )}
-          </div>
-        </div>
+        <ClientOnly>
+          <React.Suspense fallback={null}>
+            <LazyAccountProfilePictureSection user={user ?? undefined} />
+          </React.Suspense>
+        </ClientOnly>
       </div>
       <div>
         <h3 className="font-bold mb-2 text-lg text-gray-900 dark:text-white">
@@ -290,19 +116,6 @@ function AccountSettingsPage() {
           </div>
         </div>
       </div>
-
-      {/* Avatar crop modal */}
-      {selectedImage && (
-        <AvatarCropModal
-          open={cropModalOpen}
-          onOpenChange={(open) => {
-            setCropModalOpen(open)
-            if (!open) setSelectedImage(null)
-          }}
-          imageSrc={selectedImage}
-          onCropComplete={handleCropComplete}
-        />
-      )}
       {canDisableAds && (
         <div>
           <h3 className="font-bold mb-2 text-lg text-gray-900 dark:text-white">

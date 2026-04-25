@@ -13,9 +13,13 @@ const serverEnvSchema = v.object({
   SESSION_SECRET: v.optional(v.string()), // Secret key for signing session cookies (required in production)
   DISCORD_WEBHOOK_URL: v.optional(v.string()),
   RESEND_API_KEY: v.optional(v.string()),
-  POSTHOG_API_KEY: v.optional(v.string()),
   SENTRY_DSN: v.optional(v.string()),
   TANSTACK_MCP_ENABLED_TOOLS: v.optional(v.string()),
+  // Shopify Storefront API token — server-only. Cart reads and mutations
+  // run through createServerFn (src/utils/shop.functions.ts), so this
+  // token never reaches the browser. Store domain + API version are
+  // public-by-design and hard-coded in src/server/shopify/fetch.ts.
+  SHOPIFY_PRIVATE_STOREFRONT_TOKEN: v.optional(v.string()),
 })
 
 const clientEnvSchema = v.object({

@@ -5,6 +5,8 @@ import {
   validateOAuthToken,
   isOAuthClientToken,
 } from '~/auth/oauthClient.server'
+import { sha256Hex } from '~/utils/hash'
+import { getClientIp as getClientIpBase } from '~/utils/request.server'
 
 export type AuthResult =
   | { success: true; keyId: string; userId: string; rateLimitPerMinute: number }
@@ -13,13 +15,7 @@ export type AuthResult =
 /**
  * Hash an API key using SHA-256
  */
-export async function hashApiKey(key: string): Promise<string> {
-  const encoder = new TextEncoder()
-  const data = encoder.encode(key)
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
-}
+export const hashApiKey = sha256Hex
 
 /**
  * Generate a new API key
@@ -199,27 +195,10 @@ export async function checkRateLimit(
 }
 
 /**
- * Get client IP from request headers
+ * Get client IP from request headers (with 'unknown' fallback for rate limiting)
  */
 export function getClientIp(request: Request): string {
-  // Check common proxy headers
-  const forwarded = request.headers.get('x-forwarded-for')
-  if (forwarded) {
-    return forwarded.split(',')[0].trim()
-  }
-
-  const realIp = request.headers.get('x-real-ip')
-  if (realIp) {
-    return realIp
-  }
-
-  // Cloudflare
-  const cfIp = request.headers.get('cf-connecting-ip')
-  if (cfIp) {
-    return cfIp
-  }
-
-  return 'unknown'
+  return getClientIpBase(request, 'unknown')
 }
 
 /**

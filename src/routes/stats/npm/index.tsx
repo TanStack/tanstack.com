@@ -2,6 +2,7 @@ import * as React from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { useThrottledCallback } from '@tanstack/react-pacer'
+import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { X } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { Card } from '~/components/Card'
@@ -11,29 +12,42 @@ import {
   packageGroupSchema,
   defaultPackageGroups,
 } from './-comparisons'
-import { GamHeader, GamVrec1 } from '~/components/Gam'
+import { GamVrec1 } from '~/components/Gam'
 import { AdGate } from '~/contexts/AdsContext'
 import { Spinner } from '~/components/Spinner'
+import { ChartControls } from '~/components/npm-stats/ChartControls'
+import { ColorPickerPopover } from '~/components/npm-stats/ColorPickerPopover'
+import { PackagePills } from '~/components/npm-stats/PackagePills'
+import { PackageSearch } from '~/components/npm-stats/PackageSearch'
+import { PopularComparisons } from '~/components/npm-stats/PopularComparisons'
+import { Resizable } from '~/components/npm-stats/Resizable'
+import { StatsTable } from '~/components/npm-stats/StatsTable'
+import { npmQueryOptions } from '~/components/npm-stats/npmQueryOptions'
 import {
-  NPMStatsChart,
-  PackageSearch,
-  Resizable,
-  ColorPickerPopover,
-  StatsTable,
-  PopularComparisons,
-  ChartControls,
-  PackagePills,
-  npmQueryOptions,
-  type PackageGroup,
-  type TimeRange,
-  type BinType,
-  type TransformMode,
-  type ShowDataMode,
-  type FacetValue,
-  binningOptionsByType,
   defaultRangeBinTypes,
   getPackageColor,
-} from '~/components/npm-stats'
+  type BinType,
+  type FacetValue,
+  type PackageGroup,
+  type ShowDataMode,
+  type TimeRange,
+  type TransformMode,
+} from '~/components/npm-stats/shared'
+
+const LazyNPMStatsChart = React.lazy(() =>
+  import('~/components/npm-stats/NPMStatsChart').then((m) => ({
+    default: m.NPMStatsChart,
+  })),
+)
+
+function ChartFallback({ height }: { height: number }) {
+  return (
+    <div
+      className="animate-pulse rounded bg-gray-100 dark:bg-gray-800/40"
+      style={{ height }}
+    />
+  )
+}
 
 const transformModeSchema = v.picklist(['none', 'normalize-y'])
 const binTypeSchema = v.picklist(['yearly', 'monthly', 'weekly', 'daily'])
@@ -191,7 +205,7 @@ export const Route = createFileRoute('/stats/npm/')({
   },
 })
 
-type NpmStatsSearch = {
+type _NpmStatsSearch = {
   packageGroups?: Array<{
     name?: string
     color?: string
@@ -233,12 +247,11 @@ function RouteComponent() {
   )
 
   const binType: BinType = binTypeParam ?? defaultRangeBinTypes[range]
-  const binOption = binningOptionsByType[binType]
 
   const handleBinnedChange = (value: BinType) => {
     navigate({
       to: '.',
-      search: (prev: NpmStatsSearch) => ({
+      search: (prev) => ({
         ...prev,
         binType: value,
       }),
@@ -249,16 +262,27 @@ function RouteComponent() {
   const handleBaselineChange = (packageName: string) => {
     navigate({
       to: '.',
-      search: (prev: NpmStatsSearch) => {
+      search: (prev) => {
         return {
           ...prev,
           packageGroups: prev.packageGroups?.map((pkg) => {
-            const baseline =
-              pkg.packages[0].name === packageName ? !pkg.baseline : false
+            const isTarget = pkg.packages[0].name === packageName
+            const baseline = isTarget ? !pkg.baseline : false
+
+            // When promoting a series to baseline, force it visible so users
+            // see the flat 1.0 reference line by default — matches every
+            // other series' default-visible behavior.
+            const packages =
+              isTarget && baseline
+                ? pkg.packages.map((p, i) =>
+                    i === 0 ? { ...p, hidden: false } : p,
+                  )
+                : pkg.packages
 
             return {
               ...pkg,
               baseline,
+              packages,
             }
           }),
         }
@@ -270,7 +294,7 @@ function RouteComponent() {
   const handleShowDataModeChange = (mode: ShowDataMode) => {
     navigate({
       to: '.',
-      search: (prev: NpmStatsSearch) => ({
+      search: (prev) => ({
         ...prev,
         showDataMode: mode,
       }),
@@ -281,7 +305,7 @@ function RouteComponent() {
   const togglePackageVisibility = (index: number, packageName: string) => {
     navigate({
       to: '.',
-      search: (prev: NpmStatsSearch) => ({
+      search: (prev) => ({
         ...prev,
         packageGroups: prev.packageGroups?.map((pkg, i) =>
           i === index
@@ -327,7 +351,7 @@ function RouteComponent() {
 
     navigate({
       to: '.',
-      search: (prev: NpmStatsSearch) => ({
+      search: (prev) => ({
         ...prev,
         packageGroups: newPackages,
       }),
@@ -338,7 +362,7 @@ function RouteComponent() {
   const handleRemovePackageName = (packageGroupIndex: number) => {
     navigate({
       to: '.',
-      search: (prev: NpmStatsSearch) => ({
+      search: (prev) => ({
         ...prev,
         packageGroups: prev.packageGroups?.filter(
           (_: unknown, i: number) => i !== packageGroupIndex,
@@ -351,7 +375,7 @@ function RouteComponent() {
   const setBinningOption = (newBinningOption: BinType) => {
     navigate({
       to: '.',
-      search: (prev: NpmStatsSearch) => ({
+      search: (prev) => ({
         ...prev,
         binType: newBinningOption,
       }),
@@ -365,7 +389,7 @@ function RouteComponent() {
 
     navigate({
       to: '.',
-      search: (prev: NpmStatsSearch) => ({
+      search: (prev) => ({
         ...prev,
         range: newRange,
       }),
@@ -375,7 +399,7 @@ function RouteComponent() {
   const handleTransformChange = (mode: TransformMode) => {
     navigate({
       to: '.',
-      search: (prev: NpmStatsSearch) => ({
+      search: (prev) => ({
         ...prev,
         transform: mode,
       }),
@@ -397,7 +421,7 @@ function RouteComponent() {
     (packageName: string, color: string | null) => {
       navigate({
         to: '.',
-        search: (prev: NpmStatsSearch) => {
+        search: (prev) => {
           const packageGroup = packageGroups.find((pkg) =>
             pkg.packages.some((p) => p.name === packageName),
           )
@@ -429,7 +453,7 @@ function RouteComponent() {
     (height: number) => {
       navigate({
         to: '.',
-        search: (prev: NpmStatsSearch) => ({ ...prev, height }),
+        search: (prev) => ({ ...prev, height }),
         resetScroll: false,
       })
     },
@@ -449,7 +473,7 @@ function RouteComponent() {
   const handleFacetXChange = (value: FacetValue | undefined) => {
     navigate({
       to: '.',
-      search: (prev: NpmStatsSearch) => ({
+      search: (prev) => ({
         ...prev,
         facetX: value,
       }),
@@ -460,7 +484,7 @@ function RouteComponent() {
   const handleFacetYChange = (value: FacetValue | undefined) => {
     navigate({
       to: '.',
-      search: (prev: NpmStatsSearch) => ({
+      search: (prev) => ({
         ...prev,
         facetY: value,
       }),
@@ -471,7 +495,7 @@ function RouteComponent() {
   const handleAddPackage = (packageName: string) => {
     navigate({
       to: '.',
-      search: (prev: NpmStatsSearch) => ({
+      search: (prev) => ({
         ...prev,
         packageGroups: [
           ...(prev.packageGroups ?? []),
@@ -505,7 +529,7 @@ function RouteComponent() {
 
       navigate({
         to: '.',
-        search: (prev: NpmStatsSearch) => ({
+        search: (prev) => ({
           ...prev,
           packageGroups: newPackages,
         }),
@@ -515,7 +539,7 @@ function RouteComponent() {
       // Create new package group
       navigate({
         to: '.',
-        search: (prev: NpmStatsSearch) => ({
+        search: (prev) => ({
           ...prev,
           packageGroups: [
             ...packageGroups,
@@ -589,29 +613,38 @@ function RouteComponent() {
           />
 
           {/* Combine Package Dialog */}
-          {combiningPackage && (
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4">
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-2 sm:p-4 w-full max-w-md">
-                <div className="flex justify-between items-center mb-2 sm:mb-4">
-                  <h3 className="text-base sm:text-lg font-medium">
+          <DialogPrimitive.Root
+            open={combiningPackage !== null}
+            onOpenChange={(open) => {
+              if (!open) setCombiningPackage(null)
+            }}
+          >
+            <DialogPrimitive.Portal>
+              <DialogPrimitive.Overlay className="fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm" />
+              <DialogPrimitive.Content className="fixed left-1/2 top-1/2 z-[1000] w-[calc(100%-1rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white dark:bg-gray-900 p-4 shadow-xl outline-none">
+                <div className="flex justify-between items-center mb-4">
+                  <DialogPrimitive.Title className="text-base sm:text-lg font-medium text-gray-900 dark:text-gray-100">
                     Add packages to {combiningPackage}
-                  </h3>
-                  <button
-                    onClick={() => setCombiningPackage(null)}
-                    className="p-0.5 sm:p-1 hover:text-red-500"
-                  >
+                  </DialogPrimitive.Title>
+                  <DialogPrimitive.Close className="rounded-full p-1 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500">
                     <X className="w-4 h-4 sm:w-5 sm:h-5" />
-                  </button>
+                  </DialogPrimitive.Close>
                 </div>
-                <PackageSearch
-                  onSelect={handleAddToGroup}
-                  placeholder="Search for packages to add..."
-                  // eslint-disable-next-line jsx-a11y/no-autofocus
-                  autoFocus={true}
-                />
-              </div>
-            </div>
-          )}
+                <DialogPrimitive.Description className="sr-only">
+                  Search for additional npm packages to combine with{' '}
+                  {combiningPackage}.
+                </DialogPrimitive.Description>
+                {combiningPackage && (
+                  <PackageSearch
+                    onSelect={handleAddToGroup}
+                    placeholder="Search for packages to add..."
+                    // eslint-disable-next-line jsx-a11y/no-autofocus
+                    autoFocus={true}
+                  />
+                )}
+              </DialogPrimitive.Content>
+            </DialogPrimitive.Portal>
+          </DialogPrimitive.Root>
 
           {/* Color Picker Popover */}
           {colorPickerPackage && colorPickerPosition && (
@@ -656,23 +689,27 @@ function RouteComponent() {
                         </div>
                       </div>
                     ) : (
-                      <NPMStatsChart
-                        range={range}
-                        queryData={npmQuery.data}
-                        transform={transform}
-                        binType={binType}
-                        packages={packageGroups}
-                        facetX={facetX}
-                        facetY={facetY}
-                        showDataMode={showDataModeParam}
-                      />
+                      <React.Suspense
+                        fallback={<ChartFallback height={height} />}
+                      >
+                        <LazyNPMStatsChart
+                          range={range}
+                          queryData={npmQuery.data}
+                          transform={transform}
+                          binType={binType}
+                          packages={packageGroups}
+                          facetX={facetX}
+                          facetY={facetY}
+                          showDataMode={showDataModeParam}
+                        />
+                      </React.Suspense>
                     )}
                   </Resizable>
                 </div>
                 <StatsTable
                   queryData={npmQuery.data}
                   packageGroups={packageGroups}
-                  binOption={binOption}
+                  binType={binType}
                   transform={transform}
                   onColorClick={handleColorClick}
                   onToggleVisibility={togglePackageVisibility}
@@ -696,9 +733,6 @@ function RouteComponent() {
           </div>
         </div>
       </div>
-      <AdGate>
-        <GamHeader />
-      </AdGate>
 
       {/* FAQ Section for SEO */}
       <section className="max-w-4xl mt-8 space-y-6">

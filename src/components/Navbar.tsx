@@ -3,12 +3,13 @@ import { twMerge } from 'tailwind-merge'
 const LazyBrandContextMenu = React.lazy(() =>
   import('./BrandContextMenu').then((m) => ({ default: m.BrandContextMenu })),
 )
-import {
-  Link,
-  useLocation,
-  useMatches,
-  useNavigate,
-} from '@tanstack/react-router'
+const LazyNavbarAuthControls = React.lazy(() =>
+  import('./NavbarAuthControls').then((m) => ({
+    default: m.NavbarAuthControls,
+  })),
+)
+import { NavbarCartButton } from './NavbarCartButton'
+import { Link, useLocation, useMatches } from '@tanstack/react-router'
 import { NetlifyImage } from './NetlifyImage'
 import {
   Code,
@@ -24,47 +25,24 @@ import {
   User,
   Menu,
   X,
-  Rss,
   Grid2X2,
   Sparkles,
 } from 'lucide-react'
 import { ThemeToggle } from './ThemeToggle'
 import { SearchButton } from './SearchButton'
-// const LazyFeedTicker = React.lazy(() =>
-//   import('./FeedTicker').then((m) => ({ default: m.FeedTicker })),
-// )
-import {
-  Authenticated,
-  Unauthenticated,
-  AuthLoading,
-} from '~/components/AuthComponents'
 import {
   libraries,
   findLibrary,
   SIDEBAR_LIBRARY_IDS,
   type LibrarySlim,
 } from '~/libraries'
-import { ADMIN_ACCESS_CAPABILITIES } from '~/db/types'
-import { useCapabilities } from '~/hooks/useCapabilities'
-import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useClickOutside } from '~/hooks/useClickOutside'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { DiscordIcon } from '~/components/icons/DiscordIcon'
 import { InstagramIcon } from '~/components/icons/InstagramIcon'
 import { BSkyIcon } from '~/components/icons/BSkyIcon'
 import { BrandXIcon } from '~/components/icons/BrandXIcon'
-const LazyAnnouncementBanner = React.lazy(() =>
-  import('~/components/AnnouncementBanner').then((m) => ({
-    default: m.AnnouncementBanner,
-  })),
-)
-const LazyAuthenticatedUserMenu = React.lazy(() =>
-  import('~/components/AuthenticatedUserMenu').then((m) => ({
-    default: m.AuthenticatedUserMenu,
-  })),
-)
-import { authClient } from '~/utils/auth.client'
-import { useToast } from '~/components/ToastProvider'
+import { YouTubeIcon } from '~/components/icons/YouTubeIcon'
 
 import { Card } from '~/components/Card'
 
@@ -160,39 +138,17 @@ const MobileCard = ({
 
 export function Navbar({ children }: { children: React.ReactNode }) {
   const matches = useMatches()
-  const capabilities = useCapabilities()
-  const user = useCurrentUser()
-  const navigate = useNavigate()
-  const { notify } = useToast()
-
-  const signOut = async () => {
-    await authClient.signOut()
-    navigate({ to: '/login' })
-    notify(
-      <div>
-        <div className="font-medium">Signed out</div>
-        <div className="text-gray-500 dark:text-gray-400 text-xs">
-          You have been logged out
-        </div>
-      </div>,
-    )
-  }
 
   const { Title, library } = React.useMemo(() => {
     const match = [...matches].reverse().find((m) => m.staticData.Title)
-    const libraryId = match?.params?.libraryId
+    const params = match?.params as { libraryId?: string } | undefined
+    const libraryId = params?.libraryId
 
     return {
       Title: match?.staticData.Title ?? null,
       library: libraryId ? findLibrary(libraryId) : null,
     }
   }, [matches])
-
-  const canAdmin = capabilities.some((cap) =>
-    (ADMIN_ACCESS_CAPABILITIES as readonly string[]).includes(cap),
-  )
-
-  const canApiKeys = !!user // Any logged-in user can access API keys
 
   const containerRef = React.useRef<HTMLDivElement>(null)
 
@@ -216,8 +172,36 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   }, [])
 
   const [showMenu, setShowMenu] = React.useState(false)
+  const [canLoadAuthControls, setCanLoadAuthControls] = React.useState(false)
   const largeMenuRef = React.useRef<HTMLDivElement>(null)
   const menuButtonRef = React.useRef<HTMLButtonElement>(null)
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    if (typeof window.requestIdleCallback === 'function') {
+      const idleId = window.requestIdleCallback(
+        () => {
+          setCanLoadAuthControls(true)
+        },
+        { timeout: 3000 },
+      )
+
+      return () => {
+        window.cancelIdleCallback(idleId)
+      }
+    }
+
+    const timeout = window.setTimeout(() => {
+      setCanLoadAuthControls(true)
+    }, 3000)
+
+    return () => {
+      window.clearTimeout(timeout)
+    }
+  }, [])
 
   // Close mobile menu when clicking outside
   const smallMenuRef = useClickOutside<HTMLDivElement>({
@@ -226,41 +210,18 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     additionalRefs: [largeMenuRef, menuButtonRef],
   })
 
-  const loginButton = (
-    <>
-      {(() => {
-        const loginEl = (
-          <Link
-            to="/login"
-            className="flex items-center gap-1 rounded-md px-2 py-1.5
-            bg-black dark:bg-white text-white dark:text-black
-            hover:bg-gray-800 dark:hover:bg-gray-200
-            transition-colors duration-200 text-xs font-medium"
-          >
-            <User className="w-3.5 h-3.5" />
-            <span>Log In</span>
-          </Link>
-        )
-
-        return (
-          <>
-            <AuthLoading>{loginEl}</AuthLoading>
-            <Unauthenticated>{loginEl}</Unauthenticated>
-          </>
-        )
-      })()}
-
-      <Authenticated>
-        <React.Suspense fallback={<div className="w-[26px] h-[26px]" />}>
-          <LazyAuthenticatedUserMenu
-            user={user}
-            canAdmin={canAdmin}
-            canApiKeys={canApiKeys}
-            onSignOut={signOut}
-          />
-        </React.Suspense>
-      </Authenticated>
-    </>
+  const loginButtonFallback = (
+    <Link
+      to="/login"
+      aria-label="Log In"
+      className="flex shrink-0 items-center gap-1 rounded-md px-2 py-1.5 whitespace-nowrap
+             bg-black dark:bg-white text-white dark:text-black
+             hover:bg-gray-800 dark:hover:bg-gray-200
+             transition-colors duration-200 text-xs font-medium"
+    >
+      <User className="w-3.5 h-3.5" />
+      <span className="hidden min-[430px]:inline">Log In</span>
+    </Link>
   )
 
   const socialLinks = (
@@ -285,6 +246,12 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         aria-label="Follow TanStack on Instagram"
       >
         <InstagramIcon />
+      </a>
+      <a
+        href="https://youtube.com/@tan_stack"
+        aria-label="Subscribe to TanStack on YouTube"
+      >
+        <YouTubeIcon />
       </a>
       <a href="https://tlinz.com/discord" aria-label="Join TanStack Discord">
         <DiscordIcon />
@@ -331,29 +298,22 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           ) : null}
         </div>
       </div>
-      <div className="hidden xl:flex flex-1 justify-end min-w-0">
-        <Link
-          to="/mcp"
-          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md
-            bg-gradient-to-r from-emerald-600 to-teal-700
-            hover:from-emerald-500 hover:to-teal-600
-            text-white text-xs font-medium
-            shadow-sm hover:shadow-md
-            transition-all duration-200"
-        >
-          <span className="px-1 py-px text-[9px] font-bold bg-white/20 rounded uppercase">
-            Alpha
-          </span>
-          <span>Try TanStack MCP</span>
-        </Link>
-      </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5 sm:gap-2">
         <div className="hidden min-[750px]:block">{socialLinks}</div>
         <div className="hidden sm:block">
           <SearchButton />
         </div>
         <ThemeToggle />
-        <div className="flex items-center gap-2">{loginButton}</div>
+        <NavbarCartButton />
+        <div className="flex items-center gap-2">
+          {canLoadAuthControls ? (
+            <React.Suspense fallback={loginButtonFallback}>
+              <LazyNavbarAuthControls />
+            </React.Suspense>
+          ) : (
+            loginButtonFallback
+          )}
+        </div>
       </div>
     </div>
   )
@@ -437,7 +397,8 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                   {/* Mobile: Direct link with Card */}
                   <MobileCard isActive={isActive}>
                     <Link
-                      to={`${library.to}/latest`}
+                      to="/$libraryId/$version"
+                      params={{ libraryId: library.id, version: 'latest' }}
                       className={twMerge(
                         linkClasses,
                         'md:hidden',
@@ -477,7 +438,8 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                   </MobileCard>
                   {/* Desktop: Simple link */}
                   <Link
-                    to={`${library.to}/latest`}
+                    to="/$libraryId/$version"
+                    params={{ libraryId: library.id, version: 'latest' }}
                     className={twMerge(
                       linkClasses,
                       'hidden md:flex',
@@ -504,7 +466,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                           `px-2 py-px uppercase font-black rounded-md text-[.6rem]`,
                           'border bg-transparent',
                           'border-current text-current',
-                          'opacity-90 group-hover:opacity-100 transition-opacity',
+                          'opacity-0 group-hover:opacity-100 transition-opacity',
                           library.textColor,
                         )}
                       >
@@ -571,7 +533,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
               <Hammer className="w-5 h-5" />
               <div className="flex items-center justify-between flex-1 gap-2">
                 <span>Builder</span>
-                <span className="px-1.5 py-0.5 text-[.6rem] font-black border border-amber-500 text-amber-500 rounded-md uppercase">
+                <span className="px-1.5 py-0.5 text-[.6rem] font-black border border-amber-500 text-amber-500 rounded-md uppercase md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                   Alpha
                 </span>
               </div>
@@ -590,7 +552,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             <Hammer className="w-4 h-4" />
             <div className="flex items-center justify-between flex-1 gap-2">
               <span>Builder</span>
-              <span className="px-1.5 py-0.5 text-[.6rem] font-black border border-amber-500 text-amber-500 rounded-md uppercase">
+              <span className="px-1.5 py-0.5 text-[.6rem] font-black border border-amber-500 text-amber-500 rounded-md uppercase md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                 Alpha
               </span>
             </div>
@@ -598,16 +560,9 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         </Link>
         {[
           {
-            label: (
-              <>
-                <span>Feed</span>
-                <span className="px-1.5 py-0.5 text-[.6rem] font-black border border-blue-500 text-blue-500 rounded-md uppercase">
-                  Beta
-                </span>
-              </>
-            ),
-            icon: Rss,
-            to: '/feed',
+            label: 'Blog',
+            icon: Music,
+            to: '/blog',
           },
           {
             label: 'Maintainers',
@@ -625,15 +580,10 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             to: '/showcase',
           },
           {
-            label: 'Blog',
-            icon: Music,
-            to: '/blog',
-          },
-          {
             label: (
               <>
                 <span>Learn</span>
-                <span className="px-1.5 py-0.5 text-[.6rem] font-black border border-green-500 text-green-500 rounded-md uppercase">
+                <span className="px-1.5 py-0.5 text-[.6rem] font-black border border-green-500 text-green-500 rounded-md uppercase md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                   NEW
                 </span>
               </>
@@ -642,14 +592,15 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             to: '/learn',
           },
           {
-            label: 'Support',
-            icon: HelpCircle,
-            to: '/support',
-          },
-          {
             label: 'Stats',
             icon: TrendingUp,
             to: '/stats/npm',
+          },
+          {
+            label: 'YouTube',
+            icon: YouTubeIcon,
+            to: 'https://youtube.com/@tan_stack',
+            target: '_blank',
           },
           {
             label: 'Discord',
@@ -661,6 +612,11 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             label: 'Merch',
             icon: Shirt,
             to: '/merch',
+          },
+          {
+            label: 'Support',
+            icon: HelpCircle,
+            to: '/support',
           },
           {
             label: 'GitHub',
@@ -813,12 +769,6 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   return (
     <>
       {navbar}
-      {/* Sticky announcement banners below the nav */}
-      <div className="sticky top-[var(--navbar-height)] z-[99]">
-        <React.Suspense fallback={null}>
-          <LazyAnnouncementBanner />
-        </React.Suspense>
-      </div>
       <div
         className={twMerge(
           `min-h-[calc(100dvh-var(--navbar-height))] flex flex-col

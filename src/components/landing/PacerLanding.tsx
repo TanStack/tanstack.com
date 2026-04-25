@@ -1,7 +1,6 @@
+import { useParams } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { LibraryHero } from '~/components/LibraryHero'
-import { PartnersSection } from '~/components/PartnersSection'
-import { MaintainersSection } from '~/components/MaintainersSection'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { BottomCTA } from '~/components/BottomCTA'
 import { pacerProject } from '~/libraries/pacer'
@@ -11,19 +10,21 @@ import LandingPageGad from '~/components/LandingPageGad'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
 import { FeatureGridSection } from '~/components/FeatureGridSection'
+import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 
 const library = getLibrary('pacer')
 
 export default function PacerLanding() {
+  const { version } = useParams({ strict: false })
+
   return (
     <LibraryPageContainer>
       <LibraryHero
         project={pacerProject}
         cta={{
           linkProps: {
-            from: '/$libraryId/$version',
-            to: './docs',
-            params: { libraryId: library.id },
+            to: '/$libraryId/$version/docs',
+            params: { libraryId: library.id, version },
           },
           label: 'Get Started',
           className: 'bg-lime-600 border-lime-600 hover:bg-lime-700 text-white',
@@ -63,16 +64,18 @@ export default function PacerLanding() {
         gridClassName="grid grid-flow-row grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-10 gap-y-4 mx-auto"
       />
 
-      <MaintainersSection libraryId="pacer" />
-      <PartnersSection libraryId="pacer" />
+      <LazyLandingCommunitySection
+        libraryId="pacer"
+        libraryName="TanStack Pacer"
+        showShowcases={false}
+      />
       <LazySponsorSection />
       <LandingPageGad />
 
       <BottomCTA
         linkProps={{
-          from: '/$libraryId/$version',
-          to: './docs',
-          params: { libraryId: library.id },
+          to: '/$libraryId/$version/docs',
+          params: { libraryId: library.id, version },
         }}
         label="Get Started!"
         className="bg-lime-600 border-lime-600 hover:bg-lime-700 hover:border-lime-700 text-white"

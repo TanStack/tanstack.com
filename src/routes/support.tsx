@@ -38,6 +38,15 @@ const supportOptions = [
     isNew: true,
   },
   {
+    to: 'https://youtube.com/@tan_stack' as string,
+    external: true,
+    gradient: 'from-red-500 to-red-700',
+    title: 'YouTube',
+    description: 'Tutorials, walkthroughs, and deep dives',
+    badges: ['Tutorials', 'Deep Dives', 'Release Videos'],
+    isNew: true,
+  },
+  {
     to: '/paid-support',
     gradient: 'from-green-600 to-cyan-600',
     title: 'Enterprise Support',

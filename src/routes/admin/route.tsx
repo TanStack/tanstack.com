@@ -12,17 +12,17 @@ import {
   LayoutDashboard,
   LogIn,
   MessagesSquare,
-  Rss,
   Shield,
   ShieldHalf,
   StickyNote,
   Users,
   User,
+  BookOpen,
 } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 // Using public asset URL
 import { ClientAdminAuth } from '~/components/ClientAuth'
-import { requireAnyAdminCapability } from '~/utils/auth.server'
+import { requireAnyAdminCapability } from '~/utils/auth.functions'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { NpmIcon } from '~/components/icons/NpmIcon'
@@ -119,11 +119,6 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       requiredCapability: 'moderate-showcases',
     },
     {
-      label: 'Feed',
-      icon: <Rss />,
-      to: '/admin/feed',
-    },
-    {
       label: 'GitHub Stats',
       icon: <GithubIcon />,
       to: '/admin/github-stats',
@@ -132,6 +127,16 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       label: 'NPM Stats',
       icon: <NpmIcon />,
       to: '/admin/npm-stats',
+    },
+    {
+      label: 'Intent Skills',
+      icon: <BookOpen />,
+      to: '/admin/intent',
+    },
+    {
+      label: 'Docs Cache',
+      icon: <BookOpen />,
+      to: '/admin/docs',
     },
     {
       label: 'My Account',

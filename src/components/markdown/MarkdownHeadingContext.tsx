@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { MarkdownHeading } from '~/utils/markdown/processor'
+import { MarkdownHeading } from '~/utils/markdown/processor.rsc'
 
 const MarkdownHeadingContext = React.createContext<{
   headings: MarkdownHeading[]

@@ -6,6 +6,7 @@ import { createServerFn } from '@tanstack/react-start'
 import * as v from 'valibot'
 import { db } from '~/db/client'
 import { users } from '~/db/schema'
+import { hasCapability } from '~/db/types'
 import { requireCapability } from './auth.server'
 import { sql, gte, and, eq, lt } from 'drizzle-orm'
 import { ALL_TIME_FLOOR_DATE } from './chart'
@@ -100,12 +101,17 @@ export const getUserStats = createServerFn({ method: 'POST' }).handler(
     const adsDisabledCount = adsDisabledResult[0]?.count ?? 0
 
     // Get users with disableAds capability
-    const adsCapabilityResult = await db
-      .select({ count: sql<number>`count(*)::int` })
-      .from(users)
-      .where(sql`'disableAds' = ANY(${users.capabilities})`)
+    const userCapabilities = await db.query.users.findMany({
+      columns: {
+        capabilities: true,
+      },
+    })
 
-    const adsCapabilityCount = adsCapabilityResult[0]?.count ?? 0
+    const adsCapabilityCount = userCapabilities.reduce(
+      (count, user) =>
+        hasCapability(user.capabilities, 'disableAds') ? count + 1 : count,
+      0,
+    )
 
     // Get users on waitlist who now have ads disabled
     const waitlistWithAdsDisabledResult = await db

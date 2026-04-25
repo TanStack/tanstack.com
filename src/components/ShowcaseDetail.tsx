@@ -12,7 +12,7 @@ import {
 import { Button } from '~/ui'
 import { twMerge } from 'tailwind-merge'
 import { libraries, type LibraryId } from '~/libraries'
-import { USE_CASE_LABELS } from '~/utils/showcase.client'
+import { USE_CASE_LABELS } from '~/utils/showcase.shared'
 import { voteShowcase } from '~/utils/showcase.functions'
 import {
   getShowcaseQueryOptions,

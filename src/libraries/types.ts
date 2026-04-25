@@ -21,11 +21,14 @@ export type LibraryId =
   | 'ranger'
   | 'store'
   | 'pacer'
+  | 'hotkeys'
   | 'db'
   | 'ai'
+  | 'intent'
   | 'config'
   | 'devtools'
   | 'mcp'
+  | 'cli'
   | 'react-charts'
   | 'create-tsrouter-app'
 
@@ -64,6 +67,7 @@ export type LibrarySlim = {
   showVercelUrl?: boolean
   showNetlifyUrl?: boolean
   showCloudflareUrl?: boolean
+  showRailwayUrl?: boolean
   embedEditor?: 'codesandbox' | 'stackblitz'
   legacyPackages?: string[]
   installPath?: string
@@ -75,6 +79,10 @@ export type LibrarySlim = {
    * Defaults to true.
    */
   visible?: boolean
+  sitemap?: {
+    includeLandingPage?: boolean
+    includeTopLevelDocsPages?: boolean
+  }
 }
 
 // Extended library type - adds React node content for landing pages

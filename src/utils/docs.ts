@@ -1,24 +1,26 @@
-import {
-  extractFrontMatter,
-  fetchApiContents,
-  fetchRepoFile,
-} from '~/utils/documents.server'
-import removeMarkdown from 'remove-markdown'
 import { notFound } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
-import * as v from 'valibot'
-import { setResponseHeader } from '@tanstack/react-start/server'
+import {
+  fetchDocs,
+  fetchDocsPage,
+  fetchDocsManifest,
+  fetchDocsRedirect,
+  fetchFile,
+  fetchRepoDirectoryContents,
+} from './docs.functions'
+import { removeLeadingSlash } from './utils'
 
 export const loadDocs = async ({
   repo,
   branch,
+  docsRoot,
   docsPath,
 }: {
   repo: string
   branch: string
+  docsRoot: string
   docsPath: string
 }) => {
-  if (!branch || !docsPath) {
+  if (!branch || !docsRoot || !docsPath) {
     throw notFound({
       data: {
         message: 'No doc was found here!',
@@ -26,94 +28,58 @@ export const loadDocs = async ({
     })
   }
 
-  const filePath = `${docsPath}.md`
-
-  return await fetchDocs({
+  return fetchDocs({
     data: {
       repo,
       branch,
-      filePath,
+      filePath: `${removeLeadingSlash(docsRoot)}/${docsPath}.md`,
     },
   })
 }
 
-export const fetchDocs = createServerFn({ method: 'GET' })
-  .inputValidator(
-    v.object({ repo: v.string(), branch: v.string(), filePath: v.string() }),
-  )
-  .handler(async ({ data: { repo, branch, filePath } }) => {
-    const file = await fetchRepoFile(repo, branch, filePath)
+export const loadDocsPage = async ({
+  repo,
+  branch,
+  docsRoot,
+  docsPath,
+}: {
+  repo: string
+  branch: string
+  docsRoot: string
+  docsPath: string
+}) => {
+  if (!branch || !docsRoot || !docsPath) {
+    throw notFound({
+      data: {
+        message: 'No doc was found here!',
+      },
+    })
+  }
 
-    if (!file) {
-      throw notFound()
-    }
-
-    const frontMatter = extractFrontMatter(file)
-    const description = removeMarkdown(frontMatter.excerpt ?? '')
-
-    // Cache for 5 minutes on shared cache
-    // Revalidate in the background
-    setResponseHeader('Cache-Control', 'public, max-age=0, must-revalidate')
-    setResponseHeader(
-      'CDN-Cache-Control',
-      'max-age=300, stale-while-revalidate=300, durable',
-    )
-
-    return {
-      title: frontMatter.data?.title,
-      description,
-      filePath,
-      content: frontMatter.content,
-      frontmatter: frontMatter.data,
-    }
+  return fetchDocsPage({
+    data: {
+      repo,
+      branch,
+      filePath: `${removeLeadingSlash(docsRoot)}/${docsPath}.md`,
+    },
   })
+}
 
-export const fetchFile = createServerFn({ method: 'GET' })
-  .inputValidator(
-    v.object({ repo: v.string(), branch: v.string(), filePath: v.string() }),
-  )
-  .handler(async ({ data: { repo, branch, filePath } }) => {
-    const file = await fetchRepoFile(repo, branch, filePath)
+export async function getDocsManifest(opts: {
+  repo: string
+  branch: string
+  docsRoot: string
+}) {
+  return fetchDocsManifest({ data: opts })
+}
 
-    if (!file) {
-      throw notFound()
-    }
+export async function resolveDocsRedirect(opts: {
+  repo: string
+  branch: string
+  docsRoot: string
+  docsPaths: Array<string>
+}) {
+  return fetchDocsRedirect({ data: opts })
+}
 
-    // Cache for 60 minutes on shared cache
-    // Revalidate in the background
-    setResponseHeader('Cache-Control', 'public, max-age=0, must-revalidate')
-    setResponseHeader(
-      'CDN-Cache-Control',
-      'max-age=3600, stale-while-revalidate=3600, durable',
-    )
-
-    return file
-  })
-
-export const fetchRepoDirectoryContents = createServerFn({
-  method: 'GET',
-})
-  .inputValidator(
-    v.object({
-      repo: v.string(),
-      branch: v.string(),
-      startingPath: v.string(),
-    }),
-  )
-  .handler(async ({ data: { repo, branch, startingPath } }) => {
-    const githubContents = await fetchApiContents(repo, branch, startingPath)
-
-    if (!githubContents) {
-      throw notFound()
-    }
-
-    // Cache for 60 minutes on shared cache
-    // Revalidate in the background
-    setResponseHeader('Cache-Control', 'public, max-age=0, must-revalidate')
-    setResponseHeader(
-      'CDN-Cache-Control',
-      'max-age=3600, stale-while-revalidate=3600, durable',
-    )
-
-    return githubContents
-  })
+export { fetchFile, fetchRepoDirectoryContents }

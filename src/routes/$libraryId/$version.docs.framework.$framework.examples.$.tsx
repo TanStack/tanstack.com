@@ -1,14 +1,13 @@
 import { isNotFound, notFound, createFileRoute } from '@tanstack/react-router'
 import {
   queryOptions,
-  useQuery,
   useQueryClient,
   useSuspenseQuery,
 } from '@tanstack/react-query'
 import React from 'react'
 import { DocTitle } from '~/components/DocTitle'
 import { Framework, getBranch, getLibrary } from '~/libraries'
-import { fetchFile, fetchRepoDirectoryContents } from '~/utils/docs'
+import { fetchRepoDirectoryContents } from '~/utils/docs'
 import {
   getExampleStartingFileName,
   getExampleStartingPath,
@@ -19,12 +18,21 @@ import * as v from 'valibot'
 import { CodeExplorer } from '~/components/CodeExplorer'
 import type { GitHubFileNode } from '~/utils/documents.server'
 import { ExternalLink } from 'lucide-react'
+import { fetchRenderedCodeFile } from '~/utils/codeBlock.functions'
+import {
+  ExampleDeployDialog,
+  type DeployProvider,
+} from '~/components/ExampleDeployDialog'
 
-const fileQueryOptions = (repo: string, branch: string, filePath: string) => {
+const renderedFileQueryOptions = (
+  repo: string,
+  branch: string,
+  filePath: string,
+) => {
   return queryOptions({
-    queryKey: ['currentCode', repo, branch, filePath],
+    queryKey: ['currentCodeRsc', repo, branch, filePath],
     queryFn: () =>
-      fetchFile({
+      fetchRenderedCodeFile({
         data: { repo, branch, filePath },
       }),
     staleTime: Infinity, // We can cache this forever. A refresh can invalidate the cache if necessary.
@@ -89,13 +97,15 @@ export const Route = createFileRoute(
         params.libraryId,
       )
 
-      // Now that we've resolved the starting file path, we can
-      // fetching and caching the file content for the starting file path
-      await queryClient.ensureQueryData(
-        fileQueryOptions(library.repo, branch, currentPath),
+      const currentCode = await queryClient.ensureQueryData(
+        renderedFileQueryOptions(library.repo, branch, currentPath),
       )
 
-      return { repoStartingDirPath, currentPath }
+      return {
+        currentCodeRsc: currentCode.contentRsc,
+        repoStartingDirPath,
+        currentPath,
+      }
     } catch (error) {
       const isNotFoundError =
         isNotFound(error) ||
@@ -130,7 +140,8 @@ function RouteComponent() {
 }
 
 function PageComponent() {
-  const { repoStartingDirPath, currentPath } = Route.useLoaderData()
+  const { currentCodeRsc, repoStartingDirPath, currentPath } =
+    Route.useLoaderData()
 
   const navigate = Route.useNavigate()
   const queryClient = useQueryClient()
@@ -150,6 +161,19 @@ function PageComponent() {
   )
 
   const [isDark, setIsDark] = React.useState(true)
+  const [deployDialogOpen, setDeployDialogOpen] = React.useState(false)
+  const [deployProvider, setDeployProvider] =
+    React.useState<DeployProvider | null>(null)
+
+  const openDeployDialog = (provider: DeployProvider) => {
+    setDeployProvider(provider)
+    setDeployDialogOpen(true)
+  }
+
+  const closeDeployDialog = () => {
+    setDeployDialogOpen(false)
+    setDeployProvider(null)
+  }
 
   const activeTab = Route.useSearch({
     select: (s) => {
@@ -180,15 +204,31 @@ function PageComponent() {
     })
   }
 
-  const { data: currentCode } = useQuery(
-    fileQueryOptions(library.repo, branch, currentPath),
-  )
-
   const prefetchFileContent = React.useCallback(
     (path: string) => {
-      queryClient.prefetchQuery(fileQueryOptions(library.repo, branch, path))
+      if (path === currentPath) {
+        return
+      }
+
+      const queryState = queryClient.getQueryState([
+        'currentCodeRsc',
+        library.repo,
+        branch,
+        path,
+      ])
+
+      if (
+        queryState?.status === 'success' ||
+        queryState?.fetchStatus === 'fetching'
+      ) {
+        return
+      }
+
+      queryClient.prefetchQuery(
+        renderedFileQueryOptions(library.repo, branch, path),
+      )
     },
-    [queryClient, library.repo, branch],
+    [queryClient, library.repo, branch, currentPath],
   )
 
   // Update local storage when tab changes
@@ -200,9 +240,7 @@ function PageComponent() {
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
   }, [])
 
-  const repoUrl = `https://github.com/${library.repo}`
   const githubUrl = `https://github.com/${library.repo}/tree/${branch}/examples/${examplePath}`
-  const githubExamplePath = `examples/${examplePath}`
 
   // preset=node can be removed once Stackblitz runs Angular as webcontainer by default
   // See https://github.com/stackblitz/core/issues/2957
@@ -227,37 +265,43 @@ function PageComponent() {
           </span>
           <div className="flex items-center gap-4 flex-wrap font-normal text-xs">
             {library.showCloudflareUrl ? (
-              <a
-                href={`https://deploy.workers.cloudflare.com/?url=${githubUrl}`}
+              <button
+                type="button"
+                onClick={() => openDeployDialog('cloudflare')}
+                className="hover:opacity-80 transition-opacity"
               >
                 <img
                   src="https://deploy.workers.cloudflare.com/button"
                   loading="lazy"
                   alt="Deploy to Cloudflare"
                 />
-              </a>
+              </button>
             ) : null}
             {library.showNetlifyUrl ? (
-              <a
-                href={`https://app.netlify.com/start/deploy?repository=${repoUrl}&create_from_path=${githubExamplePath}`}
+              <button
+                type="button"
+                onClick={() => openDeployDialog('netlify')}
+                className="hover:opacity-80 transition-opacity"
               >
                 <img
                   src="https://www.netlify.com/img/deploy/button.svg"
                   loading="lazy"
                   alt="Deploy with Netlify"
                 />
-              </a>
+              </button>
             ) : null}
-            {library.showVercelUrl ? (
-              <a
-                href={`https://vercel.com/new/clone?repository-url=${githubUrl}`}
+            {library.showRailwayUrl ? (
+              <button
+                type="button"
+                onClick={() => openDeployDialog('railway')}
+                className="hover:opacity-80 transition-opacity"
               >
                 <img
-                  src="https://vercel.com/button"
+                  src="https://railway.com/button.svg?utm_medium=sponsor&utm_source=oss&utm_campaign=tanstack"
                   loading="lazy"
-                  alt="Deploy with Vercel"
+                  alt="Deploy on Railway"
                 />
-              </a>
+              </button>
             ) : null}
             <a
               href={githubUrl}
@@ -265,7 +309,7 @@ function PageComponent() {
               className="flex gap-1 items-center"
               rel="noreferrer"
             >
-              <ExternalLink /> Github
+              <ExternalLink /> GitHub
             </a>
             {!library.hideStackblitzUrl ? (
               <a
@@ -294,7 +338,7 @@ function PageComponent() {
         <CodeExplorer
           activeTab={activeTab as 'code' | 'sandbox'}
           codeSandboxUrl={codeSandboxUrl}
-          currentCode={currentCode || ''}
+          currentCodeRsc={currentCodeRsc}
           currentPath={currentPath}
           examplePath={examplePath}
           githubContents={githubContents || undefined}
@@ -305,6 +349,18 @@ function PageComponent() {
           stackBlitzUrl={stackBlitzUrl}
         />
       </div>
+      {deployProvider && (
+        <ExampleDeployDialog
+          isOpen={deployDialogOpen}
+          onClose={closeDeployDialog}
+          provider={deployProvider}
+          repo={library.repo}
+          branch={branch}
+          examplePath={examplePath}
+          exampleName={slugToTitle(_splat!)}
+          libraryName={library.name}
+        />
+      )}
     </div>
   )
 }

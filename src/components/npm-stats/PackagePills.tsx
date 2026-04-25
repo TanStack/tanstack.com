@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from '@radix-ui/react-dropdown-menu'
 import { Tooltip } from '~/components/Tooltip'
-import { type PackageGroup, getPackageColor } from './NPMStatsChart'
+import { type PackageGroup, getPackageColor } from './shared'
 
 export type PackagePillProps = {
   packageGroup: PackageGroup
@@ -64,46 +64,41 @@ export function PackagePill({
     >
       <div className="flex items-center gap-1 w-full">
         {packageGroup.baseline ? (
-          <>
-            <Tooltip content="Remove baseline">
-              <button
-                onClick={() => onBaselineChange?.(mainPackage.name)}
-                className="hover:text-blue-500"
-              >
-                <Pin className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500" />
-              </button>
-            </Tooltip>
-            <span>{mainPackage.name}</span>
-          </>
+          <Tooltip content="Remove baseline">
+            <button
+              onClick={() => onBaselineChange?.(mainPackage.name)}
+              className="hover:text-blue-500"
+            >
+              <Pin className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500" />
+            </button>
+          </Tooltip>
         ) : (
-          <>
-            <Tooltip content="Change color">
-              <button
-                onClick={(e) => onColorClick(mainPackage.name, e)}
-                className="hover:opacity-80"
-              >
-                <div
-                  className="w-3 h-3 sm:w-4 sm:h-4 rounded"
-                  style={{ backgroundColor: color }}
-                />
-              </button>
-            </Tooltip>
-            <Tooltip content="Toggle package visibility">
-              <button
-                onClick={() => onToggleVisibility(index, mainPackage.name)}
-                className={twMerge(
-                  'hover:text-blue-500 flex items-center gap-1',
-                  mainPackage.hidden ? 'opacity-50' : '',
-                )}
-              >
-                {mainPackage.name}
-                {mainPackage.hidden ? (
-                  <EyeOff className="w-3 h-3 sm:w-4 sm:h-4" />
-                ) : null}
-              </button>
-            </Tooltip>
-          </>
+          <Tooltip content="Change color">
+            <button
+              onClick={(e) => onColorClick(mainPackage.name, e)}
+              className="hover:opacity-80"
+            >
+              <div
+                className="w-3 h-3 sm:w-4 sm:h-4 rounded"
+                style={{ backgroundColor: color }}
+              />
+            </button>
+          </Tooltip>
         )}
+        <Tooltip content="Toggle package visibility">
+          <button
+            onClick={() => onToggleVisibility(index, mainPackage.name)}
+            className={twMerge(
+              'hover:text-blue-500 flex items-center gap-1',
+              mainPackage.hidden ? 'opacity-50' : '',
+            )}
+          >
+            {mainPackage.name}
+            {mainPackage.hidden ? (
+              <EyeOff className="w-3 h-3 sm:w-4 sm:h-4" />
+            ) : null}
+          </button>
+        </Tooltip>
         {isCombined ? (
           <span className="text-black/70 dark:text-white/70 text-[.7em] font-black py-0.5 px-1 leading-none rounded-md border-[1.5px] border-current opacity-80">
             + {subPackages.length}

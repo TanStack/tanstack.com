@@ -1,10 +1,9 @@
 import * as React from 'react'
-import type { LinkProps } from '@tanstack/react-router'
-import { Link } from '@tanstack/react-router'
+import { Link, LinkProps } from '@tanstack/react-router'
 import { Button } from '~/ui'
 
 type BottomCTAProps = {
-  linkProps: Omit<LinkProps, 'className' | 'children'>
+  linkProps: LinkProps
   label?: string
   className?: string
 }
@@ -23,6 +22,7 @@ export function BottomCTA({
         Only one thing left to do...
       </div>
       <div>
+        {/* @ts-expect-error - LinkProps is not assignable to ButtonProps */}
         <Button
           as={Link}
           {...linkProps}

@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router'
+import { Link, useParams } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { BottomCTA } from '~/components/BottomCTA'
@@ -7,20 +7,22 @@ import { startProject } from '~/libraries/start'
 import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
-import { PartnersSection } from '~/components/PartnersSection'
-import { MaintainersSection } from '~/components/MaintainersSection'
 import { LibraryTestimonials } from '~/components/LibraryTestimonials'
 import { Button } from '~/ui'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { Book, Wallpaper } from 'lucide-react'
 import { BrandXIcon } from '~/components/icons/BrandXIcon'
-import { LibraryShowcases } from '~/components/ShowcaseSection'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
+import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
+import { DeferredApplicationStarter } from '~/components/DeferredApplicationStarter'
 
 const library = getLibrary('start')
 
 export default function StartLanding() {
+  const { version } = useParams({ strict: false })
+  const resolvedVersion = version ?? library.latestVersion
+
   return (
     <LibraryPageContainer>
       <LibraryHero
@@ -29,25 +31,10 @@ export default function StartLanding() {
           <div className="flex justify-center gap-4 flex-wrap">
             <Button
               as={Link}
-              from={'/$libraryId/$version'}
-              to={'./docs/framework/$framework/$'}
+              to="/$libraryId/$version/docs"
               params={
-                {
-                  libraryId: library.id,
-                  framework: 'react',
-                  _splat: 'quick-start',
-                } as never
+                { libraryId: library.id, version: resolvedVersion } as never
               }
-              hash={'impatient'}
-              className="bg-transparent border-cyan-500 dark:border-cyan-600 text-cyan-600 dark:text-cyan-400 hover:bg-cyan-500/10"
-            >
-              Try it in 60 seconds
-            </Button>
-            <Button
-              as={Link}
-              from="/$libraryId/$version"
-              to="./docs"
-              params={{ libraryId: library.id } as never}
               className="bg-cyan-500 border-cyan-500 hover:bg-cyan-600 dark:bg-cyan-600 dark:border-cyan-600 text-white"
             >
               Get Started
@@ -56,7 +43,19 @@ export default function StartLanding() {
         }
       />
 
-      <LibraryStatsSection library={library} />
+      <div className="space-y-6">
+        <div className="mx-auto w-full max-w-[1021px] px-4 pt-4 sm:px-6">
+          <div className="mx-auto">
+            <DeferredApplicationStarter
+              context="start"
+              secondaryActionLabel="Build Start on Netlify"
+              title="What would you like to build with TanStack Start?"
+              tone="cyan"
+            />
+          </div>
+        </div>
+        <LibraryStatsSection library={library} />
+      </div>
 
       <LibraryFeatureHighlights
         featureHighlights={startProject.featureHighlights}
@@ -79,10 +78,10 @@ export default function StartLanding() {
         </div>
         <div className="grid items-center gap-2 justify-center grid-cols-1 sm:grid-cols-2 w-[600px] max-w-full mx-auto">
           <Link
-            from={'/$libraryId/$version'}
-            to="./docs/framework/$framework/examples/$"
+            to="/$libraryId/$version/docs/framework/$framework/examples/$"
             params={{
               libraryId: library.id,
+              version: resolvedVersion,
               framework: 'react',
               _splat: 'start-basic',
             }}
@@ -91,9 +90,8 @@ export default function StartLanding() {
             <Wallpaper className="min-w-4" /> See an Example
           </Link>
           <Link
-            from={'/$libraryId/$version'}
-            to="./docs"
-            params={{ libraryId: library.id }}
+            to="/$libraryId/$version/docs"
+            params={{ libraryId: library.id, version: resolvedVersion }}
             className="flex items-center gap-2 py-2 px-4 bg-cyan-800 rounded-lg text-white font-black"
           >
             <Book className="min-w-4" /> Try it out!
@@ -117,21 +115,18 @@ export default function StartLanding() {
         </div>
       </div>
 
-      <MaintainersSection libraryId="start" />
-      <PartnersSection libraryId="start" />
-
-      <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-        <LibraryShowcases libraryId="start" libraryName="TanStack Start" />
-      </div>
+      <LazyLandingCommunitySection
+        libraryId="start"
+        libraryName="TanStack Start"
+      />
 
       <LazySponsorSection />
       <LandingPageGad />
 
       <BottomCTA
         linkProps={{
-          from: '/$libraryId/$version',
-          to: './docs',
-          params: { libraryId: library.id },
+          to: '/$libraryId/$version/docs',
+          params: { libraryId: library.id, version: resolvedVersion },
         }}
         label="Get Started!"
         className="bg-cyan-500 border-cyan-500 hover:bg-cyan-600 text-white"

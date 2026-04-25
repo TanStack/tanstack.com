@@ -3,13 +3,13 @@ import { useQuery } from '@tanstack/react-query'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { hasCapability } from '~/db/types'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
-import { getUserStats, getSignupsChartData } from '~/utils/user-stats.server'
+import { getUserStats, getSignupsChartData } from '~/utils/user-stats.functions'
 import { getActivityStats, getLoginsChartData } from '~/utils/audit.functions'
 import {
   getActivityStatsAdmin,
   getDauChartData,
 } from '~/utils/activity.functions'
-import { useState } from 'react'
+import { Suspense, lazy, useState } from 'react'
 import {
   ArrowDown,
   ArrowUp,
@@ -28,7 +28,6 @@ import {
 import { Card } from '~/components/Card'
 import { Badge, Button } from '~/ui'
 import * as v from 'valibot'
-import { TimeSeriesChart } from '~/components/charts/TimeSeriesChart'
 import { ChartControls } from '~/components/charts/ChartControls'
 import {
   type TimeRange,
@@ -37,17 +36,30 @@ import {
   defaultBinForRange,
 } from '~/utils/chart'
 
+const LazyTimeSeriesChart = lazy(() =>
+  import('~/components/charts/TimeSeriesChart').then((m) => ({
+    default: m.TimeSeriesChart,
+  })),
+)
+
+function ChartFallback({ height }: { height: number }) {
+  return (
+    <div
+      className="animate-pulse rounded bg-gray-100 dark:bg-gray-800/40"
+      style={{ height }}
+    />
+  )
+}
+
+const searchSchema = v.object({
+  tab: v.fallback(
+    v.optional(v.picklist(['overview', 'users', 'activity', 'ads'])),
+    'overview',
+  ),
+})
+
 export const Route = createFileRoute('/admin/')({
-  validateSearch: (search) =>
-    v.parse(
-      v.object({
-        tab: v.optional(
-          v.picklist(['overview', 'users', 'activity', 'ads']),
-          'overview',
-        ),
-      }),
-      search,
-    ),
+  validateSearch: searchSchema,
   component: AdminPage,
 })
 
@@ -56,7 +68,20 @@ function AdminPage() {
   const user = userQuery.data
   const capabilities = useCapabilities()
 
-  if (user === undefined) {
+  if (userQuery.isError && user === undefined) {
+    return (
+      <ErrorState
+        title="Failed to load admin session"
+        description={
+          userQuery.error instanceof Error
+            ? userQuery.error.message
+            : 'Unable to load the current user.'
+        }
+      />
+    )
+  }
+
+  if (userQuery.isPending && user === undefined) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div>Loading...</div>
@@ -88,23 +113,43 @@ function AdminPage() {
 function AdminDashboard() {
   const { tab } = useSearch({ from: '/admin/' })
 
-  const { data: stats, isLoading: statsLoading } = useQuery({
+  const statsQuery = useQuery({
     queryKey: ['admin', 'user-stats'],
     queryFn: () => getUserStats(),
     staleTime: 0,
   })
 
-  const { data: activityStats, isLoading: activityLoading } = useQuery({
+  const activityStatsQuery = useQuery({
     queryKey: ['admin', 'activity-stats'],
     queryFn: () => getActivityStats(),
     staleTime: 0,
   })
 
-  const { data: dauStats, isLoading: dauLoading } = useQuery({
+  const dauStatsQuery = useQuery({
     queryKey: ['admin', 'dau-stats'],
     queryFn: () => getActivityStatsAdmin(),
     staleTime: 0,
   })
+
+  const stats = statsQuery.data
+  const activityStats = activityStatsQuery.data
+  const dauStats = dauStatsQuery.data
+
+  const dashboardError =
+    statsQuery.error ?? activityStatsQuery.error ?? dauStatsQuery.error
+
+  if (dashboardError) {
+    return (
+      <ErrorState
+        title="Failed to load admin dashboard"
+        description={
+          dashboardError instanceof Error
+            ? dashboardError.message
+            : 'One or more admin queries failed.'
+        }
+      />
+    )
+  }
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: <LayoutDashboard /> },
@@ -155,18 +200,26 @@ function AdminDashboard() {
             stats={stats}
             activityStats={activityStats}
             dauStats={dauStats}
-            isLoading={statsLoading || activityLoading || dauLoading}
+            isLoading={
+              statsQuery.isLoading ||
+              activityStatsQuery.isLoading ||
+              dauStatsQuery.isLoading
+            }
           />
         )}
-        {tab === 'users' && <UsersTab stats={stats} isLoading={statsLoading} />}
+        {tab === 'users' && (
+          <UsersTab stats={stats} isLoading={statsQuery.isLoading} />
+        )}
         {tab === 'activity' && (
           <ActivityTab
             activityStats={activityStats}
             dauStats={dauStats}
-            isLoading={activityLoading || dauLoading}
+            isLoading={activityStatsQuery.isLoading || dauStatsQuery.isLoading}
           />
         )}
-        {tab === 'ads' && <AdsTab stats={stats} isLoading={statsLoading} />}
+        {tab === 'ads' && (
+          <AdsTab stats={stats} isLoading={statsQuery.isLoading} />
+        )}
       </div>
     </div>
   )
@@ -1062,6 +1115,25 @@ function LoadingState() {
   )
 }
 
+function ErrorState({
+  title,
+  description,
+}: {
+  title: string
+  description: string
+}) {
+  return (
+    <div className="text-center py-12">
+      <div className="text-lg font-semibold text-gray-900 dark:text-white">
+        {title}
+      </div>
+      <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+        {description}
+      </div>
+    </div>
+  )
+}
+
 function ChangeIndicator({ value }: { value: number }) {
   const isPositive = value > 0
   const isNegative = value < 0
@@ -1145,14 +1217,16 @@ function SignupsChartCard({
           Loading...
         </div>
       ) : (
-        <TimeSeriesChart
-          data={data ?? []}
-          binType={binType}
-          variant={variant}
-          color={color}
-          height={height}
-          yLabel={variant === 'cumulative' ? 'Total Users' : 'Signups'}
-        />
+        <Suspense fallback={<ChartFallback height={height} />}>
+          <LazyTimeSeriesChart
+            data={data ?? []}
+            binType={binType}
+            variant={variant}
+            color={color}
+            height={height}
+            yLabel={variant === 'cumulative' ? 'Total Users' : 'Signups'}
+          />
+        </Suspense>
       )}
     </Card>
   )
@@ -1209,14 +1283,16 @@ function DauChartCard({
           Loading...
         </div>
       ) : (
-        <TimeSeriesChart
-          data={data ?? []}
-          binType={binType}
-          variant="area"
-          color="#10b981"
-          height={height}
-          yLabel="Active Users"
-        />
+        <Suspense fallback={<ChartFallback height={height} />}>
+          <LazyTimeSeriesChart
+            data={data ?? []}
+            binType={binType}
+            variant="area"
+            color="#10b981"
+            height={height}
+            yLabel="Active Users"
+          />
+        </Suspense>
       )}
     </Card>
   )
@@ -1261,14 +1337,16 @@ function LoginsChartCard({
           Loading...
         </div>
       ) : (
-        <TimeSeriesChart
-          data={data ?? []}
-          binType={binType}
-          variant="bar"
-          color="#06b6d4"
-          height={height}
-          yLabel="Logins"
-        />
+        <Suspense fallback={<ChartFallback height={height} />}>
+          <LazyTimeSeriesChart
+            data={data ?? []}
+            binType={binType}
+            variant="bar"
+            color="#06b6d4"
+            height={height}
+            yLabel="Logins"
+          />
+        </Suspense>
       )}
     </Card>
   )

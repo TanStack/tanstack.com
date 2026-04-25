@@ -1,3 +1,4 @@
+import { useParams } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { BottomCTA } from '~/components/BottomCTA'
@@ -6,24 +7,24 @@ import { devtoolsProject } from '~/libraries/devtools'
 import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
-import { PartnersSection } from '~/components/PartnersSection'
-import { MaintainersSection } from '~/components/MaintainersSection'
 import { CheckCircleIcon } from '~/components/icons/CheckCircleIcon'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
+import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 
 const library = getLibrary('devtools')
 
 export default function DevtoolsLanding() {
+  const { version } = useParams({ strict: false })
+
   return (
     <LibraryPageContainer>
       <LibraryHero
         project={devtoolsProject}
         cta={{
           linkProps: {
-            from: '/$libraryId/$version',
-            to: './docs',
-            params: { libraryId: library.id },
+            to: '/$libraryId/$version/docs',
+            params: { libraryId: library.id, version },
           },
           label: 'Get Started',
           className:
@@ -65,16 +66,18 @@ export default function DevtoolsLanding() {
         </div>
       </div>
 
-      <MaintainersSection libraryId="devtools" />
-      <PartnersSection libraryId="devtools" />
+      <LazyLandingCommunitySection
+        libraryId="devtools"
+        libraryName="TanStack Devtools"
+        showShowcases={false}
+      />
       <LazySponsorSection />
       <LandingPageGad />
 
       <BottomCTA
         linkProps={{
-          from: '/$libraryId/$version',
-          to: './docs',
-          params: { libraryId: library.id },
+          to: '/$libraryId/$version/docs',
+          params: { libraryId: library.id, version },
         }}
         label="Get Started!"
         className="bg-slate-500 border-slate-500 hover:bg-slate-600 hover:border-slate-600 text-white"

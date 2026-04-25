@@ -7,6 +7,15 @@
 @custom-variant auto (&:is(.auto, .auto *));
 @custom-variant aria-current (&[aria-current="location"]);
 
+html.theme-switching,
+html.theme-switching *,
+html.theme-switching *::before,
+html.theme-switching *::after {
+  transition: none !important;
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+}
+
 @theme {
   /* Breakpoints */
   --breakpoint-xs: 480px;
@@ -195,6 +204,19 @@ button {
     @apply opacity-50;
   }
 
+  .anchor-heading-link {
+    text-decoration: none !important;
+    @apply ml-2 inline-block opacity-0 transition duration-100;
+  }
+
+  :hover > .anchor-heading-link {
+    @apply opacity-50;
+  }
+
+  .anchor-heading-link:focus {
+    @apply opacity-75;
+  }
+
   :has(+ .anchor-heading) {
     margin-bottom: 0 !important;
   }
@@ -349,7 +371,7 @@ pre.shiki {
 
   @apply bg-white;
 
-  &.vitesse-dark {
+  &.aurora-x {
     @apply text-gray-400 bg-gray-950;
   }
 }
@@ -669,7 +691,7 @@ pre .logger.log-log svg {
   margin-right: 9px;
 }
 
-html:not(.dark) .shiki.vitesse-dark {
+html:not(.dark) .shiki.aurora-x {
   display: none;
 }
 
@@ -678,11 +700,11 @@ html.dark .shiki.github-light {
 }
 
 /* Improve comment contrast in dark mode */
-html.dark .shiki.vitesse-dark .token.comment,
-html.dark .shiki.vitesse-dark span[style*='color:#565F89'],
-html.dark .shiki.vitesse-dark span[style*='color: #565F89'],
-html.dark .shiki.vitesse-dark span[style*='color:#51597D'],
-html.dark .shiki.vitesse-dark span[style*='color: #51597D'] {
+html.dark .shiki.aurora-x .token.comment,
+html.dark .shiki.aurora-x span[style*='color:#546E7A'],
+html.dark .shiki.aurora-x span[style*='color:#546E7A'],
+html.dark .shiki.aurora-x span[style*='color:#546E7A'],
+html.dark .shiki.aurora-x span[style*='color:#546E7A'] {
   color: #9099c0 !important;
 }
 
@@ -691,13 +713,6 @@ html.dark .shiki.vitesse-dark span[style*='color: #51597D'] {
 .TanStackRouterDevtools > button {
   @apply rotate-90 origin-top-right -translate-y-[50px] translate-x-2 rounded-t-none bg-white dark:bg-gray-900;
   @apply border-t-0 border-gray-500/10 shadow-md text-gray-800;
-}
-
-/* Hubspot */
-
-#hubspot-messages-iframe-container {
-  @apply translate-x-[10px] translate-y-[10px];
-  @apply dark:scheme-dark;
 }
 
 /* Markdown Alerts */
@@ -796,8 +811,38 @@ mark {
 @font-face {
   font-display: swap;
   font-family: 'Inter';
+  font-style: normal;
   font-weight: 100 900;
-  src: url('/fonts/Inter.woff2') format('woff2');
+  src: url('/fonts/Inter-latin-ext.woff2') format('woff2');
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304,
+    U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB,
+    U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-display: swap;
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  src: url('/fonts/Inter-latin.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    filter: blur(4px);
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: scale(1);
+  }
 }
 
 @keyframes pulseScale {
@@ -868,6 +913,124 @@ mark {
   pointer-events: none;
 }
 
+@keyframes open-source-underline-color {
+  0%,
+  22%,
+  100% {
+    color: rgb(234 179 8);
+  }
+  25%,
+  47% {
+    color: rgb(20 184 166);
+  }
+  50%,
+  72% {
+    color: rgb(59 130 246);
+  }
+  75%,
+  97% {
+    color: rgb(244 63 94);
+  }
+}
+
+@keyframes open-source-underline-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes open-source-underline-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  30% {
+    transform: translate3d(2.2px, -1.7px, 0);
+  }
+
+  55% {
+    transform: translate3d(-2.5px, 1.45px, 0);
+  }
+
+  80% {
+    transform: translate3d(1.2px, -0.8px, 0);
+  }
+}
+
+.home-open-source-underline {
+  position: relative;
+  display: inline-flex;
+  padding-inline: 0.08em;
+  padding-bottom: 0.12em;
+}
+
+.home-open-source-underline__svg {
+  position: absolute;
+  left: -0.04em;
+  bottom: -0.24em;
+  width: calc(100% + 0.08em);
+  height: 0.68em;
+  overflow: visible;
+  color: rgb(234 179 8);
+  animation: open-source-underline-color 20s ease-in-out infinite;
+}
+
+.home-open-source-underline__path {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation:
+    open-source-underline-draw 1.9s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+    open-source-underline-drift 4.6s ease-in-out infinite;
+}
+
+.home-open-source-underline__path--primary {
+  stroke-width: 11.5;
+  opacity: 0.34;
+  filter: blur(0.35px);
+  animation-delay: 0.45s, 0s;
+  animation-duration: 1.9s, 5.4s;
+}
+
+.home-open-source-underline__path--secondary {
+  stroke-width: 7;
+  opacity: 0.92;
+  animation-delay:
+    0.7s,
+    -1.8s;
+  animation-duration: 1.9s, 4.8s;
+}
+
+.home-open-source-underline__path--tertiary {
+  stroke-width: 4.5;
+  opacity: 0.78;
+  animation-delay:
+    0.95s,
+    -3.1s;
+  animation-duration: 1.9s, 4.2s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-open-source-underline__svg {
+    animation: none;
+  }
+
+  .home-open-source-underline__path {
+    animation: none;
+    stroke-dashoffset: 0;
+    transform: none;
+  }
+}
+
 /* Dropdown animations */
 @keyframes dropdown-in {
   from {
@@ -897,6 +1060,63 @@ mark {
 
 .dropdown-content[data-state='closed'] {
   animation: dropdown-out 100ms ease-in;
+}
+
+/* Cart panel slide-in from right */
+@keyframes cart-panel-in {
+  from {
+    opacity: 0;
+    transform: translateX(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes cart-panel-out {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(1rem);
+  }
+}
+
+@keyframes cart-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes cart-overlay-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.cart-panel[data-state='open'] {
+  animation: cart-panel-in 200ms ease-out;
+}
+
+.cart-panel[data-state='closed'] {
+  animation: cart-panel-out 150ms ease-in;
+}
+
+.cart-overlay[data-state='open'] {
+  animation: cart-overlay-in 200ms ease-out;
+}
+
+.cart-overlay[data-state='closed'] {
+  animation: cart-overlay-out 150ms ease-in;
 }
 
 /* Doc Feedback Styles */

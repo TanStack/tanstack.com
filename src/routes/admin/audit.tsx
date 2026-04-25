@@ -30,7 +30,7 @@ import {
   StatsCard,
 } from '~/components/admin'
 import { useAdminGuard } from '~/hooks/useAdminGuard'
-import { requireCapability } from '~/utils/auth.server'
+import { requireCapability } from '~/utils/auth.functions'
 
 type AuditLogEntry = {
   id: string
@@ -59,12 +59,6 @@ const ACTION_LABELS: Record<string, string> = {
   'role.delete': 'Deleted Role',
   'role.assignment.create': 'Assigned Role',
   'role.assignment.delete': 'Removed Role',
-  'banner.create': 'Created Banner',
-  'banner.update': 'Updated Banner',
-  'banner.delete': 'Deleted Banner',
-  'feed.entry.create': 'Created Feed Entry',
-  'feed.entry.update': 'Updated Feed Entry',
-  'feed.entry.delete': 'Deleted Feed Entry',
   'feedback.moderate': 'Moderated Feedback',
 }
 
@@ -266,13 +260,6 @@ function AuditPage() {
                   to: '/admin/roles/$roleId',
                   params: { roleId: entry.targetId },
                 }
-              case 'banner':
-                return {
-                  to: '/admin/banners/$id',
-                  params: { id: entry.targetId },
-                }
-              case 'feed_entry':
-                return { to: '/admin/feed/$id', params: { id: entry.targetId } }
               case 'showcase':
                 return {
                   to: '/admin/showcases_/$id',
@@ -367,6 +354,7 @@ function AuditPage() {
     [],
   )
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data: (auditQuery?.data?.page || []) as AuditLogEntry[],
     columns,

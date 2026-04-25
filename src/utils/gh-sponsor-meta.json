@@ -1,9 +1,21 @@
-﻿[
+[
+  {
+    "login": "netroutingcom",
+    "name": "Netrouting.com",
+    "imageUrl": "https://netrouting.com/wp-content/uploads/2026/04/netrouting-color.png",
+    "linkUrl": "https://netrouting.com/"
+  },
   {
     "login": "wildfee",
     "name": "AI-Text-Humanizer.com",
     "imageUrl": "https://ai-text-humanizer.com/gfx/ai-text-humanizer-com-icon-2025-small.png",
     "linkUrl": "https://ai-text-humanizer.com/?utm_source=tanstack"
+  },
+  {
+    "login": "aihumanizer-io",
+    "name": "AI Humanizer",
+    "imageUrl": "https://aihumanizer.io/favicon.ico",
+    "linkUrl": "https://aihumanizer.io"
   },
   {
     "login": "rewriterprojs",
@@ -16,6 +28,12 @@
     "name": "Automatio AI",
     "imageUrl": "https://i.imgur.com/42qFfkw.png",
     "linkUrl": "https://automatio.ai"
+  },
+  {
+    "login": "homeworkaid",
+    "name": "Math Solver",
+    "imageUrl": "https://homeworkaid.ai/favicon.ico",
+    "linkUrl": "https://homeworkaid.ai/ai-math-solver"
   },
   {
     "login": "sanity-io",
@@ -285,7 +303,7 @@
   },
   {
     "login": "__github",
-    "name": "Github",
+    "name": "GitHub",
     "imageUrl": "https://github.githubassets.com/images/modules/logos_page/GitHub-Logo.png",
     "linkUrl": "https://github.com?utm_source=tanstack"
   },
@@ -297,9 +315,9 @@
   },
   {
     "login": "yogesharc",
-    "name": "Promptmonitor",
-    "imageUrl": "https://bvatwanklwlvzlcxrcxn.supabase.co/storage/v1/object/public/assets/promptmonitor-icon-brandfill.png",
-    "linkUrl": "https://www.promptmonitor.io/?utm_source=tanstack"
+    "name": "Supalytics",
+    "imageUrl": "https://www.supalytics.co/supalytics-icon-filled.png",
+    "linkUrl": "https://www.supalytics.co/?utm_source=tanstack"
   },
   {
     "login": "TextToHuman",
@@ -312,5 +330,16 @@
     "name": "Detecting-AI",
     "imageUrl": "https://detecting-ai.com/images/favicon.png",
     "linkUrl": "https://detecting-ai.com/"
+  },
+  {
+    "login": "fingerprintjs",
+    "name": "Fingerprint",
+    "imageUrl": "https://fingerprint.com/img/uploads/fingerprint_white_on_orange.png",
+    "linkUrl": "https://fingerprint.com?utm_source=tanstack"
+  },
+  {
+    "login": "aeriusventilation",
+    "name": "Aerius Ventilation",
+    "linkUrl": "https://aerius.se/?utm_source=tanstack"
   }
 ]

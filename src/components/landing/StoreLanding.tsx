@@ -1,3 +1,4 @@
+import { useParams } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { BottomCTA } from '~/components/BottomCTA'
@@ -6,23 +7,23 @@ import { storeProject } from '~/libraries/store'
 import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
-import { PartnersSection } from '~/components/PartnersSection'
-import { MaintainersSection } from '~/components/MaintainersSection'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
+import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 
 const library = getLibrary('store')
 
 export default function StoreLanding() {
+  const { version } = useParams({ strict: false })
+
   return (
     <LibraryPageContainer>
       <LibraryHero
         project={storeProject}
         cta={{
           linkProps: {
-            from: '/$libraryId/$version',
-            to: './docs',
-            params: { libraryId: library.id },
+            to: '/$libraryId/$version/docs',
+            params: { libraryId: library.id, version },
           },
           label: 'Get Started',
           className:
@@ -36,16 +37,18 @@ export default function StoreLanding() {
         featureHighlights={storeProject.featureHighlights}
       />
 
-      <MaintainersSection libraryId="store" />
-      <PartnersSection libraryId="store" />
+      <LazyLandingCommunitySection
+        libraryId="store"
+        libraryName="TanStack Store"
+        showShowcases={false}
+      />
       <LazySponsorSection />
       <LandingPageGad />
 
       <BottomCTA
         linkProps={{
-          from: '/$libraryId/$version',
-          to: './docs',
-          params: { libraryId: library.id },
+          to: '/$libraryId/$version/docs',
+          params: { libraryId: library.id, version },
         }}
         label="Get Started!"
         className="bg-stone-700 border-stone-700 hover:bg-stone-800 text-white"

@@ -1,5 +1,5 @@
 import { queryOptions } from '@tanstack/react-query'
-import { getCurrentUser } from '~/utils/auth.server'
+import { getCurrentUser } from '~/utils/auth.functions'
 
 export const currentUserQueryOptions = () =>
   queryOptions({

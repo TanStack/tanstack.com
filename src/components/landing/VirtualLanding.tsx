@@ -1,130 +1,27 @@
 import { useState } from 'react'
 import { useParams } from '@tanstack/react-router'
-import { virtualProject } from '~/libraries/virtual'
-import { getLibrary } from '~/libraries'
-import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
-import { Footer } from '~/components/Footer'
-import { LibraryHero } from '~/components/LibraryHero'
-import { FeatureGrid } from '~/components/FeatureGrid'
-import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { BottomCTA } from '~/components/BottomCTA'
-import { StackBlitzEmbed } from '~/components/StackBlitzEmbed'
+import { FeatureGrid } from '~/components/FeatureGrid'
+import { Footer } from '~/components/Footer'
 import { FrameworkIconTabs } from '~/components/FrameworkIconTabs'
-import { Framework, getBranch } from '~/libraries'
-import LandingPageGad from '~/components/LandingPageGad'
-import { PartnersSection } from '~/components/PartnersSection'
-import { MaintainersSection } from '~/components/MaintainersSection'
-import { LibraryTestimonials } from '~/components/LibraryTestimonials'
+import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
+import { LibraryHero } from '~/components/LibraryHero'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
-import { CodeExampleCard } from '~/components/CodeExampleCard'
+import { LibraryTestimonials } from '~/components/LibraryTestimonials'
+import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
+import { LazySponsorSection } from '~/components/LazySponsorSection'
+import LandingPageGad from '~/components/LandingPageGad'
+import { StackBlitzEmbed } from '~/components/StackBlitzEmbed'
+import { Framework, getBranch, getLibrary } from '~/libraries'
+import { virtualProject } from '~/libraries/virtual'
+import type { LandingComponentProps } from '~/routes/$libraryId/$version'
 
 const library = getLibrary('virtual')
 
-const codeExamples: Partial<Record<Framework, { lang: string; code: string }>> =
-  {
-    react: {
-      lang: 'tsx',
-      code: `import { useVirtualizer } from '@tanstack/react-virtual'
-
-const rowVirtualizer = useVirtualizer({
-  count: 1000,
-  getScrollElement: () => parentRef.current,
-  estimateSize: () => 36,
-})
-// Map virtual rows to your UI`,
-    },
-    solid: {
-      lang: 'tsx',
-      code: `import { createVirtualizer } from '@tanstack/solid-virtual'
-
-const parentRef: HTMLElement | undefined = undefined
-
-const rowVirtualizer = createVirtualizer({
-  count: 1000,
-  getScrollElement: () => parentRef!,
-  estimateSize: () => 36,
-})
-// Map rowVirtualizer.getVirtualItems() to your UI`,
-    },
-    vue: {
-      lang: 'vue',
-      code: `<script setup lang="ts">
-import { ref } from 'vue'
-import { useVirtualizer } from '@tanstack/vue-virtual'
-
-const parentRef = ref<HTMLElement | null>(null)
-
-const rowVirtualizer = useVirtualizer({
-  count: 1000,
-  getScrollElement: () => parentRef.value!,
-  estimateSize: () => 36,
-})
-</script>
-
-<template>
-  <div ref="parentRef" style="overflow: auto; height: 300px">
-    <!-- Render rowVirtualizer.getVirtualItems() -->
-  </div>
-</template>`,
-    },
-    svelte: {
-      lang: 'svelte',
-      code: `<script lang="ts">
-  import { createVirtualizer } from '@tanstack/svelte-virtual'
-  let parentRef: HTMLDivElement
-  const rowVirtualizer = createVirtualizer({
-    count: 1000,
-    getScrollElement: () => parentRef,
-    estimateSize: () => 36,
-  })
-</script>
-
-<div bind:this={parentRef} style="overflow:auto; height:300px">
-  <!-- Render $rowVirtualizer.getVirtualItems() -->
-</div>`,
-    },
-    angular: {
-      lang: 'ts',
-      code: `import { Component, ElementRef, viewChild } from '@angular/core'
-import { createAngularVirtualizer } from '@tanstack/angular-virtual'
-
-@Component({
-  standalone: true,
-  selector: 'virtual-list',
-  template: '<div #parent style="overflow:auto; height:300px"></div>',
-})
-export class VirtualListComponent {
-  parent = viewChild.required<ElementRef<HTMLDivElement>>('parent')
-  virtualizer = createAngularVirtualizer(() => ({
-    count: 1000,
-    getScrollElement: () => this.parent().nativeElement,
-    estimateSize: () => 36,
-  }))
-}`,
-    },
-    lit: {
-      lang: 'ts',
-      code: `import { LitElement, customElement, html } from 'lit'
-import { createLitVirtualizer } from '@tanstack/lit-virtual'
-
-@customElement('virtual-list')
-export class VirtualList extends LitElement {
-  private parent?: HTMLDivElement
-  virtualizer = createLitVirtualizer({
-    count: 1000,
-    getScrollElement: () => this.parent!,
-    estimateSize: () => 36,
-  })
-
-  render() {
-    return html\`<div style="overflow:auto; height:300px"></div>\`
-  }
-}`,
-    },
-  }
-
-export default function VirtualLanding() {
+export default function VirtualLanding({
+  landingCodeExampleRsc,
+}: LandingComponentProps) {
   const { version } = useParams({ strict: false })
   const [framework, setFramework] = useState<Framework>('react')
   const branch = getBranch(virtualProject, version)
@@ -146,10 +43,7 @@ export default function VirtualLanding() {
 
       <LibraryStatsSection library={library} />
 
-      <CodeExampleCard
-        frameworks={virtualProject.frameworks}
-        codeByFramework={codeExamples}
-      />
+      {landingCodeExampleRsc}
 
       <LibraryFeatureHighlights
         featureHighlights={virtualProject.featureHighlights}
@@ -218,8 +112,11 @@ export default function VirtualLanding() {
         </div>
       </div>
 
-      <MaintainersSection libraryId="virtual" />
-      <PartnersSection libraryId="virtual" />
+      <LazyLandingCommunitySection
+        libraryId="virtual"
+        libraryName="TanStack Virtual"
+        showShowcases={false}
+      />
       <LazySponsorSection />
       <LandingPageGad />
 

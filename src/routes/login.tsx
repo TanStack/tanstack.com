@@ -1,16 +1,22 @@
-import { authClient } from '~/utils/auth.client'
-import { useIsDark } from '~/hooks/useIsDark'
+import * as React from 'react'
+import { authClient } from '~/auth/client'
 // Using public asset URLs for splash images
-import { BrandContextMenu } from '~/components/BrandContextMenu'
 import { redirect, createFileRoute } from '@tanstack/react-router'
-import { getCurrentUser } from '~/utils/auth.server'
+import { getCurrentUser } from '~/utils/auth.functions'
 import * as v from 'valibot'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { GoogleIcon } from '~/components/icons/GoogleIcon'
 import { Card } from '~/components/Card'
 
+const LazyBrandContextMenu = React.lazy(() =>
+  import('~/components/BrandContextMenu').then((m) => ({
+    default: m.BrandContextMenu,
+  })),
+)
+
 const searchSchema = v.object({
   error: v.optional(v.string()),
+  redirect: v.optional(v.string()),
 })
 
 export const Route = createFileRoute('/login')({
@@ -26,26 +32,42 @@ export const Route = createFileRoute('/login')({
 })
 
 function SplashImage() {
-  const isDark = useIsDark()
-
   return (
     <div className="flex items-center justify-center mb-4">
-      <BrandContextMenu className="cursor-pointer">
-        <img
-          src={
-            isDark
-              ? '/images/logos/splash-dark.png'
-              : '/images/logos/splash-light.png'
-          }
-          alt="Waitlist"
-          className="w-48 h-48"
-        />
-      </BrandContextMenu>
+      <React.Suspense
+        fallback={
+          <div className="cursor-pointer">
+            <img
+              src="/images/logos/splash-light.png"
+              alt="TanStack"
+              className="w-48 h-48 dark:hidden"
+            />
+            <img
+              src="/images/logos/splash-dark.png"
+              alt="TanStack"
+              className="w-48 h-48 hidden dark:block"
+            />
+          </div>
+        }
+      >
+        <LazyBrandContextMenu className="cursor-pointer">
+          <img
+            src="/images/logos/splash-light.png"
+            alt="TanStack"
+            className="w-48 h-48 dark:hidden"
+          />
+          <img
+            src="/images/logos/splash-dark.png"
+            alt="TanStack"
+            className="w-48 h-48 hidden dark:block"
+          />
+        </LazyBrandContextMenu>
+      </React.Suspense>
     </div>
   )
 }
 
-export function SignInForm() {
+export function SignInForm({ returnTo }: { returnTo?: string } = {}) {
   return (
     <Card className="p-8 w-[100vw] max-w-sm mx-auto">
       <SplashImage />
@@ -56,6 +78,7 @@ export function SignInForm() {
         onClick={() =>
           authClient.signIn.social({
             provider: 'github',
+            returnTo,
           })
         }
         className="w-full bg-black/80 hover:bg-black text-white dark:text-black dark:bg-white/95 dark:hover:bg-white font-semibold py-2 px-4 rounded-md transition-colors"
@@ -66,6 +89,7 @@ export function SignInForm() {
         onClick={() =>
           authClient.signIn.social({
             provider: 'google',
+            returnTo,
           })
         }
         className="w-full bg-[#DB4437]/95 hover:bg-[#DB4437] text-white font-semibold py-2 px-4 rounded-md transition-colors mt-4"

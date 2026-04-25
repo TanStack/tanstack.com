@@ -1,7 +1,6 @@
+import { useParams } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
-import { PartnersSection } from '~/components/PartnersSection'
-import { MaintainersSection } from '~/components/MaintainersSection'
 import { BottomCTA } from '~/components/BottomCTA'
 import { dbProject } from '~/libraries/db'
 import { LibraryHero } from '~/components/LibraryHero'
@@ -10,19 +9,21 @@ import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
+import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 
 const library = getLibrary('db')
 
 export default function DbLanding() {
+  const { version } = useParams({ strict: false })
+
   return (
     <LibraryPageContainer>
       <LibraryHero
         project={dbProject}
         cta={{
           linkProps: {
-            from: '/$libraryId/$version',
-            to: './docs',
-            params: { libraryId: library.id },
+            to: '/$libraryId/$version/docs',
+            params: { libraryId: library.id, version },
           },
           label: 'Get Started',
           className:
@@ -73,16 +74,18 @@ export default function DbLanding() {
         </div>
       </div>
 
-      <MaintainersSection libraryId="db" />
-      <PartnersSection libraryId="db" />
+      <LazyLandingCommunitySection
+        libraryId="db"
+        libraryName="TanStack DB"
+        showShowcases={false}
+      />
       <LazySponsorSection />
       <LandingPageGad />
 
       <BottomCTA
         linkProps={{
-          from: '/$libraryId/$version',
-          to: './docs',
-          params: { libraryId: library.id },
+          to: '/$libraryId/$version/docs',
+          params: { libraryId: library.id, version },
         }}
         label="Get Started!"
         className="bg-orange-500 border-orange-500 hover:bg-orange-600 text-white"

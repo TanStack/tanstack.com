@@ -1,3 +1,4 @@
+import { useParams } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { LibraryHero } from '~/components/LibraryHero'
@@ -7,15 +8,16 @@ import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
 import { Button } from '~/ui'
-import { PartnersSection } from '~/components/PartnersSection'
-import { MaintainersSection } from '~/components/MaintainersSection'
 import { CheckCircleIcon } from '~/components/icons/CheckCircleIcon'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
+import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 
 const library = getLibrary('config')
 
 export default function ConfigLanding() {
+  const { version } = useParams({ strict: false })
+
   return (
     <LibraryPageContainer>
       <LibraryHero
@@ -23,7 +25,7 @@ export default function ConfigLanding() {
         actions={
           <Button
             as="a"
-            href={`/config/latest/docs`}
+            href={`/config/${version}/docs`}
             className="bg-gray-500 border-gray-500 hover:bg-gray-600 text-white"
           >
             Get Started
@@ -62,15 +64,18 @@ export default function ConfigLanding() {
         </div>
       </div>
 
-      <MaintainersSection libraryId="config" />
-      <PartnersSection libraryId="config" />
+      <LazyLandingCommunitySection
+        libraryId="config"
+        libraryName="TanStack Config"
+        showShowcases={false}
+      />
       <LazySponsorSection />
       <LandingPageGad />
 
       <BottomCTA
         linkProps={{
           to: '/$libraryId/$version/docs',
-          params: { libraryId: library.id },
+          params: { libraryId: library.id, version },
         }}
         label="Get Started!"
         className="bg-gray-500 border-gray-500 hover:bg-gray-600 text-white"

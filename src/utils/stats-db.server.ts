@@ -11,9 +11,106 @@ import {
   npmOrgStatsCache,
   npmLibraryStatsCache,
   npmDownloadChunks,
+  ossStatsCache,
 } from '~/db/schema'
+import type { OssStatsCache } from '~/db/schema'
 import { eq, inArray, and } from 'drizzle-orm'
-import type { GitHubStats, NpmPackageStats, NpmStats } from './stats.server'
+import type {
+  GitHubStats,
+  NpmPackageStats,
+  NpmStats,
+  OSSStatsWithDelta,
+} from './stats.types'
+
+type OssStatsScopeType = 'org' | 'library'
+
+type OssStatsRowInput = {
+  github: GitHubStats
+  previousGithub?: GitHubStats | null
+  githubUpdatedAt?: Date
+  npm: NpmStats
+  npmPackageCount?: number
+  npmUpdatedAt?: Date
+  scopeKey: string
+  scopeType: OssStatsScopeType
+  timeDelta?: number
+}
+
+function isGitHubStats(value: unknown): value is GitHubStats {
+  return (
+    !!value &&
+    typeof value === 'object' &&
+    typeof Reflect.get(value, 'starCount') === 'number' &&
+    typeof Reflect.get(value, 'contributorCount') === 'number'
+  )
+}
+
+function getGitHubStats(value: unknown): GitHubStats {
+  if (isGitHubStats(value)) {
+    return value
+  }
+
+  return {
+    starCount: 0,
+    contributorCount: 0,
+  }
+}
+
+function calculateGithubDelta(
+  current: GitHubStats,
+  previous: GitHubStats | null,
+) {
+  if (!previous) {
+    return {}
+  }
+
+  return {
+    githubDeltaStarCount: current.starCount - previous.starCount,
+    githubDeltaContributorCount:
+      current.contributorCount - previous.contributorCount,
+    githubDeltaDependentCount:
+      current.dependentCount !== undefined &&
+      previous.dependentCount !== undefined
+        ? current.dependentCount - previous.dependentCount
+        : null,
+    githubDeltaForkCount:
+      current.forkCount !== undefined && previous.forkCount !== undefined
+        ? current.forkCount - previous.forkCount
+        : null,
+  }
+}
+
+function mapOssStatsRow(row: OssStatsCache): OSSStatsWithDelta {
+  return {
+    github: {
+      contributorCount: row.githubContributorCount,
+      dependentCount: row.githubDependentCount ?? undefined,
+      forkCount: row.githubForkCount ?? undefined,
+      repositoryCount: row.githubRepositoryCount ?? undefined,
+      starCount: row.githubStarCount,
+    },
+    npm: {
+      ratePerDay: row.npmRatePerDay ?? undefined,
+      totalDownloads: row.npmTotalDownloads,
+      updatedAt: row.npmUpdatedAt?.getTime(),
+    },
+    delta:
+      row.githubDeltaStarCount !== null ||
+      row.githubDeltaContributorCount !== null ||
+      row.githubDeltaDependentCount !== null ||
+      row.githubDeltaForkCount !== null
+        ? {
+            github: {
+              contributorCount: row.githubDeltaContributorCount ?? undefined,
+              dependentCount: row.githubDeltaDependentCount ?? undefined,
+              forkCount: row.githubDeltaForkCount ?? undefined,
+              starCount: row.githubDeltaStarCount ?? undefined,
+            },
+          }
+        : undefined,
+    timeDelta: row.timeDeltaMs ?? undefined,
+  }
+}
 
 /**
  * Batch fetch cached NPM package stats for multiple packages
@@ -50,6 +147,198 @@ export async function getBatchCachedNpmPackageStats(
   } catch (error) {
     console.error('[NPM Stats Cache] Error reading batch cache:', error)
     return results
+  }
+}
+
+export async function getCachedOssStats(
+  scopeType: OssStatsScopeType,
+  scopeKey: string,
+): Promise<OSSStatsWithDelta | null> {
+  try {
+    const row = await db.query.ossStatsCache.findFirst({
+      where: and(
+        eq(ossStatsCache.scopeType, scopeType),
+        eq(ossStatsCache.scopeKey, scopeKey),
+      ),
+    })
+
+    return row ? mapOssStatsRow(row) : null
+  } catch (error) {
+    console.error(
+      `[OSS Stats Cache] Error reading ${scopeType}:${scopeKey}:`,
+      error,
+    )
+    return null
+  }
+}
+
+export async function upsertOssStatsCacheRow({
+  github,
+  previousGithub,
+  githubUpdatedAt,
+  npm,
+  npmPackageCount,
+  npmUpdatedAt,
+  scopeKey,
+  scopeType,
+  timeDelta,
+}: OssStatsRowInput): Promise<void> {
+  const now = new Date()
+
+  await db
+    .insert(ossStatsCache)
+    .values({
+      scopeType,
+      scopeKey,
+      githubStarCount: github.starCount,
+      githubContributorCount: github.contributorCount,
+      githubDependentCount: github.dependentCount ?? null,
+      githubForkCount: github.forkCount ?? null,
+      githubRepositoryCount: github.repositoryCount ?? null,
+      ...calculateGithubDelta(github, previousGithub ?? null),
+      githubUpdatedAt: githubUpdatedAt ?? now,
+      npmTotalDownloads: npm.totalDownloads,
+      npmRatePerDay: npm.ratePerDay ?? null,
+      npmPackageCount: npmPackageCount ?? 0,
+      npmUpdatedAt: npmUpdatedAt ?? now,
+      timeDeltaMs: timeDelta ?? null,
+      updatedAt: now,
+    })
+    .onConflictDoUpdate({
+      target: [ossStatsCache.scopeType, ossStatsCache.scopeKey],
+      set: {
+        githubStarCount: github.starCount,
+        githubContributorCount: github.contributorCount,
+        githubDependentCount: github.dependentCount ?? null,
+        githubForkCount: github.forkCount ?? null,
+        githubRepositoryCount: github.repositoryCount ?? null,
+        ...calculateGithubDelta(github, previousGithub ?? null),
+        githubUpdatedAt: githubUpdatedAt ?? now,
+        npmTotalDownloads: npm.totalDownloads,
+        npmRatePerDay: npm.ratePerDay ?? null,
+        npmPackageCount: npmPackageCount ?? 0,
+        npmUpdatedAt: npmUpdatedAt ?? now,
+        timeDeltaMs: timeDelta ?? null,
+        updatedAt: now,
+      },
+    })
+}
+
+export async function rebuildOssStatsCache(org: string = 'tanstack') {
+  const now = new Date()
+  const { libraries } = await import('~/libraries')
+
+  const [packages, githubCacheRows] = await Promise.all([
+    db.query.npmPackages.findMany(),
+    db.query.githubStatsCache.findMany(),
+  ])
+
+  const githubCacheMap = new Map(
+    githubCacheRows.map((row) => [row.cacheKey, row] as const),
+  )
+
+  const orgNpmStats: NpmStats = {
+    totalDownloads: 0,
+  }
+  let orgPackageCount = 0
+  let orgLatestUpdate: Date | undefined
+
+  const libraryNpmStatsMap = new Map<
+    string,
+    { npm: NpmStats; packageCount: number; updatedAt?: Date }
+  >()
+
+  for (const pkg of packages) {
+    if (pkg.downloads === null) {
+      continue
+    }
+
+    orgNpmStats.totalDownloads += pkg.downloads
+    orgNpmStats.ratePerDay =
+      (orgNpmStats.ratePerDay ?? 0) + (pkg.ratePerDay ?? 0)
+    orgPackageCount += 1
+
+    if (!orgLatestUpdate || pkg.updatedAt > orgLatestUpdate) {
+      orgLatestUpdate = pkg.updatedAt
+    }
+
+    if (!pkg.libraryId) {
+      continue
+    }
+
+    const existing = libraryNpmStatsMap.get(pkg.libraryId) ?? {
+      npm: { totalDownloads: 0 },
+      packageCount: 0,
+      updatedAt: undefined,
+    }
+
+    existing.npm.totalDownloads += pkg.downloads
+    existing.npm.ratePerDay =
+      (existing.npm.ratePerDay ?? 0) + (pkg.ratePerDay ?? 0)
+    existing.packageCount += 1
+
+    if (!existing.updatedAt || pkg.updatedAt > existing.updatedAt) {
+      existing.updatedAt = pkg.updatedAt
+    }
+
+    libraryNpmStatsMap.set(pkg.libraryId, existing)
+  }
+
+  if (orgLatestUpdate) {
+    orgNpmStats.updatedAt = orgLatestUpdate.getTime()
+  }
+
+  const orgGithubRow = githubCacheMap.get(`org:${org}`)
+  const orgGithubStats = getGitHubStats(orgGithubRow?.stats)
+  const orgPreviousGithubStats = orgGithubRow?.previousStats
+    ? getGitHubStats(orgGithubRow.previousStats)
+    : null
+  const orgTimeDelta = orgGithubRow?.updatedAt
+    ? orgGithubRow.updatedAt.getTime() - orgGithubRow.createdAt.getTime()
+    : undefined
+
+  await upsertOssStatsCacheRow({
+    github: orgGithubStats,
+    previousGithub: orgPreviousGithubStats,
+    githubUpdatedAt: orgGithubRow?.updatedAt ?? now,
+    npm: orgNpmStats,
+    npmPackageCount: orgPackageCount,
+    npmUpdatedAt: orgLatestUpdate ?? now,
+    scopeKey: org,
+    scopeType: 'org',
+    timeDelta: orgTimeDelta,
+  })
+
+  for (const library of libraries) {
+    const npmAggregate = libraryNpmStatsMap.get(library.id) ?? {
+      npm: { totalDownloads: 0 },
+      packageCount: 0,
+      updatedAt: undefined,
+    }
+    const githubRow = githubCacheMap.get(library.repo)
+    const githubStats = getGitHubStats(githubRow?.stats)
+    const previousGithubStats = githubRow?.previousStats
+      ? getGitHubStats(githubRow.previousStats)
+      : null
+    const timeDelta = githubRow?.updatedAt
+      ? githubRow.updatedAt.getTime() - githubRow.createdAt.getTime()
+      : undefined
+
+    if (npmAggregate.updatedAt) {
+      npmAggregate.npm.updatedAt = npmAggregate.updatedAt.getTime()
+    }
+
+    await upsertOssStatsCacheRow({
+      github: githubStats,
+      previousGithub: previousGithubStats,
+      githubUpdatedAt: githubRow?.updatedAt ?? now,
+      npm: npmAggregate.npm,
+      npmPackageCount: npmAggregate.packageCount,
+      npmUpdatedAt: npmAggregate.updatedAt ?? now,
+      scopeKey: library.id,
+      scopeType: 'library',
+      timeDelta,
+    })
   }
 }
 
@@ -895,13 +1184,39 @@ export async function setCachedGitHubStats(
       where: eq(githubStatsCache.cacheKey, cacheKey),
     })
 
+    const existingStats = getGitHubStats(existing?.stats)
+    const previousStats = existing?.previousStats
+      ? getGitHubStats(existing.previousStats)
+      : null
+    const mergedStats: GitHubStats = {
+      starCount: stats.starCount,
+      contributorCount:
+        stats.contributorCount > 0
+          ? stats.contributorCount
+          : existingStats.contributorCount > 0
+            ? existingStats.contributorCount
+            : (previousStats?.contributorCount ?? 0),
+      dependentCount:
+        stats.dependentCount !== undefined
+          ? stats.dependentCount
+          : existingStats.dependentCount !== undefined
+            ? existingStats.dependentCount
+            : previousStats?.dependentCount,
+      forkCount:
+        stats.forkCount ?? existingStats.forkCount ?? previousStats?.forkCount,
+      repositoryCount:
+        stats.repositoryCount ??
+        existingStats.repositoryCount ??
+        previousStats?.repositoryCount,
+    }
+
     if (existing) {
       // Move current stats to previous, store new stats as current
       await db
         .update(githubStatsCache)
         .set({
           previousStats: existing.stats,
-          stats,
+          stats: mergedStats,
           expiresAt,
           updatedAt: now,
         })
@@ -913,7 +1228,7 @@ export async function setCachedGitHubStats(
       // First time - no previous stats yet
       await db.insert(githubStatsCache).values({
         cacheKey,
-        stats,
+        stats: mergedStats,
         previousStats: null,
         expiresAt,
       })

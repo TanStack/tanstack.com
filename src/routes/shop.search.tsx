@@ -4,6 +4,8 @@ import { useMutation } from '@tanstack/react-query'
 import * as v from 'valibot'
 import { Search as SearchIcon } from 'lucide-react'
 import { ProductCard } from '~/components/shop/ProductCard'
+import { ShopHero } from '~/components/shop/ShopHero'
+import { ShopButton, ShopInput, ShopLabel } from '~/components/shop/ui'
 import { searchProducts } from '~/utils/shop.functions'
 import type { ProductListItem } from '~/utils/shopify-queries'
 
@@ -35,7 +37,6 @@ function SearchPage() {
   const navigate = useNavigate({ from: '/shop/search' })
   const [inputValue, setInputValue] = React.useState(query)
 
-  // Sync input when navigating with a new ?q
   React.useEffect(() => {
     setInputValue(query)
   }, [query])
@@ -74,10 +75,8 @@ function SearchPage() {
   const products = [...(page?.products ?? []), ...accumulated]
 
   return (
-    <div className="flex flex-col max-w-6xl mx-auto gap-8 p-4 md:p-8">
-      <header>
-        <h1 className="text-3xl font-black">Search</h1>
-      </header>
+    <div className="p-6 md:p-11 pb-24 max-w-[1280px] mx-auto flex flex-col gap-8">
+      <ShopHero title="Search" />
 
       <form
         onSubmit={(e) => {
@@ -91,41 +90,39 @@ function SearchPage() {
         className="flex items-center gap-2 max-w-xl"
       >
         <div className="relative flex-1">
-          <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input
+          <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-shop-muted" />
+          <ShopInput
             type="search"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             placeholder="Search products…"
-            className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-sm"
+            className="pl-9"
           />
         </div>
-        <button
-          type="submit"
-          className="px-4 py-2 rounded-lg bg-black text-white dark:bg-white dark:text-black font-semibold text-sm"
-        >
+        <ShopButton type="submit" variant="primary">
           Search
-        </button>
+        </ShopButton>
       </form>
 
       {!query ? (
-        <p className="text-gray-600 dark:text-gray-400">
-          Type a query above to find products.
-        </p>
+        <p className="text-shop-text-2">Type a query above to find products.</p>
       ) : products.length === 0 ? (
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-shop-text-2">
           No products match{' '}
-          <span className="font-semibold">&ldquo;{query}&rdquo;</span>.
+          <span className="text-shop-text font-semibold">
+            &ldquo;{query}&rdquo;
+          </span>
+          .
         </p>
       ) : (
         <>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <ShopLabel>
             {products.length}
             {hasNextPage ? '+' : ''}{' '}
-            {products.length === 1 ? 'result' : 'results'} for{' '}
-            <span className="font-semibold">&ldquo;{query}&rdquo;</span>
-          </p>
-          <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {products.length === 1 ? 'result' : 'results'} for &ldquo;{query}
+            &rdquo;
+          </ShopLabel>
+          <section className="grid gap-x-4 gap-y-5.5 grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {products.map((product, i) => (
               <ProductCard
                 key={product.id}
@@ -136,14 +133,12 @@ function SearchPage() {
           </section>
           {hasNextPage ? (
             <div className="flex justify-center py-6">
-              <button
-                type="button"
+              <ShopButton
                 onClick={() => loadMore.mutate()}
                 disabled={loadMore.isPending}
-                className="px-6 py-3 rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-900 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loadMore.isPending ? 'Loading…' : 'Load more'}
-              </button>
+              </ShopButton>
             </div>
           ) : null}
         </>

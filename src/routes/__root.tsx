@@ -36,7 +36,6 @@ import { Spinner } from '~/components/Spinner'
 import { ThemeProvider, useHtmlClass } from '~/components/ThemeProvider'
 import { Navbar } from '~/components/Navbar'
 import { THEME_COLORS } from '~/utils/utils'
-import { useHubSpotChat } from '~/hooks/useHubSpotChat'
 import { trackPageView } from '~/utils/analytics'
 import { twMerge } from 'tailwind-merge'
 
@@ -147,9 +146,6 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
   const hasBaseParent = useMatches({
     select: (matches) => matches.find((d) => d.staticData?.baseParent),
   })
-
-  // HubSpot chat loads on configured pages (see useHubSpotChat hook)
-  useHubSpotChat()
 
   const isNavigating = useRouterState({
     select: (s) => s.isLoading || s.isTransitioning,

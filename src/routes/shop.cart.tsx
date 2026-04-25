@@ -1,8 +1,15 @@
 import * as React from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { Minus, Plus, ShoppingCart, Trash2, X } from 'lucide-react'
-import { twMerge } from 'tailwind-merge'
-import { Breadcrumbs } from '~/components/shop/Breadcrumbs'
+import { ShoppingCart, Trash2, X } from 'lucide-react'
+import {
+  ShopButton,
+  ShopCrumbs,
+  ShopInput,
+  ShopLabel,
+  ShopMono,
+  ShopPanel,
+  ShopQty,
+} from '~/components/shop/ui'
 import {
   useApplyDiscountCode,
   useCart,
@@ -19,9 +26,6 @@ export const Route = createFileRoute('/shop/cart')({
 
 function CartPage() {
   const { cart } = useCart()
-
-  // The parent /shop loader prefetches the cart into the React Query cache,
-  // so this always renders with real data on the first frame.
   if (!cart || cart.lines.nodes.length === 0) return <EmptyCart />
 
   const { checkoutUrl, cost, lines, totalQuantity } = cart
@@ -29,55 +33,73 @@ function CartPage() {
   const total = cost.totalAmount
 
   return (
-    <div className="flex flex-col max-w-4xl mx-auto gap-8 p-4 md:p-8">
-      <Breadcrumbs
+    <div className="p-6 md:p-11 pb-24 max-w-[1100px] mx-auto flex flex-col gap-6">
+      <ShopCrumbs
         crumbs={[{ label: 'Shop', href: '/shop' }, { label: 'Cart' }]}
       />
       <header>
-        <h1 className="text-3xl font-black">Cart</h1>
-        <p className="text-sm mt-2 text-gray-600 dark:text-gray-400">
+        <h1 className="font-shop-display font-bold text-[36px] leading-[1.05] tracking-[-0.02em] text-shop-text">
+          Cart
+        </h1>
+        <ShopLabel className="mt-2">
           {totalQuantity} {totalQuantity === 1 ? 'item' : 'items'}
-        </p>
+        </ShopLabel>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_20rem] gap-8">
-        <ul className="flex flex-col divide-y divide-gray-200 dark:divide-gray-800">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8">
+        <ul className="flex flex-col">
           {lines.nodes.map((line) => (
             <CartLineRow key={line.id} line={line} />
           ))}
         </ul>
 
-        <aside className="flex flex-col gap-4 rounded-xl border border-gray-200 dark:border-gray-800 p-6 h-fit">
-          <h2 className="font-semibold">Summary</h2>
+        <ShopPanel className="p-5 h-fit flex flex-col gap-3.5">
+          <ShopLabel>Summary</ShopLabel>
 
           <DiscountCodeSection cart={cart} />
 
           <dl className="flex flex-col gap-2 text-sm">
-            <div className="flex justify-between">
-              <dt className="text-gray-600 dark:text-gray-400">Subtotal</dt>
-              <dd>{formatMoney(subtotal.amount, subtotal.currencyCode)}</dd>
+            <div className="flex justify-between text-shop-text-2">
+              <dt>Subtotal</dt>
+              <dd>
+                <ShopMono>
+                  {formatMoney(subtotal.amount, subtotal.currencyCode)}
+                </ShopMono>
+              </dd>
             </div>
-            <div className="flex justify-between border-t border-gray-200 dark:border-gray-800 pt-2 font-semibold">
+            <div className="flex justify-between font-semibold pt-2 border-t border-shop-line text-shop-text">
               <dt>Total</dt>
-              <dd>{formatMoney(total.amount, total.currencyCode)}</dd>
+              <dd>
+                <ShopMono>
+                  {formatMoney(total.amount, total.currencyCode)}
+                </ShopMono>
+              </dd>
             </div>
-            <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+            <p className="font-shop-mono text-[11px] text-shop-muted tracking-[0.06em] mt-1">
               Shipping and taxes calculated at checkout.
             </p>
           </dl>
+
           <a
             href={checkoutUrl}
-            className="w-full text-center px-6 py-3 rounded-lg bg-black text-white dark:bg-white dark:text-black font-semibold"
+            className="
+              w-full h-11 rounded-md bg-shop-accent text-shop-accent-ink
+              font-semibold text-[13px] flex items-center justify-center gap-2
+              transition-[filter] hover:brightness-110 group
+            "
           >
             Checkout
+            <span className="transition-transform group-hover:translate-x-[3px]">
+              →
+            </span>
           </a>
           <Link
             to="/shop"
-            className="w-full text-center text-sm text-gray-600 dark:text-gray-400 hover:underline"
+            className="text-center text-sm text-shop-text-2 hover:underline"
           >
             Continue shopping
           </Link>
-        </aside>
+        </ShopPanel>
       </div>
     </div>
   )
@@ -90,7 +112,6 @@ function DiscountCodeSection({ cart }: { cart: CartDetail }) {
 
   const applied = cart.discountCodes.filter((c) => c.applicable)
 
-  // Clear the input after a successful apply so the user can see it landed
   React.useEffect(() => {
     if (apply.isSuccess) {
       setInput('')
@@ -99,7 +120,7 @@ function DiscountCodeSection({ cart }: { cart: CartDetail }) {
   }, [apply.isSuccess, apply])
 
   return (
-    <div className="flex flex-col gap-2 border-t border-gray-200 dark:border-gray-800 pt-3">
+    <div className="flex flex-col gap-2 pt-3 border-t border-shop-line">
       {applied.length > 0 ? (
         <ul className="flex flex-col gap-1">
           {applied.map((d) => (
@@ -108,17 +129,17 @@ function DiscountCodeSection({ cart }: { cart: CartDetail }) {
               className="flex items-center justify-between text-sm"
             >
               <span className="inline-flex items-center gap-1.5">
-                <span className="px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-900 font-mono text-xs">
+                <ShopMono className="px-2 py-0.5 rounded bg-shop-panel-2 text-shop-text text-xs">
                   {d.code}
-                </span>
-                <span className="text-xs text-gray-500">applied</span>
+                </ShopMono>
+                <span className="text-xs text-shop-muted">applied</span>
               </span>
               <button
                 type="button"
                 onClick={() => remove.mutate()}
                 disabled={remove.isPending}
                 aria-label={`Remove discount ${d.code}`}
-                className="p-1 rounded-md text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-900 disabled:opacity-50"
+                className="p-1 rounded-md text-shop-muted hover:text-shop-text disabled:opacity-50"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -134,24 +155,23 @@ function DiscountCodeSection({ cart }: { cart: CartDetail }) {
           }}
           className="flex items-center gap-2"
         >
-          <input
+          <ShopInput
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Discount code"
-            className="flex-1 px-3 py-1.5 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 text-sm"
+            className="flex-1"
           />
-          <button
+          <ShopButton
             type="submit"
             disabled={apply.isPending || input.trim().length === 0}
-            className="px-3 py-1.5 rounded-md bg-black text-white dark:bg-white dark:text-black text-sm font-semibold disabled:opacity-50"
           >
             {apply.isPending ? 'Applying…' : 'Apply'}
-          </button>
+          </ShopButton>
         </form>
       )}
       {apply.isError ? (
-        <p className="text-xs text-red-600 dark:text-red-400">
+        <p className="text-xs text-shop-orange">
           {apply.error instanceof Error
             ? apply.error.message
             : 'Could not apply discount.'}
@@ -163,20 +183,28 @@ function DiscountCodeSection({ cart }: { cart: CartDetail }) {
 
 function EmptyCart() {
   return (
-    <div className="flex flex-col max-w-4xl mx-auto gap-8 p-4 md:p-8">
+    <div className="p-6 md:p-11 pb-24 max-w-[1100px] mx-auto flex flex-col gap-8">
       <header>
-        <h1 className="text-3xl font-black">Cart</h1>
+        <h1 className="font-shop-display font-bold text-[36px] leading-[1.05] tracking-[-0.02em] text-shop-text">
+          Cart
+        </h1>
       </header>
-      <div className="flex flex-col items-center gap-4 py-24 text-center">
-        <ShoppingCart className="w-10 h-10 text-gray-400" />
-        <p className="text-lg text-gray-600 dark:text-gray-400">
-          Your cart is empty.
-        </p>
+      <div className="flex flex-col items-center gap-4 py-16 text-center text-shop-text-2">
+        <ShoppingCart className="w-10 h-10 text-shop-muted" />
+        <p>Your cart is empty.</p>
         <Link
           to="/shop"
-          className="inline-flex items-center px-4 py-2 rounded-lg bg-black text-white dark:bg-white dark:text-black font-semibold"
+          className="
+            inline-flex items-center gap-2 px-4 py-2.5 rounded-md
+            bg-shop-accent text-shop-accent-ink
+            font-semibold text-[13px]
+            transition-[filter] hover:brightness-110 group
+          "
         >
           Shop all products
+          <span className="transition-transform group-hover:translate-x-[3px]">
+            →
+          </span>
         </Link>
       </div>
     </div>
@@ -195,24 +223,22 @@ function CartLineRow({ line }: { line: CartLineDetail }) {
   const isBusy = update.isPending || remove.isPending
 
   return (
-    <li className="flex gap-4 py-6">
+    <li className="flex gap-4 py-5 border-b border-shop-line items-start">
       <Link
         to="/shop/products/$handle"
         params={{ handle: merchandise.product.handle }}
-        className="shrink-0"
+        className="shrink-0 w-24 h-24 rounded-lg border border-shop-line bg-shop-panel overflow-hidden"
       >
-        <div className="w-24 h-24 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-900">
-          {merchandise.image ? (
-            <img
-              src={shopifyImageUrl(merchandise.image.url, {
-                width: 200,
-                format: 'webp',
-              })}
-              alt={merchandise.image.altText ?? merchandise.product.title}
-              className="h-full w-full object-cover"
-            />
-          ) : null}
-        </div>
+        {merchandise.image ? (
+          <img
+            src={shopifyImageUrl(merchandise.image.url, {
+              width: 200,
+              format: 'webp',
+            })}
+            alt={merchandise.image.altText ?? merchandise.product.title}
+            className="w-full h-full object-cover"
+          />
+        ) : null}
       </Link>
 
       <div className="flex-1 min-w-0 flex flex-col gap-2">
@@ -221,33 +247,30 @@ function CartLineRow({ line }: { line: CartLineDetail }) {
             <Link
               to="/shop/products/$handle"
               params={{ handle: merchandise.product.handle }}
-              className="font-semibold hover:underline"
+              className="font-semibold text-shop-text hover:underline"
             >
               {merchandise.product.title}
             </Link>
             {options ? (
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <ShopMono className="block text-xs text-shop-muted mt-1">
                 {options}
-              </p>
+              </ShopMono>
             ) : null}
           </div>
-          <div className="text-sm font-semibold shrink-0">
+          <ShopMono className="shrink-0 font-medium text-shop-text">
             {formatMoney(
               line.cost.totalAmount.amount,
               line.cost.totalAmount.currencyCode,
             )}
-          </div>
+          </ShopMono>
         </div>
 
         <div className="flex items-center justify-between mt-1">
-          <QuantityStepper
+          <ShopQty
             quantity={line.quantity}
             onChange={(next) => {
-              if (next <= 0) {
-                remove.mutate({ lineId: line.id })
-              } else {
-                update.mutate({ lineId: line.id, quantity: next })
-              }
+              if (next <= 0) remove.mutate({ lineId: line.id })
+              else update.mutate({ lineId: line.id, quantity: next })
             }}
             disabled={isBusy}
           />
@@ -256,49 +279,12 @@ function CartLineRow({ line }: { line: CartLineDetail }) {
             onClick={() => remove.mutate({ lineId: line.id })}
             disabled={isBusy}
             aria-label="Remove from cart"
-            className={twMerge(
-              'p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-900',
-              'disabled:opacity-50 disabled:cursor-not-allowed',
-            )}
+            className="p-2 rounded-md text-shop-muted hover:text-shop-text disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Trash2 className="w-4 h-4" />
           </button>
         </div>
       </div>
     </li>
-  )
-}
-
-function QuantityStepper({
-  quantity,
-  onChange,
-  disabled,
-}: {
-  quantity: number
-  onChange: (next: number) => void
-  disabled?: boolean
-}) {
-  return (
-    <div className="inline-flex items-center rounded-lg border border-gray-200 dark:border-gray-800">
-      <button
-        type="button"
-        onClick={() => onChange(quantity - 1)}
-        disabled={disabled}
-        aria-label="Decrease quantity"
-        className="p-2 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        <Minus className="w-3.5 h-3.5" />
-      </button>
-      <span className="w-8 text-center text-sm font-medium">{quantity}</span>
-      <button
-        type="button"
-        onClick={() => onChange(quantity + 1)}
-        disabled={disabled}
-        aria-label="Increase quantity"
-        className="p-2 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        <Plus className="w-3.5 h-3.5" />
-      </button>
-    </div>
   )
 }

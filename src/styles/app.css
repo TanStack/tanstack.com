@@ -706,13 +706,6 @@ html.dark .shiki.aurora-x span[style*='color:#546E7A'] {
   @apply border-t-0 border-gray-500/10 shadow-md text-gray-800;
 }
 
-/* Hubspot */
-
-#hubspot-messages-iframe-container {
-  @apply translate-x-[10px] translate-y-[10px];
-  @apply dark:scheme-dark;
-}
-
 /* Markdown Alerts */
 
 .not-prose .markdown-alert {

@@ -569,7 +569,7 @@ function LibraryRefinement() {
       <DropdownTrigger>
         <button
           type="button"
-          className="flex items-center gap-1 text-sm focus:outline-none cursor-pointer font-bold"
+          className="flex items-center gap-1 p-0.5 text-sm cursor-pointer font-bold rounded focus:ring-2"
         >
           {currentLibrary ? (
             <span className="uppercase font-black [letter-spacing:-.05em]">
@@ -644,7 +644,7 @@ function FrameworkRefinement() {
       <DropdownTrigger>
         <button
           type="button"
-          className="flex items-center gap-1 text-sm font-bold focus:outline-none cursor-pointer"
+          className="flex items-center gap-1 p-0.5 text-sm font-bold rounded cursor-pointer focus:ring-2"
         >
           {currentFramework && (
             <img

@@ -70,6 +70,7 @@ pnpm i
 # The app will run on http://localhost:3000 by default
 pnpm dev
 ```
+
 - We welcome issues and pull requests!
 - Participate in [GitHub Discussions](https://github.com/TanStack/tanstack.com/discussions)
 - Chat with the community on [Discord](https://discord.com/invite/WrRKjPJ)

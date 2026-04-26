@@ -8,7 +8,6 @@
   "scripts": {
     "dev": "pnpm run with-env vite dev",
     "auth:login": "tsx scripts/auth-login.ts",
-    "with-env": "dotenv -e ../../.env",
     "with-env": "dotenv -e .env.local",
     "dev:frontend": "pnpm run with-env vite dev",
     "build": "vite build",

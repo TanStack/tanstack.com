@@ -184,8 +184,21 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
     select: (s) => s.location?.pathname || '/',
   })
 
+  const canonicalSearchStr = useRouterState({
+    select: (s) => s.location?.searchStr || '',
+  })
+
+  const includeSearchInCanonical = useMatches({
+    select: (s) =>
+      s.some((d) => d.staticData?.includeSearchInCanonical === true),
+  })
+
   const preferredCanonicalPath = getCanonicalPath(canonicalPath)
-  const pageUrl = canonicalUrl(preferredCanonicalPath ?? canonicalPath)
+  const canonicalSearch = includeSearchInCanonical ? canonicalSearchStr : ''
+  const pageUrl = canonicalUrl(
+    preferredCanonicalPath ?? canonicalPath,
+    canonicalSearch,
+  )
 
   const showDevtools = import.meta.env.DEV && canShowDevtools
 
@@ -199,7 +212,10 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
     <html lang="en" className={htmlClass} suppressHydrationWarning>
       <head>
         {preferredCanonicalPath ? (
-          <link rel="canonical" href={canonicalUrl(preferredCanonicalPath)} />
+          <link
+            rel="canonical"
+            href={canonicalUrl(preferredCanonicalPath, canonicalSearch)}
+          />
         ) : null}
         <meta property="og:url" content={pageUrl} />
         <meta name="twitter:url" content={pageUrl} />

@@ -22,6 +22,8 @@ export const Route = createFileRoute("/api/builder/download")({
           const url = new URL(request.url);
           const name = url.searchParams.get("name") || "my-tanstack-app";
           const featuresParam = url.searchParams.get("features") || "";
+          const framework = url.searchParams.get("framework") || "react";
+          const packageManager = url.searchParams.get("pm") || "pnpm";
           const tailwind = url.searchParams.get("tailwind") !== "false";
 
           const features = featuresParam
@@ -43,6 +45,13 @@ export const Route = createFileRoute("/api/builder/download")({
 
           const result = await compileHandler({
             name,
+            framework: framework === "solid" ? "solid" : "react",
+            packageManager:
+              packageManager === "bun" ||
+              packageManager === "npm" ||
+              packageManager === "yarn"
+                ? packageManager
+                : "pnpm",
             tailwind,
             features,
             featureOptions,

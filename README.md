@@ -1,14 +1,18 @@
-# Welcome to TanStack.com!
+<div align="center">
 
-This site is built with TanStack Router!
+# TanStack.com
 
-- [TanStack Router Docs](https://tanstack.com/router)
+The home of the TanStack ecosystem. Built with [TanStack Router](https://tanstack.com/router) and deployed automagically with [Netlify](https://netlify.com/).
 
-It's deployed automagically with Netlify!
+<a href="https://twitter.com/tan_stack"><img src="https://img.shields.io/twitter/follow/tan_stack.svg?style=social" alt="Follow @TanStack"/></a>
 
-- [Netlify](https://netlify.com/)
+### [Become a Sponsor!](https://github.com/sponsors/tannerlinsley/)
+
+</div>
 
 ## Development
+
+### Quick Start
 
 From your terminal:
 
@@ -19,64 +23,46 @@ pnpm dev
 
 This starts your app in development mode, rebuilding assets on file changes.
 
-## Authentication in Development
+### Local Setup
 
-The dev server uses the production database and real OAuth, so dev and production behave identically. To authenticate your local session, run:
+The documentation for all TanStack projects (except `React Charts`) is hosted on [tanstack.com](https://tanstack.com). In production, doc pages are fetched from GitHub. In development, they're read from your local file system.
 
-```sh
-pnpm auth:login
-```
+Pre-commit hooks run smoke tests against these docs, so you'll need sibling repos cloned for commits to pass.
 
-This opens `tanstack.com` in your browser. Sign in with GitHub or Google, and the resulting session token is saved to `.env.local` as `DEV_SESSION_TOKEN`. Restart the dev server and you will be signed in automatically.
-
-To authenticate against a locally running server instead:
+Create a `tanstack` parent directory and clone this repo alongside the projects:
 
 ```sh
-pnpm auth:login --url http://localhost:3000
-```
-
-> [!NOTE]
-> The token is a real signed session cookie tied to your production account. It expires in 30 days. Re-run `pnpm auth:login` to refresh it.
-
-> [!NOTE]
-> If you are using an AI agent (Claude, Cursor, etc.) to help develop, run `pnpm auth:login` once before starting your session so the agent can interact with authenticated features on your behalf.
-
-## Editing and previewing the docs of TanStack projects locally
-
-The documentations for all TanStack projects except for `React Charts` are hosted on [https://tanstack.com](https://tanstack.com), powered by this TanStack Router app.
-In production, the markdown doc pages are fetched from the GitHub repos of the projects, but in development they are read from the local file system.
-
-Follow these steps if you want to edit the doc pages of a project (in these steps we'll assume it's [`TanStack/form`](https://github.com/tanstack/form)) and preview them locally :
-
-1. Create a new directory called `tanstack`.
-
-```sh
-mkdir tanstack
-```
-
-2. Enter the directory and clone this repo and the repo of the project there.
-
-```sh
-cd tanstack
+mkdir tanstack && cd tanstack
 git clone git@github.com:TanStack/tanstack.com.git
-git clone git@github.com:TanStack/form.git
+git clone git@github.com:TanStack/query.git
+git clone git@github.com:TanStack/router.git
+git clone git@github.com:TanStack/table.git
 ```
 
-> [!NOTE]
-> Your `tanstack` directory should look like this:
->
-> ```
-> tanstack/
->    |
->    +-- form/
->    |
->    +-- tanstack.com/
-> ```
+Your directory structure should look like this:
+
+```
+tanstack/
+   ├── tanstack.com/
+   ├── query/
+   ├── router/
+   └── table/
+```
 
 > [!WARNING]
-> Make sure the name of the directory in your local file system matches the name of the project's repo. For example, `tanstack/form` must be cloned into `form` (this is the default) instead of `some-other-name`, because that way, the doc pages won't be found.
+> Directory names must match repo names exactly (e.g., `query` not `tanstack-query`). The app finds docs by looking for sibling directories by name.
 
-3. Enter the `tanstack/tanstack.com` directory, install the dependencies and run the app in dev mode:
+### Editing Docs
+
+To edit docs for a project, make changes in its `docs/` folder (e.g., `../form/docs/`) and visit http://localhost:3000/form/latest/docs/overview to preview.
+
+> [!NOTE]
+> Updated pages need to be manually reloaded in the browser.
+
+> [!WARNING]
+> Update the project's `docs/config.json` if you add a new doc page!
+
+## Get Involved
 
 ```sh
 cd tanstack.com
@@ -84,11 +70,25 @@ pnpm i
 # The app will run on http://localhost:3000 by default
 pnpm dev
 ```
+- We welcome issues and pull requests!
+- Participate in [GitHub Discussions](https://github.com/TanStack/tanstack.com/discussions)
+- Chat with the community on [Discord](https://discord.com/invite/WrRKjPJ)
 
-4. Now you can visit http://localhost:3000/form/latest/docs/overview in the browser and see the changes you make in `tanstack/form/docs`.
+## Explore the TanStack Ecosystem
 
-> [!NOTE]
-> The updated pages need to be manually reloaded in the browser.
+- <a href="https://github.com/tanstack/config"><b>TanStack Config</b></a> – Tooling for JS/TS packages
+- <a href="https://github.com/tanstack/db"><b>TanStack DB</b></a> – Reactive sync client store
+- <a href="https://github.com/tanstack/devtools"><b>TanStack DevTools</b></a> – Unified devtools panel
+- <a href="https://github.com/tanstack/form"><b>TanStack Form</b></a> – Type‑safe form state
+- <a href="https://github.com/tanstack/pacer"><b>TanStack Pacer</b></a> – Debouncing, throttling, batching
+- <a href="https://github.com/tanstack/query"><b>TanStack Query</b></a> – Async state & caching
+- <a href="https://github.com/tanstack/ranger"><b>TanStack Ranger</b></a> – Range & slider primitives
+- <a href="https://github.com/tanstack/router"><b>TanStack Router</b></a> – Type‑safe routing, caching & URL state
+- <a href="https://github.com/tanstack/router"><b>TanStack Start</b></a> – Full‑stack SSR & streaming
+- <a href="https://github.com/tanstack/store"><b>TanStack Store</b></a> – Reactive data store
+- <a href="https://github.com/tanstack/table"><b>TanStack Table</b></a> – Headless datagrids
+- <a href="https://github.com/tanstack/virtual"><b>TanStack Virtual</b></a> – Virtualized rendering
 
-> [!WARNING]
-> You will need to update the `docs/config.json` file (in the project's repo) if you add a new doc page!
+… and more at <a href="https://tanstack.com"><b>TanStack.com »</b></a>
+
+<!-- Use the force, Luke -->

@@ -92,7 +92,7 @@ export default function OssStats({ library }: { library?: Library }) {
     <div>
       <Card
         className="relative p-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8 items-center
-      justify-center xl:place-items-center rounded-[2rem]"
+      justify-center xl:place-items-center rounded-[1rem]"
       >
         {!loading && !hasAnyData && (
           <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">

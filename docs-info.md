@@ -51,7 +51,6 @@ Fenced code blocks are supported with language identifiers for syntax highlighti
 export function App() {
   return <div>Hello</div>
 }
-;``
 ```
 ````
 

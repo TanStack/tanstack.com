@@ -102,12 +102,7 @@ export function getPopularComparisons(): v.InferInput<
           color: '#f59e0b',
         },
         {
-          packages: [
-            {
-              name: 'react',
-              hidden: true,
-            },
-          ],
+          packages: [{ name: 'react' }],
           baseline: true,
         },
       ],

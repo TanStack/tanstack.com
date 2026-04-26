@@ -1,10 +1,13 @@
 import { sentryTanstackStart } from '@sentry/tanstackstart-react/vite'
 import { defineConfig } from 'vite'
+import { tanstackDom } from '@tanstack/dom-vite'
 import contentCollections from '@content-collections/vite'
+import { devtools as tanstackDevtools } from '@tanstack/devtools-vite'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import tailwindcss from '@tailwindcss/vite'
 import { analyzer } from 'vite-bundle-analyzer'
 import viteReact from '@vitejs/plugin-react'
+import rsc from '@vitejs/plugin-rsc'
 import netlify from '@netlify/vite-plugin-tanstack-start'
 import path from 'node:path'
 
@@ -13,10 +16,49 @@ const shouldUseSentryPlugin =
   process.env.NODE_ENV === 'production' &&
   Boolean(process.env.SENTRY_AUTH_TOKEN)
 
+const rscSsrExternals = [
+  // OpenTelemetry uses require-in-the-middle which is CJS-only and breaks
+  // under Vite's ESM module runner during dev SSR.
+  'require-in-the-middle',
+  '@opentelemetry/instrumentation',
+  // HTML parsing stack has known CJS/ESM interop issues in SSR module runner.
+  'cheerio',
+  'iconv-lite',
+  'encoding-sniffer',
+  'parse5',
+  'parse5-parser-stream',
+  // Compression/archive stack has known CJS transform issues in dev SSR.
+  'jszip',
+  'pako',
+  // These packages also have known CJS/ESM interop issues in the RSC/SSR path.
+  'discord-interactions',
+]
+
+const sentrySsrExternals = ['@sentry/node', '@sentry/tanstackstart-react']
+const dbSsrExternals = ['drizzle-orm', 'drizzle-orm/postgres-js']
+
+// Runtime-specific `react-dom/server` variants aren't in @tanstack/dom-vite's
+// default alias map — our shim ships a single universal server build, unlike
+// React which maintains per-runtime forks (edge/node/bun/browser + static.*).
+// @vitejs/plugin-rsc and Netlify's edge adapter import them conditionally, so
+// we funnel them all to `@tanstack/react-dom-server` at the top-level resolve
+// (Vite 8's `EnvironmentResolveOptions` doesn't accept `alias`, so env-scoped
+// aliasing isn't an option).
+const serverVariantAliases: Record<string, string> = {
+  'react-dom/server.edge': '@tanstack/react-dom-server',
+  'react-dom/server.node': '@tanstack/react-dom-server',
+  'react-dom/server.bun': '@tanstack/react-dom-server',
+  'react-dom/server.browser': '@tanstack/react-dom-server',
+  'react-dom/static.edge': '@tanstack/react-dom-server',
+  'react-dom/static.node': '@tanstack/react-dom-server',
+  'react-dom/static': '@tanstack/react-dom-server',
+}
+
 export default defineConfig({
   resolve: {
     alias: {
       '~': path.resolve(__dirname, './src'),
+      ...serverVariantAliases,
     },
   },
   server: {
@@ -33,16 +75,37 @@ export default defineConfig({
         }
       : undefined,
   },
+  environments: {
+    rsc: {
+      resolve: {
+        external: [
+          '@tanstack/react-start-server',
+          '@tanstack/react-router/ssr/server',
+        ],
+      },
+    },
+    ssr: {
+      resolve: {
+        external: [
+          ...rscSsrExternals,
+          ...sentrySsrExternals,
+          ...dbSsrExternals,
+        ],
+      },
+    },
+  },
   ssr: {
     external: [
       'postgres',
+      ...dbSsrExternals,
       // CTA packages use execa which has a broken unicorn-magic dependency
       '@tanstack/create',
       // Externalize CLI so server reloads it on changes
       '@tanstack/cli',
+      ...rscSsrExternals,
+      ...sentrySsrExternals,
     ],
     noExternal: [
-      'drizzle-orm',
       '@uploadthing/react',
       'file-selector',
       'normalize-wheel',
@@ -55,8 +118,15 @@ export default defineConfig({
       'postgres',
       // CTA packages use execa which has a broken unicorn-magic dependency
       '@tanstack/create',
+      'discord-interactions',
       // Don't pre-bundle CLI so we always get fresh changes during dev
       ...(isDev ? ['@tanstack/cli'] : []),
+      // `use client` libraries that plugin-rsc pre-bundles inconsistently
+      // across client/ssr/rsc envs when combined with our React shim — each
+      // env resolves `react` to a different target, so the optimizer's hash
+      // diverges. Excluding from optimize keeps resolution deterministic per
+      // env and silences the 50k+ "inconsistently optimized" warning flood.
+      'lucide-react',
     ],
   },
   build: {
@@ -123,7 +193,25 @@ export default defineConfig({
     },
   },
   plugins: [
+    tanstackDom(),
+    ...(isDev
+      ? [
+          tanstackDevtools({
+            // react-instantsearch's <Configure> forwards all JSX props as
+            // Algolia search parameters. Injecting `data-tsd-source` as a
+            // JSX attr leaks it into the request and Algolia 400s with
+            // "Unknown parameter: data-tsd-source" — breaks site search in dev.
+            injectSource: {
+              enabled: true,
+              ignore: { components: ['Configure'] },
+            },
+          }),
+        ]
+      : []),
     tanstackStart({
+      rsc: {
+        enabled: true,
+      },
       importProtection: {
         behavior: 'error',
         client: {
@@ -150,6 +238,7 @@ export default defineConfig({
         },
       },
     }),
+    rsc(),
     // Only enable Netlify plugin during build or when NETLIFY env is set
     ...(process.env.NETLIFY || process.env.NODE_ENV === 'production'
       ? [netlify()]

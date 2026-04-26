@@ -98,7 +98,7 @@ function BlogIndex() {
                 The latest news and blog posts from TanStack
               </p>
             </header>
-            <section className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
+            <section className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4">
               {frontMatters.map(
                 ({ slug, title, published, excerpt, headerImage, authors }) => {
                   return (
@@ -154,7 +154,10 @@ function BlogIndex() {
             </section>
           </div>
           <RightRail breakpoint="md">
-            <PartnersRail partners={activePartners} />
+            <PartnersRail
+              analyticsPlacement="blog_right_rail"
+              partners={activePartners}
+            />
             <div className="hidden md:block border border-gray-500/20 rounded-l-lg overflow-hidden w-full">
               <RecentPostsWidget />
             </div>

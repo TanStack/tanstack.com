@@ -63,6 +63,9 @@ export const Route = createFileRoute('/shop/collections/$handle')({
     }
   },
   component: CollectionPage,
+  staticData: {
+    includeSearchInCanonical: true,
+  },
 })
 
 function CollectionPage() {

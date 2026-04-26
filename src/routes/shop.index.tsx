@@ -47,6 +47,9 @@ export const Route = createFileRoute('/shop/')({
     return { page, sortId: sortOptionId(sortOption) }
   },
   component: ShopIndex,
+  staticData: {
+    includeSearchInCanonical: true,
+  },
 })
 
 function ShopIndex() {

@@ -31,6 +31,7 @@ export const Route = createFileRoute('/builder/')({
   validateSearch: builderSearchSchema,
   component: RouteComponent,
   staticData: {
+    includeSearchInCanonical: true,
     Title: () => (
       <Link
         to="/builder"

@@ -58,6 +58,9 @@ export const Route = createFileRoute('/intent/registry/')({
     }),
   }),
   component: IntentRegistryPage,
+  staticData: {
+    includeSearchInCanonical: true,
+  },
 })
 
 function IntentRegistryPage() {

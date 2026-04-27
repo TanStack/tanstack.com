@@ -184,8 +184,21 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
     select: (s) => s.location?.pathname || '/',
   })
 
+  const canonicalSearchStr = useRouterState({
+    select: (s) => s.location?.searchStr || '',
+  })
+
+  const includeSearchInCanonical = useMatches({
+    select: (s) =>
+      s.some((d) => d.staticData?.includeSearchInCanonical === true),
+  })
+
   const preferredCanonicalPath = getCanonicalPath(canonicalPath)
-  const pageUrl = canonicalUrl(preferredCanonicalPath ?? canonicalPath)
+  const canonicalSearch = includeSearchInCanonical ? canonicalSearchStr : ''
+  const pageUrl = canonicalUrl(
+    preferredCanonicalPath ?? canonicalPath,
+    canonicalSearch,
+  )
 
   const showDevtools = import.meta.env.DEV && canShowDevtools
 
@@ -199,7 +212,10 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
     <html lang="en" className={htmlClass} suppressHydrationWarning>
       <head>
         {preferredCanonicalPath ? (
-          <link rel="canonical" href={canonicalUrl(preferredCanonicalPath)} />
+          <link
+            rel="canonical"
+            href={canonicalUrl(preferredCanonicalPath, canonicalSearch)}
+          />
         ) : null}
         <meta property="og:url" content={pageUrl} />
         <meta name="twitter:url" content={pageUrl} />
@@ -259,18 +275,23 @@ function SearchHotkeyController() {
 
   React.useEffect(() => {
     const handleGlobalKeyDown = (event: KeyboardEvent) => {
-      if (event.defaultPrevented) return
       if (!(event.metaKey || event.ctrlKey)) return
-      if (event.key.toLowerCase() !== 'k') return
+      if (event.altKey || event.shiftKey) return
+      // Match both `key` and `code` so the shortcut works on non-QWERTY layouts.
+      const isK = event.key.toLowerCase() === 'k' || event.code === 'KeyK'
+      if (!isK) return
 
       event.preventDefault()
+      event.stopPropagation()
       setHasOpenedSearch(true)
       openSearch()
     }
 
-    window.addEventListener('keydown', handleGlobalKeyDown)
+    document.addEventListener('keydown', handleGlobalKeyDown, { capture: true })
     return () => {
-      window.removeEventListener('keydown', handleGlobalKeyDown)
+      document.removeEventListener('keydown', handleGlobalKeyDown, {
+        capture: true,
+      })
     }
   }, [openSearch])
 

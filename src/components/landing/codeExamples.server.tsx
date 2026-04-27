@@ -87,6 +87,7 @@ const { data, isPending, error } = useQuery({
       lang: 'svelte',
       code: `<script lang="ts">
   import { createQuery } from '@tanstack/svelte-query'
+
   const todos = createQuery({
     queryKey: ['todos'],
     queryFn: () => fetch('/api/todos').then(r => r.json()),
@@ -246,6 +247,7 @@ export default function SimpleForm() {
       lang: 'svelte',
       code: `<script lang="ts">
   import { createForm } from '@tanstack/svelte-form'
+
   const form = createForm({
     defaultValues: { name: '' },
     onSubmit: async ({ value }) => console.log(value),
@@ -332,6 +334,7 @@ const rowVirtualizer = useVirtualizer({
       lang: 'svelte',
       code: `<script lang="ts">
   import { createVirtualizer } from '@tanstack/svelte-virtual'
+
   let parentRef: HTMLDivElement
   const rowVirtualizer = createVirtualizer({
     count: 1000,
@@ -546,6 +549,7 @@ const table = useVueTable({ data, columns, getCoreRowModel: getCoreRowModel() })
       lang: 'svelte',
       code: `<script lang="ts">
   import { createSvelteTable, getCoreRowModel, flexRender } from '@tanstack/svelte-table'
+
   const data = [{ id: 1, name: 'Ada' }]
   const columns = [{ accessorKey: 'name', header: 'Name' }]
   const table = createSvelteTable({ data, columns, getCoreRowModel: getCoreRowModel() })

@@ -192,6 +192,7 @@ export const Route = createFileRoute('/stats/npm/')({
   },
   component: RouteComponent,
   staticData: {
+    includeSearchInCanonical: true,
     Title: () => {
       return (
         <Link

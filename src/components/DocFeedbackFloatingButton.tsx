@@ -90,7 +90,7 @@ export function DocFeedbackFloatingButton({
     // eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions
     <div
       ref={buttonRef}
-      className="doc-feedback-floating-btn absolute top-0 right-0 -translate-y-full z-[100]"
+      className="doc-feedback-floating-btn absolute top-0 right-0 -translate-y-full z-30"
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       onClick={(e) => e.stopPropagation()}

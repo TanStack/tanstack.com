@@ -76,6 +76,9 @@ export const Route = createFileRoute('/stats/npm/$packages')({
     }
   },
   component: RouteComponent,
+  staticData: {
+    includeSearchInCanonical: true,
+  },
 })
 
 function RouteComponent() {

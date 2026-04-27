@@ -83,6 +83,9 @@ export const Route = createFileRoute('/$libraryId/$version/docs/npm-stats')({
     height: v.fallback(v.optional(v.number(), 400), 400),
   }),
   component: RouteComponent,
+  staticData: {
+    includeSearchInCanonical: true,
+  },
 })
 
 type NpmStatsSearch = {

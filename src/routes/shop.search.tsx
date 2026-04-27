@@ -30,6 +30,9 @@ export const Route = createFileRoute('/shop/search')({
     return { query: q, totalCount: page.totalCount, page }
   },
   component: SearchPage,
+  staticData: {
+    includeSearchInCanonical: true,
+  },
 })
 
 function SearchPage() {

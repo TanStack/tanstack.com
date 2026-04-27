@@ -30,12 +30,7 @@ import {
 } from 'lucide-react'
 import { ThemeToggle } from './ThemeToggle'
 import { SearchButton } from './SearchButton'
-import {
-  libraries,
-  findLibrary,
-  SIDEBAR_LIBRARY_IDS,
-  type LibrarySlim,
-} from '~/libraries'
+import { libraries, SIDEBAR_LIBRARY_IDS, type LibrarySlim } from '~/libraries'
 import { useClickOutside } from '~/hooks/useClickOutside'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { DiscordIcon } from '~/components/icons/DiscordIcon'
@@ -139,14 +134,11 @@ const MobileCard = ({
 export function Navbar({ children }: { children: React.ReactNode }) {
   const matches = useMatches()
 
-  const { Title, library } = React.useMemo(() => {
+  const { Title } = React.useMemo(() => {
     const match = [...matches].reverse().find((m) => m.staticData.Title)
-    const params = match?.params as { libraryId?: string } | undefined
-    const libraryId = params?.libraryId
 
     return {
       Title: match?.staticData.Title ?? null,
-      library: libraryId ? findLibrary(libraryId) : null,
     }
   }, [matches])
 
@@ -227,8 +219,8 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   const socialLinks = (
     <div className="flex items-center [&_a]:p-1.5 [&_a]:opacity-50 [&_a:hover]:opacity-100 [&_a]:transition-opacity [&_svg]:text-sm">
       <a
-        href={`https://github.com/${library?.repo ?? 'tanstack'}`}
-        aria-label={`Follow ${library?.name ?? 'TanStack'} on GitHub`}
+        href="https://github.com/TanStack"
+        aria-label="Follow TanStack on GitHub"
       >
         <GithubIcon />
       </a>
@@ -621,7 +613,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           {
             label: 'GitHub',
             icon: GithubIcon,
-            to: 'https://github.com/tanstack',
+            to: 'https://github.com/TanStack',
           },
           {
             label: 'Ethos',

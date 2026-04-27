@@ -275,18 +275,23 @@ function SearchHotkeyController() {
 
   React.useEffect(() => {
     const handleGlobalKeyDown = (event: KeyboardEvent) => {
-      if (event.defaultPrevented) return
       if (!(event.metaKey || event.ctrlKey)) return
-      if (event.key.toLowerCase() !== 'k') return
+      if (event.altKey || event.shiftKey) return
+      // Match both `key` and `code` so the shortcut works on non-QWERTY layouts.
+      const isK = event.key.toLowerCase() === 'k' || event.code === 'KeyK'
+      if (!isK) return
 
       event.preventDefault()
+      event.stopPropagation()
       setHasOpenedSearch(true)
       openSearch()
     }
 
-    window.addEventListener('keydown', handleGlobalKeyDown)
+    document.addEventListener('keydown', handleGlobalKeyDown, { capture: true })
     return () => {
-      window.removeEventListener('keydown', handleGlobalKeyDown)
+      document.removeEventListener('keydown', handleGlobalKeyDown, {
+        capture: true,
+      })
     }
   }, [openSearch])
 

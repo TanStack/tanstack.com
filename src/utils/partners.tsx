@@ -74,12 +74,14 @@ export const partnerTierOrder: Record<PartnerTier, number> = {
   bronze: 2,
 }
 
-const partnerTierToBuilderTier: Record<PartnerTier, ApplicationStarterPartnerTier> =
-  {
-    gold: 1,
-    silver: 2,
-    bronze: 3,
-  }
+const partnerTierToBuilderTier: Record<
+  PartnerTier,
+  ApplicationStarterPartnerTier
+> = {
+  gold: 1,
+  silver: 2,
+  bronze: 3,
+}
 
 export const partnerTierFlares: Record<
   PartnerTier,

@@ -110,9 +110,7 @@ export function PartnersRail({
         .sort((a, b) => b.score - a.score),
     }))
     .filter((row) => row.partners.length > 0)
-    .sort(
-      (a, b) => partnerTierOrder[a.tier] - partnerTierOrder[b.tier],
-    )
+    .sort((a, b) => partnerTierOrder[a.tier] - partnerTierOrder[b.tier])
 
   let slotIndex = 0
 

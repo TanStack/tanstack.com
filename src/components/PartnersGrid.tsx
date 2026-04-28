@@ -36,14 +36,14 @@ const tierLayout: Record<
     padding: 'p-12',
   },
   silver: {
-    flexBasis: 'basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4',
+    flexBasis: 'basis-full sm:basis-1/3 lg:basis-1/4',
     minHeight: 'min-h-[130px]',
     logoMaxWidth: 'max-w-[180px]',
     logoMaxHeight: 'max-h-[56px]',
     padding: 'p-6',
   },
   bronze: {
-    flexBasis: 'basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 xl:basis-1/6',
+    flexBasis: 'basis-1/2 sm:basis-1/4 lg:basis-1/5 xl:basis-1/6',
     minHeight: 'min-h-[100px]',
     logoMaxWidth: 'max-w-[110px]',
     logoMaxHeight: 'max-h-[36px]',
@@ -137,35 +137,35 @@ export function PartnersGrid({
       {tiersWithPartners.map((row) => {
         const flare = partnerTierFlares[row.tier]
         return (
-        <Card
-          key={row.tier}
-          className={`overflow-hidden rounded-none rounded-l-sm rounded-r-2xl bg-gradient-to-b ${flare.gradientStops}`}
-        >
-          <div className="ml-1.5 bg-white dark:bg-gray-900">
-            <div className="px-4 pt-3 pb-2 border-b border-gray-200 dark:border-gray-800 flex items-center gap-2">
-              <span className={flare.iconColor}>{flare.icon}</span>
-              <span
-                className={`text-[10px] uppercase tracking-[0.18em] font-semibold ${flare.labelColor}`}
-              >
-                {partnerTierLabels[row.tier]}
-              </span>
+          <Card
+            key={row.tier}
+            className={`overflow-hidden rounded-none rounded-l-sm rounded-r-2xl bg-gradient-to-b ${flare.gradientStops}`}
+          >
+            <div className="ml-1.5 bg-white dark:bg-gray-900">
+              <div className="px-4 pt-3 pb-2 border-b border-gray-200 dark:border-gray-800 flex items-center gap-2">
+                <span className={flare.iconColor}>{flare.icon}</span>
+                <span
+                  className={`text-[10px] uppercase tracking-[0.18em] font-semibold ${flare.labelColor}`}
+                >
+                  {partnerTierLabels[row.tier]}
+                </span>
+              </div>
+              <div className="flex flex-wrap items-stretch -mr-px -mb-px">
+                {row.partners.map((partner) => {
+                  const index = slotIndex++
+                  return (
+                    <PartnerGridItem
+                      key={partner.id}
+                      analyticsPlacement={analyticsPlacement}
+                      analyticsProperties={analyticsProperties}
+                      index={index}
+                      partner={partner}
+                    />
+                  )
+                })}
+              </div>
             </div>
-            <div className="flex flex-wrap items-stretch -mr-px -mb-px">
-              {row.partners.map((partner) => {
-                const index = slotIndex++
-                return (
-                  <PartnerGridItem
-                    key={partner.id}
-                    analyticsPlacement={analyticsPlacement}
-                    analyticsProperties={analyticsProperties}
-                    index={index}
-                    partner={partner}
-                  />
-                )
-              })}
-            </div>
-          </div>
-        </Card>
+          </Card>
         )
       })}
     </div>

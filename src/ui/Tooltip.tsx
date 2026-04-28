@@ -11,6 +11,19 @@ interface TooltipProps {
   className?: string
 }
 
+function useIsTouchDevice() {
+  const [isTouchDevice, setIsTouchDevice] = React.useState(false)
+
+  React.useEffect(() => {
+    setIsTouchDevice(
+      window.matchMedia('(hover: none)').matches ||
+        navigator.maxTouchPoints > 0,
+    )
+  }, [])
+
+  return isTouchDevice
+}
+
 export function Tooltip({
   children,
   content,
@@ -19,7 +32,9 @@ export function Tooltip({
   delayDuration = 200,
   className,
 }: TooltipProps) {
-  if (!content) {
+  const isTouchDevice = useIsTouchDevice()
+
+  if (!content || isTouchDevice) {
     return <>{children}</>
   }
 

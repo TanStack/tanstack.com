@@ -223,7 +223,7 @@ function PartnersRailItem({
     >
       <div
         className={twMerge(
-          'w-full flex items-center justify-center mx-auto grayscale brightness-90 group-hover/rail:grayscale-0 group-hover/rail:brightness-100 transition-[filter] duration-150 ease-out',
+          'w-full flex items-center justify-center mx-auto grayscale brightness-90 group-hover/rail:grayscale-0 group-hover/rail:brightness-100 transition-[filter] duration-500 ease-out',
           layout.logoMaxWidth,
         )}
       >

@@ -408,9 +408,7 @@ function PartnerDirectoryCard({
               alt={partner.name}
             />
           </div>
-          <h3
-            className={`text-center ${layout.titleSize} font-semibold mb-2`}
-          >
+          <h3 className={`text-center ${layout.titleSize} font-semibold mb-2`}>
             {partner.name}
           </h3>
           {partner.tagline && (
@@ -498,9 +496,7 @@ function TieredPartnerSections({
         .sort((a, b) => b.score - a.score),
     }))
     .filter((section) => section.partners.length > 0)
-    .sort(
-      (a, b) => partnerTierOrder[a.tier] - partnerTierOrder[b.tier],
-    )
+    .sort((a, b) => partnerTierOrder[a.tier] - partnerTierOrder[b.tier])
 
   let slotIndex = 0
 
@@ -686,7 +682,6 @@ function PartnersIndexPage() {
             Get in Touch
           </a>
         </div>
-
       </div>
       <Footer />
     </div>

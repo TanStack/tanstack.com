@@ -263,12 +263,12 @@ A server function returns a Flight stream as bytes. Those bytes can be cached at
   <figcaption>Flight output stays transparent through the cache layers the application already controls.</figcaption>
 </figure>
 
-| Layer       | Cache option                                              |
-| ----------- | --------------------------------------------------------- |
-| Render pass | `React.cache` to dedupe calls within a render             |
-| Server      | Redis, KV, Postgres, in-memory LRU, or whatever you use   |
-| Network     | HTTP caching and `Cache-Control` headers                  |
-| Client      | Router cache, TanStack Query, or any client-side store    |
+| Layer       | Cache option                                            |
+| ----------- | ------------------------------------------------------- |
+| Render pass | `React.cache` to dedupe calls within a render           |
+| Server      | Redis, KV, Postgres, in-memory LRU, or whatever you use |
+| Network     | HTTP caching and `Cache-Control` headers                |
+| Client      | Router cache, TanStack Query, or any client-side store  |
 
 `createFromReadableStream` decodes those bytes at render time, after the cache boundary. So the cacheable primitive isn't a directive that hides persistence. It is transparent RSC output flowing through standard cache layers.
 

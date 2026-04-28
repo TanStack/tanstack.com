@@ -1,14 +1,20 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { Card } from '~/components/Card'
-import { partners, PartnerImage } from '~/utils/partners'
+import {
+  partners,
+  PartnerImage,
+  partnerTierFlares,
+  partnerTierLabels,
+  partnerTierOrder,
+  type PartnerTier,
+} from '~/utils/partners'
 import { seo } from '~/utils/seo'
 import { Library } from '~/libraries'
 import { useState } from 'react'
 import * as React from 'react'
 import { ListFilter, X } from 'lucide-react'
 import { Button } from '~/ui'
-import { NetlifyImage } from '~/components/NetlifyImage'
 import { startProject } from '~/libraries/start'
 import { routerProject } from '~/libraries/router'
 import { queryProject } from '~/libraries/query'
@@ -301,16 +307,60 @@ function getFilteredPartners(search: PartnersSearch) {
   })
 }
 
+type CardSize = 'gold' | 'silver' | 'bronze' | 'flat'
+
+const cardSizeLayout: Record<
+  CardSize,
+  {
+    padding: string
+    logoFrame: string
+    logoMaxHeight: string
+    titleSize: string
+    showDescription: boolean
+  }
+> = {
+  gold: {
+    padding: 'p-8',
+    logoFrame: 'h-32',
+    logoMaxHeight: 'max-h-24',
+    titleSize: 'text-2xl',
+    showDescription: true,
+  },
+  silver: {
+    padding: 'p-6',
+    logoFrame: 'h-24',
+    logoMaxHeight: 'max-h-16',
+    titleSize: 'text-lg',
+    showDescription: true,
+  },
+  bronze: {
+    padding: 'p-4',
+    logoFrame: 'h-16',
+    logoMaxHeight: 'max-h-10',
+    titleSize: 'text-sm',
+    showDescription: false,
+  },
+  flat: {
+    padding: 'p-6',
+    logoFrame: 'h-24',
+    logoMaxHeight: 'max-h-16',
+    titleSize: 'text-xl',
+    showDescription: true,
+  },
+}
+
 function PartnerDirectoryCard({
   filters,
   isShowingPrevious,
   partner,
   slotIndex,
+  size = 'flat',
 }: {
   filters: PartnersSearch
   isShowingPrevious: boolean
   partner: (typeof partners)[number]
   slotIndex: number
+  size?: CardSize
 }) {
   const ref = useTrackedImpression<HTMLAnchorElement>({
     event: 'partner_impression',
@@ -329,6 +379,8 @@ function PartnerDirectoryCard({
       ? `${partner.startDate} - ${partner.endDate}`
       : null
 
+  const layout = cardSizeLayout[size]
+
   return (
     <a
       ref={ref}
@@ -346,48 +398,135 @@ function PartnerDirectoryCard({
       }}
     >
       <Card className="overflow-hidden hover:border-blue-500/40 hover:shadow-lg transition-all h-full">
-        <div className="p-6 h-full flex flex-col">
-          <div className="mb-4 h-24 flex items-center justify-center">
-            <PartnerImage config={partner.image} alt={partner.name} />
+        <div className={`${layout.padding} h-full flex flex-col`}>
+          <div
+            className={`mb-4 ${layout.logoFrame} flex items-center justify-center`}
+          >
+            <PartnerImage
+              className={`w-full object-contain ${layout.logoMaxHeight}`}
+              config={partner.image}
+              alt={partner.name}
+            />
           </div>
-          <h3 className="text-center text-xl font-semibold mb-2">
+          <h3
+            className={`text-center ${layout.titleSize} font-semibold mb-2`}
+          >
             {partner.name}
           </h3>
           {partner.tagline && (
-            <p className="text-center text-sm text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-center text-xs text-gray-600 dark:text-gray-400 mb-4">
               {partner.tagline}
             </p>
           )}
-          <div className="text-sm flex-1">
-            {isShowingPrevious ? (
-              <>
-                {duration && (
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 text-center">
-                    {duration}
-                  </p>
-                )}
-                {partner.libraries && partner.libraries.length > 0 && (
-                  <div className="flex flex-wrap gap-1 justify-center">
-                    {partner.libraries.map((library) => (
-                      <span
-                        key={library}
-                        className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 rounded-md"
-                      >
-                        {library}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </>
-            ) : (
-              <p className="text-gray-700 dark:text-gray-300">
-                {partner.llmDescription}
-              </p>
-            )}
-          </div>
+          {layout.showDescription && (
+            <div className="text-sm flex-1">
+              {isShowingPrevious ? (
+                <>
+                  {duration && (
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 text-center">
+                      {duration}
+                    </p>
+                  )}
+                  {partner.libraries && partner.libraries.length > 0 && (
+                    <div className="flex flex-wrap gap-1 justify-center">
+                      {partner.libraries.map((library) => (
+                        <span
+                          key={library}
+                          className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 rounded-md"
+                        >
+                          {library}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <p className="text-gray-700 dark:text-gray-300">
+                  {partner.llmDescription}
+                </p>
+              )}
+            </div>
+          )}
         </div>
       </Card>
     </a>
+  )
+}
+
+const tierGridCols: Record<PartnerTier, string> = {
+  gold: 'grid grid-cols-1 lg:grid-cols-2 gap-6',
+  silver: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6',
+  bronze: 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4',
+}
+
+function TierSectionHeader({ tier }: { tier: PartnerTier }) {
+  const flare = partnerTierFlares[tier]
+  return (
+    <div className="flex items-center gap-4 mb-8">
+      <div
+        className={`h-px flex-1 bg-gradient-to-r from-transparent ${flare.gradientStops}`}
+      />
+      <div
+        className={`flex items-center gap-2 px-3 py-1 rounded-full ${flare.labelColor}`}
+      >
+        <span className={flare.iconColor}>{flare.icon}</span>
+        <span className="text-xs uppercase tracking-[0.2em] font-bold">
+          {partnerTierLabels[tier]}
+        </span>
+      </div>
+      <div
+        className={`h-px flex-1 bg-gradient-to-l from-transparent ${flare.gradientStops}`}
+      />
+    </div>
+  )
+}
+
+function TieredPartnerSections({
+  partners: allPartners,
+  filters,
+}: {
+  partners: Array<(typeof partners)[number]>
+  filters: PartnersSearch
+}) {
+  const tiers: Array<PartnerTier> = ['gold', 'silver', 'bronze']
+
+  const sections = tiers
+    .map((tier) => ({
+      tier,
+      partners: allPartners
+        .filter((partner) => (partner.tier ?? 'bronze') === tier)
+        .sort((a, b) => b.score - a.score),
+    }))
+    .filter((section) => section.partners.length > 0)
+    .sort(
+      (a, b) => partnerTierOrder[a.tier] - partnerTierOrder[b.tier],
+    )
+
+  let slotIndex = 0
+
+  return (
+    <div className="space-y-16">
+      {sections.map((section) => (
+        <section key={section.tier}>
+          <TierSectionHeader tier={section.tier} />
+          <div className={tierGridCols[section.tier]}>
+            {section.partners.map((partner) => {
+              const index = slotIndex++
+              return (
+                <PartnerDirectoryCard
+                  key={partner.id}
+                  filters={filters}
+                  isShowingPrevious={false}
+                  partner={partner}
+                  slotIndex={index}
+                  size={section.tier}
+                />
+              )
+            })}
+          </div>
+        </section>
+      ))}
+    </div>
   )
 }
 
@@ -488,17 +627,24 @@ function PartnersIndexPage() {
               </p>
             )}
 
-            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-              {filteredPartners.map((partner, slotIndex) => (
-                <PartnerDirectoryCard
-                  key={partner.id}
-                  filters={search}
-                  isShowingPrevious={isShowingPrevious}
-                  partner={partner}
-                  slotIndex={slotIndex}
-                />
-              ))}
-            </div>
+            {isShowingActive && !hasLibraryFilter ? (
+              <TieredPartnerSections
+                partners={filteredPartners}
+                filters={search}
+              />
+            ) : (
+              <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+                {filteredPartners.map((partner, slotIndex) => (
+                  <PartnerDirectoryCard
+                    key={partner.id}
+                    filters={search}
+                    isShowingPrevious={isShowingPrevious}
+                    partner={partner}
+                    slotIndex={slotIndex}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         ) : (
           <div className="text-center text-gray-600 dark:text-gray-400">
@@ -541,33 +687,6 @@ function PartnersIndexPage() {
           </a>
         </div>
 
-        <div className="text-center py-8 border-t border-gray-200 dark:border-gray-700">
-          <a
-            href="#lifetime-support-share"
-            className="anchor-heading *:scroll-my-20 *:lg:scroll-my-4"
-          >
-            <h2
-              id="lifetime-support-share"
-              className="text-2xl font-semibold mb-4"
-            >
-              Lifetime Support Share
-            </h2>
-          </a>
-          <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-xl mx-auto">
-            This chart is a percentage-based visualization of the lifetime
-            support each partner has rendered to TanStack. It is updated every 6
-            months.
-          </p>
-          <div className="flex justify-center">
-            <NetlifyImage
-              src="/images/total-support-share.png"
-              alt="Lifetime Support Share chart showing percentage-based contribution of partners to TanStack"
-              className="rounded-lg shadow-lg"
-              width={600}
-              height={706}
-            />
-          </div>
-        </div>
       </div>
       <Footer />
     </div>

@@ -1,10 +1,12 @@
 ---
-title: RSC Is a Protocol Before It Is an Architecture
+title: 'Who Owns the Tree? RSC Is a Protocol, Not an Architecture'
 published: 2026-04-28
 draft: true
 excerpt: RSC is usually framed as a single architecture where the server owns the tree. But it is also a protocol, and the protocol supports more than one composition model. The overlooked question is who owns the tree.
 authors:
   - Tanner Linsley
+redirect_from:
+  - rsc-is-a-protocol-before-it-is-an-architecture
 ---
 
 React Server Components are usually discussed as if they describe one architecture: the server owns the tree, client boundaries are marked with `use client`, and the framework stitches everything together during hydration.
@@ -66,7 +68,7 @@ The seam is placed by the client. The server says, "here is rendered content sha
 This is the symmetry:
 
 <figure>
-  <img src="/blog-assets/rsc-is-a-protocol-before-it-is-an-architecture/two_inversions_rsc.svg" alt="The two RSC composition models: server owned trees use client boundaries for interactivity, while client owned trees use server rendered slots for server regions." />
+  <img src="/blog-assets/who-owns-the-tree-rsc-is-a-protocol-not-an-architecture/two_inversions_rsc.svg" alt="The two RSC composition models: server owned trees use client boundaries for interactivity, while client owned trees use server rendered slots for server regions." />
   <figcaption>The two RSC composition models differ in which side owns the tree and which side fills regions of it.</figcaption>
 </figure>
 
@@ -205,7 +207,7 @@ That is the important distinction: the RSC output is not trapped inside a framew
 A server function can return a Flight stream as bytes. Those bytes can be cached at whatever layer the application already owns:
 
 <figure>
-  <img src="/blog-assets/rsc-is-a-protocol-before-it-is-an-architecture/flight_cache_pipeline.svg" alt="Flight bytes passing through cache layers: render pass, server, network, and client, with decoding at render time after each cache boundary." />
+  <img src="/blog-assets/who-owns-the-tree-rsc-is-a-protocol-not-an-architecture/flight_cache_pipeline.svg" alt="Flight bytes passing through cache layers: render pass, server, network, and client, with decoding at render time after each cache boundary." />
   <figcaption>Flight output can remain transparent through the cache layers the application already controls.</figcaption>
 </figure>
 

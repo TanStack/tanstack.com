@@ -115,7 +115,7 @@ export function PartnersRail({
   let slotIndex = 0
 
   return (
-    <div className="flex flex-col border-l border-gray-500/20 rounded-bl-lg overflow-hidden w-full">
+    <div className="group/rail flex flex-col border-l border-gray-500/20 rounded-bl-lg overflow-hidden w-full">
       <div className="w-full flex gap-2 justify-between items-center border-b border-gray-500/20 px-3 py-2">
         <Link
           className="font-medium opacity-60 hover:opacity-100 text-xs"
@@ -205,7 +205,7 @@ function PartnersRailItem({
       target="_blank"
       rel="noreferrer"
       className={twMerge(
-        'group flex items-center justify-center overflow-hidden border-r border-b border-gray-500/20 hover:bg-gray-500/10 transition-colors duration-150 ease-out',
+        'flex items-center justify-center overflow-hidden border-r border-b border-gray-500/20 hover:bg-gray-500/10 transition-colors duration-150 ease-out',
         layout.flexBasis,
         layout.minHeight,
         layout.padding,
@@ -223,7 +223,7 @@ function PartnersRailItem({
     >
       <div
         className={twMerge(
-          'w-full flex items-center justify-center mx-auto grayscale brightness-90 group-hover:grayscale-0 group-hover:brightness-100 transition-[filter] duration-150 ease-out',
+          'w-full flex items-center justify-center mx-auto grayscale brightness-90 group-hover/rail:grayscale-0 group-hover/rail:brightness-100 transition-[filter] duration-150 ease-out',
           layout.logoMaxWidth,
         )}
       >

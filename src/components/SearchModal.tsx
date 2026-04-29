@@ -297,13 +297,13 @@ function SearchFiltersProvider({ children }: { children: React.ReactNode }) {
   )
 }
 
-// Component that builds dynamic filter strings including "all" library/framework pages
+// Component that builds dynamic filter strings for the selected search scope.
 function DynamicFilters() {
   const { selectedLibrary, selectedFramework } = useSearchFilters()
 
   // Build filter string
   // - Always filter to latest version OR "all" (for core pages)
-  // - When library selected: include that library OR "all" (for core pages)
+  // - When library selected: scope strictly to that library
   // - When framework selected: include that framework OR "all" (for integration pages)
   const filterParts: string[] = []
 
@@ -311,8 +311,7 @@ function DynamicFilters() {
   filterParts.push('(version:latest OR version:all)')
 
   if (selectedLibrary) {
-    // Include selected library OR "all" (core pages like /ethos)
-    filterParts.push(`(library:${selectedLibrary} OR library:all)`)
+    filterParts.push(`library:${selectedLibrary}`)
   }
 
   if (selectedFramework) {
@@ -906,7 +905,7 @@ function SearchResults({ focusedIndex }: { focusedIndex: number }) {
     selectedFramework,
     setSelectedLibrary,
     setSelectedFramework,
-    libraryItems: _libraryItems,
+    libraryItems,
     frameworkItems,
   } = useSearchFilters()
 
@@ -962,9 +961,13 @@ function SearchResults({ focusedIndex }: { focusedIndex: number }) {
                 Libraries
               </p>
               <div className="flex flex-wrap gap-1.5 max-w-xs">
-                {libraries
-                  .filter((lib) => 'bgStyle' in lib)
-                  .map((lib) => (
+                {libraryItems.map((item) => {
+                  const lib = libraries.find((l) => l.id === item.value)
+                  if (!lib) {
+                    return null
+                  }
+
+                  return (
                     <button
                       key={lib.id}
                       onClick={() => {
@@ -977,7 +980,8 @@ function SearchResults({ focusedIndex }: { focusedIndex: number }) {
                     >
                       {lib.id}
                     </button>
-                  ))}
+                  )
+                })}
               </div>
             </div>
           )}

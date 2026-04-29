@@ -28,6 +28,10 @@ import {
   getStoredFrameworkPreference,
   usePersistFrameworkPreference,
 } from './FrameworkSelect'
+import {
+  shouldPersistFrameworkForHit,
+  type SearchRouteStyle,
+} from '~/utils/searchRecords'
 
 /**
  * Safely decode HTML entities without using innerHTML.
@@ -83,7 +87,10 @@ interface AlgoliaHighlightResult {
 interface AlgoliaHit extends Record<string, unknown> {
   objectID: string
   url: string
+  urlWithAnchor?: string
   library?: string
+  framework?: string
+  routeStyle?: SearchRouteStyle
   hierarchy: AlgoliaHierarchy
   content?: string
   type?: string
@@ -329,8 +336,13 @@ function DynamicFilters() {
         'hierarchy.lvl5',
         'hierarchy.lvl6',
         'url',
+        'anchor',
+        'urlWithAnchor',
         'content',
         'library',
+        'framework',
+        'version',
+        'routeStyle',
       ]}
       attributesToHighlight={[
         'hierarchy.lvl1',
@@ -362,6 +374,8 @@ const SafeLink = React.forwardRef(
     ref: React.Ref<HTMLAnchorElement>,
   ) => {
     const isInternal = href?.includes('//tanstack.com')
+    const internalUrl = href?.split('//tanstack.com')[1]
+    const [internalPath, internalHash] = internalUrl?.split('#') ?? []
 
     if (!isInternal) {
       return (
@@ -382,7 +396,8 @@ const SafeLink = React.forwardRef(
 
     return (
       <Link
-        to={href?.split('//tanstack.com')[1]}
+        to={internalPath}
+        hash={internalHash}
         className={className}
         onKeyDown={onKeyDown}
         role={role}
@@ -410,18 +425,35 @@ const Hit = ({
   refinedFramework: string | null
 }) => {
   const { closeSearch } = useSearchContext()
+  const persistFramework = usePersistFrameworkPreference()
+
+  const handleActivate = () => {
+    const framework = hit.framework
+    if (
+      framework &&
+      shouldPersistFrameworkForHit({
+        url: hit.url,
+        framework,
+        routeStyle: hit.routeStyle,
+      })
+    ) {
+      persistFramework(framework)
+    }
+
+    closeSearch()
+  }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
+      e.stopPropagation()
       const link = e.currentTarget as HTMLAnchorElement
       link.click()
-      closeSearch()
     }
   }
 
   const handleClick = () => {
-    closeSearch()
+    handleActivate()
   }
 
   const ref = React.useRef<HTMLAnchorElement>(null!)
@@ -434,12 +466,13 @@ const Hit = ({
 
   // Get library and framework info for this hit
   const hitLibrary = hit.library as string | undefined
-  const hitFramework = frameworkOptions.find((f) =>
-    hit.url.includes(`/framework/${f.value}`),
-  )
+  const hitFramework =
+    frameworkOptions.find((f) => f.value === hit.framework) ??
+    frameworkOptions.find((f) => hit.url.includes(`/framework/${f.value}`))
   const hitLibraryInfo = hitLibrary
     ? libraries.find((l) => l.id === hitLibrary)
     : null
+  const hitUrl = hit.urlWithAnchor ?? hit.url
 
   // Build hierarchy prefix based on what's filtered
   const prefixParts: React.ReactNode[] = []
@@ -487,7 +520,7 @@ const Hit = ({
 
   return (
     <SafeLink
-      href={hit.url}
+      href={hitUrl}
       className={twMerge(
         'block px-4 py-2.5 focus:outline-none border-b border-gray-300 dark:border-gray-700',
         isFocused ? 'bg-gray-500/20' : 'hover:bg-gray-500/10',

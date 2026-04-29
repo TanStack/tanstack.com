@@ -108,7 +108,11 @@ export async function getSitemapEntries(): Promise<Array<SitemapEntry>> {
     ...getLibraryEntries(),
     ...docsEntries.flat(),
     ...getBlogEntries(),
-  ]
+  ].filter(
+    (entry) =>
+      entry.path !== '/intent/registry' &&
+      !entry.path.startsWith('/intent/registry/'),
+  )
 
   return Array.from(
     new Map(entries.map((entry) => [entry.path, entry])).values(),

@@ -44,12 +44,13 @@ That works. But you just adopted a server-first architecture to render _one serv
 The inverse approach is much simpler. Keep the dashboard client-owned. Ask the server for a rendered chart fragment. Drop it into the tree wherever you want, alongside whatever client state you already have. If the chart has no interactive client regions, you don't even ship a client chunk for it.
 
 ```tsx
-import { CompositeComponent } from '@tanstack/react-start/rsc'
+import { createFromReadableStream } from '@tanstack/react-start/rsc'
 
 function Dashboard() {
-  const { data } = useSuspenseQuery({
+  const { data: chart } = useSuspenseQuery({
     queryKey: ['analytics-chart', range],
-    queryFn: () => getAnalyticsChart({ data: { range } }),
+    queryFn: async () =>
+      createFromReadableStream(await getAnalyticsChart({ data: { range } })),
   })
 
   return (
@@ -57,8 +58,8 @@ function Dashboard() {
       <Filters />
       <Tabs>
         <Tab label="Overview">
-          {/* Server-rendered, dropped into a client-owned tree */}
-          <CompositeComponent src={data.src} />
+          {/* Server-rendered output, dropped into a client-owned tree */}
+          {chart}
         </Tab>
         <Tab label="Raw">
           <ClientOnlyTable />

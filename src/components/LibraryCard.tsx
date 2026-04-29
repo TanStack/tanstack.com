@@ -1,24 +1,35 @@
-import { Link } from '@tanstack/react-router'
+import { Link, useParams } from '@tanstack/react-router'
 import { Library } from '~/libraries'
+import { frameworkOptions } from '~/libraries/frameworks'
 import { twMerge } from 'tailwind-merge'
 
 export default function LibraryCard({
   library,
   index = 0,
   isGeneric = false,
+  namePrefix,
 }: {
   library: Library
   index?: number
   isGeneric?: boolean
+  namePrefix?: string
 }) {
   const isExternal = library.to?.startsWith('http')
   const Component = isExternal ? 'a' : Link
   const props = isExternal
     ? { href: library.to, target: '_blank', rel: 'noopener noreferrer' }
     : { to: library.to ?? '#' }
+  const params = useParams({ strict: false })
+  const frameworkPrefix =
+    namePrefix ??
+    frameworkOptions.find((framework) => framework.value === params.framework)
+      ?.label
 
   const hasTanStackPrefix = library.name.startsWith('TanStack ')
   const nameWithoutPrefix = library.name.replace('TanStack ', '')
+  const displayName = frameworkPrefix
+    ? `${frameworkPrefix}-${nameWithoutPrefix}`
+    : nameWithoutPrefix
 
   return (
     <Component
@@ -82,7 +93,7 @@ export default function LibraryCard({
                       : 'text-current'
                   }
                 >
-                  {nameWithoutPrefix}
+                  {displayName}
                 </span>
               </>
             ) : (
@@ -93,7 +104,7 @@ export default function LibraryCard({
                     : 'text-current'
                 }
               >
-                {nameWithoutPrefix}
+                {displayName}
               </span>
             )}
           </div>

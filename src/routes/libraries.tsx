@@ -1,8 +1,14 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import * as React from 'react'
-import { libraries, Library } from '~/libraries'
+import { type Library } from '~/libraries'
+import { frameworkOptions } from '~/libraries/frameworks'
 import { reactChartsProject } from '~/libraries/react-charts'
 import LibraryCard from '~/components/LibraryCard'
+import {
+  getFrameworkLibraryCounts,
+  getVisibleLibraries,
+  orderLibrariesForBrowse,
+} from './-libraries-utils'
 
 export const Route = createFileRoute('/libraries')({
   component: LibrariesPage,
@@ -20,22 +26,12 @@ export const Route = createFileRoute('/libraries')({
 })
 
 function LibrariesPage() {
-  const allLibraries = libraries.filter((d) => d.to && d.visible !== false)
-  const others = allLibraries.filter(
-    (l) => l.id !== 'ranger' && l.id !== 'config' && l.id !== 'react-charts',
+  const allLibraries = getVisibleLibraries()
+  const ordered = orderLibrariesForBrowse(allLibraries)
+  const frameworkCounts = getFrameworkLibraryCounts(allLibraries)
+  const frameworksWithLibraries = frameworkOptions.filter(
+    (framework) => (frameworkCounts[framework.value] ?? 0) > 0,
   )
-  const ranger = allLibraries.filter((l) => l.id === 'ranger')
-  const config = allLibraries.filter((l) => l.id === 'config')
-
-  // Find devtools index in others to insert config after it
-  const devtoolsIndex = others.findIndex((l) => l.id === 'devtools')
-  const ordered = [
-    ...others.slice(0, devtoolsIndex + 1),
-    ...config,
-    ...others.slice(devtoolsIndex + 1),
-    ...ranger,
-  ]
-
   const deprecatedLibraries = [reactChartsProject]
 
   return (
@@ -44,6 +40,37 @@ function LibrariesPage() {
       <p className="text-gray-600 dark:text-gray-400 mt-2">
         Browse all TanStack libraries.
       </p>
+
+      <section className="mt-8">
+        <h2 className="text-xl font-medium">Browse by Your Framework</h2>
+        <div className="mt-4 flex flex-wrap gap-3">
+          {frameworksWithLibraries.map((framework) => {
+            const count = frameworkCounts[framework.value] ?? 0
+
+            return (
+              <Link
+                key={framework.value}
+                to="/libraries/$framework"
+                params={{
+                  framework: framework.value,
+                }}
+                className="group inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-800 shadow-sm transition-all hover:-translate-y-0.5 hover:border-current hover:shadow-md dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100"
+              >
+                <img
+                  src={framework.logo}
+                  alt=""
+                  loading="lazy"
+                  className="h-5 w-5 object-contain"
+                />
+                <span>{framework.label}</span>
+                <span className="text-gray-500 dark:text-gray-400">
+                  {count} {count === 1 ? 'library' : 'libraries'}
+                </span>
+              </Link>
+            )
+          })}
+        </div>
+      </section>
 
       <div
         className={`grid grid-cols-1 gap-6 gap-y-8 justify-center mt-8

@@ -499,6 +499,7 @@ const Hit = ({
       role="option"
       aria-selected={isFocused}
       tabIndex={-1}
+      data-search-hit="true"
       ref={ref}
     >
       <article className="flex items-start gap-4">
@@ -587,6 +588,7 @@ function LibraryRefinement() {
       <DropdownContent
         align="start"
         className="max-h-[60vh] w-64 overflow-auto"
+        portal={false}
       >
         <DropdownItem
           onSelect={() => setSelectedLibrary('')}
@@ -664,6 +666,7 @@ function FrameworkRefinement() {
       <DropdownContent
         align="start"
         className="max-h-[60vh] w-52 overflow-auto"
+        portal={false}
       >
         <DropdownItem onSelect={() => handleSelect('')} className="font-bold">
           All Frameworks
@@ -723,8 +726,6 @@ function NoResults({
         <div className="mt-4 inline-flex items-center gap-2">
           <button
             onClick={clearFramework}
-            role="option"
-            aria-selected="true"
             className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors shadow-sm"
           >
             Search all frameworks
@@ -741,8 +742,6 @@ function NoResults({
         <div className="mt-4 inline-flex items-center gap-2">
           <button
             onClick={clearLibrary}
-            role="option"
-            aria-selected="true"
             className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors shadow-sm"
           >
             Search all libraries
@@ -790,7 +789,7 @@ export function SearchModal() {
 
     if (!containerRef.current) return
 
-    const items = containerRef.current.querySelectorAll('[role="option"]')
+    const items = containerRef.current.querySelectorAll('[data-search-hit]')
     if (!items.length) return
 
     switch (e.key) {
@@ -825,7 +824,14 @@ export function SearchModal() {
   }
 
   return (
-    <DialogPrimitive.Root open={isOpen} onOpenChange={closeSearch}>
+    <DialogPrimitive.Root
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) {
+          closeSearch()
+        }
+      }}
+    >
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className="fixed inset-0 z-[999] bg-black/60 xl:bg-black/30 backdrop-blur-sm" />
         <DialogPrimitive.Content

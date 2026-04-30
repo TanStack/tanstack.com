@@ -599,10 +599,7 @@ export function DocsLayout({
 
   const [isFullWidth, setIsFullWidth] = useLocalStorage('docsFullWidth', false)
 
-  const activePartners = partners.filter(
-    (d) =>
-      d.status === 'active' && d.name !== 'Nozzle.io' && d.id !== 'fireship',
-  )
+  const activePartners = partners.filter((d) => d.status === 'active')
 
   const groupInitialOpenState = React.useMemo(() => {
     return menuConfig.reduce<Record<string, boolean>>((acc, group, index) => {
@@ -937,31 +934,14 @@ export function DocsLayout({
           </div>
           {!isLandingPage && (
             <RightRail breakpoint="md" className="md:w-[280px]">
-              <div className="relative">
-                <PartnersRail
-                  analyticsPlacement="docs_right_rail"
-                  analyticsProperties={{
-                    framework: currentFramework.framework,
-                    library_id: libraryId,
-                  }}
-                  partners={activePartners}
-                />
-                <a
-                  href="https://docs.google.com/document/d/1Hg2MzY2TU6U3hFEZ3MLe2oEOM3JS4-eByti3kdJU3I8"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="absolute right-3 top-2 font-medium opacity-60 hover:opacity-100 text-xs hover:underline"
-                  onClick={() => {
-                    trackEvent('become_partner_clicked', {
-                      framework: currentFramework.framework,
-                      library_id: libraryId,
-                      placement: 'docs_right_rail',
-                    })
-                  }}
-                >
-                  Become a Partner
-                </a>
-              </div>
+              <PartnersRail
+                analyticsPlacement="docs_right_rail"
+                analyticsProperties={{
+                  framework: currentFramework.framework,
+                  library_id: libraryId,
+                }}
+                partners={activePartners}
+              />
               <div className="hidden md:block border border-gray-500/20 rounded-l-lg overflow-hidden w-full">
                 <RecentPostsWidget />
               </div>

@@ -113,13 +113,7 @@ function BlogPost() {
   const repo = 'tanstack/tanstack.com'
   const branch = 'main'
   const activePartners = React.useMemo(
-    () =>
-      partners.filter(
-        (d) =>
-          d.status === 'active' &&
-          d.name !== 'Nozzle.io' &&
-          d.id !== 'fireship',
-      ),
+    () => partners.filter((d) => d.status === 'active'),
     [],
   )
 

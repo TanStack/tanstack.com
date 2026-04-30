@@ -59,6 +59,77 @@ type PartnerApplicationStarterIcon = {
 
 type ApplicationStarterPartnerTier = 1 | 2 | 3
 
+export const partnerTiers = ['gold', 'silver', 'bronze'] as const
+export type PartnerTier = (typeof partnerTiers)[number]
+
+export const partnerTierLabels: Record<PartnerTier, string> = {
+  gold: 'Gold',
+  silver: 'Silver',
+  bronze: 'Bronze',
+}
+
+export const partnerTierOrder: Record<PartnerTier, number> = {
+  gold: 0,
+  silver: 1,
+  bronze: 2,
+}
+
+const partnerTierToBuilderTier: Record<
+  PartnerTier,
+  ApplicationStarterPartnerTier
+> = {
+  gold: 1,
+  silver: 2,
+  bronze: 3,
+}
+
+export const partnerTierFlares: Record<
+  PartnerTier,
+  {
+    gradientStops: string
+    iconColor: string
+    labelColor: string
+    icon: React.ReactNode
+  }
+> = {
+  gold: {
+    gradientStops:
+      'from-yellow-400 via-amber-500 to-orange-600 dark:from-yellow-300 dark:via-amber-400 dark:to-orange-400',
+    iconColor: 'text-amber-500 dark:text-amber-300',
+    labelColor: 'text-amber-600 dark:text-amber-300',
+    // 5-point star
+    icon: (
+      <svg viewBox="0 0 12 12" className="h-3 w-3 fill-current" aria-hidden>
+        <path d="M6 0.5 L7.5 4.2 L11.5 4.6 L8.5 7.2 L9.4 11.2 L6 9.2 L2.6 11.2 L3.5 7.2 L0.5 4.6 L4.5 4.2 Z" />
+      </svg>
+    ),
+  },
+  silver: {
+    gradientStops:
+      'from-slate-200 via-zinc-400 to-slate-300 dark:from-slate-300 dark:via-zinc-400 dark:to-slate-400',
+    iconColor: 'text-slate-400 dark:text-slate-300',
+    labelColor: 'text-slate-500 dark:text-slate-300',
+    // 4-point sparkle
+    icon: (
+      <svg viewBox="0 0 12 12" className="h-3 w-3 fill-current" aria-hidden>
+        <path d="M6 0 L7.2 4.8 L12 6 L7.2 7.2 L6 12 L4.8 7.2 L0 6 L4.8 4.8 Z" />
+      </svg>
+    ),
+  },
+  bronze: {
+    gradientStops:
+      'from-amber-700 via-amber-800 to-amber-950 dark:from-amber-600 dark:via-amber-800 dark:to-amber-950',
+    iconColor: 'text-amber-800 dark:text-amber-600',
+    labelColor: 'text-amber-800 dark:text-amber-600',
+    // diamond
+    icon: (
+      <svg viewBox="0 0 12 12" className="h-3 w-3 fill-current" aria-hidden>
+        <path d="M6 0.5 L11.5 6 L6 11.5 L0.5 6 Z" />
+      </svg>
+    ),
+  },
+}
+
 export function PartnerImage({
   className,
   config,
@@ -162,6 +233,7 @@ export type Partner = {
   startDate?: string
   endDate?: string
   score: number
+  tier?: PartnerTier
   brandColor?: string // Primary brand color for game elements
   tagline?: string // Short tagline for game info cards
 }
@@ -175,7 +247,6 @@ export type ApplicationStarterPartnerSuggestion = {
   iconSrc?: string
   image: Partner['image']
   label: string
-  sortOrder: number
   tags: Array<string>
   tier: ApplicationStarterPartnerTier
 }
@@ -259,6 +330,7 @@ const neon = (() => {
     libraries: ['start', 'router'],
     status: 'active' as const,
     score: 0.297,
+    tier: 'silver' as const,
     href,
     brandColor: '#00E599',
     tagline: 'Serverless Postgres',
@@ -328,12 +400,13 @@ const clerk = (() => {
     libraries: ['start', 'router'],
     status: 'active' as const,
     score: 0.286,
+    tier: 'silver' as const,
     brandColor: '#6C47FF',
     tagline: 'Authentication',
     image: {
       light: clerkLightSvg,
       dark: clerkDarkSvg,
-      scale: 0.85,
+      scale: 0.72,
     },
     llmDescription:
       'Authentication and user management platform with prebuilt UI, sessions, organizations, and MFA. Clerk has official SDKs and quickstarts for TanStack React Start and React Router.',
@@ -363,6 +436,7 @@ const workos = (() => {
     libraries: ['start', 'router'] as const,
     status: 'active' as const,
     score: 0.314,
+    tier: 'silver' as const,
     brandColor: '#6363F1',
     tagline: 'Enterprise Auth',
     applicationStarterIcon: {
@@ -400,6 +474,7 @@ const agGrid = (() => {
     libraries: ['table'] as const,
     status: 'active' as const,
     score: 0.497,
+    tier: 'silver' as const,
     href,
     brandColor: '#FF8C00',
     tagline: 'Enterprise Data Grid',
@@ -452,6 +527,7 @@ const netlify = (() => {
     libraries: ['start', 'router'],
     status: 'active' as const,
     score: 0.343,
+    tier: 'silver' as const,
     href,
     brandColor: '#00C7B7',
     tagline: 'Web Deployment',
@@ -462,6 +538,7 @@ const netlify = (() => {
     image: {
       light: netlifyLightSvg,
       dark: netlifyDarkSvg,
+      scale: 1.25,
     },
     llmDescription:
       'Deployment platform for web applications with Deploy Previews, Functions, Edge Functions, and an official TanStack Start integration guide.',
@@ -491,6 +568,7 @@ const cloudflare = (() => {
     libraries: libraries.map((l) => l.id),
     status: 'active' as const,
     score: 0.857,
+    tier: 'gold' as const,
     startDate: 'Sep 2025',
     brandColor: '#F6821F',
     tagline: 'Edge Deployment',
@@ -523,6 +601,7 @@ const sentry = (() => {
     libraries: ['start', 'router'],
     status: 'active' as const,
     score: 0.229,
+    tier: 'bronze' as const,
     href,
     brandColor: '#362D59',
     tagline: 'Error Monitoring',
@@ -554,7 +633,7 @@ const fireship = (() => {
     name: 'Fireship',
     id: 'fireship',
     libraries: [],
-    status: 'active' as const,
+    status: 'inactive' as const,
     score: 0.014,
     href,
     tagline: 'Dev Education',
@@ -610,7 +689,7 @@ const nozzle = (() => {
     name: 'Nozzle.io',
     id: 'nozzle',
     href,
-    status: 'active' as const,
+    status: 'inactive' as const,
     score: 0.014,
     tagline: 'Enterprise SEO',
     image: {
@@ -677,6 +756,7 @@ const unkey = (() => {
     libraries: ['pacer'] as const,
     status: 'active' as const,
     score: 0.051,
+    tier: 'bronze' as const,
     href,
     brandColor: '#222222',
     tagline: 'API Key Management',
@@ -716,6 +796,7 @@ const serpApi = (() => {
     libraries: libraries.map((l) => l.id),
     status: 'active' as const,
     score: 0.41,
+    tier: 'silver' as const,
     href,
     brandColor: '#6361EC',
     tagline: 'Real-time SERP API',
@@ -755,6 +836,7 @@ const electric = (() => {
     libraries: ['db'] as const,
     status: 'active' as const,
     score: 0.283,
+    tier: 'bronze' as const,
     href,
     brandColor: '#7e78db',
     tagline: 'Sync Engine',
@@ -828,6 +910,7 @@ const prisma = (() => {
     libraries: ['db', 'start'] as const,
     startDate: 'Aug 2025',
     score: 0.143,
+    tier: 'bronze' as const,
     brandColor: '#2D3748',
     tagline: 'Database ORM',
     image: {
@@ -863,6 +946,7 @@ const codeRabbit = (() => {
     libraries: libraries.map((l) => l.id),
     startDate: 'Aug 2025',
     score: 1,
+    tier: 'gold' as const,
     brandColor: '#FF6B2B',
     tagline: 'AI Code Review',
     applicationStarterPromptInstructions: [
@@ -900,6 +984,7 @@ const strapi = (() => {
     libraries: ['start', 'router'] as const,
     status: 'active' as const,
     score: 0.069,
+    tier: 'bronze' as const,
     href,
     brandColor: '#4945FF',
     tagline: 'Headless CMS',
@@ -936,6 +1021,7 @@ const powerSync = (() => {
     status: 'active' as const,
     startDate: 'Jan 2026',
     score: 0.143,
+    tier: 'bronze' as const,
     href,
     tagline: 'Offline-first Sync',
     applicationStarterPromptInstructions: [
@@ -946,6 +1032,7 @@ const powerSync = (() => {
     image: {
       light: powersyncBlackSvg,
       dark: powersyncWhiteSvg,
+      scale: 1.2,
     },
     llmDescription:
       'Sync engine that keeps backend databases in sync with embedded client-side SQLite for offline-first and realtime applications. Postgres and MongoDB are supported, with MySQL and SQL Server in beta.',
@@ -974,6 +1061,7 @@ const railway = (() => {
     libraries: libraries.map((l) => l.id),
     status: 'active' as const,
     score: 0.145,
+    tier: 'bronze' as const,
     href,
     brandColor: '#0B0D0E',
     tagline: 'Instant Deployment',
@@ -1010,6 +1098,7 @@ const openRouter = (() => {
     status: 'active' as const,
     startDate: 'Mar 2026',
     score: 0.344,
+    tier: 'silver' as const,
     brandColor: '#7C3AED',
     tagline: 'Unified LLM API',
     applicationStarterPromptInstructions: [
@@ -1020,6 +1109,7 @@ const openRouter = (() => {
     image: {
       light: openrouterBlackSvg,
       dark: openrouterWhiteSvg,
+      scale: 1.25,
     },
     llmDescription:
       'Unified API for accessing hundreds of AI models from dozens of providers through a single OpenAI-compatible endpoint, with routing, fallbacks, and privacy controls.',
@@ -1069,30 +1159,6 @@ export const partners: Partner[] = [
   vercel,
   speakeasy,
 ] as Partner[]
-
-const applicationStarterPartnerTierOrder = new Map<
-  string,
-  { sortOrder: number; tier: ApplicationStarterPartnerTier }
->([
-  ['coderabbit', { tier: 1, sortOrder: 0 }],
-  ['cloudflare', { tier: 1, sortOrder: 1 }],
-  ['aggrid', { tier: 2, sortOrder: 0 }],
-  ['supabase', { tier: 2, sortOrder: 1 }],
-  ['serpapi', { tier: 2, sortOrder: 2 }],
-  ['netlify', { tier: 2, sortOrder: 3 }],
-  ['openrouter', { tier: 2, sortOrder: 4 }],
-  ['workos', { tier: 2, sortOrder: 5 }],
-  ['clerk', { tier: 2, sortOrder: 6 }],
-  ['electric', { tier: 2, sortOrder: 7 }],
-  ['railway', { tier: 2, sortOrder: 8 }],
-  ['sentry', { tier: 3, sortOrder: 0 }],
-  ['prisma', { tier: 3, sortOrder: 1 }],
-  ['powersync', { tier: 3, sortOrder: 2 }],
-  ['neon', { tier: 3, sortOrder: 3 }],
-  ['strapi', { tier: 3, sortOrder: 4 }],
-  ['unkey', { tier: 3, sortOrder: 5 }],
-  ['uidev', { tier: 3, sortOrder: 6 }],
-])
 
 const applicationStarterBrandColorOverrides = new Map<string, string>([
   ['powersync', '#00D5FF'],
@@ -1193,19 +1259,9 @@ function normalizeApplicationStarterPartnerKey(value: string) {
 }
 
 function getApplicationStarterPartnerTier(
-  partner: Pick<Partner, 'id' | 'name'>,
-) {
-  return (
-    applicationStarterPartnerTierOrder.get(
-      normalizeApplicationStarterPartnerKey(partner.id),
-    ) ??
-    applicationStarterPartnerTierOrder.get(
-      normalizeApplicationStarterPartnerKey(partner.name),
-    ) ?? {
-      tier: 3 as const,
-      sortOrder: Number.MAX_SAFE_INTEGER,
-    }
-  )
+  partner: Pick<Partner, 'tier'>,
+): ApplicationStarterPartnerTier {
+  return partner.tier ? partnerTierToBuilderTier[partner.tier] : 3
 }
 
 function getApplicationStarterPartnerFaviconUrl(href: string) {
@@ -1294,14 +1350,13 @@ export function getInferredApplicationStarterPartnerIdsFromUserInput(
 const applicationStarterPartnerSuggestions: Array<ApplicationStarterPartnerSuggestion> =
   [...partners]
     .filter((partner) => partner.status === 'active')
-    .filter((partner) => partner.id !== 'fireship' && partner.id !== 'nozzle')
     .map((partner) => {
-      const tierConfig = getApplicationStarterPartnerTier(partner)
+      const tier = getApplicationStarterPartnerTier(partner)
       const normalizedPartnerKey = normalizeApplicationStarterPartnerKey(
         partner.id,
       )
       const iconMode: ApplicationStarterPartnerSuggestion['iconMode'] =
-        tierConfig.tier === 2
+        tier === 2
           ? (partner.applicationStarterIcon?.mode ?? 'contain')
           : undefined
 
@@ -1312,7 +1367,7 @@ const applicationStarterPartnerSuggestions: Array<ApplicationStarterPartnerSugge
         hint: `${partner.name} (${partnerCategoryLabels[partner.category]})`,
         iconMode,
         iconSrc:
-          tierConfig.tier === 2
+          tier === 2
             ? (partner.applicationStarterIcon?.src ??
               getApplicationStarterPartnerFaviconUrl(partner.href))
             : undefined,
@@ -1321,17 +1376,13 @@ const applicationStarterPartnerSuggestions: Array<ApplicationStarterPartnerSugge
         brandColor:
           applicationStarterBrandColorOverrides.get(normalizedPartnerKey) ??
           partner.brandColor,
-        ...tierConfig,
+        tier,
         score: partner.score,
       }
     })
     .sort((left, right) => {
       if (left.tier !== right.tier) {
         return left.tier - right.tier
-      }
-
-      if (left.sortOrder !== right.sortOrder) {
-        return left.sortOrder - right.sortOrder
       }
 
       return right.score - left.score

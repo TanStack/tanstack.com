@@ -12,7 +12,6 @@ import {
   SearchBox,
   Snippet,
   Configure,
-  useMenu,
   useInstantSearch,
   useInfiniteHits,
 } from 'react-instantsearch'
@@ -171,13 +170,11 @@ const SearchFiltersContext = React.createContext<{
   libraryItems: Array<{
     value: string
     label: string
-    count: number
     isRefined: boolean
   }>
   frameworkItems: Array<{
     value: string
     label: string
-    count: number
     isRefined: boolean
   }>
 } | null>(null)
@@ -207,19 +204,6 @@ function SearchFiltersProvider({ children }: { children: React.ReactNode }) {
 
   const [selectedFramework, setSelectedFramework] =
     React.useState(getInitialFramework)
-
-  // Use useMenu just to get the list of available options and counts
-  // We do NOT use refine() because facet filters don't support OR logic
-  // Instead, we build custom filter strings via Configure component
-  const { items: rawLibraryItems } = useMenu({
-    attribute: 'library',
-    limit: 50,
-  })
-
-  const { items: rawFrameworkItems } = useMenu({
-    attribute: 'framework',
-    limit: 50,
-  })
 
   // Auto-select based on current page URL
   const pathname = useRouterState({
@@ -259,22 +243,56 @@ function SearchFiltersProvider({ children }: { children: React.ReactNode }) {
     }
   }, [pathname, getInitialFramework])
 
-  // Sort items by their defined order and filter out "all" from display
-  const libraryItems = [...rawLibraryItems]
-    .filter((item) => item.value !== 'all')
-    .sort((a, b) => {
-      const aIndex = libraries.findIndex((l) => l.id === a.value)
-      const bIndex = libraries.findIndex((l) => l.id === b.value)
-      return aIndex - bIndex
-    })
+  const searchableLibraries = React.useMemo(
+    () =>
+      libraries.filter(
+        (library) => library.visible !== false && library.latestVersion,
+      ),
+    [],
+  )
 
-  const frameworkItems = [...rawFrameworkItems]
-    .filter((item) => item.value !== 'all')
-    .sort((a, b) => {
-      const aIndex = frameworkOptions.findIndex((f) => f.value === a.value)
-      const bIndex = frameworkOptions.findIndex((f) => f.value === b.value)
-      return aIndex - bIndex
-    })
+  const selectedLibraryInfo = React.useMemo(
+    () => searchableLibraries.find((library) => library.id === selectedLibrary),
+    [searchableLibraries, selectedLibrary],
+  )
+
+  const availableFrameworkValues = React.useMemo(() => {
+    if (selectedLibraryInfo) {
+      return selectedLibraryInfo.frameworks
+    }
+
+    return Array.from(
+      new Set(searchableLibraries.flatMap((library) => library.frameworks)),
+    )
+  }, [searchableLibraries, selectedLibraryInfo])
+
+  React.useEffect(() => {
+    if (!selectedLibraryInfo || !selectedFramework) {
+      return
+    }
+
+    if (
+      !selectedLibraryInfo.frameworks.some(
+        (framework) => framework === selectedFramework,
+      )
+    ) {
+      setSelectedFramework('')
+    }
+  }, [selectedFramework, selectedLibraryInfo])
+
+  const libraryItems = searchableLibraries.map((library) => ({
+    value: library.id,
+    label: library.id,
+    isRefined: library.id === selectedLibrary,
+  }))
+
+  const frameworkItems = frameworkOptions
+    .filter((framework) => availableFrameworkValues.includes(framework.value))
+    .map((framework) => ({
+      value: framework.value,
+      label: framework.label,
+      isRefined: framework.value === selectedFramework,
+    }))
 
   // Wrapper functions that just update state (no Algolia refine)
   const selectLibrary = React.useCallback((value: string) => {
@@ -641,9 +659,6 @@ function LibraryRefinement() {
                   {item.label.toUpperCase()}
                 </span>
               </span>
-              <span className="text-gray-400 text-xs font-normal">
-                ({item.count})
-              </span>
             </DropdownItem>
           )
         })}
@@ -714,7 +729,6 @@ function FrameworkRefinement() {
                 {fw && <img src={fw.logo} alt={fw.label} className="w-4 h-4" />}
                 <span className="font-bold">{capitalize(item.label)}</span>
               </span>
-              <span className="text-gray-400 text-xs">({item.count})</span>
             </DropdownItem>
           )
         })}

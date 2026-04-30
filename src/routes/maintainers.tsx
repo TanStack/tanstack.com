@@ -35,6 +35,9 @@ const searchSchema = v.object({
 export const Route = createFileRoute('/maintainers')({
   component: RouteComponent,
   validateSearch: searchSchema,
+  staticData: {
+    includeSearchInCanonical: true,
+  },
   head: () => ({
     meta: seo({
       title: 'Maintainers | TanStack',

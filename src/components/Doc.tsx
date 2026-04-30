@@ -154,6 +154,7 @@ export function Doc({
             libraryVersion={libraryVersion}
             pagePath={pagePath}
             currentFramework={currentFramework}
+            proseClassName="[font-size:14px]"
             titleBarActions={
               setIsFullWidth ? (
                 <button

@@ -30,15 +30,15 @@ export function RightRail({
 
   const innerBreakpointClass =
     breakpoint === 'md'
-      ? 'md:sticky md:top-[var(--navbar-height)]'
-      : 'sm:sticky sm:top-[var(--navbar-height)]'
+      ? 'md:sticky md:top-[var(--navbar-height)] md:max-h-[calc(100dvh-var(--navbar-height))]'
+      : 'sm:sticky sm:top-[var(--navbar-height)] sm:max-h-[calc(100dvh-var(--navbar-height))]'
 
   return (
     <div className={twMerge(wrapperBreakpointClass, className)}>
       <div
         className={twMerge(
           innerBreakpointClass,
-          'ml-auto flex flex-col gap-4 pb-4 max-w-full overflow-hidden',
+          'ml-auto flex flex-col gap-4 pb-4 max-w-full overflow-y-auto',
         )}
       >
         {children}

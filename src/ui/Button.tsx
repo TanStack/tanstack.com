@@ -89,7 +89,7 @@ const roundedStyles: Record<ButtonRounded, string> = {
 }
 
 const baseStyles =
-  'inline-flex items-center justify-center gap-2 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+  'inline-flex items-center justify-center gap-2 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-900'
 
 function getDefaultSize(variant: ButtonVariant): ButtonSize {
   if (variant === 'icon') return 'icon-md'

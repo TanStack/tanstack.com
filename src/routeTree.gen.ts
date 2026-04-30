@@ -57,6 +57,7 @@ import { Route as PartnersPartnerRouteImport } from './routes/partners.$partner'
 import { Route as OauthTokenRouteImport } from './routes/oauth/token'
 import { Route as OauthRegisterRouteImport } from './routes/oauth/register'
 import { Route as OauthAuthorizeRouteImport } from './routes/oauth/authorize'
+import { Route as LibrariesFrameworkRouteImport } from './routes/libraries_.$framework'
 import { Route as BuilderDocsRouteImport } from './routes/builder.docs'
 import { Route as BlogSplatRouteImport } from './routes/blog.$'
 import { Route as AuthSignoutRouteImport } from './routes/auth/signout'
@@ -103,6 +104,7 @@ import { Route as LibraryIdVersionIndexRouteImport } from './routes/$libraryId/$
 import { Route as StatsNpmPackagesRouteImport } from './routes/stats/npm/$packages'
 import { Route as ShowcaseEditIdRouteImport } from './routes/showcase/edit.$id'
 import { Route as ShopProductsHandleRouteImport } from './routes/shop.products.$handle'
+import { Route as ShopPoliciesHandleRouteImport } from './routes/shop.policies.$handle'
 import { Route as ShopPagesHandleRouteImport } from './routes/shop.pages.$handle'
 import { Route as ShopCollectionsHandleRouteImport } from './routes/shop.collections.$handle'
 import { Route as IntentRegistryPackageNameRouteImport } from './routes/intent/registry/$packageName'
@@ -389,6 +391,11 @@ const OauthAuthorizeRoute = OauthAuthorizeRouteImport.update({
   path: '/oauth/authorize',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LibrariesFrameworkRoute = LibrariesFrameworkRouteImport.update({
+  id: '/libraries_/$framework',
+  path: '/libraries/$framework',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BuilderDocsRoute = BuilderDocsRouteImport.update({
   id: '/docs',
   path: '/docs',
@@ -618,6 +625,11 @@ const ShowcaseEditIdRoute = ShowcaseEditIdRouteImport.update({
 const ShopProductsHandleRoute = ShopProductsHandleRouteImport.update({
   id: '/products/$handle',
   path: '/products/$handle',
+  getParentRoute: () => ShopRoute,
+} as any)
+const ShopPoliciesHandleRoute = ShopPoliciesHandleRouteImport.update({
+  id: '/policies/$handle',
+  path: '/policies/$handle',
   getParentRoute: () => ShopRoute,
 } as any)
 const ShopPagesHandleRoute = ShopPagesHandleRouteImport.update({
@@ -919,6 +931,7 @@ export interface FileRoutesByFullPath {
   '/auth/signout': typeof AuthSignoutRoute
   '/blog/$': typeof BlogSplatRoute
   '/builder/docs': typeof BuilderDocsRoute
+  '/libraries/$framework': typeof LibrariesFrameworkRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
   '/oauth/token': typeof OauthTokenRoute
@@ -962,6 +975,7 @@ export interface FileRoutesByFullPath {
   '/intent/registry/$packageName': typeof IntentRegistryPackageNameRouteWithChildren
   '/shop/collections/$handle': typeof ShopCollectionsHandleRoute
   '/shop/pages/$handle': typeof ShopPagesHandleRoute
+  '/shop/policies/$handle': typeof ShopPoliciesHandleRoute
   '/shop/products/$handle': typeof ShopProductsHandleRoute
   '/showcase/edit/$id': typeof ShowcaseEditIdRoute
   '/stats/npm/$packages': typeof StatsNpmPackagesRoute
@@ -1052,6 +1066,7 @@ export interface FileRoutesByTo {
   '/auth/signout': typeof AuthSignoutRoute
   '/blog/$': typeof BlogSplatRoute
   '/builder/docs': typeof BuilderDocsRoute
+  '/libraries/$framework': typeof LibrariesFrameworkRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
   '/oauth/token': typeof OauthTokenRoute
@@ -1093,6 +1108,7 @@ export interface FileRoutesByTo {
   '/auth/$provider/start': typeof AuthProviderStartRoute
   '/shop/collections/$handle': typeof ShopCollectionsHandleRoute
   '/shop/pages/$handle': typeof ShopPagesHandleRoute
+  '/shop/policies/$handle': typeof ShopPoliciesHandleRoute
   '/shop/products/$handle': typeof ShopProductsHandleRoute
   '/showcase/edit/$id': typeof ShowcaseEditIdRoute
   '/stats/npm/$packages': typeof StatsNpmPackagesRoute
@@ -1192,6 +1208,7 @@ export interface FileRoutesById {
   '/auth/signout': typeof AuthSignoutRoute
   '/blog/$': typeof BlogSplatRoute
   '/builder/docs': typeof BuilderDocsRoute
+  '/libraries_/$framework': typeof LibrariesFrameworkRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
   '/oauth/token': typeof OauthTokenRoute
@@ -1235,6 +1252,7 @@ export interface FileRoutesById {
   '/intent/registry/$packageName': typeof IntentRegistryPackageNameRouteWithChildren
   '/shop/collections/$handle': typeof ShopCollectionsHandleRoute
   '/shop/pages/$handle': typeof ShopPagesHandleRoute
+  '/shop/policies/$handle': typeof ShopPoliciesHandleRoute
   '/shop/products/$handle': typeof ShopProductsHandleRoute
   '/showcase/edit/$id': typeof ShowcaseEditIdRoute
   '/stats/npm/$packages': typeof StatsNpmPackagesRoute
@@ -1335,6 +1353,7 @@ export interface FileRouteTypes {
     | '/auth/signout'
     | '/blog/$'
     | '/builder/docs'
+    | '/libraries/$framework'
     | '/oauth/authorize'
     | '/oauth/register'
     | '/oauth/token'
@@ -1378,6 +1397,7 @@ export interface FileRouteTypes {
     | '/intent/registry/$packageName'
     | '/shop/collections/$handle'
     | '/shop/pages/$handle'
+    | '/shop/policies/$handle'
     | '/shop/products/$handle'
     | '/showcase/edit/$id'
     | '/stats/npm/$packages'
@@ -1468,6 +1488,7 @@ export interface FileRouteTypes {
     | '/auth/signout'
     | '/blog/$'
     | '/builder/docs'
+    | '/libraries/$framework'
     | '/oauth/authorize'
     | '/oauth/register'
     | '/oauth/token'
@@ -1509,6 +1530,7 @@ export interface FileRouteTypes {
     | '/auth/$provider/start'
     | '/shop/collections/$handle'
     | '/shop/pages/$handle'
+    | '/shop/policies/$handle'
     | '/shop/products/$handle'
     | '/showcase/edit/$id'
     | '/stats/npm/$packages'
@@ -1607,6 +1629,7 @@ export interface FileRouteTypes {
     | '/auth/signout'
     | '/blog/$'
     | '/builder/docs'
+    | '/libraries_/$framework'
     | '/oauth/authorize'
     | '/oauth/register'
     | '/oauth/token'
@@ -1650,6 +1673,7 @@ export interface FileRouteTypes {
     | '/intent/registry/$packageName'
     | '/shop/collections/$handle'
     | '/shop/pages/$handle'
+    | '/shop/policies/$handle'
     | '/shop/products/$handle'
     | '/showcase/edit/$id'
     | '/stats/npm/$packages'
@@ -1735,6 +1759,7 @@ export interface RootRouteChildren {
   AuthCliRoute: typeof AuthCliRoute
   AuthPopupSuccessRoute: typeof AuthPopupSuccessRoute
   AuthSignoutRoute: typeof AuthSignoutRoute
+  LibrariesFrameworkRoute: typeof LibrariesFrameworkRoute
   OauthAuthorizeRoute: typeof OauthAuthorizeRoute
   OauthRegisterRoute: typeof OauthRegisterRoute
   OauthTokenRoute: typeof OauthTokenRoute
@@ -2127,6 +2152,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OauthAuthorizeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/libraries_/$framework': {
+      id: '/libraries_/$framework'
+      path: '/libraries/$framework'
+      fullPath: '/libraries/$framework'
+      preLoaderRoute: typeof LibrariesFrameworkRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/builder/docs': {
       id: '/builder/docs'
       path: '/docs'
@@ -2447,6 +2479,13 @@ declare module '@tanstack/react-router' {
       path: '/products/$handle'
       fullPath: '/shop/products/$handle'
       preLoaderRoute: typeof ShopProductsHandleRouteImport
+      parentRoute: typeof ShopRoute
+    }
+    '/shop/policies/$handle': {
+      id: '/shop/policies/$handle'
+      path: '/policies/$handle'
+      fullPath: '/shop/policies/$handle'
+      preLoaderRoute: typeof ShopPoliciesHandleRouteImport
       parentRoute: typeof ShopRoute
     }
     '/shop/pages/$handle': {
@@ -2948,6 +2987,7 @@ interface ShopRouteChildren {
   ShopIndexRoute: typeof ShopIndexRoute
   ShopCollectionsHandleRoute: typeof ShopCollectionsHandleRoute
   ShopPagesHandleRoute: typeof ShopPagesHandleRoute
+  ShopPoliciesHandleRoute: typeof ShopPoliciesHandleRoute
   ShopProductsHandleRoute: typeof ShopProductsHandleRoute
 }
 
@@ -2957,6 +2997,7 @@ const ShopRouteChildren: ShopRouteChildren = {
   ShopIndexRoute: ShopIndexRoute,
   ShopCollectionsHandleRoute: ShopCollectionsHandleRoute,
   ShopPagesHandleRoute: ShopPagesHandleRoute,
+  ShopPoliciesHandleRoute: ShopPoliciesHandleRoute,
   ShopProductsHandleRoute: ShopProductsHandleRoute,
 }
 
@@ -3020,6 +3061,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthCliRoute: AuthCliRoute,
   AuthPopupSuccessRoute: AuthPopupSuccessRoute,
   AuthSignoutRoute: AuthSignoutRoute,
+  LibrariesFrameworkRoute: LibrariesFrameworkRoute,
   OauthAuthorizeRoute: OauthAuthorizeRoute,
   OauthRegisterRoute: OauthRegisterRoute,
   OauthTokenRoute: OauthTokenRoute,

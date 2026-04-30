@@ -78,6 +78,9 @@ function getPartnerFilterAnalytics(search: PartnersSearch) {
 export const Route = createFileRoute('/partners/')({
   component: PartnersIndexPage,
   validateSearch: searchSchema,
+  staticData: {
+    includeSearchInCanonical: true,
+  },
   head: () => ({
     meta: seo({
       title: 'Partners',

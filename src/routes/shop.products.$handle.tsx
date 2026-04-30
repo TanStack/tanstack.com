@@ -1,10 +1,20 @@
 import * as React from 'react'
-import { createFileRoute, notFound } from '@tanstack/react-router'
-import { Minus, Plus } from 'lucide-react'
+import { Link, createFileRoute, notFound } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
-import { Breadcrumbs } from '~/components/shop/Breadcrumbs'
 import { ProductImage } from '~/components/shop/ProductImage'
 import { useCartDrawerStore } from '~/components/shop/cartDrawerStore'
+import { ShopNote } from '~/components/shop/ShopNote'
+import { ShopSpecs } from '~/components/shop/ShopSpecs'
+import {
+  ShopChip,
+  ShopCrumbs,
+  ShopLabel,
+  ShopMono,
+  ShopPanel,
+  ShopPulse,
+  ShopQty,
+  ShopSize,
+} from '~/components/shop/ui'
 import { useAddToCart } from '~/hooks/useCart'
 import { getProduct } from '~/utils/shop.functions'
 import {
@@ -52,8 +62,6 @@ function ProductPage() {
   const [quantity, setQuantity] = React.useState(1)
 
   const selectedVariant = findMatchingVariant(variants, selected)
-
-  // Use the variant's image if it has one, else the first product image
   const variantImage = selectedVariant?.image ?? null
   const initialImageIndex = React.useMemo(() => {
     if (!variantImage) return 0
@@ -65,7 +73,6 @@ function ProductPage() {
   const [activeImageIndex, setActiveImageIndex] =
     React.useState(initialImageIndex)
 
-  // Keep gallery in sync when the selected variant swaps its image
   React.useEffect(() => {
     setActiveImageIndex(initialImageIndex)
   }, [initialImageIndex])
@@ -74,14 +81,15 @@ function ProductPage() {
     product.images.nodes[activeImageIndex] ?? variantImage ?? null
 
   const displayPrice = selectedVariant?.price ?? null
+  const inStock = !!selectedVariant?.availableForSale
 
   return (
-    <div className="max-w-6xl mx-auto p-4 md:p-8 flex flex-col gap-6">
-      <Breadcrumbs
+    <div className="p-6 md:p-11 pb-24 max-w-[1200px] mx-auto">
+      <ShopCrumbs
         crumbs={[{ label: 'Shop', href: '/shop' }, { label: product.title }]}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_minmax(320px,440px)] gap-8 md:gap-10 mt-6">
         <ProductGallery
           images={product.images.nodes}
           activeIndex={activeImageIndex}
@@ -90,15 +98,34 @@ function ProductPage() {
           hero={heroImage}
         />
 
-        <div className="flex flex-col gap-6">
-          <header className="flex flex-col gap-2">
-            <h1 className="text-3xl font-black">{product.title}</h1>
+        <div className="flex flex-col">
+          <ShopLabel>TanStack shop</ShopLabel>
+          <h1 className="font-shop-display font-bold text-[32px] leading-[1.05] tracking-[-0.02em] text-shop-text mt-1.5">
+            {product.title}
+          </h1>
+
+          <ShopPanel className="mt-3 p-3 flex flex-wrap items-center gap-2.5">
             {displayPrice ? (
-              <p className="text-2xl font-semibold text-gray-700 dark:text-gray-300">
+              <ShopMono className="text-[20px] font-medium text-shop-text">
                 {formatMoney(displayPrice.amount, displayPrice.currencyCode)}
-              </p>
+              </ShopMono>
             ) : null}
-          </header>
+            <ShopMono
+              className={twMerge(
+                'ml-auto flex items-center gap-1.5 text-[12px]',
+                inStock ? 'text-shop-green' : 'text-shop-orange',
+              )}
+            >
+              {inStock ? (
+                <>
+                  <ShopPulse />
+                  In stock
+                </>
+              ) : (
+                'Sold out'
+              )}
+            </ShopMono>
+          </ShopPanel>
 
           <VariantSelector
             options={product.options}
@@ -107,20 +134,43 @@ function ProductPage() {
             onChange={setSelected}
           />
 
-          <QuantityStepper
+          <QuantityAdd
             quantity={quantity}
             onChange={(n) => setQuantity(Math.max(1, n))}
+            variant={selectedVariant}
+            product={product}
           />
 
-          <AddToCartButton variant={selectedVariant} quantity={quantity} />
-
           {product.descriptionHtml ? (
-            <div
-              className="prose dark:prose-invert max-w-none mt-4"
-              // eslint-disable-next-line react/no-danger
-              dangerouslySetInnerHTML={{ __html: product.descriptionHtml }}
-            />
+            <ProductDescription html={product.descriptionHtml} />
           ) : null}
+
+          <ShopSpecs
+            specs={[
+              { label: 'Ships', value: 'Worldwide, 7–10 days' },
+              { label: 'From', value: 'TanStack' },
+              { label: 'Condition', value: 'New' },
+              {
+                label: 'Variants',
+                value: `${product.variants.nodes.length} in stock set`,
+              },
+            ]}
+          />
+
+          <ShopNote pill="TanStack">
+            Official TanStack merch. Proceeds help fund maintainer time and keep
+            all libraries free and open source.
+          </ShopNote>
+
+          <div className="mt-4.5 flex items-center justify-between">
+            <ShopLabel>Keep browsing</ShopLabel>
+            <Link
+              to="/shop"
+              className="text-shop-accent text-[11.5px] hover:underline"
+            >
+              All products →
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -146,24 +196,24 @@ function ProductGallery({
 }) {
   if (!hero) {
     return (
-      <div className="aspect-square rounded-2xl bg-gray-100 dark:bg-gray-900" />
+      <div className="aspect-square rounded-xl border border-shop-line bg-shop-panel" />
     )
   }
   const hasMultiple = images.length > 1
   return (
-    <div className="flex flex-col gap-3">
-      <div className="aspect-square overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-900">
+    <div>
+      <div className="aspect-square rounded-xl border border-shop-line bg-shop-panel overflow-hidden">
         <ProductImage
           image={hero}
           alt={title}
           width={1200}
-          sizes="(min-width: 768px) 50vw, 100vw"
+          sizes="(min-width: 768px) 60vw, 100vw"
           loading="eager"
         />
       </div>
       {hasMultiple ? (
-        <div className="grid grid-cols-5 gap-2">
-          {images.map((img, i) => (
+        <div className="grid grid-cols-5 gap-1.5 mt-2.5">
+          {images.slice(0, 5).map((img, i) => (
             <button
               key={`${img.url}-${i}`}
               type="button"
@@ -171,10 +221,10 @@ function ProductGallery({
               aria-label={`View image ${i + 1} of ${images.length}`}
               aria-current={i === activeIndex}
               className={twMerge(
-                'aspect-square overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-900 transition-all',
+                'aspect-square rounded-md border bg-shop-panel overflow-hidden cursor-pointer transition-all',
                 i === activeIndex
-                  ? 'ring-2 ring-black dark:ring-white'
-                  : 'opacity-70 hover:opacity-100',
+                  ? 'border-shop-accent shadow-[0_0_0_1px_var(--shop-accent)]'
+                  : 'border-shop-line hover:border-shop-line-2',
               )}
             >
               <ProductImage
@@ -205,47 +255,53 @@ function VariantSelector({
   return (
     <>
       {options.map((option) => {
-        // Skip auto-generated single-value options like "Title: Default Title"
         if (option.values.length <= 1) return null
+        const isSizeOption = /size/i.test(option.name)
         return (
-          <fieldset key={option.id} className="flex flex-col gap-2">
-            <legend className="text-sm font-medium">
-              <span>{option.name}</span>
-              <span className="ml-2 text-gray-500 dark:text-gray-400">
-                {selected[option.name]}
-              </span>
+          <fieldset key={option.id} className="mt-4.5">
+            <legend className="flex items-center justify-between w-full mb-2.5">
+              <ShopLabel as="span">
+                {option.name}
+                <span className="ml-2 font-sans normal-case tracking-normal text-[11.5px] text-shop-text">
+                  {selected[option.name]}
+                </span>
+              </ShopLabel>
             </legend>
-            <div className="flex flex-wrap gap-2">
+            <div
+              className={
+                isSizeOption
+                  ? 'grid grid-cols-[repeat(auto-fill,minmax(54px,1fr))] gap-1.5'
+                  : 'flex flex-wrap gap-2'
+              }
+            >
               {option.values.map((value) => {
                 const isSelected = selected[option.name] === value
-                // Would this value + current selections resolve to an
-                // available variant? Drives disabled styling without
-                // preventing clicks (Shopify themes tend to allow clicks
-                // so users can see the sold-out state).
                 const candidate = { ...selected, [option.name]: value }
                 const match = findMatchingVariant(variants, candidate)
-                const isAvailable = !!match?.availableForSale
-
+                const isUnavailable = !match?.availableForSale
+                const handleClick = () =>
+                  onChange({ ...selected, [option.name]: value })
+                if (isSizeOption) {
+                  return (
+                    <ShopSize
+                      key={value}
+                      onClick={handleClick}
+                      isSelected={isSelected}
+                      isUnavailable={isUnavailable}
+                    >
+                      {value}
+                    </ShopSize>
+                  )
+                }
                 return (
-                  <button
+                  <ShopChip
                     key={value}
-                    type="button"
-                    onClick={() =>
-                      onChange({ ...selected, [option.name]: value })
-                    }
-                    aria-pressed={isSelected}
-                    className={twMerge(
-                      'px-4 py-2 rounded-lg border text-sm transition-colors relative',
-                      isSelected
-                        ? 'border-black bg-black text-white dark:border-white dark:bg-white dark:text-black'
-                        : 'border-gray-300 dark:border-gray-700 hover:border-gray-500',
-                      !isAvailable && !isSelected
-                        ? 'opacity-50 line-through decoration-gray-400'
-                        : '',
-                    )}
+                    onClick={handleClick}
+                    isSelected={isSelected}
+                    isUnavailable={isUnavailable}
                   >
                     {value}
-                  </button>
+                  </ShopChip>
                 )
               })}
             </div>
@@ -256,37 +312,106 @@ function VariantSelector({
   )
 }
 
-function QuantityStepper({
+function QuantityAdd({
   quantity,
   onChange,
+  variant,
+  product,
 }: {
   quantity: number
   onChange: (next: number) => void
+  variant: ProductDetailVariant | undefined
+  product: ProductDetail
 }) {
+  const addToCart = useAddToCart()
+  const openDrawer = useCartDrawerStore((s) => s.openDrawer)
+  const [showAdded, setShowAdded] = React.useState(false)
+
+  const disabled =
+    !variant || !variant.availableForSale || (addToCart.isPending && !showAdded)
+  const price = variant?.price
+
+  const label = showAdded
+    ? '✓ Added'
+    : !variant
+      ? 'Unavailable'
+      : !variant.availableForSale
+        ? 'Sold out'
+        : price
+          ? `Add to cart — ${formatMoney(
+              (Number(price.amount) * quantity).toFixed(2),
+              price.currencyCode,
+            )}`
+          : 'Add to cart'
+
+  React.useEffect(() => {
+    if (!showAdded) return
+    const id = window.setTimeout(() => setShowAdded(false), 1500)
+    return () => window.clearTimeout(id)
+  }, [showAdded])
+
   return (
-    <div className="flex flex-col gap-2">
-      <span className="text-sm font-medium">Quantity</span>
-      <div className="inline-flex items-center rounded-lg border border-gray-300 dark:border-gray-700 w-fit">
-        <button
-          type="button"
-          onClick={() => onChange(quantity - 1)}
-          disabled={quantity <= 1}
-          aria-label="Decrease quantity"
-          className="p-2 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <Minus className="w-4 h-4" />
-        </button>
-        <span className="w-10 text-center text-sm font-medium">{quantity}</span>
-        <button
-          type="button"
-          onClick={() => onChange(quantity + 1)}
-          aria-label="Increase quantity"
-          className="p-2"
-        >
-          <Plus className="w-4 h-4" />
-        </button>
-      </div>
+    <div className="grid grid-cols-[100px_1fr] gap-2 mt-4.5">
+      <ShopQty
+        quantity={quantity}
+        onChange={(n) => onChange(Math.max(1, n))}
+        min={1}
+      />
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => {
+          if (!variant) return
+          setShowAdded(true)
+          openDrawer()
+          addToCart.mutate({
+            variantId: variant.id,
+            quantity,
+            line: {
+              productTitle: product.title,
+              productHandle: product.handle,
+              variantTitle: variant.title,
+              price: variant.price,
+              image: variant.image,
+              selectedOptions: variant.selectedOptions,
+            },
+          })
+        }}
+        className="
+          h-10 flex items-center justify-center gap-2 rounded-md
+          bg-shop-accent text-shop-accent-ink
+          font-semibold text-[13px] tracking-[0.01em]
+          transition-[filter] hover:enabled:brightness-110
+          disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-shop-panel-2 disabled:text-shop-muted
+          group
+        "
+      >
+        {label}
+        {!showAdded && variant?.availableForSale ? (
+          <span className="transition-transform group-hover:translate-x-[3px]">
+            →
+          </span>
+        ) : null}
+      </button>
     </div>
+  )
+}
+
+function ProductDescription({ html }: { html: string }) {
+  return (
+    <div
+      className="
+        mt-4 text-shop-text-2 text-[13.5px] leading-[1.6]
+        [&_p]:my-0 [&_p]:mb-[0.9em] [&_a]:text-shop-accent [&_a]:underline
+        [&_strong]:text-shop-text [&_strong]:font-semibold
+        [&_ul]:pl-5 [&_ul]:my-2 [&_ol]:pl-5 [&_ol]:my-2 [&_li]:my-1
+        [&_h1]:text-shop-text [&_h1]:font-shop-display [&_h1]:tracking-[-0.01em] [&_h1]:mt-5 [&_h1]:mb-1.5
+        [&_h2]:text-shop-text [&_h2]:font-shop-display [&_h2]:tracking-[-0.01em] [&_h2]:mt-5 [&_h2]:mb-1.5
+        [&_h3]:text-shop-text [&_h3]:font-shop-display [&_h3]:tracking-[-0.01em] [&_h3]:mt-5 [&_h3]:mb-1.5
+      "
+      // eslint-disable-next-line react/no-danger
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
   )
 }
 
@@ -299,69 +424,6 @@ function findMatchingVariant(
   )
 }
 
-function AddToCartButton({
-  variant,
-  quantity,
-}: {
-  variant: ProductDetailVariant | undefined
-  quantity: number
-}) {
-  const addToCart = useAddToCart()
-  const openDrawer = useCartDrawerStore((s) => s.openDrawer)
-
-  const disabled = !variant || !variant.availableForSale || addToCart.isPending
-
-  const label = addToCart.isSuccess
-    ? 'Added ✓'
-    : addToCart.isPending
-      ? 'Adding…'
-      : !variant
-        ? 'Unavailable'
-        : !variant.availableForSale
-          ? 'Sold out'
-          : 'Add to cart'
-
-  React.useEffect(() => {
-    if (!addToCart.isSuccess) return
-    const id = window.setTimeout(() => addToCart.reset(), 1500)
-    return () => window.clearTimeout(id)
-  }, [addToCart.isSuccess, addToCart])
-
-  return (
-    <div className="flex flex-col gap-2">
-      <button
-        type="button"
-        disabled={disabled}
-        onClick={() => {
-          if (!variant) return
-          addToCart.mutate(
-            { variantId: variant.id, quantity },
-            { onSuccess: () => openDrawer() },
-          )
-        }}
-        className={twMerge(
-          'mt-2 px-6 py-3 rounded-lg font-semibold transition-colors',
-          'bg-black text-white dark:bg-white dark:text-black',
-          'disabled:opacity-50 disabled:cursor-not-allowed',
-        )}
-      >
-        {label}
-      </button>
-      {addToCart.isError ? (
-        <p className="text-sm text-red-600 dark:text-red-400">
-          {addToCart.error instanceof Error
-            ? addToCart.error.message
-            : 'Could not add to cart. Please try again.'}
-        </p>
-      ) : null}
-    </div>
-  )
-}
-
-/**
- * schema.org Product JSON-LD for rich search results. Shopify's Storefront
- * API already returns availability and pricing; we just reshape it.
- */
 function ProductJsonLd({
   product,
   selectedVariant,
@@ -369,7 +431,6 @@ function ProductJsonLd({
   product: ProductDetail
   selectedVariant: ProductDetailVariant | undefined
 }) {
-  const firstImage = product.images.nodes[0]
   const offers = product.variants.nodes.map((v) => ({
     '@type': 'Offer',
     sku: v.id,
@@ -406,9 +467,6 @@ function ProductJsonLd({
             offers,
           },
   }
-
-  // void-used just to keep TS happy about firstImage
-  void firstImage
 
   return (
     <script

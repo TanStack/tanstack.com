@@ -83,6 +83,9 @@ export const Route = createFileRoute('/$libraryId/$version/docs/npm-stats')({
     height: v.fallback(v.optional(v.number(), 400), 400),
   }),
   component: RouteComponent,
+  staticData: {
+    includeSearchInCanonical: true,
+  },
 })
 
 type NpmStatsSearch = {
@@ -246,12 +249,20 @@ function RouteComponent() {
         return {
           ...prev,
           packageGroups: prev.packageGroups?.map((pkg) => {
-            const baseline =
-              pkg.packages[0]?.name === packageName ? !pkg.baseline : false
+            const isTarget = pkg.packages[0]?.name === packageName
+            const baseline = isTarget ? !pkg.baseline : false
+
+            const packages =
+              isTarget && baseline
+                ? pkg.packages.map((p, i) =>
+                    i === 0 ? { ...p, hidden: false } : p,
+                  )
+                : pkg.packages
 
             return {
               ...pkg,
               baseline,
+              packages,
             }
           }),
         }

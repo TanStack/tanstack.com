@@ -53,6 +53,8 @@ const PRODUCT_CARD_FRAGMENT = /* GraphQL */ `
     id
     handle
     title
+    productType
+    tags
     featuredImage {
       url
       altText
@@ -103,7 +105,10 @@ export const PRODUCTS_QUERY = /* GraphQL */ `
   }
 `
 
-export type ProductListItem = Pick<Product, 'id' | 'handle' | 'title'> & {
+export type ProductListItem = Pick<
+  Product,
+  'id' | 'handle' | 'title' | 'productType' | 'tags'
+> & {
   featuredImage:
     | (Pick<StorefrontImage, 'url' | 'altText' | 'width' | 'height'> | null)
     | null
@@ -604,6 +609,76 @@ export type PageDetail = Pick<
 
 export type PageQueryResult = {
   page: PageDetail | null
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * Shop policies — Privacy, Refund, Terms, Shipping
+ *
+ * Shopify stores policies separately from generic pages. They're accessed
+ * via top-level fields on `shop`, not the `page(handle:)` query.
+ * ────────────────────────────────────────────────────────────────────────── */
+
+export const SHOP_POLICIES_QUERY = /* GraphQL */ `
+  query ShopPolicies {
+    shop {
+      privacyPolicy {
+        handle
+        title
+        body
+      }
+      refundPolicy {
+        handle
+        title
+        body
+      }
+      termsOfService {
+        handle
+        title
+        body
+      }
+      shippingPolicy {
+        handle
+        title
+        body
+      }
+    }
+  }
+`
+
+export type ShopPolicy = {
+  handle: string
+  title: string
+  body: string
+} | null
+
+export type ShopPoliciesQueryResult = {
+  shop: {
+    privacyPolicy: ShopPolicy
+    refundPolicy: ShopPolicy
+    termsOfService: ShopPolicy
+    shippingPolicy: ShopPolicy
+  }
+}
+
+export type PolicySummary = { handle: string; title: string }
+
+/**
+ * Flatten the four policy fields into a list of non-null policies,
+ * suitable for rendering sidebar links.
+ */
+export function flattenPolicies(
+  shop: ShopPoliciesQueryResult['shop'],
+): Array<PolicySummary> {
+  const keys = [
+    'shippingPolicy',
+    'refundPolicy',
+    'privacyPolicy',
+    'termsOfService',
+  ] as const
+  return keys.flatMap((k) => {
+    const p = shop[k]
+    return p ? [{ handle: p.handle, title: p.title }] : []
+  })
 }
 
 /* ──────────────────────────────────────────────────────────────────────────

@@ -184,12 +184,14 @@ export function NPMStatsChart({
     }
   })
 
-  // Filter out any top-level hidden packages
+  // Filter out any top-level hidden packages. Baseline series stay in the
+  // plot when visible — they render as a flat reference line at 1.0 (every
+  // point divided by itself) so users can see the baseline alongside the
+  // normalized series.
   const filteredPackageData = correctedPackageData.filter((_, index) => {
     const packageGroupWithHidden = packages[index]
     const isHidden = packageGroupWithHidden?.packages[0]?.hidden
-    const isBaseline = packageGroupWithHidden?.baseline
-    return !isBaseline && !isHidden
+    return !isHidden
   })
 
   const plotData = filteredPackageData.flatMap((d) => d.downloads)

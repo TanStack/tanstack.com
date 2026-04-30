@@ -43,7 +43,7 @@ export function isRecoverableGitHubContentError(
   )
 }
 
-function shouldUseLocalDocsFiles() {
+export function shouldUseLocalDocsFiles() {
   if (process.env.NODE_ENV !== 'development') {
     return false
   }

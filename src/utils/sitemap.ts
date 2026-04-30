@@ -9,8 +9,6 @@ export type SitemapEntry = {
   lastModified?: string
 }
 
-const MAX_DOCS_SITEMAP_DEPTH = 3
-
 const HIGH_VALUE_NON_DOC_PAGES = [
   '/',
   '/blog',
@@ -21,6 +19,14 @@ const HIGH_VALUE_NON_DOC_PAGES = [
   '/workshops',
   '/paid-support',
 ] as const satisfies ReadonlyArray<string>
+
+const LOW_VALUE_DOCS_SITEMAP_SEGMENTS = new Set(['examples', 'community'])
+
+const LOW_VALUE_DOCS_SITEMAP_SLUGS = new Set([
+  'community-resources',
+  'contributors',
+  'npm-stats',
+])
 
 function trimTrailingSlash(url: string) {
   return url.replace(/\/$/, '')
@@ -48,16 +54,19 @@ function getLibraryEntries(): Array<SitemapEntry> {
     ) {
       return []
     }
-
     const basePath = `/${library.id}/latest`
     return [{ path: basePath }]
   })
 }
 
-function isTopLevelDocsSlug(slug: string) {
-  const segments = slug.split('/')
+function isHighValueDocsSlug(slug: string) {
+  const segments = slug.split('/').filter(Boolean)
 
-  return segments.length <= MAX_DOCS_SITEMAP_DEPTH
+  return (
+    segments.length > 0 &&
+    !segments.some((segment) => LOW_VALUE_DOCS_SITEMAP_SEGMENTS.has(segment)) &&
+    !LOW_VALUE_DOCS_SITEMAP_SLUGS.has(slug)
+  )
 }
 
 async function getLibraryDocsEntries(
@@ -66,7 +75,7 @@ async function getLibraryDocsEntries(
   if (
     library.visible === false ||
     !library.latestVersion ||
-    library.sitemap?.includeTopLevelDocsPages !== true
+    library.sitemap?.includeDocsPages !== true
   ) {
     return []
   }
@@ -81,7 +90,7 @@ async function getLibraryDocsEntries(
 
   return manifest.paths
     .filter(Boolean)
-    .filter(isTopLevelDocsSlug)
+    .filter(isHighValueDocsSlug)
     .map((slug) => ({
       path: `/${library.id}/latest/docs/${slug}`,
     }))
@@ -108,7 +117,11 @@ export async function getSitemapEntries(): Promise<Array<SitemapEntry>> {
     ...getLibraryEntries(),
     ...docsEntries.flat(),
     ...getBlogEntries(),
-  ]
+  ].filter(
+    (entry) =>
+      entry.path !== '/intent/registry' &&
+      !entry.path.startsWith('/intent/registry/'),
+  )
 
   return Array.from(
     new Map(entries.map((entry) => [entry.path, entry])).values(),

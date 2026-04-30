@@ -27,9 +27,7 @@ import {
   getStoredFrameworkPreference,
   usePersistFrameworkPreference,
 } from './FrameworkSelect'
-import {
-  shouldPersistFrameworkForHit,
-} from '~/utils/searchRecords'
+import { shouldPersistFrameworkForHit } from '~/utils/searchRecords'
 
 /**
  * Safely decode HTML entities without using innerHTML.
@@ -891,7 +889,10 @@ export function SearchModal() {
           <DialogPrimitive.Title className="sr-only">
             Search TanStack docs
           </DialogPrimitive.Title>
-          <InstantSearch searchClient={searchClient} indexName={searchIndexName}>
+          <InstantSearch
+            searchClient={searchClient}
+            indexName={searchIndexName}
+          >
             <SearchFiltersProvider>
               <DynamicFilters />
               <div className="flex items-center gap-2 px-4 py-3 overflow-visible">

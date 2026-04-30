@@ -8,6 +8,7 @@ import {
   fetchApiContents,
   fetchRepoFile,
   isRecoverableGitHubContentError,
+  shouldUseLocalDocsFiles,
 } from '~/utils/documents.server'
 import { renderMarkdownToRsc } from './markdown'
 import { extractFrameworksFromMarkdown } from './markdown/filterFrameworkContent'
@@ -116,10 +117,78 @@ function isDocsManifest(value: unknown): value is DocsManifest {
   )
 }
 
+async function buildDocsManifest({
+  repo,
+  branch,
+  docsRoot,
+}: {
+  repo: string
+  branch: string
+  docsRoot: string
+}): Promise<DocsManifest> {
+  const nodes = await fetchApiContents(repo, branch, docsRoot)
+
+  if (!nodes) {
+    return { paths: [], redirects: {} }
+  }
+
+  const markdownFiles = flattenDocsNodes(nodes).filter((node) =>
+    node.path.endsWith('.md'),
+  )
+  const paths = new Set<string>()
+  const redirects: Array<RedirectManifestEntry> = []
+
+  for (const node of markdownFiles) {
+    const canonicalPath = getCanonicalDocsPath(node.path, docsRoot)
+
+    if (canonicalPath === null) {
+      continue
+    }
+
+    paths.add(canonicalPath)
+
+    const file = await fetchRepoFile(repo, branch, node.path)
+
+    if (!file) {
+      continue
+    }
+
+    const frontMatter = extractFrontMatter(file)
+
+    for (const redirectFrom of frontMatter.data.redirectFrom ?? []) {
+      const normalizedRedirect = normalizeDocsRedirectPath(
+        redirectFrom,
+        docsRoot,
+      )
+
+      if (!normalizedRedirect || normalizedRedirect === canonicalPath) {
+        continue
+      }
+
+      redirects.push({
+        from: normalizedRedirect,
+        to: canonicalPath,
+        source: node.path,
+      })
+    }
+  }
+
+  return {
+    paths: Array.from(paths),
+    redirects: buildRedirectManifest(redirects, {
+      label: `docs redirects for ${repo}@${branch}:${docsRoot}`,
+    }),
+  }
+}
+
 export const fetchDocsManifest = createServerFn({ method: 'GET' })
   .inputValidator(docsManifestInput)
   .handler(async ({ data }) => {
     const { repo, branch, docsRoot } = data
+
+    if (shouldUseLocalDocsFiles()) {
+      return buildDocsManifest({ repo, branch, docsRoot })
+    }
 
     return getCachedDocsArtifact({
       repo,
@@ -128,61 +197,7 @@ export const fetchDocsManifest = createServerFn({ method: 'GET' })
       artifactType: 'docs-manifest',
       artifactKey: 'default',
       isValue: isDocsManifest,
-      build: async () => {
-        const nodes = await fetchApiContents(repo, branch, docsRoot)
-
-        if (!nodes) {
-          return { paths: [], redirects: {} }
-        }
-
-        const markdownFiles = flattenDocsNodes(nodes).filter((node) =>
-          node.path.endsWith('.md'),
-        )
-        const paths = new Set<string>()
-        const redirects: Array<RedirectManifestEntry> = []
-
-        for (const node of markdownFiles) {
-          const canonicalPath = getCanonicalDocsPath(node.path, docsRoot)
-
-          if (canonicalPath === null) {
-            continue
-          }
-
-          paths.add(canonicalPath)
-
-          const file = await fetchRepoFile(repo, branch, node.path)
-
-          if (!file) {
-            continue
-          }
-
-          const frontMatter = extractFrontMatter(file)
-
-          for (const redirectFrom of frontMatter.data.redirectFrom ?? []) {
-            const normalizedRedirect = normalizeDocsRedirectPath(
-              redirectFrom,
-              docsRoot,
-            )
-
-            if (!normalizedRedirect || normalizedRedirect === canonicalPath) {
-              continue
-            }
-
-            redirects.push({
-              from: normalizedRedirect,
-              to: canonicalPath,
-              source: node.path,
-            })
-          }
-        }
-
-        return {
-          paths: Array.from(paths),
-          redirects: buildRedirectManifest(redirects, {
-            label: `docs redirects for ${repo}@${branch}:${docsRoot}`,
-          }),
-        }
-      },
+      build: () => buildDocsManifest({ repo, branch, docsRoot }),
     })
   })
 

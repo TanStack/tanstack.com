@@ -158,6 +158,27 @@ const searchClient = liteClient(
   'FQ0DQ6MA3C',
   '10c34d6a5c89f6048cf644d601e65172',
 )
+const searchIndexName = 'tanstack-test'
+
+function buildSearchFilters({
+  selectedLibrary,
+  selectedFramework,
+}: {
+  selectedLibrary: string
+  selectedFramework: string
+}) {
+  const filterParts: string[] = ['(version:latest OR version:all)']
+
+  if (selectedLibrary) {
+    filterParts.push(`library:${selectedLibrary}`)
+  }
+
+  if (selectedFramework) {
+    filterParts.push(`(framework:${selectedFramework} OR framework:all)`)
+  }
+
+  return filterParts.join(' AND ')
+}
 
 // Context to share filter state between components
 const SearchFiltersContext = React.createContext<{
@@ -325,24 +346,6 @@ function SearchFiltersProvider({ children }: { children: React.ReactNode }) {
 function DynamicFilters() {
   const { selectedLibrary, selectedFramework } = useSearchFilters()
 
-  // Build filter string
-  // - Always filter to latest version OR "all" (for core pages)
-  // - When library selected: scope strictly to that library
-  // - When framework selected: include that framework OR "all" (for integration pages)
-  const filterParts: string[] = []
-
-  // Version filter: include latest OR "all" (core pages)
-  filterParts.push('(version:latest OR version:all)')
-
-  if (selectedLibrary) {
-    filterParts.push(`library:${selectedLibrary}`)
-  }
-
-  if (selectedFramework) {
-    // Include selected framework OR "all" (integration pages, core pages)
-    filterParts.push(`(framework:${selectedFramework} OR framework:all)`)
-  }
-
   return (
     <Configure
       attributesToRetrieve={[
@@ -371,7 +374,7 @@ function DynamicFilters() {
         'content',
       ]}
       attributesToSnippet={['content:50']}
-      filters={filterParts.join(' AND ')}
+      filters={buildSearchFilters({ selectedLibrary, selectedFramework })}
     />
   )
 }
@@ -500,7 +503,8 @@ const Hit = ({
       <span
         key="library"
         className={twMerge(
-          'inline-flex items-center px-2 py-0.5 rounded text-xs font-black text-white uppercase',
+          'inline-flex items-center px-2 py-0.5 rounded text-xs font-black uppercase',
+          hitLibraryInfo.badgeTextStyle ?? 'text-white',
           hitLibraryInfo.bgStyle,
         )}
       >
@@ -887,7 +891,7 @@ export function SearchModal() {
           <DialogPrimitive.Title className="sr-only">
             Search TanStack docs
           </DialogPrimitive.Title>
-          <InstantSearch searchClient={searchClient} indexName="tanstack-test">
+          <InstantSearch searchClient={searchClient} indexName={searchIndexName}>
             <SearchFiltersProvider>
               <DynamicFilters />
               <div className="flex items-center gap-2 px-4 py-3 overflow-visible">
@@ -1020,7 +1024,8 @@ function SearchResults({ focusedIndex }: { focusedIndex: number }) {
                         setSelectedLibrary(lib.id)
                       }}
                       className={twMerge(
-                        'px-2 py-1 text-xs font-black uppercase rounded text-white transition-opacity hover:opacity-80',
+                        'px-2 py-1 text-xs font-black uppercase rounded transition-opacity hover:opacity-80',
+                        lib.badgeTextStyle ?? 'text-white',
                         lib.bgStyle,
                       )}
                     >

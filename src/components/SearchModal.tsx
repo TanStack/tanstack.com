@@ -30,7 +30,6 @@ import {
 } from './FrameworkSelect'
 import {
   shouldPersistFrameworkForHit,
-  type SearchRouteStyle,
 } from '~/utils/searchRecords'
 
 /**
@@ -90,7 +89,7 @@ interface AlgoliaHit extends Record<string, unknown> {
   urlWithAnchor?: string
   library?: string
   framework?: string
-  routeStyle?: SearchRouteStyle
+  routeStyle?: string
   hierarchy: AlgoliaHierarchy
   content?: string
   type?: string

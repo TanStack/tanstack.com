@@ -31,6 +31,53 @@ type FilterOptions = {
   keepMarkers?: boolean
 }
 
+export function extractFrameworksFromMarkdown(markdown: string): Array<string> {
+  const frameworks: Array<string> = []
+  const seen = new Set<string>()
+
+  const addFramework = (framework: string) => {
+    const normalizedFramework = framework.trim().toLowerCase()
+    if (!normalizedFramework || seen.has(normalizedFramework)) {
+      return
+    }
+
+    seen.add(normalizedFramework)
+    frameworks.push(normalizedFramework)
+  }
+
+  const frameworkBlockRegex =
+    /<!--\s*::start:framework\s*-->([\s\S]*?)<!--\s*::end:framework\s*-->/gi
+  let frameworkBlockMatch: RegExpExecArray | null
+
+  while ((frameworkBlockMatch = frameworkBlockRegex.exec(markdown)) !== null) {
+    for (const section of splitByFrameworkHeadings(
+      frameworkBlockMatch[1] ?? '',
+    )) {
+      addFramework(section.framework)
+    }
+  }
+
+  const tabsBlockRegex =
+    /<!--\s*::start:tabs\s+([^>]*?)-->([\s\S]*?)<!--\s*::end:tabs\s*-->/gi
+  let tabsBlockMatch: RegExpExecArray | null
+
+  while ((tabsBlockMatch = tabsBlockRegex.exec(markdown)) !== null) {
+    const attrs = tabsBlockMatch[1] ?? ''
+    const variant = parseAttribute(attrs, 'variant')
+    if (variant !== 'package-manager' && variant !== 'package-managers') {
+      continue
+    }
+
+    for (const framework of Object.keys(
+      parseFrameworkLines(tabsBlockMatch[2] ?? ''),
+    )) {
+      addFramework(framework)
+    }
+  }
+
+  return frameworks
+}
+
 /**
  * Filters framework-specific content and package-manager tabs from raw markdown.
  * If no framework is specified, returns markdown unchanged.

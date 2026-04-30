@@ -10,6 +10,7 @@ import {
   isRecoverableGitHubContentError,
 } from '~/utils/documents.server'
 import { renderMarkdownToRsc } from './markdown'
+import { extractFrameworksFromMarkdown } from './markdown/filterFrameworkContent'
 import { getCachedDocsArtifact } from './github-content-cache.server'
 import { buildRedirectManifest, type RedirectManifestEntry } from './redirects'
 import { removeLeadingSlash } from './utils'
@@ -239,6 +240,7 @@ export const fetchDocs = createServerFn({ method: 'GET' })
       contentRsc,
       title: frontMatter.data?.title ?? 'Content temporarily unavailable',
       description,
+      frameworks: extractFrameworksFromMarkdown(frontMatter.content),
       filePath,
       headings,
       frontmatter: frontMatter.data,
@@ -255,6 +257,7 @@ export const fetchDocsPage = createServerFn({ method: 'GET' })
       description: doc.description,
       filePath: doc.filePath,
       frontmatter: doc.frontmatter,
+      frameworks: doc.frameworks,
       headings: doc.headings,
       title: doc.title,
     }

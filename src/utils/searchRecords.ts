@@ -1,32 +1,7 @@
-export type SearchRouteStyle = 'canonical' | 'framework-path'
-
-export type SearchHierarchy = {
-  lvl0?: string | null
-  lvl1?: string | null
-  lvl2?: string | null
-  lvl3?: string | null
-  lvl4?: string | null
-  lvl5?: string | null
-  lvl6?: string | null
-}
-
-export type SearchRecord = {
-  objectID: string
-  url: string
-  anchor?: string
-  urlWithAnchor: string
-  library: string
-  framework: string
-  version: string
-  routeStyle: SearchRouteStyle
-  hierarchy: SearchHierarchy
-  content?: string
-}
-
 export type SearchHitFrameworkContext = {
   url: string
   framework?: string | null
-  routeStyle?: SearchRouteStyle | null
+  routeStyle?: string | null
 }
 
 function getPathname(url: string) {

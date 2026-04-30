@@ -1,7 +1,7 @@
 ---
 title: 'Who Owns the Tree? RSC as a Protocol, Not an Architecture'
 published: 2026-04-28
-draft: true
+draft: false
 excerpt: RSC is usually framed as a single architecture where the server owns the tree. But it's also a protocol, and the protocol supports more than one composition model. The overlooked question is who owns the tree.
 authors:
   - Tanner Linsley

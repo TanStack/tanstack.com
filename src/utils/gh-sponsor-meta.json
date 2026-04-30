@@ -46,6 +46,12 @@
     "linkUrl": "https://humanizerpro.ai"
   },
   {
+    "login": "GoHumanize-ai",
+    "name": "GO Humanize ai",
+    "imageUrl": "https://gohumanize.ai/favicon.ico",
+    "linkUrl": "https://gohumanize.ai/"
+  },
+  {
     "login": "codedamn",
     "linkUrl": "https://codedamn.com?utm_source=tanstack"
   },

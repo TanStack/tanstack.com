@@ -82,7 +82,7 @@ export type LibrarySlim = {
   visible?: boolean
   sitemap?: {
     includeLandingPage?: boolean
-    includeTopLevelDocsPages?: boolean
+    includeDocsPages?: boolean
   }
 }
 

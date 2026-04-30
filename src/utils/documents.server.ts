@@ -187,7 +187,7 @@ function replaceSections(
   frontmatter: graymatter.GrayMatterFile<string>,
 ) {
   let result = text
-  // RegExp defining token pair to dicover sections in the document
+  // RegExp defining token pair to discover sections in the document
   // [//]: # (<Section Token>)
   const sectionMarkerRegex = /\[\/\/\]: # '([a-zA-Z\d]*)'/g
   const sectionRegex =
@@ -198,7 +198,7 @@ function replaceSections(
   for (const match of frontmatter.content.matchAll(sectionRegex)) {
     if (match[1] !== match[2]) {
       console.error(
-        `Origin section '${match[1]}' does not have matching closing token (found '${match[2]}'). Please make sure that each section has corresponsing closing token and that sections are not nested.`,
+        `Origin section '${match[1]}' does not have matching closing token (found '${match[2]}'). Please make sure that each section has corresponding closing token and that sections are not nested.`,
       )
     }
 
@@ -210,7 +210,7 @@ function replaceSections(
   for (const match of result.matchAll(sectionRegex)) {
     if (match[1] !== match[2]) {
       console.error(
-        `Target section '${match[1]}' does not have matching closing token (found '${match[2]}'). Please make sure that each section has corresponsing closing token and that sections are not nested.`,
+        `Target section '${match[1]}' does not have matching closing token (found '${match[2]}'). Please make sure that each section has corresponding closing token and that sections are not nested.`,
       )
     }
 

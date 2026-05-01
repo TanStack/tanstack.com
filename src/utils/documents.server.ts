@@ -177,7 +177,7 @@ function replaceContent(
  * Perform tokenized sections replace in text.
  * - Discover sections based on token marker via RegExp in origin file.
  * - Discover sections based on token marker via RegExp in target file.
- * - replace sections in target file staring from the end, with sections defined in origin file
+ * - replace sections in target file starting from the end, with sections defined in origin file
  * @param text File content
  * @param frontmatter Referencing file front-matter
  * @returns File content with replaced sections

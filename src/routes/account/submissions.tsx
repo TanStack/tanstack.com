@@ -137,14 +137,17 @@ function AccountSubmissionsPage() {
               key={showcase.id}
               className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
             >
-              <div className="flex">
+              <div className="flex flex-col sm:flex-row">
                 {/* Screenshot */}
-                <div className="w-48 h-32 flex-shrink-0 bg-gray-100 dark:bg-gray-900">
+                <div className="relative w-full h-48 sm:w-48 sm:h-32 shrink-0 bg-gray-100 dark:bg-gray-900">
                   <img
                     src={showcase.screenshotUrl}
                     alt={showcase.name}
                     className="w-full h-full object-cover"
                   />
+                  <div className="absolute top-2 right-2 sm:hidden">
+                    {getStatusBadge(showcase.status)}
+                  </div>
                 </div>
 
                 {/* Content */}
@@ -158,7 +161,9 @@ function AccountSubmissionsPage() {
                         {showcase.tagline}
                       </p>
                     </div>
-                    {getStatusBadge(showcase.status)}
+                    <div className="hidden sm:block">
+                      {getStatusBadge(showcase.status)}
+                    </div>
                   </div>
 
                   {/* Libraries */}

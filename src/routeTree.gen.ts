@@ -134,7 +134,7 @@ import { Route as LibraryIdVersionDocsRouteImport } from './routes/$libraryId/$v
 import { Route as IntentRegistryPackageNameIndexRouteImport } from './routes/intent/registry/$packageName.index'
 import { Route as LibraryIdVersionDocsIndexRouteImport } from './routes/$libraryId/$version.docs.index'
 import { Route as IntentRegistryPackageNameChar123Char125DotmdRouteImport } from './routes/intent/registry/$packageName.{$}[.]md'
-import { Route as IntentRegistryPackageNameSkillNameRouteImport } from './routes/intent/registry/$packageName.$skillName'
+import { Route as IntentRegistryPackageNameChar123Char125RouteImport } from './routes/intent/registry/$packageName.{$}'
 import { Route as ApiV1IntentSearchRouteImport } from './routes/api/v1/intent/search'
 import { Route as ApiV1IntentPackagesRouteImport } from './routes/api/v1/intent/packages'
 import { Route as ApiBuilderDeployGithubRouteImport } from './routes/api/builder/deploy/github'
@@ -791,10 +791,10 @@ const IntentRegistryPackageNameChar123Char125DotmdRoute =
     path: '/{$}.md',
     getParentRoute: () => IntentRegistryPackageNameRoute,
   } as any)
-const IntentRegistryPackageNameSkillNameRoute =
-  IntentRegistryPackageNameSkillNameRouteImport.update({
-    id: '/$skillName',
-    path: '/$skillName',
+const IntentRegistryPackageNameChar123Char125Route =
+  IntentRegistryPackageNameChar123Char125RouteImport.update({
+    id: '/{$}',
+    path: '/{$}',
     getParentRoute: () => IntentRegistryPackageNameRoute,
   } as any)
 const ApiV1IntentSearchRoute = ApiV1IntentSearchRouteImport.update({
@@ -1046,7 +1046,7 @@ export interface FileRoutesByFullPath {
   '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
   '/api/v1/intent/packages': typeof ApiV1IntentPackagesRouteWithChildren
   '/api/v1/intent/search': typeof ApiV1IntentSearchRoute
-  '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
+  '/intent/registry/$packageName/{$}': typeof IntentRegistryPackageNameChar123Char125Route
   '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   '/$libraryId/$version/docs/': typeof LibraryIdVersionDocsIndexRoute
   '/intent/registry/$packageName/': typeof IntentRegistryPackageNameIndexRoute
@@ -1184,7 +1184,7 @@ export interface FileRoutesByTo {
   '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
   '/api/v1/intent/packages': typeof ApiV1IntentPackagesRouteWithChildren
   '/api/v1/intent/search': typeof ApiV1IntentSearchRoute
-  '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
+  '/intent/registry/$packageName/{$}': typeof IntentRegistryPackageNameChar123Char125Route
   '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsIndexRoute
   '/intent/registry/$packageName': typeof IntentRegistryPackageNameIndexRoute
@@ -1333,7 +1333,7 @@ export interface FileRoutesById {
   '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
   '/api/v1/intent/packages': typeof ApiV1IntentPackagesRouteWithChildren
   '/api/v1/intent/search': typeof ApiV1IntentSearchRoute
-  '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
+  '/intent/registry/$packageName/{$}': typeof IntentRegistryPackageNameChar123Char125Route
   '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   '/$libraryId/$version/docs/': typeof LibraryIdVersionDocsIndexRoute
   '/intent/registry/$packageName/': typeof IntentRegistryPackageNameIndexRoute
@@ -1483,7 +1483,7 @@ export interface FileRouteTypes {
     | '/api/builder/deploy/github'
     | '/api/v1/intent/packages'
     | '/api/v1/intent/search'
-    | '/intent/registry/$packageName/$skillName'
+    | '/intent/registry/$packageName/{$}'
     | '/intent/registry/$packageName/{$}.md'
     | '/$libraryId/$version/docs/'
     | '/intent/registry/$packageName/'
@@ -1621,7 +1621,7 @@ export interface FileRouteTypes {
     | '/api/builder/deploy/github'
     | '/api/v1/intent/packages'
     | '/api/v1/intent/search'
-    | '/intent/registry/$packageName/$skillName'
+    | '/intent/registry/$packageName/{$}'
     | '/intent/registry/$packageName/{$}.md'
     | '/$libraryId/$version/docs'
     | '/intent/registry/$packageName'
@@ -1769,7 +1769,7 @@ export interface FileRouteTypes {
     | '/api/builder/deploy/github'
     | '/api/v1/intent/packages'
     | '/api/v1/intent/search'
-    | '/intent/registry/$packageName/$skillName'
+    | '/intent/registry/$packageName/{$}'
     | '/intent/registry/$packageName/{$}.md'
     | '/$libraryId/$version/docs/'
     | '/intent/registry/$packageName/'
@@ -2755,11 +2755,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IntentRegistryPackageNameChar123Char125DotmdRouteImport
       parentRoute: typeof IntentRegistryPackageNameRoute
     }
-    '/intent/registry/$packageName/$skillName': {
-      id: '/intent/registry/$packageName/$skillName'
-      path: '/$skillName'
-      fullPath: '/intent/registry/$packageName/$skillName'
-      preLoaderRoute: typeof IntentRegistryPackageNameSkillNameRouteImport
+    '/intent/registry/$packageName/{$}': {
+      id: '/intent/registry/$packageName/{$}'
+      path: '/{$}'
+      fullPath: '/intent/registry/$packageName/{$}'
+      preLoaderRoute: typeof IntentRegistryPackageNameChar123Char125RouteImport
       parentRoute: typeof IntentRegistryPackageNameRoute
     }
     '/api/v1/intent/search': {
@@ -3103,15 +3103,15 @@ const ShopRouteChildren: ShopRouteChildren = {
 const ShopRouteWithChildren = ShopRoute._addFileChildren(ShopRouteChildren)
 
 interface IntentRegistryPackageNameRouteChildren {
-  IntentRegistryPackageNameSkillNameRoute: typeof IntentRegistryPackageNameSkillNameRoute
+  IntentRegistryPackageNameChar123Char125Route: typeof IntentRegistryPackageNameChar123Char125Route
   IntentRegistryPackageNameChar123Char125DotmdRoute: typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   IntentRegistryPackageNameIndexRoute: typeof IntentRegistryPackageNameIndexRoute
 }
 
 const IntentRegistryPackageNameRouteChildren: IntentRegistryPackageNameRouteChildren =
   {
-    IntentRegistryPackageNameSkillNameRoute:
-      IntentRegistryPackageNameSkillNameRoute,
+    IntentRegistryPackageNameChar123Char125Route:
+      IntentRegistryPackageNameChar123Char125Route,
     IntentRegistryPackageNameChar123Char125DotmdRoute:
       IntentRegistryPackageNameChar123Char125DotmdRoute,
     IntentRegistryPackageNameIndexRoute: IntentRegistryPackageNameIndexRoute,

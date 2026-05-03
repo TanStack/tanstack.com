@@ -227,8 +227,8 @@ export function SkillDependencyGraph({
             return (
               <Link
                 key={node.id}
-                to="/intent/registry/$packageName/$skillName"
-                params={{ packageName, skillName: node.id }}
+                to="/intent/registry/$packageName/{$}"
+                params={{ packageName, _splat: node.id }}
               >
                 <g className="cursor-pointer group">
                   <circle

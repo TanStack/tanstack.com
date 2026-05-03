@@ -7,9 +7,7 @@ import {
 import { buildSkillContentUrls } from '~/utils/intent-api.server'
 import { decodePkgName } from './$packageName'
 
-export const Route = createFileRoute(
-  '/intent/registry/$packageName/{$}.md',
-)({
+export const Route = createFileRoute('/intent/registry/$packageName/{$}.md')({
   server: {
     handlers: {
       GET: async ({ request, params }) => {

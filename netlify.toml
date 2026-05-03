@@ -35,3 +35,18 @@ for = "/builder/*"
 [headers.values]
 Cross-Origin-Opener-Policy = "same-origin"
 Cross-Origin-Embedder-Policy = "require-corp"
+
+# Reverse-proxy Google Analytics through our own origin so requests are
+# first-party (escapes hostname-based ad blockers, longer-lived cookies,
+# cleaner CSP). gtag.js is told to use this prefix as its transport_url.
+[[redirects]]
+  from = "/_a/gtag.js"
+  to = "https://www.googletagmanager.com/gtag/js?id=G-JMT1Z50SPS"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/_a/g/collect"
+  to = "https://www.google-analytics.com/g/collect"
+  status = 200
+  force = true

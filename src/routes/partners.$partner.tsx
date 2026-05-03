@@ -64,12 +64,9 @@ function PartnerDetailPage() {
   const isActive = partner.status === 'active'
 
   React.useEffect(() => {
-    trackEvent('partner_detail_viewed', {
-      libraries: partner.libraries,
-      partner_category: partner.category,
+    trackEvent('partner_viewed', {
       partner_id: partner.id,
-      partner_name: partner.name,
-      partner_status: partner.status,
+      placement: 'detail',
     })
   }, [partner])
 
@@ -139,12 +136,18 @@ function PartnerDetailPage() {
                     target="_blank"
                     rel="noreferrer"
                     onClick={() => {
-                      trackEvent('partner_click', {
-                        destination_host: new URL(partner.href).host,
-                        partner_category: partner.category,
+                      let destinationHost: string | undefined
+                      try {
+                        destinationHost = new URL(partner.href).host
+                      } catch {
+                        // Bad/relative href — track without host rather than
+                        // throwing and dropping the event entirely.
+                      }
+                      trackEvent('partner_clicked', {
                         partner_id: partner.id,
-                        partner_name: partner.name,
-                        placement: 'partner_detail_cta',
+                        placement: 'detail',
+                        destination: 'external',
+                        destination_host: destinationHost,
                       })
                     }}
                   >

@@ -179,7 +179,7 @@ function BlogPost() {
           </div>
           <RightRail breakpoint="md">
             <PartnersRail
-              analyticsPlacement="blog_right_rail"
+              analyticsPlacement="blog_rail"
               partners={activePartners}
             />
             <div className="hidden md:block border border-gray-500/20 rounded-l-lg overflow-hidden w-full">

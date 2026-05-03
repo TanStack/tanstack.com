@@ -38,7 +38,6 @@ import {
 } from '~/components/application-builder/shared'
 import { useApplicationBuilder } from '~/components/application-builder/useApplicationBuilder'
 import { Button, GitHub } from '~/ui'
-import { trackEvent } from '~/utils/analytics'
 
 export interface ApplicationStarterProps {
   alwaysShowPostAnalysisSection?: boolean
@@ -104,7 +103,6 @@ export function ApplicationStarter({
 }: ApplicationStarterProps) {
   const {
     analysis,
-    analyticsProperties,
     anonymousGenerationQuota,
     copiedKind,
     copyResultValue,
@@ -116,7 +114,6 @@ export function ApplicationStarter({
     hasFreshAnalysis,
     hasInput,
     hasMigrationRepositoryUrlError,
-    impressionRef,
     input,
     isDeployDialogOpen,
     isAnalysisStale,
@@ -147,7 +144,9 @@ export function ApplicationStarter({
     selectedToolchain,
     setIsDeployDialogOpen,
     setIsModHeld,
+    setSessionMode,
     showMigrationRepositoryInput,
+    trackActivation,
     showLuckyActions,
     submitCurrentInput,
     suggestions,
@@ -228,7 +227,7 @@ export function ApplicationStarter({
   }, [])
 
   return (
-    <div ref={impressionRef} className={twMerge('relative', className)}>
+    <div className={twMerge('relative', className)}>
       {enableHotkeys && !compact && hasFocusedPromptInput ? (
         <ClientOnly>
           <React.Suspense fallback={null}>
@@ -250,6 +249,7 @@ export function ApplicationStarter({
             onClose={() => setIsDeployDialogOpen(false)}
             provider={deployDialogProvider}
             starterRecipe={result?.recipe ?? null}
+            onTrackActivation={trackActivation}
           />
         </React.Suspense>
       ) : null}
@@ -624,11 +624,7 @@ export function ApplicationStarter({
                           size="sm"
                           type="button"
                           onClick={() => {
-                            trackEvent('application_starter_action_clicked', {
-                              ...analyticsProperties,
-                              action: 'lucky_mode',
-                              surface: 'application_starter',
-                            })
+                            setSessionMode('lucky')
                             enableLuckyActions()
                           }}
                           disabled={!canUseLuckyAction}
@@ -643,11 +639,7 @@ export function ApplicationStarter({
                           size="sm"
                           type="button"
                           onClick={() => {
-                            trackEvent('application_starter_action_clicked', {
-                              ...analyticsProperties,
-                              action: 'confident_mode',
-                              surface: 'application_starter',
-                            })
+                            setSessionMode('confident')
                             setShowConfidentOptions(true)
                           }}
                         >

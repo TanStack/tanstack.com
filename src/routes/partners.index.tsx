@@ -72,14 +72,6 @@ function normalizePartnersSearch(
   }
 }
 
-function getPartnerFilterAnalytics(search: PartnersSearch) {
-  return {
-    active_filters_count:
-      (search.libraries?.length ?? 0) + (search.status ? 1 : 0),
-    filter_libraries: search.libraries,
-    filter_status: search.status,
-  }
-}
 
 export const Route = createFileRoute('/partners/')({
   component: PartnersIndexPage,
@@ -350,27 +342,22 @@ const cardSizeLayout: Record<
 }
 
 function PartnerDirectoryCard({
-  filters,
   isShowingPrevious,
   partner,
   slotIndex,
   size = 'flat',
 }: {
-  filters: PartnersSearch
   isShowingPrevious: boolean
   partner: (typeof partners)[number]
   slotIndex: number
   size?: CardSize
 }) {
-  const ref = useTrackedImpression<HTMLAnchorElement>({
-    event: 'partner_impression',
-    properties: {
+  const ref = useTrackedImpression<'partner_viewed', HTMLAnchorElement>({
+    event: 'partner_viewed',
+    props: {
       partner_id: partner.id,
-      partner_name: partner.name,
-      partner_status: partner.status,
-      placement: 'partners_directory_card',
+      placement: 'directory',
       slot_index: slotIndex,
-      ...getPartnerFilterAnalytics(filters),
     },
   })
 
@@ -387,13 +374,11 @@ function PartnerDirectoryCard({
       href={`/partners/${partner.id}`}
       className="block"
       onClick={() => {
-        trackEvent('partner_card_clicked', {
+        trackEvent('partner_clicked', {
           partner_id: partner.id,
-          partner_name: partner.name,
-          partner_status: partner.status,
-          placement: 'partners_directory_card',
+          placement: 'directory',
+          destination: 'internal_detail',
           slot_index: slotIndex,
-          ...getPartnerFilterAnalytics(filters),
         })
       }}
     >
@@ -481,10 +466,8 @@ function TierSectionHeader({ tier }: { tier: PartnerTier }) {
 
 function TieredPartnerSections({
   partners: allPartners,
-  filters,
 }: {
   partners: Array<(typeof partners)[number]>
-  filters: PartnersSearch
 }) {
   const tiers: Array<PartnerTier> = ['gold', 'silver', 'bronze']
 
@@ -511,7 +494,6 @@ function TieredPartnerSections({
               return (
                 <PartnerDirectoryCard
                   key={partner.id}
-                  filters={filters}
                   isShowingPrevious={false}
                   partner={partner}
                   slotIndex={index}
@@ -531,17 +513,27 @@ function PartnersIndexPage() {
   const navigate = Route.useNavigate()
 
   const trackFiltersChanged = React.useCallback(
-    (nextSearch: PartnersSearch, action: string) => {
-      trackEvent('partners_filter_changed', {
-        action,
-        ...getPartnerFilterAnalytics(nextSearch),
+    (
+      nextSearch: PartnersSearch,
+      change: 'libraries_changed' | 'status_changed' | 'cleared_all',
+    ) => {
+      trackEvent('partner_filter_applied', {
+        change,
+        library_filters: nextSearch.libraries?.join(',') ?? '',
+        // Status defaults to 'active' even when the user hasn't touched it,
+        // so we can't distinguish "explicitly chose active" from "untouched".
+        // Pass the value as-is; doc explains this is a known limitation.
+        status_filter: nextSearch.status ?? null,
         result_count: getFilteredPartners(nextSearch).length,
       })
     },
     [],
   )
 
-  const updateFilters = (updates: PartnersSearchUpdates, action = 'update') => {
+  const updateFilters = (
+    updates: PartnersSearchUpdates,
+    change: 'libraries_changed' | 'status_changed',
+  ) => {
     const nextSearch = normalizePartnersSearch({
       ...search,
       ...updates,
@@ -552,7 +544,7 @@ function PartnersIndexPage() {
       replace: true,
     })
 
-    trackFiltersChanged(nextSearch, action)
+    trackFiltersChanged(nextSearch, change)
   }
 
   const filteredPartners = getFilteredPartners(search)
@@ -594,7 +586,7 @@ function PartnersIndexPage() {
           }
           onClearAll={() => {
             navigate({ search: () => defaultPartnersSearch, replace: true })
-            trackFiltersChanged(defaultPartnersSearch, 'clear_all')
+            trackFiltersChanged(defaultPartnersSearch, 'cleared_all')
           }}
         />
 
@@ -624,16 +616,12 @@ function PartnersIndexPage() {
             )}
 
             {isShowingActive && !hasLibraryFilter ? (
-              <TieredPartnerSections
-                partners={filteredPartners}
-                filters={search}
-              />
+              <TieredPartnerSections partners={filteredPartners} />
             ) : (
               <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
                 {filteredPartners.map((partner, slotIndex) => (
                   <PartnerDirectoryCard
                     key={partner.id}
-                    filters={search}
                     isShowingPrevious={isShowingPrevious}
                     partner={partner}
                     slotIndex={slotIndex}
@@ -674,8 +662,8 @@ function PartnersIndexPage() {
             href="mailto:partners@tanstack.com?subject=TanStack Partnership Inquiry"
             className="inline-block px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
             onClick={() => {
-              trackEvent('partner_inquiry_clicked', {
-                placement: 'partners_page_cta',
+              trackEvent('partner_inquiry_started', {
+                placement: 'partners_index_cta',
               })
             }}
           >

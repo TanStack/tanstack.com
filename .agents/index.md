@@ -16,3 +16,4 @@ TanStack.com marketing site built with TanStack Start.
 - [TanStack Patterns](./tanstack-patterns.md): Loaders, server functions, environment shaking
 - [UI Style Guide](./ui-style.md): Visual design principles for 2026
 - [Workflow](./workflow.md): Build commands, debugging, Playwright
+- [Analytics](./analytics.md): GA4 event taxonomy, funnel definition, custom dimensions

@@ -3,7 +3,13 @@ import { useMutation } from '@tanstack/react-query'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useLoginModal } from '~/contexts/LoginModalContext'
 import { useToast } from '~/components/ToastProvider'
-import { trackEvent, useTrackedImpression } from '~/utils/analytics'
+import {
+  trackEvent,
+  defaultBuilderSessionContext,
+  type BuilderAction,
+  type BuilderMode,
+  type BuilderSessionContext,
+} from '~/utils/analytics'
 import {
   extractMigrationRepositoryUrl,
   type ApplicationStarterAnalysis,
@@ -24,7 +30,6 @@ import {
   type ApplicationStarterAnonymousQuota,
   ApplicationStarterError,
   composeStarterInput,
-  getStarterAnalyticsProperties,
   isApplicationStarterStatusResponse,
   isNextJsMigrationInput,
   isPinnedStarterLibrary,
@@ -196,17 +201,26 @@ export function useApplicationBuilder({
     ],
     [effectiveInferredLibraries, explicitlySelectedLibraries],
   )
-  const analyticsProperties = React.useMemo(
-    () =>
-      getStarterAnalyticsProperties({
-        context,
-        generated: !!result?.prompt,
-        mode,
-        selectedLibraries,
-        selectedPartners,
-      }),
-    [context, mode, result?.prompt, selectedLibraries, selectedPartners],
+  // Session context (mode_used, idea_used) is stamped on every builder
+  // event so any breakdown works without joining sessions in BigQuery.
+  // Stored in a ref because mutations don't need to trigger re-renders.
+  const sessionContextRef = React.useRef<BuilderSessionContext>(
+    defaultBuilderSessionContext,
   )
+
+  const setSessionMode = React.useCallback((nextMode: BuilderMode) => {
+    sessionContextRef.current = {
+      ...sessionContextRef.current,
+      mode_used: nextMode,
+    }
+  }, [])
+
+  const setSessionIdea = React.useCallback((label: string) => {
+    sessionContextRef.current = {
+      ...sessionContextRef.current,
+      idea_used: label,
+    }
+  }, [])
 
   const invalidateResult = React.useCallback(() => {
     latestRequestIdRef.current += 1
@@ -292,81 +306,45 @@ export function useApplicationBuilder({
       invalidateResult()
       const selected = selectedLibraries.includes(libraryId)
 
-      setExplicitLibrarySelections((current) => {
-        const next = { ...current }
-
-        if (selected) {
-          next[libraryId] = false
-        } else {
-          next[libraryId] = true
-        }
-
-        trackEvent('application_starter_library_toggled', {
-          ...analyticsProperties,
-          library_id: libraryId,
-          selected: !selected,
-        })
-
-        return next
-      })
+      setExplicitLibrarySelections((current) => ({
+        ...current,
+        [libraryId]: !selected,
+      }))
     },
-    [analyticsProperties, invalidateResult, selectedLibraries],
+    [invalidateResult, selectedLibraries],
   )
 
   const togglePartner = React.useCallback(
     (partner: ApplicationStarterPartnerSuggestion, selected: boolean) => {
       invalidateResult()
-      trackEvent('application_starter_integration_toggled', {
-        ...analyticsProperties,
-        integration: partner.id,
-        selected: !selected,
-      })
-
       setExplicitPartnerSelections((current) => ({
         ...current,
         [partner.id]: !selected,
       }))
     },
-    [analyticsProperties, invalidateResult],
+    [invalidateResult],
   )
 
   const togglePackageManager = React.useCallback(
     (packageManager: StarterPackageManager) => {
       invalidateResult()
 
-      setSelectedPackageManager((current) => {
-        const nextPackageManager =
-          current === packageManager ? undefined : packageManager
-
-        trackEvent('application_starter_package_manager_toggled', {
-          ...analyticsProperties,
-          package_manager: packageManager,
-          selected: nextPackageManager === packageManager,
-        })
-
-        return nextPackageManager
-      })
+      setSelectedPackageManager((current) =>
+        current === packageManager ? undefined : packageManager,
+      )
     },
-    [analyticsProperties, invalidateResult],
+    [invalidateResult],
   )
 
   const toggleToolchain = React.useCallback(
     (toolchain: StarterToolchain) => {
       invalidateResult()
 
-      setSelectedToolchain((current) => {
-        const nextToolchain = current === toolchain ? undefined : toolchain
-
-        trackEvent('application_starter_toolchain_toggled', {
-          ...analyticsProperties,
-          selected: nextToolchain === toolchain,
-          toolchain,
-        })
-
-        return nextToolchain
-      })
+      setSelectedToolchain((current) =>
+        current === toolchain ? undefined : toolchain,
+      )
     },
-    [analyticsProperties, invalidateResult],
+    [invalidateResult],
   )
 
   React.useEffect(() => {
@@ -431,13 +409,19 @@ export function useApplicationBuilder({
         revealPromptCopyNotice()
       }
 
-      trackEvent('application_starter_value_copied', {
-        ...analyticsProperties,
-        copied_kind: kind,
-        copy_trigger: options?.trigger ?? 'user',
-      })
+      // Only treat user-driven copies as activation. Automatic copies that
+      // fire as a side-effect of generation are not activation signals.
+      const trigger = options?.trigger ?? 'user'
+      if (trigger === 'user' && kind === 'prompt') {
+        trackEvent('builder_activated', {
+          ...sessionContextRef.current,
+          action: 'copy_prompt',
+          surface: 'result_panel',
+          automatic: false,
+        })
+      }
     },
-    [analyticsProperties, revealPromptCopyNotice],
+    [revealPromptCopyNotice],
   )
 
   const handleCopy = React.useCallback(
@@ -491,13 +475,6 @@ export function useApplicationBuilder({
 
       const applied = await builderIntegration.applyResult(nextResult)
 
-      trackEvent('application_starter_builder_result_applied', {
-        ...analyticsProperties,
-        applied,
-        recipe_target: nextResult.recipe.target,
-        result_type: nextResult.resultType,
-      })
-
       if (applied) {
         notify(
           <div>
@@ -509,14 +486,7 @@ export function useApplicationBuilder({
         )
       }
     },
-    [
-      analyticsProperties,
-      builderIntegration,
-      handleCopy,
-      mode,
-      notify,
-      onResolvedResult,
-    ],
+    [builderIntegration, handleCopy, mode, notify, onResolvedResult],
   )
 
   const handleResolveMutate = React.useCallback(() => {
@@ -530,8 +500,9 @@ export function useApplicationBuilder({
         return
       }
 
-      trackEvent('application_starter_analysis_failed', {
-        ...analyticsProperties,
+      trackEvent('builder_failed', {
+        ...sessionContextRef.current,
+        stage: 'analysis',
         error_message: error instanceof Error ? error.message : 'unknown_error',
       })
 
@@ -544,7 +515,7 @@ export function useApplicationBuilder({
         </div>,
       )
     },
-    [analyticsProperties, notify],
+    [notify],
   )
 
   const handleAnalysisSuccess = React.useCallback(
@@ -561,19 +532,15 @@ export function useApplicationBuilder({
       setIsLocked(false)
       setLockMessage(null)
 
-      trackEvent('application_starter_analyzed', {
-        ...analyticsProperties,
+      trackEvent('builder_analyzed', {
+        ...sessionContextRef.current,
         analysis_deployment: nextAnalysis.recipe.deployment,
-        analysis_inferred_library_count: nextAnalysis.inferredLibraryIds.length,
-        analysis_inferred_library_ids: nextAnalysis.inferredLibraryIds,
-        analysis_inferred_partner_count: nextAnalysis.inferredPartnerIds.length,
-        analysis_inferred_partner_ids: nextAnalysis.inferredPartnerIds,
-        analysis_package_manager: nextAnalysis.recipe.packageManager,
-        analysis_target: nextAnalysis.recipe.target,
-        analysis_toolchain: nextAnalysis.recipe.toolchain,
+        inferred_library_count: nextAnalysis.inferredLibraryIds.length,
+        inferred_partner_count: nextAnalysis.inferredPartnerIds.length,
+        feature_count: nextAnalysis.recipe.features?.length ?? 0,
       })
     },
-    [analyticsProperties],
+    [],
   )
 
   const handleResolveError = React.useCallback(
@@ -593,20 +560,12 @@ export function useApplicationBuilder({
         </div>,
       )
 
-      trackEvent('application_starter_generation_failed', {
-        ...analyticsProperties,
-        error_message: error instanceof Error ? error.message : 'unknown_error',
-        login_required:
-          error instanceof ApplicationStarterError
-            ? !!error.loginRequired
-            : false,
-      })
+      const isLoginRequired =
+        error instanceof ApplicationStarterError && !!error.loginRequired
 
-      if (
-        error instanceof ApplicationStarterError &&
-        error.loginRequired &&
-        !currentUser
-      ) {
+      // login_blocked is a more specific failure than generation — emit
+      // only one event per failure to avoid double-counting in dashboards.
+      if (isLoginRequired && !currentUser) {
         setIsLocked(true)
         setLockMessage(
           error.retryAfter
@@ -614,13 +573,21 @@ export function useApplicationBuilder({
             : 'Anonymous generations are limited. Sign in to unlock more.',
         )
 
-        trackEvent('application_starter_login_required', {
-          ...analyticsProperties,
+        trackEvent('builder_failed', {
+          ...sessionContextRef.current,
+          stage: 'login_blocked',
           retry_after: error.retryAfter,
+        })
+      } else {
+        trackEvent('builder_failed', {
+          ...sessionContextRef.current,
+          stage: 'generation',
+          error_message:
+            error instanceof Error ? error.message : 'unknown_error',
         })
       }
     },
-    [analyticsProperties, currentUser, notify, refreshAnonymousQuota],
+    [currentUser, notify, refreshAnonymousQuota],
   )
 
   const handleResolveSuccess = React.useCallback(
@@ -714,53 +681,28 @@ export function useApplicationBuilder({
         }
       }
 
-      trackEvent('application_starter_generated', {
-        ...analyticsProperties,
+      trackEvent('builder_generated', {
+        ...sessionContextRef.current,
         final_deployment: nextResult.recipe.deployment,
-        final_feature_count: finalFeatureIds.length,
-        final_feature_ids: finalFeatureIds,
-        final_prompt_feature_count: finalPromptFeatureIds.length,
-        final_prompt_feature_ids: finalPromptFeatureIds,
-        final_inferred_partner_count: inferredPartnerIds.length,
-        final_inferred_partner_ids: inferredPartnerIds,
+        final_package_manager: nextResult.recipe.packageManager,
+        final_library_count: selectedLibraries.length,
         final_partner_count: finalPartnerIds.length,
-        final_partner_ids: finalPartnerIds,
-        final_prompt_partner_count: finalPromptPartnerIds.length,
-        final_prompt_partner_ids: finalPromptPartnerIds,
-        final_selected_partner_count: selectedPartnerIds.length,
-        final_selected_partner_ids: selectedPartnerIds,
-        final_toolchain: nextResult.recipe.toolchain,
-        generation_index: generationCountRef.current,
-        result_type: nextResult.resultType,
+        final_addon_count: finalPromptFeatureIds.length,
+        // Joined arrays — use SPLIT() in BigQuery for top-N analysis.
+        library_ids: selectedLibraries.join(','),
+        partner_ids: finalPartnerIds.join(','),
+        addon_ids: finalPromptFeatureIds.join(','),
       })
-
-      for (const partnerId of finalPromptPartnerIds) {
-        trackEvent('application_starter_final_partner_in_prompt', {
-          ...analyticsProperties,
-          generation_index: generationCountRef.current,
-          inferred: inferredPartnerIds.includes(partnerId),
-          partner_id: partnerId,
-          selected: selectedPartnerIds.includes(partnerId),
-        })
-      }
-
-      for (const featureId of finalPromptFeatureIds) {
-        trackEvent('application_starter_final_addon_in_prompt', {
-          ...analyticsProperties,
-          addon_id: featureId,
-          generation_index: generationCountRef.current,
-        })
-      }
 
       await finishWithResult(nextResult)
     },
     [
       analysis,
-      analyticsProperties,
       finishWithResult,
       isAnalysisStale,
       partnerSuggestions,
       refreshAnonymousQuota,
+      selectedLibraries,
     ],
   )
 
@@ -841,8 +783,6 @@ export function useApplicationBuilder({
     const requestId = latestRequestIdRef.current + 1
     latestRequestIdRef.current = requestId
 
-    trackEvent('application_starter_continue_clicked', analyticsProperties)
-
     try {
       const nextAnalysis = await analysisMutation.mutateAsync({
         request: {
@@ -860,7 +800,7 @@ export function useApplicationBuilder({
     } catch {
       return null
     }
-  }, [analyticsProperties, analysisMutation, context, input])
+  }, [analysisMutation, context, input])
 
   const handleNetlifySubmit = React.useCallback(
     async (submittedInput: string) => {
@@ -906,12 +846,11 @@ export function useApplicationBuilder({
         setMigrationRepositoryUrl('')
       }
 
-      trackEvent('application_starter_idea_selected', {
-        ...analyticsProperties,
-        idea_label: suggestion.label,
-      })
+      // Stamp the idea on subsequent builder events so any downstream
+      // outcome (analyzed/generated/activated) carries this attribution.
+      setSessionIdea(suggestion.label)
     },
-    [analyticsProperties, markAnalysisStale],
+    [markAnalysisStale, setSessionIdea],
   )
 
   const ensureResolvedResult = React.useCallback(async () => {
@@ -972,16 +911,36 @@ export function useApplicationBuilder({
     [ensureResolvedResult, handleCopy],
   )
 
-  const trackAction = React.useCallback(
-    (action: string, provider?: StarterDeployProvider | null) => {
-      trackEvent('application_starter_action_clicked', {
-        ...analyticsProperties,
-        surface: 'application_starter',
-        action,
-        provider,
+  // Generic activation tracker used both inside the hook and passed to the
+  // DeployDialog so dialog actions carry the same session context as
+  // result-panel actions.
+  const trackActivation = React.useCallback(
+    (params: {
+      action: BuilderAction
+      surface: 'result_panel' | 'deploy_dialog'
+      provider?: string
+      automatic?: boolean
+    }) => {
+      trackEvent('builder_activated', {
+        ...sessionContextRef.current,
+        action: params.action,
+        surface: params.surface,
+        provider: params.provider,
+        automatic: params.automatic ?? false,
       })
     },
-    [analyticsProperties],
+    [],
+  )
+
+  const trackAction = React.useCallback(
+    (action: BuilderAction, provider?: StarterDeployProvider | null) => {
+      trackActivation({
+        action,
+        surface: 'result_panel',
+        provider: provider ?? undefined,
+      })
+    },
+    [trackActivation],
   )
 
   const withResolvedResult = React.useCallback(
@@ -1017,7 +976,7 @@ export function useApplicationBuilder({
   const navigateToResult = React.useCallback(
     async (kind: 'advanced' | 'download') => {
       await withResolvedResult((nextResult) => {
-        trackAction(kind)
+        trackAction(kind === 'advanced' ? 'open_advanced' : 'download')
 
         const destination =
           kind === 'download'
@@ -1041,7 +1000,7 @@ export function useApplicationBuilder({
           return
         }
 
-        trackAction(provider ? 'deploy' : 'clone_github', provider)
+        trackAction(provider ? 'deploy' : 'clone_repo', provider)
         setDeployDialogProvider(provider)
         setIsDeployDialogOpen(true)
       })
@@ -1088,11 +1047,12 @@ export function useApplicationBuilder({
       return
     }
 
-    trackEvent('application_starter_action_clicked', {
-      ...analyticsProperties,
-      surface: 'application_starter',
+    trackEvent('builder_activated', {
+      ...sessionContextRef.current,
       action: 'netlify_start',
-      cloudflare_removed: removedCloudflare,
+      surface: 'result_panel',
+      provider: 'netlify',
+      automatic: false,
     })
 
     window.open(
@@ -1101,7 +1061,6 @@ export function useApplicationBuilder({
       'noopener,noreferrer',
     )
   }, [
-    analyticsProperties,
     buildSubmittedInput,
     effectiveInferredPartners,
     explicitlySelectedPartners,
@@ -1113,7 +1072,7 @@ export function useApplicationBuilder({
 
   const openCodexStart = React.useCallback(async () => {
     await withResolvedPrompt((nextResult) => {
-      trackAction('codex_start')
+      trackAction('open_codex')
       window.location.assign(
         `codex://new?prompt=${encodeURIComponent(nextResult.prompt)}`,
       )
@@ -1122,7 +1081,7 @@ export function useApplicationBuilder({
 
   const openClaudeStart = React.useCallback(async () => {
     await withResolvedPrompt((nextResult) => {
-      trackAction('claude_start')
+      trackAction('open_claude')
       window.open(
         `https://claude.ai/code?q=${encodeURIComponent(nextResult.prompt)}`,
         '_blank',
@@ -1133,7 +1092,7 @@ export function useApplicationBuilder({
 
   const openCursorStart = React.useCallback(async () => {
     await withResolvedPrompt((nextResult) => {
-      trackAction('cursor_start')
+      trackAction('open_cursor')
       window.open(
         `cursor://anysphere.cursor-deeplink/prompt?text=${encodeURIComponent(nextResult.prompt)}`,
         '_blank',
@@ -1148,7 +1107,6 @@ export function useApplicationBuilder({
       return
     }
 
-    trackEvent('application_starter_generate_clicked', analyticsProperties)
     const nextResult = await submit(buildSubmittedInput())
 
     if (!nextResult) {
@@ -1161,7 +1119,6 @@ export function useApplicationBuilder({
     })
   }, [
     analysis,
-    analyticsProperties,
     buildSubmittedInput,
     handleCopy,
     isAnalysisStale,
@@ -1181,10 +1138,6 @@ export function useApplicationBuilder({
   const isGeneratingPrompt = promptResolveMutation.isPending
   const isGeneratingNetlify = netlifyResolveMutation.isPending
   const isGenerating = isAnalyzing || isGeneratingPrompt || isGeneratingNetlify
-  const impressionRef = useTrackedImpression<HTMLDivElement>({
-    event: 'application_starter_viewed',
-    properties: analyticsProperties,
-  })
 
   const updateInput = React.useCallback(
     (value: string) => {
@@ -1208,7 +1161,6 @@ export function useApplicationBuilder({
 
   const openLogin = React.useCallback(
     (onSuccess?: () => void) => {
-      trackEvent('application_starter_login_clicked', analyticsProperties)
       openLoginModal({
         onSuccess: () => {
           setIsLocked(false)
@@ -1218,11 +1170,10 @@ export function useApplicationBuilder({
         },
       })
     },
-    [analyticsProperties, openLoginModal],
+    [openLoginModal],
   )
 
   return {
-    analyticsProperties,
     anonymousGenerationQuota,
     copiedKind,
     copyResultValue,
@@ -1233,7 +1184,6 @@ export function useApplicationBuilder({
     hasGeneratedPrompt,
     hasInput,
     hasMigrationRepositoryUrlError,
-    impressionRef,
     input,
     isDeployDialogOpen,
     isGenerating,
@@ -1267,7 +1217,9 @@ export function useApplicationBuilder({
     selectedToolchain,
     setIsDeployDialogOpen,
     setIsModHeld,
+    setSessionMode,
     showMigrationRepositoryInput,
+    trackActivation,
     submitCurrentInput,
     suggestions,
     toggleLibrary,

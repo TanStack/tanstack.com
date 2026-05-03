@@ -72,7 +72,6 @@ function normalizePartnersSearch(
   }
 }
 
-
 export const Route = createFileRoute('/partners/')({
   component: PartnersIndexPage,
   validateSearch: searchSchema,

@@ -26,7 +26,7 @@ export function PopularComparisons({
       <h2 className="text-xl font-semibold mb-4">Popular Comparisons</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {comparisons.map((comparison) => {
-          const baselinePackage = comparison.packageGroups.find(
+          const baselinePackages = comparison.packageGroups.filter(
             (pg) => pg.baseline,
           )
 
@@ -56,12 +56,19 @@ export function PopularComparisons({
                     ))}
                 </div>
               </div>
-              {baselinePackage && (
-                <div className="flex items-center gap-1 text-sm">
+              {baselinePackages.length > 0 && (
+                <div className="flex items-center gap-1.5 text-sm flex-wrap">
                   <div className="font-medium">Baseline:</div>
-                  <div className="bg-gray-500/10 rounded-md px-2 py-1 leading-none font-bold text-sm">
-                    {baselinePackage.packages[0]?.name}
-                  </div>
+                  {baselinePackages.map((pg, i) => (
+                    <React.Fragment key={pg.packages[0]?.name ?? i}>
+                      {i > 0 && (
+                        <span className="text-blue-500/60 text-xs">+</span>
+                      )}
+                      <div className="bg-blue-500/10 text-blue-700 dark:text-blue-300 rounded-md px-2 py-1 leading-none font-bold text-sm">
+                        {pg.packages[0]?.name}
+                      </div>
+                    </React.Fragment>
+                  ))}
                 </div>
               )}
             </div>

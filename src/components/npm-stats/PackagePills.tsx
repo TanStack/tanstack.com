@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
-import { X, Plus, Eye, EyeOff, Pin, EllipsisVertical } from 'lucide-react'
+import { X, Plus, Eye, EyeOff, EllipsisVertical } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,7 +19,6 @@ export type PackagePillProps = {
   onToggleVisibility: (index: number, packageName: string) => void
   onRemove: (index: number) => void
   // Optional advanced features (main page only)
-  onBaselineChange?: (packageName: string) => void
   onCombinePackage?: (packageName: string) => void
   onRemoveFromGroup?: (mainPackage: string, subPackage: string) => void
   openMenuPackage?: string | null
@@ -34,7 +33,6 @@ export function PackagePill({
   onColorClick,
   onToggleVisibility,
   onRemove,
-  onBaselineChange,
   onCombinePackage,
   onRemoveFromGroup,
   openMenuPackage,
@@ -48,8 +46,7 @@ export function PackagePill({
   const subPackages = packageList.filter((p) => p.name !== mainPackage.name)
   const color = getPackageColor(mainPackage.name, allPackageGroups)
 
-  const showAdvancedMenu =
-    onBaselineChange && onCombinePackage && onMenuOpenChange
+  const showAdvancedMenu = onCombinePackage && onMenuOpenChange
 
   return (
     <div
@@ -63,28 +60,17 @@ export function PackagePill({
       }}
     >
       <div className="flex items-center gap-1 w-full">
-        {packageGroup.baseline ? (
-          <Tooltip content="Remove baseline">
-            <button
-              onClick={() => onBaselineChange?.(mainPackage.name)}
-              className="hover:text-blue-500"
-            >
-              <Pin className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500" />
-            </button>
-          </Tooltip>
-        ) : (
-          <Tooltip content="Change color">
-            <button
-              onClick={(e) => onColorClick(mainPackage.name, e)}
-              className="hover:opacity-80"
-            >
-              <div
-                className="w-3 h-3 sm:w-4 sm:h-4 rounded"
-                style={{ backgroundColor: color }}
-              />
-            </button>
-          </Tooltip>
-        )}
+        <Tooltip content="Change color">
+          <button
+            onClick={(e) => onColorClick(mainPackage.name, e)}
+            className="hover:opacity-80"
+          >
+            <div
+              className="w-3 h-3 sm:w-4 sm:h-4 rounded"
+              style={{ backgroundColor: color }}
+            />
+          </button>
+        </Tooltip>
         <Tooltip content="Toggle package visibility">
           <button
             onClick={() => onToggleVisibility(index, mainPackage.name)}
@@ -140,21 +126,6 @@ export function PackagePill({
                       <Eye className="text-sm" />
                     )}
                     {mainPackage.hidden ? 'Show Package' : 'Hide Package'}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onSelect={(e) => {
-                      e.preventDefault()
-                      onBaselineChange(mainPackage.name)
-                    }}
-                    className={twMerge(
-                      'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
-                      packageGroup.baseline ? 'text-blue-500' : '',
-                    )}
-                  >
-                    <Pin className="text-sm" />
-                    {packageGroup.baseline
-                      ? 'Remove Baseline'
-                      : 'Set as Baseline'}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onSelect={(e) => {
@@ -258,7 +229,6 @@ export type PackagePillsProps = {
   onToggleVisibility: (index: number, packageName: string) => void
   onRemove: (index: number) => void
   // Optional advanced features (main page only)
-  onBaselineChange?: (packageName: string) => void
   onCombinePackage?: (packageName: string) => void
   onRemoveFromGroup?: (mainPackage: string, subPackage: string) => void
   openMenuPackage?: string | null
@@ -271,7 +241,6 @@ export function PackagePills({
   onColorClick,
   onToggleVisibility,
   onRemove,
-  onBaselineChange,
   onCombinePackage,
   onRemoveFromGroup,
   openMenuPackage,
@@ -279,23 +248,25 @@ export function PackagePills({
 }: PackagePillsProps) {
   return (
     <div className="flex flex-wrap gap-1 sm:gap-2">
-      {packageGroups.map((pkg, index) => (
-        <PackagePill
-          key={pkg.packages[0]?.name ?? index}
-          packageGroup={pkg}
-          index={index}
-          allPackageGroups={packageGroups}
-          error={queryData?.[index]?.error}
-          onColorClick={onColorClick}
-          onToggleVisibility={onToggleVisibility}
-          onRemove={onRemove}
-          onBaselineChange={onBaselineChange}
-          onCombinePackage={onCombinePackage}
-          onRemoveFromGroup={onRemoveFromGroup}
-          openMenuPackage={openMenuPackage}
-          onMenuOpenChange={onMenuOpenChange}
-        />
-      ))}
+      {packageGroups.map((pkg, index) => {
+        if (pkg.baseline) return null
+        return (
+          <PackagePill
+            key={pkg.packages[0]?.name ?? index}
+            packageGroup={pkg}
+            index={index}
+            allPackageGroups={packageGroups}
+            error={queryData?.[index]?.error}
+            onColorClick={onColorClick}
+            onToggleVisibility={onToggleVisibility}
+            onRemove={onRemove}
+            onCombinePackage={onCombinePackage}
+            onRemoveFromGroup={onRemoveFromGroup}
+            openMenuPackage={openMenuPackage}
+            onMenuOpenChange={onMenuOpenChange}
+          />
+        )
+      })}
     </div>
   )
 }

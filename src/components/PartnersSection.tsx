@@ -24,10 +24,7 @@ export function PartnersSection({
     <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto mx-auto max-w-full">
       <div className="space-y-8">
         <h3 className="text-3xl font-bold">{title}</h3>
-        <PartnersGrid
-          analyticsPlacement="library_partners_grid"
-          analyticsProperties={{ library_id: libraryId }}
-        />
+        <PartnersGrid analyticsPlacement="library_grid" />
         <PartnershipCallout libraryId={libraryId} />
         {showPreviousLink ? (
           <div className="flex justify-center mt-6">

@@ -31,6 +31,7 @@ dist
 
 test-results
 .claude/CLAUDE.md
+.claude/worktrees
 .eslintcache
 .tsbuildinfo
 src/routeTree.gen.ts

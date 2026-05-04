@@ -70,16 +70,13 @@ export const Route = createFileRoute('/blog/')({
 
 function BlogIndex() {
   const frontMatters = Route.useLoaderData() as BlogFrontMatter[]
-  const activePartners = partners.filter(
-    (d) =>
-      d.status === 'active' && d.name !== 'Nozzle.io' && d.id !== 'fireship',
-  )
+  const activePartners = partners.filter((d) => d.status === 'active')
 
   return (
-    <div className="flex flex-col max-w-full min-h-screen gap-16 p-4 md:p-8 pb-0">
-      <div className="flex-1 w-full max-w-[1400px] mx-auto">
-        <div className="flex gap-8 items-start">
-          <div className="flex-1 space-y-12 min-w-0">
+    <div className="flex flex-col max-w-full min-h-screen">
+      <div className="flex-1 flex w-full mb-16">
+        <div className="flex-1 p-4 md:p-8 min-w-0 flex justify-center">
+          <div className="w-full max-w-[1100px] space-y-12">
             <header className="">
               <div className="flex gap-3 items-baseline">
                 <h1 className="text-3xl font-black">Blog</h1>
@@ -153,19 +150,19 @@ function BlogIndex() {
               )}
             </section>
           </div>
-          <RightRail breakpoint="md">
-            <PartnersRail
-              analyticsPlacement="blog_right_rail"
-              partners={activePartners}
-            />
-            <div className="hidden md:block border border-gray-500/20 rounded-l-lg overflow-hidden w-full">
-              <RecentPostsWidget />
-            </div>
-            <Card>
-              <LibrariesWidget />
-            </Card>
-          </RightRail>
         </div>
+        <RightRail breakpoint="md">
+          <PartnersRail
+            analyticsPlacement="blog_rail"
+            partners={activePartners}
+          />
+          <div className="hidden md:block border border-gray-500/20 rounded-l-lg overflow-hidden w-full">
+            <RecentPostsWidget />
+          </div>
+          <Card>
+            <LibrariesWidget />
+          </Card>
+        </RightRail>
       </div>
       <Footer />
     </div>

@@ -2,6 +2,7 @@ import * as React from 'react'
 
 export type Framework =
   | 'angular'
+  | 'alpine'
   | 'lit'
   | 'preact'
   | 'qwik'
@@ -81,7 +82,7 @@ export type LibrarySlim = {
   visible?: boolean
   sitemap?: {
     includeLandingPage?: boolean
-    includeTopLevelDocsPages?: boolean
+    includeDocsPages?: boolean
   }
 }
 

@@ -32,7 +32,7 @@ export const query: LibrarySlim = {
   defaultDocs: 'framework/react/overview',
   sitemap: {
     includeLandingPage: true,
-    includeTopLevelDocsPages: true,
+    includeDocsPages: true,
   },
   installPath: 'framework/$framework/installation',
   legacyPackages: ['react-query'],
@@ -223,7 +223,7 @@ export const router: LibrarySlim = {
   docsRoot: 'docs/router',
   sitemap: {
     includeLandingPage: true,
-    includeTopLevelDocsPages: true,
+    includeDocsPages: true,
   },
   legacyPackages: ['react-location'],
   hideCodesandboxUrl: true,
@@ -292,7 +292,7 @@ export const start: LibrarySlim = {
   defaultDocs: 'framework/react/overview',
   sitemap: {
     includeLandingPage: true,
-    includeTopLevelDocsPages: true,
+    includeDocsPages: true,
   },
   installPath: 'framework/$framework/build-from-scratch',
   embedEditor: 'codesandbox',
@@ -321,12 +321,13 @@ export const table: LibrarySlim = {
   repo: 'tanstack/table',
   frameworks: [
     'angular',
-    'lit',
-    'qwik',
     'react',
     'solid',
     'svelte',
     'vue',
+    'qwik',
+    'lit',
+    'alpine',
     'vanilla',
   ],
   latestVersion: 'v8',
@@ -337,7 +338,7 @@ export const table: LibrarySlim = {
   defaultDocs: 'introduction',
   sitemap: {
     includeLandingPage: true,
-    includeTopLevelDocsPages: true,
+    includeDocsPages: true,
   },
   corePackageName: '@tanstack/table-core',
   legacyPackages: ['react-table'],
@@ -410,7 +411,7 @@ export const form: LibrarySlim = {
   ogImage: 'https://github.com/tanstack/form/raw/main/media/repo-header.png',
   sitemap: {
     includeLandingPage: true,
-    includeTopLevelDocsPages: true,
+    includeDocsPages: true,
   },
 }
 
@@ -440,6 +441,10 @@ export const virtual: LibrarySlim = {
   ogImage: 'https://github.com/tanstack/query/raw/main/media/header.png',
   defaultDocs: 'introduction',
   legacyPackages: ['react-virtual'],
+  sitemap: {
+    includeLandingPage: true,
+    includeDocsPages: true,
+  },
 }
 
 export const ranger: LibrarySlim = {
@@ -454,6 +459,7 @@ export const ranger: LibrarySlim = {
   borderStyle: 'border-black/50 dark:border-gray-100/50',
   textStyle: 'text-black dark:text-gray-100',
   textColor: 'text-black dark:text-gray-100',
+  badgeTextStyle: 'text-white dark:text-gray-900',
   colorFrom: 'from-black dark:from-gray-100',
   colorTo: 'to-gray-600 dark:to-gray-400',
   accentColorFrom: 'from-blue-500',
@@ -469,6 +475,10 @@ export const ranger: LibrarySlim = {
   availableVersions: ['v0'],
   scarfId: 'dd278e06-bb3f-420c-85c6-6e42d14d8f61',
   ogImage: 'https://github.com/tanstack/ranger/raw/main/media/headerv1.png',
+  sitemap: {
+    includeLandingPage: true,
+    includeDocsPages: true,
+  },
 }
 
 export const store: LibrarySlim = {
@@ -495,6 +505,10 @@ export const store: LibrarySlim = {
   scarfId: '302d0fef-cb3f-43c6-b45c-f055b9745edb',
   ogImage: 'https://github.com/tanstack/store/raw/main/media/repo-header.png',
   defaultDocs: 'overview',
+  sitemap: {
+    includeLandingPage: true,
+    includeDocsPages: true,
+  },
 }
 
 export const pacer: LibrarySlim = {
@@ -523,6 +537,10 @@ export const pacer: LibrarySlim = {
   scarfId: '302d0fef-cb3f-43c6-b45c-f055b9745edb',
   ogImage: 'https://github.com/tanstack/pacer/raw/main/media/repo-header.png',
   defaultDocs: 'overview',
+  sitemap: {
+    includeLandingPage: true,
+    includeDocsPages: true,
+  },
 }
 
 export const hotkeys: LibrarySlim = {
@@ -550,6 +568,10 @@ export const hotkeys: LibrarySlim = {
   availableVersions: ['v0'],
   ogImage: 'https://github.com/tanstack/hotkeys/raw/main/media/repo-header.png',
   defaultDocs: 'overview',
+  sitemap: {
+    includeLandingPage: true,
+    includeDocsPages: true,
+  },
 }
 
 export const db: LibrarySlim = {
@@ -578,6 +600,7 @@ export const db: LibrarySlim = {
   defaultDocs: 'overview',
   sitemap: {
     includeLandingPage: true,
+    includeDocsPages: true,
   },
 }
 
@@ -605,6 +628,10 @@ export const ai: LibrarySlim = {
   availableVersions: ['v0'],
   ogImage: 'https://github.com/tanstack/ai/raw/main/media/repo-header.png',
   defaultDocs: 'getting-started/overview',
+  sitemap: {
+    includeLandingPage: true,
+    includeDocsPages: true,
+  },
 }
 
 export const intent: LibrarySlim = {
@@ -630,6 +657,10 @@ export const intent: LibrarySlim = {
   availableVersions: ['v0'],
   ogImage: 'https://github.com/tanstack/intent/raw/main/media/repo-header.png',
   defaultDocs: 'overview',
+  sitemap: {
+    includeLandingPage: true,
+    includeDocsPages: true,
+  },
 }
 
 export const config: LibrarySlim = {
@@ -645,6 +676,7 @@ export const config: LibrarySlim = {
   borderStyle: 'border-black/50 dark:border-gray-100/50',
   textStyle: 'text-black dark:text-gray-100',
   textColor: 'text-black dark:text-gray-100',
+  badgeTextStyle: 'text-white dark:text-gray-900',
   colorFrom: 'from-black dark:from-gray-100',
   colorTo: 'to-gray-600 dark:to-gray-400',
   accentColorFrom: 'from-blue-500',
@@ -659,6 +691,10 @@ export const config: LibrarySlim = {
   latestBranch: 'main',
   availableVersions: ['v0'],
   ogImage: 'https://github.com/tanstack/config/raw/main/media/repo-header.png',
+  sitemap: {
+    includeLandingPage: true,
+    includeDocsPages: true,
+  },
 }
 
 export const devtools: LibrarySlim = {
@@ -690,6 +726,10 @@ export const devtools: LibrarySlim = {
   availableVersions: ['v0'],
   ogImage:
     'https://github.com/tanstack/devtools/raw/main/media/repo-header.png',
+  sitemap: {
+    includeLandingPage: true,
+    includeDocsPages: true,
+  },
 }
 
 export const mcp: LibrarySlim = {
@@ -750,6 +790,10 @@ export const cli: LibrarySlim = {
   availableVersions: ['v0'],
   ogImage: 'https://github.com/tanstack/cli/raw/main/media/repo-header.png',
   defaultDocs: 'overview',
+  sitemap: {
+    includeLandingPage: true,
+    includeDocsPages: true,
+  },
 }
 
 export const libraries: LibrarySlim[] = [

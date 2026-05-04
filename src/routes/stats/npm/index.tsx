@@ -9,12 +9,15 @@ import { Card } from '~/components/Card'
 import { seo } from '~/utils/seo'
 import {
   getPopularComparisons,
+  getBaselinePresets,
   packageGroupSchema,
   defaultPackageGroups,
+  type BaselinePreset,
 } from './-comparisons'
 import { GamVrec1 } from '~/components/Gam'
 import { AdGate } from '~/contexts/AdsContext'
 import { Spinner } from '~/components/Spinner'
+import { BaselineSection } from '~/components/npm-stats/BaselineSection'
 import { ChartControls } from '~/components/npm-stats/ChartControls'
 import { ColorPickerPopover } from '~/components/npm-stats/ColorPickerPopover'
 import { PackagePills } from '~/components/npm-stats/PackagePills'
@@ -79,6 +82,8 @@ export const Route = createFileRoute('/stats/npm/')({
     facetY: v.fallback(v.optional(v.picklist(['name'])), undefined),
     binType: v.fallback(v.optional(binTypeSchema, 'weekly'), 'weekly'),
     showDataMode: v.fallback(v.optional(showDataModeSchema, 'all'), 'all'),
+    normalizeBaseline: v.fallback(v.optional(v.boolean(), true), true),
+    showBaseline: v.fallback(v.optional(v.boolean(), false), false),
     height: v.fallback(v.optional(v.number(), 400), 400),
   }),
   loaderDeps: ({ search }) => ({
@@ -231,6 +236,8 @@ function RouteComponent() {
   const facetY: FacetValue | undefined = search.facetY
   const binTypeParam: BinType | undefined = search.binType
   const showDataModeParam: ShowDataMode = search.showDataMode ?? 'all'
+  const normalizeBaseline: boolean = search.normalizeBaseline ?? true
+  const showBaseline: boolean = search.showBaseline ?? false
   const height: number = search.height ?? 400
   const [combiningPackage, setCombiningPackage] = React.useState<string | null>(
     null,
@@ -260,34 +267,85 @@ function RouteComponent() {
     })
   }
 
-  const handleBaselineChange = (packageName: string) => {
+  const handleAddBaseline = (packageName: string, color?: string) => {
     navigate({
       to: '.',
       search: (prev) => {
+        const groups = prev.packageGroups ?? []
+        const alreadyBaseline = groups.some(
+          (pg) =>
+            pg.baseline && pg.packages.some((p) => p.name === packageName),
+        )
+        if (alreadyBaseline) return prev
         return {
           ...prev,
-          packageGroups: prev.packageGroups?.map((pkg) => {
-            const isTarget = pkg.packages[0].name === packageName
-            const baseline = isTarget ? !pkg.baseline : false
-
-            // When promoting a series to baseline, force it visible so users
-            // see the flat 1.0 reference line by default — matches every
-            // other series' default-visible behavior.
-            const packages =
-              isTarget && baseline
-                ? pkg.packages.map((p, i) =>
-                    i === 0 ? { ...p, hidden: false } : p,
-                  )
-                : pkg.packages
-
-            return {
-              ...pkg,
-              baseline,
-              packages,
-            }
-          }),
+          packageGroups: [
+            ...groups,
+            {
+              packages: [{ name: packageName, hidden: true }],
+              color,
+              baseline: true,
+            },
+          ],
         }
       },
+      resetScroll: false,
+    })
+  }
+
+  const handleApplyBaselinePreset = (preset: BaselinePreset) => {
+    navigate({
+      to: '.',
+      search: (prev) => {
+        const nonBaseline = (prev.packageGroups ?? []).filter(
+          (pg) => !pg.baseline,
+        )
+        return {
+          ...prev,
+          packageGroups: [
+            ...nonBaseline,
+            ...preset.packages.map((p) => ({
+              packages: [{ name: p.name, hidden: true }],
+              color: p.color,
+              baseline: true,
+            })),
+          ],
+        }
+      },
+      resetScroll: false,
+    })
+  }
+
+  const handleClearBaselines = () => {
+    navigate({
+      to: '.',
+      search: (prev) => ({
+        ...prev,
+        packageGroups: prev.packageGroups?.filter((pg) => !pg.baseline),
+        showBaseline: false,
+      }),
+      resetScroll: false,
+    })
+  }
+
+  const handleToggleShowBaseline = () => {
+    navigate({
+      to: '.',
+      search: (prev) => ({
+        ...prev,
+        showBaseline: !prev.showBaseline,
+      }),
+      resetScroll: false,
+    })
+  }
+
+  const handleToggleNormalizeBaseline = () => {
+    navigate({
+      to: '.',
+      search: (prev) => ({
+        ...prev,
+        normalizeBaseline: !(prev.normalizeBaseline ?? true),
+      }),
       resetScroll: false,
     })
   }
@@ -606,11 +664,22 @@ function RouteComponent() {
             onColorClick={handleColorClick}
             onToggleVisibility={togglePackageVisibility}
             onRemove={handleRemovePackageName}
-            onBaselineChange={handleBaselineChange}
             onCombinePackage={handleCombinePackage}
             onRemoveFromGroup={handleRemoveFromGroup}
             openMenuPackage={openMenuPackage}
             onMenuOpenChange={handleMenuOpenChange}
+          />
+
+          <BaselineSection
+            packageGroups={packageGroups}
+            presets={getBaselinePresets()}
+            normalizeBaseline={normalizeBaseline}
+            showBaseline={showBaseline}
+            onToggleNormalizeBaseline={handleToggleNormalizeBaseline}
+            onToggleShowBaseline={handleToggleShowBaseline}
+            onAddBaseline={handleAddBaseline}
+            onApplyPreset={handleApplyBaselinePreset}
+            onClearBaselines={handleClearBaselines}
           />
 
           {/* Combine Package Dialog */}
@@ -702,6 +771,8 @@ function RouteComponent() {
                           facetX={facetX}
                           facetY={facetY}
                           showDataMode={showDataModeParam}
+                          normalizeBaseline={normalizeBaseline}
+                          showBaseline={showBaseline}
                         />
                       </React.Suspense>
                     )}

@@ -15,6 +15,7 @@ import { LibrariesWidget } from '~/components/LibrariesWidget'
 import { partners } from '~/utils/partners'
 import { PartnersRail, RightRail } from '~/components/RightRail'
 import { RecentPostsWidget } from '~/components/RecentPostsWidget'
+import { getNetlifyImageUrl } from '~/utils/netlifyImage'
 
 type BlogFrontMatter = {
   slug: string
@@ -109,7 +110,7 @@ function BlogIndex() {
                       {headerImage ? (
                         <div className="aspect-video overflow-hidden bg-gray-100 dark:bg-gray-800">
                           <img
-                            src={headerImage}
+                            src={getNetlifyImageUrl(headerImage)}
                             alt=""
                             loading="lazy"
                             decoding="async"

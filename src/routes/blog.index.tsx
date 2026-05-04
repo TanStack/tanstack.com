@@ -28,7 +28,9 @@ type BlogFrontMatter = {
   library: string | undefined
 }
 
-function isLibrarySlim(library: LibrarySlim | undefined): library is LibrarySlim {
+function isLibrarySlim(
+  library: LibrarySlim | undefined,
+): library is LibrarySlim {
   return library !== undefined
 }
 

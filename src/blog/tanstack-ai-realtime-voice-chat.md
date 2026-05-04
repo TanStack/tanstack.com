@@ -2,6 +2,7 @@
 title: 'Talk to Your AI: Realtime Voice Chat in TanStack AI'
 published: 2026-03-12
 excerpt: Text-based chat is table stakes. TanStack AI now ships first-class support for realtime voice conversations — real voice, real time, with the AI hearing you, thinking, and responding naturally.
+library: ai
 authors:
   - Alem Tuzlak
 ---

@@ -2,6 +2,7 @@
 title: 'Generation Hooks: Type-Safe AI Beyond Chat'
 published: 2026-03-11
 excerpt: Chat is just the beginning. Your AI app needs image generation, text-to-speech, transcription, and more. TanStack AI now ships generation hooks — a unified set of React hooks for every non-chat AI activity.
+library: ai
 authors:
   - Alem Tuzlak
 ---

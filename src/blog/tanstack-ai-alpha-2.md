@@ -2,6 +2,7 @@
 title: 'TanStack AI Alpha 2: Every Modality, Better APIs, Smaller Bundles'
 published: 2025-12-19
 excerpt: Two weeks since the first alpha and we've prototyped through 5-6 internal architectures. Alpha 2 brings every modality, better APIs, and smaller bundles.
+library: ai
 authors:
   - Alem Tuzlak
   - Jack Herrington

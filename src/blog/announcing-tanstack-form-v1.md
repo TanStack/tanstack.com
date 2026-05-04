@@ -2,6 +2,7 @@
 title: Announcing TanStack Form v1
 published: 2025-03-03
 excerpt: The first stable version of TanStack Form is live and ready for production. We support five frameworks at launch — React, Vue, Angular, Solid, and Lit.
+library: form
 authors:
   - Corbin Crutchley
 ---

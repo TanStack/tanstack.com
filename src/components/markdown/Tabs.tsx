@@ -118,10 +118,11 @@ const Tab = React.memo(
           activeSlug === tab.slug
             ? 'border-current text-current bg-gray-100 dark:bg-gray-900'
             : 'border-transparent text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'
-        }`}
+          }`
+        }
       >
         {option && <img src={option.logo} alt="" className="w-4 h-4 -ml-1" />}
-        <span>{tab.name}</span>
+        <span className={`${option ? 'capitalize' : ''}`}>{tab.name}</span>
       </button>
     )
   },

@@ -1,4 +1,4 @@
-import type { ComponentType, ReactNode } from 'react'
+import type { ComponentType } from 'react'
 import { getRouteApi, Link, notFound, redirect } from '@tanstack/react-router'
 import { DocsLayout } from '~/components/DocsLayout'
 import { RedirectVersionBanner } from '~/components/RedirectVersionBanner'
@@ -6,12 +6,9 @@ import { Scarf } from '~/components/Scarf'
 import { findLibrary, getBranch, getLibrary } from '~/libraries'
 import type { LibraryId } from '~/libraries'
 import { getTanstackDocsConfig } from '~/utils/config'
-import { fetchLandingCodeExample } from '~/utils/landing-code-example.functions'
 import { seo } from '~/utils/seo'
 
-export type LandingComponentProps = {
-  landingCodeExampleRsc?: ReactNode
-}
+export type LandingComponentProps = Record<string, never>
 
 type LandingComponent = ComponentType<LandingComponentProps>
 
@@ -113,7 +110,7 @@ export function createLibraryLandingPage<TId extends StaticLandingRoutePath>(
 
   function LibraryLandingPage() {
     const { version } = routeApi.useParams()
-    const { config, landingCodeExampleRsc } = routeApi.useLoaderData()
+    const { config } = routeApi.useLoaderData()
 
     if (!config) {
       throw notFound()
@@ -134,7 +131,7 @@ export function createLibraryLandingPage<TId extends StaticLandingRoutePath>(
           repo={library.repo}
           isLandingPage
         >
-          <LandingComponent landingCodeExampleRsc={landingCodeExampleRsc} />
+          <LandingComponent />
         </DocsLayout>
         <RedirectVersionBanner
           version={version!}
@@ -158,18 +155,10 @@ export function createLibraryLandingPage<TId extends StaticLandingRoutePath>(
       })
     },
     loader: async ({ params }: { params: { version: string } }) => {
-      const [config, landingCodeExample] = await Promise.all([
-        loadLibraryConfig(libraryId, params.version),
-        fetchLandingCodeExample({
-          data: {
-            libraryId,
-          },
-        }),
-      ])
+      const config = await loadLibraryConfig(libraryId, params.version)
 
       return {
         config,
-        landingCodeExampleRsc: landingCodeExample?.contentRsc ?? null,
       }
     },
     head: () => ({

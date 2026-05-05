@@ -7,6 +7,7 @@ import { LibraryHero } from '~/components/LibraryHero'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
 import { LibraryTestimonials } from '~/components/LibraryTestimonials'
+import { LazyLandingCodeExample } from '~/components/LazyLandingCodeExample'
 import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import LandingPageGad from '~/components/LandingPageGad'
@@ -14,13 +15,10 @@ import { QueryGGBanner } from '~/components/QueryGGBanner'
 import { StackBlitzSection } from '~/components/StackBlitzSection'
 import { getBranch, getLibrary } from '~/libraries'
 import { queryProject } from '~/libraries/query'
-import type { LandingComponentProps } from '~/routes/$libraryId/$version'
 
 const library = getLibrary('query')
 
-export default function QueryLanding({
-  landingCodeExampleRsc,
-}: LandingComponentProps) {
+export default function QueryLanding() {
   const { version } = useParams({ strict: false })
   const branch = getBranch(queryProject, version)
 
@@ -40,7 +38,7 @@ export default function QueryLanding({
 
       <LibraryStatsSection library={library} />
 
-      {landingCodeExampleRsc}
+      <LazyLandingCodeExample libraryId="query" />
 
       <LibraryFeatureHighlights
         featureHighlights={queryProject.featureHighlights}

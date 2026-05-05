@@ -9,20 +9,18 @@ import { LibraryHero } from '~/components/LibraryHero'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
 import { LibraryTestimonials } from '~/components/LibraryTestimonials'
+import { LazyLandingCodeExample } from '~/components/LazyLandingCodeExample'
 import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import LandingPageGad from '~/components/LandingPageGad'
 import { StackBlitzEmbed } from '~/components/StackBlitzEmbed'
 import { Framework, getBranch, getLibrary } from '~/libraries'
 import { tableProject } from '~/libraries/table'
-import type { LandingComponentProps } from '~/routes/$libraryId/$version'
 import { getExampleStartingPath } from '~/utils/sandbox'
 
 const library = getLibrary('table')
 
-export default function TableLanding({
-  landingCodeExampleRsc,
-}: LandingComponentProps) {
+export default function TableLanding() {
   const { version } = useParams({ strict: false })
   const branch = getBranch(tableProject, version)
   const [framework, setFramework] = useState<Framework>('react')
@@ -44,7 +42,7 @@ export default function TableLanding({
 
       <LibraryStatsSection library={library} />
 
-      {landingCodeExampleRsc}
+      <LazyLandingCodeExample libraryId="table" />
 
       <LibraryFeatureHighlights
         featureHighlights={tableProject.featureHighlights}

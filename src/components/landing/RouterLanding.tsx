@@ -8,19 +8,17 @@ import { LibraryHero } from '~/components/LibraryHero'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
 import { LibraryTestimonials } from '~/components/LibraryTestimonials'
+import { LazyLandingCodeExample } from '~/components/LazyLandingCodeExample'
 import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import LandingPageGad from '~/components/LandingPageGad'
 import { StackBlitzSection } from '~/components/StackBlitzSection'
 import { getBranch, getLibrary } from '~/libraries'
 import { routerProject } from '~/libraries/router'
-import type { LandingComponentProps } from '~/routes/$libraryId/$version'
 
 const library = getLibrary('router')
 
-export default function RouterLanding({
-  landingCodeExampleRsc,
-}: LandingComponentProps) {
+export default function RouterLanding() {
   const { version } = useParams({ strict: false })
   const branch = getBranch(routerProject, version)
 
@@ -55,7 +53,7 @@ export default function RouterLanding({
         <LibraryStatsSection library={library} />
       </div>
 
-      {landingCodeExampleRsc}
+      <LazyLandingCodeExample libraryId="router" />
 
       <LibraryFeatureHighlights
         featureHighlights={routerProject.featureHighlights}

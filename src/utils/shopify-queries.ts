@@ -55,11 +55,30 @@ const PRODUCT_CARD_FRAGMENT = /* GraphQL */ `
     title
     productType
     tags
+    publishedAt
+    options {
+      name
+      values
+    }
     featuredImage {
       url
       altText
       width
       height
+    }
+    variants(first: 10) {
+      nodes {
+        selectedOptions {
+          name
+          value
+        }
+        image {
+          url
+          altText
+          width
+          height
+        }
+      }
     }
     priceRange {
       minVariantPrice {
@@ -105,13 +124,23 @@ export const PRODUCTS_QUERY = /* GraphQL */ `
   }
 `
 
+type CardVariantImage = Pick<
+  StorefrontImage,
+  'url' | 'altText' | 'width' | 'height'
+> | null
+
 export type ProductListItem = Pick<
   Product,
-  'id' | 'handle' | 'title' | 'productType' | 'tags'
+  'id' | 'handle' | 'title' | 'productType' | 'tags' | 'publishedAt'
 > & {
-  featuredImage:
-    | (Pick<StorefrontImage, 'url' | 'altText' | 'width' | 'height'> | null)
-    | null
+  options: Array<Pick<ProductOption, 'name' | 'values'>>
+  featuredImage: CardVariantImage | null
+  variants: {
+    nodes: Array<{
+      selectedOptions: Array<{ name: string; value: string }>
+      image: CardVariantImage
+    }>
+  }
   priceRange: {
     minVariantPrice: Pick<MoneyV2, 'amount' | 'currencyCode'>
     maxVariantPrice: Pick<MoneyV2, 'amount' | 'currencyCode'>

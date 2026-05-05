@@ -8,7 +8,11 @@ import {
   partnerTierOrder,
   type PartnerTier,
 } from '~/utils/partners'
-import { trackEvent, useTrackedImpression } from '~/utils/analytics'
+import {
+  trackEvent,
+  useTrackedImpression,
+  type PartnerPlacement,
+} from '~/utils/analytics'
 
 type RailPartner = {
   id: string
@@ -88,14 +92,12 @@ const railTierLayout: Record<
 }
 
 export function PartnersRail({
-  analyticsPlacement = 'partners_rail',
-  analyticsProperties,
+  analyticsPlacement,
   partners,
   title = 'Partners',
   titleTo = '/partners',
 }: {
-  analyticsPlacement?: string
-  analyticsProperties?: Record<string, unknown>
+  analyticsPlacement: PartnerPlacement
   partners: Array<RailPartner>
   title?: string
   titleTo?: '/partners'
@@ -129,9 +131,8 @@ export function PartnersRail({
           rel="noopener noreferrer"
           className="font-medium opacity-60 hover:opacity-100 text-xs hover:underline"
           onClick={() => {
-            trackEvent('become_partner_clicked', {
+            trackEvent('partner_inquiry_started', {
               placement: analyticsPlacement,
-              ...analyticsProperties,
             })
           }}
         >
@@ -162,7 +163,6 @@ export function PartnersRail({
                 <PartnersRailItem
                   key={partner.id}
                   analyticsPlacement={analyticsPlacement}
-                  analyticsProperties={analyticsProperties}
                   index={index}
                   partner={partner}
                 />
@@ -177,24 +177,20 @@ export function PartnersRail({
 
 function PartnersRailItem({
   analyticsPlacement,
-  analyticsProperties,
   index,
   partner,
 }: {
-  analyticsPlacement: string
-  analyticsProperties?: Record<string, unknown>
+  analyticsPlacement: PartnerPlacement
   index: number
   partner: RailPartner
 }) {
   const layout = railTierLayout[partner.tier ?? 'bronze']
-  const ref = useTrackedImpression<HTMLAnchorElement>({
-    event: 'partner_impression',
-    properties: {
+  const ref = useTrackedImpression<'partner_viewed', HTMLAnchorElement>({
+    event: 'partner_viewed',
+    props: {
       partner_id: partner.id,
-      partner_name: partner.name,
       placement: analyticsPlacement,
       slot_index: index,
-      ...analyticsProperties,
     },
   })
 
@@ -211,13 +207,18 @@ function PartnersRailItem({
         layout.padding,
       )}
       onClick={() => {
-        trackEvent('partner_click', {
+        let destinationHost: string | undefined
+        try {
+          destinationHost = new URL(partner.href).host
+        } catch {
+          // Bad/relative href — track without host rather than dropping.
+        }
+        trackEvent('partner_clicked', {
           partner_id: partner.id,
-          partner_name: partner.name,
           placement: analyticsPlacement,
+          destination: 'external',
+          destination_host: destinationHost,
           slot_index: index,
-          destination_host: new URL(partner.href).host,
-          ...analyticsProperties,
         })
       }}
     >

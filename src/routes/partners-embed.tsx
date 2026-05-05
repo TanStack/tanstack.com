@@ -40,7 +40,7 @@ function PartnersEmbed() {
         />
         <div className="px-4 w-full">
           <PartnersGrid
-            analyticsPlacement="partners_embed_grid"
+            analyticsPlacement="embed_grid"
             partnersList={activePartners}
           />
         </div>

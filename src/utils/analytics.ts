@@ -1,15 +1,30 @@
 import * as React from 'react'
 import { googleAnalyticsProvider } from './analytics/providers/google'
 import type {
-  AnalyticsPropertyValue,
-  EventPayload,
-  EventProperties,
-} from './analytics/types'
+  AnalyticsEventName,
+  AnalyticsEventProps,
+} from './analytics/events'
+import type { AnalyticsPropertyValue, EventPayload } from './analytics/types'
 
-type ImpressionOptions = {
+export type {
+  AnalyticsEvent,
+  AnalyticsEventName,
+  AnalyticsEventProps,
+  BuilderAction,
+  BuilderFailureStage,
+  BuilderMode,
+  BuilderSessionContext,
+  BuilderSurface,
+  PartnerClickDestination,
+  PartnerFilterChange,
+  PartnerPlacement,
+} from './analytics/events'
+export { defaultBuilderSessionContext } from './analytics/events'
+
+interface ImpressionOptions<TName extends AnalyticsEventName> {
   enabled?: boolean
-  event: string
-  properties?: EventProperties
+  event: TName
+  props: AnalyticsEventProps<TName>
   threshold?: number
 }
 
@@ -36,6 +51,14 @@ function getPageType(pathname: string) {
 
   if (pathname.startsWith('/partners-embed')) {
     return 'partners_embed'
+  }
+
+  if (
+    pathname === '/builder' ||
+    pathname === '/builder/' ||
+    pathname.startsWith('/builder/')
+  ) {
+    return 'application_builder'
   }
 
   return 'page'
@@ -71,44 +94,64 @@ function normalizeAnalyticsValue(
   }
 }
 
-function buildEventProperties(properties?: EventProperties): EventPayload {
-  const eventProperties: EventPayload = {}
+// Accepts any object — call sites pass typed event props which carry
+// specific keys. We just iterate string-keyed values, so an exact shape
+// isn't needed.
+function buildEventPayload(props: object): EventPayload {
+  const payload: EventPayload = {}
 
   if (typeof window !== 'undefined') {
-    eventProperties.page_location = window.location.href
-    eventProperties.page_path = window.location.pathname
-    eventProperties.page_title = document.title
-    eventProperties.page_type = getPageType(window.location.pathname)
+    payload.page_location = window.location.href
+    payload.page_path = window.location.pathname
+    payload.page_title = document.title
+    payload.page_type = getPageType(window.location.pathname)
   }
 
-  for (const [key, value] of Object.entries(properties ?? {})) {
-    const normalizedValue = normalizeAnalyticsValue(value)
+  for (const [key, value] of Object.entries(props)) {
+    const normalized = normalizeAnalyticsValue(value)
 
-    if (normalizedValue === undefined) {
+    if (normalized === undefined) {
       continue
     }
 
-    eventProperties[key === 'page_url' ? 'page_location' : key] =
-      normalizedValue
+    payload[key] = normalized
   }
 
-  return eventProperties
+  return payload
 }
 
 const analyticsProviders = [googleAnalyticsProvider]
 
-export function trackEvent(event: string, properties?: EventProperties) {
-  const eventProperties = buildEventProperties(properties)
+/**
+ * Track an analytics event. Type-safe — the event name determines which
+ * properties are required. See `.agents/analytics.md` for what each event
+ * means in the user flow.
+ *
+ * @example
+ *   trackEvent('partner_clicked', {
+ *     partner_id: 'vercel',
+ *     placement: 'directory',
+ *     destination: 'internal_detail',
+ *   })
+ */
+export function trackEvent<TName extends AnalyticsEventName>(
+  name: TName,
+  props: AnalyticsEventProps<TName>,
+): void {
+  const payload = buildEventPayload(props)
 
   for (const provider of analyticsProviders) {
     try {
-      provider.trackEvent(event, eventProperties)
+      provider.trackEvent(name, payload)
     } catch {
       // Analytics failures should never affect user flows.
     }
   }
 }
 
+/**
+ * Track an SPA page view. Called from the root route on navigation.
+ */
 export function trackPageView(pagePath: string) {
   trackEvent('page_view', {
     page_location: window.location.href,
@@ -117,19 +160,26 @@ export function trackPageView(pagePath: string) {
   })
 }
 
-export function useTrackedImpression<TElement extends Element>({
-  enabled = true,
-  event,
-  properties,
-  threshold = 0.5,
-}: ImpressionOptions) {
+/**
+ * Fire a typed event when an element scrolls into view. Fires once per
+ * element-mount per session (the IntersectionObserver disconnects after
+ * the first crossing of the threshold).
+ *
+ * Note on behavior: when the host element unmounts and remounts (e.g.
+ * because of a parent's filter change), the impression re-fires. Dedup
+ * in BigQuery if you need session-unique impression counts.
+ */
+export function useTrackedImpression<
+  TName extends AnalyticsEventName,
+  TElement extends Element = Element,
+>({ enabled = true, event, props, threshold = 0.5 }: ImpressionOptions<TName>) {
   const ref = React.useRef<TElement | null>(null)
   const hasTrackedRef = React.useRef(false)
-  const propertiesRef = React.useRef(properties)
+  const propsRef = React.useRef(props)
 
   React.useEffect(() => {
-    propertiesRef.current = properties
-  }, [properties])
+    propsRef.current = props
+  }, [props])
 
   React.useEffect(() => {
     if (!enabled || hasTrackedRef.current) {
@@ -147,7 +197,7 @@ export function useTrackedImpression<TElement extends Element>({
       }
 
       hasTrackedRef.current = true
-      trackEvent(event, propertiesRef.current)
+      trackEvent(event, propsRef.current)
     }
 
     if (typeof IntersectionObserver === 'undefined') {

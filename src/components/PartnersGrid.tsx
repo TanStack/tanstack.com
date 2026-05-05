@@ -8,13 +8,16 @@ import {
   type PartnerTier,
 } from '~/utils/partners'
 import { Card } from '~/components/Card'
-import { trackEvent, useTrackedImpression } from '~/utils/analytics'
+import {
+  trackEvent,
+  useTrackedImpression,
+  type PartnerPlacement,
+} from '~/utils/analytics'
 
 type PartnerItem = (typeof allPartners)[number]
 
 type PartnersGridProps = {
-  analyticsPlacement?: string
-  analyticsProperties?: Record<string, unknown>
+  analyticsPlacement?: PartnerPlacement
   partnersList?: PartnerItem[]
 }
 
@@ -53,23 +56,19 @@ const tierLayout: Record<
 
 function PartnerGridItem({
   analyticsPlacement,
-  analyticsProperties,
   index,
   partner,
 }: {
-  analyticsPlacement: string
-  analyticsProperties?: Record<string, unknown>
+  analyticsPlacement: PartnerPlacement
   index: number
   partner: PartnerItem
 }) {
-  const ref = useTrackedImpression<HTMLAnchorElement>({
-    event: 'partner_impression',
-    properties: {
+  const ref = useTrackedImpression<'partner_viewed', HTMLAnchorElement>({
+    event: 'partner_viewed',
+    props: {
       partner_id: partner.id,
-      partner_name: partner.name,
       placement: analyticsPlacement,
       slot_index: index,
-      ...analyticsProperties,
     },
   })
 
@@ -86,13 +85,18 @@ function PartnerGridItem({
         hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors duration-150 ease-out
         ${layout.flexBasis} ${layout.minHeight} ${layout.padding}`}
       onClick={() => {
-        trackEvent('partner_card_clicked', {
+        let destinationHost: string | undefined
+        try {
+          destinationHost = new URL(partner.href).host
+        } catch {
+          // Bad/relative href — track without host rather than dropping.
+        }
+        trackEvent('partner_clicked', {
           partner_id: partner.id,
-          partner_name: partner.name,
-          destination_host: new URL(partner.href).host,
           placement: analyticsPlacement,
+          destination: 'external',
+          destination_host: destinationHost,
           slot_index: index,
-          ...analyticsProperties,
         })
       }}
     >
@@ -110,8 +114,7 @@ function PartnerGridItem({
 }
 
 export function PartnersGrid({
-  analyticsPlacement = 'partners_grid',
-  analyticsProperties,
+  analyticsPlacement = 'grid',
   partnersList,
 }: PartnersGridProps) {
   const items = (partnersList ?? allPartners).filter(
@@ -157,7 +160,6 @@ export function PartnersGrid({
                     <PartnerGridItem
                       key={partner.id}
                       analyticsPlacement={analyticsPlacement}
-                      analyticsProperties={analyticsProperties}
                       index={index}
                       partner={partner}
                     />

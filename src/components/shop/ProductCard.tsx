@@ -66,7 +66,10 @@ const COLOR_MAP: Record<string, string> = {
 
 // Last token wins: "Vintage Black" → ["vintage","black"] reversed → "black" wins
 function colorHex(name: string): string | undefined {
-  const tokens = name.toLowerCase().split(/[\s_-]+/).reverse()
+  const tokens = name
+    .toLowerCase()
+    .split(/[\s_-]+/)
+    .reverse()
   for (const token of tokens) {
     if (COLOR_MAP[token]) return COLOR_MAP[token]
   }

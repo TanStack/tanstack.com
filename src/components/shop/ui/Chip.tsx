@@ -54,7 +54,8 @@ export const ShopChip = React.forwardRef<HTMLButtonElement, Props>(
           'inline-flex items-center gap-[7px] px-3 py-1.5 rounded-md border text-shop-sm',
           'font-shop-display transition-[border-color,background-color,color]',
           !colorBg && 'bg-shop-surface text-shop-text border-shop-line',
-          !colorBg && 'hover:enabled:bg-shop-surface-hover hover:enabled:border-shop-line-2',
+          !colorBg &&
+            'hover:enabled:bg-shop-surface-hover hover:enabled:border-shop-line-2',
           isSelected &&
             !colorBg &&
             !selectedBg &&

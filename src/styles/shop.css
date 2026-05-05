@@ -72,14 +72,24 @@ html.dark .shop-scope {
 }
 
 @keyframes shop-cta-gradient {
-  0%   { background-position: 0% 50% }
-  50%  { background-position: 100% 50% }
-  100% { background-position: 0% 50% }
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 @keyframes shop-cta-rotate {
-  from { filter: hue-rotate(0deg) brightness(1); }
-  to   { filter: hue-rotate(360deg) brightness(1); }
+  from {
+    filter: hue-rotate(0deg) brightness(1);
+  }
+  to {
+    filter: hue-rotate(360deg) brightness(1);
+  }
 }
 
 @keyframes shop-pulse {

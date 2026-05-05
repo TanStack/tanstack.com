@@ -6,7 +6,6 @@ import { ProductCard } from '~/components/shop/ProductCard'
 import { ProductDrawer } from '~/components/shop/ProductDrawer'
 import { ShopHero } from '~/components/shop/ShopHero'
 
-
 import { ShopButton, ShopSelect, ShopTab } from '~/components/shop/ui'
 import { getProducts } from '~/utils/shop.functions'
 import {

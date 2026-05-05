@@ -124,7 +124,10 @@ export const PRODUCTS_QUERY = /* GraphQL */ `
   }
 `
 
-type CardVariantImage = Pick<StorefrontImage, 'url' | 'altText' | 'width' | 'height'> | null
+type CardVariantImage = Pick<
+  StorefrontImage,
+  'url' | 'altText' | 'width' | 'height'
+> | null
 
 export type ProductListItem = Pick<
   Product,

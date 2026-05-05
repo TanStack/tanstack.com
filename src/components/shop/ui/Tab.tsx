@@ -7,7 +7,10 @@ type Props = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 
 /** Filter tab used in the shop landing header. Pill-shaped, DM Mono, border-only active state. */
 export const ShopTab = React.forwardRef<HTMLButtonElement, Props>(
-  function ShopTab({ isActive, count: _count, children, className, ...rest }, ref) {
+  function ShopTab(
+    { isActive, count: _count, children, className, ...rest },
+    ref,
+  ) {
     const base =
       'inline-flex items-center px-4 py-2.5 rounded-xl font-shop-mono text-shop-ui transition-colors cursor-pointer'
     const state = isActive

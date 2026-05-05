@@ -2,12 +2,13 @@ import * as React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { twMerge } from 'tailwind-merge'
 import { getProduct } from '~/utils/shop.functions'
-import type { ProductDetail, ProductDetailVariant } from '~/utils/shopify-queries'
+import type {
+  ProductDetail,
+  ProductDetailVariant,
+} from '~/utils/shopify-queries'
 import { formatMoney } from '~/utils/shopify-format'
 import { ProductImage } from './ProductImage'
-import {
-  ShopMono,
-} from './ui'
+import { ShopMono } from './ui'
 import { useAddToCart } from '~/hooks/useCart'
 import { useCartDrawerStore } from './cartDrawerStore'
 
@@ -184,8 +185,7 @@ export function ProductDrawer({
   // Splitter drag
   const onSplitterMouseDown = (e: React.MouseEvent) => {
     e.preventDefault()
-    const currentW =
-      drawerRef.current?.getBoundingClientRect().width ?? width
+    const currentW = drawerRef.current?.getBoundingClientRect().width ?? width
     dragStateRef.current = { startX: e.clientX, startW: currentW }
     setIsDragging(true)
   }
@@ -195,7 +195,10 @@ export function ProductDrawer({
     const onMove = (e: MouseEvent) => {
       const dx = dragStateRef.current.startX - e.clientX
       const maxW = Math.min(window.innerWidth * 0.95, 960)
-      const next = Math.max(320, Math.min(maxW, dragStateRef.current.startW + dx))
+      const next = Math.max(
+        320,
+        Math.min(maxW, dragStateRef.current.startW + dx),
+      )
       setWidth(Math.round(next))
     }
     const onUp = () => {
@@ -292,7 +295,11 @@ export function ProductDrawer({
           className="absolute top-3 left-3 z-[3] p-1 text-shop-muted hover:text-shop-text transition-colors"
         >
           <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden>
-            <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" strokeWidth="1.6" />
+            <path
+              d="M2 2l10 10M12 2L2 12"
+              stroke="currentColor"
+              strokeWidth="1.6"
+            />
           </svg>
         </button>
 
@@ -308,7 +315,6 @@ export function ProductDrawer({
           />
         ) : null}
       </aside>
-
     </>
   )
 }
@@ -390,7 +396,6 @@ function DrawerContent({
     .filter((o) => o.values.length > 1)
     .every((o) => !!selected[o.name])
 
-
   // Sync hero image when color selection changes — uses wildcard match so image
   // updates immediately on color pick even before size is chosen.
   const variantForImage = findMatchingVariant(variants, selected)
@@ -403,12 +408,13 @@ function DrawerContent({
   const heroOverrideIndex = heroOverride
     ? product.images.nodes.findIndex((img) => img.url === heroOverride.url)
     : -1
-  const activeThumbnailIndex = heroOverride ? heroOverrideIndex : activeImageIndex
+  const activeThumbnailIndex = heroOverride
+    ? heroOverrideIndex
+    : activeImageIndex
   const heroImage =
     heroOverride ?? product.images.nodes[activeImageIndex] ?? null
 
   const displayPrice = selectedVariant?.price ?? variants[0]?.price ?? null
-
 
   const addToCart = useAddToCart()
   const openCartDrawer = useCartDrawerStore((s) => s.openDrawer)
@@ -446,7 +452,10 @@ function DrawerContent({
               <button
                 key={`${img.url}-${i}`}
                 type="button"
-                onClick={() => { setActiveImageIndex(i); setHeroOverride(null) }}
+                onClick={() => {
+                  setActiveImageIndex(i)
+                  setHeroOverride(null)
+                }}
                 aria-label={`View image ${i + 1}`}
                 className={twMerge(
                   'w-[80px] aspect-square rounded-md overflow-hidden transition-opacity shrink-0',
@@ -469,234 +478,252 @@ function DrawerContent({
       </div>
 
       <div className="bg-shop-bg">
-      <div className="mx-3 border-t border-shop-line" />
+        <div className="mx-3 border-t border-shop-line" />
 
-      {/* Title + price */}
-      <div className="flex justify-between items-baseline gap-3 px-6 py-[15px]">
-        <h2 className="font-shop-display font-semibold text-shop-heading leading-tight tracking-[-0.015em] text-shop-text">
-          {product.title}
-        </h2>
-        {displayPrice ? (
-          <ShopMono className="text-shop-price text-shop-text font-light whitespace-nowrap shrink-0">
-            {formatMoney(displayPrice.amount, displayPrice.currencyCode)}
-          </ShopMono>
-        ) : null}
-      </div>
+        {/* Title + price */}
+        <div className="flex justify-between items-baseline gap-3 px-6 py-[15px]">
+          <h2 className="font-shop-display font-semibold text-shop-heading leading-tight tracking-[-0.015em] text-shop-text">
+            {product.title}
+          </h2>
+          {displayPrice ? (
+            <ShopMono className="text-shop-price text-shop-text font-light whitespace-nowrap shrink-0">
+              {formatMoney(displayPrice.amount, displayPrice.currencyCode)}
+            </ShopMono>
+          ) : null}
+        </div>
 
-      {/* COLOR + SIZE + QUANTITY — all on one flex-wrap row */}
-      <div className="flex flex-wrap gap-x-6 gap-y-5 items-start justify-start px-6 py-5">
-        {product.options.filter((o) => o.values.length > 1).map((option) => {
-          const isSizeOption = /size/i.test(option.name)
+        {/* COLOR + SIZE + QUANTITY — all on one flex-wrap row */}
+        <div className="flex flex-wrap gap-x-6 gap-y-5 items-start justify-start px-6 py-5">
+          {product.options
+            .filter((o) => o.values.length > 1)
+            .map((option) => {
+              const isSizeOption = /size/i.test(option.name)
 
-          if (isSizeOption) {
-            return (
-              <div key={option.id} className="flex flex-col gap-3 w-full">
-                <span className="font-shop-mono italic text-shop-sm text-shop-muted uppercase tracking-[0.1em]">
-                  {option.name}
-                </span>
-                <div className="flex flex-wrap gap-1.5">
-                  {option.values.map((value) => {
-                    const isSelected = selected[option.name] === value
-                    const match = findMatchingVariant(variants, { ...selected, [option.name]: value })
-                    const isUnavailable = !match?.availableForSale
-                    return (
-                      <button
-                        key={value}
-                        type="button"
-                        aria-pressed={isSelected}
-                        disabled={isUnavailable}
-                        onClick={() => setSelected({ ...selected, [option.name]: value })}
-                        className={twMerge(
-                          'px-4 py-2 font-shop-mono text-shop-sm leading-none whitespace-nowrap',
-                          'rounded-full border transition-[background-color,color,border-color] duration-150',
-                          isSelected
-                            ? 'bg-shop-text text-shop-bg border-shop-text'
-                            : 'bg-shop-surface text-shop-text border-shop-line hover:enabled:bg-shop-surface-hover hover:enabled:border-shop-line-2',
-                          isUnavailable && !isSelected && 'opacity-40 cursor-not-allowed line-through',
-                        )}
-                      >
-                        {value}
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            )
-          }
-
-          // Color / other options
-          return (
-            <div key={option.id} className="flex flex-col gap-3 w-full">
-              <span className="font-shop-mono italic text-shop-sm text-shop-muted uppercase tracking-[0.1em]">
-                {option.name}
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                {option.values.map((value) => {
-                  const isSelected = selected[option.name] === value
-                  const match = findMatchingVariant(variants, { ...selected, [option.name]: value })
-                  const isUnavailable = !match?.availableForSale
-                  const hex = resolveColorHex(value)
-                  return (
-                    <button
-                      key={value}
-                      type="button"
-                      aria-pressed={isSelected}
-                      disabled={isUnavailable}
-                      onClick={() => setSelected({ ...selected, [option.name]: value })}
-                      style={
-                        isSelected && hex
-                          ? {
-                              backgroundColor: hex,
-                              ...(isDarkColor(hex)
-                                ? { boxShadow: 'inset 0 0 0 1.5px rgba(255,255,255,0.25)' }
-                                : {}),
+              if (isSizeOption) {
+                return (
+                  <div key={option.id} className="flex flex-col gap-3 w-full">
+                    <span className="font-shop-mono italic text-shop-sm text-shop-muted uppercase tracking-[0.1em]">
+                      {option.name}
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {option.values.map((value) => {
+                        const isSelected = selected[option.name] === value
+                        const match = findMatchingVariant(variants, {
+                          ...selected,
+                          [option.name]: value,
+                        })
+                        const isUnavailable = !match?.availableForSale
+                        return (
+                          <button
+                            key={value}
+                            type="button"
+                            aria-pressed={isSelected}
+                            disabled={isUnavailable}
+                            onClick={() =>
+                              setSelected({ ...selected, [option.name]: value })
                             }
-                          : undefined
-                      }
-                      className={twMerge(
-                        'px-4 py-2 font-shop-mono text-shop-sm leading-none whitespace-nowrap',
-                        'rounded-full border transition-[background-color,color,border-color] duration-150',
-                        isSelected && !hex
-                          ? 'bg-shop-accent text-shop-accent-ink border-shop-accent'
-                          : isSelected && hex && isDarkColor(hex)
-                            ? 'text-white border-transparent'
-                            : isSelected && hex
-                              ? 'text-shop-text border-transparent'
-                              : 'bg-shop-surface text-shop-text border-shop-line hover:enabled:bg-shop-surface-hover hover:enabled:border-shop-line-2',
-                        isUnavailable && !isSelected && 'opacity-40 cursor-not-allowed line-through',
-                      )}
-                    >
-                      {value}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-          )
-        })}
+                            className={twMerge(
+                              'px-4 py-2 font-shop-mono text-shop-sm leading-none whitespace-nowrap',
+                              'rounded-full border transition-[background-color,color,border-color] duration-150',
+                              isSelected
+                                ? 'bg-shop-text text-shop-bg border-shop-text'
+                                : 'bg-shop-surface text-shop-text border-shop-line hover:enabled:bg-shop-surface-hover hover:enabled:border-shop-line-2',
+                              isUnavailable &&
+                                !isSelected &&
+                                'opacity-40 cursor-not-allowed line-through',
+                            )}
+                          >
+                            {value}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )
+              }
 
-        {/* Quantity pill */}
-        <div className="flex flex-col gap-3 shrink-0">
-          <span className="font-shop-mono italic text-shop-sm text-shop-muted uppercase tracking-[0.1em]">
-            Quantity
-          </span>
-          <div className="bg-shop-surface flex h-[38px] items-center justify-center gap-4 px-4 rounded-full w-[100px] font-shop-mono select-none">
-            <button
-              type="button"
-              onClick={() => setQuantity((q) => q + 1)}
-              aria-label="Increase quantity"
-              className="text-shop-sm text-shop-text-2 leading-none hover:text-shop-text transition-colors"
-            >
-              +
-            </button>
-            <span className="text-shop-sm text-shop-text min-w-[1ch] text-center">
-              {quantity}
+              // Color / other options
+              return (
+                <div key={option.id} className="flex flex-col gap-3 w-full">
+                  <span className="font-shop-mono italic text-shop-sm text-shop-muted uppercase tracking-[0.1em]">
+                    {option.name}
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {option.values.map((value) => {
+                      const isSelected = selected[option.name] === value
+                      const match = findMatchingVariant(variants, {
+                        ...selected,
+                        [option.name]: value,
+                      })
+                      const isUnavailable = !match?.availableForSale
+                      const hex = resolveColorHex(value)
+                      return (
+                        <button
+                          key={value}
+                          type="button"
+                          aria-pressed={isSelected}
+                          disabled={isUnavailable}
+                          onClick={() =>
+                            setSelected({ ...selected, [option.name]: value })
+                          }
+                          style={
+                            isSelected && hex
+                              ? {
+                                  backgroundColor: hex,
+                                  ...(isDarkColor(hex)
+                                    ? {
+                                        boxShadow:
+                                          'inset 0 0 0 1.5px rgba(255,255,255,0.25)',
+                                      }
+                                    : {}),
+                                }
+                              : undefined
+                          }
+                          className={twMerge(
+                            'px-4 py-2 font-shop-mono text-shop-sm leading-none whitespace-nowrap',
+                            'rounded-full border transition-[background-color,color,border-color] duration-150',
+                            isSelected && !hex
+                              ? 'bg-shop-accent text-shop-accent-ink border-shop-accent'
+                              : isSelected && hex && isDarkColor(hex)
+                                ? 'text-white border-transparent'
+                                : isSelected && hex
+                                  ? 'text-shop-text border-transparent'
+                                  : 'bg-shop-surface text-shop-text border-shop-line hover:enabled:bg-shop-surface-hover hover:enabled:border-shop-line-2',
+                            isUnavailable &&
+                              !isSelected &&
+                              'opacity-40 cursor-not-allowed line-through',
+                          )}
+                        >
+                          {value}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )
+            })}
+
+          {/* Quantity pill */}
+          <div className="flex flex-col gap-3 shrink-0">
+            <span className="font-shop-mono italic text-shop-sm text-shop-muted uppercase tracking-[0.1em]">
+              Quantity
             </span>
-            <button
-              type="button"
-              onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-              aria-label="Decrease quantity"
-              className="text-shop-sm text-shop-text-2 leading-none hover:text-shop-text transition-colors"
-            >
-              −
-            </button>
+            <div className="bg-shop-surface flex h-[38px] items-center justify-center gap-4 px-4 rounded-full w-[100px] font-shop-mono select-none">
+              <button
+                type="button"
+                onClick={() => setQuantity((q) => q + 1)}
+                aria-label="Increase quantity"
+                className="text-shop-sm text-shop-text-2 leading-none hover:text-shop-text transition-colors"
+              >
+                +
+              </button>
+              <span className="text-shop-sm text-shop-text min-w-[1ch] text-center">
+                {quantity}
+              </span>
+              <button
+                type="button"
+                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                aria-label="Decrease quantity"
+                className="text-shop-sm text-shop-text-2 leading-none hover:text-shop-text transition-colors"
+              >
+                −
+              </button>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="mx-3 border-t border-shop-line" />
+        <div className="mx-3 border-t border-shop-line" />
 
-      {/* Add to Cart */}
-      <div className="flex flex-col items-center px-6 py-5">
-        <button
-          type="button"
-          disabled={
-            !isComplete ||
-            !selectedVariant?.availableForSale ||
-            (addToCart.isPending && !showAdded)
-          }
-          onClick={() => {
-            if (!selectedVariant) return
-            setShowAdded(true)
-            openCartDrawer()
-            addToCart.mutate({
-              variantId: selectedVariant.id,
-              quantity,
-              line: {
-                productTitle: product.title,
-                productHandle: product.handle,
-                variantTitle: selectedVariant.title,
-                price: selectedVariant.price,
-                image: selectedVariant.image,
-                selectedOptions: selectedVariant.selectedOptions,
-              },
-            })
-          }}
-          style={
-            isComplete && !showAdded && selectedVariant?.availableForSale
-              ? {
-                  backgroundImage:
-                    'linear-gradient(235.54deg, rgba(116,220,255,0.99) 3.4%, rgba(255,242,124,0.99) 13.1%, rgba(255,160,92,0.99) 27.1%, rgba(255,95,95,0.99) 39.5%)',
-                  backgroundSize: '200% 200%',
-                  animation: 'shop-cta-gradient 12s ease infinite, shop-cta-rotate 30s linear infinite',
-                }
-              : undefined
-          }
-          className={twMerge(
-            'w-full max-w-[760px] rounded-full px-4 py-3 flex items-center justify-center gap-2.5',
-            'font-shop-display font-semibold text-shop-title',
-            'transition-[background-color,color,border-color,opacity] duration-500',
-            isComplete && !showAdded && selectedVariant?.availableForSale
-              ? 'hover:enabled:brightness-105 text-black'
-              : isComplete && !selectedVariant?.availableForSale
-                ? 'bg-shop-surface text-shop-muted border border-shop-line'
-                : 'bg-shop-surface/30 border border-shop-line text-shop-muted cursor-not-allowed',
-          )}
-        >
-          {isComplete && !showAdded && selectedVariant?.availableForSale ? (
-            <svg
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.75"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden
-            >
-              <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-              <path d="M3 6h18" />
-              <path d="M16 10a4 4 0 01-8 0" />
-            </svg>
-          ) : null}
-          {showAdded
-            ? '✓ Added'
-            : !isComplete
-              ? 'Add to Cart'
-              : !selectedVariant?.availableForSale
-                ? 'Sold out'
-                : 'Add to Cart'}
-        </button>
-      </div>
-
-      <div className="mx-3 border-t border-shop-line" />
-
-      {/* Description */}
-      {product.descriptionHtml ? (
-        <div className="flex flex-col gap-2.5 px-6 py-4">
-          <span className="font-shop-mono italic text-shop-sm text-shop-muted uppercase tracking-[0.1em]">
-            Description
-          </span>
-          <div
-            className="text-shop-body text-shop-text-2 leading-[1.6] [&_p]:mb-2 [&_p:last-child]:mb-0"
-            dangerouslySetInnerHTML={{ __html: product.descriptionHtml }}
-          />
+        {/* Add to Cart */}
+        <div className="flex flex-col items-center px-6 py-5">
+          <button
+            type="button"
+            disabled={
+              !isComplete ||
+              !selectedVariant?.availableForSale ||
+              (addToCart.isPending && !showAdded)
+            }
+            onClick={() => {
+              if (!selectedVariant) return
+              setShowAdded(true)
+              openCartDrawer()
+              addToCart.mutate({
+                variantId: selectedVariant.id,
+                quantity,
+                line: {
+                  productTitle: product.title,
+                  productHandle: product.handle,
+                  variantTitle: selectedVariant.title,
+                  price: selectedVariant.price,
+                  image: selectedVariant.image,
+                  selectedOptions: selectedVariant.selectedOptions,
+                },
+              })
+            }}
+            style={
+              isComplete && !showAdded && selectedVariant?.availableForSale
+                ? {
+                    backgroundImage:
+                      'linear-gradient(235.54deg, rgba(116,220,255,0.99) 3.4%, rgba(255,242,124,0.99) 13.1%, rgba(255,160,92,0.99) 27.1%, rgba(255,95,95,0.99) 39.5%)',
+                    backgroundSize: '200% 200%',
+                    animation:
+                      'shop-cta-gradient 12s ease infinite, shop-cta-rotate 30s linear infinite',
+                  }
+                : undefined
+            }
+            className={twMerge(
+              'w-full max-w-[760px] rounded-full px-4 py-3 flex items-center justify-center gap-2.5',
+              'font-shop-display font-semibold text-shop-title',
+              'transition-[background-color,color,border-color,opacity] duration-500',
+              isComplete && !showAdded && selectedVariant?.availableForSale
+                ? 'hover:enabled:brightness-105 text-black'
+                : isComplete && !selectedVariant?.availableForSale
+                  ? 'bg-shop-surface text-shop-muted border border-shop-line'
+                  : 'bg-shop-surface/30 border border-shop-line text-shop-muted cursor-not-allowed',
+            )}
+          >
+            {isComplete && !showAdded && selectedVariant?.availableForSale ? (
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.75"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden
+              >
+                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                <path d="M3 6h18" />
+                <path d="M16 10a4 4 0 01-8 0" />
+              </svg>
+            ) : null}
+            {showAdded
+              ? '✓ Added'
+              : !isComplete
+                ? 'Add to Cart'
+                : !selectedVariant?.availableForSale
+                  ? 'Sold out'
+                  : 'Add to Cart'}
+          </button>
         </div>
-      ) : null}
-      </div>
 
+        <div className="mx-3 border-t border-shop-line" />
+
+        {/* Description */}
+        {product.descriptionHtml ? (
+          <div className="flex flex-col gap-2.5 px-6 py-4">
+            <span className="font-shop-mono italic text-shop-sm text-shop-muted uppercase tracking-[0.1em]">
+              Description
+            </span>
+            <div
+              className="text-shop-body text-shop-text-2 leading-[1.6] [&_p]:mb-2 [&_p:last-child]:mb-0"
+              dangerouslySetInnerHTML={{ __html: product.descriptionHtml }}
+            />
+          </div>
+        ) : null}
+      </div>
     </div>
   )
 }
-

@@ -15,7 +15,7 @@ export function ShopHero({
       <h1
         className="
           font-shop-display font-bold text-shop-text
-          text-[clamp(36px,5vw,52px)] leading-[1.02] tracking-[-0.03em] m-0
+          text-shop-display leading-[1.02] tracking-[-0.03em] m-0
           [&_em]:not-italic [&_em]:text-shop-accent [&_em]:relative
           [&_em]:after:content-[''] [&_em]:after:absolute [&_em]:after:inset-x-0
           [&_em]:after:-bottom-0.5 [&_em]:after:h-[3px]
@@ -25,7 +25,7 @@ export function ShopHero({
         {title}
       </h1>
       {lede ? (
-        <p className="text-shop-text-2 text-[15px] mt-3.5 max-w-[58ch] leading-[1.55]">
+        <p className="text-shop-text-2 text-shop-sm font-normal mt-3.5 max-w-[58ch] leading-[1.55] opacity-75">
           {lede}
         </p>
       ) : null}

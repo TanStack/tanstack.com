@@ -3,9 +3,10 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useMutation } from '@tanstack/react-query'
 import * as v from 'valibot'
 import { ProductCard } from '~/components/shop/ProductCard'
+import { ProductDrawer } from '~/components/shop/ProductDrawer'
 import { ShopHero } from '~/components/shop/ShopHero'
-import { ShopDropCard } from '~/components/shop/ShopDropCard'
-import { ShopStrip } from '~/components/shop/ShopStrip'
+
+
 import { ShopButton, ShopSelect, ShopTab } from '~/components/shop/ui'
 import { getProducts } from '~/utils/shop.functions'
 import {
@@ -57,6 +58,8 @@ function ShopIndex() {
   const navigate = useNavigate({ from: '/shop' })
   const search = Route.useSearch()
   const activeType = search.type?.toLowerCase() ?? 'all'
+
+  const [drawerHandle, setDrawerHandle] = React.useState<string | null>(null)
 
   const [accumulated, setAccumulated] = React.useState<Array<ProductListItem>>(
     [],
@@ -123,7 +126,7 @@ function ShopIndex() {
 
   return (
     <div className="p-6 md:p-11 pb-24 max-w-[1280px] mx-auto">
-      <div className="flex flex-wrap justify-between items-start gap-10 pb-5.5 border-b border-shop-line mb-7">
+      <div className="pb-5.5 border-b border-shop-line-2 mb-7">
         <ShopHero
           title={
             <>
@@ -132,16 +135,6 @@ function ShopIndex() {
             </>
           }
           lede="Official TanStack apparel, accessories, and stickers. Limited runs, ethically produced, shipped worldwide. Rep the libraries that ship your code every day."
-        />
-        <ShopDropCard
-          status="Shop now — free US shipping over $75"
-          headline="Ship code, wear the merch."
-          rows={[
-            { label: 'Worldwide', value: '7–10 days' },
-            { label: 'Returns', value: '30 days' },
-            { label: 'Free ship over', value: '$75' },
-          ]}
-          cta={{ label: 'Shop all products', href: '/shop' }}
         />
       </div>
 
@@ -173,28 +166,26 @@ function ShopIndex() {
             {opt.display}
           </ShopTab>
         ))}
-        <label className="ml-auto flex items-center gap-2 text-[12px] text-shop-muted">
-          <span>Sort</span>
-          <ShopSelect
-            value={sortId}
-            onChange={(e) => {
-              const nextId = e.target.value as ValidSortId
-              navigate({
-                to: '/shop',
-                search: (prev) => ({
-                  ...prev,
-                  sort: nextId === 'BEST_SELLING' ? undefined : nextId,
-                }),
-              })
-            }}
-          >
-            {SORT_OPTIONS.map((opt) => (
-              <option key={sortOptionId(opt)} value={sortOptionId(opt)}>
-                {opt.label}
-              </option>
-            ))}
-          </ShopSelect>
-        </label>
+        <ShopSelect
+          className="ml-auto"
+          value={sortId}
+          onChange={(e) => {
+            const nextId = e.target.value as ValidSortId
+            navigate({
+              to: '/shop',
+              search: (prev) => ({
+                ...prev,
+                sort: nextId === 'BEST_SELLING' ? undefined : nextId,
+              }),
+            })
+          }}
+        >
+          {SORT_OPTIONS.map((opt) => (
+            <option key={sortOptionId(opt)} value={sortOptionId(opt)}>
+              {opt.label}
+            </option>
+          ))}
+        </ShopSelect>
       </div>
 
       {products.length === 0 ? (
@@ -203,12 +194,13 @@ function ShopIndex() {
         </div>
       ) : (
         <>
-          <section className="grid gap-x-4 gap-y-5.5 grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          <section className="grid gap-x-4 gap-y-5.5 grid-cols-[repeat(auto-fill,minmax(340px,1fr))]">
             {products.map((product, i) => (
               <ProductCard
                 key={product.id}
                 product={product}
                 loading={i < 8 ? 'eager' : 'lazy'}
+                onQuickView={setDrawerHandle}
               />
             ))}
           </section>
@@ -225,14 +217,11 @@ function ShopIndex() {
         </>
       )}
 
-      <ShopStrip
-        items={[
-          'Worldwide shipping',
-          '30-day returns',
-          'Carbon-neutral packing',
-          'Official TanStack',
-          'Proceeds fund open-source',
-        ]}
+      <ProductDrawer
+        productHandle={drawerHandle}
+        allHandles={products.map((p) => p.handle)}
+        onClose={() => setDrawerHandle(null)}
+        onChange={setDrawerHandle}
       />
     </div>
   )

@@ -21,7 +21,7 @@ export function ShopBadge({
   return (
     <span
       className={twMerge(
-        'inline-flex items-center font-shop-mono text-[9.5px] tracking-[0.1em] uppercase',
+        'inline-flex items-center font-shop-mono text-shop-2xs tracking-[0.1em] uppercase',
         'px-1.5 py-[3px] rounded border',
         variants[variant],
         className,

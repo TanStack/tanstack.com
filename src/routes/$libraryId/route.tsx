@@ -3,6 +3,7 @@ import { notFound, Outlet, useParams } from '@tanstack/react-router'
 import { Scarf } from '~/components/Scarf'
 import { findLibrary, LibraryId } from '~/libraries'
 import { seo } from '~/utils/seo'
+import { ogImageUrl } from '~/utils/og'
 
 export const Route = createFileRoute('/$libraryId')({
   params: {
@@ -48,7 +49,7 @@ export const Route = createFileRoute('/$libraryId')({
               .join(', ')}`
           : '',
         description: library.description,
-        image: library.ogImage,
+        image: ogImageUrl(library.id),
         noindex: library.visible === false,
       }),
     }

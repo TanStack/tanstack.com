@@ -7,6 +7,7 @@ import {
 import { DocsLayout } from '~/components/DocsLayout'
 import { findLibrary } from '~/libraries'
 import { seo } from '~/utils/seo'
+import { ogImageUrl } from '~/utils/og'
 
 import { Button } from '~/ui'
 
@@ -25,6 +26,7 @@ export const Route = createFileRoute('/$libraryId/$version/')({
       meta: seo({
         title: library.name,
         description: library.description,
+        image: ogImageUrl(library.id),
         noindex: library.visible === false,
       }),
     }

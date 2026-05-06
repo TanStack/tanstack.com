@@ -226,12 +226,7 @@ export default defineConfig({
       importProtection: {
         behavior: 'error',
         client: {
-          // src/utils/og.ts imports getRequest from @tanstack/react-start/server
-          // to derive the og:image origin from the live request — uses are
-          // gated by `import.meta.env.SSR`, so Vite tree-shakes the import out
-          // of the client bundle. Allowlist the file so the static import
-          // doesn't trip the protection check during bundling.
-          files: ['**/*.server.*', '**/server/**', '**/utils/og.ts'],
+          files: ['**/*.server.*', '**/server/**'],
           specifiers: [
             '@tanstack/react-start/server',
             'uploadthing/server',

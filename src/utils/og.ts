@@ -1,6 +1,6 @@
+import { createIsomorphicFn } from '@tanstack/react-start'
 import { getRequest } from '@tanstack/react-start/server'
 import type { LibraryId } from '~/libraries'
-import { canonicalUrl } from './seo'
 import {
   MAX_OG_DESCRIPTION_LENGTH,
   MAX_OG_TITLE_LENGTH,
@@ -17,30 +17,34 @@ type OgImageOptions = {
 /**
  * Absolute origin to use for og:image URLs.
  *
- * Unlike canonical links (which must always point to production),
- * og:image URLs MUST be reachable on the same deploy that emitted them
- * — social-card validators fetch the URL from the meta tag verbatim.
+ * Unlike canonical links (which always point to production), og:image
+ * URLs MUST be reachable on the same deploy that emitted them — social-
+ * card validators fetch the URL from the meta tag verbatim, so on a
+ * Netlify deploy preview the og:image must point at the preview origin,
+ * not at production.
  *
- * The incoming request URL is the source of truth: on a Netlify deploy
- * preview the request hits `deploy-preview-N--tanstack.netlify.app`, so
- * the og:image must point there too. `process.env.DEPLOY_PRIME_URL` and
- * friends turn out to be unreliable inside the bundled SSR function, so
- * we read the origin from the live request instead.
+ * The incoming request URL is the source of truth. `process.env.URL` /
+ * `DEPLOY_PRIME_URL` etc. turned out to be unreliable inside our bundled
+ * SSR function, so read the origin from the live request via TanStack
+ * Start's `getRequest()`. The server import is referenced only inside
+ * `.server()`, which the start compiler treats as a client-safe boundary
+ * — the import is tree-shaken from the client bundle.
  */
-function getOgOrigin(): string {
-  if (!import.meta.env.SSR) return DEFAULT_SITE_URL
-  try {
-    const request = getRequest()
-    if (request?.url) return new URL(request.url).origin
-  } catch {
-    // getRequest() throws if called outside an SSR request context
-    // (e.g. build-time prerender). Fall through to the env-var fallback.
-  }
-  const env = process.env
-  const origin =
-    env.DEPLOY_PRIME_URL || env.DEPLOY_URL || env.URL || env.SITE_URL
-  return (origin ?? DEFAULT_SITE_URL).replace(/\/$/, '')
-}
+const getOgOrigin = createIsomorphicFn()
+  .server((): string => {
+    try {
+      const request = getRequest()
+      if (request?.url) return new URL(request.url).origin
+    } catch {
+      // getRequest() throws if called outside an SSR request context.
+    }
+    return DEFAULT_SITE_URL
+  })
+  .client((): string =>
+    typeof window !== 'undefined'
+      ? window.location.origin
+      : DEFAULT_SITE_URL,
+  )
 
 /**
  * Absolute URL for a package-themed OG image.
@@ -66,10 +70,6 @@ export function ogImageUrl(
 
   const qs = params.toString()
   const path = `/api/og/${libraryId}.png${qs ? `?${qs}` : ''}`
-
-  // On client (which can't happen in head() but guards against misuse),
-  // fall through to canonicalUrl which uses the production hostname.
-  if (!import.meta.env.SSR) return canonicalUrl(path)
 
   return `${getOgOrigin()}${path}`
 }

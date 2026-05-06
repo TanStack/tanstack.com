@@ -73,12 +73,12 @@ export function npmQueryOptions({
         })
 
         // Process results to match the expected format
-        return results.map((result, groupIndex) => {
+        return results.map((result: any, groupIndex: number) => {
           let actualStartDate = startDate
 
           // Find the earliest non-zero download for this package group
           for (const pkg of result.packages) {
-            const firstNonZero = pkg.downloads.find((d) => d.downloads > 0)
+            const firstNonZero = pkg.downloads.find((d: any) => d.downloads > 0)
             if (firstNonZero) {
               const firstNonZeroDate = d3.utcDay(new Date(firstNonZero.day))
               if (firstNonZeroDate < actualStartDate) {
@@ -88,7 +88,7 @@ export function npmQueryOptions({
           }
 
           return {
-            packages: result.packages.map((pkg) => ({
+            packages: result.packages.map((pkg: any) => ({
               ...packageGroups[groupIndex]?.packages.find(
                 (p) => p.name === pkg.name,
               ),

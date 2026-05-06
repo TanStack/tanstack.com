@@ -36,13 +36,13 @@ import { Spinner } from '~/components/Spinner'
 import { ThemeProvider, useHtmlClass } from '~/components/ThemeProvider'
 import { Navbar } from '~/components/Navbar'
 import { THEME_COLORS } from '~/utils/utils'
-import { useHubSpotChat } from '~/hooks/useHubSpotChat'
 import { trackPageView } from '~/utils/analytics'
 import { twMerge } from 'tailwind-merge'
 
 const GOOGLE_ANALYTICS_ID = 'G-JMT1Z50SPS'
-const GOOGLE_ANALYTICS_SCRIPT_SRC = `https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ANALYTICS_ID}`
-const GOOGLE_ANALYTICS_BOOTSTRAP = `(function(){var id='${GOOGLE_ANALYTICS_ID}';var src='${GOOGLE_ANALYTICS_SCRIPT_SRC}';window.dataLayer=window.dataLayer||[];window.gtag=window.gtag||function(){window.dataLayer.push(arguments)};window.gtag('js',new Date());window.gtag('config',id);var loaded=false;var load=function(){if(loaded)return;loaded=true;var script=document.createElement('script');script.async=true;script.src=src;script.setAttribute('data-ga-loader','true');document.head.appendChild(script)};if(typeof window.requestIdleCallback==='function'){window.requestIdleCallback(load,{timeout:3000});return}if(document.readyState==='complete'){window.setTimeout(load,1500);return}window.addEventListener('load',function(){window.setTimeout(load,1500)},{once:true})})();`
+const GOOGLE_ANALYTICS_PROXY_PREFIX = '/_a'
+const GOOGLE_ANALYTICS_SCRIPT_SRC = `${GOOGLE_ANALYTICS_PROXY_PREFIX}/gtag.js`
+const GOOGLE_ANALYTICS_BOOTSTRAP = `(function(){var id='${GOOGLE_ANALYTICS_ID}';var src='${GOOGLE_ANALYTICS_SCRIPT_SRC}';window.dataLayer=window.dataLayer||[];window.gtag=window.gtag||function(){window.dataLayer.push(arguments)};window.gtag('js',new Date());window.gtag('config',id,{transport_url:window.location.origin+'${GOOGLE_ANALYTICS_PROXY_PREFIX}'});var loaded=false;var load=function(){if(loaded)return;loaded=true;var script=document.createElement('script');script.async=true;script.src=src;script.setAttribute('data-ga-loader','true');document.head.appendChild(script)};if(typeof window.requestIdleCallback==='function'){window.requestIdleCallback(load,{timeout:3000});return}if(document.readyState==='complete'){window.setTimeout(load,1500);return}window.addEventListener('load',function(){window.setTimeout(load,1500)},{once:true})})();`
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
@@ -148,9 +148,6 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
     select: (matches) => matches.find((d) => d.staticData?.baseParent),
   })
 
-  // HubSpot chat loads on configured pages (see useHubSpotChat hook)
-  useHubSpotChat()
-
   const isNavigating = useRouterState({
     select: (s) => s.isLoading || s.isTransitioning,
   })
@@ -188,8 +185,21 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
     select: (s) => s.location?.pathname || '/',
   })
 
+  const canonicalSearchStr = useRouterState({
+    select: (s) => s.location?.searchStr || '',
+  })
+
+  const includeSearchInCanonical = useMatches({
+    select: (s) =>
+      s.some((d) => d.staticData?.includeSearchInCanonical === true),
+  })
+
   const preferredCanonicalPath = getCanonicalPath(canonicalPath)
-  const pageUrl = canonicalUrl(preferredCanonicalPath ?? canonicalPath)
+  const canonicalSearch = includeSearchInCanonical ? canonicalSearchStr : ''
+  const pageUrl = canonicalUrl(
+    preferredCanonicalPath ?? canonicalPath,
+    canonicalSearch,
+  )
 
   const showDevtools = import.meta.env.DEV && canShowDevtools
 
@@ -203,7 +213,10 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
     <html lang="en" className={htmlClass} suppressHydrationWarning>
       <head>
         {preferredCanonicalPath ? (
-          <link rel="canonical" href={canonicalUrl(preferredCanonicalPath)} />
+          <link
+            rel="canonical"
+            href={canonicalUrl(preferredCanonicalPath, canonicalSearch)}
+          />
         ) : null}
         <meta property="og:url" content={pageUrl} />
         <meta name="twitter:url" content={pageUrl} />
@@ -263,18 +276,23 @@ function SearchHotkeyController() {
 
   React.useEffect(() => {
     const handleGlobalKeyDown = (event: KeyboardEvent) => {
-      if (event.defaultPrevented) return
       if (!(event.metaKey || event.ctrlKey)) return
-      if (event.key.toLowerCase() !== 'k') return
+      if (event.altKey || event.shiftKey) return
+      // Match both `key` and `code` so the shortcut works on non-QWERTY layouts.
+      const isK = event.key.toLowerCase() === 'k' || event.code === 'KeyK'
+      if (!isK) return
 
       event.preventDefault()
+      event.stopPropagation()
       setHasOpenedSearch(true)
       openSearch()
     }
 
-    window.addEventListener('keydown', handleGlobalKeyDown)
+    document.addEventListener('keydown', handleGlobalKeyDown, { capture: true })
     return () => {
-      window.removeEventListener('keydown', handleGlobalKeyDown)
+      document.removeEventListener('keydown', handleGlobalKeyDown, {
+        capture: true,
+      })
     }
   }, [openSearch])
 

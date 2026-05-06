@@ -29,6 +29,12 @@ type TestCase = {
   expectedContent: string[]
 }
 
+type ImageTestCase = {
+  name: string
+  path: string
+  expectStatus?: number // defaults to 200 (image/png check)
+}
+
 const tests: TestCase[] = [
   {
     name: 'home page',
@@ -49,6 +55,19 @@ const tests: TestCase[] = [
     name: 'table docs',
     path: '/table/latest/docs/introduction',
     expectedContent: ['<html', '</html>', '<h1'],
+  },
+]
+
+const ogTests: ImageTestCase[] = [
+  { name: 'OG image · library landing', path: '/api/og/query.png' },
+  {
+    name: 'OG image · docs page',
+    path: '/api/og/ai.png?title=useQuery&description=Fetch%20data',
+  },
+  {
+    name: 'OG image · unknown library returns 404',
+    path: '/api/og/not-a-library.png',
+    expectStatus: 404,
   },
 ]
 
@@ -154,27 +173,84 @@ async function main() {
 
   console.log(`Running smoke tests against ${baseUrl}\n`)
 
-  let passed = 0
-  let failed = 0
+  let htmlPassed = 0
+  let htmlFailed = 0
 
   for (const test of tests) {
     const result = await runTest(baseUrl, test)
     if (result.pass) {
       console.log(`  ✓ ${test.name}`)
-      passed++
+      htmlPassed++
     } else {
       console.log(`  ✗ ${test.name}: ${result.error}`)
-      failed++
+      htmlFailed++
     }
   }
 
-  console.log(`\n${passed} passed, ${failed} failed\n`)
+  console.log(`\nHTML: ${htmlPassed} passed, ${htmlFailed} failed\n`)
+
+  // Test OG image endpoints
+  console.log('Running OG image tests...\n')
+
+  let ogPassed = 0
+  let ogFailed = 0
+
+  for (const testCase of ogTests) {
+    const url = `${baseUrl}${testCase.path}`
+    const expectStatus = testCase.expectStatus ?? 200
+
+    try {
+      const response = await fetch(url)
+
+      if (response.status !== expectStatus) {
+        console.log(
+          `  ✗ ${testCase.name}: HTTP ${response.status} (expected ${expectStatus})`,
+        )
+        ogFailed++
+        continue
+      }
+
+      // For non-200 expectations, status alone is the assertion.
+      if (expectStatus !== 200) {
+        console.log(`  ✓ ${testCase.name} (HTTP ${response.status})`)
+        ogPassed++
+        continue
+      }
+
+      const contentType = response.headers.get('content-type')
+      if (contentType !== 'image/png') {
+        console.log(`  ✗ ${testCase.name}: content-type ${contentType}`)
+        ogFailed++
+        continue
+      }
+
+      const body = await response.arrayBuffer()
+      if (body.byteLength === 0) {
+        console.log(`  ✗ ${testCase.name}: empty body`)
+        ogFailed++
+        continue
+      }
+
+      console.log(`  ✓ ${testCase.name} (${body.byteLength} bytes)`)
+      ogPassed++
+    } catch (err) {
+      console.log(
+        `  ✗ ${testCase.name}: ${err instanceof Error ? err.message : String(err)}`,
+      )
+      ogFailed++
+    }
+  }
+
+  console.log(`\nOG: ${ogPassed} passed, ${ogFailed} failed`)
+  console.log(
+    `Total: ${htmlPassed + ogPassed} passed, ${htmlFailed + ogFailed} failed\n`,
+  )
 
   if (serverProcess) {
     process.kill(-serverProcess.pid!, 'SIGTERM')
   }
 
-  if (failed > 0) {
+  if (htmlFailed + ogFailed > 0) {
     process.exit(1)
   }
 }

@@ -1,5 +1,6 @@
 import { sentryTanstackStart } from '@sentry/tanstackstart-react/vite'
 import { defineConfig } from 'vite'
+import { redact } from '@tanstack/redact/vite'
 import contentCollections from '@content-collections/vite'
 import { devtools as tanstackDevtools } from '@tanstack/devtools-vite'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
@@ -31,15 +32,39 @@ const rscSsrExternals = [
   'pako',
   // These packages also have known CJS/ESM interop issues in the RSC/SSR path.
   'discord-interactions',
+  // OG image generation: takumi ships a native .node binary that cannot
+  // be bundled by rolldown — must be externalized for SSR environments.
+  '@takumi-rs/core',
+  '@takumi-rs/image-response',
+  '@takumi-rs/helpers',
+  'takumi-js',
 ]
 
 const sentrySsrExternals = ['@sentry/node', '@sentry/tanstackstart-react']
 const dbSsrExternals = ['drizzle-orm', 'drizzle-orm/postgres-js']
 
+// Runtime-specific `react-dom/server` variants aren't in @tanstack/redact/vite's
+// default alias map — our shim ships a single universal server build, unlike
+// React which maintains per-runtime forks (edge/node/bun/browser + static.*).
+// @vitejs/plugin-rsc and Netlify's edge adapter import them conditionally, so
+// we funnel them all to `@tanstack/redact/server` at the top-level resolve
+// (Vite 8's `EnvironmentResolveOptions` doesn't accept `alias`, so env-scoped
+// aliasing isn't an option).
+const serverVariantAliases: Record<string, string> = {
+  'react-dom/server.edge': '@tanstack/redact/server',
+  'react-dom/server.node': '@tanstack/redact/server',
+  'react-dom/server.bun': '@tanstack/redact/server',
+  'react-dom/server.browser': '@tanstack/redact/server',
+  'react-dom/static.edge': '@tanstack/redact/server',
+  'react-dom/static.node': '@tanstack/redact/server',
+  'react-dom/static': '@tanstack/redact/server',
+}
+
 export default defineConfig({
   resolve: {
     alias: {
       '~': path.resolve(__dirname, './src'),
+      ...serverVariantAliases,
     },
   },
   server: {
@@ -100,8 +125,19 @@ export default defineConfig({
       // CTA packages use execa which has a broken unicorn-magic dependency
       '@tanstack/create',
       'discord-interactions',
+      // OG image generation: takumi ships a native .node binary
+      '@takumi-rs/core',
+      '@takumi-rs/image-response',
+      '@takumi-rs/helpers',
+      'takumi-js',
       // Don't pre-bundle CLI so we always get fresh changes during dev
       ...(isDev ? ['@tanstack/cli'] : []),
+      // `use client` libraries that plugin-rsc pre-bundles inconsistently
+      // across client/ssr/rsc envs when combined with our React shim — each
+      // env resolves `react` to a different target, so the optimizer's hash
+      // diverges. Excluding from optimize keeps resolution deterministic per
+      // env and silences the 50k+ "inconsistently optimized" warning flood.
+      'lucide-react',
     ],
   },
   build: {
@@ -168,7 +204,21 @@ export default defineConfig({
     },
   },
   plugins: [
-    ...(isDev ? [tanstackDevtools()] : []),
+    redact(),
+    ...(isDev
+      ? [
+          tanstackDevtools({
+            // react-instantsearch's <Configure> forwards all JSX props as
+            // Algolia search parameters. Injecting `data-tsd-source` as a
+            // JSX attr leaks it into the request and Algolia 400s with
+            // "Unknown parameter: data-tsd-source" — breaks site search in dev.
+            injectSource: {
+              enabled: true,
+              ignore: { components: ['Configure'] },
+            },
+          }),
+        ]
+      : []),
     tanstackStart({
       rsc: {
         enabled: true,

@@ -2,6 +2,7 @@ import * as React from 'react'
 
 export type Framework =
   | 'angular'
+  | 'alpine'
   | 'lit'
   | 'preact'
   | 'qwik'
@@ -61,7 +62,6 @@ export type LibrarySlim = {
   scarfId?: string
   defaultDocs?: string
   docsRoot?: string
-  ogImage?: string
   hideCodesandboxUrl?: true
   hideStackblitzUrl?: true
   showVercelUrl?: boolean
@@ -81,7 +81,7 @@ export type LibrarySlim = {
   visible?: boolean
   sitemap?: {
     includeLandingPage?: boolean
-    includeTopLevelDocsPages?: boolean
+    includeDocsPages?: boolean
   }
 }
 

@@ -59,7 +59,10 @@ export function GamVrec1({
   return (
     <div
       {...props}
-      className={twMerge('w-[300px] flex flex-col gap-3', props.className)}
+      className={twMerge(
+        'w-full max-w-[300px] flex flex-col gap-3',
+        props.className,
+      )}
     >
       {promos.map((promo) => (
         <Link

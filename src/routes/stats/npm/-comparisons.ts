@@ -17,6 +17,99 @@ export const packageComparisonSchema = v.object({
   baseline: v.optional(v.string()),
 })
 
+export type BaselinePreset = {
+  id: string
+  title: string
+  description: string
+  category: 'single' | 'index'
+  packages: Array<{ name: string; color?: string }>
+}
+
+export function getBaselinePresets(): BaselinePreset[] {
+  return [
+    // Single-package presets — direct comparison against a familiar reference.
+    {
+      id: 'react',
+      title: 'React',
+      description: 'Compare against React downloads.',
+      category: 'single',
+      packages: [{ name: 'react', color: '#61DAFB' }],
+    },
+    {
+      id: 'vue',
+      title: 'Vue',
+      description: 'Compare against Vue downloads.',
+      category: 'single',
+      packages: [{ name: 'vue', color: '#41B883' }],
+    },
+    {
+      id: 'angular',
+      title: 'Angular',
+      description: 'Compare against Angular core downloads.',
+      category: 'single',
+      packages: [{ name: '@angular/core', color: '#DD0031' }],
+    },
+    {
+      id: 'svelte',
+      title: 'Svelte',
+      description: 'Compare against Svelte downloads.',
+      category: 'single',
+      packages: [{ name: 'svelte', color: '#FF3E00' }],
+    },
+    {
+      id: 'typescript',
+      title: 'TypeScript',
+      description: 'Compare against TypeScript downloads.',
+      category: 'single',
+      packages: [{ name: 'typescript', color: '#3178C6' }],
+    },
+    {
+      id: 'lodash',
+      title: 'Lodash',
+      description: 'Compare against Lodash downloads.',
+      category: 'single',
+      packages: [{ name: 'lodash', color: '#3492FF' }],
+    },
+    {
+      id: 'express',
+      title: 'Express',
+      description: 'Compare against Express downloads.',
+      category: 'single',
+      packages: [{ name: 'express', color: '#000000' }],
+    },
+    // Multi-package indexes — equal-weighted (each member contributes its
+    // growth rate equally regardless of size) so the largest member can't
+    // dominate the line shape.
+    {
+      id: 'npm-ecosystem',
+      title: 'NPM Ecosystem (index)',
+      description:
+        'Equal-weighted growth index across foundational packages: lodash, typescript, express, axios. Each contributes its growth rate equally.',
+      category: 'index',
+      packages: [
+        { name: 'lodash', color: '#3492FF' },
+        { name: 'typescript', color: '#3178C6' },
+        { name: 'express', color: '#000000' },
+        { name: 'axios', color: '#5A29E4' },
+      ],
+    },
+    {
+      id: 'frontend-frameworks',
+      title: 'Frontend Frameworks (index)',
+      description:
+        'Equal-weighted growth index across the major UI frameworks: react, vue, angular, svelte, solid-js.',
+      category: 'index',
+      packages: [
+        { name: 'react', color: '#61DAFB' },
+        { name: 'vue', color: '#41B883' },
+        { name: '@angular/core', color: '#DD0031' },
+        { name: 'svelte', color: '#FF3E00' },
+        { name: 'solid-js', color: '#2C4F7C' },
+      ],
+    },
+  ]
+}
+
 // Default comparison for route validation - extracted to avoid bundling all comparisons
 // This is used in validateSearch defaults and must be kept in sync with the first comparison
 export const defaultPackageGroups: v.InferInput<typeof packageGroupSchema>[] = [
@@ -100,15 +193,6 @@ export function getPopularComparisons(): v.InferInput<
         {
           packages: [{ name: 'expo' }],
           color: '#f59e0b',
-        },
-        {
-          packages: [
-            {
-              name: 'react',
-              hidden: true,
-            },
-          ],
-          baseline: true,
         },
       ],
     },

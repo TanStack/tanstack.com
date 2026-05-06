@@ -2,6 +2,7 @@
 title: Announcing TanStack Query v5
 published: 2023-10-17
 excerpt: After 91 alpha releases, 35 betas, and 16 release candidates, TanStack Query v5.0.0 is finally here — smaller, better, and more intuitive than ever.
+library: query
 authors:
   - Dominik Dorfmeister
 ---

@@ -26,7 +26,7 @@ export function HomeSocialProofSection() {
             Partners
           </a>
         </h3>
-        <PartnersGrid analyticsPlacement="home_partners_grid" />
+        <PartnersGrid analyticsPlacement="home_grid" />
         <div className="flex justify-center mt-6">
           <Link to="/partners" search={{ status: 'inactive' }}>
             <Button as="span">

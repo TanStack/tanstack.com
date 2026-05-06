@@ -47,6 +47,7 @@ function calculateStats(
 
   return queryData
     .map((packageGroupDownloads, index) => {
+      if (packageGroups[index]?.baseline) return null
       if (!packageGroupDownloads.packages.some((p) => p.downloads.length)) {
         return null
       }

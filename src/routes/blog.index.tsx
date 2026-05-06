@@ -11,10 +11,12 @@ import { PostNotFound } from './blog'
 import { createServerFn } from '@tanstack/react-start'
 import { setResponseHeaders } from '@tanstack/react-start/server'
 import { RssIcon } from 'lucide-react'
+import { findLibrary, type LibrarySlim } from '~/libraries'
 import { LibrariesWidget } from '~/components/LibrariesWidget'
 import { partners } from '~/utils/partners'
 import { PartnersRail, RightRail } from '~/components/RightRail'
 import { RecentPostsWidget } from '~/components/RecentPostsWidget'
+import { getNetlifyImageUrl } from '~/utils/netlifyImage'
 
 type BlogFrontMatter = {
   slug: string
@@ -23,6 +25,24 @@ type BlogFrontMatter = {
   excerpt: string
   headerImage: string | undefined
   authors: string[]
+  library: string | undefined
+}
+
+function isLibrarySlim(
+  library: LibrarySlim | undefined,
+): library is LibrarySlim {
+  return library !== undefined
+}
+
+function getBlogLibraries(library: string | undefined) {
+  if (!library) {
+    return []
+  }
+
+  return library
+    .split(',')
+    .map((libraryId) => findLibrary(libraryId.trim()))
+    .filter(isLibrarySlim)
 }
 
 const fetchFrontMatters = createServerFn({ method: 'GET' }).handler(
@@ -43,6 +63,7 @@ const fetchFrontMatters = createServerFn({ method: 'GET' }).handler(
         excerpt: post.excerpt,
         headerImage: post.headerImage,
         authors: post.authors,
+        library: post.library,
       }
     })
 
@@ -70,16 +91,13 @@ export const Route = createFileRoute('/blog/')({
 
 function BlogIndex() {
   const frontMatters = Route.useLoaderData() as BlogFrontMatter[]
-  const activePartners = partners.filter(
-    (d) =>
-      d.status === 'active' && d.name !== 'Nozzle.io' && d.id !== 'fireship',
-  )
+  const activePartners = partners.filter((d) => d.status === 'active')
 
   return (
-    <div className="flex flex-col max-w-full min-h-screen gap-16 p-4 md:p-8 pb-0">
-      <div className="flex-1 w-full max-w-[1400px] mx-auto">
-        <div className="flex gap-8 items-start">
-          <div className="flex-1 space-y-12 min-w-0">
+    <div className="flex flex-col max-w-full min-h-screen">
+      <div className="flex-1 flex w-full mb-16">
+        <div className="flex-1 p-4 md:p-8 min-w-0 flex justify-center">
+          <div className="w-full max-w-[1100px] space-y-12">
             <header className="">
               <div className="flex gap-3 items-baseline">
                 <h1 className="text-3xl font-black">Blog</h1>
@@ -98,9 +116,19 @@ function BlogIndex() {
                 The latest news and blog posts from TanStack
               </p>
             </header>
-            <section className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
+            <section className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4">
               {frontMatters.map(
-                ({ slug, title, published, excerpt, headerImage, authors }) => {
+                ({
+                  slug,
+                  title,
+                  published,
+                  excerpt,
+                  headerImage,
+                  authors,
+                  library,
+                }) => {
+                  const blogLibraries = getBlogLibraries(library)
+
                   return (
                     <Card
                       key={slug}
@@ -109,10 +137,22 @@ function BlogIndex() {
                       params={{ _splat: slug } as never}
                       className="relative flex flex-col justify-between overflow-hidden transition-all hover:shadow-sm hover:border-blue-500"
                     >
+                      {blogLibraries.length ? (
+                        <div className="absolute right-3 top-3 z-10 flex flex-wrap justify-end gap-1">
+                          {blogLibraries.map((library) => (
+                            <div
+                              key={library.id}
+                              className={`rounded-md px-2 py-1 text-xs font-black uppercase shadow-sm ${library.bgStyle} ${library.badgeTextStyle ?? 'text-white'}`}
+                            >
+                              {library.name.replace('TanStack ', '')}
+                            </div>
+                          ))}
+                        </div>
+                      ) : null}
                       {headerImage ? (
                         <div className="aspect-video overflow-hidden bg-gray-100 dark:bg-gray-800">
                           <img
-                            src={headerImage}
+                            src={getNetlifyImageUrl(headerImage)}
                             alt=""
                             loading="lazy"
                             decoding="async"
@@ -153,19 +193,19 @@ function BlogIndex() {
               )}
             </section>
           </div>
-          <RightRail breakpoint="md">
-            <PartnersRail
-              analyticsPlacement="blog_right_rail"
-              partners={activePartners}
-            />
-            <div className="hidden md:block border border-gray-500/20 rounded-l-lg overflow-hidden w-full">
-              <RecentPostsWidget />
-            </div>
-            <Card>
-              <LibrariesWidget />
-            </Card>
-          </RightRail>
         </div>
+        <RightRail breakpoint="md">
+          <PartnersRail
+            analyticsPlacement="blog_rail"
+            partners={activePartners}
+          />
+          <div className="hidden md:block border border-gray-500/20 rounded-l-lg overflow-hidden w-full">
+            <RecentPostsWidget />
+          </div>
+          <Card>
+            <LibrariesWidget />
+          </Card>
+        </RightRail>
       </div>
       <Footer />
     </div>

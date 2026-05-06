@@ -29,9 +29,8 @@ export function PartnershipCallout({ libraryId }: PartnershipCalloutProps) {
           href={`mailto:partners@tanstack.com?subject=TanStack ${library.name} Partnership`}
           className="text-blue-500 uppercase font-black text-sm"
           onClick={() => {
-            trackEvent('partner_inquiry_clicked', {
-              library_id: libraryId,
-              placement: 'library_partnership_callout',
+            trackEvent('partner_inquiry_started', {
+              placement: 'library_callout',
             })
           }}
         >

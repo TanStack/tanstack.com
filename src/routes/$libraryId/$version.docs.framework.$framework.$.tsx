@@ -6,6 +6,7 @@ import {
   createFileRoute,
 } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
+import { ogImageUrl } from '~/utils/og'
 import { Doc } from '~/components/Doc'
 import { loadDocsPage, resolveDocsRedirect } from '~/utils/docs'
 import { getBranch, getLibrary } from '~/libraries'
@@ -76,6 +77,10 @@ export const Route = createFileRoute(
           : tail,
         description: ctx.loaderData?.description,
         keywords: ctx.loaderData?.keywords,
+        image: ogImageUrl(library.id, {
+          title: ctx.loaderData?.title,
+          description: ctx.loaderData?.description,
+        }),
         noindex: library.visible === false,
       }),
     }

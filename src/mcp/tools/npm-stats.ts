@@ -176,7 +176,7 @@ async function comparePackages(
   })
 
   const packages = results
-    .map((group, i) => {
+    .map((group: any, i: number) => {
       const downloads = group.packages[0].downloads as Array<{
         day: string
         downloads: number
@@ -189,7 +189,7 @@ async function comparePackages(
         data: aggregateByBin(downloads, bin),
       }
     })
-    .sort((a, b) => b.total - a.total)
+    .sort((a: { total: number }, b: { total: number }) => b.total - a.total)
 
   return { range: { start: startDate, end: endDate }, bin, packages }
 }

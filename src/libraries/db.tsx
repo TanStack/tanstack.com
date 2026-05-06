@@ -8,7 +8,6 @@ const textStyles = `text-orange-600 dark:text-orange-500`
 export const dbProject = {
   ...db,
   description: `TanStack DB gives you a reactive, client-first store for your API data with collections, live queries and optimistic mutations that keep your UI reactive, consistent and blazing fast 🔥`,
-  ogImage: 'https://github.com/tanstack/db/raw/main/media/repo-header.png',
   latestBranch: 'main',
   bgRadial: 'from-orange-500 via-orange-700/50 to-transparent',
   textColor: `text-orange-700`,

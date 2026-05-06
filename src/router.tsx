@@ -78,6 +78,7 @@ declare module '@tanstack/react-router' {
     baseParent?: boolean
     Title?: () => any
     showNavbar?: boolean
+    includeSearchInCanonical?: boolean
   }
 }
 

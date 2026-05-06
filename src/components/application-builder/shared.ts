@@ -4,7 +4,6 @@ import { composeApplicationStarterInput } from '~/utils/partners'
 import {
   type ApplicationStarterAnalysis,
   sanitizeStarterPrompt,
-  type ApplicationStarterContext,
   type ApplicationStarterRequest,
   type ApplicationStarterResult,
 } from '~/utils/application-starter'
@@ -363,29 +362,5 @@ export class ApplicationStarterError extends Error {
     this.code = options?.code
     this.loginRequired = options?.loginRequired
     this.retryAfter = options?.retryAfter
-  }
-}
-
-export function getStarterAnalyticsProperties({
-  context,
-  generated,
-  mode,
-  selectedLibraries,
-  selectedPartners,
-}: {
-  context: ApplicationStarterContext
-  generated: boolean
-  mode: 'compact' | 'full'
-  selectedLibraries: Array<LibraryId>
-  selectedPartners: Array<string>
-}) {
-  return {
-    context,
-    generated,
-    mode,
-    selected_library_count: selectedLibraries.length,
-    selected_libraries: selectedLibraries,
-    selected_partner_count: selectedPartners.length,
-    selected_partners: selectedPartners,
   }
 }

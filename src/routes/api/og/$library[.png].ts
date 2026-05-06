@@ -1,3 +1,5 @@
+import { readdirSync, existsSync, realpathSync } from 'node:fs'
+import { dirname } from 'node:path'
 import { createFileRoute } from '@tanstack/react-router'
 import { generateOgImageResponse } from '~/server/og/generate.server'
 
@@ -5,6 +7,17 @@ const CACHE_HEADERS = {
   'Cache-Control':
     'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800',
 } as const
+
+function listOrError(path: string): string {
+  try {
+    if (!existsSync(path)) return `(missing) ${path}`
+    const real = realpathSync(path)
+    const entries = readdirSync(path).slice(0, 80).join(', ')
+    return `${path}${path === real ? '' : ` -> ${real}`}: ${entries}`
+  } catch (err) {
+    return `${path}: ${err instanceof Error ? err.message : String(err)}`
+  }
+}
 
 export const Route = createFileRoute('/api/og/$library.png')({
   server: {
@@ -46,10 +59,6 @@ export const Route = createFileRoute('/api/og/$library.png')({
           await result.ready
         } catch (error) {
           console.error('Failed to generate OG image', error)
-          // Surface the underlying message+stack in the response body so we
-          // can diagnose Netlify-only render failures without log access.
-          // TODO: trim back to "Failed to generate OG image" once the takumi
-          // binding load on Netlify is verified working.
           const detail =
             error instanceof Error
               ? `${error.name}: ${error.message}\n${error.stack ?? ''}\n${
@@ -60,10 +69,26 @@ export const Route = createFileRoute('/api/og/$library.png')({
                       : ''
                 }`
               : String(error)
-          return new Response(`Failed to generate OG image\n\n${detail}`, {
-            status: 500,
-            headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-          })
+
+          const fsDump = [
+            `cwd: ${process.cwd()}`,
+            `__dirname approx: /var/task`,
+            listOrError('/var/task'),
+            listOrError('/var/task/node_modules'),
+            listOrError('/var/task/node_modules/@takumi-rs'),
+            listOrError('/var/task/node_modules/.pnpm'),
+            listOrError(
+              '/var/task/node_modules/.pnpm/@takumi-rs+core@1.1.2_react-dom@19.2.3_react@19.2.3__react@19.2.3/node_modules/@takumi-rs',
+            ),
+          ].join('\n\n')
+
+          return new Response(
+            `Failed to generate OG image\n\n${detail}\n\n--- fs dump ---\n${fsDump}`,
+            {
+              status: 500,
+              headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+            },
+          )
         }
 
         return result

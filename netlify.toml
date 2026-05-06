@@ -13,11 +13,17 @@ included_files = [
   "public/images/logos/splash-dark.png",
 ]
 # @takumi-rs/core ships platform-specific .node binaries via napi-rs's runtime
-# require() dispatcher — esbuild can't statically trace the optional deps, so
-# the Linux binary is missing from the zipped function. Keep the package
-# external so node_modules/@takumi-rs/core (and the matching @takumi-rs/core-
-# linux-x64-gnu installed by pnpm on the build machine) is shipped as-is.
-external_node_modules = ["@takumi-rs/core"]
+# require() dispatcher — esbuild can't statically trace the optional deps. Keep
+# the napi loader external so node_modules/@takumi-rs/core ships as-is, and
+# also list the Linux x64 binary package explicitly: Netlify's bundler only
+# follows declared deps for `external_node_modules`, so the optional platform
+# package would otherwise be dropped (verified — function failed at runtime
+# with "Cannot find native binding"). Netlify functions run on AWS Lambda
+# Amazon Linux 2 (glibc, x64), hence linux-x64-gnu.
+external_node_modules = [
+  "@takumi-rs/core",
+  "@takumi-rs/core-linux-x64-gnu",
+]
 
 [[headers]]
 for = "/*"

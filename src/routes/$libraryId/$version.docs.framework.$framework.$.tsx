@@ -76,6 +76,7 @@ export const Route = createFileRoute(
           ? `${ctx.loaderData.title} | ${tail}`
           : tail,
         description: ctx.loaderData?.description,
+        keywords: ctx.loaderData?.keywords,
         image: ogImageUrl(library.id, {
           title: ctx.loaderData?.title,
           description: ctx.loaderData?.description,

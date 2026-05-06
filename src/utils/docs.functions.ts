@@ -243,7 +243,9 @@ export const fetchDocs = createServerFn({ method: 'GET' })
     }
 
     const frontMatter = extractFrontMatter(file)
-    const description = removeMarkdown(frontMatter.excerpt ?? '')
+    const description =
+      frontMatter.userDescription ?? removeMarkdown(frontMatter.excerpt ?? '')
+    const keywords = extractFrontMatterKeywords(frontMatter.data.keywords)
     const { contentRsc, headings } = await renderMarkdownToRsc(
       frontMatter.content,
     )
@@ -255,6 +257,7 @@ export const fetchDocs = createServerFn({ method: 'GET' })
       contentRsc,
       title: frontMatter.data?.title ?? 'Content temporarily unavailable',
       description,
+      keywords,
       frameworks: extractFrameworksFromMarkdown(frontMatter.content),
       filePath,
       headings,
@@ -270,6 +273,7 @@ export const fetchDocsPage = createServerFn({ method: 'GET' })
     return {
       contentRsc: doc.contentRsc,
       description: doc.description,
+      keywords: doc.keywords,
       filePath: doc.filePath,
       frontmatter: doc.frontmatter,
       frameworks: doc.frameworks,
@@ -277,6 +281,24 @@ export const fetchDocsPage = createServerFn({ method: 'GET' })
       title: doc.title,
     }
   })
+
+function extractFrontMatterKeywords(value: unknown): string | undefined {
+  if (Array.isArray(value)) {
+    const normalized = value
+      .filter((item): item is string => typeof item === 'string')
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0)
+
+    return normalized.length > 0 ? normalized.join(', ') : undefined
+  }
+
+  if (typeof value === 'string') {
+    const trimmed = value.trim()
+    return trimmed.length > 0 ? trimmed : undefined
+  }
+
+  return undefined
+}
 
 export const fetchFile = createServerFn({ method: 'GET' })
   .inputValidator(repoFileInput)

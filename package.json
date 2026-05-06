@@ -119,6 +119,9 @@
     "zod": "^4.3.6",
     "zustand": "^5.0.12"
   },
+  "optionalDependencies": {
+    "@takumi-rs/core-linux-x64-gnu": "^1.1.2"
+  },
   "devDependencies": {
     "@content-collections/core": "^0.14.3",
     "@content-collections/vite": "^0.2.9",
@@ -165,6 +168,11 @@
       "minimatch@3.1.5>brace-expansion": "1.1.12",
       "minimatch@5.1.9>brace-expansion": "2.0.3",
       "minimatch@10.2.5>brace-expansion": "5.0.5"
+    },
+    "supportedArchitectures": {
+      "os": ["current", "linux"],
+      "cpu": ["current", "x64"],
+      "libc": ["current", "glibc"]
     }
   }
 }

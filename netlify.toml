@@ -7,20 +7,18 @@ publish = "dist/client"
 
 [functions]
 directory = "netlify/functions"
+# OG image rendering goes through @takumi-rs/wasm (forced via the `module`
+# option in src/server/og/generate.server.ts) instead of @takumi-rs/core's
+# native napi binding — Netlify's function bundler dropped the platform-
+# specific .node optional dep no matter how we configured it, and WASM
+# sidesteps the whole binary-resolution dance. The .wasm asset isn't part
+# of the JS import graph, so include it explicitly.
 included_files = [
   "public/fonts/Inter-Regular.ttf",
   "public/fonts/Inter-ExtraBold.ttf",
   "public/images/logos/splash-dark.png",
+  "node_modules/.pnpm/@takumi-rs+wasm@*/node_modules/@takumi-rs/wasm/pkg/takumi_wasm_bg.wasm",
 ]
-# @takumi-rs/core ships platform-specific .node binaries via napi-rs's runtime
-# require() dispatcher — esbuild can't statically trace the optional deps. Keep
-# the napi loader external so node_modules/@takumi-rs/core ships as-is, and
-# also list the Linux x64 binary package explicitly: Netlify's bundler only
-# follows declared deps for `external_node_modules`, so the optional platform
-# package would otherwise be dropped (verified — function failed at runtime
-# with "Cannot find native binding"). Netlify functions run on AWS Lambda
-# Amazon Linux 2 (glibc, x64), hence linux-x64-gnu.
-external_node_modules = ["@takumi-rs/core", "@takumi-rs/core-linux-x64-gnu"]
 
 [[headers]]
 for = "/*"

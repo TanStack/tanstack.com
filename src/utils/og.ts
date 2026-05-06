@@ -1,3 +1,4 @@
+import { getRequest } from '@tanstack/react-start/server'
 import type { LibraryId } from '~/libraries'
 import { canonicalUrl } from './seo'
 import {
@@ -20,11 +21,21 @@ type OgImageOptions = {
  * og:image URLs MUST be reachable on the same deploy that emitted them
  * — social-card validators fetch the URL from the meta tag verbatim.
  *
- * On Netlify preview/branch deploys, `URL` is still the production URL,
- * but `DEPLOY_PRIME_URL` is the deploy's own origin. Prefer that.
+ * The incoming request URL is the source of truth: on a Netlify deploy
+ * preview the request hits `deploy-preview-N--tanstack.netlify.app`, so
+ * the og:image must point there too. `process.env.DEPLOY_PRIME_URL` and
+ * friends turn out to be unreliable inside the bundled SSR function, so
+ * we read the origin from the live request instead.
  */
 function getOgOrigin(): string {
   if (!import.meta.env.SSR) return DEFAULT_SITE_URL
+  try {
+    const request = getRequest()
+    if (request?.url) return new URL(request.url).origin
+  } catch {
+    // getRequest() throws if called outside an SSR request context
+    // (e.g. build-time prerender). Fall through to the env-var fallback.
+  }
   const env = process.env
   const origin =
     env.DEPLOY_PRIME_URL || env.DEPLOY_URL || env.URL || env.SITE_URL

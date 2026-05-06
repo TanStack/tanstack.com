@@ -1,5 +1,6 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { createRequire } from 'node:module'
+import { join } from 'node:path'
 import { ImageResponse } from '@takumi-rs/image-response'
 import { findLibrary } from '~/libraries'
 import type { LibraryId } from '~/libraries'
@@ -21,15 +22,55 @@ const ISLAND_KEY = 'island'
 // `external_node_modules` and explicit optionalDependencies didn't fix
 // it. WASM is platform-agnostic and ships a single .wasm asset (listed
 // in netlify.toml `included_files`).
+const WASM_REL_PATH = 'node_modules/@takumi-rs/wasm/pkg/takumi_wasm_bg.wasm'
+const WASM_PNPM_REL_PATH = 'node_modules/@takumi-rs/wasm/pkg/takumi_wasm_bg.wasm'
+
 let cachedWasmBytes: Uint8Array | null = null
 function loadTakumiWasm(): Uint8Array {
   if (cachedWasmBytes) return cachedWasmBytes
-  // @takumi-rs/wasm exposes the binary via the `./takumi_wasm_bg.wasm`
-  // subpath in its `exports` map.
-  const require = createRequire(import.meta.url)
-  const wasmPath = require.resolve('@takumi-rs/wasm/takumi_wasm_bg.wasm')
-  cachedWasmBytes = readFileSync(wasmPath)
-  return cachedWasmBytes
+  const candidatePaths = [
+    // Standard module resolution — works in dev and any environment that
+    // hoists @takumi-rs/wasm to top-level node_modules.
+    tryRequireResolve('@takumi-rs/wasm/takumi_wasm_bg.wasm'),
+    // Top-level pnpm hoist (also via require but without the subpath
+    // exports indirection).
+    join(process.cwd(), WASM_REL_PATH),
+    // Netlify Functions deploy: pnpm packages live under
+    // node_modules/.pnpm/<pkg>@<version>/node_modules/<pkg>/. The function
+    // bundler isn't symlinking @takumi-rs/wasm at top-level, so walk .pnpm
+    // and find the matching directory.
+    findInPnpmStore('@takumi-rs+wasm@', WASM_PNPM_REL_PATH),
+  ].filter((p): p is string => Boolean(p))
+
+  for (const path of candidatePaths) {
+    if (existsSync(path)) {
+      cachedWasmBytes = readFileSync(path)
+      return cachedWasmBytes
+    }
+  }
+  throw new Error(
+    `Could not locate @takumi-rs/wasm/pkg/takumi_wasm_bg.wasm. Tried: ${candidatePaths.join(', ')}`,
+  )
+}
+
+function tryRequireResolve(specifier: string): string | null {
+  try {
+    return createRequire(import.meta.url).resolve(specifier)
+  } catch {
+    return null
+  }
+}
+
+function findInPnpmStore(pkgPrefix: string, relPath: string): string | null {
+  const pnpmDir = join(process.cwd(), 'node_modules', '.pnpm')
+  if (!existsSync(pnpmDir)) return null
+  for (const entry of readdirSync(pnpmDir)) {
+    if (entry.startsWith(pkgPrefix)) {
+      const candidate = join(pnpmDir, entry, relPath)
+      if (existsSync(candidate)) return candidate
+    }
+  }
+  return null
 }
 
 type GenerateInput = {

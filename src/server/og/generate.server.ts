@@ -23,7 +23,8 @@ const ISLAND_KEY = 'island'
 // it. WASM is platform-agnostic and ships a single .wasm asset (listed
 // in netlify.toml `included_files`).
 const WASM_REL_PATH = 'node_modules/@takumi-rs/wasm/pkg/takumi_wasm_bg.wasm'
-const WASM_PNPM_REL_PATH = 'node_modules/@takumi-rs/wasm/pkg/takumi_wasm_bg.wasm'
+const WASM_PNPM_REL_PATH =
+  'node_modules/@takumi-rs/wasm/pkg/takumi_wasm_bg.wasm'
 
 let cachedWasmBytes: Uint8Array | null = null
 function loadTakumiWasm(): Uint8Array {

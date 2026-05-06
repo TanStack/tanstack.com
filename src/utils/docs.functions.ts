@@ -38,29 +38,74 @@ type RepoDirectoryRequest = {
   startingPath: string
 }
 
+// Inputs feed into a database cache key + a GitHub API URL. They must be
+// shaped like real repo/ref/path values — anything else is a broken backlink,
+// a scraper, or a probe and shouldn't get the privilege of becoming a row.
+// See assertValidCacheKey in github-content-cache.server.ts for the matching
+// defense at the cache boundary.
+const repoSchema = v.pipe(
+  v.string(),
+  v.maxLength(100),
+  v.regex(/^[a-zA-Z0-9._-]+\/[a-zA-Z0-9._-]+$/),
+)
+
+const branchSchema = v.pipe(
+  v.string(),
+  v.maxLength(100),
+  v.regex(/^[a-zA-Z0-9._/-]+$/),
+  v.check(
+    (s) =>
+      !s.includes('..') &&
+      !s.startsWith('/') &&
+      !s.endsWith('/') &&
+      !s.includes('//'),
+    'invalid branch',
+  ),
+)
+
+const repoPathSchema = v.pipe(
+  v.string(),
+  v.maxLength(512),
+  v.check((s) => {
+    if (s === '') return true
+    if (
+      s.startsWith('/') ||
+      s.endsWith('/') ||
+      s.includes('//') ||
+      s.includes('..')
+    ) {
+      return false
+    }
+    for (const segment of s.split('/')) {
+      if (!/^[a-zA-Z0-9._-]+$/.test(segment)) return false
+    }
+    return true
+  }, 'invalid path'),
+)
+
 const repoFileInput = v.object({
-  repo: v.string(),
-  branch: v.string(),
-  filePath: v.string(),
+  repo: repoSchema,
+  branch: branchSchema,
+  filePath: repoPathSchema,
 })
 
 const repoDirectoryInput = v.object({
-  repo: v.string(),
-  branch: v.string(),
-  startingPath: v.string(),
+  repo: repoSchema,
+  branch: branchSchema,
+  startingPath: repoPathSchema,
 })
 
 const docsManifestInput = v.object({
-  repo: v.string(),
-  branch: v.string(),
-  docsRoot: v.string(),
+  repo: repoSchema,
+  branch: branchSchema,
+  docsRoot: repoPathSchema,
 })
 
 const docsRedirectInput = v.object({
-  repo: v.string(),
-  branch: v.string(),
-  docsRoot: v.string(),
-  docsPaths: v.array(v.string()),
+  repo: repoSchema,
+  branch: branchSchema,
+  docsRoot: repoPathSchema,
+  docsPaths: v.array(v.pipe(v.string(), v.maxLength(512))),
 })
 
 const temporarilyUnavailableMarkdown = `# Content temporarily unavailable

@@ -36,6 +36,19 @@ export const Route = createFileRoute('/api/og/$library.png')({
           return new Response(`Unknown library: ${libraryId}`, { status: 404 })
         }
 
+        // ImageResponse builds the Response synchronously (status 200, image
+        // content-type) and renders inside a ReadableStream. If the render
+        // throws — e.g. takumi's native binding fails to load — the stream
+        // is errored but the response headers are already sent, producing
+        // an empty 200 OK that gets cached at the edge. Await the ready
+        // promise so render errors surface as 500s.
+        try {
+          await result.ready
+        } catch (error) {
+          console.error('Failed to generate OG image', error)
+          return new Response('Failed to generate OG image', { status: 500 })
+        }
+
         return result
       },
     },

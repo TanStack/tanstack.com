@@ -12,6 +12,12 @@ included_files = [
   "public/fonts/Inter-ExtraBold.ttf",
   "public/images/logos/splash-dark.png",
 ]
+# @takumi-rs/core ships platform-specific .node binaries via napi-rs's runtime
+# require() dispatcher — esbuild can't statically trace the optional deps, so
+# the Linux binary is missing from the zipped function. Keep the package
+# external so node_modules/@takumi-rs/core (and the matching @takumi-rs/core-
+# linux-x64-gnu installed by pnpm on the build machine) is shipped as-is.
+external_node_modules = ["@takumi-rs/core"]
 
 [[headers]]
 for = "/*"

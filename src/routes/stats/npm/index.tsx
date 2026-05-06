@@ -2,18 +2,22 @@ import * as React from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { useThrottledCallback } from '@tanstack/react-pacer'
+import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { X } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { Card } from '~/components/Card'
 import { seo } from '~/utils/seo'
 import {
   getPopularComparisons,
+  getBaselinePresets,
   packageGroupSchema,
   defaultPackageGroups,
+  type BaselinePreset,
 } from './-comparisons'
 import { GamVrec1 } from '~/components/Gam'
 import { AdGate } from '~/contexts/AdsContext'
 import { Spinner } from '~/components/Spinner'
+import { BaselineSection } from '~/components/npm-stats/BaselineSection'
 import { ChartControls } from '~/components/npm-stats/ChartControls'
 import { ColorPickerPopover } from '~/components/npm-stats/ColorPickerPopover'
 import { PackagePills } from '~/components/npm-stats/PackagePills'
@@ -78,6 +82,8 @@ export const Route = createFileRoute('/stats/npm/')({
     facetY: v.fallback(v.optional(v.picklist(['name'])), undefined),
     binType: v.fallback(v.optional(binTypeSchema, 'weekly'), 'weekly'),
     showDataMode: v.fallback(v.optional(showDataModeSchema, 'all'), 'all'),
+    normalizeBaseline: v.fallback(v.optional(v.boolean(), true), true),
+    showBaseline: v.fallback(v.optional(v.boolean(), false), false),
     height: v.fallback(v.optional(v.number(), 400), 400),
   }),
   loaderDeps: ({ search }) => ({
@@ -191,6 +197,7 @@ export const Route = createFileRoute('/stats/npm/')({
   },
   component: RouteComponent,
   staticData: {
+    includeSearchInCanonical: true,
     Title: () => {
       return (
         <Link
@@ -229,6 +236,8 @@ function RouteComponent() {
   const facetY: FacetValue | undefined = search.facetY
   const binTypeParam: BinType | undefined = search.binType
   const showDataModeParam: ShowDataMode = search.showDataMode ?? 'all'
+  const normalizeBaseline: boolean = search.normalizeBaseline ?? true
+  const showBaseline: boolean = search.showBaseline ?? false
   const height: number = search.height ?? 400
   const [combiningPackage, setCombiningPackage] = React.useState<string | null>(
     null,
@@ -258,23 +267,85 @@ function RouteComponent() {
     })
   }
 
-  const handleBaselineChange = (packageName: string) => {
+  const handleAddBaseline = (packageName: string, color?: string) => {
     navigate({
       to: '.',
       search: (prev) => {
+        const groups = prev.packageGroups ?? []
+        const alreadyBaseline = groups.some(
+          (pg) =>
+            pg.baseline && pg.packages.some((p) => p.name === packageName),
+        )
+        if (alreadyBaseline) return prev
         return {
           ...prev,
-          packageGroups: prev.packageGroups?.map((pkg) => {
-            const baseline =
-              pkg.packages[0].name === packageName ? !pkg.baseline : false
-
-            return {
-              ...pkg,
-              baseline,
-            }
-          }),
+          packageGroups: [
+            ...groups,
+            {
+              packages: [{ name: packageName, hidden: true }],
+              color,
+              baseline: true,
+            },
+          ],
         }
       },
+      resetScroll: false,
+    })
+  }
+
+  const handleApplyBaselinePreset = (preset: BaselinePreset) => {
+    navigate({
+      to: '.',
+      search: (prev) => {
+        const nonBaseline = (prev.packageGroups ?? []).filter(
+          (pg) => !pg.baseline,
+        )
+        return {
+          ...prev,
+          packageGroups: [
+            ...nonBaseline,
+            ...preset.packages.map((p) => ({
+              packages: [{ name: p.name, hidden: true }],
+              color: p.color,
+              baseline: true,
+            })),
+          ],
+        }
+      },
+      resetScroll: false,
+    })
+  }
+
+  const handleClearBaselines = () => {
+    navigate({
+      to: '.',
+      search: (prev) => ({
+        ...prev,
+        packageGroups: prev.packageGroups?.filter((pg) => !pg.baseline),
+        showBaseline: false,
+      }),
+      resetScroll: false,
+    })
+  }
+
+  const handleToggleShowBaseline = () => {
+    navigate({
+      to: '.',
+      search: (prev) => ({
+        ...prev,
+        showBaseline: !prev.showBaseline,
+      }),
+      resetScroll: false,
+    })
+  }
+
+  const handleToggleNormalizeBaseline = () => {
+    navigate({
+      to: '.',
+      search: (prev) => ({
+        ...prev,
+        normalizeBaseline: !(prev.normalizeBaseline ?? true),
+      }),
       resetScroll: false,
     })
   }
@@ -593,37 +664,57 @@ function RouteComponent() {
             onColorClick={handleColorClick}
             onToggleVisibility={togglePackageVisibility}
             onRemove={handleRemovePackageName}
-            onBaselineChange={handleBaselineChange}
             onCombinePackage={handleCombinePackage}
             onRemoveFromGroup={handleRemoveFromGroup}
             openMenuPackage={openMenuPackage}
             onMenuOpenChange={handleMenuOpenChange}
           />
 
+          <BaselineSection
+            packageGroups={packageGroups}
+            presets={getBaselinePresets()}
+            normalizeBaseline={normalizeBaseline}
+            showBaseline={showBaseline}
+            onToggleNormalizeBaseline={handleToggleNormalizeBaseline}
+            onToggleShowBaseline={handleToggleShowBaseline}
+            onAddBaseline={handleAddBaseline}
+            onApplyPreset={handleApplyBaselinePreset}
+            onClearBaselines={handleClearBaselines}
+          />
+
           {/* Combine Package Dialog */}
-          {combiningPackage && (
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4">
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-2 sm:p-4 w-full max-w-md">
-                <div className="flex justify-between items-center mb-2 sm:mb-4">
-                  <h3 className="text-base sm:text-lg font-medium">
+          <DialogPrimitive.Root
+            open={combiningPackage !== null}
+            onOpenChange={(open) => {
+              if (!open) setCombiningPackage(null)
+            }}
+          >
+            <DialogPrimitive.Portal>
+              <DialogPrimitive.Overlay className="fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm" />
+              <DialogPrimitive.Content className="fixed left-1/2 top-1/2 z-[1000] w-[calc(100%-1rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white dark:bg-gray-900 p-4 shadow-xl outline-none">
+                <div className="flex justify-between items-center mb-4">
+                  <DialogPrimitive.Title className="text-base sm:text-lg font-medium text-gray-900 dark:text-gray-100">
                     Add packages to {combiningPackage}
-                  </h3>
-                  <button
-                    onClick={() => setCombiningPackage(null)}
-                    className="p-0.5 sm:p-1 hover:text-red-500"
-                  >
+                  </DialogPrimitive.Title>
+                  <DialogPrimitive.Close className="rounded-full p-1 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500">
                     <X className="w-4 h-4 sm:w-5 sm:h-5" />
-                  </button>
+                  </DialogPrimitive.Close>
                 </div>
-                <PackageSearch
-                  onSelect={handleAddToGroup}
-                  placeholder="Search for packages to add..."
-                  // eslint-disable-next-line jsx-a11y/no-autofocus
-                  autoFocus={true}
-                />
-              </div>
-            </div>
-          )}
+                <DialogPrimitive.Description className="sr-only">
+                  Search for additional npm packages to combine with{' '}
+                  {combiningPackage}.
+                </DialogPrimitive.Description>
+                {combiningPackage && (
+                  <PackageSearch
+                    onSelect={handleAddToGroup}
+                    placeholder="Search for packages to add..."
+                    // eslint-disable-next-line jsx-a11y/no-autofocus
+                    autoFocus={true}
+                  />
+                )}
+              </DialogPrimitive.Content>
+            </DialogPrimitive.Portal>
+          </DialogPrimitive.Root>
 
           {/* Color Picker Popover */}
           {colorPickerPackage && colorPickerPosition && (
@@ -680,6 +771,8 @@ function RouteComponent() {
                           facetX={facetX}
                           facetY={facetY}
                           showDataMode={showDataModeParam}
+                          normalizeBaseline={normalizeBaseline}
+                          showBaseline={showBaseline}
                         />
                       </React.Suspense>
                     )}

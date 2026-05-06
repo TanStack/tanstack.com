@@ -20,6 +20,7 @@ type DropdownContentProps = {
   className?: string
   align?: 'start' | 'center' | 'end'
   sideOffset?: number
+  portal?: boolean
 }
 
 type DropdownItemProps = {
@@ -63,24 +64,29 @@ export function DropdownContent({
   className,
   align = 'end',
   sideOffset = 6,
+  portal = true,
 }: DropdownContentProps) {
-  return (
-    <DropdownMenu.Portal>
-      <DropdownMenu.Content
-        align={align}
-        sideOffset={sideOffset}
-        className={twMerge(
-          'dropdown-content z-[1000] min-w-48 rounded-lg p-1.5',
-          'border border-gray-200 dark:border-gray-700',
-          'bg-white dark:bg-gray-800',
-          'shadow-lg',
-          className,
-        )}
-      >
-        {children}
-      </DropdownMenu.Content>
-    </DropdownMenu.Portal>
+  const content = (
+    <DropdownMenu.Content
+      align={align}
+      sideOffset={sideOffset}
+      className={twMerge(
+        'dropdown-content z-[1000] min-w-48 rounded-lg p-1.5',
+        'border border-gray-200 dark:border-gray-700',
+        'bg-white dark:bg-gray-800',
+        'shadow-lg',
+        className,
+      )}
+    >
+      {children}
+    </DropdownMenu.Content>
   )
+
+  if (!portal) {
+    return content
+  }
+
+  return <DropdownMenu.Portal>{content}</DropdownMenu.Portal>
 }
 
 export function DropdownItem({

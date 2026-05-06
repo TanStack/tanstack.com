@@ -10,6 +10,7 @@ import { getLibrary } from '~/libraries'
 import { DocContainer } from '~/components/DocContainer'
 import { Tooltip } from '~/components/Tooltip'
 import { Spinner } from '~/components/Spinner'
+import { BaselineSection } from '~/components/npm-stats/BaselineSection'
 import { ChartControls } from '~/components/npm-stats/ChartControls'
 import { ColorPickerPopover } from '~/components/npm-stats/ColorPickerPopover'
 import { NPMSummary } from '~/components/npm-stats/NPMSummary'
@@ -34,7 +35,11 @@ import {
   frameworkMeta,
   defaultColors,
 } from '~/utils/npm-packages'
-import { packageGroupSchema } from '~/routes/stats/npm/-comparisons'
+import {
+  getBaselinePresets,
+  packageGroupSchema,
+  type BaselinePreset,
+} from '~/routes/stats/npm/-comparisons'
 
 const LazyNPMStatsChart = React.lazy(() =>
   import('~/components/npm-stats/NPMStatsChart').then((m) => ({
@@ -80,9 +85,14 @@ export const Route = createFileRoute('/$libraryId/$version/docs/npm-stats')({
     transform: v.fallback(v.optional(transformModeSchema, 'none'), 'none'),
     binType: v.fallback(v.optional(binTypeSchema, 'weekly'), 'weekly'),
     showDataMode: v.fallback(v.optional(showDataModeSchema, 'all'), 'all'),
+    normalizeBaseline: v.fallback(v.optional(v.boolean(), true), true),
+    showBaseline: v.fallback(v.optional(v.boolean(), false), false),
     height: v.fallback(v.optional(v.number(), 400), 400),
   }),
   component: RouteComponent,
+  staticData: {
+    includeSearchInCanonical: true,
+  },
 })
 
 type NpmStatsSearch = {
@@ -91,6 +101,8 @@ type NpmStatsSearch = {
   transform?: TransformMode
   binType?: BinType
   showDataMode?: ShowDataMode
+  normalizeBaseline?: boolean
+  showBaseline?: boolean
   height?: number
 }
 
@@ -109,6 +121,8 @@ function RouteComponent() {
   const transform: TransformMode = search.transform ?? 'none'
   const binTypeParam: BinType | undefined = search.binType
   const showDataModeParam: ShowDataMode = search.showDataMode ?? 'all'
+  const normalizeBaseline: boolean = search.normalizeBaseline ?? true
+  const showBaseline: boolean = search.showBaseline ?? false
   const height: number = search.height ?? 400
 
   const binType: BinType = binTypeParam ?? defaultRangeBinTypes[range]
@@ -239,23 +253,87 @@ function RouteComponent() {
   // Get available competitor packages that aren't already in the chart
   const availableCompetitors = getAvailableCompetitors(library, packageGroups)
 
-  const handleBaselineChange = (packageName: string) => {
+  const handleAddBaseline = (packageName: string, color?: string) => {
     navigate({
       to: '.',
       search: (prev: NpmStatsSearch) => {
+        const groups = prev.packageGroups ?? packageGroups
+        const alreadyBaseline = groups.some(
+          (pg) =>
+            pg.baseline && pg.packages.some((p) => p.name === packageName),
+        )
+        if (alreadyBaseline) return prev
         return {
           ...prev,
-          packageGroups: prev.packageGroups?.map((pkg) => {
-            const baseline =
-              pkg.packages[0]?.name === packageName ? !pkg.baseline : false
-
-            return {
-              ...pkg,
-              baseline,
-            }
-          }),
+          packageGroups: [
+            ...groups,
+            {
+              packages: [{ name: packageName, hidden: true }],
+              color,
+              baseline: true,
+            },
+          ],
         }
       },
+      resetScroll: false,
+    })
+  }
+
+  const handleApplyBaselinePreset = (preset: BaselinePreset) => {
+    navigate({
+      to: '.',
+      search: (prev: NpmStatsSearch) => {
+        const nonBaseline = (prev.packageGroups ?? packageGroups).filter(
+          (pg) => !pg.baseline,
+        )
+        return {
+          ...prev,
+          packageGroups: [
+            ...nonBaseline,
+            ...preset.packages.map((p) => ({
+              packages: [{ name: p.name, hidden: true }],
+              color: p.color,
+              baseline: true,
+            })),
+          ],
+        }
+      },
+      resetScroll: false,
+    })
+  }
+
+  const handleClearBaselines = () => {
+    navigate({
+      to: '.',
+      search: (prev: NpmStatsSearch) => ({
+        ...prev,
+        packageGroups: (prev.packageGroups ?? packageGroups).filter(
+          (pg) => !pg.baseline,
+        ),
+        showBaseline: false,
+      }),
+      resetScroll: false,
+    })
+  }
+
+  const handleToggleShowBaseline = () => {
+    navigate({
+      to: '.',
+      search: (prev: NpmStatsSearch) => ({
+        ...prev,
+        showBaseline: !prev.showBaseline,
+      }),
+      resetScroll: false,
+    })
+  }
+
+  const handleToggleNormalizeBaseline = () => {
+    navigate({
+      to: '.',
+      search: (prev: NpmStatsSearch) => ({
+        ...prev,
+        normalizeBaseline: !(prev.normalizeBaseline ?? true),
+      }),
       resetScroll: false,
     })
   }
@@ -356,7 +434,21 @@ function RouteComponent() {
               onColorClick={handleColorClick}
               onToggleVisibility={togglePackageVisibility}
               onRemove={handleRemovePackageName}
-              onBaselineChange={handleBaselineChange}
+            />
+          </div>
+
+          {/* Baseline Section */}
+          <div className="mb-4">
+            <BaselineSection
+              packageGroups={packageGroups}
+              presets={getBaselinePresets()}
+              normalizeBaseline={normalizeBaseline}
+              showBaseline={showBaseline}
+              onToggleNormalizeBaseline={handleToggleNormalizeBaseline}
+              onToggleShowBaseline={handleToggleShowBaseline}
+              onAddBaseline={handleAddBaseline}
+              onApplyPreset={handleApplyBaselinePreset}
+              onClearBaselines={handleClearBaselines}
             />
           </div>
 
@@ -463,6 +555,8 @@ function RouteComponent() {
                         binType={binType}
                         packages={packageGroups}
                         showDataMode={showDataModeParam}
+                        normalizeBaseline={normalizeBaseline}
+                        showBaseline={showBaseline}
                       />
                     </React.Suspense>
                   )}

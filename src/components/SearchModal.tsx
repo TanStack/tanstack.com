@@ -12,7 +12,6 @@ import {
   SearchBox,
   Snippet,
   Configure,
-  useMenu,
   useInstantSearch,
   useInfiniteHits,
 } from 'react-instantsearch'
@@ -28,6 +27,7 @@ import {
   getStoredFrameworkPreference,
   usePersistFrameworkPreference,
 } from './FrameworkSelect'
+import { shouldPersistFrameworkForHit } from '~/utils/searchRecords'
 
 /**
  * Safely decode HTML entities without using innerHTML.
@@ -83,7 +83,10 @@ interface AlgoliaHighlightResult {
 interface AlgoliaHit extends Record<string, unknown> {
   objectID: string
   url: string
+  urlWithAnchor?: string
   library?: string
+  framework?: string
+  routeStyle?: string
   hierarchy: AlgoliaHierarchy
   content?: string
   type?: string
@@ -153,6 +156,27 @@ const searchClient = liteClient(
   'FQ0DQ6MA3C',
   '10c34d6a5c89f6048cf644d601e65172',
 )
+const searchIndexName = 'tanstack-test'
+
+function buildSearchFilters({
+  selectedLibrary,
+  selectedFramework,
+}: {
+  selectedLibrary: string
+  selectedFramework: string
+}) {
+  const filterParts: string[] = ['(version:latest OR version:all)']
+
+  if (selectedLibrary) {
+    filterParts.push(`library:${selectedLibrary}`)
+  }
+
+  if (selectedFramework) {
+    filterParts.push(`(framework:${selectedFramework} OR framework:all)`)
+  }
+
+  return filterParts.join(' AND ')
+}
 
 // Context to share filter state between components
 const SearchFiltersContext = React.createContext<{
@@ -165,13 +189,11 @@ const SearchFiltersContext = React.createContext<{
   libraryItems: Array<{
     value: string
     label: string
-    count: number
     isRefined: boolean
   }>
   frameworkItems: Array<{
     value: string
     label: string
-    count: number
     isRefined: boolean
   }>
 } | null>(null)
@@ -201,19 +223,6 @@ function SearchFiltersProvider({ children }: { children: React.ReactNode }) {
 
   const [selectedFramework, setSelectedFramework] =
     React.useState(getInitialFramework)
-
-  // Use useMenu just to get the list of available options and counts
-  // We do NOT use refine() because facet filters don't support OR logic
-  // Instead, we build custom filter strings via Configure component
-  const { items: rawLibraryItems } = useMenu({
-    attribute: 'library',
-    limit: 50,
-  })
-
-  const { items: rawFrameworkItems } = useMenu({
-    attribute: 'framework',
-    limit: 50,
-  })
 
   // Auto-select based on current page URL
   const pathname = useRouterState({
@@ -253,22 +262,56 @@ function SearchFiltersProvider({ children }: { children: React.ReactNode }) {
     }
   }, [pathname, getInitialFramework])
 
-  // Sort items by their defined order and filter out "all" from display
-  const libraryItems = [...rawLibraryItems]
-    .filter((item) => item.value !== 'all')
-    .sort((a, b) => {
-      const aIndex = libraries.findIndex((l) => l.id === a.value)
-      const bIndex = libraries.findIndex((l) => l.id === b.value)
-      return aIndex - bIndex
-    })
+  const searchableLibraries = React.useMemo(
+    () =>
+      libraries.filter(
+        (library) => library.visible !== false && library.latestVersion,
+      ),
+    [],
+  )
 
-  const frameworkItems = [...rawFrameworkItems]
-    .filter((item) => item.value !== 'all')
-    .sort((a, b) => {
-      const aIndex = frameworkOptions.findIndex((f) => f.value === a.value)
-      const bIndex = frameworkOptions.findIndex((f) => f.value === b.value)
-      return aIndex - bIndex
-    })
+  const selectedLibraryInfo = React.useMemo(
+    () => searchableLibraries.find((library) => library.id === selectedLibrary),
+    [searchableLibraries, selectedLibrary],
+  )
+
+  const availableFrameworkValues = React.useMemo(() => {
+    if (selectedLibraryInfo) {
+      return selectedLibraryInfo.frameworks
+    }
+
+    return Array.from(
+      new Set(searchableLibraries.flatMap((library) => library.frameworks)),
+    )
+  }, [searchableLibraries, selectedLibraryInfo])
+
+  React.useEffect(() => {
+    if (!selectedLibraryInfo || !selectedFramework) {
+      return
+    }
+
+    if (
+      !selectedLibraryInfo.frameworks.some(
+        (framework) => framework === selectedFramework,
+      )
+    ) {
+      setSelectedFramework('')
+    }
+  }, [selectedFramework, selectedLibraryInfo])
+
+  const libraryItems = searchableLibraries.map((library) => ({
+    value: library.id,
+    label: library.id,
+    isRefined: library.id === selectedLibrary,
+  }))
+
+  const frameworkItems = frameworkOptions
+    .filter((framework) => availableFrameworkValues.includes(framework.value))
+    .map((framework) => ({
+      value: framework.value,
+      label: framework.label,
+      isRefined: framework.value === selectedFramework,
+    }))
 
   // Wrapper functions that just update state (no Algolia refine)
   const selectLibrary = React.useCallback((value: string) => {
@@ -297,28 +340,9 @@ function SearchFiltersProvider({ children }: { children: React.ReactNode }) {
   )
 }
 
-// Component that builds dynamic filter strings including "all" library/framework pages
+// Component that builds dynamic filter strings for the selected search scope.
 function DynamicFilters() {
   const { selectedLibrary, selectedFramework } = useSearchFilters()
-
-  // Build filter string
-  // - Always filter to latest version OR "all" (for core pages)
-  // - When library selected: include that library OR "all" (for core pages)
-  // - When framework selected: include that framework OR "all" (for integration pages)
-  const filterParts: string[] = []
-
-  // Version filter: include latest OR "all" (core pages)
-  filterParts.push('(version:latest OR version:all)')
-
-  if (selectedLibrary) {
-    // Include selected library OR "all" (core pages like /ethos)
-    filterParts.push(`(library:${selectedLibrary} OR library:all)`)
-  }
-
-  if (selectedFramework) {
-    // Include selected framework OR "all" (integration pages, core pages)
-    filterParts.push(`(framework:${selectedFramework} OR framework:all)`)
-  }
 
   return (
     <Configure
@@ -330,8 +354,13 @@ function DynamicFilters() {
         'hierarchy.lvl5',
         'hierarchy.lvl6',
         'url',
+        'anchor',
+        'urlWithAnchor',
         'content',
         'library',
+        'framework',
+        'version',
+        'routeStyle',
       ]}
       attributesToHighlight={[
         'hierarchy.lvl1',
@@ -343,7 +372,7 @@ function DynamicFilters() {
         'content',
       ]}
       attributesToSnippet={['content:50']}
-      filters={filterParts.join(' AND ')}
+      filters={buildSearchFilters({ selectedLibrary, selectedFramework })}
     />
   )
 }
@@ -363,6 +392,8 @@ const SafeLink = React.forwardRef(
     ref: React.Ref<HTMLAnchorElement>,
   ) => {
     const isInternal = href?.includes('//tanstack.com')
+    const internalUrl = href?.split('//tanstack.com')[1]
+    const [internalPath, internalHash] = internalUrl?.split('#') ?? []
 
     if (!isInternal) {
       return (
@@ -383,7 +414,8 @@ const SafeLink = React.forwardRef(
 
     return (
       <Link
-        to={href?.split('//tanstack.com')[1]}
+        to={internalPath}
+        hash={internalHash}
         className={className}
         onKeyDown={onKeyDown}
         role={role}
@@ -411,18 +443,35 @@ const Hit = ({
   refinedFramework: string | null
 }) => {
   const { closeSearch } = useSearchContext()
+  const persistFramework = usePersistFrameworkPreference()
+
+  const handleActivate = () => {
+    const framework = hit.framework
+    if (
+      framework &&
+      shouldPersistFrameworkForHit({
+        url: hit.url,
+        framework,
+        routeStyle: hit.routeStyle,
+      })
+    ) {
+      persistFramework(framework)
+    }
+
+    closeSearch()
+  }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
+      e.stopPropagation()
       const link = e.currentTarget as HTMLAnchorElement
       link.click()
-      closeSearch()
     }
   }
 
   const handleClick = () => {
-    closeSearch()
+    handleActivate()
   }
 
   const ref = React.useRef<HTMLAnchorElement>(null!)
@@ -435,12 +484,13 @@ const Hit = ({
 
   // Get library and framework info for this hit
   const hitLibrary = hit.library as string | undefined
-  const hitFramework = frameworkOptions.find((f) =>
-    hit.url.includes(`/framework/${f.value}`),
-  )
+  const hitFramework =
+    frameworkOptions.find((f) => f.value === hit.framework) ??
+    frameworkOptions.find((f) => hit.url.includes(`/framework/${f.value}`))
   const hitLibraryInfo = hitLibrary
     ? libraries.find((l) => l.id === hitLibrary)
     : null
+  const hitUrl = hit.urlWithAnchor ?? hit.url
 
   // Build hierarchy prefix based on what's filtered
   const prefixParts: React.ReactNode[] = []
@@ -451,7 +501,8 @@ const Hit = ({
       <span
         key="library"
         className={twMerge(
-          'inline-flex items-center px-2 py-0.5 rounded text-xs font-black text-white uppercase',
+          'inline-flex items-center px-2 py-0.5 rounded text-xs font-black uppercase',
+          hitLibraryInfo.badgeTextStyle ?? 'text-white',
           hitLibraryInfo.bgStyle,
         )}
       >
@@ -488,7 +539,7 @@ const Hit = ({
 
   return (
     <SafeLink
-      href={hit.url}
+      href={hitUrl}
       className={twMerge(
         'block px-4 py-2.5 focus:outline-none border-b border-gray-300 dark:border-gray-700',
         isFocused ? 'bg-gray-500/20' : 'hover:bg-gray-500/10',
@@ -499,6 +550,7 @@ const Hit = ({
       role="option"
       aria-selected={isFocused}
       tabIndex={-1}
+      data-search-hit="true"
       ref={ref}
     >
       <article className="flex items-start gap-4">
@@ -569,7 +621,7 @@ function LibraryRefinement() {
       <DropdownTrigger>
         <button
           type="button"
-          className="flex items-center gap-1 text-sm focus:outline-none cursor-pointer font-bold"
+          className="flex items-center gap-1 p-0.5 text-sm cursor-pointer font-bold rounded focus:ring-2"
         >
           {currentLibrary ? (
             <span className="uppercase font-black [letter-spacing:-.05em]">
@@ -587,6 +639,7 @@ function LibraryRefinement() {
       <DropdownContent
         align="start"
         className="max-h-[60vh] w-64 overflow-auto"
+        portal={false}
       >
         <DropdownItem
           onSelect={() => setSelectedLibrary('')}
@@ -607,9 +660,6 @@ function LibraryRefinement() {
                 <span className={lib?.textStyle ?? ''}>
                   {item.label.toUpperCase()}
                 </span>
-              </span>
-              <span className="text-gray-400 text-xs font-normal">
-                ({item.count})
               </span>
             </DropdownItem>
           )
@@ -644,7 +694,7 @@ function FrameworkRefinement() {
       <DropdownTrigger>
         <button
           type="button"
-          className="flex items-center gap-1 text-sm font-bold focus:outline-none cursor-pointer"
+          className="flex items-center gap-1 p-0.5 text-sm font-bold rounded cursor-pointer focus:ring-2"
         >
           {currentFramework && (
             <img
@@ -664,6 +714,7 @@ function FrameworkRefinement() {
       <DropdownContent
         align="start"
         className="max-h-[60vh] w-52 overflow-auto"
+        portal={false}
       >
         <DropdownItem onSelect={() => handleSelect('')} className="font-bold">
           All Frameworks
@@ -680,7 +731,6 @@ function FrameworkRefinement() {
                 {fw && <img src={fw.logo} alt={fw.label} className="w-4 h-4" />}
                 <span className="font-bold">{capitalize(item.label)}</span>
               </span>
-              <span className="text-gray-400 text-xs">({item.count})</span>
             </DropdownItem>
           )
         })}
@@ -723,8 +773,6 @@ function NoResults({
         <div className="mt-4 inline-flex items-center gap-2">
           <button
             onClick={clearFramework}
-            role="option"
-            aria-selected="true"
             className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors shadow-sm"
           >
             Search all frameworks
@@ -741,8 +789,6 @@ function NoResults({
         <div className="mt-4 inline-flex items-center gap-2">
           <button
             onClick={clearLibrary}
-            role="option"
-            aria-selected="true"
             className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors shadow-sm"
           >
             Search all libraries
@@ -790,7 +836,7 @@ export function SearchModal() {
 
     if (!containerRef.current) return
 
-    const items = containerRef.current.querySelectorAll('[role="option"]')
+    const items = containerRef.current.querySelectorAll('[data-search-hit]')
     if (!items.length) return
 
     switch (e.key) {
@@ -825,7 +871,14 @@ export function SearchModal() {
   }
 
   return (
-    <DialogPrimitive.Root open={isOpen} onOpenChange={closeSearch}>
+    <DialogPrimitive.Root
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) {
+          closeSearch()
+        }
+      }}
+    >
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className="fixed inset-0 z-[999] bg-black/60 xl:bg-black/30 backdrop-blur-sm" />
         <DialogPrimitive.Content
@@ -836,7 +889,10 @@ export function SearchModal() {
           <DialogPrimitive.Title className="sr-only">
             Search TanStack docs
           </DialogPrimitive.Title>
-          <InstantSearch searchClient={searchClient} indexName="tanstack-test">
+          <InstantSearch
+            searchClient={searchClient}
+            indexName={searchIndexName}
+          >
             <SearchFiltersProvider>
               <DynamicFilters />
               <div className="flex items-center gap-2 px-4 py-3 overflow-visible">
@@ -900,7 +956,7 @@ function SearchResults({ focusedIndex }: { focusedIndex: number }) {
     selectedFramework,
     setSelectedLibrary,
     setSelectedFramework,
-    libraryItems: _libraryItems,
+    libraryItems,
     frameworkItems,
   } = useSearchFilters()
 
@@ -956,22 +1012,28 @@ function SearchResults({ focusedIndex }: { focusedIndex: number }) {
                 Libraries
               </p>
               <div className="flex flex-wrap gap-1.5 max-w-xs">
-                {libraries
-                  .filter((lib) => 'bgStyle' in lib)
-                  .map((lib) => (
+                {libraryItems.map((item) => {
+                  const lib = libraries.find((l) => l.id === item.value)
+                  if (!lib) {
+                    return null
+                  }
+
+                  return (
                     <button
                       key={lib.id}
                       onClick={() => {
                         setSelectedLibrary(lib.id)
                       }}
                       className={twMerge(
-                        'px-2 py-1 text-xs font-black uppercase rounded text-white transition-opacity hover:opacity-80',
+                        'px-2 py-1 text-xs font-black uppercase rounded transition-opacity hover:opacity-80',
+                        lib.badgeTextStyle ?? 'text-white',
                         lib.bgStyle,
                       )}
                     >
                       {lib.id}
                     </button>
-                  ))}
+                  )
+                })}
               </div>
             </div>
           )}

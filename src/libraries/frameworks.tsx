@@ -1,3 +1,4 @@
+import alpineLogo from '../images/alpine-logo.svg'
 import angularLogo from '../images/angular-logo.svg'
 import jsLogo from '../images/js-logo.svg'
 import litLogo from '../images/lit-logo.svg'
@@ -46,13 +47,6 @@ export const frameworkOptions = [
     fontColor: 'text-blue-600',
   },
   {
-    label: 'Lit',
-    value: 'lit',
-    logo: litLogo,
-    color: 'bg-emerald-500',
-    fontColor: 'text-emerald-500',
-  },
-  {
     label: 'Svelte',
     value: 'svelte',
     logo: svelteLogo,
@@ -65,6 +59,20 @@ export const frameworkOptions = [
     logo: qwikLogo,
     color: 'bg-indigo-500',
     fontColor: 'text-indigo-500',
+  },
+  {
+    label: 'Lit',
+    value: 'lit',
+    logo: litLogo,
+    color: 'bg-emerald-500',
+    fontColor: 'text-emerald-500',
+  },
+  {
+    label: 'Alpine',
+    value: 'alpine',
+    logo: alpineLogo,
+    color: 'bg-slate-500',
+    fontColor: 'text-slate-500',
   },
   {
     label: 'Vanilla',

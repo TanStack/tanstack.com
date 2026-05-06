@@ -15,8 +15,17 @@ export function ThemeToggle() {
   const label =
     themeMode === 'auto' ? 'Auto' : themeMode === 'light' ? 'Light' : 'Dark'
 
+  const nextLabel =
+    themeMode === 'auto' ? 'light' : themeMode === 'light' ? 'dark' : 'auto'
+
   return (
-    <Button variant="ghost" size="xs" onClick={handleToggleMode}>
+    <Button
+      variant="ghost"
+      size="xs"
+      onClick={handleToggleMode}
+      aria-label={`Theme: ${label}. Switch to ${nextLabel} mode.`}
+      title={`Theme: ${label}. Switch to ${nextLabel} mode.`}
+    >
       {themeMode === 'auto' ? (
         <SunMoon className="w-3.5 h-3.5" />
       ) : (

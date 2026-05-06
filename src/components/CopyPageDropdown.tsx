@@ -314,6 +314,7 @@ export function CopyPageDropdown({
             size="xs"
             rounded="none"
             className="border-0 px-1.5"
+            aria-label={`More ${label} options`}
           >
             <ChevronDown className="w-3 h-3" />
           </Button>

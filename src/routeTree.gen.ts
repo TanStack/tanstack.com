@@ -57,6 +57,7 @@ import { Route as PartnersPartnerRouteImport } from './routes/partners.$partner'
 import { Route as OauthTokenRouteImport } from './routes/oauth/token'
 import { Route as OauthRegisterRouteImport } from './routes/oauth/register'
 import { Route as OauthAuthorizeRouteImport } from './routes/oauth/authorize'
+import { Route as LibrariesFrameworkRouteImport } from './routes/libraries_.$framework'
 import { Route as BuilderDocsRouteImport } from './routes/builder.docs'
 import { Route as BlogSplatRouteImport } from './routes/blog.$'
 import { Route as AuthSignoutRouteImport } from './routes/auth/signout'
@@ -389,6 +390,11 @@ const OauthRegisterRoute = OauthRegisterRouteImport.update({
 const OauthAuthorizeRoute = OauthAuthorizeRouteImport.update({
   id: '/oauth/authorize',
   path: '/oauth/authorize',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LibrariesFrameworkRoute = LibrariesFrameworkRouteImport.update({
+  id: '/libraries_/$framework',
+  path: '/libraries/$framework',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BuilderDocsRoute = BuilderDocsRouteImport.update({
@@ -931,6 +937,7 @@ export interface FileRoutesByFullPath {
   '/auth/signout': typeof AuthSignoutRoute
   '/blog/$': typeof BlogSplatRoute
   '/builder/docs': typeof BuilderDocsRoute
+  '/libraries/$framework': typeof LibrariesFrameworkRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
   '/oauth/token': typeof OauthTokenRoute
@@ -1066,6 +1073,7 @@ export interface FileRoutesByTo {
   '/auth/signout': typeof AuthSignoutRoute
   '/blog/$': typeof BlogSplatRoute
   '/builder/docs': typeof BuilderDocsRoute
+  '/libraries/$framework': typeof LibrariesFrameworkRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
   '/oauth/token': typeof OauthTokenRoute
@@ -1208,6 +1216,7 @@ export interface FileRoutesById {
   '/auth/signout': typeof AuthSignoutRoute
   '/blog/$': typeof BlogSplatRoute
   '/builder/docs': typeof BuilderDocsRoute
+  '/libraries_/$framework': typeof LibrariesFrameworkRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
   '/oauth/token': typeof OauthTokenRoute
@@ -1353,6 +1362,7 @@ export interface FileRouteTypes {
     | '/auth/signout'
     | '/blog/$'
     | '/builder/docs'
+    | '/libraries/$framework'
     | '/oauth/authorize'
     | '/oauth/register'
     | '/oauth/token'
@@ -1488,6 +1498,7 @@ export interface FileRouteTypes {
     | '/auth/signout'
     | '/blog/$'
     | '/builder/docs'
+    | '/libraries/$framework'
     | '/oauth/authorize'
     | '/oauth/register'
     | '/oauth/token'
@@ -1629,6 +1640,7 @@ export interface FileRouteTypes {
     | '/auth/signout'
     | '/blog/$'
     | '/builder/docs'
+    | '/libraries_/$framework'
     | '/oauth/authorize'
     | '/oauth/register'
     | '/oauth/token'
@@ -1759,6 +1771,7 @@ export interface RootRouteChildren {
   AuthCliRoute: typeof AuthCliRoute
   AuthPopupSuccessRoute: typeof AuthPopupSuccessRoute
   AuthSignoutRoute: typeof AuthSignoutRoute
+  LibrariesFrameworkRoute: typeof LibrariesFrameworkRoute
   OauthAuthorizeRoute: typeof OauthAuthorizeRoute
   OauthRegisterRoute: typeof OauthRegisterRoute
   OauthTokenRoute: typeof OauthTokenRoute
@@ -2150,6 +2163,13 @@ declare module '@tanstack/react-router' {
       path: '/oauth/authorize'
       fullPath: '/oauth/authorize'
       preLoaderRoute: typeof OauthAuthorizeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/libraries_/$framework': {
+      id: '/libraries_/$framework'
+      path: '/libraries/$framework'
+      fullPath: '/libraries/$framework'
+      preLoaderRoute: typeof LibrariesFrameworkRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/builder/docs': {
@@ -3061,6 +3081,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthCliRoute: AuthCliRoute,
   AuthPopupSuccessRoute: AuthPopupSuccessRoute,
   AuthSignoutRoute: AuthSignoutRoute,
+  LibrariesFrameworkRoute: LibrariesFrameworkRoute,
   OauthAuthorizeRoute: OauthAuthorizeRoute,
   OauthRegisterRoute: OauthRegisterRoute,
   OauthTokenRoute: OauthTokenRoute,

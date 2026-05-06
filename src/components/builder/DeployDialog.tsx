@@ -38,13 +38,24 @@ import {
   getRecipeBuilderFeatures,
   type ApplicationStarterRecipe,
 } from '~/utils/application-starter'
-import { trackEvent } from '~/utils/analytics'
+import type { BuilderAction } from '~/utils/analytics'
 
 interface DeployDialogProps {
   isOpen: boolean
   onClose: () => void
   provider?: DeployProvider | null
   starterRecipe?: ApplicationStarterRecipe | null
+  /**
+   * Fires `builder_activated` events with the parent's session context
+   * (mode_used, idea_used). Optional so the dialog can render outside the
+   * builder flow without an analytics trail.
+   */
+  onTrackActivation?: (params: {
+    action: BuilderAction
+    surface: 'deploy_dialog'
+    provider?: string
+    automatic?: boolean
+  }) => void
 }
 
 export function DeployDialog({
@@ -52,6 +63,7 @@ export function DeployDialog({
   onClose,
   provider,
   starterRecipe,
+  onTrackActivation,
 }: DeployDialogProps) {
   const auth = useDeployAuth()
   const builderFeatures = useFeatures()
@@ -83,14 +95,20 @@ export function DeployDialog({
     (
       action: 'repo' | 'provider_auto_redirect' | 'provider_manual_redirect',
     ) => {
-      trackEvent('application_starter_action_clicked', {
+      const builderAction: BuilderAction =
+        action === 'repo'
+          ? 'open_repo'
+          : action === 'provider_auto_redirect'
+            ? 'provider_redirect_auto'
+            : 'provider_redirect_manual'
+      onTrackActivation?.({
+        action: builderAction,
         surface: 'deploy_dialog',
-        action,
-        provider,
-        has_starter_recipe: !!starterRecipe,
+        provider: provider ?? undefined,
+        automatic: action === 'provider_auto_redirect',
       })
     },
-    [provider, starterRecipe],
+    [onTrackActivation, provider],
   )
 
   // Debounced repo name availability check

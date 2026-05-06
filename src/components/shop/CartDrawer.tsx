@@ -1,4 +1,3 @@
-import * as React from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { Link } from '@tanstack/react-router'
 import { Minus, Plus, ShoppingCart, Trash2, X } from 'lucide-react'
@@ -6,6 +5,7 @@ import { twMerge } from 'tailwind-merge'
 import { useCart, useRemoveCartLine, useUpdateCartLine } from '~/hooks/useCart'
 import { formatMoney, shopifyImageUrl } from '~/utils/shopify-format'
 import type { CartLineDetail } from '~/utils/shopify-queries'
+import { ShopLabel, ShopMono } from './ui'
 
 type CartDrawerProps = {
   open: boolean
@@ -14,10 +14,8 @@ type CartDrawerProps = {
 
 /**
  * Slide-in cart drawer. Shares state with /shop/cart through the same
- * useCart React Query key, so adds in the drawer mirror the full page
- * and vice-versa. Pinned to the right on desktop; full-width slide-up on
- * mobile would be nice later, but a right-anchored sheet is the standard
- * Shopify-theme pattern and works on phones too.
+ * useCart React Query key. The root element wears `shop-scope` because the
+ * drawer is portaled outside the ShopLayout tree.
  */
 export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
   const { cart, totalQuantity } = useCart()
@@ -26,26 +24,28 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="cart-overlay fixed inset-0 z-[100] bg-black/20" />
+        <Dialog.Overlay className="cart-overlay fixed inset-0 z-[100] bg-black/40" />
         <Dialog.Content
           className={twMerge(
-            'cart-panel',
+            'shop-scope cart-panel',
             'fixed right-4 top-[calc(var(--navbar-height,56px)+0.5rem)] z-[100]',
             'w-[calc(100vw-2rem)] sm:w-[24rem]',
             'max-h-[calc(100dvh-var(--navbar-height,56px)-1rem)]',
-            'flex flex-col',
-            'rounded-xl shadow-2xl',
-            'bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800',
+            'flex flex-col rounded-xl',
+            'bg-shop-bg-2 border border-shop-line text-shop-text',
+            'shadow-[0_25px_50px_-12px_rgba(0,0,0,0.4)]',
           )}
           aria-describedby={undefined}
         >
-          <header className="flex items-center justify-between px-5 py-3 border-b border-gray-200 dark:border-gray-800">
-            <Dialog.Title className="font-semibold text-sm">
-              Cart{totalQuantity > 0 ? ` (${totalQuantity})` : ''}
+          <header className="flex items-center justify-between px-5 py-3 border-b border-shop-line">
+            <Dialog.Title asChild>
+              <ShopLabel as="h2">
+                Cart{totalQuantity > 0 ? ` (${totalQuantity})` : ''}
+              </ShopLabel>
             </Dialog.Title>
             <Dialog.Close
-              className="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-900"
               aria-label="Close cart"
+              className="p-1 rounded-md text-shop-text-2 hover:text-shop-text"
             >
               <X className="w-3.5 h-3.5" />
             </Dialog.Close>
@@ -53,7 +53,7 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
 
           {hasLines ? (
             <>
-              <ul className="overflow-y-auto px-5 divide-y divide-gray-200 dark:divide-gray-800">
+              <ul className="overflow-y-auto px-5 flex-1 min-h-0">
                 {cart.lines.nodes.map((line) => (
                   <DrawerCartLine
                     key={line.id}
@@ -75,15 +75,22 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
 
 function DrawerEmpty({ onClose }: { onClose: () => void }) {
   return (
-    <div className="flex-1 flex flex-col items-center justify-center gap-4 p-6 text-center">
-      <ShoppingCart className="w-10 h-10 text-gray-400" />
-      <p className="text-gray-600 dark:text-gray-400">Your cart is empty.</p>
+    <div className="flex-1 flex flex-col items-center justify-center gap-4 p-8 text-center text-shop-text-2">
+      <ShoppingCart className="w-10 h-10 text-shop-muted" />
+      <p>Your cart is empty.</p>
       <Link
         to="/shop"
         onClick={onClose}
-        className="inline-flex items-center px-4 py-2 rounded-lg bg-black text-white dark:bg-white dark:text-black font-semibold"
+        className="
+          inline-flex items-center gap-2 px-4 py-2.5 rounded-md
+          bg-shop-accent text-shop-accent-ink font-semibold text-[13px]
+          transition-[filter] hover:brightness-110 group
+        "
       >
         Shop all products
+        <span className="transition-transform group-hover:translate-x-[3px]">
+          →
+        </span>
       </Link>
     </div>
   )
@@ -98,26 +105,33 @@ function DrawerFooter({
 }) {
   const subtotal = cart.cost.subtotalAmount
   return (
-    <footer className="border-t border-gray-200 dark:border-gray-800 px-6 py-4 flex flex-col gap-3">
+    <footer className="px-5 py-4 flex flex-col gap-3 border-t border-shop-line">
       <div className="flex justify-between text-sm">
-        <span className="text-gray-600 dark:text-gray-400">Subtotal</span>
-        <span className="font-semibold">
+        <span className="text-shop-text-2">Subtotal</span>
+        <ShopMono className="font-medium text-shop-text">
           {formatMoney(subtotal.amount, subtotal.currencyCode)}
-        </span>
+        </ShopMono>
       </div>
-      <p className="text-xs text-gray-500 dark:text-gray-500">
+      <p className="font-shop-mono text-xs text-shop-muted tracking-[0.06em]">
         Shipping and taxes calculated at checkout.
       </p>
       <a
         href={cart.checkoutUrl}
-        className="w-full text-center px-6 py-3 rounded-lg bg-black text-white dark:bg-white dark:text-black font-semibold"
+        className="
+          w-full h-10 rounded-md bg-shop-accent text-shop-accent-ink
+          font-semibold text-[13px] flex items-center justify-center gap-2
+          transition-[filter] hover:brightness-110 group
+        "
       >
         Checkout
+        <span className="transition-transform group-hover:translate-x-[3px]">
+          →
+        </span>
       </a>
       <Link
         to="/shop/cart"
         onClick={onClose}
-        className="w-full text-center text-sm text-gray-600 dark:text-gray-400 hover:underline"
+        className="text-center text-sm text-shop-text-2 hover:underline"
       >
         View cart
       </Link>
@@ -143,42 +157,40 @@ function DrawerCartLine({
   const isBusy = update.isPending || remove.isPending
 
   return (
-    <li className="flex gap-3 py-4">
+    <li className="flex gap-3 py-4 border-b border-shop-line">
       <Link
         to="/shop/products/$handle"
         params={{ handle: merchandise.product.handle }}
         onClick={onClose}
-        className="shrink-0"
+        className="shrink-0 w-16 h-16 rounded-md border border-shop-line bg-shop-panel overflow-hidden"
       >
-        <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-900">
-          {merchandise.image ? (
-            <img
-              src={shopifyImageUrl(merchandise.image.url, {
-                width: 160,
-                format: 'webp',
-              })}
-              alt={merchandise.image.altText ?? merchandise.product.title}
-              className="h-full w-full object-cover"
-            />
-          ) : null}
-        </div>
+        {merchandise.image ? (
+          <img
+            src={shopifyImageUrl(merchandise.image.url, {
+              width: 160,
+              format: 'webp',
+            })}
+            alt={merchandise.image.altText ?? merchandise.product.title}
+            className="w-full h-full object-cover"
+          />
+        ) : null}
       </Link>
       <div className="flex-1 min-w-0 flex flex-col gap-1">
         <Link
           to="/shop/products/$handle"
           params={{ handle: merchandise.product.handle }}
           onClick={onClose}
-          className="text-sm font-semibold hover:underline truncate"
+          className="text-sm font-semibold text-shop-text hover:underline truncate"
         >
           {merchandise.product.title}
         </Link>
         {options ? (
-          <p className="text-xs text-gray-600 dark:text-gray-400 truncate">
+          <ShopMono className="block text-xs text-shop-muted truncate">
             {options}
-          </p>
+          </ShopMono>
         ) : null}
         <div className="flex items-center justify-between mt-1">
-          <div className="inline-flex items-center rounded-md border border-gray-200 dark:border-gray-800 text-xs">
+          <div className="inline-flex items-center border border-shop-line rounded-md text-xs">
             <button
               type="button"
               onClick={() => {
@@ -193,11 +205,13 @@ function DrawerCartLine({
               }}
               disabled={isBusy}
               aria-label="Decrease quantity"
-              className="p-1.5 disabled:opacity-50"
+              className="p-1.5 text-shop-text-2 hover:text-shop-text disabled:opacity-50"
             >
               <Minus className="w-3 h-3" />
             </button>
-            <span className="min-w-[1.5rem] text-center">{line.quantity}</span>
+            <span className="font-shop-mono text-shop-text min-w-[1.5rem] text-center">
+              {line.quantity}
+            </span>
             <button
               type="button"
               onClick={() =>
@@ -208,24 +222,24 @@ function DrawerCartLine({
               }
               disabled={isBusy}
               aria-label="Increase quantity"
-              className="p-1.5 disabled:opacity-50"
+              className="p-1.5 text-shop-text-2 hover:text-shop-text disabled:opacity-50"
             >
               <Plus className="w-3 h-3" />
             </button>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold">
+            <ShopMono className="text-sm font-medium text-shop-text">
               {formatMoney(
                 line.cost.totalAmount.amount,
                 line.cost.totalAmount.currencyCode,
               )}
-            </span>
+            </ShopMono>
             <button
               type="button"
               onClick={() => remove.mutate({ lineId: line.id })}
               disabled={isBusy}
               aria-label="Remove from cart"
-              className="p-1 rounded-md text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-900 disabled:opacity-50"
+              className="p-1 rounded-md text-shop-muted hover:text-shop-text disabled:opacity-50"
             >
               <Trash2 className="w-3.5 h-3.5" />
             </button>

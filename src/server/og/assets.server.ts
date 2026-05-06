@@ -11,17 +11,16 @@ function readBinary(relPath: string): Buffer {
 let cached: {
   interRegular: Buffer
   interExtraBold: Buffer
-  islandDataUrl: string
+  islandPng: Buffer
 } | null = null
 
 export function loadOgAssets() {
   if (cached) return cached
 
-  const interRegular = readBinary('public/fonts/Inter-Regular.ttf')
-  const interExtraBold = readBinary('public/fonts/Inter-ExtraBold.ttf')
-  const islandBytes = readBinary('public/images/logos/splash-dark.png')
-  const islandDataUrl = `data:image/png;base64,${islandBytes.toString('base64')}`
-
-  cached = { interRegular, interExtraBold, islandDataUrl }
+  cached = {
+    interRegular: readBinary('public/fonts/Inter-Regular.ttf'),
+    interExtraBold: readBinary('public/fonts/Inter-ExtraBold.ttf'),
+    islandPng: readBinary('public/images/logos/splash-dark.png'),
+  }
   return cached
 }

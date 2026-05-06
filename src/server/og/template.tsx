@@ -3,7 +3,7 @@ import type { ReactElement } from 'react'
 type TemplateProps = {
   libraryName: string
   accentColor: string
-  islandDataUrl: string
+  islandSrc: string
   pitch: string
   docTitle?: string
   description?: string
@@ -46,7 +46,7 @@ export function buildOgTree(props: TemplateProps): ReactElement {
     >
       {/* Island */}
       <img
-        src={props.islandDataUrl}
+        src={props.islandSrc}
         alt=""
         width={ISLAND_SIZE}
         height={ISLAND_SIZE}

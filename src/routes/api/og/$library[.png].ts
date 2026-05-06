@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { generateOgPng } from '~/server/og/generate.server'
+import { generateOgImageResponse } from '~/server/og/generate.server'
 
 const CACHE_HEADERS = {
   'Cache-Control':
@@ -23,21 +23,20 @@ export const Route = createFileRoute('/api/og/$library.png')({
         const libraryId = rawParam.replace(/\.png$/, '')
 
         const url = new URL(request.url)
-        const title = url.searchParams.get('title') ?? undefined
-        const description = url.searchParams.get('description') ?? undefined
-
-        const result = await generateOgPng({ libraryId, title, description })
+        const result = generateOgImageResponse(
+          {
+            libraryId,
+            title: url.searchParams.get('title') ?? undefined,
+            description: url.searchParams.get('description') ?? undefined,
+          },
+          { headers: CACHE_HEADERS },
+        )
 
         if ('kind' in result) {
           return new Response(`Unknown library: ${libraryId}`, { status: 404 })
         }
 
-        return new Response(new Uint8Array(result), {
-          headers: {
-            'Content-Type': 'image/png',
-            ...CACHE_HEADERS,
-          },
-        })
+        return result
       },
     },
   },

@@ -31,9 +31,12 @@ const rscSsrExternals = [
   'pako',
   // These packages also have known CJS/ESM interop issues in the RSC/SSR path.
   'discord-interactions',
-  // OG image generation: resvg-js ships a native .node binary that cannot
+  // OG image generation: takumi ships a native .node binary that cannot
   // be bundled by rolldown — must be externalized for SSR environments.
-  '@resvg/resvg-js',
+  '@takumi-rs/core',
+  '@takumi-rs/image-response',
+  '@takumi-rs/helpers',
+  'takumi-js',
 ]
 
 const sentrySsrExternals = ['@sentry/node', '@sentry/tanstackstart-react']
@@ -103,8 +106,11 @@ export default defineConfig({
       // CTA packages use execa which has a broken unicorn-magic dependency
       '@tanstack/create',
       'discord-interactions',
-      // OG image generation: resvg-js ships a native .node binary
-      '@resvg/resvg-js',
+      // OG image generation: takumi ships a native .node binary
+      '@takumi-rs/core',
+      '@takumi-rs/image-response',
+      '@takumi-rs/helpers',
+      'takumi-js',
       // Don't pre-bundle CLI so we always get fresh changes during dev
       ...(isDev ? ['@tanstack/cli'] : []),
     ],

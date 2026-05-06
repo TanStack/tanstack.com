@@ -46,7 +46,24 @@ export const Route = createFileRoute('/api/og/$library.png')({
           await result.ready
         } catch (error) {
           console.error('Failed to generate OG image', error)
-          return new Response('Failed to generate OG image', { status: 500 })
+          // Surface the underlying message+stack in the response body so we
+          // can diagnose Netlify-only render failures without log access.
+          // TODO: trim back to "Failed to generate OG image" once the takumi
+          // binding load on Netlify is verified working.
+          const detail =
+            error instanceof Error
+              ? `${error.name}: ${error.message}\n${error.stack ?? ''}\n${
+                  error.cause instanceof Error
+                    ? `caused by ${error.cause.name}: ${error.cause.message}\n${error.cause.stack ?? ''}`
+                    : error.cause
+                      ? `caused by ${String(error.cause)}`
+                      : ''
+                }`
+              : String(error)
+          return new Response(`Failed to generate OG image\n\n${detail}`, {
+            status: 500,
+            headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+          })
         }
 
         return result

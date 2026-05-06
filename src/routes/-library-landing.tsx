@@ -8,6 +8,7 @@ import type { LibraryId } from '~/libraries'
 import { getTanstackDocsConfig } from '~/utils/config'
 import { fetchLandingCodeExample } from '~/utils/landing-code-example.functions'
 import { seo } from '~/utils/seo'
+import { ogImageUrl } from '~/utils/og'
 
 export type LandingComponentProps = {
   landingCodeExampleRsc?: ReactNode
@@ -176,7 +177,7 @@ export function createLibraryLandingPage<TId extends StaticLandingRoutePath>(
       meta: seo({
         title: library.name,
         description: library.description,
-        image: library.ogImage,
+        image: ogImageUrl(library.id),
         noindex: library.visible === false,
       }),
     }),

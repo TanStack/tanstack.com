@@ -4,6 +4,7 @@ import { DocContainer } from '~/components/DocContainer'
 import { DocTitle } from '~/components/DocTitle'
 import { findLibrary, getBranch, getLibrary } from '~/libraries'
 import { seo } from '~/utils/seo'
+import { ogImageUrl } from '~/utils/og'
 import { loadDocs } from '~/utils/docs'
 
 export const Route = createFileRoute(
@@ -37,6 +38,9 @@ export const Route = createFileRoute(
       meta: seo({
         title: `${library.name} Community Resources`,
         description: `A collection of community resources for ${library.name}.`,
+        image: ogImageUrl(library.id, {
+          title: `${library.name} · Community Resources`,
+        }),
         noindex: library.visible === false,
       }),
     }

@@ -9,7 +9,6 @@ const textStyles = `text-pink-600 dark:text-pink-500`
 export const aiProject = {
   ...ai,
   description: `A powerful, open-source AI SDK with a unified interface across multiple providers. No vendor lock-in, no proprietary formats, just clean TypeScript and honest open source.`,
-  ogImage: 'https://github.com/tanstack/ai/raw/main/media/repo-header.png',
   latestBranch: 'main',
   bgRadial: 'from-pink-500 via-pink-700/50 to-transparent',
   textColor: `text-pink-700`,

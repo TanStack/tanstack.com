@@ -9,15 +9,15 @@ type Props = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 }
 
 const base =
-  'inline-flex items-center justify-center gap-2 rounded-md font-semibold font-sans transition-[filter,border-color,background-color,color] disabled:opacity-50 disabled:cursor-not-allowed'
+  'inline-flex items-center justify-center gap-2 rounded-md font-semibold font-shop-display transition-[filter,border-color,background-color,color] disabled:opacity-50 disabled:cursor-not-allowed'
 
 const variants: Record<Variant, string> = {
   primary:
-    'bg-shop-accent text-shop-accent-ink px-4 py-2.5 text-[13px] hover:enabled:brightness-110',
+    'bg-shop-accent text-shop-accent-ink px-4 py-2.5 text-shop-ui hover:enabled:brightness-110',
   outline:
-    'border border-shop-line bg-shop-panel text-shop-text px-3.5 py-2 text-[12.5px] hover:enabled:border-shop-line-2',
+    'border border-shop-line bg-shop-panel text-shop-text px-3.5 py-2 text-shop-sm hover:enabled:border-shop-line-2',
   ghost:
-    'text-shop-text-2 hover:enabled:text-shop-text hover:enabled:bg-shop-panel px-2 py-1.5 text-[12.5px]',
+    'text-shop-text-2 hover:enabled:text-shop-text hover:enabled:bg-shop-panel px-2 py-1.5 text-shop-sm',
 }
 
 /** Shop button. Three visual weights — primary, outline, ghost. */

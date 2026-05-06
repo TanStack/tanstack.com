@@ -17,7 +17,7 @@ export function ShopLabel({
   return (
     <Tag
       className={twMerge(
-        'font-shop-mono text-[10.5px] tracking-[0.14em] uppercase text-shop-muted font-medium',
+        'font-shop-mono text-shop-xs tracking-[0.14em] uppercase text-shop-muted font-medium',
         className,
       )}
     >
@@ -26,7 +26,7 @@ export function ShopLabel({
   )
 }
 
-/** Mono text span for inline prices, counts, etc. — JetBrains Mono, inherited size. */
+/** Mono text span for inline prices, counts, etc. — DM Mono, inherited size. */
 export function ShopMono({
   children,
   className,
@@ -35,6 +35,8 @@ export function ShopMono({
   className?: string
 }) {
   return (
-    <span className={twMerge('font-shop-mono', className)}>{children}</span>
+    <span className={`font-shop-mono${className ? ` ${className}` : ''}`}>
+      {children}
+    </span>
   )
 }

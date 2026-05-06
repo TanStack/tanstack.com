@@ -7,6 +7,8 @@ export function formatMoney(amount: string | number, currencyCode: string) {
   return new Intl.NumberFormat(undefined, {
     style: 'currency',
     currency: currencyCode,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(typeof amount === 'string' ? Number(amount) : amount)
 }
 

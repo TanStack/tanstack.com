@@ -24,6 +24,19 @@ html.theme-switching *::after {
   --font-sans:
     'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
     'Segoe UI Emoji', Segoe UI Symbol, 'Noto Color Emoji';
+  --font-shop-display: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-shop-mono: 'DM Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Shop type scale */
+  --text-shop-display: clamp(36px, 5vw, 52px);
+  --text-shop-heading: 22px;
+  --text-shop-title: 18px;
+  --text-shop-price: 20px;
+  --text-shop-body: 13.5px;
+  --text-shop-ui: 13px;
+  --text-shop-sm: 12px;
+  --text-shop-xs: 10.5px;
+  --text-shop-2xs: 9.5px;
 
   /* Shadows */
   --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
@@ -65,6 +78,25 @@ html.theme-switching *::after {
   --color-gray-800: #262626;
   --color-gray-900: #171717;
   --color-gray-950: #0a0a0a;
+}
+
+/* Shop color tokens — inline so they resolve via var() at runtime (scoped to .shop-scope / html.dark .shop-scope) */
+@theme inline {
+  --color-shop-bg: var(--shop-bg);
+  --color-shop-bg-2: var(--shop-bg-2);
+  --color-shop-panel: var(--shop-panel);
+  --color-shop-panel-2: var(--shop-panel-2);
+  --color-shop-surface: var(--shop-surface);
+  --color-shop-surface-hover: var(--shop-surface-hover);
+  --color-shop-line: var(--shop-line);
+  --color-shop-line-2: var(--shop-line-2);
+  --color-shop-text: var(--shop-text);
+  --color-shop-text-2: var(--shop-text-2);
+  --color-shop-muted: var(--shop-muted);
+  --color-shop-accent: var(--shop-accent);
+  --color-shop-accent-ink: var(--shop-accent-ink);
+  --color-shop-green: #22c993;
+  --color-shop-orange: #ff7a3a;
 }
 
 /* Safelist for dynamic colors */

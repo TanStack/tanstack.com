@@ -20,10 +20,7 @@ included_files = [
 # package would otherwise be dropped (verified — function failed at runtime
 # with "Cannot find native binding"). Netlify functions run on AWS Lambda
 # Amazon Linux 2 (glibc, x64), hence linux-x64-gnu.
-external_node_modules = [
-  "@takumi-rs/core",
-  "@takumi-rs/core-linux-x64-gnu",
-]
+external_node_modules = ["@takumi-rs/core", "@takumi-rs/core-linux-x64-gnu"]
 
 [[headers]]
 for = "/*"

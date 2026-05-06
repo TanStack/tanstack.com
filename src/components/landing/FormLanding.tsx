@@ -7,19 +7,17 @@ import { LibraryHero } from '~/components/LibraryHero'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
 import { LibraryTestimonials } from '~/components/LibraryTestimonials'
+import { LazyLandingCodeExample } from '~/components/LazyLandingCodeExample'
 import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import LandingPageGad from '~/components/LandingPageGad'
 import { StackBlitzSection } from '~/components/StackBlitzSection'
 import { getBranch, getLibrary } from '~/libraries'
 import { formProject } from '~/libraries/form'
-import type { LandingComponentProps } from '~/routes/$libraryId/$version'
 
 const library = getLibrary('form')
 
-export default function FormLanding({
-  landingCodeExampleRsc,
-}: LandingComponentProps) {
+export default function FormLanding() {
   const { version } = useParams({ strict: false })
   const branch = getBranch(formProject, version)
 
@@ -46,7 +44,7 @@ export default function FormLanding({
 
       <LibraryTestimonials testimonials={formProject.testimonials} />
 
-      {landingCodeExampleRsc}
+      <LazyLandingCodeExample libraryId="form" />
 
       <FeatureGrid
         title="No dependencies. All the Features."

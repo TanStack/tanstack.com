@@ -121,7 +121,7 @@ const Tab = React.memo(
         }`}
       >
         {option && <img src={option.logo} alt="" className="w-4 h-4 -ml-1" />}
-        <span>{tab.name}</span>
+        <span className={`${option ? 'capitalize' : ''}`}>{tab.name}</span>
       </button>
     )
   },

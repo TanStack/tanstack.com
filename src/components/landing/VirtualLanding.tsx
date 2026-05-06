@@ -9,19 +9,17 @@ import { LibraryHero } from '~/components/LibraryHero'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { LibraryStatsSection } from '~/components/LibraryStatsSection'
 import { LibraryTestimonials } from '~/components/LibraryTestimonials'
+import { LazyLandingCodeExample } from '~/components/LazyLandingCodeExample'
 import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import LandingPageGad from '~/components/LandingPageGad'
 import { StackBlitzEmbed } from '~/components/StackBlitzEmbed'
 import { Framework, getBranch, getLibrary } from '~/libraries'
 import { virtualProject } from '~/libraries/virtual'
-import type { LandingComponentProps } from '~/routes/$libraryId/$version'
 
 const library = getLibrary('virtual')
 
-export default function VirtualLanding({
-  landingCodeExampleRsc,
-}: LandingComponentProps) {
+export default function VirtualLanding() {
   const { version } = useParams({ strict: false })
   const [framework, setFramework] = useState<Framework>('react')
   const branch = getBranch(virtualProject, version)
@@ -43,7 +41,7 @@ export default function VirtualLanding({
 
       <LibraryStatsSection library={library} />
 
-      {landingCodeExampleRsc}
+      <LazyLandingCodeExample libraryId="virtual" />
 
       <LibraryFeatureHighlights
         featureHighlights={virtualProject.featureHighlights}

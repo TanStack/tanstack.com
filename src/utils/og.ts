@@ -1,5 +1,10 @@
 import type { LibraryId } from '~/libraries'
 import { canonicalUrl } from './seo'
+import {
+  MAX_OG_DESCRIPTION_LENGTH,
+  MAX_OG_TITLE_LENGTH,
+  clampOgText,
+} from './og-limits'
 
 const DEFAULT_SITE_URL = 'https://tanstack.com'
 
@@ -35,9 +40,18 @@ export function ogImageUrl(
   libraryId: LibraryId,
   options: OgImageOptions = {},
 ): string {
+  // Clamp client-side to the same limits as the server-side generator so
+  // <meta og:image> URLs stay bounded and CDN cache keys stay stable.
   const params = new URLSearchParams()
-  if (options.title) params.set('title', options.title)
-  if (options.description) params.set('description', options.description)
+  if (options.title) {
+    params.set('title', clampOgText(options.title, MAX_OG_TITLE_LENGTH))
+  }
+  if (options.description) {
+    params.set(
+      'description',
+      clampOgText(options.description, MAX_OG_DESCRIPTION_LENGTH),
+    )
+  }
 
   const qs = params.toString()
   const path = `/api/og/${libraryId}.png${qs ? `?${qs}` : ''}`

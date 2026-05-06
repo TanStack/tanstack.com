@@ -3,7 +3,7 @@ import type { LibraryId } from '~/libraries'
 // Each entry matches the textStyle in `src/libraries/libraries.ts`.
 // Values are Tailwind v4 default palette (500 shades) with an override
 // for black/gray-100 libraries so they stay legible on the dark canvas.
-const LIBRARY_ACCENT_COLORS: Record<string, string> = {
+const LIBRARY_ACCENT_COLORS: Partial<Record<LibraryId, string>> = {
   query: '#fb2c36', // red-500
   router: '#00bc7d', // emerald-500
   start: '#00b8db', // cyan-500
@@ -25,6 +25,6 @@ const LIBRARY_ACCENT_COLORS: Record<string, string> = {
 
 const DEFAULT_ACCENT = '#f5f5f5'
 
-export function getAccentColor(libraryId: LibraryId | string): string {
+export function getAccentColor(libraryId: LibraryId): string {
   return LIBRARY_ACCENT_COLORS[libraryId] ?? DEFAULT_ACCENT
 }

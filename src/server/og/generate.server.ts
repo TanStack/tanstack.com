@@ -4,9 +4,12 @@ import type { LibraryId } from '~/libraries'
 import { loadOgAssets } from './assets.server'
 import { getAccentColor } from './colors'
 import { buildOgTree } from './template'
+import {
+  MAX_OG_DESCRIPTION_LENGTH,
+  MAX_OG_TITLE_LENGTH,
+  clampOgText,
+} from '~/utils/og-limits'
 
-const MAX_TITLE_LENGTH = 80
-const MAX_DESCRIPTION_LENGTH = 160
 const ISLAND_KEY = 'island'
 
 type GenerateInput = {
@@ -34,12 +37,12 @@ export function generateOgImageResponse(
     libraryName: library.name,
     accentColor: getAccentColor(library.id),
     islandSrc: ISLAND_KEY,
-    pitch: clampText(library.tagline ?? '', MAX_DESCRIPTION_LENGTH),
+    pitch: clampOgText(library.tagline ?? '', MAX_OG_DESCRIPTION_LENGTH),
     docTitle: input.title?.trim()
-      ? clampText(input.title.trim(), MAX_TITLE_LENGTH)
+      ? clampOgText(input.title, MAX_OG_TITLE_LENGTH)
       : undefined,
     description: input.description?.trim()
-      ? clampText(input.description.trim(), MAX_DESCRIPTION_LENGTH)
+      ? clampOgText(input.description, MAX_OG_DESCRIPTION_LENGTH)
       : undefined,
   })
 
@@ -51,7 +54,7 @@ export function generateOgImageResponse(
       {
         name: 'Inter',
         data: assets.interRegular,
-        weight: 700,
+        weight: 400,
         style: 'normal',
       },
       {
@@ -64,9 +67,4 @@ export function generateOgImageResponse(
     persistentImages: [{ src: ISLAND_KEY, data: assets.islandPng }],
     ...init,
   })
-}
-
-function clampText(text: string, max: number): string {
-  if (text.length <= max) return text
-  return text.slice(0, max - 1).trimEnd() + '…'
 }

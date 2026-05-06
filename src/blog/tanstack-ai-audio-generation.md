@@ -2,6 +2,7 @@
 title: 'TanStack AI Just Learned to Compose Music'
 published: 2026-04-24
 excerpt: TanStack AI adds a new generateAudio activity with streaming, plus fal and Gemini Lyria adapters for music, sound effects, text-to-speech, and transcription. One typed API, any provider.
+library: ai
 authors:
   - Alem Tuzlak
 ---

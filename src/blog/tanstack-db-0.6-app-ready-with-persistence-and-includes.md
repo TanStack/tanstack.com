@@ -3,6 +3,7 @@ title: TanStack DB 0.6 Now Includes Persistence, Offline Support, and Hierarchic
 excerpt: TanStack DB 0.6 adds SQLite-backed persistence across runtimes, hierarchical includes for projecting normalized data into UI-shaped trees, reactive effects, virtual props for sync state, and more.
 published: 2026-03-25
 draft: false
+library: db
 authors:
   - Sam Willis
   - Kevin De Porre

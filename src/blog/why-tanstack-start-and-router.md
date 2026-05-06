@@ -2,6 +2,7 @@
 title: Why choose TanStack Start and Router?
 published: 2024-12-03
 excerpt: The frameworks we choose can make or break our developer experience. Here's why TanStack Start and Router offer a compelling alternative for building modern web applications.
+library: start, router
 authors:
   - Tanner Linsley
 ---

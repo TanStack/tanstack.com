@@ -3,6 +3,7 @@ title: 'How We Test TanStack AI Across 7 Providers on Every PR'
 published: 2026-04-13
 draft: false
 excerpt: "TanStack AI runs 147 deterministic E2E tests across 7 LLM providers in under 2 minutes. Here's the testing infrastructure that makes it possible."
+library: ai
 authors:
   - Alem Tuzlak
 ---

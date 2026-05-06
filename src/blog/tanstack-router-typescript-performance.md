@@ -2,6 +2,7 @@
 title: A milestone for TypeScript Performance in TanStack Router
 published: 2024-09-17
 excerpt: TanStack Router pushes the boundaries on type-safe routing, but large route trees can slow down the editor. Here's how we achieved a major milestone in TypeScript performance.
+library: router
 authors:
   - Christopher Horobin
 ---

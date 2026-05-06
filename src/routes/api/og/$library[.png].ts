@@ -1,4 +1,3 @@
-import { readdirSync, existsSync, realpathSync } from 'node:fs'
 import { createFileRoute } from '@tanstack/react-router'
 import { generateOgImageResponse } from '~/server/og/generate.server'
 
@@ -6,52 +5,6 @@ const CACHE_HEADERS = {
   'Cache-Control':
     'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800',
 } as const
-
-function listOrError(path: string): string {
-  try {
-    if (!existsSync(path)) return `(missing) ${path}`
-    const real = realpathSync(path)
-    const entries = readdirSync(path).slice(0, 80).join(', ')
-    return `${path}${path === real ? '' : ` -> ${real}`}: ${entries}`
-  } catch (err) {
-    return `${path}: ${err instanceof Error ? err.message : String(err)}`
-  }
-}
-
-function diagnosticErrorResponse(error: unknown): Response {
-  const detail =
-    error instanceof Error
-      ? `${error.name}: ${error.message}\n${error.stack ?? ''}\n${
-          error.cause instanceof Error
-            ? `caused by ${error.cause.name}: ${error.cause.message}\n${error.cause.stack ?? ''}`
-            : error.cause
-              ? `caused by ${String(error.cause)}`
-              : ''
-        }`
-      : String(error)
-
-  const fsDump = [
-    `cwd: ${process.cwd()}`,
-    listOrError('/var/task'),
-    listOrError('/var/task/node_modules'),
-    listOrError('/var/task/node_modules/@takumi-rs'),
-    listOrError('/var/task/node_modules/.pnpm'),
-    listOrError(
-      '/var/task/node_modules/.pnpm/@takumi-rs+wasm@1.1.2_react-dom@19.2.3_react@19.2.3__react@19.2.3/node_modules/@takumi-rs/wasm',
-    ),
-    listOrError(
-      '/var/task/node_modules/.pnpm/@takumi-rs+wasm@1.1.2_react-dom@19.2.3_react@19.2.3__react@19.2.3/node_modules/@takumi-rs/wasm/pkg',
-    ),
-  ].join('\n\n')
-
-  return new Response(
-    `Failed to generate OG image\n\n${detail}\n\n--- fs dump ---\n${fsDump}`,
-    {
-      status: 500,
-      headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-    },
-  )
-}
 
 export const Route = createFileRoute('/api/og/$library.png')({
   server: {
@@ -82,7 +35,7 @@ export const Route = createFileRoute('/api/og/$library.png')({
           )
         } catch (error) {
           console.error('Failed to construct OG response', error)
-          return diagnosticErrorResponse(error)
+          return new Response('Failed to generate OG image', { status: 500 })
         }
 
         if ('kind' in result) {
@@ -96,7 +49,7 @@ export const Route = createFileRoute('/api/og/$library.png')({
           await result.ready
         } catch (error) {
           console.error('Failed to generate OG image', error)
-          return diagnosticErrorResponse(error)
+          return new Response('Failed to generate OG image', { status: 500 })
         }
 
         return result

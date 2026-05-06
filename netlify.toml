@@ -7,10 +7,17 @@ publish = "dist/client"
 
 [functions]
 directory = "netlify/functions"
+# OG image rendering goes through @takumi-rs/wasm (forced via the `module`
+# option in src/server/og/generate.server.ts) instead of @takumi-rs/core's
+# native napi binding — Netlify's function bundler dropped the platform-
+# specific .node optional dep no matter how we configured it, and WASM
+# sidesteps the whole binary-resolution dance. The .wasm asset isn't part
+# of the JS import graph, so include it explicitly.
 included_files = [
   "public/fonts/Inter-Regular.ttf",
   "public/fonts/Inter-ExtraBold.ttf",
   "public/images/logos/splash-dark.png",
+  "node_modules/.pnpm/@takumi-rs+wasm@*/node_modules/@takumi-rs/wasm/pkg/takumi_wasm_bg.wasm",
 ]
 
 [[headers]]

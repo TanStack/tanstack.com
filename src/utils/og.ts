@@ -41,9 +41,7 @@ const getOgOrigin = createIsomorphicFn()
     return DEFAULT_SITE_URL
   })
   .client((): string =>
-    typeof window !== 'undefined'
-      ? window.location.origin
-      : DEFAULT_SITE_URL,
+    typeof window !== 'undefined' ? window.location.origin : DEFAULT_SITE_URL,
   )
 
 /**

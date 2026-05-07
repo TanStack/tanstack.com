@@ -310,8 +310,8 @@ importers:
         specifier: ^5.99.0
         version: 5.99.0(@tanstack/react-query@5.99.0(react@19.2.3))(react@19.2.3)
       '@tanstack/redact':
-        specifier: ^0.0.3
-        version: 0.0.3(vite@8.0.3(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.0)(tsx@4.21.0)(yaml@2.8.3))
+        specifier: ^0.0.6
+        version: 0.0.6(vite@8.0.3(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.0)(tsx@4.21.0)(yaml@2.8.3))
       '@types/hast':
         specifier: ^3.0.4
         version: 3.0.4
@@ -3718,8 +3718,8 @@ packages:
       react: '>=16.8'
       react-dom: '>=16.8'
 
-  '@tanstack/redact@0.0.3':
-    resolution: {integrity: sha512-88473FXRJBwxPkS+ATfDjkhRiKDD37xRygizcbM32AGL5ye0JBRED1qtBH/ovZ6U2jj7HpjPrkbjSM40E7NRPA==}
+  '@tanstack/redact@0.0.6':
+    resolution: {integrity: sha512-fEMpPTaW/41sSkVcdpziA0HmqSUhPCqHMiLU3xUugXRn0vlvE5TLsn/9fm5WdX7MDDvXHLw2oX/Gh2gS8tPokQ==}
     peerDependencies:
       vite: '>=5'
     peerDependenciesMeta:
@@ -11702,7 +11702,7 @@ snapshots:
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
 
-  '@tanstack/redact@0.0.3(vite@8.0.3(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.0)(tsx@4.21.0)(yaml@2.8.3))':
+  '@tanstack/redact@0.0.6(vite@8.0.3(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.0)(tsx@4.21.0)(yaml@2.8.3))':
     optionalDependencies:
       vite: 8.0.3(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.0)(tsx@4.21.0)(yaml@2.8.3)
 

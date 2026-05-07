@@ -26,6 +26,10 @@ function getPackageName(
   if (frameworkValue === 'angular' && libraryId === 'query') {
     return `@tanstack/angular-query-experimental`
   }
+  // For AI library use @tanstack/ai-{framework} (e.g. @tanstack/ai-react)
+  if (libraryId === "ai") {
+    return `@tanstack/ai-${frameworkValue}`;
+  }
   // For other frameworks, use {framework}-{libraryId} pattern (e.g., @tanstack/react-table)
   return `@tanstack/${frameworkValue}-${libraryId}`
 }

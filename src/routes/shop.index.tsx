@@ -124,97 +124,109 @@ function ShopIndex() {
       : allProducts.filter((p) => p.productType?.toLowerCase() === activeType)
 
   return (
-    <div className="p-6 md:p-11 pb-24 max-w-[1280px] mx-auto">
-      <div className="pb-5.5 border-b border-shop-line-2 mb-7">
-        <ShopHero
-          title={
-            <>
-              Built in <em>public</em>,<br />
-              worn in <em>production</em>.
-            </>
-          }
-          lede="Official TanStack apparel, accessories, and stickers. Limited runs, ethically produced, shipped worldwide. Rep the libraries that ship your code every day."
-        />
+    <div className="pb-24">
+      {/* Hero */}
+      <div className="px-6 md:px-11 pt-6 md:pt-11 max-w-[1280px] mx-auto">
+        <div className="pb-5.5 border-b border-shop-line-2 mb-7">
+          <ShopHero
+            title={
+              <>
+                Built in <em>public</em>,<br />
+                worn in <em>production</em>.
+              </>
+            }
+            lede="Official TanStack apparel, accessories, and stickers. Limited runs, ethically produced, shipped worldwide. Rep the libraries that ship your code every day."
+          />
+        </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-1.5 pb-4.5">
-        <ShopTab
-          isActive={activeType === 'all'}
-          count={allProducts.length}
-          onClick={() =>
-            navigate({
-              to: '/shop',
-              search: (prev) => ({ ...prev, type: undefined }),
-            })
-          }
-        >
-          All
-        </ShopTab>
-        {typeOptions.map((opt) => (
+      {/* Sticky filter + sort bar */}
+      <div className="sticky top-[var(--navbar-height,56px)] z-10 border-b border-shop-line bg-shop-bg/95 backdrop-blur-sm">
+        <div className="max-w-[1280px] mx-auto px-6 md:px-11 flex flex-wrap items-center gap-1.5 py-2">
           <ShopTab
-            key={opt.key}
-            isActive={activeType === opt.key}
-            count={opt.count}
+            isActive={activeType === 'all'}
+            count={allProducts.length}
+            className="px-3 py-1.5 text-shop-sm rounded-lg"
             onClick={() =>
               navigate({
                 to: '/shop',
-                search: (prev) => ({ ...prev, type: opt.key }),
+                search: (prev) => ({ ...prev, type: undefined }),
               })
             }
           >
-            {opt.display}
+            All
           </ShopTab>
-        ))}
-        <ShopSelect
-          className="ml-auto"
-          value={sortId}
-          onChange={(e) => {
-            const nextId = e.target.value as ValidSortId
-            navigate({
-              to: '/shop',
-              search: (prev) => ({
-                ...prev,
-                sort: nextId === 'BEST_SELLING' ? undefined : nextId,
-              }),
-            })
-          }}
-        >
-          {SORT_OPTIONS.map((opt) => (
-            <option key={sortOptionId(opt)} value={sortOptionId(opt)}>
-              {opt.label}
-            </option>
+          {typeOptions.map((opt) => (
+            <ShopTab
+              key={opt.key}
+              isActive={activeType === opt.key}
+              count={opt.count}
+              className="px-3 py-1.5 text-shop-sm rounded-lg"
+              onClick={() =>
+                navigate({
+                  to: '/shop',
+                  search: (prev) => ({ ...prev, type: opt.key }),
+                })
+              }
+            >
+              {opt.display}
+            </ShopTab>
           ))}
-        </ShopSelect>
+          <ShopSelect
+            className="ml-auto"
+            triggerClassName="py-1.5 pl-3 pr-2.5 text-shop-sm rounded-lg"
+            value={sortId}
+            onChange={(e) => {
+              const nextId = e.target.value as ValidSortId
+              navigate({
+                to: '/shop',
+                search: (prev) => ({
+                  ...prev,
+                  sort: nextId === 'BEST_SELLING' ? undefined : nextId,
+                }),
+              })
+            }}
+          >
+            {SORT_OPTIONS.map((opt) => (
+              <option key={sortOptionId(opt)} value={sortOptionId(opt)}>
+                {opt.label}
+              </option>
+            ))}
+          </ShopSelect>
+        </div>
       </div>
 
-      {products.length === 0 ? (
-        <div className="text-center py-24 text-shop-muted">
-          No products yet. Check back soon!
-        </div>
-      ) : (
-        <>
-          <section className="grid gap-x-4 gap-y-5.5 grid-cols-[repeat(auto-fill,minmax(340px,1fr))]">
-            {products.map((product, i) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                loading={i < 8 ? 'eager' : 'lazy'}
-                onQuickView={setDrawerHandle}
-              />
-            ))}
-          </section>
-          {hasNextPage ? (
-            <div className="flex justify-center py-8">
-              <ShopButton
-                onClick={() => loadMore.mutate()}
-                disabled={loadMore.isPending}
-              >
-                {loadMore.isPending ? 'Loading…' : 'Load more'}
-              </ShopButton>
-            </div>
-          ) : null}
-        </>
-      )}
+      {/* Product grid */}
+      <div className="px-6 md:px-11 max-w-[1280px] mx-auto mt-7">
+        {products.length === 0 ? (
+          <div className="text-center py-24 text-shop-muted">
+            No products yet. Check back soon!
+          </div>
+        ) : (
+          <>
+            <section className="grid gap-x-4 gap-y-5.5 grid-cols-[repeat(auto-fill,minmax(340px,1fr))]">
+              {products.map((product, i) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  loading={i < 8 ? 'eager' : 'lazy'}
+                  onQuickView={setDrawerHandle}
+                />
+              ))}
+            </section>
+            {hasNextPage ? (
+              <div className="flex justify-center py-8">
+                <ShopButton
+                  onClick={() => loadMore.mutate()}
+                  disabled={loadMore.isPending}
+                >
+                  {loadMore.isPending ? 'Loading…' : 'Load more'}
+                </ShopButton>
+              </div>
+            ) : null}
+          </>
+        )}
+      </div>
 
       <ProductDrawer
         productHandle={drawerHandle}

@@ -105,13 +105,14 @@ export const Route = createFileRoute("/api/github/webhook")({
         }
 
         const gitRef = payload.ref.replace(/^refs\/heads\//, "");
+        const repo = payload.repository.full_name.toLowerCase();
 
-        if (!isWatchedDocsWebhookSource(payload.repository.full_name, gitRef)) {
+        if (!isWatchedDocsWebhookSource(repo, gitRef)) {
           return Response.json({
             ok: true,
             ignored: true,
             reason: "unwatched repo/ref",
-            repo: payload.repository.full_name,
+            repo,
             gitRef,
           });
         }
@@ -127,14 +128,8 @@ export const Route = createFileRoute("/api/github/webhook")({
         );
 
         const [staleContentCount, staleArtifactCount] = await Promise.all([
-          markGitHubContentStale({
-            repo: payload.repository.full_name,
-            gitRef,
-          }),
-          markDocsArtifactsStale({
-            repo: payload.repository.full_name,
-            gitRef,
-          }),
+          markGitHubContentStale({ repo, gitRef }),
+          markDocsArtifactsStale({ repo, gitRef }),
         ]);
 
         return Response.json({

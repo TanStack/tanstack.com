@@ -148,7 +148,9 @@ export function ProductDrawer({
   // slides out with content visible (not empty). Uses the derived-state pattern
   // so displayHandle is updated synchronously on open (no empty-frame flash).
   const [displayHandle, setDisplayHandle] = React.useState<string | null>(null)
-  const [prevProductHandle, setPrevProductHandle] = React.useState<string | null>(null)
+  const [prevProductHandle, setPrevProductHandle] = React.useState<
+    string | null
+  >(null)
   if (productHandle !== prevProductHandle) {
     setPrevProductHandle(productHandle)
     if (productHandle) setDisplayHandle(productHandle)

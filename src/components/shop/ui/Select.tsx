@@ -31,7 +31,13 @@ function extractOptions(children: React.ReactNode): Array<OptionData> {
 
 /** Custom themed dropdown. Keeps the same onChange API as a native <select>
  * so all call-sites stay unchanged. */
-export function ShopSelect({ value, onChange, className, triggerClassName, children }: Props) {
+export function ShopSelect({
+  value,
+  onChange,
+  className,
+  triggerClassName,
+  children,
+}: Props) {
   const [open, setOpen] = React.useState(false)
   const [focused, setFocused] = React.useState<string | null>(null)
   const triggerRef = React.useRef<HTMLButtonElement>(null)

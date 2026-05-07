@@ -198,35 +198,34 @@ function ShopIndex() {
 
       {/* Product grid */}
       <div className="px-6 md:px-11 max-w-[1280px] mx-auto mt-7">
-      {products.length === 0 ? (
-        <div className="text-center py-24 text-shop-muted">
-          No products yet. Check back soon!
-        </div>
-      ) : (
-        <>
-          <section className="grid gap-x-4 gap-y-5.5 grid-cols-[repeat(auto-fill,minmax(340px,1fr))]">
-            {products.map((product, i) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                loading={i < 8 ? 'eager' : 'lazy'}
-                onQuickView={setDrawerHandle}
-              />
-            ))}
-          </section>
-          {hasNextPage ? (
-            <div className="flex justify-center py-8">
-              <ShopButton
-                onClick={() => loadMore.mutate()}
-                disabled={loadMore.isPending}
-              >
-                {loadMore.isPending ? 'Loading…' : 'Load more'}
-              </ShopButton>
-            </div>
-          ) : null}
-        </>
-      )}
-
+        {products.length === 0 ? (
+          <div className="text-center py-24 text-shop-muted">
+            No products yet. Check back soon!
+          </div>
+        ) : (
+          <>
+            <section className="grid gap-x-4 gap-y-5.5 grid-cols-[repeat(auto-fill,minmax(340px,1fr))]">
+              {products.map((product, i) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  loading={i < 8 ? 'eager' : 'lazy'}
+                  onQuickView={setDrawerHandle}
+                />
+              ))}
+            </section>
+            {hasNextPage ? (
+              <div className="flex justify-center py-8">
+                <ShopButton
+                  onClick={() => loadMore.mutate()}
+                  disabled={loadMore.isPending}
+                >
+                  {loadMore.isPending ? 'Loading…' : 'Load more'}
+                </ShopButton>
+              </div>
+            ) : null}
+          </>
+        )}
       </div>
 
       <ProductDrawer

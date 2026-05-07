@@ -26,18 +26,17 @@ const LazySkillSparkline = React.lazy(() =>
   })),
 )
 
-export const Route = createFileRoute(
-  '/intent/registry/$packageName/$skillName',
-)({
+export const Route = createFileRoute('/intent/registry/$packageName/{$}')({
   loaderDeps: ({ search }) => ({ version: search.version }),
   loader: async ({ params, deps, context: { queryClient } }) => {
     const name = decodePkgName(params.packageName)
+    const skillName = params._splat ?? ''
     const detail = queryClient.getQueryData(
       intentPackageDetailQueryOptions(name).queryKey,
     )
     const latestVersion = detail?.versions[0]?.version ?? ''
     const activeVersion = deps.version ?? latestVersion
-    if (activeVersion) {
+    if (activeVersion && skillName) {
       await queryClient.ensureQueryData(
         intentVersionSkillsQueryOptions({
           packageName: name,
@@ -48,7 +47,7 @@ export const Route = createFileRoute(
       return getIntentSkillPage({
         data: {
           packageName: name,
-          skillName: params.skillName,
+          skillName,
           version: activeVersion,
         },
       })
@@ -58,10 +57,11 @@ export const Route = createFileRoute(
   },
   head: ({ params }) => {
     const pkgName = decodePkgName(params.packageName)
+    const skillName = params._splat ?? ''
     return {
       meta: seo({
-        title: `${params.skillName} | ${pkgName} | Agent Skills Registry | TanStack Intent`,
-        description: `Agent Skill "${params.skillName}" from ${pkgName}.`,
+        title: `${skillName} | ${pkgName} | Agent Skills Registry | TanStack Intent`,
+        description: `Agent Skill "${skillName}" from ${pkgName}.`,
       }),
     }
   },
@@ -69,7 +69,7 @@ export const Route = createFileRoute(
 })
 
 function SkillDetailPage() {
-  const { packageName, skillName } = Route.useParams()
+  const { packageName, _splat: skillName = '' } = Route.useParams()
   const skillPage = Route.useLoaderData()
   const pkgName = decodePkgName(packageName)
   const { activeVersion } = usePackageVersion()
@@ -208,8 +208,8 @@ function SkillDetailPage() {
               {skill.requires.map((req) => (
                 <Link
                   key={req}
-                  to="/intent/registry/$packageName/$skillName"
-                  params={{ packageName, skillName: req }}
+                  to="/intent/registry/$packageName/{$}"
+                  params={{ packageName, _splat: req }}
                   className="inline-block px-2 py-0.5 rounded-md text-xs font-mono bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:text-sky-600 dark:hover:text-sky-400 transition-colors"
                 >
                   {req}

@@ -10,7 +10,6 @@ import {
   useCurrentUserQuery,
 } from '~/hooks/useCurrentUser'
 import { updateLastUsedFramework } from '~/utils/users.functions'
-import type { User } from '~/db/types'
 
 function persistFrameworkToServer(framework: string) {
   void updateLastUsedFramework({ data: { framework } }).catch(() => {

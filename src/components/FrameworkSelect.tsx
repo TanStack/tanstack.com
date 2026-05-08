@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { create } from 'zustand'
-import { useLocation, useNavigate, useParams } from '@tanstack/react-router'
+import { useNavigate, useParams } from '@tanstack/react-router'
 import { useQueryClient } from '@tanstack/react-query'
 import { Select } from './Select'
 import { Framework, getLibrary, LibraryId } from '~/libraries'
@@ -123,7 +123,6 @@ function useFrameworkConfig({ frameworks }: { frameworks: Framework[] }) {
  */
 export function useCurrentFramework(frameworks: Framework[]) {
   const navigate = useNavigate()
-  const location = useLocation()
   const userQuery = useCurrentUserQuery()
   const queryClient = useQueryClient()
 
@@ -144,6 +143,9 @@ export function useCurrentFramework(frameworks: Framework[]) {
 
   const setFramework = React.useCallback(
     (framework: string) => {
+      navigate({
+        params: { framework } as any,
+      })
       // Always update localStorage as fallback
       localCurrentFramework.setCurrentFramework(framework)
       queryClient.setQueryData(currentUserQueryOptions.queryKey, (user) =>
@@ -155,7 +157,7 @@ export function useCurrentFramework(frameworks: Framework[]) {
         persistFrameworkToServer(framework)
       }
     },
-    [localCurrentFramework, queryClient, userQuery.data],
+    [localCurrentFramework, navigate, queryClient, userQuery.data],
   )
 
   React.useEffect(() => {

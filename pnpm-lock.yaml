@@ -96,8 +96,8 @@ importers:
         specifier: ^0.7.4
         version: 0.7.4(@tanstack/ai-client@0.7.9)(@tanstack/ai@0.10.2)(ws@8.20.0)(zod@4.3.6)
       '@tanstack/create':
-        specifier: ^0.63.4
-        version: 0.63.4(tslib@2.8.1)
+        specifier: ^0.66.0
+        version: 0.66.0(tslib@2.8.1)
       '@tanstack/pacer':
         specifier: ^0.20.1
         version: 0.20.1
@@ -3539,8 +3539,9 @@ packages:
     resolution: {integrity: sha512-uy9swoOXgDltFZcaKc9YkRD22fndK0NhJAtOs1vCaugSYOjgOsfT0jnkZ9kswVn+OPXQxiXKQ9PSNKIoKKSP8g==}
     engines: {node: '>=18'}
 
-  '@tanstack/create@0.63.4':
-    resolution: {integrity: sha512-LpCU+WrCXKJniyz2OIHmesqEsTQFRTcB0A8+1yiN7Idj8sUjFoTV1YYJJLzrlGUwAGM42IZMOmWt1EgBlPaNRw==}
+  '@tanstack/create@0.66.0':
+    resolution: {integrity: sha512-/M8wdce68uzXPSG1baBWEwRmCSWmmMeI19rHG3/fR8Q+29LWB0/RE9aBWHpOA1/jw7rtpNWiSYleAXEWxdyRGw==}
+    engines: {node: '>=20'}
 
   '@tanstack/devtools-client@0.0.6':
     resolution: {integrity: sha512-f85ZJXJnDIFOoykG/BFIixuAevJovCvJF391LPs6YjBAPhGYC50NWlx1y4iF/UmK5/cCMx+/JqI5SBOz7FanQQ==}
@@ -11468,7 +11469,7 @@ snapshots:
       '@tanstack/ai-event-client': 0.2.2(@tanstack/ai@0.10.2)
       partial-json: 0.1.7
 
-  '@tanstack/create@0.63.4(tslib@2.8.1)':
+  '@tanstack/create@0.66.0(tslib@2.8.1)':
     dependencies:
       ejs: 3.1.10
       execa: 9.6.1

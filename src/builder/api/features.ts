@@ -76,6 +76,10 @@ function getCategoryFromType(type: string): string {
   }
 }
 
+const CATEGORY_OVERRIDES: Record<string, string> = {
+  shopify: 'ecommerce',
+}
+
 function toFeatureInfo(addOn: AddOn): FeatureInfo {
   // Type assertion for new fields that may not be in the cta-engine types yet
   const addon = addOn as AddOn & {
@@ -88,7 +92,10 @@ function toFeatureInfo(addOn: AddOn): FeatureInfo {
     id: addon.id,
     name: addon.name,
     description: addon.description,
-    category: addon.category ?? getCategoryFromType(addon.type),
+    category:
+      CATEGORY_OVERRIDES[addon.id] ??
+      addon.category ??
+      getCategoryFromType(addon.type),
     requires: addon.dependsOn ?? [],
     exclusive: addon.exclusive ?? [],
     hasOptions: !!addon.options,

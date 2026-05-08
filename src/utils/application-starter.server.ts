@@ -13,6 +13,7 @@ import {
   STARTER_INTENT_INSTALL_COMMAND,
   STARTER_INTENT_LIST_COMMAND,
   type ApplicationStarterAnalysis,
+  type ApplicationStarterRecipe,
   type ApplicationStarterRequest,
   type ApplicationStarterResult,
 } from '~/utils/application-starter'
@@ -398,6 +399,7 @@ function buildPromptGenerationRequest({
     `- template: ${deterministicResult.recipe.template ?? 'none'}`,
     `- package manager: ${deterministicResult.recipe.packageManager}`,
     `- add-ons: ${deterministicResult.recipe.features.join(', ') || 'none'}`,
+    `- add-on options: ${formatFeatureOptionsForPrompt(deterministicResult.recipe.featureOptions)}`,
     `- deployment: ${deterministicResult.recipe.deployment ?? 'portable'}`,
     `- toolchain: ${deterministicResult.recipe.toolchain ?? 'default'}`,
   ].join('\n')
@@ -471,7 +473,22 @@ function buildAnalysisRequest({
     `- template: ${deterministicResult.recipe.template ?? 'none'}`,
     `- deployment: ${deterministicResult.recipe.deployment ?? 'portable'}`,
     `- starter features: ${deterministicResult.recipe.features.join(', ') || 'none'}`,
+    `- add-on options: ${formatFeatureOptionsForPrompt(deterministicResult.recipe.featureOptions)}`,
   ].join('\n')
+}
+
+function formatFeatureOptionsForPrompt(
+  featureOptions: ApplicationStarterRecipe['featureOptions'],
+): string {
+  const parts = Object.entries(featureOptions)
+    .filter(([, options]) => options && Object.keys(options).length > 0)
+    .map(([featureId, options]) => {
+      const optionParts = Object.entries(options)
+        .map(([key, value]) => `${key}=${String(value)}`)
+        .join(', ')
+      return `${featureId}(${optionParts})`
+    })
+  return parts.length > 0 ? parts.join('; ') : 'none'
 }
 
 function buildDeterministicApplicationStarterAnalysis({

@@ -228,6 +228,7 @@ export async function compileHandler(
     packageManager: definition.packageManager ?? 'pnpm',
     git: false,
     install: false,
+    intent: false,
     chosenAddOns,
     addOnOptions: mergeOptionsWithDefaults(chosenAddOns, definition.featureOptions),
   })
@@ -303,6 +304,7 @@ export async function compileWithAttributionHandler(
     packageManager: definition.packageManager ?? 'pnpm',
     git: false,
     install: false,
+    intent: false,
     chosenAddOns,
     addOnOptions: mergeOptionsWithDefaults(chosenAddOns, definition.featureOptions),
   })

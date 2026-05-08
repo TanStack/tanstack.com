@@ -8,6 +8,10 @@ import { useLocalStorage } from '~/utils/useLocalStorage'
 import { useClickOutside } from '~/hooks/useClickOutside'
 import { last } from '~/utils/utils'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
+import {
+  getActiveDocsNavTabId,
+  getTabbedMenuConfig,
+} from '~/utils/docsNavTabs'
 import { Framework, LibraryId } from '~/libraries'
 import { frameworkOptions } from '~/libraries/frameworks'
 import { twMerge } from 'tailwind-merge'
@@ -722,6 +726,7 @@ const useMenuConfig = ({
 
       return {
         label: section.label,
+        tab: section.tab,
         children,
         collapsible: section.collapsible ?? false,
         defaultCollapsed: section.defaultCollapsed ?? false,
@@ -771,21 +776,41 @@ export function LibraryLayout({
 
   const detailsRef = React.useRef<HTMLElement>(null!)
 
-  const flatMenu = React.useMemo(
-    () => menuConfig.flatMap((d) => d?.children),
-    [menuConfig],
-  )
-
-  // Filter out external links for prev/next navigation
-  const internalFlatMenu = React.useMemo(
-    () => flatMenu.filter((d) => d && !d.to.startsWith('http')),
-    [flatMenu],
-  )
-
   const docsMatch = matches.find((d) => d.pathname.includes('/docs'))
   const docsPathname = docsMatch?.pathname ?? ''
 
   const relativePathname = lastMatch.pathname.replace(docsPathname + '/', '')
+
+  const tabbedMenuConfig = React.useMemo(() => {
+    return getTabbedMenuConfig(menuConfig)
+  }, [menuConfig])
+
+  const activeTabId = React.useMemo(() => {
+    return getActiveDocsNavTabId({
+      isExample,
+      menuConfig,
+      pathname: lastMatch.pathname,
+      relativePathname,
+    })
+  }, [isExample, lastMatch.pathname, menuConfig, relativePathname])
+
+  const visibleMenuConfig = React.useMemo(() => {
+    return (
+      tabbedMenuConfig.find((tab) => tab.id === activeTabId)?.groups ??
+      menuConfig
+    )
+  }, [activeTabId, menuConfig, tabbedMenuConfig])
+
+  const flatMenu = React.useMemo(
+    () => visibleMenuConfig.flatMap((d) => d.children),
+    [visibleMenuConfig],
+  )
+
+  // Filter out external links for prev/next navigation
+  const internalFlatMenu = React.useMemo(
+    () => flatMenu.filter((d) => !d.to.startsWith('http')),
+    [flatMenu],
+  )
 
   const index = internalFlatMenu.findIndex((d) => d?.to === relativePathname)
   const prevItem = internalFlatMenu[index - 1]
@@ -810,19 +835,22 @@ export function LibraryLayout({
   )
 
   const groupInitialOpenState = React.useMemo(() => {
-    return menuConfig.reduce<Record<string, boolean>>((acc, group, index) => {
-      const isChildActive = group.children.some((child) => child.to === _splat)
-      const key = `${index}:${String(group.label)}`
+    return visibleMenuConfig.reduce<Record<string, boolean>>(
+      (acc, group, index) => {
+        const isChildActive = group.children.some((child) => child.to === _splat)
+        const key = `${index}:${String(group.label)}`
 
-      acc[key] = isChildActive
-        ? true
-        : typeof group.defaultCollapsed !== 'undefined'
-          ? !group.defaultCollapsed
-          : false
+        acc[key] = isChildActive
+          ? true
+          : typeof group.defaultCollapsed !== 'undefined'
+            ? !group.defaultCollapsed
+            : false
 
-      return acc
-    }, {})
-  }, [menuConfig, _splat])
+        return acc
+      },
+      {},
+    )
+  }, [visibleMenuConfig, _splat])
 
   const [openGroups, setOpenGroups] = React.useState(groupInitialOpenState)
 
@@ -850,7 +878,7 @@ export function LibraryLayout({
 
   const libraryHomePath = `/${libraryId}/${version}`
 
-  const menuItems = menuConfig.map((group, i) => {
+  const menuItems = visibleMenuConfig.map((group, i) => {
     const groupKey = `${i}:${String(group.label)}`
 
     const groupContent = (
@@ -1098,7 +1126,7 @@ export function LibraryLayout({
         )}
       >
         <DocsMenuStrip
-          menuConfig={menuConfig}
+          menuConfig={visibleMenuConfig}
           activeItem={relativePathname}
           fullPathname={lastMatch.pathname}
           colorFrom={colorFrom}
@@ -1125,7 +1153,7 @@ export function LibraryLayout({
       <div
         ref={expandedMenuRef}
         className={twMerge(
-          'max-w-[250px] xl:max-w-[300px] 2xl:max-w-[400px]',
+          'w-[250px] xl:w-[300px] 2xl:w-[400px] shrink-0',
           'flex-col overflow-hidden',
           'h-[calc(100dvh-var(--navbar-height))] top-[var(--navbar-height)]',
           'z-20 border-r border-gray-500/20',
@@ -1172,6 +1200,47 @@ export function LibraryLayout({
     </>
   )
 
+  const docsTabs = (
+    <div className="border-b border-gray-500/20 bg-white/70 dark:bg-black/40 backdrop-blur-lg">
+      <nav
+        aria-label="Documentation sections"
+        className="flex items-center gap-1 overflow-x-auto px-3 md:px-6 py-2 text-sm"
+      >
+        {tabbedMenuConfig.map((tab) => {
+          const target = tab.firstItem
+          const isActive = tab.id === activeTabId
+
+          if (!target) {
+            return null
+          }
+
+          const linkParams =
+            !target.to.startsWith('/') || target.to.includes('/$libraryId')
+              ? ({ libraryId, version } as never)
+              : undefined
+
+          return (
+            <Link
+              key={tab.id}
+              from="/$libraryId/$version/docs"
+              to={target.to}
+              params={linkParams}
+              className={twMerge(
+                'whitespace-nowrap rounded-md px-3 py-1.5 font-semibold transition-colors',
+                'hover:bg-gray-500/10',
+                isActive
+                  ? `bg-gray-500/10 text-transparent bg-clip-text bg-linear-to-r ${colorFrom} ${colorTo}`
+                  : 'opacity-70 hover:opacity-100',
+              )}
+            >
+              {tab.label}
+            </Link>
+          )
+        })}
+      </nav>
+    </div>
+  )
+
   return (
     <WidthToggleContext.Provider value={{ isFullWidth, setIsFullWidth }}>
       <DocNavigationContext.Provider
@@ -1197,12 +1266,14 @@ export function LibraryLayout({
           <div
             className={twMerge(
               'flex flex-col max-w-full min-w-0 flex-1 min-h-0 relative',
-              !isLandingPage && 'px-4 md:px-8',
             )}
           >
+            {docsTabs}
             <div
               className={twMerge(
                 `max-w-full min-w-0 flex flex-col justify-center w-full`,
+
+                !isLandingPage && 'px-4 md:px-8',
 
                 !isLandingPage &&
                   !isExample &&

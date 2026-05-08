@@ -4,7 +4,7 @@
  * Common types, constants, and validation for deploy dialogs.
  */
 
-export type DeployProvider = 'cloudflare' | 'netlify' | 'railway'
+export type DeployProvider = 'cloudflare' | 'netlify' | 'railway' | 'vercel'
 
 export type DeployState =
   | { step: 'auth-check' }
@@ -45,6 +45,12 @@ export const PROVIDER_INFO: Record<DeployProvider, ProviderInfo> = {
     color: '#9B4DCA',
     deployUrl: () =>
       `https://railway.com/new/github?utm_medium=sponsor&utm_source=oss&utm_campaign=tanstack`,
+  },
+  vercel: {
+    name: 'Vercel',
+    color: '#000000',
+    deployUrl: (owner, repo) =>
+      `https://vercel.com/new/clone?repository-url=https://github.com/${owner}/${repo}`,
   },
 }
 

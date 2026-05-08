@@ -146,7 +146,10 @@ export function getActiveDocsNavTabId({
     return getDocsNavTabId(activeGroup, activeChild)
   }
 
-  if (pathname.includes('/docs/api/') || pathname.includes('/docs/reference/')) {
+  if (
+    pathname.includes('/docs/api/') ||
+    pathname.includes('/docs/reference/')
+  ) {
     return 'api'
   }
 

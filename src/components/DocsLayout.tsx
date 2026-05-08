@@ -984,6 +984,7 @@ export function DocsLayout({
             className={twMerge(
               'flex flex-col max-w-full min-w-0 flex-1 min-h-0 relative',
             )}
+            style={{ '--docs-tabs-height': '45px' } as React.CSSProperties}
           >
             {docsTabs}
             <div

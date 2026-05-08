@@ -8,10 +8,7 @@ import { useLocalStorage } from '~/utils/useLocalStorage'
 import { useClickOutside } from '~/hooks/useClickOutside'
 import { last } from '~/utils/utils'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
-import {
-  getActiveDocsNavTabId,
-  getTabbedMenuConfig,
-} from '~/utils/docsNavTabs'
+import { getActiveDocsNavTabId, getTabbedMenuConfig } from '~/utils/docsNavTabs'
 import { Framework, LibraryId } from '~/libraries'
 import { frameworkOptions } from '~/libraries/frameworks'
 import { twMerge } from 'tailwind-merge'
@@ -837,7 +834,9 @@ export function LibraryLayout({
   const groupInitialOpenState = React.useMemo(() => {
     return visibleMenuConfig.reduce<Record<string, boolean>>(
       (acc, group, index) => {
-        const isChildActive = group.children.some((child) => child.to === _splat)
+        const isChildActive = group.children.some(
+          (child) => child.to === _splat,
+        )
         const key = `${index}:${String(group.label)}`
 
         acc[key] = isChildActive

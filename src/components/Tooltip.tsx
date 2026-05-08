@@ -24,10 +24,22 @@ export function Tooltip({
   className = '',
 }: TooltipProps) {
   const [isOpen, setIsOpen] = React.useState(false)
+  const isMounted = React.useRef(true)
+
+  React.useEffect(() => {
+    isMounted.current = true
+    return () => {
+      isMounted.current = false
+    }
+  }, [])
 
   const { refs, floatingStyles, context } = useFloating({
     open: isOpen,
-    onOpenChange: setIsOpen,
+    onOpenChange: (open) => {
+      if (isMounted.current) {
+        setIsOpen(open)
+      }
+    },
     placement,
     middleware: [offset(5), flip(), shift()],
     whileElementsMounted: autoUpdate,

@@ -389,7 +389,7 @@ export const form: LibrarySlim = {
   to: '/form',
   tagline: 'Headless UI for building performant and type-safe forms',
   description:
-    'Headless, performant, and type-safe form state management for TS/JS, React, Vue, Angular, Solid, Lit and Svelte.',
+    'Headless, performant, and type-safe form state management for TS/JS, React, Preact, Vue, Angular, Solid, Lit and Svelte.',
   bgStyle: 'bg-yellow-500',
   borderStyle: 'border-yellow-500/50',
   textStyle: 'text-yellow-500',
@@ -400,7 +400,7 @@ export const form: LibrarySlim = {
   badge: 'new',
   repo: 'tanstack/form',
   corePackageName: '@tanstack/form-core',
-  frameworks: ['react', 'vue', 'angular', 'solid', 'lit', 'svelte'],
+  frameworks: ['react', 'preact', 'vue', 'angular', 'solid', 'lit', 'svelte'],
   latestVersion: 'v1',
   latestBranch: 'main',
   availableVersions: ['v1'],

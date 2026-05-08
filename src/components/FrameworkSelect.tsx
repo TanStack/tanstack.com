@@ -149,27 +149,13 @@ export function useCurrentFramework(frameworks: Framework[]) {
       queryClient.setQueryData(currentUserQueryOptions.queryKey, (user) =>
         user ? { ...user, lastUsedFramework: framework } : user,
       )
-      const nextPathname = location.pathname.replace(
-        /(\/docs\/framework\/)[^/]+/,
-        `$1${framework}`,
-      )
-      if (nextPathname !== location.pathname) {
-        const queryString = window.location.search
-        const hash = window.location.hash
-        navigate({ href: `${nextPathname}${queryString}${hash}` })
-      }
+
       // Update DB for logged-in users (fire-and-forget)
       if (userQuery.data) {
         persistFrameworkToServer(framework)
       }
     },
-    [
-      localCurrentFramework,
-      location.pathname,
-      navigate,
-      queryClient,
-      userQuery.data,
-    ],
+    [localCurrentFramework, queryClient, userQuery.data],
   )
 
   React.useEffect(() => {

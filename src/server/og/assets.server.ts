@@ -11,6 +11,7 @@ function readBinary(relPath: string): Buffer {
 let cached: {
   interRegular: Buffer
   interExtraBold: Buffer
+  interBlack: Buffer
   islandPng: Buffer
 } | null = null
 
@@ -20,6 +21,7 @@ export function loadOgAssets() {
   cached = {
     interRegular: readBinary('public/fonts/Inter-Regular.ttf'),
     interExtraBold: readBinary('public/fonts/Inter-ExtraBold.ttf'),
+    interBlack: readBinary('public/fonts/Inter-Black.ttf'),
     islandPng: readBinary('public/images/logos/splash-dark.png'),
   }
   return cached

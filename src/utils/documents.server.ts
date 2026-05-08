@@ -6,6 +6,7 @@ import { fetchCached } from '~/utils/cache.server'
 import {
   getCachedGitHubJsonContent,
   getCachedGitHubTextFile,
+  InvalidCacheKeyError,
 } from './github-content-cache.server'
 import { normalizeRedirectFrom } from './redirects'
 import { multiSortBy, removeLeadingSlash } from './utils'
@@ -408,12 +409,22 @@ export async function fetchRepoFile(
     })
   }
 
-  return getCachedGitHubTextFile({
-    repo: repoPair,
-    gitRef: ref,
-    path: filepath,
-    origin: () => fetchRepoFileFromOrigin(repoPair, ref, filepath),
-  })
+  try {
+    return await getCachedGitHubTextFile({
+      repo: repoPair,
+      gitRef: ref,
+      path: filepath,
+      origin: () => fetchRepoFileFromOrigin(repoPair, ref, filepath),
+    })
+  } catch (error) {
+    if (error instanceof InvalidCacheKeyError) {
+      // Caller asked for an unrepresentable path (URL fragment leaked in,
+      // probe attempt, malformed link). Treat as missing without polluting
+      // the cache or the GitHub API budget.
+      return null
+    }
+    throw error
+  }
 }
 
 export function extractFrontMatter(content: string) {
@@ -823,6 +834,11 @@ export function fetchApiContents(
     path: startingPath,
     isValue: isGitHubFileNodeArray,
     origin: () => fetchApiContentsRemote(repoPair, branch, startingPath),
+  }).catch((error) => {
+    if (error instanceof InvalidCacheKeyError) {
+      return null
+    }
+    throw error
   })
 }
 

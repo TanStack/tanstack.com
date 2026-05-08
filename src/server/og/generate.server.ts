@@ -128,6 +128,12 @@ export function generateOgImageResponse(
         weight: 800,
         style: 'normal',
       },
+      {
+        name: 'Inter',
+        data: assets.interBlack,
+        weight: 900,
+        style: 'normal',
+      },
     ],
     persistentImages: [{ src: ISLAND_KEY, data: assets.islandPng }],
     ...init,

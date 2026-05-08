@@ -8,7 +8,7 @@ const textStyles = 'text-red-500 dark:text-red-400'
 export const queryProject = {
   ...query,
   description:
-    'Powerful asynchronous state management, server-state utilities and data fetching. Fetch, cache, update, and wrangle all forms of async data in your TS/JS, React, Vue, Solid, Svelte & Angular applications all without touching any "global state"',
+    'Powerful asynchronous state management, server-state utilities and data fetching. Fetch, cache, update, and wrangle all forms of async data in your TS/JS, React, Vue, Solid, Svelte, Angular & Lit applications all without touching any "global state"',
   latestBranch: 'main',
   bgRadial: 'from-red-500 via-red-500/60 to-transparent',
   textColor: 'text-amber-500',

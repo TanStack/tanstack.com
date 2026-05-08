@@ -5,17 +5,16 @@ import {
   PARTNER_UPGRADE_ORDER,
   SHOWCASE_UPGRADE_ORDER,
 } from '../utils/upgrades'
+import { currentUserQueryOptions } from '~/hooks/useCurrentUser'
 
 const UPGRADE_ORDER = [...PARTNER_UPGRADE_ORDER, ...SHOWCASE_UPGRADE_ORDER]
-import { getCurrentUser } from '~/utils/auth.functions'
 
 export function DebugPanel() {
   const [isCollapsed, setIsCollapsed] = useState(true)
 
   // Fetch user directly without route context dependency
   const userQuery = useQuery({
-    queryKey: ['currentUser'],
-    queryFn: () => getCurrentUser(),
+    ...currentUserQueryOptions,
     staleTime: 30 * 1000,
   })
 

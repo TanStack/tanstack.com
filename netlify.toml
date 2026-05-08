@@ -16,6 +16,7 @@ directory = "netlify/functions"
 included_files = [
   "public/fonts/Inter-Regular.ttf",
   "public/fonts/Inter-ExtraBold.ttf",
+  "public/fonts/Inter-Black.ttf",
   "public/images/logos/splash-dark.png",
   "node_modules/.pnpm/@takumi-rs+wasm@*/node_modules/@takumi-rs/wasm/pkg/takumi_wasm_bg.wasm",
 ]

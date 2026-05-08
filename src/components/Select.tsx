@@ -67,7 +67,7 @@ export function Select<T extends SelectOption>({
             </span>
           </button>
         </DropdownTrigger>
-        <DropdownContent align="start" className="max-h-60 overflow-auto">
+        <DropdownContent align="start" className="max-h-80 overflow-auto">
           {available.map((option) => (
             <DropdownItem
               key={option.value}

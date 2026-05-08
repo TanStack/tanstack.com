@@ -76,8 +76,9 @@ export function buildOgTree(props: TemplateProps): ReactElement {
             flexDirection: 'column',
             marginBottom: 22,
             lineHeight: 0.95,
-            fontWeight: 800,
-            letterSpacing: '-0.02em',
+            fontWeight: 900,
+            letterSpacing: '-3px',
+            textTransform: 'uppercase',
           }}
         >
           <span style={{ fontSize: 72, color: '#ffffff' }}>{titleLine1}</span>
@@ -93,7 +94,7 @@ export function buildOgTree(props: TemplateProps): ReactElement {
               fontSize: 28,
               fontWeight: 500,
               lineHeight: 1.3,
-              color: props.accentColor,
+              color: '#ffffff',
               marginBottom: 0,
             }}
           >
@@ -108,7 +109,7 @@ export function buildOgTree(props: TemplateProps): ReactElement {
               lineHeight: 1.05,
               letterSpacing: '-0.015em',
               marginBottom: 14,
-              color: props.accentColor,
+              color: '#ffffff',
             }}
           >
             {props.docTitle}
@@ -120,7 +121,7 @@ export function buildOgTree(props: TemplateProps): ReactElement {
               fontSize: 22,
               lineHeight: 1.3,
               fontWeight: 500,
-              color: props.accentColor,
+              color: '#ffffff',
             }}
           >
             {props.description}

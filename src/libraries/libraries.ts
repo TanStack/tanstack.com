@@ -13,7 +13,7 @@ export const query: LibrarySlim = {
   tagline:
     'Powerful asynchronous state management, server-state utilities and data fetching',
   description:
-    'Powerful asynchronous state management, server-state utilities and data fetching. Fetch, cache, update, and wrangle all forms of async data in your TS/JS, React, Vue, Solid, Svelte & Angular applications all without touching any "global state"',
+    'Powerful asynchronous state management, server-state utilities and data fetching. Fetch, cache, update, and wrangle all forms of async data in your TS/JS, React, Vue, Solid, Svelte, Angular & Lit applications all without touching any "global state"',
   bgStyle: 'bg-red-500',
   borderStyle: 'border-red-500/50',
   textStyle: 'text-red-500',
@@ -23,7 +23,7 @@ export const query: LibrarySlim = {
   bgRadial: 'from-red-500 via-red-500/60 to-transparent',
   badge: undefined,
   repo: 'tanstack/query',
-  frameworks: ['react', 'preact', 'solid', 'vue', 'svelte', 'angular'],
+  frameworks: ['react', 'preact', 'solid', 'vue', 'svelte', 'angular', 'lit'],
   latestVersion: 'v5',
   latestBranch: 'main',
   availableVersions: ['v5', 'v4', 'v3'],

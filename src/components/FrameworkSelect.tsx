@@ -1,11 +1,16 @@
 import * as React from 'react'
 import { create } from 'zustand'
-import { useNavigate, useParams } from '@tanstack/react-router'
+import { useLocation, useNavigate, useParams } from '@tanstack/react-router'
+import { useQueryClient } from '@tanstack/react-query'
 import { Select } from './Select'
 import { Framework, getLibrary, LibraryId } from '~/libraries'
 import { getFrameworkOptions } from '~/libraries/frameworks'
-import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
+import {
+  currentUserQueryOptions,
+  useCurrentUserQuery,
+} from '~/hooks/useCurrentUser'
 import { updateLastUsedFramework } from '~/utils/users.functions'
+import type { User } from '~/db/types'
 
 function persistFrameworkToServer(framework: string) {
   void updateLastUsedFramework({ data: { framework } }).catch(() => {
@@ -72,18 +77,22 @@ export function getStoredFrameworkPreference(): string | undefined {
  */
 export function usePersistFrameworkPreference() {
   const userQuery = useCurrentUserQuery()
+  const queryClient = useQueryClient()
   const localCurrentFramework = useLocalCurrentFramework()
 
   return React.useCallback(
     (framework: string) => {
       // Always update localStorage as fallback
       localCurrentFramework.setCurrentFramework(framework)
+      queryClient.setQueryData(currentUserQueryOptions.queryKey, (user) =>
+        user ? { ...user, lastUsedFramework: framework } : user,
+      )
       // Update DB for logged-in users (fire-and-forget)
       if (userQuery.data) {
         persistFrameworkToServer(framework)
       }
     },
-    [localCurrentFramework, userQuery.data],
+    [localCurrentFramework, queryClient, userQuery.data],
   )
 }
 
@@ -114,7 +123,9 @@ function useFrameworkConfig({ frameworks }: { frameworks: Framework[] }) {
  */
 export function useCurrentFramework(frameworks: Framework[]) {
   const navigate = useNavigate()
+  const location = useLocation()
   const userQuery = useCurrentUserQuery()
+  const queryClient = useQueryClient()
 
   const { framework: paramsFramework } = useParams({
     strict: false,
@@ -133,17 +144,32 @@ export function useCurrentFramework(frameworks: Framework[]) {
 
   const setFramework = React.useCallback(
     (framework: string) => {
-      navigate({
-        params: { framework } as any,
-      })
       // Always update localStorage as fallback
       localCurrentFramework.setCurrentFramework(framework)
+      queryClient.setQueryData(currentUserQueryOptions.queryKey, (user) =>
+        user ? { ...user, lastUsedFramework: framework } : user,
+      )
+      const nextPathname = location.pathname.replace(
+        /(\/docs\/framework\/)[^/]+/,
+        `$1${framework}`,
+      )
+      if (nextPathname !== location.pathname) {
+        const queryString = window.location.search
+        const hash = window.location.hash
+        navigate({ href: `${nextPathname}${queryString}${hash}` })
+      }
       // Update DB for logged-in users (fire-and-forget)
       if (userQuery.data) {
         persistFrameworkToServer(framework)
       }
     },
-    [localCurrentFramework, navigate, userQuery.data],
+    [
+      localCurrentFramework,
+      location.pathname,
+      navigate,
+      queryClient,
+      userQuery.data,
+    ],
   )
 
   React.useEffect(() => {

@@ -862,7 +862,7 @@ export function DocsLayout({
       <div
         ref={expandedMenuRef}
         className={twMerge(
-          'w-[250px] xl:w-[300px] 2xl:w-[400px] shrink-0',
+          'max-w-[250px] xl:max-w-[300px] 2xl:max-w-[400px]',
           'flex-col overflow-hidden',
           'h-[calc(100dvh-var(--navbar-height))] top-[var(--navbar-height)]',
           'z-20 border-r border-gray-500/20',
@@ -896,7 +896,7 @@ export function DocsLayout({
           }
         }}
       >
-        <div className="flex-1 flex flex-col overflow-y-auto">
+        <div className="flex-1 flex flex-col overflow-y-auto min-w-[230px]">
           <div className="flex flex-col gap-1 p-4">
             <FrameworkSelect libraryId={libraryId} />
             <VersionSelect libraryId={libraryId} />
@@ -910,10 +910,10 @@ export function DocsLayout({
   )
 
   const docsTabs = (
-    <div className="border-b border-gray-500/20 bg-white/70 dark:bg-black/40 backdrop-blur-lg">
+    <div className="sticky top-[calc(var(--navbar-height)-4px)] z-30 border-b border-gray-500/20 bg-white/90 dark:bg-black/80 backdrop-blur-lg">
       <nav
         aria-label="Documentation sections"
-        className="flex items-center gap-1 overflow-x-auto px-3 md:px-6 py-2 text-sm"
+        className="flex items-stretch gap-6 overflow-x-auto px-3 md:px-6 text-sm [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {tabbedMenuConfig.map((tab) => {
           const target = tab.firstItem
@@ -935,14 +935,22 @@ export function DocsLayout({
               to={target.to}
               params={linkParams}
               className={twMerge(
-                'whitespace-nowrap rounded-md px-3 py-1.5 font-semibold transition-colors',
-                'hover:bg-gray-500/10',
+                'relative whitespace-nowrap py-3 font-semibold transition-colors',
                 isActive
-                  ? `bg-gray-500/10 text-transparent bg-clip-text bg-linear-to-r ${colorFrom} ${colorTo}`
-                  : 'opacity-70 hover:opacity-100',
+                  ? `text-transparent bg-clip-text bg-linear-to-r ${colorFrom} ${colorTo}`
+                  : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100',
               )}
             >
               {tab.label}
+              {isActive ? (
+                <span
+                  className={twMerge(
+                    'absolute left-0 right-0 -bottom-px h-[3px] rounded-t-full bg-linear-to-r',
+                    colorFrom,
+                    colorTo,
+                  )}
+                />
+              ) : null}
             </Link>
           )
         })}
@@ -1000,7 +1008,7 @@ export function DocsLayout({
             )}
           </div>
           {!isLandingPage && (
-            <RightRail breakpoint="md" className="md:w-[280px]">
+            <RightRail breakpoint="md" className="md:w-[220px]">
               <PartnersRail
                 analyticsPlacement="docs_rail"
                 partners={activePartners}

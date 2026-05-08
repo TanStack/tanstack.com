@@ -25,7 +25,7 @@ RSC is also a _protocol_, a way to serialize rendered React output, client refs,
 
 **So, who owns the tree?**
 
-If and when the server owns it, you need a way to drop client interactivity _into_ it, which is exactly what `'use client'` is for. Hopefully this doesn't come as a surprise. It's in the react docs and how pretty much every RSC framework model works to this day, includin Start.
+If and when the server owns it, you need a way to drop client interactivity _into_ it, which is exactly what `'use client'` is for. Hopefully this doesn't come as a surprise. It's in the react docs and how pretty much every RSC framework model works to this day, including Start.
 
 However, if the _client_ owns it, you'll need a way to drop _server-rendered UI into it_. That's what Composite Components solve in TanStack Start.
 

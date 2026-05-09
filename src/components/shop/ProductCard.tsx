@@ -150,7 +150,7 @@ export function ProductCard({
       className="
         group flex flex-col min-w-[340px] max-w-[400px] w-full rounded-xl
         border border-transparent bg-transparent
-        hover:bg-shop-bg-2 hover:border-shop-line-2
+        hover:bg-[#EFEFE3] dark:hover:bg-shop-bg-2 hover:border-shop-line-2
         transition-[border-color,background-color] duration-200
         px-[22px] pt-7 pb-5
       "

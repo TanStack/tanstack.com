@@ -149,8 +149,10 @@ export class TodosList extends LitElement {
 
   render() {
     const { data, isPending, error } = this.todos.current
+
     if (isPending) return html\`<span>Loading...</span>\`
     if (error) return html\`<span>Oops!</span>\`
+
     return html\`<ul>\${data.map(t => html\`<li>\${t.title}</li>\`)}</ul>\`
   }
 }`,

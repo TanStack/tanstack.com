@@ -134,6 +134,27 @@ export class TodosComponent {
 }
 `,
     },
+    lit: {
+      lang: 'ts',
+      code: `import { LitElement, html } from 'lit'
+import { customElement } from 'lit/decorators.js'
+import { createQueryController } from '@tanstack/lit-query'
+
+@customElement('todos-list')
+export class TodosList extends LitElement {
+  private todos = createQueryController(this, {
+    queryKey: ['todos'],
+    queryFn: () => fetch('/api/todos').then(r => r.json()),
+  })
+
+  render() {
+    const { data, isPending, error } = this.todos.current
+    if (isPending) return html\`<span>Loading...</span>\`
+    if (error) return html\`<span>Oops!</span>\`
+    return html\`<ul>\${data.map(t => html\`<li>\${t.title}</li>\`)}</ul>\`
+  }
+}`,
+    },
   },
 }
 

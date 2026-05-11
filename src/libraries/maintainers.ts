@@ -38,9 +38,11 @@ export const allMaintainers: Maintainer[] = [
       'ranger',
       'store',
       'pacer',
+      'cli',
       'mcp',
       'react-charts',
     ],
+    maintainerOf: ['intent'],
     frameworkExpertise: ['react', 'solid'],
     specialties: ['Architecture', 'Core API', 'Documentation'],
     social: {
@@ -162,7 +164,7 @@ export const allMaintainers: Maintainer[] = [
     isCoreMaintainer: true,
     avatar: 'https://github.com/KyleAMathews.png',
     github: 'KyleAMathews',
-    creatorOf: ['db'],
+    creatorOf: ['db', 'intent'],
     frameworkExpertise: ['react'],
     specialties: ['Sync Engines'],
   },
@@ -306,6 +308,7 @@ export const allMaintainers: Maintainer[] = [
     name: 'Sarah Gerrard',
     avatar: 'https://github.com/ladybluenotes.png',
     github: 'ladybluenotes',
+    creatorOf: ['intent'],
     contributorOf: [
       'ai',
       'config',

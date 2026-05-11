@@ -504,6 +504,19 @@ export const allMaintainers: Maintainer[] = [
     },
     workshopsAvailable: false,
   },
+  {
+    name: 'Florian Pellet',
+    avatar: 'https://github.com/sheraff.png',
+    github: 'sheraff',
+    maintainerOf: ['start', 'router'],
+    frameworkExpertise: ['react'],
+    specialties: ['Performance'],
+    social: {
+      twitter: 'https://x.com/chaponflo',
+      bluesky: 'https://bsky.app/profile/sheraff.bsky.social',
+      website: 'https://florianpellet.com',
+    },
+  },
 ]
 
 export const coreMaintainers = allMaintainers.filter(

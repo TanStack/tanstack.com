@@ -6,8 +6,6 @@ authors:
   - Tanner Linsley
 ---
 
-**Date of incident:** 2026-05-11
-**Authors:** Tanner Linsley
 **Last updated:** 2026-05-11
 
 ## TL;DR

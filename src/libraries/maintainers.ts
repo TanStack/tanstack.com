@@ -523,6 +523,19 @@ export const allMaintainers: Maintainer[] = [
       website: 'https://florianpellet.com',
     },
   },
+  {
+    name: 'Brenley Dueck',
+    avatar: 'https://github.com/brenelz.png',
+    github: 'brenelz',
+    maintainerOf: ['start', 'router'],
+    frameworkExpertise: ['react', 'solid'],
+    specialties: [],
+    social: {
+      twitter: 'https://x.com/brenelz',
+      bluesky: 'https://bsky.app/profile/brenelz.com',
+      website: 'https://brenelz.com',
+    },
+  },
 ]
 
 export const coreMaintainers = allMaintainers.filter(

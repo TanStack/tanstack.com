@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { Card } from '~/components/Card'
+import { CoverFallback } from '~/components/CoverFallback'
 import {
   formatAuthors,
   formatPublishedDate,
@@ -56,7 +57,9 @@ export function BlogCard({ post, showLibraryBadges = true }: BlogCardProps) {
             className="w-full h-full object-cover"
           />
         </div>
-      ) : null}
+      ) : (
+        <CoverFallback slug={slug} className="aspect-video w-full" />
+      )}
       <div className="p-4 md:p-8 flex flex-col gap-4 flex-1 justify-between">
         <div>
           <div className="text-lg font-extrabold">{title}</div>

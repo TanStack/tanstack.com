@@ -71,7 +71,7 @@ export const allMaintainers: Maintainer[] = [
     github: 'crutchcorn',
     creatorOf: ['form'],
     maintainerOf: ['store', 'config'],
-    frameworkExpertise: ['react', 'solid', 'vue', 'angular'],
+    frameworkExpertise: ['react', 'solid', 'vue', 'angular', 'lit'],
     specialties: ['Forms', 'Validation', 'State Management'],
     social: {
       twitter: 'https://x.com/crutchcorn',
@@ -98,14 +98,15 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/kevinvandy.png',
     github: 'kevinvandy',
     creatorOf: ['pacer', 'hotkeys'],
-    maintainerOf: ['table'],
+    maintainerOf: ['table', 'store'],
     contributorOf: ['virtual'],
     consultantOf: ['query'],
     frameworkExpertise: ['react', 'preact', 'solid'],
-    specialties: ['Tables', 'Data Grids', 'Dashboards'],
+    specialties: ['Data Grids', 'Performance', 'Dashboards'],
     social: {
       twitter: 'https://x.com/kevinvancott',
       bluesky: 'https://bsky.app/profile/kevinvancott.dev',
+      linkedIn: 'https://www.linkedin.com/in/kevinthomasvancott',
       website: 'https://kevinvancott.dev',
     },
     workshopsAvailable: true,
@@ -135,7 +136,7 @@ export const allMaintainers: Maintainer[] = [
     },
   },
   {
-    name: 'Chris Horobin',
+    name: 'Christopher Horobin',
     isCoreMaintainer: true,
     avatar: 'https://github.com/chorobin.png',
     github: 'chorobin',
@@ -167,6 +168,7 @@ export const allMaintainers: Maintainer[] = [
   },
   {
     name: 'Alem Tuzlak',
+    isCoreMaintainer: true,
     avatar: 'https://github.com/AlemTuzlak.png',
     github: 'AlemTuzlak',
     creatorOf: ['ai', 'devtools'],
@@ -334,6 +336,7 @@ export const allMaintainers: Maintainer[] = [
       'https://cdn.bsky.app/img/avatar/plain/did:plc:gtnigsmgu7jyrc4tnkvn62qw/bafkreiceysbj4o6jrbbniudtwj3tcsns6rvwcxyjsqiaumeojurwbkki5a@jpeg',
     github: 'riccardoperra',
     maintainerOf: ['table'],
+    contributorOf: ['devtools', 'hotkeys', 'pacer'],
     frameworkExpertise: ['angular', 'solid'],
     specialties: [],
     social: {

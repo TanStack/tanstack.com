@@ -10,7 +10,7 @@ authors:
   - Tanner Linsley
 ---
 
-This week, fourteen of our packages were quietly republished to npm with malware baked in. None of us authored those releases. None of us approved them. By the time the first report landed in our issue tracker, the malicious versions had already been sitting on the registry for a while.
+This week, fourteen of our packages were quietly republished to npm with malware baked in. None of us authored those releases. None of us approved them. By the time the first report landed in our issue tracker, the malicious versions had already been sitting on the registry for ~20 minutes.
 
 We've already published [the full incident postmortem](/blog/npm-supply-chain-compromise-postmortem), and if you want the timeline, the attack chain, the exact package list, the IOCs, and the "what to do if you installed a bad version" guidance, that's the source of truth. Read that first.
 

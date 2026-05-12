@@ -12,7 +12,7 @@ authors:
   - Harry Whorlow
 ---
 
-This week, fourteen of our packages were republished to npm with malware baked into the published artifacts. The releases were triggered by our normal release pipeline after changes landed on main, but the malicious code was not authored, reviewed, or approved by us. By the time the first report reached our issue tracker, those compromised versions had already been available on the registry for some time.
+This week, fourteen of our packages were republished to npm with malware baked into the published artifacts. The releases were triggered by our normal release pipeline after changes landed on main, but the malicious code was not authored, reviewed, or approved by us. By the time the first report reached our issue tracker, those compromised versions had already been available on the registry for about 20 minutes.
 
 We've already published [the full incident postmortem](/blog/npm-supply-chain-compromise-postmortem), and if you want the timeline, the attack chain, the exact package list, the IOCs, and the "what to do if you installed a bad version" guidance, that's the source of truth. Read that first.
 
@@ -24,7 +24,7 @@ Just enough context so this post makes sense on its own:
 
 Someone opened a pull request from a throwaway fork. While we never got a chance to see the PR since it was immediately closed, it had still triggered a workflow that checked out the contributor's code and ran it in a job that had write access to our shared CI cache.
 
-The attacker's code poisoned the cache and later, when an entirely legitimate merge to main ran our release workflow, it restored that poisoned cache, extracted our short-lived publish token out of the runner's memory, and used it to push malicious versions across our router-family packages.
+The attacker's code poisoned the cache and later, when an entirely legitimate merge to main, from a different PR, ran our release workflow, it restored that poisoned cache, extracted our short-lived publish token out of the runner's memory, and used it to push malicious versions across our router-family packages.
 
 Just to be clear, no maintainer was phished, had a password leak, or a token stolen from their account. Since this attack rode in through a trusted cache, it didn't need to. The attacker managed to engineer a path where our own CI pipeline stole its own publish token for them, at the exact moment it was created, by way of a cache that everyone in the chain implicitly trusted. It is a sophisticated approach that we hadn't anticipated and that we're taking very seriously.
 

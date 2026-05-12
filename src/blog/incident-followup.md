@@ -8,6 +8,8 @@ authors:
   - Corbin Crutchley
   - Jack Herrington
   - Tanner Linsley
+  - Florian Pellet
+  - Harry Whorlow
 ---
 
 This week, fourteen of our packages were republished to npm with malware baked into the published artifacts. The releases were triggered by our normal release pipeline after changes landed on main, but the malicious code was not authored, reviewed, or approved by us. By the time the first report reached our issue tracker, those compromised versions had already been available on the registry for some time.
@@ -49,7 +51,7 @@ The way we had our workflow structured was inevitably how this was attack was ma
 
 Knowing we had added in production is something we have to sit with now. While there are many things we had in place that worked as intended, not being on top of the fact that this pattern was in our workflow is a failure on our part. We had the information we needed to know that this was a potential problem, but we didn't connect the dots to our own setup.
 
-While we can say that the npm provenance, SLSA, OIDC, and 2FA all worked as advertised and still didn't stop this attack, that's not the whole story. The workflow shape itself was the hole, and that's what we're rebuilding now. 
+While we can say that the npm provenance, SLSA, OIDC, and 2FA all worked as advertised and still didn't stop this attack, that's not the whole story. The workflow shape itself was the hole, and that's what we're rebuilding now.
 
 Modern supply-chain defences are important, but they're not always enough on their own. We have to be more proactive about identifying and closing any holes in our workflows that could be exploited, rather than relying solely on the security features of the tools we use.
 

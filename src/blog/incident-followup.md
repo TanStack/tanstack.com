@@ -10,7 +10,7 @@ authors:
   - Tanner Linsley
 ---
 
-This week, fourteen of our packages were quietly republished to npm with malware baked in. None of us authored those releases. None of us approved them. By the time the first report landed in our issue tracker, the malicious versions had already been sitting on the registry for ~20 minutes.
+This week, fourteen of our packages were republished to npm with malware baked into the published artifacts. The releases were triggered by our normal release pipeline after changes landed on main, but the malicious code was not authored, reviewed, or approved by us. By the time the first report reached our issue tracker, those compromised versions had already been available on the registry for some time.
 
 We've already published [the full incident postmortem](/blog/npm-supply-chain-compromise-postmortem), and if you want the timeline, the attack chain, the exact package list, the IOCs, and the "what to do if you installed a bad version" guidance, that's the source of truth. Read that first.
 
@@ -20,37 +20,50 @@ This post is the companion piece. The postmortem covered what happened. This one
 
 Just enough context so this post makes sense on its own:
 
-Someone opened a pull request from a throwaway fork. The PR looked unremarkable, but it triggered a workflow that checked out the contributor's code and ran it in a job that had write access to our shared CI cache. The contributor's code poisoned the cache. Later, an entirely legitimate merge to main ran our release workflow, which restored the poisoned cache, extracted our short-lived publish token out of the runner's memory, and used it to push 84 malicious versions across our router-family packages.
+Someone opened a pull request from a throwaway fork. While we never got a chance to see the PR since it was immediately closed, it had still triggered a workflow that checked out the contributor's code and ran it in a job that had write access to our shared CI cache.
 
-No maintainer was phished. No password leaked. Our OIDC binding, lockfiles, signed commits, and 2FA were all configured correctly. The compromise rode in through the one path none of those covered: what the CI runner trusts in its own filesystem. That's the part we're rebuilding.
+The attacker's code poisoned the cache and later, when an entirely legitimate merge to main ran our release workflow, it restored that poisoned cache, extracted our short-lived publish token out of the runner's memory, and used it to push malicious versions across our router-family packages.
+
+Just to be clear, no maintainer was phished, had a password leak, or a token stolen from their account. Since this attack rode in through a trusted cache, it didn't need to. The attacker managed to engineer a path where our own CI pipeline stole its own publish token for them, at the exact moment it was created, by way of a cache that everyone in the chain implicitly trusted. It is a sophisticated approach that we hadn't anticipated and that we're taking very seriously.
 
 ## How our releases normally work
 
-We want to spend a minute on this, because it matters for understanding the shape of the attack; and because most people who use TanStack don't see this part of the project.
+In order to understand how this attack worked against us, it's important to understand how the release process for TanStack packages typically works. Every release that ships to npm under a `@tanstack/*` name goes through a staged process:
 
-Every release that ships to npm under a `@tanstack/*` name goes through a staged process. Changes have to land on `main` via a reviewed pull request. Releases are cut from `main` by a CI workflow, not by a person running `npm publish` on a laptop. That workflow authenticates to npm through GitHub's OIDC trusted-publisher integration, which means there's no long-lived npm token sitting in any maintainer's account or in any secret store waiting to be stolen; the publish credential is minted at release time and expires almost immediately. Commits on `main` are signed. 2FA is required on every maintainer account on both GitHub and npm. Lockfiles are committed. Provenance metadata is attached to every published artefact.
+1. Through a reviewed pull request, a change lands on `main` that includes a version bump and a changelog update. That PR is reviewed and merged by a maintainer, just like any other PR.
+2. Releases are cut from `main` by a CI workflow (when it works), not by a person running `npm publish` from a laptop.
+3. The workflow authenticates to npm through GitHub's OIDC trusted-publisher integration, which means there is no long-lived npm publish token sitting waiting to be stolen.
+4. The publish credential is minted at release time, scoped to that workflow, and expires almost immediately.
 
-That's the safeguard stack. It's the same kind of stack that, on a normal day, makes "steal a maintainer's npm token and publish malware" a non-starter, and most npm supply-chain attacks you've read about in the last two years are some variation of that exact scenario, which is why those defences exist and why we'd invested in them.
+The distinction that there was no publish token to be stolen is important. A large class of npm supply-chain attacks work by stealing a maintainer's publish token, often from their local machine or a compromised dev environment, that are then used to publish malicious versions directly.
 
-This incident happened because the attacker didn't try to defeat any of those safeguards directly. They didn't steal a token, bypass 2FA, forge a signature or sneak code past review. They engineered a path where our pipeline would steal its own token, for them, at the exact moment it was minted, by way of a cache that everyone in the chain implicitly trusted. That's a sophisticated piece of work, and pretending otherwise wouldn't be honest either.
+Our setup was designed specifically to make that path a non-starter. With no long-lived npm publish token sitting on a maintainer machine, an attacker couldn't simply compromise a laptop, steal credentials from a local environment, and publish malicious packages at will. That matters especially in the context of the current wave of malware and infostealer campaigns targeting developer machines and browser-stored secrets.
+
+OIDC-based publishing also gave us tighter control over who could release packages and under what conditions. Releases were tied to specific GitHub workflows running from specific repositories and branches, rather than to a reusable credential that could be copied, shared, or quietly reused elsewhere.
+
+With publishes tied back to workflow runs instead of a token, we also had a much easier time understanding the scope of the attack once we had the first report. It showed us exactly what workflow run triggered the publish, which branch it ran from, and when it ran. That audit trail was a significant advantage during incident response and helped us scope the what had happened much more quickly.
 
 ## The honest part
 
-The workflow pattern that made this possible — [`pull_request_target`](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#pull_request_target) plus a checkout of fork code plus a cache write — has been [documented as a known-bad pattern by GitHub's own security team](https://securitylab.github.com/resources/github-actions-preventing-pwn-requests/) for over three years. We had it in production. We knew about the pattern in the abstract, and never connected it to our own workflows. That's a thing we have to sit with.
+The way we had our workflow structured was inevitably how this was attack was made possible. The attack vector was a workflow that ran on [`pull_request_target`](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#pull_request_target), which is a special event that runs in the context of the base repository instead of the fork. That means the fork, which was renamed to avoid being detected as a fork of the repo, had write access to the cache that our release workflow later read from. While this has been [documented as a known-bad pattern by GitHub's own security team](https://securitylab.github.com/resources/github-actions-preventing-pwn-requests/) for over three years, we still had it in our workflow and it was the root cause of this attack.
 
-There's a version of this post where we lean on the fact that npm provenance, SLSA, OIDC, and 2FA all worked exactly as advertised and still didn't stop this. That's true, and it matters.
+Knowing we had added in production is something we have to sit with now. While there are many things we had in place that worked as intended, not being on top of the fact that this pattern was in our workflow is a failure on our part. We had the information we needed to know that this was a potential problem, but we didn't connect the dots to our own setup.
 
-However, modern supply-chain defences are not enough on their own, and anyone telling you otherwise is selling something. But it's also a deflection. The hole was in our workflow design. We're the ones who left it open. So that's where the changes are going.
+While we can say that the npm provenance, SLSA, OIDC, and 2FA all worked as advertised and still didn't stop this attack, that's not the whole story. The workflow shape itself was the hole, and that's what we're rebuilding now. 
+
+Modern supply-chain defences are important, but they're not always enough on their own. We have to be more proactive about identifying and closing any holes in our workflows that could be exploited, rather than relying solely on the security features of the tools we use.
+
+Knowing that we had a known-bad pattern in our workflow, and it wasn't on our radar, means there was a breakdown in our internal processes and that's where we have to do better. We have to be more proactive about identifying and closing any holes in our workflows that could be exploited, rather than relying solely on the security features of the tools we use.
 
 ## What we've already done
 
 These are the changes that have landed since the incident. They're not the whole plan — they're the things we could do quickly.
 
-- **Removed the cache from our pnpm setup**, temporarily. Caching is coming back, but not in the form that got us into this.
-- **Removed all caches from GitHub Actions** across the affected workflows. Same reasoning. If cache is the attack surface, we'd rather rebuild from scratch than restore from something we can't trust.
-- **Pinned every action in the org to a commit SHA.** No more `actions/checkout@v6.0.2`. No more `pnpm/action-setup@v4.4.0`. A retargeted tag has the same blast radius as cache poisoning, and we'd just lived through cache poisoning, so the lesson was loud.
+- **Disabled the pnpm cache in our release pipeline.** We are still evaluating exactly what role the cache played here, whether it can be safely reintroduced (or if we even want it), and what additional hardening would be required if it is.
+- **Removed all caches from GitHub Actions** across the affected workflows. Same reasoning.
+- **Pinned every action in the org to a commit SHA.** No more `actions/checkout@v6.0.2`. A retargeted tag has the same blast radius as cache poisoning, and we'd just lived through cache poisoning, so we'd rather not open that wound again.
 - **Enforced non-SMS 2FA across npm and GitHub.** 2FA was already required, but SMS was still allowed as a factor. It isn't anymore.
-- **Removed every use of `pull_request_target` from our CI.** It was never in our CD pipeline. It shouldn't have been in CI either. If we need base-repo permissions to react to a PR, we'll do it through `workflow_run` against artefacts from a sandboxed `pull_request` job — the GitHub-recommended pattern for this exact scenario.
+- **Removed every use of `pull_request_target` from our CI.** It was never in our CD pipeline but it shouldn't have been in CI either. If we need base-repo permissions to react to a PR, we'll do it through `workflow_run` against artefacts from a sandboxed `pull_request` job — the GitHub-recommended pattern for this exact scenario.
 - **Upgraded every repo to pnpm 11**, so we inherit the ecosystem install-cooldown behaviour. It's not a fix on its own. It buys us a window.
 
 Most of those are blast-radius reductions rather than root-cause fixes; they shrink what a similar attack could reach, but the workflow shape itself is what we're rebuilding in the next round.
@@ -59,10 +72,9 @@ Most of those are blast-radius reductions rather than root-cause fixes; they shr
 
 Some of the changes we're making take more than a hotfix to land properly, and a few of them are still open questions we're working through together. We're including the unresolved ones because how we're thinking about them feels as relevant as what we've already shipped.
 
-- **Adding [`zizmor`](https://github.com/woodruffw/zizmor) as a required PR check on every repo.** It's a static analyser for GitHub Actions workflows, and if we'd had it running against the workflow this incident exploited, it almost certainly would have flagged the `pull_request_target` + fork-checkout pattern before any of this happened.
+- **Adding [`zizmor`](https://github.com/woodruffw/zizmor) as a required PR check on every repo.** It's a static analyser for GitHub Actions workflows, and there's a chance if we had it running against the workflow this incident exploited, it could have flagged the `pull_request_target` + fork-checkout pattern before any of this happened.
 - **Putting `CODEOWNERS` on `.github` folders**, restricting workflow changes to core maintainers. We're leaning toward "yes" on this one; workflow files are code that runs with our credentials, and that means they should be treated like the most privileged code in the repo, because that's effectively what they are.
-- - **Replacing the pnpm setup cache with `actions/cache/restore`**, which has more conservative defaults: explicit restore, no implicit write-on-exit. The auto-save behaviour of `actions/cache@v5` is what allowed the cache write to happen regardless of our `permissions:` block, and we want that path closed by design instead of by accident.
-- **Isolating the cache between release and PR environments.** Even with the safer restore action in place, we don't want a PR-context job to ever write into a cache namespace that a release-context job will read. Different keys, different scopes, different worlds.
+- **Replacing the pnpm setup cache with `actions/cache/restore`**, which has more conservative defaults: explicit restore, no implicit write-on-exit. The auto-save behaviour of `actions/cache@v5` is what allowed the cache write to happen regardless of our `permissions:` block, and we want that path closed by design instead of by accident.
 
 And then the more difficult thing...
 
@@ -70,11 +82,11 @@ And then the more difficult thing...
 
 This is the change we're least sure about.
 
-We've been talking about closing the ability for external contributors to open pull requests against TanStack repos. Not closing source (to be very clear, we are absolutely not going closed source) but shifting from "PRs welcome from anyone" to something closer to "issues and discussions welcome from anyone, PRs from non-maintainers by invitation." Contributors who want to land code would do it by filing a detailed issue or patch suggestion, or by doing the kind of investigative and review work that earns a path into a committer role over time.
+We've been talking about closing the ability for external contributors to open pull requests against TanStack repos. Not closing source (to be very clear, we are absolutely not going closed source) but shifting from "PRs welcome from anyone" to something closer to "issues and discussions welcome from anyone, PRs from non-maintainers by invitation." Contributors who want to land code might do it by filing a detailed issue or patch suggestion, or by doing the kind of investigative and review work that earns a path into a committer role over time.
 
 We have complicated feelings about this, because open PRs are part of how a lot of us became maintainers in the first place. The path from "user with a fix" to "trusted committer" tends to run straight through opening a PR and having someone review it, and closing that path narrows what it means to participate in the project in ways that aren't only about us. There's also a version of this where it doesn't actually solve the underlying problem; the attack vector wasn't "a malicious PR got merged," it was "a malicious PR ran in CI," and you can keep PRs open and still close the CI side of that hole, which is what most of the changes earlier in this post are doing.
 
-So we haven't decided. The discussion is ongoing, and we're flagging it here because we'd rather you hear that we're thinking about it from us, with the context attached, than read about it sideways somewhere later. If we do go that route, it'll come with its own post about how the new contribution model actually works in practice — because telling people to "send a patch via an issue" without the infrastructure to make that a real path is just a polite way of telling them to go away.
+So with that in mind... we haven't decided. The discussion is ongoing, and we're flagging it here because we'd rather you hear about it from us, with the context attached, than read about it sideways somewhere later. If we do go that route, it'll come with its own post about how the new contribution model actually works in practice since telling people to "send a patch via an issue" without the infrastructure to make that a real path is just a polite way of telling them to go away.
 
 ## What we're taking from this
 

@@ -12,7 +12,7 @@ authors:
 
 This week, fourteen of our packages were quietly republished to npm with malware baked in. None of us authored those releases. None of us approved them. By the time the first report landed in our issue tracker, the malicious versions had already been sitting on the registry for a while.
 
-We've already published [the full incident postmortem](/blog/npm-supply-chain-compromise-postmortem), but if you want the timeline, the attack chain, the exact package list, the IOCs, and the "what to do if you installed a bad version" guidance, that's the source of truth. Read that first.
+We've already published [the full incident postmortem](/blog/npm-supply-chain-compromise-postmortem), and if you want the timeline, the attack chain, the exact package list, the IOCs, and the "what to do if you installed a bad version" guidance, that's the source of truth. Read that first.
 
 This post is the companion piece. The postmortem covered what happened. This one is about what we're changing because of it.
 

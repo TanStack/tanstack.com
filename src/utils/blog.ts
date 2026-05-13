@@ -1,4 +1,5 @@
 import { allPosts, type Post } from 'content-collections'
+import { findLibrary, type LibraryId, type LibrarySlim } from '~/libraries'
 
 const listJoiner = new Intl.ListFormat('en-US', {
   style: 'long',
@@ -48,4 +49,39 @@ export function getPublishedPosts(): Post[] {
   return allPosts
     .filter((post) => !post.draft && isPublishedDateReleased(post.published))
     .sort((a, b) => b.published.localeCompare(a.published))
+}
+
+function isLibrarySlim(
+  library: LibrarySlim | undefined,
+): library is LibrarySlim {
+  return library !== undefined
+}
+
+export function getBlogLibraries(library: string | undefined): LibrarySlim[] {
+  if (!library) {
+    return []
+  }
+
+  return library
+    .split(',')
+    .map((libraryId) => findLibrary(libraryId.trim()))
+    .filter(isLibrarySlim)
+}
+
+export function getPostsForLibrary(libraryId: LibraryId): Post[] {
+  return getPublishedPosts().filter((post) =>
+    getBlogLibraries(post.library).some((lib) => lib.id === libraryId),
+  )
+}
+
+export function getDistinctAuthors(
+  posts: ReadonlyArray<{ authors: string[] }>,
+): string[] {
+  const authors = new Set<string>()
+  for (const post of posts) {
+    for (const author of post.authors) {
+      authors.add(author)
+    }
+  }
+  return [...authors].sort((a, b) => a.localeCompare(b))
 }

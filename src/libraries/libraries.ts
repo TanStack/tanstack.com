@@ -492,7 +492,7 @@ export const store: LibrarySlim = {
   bgRadial: 'from-twine-500 via-twine-700/50 to-transparent',
   badge: 'alpha',
   repo: 'tanstack/store',
-  frameworks: ['react', 'preact', 'solid', 'svelte', 'vue', 'angular'],
+  frameworks: ['react', 'preact', 'solid', 'svelte', 'vue', 'angular', 'lit'],
   latestVersion: 'v0',
   latestBranch: 'main',
   availableVersions: ['v0'],

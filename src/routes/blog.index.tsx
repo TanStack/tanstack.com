@@ -1,49 +1,24 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { Card } from '~/components/Card'
-import {
-  formatAuthors,
-  formatPublishedDate,
-  getPublishedPosts,
-} from '~/utils/blog'
+import * as v from 'valibot'
+import { BlogCard, type BlogCardPost } from '~/components/BlogCard'
+import { BlogAuthorFilter } from '~/components/BlogAuthorFilter'
+import { getDistinctAuthors, getPublishedPosts } from '~/utils/blog'
 
 import { Footer } from '~/components/Footer'
 import { PostNotFound } from './blog'
 import { createServerFn } from '@tanstack/react-start'
 import { setResponseHeaders } from '@tanstack/react-start/server'
 import { RssIcon } from 'lucide-react'
-import { findLibrary, type LibrarySlim } from '~/libraries'
+import { libraries, type LibrarySlim } from '~/libraries'
 import { LibrariesWidget } from '~/components/LibrariesWidget'
+import { Card } from '~/components/Card'
 import { partners } from '~/utils/partners'
 import { PartnersRail, RightRail } from '~/components/RightRail'
 import { RecentPostsWidget } from '~/components/RecentPostsWidget'
-import { getNetlifyImageUrl } from '~/utils/netlifyImage'
 
-type BlogFrontMatter = {
-  slug: string
-  title: string
-  published: string
-  excerpt: string
-  headerImage: string | undefined
-  authors: string[]
-  library: string | undefined
-}
-
-function isLibrarySlim(
-  library: LibrarySlim | undefined,
-): library is LibrarySlim {
-  return library !== undefined
-}
-
-function getBlogLibraries(library: string | undefined) {
-  if (!library) {
-    return []
-  }
-
-  return library
-    .split(',')
-    .map((libraryId) => findLibrary(libraryId.trim()))
-    .filter(isLibrarySlim)
-}
+const searchSchema = v.object({
+  author: v.fallback(v.optional(v.string()), undefined),
+})
 
 const fetchFrontMatters = createServerFn({ method: 'GET' }).handler(
   async () => {
@@ -66,17 +41,12 @@ const fetchFrontMatters = createServerFn({ method: 'GET' }).handler(
         library: post.library,
       }
     })
-
-    // return json(frontMatters, {
-    //   headers: {
-    //     'Cache-Control': 'public, max-age=300, s-maxage=3600',
-    //   },
-    // })
   },
 )
 
 export const Route = createFileRoute('/blog/')({
   staleTime: Infinity,
+  validateSearch: searchSchema,
   loader: () => fetchFrontMatters(),
   notFoundComponent: () => <PostNotFound />,
   component: BlogIndex,
@@ -89,9 +59,29 @@ export const Route = createFileRoute('/blog/')({
   }),
 })
 
+function getLibrariesWithPosts(posts: BlogCardPost[]): LibrarySlim[] {
+  const ids = new Set<string>()
+  for (const post of posts) {
+    if (!post.library) continue
+    for (const id of post.library.split(',')) {
+      ids.add(id.trim())
+    }
+  }
+  return libraries.filter((lib) => ids.has(lib.id))
+}
+
 function BlogIndex() {
-  const frontMatters = Route.useLoaderData() as BlogFrontMatter[]
+  const frontMatters = Route.useLoaderData() as BlogCardPost[]
+  const { author } = Route.useSearch()
+  const navigate = Route.useNavigate()
   const activePartners = partners.filter((d) => d.status === 'active')
+
+  const authors = getDistinctAuthors(frontMatters)
+  const librariesWithPosts = getLibrariesWithPosts(frontMatters)
+
+  const filteredPosts = author
+    ? frontMatters.filter((post) => post.authors.includes(author))
+    : frontMatters
 
   return (
     <div className="flex flex-col max-w-full min-h-screen">
@@ -116,82 +106,71 @@ function BlogIndex() {
                 The latest news and blog posts from TanStack
               </p>
             </header>
-            <section className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4">
-              {frontMatters.map(
-                ({
-                  slug,
-                  title,
-                  published,
-                  excerpt,
-                  headerImage,
-                  authors,
-                  library,
-                }) => {
-                  const blogLibraries = getBlogLibraries(library)
 
-                  return (
-                    <Card
-                      key={slug}
-                      as={Link}
-                      to="/blog/$"
-                      params={{ _splat: slug } as never}
-                      className="relative flex flex-col justify-between overflow-hidden transition-all hover:shadow-sm hover:border-blue-500"
-                    >
-                      {blogLibraries.length ? (
-                        <div className="absolute right-3 top-3 z-10 flex flex-wrap justify-end gap-1">
-                          {blogLibraries.map((library) => (
-                            <div
-                              key={library.id}
-                              className={`rounded-md px-2 py-1 text-xs font-black uppercase shadow-sm ${library.bgStyle} ${library.badgeTextStyle ?? 'text-white'}`}
-                            >
-                              {library.name.replace('TanStack ', '')}
-                            </div>
-                          ))}
-                        </div>
-                      ) : null}
-                      {headerImage ? (
-                        <div className="aspect-video overflow-hidden bg-gray-100 dark:bg-gray-800">
-                          <img
-                            src={getNetlifyImageUrl(headerImage)}
-                            alt=""
-                            loading="lazy"
-                            decoding="async"
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      ) : null}
-                      <div className="p-4 md:p-8 flex flex-col gap-4 flex-1 justify-between">
-                        <div>
-                          <div className="text-lg font-extrabold">{title}</div>
-                          <div className="text-xs italic font-light mt-1">
-                            by {formatAuthors(authors)}
-                            {published ? (
-                              <time
-                                dateTime={published}
-                                title={formatPublishedDate(published)}
-                              >
-                                {' '}
-                                on {formatPublishedDate(published)}
-                              </time>
-                            ) : null}
-                          </div>
-                          {excerpt ? (
-                            <p className="text-sm mt-4 text-gray-600 dark:text-gray-400 leading-7 line-clamp-4">
-                              {excerpt}
-                            </p>
-                          ) : null}
-                        </div>
-                        <div>
-                          <div className="text-blue-500 uppercase font-black text-sm">
-                            Read More
-                          </div>
-                        </div>
-                      </div>
-                    </Card>
-                  )
-                },
-              )}
+            <section className="space-y-6">
+              <div className="flex flex-wrap items-center gap-3">
+                <label
+                  htmlFor="blog-author-filter"
+                  className="text-sm font-medium text-gray-600 dark:text-gray-400"
+                >
+                  Author
+                </label>
+                <div id="blog-author-filter" className="w-64 max-w-full">
+                  <BlogAuthorFilter
+                    authors={authors}
+                    selected={author}
+                    onSelect={(nextAuthor) =>
+                      navigate({
+                        search: () => ({ author: nextAuthor }),
+                        replace: true,
+                      })
+                    }
+                  />
+                </div>
+              </div>
+
+              {librariesWithPosts.length ? (
+                <div>
+                  <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+                    Browse by library
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {librariesWithPosts.map((library) => (
+                      <Link
+                        key={library.id}
+                        to="/$libraryId/$version/docs/blog"
+                        params={{
+                          libraryId: library.id,
+                          version: 'latest',
+                        }}
+                        className={`inline-flex items-center rounded-md px-3 py-1.5 text-xs font-black uppercase shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md ${library.bgStyle} ${library.badgeTextStyle ?? 'text-white'}`}
+                      >
+                        {library.name.replace('TanStack ', '')}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
             </section>
+
+            <section className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4">
+              {filteredPosts.map((post) => (
+                <BlogCard key={post.slug} post={post} />
+              ))}
+            </section>
+
+            {filteredPosts.length === 0 ? (
+              <div className="text-center text-gray-600 dark:text-gray-400 py-8">
+                No posts found
+                {author ? (
+                  <>
+                    {' '}
+                    by <span className="font-medium">{author}</span>
+                  </>
+                ) : null}
+                .
+              </div>
+            ) : null}
           </div>
         </div>
         <RightRail breakpoint="md">

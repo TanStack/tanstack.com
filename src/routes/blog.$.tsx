@@ -12,6 +12,7 @@ import { RecentPostsWidget } from '~/components/RecentPostsWidget'
 
 import { Toc } from '~/components/Toc'
 import { Breadcrumbs } from '~/components/Breadcrumbs'
+import { CoverFallback } from '~/components/CoverFallback'
 import { fetchBlogPost } from '~/utils/blog.functions'
 
 export const Route = createFileRoute('/blog/$')({
@@ -61,7 +62,9 @@ export const Route = createFileRoute('/blog/$')({
 })
 
 function BlogPost() {
-  const { contentRsc, filePath, headings, title } = Route.useLoaderData()
+  const { contentRsc, filePath, headings, title, headerImage } =
+    Route.useLoaderData()
+  const { _splat: slug } = Route.useParams()
 
   const isTocVisible = headings.length > 1
 
@@ -155,6 +158,12 @@ function BlogPost() {
                     ].join(' ')}
                   >
                     <div className="flex overflow-auto flex-col w-full p-2 lg:p-4 xl:p-6 pt-0">
+                      {!headerImage && slug ? (
+                        <CoverFallback
+                          slug={slug}
+                          className="aspect-[5/2] w-full rounded-2xl mb-6"
+                        />
+                      ) : null}
                       <MarkdownContent
                         title={title}
                         contentRsc={contentRsc}

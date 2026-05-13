@@ -438,6 +438,10 @@ const useMenuConfig = ({
         label: 'Home',
         to: '..',
       },
+      {
+        label: 'Blog',
+        to: '/$libraryId/$version/docs/blog',
+      },
       ...(frameworks.length > 1
         ? [
             {

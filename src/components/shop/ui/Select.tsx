@@ -94,12 +94,13 @@ export function ShopSelect({
   }
 
   return (
-    <div className={twMerge('relative', className)} onKeyDown={onKeyDown}>
+    <div className={twMerge('relative', className)}>
       <button
         ref={triggerRef}
         type="button"
         aria-haspopup="listbox"
         aria-expanded={open}
+        onKeyDown={onKeyDown}
         onClick={() => {
           setOpen((o) => !o)
           if (!open) setFocused(value ?? options[0]?.value ?? null)

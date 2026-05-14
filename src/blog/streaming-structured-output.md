@@ -1,7 +1,7 @@
 ---
 title: 'Stop Waiting on JSON: Stream Structured Output with One Schema'
 published: 2026-05-14
-excerpt: "Pass a Zod schema to useChat and get a typed `partial` and `final` for free. No more parsePartialJSON glue, no more onChunk wiring. TanStack AI now streams structured output end-to-end across OpenAI, OpenRouter, Grok, Groq, and Ollama."
+excerpt: 'Pass a Zod schema to useChat and get a typed `partial` and `final` for free. No more parsePartialJSON glue, no more onChunk wiring. TanStack AI now streams structured output end-to-end across OpenAI, OpenRouter, Grok, Groq, and Ollama.'
 library: ai
 authors:
   - Alem Tuzlak
@@ -87,7 +87,7 @@ The headline is the hook, but the work that made it possible touches the whole s
 
 There's a temptation, when designing this kind of API, to invent a separate hook: `useStructuredChat`, `useTypedChat`, something parallel. That would have been a mistake. A schema isn't a different mode of chatting, it's just extra information the hook can use.
 
-By folding `outputSchema` into the existing `useChat`, the upgrade path from "I'm using a chat hook" to "I'm using a chat hook with typed streaming output" is *literally one prop*. Your tool wiring, your approval prompts, your transcript state, everything that was already on `useChat` still works exactly the same way. The new behavior only exists for the keys that depend on the schema.
+By folding `outputSchema` into the existing `useChat`, the upgrade path from "I'm using a chat hook" to "I'm using a chat hook with typed streaming output" is _literally one prop_. Your tool wiring, your approval prompts, your transcript state, everything that was already on `useChat` still works exactly the same way. The new behavior only exists for the keys that depend on the schema.
 
 The cost of "one more hook for a slightly different case" is paid in docs, in user confusion, and in the long tail of `useFooButSometimesBar` hooks people inevitably accumulate. We'd rather not.
 

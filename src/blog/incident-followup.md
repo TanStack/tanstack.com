@@ -12,7 +12,17 @@ authors:
   - Harry Whorlow
 ---
 
-This week, fourteen of our packages were republished to npm with malware baked into the published artifacts. The releases were triggered by our normal release pipeline after changes landed on main, but the malicious code was not authored, reviewed, or approved by us. By the time the first report reached our issue tracker, those compromised versions had already been available on the registry for about 20 minutes.
+> **Status (2026-05-15): All clear ✅**
+>
+> After a three-day full security sweep and hardening pass, we're issuing an official all-clear on TanStack repo and package security.
+>
+> - Only the Router/Start repo was affected — 42 monorepo packages, 2 versions each. All were deprecated within the hour and removed by npm shortly after.
+> - All other TanStack repos and packages were unaffected and remain secure: Query, DB, Store, AI, Table, Form, HotKeys, Virtual, Pacer, Config, Devtools, CLI, Intent, etc.
+> - Every currently-available published version of every TanStack package — Router and Start included — is safe to install.
+
+_Last updated 2026-05-15 — see [Changelog](#changelog)._
+
+This week, 42 of our packages were republished to npm with malware baked into the published artifacts. The releases were triggered by our normal release pipeline after changes landed on main, but the malicious code was not authored, reviewed, or approved by us. By the time the first report reached our issue tracker, those compromised versions had already been available on the registry for about 20 to 26 minutes.
 
 We've already published [the full incident postmortem](/blog/npm-supply-chain-compromise-postmortem), and if you want the timeline, the attack chain, the exact package list, the IOCs, and the "what to do if you installed a bad version" guidance, that's the source of truth. Read that first.
 
@@ -99,3 +109,7 @@ But it's not what we're sitting with right now. What we're sitting with is that 
 To everyone who reported, verified, and helped triage — thank you. The fact that an independent researcher caught the dead-man's switch in the payload and warned responders before anyone started revoking tokens is the single reason this incident isn't significantly worse (even though it _is_ bad). That kind of work doesn't tend to make the headline, but it makes the difference, and we noticed.
 
 We'll do better.
+
+## Changelog
+
+- **2026-05-15** — Corrected the package count from "fourteen" (the scope in the initial third-party report) to 42 (the full scope identified by our subsequent scan). Refined the registry-exposure window from "about 20 minutes" to "20 to 26 minutes" using verified publish and report timestamps. Added an All-clear status banner.

@@ -2,20 +2,23 @@
  * Lightweight smoke tests using fetch - no browser required
  * Verifies pages return 200 and contain expected content
  *
- * Prerequisites:
- * - Dev server running on :3000 (or will start one)
- * - Library repos cloned as siblings (query, router, table, etc.)
- *   Dev mode reads docs from local filesystem: ../../../../{repo}
+ * Two clocks:
+ * - Local tests (home, blog, ethos, OG images) hit the dev server on :3000 to
+ *   validate the commit about to land.
+ * - Prod tests (library docs routes) hit https://tanstack.com to sanity-check
+ *   routes that depend on sibling repo clones locally — those are too flaky
+ *   to test against the dev server, but worth keeping eyes on in production.
  *
- * Skipped in CI because:
- * - No standalone production server (Netlify serverless deployment)
- * - Library repos not available as siblings
+ * Skipped in CI because there is no standalone production server (Netlify
+ * serverless deployment) and we don't want pre-commit-style network probes
+ * running on every PR.
  */
 
 import { spawn, type ChildProcess } from 'child_process'
 import { createServer } from 'net'
 
 const DEFAULT_URL = 'http://localhost:3000'
+const PROD_URL = 'https://tanstack.com'
 
 // Skip in CI - this app deploys to Netlify serverless, no standalone server
 if (process.env.CI === 'true') {
@@ -27,6 +30,7 @@ type TestCase = {
   name: string
   path: string
   expectedContent: string[]
+  baseUrl?: string
 }
 
 type ImageTestCase = {
@@ -42,19 +46,37 @@ const tests: TestCase[] = [
     expectedContent: ['TanStack', '<html', '</html>'],
   },
   {
-    name: 'query docs',
+    name: 'blog index',
+    path: '/blog',
+    expectedContent: ['<html', '</html>', 'Blog'],
+  },
+  {
+    name: 'blog post',
+    path: '/blog/npm-supply-chain-compromise-postmortem',
+    expectedContent: ['<html', '</html>', 'Postmortem'],
+  },
+  {
+    name: 'ethos page',
+    path: '/ethos',
+    expectedContent: ['<html', '</html>', 'Ethos'],
+  },
+  {
+    name: 'query docs (prod)',
     path: '/query/latest/docs/framework/react/overview',
     expectedContent: ['<html', '</html>', '<h1'],
+    baseUrl: PROD_URL,
   },
   {
-    name: 'router docs',
+    name: 'router docs (prod)',
     path: '/router/latest/docs/framework/react/overview',
     expectedContent: ['<html', '</html>', '<h1'],
+    baseUrl: PROD_URL,
   },
   {
-    name: 'table docs',
+    name: 'table docs (prod)',
     path: '/table/latest/docs/introduction',
     expectedContent: ['<html', '</html>', '<h1'],
+    baseUrl: PROD_URL,
   },
 ]
 
@@ -177,7 +199,7 @@ async function main() {
   let htmlFailed = 0
 
   for (const test of tests) {
-    const result = await runTest(baseUrl, test)
+    const result = await runTest(test.baseUrl ?? baseUrl, test)
     if (result.pass) {
       console.log(`  ✓ ${test.name}`)
       htmlPassed++

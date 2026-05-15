@@ -128,12 +128,6 @@ function isFresh(staleAt: Date) {
   return staleAt.getTime() > Date.now()
 }
 
-function queueRefresh(key: string, fn: () => Promise<unknown>) {
-  void withPendingRefresh(key, fn).catch((error) => {
-    console.error(`[GitHub Cache] Failed to refresh ${key}:`, error)
-  })
-}
-
 function readStoredTextValue(row: GithubContentCache | undefined) {
   if (!row) {
     return undefined
@@ -254,19 +248,8 @@ async function getCachedGitHubContent<T>(opts: {
   const cachedRow = await readRow()
   const storedValue = opts.readStoredValue(cachedRow)
 
-  if (storedValue !== undefined) {
-    if (cachedRow && isFresh(cachedRow.staleAt)) {
-      return storedValue
-    }
-
-    if (storedValue !== null) {
-      queueRefresh(opts.cacheKey, async () => {
-        const value = await opts.origin()
-        await persist(value)
-      })
-
-      return storedValue
-    }
+  if (storedValue !== undefined && cachedRow && isFresh(cachedRow.staleAt)) {
+    return storedValue
   }
 
   return withPendingRefresh(opts.cacheKey, async () => {
@@ -389,16 +372,7 @@ export async function getCachedDocsArtifact<T>(opts: {
   const storedValue =
     cachedRow && opts.isValue(cachedRow.payload) ? cachedRow.payload : undefined
 
-  if (storedValue !== undefined) {
-    if (cachedRow && isFresh(cachedRow.staleAt)) {
-      return storedValue
-    }
-
-    queueRefresh(cacheKey, async () => {
-      const payload = await opts.build()
-      await upsertDocsArtifact({ ...opts, payload })
-    })
-
+  if (storedValue !== undefined && cachedRow && isFresh(cachedRow.staleAt)) {
     return storedValue
   }
 
@@ -522,6 +496,27 @@ export async function markGitHubContentStale(
   }
 
   return rowCount
+}
+
+export async function pruneOldCacheEntries(olderThanMs: number) {
+  const threshold = new Date(Date.now() - olderThanMs)
+
+  const [contentDeleted, artifactDeleted] = await Promise.all([
+    db
+      .delete(githubContentCache)
+      .where(lt(githubContentCache.updatedAt, threshold))
+      .returning({ repo: githubContentCache.repo }),
+    db
+      .delete(docsArtifactCache)
+      .where(lt(docsArtifactCache.updatedAt, threshold))
+      .returning({ repo: docsArtifactCache.repo }),
+  ])
+
+  return {
+    contentDeleted: contentDeleted.length,
+    artifactDeleted: artifactDeleted.length,
+    threshold,
+  }
 }
 
 export async function markDocsArtifactsStale(

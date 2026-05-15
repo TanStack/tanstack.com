@@ -381,8 +381,8 @@ function RailwayPartnerPage() {
           </p>
 
           <p className="mt-3 max-w-xl text-sm italic leading-relaxed text-gray-500 dark:text-gray-400">
-            "Services that took 1 week to configure elsewhere take 1 day to
-            spin up in Railway." — Daniel Lobaton, CTO at G2X
+            "Services that took 1 week to configure elsewhere take 1 day to spin
+            up in Railway." — Daniel Lobaton, CTO at G2X
           </p>
 
           <div className="mt-7 flex flex-wrap gap-3">
@@ -398,12 +398,7 @@ function RailwayPartnerPage() {
               Start deploying free
               <ArrowUpRight className="h-4 w-4" />
             </Button>
-            <Button
-              as="a"
-              href="#how-it-works"
-              variant="ghost"
-              size="lg"
-            >
+            <Button as="a" href="#how-it-works" variant="ghost" size="lg">
               See how it works
             </Button>
           </div>
@@ -547,8 +542,7 @@ function RailwayPartnerPage() {
                 key={plan}
                 className={twMerge(
                   'relative p-5 shadow-none',
-                  highlight &&
-                    'border-2 border-blue-500 dark:border-blue-400',
+                  highlight && 'border-2 border-blue-500 dark:border-blue-400',
                 )}
               >
                 {highlight ? (

@@ -20,7 +20,7 @@ type ButtonRounded = 'none' | 'md' | 'lg' | 'full'
 
 type ButtonOwnProps<TElement extends React.ElementType = 'button'> = {
   as?: TElement
-  children: React.ReactNode
+  children?: React.ReactNode
   variant?: ButtonVariant
   color?: ButtonColor
   size?: ButtonSize
@@ -35,8 +35,11 @@ type ButtonProps<TElement extends React.ElementType = 'button'> =
       keyof ButtonOwnProps<TElement>
     >
 
+type ButtonRef<TElement extends React.ElementType> =
+  React.ComponentPropsWithRef<TElement>['ref']
+
 type ButtonComponent = <TElement extends React.ElementType = 'button'>(
-  props: ButtonProps<TElement>,
+  props: ButtonProps<TElement> & { ref?: ButtonRef<TElement> },
 ) => React.ReactNode
 
 const primaryColorStyles: Record<ButtonColor, string> = {
@@ -102,16 +105,19 @@ function getDefaultRounded(size: ButtonSize): ButtonRounded {
   return 'lg'
 }
 
-export const Button: ButtonComponent = ({
-  as,
-  children,
-  variant = 'primary',
-  color = 'blue',
-  size,
-  rounded,
-  className,
-  ...props
-}) => {
+function ButtonInner<TElement extends React.ElementType = 'button'>(
+  {
+    as,
+    children,
+    variant = 'primary',
+    color = 'blue',
+    size,
+    rounded,
+    className,
+    ...props
+  }: ButtonProps<TElement>,
+  ref: ButtonRef<TElement>,
+) {
   const Component = as || 'button'
   const resolvedSize = size ?? getDefaultSize(variant)
   const resolvedRounded = rounded ?? getDefaultRounded(resolvedSize)
@@ -126,6 +132,7 @@ export const Button: ButtonComponent = ({
   return React.createElement(
     Component,
     {
+      ref,
       className: twMerge(
         baseStyles,
         variantStyles[variant],
@@ -139,3 +146,7 @@ export const Button: ButtonComponent = ({
     children,
   )
 }
+
+export const Button = React.forwardRef(
+  ButtonInner as React.ForwardRefRenderFunction<unknown, ButtonProps>,
+) as unknown as ButtonComponent

@@ -11,17 +11,17 @@ authors:
 
 Half the protocol was already there.
 
-For a while now, TanStack AI servers have emitted [AG-UI](https://ag-ui.com) events on the wire going out. The streaming side of the conversation (`RUN_STARTED`, tool-call events, run finish, errors) was already a compliant AG-UI event stream. The piece that was still proprietary was the _other_ direction: the request body going from client to server. The TanStack client POSTed `{ messages, data }`, not AG-UI's `RunAgentInput`.
+For a while now, endpoints built with `@tanstack/ai` have emitted [AG-UI](https://ag-ui.com) events on the wire going out. The streaming side of the conversation (`RUN_STARTED`, tool-call events, run finish, errors) was already a compliant AG-UI event stream. The piece that was still proprietary was the _other_ direction: the request body going from client to server. The TanStack client POSTed `{ messages, data }`, not AG-UI's `RunAgentInput`.
 
 That last half is what this release fixes. **TanStack AI is now fully AG-UI compliant in both directions.** Server-to-client events were AG-UI before. Client-to-server requests are AG-UI now. The round trip is done.
 
-The same `@tanstack/ai-client` can hit any AG-UI server. Any AG-UI client can hit a TanStack server. And nothing about your existing code breaks.
+The same `@tanstack/ai-client` can hit any AG-UI server. Any AG-UI client can hit an endpoint built with `@tanstack/ai`, wherever you host it (TanStack Start, Next.js, Hono, raw Node, Bun, anywhere). And nothing about your existing code breaks.
 
 ## Why this matters
 
 AG-UI is an open protocol for agent-to-frontend communication. It defines a single wire format, `RunAgentInput`, that carries the conversation, the tools, the thread and run IDs, and arbitrary forwarded properties. Servers that speak AG-UI can be addressed by any compliant client. Clients that emit AG-UI can talk to any compliant server.
 
-With server-to-client AG-UI already in place, a TanStack server could _stream_ to a compliant client. But the client-to-server side was a one-way mirror: only the TanStack client could _send_ requests the TanStack server understood. The asymmetry meant true cross-vendor interop was still gated on rewriting your request layer.
+With server-to-client AG-UI already in place, a `@tanstack/ai` endpoint could _stream_ to a compliant client. But the client-to-server side was a one-way mirror: only the TanStack client could _send_ requests that endpoint understood. The asymmetry meant true cross-vendor interop was still gated on rewriting your request layer.
 
 Closing that gap is what this release does. The whole ecosystem (CopilotKit, CrewAI, LangGraph adapters, and now TanStack AI) gets to share the same plumbing in both directions.
 
@@ -126,13 +126,13 @@ This is the part most "wire format change" releases get wrong. The upgrade ships
 | Server wire field      | `body.data.X` (mirror of forwardedProps) | `body.forwardedProps.X`   |
 | Server `chat()` option | `conversationId`                         | `threadId`                |
 
-A TanStack server reading `body.data.provider` keeps reading `body.data.provider` because the client emits both `data` and `forwardedProps` with the same content. A `chat({ conversationId })` call keeps working because `conversationId` is now a deprecated alias of `threadId`. Mix old and new freely. The bridges will be removed in the next major release, so migrate at your convenience.
+An existing endpoint reading `body.data.provider` keeps reading `body.data.provider` because the client emits both `data` and `forwardedProps` with the same content. A `chat({ conversationId })` call keeps working because `conversationId` is now a deprecated alias of `threadId`. Mix old and new freely. The bridges will be removed in the next major release, so migrate at your convenience.
 
 ## Bidirectional interop in practice
 
 With both halves of the protocol compliant, the boundaries between AI SDKs get a lot blurrier.
 
-**A pure AG-UI client (no TanStack code) hitting a TanStack server** works end-to-end. Tool messages pass through as `ModelMessage` entries with `role: 'tool'`. AG-UI `reasoning` and `activity` messages with no TanStack equivalent are dropped at the boundary. `developer` messages collapse to `system` role. The outbound event stream was already AG-UI, so the foreign client renders it natively.
+**A pure AG-UI client (no TanStack code) hitting a `@tanstack/ai` endpoint** works end-to-end. Tool messages pass through as `ModelMessage` entries with `role: 'tool'`. AG-UI `reasoning` and `activity` messages with no TanStack equivalent are dropped at the boundary. `developer` messages collapse to `system` role. The outbound event stream was already AG-UI, so the foreign client renders it natively.
 
 **A TanStack client hitting a foreign AG-UI server** works for the common cases. Single-turn user messages mirror to AG-UI's `content` field. Server-emitted events stream and render. Multi-turn history with tool results from prior turns survives because the client sends AG-UI fan-out duplicates alongside the TanStack anchor messages.
 

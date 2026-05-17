@@ -204,6 +204,7 @@ type IntentId =
   | 'api'
   | 'content'
   | 'dashboard'
+  | 'ecommerce'
   | 'fallback'
   | 'migration'
   | 'realtime'
@@ -236,6 +237,11 @@ const sharedHomeAndBuilderPrompts: Array<ContextSuggestion> = [
     label: 'SaaS dashboard',
     input:
       'Build a SaaS dashboard app with auth, billing-ready structure, Postgres, nested routes, data tables, filters, forms, monitoring, and charts-ready data fetching.',
+  },
+  {
+    label: 'Build a shop',
+    input:
+      'Build a Shopify-backed storefront with product catalog, shopping cart, customer accounts, and checkout.',
   },
 ]
 
@@ -466,7 +472,27 @@ const scorerGroups: Record<Exclude<IntentId, 'fallback'>, Array<RegExp>> = {
     /\bmultiplayer\b/i,
     /\bpresence\b/i,
   ],
+  ecommerce: [
+    /\bshopify\b/i,
+    /\bstorefront\b/i,
+    /\be[- ]?commerce\b/i,
+    /\bonline store\b/i,
+    /\bproduct catalog\b/i,
+    /\bsell(?:ing)? products?\b/i,
+    /\bcheckout\b/i,
+    /\bshopping cart\b/i,
+    /\bmerch(?:andise)?\b/i,
+  ],
 }
+
+const ecommerceCustomerAccountPatterns = [
+  /\bcustomer accounts?\b/i,
+  /\bcustomer login\b/i,
+  /\border history\b/i,
+  /\bsign[- ]?in\b/i,
+  /\blogin\b/i,
+  /\baddresses\b/i,
+]
 
 const migrationSources = [
   'astro',
@@ -662,6 +688,15 @@ function buildRecipe(
     case 'realtime': {
       recipe.template = 'realtime'
       addStarterFeatures(recipe, 'convex', 'tanstack-query')
+      break
+    }
+    case 'ecommerce': {
+      recipe.template = 'shopify-storefront'
+      if (
+        ecommerceCustomerAccountPatterns.some((pattern) => pattern.test(input))
+      ) {
+        recipe.featureOptions.shopify = { customerAccount: 'enabled' }
+      }
       break
     }
     case 'fallback': {
@@ -1187,6 +1222,26 @@ export function buildAdvancedBuilderUrl(recipe: ApplicationStarterRecipe) {
   return `/builder?${params.toString()}`
 }
 
+const CLI_TEMPLATE_IDS = new Set<string>(['shopify-storefront'])
+
+export function isCliTemplateId(value: string | undefined): boolean {
+  return value !== undefined && CLI_TEMPLATE_IDS.has(value)
+}
+
+function shellQuoteSingle(value: string): string {
+  return `'${value.replace(/'/g, `'\\''`)}'`
+}
+
+function buildAddOnConfigArg(
+  featureOptions: ApplicationStarterRecipe['featureOptions'],
+): string | null {
+  const entries = Object.entries(featureOptions).filter(
+    ([, options]) => options && Object.keys(options).length > 0,
+  )
+  if (entries.length === 0) return null
+  return shellQuoteSingle(JSON.stringify(Object.fromEntries(entries)))
+}
+
 export function buildCliCommand(recipe: ApplicationStarterRecipe) {
   const commandParts = ['npx', '@tanstack/cli@latest', 'create']
   commandParts.push(recipe.projectName || DEFAULT_PROJECT_NAME)
@@ -1212,8 +1267,17 @@ export function buildCliCommand(recipe: ApplicationStarterRecipe) {
     commandParts.push('--toolchain', recipe.toolchain)
   }
 
+  if (isCliTemplateId(recipe.template)) {
+    commandParts.push('--template', recipe.template!)
+  }
+
   if (recipe.features.length > 0) {
     commandParts.push('--add-ons', recipe.features.join(','))
+  }
+
+  const addOnConfig = buildAddOnConfigArg(recipe.featureOptions)
+  if (addOnConfig) {
+    commandParts.push('--add-on-config', addOnConfig)
   }
 
   return commandParts.join(' ')

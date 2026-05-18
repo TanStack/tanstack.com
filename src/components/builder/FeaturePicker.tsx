@@ -40,6 +40,7 @@ type FeatureCategory =
   | 'api'
   | 'i18n'
   | 'cms'
+  | 'ecommerce'
   | 'other'
 
 // Build a map of partner scores by partnerId
@@ -86,6 +87,11 @@ const CATEGORY_INFO: Record<
     description: 'Content management systems',
     color: '#10B981', // Emerald
   },
+  ecommerce: {
+    label: 'Ecommerce',
+    description: 'Storefronts, checkout, and product catalogs',
+    color: '#5A31F4', // Shopify purple
+  },
   tooling: {
     label: 'Tooling',
     description: 'Development tools, linting, and utilities',
@@ -118,6 +124,7 @@ const CATEGORY_ORDER: Array<FeatureCategory> = [
   'api',
   'i18n',
   'cms',
+  'ecommerce',
   'tooling',
   'other',
 ]

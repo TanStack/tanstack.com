@@ -102,7 +102,7 @@ const steps: Array<{ num: string; title: string; code: string }> = [
   {
     num: '01',
     title: 'Create your TanStack app',
-    code: 'npx create-tsrouter-app my-app',
+    code: 'npx @tanstack/cli@latest create',
   },
   { num: '02', title: 'Add the Railway preset', code: "preset: 'railway'" },
   { num: '03', title: 'Deploy', code: 'railway up' },

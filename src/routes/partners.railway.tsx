@@ -1,6 +1,19 @@
 import * as React from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { ArrowUpRight, Check, Plus } from 'lucide-react'
+import {
+  ArrowUpRight,
+  Check,
+  DollarSign,
+  GitPullRequest,
+  Globe,
+  Infinity as InfinityIcon,
+  LineChart,
+  Network,
+  Plus,
+  Rocket,
+  ShieldCheck,
+  Undo2,
+} from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { Footer } from '~/components/Footer'
 import { Card } from '~/components/Card'
@@ -22,6 +35,8 @@ const RAILWAY_DOCS_HREF =
   'https://docs.railway.com/?utm_medium=sponsor&utm_source=tanstack&utm_campaign=partner-page'
 const RAILWAY_HOME_HREF =
   'https://railway.com/?utm_medium=sponsor&utm_source=tanstack&utm_campaign=partner-page'
+const RAILWAY_PRICING_HREF =
+  'https://railway.com/pricing?utm_medium=sponsor&utm_source=tanstack&utm_campaign=partner-page'
 
 const CONFIG_SNIPPET = `import { defineConfig } from '@tanstack/start/config'
 
@@ -38,46 +53,48 @@ railway login
 railway up
 `
 
-const features: Array<{ icon: string; title: string; desc: string }> = [
+type FeatureIcon = React.ComponentType<{ className?: string }>
+
+const features: Array<{ Icon: FeatureIcon; title: string; desc: string }> = [
   {
-    icon: '🚀',
+    Icon: Rocket,
     title: 'Auto-detected config',
-    desc: 'Railway reads your TanStack code and sets the right build and run settings automatically. No YAML required.',
+    desc: 'Railway reads your TanStack code and picks the right build and run settings. No YAML to maintain.',
   },
   {
-    icon: '🔍',
-    title: 'PR preview environments',
-    desc: 'Every pull request gets its own live preview environment automatically. No surprises after merging.',
+    Icon: GitPullRequest,
+    title: 'Live PR previews',
+    desc: 'Every pull request spins up its own environment. Test routing, data, and server logic before merging.',
   },
   {
-    icon: '📊',
-    title: 'Logs, metrics & alerts',
-    desc: 'Full observability from day one. Custom alerts via Slack, Discord, or email. No third-party tools needed.',
+    Icon: LineChart,
+    title: 'Logs, metrics, and alerts',
+    desc: 'Observability is built in. Pipe custom alerts to Slack, Discord, or email without a third-party agent.',
   },
   {
-    icon: '🔗',
+    Icon: Network,
     title: '100 Gbps private networking',
-    desc: 'Services connect over private IPs at 100 Gbps. HTTP, TCP, gRPC, and WebSockets handled automatically.',
+    desc: 'Services in a project talk over private IPs at 100 Gbps. HTTP, TCP, gRPC, and WebSockets handled for you.',
   },
   {
-    icon: '⚡',
+    Icon: Undo2,
     title: 'One-click rollbacks',
-    desc: 'Every deploy is versioned. Roll back to any previous deployment instantly when something breaks.',
+    desc: 'Every deploy is versioned. Roll back to a previous deployment instantly when something breaks.',
   },
   {
-    icon: '💰',
+    Icon: ShieldCheck,
     title: 'Hard spending limits',
-    desc: 'The only cloud provider that lets you set hard spend caps. No surprise bills — ever. Pay by the second.',
+    desc: 'Set a hard cap on what a project can spend. Billing is per-second, so you only pay for actual compute.',
   },
   {
-    icon: '🌍',
+    Icon: Globe,
     title: 'Global regions',
-    desc: 'Run your TanStack app closer to your users. Deploy to concurrent global regions on Pro and above.',
+    desc: 'Run your app close to your users. Pro and above can deploy to multiple regions concurrently.',
   },
   {
-    icon: '♾️',
+    Icon: InfinityIcon,
     title: 'Unlimited environments',
-    desc: 'Every developer on your team ships simultaneously. Unlimited environments, no conflicts.',
+    desc: 'Spin up as many staging, preview, or branch environments as your team needs. No per-env fees.',
   },
 ]
 
@@ -235,7 +252,7 @@ const faqs: Array<{ q: string; a: string }> = [
 
 const PAGE_TITLE = 'Deploy TanStack to Railway — Official Gold Partner'
 const PAGE_DESCRIPTION =
-  'Deploy TanStack Start, Router, Query, and DB apps to Railway in minutes. One-line Railway preset, PR preview environments, managed databases, 100 Gbps private networking, and hard spending limits. Railway is a TanStack Gold sponsor.'
+  'Railway gives TanStack teams a single place to run app services, databases, and supporting infrastructure. One-line Railway preset for TanStack Start, live PR previews, 100 Gbps private networking, and hard spending limits. Pay per second for the compute you actually use.'
 
 function getFaqJsonLd() {
   return {
@@ -374,15 +391,15 @@ function RailwayPartnerPage() {
           </h1>
 
           <p className="mt-5 max-w-xl text-base leading-relaxed text-gray-600 dark:text-gray-300 md:text-lg">
-            Railway is the all-in-one intelligent cloud platform trusted by 2M+
-            developers. Deploy your TanStack Start, Router, and Query apps with
-            zero infrastructure complexity — and pay only for what you actually
-            use.
+            Railway gives TanStack teams a single place to run app services,
+            databases, and supporting infrastructure. Deploy a TanStack Start
+            app from GitHub or the CLI — and only pay per-second for the
+            compute you actually use.
           </p>
 
           <p className="mt-3 max-w-xl text-sm italic leading-relaxed text-gray-500 dark:text-gray-400">
-            "Services that took 1 week to configure elsewhere take 1 day to spin
-            up in Railway." — Daniel Lobaton, CTO at G2X
+            "Services that took 1 week to configure elsewhere take 1 day to
+            spin up in Railway." — Daniel Lobaton, CTO at G2X
           </p>
 
           <div className="mt-7 flex flex-wrap gap-3">
@@ -395,13 +412,16 @@ function RailwayPartnerPage() {
               size="lg"
               className="bg-gray-950 text-white border-gray-950 hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:border-white dark:hover:bg-gray-200"
             >
-              Start deploying free
+              Deploy free in 2 minutes
               <ArrowUpRight className="h-4 w-4" />
             </Button>
             <Button as="a" href="#how-it-works" variant="ghost" size="lg">
               See how it works
             </Button>
           </div>
+          <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+            No credit card required. $5 in trial credits on signup.
+          </p>
         </section>
 
         {/* Stats */}
@@ -431,9 +451,9 @@ function RailwayPartnerPage() {
             faster. Here's what makes it the right fit for TanStack developers.
           </p>
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
-            {features.map(({ icon, title, desc }) => (
+            {features.map(({ Icon, title, desc }) => (
               <Card key={title} className="p-5 shadow-none">
-                <div className="mb-2 text-xl">{icon}</div>
+                <Icon className="mb-3 h-5 w-5 text-gray-500 dark:text-gray-400" />
                 <div className="text-sm font-semibold">{title}</div>
                 <p className="mt-1 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
                   {desc}
@@ -486,6 +506,30 @@ function RailwayPartnerPage() {
               lang="bash"
               title="terminal"
             />
+          </div>
+
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <Button
+              as="a"
+              href={RAILWAY_HREF}
+              target="_blank"
+              rel="noreferrer"
+              onClick={trackRailwayClick}
+              className="bg-gray-950 text-white border-gray-950 hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:border-white dark:hover:bg-gray-200"
+            >
+              Try the Railway preset
+              <ArrowUpRight className="h-4 w-4" />
+            </Button>
+            <Button
+              as="a"
+              href={RAILWAY_DOCS_HREF}
+              target="_blank"
+              rel="noreferrer"
+              onClick={trackRailwayClick}
+              variant="ghost"
+            >
+              Read the deployment guide
+            </Button>
           </div>
         </section>
 
@@ -587,13 +631,41 @@ function RailwayPartnerPage() {
               </div>
             ))}
           </div>
+
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <Button
+              as="a"
+              href={RAILWAY_HREF}
+              target="_blank"
+              rel="noreferrer"
+              onClick={trackRailwayClick}
+              className="bg-gray-950 text-white border-gray-950 hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:border-white dark:hover:bg-gray-200"
+            >
+              Start with $5 in credits
+              <ArrowUpRight className="h-4 w-4" />
+            </Button>
+            <Button
+              as="a"
+              href={RAILWAY_PRICING_HREF}
+              target="_blank"
+              rel="noreferrer"
+              onClick={trackRailwayClick}
+              variant="ghost"
+            >
+              Estimate your costs
+            </Button>
+          </div>
         </section>
 
         {/* Testimonials */}
         <section className="border-t border-gray-200 py-10 dark:border-gray-800">
           <h2 className="text-2xl font-black tracking-tight md:text-3xl">
-            Teams are saving big on infrastructure
+            What teams say after switching
           </h2>
+          <p className="mt-2 max-w-xl text-sm leading-relaxed text-gray-600 dark:text-gray-300 md:text-base">
+            Real teams, real bills. These are quotes from founders and
+            engineers who moved their production workloads onto Railway.
+          </p>
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
             {testimonials.map(({ quote, author, role }) => (
               <Card key={author} as="figure" className="p-5 shadow-none">
@@ -608,6 +680,24 @@ function RailwayPartnerPage() {
                 </figcaption>
               </Card>
             ))}
+          </div>
+
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <Button
+              as="a"
+              href={RAILWAY_HREF}
+              target="_blank"
+              rel="noreferrer"
+              onClick={trackRailwayClick}
+              className="bg-gray-950 text-white border-gray-950 hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:border-white dark:hover:bg-gray-200"
+            >
+              Move your app to Railway
+              <ArrowUpRight className="h-4 w-4" />
+            </Button>
+            <span className="inline-flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+              <DollarSign className="h-3.5 w-3.5" />
+              Per-second billing · no credit card required
+            </span>
           </div>
         </section>
 
@@ -678,7 +768,7 @@ function RailwayPartnerPage() {
               size="lg"
               className="bg-white text-gray-950 border-white hover:bg-gray-100"
             >
-              Start deploying free
+              Deploy your TanStack app
               <ArrowUpRight className="h-4 w-4" />
             </Button>
             <Button
@@ -690,7 +780,7 @@ function RailwayPartnerPage() {
               size="lg"
               className="bg-transparent text-white border-gray-700 hover:bg-white/5"
             >
-              Read the deployment guide
+              Open the docs
             </Button>
           </div>
         </section>

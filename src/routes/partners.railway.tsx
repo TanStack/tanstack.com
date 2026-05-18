@@ -393,13 +393,13 @@ function RailwayPartnerPage() {
           <p className="mt-5 max-w-xl text-base leading-relaxed text-gray-600 dark:text-gray-300 md:text-lg">
             Railway gives TanStack teams a single place to run app services,
             databases, and supporting infrastructure. Deploy a TanStack Start
-            app from GitHub or the CLI — and only pay per-second for the
-            compute you actually use.
+            app from GitHub or the CLI — and only pay per-second for the compute
+            you actually use.
           </p>
 
           <p className="mt-3 max-w-xl text-sm italic leading-relaxed text-gray-500 dark:text-gray-400">
-            "Services that took 1 week to configure elsewhere take 1 day to
-            spin up in Railway." — Daniel Lobaton, CTO at G2X
+            "Services that took 1 week to configure elsewhere take 1 day to spin
+            up in Railway." — Daniel Lobaton, CTO at G2X
           </p>
 
           <div className="mt-7 flex flex-wrap gap-3">
@@ -663,8 +663,8 @@ function RailwayPartnerPage() {
             What teams say after switching
           </h2>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-gray-600 dark:text-gray-300 md:text-base">
-            Real teams, real bills. These are quotes from founders and
-            engineers who moved their production workloads onto Railway.
+            Real teams, real bills. These are quotes from founders and engineers
+            who moved their production workloads onto Railway.
           </p>
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
             {testimonials.map(({ quote, author, role }) => (

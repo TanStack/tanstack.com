@@ -30,10 +30,7 @@ type ButtonOwnProps<TElement extends React.ElementType = 'button'> = {
 
 type ButtonProps<TElement extends React.ElementType = 'button'> =
   ButtonOwnProps<TElement> &
-    Omit<
-      React.ComponentPropsWithoutRef<TElement>,
-      keyof ButtonOwnProps<TElement>
-    >
+    Omit<React.ComponentPropsWithRef<TElement>, keyof ButtonOwnProps<TElement>>
 
 type ButtonComponent = <TElement extends React.ElementType = 'button'>(
   props: ButtonProps<TElement>,
@@ -102,16 +99,22 @@ function getDefaultRounded(size: ButtonSize): ButtonRounded {
   return 'lg'
 }
 
-export const Button: ButtonComponent = ({
-  as,
-  children,
-  variant = 'primary',
-  color = 'blue',
-  size,
-  rounded,
-  className,
-  ...props
-}) => {
+type ButtonInnerProps = ButtonOwnProps & Record<string, unknown>
+
+export const Button: ButtonComponent = React.forwardRef<
+  HTMLElement,
+  ButtonInnerProps
+>(function Button(props, ref) {
+  const {
+    as,
+    children,
+    variant = 'primary',
+    color = 'blue',
+    size,
+    rounded,
+    className,
+    ...rest
+  } = props as ButtonOwnProps & Record<string, unknown>
   const Component = as || 'button'
   const resolvedSize = size ?? getDefaultSize(variant)
   const resolvedRounded = rounded ?? getDefaultRounded(resolvedSize)
@@ -126,6 +129,7 @@ export const Button: ButtonComponent = ({
   return React.createElement(
     Component,
     {
+      ref,
       className: twMerge(
         baseStyles,
         variantStyles[variant],
@@ -134,8 +138,8 @@ export const Button: ButtonComponent = ({
         colorStyles,
         className,
       ),
-      ...props,
+      ...rest,
     },
     children,
   )
-}
+}) as unknown as ButtonComponent

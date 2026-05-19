@@ -8,6 +8,10 @@ import {
 } from '~/queries/showcases'
 
 export const Route = createFileRoute('/showcase/$id')({
+  staticData: {
+    // Editorial top-nav surface; suppress the global left rail.
+    showNavbar: false,
+  },
   params: {
     parse: (params) => ({
       id: v.parse(v.pipe(v.string(), v.uuid()), params.id),

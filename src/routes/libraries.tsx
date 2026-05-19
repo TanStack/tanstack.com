@@ -11,6 +11,10 @@ import {
 } from './-libraries-utils'
 
 export const Route = createFileRoute('/libraries')({
+  staticData: {
+    // Editorial top-nav surface; suppress the global left rail.
+    showNavbar: false,
+  },
   component: LibrariesPage,
   head: () => ({
     meta: [

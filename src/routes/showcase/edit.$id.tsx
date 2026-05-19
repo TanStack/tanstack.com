@@ -5,6 +5,10 @@ import { requireAuth } from '~/utils/auth.functions'
 import { getShowcase } from '~/utils/showcase.functions'
 
 export const Route = createFileRoute('/showcase/edit/$id')({
+  staticData: {
+    // Editorial top-nav surface; suppress the global left rail.
+    showNavbar: false,
+  },
   beforeLoad: async ({ params }) => {
     try {
       const user = await requireAuth()

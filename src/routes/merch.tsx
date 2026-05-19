@@ -7,6 +7,10 @@ import { twMerge } from 'tailwind-merge'
 import { BaseballCapIcon } from '~/components/icons/BaseballCapIcon'
 
 export const Route = createFileRoute('/merch')({
+  staticData: {
+    // Editorial top-nav surface; suppress the global left rail.
+    showNavbar: false,
+  },
   component: RouteComp,
   head: () => ({
     meta: seo({

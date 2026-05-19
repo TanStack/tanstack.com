@@ -1,7 +1,7 @@
 ---
 title: 'Structured Output That Remembers Across Turns'
 published: 2026-05-19
-excerpt: "useChat({ outputSchema }) used to keep one slot for partial/final, so multi-turn structured chats lost prior turns the moment a new one streamed in. Every assistant turn now carries its own typed StructuredOutputPart on its UIMessage. History is preserved by default, and the schema generic threads all the way down to messages[i].parts[j].data."
+excerpt: 'useChat({ outputSchema }) used to keep one slot for partial/final, so multi-turn structured chats lost prior turns the moment a new one streamed in. Every assistant turn now carries its own typed StructuredOutputPart on its UIMessage. History is preserved by default, and the schema generic threads all the way down to messages[i].parts[j].data.'
 library: ai
 authors:
   - Alem Tuzlak
@@ -9,7 +9,7 @@ authors:
 
 ![Structured Output That Remembers Across Turns](/blog-assets/multi-turn-structured-output/header.png)
 
-You ask the LLM for a recipe. It plates up *Spaghetti Pomodoro* — title, cuisine, servings, ingredients, steps, all typed against your schema. Beautiful. You ask it to make the recipe vegan. A new recipe streams in.
+You ask the LLM for a recipe. It plates up _Spaghetti Pomodoro_ — title, cuisine, servings, ingredients, steps, all typed against your schema. Beautiful. You ask it to make the recipe vegan. A new recipe streams in.
 
 Then the first one vanishes.
 
@@ -21,14 +21,14 @@ This post walks through what changed, why it matters for any multi-turn UI, and 
 
 ## The old shape
 
-The previous `useChat({ outputSchema })` exposed two values that tracked the *current* run:
+The previous `useChat({ outputSchema })` exposed two values that tracked the _current_ run:
 
 - `partial` — `DeepPartial<T>`, the progressively-parsed object as JSON streamed in
 - `final` — `T | null`, the validated object once `structured-output.complete` fired
 
 On a single-turn extractor (paste a paragraph → get a typed `Person`), this was perfect. Field-by-field reveal as the JSON streamed, validated payload on terminal event, one render to consume both.
 
-On a multi-turn chat it fell apart. `partial` and `final` were a *single slot*, scoped to whichever run was most recent. As soon as you called `sendMessage()` again, the previous turn's `final` was gone. The runtime had no place to keep it — the typed structured payload didn't live on the message itself, only in this transient hook state.
+On a multi-turn chat it fell apart. `partial` and `final` were a _single slot_, scoped to whichever run was most recent. As soon as you called `sendMessage()` again, the previous turn's `final` was gone. The runtime had no place to keep it — the typed structured payload didn't live on the message itself, only in this transient hook state.
 
 The workaround we'd see in user code:
 
@@ -50,7 +50,7 @@ Three problems with that:
 2. **The model can't see the history.** Your `recipes[]` array is local to the component, the wire layer never sees it. When the user types "now make the vegan one cheaper," the LLM has no idea what "the vegan one" refers to; it only sees the raw text of each prior turn, with the structured response stripped to whatever it landed on the original `TextPart` as. Multi-turn refinement collapses.
 3. **You lose the schema's type safety.** `recipes` is typed, but the moment you try to round-trip a prior recipe back into the conversation, you're stringifying a typed object into the wire payload by hand. The library can't help you because it doesn't know `recipes` exists.
 
-The right place for this state is *on the message it came from*. That's what we shipped.
+The right place for this state is _on the message it came from_. That's what we shipped.
 
 ## The new shape: typed parts on every assistant message
 
@@ -71,11 +71,11 @@ type StructuredOutputPart<TData = unknown> = {
 }
 ```
 
-The runtime routes `TEXT_MESSAGE_CONTENT` deltas (the streaming JSON bytes) into this part instead of building a `TextPart`. On the terminal `structured-output.complete` event, `status` flips to `'complete'` and `data` is populated with the validated object. Every assistant turn produces a *new* assistant message, which carries its *own* `structured-output` part. The previous turn's part is untouched.
+The runtime routes `TEXT_MESSAGE_CONTENT` deltas (the streaming JSON bytes) into this part instead of building a `TextPart`. On the terminal `structured-output.complete` event, `status` flips to `'complete'` and `data` is populated with the validated object. Every assistant turn produces a _new_ assistant message, which carries its _own_ `structured-output` part. The previous turn's part is untouched.
 
-The hook-level `partial` and `final` still exist, they're derived from the *latest* assistant message's part now, instead of being a sticky slot. That means they read `{}` and `null` between `sendMessage()` and the first chunk (because no new assistant message exists yet), and they snap to the freshest turn's payload as it streams. The migration is zero, the same code that read `partial` / `final` for a single-turn extractor reads identical values in the new shape.
+The hook-level `partial` and `final` still exist, they're derived from the _latest_ assistant message's part now, instead of being a sticky slot. That means they read `{}` and `null` between `sendMessage()` and the first chunk (because no new assistant message exists yet), and they snap to the freshest turn's payload as it streams. The migration is zero, the same code that read `partial` / `final` for a single-turn extractor reads identical values in the new shape.
 
-What changed is everything *else*. Walking `messages[]` now exposes the full history of typed objects:
+What changed is everything _else_. Walking `messages[]` now exposes the full history of typed objects:
 
 ```tsx
 type RecipePart = StructuredOutputPart<Recipe>
@@ -110,9 +110,7 @@ export const RecipeSchema = z.object({
   cuisine: z.string(),
   servings: z.number(),
   estimatedCostUsd: z.number(),
-  ingredients: z.array(
-    z.object({ item: z.string(), amount: z.string() }),
-  ),
+  ingredients: z.array(z.object({ item: z.string(), amount: z.string() })),
   steps: z.array(z.string()),
   tips: z.array(z.string()),
 })

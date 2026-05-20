@@ -835,13 +835,15 @@ export const libraries: LibrarySlim[] = [
 ]
 
 export const librariesByGroup = {
-  state: [start, router, query, db, store, ai],
+  framework: [start, router],
+  state: [query, db, store, ai],
   headlessUI: [table, form, hotkeys],
   performance: [virtual, pacer],
   tooling: [devtools, config, cli, intent],
 }
 
 export const librariesGroupNamesMap = {
+  framework: 'Framework',
   state: 'Data & State Management',
   headlessUI: 'UI & UX',
   performance: 'Performance',

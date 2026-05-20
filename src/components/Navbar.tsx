@@ -224,8 +224,6 @@ export function Navbar({ children }: { children: React.ReactNode }) {
 
   const socialLinks = <SocialStack />
 
-
-
   const navbar = (
     <div
       className={twMerge(

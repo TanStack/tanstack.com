@@ -528,9 +528,7 @@ function StackCategoryCard({
       </ol>
       <span className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-gray-600 dark:text-gray-400">
         Browse {groupName.toLowerCase()}
-        <ArrowRight
-          className="w-3 h-3 transition-transform group-hover:translate-x-0.5"
-        />
+        <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
       </span>
     </Link>
   )

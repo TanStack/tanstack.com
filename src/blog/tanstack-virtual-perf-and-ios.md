@@ -7,7 +7,6 @@ library: virtual
 excerpt: A perf-focused release for TanStack Virtual. Cold mount at 100k items is 5x faster, a hilarious worst-case bug now runs 1382x faster, iOS Safari momentum scroll works for the first time, and scroll-up jank with dynamic items is gone by default.
 ---
 
-
 I spent three days last week auditing TanStack Virtual end to end, and what came out of it is the biggest single perf release the library has shipped in years. Cold mount on a 100k-item list dropped from 6.1 ms to 4.5 ms in real React. A worst-case `resizeItem` storm on 10k items went from nearly two seconds to 1.3 milliseconds. iOS Safari momentum scroll, which had been broken for years on dynamic-height lists, now actually works. Scroll-up jank with dynamic items, the single largest complaint cluster in our tracker, is gone by default.
 
 The work was a mix of bug fixes, a substantial internal rewrite for the hot path, and a new iOS-specific code path. Most of it landed in `virtual-core` so every framework adapter benefits. Here's what changed and why.
@@ -67,16 +66,16 @@ Only items the consumer actually rendered show up in the snapshot, since unmeasu
 
 Compared to the current published version:
 
-| Metric | Before | After |
-|---|---|---|
-| Cold mount @ 100k items (real React) | 6.1 ms | 4.5 ms |
-| Cold mount @ 100k items (synthetic) | 2.5 ms | 0.54 ms |
-| Cold mount @ 500k items (synthetic) | 14 ms | 2.7 ms |
-| `resizeItem` storm on 10k items | 1.9 s | 1.3 ms |
-| `setOptions` × 10,000 (per render) | 14.4 ms | 1.3 ms |
-| `scrollToIndex` landing accuracy on dynamic 10k lists | within 1 px | 0.0 px |
-| iOS Safari momentum scroll | broken | works |
-| Backward-scroll jank with dynamic items | recurring | gone by default |
+| Metric                                                | Before      | After           |
+| ----------------------------------------------------- | ----------- | --------------- |
+| Cold mount @ 100k items (real React)                  | 6.1 ms      | 4.5 ms          |
+| Cold mount @ 100k items (synthetic)                   | 2.5 ms      | 0.54 ms         |
+| Cold mount @ 500k items (synthetic)                   | 14 ms       | 2.7 ms          |
+| `resizeItem` storm on 10k items                       | 1.9 s       | 1.3 ms          |
+| `setOptions` × 10,000 (per render)                    | 14.4 ms     | 1.3 ms          |
+| `scrollToIndex` landing accuracy on dynamic 10k lists | within 1 px | 0.0 px          |
+| iOS Safari momentum scroll                            | broken      | works           |
+| Backward-scroll jank with dynamic items               | recurring   | gone by default |
 
 Bundle delta is about +900 bytes gzip, mostly the lazy fast-path machinery and the iOS code. Production minified comes out around 6.1 kB total. 91 unit tests, all green.
 

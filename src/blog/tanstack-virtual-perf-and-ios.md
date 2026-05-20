@@ -7,7 +7,7 @@ library: virtual
 excerpt: A perf-focused release for TanStack Virtual. Cold mount at 100k items is 5x faster, a hilarious worst-case bug now runs 1382x faster, iOS Safari momentum scroll works for the first time, and scroll-up jank with dynamic items is gone by default.
 ---
 
-I spent three days last week auditing TanStack Virtual end to end, and what came out of it is the biggest single perf release the library has shipped in years. Cold mount on a 100k-item list dropped from 6.1 ms to 4.5 ms in real React. A worst-case `resizeItem` storm on 10k items went from nearly two seconds to 1.3 milliseconds. iOS Safari momentum scroll, which had been broken for years on dynamic-height lists, now actually works. Scroll-up jank with dynamic items, the single largest complaint cluster in our tracker, is gone by default.
+I spent three days last week auditing TanStack Virtual end-to-end, and what came out of it is the biggest single perf release the library has shipped in years. Cold mount on a 100k-item list dropped from 6.1 ms to 4.5 ms in real React. A worst-case `resizeItem` storm on 10k items went from nearly two seconds to 1.3 milliseconds. iOS Safari momentum scroll, which had been broken for years on dynamic-height lists, now actually works. Scroll-up jank with dynamic items, the single largest complaint cluster in our tracker, is gone by default.
 
 The work was a mix of bug fixes, a substantial internal rewrite for the hot path, and a new iOS-specific code path. Most of it landed in `virtual-core` so every framework adapter benefits. Here's what changed and why.
 

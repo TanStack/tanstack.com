@@ -128,6 +128,18 @@ function isFresh(staleAt: Date) {
   return staleAt.getTime() > Date.now()
 }
 
+// markGitHubContentStale / markDocsArtifactsStale set staleAt to the epoch
+// (new Date(0)) as a sentinel for "forcibly invalidated" — an admin clicked
+// the purge button or a push webhook fired. In that case we must NOT serve
+// SWR-stale: the operator's intent is "get fresh content on the very next
+// request." Natural TTL expiry (staleAt drifts past now within the normal
+// window) still SWRs as before. The row stays around so the bottom of
+// getCachedGitHubContent / getCachedDocsArtifact can still fall back to it
+// if GitHub is unreachable.
+function isForciblyStale(staleAt: Date) {
+  return staleAt.getTime() <= 0
+}
+
 function queueRefresh(key: string, fn: () => Promise<unknown>) {
   void withPendingRefresh(key, fn).catch((error) => {
     console.error(`[GitHub Cache] Failed to refresh ${key}:`, error)
@@ -253,8 +265,9 @@ async function getCachedGitHubContent<T>(opts: {
 
   const cachedRow = await readRow()
   const storedValue = opts.readStoredValue(cachedRow)
+  const forciblyStale = !!cachedRow && isForciblyStale(cachedRow.staleAt)
 
-  if (storedValue !== undefined) {
+  if (storedValue !== undefined && !forciblyStale) {
     if (cachedRow && isFresh(cachedRow.staleAt)) {
       return storedValue
     }
@@ -272,8 +285,15 @@ async function getCachedGitHubContent<T>(opts: {
   return withPendingRefresh(opts.cacheKey, async () => {
     const latestRow = await readRow()
     const latestValue = opts.readStoredValue(latestRow)
+    const latestForciblyStale =
+      !!latestRow && isForciblyStale(latestRow.staleAt)
 
-    if (latestValue !== undefined && latestRow && isFresh(latestRow.staleAt)) {
+    if (
+      latestValue !== undefined &&
+      latestRow &&
+      !latestForciblyStale &&
+      isFresh(latestRow.staleAt)
+    ) {
       return latestValue
     }
 
@@ -388,8 +408,9 @@ export async function getCachedDocsArtifact<T>(opts: {
   const cachedRow = await readRow()
   const storedValue =
     cachedRow && opts.isValue(cachedRow.payload) ? cachedRow.payload : undefined
+  const forciblyStale = !!cachedRow && isForciblyStale(cachedRow.staleAt)
 
-  if (storedValue !== undefined) {
+  if (storedValue !== undefined && !forciblyStale) {
     if (cachedRow && isFresh(cachedRow.staleAt)) {
       return storedValue
     }
@@ -408,8 +429,15 @@ export async function getCachedDocsArtifact<T>(opts: {
       latestRow && opts.isValue(latestRow.payload)
         ? latestRow.payload
         : undefined
+    const latestForciblyStale =
+      !!latestRow && isForciblyStale(latestRow.staleAt)
 
-    if (latestValue !== undefined && latestRow && isFresh(latestRow.staleAt)) {
+    if (
+      latestValue !== undefined &&
+      latestRow &&
+      !latestForciblyStale &&
+      isFresh(latestRow.staleAt)
+    ) {
       return latestValue
     }
 

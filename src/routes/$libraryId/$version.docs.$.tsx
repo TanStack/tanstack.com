@@ -96,6 +96,14 @@ export const Route = createFileRoute('/$libraryId/$version/docs/$')({
     const { version, libraryId } = params
     const library = findLibrary(libraryId)
 
+    const cacheTag = library
+      ? [
+          'docs:all',
+          `docs:${library.id}`,
+          `docs:${library.id}:branch:${getBranch(library, version)}`,
+        ].join(', ')
+      : 'docs:all'
+
     const isLatestVersion =
       library &&
       (version === 'latest' ||
@@ -107,6 +115,7 @@ export const Route = createFileRoute('/$libraryId/$version/docs/$')({
         'cache-control': 'public, max-age=60, must-revalidate',
         'cdn-cache-control':
           'max-age=600, stale-while-revalidate=3600, durable',
+        'netlify-cache-tag': cacheTag,
         vary: docsContentNegotiationVaryHeader,
       }
     } else {
@@ -114,6 +123,7 @@ export const Route = createFileRoute('/$libraryId/$version/docs/$')({
         'cache-control': 'public, max-age=3600, must-revalidate',
         'cdn-cache-control':
           'max-age=86400, stale-while-revalidate=604800, durable',
+        'netlify-cache-tag': cacheTag,
         vary: docsContentNegotiationVaryHeader,
       }
     }

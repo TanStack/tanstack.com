@@ -49,6 +49,7 @@ import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AccountIndexRouteImport } from './routes/account/index'
 import { Route as LibraryIdIndexRouteImport } from './routes/$libraryId/index'
+import { Route as StackCategoryRouteImport } from './routes/stack.$category'
 import { Route as ShowcaseSubmitRouteImport } from './routes/showcase/submit'
 import { Route as ShowcaseIdRouteImport } from './routes/showcase/$id'
 import { Route as ShopSearchRouteImport } from './routes/shop.search'
@@ -352,6 +353,11 @@ const LibraryIdIndexRoute = LibraryIdIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => LibraryIdRouteRoute,
+} as any)
+const StackCategoryRoute = StackCategoryRouteImport.update({
+  id: '/stack/$category',
+  path: '/stack/$category',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ShowcaseSubmitRoute = ShowcaseSubmitRouteImport.update({
   id: '/showcase/submit',
@@ -953,6 +959,7 @@ export interface FileRoutesByFullPath {
   '/shop/search': typeof ShopSearchRoute
   '/showcase/$id': typeof ShowcaseIdRoute
   '/showcase/submit': typeof ShowcaseSubmitRoute
+  '/stack/$category': typeof StackCategoryRoute
   '/$libraryId/': typeof LibraryIdIndexRoute
   '/account/': typeof AccountIndexRoute
   '/admin/': typeof AdminIndexRoute
@@ -1090,6 +1097,7 @@ export interface FileRoutesByTo {
   '/shop/search': typeof ShopSearchRoute
   '/showcase/$id': typeof ShowcaseIdRoute
   '/showcase/submit': typeof ShowcaseSubmitRoute
+  '/stack/$category': typeof StackCategoryRoute
   '/$libraryId': typeof LibraryIdIndexRoute
   '/account': typeof AccountIndexRoute
   '/admin': typeof AdminIndexRoute
@@ -1234,6 +1242,7 @@ export interface FileRoutesById {
   '/shop/search': typeof ShopSearchRoute
   '/showcase/$id': typeof ShowcaseIdRoute
   '/showcase/submit': typeof ShowcaseSubmitRoute
+  '/stack/$category': typeof StackCategoryRoute
   '/$libraryId/': typeof LibraryIdIndexRoute
   '/account/': typeof AccountIndexRoute
   '/admin/': typeof AdminIndexRoute
@@ -1381,6 +1390,7 @@ export interface FileRouteTypes {
     | '/shop/search'
     | '/showcase/$id'
     | '/showcase/submit'
+    | '/stack/$category'
     | '/$libraryId/'
     | '/account/'
     | '/admin/'
@@ -1518,6 +1528,7 @@ export interface FileRouteTypes {
     | '/shop/search'
     | '/showcase/$id'
     | '/showcase/submit'
+    | '/stack/$category'
     | '/$libraryId'
     | '/account'
     | '/admin'
@@ -1661,6 +1672,7 @@ export interface FileRouteTypes {
     | '/shop/search'
     | '/showcase/$id'
     | '/showcase/submit'
+    | '/stack/$category'
     | '/$libraryId/'
     | '/account/'
     | '/admin/'
@@ -1790,6 +1802,7 @@ export interface RootRouteChildren {
   OauthTokenRoute: typeof OauthTokenRoute
   ShowcaseIdRoute: typeof ShowcaseIdRoute
   ShowcaseSubmitRoute: typeof ShowcaseSubmitRoute
+  StackCategoryRoute: typeof StackCategoryRoute
   ShowcaseIndexRoute: typeof ShowcaseIndexRoute
   StatsIndexRoute: typeof StatsIndexRoute
   ApiApplicationStarterResolveRoute: typeof ApiApplicationStarterResolveRoute
@@ -2121,6 +2134,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/$libraryId/'
       preLoaderRoute: typeof LibraryIdIndexRouteImport
       parentRoute: typeof LibraryIdRouteRoute
+    }
+    '/stack/$category': {
+      id: '/stack/$category'
+      path: '/stack/$category'
+      fullPath: '/stack/$category'
+      preLoaderRoute: typeof StackCategoryRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/showcase/submit': {
       id: '/showcase/submit'
@@ -3109,6 +3129,7 @@ const rootRouteChildren: RootRouteChildren = {
   OauthTokenRoute: OauthTokenRoute,
   ShowcaseIdRoute: ShowcaseIdRoute,
   ShowcaseSubmitRoute: ShowcaseSubmitRoute,
+  StackCategoryRoute: StackCategoryRoute,
   ShowcaseIndexRoute: ShowcaseIndexRoute,
   StatsIndexRoute: StatsIndexRoute,
   ApiApplicationStarterResolveRoute: ApiApplicationStarterResolveRoute,

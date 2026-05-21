@@ -3,29 +3,36 @@ import {
   fetchRepoFile,
   isRecoverableGitHubContentError,
 } from './documents.server'
+import { docsNavTabIds, type DocsNavTabId } from './docsNavTabs'
 import { createServerFn } from '@tanstack/react-start'
 import { setResponseHeaders } from '@tanstack/react-start/server'
 
 export type MenuItem = {
   label: string | React.ReactNode
+  tab?: DocsNavTabId
   children: {
     label: string | React.ReactNode
     to: string
     badge?: string
+    tab?: DocsNavTabId
   }[]
   collapsible?: boolean
   defaultCollapsed?: boolean
 }
 
+const tabSchema = v.optional(v.picklist(docsNavTabIds))
+
 const configSchema = v.object({
   sections: v.array(
     v.object({
       label: v.string(),
+      tab: tabSchema,
       children: v.array(
         v.object({
           label: v.string(),
           to: v.string(),
           badge: v.optional(v.string()),
+          tab: tabSchema,
         }),
       ),
       frameworks: v.optional(
@@ -37,6 +44,7 @@ const configSchema = v.object({
                 label: v.string(),
                 to: v.string(),
                 badge: v.optional(v.string()),
+                tab: tabSchema,
               }),
             ),
           }),

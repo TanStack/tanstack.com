@@ -8,6 +8,7 @@ import { useLocalStorage } from '~/utils/useLocalStorage'
 import { useClickOutside } from '~/hooks/useClickOutside'
 import { last } from '~/utils/utils'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
+import { getActiveDocsNavTabId, getTabbedMenuConfig } from '~/utils/docsNavTabs'
 import { Framework, LibraryId } from '~/libraries'
 import { frameworkOptions } from '~/libraries/frameworks'
 import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
@@ -524,6 +525,7 @@ const useMenuConfig = ({
 
       return {
         label: section.label,
+        tab: section.tab,
         children,
         collapsible: section.collapsible ?? false,
         defaultCollapsed: section.defaultCollapsed ?? false,
@@ -573,21 +575,41 @@ export function DocsLayout({
 
   const detailsRef = React.useRef<HTMLElement>(null!)
 
-  const flatMenu = React.useMemo(
-    () => menuConfig.flatMap((d) => d?.children),
-    [menuConfig],
-  )
-
-  // Filter out external links for prev/next navigation
-  const internalFlatMenu = React.useMemo(
-    () => flatMenu.filter((d) => d && !d.to.startsWith('http')),
-    [flatMenu],
-  )
-
   const docsMatch = matches.find((d) => d.pathname.includes('/docs'))
   const docsPathname = docsMatch?.pathname ?? ''
 
   const relativePathname = lastMatch.pathname.replace(docsPathname + '/', '')
+
+  const tabbedMenuConfig = React.useMemo(() => {
+    return getTabbedMenuConfig(menuConfig)
+  }, [menuConfig])
+
+  const activeTabId = React.useMemo(() => {
+    return getActiveDocsNavTabId({
+      isExample,
+      menuConfig,
+      pathname: lastMatch.pathname,
+      relativePathname,
+    })
+  }, [isExample, lastMatch.pathname, menuConfig, relativePathname])
+
+  const visibleMenuConfig = React.useMemo(() => {
+    return (
+      tabbedMenuConfig.find((tab) => tab.id === activeTabId)?.groups ??
+      menuConfig
+    )
+  }, [activeTabId, menuConfig, tabbedMenuConfig])
+
+  const flatMenu = React.useMemo(
+    () => visibleMenuConfig.flatMap((d) => d.children),
+    [visibleMenuConfig],
+  )
+
+  // Filter out external links for prev/next navigation
+  const internalFlatMenu = React.useMemo(
+    () => flatMenu.filter((d) => !d.to.startsWith('http')),
+    [flatMenu],
+  )
 
   const index = internalFlatMenu.findIndex((d) => d?.to === relativePathname)
   const prevItem = internalFlatMenu[index - 1]
@@ -604,19 +626,24 @@ export function DocsLayout({
   const activePartners = partners.filter((d) => d.status === 'active')
 
   const groupInitialOpenState = React.useMemo(() => {
-    return menuConfig.reduce<Record<string, boolean>>((acc, group, index) => {
-      const isChildActive = group.children.some((child) => child.to === _splat)
-      const key = `${index}:${String(group.label)}`
+    return visibleMenuConfig.reduce<Record<string, boolean>>(
+      (acc, group, index) => {
+        const isChildActive = group.children.some(
+          (child) => child.to === _splat,
+        )
+        const key = `${index}:${String(group.label)}`
 
-      acc[key] = isChildActive
-        ? true
-        : typeof group.defaultCollapsed !== 'undefined'
-          ? !group.defaultCollapsed
-          : false
+        acc[key] = isChildActive
+          ? true
+          : typeof group.defaultCollapsed !== 'undefined'
+            ? !group.defaultCollapsed
+            : false
 
-      return acc
-    }, {})
-  }, [menuConfig, _splat])
+        return acc
+      },
+      {},
+    )
+  }, [visibleMenuConfig, _splat])
 
   const [openGroups, setOpenGroups] = React.useState(groupInitialOpenState)
 
@@ -642,7 +669,7 @@ export function DocsLayout({
     })
   }, [groupInitialOpenState])
 
-  const menuItems = menuConfig.map((group, i) => {
+  const menuItems = visibleMenuConfig.map((group, i) => {
     const groupKey = `${i}:${String(group.label)}`
 
     const groupContent = (
@@ -812,7 +839,7 @@ export function DocsLayout({
         )}
       >
         <DocsMenuStrip
-          menuConfig={menuConfig}
+          menuConfig={visibleMenuConfig}
           activeItem={relativePathname}
           fullPathname={lastMatch.pathname}
           colorFrom={colorFrom}
@@ -873,7 +900,7 @@ export function DocsLayout({
           }
         }}
       >
-        <div className="flex-1 flex flex-col overflow-y-auto">
+        <div className="flex-1 flex flex-col overflow-y-auto min-w-[230px]">
           <div className="flex flex-col gap-1 p-4">
             <FrameworkSelect libraryId={libraryId} />
             <VersionSelect libraryId={libraryId} />
@@ -884,6 +911,55 @@ export function DocsLayout({
         </div>
       </div>
     </>
+  )
+
+  const docsTabs = (
+    <div className="sticky top-[calc(var(--navbar-height)-4px)] z-30 border-b border-gray-500/20 bg-white/90 dark:bg-black/80 backdrop-blur-lg">
+      <nav
+        aria-label="Documentation sections"
+        className="flex items-stretch gap-6 overflow-x-auto px-3 md:px-6 text-sm [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {tabbedMenuConfig.map((tab) => {
+          const target = tab.firstItem
+          const isActive = tab.id === activeTabId
+
+          if (!target) {
+            return null
+          }
+
+          const linkParams =
+            !target.to.startsWith('/') || target.to.includes('/$libraryId')
+              ? ({ libraryId, version } as never)
+              : undefined
+
+          return (
+            <Link
+              key={tab.id}
+              from="/$libraryId/$version/docs"
+              to={target.to}
+              params={linkParams}
+              className={twMerge(
+                'relative whitespace-nowrap py-3 font-semibold transition-colors',
+                isActive
+                  ? `text-transparent bg-clip-text bg-linear-to-r ${colorFrom} ${colorTo}`
+                  : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100',
+              )}
+            >
+              {tab.label}
+              {isActive ? (
+                <span
+                  className={twMerge(
+                    'absolute left-0 right-0 -bottom-px h-[3px] rounded-t-full bg-linear-to-r',
+                    colorFrom,
+                    colorTo,
+                  )}
+                />
+              ) : null}
+            </Link>
+          )
+        })}
+      </nav>
+    </div>
   )
 
   return (
@@ -911,12 +987,14 @@ export function DocsLayout({
           <div
             className={twMerge(
               'flex flex-col max-w-full min-w-0 flex-1 min-h-0 relative',
-              !isLandingPage && 'px-4 md:px-8',
             )}
           >
+            {docsTabs}
             <div
               className={twMerge(
                 `max-w-full min-w-0 flex flex-col justify-center w-full`,
+
+                !isLandingPage && 'px-4 md:px-8',
 
                 !isLandingPage &&
                   !isExample &&
@@ -934,7 +1012,7 @@ export function DocsLayout({
             )}
           </div>
           {!isLandingPage && (
-            <RightRail breakpoint="md" className="md:w-[280px]">
+            <RightRail breakpoint="md" className="md:w-[220px]">
               <PartnersRail
                 analyticsPlacement="docs_rail"
                 partners={activePartners}

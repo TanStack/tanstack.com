@@ -135,7 +135,9 @@ import { Route as LibraryIdVersionDocsRouteImport } from './routes/$libraryId/$v
 import { Route as IntentRegistryPackageNameIndexRouteImport } from './routes/intent/registry/$packageName.index'
 import { Route as LibraryIdVersionDocsIndexRouteImport } from './routes/$libraryId/$version.docs.index'
 import { Route as IntentRegistryPackageNameChar123Char125DotmdRouteImport } from './routes/intent/registry/$packageName.{$}[.]md'
-import { Route as IntentRegistryPackageNameSkillNameRouteImport } from './routes/intent/registry/$packageName.$skillName'
+import { Route as IntentRegistryPackageNameChar123Char125RouteImport } from './routes/intent/registry/$packageName.{$}'
+import { Route as ApiV1IntentSearchRouteImport } from './routes/api/v1/intent/search'
+import { Route as ApiV1IntentPackagesRouteImport } from './routes/api/v1/intent/packages'
 import { Route as ApiBuilderDeployGithubRouteImport } from './routes/api/builder/deploy/github'
 import { Route as ApiBuilderDeployCheckNameRouteImport } from './routes/api/builder/deploy/check-name'
 import { Route as ApiAuthCliCreateTicketRouteImport } from './routes/api/auth/cli/create-ticket'
@@ -147,11 +149,14 @@ import { Route as LibraryIdVersionDocsCommunityResourcesRouteImport } from './ro
 import { Route as LibraryIdVersionDocsBlogRouteImport } from './routes/$libraryId/$version.docs.blog'
 import { Route as LibraryIdVersionDocsSplatRouteImport } from './routes/$libraryId/$version.docs.$'
 import { Route as LibraryIdVersionDocsFrameworkIndexRouteImport } from './routes/$libraryId/$version.docs.framework.index'
+import { Route as ApiV1IntentPackagesNameRouteImport } from './routes/api/v1/intent/packages.$name'
 import { Route as ApiAuthCliStatusTicketIdRouteImport } from './routes/api/auth/cli/status.$ticketId'
 import { Route as LibraryIdVersionDocsFrameworkFrameworkIndexRouteImport } from './routes/$libraryId/$version.docs.framework.$framework.index'
 import { Route as LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRouteImport } from './routes/$libraryId/$version.docs.framework.$framework.{$}[.]md'
 import { Route as LibraryIdVersionDocsFrameworkFrameworkSplatRouteImport } from './routes/$libraryId/$version.docs.framework.$framework.$'
 import { Route as LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRouteImport } from './routes/$libraryId/$version.docs.framework.$framework.examples.$'
+import { Route as ApiV1IntentPackagesNameVersionsVersionSkillsRouteImport } from './routes/api/v1/intent/packages.$name.versions.$version.skills'
+import { Route as ApiV1IntentPackagesNameVersionsVersionSkillsSkillRouteImport } from './routes/api/v1/intent/packages.$name.versions.$version.skills.$skill'
 
 const WorkshopsRoute = WorkshopsRouteImport.update({
   id: '/workshops',
@@ -793,12 +798,22 @@ const IntentRegistryPackageNameChar123Char125DotmdRoute =
     path: '/{$}.md',
     getParentRoute: () => IntentRegistryPackageNameRoute,
   } as any)
-const IntentRegistryPackageNameSkillNameRoute =
-  IntentRegistryPackageNameSkillNameRouteImport.update({
-    id: '/$skillName',
-    path: '/$skillName',
+const IntentRegistryPackageNameChar123Char125Route =
+  IntentRegistryPackageNameChar123Char125RouteImport.update({
+    id: '/{$}',
+    path: '/{$}',
     getParentRoute: () => IntentRegistryPackageNameRoute,
   } as any)
+const ApiV1IntentSearchRoute = ApiV1IntentSearchRouteImport.update({
+  id: '/api/v1/intent/search',
+  path: '/api/v1/intent/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiV1IntentPackagesRoute = ApiV1IntentPackagesRouteImport.update({
+  id: '/api/v1/intent/packages',
+  path: '/api/v1/intent/packages',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiBuilderDeployGithubRoute = ApiBuilderDeployGithubRouteImport.update({
   id: '/api/builder/deploy/github',
   path: '/api/builder/deploy/github',
@@ -862,6 +877,11 @@ const LibraryIdVersionDocsFrameworkIndexRoute =
     path: '/framework/',
     getParentRoute: () => LibraryIdVersionDocsRoute,
   } as any)
+const ApiV1IntentPackagesNameRoute = ApiV1IntentPackagesNameRouteImport.update({
+  id: '/$name',
+  path: '/$name',
+  getParentRoute: () => ApiV1IntentPackagesRoute,
+} as any)
 const ApiAuthCliStatusTicketIdRoute =
   ApiAuthCliStatusTicketIdRouteImport.update({
     id: '/api/auth/cli/status/$ticketId',
@@ -891,6 +911,18 @@ const LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute =
     id: '/framework/$framework/examples/$',
     path: '/framework/$framework/examples/$',
     getParentRoute: () => LibraryIdVersionDocsRoute,
+  } as any)
+const ApiV1IntentPackagesNameVersionsVersionSkillsRoute =
+  ApiV1IntentPackagesNameVersionsVersionSkillsRouteImport.update({
+    id: '/versions/$version/skills',
+    path: '/versions/$version/skills',
+    getParentRoute: () => ApiV1IntentPackagesNameRoute,
+  } as any)
+const ApiV1IntentPackagesNameVersionsVersionSkillsSkillRoute =
+  ApiV1IntentPackagesNameVersionsVersionSkillsSkillRouteImport.update({
+    id: '/$skill',
+    path: '/$skill',
+    getParentRoute: () => ApiV1IntentPackagesNameVersionsVersionSkillsRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -1027,16 +1059,21 @@ export interface FileRoutesByFullPath {
   '/api/auth/cli/create-ticket': typeof ApiAuthCliCreateTicketRoute
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
   '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
-  '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
+  '/api/v1/intent/packages': typeof ApiV1IntentPackagesRouteWithChildren
+  '/api/v1/intent/search': typeof ApiV1IntentSearchRoute
+  '/intent/registry/$packageName/{$}': typeof IntentRegistryPackageNameChar123Char125Route
   '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   '/$libraryId/$version/docs/': typeof LibraryIdVersionDocsIndexRoute
   '/intent/registry/$packageName/': typeof IntentRegistryPackageNameIndexRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
+  '/api/v1/intent/packages/$name': typeof ApiV1IntentPackagesNameRouteWithChildren
   '/$libraryId/$version/docs/framework/': typeof LibraryIdVersionDocsFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/$': typeof LibraryIdVersionDocsFrameworkFrameworkSplatRoute
   '/$libraryId/$version/docs/framework/$framework/{$}.md': typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRoute
   '/$libraryId/$version/docs/framework/$framework/': typeof LibraryIdVersionDocsFrameworkFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/examples/$': typeof LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute
+  '/api/v1/intent/packages/$name/versions/$version/skills': typeof ApiV1IntentPackagesNameVersionsVersionSkillsRouteWithChildren
+  '/api/v1/intent/packages/$name/versions/$version/skills/$skill': typeof ApiV1IntentPackagesNameVersionsVersionSkillsSkillRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -1162,16 +1199,21 @@ export interface FileRoutesByTo {
   '/api/auth/cli/create-ticket': typeof ApiAuthCliCreateTicketRoute
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
   '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
-  '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
+  '/api/v1/intent/packages': typeof ApiV1IntentPackagesRouteWithChildren
+  '/api/v1/intent/search': typeof ApiV1IntentSearchRoute
+  '/intent/registry/$packageName/{$}': typeof IntentRegistryPackageNameChar123Char125Route
   '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsIndexRoute
   '/intent/registry/$packageName': typeof IntentRegistryPackageNameIndexRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
+  '/api/v1/intent/packages/$name': typeof ApiV1IntentPackagesNameRouteWithChildren
   '/$libraryId/$version/docs/framework': typeof LibraryIdVersionDocsFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/$': typeof LibraryIdVersionDocsFrameworkFrameworkSplatRoute
   '/$libraryId/$version/docs/framework/$framework/{$}.md': typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRoute
   '/$libraryId/$version/docs/framework/$framework': typeof LibraryIdVersionDocsFrameworkFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/examples/$': typeof LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute
+  '/api/v1/intent/packages/$name/versions/$version/skills': typeof ApiV1IntentPackagesNameVersionsVersionSkillsRouteWithChildren
+  '/api/v1/intent/packages/$name/versions/$version/skills/$skill': typeof ApiV1IntentPackagesNameVersionsVersionSkillsSkillRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -1308,16 +1350,21 @@ export interface FileRoutesById {
   '/api/auth/cli/create-ticket': typeof ApiAuthCliCreateTicketRoute
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
   '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
-  '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
+  '/api/v1/intent/packages': typeof ApiV1IntentPackagesRouteWithChildren
+  '/api/v1/intent/search': typeof ApiV1IntentSearchRoute
+  '/intent/registry/$packageName/{$}': typeof IntentRegistryPackageNameChar123Char125Route
   '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   '/$libraryId/$version/docs/': typeof LibraryIdVersionDocsIndexRoute
   '/intent/registry/$packageName/': typeof IntentRegistryPackageNameIndexRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
+  '/api/v1/intent/packages/$name': typeof ApiV1IntentPackagesNameRouteWithChildren
   '/$libraryId/$version/docs/framework/': typeof LibraryIdVersionDocsFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/$': typeof LibraryIdVersionDocsFrameworkFrameworkSplatRoute
   '/$libraryId/$version/docs/framework/$framework/{$}.md': typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRoute
   '/$libraryId/$version/docs/framework/$framework/': typeof LibraryIdVersionDocsFrameworkFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/examples/$': typeof LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute
+  '/api/v1/intent/packages/$name/versions/$version/skills': typeof ApiV1IntentPackagesNameVersionsVersionSkillsRouteWithChildren
+  '/api/v1/intent/packages/$name/versions/$version/skills/$skill': typeof ApiV1IntentPackagesNameVersionsVersionSkillsSkillRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -1455,16 +1502,21 @@ export interface FileRouteTypes {
     | '/api/auth/cli/create-ticket'
     | '/api/builder/deploy/check-name'
     | '/api/builder/deploy/github'
-    | '/intent/registry/$packageName/$skillName'
+    | '/api/v1/intent/packages'
+    | '/api/v1/intent/search'
+    | '/intent/registry/$packageName/{$}'
     | '/intent/registry/$packageName/{$}.md'
     | '/$libraryId/$version/docs/'
     | '/intent/registry/$packageName/'
     | '/api/auth/cli/status/$ticketId'
+    | '/api/v1/intent/packages/$name'
     | '/$libraryId/$version/docs/framework/'
     | '/$libraryId/$version/docs/framework/$framework/$'
     | '/$libraryId/$version/docs/framework/$framework/{$}.md'
     | '/$libraryId/$version/docs/framework/$framework/'
     | '/$libraryId/$version/docs/framework/$framework/examples/$'
+    | '/api/v1/intent/packages/$name/versions/$version/skills'
+    | '/api/v1/intent/packages/$name/versions/$version/skills/$skill'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1590,16 +1642,21 @@ export interface FileRouteTypes {
     | '/api/auth/cli/create-ticket'
     | '/api/builder/deploy/check-name'
     | '/api/builder/deploy/github'
-    | '/intent/registry/$packageName/$skillName'
+    | '/api/v1/intent/packages'
+    | '/api/v1/intent/search'
+    | '/intent/registry/$packageName/{$}'
     | '/intent/registry/$packageName/{$}.md'
     | '/$libraryId/$version/docs'
     | '/intent/registry/$packageName'
     | '/api/auth/cli/status/$ticketId'
+    | '/api/v1/intent/packages/$name'
     | '/$libraryId/$version/docs/framework'
     | '/$libraryId/$version/docs/framework/$framework/$'
     | '/$libraryId/$version/docs/framework/$framework/{$}.md'
     | '/$libraryId/$version/docs/framework/$framework'
     | '/$libraryId/$version/docs/framework/$framework/examples/$'
+    | '/api/v1/intent/packages/$name/versions/$version/skills'
+    | '/api/v1/intent/packages/$name/versions/$version/skills/$skill'
   id:
     | '__root__'
     | '/'
@@ -1735,16 +1792,21 @@ export interface FileRouteTypes {
     | '/api/auth/cli/create-ticket'
     | '/api/builder/deploy/check-name'
     | '/api/builder/deploy/github'
-    | '/intent/registry/$packageName/$skillName'
+    | '/api/v1/intent/packages'
+    | '/api/v1/intent/search'
+    | '/intent/registry/$packageName/{$}'
     | '/intent/registry/$packageName/{$}.md'
     | '/$libraryId/$version/docs/'
     | '/intent/registry/$packageName/'
     | '/api/auth/cli/status/$ticketId'
+    | '/api/v1/intent/packages/$name'
     | '/$libraryId/$version/docs/framework/'
     | '/$libraryId/$version/docs/framework/$framework/$'
     | '/$libraryId/$version/docs/framework/$framework/{$}.md'
     | '/$libraryId/$version/docs/framework/$framework/'
     | '/$libraryId/$version/docs/framework/$framework/examples/$'
+    | '/api/v1/intent/packages/$name/versions/$version/skills'
+    | '/api/v1/intent/packages/$name/versions/$version/skills/$skill'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1837,6 +1899,8 @@ export interface RootRouteChildren {
   ApiAuthCliCreateTicketRoute: typeof ApiAuthCliCreateTicketRoute
   ApiBuilderDeployCheckNameRoute: typeof ApiBuilderDeployCheckNameRoute
   ApiBuilderDeployGithubRoute: typeof ApiBuilderDeployGithubRoute
+  ApiV1IntentPackagesRoute: typeof ApiV1IntentPackagesRouteWithChildren
+  ApiV1IntentSearchRoute: typeof ApiV1IntentSearchRoute
   ApiAuthCliStatusTicketIdRoute: typeof ApiAuthCliStatusTicketIdRoute
 }
 
@@ -2724,12 +2788,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IntentRegistryPackageNameChar123Char125DotmdRouteImport
       parentRoute: typeof IntentRegistryPackageNameRoute
     }
-    '/intent/registry/$packageName/$skillName': {
-      id: '/intent/registry/$packageName/$skillName'
-      path: '/$skillName'
-      fullPath: '/intent/registry/$packageName/$skillName'
-      preLoaderRoute: typeof IntentRegistryPackageNameSkillNameRouteImport
+    '/intent/registry/$packageName/{$}': {
+      id: '/intent/registry/$packageName/{$}'
+      path: '/{$}'
+      fullPath: '/intent/registry/$packageName/{$}'
+      preLoaderRoute: typeof IntentRegistryPackageNameChar123Char125RouteImport
       parentRoute: typeof IntentRegistryPackageNameRoute
+    }
+    '/api/v1/intent/search': {
+      id: '/api/v1/intent/search'
+      path: '/api/v1/intent/search'
+      fullPath: '/api/v1/intent/search'
+      preLoaderRoute: typeof ApiV1IntentSearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/intent/packages': {
+      id: '/api/v1/intent/packages'
+      path: '/api/v1/intent/packages'
+      fullPath: '/api/v1/intent/packages'
+      preLoaderRoute: typeof ApiV1IntentPackagesRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/builder/deploy/github': {
       id: '/api/builder/deploy/github'
@@ -2808,6 +2886,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryIdVersionDocsFrameworkIndexRouteImport
       parentRoute: typeof LibraryIdVersionDocsRoute
     }
+    '/api/v1/intent/packages/$name': {
+      id: '/api/v1/intent/packages/$name'
+      path: '/$name'
+      fullPath: '/api/v1/intent/packages/$name'
+      preLoaderRoute: typeof ApiV1IntentPackagesNameRouteImport
+      parentRoute: typeof ApiV1IntentPackagesRoute
+    }
     '/api/auth/cli/status/$ticketId': {
       id: '/api/auth/cli/status/$ticketId'
       path: '/api/auth/cli/status/$ticketId'
@@ -2842,6 +2927,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/$libraryId/$version/docs/framework/$framework/examples/$'
       preLoaderRoute: typeof LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRouteImport
       parentRoute: typeof LibraryIdVersionDocsRoute
+    }
+    '/api/v1/intent/packages/$name/versions/$version/skills': {
+      id: '/api/v1/intent/packages/$name/versions/$version/skills'
+      path: '/versions/$version/skills'
+      fullPath: '/api/v1/intent/packages/$name/versions/$version/skills'
+      preLoaderRoute: typeof ApiV1IntentPackagesNameVersionsVersionSkillsRouteImport
+      parentRoute: typeof ApiV1IntentPackagesNameRoute
+    }
+    '/api/v1/intent/packages/$name/versions/$version/skills/$skill': {
+      id: '/api/v1/intent/packages/$name/versions/$version/skills/$skill'
+      path: '/$skill'
+      fullPath: '/api/v1/intent/packages/$name/versions/$version/skills/$skill'
+      preLoaderRoute: typeof ApiV1IntentPackagesNameVersionsVersionSkillsSkillRouteImport
+      parentRoute: typeof ApiV1IntentPackagesNameVersionsVersionSkillsRoute
     }
   }
 }
@@ -3046,15 +3145,15 @@ const ShopRouteChildren: ShopRouteChildren = {
 const ShopRouteWithChildren = ShopRoute._addFileChildren(ShopRouteChildren)
 
 interface IntentRegistryPackageNameRouteChildren {
-  IntentRegistryPackageNameSkillNameRoute: typeof IntentRegistryPackageNameSkillNameRoute
+  IntentRegistryPackageNameChar123Char125Route: typeof IntentRegistryPackageNameChar123Char125Route
   IntentRegistryPackageNameChar123Char125DotmdRoute: typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   IntentRegistryPackageNameIndexRoute: typeof IntentRegistryPackageNameIndexRoute
 }
 
 const IntentRegistryPackageNameRouteChildren: IntentRegistryPackageNameRouteChildren =
   {
-    IntentRegistryPackageNameSkillNameRoute:
-      IntentRegistryPackageNameSkillNameRoute,
+    IntentRegistryPackageNameChar123Char125Route:
+      IntentRegistryPackageNameChar123Char125Route,
     IntentRegistryPackageNameChar123Char125DotmdRoute:
       IntentRegistryPackageNameChar123Char125DotmdRoute,
     IntentRegistryPackageNameIndexRoute: IntentRegistryPackageNameIndexRoute,
@@ -3064,6 +3163,47 @@ const IntentRegistryPackageNameRouteWithChildren =
   IntentRegistryPackageNameRoute._addFileChildren(
     IntentRegistryPackageNameRouteChildren,
   )
+
+interface ApiV1IntentPackagesNameVersionsVersionSkillsRouteChildren {
+  ApiV1IntentPackagesNameVersionsVersionSkillsSkillRoute: typeof ApiV1IntentPackagesNameVersionsVersionSkillsSkillRoute
+}
+
+const ApiV1IntentPackagesNameVersionsVersionSkillsRouteChildren: ApiV1IntentPackagesNameVersionsVersionSkillsRouteChildren =
+  {
+    ApiV1IntentPackagesNameVersionsVersionSkillsSkillRoute:
+      ApiV1IntentPackagesNameVersionsVersionSkillsSkillRoute,
+  }
+
+const ApiV1IntentPackagesNameVersionsVersionSkillsRouteWithChildren =
+  ApiV1IntentPackagesNameVersionsVersionSkillsRoute._addFileChildren(
+    ApiV1IntentPackagesNameVersionsVersionSkillsRouteChildren,
+  )
+
+interface ApiV1IntentPackagesNameRouteChildren {
+  ApiV1IntentPackagesNameVersionsVersionSkillsRoute: typeof ApiV1IntentPackagesNameVersionsVersionSkillsRouteWithChildren
+}
+
+const ApiV1IntentPackagesNameRouteChildren: ApiV1IntentPackagesNameRouteChildren =
+  {
+    ApiV1IntentPackagesNameVersionsVersionSkillsRoute:
+      ApiV1IntentPackagesNameVersionsVersionSkillsRouteWithChildren,
+  }
+
+const ApiV1IntentPackagesNameRouteWithChildren =
+  ApiV1IntentPackagesNameRoute._addFileChildren(
+    ApiV1IntentPackagesNameRouteChildren,
+  )
+
+interface ApiV1IntentPackagesRouteChildren {
+  ApiV1IntentPackagesNameRoute: typeof ApiV1IntentPackagesNameRouteWithChildren
+}
+
+const ApiV1IntentPackagesRouteChildren: ApiV1IntentPackagesRouteChildren = {
+  ApiV1IntentPackagesNameRoute: ApiV1IntentPackagesNameRouteWithChildren,
+}
+
+const ApiV1IntentPackagesRouteWithChildren =
+  ApiV1IntentPackagesRoute._addFileChildren(ApiV1IntentPackagesRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -3156,6 +3296,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthCliCreateTicketRoute: ApiAuthCliCreateTicketRoute,
   ApiBuilderDeployCheckNameRoute: ApiBuilderDeployCheckNameRoute,
   ApiBuilderDeployGithubRoute: ApiBuilderDeployGithubRoute,
+  ApiV1IntentPackagesRoute: ApiV1IntentPackagesRouteWithChildren,
+  ApiV1IntentSearchRoute: ApiV1IntentSearchRoute,
   ApiAuthCliStatusTicketIdRoute: ApiAuthCliStatusTicketIdRoute,
 }
 export const routeTree = rootRouteImport

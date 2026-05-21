@@ -9,7 +9,11 @@ import {
 } from '~/utils/application-starter'
 
 export type StarterTone = 'cyan' | 'emerald' | 'violet'
-export type StarterDeployProvider = 'cloudflare' | 'netlify' | 'railway'
+export type StarterDeployProvider =
+  | 'cloudflare'
+  | 'netlify'
+  | 'railway'
+  | 'vercel'
 export type StarterPackageManager = 'bun' | 'npm' | 'pnpm' | 'yarn'
 export type StarterToolchain = 'biome' | 'eslint'
 

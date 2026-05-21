@@ -198,6 +198,7 @@ const queryCommunityLinks = [
 export const router: LibrarySlim = {
   id: 'router',
   name: 'TanStack Router',
+  installPath: 'framework/$framework/quick-start',
   cardStyles: 'text-emerald-500 dark:text-emerald-400 hover:border-current',
   to: '/router',
   tagline: 'Type-safe Routing for React and Solid applications',

@@ -131,7 +131,13 @@ const MobileCard = ({
   </Card>
 )
 
-export function Navbar({ children }: { children: React.ReactNode }) {
+export function Navbar({
+  children,
+  hideHeader = false,
+}: {
+  children: React.ReactNode
+  hideHeader?: boolean
+}) {
   const matches = useMatches()
 
   const { Title } = React.useMemo(() => {
@@ -145,6 +151,10 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   const containerRef = React.useRef<HTMLDivElement>(null)
 
   React.useEffect(() => {
+    // When hideHeader is true, the EditorialTopNav owns --navbar-height —
+    // skip our own measurement so we don't fight it.
+    if (hideHeader) return
+
     const updateContainerHeight = () => {
       if (containerRef.current) {
         const height = containerRef.current.offsetHeight
@@ -161,7 +171,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     return () => {
       window.removeEventListener('resize', updateContainerHeight)
     }
-  }, [])
+  }, [hideHeader])
 
   const [showMenu, setShowMenu] = React.useState(false)
   const [canLoadAuthControls, setCanLoadAuthControls] = React.useState(false)
@@ -760,12 +770,14 @@ export function Navbar({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      {navbar}
+      {hideHeader ? null : navbar}
       <div
         className={twMerge(
           `min-h-[calc(100dvh-var(--navbar-height))] flex flex-col
-          min-w-0 md:flex-row w-full transition-all duration-300
-          pt-[var(--navbar-height)]`,
+          min-w-0 md:flex-row w-full transition-all duration-300`,
+          // The fixed navbar (when shown) pushes children down; the editorial
+          // top nav is sticky/in-flow above, so we don't need extra padding.
+          hideHeader ? '' : 'pt-[var(--navbar-height)]',
         )}
       >
         {smallMenu}

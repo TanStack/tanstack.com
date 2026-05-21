@@ -3,6 +3,11 @@ import { seo } from '~/utils/seo'
 import { Button } from '~/ui'
 
 export const Route = createFileRoute('/blog')({
+  staticData: {
+    // Editorial top-nav surface; suppress the global left rail across all
+    // /blog/* routes via this layout.
+    showNavbar: false,
+  },
   head: () => ({
     meta: seo({
       title: 'Blog | TanStack',

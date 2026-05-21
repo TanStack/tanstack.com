@@ -35,6 +35,7 @@ const LazySearchModal = React.lazy(() =>
 import { Spinner } from '~/components/Spinner'
 import { ThemeProvider, useHtmlClass } from '~/components/ThemeProvider'
 import { Navbar } from '~/components/Navbar'
+import { EditorialTopNav } from '~/components/editorial/EditorialTopNav'
 import { THEME_COLORS } from '~/utils/utils'
 import { trackPageView } from '~/utils/analytics'
 import { twMerge } from 'tailwind-merge'
@@ -230,7 +231,8 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
         <LoginModalProvider>
           <ToastProvider>
             <PageViewTracker />
-            {hideNavbar ? children : <Navbar>{children}</Navbar>}
+            <EditorialTopNav />
+            {hideNavbar ? children : <Navbar hideHeader>{children}</Navbar>}
             {showDevtools && LazyAppDevtools ? (
               <React.Suspense fallback={null}>
                 <LazyAppDevtools />

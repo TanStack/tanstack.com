@@ -1061,7 +1061,7 @@ const railway = (() => {
     libraries: libraries.map((l) => l.id),
     status: 'active' as const,
     score: 0.145,
-    tier: 'bronze' as const,
+    tier: 'gold' as const,
     href,
     brandColor: '#0B0D0E',
     tagline: 'Instant Deployment',

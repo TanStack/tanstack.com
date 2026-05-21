@@ -10,6 +10,10 @@ import {
 } from './-libraries-utils'
 
 export const Route = createFileRoute('/libraries_/$framework')({
+  staticData: {
+    // Editorial top-nav surface; suppress the global left rail.
+    showNavbar: false,
+  },
   loader: ({ params }) => {
     const frameworkOption = getFrameworkOption(params.framework)
 

@@ -264,12 +264,14 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         <div className="flex items-center gap-2 font-black text-xl uppercase min-w-0">
           <React.Suspense
             fallback={
-              <LogoSection
-                menuButtonRef={menuButtonRef}
-                setShowMenu={setShowMenu}
-                showMenu={showMenu}
-                title={Title}
-              />
+              <div className={twMerge(`flex items-center group flex-shrink-0`)}>
+                <LogoSection
+                  menuButtonRef={menuButtonRef}
+                  setShowMenu={setShowMenu}
+                  showMenu={showMenu}
+                  title={Title}
+                />
+              </div>
             }
           >
             <LazyBrandContextMenu

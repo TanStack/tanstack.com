@@ -62,7 +62,7 @@ export const Route = createFileRoute('/blog/$')({
 })
 
 function BlogPost() {
-  const { contentRsc, filePath, headings, title, headerImage } =
+  const { contentRsc, filePath, headings, title, headerImage, library } =
     Route.useLoaderData()
   const { _splat: slug } = Route.useParams()
 
@@ -161,6 +161,7 @@ function BlogPost() {
                       {!headerImage && slug ? (
                         <CoverFallback
                           slug={slug}
+                          library={library}
                           className="aspect-[5/2] w-full rounded-2xl mb-6"
                         />
                       ) : null}

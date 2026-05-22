@@ -7,9 +7,13 @@ import { useAILibraryHeroAnimation } from '~/hooks/useAILibraryHeroAnimation'
 import { AILibraryHeroCard } from './AILibraryHeroCard'
 import { AILibraryHeroBox } from './AILibraryHeroBox'
 import { AILibraryHeroServiceCard } from './AILibraryHeroServiceCard'
+import jsLogo from '~/images/js-logo.svg'
 import tsLogo from '~/images/ts-logo.svg'
 import reactLogo from '~/images/react-logo.svg'
+import vueLogo from '~/images/vue-logo.svg'
 import solidLogo from '~/images/solid-logo.svg'
+import svelteLogo from '~/images/svelte-logo.svg'
+import preactLogo from '~/images/preact-logo.svg'
 import pythonLogo from '~/images/python.svg'
 import phpLightLogo from '~/images/php-light.svg'
 import phpDarkLogo from '~/images/php-dark.svg'
@@ -20,6 +24,18 @@ import openaiDarkLogo from '~/images/openai-dark.svg'
 import anthropicLightLogo from '~/images/anthropic-light.svg'
 import anthropicDarkLogo from '~/images/anthropic-dark.svg'
 import geminiLogo from '~/images/gemini.svg'
+import openrouterBlackLogo from '~/images/openrouter-black.svg'
+import openrouterWhiteLogo from '~/images/openrouter-white.svg'
+import agUiLightLogo from '~/images/ag-ui-light.svg'
+import agUiDarkLogo from '~/images/ag-ui-dark.svg'
+import xaiLightLogo from '~/images/xai-light.svg'
+import xaiDarkLogo from '~/images/xai-dark.svg'
+import falAiLightLogo from '~/images/fal-ai-light.svg'
+import falAiDarkLogo from '~/images/fal-ai-dark.svg'
+import elevenLabsLightLogo from '~/images/elevenlabs-light.svg'
+import elevenLabsDarkLogo from '~/images/elevenlabs-dark.svg'
+import groqLightLogo from '~/images/groq-light.svg'
+import groqDarkLogo from '~/images/groq-dark.svg'
 
 import {
   SVG_WIDTH,
@@ -33,6 +49,7 @@ import {
   SERVICE_HEIGHT,
   LIBRARY_CARD_WIDTH,
   LIBRARY_CARD_HEIGHT,
+  LIBRARY_CARD_Y_OFFSET,
   LIBRARY_CARD_LOCATIONS,
   SERVER_CARD_Y_OFFSET,
   SERVER_CARD_LOCATIONS,
@@ -50,14 +67,94 @@ type AILibraryHeroProps = {
   actions?: React.ReactNode
 }
 
-const HIGHLIGHT_COLOR = 'rgba(255, 255, 240, 0.95)'
+type HeroCardDefinition = {
+  label: string
+  logo?: string
+  logoLight?: string
+  logoDark?: string
+  fontSize?: number
+  logoSize?: number
+}
+
+const HIGHLIGHT_COLOR = 'var(--hero-active-stroke)'
+const TANSTACK_LOGO = '/images/logos/logo-color-100.png'
+
+const CLIENT_FRAMEWORKS: Array<HeroCardDefinition> = [
+  { label: 'Vanilla', logo: jsLogo, fontSize: 13, logoSize: 16 },
+  { label: 'React', logo: reactLogo, fontSize: 13, logoSize: 16 },
+  { label: 'Vue', logo: vueLogo, fontSize: 13, logoSize: 16 },
+  { label: 'Solid', logo: solidLogo, fontSize: 13, logoSize: 16 },
+  { label: 'Svelte', logo: svelteLogo, fontSize: 13, logoSize: 16 },
+  { label: 'Preact', logo: preactLogo, fontSize: 13, logoSize: 16 },
+]
+
+const SERVER_LANGUAGES: Array<HeroCardDefinition> = [
+  { label: 'TypeScript', logo: tsLogo, fontSize: 15 },
+  { label: 'Python', logo: pythonLogo },
+  { label: 'PHP', logoLight: phpLightLogo, logoDark: phpDarkLogo },
+]
+
+const AI_PROVIDERS: Array<HeroCardDefinition> = [
+  {
+    label: 'OpenRouter',
+    logoLight: openrouterBlackLogo,
+    logoDark: openrouterWhiteLogo,
+    fontSize: 15,
+  },
+  {
+    label: 'OpenAI',
+    logoLight: openaiLightLogo,
+    logoDark: openaiDarkLogo,
+    fontSize: 15,
+  },
+  {
+    label: 'Anthropic',
+    logoLight: anthropicLightLogo,
+    logoDark: anthropicDarkLogo,
+    fontSize: 15,
+  },
+  { label: 'Gemini', logo: geminiLogo, fontSize: 15 },
+  {
+    label: 'Ollama',
+    logoLight: ollamaLightLogo,
+    logoDark: ollamaDarkLogo,
+    fontSize: 15,
+  },
+  {
+    label: 'Groq',
+    logoLight: groqLightLogo,
+    logoDark: groqDarkLogo,
+    fontSize: 15,
+  },
+  {
+    label: 'Grok/xAI',
+    logoLight: xaiLightLogo,
+    logoDark: xaiDarkLogo,
+    fontSize: 15,
+  },
+  {
+    label: 'ElevenLabs',
+    logoLight: elevenLabsLightLogo,
+    logoDark: elevenLabsDarkLogo,
+    fontSize: 15,
+  },
+  {
+    label: 'fal.ai',
+    logoLight: falAiLightLogo,
+    logoDark: falAiDarkLogo,
+    fontSize: 15,
+  },
+]
+
+const CLIENT_BOX = { x: 156, y: 134, width: 320, height: 56 }
+const AG_UI_BOX = { x: 226, y: 240, width: 180, height: 48 }
+const TANSTACK_AI_BOX = { x: 156, y: 344, width: 320, height: 56 }
 
 export function AILibraryHero(_props: AILibraryHeroProps) {
   const strokeColor = 'var(--hero-stroke)'
   const textColor = 'var(--hero-text)'
   const glassGradientStart = 'var(--hero-glass-start)'
   const glassGradientEnd = 'var(--hero-glass-end)'
-  // Use the animation hook - handles all animation state and orchestration
   const { store } = useAILibraryHeroAnimation()
 
   const {
@@ -73,6 +170,20 @@ export function AILibraryHero(_props: AILibraryHeroProps) {
     typingUserMessage,
     connectionPulseDirection,
   } = store
+
+  const isHighlighting =
+    phase === AnimationPhase.SHOWING_CHAT ||
+    phase === AnimationPhase.PULSING_CONNECTIONS ||
+    phase === AnimationPhase.STREAMING_RESPONSE
+
+  const hasActivePath =
+    isHighlighting &&
+    selectedFramework !== null &&
+    selectedServer !== null &&
+    selectedService !== null
+
+  const clientCenterX = CLIENT_BOX.x + CLIENT_BOX.width / 2
+  const serverBoxCenterX = TANSTACK_AI_BOX.x + TANSTACK_AI_BOX.width / 2
 
   const getOpacity = (
     index: number,
@@ -98,61 +209,6 @@ export function AILibraryHero(_props: AILibraryHeroProps) {
     return 0.3
   }
 
-  const getConnectionOpacity = (
-    frameworkIndex: number,
-    serverIndex: number,
-  ) => {
-    const isFrameworkSelected =
-      selectedFramework !== null && selectedFramework === frameworkIndex
-    const isServerSelected =
-      selectedServer !== null && selectedServer === serverIndex
-    const isHighlighting =
-      phase === AnimationPhase.SHOWING_CHAT ||
-      phase === AnimationPhase.PULSING_CONNECTIONS ||
-      phase === AnimationPhase.STREAMING_RESPONSE
-
-    // Active path: selected framework -> client -> ai -> selected server
-    if (isHighlighting && isFrameworkSelected && isServerSelected) {
-      return 1.0
-    }
-    // Unused lines should be low opacity
-    return 0.3
-  }
-
-  const getConnectionStrokeColor = (
-    frameworkIndex: number,
-    serverIndex: number,
-  ) => {
-    // If no selections, ALWAYS return original stroke color (highest priority check)
-    if (selectedFramework === null || selectedServer === null) {
-      return strokeColor
-    }
-
-    // Only highlight during specific phases
-    const isHighlighting =
-      phase === AnimationPhase.SHOWING_CHAT ||
-      phase === AnimationPhase.PULSING_CONNECTIONS ||
-      phase === AnimationPhase.STREAMING_RESPONSE
-
-    // If not in a highlighting phase, always return original stroke color
-    if (!isHighlighting) {
-      return strokeColor
-    }
-
-    // Now check if this is the active path
-    const isFrameworkSelected = selectedFramework === frameworkIndex
-    const isServerSelected = selectedServer === serverIndex
-
-    // Active path: selected framework -> client -> ai -> selected server
-    // Only return off-white if we're in a highlighting phase AND this is the active path
-    if (isFrameworkSelected && isServerSelected) {
-      return HIGHLIGHT_COLOR
-    }
-
-    // Not the active path, return original color
-    return strokeColor
-  }
-
   const getConnectionPulse = () => {
     if (
       phase === AnimationPhase.PULSING_CONNECTIONS ||
@@ -161,6 +217,34 @@ export function AILibraryHero(_props: AILibraryHeroProps) {
       return connectionPulseDirection === 'down' ? 'down' : 'up'
     }
     return null
+  }
+
+  const getPathOpacity = (isActive: boolean) => {
+    if (!hasActivePath) {
+      return 0.42
+    }
+    return isActive ? 1 : 0.22
+  }
+
+  const getPathStrokeColor = (isActive: boolean) => {
+    if (hasActivePath && isActive) {
+      return HIGHLIGHT_COLOR
+    }
+    return strokeColor
+  }
+
+  const getPulseClass = (isActive: boolean) => {
+    const pulse = getConnectionPulse()
+
+    if (!pulse || !hasActivePath || !isActive) {
+      return ''
+    }
+
+    return pulse === 'down' ? 'animate-pulse-down' : 'animate-pulse-up'
+  }
+
+  const getProviderOpacity = (index: number) => {
+    return getServiceOpacity(index)
   }
 
   const getScaleTransform = (
@@ -181,16 +265,18 @@ export function AILibraryHero(_props: AILibraryHeroProps) {
         dangerouslySetInnerHTML={{
           __html: `
             :root {
-              --hero-stroke: rgba(0, 0, 0, 0.6);
-              --hero-text: #000000;
-              --hero-glass-start: rgba(255, 255, 255, 0.8);
-              --hero-glass-end: rgba(255, 255, 255, 0.6);
+              --hero-stroke: rgba(24, 24, 27, 0.36);
+              --hero-active-stroke: rgba(236, 72, 153, 0.95);
+              --hero-text: #18181b;
+              --hero-glass-start: rgba(255, 255, 255, 0.98);
+              --hero-glass-end: rgba(253, 242, 248, 0.9);
             }
             :root.dark {
-              --hero-stroke: rgba(255, 255, 255, 0.8);
+              --hero-stroke: rgba(255, 255, 255, 0.32);
+              --hero-active-stroke: rgba(255, 255, 255, 0.95);
               --hero-text: #ffffff;
-              --hero-glass-start: rgba(255, 255, 255, 0.55);
-              --hero-glass-end: rgba(255, 255, 255, 0.55);
+              --hero-glass-start: rgba(24, 24, 27, 0.92);
+              --hero-glass-end: rgba(39, 39, 42, 0.78);
             }
             @keyframes pulse-down {
               0% {
@@ -231,24 +317,21 @@ export function AILibraryHero(_props: AILibraryHeroProps) {
           `,
         }}
       />
-      <div className="relative flex flex-col items-center gap-8 text-center px-4 overflow-visible">
-        {/* Diagram and Chat Panel Container */}
+      <div className="relative flex flex-col items-center gap-8 text-center px-4 overflow-hidden">
         <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center lg:items-stretch gap-8 lg:gap-12">
-          {/* SVG Diagram */}
           <div
-            className="relative w-full lg:flex-1 overflow-visible"
+            className="relative w-full lg:flex-1 overflow-hidden"
             style={{ height: SVG_HEIGHT }}
           >
             <svg
-              key={`${phase}-${selectedFramework}-${selectedServer}`}
+              key={`${phase}-${selectedFramework}-${selectedServer}-${selectedService}`}
               xmlns="http://www.w3.org/2000/svg"
               className="w-full h-full"
               viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
-              style={{ overflow: 'visible' }}
+              style={{ overflow: 'hidden' }}
               preserveAspectRatio="xMidYMid meet"
             >
               <defs>
-                {/* Glass effect filter with blur and opacity */}
                 <filter id="glass" x="-50%" y="-50%" width="200%" height="200%">
                   <feGaussianBlur
                     in="SourceGraphic"
@@ -268,13 +351,13 @@ export function AILibraryHero(_props: AILibraryHeroProps) {
                   />
                 </filter>
 
-                {/* Subtle glow for lines */}
                 <filter
                   id="lineGlow"
-                  x="-50%"
-                  y="-50%"
-                  width="200%"
-                  height="200%"
+                  x="-32"
+                  y="-32"
+                  width={SVG_WIDTH + 64}
+                  height={SVG_HEIGHT + 64}
+                  filterUnits="userSpaceOnUse"
                 >
                   <feGaussianBlur
                     in="SourceGraphic"
@@ -287,7 +370,6 @@ export function AILibraryHero(_props: AILibraryHeroProps) {
                   </feMerge>
                 </filter>
 
-                {/* Glass gradient */}
                 <linearGradient
                   id="glassGradient"
                   x1="0%"
@@ -297,17 +379,16 @@ export function AILibraryHero(_props: AILibraryHeroProps) {
                 >
                   <stop
                     offset="0%"
-                    stopColor={glassGradientStart}
+                    style={{ stopColor: glassGradientStart }}
                     stopOpacity="1"
                   />
                   <stop
                     offset="100%"
-                    stopColor={glassGradientEnd}
+                    style={{ stopColor: glassGradientEnd }}
                     stopOpacity="1"
                   />
                 </linearGradient>
 
-                {/* Glass gradient for larger boxes */}
                 <linearGradient
                   id="glassGradientLarge"
                   x1="0%"
@@ -317,509 +398,246 @@ export function AILibraryHero(_props: AILibraryHeroProps) {
                 >
                   <stop
                     offset="0%"
-                    stopColor={glassGradientStart}
+                    style={{ stopColor: glassGradientStart }}
                     stopOpacity="1"
                   />
                   <stop
                     offset="100%"
-                    stopColor={glassGradientEnd}
+                    style={{ stopColor: glassGradientEnd }}
                     stopOpacity="1"
                   />
                 </linearGradient>
+
+                <clipPath id="providerClip">
+                  <rect
+                    x="0"
+                    y={SERVICE_Y_OFFSET - 16}
+                    width={SVG_WIDTH}
+                    height={SERVICE_HEIGHT + 32}
+                  />
+                </clipPath>
               </defs>
 
-              {/* Lines from frameworks to ai-client */}
+              {CLIENT_FRAMEWORKS.map((framework, index) => {
+                const startX =
+                  LIBRARY_CARD_LOCATIONS[index] + LIBRARY_CARD_WIDTH / 2
+                const isActive = selectedFramework === index
+
+                return (
+                  <path
+                    key={`framework-line-${framework.label}`}
+                    d={`M ${startX} ${LIBRARY_CARD_Y_OFFSET + LIBRARY_CARD_HEIGHT} Q ${startX} 96 ${clientCenterX} ${CLIENT_BOX.y}`}
+                    fill="none"
+                    stroke={getPathStrokeColor(isActive)}
+                    strokeWidth="1.5"
+                    strokeMiterlimit="10"
+                    filter="url(#lineGlow)"
+                    opacity={getPathOpacity(isActive)}
+                    className={getPulseClass(isActive)}
+                  />
+                )
+              })}
+
               <path
-                id="framework-line-0"
-                d="M 60 60 Q 60 80 151.26 80 Q 262.52 80 310 100"
+                id="client-to-ag-ui-line"
+                d={`M ${clientCenterX} ${CLIENT_BOX.y + CLIENT_BOX.height} L ${clientCenterX} ${AG_UI_BOX.y}`}
                 fill="none"
-                stroke={getConnectionStrokeColor(0, selectedServer ?? -1)}
+                stroke={getPathStrokeColor(true)}
                 strokeWidth="1.5"
                 strokeMiterlimit="10"
                 filter="url(#lineGlow)"
-                opacity={getConnectionOpacity(0, selectedServer ?? -1)}
-                className={
-                  selectedFramework === 0 &&
-                  selectedServer !== null &&
-                  getConnectionPulse()
-                    ? getConnectionPulse() === 'down'
-                      ? 'animate-pulse-down'
-                      : 'animate-pulse-up'
-                    : ''
-                }
-              />
-              <path
-                id="framework-line-1"
-                d="M 220 60 Q 220 80 265 80 Q 310 80 310 100"
-                fill="none"
-                stroke={getConnectionStrokeColor(1, selectedServer ?? -1)}
-                strokeWidth="1.5"
-                strokeMiterlimit="10"
-                filter="url(#lineGlow)"
-                opacity={getConnectionOpacity(1, selectedServer ?? -1)}
-                className={
-                  selectedFramework === 1 &&
-                  selectedServer !== null &&
-                  getConnectionPulse()
-                    ? getConnectionPulse() === 'down'
-                      ? 'animate-pulse-down'
-                      : 'animate-pulse-up'
-                    : ''
-                }
-              />
-              <path
-                id="framework-line-2"
-                d="M 380 60 Q 380 80 355 80 Q 310 80 310 100"
-                fill="none"
-                stroke={getConnectionStrokeColor(2, selectedServer ?? -1)}
-                strokeWidth="1.5"
-                strokeMiterlimit="10"
-                filter="url(#lineGlow)"
-                opacity={getConnectionOpacity(2, selectedServer ?? -1)}
-                className={
-                  selectedFramework === 2 &&
-                  selectedServer !== null &&
-                  getConnectionPulse()
-                    ? getConnectionPulse() === 'down'
-                      ? 'animate-pulse-down'
-                      : 'animate-pulse-up'
-                    : ''
-                }
-              />
-              <path
-                id="framework-line-3"
-                d="M 540 60 Q 540 80 450 80 Q 358 80 310 100"
-                fill="none"
-                stroke={getConnectionStrokeColor(3, selectedServer ?? -1)}
-                strokeWidth="1.5"
-                strokeMiterlimit="10"
-                filter="url(#lineGlow)"
-                opacity={getConnectionOpacity(3, selectedServer ?? -1)}
-                className={
-                  selectedFramework === 3 &&
-                  selectedServer !== null &&
-                  getConnectionPulse()
-                    ? getConnectionPulse() === 'down'
-                      ? 'animate-pulse-down'
-                      : 'animate-pulse-up'
-                    : ''
-                }
+                opacity={getPathOpacity(true)}
+                className={getPulseClass(true)}
               />
 
-              {/* Lines from TanStack AI to servers */}
               <path
-                id="server-line-0"
-                d="M 60 370 Q 60 350 151.26 350 Q 262.52 350 310 320"
+                id="ag-ui-to-tanstack-ai-line"
+                d={`M ${serverBoxCenterX} ${AG_UI_BOX.y + AG_UI_BOX.height} L ${serverBoxCenterX} ${TANSTACK_AI_BOX.y}`}
                 fill="none"
-                stroke={getConnectionStrokeColor(selectedFramework ?? -1, 0)}
+                stroke={getPathStrokeColor(true)}
                 strokeWidth="1.5"
                 strokeMiterlimit="10"
                 filter="url(#lineGlow)"
-                opacity={getConnectionOpacity(selectedFramework ?? -1, 0)}
-                className={
-                  selectedServer === 0 &&
-                  selectedFramework !== null &&
-                  getConnectionPulse()
-                    ? getConnectionPulse() === 'down'
-                      ? 'animate-pulse-down'
-                      : 'animate-pulse-up'
-                    : ''
-                }
-              />
-              <path
-                id="server-line-1"
-                d="M 220 370 Q 220 345 265 345 Q 310 345 310 320"
-                fill="none"
-                stroke={getConnectionStrokeColor(selectedFramework ?? -1, 1)}
-                strokeWidth="1.5"
-                strokeMiterlimit="10"
-                filter="url(#lineGlow)"
-                opacity={getConnectionOpacity(selectedFramework ?? -1, 1)}
-                className={
-                  selectedServer === 1 &&
-                  selectedFramework !== null &&
-                  getConnectionPulse()
-                    ? getConnectionPulse() === 'down'
-                      ? 'animate-pulse-down'
-                      : 'animate-pulse-up'
-                    : ''
-                }
-              />
-              <path
-                id="server-line-2"
-                d="M 380 370 Q 380 345 355 345 Q 310 345 310 320"
-                fill="none"
-                stroke={getConnectionStrokeColor(selectedFramework ?? -1, 2)}
-                strokeWidth="1.5"
-                strokeMiterlimit="10"
-                filter="url(#lineGlow)"
-                opacity={getConnectionOpacity(selectedFramework ?? -1, 2)}
-                className={
-                  selectedServer === 2 &&
-                  selectedFramework !== null &&
-                  getConnectionPulse()
-                    ? getConnectionPulse() === 'down'
-                      ? 'animate-pulse-down'
-                      : 'animate-pulse-up'
-                    : ''
-                }
-              />
-              <path
-                id="server-line-3"
-                d="M 540 370 Q 540 350 450 350 Q 358 350 310 320"
-                fill="none"
-                stroke={getConnectionStrokeColor(selectedFramework ?? -1, 3)}
-                strokeWidth="1.5"
-                strokeMiterlimit="10"
-                filter="url(#lineGlow)"
-                opacity={getConnectionOpacity(selectedFramework ?? -1, 3)}
-                className={
-                  selectedServer === 3 &&
-                  selectedFramework !== null &&
-                  getConnectionPulse()
-                    ? getConnectionPulse() === 'down'
-                      ? 'animate-pulse-down'
-                      : 'animate-pulse-up'
-                    : ''
-                }
+                opacity={getPathOpacity(true)}
+                className={getPulseClass(true)}
               />
 
-              {/* Top layer: Frameworks */}
-              <AILibraryHeroCard
-                x={LIBRARY_CARD_LOCATIONS[0]}
-                y={0}
-                width={LIBRARY_CARD_WIDTH}
-                height={LIBRARY_CARD_HEIGHT}
-                label="Vanilla"
-                opacity={getOpacity(0, selectedFramework, rotatingFramework)}
-                textColor={textColor}
-                strokeColor={strokeColor}
-                fontSize={BOX_FONT_SIZE}
-                fontWeight={BOX_FONT_WEIGHT}
-                logo={tsLogo}
-                transform={getScaleTransform(
-                  0,
-                  selectedFramework,
-                  LIBRARY_CARD_LOCATIONS[0] + LIBRARY_CARD_WIDTH / 2,
-                  LIBRARY_CARD_HEIGHT / 2,
-                )}
-              />
+              {SERVER_LANGUAGES.map((server, index) => {
+                const endX =
+                  SERVER_CARD_LOCATIONS[index] + SERVER_CARD_WIDTH / 2
+                const isActive = selectedServer === index
 
-              <AILibraryHeroCard
-                x={LIBRARY_CARD_LOCATIONS[1]}
-                y={0}
-                width={LIBRARY_CARD_WIDTH}
-                height={LIBRARY_CARD_HEIGHT}
-                label="React"
-                opacity={getOpacity(1, selectedFramework, rotatingFramework)}
-                textColor={textColor}
-                strokeColor={strokeColor}
-                fontSize={BOX_FONT_SIZE}
-                fontWeight={BOX_FONT_WEIGHT}
-                logo={reactLogo}
-                transform={getScaleTransform(
-                  1,
-                  selectedFramework,
-                  LIBRARY_CARD_LOCATIONS[1] + LIBRARY_CARD_WIDTH / 2,
-                  LIBRARY_CARD_HEIGHT / 2,
-                )}
-              />
+                return (
+                  <path
+                    key={`server-line-${server.label}`}
+                    d={`M ${serverBoxCenterX} ${TANSTACK_AI_BOX.y + TANSTACK_AI_BOX.height} Q ${serverBoxCenterX} 456 ${endX} ${SERVER_CARD_Y_OFFSET}`}
+                    fill="none"
+                    stroke={getPathStrokeColor(isActive)}
+                    strokeWidth="1.5"
+                    strokeMiterlimit="10"
+                    filter="url(#lineGlow)"
+                    opacity={getPathOpacity(isActive)}
+                    className={getPulseClass(isActive)}
+                  />
+                )
+              })}
 
-              <AILibraryHeroCard
-                x={LIBRARY_CARD_LOCATIONS[2]}
-                y={0}
-                width={LIBRARY_CARD_WIDTH}
-                height={LIBRARY_CARD_HEIGHT}
-                label="Solid"
-                opacity={getOpacity(2, selectedFramework, rotatingFramework)}
-                textColor={textColor}
-                strokeColor={strokeColor}
-                fontSize={BOX_FONT_SIZE}
-                fontWeight={BOX_FONT_WEIGHT}
-                logo={solidLogo}
-                transform={getScaleTransform(
-                  2,
-                  selectedFramework,
-                  LIBRARY_CARD_LOCATIONS[2] + LIBRARY_CARD_WIDTH / 2,
-                  LIBRARY_CARD_HEIGHT / 2,
-                )}
-              />
+              {SERVER_LANGUAGES.map((server, index) => {
+                const startX =
+                  SERVER_CARD_LOCATIONS[index] + SERVER_CARD_WIDTH / 2
+                const isActive = selectedServer === index
 
-              <AILibraryHeroCard
-                x={LIBRARY_CARD_LOCATIONS[3]}
-                y={0}
-                width={LIBRARY_CARD_WIDTH}
-                height={LIBRARY_CARD_HEIGHT}
-                label="?"
-                opacity={getOpacity(3, selectedFramework, rotatingFramework)}
-                textColor={textColor}
-                strokeColor={strokeColor}
-                fontSize={BOX_FONT_SIZE}
-                fontWeight={BOX_FONT_WEIGHT}
-                isDashed={true}
-                transform={getScaleTransform(
-                  3,
-                  selectedFramework,
-                  LIBRARY_CARD_LOCATIONS[3] + LIBRARY_CARD_WIDTH / 2,
-                  LIBRARY_CARD_HEIGHT / 2,
-                )}
-              />
+                return (
+                  <path
+                    key={`provider-line-${server.label}`}
+                    d={`M ${startX} ${SERVER_CARD_Y_OFFSET + SERVER_CARD_HEIGHT} Q ${startX} 618 ${SVG_WIDTH / 2} ${SERVICE_Y_OFFSET}`}
+                    fill="none"
+                    stroke={getPathStrokeColor(isActive)}
+                    strokeWidth="1.5"
+                    strokeMiterlimit="10"
+                    filter="url(#lineGlow)"
+                    opacity={getPathOpacity(isActive)}
+                    className={getPulseClass(isActive)}
+                  />
+                )
+              })}
 
-              {/* @tanstack/ai-client box */}
+              {CLIENT_FRAMEWORKS.map((framework, index) => (
+                <AILibraryHeroCard
+                  key={framework.label}
+                  x={LIBRARY_CARD_LOCATIONS[index]}
+                  y={LIBRARY_CARD_Y_OFFSET}
+                  width={LIBRARY_CARD_WIDTH}
+                  height={LIBRARY_CARD_HEIGHT}
+                  label={framework.label}
+                  opacity={getOpacity(
+                    index,
+                    selectedFramework,
+                    rotatingFramework,
+                  )}
+                  textColor={textColor}
+                  strokeColor={strokeColor}
+                  fontSize={framework.fontSize ?? 14}
+                  fontWeight={BOX_FONT_WEIGHT}
+                  logo={framework.logo}
+                  logoLight={framework.logoLight}
+                  logoDark={framework.logoDark}
+                  logoSize={framework.logoSize ?? 18}
+                  transform={getScaleTransform(
+                    index,
+                    selectedFramework,
+                    LIBRARY_CARD_LOCATIONS[index] + LIBRARY_CARD_WIDTH / 2,
+                    LIBRARY_CARD_Y_OFFSET + LIBRARY_CARD_HEIGHT / 2,
+                  )}
+                />
+              ))}
+
               <AILibraryHeroBox
-                x={150}
-                y={100}
-                width={320}
-                height={60}
+                x={CLIENT_BOX.x}
+                y={CLIENT_BOX.y}
+                width={CLIENT_BOX.width}
+                height={CLIENT_BOX.height}
                 label="@tanstack/ai-client"
                 textColor={textColor}
                 strokeColor={strokeColor}
-                fontSize={25}
+                fontSize={23}
                 fontWeight={900}
                 opacity={0.9}
-                logoSize={32}
+                logo={TANSTACK_LOGO}
+                logoSize={30}
               />
 
-              {/* Large TanStack AI container box */}
               <AILibraryHeroBox
-                x={150}
-                y={210}
-                width={320}
-                height={110}
+                x={AG_UI_BOX.x}
+                y={AG_UI_BOX.y}
+                width={AG_UI_BOX.width}
+                height={AG_UI_BOX.height}
+                label="AG-UI"
+                textColor={textColor}
+                strokeColor={strokeColor}
+                fontSize={24}
+                fontWeight={900}
+                opacity={0.9}
+                logoLight={agUiLightLogo}
+                logoDark={agUiDarkLogo}
+                logoSize={24}
+              />
+
+              <AILibraryHeroBox
+                x={TANSTACK_AI_BOX.x}
+                y={TANSTACK_AI_BOX.y}
+                width={TANSTACK_AI_BOX.width}
+                height={TANSTACK_AI_BOX.height}
                 label="TanStack AI"
                 textColor={textColor}
                 strokeColor={strokeColor}
-                fontSize={25}
+                fontSize={24}
                 fontWeight={900}
                 rx={16.5}
                 opacity={0.85}
-                logoSize={32}
+                logo={TANSTACK_LOGO}
+                logoSize={30}
               />
 
-              {/* Line from ai-client to @tanstack/ai - drawn after boxes to be on top */}
-              <path
-                id="client-to-ai-line"
-                d="M 310 160 L 310 210"
-                fill="none"
-                stroke={
-                  // If no selections, ALWAYS return original stroke color (highest priority check)
-                  selectedFramework === null || selectedServer === null
-                    ? strokeColor
-                    : // Only highlight during specific phases
-                      phase === AnimationPhase.SHOWING_CHAT ||
-                        phase === AnimationPhase.PULSING_CONNECTIONS ||
-                        phase === AnimationPhase.STREAMING_RESPONSE
-                      ? HIGHLIGHT_COLOR
-                      : strokeColor
-                }
-                strokeWidth={
-                  phase === AnimationPhase.PULSING_CONNECTIONS ||
-                  phase === AnimationPhase.STREAMING_RESPONSE ||
-                  phase === AnimationPhase.SHOWING_CHAT
-                    ? 5
-                    : 2.5
-                }
-                strokeMiterlimit="10"
-                opacity={
-                  // Explicitly check for non-highlighting phases first
-                  phase === AnimationPhase.STARTING ||
-                  phase === AnimationPhase.DESELECTING ||
-                  phase === AnimationPhase.SELECTING_FRAMEWORK ||
-                  phase === AnimationPhase.SELECTING_SERVICE ||
-                  phase === AnimationPhase.SELECTING_SERVER ||
-                  phase === AnimationPhase.HOLDING ||
-                  selectedFramework === null ||
-                  selectedServer === null
-                    ? 0.3
-                    : phase === AnimationPhase.SHOWING_CHAT ||
-                        phase === AnimationPhase.PULSING_CONNECTIONS ||
-                        phase === AnimationPhase.STREAMING_RESPONSE
-                      ? 1.0
-                      : 0.3
-                }
-                className={
-                  getConnectionPulse()
-                    ? getConnectionPulse() === 'down'
-                      ? 'animate-pulse-down'
-                      : 'animate-pulse-up'
-                    : ''
-                }
-              />
-
-              {/* Provider layer */}
-              <g
-                transform={`translate(${serviceOffset}, 0)`}
-                className="transition-transform duration-500 ease-out"
-              >
-                <AILibraryHeroServiceCard
-                  x={SERVICE_LOCATIONS[0]}
-                  y={SERVICE_Y_OFFSET}
-                  width={SERVICE_WIDTH}
-                  height={SERVICE_HEIGHT}
-                  label="Ollama"
-                  opacity={getServiceOpacity(0)}
+              {SERVER_LANGUAGES.map((server, index) => (
+                <AILibraryHeroCard
+                  key={server.label}
+                  x={SERVER_CARD_LOCATIONS[index]}
+                  y={SERVER_CARD_Y_OFFSET}
+                  width={SERVER_CARD_WIDTH}
+                  height={SERVER_CARD_HEIGHT}
+                  label={server.label}
+                  opacity={getOpacity(index, selectedServer, rotatingServer)}
                   textColor={textColor}
                   strokeColor={strokeColor}
-                  fontSize={BOX_FONT_SIZE}
+                  fontSize={server.fontSize ?? BOX_FONT_SIZE}
                   fontWeight={BOX_FONT_WEIGHT}
-                  logoLight={ollamaLightLogo}
-                  logoDark={ollamaDarkLogo}
+                  logo={server.logo}
+                  logoLight={server.logoLight}
+                  logoDark={server.logoDark}
                   transform={getScaleTransform(
-                    0,
-                    selectedService,
-                    SERVICE_LOCATIONS[0] + SERVICE_WIDTH / 2,
-                    SERVICE_Y_CENTER,
+                    index,
+                    selectedServer,
+                    SERVER_CARD_LOCATIONS[index] + SERVER_CARD_WIDTH / 2,
+                    SERVER_CARD_Y_OFFSET + SERVER_CARD_HEIGHT / 2,
                   )}
                 />
+              ))}
 
-                <AILibraryHeroServiceCard
-                  x={SERVICE_LOCATIONS[1]}
-                  y={SERVICE_Y_OFFSET}
-                  width={SERVICE_WIDTH}
-                  height={SERVICE_HEIGHT}
-                  label="OpenAI"
-                  opacity={getServiceOpacity(1)}
-                  textColor={textColor}
-                  strokeColor={strokeColor}
-                  fontSize={BOX_FONT_SIZE}
-                  fontWeight={BOX_FONT_WEIGHT}
-                  logoLight={openaiLightLogo}
-                  logoDark={openaiDarkLogo}
-                  transform={getScaleTransform(
-                    1,
-                    selectedService,
-                    SERVICE_LOCATIONS[1] + SERVICE_WIDTH / 2,
-                    SERVICE_Y_CENTER,
-                  )}
-                />
-
-                <AILibraryHeroServiceCard
-                  x={SERVICE_LOCATIONS[2]}
-                  y={SERVICE_Y_OFFSET}
-                  width={SERVICE_WIDTH}
-                  height={SERVICE_HEIGHT}
-                  label="Anthropic"
-                  opacity={getServiceOpacity(2)}
-                  textColor={textColor}
-                  strokeColor={strokeColor}
-                  fontSize={BOX_FONT_SIZE}
-                  fontWeight={BOX_FONT_WEIGHT}
-                  logoLight={anthropicLightLogo}
-                  logoDark={anthropicDarkLogo}
-                  transform={getScaleTransform(
-                    2,
-                    selectedService,
-                    SERVICE_LOCATIONS[2] + SERVICE_WIDTH / 2,
-                    SERVICE_Y_CENTER,
-                  )}
-                />
-
-                <AILibraryHeroServiceCard
-                  x={SERVICE_LOCATIONS[3]}
-                  y={SERVICE_Y_OFFSET}
-                  width={SERVICE_WIDTH}
-                  height={SERVICE_HEIGHT}
-                  label="Gemini"
-                  opacity={getServiceOpacity(3)}
-                  textColor={textColor}
-                  strokeColor={strokeColor}
-                  fontSize={BOX_FONT_SIZE}
-                  fontWeight={BOX_FONT_WEIGHT}
-                  logo={geminiLogo}
-                  transform={getScaleTransform(
-                    3,
-                    selectedService,
-                    SERVICE_LOCATIONS[3] + SERVICE_WIDTH / 2,
-                    SERVICE_Y_CENTER,
-                  )}
-                />
+              <g clipPath="url(#providerClip)">
+                <g
+                  transform={`translate(${serviceOffset}, 0)`}
+                  className="transition-transform duration-500 ease-out"
+                >
+                  {AI_PROVIDERS.map((provider, index) => (
+                    <AILibraryHeroServiceCard
+                      key={provider.label}
+                      x={SERVICE_LOCATIONS[index]}
+                      y={SERVICE_Y_OFFSET}
+                      width={SERVICE_WIDTH}
+                      height={SERVICE_HEIGHT}
+                      label={provider.label}
+                      opacity={getProviderOpacity(index)}
+                      textColor={textColor}
+                      strokeColor={strokeColor}
+                      fontSize={provider.fontSize ?? 15}
+                      fontWeight={BOX_FONT_WEIGHT}
+                      logo={provider.logo}
+                      logoLight={provider.logoLight}
+                      logoDark={provider.logoDark}
+                      transform={getScaleTransform(
+                        index,
+                        selectedService,
+                        SERVICE_LOCATIONS[index] + SERVICE_WIDTH / 2,
+                        SERVICE_Y_CENTER,
+                      )}
+                    />
+                  ))}
+                </g>
               </g>
-
-              {/* Server layer */}
-              <AILibraryHeroCard
-                x={SERVER_CARD_LOCATIONS[0]}
-                y={SERVER_CARD_Y_OFFSET}
-                width={SERVER_CARD_WIDTH}
-                height={SERVER_CARD_HEIGHT}
-                label="TypeScript"
-                opacity={getOpacity(0, selectedServer, rotatingServer)}
-                textColor={textColor}
-                strokeColor={strokeColor}
-                fontSize={16}
-                fontWeight={BOX_FONT_WEIGHT}
-                logo={tsLogo}
-                transform={getScaleTransform(
-                  0,
-                  selectedServer,
-                  SERVER_CARD_LOCATIONS[0] + SERVER_CARD_WIDTH / 2,
-                  SERVER_CARD_Y_OFFSET + SERVER_CARD_HEIGHT / 2,
-                )}
-              />
-
-              <AILibraryHeroCard
-                x={SERVER_CARD_LOCATIONS[1]}
-                y={SERVER_CARD_Y_OFFSET}
-                width={SERVER_CARD_WIDTH}
-                height={SERVER_CARD_HEIGHT}
-                label="PHP"
-                opacity={getOpacity(1, selectedServer, rotatingServer)}
-                textColor={textColor}
-                strokeColor={strokeColor}
-                fontSize={BOX_FONT_SIZE}
-                fontWeight={BOX_FONT_WEIGHT}
-                logoLight={phpLightLogo}
-                logoDark={phpDarkLogo}
-                transform={getScaleTransform(
-                  1,
-                  selectedServer,
-                  SERVER_CARD_LOCATIONS[1] + SERVER_CARD_WIDTH / 2,
-                  SERVER_CARD_Y_OFFSET + SERVER_CARD_HEIGHT / 2,
-                )}
-              />
-
-              <AILibraryHeroCard
-                x={SERVER_CARD_LOCATIONS[2]}
-                y={SERVER_CARD_Y_OFFSET}
-                width={SERVER_CARD_WIDTH}
-                height={SERVER_CARD_HEIGHT}
-                label="Python"
-                opacity={getOpacity(2, selectedServer, rotatingServer)}
-                textColor={textColor}
-                strokeColor={strokeColor}
-                fontSize={BOX_FONT_SIZE}
-                fontWeight={BOX_FONT_WEIGHT}
-                logo={pythonLogo}
-                transform={getScaleTransform(
-                  2,
-                  selectedServer,
-                  SERVER_CARD_LOCATIONS[2] + SERVER_CARD_WIDTH / 2,
-                  SERVER_CARD_Y_OFFSET + SERVER_CARD_HEIGHT / 2,
-                )}
-              />
-
-              <AILibraryHeroCard
-                x={SERVER_CARD_LOCATIONS[3]}
-                y={SERVER_CARD_Y_OFFSET}
-                width={SERVER_CARD_WIDTH}
-                height={SERVER_CARD_HEIGHT}
-                label="?"
-                opacity={getOpacity(3, selectedServer, rotatingServer)}
-                textColor={textColor}
-                strokeColor={strokeColor}
-                fontSize={BOX_FONT_SIZE}
-                fontWeight={BOX_FONT_WEIGHT}
-                isDashed={true}
-                transform={getScaleTransform(
-                  3,
-                  selectedServer,
-                  SERVER_CARD_LOCATIONS[3] + SERVER_CARD_WIDTH / 2,
-                  SERVER_CARD_Y_OFFSET + SERVER_CARD_HEIGHT / 2,
-                )}
-              />
             </svg>
           </div>
 
-          {/* Chat Panel */}
           <div
             className="w-full max-w-[400px] lg:w-[400px] flex-shrink-0"
             style={{ height: SVG_HEIGHT }}

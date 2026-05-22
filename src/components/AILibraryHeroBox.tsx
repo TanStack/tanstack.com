@@ -15,6 +15,9 @@ type AILibraryHeroBoxProps = {
   strokeWidth?: number
   fill?: string
   showLogo?: boolean
+  logoLight?: string
+  logoDark?: string
+  logo?: string
   logoSize?: number
   centerText?: boolean
 }
@@ -33,15 +36,21 @@ export function AILibraryHeroBox({
   opacity = 0.9,
   strokeWidth = 3,
   fill = 'url(#glassGradientLarge)',
+  showLogo = true,
+  logoLight,
+  logoDark,
+  logo,
   logoSize = 40,
+  centerText = false,
 }: AILibraryHeroBoxProps) {
-  // For centerText, align logo and text higher up; otherwise use normal center
-  const textX = 25 + logoSize
-  const textY = 15 + fontSize
+  const hasCustomLogo = logo || logoLight || logoDark
+  const hasSeparateLogos = !logo && logoLight && logoDark
+  const textX = centerText ? width / 2 : 25 + logoSize
+  const textY = height / 2 + fontSize * 0.35
 
   // Position logo to the right of the text, centered vertically
   const logoX = 15
-  const logoY = 15
+  const logoY = height / 2 - logoSize / 2
 
   return (
     <g transform={`translate(${x}, ${y})`}>
@@ -63,21 +72,69 @@ export function AILibraryHeroBox({
           fontFamily="Helvetica"
           fontSize={fontSize}
           fontWeight={fontWeight}
-          textAnchor="start"
+          textAnchor={centerText ? 'middle' : 'start'}
           opacity={opacity * 1.05}
         >
           {label}
         </text>
       )}
-      <image
-        href="/images/logos/logo-color-100.png"
-        x={logoX}
-        y={logoY}
-        width={logoSize}
-        height={logoSize}
-        opacity={opacity}
-        preserveAspectRatio="xMidYMid meet"
-      />
+      {showLogo && logo ? (
+        <image
+          href={logo}
+          x={logoX}
+          y={logoY}
+          width={logoSize}
+          height={logoSize}
+          opacity={opacity}
+          preserveAspectRatio="xMidYMid meet"
+        />
+      ) : null}
+      {showLogo && hasSeparateLogos ? (
+        <>
+          <image
+            href={logoLight}
+            x={logoX}
+            y={logoY}
+            width={logoSize}
+            height={logoSize}
+            opacity={opacity}
+            preserveAspectRatio="xMidYMid meet"
+            className="dark:hidden"
+          />
+          <image
+            href={logoDark}
+            x={logoX}
+            y={logoY}
+            width={logoSize}
+            height={logoSize}
+            opacity={opacity}
+            preserveAspectRatio="xMidYMid meet"
+            className="hidden dark:block"
+          />
+        </>
+      ) : null}
+      {showLogo && !logo && !hasSeparateLogos && (logoLight || logoDark) ? (
+        <image
+          href={logoLight || logoDark}
+          x={logoX}
+          y={logoY}
+          width={logoSize}
+          height={logoSize}
+          opacity={opacity}
+          preserveAspectRatio="xMidYMid meet"
+        />
+      ) : null}
+      {showLogo && !hasCustomLogo ? (
+        <image
+          href="/images/logos/logo-color-100.png"
+          x={logoX}
+          y={logoY}
+          width={logoSize}
+          height={logoSize}
+          opacity={opacity}
+          preserveAspectRatio="xMidYMid meet"
+        />
+      ) : null}
     </g>
   )
 }

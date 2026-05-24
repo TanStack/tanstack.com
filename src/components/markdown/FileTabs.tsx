@@ -45,8 +45,9 @@ export function FileTabs({ tabs, children }: FileTabsProps) {
             <div
               key={`${id}-${tab.slug}-panel`}
               data-tab={tab.slug}
+              data-content="code-only"
               hidden={tab.slug !== activeSlug}
-              className="file-tabs-panel"
+              className="border border-t-0 border-gray-500/20 rounded-b-md overflow-hidden"
             >
               {child}
             </div>

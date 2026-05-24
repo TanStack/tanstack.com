@@ -13,6 +13,7 @@ export type TabsProps = {
   children?: Array<React.ReactNode> | React.ReactNode
   activeSlug?: string
   onTabChange?: (slug: string) => void
+  panelContent?: Record<string, string> | string
 }
 
 export function Tabs({
@@ -20,6 +21,7 @@ export function Tabs({
   children: childrenProp,
   activeSlug: controlledActiveSlug,
   onTabChange,
+  panelContent,
 }: TabsProps) {
   const id = React.useId()
   const childrenArray = React.Children.toArray(childrenProp)
@@ -63,16 +65,19 @@ export function Tabs({
           )
         })}
       </div>
-      <div
-        className={`border border-gray-500/20 rounded-b-md bg-gray-100 dark:bg-gray-900`}
-      >
+      <div className="border border-gray-500/20 rounded-b-md bg-gray-100 dark:bg-gray-900 overflow-hidden">
         {childrenArray.map((child, index) => {
           const tab = tabsProp[index]
           if (!tab) return null
+          const content =
+            typeof panelContent === 'string'
+              ? panelContent
+              : panelContent?.[tab.slug]
           return (
             <div
               key={`${id}-${tab.slug}`}
               data-tab={tab.slug}
+              data-content={content}
               hidden={tab.slug !== activeSlug}
               className="max-w-none flex flex-col gap-2 text-base"
             >

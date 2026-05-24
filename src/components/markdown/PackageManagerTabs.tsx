@@ -1,6 +1,7 @@
 import { useLocalCurrentFramework } from '../FrameworkSelect'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { useParams } from '@tanstack/react-router'
+import * as React from 'react'
 import { create } from 'zustand'
 import { Tabs, type TabDefinition } from './Tabs'
 import { CodeBlock } from './CodeBlock'
@@ -12,20 +13,43 @@ import {
   type InstallMode,
 } from '~/utils/markdown/installCommand'
 
-// Use zustand for cross-component synchronization
-// This ensures all PackageManagerTabs instances on the page stay in sync
+const DEFAULT_PACKAGE_MANAGER: PackageManager = 'npm'
+
+function isPackageManager(value: string): value is PackageManager {
+  return (PACKAGE_MANAGERS as string[]).includes(value)
+}
+
 const usePackageManagerStore = create<{
   packageManager: PackageManager
   setPackageManager: (pm: PackageManager) => void
 }>((set) => ({
-  packageManager:
-    typeof document !== 'undefined'
-      ? (localStorage.getItem('packageManager') as PackageManager) || 'npm'
-      : 'npm',
-  setPackageManager: (pm: PackageManager) => {
-    localStorage.setItem('packageManager', pm)
+  packageManager: DEFAULT_PACKAGE_MANAGER,
+  setPackageManager: (pm) => {
+    if (typeof document !== 'undefined') {
+      localStorage.setItem('packageManager', pm)
+    }
     set({ packageManager: pm })
   },
+}))
+
+let hasHydratedPackageManagerStore = false
+
+function useHydratePackageManagerStore() {
+  React.useEffect(() => {
+    if (hasHydratedPackageManagerStore) return
+    hasHydratedPackageManagerStore = true
+    const stored = localStorage.getItem('packageManager')
+    if (stored && isPackageManager(stored)) {
+      usePackageManagerStore.setState({ packageManager: stored })
+    }
+  }, [])
+}
+
+// Built once; PACKAGE_MANAGERS is constant.
+const tabDefinitions: TabDefinition[] = PACKAGE_MANAGERS.map((pm) => ({
+  slug: pm,
+  name: pm,
+  headers: [],
 }))
 
 type PackageManagerTabsProps = {
@@ -38,59 +62,59 @@ export function PackageManagerTabs({
   packagesByFramework,
   mode,
 }: PackageManagerTabsProps) {
-  const { packageManager: storedPackageManager, setPackageManager } =
-    usePackageManagerStore()
+  useHydratePackageManagerStore()
+
+  const selectedPackageManager = usePackageManagerStore((s) => s.packageManager)
+  const setPackageManager = usePackageManagerStore((s) => s.setPackageManager)
 
   const { framework: paramsFramework } = useParams({ strict: false })
   const localCurrentFramework = useLocalCurrentFramework()
   const userQuery = useCurrentUserQuery()
   const userFramework = userQuery.data?.lastUsedFramework
 
-  const actualFramework = (paramsFramework ||
+  const actualFramework =
+    paramsFramework ||
     userFramework ||
     localCurrentFramework.currentFramework ||
-    'react') as Framework
+    'react'
 
   const normalizedFramework = actualFramework.toLowerCase()
   const packageGroups = packagesByFramework[normalizedFramework]
 
-  // Hide component if current framework not in package list
-  if (!packageGroups || packageGroups.length === 0) {
+  const children = React.useMemo(() => {
+    if (!packageGroups || packageGroups.length === 0) return null
+    return PACKAGE_MANAGERS.map((pm) => {
+      const commands = getInstallCommand(pm, packageGroups, mode)
+      const commandText = commands.join('\n')
+      return (
+        <CodeBlock key={pm}>
+          <code className="language-bash">{commandText}</code>
+        </CodeBlock>
+      )
+    })
+  }, [packageGroups, mode])
+
+  const handleTabChange = React.useCallback(
+    (slug: string) => {
+      if (isPackageManager(slug)) {
+        setPackageManager(slug)
+      }
+    },
+    [setPackageManager],
+  )
+
+  if (!children) {
     return null
   }
 
-  // Use stored package manager if valid, otherwise default to first one
-  const selectedPackageManager = PACKAGE_MANAGERS.includes(storedPackageManager)
-    ? storedPackageManager
-    : PACKAGE_MANAGERS[0]
-
-  // Generate tabs for each package manager
-  const tabs: TabDefinition[] = PACKAGE_MANAGERS.map((pm) => ({
-    slug: pm,
-    name: pm,
-    headers: [],
-  }))
-
-  // Generate children (command blocks) for each package manager
-  const children = PACKAGE_MANAGERS.map((pm) => {
-    const commands = getInstallCommand(pm, packageGroups, mode)
-    const commandText = commands.join('\n')
-    return (
-      <CodeBlock key={pm}>
-        <code className="language-bash">{commandText}</code>
-      </CodeBlock>
-    )
-  })
-
   return (
-    <div className="package-manager-tabs">
-      <Tabs
-        tabs={tabs}
-        /* eslint-disable-next-line react/no-children-prop */
-        children={children}
-        activeSlug={selectedPackageManager}
-        onTabChange={(slug) => setPackageManager(slug as PackageManager)}
-      />
-    </div>
+    <Tabs
+      tabs={tabDefinitions}
+      /* eslint-disable-next-line react/no-children-prop */
+      children={children}
+      activeSlug={selectedPackageManager}
+      onTabChange={handleTabChange}
+      panelContent="code-only"
+    />
   )
 }

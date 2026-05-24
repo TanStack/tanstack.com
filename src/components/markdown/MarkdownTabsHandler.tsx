@@ -31,6 +31,11 @@ const FileTabs = React.lazy<React.ComponentType<any>>(() =>
     default: resolveModuleDefault(mod, 'FileTabs'),
   })),
 )
+const BundlerTabs = React.lazy<React.ComponentType<any>>(() =>
+  import('./BundlerTabs').then((mod) => ({
+    default: resolveModuleDefault(mod, 'BundlerTabs'),
+  })),
+)
 
 export function handleTabsComponent(
   domNode: Element,
@@ -84,7 +89,38 @@ export function handleTabsComponent(
     }
   }
 
-  // Handle default tabs variant
+  const bundlerMeta = domNode.attribs['data-bundler-meta']
+  if (bundlerMeta) {
+    try {
+      const tabs = attributes.tabs || []
+
+      const panelElements = domNode.children?.filter(
+        (child): child is Element =>
+          child instanceof Element && child.name === 'md-tab-panel',
+      )
+
+      const panelContent: Record<string, 'code-only' | 'mixed'> = {}
+      const children = panelElements?.map((panel) => {
+        const slug = panel.attribs['data-tab-slug']
+        const content = panel.attribs['data-content']
+        if (slug && (content === 'code-only' || content === 'mixed')) {
+          panelContent[slug] = content
+        }
+        return <>{domToReact(panel.children as any, options)}</>
+      })
+
+      return (
+        <React.Suspense fallback={<div>Loading...</div>}>
+          <BundlerTabs tabs={tabs} panelContent={panelContent}>
+            {children as any}
+          </BundlerTabs>
+        </React.Suspense>
+      )
+    } catch {
+      // Fall through to default tabs if parsing fails
+    }
+  }
+
   const tabs = attributes.tabs
 
   if (!tabs || !Array.isArray(tabs)) {

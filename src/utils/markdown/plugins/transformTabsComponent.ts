@@ -1,6 +1,7 @@
 import { toString } from 'hast-util-to-string'
 
 import { headingLevel, isHeading, slugify } from './helpers'
+import { BUNDLERS, isBundler, type Bundler } from '../bundler'
 
 export type VariantHandler = (
   node: HastNode,
@@ -207,6 +208,56 @@ function extractFilesData(node: HastNode): FilesExtraction | null {
   return { files }
 }
 
+/**
+ * Extract bundler tab data. Splits children by H1 headings whose text matches
+ * a known bundler (e.g. `# Vite`, `# Rsbuild`) and groups the following nodes
+ * into that bundler's panel. Unknown headings are ignored; content before any
+ * recognized heading is dropped.
+ */
+function extractBundlerData(node: HastNode): TabExtraction | null {
+  const children = node.children ?? []
+  const panelsByBundler = new Map<Bundler, HastNode[]>()
+
+  let currentBundler: Bundler | null = null
+
+  for (const child of children) {
+    if (isHeading(child) && headingLevel(child) === 1) {
+      const headingText = toString(child as any)
+        .trim()
+        .toLowerCase()
+      if (isBundler(headingText)) {
+        currentBundler = headingText
+        if (!panelsByBundler.has(currentBundler)) {
+          panelsByBundler.set(currentBundler, [])
+        }
+        continue
+      }
+      currentBundler = null
+      continue
+    }
+
+    if (currentBundler) {
+      panelsByBundler.get(currentBundler)!.push(child)
+    }
+  }
+
+  if (panelsByBundler.size === 0) {
+    return null
+  }
+
+  // Emit in canonical BUNDLERS order, but only for bundlers that were defined.
+  const tabs: TabDescriptor[] = []
+  const panels: HastNode[][] = []
+  for (const bundler of BUNDLERS) {
+    const panel = panelsByBundler.get(bundler)
+    if (!panel) continue
+    tabs.push({ slug: bundler, name: bundler })
+    panels.push(panel)
+  }
+
+  return { tabs, panels }
+}
+
 function extractTabPanels(node: HastNode): TabExtraction | null {
   const children = node.children ?? []
   const headings = children.filter(isHeading)
@@ -332,6 +383,40 @@ export function transformTabsComponent(node: HastNode) {
       // Use the original preNode which already has data-code-title from rehypeCodeMeta
       children: [file.preNode],
     }))
+    return
+  }
+
+  // Handle bundler variant
+  if (variant === 'bundler') {
+    const result = extractBundlerData(node)
+
+    if (!result) {
+      return
+    }
+
+    node.properties = node.properties || {}
+    node.properties['data-bundler-meta'] = JSON.stringify({
+      bundlers: result.tabs.map((t) => t.slug),
+    })
+    node.properties['data-attributes'] = JSON.stringify({ tabs: result.tabs })
+
+    node.children = result.panels.map((panelChildren, index) => {
+      const isCodeOnly =
+        panelChildren.length === 1 &&
+        panelChildren[0]?.type === 'element' &&
+        panelChildren[0]?.tagName === 'pre'
+
+      return {
+        type: 'element',
+        tagName: 'md-tab-panel',
+        properties: {
+          'data-tab-slug': result.tabs[index]?.slug ?? `bundler-${index + 1}`,
+          'data-tab-index': String(index),
+          'data-content': isCodeOnly ? 'code-only' : 'mixed',
+        },
+        children: panelChildren,
+      }
+    })
     return
   }
 

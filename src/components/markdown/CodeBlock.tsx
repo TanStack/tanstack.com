@@ -191,7 +191,7 @@ export function CodeBlock({
   return (
     <div
       className={twMerge(
-        'codeblock w-full max-w-full relative not-prose border border-gray-500/20 rounded-md [&_pre]:rounded-md',
+        'codeblock w-full max-w-full relative not-prose border border-gray-500/20 rounded-md overflow-hidden [&_pre]:rounded-none',
         props.className,
       )}
       style={props.style}

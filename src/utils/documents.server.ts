@@ -1,6 +1,7 @@
 import fs from 'node:fs'
 import fsp from 'node:fs/promises'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import * as graymatter from 'gray-matter'
 import { fetchCached } from '~/utils/cache.server'
 import {
@@ -125,6 +126,14 @@ function isValidFilepath(filepath: string): boolean {
   )
 }
 
+function getLocalRepoBaseDir(repo: string) {
+  return path.resolve(
+    path.dirname(fileURLToPath(import.meta.url)),
+    '../../..',
+    repo,
+  )
+}
+
 /**
  * Return text content of file from local file system
  */
@@ -134,8 +143,7 @@ async function fetchFs(repo: string, filepath: string) {
     return ''
   }
 
-  const dirname = import.meta.url.split('://').at(-1)!
-  const baseDir = path.resolve(dirname, `../../../../${repo}`)
+  const baseDir = getLocalRepoBaseDir(repo)
   const localFilePath = path.resolve(baseDir, filepath)
 
   if (!localFilePath.startsWith(baseDir)) {
@@ -855,9 +863,8 @@ async function fetchApiContentsFs(
   startingPath: string,
 ): Promise<Array<GitHubFileNode> | null> {
   const [_, repo] = repoPair.split('/')
-  const dirname = import.meta.url.split('://').at(-1)!
 
-  const base = path.resolve(dirname, `../../../../${repo}`)
+  const base = getLocalRepoBaseDir(repo)
   const fsStartPath = path.join(base, removeLeadingSlash(startingPath))
 
   const dirsAndFilesToIgnore = [

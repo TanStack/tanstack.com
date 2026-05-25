@@ -1,4 +1,5 @@
 import React from 'react'
+import { stackBlitzIframeProps } from '~/utils/stackblitz-embed'
 
 interface InteractiveSandboxProps {
   isActive: boolean
@@ -17,6 +18,8 @@ export function InteractiveSandbox({
   libraryName,
   embedEditor,
 }: InteractiveSandboxProps) {
+  const isStackBlitz = embedEditor === 'stackblitz'
+
   return (
     <div
       className={`absolute inset-0 ${
@@ -25,8 +28,9 @@ export function InteractiveSandbox({
       aria-hidden={!isActive}
     >
       <iframe
-        src={embedEditor === 'codesandbox' ? codeSandboxUrl : stackBlitzUrl}
+        src={isStackBlitz ? stackBlitzUrl : codeSandboxUrl}
         title={`${libraryName} | ${examplePath}`}
+        {...(isStackBlitz ? stackBlitzIframeProps : {})}
         sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
         className="w-full h-full min-h-[80dvh] overflow-hidden shadow-lg bg-white dark:bg-black"
       />

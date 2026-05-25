@@ -3,11 +3,17 @@ import { gradientBackgroundCss } from '~/utils/ogGradient'
 
 type CoverFallbackProps = {
   slug: string
+  library?: string
   className?: string
   style?: React.CSSProperties
 }
 
-export function CoverFallback({ slug, className, style }: CoverFallbackProps) {
+export function CoverFallback({
+  slug,
+  library,
+  className,
+  style,
+}: CoverFallbackProps) {
   return (
     <div
       aria-hidden="true"
@@ -17,7 +23,7 @@ export function CoverFallback({ slug, className, style }: CoverFallbackProps) {
       )}
       style={{
         ...style,
-        backgroundImage: gradientBackgroundCss(slug),
+        backgroundImage: gradientBackgroundCss(slug, library),
       }}
     />
   )

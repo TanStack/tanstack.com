@@ -6,20 +6,23 @@ import {
   SERVICE_GUTTER,
 } from '~/stores/aiLibraryHeroAnimation'
 
-const FRAMEWORKS_COUNT = 4
-const SERVICES_COUNT = 4
-const SERVERS_COUNT = 4
+const FRAMEWORKS_COUNT = 6
+const SERVICES_COUNT = 9
+const SERVERS_COUNT = 3
+
+const getServiceOffset = (serviceIndex: number) =>
+  -(serviceIndex * (SERVICE_WIDTH + SERVICE_GUTTER))
 
 const MESSAGES = [
   {
     user: 'What makes TanStack AI different?',
     assistant:
-      'TanStack AI is completely agnostic - server agnostic, client agnostic, and service agnostic. Use any backend (TypeScript, PHP, Python), any client (vanilla JS, React, Solid), and any AI service (OpenAI, Anthropic, Gemini, Ollama). We provide the libraries and standards, you choose your stack.',
+      'TanStack AI is completely agnostic - client agnostic, protocol agnostic, server agnostic, and provider agnostic. Use Vanilla, React, Vue, Solid, Svelte, or Preact clients, speak AG-UI on the wire, run TypeScript, Python, or PHP servers, and connect to the providers you choose.',
   },
   {
     user: 'Do you support tools?',
     assistant:
-      'Yes! We have full support for both client and server tooling, including tool approvals. You can execute tools on either side with complete type safety and control.',
+      'Yes. Define tools once, run them on the client or server, require approvals when needed, and use provider-native tools like web search or code execution when the selected model supports them.',
   },
   {
     user: 'What about thinking models?',
@@ -34,12 +37,12 @@ const MESSAGES = [
   {
     user: 'What about developer experience?',
     assistant:
-      'We have next-generation dev tools that show you everything happening with your AI connection in real-time. Debug, inspect, and optimize with complete visibility.',
+      'TanStack AI includes devtools, debug logging, middleware, observability hooks, and AG-UI event streams so you can inspect what happened instead of guessing.',
   },
   {
     user: 'Is this a service I have to pay for?',
     assistant:
-      "No! TanStack AI is pure open source software. We don't have a service to promote or charge for. This is an ecosystem of libraries and standards connecting you with the services you choose - completely community supported.",
+      'No. TanStack AI is open-source software and standards, not a hosted gateway. There is no middleman, no service fee, and no provider lock-in.',
   },
 ]
 
@@ -151,66 +154,67 @@ export function useAILibraryHeroAnimation() {
               : TIMING.rotationSlowBase +
                 (i - (total - 4)) * TIMING.rotationSlowIncrement,
           onComplete: () => {
-            // Phase: Select service
-            store.setPhase(AnimationPhase.SELECTING_SERVICE)
-            const currentService =
-              useAILibraryHeroAnimationStore.getState().selectedService
-            const targetService = getRandomIndex(
-              SERVICES_COUNT,
-              currentService ?? undefined,
-            )
-            const serviceRotations = getRandomRotationCount(6, 3)
+            // Phase: Select server language
+            store.setPhase(AnimationPhase.SELECTING_SERVER)
+            const targetServer = getRandomIndex(SERVERS_COUNT)
+            const serverRotations = getRandomRotationCount(8, 4)
 
-            let currentServiceIndex = Math.floor(Math.random() * SERVICES_COUNT)
+            runRotation({
+              count: serverRotations,
+              setRotating: store.setRotatingServer,
+              setSelected: store.setSelectedServer,
+              targetIndex: targetServer,
+              itemCount: SERVERS_COUNT,
+              getDelay: (i, total) =>
+                i < total - 4
+                  ? TIMING.rotationFast
+                  : TIMING.rotationSlowBase +
+                    (i - (total - 4)) * TIMING.rotationSlowIncrement,
+              onComplete: () => {
+                // Phase: Select provider
+                store.setPhase(AnimationPhase.SELECTING_SERVICE)
+                const currentService =
+                  useAILibraryHeroAnimationStore.getState().selectedService
+                const targetService = getRandomIndex(
+                  SERVICES_COUNT,
+                  currentService ?? undefined,
+                )
+                const serviceRotations = getRandomRotationCount(8, 4)
 
-            const rotateService = (iteration: number) => {
-              if (iteration < serviceRotations - 1) {
-                store.setRotatingService(currentServiceIndex)
-                currentServiceIndex = (currentServiceIndex + 1) % SERVICES_COUNT
-                const delay =
-                  iteration < serviceRotations - 3
-                    ? TIMING.serviceRotationFast
-                    : TIMING.serviceRotationSlowBase +
-                      (iteration - (serviceRotations - 3)) *
-                        TIMING.serviceRotationSlowIncrement
-                addTimeout(() => rotateService(iteration + 1), delay)
-              } else {
-                store.setRotatingService(targetService)
-                addTimeout(() => {
-                  store.setSelectedService(targetService)
-                  store.setRotatingService(null)
-                  const targetX = -(
-                    SERVICE_WIDTH / 2 +
-                    SERVICE_GUTTER / 2 +
-                    targetService * (SERVICE_WIDTH + SERVICE_GUTTER)
-                  )
-                  store.setServiceOffset(targetX)
+                let currentServiceIndex = Math.floor(
+                  Math.random() * SERVICES_COUNT,
+                )
 
-                  addTimeout(() => {
-                    // Phase: Select server
-                    store.setPhase(AnimationPhase.SELECTING_SERVER)
-                    const targetServer = getRandomIndex(SERVERS_COUNT)
-                    const serverRotations = getRandomRotationCount(8, 4)
+                const rotateService = (iteration: number) => {
+                  if (iteration < serviceRotations - 1) {
+                    store.setRotatingService(currentServiceIndex)
+                    store.setServiceOffset(
+                      getServiceOffset(currentServiceIndex),
+                    )
+                    currentServiceIndex =
+                      (currentServiceIndex + 1) % SERVICES_COUNT
+                    const delay =
+                      iteration < serviceRotations - 4
+                        ? TIMING.serviceRotationFast
+                        : TIMING.serviceRotationSlowBase +
+                          (iteration - (serviceRotations - 4)) *
+                            TIMING.serviceRotationSlowIncrement
+                    addTimeout(() => rotateService(iteration + 1), delay)
+                  } else {
+                    store.setRotatingService(targetService)
+                    store.setServiceOffset(getServiceOffset(targetService))
+                    addTimeout(() => {
+                      store.setSelectedService(targetService)
+                      store.setRotatingService(null)
+                      store.setServiceOffset(getServiceOffset(targetService))
+                      addTimeout(onComplete, TIMING.afterServiceSelection)
+                    }, TIMING.afterSelection)
+                  }
+                }
 
-                    runRotation({
-                      count: serverRotations,
-                      setRotating: store.setRotatingServer,
-                      setSelected: store.setSelectedServer,
-                      targetIndex: targetServer,
-                      itemCount: SERVERS_COUNT,
-                      getDelay: (i, total) =>
-                        i < total - 4
-                          ? TIMING.rotationFast
-                          : TIMING.rotationSlowBase +
-                            (i - (total - 4)) * TIMING.rotationSlowIncrement,
-                      onComplete,
-                    })
-                  }, TIMING.afterServiceSelection)
-                }, TIMING.afterSelection)
-              }
-            }
-
-            rotateService(0)
+                rotateService(0)
+              },
+            })
           },
         })
       }, TIMING.phaseTransition)

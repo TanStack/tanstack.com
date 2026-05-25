@@ -30,17 +30,20 @@ export default function AiLanding() {
           className: 'bg-pink-500 border-pink-500 hover:bg-pink-600 text-white',
         }}
       />
-      <AILibraryHero
-        project={aiProject}
-        cta={{
-          linkProps: {
-            to: '/$libraryId/$version/docs',
-            params: { libraryId: library.id, version },
-          },
-          label: 'Get Started',
-          className: 'bg-pink-500 border-pink-500 hover:bg-pink-600 text-white',
-        }}
-      />
+      <div className="-mt-10 md:-mt-20">
+        <AILibraryHero
+          project={aiProject}
+          cta={{
+            linkProps: {
+              to: '/$libraryId/$version/docs',
+              params: { libraryId: library.id, version },
+            },
+            label: 'Get Started',
+            className:
+              'bg-pink-500 border-pink-500 hover:bg-pink-600 text-white',
+          }}
+        />
+      </div>
 
       <LibraryStatsSection library={library} />
 
@@ -54,68 +57,68 @@ export default function AiLanding() {
             A complete AI ecosystem, not a vendor platform
           </h3>
           <p className="mt-6 text-xl leading-7 opacity-75 max-w-[90vw] sm:max-w-[500px] lg:max-w-[800px]">
-            TanStack AI is a pure open-source ecosystem of libraries and
-            standards, not a service. We connect you directly to the AI
-            providers you choose, with no middleman, no service fees, and no
-            vendor lock-in. Just powerful, type-safe tools built by and for the
-            community.
+            TanStack AI is open-source libraries and AG-UI-compatible standards,
+            not a hosted gateway. Bring your client framework, your server
+            runtime, and the AI providers you trust. There is no middleman, no
+            service fee, and no vendor lock-in, just composable tools built for
+            teams that want to own their AI stack.
           </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mx-auto max-w-[90vw] sm:max-w-[600px] lg:max-w-[1200px]">
           <div className="border border-gray-200 dark:border-gray-800 rounded-xl shadow-xs p-6 transition-all duration-300 ease-out bg-white dark:bg-gray-900 hover:shadow-sm hover:border-pink-500/50 hover:-translate-y-1">
-            <h4 className="text-xl font-bold mb-3">Server Agnostic</h4>
-            <p className="opacity-90 text-sm leading-relaxed">
-              Use any backend server you want. Well-documented protocol with
-              libraries for TypeScript, PHP, Python, and more.
-            </p>
-          </div>
-          <div className="border border-gray-200 dark:border-gray-800 rounded-xl shadow-xs p-6 transition-all duration-300 ease-out bg-white dark:bg-gray-900 hover:shadow-sm hover:border-pink-500/50 hover:-translate-y-1">
             <h4 className="text-xl font-bold mb-3">Client Agnostic</h4>
             <p className="opacity-90 text-sm leading-relaxed">
-              Vanilla client library (@tanstack/ai-client) or framework
-              integrations for React, Solid, and more coming soon.
+              Use the headless client directly or framework bindings for React,
+              Vue, Solid, Svelte, and Preact.
             </p>
           </div>
           <div className="border border-gray-200 dark:border-gray-800 rounded-xl shadow-xs p-6 transition-all duration-300 ease-out bg-white dark:bg-gray-900 hover:shadow-sm hover:border-pink-500/50 hover:-translate-y-1">
-            <h4 className="text-xl font-bold mb-3">Service Agnostic</h4>
+            <h4 className="text-xl font-bold mb-3">AG-UI Native</h4>
             <p className="opacity-90 text-sm leading-relaxed">
-              Connect to OpenAI, Anthropic, Gemini, and Ollama out of the box.
-              Create custom adapters for any provider.
+              Client-to-server requests and server-to-client streams use AG-UI,
+              so compatible clients and servers can interoperate.
             </p>
           </div>
           <div className="border border-gray-200 dark:border-gray-800 rounded-xl shadow-xs p-6 transition-all duration-300 ease-out bg-white dark:bg-gray-900 hover:shadow-sm hover:border-pink-500/50 hover:-translate-y-1">
-            <h4 className="text-xl font-bold mb-3">Full Tooling Support</h4>
+            <h4 className="text-xl font-bold mb-3">Server Agnostic</h4>
             <p className="opacity-90 text-sm leading-relaxed">
-              Complete support for client and server tools, including tool
-              approvals and execution control.
+              Build endpoints in TypeScript, Python, or PHP with portable
+              helpers for AG-UI events, SSE, and provider message formats.
             </p>
           </div>
           <div className="border border-gray-200 dark:border-gray-800 rounded-xl shadow-xs p-6 transition-all duration-300 ease-out bg-white dark:bg-gray-900 hover:shadow-sm hover:border-pink-500/50 hover:-translate-y-1">
-            <h4 className="text-xl font-bold mb-3">Thinking & Reasoning</h4>
+            <h4 className="text-xl font-bold mb-3">Provider Agnostic</h4>
             <p className="opacity-90 text-sm leading-relaxed">
-              Full support for thinking and reasoning models with
-              thinking/reasoning tokens streamed to clients.
+              Official adapters cover OpenRouter, OpenAI, Anthropic, Gemini,
+              Ollama, Groq, Grok/xAI, ElevenLabs, and fal.ai.
             </p>
           </div>
           <div className="border border-gray-200 dark:border-gray-800 rounded-xl shadow-xs p-6 transition-all duration-300 ease-out bg-white dark:bg-gray-900 hover:shadow-sm hover:border-pink-500/50 hover:-translate-y-1">
-            <h4 className="text-xl font-bold mb-3">Fully Type-Safe</h4>
+            <h4 className="text-xl font-bold mb-3">Typed Tools</h4>
             <p className="opacity-90 text-sm leading-relaxed">
-              Complete type safety across providers, models, and model options
-              from end to end.
+              Define isomorphic tools once, run them on the client or server,
+              gate them with approvals, and use provider-native tools safely.
             </p>
           </div>
           <div className="border border-gray-200 dark:border-gray-800 rounded-xl shadow-xs p-6 transition-all duration-300 ease-out bg-white dark:bg-gray-900 hover:shadow-sm hover:border-pink-500/50 hover:-translate-y-1">
-            <h4 className="text-xl font-bold mb-3">Next-Gen DevTools</h4>
+            <h4 className="text-xl font-bold mb-3">Model-Aware Types</h4>
             <p className="opacity-90 text-sm leading-relaxed">
-              Amazing developer tools that show you everything happening with
-              your AI connections in real-time.
+              Provider and model choices narrow options, tools, modalities, and
+              structured outputs at compile time.
             </p>
           </div>
           <div className="border border-gray-200 dark:border-gray-800 rounded-xl shadow-xs p-6 transition-all duration-300 ease-out bg-white dark:bg-gray-900 hover:shadow-sm hover:border-pink-500/50 hover:-translate-y-1">
-            <h4 className="text-xl font-bold mb-3">Pure Open Source</h4>
+            <h4 className="text-xl font-bold mb-3">Media Generation</h4>
             <p className="opacity-90 text-sm leading-relaxed">
-              No hidden service, no fees, no upsells. Community-supported
-              software connecting you directly to your chosen providers.
+              Use stable APIs for image, video, speech, transcription, realtime
+              voice, summarization, and generation hooks.
+            </p>
+          </div>
+          <div className="border border-gray-200 dark:border-gray-800 rounded-xl shadow-xs p-6 transition-all duration-300 ease-out bg-white dark:bg-gray-900 hover:shadow-sm hover:border-pink-500/50 hover:-translate-y-1">
+            <h4 className="text-xl font-bold mb-3">Observable Runtime</h4>
+            <p className="opacity-90 text-sm leading-relaxed">
+              Devtools, debug logging, middleware, and observability hooks show
+              what happened across your AI pipeline.
             </p>
           </div>
         </div>

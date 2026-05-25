@@ -58,7 +58,11 @@ export function BlogCard({ post, showLibraryBadges = true }: BlogCardProps) {
           />
         </div>
       ) : (
-        <CoverFallback slug={slug} className="aspect-video w-full" />
+        <CoverFallback
+          slug={slug}
+          library={library}
+          className="aspect-video w-full"
+        />
       )}
       <div className="p-4 md:p-8 flex flex-col gap-4 flex-1 justify-between">
         <div>

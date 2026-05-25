@@ -1,11 +1,5 @@
 import { isElement } from 'hast-util-is-element'
-
-type HastElement = {
-  type: string
-  tagName: string
-  properties?: Record<string, unknown>
-  children?: unknown[]
-}
+import type { Element, Node } from 'hast'
 
 export const normalizeComponentName = (name: string) => name.toLowerCase()
 
@@ -26,8 +20,7 @@ export const slugify = (value: string, fallback: string) => {
   )
 }
 
-export const isHeading = (node: unknown): node is HastElement =>
-  isElement(node as any) && /^h[1-6]$/.test((node as HastElement).tagName)
+export const isHeading = (node: unknown): node is Element =>
+  isElement(node as Node) && /^h[1-6]$/.test((node as Element).tagName)
 
-export const headingLevel = (node: HastElement) =>
-  Number(node.tagName.substring(1))
+export const headingLevel = (node: Element) => Number(node.tagName.substring(1))

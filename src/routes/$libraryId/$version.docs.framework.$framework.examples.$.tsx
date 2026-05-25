@@ -24,6 +24,7 @@ import {
   ExampleDeployDialog,
   type DeployProvider,
 } from '~/components/ExampleDeployDialog'
+import { getDocsCacheHeaders } from '~/utils/docs-cache-headers'
 import { stackBlitzEmbedHeaders } from '~/utils/stackblitz-embed'
 
 const renderedFileQueryOptions = (
@@ -137,7 +138,14 @@ export const Route = createFileRoute(
       }),
     }
   },
-  headers: () => stackBlitzEmbedHeaders,
+  headers: ({ params }) => {
+    const { libraryId, version } = params
+
+    return {
+      ...getDocsCacheHeaders({ libraryId, version }),
+      ...stackBlitzEmbedHeaders,
+    }
+  },
   staleTime: 1000 * 60 * 5, // 5 minutes
 })
 

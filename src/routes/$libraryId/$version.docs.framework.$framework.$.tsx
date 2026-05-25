@@ -13,6 +13,7 @@ import { getBranch, getLibrary } from '~/libraries'
 import { capitalize } from '~/utils/utils'
 import { DocContainer } from '~/components/DocContainer'
 import type { ConfigSchema } from '~/utils/config'
+import { getDocsCacheHeaders } from '~/utils/docs-cache-headers'
 
 export const Route = createFileRoute(
   '/$libraryId/$version/docs/framework/$framework/$',
@@ -66,6 +67,11 @@ export const Route = createFileRoute(
     }
   },
   component: Docs,
+  headers: ({ params }) => {
+    const { libraryId, version } = params
+
+    return getDocsCacheHeaders({ libraryId, version })
+  },
   head: (ctx) => {
     const library = getLibrary(ctx.params.libraryId)
     const tail = `${library.name} ${capitalize(ctx.params.framework)} Docs`

@@ -73,8 +73,21 @@ async function fetchRemote(
 
   try {
     response = await fetch(href, {
-      headers: { 'User-Agent': `docs:${owner}/${repo}` },
+      ...getGitHubContentFetchOptions({
+        includeApiVersion: false,
+        userAgent: `docs:${owner}/${repo}`,
+      }),
     })
+
+    if (isGitHubAuthFailureStatus(response.status)) {
+      response = await fetch(href, {
+        ...getGitHubContentFetchOptions({
+          includeApiVersion: false,
+          includeAuthorization: false,
+          userAgent: `docs:${owner}/${repo}`,
+        }),
+      })
+    }
   } catch (error) {
     throw new GitHubContentError(
       'network',
@@ -629,12 +642,50 @@ function isGitHubRecursiveTreeResponse(
   )
 }
 
-function getGitHubApiFetchOptions(): RequestInit {
+function getValidGitHubToken(token: string | undefined) {
+  const trimmedToken = token?.trim()
+
+  if (!trimmedToken || trimmedToken === 'USE_A_REAL_KEY_IN_PRODUCTION') {
+    return undefined
+  }
+
+  return trimmedToken
+}
+
+function getGitHubContentAuthToken() {
+  return (
+    getValidGitHubToken(env.GITHUB_CONTENT_TOKEN) ??
+    getValidGitHubToken(env.GITHUB_AUTH_TOKEN)
+  )
+}
+
+export function isGitHubAuthFailureStatus(status: number) {
+  return status === 401 || status === 403
+}
+
+export function getGitHubContentFetchOptions(opts?: {
+  includeApiVersion?: boolean
+  includeAuthorization?: boolean
+  userAgent?: string
+}): RequestInit {
+  const headers: Record<string, string> = {}
+
+  if (opts?.includeApiVersion !== false) {
+    headers['X-GitHub-Api-Version'] = '2022-11-28'
+  }
+
+  if (opts?.userAgent) {
+    headers['User-Agent'] = opts.userAgent
+  }
+
+  const token = getGitHubContentAuthToken()
+
+  if (token && opts?.includeAuthorization !== false) {
+    headers.Authorization = `Bearer ${token}`
+  }
+
   return {
-    headers: {
-      'X-GitHub-Api-Version': '2022-11-28',
-      Authorization: `Bearer ${env.GITHUB_AUTH_TOKEN}`,
-    },
+    headers,
   }
 }
 
@@ -642,7 +693,14 @@ async function fetchGitHubApiJson(url: string) {
   let response: Response
 
   try {
-    response = await fetch(url, getGitHubApiFetchOptions())
+    response = await fetch(url, getGitHubContentFetchOptions())
+
+    if (isGitHubAuthFailureStatus(response.status)) {
+      response = await fetch(
+        url,
+        getGitHubContentFetchOptions({ includeAuthorization: false }),
+      )
+    }
   } catch (error) {
     throw new GitHubContentError(
       'network',

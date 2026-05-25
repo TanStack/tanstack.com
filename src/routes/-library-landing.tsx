@@ -9,12 +9,17 @@ import { getTanstackDocsConfig } from '~/utils/config'
 import { fetchLandingCodeExample } from '~/utils/landing-code-example.functions'
 import { seo } from '~/utils/seo'
 import { ogImageUrl } from '~/utils/og'
+import { stackBlitzEmbedHeaders } from '~/utils/stackblitz-embed'
 
 export type LandingComponentProps = {
   landingCodeExampleRsc?: ReactNode
 }
 
 type LandingComponent = ComponentType<LandingComponentProps>
+
+type LibraryLandingPageOptions = {
+  hasStackBlitzEmbed?: boolean
+}
 
 type StaticLandingRoutePath =
   | '/ai/$version/'
@@ -108,6 +113,7 @@ export function createLibraryLandingPage<TId extends StaticLandingRoutePath>(
   routePath: TId,
   libraryId: LibraryId,
   LandingComponent: LandingComponent,
+  options: LibraryLandingPageOptions = {},
 ) {
   const library = getLibrary(libraryId)
   const routeApi = getRouteApi(routePath)
@@ -181,6 +187,9 @@ export function createLibraryLandingPage<TId extends StaticLandingRoutePath>(
         noindex: library.visible === false,
       }),
     }),
+    ...(options.hasStackBlitzEmbed
+      ? { headers: () => stackBlitzEmbedHeaders }
+      : {}),
     staticData: {
       Title: () => (
         <LibraryNavbarTitle libraryId={libraryId} routePath={routePath} />

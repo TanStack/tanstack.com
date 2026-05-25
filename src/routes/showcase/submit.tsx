@@ -4,6 +4,10 @@ import { ShowcaseSubmitForm } from '~/components/ShowcaseSubmitForm'
 import { requireAuth } from '~/utils/auth.functions'
 
 export const Route = createFileRoute('/showcase/submit')({
+  staticData: {
+    // Editorial top-nav surface; suppress the global left rail.
+    showNavbar: false,
+  },
   beforeLoad: async () => {
     try {
       const user = await requireAuth()

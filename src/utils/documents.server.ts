@@ -417,6 +417,17 @@ export async function fetchRepoFile(
     })
   }
 
+  // Dev fallback: when there is no DATABASE_URL configured, the DB-backed
+  // GitHub cache cannot run. Use an in-memory cache and a direct raw fetch
+  // so docs pages still work without a local Postgres.
+  if (!process.env.DATABASE_URL) {
+    return fetchCached({
+      key,
+      ttl: 60_000,
+      fn: () => fetchRepoFileFromOrigin(repoPair, ref, filepath),
+    })
+  }
+
   try {
     return await getCachedGitHubTextFile({
       repo: repoPair,

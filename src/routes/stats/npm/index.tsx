@@ -197,6 +197,8 @@ export const Route = createFileRoute('/stats/npm/')({
   },
   component: RouteComponent,
   staticData: {
+    // Editorial top-nav surface; suppress the global left rail.
+    showNavbar: false,
     includeSearchInCanonical: true,
     Title: () => {
       return (

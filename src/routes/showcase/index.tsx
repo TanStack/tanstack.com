@@ -28,6 +28,10 @@ function hasNonCanonicalSearch(search: v.InferOutput<typeof searchSchema>) {
 }
 
 export const Route = createFileRoute('/showcase/')({
+  staticData: {
+    // Editorial top-nav surface; suppress the global left rail.
+    showNavbar: false,
+  },
   validateSearch: searchSchema,
   loaderDeps: ({ search }) => ({
     page: search.page,

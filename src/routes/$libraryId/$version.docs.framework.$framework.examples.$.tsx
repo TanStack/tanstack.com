@@ -24,6 +24,7 @@ import {
   ExampleDeployDialog,
   type DeployProvider,
 } from '~/components/ExampleDeployDialog'
+import { stackBlitzEmbedHeaders } from '~/utils/stackblitz-embed'
 
 const renderedFileQueryOptions = (
   repo: string,
@@ -136,6 +137,7 @@ export const Route = createFileRoute(
       }),
     }
   },
+  headers: () => stackBlitzEmbedHeaders,
   staleTime: 1000 * 60 * 5, // 5 minutes
 })
 

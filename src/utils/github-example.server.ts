@@ -6,7 +6,9 @@
 
 import {
   fetchGitHubRecursiveTree,
+  getGitHubContentFetchOptions,
   GitHubContentError,
+  isGitHubAuthFailureStatus,
 } from './documents.server'
 import { getCachedGitHubTextFile } from './github-content-cache.server'
 
@@ -115,8 +117,21 @@ async function fetchRawGitHubFile(
 
       try {
         response = await fetch(href, {
-          headers: { 'User-Agent': `examples:${repo}` },
+          ...getGitHubContentFetchOptions({
+            includeApiVersion: false,
+            userAgent: `examples:${repo}`,
+          }),
         })
+
+        if (isGitHubAuthFailureStatus(response.status)) {
+          response = await fetch(href, {
+            ...getGitHubContentFetchOptions({
+              includeApiVersion: false,
+              includeAuthorization: false,
+              userAgent: `examples:${repo}`,
+            }),
+          })
+        }
       } catch (error) {
         throw new GitHubContentError(
           'network',

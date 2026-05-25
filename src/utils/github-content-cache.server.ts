@@ -6,7 +6,7 @@ import {
   type GithubContentCache,
 } from '~/db/schema'
 
-const POSITIVE_STALE_MS = 24 * 60 * 60 * 1000
+const POSITIVE_STALE_MS = 5 * 60 * 1000
 const NEGATIVE_STALE_MS = 15 * 60 * 1000
 
 // Internal sentinel paths used for non-file metadata (branch SHA lookup,
@@ -130,20 +130,12 @@ function isFresh(staleAt: Date) {
 
 // markGitHubContentStale / markDocsArtifactsStale set staleAt to the epoch
 // (new Date(0)) as a sentinel for "forcibly invalidated" — an admin clicked
-// the purge button or a push webhook fired. In that case we must NOT serve
-// SWR-stale: the operator's intent is "get fresh content on the very next
-// request." Natural TTL expiry (staleAt drifts past now within the normal
-// window) still SWRs as before. The row stays around so the bottom of
-// getCachedGitHubContent / getCachedDocsArtifact can still fall back to it
-// if GitHub is unreachable.
+// the purge button or a push webhook fired. Natural TTL expiry and forced
+// invalidation both refresh synchronously now. The row stays around so the
+// bottom of getCachedGitHubContent / getCachedDocsArtifact can still fall back
+// to it if GitHub is unreachable.
 function isForciblyStale(staleAt: Date) {
   return staleAt.getTime() <= 0
-}
-
-function queueRefresh(key: string, fn: () => Promise<unknown>) {
-  void withPendingRefresh(key, fn).catch((error) => {
-    console.error(`[GitHub Cache] Failed to refresh ${key}:`, error)
-  })
 }
 
 function readStoredTextValue(row: GithubContentCache | undefined) {
@@ -269,15 +261,6 @@ async function getCachedGitHubContent<T>(opts: {
 
   if (storedValue !== undefined && !forciblyStale) {
     if (cachedRow && isFresh(cachedRow.staleAt)) {
-      return storedValue
-    }
-
-    if (storedValue !== null) {
-      queueRefresh(opts.cacheKey, async () => {
-        const value = await opts.origin()
-        await persist(value)
-      })
-
       return storedValue
     }
   }
@@ -414,13 +397,6 @@ export async function getCachedDocsArtifact<T>(opts: {
     if (cachedRow && isFresh(cachedRow.staleAt)) {
       return storedValue
     }
-
-    queueRefresh(cacheKey, async () => {
-      const payload = await opts.build()
-      await upsertDocsArtifact({ ...opts, payload })
-    })
-
-    return storedValue
   }
 
   return withPendingRefresh(cacheKey, async () => {

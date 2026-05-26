@@ -652,15 +652,14 @@ function getValidGitHubToken(token: string | undefined) {
   return trimmedToken
 }
 
-function getGitHubContentAuthToken() {
-  return (
-    getValidGitHubToken(env.GITHUB_CONTENT_TOKEN) ??
-    getValidGitHubToken(env.GITHUB_AUTH_TOKEN)
-  )
+function getGitHubAuthToken() {
+  return getValidGitHubToken(env.GITHUB_AUTH_TOKEN)
 }
 
 export function isGitHubAuthFailureStatus(status: number) {
-  return status === 401 || status === 403
+  // GitHub can mask token-scoping failures as 404, especially for raw
+  // content URLs. Retry unauthenticated before treating the content as missing.
+  return status === 401 || status === 403 || status === 404
 }
 
 export function getGitHubContentFetchOptions(opts?: {
@@ -678,7 +677,7 @@ export function getGitHubContentFetchOptions(opts?: {
     headers['User-Agent'] = opts.userAgent
   }
 
-  const token = getGitHubContentAuthToken()
+  const token = getGitHubAuthToken()
 
   if (token && opts?.includeAuthorization !== false) {
     headers.Authorization = `Bearer ${token}`

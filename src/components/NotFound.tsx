@@ -380,7 +380,7 @@ export function NotFound({ children }: { children?: React.ReactNode }) {
           {children ? <div>{children}</div> : null}
         </section>
 
-        <section className="space-y-4">
+        <section className="space-y-4 lg:self-start">
           <div className="relative min-h-[260px] overflow-hidden rounded-lg border border-gray-200/80 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
             <div
               aria-hidden="true"

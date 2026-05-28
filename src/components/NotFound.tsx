@@ -336,7 +336,7 @@ export function NotFound({ children }: { children?: React.ReactNode }) {
   return (
     <div className="flex min-h-[calc(100dvh-var(--navbar-height))] flex-1 bg-gray-50 text-gray-950 dark:bg-gray-950 dark:text-white">
       <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-10 md:px-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(360px,1.05fr)] lg:items-center lg:py-16">
-        <section className="space-y-7">
+        <section className="space-y-7 lg:self-start">
           <div className="inline-flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-1 text-xs font-semibold uppercase text-gray-500 shadow-sm dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400">
             <Compass className="h-3.5 w-3.5" />
             404 Not Found

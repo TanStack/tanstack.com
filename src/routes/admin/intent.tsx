@@ -20,6 +20,7 @@ import {
   getIntentAdminStats,
   listIntentPackages,
   listFailedVersions,
+  listIntentWorkflowRuns,
   triggerIntentDiscover,
   triggerIntentProcess,
   retryIntentVersion,
@@ -40,6 +41,7 @@ const QK = {
   stats: ['admin', 'intent', 'stats'] as const,
   packages: ['admin', 'intent', 'packages'] as const,
   failed: ['admin', 'intent', 'failed'] as const,
+  workflows: ['admin', 'intent', 'workflows'] as const,
 }
 
 // ---------------------------------------------------------------------------
@@ -67,6 +69,12 @@ function IntentAdminPage() {
   const failedQuery = useQuery({
     queryKey: QK.failed,
     queryFn: () => listFailedVersions(),
+  })
+
+  const workflowsQuery = useQuery({
+    queryKey: QK.workflows,
+    queryFn: () => listIntentWorkflowRuns(),
+    refetchInterval: 10_000,
   })
 
   const discoverMutation = useMutation({
@@ -324,6 +332,11 @@ function IntentAdminPage() {
         />
       </div>
 
+      <WorkflowRunsSection
+        runs={workflowsQuery.data ?? []}
+        loading={workflowsQuery.isLoading}
+      />
+
       {/* Failed versions (shown prominently when non-zero) */}
       {(failedQuery.data?.length ?? 0) > 0 && (
         <FailedVersionsSection
@@ -378,6 +391,101 @@ function StatCard({
       )}
     </Card>
   )
+}
+
+function WorkflowRunsSection({
+  runs,
+  loading,
+}: {
+  readonly runs: Array<{
+    runId: string
+    workflowId: string
+    workflowVersion?: string
+    status: string
+    waitingFor?: string
+    wakeAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+  }>
+  readonly loading: boolean
+}) {
+  return (
+    <div className="mb-6">
+      <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1.5 mb-2">
+        <Clock className="w-4 h-4" />
+        Workflow Runs
+      </h2>
+      {loading ? (
+        <div className="h-24 rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse" />
+      ) : runs.length === 0 ? (
+        <Card className="p-4 text-sm text-gray-500 dark:text-gray-400">
+          No workflow runs recorded yet.
+        </Card>
+      ) : (
+        <div className="rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50 dark:bg-gray-900/50">
+              <tr>
+                <th className="text-left px-3 py-2 text-xs font-medium text-gray-500">
+                  Workflow
+                </th>
+                <th className="text-left px-3 py-2 text-xs font-medium text-gray-500">
+                  Status
+                </th>
+                <th className="text-left px-3 py-2 text-xs font-medium text-gray-500 hidden md:table-cell">
+                  Run
+                </th>
+                <th className="text-left px-3 py-2 text-xs font-medium text-gray-500">
+                  Updated
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+              {runs.map((run) => (
+                <tr key={run.runId} className="bg-white dark:bg-gray-900">
+                  <td className="px-3 py-2 font-mono text-xs text-gray-900 dark:text-gray-100">
+                    {run.workflowId}
+                  </td>
+                  <td className="px-3 py-2">
+                    <span
+                      className={`inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium ${getWorkflowStatusClass(run.status)}`}
+                    >
+                      {run.waitingFor
+                        ? `${run.status}:${run.waitingFor}`
+                        : run.status}
+                    </span>
+                  </td>
+                  <td className="px-3 py-2 font-mono text-xs text-gray-500 dark:text-gray-400 hidden md:table-cell">
+                    {run.runId}
+                  </td>
+                  <td className="px-3 py-2 text-xs text-gray-500 dark:text-gray-400">
+                    {formatDistanceToNow(run.updatedAt, { addSuffix: true })}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function getWorkflowStatusClass(status: string): string {
+  switch (status) {
+    case 'finished':
+      return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
+    case 'errored':
+    case 'aborted':
+      return 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'
+    case 'paused':
+      return 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'
+    case 'running':
+    case 'queued':
+      return 'bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300'
+    default:
+      return 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
+  }
 }
 
 // ---------------------------------------------------------------------------

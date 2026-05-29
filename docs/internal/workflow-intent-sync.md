@@ -43,9 +43,10 @@ Netlify does not run a long-lived worker. It only wakes the runtime.
 
 ```ts
 export default createNetlifyWorkflowSweepHandler({ runtime: workflowRuntime })
-export const config = createNetlifyWorkflowSweepConfig({
+
+export const config: Config = {
   schedule: '*/5 * * * *',
-})
+}
 ```
 
 Each sweep materializes due schedule buckets and starts deterministic workflow
@@ -62,6 +63,10 @@ Examples:
 
 The scheduled function is deliberately stateless. If it is delivered late or
 twice, the runtime/store should claim each bucket once.
+
+The schedule is intentionally exported as a static `Config` object, matching the
+other scheduled functions in this repo. Netlify's deploy-time scheduled function
+scanner must be able to see the cron string without evaluating adapter helpers.
 
 ## Durable Store
 

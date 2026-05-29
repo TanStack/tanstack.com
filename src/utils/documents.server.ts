@@ -139,11 +139,23 @@ function isValidFilepath(filepath: string): boolean {
   )
 }
 
-function getLocalRepoBaseDir(repo: string) {
-  return path.resolve(
+function getLocalRepoBaseDirs(repo: string) {
+  const siblingRepoDir = path.resolve(
     path.dirname(fileURLToPath(import.meta.url)),
     '../../..',
     repo,
+  )
+
+  const configuredReposDir = env.TANSTACK_LOCAL_REPOS_DIR
+    ? path.resolve(env.TANSTACK_LOCAL_REPOS_DIR, repo)
+    : undefined
+
+  return Array.from(
+    new Set(
+      [siblingRepoDir, configuredReposDir].filter(
+        (dir): dir is string => dir !== undefined,
+      ),
+    ),
   )
 }
 
@@ -156,25 +168,32 @@ async function fetchFs(repo: string, filepath: string) {
     return ''
   }
 
-  const baseDir = getLocalRepoBaseDir(repo)
-  const localFilePath = path.resolve(baseDir, filepath)
+  const attemptedPaths = Array<string>()
 
-  if (!localFilePath.startsWith(baseDir)) {
-    console.warn(
-      `[fetchFs] Path traversal attempt blocked: ${filepath} resolved to ${localFilePath}\n`,
-    )
-    return ''
+  for (const baseDir of getLocalRepoBaseDirs(repo)) {
+    const localFilePath = path.resolve(baseDir, filepath)
+    attemptedPaths.push(localFilePath)
+
+    if (!localFilePath.startsWith(baseDir)) {
+      console.warn(
+        `[fetchFs] Path traversal attempt blocked: ${filepath} resolved to ${localFilePath}\n`,
+      )
+      return ''
+    }
+
+    const exists = fs.existsSync(localFilePath)
+    if (!exists) {
+      continue
+    }
+
+    const file = await fsp.readFile(localFilePath)
+    return file.toString()
   }
 
-  const exists = fs.existsSync(localFilePath)
-  if (!exists) {
-    console.warn(
-      `[fetchFs] Tried to read file that does not exist: ${localFilePath}\n`,
-    )
-    return ''
-  }
-  const file = await fsp.readFile(localFilePath)
-  return file.toString()
+  console.warn(
+    `[fetchFs] Tried to read file that does not exist: ${attemptedPaths.join(', ')}\n`,
+  )
+  return ''
 }
 
 /**
@@ -921,8 +940,16 @@ async function fetchApiContentsFs(
 ): Promise<Array<GitHubFileNode> | null> {
   const [_, repo] = repoPair.split('/')
 
-  const base = getLocalRepoBaseDir(repo)
-  const fsStartPath = path.join(base, removeLeadingSlash(startingPath))
+  const base = getLocalRepoBaseDirs(repo).find((candidate) =>
+    fs.existsSync(path.join(candidate, removeLeadingSlash(startingPath))),
+  )
+
+  if (!base) {
+    return null
+  }
+
+  const resolvedBase = base
+  const fsStartPath = path.join(resolvedBase, removeLeadingSlash(startingPath))
 
   const dirsAndFilesToIgnore = [
     'node_modules',
@@ -998,8 +1025,10 @@ async function fetchApiContentsFs(
       }
 
       // This replacement is only being done to more accurately mock the GitHub API response
-      file.path = removeLeadingSlash(file.path.replace(base, ''))
-      file._links.self = removeLeadingSlash(file._links.self.replace(base, ''))
+      file.path = removeLeadingSlash(file.path.replace(resolvedBase, ''))
+      file._links.self = removeLeadingSlash(
+        file._links.self.replace(resolvedBase, ''),
+      )
 
       result.push(file)
     }

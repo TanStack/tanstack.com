@@ -26,6 +26,7 @@ export type LibraryId =
   | 'db'
   | 'ai'
   | 'intent'
+  | 'workflow'
   | 'config'
   | 'devtools'
   | 'mcp'

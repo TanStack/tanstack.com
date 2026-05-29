@@ -796,6 +796,31 @@ export const cli: LibrarySlim = {
   },
 }
 
+export const workflow: LibrarySlim = {
+  id: 'workflow',
+  name: 'TanStack Workflow',
+  cardStyles: 'text-blue-800 dark:text-blue-400 hover:border-current',
+  to: '/workflow',
+  tagline: 'Durable, type-safe workflow orchestration for TypeScript',
+  description:
+    'Build resilient multi-step workflows with typed inputs, durable execution, retries, and observable state for long-running application processes.',
+  badge: 'alpha',
+  bgStyle: 'bg-blue-900',
+  borderStyle: 'border-blue-900/50',
+  textStyle: 'text-blue-800 dark:text-blue-400',
+  textColor: 'text-blue-900 dark:text-blue-400',
+  colorFrom: 'from-blue-800',
+  colorTo: 'to-blue-600',
+  bgRadial: 'from-blue-800 via-blue-700/50 to-transparent',
+  repo: 'tanstack/workflow',
+  frameworks: [],
+  latestVersion: 'v0',
+  latestBranch: 'main',
+  availableVersions: ['v0'],
+  defaultDocs: 'overview',
+  visible: false,
+}
+
 export const libraries: LibrarySlim[] = [
   start,
   router,
@@ -814,6 +839,7 @@ export const libraries: LibrarySlim[] = [
   devtools,
   mcp,
   cli,
+  workflow,
   {
     id: 'react-charts',
     name: 'React Charts',

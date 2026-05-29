@@ -38,6 +38,7 @@ type StaticLandingRoutePath =
   | '/store/$version/'
   | '/table/$version/'
   | '/virtual/$version/'
+  | '/workflow/$version/'
 
 function getLibraryOrThrow(libraryId: string) {
   const library = findLibrary(libraryId)

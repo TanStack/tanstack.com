@@ -78,6 +78,7 @@ import { Route as AccountIntegrationsRouteImport } from './routes/account/integr
 import { Route as AccountFeedbackRouteImport } from './routes/account/feedback'
 import { Route as DotwellKnownOauthAuthorizationServerRouteImport } from './routes/[.]well-known/oauth-authorization-server'
 import { Route as LibraryIdVersionRouteImport } from './routes/$libraryId/$version'
+import { Route as WorkflowVersionIndexRouteImport } from './routes/workflow.$version.index'
 import { Route as VirtualVersionIndexRouteImport } from './routes/virtual.$version.index'
 import { Route as TableVersionIndexRouteImport } from './routes/table.$version.index'
 import { Route as StoreVersionIndexRouteImport } from './routes/store.$version.index'
@@ -499,6 +500,11 @@ const LibraryIdVersionRoute = LibraryIdVersionRouteImport.update({
   id: '/$version',
   path: '/$version',
   getParentRoute: () => LibraryIdRouteRoute,
+} as any)
+const WorkflowVersionIndexRoute = WorkflowVersionIndexRouteImport.update({
+  id: '/workflow/$version/',
+  path: '/workflow/$version/',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const VirtualVersionIndexRoute = VirtualVersionIndexRouteImport.update({
   id: '/virtual/$version/',
@@ -1024,6 +1030,7 @@ export interface FileRoutesByFullPath {
   '/store/$version/': typeof StoreVersionIndexRoute
   '/table/$version/': typeof TableVersionIndexRoute
   '/virtual/$version/': typeof VirtualVersionIndexRoute
+  '/workflow/$version/': typeof WorkflowVersionIndexRoute
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
   '/$libraryId/$version/docs/blog': typeof LibraryIdVersionDocsBlogRoute
   '/$libraryId/$version/docs/community-resources': typeof LibraryIdVersionDocsCommunityResourcesRoute
@@ -1160,6 +1167,7 @@ export interface FileRoutesByTo {
   '/store/$version': typeof StoreVersionIndexRoute
   '/table/$version': typeof TableVersionIndexRoute
   '/virtual/$version': typeof VirtualVersionIndexRoute
+  '/workflow/$version': typeof WorkflowVersionIndexRoute
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
   '/$libraryId/$version/docs/blog': typeof LibraryIdVersionDocsBlogRoute
   '/$libraryId/$version/docs/community-resources': typeof LibraryIdVersionDocsCommunityResourcesRoute
@@ -1307,6 +1315,7 @@ export interface FileRoutesById {
   '/store/$version/': typeof StoreVersionIndexRoute
   '/table/$version/': typeof TableVersionIndexRoute
   '/virtual/$version/': typeof VirtualVersionIndexRoute
+  '/workflow/$version/': typeof WorkflowVersionIndexRoute
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
   '/$libraryId/$version/docs/blog': typeof LibraryIdVersionDocsBlogRoute
   '/$libraryId/$version/docs/community-resources': typeof LibraryIdVersionDocsCommunityResourcesRoute
@@ -1455,6 +1464,7 @@ export interface FileRouteTypes {
     | '/store/$version/'
     | '/table/$version/'
     | '/virtual/$version/'
+    | '/workflow/$version/'
     | '/$libraryId/$version/docs/$'
     | '/$libraryId/$version/docs/blog'
     | '/$libraryId/$version/docs/community-resources'
@@ -1591,6 +1601,7 @@ export interface FileRouteTypes {
     | '/store/$version'
     | '/table/$version'
     | '/virtual/$version'
+    | '/workflow/$version'
     | '/$libraryId/$version/docs/$'
     | '/$libraryId/$version/docs/blog'
     | '/$libraryId/$version/docs/community-resources'
@@ -1737,6 +1748,7 @@ export interface FileRouteTypes {
     | '/store/$version/'
     | '/table/$version/'
     | '/virtual/$version/'
+    | '/workflow/$version/'
     | '/$libraryId/$version/docs/$'
     | '/$libraryId/$version/docs/blog'
     | '/$libraryId/$version/docs/community-resources'
@@ -1846,6 +1858,7 @@ export interface RootRouteChildren {
   StoreVersionIndexRoute: typeof StoreVersionIndexRoute
   TableVersionIndexRoute: typeof TableVersionIndexRoute
   VirtualVersionIndexRoute: typeof VirtualVersionIndexRoute
+  WorkflowVersionIndexRoute: typeof WorkflowVersionIndexRoute
   ApiAuthCallbackProviderRoute: typeof ApiAuthCallbackProviderRoute
   ApiAuthCliCreateTicketRoute: typeof ApiAuthCliCreateTicketRoute
   ApiBuilderDeployCheckNameRoute: typeof ApiBuilderDeployCheckNameRoute
@@ -2337,6 +2350,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/$libraryId/$version'
       preLoaderRoute: typeof LibraryIdVersionRouteImport
       parentRoute: typeof LibraryIdRouteRoute
+    }
+    '/workflow/$version/': {
+      id: '/workflow/$version/'
+      path: '/workflow/$version'
+      fullPath: '/workflow/$version/'
+      preLoaderRoute: typeof WorkflowVersionIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/virtual/$version/': {
       id: '/virtual/$version/'
@@ -3173,6 +3193,7 @@ const rootRouteChildren: RootRouteChildren = {
   StoreVersionIndexRoute: StoreVersionIndexRoute,
   TableVersionIndexRoute: TableVersionIndexRoute,
   VirtualVersionIndexRoute: VirtualVersionIndexRoute,
+  WorkflowVersionIndexRoute: WorkflowVersionIndexRoute,
   ApiAuthCallbackProviderRoute: ApiAuthCallbackProviderRoute,
   ApiAuthCliCreateTicketRoute: ApiAuthCliCreateTicketRoute,
   ApiBuilderDeployCheckNameRoute: ApiBuilderDeployCheckNameRoute,

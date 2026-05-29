@@ -1,11 +1,6 @@
-import {
-  createNetlifyWorkflowSweepConfig,
-  createNetlifyWorkflowSweepHandler,
-} from '@tanstack/workflow-netlify'
-import {
-  workflowRuntime,
-  WORKFLOW_RUNTIME_SWEEP_CRON,
-} from '~/utils/workflow-runtime.server'
+import type { Config } from '@netlify/functions'
+import { createNetlifyWorkflowSweepHandler } from '@tanstack/workflow-netlify'
+import { workflowRuntime } from '~/utils/workflow-runtime.server'
 
 export default createNetlifyWorkflowSweepHandler({
   runtime: workflowRuntime,
@@ -14,6 +9,6 @@ export default createNetlifyWorkflowSweepHandler({
   maxTimers: 10,
 })
 
-export const config = createNetlifyWorkflowSweepConfig({
-  schedule: WORKFLOW_RUNTIME_SWEEP_CRON,
-})
+export const config: Config = {
+  schedule: '*/5 * * * *',
+}

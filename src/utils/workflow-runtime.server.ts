@@ -7,8 +7,6 @@ import { createDrizzlePostgresWorkflowStore } from '@tanstack/workflow-store-dri
 import { db } from '~/db/client'
 import { createAppWorkflowRegistrations } from '~/utils/workflow-registrations.server'
 
-export const WORKFLOW_RUNTIME_SWEEP_CRON = '*/5 * * * *'
-
 export const workflowExecutionStore = createDrizzlePostgresWorkflowStore({ db })
 
 export function createAppWorkflowRuntime(options?: {

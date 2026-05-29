@@ -6,6 +6,7 @@ import {
   getIntentAdminStats as getIntentAdminStatsServer,
   listFailedVersions as listFailedVersionsServer,
   listIntentPackages as listIntentPackagesServer,
+  listIntentWorkflowRuns as listIntentWorkflowRunsServer,
   resetFailedVersions as resetFailedVersionsServer,
   retryIntentVersion as retryIntentVersionServer,
   seedIntentPackage as seedIntentPackageServer,
@@ -24,6 +25,10 @@ export const listIntentPackages = createServerFn({ method: 'GET' }).handler(
 
 export const listFailedVersions = createServerFn({ method: 'GET' }).handler(
   async () => listFailedVersionsServer(),
+)
+
+export const listIntentWorkflowRuns = createServerFn({ method: 'GET' }).handler(
+  async () => listIntentWorkflowRunsServer(),
 )
 
 export const triggerIntentDiscover = createServerFn({ method: 'POST' }).handler(

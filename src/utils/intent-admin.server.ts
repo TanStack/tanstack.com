@@ -28,6 +28,11 @@ import {
   markVersionSynced,
   markVersionFailed,
 } from './intent-db.server'
+import {
+  INTENT_DISCOVER_WORKFLOW_ID,
+  INTENT_PROCESS_WORKFLOW_ID,
+} from '~/utils/intent-workflows.server'
+import { workflowExecutionStore } from '~/utils/workflow-runtime.server'
 
 // ---------------------------------------------------------------------------
 // Stats / overview
@@ -72,6 +77,36 @@ export async function getIntentAdminStats() {
     syncedVersions: syncedVersions[0]?.count ?? 0,
     totalSkills: totalSkills[0]?.count ?? 0,
   }
+}
+
+export async function listIntentWorkflowRuns() {
+  await requireCapability({ data: { capability: 'admin' } })
+
+  const runs = await Promise.all([
+    workflowExecutionStore.listRuns({
+      workflowId: INTENT_DISCOVER_WORKFLOW_ID,
+      limit: 5,
+    }),
+    workflowExecutionStore.listRuns({
+      workflowId: INTENT_PROCESS_WORKFLOW_ID,
+      limit: 5,
+    }),
+  ])
+
+  return runs
+    .flat()
+    .sort((a, b) => b.updatedAt - a.updatedAt)
+    .slice(0, 10)
+    .map((run) => ({
+      runId: run.runId,
+      workflowId: run.workflowId,
+      workflowVersion: run.workflowVersion,
+      status: run.status,
+      waitingFor: run.waitingFor?.signalName,
+      wakeAt: run.wakeAt ? new Date(run.wakeAt) : null,
+      createdAt: new Date(run.createdAt),
+      updatedAt: new Date(run.updatedAt),
+    }))
 }
 
 // ---------------------------------------------------------------------------

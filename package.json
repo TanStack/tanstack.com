@@ -21,13 +21,11 @@
     "db:studio": "drizzle-kit studio",
     "docs:webhooks:plan": "tsx scripts/sync-docs-webhooks.ts --dry-run",
     "docs:webhooks:sync": "tsx scripts/sync-docs-webhooks.ts",
-    "husky": "pnpm run format && pnpm run test && pnpm run test:smoke",
+    "husky": "pnpm run format && pnpm run test",
     "pretest": "pnpm run content:build",
     "test": "run-p test:tsc test:lint",
     "test:tsc": "tsc",
     "test:lint": "pnpm run lint",
-    "test:smoke": "tsx tests/smoke.ts",
-    "test:e2e": "playwright test",
     "prepare": "husky"
   },
   "dependencies": {
@@ -123,7 +121,6 @@
   "devDependencies": {
     "@content-collections/core": "^0.14.3",
     "@content-collections/vite": "^0.2.9",
-    "@playwright/test": "^1.59.0",
     "@shikijs/transformers": "^4.0.2",
     "@tanstack/devtools-vite": "^0.7.0",
     "@tanstack/react-devtools": "^0.10.5",

@@ -7,11 +7,7 @@ import {
   materializeWorkflowSchedules,
 } from '@tanstack/workflow-runtime'
 import type { WorkflowExecutionStore } from '@tanstack/workflow-runtime'
-import {
-  createIntentProcessWorkflow,
-  INTENT_PROCESS_SCHEDULE_ID,
-  INTENT_PROCESS_WORKFLOW_ID,
-} from '../src/utils/intent-workflows.server'
+import { createIntentProcessWorkflow } from '../src/utils/intent-workflows.server'
 import type {
   IntentProcessResult,
   IntentSyncOperations,
@@ -23,25 +19,27 @@ test('duplicate scheduled invocation with the same bucket is idempotent', async 
   let selectCalls = 0
   let processCalls = 0
   const store = inMemoryWorkflowExecutionStore()
-  const runtime = createTestIntentRuntime({
-    store,
-    operations: {
-      ...noopOperations,
-      selectPendingIntentVersions: async () => {
-        selectCalls++
-        return [{ id: 1, packageName: '@example/pkg', version: '1.0.0' }]
-      },
-      processIntentVersion: async () => {
-        processCalls++
-        return {
-          packageName: '@example/pkg',
-          version: '1.0.0',
-          status: 'synced',
-          skillCount: 1,
-        }
+  const { processSchedule, processWorkflow, runtime } = createTestIntentRuntime(
+    {
+      store,
+      operations: {
+        ...noopOperations,
+        selectPendingIntentVersions: async () => {
+          selectCalls++
+          return [{ id: 1, packageName: '@example/pkg', version: '1.0.0' }]
+        },
+        processIntentVersion: async () => {
+          processCalls++
+          return {
+            packageName: '@example/pkg',
+            version: '1.0.0',
+            status: 'synced',
+            skillCount: 1,
+          }
+        },
       },
     },
-  })
+  )
   const now = Date.UTC(2026, 4, 26, 12, 0, 0)
 
   await materializeWorkflowSchedules(runtime, { now })
@@ -50,12 +48,12 @@ test('duplicate scheduled invocation with the same bucket is idempotent', async 
   const second = await runtime.sweep({ now, includeEvents: false })
 
   const processRun = first.scheduled.find(
-    (run) => run.workflowId === INTENT_PROCESS_WORKFLOW_ID,
+    (run) => run.workflowId === processWorkflow.id,
   )
   assert.ok(processRun)
   assert.equal(
     processRun.runId,
-    `${INTENT_PROCESS_WORKFLOW_ID}:${INTENT_PROCESS_SCHEDULE_ID}:${now}`,
+    `${processWorkflow.id}:${processSchedule.id}:${now}`,
   )
   assert.equal(second.scheduled.length, 0)
   assert.equal(selectCalls, 1)
@@ -87,7 +85,7 @@ test('failed package version step does not prevent other versions from processin
     deferred: 0,
     results: [goodResult, badResult, laterResult],
   }
-  const runtime = createTestIntentRuntime({
+  const { processWorkflow, runtime } = createTestIntentRuntime({
     store: inMemoryWorkflowExecutionStore(),
     operations: {
       ...noopOperations,
@@ -105,7 +103,7 @@ test('failed package version step does not prevent other versions from processin
   })
 
   const result = await runtime.startRun({
-    workflowId: INTENT_PROCESS_WORKFLOW_ID,
+    workflowId: processWorkflow.id,
     runId: 'intent-process:test-partial-failure',
     input: { batchSize: 3, source: 'admin' },
     now: Date.UTC(2026, 4, 26, 12, 15, 0),
@@ -142,24 +140,24 @@ test('process workflow continues from queue state across scheduled invocations',
       }
     },
   }
-  const firstRuntime = createTestIntentRuntime({
+  const first = createTestIntentRuntime({
     store,
     operations,
   })
-  const secondRuntime = createTestIntentRuntime({
+  const second = createTestIntentRuntime({
     store,
     operations,
   })
   const firstBucket = Date.UTC(2026, 4, 26, 12, 0, 0)
   const secondBucket = Date.UTC(2026, 4, 26, 12, 15, 0)
 
-  await materializeWorkflowSchedules(firstRuntime, { now: firstBucket })
-  await firstRuntime.sweep({ now: firstBucket, includeEvents: false })
-  await materializeWorkflowSchedules(secondRuntime, { now: secondBucket })
-  await secondRuntime.sweep({ now: secondBucket, includeEvents: false })
+  await materializeWorkflowSchedules(first.runtime, { now: firstBucket })
+  await first.runtime.sweep({ now: firstBucket, includeEvents: false })
+  await materializeWorkflowSchedules(second.runtime, { now: secondBucket })
+  await second.runtime.sweep({ now: secondBucket, includeEvents: false })
 
   const runs = await store.listRuns({
-    workflowId: INTENT_PROCESS_WORKFLOW_ID,
+    workflowId: first.processWorkflow.id,
     limit: 10,
   })
 
@@ -186,24 +184,27 @@ function createTestIntentRuntime(options: {
   store?: WorkflowExecutionStore
 }) {
   const processWorkflow = createIntentProcessWorkflow(options.operations)
-
-  return defineWorkflowRuntime({
-    store: options.store ?? inMemoryWorkflowExecutionStore(),
-    workflows: {
-      [INTENT_PROCESS_WORKFLOW_ID]: {
-        load: async () => processWorkflow,
-        schedules: [
-          {
-            id: INTENT_PROCESS_SCHEDULE_ID,
-            schedule: every.minutes(15),
-            overlapPolicy: 'skip',
-            input: {
-              batchSize: INTENT_PROCESS_BATCH_SIZE,
-              source: 'schedule',
-            },
-          },
-        ],
-      },
+  const processSchedule = {
+    id: 'intent-process-every-15m',
+    schedule: every.minutes(15),
+    overlapPolicy: 'skip',
+    input: {
+      batchSize: INTENT_PROCESS_BATCH_SIZE,
+      source: 'schedule',
     },
-  })
+  } as const
+
+  return {
+    processSchedule,
+    processWorkflow,
+    runtime: defineWorkflowRuntime({
+      store: options.store ?? inMemoryWorkflowExecutionStore(),
+      workflows: {
+        [processWorkflow.id]: {
+          load: async () => processWorkflow,
+          schedules: [processSchedule],
+        },
+      },
+    }),
+  }
 }

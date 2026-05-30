@@ -13,11 +13,6 @@ import type {
   IntentVersionProcessResult,
 } from '~/utils/intent-sync.server'
 
-export const INTENT_DISCOVER_WORKFLOW_ID = 'intent-discover-workflow'
-export const INTENT_PROCESS_WORKFLOW_ID = 'intent-process-workflow'
-export const INTENT_DISCOVER_SCHEDULE_ID = 'intent-discover-every-6h'
-export const INTENT_PROCESS_SCHEDULE_ID = 'intent-process-every-15m'
-
 const intentDiscoverInputSchema = z.object({
   source: z.enum(['schedule', 'admin']).default('schedule'),
 })
@@ -44,7 +39,7 @@ function createIntentDiscoverWorkflow(
   operations: IntentSyncOperations = defaultIntentSyncOperations,
 ) {
   return createWorkflow({
-    id: INTENT_DISCOVER_WORKFLOW_ID,
+    id: 'intent-discover-workflow',
     input: intentDiscoverInputSchema,
   }).handler((ctx) =>
     ctx.step(
@@ -59,7 +54,7 @@ export function createIntentProcessWorkflow(
   operations: IntentSyncOperations = defaultIntentSyncOperations,
 ) {
   return createWorkflow({
-    id: INTENT_PROCESS_WORKFLOW_ID,
+    id: 'intent-process-workflow',
     input: intentProcessInputSchema,
   }).handler(async (ctx) => {
     const versions = await ctx.step(
@@ -99,22 +94,22 @@ const intentDiscoverWorkflow = createIntentDiscoverWorkflow()
 const intentProcessWorkflow = createIntentProcessWorkflow()
 
 export const intentWorkflowRegistrations = {
-  [INTENT_DISCOVER_WORKFLOW_ID]: {
+  [intentDiscoverWorkflow.id]: {
     load: async () => intentDiscoverWorkflow,
     schedules: [
       {
-        id: INTENT_DISCOVER_SCHEDULE_ID,
+        id: 'intent-discover-every-6h',
         schedule: every.hours(6),
         overlapPolicy: 'skip',
         input: { source: 'schedule' },
       },
     ],
   },
-  [INTENT_PROCESS_WORKFLOW_ID]: {
+  [intentProcessWorkflow.id]: {
     load: async () => intentProcessWorkflow,
     schedules: [
       {
-        id: INTENT_PROCESS_SCHEDULE_ID,
+        id: 'intent-process-every-15m',
         schedule: every.minutes(15),
         overlapPolicy: 'skip',
         input: {

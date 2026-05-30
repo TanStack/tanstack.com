@@ -23,10 +23,7 @@ import {
   replaceSkillsForVersion,
   markVersionSynced,
 } from './intent-db.server'
-import {
-  INTENT_DISCOVER_WORKFLOW_ID,
-  INTENT_PROCESS_WORKFLOW_ID,
-} from '~/utils/intent-workflows.server'
+import { intentWorkflowRegistrations } from '~/utils/intent-workflows.server'
 import {
   discoverIntentPackages,
   processIntentVersion,
@@ -84,16 +81,14 @@ export async function getIntentAdminStats() {
 export async function listIntentWorkflowRuns() {
   await requireCapability({ data: { capability: 'admin' } })
 
-  const runs = await Promise.all([
-    workflowExecutionStore.listRuns({
-      workflowId: INTENT_DISCOVER_WORKFLOW_ID,
-      limit: 5,
-    }),
-    workflowExecutionStore.listRuns({
-      workflowId: INTENT_PROCESS_WORKFLOW_ID,
-      limit: 5,
-    }),
-  ])
+  const runs = await Promise.all(
+    Object.keys(intentWorkflowRegistrations).map((workflowId) =>
+      workflowExecutionStore.listRuns({
+        workflowId,
+        limit: 5,
+      }),
+    ),
+  )
 
   return runs
     .flat()

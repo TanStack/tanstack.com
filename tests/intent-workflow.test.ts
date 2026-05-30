@@ -13,7 +13,6 @@ import type {
   IntentSyncOperations,
   IntentVersionProcessResult,
 } from '../src/utils/intent-sync.server'
-import { INTENT_PROCESS_BATCH_SIZE } from '../src/utils/intent-sync.server'
 
 test('duplicate scheduled invocation with the same bucket is idempotent', async () => {
   let selectCalls = 0
@@ -189,7 +188,7 @@ function createTestIntentRuntime(options: {
     schedule: every.minutes(15),
     overlapPolicy: 'skip',
     input: {
-      batchSize: INTENT_PROCESS_BATCH_SIZE,
+      batchSize: 50,
       source: 'schedule',
     },
   } as const

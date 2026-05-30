@@ -18,8 +18,6 @@ import {
   upsertIntentPackage,
 } from '~/utils/intent-db.server'
 
-export const INTENT_PROCESS_BATCH_SIZE = 50
-
 const githubSearchResponseSchema = z.object({
   items: z.array(
     z.object({

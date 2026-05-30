@@ -2,6 +2,7 @@ import * as React from 'react'
 import { FileTabs } from './FileTabs'
 import { FrameworkContent } from './FrameworkContent'
 import { PackageManagerTabs } from './PackageManagerTabs'
+import { BundlerTabs } from './BundlerTabs'
 import { CodeBlock } from './CodeBlock.server'
 import { Tabs } from './Tabs'
 import {
@@ -27,6 +28,7 @@ type MdCommentComponentProps = {
   'data-component'?: string
   'data-files-meta'?: string
   'data-package-manager-meta'?: string
+  'data-bundler-meta'?: string
   preserveTabPanels?: boolean
   children?: React.ReactNode
 }
@@ -67,6 +69,7 @@ export function MdCommentComponent({
   'data-component': componentName,
   'data-files-meta': filesMeta,
   'data-package-manager-meta': packageManagerMeta,
+  'data-bundler-meta': bundlerMeta,
   preserveTabPanels = false,
   children,
 }: MdCommentComponentProps) {
@@ -123,6 +126,43 @@ export function MdCommentComponent({
     const childArray = React.Children.toArray(children)
     const panels = childArray.filter(isMdTabPanelElement)
 
+    const parsedBundlerMeta = parseJson(bundlerMeta)
+
+    if (
+      parsedBundlerMeta &&
+      typeof parsedBundlerMeta === 'object' &&
+      panels.length
+    ) {
+      const tabs = Array.isArray((attributes as { tabs?: unknown }).tabs)
+        ? ((attributes as { tabs: Array<{ name: string; slug: string }> })
+            .tabs ?? [])
+        : []
+
+      const panelContent: Record<string, 'code-only' | 'mixed'> = {}
+      const childrenBySlug = new Map<string, React.ReactNode>()
+      panels.forEach((panel, index) => {
+        const slug = panel.props['data-tab-slug']
+        if (!slug) return
+        const content = panel.props['data-content']
+        if (content === 'code-only' || content === 'mixed') {
+          panelContent[slug] = content
+        }
+        childrenBySlug.set(slug, panel.props.children)
+        // Preserve insertion order for tabs that came in without metadata
+        void index
+      })
+
+      return (
+        <BundlerTabs tabs={tabs} panelContent={panelContent}>
+          {tabs.map((tab) => (
+            <React.Fragment key={tab.slug}>
+              {childrenBySlug.get(tab.slug)}
+            </React.Fragment>
+          ))}
+        </BundlerTabs>
+      )
+    }
+
     const parsedFilesMeta = parseJson(filesMeta)
 
     if (
@@ -164,6 +204,9 @@ export function MdCommentComponent({
 }
 
 type MdTabPanelProps = {
+  'data-tab-slug'?: string
+  'data-tab-index'?: string
+  'data-content'?: 'code-only' | 'mixed'
   children?: React.ReactNode
 }
 

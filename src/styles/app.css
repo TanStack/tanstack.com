@@ -1179,7 +1179,6 @@ mark {
   height: 1em;
 }
 
-/* Consecutive code blocks - no gap when under headings */
 [data-tab] .codeblock + .codeblock {
   @apply mt-0 border-t-0 rounded-t-none;
 }
@@ -1187,58 +1186,40 @@ mark {
 [data-tab] .codeblock:has(+ .codeblock) {
   @apply rounded-b-none;
 }
-/* File tabs variant - minimal code blocks with floating copy button */
-.file-tabs-panel .codeblock {
-  @apply rounded-t-none border-t-0 my-0;
+
+[data-tab] {
+  @apply px-4 py-4;
 }
 
-/* Hide the title bar but keep copy button accessible */
-.file-tabs-panel .codeblock > div:first-child {
+[data-tab][data-content='code-only'] {
+  @apply p-0;
+}
+
+[data-tab][data-content='code-only'] .codeblock {
+  @apply rounded-none border-none my-0;
+}
+
+[data-tab][data-content='code-only'] .codeblock pre {
+  border-radius: 0;
+}
+
+[data-tab][data-content='code-only'] .codeblock > div:first-child {
   @apply absolute right-2 top-2 bg-transparent border-none p-0 z-10;
 }
 
-/* Hide the title text, keep only the button */
-.file-tabs-panel .codeblock > div:first-child > div:first-child {
-  @apply hidden;
-}
-
-/* Package manager tabs - minimal code blocks with floating copy button */
-.package-manager-tabs [data-tab] .codeblock {
-  @apply rounded-t-none border-t-0 my-0;
-}
-
-.package-manager-tabs [data-tab] .codeblock > div:first-child {
-  @apply absolute right-2 top-2 bg-transparent border-none p-0 z-10;
-}
-
-.package-manager-tabs .codeblock {
-  border: none;
-}
-
-.package-manager-tabs
-  [data-tab]
+[data-tab][data-content='code-only']
   .codeblock
   > div:first-child
   > div:first-child {
   @apply hidden;
 }
 
-/* Remove padding from tab content wrapper for package manager */
-.package-manager-tabs .not-prose > div:last-child {
-  @apply p-0 border-none rounded-b-none bg-transparent;
+[data-tab][data-content='mixed'] > p,
+[data-tab][data-content='mixed'] > ul,
+[data-tab][data-content='mixed'] > ol {
+  @apply text-sm leading-relaxed text-gray-700 dark:text-gray-300;
 }
 
-/* Restore bottom border radius on the code block itself */
-.package-manager-tabs [data-tab] .codeblock {
-  @apply rounded-b-md;
-}
-
-/* Framework code blocks - single blocks look like regular code blocks */
 .framework-code-block > .codeblock {
   @apply my-4;
-}
-
-/* Tab content - add padding when it's not just a code block */
-[data-tab]:not(:has(> .codeblock:only-child)) {
-  @apply px-4;
 }

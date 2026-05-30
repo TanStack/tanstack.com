@@ -26,6 +26,7 @@ export type LibraryId =
   | 'db'
   | 'ai'
   | 'intent'
+  | 'workflow'
   | 'config'
   | 'devtools'
   | 'mcp'
@@ -72,6 +73,8 @@ export type LibrarySlim = {
   legacyPackages?: string[]
   installPath?: string
   corePackageName?: string
+  frameworkPackageNames?: Partial<Record<Framework, string>>
+  frameworkDocs?: Partial<Record<Framework, string>>
   handleRedirects?: (href: string) => void
   /**
    * If false, the library is hidden from sidebar navigation and pages have noindex meta tag.

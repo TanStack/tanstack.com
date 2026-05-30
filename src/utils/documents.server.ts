@@ -1,6 +1,7 @@
 import fs from 'node:fs'
 import fsp from 'node:fs/promises'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import * as graymatter from 'gray-matter'
 import { fetchCached } from '~/utils/cache.server'
 import {
@@ -72,8 +73,21 @@ async function fetchRemote(
 
   try {
     response = await fetch(href, {
-      headers: { 'User-Agent': `docs:${owner}/${repo}` },
+      ...getGitHubContentFetchOptions({
+        includeApiVersion: false,
+        userAgent: `docs:${owner}/${repo}`,
+      }),
     })
+
+    if (isGitHubAuthFailureStatus(response.status)) {
+      response = await fetch(href, {
+        ...getGitHubContentFetchOptions({
+          includeApiVersion: false,
+          includeAuthorization: false,
+          userAgent: `docs:${owner}/${repo}`,
+        }),
+      })
+    }
   } catch (error) {
     throw new GitHubContentError(
       'network',
@@ -125,6 +139,26 @@ function isValidFilepath(filepath: string): boolean {
   )
 }
 
+function getLocalRepoBaseDirs(repo: string) {
+  const siblingRepoDir = path.resolve(
+    path.dirname(fileURLToPath(import.meta.url)),
+    '../../..',
+    repo,
+  )
+
+  const configuredReposDir = env.TANSTACK_LOCAL_REPOS_DIR
+    ? path.resolve(env.TANSTACK_LOCAL_REPOS_DIR, repo)
+    : undefined
+
+  return Array.from(
+    new Set(
+      [siblingRepoDir, configuredReposDir].filter(
+        (dir): dir is string => dir !== undefined,
+      ),
+    ),
+  )
+}
+
 /**
  * Return text content of file from local file system
  */
@@ -134,26 +168,32 @@ async function fetchFs(repo: string, filepath: string) {
     return ''
   }
 
-  const dirname = import.meta.url.split('://').at(-1)!
-  const baseDir = path.resolve(dirname, `../../../../${repo}`)
-  const localFilePath = path.resolve(baseDir, filepath)
+  const attemptedPaths = Array<string>()
 
-  if (!localFilePath.startsWith(baseDir)) {
-    console.warn(
-      `[fetchFs] Path traversal attempt blocked: ${filepath} resolved to ${localFilePath}\n`,
-    )
-    return ''
+  for (const baseDir of getLocalRepoBaseDirs(repo)) {
+    const localFilePath = path.resolve(baseDir, filepath)
+    attemptedPaths.push(localFilePath)
+
+    if (!localFilePath.startsWith(baseDir)) {
+      console.warn(
+        `[fetchFs] Path traversal attempt blocked: ${filepath} resolved to ${localFilePath}\n`,
+      )
+      return ''
+    }
+
+    const exists = fs.existsSync(localFilePath)
+    if (!exists) {
+      continue
+    }
+
+    const file = await fsp.readFile(localFilePath)
+    return file.toString()
   }
 
-  const exists = fs.existsSync(localFilePath)
-  if (!exists) {
-    console.warn(
-      `[fetchFs] Tried to read file that does not exist: ${localFilePath}\n`,
-    )
-    return ''
-  }
-  const file = await fsp.readFile(localFilePath)
-  return file.toString()
+  console.warn(
+    `[fetchFs] Tried to read file that does not exist: ${attemptedPaths.join(', ')}\n`,
+  )
+  return ''
 }
 
 /**
@@ -621,12 +661,49 @@ function isGitHubRecursiveTreeResponse(
   )
 }
 
-function getGitHubApiFetchOptions(): RequestInit {
+function getValidGitHubToken(token: string | undefined) {
+  const trimmedToken = token?.trim()
+
+  if (!trimmedToken || trimmedToken === 'USE_A_REAL_KEY_IN_PRODUCTION') {
+    return undefined
+  }
+
+  return trimmedToken
+}
+
+function getGitHubAuthToken() {
+  return getValidGitHubToken(env.GITHUB_AUTH_TOKEN)
+}
+
+export function isGitHubAuthFailureStatus(status: number) {
+  // GitHub can mask token-scoping failures as 404, especially for raw
+  // content URLs. Retry unauthenticated before treating the content as missing.
+  return status === 401 || status === 403 || status === 404
+}
+
+export function getGitHubContentFetchOptions(opts?: {
+  includeApiVersion?: boolean
+  includeAuthorization?: boolean
+  userAgent?: string
+}): RequestInit {
+  const headers: Record<string, string> = {}
+
+  if (opts?.includeApiVersion !== false) {
+    headers['X-GitHub-Api-Version'] = '2022-11-28'
+  }
+
+  if (opts?.userAgent) {
+    headers['User-Agent'] = opts.userAgent
+  }
+
+  const token = getGitHubAuthToken()
+
+  if (token && opts?.includeAuthorization !== false) {
+    headers.Authorization = `Bearer ${token}`
+  }
+
   return {
-    headers: {
-      'X-GitHub-Api-Version': '2022-11-28',
-      Authorization: `Bearer ${env.GITHUB_AUTH_TOKEN}`,
-    },
+    headers,
   }
 }
 
@@ -634,7 +711,14 @@ async function fetchGitHubApiJson(url: string) {
   let response: Response
 
   try {
-    response = await fetch(url, getGitHubApiFetchOptions())
+    response = await fetch(url, getGitHubContentFetchOptions())
+
+    if (isGitHubAuthFailureStatus(response.status)) {
+      response = await fetch(
+        url,
+        getGitHubContentFetchOptions({ includeAuthorization: false }),
+      )
+    }
   } catch (error) {
     throw new GitHubContentError(
       'network',
@@ -855,10 +939,17 @@ async function fetchApiContentsFs(
   startingPath: string,
 ): Promise<Array<GitHubFileNode> | null> {
   const [_, repo] = repoPair.split('/')
-  const dirname = import.meta.url.split('://').at(-1)!
 
-  const base = path.resolve(dirname, `../../../../${repo}`)
-  const fsStartPath = path.join(base, removeLeadingSlash(startingPath))
+  const base = getLocalRepoBaseDirs(repo).find((candidate) =>
+    fs.existsSync(path.join(candidate, removeLeadingSlash(startingPath))),
+  )
+
+  if (!base) {
+    return null
+  }
+
+  const resolvedBase = base
+  const fsStartPath = path.join(resolvedBase, removeLeadingSlash(startingPath))
 
   const dirsAndFilesToIgnore = [
     'node_modules',
@@ -934,8 +1025,10 @@ async function fetchApiContentsFs(
       }
 
       // This replacement is only being done to more accurately mock the GitHub API response
-      file.path = removeLeadingSlash(file.path.replace(base, ''))
-      file._links.self = removeLeadingSlash(file._links.self.replace(base, ''))
+      file.path = removeLeadingSlash(file.path.replace(resolvedBase, ''))
+      file._links.self = removeLeadingSlash(
+        file._links.self.replace(resolvedBase, ''),
+      )
 
       result.push(file)
     }

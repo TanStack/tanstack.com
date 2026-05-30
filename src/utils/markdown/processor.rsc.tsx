@@ -97,6 +97,20 @@ function LinkElement(props: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
   return <MarkdownLink {...props} />
 }
 
+function TableElement({
+  className,
+  ...props
+}: React.TableHTMLAttributes<HTMLTableElement>) {
+  return (
+    <div className="w-full max-w-full overflow-x-auto">
+      <table
+        className={['min-w-full', className].filter(Boolean).join(' ')}
+        {...props}
+      />
+    </div>
+  )
+}
+
 function createMarkdownComponents(options: MarkdownRenderOptions = {}) {
   function MdCommentComponentWithOptions(
     props: React.ComponentProps<typeof MdCommentComponent>,
@@ -124,6 +138,7 @@ function createMarkdownComponents(options: MarkdownRenderOptions = {}) {
     'md-framework-panel': MdFrameworkPanel,
     'md-tab-panel': MdTabPanel,
     pre: CodeBlock,
+    table: TableElement,
   }
 }
 

@@ -8,7 +8,7 @@ import { DocsLayout } from '~/components/DocsLayout'
 import { findLibrary } from '~/libraries'
 import { seo } from '~/utils/seo'
 import type { ConfigSchema } from '~/utils/config'
-import { docsContentNegotiationVaryHeader } from '~/utils/http'
+import { getDocsCacheHeaders } from '~/utils/docs-cache-headers'
 
 export const Route = createFileRoute('/$libraryId/$version/docs')({
   head: (ctx) => {
@@ -27,12 +27,10 @@ export const Route = createFileRoute('/$libraryId/$version/docs')({
     }
   },
   component: DocsRoute,
-  headers: () => {
-    return {
-      'cache-control': 'public, max-age=0, must-revalidate',
-      'cdn-cache-control': 'max-age=300, stale-while-revalidate=300, durable',
-      vary: docsContentNegotiationVaryHeader,
-    }
+  headers: ({ params }) => {
+    const { libraryId, version } = params
+
+    return getDocsCacheHeaders({ libraryId, version })
   },
 })
 

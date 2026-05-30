@@ -1,12 +1,14 @@
 import { sql } from 'drizzle-orm'
 import { db } from '~/db/client'
 import { docsArtifactCache, githubContentCache } from '~/db/schema'
+import { libraries } from '~/libraries'
 import { docsWebhookSources } from '~/utils/docs-webhook-sources'
 import { requireCapability } from './auth.server'
 import {
   markDocsArtifactsStale,
   markGitHubContentStale,
 } from './github-content-cache.server'
+import { purgeNetlifyTags } from './netlify-purge.server'
 
 function normalizeDateValue(value: Date | number | string | null | undefined) {
   if (!value) {
@@ -170,10 +172,22 @@ export async function invalidateDocsCacheAdmin(opts: {
     markDocsArtifactsStale({ repo: opts.data.repo }),
   ])
 
+  const tags = opts.data.repo
+    ? [
+        `docs-config:${opts.data.repo}`,
+        ...libraries
+          .filter((library) => library.repo === opts.data.repo)
+          .map((library) => `docs:${library.id}`),
+      ]
+    : ['docs:all', 'docs-config:all']
+
+  const purge = await purgeNetlifyTags(tags)
+
   return {
     repo: opts.data.repo ?? null,
     staleContentCount,
     staleArtifactCount,
     totalInvalidated: staleContentCount + staleArtifactCount,
+    purge,
   }
 }

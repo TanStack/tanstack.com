@@ -49,6 +49,7 @@ import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AccountIndexRouteImport } from './routes/account/index'
 import { Route as LibraryIdIndexRouteImport } from './routes/$libraryId/index'
+import { Route as StackCategoryRouteImport } from './routes/stack.$category'
 import { Route as ShowcaseSubmitRouteImport } from './routes/showcase/submit'
 import { Route as ShowcaseIdRouteImport } from './routes/showcase/$id'
 import { Route as ShopSearchRouteImport } from './routes/shop.search'
@@ -77,6 +78,7 @@ import { Route as AccountIntegrationsRouteImport } from './routes/account/integr
 import { Route as AccountFeedbackRouteImport } from './routes/account/feedback'
 import { Route as DotwellKnownOauthAuthorizationServerRouteImport } from './routes/[.]well-known/oauth-authorization-server'
 import { Route as LibraryIdVersionRouteImport } from './routes/$libraryId/$version'
+import { Route as WorkflowVersionIndexRouteImport } from './routes/workflow.$version.index'
 import { Route as VirtualVersionIndexRouteImport } from './routes/virtual.$version.index'
 import { Route as TableVersionIndexRouteImport } from './routes/table.$version.index'
 import { Route as StoreVersionIndexRouteImport } from './routes/store.$version.index'
@@ -144,6 +146,7 @@ import { Route as LibraryIdVersionDocsChar123Char125DotmdRouteImport } from './r
 import { Route as LibraryIdVersionDocsNpmStatsRouteImport } from './routes/$libraryId/$version.docs.npm-stats'
 import { Route as LibraryIdVersionDocsContributorsRouteImport } from './routes/$libraryId/$version.docs.contributors'
 import { Route as LibraryIdVersionDocsCommunityResourcesRouteImport } from './routes/$libraryId/$version.docs.community-resources'
+import { Route as LibraryIdVersionDocsBlogRouteImport } from './routes/$libraryId/$version.docs.blog'
 import { Route as LibraryIdVersionDocsSplatRouteImport } from './routes/$libraryId/$version.docs.$'
 import { Route as LibraryIdVersionDocsFrameworkIndexRouteImport } from './routes/$libraryId/$version.docs.framework.index'
 import { Route as ApiAuthCliStatusTicketIdRouteImport } from './routes/api/auth/cli/status.$ticketId'
@@ -352,6 +355,11 @@ const LibraryIdIndexRoute = LibraryIdIndexRouteImport.update({
   path: '/',
   getParentRoute: () => LibraryIdRouteRoute,
 } as any)
+const StackCategoryRoute = StackCategoryRouteImport.update({
+  id: '/stack/$category',
+  path: '/stack/$category',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ShowcaseSubmitRoute = ShowcaseSubmitRouteImport.update({
   id: '/showcase/submit',
   path: '/showcase/submit',
@@ -492,6 +500,11 @@ const LibraryIdVersionRoute = LibraryIdVersionRouteImport.update({
   id: '/$version',
   path: '/$version',
   getParentRoute: () => LibraryIdRouteRoute,
+} as any)
+const WorkflowVersionIndexRoute = WorkflowVersionIndexRouteImport.update({
+  id: '/workflow/$version/',
+  path: '/workflow/$version/',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const VirtualVersionIndexRoute = VirtualVersionIndexRouteImport.update({
   id: '/virtual/$version/',
@@ -843,6 +856,12 @@ const LibraryIdVersionDocsCommunityResourcesRoute =
     path: '/community-resources',
     getParentRoute: () => LibraryIdVersionDocsRoute,
   } as any)
+const LibraryIdVersionDocsBlogRoute =
+  LibraryIdVersionDocsBlogRouteImport.update({
+    id: '/blog',
+    path: '/blog',
+    getParentRoute: () => LibraryIdVersionDocsRoute,
+  } as any)
 const LibraryIdVersionDocsSplatRoute =
   LibraryIdVersionDocsSplatRouteImport.update({
     id: '/$',
@@ -946,6 +965,7 @@ export interface FileRoutesByFullPath {
   '/shop/search': typeof ShopSearchRoute
   '/showcase/$id': typeof ShowcaseIdRoute
   '/showcase/submit': typeof ShowcaseSubmitRoute
+  '/stack/$category': typeof StackCategoryRoute
   '/$libraryId/': typeof LibraryIdIndexRoute
   '/account/': typeof AccountIndexRoute
   '/admin/': typeof AdminIndexRoute
@@ -1010,7 +1030,9 @@ export interface FileRoutesByFullPath {
   '/store/$version/': typeof StoreVersionIndexRoute
   '/table/$version/': typeof TableVersionIndexRoute
   '/virtual/$version/': typeof VirtualVersionIndexRoute
+  '/workflow/$version/': typeof WorkflowVersionIndexRoute
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
+  '/$libraryId/$version/docs/blog': typeof LibraryIdVersionDocsBlogRoute
   '/$libraryId/$version/docs/community-resources': typeof LibraryIdVersionDocsCommunityResourcesRoute
   '/$libraryId/$version/docs/contributors': typeof LibraryIdVersionDocsContributorsRoute
   '/$libraryId/$version/docs/npm-stats': typeof LibraryIdVersionDocsNpmStatsRoute
@@ -1082,6 +1104,7 @@ export interface FileRoutesByTo {
   '/shop/search': typeof ShopSearchRoute
   '/showcase/$id': typeof ShowcaseIdRoute
   '/showcase/submit': typeof ShowcaseSubmitRoute
+  '/stack/$category': typeof StackCategoryRoute
   '/$libraryId': typeof LibraryIdIndexRoute
   '/account': typeof AccountIndexRoute
   '/admin': typeof AdminIndexRoute
@@ -1144,7 +1167,9 @@ export interface FileRoutesByTo {
   '/store/$version': typeof StoreVersionIndexRoute
   '/table/$version': typeof TableVersionIndexRoute
   '/virtual/$version': typeof VirtualVersionIndexRoute
+  '/workflow/$version': typeof WorkflowVersionIndexRoute
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
+  '/$libraryId/$version/docs/blog': typeof LibraryIdVersionDocsBlogRoute
   '/$libraryId/$version/docs/community-resources': typeof LibraryIdVersionDocsCommunityResourcesRoute
   '/$libraryId/$version/docs/contributors': typeof LibraryIdVersionDocsContributorsRoute
   '/$libraryId/$version/docs/npm-stats': typeof LibraryIdVersionDocsNpmStatsRoute
@@ -1225,6 +1250,7 @@ export interface FileRoutesById {
   '/shop/search': typeof ShopSearchRoute
   '/showcase/$id': typeof ShowcaseIdRoute
   '/showcase/submit': typeof ShowcaseSubmitRoute
+  '/stack/$category': typeof StackCategoryRoute
   '/$libraryId/': typeof LibraryIdIndexRoute
   '/account/': typeof AccountIndexRoute
   '/admin/': typeof AdminIndexRoute
@@ -1289,7 +1315,9 @@ export interface FileRoutesById {
   '/store/$version/': typeof StoreVersionIndexRoute
   '/table/$version/': typeof TableVersionIndexRoute
   '/virtual/$version/': typeof VirtualVersionIndexRoute
+  '/workflow/$version/': typeof WorkflowVersionIndexRoute
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
+  '/$libraryId/$version/docs/blog': typeof LibraryIdVersionDocsBlogRoute
   '/$libraryId/$version/docs/community-resources': typeof LibraryIdVersionDocsCommunityResourcesRoute
   '/$libraryId/$version/docs/contributors': typeof LibraryIdVersionDocsContributorsRoute
   '/$libraryId/$version/docs/npm-stats': typeof LibraryIdVersionDocsNpmStatsRoute
@@ -1371,6 +1399,7 @@ export interface FileRouteTypes {
     | '/shop/search'
     | '/showcase/$id'
     | '/showcase/submit'
+    | '/stack/$category'
     | '/$libraryId/'
     | '/account/'
     | '/admin/'
@@ -1435,7 +1464,9 @@ export interface FileRouteTypes {
     | '/store/$version/'
     | '/table/$version/'
     | '/virtual/$version/'
+    | '/workflow/$version/'
     | '/$libraryId/$version/docs/$'
+    | '/$libraryId/$version/docs/blog'
     | '/$libraryId/$version/docs/community-resources'
     | '/$libraryId/$version/docs/contributors'
     | '/$libraryId/$version/docs/npm-stats'
@@ -1507,6 +1538,7 @@ export interface FileRouteTypes {
     | '/shop/search'
     | '/showcase/$id'
     | '/showcase/submit'
+    | '/stack/$category'
     | '/$libraryId'
     | '/account'
     | '/admin'
@@ -1569,7 +1601,9 @@ export interface FileRouteTypes {
     | '/store/$version'
     | '/table/$version'
     | '/virtual/$version'
+    | '/workflow/$version'
     | '/$libraryId/$version/docs/$'
+    | '/$libraryId/$version/docs/blog'
     | '/$libraryId/$version/docs/community-resources'
     | '/$libraryId/$version/docs/contributors'
     | '/$libraryId/$version/docs/npm-stats'
@@ -1649,6 +1683,7 @@ export interface FileRouteTypes {
     | '/shop/search'
     | '/showcase/$id'
     | '/showcase/submit'
+    | '/stack/$category'
     | '/$libraryId/'
     | '/account/'
     | '/admin/'
@@ -1713,7 +1748,9 @@ export interface FileRouteTypes {
     | '/store/$version/'
     | '/table/$version/'
     | '/virtual/$version/'
+    | '/workflow/$version/'
     | '/$libraryId/$version/docs/$'
+    | '/$libraryId/$version/docs/blog'
     | '/$libraryId/$version/docs/community-resources'
     | '/$libraryId/$version/docs/contributors'
     | '/$libraryId/$version/docs/npm-stats'
@@ -1777,6 +1814,7 @@ export interface RootRouteChildren {
   OauthTokenRoute: typeof OauthTokenRoute
   ShowcaseIdRoute: typeof ShowcaseIdRoute
   ShowcaseSubmitRoute: typeof ShowcaseSubmitRoute
+  StackCategoryRoute: typeof StackCategoryRoute
   ShowcaseIndexRoute: typeof ShowcaseIndexRoute
   StatsIndexRoute: typeof StatsIndexRoute
   ApiApplicationStarterResolveRoute: typeof ApiApplicationStarterResolveRoute
@@ -1820,6 +1858,7 @@ export interface RootRouteChildren {
   StoreVersionIndexRoute: typeof StoreVersionIndexRoute
   TableVersionIndexRoute: typeof TableVersionIndexRoute
   VirtualVersionIndexRoute: typeof VirtualVersionIndexRoute
+  WorkflowVersionIndexRoute: typeof WorkflowVersionIndexRoute
   ApiAuthCallbackProviderRoute: typeof ApiAuthCallbackProviderRoute
   ApiAuthCliCreateTicketRoute: typeof ApiAuthCliCreateTicketRoute
   ApiBuilderDeployCheckNameRoute: typeof ApiBuilderDeployCheckNameRoute
@@ -2109,6 +2148,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryIdIndexRouteImport
       parentRoute: typeof LibraryIdRouteRoute
     }
+    '/stack/$category': {
+      id: '/stack/$category'
+      path: '/stack/$category'
+      fullPath: '/stack/$category'
+      preLoaderRoute: typeof StackCategoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/showcase/submit': {
       id: '/showcase/submit'
       path: '/showcase/submit'
@@ -2304,6 +2350,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/$libraryId/$version'
       preLoaderRoute: typeof LibraryIdVersionRouteImport
       parentRoute: typeof LibraryIdRouteRoute
+    }
+    '/workflow/$version/': {
+      id: '/workflow/$version/'
+      path: '/workflow/$version'
+      fullPath: '/workflow/$version/'
+      preLoaderRoute: typeof WorkflowVersionIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/virtual/$version/': {
       id: '/virtual/$version/'
@@ -2774,6 +2827,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryIdVersionDocsCommunityResourcesRouteImport
       parentRoute: typeof LibraryIdVersionDocsRoute
     }
+    '/$libraryId/$version/docs/blog': {
+      id: '/$libraryId/$version/docs/blog'
+      path: '/blog'
+      fullPath: '/$libraryId/$version/docs/blog'
+      preLoaderRoute: typeof LibraryIdVersionDocsBlogRouteImport
+      parentRoute: typeof LibraryIdVersionDocsRoute
+    }
     '/$libraryId/$version/docs/$': {
       id: '/$libraryId/$version/docs/$'
       path: '/$'
@@ -2828,6 +2888,7 @@ declare module '@tanstack/react-router' {
 
 interface LibraryIdVersionDocsRouteChildren {
   LibraryIdVersionDocsSplatRoute: typeof LibraryIdVersionDocsSplatRoute
+  LibraryIdVersionDocsBlogRoute: typeof LibraryIdVersionDocsBlogRoute
   LibraryIdVersionDocsCommunityResourcesRoute: typeof LibraryIdVersionDocsCommunityResourcesRoute
   LibraryIdVersionDocsContributorsRoute: typeof LibraryIdVersionDocsContributorsRoute
   LibraryIdVersionDocsNpmStatsRoute: typeof LibraryIdVersionDocsNpmStatsRoute
@@ -2842,6 +2903,7 @@ interface LibraryIdVersionDocsRouteChildren {
 
 const LibraryIdVersionDocsRouteChildren: LibraryIdVersionDocsRouteChildren = {
   LibraryIdVersionDocsSplatRoute: LibraryIdVersionDocsSplatRoute,
+  LibraryIdVersionDocsBlogRoute: LibraryIdVersionDocsBlogRoute,
   LibraryIdVersionDocsCommunityResourcesRoute:
     LibraryIdVersionDocsCommunityResourcesRoute,
   LibraryIdVersionDocsContributorsRoute: LibraryIdVersionDocsContributorsRoute,
@@ -3087,6 +3149,7 @@ const rootRouteChildren: RootRouteChildren = {
   OauthTokenRoute: OauthTokenRoute,
   ShowcaseIdRoute: ShowcaseIdRoute,
   ShowcaseSubmitRoute: ShowcaseSubmitRoute,
+  StackCategoryRoute: StackCategoryRoute,
   ShowcaseIndexRoute: ShowcaseIndexRoute,
   StatsIndexRoute: StatsIndexRoute,
   ApiApplicationStarterResolveRoute: ApiApplicationStarterResolveRoute,
@@ -3130,6 +3193,7 @@ const rootRouteChildren: RootRouteChildren = {
   StoreVersionIndexRoute: StoreVersionIndexRoute,
   TableVersionIndexRoute: TableVersionIndexRoute,
   VirtualVersionIndexRoute: VirtualVersionIndexRoute,
+  WorkflowVersionIndexRoute: WorkflowVersionIndexRoute,
   ApiAuthCallbackProviderRoute: ApiAuthCallbackProviderRoute,
   ApiAuthCliCreateTicketRoute: ApiAuthCliCreateTicketRoute,
   ApiBuilderDeployCheckNameRoute: ApiBuilderDeployCheckNameRoute,

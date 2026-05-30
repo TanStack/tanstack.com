@@ -15,6 +15,7 @@ const serverEnvSchema = v.object({
   RESEND_API_KEY: v.optional(v.string()),
   SENTRY_DSN: v.optional(v.string()),
   TANSTACK_MCP_ENABLED_TOOLS: v.optional(v.string()),
+  TANSTACK_LOCAL_REPOS_DIR: v.optional(v.string()),
   // Shopify Storefront API token — server-only. Cart reads and mutations
   // run through createServerFn (src/utils/shop.functions.ts), so this
   // token never reaches the browser. Store domain + API version are

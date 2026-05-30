@@ -114,6 +114,11 @@ export const getTanstackDocsConfig = createServerFn({ method: 'GET' })
             'Cache-Control': 'public, max-age=0, must-revalidate',
             'Netlify-CDN-Cache-Control':
               'public, max-age=300, durable, stale-while-revalidate=300',
+            'Netlify-Cache-Tag': [
+              'docs-config:all',
+              `docs-config:${repo}`,
+              `docs-config:${repo}:${branch}`,
+            ].join(', '),
           }),
         )
 

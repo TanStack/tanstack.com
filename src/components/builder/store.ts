@@ -17,6 +17,7 @@ import type {
 import type { FrameworkId } from '~/builder/frameworks'
 import {
   getRecipeBuilderFeatures,
+  isCliTemplateId,
   type ApplicationStarterRecipe,
 } from '~/utils/application-starter'
 import { TEMPLATES } from '~/builder/templates'
@@ -291,18 +292,26 @@ export const useBuilderStore = create<BuilderState>()(
       const template = TEMPLATES.find((t) => t.id === id)
       if (!template) return
 
-      const { availableFeatures } = get()
+      const { availableFeatures, availableExamples } = get()
 
       // Filter to only features that exist in current framework
       const validFeatures = template.features.filter((f) =>
         availableFeatures.some((af) => af.id === f),
       )
 
+      const example = template.exampleId
+        ? availableExamples.find((e) => e.id === template.exampleId)
+        : undefined
+      const exampleLockedFeatures = example?.requires ?? []
+      const featuresWithExampleDeps = Array.from(
+        new Set([...validFeatures, ...exampleLockedFeatures]),
+      ).filter((f) => availableFeatures.some((af) => af.id === f))
+
       set({
         selectedTemplate: id,
-        features: validFeatures,
+        features: featuresWithExampleDeps,
         featureOptions: {},
-        selectedExample: null,
+        selectedExample: example?.id ?? null,
       })
     },
 
@@ -323,14 +332,27 @@ export const useBuilderStore = create<BuilderState>()(
         await get().loadFeatures()
       }
 
-      const { availableFeatures, projectName } = get()
+      const { availableFeatures, availableExamples, projectName } = get()
       const validFeatures = getRecipeBuilderFeatures(recipe).filter(
         (featureId) =>
           availableFeatures.some((feature) => feature.id === featureId),
       )
+
+      const recipeTemplateIsExample = isCliTemplateId(recipe.template)
+      const exampleLockedFeatures = recipeTemplateIsExample
+        ? (availableExamples.find((e) => e.id === recipe.template)?.requires ??
+          [])
+        : []
+
+      // featureOptions are valid for any add-on the project will end up with —
+      // either explicitly chosen features or those locked by the selected example.
+      const optionEligibleFeatures = new Set([
+        ...validFeatures,
+        ...exampleLockedFeatures,
+      ])
       const nextFeatureOptions = Object.fromEntries(
         Object.entries(recipe.featureOptions).filter(([featureId]) =>
-          validFeatures.includes(featureId),
+          optionEligibleFeatures.has(featureId),
         ),
       )
 
@@ -339,8 +361,10 @@ export const useBuilderStore = create<BuilderState>()(
         tailwind: recipe.tailwind,
         features: validFeatures,
         featureOptions: nextFeatureOptions,
-        selectedExample: null,
-        selectedTemplate: recipe.template ?? null,
+        selectedExample: recipeTemplateIsExample ? recipe.template! : null,
+        selectedTemplate: recipeTemplateIsExample
+          ? null
+          : (recipe.template ?? null),
         packageManager: recipe.packageManager,
         skipInstall: false,
         skipGit: false,

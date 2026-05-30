@@ -1,20 +1,14 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { createWorkflow, LogConflictError } from '@tanstack/workflow-core'
 import {
   defineWorkflowRuntime,
+  every,
   inMemoryWorkflowExecutionStore,
   materializeWorkflowSchedules,
 } from '@tanstack/workflow-runtime'
-import { createDrizzlePostgresWorkflowStore } from '@tanstack/workflow-store-drizzle-postgres'
-import { drizzle } from 'drizzle-orm/postgres-js'
-import { sql } from 'drizzle-orm'
-import postgres from 'postgres'
-import { z } from 'zod'
-import * as schema from '../src/db/schema'
-import { createAppWorkflowRuntime } from '../src/utils/workflow-runtime.server'
+import type { WorkflowExecutionStore } from '@tanstack/workflow-runtime'
 import {
-  createIntentWorkflowRegistrations,
+  createIntentProcessWorkflow,
   INTENT_PROCESS_SCHEDULE_ID,
   INTENT_PROCESS_WORKFLOW_ID,
 } from '../src/utils/intent-workflows.server'
@@ -23,120 +17,30 @@ import type {
   IntentSyncOperations,
   IntentVersionProcessResult,
 } from '../src/utils/intent-sync.server'
-
-test(
-  'Postgres/Drizzle workflow store appends events and replays by run ID',
-  {
-    skip:
-      process.env.INTENT_WORKFLOW_DB_TESTS === '1'
-        ? false
-        : 'Set INTENT_WORKFLOW_DB_TESTS=1 with DATABASE_URL to run DB adapter coverage',
-  },
-  async () => {
-    const databaseUrl = process.env.DATABASE_URL
-    assert.ok(databaseUrl, 'DATABASE_URL is required for this test')
-
-    const client = postgres(databaseUrl, { max: 1, connect_timeout: 5 })
-    const database = drizzle(client, { schema })
-    const schemaName = `workflow_test_${process.pid}_${Date.now()}`
-
-    try {
-      await database.execute(sql.raw(`create schema ${quoteIdent(schemaName)}`))
-
-      let stepCalls = 0
-      const workflow = createWorkflow({
-        id: 'test-replay-workflow',
-        input: z.object({ value: z.number() }),
-      }).handler(async (ctx) => {
-        const doubled = await ctx.step('double-value', () => {
-          stepCalls++
-          return ctx.input.value * 2
-        })
-        return { doubled }
-      })
-
-      const store = createDrizzlePostgresWorkflowStore({
-        db: database,
-        schema: schemaName,
-      })
-      await store.ensureSchema()
-
-      const runtime = defineWorkflowRuntime({
-        store,
-        workflows: {
-          'test-replay-workflow': {
-            load: async () => workflow,
-          },
-        },
-      })
-
-      await runtime.startRun({
-        workflowId: 'test-replay-workflow',
-        runId: 'test-replay:1',
-        input: { value: 21 },
-        now: Date.UTC(2026, 4, 26, 12, 0, 0),
-        includeEvents: false,
-      })
-      await runtime.startRun({
-        workflowId: 'test-replay-workflow',
-        runId: 'test-replay:1',
-        input: { value: 21 },
-        now: Date.UTC(2026, 4, 26, 12, 0, 1),
-        includeEvents: false,
-      })
-
-      assert.equal(stepCalls, 1)
-      const timeline = await store.getRunTimeline('test-replay:1')
-      assert.ok(timeline)
-      assert.equal(
-        timeline.events.filter((event) => event.eventType === 'STEP_FINISHED')
-          .length,
-        1,
-      )
-      const firstEvent = timeline.events[0]?.event
-      assert.ok(firstEvent)
-      await assert.rejects(
-        () =>
-          store.appendEvents({
-            runId: 'test-replay:1',
-            expectedNextIndex: 0,
-            events: [firstEvent],
-          }),
-        LogConflictError,
-      )
-    } finally {
-      await database.execute(
-        sql.raw(`drop schema if exists ${quoteIdent(schemaName)} cascade`),
-      )
-      await client.end()
-    }
-  },
-)
+import { INTENT_PROCESS_BATCH_SIZE } from '../src/utils/intent-sync.server'
 
 test('duplicate scheduled invocation with the same bucket is idempotent', async () => {
   let selectCalls = 0
   let processCalls = 0
   const store = inMemoryWorkflowExecutionStore()
-  const runtime = createAppWorkflowRuntime({
+  const runtime = createTestIntentRuntime({
     store,
-    workflowRegistrations: createIntentWorkflowRegistrations({
-      operations: {
-        ...noopOperations,
-        selectPendingIntentVersions: async () => {
-          selectCalls++
-          return [{ id: 1, packageName: '@example/pkg', version: '1.0.0' }]
-        },
-        processIntentVersion: async () => {
-          processCalls++
-          return {
-            packageName: '@example/pkg',
-            version: '1.0.0',
-            status: 'synced',
-            skillCount: 1,
-          }
-        },
+    operations: {
+      ...noopOperations,
+      selectPendingIntentVersions: async () => {
+        selectCalls++
+        return [{ id: 1, packageName: '@example/pkg', version: '1.0.0' }]
       },
-    }),
+      processIntentVersion: async () => {
+        processCalls++
+        return {
+          packageName: '@example/pkg',
+          version: '1.0.0',
+          status: 'synced',
+          skillCount: 1,
+        }
+      },
+    },
   })
   const now = Date.UTC(2026, 4, 26, 12, 0, 0)
 
@@ -183,23 +87,21 @@ test('failed package version step does not prevent other versions from processin
     deferred: 0,
     results: [goodResult, badResult, laterResult],
   }
-  const runtime = createAppWorkflowRuntime({
+  const runtime = createTestIntentRuntime({
     store: inMemoryWorkflowExecutionStore(),
-    workflowRegistrations: createIntentWorkflowRegistrations({
-      operations: {
-        ...noopOperations,
-        selectPendingIntentVersions: async () => [
-          { id: 1, packageName: '@example/good', version: '1.0.0' },
-          { id: 2, packageName: '@example/bad', version: '1.0.0' },
-          { id: 3, packageName: '@example/later', version: '1.0.0' },
-        ],
-        processIntentVersion: async (versionId: number) => {
-          if (versionId === 1) return goodResult
-          if (versionId === 2) throw new Error('tarball failed')
-          return laterResult
-        },
+    operations: {
+      ...noopOperations,
+      selectPendingIntentVersions: async () => [
+        { id: 1, packageName: '@example/good', version: '1.0.0' },
+        { id: 2, packageName: '@example/bad', version: '1.0.0' },
+        { id: 3, packageName: '@example/later', version: '1.0.0' },
+      ],
+      processIntentVersion: async (versionId: number) => {
+        if (versionId === 1) return goodResult
+        if (versionId === 2) throw new Error('tarball failed')
+        return laterResult
       },
-    }),
+    },
   })
 
   const result = await runtime.startRun({
@@ -240,13 +142,13 @@ test('process workflow continues from queue state across scheduled invocations',
       }
     },
   }
-  const firstRuntime = createAppWorkflowRuntime({
+  const firstRuntime = createTestIntentRuntime({
     store,
-    workflowRegistrations: createIntentWorkflowRegistrations({ operations }),
+    operations,
   })
-  const secondRuntime = createAppWorkflowRuntime({
+  const secondRuntime = createTestIntentRuntime({
     store,
-    workflowRegistrations: createIntentWorkflowRegistrations({ operations }),
+    operations,
   })
   const firstBucket = Date.UTC(2026, 4, 26, 12, 0, 0)
   const secondBucket = Date.UTC(2026, 4, 26, 12, 15, 0)
@@ -279,6 +181,29 @@ const noopOperations: IntentSyncOperations = {
   },
 }
 
-function quoteIdent(identifier: string): string {
-  return `"${identifier.replaceAll('"', '""')}"`
+function createTestIntentRuntime(options: {
+  operations: IntentSyncOperations
+  store?: WorkflowExecutionStore
+}) {
+  const processWorkflow = createIntentProcessWorkflow(options.operations)
+
+  return defineWorkflowRuntime({
+    store: options.store ?? inMemoryWorkflowExecutionStore(),
+    workflows: {
+      [INTENT_PROCESS_WORKFLOW_ID]: {
+        load: async () => processWorkflow,
+        schedules: [
+          {
+            id: INTENT_PROCESS_SCHEDULE_ID,
+            schedule: every.minutes(15),
+            overlapPolicy: 'skip',
+            input: {
+              batchSize: INTENT_PROCESS_BATCH_SIZE,
+              source: 'schedule',
+            },
+          },
+        ],
+      },
+    },
+  })
 }

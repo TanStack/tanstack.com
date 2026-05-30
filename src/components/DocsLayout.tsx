@@ -869,14 +869,15 @@ export function DocsLayout({
           'max-w-[250px] xl:max-w-[300px] 2xl:max-w-[400px]',
           'flex-col overflow-hidden',
           'h-[calc(100dvh-var(--navbar-height))] top-[var(--navbar-height)]',
-          'z-20 border-r border-gray-500/20',
+          'border-r border-gray-500/20',
           'transition-all duration-300',
           // Hidden on smallest screens, flex on md+
           'hidden md:flex',
-          // On md to xl: fixed overlay that slides in from left-0 (covers the strip)
-          'md:fixed md:left-0 md:bg-white md:dark:bg-black/95 md:backdrop-blur-lg md:shadow-xl',
-          // On xl+: sticky positioning, no overlay styling
-          'xl:sticky xl:bg-transparent xl:dark:bg-transparent xl:backdrop-blur-none xl:shadow-none',
+          // On md to xl: fixed overlay that slides in from left-0 (covers the strip).
+          // z-40 keeps the sliding overlay above the docs tab bar (z-30).
+          'md:fixed md:left-0 md:z-40 md:bg-white md:dark:bg-black/95 md:backdrop-blur-lg md:shadow-xl',
+          // On xl+: sticky positioning sitting inline below tabs, no overlay styling
+          'xl:sticky xl:z-20 xl:bg-transparent xl:dark:bg-transparent xl:backdrop-blur-none xl:shadow-none',
           // Slide animation for md-xl screens (off-screen by default, slides in when shown)
           // On xl+: always visible (no translate)
           !showLargeMenu && 'md:-translate-x-full xl:translate-x-0',
@@ -938,8 +939,10 @@ export function DocsLayout({
               from="/$libraryId/$version/docs"
               to={target.to}
               params={linkParams}
+              aria-current={isActive ? 'page' : undefined}
               className={twMerge(
                 'relative whitespace-nowrap py-3 font-semibold transition-colors',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-current rounded-sm',
                 isActive
                   ? `text-transparent bg-clip-text bg-linear-to-r ${colorFrom} ${colorTo}`
                   : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100',
@@ -948,6 +951,7 @@ export function DocsLayout({
               {tab.label}
               {isActive ? (
                 <span
+                  aria-hidden="true"
                   className={twMerge(
                     'absolute left-0 right-0 -bottom-px h-[3px] rounded-t-full bg-linear-to-r',
                     colorFrom,

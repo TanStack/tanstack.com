@@ -40,6 +40,7 @@ function getFallbackDocsNavTabId(
     searchText.includes('contributors') ||
     searchText.includes('npm-stats') ||
     searchText.includes('npm stats') ||
+    searchText.includes('blog') ||
     searchText.includes('github') ||
     searchText.includes('discord') ||
     searchText.includes('youtube')
@@ -91,6 +92,16 @@ export function getDocsNavTabId(
   return child.tab ?? group.tab ?? getFallbackDocsNavTabId(group, child)
 }
 
+// A tab's `firstItem` is the destination clicked when the user activates the
+// tab. It must point at real docs content, never a utility/special target like
+// `..` (library home), `./framework` (framework picker), or external links.
+function isDocsTabTarget(to: string) {
+  if (to.startsWith('http')) return false
+  if (to === '..' || to === './framework') return false
+  if (to.startsWith('/')) return to.includes('/docs/')
+  return true
+}
+
 export function getTabbedMenuConfig(menuConfig: MenuItem[]) {
   return docsNavTabs
     .map((tab) => {
@@ -109,15 +120,51 @@ export function getTabbedMenuConfig(menuConfig: MenuItem[]) {
         })
         .filter((group): group is MenuItem => group !== undefined)
 
+      const children = groups.flatMap((group) => group.children)
+
       return {
         ...tab,
         groups,
-        firstItem: groups
-          .flatMap((group) => group.children)
-          .find((child) => !child.to.startsWith('http')),
+        firstItem:
+          children.find((child) => isDocsTabTarget(child.to)) ??
+          children.find((child) => !child.to.startsWith('http')),
       }
     })
     .filter((tab) => tab.groups.length)
+}
+
+// Matches a menu child's `to` against the current pathname, handling the
+// special/absolute internal paths used by the Menu group (e.g. `..`,
+// `./framework`, `/$libraryId/$version/docs/...`) in addition to plain
+// relative doc paths.
+function isChildPathMatch({
+  childTo,
+  pathname,
+  relativePathname,
+}: {
+  childTo: string
+  pathname: string
+  relativePathname: string
+}) {
+  if (childTo === relativePathname) return true
+
+  if (childTo === '..') {
+    return /^\/[^/]+\/[^/]+\/?$/.test(pathname)
+  }
+
+  if (childTo === './framework') {
+    return (
+      pathname.includes('/docs/framework') &&
+      !/\/docs\/framework\/[^/]+/.test(pathname)
+    )
+  }
+
+  if (childTo.includes('/$libraryId/$version/docs/')) {
+    const suffix = childTo.split('/docs/')[1]
+    return Boolean(suffix) && pathname.includes(`/docs/${suffix}`)
+  }
+
+  return false
 }
 
 export function getActiveDocsNavTabId({
@@ -136,10 +183,12 @@ export function getActiveDocsNavTabId({
   }
 
   const activeGroup = menuConfig.find((group) =>
-    group.children.some((child) => child.to === relativePathname),
+    group.children.some((child) =>
+      isChildPathMatch({ childTo: child.to, pathname, relativePathname }),
+    ),
   )
-  const activeChild = activeGroup?.children.find(
-    (child) => child.to === relativePathname,
+  const activeChild = activeGroup?.children.find((child) =>
+    isChildPathMatch({ childTo: child.to, pathname, relativePathname }),
   )
 
   if (activeGroup && activeChild) {

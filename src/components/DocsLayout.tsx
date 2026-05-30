@@ -963,48 +963,48 @@ export function DocsLayout({
           aria-label="Documentation sections"
           className="flex flex-1 items-stretch gap-6 overflow-x-auto px-3 md:px-6 text-sm [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
-        {tabbedMenuConfig.map((tab) => {
-          const target = tab.firstItem
-          const isActive = tab.id === activeTabId
+          {tabbedMenuConfig.map((tab) => {
+            const target = tab.firstItem
+            const isActive = tab.id === activeTabId
 
-          if (!target) {
-            return null
-          }
+            if (!target) {
+              return null
+            }
 
-          const linkParams =
-            !target.to.startsWith('/') || target.to.includes('/$libraryId')
-              ? ({ libraryId, version } as never)
-              : undefined
+            const linkParams =
+              !target.to.startsWith('/') || target.to.includes('/$libraryId')
+                ? ({ libraryId, version } as never)
+                : undefined
 
-          return (
-            <Link
-              key={tab.id}
-              from="/$libraryId/$version/docs"
-              to={target.to}
-              params={linkParams}
-              aria-current={isActive ? 'page' : undefined}
-              className={twMerge(
-                'relative whitespace-nowrap py-3 font-semibold transition-colors',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-current rounded-sm',
-                isActive
-                  ? `text-transparent bg-clip-text bg-linear-to-r ${colorFrom} ${colorTo}`
-                  : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100',
-              )}
-            >
-              {tab.label}
-              {isActive ? (
-                <span
-                  aria-hidden="true"
-                  className={twMerge(
-                    'absolute left-0 right-0 -bottom-px h-[3px] rounded-t-full bg-linear-to-r',
-                    colorFrom,
-                    colorTo,
-                  )}
-                />
-              ) : null}
-            </Link>
-          )
-        })}
+            return (
+              <Link
+                key={tab.id}
+                from="/$libraryId/$version/docs"
+                to={target.to}
+                params={linkParams}
+                aria-current={isActive ? 'page' : undefined}
+                className={twMerge(
+                  'relative whitespace-nowrap py-3 font-semibold transition-colors',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-current rounded-sm',
+                  isActive
+                    ? `text-transparent bg-clip-text bg-linear-to-r ${colorFrom} ${colorTo}`
+                    : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100',
+                )}
+              >
+                {tab.label}
+                {isActive ? (
+                  <span
+                    aria-hidden="true"
+                    className={twMerge(
+                      'absolute left-0 right-0 -bottom-px h-[3px] rounded-t-full bg-linear-to-r',
+                      colorFrom,
+                      colorTo,
+                    )}
+                  />
+                ) : null}
+              </Link>
+            )
+          })}
         </nav>
       </div>
       {activePartners.length ? (

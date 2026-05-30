@@ -471,7 +471,14 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         : null
 
     resizeObserver?.observe(container)
-    window.addEventListener('resize', scheduleContainerHeightUpdate)
+    let lastWidth = window.innerWidth
+    const onResize = () => {
+      if (window.innerWidth === lastWidth) return
+      lastWidth = window.innerWidth
+      scheduleContainerHeightUpdate()
+    }
+
+    window.addEventListener('resize', onResize)
 
     return () => {
       if (animationFrameId !== null) {
@@ -479,7 +486,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       }
 
       resizeObserver?.disconnect()
-      window.removeEventListener('resize', scheduleContainerHeightUpdate)
+      window.removeEventListener('resize', onResize)
     }
   }, [])
 

@@ -5,7 +5,6 @@ import type { WorkflowRegistrationMap } from '@tanstack/workflow-runtime'
 import { z } from 'zod'
 import {
   defaultIntentSyncOperations,
-  INTENT_PROCESS_BATCH_SIZE,
   summarizeIntentProcessResults,
 } from '~/utils/intent-sync.server'
 import type {
@@ -113,7 +112,7 @@ export const intentWorkflowRegistrations = {
         schedule: every.minutes(15),
         overlapPolicy: 'skip',
         input: {
-          batchSize: INTENT_PROCESS_BATCH_SIZE,
+          batchSize: 50,
           source: 'schedule',
         },
       },

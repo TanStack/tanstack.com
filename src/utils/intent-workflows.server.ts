@@ -40,7 +40,7 @@ const processVersionStepOptions = {
   timeout: 2 * 60 * 1000,
 } satisfies StepOptions
 
-export function createIntentDiscoverWorkflow(
+function createIntentDiscoverWorkflow(
   operations: IntentSyncOperations = defaultIntentSyncOperations,
 ) {
   return createWorkflow({
@@ -95,43 +95,36 @@ export function createIntentProcessWorkflow(
   })
 }
 
-export const intentDiscoverWorkflow = createIntentDiscoverWorkflow()
-export const intentProcessWorkflow = createIntentProcessWorkflow()
+const intentDiscoverWorkflow = createIntentDiscoverWorkflow()
+const intentProcessWorkflow = createIntentProcessWorkflow()
 
-export function createIntentWorkflowRegistrations(options?: {
-  operations?: IntentSyncOperations
-}) {
-  const discoverWorkflow = createIntentDiscoverWorkflow(options?.operations)
-  const processWorkflow = createIntentProcessWorkflow(options?.operations)
-
-  return {
-    [INTENT_DISCOVER_WORKFLOW_ID]: {
-      load: async () => discoverWorkflow,
-      schedules: [
-        {
-          id: INTENT_DISCOVER_SCHEDULE_ID,
-          schedule: every.hours(6),
-          overlapPolicy: 'skip',
-          input: { source: 'schedule' },
+export const intentWorkflowRegistrations = {
+  [INTENT_DISCOVER_WORKFLOW_ID]: {
+    load: async () => intentDiscoverWorkflow,
+    schedules: [
+      {
+        id: INTENT_DISCOVER_SCHEDULE_ID,
+        schedule: every.hours(6),
+        overlapPolicy: 'skip',
+        input: { source: 'schedule' },
+      },
+    ],
+  },
+  [INTENT_PROCESS_WORKFLOW_ID]: {
+    load: async () => intentProcessWorkflow,
+    schedules: [
+      {
+        id: INTENT_PROCESS_SCHEDULE_ID,
+        schedule: every.minutes(15),
+        overlapPolicy: 'skip',
+        input: {
+          batchSize: INTENT_PROCESS_BATCH_SIZE,
+          source: 'schedule',
         },
-      ],
-    },
-    [INTENT_PROCESS_WORKFLOW_ID]: {
-      load: async () => processWorkflow,
-      schedules: [
-        {
-          id: INTENT_PROCESS_SCHEDULE_ID,
-          schedule: every.minutes(15),
-          overlapPolicy: 'skip',
-          input: {
-            batchSize: INTENT_PROCESS_BATCH_SIZE,
-            source: 'schedule',
-          },
-        },
-      ],
-    },
-  } satisfies WorkflowRegistrationMap
-}
+      },
+    ],
+  },
+} satisfies WorkflowRegistrationMap
 
 function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error)

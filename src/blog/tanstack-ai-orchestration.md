@@ -29,29 +29,6 @@ This is where you come in. We need your help. We need people to test out our wor
 
 The goal is simple: compose multiple typed LLM and agent steps as normal TypeScript async generators, stream each step to the UI, pause for human approval, and resume through the same SSE flow.
 
-## Try the PR build
-
-Install the PR packages directly from pkg.pr.new:
-
-```bash
-npm i https://pkg.pr.new/TanStack/ai/@tanstack/ai-orchestration@542
-npm i https://pkg.pr.new/TanStack/ai/@tanstack/ai@542
-npm i https://pkg.pr.new/TanStack/ai/@tanstack/ai-react@542
-npm i https://pkg.pr.new/TanStack/ai/@tanstack/ai-client@542
-npm i https://pkg.pr.new/TanStack/ai/@tanstack/ai-openai@542
-```
-
-Use this only for evaluation, demos, and feedback. The public API can still change before stabilization.
-
-Full documentation for this PR lives on the GitHub branch, not the released TanStack docs site:
-
-- [Overview](https://github.com/TanStack/ai/blob/worktree-cryptic-singing-wadler/docs/orchestration/overview.md)
-- [Workflows guide](https://github.com/TanStack/ai/blob/worktree-cryptic-singing-wadler/docs/orchestration/workflows.md)
-- [Orchestrators](https://github.com/TanStack/ai/blob/worktree-cryptic-singing-wadler/docs/orchestration/orchestrators.md)
-- [Approvals](https://github.com/TanStack/ai/blob/worktree-cryptic-singing-wadler/docs/orchestration/approvals.md)
-- [Run persistence](https://github.com/TanStack/ai/blob/worktree-cryptic-singing-wadler/docs/orchestration/run-persistence.md)
-- [API reference](https://github.com/TanStack/ai/blob/worktree-cryptic-singing-wadler/docs/api/ai-orchestration.md)
-
 ## Define your agents
 
 Agents are typed wrappers around a `chat()` call or any async function. `defineAgent` gives each step an input schema, output schema, and implementation.
@@ -85,25 +62,23 @@ export const writer = defineAgent({
     }),
 })
 
+export const EditorReviewSchema = z.object({
+  approved: z.boolean(),
+  article: ArticleSchema,
+  notes: z.string(),
+})
+
 export const editor = defineAgent({
   name: 'editor',
   input: z.object({
     article: ArticleSchema,
     feedback: z.string().optional(),
   }),
-  output: z.object({
-    approved: z.boolean(),
-    article: ArticleSchema,
-    notes: z.string(),
-  }),
+  output: EditorReviewSchema,
   run: ({ input }) =>
     chat({
       adapter: openaiText('gpt-4o'),
-      outputSchema: z.object({
-        approved: z.boolean(),
-        article: ArticleSchema,
-        notes: z.string(),
-      }),
+      outputSchema: EditorReviewSchema,
       stream: true,
       systemPrompts: [
         'Edit the article for accuracy, clarity, and practical developer tone. Apply any optional reviewer feedback.',
@@ -129,11 +104,11 @@ import {
 import { z } from 'zod'
 import { ArticleSchema, editor, writer } from './agents'
 
-const ArticleInputSchema = z.object({
+export const ArticleInputSchema = z.object({
   topic: z.string(),
 })
 
-const ArticleWorkflowOutputSchema = z.discriminatedUnion('ok', [
+export const ArticleWorkflowOutputSchema = z.discriminatedUnion('ok', [
   z.object({
     ok: z.literal(true),
     article: ArticleSchema,
@@ -174,13 +149,13 @@ export const articleWorkflow = defineWorkflow({
 })
 ```
 
-The interesting part is the lack of framework ceremony. TypeScript knows the input expected by `agents.writer`, and it knows the shape returned after the `yield*`. The runtime can emit lifecycle events around each yielded step, stream text while it runs, validate the result, snapshot state, and resume the generator with the typed output.
+The interesting part is the lack of framework ceremony. TypeScript knows the input expected by `agents.writer`, and it knows the shape returned after the `yield*`.
 
-Why async generator workflows? There are a lot of ways to model agent workflows. You can build a graph DSL. You can define nodes in JSON. You can describe a DAG and ask the runtime to interpret it. Well, the reason we decided to go with generator workflows is because whenever you yield the agent's step, it's streamed straight down to the client. The user sees everything in real time, and then, by the end of it, you just get the final output back. The user saw everything that went on: tool calls, reasoning, whatever.
+Each `yield* agents.someAgent(...)` becomes a typed step. The runtime can emit lifecycle events around it, stream text while it runs, validate the result, snapshot state, and resume the generator with the typed output.
 
 The workflow body is just TypeScript. Use `if`, `for`, `while`, `try`, `await`, helper functions, and whatever domain code you already have. The orchestration runtime only cares about the things you `yield*`.
 
-Each `yield* agents.someAgent(...)` becomes a typed step. The runtime can emit lifecycle events around it, stream text while it runs, validate the result, snapshot state, and resume the generator with the typed output.
+Why async generator workflows? There are a lot of ways to model agent workflows. You can build a graph DSL. You can define nodes in JSON. You can describe a DAG and ask the runtime to interpret it. The reason we went with generator workflows is that whenever you yield the agent's step, it's streamed straight down to the client. The user sees everything in real time — tool calls, reasoning, whatever happens along the way — and by the end you just get the final output back.
 
 ## Expose it over SSE
 
@@ -215,33 +190,57 @@ export async function POST(request: Request) {
 
 The current built-in persistence is `inMemoryRunStore`. That is useful for local demos and single-process evaluation. Production durability is still future-facing and experimental run-store-interface territory, especially for long pauses, deploys, restarts, and multi-node environments. But the API is there to implement your own durable run store and swap it in when you're ready.
 
+## Run it without a UI
+
+A UI is optional. The SSE endpoint above exists so a browser can watch a run unfold, but the workflow itself is just a server-side async generator. If nothing is watching — a cron job, a queue worker, a batch script, or a plain JSON endpoint that only returns the final answer — you can run the workflow headless and never stream a single event to a client.
+
+`runWorkflow` returns an async iterable, and iterating it is what drives the workflow forward. So for a headless run you drain the stream to completion, then read the final result back from the run store:
+
+```typescript
+import { inMemoryRunStore, runWorkflow } from '@tanstack/ai-orchestration'
+import { articleWorkflow } from './article-workflow'
+
+const runStore = inMemoryRunStore({ ttl: 60 * 60 * 1000 })
+
+export async function generateArticle(topic: string) {
+  const runId = crypto.randomUUID()
+
+  const stream = runWorkflow({
+    workflow: articleWorkflow,
+    runStore,
+    runId,
+    input: { topic },
+  })
+
+  // No client is listening, so just drive the run to completion.
+  for await (const _event of stream) {
+    // Optionally log progress or persist events here.
+  }
+
+  const run = await runStore.getRunState(runId)
+
+  if (run?.status === 'finished') {
+    return run.output
+  }
+
+  throw new Error(run?.error?.message ?? `Workflow ended as "${run?.status}"`)
+}
+```
+
+The same typed agents, schemas, state snapshots, and validation apply. You just skip `toServerSentEventsResponse`, the React hooks, and the browser entirely.
+
+One caveat: a headless run has nobody to answer a `yield* approve(...)`. If the workflow hits an approval step, it pauses and `getRunState` reports `status: 'paused'` instead of `'finished'`. Server-only workflows shine when the pipeline runs end to end on its own. If you need a human in the loop, either resume the paused run programmatically with an `approval` result or keep a UI connected.
+
 ## Consume it from React
 
 On the client, `WorkflowClient`, `useWorkflow`, and `useOrchestration` consume the streamed events and keep local run state updated.
 
 ```tsx
 import { fetchWorkflowEvents, useWorkflow } from '@tanstack/ai-react'
-import { z } from 'zod'
-
-const ArticleSchema = z.object({
-  title: z.string(),
-  body: z.string(),
-})
-
-const ArticleInputSchema = z.object({
-  topic: z.string(),
-})
-
-const ArticleWorkflowOutputSchema = z.discriminatedUnion('ok', [
-  z.object({
-    ok: z.literal(true),
-    article: ArticleSchema,
-  }),
-  z.object({
-    ok: z.literal(false),
-    reason: z.string(),
-  }),
-])
+import {
+  ArticleInputSchema,
+  ArticleWorkflowOutputSchema,
+} from './article-workflow'
 
 export function ArticleWorkflowDemo() {
   const workflow = useWorkflow({
@@ -343,20 +342,16 @@ When the client calls `approve()`, it POSTs back to the same endpoint with the r
 That means approvals, revisions, and denial feedback can be modeled in the workflow itself:
 
 ```typescript
-const decision =
-  yield *
-  approve({
-    title: 'Publish article?',
-    description: edited.notes,
-  })
+const decision = yield* approve({
+  title: 'Publish article?',
+  description: edited.notes,
+})
 
 if (!decision.approved) {
-  const revised =
-    yield *
-    agents.editor({
-      article: edited.article,
-      feedback: decision.feedback ?? 'Revise before publishing.',
-    })
+  const revised = yield* agents.editor({
+    article: edited.article,
+    feedback: decision.feedback ?? 'Revise before publishing.',
+  })
 
   return succeed({ article: revised.article })
 }
@@ -384,6 +379,10 @@ import {
 } from '@tanstack/ai-orchestration'
 import { z } from 'zod'
 import { ArticleSchema, editor, writer } from './agents'
+import {
+  ArticleInputSchema,
+  ArticleWorkflowOutputSchema,
+} from './article-workflow'
 
 const ArticleStateSchema = z.object({
   draft: ArticleSchema.optional(),
@@ -439,27 +438,27 @@ Routers may also yield if their decision needs async work, but their return valu
 
 That gives you the same behavior with a different control-flow style. A workflow puts the sequence directly in the generator body. An orchestrator puts the next-step decision in a router.
 
-## What is still experimental?
-
-Almost everything important enough to name.
-
-The package name is `@tanstack/ai-orchestration`, the public feature name is TanStack AI Workflows & Orchestrators, and the core shape is visible in PR 542. But this is still a PR build.
-
-Expect scrutiny around:
-
-- API names and return shapes
-- Durable persistence beyond `inMemoryRunStore`
-- Resume behavior across deploys and multiple server nodes
-- Event naming and AG-UI compatibility details
-- How much of the run-store interface should be public now
-- How examples should guide production usage without overstating guarantees
-
-The current implementation is useful enough to try and early enough to change.
-
 ## Try it and send feedback
 
-If you are building multi-step AI product flows, this is the moment to test the shape.
+If you are building multi-step AI product flows, this is the moment to test the shape. This is a PR build meant for evaluation, demos, and feedback — the public API can still change before stabilization.
 
-Try the [PR build packages](https://github.com/TanStack/ai/pull/542#issuecomment-4416347869). Read the branch docs for [workflows](https://github.com/TanStack/ai/blob/worktree-cryptic-singing-wadler/docs/orchestration/workflows.md), [orchestrators](https://github.com/TanStack/ai/blob/worktree-cryptic-singing-wadler/docs/orchestration/orchestrators.md), [approvals](https://github.com/TanStack/ai/blob/worktree-cryptic-singing-wadler/docs/orchestration/approvals.md), [run persistence](https://github.com/TanStack/ai/blob/worktree-cryptic-singing-wadler/docs/orchestration/run-persistence.md), and the [API reference](https://github.com/TanStack/ai/blob/worktree-cryptic-singing-wadler/docs/api/ai-orchestration.md).
+Install the PR packages directly from pkg.pr.new:
+
+```bash
+npm i https://pkg.pr.new/TanStack/ai/@tanstack/ai-orchestration@542
+npm i https://pkg.pr.new/TanStack/ai/@tanstack/ai@542
+npm i https://pkg.pr.new/TanStack/ai/@tanstack/ai-react@542
+npm i https://pkg.pr.new/TanStack/ai/@tanstack/ai-client@542
+npm i https://pkg.pr.new/TanStack/ai/@tanstack/ai-openai@542
+```
+
+Full documentation for this PR lives on the GitHub branch, not the released TanStack docs site:
+
+- [Overview](https://github.com/TanStack/ai/blob/worktree-cryptic-singing-wadler/docs/orchestration/overview.md)
+- [Workflows guide](https://github.com/TanStack/ai/blob/worktree-cryptic-singing-wadler/docs/orchestration/workflows.md)
+- [Orchestrators](https://github.com/TanStack/ai/blob/worktree-cryptic-singing-wadler/docs/orchestration/orchestrators.md)
+- [Approvals](https://github.com/TanStack/ai/blob/worktree-cryptic-singing-wadler/docs/orchestration/approvals.md)
+- [Run persistence](https://github.com/TanStack/ai/blob/worktree-cryptic-singing-wadler/docs/orchestration/run-persistence.md)
+- [API reference](https://github.com/TanStack/ai/blob/worktree-cryptic-singing-wadler/docs/api/ai-orchestration.md)
 
 Then share demos, feedback, and rough edges on [PR 542](https://github.com/TanStack/ai/pull/542) before the API stabilizes.

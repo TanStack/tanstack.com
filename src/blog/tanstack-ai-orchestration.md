@@ -342,16 +342,20 @@ When the client calls `approve()`, it POSTs back to the same endpoint with the r
 That means approvals, revisions, and denial feedback can be modeled in the workflow itself:
 
 ```typescript
-const decision = yield* approve({
-  title: 'Publish article?',
-  description: edited.notes,
-})
+const decision =
+  yield *
+  approve({
+    title: 'Publish article?',
+    description: edited.notes,
+  })
 
 if (!decision.approved) {
-  const revised = yield* agents.editor({
-    article: edited.article,
-    feedback: decision.feedback ?? 'Revise before publishing.',
-  })
+  const revised =
+    yield *
+    agents.editor({
+      article: edited.article,
+      feedback: decision.feedback ?? 'Revise before publishing.',
+    })
 
   return succeed({ article: revised.article })
 }

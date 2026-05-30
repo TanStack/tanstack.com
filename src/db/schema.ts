@@ -11,23 +11,12 @@ import {
   bigint,
   real,
   index,
-  primaryKey,
   uniqueIndex,
   unique,
   date,
 } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 import type { InferSelectModel, InferInsertModel } from 'drizzle-orm'
-import type {
-  RunState,
-  SerializedError,
-  WorkflowEvent,
-} from '@tanstack/workflow-core'
-import type {
-  WorkflowExecutionStatus,
-  WorkflowOverlapPolicy,
-  WorkflowScheduleSpec,
-} from '@tanstack/workflow-runtime'
 
 // Re-export client-safe types and constants
 export type {
@@ -339,196 +328,6 @@ export const docsArtifactCache = pgTable(
     ),
   }),
 )
-
-// TanStack Workflow runtime store.
-//
-// The runtime adapter uses these generic workflow_* tables for run lifecycle,
-// replay events, timers, signals, schedules, and cross-invocation leases. Intent
-// registry domain queue state remains in intent_package_versions below.
-export const workflowRuns = pgTable(
-  'workflow_runs',
-  {
-    runId: text('run_id').primaryKey(),
-    workflowId: text('workflow_id').notNull(),
-    workflowVersion: text('workflow_version'),
-    status: text('status').$type<WorkflowExecutionStatus>().notNull(),
-    input: jsonb('input').$type<RunState['input']>().notNull(),
-    output: jsonb('output').$type<RunState['output']>(),
-    error: jsonb('error').$type<SerializedError>(),
-    waitingFor: jsonb('waiting_for').$type<RunState['waitingFor']>(),
-    pendingApproval:
-      jsonb('pending_approval').$type<RunState['pendingApproval']>(),
-    wakeAt: bigint('wake_at', { mode: 'number' }),
-    leaseOwner: text('lease_owner'),
-    leaseExpiresAt: bigint('lease_expires_at', { mode: 'number' }),
-    createdAt: bigint('created_at', { mode: 'number' }).notNull(),
-    updatedAt: bigint('updated_at', { mode: 'number' }).notNull(),
-  },
-  (table) => ({
-    statusIdx: index('workflow_runs_status_idx').on(
-      table.status,
-      table.updatedAt,
-    ),
-    leaseIdx: index('workflow_runs_lease_idx').on(
-      table.status,
-      table.leaseExpiresAt,
-    ),
-  }),
-)
-
-export type WorkflowRun = InferSelectModel<typeof workflowRuns>
-export type NewWorkflowRun = InferInsertModel<typeof workflowRuns>
-
-export const workflowRunStates = pgTable('workflow_run_states', {
-  runId: text('run_id').primaryKey(),
-  workflowId: text('workflow_id').notNull(),
-  workflowVersion: text('workflow_version'),
-  status: text('status').$type<RunState['status']>().notNull(),
-  input: jsonb('input').$type<RunState['input']>().notNull(),
-  output: jsonb('output').$type<RunState['output']>(),
-  error: jsonb('error').$type<SerializedError>(),
-  waitingFor: jsonb('waiting_for').$type<RunState['waitingFor']>(),
-  pendingApproval:
-    jsonb('pending_approval').$type<RunState['pendingApproval']>(),
-  createdAt: bigint('created_at', { mode: 'number' }).notNull(),
-  updatedAt: bigint('updated_at', { mode: 'number' }).notNull(),
-})
-
-export type WorkflowRunState = InferSelectModel<typeof workflowRunStates>
-export type NewWorkflowRunState = InferInsertModel<typeof workflowRunStates>
-
-export const workflowEventLocks = pgTable('workflow_event_locks', {
-  runId: text('run_id').primaryKey(),
-  createdAt: bigint('created_at', { mode: 'number' }).notNull(),
-})
-
-export type WorkflowEventLock = InferSelectModel<typeof workflowEventLocks>
-export type NewWorkflowEventLock = InferInsertModel<typeof workflowEventLocks>
-
-export const workflowEvents = pgTable(
-  'workflow_events',
-  {
-    runId: text('run_id').notNull(),
-    eventIndex: integer('event_index').notNull(),
-    eventType: text('event_type').$type<WorkflowEvent['type']>().notNull(),
-    stepId: text('step_id'),
-    event: jsonb('event').$type<WorkflowEvent>().notNull(),
-    createdAt: bigint('created_at', { mode: 'number' }).notNull(),
-  },
-  (table) => ({
-    pk: primaryKey({ columns: [table.runId, table.eventIndex] }),
-    eventTypeIdx: index('workflow_events_type_idx').on(
-      table.runId,
-      table.eventType,
-    ),
-  }),
-)
-
-export type WorkflowEventRecord = InferSelectModel<typeof workflowEvents>
-export type NewWorkflowEventRecord = InferInsertModel<typeof workflowEvents>
-
-export const workflowTimers = pgTable(
-  'workflow_timers',
-  {
-    runId: text('run_id').notNull(),
-    signalId: text('signal_id').notNull(),
-    workflowId: text('workflow_id').notNull(),
-    workflowVersion: text('workflow_version'),
-    wakeAt: bigint('wake_at', { mode: 'number' }).notNull(),
-    leaseOwner: text('lease_owner'),
-    leaseExpiresAt: bigint('lease_expires_at', { mode: 'number' }),
-  },
-  (table) => ({
-    pk: primaryKey({ columns: [table.runId, table.signalId] }),
-    dueIdx: index('workflow_timers_due_idx').on(
-      table.wakeAt,
-      table.leaseExpiresAt,
-    ),
-  }),
-)
-
-export type WorkflowTimer = InferSelectModel<typeof workflowTimers>
-export type NewWorkflowTimer = InferInsertModel<typeof workflowTimers>
-
-export const workflowSignalDeliveries = pgTable(
-  'workflow_signal_deliveries',
-  {
-    runId: text('run_id').notNull(),
-    signalId: text('signal_id').notNull(),
-    createdAt: bigint('created_at', { mode: 'number' }).notNull(),
-  },
-  (table) => ({
-    pk: primaryKey({ columns: [table.runId, table.signalId] }),
-  }),
-)
-
-export type WorkflowSignalDelivery = InferSelectModel<
-  typeof workflowSignalDeliveries
->
-export type NewWorkflowSignalDelivery = InferInsertModel<
-  typeof workflowSignalDeliveries
->
-
-export const workflowSchedules = pgTable(
-  'workflow_schedules',
-  {
-    scheduleId: text('schedule_id').primaryKey(),
-    workflowId: text('workflow_id').notNull(),
-    workflowVersion: text('workflow_version'),
-    schedule: jsonb('schedule').$type<WorkflowScheduleSpec>().notNull(),
-    overlapPolicy: text('overlap_policy')
-      .$type<WorkflowOverlapPolicy>()
-      .notNull(),
-    input: jsonb('input'),
-    nextFireAt: bigint('next_fire_at', { mode: 'number' }),
-    enabled: boolean('enabled').notNull(),
-    updatedAt: bigint('updated_at', { mode: 'number' }).notNull(),
-  },
-  (table) => ({
-    dueIdx: index('workflow_schedules_due_idx').on(
-      table.enabled,
-      table.nextFireAt,
-    ),
-  }),
-)
-
-export type WorkflowSchedule = InferSelectModel<typeof workflowSchedules>
-export type NewWorkflowSchedule = InferInsertModel<typeof workflowSchedules>
-
-export const workflowScheduleBuckets = pgTable(
-  'workflow_schedule_buckets',
-  {
-    scheduleId: text('schedule_id').notNull(),
-    bucketId: text('bucket_id').notNull(),
-    workflowId: text('workflow_id').notNull(),
-    workflowVersion: text('workflow_version'),
-    runId: text('run_id').notNull(),
-    fireAt: bigint('fire_at', { mode: 'number' }).notNull(),
-    input: jsonb('input'),
-    overlapPolicy: text('overlap_policy')
-      .$type<WorkflowOverlapPolicy>()
-      .notNull(),
-    status: text('status').notNull(),
-    leaseOwner: text('lease_owner'),
-    leaseExpiresAt: bigint('lease_expires_at', { mode: 'number' }),
-    startedAt: bigint('started_at', { mode: 'number' }),
-  },
-  (table) => ({
-    pk: primaryKey({ columns: [table.scheduleId, table.bucketId] }),
-    leaseIdx: index('workflow_schedule_buckets_lease_idx').on(
-      table.status,
-      table.fireAt,
-      table.leaseExpiresAt,
-    ),
-  }),
-)
-
-export type WorkflowScheduleBucket = InferSelectModel<
-  typeof workflowScheduleBuckets
->
-export type NewWorkflowScheduleBucket = InferInsertModel<
-  typeof workflowScheduleBuckets
->
 
 // NPM Packages table (combines registry and stats cache)
 export const npmPackages = pgTable(
@@ -1338,7 +1137,7 @@ export type NewIntentPackage = InferInsertModel<typeof intentPackages>
 //   'pending'  -- version discovered, tarball not yet downloaded/extracted
 //   'synced'   -- skills extracted and indexed successfully
 //   'failed'   -- tarball processing failed (will be retried next cycle)
-// Workflow run/step replay lives in the generic workflow_* tables, not here.
+// Workflow run/step replay lives in the Workflow Postgres store, not here.
 export const intentPackageVersions = pgTable(
   'intent_package_versions',
   {

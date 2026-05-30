@@ -145,17 +145,36 @@ export function ProductDrawer({
   const isOpen = !!productHandle
 
   // Keep the last-known handle alive through the exit animation so the drawer
-  // slides out with content visible (not empty). Cleared after 400ms — just
-  // past the 380ms transition — so the body unmounts cleanly after exit.
+  // slides out with content visible (not empty). Uses the derived-state pattern
+  // so displayHandle is updated synchronously on open (no empty-frame flash).
   const [displayHandle, setDisplayHandle] = React.useState<string | null>(null)
+  const [prevProductHandle, setPrevProductHandle] = React.useState<
+    string | null
+  >(null)
+  if (productHandle !== prevProductHandle) {
+    setPrevProductHandle(productHandle)
+    if (productHandle) setDisplayHandle(productHandle)
+  }
+
+  // Clear displayHandle after exit animation completes
   React.useEffect(() => {
-    if (productHandle) {
-      setDisplayHandle(productHandle)
-    } else {
+    if (!productHandle) {
       const t = setTimeout(() => setDisplayHandle(null), 400)
       return () => clearTimeout(t)
     }
   }, [productHandle])
+
+  // Pre-fetch product data so the drawer only animates open once content is ready,
+  // preventing the skeleton flash. Same query key as DrawerBody so cache is shared.
+  const { data: prefetchedProduct } = useQuery({
+    queryKey: ['shopify', 'product', displayHandle ?? ''],
+    queryFn: () => getProduct({ data: { handle: displayHandle! } }),
+    enabled: !!displayHandle,
+    staleTime: 5 * 60 * 1000,
+  })
+
+  // Delay the open animation until data is in cache. Close animates immediately.
+  const isAnimatedOpen = isOpen && !!prefetchedProduct
 
   const effectiveWidth = width
 
@@ -222,11 +241,11 @@ export function ProductDrawer({
       <button
         type="button"
         aria-label="Close product drawer"
-        tabIndex={isOpen ? 0 : -1}
+        tabIndex={isAnimatedOpen ? 0 : -1}
         onClick={onClose}
         className={twMerge(
           'fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm transition-opacity duration-300',
-          isOpen
+          isAnimatedOpen
             ? 'opacity-100 pointer-events-auto'
             : 'opacity-0 pointer-events-none',
         )}
@@ -236,8 +255,8 @@ export function ProductDrawer({
       <aside
         ref={drawerRef}
         aria-label="Product detail"
-        aria-hidden={!isOpen}
-        style={{ width: isOpen ? effectiveWidth : undefined }}
+        aria-hidden={!isAnimatedOpen}
+        style={{ width: effectiveWidth }}
         className={twMerge(
           'fixed top-[48px] right-0 bottom-0 z-[70]',
           'border-l border-shop-line flex flex-col',
@@ -246,7 +265,7 @@ export function ProductDrawer({
           isDragging
             ? 'transition-none select-none'
             : 'transition-transform duration-[380ms] ease-[cubic-bezier(0.2,0.8,0.2,1)]',
-          isOpen ? 'translate-x-0' : 'translate-x-full',
+          isAnimatedOpen ? 'translate-x-0' : 'translate-x-full',
         )}
       >
         {/* Splitter handle */}

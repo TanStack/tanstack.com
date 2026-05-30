@@ -3,5 +3,7 @@ import RouterLanding from '~/components/landing/RouterLanding'
 import { createLibraryLandingPage } from './-library-landing'
 
 export const Route = createFileRoute('/router/$version/')(
-  createLibraryLandingPage('/router/$version/', 'router', RouterLanding),
+  createLibraryLandingPage('/router/$version/', 'router', RouterLanding, {
+    hasStackBlitzEmbed: true,
+  }),
 )

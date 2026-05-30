@@ -218,7 +218,9 @@ export function useCliCommand(): string {
   const projectName = useBuilderStore((s) => s.projectName)
   const framework = useBuilderStore((s) => s.framework)
   const features = useBuilderStore((s) => s.features)
-  const _featureOptions = useBuilderStore((s) => s.featureOptions) // TODO: Add to CLI command
+  const featureOptions = useBuilderStore((s) => s.featureOptions)
+  const selectedExample = useBuilderStore((s) => s.selectedExample)
+  const availableExamples = useBuilderStore((s) => s.availableExamples)
   const tailwind = useBuilderStore((s) => s.tailwind)
   const packageManager = useBuilderStore((s) => s.packageManager)
   const skipInstall = useBuilderStore((s) => s.skipInstall)
@@ -242,8 +244,28 @@ export function useCliCommand(): string {
     cmd += ' --no-tailwind'
   }
 
-  if (features.length > 0) {
-    cmd += ` --add-ons ${features.join(',')}`
+  if (selectedExample) {
+    cmd += ` --template ${selectedExample}`
+  }
+
+  // Skip add-ons that the selected example will pull in via dependsOn
+  const exampleLockedFeatures = selectedExample
+    ? new Set(
+        availableExamples.find((e) => e.id === selectedExample)?.requires ?? [],
+      )
+    : new Set<string>()
+  const addOnFeatures = features.filter((f) => !exampleLockedFeatures.has(f))
+
+  if (addOnFeatures.length > 0) {
+    cmd += ` --add-ons ${addOnFeatures.join(',')}`
+  }
+
+  const addOnConfigEntries = Object.entries(featureOptions).filter(
+    ([, options]) => options && Object.keys(options).length > 0,
+  )
+  if (addOnConfigEntries.length > 0) {
+    const json = JSON.stringify(Object.fromEntries(addOnConfigEntries))
+    cmd += ` --add-on-config '${json.replace(/'/g, `'\\''`)}'`
   }
 
   if (skipInstall) {

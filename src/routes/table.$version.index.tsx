@@ -3,5 +3,7 @@ import TableLanding from '~/components/landing/TableLanding'
 import { createLibraryLandingPage } from './-library-landing'
 
 export const Route = createFileRoute('/table/$version/')(
-  createLibraryLandingPage('/table/$version/', 'table', TableLanding),
+  createLibraryLandingPage('/table/$version/', 'table', TableLanding, {
+    hasStackBlitzEmbed: true,
+  }),
 )

@@ -4,8 +4,8 @@ export enum AnimationPhase {
   STARTING = 'STARTING',
   DESELECTING = 'DESELECTING',
   SELECTING_FRAMEWORK = 'SELECTING_FRAMEWORK',
-  SELECTING_SERVICE = 'SELECTING_SERVICE',
   SELECTING_SERVER = 'SELECTING_SERVER',
+  SELECTING_SERVICE = 'SELECTING_SERVICE',
   SHOWING_CHAT = 'SHOWING_CHAT',
   PULSING_CONNECTIONS = 'PULSING_CONNECTIONS',
   STREAMING_RESPONSE = 'STREAMING_RESPONSE',
@@ -13,43 +13,42 @@ export enum AnimationPhase {
 }
 
 export const SVG_WIDTH = 632
-export const SVG_HEIGHT = 432
+export const SVG_HEIGHT = 760
 export const BOX_FONT_SIZE = 18
 export const BOX_FONT_WEIGHT = 700
-export const SERVICE_WIDTH = 160
-export const SERVICE_GUTTER = 20
-export const SERVICE_LOCATIONS = [0, 1, 2, 3].map(
+export const SERVICE_WIDTH = 142
+export const SERVICE_GUTTER = 16
+export const SERVICE_LOCATIONS = [0, 1, 2, 3, 4, 5, 6, 7, 8].map(
   (index) =>
-    SERVICE_WIDTH * 2 +
-    index * (SERVICE_WIDTH + SERVICE_GUTTER) +
-    SERVICE_GUTTER / 2,
+    SVG_WIDTH / 2 -
+    SERVICE_WIDTH / 2 +
+    index * (SERVICE_WIDTH + SERVICE_GUTTER),
 )
-export const SERVICE_Y_OFFSET = 265
+export const SERVICE_Y_OFFSET = 670
 export const SERVICE_HEIGHT = 40
 export const SERVICE_Y_CENTER = SERVICE_Y_OFFSET + SERVICE_HEIGHT / 2
 
-export const LIBRARY_CARD_WIDTH = 140
-export const LIBRARY_CARD_HEIGHT = 60
-export const LIBRARY_CARD_GUTTER = 20
-const LIBRARY_CARD_START_X = -20
-export const LIBRARY_CARD_LOCATIONS = [0, 1, 2, 3].map(
+export const LIBRARY_CARD_WIDTH = 88
+export const LIBRARY_CARD_HEIGHT = 52
+export const LIBRARY_CARD_GUTTER = 14
+export const LIBRARY_CARD_Y_OFFSET = 24
+const LIBRARY_CARD_START_X =
+  (SVG_WIDTH - LIBRARY_CARD_WIDTH * 6 - LIBRARY_CARD_GUTTER * 5) / 2
+export const LIBRARY_CARD_LOCATIONS = [0, 1, 2, 3, 4, 5].map(
   (index) =>
-    LIBRARY_CARD_START_X +
-    index * (LIBRARY_CARD_WIDTH + LIBRARY_CARD_GUTTER) +
-    LIBRARY_CARD_GUTTER / 2,
+    LIBRARY_CARD_START_X + index * (LIBRARY_CARD_WIDTH + LIBRARY_CARD_GUTTER),
 )
 
-export const SERVER_CARD_WIDTH = 140
-export const SERVER_CARD_HEIGHT = 60
-export const SERVER_CARD_GUTTER = 20
-const SERVER_CARD_START_X = -20
-export const SERVER_CARD_LOCATIONS = [0, 1, 2, 3].map(
+export const SERVER_CARD_WIDTH = 146
+export const SERVER_CARD_HEIGHT = 54
+export const SERVER_CARD_GUTTER = 24
+const SERVER_CARD_START_X =
+  (SVG_WIDTH - SERVER_CARD_WIDTH * 3 - SERVER_CARD_GUTTER * 2) / 2
+export const SERVER_CARD_LOCATIONS = [0, 1, 2].map(
   (index) =>
-    SERVER_CARD_START_X +
-    index * (SERVER_CARD_WIDTH + SERVER_CARD_GUTTER) +
-    SERVER_CARD_GUTTER / 2,
+    SERVER_CARD_START_X + index * (SERVER_CARD_WIDTH + SERVER_CARD_GUTTER),
 )
-export const SERVER_CARD_Y_OFFSET = 370
+export const SERVER_CARD_Y_OFFSET = 500
 
 export type ChatMessage = {
   id: string
@@ -107,7 +106,7 @@ export const useAILibraryHeroAnimationStore = create<
   rotatingFramework: null,
   rotatingServer: null,
   rotatingService: null,
-  serviceOffset: 0 - SERVICE_WIDTH / 2 - SERVICE_GUTTER / 2,
+  serviceOffset: 0,
   messages: [],
   currentMessageIndex: -1,
   typingUserMessage: '',

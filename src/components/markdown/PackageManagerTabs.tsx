@@ -4,29 +4,22 @@ import { useLocalCurrentFramework } from '../FrameworkSelect'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { useParams } from '@tanstack/react-router'
 import * as React from 'react'
-import { create } from 'zustand'
 import { Tabs, type TabDefinition } from './Tabs'
+import { createPersistedEnumStore } from './usePersistedEnumStore'
 import type { Framework } from '~/libraries/types'
 import {
   PACKAGE_MANAGERS,
+  isPackageManager,
   type PackageManager,
 } from '~/utils/markdown/installCommand'
 
-// Use zustand for cross-component synchronization
-// This ensures all PackageManagerTabs instances on the page stay in sync
-const usePackageManagerStore = create<{
-  packageManager: PackageManager
-  setPackageManager: (pm: PackageManager) => void
-}>((set) => ({
-  packageManager:
-    typeof document !== 'undefined'
-      ? (localStorage.getItem('packageManager') as PackageManager) || 'npm'
-      : 'npm',
-  setPackageManager: (pm: PackageManager) => {
-    localStorage.setItem('packageManager', pm)
-    set({ packageManager: pm })
-  },
-}))
+const DEFAULT_PACKAGE_MANAGER: PackageManager = 'npm'
+
+const packageManagerStore = createPersistedEnumStore<PackageManager>({
+  storageKey: 'packageManager',
+  values: PACKAGE_MANAGERS,
+  defaultValue: DEFAULT_PACKAGE_MANAGER,
+})
 
 type PackageManagerTabsProps = {
   children?: React.ReactNode
@@ -50,8 +43,10 @@ function isPackageManagerPanel(
 }
 
 export function PackageManagerTabs({ children }: PackageManagerTabsProps) {
-  const { packageManager: storedPackageManager, setPackageManager } =
-    usePackageManagerStore()
+  packageManagerStore.useHydrate()
+
+  const storedPackageManager = packageManagerStore((s) => s.value)
+  const setPackageManager = packageManagerStore((s) => s.setValue)
 
   const { framework: paramsFramework } = useParams({ strict: false })
   const localCurrentFramework = useLocalCurrentFramework()
@@ -74,12 +69,20 @@ export function PackageManagerTabs({ children }: PackageManagerTabsProps) {
     return child.props['data-framework'] === availableFramework
   })
 
+  const handleTabChange = React.useCallback(
+    (slug: string) => {
+      if (isPackageManager(slug)) {
+        setPackageManager(slug)
+      }
+    },
+    [setPackageManager],
+  )
+
   if (!packageManagerPanels.length) {
     return null
   }
 
-  // Use stored package manager if valid, otherwise default to first one
-  const selectedPackageManager = PACKAGE_MANAGERS.includes(storedPackageManager)
+  const selectedPackageManager = isPackageManager(storedPackageManager)
     ? storedPackageManager
     : PACKAGE_MANAGERS[0]
 
@@ -98,7 +101,8 @@ export function PackageManagerTabs({ children }: PackageManagerTabsProps) {
       <Tabs
         tabs={tabs}
         activeSlug={selectedPackageManager}
-        onTabChange={(slug) => setPackageManager(slug as PackageManager)}
+        onTabChange={handleTabChange}
+        panelContent="code-only"
       >
         {packageManagerPanels.map((panel) => panel.props.children)}
       </Tabs>

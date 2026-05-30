@@ -295,7 +295,7 @@ export const fetchDocs = createServerFn({ method: 'GET' })
       frontMatter.content,
     )
 
-    setDocsCacheHeaders('max-age=300, stale-while-revalidate=300, durable')
+    setDocsCacheHeaders('max-age=60, stale-while-revalidate=60, durable')
 
     return {
       content: frontMatter.content,
@@ -355,7 +355,7 @@ export const fetchFile = createServerFn({ method: 'GET' })
       throw notFound()
     }
 
-    setDocsCacheHeaders('max-age=3600, stale-while-revalidate=3600, durable')
+    setDocsCacheHeaders('max-age=300, stale-while-revalidate=300, durable')
 
     return file
   })
@@ -372,7 +372,7 @@ export const fetchRepoDirectoryContents = createServerFn({
       throw notFound()
     }
 
-    setDocsCacheHeaders('max-age=3600, stale-while-revalidate=3600, durable')
+    setDocsCacheHeaders('max-age=300, stale-while-revalidate=300, durable')
 
     return githubContents
   })

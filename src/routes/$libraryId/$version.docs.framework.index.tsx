@@ -8,27 +8,11 @@ import { FrameworkCard } from '~/components/FrameworkCard'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { DiscordIcon } from '~/components/icons/DiscordIcon'
 import { Card } from '~/components/Card'
+import { getFrameworkPackageName } from '~/libraries/frameworkSupport'
 
 export const Route = createFileRoute('/$libraryId/$version/docs/framework/')({
   component: RouteComponent,
 })
-
-function getPackageName(
-  frameworkValue: string,
-  libraryId: string,
-  library: ReturnType<typeof getLibrary>,
-): string {
-  if (frameworkValue === 'vanilla') {
-    // For vanilla, use corePackageName if provided, otherwise just libraryId
-    return library.corePackageName ?? `@tanstack/${libraryId}`
-  }
-  // Special case: Angular Query uses experimental package
-  if (frameworkValue === 'angular' && libraryId === 'query') {
-    return `@tanstack/angular-query-experimental`
-  }
-  // For other frameworks, use {framework}-{libraryId} pattern (e.g., @tanstack/react-table)
-  return `@tanstack/${frameworkValue}-${libraryId}`
-}
 
 function RouteComponent() {
   const { libraryId, version } = Route.useParams()
@@ -58,7 +42,7 @@ function RouteComponent() {
             )}
           >
             {frameworks.map((framework, i) => {
-              const packageName = getPackageName(
+              const packageName = getFrameworkPackageName(
                 framework.value,
                 libraryId,
                 library,

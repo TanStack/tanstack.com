@@ -16,6 +16,7 @@ import {
   Globe,
   HardDrive,
   Plus,
+  ShoppingBag,
 } from 'lucide-react'
 
 export interface Template {
@@ -25,6 +26,12 @@ export interface Template {
   icon: LucideIcon
   color: string
   features: Array<string>
+  /**
+   * When set, selecting this preset also selects the matching CLI example
+   * (passed as `--template <id>` to the @tanstack/cli) instead of toggling
+   * loose features. The example's `dependsOn` add-ons are auto-included.
+   */
+  exampleId?: string
 }
 
 export const TEMPLATES: Array<Template> = [
@@ -107,5 +114,14 @@ export const TEMPLATES: Array<Template> = [
     icon: HardDrive,
     color: '#F59E0B', // amber
     features: ['cloudflare', 'db', 'tanstack-query', 'store'],
+  },
+  {
+    id: 'storefront',
+    name: 'Storefront',
+    description: 'Sell products with Shopify',
+    icon: ShoppingBag,
+    color: '#5A31F4', // Shopify purple
+    features: ['cloudflare'],
+    exampleId: 'shopify-storefront',
   },
 ]

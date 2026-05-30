@@ -5,7 +5,7 @@ import { loadDocsPage, resolveDocsRedirect } from '~/utils/docs'
 import { findLibrary, getBranch, getLibrary } from '~/libraries'
 import { DocContainer } from '~/components/DocContainer'
 import type { ConfigSchema } from '~/utils/config'
-import { docsContentNegotiationVaryHeader } from '~/utils/http'
+import { getDocsCacheHeaders } from '~/utils/docs-cache-headers'
 import {
   notFound,
   redirect,
@@ -94,29 +94,8 @@ export const Route = createFileRoute('/$libraryId/$version/docs/$')({
   component: Docs,
   headers: ({ params }) => {
     const { version, libraryId } = params
-    const library = findLibrary(libraryId)
 
-    const isLatestVersion =
-      library &&
-      (version === 'latest' ||
-        version === library.latestVersion ||
-        version === library.latestBranch)
-
-    if (isLatestVersion) {
-      return {
-        'cache-control': 'public, max-age=60, must-revalidate',
-        'cdn-cache-control':
-          'max-age=600, stale-while-revalidate=3600, durable',
-        vary: docsContentNegotiationVaryHeader,
-      }
-    } else {
-      return {
-        'cache-control': 'public, max-age=3600, must-revalidate',
-        'cdn-cache-control':
-          'max-age=86400, stale-while-revalidate=604800, durable',
-        vary: docsContentNegotiationVaryHeader,
-      }
-    }
+    return getDocsCacheHeaders({ libraryId, version })
   },
 })
 

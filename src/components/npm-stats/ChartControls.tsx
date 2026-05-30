@@ -73,12 +73,14 @@ export function ChartControls({
       {/* Time Range */}
       <DropdownMenu>
         <Tooltip content="Select time range">
-          <DropdownMenuTrigger asChild>
-            <button className={twMerge(dropdownButtonStyles.base)}>
-              {timeRanges.find((r) => r.value === range)?.label}
-              <EllipsisVertical className="w-3 h-3" />
-            </button>
-          </DropdownMenuTrigger>
+          <span>
+            <DropdownMenuTrigger asChild>
+              <button className={twMerge(dropdownButtonStyles.base)}>
+                {timeRanges.find((r) => r.value === range)?.label}
+                <EllipsisVertical className="w-3 h-3" />
+              </button>
+            </DropdownMenuTrigger>
+          </span>
         </Tooltip>
         <DropdownMenuContent className="min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 z-50">
           <div className="flex justify-between items-center mb-2">
@@ -103,17 +105,19 @@ export function ChartControls({
       {/* Binning Interval */}
       <DropdownMenu>
         <Tooltip content="Select binning interval">
-          <DropdownMenuTrigger asChild>
-            <button
-              className={twMerge(
-                dropdownButtonStyles.base,
-                binType !== 'weekly' && dropdownButtonStyles.active,
-              )}
-            >
-              {binningOptions.find((b) => b.value === binType)?.label}
-              <EllipsisVertical className="w-3 h-3" />
-            </button>
-          </DropdownMenuTrigger>
+          <span>
+            <DropdownMenuTrigger asChild>
+              <button
+                className={twMerge(
+                  dropdownButtonStyles.base,
+                  binType !== 'weekly' && dropdownButtonStyles.active,
+                )}
+              >
+                {binningOptions.find((b) => b.value === binType)?.label}
+                <EllipsisVertical className="w-3 h-3" />
+              </button>
+            </DropdownMenuTrigger>
+          </span>
         </Tooltip>
         <DropdownMenuContent className="min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 z-50">
           <div className="flex justify-between items-center mb-2">
@@ -142,17 +146,19 @@ export function ChartControls({
       {/* Y-Axis Transform */}
       <DropdownMenu>
         <Tooltip content="Transform the Y-axis to show relative changes between packages. 'None' shows actual download numbers, while 'Normalize Y' shows percentage changes relative to the first data point.">
-          <DropdownMenuTrigger asChild>
-            <button
-              className={twMerge(
-                dropdownButtonStyles.base,
-                transform !== 'none' && dropdownButtonStyles.active,
-              )}
-            >
-              {transformOptions.find((opt) => opt.value === transform)?.label}
-              <EllipsisVertical className="w-3 h-3" />
-            </button>
-          </DropdownMenuTrigger>
+          <span>
+            <DropdownMenuTrigger asChild>
+              <button
+                className={twMerge(
+                  dropdownButtonStyles.base,
+                  transform !== 'none' && dropdownButtonStyles.active,
+                )}
+              >
+                {transformOptions.find((opt) => opt.value === transform)?.label}
+                <EllipsisVertical className="w-3 h-3" />
+              </button>
+            </DropdownMenuTrigger>
+          </span>
         </Tooltip>
         <DropdownMenuContent className="min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 z-50">
           <div className="flex justify-between items-center mb-2">
@@ -178,19 +184,21 @@ export function ChartControls({
       {showFacets && (
         <DropdownMenu>
           <Tooltip content="Split the visualization horizontally by package">
-            <DropdownMenuTrigger asChild>
-              <button
-                className={twMerge(
-                  dropdownButtonStyles.base,
-                  facetX && dropdownButtonStyles.active,
-                )}
-              >
-                {facetX
-                  ? `Facet X by ${facetOptions.find((opt) => opt.value === facetX)?.label}`
-                  : 'No Facet X'}
-                <EllipsisVertical className="w-3 h-3" />
-              </button>
-            </DropdownMenuTrigger>
+            <span>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className={twMerge(
+                    dropdownButtonStyles.base,
+                    facetX && dropdownButtonStyles.active,
+                  )}
+                >
+                  {facetX
+                    ? `Facet X by ${facetOptions.find((opt) => opt.value === facetX)?.label}`
+                    : 'No Facet X'}
+                  <EllipsisVertical className="w-3 h-3" />
+                </button>
+              </DropdownMenuTrigger>
+            </span>
           </Tooltip>
           <DropdownMenuContent className="min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 z-50">
             <div className="flex justify-between items-center mb-2">
@@ -227,19 +235,21 @@ export function ChartControls({
       {showFacets && (
         <DropdownMenu>
           <Tooltip content="Split the visualization vertically by package">
-            <DropdownMenuTrigger asChild>
-              <button
-                className={twMerge(
-                  dropdownButtonStyles.base,
-                  facetY && dropdownButtonStyles.active,
-                )}
-              >
-                {facetY
-                  ? `Facet Y by ${facetOptions.find((opt) => opt.value === facetY)?.label}`
-                  : 'No Facet Y'}
-                <EllipsisVertical className="w-3 h-3" />
-              </button>
-            </DropdownMenuTrigger>
+            <span>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className={twMerge(
+                    dropdownButtonStyles.base,
+                    facetY && dropdownButtonStyles.active,
+                  )}
+                >
+                  {facetY
+                    ? `Facet Y by ${facetOptions.find((opt) => opt.value === facetY)?.label}`
+                    : 'No Facet Y'}
+                  <EllipsisVertical className="w-3 h-3" />
+                </button>
+              </DropdownMenuTrigger>
+            </span>
           </Tooltip>
           <DropdownMenuContent className="min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 z-50">
             <div className="flex justify-between items-center mb-2">
@@ -281,22 +291,25 @@ export function ChartControls({
               : 'Control how data is displayed'
           }
         >
-          <DropdownMenuTrigger asChild>
-            <button
-              className={twMerge(
-                dropdownButtonStyles.base,
-                showDataMode !== 'all' && dropdownButtonStyles.active,
-                transform === 'normalize-y' && 'opacity-50 cursor-not-allowed',
-              )}
-              disabled={transform === 'normalize-y'}
-            >
-              {
-                showDataModeOptions.find((opt) => opt.value === showDataMode)
-                  ?.label
-              }
-              <EllipsisVertical className="w-3 h-3" />
-            </button>
-          </DropdownMenuTrigger>
+          <span>
+            <DropdownMenuTrigger asChild>
+              <button
+                className={twMerge(
+                  dropdownButtonStyles.base,
+                  showDataMode !== 'all' && dropdownButtonStyles.active,
+                  transform === 'normalize-y' &&
+                    'opacity-50 cursor-not-allowed',
+                )}
+                disabled={transform === 'normalize-y'}
+              >
+                {
+                  showDataModeOptions.find((opt) => opt.value === showDataMode)
+                    ?.label
+                }
+                <EllipsisVertical className="w-3 h-3" />
+              </button>
+            </DropdownMenuTrigger>
+          </span>
         </Tooltip>
         <DropdownMenuContent className="min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 z-50">
           <div className="flex justify-between items-center mb-2">

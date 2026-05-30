@@ -353,5 +353,11 @@
     "login": "aeriusventilation",
     "name": "Aerius Ventilation",
     "linkUrl": "https://aerius.se/?utm_source=tanstack"
+  },
+  {
+    "login": "forminit",
+    "name": "Forminit",
+    "imageUrl": "https://avatars.githubusercontent.com/u/41009912?v=4",
+    "linkUrl": "https://forminit.com/?utm_source=tanstack"
   }
 ]

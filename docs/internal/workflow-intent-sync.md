@@ -112,33 +112,14 @@ surface yet.
 
 ## Manual Testing
 
-Use the repo-local workflow CLI to test workflow behavior without Netlify cron:
+Use Netlify's function UI to invoke `workflow-sweep-background` with **Run
+now**. That exercises the same host entry point as production cron without
+adding a repo-local Workflow CLI. Runtime-level commands for listing workflows,
+sweeping, starting runs, and inspecting timelines should live upstream in
+Workflow, not in TanStack.com.
 
-```bash
-pnpm workflow list-workflows
-pnpm workflow ensure-schema
-pnpm workflow list-runs --workflow-id intent-process-workflow
-```
-
-Start one workflow run directly:
-
-```bash
-pnpm workflow start intent-process-workflow \
-  --input '{"batchSize":1,"source":"admin"}' \
-  --events
-```
-
-Exercise the same model as the Netlify scheduled function:
-
-```bash
-pnpm workflow sweep --events false
-```
-
-Inspect a run:
-
-```bash
-pnpm workflow timeline <run-id> --events false
-```
+After a manual sweep, use the Intent admin page's workflow run section to verify
+recent `intent-discover-workflow` and `intent-process-workflow` statuses.
 
 For automated unit tests, instantiate `createAppWorkflowRuntime` with
 `inMemoryWorkflowExecutionStore()` and pass only the workflow registrations

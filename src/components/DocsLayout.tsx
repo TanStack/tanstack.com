@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { ChevronLeft, ChevronRight, Menu } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Menu, X } from 'lucide-react'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { DiscordIcon } from '~/components/icons/DiscordIcon'
 import { YouTubeIcon } from '~/components/icons/YouTubeIcon'
@@ -8,6 +8,7 @@ import { useLocalStorage } from '~/utils/useLocalStorage'
 import { useClickOutside } from '~/hooks/useClickOutside'
 import { last } from '~/utils/utils'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
+import { getActiveDocsNavTabId, getTabbedMenuConfig } from '~/utils/docsNavTabs'
 import { Framework, LibraryId } from '~/libraries'
 import { frameworkOptions } from '~/libraries/frameworks'
 import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
@@ -24,10 +25,10 @@ import { Card } from './Card'
 import { PartnersRail, RightRail } from './RightRail'
 import { trackEvent, useTrackedImpression } from '~/utils/analytics'
 
-// Mobile partners strip - inline in the docs toggle bar
+// Mobile partners strip
 function MobilePartnersStrip({
   partners,
-  onLabelClick,
+  enabled = true,
 }: {
   partners: Array<{
     id: string
@@ -35,7 +36,7 @@ function MobilePartnersStrip({
     href: string
     image: Parameters<typeof PartnerImage>[0]['config']
   }>
-  onLabelClick?: () => void
+  enabled?: boolean
 }) {
   const innerRef = React.useRef<HTMLDivElement>(null)
   const [isHovered, setIsHovered] = React.useState(false)
@@ -45,16 +46,21 @@ function MobilePartnersStrip({
   React.useEffect(() => {
     const inner = innerRef.current
     if (!inner) return
+    if (!enabled) return
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+    // The strip is mobile-only (md:hidden), so don't run the rAF loop on md+
+    // where it isn't painted.
+    const isDesktop = window.matchMedia('(min-width: 768px)')
 
     let animationId: number
     let timeoutId: ReturnType<typeof setTimeout>
-    const scrollSpeed = 0.15 // pixels per frame
-    const startDelay = 4000 // wait 4 seconds before starting (first time only)
+    const scrollSpeed = 0.15
+    const startDelay = 4000
 
     const animate = () => {
       if (!isHovered && inner) {
         scrollPositionRef.current += scrollSpeed
-        // Reset when we've scrolled past the first set
         if (scrollPositionRef.current >= inner.scrollWidth / 2) {
           scrollPositionRef.current = 0
         }
@@ -63,37 +69,41 @@ function MobilePartnersStrip({
       animationId = requestAnimationFrame(animate)
     }
 
-    if (!hasStartedRef.current) {
-      timeoutId = setTimeout(() => {
-        hasStartedRef.current = true
+    const start = () => {
+      if (reduceMotion.matches || isDesktop.matches) return
+      if (!hasStartedRef.current) {
+        timeoutId = setTimeout(() => {
+          hasStartedRef.current = true
+          animationId = requestAnimationFrame(animate)
+        }, startDelay)
+      } else {
         animationId = requestAnimationFrame(animate)
-      }, startDelay)
-    } else {
-      animationId = requestAnimationFrame(animate)
+      }
     }
 
-    return () => {
+    const stop = () => {
       clearTimeout(timeoutId)
       cancelAnimationFrame(animationId)
     }
-  }, [isHovered])
+
+    const restart = () => {
+      stop()
+      start()
+    }
+
+    isDesktop.addEventListener('change', restart)
+    reduceMotion.addEventListener('change', restart)
+    start()
+
+    return () => {
+      isDesktop.removeEventListener('change', restart)
+      reduceMotion.removeEventListener('change', restart)
+      stop()
+    }
+  }, [isHovered, enabled])
 
   return (
-    // eslint-disable-next-line jsx-a11y/no-static-element-interactions,jsx-a11y/click-events-have-key-events
-    <div
-      className="flex-1 flex items-center gap-2 min-w-0"
-      onClick={(e) => e.preventDefault()}
-    >
-      <button
-        type="button"
-        className="text-[9px] uppercase tracking-wide font-medium text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 shrink-0"
-        onClick={(e) => {
-          e.stopPropagation()
-          onLabelClick?.()
-        }}
-      >
-        Partners
-      </button>
+    <div className="flex items-center gap-2 min-w-0">
       <div
         className="relative flex-1 overflow-hidden min-w-0"
         onMouseEnter={() => setIsHovered(true)}
@@ -524,6 +534,7 @@ const useMenuConfig = ({
 
       return {
         label: section.label,
+        tab: section.tab,
         children,
         collapsible: section.collapsible ?? false,
         defaultCollapsed: section.defaultCollapsed ?? false,
@@ -571,23 +582,56 @@ export function DocsLayout({
 
   const isNpmStats = matches.some((d) => d.pathname.includes('/docs/npm-stats'))
 
-  const detailsRef = React.useRef<HTMLElement>(null!)
-
-  const flatMenu = React.useMemo(
-    () => menuConfig.flatMap((d) => d?.children),
-    [menuConfig],
-  )
-
-  // Filter out external links for prev/next navigation
-  const internalFlatMenu = React.useMemo(
-    () => flatMenu.filter((d) => d && !d.to.startsWith('http')),
-    [flatMenu],
-  )
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
 
   const docsMatch = matches.find((d) => d.pathname.includes('/docs'))
   const docsPathname = docsMatch?.pathname ?? ''
 
   const relativePathname = lastMatch.pathname.replace(docsPathname + '/', '')
+
+  React.useEffect(() => {
+    setMobileMenuOpen(false)
+  }, [lastMatch.pathname])
+
+  React.useEffect(() => {
+    if (!mobileMenuOpen) return
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileMenuOpen(false)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [mobileMenuOpen])
+
+  const tabbedMenuConfig = React.useMemo(() => {
+    return getTabbedMenuConfig(menuConfig)
+  }, [menuConfig])
+
+  const activeTabId = React.useMemo(() => {
+    return getActiveDocsNavTabId({
+      isExample,
+      menuConfig,
+      pathname: lastMatch.pathname,
+      relativePathname,
+    })
+  }, [isExample, lastMatch.pathname, menuConfig, relativePathname])
+
+  const visibleMenuConfig = React.useMemo(() => {
+    return (
+      tabbedMenuConfig.find((tab) => tab.id === activeTabId)?.groups ??
+      menuConfig
+    )
+  }, [activeTabId, menuConfig, tabbedMenuConfig])
+
+  const flatMenu = React.useMemo(
+    () => visibleMenuConfig.flatMap((d) => d.children),
+    [visibleMenuConfig],
+  )
+
+  // Filter out external links for prev/next navigation
+  const internalFlatMenu = React.useMemo(
+    () => flatMenu.filter((d) => !d.to.startsWith('http')),
+    [flatMenu],
+  )
 
   const index = internalFlatMenu.findIndex((d) => d?.to === relativePathname)
   const prevItem = internalFlatMenu[index - 1]
@@ -604,19 +648,24 @@ export function DocsLayout({
   const activePartners = partners.filter((d) => d.status === 'active')
 
   const groupInitialOpenState = React.useMemo(() => {
-    return menuConfig.reduce<Record<string, boolean>>((acc, group, index) => {
-      const isChildActive = group.children.some((child) => child.to === _splat)
-      const key = `${index}:${String(group.label)}`
+    return visibleMenuConfig.reduce<Record<string, boolean>>(
+      (acc, group, index) => {
+        const isChildActive = group.children.some(
+          (child) => child.to === _splat,
+        )
+        const key = `${index}:${String(group.label)}`
 
-      acc[key] = isChildActive
-        ? true
-        : typeof group.defaultCollapsed !== 'undefined'
-          ? !group.defaultCollapsed
-          : false
+        acc[key] = isChildActive
+          ? true
+          : typeof group.defaultCollapsed !== 'undefined'
+            ? !group.defaultCollapsed
+            : false
 
-      return acc
-    }, {})
-  }, [menuConfig, _splat])
+        return acc
+      },
+      {},
+    )
+  }, [visibleMenuConfig, _splat])
 
   const [openGroups, setOpenGroups] = React.useState(groupInitialOpenState)
 
@@ -642,7 +691,7 @@ export function DocsLayout({
     })
   }, [groupInitialOpenState])
 
-  const menuItems = menuConfig.map((group, i) => {
+  const menuItems = visibleMenuConfig.map((group, i) => {
     const groupKey = `${i}:${String(group.label)}`
 
     const groupContent = (
@@ -682,7 +731,7 @@ export function DocsLayout({
                     to={child.to}
                     params={linkParams}
                     onClick={() => {
-                      detailsRef.current.removeAttribute('open')
+                      setMobileMenuOpen(false)
                     }}
                     preload="intent"
                     activeOptions={{
@@ -749,32 +798,37 @@ export function DocsLayout({
   })
 
   const smallMenu = (
-    <div
-      className="md:hidden bg-white/50 sticky top-[var(--navbar-height)]
-    max-h-[calc(100dvh-var(--navbar-height))] overflow-y-auto z-20 dark:bg-black/60 backdrop-blur-lg"
-    >
-      <details
-        ref={detailsRef as any}
-        id="docs-details"
-        className="border-b border-gray-500/20"
+    <div className="md:hidden">
+      {mobileMenuOpen ? (
+        <button
+          type="button"
+          aria-label="Close documentation menu"
+          className="fixed inset-x-0 bottom-0 top-[var(--navbar-height)] z-40 bg-black/30 backdrop-blur-sm"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      ) : null}
+      <div
+        id="docs-mobile-menu"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Documentation navigation"
+        hidden={!mobileMenuOpen}
+        className="fixed inset-x-0 top-[var(--navbar-height)] z-50
+        max-h-[calc(100dvh-var(--navbar-height))] overflow-y-auto
+        bg-white dark:bg-black/95 backdrop-blur-lg border-b border-gray-500/20 shadow-xl"
       >
-        <summary className="py-2 px-4 flex gap-2 items-center">
-          <div className="flex gap-2 items-center shrink-0 pr-2">
-            <Menu className="cursor-pointer" />
-            Docs
-          </div>
-          <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 shrink-0" />
-          <MobilePartnersStrip
-            partners={activePartners}
-            onLabelClick={() => {
-              const details = detailsRef.current as HTMLDetailsElement | null
-              if (details) {
-                details.open = !details.open
-              }
-            }}
-          />
-        </summary>
-        <div className="flex flex-col gap-4 p-4 overflow-y-auto border-t border-gray-500/20 bg-white/20 text-lg dark:bg-black/20">
+        <div className="flex items-center justify-between py-2 px-4 border-b border-gray-500/20">
+          <span className="font-bold">Docs</span>
+          <button
+            type="button"
+            aria-label="Close menu"
+            className="p-1 rounded-md hover:bg-gray-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-current"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <div className="flex flex-col gap-4 p-4 text-lg">
           <div className="flex flex-col gap-1">
             <FrameworkSelect libraryId={libraryId} />
             <VersionSelect libraryId={libraryId} />
@@ -782,7 +836,7 @@ export function DocsLayout({
           <SearchButton />
           {menuItems}
         </div>
-      </details>
+      </div>
     </div>
   )
 
@@ -812,7 +866,7 @@ export function DocsLayout({
         )}
       >
         <DocsMenuStrip
-          menuConfig={menuConfig}
+          menuConfig={visibleMenuConfig}
           activeItem={relativePathname}
           fullPathname={lastMatch.pathname}
           colorFrom={colorFrom}
@@ -842,14 +896,15 @@ export function DocsLayout({
           'max-w-[250px] xl:max-w-[300px] 2xl:max-w-[400px]',
           'flex-col overflow-hidden',
           'h-[calc(100dvh-var(--navbar-height))] top-[var(--navbar-height)]',
-          'z-20 border-r border-gray-500/20',
+          'border-r border-gray-500/20',
           'transition-all duration-300',
           // Hidden on smallest screens, flex on md+
           'hidden md:flex',
-          // On md to xl: fixed overlay that slides in from left-0 (covers the strip)
-          'md:fixed md:left-0 md:bg-white md:dark:bg-black/95 md:backdrop-blur-lg md:shadow-xl',
-          // On xl+: sticky positioning, no overlay styling
-          'xl:sticky xl:bg-transparent xl:dark:bg-transparent xl:backdrop-blur-none xl:shadow-none',
+          // On md to xl: fixed overlay that slides in from left-0 (covers the strip).
+          // z-40 keeps the sliding overlay above the docs tab bar (z-30).
+          'md:fixed md:left-0 md:z-40 md:bg-white md:dark:bg-black/95 md:backdrop-blur-lg md:shadow-xl',
+          // On xl+: sticky positioning sitting inline below tabs, no overlay styling
+          'xl:sticky xl:z-20 xl:bg-transparent xl:dark:bg-transparent xl:backdrop-blur-none xl:shadow-none',
           // Slide animation for md-xl screens (off-screen by default, slides in when shown)
           // On xl+: always visible (no translate)
           !showLargeMenu && 'md:-translate-x-full xl:translate-x-0',
@@ -873,7 +928,7 @@ export function DocsLayout({
           }
         }}
       >
-        <div className="flex-1 flex flex-col overflow-y-auto">
+        <div className="flex-1 flex flex-col overflow-y-auto min-w-[230px]">
           <div className="flex flex-col gap-1 p-4">
             <FrameworkSelect libraryId={libraryId} />
             <VersionSelect libraryId={libraryId} />
@@ -884,6 +939,83 @@ export function DocsLayout({
         </div>
       </div>
     </>
+  )
+
+  const docsTabs = (
+    <div className="sticky top-[calc(var(--navbar-height)-1px)] z-30 border-b border-gray-500/20 bg-white/90 dark:bg-black/80 backdrop-blur-lg">
+      <div className="flex items-stretch">
+        <button
+          type="button"
+          aria-label="Documentation menu"
+          aria-expanded={mobileMenuOpen}
+          aria-controls="docs-mobile-menu"
+          onClick={() => setMobileMenuOpen((open) => !open)}
+          className="md:hidden flex items-center gap-1.5 shrink-0 px-3 border-r border-gray-500/20 text-slate-600 dark:text-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-current"
+        >
+          {mobileMenuOpen ? (
+            <X className="w-4 h-4" />
+          ) : (
+            <Menu className="w-4 h-4" />
+          )}
+          <span className="text-xs font-medium">Menu</span>
+        </button>
+        <nav
+          aria-label="Documentation sections"
+          className="flex flex-1 items-stretch gap-6 overflow-x-auto px-3 md:px-6 text-sm [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {tabbedMenuConfig.map((tab) => {
+            const target = tab.firstItem
+            const isActive = tab.id === activeTabId
+
+            if (!target) {
+              return null
+            }
+
+            const linkParams =
+              !target.to.startsWith('/') || target.to.includes('/$libraryId')
+                ? ({ libraryId, version } as never)
+                : undefined
+
+            return (
+              <Link
+                key={tab.id}
+                from="/$libraryId/$version/docs"
+                to={target.to}
+                params={linkParams}
+                aria-current={isActive ? 'page' : undefined}
+                className={twMerge(
+                  'relative whitespace-nowrap py-3 font-semibold transition-colors',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-current rounded-sm',
+                  isActive
+                    ? `text-transparent bg-clip-text bg-linear-to-r ${colorFrom} ${colorTo}`
+                    : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100',
+                )}
+              >
+                {tab.label}
+                {isActive ? (
+                  <span
+                    aria-hidden="true"
+                    className={twMerge(
+                      'absolute left-0 right-0 -bottom-px h-[3px] rounded-t-full bg-linear-to-r',
+                      colorFrom,
+                      colorTo,
+                    )}
+                  />
+                ) : null}
+              </Link>
+            )
+          })}
+        </nav>
+      </div>
+      {activePartners.length ? (
+        <div className="md:hidden flex items-center gap-2 px-3 py-1 border-t border-gray-500/10">
+          <span className="text-[9px] uppercase tracking-wide font-medium text-gray-400 dark:text-gray-500 shrink-0">
+            Partners
+          </span>
+          <MobilePartnersStrip partners={activePartners} enabled />
+        </div>
+      ) : null}
+    </div>
   )
 
   return (
@@ -911,12 +1043,15 @@ export function DocsLayout({
           <div
             className={twMerge(
               'flex flex-col max-w-full min-w-0 flex-1 min-h-0 relative',
-              !isLandingPage && 'px-4 md:px-8',
             )}
+            style={{ '--docs-tabs-height': '45px' } as React.CSSProperties}
           >
+            {docsTabs}
             <div
               className={twMerge(
                 `max-w-full min-w-0 flex flex-col justify-center w-full`,
+
+                !isLandingPage && 'px-4 md:px-8',
 
                 !isLandingPage &&
                   !isExample &&
@@ -934,7 +1069,7 @@ export function DocsLayout({
             )}
           </div>
           {!isLandingPage && (
-            <RightRail breakpoint="md" className="md:w-[280px]">
+            <RightRail breakpoint="md" className="md:w-[220px]">
               <PartnersRail
                 analyticsPlacement="docs_rail"
                 partners={activePartners}

@@ -163,9 +163,16 @@ export function Navbar({ children }: { children: React.ReactNode }) {
 
     updateContainerHeight() // Initial call to set the height
 
-    window.addEventListener('resize', updateContainerHeight)
+    let lastWidth = window.innerWidth
+    const onResize = () => {
+      if (window.innerWidth === lastWidth) return
+      lastWidth = window.innerWidth
+      updateContainerHeight()
+    }
+
+    window.addEventListener('resize', onResize)
     return () => {
-      window.removeEventListener('resize', updateContainerHeight)
+      window.removeEventListener('resize', onResize)
     }
   }, [])
 

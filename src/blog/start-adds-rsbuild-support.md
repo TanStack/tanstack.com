@@ -13,6 +13,8 @@ TanStack Start now supports Rsbuild 2 alongside Vite, giving teams two supported
 
 Some teams prefer Vite. Some prefer Rsbuild because it is built on Rspack, feels familiar to teams with Webpack experience, or matches how the rest of their frontend infrastructure is organized. The new adapter makes that choice explicit: Start fits into either build tool through its plugin system.
 
+We built the adapter together with the Rsbuild and Rspack team, and some of that work fed back into Rsbuild and Rspack along the way.
+
 For a React app, the config looks like this:
 
 ```ts title='rsbuild.config.ts'
@@ -29,13 +31,13 @@ React and Solid are supported today, and because the Rsbuild work lives at Start
 
 Rsbuild owns the build, while the framework plugin handles React or Solid and `tanstackStart()` wires Start into both the client and server builds. If you have used Start with Vite, the pattern is intentionally familiar because the Start build-tool plugins are designed to fit naturally into the toolchain you choose.
 
-## Why another build tool matters
+## A Start path for teams using Rsbuild
 
-Build-tool choice is not just an implementation detail, because it shapes plugins, dev server behavior, production output, CI assumptions, and the weird little conventions that accumulate around a frontend stack.
+Some teams want to use Start with Rsbuild because they want Rspack under the hood, a Webpack-familiar model, or a build tool that matches the rest of their stack.
 
-That matters for new apps when a team simply prefers Rsbuild, and it matters even more when the team is not starting from an empty repo. Existing applications often come with Webpack or Rspack infrastructure, internal conventions, and build assumptions that are expensive to revisit during a framework migration. Rsbuild support lets those teams adopt Start without making build-tool change part of the same step.
+That also matters for existing apps. A team moving to Start can keep more of its build setup in place instead of changing framework and build tool at once. One large company is already using the adapter while moving several apps from a Webpack setup to Start on Rsbuild.
 
-Rsbuild support gives both groups the same thing: a way to evaluate Start through a toolchain they already trust, whether they are choosing Rsbuild for a new app or moving existing apps toward Start. One large company is already using the adapter while moving several apps from a Webpack setup to Start on Rsbuild, where keeping the build tool familiar helps narrow the migration scope.
+That path includes the full Start feature set, including React and Solid apps, Server Functions, SSR and streaming SSR, HMR, import protection, and React Server Components for React apps.
 
 ## The two-adapter rule
 
@@ -44,25 +46,6 @@ There is a pattern we keep running into at TanStack: the first adapter proves so
 TanStack Router and TanStack Start already went through this once at the UI framework layer, where adding Solid made the React assumptions easier to see and improved the shared core. Adding Rsbuild brought the same clarity to the build layer.
 
 Because the first Start build adapter was Vite, some build logic naturally grew around Vite's plugin lifecycle, and adding Rsbuild made the boundary sharper: shared Start build behavior in one place, build-tool-specific behavior in the Vite and Rsbuild adapters.
-
-## The Rsbuild adapter has full feature parity
-
-The Rsbuild adapter supports the full Start feature set, including:
-
-- React and Solid apps
-- Server Functions
-- SSR and streaming SSR
-- HMR
-- import protection
-- React Server Components for React apps
-
-## Built with the Rsbuild and Rspack team
-
-The TanStack team built the adapter in close collaboration with the Rsbuild and Rspack team, and the work fed back into both projects.
-
-One example came from the Start templates, which use CSS `?url` imports to reference emitted stylesheet URLs. While we were working through compatibility, the Rsbuild team added the missing support so that template pattern works across both adapters.
-
-Another example came from React Server Components. Rspack's RSC support was initially shaped around a full-app RSC model, while Start uses RSC in a more fine-grained way across routes, SSR, and Server Functions. That meant the adapter needed Rspack APIs for client/server coordination and asset handling, including the client component chunks and CSS associated with an RSC payload. The Rspack team implemented the pieces needed on their side, which made their RSC support more general in the process.
 
 ## Your build tool, your choice
 

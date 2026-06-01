@@ -26,6 +26,10 @@ import {
 } from '~/components/ExampleDeployDialog'
 import { getDocsCacheHeaders } from '~/utils/docs-cache-headers'
 import { stackBlitzEmbedHeaders } from '~/utils/stackblitz-embed'
+import {
+  type DeploymentProviderId,
+  useDeploymentProviderPlacement,
+} from '~/utils/useDeploymentProviderPlacement'
 
 const renderedFileQueryOptions = (
   repo: string,
@@ -189,6 +193,31 @@ function PageComponent() {
     setDeployDialogOpen(false)
     setDeployProvider(null)
   }
+  const availableExampleDeployProviders = React.useMemo(() => {
+    const providers: Array<DeploymentProviderId> = []
+
+    if (library.showCloudflareUrl) {
+      providers.push('cloudflare')
+    }
+
+    if (library.showNetlifyUrl) {
+      providers.push('netlify')
+    }
+
+    if (library.showRailwayUrl) {
+      providers.push('railway')
+    }
+
+    return providers
+  }, [
+    library.showCloudflareUrl,
+    library.showNetlifyUrl,
+    library.showRailwayUrl,
+  ])
+  const orderedExampleDeployProviders = useDeploymentProviderPlacement({
+    availableProviders: availableExampleDeployProviders,
+    surface: `example_deploy_buttons:${library.id}:${framework}`,
+  })
 
   const activeTab = Route.useSearch({
     select: (s) => {
@@ -271,6 +300,56 @@ function PageComponent() {
     isDark ? 'dark' : 'light'
   }&file=${mainExampleFile}`
 
+  const renderExampleDeployButton = (provider: DeploymentProviderId) => {
+    switch (provider) {
+      case 'cloudflare':
+        return (
+          <button
+            key={provider}
+            type="button"
+            onClick={() => openDeployDialog('cloudflare')}
+            className="hover:opacity-80 transition-opacity"
+          >
+            <img
+              src="https://deploy.workers.cloudflare.com/button"
+              loading="lazy"
+              alt="Deploy to Cloudflare"
+            />
+          </button>
+        )
+      case 'netlify':
+        return (
+          <button
+            key={provider}
+            type="button"
+            onClick={() => openDeployDialog('netlify')}
+            className="hover:opacity-80 transition-opacity"
+          >
+            <img
+              src="https://www.netlify.com/img/deploy/button.svg"
+              loading="lazy"
+              alt="Deploy with Netlify"
+            />
+          </button>
+        )
+      case 'railway':
+        return (
+          <button
+            key={provider}
+            type="button"
+            onClick={() => openDeployDialog('railway')}
+            className="hover:opacity-80 transition-opacity"
+          >
+            <img
+              src="https://railway.com/button.svg?utm_medium=sponsor&utm_source=oss&utm_campaign=tanstack"
+              loading="lazy"
+              alt="Deploy on Railway"
+            />
+          </button>
+        )
+    }
+  }
+
   return (
     <div className="flex-1 flex flex-col min-h-0 overflow-auto h-[95dvh]">
       <div className="p-4 lg:p-6">
@@ -279,45 +358,9 @@ function PageComponent() {
             {capitalize(framework)} Example: {slugToTitle(_splat!)}
           </span>
           <div className="flex items-center gap-4 flex-wrap font-normal text-xs">
-            {library.showCloudflareUrl ? (
-              <button
-                type="button"
-                onClick={() => openDeployDialog('cloudflare')}
-                className="hover:opacity-80 transition-opacity"
-              >
-                <img
-                  src="https://deploy.workers.cloudflare.com/button"
-                  loading="lazy"
-                  alt="Deploy to Cloudflare"
-                />
-              </button>
-            ) : null}
-            {library.showNetlifyUrl ? (
-              <button
-                type="button"
-                onClick={() => openDeployDialog('netlify')}
-                className="hover:opacity-80 transition-opacity"
-              >
-                <img
-                  src="https://www.netlify.com/img/deploy/button.svg"
-                  loading="lazy"
-                  alt="Deploy with Netlify"
-                />
-              </button>
-            ) : null}
-            {library.showRailwayUrl ? (
-              <button
-                type="button"
-                onClick={() => openDeployDialog('railway')}
-                className="hover:opacity-80 transition-opacity"
-              >
-                <img
-                  src="https://railway.com/button.svg?utm_medium=sponsor&utm_source=oss&utm_campaign=tanstack"
-                  loading="lazy"
-                  alt="Deploy on Railway"
-                />
-              </button>
-            ) : null}
+            {orderedExampleDeployProviders.map((provider) =>
+              renderExampleDeployButton(provider),
+            )}
             <a
               href={githubUrl}
               target="_blank"

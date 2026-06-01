@@ -28,6 +28,10 @@ import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { SearchProvider, useSearchContext } from '~/contexts/SearchContext'
 import { ToastProvider } from '~/components/ToastProvider'
 import { LoginModalProvider } from '~/contexts/LoginModalContext'
+import {
+  PartnerPlacementProvider,
+  usePartnerPlacementSeed,
+} from '~/contexts/PartnerPlacementContext'
 
 const LazySearchModal = React.lazy(() =>
   import('~/components/SearchModal').then((m) => ({ default: m.SearchModal })),
@@ -37,6 +41,7 @@ import { ThemeProvider, useHtmlClass } from '~/components/ThemeProvider'
 import { Navbar } from '~/components/Navbar'
 import { THEME_COLORS } from '~/utils/utils'
 import { trackPageView } from '~/utils/analytics'
+import { createPartnerPlacementPageViewSeed } from '~/utils/partner-placement'
 import { twMerge } from 'tailwind-merge'
 
 const GOOGLE_ANALYTICS_ID = 'G-JMT1Z50SPS'
@@ -47,6 +52,9 @@ const GOOGLE_ANALYTICS_BOOTSTRAP = `(function(){var id='${GOOGLE_ANALYTICS_ID}';
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
 }>()({
+  loader: () => ({
+    partnerPlacementPageViewSeed: createPartnerPlacementPageViewSeed(),
+  }),
   head: () => ({
     meta: [
       {
@@ -131,17 +139,27 @@ export const Route = createRootRouteWithContext<{
   },
   staleTime: Infinity,
   shellComponent: ({ children }) => {
-    return (
-      <ThemeProvider>
-        <SearchProvider>
-          <ShellComponent>{children}</ShellComponent>
-        </SearchProvider>
-      </ThemeProvider>
-    )
+    return <RootShell>{children}</RootShell>
   },
   errorComponent: DefaultCatchBoundary,
   notFoundComponent: () => <NotFound />,
 })
+
+function RootShell({ children }: { children: React.ReactNode }) {
+  const { partnerPlacementPageViewSeed } = Route.useLoaderData()
+
+  return (
+    <ThemeProvider>
+      <PartnerPlacementProvider
+        initialPageViewSeed={partnerPlacementPageViewSeed}
+      >
+        <SearchProvider>
+          <ShellComponent>{children}</ShellComponent>
+        </SearchProvider>
+      </PartnerPlacementProvider>
+    </ThemeProvider>
+  )
+}
 
 function ShellComponent({ children }: { children: React.ReactNode }) {
   const hasBaseParent = useMatches({
@@ -312,6 +330,7 @@ function SearchHotkeyController() {
 }
 
 function PageViewTracker() {
+  const { refreshPageViewSeed } = usePartnerPlacementSeed()
   const pagePath = useRouterState({
     select: (s) => {
       const pathname = s.resolvedLocation?.pathname || '/'
@@ -328,8 +347,9 @@ function PageViewTracker() {
       return
     }
 
+    refreshPageViewSeed()
     trackPageView(pagePath)
-  }, [pagePath])
+  }, [pagePath, refreshPageViewSeed])
 
   return null
 }

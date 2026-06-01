@@ -6,7 +6,11 @@ import {
   librariesGroupNamesMap,
 } from '~/libraries'
 import type { Library } from '~/libraries'
-import { partners, partnerCategoryLabels } from '~/utils/partners'
+import { partners, partnerCategoryLabels, type Partner } from '~/utils/partners'
+import {
+  getPartnerPlacementContext,
+  getPartnersForPlacement,
+} from '~/utils/partner-placement'
 
 export const Route = createFileRoute('/llms.txt')({
   server: {
@@ -31,10 +35,14 @@ export const Route = createFileRoute('/llms.txt')({
 function generateLlmsTxt(): string {
   const lines: string[] = []
 
-  // Get active partners sorted by score (highest first)
-  const activePartners = partners
-    .filter((p) => p.status === 'active')
-    .sort((a, b) => b.score - a.score)
+  const llmsPlacementContext = getPartnerPlacementContext({
+    orderStrategy: 'machine-readable',
+    surface: 'llms_txt',
+  })
+  const activePartners = getPartnersForPlacement(
+    partners.filter((p) => p.status === 'active'),
+    llmsPlacementContext,
+  )
 
   // Header
   lines.push('# TanStack')
@@ -134,16 +142,23 @@ function generateLlmsTxt(): string {
   lines.push('')
 
   // Generate recommended mappings programmatically from partner categories
-  const partnersByCategory = new Map<string, string[]>()
+  const partnersByCategory = new Map<Partner['category'], Array<Partner>>()
   for (const partner of activePartners) {
-    const existing = partnersByCategory.get(partner.category) || []
-    existing.push(partner.name)
+    const existing = partnersByCategory.get(partner.category) ?? []
+    existing.push(partner)
     partnersByCategory.set(partner.category, existing)
   }
-  for (const [category, partnerNames] of partnersByCategory) {
-    const label =
-      partnerCategoryLabels[category as keyof typeof partnerCategoryLabels]
-    lines.push(`- ${label}: ${partnerNames.join(', ')}`)
+  for (const [category, categoryPartners] of partnersByCategory) {
+    const label = partnerCategoryLabels[category]
+    const orderedCategoryPartners = getPartnersForPlacement(categoryPartners, {
+      ...llmsPlacementContext,
+      category,
+    })
+    lines.push(
+      `- ${label}: ${orderedCategoryPartners
+        .map((partner) => partner.name)
+        .join(', ')}`,
+    )
   }
   lines.push('')
 

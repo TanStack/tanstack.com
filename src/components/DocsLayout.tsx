@@ -12,7 +12,13 @@ import { Framework, LibraryId } from '~/libraries'
 import { frameworkOptions } from '~/libraries/frameworks'
 import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
 import { twMerge } from 'tailwind-merge'
-import { partners, PartnerImage } from '~/utils/partners'
+import { partners, PartnerImage, type Partner } from '~/utils/partners'
+import {
+  getPartnerPlacementAnalyticsMetadata,
+  getPartnersForPlacement,
+  type PartnerPlacementContext,
+} from '~/utils/partner-placement'
+import { usePartnerPlacementContext } from '~/utils/usePartnerPlacementContext'
 import { Footer } from './Footer'
 import { RecentPostsWidget } from './RecentPostsWidget'
 import { GamVrec1 } from './Gam'
@@ -27,14 +33,19 @@ import { trackEvent, useTrackedImpression } from '~/utils/analytics'
 // Mobile partners strip - inline in the docs toggle bar
 function MobilePartnersStrip({
   partners,
+  placementContext,
   onLabelClick,
 }: {
   partners: Array<{
+    category: Partner['category']
+    score: Partner['score']
+    tier?: Partner['tier']
     id: string
     name: string
     href: string
     image: Parameters<typeof PartnerImage>[0]['config']
   }>
+  placementContext: PartnerPlacementContext
   onLabelClick?: () => void
 }) {
   const innerRef = React.useRef<HTMLDivElement>(null)
@@ -112,6 +123,7 @@ function MobilePartnersStrip({
                 key={`${partner.id}-${i}`}
                 index={i}
                 isDuplicate={i >= partners.length}
+                placementContext={placementContext}
                 partner={partner}
               />
             ))}
@@ -125,23 +137,33 @@ function MobilePartnersStrip({
 function MobilePartnerLink({
   index,
   isDuplicate,
+  placementContext,
   partner,
 }: {
   index: number
   isDuplicate: boolean
+  placementContext: PartnerPlacementContext
   partner: {
+    category: Partner['category']
+    score: Partner['score']
+    tier?: Partner['tier']
     id: string
     name: string
     href: string
     image: Parameters<typeof PartnerImage>[0]['config']
   }
 }) {
+  const analyticsMetadata = getPartnerPlacementAnalyticsMetadata(
+    partner,
+    placementContext,
+  )
   const ref = useTrackedImpression<'partner_viewed', HTMLAnchorElement>({
     enabled: !isDuplicate,
     event: 'partner_viewed',
     props: {
       partner_id: partner.id,
       placement: 'docs_strip',
+      ...analyticsMetadata,
       slot_index: index,
     },
   })
@@ -171,6 +193,7 @@ function MobilePartnerLink({
           placement: 'docs_strip',
           destination: 'external',
           destination_host: destinationHost,
+          ...analyticsMetadata,
           slot_index: index,
         })
       }}
@@ -602,6 +625,14 @@ export function DocsLayout({
   const [isFullWidth, setIsFullWidth] = useLocalStorage('docsFullWidth', false)
 
   const activePartners = partners.filter((d) => d.status === 'active')
+  const docsStripPlacementContext = usePartnerPlacementContext({
+    orderStrategy: 'tier-rotated',
+    surface: 'docs_strip',
+  })
+  const docsStripPartners = getPartnersForPlacement(
+    activePartners,
+    docsStripPlacementContext,
+  )
 
   const groupInitialOpenState = React.useMemo(() => {
     return menuConfig.reduce<Record<string, boolean>>((acc, group, index) => {
@@ -765,7 +796,8 @@ export function DocsLayout({
           </div>
           <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 shrink-0" />
           <MobilePartnersStrip
-            partners={activePartners}
+            partners={docsStripPartners}
+            placementContext={docsStripPlacementContext}
             onLabelClick={() => {
               const details = detailsRef.current as HTMLDetailsElement | null
               if (details) {

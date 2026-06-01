@@ -9,6 +9,8 @@
  * meanings, funnel definition, custom dimensions, BigQuery setup).
  */
 
+import type { PartnerPlacementOrderStrategy } from '../partner-placement'
+
 // ---------- Enums ----------
 
 export type PartnerPlacement =
@@ -26,6 +28,8 @@ export type PartnerPlacement =
   | 'library_callout'
 
 export type PartnerClickDestination = 'external' | 'internal_detail'
+
+export type PartnerTierValue = 'gold' | 'silver' | 'bronze'
 
 export type PartnerFilterChange =
   | 'libraries_changed'
@@ -78,7 +82,10 @@ export type AnalyticsEvent =
       name: 'partner_viewed'
       props: {
         partner_id: string
+        order_strategy?: PartnerPlacementOrderStrategy
         placement: PartnerPlacement
+        partner_tier?: PartnerTierValue
+        rotation_seed?: string
         slot_index?: number
       }
     }
@@ -89,6 +96,9 @@ export type AnalyticsEvent =
         placement: PartnerPlacement
         destination: PartnerClickDestination
         destination_host?: string
+        order_strategy?: PartnerPlacementOrderStrategy
+        partner_tier?: PartnerTierValue
+        rotation_seed?: string
         slot_index?: number
       }
     }

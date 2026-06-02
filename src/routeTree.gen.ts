@@ -54,6 +54,7 @@ import { Route as ShowcaseSubmitRouteImport } from './routes/showcase/submit'
 import { Route as ShowcaseIdRouteImport } from './routes/showcase/$id'
 import { Route as ShopSearchRouteImport } from './routes/shop.search'
 import { Route as ShopCartRouteImport } from './routes/shop.cart'
+import { Route as PartnersRailwayRouteImport } from './routes/partners.railway'
 import { Route as PartnersPartnerRouteImport } from './routes/partners.$partner'
 import { Route as OauthTokenRouteImport } from './routes/oauth/token'
 import { Route as OauthRegisterRouteImport } from './routes/oauth/register'
@@ -379,6 +380,11 @@ const ShopCartRoute = ShopCartRouteImport.update({
   id: '/cart',
   path: '/cart',
   getParentRoute: () => ShopRoute,
+} as any)
+const PartnersRailwayRoute = PartnersRailwayRouteImport.update({
+  id: '/railway',
+  path: '/railway',
+  getParentRoute: () => PartnersRoute,
 } as any)
 const PartnersPartnerRoute = PartnersPartnerRouteImport.update({
   id: '/$partner',
@@ -961,6 +967,7 @@ export interface FileRoutesByFullPath {
   '/oauth/register': typeof OauthRegisterRoute
   '/oauth/token': typeof OauthTokenRoute
   '/partners/$partner': typeof PartnersPartnerRoute
+  '/partners/railway': typeof PartnersRailwayRoute
   '/shop/cart': typeof ShopCartRoute
   '/shop/search': typeof ShopSearchRoute
   '/showcase/$id': typeof ShowcaseIdRoute
@@ -1100,6 +1107,7 @@ export interface FileRoutesByTo {
   '/oauth/register': typeof OauthRegisterRoute
   '/oauth/token': typeof OauthTokenRoute
   '/partners/$partner': typeof PartnersPartnerRoute
+  '/partners/railway': typeof PartnersRailwayRoute
   '/shop/cart': typeof ShopCartRoute
   '/shop/search': typeof ShopSearchRoute
   '/showcase/$id': typeof ShowcaseIdRoute
@@ -1246,6 +1254,7 @@ export interface FileRoutesById {
   '/oauth/register': typeof OauthRegisterRoute
   '/oauth/token': typeof OauthTokenRoute
   '/partners/$partner': typeof PartnersPartnerRoute
+  '/partners/railway': typeof PartnersRailwayRoute
   '/shop/cart': typeof ShopCartRoute
   '/shop/search': typeof ShopSearchRoute
   '/showcase/$id': typeof ShowcaseIdRoute
@@ -1395,6 +1404,7 @@ export interface FileRouteTypes {
     | '/oauth/register'
     | '/oauth/token'
     | '/partners/$partner'
+    | '/partners/railway'
     | '/shop/cart'
     | '/shop/search'
     | '/showcase/$id'
@@ -1534,6 +1544,7 @@ export interface FileRouteTypes {
     | '/oauth/register'
     | '/oauth/token'
     | '/partners/$partner'
+    | '/partners/railway'
     | '/shop/cart'
     | '/shop/search'
     | '/showcase/$id'
@@ -1679,6 +1690,7 @@ export interface FileRouteTypes {
     | '/oauth/register'
     | '/oauth/token'
     | '/partners/$partner'
+    | '/partners/railway'
     | '/shop/cart'
     | '/shop/search'
     | '/showcase/$id'
@@ -2182,6 +2194,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/shop/cart'
       preLoaderRoute: typeof ShopCartRouteImport
       parentRoute: typeof ShopRoute
+    }
+    '/partners/railway': {
+      id: '/partners/railway'
+      path: '/railway'
+      fullPath: '/partners/railway'
+      preLoaderRoute: typeof PartnersRailwayRouteImport
+      parentRoute: typeof PartnersRoute
     }
     '/partners/$partner': {
       id: '/partners/$partner'
@@ -3051,11 +3070,13 @@ const BuilderRouteWithChildren =
 
 interface PartnersRouteChildren {
   PartnersPartnerRoute: typeof PartnersPartnerRoute
+  PartnersRailwayRoute: typeof PartnersRailwayRoute
   PartnersIndexRoute: typeof PartnersIndexRoute
 }
 
 const PartnersRouteChildren: PartnersRouteChildren = {
   PartnersPartnerRoute: PartnersPartnerRoute,
+  PartnersRailwayRoute: PartnersRailwayRoute,
   PartnersIndexRoute: PartnersIndexRoute,
 }
 

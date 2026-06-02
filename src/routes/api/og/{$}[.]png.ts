@@ -6,7 +6,7 @@ const CACHE_HEADERS = {
     'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800',
 } as const
 
-export const Route = createFileRoute('/api/og/$library.png')({
+export const Route = createFileRoute('/api/og/{$}.png')({
   server: {
     handlers: {
       GET: async ({
@@ -14,12 +14,9 @@ export const Route = createFileRoute('/api/og/$library.png')({
         params,
       }: {
         request: Request
-        params: { [key: string]: string }
+        params: { _splat: string }
       }) => {
-        // TanStack Router encodes the param name from the filename segment
-        // "$library[.png]" as "library.png" (with the literal dot included).
-        // Grab the value under either key and strip any trailing ".png" suffix.
-        const rawParam = params['library.png'] ?? params['library'] ?? ''
+        const rawParam = params._splat
         const libraryId = rawParam.replace(/\.png$/, '')
 
         const url = new URL(request.url)

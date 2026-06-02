@@ -21,6 +21,19 @@ export interface Maintainer {
   workshopsAvailable?: boolean
 }
 
+const libraryMaintainerSortOrder = {
+  start: [
+    'tannerlinsley',
+    'schiller-manuel',
+    'sheraff',
+    'brenelz',
+    'seancassiere',
+    'birkskyum',
+    'chorobin',
+    'brhx',
+  ],
+} satisfies Partial<Record<Library['id'], Array<Maintainer['github']>>>
+
 // order matters
 export const allMaintainers: Maintainer[] = [
   {
@@ -568,9 +581,46 @@ export function getLibraryMaintainers(
   )
 
   // Use Set to dedupe while preserving order
-  return includeCreators
+  const libraryMaintainers = includeCreators
     ? [...new Set([...creators, ...maintainers])]
     : maintainers
+
+  return sortLibraryMaintainers(libraryId, libraryMaintainers)
+}
+
+function sortLibraryMaintainers(
+  libraryId: string,
+  maintainers: Maintainer[],
+): Maintainer[] {
+  const order =
+    libraryId === 'start' ? libraryMaintainerSortOrder.start : undefined
+
+  if (!order) {
+    return maintainers
+  }
+
+  const orderIndexByGithub = new Map(
+    order.map((github, index) => [github, index]),
+  )
+
+  return [...maintainers].sort((left, right) => {
+    const leftIndex = orderIndexByGithub.get(left.github)
+    const rightIndex = orderIndexByGithub.get(right.github)
+
+    if (leftIndex === undefined && rightIndex === undefined) {
+      return 0
+    }
+
+    if (leftIndex === undefined) {
+      return 1
+    }
+
+    if (rightIndex === undefined) {
+      return -1
+    }
+
+    return leftIndex - rightIndex
+  })
 }
 
 export function getLibraryContributors(

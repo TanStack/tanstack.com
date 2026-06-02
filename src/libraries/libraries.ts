@@ -285,6 +285,7 @@ export const start: LibrarySlim = {
   latestVersion: 'v0',
   latestBranch: 'main',
   availableVersions: ['v0'],
+  npmPackageNames: ['@tanstack/start-client-core'],
   scarfId: 'b6e2134f-e805-401d-95c3-2a7765d49a3d',
   docsRoot: 'docs/start',
   defaultDocs: 'framework/react/overview',

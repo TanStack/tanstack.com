@@ -71,6 +71,7 @@ export type LibrarySlim = {
   showRailwayUrl?: boolean
   embedEditor?: 'codesandbox' | 'stackblitz'
   legacyPackages?: string[]
+  npmPackageNames?: string[]
   installPath?: string
   corePackageName?: string
   frameworkPackageNames?: Partial<Record<Framework, string>>

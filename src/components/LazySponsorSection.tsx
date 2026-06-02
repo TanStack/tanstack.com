@@ -11,6 +11,7 @@ const LazySponsorPack = React.lazy(() => import('./SponsorPack'))
 type LazySponsorSectionProps = {
   title?: React.ReactNode
   aspectRatio?: string
+  packMaxWidth?: React.CSSProperties['maxWidth']
   showCTA?: boolean
 }
 
@@ -31,6 +32,7 @@ function SponsorPackWithQuery() {
 export function LazySponsorSection({
   title = 'Sponsors',
   aspectRatio = '1/1',
+  packMaxWidth,
   showCTA = true,
 }: LazySponsorSectionProps) {
   const { ref, isIntersecting } = useIntersectionObserver({
@@ -45,7 +47,10 @@ export function LazySponsorSection({
     >
       <div className="space-y-8">
         <h3 className="text-3xl font-bold">{title}</h3>
-        <div className="flex flex-wrap relative w-full" style={{ aspectRatio }}>
+        <div
+          className="relative mx-auto flex w-full flex-wrap overflow-hidden"
+          style={{ aspectRatio, maxWidth: packMaxWidth }}
+        >
           {!isIntersecting ? (
             <PlaceholderSponsorPack />
           ) : (

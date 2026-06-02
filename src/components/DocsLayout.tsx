@@ -440,6 +440,60 @@ const DocNavigationContext = React.createContext<{
   textColor: string
 } | null>(null)
 
+type FrameworkDocsLinkTarget = {
+  kind: 'docs' | 'examples'
+  framework: string
+  splat: string
+}
+
+function getFrameworkDocsLinkTarget(
+  to: string,
+): FrameworkDocsLinkTarget | undefined {
+  const match = /^framework\/([^/]+)\/(.+)$/.exec(to)
+
+  if (!match) {
+    return undefined
+  }
+
+  const framework = match[1]
+  const splat = match[2]
+
+  if (!framework || !splat) {
+    return undefined
+  }
+
+  const examplesPrefix = 'examples/'
+
+  if (splat.startsWith(examplesPrefix)) {
+    return {
+      kind: 'examples',
+      framework,
+      splat: splat.slice(examplesPrefix.length),
+    }
+  }
+
+  return {
+    kind: 'docs',
+    framework,
+    splat,
+  }
+}
+
+function getFrameworkDocsHref({
+  libraryId,
+  target,
+  version,
+}: {
+  libraryId: LibraryId
+  target: FrameworkDocsLinkTarget
+  version: string
+}) {
+  const splat =
+    target.kind === 'examples' ? `examples/${target.splat}` : target.splat
+
+  return `/${libraryId}/${version}/docs/framework/${target.framework}/${splat}`
+}
+
 export const useDocNavigation = () => {
   return React.useContext(DocNavigationContext)
 }
@@ -464,49 +518,103 @@ export function DocNavigation() {
     <div className="sticky flex items-stretch bottom-2 z-10 right-0 text-[10px] sm:text-xs md:text-sm print:hidden">
       <div className="flex-1 flex justify-start">
         {prevItem ? (
-          <Card
-            as={Link}
-            from="/$libraryId/$version/docs"
-            to={prevItem.to}
-            params={{ libraryId, version } as never}
-            className="py-1 px-2 sm:py-2 sm:px-3 flex items-center gap-1 sm:gap-2"
-          >
-            <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
-            <div className="flex flex-col">
-              <span className="hidden sm:block text-[10px] uppercase tracking-wider opacity-60 mb-0.5">
-                Previous
-              </span>
-              <span className="font-bold">{prevItem.label}</span>
-            </div>
-          </Card>
+          <DocNavigationCard
+            direction="previous"
+            item={prevItem}
+            libraryId={libraryId}
+            version={version}
+          />
         ) : null}
       </div>
       <div className="flex-1 flex justify-end">
         {nextItem ? (
-          <Card
-            as={Link}
-            from="/$libraryId/$version/docs"
-            to={nextItem.to}
-            params={{ libraryId, version } as never}
-            className="py-1 px-2 sm:py-2 sm:px-3 flex items-center gap-1 sm:gap-2"
-          >
-            <div className="flex flex-col items-end">
-              <span className="hidden sm:block text-[10px] uppercase tracking-wider opacity-60 mb-0.5">
-                Next
-              </span>
-              <span
-                className={`font-bold text-right bg-linear-to-r ${colorFrom} ${colorTo} bg-clip-text text-transparent`}
-              >
-                {nextItem.label}
-              </span>
-            </div>
-            <ChevronRight
-              className={twMerge('w-3 h-3 sm:w-4 sm:h-4', textColor)}
-            />
-          </Card>
+          <DocNavigationCard
+            colorFrom={colorFrom}
+            colorTo={colorTo}
+            direction="next"
+            item={nextItem}
+            libraryId={libraryId}
+            textColor={textColor}
+            version={version}
+          />
         ) : null}
       </div>
     </div>
+  )
+}
+
+function DocNavigationCard({
+  colorFrom,
+  colorTo,
+  direction,
+  item,
+  libraryId,
+  textColor,
+  version,
+}: {
+  colorFrom?: string
+  colorTo?: string
+  direction: 'previous' | 'next'
+  item: DocNavItem
+  libraryId: LibraryId
+  textColor?: string
+  version: string
+}) {
+  const frameworkDocsTarget = getFrameworkDocsLinkTarget(item.to)
+  const className = 'py-1 px-2 sm:py-2 sm:px-3 flex items-center gap-1 sm:gap-2'
+  const children =
+    direction === 'previous' ? (
+      <>
+        <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
+        <div className="flex flex-col">
+          <span className="hidden sm:block text-[10px] uppercase tracking-wider opacity-60 mb-0.5">
+            Previous
+          </span>
+          <span className="font-bold">{item.label}</span>
+        </div>
+      </>
+    ) : (
+      <>
+        <div className="flex flex-col items-end">
+          <span className="hidden sm:block text-[10px] uppercase tracking-wider opacity-60 mb-0.5">
+            Next
+          </span>
+          <span
+            className={`font-bold text-right bg-linear-to-r ${colorFrom} ${colorTo} bg-clip-text text-transparent`}
+          >
+            {item.label}
+          </span>
+        </div>
+        <ChevronRight className={twMerge('w-3 h-3 sm:w-4 sm:h-4', textColor)} />
+      </>
+    )
+
+  if (frameworkDocsTarget) {
+    return (
+      <Card
+        as="a"
+        href={getFrameworkDocsHref({
+          libraryId,
+          version,
+          target: frameworkDocsTarget,
+        })}
+        className={className}
+      >
+        {children}
+      </Card>
+    )
+  }
+
+  return (
+    <Card
+      as={Link}
+      from="/$libraryId/$version/docs"
+      to={item.to}
+      params={{ libraryId, version } as never}
+      className={className}
+    >
+      {children}
+    </Card>
   )
 }
 
@@ -764,6 +872,24 @@ export function DocsLayout({
               !child.to.startsWith('/') || child.to.includes('/$libraryId')
                 ? ({ libraryId, version } as never)
                 : undefined
+            const isHomeLink = child.to === '..'
+            const homeHref = `/${libraryId}/${version}`
+            const frameworkDocsTarget = getFrameworkDocsLinkTarget(child.to)
+
+            const renderLinkContent = (isActive: boolean) => (
+              <div className={twMerge(linkClasses, isActive && 'opacity-100')}>
+                <div
+                  className={twMerge(
+                    'w-full',
+                    isActive
+                      ? `font-bold text-transparent bg-clip-text bg-linear-to-r ${colorFrom} ${colorTo}`
+                      : '',
+                  )}
+                >
+                  {child.label}
+                </div>
+              </div>
+            )
 
             const recency = getDocRecency(child.addedAt, child.updatedAt)
             const recencyPill = recency ? (
@@ -785,6 +911,76 @@ export function DocsLayout({
                     <span className="w-full">{child.label}</span>
                     {recencyPill}
                   </a>
+                ) : isHomeLink ? (
+                  <a
+                    href={homeHref}
+                    onClick={() => {
+                      detailsRef.current.removeAttribute('open')
+                    }}
+                    className="relative"
+                  >
+                    <div
+                      className={twMerge(
+                        linkClasses,
+                        !docsMatch && 'opacity-100',
+                      )}
+                    >
+                      <div
+                        className={twMerge(
+                          'w-full',
+                          !docsMatch
+                            ? `font-bold text-transparent bg-clip-text bg-linear-to-r ${colorFrom} ${colorTo}`
+                            : '',
+                        )}
+                      >
+                        {child.label}
+                      </div>
+                    </div>
+                  </a>
+                ) : frameworkDocsTarget?.kind === 'examples' ? (
+                  <Link
+                    to="/$libraryId/$version/docs/framework/$framework/examples/$"
+                    params={{
+                      libraryId,
+                      version,
+                      framework: frameworkDocsTarget.framework,
+                      _splat: frameworkDocsTarget.splat,
+                    }}
+                    onClick={() => {
+                      detailsRef.current.removeAttribute('open')
+                    }}
+                    preload="intent"
+                    activeOptions={{
+                      exact: true,
+                      includeHash: false,
+                      includeSearch: false,
+                    }}
+                    className="relative"
+                  >
+                    {(props) => renderLinkContent(props.isActive)}
+                  </Link>
+                ) : frameworkDocsTarget ? (
+                  <Link
+                    to="/$libraryId/$version/docs/framework/$framework/$"
+                    params={{
+                      libraryId,
+                      version,
+                      framework: frameworkDocsTarget.framework,
+                      _splat: frameworkDocsTarget.splat,
+                    }}
+                    onClick={() => {
+                      detailsRef.current.removeAttribute('open')
+                    }}
+                    preload="intent"
+                    activeOptions={{
+                      exact: true,
+                      includeHash: false,
+                      includeSearch: false,
+                    }}
+                    className="relative"
+                  >
+                    {(props) => renderLinkContent(props.isActive)}
+                  </Link>
                 ) : (
                   <Link
                     from="/$libraryId/$version/docs"
@@ -801,28 +997,7 @@ export function DocsLayout({
                     }}
                     className="relative"
                   >
-                    {(props) => {
-                      return (
-                        <div
-                          className={twMerge(
-                            linkClasses,
-                            props.isActive && 'opacity-100',
-                          )}
-                        >
-                          <div
-                            className={twMerge(
-                              'w-full',
-                              props.isActive
-                                ? `font-bold text-transparent bg-clip-text bg-linear-to-r ${colorFrom} ${colorTo}`
-                                : '',
-                            )}
-                          >
-                            {child.label}
-                          </div>
-                          {recencyPill}
-                        </div>
-                      )
-                    }}
+                    {(props) => renderLinkContent(props.isActive)}
                   </Link>
                 )}
               </li>

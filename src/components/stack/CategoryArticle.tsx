@@ -24,6 +24,7 @@ import {
 } from 'lucide-react'
 
 import { DeferredApplicationStarter } from '~/components/DeferredApplicationStarter'
+import { LibraryWordmark } from '~/components/LibraryWordmark'
 import type { LibrarySlim } from '~/libraries'
 import { formatPublishedDate, getPostsForLibrary } from '~/utils/blog'
 import {
@@ -122,7 +123,9 @@ function FrameworkCategory({
               Framework
             </SectionKicker>
             <h1 className={heroTitleClassName}>
-              TanStack Start is the application layer. Router is the spine.
+              <LibraryWordmark library={start} /> is the application layer.{' '}
+              <LibraryWordmark library={router} includeTanStack={false} /> is
+              the spine.
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-7 text-zinc-700 dark:text-zinc-300 sm:text-lg">
               Build full-stack React and Solid apps with the same type-safe
@@ -187,7 +190,8 @@ function FrameworkCategory({
           >
             <LibraryTitle library={start} overline="Lead library" />
             <h2 className="mt-5 max-w-2xl text-3xl font-black leading-tight sm:text-4xl">
-              Start takes the route tree all the way to production.
+              <LibraryWordmark library={start} includeTanStack={false} /> takes
+              the route tree all the way to production.
             </h2>
             <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-700 dark:text-zinc-300">
               Full-document SSR, server functions, streaming, deployment
@@ -312,7 +316,12 @@ function StateCategory({
                     {label}
                   </div>
                   <div>
-                    <p className="font-bold">{shortName(library)}</p>
+                    <p className="font-bold">
+                      <LibraryWordmark
+                        library={library}
+                        includeTanStack={false}
+                      />
+                    </p>
                     <p className="text-sm text-zinc-600 dark:text-zinc-400">
                       {detail}
                     </p>
@@ -418,7 +427,13 @@ function StateLibraryCard({
         ))}
       </div>
       <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-zinc-700 group-hover:text-zinc-950 dark:text-zinc-300 dark:group-hover:text-white">
-        Open {shortName(library)} <ArrowRight size={15} aria-hidden="true" />
+        Open{' '}
+        <LibraryWordmark
+          library={library}
+          includeTanStack={false}
+          colorProduct={false}
+        />{' '}
+        <ArrowRight size={15} aria-hidden="true" />
       </span>
     </Link>
   )
@@ -559,7 +574,13 @@ function UiSurfaceCard({
         {detail}
       </p>
       <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-zinc-700 group-hover:text-zinc-950 dark:text-zinc-300 dark:group-hover:text-white">
-        Open {shortName(library)} <ArrowRight size={15} aria-hidden="true" />
+        Open{' '}
+        <LibraryWordmark
+          library={library}
+          includeTanStack={false}
+          colorProduct={false}
+        />{' '}
+        <ArrowRight size={15} aria-hidden="true" />
       </span>
     </Link>
   )
@@ -775,7 +796,9 @@ function PerformanceLibraryPanel({
       className="group rounded-lg border border-zinc-200 bg-[#fbfaf7] p-6 transition-colors hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700"
     >
       <LibraryTitle library={library} />
-      <h2 className="mt-4 text-3xl font-black leading-tight">{title}</h2>
+      <h2 className="mt-4 text-3xl font-black leading-tight">
+        <LibraryLeadTitle library={library} title={title} />
+      </h2>
       <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300">
         {body}
       </p>
@@ -790,9 +813,36 @@ function PerformanceLibraryPanel({
         ))}
       </div>
       <span className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-zinc-700 group-hover:text-zinc-950 dark:text-zinc-300 dark:group-hover:text-white">
-        Open {shortName(library)} <ArrowRight size={15} aria-hidden="true" />
+        Open{' '}
+        <LibraryWordmark
+          library={library}
+          includeTanStack={false}
+          colorProduct={false}
+        />{' '}
+        <ArrowRight size={15} aria-hidden="true" />
       </span>
     </Link>
+  )
+}
+
+function LibraryLeadTitle({
+  library,
+  title,
+}: {
+  library: LibrarySlim
+  title: string
+}) {
+  const productName = shortName(library)
+
+  if (!title.startsWith(productName)) {
+    return <>{title}</>
+  }
+
+  return (
+    <>
+      <LibraryWordmark library={library} includeTanStack={false} />
+      {title.slice(productName.length)}
+    </>
   )
 }
 
@@ -939,7 +989,7 @@ function WorkbenchCell({
       <div className="flex items-center justify-between gap-2">
         <span className="inline-flex items-center gap-2 text-sm font-bold">
           {icon}
-          {shortName(library)}
+          <LibraryWordmark library={library} includeTanStack={false} />
         </span>
         <ArrowRight
           size={14}
@@ -985,7 +1035,13 @@ function ToolingStep({
         {detail}
       </p>
       <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-zinc-700 group-hover:text-zinc-950 dark:text-zinc-300 dark:group-hover:text-white">
-        Open {shortName(library)} <ArrowRight size={15} aria-hidden="true" />
+        Open{' '}
+        <LibraryWordmark
+          library={library}
+          includeTanStack={false}
+          colorProduct={false}
+        />{' '}
+        <ArrowRight size={15} aria-hidden="true" />
       </span>
     </Link>
   )
@@ -1021,7 +1077,11 @@ function RelatedPostsBlock({ items }: { items: Array<RelatedPost> }) {
                       lib.colorTo,
                     )}
                   >
-                    {shortName(lib)}
+                    <LibraryWordmark
+                      library={lib}
+                      includeTanStack={false}
+                      colorProduct={false}
+                    />
                   </span>
                   <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">
                     {formatPublishedDate(post.published)}
@@ -1074,17 +1134,8 @@ function LibraryTitle({
         {overline}
       </p>
       <div className="mt-1 flex flex-wrap items-center gap-2">
-        <span
-          className={twMerge(
-            'inline-flex h-7 items-center rounded-md bg-gradient-to-r px-2 text-sm font-black text-white',
-            library.colorFrom,
-            library.colorTo,
-          )}
-        >
-          TanStack
-        </span>
         <h3 className="text-xl font-black leading-tight">
-          {shortName(library)}
+          <LibraryWordmark library={library} />
         </h3>
         {library.badge ? (
           <span
@@ -1112,6 +1163,11 @@ function LibraryButton({
   library: LibrarySlim
   muted?: boolean
 }) {
+  const productName = shortName(library)
+  const actionLabel = label.endsWith(productName)
+    ? label.slice(0, -productName.length).trim()
+    : label
+
   return (
     <Link
       to={library.to ?? '#'}
@@ -1122,7 +1178,14 @@ function LibraryButton({
           : 'border-zinc-950 bg-zinc-950 text-white hover:bg-zinc-800 dark:border-white dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200',
       )}
     >
-      {label}
+      {actionLabel ? `${actionLabel} ` : null}
+      {label.endsWith(productName) ? (
+        <LibraryWordmark
+          library={library}
+          includeTanStack={false}
+          colorProduct={false}
+        />
+      ) : null}
       <ArrowRight size={15} aria-hidden="true" />
     </Link>
   )

@@ -79,26 +79,9 @@ import { Route as AccountIntegrationsRouteImport } from './routes/account/integr
 import { Route as AccountFeedbackRouteImport } from './routes/account/feedback'
 import { Route as DotwellKnownOauthAuthorizationServerRouteImport } from './routes/[.]well-known/oauth-authorization-server'
 import { Route as LibraryIdVersionRouteImport } from './routes/$libraryId/$version'
-import { Route as WorkflowVersionIndexRouteImport } from './routes/workflow.$version.index'
-import { Route as VirtualVersionIndexRouteImport } from './routes/virtual.$version.index'
-import { Route as TableVersionIndexRouteImport } from './routes/table.$version.index'
-import { Route as StoreVersionIndexRouteImport } from './routes/store.$version.index'
 import { Route as StatsNpmIndexRouteImport } from './routes/stats/npm/index'
-import { Route as StartVersionIndexRouteImport } from './routes/start.$version.index'
-import { Route as RouterVersionIndexRouteImport } from './routes/router.$version.index'
-import { Route as RangerVersionIndexRouteImport } from './routes/ranger.$version.index'
-import { Route as QueryVersionIndexRouteImport } from './routes/query.$version.index'
-import { Route as PacerVersionIndexRouteImport } from './routes/pacer.$version.index'
 import { Route as IntentRegistryIndexRouteImport } from './routes/intent/registry/index'
-import { Route as IntentVersionIndexRouteImport } from './routes/intent.$version.index'
-import { Route as HotkeysVersionIndexRouteImport } from './routes/hotkeys.$version.index'
-import { Route as FormVersionIndexRouteImport } from './routes/form.$version.index'
-import { Route as DevtoolsVersionIndexRouteImport } from './routes/devtools.$version.index'
-import { Route as DbVersionIndexRouteImport } from './routes/db.$version.index'
-import { Route as ConfigVersionIndexRouteImport } from './routes/config.$version.index'
-import { Route as CliVersionIndexRouteImport } from './routes/cli.$version.index'
 import { Route as ApiMcpIndexRouteImport } from './routes/api/mcp/index'
-import { Route as AiVersionIndexRouteImport } from './routes/ai.$version.index'
 import { Route as AdminShowcasesIndexRouteImport } from './routes/admin/showcases.index'
 import { Route as AdminRolesIndexRouteImport } from './routes/admin/roles.index'
 import { Route as AdminNotesIndexRouteImport } from './routes/admin/notes.index'
@@ -112,7 +95,7 @@ import { Route as ShopPagesHandleRouteImport } from './routes/shop.pages.$handle
 import { Route as ShopCollectionsHandleRouteImport } from './routes/shop.collections.$handle'
 import { Route as IntentRegistryPackageNameRouteImport } from './routes/intent/registry/$packageName'
 import { Route as AuthProviderStartRouteImport } from './routes/auth/$provider/start'
-import { Route as ApiOgLibraryDotpngRouteImport } from './routes/api/og/$library[.png]'
+import { Route as ApiOgChar123Char125DotpngRouteImport } from './routes/api/og/{$}[.]png'
 import { Route as ApiMcpSplatRouteImport } from './routes/api/mcp/$'
 import { Route as ApiGithubWebhookRouteImport } from './routes/api/github/webhook'
 import { Route as ApiExampleDeployRouteImport } from './routes/api/example/deploy'
@@ -507,54 +490,9 @@ const LibraryIdVersionRoute = LibraryIdVersionRouteImport.update({
   path: '/$version',
   getParentRoute: () => LibraryIdRouteRoute,
 } as any)
-const WorkflowVersionIndexRoute = WorkflowVersionIndexRouteImport.update({
-  id: '/workflow/$version/',
-  path: '/workflow/$version/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const VirtualVersionIndexRoute = VirtualVersionIndexRouteImport.update({
-  id: '/virtual/$version/',
-  path: '/virtual/$version/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TableVersionIndexRoute = TableVersionIndexRouteImport.update({
-  id: '/table/$version/',
-  path: '/table/$version/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StoreVersionIndexRoute = StoreVersionIndexRouteImport.update({
-  id: '/store/$version/',
-  path: '/store/$version/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const StatsNpmIndexRoute = StatsNpmIndexRouteImport.update({
   id: '/stats/npm/',
   path: '/stats/npm/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StartVersionIndexRoute = StartVersionIndexRouteImport.update({
-  id: '/start/$version/',
-  path: '/start/$version/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RouterVersionIndexRoute = RouterVersionIndexRouteImport.update({
-  id: '/router/$version/',
-  path: '/router/$version/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RangerVersionIndexRoute = RangerVersionIndexRouteImport.update({
-  id: '/ranger/$version/',
-  path: '/ranger/$version/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const QueryVersionIndexRoute = QueryVersionIndexRouteImport.update({
-  id: '/query/$version/',
-  path: '/query/$version/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PacerVersionIndexRoute = PacerVersionIndexRouteImport.update({
-  id: '/pacer/$version/',
-  path: '/pacer/$version/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IntentRegistryIndexRoute = IntentRegistryIndexRouteImport.update({
@@ -562,49 +500,9 @@ const IntentRegistryIndexRoute = IntentRegistryIndexRouteImport.update({
   path: '/intent/registry/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IntentVersionIndexRoute = IntentVersionIndexRouteImport.update({
-  id: '/intent/$version/',
-  path: '/intent/$version/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HotkeysVersionIndexRoute = HotkeysVersionIndexRouteImport.update({
-  id: '/hotkeys/$version/',
-  path: '/hotkeys/$version/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FormVersionIndexRoute = FormVersionIndexRouteImport.update({
-  id: '/form/$version/',
-  path: '/form/$version/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DevtoolsVersionIndexRoute = DevtoolsVersionIndexRouteImport.update({
-  id: '/devtools/$version/',
-  path: '/devtools/$version/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DbVersionIndexRoute = DbVersionIndexRouteImport.update({
-  id: '/db/$version/',
-  path: '/db/$version/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ConfigVersionIndexRoute = ConfigVersionIndexRouteImport.update({
-  id: '/config/$version/',
-  path: '/config/$version/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CliVersionIndexRoute = CliVersionIndexRouteImport.update({
-  id: '/cli/$version/',
-  path: '/cli/$version/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiMcpIndexRoute = ApiMcpIndexRouteImport.update({
   id: '/api/mcp/',
   path: '/api/mcp/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AiVersionIndexRoute = AiVersionIndexRouteImport.update({
-  id: '/ai/$version/',
-  path: '/ai/$version/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminShowcasesIndexRoute = AdminShowcasesIndexRouteImport.update({
@@ -673,11 +571,12 @@ const AuthProviderStartRoute = AuthProviderStartRouteImport.update({
   path: '/auth/$provider/start',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiOgLibraryDotpngRoute = ApiOgLibraryDotpngRouteImport.update({
-  id: '/api/og/$library.png',
-  path: '/api/og/$library.png',
-  getParentRoute: () => rootRouteImport,
-} as any)
+const ApiOgChar123Char125DotpngRoute =
+  ApiOgChar123Char125DotpngRouteImport.update({
+    id: '/api/og/{$}.png',
+    path: '/api/og/{$}.png',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiMcpSplatRoute = ApiMcpSplatRouteImport.update({
   id: '/api/mcp/$',
   path: '/api/mcp/$',
@@ -1004,7 +903,7 @@ export interface FileRoutesByFullPath {
   '/api/example/deploy': typeof ApiExampleDeployRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
-  '/api/og/$library.png': typeof ApiOgLibraryDotpngRoute
+  '/api/og/{$}.png': typeof ApiOgChar123Char125DotpngRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
   '/intent/registry/$packageName': typeof IntentRegistryPackageNameRouteWithChildren
   '/shop/collections/$handle': typeof ShopCollectionsHandleRoute
@@ -1018,26 +917,9 @@ export interface FileRoutesByFullPath {
   '/admin/notes/': typeof AdminNotesIndexRoute
   '/admin/roles/': typeof AdminRolesIndexRoute
   '/admin/showcases/': typeof AdminShowcasesIndexRoute
-  '/ai/$version/': typeof AiVersionIndexRoute
   '/api/mcp/': typeof ApiMcpIndexRoute
-  '/cli/$version/': typeof CliVersionIndexRoute
-  '/config/$version/': typeof ConfigVersionIndexRoute
-  '/db/$version/': typeof DbVersionIndexRoute
-  '/devtools/$version/': typeof DevtoolsVersionIndexRoute
-  '/form/$version/': typeof FormVersionIndexRoute
-  '/hotkeys/$version/': typeof HotkeysVersionIndexRoute
-  '/intent/$version/': typeof IntentVersionIndexRoute
   '/intent/registry/': typeof IntentRegistryIndexRoute
-  '/pacer/$version/': typeof PacerVersionIndexRoute
-  '/query/$version/': typeof QueryVersionIndexRoute
-  '/ranger/$version/': typeof RangerVersionIndexRoute
-  '/router/$version/': typeof RouterVersionIndexRoute
-  '/start/$version/': typeof StartVersionIndexRoute
   '/stats/npm/': typeof StatsNpmIndexRoute
-  '/store/$version/': typeof StoreVersionIndexRoute
-  '/table/$version/': typeof TableVersionIndexRoute
-  '/virtual/$version/': typeof VirtualVersionIndexRoute
-  '/workflow/$version/': typeof WorkflowVersionIndexRoute
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
   '/$libraryId/$version/docs/blog': typeof LibraryIdVersionDocsBlogRoute
   '/$libraryId/$version/docs/community-resources': typeof LibraryIdVersionDocsCommunityResourcesRoute
@@ -1143,7 +1025,7 @@ export interface FileRoutesByTo {
   '/api/example/deploy': typeof ApiExampleDeployRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
-  '/api/og/$library.png': typeof ApiOgLibraryDotpngRoute
+  '/api/og/{$}.png': typeof ApiOgChar123Char125DotpngRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
   '/shop/collections/$handle': typeof ShopCollectionsHandleRoute
   '/shop/pages/$handle': typeof ShopPagesHandleRoute
@@ -1156,26 +1038,9 @@ export interface FileRoutesByTo {
   '/admin/notes': typeof AdminNotesIndexRoute
   '/admin/roles': typeof AdminRolesIndexRoute
   '/admin/showcases': typeof AdminShowcasesIndexRoute
-  '/ai/$version': typeof AiVersionIndexRoute
   '/api/mcp': typeof ApiMcpIndexRoute
-  '/cli/$version': typeof CliVersionIndexRoute
-  '/config/$version': typeof ConfigVersionIndexRoute
-  '/db/$version': typeof DbVersionIndexRoute
-  '/devtools/$version': typeof DevtoolsVersionIndexRoute
-  '/form/$version': typeof FormVersionIndexRoute
-  '/hotkeys/$version': typeof HotkeysVersionIndexRoute
-  '/intent/$version': typeof IntentVersionIndexRoute
   '/intent/registry': typeof IntentRegistryIndexRoute
-  '/pacer/$version': typeof PacerVersionIndexRoute
-  '/query/$version': typeof QueryVersionIndexRoute
-  '/ranger/$version': typeof RangerVersionIndexRoute
-  '/router/$version': typeof RouterVersionIndexRoute
-  '/start/$version': typeof StartVersionIndexRoute
   '/stats/npm': typeof StatsNpmIndexRoute
-  '/store/$version': typeof StoreVersionIndexRoute
-  '/table/$version': typeof TableVersionIndexRoute
-  '/virtual/$version': typeof VirtualVersionIndexRoute
-  '/workflow/$version': typeof WorkflowVersionIndexRoute
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
   '/$libraryId/$version/docs/blog': typeof LibraryIdVersionDocsBlogRoute
   '/$libraryId/$version/docs/community-resources': typeof LibraryIdVersionDocsCommunityResourcesRoute
@@ -1291,7 +1156,7 @@ export interface FileRoutesById {
   '/api/example/deploy': typeof ApiExampleDeployRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
-  '/api/og/$library.png': typeof ApiOgLibraryDotpngRoute
+  '/api/og/{$}.png': typeof ApiOgChar123Char125DotpngRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
   '/intent/registry/$packageName': typeof IntentRegistryPackageNameRouteWithChildren
   '/shop/collections/$handle': typeof ShopCollectionsHandleRoute
@@ -1305,26 +1170,9 @@ export interface FileRoutesById {
   '/admin/notes/': typeof AdminNotesIndexRoute
   '/admin/roles/': typeof AdminRolesIndexRoute
   '/admin/showcases/': typeof AdminShowcasesIndexRoute
-  '/ai/$version/': typeof AiVersionIndexRoute
   '/api/mcp/': typeof ApiMcpIndexRoute
-  '/cli/$version/': typeof CliVersionIndexRoute
-  '/config/$version/': typeof ConfigVersionIndexRoute
-  '/db/$version/': typeof DbVersionIndexRoute
-  '/devtools/$version/': typeof DevtoolsVersionIndexRoute
-  '/form/$version/': typeof FormVersionIndexRoute
-  '/hotkeys/$version/': typeof HotkeysVersionIndexRoute
-  '/intent/$version/': typeof IntentVersionIndexRoute
   '/intent/registry/': typeof IntentRegistryIndexRoute
-  '/pacer/$version/': typeof PacerVersionIndexRoute
-  '/query/$version/': typeof QueryVersionIndexRoute
-  '/ranger/$version/': typeof RangerVersionIndexRoute
-  '/router/$version/': typeof RouterVersionIndexRoute
-  '/start/$version/': typeof StartVersionIndexRoute
   '/stats/npm/': typeof StatsNpmIndexRoute
-  '/store/$version/': typeof StoreVersionIndexRoute
-  '/table/$version/': typeof TableVersionIndexRoute
-  '/virtual/$version/': typeof VirtualVersionIndexRoute
-  '/workflow/$version/': typeof WorkflowVersionIndexRoute
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
   '/$libraryId/$version/docs/blog': typeof LibraryIdVersionDocsBlogRoute
   '/$libraryId/$version/docs/community-resources': typeof LibraryIdVersionDocsCommunityResourcesRoute
@@ -1441,7 +1289,7 @@ export interface FileRouteTypes {
     | '/api/example/deploy'
     | '/api/github/webhook'
     | '/api/mcp/$'
-    | '/api/og/$library.png'
+    | '/api/og/{$}.png'
     | '/auth/$provider/start'
     | '/intent/registry/$packageName'
     | '/shop/collections/$handle'
@@ -1455,26 +1303,9 @@ export interface FileRouteTypes {
     | '/admin/notes/'
     | '/admin/roles/'
     | '/admin/showcases/'
-    | '/ai/$version/'
     | '/api/mcp/'
-    | '/cli/$version/'
-    | '/config/$version/'
-    | '/db/$version/'
-    | '/devtools/$version/'
-    | '/form/$version/'
-    | '/hotkeys/$version/'
-    | '/intent/$version/'
     | '/intent/registry/'
-    | '/pacer/$version/'
-    | '/query/$version/'
-    | '/ranger/$version/'
-    | '/router/$version/'
-    | '/start/$version/'
     | '/stats/npm/'
-    | '/store/$version/'
-    | '/table/$version/'
-    | '/virtual/$version/'
-    | '/workflow/$version/'
     | '/$libraryId/$version/docs/$'
     | '/$libraryId/$version/docs/blog'
     | '/$libraryId/$version/docs/community-resources'
@@ -1580,7 +1411,7 @@ export interface FileRouteTypes {
     | '/api/example/deploy'
     | '/api/github/webhook'
     | '/api/mcp/$'
-    | '/api/og/$library.png'
+    | '/api/og/{$}.png'
     | '/auth/$provider/start'
     | '/shop/collections/$handle'
     | '/shop/pages/$handle'
@@ -1593,26 +1424,9 @@ export interface FileRouteTypes {
     | '/admin/notes'
     | '/admin/roles'
     | '/admin/showcases'
-    | '/ai/$version'
     | '/api/mcp'
-    | '/cli/$version'
-    | '/config/$version'
-    | '/db/$version'
-    | '/devtools/$version'
-    | '/form/$version'
-    | '/hotkeys/$version'
-    | '/intent/$version'
     | '/intent/registry'
-    | '/pacer/$version'
-    | '/query/$version'
-    | '/ranger/$version'
-    | '/router/$version'
-    | '/start/$version'
     | '/stats/npm'
-    | '/store/$version'
-    | '/table/$version'
-    | '/virtual/$version'
-    | '/workflow/$version'
     | '/$libraryId/$version/docs/$'
     | '/$libraryId/$version/docs/blog'
     | '/$libraryId/$version/docs/community-resources'
@@ -1727,7 +1541,7 @@ export interface FileRouteTypes {
     | '/api/example/deploy'
     | '/api/github/webhook'
     | '/api/mcp/$'
-    | '/api/og/$library.png'
+    | '/api/og/{$}.png'
     | '/auth/$provider/start'
     | '/intent/registry/$packageName'
     | '/shop/collections/$handle'
@@ -1741,26 +1555,9 @@ export interface FileRouteTypes {
     | '/admin/notes/'
     | '/admin/roles/'
     | '/admin/showcases/'
-    | '/ai/$version/'
     | '/api/mcp/'
-    | '/cli/$version/'
-    | '/config/$version/'
-    | '/db/$version/'
-    | '/devtools/$version/'
-    | '/form/$version/'
-    | '/hotkeys/$version/'
-    | '/intent/$version/'
     | '/intent/registry/'
-    | '/pacer/$version/'
-    | '/query/$version/'
-    | '/ranger/$version/'
-    | '/router/$version/'
-    | '/start/$version/'
     | '/stats/npm/'
-    | '/store/$version/'
-    | '/table/$version/'
-    | '/virtual/$version/'
-    | '/workflow/$version/'
     | '/$libraryId/$version/docs/$'
     | '/$libraryId/$version/docs/blog'
     | '/$libraryId/$version/docs/community-resources'
@@ -1846,31 +1643,14 @@ export interface RootRouteChildren {
   ApiExampleDeployRoute: typeof ApiExampleDeployRoute
   ApiGithubWebhookRoute: typeof ApiGithubWebhookRoute
   ApiMcpSplatRoute: typeof ApiMcpSplatRoute
-  ApiOgLibraryDotpngRoute: typeof ApiOgLibraryDotpngRoute
+  ApiOgChar123Char125DotpngRoute: typeof ApiOgChar123Char125DotpngRoute
   AuthProviderStartRoute: typeof AuthProviderStartRoute
   IntentRegistryPackageNameRoute: typeof IntentRegistryPackageNameRouteWithChildren
   ShowcaseEditIdRoute: typeof ShowcaseEditIdRoute
   StatsNpmPackagesRoute: typeof StatsNpmPackagesRoute
-  AiVersionIndexRoute: typeof AiVersionIndexRoute
   ApiMcpIndexRoute: typeof ApiMcpIndexRoute
-  CliVersionIndexRoute: typeof CliVersionIndexRoute
-  ConfigVersionIndexRoute: typeof ConfigVersionIndexRoute
-  DbVersionIndexRoute: typeof DbVersionIndexRoute
-  DevtoolsVersionIndexRoute: typeof DevtoolsVersionIndexRoute
-  FormVersionIndexRoute: typeof FormVersionIndexRoute
-  HotkeysVersionIndexRoute: typeof HotkeysVersionIndexRoute
-  IntentVersionIndexRoute: typeof IntentVersionIndexRoute
   IntentRegistryIndexRoute: typeof IntentRegistryIndexRoute
-  PacerVersionIndexRoute: typeof PacerVersionIndexRoute
-  QueryVersionIndexRoute: typeof QueryVersionIndexRoute
-  RangerVersionIndexRoute: typeof RangerVersionIndexRoute
-  RouterVersionIndexRoute: typeof RouterVersionIndexRoute
-  StartVersionIndexRoute: typeof StartVersionIndexRoute
   StatsNpmIndexRoute: typeof StatsNpmIndexRoute
-  StoreVersionIndexRoute: typeof StoreVersionIndexRoute
-  TableVersionIndexRoute: typeof TableVersionIndexRoute
-  VirtualVersionIndexRoute: typeof VirtualVersionIndexRoute
-  WorkflowVersionIndexRoute: typeof WorkflowVersionIndexRoute
   ApiAuthCallbackProviderRoute: typeof ApiAuthCallbackProviderRoute
   ApiAuthCliCreateTicketRoute: typeof ApiAuthCliCreateTicketRoute
   ApiBuilderDeployCheckNameRoute: typeof ApiBuilderDeployCheckNameRoute
@@ -2370,74 +2150,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryIdVersionRouteImport
       parentRoute: typeof LibraryIdRouteRoute
     }
-    '/workflow/$version/': {
-      id: '/workflow/$version/'
-      path: '/workflow/$version'
-      fullPath: '/workflow/$version/'
-      preLoaderRoute: typeof WorkflowVersionIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/virtual/$version/': {
-      id: '/virtual/$version/'
-      path: '/virtual/$version'
-      fullPath: '/virtual/$version/'
-      preLoaderRoute: typeof VirtualVersionIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/table/$version/': {
-      id: '/table/$version/'
-      path: '/table/$version'
-      fullPath: '/table/$version/'
-      preLoaderRoute: typeof TableVersionIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/store/$version/': {
-      id: '/store/$version/'
-      path: '/store/$version'
-      fullPath: '/store/$version/'
-      preLoaderRoute: typeof StoreVersionIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/stats/npm/': {
       id: '/stats/npm/'
       path: '/stats/npm'
       fullPath: '/stats/npm/'
       preLoaderRoute: typeof StatsNpmIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/start/$version/': {
-      id: '/start/$version/'
-      path: '/start/$version'
-      fullPath: '/start/$version/'
-      preLoaderRoute: typeof StartVersionIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/router/$version/': {
-      id: '/router/$version/'
-      path: '/router/$version'
-      fullPath: '/router/$version/'
-      preLoaderRoute: typeof RouterVersionIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/ranger/$version/': {
-      id: '/ranger/$version/'
-      path: '/ranger/$version'
-      fullPath: '/ranger/$version/'
-      preLoaderRoute: typeof RangerVersionIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/query/$version/': {
-      id: '/query/$version/'
-      path: '/query/$version'
-      fullPath: '/query/$version/'
-      preLoaderRoute: typeof QueryVersionIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pacer/$version/': {
-      id: '/pacer/$version/'
-      path: '/pacer/$version'
-      fullPath: '/pacer/$version/'
-      preLoaderRoute: typeof PacerVersionIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/intent/registry/': {
@@ -2447,67 +2164,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IntentRegistryIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/intent/$version/': {
-      id: '/intent/$version/'
-      path: '/intent/$version'
-      fullPath: '/intent/$version/'
-      preLoaderRoute: typeof IntentVersionIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/hotkeys/$version/': {
-      id: '/hotkeys/$version/'
-      path: '/hotkeys/$version'
-      fullPath: '/hotkeys/$version/'
-      preLoaderRoute: typeof HotkeysVersionIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/form/$version/': {
-      id: '/form/$version/'
-      path: '/form/$version'
-      fullPath: '/form/$version/'
-      preLoaderRoute: typeof FormVersionIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/devtools/$version/': {
-      id: '/devtools/$version/'
-      path: '/devtools/$version'
-      fullPath: '/devtools/$version/'
-      preLoaderRoute: typeof DevtoolsVersionIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/db/$version/': {
-      id: '/db/$version/'
-      path: '/db/$version'
-      fullPath: '/db/$version/'
-      preLoaderRoute: typeof DbVersionIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/config/$version/': {
-      id: '/config/$version/'
-      path: '/config/$version'
-      fullPath: '/config/$version/'
-      preLoaderRoute: typeof ConfigVersionIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/cli/$version/': {
-      id: '/cli/$version/'
-      path: '/cli/$version'
-      fullPath: '/cli/$version/'
-      preLoaderRoute: typeof CliVersionIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/mcp/': {
       id: '/api/mcp/'
       path: '/api/mcp'
       fullPath: '/api/mcp/'
       preLoaderRoute: typeof ApiMcpIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/ai/$version/': {
-      id: '/ai/$version/'
-      path: '/ai/$version'
-      fullPath: '/ai/$version/'
-      preLoaderRoute: typeof AiVersionIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/showcases/': {
@@ -2601,11 +2262,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthProviderStartRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/og/$library.png': {
-      id: '/api/og/$library.png'
-      path: '/api/og/$library.png'
-      fullPath: '/api/og/$library.png'
-      preLoaderRoute: typeof ApiOgLibraryDotpngRouteImport
+    '/api/og/{$}.png': {
+      id: '/api/og/{$}.png'
+      path: '/api/og/{$}.png'
+      fullPath: '/api/og/{$}.png'
+      preLoaderRoute: typeof ApiOgChar123Char125DotpngRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/mcp/$': {
@@ -3190,31 +2851,14 @@ const rootRouteChildren: RootRouteChildren = {
   ApiExampleDeployRoute: ApiExampleDeployRoute,
   ApiGithubWebhookRoute: ApiGithubWebhookRoute,
   ApiMcpSplatRoute: ApiMcpSplatRoute,
-  ApiOgLibraryDotpngRoute: ApiOgLibraryDotpngRoute,
+  ApiOgChar123Char125DotpngRoute: ApiOgChar123Char125DotpngRoute,
   AuthProviderStartRoute: AuthProviderStartRoute,
   IntentRegistryPackageNameRoute: IntentRegistryPackageNameRouteWithChildren,
   ShowcaseEditIdRoute: ShowcaseEditIdRoute,
   StatsNpmPackagesRoute: StatsNpmPackagesRoute,
-  AiVersionIndexRoute: AiVersionIndexRoute,
   ApiMcpIndexRoute: ApiMcpIndexRoute,
-  CliVersionIndexRoute: CliVersionIndexRoute,
-  ConfigVersionIndexRoute: ConfigVersionIndexRoute,
-  DbVersionIndexRoute: DbVersionIndexRoute,
-  DevtoolsVersionIndexRoute: DevtoolsVersionIndexRoute,
-  FormVersionIndexRoute: FormVersionIndexRoute,
-  HotkeysVersionIndexRoute: HotkeysVersionIndexRoute,
-  IntentVersionIndexRoute: IntentVersionIndexRoute,
   IntentRegistryIndexRoute: IntentRegistryIndexRoute,
-  PacerVersionIndexRoute: PacerVersionIndexRoute,
-  QueryVersionIndexRoute: QueryVersionIndexRoute,
-  RangerVersionIndexRoute: RangerVersionIndexRoute,
-  RouterVersionIndexRoute: RouterVersionIndexRoute,
-  StartVersionIndexRoute: StartVersionIndexRoute,
   StatsNpmIndexRoute: StatsNpmIndexRoute,
-  StoreVersionIndexRoute: StoreVersionIndexRoute,
-  TableVersionIndexRoute: TableVersionIndexRoute,
-  VirtualVersionIndexRoute: VirtualVersionIndexRoute,
-  WorkflowVersionIndexRoute: WorkflowVersionIndexRoute,
   ApiAuthCallbackProviderRoute: ApiAuthCallbackProviderRoute,
   ApiAuthCliCreateTicketRoute: ApiAuthCliCreateTicketRoute,
   ApiBuilderDeployCheckNameRoute: ApiBuilderDeployCheckNameRoute,

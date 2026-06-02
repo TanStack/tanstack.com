@@ -220,6 +220,12 @@ export default defineConfig({
     ...(isDev
       ? [
           tanstackDevtools({
+            // Console piping mirrors server logs into the browser and browser
+            // logs back into Vite. A streamed server error can recursively echo
+            // through that bridge and flood the dev server log.
+            consolePiping: {
+              enabled: false,
+            },
             // react-instantsearch's <Configure> forwards all JSX props as
             // Algolia search parameters. Injecting `data-tsd-source` as a
             // JSX attr leaks it into the request and Algolia 400s with

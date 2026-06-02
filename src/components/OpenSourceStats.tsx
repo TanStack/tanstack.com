@@ -94,18 +94,6 @@ export default function OssStats({ library }: { library?: Library }) {
         className="relative p-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8 items-center
       justify-center xl:place-items-center rounded-[1rem]"
       >
-        {!loading && !hasAnyData && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-pink-500/10 to-purple-500/10 border border-pink-500/20 dark:border-pink-500/30 backdrop-blur-sm pointer-events-auto">
-              <span className="text-2xl">🚀</span>
-              <p className="text-sm font-medium text-pink-600 dark:text-pink-400">
-                <span className="font-bold">Fresh out of the oven!</span> This
-                library just launched. Be among the first to star, download, and
-                contribute!
-              </p>
-            </div>
-          </div>
-        )}
         <a
           href="https://www.npmjs.com/org/tanstack"
           target="_blank"

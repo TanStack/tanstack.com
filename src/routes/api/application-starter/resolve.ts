@@ -6,12 +6,35 @@ import {
   RATE_LIMITS,
   rateLimitedResponse,
 } from '~/utils/rateLimit.server'
+import { envFunctions } from '~/utils/env.functions'
 
 export const Route = createFileRoute('/api/application-starter/resolve')({
   server: {
     handlers: {
       GET: async ({ request }: { request: Request }) => {
         try {
+          if (!envFunctions.DATABASE_URL) {
+            return new Response(
+              JSON.stringify({
+                authenticated: false,
+                anonymousGenerationQuota: {
+                  limit: RATE_LIMITS.applicationStarterAnonymousDaily.limit,
+                  remaining: RATE_LIMITS.applicationStarterAnonymousDaily.limit,
+                  resetAt: new Date(
+                    Date.now() +
+                      RATE_LIMITS.applicationStarterAnonymousDaily.windowMs,
+                  ).toISOString(),
+                },
+              }),
+              {
+                headers: {
+                  'Cache-Control': 'no-store',
+                  'Content-Type': 'application/json',
+                },
+              },
+            )
+          }
+
           const [{ getAuthService }, anonymousQuota] = await Promise.all([
             import('~/auth/index.server'),
             getIpWindowRateLimitStatus(

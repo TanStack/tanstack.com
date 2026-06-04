@@ -67,7 +67,11 @@ function DocRecencyPill({
     // is UTC midnight, which toLocaleDateString would render as the prior day).
     const dateOnly = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date)
     const parsed = dateOnly
-      ? new Date(Number(dateOnly[1]), Number(dateOnly[2]) - 1, Number(dateOnly[3]))
+      ? new Date(
+          Number(dateOnly[1]),
+          Number(dateOnly[2]) - 1,
+          Number(dateOnly[3]),
+        )
       : new Date(date)
     if (!Number.isNaN(parsed.getTime())) {
       title = `${isNew ? 'Added' : 'Updated'} ${parsed.toLocaleDateString()}`

@@ -10,6 +10,8 @@ import {
   Trophy,
   Swords,
   Crown,
+  Camera,
+  Gauge,
 } from 'lucide-react'
 import { DOUBLOONS_PER_WORLD, useVoyageStore } from '../store'
 import { BANDS, TOTAL_PLANETS } from '../planets'
@@ -20,7 +22,9 @@ export function VoyageHUD({ engine }: { engine: VoyageEngine | null }) {
     <>
       <Crosshair />
       <IntroOverlay />
+      <ModeToggle engine={engine} />
       <BandIndicator engine={engine} />
+      <FreeFlightBadge />
       <DiscoveryProgress />
       <CombatStatus />
       <BossBar />
@@ -59,6 +63,7 @@ function Crosshair() {
 // Intro / controls hint
 // ---------------------------------------------------------------------------
 function IntroOverlay() {
+  const mode = useVoyageStore((s) => s.mode)
   const [show, setShow] = useState(true)
 
   useEffect(() => {
@@ -76,6 +81,8 @@ function IntroOverlay() {
 
   if (!show) return null
 
+  const free = mode === 'free'
+
   return (
     <div className="absolute top-[58%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none px-4">
       <div className="bg-black/45 backdrop-blur-md rounded-2xl p-5 text-white text-center shadow-2xl ring-1 ring-white/10 animate-in fade-in duration-500">
@@ -84,10 +91,23 @@ function IntroOverlay() {
           Chart every TanStack world — and blast the pirates guarding them.
         </p>
         <div className="flex flex-wrap gap-3 items-center justify-center text-sm">
-          <Hint keys={['↑', '↓']} label="thrust" />
-          <Hint keys={['←', '→']} label="steer" />
-          <Hint keys={['Q', 'E']} label="dive / climb" />
-          <Hint keys={['Space']} label="fire" />
+          {free ? (
+            <>
+              <Hint keys={['↑', '↓']} label="pitch" />
+              <Hint keys={['←', '→']} label="turn" />
+              <Hint keys={['Q', 'E']} label="roll / twirl" />
+              <Hint keys={['Shift']} label="boost" />
+              <Hint keys={['Space']} label="fire" />
+            </>
+          ) : (
+            <>
+              <Hint keys={['↑', '↓']} label="thrust" />
+              <Hint keys={['←', '→']} label="steer" />
+              <Hint keys={['Q', 'E']} label="dive / climb" />
+              <Hint keys={['Space']} label="fire" />
+            </>
+          )}
+          <Hint keys={['V']} label={free ? 'exit' : 'first-person'} />
         </div>
         <p className="mt-3 text-[11px] text-white/40">
           fly close to a world to chart it · click it to visit · press any key
@@ -117,11 +137,60 @@ function Hint({ keys, label }: { keys: string[]; label: string }) {
 }
 
 // ---------------------------------------------------------------------------
-// Altitude band indicator (the three dimensions)
+// Flight mode toggle (cruise ↔ first-person free flight)
+// ---------------------------------------------------------------------------
+function ModeToggle({ engine }: { engine: VoyageEngine | null }) {
+  const mode = useVoyageStore((s) => s.mode)
+  const free = mode === 'free'
+  return (
+    <button
+      type="button"
+      onClick={() => engine?.toggleMode()}
+      className="absolute top-4 left-4 z-30 pointer-events-auto flex items-center gap-2 rounded-lg bg-black/55 backdrop-blur-md ring-1 ring-white/15 px-3 py-1.5 text-white text-xs font-semibold hover:bg-black/70 transition-colors"
+    >
+      <Camera
+        className="w-3.5 h-3.5"
+        style={{ color: free ? '#fbbf24' : '#67e8f9' }}
+      />
+      {free ? 'First-Person' : 'Cruise'}
+      <kbd className="ml-1 px-1.5 py-0.5 bg-white/15 rounded font-mono text-[10px]">
+        V
+      </kbd>
+    </button>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Free-flight status badge (replaces the band indicator in free mode)
+// ---------------------------------------------------------------------------
+function FreeFlightBadge() {
+  const mode = useVoyageStore((s) => s.mode)
+  const altitude = useVoyageStore((s) => s.altitude)
+  if (mode !== 'free') return null
+  const band =
+    BANDS[Math.round(Math.max(0, Math.min(BANDS.length - 1, altitude)))]
+  return (
+    <div className="absolute top-16 left-4 z-20">
+      <div className="bg-black/45 backdrop-blur-md rounded-xl px-3 py-2 ring-1 ring-white/10 text-white">
+        <div className="flex items-center gap-1.5 text-[11px] font-semibold">
+          <Gauge className="w-3.5 h-3.5 text-amber-300" />
+          <span>Free Flight</span>
+        </div>
+        <div className="text-white/50 text-[10px] mt-0.5">near {band.name}</div>
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Altitude band indicator (the three dimensions) — cruise mode only
 // ---------------------------------------------------------------------------
 function BandIndicator({ engine }: { engine: VoyageEngine | null }) {
+  const mode = useVoyageStore((s) => s.mode)
   const bandIndex = useVoyageStore((s) => s.bandIndex)
   const altitude = useVoyageStore((s) => s.altitude)
+
+  if (mode === 'free') return null
 
   // Render top band first (high) so the stack reads vertically like altitude.
   const ordered = [...BANDS].reverse()
@@ -130,7 +199,7 @@ function BandIndicator({ engine }: { engine: VoyageEngine | null }) {
   const markerPct = ((maxIndex - altitude) / maxIndex) * 100
 
   return (
-    <div className="absolute top-4 left-4 z-20 flex items-stretch gap-3">
+    <div className="absolute top-16 left-4 z-20 flex items-stretch gap-3">
       {/* Vertical gauge */}
       <div className="relative w-1.5 rounded-full bg-white/10 overflow-visible">
         <div
@@ -536,7 +605,9 @@ function Stat({ label, value }: { label: string; value: string }) {
 // Touch controls (mobile / pointer)
 // ---------------------------------------------------------------------------
 function TouchControls({ engine }: { engine: VoyageEngine | null }) {
+  const mode = useVoyageStore((s) => s.mode)
   if (!engine) return null
+  const free = mode === 'free'
 
   const hold = (code: string) => ({
     onPointerDown: (e: React.PointerEvent) => {
@@ -551,7 +622,7 @@ function TouchControls({ engine }: { engine: VoyageEngine | null }) {
   return (
     <div className="absolute inset-x-0 bottom-0 z-20 md:hidden pointer-events-none select-none">
       <div className="flex items-end justify-between p-4">
-        {/* Left: movement d-pad */}
+        {/* Left: movement d-pad (pitch/turn in free, thrust/steer in cruise) */}
         <div className="grid grid-cols-3 gap-1.5 pointer-events-auto">
           <span />
           <TouchBtn label="▲" {...hold('ArrowUp')} />
@@ -564,17 +635,26 @@ function TouchControls({ engine }: { engine: VoyageEngine | null }) {
           <span />
         </div>
 
-        {/* Right: fire + climb/dive */}
+        {/* Right: fire + (roll in free / climb-dive in cruise) */}
         <div className="flex items-end gap-2 pointer-events-auto">
           <div className="flex flex-col gap-1.5">
-            <TouchBtn
-              label={<ChevronUp className="w-5 h-5" />}
-              onClick={() => engine.changeBand(1)}
-            />
-            <TouchBtn
-              label={<ChevronDown className="w-5 h-5" />}
-              onClick={() => engine.changeBand(-1)}
-            />
+            {free ? (
+              <>
+                <TouchBtn label="↺" {...hold('KeyQ')} />
+                <TouchBtn label="↻" {...hold('KeyE')} />
+              </>
+            ) : (
+              <>
+                <TouchBtn
+                  label={<ChevronUp className="w-5 h-5" />}
+                  onClick={() => engine.changeBand(1)}
+                />
+                <TouchBtn
+                  label={<ChevronDown className="w-5 h-5" />}
+                  onClick={() => engine.changeBand(-1)}
+                />
+              </>
+            )}
           </div>
           <button
             type="button"

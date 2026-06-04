@@ -37,7 +37,11 @@ export interface BossInfo {
   maxHp: number
 }
 
+export type FlightMode = 'cruise' | 'free'
+
 interface VoyageState {
+  /** Flight mode: banded chase-cam cruise, or first-person free flight. */
+  mode: FlightMode
   /** Index into BANDS the ship is currently closest to. */
   bandIndex: number
   /** Smooth 0..(BANDS.length-1) altitude for the HUD gauge. */
@@ -77,6 +81,7 @@ interface VoyageState {
   /** True once the whole gauntlet is cleared. */
   champion: boolean
 
+  setMode: (mode: FlightMode) => void
   setBand: (bandIndex: number, altitude: number) => void
   discover: (planet: Planet) => void
   setNearby: (nearby: NearbyPlanet | null) => void
@@ -94,6 +99,7 @@ interface VoyageState {
 export const PLAYER_MAX_HEALTH = 100
 
 export const useVoyageStore = create<VoyageState>((set) => ({
+  mode: 'cruise',
   bandIndex: 0,
   altitude: 0,
   discovered: new Set<string>(),
@@ -114,6 +120,8 @@ export const useVoyageStore = create<VoyageState>((set) => ({
   bossHp: 0,
   bossesDefeated: 0,
   champion: false,
+
+  setMode: (mode) => set((s) => (s.mode === mode ? s : { mode })),
 
   setBand: (bandIndex, altitude) =>
     set((s) =>

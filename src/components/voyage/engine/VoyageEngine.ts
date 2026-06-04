@@ -41,6 +41,17 @@ const RESPAWN_DELAY = 2.8 // player shipwreck → respawn
 const INVULN_TIME = 2.6 // post-respawn grace
 const BURST_MAX = 700
 
+// First-person free flight (6-DOF) — no altitude bands, full barrel rolls.
+const FREE_CRUISE_SPEED = 28
+const FREE_BOOST_SPEED = 50
+const FREE_PITCH_RATE = 1.35 // rad/s
+const FREE_YAW_RATE = 1.1
+const FREE_ROLL_RATE = 2.9 // twirls!
+const FREE_Y_MIN = -45
+const FREE_Y_MAX = 215
+
+const WORLD_UP = new THREE.Vector3(0, 1, 0)
+
 interface TrailParticle {
   x: number
   y: number
@@ -186,6 +197,17 @@ export class VoyageEngine {
   private roll = 0
   private pitch = 0
   private targetBand = 0
+
+  // Flight mode: 'cruise' = banded chase-cam; 'free' = first-person 6-DOF.
+  private mode: 'cruise' | 'free' = 'cruise'
+  private shipQuat = new THREE.Quaternion()
+  private forward = new THREE.Vector3(0, 0, 1) // current heading (both modes)
+  private tmpQuat = new THREE.Quaternion()
+  private tmpEuler = new THREE.Euler()
+  private camQuat = new THREE.Quaternion()
+  private tmpRight = new THREE.Vector3()
+  // Cameras look down -Z; ship faces +Z, so flip 180° about up.
+  private qFlip = new THREE.Quaternion().setFromAxisAngle(WORLD_UP, Math.PI)
 
   // Environment
   private starField: THREE.Points | null = null
@@ -642,8 +664,11 @@ export class VoyageEngine {
         'KeyD',
         'KeyQ',
         'KeyE',
+        'KeyV',
         'PageUp',
         'PageDown',
+        'ShiftLeft',
+        'ShiftRight',
       ].includes(code)
     ) {
       e.preventDefault()
@@ -651,12 +676,20 @@ export class VoyageEngine {
     if (e.repeat) return
     this.keys.add(code)
 
-    // Discrete altitude-band changes (climb / dive). Space is reserved for
-    // firing the cannons (handled each frame while held).
-    if (code === 'KeyE' || code === 'PageUp') {
-      this.changeBand(1)
-    } else if (code === 'KeyQ' || code === 'PageDown') {
-      this.changeBand(-1)
+    // Toggle first-person free flight.
+    if (code === 'KeyV') {
+      this.toggleMode()
+      return
+    }
+
+    // Discrete altitude-band changes (climb / dive) — cruise mode only.
+    // In free flight, Q/E roll the ship (handled each frame while held).
+    if (this.mode === 'cruise') {
+      if (code === 'KeyE' || code === 'PageUp') {
+        this.changeBand(1)
+      } else if (code === 'KeyQ' || code === 'PageDown') {
+        this.changeBand(-1)
+      }
     }
   }
 
@@ -677,6 +710,49 @@ export class VoyageEngine {
   setKey(code: string, pressed: boolean): void {
     if (pressed) this.keys.add(code)
     else this.keys.delete(code)
+  }
+
+  /** Toggle between banded cruise and first-person free flight. */
+  toggleMode(): void {
+    this.setMode(this.mode === 'free' ? 'cruise' : 'free')
+  }
+
+  setMode(mode: 'cruise' | 'free'): void {
+    if (mode === this.mode) return
+    if (mode === 'free') {
+      // Seed orientation from the current heading.
+      this.tmpEuler.set(0, this.yaw, 0, 'XYZ')
+      this.shipQuat.setFromEuler(this.tmpEuler)
+      this.forward.set(0, 0, 1).applyQuaternion(this.shipQuat)
+      this.velocity = FREE_CRUISE_SPEED
+    } else {
+      // Returning to cruise: flatten out and snap to the nearest band.
+      this.yaw = Math.atan2(this.forward.x, this.forward.z)
+      this.pitch = 0
+      this.roll = 0
+      this.velocity = 0
+      this.targetBand = this.nearestBandIndex(this.shipPos.y)
+      if (this.shipModel) this.shipModel.visible = true
+      // Place the chase cam behind the ship to avoid a wild swing.
+      this.tmpForward.set(Math.sin(this.yaw), 0, Math.cos(this.yaw))
+      this.camCurrent.copy(this.shipPos).addScaledVector(this.tmpForward, -26)
+      this.camCurrent.y += 12
+    }
+    this.mode = mode
+    useVoyageStore.getState().setMode(mode)
+  }
+
+  private nearestBandIndex(y: number): number {
+    let best = 0
+    let bestDist = Infinity
+    for (let i = 0; i < BANDS.length; i++) {
+      const d = Math.abs(BANDS[i].y - y)
+      if (d < bestDist) {
+        bestDist = d
+        best = i
+      }
+    }
+    return best
   }
 
   private handleVisibility = (): void => {
@@ -746,6 +822,11 @@ export class VoyageEngine {
   }
 
   private updateShip(delta: number): void {
+    if (this.mode === 'free') {
+      this.updateShipFree(delta)
+      return
+    }
+
     const k = this.keys
     // No control input while shipwrecked (drifts to a stop, then respawns).
     const ctl = !this.dead
@@ -802,11 +883,16 @@ export class VoyageEngine {
 
     const bob = Math.sin(this.clock.getElapsedTime() * 1.4) * 0.25
 
+    // Keep the chase camera's heading vector + cannon aim in sync.
+    this.forward.set(Math.sin(this.yaw), 0, Math.cos(this.yaw))
+    if (this.shipModel) this.shipModel.visible = true
+
     this.shipGroup.position.set(
       this.shipPos.x,
       this.shipPos.y + bob,
       this.shipPos.z,
     )
+    this.shipGroup.quaternion.identity()
     this.shipGroup.rotation.set(this.pitch, this.yaw, this.roll)
 
     this.shipLight.position.set(
@@ -826,7 +912,83 @@ export class VoyageEngine {
       .setBand(nearestBand, Math.round(altNorm * 100) / 100)
   }
 
+  private updateShipFree(delta: number): void {
+    const k = this.keys
+    const ctl = !this.dead
+    const pitchUp = ctl && (k.has('ArrowUp') || k.has('KeyW'))
+    const pitchDown = ctl && (k.has('ArrowDown') || k.has('KeyS'))
+    const yawLeft = ctl && (k.has('ArrowLeft') || k.has('KeyA'))
+    const yawRight = ctl && (k.has('ArrowRight') || k.has('KeyD'))
+    const rollLeft = ctl && k.has('KeyQ')
+    const rollRight = ctl && k.has('KeyE')
+    const boost = ctl && (k.has('ShiftLeft') || k.has('ShiftRight'))
+
+    // Local-axis angular input. Negative pitch = nose up.
+    let pitch = 0
+    let yaw = 0
+    let roll = 0
+    if (pitchUp) pitch -= 1
+    if (pitchDown) pitch += 1
+    if (yawLeft) yaw += 1
+    if (yawRight) yaw -= 1
+    if (rollLeft) roll += 1
+    if (rollRight) roll -= 1
+
+    // Apply as an intrinsic (local-space) rotation so twirls feel natural.
+    this.tmpEuler.set(
+      pitch * FREE_PITCH_RATE * delta,
+      yaw * FREE_YAW_RATE * delta,
+      roll * FREE_ROLL_RATE * delta,
+      'XYZ',
+    )
+    this.tmpQuat.setFromEuler(this.tmpEuler)
+    this.shipQuat.multiply(this.tmpQuat).normalize()
+
+    // Heading + always-forward thrust (boost on Shift).
+    this.forward.set(0, 0, 1).applyQuaternion(this.shipQuat)
+    const targetSpeed = boost ? FREE_BOOST_SPEED : FREE_CRUISE_SPEED
+    this.velocity += (targetSpeed - this.velocity) * (1 - Math.exp(-3 * delta))
+    this.shipPos.addScaledVector(this.forward, this.velocity * delta)
+
+    // Boundaries: circular in XZ, capped in Y (stay near the content).
+    const radial = Math.hypot(this.shipPos.x, this.shipPos.z)
+    if (radial > WORLD_RADIUS) {
+      const s = WORLD_RADIUS / radial
+      this.shipPos.x *= s
+      this.shipPos.z *= s
+    }
+    this.shipPos.y = THREE.MathUtils.clamp(
+      this.shipPos.y,
+      FREE_Y_MIN,
+      FREE_Y_MAX,
+    )
+
+    // First-person: hide our own hull, keep the running light at the cockpit.
+    if (this.shipModel) this.shipModel.visible = false
+    this.shipGroup.position.copy(this.shipPos)
+    this.shipGroup.quaternion.copy(this.shipQuat)
+    this.shipLight.position.copy(this.shipPos)
+
+    // Drive fog/altitude tint + HUD from the nearest band.
+    this.targetBand = this.nearestBandIndex(this.shipPos.y)
+    const span = BANDS[BANDS.length - 1].y - BANDS[0].y || 1
+    const altNorm = ((this.shipPos.y - BANDS[0].y) / span) * (BANDS.length - 1)
+    useVoyageStore
+      .getState()
+      .setBand(this.targetBand, Math.round(altNorm * 100) / 100)
+  }
+
   private updateCamera(delta: number): void {
+    if (this.mode === 'free') {
+      // First-person cockpit: sit just above the bow, look down the ship's
+      // forward axis, and inherit roll so twirls spin the whole view.
+      this.tmpTarget.set(0, 0.7, 0.4).applyQuaternion(this.shipQuat)
+      this.camera.position.copy(this.shipPos).add(this.tmpTarget)
+      this.camQuat.copy(this.shipQuat).multiply(this.qFlip)
+      this.camera.quaternion.copy(this.camQuat)
+      return
+    }
+
     // Heading-relative chase camera.
     this.tmpForward.set(Math.sin(this.yaw), 0, Math.cos(this.yaw))
     this.tmpTarget.copy(this.shipPos).addScaledVector(this.tmpForward, -26)
@@ -848,19 +1010,21 @@ export class VoyageEngine {
       const band = BANDS[this.targetBand]
       const color = new THREE.Color(band.color)
       const spawn = Math.min(3, Math.ceil(Math.abs(this.velocity) / 12))
+      const f = this.forward
+      this.tmpRight.crossVectors(f, WORLD_UP)
+      if (this.tmpRight.lengthSq() < 1e-4) this.tmpRight.set(1, 0, 0)
+      this.tmpRight.normalize()
       for (let s = 0; s < spawn; s++) {
         const back = 1.6 + Math.random() * 1.2
         const spread = (Math.random() - 0.5) * 1.4
         this.trail.push({
-          x:
-            this.shipPos.x -
-            Math.sin(this.yaw) * back +
-            Math.cos(this.yaw) * spread,
-          y: this.shipPos.y + (Math.random() - 0.5) * 0.8,
-          z:
-            this.shipPos.z -
-            Math.cos(this.yaw) * back -
-            Math.sin(this.yaw) * spread,
+          x: this.shipPos.x - f.x * back + this.tmpRight.x * spread,
+          y:
+            this.shipPos.y -
+            f.y * back +
+            this.tmpRight.y * spread +
+            (Math.random() - 0.5) * 0.8,
+          z: this.shipPos.z - f.z * back + this.tmpRight.z * spread,
           birth: now,
           life: 900 + Math.random() * 700,
           size: 0.8 + Math.random() * 1.4,
@@ -1160,14 +1324,13 @@ export class VoyageEngine {
   }
 
   private firePlayer(): void {
-    const fx = Math.sin(this.yaw)
-    const fz = Math.cos(this.yaw)
+    const f = this.forward
     const bow = new THREE.Vector3(
-      this.shipPos.x + fx * 2.6,
-      this.shipPos.y + 0.4,
-      this.shipPos.z + fz * 2.6,
+      this.shipPos.x + f.x * 2.6,
+      this.shipPos.y + f.y * 2.6 + (this.mode === 'free' ? 0 : 0.4),
+      this.shipPos.z + f.z * 2.6,
     )
-    const vel = new THREE.Vector3(fx, 0, fz).multiplyScalar(PLAYER_BALL_SPEED)
+    const vel = f.clone().multiplyScalar(PLAYER_BALL_SPEED)
     this.spawnBall(bow, vel, true, PLAYER_BALL_LIFE, PLAYER_BALL_DAMAGE)
     this.spawnBurst(bow, new THREE.Color('#ffe6a8'), 6, 9)
   }
@@ -1488,7 +1651,9 @@ export class VoyageEngine {
     this.shipPos.set(0, BANDS[0].y, 0)
     this.targetBand = 0
     this.yaw = 0
-    this.velocity = 0
+    this.velocity = this.mode === 'free' ? FREE_CRUISE_SPEED : 0
+    this.shipQuat.identity()
+    this.forward.set(0, 0, 1)
     this.playerHealth = PLAYER_MAX_HEALTH
     this.invulnUntil = this.clock.getElapsedTime() + INVULN_TIME
     // Snap the camera behind the fresh spawn to avoid a wild swing.

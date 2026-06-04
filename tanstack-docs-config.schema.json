@@ -53,6 +53,16 @@
                 },
                 "badge": {
                   "type": "string"
+                },
+                "addedAt": {
+                  "type": "string",
+                  "format": "date",
+                  "description": "Date the page was added (e.g. \"2026-06-01\"). Shows a \"New\" pill in the sidebar for 7 days."
+                },
+                "updatedAt": {
+                  "type": "string",
+                  "format": "date",
+                  "description": "Date the page was last meaningfully updated (e.g. \"2026-06-01\"). Shows an \"Updated\" pill in the sidebar for 7 days."
                 }
               }
             }
@@ -79,6 +89,16 @@
                       },
                       "badge": {
                         "type": "string"
+                      },
+                      "addedAt": {
+                        "type": "string",
+                        "format": "date",
+                        "description": "Date the page was added (e.g. \"2026-06-01\"). Shows a \"New\" pill in the sidebar for 7 days."
+                      },
+                      "updatedAt": {
+                        "type": "string",
+                        "format": "date",
+                        "description": "Date the page was last meaningfully updated (e.g. \"2026-06-01\"). Shows an \"Updated\" pill in the sidebar for 7 days."
                       }
                     }
                   }

@@ -24,6 +24,71 @@ import { Card } from './Card'
 import { PartnersRail, RightRail } from './RightRail'
 import { trackEvent, useTrackedImpression } from '~/utils/analytics'
 
+// Number of days a doc page is flagged as "New"/"Updated" in the sidebar.
+const RECENCY_WINDOW_DAYS = 7
+const RECENCY_WINDOW_MS = RECENCY_WINDOW_DAYS * 24 * 60 * 60 * 1000
+
+type DocRecency = 'new' | 'updated' | null
+
+// Determine whether a doc page should show a recency pill, based on the
+// maintainer-supplied `addedAt` / `updatedAt` dates in the repo's docs/config.json.
+// "New" (added) takes priority over "Updated" (edited) when both are recent.
+function getDocRecency(addedAt?: string, updatedAt?: string): DocRecency {
+  const now = Date.now()
+
+  const isRecent = (iso?: string) => {
+    if (!iso) return false
+    const time = new Date(iso).getTime()
+    if (Number.isNaN(time)) return false
+    const age = now - time
+    // Reject future dates; only flag within the window.
+    return age >= 0 && age <= RECENCY_WINDOW_MS
+  }
+
+  if (isRecent(addedAt)) return 'new'
+  if (isRecent(updatedAt)) return 'updated'
+  return null
+}
+
+function DocRecencyPill({
+  recency,
+  date,
+}: {
+  recency: Exclude<DocRecency, null>
+  date?: string
+}) {
+  const isNew = recency === 'new'
+  const label = isNew ? 'New' : 'Updated'
+
+  let title: string | undefined
+  if (date) {
+    // Parse date-only strings (YYYY-MM-DD) as local time so the tooltip doesn't
+    // drift to the previous day in negative-UTC timezones (new Date('2026-06-01')
+    // is UTC midnight, which toLocaleDateString would render as the prior day).
+    const dateOnly = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date)
+    const parsed = dateOnly
+      ? new Date(Number(dateOnly[1]), Number(dateOnly[2]) - 1, Number(dateOnly[3]))
+      : new Date(date)
+    if (!Number.isNaN(parsed.getTime())) {
+      title = `${isNew ? 'Added' : 'Updated'} ${parsed.toLocaleDateString()}`
+    }
+  }
+
+  return (
+    <span
+      title={title}
+      className={twMerge(
+        'shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide leading-none',
+        isNew
+          ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
+          : 'bg-sky-500/15 text-sky-600 dark:text-sky-400',
+      )}
+    >
+      {label}
+    </span>
+  )
+}
+
 // Mobile partners strip - inline in the docs toggle bar
 function MobilePartnersStrip({
   partners,
@@ -665,6 +730,14 @@ export function DocsLayout({
                 ? ({ libraryId, version } as never)
                 : undefined
 
+            const recency = getDocRecency(child.addedAt, child.updatedAt)
+            const recencyPill = recency ? (
+              <DocRecencyPill
+                recency={recency}
+                date={recency === 'new' ? child.addedAt : child.updatedAt}
+              />
+            ) : null
+
             return (
               <li key={i}>
                 {child.to.startsWith('http') ? (
@@ -674,7 +747,8 @@ export function DocsLayout({
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    {child.label}
+                    <span className="w-full">{child.label}</span>
+                    {recencyPill}
                   </a>
                 ) : (
                   <Link
@@ -710,6 +784,7 @@ export function DocsLayout({
                           >
                             {child.label}
                           </div>
+                          {recencyPill}
                         </div>
                       )
                     }}

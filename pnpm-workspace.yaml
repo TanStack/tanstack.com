@@ -25,4 +25,3 @@ allowBuilds:
 
   # sentry
   '@sentry/cli': false
-  '@fingerprintjs/fingerprintjs-pro-react': false

@@ -60,24 +60,12 @@ const serverVariantAliases: Record<string, string> = {
   'react-dom/static': '@tanstack/redact/server',
 }
 
-const useSyncExternalStoreShimIndexAlias = {
-  find: /^use-sync-external-store\/shim\/index\.js$/,
-  replacement: '@tanstack/redact',
-}
-
 export default defineConfig({
   resolve: {
-    alias: [
-      {
-        find: '~',
-        replacement: path.resolve(__dirname, './src'),
-      },
-      useSyncExternalStoreShimIndexAlias,
-      ...Object.entries(serverVariantAliases).map(([find, replacement]) => ({
-        find,
-        replacement,
-      })),
-    ],
+    alias: {
+      '~': path.resolve(__dirname, './src'),
+      ...serverVariantAliases,
+    },
   },
   server: {
     port: Number(process.env.PORT) || 3000,

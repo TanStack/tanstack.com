@@ -71,7 +71,7 @@ export function DropdownContent({
       align={align}
       sideOffset={sideOffset}
       className={twMerge(
-        'dropdown-content z-[1000] min-w-48 rounded-lg p-1.5',
+        'dropdown-content z-[1200] min-w-48 rounded-lg p-1.5',
         'border border-gray-200 dark:border-gray-700',
         'bg-white dark:bg-gray-800',
         'shadow-lg',

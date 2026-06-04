@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { Command, Search } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
-import { useSearchContext } from '~/contexts/SearchContext'
 import { Button } from '~/ui'
 
 interface SearchButtonProps {
@@ -10,13 +9,13 @@ interface SearchButtonProps {
 }
 
 export function SearchButton({ className }: SearchButtonProps) {
-  const { openSearch } = useSearchContext()
-
   return (
     <Button
+      type="button"
+      data-search-trigger
+      aria-haspopup="dialog"
       variant="ghost"
       size="xs"
-      onClick={openSearch}
       className={twMerge('gap-2 bg-gray-500/5 dark:bg-gray-500/30', className)}
     >
       <Search className="w-3.5 h-3.5" />

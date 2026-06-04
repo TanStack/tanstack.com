@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { createPortal } from 'react-dom'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { twMerge } from 'tailwind-merge'
 import {
@@ -9,14 +10,39 @@ import {
 } from './Dropdown'
 import {
   InstantSearch,
-  SearchBox,
   Snippet,
   Configure,
   useInstantSearch,
   useInfiniteHits,
+  useSearchBox,
 } from 'react-instantsearch'
 import { liteClient } from 'algoliasearch/lite'
-import { X, Search, ChevronDown, CornerDownLeft } from 'lucide-react'
+import {
+  X,
+  CircleX,
+  Search,
+  SearchSlash,
+  ChevronDown,
+  CornerDownLeft,
+  ArrowUp,
+  Check,
+  Copy,
+  ExternalLink,
+  History,
+  RotateCcw,
+  ThumbsDown,
+  ThumbsUp,
+  Maximize2,
+  Minimize2,
+} from 'lucide-react'
+import {
+  DefaultKapaApiService,
+  KapaProvider,
+  processStream,
+  useChat,
+  type StreamSource,
+} from '@kapaai/react-sdk'
+import { Streamdown } from 'streamdown'
 import { Link, useRouterState } from '@tanstack/react-router'
 import { useSearchContext } from '~/contexts/SearchContext'
 import { libraries } from '~/libraries'
@@ -28,6 +54,9 @@ import {
   usePersistFrameworkPreference,
 } from './FrameworkSelect'
 import { shouldPersistFrameworkForHit } from '~/utils/searchRecords'
+import { CodeBlock } from '~/components/markdown/CodeBlock'
+import { InlineCode } from '~/ui/InlineCode'
+import { env } from '~/utils/env'
 
 /**
  * Safely decode HTML entities without using innerHTML.
@@ -196,6 +225,11 @@ const SearchFiltersContext = React.createContext<{
     label: string
     isRefined: boolean
   }>
+  searchQuery: string
+  setSearchQuery: (value: string) => void
+  showSearchResults: boolean
+  toggleShowSearchResults: () => void
+  hideSearchResults: () => void
 } | null>(null)
 
 function useSearchFilters() {
@@ -211,6 +245,11 @@ function useSearchFilters() {
 function SearchFiltersProvider({ children }: { children: React.ReactNode }) {
   const userQuery = useCurrentUserQuery()
   const [selectedLibrary, setSelectedLibrary] = React.useState('')
+  const [searchQuery, setSearchQuery] = React.useState('')
+  const [showSearchResults, setShowSearchResults] = React.useState(() => {
+    if (typeof window === 'undefined') return true
+    return localStorage.getItem('search-show-results') !== 'false'
+  })
   const lastUsedFramework = userQuery.data?.lastUsedFramework
 
   // Get initial framework from user preference (DB if logged in, localStorage otherwise)
@@ -322,6 +361,19 @@ function SearchFiltersProvider({ children }: { children: React.ReactNode }) {
     setSelectedFramework(value)
   }, [])
 
+  const toggleShowSearchResults = React.useCallback(() => {
+    setShowSearchResults((current) => {
+      const next = !current
+      localStorage.setItem('search-show-results', String(next))
+      return next
+    })
+  }, [])
+
+  const hideSearchResults = React.useCallback(() => {
+    setShowSearchResults(false)
+    localStorage.setItem('search-show-results', 'false')
+  }, [])
+
   return (
     <SearchFiltersContext.Provider
       value={{
@@ -333,6 +385,11 @@ function SearchFiltersProvider({ children }: { children: React.ReactNode }) {
         refineFramework: selectFramework,
         libraryItems,
         frameworkItems,
+        searchQuery,
+        setSearchQuery,
+        showSearchResults,
+        toggleShowSearchResults,
+        hideSearchResults,
       }}
     >
       {children}
@@ -431,6 +488,1536 @@ const SafeLink = React.forwardRef(
   },
 )
 
+function KapaMarkdownLink({
+  href,
+  children,
+  ...props
+}: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
+  return (
+    <SafeLink
+      href={href}
+      className="font-medium text-gray-900 dark:text-gray-100 border-b border-gray-400/60 dark:border-gray-500/60 hover:border-gray-900 dark:hover:border-gray-100 transition-colors pb-px"
+      {...props}
+    >
+      {children}
+    </SafeLink>
+  )
+}
+
+const streamdownComponents = {
+  pre: CodeBlock,
+  code: InlineCode,
+  a: KapaMarkdownLink,
+  ul: ({ children }: { children?: React.ReactNode }) => (
+    <ul className="list-disc list-outside pl-5 space-y-1 my-2">{children}</ul>
+  ),
+  ol: ({ children }: { children?: React.ReactNode }) => (
+    <ol className="list-decimal list-outside pl-5 space-y-1 my-2">
+      {children}
+    </ol>
+  ),
+  li: ({ children }: { children?: React.ReactNode }) => (
+    <li className="leading-relaxed">{children}</li>
+  ),
+}
+
+function parseSourceGroupIDs(value: string | undefined) {
+  if (!value) {
+    return undefined
+  }
+
+  const ids = value
+    .split(',')
+    .map((id) => id.trim())
+    .filter((id) => id.length > 0)
+
+  return ids.length > 0 ? ids : undefined
+}
+
+type KapaReaction = 'upvote' | 'downvote'
+
+type KapaDisplayQA = {
+  id: string | null
+  question: string
+  answer: string
+  sources: Array<StreamSource>
+  isGenerationAborted: boolean
+  isFeedbackSubmissionEnabled?: boolean
+  reaction: KapaReaction | null
+}
+
+type KapaHistoryItem = {
+  threadId: string
+  title: string
+  createdAt: number
+  updatedAt: number
+  conversation: Array<KapaDisplayQA>
+}
+
+type KapaSubmitQueryArgs = Parameters<DefaultKapaApiService['submitQuery']>[0]
+type KapaChatStreamCallbacks = Parameters<
+  DefaultKapaApiService['submitQuery']
+>[1]
+type KapaSubmitFeedbackArgs = Parameters<
+  DefaultKapaApiService['addFeedback']
+>[0]
+
+const KAPA_HISTORY_STORAGE_KEY = 'tanstack-kapa-chat-history'
+const KAPA_HISTORY_LIMIT = 5
+
+class KapaThreadOverrideApiService {
+  private service = new DefaultKapaApiService(processStream)
+
+  constructor(
+    private threadIdOverrideRef: React.MutableRefObject<string | null>,
+  ) {}
+
+  submitQuery(
+    args: KapaSubmitQueryArgs,
+    callbacks: KapaChatStreamCallbacks,
+  ): Promise<void> {
+    const threadIdOverride = this.threadIdOverrideRef.current
+    const nextArgs =
+      threadIdOverride && !args.threadId
+        ? { ...args, threadId: threadIdOverride }
+        : args
+
+    return this.service.submitQuery(nextArgs, callbacks)
+  }
+
+  addFeedback(args: KapaSubmitFeedbackArgs): Promise<void> {
+    return this.service.addFeedback(args)
+  }
+
+  abortCurrent(): void {
+    this.service.abortCurrent()
+  }
+}
+
+function isUnknownRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+function isDefined<T>(value: T | null): value is T {
+  return value !== null
+}
+
+function readString(value: unknown) {
+  return typeof value === 'string' ? value : ''
+}
+
+function readNumber(value: unknown) {
+  return typeof value === 'number' && Number.isFinite(value) ? value : 0
+}
+
+function parseKapaReaction(value: unknown): KapaReaction | null {
+  if (value === 'upvote' || value === 'downvote') {
+    return value
+  }
+
+  return null
+}
+
+function parseKapaSource(value: unknown): StreamSource | null {
+  if (!isUnknownRecord(value)) {
+    return null
+  }
+
+  const title = readString(value.title)
+  const sourceUrl = readString(value.source_url)
+
+  if (!title || !sourceUrl) {
+    return null
+  }
+
+  return {
+    title,
+    subtitle: readString(value.subtitle),
+    source_url: sourceUrl,
+    source_type: readString(value.source_type),
+  }
+}
+
+function parseKapaHistoryQA(value: unknown): KapaDisplayQA | null {
+  if (!isUnknownRecord(value)) {
+    return null
+  }
+
+  const question = readString(value.question).trim()
+
+  if (!question) {
+    return null
+  }
+
+  const sourceValues = Array.isArray(value.sources) ? value.sources : []
+
+  return {
+    id: typeof value.id === 'string' ? value.id : null,
+    question,
+    answer: readString(value.answer),
+    sources: sourceValues.map(parseKapaSource).filter(isDefined),
+    isGenerationAborted: value.isGenerationAborted === true,
+    isFeedbackSubmissionEnabled: value.isFeedbackSubmissionEnabled === true,
+    reaction: parseKapaReaction(value.reaction),
+  }
+}
+
+function parseKapaHistoryItem(value: unknown): KapaHistoryItem | null {
+  if (!isUnknownRecord(value)) {
+    return null
+  }
+
+  const threadId = readString(value.threadId)
+  const conversationValues = Array.isArray(value.conversation)
+    ? value.conversation
+    : []
+  const conversation = conversationValues
+    .map(parseKapaHistoryQA)
+    .filter(isDefined)
+
+  if (!threadId || conversation.length === 0) {
+    return null
+  }
+
+  const updatedAt = readNumber(value.updatedAt) || Date.now()
+
+  return {
+    threadId,
+    title: readString(value.title) || buildKapaHistoryTitle(conversation),
+    createdAt: readNumber(value.createdAt) || updatedAt,
+    updatedAt,
+    conversation,
+  }
+}
+
+function readKapaHistory() {
+  if (typeof window === 'undefined') {
+    return []
+  }
+
+  try {
+    const raw = localStorage.getItem(KAPA_HISTORY_STORAGE_KEY)
+    if (!raw) {
+      return []
+    }
+
+    const parsed: unknown = JSON.parse(raw)
+    if (!Array.isArray(parsed)) {
+      return []
+    }
+
+    return parsed
+      .map(parseKapaHistoryItem)
+      .filter(isDefined)
+      .sort((a, b) => b.updatedAt - a.updatedAt)
+      .slice(0, KAPA_HISTORY_LIMIT)
+  } catch {
+    return []
+  }
+}
+
+function writeKapaHistory(items: Array<KapaHistoryItem>) {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  try {
+    localStorage.setItem(
+      KAPA_HISTORY_STORAGE_KEY,
+      JSON.stringify(items.slice(0, KAPA_HISTORY_LIMIT)),
+    )
+  } catch {
+    // Ignore storage failures so chat keeps working.
+  }
+}
+
+function buildKapaHistoryTitle(conversation: Array<KapaDisplayQA>) {
+  const firstQuestion =
+    conversation
+      .find((qa) => qa.question.trim().length > 0)
+      ?.question.trim()
+      .replace(/\s+/g, ' ') || 'Untitled chat'
+
+  return firstQuestion.length > 64
+    ? `${firstQuestion.slice(0, 61)}...`
+    : firstQuestion
+}
+
+function toStoredKapaQA(qa: KapaDisplayQA): KapaDisplayQA {
+  return {
+    id: qa.id,
+    question: qa.question,
+    answer: qa.answer,
+    sources: qa.sources.map((source) => ({
+      title: source.title,
+      subtitle: source.subtitle,
+      source_url: source.source_url,
+      source_type: source.source_type,
+    })),
+    isGenerationAborted: qa.isGenerationAborted,
+    isFeedbackSubmissionEnabled: qa.isFeedbackSubmissionEnabled,
+    reaction: qa.reaction,
+  }
+}
+
+function upsertKapaHistoryItem(
+  threadId: string,
+  conversation: Array<KapaDisplayQA>,
+) {
+  const current = readKapaHistory()
+  const existing = current.find((item) => item.threadId === threadId)
+  const now = Date.now()
+  const nextItem: KapaHistoryItem = {
+    threadId,
+    title: buildKapaHistoryTitle(conversation),
+    createdAt: existing?.createdAt ?? now,
+    updatedAt: now,
+    conversation: conversation.map(toStoredKapaQA),
+  }
+  const next = [
+    nextItem,
+    ...current.filter((item) => item.threadId !== threadId),
+  ].slice(0, KAPA_HISTORY_LIMIT)
+
+  writeKapaHistory(next)
+  return next
+}
+
+function formatKapaHistoryTime(updatedAt: number) {
+  const elapsed = Date.now() - updatedAt
+
+  if (elapsed < 60_000) {
+    return 'now'
+  }
+
+  if (elapsed < 3_600_000) {
+    return `${Math.floor(elapsed / 60_000)}m ago`
+  }
+
+  if (elapsed < 86_400_000) {
+    return `${Math.floor(elapsed / 3_600_000)}h ago`
+  }
+
+  return new Intl.DateTimeFormat(undefined, {
+    month: 'short',
+    day: 'numeric',
+  }).format(new Date(updatedAt))
+}
+
+function useKapaChatHistory() {
+  const [items, setItems] =
+    React.useState<Array<KapaHistoryItem>>(readKapaHistory)
+
+  const save = React.useCallback(
+    (threadId: string, conversation: Array<KapaDisplayQA>) => {
+      if (conversation.length === 0) {
+        return
+      }
+
+      setItems(upsertKapaHistoryItem(threadId, conversation))
+    },
+    [],
+  )
+
+  return { items, save }
+}
+
+function getSourceScope(sourceUrl: string) {
+  let pathname = sourceUrl
+
+  try {
+    pathname = new URL(sourceUrl).pathname
+  } catch {
+    pathname = sourceUrl
+  }
+
+  const pathParts = pathname.split('/').filter(Boolean)
+  const libraryId = pathParts[0]
+  const library = libraries.find((item) => item.id === libraryId)
+  const frameworkIndex = pathParts.indexOf('framework')
+  const frameworkValue =
+    frameworkIndex >= 0 ? pathParts[frameworkIndex + 1] : undefined
+  const framework = frameworkValue
+    ? frameworkOptions.find((item) => item.value === frameworkValue)
+    : undefined
+
+  return { library, framework }
+}
+
+function SourceScopeBadges({
+  library,
+  framework,
+}: ReturnType<typeof getSourceScope>) {
+  if (!library && !framework) {
+    return null
+  }
+
+  return (
+    <span className="inline-flex items-center gap-1 shrink-0">
+      {library ? (
+        <span
+          className={twMerge(
+            'text-[10px] font-black uppercase leading-none',
+            library.textStyle || 'text-gray-500 dark:text-gray-400',
+          )}
+        >
+          {library.id}
+        </span>
+      ) : null}
+      {framework ? (
+        <span
+          className={twMerge(
+            'inline-flex items-center gap-0.5 text-[10px] font-semibold leading-none',
+            framework.fontColor,
+          )}
+        >
+          <img
+            src={framework.logo}
+            alt=""
+            aria-hidden="true"
+            className="w-2.5 h-2.5"
+          />
+          {capitalize(framework.label)}
+        </span>
+      ) : null}
+    </span>
+  )
+}
+
+function CopyChatButton({
+  conversation,
+}: {
+  conversation: Array<KapaDisplayQA>
+}) {
+  const [copied, setCopied] = React.useState(false)
+  const hasConversation = conversation.length > 0
+
+  const handleCopy = () => {
+    const text = conversation
+      .map((qa) =>
+        [`You: ${qa.question}`, qa.answer ? `TanStack: ${qa.answer}` : '']
+          .filter(Boolean)
+          .join('\n\n'),
+      )
+      .join('\n\n')
+
+    if (!text) {
+      return
+    }
+
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      disabled={!hasConversation}
+      className="pointer-events-auto flex items-center gap-1 px-2 py-1 text-xs rounded-md bg-white/80 dark:bg-black/80 backdrop-blur-sm border border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-white dark:hover:bg-black/90 disabled:opacity-40 disabled:hover:text-gray-400 dark:disabled:hover:text-gray-500 shadow-sm transition-colors"
+    >
+      {copied ? (
+        <Check className="w-3 h-3 text-green-500" />
+      ) : (
+        <Copy className="w-3 h-3" />
+      )}
+      {copied ? 'Copied' : 'Copy chat'}
+    </button>
+  )
+}
+
+function KapaHistoryButton({
+  items,
+  activeThreadId,
+  isBusy,
+  onSelect,
+}: {
+  items: Array<KapaHistoryItem>
+  activeThreadId: string | null
+  isBusy: boolean
+  onSelect: (item: KapaHistoryItem) => void
+}) {
+  return (
+    <Dropdown modal={false}>
+      <DropdownTrigger>
+        <button
+          type="button"
+          disabled={isBusy}
+          aria-label="Chat history"
+          className="pointer-events-auto flex items-center gap-1 px-1.5 sm:px-2 py-1 text-xs rounded-md bg-white/80 dark:bg-black/80 backdrop-blur-sm border border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-white dark:hover:bg-black/90 disabled:opacity-40 disabled:hover:text-gray-400 dark:disabled:hover:text-gray-500 shadow-sm transition-colors"
+        >
+          <History className="w-3 h-3" />
+          <span className="hidden sm:inline">History</span>
+        </button>
+      </DropdownTrigger>
+      <DropdownContent
+        align="end"
+        sideOffset={8}
+        className="w-72 max-w-[calc(100vw-2rem)]"
+      >
+        {items.length === 0 ? (
+          <div className="px-2 py-2 text-xs text-gray-400 dark:text-gray-500">
+            No saved chats yet
+          </div>
+        ) : null}
+        {items.map((item) => {
+          const isActive = item.threadId === activeThreadId
+
+          return (
+            <DropdownItem
+              key={item.threadId}
+              onSelect={() => onSelect(item)}
+              className="items-start justify-between gap-3 py-2"
+            >
+              <span className="min-w-0">
+                <span className="block truncate text-xs font-semibold text-gray-700 dark:text-gray-200">
+                  {item.title}
+                </span>
+                <span className="block truncate text-[10px] text-gray-400 dark:text-gray-500">
+                  {formatKapaHistoryTime(item.updatedAt)}
+                </span>
+              </span>
+              {isActive ? (
+                <Check className="mt-0.5 w-3 h-3 shrink-0 text-green-500" />
+              ) : null}
+            </DropdownItem>
+          )
+        })}
+      </DropdownContent>
+    </Dropdown>
+  )
+}
+
+function MessageActionButton({
+  icon,
+  title,
+  onClick,
+}: {
+  icon: 'copy'
+  title: string
+  onClick: () => void
+}) {
+  const [flashed, setFlashed] = React.useState(false)
+
+  const handleClick = () => {
+    onClick()
+    if (icon === 'copy') {
+      setFlashed(true)
+      setTimeout(() => setFlashed(false), 1500)
+    }
+  }
+
+  const iconEl = flashed ? (
+    <Check className="w-3 h-3 text-green-500" />
+  ) : (
+    <Copy className="w-3 h-3" />
+  )
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      title={title}
+      className="p-1 rounded text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+    >
+      {iconEl}
+    </button>
+  )
+}
+
+function AIMessageHeader({ action }: { action?: React.ReactNode }) {
+  return (
+    <div className="flex items-center justify-between mb-1.5">
+      <div className="flex items-center gap-1.5 min-w-0">
+        <div className="w-5 h-5 rounded-full overflow-hidden ring-1 ring-black/10 dark:ring-white/10 shrink-0">
+          <img
+            src="/images/logos/logo-color-100.png"
+            alt="TanStack"
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0 min-w-0">
+          <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+            TanStack
+          </span>
+          <a
+            href="https://www.kapa.ai/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[10px] text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+          >
+            answers by kapa.ai
+          </a>
+        </div>
+      </div>
+      {action}
+    </div>
+  )
+}
+
+function AlgoliaAttribution() {
+  return (
+    <a
+      href="https://www.algolia.com/developers/?utm_medium=referral&utm_content=powered_by&utm_source=tanstack.com&utm_campaign=docsearch"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center gap-1.5 opacity-45 hover:opacity-75 transition-opacity shrink-0"
+      onClick={(event) => event.stopPropagation()}
+    >
+      <span className="hidden sm:inline text-[10px] text-gray-400 dark:text-gray-500">
+        search by
+      </span>
+      <img
+        src="/Algolia-logo-blue.svg"
+        alt="Algolia"
+        className="h-2.5 w-auto dark:hidden"
+      />
+      <img
+        src="/Algolia-logo-white.svg"
+        alt="Algolia"
+        className="h-2.5 w-auto hidden dark:block"
+      />
+    </a>
+  )
+}
+
+function getKapaSuggestions(selectedLibrary: string) {
+  if (selectedLibrary === 'query') {
+    return [
+      'How do I invalidate a query?',
+      'What is staleTime vs gcTime?',
+      'How do I handle optimistic updates?',
+    ]
+  }
+
+  if (selectedLibrary === 'router') {
+    return [
+      'How do I do nested layouts?',
+      'What is the difference between loader and beforeLoad?',
+      'How do I type search params?',
+    ]
+  }
+
+  if (selectedLibrary === 'start') {
+    return [
+      'How do I create a server function?',
+      'How do I add authentication?',
+      'How does middleware work?',
+    ]
+  }
+
+  if (selectedLibrary === 'table') {
+    return [
+      'How do I add column sorting?',
+      'How do I implement row selection?',
+      'How do I virtualize rows?',
+    ]
+  }
+
+  if (selectedLibrary === 'form') {
+    return [
+      'How do I validate on submit?',
+      'How do I handle async validation?',
+      'How do I use array fields?',
+    ]
+  }
+
+  return [
+    'How do I get started with TanStack Query?',
+    'What is the difference between Start and Router?',
+    'Which TanStack library should I use for data fetching?',
+  ]
+}
+
+function KapaWelcome({
+  selectedLibrary,
+  selectedFramework,
+  onSuggestion,
+  disabled,
+}: {
+  selectedLibrary: string
+  selectedFramework: string
+  onSuggestion: (suggestion: string) => void
+  disabled?: boolean
+}) {
+  const suggestions = getKapaSuggestions(selectedLibrary)
+
+  return (
+    <div>
+      <AIMessageHeader />
+      <div className="rounded-2xl px-3.5 py-3 bg-white dark:bg-white/[0.06] border border-gray-200 dark:border-white/10 shadow-sm space-y-2.5">
+        <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+          Ask a TanStack docs question in plain English.
+          {(selectedLibrary || selectedFramework) && (
+            <>
+              {' '}
+              Your search is focused on{' '}
+              {selectedLibrary && (
+                <span className="font-semibold text-gray-900 dark:text-white">
+                  TanStack {selectedLibrary.toUpperCase()}
+                </span>
+              )}
+              {selectedLibrary && selectedFramework && ' + '}
+              {selectedFramework && (
+                <span className="font-semibold text-gray-900 dark:text-white">
+                  {capitalize(selectedFramework)}
+                </span>
+              )}
+              .
+            </>
+          )}
+        </p>
+        <div className="space-y-1.5">
+          <p className="text-[11px] font-medium uppercase tracking-wide text-gray-400 dark:text-gray-500">
+            Try asking
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {suggestions.map((suggestion) => (
+              <button
+                key={suggestion}
+                type="button"
+                disabled={disabled}
+                onClick={() => onSuggestion(suggestion)}
+                className="text-xs px-2.5 py-1 rounded-full bg-gray-100 dark:bg-white/[0.08] text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/[0.14] disabled:hover:bg-gray-100 dark:disabled:hover:bg-white/[0.08] disabled:opacity-50 disabled:cursor-default transition-colors border border-gray-200 dark:border-white/10 text-left"
+              >
+                {suggestion}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function KapaAnswer({
+  qa,
+  isStreaming,
+  error,
+  onCopyQuestion,
+  onFeedback,
+}: {
+  qa: KapaDisplayQA
+  isStreaming: boolean
+  error?: string | null
+  onCopyQuestion: () => void
+  onFeedback: (reaction: 'upvote' | 'downvote') => void
+}) {
+  const canSubmitFeedback =
+    qa.id !== null && qa.isFeedbackSubmissionEnabled && qa.reaction === null
+  const hasAnswerError = !isStreaming && !qa.answer && !!error
+
+  return (
+    <div className="space-y-3">
+      <div className="group flex flex-col items-end gap-1">
+        <div className="max-w-[85%] px-3.5 py-2 rounded-2xl rounded-tr-sm bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm break-words">
+          {qa.question}
+        </div>
+        <div className="flex items-center gap-0.5 opacity-60 group-hover:opacity-100 transition-opacity">
+          <MessageActionButton
+            icon="copy"
+            title="Copy"
+            onClick={onCopyQuestion}
+          />
+        </div>
+      </div>
+      <div>
+        <AIMessageHeader />
+        <div className="rounded-2xl px-3.5 py-2.5 bg-white dark:bg-white/[0.06] border border-gray-200 dark:border-white/10 shadow-sm">
+          {hasAnswerError ? (
+            <p className="text-sm text-red-700 dark:text-red-300 leading-relaxed">
+              {error}
+            </p>
+          ) : qa.answer ? (
+            <div className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed break-words">
+              <Streamdown
+                components={streamdownComponents}
+                isAnimating={isStreaming}
+              >
+                {qa.answer}
+              </Streamdown>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1 py-0.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-gray-500 animate-bounce [animation-delay:0ms]" />
+              <span className="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-gray-500 animate-bounce [animation-delay:150ms]" />
+              <span className="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-gray-500 animate-bounce [animation-delay:300ms]" />
+            </div>
+          )}
+        </div>
+        {!isStreaming && qa.sources.length > 0 && (
+          <div className="mt-2 space-y-1">
+            <p className="text-[11px] font-medium uppercase tracking-wide text-gray-400 dark:text-gray-500 px-0.5">
+              Sources
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {qa.sources.map((source) => {
+                const subtitle =
+                  source.subtitle && source.subtitle !== source.title
+                    ? source.subtitle
+                    : ''
+                const label = subtitle
+                  ? `${source.title} - ${subtitle}`
+                  : source.title
+                const sourceScope = getSourceScope(source.source_url)
+                const hasSourceScope =
+                  !!sourceScope.library || !!sourceScope.framework
+
+                return (
+                  <a
+                    key={source.source_url}
+                    href={source.source_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-[11px] font-medium bg-gray-100 dark:bg-white/[0.06] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/[0.12] hover:text-gray-900 dark:hover:text-gray-200 border border-gray-200 dark:border-white/10 transition-colors max-w-[280px]"
+                  >
+                    <SourceScopeBadges {...sourceScope} />
+                    {!hasSourceScope ? (
+                      <ExternalLink className="w-2.5 h-2.5 flex-none opacity-60" />
+                    ) : null}
+                    <span className="truncate">{label}</span>
+                  </a>
+                )
+              })}
+            </div>
+          </div>
+        )}
+        {!isStreaming && qa.answer && (
+          <div className="flex items-center gap-0.5 mt-1.5 px-0.5">
+            <button
+              type="button"
+              onClick={() => onFeedback('upvote')}
+              disabled={!canSubmitFeedback}
+              title="Helpful"
+              className={twMerge(
+                'p-1 rounded transition-colors',
+                qa.reaction === 'upvote'
+                  ? 'text-green-500'
+                  : 'text-gray-300 dark:text-gray-600 hover:text-gray-500 dark:hover:text-gray-400 disabled:opacity-40',
+              )}
+            >
+              <ThumbsUp className="w-3 h-3" />
+            </button>
+            <button
+              type="button"
+              onClick={() => onFeedback('downvote')}
+              disabled={!canSubmitFeedback}
+              title="Not helpful"
+              className={twMerge(
+                'p-1 rounded transition-colors',
+                qa.reaction === 'downvote'
+                  ? 'text-red-500'
+                  : 'text-gray-300 dark:text-gray-600 hover:text-gray-500 dark:hover:text-gray-400 disabled:opacity-40',
+              )}
+            >
+              <ThumbsDown className="w-3 h-3" />
+            </button>
+            <div className="w-px h-3 bg-gray-200 dark:bg-white/10 mx-0.5" />
+            <MessageActionButton
+              icon="copy"
+              title="Copy"
+              onClick={() => navigator.clipboard.writeText(qa.answer)}
+            />
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function KapaChatPanel({
+  onReset,
+  isFullHeight,
+  onToggleFullHeight,
+  threadIdOverrideRef,
+  newChatRequestId,
+}: {
+  onReset: () => void
+  isFullHeight: boolean
+  onToggleFullHeight: () => void
+  threadIdOverrideRef: React.MutableRefObject<string | null>
+  newChatRequestId: number
+}) {
+  const {
+    conversation,
+    threadId,
+    submitQuery,
+    isGeneratingAnswer,
+    isPreparingAnswer,
+    stopGeneration,
+    resetConversation,
+    addFeedback,
+    error,
+  } = useChat()
+  const { closeSearch } = useSearchContext()
+  const { selectedLibrary, selectedFramework, showSearchResults } =
+    useSearchFilters()
+  const scrollRef = React.useRef<HTMLDivElement>(null)
+  const { items: historyItems, save: saveHistory } = useKapaChatHistory()
+  const [selectedHistoryItem, setSelectedHistoryItem] =
+    React.useState<KapaHistoryItem | null>(null)
+  const isBusy = isGeneratingAnswer || isPreparingAnswer
+  const isSubmittingRef = React.useRef(false)
+  const lockedToBottom = React.useRef(true)
+  const handledNewChatRequestId = React.useRef(newChatRequestId)
+  const displayConversation = React.useMemo<Array<KapaDisplayQA>>(() => {
+    const liveConversation = Array.from(conversation)
+
+    if (!selectedHistoryItem) {
+      return liveConversation
+    }
+
+    return [...selectedHistoryItem.conversation, ...liveConversation]
+  }, [conversation, selectedHistoryItem])
+  const hasConversation = displayConversation.length > 0
+  const activeThreadId = threadId ?? selectedHistoryItem?.threadId ?? null
+
+  React.useEffect(() => {
+    if (threadId) {
+      threadIdOverrideRef.current = threadId
+    }
+  }, [threadId, threadIdOverrideRef])
+
+  React.useEffect(() => {
+    if (!threadId || isBusy || displayConversation.length === 0) {
+      return
+    }
+
+    saveHistory(threadId, displayConversation)
+  }, [displayConversation, isBusy, saveHistory, threadId])
+
+  React.useEffect(() => {
+    const element = scrollRef.current
+    if (!element) return
+
+    const handleScroll = () => {
+      const distanceFromBottom =
+        element.scrollHeight - element.scrollTop - element.clientHeight
+      lockedToBottom.current = distanceFromBottom < 80
+    }
+
+    element.addEventListener('scroll', handleScroll, { passive: true })
+    return () => {
+      element.removeEventListener('scroll', handleScroll)
+    }
+  }, [])
+
+  React.useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      const element = scrollRef.current
+      if (element && lockedToBottom.current) {
+        element.scrollTop = element.scrollHeight
+      }
+    })
+
+    return () => cancelAnimationFrame(frame)
+  }, [displayConversation, isBusy])
+
+  React.useEffect(() => {
+    if (!isBusy) {
+      isSubmittingRef.current = false
+    }
+  }, [isBusy])
+
+  const ask = React.useCallback(
+    (question: string) => {
+      const trimmed = question.trim()
+      if (trimmed.length < 3 || isBusy || isSubmittingRef.current) {
+        return
+      }
+
+      isSubmittingRef.current = true
+      submitQuery(trimmed)
+    },
+    [isBusy, submitQuery],
+  )
+
+  const selectHistoryItem = React.useCallback(
+    (item: KapaHistoryItem) => {
+      if (isBusy) {
+        return
+      }
+
+      resetConversation()
+      threadIdOverrideRef.current = item.threadId
+      setSelectedHistoryItem(item)
+      lockedToBottom.current = true
+    },
+    [isBusy, resetConversation, threadIdOverrideRef],
+  )
+
+  const startNewChat = React.useCallback(() => {
+    if (isBusy) {
+      stopGeneration()
+    }
+
+    resetConversation()
+    threadIdOverrideRef.current = null
+    setSelectedHistoryItem(null)
+    onReset()
+  }, [isBusy, onReset, resetConversation, stopGeneration, threadIdOverrideRef])
+
+  React.useEffect(() => {
+    if (handledNewChatRequestId.current === newChatRequestId) {
+      return
+    }
+
+    handledNewChatRequestId.current = newChatRequestId
+    startNewChat()
+  }, [newChatRequestId, startNewChat])
+
+  return (
+    <section
+      ref={scrollRef}
+      className={twMerge(
+        'overflow-y-auto flex flex-col',
+        isFullHeight
+          ? 'flex-1 min-h-0'
+          : 'flex-1 min-h-0 sm:flex-none sm:max-h-[min(600px,calc(100dvh-2rem-90px))]',
+      )}
+    >
+      <div className="sticky top-0 z-10 relative flex items-center justify-between gap-1.5 px-4 sm:px-5 pt-2 pb-1 pointer-events-none">
+        <StickyTopBlur />
+        <div className="relative z-10 flex items-center gap-1">
+          <button
+            type="button"
+            onClick={closeSearch}
+            className="pointer-events-auto flex items-center justify-center w-6 h-6 rounded-md bg-white/80 dark:bg-black/80 backdrop-blur-sm border border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-white dark:hover:bg-black/90 shadow-sm transition-colors"
+            aria-label="Close search"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={onToggleFullHeight}
+            className="hidden sm:flex pointer-events-auto items-center justify-center w-6 h-6 rounded-md bg-white/80 dark:bg-black/80 backdrop-blur-sm border border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-white dark:hover:bg-black/90 shadow-sm transition-colors"
+            aria-label={isFullHeight ? 'Collapse search' : 'Expand search'}
+          >
+            {isFullHeight ? (
+              <Minimize2 className="w-3 h-3" />
+            ) : (
+              <Maximize2 className="w-3 h-3" />
+            )}
+          </button>
+        </div>
+        <div className="relative z-10 flex items-center gap-1.5">
+          <KapaHistoryButton
+            items={historyItems}
+            activeThreadId={activeThreadId}
+            isBusy={isBusy}
+            onSelect={selectHistoryItem}
+          />
+          {hasConversation ? (
+            <>
+              <CopyChatButton conversation={displayConversation} />
+              <button
+                type="button"
+                onClick={startNewChat}
+                className="pointer-events-auto flex items-center gap-1 px-2 py-1 text-xs rounded-md bg-white/80 dark:bg-black/80 backdrop-blur-sm border border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-white dark:hover:bg-black/90 shadow-sm transition-colors"
+              >
+                <RotateCcw className="w-3 h-3" />
+                New chat
+              </button>
+            </>
+          ) : null}
+        </div>
+      </div>
+      <div className="flex-1 px-3 sm:px-4 pt-3 pb-[220px] space-y-4">
+        {displayConversation.length === 0 ? (
+          <KapaWelcome
+            selectedLibrary={showSearchResults ? selectedLibrary : ''}
+            selectedFramework={showSearchResults ? selectedFramework : ''}
+            onSuggestion={ask}
+          />
+        ) : (
+          displayConversation.map((qa, index) => {
+            const liveIndex =
+              index -
+              (selectedHistoryItem
+                ? selectedHistoryItem.conversation.length
+                : 0)
+            const isLiveQA = liveIndex >= 0
+            const isLatestLiveQA = liveIndex === conversation.length - 1
+            const isStreamingLatest = isLiveQA && isLatestLiveQA && isBusy
+            const answerError = isLiveQA && isLatestLiveQA ? error : null
+
+            return (
+              <KapaAnswer
+                key={qa.id ?? `${qa.question}-${index}`}
+                qa={qa}
+                isStreaming={isStreamingLatest}
+                error={answerError}
+                onCopyQuestion={() =>
+                  navigator.clipboard.writeText(qa.question)
+                }
+                onFeedback={(reaction) => {
+                  if (qa.id !== null) {
+                    addFeedback(qa.id, reaction)
+                  }
+                }}
+              />
+            )
+          })
+        )}
+        {error && conversation.length === 0 && (
+          <div className="rounded-lg border border-red-300/70 dark:border-red-500/30 bg-red-50 dark:bg-red-500/10 px-3 py-2 text-sm text-red-700 dark:text-red-300">
+            {error}
+          </div>
+        )}
+      </div>
+      <div className="sticky bottom-0">
+        <div className="absolute bottom-full left-0 right-0">
+          <SearchResultsInChat />
+        </div>
+        <InputBar isBusy={isBusy} onAskAISubmit={ask} onStop={stopGeneration} />
+      </div>
+    </section>
+  )
+}
+
+function StickyTopBlur() {
+  const mask =
+    '[mask-image:linear-gradient(to_bottom,black_0%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_0%,transparent_100%)]'
+
+  return (
+    <div
+      className="absolute inset-x-0 top-0 z-0 h-20 pointer-events-none"
+      aria-hidden="true"
+    >
+      <div
+        className={twMerge(
+          'absolute inset-x-0 top-0 h-20 bg-white/25 dark:bg-black/25 backdrop-blur-sm',
+          mask,
+        )}
+      />
+      <div
+        className={twMerge(
+          'absolute inset-x-0 top-0 h-14 bg-white/25 dark:bg-black/25 backdrop-blur-md',
+          mask,
+        )}
+      />
+      <div
+        className={twMerge(
+          'absolute inset-x-0 top-0 h-8 bg-white/20 dark:bg-black/20 backdrop-blur-lg',
+          mask,
+        )}
+      />
+    </div>
+  )
+}
+
+function KapaUnavailablePanel({
+  isFullHeight,
+  onToggleFullHeight,
+}: {
+  isFullHeight: boolean
+  onToggleFullHeight: () => void
+}) {
+  const { closeSearch } = useSearchContext()
+  const { selectedLibrary, selectedFramework, showSearchResults } =
+    useSearchFilters()
+
+  return (
+    <section
+      className={twMerge(
+        'overflow-y-auto flex flex-col',
+        isFullHeight
+          ? 'flex-1 min-h-0'
+          : 'flex-1 min-h-0 sm:flex-none sm:max-h-[min(600px,calc(100dvh-2rem-90px))]',
+      )}
+    >
+      <div className="sticky top-0 z-10 relative flex items-center justify-between gap-1.5 px-4 sm:px-5 pt-2 pb-1 pointer-events-none">
+        <StickyTopBlur />
+        <div className="relative z-10 flex items-center gap-1">
+          <button
+            type="button"
+            onClick={closeSearch}
+            className="pointer-events-auto flex items-center justify-center w-6 h-6 rounded-md bg-white/80 dark:bg-black/80 backdrop-blur-sm border border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-white dark:hover:bg-black/90 shadow-sm transition-colors"
+            aria-label="Close search"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={onToggleFullHeight}
+            className="hidden sm:flex pointer-events-auto items-center justify-center w-6 h-6 rounded-md bg-white/80 dark:bg-black/80 backdrop-blur-sm border border-gray-200 dark:border-white/10 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-white dark:hover:bg-black/90 shadow-sm transition-colors"
+            aria-label={isFullHeight ? 'Collapse search' : 'Expand search'}
+          >
+            {isFullHeight ? (
+              <Minimize2 className="w-3 h-3" />
+            ) : (
+              <Maximize2 className="w-3 h-3" />
+            )}
+          </button>
+        </div>
+      </div>
+      <div className="flex-1 px-3 sm:px-4 pt-3 pb-[220px] space-y-4">
+        <div className="rounded-xl border border-amber-200 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-500/10 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
+          Kapa is not configured. Add{' '}
+          <code className="font-mono">VITE_KAPA_INTEGRATION_ID</code> to enable
+          AI answers.
+        </div>
+        <KapaWelcome
+          selectedLibrary={showSearchResults ? selectedLibrary : ''}
+          selectedFramework={showSearchResults ? selectedFramework : ''}
+          onSuggestion={() => {}}
+          disabled
+        />
+      </div>
+      <div className="sticky bottom-0">
+        <div className="absolute bottom-full left-0 right-0">
+          <SearchResultsInChat />
+        </div>
+        <InputBar isBusy onAskAISubmit={() => {}} />
+      </div>
+    </section>
+  )
+}
+
+function SearchPanel({
+  isFullHeight,
+  onToggleFullHeight,
+  newChatRequestId,
+}: {
+  isFullHeight: boolean
+  onToggleFullHeight: () => void
+  newChatRequestId: number
+}) {
+  const integrationId = env.VITE_KAPA_INTEGRATION_ID
+  const threadIdOverrideRef = React.useRef<string | null>(null)
+  const apiService = React.useMemo(
+    () => new KapaThreadOverrideApiService(threadIdOverrideRef),
+    [],
+  )
+  const sourceGroupIDsInclude = React.useMemo(
+    () => parseSourceGroupIDs(env.VITE_KAPA_SOURCE_GROUP_IDS),
+    [],
+  )
+
+  return (
+    <div
+      className={twMerge(
+        'bg-white/90 dark:bg-black/90 backdrop-blur-lg sm:rounded-[1.75rem] shadow-lg dark:border dark:border-white/20 overflow-hidden',
+        isFullHeight ? 'flex flex-col h-full' : 'h-dvh sm:h-auto flex flex-col',
+      )}
+    >
+      {integrationId ? (
+        <KapaProvider
+          integrationId={integrationId}
+          sourceGroupIDsInclude={sourceGroupIDsInclude}
+          userTrackingMode="cookie"
+          apiService={apiService}
+        >
+          <KapaChatPanel
+            onReset={() => {}}
+            isFullHeight={isFullHeight}
+            onToggleFullHeight={onToggleFullHeight}
+            threadIdOverrideRef={threadIdOverrideRef}
+            newChatRequestId={newChatRequestId}
+          />
+        </KapaProvider>
+      ) : (
+        <KapaUnavailablePanel
+          isFullHeight={isFullHeight}
+          onToggleFullHeight={onToggleFullHeight}
+        />
+      )}
+    </div>
+  )
+}
+
+function InputBar({
+  isBusy,
+  onAskAISubmit,
+  onStop,
+}: {
+  isBusy: boolean
+  onAskAISubmit: (question: string) => void
+  onStop?: () => void
+}) {
+  const { refine } = useSearchBox()
+  const { searchQuery, setSearchQuery } = useSearchFilters()
+  const trimmedQuery = searchQuery.trim()
+  const hasQuery = trimmedQuery.length > 0
+  const canAsk = trimmedQuery.length >= 3 && !isBusy
+  const canStop = isBusy && !!onStop
+  const inputRef = React.useRef<HTMLInputElement>(null)
+
+  React.useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      inputRef.current?.focus({ preventScroll: true })
+    })
+
+    return () => cancelAnimationFrame(frame)
+  }, [])
+
+  const submitQuestion = React.useCallback(() => {
+    if (!canAsk) return
+
+    setSearchQuery('')
+    refine('')
+    onAskAISubmit(trimmedQuery)
+  }, [canAsk, onAskAISubmit, refine, setSearchQuery, trimmedQuery])
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault()
+
+    submitQuestion()
+  }
+
+  return (
+    <div className="flex-none px-3 pb-3">
+      <div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.06] shadow-sm overflow-visible">
+        <div className="flex items-center gap-2 px-3 py-2.5">
+          <Search className="w-4 h-4 opacity-30 flex-none" />
+          <form className="flex-1 min-w-0" onSubmit={handleSubmit}>
+            <input
+              ref={inputRef}
+              type="search"
+              aria-label="Search"
+              placeholder="Search or ask a question..."
+              value={searchQuery}
+              onChange={(event) => {
+                const nextQuery = event.target.value
+                setSearchQuery(nextQuery)
+                refine(nextQuery)
+              }}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  event.preventDefault()
+                  submitQuestion()
+                }
+              }}
+              className="w-full outline-none [&::-webkit-search-cancel-button]:hidden bg-transparent text-sm text-gray-800 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+            />
+            <button type="submit" className="hidden" tabIndex={-1}>
+              Search
+            </button>
+          </form>
+
+          <button
+            type="button"
+            onClick={() => {
+              setSearchQuery('')
+              refine('')
+            }}
+            className={twMerge(
+              'flex-none w-5 h-5 flex items-center justify-center rounded transition-opacity',
+              hasQuery
+                ? 'opacity-40 hover:opacity-70 cursor-pointer'
+                : 'opacity-0 pointer-events-none',
+            )}
+            tabIndex={-1}
+            aria-label="Clear search"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+          <SearchResultsToggle />
+
+          <button
+            type="button"
+            onClick={canStop ? onStop : submitQuestion}
+            disabled={!canStop && !canAsk}
+            className={twMerge(
+              'flex items-center justify-center w-7 h-7 rounded-full transition-all',
+              canAsk || canStop
+                ? 'bg-gray-900 dark:bg-white text-white dark:text-black hover:opacity-80'
+                : 'bg-gray-200 dark:bg-white/10 text-gray-400 dark:text-gray-600 cursor-default',
+            )}
+            aria-label={canStop ? 'Stop generating answer' : 'Ask AI'}
+          >
+            {canStop ? (
+              <span className="w-2 h-2 rounded-[1px] bg-current" />
+            ) : (
+              <ArrowUp className="w-3.5 h-3.5" />
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function SearchResultsToggle() {
+  const { showSearchResults, toggleShowSearchResults } = useSearchFilters()
+  const buttonRef = React.useRef<HTMLButtonElement>(null)
+  const [tooltipRect, setTooltipRect] = React.useState<DOMRect | null>(null)
+  const tooltipText = showSearchResults
+    ? 'Hide search results'
+    : 'Show search results'
+
+  const showTooltip = () => {
+    const rect = buttonRef.current?.getBoundingClientRect()
+    if (rect) {
+      setTooltipRect(rect)
+    }
+  }
+
+  const hideTooltip = () => {
+    setTooltipRect(null)
+  }
+
+  return (
+    <div className="relative flex-none">
+      <button
+        ref={buttonRef}
+        type="button"
+        onClick={toggleShowSearchResults}
+        onMouseEnter={showTooltip}
+        onMouseLeave={hideTooltip}
+        onFocus={showTooltip}
+        onBlur={hideTooltip}
+        aria-pressed={showSearchResults}
+        aria-label={tooltipText}
+        className={twMerge(
+          'p-1.5 rounded transition-colors focus:outline-none',
+          showSearchResults
+            ? 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+            : 'text-gray-300 dark:text-gray-600 hover:text-gray-400 dark:hover:text-gray-400',
+        )}
+      >
+        {showSearchResults ? (
+          <SearchSlash className="w-[18px] h-[18px]" />
+        ) : (
+          <Search className="w-[18px] h-[18px]" />
+        )}
+      </button>
+      {tooltipRect && typeof document !== 'undefined'
+        ? createPortal(
+            <div
+              className="pointer-events-none fixed z-[1200] whitespace-nowrap px-2.5 py-1.5 rounded-md bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs shadow-lg"
+              style={{
+                top: tooltipRect.top - 8,
+                left: tooltipRect.right,
+                transform: 'translate(-100%, -100%)',
+              }}
+            >
+              {tooltipText}
+              <div className="absolute right-2 -bottom-1 w-2 h-2 bg-gray-900 dark:bg-gray-100 rotate-45" />
+            </div>,
+            document.body,
+          )
+        : null}
+    </div>
+  )
+}
+
+function SearchResultsInChat() {
+  const { results } = useInstantSearch()
+  const { hits, isLastPage, showMore } = useInfiniteHits()
+  const sentinelRef = React.useRef<HTMLDivElement>(null)
+  const resultsScrollRef = React.useRef<HTMLDivElement>(null)
+
+  const {
+    selectedLibrary,
+    selectedFramework,
+    setSelectedLibrary,
+    setSelectedFramework,
+    searchQuery,
+    showSearchResults,
+    hideSearchResults,
+  } = useSearchFilters()
+
+  const refinedLibrary = selectedLibrary || null
+  const refinedFramework = selectedFramework || null
+  const trimmedQuery = searchQuery.trim()
+  const hasQuery = trimmedQuery.length > 0
+  const isOpen = hasQuery && showSearchResults
+
+  const clearFramework = () => {
+    setSelectedFramework('')
+  }
+
+  const clearLibrary = () => {
+    setSelectedLibrary('')
+  }
+
+  React.useEffect(() => {
+    const sentinel = sentinelRef.current
+    if (!sentinel || !hits.length) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !isLastPage) {
+            showMore()
+          }
+        })
+      },
+      { root: resultsScrollRef.current, rootMargin: '200px' },
+    )
+
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [hits, isLastPage, showMore])
+
+  return (
+    <div
+      className="overflow-hidden transition-[height] duration-300"
+      style={{
+        height: isOpen ? '210px' : '0px',
+        transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+      }}
+    >
+      <div className="px-6">
+        <div className="rounded-t-2xl rounded-b-none border border-b-0 border-gray-200 dark:border-white/10 overflow-hidden bg-white dark:bg-white/[0.06]">
+          <div className="px-3 py-1.5 border-b border-gray-100 dark:border-white/[0.06] flex items-center gap-2">
+            <p className="flex-1 text-[11px] text-gray-400 dark:text-gray-500 min-w-0 truncate">
+              {hits.length > 0 ? (
+                <>
+                  {results.nbHits} page{results.nbHits === 1 ? '' : 's'} for{' '}
+                  <span className="font-medium text-gray-500 dark:text-gray-400">
+                    &ldquo;{trimmedQuery}&rdquo;
+                  </span>
+                </>
+              ) : (
+                <>No pages found for &ldquo;{trimmedQuery}&rdquo;</>
+              )}
+            </p>
+            <div className="ml-auto flex min-w-0 items-center justify-end gap-1.5">
+              <FrameworkRefinement compact />
+              <LibraryRefinement compact />
+              <AlgoliaAttribution />
+              <button
+                type="button"
+                onClick={hideSearchResults}
+                aria-label="Hide search results"
+                className="p-0.5 rounded-full text-gray-300 dark:text-gray-600 hover:text-gray-500 dark:hover:text-gray-400 transition-colors"
+              >
+                <CircleX className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+          <div
+            ref={resultsScrollRef}
+            className="overflow-y-auto h-[180px]"
+            role="listbox"
+            aria-label="Search results"
+          >
+            <NoResults
+              refinedFramework={refinedFramework}
+              refinedLibrary={refinedLibrary}
+              clearFramework={clearFramework}
+              clearLibrary={clearLibrary}
+            />
+            {hits.map((hit) => (
+              <Hit
+                key={hit.objectID}
+                hit={hit as AlgoliaHit}
+                refinedLibrary={refinedLibrary}
+                refinedFramework={refinedFramework}
+              />
+            ))}
+            <div ref={sentinelRef} className="h-2" aria-hidden="true" />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 const Hit = ({
   hit,
   isFocused,
@@ -501,9 +2088,8 @@ const Hit = ({
       <span
         key="library"
         className={twMerge(
-          'inline-flex items-center px-2 py-0.5 rounded text-xs font-black uppercase',
-          hitLibraryInfo.badgeTextStyle ?? 'text-white',
-          hitLibraryInfo.bgStyle,
+          'inline-flex items-center text-[11px] font-black uppercase',
+          hitLibraryInfo.textStyle || 'text-gray-500 dark:text-gray-400',
         )}
       >
         {hitLibraryInfo.id}
@@ -516,12 +2102,15 @@ const Hit = ({
     prefixParts.push(
       <span
         key="framework"
-        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-bold bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
+        className={twMerge(
+          'inline-flex items-center gap-1 text-[11px] font-semibold',
+          hitFramework.fontColor,
+        )}
       >
         <img
           src={hitFramework.logo}
           alt={hitFramework.label}
-          className="w-3.5 h-3.5"
+          className="w-3 h-3"
         />
         {capitalize(hitFramework.label)}
       </span>,
@@ -555,7 +2144,7 @@ const Hit = ({
     >
       <article className="flex items-start gap-4">
         <div className="flex-1">
-          <h3 className="text-sm text-gray-900 dark:text-white flex items-center gap-1.5 flex-wrap pl-8 [&>*:first-child]:-ml-8">
+          <h3 className="text-xs leading-relaxed text-gray-900 dark:text-white flex items-center gap-1.5 flex-wrap">
             {prefixParts.length > 0 && (
               <>
                 {prefixParts.map((part, i) => (
@@ -582,7 +2171,7 @@ const Hit = ({
             ))}
           </h3>
           {hit.content ? (
-            <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5 ml-8 line-clamp-2 [&_mark]:font-black [&_mark]:!bg-transparent [&_mark]:text-black [&_mark]:dark:text-white [&_mark]:inline [&_mark]:!p-0 [&_mark]:!m-0 [&_mark]:!rounded-none">
+            <p className="text-[11px] leading-relaxed text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2 [&_mark]:font-black [&_mark]:!bg-transparent [&_mark]:text-black [&_mark]:dark:text-white [&_mark]:inline [&_mark]:!p-0 [&_mark]:!m-0 [&_mark]:!rounded-none">
               <Snippet
                 attribute="content"
                 hit={hit as Parameters<typeof Snippet>[0]['hit']}
@@ -592,11 +2181,16 @@ const Hit = ({
         </div>
         {refinedFramework && hitFramework ? (
           <div className="flex-none">
-            <div className="flex items-center gap-1 text-xs font-black bg-white rounded-xl px-2 py-1 dark:bg-black">
+            <div
+              className={twMerge(
+                'flex items-center gap-1 text-[11px] font-semibold',
+                hitFramework.fontColor,
+              )}
+            >
               <img
                 src={hitFramework.logo}
                 alt={hitFramework.label}
-                className="w-4"
+                className="w-3 h-3"
               />
               {capitalize(hitFramework.label)}
             </div>
@@ -607,7 +2201,11 @@ const Hit = ({
   )
 }
 
-function LibraryRefinement() {
+type SearchScopePickerProps = {
+  compact?: boolean
+}
+
+function LibraryRefinement({ compact = false }: SearchScopePickerProps) {
   const {
     selectedLibrary,
     setSelectedLibrary,
@@ -621,26 +2219,25 @@ function LibraryRefinement() {
       <DropdownTrigger>
         <button
           type="button"
-          className="flex items-center gap-1 p-0.5 text-sm cursor-pointer font-bold rounded focus:ring-2"
+          className={twMerge(
+            'flex min-w-0 items-center gap-1 p-0.5 cursor-pointer font-bold rounded focus:ring-2 text-gray-900 dark:text-gray-100',
+            compact ? 'max-w-[8.5rem] text-[11px]' : 'text-sm',
+          )}
         >
           {currentLibrary ? (
-            <span className="uppercase font-black [letter-spacing:-.05em]">
+            <span className="min-w-0 truncate uppercase font-black">
               <span className="opacity-50">TanStack</span>{' '}
               <span className={currentLibrary.textStyle}>
                 {currentLibrary.id.toUpperCase()}
               </span>
             </span>
           ) : (
-            <span>All Libraries</span>
+            <span className="truncate">All Libraries</span>
           )}
-          <ChevronDown className="w-3.5 h-3.5 opacity-50" />
+          <ChevronDown className="w-3 h-3 opacity-50 shrink-0" />
         </button>
       </DropdownTrigger>
-      <DropdownContent
-        align="start"
-        className="max-h-[60vh] w-64 overflow-auto"
-        portal={false}
-      >
+      <DropdownContent align="end" className="max-h-[60vh] w-64 overflow-auto">
         <DropdownItem
           onSelect={() => setSelectedLibrary('')}
           className="font-bold"
@@ -655,7 +2252,7 @@ function LibraryRefinement() {
               onSelect={() => setSelectedLibrary(item.value)}
               className="justify-between"
             >
-              <span className="uppercase font-black [letter-spacing:-.05em]">
+              <span className="uppercase font-black">
                 <span className="opacity-50">TanStack</span>{' '}
                 <span className={lib?.textStyle ?? ''}>
                   {item.label.toUpperCase()}
@@ -669,7 +2266,7 @@ function LibraryRefinement() {
   )
 }
 
-function FrameworkRefinement() {
+function FrameworkRefinement({ compact = false }: SearchScopePickerProps) {
   const {
     selectedFramework,
     setSelectedFramework,
@@ -694,28 +2291,28 @@ function FrameworkRefinement() {
       <DropdownTrigger>
         <button
           type="button"
-          className="flex items-center gap-1 p-0.5 text-sm font-bold rounded cursor-pointer focus:ring-2"
+          className={twMerge(
+            'flex min-w-0 items-center gap-1 p-0.5 font-bold rounded cursor-pointer focus:ring-2 text-gray-900 dark:text-gray-100',
+            compact ? 'max-w-[7.5rem] text-[11px]' : 'text-sm',
+          )}
         >
           {currentFramework && (
             <img
               src={currentFramework.logo}
-              alt={currentFramework.label}
-              className="w-4 h-4"
+              alt=""
+              aria-hidden="true"
+              className={twMerge('shrink-0', compact ? 'w-3 h-3' : 'w-4 h-4')}
             />
           )}
-          <span>
+          <span className="truncate">
             {currentFramework
               ? capitalize(currentFramework.label)
               : 'All Frameworks'}
           </span>
-          <ChevronDown className="w-3.5 h-3.5 opacity-50" />
+          <ChevronDown className="w-3 h-3 opacity-50 shrink-0" />
         </button>
       </DropdownTrigger>
-      <DropdownContent
-        align="start"
-        className="max-h-[60vh] w-52 overflow-auto"
-        portal={false}
-      >
+      <DropdownContent align="end" className="max-h-[60vh] w-52 overflow-auto">
         <DropdownItem onSelect={() => handleSelect('')} className="font-bold">
           All Frameworks
         </DropdownItem>
@@ -728,7 +2325,14 @@ function FrameworkRefinement() {
               className="justify-between"
             >
               <span className="flex items-center gap-2">
-                {fw && <img src={fw.logo} alt={fw.label} className="w-4 h-4" />}
+                {fw && (
+                  <img
+                    src={fw.logo}
+                    alt=""
+                    aria-hidden="true"
+                    className="w-4 h-4"
+                  />
+                )}
                 <span className="font-bold">{capitalize(item.label)}</span>
               </span>
             </DropdownItem>
@@ -809,66 +2413,39 @@ const _submitIconComponent = () => {
   return <Search />
 }
 
-const resetIconComponent = () => {
-  return <X />
+function isSearchModalPortalTarget(target: EventTarget | null) {
+  return target instanceof Element && !!target.closest('.dropdown-content')
 }
 
 export function SearchModal() {
-  const { isOpen, closeSearch } = useSearchContext()
-  const [focusedIndex, setFocusedIndex] = React.useState(0)
-  const containerRef = React.useRef<HTMLDivElement>(null)
+  const { isOpen, closeSearch, newChatRequestId } = useSearchContext()
+  const contentRef = React.useRef<HTMLDivElement>(null)
+  const [isFullHeight, setIsFullHeight] = React.useState(() => {
+    if (typeof window === 'undefined') return false
+    return localStorage.getItem('search-full-height') === 'true'
+  })
 
-  // Reset focused index when modal opens
+  const toggleFullHeight = React.useCallback(() => {
+    setIsFullHeight((current) => {
+      const next = !current
+      localStorage.setItem('search-full-height', String(next))
+      return next
+    })
+  }, [])
+
   React.useEffect(() => {
-    if (isOpen) {
-      setFocusedIndex(0)
+    if (!isOpen) {
+      return
     }
+
+    const frame = requestAnimationFrame(() => {
+      contentRef.current
+        ?.querySelector<HTMLInputElement>('input[type="search"]')
+        ?.focus({ preventScroll: true })
+    })
+
+    return () => cancelAnimationFrame(frame)
   }, [isOpen])
-
-  const focusedIndexRef = React.useRef(focusedIndex)
-
-  React.useEffect(() => {
-    focusedIndexRef.current = focusedIndex
-  }, [focusedIndex])
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    e.persist()
-
-    if (!containerRef.current) return
-
-    const items = containerRef.current.querySelectorAll('[data-search-hit]')
-    if (!items.length) return
-
-    switch (e.key) {
-      case 'ArrowDown':
-        e.preventDefault()
-        setFocusedIndex((prev) => Math.min(prev + 1, items.length - 1))
-        break
-      case 'ArrowUp':
-        e.preventDefault()
-        setFocusedIndex((prev) => Math.max(prev - 1, 0))
-        break
-      case 'Home':
-        e.preventDefault()
-        setFocusedIndex(0)
-        break
-      case 'End':
-        e.preventDefault()
-        setFocusedIndex(items.length - 1)
-        break
-      case 'Enter':
-        e.preventDefault()
-        const item = items[focusedIndexRef.current] as HTMLElement
-        if (item) {
-          item.click()
-        }
-        break
-      case 'Escape':
-        e.preventDefault()
-        closeSearch()
-        break
-    }
-  }
 
   return (
     <DialogPrimitive.Root
@@ -879,12 +2456,23 @@ export function SearchModal() {
         }
       }}
     >
-      <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="fixed inset-0 z-[999] bg-black/60 xl:bg-black/30 backdrop-blur-sm" />
+      <DialogPrimitive.Portal forceMount>
+        <DialogPrimitive.Overlay
+          forceMount
+          className="fixed inset-0 z-[999] bg-black/60 xl:bg-black/30 backdrop-blur-sm data-[state=closed]:hidden"
+        />
         <DialogPrimitive.Content
-          className="fixed z-[1000] top-8 left-1/2 -translate-x-1/2 w-[98%] xl:w-full max-w-3xl text-left bg-white/80 dark:bg-black/80 shadow-lg rounded-lg xl:rounded-xl divide-y divide-gray-500/20 backdrop-blur-lg dark:border dark:border-white/20 outline-none"
-          ref={containerRef}
-          onKeyDown={handleKeyDown}
+          forceMount
+          ref={contentRef}
+          className={twMerge(
+            'fixed z-[1000] inset-0 sm:inset-auto sm:top-4 sm:left-1/2 sm:-translate-x-1/2 sm:w-[96%] xl:w-full sm:max-w-3xl text-left outline-none data-[state=closed]:hidden',
+            isFullHeight && 'sm:bottom-4',
+          )}
+          onInteractOutside={(event) => {
+            if (isSearchModalPortalTarget(event.target)) {
+              event.preventDefault()
+            }
+          }}
         >
           <DialogPrimitive.Title className="sr-only">
             Search TanStack docs
@@ -895,208 +2483,26 @@ export function SearchModal() {
           >
             <SearchFiltersProvider>
               <DynamicFilters />
-              <div className="flex items-center gap-2 px-4 py-3 overflow-visible">
-                <Search className="w-5 h-5 opacity-50 flex-none" />
-                <LibraryRefinement />
-                <span className="text-gray-400 dark:text-gray-600">/</span>
-                <FrameworkRefinement />
-                <span className="text-gray-400 dark:text-gray-600">/</span>
-                <SearchBox
-                  placeholder="Search..."
-                  classNames={{
-                    root: 'flex-1',
-                    form: 'flex items-center',
-                    input:
-                      'w-full outline-none font-bold [&::-webkit-search-cancel-button]:hidden bg-transparent',
-                    submit: 'hidden',
-                    reset: 'p-1 opacity-50 hover:opacity-100',
-                  }}
-                  resetIconComponent={resetIconComponent}
-                  // eslint-disable-next-line jsx-a11y/no-autofocus
-                  autoFocus
-                />
-              </div>
-              <SearchResults focusedIndex={focusedIndex} />
-              <div className="flex items-center justify-end gap-1.5 px-4 py-2 text-xs text-gray-400 dark:text-gray-500 border-t border-gray-500/20">
-                <span>Search by</span>
-                <a
-                  href="https://www.algolia.com/developers/?utm_medium=referral&utm_content=powered_by&utm_source=tanstack.com&utm_campaign=docsearch"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 hover:opacity-70 transition-opacity"
-                >
-                  <img
-                    src="/Algolia-logo-blue.svg"
-                    alt="Algolia"
-                    className="h-4 w-auto dark:hidden"
-                  />
-                  <img
-                    src="/Algolia-logo-white.svg"
-                    alt="Algolia"
-                    className="h-4 w-auto hidden dark:block"
-                  />
-                </a>
-              </div>
+              <SearchPanel
+                isFullHeight={isFullHeight}
+                onToggleFullHeight={toggleFullHeight}
+                newChatRequestId={newChatRequestId}
+              />
             </SearchFiltersProvider>
           </InstantSearch>
+          {!isFullHeight ? (
+            <button
+              type="button"
+              onClick={toggleFullHeight}
+              className="hidden sm:flex absolute left-1/2 top-full mt-2 -translate-x-1/2 items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/85 dark:bg-black/85 backdrop-blur-sm border border-gray-200 dark:border-white/10 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-100 hover:bg-white dark:hover:bg-black/90 shadow-lg transition-colors"
+              aria-label="Maximize search"
+            >
+              <Maximize2 className="w-3.5 h-3.5" />
+              Maximize
+            </button>
+          ) : null}
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
-  )
-}
-
-function SearchResults({ focusedIndex }: { focusedIndex: number }) {
-  const { results } = useInstantSearch()
-  const { hits, isLastPage, showMore } = useInfiniteHits()
-  const containerRef = React.useRef<HTMLDivElement>(null)
-  const sentinelRef = React.useRef<HTMLDivElement>(null)
-
-  const {
-    selectedLibrary,
-    selectedFramework,
-    setSelectedLibrary,
-    setSelectedFramework,
-    libraryItems,
-    frameworkItems,
-  } = useSearchFilters()
-
-  const persistFramework = usePersistFrameworkPreference()
-
-  // Use selected values directly (no longer relying on Algolia's isRefined)
-  const refinedLibrary = selectedLibrary || null
-  const refinedFramework = selectedFramework || null
-
-  const clearFramework = () => {
-    setSelectedFramework('')
-  }
-
-  const clearLibrary = () => {
-    setSelectedLibrary('')
-  }
-
-  // Infinite scroll with Intersection Observer
-  React.useEffect(() => {
-    const sentinel = sentinelRef.current
-    const container = containerRef.current
-    if (!sentinel || !container || !hits.length) return
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && !isLastPage) {
-            showMore()
-          }
-        })
-      },
-      {
-        root: container,
-        rootMargin: '200px',
-      },
-    )
-
-    observer.observe(sentinel)
-    return () => observer.disconnect()
-  }, [hits, isLastPage, showMore])
-
-  if (!results.query) {
-    return (
-      <div className="p-6 text-gray-500 dark:text-gray-400">
-        <p className="text-lg font-medium text-center">Search TanStack</p>
-        <p className="mt-2 text-sm text-center">
-          Start typing to search, or select a library or framework below.
-        </p>
-        <div className="mt-6 flex gap-8 justify-center">
-          {!selectedLibrary && (
-            <div className="flex flex-col gap-2">
-              <p className="text-xs font-medium uppercase tracking-wide opacity-60">
-                Libraries
-              </p>
-              <div className="flex flex-wrap gap-1.5 max-w-xs">
-                {libraryItems.map((item) => {
-                  const lib = libraries.find((l) => l.id === item.value)
-                  if (!lib) {
-                    return null
-                  }
-
-                  return (
-                    <button
-                      key={lib.id}
-                      onClick={() => {
-                        setSelectedLibrary(lib.id)
-                      }}
-                      className={twMerge(
-                        'px-2 py-1 text-xs font-black uppercase rounded transition-opacity hover:opacity-80',
-                        lib.badgeTextStyle ?? 'text-white',
-                        lib.bgStyle,
-                      )}
-                    >
-                      {lib.id}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-          )}
-          {!selectedFramework && frameworkItems.length > 0 && (
-            <div className="flex flex-col gap-2">
-              <p className="text-xs font-medium uppercase tracking-wide opacity-60">
-                Frameworks
-              </p>
-              <div className="flex flex-wrap gap-1.5 max-w-xs">
-                {frameworkItems.map((item) => {
-                  const fw = frameworkOptions.find(
-                    (f) => f.value === item.value,
-                  )
-                  if (!fw) return null
-                  return (
-                    <button
-                      key={fw.value}
-                      onClick={() => {
-                        setSelectedFramework(fw.value)
-                        persistFramework(fw.value)
-                      }}
-                      className="flex items-center gap-1.5 px-2 py-1 text-xs font-bold rounded bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                    >
-                      <img
-                        src={fw.logo}
-                        alt={fw.label}
-                        className="w-3.5 h-3.5"
-                      />
-                      {fw.label}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div
-      ref={containerRef}
-      className="max-h-[80dvh] overflow-y-auto"
-      role="listbox"
-      aria-label="Search results"
-    >
-      <NoResults
-        refinedFramework={refinedFramework}
-        refinedLibrary={refinedLibrary}
-        clearFramework={clearFramework}
-        clearLibrary={clearLibrary}
-      />
-      {hits.map((hit, index) => (
-        <Hit
-          key={hit.objectID}
-          hit={hit as AlgoliaHit}
-          isFocused={index === focusedIndex}
-          refinedLibrary={refinedLibrary}
-          refinedFramework={refinedFramework}
-        />
-      ))}
-      <div ref={sentinelRef} className="h-4" aria-hidden="true" />
-    </div>
   )
 }

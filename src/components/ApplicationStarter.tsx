@@ -12,8 +12,13 @@ import {
 import { twMerge } from 'tailwind-merge'
 import anthropicDarkLogo from '~/images/anthropic-dark.svg'
 import anthropicLightLogo from '~/images/anthropic-light.svg'
+import cloudflareBlackLogo from '~/images/cloudflare-black.svg'
+import cloudflareWhiteLogo from '~/images/cloudflare-white.svg'
+import netlifyDarkLogo from '~/images/netlify-dark.svg'
+import netlifyLightLogo from '~/images/netlify-light.svg'
 import openaiDarkLogo from '~/images/openai-dark.svg'
 import openaiLightLogo from '~/images/openai-light.svg'
+import railwayBlackLogo from '~/images/railway-black.svg'
 import type {
   ApplicationStarterContext,
   ApplicationStarterResult,
@@ -37,6 +42,11 @@ import {
   type StarterTone,
 } from '~/components/application-builder/shared'
 import { useApplicationBuilder } from '~/components/application-builder/useApplicationBuilder'
+import {
+  deploymentProviderIds,
+  type DeploymentProviderId,
+  useDeploymentProviderPlacement,
+} from '~/utils/useDeploymentProviderPlacement'
 import { Button, GitHub } from '~/ui'
 
 export interface ApplicationStarterProps {
@@ -165,6 +175,10 @@ export function ApplicationStarter({
     onResolvedResult,
     suggestionContext,
   })
+  const orderedDeploymentProviders = useDeploymentProviderPlacement({
+    availableProviders: deploymentProviderIds,
+    surface: `application_starter_deploy_actions:${context}`,
+  })
 
   const palette = toneClasses[tone]
   const compact = mode === 'compact'
@@ -201,6 +215,110 @@ export function ApplicationStarter({
     hasInput &&
     !hasMigrationRepositoryUrlError &&
     !isGenerating
+  const renderDeploymentProviderButton = (provider: DeploymentProviderId) => {
+    switch (provider) {
+      case 'cloudflare':
+        return (
+          <Button
+            key={provider}
+            size="md"
+            type="button"
+            onClick={() => {
+              void openDeployDialog('cloudflare')
+            }}
+            disabled={!canUseFinalActions}
+            aria-label="Cloudflare"
+            className="h-[60px] min-w-[196px] border-[#F48120]/50 bg-white px-5 text-gray-950 shadow-sm hover:bg-[#fff7ef] disabled:opacity-80 disabled:saturate-75 dark:border-[#F48120]/70 dark:bg-gray-950 dark:text-white dark:hover:bg-[#2a1808]"
+          >
+            <span className="relative h-7 w-[164px] shrink-0">
+              <img
+                src={cloudflareBlackLogo}
+                alt=""
+                aria-hidden="true"
+                className="h-full w-full object-contain dark:hidden"
+              />
+              <img
+                src={cloudflareWhiteLogo}
+                alt=""
+                aria-hidden="true"
+                className="hidden h-full w-full object-contain dark:block"
+              />
+            </span>
+          </Button>
+        )
+      case 'netlify':
+        return (
+          <Button
+            key={provider}
+            size="md"
+            type="button"
+            onClick={() => void openNetlifyStart()}
+            disabled={!canUseFinalActions}
+            aria-label="Netlify"
+            className="h-11 min-w-[136px] border-gray-200 bg-white px-4 text-gray-700 shadow-sm hover:bg-gray-50 disabled:opacity-65 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800"
+          >
+            {isGeneratingNetlify ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <span className="relative h-8 w-[78px] shrink-0">
+                <img
+                  src={netlifyLightLogo}
+                  alt=""
+                  aria-hidden="true"
+                  className="h-full w-full object-contain dark:hidden"
+                />
+                <img
+                  src={netlifyDarkLogo}
+                  alt=""
+                  aria-hidden="true"
+                  className="hidden h-full w-full object-contain dark:block"
+                />
+              </span>
+            )}
+          </Button>
+        )
+      case 'railway':
+        return (
+          <Button
+            key={provider}
+            size="md"
+            type="button"
+            onClick={() => {
+              void openDeployDialog('railway')
+            }}
+            disabled={!canUseFinalActions}
+            aria-label="Railway"
+            className="h-[60px] min-w-[174px] border-gray-200 bg-white px-5 text-gray-950 shadow-sm hover:bg-gray-50 disabled:opacity-80 disabled:saturate-75 dark:border-gray-700 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-100"
+          >
+            <span className="relative h-7 w-[132px] shrink-0">
+              <img
+                src={railwayBlackLogo}
+                alt=""
+                aria-hidden="true"
+                className="h-full w-full object-contain"
+              />
+            </span>
+          </Button>
+        )
+    }
+  }
+  const renderGeneratePromptButton = () => (
+    <Button
+      color={buttonColor}
+      variant={hasGeneratedPrompt ? 'secondary' : 'primary'}
+      size="sm"
+      type="button"
+      onClick={() => void generatePrompt()}
+      disabled={!canUseFinalActions}
+    >
+      {isGeneratingPrompt ? (
+        <Loader2 className="h-4 w-4 animate-spin" />
+      ) : (
+        <Wand2 className="h-4 w-4" />
+      )}
+      {isGeneratingPrompt ? loadingPhrase : primaryActionLabel}
+    </Button>
+  )
   const showPostAnalysisSection =
     alwaysShowPostAnalysisSection || hasFreshAnalysis || hasGeneratedPrompt
   const showActionSection =
@@ -769,81 +887,33 @@ export function ApplicationStarter({
                         )}
                       >
                         <div className="flex flex-wrap items-center gap-3">
-                          <Button
-                            color={buttonColor}
-                            variant={
-                              hasGeneratedPrompt ? 'secondary' : 'primary'
-                            }
-                            size="sm"
-                            type="button"
-                            onClick={() => void generatePrompt()}
-                            disabled={!canUseFinalActions}
-                          >
-                            {isGeneratingPrompt ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <Wand2 className="h-4 w-4" />
-                            )}
-                            {isGeneratingPrompt
-                              ? loadingPhrase
-                              : primaryActionLabel}
-                          </Button>
-
                           {showCliExportActions ? (
-                            <>
-                              <Button
-                                size="sm"
-                                type="button"
-                                onClick={() => {
-                                  void openDeployDialog('cloudflare')
-                                }}
-                                disabled={!canUseFinalActions}
-                                className="border-[#F48120] bg-[#F48120] text-white hover:bg-[#E67210]"
+                            <div className="flex flex-col gap-1.5">
+                              <div className="px-1 text-[10px] font-medium uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">
+                                Deploy to
+                              </div>
+                              <div
+                                aria-label="Deploy to"
+                                className="flex flex-wrap items-center gap-2"
+                                role="group"
                               >
-                                <Rocket className="h-4 w-4" />
-                                Deploy to Cloudflare
-                              </Button>
-
-                              <Button
-                                size="sm"
-                                type="button"
-                                onClick={() => void openNetlifyStart()}
-                                disabled={!canUseFinalActions}
-                                className="border-[#00AD9F] bg-[#00AD9F] text-white hover:bg-[#009a8e]"
-                              >
-                                {isGeneratingNetlify ? (
-                                  <Loader2 className="h-4 w-4 animate-spin" />
-                                ) : (
-                                  <Rocket className="h-4 w-4" />
+                                {orderedDeploymentProviders.map((provider) =>
+                                  renderDeploymentProviderButton(provider),
                                 )}
-                                {secondaryActionLabel}
-                              </Button>
-
-                              <Button
-                                size="sm"
-                                type="button"
-                                onClick={() => {
-                                  void openDeployDialog('railway')
-                                }}
-                                disabled={!canUseFinalActions}
-                                className="border-[#7C66FF] bg-[#7C66FF] text-white hover:bg-[#6A54F0]"
-                              >
-                                <Rocket className="h-4 w-4" />
-                                Deploy to Railway
-                              </Button>
+                              </div>
 
                               {!showMoreActions ? (
                                 <Button
-                                  variant="secondary"
-                                  size="sm"
+                                  variant="ghost"
+                                  size="xs"
                                   type="button"
                                   onClick={() => setShowMoreActions(true)}
+                                  className="h-auto self-start border-transparent bg-transparent px-1 py-0 text-[11px] font-medium text-gray-500 hover:bg-transparent hover:text-gray-700 dark:text-gray-500 dark:hover:bg-transparent dark:hover:text-gray-300"
                                 >
-                                  <ChevronDown className="h-4 w-4" />
                                   Show More
                                 </Button>
                               ) : null}
-                            </>
+                            </div>
                           ) : (
                             <>
                               <Button
@@ -992,6 +1062,10 @@ export function ApplicationStarter({
                             </Button>
                           </div>
                         ) : null}
+
+                        <div className="flex flex-wrap items-center gap-3">
+                          {renderGeneratePromptButton()}
+                        </div>
                       </div>
                     </div>
                   </CollapsibleContent>

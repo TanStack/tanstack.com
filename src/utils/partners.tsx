@@ -39,6 +39,10 @@ import railwayBlackSvg from '~/images/railway-black.svg'
 import railwayWhiteSvg from '~/images/railway-white.svg'
 import openrouterBlackSvg from '~/images/openrouter-black.svg'
 import openrouterWhiteSvg from '~/images/openrouter-white.svg'
+import {
+  getPartnerPlacementContext,
+  getPartnersForPlacement,
+} from '~/utils/partner-placement'
 
 function LearnMoreButton() {
   return (
@@ -982,7 +986,7 @@ const strapi = (() => {
     name: 'Strapi',
     id: 'strapi',
     libraries: ['start', 'router'] as const,
-    status: 'active' as const,
+    status: 'inactive' as const,
     score: 0.069,
     tier: 'bronze' as const,
     href,
@@ -1018,7 +1022,7 @@ const powerSync = (() => {
     name: 'PowerSync',
     id: 'powersync',
     libraries: ['db', 'query'] as const,
-    status: 'active' as const,
+    status: 'inactive' as const,
     startDate: 'Jan 2026',
     score: 0.143,
     tier: 'bronze' as const,
@@ -1061,7 +1065,7 @@ const railway = (() => {
     libraries: libraries.map((l) => l.id),
     status: 'active' as const,
     score: 0.145,
-    tier: 'bronze' as const,
+    tier: 'gold' as const,
     href,
     brandColor: '#0B0D0E',
     tagline: 'Instant Deployment',
@@ -1167,6 +1171,11 @@ const applicationStarterBrandColorOverrides = new Map<string, string>([
   ['sentry', '#7C6BFF'],
   ['unkey', '#7C3AED'],
 ])
+
+const applicationStarterPlacementContext = getPartnerPlacementContext({
+  orderStrategy: 'contextual-recommendation',
+  surface: 'application_starter_suggestions',
+})
 
 const applicationStarterInferenceRules: Array<{
   partnerId: string
@@ -1348,8 +1357,10 @@ export function getInferredApplicationStarterPartnerIdsFromUserInput(
 }
 
 const applicationStarterPartnerSuggestions: Array<ApplicationStarterPartnerSuggestion> =
-  [...partners]
-    .filter((partner) => partner.status === 'active')
+  getPartnersForPlacement(
+    partners.filter((partner) => partner.status === 'active'),
+    applicationStarterPlacementContext,
+  )
     .map((partner) => {
       const tier = getApplicationStarterPartnerTier(partner)
       const normalizedPartnerKey = normalizeApplicationStarterPartnerKey(
@@ -1379,13 +1390,6 @@ const applicationStarterPartnerSuggestions: Array<ApplicationStarterPartnerSugge
         tier,
         score: partner.score,
       }
-    })
-    .sort((left, right) => {
-      if (left.tier !== right.tier) {
-        return left.tier - right.tier
-      }
-
-      return right.score - left.score
     })
     .map(({ score: _score, ...partner }) => partner)
 

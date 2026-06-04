@@ -5,9 +5,15 @@ import {
   PartnerImage,
   partnerTierFlares,
   partnerTierLabels,
-  partnerTierOrder,
+  type Partner,
   type PartnerTier,
 } from '~/utils/partners'
+import {
+  getPartnerPlacementAnalyticsMetadata,
+  getPartnerTierGroupsForPlacement,
+  type PartnerPlacementContext,
+} from '~/utils/partner-placement'
+import { usePartnerPlacementContext } from '~/utils/usePartnerPlacementContext'
 import {
   trackEvent,
   useTrackedImpression,
@@ -15,6 +21,7 @@ import {
 } from '~/utils/analytics'
 
 type RailPartner = {
+  category: Partner['category']
   id: string
   name: string
   href: string
@@ -102,17 +109,15 @@ export function PartnersRail({
   title?: string
   titleTo?: '/partners'
 }) {
-  const tiers: Array<PartnerTier> = ['gold', 'silver', 'bronze']
+  const placementContext = usePartnerPlacementContext({
+    orderStrategy: 'tier-rotated',
+    surface: analyticsPlacement,
+  })
 
-  const rowsByTier = tiers
-    .map((tier) => ({
-      tier,
-      partners: partners
-        .filter((partner) => (partner.tier ?? 'bronze') === tier)
-        .sort((a, b) => b.score - a.score),
-    }))
-    .filter((row) => row.partners.length > 0)
-    .sort((a, b) => partnerTierOrder[a.tier] - partnerTierOrder[b.tier])
+  const rowsByTier = getPartnerTierGroupsForPlacement(
+    partners,
+    placementContext,
+  )
 
   let slotIndex = 0
 
@@ -164,6 +169,7 @@ export function PartnersRail({
                   key={partner.id}
                   analyticsPlacement={analyticsPlacement}
                   index={index}
+                  placementContext={placementContext}
                   partner={partner}
                 />
               )
@@ -178,18 +184,25 @@ export function PartnersRail({
 function PartnersRailItem({
   analyticsPlacement,
   index,
+  placementContext,
   partner,
 }: {
   analyticsPlacement: PartnerPlacement
   index: number
+  placementContext: PartnerPlacementContext
   partner: RailPartner
 }) {
   const layout = railTierLayout[partner.tier ?? 'bronze']
+  const analyticsMetadata = getPartnerPlacementAnalyticsMetadata(
+    partner,
+    placementContext,
+  )
   const ref = useTrackedImpression<'partner_viewed', HTMLAnchorElement>({
     event: 'partner_viewed',
     props: {
       partner_id: partner.id,
       placement: analyticsPlacement,
+      ...analyticsMetadata,
       slot_index: index,
     },
   })
@@ -218,6 +231,7 @@ function PartnersRailItem({
           placement: analyticsPlacement,
           destination: 'external',
           destination_host: destinationHost,
+          ...analyticsMetadata,
           slot_index: index,
         })
       }}

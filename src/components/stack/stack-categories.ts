@@ -46,9 +46,9 @@ export const categoryMeta: Record<CategorySlug, CategoryMeta> = {
     groupId: 'framework',
     name: librariesGroupNamesMap.framework,
     shortName: 'Framework',
-    headline: 'The TanStack framework layer',
+    headline: 'Start-first app architecture with Router at the core',
     intro:
-      'Type-safe routing and a full-stack framework built on top of it. Start small with Router, or go end-to-end with Start.',
+      'A full-stack application framework powered by the same type-safe route model you can use on its own.',
     topPickId: 'start',
     accent: {
       from: 'from-teal-500',
@@ -61,9 +61,9 @@ export const categoryMeta: Record<CategorySlug, CategoryMeta> = {
     groupId: 'state',
     name: librariesGroupNamesMap.state,
     shortName: 'Data & State',
-    headline: 'Data and state — without the ceremony',
+    headline: 'Async data, live collections, local state, and AI',
     intro:
-      'Server state, async data, reactive stores, and an AI-aware layer on top. The libraries you reach for when an app needs to remember things, fetch things, and stay coherent across the screen.',
+      'Four state layers for apps that fetch from APIs, sync collections, react locally, and talk to models.',
     topPickId: 'query',
     accent: {
       from: 'from-cyan-500',
@@ -76,9 +76,9 @@ export const categoryMeta: Record<CategorySlug, CategoryMeta> = {
     groupId: 'headlessUI',
     name: librariesGroupNamesMap.headlessUI,
     shortName: 'UI & UX',
-    headline: 'Headless primitives for the surfaces users touch',
+    headline: 'Headless primitives for user-facing interaction',
     intro:
-      'Tables, forms, keyboard shortcuts — owned by you, styled by you, validated by the compiler.',
+      'Tables, forms, and hotkeys that leave markup and styling in your hands while handling hard interaction state.',
     topPickId: 'table',
     accent: {
       from: 'from-blue-500',
@@ -91,9 +91,9 @@ export const categoryMeta: Record<CategorySlug, CategoryMeta> = {
     groupId: 'performance',
     name: librariesGroupNamesMap.performance,
     shortName: 'Performance',
-    headline: 'Keep the long lists buttery, the noisy events tame',
+    headline: 'Render less work and schedule the noisy work',
     intro:
-      'Virtualisation, debouncing, throttling, batching — primitives that compose instead of one-off hooks.',
+      'Virtualization and pacing primitives for large interfaces, event-heavy inputs, queues, and rate limits.',
     topPickId: 'virtual',
     accent: {
       from: 'from-purple-500',
@@ -106,9 +106,9 @@ export const categoryMeta: Record<CategorySlug, CategoryMeta> = {
     groupId: 'tooling',
     name: librariesGroupNamesMap.tooling,
     shortName: 'Tooling',
-    headline: 'Devtools, scaffolds, and packaging defaults',
+    headline: 'Devtools, scaffolds, package defaults, and agent skills',
     intro:
-      'Take the boring decisions off your plate, so the interesting work stays interesting.',
+      'The workbench around TanStack apps and packages: inspect, scaffold, publish, and preserve package guidance.',
     topPickId: 'devtools',
     accent: {
       from: 'from-indigo-500',

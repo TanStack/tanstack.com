@@ -12,6 +12,10 @@ export type MenuItem = {
     label: string | React.ReactNode
     to: string
     badge?: string
+    /** ISO date string marking when the page was added. Drives the "New" sidebar pill. */
+    addedAt?: string
+    /** ISO date string marking when the page was last meaningfully updated. Drives the "Updated" sidebar pill. */
+    updatedAt?: string
   }[]
   collapsible?: boolean
   defaultCollapsed?: boolean
@@ -26,6 +30,8 @@ const configSchema = v.object({
           label: v.string(),
           to: v.string(),
           badge: v.optional(v.string()),
+          addedAt: v.optional(v.string()),
+          updatedAt: v.optional(v.string()),
         }),
       ),
       frameworks: v.optional(
@@ -37,6 +43,8 @@ const configSchema = v.object({
                 label: v.string(),
                 to: v.string(),
                 badge: v.optional(v.string()),
+                addedAt: v.optional(v.string()),
+                updatedAt: v.optional(v.string()),
               }),
             ),
           }),

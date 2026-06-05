@@ -102,12 +102,12 @@ function getNetlifyConfig(): ProviderConfigResult {
  * Railway configuration (uses Nitro)
  */
 function getRailwayConfig(): ProviderConfigResult {
-  // Railway uses Nitro preset, no additional config files needed
+  // Railway uses Nitro for the Node server build, no additional config files needed
   // Just need the nitro dependency
   return {
     files: {},
     devDependencies: {
-      nitro: 'npm:nitro-nightly@latest',
+      nitro: 'latest',
     },
   }
 }

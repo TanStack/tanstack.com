@@ -32,24 +32,24 @@ import { trackEvent } from '~/utils/analytics'
 const RAILWAY_HREF =
   'https://railway.com/new?utm_medium=sponsor&utm_source=tanstack&utm_campaign=partner-page'
 const RAILWAY_DOCS_HREF =
-  'https://docs.railway.com/?utm_medium=sponsor&utm_source=tanstack&utm_campaign=partner-page'
+  'https://docs.railway.com/guides/tanstack-start?utm_medium=sponsor&utm_source=tanstack&utm_campaign=partner-page'
 const RAILWAY_HOME_HREF =
   'https://railway.com/?utm_medium=sponsor&utm_source=tanstack&utm_campaign=partner-page'
 const RAILWAY_PRICING_HREF =
   'https://railway.com/pricing?utm_medium=sponsor&utm_source=tanstack&utm_campaign=partner-page'
 
-const CONFIG_SNIPPET = `import { defineConfig } from '@tanstack/start/config'
+const CONFIG_SNIPPET = `import { defineConfig } from 'vite'
+import { tanstackStart } from '@tanstack/react-start/plugin/vite'
+import { nitro } from 'nitro/vite'
+import viteReact from '@vitejs/plugin-react'
 
 export default defineConfig({
-  server: {
-    preset: 'railway', // one line
-  },
+  plugins: [tanstackStart(), nitro(), viteReact()],
 })
 `
 
-const DEPLOY_SNIPPET = `# Deploy in 3 commands
-git init && git add . && git commit -m "init"
-railway login
+const DEPLOY_SNIPPET = `# From your TanStack Start app directory
+railway init
 railway up
 `
 
@@ -58,8 +58,8 @@ type FeatureIcon = React.ComponentType<{ className?: string }>
 const features: Array<{ Icon: FeatureIcon; title: string; desc: string }> = [
   {
     Icon: Rocket,
-    title: 'Auto-detected config',
-    desc: 'Railway reads your TanStack code and picks the right build and run settings. No YAML to maintain.',
+    title: 'Node service deploys',
+    desc: 'TanStack Start builds a Node server for SSR, server functions, and static assets. Railway deploys it as a standard Node service.',
   },
   {
     Icon: GitPullRequest,
@@ -104,8 +104,9 @@ const steps: Array<{ num: string; title: string; code: string }> = [
     title: 'Create your TanStack app',
     code: 'npx @tanstack/cli@latest create',
   },
-  { num: '02', title: 'Add the Railway preset', code: "preset: 'railway'" },
-  { num: '03', title: 'Deploy', code: 'railway up' },
+  { num: '02', title: 'Install Nitro', code: 'npm install nitro' },
+  { num: '03', title: 'Add Nitro to Vite', code: 'nitro()' },
+  { num: '04', title: 'Deploy', code: 'railway init && railway up' },
 ]
 
 const pricing: Array<{
@@ -207,7 +208,7 @@ const libraries = [
 const libDetails: Array<{ label: string; desc: string }> = [
   {
     label: 'TanStack Start',
-    desc: 'Full SSR and streaming support with the Railway preset. Auto-configured Node runtime, zero extra config.',
+    desc: 'Full SSR, streaming, and server functions run on Railway as a standard Node service built through Nitro.',
   },
   {
     label: 'TanStack Router',
@@ -226,7 +227,7 @@ const libDetails: Array<{ label: string; desc: string }> = [
 const faqs: Array<{ q: string; a: string }> = [
   {
     q: 'Does Railway support TanStack Start SSR and streaming?',
-    a: "Yes — Railway supports server-side rendering and React streaming out of the box. TanStack Start's SSR and streaming modes work without any special configuration when using the Railway preset.",
+    a: 'Yes. TanStack Start builds a Node server for SSR, streaming, server functions, and static assets. Follow the Nitro setup in the Start hosting docs, then deploy that Node service to Railway.',
   },
   {
     q: 'Can I run a database alongside my TanStack app?',
@@ -246,13 +247,13 @@ const faqs: Array<{ q: string; a: string }> = [
   },
   {
     q: 'Can I migrate an existing TanStack app to Railway?',
-    a: 'Yes — if your app runs in Node or Docker, Railway deploys it directly from GitHub with no changes required. Railway V3 is faster and cheaper than previous versions, so now is a great time to switch.',
+    a: 'Yes. If your app already builds to a Node server or has a Dockerfile, Railway can deploy it from GitHub. For TanStack Start, make sure the Nitro Vite setup and Node start script are in place.',
   },
 ]
 
 const PAGE_TITLE = 'Deploy TanStack to Railway — Official Gold Partner'
 const PAGE_DESCRIPTION =
-  'Railway gives TanStack teams a single place to run app services, databases, and supporting infrastructure. One-line Railway preset for TanStack Start, live PR previews, 100 Gbps private networking, and hard spending limits. Pay per second for the compute you actually use.'
+  'Railway gives TanStack teams a single place to run app services, databases, and supporting infrastructure. Nitro-powered TanStack Start deploys, live PR previews, 100 Gbps private networking, and hard spending limits. Pay per second for the compute you actually use.'
 
 function getFaqJsonLd() {
   return {
@@ -469,11 +470,11 @@ function RailwayPartnerPage() {
           className="border-t border-gray-200 py-10 dark:border-gray-800"
         >
           <h2 className="text-2xl font-black tracking-tight md:text-3xl">
-            From zero to deployed in 3 steps
+            From zero to deployed in 4 steps
           </h2>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-gray-600 dark:text-gray-300 md:text-base">
-            Railway has first-class support for TanStack Start. One config line
-            is all it takes.
+            Railway runs TanStack Start as a standard Node service. Add Nitro to
+            your Vite config, then deploy from GitHub or the Railway CLI.
           </p>
 
           <div className="mt-6 flex flex-col gap-3">
@@ -499,7 +500,7 @@ function RailwayPartnerPage() {
             <RailwayCodeExample
               code={CONFIG_SNIPPET}
               lang="ts"
-              title="tanstack.config.ts"
+              title="vite.config.ts"
             />
             <RailwayCodeExample
               code={DEPLOY_SNIPPET}
@@ -517,7 +518,7 @@ function RailwayPartnerPage() {
               onClick={trackRailwayClick}
               className="bg-gray-950 text-white border-gray-950 hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:border-white dark:hover:bg-gray-200"
             >
-              Try the Railway preset
+              Deploy on Railway
               <ArrowUpRight className="h-4 w-4" />
             </Button>
             <Button

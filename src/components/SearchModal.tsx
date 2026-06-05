@@ -2420,6 +2420,7 @@ function isSearchModalPortalTarget(target: EventTarget | null) {
 export function SearchModal() {
   const { isOpen, closeSearch, newChatRequestId } = useSearchContext()
   const contentRef = React.useRef<HTMLDivElement>(null)
+  const bodyPointerEventsRef = React.useRef('')
   const [isFullHeight, setIsFullHeight] = React.useState(() => {
     if (typeof window === 'undefined') return false
     return localStorage.getItem('search-full-height') === 'true'
@@ -2447,6 +2448,38 @@ export function SearchModal() {
     return () => cancelAnimationFrame(frame)
   }, [isOpen])
 
+  React.useEffect(() => {
+    if (typeof document === 'undefined') {
+      return
+    }
+
+    if (isOpen) {
+      document.body.style.pointerEvents = 'none'
+      return
+    }
+
+    const frame = requestAnimationFrame(() => {
+      document.body.style.pointerEvents = bodyPointerEventsRef.current
+    })
+
+    return () => cancelAnimationFrame(frame)
+  }, [isOpen])
+
+  React.useEffect(() => {
+    if (typeof document === 'undefined') {
+      return
+    }
+
+    bodyPointerEventsRef.current =
+      document.body.style.pointerEvents === 'none'
+        ? ''
+        : document.body.style.pointerEvents
+
+    return () => {
+      document.body.style.pointerEvents = bodyPointerEventsRef.current
+    }
+  }, [])
+
   return (
     <DialogPrimitive.Root
       open={isOpen}
@@ -2457,10 +2490,9 @@ export function SearchModal() {
       }}
     >
       <DialogPrimitive.Portal forceMount>
-        <DialogPrimitive.Overlay
-          forceMount
-          className="fixed inset-0 z-[999] bg-black/60 xl:bg-black/30 backdrop-blur-sm data-[state=closed]:hidden"
-        />
+        {isOpen ? (
+          <DialogPrimitive.Overlay className="fixed inset-0 z-[999] bg-black/60 xl:bg-black/30 backdrop-blur-sm" />
+        ) : null}
         <DialogPrimitive.Content
           forceMount
           ref={contentRef}

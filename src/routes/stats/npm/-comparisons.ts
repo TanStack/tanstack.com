@@ -9,6 +9,7 @@ export const packageGroupSchema = v.object({
   ),
   color: v.optional(v.nullable(v.string())),
   baseline: v.optional(v.boolean()),
+  baselineLabel: v.optional(v.string()),
 })
 
 export const packageComparisonSchema = v.object({

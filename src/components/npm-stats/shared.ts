@@ -107,6 +107,20 @@ export function getPackageColor(
   return defaultColors[packageIndex % defaultColors.length]
 }
 
+export function getBaselineDisplayName(packageGroups: PackageGroup[]): string {
+  const baselineNames = packageGroups
+    .filter((packageGroup) => packageGroup.baseline)
+    .flatMap((packageGroup) => {
+      const label = packageGroup.baselineLabel?.trim()
+      if (label) return [label]
+
+      const packageNames = packageGroup.packages.map((pkg) => pkg.name)
+      return packageNames.length ? [packageNames.join(', ')] : []
+    })
+
+  return [...new Set(baselineNames)].join(', ') || 'Baseline'
+}
+
 export const formatNumber = (num: number) => {
   if (num >= 1_000_000) {
     return `${(num / 1_000_000).toFixed(1)}M`

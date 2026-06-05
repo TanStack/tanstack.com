@@ -12,10 +12,10 @@ import type {
   TimeRange,
   TransformMode,
 } from './shared'
-import { getPackageColor } from './shared'
+import { getBaselineDisplayName, getPackageColor } from './shared'
 import { BASELINE_LINE_COLOR } from './BaselineSection'
 
-const BASELINE_LINE_NAME = '__baseline__'
+const BASELINE_LINE_SERIES = '__baseline__'
 
 // Plot figure component
 function PlotFigure({ options }: { options: Parameters<typeof Plot.plot>[0] }) {
@@ -169,6 +169,9 @@ export function NPMStatsChart({
   const baselineGroups = binnedPackageData.filter(
     (_, index) => packages[index]?.baseline,
   )
+  const baselineLineName = getBaselineDisplayName(
+    packages.filter((packageGroup) => packageGroup.baseline),
+  )
   const isMultiBaseline = baselineGroups.length > 1
 
   const baselineDivisorByDate = baselineGroups.length
@@ -243,13 +246,19 @@ export function NPMStatsChart({
     return !isHidden
   })
 
-  const plotData = filteredPackageData.flatMap((d) => d.downloads)
+  const plotData = filteredPackageData.flatMap((d) =>
+    d.downloads.map((download) => ({
+      ...download,
+      seriesName: download.name,
+    })),
+  )
 
   if (showBaseline && baselineDivisorByDate) {
     const baselinePoints = [...baselineDivisorByDate.entries()]
       .sort((a, b) => a[0] - b[0])
       .map(([time, divisor]) => ({
-        name: BASELINE_LINE_NAME,
+        name: baselineLineName,
+        seriesName: BASELINE_LINE_SERIES,
         date: d3.utcDay(new Date(time)),
         // When normalized, baseline / baseline = 1 at every point.
         // When raw, multi-baseline shows the growth-index multiplier (~1.0+);
@@ -271,6 +280,14 @@ export function NPMStatsChart({
     fx: facetX,
     fy: facetY,
   } as const
+  const lineOptions: Plot.LineYOptions = {
+    ...baseOptions,
+    z: 'seriesName',
+  }
+  const getStrokeColor = (d: { name?: string; seriesName?: string }) => {
+    if (d.seriesName === BASELINE_LINE_SERIES) return BASELINE_LINE_COLOR
+    return d.name ? getPackageColor(d.name, packages) : 'currentColor'
+  }
 
   const partialBinEnd = binUnit.floor(now)
   const partialBinStart = binUnit.offset(partialBinEnd, -1)
@@ -305,8 +322,8 @@ export function NPMStatsChart({
                   ? Plot.lineY(
                       plotData.filter((d) => d.date >= partialBinStart),
                       {
-                        ...baseOptions,
-                        stroke: 'name',
+                        ...lineOptions,
+                        stroke: getStrokeColor,
                         strokeWidth: 1.5,
                         strokeDasharray: '2 4',
                         strokeOpacity: 0.8,
@@ -317,8 +334,8 @@ export function NPMStatsChart({
                 Plot.lineY(
                   plotData.filter((d) => d.date < partialBinEnd),
                   {
-                    ...baseOptions,
-                    stroke: 'name',
+                    ...lineOptions,
+                    stroke: getStrokeColor,
                     strokeWidth: 2,
                     curve: 'monotone-x',
                   },
@@ -363,7 +380,7 @@ export function NPMStatsChart({
               range: [...new Set(plotData.map((d) => d.name))]
                 .filter((pkg): pkg is string => pkg !== undefined)
                 .map((pkg) =>
-                  pkg === BASELINE_LINE_NAME
+                  pkg === baselineLineName
                     ? BASELINE_LINE_COLOR
                     : getPackageColor(pkg, packages),
                 ),

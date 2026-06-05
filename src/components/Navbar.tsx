@@ -361,8 +361,9 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                 <>
                   {/* Mobile: Direct link with Card */}
                   <MobileCard isActive={isActive}>
-                    <a
-                      href={`${library.to}/latest`}
+                    <Link
+                      to="/$libraryId/$version"
+                      params={{ libraryId: library.id, version: 'latest' }}
                       className={twMerge(
                         linkClasses,
                         'md:hidden',
@@ -398,11 +399,12 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                           {library.badge}
                         </span>
                       ) : null}
-                    </a>
+                    </Link>
                   </MobileCard>
                   {/* Desktop: Simple link */}
-                  <a
-                    href={`${library.to}/latest`}
+                  <Link
+                    to="/$libraryId/$version"
+                    params={{ libraryId: library.id, version: 'latest' }}
                     className={twMerge(
                       linkClasses,
                       'hidden md:flex',
@@ -436,7 +438,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                         {library.badge}
                       </span>
                     ) : null}
-                  </a>
+                  </Link>
                 </>
               )}
             </div>

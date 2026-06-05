@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { Card } from '~/components/Card'
 import {
@@ -381,9 +381,10 @@ function PartnerDirectoryCard({
   const layout = cardSizeLayout[size]
 
   return (
-    <a
+    <Link
       ref={ref}
-      href={`/partners/${partner.id}`}
+      to="/partners/$partner"
+      params={{ partner: partner.id }}
       className="block"
       onClick={() => {
         trackEvent('partner_clicked', {
@@ -445,7 +446,7 @@ function PartnerDirectoryCard({
           )}
         </div>
       </Card>
-    </a>
+    </Link>
   )
 }
 

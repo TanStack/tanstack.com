@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useRouterState } from '@tanstack/react-router'
+import { Link, useRouterState } from '@tanstack/react-router'
 import {
   ArrowRight,
   BookOpen,
@@ -300,8 +300,8 @@ function DestinationCard({
   const Icon = destination.icon
 
   return (
-    <a
-      href={destination.href}
+    <Link
+      to={destination.href}
       className={twMerge(
         'group grid min-h-28 grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3 rounded-lg border p-4 transition-all hover:-translate-y-0.5 hover:shadow-md',
         accentStyles[destination.accent],
@@ -319,7 +319,7 @@ function DestinationCard({
         </span>
       </span>
       <ArrowRight className="mt-1 h-4 w-4 shrink-0 opacity-50 transition-transform group-hover:translate-x-0.5 group-hover:opacity-100" />
-    </a>
+    </Link>
   )
 }
 
@@ -363,15 +363,15 @@ export function NotFound({ children }: { children?: React.ReactNode }) {
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <Button as="a" href="/libraries" color="emerald">
+            <Button as={Link} to="/libraries" color="emerald">
               <Boxes className="h-4 w-4" />
               Browse libraries
             </Button>
-            <Button as="a" href="/support" variant="ghost">
+            <Button as={Link} to="/support" variant="ghost">
               <LifeBuoy className="h-4 w-4" />
               Support
             </Button>
-            <Button as="a" href="/" variant="ghost">
+            <Button as={Link} to="/" variant="ghost">
               <Home className="h-4 w-4" />
               Home
             </Button>
@@ -408,13 +408,13 @@ export function NotFound({ children }: { children?: React.ReactNode }) {
               </div>
               <div className="grid gap-3 sm:grid-cols-3">
                 {suggestions.slice(0, 3).map((suggestion) => (
-                  <a
+                  <Link
                     key={`map-${suggestion.key}`}
-                    href={suggestion.href}
+                    to={suggestion.href}
                     className="rounded-md border border-gray-200 bg-white/90 px-3 py-2 text-sm font-medium text-gray-700 shadow-sm backdrop-blur transition-colors hover:border-emerald-500/60 hover:text-emerald-700 dark:border-gray-700 dark:bg-black/45 dark:text-gray-300 dark:hover:border-emerald-400/60 dark:hover:text-emerald-300"
                   >
                     {suggestion.label}
-                  </a>
+                  </Link>
                 ))}
               </div>
             </div>

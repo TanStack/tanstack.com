@@ -479,21 +479,6 @@ function getFrameworkDocsLinkTarget(
   }
 }
 
-function getFrameworkDocsHref({
-  libraryId,
-  target,
-  version,
-}: {
-  libraryId: LibraryId
-  target: FrameworkDocsLinkTarget
-  version: string
-}) {
-  const splat =
-    target.kind === 'examples' ? `examples/${target.splat}` : target.splat
-
-  return `/${libraryId}/${version}/docs/framework/${target.framework}/${splat}`
-}
-
 export const useDocNavigation = () => {
   return React.useContext(DocNavigationContext)
 }
@@ -590,18 +575,34 @@ function DocNavigationCard({
     )
 
   if (frameworkDocsTarget) {
+    if (frameworkDocsTarget.kind === 'examples') {
+      return (
+        <Link
+          to="/$libraryId/$version/docs/framework/$framework/examples/$"
+          params={{
+            libraryId,
+            version,
+            framework: frameworkDocsTarget.framework,
+            _splat: frameworkDocsTarget.splat,
+          }}
+        >
+          <Card className={className}>{children}</Card>
+        </Link>
+      )
+    }
+
     return (
-      <Card
-        as="a"
-        href={getFrameworkDocsHref({
+      <Link
+        to="/$libraryId/$version/docs/framework/$framework/$"
+        params={{
           libraryId,
           version,
-          target: frameworkDocsTarget,
-        })}
-        className={className}
+          framework: frameworkDocsTarget.framework,
+          _splat: frameworkDocsTarget.splat,
+        }}
       >
-        {children}
-      </Card>
+        <Card className={className}>{children}</Card>
+      </Link>
     )
   }
 
@@ -873,7 +874,6 @@ export function DocsLayout({
                 ? ({ libraryId, version } as never)
                 : undefined
             const isHomeLink = child.to === '..'
-            const homeHref = `/${libraryId}/${version}`
             const frameworkDocsTarget = getFrameworkDocsLinkTarget(child.to)
 
             const renderLinkContent = (isActive: boolean) => (
@@ -912,8 +912,9 @@ export function DocsLayout({
                     {recencyPill}
                   </a>
                 ) : isHomeLink ? (
-                  <a
-                    href={homeHref}
+                  <Link
+                    to="/$libraryId/$version"
+                    params={{ libraryId, version }}
                     onClick={() => {
                       detailsRef.current.removeAttribute('open')
                     }}
@@ -936,7 +937,7 @@ export function DocsLayout({
                         {child.label}
                       </div>
                     </div>
-                  </a>
+                  </Link>
                 ) : frameworkDocsTarget?.kind === 'examples' ? (
                   <Link
                     to="/$libraryId/$version/docs/framework/$framework/examples/$"

@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/set-state-in-effect -- animation trigger on mount */
-import { createFileRoute } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
 import { ArrowRight, Hand } from 'lucide-react'
 import { Card } from '~/components/Card'
@@ -46,13 +46,13 @@ function Dashboard() {
               There's not much to see here yet. <br /> We're working on it!
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center items-center mt-16">
-              <a
-                href="/account"
+              <Link
+                to="/account"
                 className="inline-block bg-black/80 hover:bg-black text-white dark:text-black dark:bg-white/90 dark:hover:bg-white font-semibold py-2 px-6 rounded-md transition-colors text-center"
               >
                 Account Settings
                 <ArrowRight className="inline-block ml-2" />
-              </a>
+              </Link>
             </div>
           </Card>
         </div>

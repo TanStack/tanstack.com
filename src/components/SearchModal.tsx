@@ -448,11 +448,21 @@ const SafeLink = React.forwardRef(
     }: React.AnchorHTMLAttributes<HTMLAnchorElement>,
     ref: React.Ref<HTMLAnchorElement>,
   ) => {
-    const isInternal = href?.includes('//tanstack.com')
-    const internalUrl = href?.split('//tanstack.com')[1]
-    const [internalPath, internalHash] = internalUrl?.split('#') ?? []
+    const hrefValue = href ?? ''
+    const internalUrl = hrefValue.includes('//tanstack.com')
+      ? hrefValue.split('//tanstack.com')[1]
+      : hrefValue
+    const [internalPath, internalHash] = internalUrl.split('#')
+    const isInternal =
+      hrefValue.includes('//tanstack.com') || hrefValue.startsWith('/')
+    const isRoutableInternal =
+      internalPath.startsWith('/') &&
+      !internalPath.startsWith('//') &&
+      internalPath !== '/api' &&
+      !internalPath.startsWith('/api/') &&
+      !/\.[a-z0-9]+$/i.test(internalPath)
 
-    if (!isInternal) {
+    if (!isInternal || !isRoutableInternal) {
       return (
         <a
           href={href}

@@ -1,5 +1,6 @@
 import fs from 'node:fs'
 import fsp from 'node:fs/promises'
+import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import * as graymatter from 'gray-matter'
@@ -139,22 +140,66 @@ function isValidFilepath(filepath: string): boolean {
   )
 }
 
+function readGitFilePath(filepath: string) {
+  try {
+    return fs.readFileSync(filepath, 'utf8').trim()
+  } catch {
+    return undefined
+  }
+}
+
+function getGitCommonDir(repoRoot: string) {
+  const gitPath = path.join(repoRoot, '.git')
+
+  if (fs.existsSync(gitPath) && fs.statSync(gitPath).isDirectory()) {
+    return gitPath
+  }
+
+  const gitFile = readGitFilePath(gitPath)
+  const gitDirValue = gitFile?.match(/^gitdir:\s*(.+)$/)?.[1]
+  if (!gitDirValue) {
+    return undefined
+  }
+
+  const gitDir = path.isAbsolute(gitDirValue)
+    ? gitDirValue
+    : path.resolve(repoRoot, gitDirValue)
+
+  const commonDirValue = readGitFilePath(path.join(gitDir, 'commondir'))
+  if (!commonDirValue) {
+    return gitDir
+  }
+
+  return path.isAbsolute(commonDirValue)
+    ? commonDirValue
+    : path.resolve(gitDir, commonDirValue)
+}
+
 function getLocalRepoBaseDirs(repo: string) {
+  const configuredReposDir = env.TANSTACK_LOCAL_REPOS_DIR
+    ? path.resolve(env.TANSTACK_LOCAL_REPOS_DIR, repo)
+    : undefined
+
+  const homeGitHubRepoDir = path.resolve(os.homedir(), 'GitHub', repo)
+  const gitCommonDir = getGitCommonDir(process.cwd())
+  const gitSiblingRepoDir = gitCommonDir
+    ? path.resolve(path.dirname(path.dirname(gitCommonDir)), repo)
+    : undefined
+
   const siblingRepoDir = path.resolve(
     path.dirname(fileURLToPath(import.meta.url)),
     '../../..',
     repo,
   )
 
-  const configuredReposDir = env.TANSTACK_LOCAL_REPOS_DIR
-    ? path.resolve(env.TANSTACK_LOCAL_REPOS_DIR, repo)
-    : undefined
-
   return Array.from(
     new Set(
-      [siblingRepoDir, configuredReposDir].filter(
-        (dir): dir is string => dir !== undefined,
-      ),
+      [
+        configuredReposDir,
+        gitSiblingRepoDir,
+        homeGitHubRepoDir,
+        siblingRepoDir,
+      ].filter((dir): dir is string => dir !== undefined),
     ),
   )
 }

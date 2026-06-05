@@ -4,7 +4,6 @@ import {
   ArrowRight,
   BookOpen,
   CheckCircle2,
-  Copy,
   ExternalLink,
   GitBranch,
   Layers,
@@ -29,6 +28,8 @@ import {
   resolveApplicationStarterDeterministically,
 } from '~/utils/application-starter'
 
+import { LandingEcosystemProof } from '~/components/landing/LandingEcosystemProof'
+import { LandingCopyPromptButton } from '~/components/landing/LandingCopyPromptButton'
 const library = getLibrary('start')
 const startBlankStarterInput = getStartBlankStarterInput()
 
@@ -166,8 +167,13 @@ export default function StartLanding() {
               className="mt-5"
               label="weekly downloads"
               period="weekly"
-              showSparkline
+              showTotals
             />
+
+            <p className="mt-4 max-w-xl border-l-2 border-cyan-500 pl-3 text-sm font-black text-cyan-800 dark:text-cyan-200">
+              The fastest-growing full-stack framework in the JavaScript
+              ecosystem.
+            </p>
 
             <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <StartLink
@@ -176,7 +182,10 @@ export default function StartLanding() {
                 label="Read the docs"
                 icon={<BookOpen size={16} aria-hidden="true" />}
               />
-              <CopyStartAgentPromptButton />
+              <LandingCopyPromptButton
+                getPrompt={getStartAgentPrompt}
+                label="Copy Start Prompt"
+              />
             </div>
 
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
@@ -193,6 +202,7 @@ export default function StartLanding() {
                 value="Cloudflare, Railway, Netlify ready"
               />
             </div>
+            <LandingEcosystemProof />
           </div>
 
           <div className="w-full min-w-0 max-w-full overflow-hidden">
@@ -504,58 +514,6 @@ function FieldNoteCard({
   )
 }
 
-function CopyStartAgentPromptButton() {
-  const [status, setStatus] = React.useState<
-    'idle' | 'copying' | 'copied' | 'error'
-  >('idle')
-
-  React.useEffect(() => {
-    if (status !== 'copied' && status !== 'error') {
-      return
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setStatus('idle')
-    }, 1800)
-
-    return () => {
-      window.clearTimeout(timeoutId)
-    }
-  }, [status])
-
-  return (
-    <button
-      type="button"
-      className="inline-flex w-full max-w-full items-center justify-center gap-2 rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm font-bold text-zinc-900 transition-colors hover:border-zinc-400 disabled:cursor-wait disabled:opacity-75 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:border-zinc-500 sm:w-auto"
-      disabled={status === 'copying'}
-      onClick={async () => {
-        setStatus('copying')
-
-        try {
-          const prompt = await getStartAgentPrompt()
-          await copyTextToClipboard(prompt)
-          setStatus('copied')
-        } catch {
-          setStatus('error')
-        }
-      }}
-    >
-      {status === 'copied' ? (
-        <CheckCircle2 size={16} aria-hidden="true" />
-      ) : (
-        <Copy size={16} aria-hidden="true" />
-      )}
-      {status === 'copied'
-        ? 'Copied'
-        : status === 'copying'
-          ? 'Copying...'
-          : status === 'error'
-            ? 'Copy failed'
-            : 'Copy Agent Prompt'}
-    </button>
-  )
-}
-
 function StartLink({
   icon,
   label,
@@ -609,38 +567,4 @@ async function getStartAgentPrompt() {
 
   cachedStartAgentPrompt = result.prompt
   return cachedStartAgentPrompt
-}
-
-async function copyTextToClipboard(value: string) {
-  if (typeof navigator !== 'undefined' && navigator.clipboard) {
-    await navigator.clipboard.writeText(value)
-    return
-  }
-
-  if (typeof document === 'undefined') {
-    throw new Error('Clipboard unavailable')
-  }
-
-  const textarea = document.createElement('textarea')
-  textarea.value = value
-  textarea.setAttribute('readonly', '')
-  textarea.style.position = 'fixed'
-  textarea.style.left = '-9999px'
-  textarea.style.top = '0'
-
-  document.body.appendChild(textarea)
-  textarea.focus()
-  textarea.select()
-
-  let didCopy = false
-
-  try {
-    didCopy = document.execCommand('copy')
-  } finally {
-    document.body.removeChild(textarea)
-  }
-
-  if (!didCopy) {
-    throw new Error('Clipboard unavailable')
-  }
 }

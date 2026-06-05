@@ -2,7 +2,7 @@ import * as React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { twMerge } from 'tailwind-merge'
 import type { LibrarySlim } from '~/libraries'
-import { recentDownloadsQuery } from '~/queries/stats'
+import { ossStatsQuery, recentDownloadsQuery } from '~/queries/stats'
 import type { RecentDownloadStats } from '~/utils/stats.types'
 
 type DownloadPeriod = 'daily' | 'monthly' | 'weekly'
@@ -14,17 +14,13 @@ type LibraryDownloadsMicroProps = {
   labelClassName?: string
   library: LibrarySlim
   period?: DownloadPeriod
-  showSparkline?: boolean
+  showTotals?: boolean
   valueClassName?: string
 }
 
 const weekInMs = 7 * 24 * 60 * 60 * 1000
-const sparklineSize = {
-  height: 36,
-  width: 244,
-}
-const sparklineBadgeClassName =
-  'relative inline-flex min-h-12 w-64 max-w-full items-center justify-center gap-1.5 overflow-hidden rounded-md px-3 py-2 text-sm font-bold text-zinc-600 dark:text-zinc-400'
+const statsRowClassName =
+  'grid w-64 max-w-full grid-cols-[minmax(11ch,max-content)_auto] items-baseline gap-1.5 text-sm font-bold text-zinc-600 dark:text-zinc-400'
 
 function hasDownloads(value: number | undefined | null): value is number {
   return (
@@ -126,122 +122,37 @@ function getWeeklyTrendDescription(stats: RecentDownloadStats | undefined) {
   return `up ${weeklyIncrease.toLocaleString()} from the previous week`
 }
 
-function getSparklinePath({
-  height,
-  points,
-  width,
-}: {
-  height: number
-  points: Array<number>
-  width: number
-}) {
-  const max = Math.max(...points)
-  const min = Math.min(...points)
-  const range = max - min
+function formatStatsLabel(label: string) {
+  return label
+    .split(' ')
+    .map((word) => {
+      if (word.toLowerCase() === 'github') {
+        return 'GitHub'
+      }
 
-  if (!points.length || max <= 0) {
-    return undefined
-  }
+      if (word.toLowerCase() === 'npm') {
+        return 'NPM'
+      }
 
-  return points
-    .map((value, index) => {
-      const x =
-        points.length === 1 ? width : (index / (points.length - 1)) * width
-      const normalized = range === 0 ? 0.5 : (value - min) / range
-      const y = height - normalized * height
-      return `${index === 0 ? 'M' : 'L'}${x.toFixed(2)},${y.toFixed(2)}`
+      return word.charAt(0).toUpperCase() + word.slice(1)
     })
     .join(' ')
 }
 
-function getSparklineAreaPath({
-  height,
-  linePath,
-  width,
-}: {
-  height: number
-  linePath: string
-  width: number
-}) {
-  return `${linePath} L${width.toFixed(2)},${height.toFixed(2)} L0,${height.toFixed(2)} Z`
-}
+function formatAbbreviatedNumber(value: number) {
+  const units = [
+    { label: 'Billion', value: 1_000_000_000 },
+    { label: 'Million', value: 1_000_000 },
+    { label: 'Thousand', value: 1_000 },
+  ]
 
-function DownloadSparkline({
-  stats,
-}: {
-  stats: RecentDownloadStats | undefined
-}) {
-  const gradientId = React.useId().replaceAll(':', '')
-  const paths = React.useMemo(() => {
-    const points = stats?.sparklineDownloads.map((point) => point.downloads)
+  const unit = units.find((candidate) => Math.abs(value) >= candidate.value)
 
-    if (!points || points.filter((point) => point > 0).length < 2) {
-      return undefined
-    }
-
-    const linePath = getSparklinePath({
-      points,
-      width: sparklineSize.width,
-      height: sparklineSize.height,
-    })
-
-    if (!linePath) {
-      return undefined
-    }
-
-    return {
-      areaPath: getSparklineAreaPath({
-        linePath,
-        width: sparklineSize.width,
-        height: sparklineSize.height,
-      }),
-      linePath,
-    }
-  }, [stats])
-
-  if (!paths) {
-    return null
+  if (!unit) {
+    return value.toLocaleString()
   }
 
-  return (
-    <svg
-      aria-hidden="true"
-      className="pointer-events-none absolute inset-1.5 h-[calc(100%-0.75rem)] w-[calc(100%-0.75rem)] overflow-visible"
-      focusable="false"
-      preserveAspectRatio="none"
-      viewBox={`0 0 ${sparklineSize.width} ${sparklineSize.height}`}
-    >
-      <defs>
-        <linearGradient
-          id={gradientId}
-          x1="0"
-          x2="0"
-          y1="0"
-          y2={sparklineSize.height}
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop className="[stop-color:#0891b2] [stop-opacity:0.14] dark:[stop-color:#67e8f9] dark:[stop-opacity:0.16]" />
-          <stop
-            className="[stop-color:#0891b2] [stop-opacity:0.05] dark:[stop-color:#67e8f9] dark:[stop-opacity:0.06]"
-            offset="65%"
-          />
-          <stop
-            className="[stop-color:#0891b2] [stop-opacity:0] dark:[stop-color:#67e8f9] dark:[stop-opacity:0]"
-            offset="100%"
-          />
-        </linearGradient>
-      </defs>
-      <path d={paths.areaPath} fill={`url(#${gradientId})`} stroke="none" />
-      <path
-        d={paths.linePath}
-        className="stroke-cyan-600 dark:stroke-cyan-300"
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="3"
-      />
-    </svg>
-  )
+  return `${(value / unit.value).toFixed(1)} ${unit.label}`
 }
 
 export function LibraryDownloadsMicro({
@@ -251,10 +162,14 @@ export function LibraryDownloadsMicro({
   labelClassName,
   library,
   period = 'monthly',
-  showSparkline = false,
+  showTotals = false,
   valueClassName,
 }: LibraryDownloadsMicroProps) {
   const { data: stats } = useQuery(recentDownloadsQuery({ library }))
+  const { data: ossStats } = useQuery({
+    ...ossStatsQuery({ library }),
+    enabled: showTotals,
+  })
   const totalDownloads = getRecentDownloadTotal(stats, period)
   const displayedDownloads = useAnimatedDownloadTotal({
     animateIncreaseTrend,
@@ -267,53 +182,26 @@ export function LibraryDownloadsMicro({
     animateIncreaseTrend && period === 'weekly'
       ? getWeeklyTrendDescription(stats)
       : undefined
+  const totalDownloadCount = ossStats?.npm?.totalDownloads
+  const starCount = ossStats?.github?.starCount
+  const formattedLabel = formatStatsLabel(label)
 
-  if (!hasNpmDownloads) {
-    if (showSparkline) {
-      return (
-        <span
-          aria-hidden="true"
-          className={twMerge(sparklineBadgeClassName, 'invisible', className)}
-        >
-          <span
-            className="relative z-10 min-w-[11ch] text-right text-zinc-950 dark:text-white"
-            style={{ fontVariantNumeric: 'tabular-nums' }}
-          >
-            000,000,000
-          </span>
-          <span
-            className={twMerge(
-              'relative z-10 whitespace-nowrap',
-              labelClassName,
-            )}
-          >
-            {label}
-          </span>
-        </span>
-      )
-    }
-
-    return null
-  }
-
-  return (
+  const micro = hasNpmDownloads ? (
     <span
       className={twMerge(
-        showSparkline
-          ? sparklineBadgeClassName
+        showTotals
+          ? statsRowClassName
           : 'inline-flex items-center gap-1.5 text-sm font-bold text-zinc-600 dark:text-zinc-400',
-        className,
       )}
       aria-label={`${displayedDownloads.toLocaleString()} ${label}${
         weeklyTrendDescription ? `, ${weeklyTrendDescription}` : ''
       }`}
       title={weeklyTrendDescription}
     >
-      {showSparkline ? <DownloadSparkline stats={stats} /> : null}
       <span
         className={twMerge(
-          showSparkline
-            ? 'relative z-10 min-w-[11ch] text-right text-zinc-950 dark:text-white'
+          showTotals
+            ? 'text-left text-zinc-950 dark:text-white'
             : 'relative z-10 text-zinc-950 dark:text-white',
           valueClassName,
         )}
@@ -323,11 +211,81 @@ export function LibraryDownloadsMicro({
       </span>
       <span
         className={twMerge(
-          showSparkline ? 'relative z-10 whitespace-nowrap' : 'relative z-10',
+          showTotals ? 'whitespace-nowrap' : 'relative z-10',
           labelClassName,
         )}
       >
-        {label}
+        {formattedLabel}
+      </span>
+    </span>
+  ) : null
+
+  if (!showTotals) {
+    if (!micro) {
+      return null
+    }
+
+    return (
+      <span
+        className={twMerge(
+          showTotals ? 'inline-flex flex-col items-start gap-1.5' : undefined,
+          className,
+        )}
+      >
+        {micro}
+      </span>
+    )
+  }
+
+  const hasTotalDownloadCount = hasDownloads(totalDownloadCount)
+  const hasStarCount = hasDownloads(starCount)
+  const weeklyDownloadsRow = micro ?? (
+    <span aria-label={label} className={statsRowClassName}>
+      <span
+        className={twMerge(
+          'invisible text-left text-zinc-950 dark:text-white',
+          valueClassName,
+        )}
+        style={{ fontVariantNumeric: 'tabular-nums' }}
+      >
+        000,000,000
+      </span>
+      <span className={twMerge('whitespace-nowrap', labelClassName)}>
+        {formattedLabel}
+      </span>
+    </span>
+  )
+
+  return (
+    <span
+      className={twMerge('inline-flex flex-col items-start gap-1.5', className)}
+    >
+      <span className={statsRowClassName}>
+        <span
+          className={twMerge(
+            'text-left text-zinc-950 dark:text-white',
+            !hasTotalDownloadCount ? 'invisible' : undefined,
+          )}
+          style={{ fontVariantNumeric: 'tabular-nums' }}
+        >
+          {hasTotalDownloadCount
+            ? formatAbbreviatedNumber(totalDownloadCount)
+            : '00.0 Million'}
+        </span>
+        <span>Total Downloads</span>
+      </span>
+      {weeklyDownloadsRow}
+      <span className={statsRowClassName}>
+        <span
+          className={twMerge(
+            'text-left text-zinc-950 dark:text-white',
+            !hasStarCount ? 'invisible' : undefined,
+          )}
+          style={{ fontVariantNumeric: 'tabular-nums' }}
+        >
+          {hasStarCount ? starCount.toLocaleString() : '0'}
+        </span>
+        <span>GitHub Stars</span>
       </span>
     </span>
   )

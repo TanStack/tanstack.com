@@ -65,7 +65,12 @@ export type StatsQueryParams = {
 }
 
 export type RecentDownloadStatsQueryParams = {
-  library: NonNullable<StatsQueryParams['library']>
+  library: {
+    id: string
+    frameworks?: string[]
+    npmPackageNames?: string[]
+    repo?: string
+  }
 }
 
 export type RecentDownloadStats = {

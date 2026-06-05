@@ -46,9 +46,9 @@ export const categoryMeta: Record<CategorySlug, CategoryMeta> = {
     groupId: 'framework',
     name: librariesGroupNamesMap.framework,
     shortName: 'Framework',
-    headline: 'Start-first app architecture with Router at the core',
+    headline: 'Router-first apps, from SPA to full-stack',
     intro:
-      'A full-stack application framework powered by the same type-safe route model you can use on its own.',
+      'Typed routes, URL state, loaders, links, SSR, streaming, server functions, and deployable output from one app model.',
     topPickId: 'start',
     accent: {
       from: 'from-teal-500',
@@ -61,9 +61,9 @@ export const categoryMeta: Record<CategorySlug, CategoryMeta> = {
     groupId: 'state',
     name: librariesGroupNamesMap.state,
     shortName: 'Data & State',
-    headline: 'Async data, live collections, local state, and AI',
+    headline: 'The right state layer for every kind of data',
     intro:
-      'Four state layers for apps that fetch from APIs, sync collections, react locally, and talk to models.',
+      'Four layers for apps that cache remote truth, sync collections, react locally, and talk to models.',
     topPickId: 'query',
     accent: {
       from: 'from-cyan-500',
@@ -76,9 +76,9 @@ export const categoryMeta: Record<CategorySlug, CategoryMeta> = {
     groupId: 'headlessUI',
     name: librariesGroupNamesMap.headlessUI,
     shortName: 'UI & UX',
-    headline: 'Headless primitives for user-facing interaction',
+    headline: 'Headless engines for the UI users actually touch',
     intro:
-      'Tables, forms, and hotkeys that leave markup and styling in your hands while handling hard interaction state.',
+      'Tables, forms, and hotkeys that leave markup and styling in your hands while handling row models, field state, and keyboard flow.',
     topPickId: 'table',
     accent: {
       from: 'from-blue-500',
@@ -91,9 +91,9 @@ export const categoryMeta: Record<CategorySlug, CategoryMeta> = {
     groupId: 'performance',
     name: librariesGroupNamesMap.performance,
     shortName: 'Performance',
-    headline: 'Render less work and schedule the noisy work',
+    headline: 'Render less, schedule less, stay fast',
     intro:
-      'Virtualization and pacing primitives for large interfaces, event-heavy inputs, queues, and rate limits.',
+      'Virtualization and pacing primitives for large interfaces, event-heavy inputs, queues, batches, and rate limits.',
     topPickId: 'virtual',
     accent: {
       from: 'from-purple-500',
@@ -106,9 +106,9 @@ export const categoryMeta: Record<CategorySlug, CategoryMeta> = {
     groupId: 'tooling',
     name: librariesGroupNamesMap.tooling,
     shortName: 'Tooling',
-    headline: 'Devtools, scaffolds, package defaults, and agent skills',
+    headline: 'The tools around TanStack apps and packages',
     intro:
-      'The workbench around TanStack apps and packages: inspect, scaffold, publish, and preserve package guidance.',
+      'The workbench around TanStack apps and packages: inspect libraries, scaffold projects, publish packages, and preserve package guidance.',
     topPickId: 'devtools',
     accent: {
       from: 'from-indigo-500',

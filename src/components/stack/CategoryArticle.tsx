@@ -123,15 +123,13 @@ function FrameworkCategory({
               Framework
             </SectionKicker>
             <h1 className={heroTitleClassName}>
-              <LibraryWordmark library={start} /> is the application layer.{' '}
-              <LibraryWordmark library={router} includeTanStack={false} /> is
-              the spine.
+              Router-first apps, from SPA to full-stack.
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-7 text-zinc-700 dark:text-zinc-300 sm:text-lg">
-              Build full-stack React and Solid apps with the same type-safe
-              route model that powers the client. Start owns the server,
-              streaming, bundling, and deployment story; Router keeps every URL,
-              loader, and search param honest.
+              Start begins where Router leaves off: the same typed route tree,
+              URL state, loaders, links, and prefetching, with full-document
+              SSR, streaming, server functions, server routes, and deployable
+              output added around it.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
               <LibraryButton library={start} label="Explore Start" />
@@ -139,9 +137,12 @@ function FrameworkCategory({
             </div>
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
               {[
-                ['Server functions', 'Call the server through typed functions'],
-                ['File routes', 'Model navigation as code, not strings'],
-                ['Streaming SSR', 'Ship useful HTML before the app wakes up'],
+                ['Built on Router', 'Routes, search, loaders, links'],
+                [
+                  'Client-authored, server-powered',
+                  'SSR, streaming, server functions',
+                ],
+                ['Portable output', 'Cloudflare, Railway, Netlify ready'],
               ].map(([label, detail]) => (
                 <div key={label} className="border-l-2 border-cyan-500/70 pl-3">
                   <p className="text-sm font-bold text-zinc-950 dark:text-white">
@@ -234,9 +235,9 @@ function FrameworkCategory({
               ))}
             </div>
             <p className="mt-5 text-base leading-7 text-zinc-700 dark:text-zinc-300">
-              Router keeps Start grounded: file routes, nested layouts, route
-              loaders, search schemas, and navigation APIs that carry types
-              through every link.
+              Router keeps Start grounded: generated route maps, nested layouts,
+              loaders that start before render, validated search params, and
+              navigation APIs that carry types through every link.
             </p>
             <LibraryButton library={router} label="Open Router" muted />
           </div>
@@ -269,12 +270,13 @@ function StateCategory({
               Data & State Management
             </SectionKicker>
             <h1 className={heroTitleClassName}>
-              Four state layers, one app-shaped mental model.
+              The right state layer for every kind of data.
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-7 text-zinc-700 dark:text-zinc-300 sm:text-lg">
-              Query handles async server state, DB keeps live collections
-              reactive, Store gives local state a tiny core, and AI brings
-              provider work into the same TypeScript-native ecosystem.
+              Query gives server state a cache and lifecycle, DB turns synced
+              API data into live collections, Store keeps local state tiny and
+              reactive, and AI makes provider work feel typed instead of
+              vendor-shaped.
             </p>
           </div>
 
@@ -283,23 +285,23 @@ function StateCategory({
               {[
                 {
                   library: query,
-                  label: 'Fetch',
-                  detail: 'cache, refetch, mutate',
+                  label: 'Cache',
+                  detail: 'freshness, retries, invalidation',
                 },
                 {
                   library: db,
-                  label: 'Sync',
-                  detail: 'collections, live queries',
+                  label: 'Collect',
+                  detail: 'live queries, optimistic writes',
                 },
                 {
                   library: store,
-                  label: 'React',
-                  detail: 'immutable state, adapters',
+                  label: 'Signal',
+                  detail: 'selectors, derived state, adapters',
                 },
                 {
                   library: ai,
-                  label: 'Think',
-                  detail: 'providers, tools, streams',
+                  label: 'Model',
+                  detail: 'providers, tools, AG-UI streams',
                 },
               ].map(({ library, label, detail }) => (
                 <div
@@ -353,7 +355,7 @@ function StateCategory({
             <StateLibraryCard
               library={query}
               title="Server truth that can go stale"
-              body="Use Query when the data lives somewhere else, needs cache policy, and has to survive loading, retry, mutation, and invalidation without becoming hand-written state machinery."
+              body="Use Query when the data lives somewhere else and needs freshness, retries, dedupe, background refetching, mutation lifecycle, and targeted invalidation without becoming hand-written state machinery."
               sample={[
                 'useQuery(projectOptions)',
                 'invalidate todos',
@@ -383,8 +385,8 @@ function StateCategory({
             <StateLibraryCard
               library={ai}
               title="Provider work without vendor gravity"
-              body="Use AI when models, tools, streams, and provider differences should be represented in clean TypeScript instead of leaking through the app."
-              sample={['stream output', 'tool call schema', 'provider adapter']}
+              body="Use AI when providers, tools, structured output, streams, AG-UI events, and model differences should be represented in clean TypeScript instead of leaking through the app."
+              sample={['stream output', 'tool call schema', 'AG-UI event']}
             />
           </div>
         </div>
@@ -459,12 +461,13 @@ function UiCategory({
               UI & UX
             </SectionKicker>
             <h1 className={heroTitleClassName}>
-              Headless primitives for the parts users actually touch.
+              Headless engines for the UI users actually touch.
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-7 text-zinc-700 dark:text-zinc-300 sm:text-lg">
               Table, Form, and Hotkeys stay out of your markup and styling
-              decisions while giving the interaction model a serious engine:
-              data grids, validation, keyboard flows, and type safety.
+              decisions while giving the interaction model a serious engine: row
+              models, field subscriptions, validation, shortcut scopes, and type
+              safety.
             </p>
           </div>
 
@@ -485,21 +488,21 @@ function UiCategory({
 
           <div className="mt-8 grid gap-4 lg:grid-cols-3">
             <UiSurfaceCard
-              detail="Sort, filter, group, resize, paginate, and virtualize without accepting a prebuilt table skin."
+              detail="Compose sorting, filtering, grouping, sizing, pagination, selection, and virtualization without accepting a prebuilt table skin."
               icon={<TableIcon size={18} />}
               library={table}
               sample={<TableSample />}
               title="Data density"
             />
             <UiSurfaceCard
-              detail="Model fields, validation, submission, async checks, and form state while keeping every input under your control."
+              detail="Model fields, validation, submission, async checks, and fine-grained field subscriptions while keeping every input under your control."
               icon={<SlidersHorizontal size={18} />}
               library={form}
               sample={<FormSample />}
               title="Input confidence"
             />
             <UiSurfaceCard
-              detail="Compose shortcuts, sequences, key state, and command surfaces for apps that reward fluent operators."
+              detail="Compose scopes, shortcuts, sequences, key state, and command surfaces for apps that reward fluent operators."
               icon={<Keyboard size={18} />}
               library={hotkeys}
               sample={<HotkeysSample />}
@@ -675,12 +678,13 @@ function PerformanceCategory({
           <div>
             <SectionKicker icon={<Zap size={14} />}>Performance</SectionKicker>
             <h1 className={heroTitleClassName}>
-              The frame budget gets two jobs: render less and fire less.
+              Render less, schedule less, stay fast.
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-7 text-zinc-700 dark:text-zinc-300 sm:text-lg">
               Virtual keeps long interfaces from flooding the DOM. Pacer shapes
-              expensive event streams with debouncing, throttling, queues, and
-              rate limits. Together they protect the user’s next frame.
+              expensive event streams with debouncing, throttling, queues,
+              batching, and rate limits. Together they protect the user’s next
+              frame.
             </p>
           </div>
 
@@ -865,12 +869,13 @@ function ToolingCategory({
           <div>
             <SectionKicker icon={<Wrench size={14} />}>Tooling</SectionKicker>
             <h1 className={heroTitleClassName}>
-              The workbench around the libraries.
+              The tools around TanStack apps and packages.
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-7 text-zinc-700 dark:text-zinc-300 sm:text-lg">
-              Devtools exposes what your app is doing, Config standardizes how
-              packages ship, CLI creates and connects projects, and Intent
-              packages durable guidance for AI agents.
+              Devtools exposes what your TanStack libraries are doing, Config
+              standardizes how packages ship, CLI creates and connects projects,
+              and Intent packages durable guidance for AI agents beside npm
+              packages.
             </p>
           </div>
 
@@ -989,7 +994,12 @@ function WorkbenchCell({
       <div className="flex items-center justify-between gap-2">
         <span className="inline-flex items-center gap-2 text-sm font-bold">
           {icon}
-          <LibraryWordmark library={library} includeTanStack={false} />
+          <LibraryWordmark
+            library={library}
+            includeTanStack={false}
+            colorProduct={false}
+            className="text-white"
+          />
         </span>
         <ArrowRight
           size={14}

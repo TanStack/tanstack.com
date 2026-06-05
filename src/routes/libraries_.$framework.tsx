@@ -25,13 +25,13 @@ export const Route = createFileRoute('/libraries_/$framework')({
     meta: [
       {
         title: loaderData?.framework
-          ? `TanStack for ${loaderData.framework.label} - Libraries`
-          : 'TanStack Libraries',
+          ? `TanStack ${loaderData.framework.label} Libraries`
+          : 'TanStack Libraries by Framework',
       },
       {
         name: 'description',
         content: loaderData?.framework
-          ? `Browse TanStack libraries with ${loaderData.framework.label} adapters.`
+          ? `Type-safe TanStack libraries for ${loaderData.framework.label}: routing, server state, tables, forms, virtualization, sync, AI, and tooling.`
           : 'Browse TanStack libraries by framework.',
       },
     ],
@@ -75,12 +75,13 @@ function LibrariesFrameworkPage() {
               alt=""
               className="h-10 w-10 object-contain"
             />
-            <h1 className="text-4xl font-light">
-              TanStack for {frameworkOption.label}!
+            <h1 className="text-4xl font-black leading-tight">
+              TanStack {frameworkOption.label} libraries
             </h1>
           </div>
-          <p className="mt-3 text-gray-600 dark:text-gray-400">
-            Browse TanStack libraries with {frameworkOption.label} adapters.
+          <p className="mt-3 max-w-2xl text-lg leading-8 text-gray-600 dark:text-gray-400">
+            Type-safe, headless TanStack primitives with {frameworkOption.label}{' '}
+            support for routing, data, UI, performance, and tooling.
           </p>
         </div>
 
@@ -95,7 +96,7 @@ function LibrariesFrameworkPage() {
       </div>
 
       <section className="mt-8">
-        <h2 className="text-xl font-medium">Browse by Your Framework</h2>
+        <h2 className="text-xl font-black">Switch framework</h2>
         <div className="mt-4 flex flex-wrap gap-3">
           {frameworksWithLibraries.map((option) => {
             const optionCount = frameworkCounts[option.value] ?? 0

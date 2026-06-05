@@ -125,16 +125,24 @@ export function HomeApplicationStarterFallback() {
 
 export function HomeStatsFallback() {
   return (
-    <Card className="relative min-h-[360px] p-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8 items-center justify-center xl:min-h-[164px] xl:place-items-center rounded-[1rem] animate-pulse">
-      {Array.from({ length: 4 }).map((_, index) => (
-        <div key={index} className="flex gap-4 items-center">
-          <div className="h-10 w-10 rounded-full bg-gray-100 dark:bg-gray-800" />
-          <div className="flex-1 min-w-0">
-            <div className="h-7 w-24 rounded bg-gray-200 dark:bg-gray-700" />
-            <div className="mt-2 h-4 w-28 rounded bg-gray-100 dark:bg-gray-800" />
+    <div
+      aria-hidden="true"
+      className="mx-auto grid w-full max-w-3xl animate-pulse grid-cols-1 gap-4 sm:grid-cols-3"
+    >
+      {Array.from({ length: 3 }).map((_, index) => (
+        <div
+          key={index}
+          className="min-w-0 rounded-r-md border-l-2 border-gray-200 bg-linear-to-r from-transparent to-gray-200/10 px-4 py-2 dark:border-gray-800 dark:to-gray-800/10"
+        >
+          <div className="flex min-w-0 items-start gap-3">
+            <div className="mt-1 h-5 w-5 shrink-0 rounded bg-gray-200 dark:bg-gray-800" />
+            <div className="min-w-0">
+              <div className="h-7 w-32 rounded bg-gray-200 dark:bg-gray-700" />
+              <div className="mt-2 h-4 w-28 rounded bg-gray-100 dark:bg-gray-800" />
+            </div>
           </div>
         </div>
       ))}
-    </Card>
+    </div>
   )
 }

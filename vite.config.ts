@@ -9,6 +9,8 @@ import { analyzer } from 'vite-bundle-analyzer'
 import viteReact from '@vitejs/plugin-react'
 import rsc from '@vitejs/plugin-rsc'
 import netlify from '@netlify/vite-plugin-tanstack-start'
+import fs from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
 
 const isDev = process.env.NODE_ENV !== 'production'
@@ -43,6 +45,14 @@ const rscSsrExternals = [
 const sentrySsrExternals = ['@sentry/node', '@sentry/tanstackstart-react']
 const dbSsrExternals = ['drizzle-orm', 'drizzle-orm/postgres-js']
 
+const localEnvPath = path.resolve(__dirname, '.env.local')
+const defaultCheckoutEnvDir = path.join(os.homedir(), 'GitHub/tanstack.com')
+const envDir =
+  !fs.existsSync(localEnvPath) &&
+  fs.existsSync(path.join(defaultCheckoutEnvDir, '.env.local'))
+    ? defaultCheckoutEnvDir
+    : __dirname
+
 // Runtime-specific `react-dom/server` variants aren't in @tanstack/redact/vite's
 // default alias map — our shim ships a single universal server build, unlike
 // React which maintains per-runtime forks (edge/node/bun/browser + static.*).
@@ -66,6 +76,7 @@ const useSyncExternalStoreShimIndexAlias = {
 }
 
 export default defineConfig({
+  envDir,
   resolve: {
     alias: [
       {

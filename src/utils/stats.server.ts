@@ -31,7 +31,8 @@ import type {
   OSSStatsWithDelta,
   StatsQueryParams,
 } from './stats.types'
-import { fetchGitHubRepoStats } from './stats.functions'
+import { libraries } from '~/libraries'
+import { fetchGitHubOwnerStats, fetchGitHubRepoStats } from './stats.functions'
 import {
   applyManualNpmDownloadOutlierCorrections,
   type NpmDailyDownload,
@@ -192,13 +193,7 @@ export async function fetchNpmPackageStats(
 function hasAnyOSSStats(
   stats: OSSStatsWithDelta | null | undefined,
 ): stats is OSSStatsWithDelta {
-  return (
-    !!stats &&
-    (stats.npm.totalDownloads > 0 ||
-      stats.github.starCount > 0 ||
-      stats.github.contributorCount > 0 ||
-      (stats.github.dependentCount ?? 0) > 0)
-  )
+  return !!stats && (stats.npm.totalDownloads > 0 || stats.github.starCount > 0)
 }
 
 function getLastCompletedStatsDay() {
@@ -212,7 +207,21 @@ function getLastCompletedStatsDay() {
 
 function getOSSStatsPackageNames(data: StatsQueryParams) {
   if (!data.library) {
-    return []
+    return [
+      ...new Set(
+        libraries.flatMap((library) => {
+          if (library.npmPackageNames?.length) {
+            return library.npmPackageNames
+          }
+
+          if (library.corePackageName) {
+            return [library.corePackageName]
+          }
+
+          return [`@tanstack/${library.id}`]
+        }),
+      ),
+    ]
   }
 
   if (data.library.npmPackageNames?.length) {
@@ -245,6 +254,23 @@ async function fetchLiveNpmStats(data: StatsQueryParams): Promise<NpmStats> {
 
   if (packageNames.length === 0) {
     return { totalDownloads: 0 }
+  }
+
+  if (envFunctions.DATABASE_URL) {
+    if (!data.library) {
+      const { getExpiredNpmOrgStats } = await import('./stats-db.server')
+      const cachedOrgStats = await getExpiredNpmOrgStats('tanstack')
+
+      if (cachedOrgStats && cachedOrgStats.totalDownloads > 0) {
+        return cachedOrgStats
+      }
+    }
+
+    const cachedPackageStats = await fetchNpmPackageStats(packageNames)
+
+    if (cachedPackageStats.totalDownloads > 0) {
+      return cachedPackageStats
+    }
   }
 
   const endDate = getLastCompletedStatsDay()
@@ -286,6 +312,22 @@ async function fetchLiveNpmStats(data: StatsQueryParams): Promise<NpmStats> {
 async function fetchLiveGitHubStats(
   data: StatsQueryParams,
 ): Promise<GitHubStats> {
+  if (!data.library) {
+    try {
+      return await fetchGitHubOwnerStats('tanstack')
+    } catch (error) {
+      console.warn(
+        '[OSS Stats] Live GitHub org fallback failed:',
+        error instanceof Error ? error.message : String(error),
+      )
+      return {
+        starCount: 0,
+        contributorCount: 0,
+        dependentCount: 0,
+      }
+    }
+  }
+
   if (!data.library?.repo) {
     return {
       starCount: 0,
@@ -357,6 +399,10 @@ export async function getOSSStats({
 
   if (hasAnyOSSStats(cachedStats)) {
     return cachedStats
+  }
+
+  if (!data.library) {
+    return cachedStats ?? getEmptyOSSStats()
   }
 
   const liveStats = await fetchLiveOSSStats(data)
@@ -860,6 +906,7 @@ export async function fetchRecentDownloadStats({
   const {
     getRegisteredPackages,
     getBatchNpmDownloadChunks,
+    getLatestNpmDownloadChunksCoveringRange,
     setCachedNpmDownloadChunk,
   } = await import('./stats-db.server')
 
@@ -890,6 +937,57 @@ export async function fetchRecentDownloadStats({
   const previousWeeklyStart = getDayAgo(14)
   const previousWeeklyEnd = getDayAgo(8)
   const monthlyStart = getDayAgo(30)
+
+  const latestCachedChunks = await getLatestNpmDownloadChunksCoveringRange({
+    packageNames,
+    dateFrom: monthlyStart,
+    dateTo: lastCompletedDay,
+  })
+
+  if (latestCachedChunks.size > 0) {
+    let dailyTotal = 0
+    let previousWeeklyTotal = 0
+    let weeklyTotal = 0
+    let monthlyTotal = 0
+
+    for (const chunk of latestCachedChunks.values()) {
+      const normalizedDownloads = normalizeNpmDownloadSeries(
+        chunk.packageName,
+        chunk.dailyData,
+        todayStr,
+      )
+
+      dailyTotal += sumDailyDownloadsInRange({
+        downloads: normalizedDownloads,
+        start: dailyStart,
+        end: lastCompletedDay,
+      })
+      previousWeeklyTotal += sumDailyDownloadsInRange({
+        downloads: normalizedDownloads,
+        start: previousWeeklyStart,
+        end: previousWeeklyEnd,
+      })
+      weeklyTotal += sumDailyDownloadsInRange({
+        downloads: normalizedDownloads,
+        start: weeklyStart,
+        end: lastCompletedDay,
+      })
+      monthlyTotal += sumDailyDownloadsInRange({
+        downloads: normalizedDownloads,
+        start: monthlyStart,
+        end: lastCompletedDay,
+      })
+    }
+
+    return {
+      dailyDownloads: dailyTotal,
+      monthlyDownloads: monthlyTotal,
+      previousWeeklyDownloads: previousWeeklyTotal,
+      sparklineDownloads: [],
+      updatedAt: Date.now(),
+      weeklyDownloads: weeklyTotal,
+    }
+  }
 
   type RecentDownloadPeriod = 'daily' | 'monthly' | 'previousWeekly' | 'weekly'
 

@@ -3,215 +3,52 @@
  * and Netlify functions. No TanStack Start dependencies.
  */
 
-import * as cheerio from 'cheerio'
 import { envFunctions } from './env.functions'
 import type { GitHubStats, NpmPackageStats, NpmStats } from './stats.types'
 
-/**
- * Parse number from string, removing commas
- */
-function parseNumber(value: string | undefined): number | undefined {
-  if (!value) return undefined
-  const parsed = parseInt(value.replace(/,/g, ''), 10)
-  return isNaN(parsed) ? undefined : parsed
-}
+function getGitHubHeaders() {
+  const token = envFunctions.GITHUB_AUTH_TOKEN
 
-/**
- * Scrape a count from a GitHub repository page
- * Uses retry logic as scraping can be unreliable
- */
-async function scrapeGitHubCount(
-  repo: string,
-  selector: string,
-  countType: string,
-  maxRetries: number = 3,
-): Promise<number | undefined> {
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      const response = await fetch(`https://github.com/${repo}`, {
-        headers: {
-          'User-Agent': 'TanStack-Stats',
-          Accept: 'text/html',
-        },
-      })
-
-      if (!response.ok) {
-        console.warn(
-          `[GitHub Scraper] Failed to fetch ${repo} page (${response.status}), attempt ${attempt}/${maxRetries}`,
-        )
-        continue
-      }
-
-      const html = await response.text()
-      const $ = cheerio.load(html)
-
-      const count = $(`${selector} > span.Counter`)
-        .filter((_, el) => {
-          const title = $(el).attr('title')
-          return !!parseNumber(title)
-        })
-        .attr('title')
-
-      const parsedCount = parseNumber(count)
-
-      if (parsedCount !== undefined) {
-        return parsedCount
-      }
-
-      console.warn(
-        `[GitHub Scraper] No ${countType} count found for ${repo}, attempt ${attempt}/${maxRetries}`,
-      )
-    } catch (error) {
-      console.error(
-        `[GitHub Scraper] Error scraping ${repo}, attempt ${attempt}/${maxRetries}:`,
-        error instanceof Error ? error.message : String(error),
-      )
-    }
-
-    if (attempt < maxRetries) {
-      const waitTime = Math.pow(2, attempt) * 1000
-      await new Promise((resolve) => setTimeout(resolve, waitTime))
-    }
+  return {
+    ...(token && token !== 'USE_A_REAL_KEY_IN_PRODUCTION'
+      ? { Authorization: `Bearer ${token}` }
+      : {}),
+    Accept: 'application/vnd.github.v3+json',
+    'User-Agent': 'TanStack-Stats',
   }
-
-  console.warn(
-    `[GitHub Scraper] Failed to scrape ${countType} count for ${repo} after ${maxRetries} attempts`,
-  )
-  return undefined
-}
-
-function scrapeGitHubDependentCount(repo: string): Promise<number | undefined> {
-  return scrapeGitHubCount(repo, 'a[href$="/network/dependents"]', 'dependent')
-}
-
-async function scrapeGitHubContributorCount(
-  repo: string,
-  maxRetries: number = 3,
-): Promise<number | undefined> {
-  const repoName = repo.split('/')[1]
-
-  if (!repoName) {
-    return undefined
-  }
-
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      const response = await fetch(
-        `https://github.com/${repo}/contributors_list?current_repository=${repoName}&deferred=true`,
-        {
-          headers: {
-            'User-Agent': 'TanStack-Stats',
-            Accept: 'text/html',
-          },
-        },
-      )
-
-      if (!response.ok) {
-        console.warn(
-          `[GitHub Scraper] Failed to fetch contributors fragment for ${repo} (${response.status}), attempt ${attempt}/${maxRetries}`,
-        )
-        continue
-      }
-
-      const html = await response.text()
-      const $ = cheerio.load(html)
-      const count = $('a[href$="/graphs/contributors"] span.Counter')
-        .first()
-        .attr('title')
-
-      const parsedCount = parseNumber(count)
-
-      if (parsedCount !== undefined) {
-        return parsedCount
-      }
-
-      console.warn(
-        `[GitHub Scraper] No contributor count found for ${repo}, attempt ${attempt}/${maxRetries}`,
-      )
-    } catch (error) {
-      console.error(
-        `[GitHub Scraper] Error scraping contributors for ${repo}, attempt ${attempt}/${maxRetries}:`,
-        error instanceof Error ? error.message : String(error),
-      )
-    }
-
-    if (attempt < maxRetries) {
-      const waitTime = Math.pow(2, attempt) * 1000
-      await new Promise((resolve) => setTimeout(resolve, waitTime))
-    }
-  }
-
-  console.warn(
-    `[GitHub Scraper] Failed to scrape contributor count for ${repo} after ${maxRetries} attempts`,
-  )
-  return undefined
 }
 
 /**
  * Fetch GitHub repository statistics
  */
 export async function fetchGitHubRepoStats(repo: string): Promise<GitHubStats> {
-  const token = envFunctions.GITHUB_AUTH_TOKEN
-  if (!token || token === 'USE_A_REAL_KEY_IN_PRODUCTION') {
-    throw new Error('GITHUB_AUTH_TOKEN not configured')
-  }
-
-  const [repoData, contributorCount, dependentCount] = await Promise.all([
-    // Get repo basic stats
-    fetch(`https://api.github.com/repos/${repo}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: 'application/vnd.github.v3+json',
-        'User-Agent': 'TanStack-Stats',
-      },
-    }).then(async (res) => {
-      if (!res.ok) {
-        // Check for rate limiting
-        if (res.status === 403) {
-          const rateLimitRemaining = res.headers.get('X-RateLimit-Remaining')
-          if (rateLimitRemaining === '0') {
-            const rateLimitReset = res.headers.get('X-RateLimit-Reset')
-            const resetTime = rateLimitReset
-              ? new Date(parseInt(rateLimitReset, 10) * 1000)
-              : new Date(Date.now() + 60 * 60 * 1000)
-            throw new Error(
-              `GitHub API rate limit exceeded. Resets at: ${resetTime.toISOString()}`,
-            )
-          }
+  const repoData = await fetch(`https://api.github.com/repos/${repo}`, {
+    headers: getGitHubHeaders(),
+  }).then(async (res) => {
+    if (!res.ok) {
+      // Check for rate limiting
+      if (res.status === 403) {
+        const rateLimitRemaining = res.headers.get('X-RateLimit-Remaining')
+        if (rateLimitRemaining === '0') {
+          const rateLimitReset = res.headers.get('X-RateLimit-Reset')
+          const resetTime = rateLimitReset
+            ? new Date(parseInt(rateLimitReset, 10) * 1000)
+            : new Date(Date.now() + 60 * 60 * 1000)
+          throw new Error(
+            `GitHub API rate limit exceeded. Resets at: ${resetTime.toISOString()}`,
+          )
         }
-        const errorText = await res.text().catch(() => 'Unknown error')
-        throw new Error(`GitHub API error: ${res.status} - ${errorText}`)
       }
-      return res.json()
-    }),
-
-    // Scrape contributor count from GitHub web UI
-    // Using scraping instead of API to get the full count without pagination limits
-    // Wrap in catch to ensure it never rejects - scraping failures shouldn't break the whole operation
-    scrapeGitHubContributorCount(repo).catch((error) => {
-      console.error(
-        `[GitHub Stats] Contributor count scraping failed for ${repo}:`,
-        error instanceof Error ? error.message : String(error),
-      )
-      return undefined
-    }),
-
-    // Scrape dependent count from GitHub web UI
-    // GitHub doesn't provide this via REST or GraphQL API
-    // Wrap in catch to ensure it never rejects - scraping failures shouldn't break the whole operation
-    scrapeGitHubDependentCount(repo).catch((error) => {
-      console.error(
-        `[GitHub Stats] Dependent count scraping failed for ${repo}:`,
-        error instanceof Error ? error.message : String(error),
-      )
-      return undefined
-    }),
-  ])
+      const errorText = await res.text().catch(() => 'Unknown error')
+      throw new Error(`GitHub API error: ${res.status} - ${errorText}`)
+    }
+    return res.json()
+  })
 
   return {
     starCount: repoData.stargazers_count ?? 0,
-    contributorCount: contributorCount ?? 0,
-    dependentCount: dependentCount,
+    contributorCount: 0,
+    dependentCount: 0,
     forkCount: repoData.forks_count ?? 0,
   }
 }
@@ -222,11 +59,6 @@ export async function fetchGitHubRepoStats(repo: string): Promise<GitHubStats> {
 export async function fetchGitHubOwnerStats(
   owner: string,
 ): Promise<GitHubStats> {
-  const token = envFunctions.GITHUB_AUTH_TOKEN
-  if (!token || token === 'USE_A_REAL_KEY_IN_PRODUCTION') {
-    throw new Error('GITHUB_AUTH_TOKEN not configured')
-  }
-
   // Fetch all repos for the organization
   const repos: any[] = []
   let page = 1
@@ -236,11 +68,7 @@ export async function fetchGitHubOwnerStats(
     const response = await fetch(
       `https://api.github.com/orgs/${owner}/repos?per_page=100&page=${page}&sort=stars`,
       {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/vnd.github.v3+json',
-          'User-Agent': 'TanStack-Stats',
-        },
+        headers: getGitHubHeaders(),
       },
     )
 
@@ -300,64 +128,12 @@ export async function fetchGitHubOwnerStats(
     0,
   )
 
-  const repositoryCount = repos.length
-
-  // Scrape contributor and dependent counts from each repo's page
-  // Note: This sums counts across repos, which may count the same person multiple times
-  // if they contributed to multiple repos. This provides higher numbers than trying to deduplicate via API calls.
-  const repoStats = await Promise.all(
-    repos.map(async (repo) => {
-      try {
-        const [contributorCount, dependentCount] = await Promise.all([
-          // Wrap in catch to ensure scraping failures don't break the operation
-          scrapeGitHubContributorCount(repo.full_name).catch((error) => {
-            console.error(
-              `[GitHub Stats] Contributor count scraping failed for ${repo.full_name}:`,
-              error instanceof Error ? error.message : String(error),
-            )
-            return undefined
-          }),
-          scrapeGitHubDependentCount(repo.full_name).catch((error) => {
-            console.error(
-              `[GitHub Stats] Dependent count scraping failed for ${repo.full_name}:`,
-              error instanceof Error ? error.message : String(error),
-            )
-            return undefined
-          }),
-        ])
-        return {
-          contributorCount: contributorCount ?? 0,
-          dependentCount: dependentCount ?? 0,
-        }
-      } catch (error) {
-        console.error(
-          `[GitHub Stats] Failed to scrape stats for ${repo.full_name}:`,
-          error instanceof Error ? error.message : String(error),
-        )
-        return {
-          contributorCount: 0,
-          dependentCount: 0,
-        }
-      }
-    }),
-  )
-
-  const totalContributorCount = repoStats.reduce(
-    (sum, stats) => sum + stats.contributorCount,
-    0,
-  )
-
-  const totalDependentCount = repoStats.reduce(
-    (sum, stats) => sum + stats.dependentCount,
-    0,
-  )
-
   return {
     starCount,
-    contributorCount: totalContributorCount,
-    dependentCount: totalDependentCount,
+    contributorCount: 0,
+    dependentCount: 0,
     forkCount,
-    repositoryCount,
+    repositoryCount: repos.length,
   }
 }
 
@@ -954,11 +730,7 @@ export async function refreshGitHubOrgStats(org: string): Promise<{
     try {
       const repoStats = await fetchGitHubRepoStats(library.repo)
       console.log(
-        `[GitHub Stats] Fetched stats for ${library.repo}: ${
-          repoStats.starCount
-        } stars, ${repoStats.contributorCount} contributors, ${
-          repoStats.dependentCount ?? 'N/A'
-        } dependents`,
+        `[GitHub Stats] Fetched stats for ${library.repo}: ${repoStats.starCount} stars`,
       )
       await setCachedGitHubStats(library.repo, repoStats, 1)
       console.log(

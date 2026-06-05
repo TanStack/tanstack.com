@@ -32,6 +32,18 @@ const libraryMaintainerSortOrder = {
     'chorobin',
     'brhx',
   ],
+  router: [
+    'tannerlinsley',
+    'schiller-manuel',
+    'sheraff',
+    'brenelz',
+    'beaussan',
+    'seancassiere',
+    'birkskyum',
+    'chorobin',
+    'brhx',
+    'nlynzaad',
+  ],
 } satisfies Partial<Record<Library['id'], Array<Maintainer['github']>>>
 
 // order matters
@@ -592,8 +604,9 @@ function sortLibraryMaintainers(
   libraryId: string,
   maintainers: Maintainer[],
 ): Maintainer[] {
-  const order =
-    libraryId === 'start' ? libraryMaintainerSortOrder.start : undefined
+  const order = Object.entries(libraryMaintainerSortOrder).find(
+    ([orderedLibraryId]) => orderedLibraryId === libraryId,
+  )?.[1]
 
   if (!order) {
     return maintainers

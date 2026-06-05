@@ -230,21 +230,19 @@ function Index() {
               </p>
             </div>
           </div>
+          <div className="mx-auto mt-8 w-full max-w-[1021px] px-4 sm:px-6 md:mt-10">
+            <HomeDeferredSection
+              forceLoad
+              fallback={<HomeStatsFallback />}
+              preload={loadHomeStatsSection}
+              rootMargin="10%"
+              timeoutMs={6000}
+            >
+              <LazyHomeStatsSection />
+            </HomeDeferredSection>
+          </div>
           <div className="mx-auto mt-16 w-full max-w-[1021px] px-4 sm:px-6 md:mt-20 lg:mt-14 xl:mt-12">
             <HomeApplicationStarter />
-          </div>
-          <div className="mx-auto w-full max-w-[1021px] px-4 sm:px-6">
-            <div className="mx-auto w-fit">
-              <HomeDeferredSection
-                forceLoad={deferredSectionStage > 0}
-                fallback={<HomeStatsFallback />}
-                preload={loadHomeStatsSection}
-                rootMargin="10%"
-                timeoutMs={6000}
-              >
-                <LazyHomeStatsSection />
-              </HomeDeferredSection>
-            </div>
           </div>
         </div>
 

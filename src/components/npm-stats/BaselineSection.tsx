@@ -9,7 +9,7 @@ import {
 import { twMerge } from 'tailwind-merge'
 import { Tooltip } from '~/components/Tooltip'
 import { PackageSearch } from './PackageSearch'
-import type { PackageGroup } from './shared'
+import { getBaselineDisplayName, type PackageGroup } from './shared'
 import type { BaselinePreset } from '~/routes/stats/npm/-comparisons'
 
 export const BASELINE_LINE_COLOR = '#3b82f6'
@@ -39,9 +39,7 @@ export function BaselineSection({
 }: BaselineSectionProps) {
   const baselineGroups = packageGroups.filter((pg) => pg.baseline)
   const [showSearch, setShowSearch] = React.useState(false)
-  const names = baselineGroups
-    .map((pg) => pg.packages[0]?.name)
-    .filter((n): n is string => !!n)
+  const baselineDisplayName = getBaselineDisplayName(baselineGroups)
   const hasBaselines = baselineGroups.length > 0
   const normalizeActive = hasBaselines && normalizeBaseline
 
@@ -100,7 +98,7 @@ export function BaselineSection({
           <span
             className={twMerge('font-medium', !showBaseline && 'opacity-70')}
           >
-            {names.join(', ')}
+            {baselineDisplayName}
           </span>
         </button>
       </Tooltip>

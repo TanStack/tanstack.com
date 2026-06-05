@@ -294,6 +294,7 @@ function RouteComponent() {
               packages: [{ name: p.name, hidden: true }],
               color: p.color,
               baseline: true,
+              baselineLabel: preset.title,
             })),
           ],
         }

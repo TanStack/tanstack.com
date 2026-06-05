@@ -216,6 +216,7 @@ type _NpmStatsSearch = {
     name?: string
     color?: string
     baseline?: boolean
+    baselineLabel?: string
     packages: Array<{ name?: string; hidden?: boolean }>
   }>
   range?: TimeRange
@@ -308,6 +309,7 @@ function RouteComponent() {
               packages: [{ name: p.name, hidden: true }],
               color: p.color,
               baseline: true,
+              baselineLabel: preset.title,
             })),
           ],
         }

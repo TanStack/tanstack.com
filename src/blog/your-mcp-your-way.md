@@ -1,7 +1,7 @@
 ---
 title: 'TanStack AI: Your MCP, your way'
 published: 2026-06-05
-excerpt: "Host-side Model Context Protocol support lands in TanStack AI. Connect one MCP server or a whole pool, choose managed or manual lifecycle, and pick your type-safety level - from zero-config discovery to fully generated end-to-end types."
+excerpt: 'Host-side Model Context Protocol support lands in TanStack AI. Connect one MCP server or a whole pool, choose managed or manual lifecycle, and pick your type-safety level - from zero-config discovery to fully generated end-to-end types.'
 library: ai
 authors:
   - Alem Tuzlak
@@ -64,9 +64,9 @@ A single client connects to a single server. The options are small and every fie
 ```ts
 interface MCPClientOptions {
   transport: TransportInput // config object or a raw SDK Transport
-  prefix?: string           // tool-name prefix, e.g. 'github' -> 'github_search'
-  name?: string             // client identity sent to the server (default 'tanstack-ai-mcp')
-  version?: string          // client version (default '0.0.1')
+  prefix?: string // tool-name prefix, e.g. 'github' -> 'github_search'
+  name?: string // client identity sent to the server (default 'tanstack-ai-mcp')
+  version?: string // client version (default '0.0.1')
 }
 ```
 
@@ -79,14 +79,14 @@ The returned `MCPClient` exposes the full protocol surface:
 ```ts
 interface MCPClient {
   readonly capabilities: Record<string, unknown> // server capabilities from the handshake
-  tools(options?): Promise<ServerTool[]>          // discovery (overloaded, see below)
+  tools(options?): Promise<ServerTool[]> // discovery (overloaded, see below)
   resources(): Promise<Resource[]>
   readResource(uri: string): Promise<ReadResourceResult>
   resourceTemplates(): Promise<ResourceTemplate[]>
   prompts(): Promise<Prompt[]>
   getPrompt(name, args?): Promise<GetPromptResult>
   close(): Promise<void>
-  [Symbol.asyncDispose](): Promise<void>          // for `await using`
+  [Symbol.asyncDispose](): Promise<void> // for `await using`
 }
 ```
 
@@ -102,8 +102,8 @@ const mcp = await createMCPClient({
     type: 'http',
     url: 'https://my-mcp-server.example.com/mcp',
     headers: { Authorization: `Bearer ${process.env.MCP_TOKEN}` },
-    fetch: customFetch,      // optional: bring your own fetch
-    authProvider: myOAuth,   // optional: OAuth 2.1 (see Authentication)
+    fetch: customFetch, // optional: bring your own fetch
+    authProvider: myOAuth, // optional: OAuth 2.1 (see Authentication)
   },
 })
 ```
@@ -225,7 +225,7 @@ const tools = await mcp.tools()
 // each tool name is narrowed from GithubServer['tools']
 ```
 
-Mode 3 types the tool *names*; tool *arguments* stay untyped on the discovery path. Combine it with Mode 2 when you want both narrowed names and typed args. The full CLI workflow is in its own section below.
+Mode 3 types the tool _names_; tool _arguments_ stay untyped on the discovery path. Combine it with Mode 2 when you want both narrowed names and typed args. The full CLI workflow is in its own section below.
 
 ## Resources and prompts
 
@@ -257,11 +257,7 @@ const seeded = mcpPromptToMessages(review)
 
 const stream = chat({
   adapter: openaiText('gpt-5.5'),
-  messages: [
-    { role: 'user', content: [readmePart] },
-    ...seeded,
-    ...messages,
-  ],
+  messages: [{ role: 'user', content: [readmePart] }, ...seeded, ...messages],
   tools: await mcp.tools(),
 })
 ```
@@ -276,7 +272,11 @@ A standalone client is **caller-owned**. `chat()` never closes a client you spre
 // caller owns close()
 const mcp = await createMCPClient({ transport })
 try {
-  const stream = chat({ adapter: openaiText('gpt-5.5'), messages, tools: await mcp.tools() })
+  const stream = chat({
+    adapter: openaiText('gpt-5.5'),
+    messages,
+    tools: await mcp.tools(),
+  })
   return toServerSentEventsResponse(stream)
 } finally {
   // careful: see the streaming note below
@@ -383,10 +383,13 @@ Here is every field on the option, with exact semantics.
 
 ```ts
 interface ChatMCPOptions {
-  clients: Array<MCPToolSource>            // clients and/or pools
-  connection?: 'close' | 'keep-alive'      // default 'close'
-  lazyTools?: boolean                      // default false
-  onDiscoveryError?: (error: unknown, source: MCPToolSource) => void | Promise<void>
+  clients: Array<MCPToolSource> // clients and/or pools
+  connection?: 'close' | 'keep-alive' // default 'close'
+  lazyTools?: boolean // default false
+  onDiscoveryError?: (
+    error: unknown,
+    source: MCPToolSource,
+  ) => void | Promise<void>
 }
 ```
 
@@ -405,7 +408,10 @@ Controls what happens to the connections when the run ends.
 
 ```ts
 // warm pool reused across many requests
-const pool = await createMCPClients({ github: { transport: gh }, linear: { transport: ln } })
+const pool = await createMCPClients({
+  github: { transport: gh },
+  linear: { transport: ln },
+})
 
 function handler(messages) {
   return chat({
@@ -494,8 +500,14 @@ import type { ServerDescriptor } from '@tanstack/ai-mcp'
 
 export interface GithubServer extends ServerDescriptor {
   tools: {
-    'search_repositories': { input: { query: string; limit?: number }; output: unknown }
-    'create_issue': { input: { repo: string; title: string; body?: string }; output: unknown }
+    search_repositories: {
+      input: { query: string; limit?: number }
+      output: unknown
+    }
+    create_issue: {
+      input: { repo: string; title: string; body?: string }
+      output: unknown
+    }
   }
   resources: {}
   prompts: {}
@@ -503,8 +515,8 @@ export interface GithubServer extends ServerDescriptor {
 }
 
 export interface MCPServers extends Record<string, ServerDescriptor> {
-  'github': GithubServer
-  'linear': LinearServer
+  github: GithubServer
+  linear: LinearServer
 }
 ```
 
@@ -549,12 +561,17 @@ import { createMCPClient, createMCPClients } from '@tanstack/ai-mcp'
 import type { MCPServers } from './mcp-types.generated'
 
 // one server, managed lifecycle
-const single = await createMCPClient({ transport: { type: 'http', url: oneUrl } })
+const single = await createMCPClient({
+  transport: { type: 'http', url: oneUrl },
+})
 
 // many servers, typed pool, kept warm
 const pool = await createMCPClients<MCPServers>({
   github: { transport: { type: 'http', url: process.env.GITHUB_MCP_URL! } },
-  linear: { transport: { type: 'http', url: process.env.LINEAR_MCP_URL! }, prefix: 'linear' },
+  linear: {
+    transport: { type: 'http', url: process.env.LINEAR_MCP_URL! },
+    prefix: 'linear',
+  },
 })
 
 const stream = chat({

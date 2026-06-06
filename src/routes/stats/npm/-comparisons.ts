@@ -164,6 +164,10 @@ export function getPopularComparisons(): v.InferInput<
           color: '#FF6B6B',
         },
         {
+          packages: [{ name: '@tanstack/store' }],
+          color: '#FF69B4',
+        },
+        {
           packages: [
             { name: '@tanstack/react-query' },
             { name: 'react-query' },

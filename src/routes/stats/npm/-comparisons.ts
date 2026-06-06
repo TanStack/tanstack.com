@@ -395,6 +395,17 @@ export function getPopularComparisons(): v.InferInput<
           packages: [{ name: '@conform-to/dom' }],
           color: '#FF5733',
         },
+        {
+          packages: [
+            { name: '@formisch/react' },
+            { name: '@formisch/svelte' },
+            { name: '@formisch/solid' },
+            { name: '@formisch/vue' },
+            { name: '@formisch/preact' },
+            { name: '@formisch/qwik' },
+          ],
+          color: '#8B5CF6',
+        },
       ],
     },
     {

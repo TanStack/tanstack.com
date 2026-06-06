@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { Link, useParams } from '@tanstack/react-router'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   Activity,
   ArrowRight,
@@ -10,6 +11,7 @@ import {
   GitBranch,
   Infinity as InfinityIcon,
   Network,
+  Plus,
   RefreshCcw,
   RotateCcw,
   Sparkles,
@@ -21,7 +23,6 @@ import { GithubIcon } from '~/components/icons/GithubIcon'
 import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
-import { LibraryStatsSection } from '~/components/LibraryStatsSection'
 import { LibraryTestimonials } from '~/components/LibraryTestimonials'
 import { LibraryWordmark } from '~/components/LibraryWordmark'
 import LandingPageGad from '~/components/LandingPageGad'
@@ -29,6 +30,7 @@ import { QueryGGBanner } from '~/components/QueryGGBanner'
 import { getLibrary } from '~/libraries'
 import { queryProject } from '~/libraries/query'
 import type { LandingComponentProps } from '~/routes/$libraryId/$version'
+import { usePrefersReducedMotion } from '~/utils/usePrefersReducedMotion'
 
 import { LandingEcosystemProof } from '~/components/landing/LandingEcosystemProof'
 import { LandingCopyPromptButton } from '~/components/landing/LandingCopyPromptButton'
@@ -54,25 +56,55 @@ const heroProof = [
   },
 ]
 
-const cacheRows = [
+type QueryHeroIssue = {
+  id: string
+  observers: number
+  priority: number
+  title: string
+}
+
+type QueryHeroSnapshot = {
+  fetchedAt: number
+  revision: number
+  rows: Array<QueryHeroIssue>
+}
+
+type QueryHeroMutationContext = {
+  previous?: QueryHeroSnapshot
+}
+
+const queryHeroInitialRows: Array<QueryHeroIssue> = [
   {
-    key: "['projects']",
+    id: 'router-cache',
     observers: 3,
-    state: 'fresh',
-    detail: 'shared by dashboard, nav, command menu',
+    priority: 98,
+    title: 'Router dashboard',
   },
   {
-    key: "['project', id]",
+    id: 'project-detail',
     observers: 2,
-    state: 'stale',
-    detail: 'visible now, refetching in background',
+    priority: 91,
+    title: 'Project detail',
   },
   {
-    key: "['issues', filters]",
+    id: 'offline-queue',
     observers: 1,
-    state: 'paused',
-    detail: 'offline-safe mutation queued',
+    priority: 84,
+    title: 'Offline mutation queue',
   },
+]
+
+const queryHeroInitialSnapshot: QueryHeroSnapshot = {
+  fetchedAt: 0,
+  revision: 0,
+  rows: queryHeroInitialRows,
+}
+
+const queryHeroMutationTitles = [
+  'Optimistic table edit',
+  'Search filter sync',
+  'Background retry lane',
+  'Prefetched route data',
 ]
 
 const lifecycleSteps = [
@@ -310,10 +342,6 @@ export default function QueryLanding({
             {landingCodeExampleRsc}
           </div>
         </div>
-
-        <div className="mx-auto w-full max-w-[80rem] px-4 pb-12 xl:max-w-[92rem]">
-          <LibraryStatsSection library={library} />
-        </div>
       </section>
 
       <section className="border-b border-zinc-200 bg-[#fff8f3] py-12 dark:border-zinc-800 dark:bg-zinc-900">
@@ -389,6 +417,109 @@ export default function QueryLanding({
 }
 
 function QueryCachePanel() {
+  const prefersReducedMotion = usePrefersReducedMotion()
+  const queryClient = useQueryClient()
+  const serverRowsRef = React.useRef(queryHeroInitialRows)
+  const serverRevisionRef = React.useRef(0)
+  const mutationSequenceRef = React.useRef(0)
+  const [isLive, setIsLive] = React.useState(false)
+  const projectsQuery = useQuery({
+    initialData: queryHeroInitialSnapshot,
+    initialDataUpdatedAt: 0,
+    queryFn: async (): Promise<QueryHeroSnapshot> => {
+      await waitForQueryHero(620)
+
+      return {
+        fetchedAt: Date.now(),
+        revision: serverRevisionRef.current,
+        rows: serverRowsRef.current,
+      }
+    },
+    queryKey: ['landing-query-hero'],
+    refetchInterval: isLive ? 4200 : false,
+    staleTime: 3200,
+  })
+  const addIssueMutation = useMutation<
+    QueryHeroIssue,
+    Error,
+    QueryHeroIssue,
+    QueryHeroMutationContext
+  >({
+    mutationFn: async (issue: QueryHeroIssue) => {
+      await waitForQueryHero(720)
+      serverRevisionRef.current += 1
+      serverRowsRef.current = [
+        issue,
+        ...serverRowsRef.current.filter((row) => row.id !== issue.id),
+      ].slice(0, 5)
+
+      return issue
+    },
+    onError: (_error, _issue, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData<QueryHeroSnapshot>(
+          ['landing-query-hero'],
+          context.previous,
+        )
+      }
+    },
+    onMutate: async (issue) => {
+      await queryClient.cancelQueries({ queryKey: ['landing-query-hero'] })
+      const previous = queryClient.getQueryData<QueryHeroSnapshot>([
+        'landing-query-hero',
+      ])
+
+      queryClient.setQueryData<QueryHeroSnapshot>(
+        ['landing-query-hero'],
+        (current) => ({
+          fetchedAt: current?.fetchedAt ?? 0,
+          revision: current?.revision ?? serverRevisionRef.current,
+          rows: [
+            issue,
+            ...(current?.rows ?? queryHeroInitialRows).filter(
+              (row) => row.id !== issue.id,
+            ),
+          ].slice(0, 5),
+        }),
+      )
+
+      return { previous }
+    },
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: ['landing-query-hero'] }),
+  })
+  const cacheState = projectsQuery.isFetching
+    ? 'fetching'
+    : projectsQuery.isStale
+      ? 'stale'
+      : 'fresh'
+  const fetchedLabel =
+    projectsQuery.data.fetchedAt > 0
+      ? `${Math.max(0, Math.round((Date.now() - projectsQuery.data.fetchedAt) / 1000))}s ago`
+      : 'primed'
+
+  React.useEffect(() => {
+    if (prefersReducedMotion === false) {
+      setIsLive(true)
+    }
+  }, [prefersReducedMotion])
+
+  const addIssue = () => {
+    const nextSequence = mutationSequenceRef.current + 1
+    const nextTitle =
+      queryHeroMutationTitles[
+        (nextSequence - 1) % queryHeroMutationTitles.length
+      ]
+
+    mutationSequenceRef.current = nextSequence
+    addIssueMutation.mutate({
+      id: `optimistic-${nextSequence}`,
+      observers: (nextSequence % 3) + 1,
+      priority: 72 + ((nextSequence * 7) % 24),
+      title: nextTitle,
+    })
+  }
+
   return (
     <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-red-200 bg-white p-4 shadow-sm shadow-red-950/5 dark:border-red-900 dark:bg-zinc-950">
       <div className="flex items-center justify-between gap-3">
@@ -402,24 +533,78 @@ function QueryCachePanel() {
         </span>
       </div>
 
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-2">
+          <span
+            className={
+              cacheState === 'fresh'
+                ? 'rounded-md bg-emerald-100 px-3 py-2 text-xs font-black uppercase text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-200'
+                : cacheState === 'fetching'
+                  ? 'rounded-md bg-amber-100 px-3 py-2 text-xs font-black uppercase text-amber-800 dark:bg-amber-950/50 dark:text-amber-200'
+                  : 'rounded-md bg-red-100 px-3 py-2 text-xs font-black uppercase text-red-800 dark:bg-red-950/50 dark:text-red-200'
+            }
+          >
+            {cacheState}
+          </span>
+          <span className="rounded-md border border-zinc-200 px-3 py-2 text-xs font-black uppercase text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
+            rev {projectsQuery.data.revision} / {fetchedLabel}
+          </span>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button
+            aria-pressed={isLive}
+            className={
+              isLive
+                ? 'rounded-md border border-red-500 bg-red-500 px-3 py-2 text-xs font-black text-white'
+                : 'rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs font-black text-zinc-700 transition-colors hover:border-red-300 hover:text-red-800 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:border-red-700 dark:hover:text-red-200'
+            }
+            type="button"
+            onClick={() => setIsLive((current) => !current)}
+          >
+            Live {isLive ? 'on' : 'off'}
+          </button>
+          <button
+            className="inline-flex items-center gap-2 rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs font-black text-zinc-700 transition-colors hover:border-red-300 hover:text-red-800 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:border-red-700 dark:hover:text-red-200"
+            type="button"
+            onClick={() => projectsQuery.refetch()}
+          >
+            <RefreshCcw
+              aria-hidden="true"
+              className={projectsQuery.isFetching ? 'animate-spin' : ''}
+              size={14}
+            />
+            Refetch
+          </button>
+          <button
+            className="inline-flex items-center gap-2 rounded-md border border-red-500 bg-red-500 px-3 py-2 text-xs font-black text-white transition-colors hover:bg-red-600 disabled:cursor-wait disabled:opacity-70"
+            disabled={addIssueMutation.isPending}
+            type="button"
+            onClick={addIssue}
+          >
+            <Plus aria-hidden="true" size={14} />
+            Add issue
+          </button>
+        </div>
+      </div>
+
       <div className="mt-4 grid gap-3 lg:grid-cols-[1.05fr_0.95fr]">
         <div className="space-y-2">
-          {cacheRows.map((row) => (
+          {projectsQuery.data.rows.map((row) => (
             <div
-              key={row.key}
+              key={row.id}
               className="rounded-lg border border-zinc-100 bg-zinc-50 p-3 dark:border-zinc-800 dark:bg-zinc-900"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="truncate font-mono text-sm font-black text-zinc-950 dark:text-white">
-                    {row.key}
+                    ['issues', '{row.id}']
                   </p>
                   <p className="mt-1 text-xs leading-5 text-zinc-600 dark:text-zinc-400">
-                    {row.detail}
+                    {row.title}
                   </p>
                 </div>
                 <span className="shrink-0 rounded-md bg-red-100 px-2 py-1 text-[0.65rem] font-black uppercase text-red-800 dark:bg-red-950 dark:text-red-200">
-                  {row.state}
+                  p{row.priority}
                 </span>
               </div>
               <div className="mt-3 flex items-center gap-1.5">
@@ -441,17 +626,17 @@ function QueryCachePanel() {
           <div>
             <p className="text-sm font-black">useQuery()</p>
             <p className="mt-2 text-xs leading-5 text-amber-950/75 dark:text-amber-100/75">
-              Components declare the data they need. Query coordinates fetches,
-              subscribers, retries, freshness, and background updates.
+              Components declare the data they need. The cache coordinates
+              fetches, subscribers, freshness, and background updates.
             </p>
           </div>
 
           <div className="space-y-2 text-xs font-bold">
             {[
-              'status: success',
-              'isFetching: true',
-              'staleTime: 30_000',
-              'gcTime: 5 minutes',
+              `status: ${projectsQuery.status}`,
+              `isFetching: ${projectsQuery.isFetching}`,
+              'staleTime: 3_200',
+              `mutation: ${addIssueMutation.status}`,
             ].map((item) => (
               <div
                 key={item}
@@ -465,6 +650,12 @@ function QueryCachePanel() {
       </div>
     </div>
   )
+}
+
+function waitForQueryHero(ms: number) {
+  return new Promise<void>((resolve) => {
+    setTimeout(resolve, ms)
+  })
 }
 
 function CacheLifecyclePanel() {

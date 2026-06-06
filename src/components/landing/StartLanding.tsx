@@ -20,7 +20,6 @@ import { GithubIcon } from '~/components/icons/GithubIcon'
 import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
-import { LibraryStatsSection } from '~/components/LibraryStatsSection'
 import { LibraryWordmark } from '~/components/LibraryWordmark'
 import { getLibrary } from '~/libraries'
 import {
@@ -310,10 +309,6 @@ export default function StartLanding() {
             ))}
           </div>
         </div>
-
-        <div className="mx-auto w-full max-w-[80rem] px-4 pb-12">
-          <LibraryStatsSection library={library} />
-        </div>
       </section>
 
       <section className="bg-white py-12 dark:bg-zinc-950">
@@ -361,6 +356,10 @@ export default function StartLanding() {
 }
 
 function StartRuntimePanel() {
+  const [activeContractIndex, setActiveContractIndex] = React.useState(0)
+  const activeContract =
+    routeContracts[activeContractIndex] ?? routeContracts[0]
+
   return (
     <div className="min-w-0 w-full max-w-full overflow-hidden rounded-lg border border-cyan-200 bg-white p-4 shadow-sm shadow-cyan-950/5 dark:border-cyan-900 dark:bg-zinc-950">
       <div className="flex items-center justify-between gap-3">
@@ -385,27 +384,75 @@ function StartRuntimePanel() {
         </p>
       </div>
 
+      <div className="mt-4 rounded-lg bg-cyan-50 p-3 dark:bg-cyan-950/30">
+        <div className="flex min-w-0 items-start justify-between gap-3">
+          <p className="min-w-0 truncate font-mono text-xs font-bold text-cyan-950 dark:text-cyan-100">
+            {activeContract.file}
+          </p>
+          <span className="shrink-0 rounded-md bg-cyan-500 px-1.5 py-0.5 text-[0.65rem] font-black uppercase leading-none text-white">
+            {activeContract.tag}
+          </span>
+        </div>
+        <p className="mt-2 text-sm font-black leading-5 text-zinc-950 dark:text-white">
+          {activeContract.title}
+        </p>
+        <p className="mt-1 text-xs leading-5 text-cyan-950/75 dark:text-cyan-100/75">
+          {activeContract.body}
+        </p>
+      </div>
+
       <div className="mt-4 space-y-2">
-        {routeContracts.map((contract) => (
-          <div
+        {routeContracts.map((contract, index) => (
+          <button
             key={contract.file}
-            className="rounded-lg border border-zinc-100 bg-zinc-50 px-3 py-2.5 dark:border-zinc-800 dark:bg-zinc-900"
+            aria-pressed={activeContractIndex === index}
+            className={
+              activeContractIndex === index
+                ? 'w-full rounded-lg border border-cyan-500 bg-cyan-500 px-3 py-2.5 text-left text-white'
+                : 'w-full rounded-lg border border-zinc-100 bg-zinc-50 px-3 py-2.5 text-left transition-colors hover:border-cyan-300 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-cyan-800'
+            }
+            type="button"
+            onClick={() => setActiveContractIndex(index)}
           >
             <div className="flex min-w-0 items-start justify-between gap-3">
-              <p className="min-w-0 truncate font-mono text-xs font-bold text-zinc-900 dark:text-zinc-100">
+              <p
+                className={
+                  activeContractIndex === index
+                    ? 'min-w-0 truncate font-mono text-xs font-bold text-white'
+                    : 'min-w-0 truncate font-mono text-xs font-bold text-zinc-900 dark:text-zinc-100'
+                }
+              >
                 {contract.file}
               </p>
-              <span className="shrink-0 rounded-md bg-cyan-100 px-1.5 py-0.5 text-[0.65rem] font-black uppercase leading-none text-cyan-800 dark:bg-cyan-950 dark:text-cyan-200">
+              <span
+                className={
+                  activeContractIndex === index
+                    ? 'shrink-0 rounded-md bg-white/20 px-1.5 py-0.5 text-[0.65rem] font-black uppercase leading-none text-white'
+                    : 'shrink-0 rounded-md bg-cyan-100 px-1.5 py-0.5 text-[0.65rem] font-black uppercase leading-none text-cyan-800 dark:bg-cyan-950 dark:text-cyan-200'
+                }
+              >
                 {contract.tag}
               </span>
             </div>
-            <p className="mt-1.5 text-sm font-black leading-5 text-zinc-950 dark:text-white">
+            <p
+              className={
+                activeContractIndex === index
+                  ? 'mt-1.5 text-sm font-black leading-5 text-white'
+                  : 'mt-1.5 text-sm font-black leading-5 text-zinc-950 dark:text-white'
+              }
+            >
               {contract.title}
             </p>
-            <p className="mt-1 text-xs leading-5 text-zinc-600 dark:text-zinc-400">
+            <p
+              className={
+                activeContractIndex === index
+                  ? 'mt-1 text-xs leading-5 text-white/80'
+                  : 'mt-1 text-xs leading-5 text-zinc-600 dark:text-zinc-400'
+              }
+            >
               {contract.body}
             </p>
-          </div>
+          </button>
         ))}
       </div>
 

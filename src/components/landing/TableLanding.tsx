@@ -1,9 +1,25 @@
 import * as React from 'react'
 import { Link, useParams } from '@tanstack/react-router'
 import {
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+  type ColumnDef,
+  type ColumnFiltersState,
+  type PaginationState,
+  type RowSelectionState,
+  type SortingState,
+  type VisibilityState,
+} from '@tanstack/react-table'
+import {
   ArrowRight,
   BookOpen,
   Boxes,
+  ChevronDown,
+  ChevronUp,
   Columns3,
   EyeOff,
   Filter,
@@ -12,6 +28,7 @@ import {
   MoveHorizontal,
   Rows3,
   Scaling,
+  Search,
   SlidersHorizontal,
   Sparkles,
 } from 'lucide-react'
@@ -22,7 +39,6 @@ import { GithubIcon } from '~/components/icons/GithubIcon'
 import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
-import { LibraryStatsSection } from '~/components/LibraryStatsSection'
 import { LibraryTestimonials } from '~/components/LibraryTestimonials'
 import { LibraryWordmark } from '~/components/LibraryWordmark'
 import LandingPageGad from '~/components/LandingPageGad'
@@ -54,18 +70,83 @@ const heroProof = [
   },
 ]
 
-const tableColumns = [
-  { key: 'name', label: 'Project', width: 'w-[34%]' },
-  { key: 'status', label: 'Status', width: 'w-[20%]' },
-  { key: 'owner', label: 'Owner', width: 'w-[22%]' },
-  { key: 'score', label: 'Score', width: 'w-[24%]' },
+type TableIssue = {
+  id: string
+  owner: string
+  project: string
+  score: number
+  status: 'active' | 'review' | 'shipped'
+}
+
+type TableStatusFilter = 'all' | TableIssue['status']
+
+const tableStatusFilters: Array<{
+  label: string
+  value: TableStatusFilter
+}> = [
+  { label: 'All', value: 'all' },
+  { label: 'Active', value: 'active' },
+  { label: 'Review', value: 'review' },
+  { label: 'Shipped', value: 'shipped' },
 ]
 
-const tableRows = [
-  ['Router docs', 'active', 'Tanner', '98'],
-  ['Query cache', 'review', 'Dominik', '94'],
-  ['Table filters', 'shipped', 'Kevin', '91'],
-  ['Virtual lists', 'active', 'Ben', '88'],
+const tableRows: Array<TableIssue> = [
+  {
+    id: 'issue-732',
+    owner: 'Tanner',
+    project: 'Router docs',
+    score: 98,
+    status: 'active',
+  },
+  {
+    id: 'issue-681',
+    owner: 'Dominik',
+    project: 'Query cache',
+    score: 94,
+    status: 'review',
+  },
+  {
+    id: 'issue-644',
+    owner: 'Kevin',
+    project: 'Table filters',
+    score: 91,
+    status: 'shipped',
+  },
+  {
+    id: 'issue-612',
+    owner: 'Ben',
+    project: 'Virtual lists',
+    score: 88,
+    status: 'active',
+  },
+  {
+    id: 'issue-590',
+    owner: 'Arthur',
+    project: 'Column pinning',
+    score: 84,
+    status: 'review',
+  },
+  {
+    id: 'issue-551',
+    owner: 'Noel',
+    project: 'Faceted search',
+    score: 79,
+    status: 'shipped',
+  },
+  {
+    id: 'issue-523',
+    owner: 'Zach',
+    project: 'Bulk actions',
+    score: 76,
+    status: 'active',
+  },
+  {
+    id: 'issue-507',
+    owner: 'Luca',
+    project: 'Density switch',
+    score: 72,
+    status: 'review',
+  },
 ]
 
 const pipelineSteps = [
@@ -307,10 +388,6 @@ export default function TableLanding({
             {landingCodeExampleRsc}
           </div>
         </div>
-
-        <div className="mx-auto w-full max-w-[80rem] px-4 pb-12 xl:max-w-[92rem]">
-          <LibraryStatsSection library={library} />
-        </div>
       </section>
 
       <section className="border-b border-zinc-200 bg-[#f4f9ff] py-12 dark:border-zinc-800 dark:bg-zinc-900">
@@ -382,6 +459,120 @@ export default function TableLanding({
 }
 
 function TableWorkbenchPanel() {
+  const [globalFilter, setGlobalFilter] = React.useState('')
+  const [statusFilter, setStatusFilter] =
+    React.useState<TableStatusFilter>('all')
+  const [sorting, setSorting] = React.useState<SortingState>([
+    { id: 'score', desc: true },
+  ])
+  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({
+    'issue-732': true,
+    'issue-681': true,
+  })
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({
+      owner: true,
+      score: true,
+      status: true,
+    })
+  const [pagination, setPagination] = React.useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 4,
+  })
+  const columnFilters = React.useMemo<ColumnFiltersState>(() => {
+    if (statusFilter === 'all') {
+      return []
+    }
+
+    return [{ id: 'status', value: statusFilter }]
+  }, [statusFilter])
+  const columns = React.useMemo<Array<ColumnDef<TableIssue>>>(
+    () => [
+      {
+        id: 'select',
+        cell: ({ row }) => (
+          <input
+            aria-label={`Select ${row.original.project}`}
+            checked={row.getIsSelected()}
+            className="h-4 w-4 rounded border-zinc-300 text-blue-600"
+            type="checkbox"
+            onChange={() => row.toggleSelected()}
+          />
+        ),
+        enableSorting: false,
+        header: () => <span className="sr-only">Select rows</span>,
+      },
+      {
+        accessorKey: 'project',
+        cell: ({ row }) => row.original.project,
+        header: 'Project',
+      },
+      {
+        accessorKey: 'status',
+        cell: ({ row }) => <StatusBadge status={row.original.status} />,
+        filterFn: (row, _columnId, filterValue) =>
+          row.original.status === filterValue,
+        header: 'Status',
+      },
+      {
+        accessorKey: 'owner',
+        cell: ({ row }) => row.original.owner,
+        header: 'Owner',
+      },
+      {
+        accessorKey: 'score',
+        cell: ({ row }) => `${row.original.score}`,
+        header: 'Score',
+      },
+    ],
+    [],
+  )
+  const table = useReactTable({
+    columns,
+    data: tableRows,
+    enableRowSelection: true,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getRowId: (row) => row.id,
+    getSortedRowModel: getSortedRowModel(),
+    globalFilterFn: (row, _columnId, filterValue) => {
+      const search = String(filterValue).trim().toLowerCase()
+
+      if (!search) {
+        return true
+      }
+
+      return [row.original.project, row.original.owner, row.original.status]
+        .join(' ')
+        .toLowerCase()
+        .includes(search)
+    },
+    onColumnVisibilityChange: setColumnVisibility,
+    onGlobalFilterChange: setGlobalFilter,
+    onPaginationChange: setPagination,
+    onRowSelectionChange: setRowSelection,
+    onSortingChange: setSorting,
+    state: {
+      columnFilters,
+      columnVisibility,
+      globalFilter,
+      pagination,
+      rowSelection,
+      sorting,
+    },
+  })
+  const filteredRowsCount = table.getFilteredRowModel().rows.length
+  const selectedRowsCount = table.getSelectedRowModel().rows.length
+  const pageCount = table.getPageCount()
+
+  React.useEffect(() => {
+    setPagination((current) => ({
+      ...current,
+      pageIndex: 0,
+    }))
+  }, [globalFilter, statusFilter])
+
   return (
     <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-blue-200 bg-white p-4 shadow-sm shadow-blue-950/5 dark:border-blue-900 dark:bg-zinc-950">
       <div className="flex items-center justify-between gap-3">
@@ -395,57 +586,235 @@ function TableWorkbenchPanel() {
         </span>
       </div>
 
-      <div className="mt-4 overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-800">
-        <div className="flex border-b border-zinc-200 bg-blue-50 text-xs font-black uppercase text-blue-950 dark:border-zinc-800 dark:bg-blue-950/30 dark:text-blue-100">
-          {tableColumns.map((column) => (
-            <div key={column.key} className={`${column.width} px-3 py-2`}>
-              {column.label}
-            </div>
-          ))}
-        </div>
-
-        <div className="divide-y divide-zinc-200 dark:divide-zinc-800">
-          {tableRows.map((row) => (
-            <div
-              key={row.join(':')}
-              className="flex bg-white text-sm dark:bg-zinc-950"
+      <div className="mt-4 grid gap-3 lg:grid-cols-[1fr_auto]">
+        <label className="flex min-w-0 items-center gap-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-800 dark:bg-zinc-900">
+          <Search
+            aria-hidden="true"
+            className="shrink-0 text-blue-700 dark:text-blue-300"
+            size={16}
+          />
+          <span className="sr-only">Search table rows</span>
+          <input
+            className="min-w-0 flex-1 bg-transparent text-sm font-bold text-zinc-950 outline-none placeholder:text-zinc-400 dark:text-white"
+            placeholder="Search projects or owners"
+            value={globalFilter}
+            onChange={(event) => setGlobalFilter(event.target.value)}
+          />
+        </label>
+        <div className="flex flex-wrap gap-2">
+          {tableStatusFilters.map((filter) => (
+            <button
+              key={filter.value}
+              aria-pressed={statusFilter === filter.value}
+              className={
+                statusFilter === filter.value
+                  ? 'rounded-md border border-blue-600 bg-blue-600 px-3 py-2 text-xs font-black text-white'
+                  : 'rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs font-black text-zinc-700 transition-colors hover:border-blue-300 hover:text-blue-800 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:border-blue-700 dark:hover:text-blue-200'
+              }
+              type="button"
+              onClick={() => setStatusFilter(filter.value)}
             >
-              {row.map((cell, index) => (
-                <div
-                  key={cell}
-                  className={`${tableColumns[index]?.width ?? 'w-1/4'} min-w-0 px-3 py-3`}
-                >
-                  <span className="block truncate font-bold text-zinc-900 dark:text-zinc-100">
-                    {cell}
-                  </span>
-                </div>
-              ))}
-            </div>
+              {filter.label}
+            </button>
           ))}
         </div>
       </div>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-3">
-        {[
-          ['Filtered', 'status: active'],
-          ['Sorted', 'score desc'],
-          ['Selected', '2 rows'],
-        ].map(([label, value]) => (
-          <div
-            key={label}
-            className="rounded-lg bg-blue-50 p-3 dark:bg-blue-950/25"
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+        <div className="flex flex-wrap gap-2">
+          {['owner', 'status', 'score'].map((columnId) => {
+            const column = table.getColumn(columnId)
+            const isVisible = column?.getIsVisible() ?? false
+
+            return (
+              <button
+                key={columnId}
+                aria-pressed={isVisible}
+                className={
+                  isVisible
+                    ? 'rounded-md border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-black capitalize text-blue-800 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200'
+                    : 'rounded-md border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-xs font-black capitalize text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-500'
+                }
+                type="button"
+                onClick={() => column?.toggleVisibility()}
+              >
+                {columnId}
+              </button>
+            )
+          })}
+        </div>
+        <span className="text-xs font-black text-zinc-500 dark:text-zinc-400">
+          {filteredRowsCount} rows / {selectedRowsCount} selected
+        </span>
+      </div>
+
+      <div className="mt-4 overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-800">
+        <table className="w-full table-fixed border-collapse text-left text-sm">
+          <thead className="border-b border-zinc-200 bg-blue-50 text-xs font-black uppercase text-blue-950 dark:border-zinc-800 dark:bg-blue-950/30 dark:text-blue-100">
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <th
+                    key={header.id}
+                    className={getTableHeroCellClassName(header.column.id)}
+                    scope="col"
+                  >
+                    {header.isPlaceholder ? null : header.column.getCanSort() ? (
+                      <button
+                        className="flex w-full min-w-0 items-center gap-1 text-left"
+                        type="button"
+                        onClick={header.column.getToggleSortingHandler()}
+                      >
+                        <span className="truncate">
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
+                        </span>
+                        {header.column.getIsSorted() === 'asc' ? (
+                          <ChevronUp aria-hidden="true" size={13} />
+                        ) : header.column.getIsSorted() === 'desc' ? (
+                          <ChevronDown aria-hidden="true" size={13} />
+                        ) : null}
+                      </button>
+                    ) : (
+                      flexRender(
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )
+                    )}
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
+            {table.getRowModel().rows.map((row) => (
+              <tr
+                key={row.id}
+                className={
+                  row.getIsSelected()
+                    ? 'bg-blue-50/80 dark:bg-blue-950/25'
+                    : 'bg-white dark:bg-zinc-950'
+                }
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <td
+                    key={cell.id}
+                    className={getTableHeroCellClassName(cell.column.id)}
+                  >
+                    <span className="block truncate font-bold text-zinc-900 dark:text-zinc-100">
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
+                    </span>
+                  </td>
+                ))}
+              </tr>
+            ))}
+            {table.getRowModel().rows.length === 0 ? (
+              <tr>
+                <td
+                  className="px-3 py-6 text-center text-sm font-bold text-zinc-500 dark:text-zinc-400"
+                  colSpan={table.getVisibleLeafColumns().length}
+                >
+                  No matching rows
+                </td>
+              </tr>
+            ) : null}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
+        <div className="grid gap-3 sm:grid-cols-3">
+          {[
+            ['Filtered', statusFilter === 'all' ? 'all rows' : statusFilter],
+            [
+              'Sorted',
+              sorting[0]
+                ? `${sorting[0].id} ${sorting[0].desc ? 'desc' : 'asc'}`
+                : 'none',
+            ],
+            ['Selected', `${selectedRowsCount} rows`],
+          ].map(([label, value]) => (
+            <div
+              key={label}
+              className="rounded-lg bg-blue-50 p-3 dark:bg-blue-950/25"
+            >
+              <p className="text-[0.65rem] font-black uppercase text-blue-700 dark:text-blue-300">
+                {label}
+              </p>
+              <p className="mt-1 truncate text-sm font-black text-blue-950 dark:text-blue-100">
+                {value}
+              </p>
+            </div>
+          ))}
+        </div>
+        <div className="flex items-center justify-end gap-2">
+          <button
+            className="rounded-md border border-zinc-200 px-3 py-2 text-xs font-black text-zinc-700 transition-colors hover:border-blue-300 hover:text-blue-800 disabled:cursor-not-allowed disabled:opacity-40 dark:border-zinc-800 dark:text-zinc-300 dark:hover:border-blue-700 dark:hover:text-blue-200"
+            disabled={!table.getCanPreviousPage()}
+            type="button"
+            onClick={() => table.previousPage()}
           >
-            <p className="text-[0.65rem] font-black uppercase text-blue-700 dark:text-blue-300">
-              {label}
-            </p>
-            <p className="mt-1 text-sm font-black text-blue-950 dark:text-blue-100">
-              {value}
-            </p>
-          </div>
-        ))}
+            Prev
+          </button>
+          <span className="min-w-[3.25rem] text-center text-xs font-black text-zinc-500 dark:text-zinc-400">
+            {Math.min(
+              table.getState().pagination.pageIndex + 1,
+              pageCount || 1,
+            )}{' '}
+            / {Math.max(pageCount, 1)}
+          </span>
+          <button
+            className="rounded-md border border-zinc-200 px-3 py-2 text-xs font-black text-zinc-700 transition-colors hover:border-blue-300 hover:text-blue-800 disabled:cursor-not-allowed disabled:opacity-40 dark:border-zinc-800 dark:text-zinc-300 dark:hover:border-blue-700 dark:hover:text-blue-200"
+            disabled={!table.getCanNextPage()}
+            type="button"
+            onClick={() => table.nextPage()}
+          >
+            Next
+          </button>
+        </div>
       </div>
     </div>
   )
+}
+
+function StatusBadge({ status }: { status: TableIssue['status'] }) {
+  const className =
+    status === 'active'
+      ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-200'
+      : status === 'review'
+        ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-200'
+        : 'bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-200'
+
+  return (
+    <span className={`rounded-md px-2 py-1 text-xs font-black ${className}`}>
+      {status}
+    </span>
+  )
+}
+
+function getTableHeroCellClassName(columnId: string) {
+  if (columnId === 'select') {
+    return 'w-10 px-3 py-3'
+  }
+
+  if (columnId === 'score') {
+    return 'w-[4.5rem] px-3 py-3'
+  }
+
+  if (columnId === 'status') {
+    return 'w-[6.5rem] px-3 py-3'
+  }
+
+  if (columnId === 'owner') {
+    return 'w-24 px-3 py-3'
+  }
+
+  return 'min-w-0 px-3 py-3'
 }
 
 function PipelinePanel() {

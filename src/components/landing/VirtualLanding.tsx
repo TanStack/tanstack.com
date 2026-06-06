@@ -1,17 +1,23 @@
 import * as React from 'react'
 import { Link, useParams } from '@tanstack/react-router'
 import {
+  ArrowDownToLine,
   ArrowRight,
   BookOpen,
   BoxSelect,
   Eye,
   Gauge,
   Grid3X3,
+  History,
   List,
+  MessageSquareText,
   MoveHorizontal,
   MousePointer2,
+  Pause,
+  Play,
   Ruler,
   Scaling,
+  Send,
   Sparkles,
   StretchHorizontal,
   Timer,
@@ -23,13 +29,13 @@ import { GithubIcon } from '~/components/icons/GithubIcon'
 import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
-import { LibraryStatsSection } from '~/components/LibraryStatsSection'
 import { LibraryTestimonials } from '~/components/LibraryTestimonials'
 import { LibraryWordmark } from '~/components/LibraryWordmark'
 import LandingPageGad from '~/components/LandingPageGad'
 import { getLibrary } from '~/libraries'
 import { virtualProject } from '~/libraries/virtual'
 import type { LandingComponentProps } from '~/routes/$libraryId/$version'
+import { usePrefersReducedMotion } from '~/utils/usePrefersReducedMotion'
 
 import { LandingEcosystemProof } from '~/components/landing/LandingEcosystemProof'
 import { LandingCopyPromptButton } from '~/components/landing/LandingCopyPromptButton'
@@ -118,6 +124,152 @@ const virtualModes = [
     body: 'Rows and columns that need windowing without adopting a canned grid UI.',
     icon: <Grid3X3 size={18} />,
   },
+]
+
+type VirtualAlign = 'start' | 'center' | 'end'
+
+type VirtualScrollAction =
+  | {
+      align: VirtualAlign
+      code: string
+      detail: string
+      index: number
+      kind: 'index'
+      label: string
+    }
+  | {
+      code: string
+      detail: string
+      kind: 'offset'
+      label: string
+      offset: number
+    }
+  | {
+      code: string
+      detail: string
+      kind: 'end'
+      label: string
+    }
+
+const virtualScrollActions: Array<VirtualScrollAction> = [
+  {
+    kind: 'index',
+    label: 'Row 180',
+    detail: 'start align',
+    code: 'virtualizer.scrollToIndex(180)',
+    index: 0,
+    align: 'start',
+  },
+  {
+    kind: 'index',
+    label: 'Row 198',
+    detail: 'center align',
+    code: "virtualizer.scrollToIndex(198, { align: 'center' })",
+    index: 18,
+    align: 'center',
+  },
+  {
+    kind: 'offset',
+    label: 'Offset 640',
+    detail: 'pixel scroll',
+    code: 'virtualizer.scrollToOffset(640)',
+    offset: 640,
+  },
+  {
+    kind: 'end',
+    label: 'End',
+    detail: 'latest edge',
+    code: 'virtualizer.scrollToEnd()',
+  },
+]
+
+type VirtualChatRole = 'assistant' | 'tool' | 'user'
+
+type VirtualChatMessage = {
+  body: string
+  id: string
+  role: VirtualChatRole
+  status?: string
+}
+
+type VirtualChatAnchor = {
+  id: string
+  offset: number
+}
+
+const initialChatMessages: Array<VirtualChatMessage> = [
+  {
+    id: 'm-07',
+    role: 'user',
+    body: 'Can you summarize the alerts from the last deploy?',
+  },
+  {
+    id: 'm-08',
+    role: 'assistant',
+    body: 'Three services reported higher latency, but only search crossed the user-visible threshold. I would start with the cache miss spike at 14:42.',
+  },
+  {
+    id: 'm-09',
+    role: 'tool',
+    body: 'query deploy_events --service search --window 30m',
+    status: 'tool result',
+  },
+  {
+    id: 'm-10',
+    role: 'assistant',
+    body: 'The slow requests line up with a schema warmup path. The good news: the regression is isolated and the route recovered after the cache filled.',
+  },
+  {
+    id: 'm-11',
+    role: 'user',
+    body: 'Draft the follow-up for the incident channel.',
+  },
+  {
+    id: 'm-12',
+    role: 'assistant',
+    body: 'Posted a concise update: cause, impact window, current status, and one owner for the follow-up patch.',
+  },
+]
+
+const olderChatMessages: Array<VirtualChatMessage> = [
+  {
+    id: 'm-01',
+    role: 'user',
+    body: 'Start a deploy review and keep the message list pinned unless I scroll away.',
+  },
+  {
+    id: 'm-02',
+    role: 'assistant',
+    body: 'I will keep the latest turn visible while new output streams, and preserve this exact reading position if older history loads above it.',
+  },
+  {
+    id: 'm-03',
+    role: 'tool',
+    body: 'fetch traces --cursor before:m-07 --limit 50',
+    status: 'prepended',
+  },
+  {
+    id: 'm-04',
+    role: 'assistant',
+    body: 'Older context loaded without shifting the visible message. That is the part chat UIs usually end up rebuilding by hand.',
+  },
+  {
+    id: 'm-05',
+    role: 'user',
+    body: 'Keep going if the model response grows.',
+  },
+  {
+    id: 'm-06',
+    role: 'assistant',
+    body: 'Streaming output can resize the last row over and over while the viewport stays anchored to the end.',
+  },
+]
+
+const chatStreamChunks = [
+  'Virtual treats chat as an end-anchored list.',
+  'Older history can be prepended while the current message keeps its visual position.',
+  'When the user is already at the latest message, appended tokens keep following the end.',
+  'If the user scrolls up to read, new output lands below without stealing the viewport.',
 ]
 
 const frameworkAdapters = ['React', 'Vue', 'Solid', 'Svelte', 'Lit', 'Angular']
@@ -234,6 +386,44 @@ export default function VirtualLanding({
         </div>
       </section>
 
+      <section className="border-b border-zinc-200 bg-[#f4fbff] dark:border-zinc-800 dark:bg-[#071016]">
+        <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.76fr_1.24fr] lg:items-start xl:max-w-[92rem]">
+          <div className="max-w-xl">
+            <SectionKicker icon={<MessageSquareText size={14} />}>
+              AI chat virtualization
+            </SectionKicker>
+            <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
+              Chat scroll is backwards, streaming, and constantly resizing.
+            </h2>
+            <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300">
+              Chat, agents, copilots, logs, and support inboxes need end
+              anchoring, stable prepends, append-follow, and a reliable way to
+              jump back to the latest turn. Virtual now models those behaviors
+              as scroll primitives instead of app-specific bookkeeping.
+            </p>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              {[
+                ['anchorTo', "'end' keeps the latest edge stable"],
+                ['followOnAppend', 'follow only when already pinned'],
+                ['scrollToEnd', 'wire a Latest control to the API'],
+                ['measureElement', 'let streamed bubbles grow naturally'],
+              ].map(([label, value]) => (
+                <div key={label} className="border-l-2 border-sky-500 pl-3">
+                  <p className="font-mono text-sm font-black text-sky-800 dark:text-sky-200">
+                    {label}
+                  </p>
+                  <p className="mt-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">
+                    {value}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <VirtualChatPanel />
+        </div>
+      </section>
+
       <section className="border-b border-zinc-200 bg-[#fbfaf6] dark:border-zinc-800 dark:bg-zinc-900">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.82fr_1.18fr] lg:items-start xl:max-w-[92rem]">
           <div>
@@ -283,10 +473,6 @@ export default function VirtualLanding({
           <div className="min-w-0 max-w-full overflow-hidden">
             {landingCodeExampleRsc}
           </div>
-        </div>
-
-        <div className="mx-auto w-full max-w-[80rem] px-4 pb-12 xl:max-w-[92rem]">
-          <LibraryStatsSection library={library} />
         </div>
       </section>
 
@@ -358,9 +544,18 @@ export default function VirtualLanding({
 }
 
 function VirtualWindowPanel() {
+  const prefersReducedMotion = usePrefersReducedMotion()
+  const scrollContainerRef = React.useRef<HTMLDivElement>(null)
+  const scrollOffsetRef = React.useRef(0)
+  const isProgrammaticScrollRef = React.useRef(false)
+  const programmaticScrollResetRef = React.useRef<number | null>(null)
   const [scrollOffset, setScrollOffset] = React.useState(0)
-  const viewportHeight = 218
-  const overscan = 84
+  const [isAutoScrolling, setIsAutoScrolling] = React.useState(false)
+  const [lastScrollOperation, setLastScrollOperation] = React.useState(
+    virtualScrollActions[0]?.code ?? 'virtualizer.scrollToIndex(180)',
+  )
+  const viewportHeight = 320
+  const overscan = 96
   const measurements = React.useMemo(() => {
     let start = 0
 
@@ -393,26 +588,142 @@ function VirtualWindowPanel() {
     row.end >= activeStart && row.start <= activeEnd
 
   React.useEffect(() => {
+    scrollOffsetRef.current = scrollOffset
+  }, [scrollOffset])
+
+  React.useEffect(() => {
+    if (prefersReducedMotion === false) {
+      setIsAutoScrolling(true)
+    }
+  }, [prefersReducedMotion])
+
+  React.useEffect(() => {
+    return () => {
+      if (programmaticScrollResetRef.current !== null) {
+        window.clearTimeout(programmaticScrollResetRef.current)
+      }
+    }
+  }, [])
+
+  React.useEffect(() => {
+    if (!isAutoScrolling || prefersReducedMotion) {
+      return
+    }
+
+    const scrollElement = scrollContainerRef.current
+
+    if (!scrollElement) {
+      return
+    }
+
     let frameId = 0
-    let startTime = 0
+    let startTime: number | null = null
+    const duration = 6800
+    const startingPhase =
+      maxOffset > 0 ? scrollOffsetRef.current / maxOffset : 0
 
     const update = (time: number) => {
-      if (!startTime) {
-        startTime = time
+      if (startTime === null) {
+        startTime = time - startingPhase * duration
       }
 
-      const duration = 6400
       const phase = ((time - startTime) % duration) / duration
       const eased = 0.5 - Math.cos(phase * Math.PI * 2) / 2
+      const nextOffset = eased * maxOffset
 
-      setScrollOffset(eased * maxOffset)
+      isProgrammaticScrollRef.current = true
+      scrollElement.scrollTop = nextOffset
+      setScrollOffset(nextOffset)
+
+      if (programmaticScrollResetRef.current !== null) {
+        window.clearTimeout(programmaticScrollResetRef.current)
+      }
+
+      programmaticScrollResetRef.current = window.setTimeout(() => {
+        isProgrammaticScrollRef.current = false
+      }, 40)
       frameId = window.requestAnimationFrame(update)
     }
 
     frameId = window.requestAnimationFrame(update)
 
     return () => window.cancelAnimationFrame(frameId)
-  }, [maxOffset])
+  }, [isAutoScrolling, maxOffset, prefersReducedMotion])
+
+  const markProgrammaticScroll = (resetDelay: number) => {
+    isProgrammaticScrollRef.current = true
+
+    if (programmaticScrollResetRef.current !== null) {
+      window.clearTimeout(programmaticScrollResetRef.current)
+    }
+
+    programmaticScrollResetRef.current = window.setTimeout(() => {
+      isProgrammaticScrollRef.current = false
+    }, resetDelay)
+  }
+
+  const scrollToVirtualOffset = (nextOffset: number, operation: string) => {
+    const scrollElement = scrollContainerRef.current
+    const clampedOffset = Math.max(0, Math.min(nextOffset, maxOffset))
+
+    setIsAutoScrolling(false)
+    setLastScrollOperation(operation)
+
+    if (!scrollElement) {
+      setScrollOffset(clampedOffset)
+      return
+    }
+
+    const behavior: ScrollBehavior = prefersReducedMotion ? 'auto' : 'smooth'
+
+    if (behavior === 'auto') {
+      setScrollOffset(clampedOffset)
+    }
+
+    markProgrammaticScroll(prefersReducedMotion ? 80 : 460)
+    scrollElement.scrollTo({ top: clampedOffset, behavior })
+  }
+
+  const getIndexOffset = (index: number, align: VirtualAlign) => {
+    const measurement = measurements[index]
+
+    if (!measurement) {
+      return 0
+    }
+
+    if (align === 'center') {
+      return measurement.start - viewportHeight / 2 + measurement.height / 2
+    }
+
+    if (align === 'end') {
+      return measurement.end - viewportHeight
+    }
+
+    return measurement.start
+  }
+
+  const runScrollAction = (action: VirtualScrollAction) => {
+    if (action.kind === 'index') {
+      scrollToVirtualOffset(
+        getIndexOffset(action.index, action.align),
+        action.code,
+      )
+      return
+    }
+
+    if (action.kind === 'offset') {
+      scrollToVirtualOffset(action.offset, action.code)
+      return
+    }
+
+    scrollToVirtualOffset(maxOffset, action.code)
+  }
+
+  const pauseAutoScroll = () => {
+    if (isAutoScrolling) {
+      setIsAutoScrolling(false)
+    }
+  }
 
   return (
     <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-purple-200 bg-white p-4 shadow-sm shadow-purple-950/5 dark:border-purple-900 dark:bg-zinc-950">
@@ -426,6 +737,77 @@ function VirtualWindowPanel() {
           10,000 rows / {mountedRows.length} mounted / {activeRows.length}{' '}
           visible
         </span>
+      </div>
+
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2 rounded-lg bg-purple-50 px-3 py-2 dark:bg-purple-950/25">
+          <span
+            className={
+              isAutoScrolling
+                ? 'h-2 w-2 rounded-full bg-emerald-500'
+                : 'h-2 w-2 rounded-full bg-zinc-400'
+            }
+          />
+          <span className="text-xs font-black uppercase text-purple-800 dark:text-purple-200">
+            {isAutoScrolling ? 'Auto loop' : 'Manual'}
+          </span>
+        </div>
+        <button
+          className="inline-flex items-center gap-2 rounded-md border border-purple-200 bg-white px-3 py-2 text-xs font-black text-purple-800 transition-colors hover:border-purple-400 hover:bg-purple-50 dark:border-purple-900 dark:bg-zinc-950 dark:text-purple-200 dark:hover:border-purple-600 dark:hover:bg-purple-950/25"
+          type="button"
+          onClick={() => setIsAutoScrolling((current) => !current)}
+        >
+          {isAutoScrolling ? (
+            <Pause aria-hidden="true" size={14} />
+          ) : (
+            <Play aria-hidden="true" size={14} />
+          )}
+          {isAutoScrolling ? 'Pause' : 'Resume'}
+        </button>
+      </div>
+
+      <div className="mt-4 rounded-lg border border-purple-100 bg-purple-50/70 p-3 dark:border-purple-900 dark:bg-purple-950/20">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-xs font-black uppercase text-purple-800 dark:text-purple-200">
+            scroll API
+          </p>
+          <code className="max-w-full truncate rounded bg-white px-2 py-1 font-mono text-[0.68rem] font-bold text-purple-800 dark:bg-zinc-950 dark:text-purple-200">
+            {lastScrollOperation}
+          </code>
+        </div>
+        <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+          {virtualScrollActions.map((action) => {
+            const isActive = lastScrollOperation === action.code
+
+            return (
+              <button
+                key={action.code}
+                aria-pressed={isActive}
+                className={
+                  isActive
+                    ? 'rounded-md border border-purple-500 bg-purple-500 px-3 py-2 text-left text-white shadow-sm shadow-purple-950/15'
+                    : 'rounded-md border border-purple-200 bg-white px-3 py-2 text-left text-purple-900 transition-colors hover:border-purple-400 hover:bg-purple-100 dark:border-purple-900 dark:bg-zinc-950 dark:text-purple-100 dark:hover:border-purple-600 dark:hover:bg-purple-950/30'
+                }
+                type="button"
+                onClick={() => runScrollAction(action)}
+              >
+                <span className="flex items-center justify-between gap-2 text-xs font-black">
+                  {action.label}
+                  <ArrowRight aria-hidden="true" size={13} />
+                </span>
+                <span
+                  className={
+                    isActive
+                      ? 'mt-1 block text-[0.65rem] font-bold uppercase text-white/75'
+                      : 'mt-1 block text-[0.65rem] font-bold uppercase text-purple-600 dark:text-purple-300'
+                  }
+                >
+                  {action.detail}
+                </span>
+              </button>
+            )
+          })}
+        </div>
       </div>
 
       <div className="mt-4 grid gap-3 lg:grid-cols-[0.68fr_1.32fr]">
@@ -467,19 +849,28 @@ function VirtualWindowPanel() {
           </div>
         </div>
 
-        <div className="h-96 overflow-hidden rounded-lg border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-800 dark:bg-zinc-900">
-          <div className="relative h-full overflow-hidden rounded-md bg-white dark:bg-zinc-950">
-            <div
-              className="absolute left-3 right-3 top-1/2 -translate-y-1/2 rounded-lg border border-purple-400/70 bg-purple-500/10 shadow-lg shadow-purple-950/20"
-              style={{ height: viewportHeight }}
-            />
-            <div
-              className="absolute left-0 right-0 will-change-transform"
-              style={{
-                height: totalSize,
-                transform: `translateY(${-scrollOffset}px)`,
-              }}
-            >
+        <div className="overflow-hidden rounded-lg border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-800 dark:bg-zinc-900">
+          <div
+            ref={scrollContainerRef}
+            aria-label="Virtualized rows"
+            className="relative overflow-y-auto rounded-md bg-white dark:bg-zinc-950"
+            role="region"
+            style={{ height: viewportHeight }}
+            onScroll={(event) => {
+              setScrollOffset(event.currentTarget.scrollTop)
+
+              if (isProgrammaticScrollRef.current) {
+                isProgrammaticScrollRef.current = false
+                return
+              }
+
+              setIsAutoScrolling(false)
+            }}
+            onMouseDown={pauseAutoScroll}
+            onTouchStart={pauseAutoScroll}
+            onWheel={pauseAutoScroll}
+          >
+            <div className="relative w-full" style={{ height: totalSize }}>
               {mountedRows.map((row) => {
                 const rowVisible = isRowVisible(row)
 
@@ -519,6 +910,361 @@ function VirtualWindowPanel() {
       </div>
     </div>
   )
+}
+
+function VirtualChatPanel() {
+  const prefersReducedMotion = usePrefersReducedMotion()
+  const chatScrollRef = React.useRef<HTMLDivElement>(null)
+  const didInitialScrollRef = React.useRef(false)
+  const prependAnchorRef = React.useRef<VirtualChatAnchor | null>(null)
+  const shouldFollowRef = React.useRef(true)
+  const isAtEndRef = React.useRef(true)
+  const streamMessageIdRef = React.useRef<string | null>(null)
+  const streamRunRef = React.useRef(1)
+  const streamStepRef = React.useRef(0)
+  const [messages, setMessages] = React.useState(initialChatMessages)
+  const [scrollOffset, setScrollOffset] = React.useState(0)
+  const [hasPrependedHistory, setHasPrependedHistory] = React.useState(false)
+  const [isStreaming, setIsStreaming] = React.useState(false)
+  const [lastChatOperation, setLastChatOperation] =
+    React.useState("anchorTo: 'end'")
+  const viewportHeight = 420
+  const overscan = 150
+  const measurements = React.useMemo(() => {
+    let start = 0
+
+    return messages.map((message, index) => {
+      const height = getChatMessageHeight(message)
+      const measurement = {
+        ...message,
+        end: start + height,
+        height,
+        index,
+        start,
+      }
+
+      start += height + 10
+
+      return measurement
+    })
+  }, [messages])
+  const totalSize = measurements[measurements.length - 1]?.end ?? 0
+  const maxOffset = Math.max(totalSize - viewportHeight, 0)
+  const activeStart = scrollOffset
+  const activeEnd = scrollOffset + viewportHeight
+  const mountedMessages = measurements.filter(
+    (message) =>
+      message.end >= activeStart - overscan &&
+      message.start <= activeEnd + overscan,
+  )
+  const visibleMessages = mountedMessages.filter(
+    (message) => message.end >= activeStart && message.start <= activeEnd,
+  )
+  const distanceFromEnd = Math.max(maxOffset - scrollOffset, 0)
+  const isAtEnd = distanceFromEnd < 48
+
+  React.useEffect(() => {
+    isAtEndRef.current = isAtEnd
+  }, [isAtEnd])
+
+  React.useEffect(() => {
+    if (didInitialScrollRef.current) {
+      return
+    }
+
+    const scrollElement = chatScrollRef.current
+
+    if (!scrollElement) {
+      return
+    }
+
+    didInitialScrollRef.current = true
+    scrollElement.scrollTop = maxOffset
+    setScrollOffset(maxOffset)
+  }, [maxOffset])
+
+  React.useEffect(() => {
+    const anchor = prependAnchorRef.current
+
+    if (!anchor) {
+      return
+    }
+
+    const scrollElement = chatScrollRef.current
+    const nextAnchor = measurements.find((message) => message.id === anchor.id)
+
+    if (!scrollElement || !nextAnchor) {
+      prependAnchorRef.current = null
+      return
+    }
+
+    const nextOffset = Math.max(
+      0,
+      Math.min(nextAnchor.start - anchor.offset, maxOffset),
+    )
+
+    scrollElement.scrollTop = nextOffset
+    setScrollOffset(nextOffset)
+    prependAnchorRef.current = null
+  }, [maxOffset, measurements])
+
+  React.useEffect(() => {
+    if (!shouldFollowRef.current) {
+      return
+    }
+
+    shouldFollowRef.current = false
+
+    const scrollElement = chatScrollRef.current
+
+    if (!scrollElement) {
+      return
+    }
+
+    const frameId = window.requestAnimationFrame(() => {
+      const behavior: ScrollBehavior = prefersReducedMotion ? 'auto' : 'smooth'
+
+      scrollElement.scrollTo({ top: maxOffset, behavior })
+      setScrollOffset(maxOffset)
+    })
+
+    return () => window.cancelAnimationFrame(frameId)
+  }, [maxOffset, messages, prefersReducedMotion])
+
+  React.useEffect(() => {
+    if (!isStreaming) {
+      return
+    }
+
+    const intervalId = window.setInterval(() => {
+      const activeMessageId = streamMessageIdRef.current
+      const nextStep = streamStepRef.current + 1
+      const visibleChunkCount = Math.min(nextStep, chatStreamChunks.length)
+
+      if (!activeMessageId) {
+        window.clearInterval(intervalId)
+        setIsStreaming(false)
+        return
+      }
+
+      streamStepRef.current = nextStep
+      shouldFollowRef.current = isAtEndRef.current
+
+      setMessages((currentMessages) =>
+        currentMessages.map((message) =>
+          message.id === activeMessageId
+            ? {
+                ...message,
+                body: chatStreamChunks.slice(0, visibleChunkCount).join(' '),
+                status:
+                  visibleChunkCount === chatStreamChunks.length
+                    ? 'complete'
+                    : 'streaming',
+              }
+            : message,
+        ),
+      )
+
+      if (visibleChunkCount === chatStreamChunks.length) {
+        window.clearInterval(intervalId)
+        setIsStreaming(false)
+      }
+    }, 680)
+
+    return () => window.clearInterval(intervalId)
+  }, [isStreaming])
+
+  const scrollChatToEnd = () => {
+    const scrollElement = chatScrollRef.current
+
+    setLastChatOperation('virtualizer.scrollToEnd()')
+    shouldFollowRef.current = false
+
+    if (!scrollElement) {
+      return
+    }
+
+    const behavior: ScrollBehavior = prefersReducedMotion ? 'auto' : 'smooth'
+
+    scrollElement.scrollTo({ top: maxOffset, behavior })
+    setScrollOffset(maxOffset)
+  }
+
+  const prependHistory = () => {
+    if (hasPrependedHistory) {
+      return
+    }
+
+    const anchorMessage = visibleMessages[0] ?? mountedMessages[0]
+
+    if (anchorMessage) {
+      prependAnchorRef.current = {
+        id: anchorMessage.id,
+        offset: anchorMessage.start - scrollOffset,
+      }
+    }
+
+    setLastChatOperation("anchorTo: 'end' + stable getItemKey")
+    setHasPrependedHistory(true)
+    setMessages((currentMessages) => [...olderChatMessages, ...currentMessages])
+  }
+
+  const streamReply = () => {
+    if (isStreaming) {
+      return
+    }
+
+    const nextRun = streamRunRef.current
+    const nextMessageId = `stream-${nextRun}`
+
+    streamRunRef.current = nextRun + 1
+    streamStepRef.current = 1
+    streamMessageIdRef.current = nextMessageId
+    shouldFollowRef.current = isAtEndRef.current
+    setLastChatOperation('followOnAppend + measured stream')
+    setIsStreaming(true)
+    setMessages((currentMessages) => [
+      ...currentMessages,
+      {
+        id: nextMessageId,
+        role: 'assistant',
+        body: chatStreamChunks[0] ?? '',
+        status: 'streaming',
+      },
+    ])
+  }
+
+  return (
+    <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-sky-200 bg-white p-4 shadow-sm shadow-sky-950/5 dark:border-sky-900 dark:bg-zinc-950">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <span className="h-2.5 w-2.5 rounded-md bg-sky-400" />
+          <span className="h-2.5 w-2.5 rounded-md bg-emerald-400" />
+          <span className="h-2.5 w-2.5 rounded-md bg-purple-400" />
+        </div>
+        <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400">
+          {messages.length} messages / {mountedMessages.length} mounted /{' '}
+          {visibleMessages.length} visible
+        </span>
+      </div>
+
+      <div className="mt-4 grid gap-3 md:grid-cols-[1fr_auto] md:items-center">
+        <div className="min-w-0 rounded-lg bg-sky-50 px-3 py-2 dark:bg-sky-950/25">
+          <p className="truncate font-mono text-xs font-bold text-sky-900 dark:text-sky-200">
+            {lastChatOperation}
+          </p>
+          <p className="mt-1 text-xs font-bold text-zinc-500 dark:text-zinc-400">
+            {Math.round(distanceFromEnd)}px from end /{' '}
+            {isAtEnd ? 'pinned' : 'reading history'}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-3 gap-2">
+          <button
+            className={
+              hasPrependedHistory
+                ? 'inline-flex items-center justify-center gap-1 rounded-md border border-zinc-200 bg-zinc-100 px-3 py-2 text-xs font-black text-zinc-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-600'
+                : 'inline-flex items-center justify-center gap-1 rounded-md border border-sky-200 bg-white px-3 py-2 text-xs font-black text-sky-800 transition-colors hover:border-sky-400 hover:bg-sky-50 dark:border-sky-900 dark:bg-zinc-950 dark:text-sky-200 dark:hover:border-sky-600 dark:hover:bg-sky-950/30'
+            }
+            disabled={hasPrependedHistory}
+            type="button"
+            onClick={prependHistory}
+          >
+            <History aria-hidden="true" size={14} />
+            History
+          </button>
+          <button
+            className={
+              isStreaming
+                ? 'inline-flex items-center justify-center gap-1 rounded-md border border-emerald-300 bg-emerald-100 px-3 py-2 text-xs font-black text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200'
+                : 'inline-flex items-center justify-center gap-1 rounded-md border border-emerald-200 bg-white px-3 py-2 text-xs font-black text-emerald-800 transition-colors hover:border-emerald-400 hover:bg-emerald-50 dark:border-emerald-900 dark:bg-zinc-950 dark:text-emerald-200 dark:hover:border-emerald-600 dark:hover:bg-emerald-950/30'
+            }
+            disabled={isStreaming}
+            type="button"
+            onClick={streamReply}
+          >
+            <Send aria-hidden="true" size={14} />
+            Stream
+          </button>
+          <button
+            className="inline-flex items-center justify-center gap-1 rounded-md border border-purple-200 bg-white px-3 py-2 text-xs font-black text-purple-800 transition-colors hover:border-purple-400 hover:bg-purple-50 dark:border-purple-900 dark:bg-zinc-950 dark:text-purple-200 dark:hover:border-purple-600 dark:hover:bg-purple-950/30"
+            type="button"
+            onClick={scrollChatToEnd}
+          >
+            <ArrowDownToLine aria-hidden="true" size={14} />
+            Latest
+          </button>
+        </div>
+      </div>
+
+      <div
+        ref={chatScrollRef}
+        aria-label="Virtualized AI chat transcript"
+        className="mt-4 overflow-y-auto rounded-lg border border-zinc-200 bg-[#f7fbff] dark:border-zinc-800 dark:bg-zinc-900"
+        role="region"
+        style={{ height: viewportHeight }}
+        onScroll={(event) => setScrollOffset(event.currentTarget.scrollTop)}
+      >
+        <div className="relative w-full" style={{ height: totalSize }}>
+          {mountedMessages.map((message) => {
+            const isUser = message.role === 'user'
+            const isTool = message.role === 'tool'
+
+            return (
+              <div
+                key={message.id}
+                className="absolute left-0 right-0 px-3"
+                style={{ height: message.height, top: message.start }}
+              >
+                <div
+                  className={
+                    isUser
+                      ? 'ml-auto max-w-[78%] rounded-lg border border-purple-200 bg-purple-600 px-3 py-2 text-white shadow-sm shadow-purple-950/15'
+                      : isTool
+                        ? 'mr-auto max-w-[82%] rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-emerald-950 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-100'
+                        : 'mr-auto max-w-[82%] rounded-lg border border-sky-200 bg-white px-3 py-2 text-zinc-900 shadow-sm shadow-sky-950/5 dark:border-sky-900 dark:bg-zinc-950 dark:text-zinc-100'
+                  }
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <span
+                      className={
+                        isUser
+                          ? 'text-[0.65rem] font-black uppercase text-white/75'
+                          : isTool
+                            ? 'text-[0.65rem] font-black uppercase text-emerald-700 dark:text-emerald-300'
+                            : 'text-[0.65rem] font-black uppercase text-sky-700 dark:text-sky-300'
+                      }
+                    >
+                      {message.role}
+                    </span>
+                    {message.status ? (
+                      <span className="rounded bg-white/70 px-1.5 py-0.5 text-[0.62rem] font-black uppercase text-zinc-600 dark:bg-zinc-900 dark:text-zinc-300">
+                        {message.status}
+                      </span>
+                    ) : null}
+                  </div>
+                  <p className="mt-2 text-sm font-medium leading-6">
+                    {message.body}
+                  </p>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function getChatMessageHeight(message: VirtualChatMessage) {
+  const charactersPerLine = message.role === 'tool' ? 36 : 54
+  const baseHeight = message.role === 'tool' ? 74 : 92
+  const lineCount = Math.max(
+    1,
+    Math.ceil(message.body.length / charactersPerLine),
+  )
+
+  return baseHeight + (lineCount - 1) * 18
 }
 
 function PipelinePanel() {

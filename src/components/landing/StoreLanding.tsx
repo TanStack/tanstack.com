@@ -20,7 +20,6 @@ import { GithubIcon } from '~/components/icons/GithubIcon'
 import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
-import { LibraryStatsSection } from '~/components/LibraryStatsSection'
 import { LibraryWordmark } from '~/components/LibraryWordmark'
 import LandingPageGad from '~/components/LandingPageGad'
 import { getLibrary } from '~/libraries'
@@ -46,24 +45,6 @@ const heroProof = [
   {
     label: 'Adapter friendly',
     value: 'React, Vue, Solid, Svelte, Angular, Lit',
-  },
-]
-
-const storeState = [
-  {
-    key: 'filters.status',
-    value: 'active',
-    subscribers: '3',
-  },
-  {
-    key: 'selection.ids',
-    value: '12',
-    subscribers: '1',
-  },
-  {
-    key: 'draft.title',
-    value: 'dirty',
-    subscribers: '2',
   },
 ]
 
@@ -302,10 +283,6 @@ export default function StoreLanding({
             {landingCodeExampleRsc}
           </div>
         </div>
-
-        <div className="mx-auto w-full max-w-[80rem] px-4 pb-12 xl:max-w-[92rem]">
-          <LibraryStatsSection library={library} />
-        </div>
       </section>
 
       <section className="border-b border-zinc-200 bg-[#f8f5ee] py-12 dark:border-zinc-800 dark:bg-zinc-900">
@@ -321,10 +298,6 @@ export default function StoreLanding({
               client state.
             </p>
           </div>
-        </div>
-
-        <div className="mt-8">
-          <LibraryStatsSection library={library} />
         </div>
       </section>
 
@@ -375,6 +348,21 @@ export default function StoreLanding({
 }
 
 function StorePanel() {
+  const [theme, setTheme] = React.useState<'light' | 'dark'>('light')
+  const [density, setDensity] = React.useState<'comfortable' | 'compact'>(
+    'comfortable',
+  )
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(true)
+  const previewRows =
+    density === 'compact'
+      ? ['Routes', 'Queries', 'Tables', 'Forms']
+      : ['Routes', 'Queries', 'Tables']
+  const storeRows = [
+    ['theme', theme],
+    ['sidebar', isSidebarOpen ? 'open' : 'closed'],
+    ['density', density],
+  ]
+
   return (
     <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-twine-200 bg-white p-4 shadow-sm shadow-twine-950/5 dark:border-twine-900 dark:bg-zinc-950">
       <div className="flex items-center justify-between gap-3">
@@ -384,28 +372,28 @@ function StorePanel() {
           <span className="h-2.5 w-2.5 rounded-md bg-emerald-400" />
         </div>
         <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400">
-          store graph
+          settings store
         </span>
       </div>
 
       <div className="mt-4 grid gap-3 lg:grid-cols-[0.9fr_1.1fr]">
         <div className="space-y-3">
-          {storeState.map((row) => (
+          {storeRows.map(([key, value]) => (
             <div
-              key={row.key}
+              key={key}
               className="rounded-lg border border-zinc-200 bg-twine-50 p-3 dark:border-zinc-800 dark:bg-twine-950/20"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="truncate font-mono text-sm font-black">
-                    {row.key}
+                    ui.{key}
                   </p>
                   <p className="mt-1 text-xs font-bold text-zinc-500 dark:text-zinc-400">
-                    {row.subscribers} subscribers
+                    subscribed slice
                   </p>
                 </div>
                 <span className="rounded-md bg-twine-100 px-2 py-1 text-[0.65rem] font-black uppercase text-twine-800 dark:bg-twine-950 dark:text-twine-200">
-                  {row.value}
+                  {value}
                 </span>
               </div>
             </div>
@@ -413,13 +401,92 @@ function StorePanel() {
         </div>
 
         <div className="min-w-0 rounded-lg border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900">
-          <p className="font-mono text-sm font-black">new Store(initial)</p>
-          <div className="mt-4 space-y-3">
+          <p className="font-mono text-sm font-black">uiStore.setState()</p>
+          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            <button
+              className={
+                theme === 'dark'
+                  ? 'rounded-md border border-twine-700 bg-twine-700 px-3 py-2 text-sm font-black text-white'
+                  : 'rounded-md border border-twine-200 bg-white px-3 py-2 text-sm font-black text-twine-800 transition-colors hover:border-twine-400 dark:border-twine-900 dark:bg-zinc-950 dark:text-twine-200'
+              }
+              type="button"
+              onClick={() =>
+                setTheme((current) => (current === 'light' ? 'dark' : 'light'))
+              }
+            >
+              Toggle theme
+            </button>
+            <button
+              className="rounded-md border border-twine-200 bg-white px-3 py-2 text-sm font-black text-twine-800 transition-colors hover:border-twine-400 dark:border-twine-900 dark:bg-zinc-950 dark:text-twine-200"
+              type="button"
+              onClick={() =>
+                setDensity((current) =>
+                  current === 'comfortable' ? 'compact' : 'comfortable',
+                )
+              }
+            >
+              Toggle density
+            </button>
+            <button
+              className="rounded-md border border-twine-200 bg-white px-3 py-2 text-sm font-black text-twine-800 transition-colors hover:border-twine-400 dark:border-twine-900 dark:bg-zinc-950 dark:text-twine-200 sm:col-span-2"
+              type="button"
+              onClick={() => setIsSidebarOpen((current) => !current)}
+            >
+              {isSidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
+            </button>
+          </div>
+
+          <div
+            className={
+              theme === 'dark'
+                ? 'mt-4 rounded-lg bg-zinc-950 p-3 text-white'
+                : 'mt-4 rounded-lg bg-white p-3 text-zinc-950'
+            }
+          >
+            <div className="flex items-center justify-between gap-3 border-b border-zinc-200 pb-2 text-sm dark:border-zinc-800">
+              <span className="font-black">Preview</span>
+              <span className="rounded-md bg-twine-100 px-2 py-1 text-[0.65rem] font-black uppercase text-twine-800">
+                {theme}
+              </span>
+            </div>
+            <div
+              className={
+                isSidebarOpen
+                  ? 'mt-3 grid gap-3 sm:grid-cols-[0.42fr_1fr]'
+                  : 'mt-3 grid gap-3'
+              }
+            >
+              {isSidebarOpen ? (
+                <div className="rounded-md bg-twine-100 p-2 text-xs font-black text-twine-900">
+                  Docs
+                  <br />
+                  Examples
+                  <br />
+                  API
+                </div>
+              ) : null}
+              <div className="space-y-2">
+                {previewRows.map((row) => (
+                  <div
+                    key={row}
+                    className={
+                      density === 'compact'
+                        ? 'rounded-md border border-zinc-200 px-2 py-1 text-xs font-bold dark:border-zinc-800'
+                        : 'rounded-md border border-zinc-200 px-3 py-2 text-sm font-bold dark:border-zinc-800'
+                    }
+                  >
+                    {row}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-4 space-y-2">
             {[
-              ['setState', 'immutable transition'],
-              ['derived', 'computed once'],
-              ['subscribe', 'selector listener'],
-              ['adapter', 'renderer bridge'],
+              ['Header', 'theme'],
+              ['Sidebar', 'sidebar'],
+              ['List rows', 'density'],
             ].map(([label, value]) => (
               <div
                 key={label}
@@ -427,7 +494,7 @@ function StorePanel() {
               >
                 <span className="font-black">{label}</span>
                 <span className="text-right text-zinc-600 dark:text-zinc-400">
-                  {value}
+                  subscribes to ui.{value}
                 </span>
               </div>
             ))}

@@ -20,7 +20,6 @@ import { GithubIcon } from '~/components/icons/GithubIcon'
 import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
-import { LibraryStatsSection } from '~/components/LibraryStatsSection'
 import { LibraryWordmark } from '~/components/LibraryWordmark'
 import { getLibrary } from '~/libraries'
 import {
@@ -100,14 +99,37 @@ const routeContractCards = [
   },
 ]
 
-const searchExamples = [
-  ['q', 'router'],
-  ['sort', 'stars'],
-  ['page', '2'],
-  ['tags', 'react,solid'],
-]
+type RouterSearchPreset = {
+  label: string
+  page: number
+  q: string
+  sort: 'stars' | 'recent'
+  tags: Array<string>
+}
 
-const searchParamDisplay = '/docs?q=router&sort=stars&page=2&tags=react%2Csolid'
+const searchExamples: Array<RouterSearchPreset> = [
+  {
+    label: 'Popular docs',
+    page: 2,
+    q: 'router',
+    sort: 'stars',
+    tags: ['react', 'solid'],
+  },
+  {
+    label: 'Recent guides',
+    page: 1,
+    q: 'loader',
+    sort: 'recent',
+    tags: ['data'],
+  },
+  {
+    label: 'Vue examples',
+    page: 3,
+    q: 'search',
+    sort: 'stars',
+    tags: ['vue', 'url-state'],
+  },
+]
 
 const loaderSteps = [
   {
@@ -286,10 +308,6 @@ export default function RouterLanding() {
 
           <LoaderPipeline />
         </div>
-
-        <div className="mx-auto w-full max-w-[80rem] px-4 pb-12 xl:max-w-[92rem]">
-          <LibraryStatsSection library={library} />
-        </div>
       </section>
 
       <section className="bg-white py-12 dark:bg-zinc-950">
@@ -406,6 +424,11 @@ function RouteMapPanel() {
 }
 
 function SearchStatePanel() {
+  const [selectedPresetIndex, setSelectedPresetIndex] = React.useState(0)
+  const selectedPreset =
+    searchExamples[selectedPresetIndex] ?? searchExamples[0]
+  const searchParamDisplay = buildSearchParamDisplay(selectedPreset)
+
   return (
     <div className="min-w-0 rounded-lg border border-emerald-200 bg-white p-4 dark:border-emerald-900 dark:bg-zinc-950">
       <div className="flex items-start justify-between gap-4">
@@ -421,15 +444,55 @@ function SearchStatePanel() {
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
-        {searchExamples.map(([key, value]) => (
+        {searchExamples.map((preset, index) => (
+          <button
+            key={preset.label}
+            aria-pressed={selectedPresetIndex === index}
+            className={
+              selectedPresetIndex === index
+                ? 'rounded-lg border border-emerald-500 bg-emerald-500 px-3 py-2 text-left text-white'
+                : 'rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-left transition-colors hover:border-emerald-300 hover:bg-emerald-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-emerald-800 dark:hover:bg-emerald-950/25'
+            }
+            type="button"
+            onClick={() => setSelectedPresetIndex(index)}
+          >
+            <p
+              className={
+                selectedPresetIndex === index
+                  ? 'text-[0.65rem] font-black uppercase text-white/75'
+                  : 'text-[0.65rem] font-black uppercase text-zinc-500 dark:text-zinc-400'
+              }
+            >
+              {preset.label}
+            </p>
+            <p
+              className={
+                selectedPresetIndex === index
+                  ? 'mt-1 font-mono text-sm font-bold text-white'
+                  : 'mt-1 font-mono text-sm font-bold text-zinc-950 dark:text-white'
+              }
+            >
+              q={preset.q}
+            </p>
+          </button>
+        ))}
+      </div>
+
+      <div className="mt-3 grid gap-2 sm:grid-cols-4">
+        {[
+          ['sort', selectedPreset.sort],
+          ['page', `${selectedPreset.page}`],
+          ['tags', selectedPreset.tags.join(',')],
+          ['matched', `${selectedPreset.tags.length + selectedPreset.page}`],
+        ].map(([key, value]) => (
           <div
             key={key}
-            className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-800 dark:bg-zinc-900"
+            className="rounded-lg bg-emerald-50 px-3 py-2 dark:bg-emerald-950/25"
           >
-            <p className="text-[0.65rem] font-black uppercase text-zinc-500 dark:text-zinc-400">
+            <p className="text-[0.65rem] font-black uppercase text-emerald-800 dark:text-emerald-300">
               {key}
             </p>
-            <p className="mt-1 font-mono text-sm font-bold text-zinc-950 dark:text-white">
+            <p className="mt-1 truncate font-mono text-sm font-bold text-emerald-950 dark:text-emerald-100">
               {value}
             </p>
           </div>
@@ -453,6 +516,17 @@ function SearchStatePanel() {
       </div>
     </div>
   )
+}
+
+function buildSearchParamDisplay(preset: RouterSearchPreset) {
+  const params = new URLSearchParams({
+    page: `${preset.page}`,
+    q: preset.q,
+    sort: preset.sort,
+    tags: preset.tags.join(','),
+  })
+
+  return `/docs?${params.toString()}`
 }
 
 function LoaderPipeline() {

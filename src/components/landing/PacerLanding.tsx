@@ -21,7 +21,6 @@ import { GithubIcon } from '~/components/icons/GithubIcon'
 import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
-import { LibraryStatsSection } from '~/components/LibraryStatsSection'
 import { LibraryWordmark } from '~/components/LibraryWordmark'
 import LandingPageGad from '~/components/LandingPageGad'
 import { getLibrary } from '~/libraries'
@@ -50,26 +49,27 @@ const heroProof = [
   },
 ]
 
-const pressureRows = [
+type PacerSearchResult = {
+  label: string
+  query: string
+  result: string
+}
+
+const pacerSearchResults: Array<PacerSearchResult> = [
   {
-    label: 'search keystrokes',
-    mode: 'debounce',
-    detail: 'wait 300ms',
+    label: 'Router',
+    query: 'router loader',
+    result: 'Router loaders, preload, search params',
   },
   {
-    label: 'analytics events',
-    mode: 'batch',
-    detail: 'flush 20 items',
+    label: 'Virtual',
+    query: 'virtual chat',
+    result: 'Virtual chat, scrollToEnd, dynamic rows',
   },
   {
-    label: 'file uploads',
-    mode: 'queue',
-    detail: 'concurrency 3',
-  },
-  {
-    label: 'api writes',
-    mode: 'rate limit',
-    detail: '10 per second',
+    label: 'Table',
+    query: 'table filters',
+    result: 'Table filters, sorting, column visibility',
   },
 ]
 
@@ -279,10 +279,6 @@ export default function PacerLanding({
             {landingCodeExampleRsc}
           </div>
         </div>
-
-        <div className="mx-auto w-full max-w-[80rem] px-4 pb-12 xl:max-w-[92rem]">
-          <LibraryStatsSection library={library} />
-        </div>
       </section>
 
       <section className="border-b border-zinc-200 bg-[#f7fee7] py-12 dark:border-zinc-800 dark:bg-zinc-900">
@@ -350,6 +346,61 @@ export default function PacerLanding({
 }
 
 function PacerPanel() {
+  const timeoutRef = React.useRef<number | null>(null)
+  const [inputValue, setInputValue] = React.useState('router loader')
+  const [debouncedQuery, setDebouncedQuery] = React.useState('router loader')
+  const [inputEvents, setInputEvents] = React.useState(0)
+  const [executions, setExecutions] = React.useState(1)
+  const [isWaiting, setIsWaiting] = React.useState(false)
+  const activeResult =
+    pacerSearchResults.find((item) => item.query === debouncedQuery) ??
+    pacerSearchResults.find((item) =>
+      debouncedQuery.includes(item.label.toLowerCase()),
+    ) ??
+    pacerSearchResults[0]
+
+  React.useEffect(() => {
+    if (timeoutRef.current !== null) {
+      window.clearTimeout(timeoutRef.current)
+    }
+
+    if (inputValue === debouncedQuery) {
+      setIsWaiting(false)
+      return
+    }
+
+    setIsWaiting(true)
+    timeoutRef.current = window.setTimeout(() => {
+      setDebouncedQuery(inputValue)
+      setExecutions((current) => current + 1)
+      setIsWaiting(false)
+    }, 650)
+
+    return () => {
+      if (timeoutRef.current !== null) {
+        window.clearTimeout(timeoutRef.current)
+      }
+    }
+  }, [debouncedQuery, inputValue])
+
+  const changeInputValue = (nextValue: string) => {
+    setInputValue(nextValue)
+    setInputEvents((current) => current + 1)
+  }
+
+  const flushSearch = () => {
+    if (timeoutRef.current !== null) {
+      window.clearTimeout(timeoutRef.current)
+    }
+
+    if (debouncedQuery !== inputValue) {
+      setExecutions((current) => current + 1)
+    }
+
+    setDebouncedQuery(inputValue)
+    setIsWaiting(false)
+  }
+
   return (
     <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-lime-200 bg-white p-4 shadow-sm shadow-lime-950/5 dark:border-lime-900 dark:bg-zinc-950">
       <div className="flex items-center justify-between gap-3">
@@ -359,32 +410,50 @@ function PacerPanel() {
           <span className="h-2.5 w-2.5 rounded-md bg-emerald-400" />
         </div>
         <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400">
-          pressure map
+          debounced search
         </span>
       </div>
 
-      <div className="mt-4 grid gap-3">
-        {pressureRows.map((row) => (
-          <div
-            key={row.label}
-            className="grid gap-3 rounded-lg border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-800 dark:bg-zinc-900 sm:grid-cols-[1fr_auto_auto] sm:items-center"
+      <div className="mt-4 rounded-lg border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900">
+        <label
+          className="text-xs font-black uppercase text-lime-800 dark:text-lime-300"
+          htmlFor="pacer-search-demo"
+        >
+          Search docs
+        </label>
+        <input
+          id="pacer-search-demo"
+          className="mt-2 w-full rounded-md border border-lime-200 bg-white px-3 py-2 text-sm font-bold text-zinc-950 outline-none focus:border-lime-500 dark:border-lime-900 dark:bg-zinc-950 dark:text-white"
+          value={inputValue}
+          onChange={(event) => changeInputValue(event.target.value)}
+        />
+        <div className="mt-3 flex flex-wrap gap-2">
+          {pacerSearchResults.map((item) => (
+            <button
+              key={item.query}
+              className="rounded-md border border-lime-200 bg-white px-3 py-2 text-xs font-black text-lime-800 transition-colors hover:border-lime-400 dark:border-lime-900 dark:bg-zinc-950 dark:text-lime-200"
+              type="button"
+              onClick={() => changeInputValue(item.query)}
+            >
+              {item.label}
+            </button>
+          ))}
+          <button
+            className="rounded-md border border-lime-600 bg-lime-600 px-3 py-2 text-xs font-black text-white transition-colors hover:bg-lime-700"
+            type="button"
+            onClick={flushSearch}
           >
-            <p className="font-bold">{row.label}</p>
-            <span className="rounded-md bg-lime-100 px-2 py-1 text-[0.65rem] font-black uppercase text-lime-800 dark:bg-lime-950 dark:text-lime-200">
-              {row.mode}
-            </span>
-            <span className="text-sm font-bold text-zinc-600 dark:text-zinc-400">
-              {row.detail}
-            </span>
-          </div>
-        ))}
+            Flush now
+          </button>
+        </div>
       </div>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-3">
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
         {[
-          ['pending', '14'],
-          ['running', '3'],
-          ['next flush', '240ms'],
+          ['raw input', inputValue || 'empty'],
+          ['paced query', debouncedQuery || 'empty'],
+          ['input events', `${inputEvents}`],
+          ['executed searches', `${executions}`],
         ].map(([label, value]) => (
           <div
             key={label}
@@ -398,6 +467,20 @@ function PacerPanel() {
             </p>
           </div>
         ))}
+      </div>
+
+      <div className="mt-4 rounded-lg bg-lime-50 p-4 dark:bg-lime-950/25">
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-xs font-black uppercase text-lime-800 dark:text-lime-300">
+            {isWaiting ? 'waiting 650ms' : 'result'}
+          </p>
+          <span className="rounded-md bg-white px-2 py-1 text-[0.65rem] font-black uppercase text-lime-800 dark:bg-zinc-950 dark:text-lime-200">
+            debounce
+          </span>
+        </div>
+        <p className="mt-2 text-sm font-black text-lime-950 dark:text-lime-100">
+          {activeResult?.result ?? 'No matching docs yet'}
+        </p>
       </div>
     </div>
   )

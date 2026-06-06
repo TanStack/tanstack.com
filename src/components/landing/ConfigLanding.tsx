@@ -20,7 +20,6 @@ import { GithubIcon } from '~/components/icons/GithubIcon'
 import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
-import { LibraryStatsSection } from '~/components/LibraryStatsSection'
 import { LibraryWordmark } from '~/components/LibraryWordmark'
 import LandingPageGad from '~/components/LandingPageGad'
 import { getLibrary } from '~/libraries'
@@ -264,10 +263,6 @@ export default function ConfigLanding({
             {landingCodeExampleRsc}
           </div>
         </div>
-
-        <div className="mx-auto w-full max-w-[80rem] px-4 pb-12 xl:max-w-[92rem]">
-          <LibraryStatsSection library={library} />
-        </div>
       </section>
 
       <section className="bg-white py-12 dark:bg-zinc-950">
@@ -317,6 +312,24 @@ export default function ConfigLanding({
 }
 
 function ReleasePanel() {
+  const [completedRows, setCompletedRows] = React.useState(
+    () => new Set(releaseRows.map(([label]) => label)),
+  )
+  const completedCount = completedRows.size
+  const toggleRow = (label: string) => {
+    setCompletedRows((current) => {
+      const next = new Set(current)
+
+      if (next.has(label)) {
+        next.delete(label)
+      } else {
+        next.add(label)
+      }
+
+      return next
+    })
+  }
+
   return (
     <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-zinc-300 bg-white p-4 shadow-sm shadow-zinc-950/5 dark:border-zinc-800 dark:bg-zinc-950">
       <div className="flex items-center justify-between gap-3">
@@ -336,23 +349,33 @@ function ReleasePanel() {
           <br />
           pnpm test
           <br />
-          pnpm build
+          pnpm build --verify {completedCount}/{releaseRows.length}
           <br />
-          pnpm release
+          pnpm release{' '}
+          {completedCount === releaseRows.length ? '--ready' : '--blocked'}
         </p>
       </div>
 
       <div className="mt-4 space-y-2">
         {releaseRows.map(([label, state]) => (
-          <div
+          <button
             key={label}
-            className="flex items-center justify-between gap-3 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-800 dark:bg-zinc-900"
+            aria-pressed={completedRows.has(label)}
+            className="flex w-full items-center justify-between gap-3 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-left transition-colors hover:border-zinc-400 dark:border-zinc-800 dark:bg-zinc-900"
+            type="button"
+            onClick={() => toggleRow(label)}
           >
             <span className="font-bold">{label}</span>
-            <span className="rounded-md bg-emerald-100 px-2 py-1 text-[0.65rem] font-black uppercase text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200">
-              {state}
+            <span
+              className={
+                completedRows.has(label)
+                  ? 'rounded-md bg-emerald-100 px-2 py-1 text-[0.65rem] font-black uppercase text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200'
+                  : 'rounded-md bg-amber-100 px-2 py-1 text-[0.65rem] font-black uppercase text-amber-800 dark:bg-amber-950 dark:text-amber-200'
+              }
+            >
+              {completedRows.has(label) ? state : 'pending'}
             </span>
-          </div>
+          </button>
         ))}
       </div>
     </div>

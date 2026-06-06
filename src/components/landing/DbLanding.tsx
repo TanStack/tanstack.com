@@ -21,7 +21,6 @@ import { GithubIcon } from '~/components/icons/GithubIcon'
 import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
-import { LibraryStatsSection } from '~/components/LibraryStatsSection'
 import { LibraryWordmark } from '~/components/LibraryWordmark'
 import LandingPageGad from '~/components/LandingPageGad'
 import { getLibrary } from '~/libraries'
@@ -51,28 +50,41 @@ const heroProof = [
   },
 ]
 
-const collectionRows = [
+type DbTodoStatus = 'done' | 'open'
+
+type DbTodo = {
+  id: string
+  optimistic?: boolean
+  owner: string
+  status: DbTodoStatus
+  title: string
+}
+
+const dbInitialTodos: Array<DbTodo> = [
   {
-    name: 'projects',
-    count: '18,204',
-    state: 'synced',
+    id: 'todo-1',
+    owner: 'Tanner',
+    status: 'open',
+    title: 'Ship invite flow',
   },
   {
-    name: 'issues',
-    count: '142,901',
-    state: 'live',
+    id: 'todo-2',
+    owner: 'Noah',
+    status: 'open',
+    title: 'Review pricing copy',
   },
   {
-    name: 'members',
-    count: '4,812',
-    state: 'joined',
+    id: 'todo-3',
+    owner: 'David',
+    status: 'done',
+    title: 'Wire product analytics',
   },
 ]
 
-const queryResultRows = [
-  ['roadmap', 'open', 'Tanner', '47'],
-  ['billing', 'blocked', 'Manuel', '12'],
-  ['settings', 'review', 'Florian', '31'],
+const dbNewTodoTitles = [
+  'Follow up with design partner',
+  'Triage sync edge case',
+  'Publish roadmap note',
 ]
 
 const featureCards = [
@@ -306,10 +318,6 @@ export default function DbLanding({
             {landingCodeExampleRsc}
           </div>
         </div>
-
-        <div className="mx-auto w-full max-w-[80rem] px-4 pb-12 xl:max-w-[92rem]">
-          <LibraryStatsSection library={library} />
-        </div>
       </section>
 
       <section className="border-b border-zinc-200 bg-[#fff7ed] py-12 dark:border-zinc-800 dark:bg-zinc-900">
@@ -378,6 +386,52 @@ export default function DbLanding({
 }
 
 function DbWorkbenchPanel() {
+  const [todos, setTodos] = React.useState(dbInitialTodos)
+  const [nextTodoIndex, setNextTodoIndex] = React.useState(0)
+  const [lastAction, setLastAction] = React.useState('live query: open todos')
+  const openTodos = todos.filter((todo) => todo.status === 'open')
+  const optimisticCount = todos.filter((todo) => todo.optimistic).length
+  const insertTodo = () => {
+    const title =
+      dbNewTodoTitles[nextTodoIndex % dbNewTodoTitles.length] ??
+      'New synced task'
+
+    setTodos((currentTodos) => [
+      {
+        id: `todo-local-${nextTodoIndex}`,
+        optimistic: true,
+        owner: 'You',
+        status: 'open',
+        title,
+      },
+      ...currentTodos,
+    ])
+    setNextTodoIndex((current) => current + 1)
+    setLastAction('todoCollection.insert()')
+  }
+  const completeFirstOpenTodo = () => {
+    const firstOpenTodo = openTodos[0]
+
+    if (!firstOpenTodo) {
+      return
+    }
+
+    setTodos((currentTodos) =>
+      currentTodos.map((todo) =>
+        todo.id === firstOpenTodo.id
+          ? { ...todo, optimistic: true, status: 'done' }
+          : todo,
+      ),
+    )
+    setLastAction('todoCollection.update()')
+  }
+  const confirmServerSync = () => {
+    setTodos((currentTodos) =>
+      currentTodos.map((todo) => ({ ...todo, optimistic: false })),
+    )
+    setLastAction('server transaction confirmed')
+  }
+
   return (
     <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-orange-200 bg-white p-4 shadow-sm shadow-orange-950/5 dark:border-orange-900 dark:bg-zinc-950">
       <div className="flex items-center justify-between gap-3">
@@ -387,26 +441,30 @@ function DbWorkbenchPanel() {
           <span className="h-2.5 w-2.5 rounded-md bg-emerald-400" />
         </div>
         <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400">
-          live query result
+          todo collection
         </span>
       </div>
 
       <div className="mt-4 grid gap-3 lg:grid-cols-[0.74fr_1.26fr]">
         <div className="space-y-3">
-          {collectionRows.map((row) => (
+          {[
+            ['collection', `${todos.length} todos`],
+            ['live query', `${openTodos.length} open`],
+            ['optimistic', `${optimisticCount} pending`],
+          ].map(([label, value]) => (
             <div
-              key={row.name}
+              key={label}
               className="rounded-lg border border-zinc-200 bg-orange-50 p-3 dark:border-zinc-800 dark:bg-orange-950/20"
             >
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="font-mono text-sm font-black">{row.name}</p>
+                  <p className="font-mono text-sm font-black">{label}</p>
                   <p className="mt-1 text-xs font-bold text-zinc-500 dark:text-zinc-400">
-                    {row.count} records
+                    todosCollection
                   </p>
                 </div>
                 <span className="rounded-md bg-orange-100 px-2 py-1 text-[0.65rem] font-black uppercase text-orange-800 dark:bg-orange-950 dark:text-orange-200">
-                  {row.state}
+                  {value}
                 </span>
               </div>
             </div>
@@ -416,38 +474,71 @@ function DbWorkbenchPanel() {
         <div className="min-w-0 rounded-lg border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-800 dark:bg-zinc-900">
           <div className="flex items-center justify-between gap-3">
             <span className="font-mono text-sm font-black">
-              view = query(collections)
+              useLiveQuery(openTodos)
             </span>
             <span className="rounded-md bg-orange-100 px-2 py-1 text-[0.65rem] font-black uppercase text-orange-800 dark:bg-orange-950 dark:text-orange-200">
-              &lt;1ms
+              {lastAction}
+            </span>
+          </div>
+
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button
+              className="rounded-md border border-orange-200 bg-white px-3 py-2 text-xs font-black text-orange-800 transition-colors hover:border-orange-400 dark:border-orange-900 dark:bg-zinc-950 dark:text-orange-200"
+              type="button"
+              onClick={insertTodo}
+            >
+              Insert todo
+            </button>
+            <button
+              className="rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs font-black text-zinc-700 transition-colors hover:border-orange-300 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300"
+              type="button"
+              onClick={completeFirstOpenTodo}
+            >
+              Complete first
+            </button>
+            <button
+              className="rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs font-black text-zinc-700 transition-colors hover:border-orange-300 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300"
+              type="button"
+              onClick={confirmServerSync}
+            >
+              Server confirms
+            </button>
+            <span className="rounded-md bg-orange-50 px-3 py-2 text-xs font-black uppercase text-orange-900 dark:bg-orange-950/25 dark:text-orange-100">
+              {optimisticCount > 0 ? 'optimistic' : 'synced'}
             </span>
           </div>
 
           <div className="mt-4 overflow-hidden rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-            <div className="grid grid-cols-[1.1fr_0.8fr_0.9fr_0.5fr] border-b border-zinc-200 bg-orange-50 text-[0.65rem] font-black uppercase text-orange-900 dark:border-zinc-800 dark:bg-orange-950/30 dark:text-orange-100">
-              {['Project', 'Status', 'Owner', 'Open'].map((header) => (
+            <div className="grid grid-cols-[1.4fr_0.75fr_0.7fr] border-b border-zinc-200 bg-orange-50 text-[0.65rem] font-black uppercase text-orange-900 dark:border-zinc-800 dark:bg-orange-950/30 dark:text-orange-100">
+              {['Open todo', 'Owner', 'State'].map((header) => (
                 <div key={header} className="px-3 py-2">
                   {header}
                 </div>
               ))}
             </div>
-            {queryResultRows.map((row) => (
+            {openTodos.map((todo) => (
               <div
-                key={row.join(':')}
-                className="grid grid-cols-[1.1fr_0.8fr_0.9fr_0.5fr] border-b border-zinc-100 text-sm last:border-b-0 dark:border-zinc-800"
+                key={todo.id}
+                className="grid grid-cols-[1.4fr_0.75fr_0.7fr] border-b border-zinc-100 text-sm last:border-b-0 dark:border-zinc-800"
               >
-                {row.map((cell) => (
-                  <div key={cell} className="min-w-0 px-3 py-3">
-                    <span className="block truncate font-bold">{cell}</span>
-                  </div>
-                ))}
+                <div className="min-w-0 px-3 py-3">
+                  <span className="block truncate font-bold">{todo.title}</span>
+                </div>
+                <div className="min-w-0 px-3 py-3">
+                  <span className="block truncate font-bold">{todo.owner}</span>
+                </div>
+                <div className="min-w-0 px-3 py-3">
+                  <span className="block truncate font-bold">
+                    {todo.optimistic ? 'pending' : 'synced'}
+                  </span>
+                </div>
               </div>
             ))}
           </div>
 
           <div className="mt-4 rounded-lg bg-orange-50 p-3 text-sm leading-6 text-orange-950 dark:bg-orange-950/25 dark:text-orange-100">
-            Optimistic issue reorder updates the collection, the join result,
-            and subscribed UI before the network round trip finishes.
+            Insert or complete a todo. The collection changes first, then the
+            live query result updates immediately while the server catches up.
           </div>
         </div>
       </div>

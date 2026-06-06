@@ -23,7 +23,6 @@ import LandingPageGad from '~/components/LandingPageGad'
 import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
-import { LibraryStatsSection } from '~/components/LibraryStatsSection'
 import { LibraryWordmark } from '~/components/LibraryWordmark'
 import { getLibrary } from '~/libraries'
 import {
@@ -247,10 +246,6 @@ export default function IntentLanding({
             {landingCodeExampleRsc}
           </div>
         </div>
-
-        <div className="mx-auto w-full max-w-[80rem] px-4 pb-12 xl:max-w-[92rem]">
-          <LibraryStatsSection library={library} />
-        </div>
       </section>
 
       <section className="bg-white py-12 dark:bg-zinc-950">
@@ -299,6 +294,9 @@ export default function IntentLanding({
 }
 
 function IntentPackagePanel() {
+  const [activeFileIndex, setActiveFileIndex] = React.useState(1)
+  const activeFile = packageFiles[activeFileIndex] ?? packageFiles[0]
+
   return (
     <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-sky-200 bg-white p-4 shadow-sm shadow-sky-950/5 dark:border-sky-900 dark:bg-zinc-950">
       <div className="flex items-center justify-between gap-3">
@@ -316,23 +314,36 @@ function IntentPackagePanel() {
         <p className="font-mono leading-6">
           npx @tanstack/intent scaffold
           <br />
-          npx @tanstack/intent validate
+          npx @tanstack/intent validate {activeFile[0]}
           <br />
-          npx @tanstack/intent stale
+          npx @tanstack/intent stale --source "{activeFile[1]}"
         </p>
       </div>
 
       <div className="mt-4 space-y-2">
-        {packageFiles.map(([file, detail]) => (
-          <div
+        {packageFiles.map(([file, detail], index) => (
+          <button
             key={file}
-            className="grid gap-2 rounded-lg border border-zinc-200 bg-sky-50 p-3 dark:border-zinc-800 dark:bg-sky-950/20 sm:grid-cols-[0.45fr_1fr]"
+            aria-pressed={activeFileIndex === index}
+            className={
+              activeFileIndex === index
+                ? 'grid w-full gap-2 rounded-lg border border-sky-500 bg-sky-500 p-3 text-left text-white sm:grid-cols-[0.45fr_1fr]'
+                : 'grid w-full gap-2 rounded-lg border border-zinc-200 bg-sky-50 p-3 text-left transition-colors hover:border-sky-300 dark:border-zinc-800 dark:bg-sky-950/20 dark:hover:border-sky-800 sm:grid-cols-[0.45fr_1fr]'
+            }
+            type="button"
+            onClick={() => setActiveFileIndex(index)}
           >
             <span className="font-mono text-sm font-black">{file}</span>
-            <span className="text-sm text-zinc-700 dark:text-zinc-300">
+            <span
+              className={
+                activeFileIndex === index
+                  ? 'text-sm text-white/80'
+                  : 'text-sm text-zinc-700 dark:text-zinc-300'
+              }
+            >
               {detail}
             </span>
-          </div>
+          </button>
         ))}
       </div>
     </div>

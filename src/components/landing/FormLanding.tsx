@@ -21,7 +21,6 @@ import { GithubIcon } from '~/components/icons/GithubIcon'
 import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
-import { LibraryStatsSection } from '~/components/LibraryStatsSection'
 import { LibraryTestimonials } from '~/components/LibraryTestimonials'
 import { LibraryWordmark } from '~/components/LibraryWordmark'
 import LandingPageGad from '~/components/LandingPageGad'
@@ -53,23 +52,29 @@ const heroProof = [
   },
 ]
 
-const formFields = [
+type FormDemoField = {
+  detail: string
+  name: 'profile.email' | 'company.plan' | 'members[2].role'
+}
+
+type FormDemoPlan = 'team' | 'enterprise'
+
+const formFields: Array<FormDemoField> = [
   {
     name: 'profile.email',
-    state: 'valid',
     detail: 'zod + async availability',
   },
   {
     name: 'company.plan',
-    state: 'dirty',
     detail: 'recalculates billing preview',
   },
   {
     name: 'members[2].role',
-    state: 'pending',
     detail: 'debounced permission check',
   },
 ]
+
+const formPlanOptions: Array<FormDemoPlan> = ['team', 'enterprise']
 
 const validationSteps = [
   {
@@ -312,10 +317,6 @@ export default function FormLanding({
             {landingCodeExampleRsc}
           </div>
         </div>
-
-        <div className="mx-auto w-full max-w-[80rem] px-4 pb-12 xl:max-w-[92rem]">
-          <LibraryStatsSection library={library} />
-        </div>
       </section>
 
       <section className="border-b border-zinc-200 bg-[#fffbeb] py-12 dark:border-zinc-800 dark:bg-zinc-900">
@@ -387,6 +388,35 @@ export default function FormLanding({
 }
 
 function FormStatePanel() {
+  const [email, setEmail] = React.useState('sarah@tanstack.com')
+  const [plan, setPlan] = React.useState<FormDemoPlan>('team')
+  const [role, setRole] = React.useState('admin')
+  const isEmailValid = email.includes('@') && email.includes('.')
+  const isRolePending = role.length > 0 && role.length < 5
+  const isRoleValid = role.length >= 5
+  const dirtyFields = [
+    email !== 'sarah@tanstack.com',
+    plan !== 'team',
+    role !== 'admin',
+  ].filter(Boolean).length
+  const canSubmit = isEmailValid && isRoleValid && !isRolePending
+
+  const getFieldState = (name: FormDemoField['name']) => {
+    if (name === 'profile.email') {
+      return isEmailValid ? 'valid' : 'error'
+    }
+
+    if (name === 'company.plan') {
+      return plan === 'enterprise' ? 'dirty' : 'valid'
+    }
+
+    if (isRolePending) {
+      return 'pending'
+    }
+
+    return isRoleValid ? 'valid' : 'error'
+  }
+
   return (
     <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-yellow-200 bg-white p-4 shadow-sm shadow-yellow-950/5 dark:border-yellow-900 dark:bg-zinc-950">
       <div className="flex items-center justify-between gap-3">
@@ -416,8 +446,41 @@ function FormStatePanel() {
                 </p>
               </div>
               <span className="shrink-0 rounded-md bg-yellow-100 px-2 py-1 text-[0.65rem] font-black uppercase text-yellow-900 dark:bg-yellow-950 dark:text-yellow-200">
-                {field.state}
+                {getFieldState(field.name)}
               </span>
+            </div>
+            <div className="mt-3">
+              {field.name === 'profile.email' ? (
+                <input
+                  className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm font-bold text-zinc-950 outline-none focus:border-yellow-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-white"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                />
+              ) : field.name === 'company.plan' ? (
+                <div className="grid grid-cols-2 gap-2">
+                  {formPlanOptions.map((option) => (
+                    <button
+                      key={option}
+                      aria-pressed={plan === option}
+                      className={
+                        plan === option
+                          ? 'rounded-md border border-yellow-500 bg-yellow-500 px-3 py-2 text-sm font-black capitalize text-black'
+                          : 'rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm font-black capitalize text-zinc-700 transition-colors hover:border-yellow-400 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300'
+                      }
+                      type="button"
+                      onClick={() => setPlan(option)}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <input
+                  className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm font-bold text-zinc-950 outline-none focus:border-yellow-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-white"
+                  value={role}
+                  onChange={(event) => setRole(event.target.value)}
+                />
+              )}
             </div>
           </div>
         ))}
@@ -425,9 +488,9 @@ function FormStatePanel() {
 
       <div className="mt-4 grid gap-3 sm:grid-cols-3">
         {[
-          ['dirty', '4 fields'],
-          ['validating', '1 async'],
-          ['canSubmit', 'true'],
+          ['dirty', `${dirtyFields} fields`],
+          ['validating', isRolePending ? '1 async' : '0 async'],
+          ['canSubmit', `${canSubmit}`],
         ].map(([label, value]) => (
           <div
             key={label}

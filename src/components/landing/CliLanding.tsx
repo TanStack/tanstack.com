@@ -19,7 +19,6 @@ import { GithubIcon } from '~/components/icons/GithubIcon'
 import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
-import { LibraryStatsSection } from '~/components/LibraryStatsSection'
 import { LibraryWordmark } from '~/components/LibraryWordmark'
 import LandingPageGad from '~/components/LandingPageGad'
 import { getLibrary } from '~/libraries'
@@ -270,10 +269,6 @@ export default function CliLanding({
             {landingCodeExampleRsc}
           </div>
         </div>
-
-        <div className="mx-auto w-full max-w-[80rem] px-4 pb-12 xl:max-w-[92rem]">
-          <LibraryStatsSection library={library} />
-        </div>
       </section>
 
       <section className="bg-white py-12 dark:bg-zinc-950">
@@ -322,6 +317,13 @@ export default function CliLanding({
 }
 
 function CliWorkbenchPanel() {
+  const [activeCommandIndex, setActiveCommandIndex] = React.useState(0)
+  const activeCommand = commandRows[activeCommandIndex] ?? commandRows[0]
+  const activeCommandPreview = `npx @tanstack/cli ${activeCommand[0].replace(
+    ' ',
+    '-',
+  )} "${activeCommand[1]}"`
+
   return (
     <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-indigo-200 bg-white p-4 shadow-sm shadow-indigo-950/5 dark:border-indigo-900 dark:bg-zinc-950">
       <div className="flex items-center justify-between gap-3">
@@ -339,23 +341,36 @@ function CliWorkbenchPanel() {
         <p className="font-mono leading-6">
           npx @tanstack/cli mcp
           <br />
-          npx @tanstack/cli add auth database deploy
+          {activeCommandPreview}
           <br />
           npx @tanstack/cli build-plan
         </p>
       </div>
 
       <div className="mt-4 grid gap-3 md:grid-cols-2">
-        {commandRows.map(([label, value]) => (
-          <div
+        {commandRows.map(([label, value], index) => (
+          <button
             key={label}
-            className="rounded-lg border border-zinc-200 bg-indigo-50 p-4 dark:border-zinc-800 dark:bg-indigo-950/20"
+            aria-pressed={activeCommandIndex === index}
+            className={
+              activeCommandIndex === index
+                ? 'rounded-lg border border-indigo-500 bg-indigo-500 p-4 text-left text-white'
+                : 'rounded-lg border border-zinc-200 bg-indigo-50 p-4 text-left transition-colors hover:border-indigo-300 dark:border-zinc-800 dark:bg-indigo-950/20 dark:hover:border-indigo-800'
+            }
+            type="button"
+            onClick={() => setActiveCommandIndex(index)}
           >
-            <p className="text-[0.65rem] font-black uppercase text-indigo-700 dark:text-indigo-300">
+            <p
+              className={
+                activeCommandIndex === index
+                  ? 'text-[0.65rem] font-black uppercase text-white/75'
+                  : 'text-[0.65rem] font-black uppercase text-indigo-700 dark:text-indigo-300'
+              }
+            >
               {label}
             </p>
             <p className="mt-2 text-sm font-bold leading-6">{value}</p>
-          </div>
+          </button>
         ))}
       </div>
     </div>

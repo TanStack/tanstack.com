@@ -19,7 +19,6 @@ import LandingPageGad from '~/components/LandingPageGad'
 import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
-import { LibraryStatsSection } from '~/components/LibraryStatsSection'
 import { LibraryWordmark } from '~/components/LibraryWordmark'
 import { StackBlitzSection } from '~/components/StackBlitzSection'
 import { getBranch, getLibrary } from '~/libraries'
@@ -216,10 +215,6 @@ export default function RangerLanding({
             {landingCodeExampleRsc}
           </div>
         </div>
-
-        <div className="mx-auto w-full max-w-[80rem] px-4 pb-12 xl:max-w-[92rem]">
-          <LibraryStatsSection library={library} />
-        </div>
       </section>
 
       <StackBlitzSection
@@ -275,6 +270,23 @@ export default function RangerLanding({
 }
 
 function RangerLabPanel() {
+  const [values, setValues] = React.useState<Array<number>>([120, 310, 640])
+  const sortedValues = [...values].sort((a, b) => a - b)
+  const updateValue = (index: number, nextValue: number) => {
+    setValues((current) => {
+      const minValue = index > 0 ? current[index - 1] + 10 : 0
+      const maxValue =
+        index < current.length - 1 ? current[index + 1] - 10 : 1000
+      const nextValues = current.map((value, valueIndex) =>
+        valueIndex === index
+          ? Math.min(Math.max(nextValue, minValue), maxValue)
+          : value,
+      )
+
+      return nextValues
+    })
+  }
+
   return (
     <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-zinc-300 bg-white p-4 shadow-sm shadow-zinc-950/5 dark:border-zinc-800 dark:bg-zinc-950">
       <div className="flex items-center justify-between gap-3">
@@ -290,19 +302,21 @@ function RangerLabPanel() {
 
       <div className="mt-8 px-2">
         <div className="relative h-4 rounded-full bg-zinc-200 dark:bg-zinc-800">
-          <div className="absolute left-[22%] right-[28%] top-0 h-4 rounded-full bg-zinc-950 dark:bg-white" />
-          {[
-            ['22%', '$120'],
-            ['47%', '$310'],
-            ['72%', '$640'],
-          ].map(([left, label]) => (
+          <div
+            className="absolute top-0 h-4 rounded-full bg-zinc-950 dark:bg-white"
+            style={{
+              left: `${sortedValues[0] / 10}%`,
+              right: `${100 - sortedValues[sortedValues.length - 1] / 10}%`,
+            }}
+          />
+          {values.map((value, index) => (
             <div
-              key={label}
+              key={index}
               className="absolute top-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-white bg-zinc-950 shadow-md dark:border-zinc-950 dark:bg-white"
-              style={{ left }}
+              style={{ left: `${value / 10}%` }}
             >
               <span className="absolute left-1/2 top-10 -translate-x-1/2 whitespace-nowrap rounded-md bg-zinc-950 px-2 py-1 text-xs font-black text-white dark:bg-white dark:text-zinc-950">
-                {label}
+                ${value}
               </span>
             </div>
           ))}
@@ -314,9 +328,31 @@ function RangerLabPanel() {
         </div>
       </div>
 
+      <div className="mt-6 grid gap-2">
+        {values.map((value, index) => (
+          <label key={index} className="grid gap-1">
+            <span className="text-[0.65rem] font-black uppercase text-zinc-500 dark:text-zinc-400">
+              Handle {index + 1}
+            </span>
+            <input
+              className="accent-zinc-950 dark:accent-white"
+              max={1000}
+              min={0}
+              step={10}
+              type="range"
+              value={value}
+              onChange={(event) =>
+                updateValue(index, event.currentTarget.valueAsNumber)
+              }
+            />
+          </label>
+        ))}
+      </div>
+
       <div className="mt-6 rounded-lg bg-zinc-950 p-4 text-sm text-zinc-100 dark:bg-black">
         <p className="font-mono leading-6">
-          useRanger({'{'} min: 0, max: 1000, step: 10, values {'}'})
+          useRanger({'{'} min: 0, max: 1000, step: 10, values: [
+          {values.join(', ')}] {'}'})
         </p>
       </div>
     </div>

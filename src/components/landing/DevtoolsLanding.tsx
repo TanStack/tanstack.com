@@ -21,7 +21,6 @@ import { GithubIcon } from '~/components/icons/GithubIcon'
 import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
-import { LibraryStatsSection } from '~/components/LibraryStatsSection'
 import { LibraryWordmark } from '~/components/LibraryWordmark'
 import LandingPageGad from '~/components/LandingPageGad'
 import { getLibrary } from '~/libraries'
@@ -271,10 +270,6 @@ export default function DevtoolsLanding({
             {landingCodeExampleRsc}
           </div>
         </div>
-
-        <div className="mx-auto w-full max-w-[80rem] px-4 pb-12 xl:max-w-[92rem]">
-          <LibraryStatsSection library={library} />
-        </div>
       </section>
 
       <section className="border-b border-zinc-200 bg-zinc-100 py-12 dark:border-zinc-800 dark:bg-zinc-900">
@@ -339,6 +334,27 @@ export default function DevtoolsLanding({
 }
 
 function DevtoolsPanel() {
+  const [activePanelIndex, setActivePanelIndex] = React.useState(0)
+  const activePanel = panels[activePanelIndex] ?? panels[0]
+  const panelStats =
+    activePanel.title === 'Query'
+      ? [
+          ['queries', '42'],
+          ['mutations', '3'],
+          ['stale', '8'],
+        ]
+      : activePanel.title === 'Router'
+        ? [
+            ['matches', '6'],
+            ['loaders', '4'],
+            ['pending', '1'],
+          ]
+        : [
+            ['jobs', '12'],
+            ['flags', '9'],
+            ['queues', '2'],
+          ]
+
   return (
     <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-zinc-300 bg-zinc-950 p-4 text-white shadow-sm shadow-zinc-950/10 dark:border-zinc-800">
       <div className="flex items-center justify-between gap-3">
@@ -353,26 +369,24 @@ function DevtoolsPanel() {
       <div className="mt-4 grid gap-3 lg:grid-cols-[0.45fr_1fr]">
         <div className="space-y-2">
           {panels.map((panel, index) => (
-            <div
+            <button
               key={panel.title}
-              className={`rounded-lg border px-3 py-2 ${
-                index === 0
+              className={`w-full rounded-lg border px-3 py-2 text-left transition-colors ${
+                index === activePanelIndex
                   ? 'border-white bg-white text-zinc-950'
-                  : 'border-zinc-800 bg-zinc-900 text-zinc-200'
+                  : 'border-zinc-800 bg-zinc-900 text-zinc-200 hover:border-zinc-600'
               }`}
+              type="button"
+              onClick={() => setActivePanelIndex(index)}
             >
               <p className="text-sm font-black">{panel.title}</p>
-            </div>
+            </button>
           ))}
         </div>
 
         <div className="rounded-lg border border-zinc-800 bg-black p-4">
           <div className="grid gap-3 sm:grid-cols-3">
-            {[
-              ['queries', '42'],
-              ['mutations', '3'],
-              ['stale', '8'],
-            ].map(([label, value]) => (
+            {panelStats.map(([label, value]) => (
               <div key={label} className="rounded-lg bg-zinc-900 p-3">
                 <p className="text-[0.65rem] font-black uppercase text-zinc-500">
                   {label}
@@ -382,10 +396,17 @@ function DevtoolsPanel() {
             ))}
           </div>
           <div className="mt-4 space-y-2">
-            {panels.map((panel) => (
+            {[
+              activePanel,
+              ...panels.filter((panel) => panel !== activePanel),
+            ].map((panel) => (
               <div
                 key={panel.body}
-                className="rounded-lg border border-zinc-800 bg-zinc-950 p-3"
+                className={
+                  panel === activePanel
+                    ? 'rounded-lg border border-white/30 bg-zinc-900 p-3'
+                    : 'rounded-lg border border-zinc-800 bg-zinc-950 p-3'
+                }
               >
                 <p className="text-xs font-black uppercase text-zinc-500">
                   {panel.title}

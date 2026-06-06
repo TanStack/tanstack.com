@@ -21,7 +21,6 @@ import LandingPageGad from '~/components/LandingPageGad'
 import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
-import { LibraryStatsSection } from '~/components/LibraryStatsSection'
 import { LibraryWordmark } from '~/components/LibraryWordmark'
 import { getLibrary } from '~/libraries'
 import type { LandingComponentProps } from '~/routes/$libraryId/$version'
@@ -284,10 +283,6 @@ export default function WorkflowLanding({
             {landingCodeExampleRsc}
           </div>
         </div>
-
-        <div className="mx-auto w-full max-w-[80rem] px-4 pb-12 xl:max-w-[92rem]">
-          <LibraryStatsSection library={library} />
-        </div>
       </section>
 
       <section className="bg-white py-12 dark:bg-zinc-950">
@@ -336,6 +331,27 @@ export default function WorkflowLanding({
 }
 
 function WorkflowRunPanel() {
+  const [activeStepIndex, setActiveStepIndex] = React.useState(1)
+  const [retryCount, setRetryCount] = React.useState(1)
+  const displayedRows = timelineRows.map((row, index) => {
+    if (index < activeStepIndex) {
+      return { ...row, state: 'done' }
+    }
+
+    if (index === activeStepIndex) {
+      return {
+        ...row,
+        detail:
+          row.step === 'reserve inventory'
+            ? `backoff ${retryCount * 15}s`
+            : row.detail,
+        state: row.step === 'manager approval' ? 'waiting' : 'running',
+      }
+    }
+
+    return { ...row, state: 'queued' }
+  })
+
   return (
     <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-blue-200 bg-white p-4 shadow-sm shadow-blue-950/5 dark:border-blue-900 dark:bg-zinc-950">
       <div className="flex items-center justify-between gap-3">
@@ -349,8 +365,39 @@ function WorkflowRunPanel() {
         </span>
       </div>
 
+      <div className="mt-4 flex flex-wrap gap-2">
+        <button
+          className="rounded-md border border-blue-600 bg-blue-600 px-3 py-2 text-xs font-black text-white transition-colors hover:bg-blue-700"
+          type="button"
+          onClick={() =>
+            setActiveStepIndex((current) =>
+              current >= timelineRows.length - 1 ? 0 : current + 1,
+            )
+          }
+        >
+          Advance
+        </button>
+        <button
+          className="rounded-md border border-blue-200 bg-white px-3 py-2 text-xs font-black text-blue-800 transition-colors hover:border-blue-400 dark:border-blue-900 dark:bg-zinc-950 dark:text-blue-200"
+          type="button"
+          onClick={() => setRetryCount((current) => current + 1)}
+        >
+          Retry step
+        </button>
+        <button
+          className="rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs font-black text-zinc-700 transition-colors hover:border-blue-300 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300"
+          type="button"
+          onClick={() => {
+            setActiveStepIndex(0)
+            setRetryCount(1)
+          }}
+        >
+          Restart
+        </button>
+      </div>
+
       <div className="mt-4 space-y-3">
-        {timelineRows.map((row, index) => (
+        {displayedRows.map((row, index) => (
           <div
             key={row.step}
             className="grid gap-3 rounded-lg border border-zinc-200 bg-blue-50 p-3 dark:border-zinc-800 dark:bg-blue-950/20 sm:grid-cols-[auto_1fr_auto] sm:items-center"

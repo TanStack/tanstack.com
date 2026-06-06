@@ -19,7 +19,6 @@ import LandingPageGad from '~/components/LandingPageGad'
 import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
-import { LibraryStatsSection } from '~/components/LibraryStatsSection'
 import { LibraryWordmark } from '~/components/LibraryWordmark'
 import { getLibrary } from '~/libraries'
 import type { LandingComponentProps } from '~/routes/$libraryId/$version'
@@ -55,10 +54,10 @@ const heroProof = [
 ]
 
 const shortcutRows = [
-  ['Mod+K', 'command menu'],
+  ['Mod+K', 'open search'],
   ['G then D', 'go to dashboard'],
   ['Shift+?', 'show shortcuts'],
-  ['Hold Space', 'temporary pan mode'],
+  ['Esc', 'close current panel'],
 ]
 
 const featureCards = [
@@ -259,10 +258,6 @@ export default function HotkeysLanding({
             {landingCodeExampleRsc}
           </div>
         </div>
-
-        <div className="mx-auto w-full max-w-[80rem] px-4 pb-12 xl:max-w-[92rem]">
-          <LibraryStatsSection library={library} />
-        </div>
       </section>
 
       <section className="bg-white py-12 dark:bg-zinc-950">
@@ -312,6 +307,44 @@ export default function HotkeysLanding({
 }
 
 function ShortcutPanel() {
+  const [activeShortcut, setActiveShortcut] = React.useState('Mod+K')
+  const sequenceRef = React.useRef<string | null>(null)
+
+  React.useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const key = event.key.toLowerCase()
+
+      if ((event.metaKey || event.ctrlKey) && key === 'k') {
+        setActiveShortcut('Mod+K')
+        return
+      }
+
+      if (event.shiftKey && event.key === '?') {
+        setActiveShortcut('Shift+?')
+        return
+      }
+
+      if (event.key === 'Escape') {
+        setActiveShortcut('Esc')
+        return
+      }
+
+      if (sequenceRef.current === 'g' && key === 'd') {
+        setActiveShortcut('G then D')
+        sequenceRef.current = null
+        return
+      }
+
+      sequenceRef.current = key === 'g' ? 'g' : null
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [])
+
   return (
     <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-rose-200 bg-white p-4 shadow-sm shadow-rose-950/5 dark:border-rose-900 dark:bg-zinc-950">
       <div className="flex items-center justify-between gap-3">
@@ -327,21 +360,35 @@ function ShortcutPanel() {
 
       <div className="mt-4 space-y-3">
         {shortcutRows.map(([keys, action]) => (
-          <div
+          <button
             key={keys}
-            className="grid gap-3 rounded-lg border border-zinc-200 bg-rose-50 p-3 dark:border-zinc-800 dark:bg-rose-950/20 sm:grid-cols-[0.42fr_1fr] sm:items-center"
+            aria-pressed={activeShortcut === keys}
+            className={
+              activeShortcut === keys
+                ? 'grid w-full gap-3 rounded-lg border border-rose-500 bg-rose-500 p-3 text-left text-white sm:grid-cols-[0.42fr_1fr] sm:items-center'
+                : 'grid w-full gap-3 rounded-lg border border-zinc-200 bg-rose-50 p-3 text-left transition-colors hover:border-rose-300 dark:border-zinc-800 dark:bg-rose-950/20 dark:hover:border-rose-800 sm:grid-cols-[0.42fr_1fr] sm:items-center'
+            }
+            type="button"
+            onClick={() => setActiveShortcut(keys)}
           >
-            <kbd className="rounded-md bg-zinc-950 px-3 py-2 text-center font-mono text-sm font-black text-white dark:bg-white dark:text-zinc-950">
+            <kbd
+              className={
+                activeShortcut === keys
+                  ? 'rounded-md bg-white px-3 py-2 text-center font-mono text-sm font-black text-rose-700'
+                  : 'rounded-md bg-zinc-950 px-3 py-2 text-center font-mono text-sm font-black text-white dark:bg-white dark:text-zinc-950'
+              }
+            >
               {keys}
             </kbd>
             <span className="font-bold">{action}</span>
-          </div>
+          </button>
         ))}
       </div>
 
       <div className="mt-4 rounded-lg bg-zinc-950 p-4 text-sm text-rose-100 dark:bg-black">
         <p className="font-mono leading-6">
-          useHotkeys(&quot;Mod+K&quot;, openCommandMenu, {'{'} scope {'}'})
+          useHotkeys(&quot;{activeShortcut}&quot;, runCommand, {'{'} scope {'}'}
+          )
         </p>
       </div>
     </div>

@@ -23,7 +23,7 @@ TanStack Table V9 has been a multi-year project for me (Kevin). Tanner handed me
 
 Although, this changed a little over a year ago when [Riccardo Perra](https://github.com/riccardoperra) joined the TanStack Table team as a contributor. He's been instrumental in helping us finalize the new state management system, especially for the non-React signal-based adapters like Angular and Solid.
 
-Still, maintanence of the project has been a bit lackluster, especially as we have focussed on this new version for well-over the past year.
+Still, maintenance of the project has been a bit lackluster, especially as we have focussed on this new version for well-over the past year.
 
 The development of V9 often stalled as we tried to figure out the correct approaches. Thankfully, the start of work on another TanStack library (TanStack Form) gave us a new perspective on how to approach the problems. Eventually, we were able to cheat a bit and just copy the same approaches that Corbin introduced to us from his work on TanStack Form and TanStack Store. The major state management improvements that we are introducing in V9 wouldn't have been quite as good without this new perspective.
 

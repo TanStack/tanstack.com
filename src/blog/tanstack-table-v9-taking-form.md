@@ -1,5 +1,5 @@
 ---
-title: "TanStack Table V9: Taking Form"
+title: 'TanStack Table V9: Taking Form'
 published: 2026-06-05
 excerpt: TanStack Table V9 is now in Beta. It wouldn't be as good as it is without our learnings from building TanStack Form.
 library: table
@@ -64,7 +64,7 @@ const instance = useTable(
   useSortBy,
   useFilters,
   usePagination,
-);
+)
 ```
 
 When Tanner rewrote the project for V8, that model went away. For some context, V8 was the first TanStack project to be rewritten fully in TypeScript (by Tanner himself), and the type system became, correctly, the most important constraint. v7's hook-plugin shape didn't translate cleanly to a strongly-typed core, so V8 ended up with one aggregated table model where every feature's types and code were pulled in together. Tree-shakability got deprioritized so the type story could be great.
@@ -106,7 +106,7 @@ Here's the traditional way to manage state in V8, and you can still do this in V
 const [pagination, setPagination] = useState({
   pageIndex: 0,
   pageSize: 10,
-});
+})
 
 const table = useTable({
   ...otherOptions,
@@ -114,7 +114,7 @@ const table = useTable({
     pagination, // manage
   },
   onPaginationChange: setPagination, // required to hoist state updates to your scope
-});
+})
 ```
 
 But now, you can also manage state with TanStack Store Atoms.
@@ -123,14 +123,14 @@ But now, you can also manage state with TanStack Store Atoms.
 const paginationAtom = useCreateAtom({
   pageIndex: 0,
   pageSize: 10,
-});
+})
 
 const table = useTable({
   ...otherOptions,
   atoms: {
     pagination: paginationAtom,
   },
-});
+})
 ```
 
 This might not seem like a big deal, until we next discuss the benefits of using TanStack Store Atoms for state management over traditional React state management.
@@ -149,9 +149,9 @@ const table = useTable(
   (state) => ({
     pagination: state.pagination, // now only re-renders the entire table when pagination changes. All other state changes will be opt-in with `table.Subscribe`
   }),
-);
+)
 
-console.log(table.state); // logs { pagination: { pageIndex: 0, pageSize: 10 } }
+console.log(table.state) // logs { pagination: { pageIndex: 0, pageSize: 10 } }
 ```
 
 This is the easy migration path. If you want the table component to behave a lot like V8, subscribe to the full state and keep rendering from `table.state`. If you want the V9 performance model, subscribe to less at the top and move the reactive reads closer to the components that actually need them.
@@ -175,10 +175,10 @@ One more small but important escape hatch: V9 also exports the underlying static
 This could also be useful for a future Qwik adapter in the future.
 
 ```ts
-import { row_getIsSelected } from "@tanstack/react-table/static-functions";
+import { row_getIsSelected } from '@tanstack/react-table/static-functions'
 
 // const isSelected = row.getIsSelected();
-const isSelected = row_getIsSelected(row); // optional static function instead of using the builder-pattern method
+const isSelected = row_getIsSelected(row) // optional static function instead of using the builder-pattern method
 ```
 
 ### 3. Less Memory Usage for Large Virtualized Tables
@@ -207,12 +207,12 @@ import {
   rowSortingFeature,
   sortFns,
   tableFeatures,
-} from "@tanstack/react-table";
+} from '@tanstack/react-table'
 
 const features = tableFeatures({
   rowPaginationFeature,
   rowSortingFeature,
-});
+})
 
 const table = useTable({
   features,
@@ -222,7 +222,7 @@ const table = useTable({
   },
   columns,
   data,
-});
+})
 ```
 
 If you do not register `rowSortingFeature`, you do not get sorting APIs and you do not ship sorting code. TypeScript knows that too, which is the part that took forever to get right. `table.setSorting` exists when sorting is registered. It does not exist when it is not. The same idea applies across the rest of the feature APIs.
@@ -243,7 +243,7 @@ V9 changes that. The built-in features are just feature objects. They can provid
 const features = tableFeatures({
   rowPaginationFeature,
   densityFeature,
-});
+})
 
 const table = useTable({
   features,
@@ -252,7 +252,7 @@ const table = useTable({
   },
   columns,
   data,
-});
+})
 ```
 
 That does not mean every custom behavior should become a Table feature. A lot of app code should still just be app code. But for reusable table packages and serious table abstractions, V9 finally gives you a first-class extension model that matches how the core library is built.
@@ -276,7 +276,7 @@ import {
   rowSortingFeature,
   sortFns,
   tableFeatures,
-} from "@tanstack/react-table";
+} from '@tanstack/react-table'
 
 // Set up this stuff once, use for all tables
 export const { useAppTable, createAppColumnHelper } = createTableHook({
@@ -297,23 +297,23 @@ export const { useAppTable, createAppColumnHelper } = createTableHook({
     NumberCell,
     RowActionsCell,
   },
-});
+})
 
-const columnHelper = createAppColumnHelper<Person>();
+const columnHelper = createAppColumnHelper<Person>()
 
 function UsersTable({ data }: { data: Person[] }) {
   const columns = columnHelper.columns([
-    columnHelper.accessor("firstName", {
-      header: "First Name",
+    columnHelper.accessor('firstName', {
+      header: 'First Name',
       cell: ({ cell }) => <cell.TextCell />,
     }),
     columnHelper.display({
-      id: "actions",
+      id: 'actions',
       cell: ({ cell }) => <cell.RowActionsCell />,
     }),
-  ]);
+  ])
 
-  const table = useAppTable({ columns, data }); // simpler "useTable" usage with features, row models, and table components already set up elsewhere
+  const table = useAppTable({ columns, data }) // simpler "useTable" usage with features, row models, and table components already set up elsewhere
 
   return (
     <table.AppTable>
@@ -324,7 +324,7 @@ function UsersTable({ data }: { data: Person[] }) {
         </>
       )}
     </table.AppTable>
-  );
+  )
 }
 ```
 
@@ -339,24 +339,24 @@ The last V8 problem was devtools, and this one is mostly thanks to [AlemTuzlak](
 Table V9 now has a real devtools integration. In React, you mount the TanStack Devtools host, add the table plugin, and register each table instance:
 
 ```tsx
-import { TanStackDevtools } from "@tanstack/react-devtools";
+import { TanStackDevtools } from '@tanstack/react-devtools'
 import {
   tableDevtoolsPlugin,
   useTanStackTableDevtools,
-} from "@tanstack/react-table-devtools";
+} from '@tanstack/react-table-devtools'
 
 function UsersTable() {
   const table = useTable({
-    key: "users-table",
+    key: 'users-table',
     features,
     rowModels,
     columns,
     data,
-  });
+  })
 
-  useTanStackTableDevtools(table);
+  useTanStackTableDevtools(table)
 
-  return <TableView table={table} />;
+  return <TableView table={table} />
 }
 
 function App() {
@@ -365,7 +365,7 @@ function App() {
       <UsersTable />
       <TanStackDevtools plugins={[tableDevtoolsPlugin()]} />
     </>
-  );
+  )
 }
 ```
 

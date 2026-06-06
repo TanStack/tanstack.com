@@ -15,7 +15,7 @@ TanStack Table V9 has been a long time coming, and at this point, it has probabl
 
 ## TL;DR
 
-TanStack Table V9 has major state management improvements, is more tree-shakable extendable, and composable while maintaining type safety, uses less memory, has broadly improved performance, has a much better devtools experience, has some new API patterns for setting up your table and table state management, and is caught up to the latest versions and patterns for React, Preact, Solid, Vue, Angular, Svelte, and Lit.
+TanStack Table V9 has major state management improvements, is more tree-shakable, extendable, and composable while maintaining type safety, uses less memory, has broadly improved performance, has a much better devtools experience, has some new API patterns for setting up your table and table state management, and is caught up to the latest versions and patterns for React, Preact, Solid, Vue, Angular, Svelte, and Lit.
 
 ## The Backstory on V9
 

@@ -335,7 +335,7 @@ export const table: LibrarySlim = {
   ],
   latestVersion: 'v8',
   latestBranch: 'main',
-  availableVersions: ['v8', 'alpha'],
+  availableVersions: ['v8', 'beta'],
   scarfId: 'dc8b39e1-3fe9-4f3a-8e56-d4e2cf420a9e',
   defaultDocs: 'introduction',
   sitemap: {

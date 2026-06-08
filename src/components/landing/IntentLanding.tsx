@@ -30,7 +30,7 @@ import {
   intentSkillHistoryQueryOptions,
   intentStatsQueryOptions,
 } from '~/queries/intent'
-import type { LandingComponentProps } from '~/routes/$libraryId/$version'
+import type { LandingComponentProps } from '~/routes/-library-landing'
 import type { SkillHistoryEntry } from '~/utils/intent.functions'
 
 import { LandingCopyPromptButton } from '~/components/landing/LandingCopyPromptButton'

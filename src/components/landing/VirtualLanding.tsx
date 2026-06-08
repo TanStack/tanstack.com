@@ -34,7 +34,7 @@ import { LibraryWordmark } from '~/components/LibraryWordmark'
 import LandingPageGad from '~/components/LandingPageGad'
 import { getLibrary } from '~/libraries'
 import { virtualProject } from '~/libraries/virtual'
-import type { LandingComponentProps } from '~/routes/$libraryId/$version'
+import type { LandingComponentProps } from '~/routes/-library-landing'
 import { usePrefersReducedMotion } from '~/utils/usePrefersReducedMotion'
 
 import { LandingEcosystemProof } from '~/components/landing/LandingEcosystemProof'

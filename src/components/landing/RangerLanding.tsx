@@ -23,7 +23,7 @@ import { LibraryWordmark } from '~/components/LibraryWordmark'
 import { StackBlitzSection } from '~/components/StackBlitzSection'
 import { getBranch, getLibrary } from '~/libraries'
 import { rangerProject } from '~/libraries/ranger'
-import type { LandingComponentProps } from '~/routes/$libraryId/$version'
+import type { LandingComponentProps } from '~/routes/-library-landing'
 
 import { LandingCopyPromptButton } from '~/components/landing/LandingCopyPromptButton'
 const library = getLibrary('ranger')

@@ -29,7 +29,7 @@ import LandingPageGad from '~/components/LandingPageGad'
 import { QueryGGBanner } from '~/components/QueryGGBanner'
 import { getLibrary } from '~/libraries'
 import { queryProject } from '~/libraries/query'
-import type { LandingComponentProps } from '~/routes/$libraryId/$version'
+import type { LandingComponentProps } from '~/routes/-library-landing'
 import { usePrefersReducedMotion } from '~/utils/usePrefersReducedMotion'
 
 import { LandingEcosystemProof } from '~/components/landing/LandingEcosystemProof'

@@ -264,7 +264,7 @@ export default function AiLanding({
             <p className="mt-4 max-w-xl text-base leading-7 text-zinc-700 dark:text-zinc-300">
               A useful AI layer has to cross clients, servers, providers, tools,
               streaming events, approvals, and observability. AI keeps those
-              seams explicit so teams can swap pieces without rewriting the
+              boundaries explicit so teams can swap pieces without rewriting the
               product.
             </p>
           </div>
@@ -888,11 +888,15 @@ function RuntimePanel() {
     <div className="min-w-0 rounded-lg border border-pink-200 bg-white p-4 dark:border-pink-900 dark:bg-zinc-950">
       <div className="rounded-lg bg-zinc-950 p-4 text-sm text-pink-100 dark:bg-black">
         <p className="font-mono leading-6">
-          agent.run({'{'} provider, model, tools {'}'})
+          const {'{'} messages, addToolApprovalResponse {'}'} = useChat({'{'}
           <br />
-          stream.on(&quot;tool.call&quot;, requestApproval)
+          &nbsp;&nbsp;connection: fetchServerSentEvents(&quot;/api/chat&quot;),
           <br />
-          devtools.record(event)
+          &nbsp;&nbsp;tools,
+          <br />
+          &nbsp;&nbsp;devtools: {'{'} name: &quot;Support Chat&quot; {'}'}
+          <br />
+          {'}'})
         </p>
       </div>
 

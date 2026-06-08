@@ -28,7 +28,7 @@ import { LandingCopyPromptButton } from '~/components/landing/LandingCopyPromptB
 const library = getLibrary('cli')
 const cliAgentPrompt = [
   'Use TanStack CLI for a TanStack project workflow.',
-  'Show how the CLI, MCP server, Builder, docs search, and modular integrations can scaffold or modify a TanStack Start app with auth, database, styling, deployment, and package-specific best practices.',
+  'Show how the CLI, Builder, docs search, and modular integrations can scaffold or modify a TanStack Start app with auth, database, styling, deployment, and package-specific best practices.',
   'Keep generated changes inspectable and grounded in TanStack docs instead of relying on generic framework assumptions.',
 ].join(' ')
 
@@ -38,8 +38,8 @@ const heroProof = [
     value: 'project commands and generated changes',
   },
   {
-    label: 'MCP',
-    value: 'docs search and agent context',
+    label: 'Docs',
+    value: 'search, fetch, and introspect',
   },
   {
     label: 'Builder',
@@ -48,10 +48,10 @@ const heroProof = [
 ]
 
 const commandRows = [
-  ['search docs', 'router loaders'],
-  ['add integration', 'auth + database'],
-  ['scaffold start', 'Cloudflare target'],
-  ['export builder', 'checked project plan'],
+  ['search-docs', '"router loaders" --library router'],
+  ['create', 'my-app --add-ons clerk,drizzle'],
+  ['libraries', '--group state --json'],
+  ['ecosystem', '--category database --json'],
 ]
 
 const featureCards = [
@@ -61,8 +61,8 @@ const featureCards = [
     icon: <Terminal size={18} />,
   },
   {
-    title: 'MCP turns docs into agent context.',
-    body: 'Connect assistants to TanStack documentation so generated work can reference current docs and package-specific conventions.',
+    title: 'CLI introspection turns docs into agent context.',
+    body: 'Use JSON commands for docs, libraries, add-ons, and ecosystem data so generated work can reference current TanStack conventions.',
     icon: <Bot size={18} />,
   },
   {
@@ -80,7 +80,7 @@ const featureCards = [
 const workflowSteps = [
   {
     label: 'Discover',
-    body: 'Search docs, examples, packages, and integrations through CLI or MCP.',
+    body: 'Search docs, examples, packages, and integrations through direct CLI commands.',
   },
   {
     label: 'Choose',
@@ -110,8 +110,8 @@ const builderOutputs = [
     value: 'routes, server fns, env, deploy config',
   },
   {
-    label: 'agent prompt',
-    value: 'copyable implementation brief',
+    label: 'CLI config',
+    value: '.tanstack.json and chosen add-ons',
   },
 ]
 
@@ -127,7 +127,7 @@ export default function CliLanding({
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-10 lg:max-w-[80rem] lg:grid-cols-[0.84fr_1.16fr] lg:items-start lg:py-12 xl:max-w-[92rem]">
           <div className="min-w-0 max-w-full sm:max-w-3xl">
             <SectionKicker icon={<Terminal size={14} />}>
-              CLI, MCP, and Builder
+              CLI, add-ons, and Builder
             </SectionKicker>
 
             <div className="mt-4 flex flex-wrap items-start gap-x-3 gap-y-2">
@@ -146,9 +146,9 @@ export default function CliLanding({
             </p>
 
             <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-700 dark:text-zinc-300 sm:text-lg">
-              CLI brings together commands, MCP docs access, modular
+              CLI brings together project commands, docs search, modular
               integrations, and the Builder so TanStack Start apps can be
-              scaffolded and customized with the same context the docs use.
+              scaffolded and customized with current TanStack context.
             </p>
 
             <LibraryDownloadsMicro
@@ -241,7 +241,7 @@ export default function CliLanding({
             <p className="mt-4 max-w-xl text-base leading-7 text-zinc-700 dark:text-zinc-300">
               The Builder turns app intent into a readable stack brief: TanStack
               libraries, partner integrations, deployment target, generated
-              files, and an agent-ready prompt.
+              files, and CLI-ready configuration.
             </p>
           </div>
 
@@ -319,10 +319,7 @@ export default function CliLanding({
 function CliWorkbenchPanel() {
   const [activeCommandIndex, setActiveCommandIndex] = React.useState(0)
   const activeCommand = commandRows[activeCommandIndex] ?? commandRows[0]
-  const activeCommandPreview = `npx @tanstack/cli ${activeCommand[0].replace(
-    ' ',
-    '-',
-  )} "${activeCommand[1]}"`
+  const activeCommandPreview = `npx @tanstack/cli ${activeCommand[0]} ${activeCommand[1]}`
 
   return (
     <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-indigo-200 bg-white p-4 shadow-sm shadow-indigo-950/5 dark:border-indigo-900 dark:bg-zinc-950">
@@ -339,11 +336,11 @@ function CliWorkbenchPanel() {
 
       <div className="mt-4 rounded-lg bg-zinc-950 p-4 text-sm text-indigo-100 dark:bg-black">
         <p className="font-mono leading-6">
-          npx @tanstack/cli mcp
+          npx @tanstack/cli create --list-add-ons --json
           <br />
           {activeCommandPreview}
           <br />
-          npx @tanstack/cli build-plan
+          npx @tanstack/cli doc query framework/react/overview --json
         </p>
       </div>
 

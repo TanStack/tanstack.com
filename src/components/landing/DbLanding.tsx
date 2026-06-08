@@ -574,13 +574,17 @@ function SyncPanel() {
     <div className="min-w-0 rounded-lg border border-orange-200 bg-white p-4 dark:border-orange-900 dark:bg-zinc-950">
       <div className="rounded-lg bg-zinc-950 p-4 text-sm text-orange-100 dark:bg-black">
         <p className="font-mono leading-6">
-          liveQuery({'{'} projects, issues, members {'}'})
+          useLiveQuery((q) =&gt;
           <br />
-          &nbsp;&nbsp;.where(({`{`} issue, project {`}`}) =&gt; issue.projectId
-          === project.id)
+          &nbsp;&nbsp;q.from({'{'} issue: issuesCollection {'}'})
           <br />
-          &nbsp;&nbsp;.orderBy(({`{`} issue {`}`}) =&gt; issue.updatedAt,
-          &quot;desc&quot;)
+          &nbsp;&nbsp;&nbsp;&nbsp;.join({'{'} project: projectsCollection {'}'},
+          ({`{`} issue, project {`}`}) =&gt;
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;eq(issue.projectId, project.id))
+          <br />
+          &nbsp;&nbsp;&nbsp;&nbsp;.orderBy(({`{`} issue {`}`}) =&gt;
+          issue.updatedAt, &quot;desc&quot;))
         </p>
       </div>
 

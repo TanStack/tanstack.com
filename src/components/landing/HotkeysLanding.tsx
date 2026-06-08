@@ -387,8 +387,8 @@ function ShortcutPanel() {
 
       <div className="mt-4 rounded-lg bg-zinc-950 p-4 text-sm text-rose-100 dark:bg-black">
         <p className="font-mono leading-6">
-          useHotkeys(&quot;{activeShortcut}&quot;, runCommand, {'{'} scope {'}'}
-          )
+          useHotkey(&quot;{activeShortcut}&quot;, runCommand, {'{'} enabled:{' '}
+          isPanelOpen {'}'})
         </p>
       </div>
     </div>

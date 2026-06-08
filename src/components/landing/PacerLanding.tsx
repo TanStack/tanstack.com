@@ -514,11 +514,11 @@ function AsyncPanel() {
     <div className="min-w-0 rounded-lg border border-lime-200 bg-white p-4 dark:border-lime-900 dark:bg-zinc-950">
       <div className="rounded-lg bg-zinc-950 p-4 text-sm text-lime-100 dark:bg-black">
         <p className="font-mono leading-6">
-          queue.add(uploadFile)
+          const queue = new AsyncQueuer(uploadFile, {'{'} concurrency: 3 {'}'})
           <br />
-          queue.setOptions({'{'} concurrency: 3, order: &quot;fifo&quot; {'}'})
+          queue.addItem(file)
           <br />
-          queue.subscribe(state =&gt; state.status)
+          queue.store.subscribe(state =&gt; syncStatus(state.status))
         </p>
       </div>
 

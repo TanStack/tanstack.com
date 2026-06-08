@@ -351,8 +351,14 @@ function RangerLabPanel() {
 
       <div className="mt-6 rounded-lg bg-zinc-950 p-4 text-sm text-zinc-100 dark:bg-black">
         <p className="font-mono leading-6">
-          useRanger({'{'} min: 0, max: 1000, step: 10, values: [
-          {values.join(', ')}] {'}'})
+          useRanger({'{'} getRangerElement: () =&gt; rangerRef.current,
+          <br />
+          &nbsp;&nbsp;min: 0, max: 1000,
+          <br />
+          &nbsp;&nbsp;stepSize: 10, values: [{values.join(', ')}],
+          <br />
+          &nbsp;&nbsp;onChange: instance =&gt; setValues(instance.sortedValues){' '}
+          {'}'})
         </p>
       </div>
     </div>

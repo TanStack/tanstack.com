@@ -29,8 +29,8 @@ import { LandingCopyPromptButton } from '~/components/landing/LandingCopyPromptB
 const library = getLibrary('config')
 const configAgentPrompt = [
   'Set up TanStack Config for a TypeScript package.',
-  'Use the opinionated lint, build, test, versioning, changelog, publishing, and package-quality defaults while keeping project-specific configuration minimal and explicit.',
-  'Show how the package should produce publint-friendly output, stable npm releases, and repeatable local/CI workflows.',
+  'Use the opinionated ESLint, Vite package build, CI/CD, package structure, and publish defaults while keeping project-specific configuration minimal and explicit.',
+  'Show how the package should produce publint-friendly output, Changesets-backed releases, and repeatable local/CI workflows.',
 ].join(' ')
 
 const heroProof = [
@@ -40,11 +40,11 @@ const heroProof = [
   },
   {
     label: 'Validate',
-    value: 'lint, tests, publint-friendly checks',
+    value: 'ESLint, tests, package checks',
   },
   {
     label: 'Release',
-    value: 'versioning, changelogs, npm + GitHub',
+    value: 'Changesets, npm + GitHub',
   },
 ]
 
@@ -52,14 +52,14 @@ const releaseRows = [
   ['typecheck', 'passed'],
   ['lint', 'passed'],
   ['package exports', 'verified'],
-  ['changelog', 'generated'],
+  ['changesets', 'ready'],
   ['npm publish', 'ready'],
 ]
 
 const featureCards = [
   {
     title: 'Opinionated where packages are repetitive.',
-    body: 'Linting, building, testing, formatting, publishing, and release hygiene should not become bespoke work in every package repo.',
+    body: 'Linting, package builds, CI tasks, publishing, and release hygiene should not become bespoke work in every package repo.',
     icon: <ClipboardCheck size={18} />,
   },
   {
@@ -69,7 +69,7 @@ const featureCards = [
   },
   {
     title: 'Publishing rules stay visible.',
-    body: 'Exports, changelogs, package metadata, versioning, and npm release behavior can be reviewed as part of the same workflow.',
+    body: 'Exports, package metadata, release branches, and npm publish behavior can be reviewed as part of the same workflow.',
     icon: <PackageCheck size={18} />,
   },
   {
@@ -94,7 +94,7 @@ const pipelineSteps = [
   },
   {
     label: 'Publish',
-    body: 'Version, changelog, tag, and publish through a repeatable release path.',
+    body: 'Version, tag, and publish through a repeatable release path.',
   },
 ]
 
@@ -108,8 +108,8 @@ const auditSignals = [
     value: 'package shape checked',
   },
   {
-    label: 'changes',
-    value: 'changelog generated',
+    label: 'changesets',
+    value: 'versioning ready',
   },
   {
     label: 'release',
@@ -142,8 +142,8 @@ export default function ConfigLanding({
 
             <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-700 dark:text-zinc-300 sm:text-lg">
               Config is the opinionated toolchain TanStack uses to keep
-              JavaScript packages linted, built, tested, versioned,
-              changelogged, and published with minimal per-package ceremony.
+              JavaScript packages linted, built, tested in CI, versioned with
+              Changesets, and published with minimal per-package ceremony.
             </p>
 
             <LibraryDownloadsMicro
@@ -190,9 +190,9 @@ export default function ConfigLanding({
             </h2>
             <p className="mt-4 max-w-xl text-base leading-7 text-zinc-700 dark:text-zinc-300">
               Every library needs the same boring promises: exports resolve,
-              types ship, tests pass, changelogs make sense, and npm publishes
-              what consumers expect. Config turns that repetition into shared
-              defaults.
+              types ship, tests pass, release branches are configured, and npm
+              publishes what consumers expect. Config turns that repetition into
+              shared defaults.
             </p>
           </div>
 
@@ -234,7 +234,7 @@ export default function ConfigLanding({
             </h2>
             <p className="mt-4 max-w-xl text-base leading-7 text-zinc-700 dark:text-zinc-300">
               The consumer sees your package boundary: exports, module formats,
-              types, metadata, changelog, and version. Config keeps that
+              types, metadata, release branch, and version. Config keeps that
               boundary part of the workflow.
             </p>
           </div>
@@ -345,13 +345,13 @@ function ReleasePanel() {
 
       <div className="mt-4 rounded-lg bg-zinc-950 p-4 text-sm text-zinc-100 dark:bg-black">
         <p className="font-mono leading-6">
-          pnpm lint
+          vite build &amp;&amp; publint --strict
           <br />
-          pnpm test
+          nx affected
           <br />
-          pnpm build --verify {completedCount}/{releaseRows.length}
+          changesets {completedCount}/{releaseRows.length}
           <br />
-          pnpm release{' '}
+          publish config: branchConfigs, packages, npm, github{' '}
           {completedCount === releaseRows.length ? '--ready' : '--blocked'}
         </p>
       </div>
@@ -432,7 +432,7 @@ function AuditPanel() {
           <br />
           dist/index.d.ts
           <br />
-          CHANGELOG.md
+          .changeset/*.md
         </p>
       </div>
     </div>

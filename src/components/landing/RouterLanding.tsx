@@ -501,7 +501,8 @@ function SearchStatePanel() {
 
       <div className="mt-4 rounded-lg bg-zinc-950 p-4 text-sm text-emerald-100 dark:bg-black">
         <p className="font-mono leading-6">
-          <span className="text-emerald-300">search</span>: z.object({'{'}
+          <span className="text-emerald-300">validateSearch</span>: z.object(
+          {'{'}
           <br />
           &nbsp;&nbsp;q: z.string().optional(),
           <br />

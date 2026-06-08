@@ -19,7 +19,7 @@ TanStack Table V9 has major state management improvements, is more tree-shakable
 
 ## The Backstory on V9
 
-TanStack Table V9 has been a multi-year project for me (Kevin). Tanner handed me the maintainer keys for Table back in 2022 and started to trust me as the main maintainer by the end of 2023 as he moved on to focus on TanStack Router and eventually TanStack Start. Since then, it has pretty much just been me and a few other drive-by contributors working on the project in my free time, which I never had enough of.
+TanStack Table V9 has been a multi-year project for me (Kevin). Tanner handed me the maintainer keys for Table back in 2022 and started to trust me as the lead maintainer by the end of 2023 as he moved on to focus on TanStack Router and eventually TanStack Start. Since then, it has pretty much just been me and a few other drive-by contributors working on the project in my free time, which, of course, I never have enough of.
 
 Although, this changed a little over a year ago when [Riccardo Perra](https://github.com/riccardoperra) joined the TanStack Table team as a contributor. He's been instrumental in helping us finalize the new state management system, especially for the non-React signal-based adapters like Angular and Solid.
 
@@ -33,7 +33,7 @@ TanStack Table V8 has been out for 4 years now 🤯. It has been pretty successf
 
 From both the constant feedback that we gather and our own experiences as maintainers, these were the biggest issues with V8:
 
-1. **State management didn't follow official React patterns.** This had been a smell for a while, but the moment the React Compiler showed up, the smell turned into a "broken rules" warning. The same patterns also made the non-React adapters harder to maintain.
+1. **State management didn't follow official React patterns.** This had been a smell for a while, but the moment the React Compiler became stable, TanStack Table V8 started breaking. The same state management system also made the non-React adapters harder to interact with.
 2. **There wasn't enough control over re-rendering or memoization.** Big tables paid the price for every state change, even when the part of state that changed had nothing to do with the part being rendered. The larger your table, the more memoization hacks you would find yourself trying to implement to keep your table performing well.
 3. **Large virtualized tables used too much memory.** TanStack Table was using more memory than expected, especially at the large scales of virtualized tables, which we definitely want to have as a core offering.
 4. **The feature set could feel bloated to some users and too basic to others at the same time.** Every feature and API that TanStack Table includes is currently very specifically scoped. We often found ourselves playing code-golf while working on fixes and improvements in order to not bloat the bundle for everyone. We needed to find a way to make TanStack Table scale both up and down without making the library overall worse for everyone.
@@ -43,7 +43,7 @@ From both the constant feedback that we gather and our own experiences as mainta
 
 These were all important problems that needed to be addressed, but we probably only needed to address one or two of them at a time for a new major release.
 
-I made what can most definitely be considered a big mistake of trying to address all of these issues at once. It didn't start out that way, but now that we are at the end of alpha development, it is clear that this is what happened and that it would have been much more beneficial to move faster and deliver smaller improvements more frequently.
+I made what can now most definitely be considered a big mistake in trying to address all of these issues at once. It didn't start out that way, but now that we are at the end of alpha development, it is clear that this is what happened and that it would have been much more beneficial to move faster and deliver smaller improvements more frequently.
 
 Now that we are shipping V9 with fixes to all of the above, it's great and I think most will be very happy with the improvements, but we should try to prioritize the issues that actually matter better in the future, especially when we the maintainers have limited time to actually work on the project.
 
@@ -51,11 +51,11 @@ On the bright side, V9 is going to be a foundational release for the future of T
 
 ### The Start of V9 Development
 
-I've ordered the above list is issues of V8 in roughly the order of importance based on user complaints from the community that we've received over the years. So you'd think that the next major version of TanStack Table would start by address each of those issues in turn. But that's not what happened, unfortunately.
+I've ordered the above list is issues of V8 in roughly the order of importance based on user complaints from the community that we've received over the years. So you'd think that the next major version of TanStack Table would start by addressing each of those issues in turn. But that's not what happened, unfortunately.
 
-In late 2023, I had this idea I couldn't "shake". What if Table V9 could be tree-shakable again, in a way similar to how react-table v7 was?
+In late 2023, I had this idea I couldn't "shake". What if Table V9 could be tree-shakable again, in a way similar to how react-table v7 was? One of the complaints that I've seen about TanStack Table was that it was "overkill" for simple use-cases. I usually disagreed with this, as TanStack Table V8 was a relatively small library with a bundle size of under 15kb, but I could see the point when developers would only be using less than 10% of the included API surface.
 
-A bit of history is useful here. React Table v7 had a hook-based plugin model. You only paid in bundle size for the features you actually used:
+A bit more history is useful here. React Table v7 had a hook-based plugin model. You only paid in bundle size for the features you actually used. It was very tree-shakable!
 
 ```ts
 // react-table v7
@@ -67,7 +67,7 @@ const instance = useTable(
 )
 ```
 
-When Tanner rewrote the project for V8, that model went away. For some context, V8 was the first TanStack project to be rewritten fully in TypeScript (by Tanner himself), and the type system became, correctly, the most important constraint. v7's hook-plugin shape didn't translate cleanly to a strongly-typed core, so V8 ended up with one aggregated table model where every feature's types and code were pulled in together. Tree-shakability got deprioritized so the type story could be great.
+When Tanner rewrote the project for V8, a lot of that model went away. For some context, V8 was the first TanStack project to be rewritten fully in TypeScript (by Tanner himself), and the type system became, correctly, the most important constraint. V7's hook-plugin shape didn't translate cleanly to a strongly-typed core, so V8 ended up with one aggregated table model where every feature's types and code were pulled in together. Tree-shakability got deprioritized so the type story could be great.
 
 That trade was the right call. V8 is type-safe in a way v7 never was. But I kept poking at the question: could you have both? Could V9 give you v7's "only pay for what you use" and V8's type safety at the same time?
 
@@ -75,7 +75,7 @@ I started prototyping. I figured it would take a few weeks. The full thinking li
 
 ### A Year on the Wrong Problem
 
-It didn't take a few months. It took over a year, and even then it wasn't really done. By early 2025 I had the tree-shakable refactor maybe 99% working. The last 1% of getting TypeScript to work perfectly was going to be the death of me. Types are a cruel place to spend your limited free time.
+It didn't take a few months. It took over a year, and even then it wasn't really done. By early 2025 I had the tree-shakable refactor 99% working. The last 1% of getting TypeScript to work perfectly was going to be the death of me. Types are a cruel place to spend your limited free time 😭.
 
 ![Any Year Now](/blog-assets/tanstack-table-v9-taking-form/screenshot-1.png)
 
@@ -85,7 +85,7 @@ The Compiler did me a favor I didn't ask for. It made the state management probl
 
 ### Help arrives from TanStack Form
 
-Corbin Crutchley had recently joined TanStack and was busy turning TanStack Form into something genuinely awesome. Form needed exactly the things Table needed: a way to model state once, in a core that wasn't React-flavored, and have it work in React, Vue, Solid, Angular, Svelte, and Lit, including under the React Compiler.
+[Corbin Crutchley](https://github.com/crutchcorn) had recently joined TanStack and was busy turning TanStack Form into something genuinely awesome. Form needed exactly the things Table needed: a way to model state once, in a core that wasn't React-flavored, and have it work with any JavaScript framework plus the React Compiler.
 
 The answer Form arrived at was a signals-style store with atom slices, derived state, selector-based subscriptions, and a single source of truth that every adapter could read and write to. This ended up being just about the same state management system that we needed for Table. It still took us a while to perfectly adapt the reactivity for how we needed it to work in Table, but we have eventually got it to work pretty well.
 
@@ -93,7 +93,7 @@ In 2025, I actually ended up taking a small break from working exclusively on Ta
 
 ## What's New in V9?
 
-So that's the backstory for how TanStack Table V9 was developed. Now let's talk about what's new in V9.
+So that's the backstory for how TanStack Table V9 was developed. Now let's talk specifically about what's new in V9.
 
 ### 1. State Management with TanStack Store
 
@@ -227,7 +227,7 @@ const table = useTable({
 
 If you do not register `rowSortingFeature`, you do not get sorting APIs and you do not ship sorting code. TypeScript knows that too, which is the part that took forever to get right. `table.setSorting` exists when sorting is registered. It does not exist when it is not. The same idea applies across the rest of the feature APIs.
 
-This solves the "bloated to some, too basic to others" problem in a much healthier way. A tiny table can use `tableFeatures({})` and only get the core row model. A full enterprise grid can register sorting, filtering, faceting, grouping, pagination, row selection, pinning, sizing, and everything else it needs.
+This solves the "bloated to some, too basic for others" problem in a much healthier way. A tiny table can use `tableFeatures({})` and only get the core row model. A full enterprise grid can register sorting, filtering, faceting, grouping, pagination, row selection, pinning, sizing, and everything else it needs.
 
 And yes, if you just want the V8-style "give me everything" setup while you migrate, `stockFeatures` exists. I would not use it as the default for new code, because it gives up a lot of the point of V9, but it is a useful bridge.
 
@@ -235,14 +235,14 @@ And yes, if you just want the V8-style "give me everything" setup while you migr
 
 V8's answer to custom functionality was usually: compose around the table. That was, and still is, good advice. But it was not always satisfying advice.
 
-If you were building something like Material React Table, or a design-system table wrapper, or a table with app-specific behaviors like density, keyboard navigation, analytics, custom row actions, or server-side conventions, you could absolutely build those things around TanStack Table. But there was not a very clear "this is how Table itself adds features, and you can do the same thing" path.
+If you were building something like [Material React Table](https://material-react-table.com/), or a design-system table wrapper, or a table with app-specific behaviors like density, keyboard navigation, analytics, custom row actions, or server-side conventions, you could absolutely build those things around TanStack Table. But there was not a very clear "this is how Table itself adds features, and you can do the same thing" path.
 
 V9 changes that. The built-in features are just feature objects. They can provide default options, initial state, table APIs, column APIs, row APIs, cell APIs, and header APIs. Custom features can use that same system:
 
 ```ts
 const features = tableFeatures({
   rowPaginationFeature,
-  densityFeature,
+  densityFeature, // make your own feature APIs, works just like a built-in feature!
 })
 
 const table = useTable({
@@ -263,9 +263,9 @@ This also means we can be more disciplined about what belongs in core. We do not
 
 ### 6. Reusable Table Code with createTableHook
 
-Another place Table took Form is in reusable composition. TanStack Form has a `createFormHook` for defining shared form infrastructure once, then reusing it across an app. Table V9 now has the same idea with `createTableHook`.
+Another place Table took from Form is in reusable composition. TanStack Form has a `createFormHook` for defining shared form infrastructure once, then reusing it across an app. Table V9 now has the same idea with `createTableHook`.
 
-The new [Composable Tables example](/table/latest/examples/composable-tables) shows the pattern. You define your common table features, row models, default options, and reusable table/cell/header components once. Then each actual table only brings its own columns and data:
+The new [Composable Tables example](/table/latest/examples/composable-tables) shows this pattern too. You define your common table features, row models, default options, and reusable table/cell/header components once. Then each table only brings its own columns, data, and any custom options it needs:
 
 ```tsx
 import {
@@ -389,7 +389,9 @@ We think we are mostly done with the foundational changes for V9 in terms of sta
 
 If you have the stomach for a beta, I would love your help kicking the tires. You can find the V9 docs [here](/table/beta).
 
-We're also in the middle of a documentation rewrite for V9, already with lots of new examples and guides.
+We also have a [full migration guide for V8 to V9](/table/beta/docs/framework/react/guide/migrating)!
+
+We're also in the middle of a documentation rewrite for V9, already with lots of new examples and guides. Some pages might move around in the next few weeks as we finalize the new structure.
 
 Here are a bunch of the new Kitchen Sink examples worth checking out:
 

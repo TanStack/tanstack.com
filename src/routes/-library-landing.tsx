@@ -8,6 +8,25 @@ export type LandingComponentProps = {
   landingCodeExampleRsc?: ReactNode
 }
 
+export type LandingLibraryId =
+  | 'ai'
+  | 'cli'
+  | 'config'
+  | 'db'
+  | 'devtools'
+  | 'form'
+  | 'hotkeys'
+  | 'intent'
+  | 'pacer'
+  | 'query'
+  | 'ranger'
+  | 'router'
+  | 'start'
+  | 'store'
+  | 'table'
+  | 'virtual'
+  | 'workflow'
+
 function getLibraryOrThrow(libraryId: string) {
   const library = findLibrary(libraryId)
 

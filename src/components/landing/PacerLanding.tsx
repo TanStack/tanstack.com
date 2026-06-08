@@ -24,7 +24,7 @@ import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
 import { LibraryWordmark } from '~/components/LibraryWordmark'
 import LandingPageGad from '~/components/LandingPageGad'
 import { getLibrary } from '~/libraries'
-import type { LandingComponentProps } from '~/routes/$libraryId/$version'
+import type { LandingComponentProps } from '~/routes/-library-landing'
 
 import { LandingCopyPromptButton } from '~/components/landing/LandingCopyPromptButton'
 const library = getLibrary('pacer')

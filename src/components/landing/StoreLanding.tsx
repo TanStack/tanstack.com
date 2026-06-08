@@ -93,7 +93,7 @@ const lifecycleSteps = [
 const subscriptionExamples = [
   {
     label: 'component',
-    value: 'useStore(appStore, state => state.filters)',
+    value: 'useSelector(appStore, state => state.filters)',
   },
   {
     label: 'derived',
@@ -101,7 +101,7 @@ const subscriptionExamples = [
   },
   {
     label: 'effect',
-    value: 'store.subscribe(selector, listener)',
+    value: 'store.subscribe(listener)',
   },
   {
     label: 'adapter',
@@ -533,9 +533,9 @@ function SubscriptionPanel() {
     <div className="min-w-0 rounded-lg border border-twine-200 bg-white p-4 dark:border-twine-900 dark:bg-zinc-950">
       <div className="rounded-lg bg-zinc-950 p-4 text-sm text-twine-100 dark:bg-black">
         <p className="font-mono leading-6">
-          const filters = useStore(store, state =&gt; state.filters)
+          const filters = useSelector(store, state =&gt; state.filters)
           <br />
-          const canSave = useStore(store, state =&gt; state.draft.isDirty)
+          const canSave = useSelector(store, state =&gt; state.draft.isDirty)
         </p>
       </div>
 

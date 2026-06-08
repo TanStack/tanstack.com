@@ -31,7 +31,7 @@ const library = getLibrary('devtools')
 const devtoolsAgentPrompt = [
   'Add TanStack Devtools to a TypeScript app.',
   'Use the unified devtools shell to host TanStack panels and any custom product devtools, keeping the panel lightweight, framework-friendly, and available during development without coupling product code to one library-specific inspector.',
-  'Include examples for mounting built-in panels and registering a custom panel with useful runtime state.',
+  'Include examples for mounting built-in panels and product-specific panels through the plugins array.',
 ].join(' ')
 
 const heroProof = [
@@ -45,7 +45,7 @@ const heroProof = [
   },
   {
     label: 'Framework friendly',
-    value: 'React, Preact, Solid, vanilla',
+    value: 'React, Vue, Solid, Preact, Angular',
   },
 ]
 
@@ -82,7 +82,7 @@ const featureCards = [
   },
   {
     title: 'Frameworks get adapters, not rewrites.',
-    body: 'Use the shell from React, Preact, Solid, or vanilla integration points while panels keep their own internal state model.',
+    body: 'Use the shell from React, Vue, Solid, Preact, Angular, or vanilla integration points while panels keep their own internal state model.',
     icon: <Layers size={18} />,
   },
 ]
@@ -94,7 +94,7 @@ const panelLifecycle = [
   },
   {
     label: 'Register',
-    body: 'Provide TanStack panels or custom panels with a title, icon, and renderer.',
+    body: 'Provide TanStack panels or custom panels through the plugins array.',
   },
   {
     label: 'Inspect',
@@ -106,7 +106,14 @@ const panelLifecycle = [
   },
 ]
 
-const frameworkAdapters = ['React', 'Preact', 'Solid', 'Vanilla']
+const frameworkAdapters = [
+  'React',
+  'Vue',
+  'Solid',
+  'Preact',
+  'Angular',
+  'Vanilla',
+]
 
 export default function DevtoolsLanding({
   landingCodeExampleRsc,
@@ -449,15 +456,17 @@ function CustomPanelExample() {
     <div className="min-w-0 rounded-lg border border-zinc-300 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
       <div className="rounded-lg bg-zinc-950 p-4 text-sm text-zinc-100 dark:bg-black">
         <p className="font-mono leading-6">
-          registerDevtoolsPanel({'{'}
+          &lt;TanStackDevtools
           <br />
-          &nbsp;&nbsp;id: &quot;jobs&quot;,
+          &nbsp;&nbsp;plugins={'{'}[{'{'}
           <br />
-          &nbsp;&nbsp;title: &quot;Background Jobs&quot;,
+          &nbsp;&nbsp;&nbsp;&nbsp;name: &quot;Background Jobs&quot;,
           <br />
-          &nbsp;&nbsp;render: JobsPanel,
+          &nbsp;&nbsp;&nbsp;&nbsp;render: &lt;JobsPanel /&gt;,
           <br />
-          {'}'})
+          &nbsp;&nbsp;{'}'}]{'}'}
+          <br />
+          /&gt;
         </p>
       </div>
 

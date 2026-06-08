@@ -62,7 +62,7 @@ type FormDemoPlan = 'team' | 'enterprise'
 const formFields: Array<FormDemoField> = [
   {
     name: 'profile.email',
-    detail: 'zod + async availability',
+    detail: 'schema + async availability',
   },
   {
     name: 'company.plan',
@@ -129,7 +129,7 @@ const fieldStates = [
   },
   {
     label: 'pending',
-    value: 'field.state.meta.isValidating',
+    value: 'form.state.isFieldsValidating',
   },
   {
     label: 'submit',
@@ -537,9 +537,9 @@ function SubscriptionPanel() {
     <div className="min-w-0 rounded-lg border border-yellow-200 bg-white p-4 dark:border-yellow-900 dark:bg-zinc-950">
       <div className="rounded-lg bg-zinc-950 p-4 text-sm text-yellow-100 dark:bg-black">
         <p className="font-mono leading-6">
-          form.Subscribe({'{'} selector: state =&gt; state.canSubmit {'}'})
+          useStore(form.store, state =&gt; state.values.profile.email)
           <br />
-          field.Subscribe({'{'} selector: field =&gt; field.meta.errors {'}'})
+          form.Subscribe({'{'} selector: state =&gt; state.canSubmit {'}'})
         </p>
       </div>
 

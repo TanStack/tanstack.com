@@ -57,10 +57,10 @@ const heroProof = [
 ]
 
 const packageFiles = [
-  ['package.json', 'exports skill metadata'],
-  ['skills/router.md', 'procedural agent knowledge'],
+  ['package.json', 'keywords and files entries'],
+  ['skills/router/SKILL.md', 'procedural agent knowledge'],
   ['docs/routing.md', 'source reference'],
-  ['CI stale check', 'fails when sources drift'],
+  ['stale report', 'flags source drift'],
 ]
 
 const featureCards = [
@@ -316,7 +316,7 @@ function IntentPackagePanel() {
           <br />
           npx @tanstack/intent validate {activeFile[0]}
           <br />
-          npx @tanstack/intent stale --source "{activeFile[1]}"
+          npx @tanstack/intent stale --json
         </p>
       </div>
 

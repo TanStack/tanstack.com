@@ -160,7 +160,7 @@ const mutationSteps = [
   },
   {
     label: 'targeted refresh',
-    code: "invalidateQueries(['todos'])",
+    code: "invalidateQueries({ queryKey: ['todos'] })",
   },
   {
     label: 'rollback path',

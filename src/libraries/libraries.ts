@@ -747,7 +747,7 @@ export const devtools: LibrarySlim = {
   bgRadial:
     'from-black via-gray-600/50 to-transparent dark:from-gray-100 dark:via-gray-400/50',
   repo: 'tanstack/devtools',
-  frameworks: ['react', 'preact', 'solid', 'vanilla'],
+  frameworks: ['react', 'preact', 'solid', 'vue', 'angular', 'vanilla'],
   corePackageName: '@tanstack/devtools',
   npmPackageNames: ['@tanstack/devtools', '@tanstack/react-devtools'],
   latestVersion: 'v0',
@@ -787,9 +787,9 @@ export const mcp: LibrarySlim = {
   availableVersions: ['v1'],
   visible: false,
   handleRedirects: (href: string) => {
-    // All /mcp routes redirect to CLI MCP docs
+    // All /mcp routes redirect to the CLI MCP migration guide
     if (/\/mcp(\/|$)/.test(href)) {
-      throw redirect({ href: '/cli/latest/docs/mcp/overview' })
+      throw redirect({ href: '/cli/latest/docs/mcp-migration' })
     }
   },
 }
@@ -799,9 +799,9 @@ export const cli: LibrarySlim = {
   name: 'TanStack CLI',
   cardStyles: 'text-indigo-500 dark:text-indigo-400 hover:border-current',
   to: '/cli',
-  tagline: 'CLI, MCP server, and AI toolkit for TanStack',
+  tagline: 'CLI and project scaffolding toolkit for TanStack',
   description:
-    'A CLI, MCP server, and AI toolkit for TanStack. Create and customize TanStack Start apps, search docs, integrate with AI agents, and more.',
+    'A CLI toolkit for TanStack. Create and customize TanStack Start apps, search docs, inspect add-ons, and generate project changes with current TanStack context.',
   badge: 'alpha',
   bgStyle: 'bg-indigo-500',
   borderStyle: 'border-indigo-500/50',

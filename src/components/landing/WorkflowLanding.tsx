@@ -29,8 +29,8 @@ import { LandingCopyPromptButton } from '~/components/landing/LandingCopyPromptB
 const library = getLibrary('workflow')
 const workflowAgentPrompt = [
   'Build a TanStack Workflow process for a TypeScript app.',
-  'Model a durable multi-step workflow with typed inputs and outputs, retries, backoff, approvals, fan-out, resumable state, and observable execution history.',
-  'Keep business process state inspectable instead of hiding it inside one-off background jobs.',
+  'Model a multi-step workflow with typed inputs and outputs, retries, backoff, approvals, fan-out, and inspectable execution history.',
+  'Keep business process state explicit, and verify concrete API calls against the current Workflow docs before implementation.',
 ].join(' ')
 
 const heroProof = [
@@ -39,8 +39,8 @@ const heroProof = [
     value: 'inputs, outputs, context, transitions',
   },
   {
-    label: 'Durable state',
-    value: 'resume through restarts and deploys',
+    label: 'Run state',
+    value: 'history, attempts, next actions',
   },
   {
     label: 'Recovery',
@@ -78,8 +78,8 @@ const featureCards = [
     icon: <GitBranch size={18} />,
   },
   {
-    title: 'Durability is part of the model.',
-    body: 'Long-running work should survive deploys, restarts, slow systems, and human delays without losing the state the business cares about.',
+    title: 'State is part of the model.',
+    body: 'Long-running work needs visible run state around slow systems, retries, human delays, and the next action the process is waiting on.',
     icon: <ShieldCheck size={18} />,
   },
   {
@@ -105,7 +105,7 @@ const lifecycleSteps = [
   },
   {
     label: 'Wait',
-    body: 'Durable state can pause for external systems, timers, or approvals.',
+    body: 'The run can pause around external systems, timers, or approvals.',
   },
   {
     label: 'Resume',
@@ -163,8 +163,8 @@ export default function WorkflowLanding({
             </p>
 
             <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-700 dark:text-zinc-300 sm:text-lg">
-              Workflow models approvals, retries, fan-out, slow external
-              systems, and resumable state as durable TypeScript workflows
+              Workflow is for modeling approvals, retries, fan-out, slow
+              external systems, and visible run state as TypeScript workflows
               instead of one-off background jobs scattered across the app.
             </p>
 
@@ -236,9 +236,9 @@ export default function WorkflowLanding({
               Start, step, wait, resume.
             </h2>
             <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300">
-              Durable workflows let process state move through time deliberately
-              instead of hoping a single request, queue worker, or deploy window
-              keeps everything together.
+              Typed workflows let process state move through time deliberately
+              instead of hoping a single request or queue worker keeps
+              everything together.
             </p>
           </div>
         </div>
@@ -465,12 +465,11 @@ function ObservabilityPanel() {
 
       <div className="mt-4 rounded-lg bg-zinc-950 p-4 text-sm text-blue-100 dark:bg-black">
         <p className="font-mono leading-6">
-          workflow.step(&quot;reserve inventory&quot;)
+          step: &quot;reserve inventory&quot;
           <br />
-          &nbsp;&nbsp;.retry({'{'} attempts: 5, backoff: &quot;exponential&quot;{' '}
-          {'}'})
+          attempts: 2 / 5
           <br />
-          &nbsp;&nbsp;.waitForApproval(&quot;manager&quot;)
+          next: &quot;manager approval&quot;
         </p>
       </div>
     </div>

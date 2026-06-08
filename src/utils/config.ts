@@ -103,7 +103,7 @@ export const getTanstackDocsConfig = createServerFn({ method: 'GET' })
       }
 
       if (!config) {
-        throw new Error(`Repo's ${docsRoot}/config.json was not found!`)
+        return getEmptyConfig()
       }
 
       try {

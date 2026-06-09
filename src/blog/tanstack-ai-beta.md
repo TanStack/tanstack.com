@@ -83,6 +83,16 @@ AI pipelines are notoriously opaque: a missing chunk here, a middleware that did
 
 Confidence at Beta isn't a vibe. It's [147 deterministic end-to-end tests running across 7 LLM providers on every pull request](/blog/how-we-test-tanstack-ai-across-7-providers), all in under two minutes. Provider behavior drifts, models get deprecated, and APIs change underneath you. Our test suite catches it before you do.
 
+## We Run on It, Too
+
+We're not only building TanStack AI. The whole team uses it daily in production, and so do plenty of others. That's where a lot of this stability came from.
+
+Between us we run real workloads on it: structured JSON that streams and renders as it parses, images, motion, and audio all moving through the same typed activities, every modality exercised at once. Some of these pipelines have been live since February, through the alpha and into this Beta. That's not a demo path. It's the path that breaks first.
+
+Here's what that pressure-testing bought, in practice. We've swapped text, image, and video models more times than we can count, usually mid-sprint as better ones shipped, and the shape of the code never moved. Per-model type safety caught the incompatible pairings at compile time instead of in production at 2am. When we needed observability the docs hadn't imagined yet, the protocol's events were already there to subscribe to. And the rough edges got hit by us, and by the people building alongside us, so they were filed and fixed before they reached you.
+
+That's the difference between a framework someone wrote and one its own authors run in anger. This is the one we run.
+
 ## Still Honest, Still Open Source
 
 None of this changes the original deal. There's no service to buy. No platform to migrate to. No vendor lock-in waiting around the corner, and there never will be. TanStack AI is open source, built by the same small, volunteer teams that have shipped framework-agnostic developer tools for years.

@@ -325,6 +325,7 @@ export const table: LibrarySlim = {
   frameworks: [
     'angular',
     'react',
+    'preact',
     'solid',
     'svelte',
     'vue',

@@ -12,7 +12,6 @@ import { groupToSlug } from '~/components/stack/stack-categories'
 import { twMerge } from 'tailwind-merge'
 import { NetlifyImage } from '~/components/NetlifyImage'
 
-import { TrustedByMarquee } from '~/components/TrustedByMarquee'
 import { ArrowRight, Code2, Layers, Shield, Zap, Play } from 'lucide-react'
 import { YouTubeIcon } from '~/components/icons/YouTubeIcon'
 import { Card } from '~/components/Card'
@@ -244,27 +243,6 @@ function Index() {
           <div className="mx-auto mt-16 w-full max-w-[1021px] px-4 sm:px-6 md:mt-20 lg:mt-14 xl:mt-12">
             <HomeApplicationStarter />
           </div>
-        </div>
-
-        <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-          <TrustedByMarquee
-            brands={[
-              'Google',
-              'Amazon',
-              'Apple',
-              'Microsoft',
-              'Walmart',
-              'Uber',
-              'Salesforce',
-              'Cisco',
-              'Intuit',
-              'HP',
-              'Docusign',
-              'TicketMaster',
-              'Nordstrom',
-              'Yahoo!',
-            ]}
-          />
         </div>
 
         <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">

@@ -13,7 +13,7 @@ authors:
 
 When we [shipped the alpha back in December](/blog/tanstack-ai-alpha-your-ai-your-way), we made a promise. No vendor lock-in. No platform to migrate to. No framework dictating how you build. Just honest open source tooling - the Switzerland of AI - that works with the stack you already have.
 
-Six months and a long list of releases later, that promise still holds. But the toolkit behind it has grown up. What was a handful of adapters and an early protocol is now a complete, multi-modal, multi-framework AI platform that we, and a growing number of you, are shipping to production.
+Six months and a long list of releases later, that promise still holds. But the toolkit behind it has grown up. What was a handful of adapters and an early protocol is now a complete, multi-modal, multi-framework AI platform.
 
 This is the Beta.
 
@@ -138,16 +138,6 @@ AI pipelines are notoriously opaque: a missing chunk here, a middleware that did
 ## Tested Like We Mean It
 
 Confidence at Beta isn't a vibe. It's [147 deterministic end-to-end tests running across 7 LLM providers on every pull request](/blog/how-we-test-tanstack-ai-across-7-providers), all in under two minutes. Provider behavior drifts, models get deprecated, and APIs change underneath you. Our test suite catches it before you do.
-
-## We Run on It, Too
-
-We're not only building TanStack AI. The whole team uses it in production every day, and a growing number of other teams do too. A lot of the stability in this release came from that.
-
-We run real workloads on it: structured JSON that streams and renders as it parses, plus images, video, and audio, all through the same typed activities. Some of these have been live since February, from the alpha through to this Beta. So when something breaks, we find it before you do.
-
-That has paid off in concrete ways. We've swapped text, image, and video models many times as better ones shipped, and our code barely changed each time. Per-model type safety caught bad model-and-tool pairings at compile time instead of in production. When we needed better observability, the events we needed were already in the protocol. And the rough edges we hit got fixed before they reached you.
-
-We don't just write this framework. We rely on it.
 
 ## Still Honest, Still Open Source
 

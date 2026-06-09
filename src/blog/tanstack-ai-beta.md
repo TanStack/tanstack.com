@@ -20,7 +20,7 @@ This is the Beta.
 ## TL;DR
 
 - **Every modality.** Text, streaming structured data, tool calls, embeddings, summarization, image generation, audio generation, video generation, and realtime voice. One typed API, any provider.
-- **AG-UI compliant.** The protocol speaks AG-UI events end to end, so TanStack AI drops into the broader agent-UI ecosystem instead of inventing its own dialect.
+- **Built on AG-UI.** AG-UI is at the core of the protocol, not bolted on. TanStack AI speaks AG-UI events end to end, so it drops into the broader agent-UI ecosystem instead of inventing its own dialect.
 - **A hardened, published protocol.** The server↔client contract is documented and stable. Speak it from any language, over any transport.
 - **Adapters split by capability.** Smaller, composable adapters instead of one monolith, with per-model type safety that catches incompatible pairings at compile time.
 - **First-class middleware.** Logging, filtering, caching, and rate limiting compose cleanly instead of bloating your endpoint.
@@ -68,7 +68,7 @@ A toy chat endpoint is easy. A production one accretes logging, content filterin
 
 The thing that makes all of this portable is the protocol. We've documented exactly how the server and client communicate, and in Beta it's stable. Use whatever language you want on the server. Use whatever transport you want: HTTP, WebSockets, RPC. As long as you speak the protocol through a connection adapter, our clients work with your backend.
 
-It's also **AG-UI compliant**. The events flowing across that connection follow the AG-UI standard, so TanStack AI interoperates with the wider agent-UI ecosystem rather than locking you into a bespoke event format. It's the same no-lock-in principle, applied to the wire.
+**AG-UI is at its core.** The events flowing across that connection are AG-UI events, not a bespoke format with a compatibility shim on top. Because the standard is built in from the ground up, TanStack AI interoperates with the wider agent-UI ecosystem out of the box. It's the same no-lock-in principle, applied to the wire.
 
 On the client side, vanilla JS, React, and Solid are ready, with more frameworks on the way. On the server side, JavaScript/TypeScript leads, with PHP and Python support following the same protocol.
 
@@ -85,13 +85,13 @@ Confidence at Beta isn't a vibe. It's [147 deterministic end-to-end tests runnin
 
 ## We Run on It, Too
 
-We're not only building TanStack AI. The whole team uses it daily in production, and so do plenty of others. That's where a lot of this stability came from.
+We're not only building TanStack AI. The whole team uses it in production every day, and a growing number of other teams do too. A lot of the stability in this release came from that.
 
-Between us we run real workloads on it: structured JSON that streams and renders as it parses, images, motion, and audio all moving through the same typed activities, every modality exercised at once. Some of these pipelines have been live since February, through the alpha and into this Beta. That's not a demo path. It's the path that breaks first.
+We run real workloads on it: structured JSON that streams and renders as it parses, plus images, video, and audio, all through the same typed activities. Some of these have been live since February, from the alpha through to this Beta. So when something breaks, we find it before you do.
 
-Here's what that pressure-testing bought, in practice. We've swapped text, image, and video models more times than we can count, usually mid-sprint as better ones shipped, and the shape of the code never moved. Per-model type safety caught the incompatible pairings at compile time instead of in production at 2am. When we needed observability the docs hadn't imagined yet, the protocol's events were already there to subscribe to. And the rough edges got hit by us, and by the people building alongside us, so they were filed and fixed before they reached you.
+That has paid off in concrete ways. We've swapped text, image, and video models many times as better ones shipped, and our code barely changed each time. Per-model type safety caught bad model-and-tool pairings at compile time instead of in production. When we needed better observability, the events we needed were already in the protocol. And the rough edges we hit got fixed before they reached you.
 
-That's the difference between a framework someone wrote and one its own authors run in anger. This is the one we run.
+We don't just write this framework. We rely on it.
 
 ## Still Honest, Still Open Source
 

@@ -21,7 +21,7 @@ This is the Beta.
 
 - **Every modality.** Text, streaming structured data, tool calls, embeddings, summarization, image generation, audio generation, video generation, and realtime voice. One typed API, any provider.
 - **Built on AG-UI.** AG-UI is at the core of the protocol, not bolted on. TanStack AI speaks AG-UI events end to end, so it drops into the broader agent-UI ecosystem instead of inventing its own dialect.
-- **A hardened, published protocol.** The server↔client contract is documented and stable. Speak it from any language, over any transport.
+- **A hardened, published protocol.** The server↔client contract is documented and stable, over any transport.
 - **Adapters split by capability.** Smaller, composable adapters instead of one monolith, with per-model type safety that catches incompatible pairings at compile time.
 - **First-class middleware.** Logging, filtering, caching, and rate limiting compose cleanly instead of bloating your endpoint.
 - **Host-side MCP.** Connect one Model Context Protocol server or a whole pool, with the type-safety level you choose.
@@ -46,6 +46,62 @@ The biggest change since alpha is breadth. TanStack AI is no longer a text-gener
 - **[Audio generation](/blog/tanstack-ai-audio-generation)**: music, sound effects, text-to-speech, and transcription via a streaming `generateAudio` activity, with fal and Gemini Lyria adapters.
 - **[Realtime voice chat](/blog/tanstack-ai-realtime-voice-chat)**: real voice, real time, with OpenAI Realtime over WebRTC and ElevenLabs over WebSocket, all behind one provider-agnostic architecture.
 
+Here's what that looks like in practice. A chat endpoint on the server:
+
+```ts
+import { chat, toServerSentEventsResponse } from '@tanstack/ai'
+import { openaiText } from '@tanstack/ai-openai'
+
+export async function POST(request: Request) {
+  const { messages } = await request.json()
+
+  const stream = chat({
+    adapter: openaiText('gpt-5.2'),
+    messages,
+  })
+
+  return toServerSentEventsResponse(stream)
+}
+```
+
+And the client, in React:
+
+```tsx
+import { fetchServerSentEvents, useChat } from '@tanstack/ai-react'
+
+function Chat() {
+  const { messages, sendMessage, isLoading } = useChat({
+    connection: fetchServerSentEvents('/api/chat'),
+  })
+  // render messages however you like
+}
+```
+
+Switching providers is the import and the adapter. Nothing else moves:
+
+```diff
+- import { openaiText } from '@tanstack/ai-openai'
++ import { anthropicText } from '@tanstack/ai-anthropic'
+
+  const stream = chat({
+-   adapter: openaiText('gpt-5.2'),
++   adapter: anthropicText('claude-fable-5'),
+    messages,
+  })
+```
+
+And every other modality follows the same shape — an adapter in, a typed result out:
+
+```ts
+import { generateAudio } from '@tanstack/ai'
+import { geminiAudio } from '@tanstack/ai-gemini'
+
+const result = await generateAudio({
+  adapter: geminiAudio('lyria-3-pro-preview'),
+  prompt: 'A cinematic orchestral piece with a rising string motif',
+})
+```
+
 Switch the modality, switch the provider, and the shape of your code stays the same.
 
 ## Per-Model Type Safety That Actually Matters
@@ -64,13 +120,13 @@ A toy chat endpoint is easy. A production one accretes logging, content filterin
 - **[Host-side MCP](/blog/your-mcp-your-way)**: connect a single Model Context Protocol server or a whole pool, with managed or manual lifecycle and the type-safety level that fits your app, from zero-config discovery to fully generated end-to-end types.
 - **[Experimental orchestration](/blog/tanstack-ai-orchestration)**: generator-based workflows, typed agent calls, human-in-the-loop approvals, SSE streaming, AG-UI events, and React hooks for building multi-step agentic systems.
 
-## An Open Protocol, In Any Language
+## TypeScript First, On An Open Protocol
 
-The thing that makes all of this portable is the protocol. We've documented exactly how the server and client communicate, and in Beta it's stable. Use whatever language you want on the server. Use whatever transport you want: HTTP, WebSockets, RPC. As long as you speak the protocol through a connection adapter, our clients work with your backend.
+TanStack AI is TypeScript-first. The toolkit, the per-model type safety, and everything you've seen in this post is built for TypeScript end to end. But the thing that makes it all portable is the protocol: we've documented exactly how the server and client communicate, and in Beta it's stable. Speak it over any transport (HTTP, WebSockets, RPC) through a connection adapter, and our clients work with your backend.
 
 **AG-UI is at its core.** The events flowing across that connection are AG-UI events, not a bespoke format with a compatibility shim on top. Because the standard is built in from the ground up, TanStack AI interoperates with the wider agent-UI ecosystem out of the box. It's the same no-lock-in principle, applied to the wire.
 
-On the client side, vanilla JS, React, and Solid are ready, with more frameworks on the way. On the server side, JavaScript/TypeScript leads, with PHP and Python support following the same protocol.
+On the client side, vanilla JS, React, and Solid are ready, with more frameworks on the way.
 
 ## Debugging You Can Actually See
 
@@ -97,6 +153,12 @@ We don't just write this framework. We rely on it.
 
 None of this changes the original deal. There's no service to buy. No platform to migrate to. No vendor lock-in waiting around the corner, and there never will be. TanStack AI is open source, built by the same small, volunteer teams that have shipped framework-agnostic developer tools for years.
 
-We're still taking a lot on, and we still want your help. Build adapters. Help with the Python and PHP support. File the bug you just hit. Tell us what's missing. Beta is the most stable TanStack AI has ever been, but it's not the finish line. It's the version we're confident enough to ask you to build on.
+We're still taking a lot on, and we still want your help. Build adapters. File the bug you just hit. Tell us what's missing. Beta is the most stable TanStack AI has ever been, but it's not the finish line. It's the version we're confident enough to ask you to build on.
 
-So go build something. [Get started with TanStack AI](/ai), and tell us what you ship.
+So go build something. It starts with one install:
+
+```bash
+pnpm add @tanstack/ai @tanstack/ai-react @tanstack/ai-openai
+```
+
+[Get started with TanStack AI](/ai), and tell us what you ship.

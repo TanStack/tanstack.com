@@ -11,9 +11,9 @@ authors:
 
 **The TanStack team is thrilled to announce the Beta release of [TanStack AI](/ai), the framework-agnostic, provider-agnostic AI toolkit built for developers who want control over their stack.**
 
-When we [shipped the alpha back in December](/blog/tanstack-ai-alpha-your-ai-your-way), we made a promise. No vendor lock-in. No platform to migrate to. No framework dictating how you build. Just honest open source tooling, the Switzerland of AI, that works with the stack you already have.
+When we [shipped the alpha back in December](/blog/tanstack-ai-alpha-your-ai-your-way), we made a promise. No vendor lock-in. No platform to migrate to. No framework dictating how you build. Just honest open source tooling - the Switzerland of AI - that works with the stack you already have.
 
-Six months and a long list of releases later, that promise still holds. But the toolkit behind it has grown up. What was a handful of adapters and an early protocol is now a complete, multi-modal, multi-language AI platform that we, and a growing number of you, are shipping to production.
+Six months and a long list of releases later, that promise still holds. But the toolkit behind it has grown up. What was a handful of adapters and an early protocol is now a complete, multi-modal, multi-framework AI platform that we, and a growing number of you, are shipping to production.
 
 This is the Beta.
 

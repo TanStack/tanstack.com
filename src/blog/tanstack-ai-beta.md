@@ -19,11 +19,11 @@ This is the Beta.
 
 ## TL;DR
 
-- **Every modality.** Text, streaming structured data, tool calls, embeddings, summarization, image generation, audio generation, video generation, and realtime voice. One typed API, any provider.
+- **Every modality.** Text, streaming structured data, tool calls, summarization, image generation, audio generation, video generation, and realtime voice. One typed API, any provider.
 - **Built on AG-UI.** AG-UI is at the core of the protocol, not bolted on. TanStack AI speaks AG-UI events end to end, so it drops into the broader agent-UI ecosystem instead of inventing its own dialect.
 - **A hardened, published protocol.** The server↔client contract is documented and stable, over any transport.
 - **Adapters split by capability.** Smaller, composable adapters instead of one monolith, with per-model type safety that catches incompatible pairings at compile time.
-- **First-class middleware.** Logging, filtering, caching, and rate limiting compose cleanly instead of bloating your endpoint.
+- **First-class middleware.** Plug into the pipeline and get logging, content filtering, caching, or rate limiting — composed cleanly instead of bloating your endpoint.
 - **Host-side MCP.** Connect one Model Context Protocol server or a whole pool, with the type-safety level you choose.
 - **Experimental orchestration.** Generator-based workflows, typed agent calls, approvals, and streaming events for multi-step agentic systems.
 - **Tested for real.** 147 deterministic E2E tests across 7 providers, running on every PR in under two minutes.
@@ -40,7 +40,7 @@ The biggest change since alpha is breadth. TanStack AI is no longer a text-gener
 
 - **Text and streaming structured data**: stream typed objects as they're generated, not just tokens, so your UI can render structured results progressively.
 - **Tool calls**: defined once, with isolated server and client implementations and type safety that holds across the whole app.
-- **Embeddings and summarization** out of the box.
+- **Summarization** out of the box.
 - **Image generation** across providers.
 - **Video generation** through the same typed activity model: swap the provider, keep your code.
 - **[Audio generation](/blog/tanstack-ai-audio-generation)**: music, sound effects, text-to-speech, and transcription via a streaming `generateAudio` activity, with fal and Gemini Lyria adapters.
@@ -106,7 +106,7 @@ Switch the modality, switch the provider, and the shape of your code stays the s
 
 ## Per-Model Type Safety That Actually Matters
 
-Every provider has different options. Every model supports different modalities and different native tools. TanStack AI types `providerOptions` on a per-model basis, so your IDE knows exactly what each model can do.
+Every provider has different options. Every model supports different modalities and different native tools. TanStack AI types `modelOptions` on a per-model basis, so your IDE knows exactly what each model can do.
 
 That extends to provider tools: native capabilities like web search and code execution that some models support and others silently ignore. As of Beta, [those pairings are gated at the type level](/blog/type-safe-provider-tools-tanstack-ai). Wire an incompatible tool to a model and TypeScript tells you on the line where you pass it, instead of letting it fail quietly in production.
 
@@ -124,7 +124,7 @@ A toy chat endpoint is easy. A production one accretes logging, content filterin
 
 TanStack AI is TypeScript-first. The toolkit, the per-model type safety, and everything you've seen in this post is built for TypeScript end to end. But the thing that makes it all portable is the protocol: we've documented exactly how the server and client communicate, and in Beta it's stable. Speak it over any transport (HTTP, WebSockets, RPC) through a connection adapter, and our clients work with your backend.
 
-**AG-UI is at its core.** The events flowing across that connection are AG-UI events, not a bespoke format with a compatibility shim on top. Because the standard is built in from the ground up, TanStack AI interoperates with the wider agent-UI ecosystem out of the box. It's the same no-lock-in principle, applied to the wire.
+**AG-UI is at its core.** The events flowing across that connection are AG-UI events, not a bespoke format with a compatibility shim on top. Because the standard is built in from the ground up, TanStack AI interoperates with the wider agent ecosystem out of the box: AG-UI-compliant agent frameworks like Microsoft Agent Framework, Agno, LangGraph, CrewAI, Mastra, Pydantic AI, and LlamaIndex can all sit behind a TanStack AI frontend. And because AG-UI is language-agnostic, that backend doesn't have to be TypeScript at all — point your client at an agent server written in Kotlin, Rust, .NET, Python, or anything else that speaks the protocol. It's the same no-lock-in principle, applied to the wire.
 
 On the client side, vanilla JS, React, and Solid are ready, with more frameworks on the way.
 

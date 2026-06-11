@@ -478,12 +478,7 @@ function StackCategoryCard({
       params={{ category: categorySlug }}
       className="group flex flex-col rounded-xl border border-gray-200 bg-white/60 p-5 transition-all hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-md dark:border-gray-800 dark:bg-gray-900/40 dark:hover:border-gray-700"
     >
-      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">
-        Category
-      </p>
-      <h4 className="mt-1.5 text-base font-bold group-hover:underline">
-        {groupName}
-      </h4>
+      <h4 className="text-base font-bold group-hover:underline">{groupName}</h4>
       <ol className="mt-4 space-y-2.5">
         {libraries.map((lib, i) => (
           <li key={lib.id} className="flex items-start gap-2.5">

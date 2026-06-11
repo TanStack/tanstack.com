@@ -622,7 +622,7 @@ export const ai: LibrarySlim = {
     'A powerful, open-source AI SDK with a unified interface across multiple providers',
   description:
     'A powerful, open-source AI SDK with a unified interface across multiple providers. No vendor lock-in, no proprietary formats, just clean TypeScript and honest open source.',
-  badge: 'alpha',
+  badge: 'beta',
   bgStyle: 'bg-pink-500',
   borderStyle: 'border-pink-700/50',
   textStyle: 'text-pink-500',

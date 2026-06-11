@@ -148,6 +148,8 @@ Confidence at Beta isn't a vibe. It's 265 deterministic end-to-end tests running
 
 None of this changes the original deal. There's no service to buy. No platform to migrate to. No vendor lock-in waiting around the corner, and there never will be. TanStack AI is open source, built by the same small, volunteer teams that have shipped framework-agnostic developer tools for years.
 
+And if you're weighing it against the Vercel AI SDK, we keep an honest, feature-by-feature [comparison in the docs](/ai/docs/comparison/vercel-ai-sdk) — including the places they're ahead.
+
 We're still taking a lot on, and we still want your help. Build adapters. File the bug you just hit. Tell us what's missing. Beta is the most stable TanStack AI has ever been, but it's not the finish line. It's the version we're confident enough to ask you to build on.
 
 So go build something. It starts with one install:
@@ -155,5 +157,7 @@ So go build something. It starts with one install:
 ```bash
 pnpm add @tanstack/ai @tanstack/ai-react @tanstack/ai-openai
 ```
+
+And if OpenAI isn't your provider, that last package is the only thing you'd change — `ai-anthropic`, `ai-gemini`, `ai-groq`, `ai-ollama`, `ai-openrouter`, take your pick.
 
 [Get started with TanStack AI](/ai), and tell us what you ship.

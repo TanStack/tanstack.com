@@ -20,11 +20,13 @@ export function ThemeToggle() {
 
   return (
     <Button
-      variant="ghost"
-      size="xs"
+      variant="icon"
+      color="gray"
+      size="icon-sm"
       onClick={handleToggleMode}
       aria-label={`Theme: ${label}. Switch to ${nextLabel} mode.`}
       title={`Theme: ${label}. Switch to ${nextLabel} mode.`}
+      className="h-7 w-7 rounded-md p-0"
     >
       {themeMode === 'auto' ? (
         <SunMoon className="w-3.5 h-3.5" />
@@ -34,7 +36,6 @@ export function ThemeToggle() {
           <Moon className="w-3.5 h-3.5 hidden dark:block" />
         </>
       )}
-      <span className="hidden sm:inline">{label}</span>
     </Button>
   )
 }

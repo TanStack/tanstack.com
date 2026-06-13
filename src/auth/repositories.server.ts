@@ -19,6 +19,7 @@ import type {
   IOAuthAccountRepository,
   IUserRepository,
   OAuthProvider,
+  SignupSource,
 } from './types'
 import { encryptToken, decryptStoredToken } from '~/utils/crypto.server'
 
@@ -54,6 +55,7 @@ export class DrizzleUserRepository implements IUserRepository {
     oauthImage?: string
     displayUsername?: string
     capabilities?: Capability[]
+    signupSources?: SignupSource[]
   }): Promise<DbUser> {
     const [newUser] = await db
       .insert(users)
@@ -64,6 +66,7 @@ export class DrizzleUserRepository implements IUserRepository {
         oauthImage: data.oauthImage,
         displayUsername: data.displayUsername,
         capabilities: data.capabilities || [],
+        signupSources: data.signupSources ?? [],
       })
       .returning()
 
@@ -85,7 +88,9 @@ export class DrizzleUserRepository implements IUserRepository {
       capabilities: Capability[]
       adsDisabled: boolean
       interestedInHidingAds: boolean
+      lastUsedFramework: string
       sessionVersion: number
+      signupSources: SignupSource[]
       updatedAt: Date
     }>,
   ): Promise<void> {
@@ -121,6 +126,7 @@ export class DrizzleUserRepository implements IUserRepository {
       adsDisabled: user.adsDisabled,
       interestedInHidingAds: user.interestedInHidingAds,
       lastUsedFramework: user.lastUsedFramework,
+      signupSources: user.signupSources,
       sessionVersion: user.sessionVersion,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,

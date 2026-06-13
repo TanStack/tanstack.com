@@ -29,6 +29,7 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@fingerprintjs/fingerprintjs-pro-react": "^2.7.1",
     "@floating-ui/react": "^0.27.19",
     "@kapaai/react-sdk": "^0.9.10",
     "@modelcontextprotocol/sdk": "^1.29.0",

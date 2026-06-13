@@ -23,10 +23,13 @@ export function SearchButton({
   className,
   iconOnly = false,
 }: SearchButtonProps) {
+  const { openSearch } = useSearchContext()
+
   return (
     <Button
       type="button"
-      data-search-trigger
+      data-search-trigger="true"
+      onClick={openSearch}
       aria-label="Search TanStack docs"
       aria-haspopup="dialog"
       variant={iconOnly ? 'icon' : 'ghost'}

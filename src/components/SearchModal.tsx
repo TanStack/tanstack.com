@@ -2894,21 +2894,23 @@ export function SearchModal() {
           <DialogPrimitive.Title className="sr-only">
             Search TanStack docs
           </DialogPrimitive.Title>
-          <InstantSearch
-            searchClient={searchClient}
-            indexName={searchIndexName}
-          >
-            <SearchFiltersProvider>
-              <DynamicFilters />
-              <SearchPanel
-                isFullHeight={isFullHeight}
-                onToggleFullHeight={toggleFullHeight}
-                newChatRequestId={newChatRequestId}
-                surface="modal"
-              />
-            </SearchFiltersProvider>
-          </InstantSearch>
-          {!isFullHeight ? (
+          {isOpen ? (
+            <InstantSearch
+              searchClient={searchClient}
+              indexName={searchIndexName}
+            >
+              <SearchFiltersProvider>
+                <DynamicFilters />
+                <SearchPanel
+                  isFullHeight={isFullHeight}
+                  onToggleFullHeight={toggleFullHeight}
+                  newChatRequestId={newChatRequestId}
+                  surface="modal"
+                />
+              </SearchFiltersProvider>
+            </InstantSearch>
+          ) : null}
+          {isOpen && !isFullHeight ? (
             <button
               type="button"
               onClick={toggleFullHeight}

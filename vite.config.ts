@@ -75,7 +75,12 @@ const useSyncExternalStoreShimIndexAlias = {
   replacement: '@tanstack/redact',
 }
 
-const reactShimNoExternals = ['@tanstack/redact']
+const serverBundledClientPackages = [
+  '@tanstack/redact',
+  '@fingerprintjs/fingerprintjs-pro-react',
+  '@fingerprintjs/fingerprintjs-pro-spa',
+  '@fingerprintjs/fingerprintjs-pro',
+]
 
 export default defineConfig({
   envDir,
@@ -109,7 +114,7 @@ export default defineConfig({
   environments: {
     rsc: {
       resolve: {
-        noExternal: reactShimNoExternals,
+        noExternal: serverBundledClientPackages,
         external: [
           '@tanstack/react-start-server',
           '@tanstack/react-router/ssr/server',
@@ -118,6 +123,7 @@ export default defineConfig({
     },
     ssr: {
       resolve: {
+        noExternal: serverBundledClientPackages,
         external: [
           ...rscSsrExternals,
           ...sentrySsrExternals,
@@ -143,7 +149,7 @@ export default defineConfig({
       'normalize-wheel',
       '@tanstack/react-hotkeys',
       '@webcontainer/api',
-      ...reactShimNoExternals,
+      ...serverBundledClientPackages,
     ],
   },
   optimizeDeps: {

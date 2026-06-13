@@ -2025,6 +2025,12 @@ function SearchPanel({
     [],
   )
 
+  React.useEffect(() => {
+    return () => {
+      apiService.abortCurrent()
+    }
+  }, [apiService])
+
   return (
     <div
       className={twMerge(

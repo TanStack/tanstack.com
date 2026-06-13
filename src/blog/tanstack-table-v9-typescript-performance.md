@@ -27,9 +27,9 @@ const features = tableFeatures({
   columnFilteringFeature,
   paginatedRowModel: createPaginatedRowModel(),
   sortFns: { ...sortFns, mySortFn },
-});
+})
 
-const table = useTable({ features, columns, data });
+const table = useTable({ features, columns, data })
 ```
 
 To support this, V9 introduces just one new generic parameter: `TFeatures`. That sounds modest, but it flows through everything, and it replaces a whole category of global declaration merging from V8 with per-table inference:
@@ -46,27 +46,27 @@ export interface Table_FeatureMap<
   TFeatures extends TableFeatures,
   TData extends RowData,
 > {
-  columnFilteringFeature: Table_ColumnFiltering;
-  columnGroupingFeature: Table_ColumnGrouping<TFeatures, TData>;
-  columnOrderingFeature: Table_ColumnOrdering<TFeatures, TData>;
-  columnPinningFeature: Table_ColumnPinning<TFeatures, TData>;
-  columnResizingFeature: Table_ColumnResizing;
-  columnSizingFeature: Table_ColumnSizing;
-  columnVisibilityFeature: Table_ColumnVisibility<TFeatures, TData>;
-  columnFacetingFeature: Table_ColumnFaceting<TFeatures, TData>;
-  globalFilteringFeature: Table_GlobalFiltering<TFeatures, TData>;
-  rowExpandingFeature: Table_RowExpanding<TFeatures, TData>;
-  rowPaginationFeature: Table_RowPagination<TFeatures, TData>;
-  rowPinningFeature: Table_RowPinning<TFeatures, TData>;
-  rowSelectionFeature: Table_RowSelection<TFeatures, TData>;
-  rowSortingFeature: Table_RowSorting<TFeatures, TData>;
+  columnFilteringFeature: Table_ColumnFiltering
+  columnGroupingFeature: Table_ColumnGrouping<TFeatures, TData>
+  columnOrderingFeature: Table_ColumnOrdering<TFeatures, TData>
+  columnPinningFeature: Table_ColumnPinning<TFeatures, TData>
+  columnResizingFeature: Table_ColumnResizing
+  columnSizingFeature: Table_ColumnSizing
+  columnVisibilityFeature: Table_ColumnVisibility<TFeatures, TData>
+  columnFacetingFeature: Table_ColumnFaceting<TFeatures, TData>
+  globalFilteringFeature: Table_GlobalFiltering<TFeatures, TData>
+  rowExpandingFeature: Table_RowExpanding<TFeatures, TData>
+  rowPaginationFeature: Table_RowPagination<TFeatures, TData>
+  rowPinningFeature: Table_RowPinning<TFeatures, TData>
+  rowSelectionFeature: Table_RowSelection<TFeatures, TData>
+  rowSortingFeature: Table_RowSorting<TFeatures, TData>
 }
 
 export type Table<
   TFeatures extends TableFeatures,
   TData extends RowData,
 > = Table_Core<TFeatures, TData> &
-  ExtractFeatureMapTypes<TFeatures, Table_FeatureMap<TFeatures, TData>>;
+  ExtractFeatureMapTypes<TFeatures, Table_FeatureMap<TFeatures, TData>>
 ```
 
 It did not start out this clean. In the alpha versions, there was no feature map and no shared helper. The selection logic was written out by hand, one conditional branch per feature, fed into `UnionToIntersection` to glue all of the table's APIs together:
@@ -78,50 +78,50 @@ export type Table<
   TData extends RowData,
 > = Table_Core<TFeatures, TData> &
   UnionToIntersection<
-    | ("columnFilteringFeature" extends keyof TFeatures
+    | ('columnFilteringFeature' extends keyof TFeatures
         ? Table_ColumnFiltering
         : never)
-    | ("columnGroupingFeature" extends keyof TFeatures
+    | ('columnGroupingFeature' extends keyof TFeatures
         ? Table_ColumnGrouping<TFeatures, TData>
         : never)
-    | ("columnOrderingFeature" extends keyof TFeatures
+    | ('columnOrderingFeature' extends keyof TFeatures
         ? Table_ColumnOrdering<TFeatures, TData>
         : never)
-    | ("columnPinningFeature" extends keyof TFeatures
+    | ('columnPinningFeature' extends keyof TFeatures
         ? Table_ColumnPinning<TFeatures, TData>
         : never)
-    | ("columnResizingFeature" extends keyof TFeatures
+    | ('columnResizingFeature' extends keyof TFeatures
         ? Table_ColumnResizing
         : never)
-    | ("columnSizingFeature" extends keyof TFeatures
+    | ('columnSizingFeature' extends keyof TFeatures
         ? Table_ColumnSizing
         : never)
-    | ("columnVisibilityFeature" extends keyof TFeatures
+    | ('columnVisibilityFeature' extends keyof TFeatures
         ? Table_ColumnVisibility<TFeatures, TData>
         : never)
-    | ("columnFacetingFeature" extends keyof TFeatures
+    | ('columnFacetingFeature' extends keyof TFeatures
         ? Table_ColumnFaceting<TFeatures, TData>
         : never)
-    | ("globalFilteringFeature" extends keyof TFeatures
+    | ('globalFilteringFeature' extends keyof TFeatures
         ? Table_GlobalFiltering<TFeatures, TData>
         : never)
-    | ("rowExpandingFeature" extends keyof TFeatures
+    | ('rowExpandingFeature' extends keyof TFeatures
         ? Table_RowExpanding<TFeatures, TData>
         : never)
-    | ("rowPaginationFeature" extends keyof TFeatures
+    | ('rowPaginationFeature' extends keyof TFeatures
         ? Table_RowPagination<TFeatures, TData>
         : never)
-    | ("rowPinningFeature" extends keyof TFeatures
+    | ('rowPinningFeature' extends keyof TFeatures
         ? Table_RowPinning<TFeatures, TData>
         : never)
-    | ("rowSelectionFeature" extends keyof TFeatures
+    | ('rowSelectionFeature' extends keyof TFeatures
         ? Table_RowSelection<TFeatures, TData>
         : never)
-    | ("rowSortingFeature" extends keyof TFeatures
+    | ('rowSortingFeature' extends keyof TFeatures
         ? Table_RowSorting<TFeatures, TData>
         : never)
   > &
-  Table_Plugins<TFeatures, TData>;
+  Table_Plugins<TFeatures, TData>
 ```
 
 This was a problem for type-checking performance. Every branch is its own conditional type, so a single evaluation of `Table` meant fourteen conditional instantiations, a union, and a `UnionToIntersection` pass that creates a function type per member. And it doesn't get evaluated once. It gets evaluated for every distinct `(TFeatures, TData)` pair the compiler encounters, and inside a library where every internal function is generic over both, that happens constantly. The column, row, cell, header, options, and state types each had their own copy of this same hand-written block, and because every copy was anonymous, none of the work was shareable or cacheable between them.
@@ -187,7 +187,7 @@ export type ExtractFeatureMapTypes<
   TFeatureMap extends object,
 > = UnionToIntersectionOrEmpty<
   TFeatureMap[Extract<keyof TFeatures, keyof TFeatureMap>]
->;
+>
 ```
 
 The interface costs almost nothing to instantiate because the compiler resolves its members lazily, and indexing it with the registered keys replaces fourteen hand-written conditionals with a single one. Just as important, the map is a real named type now: plugins declaration-merge their own entries into it, which is what made the V9 plugin system fall out of this refactor almost for free. We made the same change across the options, state, column, row, cell, and header types, added inference guard tests so later optimizations couldn't quietly break the public API, and the core went from 1.23M instantiations to 495k by beta.10.
@@ -204,7 +204,7 @@ export type TableOptions_All<
       TableOptions_ColumnGrouping &
       /* ...the other eleven... */
       TableOptions_PluginFeatureMapTypes<TFeatures, TData>
-  >;
+  >
 ```
 
 The one place `UnionToIntersection` still earns its keep is plugins, since plugin keys are declaration-merged in by user code and can't be written out ahead of time. That last type in the intersection handles them, behind a guard that resolves to `unknown` when no plugins are merged:
@@ -230,7 +230,7 @@ export type Table_Internal<
   TData extends RowData,
 > = Table<TFeatures, TData> & {
   /* internal slots */
-};
+}
 ```
 
 Since `Table<TFeatures, TData>` contains the feature-map conditional, every internal call site re-expanded it. The single biggest type-creation site in the entire program was the function types that `UnionToIntersection` distributes, and `Table_Internal` was the reason.
@@ -268,7 +268,7 @@ With the core fast, the profiler pointed at one last pattern, and it was in our 
 const table = constructTable({
   ...tableOptions,
   features: { coreReactivityFeature: reactivity(), ...tableOptions.features },
-});
+})
 ```
 
 That spread creates an anonymous object type, and that triggers the expensive half of the compiler's work: type inference. With no explicit type arguments, TypeScript has to infer `TFeatures` and `TData` back out of the shape of that anonymous object before it can do anything else, and that inference algorithm is far more involved than a plain comparison. In react's case that one expression accounted for roughly 740ms of traced check time. The fix is one line:
@@ -276,7 +276,7 @@ That spread creates an anonymous object type, and that triggers the expensive ha
 ```ts
 const table = constructTable<TFeatures, TData>({
   /* same object */
-});
+})
 ```
 
 Passing the type arguments explicitly removes the inference step entirely. With `TFeatures` and `TData` already known, all the compiler has left is an assignability check: does this object match `TableOptions<TFeatures, TData>`? That is a cheap, direct comparison, and it is the difference between asking TypeScript to solve for the type parameters and simply telling it what they are. We found and fixed the same pattern in the angular and preact adapters, worth about 15% of each package's check. The lit, solid, svelte, and vue adapters already passed alias-typed variables and didn't need the change. If you maintain a library with construction helpers like this, this audit takes five minutes and is worth doing.

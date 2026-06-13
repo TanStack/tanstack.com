@@ -75,6 +75,8 @@ const useSyncExternalStoreShimIndexAlias = {
   replacement: '@tanstack/redact',
 }
 
+const reactShimNoExternals = ['@tanstack/redact']
+
 export default defineConfig({
   envDir,
   resolve: {
@@ -107,6 +109,7 @@ export default defineConfig({
   environments: {
     rsc: {
       resolve: {
+        noExternal: reactShimNoExternals,
         external: [
           '@tanstack/react-start-server',
           '@tanstack/react-router/ssr/server',
@@ -140,6 +143,7 @@ export default defineConfig({
       'normalize-wheel',
       '@tanstack/react-hotkeys',
       '@webcontainer/api',
+      ...reactShimNoExternals,
     ],
   },
   optimizeDeps: {

@@ -75,11 +75,12 @@ const useSyncExternalStoreShimIndexAlias = {
   replacement: '@tanstack/redact',
 }
 
+// These browser-facing packages are imported by RSC assets. Bundle them into
+// server output so Netlify's Node runtime never loads their raw package entries.
 const serverBundledClientPackages = [
   '@tanstack/redact',
-  '@fingerprintjs/fingerprintjs-pro-react',
-  '@fingerprintjs/fingerprintjs-pro-spa',
-  '@fingerprintjs/fingerprintjs-pro',
+  '@kapaai/react-sdk',
+  /^@fingerprintjs\//,
 ]
 
 export default defineConfig({

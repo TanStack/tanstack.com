@@ -655,7 +655,8 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   }, [])
 
   const getMegaMenuBgElement = React.useCallback(
-    () => megaMenuRef.current?.querySelector<HTMLElement>('.ts-mega-bg') ?? null,
+    () =>
+      megaMenuRef.current?.querySelector<HTMLElement>('.ts-mega-bg') ?? null,
     [],
   )
 

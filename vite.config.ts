@@ -1,5 +1,6 @@
 import { sentryTanstackStart } from '@sentry/tanstackstart-react/vite'
 import { defineConfig } from 'vite'
+import type { PluginOption } from 'vite'
 import { redact } from '@tanstack/redact/vite'
 import contentCollections from '@content-collections/vite'
 import { devtools as tanstackDevtools } from '@tanstack/devtools-vite'
@@ -74,6 +75,59 @@ const serverVariantAliases: Record<string, string> = {
 const useSyncExternalStoreShimIndexAlias = {
   find: /^use-sync-external-store\/shim\/index\.js$/,
   replacement: '@tanstack/redact',
+}
+
+const redactOptimizeDepsExcludes = shouldUseRedact
+  ? [
+      'react',
+      'react/jsx-runtime',
+      'react/jsx-dev-runtime',
+      'react/compiler-runtime',
+      'react-dom',
+      'react-dom/client',
+      'react-dom/server',
+      'react-dom/server.edge',
+      'react-dom/server.node',
+      'react-dom/server.bun',
+      'react-dom/server.browser',
+      'react-dom/static',
+      'react-dom/static.edge',
+      'react-dom/static.node',
+      'react-dom/test-utils',
+      'scheduler',
+      'use-sync-external-store',
+      'use-sync-external-store/shim',
+      'use-sync-external-store/shim/index.js',
+      'use-sync-external-store/with-selector',
+      'use-sync-external-store/with-selector.js',
+      'use-sync-external-store/shim/with-selector',
+      'use-sync-external-store/shim/with-selector.js',
+    ]
+  : []
+
+function redactOptimizeDepsGuard(): PluginOption {
+  if (!shouldUseRedact) {
+    return null
+  }
+
+  const blocked = new Set(redactOptimizeDepsExcludes)
+  const prune = (optimizeDeps: { include?: Array<string> } | undefined) => {
+    if (!optimizeDeps?.include) {
+      return
+    }
+
+    optimizeDeps.include = optimizeDeps.include.filter((id) => !blocked.has(id))
+  }
+
+  return {
+    name: 'tanstack-redact-optimize-deps-guard',
+    enforce: 'post',
+    configResolved(config) {
+      prune(config.optimizeDeps)
+      prune(config.environments.client?.optimizeDeps)
+      prune(config.environments.ssr?.optimizeDeps)
+    },
+  }
 }
 
 // These browser-facing packages are imported by RSC assets. Bundle them into
@@ -173,6 +227,10 @@ export default defineConfig({
       'takumi-js',
       // Don't pre-bundle CLI so we always get fresh changes during dev
       ...(isDev ? ['@tanstack/cli'] : []),
+      // Redact replaces React in client/SSR environments. If Vite prebundles
+      // the real React entries for browser deps, third-party search UI can end
+      // up with a different dispatcher than the Redact renderer.
+      ...redactOptimizeDepsExcludes,
       // `use client` libraries that plugin-rsc pre-bundles inconsistently
       // across client/ssr/rsc envs when combined with our React shim — each
       // env resolves `react` to a different target, so the optimizer's hash
@@ -297,6 +355,7 @@ export default defineConfig({
       },
     }),
     rsc(),
+    redactOptimizeDepsGuard(),
     // Only enable Netlify plugin during build or when NETLIFY env is set
     ...(process.env.NETLIFY || process.env.NODE_ENV === 'production'
       ? [netlify()]

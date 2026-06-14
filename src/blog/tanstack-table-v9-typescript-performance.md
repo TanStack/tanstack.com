@@ -1,7 +1,7 @@
 ---
 title: TypeScript Performance in TanStack Table V9
-published: 2026-06-13
-excerpt: TanStack Table V9's types do a lot more than V8's did. Here's how we cut type instantiations by 66-85% across every package between the alpha.54 and beta.11 to keep the editor experience feeling instant.
+published: 2026-06-14
+excerpt: TanStack Table V9's types do a lot more than V8's did. Here's how we cut type instantiations by 66-86% across every package between alpha.54 and beta.12 to keep the editor experience feeling instant.
 library: table
 authors:
   - Kevin Van Cott
@@ -11,7 +11,7 @@ authors:
 
 TanStack Table V9 has a much more capable, though more complex, type-level API than V8. The types in Table may not be as complicated as a project like TanStack Router or Form, but it has still grown more complex in V9 than it ever had been in previous versions.
 
-If you had been using the Table V9 alphas, there's a chance that you could feel a bit of slowness in your editor. Good news, though! Between the alpha and the latest beta, we cut TypeScript's type-checking work by 66-85% across every package and example! The latest beta now type-checks faster than our alpha versions from last week by a wide margin, and the editor experience is back to feeling instant.
+If you had been using the Table V9 alphas, there's a chance that you could feel a bit of slowness in your editor. It probably was not enough to crash your TypeScript server, but it probably was noticeable. Good news, though! Between the alpha and the latest beta, we cut TypeScript's type-checking work by 66-86% across every package and example! The latest beta now type-checks faster than our alpha versions from last week by a wide margin, and the editor experience is back to feeling instant.
 
 This post covers where the cost came from, how we measured it, and the specific changes that fixed these issues. One of those changes is a still-overlooked TypeScript feature that many library authors seem to barely use, and it turned out to be one of our bigger optimizations, turning a trade-off into a win across the board.
 
@@ -34,7 +34,7 @@ const table = useTable({ features, columns, data })
 
 To support this, V9 introduces just one new generic parameter: `TFeatures`. That sounds modest, but it flows through everything, and it replaces a whole category of global declaration merging from V8 with per-table inference:
 
-- The `table` you get back only has APIs for the features you registered. No sorting feature, no `getSortedRowModel()`, in the types or in the bundle.
+- The `table` you get back only has APIs for the features you registered. No sorting feature, no `table.setSorting()` or `column.toggleSorting()` APIs in the types or in the bundle.
 - Custom `filterFns`, `sortFns`, and `aggregationFns` are inferred from the features object. `columnDef.sortFn` accepts `'mySortFn'` above because this table registered it.
 - `TableMeta`, `ColumnMeta`, and filter meta are declared per table instead of merged globally, so your tables no longer share one meta shape.
 - Plugins still use a small amount of declaration merging, but only to declare that they exist. Their types only show up on tables that register them.
@@ -132,9 +132,9 @@ To put a number on it, we checked out V8 and ran the same measurement against it
 | ------------------------------------------- | -------------------------------------------: |
 | v8.21.3                                     |                                       78,054 |
 | v9 alpha.54                                 | <span style="color:#ef4444">1,144,560</span> |
-| v9 beta.11                                  |   <span style="color:#22c55e">187,048</span> |
+| v9 beta.12                                  |   <span style="color:#22c55e">158,636</span> |
 
-We expected V8 to be cheap since its types never had to compute anything, and it was: 78k instantiations is close to the floor for a library this size. The V9 alpha was <span style="color:#ef4444">**14.7×**</span> that. All the new type capability, paid for in full, on every check, in every editor session. Beta.11 brings it down to <span style="color:#f59e0b">**2.4×**</span> V8, while inferring per-table feature APIs, per-table fn registries, typed meta slots, and plugin merging that V8 didn't offer. We think that is a fair price for what the types now do. 14.7× was not.
+We expected V8 to be cheap since its types never had to compute anything, and it was: 78k instantiations is close to the floor for a library this size. The V9 alpha was <span style="color:#ef4444">**14.7×**</span> that. All the new type capability, paid for in full, on every check, in every editor session. Beta.12 brings it down to <span style="color:#f59e0b">**2.0×**</span> V8, while inferring per-table feature APIs, per-table fn registries, typed meta slots, and plugin merging that V8 didn't offer. We think that is a fair price for what the types now do. 14.7× was not.
 
 ## How We Measured Type Performance
 
@@ -152,24 +152,24 @@ All values in the tables below are TypeScript type instantiations as reported by
 
 _Lower is better._
 
-| Benchmark                                    |                                     alpha.54 |                                    beta.10 |                                    beta.11 |                            alpha.54 → beta.11 |
+| Benchmark                                    |                                     alpha.54 |                                    beta.10 |                                    beta.12 |                            alpha.54 → beta.12 |
 | -------------------------------------------- | -------------------------------------------: | -----------------------------------------: | -----------------------------------------: | --------------------------------------------: |
-| `@tanstack/table-core` `tsc --noEmit`        | <span style="color:#ef4444">1,230,007</span> | <span style="color:#f59e0b">494,577</span> | <span style="color:#22c55e">288,061</span> | <span style="color:#22c55e">**−76.6%**</span> |
-| `@tanstack/table-core` declaration emit      | <span style="color:#ef4444">1,146,896</span> | <span style="color:#f59e0b">385,702</span> | <span style="color:#22c55e">189,844</span> | <span style="color:#22c55e">**−83.4%**</span> |
-| `@tanstack/react-table` `tsc --noEmit`       |   <span style="color:#ef4444">235,498</span> |  <span style="color:#f59e0b">73,690</span> |  <span style="color:#22c55e">54,732</span> | <span style="color:#22c55e">**−76.8%**</span> |
-| `examples/react/kitchen-sink` `tsc --noEmit` |   <span style="color:#ef4444">221,006</span> |  <span style="color:#f59e0b">85,839</span> |  <span style="color:#22c55e">74,797</span> | <span style="color:#22c55e">**−66.2%**</span> |
+| `@tanstack/table-core` `tsc --noEmit`        | <span style="color:#ef4444">1,230,007</span> | <span style="color:#f59e0b">494,577</span> | <span style="color:#22c55e">266,723</span> | <span style="color:#22c55e">**−78.3%**</span> |
+| `@tanstack/table-core` declaration emit      | <span style="color:#ef4444">1,146,896</span> | <span style="color:#f59e0b">385,702</span> | <span style="color:#22c55e">161,432</span> | <span style="color:#22c55e">**−85.9%**</span> |
+| `@tanstack/react-table` `tsc --noEmit`       |   <span style="color:#ef4444">235,498</span> |  <span style="color:#f59e0b">73,690</span> |  <span style="color:#22c55e">54,442</span> | <span style="color:#22c55e">**−76.9%**</span> |
+| `examples/react/kitchen-sink` `tsc --noEmit` |   <span style="color:#ef4444">221,006</span> |  <span style="color:#f59e0b">85,839</span> |  <span style="color:#22c55e">74,583</span> | <span style="color:#22c55e">**−66.3%**</span> |
 
 And of course, this is not a react-only story. Every framework adapter improved:
 
-| Adapter package           |                                   alpha.54 |                                   beta.11 |                            alpha.54 → beta.11 |
+| Adapter package           |                                   alpha.54 |                                   beta.12 |                            alpha.54 → beta.12 |
 | ------------------------- | -----------------------------------------: | ----------------------------------------: | --------------------------------------------: |
-| `@tanstack/angular-table` | <span style="color:#ef4444">276,299</span> | <span style="color:#22c55e">49,948</span> | <span style="color:#22c55e">**−81.9%**</span> |
-| `@tanstack/lit-table`     | <span style="color:#ef4444">192,656</span> | <span style="color:#22c55e">44,165</span> | <span style="color:#22c55e">**−77.1%**</span> |
-| `@tanstack/preact-table`  | <span style="color:#ef4444">221,090</span> | <span style="color:#22c55e">41,558</span> | <span style="color:#22c55e">**−81.2%**</span> |
-| `@tanstack/react-table`   | <span style="color:#ef4444">235,498</span> | <span style="color:#22c55e">54,732</span> | <span style="color:#22c55e">**−76.8%**</span> |
-| `@tanstack/solid-table`   | <span style="color:#ef4444">198,164</span> | <span style="color:#22c55e">28,654</span> | <span style="color:#22c55e">**−85.5%**</span> |
-| `@tanstack/svelte-table`  | <span style="color:#ef4444">168,534</span> | <span style="color:#22c55e">29,298</span> | <span style="color:#22c55e">**−82.6%**</span> |
-| `@tanstack/vue-table`     | <span style="color:#ef4444">244,756</span> | <span style="color:#f59e0b">92,816</span> | <span style="color:#22c55e">**−62.1%**</span> |
+| `@tanstack/angular-table` | <span style="color:#ef4444">276,299</span> | <span style="color:#22c55e">49,813</span> | <span style="color:#22c55e">**−82.0%**</span> |
+| `@tanstack/lit-table`     | <span style="color:#ef4444">192,656</span> | <span style="color:#22c55e">44,066</span> | <span style="color:#22c55e">**−77.1%**</span> |
+| `@tanstack/preact-table`  | <span style="color:#ef4444">221,090</span> | <span style="color:#22c55e">41,420</span> | <span style="color:#22c55e">**−81.3%**</span> |
+| `@tanstack/react-table`   | <span style="color:#ef4444">235,498</span> | <span style="color:#22c55e">54,442</span> | <span style="color:#22c55e">**−76.9%**</span> |
+| `@tanstack/solid-table`   | <span style="color:#ef4444">198,164</span> | <span style="color:#22c55e">28,637</span> | <span style="color:#22c55e">**−85.6%**</span> |
+| `@tanstack/svelte-table`  | <span style="color:#ef4444">168,534</span> | <span style="color:#22c55e">29,303</span> | <span style="color:#22c55e">**−82.6%**</span> |
+| `@tanstack/vue-table`     | <span style="color:#ef4444">244,756</span> | <span style="color:#f59e0b">92,747</span> | <span style="color:#22c55e">**−62.1%**</span> |
 
 Every kitchen-sink example we can measure improved between 36% and 79%, including the heavyweight variants built on Material UI, Mantine, and shadcn. Down below, we'll cover how we were able to achieve these results.
 
@@ -194,7 +194,7 @@ export type ExtractFeatureMapTypes<
 
 The interface costs almost nothing to instantiate because the compiler resolves its members lazily, and indexing it with the registered keys replaces fourteen hand-written conditionals with a single one. Just as important, the map is a real named type now: plugins declaration-merge their own entries into it, which is what made the V9 plugin system fall out of this refactor almost for free. We made the same change across the options, state, column, row, cell, and header types, added inference guard tests so later optimizations couldn't quietly break the public API, and the core went from 1.23M instantiations to 495k by beta.10.
 
-In beta.11 we came back for the rest of it. `ExtractFeatureMapTypes` still relies on `UnionToIntersection` internally, and that helper is expensive by nature. It leans on two of TypeScript's deeper rules at once. First, a naked type parameter in a conditional distributes over a union, so the helper turns the union of feature types into a union of function types, one per member. Then it exploits contravariance: function parameters are matched contravariantly, so when the compiler infers a single parameter type out of a union of function types, it is forced to combine the members into an intersection rather than a union. Wrapping each member in a function parameter is purely a trick to make that happen. The result is correct, but it means a function type gets created per member every time the helper runs, and none of it caches when the union's identity varies with `TData`. For the public `Table` and `TableOptions` types that cost is unavoidable, since the selected features genuinely depend on `TFeatures`. But our internal "broad" options type was running it over all thirteen stock feature option interfaces for every `(TFeatures, TData)` pair, and the stock features are known ahead of time. There is no reason to make the compiler compute an intersection that we can write out by hand:
+We then came back for the rest of it. `ExtractFeatureMapTypes` still relies on `UnionToIntersection` internally, and that helper is expensive by nature. It leans on two of TypeScript's deeper rules at once. First, a naked type parameter in a conditional distributes over a union, so the helper turns the union of feature types into a union of function types, one per member. Then it exploits contravariance: function parameters are matched contravariantly, so when the compiler infers a single parameter type out of a union of function types, it is forced to combine the members into an intersection rather than a union. Wrapping each member in a function parameter is purely a trick to make that happen. The result is correct, but it means a function type gets created per member every time the helper runs, and none of it caches when the union's identity varies with `TData`. For the public `Table` and `TableOptions` types that cost is unavoidable, since the selected features genuinely depend on `TFeatures`. But our internal "broad" options type was running it over all thirteen stock feature option interfaces for every `(TFeatures, TData)` pair, and the stock features are known ahead of time. There is no reason to make the compiler compute an intersection that we can write out by hand:
 
 ```ts
 export type TableOptions_All<
@@ -209,7 +209,7 @@ export type TableOptions_All<
   >
 ```
 
-The one place `UnionToIntersection` still earns its keep is plugins, since plugin keys are declaration-merged in by user code and can't be written out ahead of time. That last type in the intersection handles them, behind a guard that resolves to `unknown` when no plugins are merged:
+The one place `UnionToIntersection` still earns its keep is with plugins, since plugin keys are declaration-merged in by user code and can't be written out ahead of time. That last type in the intersection handles them, behind a guard that resolves to `unknown` when no plugins are merged:
 
 ```ts
 type TableOptions_PluginFeatureMapTypes<TFeatures, TData> =
@@ -222,22 +222,38 @@ If you don't use plugins, the expensive path never runs. If you do, you pay for 
 
 One sharp edge before moving on, because the "name everything" rule has a limit and we hit it. Splitting the feature maps into "static" and "data-dependent" halves so the static half could cache better seemed like an obvious next step. It made things worse, by 28,357 instantiations. A named type is only a cache point if it gets used from multiple places with the same arguments. Wrapping a conditional that still varies per call site in another named layer just adds instantiations. The hand-written intersection above works precisely because it removed the computation; it didn't rename it. We measured the split, reverted it, and kept the numbers in the log.
 
-### Making `Table_Internal` an interface
+### Making Custom Internal Types an Interface
 
-Profiling beta.10 with `tsc --generateTrace` was surprising: 77% of the core's remaining cost was the library checking itself. Hundreds of internal generic functions pass the table to each other, and every one of those calls related two instantiations of `Table_Internal`, our internal table type. It was defined as the public conditional type plus some internal fields:
+Profiling beta.10 with `tsc --generateTrace` was surprising: 77% of the core's remaining cost was the library checking itself. Hundreds of internal generic functions pass the table to each other, and every one of those calls related two instantiations of `Table_Internal`, our internal table type, which is only supposed to be used internally in the library. It was defined as the public conditional type plus some internal fields:
 
 ```ts
-export type Table_Internal<
+export interface Table_Internal<
   TFeatures extends TableFeatures,
-  TData extends RowData,
-> = Table<TFeatures, TData> & {
-  /* internal slots */
+  TData extends RowData = any,
+>
+  // core table interfaces only: no feature APIs, no conditional
+  extends
+    Omit<
+      Table_Table<TFeatures, TData>,
+      '_rowModels' | '_rowModelFns' | 'options' | 'initialState' | 'store'
+    >,
+    Table_Columns<TFeatures, TData>,
+    Table_Rows<TFeatures, TData>,
+    Table_RowModels<TFeatures, TData>,
+    Table_Headers<TFeatures, TData> {
+  // those omitted slots, redeclared as their broad all-features variants
+  options: TableOptions_All<TFeatures, TData> & {
+    /* state, atoms */
+  }
+  initialState: TableState_All
+  _rowModels: CachedRowModel_All<TFeatures, TData>
+  // ...store, atoms, _rowModelFns
 }
 ```
 
 Since `Table<TFeatures, TData>` contains the feature-map conditional, every internal call site re-expanded it. The single biggest type-creation site in the entire program was the function types that `UnionToIntersection` distributes, and `Table_Internal` was the reason.
 
-The fix came from noticing that internal code doesn't need the feature-conditional view at all. Internally we already follow a "broad" convention (`TableState_All`, `CachedRowModel_All`, and friends) where every feature's slice is present regardless of registration. So we redefined `Table_Internal` as an interface that directly extends the core API interfaces plus every stock feature's table interface. No conditional, statically known members, and a stable identity the compiler can use to relate two instantiations without expanding a couple hundred members each time. The public `Table` type is untouched, so nothing changes about the inference you write against.
+The large improvment came from noticing that internal code doesn't need the feature-conditional view at all. Internally we already follow a "broad" convention (`TableState_All`, `CachedRowModel_All`, and friends) where every feature's slice is present regardless of registration. So we redefined `Table_Internal` as an interface that extends only the core table interfaces (columns, rows, headers, row models, and the base table properties) and redeclares its handful of internal slots (`options`, `initialState`, `store`, `atoms`, the row models) in their broad `*_All` forms. No feature-map conditional, statically known members, and a stable identity the compiler can relate without re-expanding the feature union each time. The public `Table` type is untouched, so nothing changes about the inference you write against.
 
 The table-core package dropped another 40% in instantiations. Declaration emit dropped 48%... but the react adapter got twice as slow. We'll discuss that issue next.
 
@@ -247,13 +263,13 @@ Now, about that react adapter doubling. The package check went from 74k to 136k 
 
 When TypeScript relates `SomeInterface<A>` to `SomeInterface<B>`, it wants to skip the member-by-member comparison and just compare `A` to `B`. To do that, it needs to know the variance of each type parameter, and it normally figures that out by probing the type's structure. But when a type parameter flows into conditional types, which `TFeatures` does everywhere, that measurement comes back marked unreliable. The compiler then falls back to comparing the full structure. The react adapter's hook layer creates a lot of fresh generic contexts, so it was paying the full expansion of `Table_Internal` over and over. As best we can tell, the old alias had sidestepped this without our intending it, because a deferred conditional type relates more lazily than an interface whose members are fully materialized.
 
-The fix came from looking at how TanStack Form and TanStack Router already annotate their big generic interfaces this way (`FieldApi` in Form carries 46 of these):
+A large improvement came from looking at how TanStack Form and TanStack Router already annotate their big generic interfaces this way (`FieldApi` in Form carries 46 of these):
 
 ```ts
-export interface Table_Internal<
+export interface Table_Core<
   in out TFeatures extends TableFeatures,
-  in out TData extends RowData = any,
-> /* ... */ {}
+  in out TData extends RowData,
+>
 ```
 
 `in out` declares the parameter invariant, and it is not a cache. It changes no behavior here, because these parameters already appear in both input and output positions throughout, so they were invariant in practice anyway. One subtlety worth being precise about: the compiler does validate variance annotations, but it lets you declare a parameter _more_ restrictive than its structure requires, and invariant is the most restrictive there is. So an `in out` annotation always passes that check, whatever the structure looks like, and the compiler uses the declared invariance instead of probing the structure to derive its own. That is safe, because narrowing a parameter to invariant can only remove assignments the compiler would otherwise have allowed, never introduce an unsound one. The cost shows up elsewhere, as the `TValue` experiment below illustrates: a relation you remove this way might be one your code actually relied on. What the annotation buys is a shortcut. The compiler relates instantiations by their type arguments directly, with no variance probing and no structural fallback.
@@ -285,12 +301,15 @@ Passing the type arguments explicitly removes the inference step entirely. With 
 
 ## What this means for you
 
-If you tried the V9 alphas and felt the editor drag, I encourage you to try the newest beta. A full type-check of a real app's tables runs in about half the time it did in the alpha, the language service does a fraction of the work when you hover a `table.` or edit a column def, and nothing about the inference you write against has changed. Feature selection, per-table fn registries, typed meta, and plugins are all still fully inferred, now at 2.4× the type cost of V8's fixed table instead of 14.7×.
+If you are using TanStack Table in your app, you shouldn't need to think about any of these topics. This is supposed to be a concern of the library authors. It's our goal to provide a library that doesn't come slow out of the box, giving you tons of room to use the library to its full potential.
 
-For library authors doing heavy generics, the short version of our notebook:
+If you are making a wrapper library or shared package around TanStack Table, you might consider the above advice as useful.
+
+If you tried the V9 alphas and felt the editor drag, I encourage you to try the newest beta. A full type-check of a real app's tables runs in about half the time it did in the alpha, the language service does a fraction of the work when you hover a `table.` or edit a column def, and nothing about the inference you write against has changed. Feature selection, per-table fn registries, typed meta, and plugins are all still fully inferred, now at 2.0× the type cost of V8's fixed table instead of 14.7×.
+
+For library authors doing heavy generics, the short version of our findings:
 
 1. Measure `Instantiations`. It is deterministic, and `--generateTrace` tells you where to look.
 2. Named types are only cache points when their arguments repeat. Wrapping a per-call-site conditional in more named layers makes things worse.
 3. Interfaces beat conditional-intersection aliases for hot internal types, but only if the compiler can relate them by their type arguments, which leads to:
-4. Annotate invariant type parameters with `in out`. If your generics touch conditional types, the compiler's variance measurement goes unreliable and you silently pay structural fallbacks. This was the highest leverage-per-character change we made.
-5. Keep a log that includes the failures. More of our experiments were reverted than kept, and the rejected ones, with their numbers, are what keep the next contributor out of the swamp.
+4. Annotate invariant type parameters with `in out` where possible. If your generics touch conditional types, the compiler's variance measurement goes unreliable and you silently pay structural fallbacks. This was the highest leverage-per-character change we made.

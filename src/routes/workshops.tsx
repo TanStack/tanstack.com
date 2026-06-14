@@ -135,7 +135,7 @@ function WorkshopsPage() {
 
           {/* Why Choose TanStack Workshops */}
           <div
-            className="relative bg-gray-50 dark:bg-gray-900 py-32 w-screen -mx-[calc(50vw-50%)] md:w-[calc(100vw-250px)] md:mx-[calc(-50vw+50%+125px)]"
+            className="relative bg-gray-50 dark:bg-gray-900 py-32 w-screen -mx-[calc(50vw-50%)]"
             style={{
               boxShadow: '0 0 80px rgba(0, 0, 0, 0.04)',
             }}
@@ -242,7 +242,7 @@ function WorkshopsPage() {
 
           {/* Instructors Section */}
           <div
-            className="relative bg-gray-50 dark:bg-gray-900 py-20 w-screen -mx-[calc(50vw-50%)] md:w-[calc(100vw-250px)] md:mx-[calc(-50vw+50%+125px)]"
+            className="relative bg-gray-50 dark:bg-gray-900 py-20 w-screen -mx-[calc(50vw-50%)]"
             style={{
               boxShadow: '0 0 80px rgba(0, 0, 0, 0.04)',
             }}
@@ -323,7 +323,7 @@ function WorkshopsPage() {
 
           {/* Topics Covered */}
           <div
-            className="relative bg-gray-50 dark:bg-gray-900 py-20 w-screen -mx-[calc(50vw-50%)] md:w-[calc(100vw-250px)] md:mx-[calc(-50vw+50%+125px)]"
+            className="relative bg-gray-50 dark:bg-gray-900 py-20 w-screen -mx-[calc(50vw-50%)]"
             style={{
               boxShadow: '0 0 80px rgba(0, 0, 0, 0.04)',
             }}
@@ -401,7 +401,7 @@ function WorkshopsPage() {
 
           {/* Testimonials Section */}
           <div
-            className="relative bg-gray-50 dark:bg-gray-900 py-20 w-screen -mx-[calc(50vw-50%)] md:w-[calc(100vw-250px)] md:mx-[calc(-50vw+50%+125px)]"
+            className="relative bg-gray-50 dark:bg-gray-900 py-20 w-screen -mx-[calc(50vw-50%)]"
             style={{
               boxShadow: '0 0 80px rgba(0, 0, 0, 0.04)',
             }}

@@ -1,7 +1,7 @@
 ---
 title: TypeScript Performance in TanStack Table V9
 published: 2026-06-13
-excerpt: TanStack Table V9's types do a lot more than V8's did. Here's how we cut type instantiations by 66-85% across every package between the alpha.54 and beta.11 to keep the editor experience feeling nearly instant.
+excerpt: TanStack Table V9's types do a lot more than V8's did. Here's how we cut type instantiations by 66-85% across every package between the alpha.54 and beta.11 to keep the editor experience feeling instant.
 library: table
 authors:
   - Kevin Van Cott
@@ -9,11 +9,11 @@ authors:
 
 ![TanStack Table V9 - TypeScript Performance](/blog-assets/tanstack-table-v9-typescript-performance/header.png)
 
-TanStack Table V9 has a much more capable, though more complex, type system than V8. The types in Table may not be as complicated as a project like TanStack Router or Form, but it has still grown more complex in V9 than it ever had been in previous versions.
+TanStack Table V9 has a much more capable, though more complex, type-level API than V8. The types in Table may not be as complicated as a project like TanStack Router or Form, but it has still grown more complex in V9 than it ever had been in previous versions.
 
-If you had been using the Table V9 alphas, there's a chance that you could feel a bit of slowness in your editor. Good news, though! Between the alpha and the latest beta, we cut TypeScript's type-checking work by 66-85% across every package and example! The latest beta now type-checks faster than our alpha versions from last week by a wide margin, and the editor experience is back to feeling nearly instant.
+If you had been using the Table V9 alphas, there's a chance that you could feel a bit of slowness in your editor. Good news, though! Between the alpha and the latest beta, we cut TypeScript's type-checking work by 66-85% across every package and example! The latest beta now type-checks faster than our alpha versions from last week by a wide margin, and the editor experience is back to feeling instant.
 
-This post covers where the cost came from, how we measured it, and the specific changes that fixed these issues. One of those changes is a still overlooked TypeScript feature that many library authors still seem to barely use, and it turned our to be one of our bigger optimizations, turning a trade-off into a win across the board.
+This post covers where the cost came from, how we measured it, and the specific changes that fixed these issues. One of those changes is a still-overlooked TypeScript feature that many library authors seem to barely use, and it turned out to be one of our bigger optimizations, turning a trade-off into a win across the board.
 
 ## Why V9's types do more work than V8's
 
@@ -254,7 +254,7 @@ export interface Table_Internal<
 > /* ... */ {}
 ```
 
-`in out` declares the parameter invariant, and it is not a cache. It changes no behavior here, because these parameters already appear in both input and output positions throughout, so they were invariant in practice anyway. One subtlety worth being precise about: unlike a lone `in` or `out`, which the compiler does check against the type's structure, an `in out` annotation is simply trusted. That is sound to do regardless of the structure, because invariance is the strictest relation there is. Asserting it can only remove assignments the compiler would otherwise have allowed, never permit an unsound one. What the annotation buys is the shortcut. The compiler relates instantiations by their type arguments directly, with no variance probing and no structural fallback.
+`in out` declares the parameter invariant, and it is not a cache. It changes no behavior here, because these parameters already appear in both input and output positions throughout, so they were invariant in practice anyway. One subtlety worth being precise about: the compiler does validate variance annotations, but it lets you declare a parameter *more* restrictive than its structure requires, and invariant is the most restrictive there is. So an `in out` annotation always passes that check, whatever the structure looks like, and the compiler uses the declared invariance instead of probing the structure to derive its own. That is safe, because narrowing a parameter to invariant can only remove assignments the compiler would otherwise have allowed, never introduce an unsound one. The cost shows up elsewhere, as the `TValue` experiment below illustrates: a relation you remove this way might be one your code actually relied on. What the annotation buys is a shortcut. The compiler relates instantiations by their type arguments directly, with no variance probing and no structural fallback.
 
 Annotating `Table_Internal` alone took the react adapter from 136k down to 66k, below where it started. Annotating the rest of table-core's generic interfaces (166 parameters in total) took it to 54.7k, shaved another 3% off the core, and moved the kitchen-sink example from flat to 13% better. What had looked like a core-versus-adapters trade-off became a win everywhere, for the price of two keywords per type parameter.
 

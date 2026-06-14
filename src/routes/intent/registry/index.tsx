@@ -749,10 +749,10 @@ function SkillHitRow({
 }) {
   return (
     <Link
-      to="/intent/registry/$packageName/$skillName"
+      to="/intent/registry/$packageName/{$}"
       params={{
         packageName: hit.packageName.replace('/', '__'),
-        skillName: hit.skillName,
+        _splat: hit.skillName,
       }}
       className="group flex items-start gap-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 hover:border-sky-300 dark:hover:border-sky-700 hover:shadow-sm transition-all"
     >

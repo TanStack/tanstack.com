@@ -17,6 +17,8 @@ const isDev = process.env.NODE_ENV !== 'production'
 const shouldUseSentryPlugin =
   process.env.NODE_ENV === 'production' &&
   Boolean(process.env.SENTRY_AUTH_TOKEN)
+const shouldBuildSourcemaps =
+  shouldUseSentryPlugin || process.env.BUILD_SOURCEMAPS === 'true'
 
 const rscSsrExternals = [
   // OpenTelemetry uses require-in-the-middle which is CJS-only and breaks
@@ -164,7 +166,8 @@ export default defineConfig({
     ],
   },
   build: {
-    sourcemap: process.env.NODE_ENV === 'production',
+    sourcemap: shouldBuildSourcemaps,
+    reportCompressedSize: false,
     rollupOptions: {
       external: (id) => {
         // Externalize postgres from client bundle

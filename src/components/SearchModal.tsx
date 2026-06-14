@@ -3134,6 +3134,7 @@ export function AiDock() {
       ref={contentRef}
       aria-label="TanStack AI"
       aria-hidden={!isAiDockOpen}
+      inert={!isAiDockOpen}
       style={dockStyle}
       className={twMerge(
         'fixed top-[var(--navbar-height)] right-0 bottom-0 z-[1000] w-full max-w-full pointer-events-none',

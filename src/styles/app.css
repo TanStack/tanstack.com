@@ -242,7 +242,7 @@ button {
   .ts-mega-dropdown {
     position: fixed;
     right: 1rem;
-    left: 0;
+    left: 1rem;
     top: calc(var(--navbar-height) - 0.625rem);
     width: auto;
     padding-top: calc(1rem + 0.625rem);

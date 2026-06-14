@@ -872,7 +872,7 @@ function LibrariesMenuContent({
     <div
       className={twMerge(
         variant === 'desktop'
-          ? 'grid gap-4 lg:grid-cols-[minmax(0,1fr)_260px]'
+          ? 'grid gap-4'
           : 'grid gap-3',
       )}
     >
@@ -902,19 +902,6 @@ function LibrariesMenuContent({
           ))}
         </div>
       </div>
-      {variant === 'desktop' ? (
-        <MenuRail
-          rail={{
-            eyebrow: 'Browse',
-            title: 'All TanStack libraries',
-            description:
-              'Filter by framework and compare the full set of public packages.',
-            item: allLibrariesItem,
-          }}
-          onNavigate={onNavigate}
-          variant={variant}
-        />
-      ) : null}
     </div>
   )
 }

@@ -24,10 +24,8 @@ import {
   HelpCircle,
   Mail,
   Menu,
-  Minus,
   Newspaper,
   Paintbrush,
-  Plus,
   ShieldCheck,
   Shirt,
   Sparkles,
@@ -157,13 +155,14 @@ type NavigationLibrary = LibrarySlim & {
 
 type LibraryGroupId = keyof typeof librariesByGroup
 
-const DESKTOP_NAV_CLASS = 'hidden min-[1024px]:flex'
-const MOBILE_NAV_CLASS = 'min-[1024px]:hidden'
+const DESKTOP_NAV_CLASS = 'hidden min-[960px]:flex'
+const MOBILE_NAV_CLASS = 'min-[960px]:hidden'
 const CLOSE_DELAY_MS = 140
 const MEGA_MENU_TRANSITION_MS = 400
 const MEGA_MENU_MAX_WIDTH = 1120
 const MEGA_MENU_MIN_ALIGNED_WIDTH = 960
 const MEGA_MENU_VIEWPORT_PADDING = 16
+const MEGA_MENU_HOVER_BRIDGE_HEIGHT = 32
 const MEGA_MENU_ORDER: Record<NavMenuKey, number> = {
   libraries: 0,
   learn: 1,
@@ -610,6 +609,53 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   }, [activeMenuKey, updateMegaMenuLayout])
 
   React.useEffect(() => {
+    if (!activeMenuKey) {
+      return
+    }
+
+    const onPointerMove = (event: PointerEvent) => {
+      if (event.pointerType === 'touch') {
+        return
+      }
+
+      const target = event.target
+
+      if (
+        target instanceof Node &&
+        (containerRef.current?.contains(target) ||
+          megaMenuRef.current?.contains(target))
+      ) {
+        cancelMegaMenuClose()
+        return
+      }
+
+      const panel =
+        megaMenuRef.current?.querySelector<HTMLElement>('.ts-mega-panel')
+
+      if (!panel) {
+        return
+      }
+
+      const rect = panel.getBoundingClientRect()
+      const withinPanelX =
+        event.clientX >= rect.left && event.clientX <= rect.right
+      const withinPanelOrBridgeY =
+        event.clientY >= rect.top - MEGA_MENU_HOVER_BRIDGE_HEIGHT &&
+        event.clientY <= rect.bottom
+
+      if (withinPanelX && withinPanelOrBridgeY) {
+        cancelMegaMenuClose()
+      }
+    }
+
+    document.addEventListener('pointermove', onPointerMove)
+
+    return () => {
+      document.removeEventListener('pointermove', onPointerMove)
+    }
+  }, [activeMenuKey, cancelMegaMenuClose])
+
+  React.useEffect(() => {
     closeMegaMenu()
     setMobileMenuOpen(false)
   }, [closeMegaMenu, location.pathname, location.hash])
@@ -689,21 +735,33 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     }
   }, [cancelMegaMenuClose])
 
-  const loginButtonFallback = (
+  const getLoginButtonFallback = (className?: string) => (
     <Link
       to="/login"
       aria-label="Log In"
-      className="flex shrink-0 items-center gap-1 rounded-md px-2 py-1.5 whitespace-nowrap
-             bg-black dark:bg-white text-white dark:text-black
-             hover:bg-gray-800 dark:hover:bg-gray-200
-             transition-colors duration-200 text-xs font-medium"
+      className={twMerge(
+        'flex shrink-0 items-center gap-1 rounded-md px-2 py-1.5 whitespace-nowrap',
+        'bg-black dark:bg-white text-white dark:text-black',
+        'hover:bg-gray-800 dark:hover:bg-gray-200',
+        'transition-colors duration-200 text-xs font-medium',
+        className,
+      )}
     >
       <User className="w-3.5 h-3.5" />
       <span className="hidden min-[430px]:inline">Log In</span>
     </Link>
   )
+  const renderAuthControls = (className?: string) =>
+    canLoadAuthControls ? (
+      <React.Suspense fallback={getLoginButtonFallback(className)}>
+        <LazyNavbarAuthControls className={className} />
+      </React.Suspense>
+    ) : (
+      getLoginButtonFallback(className)
+    )
 
   const socialLinks = <SocialStack />
+  const siteBackdropActive = Boolean(activeMenuKey || mobileMenuOpen)
 
   const navbar = (
     <div
@@ -755,21 +813,13 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       </div>
 
       <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-        <div className="hidden min-[750px]:block">{socialLinks}</div>
+        <div className={DESKTOP_NAV_CLASS}>{socialLinks}</div>
         <ThemeToggle />
-        <div className="hidden sm:block">
-          <SearchButton iconOnly />
-        </div>
         <NavbarCartButton />
+        <SearchButton iconOnly />
         <AiDockButton />
-        <div className="flex items-center gap-2">
-          {canLoadAuthControls ? (
-            <React.Suspense fallback={loginButtonFallback}>
-              <LazyNavbarAuthControls />
-            </React.Suspense>
-          ) : (
-            loginButtonFallback
-          )}
+        <div className={twMerge(DESKTOP_NAV_CLASS, 'items-center gap-2')}>
+          {renderAuthControls()}
         </div>
         <button
           type="button"
@@ -778,7 +828,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           aria-controls="primary-mobile-menu"
           className={twMerge(
             'inline-flex h-9 w-9 items-center justify-center rounded-md',
-            'border border-gray-500/20 text-gray-700 transition-colors hover:bg-gray-500/10',
+            'text-gray-700 transition-colors hover:bg-gray-500/10',
             'dark:text-gray-200',
             MOBILE_NAV_CLASS,
           )}
@@ -832,37 +882,51 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     </div>
   )
 
-  const mobileMenu = mobileMenuOpen ? (
-    <div
-      id="primary-mobile-menu"
-      data-mobile-menu
-      className={twMerge(
-        MOBILE_NAV_CLASS,
-        'fixed left-0 right-0 top-[var(--navbar-height)] z-[90] isolate',
-        'max-h-[calc(100dvh-var(--navbar-height))] overflow-y-auto',
-        'border-b border-white/45 bg-white/85 text-base shadow-2xl shadow-black/15 backdrop-blur-2xl backdrop-saturate-150',
-        'dark:border-white/10 dark:bg-black/75 dark:shadow-black/50',
-      )}
+  const mobileMenu = (
+    <Collapsible
+      open={mobileMenuOpen}
+      onOpenChange={setMobileMenuOpen}
+      className={MOBILE_NAV_CLASS}
     >
-      <div className="border-t border-white/30 dark:border-white/10">
-        <div className="p-2 sm:hidden">
-          <SearchButton className="w-full py-3 text-base [&_svg]:w-5 [&_svg]:h-5" />
+      <CollapsibleContent
+        className={twMerge(
+          'fixed left-0 right-0 top-[var(--navbar-height)] z-[90]',
+          'motion-reduce:transition-none',
+          mobileMenuOpen ? 'pointer-events-auto' : 'pointer-events-none',
+        )}
+      >
+        <div
+          id="primary-mobile-menu"
+          data-mobile-menu
+          aria-hidden={!mobileMenuOpen}
+          className={twMerge(
+            'ts-glass-menu max-h-[calc(100dvh-var(--navbar-height))] overflow-y-auto',
+            'border-b border-white/45 bg-white/80 text-base shadow-2xl shadow-black/15 backdrop-blur-2xl backdrop-saturate-150',
+            'dark:border-white/10 dark:bg-black/70 dark:shadow-black/50',
+          )}
+        >
+          <div className="border-t border-white/30 dark:border-white/10">
+            <div className="flex items-center justify-end gap-2 p-2">
+              {socialLinks}
+              {renderAuthControls('h-9 px-3 text-sm')}
+            </div>
+            <nav
+              className="grid gap-1.5 px-2 pb-2"
+              aria-label="Mobile navigation"
+            >
+              {NAV_GROUPS.map((group) => (
+                <MobileMenuGroup
+                  key={group.key}
+                  group={group}
+                  onNavigate={() => setMobileMenuOpen(false)}
+                />
+              ))}
+            </nav>
+          </div>
         </div>
-        <nav className="grid gap-1.5 px-2 pb-2" aria-label="Mobile navigation">
-          {NAV_GROUPS.map((group) => (
-            <MobileMenuGroup
-              key={group.key}
-              group={group}
-              onNavigate={() => setMobileMenuOpen(false)}
-            />
-          ))}
-        </nav>
-        <div className="border-t border-gray-500/10 p-3 sm:hidden">
-          {socialLinks}
-        </div>
-      </div>
-    </div>
-  ) : null
+      </CollapsibleContent>
+    </Collapsible>
+  )
 
   return (
     <>
@@ -873,10 +937,9 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         aria-hidden="true"
         data-site-menu-tint
         className={twMerge(
-          DESKTOP_NAV_CLASS,
           'pointer-events-none fixed inset-x-0 bottom-0 top-[var(--navbar-height)] z-[80]',
           'bg-white/45 transition-opacity duration-200 motion-reduce:transition-none dark:bg-black/45',
-          activeMenuKey ? 'opacity-100' : 'opacity-0',
+          siteBackdropActive ? 'opacity-100' : 'opacity-0',
         )}
       />
       <div
@@ -885,7 +948,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           `min-h-[calc(100dvh-var(--navbar-height))] flex flex-col
           min-w-0 w-full transition-[filter] duration-200 motion-reduce:transition-none
           pt-[var(--navbar-height)]`,
-          activeMenuKey ? 'blur-[4px]' : 'filter-none',
+          siteBackdropActive ? 'blur-[4px]' : 'filter-none',
         )}
       >
         <div className="flex-1 min-w-0 flex flex-col w-full min-h-0">
@@ -907,7 +970,7 @@ function DesktopNavTrigger({
   onOpen: () => void
 }) {
   const triggerClassName = twMerge(
-    'ts-mega-trigger inline-flex items-center gap-1.5 rounded-md px-2.5 py-2 text-sm font-bold',
+    'ts-mega-trigger inline-flex items-center gap-1.5 rounded-md px-2 py-2 text-sm font-bold',
     'text-gray-700 transition-colors hover:bg-gray-500/10 hover:text-gray-950',
     'dark:text-gray-300 dark:hover:text-white',
     isOpen && 'bg-gray-500/10 text-gray-950 dark:text-white',
@@ -981,31 +1044,15 @@ function MobileMenuGroup({
         <>
           {group.to ? (
             <div className="flex items-center">
-              <Link
-                to={group.to}
-                onClick={onNavigate}
-                className={twMerge(
-                  'min-w-0 flex-1 px-3 py-3 text-left font-black text-gray-800',
-                  'hover:text-gray-950 focus:outline-none dark:text-gray-200 dark:hover:text-white',
-                  open && 'text-gray-950 dark:text-white',
-                )}
-                preload="intent"
-              >
-                {group.label}
-              </Link>
               <CollapsibleTrigger
                 aria-label={`${open ? 'Collapse' : 'Expand'} ${group.label}`}
                 className={twMerge(
-                  'mr-1 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-gray-600',
-                  'hover:bg-gray-500/10 hover:text-gray-950 focus:bg-gray-500/10 focus:text-gray-950 focus:outline-none',
-                  'dark:text-gray-300 dark:hover:text-white dark:focus:text-white',
+                  'flex min-w-0 flex-1 items-center px-3 py-3 text-left font-black text-gray-800',
+                  'hover:text-gray-950 focus:outline-none dark:text-gray-200 dark:hover:text-white',
+                  open && 'text-gray-950 dark:text-white',
                 )}
               >
-                {open ? (
-                  <Minus className="h-4 w-4" />
-                ) : (
-                  <Plus className="h-4 w-4" />
-                )}
+                <span className="min-w-0 flex-1 truncate">{group.label}</span>
               </CollapsibleTrigger>
             </div>
           ) : (
@@ -1159,8 +1206,14 @@ function MegaMenuContent({
               'md:grid-cols-2',
           )}
         >
-          {group.sections.map((section) => (
-            <div key={section.label}>
+          {group.sections.map((section, sectionIndex) => (
+            <div
+              key={section.label}
+              className={twMerge(
+                variant === 'mobile' && sectionIndex === 0 && 'pt-1.5',
+                variant === 'mobile' && sectionIndex > 0 && 'pt-3',
+              )}
+            >
               <div className="mb-2 px-2 text-xs font-black uppercase text-gray-500 dark:text-gray-400">
                 {section.label}
               </div>
@@ -1200,6 +1253,12 @@ function LibrariesMenuContent({
   variant: 'desktop' | 'mobile'
 }) {
   const libraryMenuGroups = getLibraryMenuGroups()
+  const allLibrariesItem: NavMenuItem = {
+    label: 'All Libraries',
+    to: '/libraries',
+    description: 'Browse the full set of public packages.',
+    icon: Grid2X2,
+  }
 
   return (
     <div
@@ -1217,6 +1276,14 @@ function LibrariesMenuContent({
               : 'grid gap-3',
           )}
         >
+          {variant === 'mobile' ? (
+            <MenuItemLink
+              item={allLibrariesItem}
+              onNavigate={onNavigate}
+              variant="mobile"
+              compact
+            />
+          ) : null}
           {libraryMenuGroups.map((group) => (
             <LibraryMenuGroup
               key={group.id}
@@ -1227,21 +1294,19 @@ function LibrariesMenuContent({
           ))}
         </div>
       </div>
-      <MenuRail
-        rail={{
-          eyebrow: 'Browse',
-          title: 'All TanStack libraries',
-          description:
-            'Filter by framework and compare the full set of public packages.',
-          item: {
-            label: 'All Libraries',
-            to: '/libraries',
-            icon: Grid2X2,
-          },
-        }}
-        onNavigate={onNavigate}
-        variant={variant}
-      />
+      {variant === 'desktop' ? (
+        <MenuRail
+          rail={{
+            eyebrow: 'Browse',
+            title: 'All TanStack libraries',
+            description:
+              'Filter by framework and compare the full set of public packages.',
+            item: allLibrariesItem,
+          }}
+          onNavigate={onNavigate}
+          variant={variant}
+        />
+      ) : null}
     </div>
   )
 }
@@ -1265,15 +1330,21 @@ function LibraryMenuGroup({
       )}
     >
       <div className="mb-1.5 px-1">
-        <Link
-          to="/stack/$category"
-          params={{ category: categorySlug }}
-          onClick={onNavigate}
-          className="inline-flex rounded px-1 py-0.5 text-xs font-black uppercase text-gray-500 hover:bg-gray-500/10 hover:text-gray-950 focus:bg-gray-500/10 focus:text-gray-950 focus:outline-none dark:text-gray-400 dark:hover:text-white dark:focus:text-white"
-          preload="intent"
-        >
-          {group.label}
-        </Link>
+        {variant === 'desktop' ? (
+          <Link
+            to="/stack/$category"
+            params={{ category: categorySlug }}
+            onClick={onNavigate}
+            className="inline-flex rounded px-1 py-0.5 text-xs font-black uppercase text-gray-500 hover:bg-gray-500/10 hover:text-gray-950 focus:bg-gray-500/10 focus:text-gray-950 focus:outline-none dark:text-gray-400 dark:hover:text-white dark:focus:text-white"
+            preload="intent"
+          >
+            {group.label}
+          </Link>
+        ) : (
+          <div className="px-1 py-0.5 text-xs font-black uppercase text-gray-500 dark:text-gray-400">
+            {group.label}
+          </div>
+        )}
       </div>
       <div className="grid gap-0.5">
         {group.libraries.map((library) => (
@@ -1506,7 +1577,7 @@ function SocialStack() {
           type="button"
           aria-label="TanStack social channels"
           title="Social channels"
-          className="inline-flex h-9 items-center pl-1 pr-2"
+          className="inline-flex h-9 items-center px-0"
         >
           <span className="relative inline-flex items-center">
             {stackTop.map(({ label, Icon }, i) => (

@@ -857,7 +857,16 @@ export function DocsLayout({
     const groupContent = (
       <>
         {group.collapsible ? (
-          <summary className="text-[.8em] font-bold leading-4 px-2 ts-sidebar-label">
+          <summary
+            className="text-[.8em] font-bold leading-4 px-2 ts-sidebar-label"
+            onClick={(event) => {
+              event.preventDefault()
+              setOpenGroups((prev) => ({
+                ...prev,
+                [groupKey]: !(prev[groupKey] ?? false),
+              }))
+            }}
+          >
             {group.label}
           </summary>
         ) : (
@@ -1013,14 +1022,6 @@ export function DocsLayout({
         key={`group-${i}`}
         className="[&>summary]:before:mr-1 [&>summary]:marker:text-[0.8em] [&>summary]:marker:leading-4 relative select-none"
         open={openGroups[groupKey] ?? false}
-        onToggle={(event) => {
-          const nextOpen = event.currentTarget.open
-          setOpenGroups((prev) =>
-            prev[groupKey] === nextOpen
-              ? prev
-              : { ...prev, [groupKey]: nextOpen },
-          )
-        }}
       >
         {groupContent}
       </details>

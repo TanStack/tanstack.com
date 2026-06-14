@@ -26,6 +26,3 @@ allowBuilds:
   # sentry
   '@sentry/cli': false
   '@fingerprintjs/fingerprintjs-pro-react': false
-
-patchedDependencies:
-  '@tanstack/redact@0.0.12': patches/@tanstack__redact@0.0.12.patch

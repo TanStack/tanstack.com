@@ -5,6 +5,7 @@ import {
   githubContentCache,
   type GithubContentCache,
 } from '~/db/schema'
+import { isValidRepoPath, MAX_REPO_PATH_LENGTH } from './repo-path'
 
 const POSITIVE_STALE_MS = 5 * 60 * 1000
 const NEGATIVE_STALE_MS = 15 * 60 * 1000
@@ -21,11 +22,9 @@ const REPO_PATTERN = /^[a-zA-Z0-9._-]+\/[a-zA-Z0-9._-]+$/
 // we actually publish from (branch names + tags). No spaces, no shell
 // metacharacters, no path traversal.
 const GIT_REF_PATTERN = /^[a-zA-Z0-9._/-]+$/
-const PATH_SEGMENT_PATTERN = /^[a-zA-Z0-9._-]+$/
 
 const MAX_REPO_LEN = 100
 const MAX_GIT_REF_LEN = 100
-const MAX_PATH_LEN = 512
 
 export class InvalidCacheKeyError extends Error {
   constructor(field: string, value: string) {
@@ -65,23 +64,12 @@ function assertValidContentPath(path: string) {
     return
   }
 
-  if (path.length > MAX_PATH_LEN) {
+  if (path.length > MAX_REPO_PATH_LENGTH) {
     throw new InvalidCacheKeyError('path', path)
   }
 
-  if (
-    path.startsWith('/') ||
-    path.endsWith('/') ||
-    path.includes('//') ||
-    path.includes('..')
-  ) {
+  if (!isValidRepoPath(path)) {
     throw new InvalidCacheKeyError('path', path)
-  }
-
-  for (const segment of path.split('/')) {
-    if (!PATH_SEGMENT_PATTERN.test(segment)) {
-      throw new InvalidCacheKeyError('path', path)
-    }
   }
 }
 

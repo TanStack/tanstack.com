@@ -14,9 +14,12 @@ import os from 'node:os'
 import path from 'node:path'
 
 const isDev = process.env.NODE_ENV !== 'production'
+const shouldUseRedact = process.env.DISABLE_REDACT !== 'true'
 const shouldUseSentryPlugin =
   process.env.NODE_ENV === 'production' &&
   Boolean(process.env.SENTRY_AUTH_TOKEN)
+const shouldBuildSourcemaps =
+  shouldUseSentryPlugin || process.env.BUILD_SOURCEMAPS === 'true'
 
 const rscSsrExternals = [
   // OpenTelemetry uses require-in-the-middle which is CJS-only and breaks
@@ -75,6 +78,14 @@ const useSyncExternalStoreShimIndexAlias = {
   replacement: '@tanstack/redact',
 }
 
+// These browser-facing packages are imported by RSC assets. Bundle them into
+// server output so Netlify's Node runtime never loads their raw package entries.
+const serverBundledClientPackages = [
+  ...(shouldUseRedact ? ['@tanstack/redact'] : []),
+  '@kapaai/react-sdk',
+  /^@fingerprintjs\//,
+]
+
 export default defineConfig({
   envDir,
   resolve: {
@@ -83,11 +94,17 @@ export default defineConfig({
         find: '~',
         replacement: path.resolve(__dirname, './src'),
       },
-      useSyncExternalStoreShimIndexAlias,
-      ...Object.entries(serverVariantAliases).map(([find, replacement]) => ({
-        find,
-        replacement,
-      })),
+      ...(shouldUseRedact
+        ? [
+            useSyncExternalStoreShimIndexAlias,
+            ...Object.entries(serverVariantAliases).map(
+              ([find, replacement]) => ({
+                find,
+                replacement,
+              }),
+            ),
+          ]
+        : []),
     ],
   },
   server: {
@@ -107,6 +124,7 @@ export default defineConfig({
   environments: {
     rsc: {
       resolve: {
+        noExternal: serverBundledClientPackages,
         external: [
           '@tanstack/react-start-server',
           '@tanstack/react-router/ssr/server',
@@ -115,6 +133,7 @@ export default defineConfig({
     },
     ssr: {
       resolve: {
+        noExternal: serverBundledClientPackages,
         external: [
           ...rscSsrExternals,
           ...sentrySsrExternals,
@@ -140,6 +159,7 @@ export default defineConfig({
       'normalize-wheel',
       '@tanstack/react-hotkeys',
       '@webcontainer/api',
+      ...serverBundledClientPackages,
     ],
   },
   optimizeDeps: {
@@ -164,7 +184,8 @@ export default defineConfig({
     ],
   },
   build: {
-    sourcemap: process.env.NODE_ENV === 'production',
+    sourcemap: shouldBuildSourcemaps,
+    reportCompressedSize: false,
     rollupOptions: {
       external: (id) => {
         // Externalize postgres from client bundle
@@ -227,7 +248,7 @@ export default defineConfig({
     },
   },
   plugins: [
-    redact(),
+    ...(shouldUseRedact ? [redact()] : []),
     ...(isDev
       ? [
           tanstackDevtools({

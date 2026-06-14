@@ -8,6 +8,9 @@ const LazyNavbarAuthControls = React.lazy(() =>
     default: m.NavbarAuthControls,
   })),
 )
+const LazyAiDock = React.lazy(() =>
+  import('./SearchModal').then((m) => ({ default: m.AiDock })),
+)
 import { NavbarCartButton } from './NavbarCartButton'
 import { Link, useLocation, useMatches } from '@tanstack/react-router'
 import { NetlifyImage } from './NetlifyImage'
@@ -29,9 +32,10 @@ import {
   Sparkles,
 } from 'lucide-react'
 import { ThemeToggle } from './ThemeToggle'
-import { SearchButton } from './SearchButton'
+import { AiDockButton, SearchButton } from './SearchButton'
 import { libraries, SIDEBAR_LIBRARY_IDS, type LibrarySlim } from '~/libraries'
 import { useClickOutside } from '~/hooks/useClickOutside'
+import { useSearchContext } from '~/contexts/SearchContext'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import {
   Dropdown,
@@ -136,6 +140,27 @@ const MobileCard = ({
     {children}
   </Card>
 )
+
+function AiDockMount() {
+  const { isAiDockOpen } = useSearchContext()
+  const [hasActivated, setHasActivated] = React.useState(isAiDockOpen)
+
+  React.useEffect(() => {
+    if (isAiDockOpen) {
+      setHasActivated(true)
+    }
+  }, [isAiDockOpen])
+
+  if (!hasActivated && !isAiDockOpen) {
+    return null
+  }
+
+  return (
+    <React.Suspense fallback={null}>
+      <LazyAiDock />
+    </React.Suspense>
+  )
+}
 
 export function Navbar({ children }: { children: React.ReactNode }) {
   const matches = useMatches()
@@ -265,11 +290,12 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       </div>
       <div className="flex items-center gap-1.5 sm:gap-2">
         <div className="hidden min-[750px]:block">{socialLinks}</div>
-        <div className="hidden sm:block">
-          <SearchButton />
-        </div>
         <ThemeToggle />
+        <div className="hidden sm:block">
+          <SearchButton iconOnly />
+        </div>
         <NavbarCartButton />
+        <AiDockButton />
         <div className="flex items-center gap-2">
           {canLoadAuthControls ? (
             <React.Suspense fallback={loginButtonFallback}>
@@ -747,6 +773,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           {children}
         </div>
       </div>
+      <AiDockMount />
     </>
   )
 }

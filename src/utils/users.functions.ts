@@ -1,7 +1,8 @@
 import { createServerFn } from '@tanstack/react-start'
 import * as v from 'valibot'
-import type { Capability } from '~/db/types'
+import { SIGNUP_SOURCES, type Capability } from '~/db/types'
 import {
+  addUserSignupSource as addUserSignupSourceServer,
   adminSetAdsDisabled as adminSetAdsDisabledServer,
   bulkUpdateUserCapabilities as bulkUpdateUserCapabilitiesServer,
   getUser as getUserServer,
@@ -100,6 +101,10 @@ export const bulkUpdateUserCapabilities = createServerFn({ method: 'POST' })
 export const setInterestedInHidingAds = createServerFn({ method: 'POST' })
   .inputValidator(v.object({ interested: v.boolean() }))
   .handler(async ({ data }) => setInterestedInHidingAdsServer({ data }))
+
+export const addUserSignupSource = createServerFn({ method: 'POST' })
+  .inputValidator(v.object({ source: v.picklist(SIGNUP_SOURCES) }))
+  .handler(async ({ data }) => addUserSignupSourceServer({ data }))
 
 export const revertProfileImage = createServerFn({ method: 'POST' }).handler(
   async () => revertProfileImageServer(),

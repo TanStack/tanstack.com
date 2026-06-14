@@ -73,15 +73,15 @@ export function HomeCommunityFallback() {
   )
 }
 
-export function HomeBytesFallback() {
+export function HomeNewsletterFallback() {
   return (
     <div className="px-4 mx-auto max-w-(--breakpoint-lg) relative min-h-[330px] md:min-h-[360px]">
       <Card className="rounded-md p-8 min-h-[250px] animate-pulse">
         <div className="h-8 w-64 rounded bg-gray-200 dark:bg-gray-700" />
         <div className="mt-2 h-5 w-56 rounded bg-gray-100 dark:bg-gray-800" />
-        <div className="mt-6 grid grid-cols-3 gap-2">
-          <div className="col-span-2 h-12 rounded bg-gray-100 dark:bg-gray-800" />
+        <div className="mt-6 grid max-w-sm gap-2">
           <div className="h-12 rounded bg-gray-200 dark:bg-gray-700" />
+          <div className="h-4 w-56 rounded bg-gray-100 dark:bg-gray-800" />
         </div>
       </Card>
       <div className="h-20" />

@@ -18,8 +18,8 @@ import { Card } from '~/components/Card'
 import { HomeApplicationStarter } from '~/components/home/HomeApplicationStarter'
 import { HomeDeferredSection } from '~/components/home/HomeDeferredSection'
 import {
-  HomeBytesFallback,
   HomeCommunityFallback,
+  HomeNewsletterFallback,
   HomeSocialProofFallback,
   HomeStatsFallback,
 } from '~/components/home/HomeSectionFallbacks'
@@ -50,11 +50,12 @@ const LazyHomeCommunitySection = React.lazy(() =>
   })),
 )
 
-const loadHomeBytesSection = () => import('~/components/home/HomeBytesSection')
+const loadHomeNewsletterSection = () =>
+  import('~/components/home/HomeNewsletterSection')
 
-const LazyHomeBytesSection = React.lazy(() =>
-  loadHomeBytesSection().then((m) => ({
-    default: m.HomeBytesSection,
+const LazyHomeNewsletterSection = React.lazy(() =>
+  loadHomeNewsletterSection().then((m) => ({
+    default: m.HomeNewsletterSection,
   })),
 )
 
@@ -81,7 +82,7 @@ function getDeferredSectionStage(hash: string) {
     return 2
   }
 
-  if (normalizedHash === 'bytes') {
+  if (normalizedHash === 'newsletter') {
     return 3
   }
 
@@ -451,11 +452,11 @@ function Index() {
         <div className="h-4" />
         <HomeDeferredSection
           forceLoad={deferredSectionStage >= 3}
-          fallback={<HomeBytesFallback />}
-          preload={loadHomeBytesSection}
+          fallback={<HomeNewsletterFallback />}
+          preload={loadHomeNewsletterSection}
           rootMargin="10%"
         >
-          <LazyHomeBytesSection />
+          <LazyHomeNewsletterSection />
         </HomeDeferredSection>
       </div>
     </>

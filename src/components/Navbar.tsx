@@ -156,17 +156,6 @@ const NAV_GROUPS = [
     label: 'Libraries',
     to: '/libraries',
     sections: [],
-    rail: {
-      eyebrow: 'Browse',
-      title: 'All TanStack libraries',
-      description:
-        'Filter the ecosystem by framework and find the right package faster.',
-      item: {
-        label: 'All Libraries',
-        to: '/libraries',
-        icon: Grid2X2,
-      },
-    },
   },
   {
     key: 'learn',

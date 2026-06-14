@@ -133,6 +133,8 @@ button {
 
 .ts-mega-trigger-wrap {
   display: inline-flex;
+  align-self: stretch;
+  align-items: center;
 }
 
 .ts-mega-trigger::after {
@@ -241,8 +243,9 @@ button {
     position: fixed;
     right: 1rem;
     left: 0;
-    top: var(--navbar-height);
+    top: calc(var(--navbar-height) - 0.625rem);
     width: auto;
+    padding-top: calc(1rem + 0.625rem);
   }
 }
 

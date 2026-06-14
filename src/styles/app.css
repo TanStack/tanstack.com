@@ -157,37 +157,6 @@ button {
   transform: scaleX(1);
 }
 
-.ts-mega-fallback {
-  position: absolute;
-  left: 0;
-  top: 100%;
-  z-index: 90;
-  display: none;
-  width: min(calc(100vw - 2rem), 70rem);
-  padding-top: 0.5rem;
-}
-
-.ts-mega-trigger-wrap:hover > .ts-mega-fallback,
-.ts-mega-trigger-wrap:focus-within > .ts-mega-fallback {
-  display: block;
-}
-
-.ts-nav-hydrated .ts-mega-trigger-wrap:hover > .ts-mega-fallback,
-.ts-nav-hydrated .ts-mega-trigger-wrap:focus-within > .ts-mega-fallback,
-.ts-nav-hydrated .ts-mega-fallback {
-  display: none;
-}
-
-@media (max-width: 1280px) {
-  .ts-mega-fallback {
-    position: fixed;
-    right: 1rem;
-    left: 1rem;
-    top: var(--navbar-height);
-    width: auto;
-  }
-}
-
 .ts-mega-panel {
   position: relative;
   isolation: isolate;
@@ -215,37 +184,8 @@ button {
   isolation: isolate;
   overflow: hidden;
   pointer-events: none;
-}
-
-.ts-mega-panel[data-open='true'] .ts-mega-bg {
-  view-transition-name: ts-mega-bg;
-}
-
-.ts-mega-bg-transitioning::view-transition-old(root),
-.ts-mega-bg-transitioning::view-transition-new(root) {
-  animation: none;
-  mix-blend-mode: normal;
-}
-
-.ts-mega-bg-transitioning::view-transition-old(root) {
-  display: none;
-}
-
-.ts-mega-bg-transitioning::view-transition-group(root) {
-  z-index: 1;
-}
-
-.ts-mega-bg-transitioning::view-transition-group(ts-mega-bg) {
-  z-index: 0;
-  animation-duration: 360ms;
-  animation-timing-function: cubic-bezier(0.42, 0, 0.18, 1);
-}
-
-.ts-mega-bg-transitioning::view-transition-old(ts-mega-bg),
-.ts-mega-bg-transitioning::view-transition-new(ts-mega-bg) {
-  animation-duration: 360ms;
-  animation-timing-function: cubic-bezier(0.42, 0, 0.18, 1);
-  mix-blend-mode: normal;
+  transform-origin: top left;
+  will-change: transform;
 }
 
 .ts-glass-menu {

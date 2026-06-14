@@ -155,7 +155,17 @@ const MEGA_MENU_MIN_ALIGNED_WIDTH = 960
 const MEGA_MENU_VIEWPORT_PADDING = 16
 const MEGA_MENU_HOVER_BRIDGE_HEIGHT = 32
 
-function runMegaMenuBgTransition(update: () => void) {
+type MegaMenuBgFlipOptions = {
+  animationRef: React.MutableRefObject<Animation | null>
+  getElement: () => HTMLElement | null
+  update: () => void
+}
+
+function runMegaMenuBgFlip({
+  animationRef,
+  getElement,
+  update,
+}: MegaMenuBgFlipOptions) {
   if (
     typeof document === 'undefined' ||
     typeof window === 'undefined' ||
@@ -165,40 +175,79 @@ function runMegaMenuBgTransition(update: () => void) {
     return
   }
 
-  const startViewTransition: unknown = Reflect.get(
-    document,
-    'startViewTransition',
-  )
+  const previousElement = getElement()
+  const previousRect = previousElement?.getBoundingClientRect()
 
-  if (typeof startViewTransition !== 'function') {
-    update()
+  animationRef.current?.cancel()
+  animationRef.current = null
+
+  flushSync(update)
+
+  if (!previousRect) {
     return
   }
 
-  const removeTransitionClass = () => {
-    document.documentElement.classList.remove('ts-mega-bg-transitioning')
+  const nextElement = getElement()
+
+  if (!nextElement) {
+    return
   }
 
-  document.documentElement.classList.add('ts-mega-bg-transitioning')
+  if (typeof nextElement.animate !== 'function') {
+    return
+  }
 
-  try {
-    const transitionResult: unknown = startViewTransition.call(document, () => {
-      flushSync(update)
-    })
-    const finished =
-      transitionResult && typeof transitionResult === 'object'
-        ? Reflect.get(transitionResult, 'finished')
-        : null
+  const nextRect = nextElement.getBoundingClientRect()
 
-    if (finished instanceof Promise) {
-      finished.finally(removeTransitionClass)
-    } else {
-      window.setTimeout(removeTransitionClass, MEGA_MENU_BG_TRANSITION_MS)
+  if (
+    previousRect.width <= 0 ||
+    previousRect.height <= 0 ||
+    nextRect.width <= 0 ||
+    nextRect.height <= 0
+  ) {
+    return
+  }
+
+  const deltaX = previousRect.left - nextRect.left
+  const deltaY = previousRect.top - nextRect.top
+  const scaleX = previousRect.width / nextRect.width
+  const scaleY = previousRect.height / nextRect.height
+
+  if (
+    Math.abs(deltaX) < 0.5 &&
+    Math.abs(deltaY) < 0.5 &&
+    Math.abs(scaleX - 1) < 0.005 &&
+    Math.abs(scaleY - 1) < 0.005
+  ) {
+    return
+  }
+
+  nextElement.style.transformOrigin = 'top left'
+
+  const animation = nextElement.animate(
+    [
+      {
+        transform: `translate3d(${deltaX}px, ${deltaY}px, 0) scale(${scaleX}, ${scaleY})`,
+      },
+      { transform: 'translate3d(0, 0, 0) scale(1, 1)' },
+    ],
+    {
+      duration: MEGA_MENU_BG_TRANSITION_MS,
+      easing: 'cubic-bezier(0.42, 0, 0.18, 1)',
+      fill: 'both',
+    },
+  )
+
+  animationRef.current = animation
+
+  const clearAnimation = () => {
+    if (animationRef.current === animation) {
+      animationRef.current = null
+      nextElement.style.transformOrigin = ''
     }
-  } catch {
-    removeTransitionClass()
-    update()
   }
+
+  animation.finished.then(clearAnimation, clearAnimation)
 }
 const LIBRARY_MENU_GROUP_IDS: readonly LibraryGroupId[] = [
   'framework',
@@ -450,6 +499,16 @@ function getMenuGroup(key: NavMenuKey) {
   return NAV_GROUPS.find((group) => group.key === key)
 }
 
+function getNavMenuKey(value: string | undefined) {
+  for (const group of NAV_GROUPS) {
+    if (group.key === value) {
+      return group.key
+    }
+  }
+
+  return null
+}
+
 function getLibraryMenuGroups() {
   return LIBRARY_MENU_GROUP_IDS.map((groupId) => {
     const groupLibraries = librariesByGroup[groupId]
@@ -500,6 +559,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   const primaryNavRef = React.useRef<HTMLElement>(null)
   const megaMenuRef = React.useRef<HTMLDivElement>(null)
   const closeTimerRef = React.useRef<number | undefined>(undefined)
+  const megaMenuBgAnimationRef = React.useRef<Animation | null>(null)
   const activeMenuKeyRef = React.useRef<NavMenuKey | null>(null)
 
   React.useEffect(() => {
@@ -531,15 +591,9 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
   const [canLoadAuthControls, setCanLoadAuthControls] = React.useState(false)
 
-  React.useEffect(() => {
-    document.documentElement.classList.add('ts-nav-hydrated')
-
-    return () => {
-      document.documentElement.classList.remove('ts-nav-hydrated')
-    }
-  }, [])
-
   const closeMegaMenu = React.useCallback(() => {
+    megaMenuBgAnimationRef.current?.cancel()
+    megaMenuBgAnimationRef.current = null
     activeMenuKeyRef.current = null
     setActiveMenuKey(null)
   }, [])
@@ -600,25 +654,50 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     })
   }, [])
 
+  const getMegaMenuBgElement = React.useCallback(
+    () => megaMenuRef.current?.querySelector<HTMLElement>('.ts-mega-bg') ?? null,
+    [],
+  )
+
   const openMegaMenu = React.useCallback(
     (key: NavMenuKey) => {
       cancelMegaMenuClose()
-      updateMegaMenuLayout()
       const previousKey = activeMenuKeyRef.current
 
       const commitOpenState = () => {
+        updateMegaMenuLayout()
         activeMenuKeyRef.current = key
         setActiveMenuKey(key)
       }
 
       if (previousKey && previousKey !== key) {
-        runMegaMenuBgTransition(commitOpenState)
+        runMegaMenuBgFlip({
+          animationRef: megaMenuBgAnimationRef,
+          getElement: getMegaMenuBgElement,
+          update: commitOpenState,
+        })
       } else {
         commitOpenState()
       }
     },
-    [cancelMegaMenuClose, updateMegaMenuLayout],
+    [cancelMegaMenuClose, getMegaMenuBgElement, updateMegaMenuLayout],
   )
+
+  React.useLayoutEffect(() => {
+    const activeWrap = primaryNavRef.current?.querySelector<HTMLElement>(
+      '.ts-mega-trigger-wrap:hover, .ts-mega-trigger-wrap:focus-within',
+    )
+    const hydratedKey = getNavMenuKey(activeWrap?.dataset.menuKey)
+
+    if (hydratedKey) {
+      cancelMegaMenuClose()
+      updateMegaMenuLayout()
+      activeMenuKeyRef.current = hydratedKey
+      setActiveMenuKey(hydratedKey)
+    }
+
+    return undefined
+  }, [cancelMegaMenuClose, updateMegaMenuLayout])
 
   React.useEffect(() => {
     if (!activeMenuKey) {
@@ -757,6 +836,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   React.useEffect(() => {
     return () => {
       cancelMegaMenuClose()
+      megaMenuBgAnimationRef.current?.cancel()
     }
   }, [cancelMegaMenuClose])
 
@@ -1013,10 +1093,11 @@ function DesktopNavTrigger({
   }
 
   return (
-    <div className="ts-mega-trigger-wrap">
+    <div className="ts-mega-trigger-wrap" data-menu-key={group.key}>
       {group.to ? (
         <Link
           to={group.to}
+          data-menu-key={group.key}
           data-open={isOpen ? 'true' : 'false'}
           className={triggerClassName}
           preload="intent"
@@ -1027,6 +1108,7 @@ function DesktopNavTrigger({
       ) : (
         <button
           type="button"
+          data-menu-key={group.key}
           data-open={isOpen ? 'true' : 'false'}
           className={triggerClassName}
           onClick={onOpen}
@@ -1035,27 +1117,6 @@ function DesktopNavTrigger({
           <span>{group.label}</span>
         </button>
       )}
-      <DesktopNavFallback group={group} />
-    </div>
-  )
-}
-
-function DesktopNavFallback({ group }: { group: NavMenuGroup }) {
-  return (
-    <div className="ts-mega-fallback">
-      <div
-        className={twMerge(
-          'ts-glass-menu rounded-xl',
-          'border border-white/45 bg-white/80 p-4 shadow-2xl shadow-black/15 backdrop-blur-2xl backdrop-saturate-150',
-          'dark:border-white/10 dark:bg-black/70 dark:shadow-black/50',
-        )}
-      >
-        <MegaMenuContent
-          group={group}
-          onNavigate={() => undefined}
-          variant="desktop"
-        />
-      </div>
     </div>
   )
 }

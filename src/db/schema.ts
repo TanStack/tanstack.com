@@ -1140,14 +1140,11 @@ export type NewIntentPackage = InferInsertModel<typeof intentPackages>
 
 // Per-version snapshot of a package's skills (latest + last 5 versions)
 //
-// syncStatus acts as a durable work queue:
+// syncStatus tracks domain progress for each discovered package version:
 //   'pending'  -- version discovered, tarball not yet downloaded/extracted
 //   'synced'   -- skills extracted and indexed successfully
 //   'failed'   -- tarball processing failed (will be retried next cycle)
-//
-// This means the scheduled function can be interrupted at any point and
-// resume from where it left off. Only the currently in-flight version is
-// at risk of being re-processed on restart (upserts make that safe).
+// Workflow run/step replay lives in the Workflow Postgres store, not here.
 export const intentPackageVersions = pgTable(
   'intent_package_versions',
   {

@@ -75,14 +75,16 @@ export async function getKnownVersions(
 
 // Pull up to `limit` pending versions ordered by createdAt (FIFO queue).
 // Also includes 'failed' rows so they get retried each cycle.
-export async function getPendingVersions(limit: number): Promise<
-  Array<{
-    id: number
-    packageName: string
-    version: string
-    tarballUrl: string | null
-  }>
-> {
+export interface PendingIntentVersion {
+  id: number
+  packageName: string
+  version: string
+  tarballUrl: string | null
+}
+
+export async function getPendingVersions(
+  limit: number,
+): Promise<Array<PendingIntentVersion>> {
   return db
     .select({
       id: intentPackageVersions.id,
@@ -94,6 +96,30 @@ export async function getPendingVersions(limit: number): Promise<
     .where(inArray(intentPackageVersions.syncStatus, ['pending', 'failed']))
     .orderBy(intentPackageVersions.createdAt)
     .limit(limit)
+}
+
+export interface IntentVersionForProcessing extends PendingIntentVersion {
+  syncStatus: string
+  skillCount: number
+}
+
+export async function getVersionForProcessing(
+  id: number,
+): Promise<IntentVersionForProcessing | undefined> {
+  const rows = await db
+    .select({
+      id: intentPackageVersions.id,
+      packageName: intentPackageVersions.packageName,
+      version: intentPackageVersions.version,
+      tarballUrl: intentPackageVersions.tarballUrl,
+      syncStatus: intentPackageVersions.syncStatus,
+      skillCount: intentPackageVersions.skillCount,
+    })
+    .from(intentPackageVersions)
+    .where(eq(intentPackageVersions.id, id))
+    .limit(1)
+
+  return rows[0]
 }
 
 export async function getSkillsForVersion(

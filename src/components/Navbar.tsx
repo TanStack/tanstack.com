@@ -1379,7 +1379,7 @@ function LibraryMenuItem({
       >
         <span
           className={twMerge(
-            'h-4 w-3.5 shrink-0 rounded border border-white/50',
+            'h-4 w-3.5 shrink-0 rounded-[5px] border border-white/50',
             library.bgStyle,
           )}
         />

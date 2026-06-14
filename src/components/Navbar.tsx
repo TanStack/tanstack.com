@@ -684,7 +684,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
 
 function DesktopNavTrigger({ group }: { group: NavMenuGroup }) {
   const triggerClassName = twMerge(
-    'ts-mega-trigger inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium',
+    'ts-mega-trigger inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-[13px] font-medium',
     'text-gray-700 transition-colors hover:bg-gray-500/10 hover:text-gray-950',
     'dark:text-gray-300 dark:hover:text-white',
   )

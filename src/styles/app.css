@@ -142,7 +142,7 @@ button {
   bottom: 0.3rem;
   left: 0.625rem;
   height: 1px;
-  background: currentColor;
+  background: currentcolor;
   opacity: 0.35;
   transform: scaleX(0);
   transform-origin: left;

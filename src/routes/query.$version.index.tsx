@@ -25,9 +25,7 @@ export const Route = createFileRoute('/query/$version/')({
 })
 
 function QueryNavbarTitle() {
-  const { version } = Route.useParams()
-
-  return <LibraryNavbarTitle libraryId="query" version={version} />
+  return <LibraryNavbarTitle libraryId="query" />
 }
 
 function QueryLandingRoute() {

@@ -26,9 +26,7 @@ export const Route = createFileRoute('/workflow/$version/')({
 })
 
 function WorkflowNavbarTitle() {
-  const { version } = Route.useParams()
-
-  return <LibraryNavbarTitle libraryId="workflow" version={version} />
+  return <LibraryNavbarTitle libraryId="workflow" />
 }
 
 function WorkflowLandingRoute() {

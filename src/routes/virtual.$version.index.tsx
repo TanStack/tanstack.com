@@ -26,9 +26,7 @@ export const Route = createFileRoute('/virtual/$version/')({
 })
 
 function VirtualNavbarTitle() {
-  const { version } = Route.useParams()
-
-  return <LibraryNavbarTitle libraryId="virtual" version={version} />
+  return <LibraryNavbarTitle libraryId="virtual" />
 }
 
 function VirtualLandingRoute() {

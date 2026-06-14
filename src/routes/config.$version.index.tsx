@@ -25,9 +25,7 @@ export const Route = createFileRoute('/config/$version/')({
 })
 
 function ConfigNavbarTitle() {
-  const { version } = Route.useParams()
-
-  return <LibraryNavbarTitle libraryId="config" version={version} />
+  return <LibraryNavbarTitle libraryId="config" />
 }
 
 function ConfigLandingRoute() {

@@ -117,7 +117,6 @@ export function LibraryNavbarTitle({
   libraryId,
 }: {
   libraryId: LandingLibraryId
-  version: string
 }) {
   const library = getLibrary(libraryId)
   const libraryName = library.name.replace('TanStack ', '')

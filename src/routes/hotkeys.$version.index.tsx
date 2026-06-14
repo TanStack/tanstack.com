@@ -26,9 +26,7 @@ export const Route = createFileRoute('/hotkeys/$version/')({
 })
 
 function HotkeysNavbarTitle() {
-  const { version } = Route.useParams()
-
-  return <LibraryNavbarTitle libraryId="hotkeys" version={version} />
+  return <LibraryNavbarTitle libraryId="hotkeys" />
 }
 
 function HotkeysLandingRoute() {

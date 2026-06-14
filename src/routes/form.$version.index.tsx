@@ -25,9 +25,7 @@ export const Route = createFileRoute('/form/$version/')({
 })
 
 function FormNavbarTitle() {
-  const { version } = Route.useParams()
-
-  return <LibraryNavbarTitle libraryId="form" version={version} />
+  return <LibraryNavbarTitle libraryId="form" />
 }
 
 function FormLandingRoute() {

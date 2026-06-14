@@ -25,9 +25,7 @@ export const Route = createFileRoute('/ai/$version/')({
 })
 
 function AiNavbarTitle() {
-  const { version } = Route.useParams()
-
-  return <LibraryNavbarTitle libraryId="ai" version={version} />
+  return <LibraryNavbarTitle libraryId="ai" />
 }
 
 function AiLandingRoute() {

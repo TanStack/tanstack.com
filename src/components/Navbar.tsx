@@ -24,8 +24,10 @@ import {
   HelpCircle,
   Mail,
   Menu,
+  Minus,
   Newspaper,
   Paintbrush,
+  Plus,
   ShieldCheck,
   Shirt,
   Sparkles,
@@ -159,7 +161,6 @@ const DESKTOP_NAV_CLASS = 'hidden min-[1024px]:flex'
 const MOBILE_NAV_CLASS = 'min-[1024px]:hidden'
 const CLOSE_DELAY_MS = 140
 const MEGA_MENU_TRANSITION_MS = 400
-const MEGA_MENU_PANEL_CLOSE_MS = 180
 const MEGA_MENU_MAX_WIDTH = 1120
 const MEGA_MENU_MIN_ALIGNED_WIDTH = 960
 const MEGA_MENU_VIEWPORT_PADDING = 16
@@ -924,8 +925,6 @@ function DesktopNavTrigger({
       {group.to ? (
         <Link
           to={group.to}
-          aria-expanded={isOpen}
-          aria-haspopup="menu"
           data-open={isOpen ? 'true' : 'false'}
           className={triggerClassName}
           preload="intent"
@@ -936,8 +935,6 @@ function DesktopNavTrigger({
       ) : (
         <button
           type="button"
-          aria-expanded={isOpen}
-          aria-haspopup="menu"
           data-open={isOpen ? 'true' : 'false'}
           className={triggerClassName}
           onClick={onOpen}
@@ -982,15 +979,46 @@ function MobileMenuGroup({
     <Collapsible className="overflow-hidden rounded-lg border border-gray-500/10 bg-white/35 dark:border-white/10 dark:bg-white/[0.03]">
       {({ open }) => (
         <>
-          <CollapsibleTrigger
-            className={twMerge(
-              'flex w-full items-center px-3 py-3 text-left font-black text-gray-800',
-              'hover:text-gray-950 dark:text-gray-200 dark:hover:text-white',
-              open && 'text-gray-950 dark:text-white',
-            )}
-          >
-            {group.label}
-          </CollapsibleTrigger>
+          {group.to ? (
+            <div className="flex items-center">
+              <Link
+                to={group.to}
+                onClick={onNavigate}
+                className={twMerge(
+                  'min-w-0 flex-1 px-3 py-3 text-left font-black text-gray-800',
+                  'hover:text-gray-950 focus:outline-none dark:text-gray-200 dark:hover:text-white',
+                  open && 'text-gray-950 dark:text-white',
+                )}
+                preload="intent"
+              >
+                {group.label}
+              </Link>
+              <CollapsibleTrigger
+                aria-label={`${open ? 'Collapse' : 'Expand'} ${group.label}`}
+                className={twMerge(
+                  'mr-1 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-gray-600',
+                  'hover:bg-gray-500/10 hover:text-gray-950 focus:bg-gray-500/10 focus:text-gray-950 focus:outline-none',
+                  'dark:text-gray-300 dark:hover:text-white dark:focus:text-white',
+                )}
+              >
+                {open ? (
+                  <Minus className="h-4 w-4" />
+                ) : (
+                  <Plus className="h-4 w-4" />
+                )}
+              </CollapsibleTrigger>
+            </div>
+          ) : (
+            <CollapsibleTrigger
+              className={twMerge(
+                'flex w-full items-center px-3 py-3 text-left font-black text-gray-800',
+                'hover:text-gray-950 dark:text-gray-200 dark:hover:text-white',
+                open && 'text-gray-950 dark:text-white',
+              )}
+            >
+              {group.label}
+            </CollapsibleTrigger>
+          )}
           <CollapsibleContent className="border-t border-gray-500/10 motion-reduce:transition-none dark:border-white/10">
             <div className="px-2 pb-3 pt-1">
               <MegaMenuContent
@@ -1022,13 +1050,8 @@ function MegaMenuContentTransition({
   React.useLayoutEffect(() => {
     if (activeKey === null) {
       previousActiveRef.current = null
-      const timeoutId = window.setTimeout(() => {
-        setPanes([])
-      }, MEGA_MENU_PANEL_CLOSE_MS)
-
-      return () => {
-        window.clearTimeout(timeoutId)
-      }
+      setPanes([])
+      return
     }
 
     const previousActive = previousActiveRef.current

@@ -1,5 +1,4 @@
 import * as React from 'react'
-import { flushSync } from 'react-dom'
 import { twMerge } from 'tailwind-merge'
 const LazyBrandContextMenu = React.lazy(() =>
   import('./BrandContextMenu').then((m) => ({ default: m.BrandContextMenu })),
@@ -108,11 +107,6 @@ type NavMenuKey =
   | 'merch'
   | 'support'
 
-type MegaMenuLayout = {
-  left: number
-  width: number
-}
-
 type NavMenuItem = {
   label: string
   to: string
@@ -148,107 +142,6 @@ type LibraryGroupId = keyof typeof librariesByGroup
 
 const DESKTOP_NAV_CLASS = 'hidden min-[960px]:flex'
 const MOBILE_NAV_CLASS = 'min-[960px]:hidden'
-const CLOSE_DELAY_MS = 140
-const MEGA_MENU_BG_TRANSITION_MS = 360
-const MEGA_MENU_MAX_WIDTH = 1120
-const MEGA_MENU_MIN_ALIGNED_WIDTH = 960
-const MEGA_MENU_VIEWPORT_PADDING = 16
-const MEGA_MENU_HOVER_BRIDGE_HEIGHT = 32
-
-type MegaMenuBgFlipOptions = {
-  animationRef: React.MutableRefObject<Animation | null>
-  getElement: () => HTMLElement | null
-  update: () => void
-}
-
-function runMegaMenuBgFlip({
-  animationRef,
-  getElement,
-  update,
-}: MegaMenuBgFlipOptions) {
-  if (
-    typeof document === 'undefined' ||
-    typeof window === 'undefined' ||
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  ) {
-    update()
-    return
-  }
-
-  const previousElement = getElement()
-  const previousRect = previousElement?.getBoundingClientRect()
-
-  animationRef.current?.cancel()
-  animationRef.current = null
-
-  flushSync(update)
-
-  if (!previousRect) {
-    return
-  }
-
-  const nextElement = getElement()
-
-  if (!nextElement) {
-    return
-  }
-
-  if (typeof nextElement.animate !== 'function') {
-    return
-  }
-
-  const nextRect = nextElement.getBoundingClientRect()
-
-  if (
-    previousRect.width <= 0 ||
-    previousRect.height <= 0 ||
-    nextRect.width <= 0 ||
-    nextRect.height <= 0
-  ) {
-    return
-  }
-
-  const deltaX = previousRect.left - nextRect.left
-  const deltaY = previousRect.top - nextRect.top
-  const scaleX = previousRect.width / nextRect.width
-  const scaleY = previousRect.height / nextRect.height
-
-  if (
-    Math.abs(deltaX) < 0.5 &&
-    Math.abs(deltaY) < 0.5 &&
-    Math.abs(scaleX - 1) < 0.005 &&
-    Math.abs(scaleY - 1) < 0.005
-  ) {
-    return
-  }
-
-  nextElement.style.transformOrigin = 'top left'
-
-  const animation = nextElement.animate(
-    [
-      {
-        transform: `translate3d(${deltaX}px, ${deltaY}px, 0) scale(${scaleX}, ${scaleY})`,
-      },
-      { transform: 'translate3d(0, 0, 0) scale(1, 1)' },
-    ],
-    {
-      duration: MEGA_MENU_BG_TRANSITION_MS,
-      easing: 'cubic-bezier(0.42, 0, 0.18, 1)',
-      fill: 'both',
-    },
-  )
-
-  animationRef.current = animation
-
-  const clearAnimation = () => {
-    if (animationRef.current === animation) {
-      animationRef.current = null
-      nextElement.style.transformOrigin = ''
-    }
-  }
-
-  animation.finished.then(clearAnimation, clearAnimation)
-}
 const LIBRARY_MENU_GROUP_IDS: readonly LibraryGroupId[] = [
   'framework',
   'state',
@@ -495,20 +388,6 @@ function getLibraryDocsTo(library: NavigationLibrary) {
   return `${library.to}/latest/docs`
 }
 
-function getMenuGroup(key: NavMenuKey) {
-  return NAV_GROUPS.find((group) => group.key === key)
-}
-
-function getNavMenuKey(value: string | undefined) {
-  for (const group of NAV_GROUPS) {
-    if (group.key === value) {
-      return group.key
-    }
-  }
-
-  return null
-}
-
 function getLibraryMenuGroups() {
   return LIBRARY_MENU_GROUP_IDS.map((groupId) => {
     const groupLibraries = librariesByGroup[groupId]
@@ -556,11 +435,6 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   }, [matches])
 
   const containerRef = React.useRef<HTMLDivElement>(null)
-  const primaryNavRef = React.useRef<HTMLElement>(null)
-  const megaMenuRef = React.useRef<HTMLDivElement>(null)
-  const closeTimerRef = React.useRef<number | undefined>(undefined)
-  const megaMenuBgAnimationRef = React.useRef<Animation | null>(null)
-  const activeMenuKeyRef = React.useRef<NavMenuKey | null>(null)
 
   React.useEffect(() => {
     const updateContainerHeight = () => {
@@ -581,189 +455,12 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  const [activeMenuKey, setActiveMenuKey] = React.useState<NavMenuKey | null>(
-    null,
-  )
-  const [megaMenuLayout, setMegaMenuLayout] = React.useState<MegaMenuLayout>({
-    left: MEGA_MENU_VIEWPORT_PADDING,
-    width: MEGA_MENU_MAX_WIDTH,
-  })
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
   const [canLoadAuthControls, setCanLoadAuthControls] = React.useState(false)
 
-  const closeMegaMenu = React.useCallback(() => {
-    megaMenuBgAnimationRef.current?.cancel()
-    megaMenuBgAnimationRef.current = null
-    activeMenuKeyRef.current = null
-    setActiveMenuKey(null)
-  }, [])
-
-  const cancelMegaMenuClose = React.useCallback(() => {
-    if (closeTimerRef.current !== undefined) {
-      window.clearTimeout(closeTimerRef.current)
-      closeTimerRef.current = undefined
-    }
-  }, [])
-
-  const scheduleMegaMenuClose = React.useCallback(() => {
-    cancelMegaMenuClose()
-    closeTimerRef.current = window.setTimeout(() => {
-      closeMegaMenu()
-    }, CLOSE_DELAY_MS)
-  }, [cancelMegaMenuClose, closeMegaMenu])
-
-  const updateMegaMenuLayout = React.useCallback(() => {
-    if (typeof window === 'undefined') {
-      return
-    }
-
-    const trigger =
-      primaryNavRef.current?.querySelector<HTMLElement>('.ts-mega-trigger')
-    const viewportWidth = window.innerWidth
-    const availableWidth = Math.max(
-      0,
-      viewportWidth - MEGA_MENU_VIEWPORT_PADDING * 2,
-    )
-    const triggerLeft = Math.round(
-      trigger?.getBoundingClientRect().left ?? MEGA_MENU_VIEWPORT_PADDING,
-    )
-    const alignedWidth = Math.min(
-      MEGA_MENU_MAX_WIDTH,
-      Math.max(0, viewportWidth - triggerLeft - MEGA_MENU_VIEWPORT_PADDING),
-    )
-    const nextLayout =
-      alignedWidth >= MEGA_MENU_MIN_ALIGNED_WIDTH
-        ? {
-            left: triggerLeft,
-            width: alignedWidth,
-          }
-        : {
-            left: MEGA_MENU_VIEWPORT_PADDING,
-            width: availableWidth,
-          }
-
-    setMegaMenuLayout((previousLayout) => {
-      if (
-        previousLayout.left === nextLayout.left &&
-        previousLayout.width === nextLayout.width
-      ) {
-        return previousLayout
-      }
-
-      return nextLayout
-    })
-  }, [])
-
-  const getMegaMenuBgElement = React.useCallback(
-    () =>
-      megaMenuRef.current?.querySelector<HTMLElement>('.ts-mega-bg') ?? null,
-    [],
-  )
-
-  const openMegaMenu = React.useCallback(
-    (key: NavMenuKey) => {
-      cancelMegaMenuClose()
-      const previousKey = activeMenuKeyRef.current
-
-      const commitOpenState = () => {
-        updateMegaMenuLayout()
-        activeMenuKeyRef.current = key
-        setActiveMenuKey(key)
-      }
-
-      if (previousKey && previousKey !== key) {
-        runMegaMenuBgFlip({
-          animationRef: megaMenuBgAnimationRef,
-          getElement: getMegaMenuBgElement,
-          update: commitOpenState,
-        })
-      } else {
-        commitOpenState()
-      }
-    },
-    [cancelMegaMenuClose, getMegaMenuBgElement, updateMegaMenuLayout],
-  )
-
-  React.useLayoutEffect(() => {
-    const activeWrap = primaryNavRef.current?.querySelector<HTMLElement>(
-      '.ts-mega-trigger-wrap:hover, .ts-mega-trigger-wrap:focus-within',
-    )
-    const hydratedKey = getNavMenuKey(activeWrap?.dataset.menuKey)
-
-    if (hydratedKey) {
-      cancelMegaMenuClose()
-      updateMegaMenuLayout()
-      activeMenuKeyRef.current = hydratedKey
-      setActiveMenuKey(hydratedKey)
-    }
-
-    return undefined
-  }, [cancelMegaMenuClose, updateMegaMenuLayout])
-
   React.useEffect(() => {
-    if (!activeMenuKey) {
-      return
-    }
-
-    updateMegaMenuLayout()
-    window.addEventListener('resize', updateMegaMenuLayout)
-
-    return () => {
-      window.removeEventListener('resize', updateMegaMenuLayout)
-    }
-  }, [activeMenuKey, updateMegaMenuLayout])
-
-  React.useEffect(() => {
-    if (!activeMenuKey) {
-      return
-    }
-
-    const onPointerMove = (event: PointerEvent) => {
-      if (event.pointerType === 'touch') {
-        return
-      }
-
-      const target = event.target
-
-      if (
-        target instanceof Node &&
-        (containerRef.current?.contains(target) ||
-          megaMenuRef.current?.contains(target))
-      ) {
-        cancelMegaMenuClose()
-        return
-      }
-
-      const panel =
-        megaMenuRef.current?.querySelector<HTMLElement>('.ts-mega-panel')
-
-      if (!panel) {
-        return
-      }
-
-      const rect = panel.getBoundingClientRect()
-      const withinPanelX =
-        event.clientX >= rect.left && event.clientX <= rect.right
-      const withinPanelOrBridgeY =
-        event.clientY >= rect.top - MEGA_MENU_HOVER_BRIDGE_HEIGHT &&
-        event.clientY <= rect.bottom
-
-      if (withinPanelX && withinPanelOrBridgeY) {
-        cancelMegaMenuClose()
-      }
-    }
-
-    document.addEventListener('pointermove', onPointerMove)
-
-    return () => {
-      document.removeEventListener('pointermove', onPointerMove)
-    }
-  }, [activeMenuKey, cancelMegaMenuClose])
-
-  React.useEffect(() => {
-    closeMegaMenu()
     setMobileMenuOpen(false)
-  }, [closeMegaMenu, location.pathname, location.hash])
+  }, [location.pathname, location.hash])
 
   React.useEffect(() => {
     if (typeof window === 'undefined') {
@@ -793,53 +490,22 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   }, [])
 
   React.useEffect(() => {
-    if (!activeMenuKey && !mobileMenuOpen) {
+    if (!mobileMenuOpen) {
       return
     }
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        closeMegaMenu()
         setMobileMenuOpen(false)
       }
     }
 
-    const onPointerDown = (event: PointerEvent) => {
-      if (!activeMenuKey) {
-        return
-      }
-
-      const target = event.target
-
-      if (!(target instanceof Node)) {
-        return
-      }
-
-      if (
-        containerRef.current?.contains(target) ||
-        megaMenuRef.current?.contains(target)
-      ) {
-        return
-      }
-
-      closeMegaMenu()
-    }
-
     document.addEventListener('keydown', onKeyDown)
-    document.addEventListener('pointerdown', onPointerDown)
 
     return () => {
       document.removeEventListener('keydown', onKeyDown)
-      document.removeEventListener('pointerdown', onPointerDown)
     }
-  }, [activeMenuKey, closeMegaMenu, mobileMenuOpen])
-
-  React.useEffect(() => {
-    return () => {
-      cancelMegaMenuClose()
-      megaMenuBgAnimationRef.current?.cancel()
-    }
-  }, [cancelMegaMenuClose])
+  }, [mobileMenuOpen])
 
   const getLoginButtonFallback = (className?: string) => (
     <Link
@@ -867,7 +533,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     )
 
   const socialLinks = <SocialStack />
-  const siteBackdropActive = Boolean(activeMenuKey || mobileMenuOpen)
+  const siteBackdropActive = mobileMenuOpen
 
   const navbar = (
     <div
@@ -895,25 +561,14 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         </div>
 
         <nav
-          ref={primaryNavRef}
           aria-label="Primary navigation"
           className={twMerge(
             DESKTOP_NAV_CLASS,
             'relative shrink-0 items-center gap-1',
           )}
-          onPointerEnter={cancelMegaMenuClose}
-          onPointerLeave={(event) => {
-            if (event.pointerType === 'touch') return
-            scheduleMegaMenuClose()
-          }}
         >
           {NAV_GROUPS.map((group) => (
-            <DesktopNavTrigger
-              key={group.key}
-              group={group}
-              isOpen={activeMenuKey === group.key}
-              onOpen={() => openMegaMenu(group.key)}
-            />
+            <DesktopNavTrigger key={group.key} group={group} />
           ))}
         </nav>
       </div>
@@ -946,48 +601,6 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             <Menu className="h-5 w-5" />
           )}
         </button>
-      </div>
-    </div>
-  )
-
-  const desktopMegaMenu = (
-    <div
-      ref={megaMenuRef}
-      className={twMerge(
-        DESKTOP_NAV_CLASS,
-        'fixed left-0 right-0 top-[var(--navbar-height)] z-[90] justify-start',
-        'pointer-events-none',
-      )}
-    >
-      <div
-        data-open={activeMenuKey ? 'true' : 'false'}
-        style={{
-          marginLeft: megaMenuLayout.left,
-          width: megaMenuLayout.width,
-        }}
-        className="ts-mega-panel mt-2 rounded-xl p-4"
-        onPointerEnter={(event) => {
-          if (event.pointerType === 'touch') return
-          cancelMegaMenuClose()
-        }}
-        onPointerLeave={(event) => {
-          if (event.pointerType === 'touch') return
-          scheduleMegaMenuClose()
-        }}
-      >
-        <div
-          key={activeMenuKey ?? 'closed'}
-          aria-hidden="true"
-          className={twMerge(
-            'ts-mega-bg rounded-xl',
-            'border border-white/45 bg-white/80 shadow-2xl shadow-black/15 backdrop-blur-2xl backdrop-saturate-150',
-            'dark:border-white/10 dark:bg-black/70 dark:shadow-black/50',
-          )}
-        />
-        <MegaMenuContentTransition
-          activeKey={activeMenuKey}
-          onNavigate={closeMegaMenu}
-        />
       </div>
     </div>
   )
@@ -1041,7 +654,6 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   return (
     <>
       {navbar}
-      {desktopMegaMenu}
       {mobileMenu}
       <div
         aria-hidden="true"
@@ -1070,28 +682,12 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   )
 }
 
-function DesktopNavTrigger({
-  group,
-  isOpen,
-  onOpen,
-}: {
-  group: NavMenuGroup
-  isOpen: boolean
-  onOpen: () => void
-}) {
+function DesktopNavTrigger({ group }: { group: NavMenuGroup }) {
   const triggerClassName = twMerge(
     'ts-mega-trigger inline-flex items-center gap-1.5 rounded-md px-2 py-2 text-sm font-bold',
     'text-gray-700 transition-colors hover:bg-gray-500/10 hover:text-gray-950',
     'dark:text-gray-300 dark:hover:text-white',
-    isOpen && 'bg-gray-500/10 text-gray-950 dark:text-white',
   )
-  const triggerEvents = {
-    onPointerEnter: (event: React.PointerEvent<HTMLElement>) => {
-      if (event.pointerType === 'touch') return
-      onOpen()
-    },
-    onFocus: onOpen,
-  }
 
   return (
     <div className="ts-mega-trigger-wrap" data-menu-key={group.key}>
@@ -1099,10 +695,8 @@ function DesktopNavTrigger({
         <Link
           to={group.to}
           data-menu-key={group.key}
-          data-open={isOpen ? 'true' : 'false'}
           className={triggerClassName}
           preload="intent"
-          {...triggerEvents}
         >
           <span>{group.label}</span>
         </Link>
@@ -1110,14 +704,32 @@ function DesktopNavTrigger({
         <button
           type="button"
           data-menu-key={group.key}
-          data-open={isOpen ? 'true' : 'false'}
           className={triggerClassName}
-          onClick={onOpen}
-          {...triggerEvents}
         >
           <span>{group.label}</span>
         </button>
       )}
+      <DesktopNavDropdown group={group} />
+    </div>
+  )
+}
+
+function DesktopNavDropdown({ group }: { group: NavMenuGroup }) {
+  return (
+    <div className="ts-mega-dropdown">
+      <div
+        className={twMerge(
+          'ts-mega-dropdown-panel ts-glass-menu rounded-xl',
+          'border border-white/45 bg-white/80 p-4 shadow-2xl shadow-black/15 backdrop-blur-2xl backdrop-saturate-150',
+          'dark:border-white/10 dark:bg-black/70 dark:shadow-black/50',
+        )}
+      >
+        <MegaMenuContent
+          group={group}
+          onNavigate={() => undefined}
+          variant="desktop"
+        />
+      </div>
     </div>
   )
 }
@@ -1169,30 +781,6 @@ function MobileMenuGroup({
         </>
       )}
     </Collapsible>
-  )
-}
-
-function MegaMenuContentTransition({
-  activeKey,
-  onNavigate,
-}: {
-  activeKey: NavMenuKey | null
-  onNavigate: () => void
-}) {
-  const group = activeKey ? getMenuGroup(activeKey) : null
-
-  if (!group) {
-    return null
-  }
-
-  return (
-    <div key={activeKey} className="ts-mega-content">
-      <MegaMenuContent
-        group={group}
-        onNavigate={onNavigate}
-        variant="desktop"
-      />
-    </div>
   )
 }
 

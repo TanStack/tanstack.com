@@ -870,11 +870,7 @@ function LibrariesMenuContent({
 
   return (
     <div
-      className={twMerge(
-        variant === 'desktop'
-          ? 'grid gap-4'
-          : 'grid gap-3',
-      )}
+      className={twMerge(variant === 'desktop' ? 'grid gap-4' : 'grid gap-3')}
     >
       <div>
         <div

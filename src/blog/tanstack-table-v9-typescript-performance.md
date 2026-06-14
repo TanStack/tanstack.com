@@ -142,6 +142,8 @@ Editor lag is mostly the TypeScript language service doing the same work `tsc` d
 
 That metric that we measured was `Instantiations` from `tsc --extendedDiagnostics`: the number of times the compiler had to stamp out a generic type with concrete arguments. Unlike check times, this is deterministic. We used `tsc --generateTrace` to find where the work was happening. This is the same approach we used in our [TanStack Router TypeScript performance work](./tanstack-router-typescript-performance).
 
+One nuance worth flagging: we optimized against `tsc`, the compiler and language service nearly everyone runs today, where fewer instantiations is reliably better and the most stable number to chase. The upcoming Go-based [`tsgo` (TypeScript 7)](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0-beta/) checks types in parallel across independent workers that can duplicate shared work, so widely-referenced types may be instantiated once per worker and total count may map less directly to wall-clock time there.
+
 ## The Results
 
 We measured at several points over the past week.

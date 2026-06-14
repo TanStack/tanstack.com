@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { flushSync } from 'react-dom'
 import { twMerge } from 'tailwind-merge'
 const LazyBrandContextMenu = React.lazy(() =>
   import('./BrandContextMenu').then((m) => ({ default: m.BrandContextMenu })),
@@ -107,16 +108,6 @@ type NavMenuKey =
   | 'merch'
   | 'support'
 
-type MegaMenuDirection = 'left' | 'right' | 'down'
-type MegaMenuPanePhase = 'enter' | 'exit' | 'current'
-
-type MegaMenuPane = {
-  id: number
-  key: NavMenuKey
-  phase: MegaMenuPanePhase
-  direction: MegaMenuDirection
-}
-
 type MegaMenuLayout = {
   left: number
   width: number
@@ -158,18 +149,56 @@ type LibraryGroupId = keyof typeof librariesByGroup
 const DESKTOP_NAV_CLASS = 'hidden min-[960px]:flex'
 const MOBILE_NAV_CLASS = 'min-[960px]:hidden'
 const CLOSE_DELAY_MS = 140
-const MEGA_MENU_TRANSITION_MS = 400
+const MEGA_MENU_BG_TRANSITION_MS = 360
 const MEGA_MENU_MAX_WIDTH = 1120
 const MEGA_MENU_MIN_ALIGNED_WIDTH = 960
 const MEGA_MENU_VIEWPORT_PADDING = 16
 const MEGA_MENU_HOVER_BRIDGE_HEIGHT = 32
-const MEGA_MENU_ORDER: Record<NavMenuKey, number> = {
-  libraries: 0,
-  learn: 1,
-  community: 2,
-  tools: 3,
-  merch: 4,
-  support: 5,
+
+function runMegaMenuBgTransition(update: () => void) {
+  if (
+    typeof document === 'undefined' ||
+    typeof window === 'undefined' ||
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  ) {
+    update()
+    return
+  }
+
+  const startViewTransition: unknown = Reflect.get(
+    document,
+    'startViewTransition',
+  )
+
+  if (typeof startViewTransition !== 'function') {
+    update()
+    return
+  }
+
+  const removeTransitionClass = () => {
+    document.documentElement.classList.remove('ts-mega-bg-transitioning')
+  }
+
+  document.documentElement.classList.add('ts-mega-bg-transitioning')
+
+  try {
+    const transitionResult: unknown = startViewTransition.call(document, () => {
+      flushSync(update)
+    })
+    const finished =
+      transitionResult && typeof transitionResult === 'object'
+        ? Reflect.get(transitionResult, 'finished')
+        : null
+
+    if (finished instanceof Promise) {
+      finished.finally(removeTransitionClass)
+    } else {
+      window.setTimeout(removeTransitionClass, MEGA_MENU_BG_TRANSITION_MS)
+    }
+  } catch {
+    removeTransitionClass()
+    update()
+  }
 }
 const LIBRARY_MENU_GROUP_IDS: readonly LibraryGroupId[] = [
   'framework',
@@ -495,8 +524,6 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   const [activeMenuKey, setActiveMenuKey] = React.useState<NavMenuKey | null>(
     null,
   )
-  const [megaMenuDirection, setMegaMenuDirection] =
-    React.useState<MegaMenuDirection>('down')
   const [megaMenuLayout, setMegaMenuLayout] = React.useState<MegaMenuLayout>({
     left: MEGA_MENU_VIEWPORT_PADDING,
     width: MEGA_MENU_MAX_WIDTH,
@@ -579,18 +606,16 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       updateMegaMenuLayout()
       const previousKey = activeMenuKeyRef.current
 
-      if (previousKey && previousKey !== key) {
-        setMegaMenuDirection(
-          MEGA_MENU_ORDER[key] > MEGA_MENU_ORDER[previousKey]
-            ? 'right'
-            : 'left',
-        )
-      } else if (!previousKey) {
-        setMegaMenuDirection('down')
+      const commitOpenState = () => {
+        activeMenuKeyRef.current = key
+        setActiveMenuKey(key)
       }
 
-      activeMenuKeyRef.current = key
-      setActiveMenuKey(key)
+      if (previousKey && previousKey !== key) {
+        runMegaMenuBgTransition(commitOpenState)
+      } else {
+        commitOpenState()
+      }
     },
     [cancelMegaMenuClose, updateMegaMenuLayout],
   )
@@ -859,11 +884,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           marginLeft: megaMenuLayout.left,
           width: megaMenuLayout.width,
         }}
-        className={twMerge(
-          'ts-mega-panel ts-glass-menu mt-2 rounded-xl',
-          'border border-white/45 bg-white/80 p-4 shadow-2xl shadow-black/15 backdrop-blur-2xl backdrop-saturate-150',
-          'dark:border-white/10 dark:bg-black/70 dark:shadow-black/50',
-        )}
+        className="ts-mega-panel mt-2 rounded-xl p-4"
         onPointerEnter={(event) => {
           if (event.pointerType === 'touch') return
           cancelMegaMenuClose()
@@ -873,9 +894,17 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           scheduleMegaMenuClose()
         }}
       >
+        <div
+          key={activeMenuKey ?? 'closed'}
+          aria-hidden="true"
+          className={twMerge(
+            'ts-mega-bg rounded-xl',
+            'border border-white/45 bg-white/80 shadow-2xl shadow-black/15 backdrop-blur-2xl backdrop-saturate-150',
+            'dark:border-white/10 dark:bg-black/70 dark:shadow-black/50',
+          )}
+        />
         <MegaMenuContentTransition
           activeKey={activeMenuKey}
-          direction={megaMenuDirection}
           onNavigate={closeMegaMenu}
         />
       </div>
@@ -1083,95 +1112,24 @@ function MobileMenuGroup({
 
 function MegaMenuContentTransition({
   activeKey,
-  direction,
   onNavigate,
 }: {
   activeKey: NavMenuKey | null
-  direction: MegaMenuDirection
   onNavigate: () => void
 }) {
-  const previousActiveRef = React.useRef<NavMenuKey | null>(null)
-  const paneIdRef = React.useRef(0)
-  const [panes, setPanes] = React.useState<readonly MegaMenuPane[]>([])
+  const group = activeKey ? getMenuGroup(activeKey) : null
 
-  React.useLayoutEffect(() => {
-    if (activeKey === null) {
-      previousActiveRef.current = null
-      setPanes([])
-      return
-    }
-
-    const previousActive = previousActiveRef.current
-    if (previousActive === activeKey) {
-      return
-    }
-
-    const transitionDirection = previousActive ? direction : 'down'
-    const enteringPane: MegaMenuPane = {
-      id: paneIdRef.current + 1,
-      key: activeKey,
-      phase: 'enter',
-      direction: transitionDirection,
-    }
-    paneIdRef.current += 1
-
-    const nextPanes: MegaMenuPane[] = previousActive
-      ? [
-          {
-            id: paneIdRef.current + 1,
-            key: previousActive,
-            phase: 'exit',
-            direction: transitionDirection,
-          },
-          enteringPane,
-        ]
-      : [enteringPane]
-
-    if (previousActive) {
-      paneIdRef.current += 1
-    }
-
-    previousActiveRef.current = activeKey
-    setPanes(nextPanes)
-
-    const timeoutId = window.setTimeout(() => {
-      setPanes([{ ...enteringPane, phase: 'current' }])
-    }, MEGA_MENU_TRANSITION_MS)
-
-    return () => {
-      window.clearTimeout(timeoutId)
-    }
-  }, [activeKey, direction])
-
-  if (panes.length === 0) {
+  if (!group) {
     return null
   }
 
   return (
-    <div className="ts-mega-content">
-      {panes.map((pane) => {
-        const group = getMenuGroup(pane.key)
-
-        if (!group) {
-          return null
-        }
-
-        return (
-          <div
-            key={pane.id}
-            className="ts-mega-pane"
-            data-direction={pane.direction}
-            data-state={pane.phase}
-            aria-hidden={pane.phase === 'exit'}
-          >
-            <MegaMenuContent
-              group={group}
-              onNavigate={onNavigate}
-              variant="desktop"
-            />
-          </div>
-        )
-      })}
+    <div key={activeKey} className="ts-mega-content">
+      <MegaMenuContent
+        group={group}
+        onNavigate={onNavigate}
+        variant="desktop"
+      />
     </div>
   )
 }

@@ -208,6 +208,46 @@ button {
   transform: translate3d(0, 0, 0) scale(1);
 }
 
+.ts-mega-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  isolation: isolate;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ts-mega-panel[data-open='true'] .ts-mega-bg {
+  view-transition-name: ts-mega-bg;
+}
+
+.ts-mega-bg-transitioning::view-transition-old(root),
+.ts-mega-bg-transitioning::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+.ts-mega-bg-transitioning::view-transition-old(root) {
+  display: none;
+}
+
+.ts-mega-bg-transitioning::view-transition-group(root) {
+  z-index: 1;
+}
+
+.ts-mega-bg-transitioning::view-transition-group(ts-mega-bg) {
+  z-index: 0;
+  animation-duration: 360ms;
+  animation-timing-function: cubic-bezier(0.42, 0, 0.18, 1);
+}
+
+.ts-mega-bg-transitioning::view-transition-old(ts-mega-bg),
+.ts-mega-bg-transitioning::view-transition-new(ts-mega-bg) {
+  animation-duration: 360ms;
+  animation-timing-function: cubic-bezier(0.42, 0, 0.18, 1);
+  mix-blend-mode: normal;
+}
+
 .ts-glass-menu {
   position: relative;
   isolation: isolate;
@@ -218,7 +258,8 @@ button {
   z-index: 1;
 }
 
-.ts-glass-menu::after {
+.ts-glass-menu::after,
+.ts-mega-bg::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -236,7 +277,8 @@ button {
     inset 0 -1px 0 rgb(0 0 0 / 0.04);
 }
 
-.dark .ts-glass-menu::after {
+.dark .ts-glass-menu::after,
+.dark .ts-mega-bg::after {
   background: linear-gradient(
     135deg,
     rgb(255 255 255 / 0.12),
@@ -252,149 +294,22 @@ button {
   content: '';
   position: absolute;
   inset: -24px 0 auto 0;
+  z-index: 2;
   height: 28px;
   background: transparent;
   pointer-events: auto;
 }
 
 .ts-mega-content {
-  --ts-mega-column-shift: 18rem;
-  --ts-mega-slide-duration: 400ms;
-  --ts-mega-slide-easing: cubic-bezier(0.42, 0, 0.18, 1);
   position: relative;
-  z-index: 1;
-  display: grid;
-  overflow: hidden;
+  z-index: 2;
   border-radius: inherit;
-}
-
-.ts-mega-pane {
-  grid-area: 1 / 1;
-  min-width: 0;
-  transform: translate3d(0, 0, 0);
-  will-change: opacity, transform;
-}
-
-.ts-mega-pane[data-state='current'] {
-  opacity: 1;
-}
-
-.ts-mega-pane[data-state='exit'] {
-  pointer-events: none;
-}
-
-.ts-mega-pane[data-state='enter'][data-direction='right'] {
-  animation: ts-mega-enter-right var(--ts-mega-slide-duration)
-    var(--ts-mega-slide-easing) both;
-}
-
-.ts-mega-pane[data-state='exit'][data-direction='right'] {
-  animation: ts-mega-exit-right var(--ts-mega-slide-duration)
-    var(--ts-mega-slide-easing) both;
-}
-
-.ts-mega-pane[data-state='enter'][data-direction='left'] {
-  animation: ts-mega-enter-left var(--ts-mega-slide-duration)
-    var(--ts-mega-slide-easing) both;
-}
-
-.ts-mega-pane[data-state='exit'][data-direction='left'] {
-  animation: ts-mega-exit-left var(--ts-mega-slide-duration)
-    var(--ts-mega-slide-easing) both;
-}
-
-.ts-mega-pane[data-state='enter'][data-direction='down'] {
-  animation: ts-mega-enter-down 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-.ts-mega-pane[data-state='exit'][data-direction='down'] {
-  animation: ts-mega-exit-down 240ms cubic-bezier(0.5, 0, 0.75, 0) both;
-}
-
-@keyframes ts-mega-enter-right {
-  from {
-    opacity: 0;
-    transform: translate3d(var(--ts-mega-column-shift), 0, 0);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-@keyframes ts-mega-exit-right {
-  from {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-  to {
-    opacity: 0;
-    transform: translate3d(calc(var(--ts-mega-column-shift) * -1), 0, 0);
-  }
-}
-
-@keyframes ts-mega-enter-left {
-  from {
-    opacity: 0;
-    transform: translate3d(calc(var(--ts-mega-column-shift) * -1), 0, 0);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-@keyframes ts-mega-exit-left {
-  from {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-  to {
-    opacity: 0;
-    transform: translate3d(var(--ts-mega-column-shift), 0, 0);
-  }
-}
-
-@keyframes ts-mega-enter-down {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 8px, 0);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-@keyframes ts-mega-exit-down {
-  from {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-  to {
-    opacity: 0;
-    transform: translate3d(0, -6px, 0);
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .ts-mega-trigger::after,
   .ts-mega-panel {
     transition: none;
-  }
-
-  .ts-mega-content {
-    overflow: visible;
-  }
-
-  .ts-mega-pane {
-    animation: none !important;
-    opacity: 1;
-    transform: none;
-  }
-
-  .ts-mega-pane[data-state='exit'] {
-    display: none;
   }
 }
 

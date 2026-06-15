@@ -29,6 +29,24 @@ function isRoutableInternalLink(link: string) {
   )
 }
 
+function normalizeRoutableInternalPathname(pathname: string) {
+  const routerFrameworkMatch = pathname.match(
+    /^\/router\/([^/]+)\/docs\/framework\/[^/]+\/(.+)$/,
+  )
+
+  if (!routerFrameworkMatch) {
+    return pathname
+  }
+
+  const [, version, docsPath] = routerFrameworkMatch
+
+  if (!version || !docsPath || docsPath.startsWith('examples/')) {
+    return pathname
+  }
+
+  return `/router/${version}/docs/${docsPath}`
+}
+
 export function MarkdownLink({
   href: hrefProp,
   ...rest
@@ -37,14 +55,16 @@ export function MarkdownLink({
 
   if (isRoutableInternalLink(href)) {
     const [hrefWithoutHash, hash] = href.split('#')
-    const hrefWithoutMd = hrefWithoutHash.replace('.md', '')
+    const hrefWithoutMd = normalizeRoutableInternalPathname(
+      hrefWithoutHash.replace('.md', ''),
+    )
 
     return (
       <Link
         {...rest}
         to={hrefWithoutMd}
         hash={hash}
-        preload={undefined}
+        preload={false}
         ref={undefined}
       />
     )
@@ -73,7 +93,7 @@ export function MarkdownLink({
       unsafeRelative="path"
       to={hrefWithoutMd}
       hash={hash}
-      preload={undefined}
+      preload={false}
       ref={undefined}
     />
   )

@@ -164,7 +164,9 @@ button {
   left: -1rem;
   top: 100%;
   z-index: 90;
-  width: min(calc(100vw - 1rem), 70rem);
+  width: max-content;
+  min-width: var(--ts-primary-nav-target-width, 0px);
+  max-width: min(calc(100vw - 1rem), 70rem);
   padding-top: 1rem;
   opacity: 0;
   visibility: hidden;
@@ -242,12 +244,7 @@ button {
 
 @media (max-width: 1280px) {
   .ts-mega-dropdown {
-    position: fixed;
-    right: 1rem;
-    left: 1rem;
-    top: calc(var(--navbar-height) - 0.625rem);
-    width: auto;
-    padding-top: calc(1rem + 0.625rem);
+    max-width: calc(100vw - 2rem);
   }
 }
 

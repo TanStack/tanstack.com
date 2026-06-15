@@ -152,6 +152,8 @@ const LIBRARY_MENU_GROUP_IDS: readonly LibraryGroupId[] = [
   'performance',
   'tooling',
 ]
+const DESKTOP_LIBRARY_MENU_GROUP_COLUMNS: readonly (readonly LibraryGroupId[])[] =
+  [['framework', 'state'], ['headlessUI', 'performance'], ['tooling']]
 
 const NAV_GROUPS = [
   {
@@ -382,6 +384,22 @@ function getLibraryMenuGroups() {
   }).filter((group) => group.libraries.length > 0)
 }
 
+function getDesktopLibraryMenuColumns(
+  libraryMenuGroups: ReturnType<typeof getLibraryMenuGroups>,
+) {
+  const groupsById = new Map(
+    libraryMenuGroups.map((group) => [group.id, group]),
+  )
+
+  return DESKTOP_LIBRARY_MENU_GROUP_COLUMNS.map((columnGroupIds) =>
+    columnGroupIds.flatMap((groupId) => {
+      const group = groupsById.get(groupId)
+
+      return group ? [group] : []
+    }),
+  ).filter((columnGroups) => columnGroups.length > 0)
+}
+
 function AiDockMount() {
   const { isAiDockOpen } = useSearchContext()
   const [hasActivated, setHasActivated] = React.useState(isAiDockOpen)
@@ -416,6 +434,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   }, [matches])
 
   const containerRef = React.useRef<HTMLDivElement>(null)
+  const desktopNavRef = React.useRef<HTMLElement>(null)
 
   React.useEffect(() => {
     const container = containerRef.current
@@ -461,6 +480,56 @@ export function Navbar({ children }: { children: React.ReactNode }) {
 
       resizeObserver?.disconnect()
       window.removeEventListener('resize', scheduleContainerHeightUpdate)
+    }
+  }, [])
+
+  React.useEffect(() => {
+    const desktopNav = desktopNavRef.current
+
+    if (!desktopNav) {
+      return
+    }
+
+    const updateDesktopNavWidth = () => {
+      const targetWidth = Math.ceil(
+        desktopNav.getBoundingClientRect().width + 32,
+      )
+
+      desktopNav.style.setProperty(
+        '--ts-primary-nav-target-width',
+        `${targetWidth}px`,
+      )
+    }
+
+    let animationFrameId: number | null = null
+    const scheduleDesktopNavWidthUpdate = () => {
+      if (animationFrameId !== null) {
+        return
+      }
+
+      animationFrameId = window.requestAnimationFrame(() => {
+        animationFrameId = null
+        updateDesktopNavWidth()
+      })
+    }
+
+    updateDesktopNavWidth()
+
+    const resizeObserver =
+      typeof window.ResizeObserver === 'function'
+        ? new window.ResizeObserver(scheduleDesktopNavWidthUpdate)
+        : null
+
+    resizeObserver?.observe(desktopNav)
+    window.addEventListener('resize', scheduleDesktopNavWidthUpdate)
+
+    return () => {
+      if (animationFrameId !== null) {
+        window.cancelAnimationFrame(animationFrameId)
+      }
+
+      resizeObserver?.disconnect()
+      window.removeEventListener('resize', scheduleDesktopNavWidthUpdate)
     }
   }, [])
 
@@ -595,6 +664,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         </div>
 
         <nav
+          ref={desktopNavRef}
           aria-label="Primary navigation"
           className={twMerge(
             DESKTOP_NAV_CLASS,
@@ -790,6 +860,7 @@ function DesktopNavDropdown({
       <div
         className={twMerge(
           'ts-mega-dropdown-panel ts-glass-menu rounded-xl',
+          'w-max min-w-[var(--ts-primary-nav-target-width,0px)] max-w-[calc(100vw-2rem)]',
           'border border-white/45 bg-white/80 p-4 shadow-2xl shadow-black/15 backdrop-blur-2xl backdrop-saturate-150',
           'dark:border-white/10 dark:bg-black/70 dark:shadow-black/50',
         )}
@@ -875,7 +946,9 @@ function MegaMenuContent({
     <div
       className={twMerge(
         variant === 'desktop'
-          ? 'grid gap-4 lg:grid-cols-[minmax(0,1fr)_260px]'
+          ? group.rail
+            ? 'grid w-max items-start gap-4 grid-cols-[max-content_260px]'
+            : 'grid w-max gap-3'
           : 'grid gap-3',
       )}
     >
@@ -885,7 +958,7 @@ function MegaMenuContent({
             'grid gap-3',
             variant === 'desktop' &&
               group.sections.length > 1 &&
-              'md:grid-cols-2',
+              'grid-cols-[repeat(2,260px)]',
           )}
         >
           {group.sections.map((section, sectionIndex) => (
@@ -904,7 +977,10 @@ function MegaMenuContent({
                   'grid gap-1',
                   variant === 'desktop' &&
                     group.key === 'learn' &&
-                    'md:grid-cols-2',
+                    'grid-cols-[repeat(2,260px)]',
+                  variant === 'desktop' &&
+                    group.key === 'tools' &&
+                    'grid-cols-[repeat(2,260px)]',
                 )}
               >
                 {section.items.map((item) => (
@@ -935,6 +1011,8 @@ function LibrariesMenuContent({
   variant: 'desktop' | 'mobile'
 }) {
   const libraryMenuGroups = getLibraryMenuGroups()
+  const desktopLibraryMenuColumns =
+    getDesktopLibraryMenuColumns(libraryMenuGroups)
   const allLibrariesItem: NavMenuItem = {
     label: 'All Libraries',
     to: '/libraries',
@@ -950,7 +1028,7 @@ function LibrariesMenuContent({
         <div
           className={twMerge(
             variant === 'desktop'
-              ? 'max-h-[min(72dvh,680px)] columns-2 overflow-y-auto pr-2 [column-gap:1rem]'
+              ? 'grid w-max max-h-[min(62dvh,560px)] grid-cols-[repeat(3,max-content)] items-start justify-start gap-x-8 overflow-y-auto pr-2'
               : 'grid gap-3',
           )}
         >
@@ -962,14 +1040,30 @@ function LibrariesMenuContent({
               compact
             />
           ) : null}
-          {libraryMenuGroups.map((group) => (
-            <LibraryMenuGroup
-              key={group.id}
-              group={group}
-              onNavigate={onNavigate}
-              variant={variant}
-            />
-          ))}
+          {variant === 'desktop'
+            ? desktopLibraryMenuColumns.map((columnGroups) => (
+                <div
+                  key={columnGroups.map((group) => group.id).join('-')}
+                  className="grid content-start gap-y-5"
+                >
+                  {columnGroups.map((group) => (
+                    <LibraryMenuGroup
+                      key={group.id}
+                      group={group}
+                      onNavigate={onNavigate}
+                      variant="desktop"
+                    />
+                  ))}
+                </div>
+              ))
+            : libraryMenuGroups.map((group) => (
+                <LibraryMenuGroup
+                  key={group.id}
+                  group={group}
+                  onNavigate={onNavigate}
+                  variant="mobile"
+                />
+              ))}
         </div>
       </div>
     </div>
@@ -991,7 +1085,7 @@ function LibraryMenuGroup({
     <section
       className={twMerge(
         'break-inside-avoid',
-        variant === 'desktop' ? 'mb-5 [break-inside:avoid]' : 'pb-3',
+        variant === 'desktop' ? '[break-inside:avoid]' : 'pb-3',
       )}
     >
       <div className="mb-1.5 px-1">
@@ -1054,8 +1148,8 @@ function LibraryMenuItem({
             <span
               data-library-badge
               className={twMerge(
-                'hidden shrink-0 rounded-md border border-current px-1.5 py-0.5 text-[0.58rem] font-black uppercase leading-none',
-                'group-hover/library:inline-flex group-focus-within/library:inline-flex',
+                'invisible inline-flex shrink-0 rounded-md border border-current px-1.5 py-0.5 text-[0.58rem] font-black uppercase leading-none',
+                'group-hover/library:visible group-focus-within/library:visible',
                 library.textStyle,
               )}
             >
@@ -1288,7 +1382,7 @@ function MenuRail({
   }
 
   return (
-    <aside className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950">
+    <aside className="w-[260px] rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950">
       <div className="text-xs font-black uppercase text-gray-500 dark:text-gray-400">
         {rail.eyebrow}
       </div>
@@ -1327,6 +1421,7 @@ function MenuItemLink({
     'group flex items-start gap-3 rounded-lg px-2 py-2.5 text-left',
     'hover:bg-gray-500/10 focus:bg-gray-500/10 focus:outline-none',
     compact && 'bg-white dark:bg-black/40',
+    variant === 'desktop' && !compact && 'w-[260px]',
     variant === 'mobile' && 'px-2 py-3',
   )
   const content = (

@@ -78,7 +78,7 @@ function getDeferredSectionStage(hash: string) {
     return 1
   }
 
-  if (['courses', 'sponsors', 'maintainers'].includes(normalizedHash)) {
+  if (['sponsors', 'maintainers'].includes(normalizedHash)) {
     return 2
   }
 

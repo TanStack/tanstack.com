@@ -10,7 +10,6 @@ import { last } from '~/utils/utils'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
 import { Framework, LibraryId } from '~/libraries'
 import { frameworkOptions } from '~/libraries/frameworks'
-import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
 import { twMerge } from 'tailwind-merge'
 import { partners, PartnerImage, type Partner } from '~/utils/partners'
 import {
@@ -21,8 +20,6 @@ import {
 import { usePartnerPlacementContext } from '~/utils/usePartnerPlacementContext'
 import { Footer } from './Footer'
 import { RecentPostsWidget } from './RecentPostsWidget'
-import { GamVrec1 } from './Gam'
-import { AdGate } from '~/contexts/AdsContext'
 import { SearchButton } from './SearchButton'
 import { FrameworkSelect, useCurrentFramework } from './FrameworkSelect'
 import { VersionSelect } from './VersionSelect'
@@ -1230,17 +1227,6 @@ export function DocsLayout({
               <div className="hidden md:block border border-gray-500/20 rounded-l-lg overflow-hidden w-full">
                 <RecentPostsWidget />
               </div>
-              <AdGate>
-                <GamVrec1
-                  popupPosition="top"
-                  borderClassName="rounded-l-xl rounded-r-none"
-                />
-              </AdGate>
-              {libraryId === 'query' ? (
-                <div className="p-4 bg-white/70 dark:bg-black/40 rounded-lg flex flex-col">
-                  <DocsCalloutQueryGG />
-                </div>
-              ) : null}
             </RightRail>
           )}
         </div>

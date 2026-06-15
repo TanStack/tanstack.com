@@ -14,8 +14,6 @@ import {
   defaultPackageGroups,
   type BaselinePreset,
 } from './-comparisons'
-import { GamVrec1 } from '~/components/Gam'
-import { AdGate } from '~/contexts/AdsContext'
 import { Spinner } from '~/components/Spinner'
 import { BaselineSection } from '~/components/npm-stats/BaselineSection'
 import { ChartControls } from '~/components/npm-stats/ChartControls'
@@ -796,16 +794,6 @@ function RouteComponent() {
           {/* Popular Comparisons Section */}
           <PopularComparisons comparisons={getPopularComparisons()} />
         </Card>
-        <div className="hidden lg:block w-[290px] xl:w-[332px] shrink-0">
-          <div className="sticky top-4 space-y-4">
-            <AdGate>
-              <GamVrec1
-                className="flex justify-center rounded-xl overflow-hidden shadow-xs shadow-black/5 max-w-full"
-                adClassName="rounded-xl overflow-hidden"
-              />
-            </AdGate>
-          </div>
-        </div>
       </div>
 
       {/* FAQ Section for SEO */}

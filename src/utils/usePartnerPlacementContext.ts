@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { usePartnerPlacementSeed } from '~/contexts/PartnerPlacementContext'
+import { useLoaderData } from '@tanstack/react-router'
 import type { Partner } from '~/utils/partners'
 import {
   getPartnerPlacementContext,
@@ -19,10 +19,10 @@ export function usePartnerPlacementContext({
   orderStrategy: PartnerPlacementOrderStrategy
   surface: string
 }): PartnerPlacementContext {
-  const { pageViewSeed } = usePartnerPlacementSeed()
+  const { partnerPlacementSessionSeed } = useLoaderData({ from: '__root__' })
   const rotationSeed =
     orderStrategy === 'tier-rotated'
-      ? getPartnerViewPlacementSeed(surface, pageViewSeed)
+      ? getPartnerViewPlacementSeed(surface, partnerPlacementSessionSeed)
       : undefined
 
   return React.useMemo(

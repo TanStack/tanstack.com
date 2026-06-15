@@ -28,17 +28,13 @@ import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { SearchProvider } from '~/contexts/SearchContext'
 import { ToastProvider } from '~/components/ToastProvider'
 import { LoginModalProvider } from '~/contexts/LoginModalContext'
-import {
-  PartnerPlacementProvider,
-  usePartnerPlacementSeed,
-} from '~/contexts/PartnerPlacementContext'
 
 import { Spinner } from '~/components/Spinner'
 import { ThemeProvider, useHtmlClass } from '~/components/ThemeProvider'
 import { Navbar } from '~/components/Navbar'
 import { THEME_COLORS } from '~/utils/utils'
 import { trackPageView } from '~/utils/analytics'
-import { createPartnerPlacementPageViewSeed } from '~/utils/partner-placement'
+import { createPartnerPlacementSessionSeed } from '~/utils/partner-placement'
 import { twMerge } from 'tailwind-merge'
 
 const GOOGLE_ANALYTICS_ID = 'G-JMT1Z50SPS'
@@ -75,7 +71,7 @@ export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
 }>()({
   loader: () => ({
-    partnerPlacementPageViewSeed: createPartnerPlacementPageViewSeed(),
+    partnerPlacementSessionSeed: createPartnerPlacementSessionSeed(),
   }),
   head: () => ({
     meta: [
@@ -168,17 +164,11 @@ export const Route = createRootRouteWithContext<{
 })
 
 function RootShell({ children }: { children: React.ReactNode }) {
-  const { partnerPlacementPageViewSeed } = Route.useLoaderData()
-
   return (
     <ThemeProvider>
-      <PartnerPlacementProvider
-        initialPageViewSeed={partnerPlacementPageViewSeed}
-      >
-        <SearchProvider>
-          <ShellComponent>{children}</ShellComponent>
-        </SearchProvider>
-      </PartnerPlacementProvider>
+      <SearchProvider>
+        <ShellComponent>{children}</ShellComponent>
+      </SearchProvider>
     </ThemeProvider>
   )
 }
@@ -312,7 +302,6 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
 }
 
 function PageViewTracker() {
-  const { refreshPageViewSeed } = usePartnerPlacementSeed()
   const pagePath = useRouterState({
     select: (s) => {
       const pathname = s.resolvedLocation?.pathname || '/'
@@ -329,9 +318,8 @@ function PageViewTracker() {
       return
     }
 
-    refreshPageViewSeed()
     trackPageView(pagePath)
-  }, [pagePath, refreshPageViewSeed])
+  }, [pagePath])
 
   return null
 }

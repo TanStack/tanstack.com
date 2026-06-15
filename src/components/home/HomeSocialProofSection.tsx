@@ -2,7 +2,6 @@ import { Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { ArrowRight } from 'lucide-react'
 import { Card } from '~/components/Card'
-import { FeaturedShowcases } from '~/components/ShowcaseSection'
 import { PartnersGrid } from '~/components/PartnersGrid'
 import { Button } from '~/ui'
 import { formatAuthors, formatPublishedDate } from '~/utils/blog'
@@ -35,10 +34,6 @@ export function HomeSocialProofSection() {
             </Button>
           </Link>
         </div>
-      </div>
-
-      <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-        <FeaturedShowcases />
       </div>
 
       {(isRecentPostsLoading || recentPosts.length > 0) && (

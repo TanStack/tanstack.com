@@ -18,7 +18,7 @@ import {
 } from 'drizzle-orm'
 import { requireCapability } from './auth.server'
 import { getEffectiveCapabilities } from './capabilities.server'
-import { libraryIds } from '~/libraries'
+import { libraryIds } from '~/libraries/ids'
 import { SHOWCASE_USE_CASES } from '~/db/types'
 import { getTrancoRank } from './tranco.server'
 import { notifyModerators, formatShowcaseSubmittedEmail } from './email.server'

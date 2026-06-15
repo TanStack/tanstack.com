@@ -193,24 +193,18 @@ export default defineConfig({
       },
       output: {
         manualChunks: (id) => {
-          // Keep the app shell and docs runtime from shattering into dozens of
-          // tiny eagerly preloaded chunks.
           if (
-            id.includes('/src/components/Navbar') ||
-            id.includes('/src/components/Theme') ||
-            id.includes('/src/components/SearchButton') ||
-            id.includes('/src/components/NetlifyImage') ||
-            id.includes('/src/components/Card') ||
-            id.includes('/src/components/Footer') ||
-            id.includes('/src/components/ToastProvider') ||
-            id.includes('/src/components/icons/') ||
-            id.includes('/src/contexts/SearchContext') ||
-            id.includes('/src/hooks/useCurrentUser') ||
-            id.includes('/src/hooks/useCapabilities') ||
-            id.includes('/src/libraries/libraries.ts') ||
-            id.includes('/src/ui/')
+            id.includes('/node_modules/@tanstack/react-start') ||
+            id.includes('/node_modules/@tanstack/start-')
           ) {
-            return 'app-shell'
+            return 'tanstack-start'
+          }
+
+          if (
+            id.includes('/src/db/types.ts') ||
+            id.includes('/src/libraries/ids.ts')
+          ) {
+            return 'shared-constants'
           }
 
           if (

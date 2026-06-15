@@ -1,4 +1,7 @@
-import * as React from 'react'
+import type { ReactNode } from 'react'
+import type { LibraryId } from './ids'
+
+export type { LibraryId } from './ids'
 
 export type Framework =
   | 'angular'
@@ -11,28 +14,6 @@ export type Framework =
   | 'svelte'
   | 'vanilla'
   | 'vue'
-
-export type LibraryId =
-  | 'start'
-  | 'router'
-  | 'query'
-  | 'table'
-  | 'form'
-  | 'virtual'
-  | 'ranger'
-  | 'store'
-  | 'pacer'
-  | 'hotkeys'
-  | 'db'
-  | 'ai'
-  | 'intent'
-  | 'workflow'
-  | 'config'
-  | 'devtools'
-  | 'mcp'
-  | 'cli'
-  | 'react-charts'
-  | 'create-tsrouter-app'
 
 // Base library type - used for navigation, docs, and most UI
 export type LibrarySlim = {
@@ -94,8 +75,8 @@ export type LibrarySlim = {
 export type Library = LibrarySlim & {
   featureHighlights?: {
     title: string
-    icon: React.ReactNode
-    description: React.ReactNode
+    icon: ReactNode
+    description: ReactNode
   }[]
   testimonials?: Testimonial[]
 }

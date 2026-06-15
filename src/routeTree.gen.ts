@@ -15,6 +15,7 @@ import { Route as TenetsRouteImport } from './routes/tenets'
 import { Route as SupportRouteImport } from './routes/support'
 import { Route as SponsorsEmbedRouteImport } from './routes/sponsors-embed'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as ShowcasesRouteImport } from './routes/showcases'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as RssDotxmlRouteImport } from './routes/rss[.]xml'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
@@ -184,6 +185,11 @@ const SponsorsEmbedRoute = SponsorsEmbedRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShowcasesRoute = ShowcasesRouteImport.update({
+  id: '/showcases',
+  path: '/showcases',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ShopRoute = ShopRouteImport.update({
@@ -938,6 +944,7 @@ export interface FileRoutesByFullPath {
   '/robots.txt': typeof RobotsDottxtRoute
   '/rss.xml': typeof RssDotxmlRoute
   '/shop': typeof ShopRouteWithChildren
+  '/showcases': typeof ShowcasesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/support': typeof SupportRoute
@@ -1079,6 +1086,7 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/rss.xml': typeof RssDotxmlRoute
+  '/showcases': typeof ShowcasesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/support': typeof SupportRoute
@@ -1225,6 +1233,7 @@ export interface FileRoutesById {
   '/robots.txt': typeof RobotsDottxtRoute
   '/rss.xml': typeof RssDotxmlRoute
   '/shop': typeof ShopRouteWithChildren
+  '/showcases': typeof ShowcasesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/support': typeof SupportRoute
@@ -1375,6 +1384,7 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/rss.xml'
     | '/shop'
+    | '/showcases'
     | '/sitemap.xml'
     | '/sponsors-embed'
     | '/support'
@@ -1516,6 +1526,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/robots.txt'
     | '/rss.xml'
+    | '/showcases'
     | '/sitemap.xml'
     | '/sponsors-embed'
     | '/support'
@@ -1661,6 +1672,7 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/rss.xml'
     | '/shop'
+    | '/showcases'
     | '/sitemap.xml'
     | '/sponsors-embed'
     | '/support'
@@ -1810,6 +1822,7 @@ export interface RootRouteChildren {
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   RssDotxmlRoute: typeof RssDotxmlRoute
   ShopRoute: typeof ShopRouteWithChildren
+  ShowcasesRoute: typeof ShowcasesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SponsorsEmbedRoute: typeof SponsorsEmbedRoute
   SupportRoute: typeof SupportRoute
@@ -1921,6 +1934,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/showcases': {
+      id: '/showcases'
+      path: '/showcases'
+      fullPath: '/showcases'
+      preLoaderRoute: typeof ShowcasesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/shop': {
@@ -3153,6 +3173,7 @@ const rootRouteChildren: RootRouteChildren = {
   RobotsDottxtRoute: RobotsDottxtRoute,
   RssDotxmlRoute: RssDotxmlRoute,
   ShopRoute: ShopRouteWithChildren,
+  ShowcasesRoute: ShowcasesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SponsorsEmbedRoute: SponsorsEmbedRoute,
   SupportRoute: SupportRoute,

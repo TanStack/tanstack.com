@@ -1,7 +1,7 @@
 ---
 title: TypeScript Performance in TanStack Table V9
 published: 2026-06-14
-excerpt: TanStack Table V9's types do a lot more than V8's did. Here's how we cut type instantiations by 66-86% across every package between alpha.54 and beta.12 to keep the editor experience feeling instant.
+excerpt: TanStack Table V9's types do a lot more than V8's did. Here's how we cut type instantiations by 62-86% across every package between alpha.54 and beta.12 to keep the editor experience feeling instant.
 library: table
 authors:
   - Kevin Van Cott
@@ -11,7 +11,7 @@ authors:
 
 TanStack Table V9 has a much more capable, though more complex, type-level API than V8. The types in Table may not be as complicated as a project like TanStack Router or Form, but it has still grown more complex in V9 than it ever had been in previous versions.
 
-If you had been using the Table V9 alphas, there's a chance that you could feel a bit of slowness in your editor. It probably was not enough to crash your TypeScript server, but it probably was noticeable. Good news, though! Between the alpha and the latest beta, we cut TypeScript's type-checking work by 66-86% across every package and example! The latest beta now type-checks faster than our alpha versions from last week by a wide margin, and the editor experience is back to feeling instant.
+If you had been using the Table V9 alphas, there's a chance that you could feel a bit of slowness in your editor. It probably was not enough to crash your TypeScript server, but it probably was noticeable. Good news, though! Between the alpha and the latest beta, we cut TypeScript's type-checking work by 62-86% across every package, and 36-79% across all examples in our docs! The latest beta now type-checks faster than our alpha versions from last week by a wide margin, and the editor experience is back to feeling instant.
 
 This post covers where the cost came from, how we measured it, and the specific changes that fixed these issues. One of those changes is a still-overlooked TypeScript feature that many library authors seem to barely use, and it turned out to be one of our bigger optimizations, turning a trade-off into a win across the board.
 
@@ -253,7 +253,7 @@ export interface Table_Internal<
 
 Since `Table<TFeatures, TData>` contains the feature-map conditional, every internal call site re-expanded it. The single biggest type-creation site in the entire program was the function types that `UnionToIntersection` distributes, and `Table_Internal` was the reason.
 
-The large improvment came from noticing that internal code doesn't need the feature-conditional view at all. Internally we already follow a "broad" convention (`TableState_All`, `CachedRowModel_All`, and friends) where every feature's slice is present regardless of registration. So we redefined `Table_Internal` as an interface that extends only the core table interfaces (columns, rows, headers, row models, and the base table properties) and redeclares its handful of internal slots (`options`, `initialState`, `store`, `atoms`, the row models) in their broad `*_All` forms. No feature-map conditional, statically known members, and a stable identity the compiler can relate without re-expanding the feature union each time. The public `Table` type is untouched, so nothing changes about the inference you write against.
+The large improvement came from noticing that internal code doesn't need the feature-conditional view at all. Internally we already follow a "broad" convention (`TableState_All`, `CachedRowModel_All`, and friends) where every feature's slice is present regardless of registration. So we redefined `Table_Internal` as an interface that extends only the core table interfaces (columns, rows, headers, row models, and the base table properties) and redeclares its handful of internal slots (`options`, `initialState`, `store`, `atoms`, the row models) in their broad `*_All` forms. No feature-map conditional, statically known members, and a stable identity the compiler can relate without re-expanding the feature union each time. The public `Table` type is untouched, so nothing changes about the inference you write against.
 
 The table-core package dropped another 40% in instantiations. Declaration emit dropped 48%... but the react adapter got twice as slow. We'll discuss that issue next.
 

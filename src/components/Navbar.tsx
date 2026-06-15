@@ -27,7 +27,7 @@ import {
   Newspaper,
   Paintbrush,
   ShieldCheck,
-  Shirt,
+  ShoppingBag,
   Sparkles,
   TrendingUp,
   User,
@@ -60,6 +60,9 @@ import {
   CollapsibleTrigger,
 } from '~/components/Collapsible'
 import { groupToSlug } from '~/components/stack/stack-categories'
+import { getProducts } from '~/utils/shop.functions'
+import { formatMoney, shopifyImageUrl } from '~/utils/shopify-format'
+import type { ProductListItem } from '~/utils/shopify-queries'
 
 type LogoProps = {
   title?: React.ComponentType | null
@@ -264,19 +267,8 @@ const NAV_GROUPS = [
   {
     key: 'merch',
     label: 'Merch',
-    sections: [
-      {
-        label: 'Shop',
-        items: [
-          {
-            label: 'New Apparel',
-            to: '/merch',
-            description: 'TanStack shirts, hoodies, and new drops.',
-            icon: Shirt,
-          },
-        ],
-      },
-    ],
+    to: '/shop',
+    sections: [],
   },
   {
     key: 'support',
@@ -694,6 +686,9 @@ function DesktopNavTrigger({ group }: { group: NavMenuGroup }) {
           type="button"
           data-menu-key={group.key}
           className={triggerClassName}
+          onMouseDown={(event) => {
+            event.preventDefault()
+          }}
         >
           <span>{group.label}</span>
         </button>
@@ -784,6 +779,10 @@ function MegaMenuContent({
 }) {
   if (group.key === 'libraries') {
     return <LibrariesMenuContent onNavigate={onNavigate} variant={variant} />
+  }
+
+  if (group.key === 'merch') {
+    return <MerchMenuContent onNavigate={onNavigate} variant={variant} />
   }
 
   return (
@@ -990,6 +989,161 @@ function LibraryMenuItem({
         </Link>
       </div>
     </div>
+  )
+}
+
+function MerchMenuContent({
+  onNavigate,
+  variant,
+}: {
+  onNavigate: () => void
+  variant: 'desktop' | 'mobile'
+}) {
+  const [products, setProducts] = React.useState<Array<ProductListItem>>([])
+  const [loading, setLoading] = React.useState(true)
+
+  React.useEffect(() => {
+    let cancelled = false
+
+    async function loadProducts() {
+      setLoading(true)
+
+      try {
+        const page = await getProducts({
+          data: {
+            first: 3,
+            sortKey: 'CREATED_AT',
+            reverse: true,
+          },
+        })
+
+        if (!cancelled) {
+          setProducts(page.nodes)
+        }
+      } catch {
+        if (!cancelled) {
+          setProducts([])
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false)
+        }
+      }
+    }
+
+    loadProducts()
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const allMerchItem: NavMenuItem = {
+    label: 'All Merch',
+    to: '/shop',
+    description: 'Browse all TanStack apparel, accessories, and stickers.',
+    icon: ShoppingBag,
+  }
+
+  return (
+    <div
+      className={twMerge(variant === 'desktop' ? 'grid gap-4' : 'grid gap-3')}
+    >
+      <section>
+        <div className="mb-2 px-2 text-xs font-black uppercase text-gray-500 dark:text-gray-400">
+          Recent Products
+        </div>
+        <div
+          className={twMerge(
+            'grid gap-1',
+            variant === 'desktop' && 'md:grid-cols-3',
+          )}
+        >
+          {loading
+            ? Array.from({ length: 3 }, (_, index) => (
+                <div
+                  key={index}
+                  className="rounded-lg px-2 py-2.5"
+                  aria-hidden="true"
+                >
+                  <div className="aspect-[4/3] animate-pulse rounded-md bg-gray-200 dark:bg-gray-800" />
+                  <div className="mt-2 h-4 w-3/4 animate-pulse rounded bg-gray-200 dark:bg-gray-800" />
+                  <div className="mt-1 h-3 w-1/3 animate-pulse rounded bg-gray-200 dark:bg-gray-800" />
+                </div>
+              ))
+            : products.map((product) => (
+                <MerchProductLink
+                  key={product.id}
+                  product={product}
+                  onNavigate={onNavigate}
+                  variant={variant}
+                />
+              ))}
+        </div>
+      </section>
+      <MenuItemLink
+        item={allMerchItem}
+        onNavigate={onNavigate}
+        variant={variant}
+        compact
+      />
+    </div>
+  )
+}
+
+function MerchProductLink({
+  product,
+  onNavigate,
+  variant,
+}: {
+  product: ProductListItem
+  onNavigate: () => void
+  variant: 'desktop' | 'mobile'
+}) {
+  const image = product.featuredImage
+  const price = product.priceRange.minVariantPrice
+
+  return (
+    <Link
+      to="/shop/products/$handle"
+      params={{ handle: product.handle }}
+      onClick={onNavigate}
+      className={twMerge(
+        'group rounded-lg px-2 py-2.5 text-left hover:bg-gray-500/10 focus:bg-gray-500/10 focus:outline-none',
+        variant === 'mobile' && 'flex items-center gap-3 py-3',
+      )}
+      preload="intent"
+    >
+      <span
+        className={twMerge(
+          'block overflow-hidden rounded-md bg-gray-100 dark:bg-gray-900',
+          variant === 'desktop' ? 'aspect-[4/3]' : 'h-14 w-14 shrink-0',
+        )}
+      >
+        {image ? (
+          <img
+            src={shopifyImageUrl(image.url, { width: 360, format: 'webp' })}
+            alt={image.altText ?? product.title}
+            className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+            loading="lazy"
+          />
+        ) : (
+          <span className="flex h-full w-full items-center justify-center text-gray-400">
+            <ShoppingBag className="h-5 w-5" />
+          </span>
+        )}
+      </span>
+      <span
+        className={twMerge('block min-w-0', variant === 'desktop' && 'mt-2')}
+      >
+        <span className="block truncate font-bold text-gray-950 dark:text-white">
+          {product.title}
+        </span>
+        <span className="mt-0.5 block text-sm text-gray-600 dark:text-gray-400">
+          {formatMoney(price.amount, price.currencyCode)}
+        </span>
+      </span>
+    </Link>
   )
 }
 

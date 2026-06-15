@@ -999,10 +999,41 @@ function MerchMenuContent({
   onNavigate: () => void
   variant: 'desktop' | 'mobile'
 }) {
+  const rootRef = React.useRef<HTMLDivElement>(null)
+  const [shouldLoad, setShouldLoad] = React.useState(false)
   const [products, setProducts] = React.useState<Array<ProductListItem>>([])
   const [loading, setLoading] = React.useState(true)
 
   React.useEffect(() => {
+    const root = rootRef.current
+    const triggerWrap =
+      variant === 'desktop'
+        ? root?.closest<HTMLElement>('.ts-mega-trigger-wrap')
+        : null
+    const target = triggerWrap ?? root
+
+    if (!target) {
+      return
+    }
+
+    const load = () => {
+      setShouldLoad(true)
+    }
+
+    target.addEventListener('pointerenter', load)
+    target.addEventListener('focusin', load)
+
+    return () => {
+      target.removeEventListener('pointerenter', load)
+      target.removeEventListener('focusin', load)
+    }
+  }, [variant])
+
+  React.useEffect(() => {
+    if (!shouldLoad) {
+      return
+    }
+
     let cancelled = false
 
     async function loadProducts() {
@@ -1036,7 +1067,7 @@ function MerchMenuContent({
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [shouldLoad])
 
   const allMerchItem: NavMenuItem = {
     label: 'All Merch',
@@ -1047,6 +1078,7 @@ function MerchMenuContent({
 
   return (
     <div
+      ref={rootRef}
       className={twMerge(variant === 'desktop' ? 'grid gap-4' : 'grid gap-3')}
     >
       <section>
@@ -1059,7 +1091,7 @@ function MerchMenuContent({
             variant === 'desktop' && 'md:grid-cols-3',
           )}
         >
-          {loading
+          {shouldLoad && loading
             ? Array.from({ length: 3 }, (_, index) => (
                 <div
                   key={index}

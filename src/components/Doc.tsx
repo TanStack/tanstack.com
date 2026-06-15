@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { FoldHorizontal, UnfoldHorizontal } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
-import { DocNavigation, WidthToggleContext } from '~/components/DocsLayout'
+import { DocNavigation, WidthToggleContext } from '~/components/LibraryLayout'
 
 import { Toc } from './Toc'
 import { DocBreadcrumb } from './DocBreadcrumb'

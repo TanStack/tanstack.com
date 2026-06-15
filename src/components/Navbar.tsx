@@ -418,21 +418,49 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   const containerRef = React.useRef<HTMLDivElement>(null)
 
   React.useEffect(() => {
+    const container = containerRef.current
+
+    if (!container) {
+      return
+    }
+
     const updateContainerHeight = () => {
-      if (containerRef.current) {
-        const height = containerRef.current.offsetHeight
-        document.documentElement.style.setProperty(
-          '--navbar-height',
-          `${height}px`,
-        )
+      const height = container.offsetHeight
+      document.documentElement.style.setProperty(
+        '--navbar-height',
+        `${height}px`,
+      )
+    }
+
+    let animationFrameId: number | null = null
+    const scheduleContainerHeightUpdate = () => {
+      if (animationFrameId !== null) {
+        return
       }
+
+      animationFrameId = window.requestAnimationFrame(() => {
+        animationFrameId = null
+        updateContainerHeight()
+      })
     }
 
     updateContainerHeight()
 
-    window.addEventListener('resize', updateContainerHeight)
+    const resizeObserver =
+      typeof window.ResizeObserver === 'function'
+        ? new window.ResizeObserver(scheduleContainerHeightUpdate)
+        : null
+
+    resizeObserver?.observe(container)
+    window.addEventListener('resize', scheduleContainerHeightUpdate)
+
     return () => {
-      window.removeEventListener('resize', updateContainerHeight)
+      if (animationFrameId !== null) {
+        window.cancelAnimationFrame(animationFrameId)
+      }
+
+      resizeObserver?.disconnect()
+      window.removeEventListener('resize', scheduleContainerHeightUpdate)
     }
   }, [])
 

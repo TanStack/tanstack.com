@@ -4,7 +4,7 @@ import { Moon, Sun, SunMoon } from 'lucide-react'
 import { Button } from '~/ui'
 
 export function ThemeToggle() {
-  const { themeMode, toggleMode } = useTheme()
+  const { themeMode, resolvedTheme, toggleMode } = useTheme()
 
   const handleToggleMode = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
@@ -18,24 +18,33 @@ export function ThemeToggle() {
   const nextLabel =
     themeMode === 'auto' ? 'light' : themeMode === 'light' ? 'dark' : 'auto'
 
+  const activeIcon = themeMode === 'auto' ? 'auto' : resolvedTheme
+
+  const getIconClassName = (icon: typeof activeIcon) =>
+    [
+      'col-start-1 row-start-1 h-3.5 w-3.5 shrink-0 transition-opacity motion-reduce:transition-none',
+      activeIcon === icon ? 'opacity-100' : 'opacity-0',
+    ].join(' ')
+
   return (
     <Button
+      type="button"
       variant="icon"
       color="gray"
       size="icon-sm"
       onClick={handleToggleMode}
       aria-label={`Theme: ${label}. Switch to ${nextLabel} mode.`}
       title={`Theme: ${label}. Switch to ${nextLabel} mode.`}
-      className="h-7 w-7 rounded-md p-0"
+      className="h-7 w-7 shrink-0 rounded-md p-0 leading-none"
     >
-      {themeMode === 'auto' ? (
-        <SunMoon className="w-3.5 h-3.5" />
-      ) : (
-        <>
-          <Sun className="w-3.5 h-3.5 hidden light:block" />
-          <Moon className="w-3.5 h-3.5 hidden dark:block" />
-        </>
-      )}
+      <span
+        aria-hidden="true"
+        className="grid h-3.5 w-3.5 shrink-0 place-items-center"
+      >
+        <SunMoon className={getIconClassName('auto')} />
+        <Sun className={getIconClassName('light')} />
+        <Moon className={getIconClassName('dark')} />
+      </span>
     </Button>
   )
 }

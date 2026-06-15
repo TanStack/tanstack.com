@@ -1,13 +1,11 @@
 import { notFound } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { setResponseHeader } from '@tanstack/react-start/server'
 import removeMarkdown from 'remove-markdown'
 import * as v from 'valibot'
 import {
   extractFrontMatter,
   fetchApiContents,
   fetchRepoFile,
-  isRecoverableGitHubContentError,
   shouldUseLocalDocsFiles,
 } from '~/utils/documents.server'
 import { renderMarkdownToRsc } from './markdown'
@@ -16,6 +14,10 @@ import { getCachedDocsArtifact } from './github-content-cache.server'
 import { buildRedirectManifest, type RedirectManifestEntry } from './redirects'
 import { isValidRepoPath, MAX_REPO_PATH_LENGTH } from './repo-path'
 import { removeLeadingSlash } from './utils'
+import {
+  readRequiredRepoFileOrFallback,
+  setDocsCacheHeaders,
+} from './docs-file.server'
 
 type DocsTreeNode = {
   path: string
@@ -94,39 +96,6 @@ const docsRedirectInput = v.object({
   docsRoot: repoPathSchema,
   docsPaths: v.array(v.pipe(v.string(), v.maxLength(512))),
 })
-
-const temporarilyUnavailableMarkdown = `# Content temporarily unavailable
-
-We are having trouble fetching this document from GitHub right now. Please try again in a minute.`
-
-function buildUnavailableFile(filePath: string) {
-  if (filePath.toLowerCase().endsWith('.md')) {
-    return temporarilyUnavailableMarkdown
-  }
-
-  return 'Content temporarily unavailable. Please try again in a minute.'
-}
-
-async function readRepoFileOrFallback(
-  repo: string,
-  branch: string,
-  filePath: string,
-) {
-  try {
-    return await fetchRepoFile(repo, branch, filePath)
-  } catch (error) {
-    if (!isRecoverableGitHubContentError(error)) {
-      throw error
-    }
-
-    return buildUnavailableFile(filePath)
-  }
-}
-
-function setDocsCacheHeaders(cdnCacheControl: string) {
-  setResponseHeader('Cache-Control', 'public, max-age=0, must-revalidate')
-  setResponseHeader('CDN-Cache-Control', cdnCacheControl)
-}
 
 function isDocsManifest(value: unknown): value is DocsManifest {
   if (typeof value !== 'object' || value === null) {
@@ -268,11 +237,7 @@ export const fetchDocs = createServerFn({ method: 'GET' })
   .inputValidator(repoFileInput)
   .handler(async ({ data }: { data: RepoFileRequest }) => {
     const { repo, branch, filePath } = data
-    const file = await readRepoFileOrFallback(repo, branch, filePath)
-
-    if (!file) {
-      throw notFound()
-    }
+    const file = await readRequiredRepoFileOrFallback(repo, branch, filePath)
 
     const frontMatter = extractFrontMatter(file)
     const description =
@@ -336,11 +301,7 @@ export const fetchFile = createServerFn({ method: 'GET' })
   .inputValidator(repoFileInput)
   .handler(async ({ data }: { data: RepoFileRequest }) => {
     const { repo, branch, filePath } = data
-    const file = await readRepoFileOrFallback(repo, branch, filePath)
-
-    if (!file) {
-      throw notFound()
-    }
+    const file = await readRequiredRepoFileOrFallback(repo, branch, filePath)
 
     setDocsCacheHeaders('max-age=300, stale-while-revalidate=300, durable')
 

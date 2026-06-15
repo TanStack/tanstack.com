@@ -27,14 +27,23 @@ export const fetchRenderedCodeFile = createServerFn({ method: 'GET' })
     }),
   )
   .handler(async ({ data }) => {
-    const [{ fetchFile }, { CodeBlock }, { getCodeBlockLanguageFromFilePath }] =
-      await Promise.all([
-        import('~/utils/docs.functions'),
-        import('~/components/markdown/CodeBlock.server'),
-        import('~/components/markdown/codeBlock.shared'),
-      ])
+    const [
+      { readRequiredRepoFileOrFallback, setDocsCacheHeaders },
+      { CodeBlock },
+      { getCodeBlockLanguageFromFilePath },
+    ] = await Promise.all([
+      import('~/utils/docs-file.server'),
+      import('~/components/markdown/CodeBlock.server'),
+      import('~/components/markdown/codeBlock.shared'),
+    ])
 
-    const code = await fetchFile({ data })
+    const code = await readRequiredRepoFileOrFallback(
+      data.repo,
+      data.branch,
+      data.filePath,
+    )
+    setDocsCacheHeaders('max-age=300, stale-while-revalidate=300, durable')
+
     const lang = getCodeBlockLanguageFromFilePath(data.filePath)
     const contentRsc = await renderServerComponent(
       React.createElement(

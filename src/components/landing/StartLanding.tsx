@@ -57,24 +57,46 @@ const featureCards = [
   },
 ]
 
-const routeContracts = [
+const startRuntimeSteps = [
   {
+    label: 'Match route',
     file: 'routes/_app.projects.$id.tsx',
-    tag: 'route',
-    title: 'Types flow from the route file.',
-    body: 'Path params, search schemas, route context, loader data, links, and navigate calls all stay tied to the generated route map.',
+    body: 'Router narrows params, search, context, loader deps, and links before React starts rendering.',
   },
   {
-    file: 'loader: ({ context, params }) => ...',
-    tag: 'data',
-    title: 'Data starts before render.',
-    body: 'Loaders coordinate async work in parallel, preload on intent, use Router cache, or hydrate TanStack Query for client-side reuse.',
+    label: 'Run loader',
+    file: 'loader({ context, params })',
+    body: 'Start can do the preload on the server, dehydrate Query, and reuse the same contract during client navigation.',
   },
   {
-    file: 'createServerFn({ method: "POST" })',
-    tag: 'server',
-    title: 'The server boundary is deliberate.',
-    body: 'Run database, environment, file-system, auth, or mutation work on the server while keeping the call typed and validated.',
+    label: 'Call server function',
+    file: 'createServerFn({ method: "GET" })',
+    body: 'Database, auth, and environment work stay behind an explicit, validated server boundary.',
+  },
+  {
+    label: 'Stream document',
+    file: 'SSR + route data + pending UI',
+    body: 'The HTML shell, head tags, loader data, and useful pending states can leave as one streaming response.',
+  },
+  {
+    label: 'Ship runtime output',
+    file: 'runtime adapter for the host',
+    body: 'The same app model builds for the deployment target instead of changing how routes are authored.',
+  },
+]
+
+const startRuntimeOutputs = [
+  {
+    label: 'Route contract',
+    value: 'params.id, search.tab, loaderData',
+  },
+  {
+    label: 'Server boundary',
+    value: 'db, auth, env, files, mutations',
+  },
+  {
+    label: 'Deploy output',
+    value: 'Node, Workers, Netlify, Railway',
   },
 ]
 
@@ -356,10 +378,6 @@ export default function StartLanding() {
 }
 
 function StartRuntimePanel() {
-  const [activeContractIndex, setActiveContractIndex] = React.useState(0)
-  const activeContract =
-    routeContracts[activeContractIndex] ?? routeContracts[0]
-
   return (
     <div className="min-w-0 w-full max-w-full overflow-hidden rounded-lg border border-cyan-200 bg-white p-4 shadow-sm shadow-cyan-950/5 dark:border-cyan-900 dark:bg-zinc-950">
       <div className="flex items-center justify-between gap-3">
@@ -375,91 +393,118 @@ function StartRuntimePanel() {
 
       <div className="mt-4">
         <p className="text-sm font-black leading-5 text-zinc-950 dark:text-white">
-          Start begins where Router leaves off.
+          Start keeps Router as the application contract.
         </p>
         <p className="mt-2 text-xs leading-5 text-zinc-600 dark:text-zinc-400">
-          The route tree owns the application contract. Start adds execution,
-          server functions, server routes, and build output around it without
-          replacing that contract.
+          Then it runs the server work Router shouldn't own: SSR, streaming,
+          server functions, server routes, and deployable output.
         </p>
       </div>
 
-      <div className="mt-4 rounded-lg bg-cyan-50 p-3 dark:bg-cyan-950/30">
-        <div className="flex min-w-0 items-start justify-between gap-3">
-          <p className="min-w-0 truncate font-mono text-xs font-bold text-cyan-950 dark:text-cyan-100">
-            {activeContract.file}
-          </p>
-          <span className="shrink-0 rounded-md bg-cyan-500 px-1.5 py-0.5 text-[0.65rem] font-black uppercase leading-none text-white">
-            {activeContract.tag}
-          </span>
+      <div className="mt-4 grid gap-4 xl:grid-cols-[1.04fr_0.96fr]">
+        <div className="min-w-0 overflow-hidden rounded-lg bg-zinc-950 p-4 text-zinc-100 shadow-inner shadow-black/20 dark:bg-black">
+          <div className="flex min-w-0 items-center justify-between gap-3">
+            <p className="min-w-0 truncate font-mono text-xs font-bold text-cyan-200">
+              GET /projects/tanstack?tab=activity
+            </p>
+            <span className="shrink-0 rounded-md bg-emerald-400/15 px-1.5 py-0.5 text-[0.65rem] font-black uppercase leading-none text-emerald-200">
+              server first
+            </span>
+          </div>
+
+          <div className="mt-4 min-w-0 overflow-x-auto pb-1 font-mono text-[0.72rem] leading-5">
+            <p className="whitespace-nowrap">
+              <span className="text-pink-300">export const</span>{' '}
+              <span className="text-white">Route</span> = createFileRoute(
+              <span className="text-emerald-300">'/_app/projects/$id'</span>)(
+              {'{'}
+            </p>
+            <p className="whitespace-nowrap pl-4">
+              validateSearch:{' '}
+              <span className="text-emerald-300">projectSearchSchema</span>,
+            </p>
+            <p className="whitespace-nowrap pl-4">
+              loader: ({'{'} context, params {'}'}) =&gt;
+            </p>
+            <p className="whitespace-nowrap pl-8">
+              context.queryClient.ensureQueryData(projectQuery(params.id)),
+            </p>
+            <p className="whitespace-nowrap">{'})'}</p>
+            <p className="mt-3 whitespace-nowrap text-zinc-400">
+              <span className="text-pink-300">const</span>{' '}
+              <span className="text-cyan-300">getProject</span> =
+              createServerFn({'{'} method:{' '}
+              <span className="text-emerald-300">'GET'</span> {'}'})
+            </p>
+            <p className="whitespace-nowrap pl-4 text-zinc-400">
+              .handler(({'{'} data {'}'}) =&gt; db.project.find(data.id))
+            </p>
+          </div>
         </div>
-        <p className="mt-2 text-sm font-black leading-5 text-zinc-950 dark:text-white">
-          {activeContract.title}
-        </p>
-        <p className="mt-1 text-xs leading-5 text-cyan-950/75 dark:text-cyan-100/75">
-          {activeContract.body}
-        </p>
+
+        <div className="rounded-lg bg-cyan-50 p-4 dark:bg-cyan-950/30">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-sm font-black text-cyan-950 dark:text-cyan-100">
+              Request trace
+            </p>
+            <span className="inline-flex items-center gap-1.5 rounded-md bg-white px-1.5 py-0.5 text-[0.65rem] font-black uppercase text-cyan-800 dark:bg-cyan-950 dark:text-cyan-200">
+              <span className="h-1.5 w-1.5 rounded-full bg-cyan-500 motion-safe:animate-pulse" />
+              streaming
+            </span>
+          </div>
+
+          <div className="mt-4 grid gap-3">
+            {startRuntimeSteps.map((step, index) => {
+              const isLastStep = index === startRuntimeSteps.length - 1
+
+              return (
+                <div
+                  key={step.label}
+                  className="grid grid-cols-[2rem_1fr] gap-3"
+                >
+                  <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-cyan-200 bg-white text-xs font-black text-cyan-800 dark:border-cyan-800 dark:bg-zinc-950 dark:text-cyan-200">
+                    {index + 1}
+                  </span>
+                  <div
+                    className={
+                      isLastStep
+                        ? 'min-w-0'
+                        : 'min-w-0 border-b border-cyan-200/70 pb-3 dark:border-cyan-800/70'
+                    }
+                  >
+                    <div className="flex min-w-0 items-start justify-between gap-3">
+                      <p className="text-sm font-black leading-5 text-zinc-950 dark:text-white">
+                        {step.label}
+                      </p>
+                      <p className="min-w-0 truncate font-mono text-[0.65rem] font-bold text-cyan-800/80 dark:text-cyan-100/75">
+                        {step.file}
+                      </p>
+                    </div>
+                    <p className="mt-1 text-xs leading-5 text-cyan-950/75 dark:text-cyan-100/75">
+                      {step.body}
+                    </p>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
       </div>
 
-      <div className="mt-4 space-y-2">
-        {routeContracts.map((contract, index) => (
-          <button
-            key={contract.file}
-            aria-pressed={activeContractIndex === index}
-            className={
-              activeContractIndex === index
-                ? 'w-full rounded-lg border border-cyan-500 bg-cyan-500 px-3 py-2.5 text-left text-white'
-                : 'w-full rounded-lg border border-zinc-100 bg-zinc-50 px-3 py-2.5 text-left transition-colors hover:border-cyan-300 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-cyan-800'
-            }
-            type="button"
-            onClick={() => setActiveContractIndex(index)}
+      <div className="mt-4 grid gap-3 sm:grid-cols-3">
+        {startRuntimeOutputs.map((output) => (
+          <div
+            key={output.label}
+            className="rounded-lg border border-zinc-100 bg-zinc-50 px-3 py-2.5 dark:border-zinc-800 dark:bg-zinc-900"
           >
-            <div className="flex min-w-0 items-start justify-between gap-3">
-              <p
-                className={
-                  activeContractIndex === index
-                    ? 'min-w-0 truncate font-mono text-xs font-bold text-white'
-                    : 'min-w-0 truncate font-mono text-xs font-bold text-zinc-900 dark:text-zinc-100'
-                }
-              >
-                {contract.file}
-              </p>
-              <span
-                className={
-                  activeContractIndex === index
-                    ? 'shrink-0 rounded-md bg-white/20 px-1.5 py-0.5 text-[0.65rem] font-black uppercase leading-none text-white'
-                    : 'shrink-0 rounded-md bg-cyan-100 px-1.5 py-0.5 text-[0.65rem] font-black uppercase leading-none text-cyan-800 dark:bg-cyan-950 dark:text-cyan-200'
-                }
-              >
-                {contract.tag}
-              </span>
-            </div>
-            <p
-              className={
-                activeContractIndex === index
-                  ? 'mt-1.5 text-sm font-black leading-5 text-white'
-                  : 'mt-1.5 text-sm font-black leading-5 text-zinc-950 dark:text-white'
-              }
-            >
-              {contract.title}
+            <p className="text-xs font-black text-zinc-950 dark:text-white">
+              {output.label}
             </p>
-            <p
-              className={
-                activeContractIndex === index
-                  ? 'mt-1 text-xs leading-5 text-white/80'
-                  : 'mt-1 text-xs leading-5 text-zinc-600 dark:text-zinc-400'
-              }
-            >
-              {contract.body}
+            <p className="mt-1 text-xs leading-5 text-zinc-600 dark:text-zinc-400">
+              {output.value}
             </p>
-          </button>
+          </div>
         ))}
-      </div>
-
-      <div className="mt-3 rounded-lg bg-cyan-50 px-3 py-2 text-xs leading-5 text-cyan-950 dark:bg-cyan-950/40 dark:text-cyan-100">
-        <span className="font-black">Result:</span> a Router app first; SSR,
-        streaming, APIs, middleware, and deployment added where the app needs
-        them.
       </div>
     </div>
   )

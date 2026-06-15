@@ -14,12 +14,6 @@ const LazyPartnersSection = React.lazy(async () => {
   return { default: mod.PartnersSection }
 })
 
-const LazyLibraryShowcases = React.lazy(async () => {
-  const mod = await import('./ShowcaseSection')
-
-  return { default: mod.LibraryShowcases }
-})
-
 interface LazyLandingCommunitySectionProps {
   libraryId: LibraryId
   libraryName: string
@@ -44,31 +38,8 @@ function SectionSkeleton({ title }: { title: string }) {
   )
 }
 
-function ShowcaseSkeleton() {
-  return (
-    <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto w-full">
-      <div className="space-y-8 py-16">
-        <div className="space-y-2">
-          <div className="h-10 w-64 rounded bg-gray-200/70 dark:bg-gray-800/70 animate-pulse" />
-          <div className="h-6 w-80 max-w-full rounded bg-gray-200/70 dark:bg-gray-800/70 animate-pulse" />
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Array.from({ length: 3 }).map((_, index) => (
-            <div
-              key={`showcase-${index}`}
-              className="aspect-video rounded-xl bg-gray-200/70 dark:bg-gray-800/70 animate-pulse"
-            />
-          ))}
-        </div>
-      </div>
-    </div>
-  )
-}
-
 export function LazyLandingCommunitySection({
   libraryId,
-  libraryName,
-  showShowcases = true,
 }: LazyLandingCommunitySectionProps) {
   const { ref, isIntersecting } = useIntersectionObserver({
     rootMargin: '25%',
@@ -81,7 +52,6 @@ export function LazyLandingCommunitySection({
         <>
           <SectionSkeleton title="Maintainers" />
           <SectionSkeleton title="Partners" />
-          {showShowcases ? <ShowcaseSkeleton /> : null}
         </>
       ) : (
         <React.Suspense
@@ -89,20 +59,11 @@ export function LazyLandingCommunitySection({
             <>
               <SectionSkeleton title="Maintainers" />
               <SectionSkeleton title="Partners" />
-              {showShowcases ? <ShowcaseSkeleton /> : null}
             </>
           }
         >
           <LazyMaintainersSection libraryId={libraryId} />
           <LazyPartnersSection libraryId={libraryId} />
-          {showShowcases ? (
-            <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-              <LazyLibraryShowcases
-                libraryId={libraryId}
-                libraryName={libraryName}
-              />
-            </div>
-          ) : null}
         </React.Suspense>
       )}
     </div>

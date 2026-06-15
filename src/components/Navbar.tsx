@@ -437,11 +437,36 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   }, [])
 
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
+  const [dismissedDesktopMenuKey, setDismissedDesktopMenuKey] =
+    React.useState<NavMenuKey | null>(null)
   const [canLoadAuthControls, setCanLoadAuthControls] = React.useState(false)
 
   React.useEffect(() => {
     setMobileMenuOpen(false)
-  }, [location.pathname, location.hash])
+  }, [location.href])
+
+  const blurActiveNavigationElement = React.useCallback(() => {
+    if (typeof document === 'undefined') {
+      return
+    }
+
+    const activeElement = document.activeElement
+
+    if (
+      activeElement instanceof HTMLElement &&
+      containerRef.current?.contains(activeElement)
+    ) {
+      activeElement.blur()
+    }
+  }, [])
+
+  const dismissDesktopMenu = React.useCallback(
+    (key: NavMenuKey) => {
+      setDismissedDesktopMenuKey(key)
+      blurActiveNavigationElement()
+    },
+    [blurActiveNavigationElement],
+  )
 
   React.useEffect(() => {
     if (typeof window === 'undefined') {
@@ -549,7 +574,17 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           )}
         >
           {NAV_GROUPS.map((group) => (
-            <DesktopNavTrigger key={group.key} group={group} />
+            <DesktopNavTrigger
+              key={group.key}
+              group={group}
+              dismissed={dismissedDesktopMenuKey === group.key}
+              onDismiss={() => dismissDesktopMenu(group.key)}
+              onResetDismissed={() => {
+                setDismissedDesktopMenuKey((dismissedKey) =>
+                  dismissedKey === group.key ? null : dismissedKey,
+                )
+              }}
+            />
           ))}
         </nav>
       </div>
@@ -663,7 +698,17 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   )
 }
 
-function DesktopNavTrigger({ group }: { group: NavMenuGroup }) {
+function DesktopNavTrigger({
+  group,
+  dismissed,
+  onDismiss,
+  onResetDismissed,
+}: {
+  group: NavMenuGroup
+  dismissed: boolean
+  onDismiss: () => void
+  onResetDismissed: () => void
+}) {
   const triggerClassName = twMerge(
     'ts-mega-trigger inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-[13px] font-medium',
     'text-gray-700 transition-colors hover:bg-gray-500/10 hover:text-gray-950',
@@ -671,12 +716,19 @@ function DesktopNavTrigger({ group }: { group: NavMenuGroup }) {
   )
 
   return (
-    <div className="ts-mega-trigger-wrap" data-menu-key={group.key}>
+    <div
+      className="ts-mega-trigger-wrap"
+      data-menu-key={group.key}
+      data-menu-dismissed={dismissed ? 'true' : undefined}
+      onPointerLeave={onResetDismissed}
+      onFocusCapture={onResetDismissed}
+    >
       {group.to ? (
         <Link
           to={group.to}
           data-menu-key={group.key}
           className={triggerClassName}
+          onClick={onDismiss}
           preload="intent"
         >
           <span>{group.label}</span>
@@ -693,12 +745,18 @@ function DesktopNavTrigger({ group }: { group: NavMenuGroup }) {
           <span>{group.label}</span>
         </button>
       )}
-      <DesktopNavDropdown group={group} />
+      <DesktopNavDropdown group={group} onNavigate={onDismiss} />
     </div>
   )
 }
 
-function DesktopNavDropdown({ group }: { group: NavMenuGroup }) {
+function DesktopNavDropdown({
+  group,
+  onNavigate,
+}: {
+  group: NavMenuGroup
+  onNavigate: () => void
+}) {
   return (
     <div className="ts-mega-dropdown">
       <div
@@ -710,7 +768,7 @@ function DesktopNavDropdown({ group }: { group: NavMenuGroup }) {
       >
         <MegaMenuContent
           group={group}
-          onNavigate={() => undefined}
+          onNavigate={onNavigate}
           variant="desktop"
         />
       </div>

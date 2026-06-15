@@ -848,6 +848,8 @@ export function DocsLayout({
     })
   }, [groupInitialOpenState])
 
+  const libraryHomePath = `/${libraryId}/${version}`
+
   const menuItems = menuConfig.map((group, i) => {
     const groupKey = `${i}:${String(group.label)}`
 
@@ -919,8 +921,7 @@ export function DocsLayout({
                   </a>
                 ) : isHomeLink ? (
                   <Link
-                    to="/$libraryId/$version"
-                    params={{ libraryId, version }}
+                    to={libraryHomePath}
                     onClick={() => {
                       detailsRef.current.removeAttribute('open')
                     }}

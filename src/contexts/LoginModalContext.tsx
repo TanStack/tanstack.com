@@ -10,9 +10,17 @@ interface LoginModalContextValue {
   closeLoginModal: () => void
 }
 
-const LoginModalContext = React.createContext<LoginModalContextValue | null>(
-  null,
-)
+declare global {
+  var __tanstackLoginModalContext:
+    | React.Context<LoginModalContextValue | null>
+    | undefined
+}
+
+const LoginModalContext =
+  import.meta.env.DEV && typeof window !== 'undefined'
+    ? (globalThis.__tanstackLoginModalContext ??=
+        React.createContext<LoginModalContextValue | null>(null))
+    : React.createContext<LoginModalContextValue | null>(null)
 
 export function useLoginModal() {
   const context = React.useContext(LoginModalContext)

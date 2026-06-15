@@ -25,9 +25,7 @@ export const Route = createFileRoute('/pacer/$version/')({
 })
 
 function PacerNavbarTitle() {
-  const { version } = Route.useParams()
-
-  return <LibraryNavbarTitle libraryId="pacer" version={version} />
+  return <LibraryNavbarTitle libraryId="pacer" />
 }
 
 function PacerLandingRoute() {

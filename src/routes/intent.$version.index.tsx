@@ -25,9 +25,7 @@ export const Route = createFileRoute('/intent/$version/')({
 })
 
 function IntentNavbarTitle() {
-  const { version } = Route.useParams()
-
-  return <LibraryNavbarTitle libraryId="intent" version={version} />
+  return <LibraryNavbarTitle libraryId="intent" />
 }
 
 function IntentLandingRoute() {

@@ -25,9 +25,7 @@ export const Route = createFileRoute('/ranger/$version/')({
 })
 
 function RangerNavbarTitle() {
-  const { version } = Route.useParams()
-
-  return <LibraryNavbarTitle libraryId="ranger" version={version} />
+  return <LibraryNavbarTitle libraryId="ranger" />
 }
 
 function RangerLandingRoute() {

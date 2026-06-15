@@ -25,9 +25,7 @@ export const Route = createFileRoute('/store/$version/')({
 })
 
 function StoreNavbarTitle() {
-  const { version } = Route.useParams()
-
-  return <LibraryNavbarTitle libraryId="store" version={version} />
+  return <LibraryNavbarTitle libraryId="store" />
 }
 
 function StoreLandingRoute() {

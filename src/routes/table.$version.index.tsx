@@ -25,9 +25,7 @@ export const Route = createFileRoute('/table/$version/')({
 })
 
 function TableNavbarTitle() {
-  const { version } = Route.useParams()
-
-  return <LibraryNavbarTitle libraryId="table" version={version} />
+  return <LibraryNavbarTitle libraryId="table" />
 }
 
 function TableLandingRoute() {

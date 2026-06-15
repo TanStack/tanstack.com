@@ -25,9 +25,7 @@ export const Route = createFileRoute('/router/$version/')({
 })
 
 function RouterNavbarTitle() {
-  const { version } = Route.useParams()
-
-  return <LibraryNavbarTitle libraryId="router" version={version} />
+  return <LibraryNavbarTitle libraryId="router" />
 }
 
 function RouterLandingRoute() {

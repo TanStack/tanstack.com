@@ -25,9 +25,7 @@ export const Route = createFileRoute('/cli/$version/')({
 })
 
 function CliNavbarTitle() {
-  const { version } = Route.useParams()
-
-  return <LibraryNavbarTitle libraryId="cli" version={version} />
+  return <LibraryNavbarTitle libraryId="cli" />
 }
 
 function CliLandingRoute() {

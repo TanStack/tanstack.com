@@ -115,27 +115,20 @@ export function LibraryLandingLayout({
 
 export function LibraryNavbarTitle({
   libraryId,
-  version,
 }: {
   libraryId: LandingLibraryId
-  version: string
 }) {
   const library = getLibrary(libraryId)
   const libraryName = library.name.replace('TanStack ', '')
-  const resolvedVersion = version === 'latest' ? library.latestVersion : version
   const gradientText = `inline-block text-transparent bg-clip-text bg-linear-to-r ${library.colorFrom} ${library.colorTo}`
 
   return (
     <Link
       to="/$libraryId"
       params={{ libraryId: library.id }}
-      className="relative whitespace-nowrap"
+      className="whitespace-nowrap"
     >
-      <span className={gradientText}>{libraryName}</span>{' '}
-      <span className="text-sm absolute right-0 top-0 font-normal normal-case">
-        {resolvedVersion}
-      </span>
-      <span className="text-sm opacity-0 normal-case">{resolvedVersion}</span>
+      <span className={gradientText}>{libraryName}</span>
     </Link>
   )
 }

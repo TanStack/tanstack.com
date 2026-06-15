@@ -25,9 +25,7 @@ export const Route = createFileRoute('/db/$version/')({
 })
 
 function DbNavbarTitle() {
-  const { version } = Route.useParams()
-
-  return <LibraryNavbarTitle libraryId="db" version={version} />
+  return <LibraryNavbarTitle libraryId="db" />
 }
 
 function DbLandingRoute() {

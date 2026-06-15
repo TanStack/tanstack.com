@@ -26,9 +26,7 @@ export const Route = createFileRoute('/devtools/$version/')({
 })
 
 function DevtoolsNavbarTitle() {
-  const { version } = Route.useParams()
-
-  return <LibraryNavbarTitle libraryId="devtools" version={version} />
+  return <LibraryNavbarTitle libraryId="devtools" />
 }
 
 function DevtoolsLandingRoute() {

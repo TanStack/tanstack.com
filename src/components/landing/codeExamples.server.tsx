@@ -1,14 +1,23 @@
 import * as React from 'react'
-import type { LibraryId } from '~/libraries'
-import { queryProject } from '~/libraries/query'
+import type { Framework, LibraryId } from '~/libraries'
 import { routerProject } from '~/libraries/router'
 import {
   LandingCodeExampleCard,
   type LandingCodeExample,
 } from './LandingCodeExampleCard.server'
 
+const queryCodeExampleFrameworks: Array<Framework> = [
+  'react',
+  'preact',
+  'solid',
+  'vue',
+  'svelte',
+  'angular',
+  'lit',
+]
+
 const queryCodeExample: LandingCodeExample = {
-  frameworks: queryProject.frameworks,
+  frameworks: queryCodeExampleFrameworks,
   codeByFramework: {
     react: {
       lang: 'tsx',

@@ -53,16 +53,16 @@ export function HomeSocialProofFallback() {
 export function HomeCommunityFallback() {
   return (
     <div className="space-y-24 min-h-[1180px] md:min-h-[780px] lg:min-h-[760px]">
+      <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
+        <SectionTitle id="maintainers" title="Core Maintainers" />
+        <SectionBlock className="min-h-[260px] md:min-h-[220px]" />
+      </div>
+
       <div className="px-4 w-full lg:max-w-(--breakpoint-lg) md:mx-auto">
         <div className="space-y-8">
           <div className="h-10 w-48 rounded bg-gray-200 dark:bg-gray-800" />
           <SectionBlock className="min-h-[320px] md:min-h-[260px]" />
         </div>
-      </div>
-
-      <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-        <SectionTitle id="maintainers" title="Core Maintainers" />
-        <SectionBlock className="min-h-[260px] md:min-h-[220px]" />
       </div>
     </div>
   )

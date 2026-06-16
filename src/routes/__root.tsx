@@ -8,7 +8,7 @@ import {
   Scripts,
 } from '@tanstack/react-router'
 import { QueryClient } from '@tanstack/react-query'
-import appCss from '~/styles/app.css?url'
+import '~/styles/app.css'
 import {
   canonicalUrl,
   getCanonicalPath,
@@ -102,7 +102,6 @@ export const Route = createRootRouteWithContext<{
       }),
     ],
     links: [
-      { rel: 'stylesheet', href: appCss },
       {
         rel: 'preload',
         href: '/fonts/Inter-latin.woff2',

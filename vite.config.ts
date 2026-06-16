@@ -280,6 +280,11 @@ export default defineConfig({
       rsc: {
         enabled: true,
       },
+      server: {
+        build: {
+          inlineCss: true,
+        },
+      },
       importProtection: {
         behavior: 'error',
         client: {

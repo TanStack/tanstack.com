@@ -420,6 +420,8 @@ function AiGraphChatPanel() {
   >([])
   const [typingUserMessage, setTypingUserMessage] = React.useState('')
   const primaryServerNode = graphServerNodes[0]
+  const chatScrollRef = React.useRef<HTMLDivElement>(null)
+  const chatLockedToBottomRef = React.useRef(true)
 
   React.useEffect(() => {
     const clientIntervalId = window.setInterval(() => {
@@ -549,6 +551,37 @@ function AiGraphChatPanel() {
     }
   }, [])
 
+  React.useEffect(() => {
+    const element = chatScrollRef.current
+    if (!element) {
+      return
+    }
+
+    const handleScroll = () => {
+      const distanceFromBottom =
+        element.scrollHeight - element.scrollTop - element.clientHeight
+
+      chatLockedToBottomRef.current = distanceFromBottom < 72
+    }
+
+    element.addEventListener('scroll', handleScroll, { passive: true })
+    return () => {
+      element.removeEventListener('scroll', handleScroll)
+    }
+  }, [])
+
+  React.useEffect(() => {
+    const frameId = window.requestAnimationFrame(() => {
+      const element = chatScrollRef.current
+
+      if (element && chatLockedToBottomRef.current) {
+        element.scrollTop = element.scrollHeight
+      }
+    })
+
+    return () => window.cancelAnimationFrame(frameId)
+  }, [chatMessages])
+
   return (
     <div className="grid w-full min-w-0 max-w-full items-start gap-5 lg:grid-cols-[1.05fr_0.95fr]">
       <AiDemoWindow title="client graph">
@@ -643,46 +676,51 @@ function AiGraphChatPanel() {
       </AiDemoWindow>
 
       <AiDemoWindow title="chat runtime">
-        <div className="flex min-h-[26rem] min-w-0 flex-col bg-zinc-50 dark:bg-zinc-900">
-          <div className="flex flex-1 flex-col justify-end gap-2.5 p-4">
-            {chatMessages.map((message) => (
-              <React.Fragment key={message.id}>
-                <div className="ml-auto max-w-[86%] rounded-xl bg-pink-500 px-3 py-2 text-xs font-bold leading-5 text-white shadow-sm">
-                  {message.user}
-                </div>
-                {message.assistant || message.isStreaming ? (
-                  <div className="max-w-[90%] rounded-xl border border-zinc-200 bg-white px-3 py-2 text-xs leading-5 text-zinc-800 shadow-sm dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-200">
-                    {message.assistant}
-                    {message.isStreaming ? (
-                      <span className="ml-1 inline-block h-3.5 w-1 rounded-sm bg-pink-500 align-[-0.2rem] motion-safe:animate-pulse" />
-                    ) : null}
+        <div className="flex h-[26rem] min-w-0 flex-col bg-zinc-50 dark:bg-zinc-900">
+          <div
+            ref={chatScrollRef}
+            className="min-h-0 flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
+            <div className="flex min-h-full flex-col justify-end gap-2.5 p-4">
+              {chatMessages.map((message) => (
+                <React.Fragment key={message.id}>
+                  <div className="ml-auto max-w-[86%] rounded-xl bg-pink-500 px-3 py-2 text-xs font-bold leading-5 text-white shadow-sm">
+                    {message.user}
                   </div>
-                ) : null}
-              </React.Fragment>
-            ))}
-            <div className="grid gap-2 pt-2 text-xs font-bold sm:grid-cols-2">
-              {[
-                ['event', 'assistant.delta'],
-                ['tool', 'approval required'],
-                ['provider', aiHeroProviders[activeProvider]],
-                ['server', 'TanStack AI'],
-              ].map(([label, value]) => (
-                <div
-                  key={label}
-                  className="rounded-lg bg-white px-3 py-2 dark:bg-zinc-950"
-                >
-                  <p className="text-[0.58rem] uppercase text-zinc-500 dark:text-zinc-500">
-                    {label}
-                  </p>
-                  <p className="mt-1 truncate text-pink-700 dark:text-pink-300">
-                    {value}
-                  </p>
-                </div>
+                  {message.assistant || message.isStreaming ? (
+                    <div className="max-w-[90%] rounded-xl border border-zinc-200 bg-white px-3 py-2 text-xs leading-5 text-zinc-800 shadow-sm dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-200">
+                      {message.assistant}
+                      {message.isStreaming ? (
+                        <span className="ml-1 inline-block h-3.5 w-1 rounded-sm bg-pink-500 align-[-0.2rem] motion-safe:animate-pulse" />
+                      ) : null}
+                    </div>
+                  ) : null}
+                </React.Fragment>
               ))}
+              <div className="grid gap-2 pt-2 text-xs font-bold sm:grid-cols-2">
+                {[
+                  ['event', 'assistant.delta'],
+                  ['tool', 'approval required'],
+                  ['provider', aiHeroProviders[activeProvider]],
+                  ['server', 'TanStack AI'],
+                ].map(([label, value]) => (
+                  <div
+                    key={label}
+                    className="rounded-lg bg-white px-3 py-2 dark:bg-zinc-950"
+                  >
+                    <p className="text-[0.58rem] uppercase text-zinc-500 dark:text-zinc-500">
+                      {label}
+                    </p>
+                    <p className="mt-1 truncate text-pink-700 dark:text-pink-300">
+                      {value}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
-          <div className="border-t border-zinc-200 p-4 dark:border-zinc-800">
+          <div className="shrink-0 border-t border-zinc-200 p-4 dark:border-zinc-800">
             <div
               className={
                 typingUserMessage

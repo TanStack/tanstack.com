@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import type { MenuItem } from './config'
 
 export const docsNavTabIds = [
+  'home',
   'get-started',
   'tutorial',
   'guides',
@@ -13,6 +14,7 @@ export const docsNavTabIds = [
 export type DocsNavTabId = (typeof docsNavTabIds)[number]
 
 export const docsNavTabs: Array<{ id: DocsNavTabId; label: string }> = [
+  { id: 'home', label: 'Home' },
   { id: 'get-started', label: 'Get Started' },
   { id: 'tutorial', label: 'Tutorial' },
   { id: 'guides', label: 'Guides' },
@@ -33,6 +35,15 @@ function getFallbackDocsNavTabId(
   const childLabel = getLabelText(child.label).toLowerCase()
   const to = child.to.toLowerCase()
   const searchText = `${groupLabel} ${childLabel} ${to}`
+
+  if (
+    child.to === '..' ||
+    child.to === './framework' ||
+    childLabel === 'home' ||
+    childLabel === 'frameworks'
+  ) {
+    return 'home'
+  }
 
   if (
     child.to.startsWith('http') ||
@@ -71,13 +82,11 @@ function getFallbackDocsNavTabId(
     groupLabel.includes('get started') ||
     groupLabel.includes('getting started') ||
     groupLabel.includes('overview') ||
-    childLabel === 'home' ||
-    childLabel === 'frameworks' ||
+    childLabel === 'overview' ||
     searchText.includes('installation') ||
     searchText.includes('quick-start') ||
     searchText.includes('quick start') ||
-    searchText.includes('introduction') ||
-    searchText.includes('overview')
+    searchText.includes('introduction')
   ) {
     return 'get-started'
   }

@@ -34,28 +34,45 @@ type RightRailProps = {
   children: React.ReactNode
   className?: string
   breakpoint?: 'sm' | 'md'
+  stickyOffset?: 'navbar' | 'docs-tabs'
 }
 
 export function RightRail({
   children,
   className,
   breakpoint = 'sm',
+  stickyOffset = 'navbar',
 }: RightRailProps) {
+  const stickyTopClass =
+    stickyOffset === 'docs-tabs'
+      ? breakpoint === 'md'
+        ? 'md:top-[calc(var(--navbar-height)+var(--docs-tabs-height,0px))]'
+        : 'sm:top-[calc(var(--navbar-height)+var(--docs-tabs-height,0px))]'
+      : breakpoint === 'md'
+        ? 'md:top-[var(--navbar-height)]'
+        : 'sm:top-[var(--navbar-height)]'
+  const stickyMaxHeightClass =
+    stickyOffset === 'docs-tabs'
+      ? breakpoint === 'md'
+        ? 'md:max-h-[calc(100dvh-var(--navbar-height)-var(--docs-tabs-height,0px))]'
+        : 'sm:max-h-[calc(100dvh-var(--navbar-height)-var(--docs-tabs-height,0px))]'
+      : breakpoint === 'md'
+        ? 'md:max-h-[calc(100dvh-var(--navbar-height))]'
+        : 'sm:max-h-[calc(100dvh-var(--navbar-height))]'
   const wrapperBreakpointClass =
     breakpoint === 'md'
-      ? 'w-full md:w-[300px] shrink-0 md:sticky md:top-[var(--navbar-height)] hidden md:block'
-      : 'w-full sm:w-[300px] shrink-0 sm:sticky sm:top-[var(--navbar-height)] hidden sm:block'
+      ? 'w-full md:w-[300px] shrink-0 md:sticky hidden md:block'
+      : 'w-full sm:w-[300px] shrink-0 sm:sticky hidden sm:block'
 
-  const innerBreakpointClass =
-    breakpoint === 'md'
-      ? 'md:sticky md:top-[var(--navbar-height)] md:max-h-[calc(100dvh-var(--navbar-height))]'
-      : 'sm:sticky sm:top-[var(--navbar-height)] sm:max-h-[calc(100dvh-var(--navbar-height))]'
+  const innerBreakpointClass = breakpoint === 'md' ? 'md:sticky' : 'sm:sticky'
 
   return (
-    <div className={twMerge(wrapperBreakpointClass, className)}>
+    <div className={twMerge(wrapperBreakpointClass, stickyTopClass, className)}>
       <div
         className={twMerge(
           innerBreakpointClass,
+          stickyTopClass,
+          stickyMaxHeightClass,
           'ml-auto flex flex-col gap-4 pb-4 max-w-full overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [&>*]:shrink-0',
         )}
       >

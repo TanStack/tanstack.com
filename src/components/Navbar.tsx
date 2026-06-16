@@ -143,8 +143,9 @@ type NavigationLibrary = LibrarySlim & {
 
 type LibraryGroupId = keyof typeof librariesByGroup
 
-const DESKTOP_NAV_CLASS = 'hidden min-[960px]:flex'
-const MOBILE_NAV_CLASS = 'min-[960px]:hidden'
+const DESKTOP_NAV_CLASS = 'hidden min-[900px]:flex'
+const MOBILE_NAV_CLASS = 'min-[900px]:hidden'
+const DESKTOP_SOCIAL_CLASS = 'hidden min-[1120px]:flex'
 const LIBRARY_MENU_GROUP_IDS: readonly LibraryGroupId[] = [
   'framework',
   'state',
@@ -649,12 +650,12 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     <div
       className={twMerge(
         'w-full p-2 fixed top-0 z-[100] bg-white/90 dark:bg-black/90 backdrop-blur-lg',
-        'flex items-center justify-between gap-3',
+        'flex items-center justify-between gap-2 min-[1120px]:gap-3',
         'border-b border-gray-500/20',
       )}
       ref={containerRef}
     >
-      <div className="flex min-w-0 flex-1 items-center gap-3">
+      <div className="flex min-w-0 flex-1 items-center gap-2 min-[1120px]:gap-3">
         <div className="flex items-center gap-2 font-black text-xl uppercase min-w-0">
           <React.Suspense fallback={<LogoSection title={Title} />}>
             <LazyBrandContextMenu
@@ -695,7 +696,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       </div>
 
       <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-        <div className={DESKTOP_NAV_CLASS}>{socialLinks}</div>
+        <div className={DESKTOP_SOCIAL_CLASS}>{socialLinks}</div>
         <ThemeToggle />
         <NavbarCartButton />
         <SearchButton iconOnly />
@@ -815,7 +816,7 @@ function DesktopNavTrigger({
   onResetDismissed: () => void
 }) {
   const triggerClassName = twMerge(
-    'ts-mega-trigger inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-[13px] font-medium',
+    'ts-mega-trigger inline-flex items-center gap-1 rounded-md px-2 py-2 text-xs font-medium min-[1120px]:gap-1.5 min-[1120px]:px-3 min-[1120px]:text-[13px]',
     'text-gray-700 transition-colors hover:bg-gray-500/10 hover:text-gray-950',
     'dark:text-gray-300 dark:hover:text-white',
   )
@@ -1453,7 +1454,12 @@ function MenuItemLink({
           ) : null}
         </span>
         {item.description ? (
-          <span className="mt-0.5 block text-sm leading-5 text-gray-600 dark:text-gray-400">
+          <span
+            className={twMerge(
+              'mt-0.5 block text-gray-600 dark:text-gray-400',
+              variant === 'desktop' ? 'text-xs leading-4' : 'text-sm leading-5',
+            )}
+          >
             {item.description}
           </span>
         ) : null}

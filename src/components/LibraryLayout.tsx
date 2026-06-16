@@ -12,10 +12,16 @@ import { getActiveDocsNavTabId, getTabbedMenuConfig } from '~/utils/docsNavTabs'
 import { Framework, LibraryId } from '~/libraries'
 import { frameworkOptions } from '~/libraries/frameworks'
 import { twMerge } from 'tailwind-merge'
-import { partners, PartnerImage, type Partner } from '~/utils/partners'
+import {
+  partners,
+  PartnerImage,
+  partnerTiers,
+  type Partner,
+  type PartnerTier,
+} from '~/utils/partners'
 import {
   getPartnerPlacementAnalyticsMetadata,
-  getPartnersForPlacement,
+  getPartnerTierGroupsForPlacement,
   type PartnerPlacementContext,
 } from '~/utils/partner-placement'
 import { usePartnerPlacementContext } from '~/utils/usePartnerPlacementContext'
@@ -31,8 +37,30 @@ import { trackEvent, useTrackedImpression } from '~/utils/analytics'
 // Number of days a doc page is flagged as "New"/"Updated" in the sidebar.
 const RECENCY_WINDOW_DAYS = 7
 const RECENCY_WINDOW_MS = RECENCY_WINDOW_DAYS * 24 * 60 * 60 * 1000
+const docsPartnerTierWeights: Record<PartnerTier, number> = {
+  gold: 3,
+  silver: 2,
+  bronze: 1,
+}
 
 type DocRecency = 'new' | 'updated' | null
+type DocsPartner = {
+  category: Partner['category']
+  score: Partner['score']
+  tier?: Partner['tier']
+  id: string
+  name: string
+  href: string
+  image: Parameters<typeof PartnerImage>[0]['config']
+}
+type DocsPartnerTierGroup = {
+  tier: PartnerTier
+  partners: Array<DocsPartner>
+}
+type DocsPartnerScrollSlot = {
+  partner: DocsPartner
+  slotIndex: number
+}
 
 // Determine whether a doc page should show a recency pill, based on the
 // maintainer-supplied `addedAt` / `updatedAt` dates in the repo's docs/config.json.
@@ -97,152 +125,79 @@ function DocRecencyPill({
   )
 }
 
-// Mobile partners strip - inline in the docs toggle bar
-function MobilePartnersStrip({
+function DocsPartnerSlot({
+  orderPlacementContext,
   partners,
-  placementContext,
-  enabled = true,
 }: {
-  partners: Array<{
-    category: Partner['category']
-    score: Partner['score']
-    tier?: Partner['tier']
-    id: string
-    name: string
-    href: string
-    image: Parameters<typeof PartnerImage>[0]['config']
-  }>
-  placementContext: PartnerPlacementContext
-  enabled?: boolean
+  orderPlacementContext: PartnerPlacementContext
+  partners: Array<DocsPartner>
 }) {
-  const innerRef = React.useRef<HTMLDivElement>(null)
-  const [isHovered, setIsHovered] = React.useState(false)
-  const scrollPositionRef = React.useRef(0)
-  const hasStartedRef = React.useRef(false)
+  const tierGroups = React.useMemo(
+    () => getPartnerTierGroupsForPlacement(partners, orderPlacementContext),
+    [partners, orderPlacementContext],
+  )
+  const activeSlot = useDocsPartnerScrollSlot(tierGroups)
+  const { displayedSlot, flipState } = useFlippingDocsPartnerSlot(activeSlot)
 
-  React.useEffect(() => {
-    const inner = innerRef.current
-    if (!inner) return
-    if (!enabled) return
-
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
-    // The strip is mobile-only (md:hidden), so don't run the rAF loop on md+
-    // where it isn't painted.
-    const isDesktop = window.matchMedia('(min-width: 768px)')
-
-    let animationId: number
-    let timeoutId: ReturnType<typeof setTimeout>
-    const scrollSpeed = 0.15
-    const startDelay = 4000
-
-    const animate = () => {
-      if (!isHovered && inner) {
-        scrollPositionRef.current += scrollSpeed
-        if (scrollPositionRef.current >= inner.scrollWidth / 2) {
-          scrollPositionRef.current = 0
-        }
-        inner.style.transform = `translateX(${-scrollPositionRef.current}px)`
-      }
-      animationId = requestAnimationFrame(animate)
-    }
-
-    const start = () => {
-      if (reduceMotion.matches || isDesktop.matches) return
-      if (!hasStartedRef.current) {
-        timeoutId = setTimeout(() => {
-          hasStartedRef.current = true
-          animationId = requestAnimationFrame(animate)
-        }, startDelay)
-      } else {
-        animationId = requestAnimationFrame(animate)
-      }
-    }
-
-    const stop = () => {
-      clearTimeout(timeoutId)
-      cancelAnimationFrame(animationId)
-    }
-
-    const restart = () => {
-      stop()
-      start()
-    }
-
-    isDesktop.addEventListener('change', restart)
-    reduceMotion.addEventListener('change', restart)
-    start()
-
-    return () => {
-      isDesktop.removeEventListener('change', restart)
-      reduceMotion.removeEventListener('change', restart)
-      stop()
-    }
-  }, [isHovered, enabled])
+  if (!displayedSlot) {
+    return null
+  }
 
   return (
-    <div className="flex items-center gap-2 min-w-0">
-      <div
-        className="relative flex-1 overflow-hidden min-w-0"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        onTouchStart={() => setIsHovered(true)}
-        onTouchEnd={() => setIsHovered(false)}
-      >
-        <div className="overflow-hidden">
-          <div
-            ref={innerRef}
-            className="flex items-center gap-4 w-max py-1 will-change-transform"
-          >
-            {/* Duplicate partners for seamless loop */}
-            {[...partners, ...partners].map((partner, i) => (
-              <MobilePartnerLink
-                key={`${partner.id}-${i}`}
-                index={i}
-                isDuplicate={i >= partners.length}
-                placementContext={placementContext}
-                partner={partner}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
+    <div className="docs-partner-slot ml-auto flex shrink-0 items-stretch border-l border-gray-500/20 pl-2 pr-3 md:hidden">
+      <DocsPartnerSlotLink
+        key={`${displayedSlot.partner.id}:${displayedSlot.slotIndex}`}
+        flipState={flipState}
+        orderPlacementContext={orderPlacementContext}
+        partner={displayedSlot.partner}
+        slotIndex={displayedSlot.slotIndex}
+      />
     </div>
   )
 }
 
-function MobilePartnerLink({
-  index,
-  isDuplicate,
-  placementContext,
+function DocsPartnerSlotLink({
+  flipState,
+  orderPlacementContext,
   partner,
+  slotIndex,
 }: {
-  index: number
-  isDuplicate: boolean
-  placementContext: PartnerPlacementContext
-  partner: {
-    category: Partner['category']
-    score: Partner['score']
-    tier?: Partner['tier']
-    id: string
-    name: string
-    href: string
-    image: Parameters<typeof PartnerImage>[0]['config']
-  }
+  flipState: DocsPartnerFlipState
+  orderPlacementContext: PartnerPlacementContext
+  partner: DocsPartner
+  slotIndex: number
 }) {
   const analyticsMetadata = getPartnerPlacementAnalyticsMetadata(
     partner,
-    placementContext,
+    orderPlacementContext,
   )
   const ref = useTrackedImpression<'partner_viewed', HTMLAnchorElement>({
-    enabled: !isDuplicate,
     event: 'partner_viewed',
     props: {
       partner_id: partner.id,
       placement: 'docs_strip',
       ...analyticsMetadata,
-      slot_index: index,
+      slot_index: slotIndex,
     },
   })
+  const compactImageConfig = getCompactPartnerImageConfig(partner.image)
+
+  const onClick = () => {
+    let destinationHost: string | undefined
+    try {
+      destinationHost = new URL(partner.href).host
+    } catch {
+      // Bad/relative href — track without host rather than dropping.
+    }
+    trackEvent('partner_clicked', {
+      partner_id: partner.id,
+      placement: 'docs_strip',
+      destination: 'external',
+      destination_host: destinationHost,
+      ...analyticsMetadata,
+      slot_index: slotIndex,
+    })
+  }
 
   return (
     <a
@@ -250,167 +205,273 @@ function MobilePartnerLink({
       href={partner.href}
       target="_blank"
       rel="noreferrer"
-      className="shrink-0 flex items-center opacity-50 hover:opacity-100 transition-opacity"
-      onClick={(event) => {
-        event.stopPropagation()
-
-        if (isDuplicate) {
-          return
-        }
-
-        let destinationHost: string | undefined
-        try {
-          destinationHost = new URL(partner.href).host
-        } catch {
-          // Bad/relative href — track without host rather than dropping.
-        }
-        trackEvent('partner_clicked', {
-          partner_id: partner.id,
-          placement: 'docs_strip',
-          destination: 'external',
-          destination_host: destinationHost,
-          ...analyticsMetadata,
-          slot_index: index,
-        })
-      }}
+      aria-label={`${partner.name} partner`}
+      className={twMerge(
+        'docs-partner-slot-link flex h-full shrink-0 items-center justify-center opacity-80 hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-current',
+      )}
+      data-flip-state={flipState}
+      onClick={onClick}
     >
-      <div className="h-4 flex items-center [&_img]:h-full [&_img]:w-auto [&_div]:h-full">
-        <PartnerImage config={partner.image} alt={partner.name} />
+      <div className="flex h-5 max-w-full shrink items-center justify-center [&>div]:!w-auto [&>div]:h-full [&>div]:max-w-full [&_img]:h-full [&_img]:max-w-full [&_img]:w-auto">
+        <PartnerImage
+          className="h-full w-auto object-contain"
+          config={compactImageConfig}
+          alt={partner.name}
+        />
       </div>
     </a>
   )
 }
 
-// Component for the collapsed menu strip showing box indicators
-// Minimap style: boxes with flex height filling available vertical space
-function DocsMenuStrip({
-  menuConfig,
-  activeItem,
-  fullPathname,
-  colorFrom,
-  colorTo,
-  frameworkLogo,
-  version,
-  onHover,
-  onClick,
-}: {
-  menuConfig: MenuItem[]
-  activeItem: string | undefined
-  fullPathname: string
-  colorFrom: string
-  colorTo: string
-  frameworkLogo: string | undefined
-  version: string
-  onHover: () => void
-  onClick: () => void
-}) {
-  // Flatten all menu items with section markers
-  const itemsWithSections: Array<{
-    to?: string
-    label: React.ReactNode
-    isSection: boolean
-  }> = []
-  menuConfig.forEach((group) => {
-    itemsWithSections.push({ label: group.label, isSection: true })
-    group.children?.forEach((child) => {
-      itemsWithSections.push({
-        to: child.to,
-        label: child.label,
-        isSection: false,
-      })
-    })
-  })
+function useDocsPartnerScrollSlot(tierGroups: Array<DocsPartnerTierGroup>) {
+  const [slot, setSlot] = React.useState(() =>
+    getDocsPartnerScrollSlot(tierGroups, 0),
+  )
 
-  // Check if a menu item path matches the current location
-  const isItemActive = (itemTo: string | undefined): boolean => {
-    if (!itemTo) return false
+  React.useEffect(() => {
+    let animationFrame: number | undefined
 
-    // External links are never active
-    if (itemTo.startsWith('http')) return false
-
-    // Standard relative path comparison
-    if (itemTo === activeItem) return true
-
-    // Handle special menu items with different path formats
-    // ".." means we're on the library home page (no /docs suffix in pathname)
-    if (itemTo === '..') {
-      // Active when on the library version index (e.g., /query/latest but not /query/latest/docs/...)
-      return fullPathname.match(/^\/[^/]+\/[^/]+\/?$/) !== null
-    }
-
-    // "./framework" means we're on the frameworks index page
-    if (itemTo === './framework') {
-      return (
-        fullPathname.includes('/docs/framework') &&
-        !fullPathname.match(/\/docs\/framework\/[^/]+/)
+    const update = () => {
+      animationFrame = undefined
+      const nextSlot = getDocsPartnerScrollSlot(
+        tierGroups,
+        getPageScrollProgress(),
+      )
+      setSlot((previousSlot) =>
+        areDocsPartnerSlotsEqual(previousSlot, nextSlot)
+          ? previousSlot
+          : nextSlot,
       )
     }
 
-    // Handle absolute paths like "/$libraryId/$version/docs/contributors"
-    if (itemTo.includes('/$libraryId')) {
-      const pathSuffix = itemTo.split('/docs/')[1]
-      if (pathSuffix && fullPathname.includes(`/docs/${pathSuffix}`)) {
-        return true
+    const requestUpdate = () => {
+      if (animationFrame !== undefined) {
+        return
+      }
+      animationFrame = window.requestAnimationFrame(update)
+    }
+
+    update()
+    window.addEventListener('scroll', requestUpdate, { passive: true })
+    window.addEventListener('resize', requestUpdate)
+
+    let resizeObserver: ResizeObserver | undefined
+    if (typeof ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(requestUpdate)
+      resizeObserver.observe(document.documentElement)
+      if (document.body) {
+        resizeObserver.observe(document.body)
       }
     }
 
-    return false
+    return () => {
+      if (animationFrame !== undefined) {
+        window.cancelAnimationFrame(animationFrame)
+      }
+      window.removeEventListener('scroll', requestUpdate)
+      window.removeEventListener('resize', requestUpdate)
+      resizeObserver?.disconnect()
+    }
+  }, [tierGroups])
+
+  return slot
+}
+
+type DocsPartnerFlipState = 'idle' | 'out' | 'in'
+
+function useFlippingDocsPartnerSlot(
+  activeSlot: DocsPartnerScrollSlot | undefined,
+) {
+  const [displayedSlot, setDisplayedSlot] = React.useState(activeSlot)
+  const [flipState, setFlipState] = React.useState<DocsPartnerFlipState>('idle')
+  const displayedSlotRef = React.useRef(displayedSlot)
+
+  React.useEffect(() => {
+    displayedSlotRef.current = displayedSlot
+  }, [displayedSlot])
+
+  React.useEffect(() => {
+    const currentDisplayedSlot = displayedSlotRef.current
+
+    if (areDocsPartnerSlotsEqual(currentDisplayedSlot, activeSlot)) {
+      return
+    }
+
+    if (!activeSlot) {
+      setDisplayedSlot(undefined)
+      setFlipState('idle')
+      return
+    }
+
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches
+
+    if (!currentDisplayedSlot || prefersReducedMotion) {
+      setDisplayedSlot(activeSlot)
+      setFlipState('idle')
+      return
+    }
+
+    setFlipState('out')
+    const timeout = window.setTimeout(() => {
+      setDisplayedSlot(activeSlot)
+      setFlipState('in')
+    }, 120)
+
+    return () => {
+      window.clearTimeout(timeout)
+    }
+  }, [activeSlot])
+
+  React.useEffect(() => {
+    if (
+      flipState !== 'in' ||
+      !areDocsPartnerSlotsEqual(displayedSlot, activeSlot)
+    ) {
+      return
+    }
+
+    const timeout = window.setTimeout(() => {
+      setFlipState('idle')
+    }, 160)
+
+    return () => {
+      window.clearTimeout(timeout)
+    }
+  }, [activeSlot, displayedSlot, flipState])
+
+  return { displayedSlot, flipState }
+}
+
+function getDocsPartnerScrollSlot(
+  tierGroups: Array<DocsPartnerTierGroup>,
+  progress: number,
+): DocsPartnerScrollSlot | undefined {
+  const availableGroups = partnerTiers
+    .map((tier) => tierGroups.find((group) => group.tier === tier))
+    .filter((group): group is DocsPartnerTierGroup => {
+      return Boolean(group && group.partners.length > 0)
+    })
+
+  if (!availableGroups.length) {
+    return undefined
   }
 
-  return (
-    <button
-      type="button"
-      className="flex flex-col gap-2 py-2 px-2 cursor-pointer h-full w-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-400/50"
-      onPointerEnter={onHover}
-      onFocus={onHover}
-      onClick={onClick}
-      aria-label="Open documentation menu"
-    >
-      {/* FrameworkSelect + VersionSelect icons */}
-      <div className="flex flex-col gap-2 shrink-0">
-        <div className="flex items-center justify-center">
-          <span className="flex items-center justify-center w-6 h-6">
-            {frameworkLogo ? (
-              <img src={frameworkLogo} alt="" className="w-4 h-4" />
-            ) : (
-              <Menu className="w-3.5 h-3.5 opacity-60" />
-            )}
-          </span>
-        </div>
-        <div className="flex items-center justify-center">
-          <span className="flex items-center justify-center px-1 py-0.5 text-[9px] font-medium opacity-60 border border-gray-500/30 rounded">
-            {version}
-          </span>
-        </div>
-      </div>
-
-      {/* Minimap: flex-height boxes filling remaining space */}
-      <div className="flex-1 flex flex-col gap-1 min-h-0">
-        {itemsWithSections.map((item, index) => {
-          const isActive = !item.isSection && isItemActive(item.to)
-
-          return (
-            <div
-              key={index}
-              className={twMerge(
-                'flex-1 min-h-[4px] max-h-[9px] min-w-[20px] rounded-sm',
-                item.isSection
-                  ? 'w-full bg-current opacity-15'
-                  : isActive
-                    ? `ml-2 w-[calc(100%-0.5rem)] bg-linear-to-r ${colorFrom} ${colorTo}`
-                    : 'ml-2 w-[calc(100%-0.5rem)] bg-current opacity-[0.06]',
-              )}
-              title={
-                typeof item.label === 'string'
-                  ? item.label
-                  : `Item ${index + 1}`
-              }
-            />
-          )
-        })}
-      </div>
-    </button>
+  const totalWeight = availableGroups.reduce(
+    (total, group) => total + docsPartnerTierWeights[group.tier],
+    0,
   )
+  const normalizedProgress = clampProgress(progress)
+  let progressStart = 0
+  let slotIndexOffset = 0
+
+  for (const [groupIndex, group] of availableGroups.entries()) {
+    const tierShare = docsPartnerTierWeights[group.tier] / totalWeight
+    const progressEnd = progressStart + tierShare
+    const isLastGroup = groupIndex === availableGroups.length - 1
+
+    if (normalizedProgress < progressEnd || isLastGroup) {
+      const localProgress = clampProgress(
+        (normalizedProgress - progressStart) / tierShare,
+      )
+      const partnerIndex = Math.min(
+        group.partners.length - 1,
+        Math.floor(localProgress * group.partners.length),
+      )
+
+      return {
+        partner: group.partners[partnerIndex],
+        slotIndex: slotIndexOffset + partnerIndex,
+      }
+    }
+
+    progressStart = progressEnd
+    slotIndexOffset += group.partners.length
+  }
+
+  return undefined
+}
+
+function getPageScrollProgress() {
+  const documentElement = document.documentElement
+  const body = document.body
+  const totalHeight = Math.max(
+    documentElement.scrollHeight,
+    body?.scrollHeight ?? 0,
+  )
+  const viewportHeight = window.innerHeight || documentElement.clientHeight
+  // scrollY tops out at totalHeight - viewportHeight; using that range keeps
+  // the final partner reachable when the viewport bottom hits the page bottom.
+  const scrollableHeight = Math.max(0, totalHeight - viewportHeight)
+
+  if (scrollableHeight === 0) {
+    return 0
+  }
+
+  const scrollTop = Math.min(
+    Math.max(window.scrollY || documentElement.scrollTop, 0),
+    scrollableHeight,
+  )
+
+  return scrollTop / scrollableHeight
+}
+
+function clampProgress(value: number) {
+  if (!Number.isFinite(value)) {
+    return 0
+  }
+
+  return Math.min(Math.max(value, 0), 1)
+}
+
+function useMediaQuery(query: string) {
+  const [matches, setMatches] = React.useState(false)
+
+  React.useEffect(() => {
+    const mediaQueryList = window.matchMedia(query)
+    const updateMatches = () => {
+      setMatches(mediaQueryList.matches)
+    }
+
+    updateMatches()
+    mediaQueryList.addEventListener('change', updateMatches)
+
+    return () => {
+      mediaQueryList.removeEventListener('change', updateMatches)
+    }
+  }, [query])
+
+  return matches
+}
+
+function areDocsPartnerSlotsEqual(
+  left: DocsPartnerScrollSlot | undefined,
+  right: DocsPartnerScrollSlot | undefined,
+) {
+  return (
+    left?.partner.id === right?.partner.id &&
+    left?.slotIndex === right?.slotIndex
+  )
+}
+
+function getCompactPartnerImageConfig(
+  image: Parameters<typeof PartnerImage>[0]['config'],
+): Parameters<typeof PartnerImage>[0]['config'] {
+  if (!image.scale) {
+    return image
+  }
+
+  if ('light' in image) {
+    return {
+      light: image.light,
+      dark: image.dark,
+    }
+  }
+
+  return {
+    src: image.src,
+  }
 }
 
 // Helper to get text color class from framework badge
@@ -781,6 +842,11 @@ export function LibraryLayout({
   const isNpmStats = matches.some((d) => d.pathname.includes('/docs/npm-stats'))
 
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
+  const mobileMenuDialogRef = React.useRef<HTMLDivElement>(null)
+  const mobileMenuToggleId = 'docs-mobile-menu-toggle'
+  const closeMobileMenu = React.useCallback(() => {
+    setMobileMenuOpen(false)
+  }, [])
 
   const docsMatch = matches.find((d) => d.pathname.includes('/docs'))
   const docsPathname = docsMatch?.pathname ?? ''
@@ -788,17 +854,17 @@ export function LibraryLayout({
   const relativePathname = lastMatch.pathname.replace(docsPathname + '/', '')
 
   React.useEffect(() => {
-    setMobileMenuOpen(false)
-  }, [lastMatch.pathname])
+    closeMobileMenu()
+  }, [closeMobileMenu, lastMatch.pathname])
 
   React.useEffect(() => {
     if (!mobileMenuOpen) return
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setMobileMenuOpen(false)
+      if (e.key === 'Escape') closeMobileMenu()
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [mobileMenuOpen])
+  }, [closeMobileMenu, mobileMenuOpen])
 
   const tabbedMenuConfig = React.useMemo(() => {
     return getTabbedMenuConfig(menuConfig)
@@ -835,23 +901,17 @@ export function LibraryLayout({
   const prevItem = internalFlatMenu[index - 1]
   const nextItem = internalFlatMenu[index + 1]
 
-  // Get current framework's logo for the preview strip
-  const currentFramework = useCurrentFramework(frameworks)
-  const currentFrameworkOption = frameworkOptions.find(
-    (f) => f.value === currentFramework.framework,
-  )
-
   const [isFullWidth, setIsFullWidth] = useLocalStorage('docsFullWidth', false)
 
-  const activePartners = partners.filter((d) => d.status === 'active')
-  const docsStripPlacementContext = usePartnerPlacementContext({
-    orderStrategy: 'tier-rotated',
-    surface: 'docs_strip',
-  })
-  const docsStripPartners = getPartnersForPlacement(
-    activePartners,
-    docsStripPlacementContext,
+  const activePartners = React.useMemo(
+    () => partners.filter((d) => d.status === 'active'),
+    [],
   )
+  const docsPartnerOrderContext = usePartnerPlacementContext({
+    orderStrategy: 'tier-rotated',
+    surface: 'docs_rail',
+  })
+  const shouldShowDocsPartnerSlot = useMediaQuery('(max-width: 767.98px)')
 
   const groupInitialOpenState = React.useMemo(() => {
     return visibleMenuConfig.reduce<Record<string, boolean>>(
@@ -971,9 +1031,7 @@ export function LibraryLayout({
                 ) : isHomeLink ? (
                   <Link
                     to={libraryHomePath}
-                    onClick={() => {
-                      detailsRef.current.removeAttribute('open')
-                    }}
+                    onClick={closeMobileMenu}
                     className="relative"
                   >
                     <div
@@ -1003,9 +1061,7 @@ export function LibraryLayout({
                       framework: frameworkDocsTarget.framework,
                       _splat: frameworkDocsTarget.splat,
                     }}
-                    onClick={() => {
-                      detailsRef.current.removeAttribute('open')
-                    }}
+                    onClick={closeMobileMenu}
                     preload="intent"
                     activeOptions={{
                       exact: true,
@@ -1025,9 +1081,7 @@ export function LibraryLayout({
                       framework: frameworkDocsTarget.framework,
                       _splat: frameworkDocsTarget.splat,
                     }}
-                    onClick={() => {
-                      detailsRef.current.removeAttribute('open')
-                    }}
+                    onClick={closeMobileMenu}
                     preload="intent"
                     activeOptions={{
                       exact: true,
@@ -1043,9 +1097,7 @@ export function LibraryLayout({
                     from="/$libraryId/$version/docs"
                     to={child.to}
                     params={linkParams}
-                    onClick={() => {
-                      setMobileMenuOpen(false)
-                    }}
+                    onClick={closeMobileMenu}
                     preload="intent"
                     activeOptions={{
                       exact: true,
@@ -1083,22 +1135,34 @@ export function LibraryLayout({
   })
 
   const smallMenu = (
-    <div className="md:hidden">
-      {mobileMenuOpen ? (
-        <button
-          type="button"
-          aria-label="Close documentation menu"
-          className="fixed inset-x-0 bottom-0 top-[var(--navbar-height)] z-40 bg-black/30 backdrop-blur-sm"
-          onClick={() => setMobileMenuOpen(false)}
-        />
-      ) : null}
+    <div className="min-[900px]:hidden">
+      <input
+        id={mobileMenuToggleId}
+        type="checkbox"
+        aria-label="Documentation menu"
+        aria-controls="docs-mobile-menu"
+        checked={mobileMenuOpen}
+        data-docs-mobile-menu-toggle
+        className="sr-only"
+        onChange={(event) => {
+          setMobileMenuOpen(event.currentTarget.checked)
+        }}
+      />
+      <label
+        htmlFor={mobileMenuToggleId}
+        aria-label="Close documentation menu"
+        data-docs-mobile-backdrop
+        className="fixed inset-x-0 bottom-0 top-[var(--navbar-height)] z-40 bg-black/30 backdrop-blur-sm"
+      />
       <div
+        ref={mobileMenuDialogRef}
         id="docs-mobile-menu"
         role="dialog"
         aria-modal="true"
         aria-label="Documentation navigation"
-        hidden={!mobileMenuOpen}
-        className="fixed inset-x-0 top-[var(--navbar-height)] z-50
+        data-docs-mobile-menu
+        tabIndex={-1}
+        className="fixed inset-x-0 top-[var(--navbar-height)] z-50 m-0 w-full max-w-none p-0 min-[900px]:hidden
         max-h-[calc(100dvh-var(--navbar-height))] overflow-y-auto
         bg-white dark:bg-black/95 backdrop-blur-lg border-b border-gray-500/20 shadow-xl"
       >
@@ -1107,8 +1171,9 @@ export function LibraryLayout({
           <button
             type="button"
             aria-label="Close menu"
-            className="p-1 rounded-md hover:bg-gray-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-current"
-            onClick={() => setMobileMenuOpen(false)}
+            aria-controls="docs-mobile-menu"
+            className="p-1 rounded-md hover:bg-gray-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-current cursor-pointer"
+            onClick={closeMobileMenu}
           >
             <X className="w-5 h-5" />
           </button>
@@ -1128,6 +1193,16 @@ export function LibraryLayout({
   // State and timer for auto-hide behavior (similar to Navbar)
   const [showLargeMenu, setShowLargeMenu] = React.useState(false)
   const leaveTimer = React.useRef<NodeJS.Timeout | undefined>(undefined)
+  const largeMenuTriggerRef = React.useRef<HTMLButtonElement>(null)
+  const largeMenuClickOutsideRefs = React.useMemo(
+    () => [largeMenuTriggerRef],
+    [],
+  )
+
+  const openLargeMenu = React.useCallback(() => {
+    clearTimeout(leaveTimer.current)
+    setShowLargeMenu(true)
+  }, [])
 
   // Close menu when clicking outside (only on sm-xl screens where it's an overlay)
   const expandedMenuRef = useClickOutside<HTMLDivElement>({
@@ -1136,58 +1211,26 @@ export function LibraryLayout({
       typeof window !== 'undefined' &&
       window.innerWidth < 1280,
     onClickOutside: () => setShowLargeMenu(false),
+    additionalRefs: largeMenuClickOutsideRefs,
   })
 
   const largeMenu = (
     <>
-      {/* Collapsed strip - visible on md to xl, hidden on xl+. Lower z-index so expanded menu covers it */}
-      <div
-        className={twMerge(
-          'hidden md:flex xl:hidden flex-col overflow-hidden',
-          'sticky top-[var(--navbar-height)] h-[calc(100dvh-var(--navbar-height))]',
-          'z-10 border-r border-gray-500/20',
-          'bg-white/50 dark:bg-black/30',
-          'w-10',
-        )}
-      >
-        <DocsMenuStrip
-          menuConfig={visibleMenuConfig}
-          activeItem={relativePathname}
-          fullPathname={lastMatch.pathname}
-          colorFrom={colorFrom}
-          colorTo={colorTo}
-          frameworkLogo={currentFrameworkOption?.logo}
-          version={version}
-          onHover={() => {
-            if (window.innerWidth < 1280) {
-              // Only auto-show on lg screens, not xl+
-              clearTimeout(leaveTimer.current)
-              setShowLargeMenu(true)
-            }
-          }}
-          onClick={() => {
-            if (window.innerWidth < 1280) {
-              clearTimeout(leaveTimer.current)
-              setShowLargeMenu(true)
-            }
-          }}
-        />
-      </div>
-
       {/* Expanded menu - always visible on xl+, toggleable overlay on md-xl */}
       <div
+        id="docs-desktop-menu"
+        data-docs-desktop-menu
         ref={expandedMenuRef}
         className={twMerge(
           'max-w-[250px] xl:max-w-[300px] 2xl:max-w-[400px]',
           'flex-col overflow-hidden',
-          'h-[calc(100dvh-var(--navbar-height))] top-[var(--navbar-height)]',
+          'h-[calc(100dvh-var(--navbar-height)-var(--docs-tabs-height))] top-[calc(var(--navbar-height)+var(--docs-tabs-height))]',
           'border-r border-gray-500/20',
           'transition-all duration-300',
-          // Hidden on smallest screens, flex on md+
-          'hidden md:flex',
-          // On md to xl: fixed overlay that slides in from left-0 (covers the strip).
-          // z-40 keeps the sliding overlay above the docs tab bar (z-30).
-          'md:fixed md:left-0 md:z-40 md:bg-white md:dark:bg-black/95 md:backdrop-blur-lg md:shadow-xl',
+          // Hidden on smallest screens, flex once the main navbar switches to desktop.
+          'hidden min-[900px]:flex',
+          // On narrow desktop to xl: fixed overlay that slides in from left-0 beneath the docs tab bar.
+          'min-[900px]:fixed min-[900px]:left-0 min-[900px]:z-40 min-[900px]:bg-white min-[900px]:dark:bg-black/95 min-[900px]:backdrop-blur-lg min-[900px]:shadow-xl',
           // On xl+: sticky positioning sitting inline below tabs, no overlay styling
           'xl:sticky xl:z-20 xl:bg-transparent xl:dark:bg-transparent xl:backdrop-blur-none xl:shadow-none',
           // Slide animation for md-xl screens (off-screen by default, slides in when shown)
@@ -1227,83 +1270,116 @@ export function LibraryLayout({
   )
 
   const docsTabs = (
-    <div className="sticky top-[calc(var(--navbar-height)-1px)] z-30 border-b border-gray-500/20 bg-white/90 dark:bg-black/80 backdrop-blur-lg">
+    <div className="sticky top-[var(--navbar-height)] z-30 border-b border-gray-500/20 bg-white/90 dark:bg-black/80 backdrop-blur-lg">
       <div className="flex items-stretch">
-        <button
-          type="button"
+        <label
+          htmlFor={mobileMenuToggleId}
+          role="button"
+          tabIndex={0}
           aria-label="Documentation menu"
-          aria-expanded={mobileMenuOpen}
+          aria-expanded={mobileMenuOpen ? true : undefined}
           aria-controls="docs-mobile-menu"
-          onClick={() => setMobileMenuOpen((open) => !open)}
-          className="md:hidden flex items-center gap-1.5 shrink-0 px-3 border-r border-gray-500/20 text-slate-600 dark:text-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-current"
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault()
+              setMobileMenuOpen((prev) => !prev)
+            }
+          }}
+          data-docs-mobile-trigger
+          className="min-[900px]:hidden flex items-center gap-1.5 shrink-0 px-3 border-r border-gray-500/20 text-slate-600 dark:text-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-current"
         >
-          {mobileMenuOpen ? (
-            <X className="w-4 h-4" />
-          ) : (
-            <Menu className="w-4 h-4" />
-          )}
+          <Menu className="w-4 h-4" data-docs-mobile-closed-icon />
+          <X className="w-4 h-4" data-docs-mobile-open-icon />
+          <span className="text-xs font-medium max-[479.98px]:sr-only">
+            Menu
+          </span>
+        </label>
+        <button
+          ref={largeMenuTriggerRef}
+          type="button"
+          aria-label="Open documentation menu"
+          aria-expanded={showLargeMenu}
+          aria-controls="docs-desktop-menu"
+          onPointerEnter={(event) => {
+            if (event.pointerType === 'touch') return
+            openLargeMenu()
+          }}
+          onPointerDown={openLargeMenu}
+          onMouseEnter={openLargeMenu}
+          onFocus={openLargeMenu}
+          onClick={openLargeMenu}
+          data-docs-menu-trigger
+          className="hidden min-[900px]:flex xl:hidden items-center gap-1 shrink-0 px-2 border-r border-gray-500/20 text-xs font-medium text-slate-600 dark:text-slate-300 min-[1120px]:gap-1.5 min-[1120px]:px-3 min-[1120px]:text-[13px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-current"
+        >
+          <Menu className="w-4 h-4" />
           <span className="text-xs font-medium">Menu</span>
         </button>
-        <nav
-          aria-label="Documentation sections"
-          className="flex flex-1 items-stretch gap-6 overflow-x-auto px-3 md:px-6 text-sm [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        >
-          {tabbedMenuConfig.map((tab) => {
-            const target = tab.firstItem
-            const isActive = tab.id === activeTabId
+        <div className="relative flex min-w-0 flex-1 items-stretch">
+          <nav
+            aria-label="Documentation sections"
+            className="flex min-w-0 flex-1 items-stretch gap-3 overflow-x-auto px-3 text-xs min-[1120px]:gap-6 min-[1120px]:px-6 min-[1120px]:text-[13px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
+            {tabbedMenuConfig.map((tab) => {
+              const target = tab.firstItem
+              const isActive = tab.id === activeTabId
 
-            if (!target) {
-              return null
-            }
+              if (!target) {
+                return null
+              }
 
-            const linkParams =
-              !target.to.startsWith('/') || target.to.includes('/$libraryId')
-                ? ({ libraryId, version } as never)
-                : undefined
+              const linkParams =
+                !target.to.startsWith('/') || target.to.includes('/$libraryId')
+                  ? ({ libraryId, version } as never)
+                  : undefined
 
-            return (
-              <Link
-                key={tab.id}
-                from="/$libraryId/$version/docs"
-                to={target.to}
-                params={linkParams}
-                aria-current={isActive ? 'page' : undefined}
-                className={twMerge(
-                  'relative whitespace-nowrap py-3 font-semibold transition-colors',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-current rounded-sm',
-                  isActive
-                    ? `text-transparent bg-clip-text bg-linear-to-r ${colorFrom} ${colorTo}`
-                    : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100',
-                )}
-              >
-                {tab.label}
-                {isActive ? (
-                  <span
-                    aria-hidden="true"
-                    className={twMerge(
-                      'absolute left-0 right-0 -bottom-px h-[3px] rounded-t-full bg-linear-to-r',
-                      colorFrom,
-                      colorTo,
-                    )}
-                  />
-                ) : null}
-              </Link>
-            )
-          })}
-        </nav>
-      </div>
-      {activePartners.length ? (
-        <div className="md:hidden flex items-center gap-2 px-3 py-1 border-t border-gray-500/10">
-          <span className="text-[9px] uppercase tracking-wide font-medium text-gray-400 dark:text-gray-500 shrink-0">
-            Partners
-          </span>
-          <MobilePartnersStrip
-            partners={docsStripPartners}
-            placementContext={docsStripPlacementContext}
-            enabled
+              return (
+                <Link
+                  key={tab.id}
+                  from="/$libraryId/$version/docs"
+                  to={target.to}
+                  params={linkParams}
+                  activeOptions={{
+                    exact: true,
+                    includeHash: false,
+                    includeSearch: false,
+                  }}
+                  aria-current={isActive ? 'page' : undefined}
+                  className={twMerge(
+                    'relative whitespace-nowrap py-3 font-semibold transition-colors',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-current rounded-sm',
+                    isActive
+                      ? `text-transparent bg-clip-text bg-linear-to-r ${colorFrom} ${colorTo}`
+                      : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100',
+                  )}
+                >
+                  {tab.label}
+                  {isActive ? (
+                    <span
+                      aria-hidden="true"
+                      className={twMerge(
+                        'absolute left-0 right-0 -bottom-px h-[3px] rounded-t-full bg-linear-to-r',
+                        colorFrom,
+                        colorTo,
+                      )}
+                    />
+                  ) : null}
+                </Link>
+              )
+            })}
+          </nav>
+          <div
+            aria-hidden="true"
+            data-docs-tabs-scroll-fade
+            className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-linear-to-r from-white/0 to-white/95 dark:from-black/0 dark:to-black/90 min-[640px]:w-10"
           />
         </div>
-      ) : null}
+        {shouldShowDocsPartnerSlot && activePartners.length ? (
+          <DocsPartnerSlot
+            orderPlacementContext={docsPartnerOrderContext}
+            partners={activePartners}
+          />
+        ) : null}
+      </div>
     </div>
   )
 
@@ -1321,53 +1397,60 @@ export function LibraryLayout({
         }}
       >
         <div
+          data-docs-layout
+          data-docs-menu-open={showLargeMenu ? 'true' : undefined}
           className={`
            md:min-h-[calc(100dvh-var(--navbar-height))]
-           flex flex-col md:flex-row
-          w-full transition-all duration-300
+           flex flex-col
+          w-full transition-all duration-300 [--docs-tabs-height:41px] min-[1120px]:[--docs-tabs-height:42px]
           [overflow-x:clip]`}
         >
           {smallMenu}
-          {largeMenu}
-          <div
-            className={twMerge(
-              'flex flex-col max-w-full min-w-0 flex-1 min-h-0 relative',
-            )}
-            style={{ '--docs-tabs-height': '45px' } as React.CSSProperties}
-          >
-            {docsTabs}
+          {docsTabs}
+          <div className="flex flex-col md:flex-row flex-1 min-h-0">
+            {largeMenu}
             <div
               className={twMerge(
-                `max-w-full min-w-0 flex flex-col justify-center w-full`,
-
-                !isLandingPage && 'px-4 md:px-8',
-
-                !isLandingPage &&
-                  !isExample &&
-                  !isNpmStats &&
-                  !isFullWidth &&
-                  'mx-auto w-[900px]',
+                'flex flex-col max-w-full min-w-0 flex-1 min-h-0 relative',
               )}
             >
-              {children}
+              <div
+                className={twMerge(
+                  `max-w-full min-w-0 flex flex-col justify-center w-full`,
+
+                  !isLandingPage && 'px-4 md:px-8',
+
+                  !isLandingPage &&
+                    !isExample &&
+                    !isNpmStats &&
+                    !isFullWidth &&
+                    'mx-auto w-[900px]',
+                )}
+              >
+                {children}
+              </div>
+              {!isLandingPage && (
+                <div className="pt-8 md:pt-12">
+                  <Footer />
+                </div>
+              )}
             </div>
             {!isLandingPage && (
-              <div className="pt-8 md:pt-12">
-                <Footer />
-              </div>
+              <RightRail
+                breakpoint="md"
+                className="md:w-[220px]"
+                stickyOffset="docs-tabs"
+              >
+                <PartnersRail
+                  analyticsPlacement="docs_rail"
+                  partners={activePartners}
+                />
+                <div className="hidden md:block border border-gray-500/20 rounded-l-lg overflow-hidden w-full">
+                  <RecentPostsWidget />
+                </div>
+              </RightRail>
             )}
           </div>
-          {!isLandingPage && (
-            <RightRail breakpoint="md" className="md:w-[220px]">
-              <PartnersRail
-                analyticsPlacement="docs_rail"
-                partners={activePartners}
-              />
-              <div className="hidden md:block border border-gray-500/20 rounded-l-lg overflow-hidden w-full">
-                <RecentPostsWidget />
-              </div>
-            </RightRail>
-          )}
         </div>
       </DocNavigationContext.Provider>
     </WidthToggleContext.Provider>

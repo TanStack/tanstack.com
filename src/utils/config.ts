@@ -3,11 +3,13 @@ import {
   fetchRepoFile,
   isRecoverableGitHubContentError,
 } from './documents.server'
+import { docsNavTabIds, type DocsNavTabId } from './docsNavTabs'
 import { createServerFn } from '@tanstack/react-start'
 import { setResponseHeaders } from '@tanstack/react-start/server'
 
 export type MenuItem = {
   label: string | React.ReactNode
+  tab?: DocsNavTabId
   children: {
     label: string | React.ReactNode
     to: string
@@ -16,15 +18,19 @@ export type MenuItem = {
     addedAt?: string
     /** ISO date string marking when the page was last meaningfully updated. Drives the "Updated" sidebar pill. */
     updatedAt?: string
+    tab?: DocsNavTabId
   }[]
   collapsible?: boolean
   defaultCollapsed?: boolean
 }
 
+const tabSchema = v.optional(v.picklist(docsNavTabIds))
+
 const configSchema = v.object({
   sections: v.array(
     v.object({
       label: v.string(),
+      tab: tabSchema,
       children: v.array(
         v.object({
           label: v.string(),
@@ -32,6 +38,7 @@ const configSchema = v.object({
           badge: v.optional(v.string()),
           addedAt: v.optional(v.string()),
           updatedAt: v.optional(v.string()),
+          tab: tabSchema,
         }),
       ),
       frameworks: v.optional(
@@ -45,6 +52,7 @@ const configSchema = v.object({
                 badge: v.optional(v.string()),
                 addedAt: v.optional(v.string()),
                 updatedAt: v.optional(v.string()),
+                tab: tabSchema,
               }),
             ),
           }),

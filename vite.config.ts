@@ -15,6 +15,7 @@ import path from 'node:path'
 
 const isDev = process.env.NODE_ENV !== 'production'
 const shouldUseRedact = process.env.DISABLE_REDACT !== 'true'
+const localRedactPackageRoot = process.env.LOCAL_REDACT_PACKAGE_ROOT
 const shouldUseSentryPlugin =
   process.env.NODE_ENV === 'production' &&
   Boolean(process.env.SENTRY_AUTH_TOKEN)
@@ -242,7 +243,19 @@ export default defineConfig({
     },
   },
   plugins: [
-    ...(shouldUseRedact ? [redact()] : []),
+    ...(shouldUseRedact
+      ? [
+          redact(
+            localRedactPackageRoot
+              ? {
+                  packageRoots: {
+                    '@tanstack/redact': localRedactPackageRoot,
+                  },
+                }
+              : undefined,
+          ),
+        ]
+      : []),
     ...(isDev
       ? [
           tanstackDevtools({

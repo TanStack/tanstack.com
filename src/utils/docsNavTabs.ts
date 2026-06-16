@@ -8,7 +8,6 @@ export const docsNavTabIds = [
   'guides',
   'api',
   'examples',
-  'community',
 ] as const
 
 export type DocsNavTabId = (typeof docsNavTabIds)[number]
@@ -20,7 +19,6 @@ export const docsNavTabs: Array<{ id: DocsNavTabId; label: string }> = [
   { id: 'guides', label: 'Guides' },
   { id: 'api', label: 'API' },
   { id: 'examples', label: 'Examples' },
-  { id: 'community', label: 'Community' },
 ]
 
 function getLabelText(label: ReactNode) {
@@ -45,6 +43,7 @@ function getFallbackDocsNavTabId(
     return 'home'
   }
 
+  // Community resources now live under the Home tab.
   if (
     child.to.startsWith('http') ||
     searchText.includes('community') ||
@@ -56,7 +55,7 @@ function getFallbackDocsNavTabId(
     searchText.includes('discord') ||
     searchText.includes('youtube')
   ) {
-    return 'community'
+    return 'home'
   }
 
   if (searchText.includes('example')) {
@@ -135,6 +134,11 @@ export function getTabbedMenuConfig(menuConfig: MenuItem[]) {
         ...tab,
         groups,
         firstItem:
+          // The Home tab points at the library landing page (`..`), even though
+          // it now also contains community docs (Blog, Contributors, etc.).
+          (tab.id === 'home'
+            ? children.find((child) => child.to === '..')
+            : undefined) ??
           children.find((child) => isDocsTabTarget(child.to)) ??
           children.find((child) => !child.to.startsWith('http')),
       }
@@ -218,9 +222,10 @@ export function getActiveDocsNavTabId({
   if (
     pathname.includes('/docs/community') ||
     pathname.includes('/docs/contributors') ||
-    pathname.includes('/docs/npm-stats')
+    pathname.includes('/docs/npm-stats') ||
+    pathname.includes('/docs/blog')
   ) {
-    return 'community'
+    return 'home'
   }
 
   return 'get-started'

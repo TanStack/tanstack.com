@@ -1,18 +1,9 @@
-import * as React from 'react'
+import { Hydrate } from '@tanstack/react-start'
+import { visible } from '@tanstack/react-start/hydration'
+
 import type { LibraryId } from '~/libraries'
-import { useIntersectionObserver } from '~/hooks/useIntersectionObserver'
-
-const LazyMaintainersSection = React.lazy(async () => {
-  const mod = await import('./MaintainersSection')
-
-  return { default: mod.MaintainersSection }
-})
-
-const LazyPartnersSection = React.lazy(async () => {
-  const mod = await import('./PartnersSection')
-
-  return { default: mod.PartnersSection }
-})
+import { MaintainersSection } from './MaintainersSection'
+import { PartnersSection } from './PartnersSection'
 
 interface LazyLandingCommunitySectionProps {
   libraryId: LibraryId
@@ -41,31 +32,20 @@ function SectionSkeleton({ title }: { title: string }) {
 export function LazyLandingCommunitySection({
   libraryId,
 }: LazyLandingCommunitySectionProps) {
-  const { ref, isIntersecting } = useIntersectionObserver({
-    rootMargin: '25%',
-    triggerOnce: true,
-  })
-
   return (
-    <div ref={ref} className="flex flex-col gap-20 md:gap-24">
-      {!isIntersecting ? (
-        <>
+    <Hydrate
+      when={visible({ rootMargin: '25%' })}
+      fallback={
+        <div className="flex flex-col gap-20 md:gap-24">
           <SectionSkeleton title="Maintainers" />
           <SectionSkeleton title="Partners" />
-        </>
-      ) : (
-        <React.Suspense
-          fallback={
-            <>
-              <SectionSkeleton title="Maintainers" />
-              <SectionSkeleton title="Partners" />
-            </>
-          }
-        >
-          <LazyMaintainersSection libraryId={libraryId} />
-          <LazyPartnersSection libraryId={libraryId} />
-        </React.Suspense>
-      )}
-    </div>
+        </div>
+      }
+    >
+      <div className="flex flex-col gap-20 md:gap-24">
+        <MaintainersSection libraryId={libraryId} />
+        <PartnersSection libraryId={libraryId} />
+      </div>
+    </Hydrate>
   )
 }

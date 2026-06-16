@@ -5,6 +5,8 @@ import {
   createFileRoute,
   useRouterState,
 } from '@tanstack/react-router'
+import { Hydrate } from '@tanstack/react-start'
+import { idle, load, visible } from '@tanstack/react-start/hydration'
 
 import discordImage from '~/images/discord-logo-white.svg'
 import { librariesByGroup, librariesGroupNamesMap, Library } from '~/libraries'
@@ -16,54 +18,22 @@ import { ArrowRight, Code2, Layers, Shield, Zap, Play } from 'lucide-react'
 import { YouTubeIcon } from '~/components/icons/YouTubeIcon'
 import { Card } from '~/components/Card'
 import { HomeApplicationStarter } from '~/components/home/HomeApplicationStarter'
-import { HomeDeferredSection } from '~/components/home/HomeDeferredSection'
 import {
   HomeCommunityFallback,
   HomeNewsletterFallback,
   HomeSocialProofFallback,
   HomeStatsFallback,
 } from '~/components/home/HomeSectionFallbacks'
+import { HomeCommunitySection } from '~/components/home/HomeCommunitySection'
+import { HomeNewsletterSection } from '~/components/home/HomeNewsletterSection'
+import { HomeSocialProofSection } from '~/components/home/HomeSocialProofSection'
+import { HomeStatsSection } from '~/components/home/HomeStatsSection'
 import { Button } from '~/ui'
 import { seo } from '~/utils/seo'
 
 const LazyBrandContextMenu = React.lazy(() =>
   import('~/components/BrandContextMenu').then((m) => ({
     default: m.BrandContextMenu,
-  })),
-)
-
-const loadHomeSocialProofSection = () =>
-  import('~/components/home/HomeSocialProofSection')
-
-const LazyHomeSocialProofSection = React.lazy(() =>
-  loadHomeSocialProofSection().then((m) => ({
-    default: m.HomeSocialProofSection,
-  })),
-)
-
-const loadHomeCommunitySection = () =>
-  import('~/components/home/HomeCommunitySection')
-
-const LazyHomeCommunitySection = React.lazy(() =>
-  loadHomeCommunitySection().then((m) => ({
-    default: m.HomeCommunitySection,
-  })),
-)
-
-const loadHomeNewsletterSection = () =>
-  import('~/components/home/HomeNewsletterSection')
-
-const LazyHomeNewsletterSection = React.lazy(() =>
-  loadHomeNewsletterSection().then((m) => ({
-    default: m.HomeNewsletterSection,
-  })),
-)
-
-const loadHomeStatsSection = () => import('~/components/home/HomeStatsSection')
-
-const LazyHomeStatsSection = React.lazy(() =>
-  loadHomeStatsSection().then((m) => ({
-    default: m.HomeStatsSection,
   })),
 )
 
@@ -231,15 +201,13 @@ function Index() {
             </div>
           </div>
           <div className="mx-auto mt-8 w-full max-w-[1021px] px-4 sm:px-6 md:mt-10">
-            <HomeDeferredSection
-              forceLoad
+            <Hydrate
+              when={visible({ rootMargin: '10%' })}
+              prefetch={idle({ timeout: 6000 })}
               fallback={<HomeStatsFallback />}
-              preload={loadHomeStatsSection}
-              rootMargin="10%"
-              timeoutMs={6000}
             >
-              <LazyHomeStatsSection />
-            </HomeDeferredSection>
+              <HomeStatsSection />
+            </Hydrate>
           </div>
           <div className="mx-auto mt-16 w-full max-w-[1021px] px-4 sm:px-6 md:mt-20 lg:mt-14 xl:mt-12">
             <HomeApplicationStarter />
@@ -339,21 +307,25 @@ function Index() {
           </div>
         </div>
 
-        <HomeDeferredSection
-          forceLoad={deferredSectionStage >= 1}
+        <Hydrate
+          when={() =>
+            deferredSectionStage >= 1 ? load() : visible({ rootMargin: '20%' })
+          }
+          prefetch={idle({ timeout: 4000 })}
           fallback={<HomeSocialProofFallback />}
-          preload={loadHomeSocialProofSection}
         >
-          <LazyHomeSocialProofSection />
-        </HomeDeferredSection>
+          <HomeSocialProofSection />
+        </Hydrate>
 
-        <HomeDeferredSection
-          forceLoad={deferredSectionStage >= 2}
+        <Hydrate
+          when={() =>
+            deferredSectionStage >= 2 ? load() : visible({ rootMargin: '20%' })
+          }
+          prefetch={idle({ timeout: 4000 })}
           fallback={<HomeCommunityFallback />}
-          preload={loadHomeCommunitySection}
         >
-          <LazyHomeCommunitySection />
-        </HomeDeferredSection>
+          <HomeCommunitySection />
+        </Hydrate>
 
         <div className="px-4 mx-auto max-w-(--breakpoint-lg)">
           <div
@@ -450,14 +422,15 @@ function Index() {
         </div>
 
         <div className="h-4" />
-        <HomeDeferredSection
-          forceLoad={deferredSectionStage >= 3}
+        <Hydrate
+          when={() =>
+            deferredSectionStage >= 3 ? load() : visible({ rootMargin: '10%' })
+          }
+          prefetch={idle({ timeout: 4000 })}
           fallback={<HomeNewsletterFallback />}
-          preload={loadHomeNewsletterSection}
-          rootMargin="10%"
         >
-          <LazyHomeNewsletterSection />
-        </HomeDeferredSection>
+          <HomeNewsletterSection />
+        </Hydrate>
       </div>
     </>
   )

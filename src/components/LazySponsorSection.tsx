@@ -40,7 +40,7 @@ export function LazySponsorSection({
       <div className="space-y-8">
         <h3 className="text-3xl font-bold">{title}</h3>
         <div
-          className="relative mx-auto flex w-full flex-wrap overflow-hidden"
+          className="relative mx-auto flex w-full flex-wrap overflow-hidden [&>div]:h-full [&>div]:w-full"
           style={{ aspectRatio, maxWidth: packMaxWidth }}
         >
           <Hydrate

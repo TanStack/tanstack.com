@@ -128,6 +128,9 @@ importers:
       '@tanstack/react-start':
         specifier: 1.168.10
         version: 1.168.10(@vitejs/plugin-rsc@0.5.24(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(vite@8.0.13(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.3)))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(vite@8.0.13(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.3))
+      '@tanstack/react-start-client':
+        specifier: 1.168.2
+        version: 1.168.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@tanstack/react-table':
         specifier: ^8.21.3
         version: 8.21.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)

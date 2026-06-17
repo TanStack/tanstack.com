@@ -7,7 +7,6 @@ const textStyles = 'text-twine-600 dark:text-twine-500'
 export const storeProject = {
   ...store,
   description: `The immutable-reactive data store that powers the core of TanStack libraries and their framework adapters.`,
-  ogImage: 'https://github.com/tanstack/store/raw/main/media/repo-header.png',
   latestBranch: 'main',
   bgRadial: 'from-twine-500 via-twine-700/50 to-transparent',
   textColor: 'text-twine-700',

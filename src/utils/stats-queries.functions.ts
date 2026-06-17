@@ -1,9 +1,9 @@
 import { createServerFn } from '@tanstack/react-start'
-import type { LibrarySlim } from '~/libraries'
 import {
   fetchNpmDownloadsBulk as fetchNpmDownloadsBulkServer,
   fetchRecentDownloadStats as fetchRecentDownloadStatsServer,
   getOSSStats as getOSSStatsServer,
+  type RecentDownloadStatsQueryParams,
   type StatsQueryParams,
 } from './stats.server'
 
@@ -29,8 +29,5 @@ export const fetchNpmDownloadsBulk = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => fetchNpmDownloadsBulkServer({ data }))
 
 export const fetchRecentDownloadStats = createServerFn({ method: 'POST' })
-  .inputValidator(
-    (data: { library: Pick<LibrarySlim, 'frameworks' | 'id' | 'repo'> }) =>
-      data,
-  )
+  .inputValidator((data: RecentDownloadStatsQueryParams) => data)
   .handler(async ({ data }) => fetchRecentDownloadStatsServer({ data }))

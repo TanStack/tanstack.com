@@ -11,11 +11,15 @@ import type {
   FeatureId,
   FeatureInfo,
   ProjectDefinition,
-  AttributedCompileOutput,
   IntegrationCompiled,
   CustomTemplateCompiled,
 } from '~/builder/api'
 import type { FrameworkId } from '~/builder/frameworks'
+import {
+  getRecipeBuilderFeatures,
+  isCliTemplateId,
+  type ApplicationStarterRecipe,
+} from '~/utils/application-starter'
 import { TEMPLATES } from '~/builder/templates'
 
 type PackageManager = 'pnpm' | 'npm' | 'yarn' | 'bun'
@@ -51,11 +55,6 @@ interface BuilderState {
   // UI state
   integrationSearch: string
 
-  // Compilation output (with line attribution data)
-  compiledOutput: AttributedCompileOutput | null
-  isCompiling: boolean
-  compileError: string | null
-
   // Actions
   setProjectName: (name: string) => void
   setFramework: (framework: FrameworkId) => void
@@ -76,8 +75,8 @@ interface BuilderState {
   setCustomTemplate: (template: CustomTemplateCompiled | null) => void
   setIntegrationSearch: (search: string) => void
   setTemplate: (id: string | null) => void
+  applyStarterRecipe: (recipe: ApplicationStarterRecipe) => Promise<void>
   loadFeatures: () => Promise<void>
-  compile: () => Promise<void>
   reset: () => void
 
   // Derived state helpers
@@ -90,7 +89,7 @@ interface BuilderState {
 
 const initialState = {
   projectName: 'my-tanstack-app',
-  framework: 'react-cra' as FrameworkId,
+  framework: 'react' as FrameworkId,
   tailwind: true,
   features: [] as Array<FeatureId>,
   featureOptions: {} as Record<string, Record<string, unknown>>,
@@ -105,9 +104,6 @@ const initialState = {
   availableExamples: [] as Array<FeatureInfo>,
   integrationSearch: '',
   featuresLoaded: false,
-  compiledOutput: null as AttributedCompileOutput | null,
-  isCompiling: false,
-  compileError: null as string | null,
 }
 
 export const useBuilderStore = create<BuilderState>()(
@@ -126,7 +122,6 @@ export const useBuilderStore = create<BuilderState>()(
         availableFeatures: [],
         availableExamples: [],
         featuresLoaded: false,
-        compiledOutput: null,
       })
       get().loadFeatures()
     },
@@ -297,18 +292,82 @@ export const useBuilderStore = create<BuilderState>()(
       const template = TEMPLATES.find((t) => t.id === id)
       if (!template) return
 
-      const { availableFeatures } = get()
+      const { availableFeatures, availableExamples } = get()
 
       // Filter to only features that exist in current framework
       const validFeatures = template.features.filter((f) =>
         availableFeatures.some((af) => af.id === f),
       )
 
+      const example = template.exampleId
+        ? availableExamples.find((e) => e.id === template.exampleId)
+        : undefined
+      const exampleLockedFeatures = example?.requires ?? []
+      const featuresWithExampleDeps = Array.from(
+        new Set([...validFeatures, ...exampleLockedFeatures]),
+      ).filter((f) => availableFeatures.some((af) => af.id === f))
+
       set({
         selectedTemplate: id,
-        features: validFeatures,
+        features: featuresWithExampleDeps,
         featureOptions: {},
-        selectedExample: null,
+        selectedExample: example?.id ?? null,
+      })
+    },
+
+    applyStarterRecipe: async (recipe) => {
+      if (get().framework !== recipe.framework) {
+        set({
+          framework: recipe.framework,
+          features: [],
+          featureOptions: {},
+          selectedExample: null,
+          selectedTemplate: 'blank',
+          availableFeatures: [],
+          availableExamples: [],
+          featuresLoaded: false,
+        })
+        await get().loadFeatures()
+      } else if (!get().featuresLoaded) {
+        await get().loadFeatures()
+      }
+
+      const { availableFeatures, availableExamples, projectName } = get()
+      const validFeatures = getRecipeBuilderFeatures(recipe).filter(
+        (featureId) =>
+          availableFeatures.some((feature) => feature.id === featureId),
+      )
+
+      const recipeTemplateIsExample = isCliTemplateId(recipe.template)
+      const exampleLockedFeatures = recipeTemplateIsExample
+        ? (availableExamples.find((e) => e.id === recipe.template)?.requires ??
+          [])
+        : []
+
+      // featureOptions are valid for any add-on the project will end up with —
+      // either explicitly chosen features or those locked by the selected example.
+      const optionEligibleFeatures = new Set([
+        ...validFeatures,
+        ...exampleLockedFeatures,
+      ])
+      const nextFeatureOptions = Object.fromEntries(
+        Object.entries(recipe.featureOptions).filter(([featureId]) =>
+          optionEligibleFeatures.has(featureId),
+        ),
+      )
+
+      set({
+        projectName: recipe.projectName ?? projectName,
+        tailwind: recipe.tailwind,
+        features: validFeatures,
+        featureOptions: nextFeatureOptions,
+        selectedExample: recipeTemplateIsExample ? recipe.template! : null,
+        selectedTemplate: recipeTemplateIsExample
+          ? null
+          : (recipe.template ?? null),
+        packageManager: recipe.packageManager,
+        skipInstall: false,
+        skipGit: false,
       })
     },
 
@@ -330,55 +389,6 @@ export const useBuilderStore = create<BuilderState>()(
       } catch (error) {
         console.error('Failed to load features:', error)
         set({ featuresLoaded: true })
-      }
-    },
-
-    compile: async () => {
-      const {
-        projectName,
-        framework,
-        tailwind,
-        features,
-        featureOptions,
-        customIntegrations,
-        customTemplate,
-        selectedExample,
-      } = get()
-
-      set({ isCompiling: true, compileError: null })
-
-      try {
-        const response = await fetch('/api/builder/compile-attributed', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            definition: {
-              name: projectName,
-              framework,
-              tailwind,
-              features,
-              featureOptions,
-              customIntegrations,
-              customTemplate,
-              selectedExample,
-            },
-            format: 'full',
-          }),
-        })
-
-        if (!response.ok) {
-          const error = await response.json()
-          throw new Error(error.error || 'Compilation failed')
-        }
-
-        const output = await response.json()
-        set({ compiledOutput: output, isCompiling: false })
-      } catch (error) {
-        set({
-          compileError:
-            error instanceof Error ? error.message : 'Unknown error',
-          isCompiling: false,
-        })
       }
     },
 
@@ -423,9 +433,6 @@ export const useAvailableFeatures = () =>
 export const useAvailableExamples = () =>
   useBuilderStore((s) => s.availableExamples)
 export const useFeaturesLoaded = () => useBuilderStore((s) => s.featuresLoaded)
-export const useCompiledOutput = () => useBuilderStore((s) => s.compiledOutput)
-export const useIsCompiling = () => useBuilderStore((s) => s.isCompiling)
-export const useCompileError = () => useBuilderStore((s) => s.compileError)
 export const useCustomIntegrations = () =>
   useBuilderStore((s) => s.customIntegrations)
 export const useCustomTemplate = () => useBuilderStore((s) => s.customTemplate)

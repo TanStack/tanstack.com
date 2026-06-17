@@ -10,9 +10,28 @@ import {
   logRequestStart,
   runWithRequestDiagnostics,
 } from '~/utils/prod-diagnostics.server'
+import { docsContentNegotiationVaryHeader } from '~/utils/http'
 
 installProductionFetchProbe()
 installProductionProcessProbe()
+
+function isBrowserDocumentRequest(request: Request) {
+  return (
+    request.headers.get('Sec-Fetch-Dest') === 'document' ||
+    request.headers.get('Sec-Fetch-Mode') === 'navigate'
+  )
+}
+
+function shouldRewriteDocsRequestToMarkdown(request: Request, url: URL) {
+  const acceptHeader = request.headers.get('Accept') || ''
+
+  return (
+    acceptHeader.includes('text/markdown') &&
+    url.pathname.includes('/docs/') &&
+    !url.pathname.endsWith('.md') &&
+    !isBrowserDocumentRequest(request)
+  )
+}
 
 export default createServerEntry(
   wrapFetchWithSentry({
@@ -22,20 +41,24 @@ export default createServerEntry(
         logRequestStart(context)
 
         try {
-          const acceptHeader = request.headers.get('Accept') || ''
-          if (
-            acceptHeader.includes('text/markdown') &&
-            url.pathname.includes('/docs/') &&
-            !url.pathname.endsWith('.md')
-          ) {
+          if (shouldRewriteDocsRequestToMarkdown(request, url)) {
             const mdUrl = new URL(request.url)
             mdUrl.pathname = `${url.pathname}.md`
             const mdRequest = new Request(mdUrl, request)
             const mdResponse = await handler.fetch(mdRequest)
+            const markdownHeaders = new Headers(mdResponse.headers)
+            markdownHeaders.set('Vary', docsContentNegotiationVaryHeader)
+
+            const markdownResponse = new Response(mdResponse.body, {
+              status: mdResponse.status,
+              statusText: mdResponse.statusText,
+              headers: markdownHeaders,
+            })
+
             logRequestEnd(context, mdResponse.status, {
               rewrittenToMarkdown: true,
             })
-            return mdResponse
+            return markdownResponse
           }
 
           const response = await handler.fetch(request)

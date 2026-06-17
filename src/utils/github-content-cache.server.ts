@@ -1,13 +1,87 @@
-import { and, eq } from 'drizzle-orm'
+import { and, eq, lt, sql } from 'drizzle-orm'
 import { db } from '~/db/client'
 import {
   docsArtifactCache,
   githubContentCache,
   type GithubContentCache,
 } from '~/db/schema'
+import { isValidRepoPath, MAX_REPO_PATH_LENGTH } from './repo-path'
 
-const POSITIVE_STALE_MS = 24 * 60 * 60 * 1000
+const POSITIVE_STALE_MS = 5 * 60 * 1000
 const NEGATIVE_STALE_MS = 15 * 60 * 1000
+
+// Internal sentinel paths used for non-file metadata (branch SHA lookup,
+// recursive tree). Allowed alongside normal repo paths.
+const SENTINEL_PATHS = new Set([
+  '__github_branch__',
+  '__github_recursive_tree__',
+])
+
+const REPO_PATTERN = /^[a-zA-Z0-9._-]+\/[a-zA-Z0-9._-]+$/
+// Git refs allow a fairly wide character set, but we restrict to the subset
+// we actually publish from (branch names + tags). No spaces, no shell
+// metacharacters, no path traversal.
+const GIT_REF_PATTERN = /^[a-zA-Z0-9._/-]+$/
+
+const MAX_REPO_LEN = 100
+const MAX_GIT_REF_LEN = 100
+
+export class InvalidCacheKeyError extends Error {
+  constructor(field: string, value: string) {
+    super(
+      `Refusing to cache: invalid ${field}=${JSON.stringify(value).slice(0, 80)}`,
+    )
+    this.name = 'InvalidCacheKeyError'
+  }
+}
+
+function assertValidRepo(repo: string) {
+  if (
+    repo.length === 0 ||
+    repo.length > MAX_REPO_LEN ||
+    !REPO_PATTERN.test(repo)
+  ) {
+    throw new InvalidCacheKeyError('repo', repo)
+  }
+}
+
+function assertValidGitRef(gitRef: string) {
+  if (
+    gitRef.length === 0 ||
+    gitRef.length > MAX_GIT_REF_LEN ||
+    !GIT_REF_PATTERN.test(gitRef) ||
+    gitRef.includes('..') ||
+    gitRef.startsWith('/') ||
+    gitRef.endsWith('/') ||
+    gitRef.includes('//')
+  ) {
+    throw new InvalidCacheKeyError('gitRef', gitRef)
+  }
+}
+
+function assertValidContentPath(path: string) {
+  if (path === '' || SENTINEL_PATHS.has(path)) {
+    return
+  }
+
+  if (path.length > MAX_REPO_PATH_LENGTH) {
+    throw new InvalidCacheKeyError('path', path)
+  }
+
+  if (!isValidRepoPath(path)) {
+    throw new InvalidCacheKeyError('path', path)
+  }
+}
+
+function assertValidCacheKey(opts: {
+  gitRef: string
+  path: string
+  repo: string
+}) {
+  assertValidRepo(opts.repo)
+  assertValidGitRef(opts.gitRef)
+  assertValidContentPath(opts.path)
+}
 
 const pendingRefreshes = new Map<string, Promise<unknown>>()
 
@@ -42,10 +116,14 @@ function isFresh(staleAt: Date) {
   return staleAt.getTime() > Date.now()
 }
 
-function queueRefresh(key: string, fn: () => Promise<unknown>) {
-  void withPendingRefresh(key, fn).catch((error) => {
-    console.error(`[GitHub Cache] Failed to refresh ${key}:`, error)
-  })
+// markGitHubContentStale / markDocsArtifactsStale set staleAt to the epoch
+// (new Date(0)) as a sentinel for "forcibly invalidated" — an admin clicked
+// the purge button or a push webhook fired. Natural TTL expiry and forced
+// invalidation both refresh synchronously now. The row stays around so the
+// bottom of getCachedGitHubContent / getCachedDocsArtifact can still fall back
+// to it if GitHub is unreachable.
+function isForciblyStale(staleAt: Date) {
+  return staleAt.getTime() <= 0
 }
 
 function readStoredTextValue(row: GithubContentCache | undefined) {
@@ -147,6 +225,8 @@ async function getCachedGitHubContent<T>(opts: {
   readStoredValue: (row: GithubContentCache | undefined) => CachedValue<T>
   repo: string
 }) {
+  assertValidCacheKey(opts)
+
   const readRow = () =>
     findGithubContentRow({
       repo: opts.repo,
@@ -165,18 +245,10 @@ async function getCachedGitHubContent<T>(opts: {
 
   const cachedRow = await readRow()
   const storedValue = opts.readStoredValue(cachedRow)
+  const forciblyStale = !!cachedRow && isForciblyStale(cachedRow.staleAt)
 
-  if (storedValue !== undefined) {
+  if (storedValue !== undefined && !forciblyStale) {
     if (cachedRow && isFresh(cachedRow.staleAt)) {
-      return storedValue
-    }
-
-    if (storedValue !== null) {
-      queueRefresh(opts.cacheKey, async () => {
-        const value = await opts.origin()
-        await persist(value)
-      })
-
       return storedValue
     }
   }
@@ -184,8 +256,15 @@ async function getCachedGitHubContent<T>(opts: {
   return withPendingRefresh(opts.cacheKey, async () => {
     const latestRow = await readRow()
     const latestValue = opts.readStoredValue(latestRow)
+    const latestForciblyStale =
+      !!latestRow && isForciblyStale(latestRow.staleAt)
 
-    if (latestValue !== undefined && latestRow && isFresh(latestRow.staleAt)) {
+    if (
+      latestValue !== undefined &&
+      latestRow &&
+      !latestForciblyStale &&
+      isFresh(latestRow.staleAt)
+    ) {
       return latestValue
     }
 
@@ -281,6 +360,10 @@ export async function getCachedDocsArtifact<T>(opts: {
   isValue: (value: unknown) => value is T
   repo: string
 }) {
+  assertValidRepo(opts.repo)
+  assertValidGitRef(opts.gitRef)
+  assertValidContentPath(opts.docsRoot)
+
   const cacheKey = `docs-artifact:${opts.repo}:${opts.gitRef}:${opts.docsRoot}:${opts.artifactType}:${opts.artifactKey}`
   const readRow = () =>
     db.query.docsArtifactCache.findFirst({
@@ -296,18 +379,12 @@ export async function getCachedDocsArtifact<T>(opts: {
   const cachedRow = await readRow()
   const storedValue =
     cachedRow && opts.isValue(cachedRow.payload) ? cachedRow.payload : undefined
+  const forciblyStale = !!cachedRow && isForciblyStale(cachedRow.staleAt)
 
-  if (storedValue !== undefined) {
+  if (storedValue !== undefined && !forciblyStale) {
     if (cachedRow && isFresh(cachedRow.staleAt)) {
       return storedValue
     }
-
-    queueRefresh(cacheKey, async () => {
-      const payload = await opts.build()
-      await upsertDocsArtifact({ ...opts, payload })
-    })
-
-    return storedValue
   }
 
   return withPendingRefresh(cacheKey, async () => {
@@ -316,8 +393,15 @@ export async function getCachedDocsArtifact<T>(opts: {
       latestRow && opts.isValue(latestRow.payload)
         ? latestRow.payload
         : undefined
+    const latestForciblyStale =
+      !!latestRow && isForciblyStale(latestRow.staleAt)
 
-    if (latestValue !== undefined && latestRow && isFresh(latestRow.staleAt)) {
+    if (
+      latestValue !== undefined &&
+      latestRow &&
+      !latestForciblyStale &&
+      isFresh(latestRow.staleAt)
+    ) {
       return latestValue
     }
 
@@ -336,64 +420,147 @@ export async function getCachedDocsArtifact<T>(opts: {
   })
 }
 
-export async function markGitHubContentStale(opts: {
-  gitRef: string
-  repo: string
-}) {
-  const rows = await db.query.githubContentCache.findMany({
-    where: and(
-      eq(githubContentCache.repo, opts.repo),
-      eq(githubContentCache.gitRef, opts.gitRef),
-    ),
-  })
+const DEFAULT_PRUNE_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000
+// Negative cache rows (404s) only need to live long enough to absorb a
+// short burst of repeated requests for a missing path. After that they're
+// pure bloat — every scraper, broken backlink, and probe leaves a row.
+const DEFAULT_NEGATIVE_PRUNE_MAX_AGE_MS = 24 * 60 * 60 * 1000
 
-  if (rows.length === 0) {
-    return 0
+export async function pruneStaleCacheRows(
+  opts: {
+    maxAgeMs?: number
+    negativeMaxAgeMs?: number
+  } = {},
+) {
+  const maxAgeMs = opts.maxAgeMs ?? DEFAULT_PRUNE_MAX_AGE_MS
+  const negativeMaxAgeMs =
+    opts.negativeMaxAgeMs ?? DEFAULT_NEGATIVE_PRUNE_MAX_AGE_MS
+  const cutoff = new Date(Date.now() - maxAgeMs)
+  const negativeCutoff = new Date(Date.now() - negativeMaxAgeMs)
+
+  const [contentByAge, contentNegatives, artifactDeleted] = await Promise.all([
+    db
+      .delete(githubContentCache)
+      .where(lt(githubContentCache.updatedAt, cutoff))
+      .returning({ id: githubContentCache.id }),
+    db
+      .delete(githubContentCache)
+      .where(
+        and(
+          eq(githubContentCache.isPresent, false),
+          lt(githubContentCache.updatedAt, negativeCutoff),
+        ),
+      )
+      .returning({ id: githubContentCache.id }),
+    db
+      .delete(docsArtifactCache)
+      .where(lt(docsArtifactCache.updatedAt, cutoff))
+      .returning({ id: docsArtifactCache.id }),
+  ])
+
+  return {
+    cutoff,
+    negativeCutoff,
+    githubContentDeleted: contentByAge.length + contentNegatives.length,
+    githubContentNegativesDeleted: contentNegatives.length,
+    docsArtifactDeleted: artifactDeleted.length,
   }
-
-  await db
-    .update(githubContentCache)
-    .set({
-      staleAt: new Date(0),
-      updatedAt: new Date(),
-    })
-    .where(
-      and(
-        eq(githubContentCache.repo, opts.repo),
-        eq(githubContentCache.gitRef, opts.gitRef),
-      ),
-    )
-
-  return rows.length
 }
 
-export async function markDocsArtifactsStale(opts: {
-  gitRef: string
-  repo: string
-}) {
-  const rows = await db.query.docsArtifactCache.findMany({
-    where: and(
-      eq(docsArtifactCache.repo, opts.repo),
-      eq(docsArtifactCache.gitRef, opts.gitRef),
-    ),
-  })
+export async function markGitHubContentStale(
+  opts: {
+    gitRef?: string
+    repo?: string
+  } = {},
+) {
+  const whereConditions = []
 
-  if (rows.length === 0) {
+  if (opts.repo) {
+    whereConditions.push(eq(githubContentCache.repo, opts.repo))
+  }
+
+  if (opts.gitRef) {
+    whereConditions.push(eq(githubContentCache.gitRef, opts.gitRef))
+  }
+
+  const whereClause =
+    whereConditions.length > 0 ? and(...whereConditions) : undefined
+  const [countRow] = whereClause
+    ? await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(githubContentCache)
+        .where(whereClause)
+    : await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(githubContentCache)
+  const rowCount = countRow?.count ?? 0
+
+  if (rowCount === 0) {
     return 0
   }
 
-  await db
-    .update(docsArtifactCache)
-    .set({
-      staleAt: new Date(0),
-      updatedAt: new Date(),
-    })
-    .where(
-      and(
-        eq(docsArtifactCache.repo, opts.repo),
-        eq(docsArtifactCache.gitRef, opts.gitRef),
-      ),
-    )
+  // Only set staleAt — do NOT bump updatedAt. updatedAt tracks last
+  // upsert (i.e. last access/refresh) and is the signal our GC uses to
+  // decide what to prune. Bumping it here would mask every cached row
+  // as "freshly used" on every webhook invalidation.
+  const updateData = {
+    staleAt: new Date(0),
+  }
 
-  return rows.length
+  if (whereClause) {
+    await db.update(githubContentCache).set(updateData).where(whereClause)
+  } else {
+    await db.update(githubContentCache).set(updateData)
+  }
+
+  return rowCount
+}
+
+export async function markDocsArtifactsStale(
+  opts: {
+    gitRef?: string
+    repo?: string
+  } = {},
+) {
+  const whereConditions = []
+
+  if (opts.repo) {
+    whereConditions.push(eq(docsArtifactCache.repo, opts.repo))
+  }
+
+  if (opts.gitRef) {
+    whereConditions.push(eq(docsArtifactCache.gitRef, opts.gitRef))
+  }
+
+  const whereClause =
+    whereConditions.length > 0 ? and(...whereConditions) : undefined
+  const [countRow] = whereClause
+    ? await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(docsArtifactCache)
+        .where(whereClause)
+    : await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(docsArtifactCache)
+  const rowCount = countRow?.count ?? 0
+
+  if (rowCount === 0) {
+    return 0
+  }
+
+  // Only set staleAt — do NOT bump updatedAt. updatedAt tracks last
+  // upsert (i.e. last access/refresh) and is the signal our GC uses to
+  // decide what to prune. Bumping it here would mask every cached row
+  // as "freshly used" on every webhook invalidation.
+  const updateData = {
+    staleAt: new Date(0),
+  }
+
+  if (whereClause) {
+    await db.update(docsArtifactCache).set(updateData).where(whereClause)
+  } else {
+    await db.update(docsArtifactCache).set(updateData)
+  }
+
+  return rowCount
 }

@@ -35,6 +35,9 @@ const searchSchema = v.object({
 export const Route = createFileRoute('/maintainers')({
   component: RouteComponent,
   validateSearch: searchSchema,
+  staticData: {
+    includeSearchInCanonical: true,
+  },
   head: () => ({
     meta: seo({
       title: 'Maintainers | TanStack',
@@ -70,11 +73,13 @@ function MaintainersFilter({
 }: FilterProps) {
   const [isOpen, setIsOpen] = useState(false)
 
-  const availableLibraries = libraries.map((lib) => ({
-    id: lib.id,
-    name: lib.name,
-    bgStyle: lib.bgStyle,
-  }))
+  const availableLibraries = libraries
+    .filter((lib) => lib.visible !== false)
+    .map((lib) => ({
+      id: lib.id,
+      name: lib.name,
+      bgStyle: lib.bgStyle,
+    }))
 
   const toggleLibrary = (libraryId: Library['id']) => {
     if (!selectedLibraries) {

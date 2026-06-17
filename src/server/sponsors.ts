@@ -24,6 +24,8 @@ export type Sponsor = {
   createdAt: string
 }
 
+const sponsorMaintainerLogin = 'tannerlinsley'
+
 export const getSponsorsForSponsorPack = createServerFn({
   method: 'GET',
 }).handler(async () => {
@@ -89,7 +91,7 @@ export async function getSponsors() {
 
   sponsors.sort(
     (a, b) =>
-      (b.amount || 0) - (a.amount || 0) || (b.createdAt > a.createdAt ? -1 : 1),
+      (b.amount || 0) - (a.amount || 0) || a.login.localeCompare(b.login),
   )
 
   return sponsors
@@ -99,32 +101,56 @@ async function getGithubSponsors() {
   let sponsors: Sponsor[] = []
   try {
     const fetchPage = async (cursor = '') => {
-      const res = await graphqlWithAuth(
+      type SponsorshipEdge = {
+        node: {
+          sponsorEntity: {
+            avatarUrl: string
+            login: string
+            name?: string | null
+            url: string
+          } | null
+          tier: {
+            monthlyPriceInDollars: number
+          } | null
+        }
+      }
+
+      type GraphQLResponse = {
+        user: {
+          sponsorshipsAsMaintainer: {
+            pageInfo: {
+              hasNextPage: boolean
+              endCursor: string
+            }
+            edges: Array<SponsorshipEdge>
+          }
+        } | null
+      }
+
+      const res = await graphqlWithAuth<GraphQLResponse>(
         `
-      query ($cursor: String) {
-        viewer {
-          sponsorshipsAsMaintainer(first: 100, after: $cursor, includePrivate: true) {
+      query ($cursor: String, $login: String!) {
+        user(login: $login) {
+          sponsorshipsAsMaintainer(first: 100, after: $cursor, includePrivate: false) {
             pageInfo {
               hasNextPage
               endCursor
             }
             edges {
               node {
-                createdAt
                 sponsorEntity {
+                  ... on Actor {
+                    avatarUrl
+                    login
+                    url
+                  }
                   ... on User {
                     name
-                    login
-                  }
-                  ... on Organization {
-                    name
-                    login
                   }
                 }
                 tier {
                   monthlyPriceInDollars
                 }
-                privacyLevel
               }
             }
           }
@@ -133,64 +159,41 @@ async function getGithubSponsors() {
       `,
         {
           cursor,
+          login: sponsorMaintainerLogin,
         },
       )
 
-      type SponsorshipEdge = {
-        node: {
-          createdAt: string
-          sponsorEntity: {
-            name: string
-            login: string
-          } | null
-          tier: {
-            monthlyPriceInDollars: number
-          } | null
-          privacyLevel: string
-        }
-      }
+      const sponsorships = res.user?.sponsorshipsAsMaintainer
 
-      type GraphQLResponse = {
-        viewer: {
-          sponsorshipsAsMaintainer: {
-            pageInfo: {
-              hasNextPage: boolean
-              endCursor: string
-            }
-            edges: Array<SponsorshipEdge>
-          }
-        }
+      if (!sponsorships) {
+        return
       }
 
       const {
-        viewer: {
-          sponsorshipsAsMaintainer: {
-            pageInfo: { hasNextPage, endCursor },
-            edges,
-          },
-        },
-      } = res as GraphQLResponse
+        pageInfo: { hasNextPage, endCursor },
+        edges,
+      } = sponsorships
 
       const mapped = edges
         .map((edge) => {
           const {
-            node: { createdAt, sponsorEntity, tier, privacyLevel },
+            node: { sponsorEntity, tier },
           } = edge
 
           if (!sponsorEntity) {
             return null
           }
 
-          const { name, login } = sponsorEntity
+          const { avatarUrl, name, login } = sponsorEntity
 
           return {
-            name,
+            name: name || login,
             login,
             amount: tier?.monthlyPriceInDollars || 0,
-            createdAt,
-            private: privacyLevel === 'PRIVATE',
-            imageUrl: '',
-            linkUrl: '',
+            createdAt: '',
+            private: false,
+            imageUrl: avatarUrl,
+            linkUrl: sponsorEntity.url,
           }
         })
         .filter((d): d is Sponsor => d !== null)
@@ -208,7 +211,9 @@ async function getGithubSponsors() {
   } catch (err) {
     const error = err as { status?: number }
     if (error.status === 401) {
-      console.error('Missing github credentials, returning mock data.')
+      console.error(
+        'Invalid or missing GitHub credentials, returning mock data.',
+      )
       return [
         'tannerlinsley',
         'tkdodo',
@@ -233,8 +238,10 @@ async function getGithubSponsors() {
       console.error('GitHub rate limit exceeded, returning empty sponsors.')
       return []
     }
-    throw err
+    console.error('Failed to fetch GitHub sponsors', err)
   }
+
+  return sponsors
 }
 
 async function getSponsorsMeta(): Promise<SponsorMeta[]> {

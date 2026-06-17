@@ -51,7 +51,6 @@ Fenced code blocks are supported with language identifiers for syntax highlighti
 export function App() {
   return <div>Hello</div>
 }
-;``
 ```
 ````
 
@@ -204,6 +203,36 @@ becomes
 ```bash
 npm <command> <package>
 ```
+
+### Bundler tabs
+
+Bundler tabs render a compact tab row (like package-manager tabs) but accept rich markdown content per bundler (like the framework component). The user's bundler choice is persisted to `localStorage` and synced across every bundler tab block on the page.
+
+Inside `variant="bundler"`, each top-level heading whose text matches a known bundler starts a new section, and the following nodes (prose, code blocks, etc.) become that bundler's panel. The transformer uses the largest heading level present in the block, so `# Vite` / `# Rsbuild` and `## Vite` / `## Rsbuild` both work — just be consistent within a single block.
+
+````md
+<!-- ::start:tabs variant="bundler" -->
+
+# Vite
+
+```ts title="vite.config.ts"
+import { defineConfig } from 'vite'
+
+export default defineConfig({})
+```
+
+# Rsbuild
+
+```ts title="rsbuild.config.ts"
+import { defineConfig } from '@rsbuild/cli'
+
+export default defineConfig({})
+```
+
+<!-- ::end:tabs -->
+````
+
+Supported bundlers: `vite`, `rsbuild`. Heading text is matched case-insensitively. Both sections should be defined; if the user's selected bundler isn't present in a particular block, the first defined panel is shown as a fallback.
 
 ## Framework component
 

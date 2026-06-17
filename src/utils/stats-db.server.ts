@@ -14,7 +14,7 @@ import {
   ossStatsCache,
 } from '~/db/schema'
 import type { OssStatsCache } from '~/db/schema'
-import { eq, inArray, and } from 'drizzle-orm'
+import { desc, eq, gte, inArray, and, lte } from 'drizzle-orm'
 import type {
   GitHubStats,
   NpmPackageStats,
@@ -1190,18 +1190,8 @@ export async function setCachedGitHubStats(
       : null
     const mergedStats: GitHubStats = {
       starCount: stats.starCount,
-      contributorCount:
-        stats.contributorCount > 0
-          ? stats.contributorCount
-          : existingStats.contributorCount > 0
-            ? existingStats.contributorCount
-            : (previousStats?.contributorCount ?? 0),
-      dependentCount:
-        stats.dependentCount !== undefined
-          ? stats.dependentCount
-          : existingStats.dependentCount !== undefined
-            ? existingStats.dependentCount
-            : previousStats?.dependentCount,
+      contributorCount: 0,
+      dependentCount: 0,
       forkCount:
         stats.forkCount ?? existingStats.forkCount ?? previousStats?.forkCount,
       repositoryCount:
@@ -1266,6 +1256,68 @@ export interface NpmDownloadChunkData {
   totalDownloads: number
   dailyData: Array<{ day: string; downloads: number }>
   isImmutable: boolean
+}
+
+/**
+ * Get the freshest cached daily chunks that cover a date window.
+ *
+ * Recent landing-page stats should be derived from cached daily data instead
+ * of requiring an exact rolling range row, since the cache may store broader
+ * windows like month-to-date or year-to-date.
+ */
+export async function getLatestNpmDownloadChunksCoveringRange({
+  dateFrom,
+  dateTo,
+  packageNames,
+}: {
+  dateFrom: string
+  dateTo: string
+  packageNames: Array<string>
+}): Promise<Map<string, NpmDownloadChunkData>> {
+  const results = new Map<string, NpmDownloadChunkData>()
+
+  if (packageNames.length === 0) {
+    return results
+  }
+
+  try {
+    const rows = await db
+      .select()
+      .from(npmDownloadChunks)
+      .where(
+        and(
+          inArray(npmDownloadChunks.packageName, packageNames),
+          eq(npmDownloadChunks.binSize, 'daily'),
+          lte(npmDownloadChunks.dateFrom, dateFrom),
+          gte(npmDownloadChunks.dateTo, dateTo),
+        ),
+      )
+      .orderBy(
+        desc(npmDownloadChunks.dateTo),
+        desc(npmDownloadChunks.updatedAt),
+      )
+
+    for (const row of rows) {
+      if (results.has(row.packageName)) {
+        continue
+      }
+
+      results.set(row.packageName, {
+        packageName: row.packageName,
+        dateFrom: row.dateFrom,
+        dateTo: row.dateTo,
+        binSize: row.binSize,
+        totalDownloads: row.totalDownloads,
+        dailyData: row.dailyData as Array<{ day: string; downloads: number }>,
+        isImmutable: row.isImmutable,
+      })
+    }
+
+    return results
+  } catch (error) {
+    console.error('[NPM Download Chunks] Error reading latest ranges:', error)
+    return results
+  }
 }
 
 /**

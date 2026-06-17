@@ -85,7 +85,7 @@ export {
   isAdmin,
   userHasCapability,
   userIsAdmin,
-} from './capabilities.server'
+} from './capabilities'
 
 // ============================================================================
 // OAuth Utilities

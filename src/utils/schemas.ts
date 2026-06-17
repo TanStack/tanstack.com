@@ -13,7 +13,7 @@ import {
   AUDIT_ACTIONS,
   RELEASE_LEVELS,
 } from '~/db/types'
-import { libraryIds } from '~/libraries'
+import { libraryIds } from '~/libraries/ids'
 
 // Valibot schemas derived from constants
 export const capabilitySchema = v.picklist([...CAPABILITIES])

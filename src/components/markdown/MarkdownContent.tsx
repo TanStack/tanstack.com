@@ -1,8 +1,8 @@
 import * as React from 'react'
-import { SquarePen } from 'lucide-react'
+import { ChevronDown, Copy, SquarePen } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
+import { ButtonGroup } from '~/components/ButtonGroup'
 import { DocTitle } from '~/components/DocTitle'
-import { Markdown } from './Markdown'
 import { DocFeedbackProvider } from '~/components/DocFeedbackProvider'
 import { Button } from '~/ui'
 
@@ -17,10 +17,7 @@ type MarkdownContentProps = {
   repo: string
   branch: string
   filePath: string
-  /** Pre-rendered HTML markup (from renderMarkdown). If not provided, rawContent will be rendered. */
-  htmlMarkup?: string
-  /** Raw markdown content to render. Used if htmlMarkup is not provided. */
-  rawContent?: string
+  contentRsc: React.ReactNode
   /** Additional elements to render in the title bar (e.g., width toggle button) */
   titleBarActions?: React.ReactNode
   /** Additional class names for the prose container */
@@ -35,13 +32,39 @@ type MarkdownContentProps = {
   currentFramework?: string
 }
 
+function CopyPageDropdownFallback() {
+  return (
+    <ButtonGroup>
+      <Button
+        variant="ghost"
+        size="xs"
+        rounded="none"
+        className="border-0"
+        disabled
+      >
+        <Copy className="w-3 h-3" />
+        Copy page
+      </Button>
+      <Button
+        variant="ghost"
+        size="xs"
+        rounded="none"
+        className="border-0 px-1.5"
+        disabled
+        aria-label="More copy actions"
+      >
+        <ChevronDown className="w-3 h-3" />
+      </Button>
+    </ButtonGroup>
+  )
+}
+
 export function MarkdownContent({
   title,
   repo,
   branch,
   filePath,
-  htmlMarkup,
-  rawContent,
+  contentRsc,
   titleBarActions,
   proseClassName,
   containerRef,
@@ -53,38 +76,11 @@ export function MarkdownContent({
   const [canLoadCopyControls, setCanLoadCopyControls] = React.useState(false)
 
   React.useEffect(() => {
-    if (typeof window === 'undefined') {
-      return
-    }
-
-    if (typeof window.requestIdleCallback === 'function') {
-      const idleId = window.requestIdleCallback(
-        () => {
-          setCanLoadCopyControls(true)
-        },
-        { timeout: 2500 },
-      )
-
-      return () => {
-        window.cancelIdleCallback(idleId)
-      }
-    }
-
-    const timeout = window.setTimeout(() => {
-      setCanLoadCopyControls(true)
-    }, 2500)
-
-    return () => {
-      window.clearTimeout(timeout)
-    }
+    setCanLoadCopyControls(true)
   }, [])
 
   const renderMarkdownContent = () => {
-    const markdownElement = htmlMarkup ? (
-      <Markdown htmlMarkup={htmlMarkup} />
-    ) : rawContent ? (
-      <Markdown rawContent={rawContent} />
-    ) : null
+    const markdownElement = contentRsc
 
     if (libraryId && libraryVersion && pagePath) {
       return (
@@ -114,15 +110,12 @@ export function MarkdownContent({
             onPointerEnter={() => {
               setCanLoadCopyControls(true)
             }}
+            onTouchStart={() => {
+              setCanLoadCopyControls(true)
+            }}
           >
             {canLoadCopyControls ? (
-              <React.Suspense
-                fallback={
-                  <Button variant="ghost" size="xs" disabled>
-                    Copy page
-                  </Button>
-                }
-              >
+              <React.Suspense fallback={<CopyPageDropdownFallback />}>
                 <LazyCopyPageDropdown
                   repo={repo}
                   branch={branch}
@@ -130,7 +123,9 @@ export function MarkdownContent({
                   currentFramework={currentFramework}
                 />
               </React.Suspense>
-            ) : null}
+            ) : (
+              <CopyPageDropdownFallback />
+            )}
             {titleBarActions}
           </div>
         </div>

@@ -2,6 +2,7 @@
 title: TanStack Table + Ag-Grid Partnership
 published: 2022-06-17
 excerpt: AG Grid is now the official TanStack Table open-source partner. Together we'll educate the ecosystem about the differences between the two libraries and when to choose which.
+library: table
 authors:
   - Tanner Linsley
   - Niall Crosby

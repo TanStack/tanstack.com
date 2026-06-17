@@ -6,7 +6,7 @@ const footerLinks = [
   { label: '@Tan_Stack on X.com', to: 'https://x.com/tan_stack' },
   {
     label: '@TannerLinsley on X.com',
-    to: 'https://twitter.com/tannerlinsley',
+    to: 'https://x.com/tannerlinsley',
   },
   { label: 'GitHub', to: 'https://github.com/tanstack' },
   {

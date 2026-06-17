@@ -1,11 +1,14 @@
 import fs from 'node:fs'
 import fsp from 'node:fs/promises'
+import os from 'node:os'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import * as graymatter from 'gray-matter'
 import { fetchCached } from '~/utils/cache.server'
 import {
   getCachedGitHubJsonContent,
   getCachedGitHubTextFile,
+  InvalidCacheKeyError,
 } from './github-content-cache.server'
 import { normalizeRedirectFrom } from './redirects'
 import { multiSortBy, removeLeadingSlash } from './utils'
@@ -43,7 +46,7 @@ export function isRecoverableGitHubContentError(
   )
 }
 
-function shouldUseLocalDocsFiles() {
+export function shouldUseLocalDocsFiles() {
   if (process.env.NODE_ENV !== 'development') {
     return false
   }
@@ -71,8 +74,21 @@ async function fetchRemote(
 
   try {
     response = await fetch(href, {
-      headers: { 'User-Agent': `docs:${owner}/${repo}` },
+      ...getGitHubContentFetchOptions({
+        includeApiVersion: false,
+        userAgent: `docs:${owner}/${repo}`,
+      }),
     })
+
+    if (isGitHubAuthFailureStatus(response.status)) {
+      response = await fetch(href, {
+        ...getGitHubContentFetchOptions({
+          includeApiVersion: false,
+          includeAuthorization: false,
+          userAgent: `docs:${owner}/${repo}`,
+        }),
+      })
+    }
   } catch (error) {
     throw new GitHubContentError(
       'network',
@@ -124,6 +140,70 @@ function isValidFilepath(filepath: string): boolean {
   )
 }
 
+function readGitFilePath(filepath: string) {
+  try {
+    return fs.readFileSync(filepath, 'utf8').trim()
+  } catch {
+    return undefined
+  }
+}
+
+function getGitCommonDir(repoRoot: string) {
+  const gitPath = path.join(repoRoot, '.git')
+
+  if (fs.existsSync(gitPath) && fs.statSync(gitPath).isDirectory()) {
+    return gitPath
+  }
+
+  const gitFile = readGitFilePath(gitPath)
+  const gitDirValue = gitFile?.match(/^gitdir:\s*(.+)$/)?.[1]
+  if (!gitDirValue) {
+    return undefined
+  }
+
+  const gitDir = path.isAbsolute(gitDirValue)
+    ? gitDirValue
+    : path.resolve(repoRoot, gitDirValue)
+
+  const commonDirValue = readGitFilePath(path.join(gitDir, 'commondir'))
+  if (!commonDirValue) {
+    return gitDir
+  }
+
+  return path.isAbsolute(commonDirValue)
+    ? commonDirValue
+    : path.resolve(gitDir, commonDirValue)
+}
+
+function getLocalRepoBaseDirs(repo: string) {
+  const configuredReposDir = env.TANSTACK_LOCAL_REPOS_DIR
+    ? path.resolve(env.TANSTACK_LOCAL_REPOS_DIR, repo)
+    : undefined
+
+  const homeGitHubRepoDir = path.resolve(os.homedir(), 'GitHub', repo)
+  const gitCommonDir = getGitCommonDir(process.cwd())
+  const gitSiblingRepoDir = gitCommonDir
+    ? path.resolve(path.dirname(path.dirname(gitCommonDir)), repo)
+    : undefined
+
+  const siblingRepoDir = path.resolve(
+    path.dirname(fileURLToPath(import.meta.url)),
+    '../../..',
+    repo,
+  )
+
+  return Array.from(
+    new Set(
+      [
+        configuredReposDir,
+        gitSiblingRepoDir,
+        homeGitHubRepoDir,
+        siblingRepoDir,
+      ].filter((dir): dir is string => dir !== undefined),
+    ),
+  )
+}
+
 /**
  * Return text content of file from local file system
  */
@@ -133,26 +213,32 @@ async function fetchFs(repo: string, filepath: string) {
     return ''
   }
 
-  const dirname = import.meta.url.split('://').at(-1)!
-  const baseDir = path.resolve(dirname, `../../../../${repo}`)
-  const localFilePath = path.resolve(baseDir, filepath)
+  const attemptedPaths = Array<string>()
 
-  if (!localFilePath.startsWith(baseDir)) {
-    console.warn(
-      `[fetchFs] Path traversal attempt blocked: ${filepath} resolved to ${localFilePath}\n`,
-    )
-    return ''
+  for (const baseDir of getLocalRepoBaseDirs(repo)) {
+    const localFilePath = path.resolve(baseDir, filepath)
+    attemptedPaths.push(localFilePath)
+
+    if (!localFilePath.startsWith(baseDir)) {
+      console.warn(
+        `[fetchFs] Path traversal attempt blocked: ${filepath} resolved to ${localFilePath}\n`,
+      )
+      return ''
+    }
+
+    const exists = fs.existsSync(localFilePath)
+    if (!exists) {
+      continue
+    }
+
+    const file = await fsp.readFile(localFilePath)
+    return file.toString()
   }
 
-  const exists = fs.existsSync(localFilePath)
-  if (!exists) {
-    console.warn(
-      `[fetchFs] Tried to read file that does not exist: ${localFilePath}\n`,
-    )
-    return ''
-  }
-  const file = await fsp.readFile(localFilePath)
-  return file.toString()
+  console.warn(
+    `[fetchFs] Tried to read file that does not exist: ${attemptedPaths.join(', ')}\n`,
+  )
+  return ''
 }
 
 /**
@@ -408,12 +494,22 @@ export async function fetchRepoFile(
     })
   }
 
-  return getCachedGitHubTextFile({
-    repo: repoPair,
-    gitRef: ref,
-    path: filepath,
-    origin: () => fetchRepoFileFromOrigin(repoPair, ref, filepath),
-  })
+  try {
+    return await getCachedGitHubTextFile({
+      repo: repoPair,
+      gitRef: ref,
+      path: filepath,
+      origin: () => fetchRepoFileFromOrigin(repoPair, ref, filepath),
+    })
+  } catch (error) {
+    if (error instanceof InvalidCacheKeyError) {
+      // Caller asked for an unrepresentable path (URL fragment leaked in,
+      // probe attempt, malformed link). Treat as missing without polluting
+      // the cache or the GitHub API budget.
+      return null
+    }
+    throw error
+  }
 }
 
 export function extractFrontMatter(content: string) {
@@ -421,12 +517,17 @@ export function extractFrontMatter(content: string) {
     excerpt: (file: any) => (file.excerpt = createRichExcerpt(file.content)),
   })
   const redirectFrom = normalizeRedirectFrom(result.data.redirect_from)
+  const userDescription =
+    typeof result.data.description === 'string' &&
+    result.data.description.trim().length > 0
+      ? result.data.description
+      : undefined
 
   return {
     ...result,
     data: {
       ...result.data,
-      description: createExcerpt(result.content),
+      description: userDescription ?? createExcerpt(result.content),
       redirect_from: redirectFrom,
       redirectFrom,
     } as { [key: string]: any } & {
@@ -434,6 +535,7 @@ export function extractFrontMatter(content: string) {
       redirect_from?: Array<string>
       redirectFrom?: Array<string>
     },
+    userDescription,
   }
 }
 
@@ -604,12 +706,49 @@ function isGitHubRecursiveTreeResponse(
   )
 }
 
-function getGitHubApiFetchOptions(): RequestInit {
+function getValidGitHubToken(token: string | undefined) {
+  const trimmedToken = token?.trim()
+
+  if (!trimmedToken || trimmedToken === 'USE_A_REAL_KEY_IN_PRODUCTION') {
+    return undefined
+  }
+
+  return trimmedToken
+}
+
+function getGitHubAuthToken() {
+  return getValidGitHubToken(env.GITHUB_AUTH_TOKEN)
+}
+
+export function isGitHubAuthFailureStatus(status: number) {
+  // GitHub can mask token-scoping failures as 404, especially for raw
+  // content URLs. Retry unauthenticated before treating the content as missing.
+  return status === 401 || status === 403 || status === 404
+}
+
+export function getGitHubContentFetchOptions(opts?: {
+  includeApiVersion?: boolean
+  includeAuthorization?: boolean
+  userAgent?: string
+}): RequestInit {
+  const headers: Record<string, string> = {}
+
+  if (opts?.includeApiVersion !== false) {
+    headers['X-GitHub-Api-Version'] = '2022-11-28'
+  }
+
+  if (opts?.userAgent) {
+    headers['User-Agent'] = opts.userAgent
+  }
+
+  const token = getGitHubAuthToken()
+
+  if (token && opts?.includeAuthorization !== false) {
+    headers.Authorization = `Bearer ${token}`
+  }
+
   return {
-    headers: {
-      'X-GitHub-Api-Version': '2022-11-28',
-      Authorization: `Bearer ${env.GITHUB_AUTH_TOKEN}`,
-    },
+    headers,
   }
 }
 
@@ -617,7 +756,14 @@ async function fetchGitHubApiJson(url: string) {
   let response: Response
 
   try {
-    response = await fetch(url, getGitHubApiFetchOptions())
+    response = await fetch(url, getGitHubContentFetchOptions())
+
+    if (isGitHubAuthFailureStatus(response.status)) {
+      response = await fetch(
+        url,
+        getGitHubContentFetchOptions({ includeAuthorization: false }),
+      )
+    }
   } catch (error) {
     throw new GitHubContentError(
       'network',
@@ -817,6 +963,11 @@ export function fetchApiContents(
     path: startingPath,
     isValue: isGitHubFileNodeArray,
     origin: () => fetchApiContentsRemote(repoPair, branch, startingPath),
+  }).catch((error) => {
+    if (error instanceof InvalidCacheKeyError) {
+      return null
+    }
+    throw error
   })
 }
 
@@ -833,10 +984,17 @@ async function fetchApiContentsFs(
   startingPath: string,
 ): Promise<Array<GitHubFileNode> | null> {
   const [_, repo] = repoPair.split('/')
-  const dirname = import.meta.url.split('://').at(-1)!
 
-  const base = path.resolve(dirname, `../../../../${repo}`)
-  const fsStartPath = path.join(base, removeLeadingSlash(startingPath))
+  const base = getLocalRepoBaseDirs(repo).find((candidate) =>
+    fs.existsSync(path.join(candidate, removeLeadingSlash(startingPath))),
+  )
+
+  if (!base) {
+    return null
+  }
+
+  const resolvedBase = base
+  const fsStartPath = path.join(resolvedBase, removeLeadingSlash(startingPath))
 
   const dirsAndFilesToIgnore = [
     'node_modules',
@@ -912,8 +1070,10 @@ async function fetchApiContentsFs(
       }
 
       // This replacement is only being done to more accurately mock the GitHub API response
-      file.path = removeLeadingSlash(file.path.replace(base, ''))
-      file._links.self = removeLeadingSlash(file._links.self.replace(base, ''))
+      file.path = removeLeadingSlash(file.path.replace(resolvedBase, ''))
+      file._links.self = removeLeadingSlash(
+        file._links.self.replace(resolvedBase, ''),
+      )
 
       result.push(file)
     }

@@ -17,6 +17,7 @@ import {
 } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 import type { InferSelectModel, InferInsertModel } from 'drizzle-orm'
+import type { SignupSource } from './types'
 
 // Re-export client-safe types and constants
 export type {
@@ -28,6 +29,7 @@ export type {
   ShowcaseUseCase,
   AuditAction,
   ReleaseLevel,
+  SignupSource,
 } from './types'
 
 import {
@@ -50,6 +52,7 @@ export {
   SHOWCASE_USE_CASES,
   AUDIT_ACTIONS,
   RELEASE_LEVELS,
+  SIGNUP_SOURCES,
 } from './types'
 
 // Enums - using imported constants as single source of truth
@@ -88,6 +91,10 @@ export const users = pgTable(
     adsDisabled: boolean('ads_disabled').default(false),
     interestedInHidingAds: boolean('interested_in_hiding_ads').default(false),
     lastUsedFramework: varchar('last_used_framework', { length: 50 }),
+    signupSources: jsonb('signup_sources')
+      .$type<SignupSource[]>()
+      .notNull()
+      .default([]),
     sessionVersion: integer('session_version').notNull().default(0),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
       .notNull()

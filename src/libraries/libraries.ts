@@ -4,6 +4,7 @@
 import { redirect } from '@tanstack/react-router'
 import type { LibrarySlim, LibraryId } from './types'
 import { handleRedirects } from '~/utils/handleRedirects'
+export { libraryIds, SIDEBAR_LIBRARY_IDS } from './ids'
 
 export const query: LibrarySlim = {
   id: 'query',
@@ -13,7 +14,7 @@ export const query: LibrarySlim = {
   tagline:
     'Powerful asynchronous state management, server-state utilities and data fetching',
   description:
-    'Powerful asynchronous state management, server-state utilities and data fetching. Fetch, cache, update, and wrangle all forms of async data in your TS/JS, React, Vue, Solid, Svelte & Angular applications all without touching any "global state"',
+    'Powerful asynchronous state management, server-state utilities and data fetching. Fetch, cache, update, and wrangle all forms of async data in your TS/JS, React, Vue, Solid, Svelte, Angular & Lit applications all without touching any "global state"',
   bgStyle: 'bg-red-500',
   borderStyle: 'border-red-500/50',
   textStyle: 'text-red-500',
@@ -23,16 +24,17 @@ export const query: LibrarySlim = {
   bgRadial: 'from-red-500 via-red-500/60 to-transparent',
   badge: undefined,
   repo: 'tanstack/query',
-  frameworks: ['react', 'preact', 'solid', 'vue', 'svelte', 'angular'],
+  frameworks: ['react', 'preact', 'solid', 'vue', 'svelte', 'angular', 'lit'],
   latestVersion: 'v5',
   latestBranch: 'main',
+  corePackageName: '@tanstack/query-core',
+  npmPackageNames: ['@tanstack/query-core', 'react-query'],
   availableVersions: ['v5', 'v4', 'v3'],
   scarfId: '53afb586-3934-4624-a37a-e680c1528e17',
-  ogImage: 'https://github.com/tanstack/query/raw/main/media/repo-header.png',
   defaultDocs: 'framework/react/overview',
   sitemap: {
     includeLandingPage: true,
-    includeTopLevelDocsPages: true,
+    includeDocsPages: true,
   },
   installPath: 'framework/$framework/installation',
   legacyPackages: ['react-query'],
@@ -216,15 +218,15 @@ export const router: LibrarySlim = {
   repo: 'tanstack/router',
   frameworks: ['react', 'solid'],
   corePackageName: '@tanstack/router-core',
+  npmPackageNames: ['@tanstack/router-core', 'react-location'],
   latestVersion: 'v1',
   latestBranch: 'main',
   availableVersions: ['v1'],
   scarfId: '3d14fff2-f326-4929-b5e1-6ecf953d24f4',
-  ogImage: 'https://github.com/tanstack/router/raw/main/media/header.png',
   docsRoot: 'docs/router',
   sitemap: {
     includeLandingPage: true,
-    includeTopLevelDocsPages: true,
+    includeDocsPages: true,
   },
   legacyPackages: ['react-location'],
   hideCodesandboxUrl: true,
@@ -288,12 +290,14 @@ export const start: LibrarySlim = {
   latestVersion: 'v0',
   latestBranch: 'main',
   availableVersions: ['v0'],
+  corePackageName: '@tanstack/start-client-core',
+  npmPackageNames: ['@tanstack/start-client-core'],
   scarfId: 'b6e2134f-e805-401d-95c3-2a7765d49a3d',
   docsRoot: 'docs/start',
   defaultDocs: 'framework/react/overview',
   sitemap: {
     includeLandingPage: true,
-    includeTopLevelDocsPages: true,
+    includeDocsPages: true,
   },
   installPath: 'framework/$framework/build-from-scratch',
   embedEditor: 'codesandbox',
@@ -322,25 +326,27 @@ export const table: LibrarySlim = {
   repo: 'tanstack/table',
   frameworks: [
     'angular',
-    'lit',
-    'qwik',
     'react',
+    'preact',
     'solid',
     'svelte',
     'vue',
+    'qwik',
+    'lit',
+    'alpine',
     'vanilla',
   ],
   latestVersion: 'v8',
   latestBranch: 'main',
-  availableVersions: ['v8', 'alpha'],
+  availableVersions: ['v8', 'beta'],
   scarfId: 'dc8b39e1-3fe9-4f3a-8e56-d4e2cf420a9e',
-  ogImage: 'https://github.com/tanstack/table/raw/main/media/repo-header.png',
-  defaultDocs: 'introduction',
+  defaultDocs: 'overview',
   sitemap: {
     includeLandingPage: true,
-    includeTopLevelDocsPages: true,
+    includeDocsPages: true,
   },
   corePackageName: '@tanstack/table-core',
+  npmPackageNames: ['@tanstack/table-core', 'react-table'],
   legacyPackages: ['react-table'],
   handleRedirects: (href) => {
     handleRedirects(
@@ -392,7 +398,7 @@ export const form: LibrarySlim = {
   to: '/form',
   tagline: 'Headless UI for building performant and type-safe forms',
   description:
-    'Headless, performant, and type-safe form state management for TS/JS, React, Vue, Angular, Solid, Lit and Svelte.',
+    'Headless, performant, and type-safe form state management for TS/JS, React, Preact, Vue, Angular, Solid, Lit and Svelte.',
   bgStyle: 'bg-yellow-500',
   borderStyle: 'border-yellow-500/50',
   textStyle: 'text-yellow-500',
@@ -403,15 +409,15 @@ export const form: LibrarySlim = {
   badge: 'new',
   repo: 'tanstack/form',
   corePackageName: '@tanstack/form-core',
-  frameworks: ['react', 'vue', 'angular', 'solid', 'lit', 'svelte'],
+  npmPackageNames: ['@tanstack/form-core'],
+  frameworks: ['react', 'preact', 'vue', 'angular', 'solid', 'lit', 'svelte'],
   latestVersion: 'v1',
   latestBranch: 'main',
   availableVersions: ['v1'],
   scarfId: '72ec4452-5d77-427c-b44a-57515d2d83aa',
-  ogImage: 'https://github.com/tanstack/form/raw/main/media/repo-header.png',
   sitemap: {
     includeLandingPage: true,
-    includeTopLevelDocsPages: true,
+    includeDocsPages: true,
   },
 }
 
@@ -434,13 +440,17 @@ export const virtual: LibrarySlim = {
   repo: 'tanstack/virtual',
   frameworks: ['react', 'solid', 'vue', 'svelte', 'lit', 'angular'],
   corePackageName: '@tanstack/virtual-core',
+  npmPackageNames: ['@tanstack/virtual-core', 'react-virtual'],
   latestVersion: 'v3',
   latestBranch: 'main',
   availableVersions: ['v3'],
   scarfId: '32372eb1-91e0-48e7-8df1-4808a7be6b94',
-  ogImage: 'https://github.com/tanstack/query/raw/main/media/header.png',
   defaultDocs: 'introduction',
   legacyPackages: ['react-virtual'],
+  sitemap: {
+    includeLandingPage: true,
+    includeDocsPages: true,
+  },
 }
 
 export const ranger: LibrarySlim = {
@@ -455,6 +465,7 @@ export const ranger: LibrarySlim = {
   borderStyle: 'border-black/50 dark:border-gray-100/50',
   textStyle: 'text-black dark:text-gray-100',
   textColor: 'text-black dark:text-gray-100',
+  badgeTextStyle: 'text-white dark:text-gray-900',
   colorFrom: 'from-black dark:from-gray-100',
   colorTo: 'to-gray-600 dark:to-gray-400',
   accentColorFrom: 'from-blue-500',
@@ -465,11 +476,17 @@ export const ranger: LibrarySlim = {
   badge: undefined,
   repo: 'tanstack/ranger',
   frameworks: ['react'],
+  corePackageName: '@tanstack/ranger',
+  npmPackageNames: ['@tanstack/ranger', 'react-ranger'],
+  legacyPackages: ['react-ranger'],
   latestVersion: 'v0',
   latestBranch: 'main',
   availableVersions: ['v0'],
   scarfId: 'dd278e06-bb3f-420c-85c6-6e42d14d8f61',
-  ogImage: 'https://github.com/tanstack/ranger/raw/main/media/headerv1.png',
+  sitemap: {
+    includeLandingPage: true,
+    includeDocsPages: true,
+  },
 }
 
 export const store: LibrarySlim = {
@@ -489,13 +506,18 @@ export const store: LibrarySlim = {
   bgRadial: 'from-twine-500 via-twine-700/50 to-transparent',
   badge: 'alpha',
   repo: 'tanstack/store',
-  frameworks: ['react', 'preact', 'solid', 'svelte', 'vue', 'angular'],
+  frameworks: ['react', 'preact', 'solid', 'svelte', 'vue', 'angular', 'lit'],
+  corePackageName: '@tanstack/store',
+  npmPackageNames: ['@tanstack/store'],
   latestVersion: 'v0',
   latestBranch: 'main',
   availableVersions: ['v0'],
   scarfId: '302d0fef-cb3f-43c6-b45c-f055b9745edb',
-  ogImage: 'https://github.com/tanstack/store/raw/main/media/repo-header.png',
   defaultDocs: 'overview',
+  sitemap: {
+    includeLandingPage: true,
+    includeDocsPages: true,
+  },
 }
 
 export const pacer: LibrarySlim = {
@@ -517,13 +539,18 @@ export const pacer: LibrarySlim = {
   badge: 'beta',
   repo: 'tanstack/pacer',
   frameworks: ['react', 'preact', 'solid', 'angular'],
+  corePackageName: '@tanstack/pacer',
+  npmPackageNames: ['@tanstack/pacer', '@tanstack/pacer-lite'],
   legacyPackages: ['@tanstack/pacer-lite'],
   latestVersion: 'v0',
   latestBranch: 'main',
   availableVersions: ['v0'],
   scarfId: '302d0fef-cb3f-43c6-b45c-f055b9745edb',
-  ogImage: 'https://github.com/tanstack/pacer/raw/main/media/repo-header.png',
   defaultDocs: 'overview',
+  sitemap: {
+    includeLandingPage: true,
+    includeDocsPages: true,
+  },
 }
 
 export const hotkeys: LibrarySlim = {
@@ -546,11 +573,15 @@ export const hotkeys: LibrarySlim = {
   repo: 'tanstack/hotkeys',
   frameworks: ['react', 'preact', 'solid', 'svelte', 'vue', 'angular'],
   corePackageName: '@tanstack/hotkeys',
+  npmPackageNames: ['@tanstack/hotkeys'],
   latestVersion: 'v0',
   latestBranch: 'main',
   availableVersions: ['v0'],
-  ogImage: 'https://github.com/tanstack/hotkeys/raw/main/media/repo-header.png',
   defaultDocs: 'overview',
+  sitemap: {
+    includeLandingPage: true,
+    includeDocsPages: true,
+  },
 }
 
 export const db: LibrarySlim = {
@@ -571,14 +602,16 @@ export const db: LibrarySlim = {
   bgRadial: 'from-orange-500 via-orange-700/50 to-transparent',
   repo: 'tanstack/db',
   frameworks: ['react', 'vue', 'solid', 'svelte', 'vanilla'],
+  corePackageName: '@tanstack/db',
+  npmPackageNames: ['@tanstack/db', '@tanstack/react-db'],
   latestVersion: 'v0',
   latestBranch: 'main',
   availableVersions: ['v0'],
   scarfId: '302d0fef-cb3f-43c6-b45c-f055b9745edb',
-  ogImage: 'https://github.com/tanstack/db/raw/main/media/repo-header.png',
   defaultDocs: 'overview',
   sitemap: {
     includeLandingPage: true,
+    includeDocsPages: true,
   },
 }
 
@@ -591,7 +624,7 @@ export const ai: LibrarySlim = {
     'A powerful, open-source AI SDK with a unified interface across multiple providers',
   description:
     'A powerful, open-source AI SDK with a unified interface across multiple providers. No vendor lock-in, no proprietary formats, just clean TypeScript and honest open source.',
-  badge: 'alpha',
+  badge: 'beta',
   bgStyle: 'bg-pink-500',
   borderStyle: 'border-pink-700/50',
   textStyle: 'text-pink-500',
@@ -600,12 +633,33 @@ export const ai: LibrarySlim = {
   colorTo: 'to-pink-700',
   bgRadial: 'from-pink-500 via-pink-700/50 to-transparent',
   repo: 'tanstack/ai',
-  frameworks: ['react', 'solid', 'vanilla'],
+  frameworks: ['react', 'vue', 'solid', 'svelte', 'preact', 'vanilla'],
+  corePackageName: '@tanstack/ai-client',
+  npmPackageNames: ['@tanstack/ai-client'],
   latestVersion: 'v0',
   latestBranch: 'main',
   availableVersions: ['v0'],
-  ogImage: 'https://github.com/tanstack/ai/raw/main/media/repo-header.png',
   defaultDocs: 'getting-started/overview',
+  frameworkPackageNames: {
+    react: '@tanstack/ai-react',
+    vue: '@tanstack/ai-vue',
+    solid: '@tanstack/ai-solid',
+    svelte: '@tanstack/ai-svelte',
+    preact: '@tanstack/ai-preact',
+    vanilla: '@tanstack/ai-client',
+  },
+  frameworkDocs: {
+    react: 'getting-started/quick-start',
+    vue: 'getting-started/quick-start-vue',
+    solid: 'api/ai-solid',
+    svelte: 'getting-started/quick-start-svelte',
+    preact: 'api/ai-preact',
+    vanilla: 'api/ai-client',
+  },
+  sitemap: {
+    includeLandingPage: true,
+    includeDocsPages: true,
+  },
 }
 
 export const intent: LibrarySlim = {
@@ -626,11 +680,16 @@ export const intent: LibrarySlim = {
   bgRadial: 'from-sky-500 via-sky-700/50 to-transparent',
   repo: 'tanstack/intent',
   frameworks: [],
+  corePackageName: '@tanstack/intent',
+  npmPackageNames: ['@tanstack/intent'],
   latestVersion: 'v0',
   latestBranch: 'main',
   availableVersions: ['v0'],
-  ogImage: 'https://github.com/tanstack/intent/raw/main/media/repo-header.png',
   defaultDocs: 'overview',
+  sitemap: {
+    includeLandingPage: true,
+    includeDocsPages: true,
+  },
 }
 
 export const config: LibrarySlim = {
@@ -646,6 +705,7 @@ export const config: LibrarySlim = {
   borderStyle: 'border-black/50 dark:border-gray-100/50',
   textStyle: 'text-black dark:text-gray-100',
   textColor: 'text-black dark:text-gray-100',
+  badgeTextStyle: 'text-white dark:text-gray-900',
   colorFrom: 'from-black dark:from-gray-100',
   colorTo: 'to-gray-600 dark:to-gray-400',
   accentColorFrom: 'from-blue-500',
@@ -656,10 +716,15 @@ export const config: LibrarySlim = {
   badge: undefined,
   repo: 'tanstack/config',
   frameworks: [],
+  corePackageName: '@tanstack/config',
+  npmPackageNames: ['@tanstack/config'],
   latestVersion: 'v0',
   latestBranch: 'main',
   availableVersions: ['v0'],
-  ogImage: 'https://github.com/tanstack/config/raw/main/media/repo-header.png',
+  sitemap: {
+    includeLandingPage: true,
+    includeDocsPages: true,
+  },
 }
 
 export const devtools: LibrarySlim = {
@@ -685,12 +750,16 @@ export const devtools: LibrarySlim = {
   bgRadial:
     'from-black via-gray-600/50 to-transparent dark:from-gray-100 dark:via-gray-400/50',
   repo: 'tanstack/devtools',
-  frameworks: ['react', 'preact', 'solid', 'vanilla'],
+  frameworks: ['react', 'preact', 'solid', 'vue', 'angular', 'vanilla'],
+  corePackageName: '@tanstack/devtools',
+  npmPackageNames: ['@tanstack/devtools', '@tanstack/react-devtools'],
   latestVersion: 'v0',
   latestBranch: 'main',
   availableVersions: ['v0'],
-  ogImage:
-    'https://github.com/tanstack/devtools/raw/main/media/repo-header.png',
+  sitemap: {
+    includeLandingPage: true,
+    includeDocsPages: true,
+  },
 }
 
 export const mcp: LibrarySlim = {
@@ -721,9 +790,9 @@ export const mcp: LibrarySlim = {
   availableVersions: ['v1'],
   visible: false,
   handleRedirects: (href: string) => {
-    // All /mcp routes redirect to CLI MCP docs
+    // All /mcp routes redirect to the CLI MCP migration guide
     if (/\/mcp(\/|$)/.test(href)) {
-      throw redirect({ href: '/cli/latest/docs/mcp/overview' })
+      throw redirect({ href: '/cli/latest/docs/mcp-migration' })
     }
   },
 }
@@ -733,9 +802,9 @@ export const cli: LibrarySlim = {
   name: 'TanStack CLI',
   cardStyles: 'text-indigo-500 dark:text-indigo-400 hover:border-current',
   to: '/cli',
-  tagline: 'CLI, MCP server, and AI toolkit for TanStack',
+  tagline: 'CLI and project scaffolding toolkit for TanStack',
   description:
-    'A CLI, MCP server, and AI toolkit for TanStack. Create and customize TanStack Start apps, search docs, integrate with AI agents, and more.',
+    'A CLI toolkit for TanStack. Create and customize TanStack Start apps, search docs, inspect add-ons, and generate project changes with current TanStack context.',
   badge: 'alpha',
   bgStyle: 'bg-indigo-500',
   borderStyle: 'border-indigo-500/50',
@@ -746,11 +815,43 @@ export const cli: LibrarySlim = {
   bgRadial: 'from-indigo-500 via-violet-600/50 to-transparent',
   repo: 'tanstack/cli',
   frameworks: [],
+  corePackageName: '@tanstack/cli',
+  npmPackageNames: ['@tanstack/cli'],
   latestVersion: 'v0',
   latestBranch: 'main',
   availableVersions: ['v0'],
-  ogImage: 'https://github.com/tanstack/cli/raw/main/media/repo-header.png',
   defaultDocs: 'overview',
+  sitemap: {
+    includeLandingPage: true,
+    includeDocsPages: true,
+  },
+}
+
+export const workflow: LibrarySlim = {
+  id: 'workflow',
+  name: 'TanStack Workflow',
+  cardStyles: 'text-blue-800 dark:text-blue-400 hover:border-current',
+  to: '/workflow',
+  tagline: 'Durable, type-safe workflow orchestration for TypeScript',
+  description:
+    'Build resilient multi-step workflows with typed inputs, durable execution, retries, and observable state for long-running application processes.',
+  badge: 'alpha',
+  bgStyle: 'bg-blue-900',
+  borderStyle: 'border-blue-900/50',
+  textStyle: 'text-blue-800 dark:text-blue-400',
+  textColor: 'text-blue-900 dark:text-blue-400',
+  colorFrom: 'from-blue-800',
+  colorTo: 'to-blue-600',
+  bgRadial: 'from-blue-800 via-blue-700/50 to-transparent',
+  repo: 'tanstack/workflow',
+  frameworks: [],
+  corePackageName: '@tanstack/workflow',
+  npmPackageNames: ['@tanstack/workflow'],
+  latestVersion: 'v0',
+  latestBranch: 'main',
+  availableVersions: ['v0'],
+  defaultDocs: 'overview',
+  visible: false,
 }
 
 export const libraries: LibrarySlim[] = [
@@ -771,6 +872,7 @@ export const libraries: LibrarySlim[] = [
   devtools,
   mcp,
   cli,
+  workflow,
   {
     id: 'react-charts',
     name: 'React Charts',
@@ -808,13 +910,15 @@ export const libraries: LibrarySlim[] = [
 ]
 
 export const librariesByGroup = {
-  state: [start, router, query, db, store, ai],
+  framework: [start, router],
+  state: [query, db, store, ai],
   headlessUI: [table, form, hotkeys],
   performance: [virtual, pacer],
   tooling: [devtools, config, cli, intent],
 }
 
 export const librariesGroupNamesMap = {
+  framework: 'Framework',
   state: 'Data & State Management',
   headlessUI: 'UI & UX',
   performance: 'Performance',
@@ -832,24 +936,3 @@ export function getLibrary(id: LibraryId): LibrarySlim {
   }
   return library
 }
-
-// Library IDs for schema validation
-export const libraryIds = libraries.map((lib) => lib.id) as readonly LibraryId[]
-
-// Library IDs shown in the sidebar navigation
-export const SIDEBAR_LIBRARY_IDS = [
-  'start',
-  'router',
-  'query',
-  'table',
-  'db',
-  'ai',
-  'form',
-  'virtual',
-  'pacer',
-  'hotkeys',
-  'store',
-  'devtools',
-  'cli',
-  'intent',
-] as const satisfies readonly LibraryId[]

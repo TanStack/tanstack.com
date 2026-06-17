@@ -16,9 +16,8 @@ type CollapsibleProps = {
   className?: string
 }
 
-type CollapsibleTriggerProps = {
+type CollapsibleTriggerProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   children: React.ReactNode
-  className?: string
 }
 
 type CollapsibleContentProps = {
@@ -76,16 +75,26 @@ export function Collapsible({
 export function CollapsibleTrigger({
   children,
   className,
+  onClick,
+  onMouseDown,
+  type = 'button',
+  ...props
 }: CollapsibleTriggerProps) {
-  const { toggle } = useCollapsible()
+  const { open, toggle } = useCollapsible()
 
   return (
     <button
-      type="button"
-      onMouseDown={(e) => e.stopPropagation()}
+      {...props}
+      type={type}
+      aria-expanded={open}
+      onMouseDown={(e) => {
+        e.stopPropagation()
+        onMouseDown?.(e)
+      }}
       onClick={(e) => {
         e.stopPropagation()
         toggle()
+        onClick?.(e)
       }}
       className={twMerge('cursor-pointer select-none', className)}
       data-collapsible-trigger

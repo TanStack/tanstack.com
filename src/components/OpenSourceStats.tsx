@@ -1,25 +1,38 @@
 import { useQuery } from '@tanstack/react-query'
-import { Library } from '~/libraries'
-import { ossStatsQuery } from '~/queries/stats'
+import * as React from 'react'
+import { libraries, type Library } from '~/libraries'
+import { ossStatsQuery, recentDownloadsQuery } from '~/queries/stats'
 import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
-import { Box, Download, Star, Users } from 'lucide-react'
-import { Card } from './Card'
+import { Download, Star, TrendingUp } from 'lucide-react'
 
-const NpmDownloadCounter = ({
-  npmData,
+const tanStackNpmStatsLibrary = {
+  id: 'tanstack',
+  npmPackageNames: [
+    ...new Set(libraries.flatMap((library) => library.npmPackageNames ?? [])),
+  ],
+}
+
+function formatBillions(value: number) {
+  return `${(value / 1_000_000_000).toFixed(2)} Billion`
+}
+
+function WeeklyDownloadCounter({
+  ratePerDay,
+  weeklyDownloads,
 }: {
-  npmData: {
-    totalDownloads: number
-    ratePerDay?: number
-    updatedAt?: number
-    tag?: string
-  }
-}) => {
-  const ref = useNpmDownloadCounter(npmData)
-  const initialCount = npmData.totalDownloads ?? 0
+  ratePerDay?: number
+  weeklyDownloads: number
+}) {
+  const startedAtRef = React.useRef(Date.now())
+  const ref = useNpmDownloadCounter({
+    totalDownloads: weeklyDownloads,
+    ratePerDay,
+    updatedAt: startedAtRef.current,
+  })
+
   return (
     <span ref={ref} style={{ fontVariantNumeric: 'tabular-nums' }}>
-      {initialCount.toLocaleString()}
+      {weeklyDownloads.toLocaleString()}
     </span>
   )
 }
@@ -70,125 +83,142 @@ function StatValue({
   )
 }
 
+function HomeStatLink({
+  children,
+  className,
+  gradientClassName,
+  href,
+}: {
+  children: React.ReactNode
+  className: string
+  gradientClassName: string
+  href: string
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className={`group min-w-0 rounded-r-md border-l-2 px-4 py-2 text-left transition-opacity ${className} ${gradientClassName}`}
+    >
+      {children}
+    </a>
+  )
+}
+
 export default function OssStats({ library }: { library?: Library }) {
   const { data: stats, isLoading } = useQuery(ossStatsQuery({ library }))
+  const { data: recentDownloads, isLoading: isLoadingRecentDownloads } =
+    useQuery({
+      ...recentDownloadsQuery({
+        library: library ?? tanStackNpmStatsLibrary,
+      }),
+      enabled: Boolean(library),
+    })
 
   const npmDownloads = stats?.npm?.totalDownloads ?? 0
   const starCount = stats?.github?.starCount ?? 0
-  const contributorCount = stats?.github?.contributorCount ?? 0
-  const dependentCount = stats?.github?.dependentCount ?? 0
+  const cachedWeeklyDownloads = Math.round((stats?.npm?.ratePerDay ?? 0) * 7)
+  const weeklyDownloads = library
+    ? (recentDownloads?.weeklyDownloads ?? 0)
+    : cachedWeeklyDownloads
+  const weeklyRatePerDay = library ? undefined : stats?.npm?.ratePerDay
 
   const hasNpmDownloads = !isLoading && isValidMetric(npmDownloads)
   const hasStarCount = !isLoading && isValidMetric(starCount)
-  const hasContributorCount = !isLoading && isValidMetric(contributorCount)
-  const hasDependentCount = !isLoading && isValidMetric(dependentCount)
+  const hasWeeklyDownloads =
+    !(library ? isLoadingRecentDownloads : isLoading) &&
+    isValidMetric(weeklyDownloads)
 
-  const hasAnyData =
-    hasNpmDownloads || hasStarCount || hasContributorCount || hasDependentCount
+  const hasAnyData = hasNpmDownloads || hasWeeklyDownloads || hasStarCount
 
   const loading = isLoading || !stats
+  const weeklyLoading = library
+    ? isLoadingRecentDownloads || !recentDownloads
+    : loading
+
+  if (!loading && !weeklyLoading && !hasAnyData) {
+    return null
+  }
 
   return (
-    <div>
-      <Card
-        className="relative p-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8 items-center
-      justify-center xl:place-items-center rounded-[2rem]"
-      >
-        {!loading && !hasAnyData && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-pink-500/10 to-purple-500/10 border border-pink-500/20 dark:border-pink-500/30 backdrop-blur-sm pointer-events-auto">
-              <span className="text-2xl">🚀</span>
-              <p className="text-sm font-medium text-pink-600 dark:text-pink-400">
-                <span className="font-bold">Fresh out of the oven!</span> This
-                library just launched. Be among the first to star, download, and
-                contribute!
-              </p>
-            </div>
-          </div>
-        )}
-        <a
+    <div className="mx-auto grid w-full max-w-3xl grid-cols-1 gap-4 sm:grid-cols-3">
+      {loading || hasNpmDownloads ? (
+        <HomeStatLink
           href="https://www.npmjs.com/org/tanstack"
-          target="_blank"
-          rel="noreferrer"
-          className={`group flex gap-4 items-center ${
-            !loading && !hasNpmDownloads ? 'opacity-50' : ''
-          } ${!loading && !hasAnyData ? 'blur-sm' : ''}`}
+          className="border-emerald-500 hover:text-emerald-500"
+          gradientClassName="bg-linear-to-r from-transparent to-emerald-500/5"
         >
-          <Download className="text-2xl group-hover:text-emerald-500 transition-colors duration-200" />
-          <div>
-            <div className="text-2xl font-bold opacity-80 relative group-hover:text-emerald-500 transition-colors duration-200">
-              <StatValue loading={loading} placeholder="0,000,000,000">
-                {hasNpmDownloads && stats ? (
-                  <NpmDownloadCounter npmData={stats.npm} />
-                ) : (
-                  <span>0</span>
-                )}
-              </StatValue>
-            </div>
-            <div className="text-sm opacity-60 font-medium italic group-hover:text-emerald-500 transition-colors duration-200">
-              NPM Downloads
+          <div className="flex min-w-0 items-start gap-3">
+            <Download className="mt-1 size-5 shrink-0 transition-colors duration-200" />
+            <div className="min-w-0">
+              <div className="relative text-2xl font-black leading-none tracking-tight transition-colors duration-200">
+                <StatValue loading={loading} placeholder="00.00 Billion">
+                  {hasNpmDownloads && stats
+                    ? formatBillions(stats.npm.totalDownloads)
+                    : null}
+                </StatValue>
+              </div>
+              <div className="mt-1 text-sm font-semibold italic text-zinc-500 transition-colors duration-200 dark:text-zinc-400">
+                NPM Downloads
+              </div>
             </div>
           </div>
-        </a>
-        <a
+        </HomeStatLink>
+      ) : null}
+
+      {weeklyLoading || hasWeeklyDownloads ? (
+        <HomeStatLink
+          href="https://www.npmjs.com/org/tanstack"
+          className="border-cyan-500 hover:text-cyan-500"
+          gradientClassName="bg-linear-to-r from-transparent to-cyan-500/5"
+        >
+          <div className="flex min-w-0 items-start gap-3">
+            <TrendingUp className="mt-1 size-5 shrink-0 transition-colors duration-200" />
+            <div className="min-w-0">
+              <div className="relative text-2xl font-black leading-none tracking-tight transition-colors duration-200">
+                <StatValue loading={weeklyLoading} placeholder="00,000,000">
+                  {hasWeeklyDownloads ? (
+                    <WeeklyDownloadCounter
+                      ratePerDay={weeklyRatePerDay}
+                      weeklyDownloads={weeklyDownloads}
+                    />
+                  ) : null}
+                </StatValue>
+              </div>
+              <div className="mt-1 text-sm font-semibold italic text-zinc-500 transition-colors duration-200 dark:text-zinc-400">
+                Weekly Downloads
+              </div>
+            </div>
+          </div>
+        </HomeStatLink>
+      ) : null}
+
+      {loading || hasStarCount ? (
+        <HomeStatLink
           href={
             library
               ? `https://github.com/${library.repo}`
               : 'https://github.com/orgs/TanStack/repositories?q=sort:stars'
           }
-          target="_blank"
-          rel="noreferrer"
-          className={`group flex gap-4 items-center ${
-            !loading && !hasStarCount ? 'opacity-50' : ''
-          } ${!loading && !hasAnyData ? 'blur-sm' : ''}`}
+          className="border-yellow-500 hover:text-yellow-500"
+          gradientClassName="bg-linear-to-r from-transparent to-yellow-500/5"
         >
-          <Star className="group-hover:text-yellow-500 text-2xl transition-colors duration-200" />
-          <div>
-            <div className="text-2xl font-bold opacity-80 group-hover:text-yellow-500 transition-colors duration-200 relative">
-              <StatValue loading={loading} placeholder="000,000">
-                {hasStarCount ? starCount.toLocaleString() : '0'}
-              </StatValue>
-            </div>
-            <div className="text-sm opacity-60 font-medium italic -mt-1 group-hover:text-yellow-500 transition-colors duration-200">
-              Stars on GitHub
+          <div className="flex min-w-0 items-start gap-3">
+            <Star className="mt-1 size-5 shrink-0 transition-colors duration-200" />
+            <div className="min-w-0">
+              <div className="relative text-2xl font-black leading-none tracking-tight transition-colors duration-200">
+                <StatValue loading={loading} placeholder="000,000">
+                  {hasStarCount ? starCount.toLocaleString() : null}
+                </StatValue>
+              </div>
+              <div className="mt-1 text-sm font-semibold italic text-zinc-500 transition-colors duration-200 dark:text-zinc-400">
+                GitHub Stars
+              </div>
             </div>
           </div>
-        </a>
-        <div
-          className={`flex gap-4 items-center ${
-            !loading && !hasContributorCount ? 'opacity-50' : ''
-          } ${!loading && !hasAnyData ? 'blur-sm' : ''}`}
-        >
-          <Users className="text-2xl" />
-          <div>
-            <div className="text-2xl font-bold opacity-80 relative">
-              <StatValue loading={loading} placeholder="0,000">
-                {hasContributorCount ? contributorCount.toLocaleString() : '0'}
-              </StatValue>
-            </div>
-            <div className="text-sm opacity-60 font-medium italic -mt-1">
-              Contributors on GitHub
-            </div>
-          </div>
-        </div>
-        <div
-          className={`flex gap-4 items-center ${
-            !loading && !hasDependentCount ? 'opacity-50' : ''
-          } ${!loading && !hasAnyData ? 'blur-sm' : ''}`}
-        >
-          <Box className="text-2xl" />
-          <div>
-            <div className="text-2xl font-bold opacity-80 relative">
-              <StatValue loading={loading} placeholder="0,000,000">
-                {hasDependentCount ? dependentCount.toLocaleString() : '0'}
-              </StatValue>
-            </div>
-            <div className="text-sm opacity-60 font-medium italic -mt-1">
-              Dependents on GitHub
-            </div>
-          </div>
-        </div>
-      </Card>
+        </HomeStatLink>
+      ) : null}
     </div>
   )
 }

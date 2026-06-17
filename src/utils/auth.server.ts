@@ -7,7 +7,6 @@
  * For new code, import directly from '~/auth/index.server'.
  */
 
-import { createServerFn } from '@tanstack/react-start'
 import { getRequest } from '@tanstack/react-start/server'
 import type { Capability } from '~/auth/index.server'
 import { ADMIN_ACCESS_CAPABILITIES } from '~/db/types'
@@ -17,46 +16,48 @@ async function loadAuthServer() {
 }
 
 /**
- * Server function to get the current user.
+ * Get the current user. Plain async function: callable from anywhere
+ * server-side (route handlers, server-fn handlers, other helpers).
+ *
+ * NOTE: Defining this as a `createServerFn` inside a `.server.ts` file is
+ * unsafe -- the Vite RSC plugin emits two duplicate copies (one per server
+ * environment), the inner server-fn registration ends up as a stale
+ * `createSsrRpc` stub that isn't in the runtime registry, and any chain that
+ * goes server-fn -> server-fn through this file blows up at runtime with
+ * "Server function info not found for <id>". Keep `.server.ts` modules as
+ * plain functions; the client-facing RPC wrappers live in `auth.functions.ts`.
  */
-export const getCurrentUser = createServerFn({ method: 'POST' }).handler(
-  async () => {
-    const request = getRequest()
-    const { getAuthService } = await loadAuthServer()
-    const authService = getAuthService()
-    return authService.getCurrentUser(request)
-  },
-)
+export async function getCurrentUser() {
+  const request = getRequest()
+  const { getAuthService } = await loadAuthServer()
+  return getAuthService().getCurrentUser(request)
+}
 
 /**
- * Server function to require authentication.
- * Called from route beforeLoad guards.
- * Do NOT use this inside server function handlers -- use guards directly.
+ * Require authentication. Throws if no user.
  */
-export const requireAuth = createServerFn({ method: 'POST' }).handler(
-  async () => {
-    const request = getRequest()
-    const { getAuthGuards } = await loadAuthServer()
-    const guards = getAuthGuards()
-    return guards.requireAuth(request)
-  },
-)
+export async function requireAuth() {
+  const request = getRequest()
+  const { getAuthGuards } = await loadAuthServer()
+  return getAuthGuards().requireAuth(request)
+}
 
 /**
- * Server function to require a specific capability.
- * Called from route beforeLoad guards.
- * Do NOT use this inside server function handlers -- use guards directly.
+ * Require a specific capability. Throws if not authorized.
+ *
+ * Signature accepts `{ data: { capability } }` for compatibility with the
+ * historical `createServerFn` shape -- callers that already pass that wrapper
+ * keep working without churn.
  */
-export const requireCapability = createServerFn({ method: 'POST' })
-  .inputValidator((data: { capability: string }) => ({
-    capability: data.capability as Capability,
-  }))
-  .handler(async ({ data: { capability } }) => {
-    const request = getRequest()
-    const { getAuthGuards } = await loadAuthServer()
-    const guards = getAuthGuards()
-    return guards.requireCapability(request, capability)
-  })
+export async function requireCapability({
+  data: { capability },
+}: {
+  data: { capability: Capability | string }
+}) {
+  const request = getRequest()
+  const { getAuthGuards } = await loadAuthServer()
+  return getAuthGuards().requireCapability(request, capability as Capability)
+}
 
 /**
  * Load user from session (non-blocking, returns null if not authenticated)
@@ -98,16 +99,12 @@ export async function requireCapabilityUser(capability: string) {
 export { ADMIN_ACCESS_CAPABILITIES as ADMIN_CAPABILITIES } from '~/db/types'
 
 /**
- * Server function to require any admin-like capability.
- * Used for accessing the /admin area (each sub-route checks specific capabilities).
+ * Require any admin-like capability. Used by /admin area guards.
  */
-export const requireAnyAdminCapability = createServerFn({
-  method: 'POST',
-}).handler(async () => {
+export async function requireAnyAdminCapability() {
   const request = getRequest()
   const { getAuthService } = await loadAuthServer()
-  const authService = getAuthService()
-  const user = await authService.getCurrentUser(request)
+  const user = await getAuthService().getCurrentUser(request)
 
   if (!user) {
     throw new Error('Not authenticated')
@@ -122,4 +119,4 @@ export const requireAnyAdminCapability = createServerFn({
   }
 
   return user
-})
+}

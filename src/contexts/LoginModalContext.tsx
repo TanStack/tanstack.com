@@ -1,15 +1,26 @@
+'use client'
+
 import * as React from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { LoginModal } from '~/components/LoginModal'
+import { currentUserQueryOptions } from '~/hooks/useCurrentUser'
 
 interface LoginModalContextValue {
   openLoginModal: (options?: { onSuccess?: () => void }) => void
   closeLoginModal: () => void
 }
 
-const LoginModalContext = React.createContext<LoginModalContextValue | null>(
-  null,
-)
+declare global {
+  var __tanstackLoginModalContext:
+    | React.Context<LoginModalContextValue | null>
+    | undefined
+}
+
+const LoginModalContext =
+  import.meta.env.DEV && typeof window !== 'undefined'
+    ? (globalThis.__tanstackLoginModalContext ??=
+        React.createContext<LoginModalContextValue | null>(null))
+    : React.createContext<LoginModalContextValue | null>(null)
 
 export function useLoginModal() {
   const context = React.useContext(LoginModalContext)
@@ -45,7 +56,7 @@ export function LoginModalProvider({ children }: LoginModalProviderProps) {
     const handleMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return
       if (event.data?.type === 'TANSTACK_AUTH_SUCCESS') {
-        queryClient.invalidateQueries({ queryKey: ['currentUser'] })
+        queryClient.invalidateQueries(currentUserQueryOptions)
         const onSuccess = pendingOnSuccessRef.current
         setIsOpen(false)
         pendingOnSuccessRef.current = undefined

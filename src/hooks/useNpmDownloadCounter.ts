@@ -3,7 +3,7 @@ import type { NpmStats } from '~/utils/stats.server'
 
 /**
  * Hook to animate NPM download count using direct DOM updates.
- * Uses setInterval to minimize overhead - updates only when count changes.
+ * Uses requestAnimationFrame for smooth browser-scheduled updates.
  */
 export function useNpmDownloadCounter(
   npmData: NpmStats,
@@ -13,9 +13,7 @@ export function useNpmDownloadCounter(
   // eslint-disable-next-line react-hooks/purity
   const updatedAt = npmData.updatedAt ?? Date.now()
 
-  const intervalRef = useRef<ReturnType<typeof setInterval> | undefined>(
-    undefined,
-  )
+  const frameRef = useRef<number | undefined>(undefined)
   const elementRef = useRef<HTMLElement | null>(null)
   const lastCountRef = useRef<number | null>(null)
 
@@ -27,28 +25,25 @@ export function useNpmDownloadCounter(
     const msPerDay = 24 * 60 * 60 * 1000
     const ratePerMs = ratePerDay / msPerDay
 
-    // Calculate how often we need to update based on rate
-    // At minimum, update when count would change by 1
-    const msPerIncrement = 1 / ratePerMs
-    // Clamp between 16ms (60fps) and 1000ms
-    const intervalMs = Math.max(16, Math.min(1000, msPerIncrement))
-
     const tick = () => {
-      if (!elementRef.current) return
-      const elapsedMs = Date.now() - updatedAt
-      const count = Math.round(baseCount + ratePerMs * elapsedMs)
+      if (elementRef.current) {
+        const elapsedMs = Date.now() - updatedAt
+        const count = Math.round(baseCount + ratePerMs * elapsedMs)
 
-      if (count !== lastCountRef.current) {
-        lastCountRef.current = count
-        elementRef.current.textContent = count.toLocaleString()
+        if (count !== lastCountRef.current) {
+          lastCountRef.current = count
+          elementRef.current.textContent = count.toLocaleString()
+        }
       }
+
+      frameRef.current = window.requestAnimationFrame(tick)
     }
 
-    intervalRef.current = setInterval(tick, intervalMs)
+    frameRef.current = window.requestAnimationFrame(tick)
 
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current)
+      if (frameRef.current !== undefined) {
+        window.cancelAnimationFrame(frameRef.current)
       }
     }
   }, [baseCount, ratePerDay, updatedAt])

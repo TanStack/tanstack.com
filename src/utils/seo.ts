@@ -35,14 +35,16 @@ export function shouldIndexPath(path: string) {
   return getCanonicalPath(path) !== null
 }
 
-export function canonicalUrl(path: string) {
+export function canonicalUrl(path: string, search?: string) {
   const origin = trimTrailingSlash(
     env.URL ||
       (import.meta.env.SSR ? env.SITE_URL : undefined) ||
       DEFAULT_SITE_URL,
   )
 
-  return `${origin}${normalizePath(path)}`
+  const normalizedSearch = search && search !== '?' ? search : ''
+
+  return `${origin}${normalizePath(path)}${normalizedSearch}`
 }
 
 type SeoOptions = {

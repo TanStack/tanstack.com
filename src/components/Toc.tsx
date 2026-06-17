@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
-import { MarkdownHeading } from '~/utils/markdown/processor'
+import { MarkdownHeading } from '~/utils/markdown/processor.rsc'
 
 const headingLevels: Record<number, string> = {
   1: '',
@@ -41,7 +41,7 @@ export function Toc({
     })
   }, [headings, currentFramework])
   return (
-    <nav className="flex flex-col sticky top-[var(--navbar-height)] max-h-[calc(100dvh-var(--navbar-height))] overflow-hidden">
+    <nav className="flex flex-col sticky top-[calc(var(--navbar-height)+var(--docs-tabs-height,0px))] max-h-[calc(100dvh-var(--navbar-height)-var(--docs-tabs-height,0px))] overflow-hidden">
       <div className="py-1">
         <h3 className="text-[.8em] lg:text-[.825em] xl:text-[.875em] 2xl:text-[.9em] font-bold">
           On this page

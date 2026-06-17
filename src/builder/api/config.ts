@@ -1,10 +1,10 @@
 import { getFrameworkById } from '@tanstack/create'
-import type { FrameworkId } from '../frameworks'
+import { normalizeFrameworkId, type FrameworkId } from '../frameworks'
 
-export { type FrameworkId, FRAMEWORKS } from '../frameworks'
+export { type FrameworkId, FRAMEWORKS, normalizeFrameworkId } from '../frameworks'
 
-export function getFramework(id: FrameworkId = 'react-cra') {
-  const framework = getFrameworkById(id)
+export function getFramework(id: FrameworkId | string = 'react') {
+  const framework = getFrameworkById(normalizeFrameworkId(id))
   if (!framework) {
     throw new Error(`${id} framework not found`)
   }
@@ -12,4 +12,4 @@ export function getFramework(id: FrameworkId = 'react-cra') {
 }
 
 export const DEFAULT_MODE = 'file-router'
-export const DEFAULT_REQUIRED_ADDONS = ['start']
+export const DEFAULT_REQUIRED_ADDONS: Array<string> = []

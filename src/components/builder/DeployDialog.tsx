@@ -21,6 +21,8 @@ import { useDeployAuth } from './useDeployAuth'
 import {
   useFeatures,
   useFeatureOptions,
+  useFramework,
+  usePackageManager,
   useTailwind,
   useProjectName,
 } from './store'
@@ -32,19 +34,53 @@ import {
   checkRepoNameAvailability,
   validateRepoNameFormat,
 } from '../deploy/shared'
+import {
+  getRecipeBuilderFeatures,
+  type ApplicationStarterRecipe,
+} from '~/utils/application-starter'
+import type { BuilderAction } from '~/utils/analytics'
 
 interface DeployDialogProps {
   isOpen: boolean
   onClose: () => void
   provider?: DeployProvider | null
+  starterRecipe?: ApplicationStarterRecipe | null
+  /**
+   * Fires `builder_activated` events with the parent's session context
+   * (mode_used, idea_used). Optional so the dialog can render outside the
+   * builder flow without an analytics trail.
+   */
+  onTrackActivation?: (params: {
+    action: BuilderAction
+    surface: 'deploy_dialog'
+    provider?: string
+    automatic?: boolean
+  }) => void
 }
 
-export function DeployDialog({ isOpen, onClose, provider }: DeployDialogProps) {
+export function DeployDialog({
+  isOpen,
+  onClose,
+  provider,
+  starterRecipe,
+  onTrackActivation,
+}: DeployDialogProps) {
   const auth = useDeployAuth()
-  const features = useFeatures()
-  const featureOptions = useFeatureOptions()
-  const tailwind = useTailwind()
-  const projectName = useProjectName()
+  const builderFeatures = useFeatures()
+  const builderFeatureOptions = useFeatureOptions()
+  const builderFramework = useFramework()
+  const builderPackageManager = usePackageManager()
+  const builderTailwind = useTailwind()
+  const builderProjectName = useProjectName()
+
+  const features = starterRecipe
+    ? getRecipeBuilderFeatures(starterRecipe)
+    : builderFeatures
+  const featureOptions = starterRecipe?.featureOptions ?? builderFeatureOptions
+  const framework = starterRecipe?.framework ?? builderFramework
+  const packageManager = starterRecipe?.packageManager ?? builderPackageManager
+  const tailwind = starterRecipe?.tailwind ?? builderTailwind
+  const projectName = starterRecipe?.projectName ?? builderProjectName
 
   const [state, setState] = useState<DeployState>({ step: 'auth-check' })
   const [repoName, setRepoName] = useState(projectName)
@@ -54,6 +90,26 @@ export function DeployDialog({ isOpen, onClose, provider }: DeployDialogProps) {
   const [repoNameError, setRepoNameError] = useState<string | null>(null)
 
   const providerInfo = provider ? PROVIDER_INFO[provider] : null
+
+  const trackDialogLinkClick = useCallback(
+    (
+      action: 'repo' | 'provider_auto_redirect' | 'provider_manual_redirect',
+    ) => {
+      const builderAction: BuilderAction =
+        action === 'repo'
+          ? 'open_repo'
+          : action === 'provider_auto_redirect'
+            ? 'provider_redirect_auto'
+            : 'provider_redirect_manual'
+      onTrackActivation?.({
+        action: builderAction,
+        surface: 'deploy_dialog',
+        provider: provider ?? undefined,
+        automatic: action === 'provider_auto_redirect',
+      })
+    },
+    [onTrackActivation, provider],
+  )
 
   // Debounced repo name availability check
   const nameCheckDebouncer = useAsyncDebouncer(
@@ -147,13 +203,14 @@ export function DeployDialog({ isOpen, onClose, provider }: DeployDialogProps) {
       // Redirect to provider deploy page
       setCountdown(null) // Prevent double-open
       const deployUrl = providerInfo.deployUrl(state.owner, state.repoName)
+      trackDialogLinkClick('provider_auto_redirect')
       window.open(deployUrl, '_blank')
       return
     }
 
     const timer = setTimeout(() => setCountdown(countdown - 1), 1000)
     return () => clearTimeout(timer)
-  }, [state, countdown, providerInfo, onClose])
+  }, [countdown, onClose, providerInfo, state, trackDialogLinkClick])
 
   const handleDeploy = useCallback(async () => {
     setState({ step: 'deploying', message: 'Creating repository...' })
@@ -166,6 +223,8 @@ export function DeployDialog({ isOpen, onClose, provider }: DeployDialogProps) {
           repoName,
           isPrivate,
           projectName,
+          framework,
+          packageManager,
           features,
           featureOptions,
           tailwind,
@@ -203,6 +262,8 @@ export function DeployDialog({ isOpen, onClose, provider }: DeployDialogProps) {
     repoName,
     isPrivate,
     projectName,
+    framework,
+    packageManager,
     features,
     featureOptions,
     tailwind,
@@ -428,6 +489,9 @@ export function DeployDialog({ isOpen, onClose, provider }: DeployDialogProps) {
                 href={state.repoUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => {
+                  trackDialogLinkClick('repo')
+                }}
                 className="text-sm text-blue-600 dark:text-cyan-400 hover:underline flex items-center gap-1 mb-4"
               >
                 {state.owner}/{state.repoName}
@@ -448,6 +512,7 @@ export function DeployDialog({ isOpen, onClose, provider }: DeployDialogProps) {
                         state.owner,
                         state.repoName,
                       )
+                      trackDialogLinkClick('provider_manual_redirect')
                       window.open(deployUrl, '_blank')
                     }}
                     className="gap-2"

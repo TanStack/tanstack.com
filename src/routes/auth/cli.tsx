@@ -25,27 +25,23 @@ const authorizeCliSession = createServerFn({ method: 'POST' })
     const { authorizeCliTicket, getCliTicket } = cliTickets
     const request = getRequest()
 
-    // Verify ticket is still valid
     const ticket = getCliTicket(ticketId)
     if (!ticket) {
       return { status: 'invalid' as const }
     }
 
-    // Check session
     const authService = getAuthService()
     const user = await authService.getCurrentUser(request)
     if (!user) {
       return { status: 'unauthenticated' as const }
     }
 
-    // Fetch the full DB user for sessionVersion
     const userRepository = getUserRepository()
     const dbUser = await userRepository.findById(user.userId)
     if (!dbUser) {
       return { status: 'invalid' as const }
     }
 
-    // Mint a fresh session token
     const sessionService = getSessionService()
     const expiresAt = Date.now() + SESSION_DURATION_MS
     const sessionToken = await sessionService.signCookie({

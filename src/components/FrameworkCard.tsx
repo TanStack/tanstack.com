@@ -1,21 +1,27 @@
 import { Link } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
-import { Library } from '~/libraries'
+import type { Library, LibraryId } from '~/libraries'
 import { getFrameworkOptions } from '~/libraries/frameworks'
 import { useCopyButton } from '~/components/CopyMarkdownButton'
 import { useToast } from '~/components/ToastProvider'
 import { Check, Copy } from 'lucide-react'
 import { Card } from '~/components/Card'
+import {
+  getFrameworkDocsHash,
+  getFrameworkDocsPath,
+} from '~/libraries/frameworkSupport'
 
 export function FrameworkCard({
   framework,
   libraryId,
+  version,
   packageName,
   index,
   library,
 }: {
   framework: ReturnType<typeof getFrameworkOptions>[number]
-  libraryId: string
+  libraryId: LibraryId
+  version: string
   packageName: string
   index: number
   library: Library
@@ -33,16 +39,8 @@ export function FrameworkCard({
     )
   })
 
-  const hasCustomInstallPath = !!library.installPath
-  const installationPath = library.installPath
-    ? library.installPath
-        .replace('$framework', framework.value)
-        .replace('$libraryId', libraryId)
-    : 'installation'
-
-  // Add framework hash fragment only for default installation pages (when installPath is not defined)
-  // Link component adds the # automatically, so we just pass the value without #
-  const installationHash = !hasCustomInstallPath ? framework.value : undefined
+  const installationPath = getFrameworkDocsPath(framework.value, library)
+  const installationHash = getFrameworkDocsHash(framework.value, library)
 
   return (
     <Card
@@ -62,6 +60,8 @@ export function FrameworkCard({
         from="/$libraryId/$version/docs"
         to="./$"
         params={{
+          libraryId,
+          version,
           _splat: installationPath,
         }}
         hash={installationHash}
@@ -111,6 +111,8 @@ export function FrameworkCard({
           from="/$libraryId/$version/docs"
           to="./$"
           params={{
+            libraryId,
+            version,
             _splat: installationPath,
           }}
           hash={installationHash}

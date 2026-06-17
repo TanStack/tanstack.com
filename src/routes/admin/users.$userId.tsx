@@ -307,6 +307,20 @@ function UserDetailPage() {
                   </dd>
                 </div>
               )}
+              {user.signupSources.length > 0 && (
+                <div>
+                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                    Signup Sources
+                  </dt>
+                  <dd className="mt-1 flex flex-wrap gap-1">
+                    {user.signupSources.map((source) => (
+                      <Badge key={source} variant="info">
+                        {source}
+                      </Badge>
+                    ))}
+                  </dd>
+                </div>
+              )}
             </dl>
           </Card>
         </div>

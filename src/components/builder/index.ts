@@ -5,9 +5,6 @@
  */
 
 export { BuilderProvider } from './BuilderProvider'
-export { BuilderLayout } from './BuilderLayout'
-export { ConfigPanel } from './ConfigPanel'
-export { ExplorerPanel } from './ExplorerPanel'
 export { FeaturePicker, FeatureOptions } from './FeaturePicker'
 export {
   useBuilderStore,
@@ -15,9 +12,6 @@ export {
   useFeatures,
   useAvailableFeatures,
   useFeaturesLoaded,
-  useCompiledOutput,
-  useIsCompiling,
-  useCompileError,
   useFeatureState,
 } from './store'
 export { useBuilderUrl, useCliCommand } from './useBuilderUrl'

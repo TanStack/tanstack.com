@@ -1,6 +1,7 @@
 import { notFound } from '@tanstack/react-router'
 import {
   fetchDocs,
+  fetchDocsPage,
   fetchDocsManifest,
   fetchDocsRedirect,
   fetchFile,
@@ -28,6 +29,34 @@ export const loadDocs = async ({
   }
 
   return fetchDocs({
+    data: {
+      repo,
+      branch,
+      filePath: `${removeLeadingSlash(docsRoot)}/${docsPath}.md`,
+    },
+  })
+}
+
+export const loadDocsPage = async ({
+  repo,
+  branch,
+  docsRoot,
+  docsPath,
+}: {
+  repo: string
+  branch: string
+  docsRoot: string
+  docsPath: string
+}) => {
+  if (!branch || !docsRoot || !docsPath) {
+    throw notFound({
+      data: {
+        message: 'No doc was found here!',
+      },
+    })
+  }
+
+  return fetchDocsPage({
     data: {
       repo,
       branch,

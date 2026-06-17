@@ -61,6 +61,7 @@ import { getFramework, DEFAULT_MODE, DEFAULT_REQUIRED_ADDONS, type FrameworkId }
 export interface ProjectDefinition {
   name: string
   framework?: FrameworkId
+  packageManager?: 'bun' | 'npm' | 'pnpm' | 'yarn'
   tailwind?: boolean
   features: Array<string>
   featureOptions: Record<string, Record<string, unknown>>
@@ -101,7 +102,7 @@ export interface CompileHandlerOptions {
 async function resolveAddOns(
   featureIds: Array<string>,
   customAddOns: Array<AddOnCompiled>,
-  frameworkId: FrameworkId = 'react-cra',
+  frameworkId: FrameworkId = 'react',
 ): Promise<Array<AddOn>> {
   const framework = getFramework(frameworkId)
   const allFrameworkAddOns = framework.getAddOns()
@@ -201,7 +202,7 @@ export async function compileHandler(
   definition: ProjectDefinition,
   options: CompileHandlerOptions = {},
 ): Promise<CompileResponse> {
-  const frameworkId = definition.framework ?? 'react-cra'
+  const frameworkId = definition.framework ?? 'react'
   const framework = getFramework(frameworkId)
 
   // Merge selectedExample into features (CTA treats examples as add-ons)
@@ -224,9 +225,10 @@ export async function compileHandler(
     mode: DEFAULT_MODE,
     typescript: true,
     tailwind: definition.tailwind ?? true,
-    packageManager: 'pnpm',
+    packageManager: definition.packageManager ?? 'pnpm',
     git: false,
     install: false,
+    intent: false,
     chosenAddOns,
     addOnOptions: mergeOptionsWithDefaults(chosenAddOns, definition.featureOptions),
   })
@@ -276,7 +278,7 @@ export interface AttributedCompileOutput extends CompileResponse {
 export async function compileWithAttributionHandler(
   definition: ProjectDefinition,
 ): Promise<AttributedCompileOutput> {
-  const frameworkId = definition.framework ?? 'react-cra'
+  const frameworkId = definition.framework ?? 'react'
   const framework = getFramework(frameworkId)
 
   // Merge selectedExample into features (CTA treats examples as add-ons)
@@ -299,9 +301,10 @@ export async function compileWithAttributionHandler(
     mode: DEFAULT_MODE,
     typescript: true,
     tailwind: definition.tailwind ?? true,
-    packageManager: 'pnpm',
+    packageManager: definition.packageManager ?? 'pnpm',
     git: false,
     install: false,
+    intent: false,
     chosenAddOns,
     addOnOptions: mergeOptionsWithDefaults(chosenAddOns, definition.featureOptions),
   })
@@ -320,7 +323,7 @@ export async function compileWithAttributionHandler(
 
   // Convert cta-engine attribution format to our UI format
   // Baseline sources (framework + required addons) get mapped to 'base'
-  const baselineSourceIds = new Set([frameworkId, ...DEFAULT_REQUIRED_ADDONS])
+  const baselineSourceIds = new Set([framework.id, ...DEFAULT_REQUIRED_ADDONS])
   const attributedFiles: Record<string, AttributedFile> = {}
 
   for (const [filePath, ctaFile] of Object.entries(attribution.attributedFiles)) {

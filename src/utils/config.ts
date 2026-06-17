@@ -3,29 +3,42 @@ import {
   fetchRepoFile,
   isRecoverableGitHubContentError,
 } from './documents.server'
+import { docsNavTabIds, type DocsNavTabId } from './docsNavTabs'
 import { createServerFn } from '@tanstack/react-start'
 import { setResponseHeaders } from '@tanstack/react-start/server'
 
 export type MenuItem = {
   label: string | React.ReactNode
+  tab?: DocsNavTabId
   children: {
     label: string | React.ReactNode
     to: string
     badge?: string
+    /** ISO date string marking when the page was added. Drives the "New" sidebar pill. */
+    addedAt?: string
+    /** ISO date string marking when the page was last meaningfully updated. Drives the "Updated" sidebar pill. */
+    updatedAt?: string
+    tab?: DocsNavTabId
   }[]
   collapsible?: boolean
   defaultCollapsed?: boolean
 }
 
+const tabSchema = v.optional(v.picklist(docsNavTabIds))
+
 const configSchema = v.object({
   sections: v.array(
     v.object({
       label: v.string(),
+      tab: tabSchema,
       children: v.array(
         v.object({
           label: v.string(),
           to: v.string(),
           badge: v.optional(v.string()),
+          addedAt: v.optional(v.string()),
+          updatedAt: v.optional(v.string()),
+          tab: tabSchema,
         }),
       ),
       frameworks: v.optional(
@@ -37,6 +50,9 @@ const configSchema = v.object({
                 label: v.string(),
                 to: v.string(),
                 badge: v.optional(v.string()),
+                addedAt: v.optional(v.string()),
+                updatedAt: v.optional(v.string()),
+                tab: tabSchema,
               }),
             ),
           }),
@@ -95,7 +111,7 @@ export const getTanstackDocsConfig = createServerFn({ method: 'GET' })
       }
 
       if (!config) {
-        throw new Error(`Repo's ${docsRoot}/config.json was not found!`)
+        return getEmptyConfig()
       }
 
       try {
@@ -106,6 +122,11 @@ export const getTanstackDocsConfig = createServerFn({ method: 'GET' })
             'Cache-Control': 'public, max-age=0, must-revalidate',
             'Netlify-CDN-Cache-Control':
               'public, max-age=300, durable, stale-while-revalidate=300',
+            'Netlify-Cache-Tag': [
+              'docs-config:all',
+              `docs-config:${repo}`,
+              `docs-config:${repo}:${branch}`,
+            ].join(', '),
           }),
         )
 

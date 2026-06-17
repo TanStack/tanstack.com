@@ -1,0 +1,126 @@
+import {
+  isNotFound,
+  redirect,
+  useLocation,
+  useMatch,
+  createFileRoute,
+} from '@tanstack/react-router'
+import { seo } from '~/utils/seo'
+import { ogImageUrl } from '~/utils/og'
+import { Doc } from '~/components/Doc'
+import { loadDocsPage, resolveDocsRedirect } from '~/utils/docs'
+import { getBranch, getLibrary } from '~/libraries'
+import { capitalize } from '~/utils/utils'
+import { DocContainer } from '~/components/DocContainer'
+import { getDocsCacheHeaders } from '~/utils/docs-cache-headers'
+
+export const Route = createFileRoute(
+  '/_library/$libraryId/$version/docs/framework/$framework/$',
+)({
+  staleTime: 1000 * 60 * 5,
+  loader: async (ctx) => {
+    const { _splat: docsPath, framework, version, libraryId } = ctx.params
+
+    const library = getLibrary(libraryId)
+    const branch = getBranch(library, version)
+    const docsRoot = library.docsRoot || 'docs'
+
+    try {
+      return await loadDocsPage({
+        repo: library.repo,
+        branch,
+        docsRoot,
+        docsPath: `framework/${framework}/${docsPath ?? ''}`,
+      })
+    } catch (error) {
+      // If doc not found, redirect to framework docs root instead of showing 404
+      // This handles cases like switching frameworks where the same doc path doesn't exist
+      // Check both isNotFound() and the serialized form from server functions
+      const isNotFoundError =
+        isNotFound(error) ||
+        (error && typeof error === 'object' && 'isNotFound' in error)
+
+      if (isNotFoundError) {
+        const redirectPath = await resolveDocsRedirect({
+          repo: library.repo,
+          branch,
+          docsRoot,
+          docsPaths: docsPath
+            ? [`framework/${framework}/${docsPath}`, `${framework}/${docsPath}`]
+            : [],
+        })
+
+        if (redirectPath !== null) {
+          throw redirect({
+            href: `/${libraryId}/${version}/docs${redirectPath ? `/${redirectPath}` : ''}`,
+            statusCode: 308,
+          })
+        }
+
+        throw redirect({
+          to: '/$libraryId/$version/docs/framework/$framework',
+          params: { libraryId, version, framework },
+        })
+      }
+      throw error
+    }
+  },
+  component: Docs,
+  headers: ({ params }) => {
+    const { libraryId, version } = params
+
+    return getDocsCacheHeaders({ libraryId, version })
+  },
+  head: (ctx) => {
+    const library = getLibrary(ctx.params.libraryId)
+    const tail = `${library.name} ${capitalize(ctx.params.framework)} Docs`
+
+    return {
+      meta: seo({
+        title: ctx.loaderData?.title
+          ? `${ctx.loaderData.title} | ${tail}`
+          : tail,
+        description: ctx.loaderData?.description,
+        keywords: ctx.loaderData?.keywords,
+        image: ogImageUrl(library.id, {
+          title: ctx.loaderData?.title,
+          description: ctx.loaderData?.description,
+        }),
+        noindex: library.visible === false,
+      }),
+    }
+  },
+})
+
+function Docs() {
+  const { contentRsc, filePath, headings, title } = Route.useLoaderData()
+  const versionMatch = useMatch({ from: '/_library/$libraryId/$version' })
+  const config = versionMatch.loaderData?.config
+  const { version, libraryId, framework } = Route.useParams()
+  const library = getLibrary(libraryId)
+  const branch = getBranch(library, version)
+  const location = useLocation()
+
+  return (
+    <DocContainer>
+      <Doc
+        key={filePath}
+        title={title}
+        contentRsc={contentRsc}
+        repo={library.repo}
+        branch={branch}
+        filePath={filePath}
+        headings={headings}
+        colorFrom={library.colorFrom}
+        colorTo={library.colorTo}
+        textColor={library.textColor}
+        shouldRenderToc
+        libraryId={libraryId}
+        libraryVersion={version === 'latest' ? library.latestVersion : version}
+        pagePath={location.pathname}
+        config={config}
+        framework={framework}
+      />
+    </DocContainer>
+  )
+}

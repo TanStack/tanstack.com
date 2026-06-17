@@ -1,5 +1,4 @@
 import React from 'react'
-import { CodeBlock } from '~/components/markdown'
 import { FileExplorer } from './FileExplorer'
 import { InteractiveSandbox } from './InteractiveSandbox'
 import { CodeExplorerTopBar } from './CodeExplorerTopBar'
@@ -7,38 +6,10 @@ import type { GitHubFileNode } from '~/utils/documents.server'
 import type { Library } from '~/libraries'
 import { twMerge } from 'tailwind-merge'
 
-function overrideExtension(ext: string | undefined) {
-  if (!ext) return 'txt'
-
-  // Override some extensions
-  if (['cts', 'mts'].includes(ext)) return 'ts'
-  if (['cjs', 'mjs'].includes(ext)) return 'js'
-  if (['prettierrc', 'babelrc', 'webmanifest'].includes(ext)) return 'json'
-  if (['env', 'example'].includes(ext)) return 'sh'
-  if (
-    [
-      'gitignore',
-      'prettierignore',
-      'log',
-      'gitattributes',
-      'editorconfig',
-      'lock',
-      'opts',
-      'Dockerfile',
-      'dockerignore',
-      'npmrc',
-      'nvmrc',
-    ].includes(ext)
-  )
-    return 'txt'
-
-  return ext
-}
-
 interface CodeExplorerProps {
   activeTab: 'code' | 'sandbox'
   codeSandboxUrl: string
-  currentCode: string
+  currentCodeRsc: React.ReactNode
   currentPath: string
   examplePath: string
   githubContents: GitHubFileNode[] | undefined
@@ -52,7 +23,7 @@ interface CodeExplorerProps {
 export function CodeExplorer({
   activeTab,
   codeSandboxUrl,
-  currentCode,
+  currentCodeRsc,
   currentPath,
   examplePath,
   githubContents,
@@ -116,22 +87,13 @@ export function CodeExplorer({
             prefetchFileContent={prefetchFileContent}
             setCurrentPath={setCurrentPath}
           />
-          <div className="flex-1 overflow-auto relative">
-            <CodeBlock
-              isEmbedded
-              className={twMerge(
-                'h-full border-0',
-                isFullScreen ? 'max-h-[90dvh]' : 'max-h-[80dvh]',
-              )}
-            >
-              <code
-                className={`language-${overrideExtension(
-                  currentPath.split('.').pop(),
-                )}`}
-              >
-                {currentCode}
-              </code>
-            </CodeBlock>
+          <div
+            className={twMerge(
+              'flex-1 overflow-auto relative',
+              isFullScreen ? 'max-h-[90dvh]' : 'max-h-[80dvh]',
+            )}
+          >
+            {currentCodeRsc}
           </div>
         </div>
         <InteractiveSandbox

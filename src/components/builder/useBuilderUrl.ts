@@ -13,10 +13,11 @@ import type { FrameworkId } from '~/builder/frameworks' // Used in syncToUrl typ
 
 interface BuilderSearchParams {
   name?: string
-  framework?: string // react-cra, solid-cra, etc.
+  framework?: string
   template?: string // template preset ID
   features?: string // comma-separated feature IDs
   pm?: string // package manager: pnpm, npm, yarn, bun
+  tailwind?: string
   // Feature options serialized as: featureId.optionKey=value
   [key: string]: string | undefined
 }
@@ -32,12 +33,14 @@ export function useBuilderUrl() {
   const featureOptions = useBuilderStore((s) => s.featureOptions)
   const selectedTemplate = useBuilderStore((s) => s.selectedTemplate)
   const packageManager = useBuilderStore((s) => s.packageManager)
+  const tailwind = useBuilderStore((s) => s.tailwind)
   const featuresLoaded = useBuilderStore((s) => s.featuresLoaded)
   const setProjectName = useBuilderStore((s) => s.setProjectName)
   const setFeatures = useBuilderStore((s) => s.setFeatures)
   const setFeatureOption = useBuilderStore((s) => s.setFeatureOption)
   const setTemplate = useBuilderStore((s) => s.setTemplate)
   const setPackageManager = useBuilderStore((s) => s.setPackageManager)
+  const setTailwind = useBuilderStore((s) => s.setTailwind)
 
   // Initialize from URL on mount (only once when features load)
   const initializedRef = useRef(false)
@@ -57,11 +60,27 @@ export function useBuilderUrl() {
       setPackageManager(search.pm as 'pnpm' | 'npm' | 'yarn' | 'bun')
     }
 
+    if (search.tailwind === 'false') {
+      setTailwind(false)
+    }
+
     // Note: framework is set in BuilderProvider before features load
 
     // Apply template if specified (this sets features)
     if (search.template) {
       setTemplate(search.template)
+
+      if (search.features) {
+        const featureList = search.features
+          .split(',')
+          .filter(Boolean) as Array<FeatureId>
+
+        setFeatures(
+          Array.from(
+            new Set([...useBuilderStore.getState().features, ...featureList]),
+          ),
+        )
+      }
     }
     // Otherwise set features from URL
     else if (search.features) {
@@ -95,6 +114,7 @@ export function useBuilderUrl() {
       opts: Record<string, Record<string, unknown>>,
       template: string | null,
       pm: string,
+      hasTailwind: boolean,
     ) => {
       navigate({
         to: '/builder',
@@ -108,8 +128,8 @@ export function useBuilderUrl() {
             delete params.name
           }
 
-          // Update framework (skip if default react-cra)
-          if (fw && fw !== 'react-cra') {
+          // Update framework (skip if default react)
+          if (fw && fw !== 'react') {
             params.framework = fw
           } else {
             delete params.framework
@@ -127,6 +147,12 @@ export function useBuilderUrl() {
             params.pm = pm
           } else {
             delete params.pm
+          }
+
+          if (!hasTailwind) {
+            params.tailwind = 'false'
+          } else {
+            delete params.tailwind
           }
 
           // Update features
@@ -170,6 +196,7 @@ export function useBuilderUrl() {
       featureOptions,
       selectedTemplate,
       packageManager,
+      tailwind,
     )
   }, [
     projectName,
@@ -178,6 +205,7 @@ export function useBuilderUrl() {
     featureOptions,
     selectedTemplate,
     packageManager,
+    tailwind,
     featuresLoaded,
     syncToUrl,
   ])
@@ -190,13 +218,16 @@ export function useCliCommand(): string {
   const projectName = useBuilderStore((s) => s.projectName)
   const framework = useBuilderStore((s) => s.framework)
   const features = useBuilderStore((s) => s.features)
-  const _featureOptions = useBuilderStore((s) => s.featureOptions) // TODO: Add to CLI command
+  const featureOptions = useBuilderStore((s) => s.featureOptions)
+  const selectedExample = useBuilderStore((s) => s.selectedExample)
+  const availableExamples = useBuilderStore((s) => s.availableExamples)
   const tailwind = useBuilderStore((s) => s.tailwind)
   const packageManager = useBuilderStore((s) => s.packageManager)
   const skipInstall = useBuilderStore((s) => s.skipInstall)
   const skipGit = useBuilderStore((s) => s.skipGit)
 
   let cmd = `npx @tanstack/cli@latest create ${projectName}`
+  cmd += ' --agent'
 
   // Map internal framework ID to CLI framework name
   if (framework === 'solid') {
@@ -213,8 +244,28 @@ export function useCliCommand(): string {
     cmd += ' --no-tailwind'
   }
 
-  if (features.length > 0) {
-    cmd += ` --add-ons ${features.join(',')}`
+  if (selectedExample) {
+    cmd += ` --template ${selectedExample}`
+  }
+
+  // Skip add-ons that the selected example will pull in via dependsOn
+  const exampleLockedFeatures = selectedExample
+    ? new Set(
+        availableExamples.find((e) => e.id === selectedExample)?.requires ?? [],
+      )
+    : new Set<string>()
+  const addOnFeatures = features.filter((f) => !exampleLockedFeatures.has(f))
+
+  if (addOnFeatures.length > 0) {
+    cmd += ` --add-ons ${addOnFeatures.join(',')}`
+  }
+
+  const addOnConfigEntries = Object.entries(featureOptions).filter(
+    ([, options]) => options && Object.keys(options).length > 0,
+  )
+  if (addOnConfigEntries.length > 0) {
+    const json = JSON.stringify(Object.fromEntries(addOnConfigEntries))
+    cmd += ` --add-on-config '${json.replace(/'/g, `'\\''`)}'`
   }
 
   if (skipInstall) {

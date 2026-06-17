@@ -46,12 +46,13 @@ export default function SponsorPack({
 
   return (
     <ParentSize>
-      {({ width = 800 }) => {
-        return width < 10 ? null : (
+      {({ height, width }) => {
+        return width < 10 || height < 10 ? null : (
           <div
             style={{
-              width,
-              height: width,
+              width: '100%',
+              height: '100%',
+              overflow: 'hidden',
               position: 'relative',
             }}
           >
@@ -76,7 +77,11 @@ export default function SponsorPack({
             `,
               }}
             />
-            <Pack root={root} size={[width, width]} padding={width * 0.005}>
+            <Pack
+              root={root}
+              size={[width, height]}
+              padding={Math.min(width, height) * 0.005}
+            >
               {(packData) => {
                 const circles = packData.descendants().slice(1) // skip first layer
                 return (

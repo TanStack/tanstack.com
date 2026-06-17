@@ -2,6 +2,7 @@
 title: 'TanStack AI: Why We Split the Adapters'
 published: 2026-01-02
 excerpt: Instead of one monolithic adapter that does everything, we split into smaller adapters each in charge of a single functionality. Here's why that architectural change matters.
+library: ai
 authors:
   - Alem Tuzlak
 ---

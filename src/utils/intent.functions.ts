@@ -1,5 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import * as v from 'valibot'
+import { renderMarkdownToRsc } from './markdown'
 import {
   getAllVerifiedPackages,
   getPackageByName,
@@ -66,10 +67,6 @@ export interface IntentSkillSummary {
   skillPath: string | null
   contentHash: string
   lineCount: number
-}
-
-export interface IntentSkillWithContent extends IntentSkillSummary {
-  content: string
 }
 
 export interface PackageVersionSummary {
@@ -486,7 +483,7 @@ export const getIntentVersionSkills = createServerFn({ method: 'GET' })
       version: data.version,
       versionId: versionRecord.id,
       skills: skills.map(
-        (s): IntentSkillWithContent => ({
+        (s): IntentSkillSummary => ({
           id: s.id,
           name: s.name,
           description: s.description,
@@ -496,10 +493,100 @@ export const getIntentVersionSkills = createServerFn({ method: 'GET' })
           skillPath: s.skillPath,
           contentHash: s.contentHash,
           lineCount: s.lineCount,
-          content: s.content,
         }),
       ),
     }
+  })
+
+function stripFrontmatter(content: string) {
+  const lines = content.split('\n')
+
+  if (lines[0]?.trim() !== '---') {
+    return content
+  }
+
+  const closing = lines.findIndex(
+    (line, index) => index > 0 && line.trim() === '---',
+  )
+
+  if (closing === -1) {
+    return content
+  }
+
+  return lines
+    .slice(closing + 1)
+    .join('\n')
+    .trimStart()
+}
+
+export const getIntentSkillPage = createServerFn({ method: 'GET' })
+  .inputValidator(
+    v.object({
+      packageName: v.string(),
+      skillName: v.string(),
+      version: v.string(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const versions = await getPackageVersions(data.packageName)
+    const versionRecord = versions.find(
+      (version) => version.version === data.version,
+    )
+
+    if (!versionRecord) {
+      return null
+    }
+
+    const skills = await fetchCached({
+      key: `intent:skills:${versionRecord.id}`,
+      ttl: 30 * 60 * 1000,
+      fn: () => getSkillsForVersion(versionRecord.id),
+    })
+    const skill = skills.find((candidate) => candidate.name === data.skillName)
+
+    if (!skill) {
+      return null
+    }
+
+    const { contentRsc } = await renderMarkdownToRsc(
+      stripFrontmatter(skill.content),
+    )
+
+    return {
+      contentRsc,
+    }
+  })
+
+export const getIntentSkillMarkdown = createServerFn({ method: 'GET' })
+  .inputValidator(
+    v.object({
+      packageName: v.string(),
+      skillName: v.string(),
+      version: v.string(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const versions = await getPackageVersions(data.packageName)
+    const versionRecord = versions.find(
+      (version) => version.version === data.version,
+    )
+
+    if (!versionRecord) {
+      return null
+    }
+
+    const skills = await fetchCached({
+      key: `intent:skills:${versionRecord.id}`,
+      ttl: 30 * 60 * 1000,
+      fn: () => getSkillsForVersion(versionRecord.id),
+    })
+    const skill = skills.find((candidate) => candidate.name === data.skillName)
+
+    if (!skill) {
+      return null
+    }
+
+    return stripFrontmatter(skill.content)
   })
 
 // ---------------------------------------------------------------------------

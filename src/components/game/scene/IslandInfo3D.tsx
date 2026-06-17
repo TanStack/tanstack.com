@@ -5,6 +5,7 @@ import * as THREE from 'three'
 import type { IslandData } from '../utils/islandGenerator'
 import { getLibraryColor } from '../utils/colors'
 import { set3DObjectClicked } from '../ui/TouchControls'
+import { trackEvent } from '~/utils/analytics'
 
 interface IslandInfo3DProps {
   island: IslandData
@@ -45,6 +46,18 @@ export function IslandInfo3D({ island, exiting = false }: IslandInfo3DProps) {
 
   const handleClick = () => {
     if (partner?.href) {
+      let destinationHost: string | undefined
+      try {
+        destinationHost = new URL(partner.href).host
+      } catch {
+        // Bad/relative href — track without host rather than dropping.
+      }
+      trackEvent('partner_clicked', {
+        partner_id: partner.id,
+        placement: 'ecosystem_game',
+        destination: 'external',
+        destination_host: destinationHost,
+      })
       window.open(partner.href, '_blank')
     } else if (library) {
       window.location.href = `/${library.id}`

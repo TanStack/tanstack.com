@@ -1,4 +1,3 @@
-import '@tanstack/react-start/server-only'
 import { createUploadthing, UploadThingError } from 'uploadthing/server'
 import type { FileRouter } from 'uploadthing/server'
 import { getAuthService } from '~/auth/index.server'
@@ -33,12 +32,15 @@ export const uploadRouter = {
       return { url: file.ufsUrl }
     }),
 
-  showcaseUploader: f({
-    image: {
-      maxFileSize: '4MB',
-      maxFileCount: 1,
+  showcaseUploader: f(
+    {
+      image: {
+        maxFileSize: '4MB',
+        maxFileCount: 1,
+      },
     },
-  })
+    { awaitServerData: false },
+  )
     .middleware(async ({ req }) => {
       const authService = getAuthService()
       const user = await authService.getCurrentUser(req)
@@ -49,8 +51,8 @@ export const uploadRouter = {
 
       return { userId: user.userId }
     })
-    .onUploadComplete(async ({ metadata, file }) => {
-      return { url: file.ufsUrl, uploadedBy: metadata.userId }
+    .onUploadComplete(async ({ metadata }) => {
+      return { uploadedBy: metadata.userId }
     }),
 } satisfies FileRouter
 

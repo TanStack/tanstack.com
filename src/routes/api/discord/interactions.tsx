@@ -1,9 +1,14 @@
 import { createFileRoute } from '@tanstack/react-router'
-import {
-  verifyKey,
-  InteractionType,
-  InteractionResponseType,
-} from 'discord-interactions'
+
+const InteractionType = {
+  APPLICATION_COMMAND: 2,
+  PING: 1,
+} as const
+
+const InteractionResponseType = {
+  CHANNEL_MESSAGE_WITH_SOURCE: 4,
+  PONG: 1,
+} as const
 
 const DISCORD_PUBLIC_KEY = process.env.DISCORD_PUBLIC_KEY
 
@@ -13,8 +18,54 @@ type InteractionData = {
 }
 
 type Interaction = {
-  type: InteractionType
+  type: number
   data?: InteractionData
+}
+
+function valueToUint8Array(value: string, format?: 'hex') {
+  if (format === 'hex') {
+    const matches = value.match(/.{1,2}/g)
+
+    if (!matches) {
+      throw new Error('Value is not a valid hex string')
+    }
+
+    return new Uint8Array(
+      matches.map((byte) => Number.parseInt(byte, 16)),
+    )
+  }
+
+  return new TextEncoder().encode(value)
+}
+
+async function verifyDiscordKey(
+  rawBody: string,
+  signature: string,
+  timestamp: string,
+  clientPublicKey: string,
+) {
+  const timestampBytes = valueToUint8Array(timestamp)
+  const bodyBytes = valueToUint8Array(rawBody)
+  const message = new Uint8Array(timestampBytes.length + bodyBytes.length)
+  message.set(timestampBytes)
+  message.set(bodyBytes, timestampBytes.length)
+
+  const publicKey = await crypto.subtle.importKey(
+    'raw',
+    valueToUint8Array(clientPublicKey, 'hex'),
+    {
+      name: 'Ed25519',
+    },
+    false,
+    ['verify'],
+  )
+
+  return crypto.subtle.verify(
+    { name: 'Ed25519' },
+    publicKey,
+    valueToUint8Array(signature, 'hex'),
+    message,
+  )
 }
 
 function handleStatusCommand() {
@@ -63,7 +114,7 @@ export const Route = createFileRoute('/api/discord/interactions')({
 
           const body = await request.text()
 
-          const isValid = await verifyKey(
+          const isValid = await verifyDiscordKey(
             body,
             signature,
             timestamp,

@@ -1,24 +1,9 @@
-import * as React from 'react'
+import { Hydrate } from '@tanstack/react-start'
+import { visible } from '@tanstack/react-start/hydration'
+
 import type { LibraryId } from '~/libraries'
-import { useIntersectionObserver } from '~/hooks/useIntersectionObserver'
-
-const LazyMaintainersSection = React.lazy(async () => {
-  const mod = await import('./MaintainersSection')
-
-  return { default: mod.MaintainersSection }
-})
-
-const LazyPartnersSection = React.lazy(async () => {
-  const mod = await import('./PartnersSection')
-
-  return { default: mod.PartnersSection }
-})
-
-const LazyLibraryShowcases = React.lazy(async () => {
-  const mod = await import('./ShowcaseSection')
-
-  return { default: mod.LibraryShowcases }
-})
+import { MaintainersSection } from './MaintainersSection'
+import { PartnersSection } from './PartnersSection'
 
 interface LazyLandingCommunitySectionProps {
   libraryId: LibraryId
@@ -44,67 +29,23 @@ function SectionSkeleton({ title }: { title: string }) {
   )
 }
 
-function ShowcaseSkeleton() {
-  return (
-    <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto w-full">
-      <div className="space-y-8 py-16">
-        <div className="space-y-2">
-          <div className="h-10 w-64 rounded bg-gray-200/70 dark:bg-gray-800/70 animate-pulse" />
-          <div className="h-6 w-80 max-w-full rounded bg-gray-200/70 dark:bg-gray-800/70 animate-pulse" />
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Array.from({ length: 3 }).map((_, index) => (
-            <div
-              key={`showcase-${index}`}
-              className="aspect-video rounded-xl bg-gray-200/70 dark:bg-gray-800/70 animate-pulse"
-            />
-          ))}
-        </div>
-      </div>
-    </div>
-  )
-}
-
 export function LazyLandingCommunitySection({
   libraryId,
-  libraryName,
-  showShowcases = true,
 }: LazyLandingCommunitySectionProps) {
-  const { ref, isIntersecting } = useIntersectionObserver({
-    rootMargin: '25%',
-    triggerOnce: true,
-  })
-
   return (
-    <div ref={ref} className="flex flex-col gap-20 md:gap-24">
-      {!isIntersecting ? (
-        <>
+    <Hydrate
+      when={visible({ rootMargin: '25%' })}
+      fallback={
+        <div className="flex flex-col gap-20 md:gap-24">
           <SectionSkeleton title="Maintainers" />
           <SectionSkeleton title="Partners" />
-          {showShowcases ? <ShowcaseSkeleton /> : null}
-        </>
-      ) : (
-        <React.Suspense
-          fallback={
-            <>
-              <SectionSkeleton title="Maintainers" />
-              <SectionSkeleton title="Partners" />
-              {showShowcases ? <ShowcaseSkeleton /> : null}
-            </>
-          }
-        >
-          <LazyMaintainersSection libraryId={libraryId} />
-          <LazyPartnersSection libraryId={libraryId} />
-          {showShowcases ? (
-            <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-              <LazyLibraryShowcases
-                libraryId={libraryId}
-                libraryName={libraryName}
-              />
-            </div>
-          ) : null}
-        </React.Suspense>
-      )}
-    </div>
+        </div>
+      }
+    >
+      <div className="flex flex-col gap-20 md:gap-24">
+        <MaintainersSection libraryId={libraryId} />
+        <PartnersSection libraryId={libraryId} />
+      </div>
+    </Hydrate>
   )
 }

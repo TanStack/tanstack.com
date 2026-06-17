@@ -7,6 +7,7 @@ drizzle/migrations
 .DS_Store
 .cache
 .env
+.env.*
 .vercel
 .output
 .vinxi
@@ -30,6 +31,8 @@ dist
 
 test-results
 .claude/CLAUDE.md
+.claude/worktrees
 .eslintcache
 .tsbuildinfo
 src/routeTree.gen.ts
+.og-preview/

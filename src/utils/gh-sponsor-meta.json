@@ -1,5 +1,11 @@
 [
   {
+    "login": "netroutingcom",
+    "name": "Netrouting.com",
+    "imageUrl": "https://netrouting.com/wp-content/uploads/2026/04/netrouting-color.png",
+    "linkUrl": "https://netrouting.com/"
+  },
+  {
     "login": "wildfee",
     "name": "AI-Text-Humanizer.com",
     "imageUrl": "https://ai-text-humanizer.com/gfx/ai-text-humanizer-com-icon-2025-small.png",
@@ -16,6 +22,12 @@
     "name": "humanizer",
     "imageUrl": "https://superhumanizer.ai/images/logo.png",
     "linkUrl": "https://superhumanizer.ai/"
+  },
+  {
+    "login": "humanizerfree",
+    "name": "humanizerfree",
+    "imageUrl": "https://humanizerfree.com/logo-512.png",
+    "linkUrl": "https://humanizerfree.com?utm_source=tanstack"
   },
   {
     "login": "shtefcs",
@@ -38,6 +50,12 @@
     "name": "AI humanizer",
     "imageUrl": "https://humanizerpro.ai/favicon.ico",
     "linkUrl": "https://humanizerpro.ai"
+  },
+  {
+    "login": "GoHumanize-ai",
+    "name": "GO Humanize ai",
+    "imageUrl": "https://gohumanize.ai/favicon.ico",
+    "linkUrl": "https://gohumanize.ai/"
   },
   {
     "login": "codedamn",
@@ -335,5 +353,11 @@
     "login": "aeriusventilation",
     "name": "Aerius Ventilation",
     "linkUrl": "https://aerius.se/?utm_source=tanstack"
+  },
+  {
+    "login": "forminit",
+    "name": "Forminit",
+    "imageUrl": "https://avatars.githubusercontent.com/u/41009912?v=4",
+    "linkUrl": "https://forminit.com/?utm_source=tanstack"
   }
 ]

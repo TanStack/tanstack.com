@@ -8,7 +8,6 @@ const textStyles = 'text-blue-500 dark:text-blue-400'
 export const tableProject = {
   ...table,
   description: `Supercharge your tables or build a datagrid from scratch for TS/JS, React, Vue, Solid, Svelte, Qwik, Angular, and Lit while retaining 100% control over markup and styles.`,
-  ogImage: 'https://github.com/tanstack/table/raw/main/media/repo-header.png',
   latestBranch: 'main',
   bgRadial: 'from-cyan-500 via-blue-600/50 to-transparent',
   textColor: 'text-blue-600',

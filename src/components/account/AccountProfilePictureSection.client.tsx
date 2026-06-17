@@ -7,6 +7,7 @@ import { useToast } from '~/components/ToastProvider'
 import { Button } from '~/ui'
 import { removeProfileImage, revertProfileImage } from '~/utils/users.functions'
 import { useUploadThing } from '~/utils/uploadthing.client'
+import { currentUserQueryOptions } from '~/hooks/useCurrentUser'
 
 type AccountProfileUser = {
   image?: string | null
@@ -33,7 +34,7 @@ export function AccountProfilePictureSection({
   const { startUpload } = useUploadThing('avatarUploader', {
     onClientUploadComplete: () => {
       setIsUploading(false)
-      queryClient.invalidateQueries({ queryKey: ['currentUser'] })
+      queryClient.invalidateQueries(currentUserQueryOptions)
       notify(
         <div>
           <div className="font-medium">Profile picture updated</div>
@@ -81,7 +82,7 @@ export function AccountProfilePictureSection({
     setIsReverting(true)
     try {
       await revertProfileImage()
-      queryClient.invalidateQueries({ queryKey: ['currentUser'] })
+      queryClient.invalidateQueries(currentUserQueryOptions)
       notify(
         <div>
           <div className="font-medium">Profile picture reverted</div>
@@ -108,7 +109,7 @@ export function AccountProfilePictureSection({
     setIsRemoving(true)
     try {
       await removeProfileImage()
-      queryClient.invalidateQueries({ queryKey: ['currentUser'] })
+      queryClient.invalidateQueries(currentUserQueryOptions)
       notify(
         <div>
           <div className="font-medium">Profile picture removed</div>

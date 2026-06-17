@@ -2,11 +2,24 @@
 NODE_OPTIONS = "--max-old-space-size=4096"
 
 [build]
-command = "vite build && cp src/instrument.server.mjs dist/server"
+command = "vite build --logLevel warn && cp src/instrument.server.mjs dist/server"
 publish = "dist/client"
 
 [functions]
 directory = "netlify/functions"
+# OG image rendering goes through @takumi-rs/wasm (forced via the `module`
+# option in src/server/og/generate.server.ts) instead of @takumi-rs/core's
+# native napi binding — Netlify's function bundler dropped the platform-
+# specific .node optional dep no matter how we configured it, and WASM
+# sidesteps the whole binary-resolution dance. The .wasm asset isn't part
+# of the JS import graph, so include it explicitly.
+included_files = [
+  "public/fonts/Inter-Regular.ttf",
+  "public/fonts/Inter-ExtraBold.ttf",
+  "public/fonts/Inter-Black.ttf",
+  "public/images/logos/splash-dark.png",
+  "node_modules/.pnpm/@takumi-rs+wasm@*/node_modules/@takumi-rs/wasm/pkg/takumi_wasm_bg.wasm",
+]
 
 [[headers]]
 for = "/*"
@@ -35,3 +48,18 @@ for = "/builder/*"
 [headers.values]
 Cross-Origin-Opener-Policy = "same-origin"
 Cross-Origin-Embedder-Policy = "require-corp"
+
+# Reverse-proxy Google Analytics through our own origin so requests are
+# first-party (escapes hostname-based ad blockers, longer-lived cookies,
+# cleaner CSP). gtag.js is told to use this prefix as its transport_url.
+[[redirects]]
+from = "/_a/gtag.js"
+to = "https://www.googletagmanager.com/gtag/js?id=G-JMT1Z50SPS"
+status = 200
+force = true
+
+[[redirects]]
+from = "/_a/g/collect"
+to = "https://www.google-analytics.com/g/collect"
+status = 200
+force = true

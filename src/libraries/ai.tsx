@@ -9,42 +9,40 @@ const textStyles = `text-pink-600 dark:text-pink-500`
 export const aiProject = {
   ...ai,
   description: `A powerful, open-source AI SDK with a unified interface across multiple providers. No vendor lock-in, no proprietary formats, just clean TypeScript and honest open source.`,
-  ogImage: 'https://github.com/tanstack/ai/raw/main/media/repo-header.png',
   latestBranch: 'main',
   bgRadial: 'from-pink-500 via-pink-700/50 to-transparent',
   textColor: `text-pink-700`,
   defaultDocs: 'getting-started/overview',
   featureHighlights: [
     {
-      title: 'Multi-Provider Support',
+      title: 'Provider Agnostic',
       icon: <Plug className={twMerge(textStyles)} />,
       description: (
         <div>
-          Support for OpenAI, Anthropic, Ollama, and Google Gemini. Switch
-          providers at runtime without code changes. No vendor lock-in, just
-          clean TypeScript.
+          Official adapters for OpenRouter, OpenAI, Anthropic, Gemini, Ollama,
+          Groq, Grok/xAI, ElevenLabs, and fal.ai. Import only the adapters your
+          app needs.
         </div>
       ),
     },
     {
-      title: 'Unified API',
+      title: 'AG-UI Native Clients',
       icon: <Zap className={twMerge(textStyles)} />,
       description: (
         <div>
-          Same interface across all providers. Standalone functions with
-          automatic type inference from adapters. Framework-agnostic client for
-          any JavaScript environment.
+          A headless client plus React, Vue, Solid, Svelte, and Preact bindings
+          all speak the same AG-UI request and event protocol.
         </div>
       ),
     },
     {
-      title: 'Tool/Function Calling',
+      title: 'Typed Tools & Media',
       icon: <CogsIcon className={twMerge(textStyles)} />,
       description: (
         <div>
-          Automatic execution loop with no manual tool management needed.
-          Type-safe tool definitions with structured outputs and streaming
-          support.
+          Type-safe client/server tools, provider-native tools, structured
+          output, reasoning streams, image, speech, transcription, realtime
+          voice, and video generation.
         </div>
       ),
     },

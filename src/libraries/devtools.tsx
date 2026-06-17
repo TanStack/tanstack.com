@@ -8,8 +8,6 @@ const textStyles = 'text-black dark:text-gray-100'
 export const devtoolsProject = {
   ...devtools,
   description: `A unified devtools panel that houses all TanStack devtools and allows you to create and integrate your own custom devtools.`,
-  ogImage:
-    'https://github.com/tanstack/devtools/raw/main/media/repo-header.png',
   latestBranch: 'main',
   featureHighlights: [
     {

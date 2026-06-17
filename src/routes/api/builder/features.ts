@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { getFeaturesHandler, type FrameworkId } from '~/builder/api'
+import { getFeaturesHandler, normalizeFrameworkId } from '~/builder/api'
 
 export const Route = createFileRoute('/api/builder/features')({
   server: {
@@ -7,7 +7,9 @@ export const Route = createFileRoute('/api/builder/features')({
       GET: async ({ request }: { request: Request }) => {
         try {
           const url = new URL(request.url)
-          const framework = (url.searchParams.get('framework') ?? 'react-cra') as FrameworkId
+          const framework = normalizeFrameworkId(
+            url.searchParams.get('framework') ?? 'react',
+          )
           const response = await getFeaturesHandler(framework)
           return new Response(JSON.stringify(response), {
             headers: { 'Content-Type': 'application/json' },

@@ -4,6 +4,7 @@ authors:
   - Florian Pellet
 title: "TanStack Router's New Reactive Core: A Signal Graph"
 excerpt: TanStack Router now uses a granular signal graph as its reactive core. State is derived from that graph, which narrows change propagation and makes client-side navigation faster in our benchmarks.
+library: router
 ---
 
 ![veins of emerald as a signal graph embedded in the rock of a tropical island](/blog-assets/tanstack-router-signal-graph/header.jpg)

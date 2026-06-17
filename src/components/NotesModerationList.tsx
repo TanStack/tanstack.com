@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { Link } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 import {
   Table,
@@ -211,15 +212,15 @@ export function NotesModerationList({
                     </div>
                   </TableCell>
                   <TableCell onClick={(e) => e.stopPropagation()}>
-                    <a
-                      href={feedback.pagePath}
+                    <Link
+                      to={feedback.pagePath}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
                     >
                       <ExternalLink className="text-[10px]" />
                       View Doc
-                    </a>
+                    </Link>
                   </TableCell>
                 </TableRow>
                 {isExpanded && (

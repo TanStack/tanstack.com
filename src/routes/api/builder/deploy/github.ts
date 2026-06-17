@@ -5,6 +5,8 @@ interface DeployRequest {
   repoName: string;
   isPrivate: boolean;
   projectName: string;
+  framework?: "react" | "solid";
+  packageManager?: "bun" | "npm" | "pnpm" | "yarn";
   features: Array<string>;
   featureOptions: Record<string, Record<string, unknown>>;
   tailwind: boolean;
@@ -154,6 +156,8 @@ export const Route = createFileRoute("/api/builder/deploy/github")({
           repoName,
           isPrivate,
           projectName,
+          framework,
+          packageManager,
           features,
           featureOptions,
           tailwind,
@@ -177,6 +181,8 @@ export const Route = createFileRoute("/api/builder/deploy/github")({
         try {
           const result = await compileHandler({
             name: projectName,
+            framework,
+            packageManager,
             tailwind,
             features,
             featureOptions,

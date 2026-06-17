@@ -8,7 +8,6 @@ const textStyles = 'text-yellow-600 dark:text-yellow-300'
 export const formProject = {
   ...form,
   description: `Headless, performant, and type-safe form state management for TS/JS, React, Vue, Angular, Solid, Lit and Svelte.`,
-  ogImage: 'https://github.com/tanstack/form/raw/main/media/repo-header.png',
   latestBranch: 'main',
   bgRadial: 'from-yellow-500 via-yellow-600/50 to-transparent',
   textColor: 'text-yellow-600',

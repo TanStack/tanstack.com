@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { createPortal } from 'react-dom'
 import { HexColorPicker } from 'react-colorful'
 
 export interface ColorPickerPopoverProps {
@@ -22,7 +23,9 @@ export function ColorPickerPopover({
   onReset,
   onClose,
 }: ColorPickerPopoverProps) {
-  return (
+  if (typeof document === 'undefined') return null
+
+  return createPortal(
     <div
       className="fixed z-50 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2"
       style={{
@@ -54,6 +57,7 @@ export function ColorPickerPopover({
           Done
         </button>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }

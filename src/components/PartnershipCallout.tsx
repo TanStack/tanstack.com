@@ -1,6 +1,7 @@
 import { getLibrary, LibraryId } from '~/libraries'
 import { HeartHandshake } from 'lucide-react'
 import { Card } from './Card'
+import { trackEvent } from '~/utils/analytics'
 
 interface PartnershipCalloutProps {
   libraryId: LibraryId
@@ -27,6 +28,11 @@ export function PartnershipCallout({ libraryId }: PartnershipCalloutProps) {
         <a
           href={`mailto:partners@tanstack.com?subject=TanStack ${library.name} Partnership`}
           className="text-blue-500 uppercase font-black text-sm"
+          onClick={() => {
+            trackEvent('partner_inquiry_started', {
+              placement: 'library_callout',
+            })
+          }}
         >
           Let's chat
         </a>

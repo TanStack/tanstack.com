@@ -8,7 +8,6 @@ const textStyles = 'text-black dark:text-gray-100'
 export const configProject = {
   ...config,
   description: `Opinionated tooling to lint, build, test, version, and publish JS/TS packages — minimal config, consistent results.`,
-  ogImage: 'https://github.com/tanstack/config/raw/main/media/repo-header.png',
   latestBranch: 'main',
   featureHighlights: [
     {

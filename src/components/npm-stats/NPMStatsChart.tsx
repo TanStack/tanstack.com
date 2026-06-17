@@ -1,166 +1,21 @@
 import * as React from 'react'
-import * as v from 'valibot'
 import * as Plot from '@observablehq/plot'
 import * as d3 from 'd3'
 import { ParentSize } from '~/components/ParentSize'
-import { packageGroupSchema } from '~/routes/stats/npm/-comparisons'
-import { defaultColors } from '~/utils/npm-packages'
+import { binningOptionsByType } from './binning'
+import type {
+  BinType,
+  FacetValue,
+  NpmQueryData,
+  PackageGroup,
+  ShowDataMode,
+  TimeRange,
+  TransformMode,
+} from './shared'
+import { getBaselineDisplayName, getPackageColor } from './shared'
+import { BASELINE_LINE_COLOR } from './BaselineSection'
 
-// Types
-export type PackageGroup = v.InferOutput<typeof packageGroupSchema>
-
-export const binTypeSchema = v.picklist([
-  'yearly',
-  'monthly',
-  'weekly',
-  'daily',
-])
-export type BinType = v.InferOutput<typeof binTypeSchema>
-
-export const transformModeSchema = v.picklist(['none', 'normalize-y'])
-export type TransformMode = v.InferOutput<typeof transformModeSchema>
-
-export const showDataModeSchema = v.picklist(['all', 'complete'])
-export type ShowDataMode = v.InferOutput<typeof showDataModeSchema>
-
-export type TimeRange =
-  | '7-days'
-  | '30-days'
-  | '90-days'
-  | '180-days'
-  | '365-days'
-  | '730-days'
-  | '1825-days'
-  | 'all-time'
-
-export type FacetValue = 'name'
-
-// Type for query data returned from npm stats API
-export type NpmQueryData = Array<{
-  packages: Array<{
-    name?: string
-    hidden?: boolean
-    downloads: Array<{ day: string; downloads: number }>
-  }>
-  start: string
-  end: string
-  error?: string
-  actualStartDate?: Date
-}>
-
-// Binning options configuration
-export const binningOptions = [
-  {
-    label: 'Yearly',
-    value: 'yearly',
-    single: 'year',
-    bin: d3.utcYear,
-  },
-  {
-    label: 'Monthly',
-    value: 'monthly',
-    single: 'month',
-    bin: d3.utcMonth,
-  },
-  {
-    label: 'Weekly',
-    value: 'weekly',
-    single: 'week',
-    bin: d3.utcWeek,
-  },
-  {
-    label: 'Daily',
-    value: 'daily',
-    single: 'day',
-    bin: d3.utcDay,
-  },
-] as const
-
-export const binningOptionsByType = binningOptions.reduce(
-  (acc, option) => {
-    acc[option.value] = option
-    return acc
-  },
-  {} as Record<BinType, (typeof binningOptions)[number]>,
-)
-
-export const timeRanges = [
-  { value: '7-days', label: '7 Days' },
-  { value: '30-days', label: '30 Days' },
-  { value: '90-days', label: '90 Days' },
-  { value: '180-days', label: '6 Months' },
-  { value: '365-days', label: '1 Year' },
-  { value: '730-days', label: '2 Years' },
-  { value: '1825-days', label: '5 Years' },
-  { value: 'all-time', label: 'All Time' },
-] as const
-
-export const defaultRangeBinTypes: Record<TimeRange, BinType> = {
-  '7-days': 'daily',
-  '30-days': 'daily',
-  '90-days': 'weekly',
-  '180-days': 'weekly',
-  '365-days': 'weekly',
-  '730-days': 'monthly',
-  '1825-days': 'monthly',
-  'all-time': 'monthly',
-}
-
-// Get or assign colors for packages
-export function getPackageColor(
-  packageName: string,
-  packages: PackageGroup[],
-): string {
-  // Find the package group that contains this package
-  const packageInfo = packages.find((pkg) =>
-    pkg.packages.some((p) => p.name === packageName),
-  )
-  if (packageInfo?.color) {
-    return packageInfo.color
-  }
-
-  // Otherwise, assign a default color based on the package's position
-  const packageIndex = packages.findIndex((pkg) =>
-    pkg.packages.some((p) => p.name === packageName),
-  )
-  return defaultColors[packageIndex % defaultColors.length]
-}
-
-// Custom number formatter for more precise control
-export const formatNumber = (num: number) => {
-  if (num >= 1_000_000) {
-    return `${(num / 1_000_000).toFixed(1)}M`
-  }
-  if (num >= 1_000) {
-    return `${(num / 1_000).toFixed(1)}k`
-  }
-  return num.toString()
-}
-
-// Check if a binning option is valid for a time range
-export function isBinningOptionValidForRange(
-  range: TimeRange,
-  binType: BinType,
-): boolean {
-  switch (range) {
-    case '7-days':
-    case '30-days':
-      return binType === 'daily'
-    case '90-days':
-    case '180-days':
-      return (
-        binType === 'daily' || binType === 'weekly' || binType === 'monthly'
-      )
-    case '365-days':
-      return (
-        binType === 'daily' || binType === 'weekly' || binType === 'monthly'
-      )
-    case '730-days':
-    case '1825-days':
-    case 'all-time':
-      return true
-  }
-}
+const BASELINE_LINE_SERIES = '__baseline__'
 
 // Plot figure component
 function PlotFigure({ options }: { options: Parameters<typeof Plot.plot>[0] }) {
@@ -186,6 +41,8 @@ export type NPMStatsChartProps = {
   facetX?: FacetValue
   facetY?: FacetValue
   showDataMode: ShowDataMode
+  normalizeBaseline?: boolean
+  showBaseline?: boolean
 }
 
 export function NPMStatsChart({
@@ -197,6 +54,8 @@ export function NPMStatsChart({
   facetX,
   facetY,
   showDataMode,
+  normalizeBaseline = true,
+  showBaseline = false,
 }: NPMStatsChartProps) {
   if (!queryData?.length) return null
 
@@ -294,23 +153,68 @@ export function NPMStatsChart({
     }
   })
 
-  // Apply the baseline correction
-  const baselinePackageIndex = packages.findIndex((pkg) => {
-    return pkg.baseline
-  })
+  // Build the baseline divisor.
+  //
+  // Single-package baseline: divisor[T] = downloads_baseline[T]. Tracked
+  // packages divided by this give "% of baseline" — intuitive when there's
+  // one familiar reference like react.
+  //
+  // Multi-package baseline: equal-weighted growth index. Each baseline j is
+  // first re-based to its own T0:  ix_j[T] = downloads_j[T] / downloads_j[T0].
+  // We average ix across baseline packages to get a unitless multiplier B[T]
+  // starting at 1.0 — each member contributes its growth rate equally
+  // regardless of size, so the largest member can't dominate the line shape.
+  // Tracked packages are then divided by B[T], yielding download values
+  // adjusted for baseline growth.
+  const baselineGroups = binnedPackageData.filter(
+    (_, index) => packages[index]?.baseline,
+  )
+  const baselineLineName = getBaselineDisplayName(
+    packages.filter((packageGroup) => packageGroup.baseline),
+  )
+  const isMultiBaseline = baselineGroups.length > 1
 
-  const baselinePackage = binnedPackageData[baselinePackageIndex]
+  const baselineDivisorByDate = baselineGroups.length
+    ? (() => {
+        if (!isMultiBaseline) {
+          // Single baseline group — divisor is its raw download counts.
+          const single = new Map<number, number>()
+          baselineGroups[0]?.downloads.forEach((d) => {
+            single.set(d.date.getTime(), d.downloads)
+          })
+          return single
+        }
+        // Equal-weighted index: index each baseline to its own T0 then average.
+        const perPackageIndex = baselineGroups.map((group) => {
+          const t0 = group.downloads[0]?.downloads ?? 0
+          const ix = new Map<number, number>()
+          group.downloads.forEach((d) => {
+            ix.set(d.date.getTime(), t0 > 0 ? d.downloads / t0 : 1)
+          })
+          return ix
+        })
+        const allDates = new Set<number>()
+        perPackageIndex.forEach((ix) =>
+          ix.forEach((_, key) => allDates.add(key)),
+        )
+        const averaged = new Map<number, number>()
+        allDates.forEach((key) => {
+          let sum = 0
+          let count = 0
+          perPackageIndex.forEach((ix) => {
+            const v = ix.get(key)
+            if (v !== undefined) {
+              sum += v
+              count++
+            }
+          })
+          if (count > 0) averaged.set(key, sum / count)
+        })
+        return averaged
+      })()
+    : undefined
 
-  const baseLineValuesByDate =
-    baselinePackage && binnedPackageData.length
-      ? (() => {
-          return new Map(
-            baselinePackage.downloads.map((d) => {
-              return [d.date.getTime(), d.downloads]
-            }),
-          )
-        })()
-      : undefined
+  const normalizeByBaseline = !!baselineDivisorByDate && normalizeBaseline
 
   const correctedPackageData = binnedPackageData.map((packageGroup) => {
     const first = packageGroup.downloads[0]
@@ -319,9 +223,9 @@ export function NPMStatsChart({
     return {
       ...packageGroup,
       downloads: packageGroup.downloads.map((d) => {
-        if (baseLineValuesByDate) {
+        if (normalizeByBaseline && baselineDivisorByDate) {
           d.downloads =
-            d.downloads / (baseLineValuesByDate.get(d.date.getTime()) || 1)
+            d.downloads / (baselineDivisorByDate.get(d.date.getTime()) || 1)
         }
 
         return {
@@ -332,15 +236,43 @@ export function NPMStatsChart({
     }
   })
 
-  // Filter out any top-level hidden packages
+  // Filter out any top-level hidden packages. Baseline series stay in the
+  // plot when visible — they render as a flat reference line at 1.0 (every
+  // point divided by itself) so users can see the baseline alongside the
+  // normalized series.
   const filteredPackageData = correctedPackageData.filter((_, index) => {
     const packageGroupWithHidden = packages[index]
     const isHidden = packageGroupWithHidden?.packages[0]?.hidden
-    const isBaseline = packageGroupWithHidden?.baseline
-    return !isBaseline && !isHidden
+    return !isHidden
   })
 
-  const plotData = filteredPackageData.flatMap((d) => d.downloads)
+  const plotData = filteredPackageData.flatMap((d) =>
+    d.downloads.map((download) => ({
+      ...download,
+      seriesName: download.name,
+    })),
+  )
+
+  if (showBaseline && baselineDivisorByDate) {
+    const baselinePoints = [...baselineDivisorByDate.entries()]
+      .sort((a, b) => a[0] - b[0])
+      .map(([time, divisor]) => ({
+        name: baselineLineName,
+        seriesName: BASELINE_LINE_SERIES,
+        date: d3.utcDay(new Date(time)),
+        // When normalized, baseline / baseline = 1 at every point.
+        // When raw, multi-baseline shows the growth-index multiplier (~1.0+);
+        // single-baseline shows the raw divisor value (downloads).
+        downloads: normalizeByBaseline ? 1 : divisor,
+      }))
+    const firstBaselineDownloads = baselinePoints[0]?.downloads ?? 0
+    plotData.push(
+      ...baselinePoints.map((d) => ({
+        ...d,
+        change: d.downloads - firstBaselineDownloads,
+      })),
+    )
+  }
 
   const baseOptions: Plot.LineYOptions = {
     x: 'date',
@@ -348,6 +280,14 @@ export function NPMStatsChart({
     fx: facetX,
     fy: facetY,
   } as const
+  const lineOptions: Plot.LineYOptions = {
+    ...baseOptions,
+    z: 'seriesName',
+  }
+  const getStrokeColor = (d: { name?: string; seriesName?: string }) => {
+    if (d.seriesName === BASELINE_LINE_SERIES) return BASELINE_LINE_COLOR
+    return d.name ? getPackageColor(d.name, packages) : 'currentColor'
+  }
 
   const partialBinEnd = binUnit.floor(now)
   const partialBinStart = binUnit.offset(partialBinEnd, -1)
@@ -382,8 +322,8 @@ export function NPMStatsChart({
                   ? Plot.lineY(
                       plotData.filter((d) => d.date >= partialBinStart),
                       {
-                        ...baseOptions,
-                        stroke: 'name',
+                        ...lineOptions,
+                        stroke: getStrokeColor,
                         strokeWidth: 1.5,
                         strokeDasharray: '2 4',
                         strokeOpacity: 0.8,
@@ -394,8 +334,8 @@ export function NPMStatsChart({
                 Plot.lineY(
                   plotData.filter((d) => d.date < partialBinEnd),
                   {
-                    ...baseOptions,
-                    stroke: 'name',
+                    ...lineOptions,
+                    stroke: getStrokeColor,
                     strokeWidth: 2,
                     curve: 'monotone-x',
                   },
@@ -427,8 +367,10 @@ export function NPMStatsChart({
               label:
                 transform === 'normalize-y'
                   ? 'Downloads Growth'
-                  : baselinePackage
-                    ? 'Downloads (% of baseline)'
+                  : normalizeByBaseline
+                    ? isMultiBaseline
+                      ? 'Downloads (indexed)'
+                      : 'Downloads (% of baseline)'
                     : 'Downloads',
               labelOffset: 35,
             },
@@ -437,7 +379,11 @@ export function NPMStatsChart({
               domain: [...new Set(plotData.map((d) => d.name))],
               range: [...new Set(plotData.map((d) => d.name))]
                 .filter((pkg): pkg is string => pkg !== undefined)
-                .map((pkg) => getPackageColor(pkg, packages)),
+                .map((pkg) =>
+                  pkg === baselineLineName
+                    ? BASELINE_LINE_COLOR
+                    : getPackageColor(pkg, packages),
+                ),
               legend: false,
             },
           }}

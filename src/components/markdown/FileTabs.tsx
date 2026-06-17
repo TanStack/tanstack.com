@@ -1,3 +1,5 @@
+'use client'
+
 import * as React from 'react'
 
 export type FileTabDefinition = {
@@ -41,12 +43,15 @@ export function FileTabs({ tabs, children }: FileTabsProps) {
         {childrenArray.map((child, index) => {
           const tab = tabs[index]
           if (!tab) return null
+          const isActive = tab.slug === activeSlug
           return (
             <div
               key={`${id}-${tab.slug}-panel`}
               data-tab={tab.slug}
-              hidden={tab.slug !== activeSlug}
-              className="file-tabs-panel"
+              data-content="code-only"
+              className={`border border-t-0 border-gray-500/20 rounded-b-md overflow-hidden ${
+                isActive ? '' : 'hidden'
+              }`}
             >
               {child}
             </div>

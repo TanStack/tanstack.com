@@ -1,3 +1,5 @@
+'use client'
+
 import { createClientOnlyFn, createIsomorphicFn } from '@tanstack/react-start'
 import * as React from 'react'
 import { createContext, ReactNode, useEffect, useState } from 'react'
@@ -40,6 +42,8 @@ const getSystemTheme = createIsomorphicFn()
 
 const updateThemeClass = createClientOnlyFn((themeMode: ThemeMode) => {
   const root = document.documentElement
+  root.classList.add('theme-switching')
+
   root.classList.remove('light', 'dark', 'auto')
   const newTheme = themeMode === 'auto' ? getSystemTheme() : themeMode
   root.classList.add(newTheme)
@@ -55,6 +59,15 @@ const updateThemeClass = createClientOnlyFn((themeMode: ThemeMode) => {
       newTheme === 'dark' ? THEME_COLORS.dark : THEME_COLORS.light,
     )
   }
+
+  // Force reflow so the no-transition styles apply to the theme change,
+  // then remove the class on the next frame so subsequent interactions animate.
+  void root.offsetHeight
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      root.classList.remove('theme-switching')
+    })
+  })
 })
 
 const getNextTheme = createClientOnlyFn((current: ThemeMode): ThemeMode => {
@@ -76,19 +89,19 @@ const ThemeContext = createContext<ThemeContextProps | undefined>(undefined)
 type ThemeProviderProps = {
   children: ReactNode
 }
-const getResolvedThemeFromDOM = createIsomorphicFn()
-  .server((): ResolvedTheme => 'light')
-  .client((): ResolvedTheme => {
-    return document.documentElement.classList.contains('dark')
-      ? 'dark'
-      : 'light'
-  })
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
-  const [themeMode, setThemeMode] = useState<ThemeMode>(getStoredThemeMode)
-  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(
-    getResolvedThemeFromDOM,
-  )
+  const [themeMode, setThemeMode] = useState<ThemeMode>('auto')
+  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>('light')
+
+  useEffect(() => {
+    const storedThemeMode = getStoredThemeMode()
+    setThemeMode(storedThemeMode)
+    updateThemeClass(storedThemeMode)
+    setResolvedTheme(
+      storedThemeMode === 'auto' ? getSystemTheme() : storedThemeMode,
+    )
+  }, [])
 
   // Listen for system theme changes when in auto mode
   useEffect(() => {

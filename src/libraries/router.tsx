@@ -7,7 +7,6 @@ const textStyles = 'text-emerald-500 dark:text-emerald-400'
 export const routerProject = {
   ...router,
   description: `A powerful React router for client-side and full-stack react applications. Fully type-safe APIs, first-class search-params for managing state in the URL and seamless integration with the existing React ecosystem.`,
-  ogImage: 'https://github.com/tanstack/router/raw/main/media/header.png',
   latestBranch: 'main',
   docsRoot: 'docs/router',
   bgRadial: 'from-emerald-500 via-lime-600/50 to-transparent',

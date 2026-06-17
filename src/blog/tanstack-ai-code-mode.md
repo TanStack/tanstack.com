@@ -2,6 +2,7 @@
 title: 'Code Mode: Let Your AI Write Programs, Not Just Call Tools'
 published: 2026-04-08
 excerpt: One tool call at a time is the bottleneck. TanStack AI Code Mode lets the LLM write and execute TypeScript programs in secure sandboxes, composing your tools with loops, conditionals, and Promise.all in a single shot.
+library: ai
 authors:
   - Jack Herrington
   - Alem Tuzlak

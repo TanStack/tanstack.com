@@ -1,24 +1,28 @@
+export { NPMStatsChart, type NPMStatsChartProps } from './NPMStatsChart'
+
+export type {
+  NpmQueryData,
+  PackageGroup,
+  BinType,
+  TransformMode,
+  ShowDataMode,
+  TimeRange,
+  FacetValue,
+} from './shared'
+
 export {
-  NPMStatsChart,
-  type NPMStatsChartProps,
-  type NpmQueryData,
-  type PackageGroup,
-  type BinType,
-  type TransformMode,
-  type ShowDataMode,
-  type TimeRange,
-  type FacetValue,
   binTypeSchema,
   transformModeSchema,
   showDataModeSchema,
   binningOptions,
-  binningOptionsByType,
   timeRanges,
   defaultRangeBinTypes,
   getPackageColor,
   formatNumber,
   isBinningOptionValidForRange,
-} from './NPMStatsChart'
+} from './shared'
+
+export { binningOptionsByType } from './binning'
 
 export { PopularComparisons, type ComparisonGroup } from './PopularComparisons'
 

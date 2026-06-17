@@ -26,7 +26,11 @@ import {
   useBulkAssignRolesToUsers,
   useBulkUpdateUserCapabilities,
 } from '~/utils/mutations'
-import { VALID_CAPABILITIES, type Capability } from '~/db/types'
+import {
+  VALID_CAPABILITIES,
+  type Capability,
+  type SignupSource,
+} from '~/db/types'
 import * as v from 'valibot'
 import { listUsersQueryOptions } from '~/queries/users'
 import {
@@ -60,6 +64,7 @@ type User = {
   capabilities: Capability[]
   adsDisabled: boolean | null
   interestedInHidingAds: boolean | null
+  signupSources: SignupSource[]
   createdAt: number
   updatedAt: number
 }

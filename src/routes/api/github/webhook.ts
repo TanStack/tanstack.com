@@ -53,11 +53,17 @@ export const Route = createFileRoute("/api/github/webhook")({
   server: {
     handlers: {
       POST: async ({ request }: { request: Request }) => {
-        const [{ markDocsArtifactsStale, markGitHubContentStale }, { env }] =
-          await Promise.all([
-            import("~/utils/github-content-cache.server"),
-            import("~/utils/env"),
-          ]);
+        const [
+          { markDocsArtifactsStale, markGitHubContentStale },
+          { env },
+          { libraries },
+          { purgeNetlifyTags },
+        ] = await Promise.all([
+          import("~/utils/github-content-cache.server"),
+          import("~/utils/env"),
+          import("~/libraries"),
+          import("~/utils/netlify-purge.server"),
+        ]);
         const rawBody = await request.text();
         const event = request.headers.get("x-github-event");
         const signature = request.headers.get("x-hub-signature-256");
@@ -105,13 +111,14 @@ export const Route = createFileRoute("/api/github/webhook")({
         }
 
         const gitRef = payload.ref.replace(/^refs\/heads\//, "");
+        const repo = payload.repository.full_name.toLowerCase();
 
-        if (!isWatchedDocsWebhookSource(payload.repository.full_name, gitRef)) {
+        if (!isWatchedDocsWebhookSource(repo, gitRef)) {
           return Response.json({
             ok: true,
             ignored: true,
             reason: "unwatched repo/ref",
-            repo: payload.repository.full_name,
+            repo,
             gitRef,
           });
         }
@@ -127,15 +134,21 @@ export const Route = createFileRoute("/api/github/webhook")({
         );
 
         const [staleContentCount, staleArtifactCount] = await Promise.all([
-          markGitHubContentStale({
-            repo: payload.repository.full_name,
-            gitRef,
-          }),
-          markDocsArtifactsStale({
-            repo: payload.repository.full_name,
-            gitRef,
-          }),
+          markGitHubContentStale({ repo, gitRef }),
+          markDocsArtifactsStale({ repo, gitRef }),
         ]);
+
+        const tags = [
+          `docs-config:${repo}:${gitRef}`,
+          ...libraries
+            .filter(
+              (library) =>
+                library.repo === repo && library.latestBranch === gitRef,
+            )
+            .map((library) => `docs:${library.id}:branch:${gitRef}`),
+        ];
+
+        const purge = await purgeNetlifyTags(tags);
 
         return Response.json({
           ok: true,
@@ -143,6 +156,7 @@ export const Route = createFileRoute("/api/github/webhook")({
           changedPathCount: changedPaths.length,
           staleArtifactCount,
           staleContentCount,
+          purge,
         });
       },
     },

@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { featureArtifactsHandler } from '~/builder/api'
+import { featureArtifactsHandler, normalizeFrameworkId } from '~/builder/api'
 
 export const Route = createFileRoute('/api/builder/feature-artifacts')({
   server: {
@@ -10,7 +10,7 @@ export const Route = createFileRoute('/api/builder/feature-artifacts')({
           const { features, projectName, framework, featureOptions, tailwind, customIntegrations } = body as {
             features: Array<string>
             projectName?: string
-            framework?: 'react-cra' | 'solid'
+            framework?: string
             featureOptions?: Record<string, Record<string, unknown>>
             tailwind?: boolean
             customIntegrations?: Array<unknown>
@@ -27,11 +27,11 @@ export const Route = createFileRoute('/api/builder/feature-artifacts')({
           }
 
           const response = await featureArtifactsHandler({
-            features,
-            projectName,
-            framework,
-            featureOptions,
-            tailwind,
+              features,
+              projectName,
+              framework: normalizeFrameworkId(framework),
+              featureOptions,
+              tailwind,
             customIntegrations: customIntegrations as Parameters<typeof featureArtifactsHandler>[0]['customIntegrations'],
           })
 

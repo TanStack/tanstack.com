@@ -14,7 +14,7 @@ import {
 } from 'react'
 import { useSearch } from '@tanstack/react-router'
 import { useBuilderStore } from './store'
-import type { FrameworkId } from '~/builder/frameworks'
+import { normalizeFrameworkId } from '~/builder/frameworks'
 
 interface BuilderContextValue {
   ready: boolean
@@ -40,7 +40,9 @@ export function BuilderProvider({ children }: BuilderProviderProps) {
 
     // Set framework directly in store without triggering loadFeatures
     if (search.framework) {
-      useBuilderStore.setState({ framework: search.framework as FrameworkId })
+      useBuilderStore.setState({
+        framework: normalizeFrameworkId(search.framework),
+      })
     }
     loadFeatures()
   }, [loadFeatures, search.framework])

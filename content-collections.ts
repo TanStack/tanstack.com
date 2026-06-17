@@ -1,6 +1,25 @@
 import { defineCollection, defineConfig } from '@content-collections/core'
+import { libraryIds } from '~/libraries/libraries'
 import { normalizeRedirectFrom } from '~/utils/redirects'
 import { z } from 'zod'
+
+const libraryIdSet = new Set<string>(libraryIds)
+const libraryListSchema = z.string().refine(
+  (value) => {
+    const libraries = value
+      .split(',')
+      .map((library) => library.trim())
+      .filter(Boolean)
+
+    return (
+      libraries.length > 0 &&
+      libraries.every((library) => libraryIdSet.has(library))
+    )
+  },
+  {
+    message: `Expected comma-separated library ids: ${libraryIds.join(', ')}`,
+  },
+)
 
 const posts = defineCollection({
   name: 'posts',
@@ -12,6 +31,7 @@ const posts = defineCollection({
     draft: z.boolean().optional(),
     excerpt: z.string(),
     authors: z.string().array(),
+    library: libraryListSchema.optional(),
     content: z.string(),
     redirect_from: z.string().array().optional(),
   }),

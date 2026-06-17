@@ -7,7 +7,6 @@ const textStyles = 'text-black dark:text-gray-100'
 export const rangerProject = {
   ...ranger,
   description: `Headless, lightweight, and extensible primitives for building range and multi-range sliders.`,
-  ogImage: 'https://github.com/tanstack/ranger/raw/main/media/headerv1.png',
   latestBranch: 'main',
   featureHighlights: [
     {

@@ -7,7 +7,6 @@ const textStyles = `text-lime-600 dark:text-lime-500`
 export const pacerProject = {
   ...pacer,
   description: `Optimize your application's performance with TanStack Pacer's core primitives: Debouncing, Throttling, Rate Limiting, Queuing, and Batching.`,
-  ogImage: 'https://github.com/tanstack/pacer/raw/main/media/repo-header.png',
   latestBranch: 'main',
   bgRadial: 'from-lime-500 via-lime-700/50 to-transparent',
   textColor: `text-lime-700`,

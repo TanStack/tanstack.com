@@ -117,13 +117,285 @@ html.theme-switching *::after {
   }
 
   :root {
-    --navbar-height: 50px;
+    --navbar-height: 52px;
     scroll-padding-top: var(--navbar-height);
   }
 }
 
 button {
   @apply cursor-pointer;
+}
+
+.ts-mega-trigger {
+  position: relative;
+  isolation: isolate;
+}
+
+.ts-mega-trigger-wrap {
+  display: inline-flex;
+  align-self: stretch;
+  align-items: center;
+}
+
+.ts-mega-trigger::after {
+  content: '';
+  position: absolute;
+  right: 0.625rem;
+  bottom: 0.3rem;
+  left: 0.625rem;
+  height: 1px;
+  background: currentcolor;
+  opacity: 0.35;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition:
+    opacity 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.ts-mega-trigger:hover::after,
+.ts-mega-trigger-wrap:focus-within > .ts-mega-trigger::after {
+  opacity: 0.55;
+  transform: scaleX(1);
+}
+
+.ts-mega-dropdown {
+  --ts-mega-dropdown-x: 0;
+  position: absolute;
+  left: -1rem;
+  top: 100%;
+  z-index: 90;
+  width: max-content;
+  min-width: var(--ts-primary-nav-target-width, 0px);
+  max-width: min(calc(100vw - 2rem), 70rem);
+  padding-top: 1rem;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translate3d(var(--ts-mega-dropdown-x), -8px, 0) scale(0.985);
+  transform-origin: 50% 0;
+  transition:
+    opacity 160ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    visibility 0s linear 160ms;
+}
+
+.ts-mega-trigger-wrap:not([data-menu-dismissed='true']):hover
+  > .ts-mega-dropdown,
+.ts-mega-trigger-wrap:not([data-menu-dismissed='true']):focus-within
+  > .ts-mega-dropdown {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translate3d(var(--ts-mega-dropdown-x), 0, 0) scale(1);
+  transition-delay: 0s;
+}
+
+.ts-mega-dropdown-panel {
+  position: relative;
+  isolation: isolate;
+  background-color: rgb(255 255 255 / 0.94);
+  backdrop-filter: blur(100px) saturate(1.9);
+  -webkit-backdrop-filter: blur(100px) saturate(1.9);
+}
+
+.dark .ts-mega-dropdown-panel {
+  background-color: rgb(0 0 0 / 0.88);
+}
+
+.ts-glass-menu {
+  position: relative;
+  isolation: isolate;
+}
+
+.ts-glass-menu > * {
+  position: relative;
+  z-index: 1;
+}
+
+.ts-glass-menu::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    135deg,
+    rgb(255 255 255 / 0.36),
+    rgb(255 255 255 / 0.12) 38%,
+    rgb(255 255 255 / 0) 72%
+  );
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.5),
+    inset 0 -1px 0 rgb(0 0 0 / 0.04);
+}
+
+.dark .ts-glass-menu::after {
+  background: linear-gradient(
+    135deg,
+    rgb(255 255 255 / 0.12),
+    rgb(255 255 255 / 0.05) 38%,
+    rgb(255 255 255 / 0) 72%
+  );
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.14),
+    inset 0 -1px 0 rgb(255 255 255 / 0.04);
+}
+
+@media (min-width: 900px) and (max-width: 1119.98px) {
+  .ts-mega-dropdown {
+    --ts-mega-dropdown-x: -50%;
+    position: fixed;
+    right: auto;
+    left: 50%;
+    top: calc(var(--navbar-height) - 0.625rem);
+    width: max-content;
+    min-width: var(--ts-primary-nav-target-width, 0px);
+    max-width: calc(100vw - 2rem);
+    padding-top: calc(1rem + 0.625rem);
+  }
+
+  .ts-mega-dropdown-panel {
+    width: max-content;
+    min-width: var(--ts-primary-nav-target-width, 0px);
+    max-width: calc(100vw - 2rem);
+    overflow-x: auto;
+  }
+}
+
+[data-docs-mobile-backdrop],
+[data-docs-mobile-menu],
+[data-docs-mobile-open-icon] {
+  display: none;
+}
+
+.docs-partner-slot {
+  perspective: 18rem;
+}
+
+.docs-partner-slot-link {
+  backface-visibility: hidden;
+  transform-origin: 50% 50%;
+  transform-style: preserve-3d;
+}
+
+.docs-partner-slot-link[data-flip-state='out'] {
+  animation: docs-partner-flip-out 120ms cubic-bezier(0.36, 0, 0.66, -0.56) both;
+}
+
+.docs-partner-slot-link[data-flip-state='in'] {
+  animation: docs-partner-flip-in 160ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes docs-partner-flip-out {
+  from {
+    opacity: 0.8;
+    transform: rotateX(0deg);
+  }
+
+  to {
+    opacity: 0;
+    transform: rotateX(-90deg);
+  }
+}
+
+@keyframes docs-partner-flip-in {
+  from {
+    opacity: 0;
+    transform: rotateX(90deg);
+  }
+
+  to {
+    opacity: 0.8;
+    transform: rotateX(0deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .docs-partner-slot-link[data-flip-state='out'],
+  .docs-partner-slot-link[data-flip-state='in'] {
+    animation: none;
+  }
+}
+
+@media (max-width: 639.98px) {
+  .docs-partner-slot-link {
+    max-width: 30vw;
+  }
+}
+
+@media (max-width: 899.98px) {
+  [data-docs-layout]:has([data-docs-mobile-menu-toggle]:checked)
+    [data-docs-mobile-backdrop],
+  [data-docs-layout]:has([data-docs-mobile-menu-toggle]:checked)
+    [data-docs-mobile-menu] {
+    display: block;
+  }
+
+  [data-docs-layout]:has([data-docs-mobile-menu-toggle]:checked)
+    [data-docs-mobile-closed-icon] {
+    display: none;
+  }
+
+  [data-docs-layout]:has([data-docs-mobile-menu-toggle]:checked)
+    [data-docs-mobile-open-icon] {
+    display: block;
+  }
+}
+
+@media (min-width: 900px) {
+  [data-docs-mobile-backdrop],
+  [data-docs-mobile-menu] {
+    display: none !important;
+  }
+}
+
+@media (min-width: 900px) and (max-width: 1279.98px) {
+  [data-docs-layout]:has([data-docs-menu-trigger]:is(:hover, :focus, :active))
+    [data-docs-desktop-menu],
+  [data-docs-layout]:has([data-docs-desktop-menu]:hover)
+    [data-docs-desktop-menu],
+  [data-docs-layout][data-docs-menu-open='true'] [data-docs-desktop-menu] {
+    --tw-translate-x: 0 !important;
+    translate: 0 0 !important;
+    transform: translateX(0) !important;
+  }
+}
+
+@media (min-width: 900px) {
+  body:has(
+      .ts-mega-trigger-wrap:not([data-menu-dismissed='true']):hover
+        > .ts-mega-dropdown
+    )
+    [data-site-menu-tint],
+  body:has(
+      .ts-mega-trigger-wrap:not([data-menu-dismissed='true']):focus-within
+        > .ts-mega-dropdown
+    )
+    [data-site-menu-tint] {
+    opacity: 1;
+  }
+
+  body:has(
+      .ts-mega-trigger-wrap:not([data-menu-dismissed='true']):hover
+        > .ts-mega-dropdown
+    )
+    [data-site-content],
+  body:has(
+      .ts-mega-trigger-wrap:not([data-menu-dismissed='true']):focus-within
+        > .ts-mega-dropdown
+    )
+    [data-site-content] {
+    filter: blur(4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ts-mega-trigger::after,
+  .ts-mega-dropdown {
+    transition: none;
+  }
 }
 
 @layer base {
@@ -1179,7 +1451,6 @@ mark {
   height: 1em;
 }
 
-/* Consecutive code blocks - no gap when under headings */
 [data-tab] .codeblock + .codeblock {
   @apply mt-0 border-t-0 rounded-t-none;
 }
@@ -1187,58 +1458,50 @@ mark {
 [data-tab] .codeblock:has(+ .codeblock) {
   @apply rounded-b-none;
 }
-/* File tabs variant - minimal code blocks with floating copy button */
-.file-tabs-panel .codeblock {
-  @apply rounded-t-none border-t-0 my-0;
+
+[data-tab] {
+  @apply px-4 py-4;
 }
 
-/* Hide the title bar but keep copy button accessible */
-.file-tabs-panel .codeblock > div:first-child {
+[data-tab][data-content='code-only'] {
+  @apply p-0;
+}
+
+[data-tab][data-content='code-only'] .codeblock {
+  @apply rounded-none border-none my-0;
+}
+
+[data-tab][data-content='code-only'] .codeblock pre {
+  border-radius: 0;
+}
+
+[data-tab][data-content='code-only'] .codeblock > div:first-child {
   @apply absolute right-2 top-2 bg-transparent border-none p-0 z-10;
 }
 
-/* Hide the title text, keep only the button */
-.file-tabs-panel .codeblock > div:first-child > div:first-child {
-  @apply hidden;
-}
-
-/* Package manager tabs - minimal code blocks with floating copy button */
-.package-manager-tabs [data-tab] .codeblock {
-  @apply rounded-t-none border-t-0 my-0;
-}
-
-.package-manager-tabs [data-tab] .codeblock > div:first-child {
-  @apply absolute right-2 top-2 bg-transparent border-none p-0 z-10;
-}
-
-.package-manager-tabs .codeblock {
-  border: none;
-}
-
-.package-manager-tabs
-  [data-tab]
+[data-tab][data-content='code-only']
   .codeblock
   > div:first-child
   > div:first-child {
   @apply hidden;
 }
 
-/* Remove padding from tab content wrapper for package manager */
-.package-manager-tabs .not-prose > div:last-child {
-  @apply p-0 border-none rounded-b-none bg-transparent;
+[data-tab][data-content='mixed'] > p,
+[data-tab][data-content='mixed'] > ul,
+[data-tab][data-content='mixed'] > ol {
+  @apply text-sm leading-relaxed text-gray-700 dark:text-gray-300;
 }
 
-/* Restore bottom border radius on the code block itself */
-.package-manager-tabs [data-tab] .codeblock {
-  @apply rounded-b-md;
-}
-
-/* Framework code blocks - single blocks look like regular code blocks */
 .framework-code-block > .codeblock {
   @apply my-4;
 }
 
-/* Tab content - add padding when it's not just a code block */
-[data-tab]:not(:has(> .codeblock:only-child)) {
-  @apply px-4;
+/* Kapa injects invisible reCAPTCHA; keep it from occupying the UI corner. */
+.grecaptcha-badge {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+button[aria-label='Open TanStack Devtools'] {
+  display: none !important;
 }

@@ -24,6 +24,7 @@ export {
   intent,
   config,
   devtools,
+  workflow,
   cli,
 } from './libraries'
 

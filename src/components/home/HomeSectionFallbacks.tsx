@@ -52,10 +52,10 @@ export function HomeSocialProofFallback() {
 
 export function HomeCommunityFallback() {
   return (
-    <div className="space-y-24 min-h-[1500px] md:min-h-[1010px] lg:min-h-[980px]">
-      <div className="lg:max-w-(--breakpoint-lg) px-4 mx-auto">
-        <SectionTitle id="courses" title="Courses" />
-        <SectionBlock className="min-h-[220px]" />
+    <div className="space-y-24 min-h-[1180px] md:min-h-[780px] lg:min-h-[760px]">
+      <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
+        <SectionTitle id="maintainers" title="Core Maintainers" />
+        <SectionBlock className="min-h-[260px] md:min-h-[220px]" />
       </div>
 
       <div className="px-4 w-full lg:max-w-(--breakpoint-lg) md:mx-auto">
@@ -64,24 +64,19 @@ export function HomeCommunityFallback() {
           <SectionBlock className="min-h-[320px] md:min-h-[260px]" />
         </div>
       </div>
-
-      <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-        <SectionTitle id="maintainers" title="Core Maintainers" />
-        <SectionBlock className="min-h-[260px] md:min-h-[220px]" />
-      </div>
     </div>
   )
 }
 
-export function HomeBytesFallback() {
+export function HomeNewsletterFallback() {
   return (
     <div className="px-4 mx-auto max-w-(--breakpoint-lg) relative min-h-[330px] md:min-h-[360px]">
       <Card className="rounded-md p-8 min-h-[250px] animate-pulse">
         <div className="h-8 w-64 rounded bg-gray-200 dark:bg-gray-700" />
         <div className="mt-2 h-5 w-56 rounded bg-gray-100 dark:bg-gray-800" />
-        <div className="mt-6 grid grid-cols-3 gap-2">
-          <div className="col-span-2 h-12 rounded bg-gray-100 dark:bg-gray-800" />
+        <div className="mt-6 grid max-w-sm gap-2">
           <div className="h-12 rounded bg-gray-200 dark:bg-gray-700" />
+          <div className="h-4 w-56 rounded bg-gray-100 dark:bg-gray-800" />
         </div>
       </Card>
       <div className="h-20" />
@@ -125,16 +120,24 @@ export function HomeApplicationStarterFallback() {
 
 export function HomeStatsFallback() {
   return (
-    <Card className="relative min-h-[360px] p-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8 items-center justify-center xl:min-h-[164px] xl:place-items-center rounded-[1rem] animate-pulse">
-      {Array.from({ length: 4 }).map((_, index) => (
-        <div key={index} className="flex gap-4 items-center">
-          <div className="h-10 w-10 rounded-full bg-gray-100 dark:bg-gray-800" />
-          <div className="flex-1 min-w-0">
-            <div className="h-7 w-24 rounded bg-gray-200 dark:bg-gray-700" />
-            <div className="mt-2 h-4 w-28 rounded bg-gray-100 dark:bg-gray-800" />
+    <div
+      aria-hidden="true"
+      className="mx-auto grid w-full max-w-3xl animate-pulse grid-cols-1 gap-4 sm:grid-cols-3"
+    >
+      {Array.from({ length: 3 }).map((_, index) => (
+        <div
+          key={index}
+          className="min-w-0 rounded-r-md border-l-2 border-gray-200 bg-linear-to-r from-transparent to-gray-200/10 px-4 py-2 dark:border-gray-800 dark:to-gray-800/10"
+        >
+          <div className="flex min-w-0 items-start gap-3">
+            <div className="mt-1 h-5 w-5 shrink-0 rounded bg-gray-200 dark:bg-gray-800" />
+            <div className="min-w-0">
+              <div className="h-7 w-32 rounded bg-gray-200 dark:bg-gray-700" />
+              <div className="mt-2 h-4 w-28 rounded bg-gray-100 dark:bg-gray-800" />
+            </div>
           </div>
         </div>
       ))}
-    </Card>
+    </div>
   )
 }

@@ -1,16 +1,17 @@
-import React from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { Hydrate } from '@tanstack/react-start'
+import { visible } from '@tanstack/react-start/hydration'
 import { ArrowRight } from 'lucide-react'
-import { useIntersectionObserver } from '~/hooks/useIntersectionObserver'
 import { getSponsorsForSponsorPack } from '~/utils/sponsors.functions'
 import { Button } from '~/ui'
 import PlaceholderSponsorPack from './PlaceholderSponsorPack'
-
-const LazySponsorPack = React.lazy(() => import('./SponsorPack'))
+import SponsorPack from './SponsorPack'
 
 type LazySponsorSectionProps = {
-  title?: React.ReactNode
+  title?: ReactNode
   aspectRatio?: string
+  packMaxWidth?: CSSProperties['maxWidth']
   showCTA?: boolean
 }
 
@@ -25,34 +26,29 @@ function SponsorPackWithQuery() {
     return <PlaceholderSponsorPack />
   }
 
-  return <LazySponsorPack sponsors={sponsors} />
+  return <SponsorPack sponsors={sponsors} />
 }
 
 export function LazySponsorSection({
   title = 'Sponsors',
   aspectRatio = '1/1',
+  packMaxWidth,
   showCTA = true,
 }: LazySponsorSectionProps) {
-  const { ref, isIntersecting } = useIntersectionObserver({
-    rootMargin: '50%', // Half viewport height - triggers when about half a page away
-    triggerOnce: true,
-  })
-
   return (
-    <div
-      ref={ref}
-      className="px-4 w-full lg:max-w-(--breakpoint-lg) md:mx-auto"
-    >
+    <div className="px-4 w-full lg:max-w-(--breakpoint-lg) md:mx-auto">
       <div className="space-y-8">
         <h3 className="text-3xl font-bold">{title}</h3>
-        <div className="flex flex-wrap relative w-full" style={{ aspectRatio }}>
-          {!isIntersecting ? (
-            <PlaceholderSponsorPack />
-          ) : (
-            <React.Suspense fallback={<PlaceholderSponsorPack />}>
-              <SponsorPackWithQuery />
-            </React.Suspense>
-          )}
+        <div
+          className="relative mx-auto flex w-full flex-wrap overflow-hidden [&>div]:h-full [&>div]:w-full"
+          style={{ aspectRatio, maxWidth: packMaxWidth }}
+        >
+          <Hydrate
+            when={visible({ rootMargin: '50%' })}
+            fallback={<PlaceholderSponsorPack />}
+          >
+            <SponsorPackWithQuery />
+          </Hydrate>
         </div>
         {showCTA ? (
           <div className="flex justify-center">

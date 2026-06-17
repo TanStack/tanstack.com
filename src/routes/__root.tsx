@@ -8,7 +8,7 @@ import {
   Scripts,
 } from '@tanstack/react-router'
 import { QueryClient } from '@tanstack/react-query'
-import appCss from '~/styles/app.css?url'
+import '~/styles/app.css'
 import {
   canonicalUrl,
   getCanonicalPath,
@@ -25,18 +25,16 @@ const LazyAppDevtools = import.meta.env.DEV
   : null
 import { NotFound } from '~/components/NotFound'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
-import { SearchProvider, useSearchContext } from '~/contexts/SearchContext'
+import { SearchProvider } from '~/contexts/SearchContext'
 import { ToastProvider } from '~/components/ToastProvider'
 import { LoginModalProvider } from '~/contexts/LoginModalContext'
 
-const LazySearchModal = React.lazy(() =>
-  import('~/components/SearchModal').then((m) => ({ default: m.SearchModal })),
-)
 import { Spinner } from '~/components/Spinner'
 import { ThemeProvider, useHtmlClass } from '~/components/ThemeProvider'
 import { Navbar } from '~/components/Navbar'
 import { THEME_COLORS } from '~/utils/utils'
 import { trackPageView } from '~/utils/analytics'
+import { createPartnerPlacementSessionSeed } from '~/utils/partner-placement'
 import { twMerge } from 'tailwind-merge'
 
 const GOOGLE_ANALYTICS_ID = 'G-JMT1Z50SPS'
@@ -44,9 +42,37 @@ const GOOGLE_ANALYTICS_PROXY_PREFIX = '/_a'
 const GOOGLE_ANALYTICS_SCRIPT_SRC = `${GOOGLE_ANALYTICS_PROXY_PREFIX}/gtag.js`
 const GOOGLE_ANALYTICS_BOOTSTRAP = `(function(){var id='${GOOGLE_ANALYTICS_ID}';var src='${GOOGLE_ANALYTICS_SCRIPT_SRC}';window.dataLayer=window.dataLayer||[];window.gtag=window.gtag||function(){window.dataLayer.push(arguments)};window.gtag('js',new Date());window.gtag('config',id,{transport_url:window.location.origin+'${GOOGLE_ANALYTICS_PROXY_PREFIX}'});var loaded=false;var load=function(){if(loaded)return;loaded=true;var script=document.createElement('script');script.async=true;script.src=src;script.setAttribute('data-ga-loader','true');document.head.appendChild(script)};if(typeof window.requestIdleCallback==='function'){window.requestIdleCallback(load,{timeout:3000});return}if(document.readyState==='complete'){window.setTimeout(load,1500);return}window.addEventListener('load',function(){window.setTimeout(load,1500)},{once:true})})();`
 
+class OptionalDevtoolsBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean }
+> {
+  state = { hasError: false }
+
+  static getDerivedStateFromError() {
+    return { hasError: true }
+  }
+
+  componentDidCatch(error: Error) {
+    if (import.meta.env.DEV) {
+      console.warn('TanStack Devtools failed to load', error)
+    }
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return null
+    }
+
+    return this.props.children
+  }
+}
+
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
 }>()({
+  loader: () => ({
+    partnerPlacementSessionSeed: createPartnerPlacementSessionSeed(),
+  }),
   head: () => ({
     meta: [
       {
@@ -76,7 +102,6 @@ export const Route = createRootRouteWithContext<{
       }),
     ],
     links: [
-      { rel: 'stylesheet', href: appCss },
       {
         rel: 'preload',
         href: '/fonts/Inter-latin.woff2',
@@ -131,17 +156,21 @@ export const Route = createRootRouteWithContext<{
   },
   staleTime: Infinity,
   shellComponent: ({ children }) => {
-    return (
-      <ThemeProvider>
-        <SearchProvider>
-          <ShellComponent>{children}</ShellComponent>
-        </SearchProvider>
-      </ThemeProvider>
-    )
+    return <RootShell>{children}</RootShell>
   },
   errorComponent: DefaultCatchBoundary,
   notFoundComponent: () => <NotFound />,
 })
+
+function RootShell({ children }: { children: React.ReactNode }) {
+  return (
+    <ThemeProvider>
+      <SearchProvider>
+        <ShellComponent>{children}</ShellComponent>
+      </SearchProvider>
+    </ThemeProvider>
+  )
+}
 
 function ShellComponent({ children }: { children: React.ReactNode }) {
   const hasBaseParent = useMatches({
@@ -232,9 +261,11 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
             <PageViewTracker />
             {hideNavbar ? children : <Navbar>{children}</Navbar>}
             {showDevtools && LazyAppDevtools ? (
-              <React.Suspense fallback={null}>
-                <LazyAppDevtools />
-              </React.Suspense>
+              <OptionalDevtoolsBoundary>
+                <React.Suspense fallback={null}>
+                  <LazyAppDevtools />
+                </React.Suspense>
+              </OptionalDevtoolsBoundary>
             ) : null}
             <div
               aria-hidden="true"
@@ -261,53 +292,11 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
                 <Spinner className="text-4xl" />
               </div>
             </div>
-            <SearchHotkeyController />
           </ToastProvider>
         </LoginModalProvider>
         <Scripts />
       </body>
     </html>
-  )
-}
-
-function SearchHotkeyController() {
-  const { isOpen, openSearch } = useSearchContext()
-  const [hasOpenedSearch, setHasOpenedSearch] = React.useState(false)
-
-  React.useEffect(() => {
-    const handleGlobalKeyDown = (event: KeyboardEvent) => {
-      if (!(event.metaKey || event.ctrlKey)) return
-      if (event.altKey || event.shiftKey) return
-      // Match both `key` and `code` so the shortcut works on non-QWERTY layouts.
-      const isK = event.key.toLowerCase() === 'k' || event.code === 'KeyK'
-      if (!isK) return
-
-      event.preventDefault()
-      event.stopPropagation()
-      setHasOpenedSearch(true)
-      openSearch()
-    }
-
-    document.addEventListener('keydown', handleGlobalKeyDown, { capture: true })
-    return () => {
-      document.removeEventListener('keydown', handleGlobalKeyDown, {
-        capture: true,
-      })
-    }
-  }, [openSearch])
-
-  React.useEffect(() => {
-    if (isOpen) {
-      setHasOpenedSearch(true)
-    }
-  }, [isOpen])
-
-  if (!hasOpenedSearch) return null
-
-  return (
-    <React.Suspense fallback={null}>
-      <LazySearchModal />
-    </React.Suspense>
   )
 }
 

@@ -21,6 +21,31 @@ export interface Maintainer {
   workshopsAvailable?: boolean
 }
 
+const libraryMaintainerSortOrder = {
+  start: [
+    'tannerlinsley',
+    'schiller-manuel',
+    'sheraff',
+    'brenelz',
+    'seancassiere',
+    'birkskyum',
+    'chorobin',
+    'brhx',
+  ],
+  router: [
+    'tannerlinsley',
+    'schiller-manuel',
+    'sheraff',
+    'brenelz',
+    'beaussan',
+    'seancassiere',
+    'birkskyum',
+    'chorobin',
+    'brhx',
+    'nlynzaad',
+  ],
+} satisfies Partial<Record<Library['id'], Array<Maintainer['github']>>>
+
 // order matters
 export const allMaintainers: Maintainer[] = [
   {
@@ -65,6 +90,20 @@ export const allMaintainers: Maintainer[] = [
       bluesky: 'https://bsky.app/profile/tkdodo.eu',
       website: 'https://tkdodo.eu',
     },
+  },
+  {
+    name: 'Nicolas Beaussart',
+    avatar: 'https://github.com/beaussan.png',
+    github: 'beaussan',
+    maintainerOf: ['router'],
+    frameworkExpertise: ['react'],
+    specialties: ['Monorepo', 'Architecture', 'Typescript'],
+    social: {
+      twitter: 'https://x.com/beaussan',
+      bluesky: 'https://bsky.app/profile/beaussan.io',
+      website: 'https://beaussan.io/',
+    },
+    workshopsAvailable: true,
   },
   {
     name: 'Corbin Crutchley',
@@ -138,6 +177,32 @@ export const allMaintainers: Maintainer[] = [
     },
   },
   {
+    name: 'Birk Skyum',
+    avatar: 'https://github.com/birkskyum.png',
+    github: 'birkskyum',
+    maintainerOf: ['router', 'start'],
+    contributorOf: ['pacer'],
+    frameworkExpertise: ['solid'],
+    specialties: [],
+    social: {
+      twitter: 'https://x.com/birkskyum',
+      bluesky: 'https://bsky.app/profile/bskyum.bsky.social',
+    },
+  },
+  {
+    name: 'Florian Pellet',
+    avatar: 'https://github.com/sheraff.png',
+    github: 'sheraff',
+    maintainerOf: ['start', 'router'],
+    frameworkExpertise: ['react'],
+    specialties: ['Performance'],
+    social: {
+      twitter: 'https://x.com/chaponflo',
+      bluesky: 'https://bsky.app/profile/sheraff.bsky.social',
+      website: 'https://florianpellet.com',
+    },
+  },
+  {
     name: 'Christopher Horobin',
     isCoreMaintainer: true,
     avatar: 'https://github.com/chorobin.png',
@@ -183,24 +248,6 @@ export const allMaintainers: Maintainer[] = [
       website: 'https://www.forge42.dev',
     },
     workshopsAvailable: true,
-  },
-  {
-    name: 'Lachlan Collins',
-    isCoreMaintainer: true,
-    avatar: 'https://github.com/lachlancollins.png',
-    github: 'lachlancollins',
-    maintainerOf: ['config', 'query'],
-    contributorOf: [
-      'start',
-      'router',
-      'virtual',
-      'table',
-      'form',
-      'db',
-      'pacer',
-    ],
-    frameworkExpertise: ['react', 'svelte'],
-    specialties: ['Architecture'],
   },
   {
     name: 'Sam Willis',
@@ -334,6 +381,24 @@ export const allMaintainers: Maintainer[] = [
     },
   },
   {
+    name: 'Lachlan Collins',
+    isCoreMaintainer: true,
+    avatar: 'https://github.com/lachlancollins.png',
+    github: 'lachlancollins',
+    maintainerOf: ['config', 'query'],
+    contributorOf: [
+      'start',
+      'router',
+      'virtual',
+      'table',
+      'form',
+      'db',
+      'pacer',
+    ],
+    frameworkExpertise: ['react', 'svelte'],
+    specialties: ['Architecture'],
+  },
+  {
     name: 'Riccardo Perra',
     avatar:
       'https://cdn.bsky.app/img/avatar/plain/did:plc:gtnigsmgu7jyrc4tnkvn62qw/bafkreiceysbj4o6jrbbniudtwj3tcsns6rvwcxyjsqiaumeojurwbkki5a@jpeg',
@@ -349,16 +414,26 @@ export const allMaintainers: Maintainer[] = [
     },
   },
   {
-    name: 'Birk Skyum',
-    avatar: 'https://github.com/birkskyum.png',
-    github: 'birkskyum',
-    maintainerOf: ['start'],
-    contributorOf: ['pacer'],
-    frameworkExpertise: ['solid'],
+    name: 'Tom Beckenham',
+    github: 'tombeckenham',
+    avatar: 'https://github.com/tombeckenham.png',
+    maintainerOf: ['ai'],
+    frameworkExpertise: [],
+    social: {
+      twitter: 'https://x.com/tombeckenham',
+    },
+  },
+  {
+    name: 'Brenley Dueck',
+    avatar: 'https://github.com/brenelz.png',
+    github: 'brenelz',
+    maintainerOf: ['start', 'router'],
+    frameworkExpertise: ['react', 'solid'],
     specialties: [],
     social: {
-      twitter: 'https://x.com/birkskyum',
-      bluesky: 'https://bsky.app/profile/bskyum.bsky.social',
+      twitter: 'https://x.com/brenelz',
+      bluesky: 'https://bsky.app/profile/brenelz.com',
+      website: 'https://brenelz.com',
     },
   },
   {
@@ -485,20 +560,6 @@ export const allMaintainers: Maintainer[] = [
     workshopsAvailable: true,
   },
   {
-    name: 'Nicolas Beaussart',
-    avatar: 'https://github.com/beaussan.png',
-    github: 'beaussan',
-    maintainerOf: ['router'],
-    frameworkExpertise: ['react'],
-    specialties: ['Monorepo', 'Architecture', 'Typescript'],
-    social: {
-      twitter: 'https://x.com/beaussan',
-      bluesky: 'https://bsky.app/profile/beaussan.io',
-      website: 'https://beaussan.io/',
-    },
-    workshopsAvailable: true,
-  },
-  {
     name: 'Nico Lynzaad',
     avatar: 'https://github.com/nlynzaad.png',
     github: 'nlynzaad',
@@ -509,32 +570,6 @@ export const allMaintainers: Maintainer[] = [
       twitter: 'https://twitter.com/NLynzaad',
     },
     workshopsAvailable: false,
-  },
-  {
-    name: 'Florian Pellet',
-    avatar: 'https://github.com/sheraff.png',
-    github: 'sheraff',
-    maintainerOf: ['start', 'router'],
-    frameworkExpertise: ['react'],
-    specialties: ['Performance'],
-    social: {
-      twitter: 'https://x.com/chaponflo',
-      bluesky: 'https://bsky.app/profile/sheraff.bsky.social',
-      website: 'https://florianpellet.com',
-    },
-  },
-  {
-    name: 'Brenley Dueck',
-    avatar: 'https://github.com/brenelz.png',
-    github: 'brenelz',
-    maintainerOf: ['start', 'router'],
-    frameworkExpertise: ['react', 'solid'],
-    specialties: [],
-    social: {
-      twitter: 'https://x.com/brenelz',
-      bluesky: 'https://bsky.app/profile/brenelz.com',
-      website: 'https://brenelz.com',
-    },
   },
 ]
 
@@ -558,9 +593,47 @@ export function getLibraryMaintainers(
   )
 
   // Use Set to dedupe while preserving order
-  return includeCreators
+  const libraryMaintainers = includeCreators
     ? [...new Set([...creators, ...maintainers])]
     : maintainers
+
+  return sortLibraryMaintainers(libraryId, libraryMaintainers)
+}
+
+function sortLibraryMaintainers(
+  libraryId: string,
+  maintainers: Maintainer[],
+): Maintainer[] {
+  const order = Object.entries(libraryMaintainerSortOrder).find(
+    ([orderedLibraryId]) => orderedLibraryId === libraryId,
+  )?.[1]
+
+  if (!order) {
+    return maintainers
+  }
+
+  const orderIndexByGithub = new Map(
+    order.map((github, index) => [github, index]),
+  )
+
+  return [...maintainers].sort((left, right) => {
+    const leftIndex = orderIndexByGithub.get(left.github)
+    const rightIndex = orderIndexByGithub.get(right.github)
+
+    if (leftIndex === undefined && rightIndex === undefined) {
+      return 0
+    }
+
+    if (leftIndex === undefined) {
+      return 1
+    }
+
+    if (rightIndex === undefined) {
+      return -1
+    }
+
+    return leftIndex - rightIndex
+  })
 }
 
 export function getLibraryContributors(

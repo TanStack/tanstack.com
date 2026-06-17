@@ -9,12 +9,18 @@ import { analyzer } from 'vite-bundle-analyzer'
 import viteReact from '@vitejs/plugin-react'
 import rsc from '@vitejs/plugin-rsc'
 import netlify from '@netlify/vite-plugin-tanstack-start'
+import fs from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
 
 const isDev = process.env.NODE_ENV !== 'production'
+const shouldUseRedact = process.env.DISABLE_REDACT !== 'true'
+const localRedactPackageRoot = process.env.LOCAL_REDACT_PACKAGE_ROOT
 const shouldUseSentryPlugin =
   process.env.NODE_ENV === 'production' &&
   Boolean(process.env.SENTRY_AUTH_TOKEN)
+const shouldBuildSourcemaps =
+  shouldUseSentryPlugin || process.env.BUILD_SOURCEMAPS === 'true'
 
 const rscSsrExternals = [
   // OpenTelemetry uses require-in-the-middle which is CJS-only and breaks
@@ -43,6 +49,14 @@ const rscSsrExternals = [
 const sentrySsrExternals = ['@sentry/node', '@sentry/tanstackstart-react']
 const dbSsrExternals = ['drizzle-orm', 'drizzle-orm/postgres-js']
 
+const localEnvPath = path.resolve(__dirname, '.env.local')
+const defaultCheckoutEnvDir = path.join(os.homedir(), 'GitHub/tanstack.com')
+const envDir =
+  !fs.existsSync(localEnvPath) &&
+  fs.existsSync(path.join(defaultCheckoutEnvDir, '.env.local'))
+    ? defaultCheckoutEnvDir
+    : __dirname
+
 // Runtime-specific `react-dom/server` variants aren't in @tanstack/redact/vite's
 // default alias map — our shim ships a single universal server build, unlike
 // React which maintains per-runtime forks (edge/node/bun/browser + static.*).
@@ -60,12 +74,39 @@ const serverVariantAliases: Record<string, string> = {
   'react-dom/static': '@tanstack/redact/server',
 }
 
+const useSyncExternalStoreShimIndexAlias = {
+  find: /^use-sync-external-store\/shim\/index\.js$/,
+  replacement: '@tanstack/redact',
+}
+
+// These browser-facing packages are imported by RSC assets. Bundle them into
+// server output so Netlify's Node runtime never loads their raw package entries.
+const serverBundledClientPackages = [
+  ...(shouldUseRedact ? ['@tanstack/redact'] : []),
+  '@kapaai/react-sdk',
+  /^@fingerprintjs\//,
+]
+
 export default defineConfig({
+  envDir,
   resolve: {
-    alias: {
-      '~': path.resolve(__dirname, './src'),
-      ...serverVariantAliases,
-    },
+    alias: [
+      {
+        find: '~',
+        replacement: path.resolve(__dirname, './src'),
+      },
+      ...(shouldUseRedact
+        ? [
+            useSyncExternalStoreShimIndexAlias,
+            ...Object.entries(serverVariantAliases).map(
+              ([find, replacement]) => ({
+                find,
+                replacement,
+              }),
+            ),
+          ]
+        : []),
+    ],
   },
   server: {
     port: Number(process.env.PORT) || 3000,
@@ -84,6 +125,7 @@ export default defineConfig({
   environments: {
     rsc: {
       resolve: {
+        noExternal: serverBundledClientPackages,
         external: [
           '@tanstack/react-start-server',
           '@tanstack/react-router/ssr/server',
@@ -92,6 +134,7 @@ export default defineConfig({
     },
     ssr: {
       resolve: {
+        noExternal: serverBundledClientPackages,
         external: [
           ...rscSsrExternals,
           ...sentrySsrExternals,
@@ -117,6 +160,7 @@ export default defineConfig({
       'normalize-wheel',
       '@tanstack/react-hotkeys',
       '@webcontainer/api',
+      ...serverBundledClientPackages,
     ],
   },
   optimizeDeps: {
@@ -141,7 +185,8 @@ export default defineConfig({
     ],
   },
   build: {
-    sourcemap: process.env.NODE_ENV === 'production',
+    sourcemap: shouldBuildSourcemaps,
+    reportCompressedSize: false,
     rollupOptions: {
       external: (id) => {
         // Externalize postgres from client bundle
@@ -149,24 +194,18 @@ export default defineConfig({
       },
       output: {
         manualChunks: (id) => {
-          // Keep the app shell and docs runtime from shattering into dozens of
-          // tiny eagerly preloaded chunks.
           if (
-            id.includes('/src/components/Navbar') ||
-            id.includes('/src/components/Theme') ||
-            id.includes('/src/components/SearchButton') ||
-            id.includes('/src/components/NetlifyImage') ||
-            id.includes('/src/components/Card') ||
-            id.includes('/src/components/Footer') ||
-            id.includes('/src/components/ToastProvider') ||
-            id.includes('/src/components/icons/') ||
-            id.includes('/src/contexts/SearchContext') ||
-            id.includes('/src/hooks/useCurrentUser') ||
-            id.includes('/src/hooks/useCapabilities') ||
-            id.includes('/src/libraries/libraries.ts') ||
-            id.includes('/src/ui/')
+            id.includes('/node_modules/@tanstack/react-start') ||
+            id.includes('/node_modules/@tanstack/start-')
           ) {
-            return 'app-shell'
+            return 'tanstack-start'
+          }
+
+          if (
+            id.includes('/src/db/types.ts') ||
+            id.includes('/src/libraries/ids.ts')
+          ) {
+            return 'shared-constants'
           }
 
           if (
@@ -204,10 +243,28 @@ export default defineConfig({
     },
   },
   plugins: [
-    redact(),
+    ...(shouldUseRedact
+      ? [
+          redact(
+            localRedactPackageRoot
+              ? {
+                  packageRoots: {
+                    '@tanstack/redact': localRedactPackageRoot,
+                  },
+                }
+              : undefined,
+          ),
+        ]
+      : []),
     ...(isDev
       ? [
           tanstackDevtools({
+            // Console piping mirrors server logs into the browser and browser
+            // logs back into Vite. A streamed server error can recursively echo
+            // through that bridge and flood the dev server log.
+            consolePiping: {
+              enabled: false,
+            },
             // react-instantsearch's <Configure> forwards all JSX props as
             // Algolia search parameters. Injecting `data-tsd-source` as a
             // JSX attr leaks it into the request and Algolia 400s with
@@ -222,6 +279,11 @@ export default defineConfig({
     tanstackStart({
       rsc: {
         enabled: true,
+      },
+      server: {
+        build: {
+          inlineCss: true,
+        },
       },
       importProtection: {
         behavior: 'error',

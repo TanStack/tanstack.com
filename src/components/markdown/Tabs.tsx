@@ -15,6 +15,7 @@ export type TabsProps = {
   children?: Array<React.ReactNode> | React.ReactNode
   activeSlug?: string
   onTabChange?: (slug: string) => void
+  panelContent?: Record<string, string> | string
 }
 
 export function Tabs({
@@ -22,16 +23,19 @@ export function Tabs({
   children: childrenProp,
   activeSlug: controlledActiveSlug,
   onTabChange,
+  panelContent,
 }: TabsProps) {
+  const isControlled = controlledActiveSlug !== undefined
   const id = React.useId()
   const childrenArray = React.Children.toArray(childrenProp)
 
   const params = useParams({ strict: false })
-  const framework = params?.framework ?? undefined
+  const frameworkParam = isControlled ? undefined : params?.framework
 
   const [internalActiveSlug, setInternalActiveSlug] = React.useState(() => {
-    const match = framework
-      ? tabsProp.find((tab) => tab.slug === framework)
+    if (isControlled) return ''
+    const match = frameworkParam
+      ? tabsProp.find((tab) => tab.slug === frameworkParam)
       : undefined
     return match?.slug ?? tabsProp[0]?.slug ?? ''
   })
@@ -65,18 +69,23 @@ export function Tabs({
           )
         })}
       </div>
-      <div
-        className={`border border-gray-500/20 rounded-b-md bg-gray-100 dark:bg-gray-900`}
-      >
+      <div className="border border-gray-500/20 rounded-b-md bg-gray-100 dark:bg-gray-900 overflow-hidden">
         {childrenArray.map((child, index) => {
           const tab = tabsProp[index]
           if (!tab) return null
+          const isActive = tab.slug === activeSlug
+          const content =
+            typeof panelContent === 'string'
+              ? panelContent
+              : panelContent?.[tab.slug]
           return (
             <div
               key={`${id}-${tab.slug}`}
               data-tab={tab.slug}
-              hidden={tab.slug !== activeSlug}
-              className="max-w-none flex flex-col gap-2 text-base"
+              data-content={content}
+              className={`max-w-none flex-col gap-2 text-base ${
+                isActive ? 'flex' : 'hidden'
+              }`}
             >
               {child}
             </div>
@@ -87,42 +96,40 @@ export function Tabs({
   )
 }
 
-const Tab = React.memo(
-  ({
-    tab,
-    activeSlug,
-    setActiveSlug,
-  }: {
-    id?: string
-    tab: TabDefinition
-    activeSlug: string
-    setActiveSlug: (slug: string) => void
-  }) => {
-    const option = React.useMemo(
-      () =>
-        frameworkOptions.find(
-          (o) =>
-            o.value === tab.slug.toLowerCase() ||
-            o.label.toLowerCase() === tab.name.toLowerCase(),
-        ),
-      [tab.slug, tab.name],
-    )
+const Tab = React.memo(function Tab({
+  tab,
+  activeSlug,
+  setActiveSlug,
+}: {
+  id?: string
+  tab: TabDefinition
+  activeSlug: string
+  setActiveSlug: (slug: string) => void
+}) {
+  const option = React.useMemo(
+    () =>
+      frameworkOptions.find(
+        (o) =>
+          o.value === tab.slug.toLowerCase() ||
+          o.label.toLowerCase() === tab.name.toLowerCase(),
+      ),
+    [tab.slug, tab.name],
+  )
 
-    return (
-      <button
-        aria-label={tab.name}
-        title={tab.name}
-        type="button"
-        onClick={() => setActiveSlug(tab.slug)}
-        className={`inline-flex items-center justify-center gap-2 px-3 py-1.5 -mb-[1px] border-b-2 text-sm font-bold transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 rounded-t-md overflow-y-none ${
-          activeSlug === tab.slug
-            ? 'border-current text-current bg-gray-100 dark:bg-gray-900'
-            : 'border-transparent text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'
-        }`}
-      >
-        {option && <img src={option.logo} alt="" className="w-4 h-4 -ml-1" />}
-        <span>{tab.name}</span>
-      </button>
-    )
-  },
-)
+  return (
+    <button
+      aria-label={tab.name}
+      title={tab.name}
+      type="button"
+      onClick={() => setActiveSlug(tab.slug)}
+      className={`inline-flex items-center justify-center gap-2 px-3 py-1.5 -mb-[1px] border-b-2 text-sm font-bold transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 rounded-t-md overflow-y-none ${
+        activeSlug === tab.slug
+          ? 'border-current text-current bg-gray-100 dark:bg-gray-900'
+          : 'border-transparent text-gray-600 hover:text-gray-900 dark:text-gray-400 hover:dark:text-gray-200'
+      }`}
+    >
+      {option && <img src={option.logo} alt="" className="w-4 h-4 -ml-1" />}
+      <span>{tab.name}</span>
+    </button>
+  )
+})

@@ -5,64 +5,35 @@ import {
   createFileRoute,
   useRouterState,
 } from '@tanstack/react-router'
+import { Hydrate } from '@tanstack/react-start'
+import { idle, load, visible } from '@tanstack/react-start/hydration'
 
 import discordImage from '~/images/discord-logo-white.svg'
 import { librariesByGroup, librariesGroupNamesMap, Library } from '~/libraries'
+import { groupToSlug } from '~/components/stack/stack-categories'
+import { twMerge } from 'tailwind-merge'
 import { NetlifyImage } from '~/components/NetlifyImage'
 
-import { TrustedByMarquee } from '~/components/TrustedByMarquee'
 import { ArrowRight, Code2, Layers, Shield, Zap, Play } from 'lucide-react'
 import { YouTubeIcon } from '~/components/icons/YouTubeIcon'
 import { Card } from '~/components/Card'
-import LibraryCard from '~/components/LibraryCard'
 import { HomeApplicationStarter } from '~/components/home/HomeApplicationStarter'
-import { HomeDeferredSection } from '~/components/home/HomeDeferredSection'
 import {
-  HomeBytesFallback,
   HomeCommunityFallback,
+  HomeNewsletterFallback,
   HomeSocialProofFallback,
   HomeStatsFallback,
 } from '~/components/home/HomeSectionFallbacks'
+import { HomeCommunitySection } from '~/components/home/HomeCommunitySection'
+import { HomeNewsletterSection } from '~/components/home/HomeNewsletterSection'
+import { HomeSocialProofSection } from '~/components/home/HomeSocialProofSection'
+import { HomeStatsSection } from '~/components/home/HomeStatsSection'
 import { Button } from '~/ui'
 import { seo } from '~/utils/seo'
 
 const LazyBrandContextMenu = React.lazy(() =>
   import('~/components/BrandContextMenu').then((m) => ({
     default: m.BrandContextMenu,
-  })),
-)
-
-const loadHomeSocialProofSection = () =>
-  import('~/components/home/HomeSocialProofSection')
-
-const LazyHomeSocialProofSection = React.lazy(() =>
-  loadHomeSocialProofSection().then((m) => ({
-    default: m.HomeSocialProofSection,
-  })),
-)
-
-const loadHomeCommunitySection = () =>
-  import('~/components/home/HomeCommunitySection')
-
-const LazyHomeCommunitySection = React.lazy(() =>
-  loadHomeCommunitySection().then((m) => ({
-    default: m.HomeCommunitySection,
-  })),
-)
-
-const loadHomeBytesSection = () => import('~/components/home/HomeBytesSection')
-
-const LazyHomeBytesSection = React.lazy(() =>
-  loadHomeBytesSection().then((m) => ({
-    default: m.HomeBytesSection,
-  })),
-)
-
-const loadHomeStatsSection = () => import('~/components/home/HomeStatsSection')
-
-const LazyHomeStatsSection = React.lazy(() =>
-  loadHomeStatsSection().then((m) => ({
-    default: m.HomeStatsSection,
   })),
 )
 
@@ -77,11 +48,11 @@ function getDeferredSectionStage(hash: string) {
     return 1
   }
 
-  if (['courses', 'sponsors', 'maintainers'].includes(normalizedHash)) {
+  if (['sponsors', 'maintainers'].includes(normalizedHash)) {
     return 2
   }
 
-  if (normalizedHash === 'bytes') {
+  if (normalizedHash === 'newsletter') {
     return 3
   }
 
@@ -229,91 +200,52 @@ function Index() {
               </p>
             </div>
           </div>
+          <div className="mx-auto mt-8 w-full max-w-[1021px] px-4 sm:px-6 md:mt-10">
+            <Hydrate
+              when={visible({ rootMargin: '10%' })}
+              prefetch={idle({ timeout: 6000 })}
+              fallback={<HomeStatsFallback />}
+            >
+              <HomeStatsSection />
+            </Hydrate>
+          </div>
           <div className="mx-auto mt-16 w-full max-w-[1021px] px-4 sm:px-6 md:mt-20 lg:mt-14 xl:mt-12">
             <HomeApplicationStarter />
           </div>
-          <div className="mx-auto w-full max-w-[1021px] px-4 sm:px-6">
-            <div className="mx-auto w-fit">
-              <HomeDeferredSection
-                forceLoad={deferredSectionStage > 0}
-                fallback={<HomeStatsFallback />}
-                preload={loadHomeStatsSection}
-                rootMargin="10%"
-                timeoutMs={6000}
-              >
-                <LazyHomeStatsSection />
-              </HomeDeferredSection>
-            </div>
-          </div>
-        </div>
-
-        <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-          <TrustedByMarquee
-            brands={[
-              'Google',
-              'Amazon',
-              'Apple',
-              'Microsoft',
-              'Walmart',
-              'Uber',
-              'Salesforce',
-              'Cisco',
-              'Intuit',
-              'HP',
-              'Docusign',
-              'TicketMaster',
-              'Nordstrom',
-              'Yahoo!',
-            ]}
-          />
         </div>
 
         <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
           <h3
             id="libraries"
-            className={`text-4xl font-light mb-6 scroll-mt-24`}
+            className={`text-4xl font-light mb-2 scroll-mt-24`}
           >
             <a
               href="#libraries"
               className="hover:underline decoration-gray-400 dark:decoration-gray-600"
             >
-              Open Source Libraries
+              Browse the stack
             </a>
           </h3>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
+            Every TanStack library, organized by what it does.
+          </p>
 
-          {Object.entries(librariesByGroup).map(
-            ([groupName, groupLibraries]) => (
-              <div key={groupName} className="mt-8">
-                <h4 className={`text-2xl font-medium capitalize mb-6`}>
-                  {
-                    librariesGroupNamesMap[
-                      groupName as keyof typeof librariesGroupNamesMap
-                    ]
-                  }
-                </h4>
-                {/* Library Cards */}
-                <div
-                  className={`grid grid-cols-1 gap-6 gap-y-8 justify-center
-                sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3`}
-                >
-                  {groupLibraries.map((library, i: number) => {
-                    return (
-                      <LibraryCard
-                        key={library.name}
-                        index={i}
-                        library={library as Library}
-                      />
-                    )
-                  })}
-                </div>
-              </div>
-            ),
-          )}
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+            {Object.entries(librariesByGroup).map(
+              ([groupName, groupLibraries]) => (
+                <StackCategoryCard
+                  key={groupName}
+                  groupId={groupName as keyof typeof librariesByGroup}
+                  libraries={groupLibraries as Library[]}
+                />
+              ),
+            )}
+          </div>
         </div>
 
         <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto mt-8 flex justify-center">
           <Button as={Link} to="/libraries">
-            More Libraries
+            See all libraries
           </Button>
         </div>
 
@@ -375,21 +307,25 @@ function Index() {
           </div>
         </div>
 
-        <HomeDeferredSection
-          forceLoad={deferredSectionStage >= 1}
+        <Hydrate
+          when={() =>
+            deferredSectionStage >= 1 ? load() : visible({ rootMargin: '20%' })
+          }
+          prefetch={idle({ timeout: 4000 })}
           fallback={<HomeSocialProofFallback />}
-          preload={loadHomeSocialProofSection}
         >
-          <LazyHomeSocialProofSection />
-        </HomeDeferredSection>
+          <HomeSocialProofSection />
+        </Hydrate>
 
-        <HomeDeferredSection
-          forceLoad={deferredSectionStage >= 2}
+        <Hydrate
+          when={() =>
+            deferredSectionStage >= 2 ? load() : visible({ rootMargin: '20%' })
+          }
+          prefetch={idle({ timeout: 4000 })}
           fallback={<HomeCommunityFallback />}
-          preload={loadHomeCommunitySection}
         >
-          <LazyHomeCommunitySection />
-        </HomeDeferredSection>
+          <HomeCommunitySection />
+        </Hydrate>
 
         <div className="px-4 mx-auto max-w-(--breakpoint-lg)">
           <div
@@ -486,16 +422,60 @@ function Index() {
         </div>
 
         <div className="h-4" />
-        <HomeDeferredSection
-          forceLoad={deferredSectionStage >= 3}
-          fallback={<HomeBytesFallback />}
-          preload={loadHomeBytesSection}
-          rootMargin="10%"
+        <Hydrate
+          when={() =>
+            deferredSectionStage >= 3 ? load() : visible({ rootMargin: '10%' })
+          }
+          prefetch={idle({ timeout: 4000 })}
+          fallback={<HomeNewsletterFallback />}
         >
-          <LazyHomeBytesSection />
-        </HomeDeferredSection>
+          <HomeNewsletterSection />
+        </Hydrate>
       </div>
     </>
+  )
+}
+
+function StackCategoryCard({
+  groupId,
+  libraries,
+}: {
+  groupId: keyof typeof librariesByGroup
+  libraries: Library[]
+}) {
+  const groupName = librariesGroupNamesMap[groupId]
+  const categorySlug = groupToSlug[groupId]
+
+  return (
+    <Link
+      to="/stack/$category"
+      params={{ category: categorySlug }}
+      className="group flex flex-col rounded-xl border border-gray-200 bg-white/60 p-5 transition-all hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-md dark:border-gray-800 dark:bg-gray-900/40 dark:hover:border-gray-700"
+    >
+      <h4 className="text-base font-bold group-hover:underline">{groupName}</h4>
+      <ol className="mt-4 space-y-2.5">
+        {libraries.map((lib, i) => (
+          <li key={lib.id} className="flex items-start gap-2.5">
+            <span
+              className={twMerge(
+                'flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-gradient-to-br text-[10px] font-black text-white',
+                lib.colorFrom,
+                lib.colorTo,
+              )}
+            >
+              {i + 1}
+            </span>
+            <span className="min-w-0 flex-1 text-sm font-semibold leading-snug">
+              {lib.name.replace('TanStack ', '')}
+            </span>
+          </li>
+        ))}
+      </ol>
+      <span className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-gray-600 dark:text-gray-400">
+        Browse {groupName.toLowerCase()}
+        <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
+      </span>
+    </Link>
   )
 }
 

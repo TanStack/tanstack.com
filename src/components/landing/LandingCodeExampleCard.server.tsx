@@ -12,10 +12,14 @@ export interface LandingCodeExample {
 
 export function LandingCodeExampleCard({
   codeByFramework,
-  frameworks,
+  frameworks = [],
   renderFallback,
   title = 'Just a quick look...',
 }: LandingCodeExample) {
+  if (frameworks.length === 0) {
+    return null
+  }
+
   const tabs: Array<TabDefinition> = frameworks.map((framework) => ({
     slug: framework,
     name: framework,

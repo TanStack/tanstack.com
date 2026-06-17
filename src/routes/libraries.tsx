@@ -15,11 +15,12 @@ export const Route = createFileRoute('/libraries')({
   head: () => ({
     meta: [
       {
-        title: 'All Libraries - TanStack',
+        title: 'TanStack Libraries: Type-Safe Tools for Modern Web Apps',
       },
       {
         name: 'description',
-        content: 'Browse all TanStack libraries.',
+        content:
+          'Explore TanStack libraries for routing, server state, tables, forms, virtualization, sync, AI, and developer tooling.',
       },
     ],
   }),
@@ -36,13 +37,22 @@ function LibrariesPage() {
 
   return (
     <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto py-10">
-      <h1 className="text-4xl font-light">All Libraries</h1>
-      <p className="text-gray-600 dark:text-gray-400 mt-2">
-        Browse all TanStack libraries.
-      </p>
+      <div className="max-w-3xl">
+        <p className="text-sm font-black uppercase tracking-wide text-cyan-600 dark:text-cyan-400">
+          TanStack libraries
+        </p>
+        <h1 className="mt-3 text-4xl font-black leading-tight sm:text-5xl">
+          Headless libraries for the hard parts of web apps.
+        </h1>
+        <p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-400">
+          Routes, server state, tables, forms, virtualization, sync, AI, and
+          tooling. Use the pieces you need, keep your markup and runtime, and
+          let the stack stay type-safe where apps usually drift.
+        </p>
+      </div>
 
       <section className="mt-8">
-        <h2 className="text-xl font-medium">Browse by Your Framework</h2>
+        <h2 className="text-xl font-black">Browse by framework</h2>
         <div className="mt-4 flex flex-wrap gap-3">
           {frameworksWithLibraries.map((framework) => {
             const count = frameworkCounts[framework.value] ?? 0

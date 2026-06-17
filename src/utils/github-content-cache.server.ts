@@ -5,8 +5,9 @@ import {
   githubContentCache,
   type GithubContentCache,
 } from '~/db/schema'
+import { isValidRepoPath, MAX_REPO_PATH_LENGTH } from './repo-path'
 
-const POSITIVE_STALE_MS = 24 * 60 * 60 * 1000
+const POSITIVE_STALE_MS = 5 * 60 * 1000
 const NEGATIVE_STALE_MS = 15 * 60 * 1000
 
 // Internal sentinel paths used for non-file metadata (branch SHA lookup,
@@ -21,11 +22,9 @@ const REPO_PATTERN = /^[a-zA-Z0-9._-]+\/[a-zA-Z0-9._-]+$/
 // we actually publish from (branch names + tags). No spaces, no shell
 // metacharacters, no path traversal.
 const GIT_REF_PATTERN = /^[a-zA-Z0-9._/-]+$/
-const PATH_SEGMENT_PATTERN = /^[a-zA-Z0-9._-]+$/
 
 const MAX_REPO_LEN = 100
 const MAX_GIT_REF_LEN = 100
-const MAX_PATH_LEN = 512
 
 export class InvalidCacheKeyError extends Error {
   constructor(field: string, value: string) {
@@ -65,23 +64,12 @@ function assertValidContentPath(path: string) {
     return
   }
 
-  if (path.length > MAX_PATH_LEN) {
+  if (path.length > MAX_REPO_PATH_LENGTH) {
     throw new InvalidCacheKeyError('path', path)
   }
 
-  if (
-    path.startsWith('/') ||
-    path.endsWith('/') ||
-    path.includes('//') ||
-    path.includes('..')
-  ) {
+  if (!isValidRepoPath(path)) {
     throw new InvalidCacheKeyError('path', path)
-  }
-
-  for (const segment of path.split('/')) {
-    if (!PATH_SEGMENT_PATTERN.test(segment)) {
-      throw new InvalidCacheKeyError('path', path)
-    }
   }
 }
 
@@ -128,10 +116,14 @@ function isFresh(staleAt: Date) {
   return staleAt.getTime() > Date.now()
 }
 
-function queueRefresh(key: string, fn: () => Promise<unknown>) {
-  void withPendingRefresh(key, fn).catch((error) => {
-    console.error(`[GitHub Cache] Failed to refresh ${key}:`, error)
-  })
+// markGitHubContentStale / markDocsArtifactsStale set staleAt to the epoch
+// (new Date(0)) as a sentinel for "forcibly invalidated" — an admin clicked
+// the purge button or a push webhook fired. Natural TTL expiry and forced
+// invalidation both refresh synchronously now. The row stays around so the
+// bottom of getCachedGitHubContent / getCachedDocsArtifact can still fall back
+// to it if GitHub is unreachable.
+function isForciblyStale(staleAt: Date) {
+  return staleAt.getTime() <= 0
 }
 
 function readStoredTextValue(row: GithubContentCache | undefined) {
@@ -253,18 +245,10 @@ async function getCachedGitHubContent<T>(opts: {
 
   const cachedRow = await readRow()
   const storedValue = opts.readStoredValue(cachedRow)
+  const forciblyStale = !!cachedRow && isForciblyStale(cachedRow.staleAt)
 
-  if (storedValue !== undefined) {
+  if (storedValue !== undefined && !forciblyStale) {
     if (cachedRow && isFresh(cachedRow.staleAt)) {
-      return storedValue
-    }
-
-    if (storedValue !== null) {
-      queueRefresh(opts.cacheKey, async () => {
-        const value = await opts.origin()
-        await persist(value)
-      })
-
       return storedValue
     }
   }
@@ -272,8 +256,15 @@ async function getCachedGitHubContent<T>(opts: {
   return withPendingRefresh(opts.cacheKey, async () => {
     const latestRow = await readRow()
     const latestValue = opts.readStoredValue(latestRow)
+    const latestForciblyStale =
+      !!latestRow && isForciblyStale(latestRow.staleAt)
 
-    if (latestValue !== undefined && latestRow && isFresh(latestRow.staleAt)) {
+    if (
+      latestValue !== undefined &&
+      latestRow &&
+      !latestForciblyStale &&
+      isFresh(latestRow.staleAt)
+    ) {
       return latestValue
     }
 
@@ -388,18 +379,12 @@ export async function getCachedDocsArtifact<T>(opts: {
   const cachedRow = await readRow()
   const storedValue =
     cachedRow && opts.isValue(cachedRow.payload) ? cachedRow.payload : undefined
+  const forciblyStale = !!cachedRow && isForciblyStale(cachedRow.staleAt)
 
-  if (storedValue !== undefined) {
+  if (storedValue !== undefined && !forciblyStale) {
     if (cachedRow && isFresh(cachedRow.staleAt)) {
       return storedValue
     }
-
-    queueRefresh(cacheKey, async () => {
-      const payload = await opts.build()
-      await upsertDocsArtifact({ ...opts, payload })
-    })
-
-    return storedValue
   }
 
   return withPendingRefresh(cacheKey, async () => {
@@ -408,8 +393,15 @@ export async function getCachedDocsArtifact<T>(opts: {
       latestRow && opts.isValue(latestRow.payload)
         ? latestRow.payload
         : undefined
+    const latestForciblyStale =
+      !!latestRow && isForciblyStale(latestRow.staleAt)
 
-    if (latestValue !== undefined && latestRow && isFresh(latestRow.staleAt)) {
+    if (
+      latestValue !== undefined &&
+      latestRow &&
+      !latestForciblyStale &&
+      isFresh(latestRow.staleAt)
+    ) {
       return latestValue
     }
 

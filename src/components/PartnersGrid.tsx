@@ -4,9 +4,14 @@ import {
   PartnerImage,
   partnerTierFlares,
   partnerTierLabels,
-  partnerTierOrder,
   type PartnerTier,
 } from '~/utils/partners'
+import {
+  getPartnerPlacementAnalyticsMetadata,
+  getPartnerTierGroupsForPlacement,
+  type PartnerPlacementContext,
+} from '~/utils/partner-placement'
+import { usePartnerPlacementContext } from '~/utils/usePartnerPlacementContext'
 import { Card } from '~/components/Card'
 import {
   trackEvent,
@@ -57,16 +62,23 @@ const tierLayout: Record<
 function PartnerGridItem({
   analyticsPlacement,
   index,
+  placementContext,
   partner,
 }: {
   analyticsPlacement: PartnerPlacement
   index: number
+  placementContext: PartnerPlacementContext
   partner: PartnerItem
 }) {
+  const analyticsMetadata = getPartnerPlacementAnalyticsMetadata(
+    partner,
+    placementContext,
+  )
   const ref = useTrackedImpression<'partner_viewed', HTMLAnchorElement>({
     event: 'partner_viewed',
     props: {
       partner_id: partner.id,
+      ...analyticsMetadata,
       placement: analyticsPlacement,
       slot_index: index,
     },
@@ -96,6 +108,7 @@ function PartnerGridItem({
           placement: analyticsPlacement,
           destination: 'external',
           destination_host: destinationHost,
+          ...analyticsMetadata,
           slot_index: index,
         })
       }}
@@ -121,17 +134,15 @@ export function PartnersGrid({
     (partner) => partner.status === 'active',
   )
 
-  const tiers: Array<PartnerTier> = ['gold', 'silver', 'bronze']
+  const placementContext = usePartnerPlacementContext({
+    orderStrategy: 'tier-rotated',
+    surface: analyticsPlacement,
+  })
 
-  const tiersWithPartners = tiers
-    .map((tier) => ({
-      tier,
-      partners: items
-        .filter((partner) => (partner.tier ?? 'bronze') === tier)
-        .sort((a, b) => b.score - a.score),
-    }))
-    .filter((row) => row.partners.length > 0)
-    .sort((a, b) => partnerTierOrder[a.tier] - partnerTierOrder[b.tier])
+  const tiersWithPartners = getPartnerTierGroupsForPlacement(
+    items,
+    placementContext,
+  )
 
   let slotIndex = 0
 
@@ -161,6 +172,7 @@ export function PartnersGrid({
                       key={partner.id}
                       analyticsPlacement={analyticsPlacement}
                       index={index}
+                      placementContext={placementContext}
                       partner={partner}
                     />
                   )

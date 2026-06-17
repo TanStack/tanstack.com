@@ -9,6 +9,7 @@ export const packageGroupSchema = v.object({
   ),
   color: v.optional(v.nullable(v.string())),
   baseline: v.optional(v.boolean()),
+  baselineLabel: v.optional(v.string()),
 })
 
 export const packageComparisonSchema = v.object({
@@ -161,6 +162,10 @@ export function getPopularComparisons(): v.InferInput<
         {
           packages: [{ name: 'valtio' }],
           color: '#FF6B6B',
+        },
+        {
+          packages: [{ name: '@tanstack/store' }],
+          color: '#FF69B4',
         },
         {
           packages: [
@@ -393,6 +398,17 @@ export function getPopularComparisons(): v.InferInput<
         {
           packages: [{ name: '@conform-to/dom' }],
           color: '#FF5733',
+        },
+        {
+          packages: [
+            { name: '@formisch/react' },
+            { name: '@formisch/svelte' },
+            { name: '@formisch/solid' },
+            { name: '@formisch/vue' },
+            { name: '@formisch/preact' },
+            { name: '@formisch/qwik' },
+          ],
+          color: '#8B5CF6',
         },
       ],
     },

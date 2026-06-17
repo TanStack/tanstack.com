@@ -14,6 +14,7 @@ import { renderMarkdownToRsc } from './markdown'
 import { extractFrameworksFromMarkdown } from './markdown/filterFrameworkContent'
 import { getCachedDocsArtifact } from './github-content-cache.server'
 import { buildRedirectManifest, type RedirectManifestEntry } from './redirects'
+import { isValidRepoPath, MAX_REPO_PATH_LENGTH } from './repo-path'
 import { removeLeadingSlash } from './utils'
 
 type DocsTreeNode = {
@@ -65,22 +66,8 @@ const branchSchema = v.pipe(
 
 const repoPathSchema = v.pipe(
   v.string(),
-  v.maxLength(512),
-  v.check((s) => {
-    if (s === '') return true
-    if (
-      s.startsWith('/') ||
-      s.endsWith('/') ||
-      s.includes('//') ||
-      s.includes('..')
-    ) {
-      return false
-    }
-    for (const segment of s.split('/')) {
-      if (!/^[a-zA-Z0-9._-]+$/.test(segment)) return false
-    }
-    return true
-  }, 'invalid path'),
+  v.maxLength(MAX_REPO_PATH_LENGTH),
+  v.check(isValidRepoPath, 'invalid path'),
 )
 
 const repoFileInput = v.object({
@@ -295,7 +282,7 @@ export const fetchDocs = createServerFn({ method: 'GET' })
       frontMatter.content,
     )
 
-    setDocsCacheHeaders('max-age=300, stale-while-revalidate=300, durable')
+    setDocsCacheHeaders('max-age=60, stale-while-revalidate=60, durable')
 
     return {
       content: frontMatter.content,
@@ -355,7 +342,7 @@ export const fetchFile = createServerFn({ method: 'GET' })
       throw notFound()
     }
 
-    setDocsCacheHeaders('max-age=3600, stale-while-revalidate=3600, durable')
+    setDocsCacheHeaders('max-age=300, stale-while-revalidate=300, durable')
 
     return file
   })
@@ -372,7 +359,7 @@ export const fetchRepoDirectoryContents = createServerFn({
       throw notFound()
     }
 
-    setDocsCacheHeaders('max-age=3600, stale-while-revalidate=3600, durable')
+    setDocsCacheHeaders('max-age=300, stale-while-revalidate=300, durable')
 
     return githubContents
   })

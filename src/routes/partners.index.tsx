@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { Card } from '~/components/Card'
 import {
@@ -6,9 +6,15 @@ import {
   PartnerImage,
   partnerTierFlares,
   partnerTierLabels,
-  partnerTierOrder,
   type PartnerTier,
 } from '~/utils/partners'
+import {
+  getPartnerPlacementAnalyticsMetadata,
+  getPartnersForPlacement,
+  getPartnerTierGroupsForPlacement,
+  type PartnerPlacementContext,
+} from '~/utils/partner-placement'
+import { usePartnerPlacementContext } from '~/utils/usePartnerPlacementContext'
 import { seo } from '~/utils/seo'
 import { Library } from '~/libraries'
 import { useState } from 'react'
@@ -342,20 +348,27 @@ const cardSizeLayout: Record<
 
 function PartnerDirectoryCard({
   isShowingPrevious,
+  placementContext,
   partner,
   slotIndex,
   size = 'flat',
 }: {
   isShowingPrevious: boolean
+  placementContext: PartnerPlacementContext
   partner: (typeof partners)[number]
   slotIndex: number
   size?: CardSize
 }) {
+  const analyticsMetadata = getPartnerPlacementAnalyticsMetadata(
+    partner,
+    placementContext,
+  )
   const ref = useTrackedImpression<'partner_viewed', HTMLAnchorElement>({
     event: 'partner_viewed',
     props: {
       partner_id: partner.id,
       placement: 'directory',
+      ...analyticsMetadata,
       slot_index: slotIndex,
     },
   })
@@ -368,15 +381,17 @@ function PartnerDirectoryCard({
   const layout = cardSizeLayout[size]
 
   return (
-    <a
+    <Link
       ref={ref}
-      href={`/partners/${partner.id}`}
+      to="/partners/$partner"
+      params={{ partner: partner.id }}
       className="block"
       onClick={() => {
         trackEvent('partner_clicked', {
           partner_id: partner.id,
           placement: 'directory',
           destination: 'internal_detail',
+          ...analyticsMetadata,
           slot_index: slotIndex,
         })
       }}
@@ -431,7 +446,7 @@ function PartnerDirectoryCard({
           )}
         </div>
       </Card>
-    </a>
+    </Link>
   )
 }
 
@@ -465,20 +480,15 @@ function TierSectionHeader({ tier }: { tier: PartnerTier }) {
 
 function TieredPartnerSections({
   partners: allPartners,
+  placementContext,
 }: {
   partners: Array<(typeof partners)[number]>
+  placementContext: PartnerPlacementContext
 }) {
-  const tiers: Array<PartnerTier> = ['gold', 'silver', 'bronze']
-
-  const sections = tiers
-    .map((tier) => ({
-      tier,
-      partners: allPartners
-        .filter((partner) => (partner.tier ?? 'bronze') === tier)
-        .sort((a, b) => b.score - a.score),
-    }))
-    .filter((section) => section.partners.length > 0)
-    .sort((a, b) => partnerTierOrder[a.tier] - partnerTierOrder[b.tier])
+  const sections = getPartnerTierGroupsForPlacement(
+    allPartners,
+    placementContext,
+  )
 
   let slotIndex = 0
 
@@ -494,6 +504,7 @@ function TieredPartnerSections({
                 <PartnerDirectoryCard
                   key={partner.id}
                   isShowingPrevious={false}
+                  placementContext={placementContext}
                   partner={partner}
                   slotIndex={index}
                   size={section.tier}
@@ -553,6 +564,14 @@ function PartnersIndexPage() {
   const hasResults = filteredPartners.length > 0
   const isShowingPrevious = search.status === 'inactive'
   const isShowingActive = search.status === 'active'
+  const placementContext = usePartnerPlacementContext({
+    orderStrategy: isShowingActive ? 'tier-rotated' : 'static-curated',
+    surface: 'directory',
+  })
+  const displayPartners = getPartnersForPlacement(
+    filteredPartners,
+    placementContext,
+  )
 
   return (
     <div className="flex flex-col max-w-full min-h-screen gap-12 p-4 md:p-8 pb-0">
@@ -615,13 +634,17 @@ function PartnersIndexPage() {
             )}
 
             {isShowingActive && !hasLibraryFilter ? (
-              <TieredPartnerSections partners={filteredPartners} />
+              <TieredPartnerSections
+                partners={filteredPartners}
+                placementContext={placementContext}
+              />
             ) : (
               <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-                {filteredPartners.map((partner, slotIndex) => (
+                {displayPartners.map((partner, slotIndex) => (
                   <PartnerDirectoryCard
                     key={partner.id}
                     isShowingPrevious={isShowingPrevious}
+                    placementContext={placementContext}
                     partner={partner}
                     slotIndex={slotIndex}
                   />

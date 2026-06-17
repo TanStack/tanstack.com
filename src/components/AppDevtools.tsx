@@ -8,6 +8,9 @@ export function AppDevtools() {
 
   return (
     <TanStackDevtools
+      config={{
+        customTrigger: <span className="hidden" aria-hidden="true" />,
+      }}
       plugins={[
         {
           name: 'TanStack Query',

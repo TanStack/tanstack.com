@@ -27,8 +27,6 @@ This starts your app in development mode, rebuilding assets on file changes.
 
 The documentation for all TanStack projects (except `React Charts`) is hosted on [tanstack.com](https://tanstack.com). In production, doc pages are fetched from GitHub. In development, they're read from your local file system.
 
-Pre-commit hooks run smoke tests against these docs, so you'll need sibling repos cloned for commits to pass.
-
 Create a `tanstack` parent directory and clone this repo alongside the projects:
 
 ```sh

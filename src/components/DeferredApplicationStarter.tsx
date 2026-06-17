@@ -1,93 +1,20 @@
-import * as React from 'react'
+import { Hydrate } from '@tanstack/react-start'
+import { idle, visible } from '@tanstack/react-start/hydration'
 
-import type { ApplicationStarterProps } from '~/components/ApplicationStarter'
-
-const LazyApplicationStarter = React.lazy(() =>
-  import('~/components/ApplicationStarter').then((m) => ({
-    default: m.ApplicationStarter,
-  })),
-)
+import {
+  ApplicationStarter,
+  type ApplicationStarterProps,
+} from '~/components/ApplicationStarter'
 
 export function DeferredApplicationStarter(props: ApplicationStarterProps) {
-  const wrapperRef = React.useRef<HTMLDivElement | null>(null)
-  const [shouldLoad, setShouldLoad] = React.useState(false)
-
-  React.useEffect(() => {
-    if (shouldLoad) {
-      return
-    }
-
-    const element = wrapperRef.current
-
-    if (!element || typeof IntersectionObserver === 'undefined') {
-      setShouldLoad(true)
-      return
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (!entries.some((entry) => entry.isIntersecting)) {
-          return
-        }
-
-        setShouldLoad(true)
-        observer.disconnect()
-      },
-      { rootMargin: '320px 0px' },
-    )
-
-    observer.observe(element)
-
-    return () => {
-      observer.disconnect()
-    }
-  }, [shouldLoad])
-
-  React.useEffect(() => {
-    if (shouldLoad || typeof window === 'undefined') {
-      return
-    }
-
-    const requestIdleCallback = window.requestIdleCallback
-    const cancelIdleCallback = window.cancelIdleCallback
-
-    if (
-      typeof requestIdleCallback === 'function' &&
-      typeof cancelIdleCallback === 'function'
-    ) {
-      const idleId = requestIdleCallback(
-        () => {
-          setShouldLoad(true)
-        },
-        { timeout: 2500 },
-      )
-
-      return () => {
-        cancelIdleCallback(idleId)
-      }
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setShouldLoad(true)
-    }, 1500)
-
-    return () => {
-      window.clearTimeout(timeoutId)
-    }
-  }, [shouldLoad])
-
   return (
-    <div ref={wrapperRef}>
-      {shouldLoad ? (
-        <React.Suspense
-          fallback={<DeferredApplicationStarterFallback mode={props.mode} />}
-        >
-          <LazyApplicationStarter {...props} />
-        </React.Suspense>
-      ) : (
-        <DeferredApplicationStarterFallback mode={props.mode} />
-      )}
-    </div>
+    <Hydrate
+      when={visible({ rootMargin: '320px 0px' })}
+      prefetch={idle({ timeout: 2500 })}
+      fallback={<DeferredApplicationStarterFallback mode={props.mode} />}
+    >
+      <ApplicationStarter {...props} />
+    </Hydrate>
   )
 }
 

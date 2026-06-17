@@ -5,7 +5,7 @@
  * Shows Framework (locked) -> Styling (Tailwind toggle) -> Add-ons hierarchy.
  * Grouped by category with conflict/dependency handling.
  * Features partner badges, external links, and collapsible sections.
- * Partner features are sorted first by score within categories.
+ * Partner features use the shared partner placement policy within categories.
  */
 
 import { useState, useMemo } from 'react'
@@ -20,7 +20,11 @@ import {
   useSelectedExample,
   useIntegrationSearch,
 } from './store'
-import { partners } from '~/utils/partners'
+import { partners, type Partner } from '~/utils/partners'
+import {
+  getPartnerPlacementContext,
+  getPartnersForPlacement,
+} from '~/utils/partner-placement'
 import { Tooltip } from '~/ui/Tooltip'
 import {
   Collapsible,
@@ -40,11 +44,18 @@ type FeatureCategory =
   | 'api'
   | 'i18n'
   | 'cms'
+  | 'ecommerce'
   | 'other'
 
-// Build a map of partner scores by partnerId
-const partnerScores = new Map(
-  partners.filter((p) => p.score !== undefined).map((p) => [p.id, p.score]),
+const builderFeaturePlacementContext = getPartnerPlacementContext({
+  orderStrategy: 'contextual-recommendation',
+  surface: 'builder_feature_picker',
+})
+
+const partnersById = new Map(
+  partners
+    .filter((partner) => partner.status === 'active')
+    .map((partner) => [partner.id, partner]),
 )
 
 const CATEGORY_INFO: Record<
@@ -86,6 +97,11 @@ const CATEGORY_INFO: Record<
     description: 'Content management systems',
     color: '#10B981', // Emerald
   },
+  ecommerce: {
+    label: 'Ecommerce',
+    description: 'Storefronts, checkout, and product catalogs',
+    color: '#5A31F4', // Shopify purple
+  },
   tooling: {
     label: 'Tooling',
     description: 'Development tools, linting, and utilities',
@@ -118,6 +134,7 @@ const CATEGORY_ORDER: Array<FeatureCategory> = [
   'api',
   'i18n',
   'cms',
+  'ecommerce',
   'tooling',
   'other',
 ]
@@ -125,22 +142,89 @@ const CATEGORY_ORDER: Array<FeatureCategory> = [
 // Custom addon color used in store.ts addCustomAddon
 const CUSTOM_ADDON_COLOR = '#8B5CF6'
 
-// Sort features: partners first (by score descending), then non-partners, custom addons last
-function sortFeaturesByPartnerScore(
+function getFeaturePartner(feature: FeatureInfo) {
+  if (!feature.partnerId) {
+    return undefined
+  }
+
+  return partnersById.get(feature.partnerId)
+}
+
+function getFeaturePartnerPlacementRank(
+  feature: FeatureInfo,
+  partnerRankById: Map<string, number>,
+) {
+  if (!feature.partnerId) {
+    return undefined
+  }
+
+  return partnerRankById.get(feature.partnerId)
+}
+
+function getPartnerPlacementRankById(features: Array<FeatureInfo>) {
+  const featurePartners = Array<Partner>()
+  const featurePartnerIds = new Set<string>()
+
+  for (const feature of features) {
+    const partner = getFeaturePartner(feature)
+
+    if (!partner || featurePartnerIds.has(partner.id)) {
+      continue
+    }
+
+    featurePartnerIds.add(partner.id)
+    featurePartners.push(partner)
+  }
+
+  return new Map(
+    getPartnersForPlacement(
+      featurePartners,
+      builderFeaturePlacementContext,
+    ).map((partner, index) => [partner.id, index]),
+  )
+}
+
+// Sort features: partners first by shared placement policy, then non-partners, custom addons last
+function sortFeaturesByPartnerPlacement(
   features: Array<FeatureInfo>,
 ): Array<FeatureInfo> {
-  return [...features].sort((a, b) => {
-    // Custom addons always last
-    const aIsCustom = a.color === CUSTOM_ADDON_COLOR
-    const bIsCustom = b.color === CUSTOM_ADDON_COLOR
-    if (aIsCustom && !bIsCustom) return 1
-    if (!aIsCustom && bIsCustom) return -1
+  const partnerRankById = getPartnerPlacementRankById(features)
 
-    const scoreA = a.partnerId ? (partnerScores.get(a.partnerId) ?? 0) : -1
-    const scoreB = b.partnerId ? (partnerScores.get(b.partnerId) ?? 0) : -1
-    // Higher scores first, partners before non-partners
-    return scoreB - scoreA
-  })
+  return features
+    .map((feature, index) => ({ feature, index }))
+    .sort((left, right) => {
+      // Custom addons always last
+      const leftIsCustom = left.feature.color === CUSTOM_ADDON_COLOR
+      const rightIsCustom = right.feature.color === CUSTOM_ADDON_COLOR
+
+      if (leftIsCustom && !rightIsCustom) return 1
+      if (!leftIsCustom && rightIsCustom) return -1
+
+      const leftPartnerRank = getFeaturePartnerPlacementRank(
+        left.feature,
+        partnerRankById,
+      )
+      const rightPartnerRank = getFeaturePartnerPlacementRank(
+        right.feature,
+        partnerRankById,
+      )
+
+      if (leftPartnerRank !== undefined && rightPartnerRank !== undefined) {
+        const partnerComparison = leftPartnerRank - rightPartnerRank
+
+        if (partnerComparison !== 0) {
+          return partnerComparison
+        }
+
+        return left.index - right.index
+      }
+
+      if (leftPartnerRank !== undefined) return -1
+      if (rightPartnerRank !== undefined) return 1
+
+      return left.index - right.index
+    })
+    .map(({ feature }) => feature)
 }
 
 export function FeaturePicker() {
@@ -155,21 +239,23 @@ export function FeaturePicker() {
     })
   }, [availableFeatures, search])
 
-  // Separate partner features for "Featured" section, sorted by score
+  // Separate partner features for "Featured" section, sorted by placement policy
   const partnerFeatures = useMemo(
     () =>
-      sortFeaturesByPartnerScore(filteredFeatures.filter((f) => f.partnerId)),
+      sortFeaturesByPartnerPlacement(
+        filteredFeatures.filter((f) => f.partnerId),
+      ),
     [filteredFeatures],
   )
 
-  // Group features by category, with partners sorted first by score
+  // Group features by category, with partners sorted first by placement policy
   const featuresByCategory = useMemo(() => {
     return CATEGORY_ORDER.reduce(
       (acc, category) => {
         const categoryFeatures = filteredFeatures.filter(
           (f) => f.category === category,
         )
-        acc[category] = sortFeaturesByPartnerScore(categoryFeatures)
+        acc[category] = sortFeaturesByPartnerPlacement(categoryFeatures)
         return acc
       },
       {} as Record<FeatureCategory, Array<FeatureInfo>>,

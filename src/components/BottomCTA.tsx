@@ -14,7 +14,7 @@ export function BottomCTA({
   className,
 }: BottomCTAProps) {
   return (
-    <div className="flex flex-col gap-4 items-center">
+    <div className="flex flex-col items-center gap-4 px-4 py-12">
       <div className="font-extrabold text-xl lg:text-2xl">
         Wow, you've come a long way!
       </div>

@@ -6,7 +6,11 @@ import { getAuthenticatedUser } from './auth.server-helpers'
 import { getBulkEffectiveCapabilities } from './capabilities.server'
 import { recordAuditLog } from './audit.server'
 import * as v from 'valibot'
-import { VALID_CAPABILITIES, type Capability } from '~/db/types'
+import {
+  VALID_CAPABILITIES,
+  type Capability,
+  type SignupSource,
+} from '~/db/types'
 
 type UserRecord = InferSelectModel<typeof users>
 
@@ -201,6 +205,7 @@ export async function listUsers({ data }: { data: any }) {
       capabilities: user.capabilities,
       adsDisabled: user.adsDisabled,
       interestedInHidingAds: user.interestedInHidingAds,
+      signupSources: user.signupSources,
       createdAt: user.createdAt.getTime(),
       updatedAt: user.updatedAt.getTime(),
     }))
@@ -273,6 +278,7 @@ export async function listUsers({ data }: { data: any }) {
       capabilities: user.capabilities,
       adsDisabled: user.adsDisabled,
       interestedInHidingAds: user.interestedInHidingAds,
+      signupSources: user.signupSources,
       createdAt: user.createdAt.getTime(),
       updatedAt: user.updatedAt.getTime(),
     }))
@@ -313,6 +319,7 @@ export async function getUser({ data }: { data: any }) {
     adsDisabled: user.adsDisabled,
     interestedInHidingAds: user.interestedInHidingAds,
     lastUsedFramework: user.lastUsedFramework,
+    signupSources: user.signupSources,
     sessionVersion: user.sessionVersion,
     createdAt: user.createdAt.getTime(),
     updatedAt: user.updatedAt.getTime(),
@@ -371,6 +378,49 @@ export async function updateLastUsedFramework({ data }: { data: any }) {
     .where(eq(users.id, user.userId))
 
   return { success: true }
+}
+
+export async function addUserSignupSource({
+  data,
+}: {
+  data: { source: SignupSource }
+}) {
+  const user = await getAuthenticatedUser()
+
+  const existingUser = await db.query.users.findFirst({
+    where: eq(users.id, user.userId),
+    columns: {
+      signupSources: true,
+    },
+  })
+
+  if (!existingUser) {
+    throw new Error('User not found')
+  }
+
+  if (existingUser.signupSources.includes(data.source)) {
+    return {
+      success: true,
+      alreadyTagged: true,
+      signupSources: existingUser.signupSources,
+    }
+  }
+
+  const signupSources = [...existingUser.signupSources, data.source]
+
+  await db
+    .update(users)
+    .set({
+      signupSources,
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, user.userId))
+
+  return {
+    success: true,
+    alreadyTagged: false,
+    signupSources,
+  }
 }
 
 // Server function wrapper for updateUserCapabilities (admin only)

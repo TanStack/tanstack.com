@@ -1,12 +1,22 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { partners, partnerCategories, partnerCategoryLabels } from '~/utils/partners'
+import {
+  getPartnerPlacementContext,
+  getPartnersForPlacement,
+} from '~/utils/partner-placement'
 
 export const Route = createFileRoute('/api/data/partners')({
   server: {
     handlers: {
       GET: async () => {
-        const filteredPartners = partners
-          .filter((p) => p.status === 'active')
+        const placementContext = getPartnerPlacementContext({
+          orderStrategy: 'machine-readable',
+          surface: 'api_data_partners',
+        })
+        const filteredPartners = getPartnersForPlacement(
+          partners.filter((p) => p.status === 'active'),
+          placementContext,
+        )
           .map((p) => ({
             id: p.id,
             name: p.name,

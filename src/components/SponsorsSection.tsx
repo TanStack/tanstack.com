@@ -26,7 +26,7 @@ export function SponsorsSection({
         {title}
       </h3>
       <div
-        className="my-4 flex flex-wrap mx-auto max-w-(--breakpoint-lg)"
+        className="my-4 flex flex-wrap mx-auto max-w-(--breakpoint-lg) overflow-hidden"
         style={{ aspectRatio }}
       >
         <Await

@@ -53,11 +53,17 @@ export const Route = createFileRoute("/api/github/webhook")({
   server: {
     handlers: {
       POST: async ({ request }: { request: Request }) => {
-        const [{ markDocsArtifactsStale, markGitHubContentStale }, { env }] =
-          await Promise.all([
-            import("~/utils/github-content-cache.server"),
-            import("~/utils/env"),
-          ]);
+        const [
+          { markDocsArtifactsStale, markGitHubContentStale },
+          { env },
+          { libraries },
+          { purgeNetlifyTags },
+        ] = await Promise.all([
+          import("~/utils/github-content-cache.server"),
+          import("~/utils/env"),
+          import("~/libraries"),
+          import("~/utils/netlify-purge.server"),
+        ]);
         const rawBody = await request.text();
         const event = request.headers.get("x-github-event");
         const signature = request.headers.get("x-hub-signature-256");
@@ -132,12 +138,25 @@ export const Route = createFileRoute("/api/github/webhook")({
           markDocsArtifactsStale({ repo, gitRef }),
         ]);
 
+        const tags = [
+          `docs-config:${repo}:${gitRef}`,
+          ...libraries
+            .filter(
+              (library) =>
+                library.repo === repo && library.latestBranch === gitRef,
+            )
+            .map((library) => `docs:${library.id}:branch:${gitRef}`),
+        ];
+
+        const purge = await purgeNetlifyTags(tags);
+
         return Response.json({
           ok: true,
           gitRef,
           changedPathCount: changedPaths.length,
           staleArtifactCount,
           staleContentCount,
+          purge,
         });
       },
     },

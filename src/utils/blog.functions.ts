@@ -105,6 +105,7 @@ ${post.content}`
       headings,
       headerImage: post.headerImage,
       isUnpublished,
+      library: post.library,
       published: post.published,
       title: post.title,
     }

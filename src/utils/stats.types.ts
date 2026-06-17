@@ -58,7 +58,29 @@ export interface OSSStatsWithDelta extends OSSStats {
 export type StatsQueryParams = {
   library?: {
     id: string
+    npmPackageNames?: string[]
     repo: string
     frameworks?: string[]
   }
+}
+
+export type RecentDownloadStatsQueryParams = {
+  library: {
+    id: string
+    frameworks?: string[]
+    npmPackageNames?: string[]
+    repo?: string
+  }
+}
+
+export type RecentDownloadStats = {
+  dailyDownloads: number
+  monthlyDownloads: number
+  previousWeeklyDownloads: number
+  sparklineDownloads: Array<{
+    day: string
+    downloads: number
+  }>
+  updatedAt: number
+  weeklyDownloads: number
 }

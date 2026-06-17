@@ -118,7 +118,21 @@ html.theme-switching *::after {
 
   :root {
     --navbar-height: 52px;
-    scroll-padding-top: var(--navbar-height);
+    --docs-tabs-height: 0px;
+    --anchor-scroll-padding-top: calc(
+      var(--navbar-height) + var(--docs-tabs-height)
+    );
+    scroll-padding-top: var(--anchor-scroll-padding-top);
+  }
+
+  :root:has([data-docs-layout]) {
+    --docs-tabs-height: 41px;
+  }
+
+  @media (min-width: 1120px) {
+    :root:has([data-docs-layout]) {
+      --docs-tabs-height: 42px;
+    }
   }
 }
 

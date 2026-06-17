@@ -1393,7 +1393,7 @@ export function LibraryLayout({
           className={`
            md:min-h-[calc(100dvh-var(--navbar-height))]
            flex flex-col
-          w-full transition-all duration-300 [--docs-tabs-height:41px] min-[1120px]:[--docs-tabs-height:42px]
+          w-full transition-all duration-300
           [overflow-x:clip]`}
         >
           {smallMenu}

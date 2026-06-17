@@ -30,7 +30,7 @@ export function SearchButton({
       type="button"
       data-search-trigger="true"
       onClick={openSearch}
-      aria-label="Search TanStack docs"
+      aria-label="Search TanStack"
       aria-haspopup="dialog"
       variant={iconOnly ? 'icon' : 'ghost'}
       color="gray"

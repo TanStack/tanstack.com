@@ -1380,6 +1380,74 @@ mark {
   animation: dropdown-out 100ms ease-in;
 }
 
+/* Search modal animations */
+@keyframes search-modal-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes search-modal-overlay-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes search-modal-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes search-modal-panel-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-2px) scale(0.99);
+  }
+}
+
+.search-modal-overlay[data-state='open'] {
+  animation: search-modal-overlay-in 140ms ease-out both;
+}
+
+.search-modal-overlay[data-state='closed'] {
+  animation: search-modal-overlay-out 120ms ease-in both;
+}
+
+.search-modal-panel-transition {
+  transform-origin: top center;
+}
+
+.search-modal-content[data-state='open'] .search-modal-panel-transition {
+  animation: search-modal-panel-in 140ms ease-out both;
+}
+
+.search-modal-content[data-state='closed'] .search-modal-panel-transition {
+  animation: search-modal-panel-out 120ms ease-in both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .search-modal-overlay,
+  .search-modal-panel-transition {
+    animation: none !important;
+  }
+}
+
 /* Cart panel slide-in from right */
 @keyframes cart-panel-in {
   from {

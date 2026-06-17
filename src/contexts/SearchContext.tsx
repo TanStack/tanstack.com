@@ -10,9 +10,15 @@ interface SearchContextType {
   isOpen: boolean
   isAiDockOpen: boolean
   isAiDockDirty: boolean
+  aiDockAskRequest: {
+    id: number
+    question: string
+  } | null
   newChatRequestId: number
   openSearch: () => void
   openAiDock: () => void
+  askAiDock: (question: string) => void
+  clearAiDockAskRequest: (id: number) => void
   closeSearch: () => void
   closeAiDock: () => void
   cancelAiDockHoverClose: () => void
@@ -30,6 +36,10 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
   const [isAiDockDirty, setIsAiDockDirty] = React.useState(false)
   const [hasLoadedSearch, setHasLoadedSearch] = React.useState(false)
   const [newChatRequestId, setNewChatRequestId] = React.useState(0)
+  const [aiDockAskRequest, setAiDockAskRequest] = React.useState<{
+    id: number
+    question: string
+  } | null>(null)
   const aiDockCloseTimerRef = React.useRef<number | null>(null)
 
   const cancelAiDockHoverClose = React.useCallback(() => {
@@ -51,6 +61,29 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
     setIsOpen(false)
     setIsAiDockOpen(true)
   }, [cancelAiDockHoverClose])
+
+  const askAiDock = React.useCallback(
+    (question: string) => {
+      const trimmedQuestion = question.trim()
+      if (trimmedQuestion.length < 3) {
+        return
+      }
+
+      cancelAiDockHoverClose()
+      setIsOpen(false)
+      setIsAiDockDirty(true)
+      setIsAiDockOpen(true)
+      setAiDockAskRequest((current) => ({
+        id: (current?.id ?? 0) + 1,
+        question: trimmedQuestion,
+      }))
+    },
+    [cancelAiDockHoverClose],
+  )
+
+  const clearAiDockAskRequest = React.useCallback((id: number) => {
+    setAiDockAskRequest((current) => (current?.id === id ? null : current))
+  }, [])
 
   const closeSearch = React.useCallback(() => {
     setIsOpen(false)
@@ -84,9 +117,12 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
       isOpen,
       isAiDockOpen,
       isAiDockDirty,
+      aiDockAskRequest,
       newChatRequestId,
       openSearch,
       openAiDock,
+      askAiDock,
+      clearAiDockAskRequest,
       closeSearch,
       closeAiDock,
       cancelAiDockHoverClose,
@@ -94,7 +130,10 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
       setAiDockDirty: setIsAiDockDirty,
     }),
     [
+      aiDockAskRequest,
+      askAiDock,
       cancelAiDockHoverClose,
+      clearAiDockAskRequest,
       closeAiDock,
       closeSearch,
       isAiDockDirty,

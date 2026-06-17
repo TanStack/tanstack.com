@@ -3,6 +3,7 @@
 import * as React from 'react'
 import { createPortal } from 'react-dom'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
+import { Command } from 'cmdk'
 import { twMerge } from 'tailwind-merge'
 import {
   Dropdown,
@@ -46,14 +47,10 @@ import {
 import { Streamdown } from 'streamdown'
 import { Link, useRouterState } from '@tanstack/react-router'
 import { useSearchContext } from '~/contexts/SearchContext'
-import { libraries } from '~/libraries'
+import { libraries, type Framework } from '~/libraries'
 import { frameworkOptions } from '~/libraries/frameworks'
 import { capitalize } from '~/utils/utils'
-import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
-import {
-  getStoredFrameworkPreference,
-  usePersistFrameworkPreference,
-} from './FrameworkSelect'
+import { usePersistFrameworkPreference } from './FrameworkSelect'
 import { shouldPersistFrameworkForHit } from '~/utils/searchRecords'
 import { CodeBlock } from '~/components/markdown/CodeBlock'
 import { InlineCode } from '~/ui/InlineCode'
@@ -113,6 +110,7 @@ interface AlgoliaHighlightResult {
 interface AlgoliaHit extends Record<string, unknown> {
   objectID: string
   url: string
+  url_without_anchor?: string
   urlWithAnchor?: string
   library?: string
   framework?: string
@@ -124,6 +122,40 @@ interface AlgoliaHit extends Record<string, unknown> {
   __queryID?: string
   _highlightResult?: Record<string, unknown>
   _snippetResult?: Record<string, unknown>
+}
+
+type SearchHitPageFields = {
+  url: string
+  url_without_anchor?: string
+  urlWithAnchor?: string
+}
+
+function getSearchHitPageKey(hit: SearchHitPageFields) {
+  const hitUrl = hit.url_without_anchor ?? hit.urlWithAnchor ?? hit.url
+
+  try {
+    const url = new URL(hitUrl, 'https://tanstack.com')
+    return `${url.origin}${decodeURIComponent(url.pathname)}${url.search}`
+  } catch {
+    return hitUrl.split('#')[0].replace(/%40/gi, '@')
+  }
+}
+
+function dedupeSearchHitsByPage<THit extends SearchHitPageFields>(
+  hits: THit[],
+) {
+  const seenPageKeys = new Set<string>()
+
+  return hits.filter((hit) => {
+    const pageKey = getSearchHitPageKey(hit)
+
+    if (seenPageKeys.has(pageKey)) {
+      return false
+    }
+
+    seenPageKeys.add(pageKey)
+    return true
+  })
 }
 
 // Custom Highlight component that decodes HTML entities
@@ -192,6 +224,7 @@ const AI_DOCK_MIN_WIDTH = 320
 const AI_DOCK_DEFAULT_WIDTH = 360
 const AI_DOCK_MAX_WIDTH_RATIO = 0.5
 const AI_DOCK_MAXIMIZED_WIDTH = 1200
+const DEFAULT_SEARCH_FRAMEWORK: Framework = 'react'
 
 type SearchSurface = 'modal' | 'dock'
 type AiDockStyle = React.CSSProperties & {
@@ -255,6 +288,54 @@ function buildSearchFilters({
   return filterParts.join(' AND ')
 }
 
+function getSearchableLibraries() {
+  return libraries.filter(
+    (library) => library.visible !== false && library.latestVersion,
+  )
+}
+
+function isFramework(value: string): value is Framework {
+  return frameworkOptions.some((framework) => framework.value === value)
+}
+
+function getRouteFramework(pathname: string) {
+  const pathParts = pathname.split('/').filter(Boolean)
+  const frameworkIndex = pathParts.findIndex((part) => part === 'framework')
+
+  if (frameworkIndex === -1) {
+    return ''
+  }
+
+  const routeFramework = pathParts[frameworkIndex + 1]
+
+  return routeFramework && isFramework(routeFramework) ? routeFramework : ''
+}
+
+function getSearchFilterDefaults(pathname: string) {
+  const searchableLibraries = getSearchableLibraries()
+  const [firstPathPart] = pathname.split('/').filter(Boolean)
+  const routeLibrary = searchableLibraries.find(
+    (library) => library.id === firstPathPart,
+  )
+  const availableFrameworks = routeLibrary
+    ? routeLibrary.frameworks
+    : Array.from(
+        new Set(searchableLibraries.flatMap((library) => library.frameworks)),
+      )
+  const routeFramework = getRouteFramework(pathname)
+  const selectedFramework =
+    routeFramework && availableFrameworks.includes(routeFramework)
+      ? routeFramework
+      : availableFrameworks.includes(DEFAULT_SEARCH_FRAMEWORK)
+        ? DEFAULT_SEARCH_FRAMEWORK
+        : ''
+
+  return {
+    selectedLibrary: routeLibrary?.id ?? '',
+    selectedFramework,
+  }
+}
+
 // Context to share filter state between components
 const SearchFiltersContext = React.createContext<{
   selectedLibrary: string
@@ -290,72 +371,46 @@ function useSearchFilters() {
   return context
 }
 
-function SearchFiltersProvider({ children }: { children: React.ReactNode }) {
-  const userQuery = useCurrentUserQuery()
-  const [selectedLibrary, setSelectedLibrary] = React.useState('')
+function SearchFiltersProvider({
+  children,
+  resetFiltersOnOpen = false,
+}: {
+  children: React.ReactNode
+  resetFiltersOnOpen?: boolean
+}) {
+  const pathname = useRouterState({
+    select: (state) => state.location.pathname,
+  })
+  const defaultFilters = React.useMemo(
+    () => getSearchFilterDefaults(pathname),
+    [pathname],
+  )
+  const [selectedLibrary, setSelectedLibrary] = React.useState(
+    defaultFilters.selectedLibrary,
+  )
   const [searchQuery, setSearchQuery] = React.useState('')
   const [showSearchResults, setShowSearchResults] = React.useState(() => {
     if (typeof window === 'undefined') return true
     return localStorage.getItem('search-show-results') !== 'false'
   })
-  const lastUsedFramework = userQuery.data?.lastUsedFramework
+  const [selectedFramework, setSelectedFramework] = React.useState(
+    defaultFilters.selectedFramework,
+  )
 
-  // Get initial framework from user preference (DB if logged in, localStorage otherwise)
-  const getInitialFramework = React.useCallback(() => {
-    if (lastUsedFramework) {
-      return lastUsedFramework
-    }
-    return getStoredFrameworkPreference() || ''
-  }, [lastUsedFramework])
-
-  const [selectedFramework, setSelectedFramework] =
-    React.useState(getInitialFramework)
-
-  // Auto-select based on current page URL
-  const pathname = useRouterState({
-    select: (state) => state.location.pathname,
-  })
-
-  // Auto-select library from URL on mount
-  const hasAutoSelectedLibrary = React.useRef(false)
   React.useEffect(() => {
-    if (hasAutoSelectedLibrary.current) return
-    const pathParts = pathname.split('/').filter(Boolean)
-    const urlLibrary = libraries.find((l) => l.id === pathParts[0])
-    if (urlLibrary) {
-      setSelectedLibrary(urlLibrary.id)
-      hasAutoSelectedLibrary.current = true
-    }
-  }, [pathname])
-
-  // Auto-select framework from URL or preference on mount
-  const hasAutoSelectedFramework = React.useRef(false)
-  React.useEffect(() => {
-    if (hasAutoSelectedFramework.current) return
-
-    // First check URL for framework
-    const frameworkMatch = pathname.match(/\/framework\/([^/]+)/)
-    if (frameworkMatch) {
-      setSelectedFramework(frameworkMatch[1])
-      hasAutoSelectedFramework.current = true
+    if (!resetFiltersOnOpen) {
       return
     }
 
-    // Fall back to stored preference
-    const storedFramework = getInitialFramework()
-    if (storedFramework) {
-      setSelectedFramework(storedFramework)
-      hasAutoSelectedFramework.current = true
-    }
-  }, [pathname, getInitialFramework])
+    setSelectedLibrary(defaultFilters.selectedLibrary)
+    setSelectedFramework(defaultFilters.selectedFramework)
+  }, [
+    defaultFilters.selectedFramework,
+    defaultFilters.selectedLibrary,
+    resetFiltersOnOpen,
+  ])
 
-  const searchableLibraries = React.useMemo(
-    () =>
-      libraries.filter(
-        (library) => library.visible !== false && library.latestVersion,
-      ),
-    [],
-  )
+  const searchableLibraries = React.useMemo(() => getSearchableLibraries(), [])
 
   const selectedLibraryInfo = React.useMemo(
     () => searchableLibraries.find((library) => library.id === selectedLibrary),
@@ -459,6 +514,7 @@ function DynamicFilters() {
         'hierarchy.lvl5',
         'hierarchy.lvl6',
         'url',
+        'url_without_anchor',
         'anchor',
         'urlWithAnchor',
         'content',
@@ -477,6 +533,7 @@ function DynamicFilters() {
         'content',
       ]}
       attributesToSnippet={['content:50']}
+      distinct={1}
       filters={buildSearchFilters({ selectedLibrary, selectedFramework })}
     />
   )
@@ -1558,7 +1615,12 @@ function KapaChatPanel({
     addFeedback,
     error,
   } = useChat()
-  const { closeSearch, setAiDockDirty } = useSearchContext()
+  const {
+    aiDockAskRequest,
+    clearAiDockAskRequest,
+    closeSearch,
+    setAiDockDirty,
+  } = useSearchContext()
   const { selectedLibrary, selectedFramework, showSearchResults, searchQuery } =
     useSearchFilters()
   const scrollRef = React.useRef<HTMLDivElement>(null)
@@ -1570,6 +1632,7 @@ function KapaChatPanel({
   const isSubmittingRef = React.useRef(false)
   const lockedToBottom = React.useRef(true)
   const handledNewChatRequestId = React.useRef(newChatRequestId)
+  const handledAiDockAskRequestId = React.useRef(0)
   const displayConversation = React.useMemo<Array<KapaDisplayQA>>(() => {
     const liveConversation = Array.from(conversation)
 
@@ -1666,16 +1729,21 @@ function KapaChatPanel({
     [isBusy, resetConversation, threadIdOverrideRef],
   )
 
+  const clearActiveChat = React.useCallback(() => {
+    resetConversation()
+    threadIdOverrideRef.current = null
+    setSelectedHistoryItem(null)
+    lockedToBottom.current = true
+    onReset()
+  }, [onReset, resetConversation, threadIdOverrideRef])
+
   const startNewChat = React.useCallback(() => {
     if (isBusy) {
       stopGeneration()
     }
 
-    resetConversation()
-    threadIdOverrideRef.current = null
-    setSelectedHistoryItem(null)
-    onReset()
-  }, [isBusy, onReset, resetConversation, stopGeneration, threadIdOverrideRef])
+    clearActiveChat()
+  }, [clearActiveChat, isBusy, stopGeneration])
 
   React.useEffect(() => {
     if (handledNewChatRequestId.current === newChatRequestId) {
@@ -1685,6 +1753,35 @@ function KapaChatPanel({
     handledNewChatRequestId.current = newChatRequestId
     startNewChat()
   }, [newChatRequestId, startNewChat])
+
+  React.useEffect(() => {
+    if (!isDock || !aiDockAskRequest) {
+      return
+    }
+
+    if (handledAiDockAskRequestId.current === aiDockAskRequest.id) {
+      return
+    }
+
+    if (isBusy) {
+      stopGeneration()
+      return
+    }
+
+    handledAiDockAskRequestId.current = aiDockAskRequest.id
+    clearActiveChat()
+    isSubmittingRef.current = true
+    submitQuery(aiDockAskRequest.question)
+    clearAiDockAskRequest(aiDockAskRequest.id)
+  }, [
+    aiDockAskRequest,
+    clearActiveChat,
+    clearAiDockAskRequest,
+    isBusy,
+    isDock,
+    stopGeneration,
+    submitQuery,
+  ])
 
   return (
     <section
@@ -2075,6 +2172,257 @@ function SearchPanel({
   )
 }
 
+function CommandSearchPanel({
+  isFullHeight,
+  onToggleFullHeight,
+}: {
+  isFullHeight: boolean
+  onToggleFullHeight: () => void
+}) {
+  return (
+    <Command
+      label="Search TanStack"
+      shouldFilter={false}
+      loop
+      className={twMerge(
+        'flex flex-col overflow-hidden bg-white/95 text-left shadow-2xl backdrop-blur-xl dark:border dark:border-white/20 dark:bg-black/95 sm:rounded-[1.5rem]',
+        isFullHeight ? 'h-full' : 'h-dvh sm:h-[min(760px,calc(100dvh-2rem))]',
+      )}
+    >
+      <CommandSearchInput
+        isFullHeight={isFullHeight}
+        onToggleFullHeight={onToggleFullHeight}
+      />
+      <CommandSearchResults />
+    </Command>
+  )
+}
+
+function CommandSearchInput({
+  isFullHeight,
+  onToggleFullHeight,
+}: {
+  isFullHeight: boolean
+  onToggleFullHeight: () => void
+}) {
+  const { closeSearch } = useSearchContext()
+  const { refine } = useSearchBox()
+  const { searchQuery, setSearchQuery } = useSearchFilters()
+  const hasQuery = searchQuery.trim().length > 0
+  const inputRef = React.useRef<HTMLInputElement>(null)
+
+  React.useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      inputRef.current?.focus({ preventScroll: true })
+    })
+
+    return () => cancelAnimationFrame(frame)
+  }, [])
+
+  const clearSearch = React.useCallback(() => {
+    setSearchQuery('')
+    refine('')
+  }, [refine, setSearchQuery])
+
+  return (
+    <header className="flex-none border-b border-gray-200/80 bg-white/95 px-3 py-3 dark:border-white/10 dark:bg-black/95 sm:px-4">
+      <div className="flex items-center gap-2">
+        <div className="flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-gray-200 bg-gray-500/[0.04] px-3 py-2.5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
+          <Search className="h-5 w-5 shrink-0 text-gray-400 dark:text-gray-500" />
+          <Command.Input
+            ref={inputRef}
+            aria-label="Search TanStack"
+            placeholder="Search TanStack..."
+            value={searchQuery}
+            onValueChange={(nextQuery) => {
+              setSearchQuery(nextQuery)
+              refine(nextQuery)
+            }}
+            className="w-full bg-transparent text-base text-gray-900 outline-none placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500 [&::-webkit-search-cancel-button]:hidden"
+          />
+          <button
+            type="button"
+            onClick={clearSearch}
+            className={twMerge(
+              'flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-gray-400 transition-opacity hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-200',
+              hasQuery ? 'opacity-100' : 'pointer-events-none opacity-0',
+            )}
+            tabIndex={-1}
+            aria-label="Clear search"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <button
+          type="button"
+          onClick={onToggleFullHeight}
+          className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-400 shadow-sm transition-colors hover:text-gray-700 dark:border-white/10 dark:bg-white/[0.06] dark:text-gray-500 dark:hover:text-gray-200 sm:flex"
+          aria-label={isFullHeight ? 'Collapse search' : 'Expand search'}
+        >
+          {isFullHeight ? (
+            <Minimize2 className="h-4 w-4" />
+          ) : (
+            <Maximize2 className="h-4 w-4" />
+          )}
+        </button>
+        <button
+          type="button"
+          onClick={closeSearch}
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-400 shadow-sm transition-colors hover:text-gray-700 dark:border-white/10 dark:bg-white/[0.06] dark:text-gray-500 dark:hover:text-gray-200"
+          aria-label="Close search"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+    </header>
+  )
+}
+
+function CommandSearchResults() {
+  const { results } = useInstantSearch()
+  const { hits, isLastPage, showMore } = useInfiniteHits<AlgoliaHit>({
+    transformItems: dedupeSearchHitsByPage,
+  })
+  const sentinelRef = React.useRef<HTMLDivElement>(null)
+  const resultsScrollRef = React.useRef<HTMLDivElement>(null)
+
+  const {
+    selectedLibrary,
+    selectedFramework,
+    setSelectedLibrary,
+    setSelectedFramework,
+    searchQuery,
+  } = useSearchFilters()
+
+  const refinedLibrary = selectedLibrary || null
+  const refinedFramework = selectedFramework || null
+  const trimmedQuery = searchQuery.trim()
+  const hasQuery = trimmedQuery.length > 0
+
+  const clearFramework = () => {
+    setSelectedFramework('')
+  }
+
+  const clearLibrary = () => {
+    setSelectedLibrary('')
+  }
+
+  const resultSummary = results.__isArtificial ? (
+    <>Searching for &ldquo;{trimmedQuery}&rdquo;</>
+  ) : results.nbHits > 0 ? (
+    <>
+      Results for{' '}
+      <span className="font-medium text-gray-600 dark:text-gray-300">
+        &ldquo;{trimmedQuery}&rdquo;
+      </span>
+    </>
+  ) : (
+    <>No results for &ldquo;{trimmedQuery}&rdquo;</>
+  )
+
+  React.useEffect(() => {
+    const sentinel = sentinelRef.current
+    if (!sentinel || !hasQuery || !hits.length) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !isLastPage) {
+            showMore()
+          }
+        })
+      },
+      { root: resultsScrollRef.current, rootMargin: '260px' },
+    )
+
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [hasQuery, hits, isLastPage, showMore])
+
+  return (
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className="flex-none border-b border-gray-200/80 px-3 py-2 dark:border-white/10 sm:px-4">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <div
+            className="flex min-w-0 flex-wrap items-center gap-1.5"
+            data-command-search-controls="true"
+          >
+            <FrameworkRefinement compact />
+            <LibraryRefinement compact />
+          </div>
+          {hasQuery ? (
+            <p className="min-w-[10rem] flex-1 truncate text-xs text-gray-500 dark:text-gray-400">
+              {resultSummary}
+            </p>
+          ) : null}
+          <div className="ml-auto flex shrink-0 items-center">
+            <AlgoliaAttribution />
+          </div>
+        </div>
+      </div>
+      <Command.List
+        ref={resultsScrollRef}
+        className="min-h-0 flex-1 overflow-y-auto scroll-py-2"
+        label="Search results"
+      >
+        {hasQuery ? (
+          <>
+            <AskAIResult query={trimmedQuery} />
+            <NoResults
+              refinedFramework={refinedFramework}
+              refinedLibrary={refinedLibrary}
+              clearFramework={clearFramework}
+              clearLibrary={clearLibrary}
+            />
+            {hits.map((hit, index) => (
+              <Hit
+                key={hit.objectID}
+                commandValue={`hit-${hit.objectID}-${index}`}
+                hit={hit}
+                refinedLibrary={refinedLibrary}
+                refinedFramework={refinedFramework}
+              />
+            ))}
+            <div ref={sentinelRef} className="h-4" aria-hidden="true" />
+          </>
+        ) : (
+          <div className="flex h-full items-center justify-center px-6 py-16 text-sm text-gray-400 dark:text-gray-500">
+            Search TanStack
+          </div>
+        )}
+      </Command.List>
+    </div>
+  )
+}
+
+function AskAIResult({ query }: { query: string }) {
+  const { askAiDock } = useSearchContext()
+
+  return (
+    <Command.Item
+      value="ask-ai"
+      onSelect={() => askAiDock(query)}
+      className={twMerge(
+        'flex w-full cursor-pointer scroll-my-2 items-center gap-3 border-b border-gray-200 px-4 py-3 text-left outline-none transition-colors dark:border-white/10',
+        'hover:bg-gray-500/10 data-[selected=true]:bg-cyan-500/10 dark:data-[selected=true]:bg-cyan-400/10',
+      )}
+    >
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-cyan-500/10 text-cyan-700 dark:bg-cyan-400/15 dark:text-cyan-300">
+        <MessageSquarePlus className="h-4 w-4" />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-semibold text-gray-900 dark:text-white">
+          Ask AI
+        </span>
+        <span className="block truncate text-xs text-gray-500 dark:text-gray-400">
+          Open TanStack AI with this query
+        </span>
+      </span>
+      <CornerDownLeft className="h-4 w-4 shrink-0 text-gray-300 dark:text-gray-600" />
+    </Command.Item>
+  )
+}
+
 function InputBar({
   isBusy,
   onAskAISubmit,
@@ -2263,7 +2611,9 @@ function SearchResultsToggle() {
 
 function SearchResultsInChat({ surface }: { surface: SearchSurface }) {
   const { results } = useInstantSearch()
-  const { hits, isLastPage, showMore } = useInfiniteHits()
+  const { hits, isLastPage, showMore } = useInfiniteHits<AlgoliaHit>({
+    transformItems: dedupeSearchHitsByPage,
+  })
   const sentinelRef = React.useRef<HTMLDivElement>(null)
   const resultsScrollRef = React.useRef<HTMLDivElement>(null)
 
@@ -2398,7 +2748,7 @@ function SearchResultsInChat({ surface }: { surface: SearchSurface }) {
             {hits.map((hit) => (
               <Hit
                 key={hit.objectID}
-                hit={hit as AlgoliaHit}
+                hit={hit}
                 refinedLibrary={refinedLibrary}
                 refinedFramework={refinedFramework}
               />
@@ -2413,11 +2763,13 @@ function SearchResultsInChat({ surface }: { surface: SearchSurface }) {
 
 const Hit = ({
   hit,
+  commandValue,
   isFocused,
   refinedLibrary,
   refinedFramework,
 }: {
   hit: AlgoliaHit
+  commandValue?: string
   isFocused?: boolean
   refinedLibrary: string | null
   refinedFramework: string | null
@@ -2452,6 +2804,13 @@ const Hit = ({
 
   const handleClick = () => {
     handleActivate()
+  }
+
+  const handleCommandSelect = () => {
+    handleActivate()
+    if (typeof window !== 'undefined') {
+      window.location.assign(hitUrl)
+    }
   }
 
   const ref = React.useRef<HTMLAnchorElement>(null!)
@@ -2519,6 +2878,80 @@ const Hit = ({
     'lvl6',
   ].filter((lvl) => hit.hierarchy[lvl])
 
+  const content = (
+    <article className="flex items-start gap-4">
+      <div className="flex-1">
+        <h3 className="text-xs leading-relaxed text-gray-900 dark:text-white flex items-center gap-1.5 flex-wrap">
+          {prefixParts.length > 0 && (
+            <>
+              {prefixParts.map((part, i) => (
+                <React.Fragment key={i}>
+                  {part}
+                  <span className="text-gray-400 dark:text-gray-600 text-xs">
+                    ›
+                  </span>
+                </React.Fragment>
+              ))}
+            </>
+          )}
+          {hierarchyLevels.map((lvl, i, arr) => (
+            <React.Fragment key={lvl}>
+              <span className="text-gray-600 dark:text-gray-400 [&_mark]:font-semibold [&_mark]:!bg-transparent [&_mark]:text-black [&_mark]:dark:text-white [&_mark]:inline [&_mark]:!p-0 [&_mark]:!m-0 [&_mark]:!rounded-none">
+                <DecodedHighlight attribute={`hierarchy.${lvl}`} hit={hit} />
+              </span>
+              {i < arr.length - 1 && (
+                <span className="text-gray-400 dark:text-gray-600 text-xs">
+                  ›
+                </span>
+              )}
+            </React.Fragment>
+          ))}
+        </h3>
+        {hit.content ? (
+          <p className="text-[11px] leading-relaxed text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2 [&_mark]:font-semibold [&_mark]:!bg-transparent [&_mark]:text-black [&_mark]:dark:text-white [&_mark]:inline [&_mark]:!p-0 [&_mark]:!m-0 [&_mark]:!rounded-none">
+            <Snippet
+              attribute="content"
+              hit={hit as Parameters<typeof Snippet>[0]['hit']}
+            />
+          </p>
+        ) : null}
+      </div>
+      {refinedFramework && hitFramework ? (
+        <div className="flex-none">
+          <div
+            className={twMerge(
+              'flex items-center gap-1 text-[11px] font-semibold',
+              hitFramework.fontColor,
+            )}
+          >
+            <img
+              src={hitFramework.logo}
+              alt={hitFramework.label}
+              className="w-3 h-3"
+            />
+            {capitalize(hitFramework.label)}
+          </div>
+        </div>
+      ) : null}
+    </article>
+  )
+
+  if (commandValue) {
+    return (
+      <Command.Item
+        value={commandValue}
+        onSelect={handleCommandSelect}
+        className={twMerge(
+          'block cursor-pointer scroll-my-2 px-4 py-2.5 focus:outline-none border-b border-gray-300 dark:border-gray-700',
+          'hover:bg-gray-500/10 data-[selected=true]:bg-gray-500/20',
+        )}
+        data-search-hit="true"
+      >
+        {content}
+      </Command.Item>
+    )
+  }
+
   return (
     <SafeLink
       href={hitUrl}
@@ -2535,61 +2968,7 @@ const Hit = ({
       data-search-hit="true"
       ref={ref}
     >
-      <article className="flex items-start gap-4">
-        <div className="flex-1">
-          <h3 className="text-xs leading-relaxed text-gray-900 dark:text-white flex items-center gap-1.5 flex-wrap">
-            {prefixParts.length > 0 && (
-              <>
-                {prefixParts.map((part, i) => (
-                  <React.Fragment key={i}>
-                    {part}
-                    <span className="text-gray-400 dark:text-gray-600 text-xs">
-                      ›
-                    </span>
-                  </React.Fragment>
-                ))}
-              </>
-            )}
-            {hierarchyLevels.map((lvl, i, arr) => (
-              <React.Fragment key={lvl}>
-                <span className="text-gray-600 dark:text-gray-400 [&_mark]:font-black [&_mark]:!bg-transparent [&_mark]:text-black [&_mark]:dark:text-white [&_mark]:inline [&_mark]:!p-0 [&_mark]:!m-0 [&_mark]:!rounded-none">
-                  <DecodedHighlight attribute={`hierarchy.${lvl}`} hit={hit} />
-                </span>
-                {i < arr.length - 1 && (
-                  <span className="text-gray-400 dark:text-gray-600 text-xs">
-                    ›
-                  </span>
-                )}
-              </React.Fragment>
-            ))}
-          </h3>
-          {hit.content ? (
-            <p className="text-[11px] leading-relaxed text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2 [&_mark]:font-black [&_mark]:!bg-transparent [&_mark]:text-black [&_mark]:dark:text-white [&_mark]:inline [&_mark]:!p-0 [&_mark]:!m-0 [&_mark]:!rounded-none">
-              <Snippet
-                attribute="content"
-                hit={hit as Parameters<typeof Snippet>[0]['hit']}
-              />
-            </p>
-          ) : null}
-        </div>
-        {refinedFramework && hitFramework ? (
-          <div className="flex-none">
-            <div
-              className={twMerge(
-                'flex items-center gap-1 text-[11px] font-semibold',
-                hitFramework.fontColor,
-              )}
-            >
-              <img
-                src={hitFramework.logo}
-                alt={hitFramework.label}
-                className="w-3 h-3"
-              />
-              {capitalize(hitFramework.label)}
-            </div>
-          </div>
-        ) : null}
-      </article>
+      {content}
     </SafeLink>
   )
 }
@@ -2614,7 +2993,7 @@ function LibraryRefinement({ compact = false }: SearchScopePickerProps) {
           type="button"
           className={twMerge(
             'flex min-w-0 items-center gap-1 p-0.5 cursor-pointer font-bold rounded focus:ring-2 text-gray-900 dark:text-gray-100',
-            compact ? 'max-w-[8.5rem] text-[11px]' : 'text-sm',
+            compact ? 'max-w-[10rem] text-xs' : 'text-sm',
           )}
         >
           {currentLibrary ? (
@@ -2686,7 +3065,7 @@ function FrameworkRefinement({ compact = false }: SearchScopePickerProps) {
           type="button"
           className={twMerge(
             'flex min-w-0 items-center gap-1 p-0.5 font-bold rounded cursor-pointer focus:ring-2 text-gray-900 dark:text-gray-100',
-            compact ? 'max-w-[7.5rem] text-[11px]' : 'text-sm',
+            compact ? 'max-w-[9rem] text-xs' : 'text-sm',
           )}
         >
           {currentFramework && (
@@ -2694,7 +3073,10 @@ function FrameworkRefinement({ compact = false }: SearchScopePickerProps) {
               src={currentFramework.logo}
               alt=""
               aria-hidden="true"
-              className={twMerge('shrink-0', compact ? 'w-3 h-3' : 'w-4 h-4')}
+              className={twMerge(
+                'shrink-0',
+                compact ? 'w-3.5 h-3.5' : 'w-4 h-4',
+              )}
             />
           )}
           <span className="truncate">
@@ -2810,10 +3192,13 @@ function isSearchModalPortalTarget(target: EventTarget | null) {
   return target instanceof Element && !!target.closest('.dropdown-content')
 }
 
+const searchModalTransitionMs = 140
+
 export function SearchModal() {
-  const { isOpen, closeSearch, newChatRequestId } = useSearchContext()
+  const { isOpen, closeSearch } = useSearchContext()
   const contentRef = React.useRef<HTMLDivElement>(null)
   const bodyPointerEventsRef = React.useRef('')
+  const [shouldRenderSearch, setShouldRenderSearch] = React.useState(isOpen)
   const [isFullHeight, setIsFullHeight] = React.useState(() => {
     if (typeof window === 'undefined') return false
     return localStorage.getItem('search-full-height') === 'true'
@@ -2826,6 +3211,22 @@ export function SearchModal() {
       return next
     })
   }, [])
+
+  React.useEffect(() => {
+    if (isOpen) {
+      setShouldRenderSearch(true)
+      return
+    }
+
+    const timeout = window.setTimeout(() => {
+      setShouldRenderSearch(false)
+      requestAnimationFrame(() => {
+        document.body.style.pointerEvents = bodyPointerEventsRef.current
+      })
+    }, searchModalTransitionMs)
+
+    return () => window.clearTimeout(timeout)
+  }, [isOpen])
 
   React.useEffect(() => {
     if (!isOpen) {
@@ -2873,6 +3274,8 @@ export function SearchModal() {
     }
   }, [])
 
+  const shouldMountSearch = isOpen || shouldRenderSearch
+
   return (
     <DialogPrimitive.Root
       open={isOpen}
@@ -2883,53 +3286,48 @@ export function SearchModal() {
       }}
     >
       <DialogPrimitive.Portal forceMount>
-        {isOpen ? (
-          <DialogPrimitive.Overlay className="fixed inset-0 z-[999] bg-black/60 xl:bg-black/30 backdrop-blur-sm" />
+        {shouldMountSearch ? (
+          <>
+            <DialogPrimitive.Overlay
+              forceMount
+              className="search-modal-overlay fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm xl:bg-black/30"
+            />
+            <DialogPrimitive.Content
+              forceMount
+              ref={contentRef}
+              className={twMerge(
+                'search-modal-content fixed z-[1000] inset-0 sm:inset-auto sm:top-4 sm:left-1/2 sm:-translate-x-1/2 sm:w-[96%] xl:w-full sm:max-w-4xl text-left outline-none',
+                isFullHeight && 'sm:bottom-4',
+              )}
+              onInteractOutside={(event) => {
+                if (isSearchModalPortalTarget(event.target)) {
+                  event.preventDefault()
+                }
+              }}
+            >
+              <DialogPrimitive.Title className="sr-only">
+                Search TanStack
+              </DialogPrimitive.Title>
+              <DialogPrimitive.Description className="sr-only">
+                Search TanStack and open TanStack AI from the current query.
+              </DialogPrimitive.Description>
+              <div className="search-modal-panel-transition h-full">
+                <InstantSearch
+                  searchClient={searchClient}
+                  indexName={searchIndexName}
+                >
+                  <SearchFiltersProvider resetFiltersOnOpen={isOpen}>
+                    <DynamicFilters />
+                    <CommandSearchPanel
+                      isFullHeight={isFullHeight}
+                      onToggleFullHeight={toggleFullHeight}
+                    />
+                  </SearchFiltersProvider>
+                </InstantSearch>
+              </div>
+            </DialogPrimitive.Content>
+          </>
         ) : null}
-        <DialogPrimitive.Content
-          forceMount
-          ref={contentRef}
-          className={twMerge(
-            'fixed z-[1000] inset-0 sm:inset-auto sm:top-4 sm:left-1/2 sm:-translate-x-1/2 sm:w-[96%] xl:w-full sm:max-w-3xl text-left outline-none data-[state=closed]:hidden',
-            isFullHeight && 'sm:bottom-4',
-          )}
-          onInteractOutside={(event) => {
-            if (isSearchModalPortalTarget(event.target)) {
-              event.preventDefault()
-            }
-          }}
-        >
-          <DialogPrimitive.Title className="sr-only">
-            Search TanStack docs
-          </DialogPrimitive.Title>
-          {isOpen ? (
-            <InstantSearch
-              searchClient={searchClient}
-              indexName={searchIndexName}
-            >
-              <SearchFiltersProvider>
-                <DynamicFilters />
-                <SearchPanel
-                  isFullHeight={isFullHeight}
-                  onToggleFullHeight={toggleFullHeight}
-                  newChatRequestId={newChatRequestId}
-                  surface="modal"
-                />
-              </SearchFiltersProvider>
-            </InstantSearch>
-          ) : null}
-          {isOpen && !isFullHeight ? (
-            <button
-              type="button"
-              onClick={toggleFullHeight}
-              className="hidden sm:flex absolute left-1/2 top-full mt-2 -translate-x-1/2 items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/85 dark:bg-black/85 backdrop-blur-sm border border-gray-200 dark:border-white/10 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-100 hover:bg-white dark:hover:bg-black/90 shadow-lg transition-colors"
-              aria-label="Maximize search"
-            >
-              <Maximize2 className="w-3.5 h-3.5" />
-              Maximize
-            </button>
-          ) : null}
-        </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
   )

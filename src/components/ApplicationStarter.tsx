@@ -902,6 +902,19 @@ export function ApplicationStarter({
                                 )}
                               </div>
 
+                              <Button
+                                size="sm"
+                                type="button"
+                                onClick={() => {
+                                  void openDeployDialog('vercel')
+                                }}
+                                disabled={!canUseFinalActions}
+                                className="border-black bg-black text-white hover:bg-gray-800 dark:border-white dark:bg-white dark:text-black dark:hover:bg-gray-100"
+                              >
+                                <Rocket className="h-4 w-4" />
+                                Deploy to Vercel
+                              </Button>
+
                               {!showMoreActions ? (
                                 <Button
                                   variant="ghost"

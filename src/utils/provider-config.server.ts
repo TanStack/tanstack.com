@@ -5,7 +5,7 @@
  * This enables 1-click deploys to Cloudflare, Netlify, Railway, etc.
  */
 
-export type DeployProvider = 'cloudflare' | 'netlify' | 'railway'
+export type DeployProvider = 'cloudflare' | 'netlify' | 'railway' | 'vercel'
 
 interface ProviderConfigResult {
   files: Record<string, string>
@@ -47,6 +47,8 @@ export function getProviderConfig(
       return getNetlifyConfig()
     case 'railway':
       return getRailwayConfig()
+    case 'vercel':
+      return getVercelConfig()
     default:
       return { files: {}, devDependencies: {} }
   }
@@ -104,6 +106,18 @@ function getNetlifyConfig(): ProviderConfigResult {
 function getRailwayConfig(): ProviderConfigResult {
   // Railway uses Nitro for the Node server build, no additional config files needed
   // Just need the nitro dependency
+  return {
+    files: {},
+    devDependencies: {
+      nitro: 'latest',
+    },
+  }
+}
+
+/**
+ * Vercel configuration (uses Nitro)
+ */
+function getVercelConfig(): ProviderConfigResult {
   return {
     files: {},
     devDependencies: {
@@ -238,6 +252,23 @@ cmd = "npx serve dist -s -l 3000"
       }
     }
 
+    case 'vercel': {
+      // Vercel auto-detects Vite SPA builds via the dist/ output directory
+      // and serves index.html for unmatched routes when configured below.
+      const vercelJson = `{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}
+`
+      return {
+        files: {
+          'vercel.json': vercelJson,
+        },
+      }
+    }
+
     default:
       return { files: {} }
   }
@@ -291,6 +322,12 @@ function updatePackageJson(
         // Railway needs node-based start script for Nitro
         pkg.scripts.build = 'vite build'
         pkg.scripts.start = 'node .output/server/index.mjs'
+        break
+
+      case 'vercel':
+        // Vercel auto-detects the build command. Nitro's Vercel preset
+        // outputs the function bundle Vercel expects.
+        pkg.scripts.build = pkg.scripts.build ?? 'vite build'
         break
     }
 
@@ -361,6 +398,22 @@ function updateViteConfig(content: string, provider: DeployProvider): string {
       result = addPluginToConfig(result, 'nitro()')
       break
     }
+
+    case 'vercel': {
+      // Add nitro import if not present
+      if (!result.includes('nitro/vite')) {
+        const lastImportIndex = findLastImportIndex(result)
+        const importStatement = `import { nitro } from 'nitro/vite'\n`
+        result =
+          result.slice(0, lastImportIndex) +
+          importStatement +
+          result.slice(lastImportIndex)
+      }
+
+      // Add nitro() to plugins array
+      result = addPluginToConfig(result, 'nitro()')
+      break
+    }
   }
 
   return result
@@ -414,6 +467,7 @@ export function generateExampleDescription(
     cloudflare: 'Cloudflare',
     netlify: 'Netlify',
     railway: 'Railway',
+    vercel: 'Vercel',
   }
 
   return `${libraryName} example: ${exampleName} (configured for ${providerNames[provider]})`

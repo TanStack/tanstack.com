@@ -620,7 +620,7 @@ const lovable = (() => {
     id: 'lovable',
     href,
     libraries: ['start', 'router'] as const,
-    status: 'inactive' as const,
+    status: 'active' as const,
     score: 0.714,
     tier: 'gold' as const,
     uniqueConstraints: ['hosting'] satisfies Array<PartnerUniqueConstraint>,

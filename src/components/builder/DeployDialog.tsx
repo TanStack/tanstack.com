@@ -517,23 +517,31 @@ export function DeployDialog({
                       Redirecting to {providerInfo.name} in {countdown}s...
                     </p>
                   )}
-                  <Button
-                    variant="primary"
-                    onClick={() => {
-                      setCountdown(null) // Cancel auto-redirect
-                      const deployUrl = providerInfo.deployUrl(
-                        state.owner,
-                        state.repoName,
-                      )
-                      trackDialogLinkClick('provider_manual_redirect')
-                      window.open(deployUrl, '_blank')
-                    }}
-                    className="gap-2"
-                    style={{ backgroundColor: providerInfo.color }}
-                  >
-                    <Rocket className="w-4 h-4" />
-                    Deploy Now
-                  </Button>
+                  {(() => {
+                    const deployUrl = providerInfo.deployUrl(
+                      state.owner,
+                      state.repoName,
+                    )
+
+                    return (
+                      <Button
+                        as="a"
+                        variant="primary"
+                        href={deployUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => {
+                          setCountdown(null) // Cancel auto-redirect
+                          trackDialogLinkClick('provider_manual_redirect')
+                        }}
+                        className="gap-2"
+                        style={{ backgroundColor: providerInfo.color }}
+                      >
+                        <Rocket className="w-4 h-4" />
+                        Deploy Now
+                      </Button>
+                    )
+                  })()}
                 </>
               ) : (
                 <Button variant="secondary" onClick={onClose}>

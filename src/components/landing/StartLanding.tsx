@@ -253,7 +253,7 @@ export default function StartLanding() {
             <ApplicationStarter
               context="start"
               mode="compact"
-              primaryActionLabel="Generate Start prompt"
+              primaryActionLabel="Copy Start Prompt"
               secondaryActionLabel="Build Start on Netlify"
               title="Describe the app you want to build"
               tone="cyan"

@@ -83,3 +83,61 @@ export function HomeNewsletterFallback() {
     </div>
   )
 }
+
+export function HomeApplicationStarterFallback() {
+  return (
+    <div
+      aria-hidden="true"
+      className="min-h-[320px] overflow-hidden rounded-[1rem] border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950 md:min-h-[360px]"
+    >
+      <div className="border-b border-gray-200 bg-gray-50/70 px-5 py-4 dark:border-gray-800 dark:bg-gray-900/50">
+        <div className="h-7 w-64 max-w-full rounded bg-gray-200 dark:bg-gray-800" />
+        <div className="mt-4 flex flex-wrap gap-2">
+          <div className="h-9 w-28 rounded-lg bg-gray-200 dark:bg-gray-800" />
+          <div className="h-9 w-32 rounded-lg bg-gray-200 dark:bg-gray-800" />
+          <div className="h-9 w-24 rounded-lg bg-gray-200 dark:bg-gray-800" />
+        </div>
+      </div>
+
+      <div className="relative border-b border-gray-200 dark:border-gray-800">
+        <div className="px-5 pt-4">
+          <div className="h-3 w-12 rounded bg-gray-200 dark:bg-gray-800" />
+        </div>
+        <div className="px-5 pb-4 pt-3">
+          <div className="h-28 rounded-xl bg-gray-100 dark:bg-gray-900" />
+        </div>
+
+        <div className="border-t border-gray-200 px-5 py-4 dark:border-gray-800">
+          <div className="flex flex-wrap gap-3">
+            <div className="h-10 w-28 rounded-lg bg-gray-200 dark:bg-gray-800" />
+            <div className="h-10 w-36 rounded-lg bg-gray-200 dark:bg-gray-800" />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export function HomeStatsFallback() {
+  return (
+    <div
+      aria-hidden="true"
+      className="mx-auto grid w-full max-w-3xl animate-pulse grid-cols-1 gap-4 sm:grid-cols-3"
+    >
+      {Array.from({ length: 3 }).map((_, index) => (
+        <div
+          key={index}
+          className="min-w-0 rounded-r-md border-l-2 border-gray-200 bg-linear-to-r from-transparent to-gray-200/10 px-4 py-2 dark:border-gray-800 dark:to-gray-800/10"
+        >
+          <div className="flex min-w-0 items-start gap-3">
+            <div className="mt-1 h-5 w-5 shrink-0 rounded bg-gray-200 dark:bg-gray-800" />
+            <div className="min-w-0">
+              <div className="h-7 w-32 rounded bg-gray-200 dark:bg-gray-700" />
+              <div className="mt-2 h-4 w-28 rounded bg-gray-100 dark:bg-gray-800" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}

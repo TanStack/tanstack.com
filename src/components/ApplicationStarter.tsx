@@ -1,24 +1,19 @@
 import * as React from 'react'
 import { ClientOnly } from '@tanstack/react-router'
 import {
+  ArrowRight,
+  Check,
   ChevronDown,
   Copy,
   Download,
   Loader2,
   Rocket,
-  Sparkles,
-  Wand2,
 } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import anthropicDarkLogo from '~/images/anthropic-dark.svg'
 import anthropicLightLogo from '~/images/anthropic-light.svg'
-import cloudflareBlackLogo from '~/images/cloudflare-black.svg'
-import cloudflareWhiteLogo from '~/images/cloudflare-white.svg'
-import netlifyDarkLogo from '~/images/netlify-dark.svg'
-import netlifyLightLogo from '~/images/netlify-light.svg'
 import openaiDarkLogo from '~/images/openai-dark.svg'
 import openaiLightLogo from '~/images/openai-light.svg'
-import railwayBlackLogo from '~/images/railway-black.svg'
 import type {
   ApplicationStarterContext,
   ApplicationStarterResult,
@@ -37,20 +32,16 @@ import {
   StarterTooltipProvider,
 } from '~/components/application-builder/parts'
 import {
+  buildStarterPromptDeployUrl,
   toneClasses,
   type ApplicationStarterBuilderIntegration,
+  type StarterPromptDeployProvider,
   type StarterTone,
 } from '~/components/application-builder/shared'
 import { useApplicationBuilder } from '~/components/application-builder/useApplicationBuilder'
-import {
-  deploymentProviderIds,
-  type DeploymentProviderId,
-  useDeploymentProviderPlacement,
-} from '~/utils/useDeploymentProviderPlacement'
 import { Button, GitHub } from '~/ui'
 
 export interface ApplicationStarterProps {
-  alwaysShowPostAnalysisSection?: boolean
   builderIntegration?: ApplicationStarterBuilderIntegration
   className?: string
   context: ApplicationStarterContext
@@ -63,7 +54,7 @@ export interface ApplicationStarterProps {
   onDirtyStateChange?: (dirty: boolean) => void
   onResolvedResult?: (result: ApplicationStarterResult | null) => void
   primaryActionLabel?: string
-  primaryButtonColor?: 'cyan' | 'emerald' | 'purple' | 'yellow'
+  revealOptionsImmediately?: boolean
   secondaryActionLabel?: string
   showCliExportActions?: boolean
   showPromptPreview?: boolean
@@ -88,8 +79,51 @@ const LazyDeployDialog = React.lazy(() =>
 const starterPackageManagers = ['pnpm', 'npm', 'yarn', 'bun'] as const
 const starterToolchains = ['biome', 'eslint'] as const
 
+type HostingDeployPartnerId = 'cloudflare' | 'lovable' | 'netlify' | 'railway'
+type StarterTransientAction =
+  | 'claude'
+  | 'clone'
+  | 'codex'
+  | 'cursor'
+  | 'deploy'
+  | 'download'
+  | 'netlify'
+
+const hostingDeployPartnerLabels: Record<HostingDeployPartnerId, string> = {
+  cloudflare: 'Cloudflare',
+  lovable: 'Lovable',
+  netlify: 'Netlify',
+  railway: 'Railway',
+}
+
+function getHostingDeployPartnerId(
+  partnerId: string,
+): HostingDeployPartnerId | undefined {
+  switch (partnerId) {
+    case 'cloudflare':
+    case 'lovable':
+    case 'netlify':
+    case 'railway':
+      return partnerId
+    default:
+      return undefined
+  }
+}
+
+function getPromptDeployProvider(
+  partnerId: HostingDeployPartnerId,
+): StarterPromptDeployProvider | undefined {
+  switch (partnerId) {
+    case 'lovable':
+    case 'netlify':
+      return partnerId
+    case 'cloudflare':
+    case 'railway':
+      return undefined
+  }
+}
+
 export function ApplicationStarter({
-  alwaysShowPostAnalysisSection = false,
   builderIntegration,
   className,
   context,
@@ -101,8 +135,8 @@ export function ApplicationStarter({
   mode = 'full',
   onDirtyStateChange,
   onResolvedResult,
-  primaryActionLabel = 'Generate Prompt',
-  primaryButtonColor,
+  primaryActionLabel = 'Copy Prompt',
+  revealOptionsImmediately = false,
   secondaryActionLabel = 'Build with Netlify',
   showCliExportActions = true,
   showPromptPreview = true,
@@ -112,29 +146,22 @@ export function ApplicationStarter({
   tone = 'cyan',
 }: ApplicationStarterProps) {
   const {
-    analysis,
-    anonymousGenerationQuota,
     copiedKind,
     copyResultValue,
     dismissPromptCopyNotice,
     deployDialogProvider,
-    enableLuckyActions,
     generatePrompt,
     hasGeneratedPrompt,
-    hasFreshAnalysis,
+    hasRevealedOptions,
     hasInput,
     hasMigrationRepositoryUrlError,
     input,
     isDeployDialogOpen,
-    isAnalysisStale,
-    isAnalyzing,
     isGenerating,
     isGeneratingNetlify,
     isGeneratingPrompt,
-    isLocked,
     isModHeld,
     loadingPhrase,
-    lockMessage,
     migrationRepositoryInputRef,
     migrationRepositoryUrl,
     navigateToResult,
@@ -142,7 +169,7 @@ export function ApplicationStarter({
     openCursorStart,
     openCodexStart,
     openDeployDialog,
-    openLogin,
+    openLovableStart,
     openNetlifyStart,
     partnerSuggestions,
     promptCopyNotice,
@@ -154,10 +181,8 @@ export function ApplicationStarter({
     selectedToolchain,
     setIsDeployDialogOpen,
     setIsModHeld,
-    setSessionMode,
     showMigrationRepositoryInput,
     trackActivation,
-    showLuckyActions,
     submitCurrentInput,
     suggestions,
     toggleLibrary,
@@ -173,139 +198,120 @@ export function ApplicationStarter({
     mode,
     onDirtyStateChange,
     onResolvedResult,
+    revealOptionsImmediately,
     suggestionContext,
-  })
-  const orderedDeploymentProviders = useDeploymentProviderPlacement({
-    availableProviders: deploymentProviderIds,
-    surface: `application_starter_deploy_actions:${context}`,
   })
 
   const palette = toneClasses[tone]
   const compact = mode === 'compact'
-  const buttonColor = primaryButtonColor ?? palette.button
   const [showMoreActions, setShowMoreActions] = React.useState(false)
+  const [pendingHostingDeployPartner, setPendingHostingDeployPartner] =
+    React.useState<HostingDeployPartnerId | null>(null)
+  const [transientAction, setTransientAction] =
+    React.useState<StarterTransientAction | null>(null)
   const [hasFocusedPromptInput, setHasFocusedPromptInput] =
     React.useState(false)
   const [isPromptFocused, setIsPromptFocused] = React.useState(false)
   const [isMacShortcutPlatform, setIsMacShortcutPlatform] =
     React.useState(false)
-  const [showConfidentOptions, setShowConfidentOptions] = React.useState(false)
   const [showPackageManagerOptions, setShowPackageManagerOptions] =
     React.useState(false)
-  const [showToolchainOptions, setShowToolchainOptions] = React.useState(
-    alwaysShowPostAnalysisSection,
-  )
-  const canContinue =
+  const [showToolchainOptions, setShowToolchainOptions] = React.useState(false)
+  const canRevealOptions =
     hasInput && !hasMigrationRepositoryUrlError && !isGenerating
-  const canUseLuckyAction =
-    hasInput &&
-    !hasMigrationRepositoryUrlError &&
-    !isGenerating &&
-    (!showLuckyActions || isAnalysisStale)
-  const canUseConfidentAction =
-    alwaysShowPostAnalysisSection &&
-    hasInput &&
-    !hasMigrationRepositoryUrlError &&
-    !isGenerating &&
-    !hasFreshAnalysis &&
-    !hasGeneratedPrompt &&
-    !showConfidentOptions
   const canUseFinalActions =
-    (hasFreshAnalysis || showLuckyActions || showConfidentOptions) &&
+    hasRevealedOptions &&
     hasInput &&
     !hasMigrationRepositoryUrlError &&
     !isGenerating
-  const renderDeploymentProviderButton = (provider: DeploymentProviderId) => {
-    switch (provider) {
-      case 'cloudflare':
-        return (
-          <Button
-            key={provider}
-            size="md"
-            type="button"
-            onClick={() => {
-              void openDeployDialog('cloudflare')
-            }}
-            disabled={!canUseFinalActions}
-            aria-label="Cloudflare"
-            className="h-[60px] min-w-[196px] border-[#F48120]/50 bg-white px-5 text-gray-950 shadow-sm hover:bg-[#fff7ef] disabled:opacity-80 disabled:saturate-75 dark:border-[#F48120]/70 dark:bg-gray-950 dark:text-white dark:hover:bg-[#2a1808]"
-          >
-            <span className="relative h-7 w-[164px] shrink-0">
-              <img
-                src={cloudflareBlackLogo}
-                alt=""
-                aria-hidden="true"
-                className="h-full w-full object-contain dark:hidden"
-              />
-              <img
-                src={cloudflareWhiteLogo}
-                alt=""
-                aria-hidden="true"
-                className="hidden h-full w-full object-contain dark:block"
-              />
-            </span>
-          </Button>
-        )
-      case 'netlify':
-        return (
-          <Button
-            key={provider}
-            size="md"
-            type="button"
-            onClick={() => void openNetlifyStart()}
-            disabled={!canUseFinalActions}
-            aria-label="Netlify"
-            className="h-11 min-w-[136px] border-gray-200 bg-white px-4 text-gray-700 shadow-sm hover:bg-gray-50 disabled:opacity-65 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800"
-          >
-            {isGeneratingNetlify ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : (
-              <span className="relative h-8 w-[78px] shrink-0">
-                <img
-                  src={netlifyLightLogo}
-                  alt=""
-                  aria-hidden="true"
-                  className="h-full w-full object-contain dark:hidden"
-                />
-                <img
-                  src={netlifyDarkLogo}
-                  alt=""
-                  aria-hidden="true"
-                  className="hidden h-full w-full object-contain dark:block"
-                />
-              </span>
-            )}
-          </Button>
-        )
-      case 'railway':
-        return (
-          <Button
-            key={provider}
-            size="md"
-            type="button"
-            onClick={() => {
-              void openDeployDialog('railway')
-            }}
-            disabled={!canUseFinalActions}
-            aria-label="Railway"
-            className="h-[60px] min-w-[174px] border-gray-200 bg-white px-5 text-gray-950 shadow-sm hover:bg-gray-50 disabled:opacity-80 disabled:saturate-75 dark:border-gray-700 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-100"
-          >
-            <span className="relative h-7 w-[132px] shrink-0">
-              <img
-                src={railwayBlackLogo}
-                alt=""
-                aria-hidden="true"
-                className="h-full w-full object-contain"
-              />
-            </span>
-          </Button>
-        )
+  const transientActionTimerRef = React.useRef<ReturnType<
+    typeof setTimeout
+  > | null>(null)
+  const showTransientActionFeedback = React.useCallback(
+    (action: StarterTransientAction) => {
+      if (transientActionTimerRef.current) {
+        clearTimeout(transientActionTimerRef.current)
+      }
+
+      setTransientAction(action)
+      transientActionTimerRef.current = setTimeout(() => {
+        setTransientAction((current) => (current === action ? null : current))
+        transientActionTimerRef.current = null
+      }, 1800)
+    },
+    [],
+  )
+  const selectedHostingDeployPartner = React.useMemo(
+    () =>
+      selectedPartners.flatMap((partnerId) => {
+        const hostingPartnerId = getHostingDeployPartnerId(partnerId)
+
+        return hostingPartnerId ? [hostingPartnerId] : []
+      })[0],
+    [selectedPartners],
+  )
+  const isSelectedHostingDeployPending =
+    pendingHostingDeployPartner !== null &&
+    pendingHostingDeployPartner === selectedHostingDeployPartner
+  const isDeployFeedbackActive =
+    isSelectedHostingDeployPending || transientAction === 'deploy'
+  const isPromptCopied = copiedKind === 'prompt'
+  const isCommandCopied = copiedKind === 'command'
+  const selectedPromptDeployProvider = selectedHostingDeployPartner
+    ? getPromptDeployProvider(selectedHostingDeployPartner)
+    : undefined
+  const selectedHostingDeployHref = React.useMemo(
+    () =>
+      selectedPromptDeployProvider && result?.prompt
+        ? buildStarterPromptDeployUrl(
+            selectedPromptDeployProvider,
+            result.prompt,
+          )
+        : undefined,
+    [result?.prompt, selectedPromptDeployProvider],
+  )
+  const trackSelectedHostingDeployLink = React.useCallback(() => {
+    if (!selectedHostingDeployPartner) {
+      return
+    }
+
+    trackActivation({
+      action:
+        selectedHostingDeployPartner === 'netlify' ? 'netlify_start' : 'deploy',
+      surface: 'result_panel',
+      provider: selectedHostingDeployPartner,
+    })
+  }, [selectedHostingDeployPartner, trackActivation])
+  const deployToSelectedHostingPartner = async () => {
+    if (!selectedHostingDeployPartner) {
+      return
+    }
+
+    setPendingHostingDeployPartner(selectedHostingDeployPartner)
+
+    try {
+      switch (selectedHostingDeployPartner) {
+        case 'cloudflare':
+          await openDeployDialog('cloudflare')
+          break
+        case 'lovable':
+          await openLovableStart()
+          break
+        case 'netlify':
+          await openNetlifyStart()
+          break
+        case 'railway':
+          await openDeployDialog('railway')
+          break
+      }
+    } finally {
+      setPendingHostingDeployPartner(null)
     }
   }
-  const renderGeneratePromptButton = () => (
+  const renderCopyPromptButton = () => (
     <Button
-      color={buttonColor}
-      variant={hasGeneratedPrompt ? 'secondary' : 'primary'}
+      color="emerald"
+      variant={selectedHostingDeployPartner ? 'secondary' : 'primary'}
       size="sm"
       type="button"
       onClick={() => void generatePrompt()}
@@ -313,28 +319,119 @@ export function ApplicationStarter({
     >
       {isGeneratingPrompt ? (
         <Loader2 className="h-4 w-4 animate-spin" />
+      ) : isPromptCopied ? (
+        <Check className="h-4 w-4" />
       ) : (
-        <Wand2 className="h-4 w-4" />
+        <Copy className="h-4 w-4" />
       )}
-      {isGeneratingPrompt ? loadingPhrase : primaryActionLabel}
+      {isGeneratingPrompt
+        ? loadingPhrase
+        : isPromptCopied
+          ? 'Copied'
+          : primaryActionLabel}
     </Button>
   )
-  const showPostAnalysisSection =
-    alwaysShowPostAnalysisSection || hasFreshAnalysis || hasGeneratedPrompt
-  const showActionSection =
-    alwaysShowPostAnalysisSection || hasFreshAnalysis || showLuckyActions
-  const postAnalysisSectionDisabled =
-    !hasFreshAnalysis && !hasGeneratedPrompt && !showConfidentOptions
-  const actionSectionDisabled =
-    alwaysShowPostAnalysisSection &&
-    !hasFreshAnalysis &&
-    !showLuckyActions &&
-    !showConfidentOptions
-  const analysisMessage = isAnalysisStale
-    ? 'Prompt changed. Analyze again to refresh recommendations.'
-    : analysis
-      ? 'Review or adjust the selected chips below, then generate the final prompt.'
-      : null
+  const renderCopyCliCommandButton = () => (
+    <Button
+      variant="secondary"
+      size="sm"
+      type="button"
+      onClick={() => {
+        void copyResultValue('command')
+      }}
+      disabled={!canUseFinalActions}
+    >
+      {isGeneratingPrompt ? (
+        <Loader2 className="h-4 w-4 animate-spin" />
+      ) : isCommandCopied ? (
+        <Check className="h-4 w-4" />
+      ) : (
+        <Copy className="h-4 w-4" />
+      )}
+      {isGeneratingPrompt
+        ? 'Preparing...'
+        : isCommandCopied
+          ? 'Copied'
+          : 'Copy CLI Command'}
+    </Button>
+  )
+  const renderSelectedHostingDeployButton = () => {
+    if (!selectedHostingDeployPartner) {
+      return null
+    }
+
+    if (selectedHostingDeployHref) {
+      const disabled = !canUseFinalActions || transientAction === 'deploy'
+
+      return (
+        <Button
+          as="a"
+          color="emerald"
+          variant="primary"
+          size="sm"
+          href={disabled ? undefined : selectedHostingDeployHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-disabled={disabled}
+          tabIndex={disabled ? -1 : undefined}
+          onClick={(event) => {
+            if (disabled) {
+              event.preventDefault()
+              return
+            }
+
+            trackSelectedHostingDeployLink()
+            showTransientActionFeedback('deploy')
+          }}
+          className={disabled ? 'pointer-events-none opacity-50' : undefined}
+          aria-label={`Deploy to ${hostingDeployPartnerLabels[selectedHostingDeployPartner]}`}
+        >
+          {isDeployFeedbackActive ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Rocket className="h-4 w-4" />
+          )}
+          {isDeployFeedbackActive ? 'Opening...' : 'Deploy'}
+        </Button>
+      )
+    }
+
+    return (
+      <Button
+        color="emerald"
+        variant="primary"
+        size="sm"
+        type="button"
+        onClick={() => {
+          showTransientActionFeedback('deploy')
+          void deployToSelectedHostingPartner()
+        }}
+        disabled={
+          !canUseFinalActions ||
+          pendingHostingDeployPartner !== null ||
+          transientAction === 'deploy'
+        }
+        aria-label={`Deploy to ${hostingDeployPartnerLabels[selectedHostingDeployPartner]}`}
+      >
+        {isDeployFeedbackActive ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <Rocket className="h-4 w-4" />
+        )}
+        {isDeployFeedbackActive ? 'Opening...' : 'Deploy'}
+      </Button>
+    )
+  }
+  const showOptionsSection = hasRevealedOptions || hasGeneratedPrompt
+  const showActionSection = hasRevealedOptions || hasGeneratedPrompt
+
+  React.useEffect(() => {
+    return () => {
+      if (transientActionTimerRef.current) {
+        clearTimeout(transientActionTimerRef.current)
+      }
+    }
+  }, [])
 
   React.useEffect(() => {
     if (typeof navigator === 'undefined') {
@@ -350,8 +447,12 @@ export function ApplicationStarter({
         <ClientOnly>
           <React.Suspense fallback={null}>
             <LazyApplicationStarterHotkeys
-              onAnalyze={() => {
-                void submitCurrentInput()
+              onSubmit={() => {
+                if (showActionSection) {
+                  void generatePrompt()
+                } else {
+                  void submitCurrentInput()
+                }
               }}
               onModKeyChange={setIsModHeld}
               promptFocused={isPromptFocused}
@@ -471,49 +572,30 @@ export function ApplicationStarter({
                   />
                 </div>
 
-                <div className="border-t border-gray-200 px-3 py-2 dark:border-gray-800">
-                  <Button
-                    color={buttonColor}
-                    className="pr-1"
-                    size="xs"
-                    type="submit"
-                    disabled={!canContinue}
-                  >
-                    {isAnalyzing ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Wand2 className="h-4 w-4" />
-                    )}
-                    {isAnalyzing ? (
-                      loadingPhrase
-                    ) : (
-                      <>
-                        Analyze
-                        {enableHotkeys ? (
-                          <AnalyzeShortcutHint isMac={isMacShortcutPlatform} />
-                        ) : null}
-                      </>
-                    )}
-                  </Button>
-                  {analysisMessage ? (
-                    <div className="mt-2 text-[11px] leading-5 text-gray-500 dark:text-gray-400">
-                      {analysisMessage}
-                    </div>
-                  ) : null}
-                </div>
+                {!showOptionsSection ? (
+                  <div className="border-t border-gray-200 px-3 py-2 dark:border-gray-800">
+                    <Button
+                      color="emerald"
+                      className="pr-1"
+                      size="xs"
+                      type="submit"
+                      disabled={!canRevealOptions}
+                    >
+                      <ArrowRight className="h-4 w-4" />
+                      Next
+                      {enableHotkeys ? (
+                        <SubmitShortcutHint isMac={isMacShortcutPlatform} />
+                      ) : null}
+                    </Button>
+                  </div>
+                ) : null}
               </div>
 
-              {showPostAnalysisSection ? (
-                <Collapsible open>
-                  <CollapsibleContent className="mt-3">
+              <Collapsible open={showOptionsSection}>
+                <CollapsibleContent className="mt-3">
+                  {showOptionsSection ? (
                     <StarterTooltipProvider>
-                      <div
-                        className={twMerge(
-                          'space-y-2 rounded-lg border border-gray-200 bg-white px-3 py-3 dark:border-gray-800 dark:bg-gray-950',
-                          postAnalysisSectionDisabled &&
-                            'pointer-events-none opacity-55 saturate-50',
-                        )}
-                      >
+                      <div className="space-y-2 rounded-lg border border-gray-200 bg-white px-3 py-3 dark:border-gray-800 dark:bg-gray-950">
                         <div className="mb-3">
                           <div className="text-[10px] font-medium uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">
                             TanStack Libraries
@@ -584,49 +666,15 @@ export function ApplicationStarter({
                             ))}
                           </div>
                         </StarterCustomizationSection>
-                        <AnonymousGenerationLimitNotice
-                          quota={anonymousGenerationQuota}
-                        />
                       </div>
                     </StarterTooltipProvider>
-                  </CollapsibleContent>
-                </Collapsible>
-              ) : null}
+                  ) : null}
+                </CollapsibleContent>
+              </Collapsible>
             </>
           ) : (
             <div className="relative overflow-hidden rounded-[1rem] border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950">
-              {isLocked ? (
-                <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/75 p-6 backdrop-blur-sm dark:bg-gray-950/75">
-                  <div className="max-w-sm rounded-2xl border border-gray-200 bg-white p-5 text-center shadow-lg dark:border-gray-800 dark:bg-gray-900">
-                    <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                      Sign in to unlock more generations
-                    </div>
-                    <div className="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400">
-                      {lockMessage ||
-                        'Anonymous generations are limited. Sign in to keep going.'}
-                    </div>
-                    <div className="mt-4 flex justify-center">
-                      <Button
-                        color={buttonColor}
-                        size="sm"
-                        type="button"
-                        onClick={() => {
-                          openLogin()
-                        }}
-                      >
-                        <GitHub className="h-4 w-4" />
-                        Sign in to continue
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ) : null}
-
-              <div
-                className={twMerge(
-                  isLocked && 'blur-sm pointer-events-none select-none',
-                )}
-              >
+              <div>
                 <div className="border-b border-gray-200 bg-gray-50/70 px-5 py-4 dark:border-gray-800 dark:bg-gray-900/50">
                   <div className="flex items-center justify-between gap-3">
                     <h3 className="font-semibold tracking-[-0.04em] text-[1.375rem] md:text-[1.5rem] text-gray-950 dark:text-white">
@@ -699,7 +747,11 @@ export function ApplicationStarter({
                     onClick={(event) => {
                       if (enableHotkeys && isModHeld) {
                         event.preventDefault()
-                        void generatePrompt()
+                        if (showActionSection) {
+                          void generatePrompt()
+                        } else {
+                          void submitCurrentInput()
+                        }
                       }
                     }}
                     rows={4}
@@ -710,89 +762,33 @@ export function ApplicationStarter({
                     )}
                   />
 
-                  <div className="border-t border-gray-200 px-5 py-4 dark:border-gray-800">
-                    <div className="flex flex-wrap items-center gap-3">
-                      <Button
-                        color={buttonColor}
-                        className="pr-1.5"
-                        variant={showActionSection ? 'secondary' : 'primary'}
-                        size="sm"
-                        type="submit"
-                        disabled={!canContinue}
-                      >
-                        {isAnalyzing ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Wand2 className="h-4 w-4" />
-                        )}
-                        {isAnalyzing ? (
-                          loadingPhrase
-                        ) : (
-                          <>
-                            Analyze
-                            {enableHotkeys ? (
-                              <AnalyzeShortcutHint
-                                isMac={isMacShortcutPlatform}
-                              />
-                            ) : null}
-                          </>
-                        )}
-                      </Button>
-                      {!showActionSection ? (
+                  {!showActionSection ? (
+                    <div className="border-t border-gray-200 px-5 py-4 dark:border-gray-800">
+                      <div className="flex flex-wrap items-center gap-3">
                         <Button
-                          variant="secondary"
+                          color="emerald"
+                          className="pr-1.5"
                           size="sm"
-                          type="button"
-                          onClick={() => {
-                            setSessionMode('lucky')
-                            enableLuckyActions()
-                          }}
-                          disabled={!canUseLuckyAction}
+                          type="submit"
+                          disabled={!canRevealOptions}
                         >
-                          <Sparkles className="h-4 w-4" />
-                          I'm feeling lucky
+                          <ArrowRight className="h-4 w-4" />
+                          Next
+                          {enableHotkeys ? (
+                            <SubmitShortcutHint isMac={isMacShortcutPlatform} />
+                          ) : null}
                         </Button>
-                      ) : null}
-                      {canUseConfidentAction ? (
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          type="button"
-                          onClick={() => {
-                            setSessionMode('confident')
-                            setShowConfidentOptions(true)
-                          }}
-                        >
-                          <Sparkles className="h-4 w-4" />
-                          I'm feeling confident
-                        </Button>
-                      ) : null}
-                      {analysisMessage ? (
-                        <div className="text-xs leading-5 text-gray-500 dark:text-gray-400">
-                          {analysisMessage}
-                        </div>
-                      ) : null}
+                      </div>
                     </div>
-                  </div>
+                  ) : null}
                 </div>
 
-                {showPostAnalysisSection ? (
-                  <Collapsible open>
-                    <CollapsibleContent>
-                      <div
-                        className={twMerge(
-                          'bg-gray-50/70 px-5 py-4 dark:bg-gray-900/50',
-                          postAnalysisSectionDisabled &&
-                            'opacity-55 saturate-50',
-                        )}
-                      >
+                <Collapsible open={showOptionsSection}>
+                  <CollapsibleContent>
+                    {showOptionsSection ? (
+                      <div className="bg-gray-50/70 px-5 py-4 dark:bg-gray-900/50">
                         <StarterTooltipProvider>
-                          <div
-                            className={twMerge(
-                              postAnalysisSectionDisabled &&
-                                'pointer-events-none',
-                            )}
-                          >
+                          <div>
                             <div className="mb-4">
                               <div className="text-[10px] font-medium uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">
                                 TanStack Libraries
@@ -868,85 +864,63 @@ export function ApplicationStarter({
                           </div>
                         </StarterTooltipProvider>
 
-                        <AnonymousGenerationLimitNotice
-                          quota={anonymousGenerationQuota}
-                        />
-
                         {footerContent ? (
                           <div className="mt-4">{footerContent}</div>
                         ) : null}
                       </div>
-                    </CollapsibleContent>
-                  </Collapsible>
-                ) : null}
+                    ) : null}
+                  </CollapsibleContent>
+                </Collapsible>
 
-                {showActionSection ? (
-                  <Collapsible open>
-                    <CollapsibleContent>
-                      <div
-                        className={twMerge(
-                          'bg-gray-50/70 px-5 py-4 dark:bg-gray-900/50',
-                          actionSectionDisabled && 'opacity-55 saturate-50',
-                        )}
-                      >
-                        <div
-                          className={twMerge(
-                            'flex flex-col gap-4',
-                            actionSectionDisabled && 'pointer-events-none',
-                          )}
-                        >
-                          <div className="flex flex-wrap items-center gap-3">
-                            {showCliExportActions ? (
-                              <div className="flex flex-col gap-1.5">
-                                <div className="px-1 text-[10px] font-medium uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">
-                                  Deploy to
-                                </div>
-                                <div
-                                  aria-label="Deploy to"
-                                  className="flex flex-wrap items-center gap-2"
-                                  role="group"
-                                >
-                                  {orderedDeploymentProviders.map((provider) =>
-                                    renderDeploymentProviderButton(provider),
-                                  )}
-                                </div>
-
-                                {!showMoreActions ? (
-                                  <Button
-                                    variant="ghost"
-                                    size="xs"
-                                    type="button"
-                                    onClick={() => setShowMoreActions(true)}
-                                    className="h-auto self-start border-transparent bg-transparent px-1 py-0 text-[11px] font-medium text-gray-500 hover:bg-transparent hover:text-gray-700 dark:text-gray-500 dark:hover:bg-transparent dark:hover:text-gray-300"
-                                  >
-                                    Show More
-                                  </Button>
-                                ) : null}
-                              </div>
-                            ) : (
-                              <>
+                <Collapsible open={showActionSection}>
+                  <CollapsibleContent>
+                    {showActionSection ? (
+                      <div className="bg-gray-50/70 px-5 py-4 dark:bg-gray-900/50">
+                        <div className="flex flex-col gap-4">
+                          {!showCliExportActions ? (
+                            <div className="flex flex-wrap items-center gap-3">
+                              {!selectedHostingDeployPartner ? (
                                 <Button
                                   size="sm"
                                   type="button"
-                                  onClick={() => void openNetlifyStart()}
-                                  disabled={!canUseFinalActions}
+                                  onClick={() => {
+                                    showTransientActionFeedback('netlify')
+                                    void openNetlifyStart()
+                                  }}
+                                  disabled={
+                                    !canUseFinalActions ||
+                                    transientAction === 'netlify'
+                                  }
                                   className="border-[#00AD9F] bg-[#00AD9F] text-white hover:bg-[#009a8e]"
                                 >
-                                  {isGeneratingNetlify ? (
+                                  {isGeneratingNetlify ||
+                                  transientAction === 'netlify' ? (
                                     <Loader2 className="h-4 w-4 animate-spin" />
                                   ) : (
                                     <Rocket className="h-4 w-4" />
                                   )}
-                                  {secondaryActionLabel}
+                                  {transientAction === 'netlify'
+                                    ? 'Opening...'
+                                    : secondaryActionLabel}
                                 </Button>
+                              ) : null}
 
-                                <Button
-                                  size="sm"
-                                  type="button"
-                                  onClick={() => void openCodexStart()}
-                                  disabled={!canUseFinalActions}
-                                  className="border-gray-900 bg-gray-900 text-white hover:bg-gray-800 dark:border-gray-100 dark:bg-gray-100 dark:text-gray-950 dark:hover:bg-gray-200"
-                                >
+                              <Button
+                                size="sm"
+                                type="button"
+                                onClick={() => {
+                                  showTransientActionFeedback('codex')
+                                  void openCodexStart()
+                                }}
+                                disabled={
+                                  !canUseFinalActions ||
+                                  transientAction === 'codex'
+                                }
+                                className="border-gray-900 bg-gray-900 text-white hover:bg-gray-800 dark:border-gray-100 dark:bg-gray-100 dark:text-gray-950 dark:hover:bg-gray-200"
+                              >
+                                {transientAction === 'codex' ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
                                   <span className="relative h-4 w-4 shrink-0">
                                     <img
                                       src={openaiDarkLogo}
@@ -961,71 +935,131 @@ export function ApplicationStarter({
                                       className="hidden h-4 w-4 dark:block"
                                     />
                                   </span>
-                                  Open in Codex
-                                </Button>
-                              </>
-                            )}
+                                )}
+                                {transientAction === 'codex'
+                                  ? 'Opening...'
+                                  : 'Open in Codex'}
+                              </Button>
+                            </div>
+                          ) : null}
+
+                          <div className="flex flex-wrap items-center gap-3">
+                            {renderSelectedHostingDeployButton()}
+                            {renderCopyPromptButton()}
+                            {showCliExportActions
+                              ? renderCopyCliCommandButton()
+                              : null}
                           </div>
+
+                          {showCliExportActions && !showMoreActions ? (
+                            <div className="flex flex-wrap items-center gap-3">
+                              <Button
+                                variant="ghost"
+                                size="xs"
+                                type="button"
+                                onClick={() => setShowMoreActions(true)}
+                                className="h-auto border-transparent bg-transparent px-1 py-0 text-[11px] font-medium text-gray-500 hover:bg-transparent hover:text-gray-700 dark:text-gray-500 dark:hover:bg-transparent dark:hover:text-gray-300"
+                              >
+                                Show More
+                              </Button>
+                            </div>
+                          ) : null}
 
                           {showCliExportActions && showMoreActions ? (
                             <div className="flex flex-wrap items-center gap-2">
                               <Button
                                 size="xs"
                                 type="button"
-                                onClick={() => void openCodexStart()}
-                                disabled={!canUseFinalActions}
+                                onClick={() => {
+                                  showTransientActionFeedback('codex')
+                                  void openCodexStart()
+                                }}
+                                disabled={
+                                  !canUseFinalActions ||
+                                  transientAction === 'codex'
+                                }
                                 className="h-6 gap-1 px-2 text-[11px] border-gray-900 bg-gray-900 text-white hover:bg-gray-800 dark:border-gray-100 dark:bg-gray-100 dark:text-gray-950 dark:hover:bg-gray-200"
                               >
-                                <span className="relative h-3 w-3 shrink-0">
-                                  <img
-                                    src={openaiDarkLogo}
-                                    alt=""
-                                    aria-hidden="true"
-                                    className="h-3 w-3 dark:hidden"
-                                  />
-                                  <img
-                                    src={openaiLightLogo}
-                                    alt=""
-                                    aria-hidden="true"
-                                    className="hidden h-3 w-3 dark:block"
-                                  />
-                                </span>
-                                Open in Codex
+                                {transientAction === 'codex' ? (
+                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                ) : (
+                                  <span className="relative h-3 w-3 shrink-0">
+                                    <img
+                                      src={openaiDarkLogo}
+                                      alt=""
+                                      aria-hidden="true"
+                                      className="h-3 w-3 dark:hidden"
+                                    />
+                                    <img
+                                      src={openaiLightLogo}
+                                      alt=""
+                                      aria-hidden="true"
+                                      className="hidden h-3 w-3 dark:block"
+                                    />
+                                  </span>
+                                )}
+                                {transientAction === 'codex'
+                                  ? 'Opening...'
+                                  : 'Open in Codex'}
                               </Button>
 
                               <Button
                                 size="xs"
                                 type="button"
-                                onClick={() => void openClaudeStart()}
-                                disabled={!canUseFinalActions}
+                                onClick={() => {
+                                  showTransientActionFeedback('claude')
+                                  void openClaudeStart()
+                                }}
+                                disabled={
+                                  !canUseFinalActions ||
+                                  transientAction === 'claude'
+                                }
                                 className="h-6 gap-1 px-2 text-[11px] border-[#D4A373] bg-[#D4A373] text-white hover:bg-[#C6905C] dark:border-[#E6C49A] dark:bg-[#E6C49A] dark:text-gray-950 dark:hover:bg-[#DBB684]"
                               >
-                                <span className="relative h-3 w-3 shrink-0">
-                                  <img
-                                    src={anthropicDarkLogo}
-                                    alt=""
-                                    aria-hidden="true"
-                                    className="h-3 w-3 dark:hidden"
-                                  />
-                                  <img
-                                    src={anthropicLightLogo}
-                                    alt=""
-                                    aria-hidden="true"
-                                    className="hidden h-3 w-3 dark:block"
-                                  />
-                                </span>
-                                Open in Claude
+                                {transientAction === 'claude' ? (
+                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                ) : (
+                                  <span className="relative h-3 w-3 shrink-0">
+                                    <img
+                                      src={anthropicDarkLogo}
+                                      alt=""
+                                      aria-hidden="true"
+                                      className="h-3 w-3 dark:hidden"
+                                    />
+                                    <img
+                                      src={anthropicLightLogo}
+                                      alt=""
+                                      aria-hidden="true"
+                                      className="hidden h-3 w-3 dark:block"
+                                    />
+                                  </span>
+                                )}
+                                {transientAction === 'claude'
+                                  ? 'Opening...'
+                                  : 'Open in Claude'}
                               </Button>
 
                               <Button
                                 size="xs"
                                 type="button"
-                                onClick={() => void openCursorStart()}
-                                disabled={!canUseFinalActions}
+                                onClick={() => {
+                                  showTransientActionFeedback('cursor')
+                                  void openCursorStart()
+                                }}
+                                disabled={
+                                  !canUseFinalActions ||
+                                  transientAction === 'cursor'
+                                }
                                 className="h-6 gap-1 px-2 text-[11px] border-black bg-black text-white hover:bg-gray-900 dark:border-white dark:bg-white dark:text-black dark:hover:bg-gray-100"
                               >
-                                <CursorIcon className="h-3 w-3" />
-                                Open in Cursor
+                                {transientAction === 'cursor' ? (
+                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                ) : (
+                                  <CursorIcon className="h-3 w-3" />
+                                )}
+                                {transientAction === 'cursor'
+                                  ? 'Opening...'
+                                  : 'Open in Cursor'}
                               </Button>
 
                               <Button
@@ -1033,27 +1067,23 @@ export function ApplicationStarter({
                                 size="xs"
                                 type="button"
                                 onClick={() => {
-                                  void copyResultValue('command')
-                                }}
-                                disabled={!canUseFinalActions}
-                                className="h-6 gap-1 px-2 text-[11px]"
-                              >
-                                <Copy className="h-3 w-3" />
-                                Copy CLI Command
-                              </Button>
-
-                              <Button
-                                variant="secondary"
-                                size="xs"
-                                type="button"
-                                onClick={() => {
+                                  showTransientActionFeedback('clone')
                                   void openDeployDialog(null)
                                 }}
-                                disabled={!canUseFinalActions}
+                                disabled={
+                                  !canUseFinalActions ||
+                                  transientAction === 'clone'
+                                }
                                 className="h-6 gap-1 px-2 text-[11px]"
                               >
-                                <GitHub className="h-3 w-3" />
-                                Clone to GitHub
+                                {transientAction === 'clone' ? (
+                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                ) : (
+                                  <GitHub className="h-3 w-3" />
+                                )}
+                                {transientAction === 'clone'
+                                  ? 'Opening...'
+                                  : 'Clone to GitHub'}
                               </Button>
 
                               <Button
@@ -1061,25 +1091,31 @@ export function ApplicationStarter({
                                 size="xs"
                                 type="button"
                                 onClick={() => {
+                                  showTransientActionFeedback('download')
                                   void navigateToResult('download')
                                 }}
-                                disabled={!canUseFinalActions}
+                                disabled={
+                                  !canUseFinalActions ||
+                                  transientAction === 'download'
+                                }
                                 className="h-6 gap-1 px-2 text-[11px]"
                               >
-                                <Download className="h-3 w-3" />
-                                Download ZIP
+                                {transientAction === 'download' ? (
+                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                ) : (
+                                  <Download className="h-3 w-3" />
+                                )}
+                                {transientAction === 'download'
+                                  ? 'Opening...'
+                                  : 'Download ZIP'}
                               </Button>
                             </div>
                           ) : null}
-
-                          <div className="flex flex-wrap items-center gap-3">
-                            {renderGeneratePromptButton()}
-                          </div>
                         </div>
                       </div>
-                    </CollapsibleContent>
-                  </Collapsible>
-                ) : null}
+                    ) : null}
+                  </CollapsibleContent>
+                </Collapsible>
 
                 {showPromptPreview && hasGeneratedPrompt ? (
                   <div className="border-t border-gray-200 dark:border-gray-800">
@@ -1113,7 +1149,7 @@ function CursorIcon({ className }: { className?: string }) {
   )
 }
 
-function AnalyzeShortcutHint({ isMac }: { isMac: boolean }) {
+function SubmitShortcutHint({ isMac }: { isMac: boolean }) {
   return (
     <span className="ml-1 inline-flex items-center gap-0.5">
       <span className="inline-flex h-5 min-w-5 items-center justify-center rounded bg-white px-1 text-[10px] leading-none text-gray-950 dark:bg-gray-900 dark:text-white">
@@ -1156,37 +1192,8 @@ function StarterCustomizationSection({
             )}
           />
         </CollapsibleTrigger>
-        <CollapsibleContent>{children}</CollapsibleContent>
+        <CollapsibleContent>{open ? children : null}</CollapsibleContent>
       </div>
     </Collapsible>
-  )
-}
-
-function AnonymousGenerationLimitNotice({
-  quota,
-}: {
-  quota: {
-    limit: number
-    remaining: number
-    resetAt: string
-  } | null
-}) {
-  if (!quota) {
-    return null
-  }
-
-  if (quota.limit >= 1_000_000) {
-    return null
-  }
-
-  return (
-    <div className="mt-3 text-xs leading-5 text-gray-500 dark:text-gray-400">
-      {quota.remaining > 0
-        ? `${quota.remaining} anonymous generation${quota.remaining === 1 ? '' : 's'} left today.`
-        : 'No anonymous generations left today.'}{' '}
-      <span className="text-gray-700 dark:text-gray-300">
-        Sign in to remove the limit.
-      </span>
-    </div>
   )
 }

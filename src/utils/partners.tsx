@@ -6,6 +6,8 @@ import vercelLightSvg from '~/images/vercel-light.svg'
 import vercelDarkSvg from '~/images/vercel-dark.svg'
 import netlifyLightSvg from '~/images/netlify-light.svg'
 import netlifyDarkSvg from '~/images/netlify-dark.svg'
+import lovableBlackSvg from '~/images/lovable-black.svg'
+import lovableWhiteSvg from '~/images/lovable-white.svg'
 import convexWhiteSvg from '~/images/convex-white.svg'
 import convexColorSvg from '~/images/convex-color.svg'
 import clerkLightSvg from '~/images/clerk-logo-light.svg'
@@ -42,6 +44,7 @@ import openrouterWhiteSvg from '~/images/openrouter-white.svg'
 import {
   getPartnerPlacementContext,
   getPartnersForPlacement,
+  type PartnerPlacementContext,
 } from '~/utils/partner-placement'
 
 function LearnMoreButton() {
@@ -62,6 +65,9 @@ type PartnerApplicationStarterIcon = {
 }
 
 type ApplicationStarterPartnerTier = 1 | 2 | 3
+
+export const partnerUniqueConstraints = ['auth-provider', 'hosting'] as const
+export type PartnerUniqueConstraint = (typeof partnerUniqueConstraints)[number]
 
 export const partnerTiers = ['gold', 'silver', 'bronze'] as const
 export type PartnerTier = (typeof partnerTiers)[number]
@@ -237,6 +243,7 @@ export type Partner = {
   startDate?: string
   endDate?: string
   score: number
+  uniqueConstraints?: Array<PartnerUniqueConstraint>
   tier?: PartnerTier
   brandColor?: string // Primary brand color for game elements
   tagline?: string // Short tagline for game info cards
@@ -253,6 +260,7 @@ export type ApplicationStarterPartnerSuggestion = {
   label: string
   tags: Array<string>
   tier: ApplicationStarterPartnerTier
+  uniqueConstraints: Array<PartnerUniqueConstraint>
 }
 
 const APPLICATION_STARTER_GUIDANCE_MARKER = 'Starter guidance:'
@@ -405,6 +413,9 @@ const clerk = (() => {
     status: 'active' as const,
     score: 0.286,
     tier: 'silver' as const,
+    uniqueConstraints: [
+      'auth-provider',
+    ] satisfies Array<PartnerUniqueConstraint>,
     brandColor: '#6C47FF',
     tagline: 'Authentication',
     image: {
@@ -441,6 +452,9 @@ const workos = (() => {
     status: 'active' as const,
     score: 0.314,
     tier: 'silver' as const,
+    uniqueConstraints: [
+      'auth-provider',
+    ] satisfies Array<PartnerUniqueConstraint>,
     brandColor: '#6363F1',
     tagline: 'Enterprise Auth',
     applicationStarterIcon: {
@@ -532,6 +546,7 @@ const netlify = (() => {
     status: 'active' as const,
     score: 0.343,
     tier: 'silver' as const,
+    uniqueConstraints: ['hosting'] satisfies Array<PartnerUniqueConstraint>,
     href,
     brandColor: '#00C7B7',
     tagline: 'Web Deployment',
@@ -573,6 +588,7 @@ const cloudflare = (() => {
     status: 'active' as const,
     score: 0.857,
     tier: 'gold' as const,
+    uniqueConstraints: ['hosting'] satisfies Array<PartnerUniqueConstraint>,
     startDate: 'Sep 2025',
     brandColor: '#F6821F',
     tagline: 'Edge Deployment',
@@ -589,6 +605,48 @@ const cloudflare = (() => {
           Cloudflare combines <strong>Workers</strong>, KV, CDN, and security
           services on a global network. It also documents deploying TanStack
           Start apps on Workers, including bindings and prerendering support.
+        </div>
+        <LearnMoreButton />
+      </>
+    ),
+  }
+})()
+
+const lovable = (() => {
+  const href = 'https://lovable.dev?utm_source=tanstack'
+
+  return {
+    name: 'Lovable',
+    id: 'lovable',
+    href,
+    libraries: ['start', 'router'] as const,
+    status: 'inactive' as const,
+    score: 0.714,
+    tier: 'gold' as const,
+    uniqueConstraints: ['hosting'] satisfies Array<PartnerUniqueConstraint>,
+    brandColor: '#FF7EB0',
+    tagline: 'AI App Builder',
+    applicationStarterPromptInstructions: [
+      'Treat Lovable as the AI app-building and hosting path, not as a TanStack CLI deployment flag or npm package.',
+      'Keep the generated app portable: start with the TanStack CLI output, preserve GitHub/project ownership notes, and call out any Lovable Cloud setup that cannot be automated from code.',
+      'When Lovable is selected, do not add a separate Cloudflare, Netlify, or Railway deployment target unless the user explicitly asks for a handoff path.',
+    ],
+    image: {
+      light: lovableBlackSvg,
+      dark: lovableWhiteSvg,
+    },
+    llmDescription:
+      'AI app-building platform for generating, editing, and shipping web apps from prompts, with GitHub sync, visual editing, Lovable Cloud hosting, and new TanStack Start-powered SSR projects.',
+    category: 'ai',
+    content: (
+      <>
+        <div className="text-xs">
+          Lovable helps teams move from prompt to working app with{' '}
+          <strong>AI-assisted building</strong>, visual editing, GitHub sync,
+          and Lovable Cloud hosting. New Lovable projects are powered by
+          TanStack Start, which makes it especially relevant for teams that want
+          generated apps to keep strong routing, SSR, and type-safety
+          foundations.
         </div>
         <LearnMoreButton />
       </>
@@ -882,6 +940,7 @@ const vercel = (() => {
     status: 'inactive' as const,
     startDate: 'May 2024',
     endDate: 'Oct 2024',
+    uniqueConstraints: ['hosting'] satisfies Array<PartnerUniqueConstraint>,
     image: {
       light: vercelLightSvg,
       dark: vercelDarkSvg,
@@ -1066,6 +1125,7 @@ const railway = (() => {
     status: 'active' as const,
     score: 0.145,
     tier: 'gold' as const,
+    uniqueConstraints: ['hosting'] satisfies Array<PartnerUniqueConstraint>,
     href,
     brandColor: '#0B0D0E',
     tagline: 'Instant Deployment',
@@ -1143,6 +1203,7 @@ const openRouter = (() => {
 export const partners: Partner[] = [
   codeRabbit,
   cloudflare,
+  lovable,
   agGrid,
   serpApi,
   netlify,
@@ -1177,6 +1238,164 @@ const applicationStarterPlacementContext = getPartnerPlacementContext({
   surface: 'application_starter_suggestions',
 })
 
+function getPartnerUniqueConstraints(
+  partner: Pick<Partner, 'uniqueConstraints'>,
+) {
+  return partner.uniqueConstraints ?? []
+}
+
+function hasSharedUniqueConstraint(
+  left: Pick<ApplicationStarterPartnerSuggestion, 'uniqueConstraints'>,
+  right: Pick<ApplicationStarterPartnerSuggestion, 'uniqueConstraints'>,
+) {
+  return left.uniqueConstraints.some((constraint) =>
+    right.uniqueConstraints.includes(constraint),
+  )
+}
+
+function findApplicationStarterPartnerSuggestion(
+  partnerId: string,
+  partnerSuggestions: Array<ApplicationStarterPartnerSuggestion>,
+) {
+  return partnerSuggestions.find((partner) => partner.id === partnerId)
+}
+
+export function hasApplicationStarterPartnerConflictWithAny(
+  partnerId: string,
+  partnerIds: Array<string>,
+  partnerSuggestions: Array<ApplicationStarterPartnerSuggestion> = applicationStarterPartnerSuggestions,
+) {
+  const partner = findApplicationStarterPartnerSuggestion(
+    partnerId,
+    partnerSuggestions,
+  )
+
+  if (!partner) {
+    return false
+  }
+
+  return partnerIds.some((candidateId) => {
+    if (candidateId === partner.id) {
+      return false
+    }
+
+    const candidate = findApplicationStarterPartnerSuggestion(
+      candidateId,
+      partnerSuggestions,
+    )
+
+    return candidate ? hasSharedUniqueConstraint(partner, candidate) : false
+  })
+}
+
+export function getApplicationStarterConflictingPartnerIds(
+  partner: ApplicationStarterPartnerSuggestion,
+  partnerSuggestions: Array<ApplicationStarterPartnerSuggestion>,
+) {
+  return partnerSuggestions.flatMap((candidate) => {
+    if (
+      candidate.id === partner.id ||
+      !hasSharedUniqueConstraint(partner, candidate)
+    ) {
+      return []
+    }
+
+    return [candidate.id]
+  })
+}
+
+export function getApplicationStarterCompatiblePartnerIds(
+  partnerIds: Array<string>,
+  partnerSuggestions: Array<ApplicationStarterPartnerSuggestion> = applicationStarterPartnerSuggestions,
+) {
+  const normalized = Array<string>()
+
+  for (const partnerId of partnerIds) {
+    if (normalized.includes(partnerId)) {
+      continue
+    }
+
+    const partner = findApplicationStarterPartnerSuggestion(
+      partnerId,
+      partnerSuggestions,
+    )
+
+    if (!partner) {
+      continue
+    }
+
+    if (partner.uniqueConstraints.length === 0) {
+      normalized.push(partner.id)
+      continue
+    }
+
+    const conflictingPartnerIds = normalized.filter((candidateId) => {
+      const candidate = findApplicationStarterPartnerSuggestion(
+        candidateId,
+        partnerSuggestions,
+      )
+
+      return candidate ? hasSharedUniqueConstraint(partner, candidate) : false
+    })
+
+    const hasSameOrHigherTierConflict = conflictingPartnerIds.some(
+      (candidateId) => {
+        const candidate = findApplicationStarterPartnerSuggestion(
+          candidateId,
+          partnerSuggestions,
+        )
+
+        return candidate ? candidate.tier <= partner.tier : false
+      },
+    )
+
+    if (hasSameOrHigherTierConflict) {
+      continue
+    }
+
+    for (const conflictingPartnerId of conflictingPartnerIds) {
+      const candidate = findApplicationStarterPartnerSuggestion(
+        conflictingPartnerId,
+        partnerSuggestions,
+      )
+
+      if (!candidate || candidate.tier <= partner.tier) {
+        continue
+      }
+
+      const conflictingIndex = normalized.indexOf(conflictingPartnerId)
+
+      if (conflictingIndex >= 0) {
+        normalized.splice(conflictingIndex, 1)
+      }
+    }
+
+    normalized.push(partner.id)
+  }
+
+  return normalized
+}
+
+export function getApplicationStarterVisiblePartnerSuggestions(
+  partnerSuggestions: Array<ApplicationStarterPartnerSuggestion>,
+  _selectedPartnerIds: Array<string>,
+) {
+  return partnerSuggestions
+}
+
+export function hasApplicationStarterPartnerUniqueConstraint(
+  partnerId: string,
+  uniqueConstraint: PartnerUniqueConstraint,
+  partnerSuggestions: Array<ApplicationStarterPartnerSuggestion> = applicationStarterPartnerSuggestions,
+) {
+  const partner = findApplicationStarterPartnerSuggestion(
+    partnerId,
+    partnerSuggestions,
+  )
+
+  return partner?.uniqueConstraints.includes(uniqueConstraint) ?? false
+}
+
 const applicationStarterInferenceRules: Array<{
   partnerId: string
   patterns: Array<RegExp>
@@ -1196,6 +1415,12 @@ const applicationStarterInferenceRules: Array<{
   {
     partnerId: 'cloudflare',
     patterns: [/\b(cloudflare|workers?|durable objects|r2|d1|kv)\b/i],
+  },
+  {
+    partnerId: 'lovable',
+    patterns: [
+      /\b(lovable|lovable cloud|vibe[- ]?coding|ai app builder|visual editor)\b/i,
+    ],
   },
   {
     partnerId: 'netlify',
@@ -1303,9 +1528,15 @@ function inferApplicationStarterPartnerIds(
       partner.status === 'active' && selectedPartnerIds.includes(partner.id),
   )
   const blockedCategories = new Set(
-    selectedSourcePartners.map((partner) => partner.category),
+    selectedSourcePartners
+      .filter((partner) => getPartnerUniqueConstraints(partner).length === 0)
+      .map((partner) => partner.category),
+  )
+  const blockedUniqueConstraints = new Set(
+    selectedSourcePartners.flatMap(getPartnerUniqueConstraints),
   )
   const inferredCategories = new Set<PartnerCategory>()
+  const inferredUniqueConstraints = new Set<PartnerUniqueConstraint>()
   const inferredPartnerIds = Array<string>()
 
   for (const rule of applicationStarterInferenceRules) {
@@ -1322,6 +1553,18 @@ function inferApplicationStarterPartnerIds(
       continue
     }
 
+    const partnerUniqueConstraints = getPartnerUniqueConstraints(partner)
+    const hasUniqueConstraint = partnerUniqueConstraints.length > 0
+    const isBlockedByUniqueConstraint = partnerUniqueConstraints.some(
+      (uniqueConstraint) =>
+        blockedUniqueConstraints.has(uniqueConstraint) ||
+        inferredUniqueConstraints.has(uniqueConstraint),
+    )
+
+    if (isBlockedByUniqueConstraint) {
+      continue
+    }
+
     if (
       partner.id === 'clerk' &&
       /\bavoid\s+adding\s+auth\s+and\s+api\s+key\s+providers?\s+that\s+overlap\s+in\s+purpose\b/i.test(
@@ -1332,8 +1575,9 @@ function inferApplicationStarterPartnerIds(
     }
 
     if (
-      blockedCategories.has(partner.category) ||
-      inferredCategories.has(partner.category)
+      !hasUniqueConstraint &&
+      (blockedCategories.has(partner.category) ||
+        inferredCategories.has(partner.category))
     ) {
       continue
     }
@@ -1343,10 +1587,17 @@ function inferApplicationStarterPartnerIds(
     }
 
     inferredPartnerIds.push(partner.id)
-    inferredCategories.add(partner.category)
+
+    if (hasUniqueConstraint) {
+      for (const uniqueConstraint of partnerUniqueConstraints) {
+        inferredUniqueConstraints.add(uniqueConstraint)
+      }
+    } else {
+      inferredCategories.add(partner.category)
+    }
   }
 
-  return inferredPartnerIds
+  return getApplicationStarterCompatiblePartnerIds(inferredPartnerIds)
 }
 
 export function getInferredApplicationStarterPartnerIdsFromUserInput(
@@ -1356,45 +1607,55 @@ export function getInferredApplicationStarterPartnerIdsFromUserInput(
   return inferApplicationStarterPartnerIds(input, selectedPartnerIds)
 }
 
-const applicationStarterPartnerSuggestions: Array<ApplicationStarterPartnerSuggestion> =
-  getPartnersForPlacement(
+function createApplicationStarterPartnerSuggestion(
+  partner: Partner,
+): ApplicationStarterPartnerSuggestion {
+  const tier = getApplicationStarterPartnerTier(partner)
+  const normalizedPartnerKey = normalizeApplicationStarterPartnerKey(partner.id)
+  const iconMode: ApplicationStarterPartnerSuggestion['iconMode'] =
+    tier === 2 ? (partner.applicationStarterIcon?.mode ?? 'contain') : undefined
+
+  return {
+    id: partner.id,
+    label: partner.name,
+    description: getApplicationStarterPartnerDescription(partner),
+    hint: `${partner.name} (${partnerCategoryLabels[partner.category]})`,
+    iconMode,
+    iconSrc:
+      tier === 2
+        ? (partner.applicationStarterIcon?.src ??
+          getApplicationStarterPartnerFaviconUrl(partner.href))
+        : undefined,
+    image: partner.image,
+    tags: getApplicationStarterPartnerTags(partner),
+    brandColor:
+      applicationStarterBrandColorOverrides.get(normalizedPartnerKey) ??
+      partner.brandColor,
+    tier,
+    uniqueConstraints: getPartnerUniqueConstraints(partner),
+  }
+}
+
+function createApplicationStarterPartnerSuggestions(
+  placementContext: PartnerPlacementContext,
+) {
+  return getPartnersForPlacement(
     partners.filter((partner) => partner.status === 'active'),
-    applicationStarterPlacementContext,
-  )
-    .map((partner) => {
-      const tier = getApplicationStarterPartnerTier(partner)
-      const normalizedPartnerKey = normalizeApplicationStarterPartnerKey(
-        partner.id,
-      )
-      const iconMode: ApplicationStarterPartnerSuggestion['iconMode'] =
-        tier === 2
-          ? (partner.applicationStarterIcon?.mode ?? 'contain')
-          : undefined
+    placementContext,
+  ).map(createApplicationStarterPartnerSuggestion)
+}
 
-      return {
-        id: partner.id,
-        label: partner.name,
-        description: getApplicationStarterPartnerDescription(partner),
-        hint: `${partner.name} (${partnerCategoryLabels[partner.category]})`,
-        iconMode,
-        iconSrc:
-          tier === 2
-            ? (partner.applicationStarterIcon?.src ??
-              getApplicationStarterPartnerFaviconUrl(partner.href))
-            : undefined,
-        image: partner.image,
-        tags: getApplicationStarterPartnerTags(partner),
-        brandColor:
-          applicationStarterBrandColorOverrides.get(normalizedPartnerKey) ??
-          partner.brandColor,
-        tier,
-        score: partner.score,
-      }
-    })
-    .map(({ score: _score, ...partner }) => partner)
+const applicationStarterPartnerSuggestions =
+  createApplicationStarterPartnerSuggestions(applicationStarterPlacementContext)
 
-export function getApplicationStarterPartnerSuggestions() {
-  return applicationStarterPartnerSuggestions
+export function getApplicationStarterPartnerSuggestions(
+  placementContext: PartnerPlacementContext = applicationStarterPlacementContext,
+) {
+  if (placementContext === applicationStarterPlacementContext) {
+    return applicationStarterPartnerSuggestions
+  }
+
+  return createApplicationStarterPartnerSuggestions(placementContext)
 }
 
 export function composeApplicationStarterInput(
@@ -1404,19 +1665,33 @@ export function composeApplicationStarterInput(
   options?: { forceRouterOnly?: boolean },
 ) {
   const trimmedInput = input.trim()
+  const compatibleSelectedPartnerIds =
+    getApplicationStarterCompatiblePartnerIds(selectedPartnerIds)
+  const compatibleInferredPartnerIds =
+    getApplicationStarterCompatiblePartnerIds(
+      inferredPartnerIds.filter(
+        (partnerId) =>
+          !hasApplicationStarterPartnerConflictWithAny(
+            partnerId,
+            compatibleSelectedPartnerIds,
+          ),
+      ),
+    )
   const selectedPartners = applicationStarterPartnerSuggestions.filter(
-    (partner) => selectedPartnerIds.includes(partner.id),
+    (partner) => compatibleSelectedPartnerIds.includes(partner.id),
   )
   const inferredPartners = applicationStarterPartnerSuggestions.filter(
-    (partner) => inferredPartnerIds.includes(partner.id),
+    (partner) => compatibleInferredPartnerIds.includes(partner.id),
   )
   const selectedSourcePartners = partners.filter(
     (partner) =>
-      partner.status === 'active' && selectedPartnerIds.includes(partner.id),
+      partner.status === 'active' &&
+      compatibleSelectedPartnerIds.includes(partner.id),
   )
   const inferredSourcePartners = partners.filter(
     (partner) =>
-      partner.status === 'active' && inferredPartnerIds.includes(partner.id),
+      partner.status === 'active' &&
+      compatibleInferredPartnerIds.includes(partner.id),
   )
 
   if (selectedPartners.length === 0 && inferredPartners.length === 0) {
@@ -1457,7 +1732,10 @@ export function composeApplicationStarterInput(
     )
   }
 
-  const allPartnerIds = [...selectedPartnerIds, ...inferredPartnerIds]
+  const allPartnerIds = [
+    ...compatibleSelectedPartnerIds,
+    ...compatibleInferredPartnerIds,
+  ]
 
   if (allPartnerIds.includes('coderabbit')) {
     partnerInstructions.push(
@@ -1470,8 +1748,8 @@ export function composeApplicationStarterInput(
     trimmedInput,
     '',
     APPLICATION_STARTER_GUIDANCE_MARKER,
-    `${APPLICATION_STARTER_SELECTED_PARTNERS_MARKER} ${selectedPartnerIds.join(', ') || 'none'}`,
-    `${APPLICATION_STARTER_INFERRED_PARTNERS_MARKER} ${inferredPartnerIds.join(', ') || 'none'}`,
+    `${APPLICATION_STARTER_SELECTED_PARTNERS_MARKER} ${compatibleSelectedPartnerIds.join(', ') || 'none'}`,
+    `${APPLICATION_STARTER_INFERRED_PARTNERS_MARKER} ${compatibleInferredPartnerIds.join(', ') || 'none'}`,
     options?.forceRouterOnly
       ? APPLICATION_STARTER_FORCE_ROUTER_ONLY_MARKER
       : null,

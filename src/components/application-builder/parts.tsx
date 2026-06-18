@@ -3,6 +3,7 @@ import * as TooltipPrimitive from '@radix-ui/react-tooltip'
 import { Check, Copy, Sparkles, X } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import {
+  getApplicationStarterConflictingPartnerIds,
   type ApplicationStarterPartnerSuggestion,
   PartnerImage,
 } from '~/utils/partners'
@@ -196,12 +197,14 @@ const StarterPartnerButton = React.forwardRef<
     compact?: boolean
     palette: StarterPalette
     partner: ApplicationStarterPartnerSuggestion
+    muted: boolean
     selected: boolean
     size?: 'compact' | 'default'
   } & React.ComponentPropsWithoutRef<'button'>
 >(function StarterPartnerButton(
   {
     compact = false,
+    muted,
     palette,
     partner,
     selected,
@@ -240,20 +243,24 @@ const StarterPartnerButton = React.forwardRef<
   const tierOneTone = isTierOne
     ? selected
       ? 'translate-y-[-1px] border-transparent'
-      : 'border-gray-200 bg-white hover:border-[var(--starter-partner-hover-border-color)] dark:border-gray-800 dark:bg-gray-950 dark:hover:border-[var(--starter-partner-hover-border-color)]'
+      : 'border-gray-200 bg-white hover:border-[var(--starter-partner-hover-border-color)] active:border-[var(--starter-partner-active-border-color)] dark:border-gray-800 dark:bg-gray-950 dark:hover:border-[var(--starter-partner-hover-border-color)] dark:active:border-[var(--starter-partner-active-border-color)]'
     : null
   const tierThreeTone = isTierThree
     ? selected
       ? 'translate-y-[-1px] border-current bg-white shadow-[0_4px_12px_rgba(15,23,42,0.08)] dark:bg-gray-950'
-      : 'border-gray-200 bg-white text-gray-700 hover:border-[var(--starter-partner-hover-border-color)] hover:text-current dark:border-gray-800 dark:bg-gray-950 dark:text-gray-200 dark:hover:border-[var(--starter-partner-hover-border-color)]'
+      : 'border-gray-200 bg-white text-gray-700 hover:border-[var(--starter-partner-hover-border-color)] hover:text-current active:border-[var(--starter-partner-active-border-color)] dark:border-gray-800 dark:bg-gray-950 dark:text-gray-200 dark:hover:border-[var(--starter-partner-hover-border-color)] dark:active:border-[var(--starter-partner-active-border-color)]'
     : null
+  const hoverBorderColor = colorWithAlpha(accent, 0.5) ?? accent
   const style: StarterPartnerButtonStyle = {
-    '--starter-partner-border-hover': usesPaletteSurface ? accent : undefined,
-    '--starter-partner-hover-border-color': accent,
+    '--starter-partner-active-border-color': accent,
+    '--starter-partner-border-hover': usesPaletteSurface
+      ? hoverBorderColor
+      : undefined,
+    '--starter-partner-hover-border-color': hoverBorderColor,
     backgroundColor: undefined,
     borderColor:
       isTierOne && selected
-        ? colorWithAlpha(accent, 0.92)
+        ? accent
         : selected && usesPaletteSurface
           ? accent
           : undefined,
@@ -273,7 +280,11 @@ const StarterPartnerButton = React.forwardRef<
       ref={ref}
       type="button"
       aria-pressed={selected}
-      aria-label={accessibleLabel}
+      aria-label={
+        muted
+          ? `${accessibleLabel}, inactive while another exclusive partner is selected`
+          : accessibleLabel
+      }
       className={twMerge(
         'inline-flex items-center text-gray-800 transition-all duration-200 dark:text-gray-100',
         'border-2',
@@ -283,8 +294,10 @@ const StarterPartnerButton = React.forwardRef<
         tierOneTone,
         usesPaletteSurface && palette.chip,
         usesPaletteSurface &&
-          'hover:border-[var(--starter-partner-border-hover)]',
+          'hover:border-[var(--starter-partner-border-hover)] active:border-[var(--starter-partner-active-border-color)]',
         tierThreeTone,
+        muted &&
+          'border-transparent opacity-60 saturate-50 grayscale hover:border-transparent hover:text-gray-700 active:border-transparent dark:border-transparent dark:hover:border-transparent dark:hover:text-gray-200 dark:active:border-transparent',
         buttonProps.className,
       )}
       style={style}
@@ -353,6 +366,32 @@ export function StarterPartnerRows({
     selected: boolean,
   ) => void
 }) {
+  const mutedPartnerIds = React.useMemo(() => {
+    const partnerIds = new Set<string>()
+
+    for (const selectedPartnerId of selectedPartners) {
+      const selectedPartner = partnerSuggestions.find(
+        (partner) => partner.id === selectedPartnerId,
+      )
+
+      if (!selectedPartner) {
+        continue
+      }
+
+      for (const partnerId of getApplicationStarterConflictingPartnerIds(
+        selectedPartner,
+        partnerSuggestions,
+      )) {
+        partnerIds.add(partnerId)
+      }
+    }
+
+    for (const selectedPartnerId of selectedPartners) {
+      partnerIds.delete(selectedPartnerId)
+    }
+
+    return partnerIds
+  }, [partnerSuggestions, selectedPartners])
   const rows = ([1, 2, 3] as const)
     .map((tier) => ({
       tier,
@@ -366,6 +405,7 @@ export function StarterPartnerRows({
         <div key={row.tier} className="flex flex-wrap gap-1.5">
           {row.partners.map((partner) => {
             const selected = selectedPartners.includes(partner.id)
+            const muted = mutedPartnerIds.has(partner.id)
 
             return (
               <StarterHoverTooltip
@@ -375,6 +415,7 @@ export function StarterPartnerRows({
                 <StarterPartnerButton
                   compact={compact}
                   onClick={() => togglePartner(partner, selected)}
+                  muted={muted}
                   palette={palette}
                   partner={partner}
                   selected={selected}

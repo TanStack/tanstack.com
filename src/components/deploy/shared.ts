@@ -31,20 +31,37 @@ export const PROVIDER_INFO: Record<DeployProvider, ProviderInfo> = {
   cloudflare: {
     name: 'Cloudflare',
     color: '#F38020',
-    deployUrl: (owner, repo) =>
-      `https://deploy.workers.cloudflare.com/?url=https://github.com/${owner}/${repo}`,
+    deployUrl: (owner, repo) => {
+      const url = new URL('https://deploy.workers.cloudflare.com/')
+
+      url.searchParams.set('url', `https://github.com/${owner}/${repo}`)
+
+      return url.toString()
+    },
   },
   netlify: {
     name: 'Netlify',
     color: '#00C7B7',
-    deployUrl: (owner, repo) =>
-      `https://app.netlify.com/start/deploy?repository=https://github.com/${owner}/${repo}`,
+    deployUrl: (owner, repo) => {
+      const url = new URL('https://app.netlify.com/start/deploy')
+
+      url.searchParams.set('repository', `https://github.com/${owner}/${repo}`)
+
+      return url.toString()
+    },
   },
   railway: {
     name: 'Railway',
     color: '#9B4DCA',
-    deployUrl: () =>
-      `https://railway.com/new/github?utm_medium=sponsor&utm_source=oss&utm_campaign=tanstack`,
+    deployUrl: () => {
+      const url = new URL('https://railway.com/new/github')
+
+      url.searchParams.set('utm_medium', 'sponsor')
+      url.searchParams.set('utm_source', 'oss')
+      url.searchParams.set('utm_campaign', 'tanstack')
+
+      return url.toString()
+    },
   },
 }
 

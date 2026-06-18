@@ -238,7 +238,7 @@ export default function RouterLanding() {
               context="router"
               forceRouterOnly
               mode="compact"
-              primaryActionLabel="Generate Router prompt"
+              primaryActionLabel="Copy Router Prompt"
               secondaryActionLabel="Build Router app on Netlify"
               title="Describe the app you want to route"
               tone="emerald"

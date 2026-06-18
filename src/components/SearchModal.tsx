@@ -225,6 +225,7 @@ const AI_DOCK_DEFAULT_WIDTH = 360
 const AI_DOCK_MAX_WIDTH_RATIO = 0.5
 const AI_DOCK_MAXIMIZED_WIDTH = 1200
 const DEFAULT_SEARCH_FRAMEWORK: Framework = 'react'
+const KAPA_RECAPTCHA_READY_TIMEOUT_MS = 8_000
 
 type SearchSurface = 'modal' | 'dock'
 type AiDockStyle = React.CSSProperties & {
@@ -266,6 +267,71 @@ function writeAiDockWidth(width: number) {
   }
 
   localStorage.setItem(AI_DOCK_WIDTH_STORAGE_KEY, String(Math.round(width)))
+}
+
+function waitForKapaRecaptchaReady() {
+  if (typeof window === 'undefined') {
+    return Promise.resolve()
+  }
+
+  return new Promise<void>((resolve) => {
+    let timeoutId: number | null = null
+    let intervalId: number | null = null
+    let isSettled = false
+    let hasRegisteredReadyCallback = false
+
+    const cleanup = () => {
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId)
+        timeoutId = null
+      }
+
+      if (intervalId !== null) {
+        window.clearInterval(intervalId)
+        intervalId = null
+      }
+    }
+
+    const finish = () => {
+      if (isSettled) {
+        return
+      }
+
+      isSettled = true
+      cleanup()
+      window.setTimeout(resolve, 0)
+    }
+
+    const checkReady = () => {
+      if (hasRegisteredReadyCallback) {
+        return true
+      }
+
+      const enterprise = window.grecaptcha?.enterprise
+
+      if (!enterprise) {
+        return false
+      }
+
+      hasRegisteredReadyCallback = true
+
+      if (intervalId !== null) {
+        window.clearInterval(intervalId)
+        intervalId = null
+      }
+
+      enterprise.ready(finish)
+      return true
+    }
+
+    timeoutId = window.setTimeout(finish, KAPA_RECAPTCHA_READY_TIMEOUT_MS)
+
+    if (checkReady()) {
+      return
+    }
+
+    intervalId = window.setInterval(checkReady, 50)
+  })
 }
 
 function buildSearchFilters({
@@ -627,10 +693,107 @@ function KapaMarkdownLink({
   )
 }
 
+function KapaMarkdownTable({
+  children,
+  className,
+  ...props
+}: React.TableHTMLAttributes<HTMLTableElement>) {
+  return (
+    <div className="my-3 max-w-full overflow-x-auto rounded-xl border border-gray-200 bg-white dark:border-white/[0.12] dark:bg-black/20">
+      <table
+        className={twMerge(
+          className,
+          'w-full min-w-[34rem] border-collapse text-left',
+        )}
+        {...props}
+      >
+        {children}
+      </table>
+    </div>
+  )
+}
+
+function KapaMarkdownTableHead({
+  children,
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLTableSectionElement>) {
+  return (
+    <thead
+      className={twMerge(
+        className,
+        'border-b border-gray-200 bg-gray-50/80 dark:border-white/[0.12] dark:bg-white/[0.04]',
+      )}
+      {...props}
+    >
+      {children}
+    </thead>
+  )
+}
+
+function KapaMarkdownTableBody({
+  children,
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLTableSectionElement>) {
+  return (
+    <tbody
+      className={twMerge(
+        className,
+        '[&_tr:last-child_td]:border-b-0 [&_tr:last-child_th]:border-b-0',
+      )}
+      {...props}
+    >
+      {children}
+    </tbody>
+  )
+}
+
+function KapaMarkdownTableCell({
+  children,
+  className,
+  ...props
+}: React.TdHTMLAttributes<HTMLTableCellElement>) {
+  return (
+    <td
+      className={twMerge(
+        className,
+        'border-b border-l border-gray-200/80 px-3 py-2 align-top first:border-l-0 dark:border-white/[0.08]',
+      )}
+      {...props}
+    >
+      {children}
+    </td>
+  )
+}
+
+function KapaMarkdownTableHeaderCell({
+  children,
+  className,
+  ...props
+}: React.ThHTMLAttributes<HTMLTableCellElement>) {
+  return (
+    <th
+      className={twMerge(
+        className,
+        'border-b border-l border-gray-200 px-3 py-2 font-semibold align-top first:border-l-0 dark:border-white/[0.1]',
+      )}
+      {...props}
+    >
+      {children}
+    </th>
+  )
+}
+
 const streamdownComponents = {
   pre: CodeBlock,
   code: InlineCode,
   a: KapaMarkdownLink,
+  table: KapaMarkdownTable,
+  thead: KapaMarkdownTableHead,
+  tbody: KapaMarkdownTableBody,
+  td: KapaMarkdownTableCell,
+  th: KapaMarkdownTableHeaderCell,
   ul: ({ children }: { children?: React.ReactNode }) => (
     <ul className="list-disc list-outside pl-5 space-y-1 my-2">{children}</ul>
   ),
@@ -699,13 +862,10 @@ class KapaThreadOverrideApiService {
     args: KapaSubmitQueryArgs,
     callbacks: KapaChatStreamCallbacks,
   ): Promise<void> {
-    const threadIdOverride = this.threadIdOverrideRef.current
-    const nextArgs =
-      threadIdOverride && !args.threadId
-        ? { ...args, threadId: threadIdOverride }
-        : args
-
-    return this.service.submitQuery(nextArgs, callbacks)
+    return this.service.submitQuery(
+      { ...args, threadId: this.threadIdOverrideRef.current },
+      callbacks,
+    )
   }
 
   addFeedback(args: KapaSubmitFeedbackArgs): Promise<void> {
@@ -1630,6 +1790,7 @@ function KapaChatPanel({
   const isBusy = isGeneratingAnswer || isPreparingAnswer
   const isDock = surface === 'dock'
   const isSubmittingRef = React.useRef(false)
+  const pendingSubmitIdRef = React.useRef(0)
   const lockedToBottom = React.useRef(true)
   const handledNewChatRequestId = React.useRef(newChatRequestId)
   const handledAiDockAskRequestId = React.useRef(0)
@@ -1709,8 +1870,17 @@ function KapaChatPanel({
         return
       }
 
+      const submitId = pendingSubmitIdRef.current + 1
+      pendingSubmitIdRef.current = submitId
       isSubmittingRef.current = true
-      submitQuery(trimmed)
+
+      waitForKapaRecaptchaReady().then(() => {
+        if (pendingSubmitIdRef.current !== submitId) {
+          return
+        }
+
+        submitQuery(trimmed)
+      })
     },
     [isBusy, submitQuery],
   )
@@ -1730,6 +1900,8 @@ function KapaChatPanel({
   )
 
   const clearActiveChat = React.useCallback(() => {
+    pendingSubmitIdRef.current += 1
+    isSubmittingRef.current = false
     resetConversation()
     threadIdOverrideRef.current = null
     setSelectedHistoryItem(null)
@@ -1770,17 +1942,16 @@ function KapaChatPanel({
 
     handledAiDockAskRequestId.current = aiDockAskRequest.id
     clearActiveChat()
-    isSubmittingRef.current = true
-    submitQuery(aiDockAskRequest.question)
+    ask(aiDockAskRequest.question)
     clearAiDockAskRequest(aiDockAskRequest.id)
   }, [
+    ask,
     aiDockAskRequest,
     clearActiveChat,
     clearAiDockAskRequest,
     isBusy,
     isDock,
     stopGeneration,
-    submitQuery,
   ])
 
   return (

@@ -52,6 +52,14 @@ try {
       'src/gone.tsx',
       { contents: 'bye', path: 'src/gone.tsx', source: 'agent' as const },
     ],
+    [
+      'src/seed.tsx',
+      {
+        contents: 'seed',
+        path: 'src/seed.tsx',
+        source: 'builder-definition' as const,
+      },
+    ],
   ])
   await seedSandboxWorkspaceDir({ dir, workspace })
   assert.equal(await readFile(path.join(dir, 'src/keep.tsx'), 'utf8'), 'old')
@@ -60,16 +68,24 @@ try {
   await writeFile(path.join(dir, 'src/keep.tsx'), 'new', 'utf8')
   await rm(path.join(dir, 'src/gone.tsx'))
   await writeFile(path.join(dir, 'src/new.tsx'), 'fresh', 'utf8')
+  await writeFile(path.join(dir, 'src/seed.tsx'), 'seed-edited', 'utf8')
   await mkdir(path.join(dir, 'node_modules'), { recursive: true })
   await writeFile(path.join(dir, 'node_modules/junk.js'), 'noop', 'utf8')
 
   const result = await reconcileSandboxWorkspace({ dir, workspace })
-  assert.deepEqual(result.changedPaths.sort(), ['src/keep.tsx', 'src/new.tsx'])
+  assert.deepEqual(result.changedPaths.sort(), [
+    'src/keep.tsx',
+    'src/new.tsx',
+    'src/seed.tsx',
+  ])
   assert.deepEqual(result.deletedPaths, ['src/gone.tsx'])
   assert.equal(workspace.get('src/keep.tsx')?.contents, 'new')
   assert.equal(workspace.get('src/new.tsx')?.contents, 'fresh')
   assert.equal(workspace.has('src/gone.tsx'), false)
   assert.equal(workspace.has('node_modules/junk.js'), false) // ignored
+  // parity: an agent-edited file is tagged `agent` even if it was a seed
+  assert.equal(workspace.get('src/seed.tsx')?.source, 'agent')
+  assert.equal(workspace.get('src/new.tsx')?.source, 'agent')
 } finally {
   await rm(dir, { recursive: true, force: true })
 }

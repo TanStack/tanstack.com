@@ -57,10 +57,14 @@ export async function reconcileSandboxWorkspace(input: {
     const existing = input.workspace.get(relPath)
     if (!existing || existing.contents !== contents) {
       changedPaths.push(relPath)
+      // Any file the sandbox agent wrote or modified is agent-authored, even if
+      // it previously came from the builder definition. Tagging it `agent` keeps
+      // parity with the old harnesses and ensures validateWorkspace (which only
+      // runs per-file checks for `source === 'agent'`) actually validates the edit.
       input.workspace.set(relPath, {
         contents,
         path: relPath,
-        source: existing?.source ?? 'agent',
+        source: 'agent',
       })
     }
   }

@@ -1231,54 +1231,6 @@ mark {
   pointer-events: none;
 }
 
-@keyframes open-source-underline-color {
-  0%,
-  22%,
-  100% {
-    color: rgb(234 179 8);
-  }
-  25%,
-  47% {
-    color: rgb(20 184 166);
-  }
-  50%,
-  72% {
-    color: rgb(59 130 246);
-  }
-  75%,
-  97% {
-    color: rgb(244 63 94);
-  }
-}
-
-@keyframes open-source-underline-draw {
-  from {
-    stroke-dashoffset: 1;
-  }
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
-@keyframes open-source-underline-drift {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0);
-  }
-
-  30% {
-    transform: translate3d(2.2px, -1.7px, 0);
-  }
-
-  55% {
-    transform: translate3d(-2.5px, 1.45px, 0);
-  }
-
-  80% {
-    transform: translate3d(1.2px, -0.8px, 0);
-  }
-}
-
 .home-adapter-graph-flow {
   display: block;
   width: 1.25rem;
@@ -1296,73 +1248,62 @@ mark {
   transition: opacity 120ms linear;
 }
 
-.home-open-source-underline {
+@keyframes home-open-source-gradient-shift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.home-open-source-gradient {
+  --home-open-source-gradient: linear-gradient(
+    90deg,
+    rgb(20 184 166),
+    rgb(59 130 246),
+    rgb(168 85 247),
+    rgb(244 63 94),
+    rgb(234 179 8),
+    rgb(20 184 166)
+  );
+
   position: relative;
-  display: inline-flex;
-  padding-inline: 0.08em;
-  padding-bottom: 0.12em;
+  display: inline-block;
+  white-space: nowrap;
+  font-weight: 300;
+  font-style: oblique 8deg;
+  color: rgb(20 184 166);
+  background-image: var(--home-open-source-gradient);
+  background-size: 720% 100%;
+  background-position: 0% 50%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: home-open-source-gradient-shift 34s ease-in-out infinite;
 }
 
-.home-open-source-underline__svg {
+.home-open-source-gradient::after {
+  content: '';
   position: absolute;
-  left: -0.04em;
-  bottom: -0.24em;
-  width: calc(100% + 0.08em);
-  height: 0.68em;
-  overflow: visible;
-  color: rgb(234 179 8);
-  animation: open-source-underline-color 20s ease-in-out infinite;
-}
-
-.home-open-source-underline__path {
-  fill: none;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  transform-box: fill-box;
-  transform-origin: center;
-  animation:
-    open-source-underline-draw 1.9s cubic-bezier(0.22, 1, 0.36, 1) forwards,
-    open-source-underline-drift 4.6s ease-in-out infinite;
-}
-
-.home-open-source-underline__path--primary {
-  stroke-width: 11.5;
-  opacity: 0.34;
-  filter: blur(0.35px);
-  animation-delay: 0.45s, 0s;
-  animation-duration: 1.9s, 5.4s;
-}
-
-.home-open-source-underline__path--secondary {
-  stroke-width: 7;
-  opacity: 0.92;
-  animation-delay:
-    0.7s,
-    -1.8s;
-  animation-duration: 1.9s, 4.8s;
-}
-
-.home-open-source-underline__path--tertiary {
-  stroke-width: 4.5;
-  opacity: 0.78;
-  animation-delay:
-    0.95s,
-    -3.1s;
-  animation-duration: 1.9s, 4.2s;
+  left: 0;
+  right: 0;
+  bottom: -0.04em;
+  height: 0.07em;
+  border-radius: 9999px;
+  pointer-events: none;
+  background-image: var(--home-open-source-gradient);
+  background-size: 720% 100%;
+  background-position: 0% 50%;
+  animation: home-open-source-gradient-shift 34s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .home-open-source-underline__svg {
+  .home-open-source-gradient,
+  .home-open-source-gradient::after {
     animation: none;
-  }
-
-  .home-open-source-underline__path {
-    animation: none;
-    stroke-dashoffset: 0;
-    transform: none;
   }
 
   .home-adapter-graph-flow {

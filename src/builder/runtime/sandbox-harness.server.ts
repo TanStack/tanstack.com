@@ -106,7 +106,10 @@ export async function runSandboxForgeHarness(
         ? claudeCodeText('sonnet')
         : codexText('gpt-5.1-codex')
 
-    const middleware = [withSandbox(sandbox), withSandboxFileEvents({ root: dir })]
+    const middleware = [
+      withSandbox(sandbox),
+      withSandboxFileEvents({ root: dir }),
+    ]
 
     let assistantText = ''
     const toolNamesById = new Map<string, string>()

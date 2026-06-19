@@ -11,9 +11,8 @@ type ForgeWorkspaceFile = {
 export const SANDBOX_WORKSPACE_IGNORED_DIRECTORIES: ReadonlySet<string> =
   new Set(['.git', '.tanstack', '.codex', 'dist', 'node_modules'])
 
-export const SANDBOX_WORKSPACE_IGNORED_FILE_PATHS: ReadonlySet<string> = new Set(
-  ['pnpm-workspace.yaml', 'src/routeTree.gen.ts'],
-)
+export const SANDBOX_WORKSPACE_IGNORED_FILE_PATHS: ReadonlySet<string> =
+  new Set(['pnpm-workspace.yaml', 'src/routeTree.gen.ts'])
 
 export type SandboxFileOp = { kind: 'upsert' | 'delete'; path: string }
 

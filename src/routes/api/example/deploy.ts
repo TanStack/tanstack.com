@@ -100,18 +100,6 @@ export const Route = createFileRoute("/api/example/deploy")({
           );
         }
 
-        if (!authState.hasRepoScope || !authState.accessToken) {
-          return Response.json(
-            {
-              success: false,
-              error:
-                "Missing public_repo scope. Please re-authenticate with GitHub.",
-              code: "MISSING_REPO_SCOPE",
-            } satisfies DeployError,
-            { status: 403 },
-          );
-        }
-
         let body: DeployRequest;
         try {
           body = await request.json();
@@ -136,6 +124,22 @@ export const Route = createFileRoute("/api/example/deploy")({
           libraryName,
           exampleName,
         } = body;
+
+        if (
+          !hasRequiredGitHubRepoScope({ authState, isPrivate }) ||
+          !authState.accessToken
+        ) {
+          return Response.json(
+            {
+              success: false,
+              error: isPrivate
+                ? "Missing repo scope. Please re-authenticate with GitHub."
+                : "Missing public_repo scope. Please re-authenticate with GitHub.",
+              code: "MISSING_REPO_SCOPE",
+            } satisfies DeployError,
+            { status: 403 },
+          );
+        }
 
         // Validate repo name
         const validation = validateRepoName(repoName);
@@ -255,3 +259,16 @@ export const Route = createFileRoute("/api/example/deploy")({
     },
   },
 });
+
+function hasRequiredGitHubRepoScope({
+  authState,
+  isPrivate,
+}: {
+  authState: {
+    hasPrivateRepoScope: boolean;
+    hasRepoScope: boolean;
+  };
+  isPrivate: boolean;
+}) {
+  return isPrivate ? authState.hasPrivateRepoScope : authState.hasRepoScope;
+}

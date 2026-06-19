@@ -4,6 +4,10 @@
  * Functions for creating and managing GitHub repositories via the API.
  */
 
+import { validateBranchName, validateRepoName } from './github-validation'
+
+export { validateBranchName, validateRepoName } from './github-validation'
+
 export interface CreateRepoOptions {
   name: string
   description?: string
@@ -148,44 +152,6 @@ export async function checkRepoNameAvailable(
 }
 
 /**
- * Validate a repository name
- */
-export function validateRepoName(name: string): {
-  valid: boolean
-  error?: string
-} {
-  if (!name) {
-    return { valid: false, error: 'Repository name is required' }
-  }
-
-  if (name.length > 100) {
-    return {
-      valid: false,
-      error: 'Repository name must be 100 characters or less',
-    }
-  }
-
-  // GitHub repo name rules: alphanumeric, hyphens, underscores, periods
-  // Cannot start with a period or hyphen
-  const validPattern = /^[a-zA-Z0-9][a-zA-Z0-9._-]*$/
-  if (!validPattern.test(name)) {
-    return {
-      valid: false,
-      error:
-        'Repository name can only contain letters, numbers, hyphens, underscores, and periods',
-    }
-  }
-
-  // Reserved names
-  const reserved = ['CON', 'PRN', 'AUX', 'NUL', 'COM1', 'LPT1']
-  if (reserved.includes(name.toUpperCase())) {
-    return { valid: false, error: 'This name is reserved' }
-  }
-
-  return { valid: true }
-}
-
-/**
  * Generate a repository description from selected integrations
  */
 export function generateRepoDescription(integrations: Array<string>): string {
@@ -251,6 +217,14 @@ export async function pushFiles(
     message = 'Initial commit from TanStack Builder',
     branch = 'main',
   } = options
+  const branchValidation = validateBranchName(branch)
+
+  if (!branchValidation.valid) {
+    return {
+      success: false,
+      error: branchValidation.error ?? 'Invalid branch name',
+    }
+  }
 
   // Log file paths for debugging
   const paths = Object.keys(files)

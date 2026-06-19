@@ -10,22 +10,15 @@ import {
   generateOAuthState,
   getOAuthAccountRepository,
 } from './index.server'
-
-const REPO_SCOPE = 'public_repo'
-
-function hasRepoScopeInString(tokenScope: string | null): boolean {
-  if (!tokenScope) return false
-  const scopes = tokenScope.split(/[,\s]+/)
-  return scopes.includes(REPO_SCOPE) || scopes.includes('repo')
-}
+import { readGitHubRepoScopeState } from './github-scopes'
 
 /**
- * Check if a user has the public_repo scope for GitHub
+ * Check if a user has scope to create at least public repositories on GitHub.
  */
 export async function hasGitHubRepoScope(userId: string): Promise<boolean> {
   const repo = getOAuthAccountRepository()
   const account = await repo.findByUserId(userId, 'github')
-  return hasRepoScopeInString(account?.tokenScope ?? null)
+  return readGitHubRepoScopeState(account?.tokenScope).hasRepoScope
 }
 
 /**
@@ -58,6 +51,7 @@ export async function getGitHubUsername(
 
 export interface GitHubAuthState {
   hasGitHubAccount: boolean
+  hasPrivateRepoScope: boolean
   hasRepoScope: boolean
   accessToken: string | null
 }
@@ -74,14 +68,18 @@ export async function getGitHubAuthState(
   if (!account) {
     return {
       hasGitHubAccount: false,
+      hasPrivateRepoScope: false,
       hasRepoScope: false,
       accessToken: null,
     }
   }
 
+  const scopeState = readGitHubRepoScopeState(account.tokenScope)
+
   return {
     hasGitHubAccount: true,
-    hasRepoScope: hasRepoScopeInString(account.tokenScope),
+    hasPrivateRepoScope: scopeState.hasPrivateRepoScope,
+    hasRepoScope: scopeState.hasRepoScope,
     accessToken: account.accessToken,
   }
 }

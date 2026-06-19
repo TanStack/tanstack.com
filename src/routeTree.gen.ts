@@ -30,6 +30,7 @@ import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
 import { Route as LlmsFullDottxtRouteImport } from './routes/llms-full[.]txt'
 import { Route as LibrariesRouteImport } from './routes/libraries'
 import { Route as LearnRouteImport } from './routes/learn'
+import { Route as ForgeRouteImport } from './routes/forge'
 import { Route as FeedbackLeaderboardRouteImport } from './routes/feedback-leaderboard'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as EthosRouteImport } from './routes/ethos'
@@ -61,6 +62,7 @@ import { Route as OauthTokenRouteImport } from './routes/oauth/token'
 import { Route as OauthRegisterRouteImport } from './routes/oauth/register'
 import { Route as OauthAuthorizeRouteImport } from './routes/oauth/authorize'
 import { Route as LibrariesFrameworkRouteImport } from './routes/libraries_.$framework'
+import { Route as ForgeNewRouteImport } from './routes/forge_.new'
 import { Route as BuilderDocsRouteImport } from './routes/builder.docs'
 import { Route as BlogSplatRouteImport } from './routes/blog.$'
 import { Route as AuthSignoutRouteImport } from './routes/auth/signout'
@@ -99,6 +101,8 @@ import { Route as AuthProviderStartRouteImport } from './routes/auth/$provider/s
 import { Route as ApiOgChar123Char125DotpngRouteImport } from './routes/api/og/{$}[.]png'
 import { Route as ApiMcpSplatRouteImport } from './routes/api/mcp/$'
 import { Route as ApiGithubWebhookRouteImport } from './routes/api/github/webhook'
+import { Route as ApiForgeEventsRouteImport } from './routes/api/forge/events'
+import { Route as ApiForgeDownloadRouteImport } from './routes/api/forge/download'
 import { Route as ApiExampleDeployRouteImport } from './routes/api/example/deploy'
 import { Route as ApiDiscordInteractionsRouteImport } from './routes/api/discord/interactions'
 import { Route as ApiDataPartnersRouteImport } from './routes/api/data/partners'
@@ -140,6 +144,7 @@ import { Route as LibraryAiVersionIndexRouteImport } from './routes/_library/ai.
 import { Route as LibraryLibraryIdVersionIndexRouteImport } from './routes/_library/$libraryId/$version.index'
 import { Route as IntentRegistryPackageNameChar123Char125DotmdRouteImport } from './routes/intent/registry/$packageName.{$}[.]md'
 import { Route as IntentRegistryPackageNameSkillNameRouteImport } from './routes/intent/registry/$packageName.$skillName'
+import { Route as ApiForgeExportGithubRouteImport } from './routes/api/forge/export/github'
 import { Route as ApiBuilderDeployGithubRouteImport } from './routes/api/builder/deploy/github'
 import { Route as ApiBuilderDeployCheckNameRouteImport } from './routes/api/builder/deploy/check-name'
 import { Route as ApiAuthCliCreateTicketRouteImport } from './routes/api/auth/cli/create-ticket'
@@ -264,6 +269,11 @@ const LibrariesRoute = LibrariesRouteImport.update({
 const LearnRoute = LearnRouteImport.update({
   id: '/learn',
   path: '/learn',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgeRoute = ForgeRouteImport.update({
+  id: '/forge',
+  path: '/forge',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FeedbackLeaderboardRoute = FeedbackLeaderboardRouteImport.update({
@@ -418,6 +428,11 @@ const OauthAuthorizeRoute = OauthAuthorizeRouteImport.update({
 const LibrariesFrameworkRoute = LibrariesFrameworkRouteImport.update({
   id: '/libraries_/$framework',
   path: '/libraries/$framework',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgeNewRoute = ForgeNewRouteImport.update({
+  id: '/forge_/new',
+  path: '/forge/new',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BuilderDocsRoute = BuilderDocsRouteImport.update({
@@ -611,6 +626,16 @@ const ApiMcpSplatRoute = ApiMcpSplatRouteImport.update({
 const ApiGithubWebhookRoute = ApiGithubWebhookRouteImport.update({
   id: '/api/github/webhook',
   path: '/api/github/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiForgeEventsRoute = ApiForgeEventsRouteImport.update({
+  id: '/api/forge/events',
+  path: '/api/forge/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiForgeDownloadRoute = ApiForgeDownloadRouteImport.update({
+  id: '/api/forge/download',
+  path: '/api/forge/download',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiExampleDeployRoute = ApiExampleDeployRouteImport.update({
@@ -840,6 +865,11 @@ const IntentRegistryPackageNameSkillNameRoute =
     path: '/$skillName',
     getParentRoute: () => IntentRegistryPackageNameRoute,
   } as any)
+const ApiForgeExportGithubRoute = ApiForgeExportGithubRouteImport.update({
+  id: '/api/forge/export/github',
+  path: '/api/forge/export/github',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiBuilderDeployGithubRoute = ApiBuilderDeployGithubRouteImport.update({
   id: '/api/builder/deploy/github',
   path: '/api/builder/deploy/github',
@@ -972,6 +1002,7 @@ export interface FileRoutesByFullPath {
   '/ethos': typeof EthosRoute
   '/explore': typeof ExploreRoute
   '/feedback-leaderboard': typeof FeedbackLeaderboardRoute
+  '/forge': typeof ForgeRoute
   '/learn': typeof LearnRoute
   '/libraries': typeof LibrariesRoute
   '/llms-full.txt': typeof LlmsFullDottxtRoute
@@ -1012,6 +1043,7 @@ export interface FileRoutesByFullPath {
   '/auth/signout': typeof AuthSignoutRoute
   '/blog/$': typeof BlogSplatRoute
   '/builder/docs': typeof BuilderDocsRoute
+  '/forge/new': typeof ForgeNewRoute
   '/libraries/$framework': typeof LibrariesFrameworkRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
@@ -1051,6 +1083,8 @@ export interface FileRoutesByFullPath {
   '/api/data/partners': typeof ApiDataPartnersRoute
   '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
   '/api/example/deploy': typeof ApiExampleDeployRoute
+  '/api/forge/download': typeof ApiForgeDownloadRoute
+  '/api/forge/events': typeof ApiForgeEventsRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/api/og/{$}.png': typeof ApiOgChar123Char125DotpngRoute
@@ -1076,6 +1110,7 @@ export interface FileRoutesByFullPath {
   '/api/auth/cli/create-ticket': typeof ApiAuthCliCreateTicketRoute
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
   '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
+  '/api/forge/export/github': typeof ApiForgeExportGithubRoute
   '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
   '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   '/$libraryId/$version/': typeof LibraryLibraryIdVersionIndexRoute
@@ -1120,6 +1155,7 @@ export interface FileRoutesByTo {
   '/ethos': typeof EthosRoute
   '/explore': typeof ExploreRoute
   '/feedback-leaderboard': typeof FeedbackLeaderboardRoute
+  '/forge': typeof ForgeRoute
   '/learn': typeof LearnRoute
   '/libraries': typeof LibrariesRoute
   '/llms-full.txt': typeof LlmsFullDottxtRoute
@@ -1157,6 +1193,7 @@ export interface FileRoutesByTo {
   '/auth/signout': typeof AuthSignoutRoute
   '/blog/$': typeof BlogSplatRoute
   '/builder/docs': typeof BuilderDocsRoute
+  '/forge/new': typeof ForgeNewRoute
   '/libraries/$framework': typeof LibrariesFrameworkRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
@@ -1195,6 +1232,8 @@ export interface FileRoutesByTo {
   '/api/data/partners': typeof ApiDataPartnersRoute
   '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
   '/api/example/deploy': typeof ApiExampleDeployRoute
+  '/api/forge/download': typeof ApiForgeDownloadRoute
+  '/api/forge/events': typeof ApiForgeEventsRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/api/og/{$}.png': typeof ApiOgChar123Char125DotpngRoute
@@ -1218,6 +1257,7 @@ export interface FileRoutesByTo {
   '/api/auth/cli/create-ticket': typeof ApiAuthCliCreateTicketRoute
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
   '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
+  '/api/forge/export/github': typeof ApiForgeExportGithubRoute
   '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
   '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   '/$libraryId/$version': typeof LibraryLibraryIdVersionIndexRoute
@@ -1268,6 +1308,7 @@ export interface FileRoutesById {
   '/ethos': typeof EthosRoute
   '/explore': typeof ExploreRoute
   '/feedback-leaderboard': typeof FeedbackLeaderboardRoute
+  '/forge': typeof ForgeRoute
   '/learn': typeof LearnRoute
   '/libraries': typeof LibrariesRoute
   '/llms-full.txt': typeof LlmsFullDottxtRoute
@@ -1308,6 +1349,7 @@ export interface FileRoutesById {
   '/auth/signout': typeof AuthSignoutRoute
   '/blog/$': typeof BlogSplatRoute
   '/builder/docs': typeof BuilderDocsRoute
+  '/forge_/new': typeof ForgeNewRoute
   '/libraries_/$framework': typeof LibrariesFrameworkRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
@@ -1347,6 +1389,8 @@ export interface FileRoutesById {
   '/api/data/partners': typeof ApiDataPartnersRoute
   '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
   '/api/example/deploy': typeof ApiExampleDeployRoute
+  '/api/forge/download': typeof ApiForgeDownloadRoute
+  '/api/forge/events': typeof ApiForgeEventsRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/api/og/{$}.png': typeof ApiOgChar123Char125DotpngRoute
@@ -1372,6 +1416,7 @@ export interface FileRoutesById {
   '/api/auth/cli/create-ticket': typeof ApiAuthCliCreateTicketRoute
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
   '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
+  '/api/forge/export/github': typeof ApiForgeExportGithubRoute
   '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
   '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   '/_library/$libraryId/$version/': typeof LibraryLibraryIdVersionIndexRoute
@@ -1422,6 +1467,7 @@ export interface FileRouteTypes {
     | '/ethos'
     | '/explore'
     | '/feedback-leaderboard'
+    | '/forge'
     | '/learn'
     | '/libraries'
     | '/llms-full.txt'
@@ -1462,6 +1508,7 @@ export interface FileRouteTypes {
     | '/auth/signout'
     | '/blog/$'
     | '/builder/docs'
+    | '/forge/new'
     | '/libraries/$framework'
     | '/oauth/authorize'
     | '/oauth/register'
@@ -1501,6 +1548,8 @@ export interface FileRouteTypes {
     | '/api/data/partners'
     | '/api/discord/interactions'
     | '/api/example/deploy'
+    | '/api/forge/download'
+    | '/api/forge/events'
     | '/api/github/webhook'
     | '/api/mcp/$'
     | '/api/og/{$}.png'
@@ -1526,6 +1575,7 @@ export interface FileRouteTypes {
     | '/api/auth/cli/create-ticket'
     | '/api/builder/deploy/check-name'
     | '/api/builder/deploy/github'
+    | '/api/forge/export/github'
     | '/intent/registry/$packageName/$skillName'
     | '/intent/registry/$packageName/{$}.md'
     | '/$libraryId/$version/'
@@ -1570,6 +1620,7 @@ export interface FileRouteTypes {
     | '/ethos'
     | '/explore'
     | '/feedback-leaderboard'
+    | '/forge'
     | '/learn'
     | '/libraries'
     | '/llms-full.txt'
@@ -1607,6 +1658,7 @@ export interface FileRouteTypes {
     | '/auth/signout'
     | '/blog/$'
     | '/builder/docs'
+    | '/forge/new'
     | '/libraries/$framework'
     | '/oauth/authorize'
     | '/oauth/register'
@@ -1645,6 +1697,8 @@ export interface FileRouteTypes {
     | '/api/data/partners'
     | '/api/discord/interactions'
     | '/api/example/deploy'
+    | '/api/forge/download'
+    | '/api/forge/events'
     | '/api/github/webhook'
     | '/api/mcp/$'
     | '/api/og/{$}.png'
@@ -1668,6 +1722,7 @@ export interface FileRouteTypes {
     | '/api/auth/cli/create-ticket'
     | '/api/builder/deploy/check-name'
     | '/api/builder/deploy/github'
+    | '/api/forge/export/github'
     | '/intent/registry/$packageName/$skillName'
     | '/intent/registry/$packageName/{$}.md'
     | '/$libraryId/$version'
@@ -1717,6 +1772,7 @@ export interface FileRouteTypes {
     | '/ethos'
     | '/explore'
     | '/feedback-leaderboard'
+    | '/forge'
     | '/learn'
     | '/libraries'
     | '/llms-full.txt'
@@ -1757,6 +1813,7 @@ export interface FileRouteTypes {
     | '/auth/signout'
     | '/blog/$'
     | '/builder/docs'
+    | '/forge_/new'
     | '/libraries_/$framework'
     | '/oauth/authorize'
     | '/oauth/register'
@@ -1796,6 +1853,8 @@ export interface FileRouteTypes {
     | '/api/data/partners'
     | '/api/discord/interactions'
     | '/api/example/deploy'
+    | '/api/forge/download'
+    | '/api/forge/events'
     | '/api/github/webhook'
     | '/api/mcp/$'
     | '/api/og/{$}.png'
@@ -1821,6 +1880,7 @@ export interface FileRouteTypes {
     | '/api/auth/cli/create-ticket'
     | '/api/builder/deploy/check-name'
     | '/api/builder/deploy/github'
+    | '/api/forge/export/github'
     | '/intent/registry/$packageName/$skillName'
     | '/intent/registry/$packageName/{$}.md'
     | '/_library/$libraryId/$version/'
@@ -1871,6 +1931,7 @@ export interface RootRouteChildren {
   EthosRoute: typeof EthosRoute
   ExploreRoute: typeof ExploreRoute
   FeedbackLeaderboardRoute: typeof FeedbackLeaderboardRoute
+  ForgeRoute: typeof ForgeRoute
   LearnRoute: typeof LearnRoute
   LibrariesRoute: typeof LibrariesRoute
   LlmsFullDottxtRoute: typeof LlmsFullDottxtRoute
@@ -1897,6 +1958,7 @@ export interface RootRouteChildren {
   AuthCliRoute: typeof AuthCliRoute
   AuthPopupSuccessRoute: typeof AuthPopupSuccessRoute
   AuthSignoutRoute: typeof AuthSignoutRoute
+  ForgeNewRoute: typeof ForgeNewRoute
   LibrariesFrameworkRoute: typeof LibrariesFrameworkRoute
   OauthAuthorizeRoute: typeof OauthAuthorizeRoute
   OauthRegisterRoute: typeof OauthRegisterRoute
@@ -1921,6 +1983,8 @@ export interface RootRouteChildren {
   ApiDataPartnersRoute: typeof ApiDataPartnersRoute
   ApiDiscordInteractionsRoute: typeof ApiDiscordInteractionsRoute
   ApiExampleDeployRoute: typeof ApiExampleDeployRoute
+  ApiForgeDownloadRoute: typeof ApiForgeDownloadRoute
+  ApiForgeEventsRoute: typeof ApiForgeEventsRoute
   ApiGithubWebhookRoute: typeof ApiGithubWebhookRoute
   ApiMcpSplatRoute: typeof ApiMcpSplatRoute
   ApiOgChar123Char125DotpngRoute: typeof ApiOgChar123Char125DotpngRoute
@@ -1935,6 +1999,7 @@ export interface RootRouteChildren {
   ApiAuthCliCreateTicketRoute: typeof ApiAuthCliCreateTicketRoute
   ApiBuilderDeployCheckNameRoute: typeof ApiBuilderDeployCheckNameRoute
   ApiBuilderDeployGithubRoute: typeof ApiBuilderDeployGithubRoute
+  ApiForgeExportGithubRoute: typeof ApiForgeExportGithubRoute
   ApiAuthCliStatusTicketIdRoute: typeof ApiAuthCliStatusTicketIdRoute
 }
 
@@ -2085,6 +2150,13 @@ declare module '@tanstack/react-router' {
       path: '/learn'
       fullPath: '/learn'
       preLoaderRoute: typeof LearnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forge': {
+      id: '/forge'
+      path: '/forge'
+      fullPath: '/forge'
+      preLoaderRoute: typeof ForgeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/feedback-leaderboard': {
@@ -2302,6 +2374,13 @@ declare module '@tanstack/react-router' {
       path: '/libraries/$framework'
       fullPath: '/libraries/$framework'
       preLoaderRoute: typeof LibrariesFrameworkRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forge_/new': {
+      id: '/forge_/new'
+      path: '/forge/new'
+      fullPath: '/forge/new'
+      preLoaderRoute: typeof ForgeNewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/builder/docs': {
@@ -2568,6 +2647,20 @@ declare module '@tanstack/react-router' {
       path: '/api/github/webhook'
       fullPath: '/api/github/webhook'
       preLoaderRoute: typeof ApiGithubWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/forge/events': {
+      id: '/api/forge/events'
+      path: '/api/forge/events'
+      fullPath: '/api/forge/events'
+      preLoaderRoute: typeof ApiForgeEventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/forge/download': {
+      id: '/api/forge/download'
+      path: '/api/forge/download'
+      fullPath: '/api/forge/download'
+      preLoaderRoute: typeof ApiForgeDownloadRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/example/deploy': {
@@ -2856,6 +2949,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/intent/registry/$packageName/$skillName'
       preLoaderRoute: typeof IntentRegistryPackageNameSkillNameRouteImport
       parentRoute: typeof IntentRegistryPackageNameRoute
+    }
+    '/api/forge/export/github': {
+      id: '/api/forge/export/github'
+      path: '/api/forge/export/github'
+      fullPath: '/api/forge/export/github'
+      preLoaderRoute: typeof ApiForgeExportGithubRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/builder/deploy/github': {
       id: '/api/builder/deploy/github'
@@ -3297,6 +3397,7 @@ const rootRouteChildren: RootRouteChildren = {
   EthosRoute: EthosRoute,
   ExploreRoute: ExploreRoute,
   FeedbackLeaderboardRoute: FeedbackLeaderboardRoute,
+  ForgeRoute: ForgeRoute,
   LearnRoute: LearnRoute,
   LibrariesRoute: LibrariesRoute,
   LlmsFullDottxtRoute: LlmsFullDottxtRoute,
@@ -3324,6 +3425,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthCliRoute: AuthCliRoute,
   AuthPopupSuccessRoute: AuthPopupSuccessRoute,
   AuthSignoutRoute: AuthSignoutRoute,
+  ForgeNewRoute: ForgeNewRoute,
   LibrariesFrameworkRoute: LibrariesFrameworkRoute,
   OauthAuthorizeRoute: OauthAuthorizeRoute,
   OauthRegisterRoute: OauthRegisterRoute,
@@ -3348,6 +3450,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiDataPartnersRoute: ApiDataPartnersRoute,
   ApiDiscordInteractionsRoute: ApiDiscordInteractionsRoute,
   ApiExampleDeployRoute: ApiExampleDeployRoute,
+  ApiForgeDownloadRoute: ApiForgeDownloadRoute,
+  ApiForgeEventsRoute: ApiForgeEventsRoute,
   ApiGithubWebhookRoute: ApiGithubWebhookRoute,
   ApiMcpSplatRoute: ApiMcpSplatRoute,
   ApiOgChar123Char125DotpngRoute: ApiOgChar123Char125DotpngRoute,
@@ -3362,6 +3466,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthCliCreateTicketRoute: ApiAuthCliCreateTicketRoute,
   ApiBuilderDeployCheckNameRoute: ApiBuilderDeployCheckNameRoute,
   ApiBuilderDeployGithubRoute: ApiBuilderDeployGithubRoute,
+  ApiForgeExportGithubRoute: ApiForgeExportGithubRoute,
   ApiAuthCliStatusTicketIdRoute: ApiAuthCliStatusTicketIdRoute,
 }
 export const routeTree = rootRouteImport

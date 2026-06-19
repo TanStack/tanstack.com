@@ -226,6 +226,84 @@ export const oauthAccounts = pgTable(
 export type OAuthAccount = InferSelectModel<typeof oauthAccounts>
 export type NewOAuthAccount = InferInsertModel<typeof oauthAccounts>
 
+export const forgeProjects = pgTable(
+  'forge_projects',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    runtimeProjectId: varchar('runtime_project_id', { length: 160 })
+      .notNull()
+      .default('local-project'),
+    activeChatSessionId: uuid('active_chat_session_id'),
+    name: varchar('name', { length: 255 }).notNull().default('Forge project'),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    userIdx: index('forge_projects_user_idx').on(table.userId),
+    userRuntimeProjectUnique: uniqueIndex(
+      'forge_projects_user_runtime_project_unique',
+    ).on(table.userId, table.runtimeProjectId),
+  }),
+)
+
+export type ForgeProject = InferSelectModel<typeof forgeProjects>
+export type NewForgeProject = InferInsertModel<typeof forgeProjects>
+
+export const forgeChatSessions = pgTable(
+  'forge_chat_sessions',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    projectId: uuid('project_id')
+      .notNull()
+      .references(() => forgeProjects.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    runtimeSessionId: varchar('runtime_session_id', { length: 160 })
+      .notNull()
+      .unique(),
+    title: varchar('title', { length: 255 }).notNull().default('New chat'),
+    currentManifestVersionId: varchar('current_manifest_version_id', {
+      length: 160,
+    }),
+    latestRunId: varchar('latest_run_id', { length: 160 }),
+    latestRunStatus: varchar('latest_run_status', { length: 32 }),
+    archivedAt: timestamp('archived_at', {
+      withTimezone: true,
+      mode: 'date',
+    }),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    projectUpdatedIdx: index('forge_chat_sessions_project_updated_idx').on(
+      table.projectId,
+      table.updatedAt,
+    ),
+    runtimeSessionIdx: index('forge_chat_sessions_runtime_session_idx').on(
+      table.runtimeSessionId,
+    ),
+    userUpdatedIdx: index('forge_chat_sessions_user_updated_idx').on(
+      table.userId,
+      table.updatedAt,
+    ),
+  }),
+)
+
+export type ForgeChatSession = InferSelectModel<typeof forgeChatSessions>
+export type NewForgeChatSession = InferInsertModel<typeof forgeChatSessions>
+
 // GitHub Stats cache table (for caching expensive GitHub API calls)
 export const githubStatsCache = pgTable(
   'github_stats_cache',

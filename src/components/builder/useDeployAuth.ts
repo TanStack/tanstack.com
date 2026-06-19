@@ -10,12 +10,13 @@ interface DeployAuthState {
   isLoading: boolean
   authenticated: boolean
   hasGitHubAccount: boolean
+  hasPrivateRepoScope: boolean
   hasRepoScope: boolean
 }
 
 interface UseDeployAuthReturn extends DeployAuthState {
   refresh: () => Promise<void>
-  redirectToGitHubAuth: () => void
+  redirectToGitHubAuth: (options?: { privateRepo?: boolean }) => void
 }
 
 async function fetchAuthStateFromServer(): Promise<DeployAuthState> {
@@ -26,6 +27,7 @@ async function fetchAuthStateFromServer(): Promise<DeployAuthState> {
       isLoading: false,
       authenticated: data.authenticated ?? false,
       hasGitHubAccount: data.hasGitHubAccount ?? false,
+      hasPrivateRepoScope: data.hasPrivateRepoScope ?? false,
       hasRepoScope: data.hasRepoScope ?? false,
     }
   } catch {
@@ -33,6 +35,7 @@ async function fetchAuthStateFromServer(): Promise<DeployAuthState> {
       isLoading: false,
       authenticated: false,
       hasGitHubAccount: false,
+      hasPrivateRepoScope: false,
       hasRepoScope: false,
     }
   }
@@ -43,6 +46,7 @@ export function useDeployAuth(): UseDeployAuthReturn {
     isLoading: true,
     authenticated: false,
     hasGitHubAccount: false,
+    hasPrivateRepoScope: false,
     hasRepoScope: false,
   })
 
@@ -65,34 +69,48 @@ export function useDeployAuth(): UseDeployAuthReturn {
     }
   }, [])
 
-  const redirectToGitHubAuth = useCallback(() => {
-    // Open GitHub OAuth in a popup so user doesn't lose their place
-    const authUrl = `/auth/github/start?popup=true&scope=public_repo`
-    const width = 500
-    const height = 700
-    const left = window.screenX + (window.outerWidth - width) / 2
-    const top = window.screenY + (window.outerHeight - height) / 2
-    const popup = window.open(
-      authUrl,
-      'github-auth',
-      `width=${width},height=${height},left=${left},top=${top},popup=yes`,
-    )
+  const redirectToGitHubAuth = useCallback(
+    (options: { privateRepo?: boolean } = {}) => {
+      // Open GitHub OAuth in a popup so user doesn't lose their place
+      const scope = options.privateRepo ? 'repo' : 'public_repo'
+      const authUrl = `/auth/github/start?popup=true&scope=${scope}`
+      const width = 500
+      const height = 700
+      const left = window.screenX + (window.outerWidth - width) / 2
+      const top = window.screenY + (window.outerHeight - height) / 2
+      const popup = window.open(
+        authUrl,
+        'github-auth',
+        `width=${width},height=${height},left=${left},top=${top},popup=yes`,
+      )
 
-    // Poll for popup close and refresh auth state
-    if (popup) {
-      const checkClosed = setInterval(() => {
-        if (popup.closed) {
-          clearInterval(checkClosed)
-          // Refresh auth state after popup closes
-          fetchAuthState()
-        }
-      }, 500)
-    }
-  }, [fetchAuthState])
+      // Poll for popup close and refresh auth state
+      if (popup) {
+        const checkClosed = setInterval(() => {
+          if (popup.closed) {
+            clearInterval(checkClosed)
+            // Refresh auth state after popup closes
+            fetchAuthState()
+          }
+        }, 500)
+      }
+    },
+    [fetchAuthState],
+  )
 
   return {
     ...state,
     refresh: fetchAuthState,
     redirectToGitHubAuth,
   }
+}
+
+export function hasRequiredDeployRepoScope({
+  auth,
+  isPrivate,
+}: {
+  auth: Pick<DeployAuthState, 'hasPrivateRepoScope' | 'hasRepoScope'>
+  isPrivate: boolean
+}) {
+  return isPrivate ? auth.hasPrivateRepoScope : auth.hasRepoScope
 }

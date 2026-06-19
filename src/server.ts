@@ -69,7 +69,12 @@ function applyHostingHeaders(response: Response, url: URL) {
     headers.set(key, value)
   }
 
-  if (url.pathname === '/builder' || url.pathname.startsWith('/builder/')) {
+  if (
+    url.pathname === '/builder' ||
+    url.pathname === '/forge' ||
+    url.pathname.startsWith('/builder/') ||
+    url.pathname.startsWith('/forge/')
+  ) {
     headers.set('Cross-Origin-Opener-Policy', 'same-origin')
     headers.set('Cross-Origin-Embedder-Policy', 'require-corp')
   }

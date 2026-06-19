@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { suggestHandler } from '~/builder/api'
 
 export const Route = createFileRoute('/api/builder/suggest')({
   server: {
@@ -8,6 +7,7 @@ export const Route = createFileRoute('/api/builder/suggest')({
         try {
           const body = await request.json()
 
+          const { suggestHandler } = await import('~/builder/api/suggest')
           const response = await suggestHandler(body)
           return new Response(JSON.stringify(response), {
             headers: { 'Content-Type': 'application/json' },

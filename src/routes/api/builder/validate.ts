@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { validateHandler } from '~/builder/api'
 
 export const Route = createFileRoute('/api/builder/validate')({
   server: {
@@ -19,6 +18,7 @@ export const Route = createFileRoute('/api/builder/validate')({
             )
           }
 
+          const { validateHandler } = await import('~/builder/api/validate')
           const response = await validateHandler(definition)
           return new Response(JSON.stringify(response), {
             headers: { 'Content-Type': 'application/json' },

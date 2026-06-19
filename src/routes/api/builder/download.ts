@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import JSZip from "jszip";
-import { compileHandler } from "~/builder/api";
 
 const BASE64_PREFIX = "base64::";
 
@@ -43,6 +42,7 @@ export const Route = createFileRoute("/api/builder/download")({
             }
           }
 
+          const { compileHandler } = await import("~/builder/api/compile");
           const result = await compileHandler({
             name,
             framework: framework === "solid" ? "solid" : "react",

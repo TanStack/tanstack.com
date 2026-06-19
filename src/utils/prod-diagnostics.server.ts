@@ -37,10 +37,22 @@ function getFdCount(): number {
 
 function getResourceSummary(): Record<string, number> {
   const summary: Record<string, number> = {}
+
+  if (typeof process.getActiveResourcesInfo !== 'function') {
+    return summary
+  }
+
   for (const resource of process.getActiveResourcesInfo()) {
     summary[resource] = (summary[resource] ?? 0) + 1
   }
   return summary
+}
+
+function isCloudflareWorkersRuntime(): boolean {
+  return (
+    typeof navigator !== 'undefined' &&
+    navigator.userAgent === 'Cloudflare-Workers'
+  )
 }
 
 function getTopHosts(
@@ -123,13 +135,18 @@ export function installProductionFetchProbe(): void {
 }
 
 export function installProductionProcessProbe(): void {
-  if (!isProduction || processProbeInstalled) {
+  if (
+    !isProduction ||
+    processProbeInstalled ||
+    isCloudflareWorkersRuntime() ||
+    typeof process.on !== 'function'
+  ) {
     return
   }
 
   processProbeInstalled = true
 
-  setInterval(() => {
+  const heartbeat = setInterval(() => {
     maybeLogFdHighWatermark()
     logDiagnostic({
       event: 'process_heartbeat',
@@ -137,7 +154,16 @@ export function installProductionProcessProbe(): void {
       fdCount: getFdCount(),
       resourceSummary: getResourceSummary(),
     })
-  }, 30_000).unref()
+  }, 30_000)
+
+  if (
+    typeof heartbeat === 'object' &&
+    heartbeat &&
+    'unref' in heartbeat &&
+    typeof heartbeat.unref === 'function'
+  ) {
+    heartbeat.unref()
+  }
 
   process.on('unhandledRejection', (reason) => {
     const message =

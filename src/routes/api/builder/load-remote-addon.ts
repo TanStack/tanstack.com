@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { loadRemoteIntegrationHandler } from "~/builder/api";
 
 export const Route = createFileRoute("/api/builder/load-remote-addon")({
   server: {
@@ -26,6 +25,9 @@ export const Route = createFileRoute("/api/builder/load-remote-addon")({
           });
         }
 
+        const { loadRemoteIntegrationHandler } = await import(
+          "~/builder/api/remote",
+        );
         const response = await loadRemoteIntegrationHandler(integrationUrl);
         return new Response(JSON.stringify(response), {
           status: response.error ? 400 : 200,

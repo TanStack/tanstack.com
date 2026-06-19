@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { compileHandler } from "~/builder/api";
 
 interface DeployRequest {
   repoName: string;
@@ -179,6 +178,7 @@ export const Route = createFileRoute("/api/builder/deploy/github")({
         // Compile the project
         let compiledFiles: Record<string, string>;
         try {
+          const { compileHandler } = await import("~/builder/api/compile");
           const result = await compileHandler({
             name: projectName,
             framework,

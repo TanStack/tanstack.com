@@ -5,6 +5,7 @@ import contentCollections from '@content-collections/vite'
 import { devtools as tanstackDevtools } from '@tanstack/devtools-vite'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import tailwindcss from '@tailwindcss/vite'
+import { cloudflare } from '@cloudflare/vite-plugin'
 import { analyzer } from 'vite-bundle-analyzer'
 import viteReact from '@vitejs/plugin-react'
 import netlify from '@netlify/vite-plugin-tanstack-start'
@@ -13,6 +14,15 @@ import os from 'node:os'
 import path from 'node:path'
 
 const isDev = process.env.NODE_ENV !== 'production'
+const deployTarget = process.env.TANSTACK_DEPLOY_TARGET
+const isCloudflareTarget = deployTarget === 'cloudflare'
+const isNetlifyTarget =
+  !isCloudflareTarget &&
+  (deployTarget === 'netlify' ||
+    Boolean(process.env.NETLIFY) ||
+    process.env.NODE_ENV === 'production')
+const shouldUseRedact =
+  !isCloudflareTarget && process.env.DISABLE_REDACT !== 'true'
 const localRedactPackageRoot = process.env.LOCAL_REDACT_PACKAGE_ROOT
 const shouldUseSentryPlugin =
   process.env.NODE_ENV === 'production' &&
@@ -76,7 +86,7 @@ const useSyncExternalStoreShimIndexAlias = {
 // These browser-facing packages are imported by SSR assets. Bundle them into
 // server output so Netlify's Node runtime never loads their raw package entries.
 const serverBundledClientPackages = [
-  '@tanstack/redact',
+  ...(shouldUseRedact ? ['@tanstack/redact'] : []),
   /^@radix-ui\//,
   '@kapaai/react-sdk',
   '@tanstack/highlight',
@@ -108,11 +118,32 @@ export default defineConfig({
         find: '~',
         replacement: path.resolve(__dirname, './src'),
       },
-      useSyncExternalStoreShimIndexAlias,
-      ...Object.entries(serverVariantAliases).map(([find, replacement]) => ({
-        find,
-        replacement,
-      })),
+      ...(isCloudflareTarget
+        ? [
+            {
+              find: 'ejs',
+              replacement: path.resolve(
+                __dirname,
+                './src/server/cloudflare/ejs-compat.ts',
+              ),
+            },
+            {
+              find: 'unicorn-magic',
+              replacement: 'unicorn-magic/node',
+            },
+          ]
+        : []),
+      ...(shouldUseRedact
+        ? [
+            useSyncExternalStoreShimIndexAlias,
+            ...Object.entries(serverVariantAliases).map(
+              ([find, replacement]) => ({
+                find,
+                replacement,
+              }),
+            ),
+          ]
+        : []),
     ],
   },
   server: {
@@ -131,23 +162,30 @@ export default defineConfig({
   },
   environments: {
     ssr: {
+      optimizeDeps: {
+        exclude: ['@tanstack/create'],
+      },
       resolve: {
         noExternal: [...serverBundledClientPackages, ...routerSsrPackages],
-        external: [...ssrExternals, ...sentrySsrExternals, ...dbSsrExternals],
+        external: isCloudflareTarget
+          ? undefined
+          : [...ssrExternals, ...sentrySsrExternals, ...dbSsrExternals],
       },
     },
   },
   ssr: {
-    external: [
-      'postgres',
-      ...dbSsrExternals,
-      // CTA packages use execa which has a broken unicorn-magic dependency
-      '@tanstack/create',
-      // Externalize CLI so server reloads it on changes
-      '@tanstack/cli',
-      ...ssrExternals,
-      ...sentrySsrExternals,
-    ],
+    external: isCloudflareTarget
+      ? []
+      : [
+          'postgres',
+          ...dbSsrExternals,
+          // CTA packages use execa which has a broken unicorn-magic dependency
+          '@tanstack/create',
+          // Externalize CLI so server reloads it on changes
+          '@tanstack/cli',
+          ...ssrExternals,
+          ...sentrySsrExternals,
+        ],
     noExternal: [
       '@uploadthing/react',
       'file-selector',
@@ -182,7 +220,7 @@ export default defineConfig({
     rollupOptions: {
       external: (id) => {
         // Externalize postgres from client bundle
-        return id.includes('postgres')
+        return !isCloudflareTarget && id.includes('postgres')
       },
       output: {
         manualChunks: (id) => {
@@ -235,15 +273,26 @@ export default defineConfig({
     },
   },
   plugins: [
-    redact(
-      localRedactPackageRoot
-        ? {
-            packageRoots: {
-              '@tanstack/redact': localRedactPackageRoot,
-            },
-          }
-        : undefined,
-    ),
+    ...(isCloudflareTarget
+      ? [
+          cloudflare({
+            viteEnvironment: { name: 'ssr' },
+          }),
+        ]
+      : []),
+    ...(shouldUseRedact
+      ? [
+          redact(
+            localRedactPackageRoot
+              ? {
+                  packageRoots: {
+                    '@tanstack/redact': localRedactPackageRoot,
+                  },
+                }
+              : undefined,
+          ),
+        ]
+      : []),
     ...(isDev
       ? [
           tanstackDevtools({
@@ -299,10 +348,7 @@ export default defineConfig({
         },
       },
     }),
-    // Only enable Netlify plugin during build or when NETLIFY env is set
-    ...(process.env.NETLIFY || process.env.NODE_ENV === 'production'
-      ? [netlify()]
-      : []),
+    ...(isNetlifyTarget ? [netlify()] : []),
     viteReact(),
 
     ...(shouldUseSentryPlugin

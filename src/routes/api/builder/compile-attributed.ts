@@ -1,8 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import {
-  compileWithAttributionHandler,
-  type ProjectDefinition,
-} from '~/builder/api'
 
 export const Route = createFileRoute('/api/builder/compile-attributed')({
   server: {
@@ -10,9 +6,7 @@ export const Route = createFileRoute('/api/builder/compile-attributed')({
       POST: async ({ request }: { request: Request }) => {
         try {
           const body = await request.json()
-          const { definition } = body as {
-            definition: ProjectDefinition
-          }
+          const { definition } = body
 
           if (!definition) {
             return new Response(
@@ -24,6 +18,9 @@ export const Route = createFileRoute('/api/builder/compile-attributed')({
             )
           }
 
+          const { compileWithAttributionHandler } = await import(
+            '~/builder/api/compile'
+          )
           const response = await compileWithAttributionHandler(definition)
 
           return new Response(JSON.stringify(response), {

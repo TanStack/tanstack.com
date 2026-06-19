@@ -1,0 +1,21 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "tanstack-com",
+  "main": "src/server.ts",
+  "compatibility_date": "2026-06-19",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true,
+  },
+  "vars": {
+    "SITE_URL": "https://tanstack.com",
+  },
+  "env": {
+    "staging": {
+      "name": "tanstack-com-staging",
+      "vars": {
+        "SITE_URL": "https://tanstack-com-staging.workers.dev",
+      },
+    },
+  },
+}

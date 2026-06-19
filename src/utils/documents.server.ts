@@ -3,7 +3,7 @@ import fsp from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import * as graymatter from 'gray-matter'
+import { parse as parseYaml } from 'yaml'
 import { fetchCached } from '~/utils/cache.server'
 import {
   getCachedGitHubJsonContent,
@@ -13,6 +13,30 @@ import {
 import { normalizeRedirectFrom } from './redirects'
 import { multiSortBy, removeLeadingSlash } from './utils'
 import { env } from './env'
+
+type FrontMatterValue =
+  | string
+  | number
+  | boolean
+  | null
+  | Array<FrontMatterValue>
+  | { [key: string]: FrontMatterValue }
+
+type FrontMatterData = Record<string, FrontMatterValue | undefined> & {
+  description: string
+  title?: string
+  ref?: string
+  replace?: Record<string, string>
+  redirect_from?: Array<string>
+  redirectFrom?: Array<string>
+}
+
+type FrontMatterFile = {
+  content: string
+  data: FrontMatterData
+  excerpt: string
+  userDescription: string | undefined
+}
 
 export type GitHubContentErrorKind =
   | 'forbidden'
@@ -244,12 +268,9 @@ async function fetchFs(repo: string, filepath: string) {
 /**
  * Perform global string replace in text for given key-value map
  */
-function replaceContent(
-  text: string,
-  frontmatter: graymatter.GrayMatterFile<string>,
-) {
+function replaceContent(text: string, frontmatter: FrontMatterFile) {
   let result = text
-  const replace = frontmatter.data.replace as Record<string, string> | undefined
+  const replace = frontmatter.data.replace
   if (replace) {
     Object.entries(replace).forEach(([key, value]) => {
       result = result.replace(new RegExp(key, 'g'), value)
@@ -268,10 +289,7 @@ function replaceContent(
  * @param frontmatter Referencing file front-matter
  * @returns File content with replaced sections
  */
-function replaceSections(
-  text: string,
-  frontmatter: graymatter.GrayMatterFile<string>,
-) {
+function replaceSections(text: string, frontmatter: FrontMatterFile) {
   let result = text
   // RegExp defining token pair to dicover sections in the document
   // [//]: # (<Section Token>)
@@ -440,7 +458,7 @@ async function fetchRepoFileFromOrigin(
   const [owner, repo] = repoPair.split('/')
   const maxDepth = 4
   let currentDepth = 1
-  let originFrontmatter: graymatter.GrayMatterFile<string> | undefined
+  let originFrontmatter: FrontMatterFile | undefined
 
   while (maxDepth > currentDepth) {
     let text: string | null
@@ -513,30 +531,106 @@ export async function fetchRepoFile(
 }
 
 export function extractFrontMatter(content: string) {
-  const result = graymatter.default(content, {
-    excerpt: (file: any) => (file.excerpt = createRichExcerpt(file.content)),
-  })
-  const redirectFrom = normalizeRedirectFrom(result.data.redirect_from)
+  const parsed = parseFrontMatter(content)
+  const redirectFrom = normalizeRedirectFrom(parsed.data.redirect_from)
   const userDescription =
-    typeof result.data.description === 'string' &&
-    result.data.description.trim().length > 0
-      ? result.data.description
+    typeof parsed.data.description === 'string' &&
+    parsed.data.description.trim().length > 0
+      ? parsed.data.description
       : undefined
+  const title =
+    typeof parsed.data.title === 'string' ? parsed.data.title : undefined
+  const ref = typeof parsed.data.ref === 'string' ? parsed.data.ref : undefined
+  const data: FrontMatterData = {
+    ...parsed.data,
+    description: userDescription ?? createExcerpt(parsed.content),
+    title,
+    ref,
+    redirect_from: redirectFrom,
+    redirectFrom,
+  }
 
   return {
-    ...result,
-    data: {
-      ...result.data,
-      description: userDescription ?? createExcerpt(result.content),
-      redirect_from: redirectFrom,
-      redirectFrom,
-    } as { [key: string]: any } & {
-      description: string
-      redirect_from?: Array<string>
-      redirectFrom?: Array<string>
-    },
+    content: parsed.content,
+    data,
+    excerpt: createRichExcerpt(parsed.content),
     userDescription,
   }
+}
+
+function parseFrontMatter(content: string) {
+  const normalizedContent = content.replace(/^\uFEFF/, '')
+
+  if (!normalizedContent.startsWith('---')) {
+    return { content, data: {} }
+  }
+
+  const lines = normalizedContent.split(/\r?\n/)
+  const closingLineIndex = lines.findIndex(
+    (line, index) => index > 0 && line.trim() === '---',
+  )
+
+  if (closingLineIndex === -1) {
+    return { content, data: {} }
+  }
+
+  const frontMatterSource = lines.slice(1, closingLineIndex).join('\n')
+  const body = lines.slice(closingLineIndex + 1).join('\n')
+  const parsed = parseYaml(frontMatterSource)
+
+  return {
+    content: body,
+    data: isRecord(parsed) ? normalizeFrontMatterData(parsed) : {},
+  }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+function normalizeFrontMatterData(data: Record<string, unknown>) {
+  const normalized: Record<string, FrontMatterValue | undefined> = {}
+
+  for (const [key, value] of Object.entries(data)) {
+    normalized[key] = toFrontMatterValue(value)
+  }
+
+  return normalized
+}
+
+function toFrontMatterValue(value: unknown): FrontMatterValue | undefined {
+  if (
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    typeof value === 'boolean' ||
+    value === null
+  ) {
+    return value
+  }
+
+  if (Array.isArray(value)) {
+    const normalized: Array<FrontMatterValue> = []
+    for (const item of value) {
+      const normalizedItem = toFrontMatterValue(item)
+      if (normalizedItem !== undefined) {
+        normalized.push(normalizedItem)
+      }
+    }
+    return normalized
+  }
+
+  if (isRecord(value)) {
+    const normalized: Record<string, FrontMatterValue> = {}
+    for (const [key, item] of Object.entries(value)) {
+      const normalizedItem = toFrontMatterValue(item)
+      if (normalizedItem !== undefined) {
+        normalized[key] = normalizedItem
+      }
+    }
+    return normalized
+  }
+
+  return undefined
 }
 
 function createExcerpt(text: string, maxLength = 200) {

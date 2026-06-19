@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { featureArtifactsHandler, normalizeFrameworkId } from '~/builder/api'
+import { normalizeFrameworkId } from '~/builder/frameworks'
 
 export const Route = createFileRoute('/api/builder/feature-artifacts')({
   server: {
@@ -7,14 +7,14 @@ export const Route = createFileRoute('/api/builder/feature-artifacts')({
       POST: async ({ request }: { request: Request }) => {
         try {
           const body = await request.json()
-          const { features, projectName, framework, featureOptions, tailwind, customIntegrations } = body as {
-            features: Array<string>
-            projectName?: string
-            framework?: string
-            featureOptions?: Record<string, Record<string, unknown>>
-            tailwind?: boolean
-            customIntegrations?: Array<unknown>
-          }
+          const {
+            features,
+            projectName,
+            framework,
+            featureOptions,
+            tailwind,
+            customIntegrations,
+          } = body
 
           if (!features || !Array.isArray(features)) {
             return new Response(
@@ -26,13 +26,16 @@ export const Route = createFileRoute('/api/builder/feature-artifacts')({
             )
           }
 
+          const { featureArtifactsHandler } = await import(
+            '~/builder/api/feature-artifacts'
+          )
           const response = await featureArtifactsHandler({
-              features,
-              projectName,
-              framework: normalizeFrameworkId(framework),
-              featureOptions,
-              tailwind,
-            customIntegrations: customIntegrations as Parameters<typeof featureArtifactsHandler>[0]['customIntegrations'],
+            features,
+            projectName,
+            framework: normalizeFrameworkId(framework),
+            featureOptions,
+            tailwind,
+            customIntegrations,
           })
 
           return new Response(JSON.stringify(response), {

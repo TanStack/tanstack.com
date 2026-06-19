@@ -20,11 +20,12 @@ export const Route = createFileRoute('/api/og/{$}.png')({
         const libraryId = rawParam.replace(/\.png$/, '')
 
         const url = new URL(request.url)
-        let result: ReturnType<typeof generateOgImageResponse>
+        let result: Awaited<ReturnType<typeof generateOgImageResponse>>
         try {
-          result = generateOgImageResponse(
+          result = await generateOgImageResponse(
             {
               libraryId,
+              requestUrl: request.url,
               title: url.searchParams.get('title') ?? undefined,
               description: url.searchParams.get('description') ?? undefined,
             },

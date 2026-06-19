@@ -12,6 +12,20 @@ import {
 } from '~/utils/prod-diagnostics.server'
 import { docsContentNegotiationVaryHeader } from '~/utils/http'
 
+const SECURITY_HEADERS = {
+  'X-Frame-Options': 'DENY',
+  'X-Content-Type-Options': 'nosniff',
+  'X-XSS-Protection': '1; mode=block',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+} as const
+
+const GOOGLE_ANALYTICS_SCRIPT_URL =
+  'https://www.googletagmanager.com/gtag/js?id=G-JMT1Z50SPS'
+const GOOGLE_ANALYTICS_COLLECT_URL =
+  'https://www.google-analytics.com/g/collect'
+
 installProductionFetchProbe()
 installProductionProcessProbe()
 
@@ -33,6 +47,55 @@ function shouldRewriteDocsRequestToMarkdown(request: Request, url: URL) {
   )
 }
 
+function applyHostingHeaders(response: Response, url: URL) {
+  const headers = new Headers(response.headers)
+
+  for (const [key, value] of Object.entries(SECURITY_HEADERS)) {
+    headers.set(key, value)
+  }
+
+  if (url.pathname === '/builder' || url.pathname.startsWith('/builder/')) {
+    headers.set('Cross-Origin-Opener-Policy', 'same-origin')
+    headers.set('Cross-Origin-Embedder-Policy', 'require-corp')
+  }
+
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  })
+}
+
+async function proxyAnalyticsRequest(request: Request, url: URL) {
+  const upstreamUrl =
+    url.pathname === '/_a/gtag.js'
+      ? new URL(GOOGLE_ANALYTICS_SCRIPT_URL)
+      : url.pathname === '/_a/g/collect'
+        ? new URL(GOOGLE_ANALYTICS_COLLECT_URL)
+        : null
+
+  if (!upstreamUrl) {
+    return null
+  }
+
+  if (url.pathname === '/_a/g/collect') {
+    upstreamUrl.search = url.search
+  }
+
+  const init: RequestInit = {
+    method: request.method,
+    headers: request.headers,
+    redirect: 'follow',
+  }
+
+  if (request.method !== 'GET' && request.method !== 'HEAD') {
+    init.body = request.body
+  }
+
+  const response = await fetch(upstreamUrl, init)
+  return applyHostingHeaders(response, url)
+}
+
 export default createServerEntry(
   wrapFetchWithSentry({
     async fetch(request) {
@@ -41,6 +104,14 @@ export default createServerEntry(
         logRequestStart(context)
 
         try {
+          const analyticsResponse = await proxyAnalyticsRequest(request, url)
+          if (analyticsResponse) {
+            logRequestEnd(context, analyticsResponse.status, {
+              analyticsProxy: true,
+            })
+            return analyticsResponse
+          }
+
           if (shouldRewriteDocsRequestToMarkdown(request, url)) {
             const mdUrl = new URL(request.url)
             mdUrl.pathname = `${url.pathname}.md`
@@ -58,31 +129,14 @@ export default createServerEntry(
             logRequestEnd(context, mdResponse.status, {
               rewrittenToMarkdown: true,
             })
-            return markdownResponse
+            return applyHostingHeaders(markdownResponse, url)
           }
 
           const response = await handler.fetch(request)
-
-          if (
-            url.pathname === '/builder' ||
-            url.pathname.startsWith('/builder/')
-          ) {
-            const newHeaders = new Headers(response.headers)
-            newHeaders.set('Cross-Origin-Opener-Policy', 'same-origin')
-            newHeaders.set('Cross-Origin-Embedder-Policy', 'require-corp')
-
-            logRequestEnd(context, response.status, {
-              builderIsolatedHeaders: true,
-            })
-            return new Response(response.body, {
-              status: response.status,
-              statusText: response.statusText,
-              headers: newHeaders,
-            })
-          }
+          const hostedResponse = applyHostingHeaders(response, url)
 
           logRequestEnd(context, response.status)
-          return response
+          return hostedResponse
         } catch (error) {
           logRequestError(context, error)
           throw error

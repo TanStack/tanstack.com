@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { compileHandler } from '~/builder/api'
 
 export const Route = createFileRoute('/api/builder/compile')({
   server: {
@@ -19,6 +18,7 @@ export const Route = createFileRoute('/api/builder/compile')({
             )
           }
 
+          const { compileHandler } = await import('~/builder/api/compile')
           const response = await compileHandler(definition, { format })
           return new Response(JSON.stringify(response), {
             headers: { 'Content-Type': 'application/json' },

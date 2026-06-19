@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { loadRemoteTemplateHandler } from "~/builder/api";
 
 export const Route = createFileRoute("/api/builder/load-remote-template")({
   server: {
@@ -26,6 +25,7 @@ export const Route = createFileRoute("/api/builder/load-remote-template")({
           });
         }
 
+        const { loadRemoteTemplateHandler } = await import("~/builder/api/remote");
         const response = await loadRemoteTemplateHandler(templateUrl);
         return new Response(JSON.stringify(response), {
           status: response.error ? 400 : 200,

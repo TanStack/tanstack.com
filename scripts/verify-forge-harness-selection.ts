@@ -1,34 +1,12 @@
 import assert from 'node:assert/strict'
-import {
-  isCodexCliForgeHarnessAllowed,
-  resolveLocalForgeAgentHarnessName,
-} from '../src/builder/runtime/local-agent.server'
+import { resolveLocalForgeAgentHarnessName } from '../src/builder/runtime/local-agent.server'
 
-assert.equal(resolveLocalForgeAgentHarnessName(undefined), 'tanstack-ai')
-assert.equal(resolveLocalForgeAgentHarnessName(''), 'tanstack-ai')
-assert.equal(resolveLocalForgeAgentHarnessName('tanstack-ai'), 'tanstack-ai')
-assert.equal(resolveLocalForgeAgentHarnessName('codex'), 'codex-cli')
-assert.equal(resolveLocalForgeAgentHarnessName('codex-cli'), 'codex-cli')
-assert.equal(resolveLocalForgeAgentHarnessName('local-codex'), 'codex-cli')
-
-assert.equal(
-  isCodexCliForgeHarnessAllowed({
-    nodeEnv: 'development',
-  }),
-  true,
-)
-assert.equal(
-  isCodexCliForgeHarnessAllowed({
-    nodeEnv: 'production',
-  }),
-  false,
-)
-assert.equal(
-  isCodexCliForgeHarnessAllowed({
-    enabled: 'true',
-    nodeEnv: 'production',
-  }),
-  true,
-)
+assert.equal(resolveLocalForgeAgentHarnessName(undefined), 'codex')
+assert.equal(resolveLocalForgeAgentHarnessName(''), 'codex')
+assert.equal(resolveLocalForgeAgentHarnessName('codex'), 'codex')
+assert.equal(resolveLocalForgeAgentHarnessName('CODEX'), 'codex')
+assert.equal(resolveLocalForgeAgentHarnessName('claude-code'), 'claude-code')
+assert.equal(resolveLocalForgeAgentHarnessName('claude'), 'claude-code')
+assert.equal(resolveLocalForgeAgentHarnessName('something-else'), 'codex')
 
 console.log('Forge harness selection verifier passed')

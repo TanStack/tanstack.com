@@ -100,7 +100,7 @@ const LOCAL_FORGE_EDITABLE_ROOT_FILE_PATHS = new Set<string>([
   'wrangler.jsonc',
   'wrangler.toml',
 ])
-const LOCAL_FORGE_PROTECTED_WORKSPACE_PATHS = new Set([
+export const LOCAL_FORGE_PROTECTED_WORKSPACE_PATHS = new Set([
   'package.json',
   'src/routes/__root.tsx',
   'src/router.tsx',
@@ -1574,7 +1574,7 @@ async function appendRunStart({
   return runContext
 }
 
-async function appendAgentEvent({
+export async function appendAgentEvent({
   detail,
   message,
   name,
@@ -1622,7 +1622,7 @@ async function appendAgentEvent({
   await appendLocalForgeTimelineEvents([event])
 }
 
-async function appendAssistantMessage({
+export async function appendAssistantMessage({
   runContext,
   text,
 }: {

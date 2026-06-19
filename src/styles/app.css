@@ -1273,7 +1273,7 @@ mark {
   position: relative;
   display: inline-block;
   white-space: nowrap;
-  font-weight: 300;
+  font-weight: 400;
   font-style: oblique 8deg;
   color: rgb(20 184 166);
   background-image: var(--home-open-source-gradient);
@@ -1285,24 +1285,8 @@ mark {
   animation: home-open-source-gradient-shift 34s ease-in-out infinite;
 }
 
-.home-open-source-gradient::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -0.04em;
-  height: 0.07em;
-  border-radius: 9999px;
-  pointer-events: none;
-  background-image: var(--home-open-source-gradient);
-  background-size: 720% 100%;
-  background-position: 0% 50%;
-  animation: home-open-source-gradient-shift 34s ease-in-out infinite;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .home-open-source-gradient,
-  .home-open-source-gradient::after {
+  .home-open-source-gradient {
     animation: none;
   }
 

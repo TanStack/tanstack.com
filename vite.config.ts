@@ -1,5 +1,6 @@
 import { sentryTanstackStart } from '@sentry/tanstackstart-react/vite'
 import { defineConfig } from 'vite'
+import type { PluginOption } from 'vite'
 import { redact } from '@tanstack/redact/vite'
 import contentCollections from '@content-collections/vite'
 import { devtools as tanstackDevtools } from '@tanstack/devtools-vite'
@@ -10,19 +11,24 @@ import { analyzer } from 'vite-bundle-analyzer'
 import viteReact from '@vitejs/plugin-react'
 import netlify from '@netlify/vite-plugin-tanstack-start'
 import fs from 'node:fs'
+import { createRequire } from 'node:module'
 import os from 'node:os'
 import path from 'node:path'
 
+const nodeRequire = createRequire(import.meta.url)
 const isDev = process.env.NODE_ENV !== 'production'
 const deployTarget = process.env.TANSTACK_DEPLOY_TARGET
 const isCloudflareTarget = deployTarget === 'cloudflare'
+const takumiWasmWorkerdPath = path.join(
+  path.dirname(path.dirname(nodeRequire.resolve('@takumi-rs/wasm/no-bundler'))),
+  'bundlers/workerd.js',
+)
 const isNetlifyTarget =
   !isCloudflareTarget &&
   (deployTarget === 'netlify' ||
     Boolean(process.env.NETLIFY) ||
     process.env.NODE_ENV === 'production')
-const shouldUseRedact =
-  !isCloudflareTarget && process.env.DISABLE_REDACT !== 'true'
+const shouldUseRedact = process.env.DISABLE_REDACT !== 'true'
 const localRedactPackageRoot = process.env.LOCAL_REDACT_PACKAGE_ROOT
 const shouldUseSentryPlugin =
   process.env.NODE_ENV === 'production' &&
@@ -65,10 +71,27 @@ const envDir =
     ? defaultCheckoutEnvDir
     : __dirname
 
+function cloudflareTakumiWasmImport(): PluginOption {
+  return {
+    name: 'tanstack-cloudflare-takumi-wasm-import',
+    enforce: 'pre',
+    transform(code, id) {
+      if (!isCloudflareTarget) return
+      if (!id.includes('/node_modules/takumi-js/dist/render-')) return
+
+      return code.replace(
+        /import\(\s*\/\*\s*@vite-ignore\s*\*\/\s*['"]@takumi-rs\/wasm['"]\s*\)/g,
+        'import("@takumi-rs/wasm/no-bundler")',
+      )
+    },
+  }
+}
+
 // Runtime-specific `react-dom/server` variants aren't in @tanstack/redact/vite's
 // default alias map. Netlify's edge adapter imports them conditionally, so we
 // funnel them all to `@tanstack/redact/server` at the top-level resolve.
 const serverVariantAliases: Record<string, string> = {
+  'react-dom/server': '@tanstack/redact/server',
   'react-dom/server.edge': '@tanstack/redact/server',
   'react-dom/server.node': '@tanstack/redact/server',
   'react-dom/server.bun': '@tanstack/redact/server',
@@ -130,6 +153,10 @@ export default defineConfig({
             {
               find: 'unicorn-magic',
               replacement: 'unicorn-magic/node',
+            },
+            {
+              find: '@takumi-rs/wasm/auto',
+              replacement: takumiWasmWorkerdPath,
             },
           ]
         : []),
@@ -215,6 +242,7 @@ export default defineConfig({
     ],
   },
   build: {
+    minify: isCloudflareTarget ? 'esbuild' : undefined,
     sourcemap: shouldBuildSourcemaps,
     reportCompressedSize: false,
     rollupOptions: {
@@ -275,6 +303,7 @@ export default defineConfig({
   plugins: [
     ...(isCloudflareTarget
       ? [
+          cloudflareTakumiWasmImport(),
           cloudflare({
             viteEnvironment: { name: 'ssr' },
           }),

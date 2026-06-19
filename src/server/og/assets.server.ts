@@ -6,6 +6,44 @@ import interExtraBoldUrl from '../../../public/fonts/Inter-ExtraBold.ttf?url'
 import interBlackUrl from '../../../public/fonts/Inter-Black.ttf?url'
 import islandPngUrl from '../../../public/images/logos/splash-dark.png?url'
 
+type AssetsBinding = {
+  fetch: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>
+}
+
+type CloudflareWorkersModule = {
+  env: Record<string, unknown>
+}
+
+function isCloudflareWorkerRuntime() {
+  if ('WebSocketPair' in globalThis) return true
+
+  return (
+    typeof navigator !== 'undefined' &&
+    navigator.userAgent === 'Cloudflare-Workers'
+  )
+}
+
+function isAssetsBinding(value: unknown): value is AssetsBinding {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'fetch' in value &&
+    typeof value.fetch === 'function'
+  )
+}
+
+async function getCloudflareAssetsBinding() {
+  if (!isCloudflareWorkerRuntime()) return
+
+  const cloudflareWorkersSpecifier = 'cloudflare' + ':workers'
+  const { env }: CloudflareWorkersModule = await import(
+    /* @vite-ignore */
+    cloudflareWorkersSpecifier
+  )
+
+  return isAssetsBinding(env.ASSETS) ? env.ASSETS : undefined
+}
+
 function tryReadBinary(relPath: string): Buffer | null {
   // Resolve from the project root. In Netlify functions the working directory
   // is the function bundle root, which includes `public/` via the included_files
@@ -18,7 +56,10 @@ function tryReadBinary(relPath: string): Buffer | null {
 }
 
 async function readAssetUrl(assetUrl: string, requestUrl: string) {
-  const response = await fetch(new URL(assetUrl, requestUrl))
+  const url = new URL(assetUrl, requestUrl)
+  const assets = await getCloudflareAssetsBinding()
+  const response = assets ? await assets.fetch(url) : await fetch(url)
+
   if (!response.ok) {
     throw new Error(`Failed to load OG asset ${assetUrl}: ${response.status}`)
   }

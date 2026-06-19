@@ -1,8 +1,10 @@
-import { ImageResponse } from '@takumi-rs/image-response'
-import takumiWasmModule from '@takumi-rs/wasm/auto'
+import {
+  ImageResponse,
+  type ImageResponseOptions,
+} from '@takumi-rs/image-response'
 import { findLibrary } from '~/libraries'
 import type { LibraryId } from '~/libraries'
-import { loadOgAssets } from './assets.server'
+import { loadOgAssets as loadNodeOgAssets } from './assets.server'
 import { getAccentColor } from './colors'
 import { buildOgTree } from './template'
 import {
@@ -34,7 +36,7 @@ export async function generateOgImageResponse(
     return { kind: 'library-not-found', libraryId: input.libraryId }
   }
 
-  const assets = await loadOgAssets(input.requestUrl)
+  const assets = await loadNodeOgAssets(input.requestUrl)
   const tree = buildOgTree({
     libraryName: library.name,
     accentColor: getAccentColor(library.id),
@@ -48,14 +50,10 @@ export async function generateOgImageResponse(
       : undefined,
   })
 
-  return new ImageResponse(tree, {
+  const options: ImageResponseOptions = {
     width: 1200,
     height: 630,
     format: 'png',
-    // Passing `module` switches takumi-js's renderer to WASM. The `auto`
-    // entry lets Vite/Workers package the WASM module instead of relying on
-    // Netlify-style included files.
-    module: takumiWasmModule,
     fonts: [
       {
         name: 'Inter',
@@ -78,5 +76,7 @@ export async function generateOgImageResponse(
     ],
     persistentImages: [{ src: ISLAND_KEY, data: assets.islandPng }],
     ...init,
-  })
+  }
+
+  return new ImageResponse(tree, options)
 }

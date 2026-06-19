@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { authClient } from '~/auth/client'
 // Using public asset URLs for splash images
-import { redirect, createFileRoute } from '@tanstack/react-router'
+import { ClientOnly, redirect, createFileRoute } from '@tanstack/react-router'
 import { getCurrentUser } from '~/utils/auth.functions'
 import * as v from 'valibot'
 import { GithubIcon } from '~/components/icons/GithubIcon'
@@ -19,6 +19,23 @@ const searchSchema = v.object({
   redirect: v.optional(v.string()),
 })
 
+function SplashImages() {
+  return (
+    <>
+      <img
+        src="/images/logos/splash-light.png"
+        alt="TanStack"
+        className="w-48 h-48 dark:hidden"
+      />
+      <img
+        src="/images/logos/splash-dark.png"
+        alt="TanStack"
+        className="w-48 h-48 hidden dark:block"
+      />
+    </>
+  )
+}
+
 export const Route = createFileRoute('/login')({
   component: LoginPage,
   validateSearch: searchSchema,
@@ -32,37 +49,21 @@ export const Route = createFileRoute('/login')({
 })
 
 function SplashImage() {
+  const fallback = (
+    <div className="cursor-pointer">
+      <SplashImages />
+    </div>
+  )
+
   return (
     <div className="flex items-center justify-center mb-4">
-      <React.Suspense
-        fallback={
-          <div className="cursor-pointer">
-            <img
-              src="/images/logos/splash-light.png"
-              alt="TanStack"
-              className="w-48 h-48 dark:hidden"
-            />
-            <img
-              src="/images/logos/splash-dark.png"
-              alt="TanStack"
-              className="w-48 h-48 hidden dark:block"
-            />
-          </div>
-        }
-      >
-        <LazyBrandContextMenu className="cursor-pointer">
-          <img
-            src="/images/logos/splash-light.png"
-            alt="TanStack"
-            className="w-48 h-48 dark:hidden"
-          />
-          <img
-            src="/images/logos/splash-dark.png"
-            alt="TanStack"
-            className="w-48 h-48 hidden dark:block"
-          />
-        </LazyBrandContextMenu>
-      </React.Suspense>
+      <ClientOnly fallback={fallback}>
+        <React.Suspense fallback={fallback}>
+          <LazyBrandContextMenu className="cursor-pointer">
+            <SplashImages />
+          </LazyBrandContextMenu>
+        </React.Suspense>
+      </ClientOnly>
     </div>
   )
 }

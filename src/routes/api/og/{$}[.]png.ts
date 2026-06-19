@@ -1,5 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { generateOgImageResponse } from '~/server/og/generate.server'
+
+type GenerateOgImageResponse = typeof import(
+  '~/server/og/generate.server'
+)['generateOgImageResponse']
 
 const CACHE_HEADERS = {
   'Cache-Control':
@@ -20,8 +23,11 @@ export const Route = createFileRoute('/api/og/{$}.png')({
         const libraryId = rawParam.replace(/\.png$/, '')
 
         const url = new URL(request.url)
-        let result: Awaited<ReturnType<typeof generateOgImageResponse>>
+        let result: Awaited<ReturnType<GenerateOgImageResponse>>
         try {
+          const { generateOgImageResponse } = await import(
+            '~/server/og/generate.server'
+          )
           result = await generateOgImageResponse(
             {
               libraryId,

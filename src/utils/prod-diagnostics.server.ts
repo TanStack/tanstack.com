@@ -38,13 +38,19 @@ function getFdCount(): number {
 function getResourceSummary(): Record<string, number> {
   const summary: Record<string, number> = {}
 
-  if (typeof process.getActiveResourcesInfo !== 'function') {
+  const getActiveResourcesInfo = process.getActiveResourcesInfo
+  if (typeof getActiveResourcesInfo !== 'function') {
     return summary
   }
 
-  for (const resource of process.getActiveResourcesInfo()) {
-    summary[resource] = (summary[resource] ?? 0) + 1
+  try {
+    for (const resource of getActiveResourcesInfo()) {
+      summary[resource] = (summary[resource] ?? 0) + 1
+    }
+  } catch {
+    return summary
   }
+
   return summary
 }
 
@@ -87,6 +93,10 @@ function logDiagnostic(payload: Record<string, unknown>): void {
 }
 
 function maybeLogFdHighWatermark(): void {
+  if (isCloudflareWorkersRuntime()) {
+    return
+  }
+
   const fdCount = getFdCount()
   if (fdCount > fdHighWatermark) {
     fdHighWatermark = fdCount

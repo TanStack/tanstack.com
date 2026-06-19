@@ -1,11 +1,15 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "tanstack-com",
+  "account_id": "8da95258a9c70b54c3e2b374a0079106",
   "main": "src/server.ts",
   "compatibility_date": "2026-06-19",
   "compatibility_flags": ["nodejs_compat"],
   "observability": {
     "enabled": true,
+  },
+  "assets": {
+    "binding": "ASSETS",
   },
   "vars": {
     "SITE_URL": "https://tanstack.com",
@@ -14,7 +18,7 @@
     "staging": {
       "name": "tanstack-com-staging",
       "vars": {
-        "SITE_URL": "https://tanstack-com-staging.workers.dev",
+        "SITE_URL": "https://tanstack-com-staging.thetanstack.workers.dev",
       },
     },
   },

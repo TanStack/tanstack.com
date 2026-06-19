@@ -1,10 +1,13 @@
-import { Link, createFileRoute } from '@tanstack/react-router'
+import { ClientOnly, Link, createFileRoute } from '@tanstack/react-router'
 import { lazy, Suspense } from 'react'
 
 // Lazy load the entire game to keep it out of main bundle
-const IslandExplorer = lazy(() => import('~/components/game/IslandExplorer'))
+const IslandExplorer = lazy(
+  () => import('~/components/game/IslandExplorer.client'),
+)
 
 export const Route = createFileRoute('/explore')({
+  ssr: false,
   component: ExplorePage,
   head: () => ({
     meta: [
@@ -49,8 +52,10 @@ function LoadingScreen() {
 
 function ExplorePage() {
   return (
-    <Suspense fallback={<LoadingScreen />}>
-      <IslandExplorer />
-    </Suspense>
+    <ClientOnly>
+      <Suspense fallback={<LoadingScreen />}>
+        <IslandExplorer />
+      </Suspense>
+    </ClientOnly>
   )
 }

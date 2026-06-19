@@ -205,7 +205,7 @@ type PreparedForgeAgentRun = {
 
 type ForgeAgentHarnessName = 'codex-cli' | 'tanstack-ai'
 
-type ForgeAgentHarnessRunInput = {
+export type ForgeAgentHarnessRunInput = {
   initialSnapshot: LocalForgeSnapshot
   prompt: string
   runContext: ForgeRunContext

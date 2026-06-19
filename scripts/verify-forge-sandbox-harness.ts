@@ -7,6 +7,7 @@ import {
   reconcileSandboxWorkspace,
   seedSandboxWorkspaceDir,
 } from '../src/builder/runtime/forge-sandbox-adapter'
+import { deriveSummaryFromAssistantText } from '../src/builder/runtime/sandbox-harness.server'
 
 // normalizeSandboxFileChunk
 assert.deepEqual(
@@ -72,5 +73,15 @@ try {
 } finally {
   await rm(dir, { recursive: true, force: true })
 }
+
+// deriveSummaryFromAssistantText
+assert.deepEqual(
+  deriveSummaryFromAssistantText('  Built a todo app\nwith routing  '),
+  { summary: 'Built a todo app\nwith routing', title: 'Built a todo app' },
+)
+assert.deepEqual(deriveSummaryFromAssistantText('   '), {
+  summary: 'Agent run complete.',
+  title: 'Untitled app',
+})
 
 console.log('Forge sandbox harness verifier passed')

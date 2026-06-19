@@ -3,8 +3,10 @@ import type { NpmStats } from '~/utils/stats.server'
 
 /**
  * Hook to animate NPM download count using direct DOM updates.
- * Uses requestAnimationFrame for smooth browser-scheduled updates.
+ * Uses a low-frequency timer so idle pages do not render every frame.
  */
+const downloadCounterUpdateMs = 1000
+
 export function useNpmDownloadCounter(
   npmData: NpmStats,
 ): React.RefCallback<HTMLElement> {
@@ -13,54 +15,79 @@ export function useNpmDownloadCounter(
   // eslint-disable-next-line react-hooks/purity
   const updatedAt = npmData.updatedAt ?? Date.now()
 
-  const frameRef = useRef<number | undefined>(undefined)
+  const timeoutRef = useRef<number | undefined>(undefined)
   const elementRef = useRef<HTMLElement | null>(null)
   const lastCountRef = useRef<number | null>(null)
+
+  const getCount = useCallback(() => {
+    const msPerDay = 24 * 60 * 60 * 1000
+    const ratePerMs = ratePerDay / msPerDay
+    const elapsedMs = Date.now() - updatedAt
+
+    return Math.round(baseCount + ratePerMs * elapsedMs)
+  }, [baseCount, ratePerDay, updatedAt])
 
   useEffect(() => {
     if (!ratePerDay || ratePerDay === 0 || !elementRef.current) {
       return
     }
 
-    const msPerDay = 24 * 60 * 60 * 1000
-    const ratePerMs = ratePerDay / msPerDay
-
-    const tick = () => {
+    const updateCount = () => {
       if (elementRef.current) {
-        const elapsedMs = Date.now() - updatedAt
-        const count = Math.round(baseCount + ratePerMs * elapsedMs)
+        const count = getCount()
 
         if (count !== lastCountRef.current) {
           lastCountRef.current = count
           elementRef.current.textContent = count.toLocaleString()
         }
       }
-
-      frameRef.current = window.requestAnimationFrame(tick)
     }
 
-    frameRef.current = window.requestAnimationFrame(tick)
-
-    return () => {
-      if (frameRef.current !== undefined) {
-        window.cancelAnimationFrame(frameRef.current)
+    const clearTimer = () => {
+      if (timeoutRef.current !== undefined) {
+        window.clearTimeout(timeoutRef.current)
+        timeoutRef.current = undefined
       }
     }
-  }, [baseCount, ratePerDay, updatedAt])
+
+    const scheduleTick = () => {
+      clearTimer()
+
+      if (document.visibilityState === 'hidden') {
+        return
+      }
+
+      timeoutRef.current = window.setTimeout(() => {
+        updateCount()
+        scheduleTick()
+      }, downloadCounterUpdateMs)
+    }
+
+    const handleVisibilityChange = () => {
+      updateCount()
+      scheduleTick()
+    }
+
+    updateCount()
+    scheduleTick()
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    return () => {
+      clearTimer()
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [getCount, ratePerDay])
 
   const refCallback = useCallback(
     (node: HTMLElement | null) => {
       elementRef.current = node
       if (node) {
-        const msPerDay = 24 * 60 * 60 * 1000
-        const ratePerMs = ratePerDay / msPerDay
-        const elapsedMs = Date.now() - updatedAt
-        const count = Math.round(baseCount + ratePerMs * elapsedMs)
+        const count = getCount()
         lastCountRef.current = count
         node.textContent = count.toLocaleString()
       }
     },
-    [baseCount, ratePerDay, updatedAt],
+    [getCount],
   )
 
   return refCallback

@@ -19,6 +19,7 @@ type LibraryDownloadsMicroProps = {
 }
 
 const weekInMs = 7 * 24 * 60 * 60 * 1000
+const animatedDownloadUpdateMs = 1000
 const statsRowClassName =
   'grid w-64 max-w-full grid-cols-[minmax(11ch,max-content)_auto] items-baseline gap-1.5 text-sm font-bold text-zinc-600 dark:text-zinc-400'
 
@@ -62,50 +63,114 @@ function getWeeklyIncreaseTrendPerMs(stats: RecentDownloadStats | undefined) {
   return (stats.weeklyDownloads + positiveIncrease) / weekInMs
 }
 
-function useAnimatedDownloadTotal({
-  animateIncreaseTrend,
-  period,
+function getAnimatedDownloadTotal({
   stats,
   totalDownloads,
+  trendPerMs,
 }: {
-  animateIncreaseTrend: boolean
-  period: DownloadPeriod
   stats: RecentDownloadStats | undefined
   totalDownloads: number | undefined
+  trendPerMs: number
 }) {
-  const [now, setNow] = React.useState(() => Date.now())
-  const trendPerMs =
-    animateIncreaseTrend && period === 'weekly'
-      ? getWeeklyIncreaseTrendPerMs(stats)
-      : 0
-
-  React.useEffect(() => {
-    if (!trendPerMs) {
-      return
-    }
-
-    let frameId: number | undefined
-
-    const updateNow = () => {
-      setNow(Date.now())
-      frameId = window.requestAnimationFrame(updateNow)
-    }
-
-    frameId = window.requestAnimationFrame(updateNow)
-
-    return () => {
-      if (frameId !== undefined) {
-        window.cancelAnimationFrame(frameId)
-      }
-    }
-  }, [trendPerMs])
-
   if (!hasDownloads(totalDownloads) || !stats || !trendPerMs) {
     return totalDownloads ?? 0
   }
 
-  const elapsedMs = Math.max(0, now - stats.updatedAt)
+  const elapsedMs = Math.max(0, Date.now() - stats.updatedAt)
   return Math.floor(totalDownloads + elapsedMs * trendPerMs)
+}
+
+function useAnimatedDownloadValueRef({
+  stats,
+  totalDownloads,
+  trendPerMs,
+}: {
+  stats: RecentDownloadStats | undefined
+  totalDownloads: number | undefined
+  trendPerMs: number
+}): React.RefCallback<HTMLSpanElement> {
+  const elementRef = React.useRef<HTMLSpanElement | null>(null)
+  const lastValueRef = React.useRef<number | null>(null)
+
+  const getValue = React.useCallback(
+    () => getAnimatedDownloadTotal({ stats, totalDownloads, trendPerMs }),
+    [stats, totalDownloads, trendPerMs],
+  )
+
+  const updateText = React.useCallback(() => {
+    const element = elementRef.current
+    if (!element) {
+      return
+    }
+
+    const value = getValue()
+
+    if (value === lastValueRef.current) {
+      return
+    }
+
+    lastValueRef.current = value
+    element.textContent = value.toLocaleString()
+  }, [getValue])
+
+  React.useEffect(() => {
+    updateText()
+
+    if (!trendPerMs) {
+      return
+    }
+
+    let timeoutId: number | undefined
+
+    const clearTimer = () => {
+      if (timeoutId !== undefined) {
+        window.clearTimeout(timeoutId)
+        timeoutId = undefined
+      }
+    }
+
+    const scheduleUpdate = () => {
+      clearTimer()
+
+      if (document.visibilityState === 'hidden') {
+        return
+      }
+
+      timeoutId = window.setTimeout(() => {
+        updateText()
+        scheduleUpdate()
+      }, animatedDownloadUpdateMs)
+    }
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        updateText()
+        scheduleUpdate()
+        return
+      }
+
+      clearTimer()
+    }
+
+    scheduleUpdate()
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    return () => {
+      clearTimer()
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [trendPerMs, updateText])
+
+  return React.useCallback(
+    (node: HTMLSpanElement | null) => {
+      elementRef.current = node
+
+      if (node) {
+        updateText()
+      }
+    },
+    [updateText],
+  )
 }
 
 function getWeeklyTrendDescription(stats: RecentDownloadStats | undefined) {
@@ -171,11 +236,14 @@ export function LibraryDownloadsMicro({
     enabled: showTotals,
   })
   const totalDownloads = getRecentDownloadTotal(stats, period)
-  const displayedDownloads = useAnimatedDownloadTotal({
-    animateIncreaseTrend,
-    period,
+  const trendPerMs =
+    animateIncreaseTrend && period === 'weekly'
+      ? getWeeklyIncreaseTrendPerMs(stats)
+      : 0
+  const displayedDownloadsRef = useAnimatedDownloadValueRef({
     stats,
     totalDownloads,
+    trendPerMs,
   })
   const hasNpmDownloads = hasDownloads(totalDownloads)
   const weeklyTrendDescription =
@@ -193,9 +261,6 @@ export function LibraryDownloadsMicro({
           ? statsRowClassName
           : 'inline-flex items-center gap-1.5 text-sm font-bold text-zinc-600 dark:text-zinc-400',
       )}
-      aria-label={`${displayedDownloads.toLocaleString()} ${label}${
-        weeklyTrendDescription ? `, ${weeklyTrendDescription}` : ''
-      }`}
       title={weeklyTrendDescription}
     >
       <span
@@ -205,9 +270,10 @@ export function LibraryDownloadsMicro({
             : 'relative z-10 text-zinc-950 dark:text-white',
           valueClassName,
         )}
+        ref={displayedDownloadsRef}
         style={{ fontVariantNumeric: 'tabular-nums' }}
       >
-        {displayedDownloads.toLocaleString()}
+        {(totalDownloads ?? 0).toLocaleString()}
       </span>
       <span
         className={twMerge(

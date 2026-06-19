@@ -1279,6 +1279,23 @@ mark {
   }
 }
 
+.home-adapter-graph-flow {
+  display: block;
+  width: 1.25rem;
+  height: 3px;
+  pointer-events: none;
+  border-radius: 9999px;
+  background: linear-gradient(
+    90deg,
+    rgb(34 211 238 / 0),
+    rgb(165 243 252 / 0.98),
+    rgb(34 211 238 / 0.98),
+    rgb(59 130 246 / 0)
+  );
+  box-shadow: 0 0 10px rgb(34 211 238 / 0.7);
+  transition: opacity 120ms linear;
+}
+
 .home-open-source-underline {
   position: relative;
   display: inline-flex;
@@ -1346,6 +1363,10 @@ mark {
     animation: none;
     stroke-dashoffset: 0;
     transform: none;
+  }
+
+  .home-adapter-graph-flow {
+    display: none;
   }
 }
 

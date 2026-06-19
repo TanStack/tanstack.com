@@ -32,6 +32,7 @@
     "test:forge-chat-list": "tsx scripts/verify-forge-chat-list.ts",
     "test:forge-client-manifest-snapshot": "tsx scripts/verify-forge-client-manifest-snapshot.ts",
     "test:forge-delete-tool": "tsx scripts/verify-forge-delete-tool.ts",
+    "test:forge-sandbox-harness": "tsx scripts/verify-forge-sandbox-harness.ts",
     "test:forge-download-errors": "tsx scripts/verify-forge-download-errors.ts",
     "test:forge-event-stream-replay": "tsx scripts/verify-forge-event-stream-replay.ts",
     "test:forge-export-blocks-run": "tsx scripts/verify-forge-export-blocks-run.ts",

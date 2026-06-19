@@ -1,6 +1,8 @@
 import { Link, redirect } from '@tanstack/react-router'
+import type { QueryClient } from '@tanstack/react-query'
 import { getLibrary } from '~/libraries'
 import type { LibraryId } from '~/libraries'
+import { ossStatsQuery, recentDownloadsQuery } from '~/queries/stats'
 import { fetchLandingCodeExample } from '~/utils/landing-code-example.functions'
 import { ogImageUrl } from '~/utils/og'
 import { seo } from '~/utils/seo'
@@ -34,7 +36,9 @@ export function beforeLoadLibraryLanding(
 export async function loadLibraryLandingRouteData(
   libraryId: LandingLibraryId,
   version: string,
+  queryClient: QueryClient,
 ) {
+  const library = getLibrary(libraryId)
   const [config, landingCodeExample] = await Promise.all([
     loadLibraryConfig(libraryId, version),
     fetchLandingCodeExample({
@@ -42,6 +46,8 @@ export async function loadLibraryLandingRouteData(
         libraryId,
       },
     }),
+    queryClient.ensureQueryData(ossStatsQuery({ library })),
+    queryClient.ensureQueryData(recentDownloadsQuery({ library })),
   ])
 
   return {

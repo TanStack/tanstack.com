@@ -14,7 +14,8 @@ export const Route = createFileRoute('/_library/ranger/$version/')({
   beforeLoad: ({ params, location }) => {
     beforeLoadLibraryLanding('ranger', params.version, location.href)
   },
-  loader: ({ params }) => loadLibraryLandingRouteData('ranger', params.version),
+  loader: ({ params, context: { queryClient } }) =>
+    loadLibraryLandingRouteData('ranger', params.version, queryClient),
   head: () => getLibraryLandingHead('ranger'),
   headers: () => getLibraryLandingHeaders('ranger'),
   staticData: {

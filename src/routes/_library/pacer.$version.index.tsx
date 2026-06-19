@@ -14,7 +14,8 @@ export const Route = createFileRoute('/_library/pacer/$version/')({
   beforeLoad: ({ params, location }) => {
     beforeLoadLibraryLanding('pacer', params.version, location.href)
   },
-  loader: ({ params }) => loadLibraryLandingRouteData('pacer', params.version),
+  loader: ({ params, context: { queryClient } }) =>
+    loadLibraryLandingRouteData('pacer', params.version, queryClient),
   head: () => getLibraryLandingHead('pacer'),
   headers: () => getLibraryLandingHeaders('pacer'),
   staticData: {

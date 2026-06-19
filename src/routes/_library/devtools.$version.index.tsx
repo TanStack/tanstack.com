@@ -14,8 +14,8 @@ export const Route = createFileRoute('/_library/devtools/$version/')({
   beforeLoad: ({ params, location }) => {
     beforeLoadLibraryLanding('devtools', params.version, location.href)
   },
-  loader: ({ params }) =>
-    loadLibraryLandingRouteData('devtools', params.version),
+  loader: ({ params, context: { queryClient } }) =>
+    loadLibraryLandingRouteData('devtools', params.version, queryClient),
   head: () => getLibraryLandingHead('devtools'),
   headers: () => getLibraryLandingHeaders('devtools'),
   staticData: {

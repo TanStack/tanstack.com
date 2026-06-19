@@ -14,8 +14,8 @@ export const Route = createFileRoute('/_library/virtual/$version/')({
   beforeLoad: ({ params, location }) => {
     beforeLoadLibraryLanding('virtual', params.version, location.href)
   },
-  loader: ({ params }) =>
-    loadLibraryLandingRouteData('virtual', params.version),
+  loader: ({ params, context: { queryClient } }) =>
+    loadLibraryLandingRouteData('virtual', params.version, queryClient),
   head: () => getLibraryLandingHead('virtual'),
   headers: () => getLibraryLandingHeaders('virtual'),
   staticData: {

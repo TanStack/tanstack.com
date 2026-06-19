@@ -48,37 +48,18 @@ function isValidMetric(value: number | undefined | null): boolean {
 }
 
 function StatValue({
-  loading,
   placeholder,
   children,
 }: {
-  loading: boolean
   placeholder: string
   children: React.ReactNode
 }) {
   return (
     <span className="inline-grid [&>*]:col-start-1 [&>*]:row-start-1">
-      {/* Placeholder — always rendered for sizing, fades out */}
-      <span
-        className={`inline-block rounded transition-all duration-500 ease-out ${
-          loading
-            ? 'bg-gray-200 dark:bg-gray-700 animate-pulse opacity-100'
-            : 'bg-transparent opacity-0 scale-95'
-        }`}
-        aria-hidden
-      >
-        <span className="invisible">{placeholder}</span>
+      <span className="invisible" aria-hidden>
+        {placeholder}
       </span>
-      {/* Real value — fades in on top */}
-      <span
-        className={`transition-all duration-500 ease-out ${
-          loading
-            ? 'opacity-0 blur-sm scale-105'
-            : 'opacity-100 blur-0 scale-100'
-        }`}
-      >
-        {children}
-      </span>
+      <span>{children}</span>
     </span>
   )
 }
@@ -153,7 +134,7 @@ export default function OssStats({ library }: { library?: Library }) {
             <Download className="mt-1 size-5 shrink-0 transition-colors duration-200" />
             <div className="min-w-0">
               <div className="relative text-2xl font-black leading-none tracking-tight transition-colors duration-200">
-                <StatValue loading={loading} placeholder="00.00 Billion">
+                <StatValue placeholder="00.00 Billion">
                   {hasNpmDownloads && stats
                     ? formatBillions(stats.npm.totalDownloads)
                     : null}
@@ -177,7 +158,7 @@ export default function OssStats({ library }: { library?: Library }) {
             <TrendingUp className="mt-1 size-5 shrink-0 transition-colors duration-200" />
             <div className="min-w-0">
               <div className="relative text-2xl font-black leading-none tracking-tight transition-colors duration-200">
-                <StatValue loading={weeklyLoading} placeholder="00,000,000">
+                <StatValue placeholder="00,000,000">
                   {hasWeeklyDownloads ? (
                     <WeeklyDownloadCounter
                       ratePerDay={weeklyRatePerDay}
@@ -208,7 +189,7 @@ export default function OssStats({ library }: { library?: Library }) {
             <Star className="mt-1 size-5 shrink-0 transition-colors duration-200" />
             <div className="min-w-0">
               <div className="relative text-2xl font-black leading-none tracking-tight transition-colors duration-200">
-                <StatValue loading={loading} placeholder="000,000">
+                <StatValue placeholder="000,000">
                   {hasStarCount ? starCount.toLocaleString() : null}
                 </StatValue>
               </div>

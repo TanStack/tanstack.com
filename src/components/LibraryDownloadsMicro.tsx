@@ -18,8 +18,13 @@ type LibraryDownloadsMicroProps = {
   valueClassName?: string
 }
 
+type AnimatedDownloadData = {
+  stats: RecentDownloadStats | undefined
+  totalDownloads: number | undefined
+  trendPerMs: number
+}
+
 const weekInMs = 7 * 24 * 60 * 60 * 1000
-const animatedDownloadUpdateMs = 1000
 const statsRowClassName =
   'grid w-64 max-w-full grid-cols-[minmax(11ch,max-content)_auto] items-baseline gap-1.5 text-sm font-bold text-zinc-600 dark:text-zinc-400'
 
@@ -89,12 +94,24 @@ function useAnimatedDownloadValueRef({
   totalDownloads: number | undefined
   trendPerMs: number
 }): React.RefCallback<HTMLSpanElement> {
+  const dataRef = React.useRef<AnimatedDownloadData>({
+    stats,
+    totalDownloads,
+    trendPerMs,
+  })
   const elementRef = React.useRef<HTMLSpanElement | null>(null)
+  const frameRef = React.useRef<number | undefined>(undefined)
   const lastValueRef = React.useRef<number | null>(null)
 
+  dataRef.current = {
+    stats,
+    totalDownloads,
+    trendPerMs,
+  }
+
   const getValue = React.useCallback(
-    () => getAnimatedDownloadTotal({ stats, totalDownloads, trendPerMs }),
-    [stats, totalDownloads, trendPerMs],
+    () => getAnimatedDownloadTotal(dataRef.current),
+    [],
   )
 
   const updateText = React.useCallback(() => {
@@ -113,53 +130,89 @@ function useAnimatedDownloadValueRef({
     element.textContent = value.toLocaleString()
   }, [getValue])
 
-  React.useEffect(() => {
-    updateText()
+  const canAnimate = React.useCallback(() => {
+    const data = dataRef.current
 
-    if (!trendPerMs) {
+    return (
+      data.trendPerMs > 0 &&
+      Number.isFinite(data.trendPerMs) &&
+      !!elementRef.current
+    )
+  }, [])
+
+  const stopFrame = React.useCallback(() => {
+    if (frameRef.current !== undefined) {
+      window.cancelAnimationFrame(frameRef.current)
+      frameRef.current = undefined
+    }
+  }, [])
+
+  const tick = React.useCallback(() => {
+    frameRef.current = undefined
+
+    if (document.visibilityState === 'hidden' || !canAnimate()) {
       return
     }
 
-    let timeoutId: number | undefined
+    updateText()
+    frameRef.current = window.requestAnimationFrame(tick)
+  }, [canAnimate, updateText])
 
-    const clearTimer = () => {
-      if (timeoutId !== undefined) {
-        window.clearTimeout(timeoutId)
-        timeoutId = undefined
-      }
+  const startFrame = React.useCallback(() => {
+    if (
+      !canAnimate() ||
+      frameRef.current !== undefined ||
+      document.visibilityState === 'hidden'
+    ) {
+      return
     }
 
-    const scheduleUpdate = () => {
-      clearTimer()
+    frameRef.current = window.requestAnimationFrame(tick)
+  }, [canAnimate, tick])
 
-      if (document.visibilityState === 'hidden') {
-        return
-      }
+  React.useEffect(() => {
+    updateText()
 
-      timeoutId = window.setTimeout(() => {
-        updateText()
-        scheduleUpdate()
-      }, animatedDownloadUpdateMs)
+    if (!canAnimate()) {
+      stopFrame()
+      return
     }
 
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        updateText()
-        scheduleUpdate()
+      if (document.visibilityState === 'hidden') {
+        stopFrame()
         return
       }
 
-      clearTimer()
+      updateText()
+      startFrame()
     }
 
-    scheduleUpdate()
+    const handleResume = () => {
+      updateText()
+      startFrame()
+    }
+
+    startFrame()
     document.addEventListener('visibilitychange', handleVisibilityChange)
+    window.addEventListener('focus', handleResume)
+    window.addEventListener('pageshow', handleResume)
 
     return () => {
-      clearTimer()
+      stopFrame()
       document.removeEventListener('visibilitychange', handleVisibilityChange)
+      window.removeEventListener('focus', handleResume)
+      window.removeEventListener('pageshow', handleResume)
     }
-  }, [trendPerMs, updateText])
+  }, [
+    canAnimate,
+    startFrame,
+    stats?.updatedAt,
+    stopFrame,
+    totalDownloads,
+    trendPerMs,
+    updateText,
+  ])
 
   return React.useCallback(
     (node: HTMLSpanElement | null) => {
@@ -167,9 +220,13 @@ function useAnimatedDownloadValueRef({
 
       if (node) {
         updateText()
+        startFrame()
+        return
       }
+
+      stopFrame()
     },
-    [updateText],
+    [startFrame, stopFrame, updateText],
   )
 }
 

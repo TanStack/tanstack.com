@@ -29,12 +29,12 @@ import {
   HomeCommunityFallback,
   HomeNewsletterFallback,
   HomeSocialProofFallback,
-  HomeStatsFallback,
 } from '~/components/home/HomeSectionFallbacks'
 import { HomeCommunitySection } from '~/components/home/HomeCommunitySection'
 import { HomeNewsletterSection } from '~/components/home/HomeNewsletterSection'
 import { HomeSocialProofSection } from '~/components/home/HomeSocialProofSection'
 import { HomeStatsSection } from '~/components/home/HomeStatsSection'
+import { ossStatsQuery } from '~/queries/stats'
 import { Button } from '~/ui'
 import { seo } from '~/utils/seo'
 
@@ -67,6 +67,9 @@ function getDeferredSectionStage(hash: string) {
 }
 
 export const Route = createFileRoute('/')({
+  loader: async ({ context: { queryClient } }) => {
+    await queryClient.ensureQueryData(ossStatsQuery())
+  },
   head: () => ({
     meta: seo({
       title: 'TanStack | The open-source application stack for the web.',
@@ -208,13 +211,7 @@ function Index() {
             </div>
           </div>
           <div className="mx-auto mt-8 w-full max-w-[1021px] px-4 sm:px-6 md:mt-10">
-            <Hydrate
-              when={visible({ rootMargin: '10%' })}
-              prefetch={idle({ timeout: 6000 })}
-              fallback={<HomeStatsFallback />}
-            >
-              <HomeStatsSection />
-            </Hydrate>
+            <HomeStatsSection />
           </div>
           <div className="mx-auto mt-16 w-full max-w-[1021px] px-4 sm:px-6 md:mt-20 lg:mt-14 xl:mt-12">
             <HomeApplicationStarter />

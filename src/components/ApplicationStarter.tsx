@@ -503,93 +503,95 @@ export function ApplicationStarter({
                 </div>
               </div>
 
-              <Collapsible open={showPostAnalysisSection}>
-                <CollapsibleContent className="mt-3">
-                  <StarterTooltipProvider>
-                    <div
-                      className={twMerge(
-                        'space-y-2 rounded-lg border border-gray-200 bg-white px-3 py-3 dark:border-gray-800 dark:bg-gray-950',
-                        postAnalysisSectionDisabled &&
-                          'pointer-events-none opacity-55 saturate-50',
-                      )}
-                    >
-                      <div className="mb-3">
+              {showPostAnalysisSection ? (
+                <Collapsible open>
+                  <CollapsibleContent className="mt-3">
+                    <StarterTooltipProvider>
+                      <div
+                        className={twMerge(
+                          'space-y-2 rounded-lg border border-gray-200 bg-white px-3 py-3 dark:border-gray-800 dark:bg-gray-950',
+                          postAnalysisSectionDisabled &&
+                            'pointer-events-none opacity-55 saturate-50',
+                        )}
+                      >
+                        <div className="mb-3">
+                          <div className="text-[10px] font-medium uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">
+                            TanStack Libraries
+                          </div>
+
+                          <div className="mt-2 space-y-2">
+                            <StarterLibraryRows
+                              compact
+                              selectedLibraries={selectedLibraries}
+                              toggleLibrary={toggleLibrary}
+                            />
+                          </div>
+                        </div>
+
                         <div className="text-[10px] font-medium uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">
-                          TanStack Libraries
+                          Partner Integrations
                         </div>
-
-                        <div className="mt-2 space-y-2">
-                          <StarterLibraryRows
-                            compact
-                            selectedLibraries={selectedLibraries}
-                            toggleLibrary={toggleLibrary}
-                          />
-                        </div>
+                        <StarterPartnerRows
+                          compact
+                          palette={palette}
+                          partnerSuggestions={partnerSuggestions}
+                          selectedPartners={selectedPartners}
+                          togglePartner={togglePartner}
+                        />
+                        <StarterCustomizationSection
+                          compact
+                          onOpenChange={setShowToolchainOptions}
+                          open={showToolchainOptions}
+                          title="Toolchain"
+                        >
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            {starterToolchains.map((toolchain) => (
+                              <StarterChipButton
+                                key={toolchain}
+                                compact
+                                onClick={() => {
+                                  toggleToolchain(toolchain)
+                                }}
+                                palette={palette}
+                                selected={selectedToolchain === toolchain}
+                              >
+                                {toolchain}
+                              </StarterChipButton>
+                            ))}
+                          </div>
+                        </StarterCustomizationSection>
+                        <StarterCustomizationSection
+                          compact
+                          onOpenChange={setShowPackageManagerOptions}
+                          open={showPackageManagerOptions}
+                          title="Package Manager"
+                        >
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            {starterPackageManagers.map((packageManager) => (
+                              <StarterChipButton
+                                key={packageManager}
+                                compact
+                                onClick={() => {
+                                  togglePackageManager(packageManager)
+                                }}
+                                palette={palette}
+                                selected={
+                                  selectedPackageManager === packageManager
+                                }
+                              >
+                                {packageManager}
+                              </StarterChipButton>
+                            ))}
+                          </div>
+                        </StarterCustomizationSection>
+                        <AnonymousGenerationLimitNotice
+                          quota={anonymousGenerationQuota}
+                        />
                       </div>
-
-                      <div className="text-[10px] font-medium uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">
-                        Partner Integrations
-                      </div>
-                      <StarterPartnerRows
-                        compact
-                        palette={palette}
-                        partnerSuggestions={partnerSuggestions}
-                        selectedPartners={selectedPartners}
-                        togglePartner={togglePartner}
-                      />
-                      <StarterCustomizationSection
-                        compact
-                        onOpenChange={setShowToolchainOptions}
-                        open={showToolchainOptions}
-                        title="Toolchain"
-                      >
-                        <div className="mt-2 flex flex-wrap gap-2">
-                          {starterToolchains.map((toolchain) => (
-                            <StarterChipButton
-                              key={toolchain}
-                              compact
-                              onClick={() => {
-                                toggleToolchain(toolchain)
-                              }}
-                              palette={palette}
-                              selected={selectedToolchain === toolchain}
-                            >
-                              {toolchain}
-                            </StarterChipButton>
-                          ))}
-                        </div>
-                      </StarterCustomizationSection>
-                      <StarterCustomizationSection
-                        compact
-                        onOpenChange={setShowPackageManagerOptions}
-                        open={showPackageManagerOptions}
-                        title="Package Manager"
-                      >
-                        <div className="mt-2 flex flex-wrap gap-2">
-                          {starterPackageManagers.map((packageManager) => (
-                            <StarterChipButton
-                              key={packageManager}
-                              compact
-                              onClick={() => {
-                                togglePackageManager(packageManager)
-                              }}
-                              palette={palette}
-                              selected={
-                                selectedPackageManager === packageManager
-                              }
-                            >
-                              {packageManager}
-                            </StarterChipButton>
-                          ))}
-                        </div>
-                      </StarterCustomizationSection>
-                      <AnonymousGenerationLimitNotice
-                        quota={anonymousGenerationQuota}
-                      />
-                    </div>
-                  </StarterTooltipProvider>
-                </CollapsibleContent>
-              </Collapsible>
+                    </StarterTooltipProvider>
+                  </CollapsibleContent>
+                </Collapsible>
+              ) : null}
             </>
           ) : (
             <div className="relative overflow-hidden rounded-[1rem] border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950">
@@ -774,302 +776,310 @@ export function ApplicationStarter({
                   </div>
                 </div>
 
-                <Collapsible open={showPostAnalysisSection}>
-                  <CollapsibleContent>
-                    <div
-                      className={twMerge(
-                        'bg-gray-50/70 px-5 py-4 dark:bg-gray-900/50',
-                        postAnalysisSectionDisabled && 'opacity-55 saturate-50',
-                      )}
-                    >
-                      <StarterTooltipProvider>
-                        <div
-                          className={twMerge(
-                            postAnalysisSectionDisabled &&
-                              'pointer-events-none',
-                          )}
-                        >
-                          <div className="mb-4">
-                            <div className="text-[10px] font-medium uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">
-                              TanStack Libraries
-                            </div>
-
-                            <div className="mt-3 space-y-2.5">
-                              <StarterLibraryRows
-                                selectedLibraries={selectedLibraries}
-                                toggleLibrary={toggleLibrary}
-                              />
-                            </div>
-                          </div>
-
-                          <div className="text-[10px] font-medium uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">
-                            Add Integrations
-                          </div>
-                          <div className="mt-3">
-                            <StarterPartnerRows
-                              palette={palette}
-                              partnerSuggestions={partnerSuggestions}
-                              selectedPartners={selectedPartners}
-                              size="compact"
-                              togglePartner={togglePartner}
-                            />
-                          </div>
-                          <StarterCustomizationSection
-                            onOpenChange={setShowToolchainOptions}
-                            open={showToolchainOptions}
-                            title="Toolchain"
-                          >
-                            <div className="mt-3 flex flex-wrap gap-2">
-                              {starterToolchains.map((toolchain) => (
-                                <StarterChipButton
-                                  key={toolchain}
-                                  onClick={() => {
-                                    toggleToolchain(toolchain)
-                                  }}
-                                  palette={palette}
-                                  selected={selectedToolchain === toolchain}
-                                  size="compact"
-                                >
-                                  {toolchain}
-                                </StarterChipButton>
-                              ))}
-                            </div>
-                          </StarterCustomizationSection>
-                          <StarterCustomizationSection
-                            onOpenChange={setShowPackageManagerOptions}
-                            open={showPackageManagerOptions}
-                            title="Package Manager"
-                          >
-                            <div className="mt-3 flex flex-wrap gap-2">
-                              {starterPackageManagers.map((packageManager) => (
-                                <StarterChipButton
-                                  key={packageManager}
-                                  onClick={() => {
-                                    togglePackageManager(packageManager)
-                                  }}
-                                  palette={palette}
-                                  selected={
-                                    selectedPackageManager === packageManager
-                                  }
-                                  size="compact"
-                                >
-                                  {packageManager}
-                                </StarterChipButton>
-                              ))}
-                            </div>
-                          </StarterCustomizationSection>
-                        </div>
-                      </StarterTooltipProvider>
-
-                      <AnonymousGenerationLimitNotice
-                        quota={anonymousGenerationQuota}
-                      />
-
-                      {footerContent ? (
-                        <div className="mt-4">{footerContent}</div>
-                      ) : null}
-                    </div>
-                  </CollapsibleContent>
-                </Collapsible>
-
-                <Collapsible open={showActionSection}>
-                  <CollapsibleContent>
-                    <div
-                      className={twMerge(
-                        'bg-gray-50/70 px-5 py-4 dark:bg-gray-900/50',
-                        actionSectionDisabled && 'opacity-55 saturate-50',
-                      )}
-                    >
+                {showPostAnalysisSection ? (
+                  <Collapsible open>
+                    <CollapsibleContent>
                       <div
                         className={twMerge(
-                          'flex flex-col gap-4',
-                          actionSectionDisabled && 'pointer-events-none',
+                          'bg-gray-50/70 px-5 py-4 dark:bg-gray-900/50',
+                          postAnalysisSectionDisabled &&
+                            'opacity-55 saturate-50',
                         )}
                       >
-                        <div className="flex flex-wrap items-center gap-3">
-                          {showCliExportActions ? (
-                            <div className="flex flex-col gap-1.5">
-                              <div className="px-1 text-[10px] font-medium uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">
-                                Deploy to
-                              </div>
-                              <div
-                                aria-label="Deploy to"
-                                className="flex flex-wrap items-center gap-2"
-                                role="group"
-                              >
-                                {orderedDeploymentProviders.map((provider) =>
-                                  renderDeploymentProviderButton(provider),
-                                )}
+                        <StarterTooltipProvider>
+                          <div
+                            className={twMerge(
+                              postAnalysisSectionDisabled &&
+                                'pointer-events-none',
+                            )}
+                          >
+                            <div className="mb-4">
+                              <div className="text-[10px] font-medium uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">
+                                TanStack Libraries
                               </div>
 
-                              {!showMoreActions ? (
-                                <Button
-                                  variant="ghost"
-                                  size="xs"
-                                  type="button"
-                                  onClick={() => setShowMoreActions(true)}
-                                  className="h-auto self-start border-transparent bg-transparent px-1 py-0 text-[11px] font-medium text-gray-500 hover:bg-transparent hover:text-gray-700 dark:text-gray-500 dark:hover:bg-transparent dark:hover:text-gray-300"
-                                >
-                                  Show More
-                                </Button>
-                              ) : null}
+                              <div className="mt-3 space-y-2.5">
+                                <StarterLibraryRows
+                                  selectedLibraries={selectedLibraries}
+                                  toggleLibrary={toggleLibrary}
+                                />
+                              </div>
                             </div>
-                          ) : (
-                            <>
-                              <Button
-                                size="sm"
-                                type="button"
-                                onClick={() => void openNetlifyStart()}
-                                disabled={!canUseFinalActions}
-                                className="border-[#00AD9F] bg-[#00AD9F] text-white hover:bg-[#009a8e]"
-                              >
-                                {isGeneratingNetlify ? (
-                                  <Loader2 className="h-4 w-4 animate-spin" />
-                                ) : (
-                                  <Rocket className="h-4 w-4" />
-                                )}
-                                {secondaryActionLabel}
-                              </Button>
 
+                            <div className="text-[10px] font-medium uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">
+                              Add Integrations
+                            </div>
+                            <div className="mt-3">
+                              <StarterPartnerRows
+                                palette={palette}
+                                partnerSuggestions={partnerSuggestions}
+                                selectedPartners={selectedPartners}
+                                size="compact"
+                                togglePartner={togglePartner}
+                              />
+                            </div>
+                            <StarterCustomizationSection
+                              onOpenChange={setShowToolchainOptions}
+                              open={showToolchainOptions}
+                              title="Toolchain"
+                            >
+                              <div className="mt-3 flex flex-wrap gap-2">
+                                {starterToolchains.map((toolchain) => (
+                                  <StarterChipButton
+                                    key={toolchain}
+                                    onClick={() => {
+                                      toggleToolchain(toolchain)
+                                    }}
+                                    palette={palette}
+                                    selected={selectedToolchain === toolchain}
+                                    size="compact"
+                                  >
+                                    {toolchain}
+                                  </StarterChipButton>
+                                ))}
+                              </div>
+                            </StarterCustomizationSection>
+                            <StarterCustomizationSection
+                              onOpenChange={setShowPackageManagerOptions}
+                              open={showPackageManagerOptions}
+                              title="Package Manager"
+                            >
+                              <div className="mt-3 flex flex-wrap gap-2">
+                                {starterPackageManagers.map(
+                                  (packageManager) => (
+                                    <StarterChipButton
+                                      key={packageManager}
+                                      onClick={() => {
+                                        togglePackageManager(packageManager)
+                                      }}
+                                      palette={palette}
+                                      selected={
+                                        selectedPackageManager ===
+                                        packageManager
+                                      }
+                                      size="compact"
+                                    >
+                                      {packageManager}
+                                    </StarterChipButton>
+                                  ),
+                                )}
+                              </div>
+                            </StarterCustomizationSection>
+                          </div>
+                        </StarterTooltipProvider>
+
+                        <AnonymousGenerationLimitNotice
+                          quota={anonymousGenerationQuota}
+                        />
+
+                        {footerContent ? (
+                          <div className="mt-4">{footerContent}</div>
+                        ) : null}
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
+                ) : null}
+
+                {showActionSection ? (
+                  <Collapsible open>
+                    <CollapsibleContent>
+                      <div
+                        className={twMerge(
+                          'bg-gray-50/70 px-5 py-4 dark:bg-gray-900/50',
+                          actionSectionDisabled && 'opacity-55 saturate-50',
+                        )}
+                      >
+                        <div
+                          className={twMerge(
+                            'flex flex-col gap-4',
+                            actionSectionDisabled && 'pointer-events-none',
+                          )}
+                        >
+                          <div className="flex flex-wrap items-center gap-3">
+                            {showCliExportActions ? (
+                              <div className="flex flex-col gap-1.5">
+                                <div className="px-1 text-[10px] font-medium uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">
+                                  Deploy to
+                                </div>
+                                <div
+                                  aria-label="Deploy to"
+                                  className="flex flex-wrap items-center gap-2"
+                                  role="group"
+                                >
+                                  {orderedDeploymentProviders.map((provider) =>
+                                    renderDeploymentProviderButton(provider),
+                                  )}
+                                </div>
+
+                                {!showMoreActions ? (
+                                  <Button
+                                    variant="ghost"
+                                    size="xs"
+                                    type="button"
+                                    onClick={() => setShowMoreActions(true)}
+                                    className="h-auto self-start border-transparent bg-transparent px-1 py-0 text-[11px] font-medium text-gray-500 hover:bg-transparent hover:text-gray-700 dark:text-gray-500 dark:hover:bg-transparent dark:hover:text-gray-300"
+                                  >
+                                    Show More
+                                  </Button>
+                                ) : null}
+                              </div>
+                            ) : (
+                              <>
+                                <Button
+                                  size="sm"
+                                  type="button"
+                                  onClick={() => void openNetlifyStart()}
+                                  disabled={!canUseFinalActions}
+                                  className="border-[#00AD9F] bg-[#00AD9F] text-white hover:bg-[#009a8e]"
+                                >
+                                  {isGeneratingNetlify ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : (
+                                    <Rocket className="h-4 w-4" />
+                                  )}
+                                  {secondaryActionLabel}
+                                </Button>
+
+                                <Button
+                                  size="sm"
+                                  type="button"
+                                  onClick={() => void openCodexStart()}
+                                  disabled={!canUseFinalActions}
+                                  className="border-gray-900 bg-gray-900 text-white hover:bg-gray-800 dark:border-gray-100 dark:bg-gray-100 dark:text-gray-950 dark:hover:bg-gray-200"
+                                >
+                                  <span className="relative h-4 w-4 shrink-0">
+                                    <img
+                                      src={openaiDarkLogo}
+                                      alt=""
+                                      aria-hidden="true"
+                                      className="h-4 w-4 dark:hidden"
+                                    />
+                                    <img
+                                      src={openaiLightLogo}
+                                      alt=""
+                                      aria-hidden="true"
+                                      className="hidden h-4 w-4 dark:block"
+                                    />
+                                  </span>
+                                  Open in Codex
+                                </Button>
+                              </>
+                            )}
+                          </div>
+
+                          {showCliExportActions && showMoreActions ? (
+                            <div className="flex flex-wrap items-center gap-2">
                               <Button
-                                size="sm"
+                                size="xs"
                                 type="button"
                                 onClick={() => void openCodexStart()}
                                 disabled={!canUseFinalActions}
-                                className="border-gray-900 bg-gray-900 text-white hover:bg-gray-800 dark:border-gray-100 dark:bg-gray-100 dark:text-gray-950 dark:hover:bg-gray-200"
+                                className="h-6 gap-1 px-2 text-[11px] border-gray-900 bg-gray-900 text-white hover:bg-gray-800 dark:border-gray-100 dark:bg-gray-100 dark:text-gray-950 dark:hover:bg-gray-200"
                               >
-                                <span className="relative h-4 w-4 shrink-0">
+                                <span className="relative h-3 w-3 shrink-0">
                                   <img
                                     src={openaiDarkLogo}
                                     alt=""
                                     aria-hidden="true"
-                                    className="h-4 w-4 dark:hidden"
+                                    className="h-3 w-3 dark:hidden"
                                   />
                                   <img
                                     src={openaiLightLogo}
                                     alt=""
                                     aria-hidden="true"
-                                    className="hidden h-4 w-4 dark:block"
+                                    className="hidden h-3 w-3 dark:block"
                                   />
                                 </span>
                                 Open in Codex
                               </Button>
-                            </>
-                          )}
-                        </div>
 
-                        {showCliExportActions && showMoreActions ? (
-                          <div className="flex flex-wrap items-center gap-2">
-                            <Button
-                              size="xs"
-                              type="button"
-                              onClick={() => void openCodexStart()}
-                              disabled={!canUseFinalActions}
-                              className="h-6 gap-1 px-2 text-[11px] border-gray-900 bg-gray-900 text-white hover:bg-gray-800 dark:border-gray-100 dark:bg-gray-100 dark:text-gray-950 dark:hover:bg-gray-200"
-                            >
-                              <span className="relative h-3 w-3 shrink-0">
-                                <img
-                                  src={openaiDarkLogo}
-                                  alt=""
-                                  aria-hidden="true"
-                                  className="h-3 w-3 dark:hidden"
-                                />
-                                <img
-                                  src={openaiLightLogo}
-                                  alt=""
-                                  aria-hidden="true"
-                                  className="hidden h-3 w-3 dark:block"
-                                />
-                              </span>
-                              Open in Codex
-                            </Button>
+                              <Button
+                                size="xs"
+                                type="button"
+                                onClick={() => void openClaudeStart()}
+                                disabled={!canUseFinalActions}
+                                className="h-6 gap-1 px-2 text-[11px] border-[#D4A373] bg-[#D4A373] text-white hover:bg-[#C6905C] dark:border-[#E6C49A] dark:bg-[#E6C49A] dark:text-gray-950 dark:hover:bg-[#DBB684]"
+                              >
+                                <span className="relative h-3 w-3 shrink-0">
+                                  <img
+                                    src={anthropicDarkLogo}
+                                    alt=""
+                                    aria-hidden="true"
+                                    className="h-3 w-3 dark:hidden"
+                                  />
+                                  <img
+                                    src={anthropicLightLogo}
+                                    alt=""
+                                    aria-hidden="true"
+                                    className="hidden h-3 w-3 dark:block"
+                                  />
+                                </span>
+                                Open in Claude
+                              </Button>
 
-                            <Button
-                              size="xs"
-                              type="button"
-                              onClick={() => void openClaudeStart()}
-                              disabled={!canUseFinalActions}
-                              className="h-6 gap-1 px-2 text-[11px] border-[#D4A373] bg-[#D4A373] text-white hover:bg-[#C6905C] dark:border-[#E6C49A] dark:bg-[#E6C49A] dark:text-gray-950 dark:hover:bg-[#DBB684]"
-                            >
-                              <span className="relative h-3 w-3 shrink-0">
-                                <img
-                                  src={anthropicDarkLogo}
-                                  alt=""
-                                  aria-hidden="true"
-                                  className="h-3 w-3 dark:hidden"
-                                />
-                                <img
-                                  src={anthropicLightLogo}
-                                  alt=""
-                                  aria-hidden="true"
-                                  className="hidden h-3 w-3 dark:block"
-                                />
-                              </span>
-                              Open in Claude
-                            </Button>
+                              <Button
+                                size="xs"
+                                type="button"
+                                onClick={() => void openCursorStart()}
+                                disabled={!canUseFinalActions}
+                                className="h-6 gap-1 px-2 text-[11px] border-black bg-black text-white hover:bg-gray-900 dark:border-white dark:bg-white dark:text-black dark:hover:bg-gray-100"
+                              >
+                                <CursorIcon className="h-3 w-3" />
+                                Open in Cursor
+                              </Button>
 
-                            <Button
-                              size="xs"
-                              type="button"
-                              onClick={() => void openCursorStart()}
-                              disabled={!canUseFinalActions}
-                              className="h-6 gap-1 px-2 text-[11px] border-black bg-black text-white hover:bg-gray-900 dark:border-white dark:bg-white dark:text-black dark:hover:bg-gray-100"
-                            >
-                              <CursorIcon className="h-3 w-3" />
-                              Open in Cursor
-                            </Button>
+                              <Button
+                                variant="secondary"
+                                size="xs"
+                                type="button"
+                                onClick={() => {
+                                  void copyResultValue('command')
+                                }}
+                                disabled={!canUseFinalActions}
+                                className="h-6 gap-1 px-2 text-[11px]"
+                              >
+                                <Copy className="h-3 w-3" />
+                                Copy CLI Command
+                              </Button>
 
-                            <Button
-                              variant="secondary"
-                              size="xs"
-                              type="button"
-                              onClick={() => {
-                                void copyResultValue('command')
-                              }}
-                              disabled={!canUseFinalActions}
-                              className="h-6 gap-1 px-2 text-[11px]"
-                            >
-                              <Copy className="h-3 w-3" />
-                              Copy CLI Command
-                            </Button>
+                              <Button
+                                variant="secondary"
+                                size="xs"
+                                type="button"
+                                onClick={() => {
+                                  void openDeployDialog(null)
+                                }}
+                                disabled={!canUseFinalActions}
+                                className="h-6 gap-1 px-2 text-[11px]"
+                              >
+                                <GitHub className="h-3 w-3" />
+                                Clone to GitHub
+                              </Button>
 
-                            <Button
-                              variant="secondary"
-                              size="xs"
-                              type="button"
-                              onClick={() => {
-                                void openDeployDialog(null)
-                              }}
-                              disabled={!canUseFinalActions}
-                              className="h-6 gap-1 px-2 text-[11px]"
-                            >
-                              <GitHub className="h-3 w-3" />
-                              Clone to GitHub
-                            </Button>
+                              <Button
+                                variant="secondary"
+                                size="xs"
+                                type="button"
+                                onClick={() => {
+                                  void navigateToResult('download')
+                                }}
+                                disabled={!canUseFinalActions}
+                                className="h-6 gap-1 px-2 text-[11px]"
+                              >
+                                <Download className="h-3 w-3" />
+                                Download ZIP
+                              </Button>
+                            </div>
+                          ) : null}
 
-                            <Button
-                              variant="secondary"
-                              size="xs"
-                              type="button"
-                              onClick={() => {
-                                void navigateToResult('download')
-                              }}
-                              disabled={!canUseFinalActions}
-                              className="h-6 gap-1 px-2 text-[11px]"
-                            >
-                              <Download className="h-3 w-3" />
-                              Download ZIP
-                            </Button>
+                          <div className="flex flex-wrap items-center gap-3">
+                            {renderGeneratePromptButton()}
                           </div>
-                        ) : null}
-
-                        <div className="flex flex-wrap items-center gap-3">
-                          {renderGeneratePromptButton()}
                         </div>
                       </div>
-                    </div>
-                  </CollapsibleContent>
-                </Collapsible>
+                    </CollapsibleContent>
+                  </Collapsible>
+                ) : null}
 
                 {showPromptPreview && hasGeneratedPrompt ? (
                   <div className="border-t border-gray-200 dark:border-gray-800">

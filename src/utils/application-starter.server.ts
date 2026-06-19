@@ -255,7 +255,6 @@ async function tryGenerateApplicationStarterPrompt({
     return applicationStarterPromptSchema.parse(
       await chat({
         adapter,
-        maxTokens: 900,
         messages: [
           {
             role: 'user',
@@ -291,7 +290,6 @@ async function tryAnalyzeApplicationStarter({
     return applicationStarterAnalysisSchema.parse(
       await chat({
         adapter: openaiText(getApplicationStarterAnalysisModel()),
-        maxTokens: 500,
         messages: [
           {
             role: 'user',

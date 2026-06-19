@@ -1,4 +1,12 @@
+# Allow exotic (URL) subdependencies from @tanstack/ai@774 and its deps.
+# This is needed because @tanstack/ai@774 (a pkg.pr.new preview build) references
+# @tanstack/ai-event-client via a URL, which pnpm v11 blocks by default.
+blockExoticSubdeps: false
+
 overrides:
+  # Pin @tanstack/ai-event-client to @774 build to satisfy the URL reference
+  # inside @tanstack/ai@774's package.json.
+  '@tanstack/ai-event-client': 'https://pkg.pr.new/TanStack/ai/@tanstack/ai-event-client@774'
   cross-spawn: '>=6.0.6'
   glob: '>=10.5.0'
   node-forge: '>=1.3.2'

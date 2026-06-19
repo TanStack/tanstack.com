@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { readdirSync } from 'node:fs'
 import { AsyncLocalStorage } from 'node:async_hooks'
+import { supportsProcessDiagnostics } from '~/server/runtime/host.server'
 import { getClientIp } from '~/utils/request.server'
 
 const isProduction = process.env.NODE_ENV === 'production'
@@ -54,13 +55,6 @@ function getResourceSummary(): Record<string, number> {
   return summary
 }
 
-function isCloudflareWorkersRuntime(): boolean {
-  return (
-    typeof navigator !== 'undefined' &&
-    navigator.userAgent === 'Cloudflare-Workers'
-  )
-}
-
 function getTopHosts(
   outboundHosts: HostCounter,
   limit = 8,
@@ -93,7 +87,7 @@ function logDiagnostic(payload: Record<string, unknown>): void {
 }
 
 function maybeLogFdHighWatermark(): void {
-  if (isCloudflareWorkersRuntime()) {
+  if (!supportsProcessDiagnostics()) {
     return
   }
 
@@ -148,7 +142,7 @@ export function installProductionProcessProbe(): void {
   if (
     !isProduction ||
     processProbeInstalled ||
-    isCloudflareWorkersRuntime() ||
+    !supportsProcessDiagnostics() ||
     typeof process.on !== 'function'
   ) {
     return

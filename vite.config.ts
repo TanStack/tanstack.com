@@ -19,7 +19,7 @@ const nodeRequire = createRequire(import.meta.url)
 const isDev = process.env.NODE_ENV !== 'production'
 const deployTarget = process.env.TANSTACK_DEPLOY_TARGET
 const isCloudflareTarget = deployTarget === 'cloudflare'
-const takumiWasmWorkerdPath = path.join(
+const takumiWasmRuntimePath = path.join(
   path.dirname(path.dirname(nodeRequire.resolve('@takumi-rs/wasm/no-bundler'))),
   'bundlers/workerd.js',
 )
@@ -71,9 +71,9 @@ const envDir =
     ? defaultCheckoutEnvDir
     : __dirname
 
-function cloudflareTakumiWasmImport(): PluginOption {
+function edgeTakumiWasmImport(): PluginOption {
   return {
-    name: 'tanstack-cloudflare-takumi-wasm-import',
+    name: 'tanstack-edge-takumi-wasm-import',
     enforce: 'pre',
     transform(code, id) {
       if (!isCloudflareTarget) return
@@ -147,7 +147,7 @@ export default defineConfig({
               find: 'ejs',
               replacement: path.resolve(
                 __dirname,
-                './src/server/cloudflare/ejs-compat.ts',
+                './src/server/runtime/ejs-compat.server.ts',
               ),
             },
             {
@@ -156,7 +156,7 @@ export default defineConfig({
             },
             {
               find: '@takumi-rs/wasm/auto',
-              replacement: takumiWasmWorkerdPath,
+              replacement: takumiWasmRuntimePath,
             },
           ]
         : []),
@@ -303,7 +303,7 @@ export default defineConfig({
   plugins: [
     ...(isCloudflareTarget
       ? [
-          cloudflareTakumiWasmImport(),
+          edgeTakumiWasmImport(),
           cloudflare({
             viteEnvironment: { name: 'ssr' },
           }),

@@ -51,6 +51,10 @@ import {
   createMinimalLocalForgeSeedFiles,
   minimalLocalForgeSeedNeedsUpdate,
 } from './local-template.server'
+import {
+  isSandboxForgeHarnessAvailable,
+  runSandboxForgeHarness,
+} from './sandbox-harness.server'
 
 const LOCAL_FORGE_CONTEXT_VERSION = 'forge-local-agent-2026-06-18'
 const LOCAL_FORGE_MAX_ITERATIONS = 10
@@ -203,7 +207,7 @@ type PreparedForgeAgentRun = {
   runContext: ForgeRunContext
 }
 
-type ForgeAgentHarnessName = 'codex-cli' | 'tanstack-ai'
+type ForgeAgentHarnessName = 'claude-code' | 'codex'
 
 export type ForgeAgentHarnessRunInput = {
   initialSnapshot: LocalForgeSnapshot
@@ -719,30 +723,12 @@ async function drainLocalForgeAgentRun({
 }
 
 function getLocalForgeHarness(): ForgeAgentHarness | null {
-  const harnessName = getRequestedLocalForgeHarnessName()
-
-  if (harnessName === 'codex-cli') {
-    return {
-      label: 'Codex CLI',
-      name: 'codex-cli',
-      run: runCodexCliForgeHarness,
-    }
-  }
-
-  const adapter = getLocalForgeAdapter()
-
-  if (!adapter) {
-    return null
-  }
-
+  const kind = getRequestedLocalForgeHarnessName()
+  if (!isSandboxForgeHarnessAvailable(kind)) return null
   return {
-    label: 'TanStack AI',
-    name: 'tanstack-ai',
-    run: (input) =>
-      runTanStackAiForgeHarness({
-        ...input,
-        adapter,
-      }),
+    label: kind === 'claude-code' ? 'Claude Code (sandbox)' : 'Codex (sandbox)',
+    name: kind,
+    run: (input) => runSandboxForgeHarness({ ...input, kind }),
   }
 }
 
@@ -753,27 +739,16 @@ function getRequestedLocalForgeHarnessName(): ForgeAgentHarnessName {
 export function resolveLocalForgeAgentHarnessName(
   requestedHarness: string | undefined,
 ): ForgeAgentHarnessName {
-  const normalizedHarness = requestedHarness?.trim().toLowerCase()
-
-  if (
-    normalizedHarness === 'codex' ||
-    normalizedHarness === 'codex-cli' ||
-    normalizedHarness === 'local-codex'
-  ) {
-    return 'codex-cli'
-  }
-
-  return 'tanstack-ai'
+  const normalized = requestedHarness?.trim().toLowerCase()
+  if (normalized === 'claude-code' || normalized === 'claude')
+    return 'claude-code'
+  return 'codex'
 }
 
 function getLocalForgeHarnessUnavailableMessage() {
-  const harnessName = getRequestedLocalForgeHarnessName()
-
-  if (harnessName === 'codex-cli') {
-    return 'Forge needs Codex CLI available locally to use FORGE_AGENT_HARNESS=codex-cli.'
-  }
-
-  return 'Forge needs OPENAI_API_KEY or ANTHROPIC_API_KEY to run the TanStack AI harness.'
+  return getRequestedLocalForgeHarnessName() === 'claude-code'
+    ? 'Forge needs ANTHROPIC_API_KEY and the `claude` CLI available to use FORGE_AGENT_HARNESS=claude-code.'
+    : 'Forge needs OPENAI_API_KEY and the `codex` CLI available to run the default sandbox harness.'
 }
 
 async function runTanStackAiForgeHarness({

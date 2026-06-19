@@ -2380,8 +2380,9 @@ function resolveWorkspaceImportPath({
   importPath: string
   workspace: Map<string, ForgeWorkspaceFile>
 }) {
+  const normalizedImportPath = stripImportSpecifierSuffix(importPath)
   const baseParts = fromPath.split('/').slice(0, -1)
-  const importParts = importPath.split('/')
+  const importParts = normalizedImportPath.split('/')
   const resolvedParts = Array<string>()
 
   for (const part of [...baseParts, ...importParts]) {
@@ -2409,6 +2410,10 @@ function resolveWorkspaceImportPath({
   ]
 
   return candidates.find((candidate) => workspace.has(candidate))
+}
+
+function stripImportSpecifierSuffix(importPath: string) {
+  return importPath.split(/[?#]/, 1)[0] ?? importPath
 }
 
 function isJavaScriptModulePath(filePath: string) {

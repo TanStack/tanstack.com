@@ -1,5 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { compileHandler } from "~/builder/api";
+import {
+  createLocalBuilderManifestBundle,
+  getLocalManifestFiles,
+} from "~/builder/manifest";
 
 interface DeployRequest {
   repoName: string;
@@ -17,6 +21,13 @@ interface DeployResponse {
   repoUrl: string;
   owner: string;
   repoName: string;
+}
+
+interface DeployAuthResponse {
+  authenticated: boolean;
+  hasGitHubAccount: boolean;
+  hasPrivateRepoScope: boolean;
+  hasRepoScope: boolean;
 }
 
 interface DeployError {
@@ -52,16 +63,19 @@ export const Route = createFileRoute("/api/builder/deploy/github")({
           return Response.json({
             authenticated: false,
             hasGitHubAccount: false,
+            hasPrivateRepoScope: false,
             hasRepoScope: false,
-          });
+          } satisfies DeployAuthResponse);
         }
 
         const authState = await getGitHubAuthState(user.userId);
 
         return Response.json({
           authenticated: true,
-          ...authState,
-        });
+          hasGitHubAccount: authState.hasGitHubAccount,
+          hasPrivateRepoScope: authState.hasPrivateRepoScope,
+          hasRepoScope: authState.hasRepoScope,
+        } satisfies DeployAuthResponse);
       },
 
       /**
@@ -118,26 +132,6 @@ export const Route = createFileRoute("/api/builder/deploy/github")({
           );
         }
 
-        if (!authState.hasRepoScope || !authState.accessToken) {
-          console.log("[Deploy] Auth state check failed:", {
-            hasRepoScope: authState.hasRepoScope,
-            hasToken: !!authState.accessToken,
-          });
-          return Response.json(
-            {
-              success: false,
-              error:
-                "Missing public_repo scope. Please re-authenticate with GitHub.",
-              code: "MISSING_REPO_SCOPE",
-            } satisfies DeployError,
-            { status: 403 },
-          );
-        }
-        console.log(
-          "[Deploy] Auth state OK, hasRepoScope:",
-          authState.hasRepoScope,
-        );
-
         let body: DeployRequest;
         try {
           body = await request.json();
@@ -163,6 +157,32 @@ export const Route = createFileRoute("/api/builder/deploy/github")({
           tailwind,
         } = body;
 
+        if (
+          !hasRequiredGitHubRepoScope({ authState, isPrivate }) ||
+          !authState.accessToken
+        ) {
+          console.log("[Deploy] Auth state check failed:", {
+            hasPrivateRepoScope: authState.hasPrivateRepoScope,
+            hasRepoScope: authState.hasRepoScope,
+            hasToken: !!authState.accessToken,
+            isPrivate,
+          });
+          return Response.json(
+            {
+              success: false,
+              error: isPrivate
+                ? "Missing repo scope. Please re-authenticate with GitHub."
+                : "Missing public_repo scope. Please re-authenticate with GitHub.",
+              code: "MISSING_REPO_SCOPE",
+            } satisfies DeployError,
+            { status: 403 },
+          );
+        }
+        console.log(
+          "[Deploy] Auth state OK, hasRepoScope:",
+          authState.hasRepoScope,
+        );
+
         // Validate repo name
         const validation = validateRepoName(repoName);
         if (!validation.valid) {
@@ -179,15 +199,21 @@ export const Route = createFileRoute("/api/builder/deploy/github")({
         // Compile the project
         let compiledFiles: Record<string, string>;
         try {
-          const result = await compileHandler({
+          const definition = {
             name: projectName,
             framework,
             packageManager,
             tailwind,
             features,
             featureOptions,
+          };
+          const result = await compileHandler(definition);
+          const bundle = await createLocalBuilderManifestBundle({
+            definition,
+            compile: result,
+            createdAt: new Date().toISOString(),
           });
-          compiledFiles = result.files;
+          compiledFiles = getLocalManifestFiles(bundle);
         } catch (error) {
           console.error("[Deploy] Compile failed:", error);
           return Response.json(
@@ -263,3 +289,16 @@ export const Route = createFileRoute("/api/builder/deploy/github")({
     },
   },
 });
+
+function hasRequiredGitHubRepoScope({
+  authState,
+  isPrivate,
+}: {
+  authState: {
+    hasPrivateRepoScope: boolean;
+    hasRepoScope: boolean;
+  };
+  isPrivate: boolean;
+}) {
+  return isPrivate ? authState.hasPrivateRepoScope : authState.hasRepoScope;
+}

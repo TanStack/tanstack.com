@@ -438,60 +438,6 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   const desktopNavRef = React.useRef<HTMLElement>(null)
 
   React.useEffect(() => {
-    const container = containerRef.current
-
-    if (!container) {
-      return
-    }
-
-    const updateContainerHeight = () => {
-      const height = container.offsetHeight
-      document.documentElement.style.setProperty(
-        '--navbar-height',
-        `${height}px`,
-      )
-    }
-
-    let animationFrameId: number | null = null
-    const scheduleContainerHeightUpdate = () => {
-      if (animationFrameId !== null) {
-        return
-      }
-
-      animationFrameId = window.requestAnimationFrame(() => {
-        animationFrameId = null
-        updateContainerHeight()
-      })
-    }
-
-    updateContainerHeight()
-
-    const resizeObserver =
-      typeof window.ResizeObserver === 'function'
-        ? new window.ResizeObserver(scheduleContainerHeightUpdate)
-        : null
-
-    resizeObserver?.observe(container)
-    let lastWidth = window.innerWidth
-    const onResize = () => {
-      if (window.innerWidth === lastWidth) return
-      lastWidth = window.innerWidth
-      scheduleContainerHeightUpdate()
-    }
-
-    window.addEventListener('resize', onResize)
-
-    return () => {
-      if (animationFrameId !== null) {
-        window.cancelAnimationFrame(animationFrameId)
-      }
-
-      resizeObserver?.disconnect()
-      window.removeEventListener('resize', onResize)
-    }
-  }, [])
-
-  React.useEffect(() => {
     const desktopNav = desktopNavRef.current
 
     if (!desktopNav) {
@@ -649,7 +595,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   const navbar = (
     <div
       className={twMerge(
-        'w-full p-2 fixed top-0 z-[100] bg-white/90 dark:bg-black/90 backdrop-blur-lg',
+        'w-full h-[var(--navbar-height)] p-2 fixed top-0 z-[100] bg-white/90 dark:bg-black/90 backdrop-blur-lg',
         'flex items-center justify-between gap-2 min-[1120px]:gap-3',
         'border-b border-gray-500/20',
       )}

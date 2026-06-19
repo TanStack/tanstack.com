@@ -117,7 +117,7 @@ html.theme-switching *::after {
   }
 
   :root {
-    --navbar-height: 50px;
+    --navbar-height: 52px;
     scroll-padding-top: var(--navbar-height);
   }
 }

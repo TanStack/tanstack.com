@@ -65,14 +65,16 @@ export default createServerEntry(
 
           if (
             url.pathname === '/builder' ||
-            url.pathname.startsWith('/builder/')
+            url.pathname === '/forge' ||
+            url.pathname.startsWith('/builder/') ||
+            url.pathname.startsWith('/forge/')
           ) {
             const newHeaders = new Headers(response.headers)
             newHeaders.set('Cross-Origin-Opener-Policy', 'same-origin')
             newHeaders.set('Cross-Origin-Embedder-Policy', 'require-corp')
 
             logRequestEnd(context, response.status, {
-              builderIsolatedHeaders: true,
+              browserRuntimeIsolatedHeaders: true,
             })
             return new Response(response.body, {
               status: response.status,

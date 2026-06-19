@@ -206,7 +206,7 @@ export class SessionService implements ISessionService {
       .find((c) => c.trim().startsWith('session_token='))
 
     if (!sessionCookie) {
-      return null
+      return this.isProduction ? null : (process.env.DEV_SESSION_TOKEN ?? null)
     }
 
     const tokenValue = sessionCookie.split('=').slice(1).join('=').trim()

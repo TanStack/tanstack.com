@@ -1,17 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
 import JSZip from "jszip";
-import { compileHandler } from "~/builder/api";
+import { compileHandler, type ProjectDefinition } from "~/builder/api";
+import {
+  createLocalBuilderManifestBundle,
+  decodeLocalBase64File,
+  getLocalManifestFiles,
+} from "~/builder/manifest";
 
-const BASE64_PREFIX = "base64::";
-
-function decodeBase64File(content: string): Uint8Array | null {
-  if (content.startsWith(BASE64_PREFIX)) {
-    const decoded = atob(content.slice(BASE64_PREFIX.length));
-
-    return Uint8Array.from(decoded, (char) => char.charCodeAt(0));
+function normalizePackageManager(value: string): ProjectDefinition["packageManager"] {
+  switch (value) {
+    case "bun":
+    case "npm":
+    case "yarn":
+      return value;
+    default:
+      return "pnpm";
   }
-
-  return null;
 }
 
 export const Route = createFileRoute("/api/builder/download")({
@@ -43,19 +47,22 @@ export const Route = createFileRoute("/api/builder/download")({
             }
           }
 
-          const result = await compileHandler({
+          const definition: ProjectDefinition = {
             name,
             framework: framework === "solid" ? "solid" : "react",
-            packageManager:
-              packageManager === "bun" ||
-              packageManager === "npm" ||
-              packageManager === "yarn"
-                ? packageManager
-                : "pnpm",
+            packageManager: normalizePackageManager(packageManager),
             tailwind,
             features,
             featureOptions,
+          };
+
+          const result = await compileHandler(definition);
+          const bundle = await createLocalBuilderManifestBundle({
+            definition,
+            compile: result,
+            createdAt: new Date().toISOString(),
           });
+          const files = getLocalManifestFiles(bundle);
 
           const zip = new JSZip();
           const rootFolder = zip.folder(name);
@@ -63,9 +70,9 @@ export const Route = createFileRoute("/api/builder/download")({
             throw new Error("Failed to create ZIP folder");
           }
 
-          for (const [filePath, content] of Object.entries(result.files)) {
+          for (const [filePath, content] of Object.entries(files)) {
             // Handle base64-encoded binary files (SVGs, images, etc.)
-            const binaryContent = decodeBase64File(content);
+            const binaryContent = decodeLocalBase64File(content);
             if (binaryContent) {
               rootFolder.file(filePath, binaryContent, { binary: true });
             } else {

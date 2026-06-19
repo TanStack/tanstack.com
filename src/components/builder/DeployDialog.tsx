@@ -17,7 +17,7 @@ import {
 import { twMerge } from 'tailwind-merge'
 import { useAsyncDebouncer } from '@tanstack/react-pacer'
 import { Button, GitHub } from '~/ui'
-import { useDeployAuth } from './useDeployAuth'
+import { hasRequiredDeployRepoScope, useDeployAuth } from './useDeployAuth'
 import {
   useFeatures,
   useFeatureOptions,
@@ -90,6 +90,7 @@ export function DeployDialog({
   const [repoNameError, setRepoNameError] = useState<string | null>(null)
 
   const providerInfo = provider ? PROVIDER_INFO[provider] : null
+  const hasDeployScope = hasRequiredDeployRepoScope({ auth, isPrivate })
 
   const trackDialogLinkClick = useCallback(
     (
@@ -181,7 +182,7 @@ export function DeployDialog({
       return
     }
 
-    if (!auth.authenticated || !auth.hasGitHubAccount || !auth.hasRepoScope) {
+    if (!auth.authenticated || !auth.hasGitHubAccount || !hasDeployScope) {
       setState({ step: 'needs-auth' })
       return
     }
@@ -192,7 +193,7 @@ export function DeployDialog({
     auth.isLoading,
     auth.authenticated,
     auth.hasGitHubAccount,
-    auth.hasRepoScope,
+    hasDeployScope,
   ])
 
   // Auto-redirect countdown (only when there's a provider)
@@ -346,12 +347,15 @@ export function DeployDialog({
                 GitHub Authorization Required
               </h3>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-                To deploy, we need permission to create repositories on your
-                GitHub account.
+                {isPrivate
+                  ? 'To deploy a private repository, we need permission to create private repositories on your GitHub account.'
+                  : 'To deploy, we need permission to create repositories on your GitHub account.'}
               </p>
               <Button
                 variant="primary"
-                onClick={auth.redirectToGitHubAuth}
+                onClick={() =>
+                  auth.redirectToGitHubAuth({ privateRepo: isPrivate })
+                }
                 className="gap-2"
               >
                 <GitHub className="w-4 h-4" />

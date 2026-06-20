@@ -6,6 +6,7 @@ import { BuilderSummaryPanel, useBuilderSummaryData } from './BuilderSummary'
 import { ApplicationStarter } from '~/components/ApplicationStarter'
 import { useToast } from '~/components/ToastProvider'
 import type { ApplicationStarterResult } from '~/utils/application-starter'
+import { downloadBuilderResult } from './client-generation'
 
 export function BuilderWorkspace() {
   useBuilderUrl()
@@ -112,6 +113,7 @@ export function BuilderWorkspace() {
             alwaysShowPostAnalysisSection
             builderIntegration={{
               applyResult: applyStarterResult,
+              downloadResult: downloadBuilderResult,
             }}
             className="rounded-[28px]"
             context="builder"

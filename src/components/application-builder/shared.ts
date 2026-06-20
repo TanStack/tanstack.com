@@ -22,6 +22,7 @@ export interface StarterPalette {
 
 export interface ApplicationStarterBuilderIntegration {
   applyResult: (result: ApplicationStarterResult) => Promise<boolean>
+  downloadResult?: (result: ApplicationStarterResult) => Promise<void>
 }
 
 export interface ApplicationStarterAnonymousQuota {

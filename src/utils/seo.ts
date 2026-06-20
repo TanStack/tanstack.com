@@ -39,6 +39,7 @@ export function canonicalUrl(path: string, search?: string) {
   const origin = trimTrailingSlash(
     env.URL ||
       (import.meta.env.SSR ? env.SITE_URL : undefined) ||
+      env.VITE_SITE_URL ||
       DEFAULT_SITE_URL,
   )
 

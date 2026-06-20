@@ -3,15 +3,13 @@ import {
   createMemoryEnvironment,
   finalizeAddOns,
   populateAddOnOptionsDefaults,
-  computeAttribution,
   type AddOn,
+  type Framework,
   type Starter,
-  type LineAttribution as CtaLineAttribution,
-  type AttributedFile as CtaAttributedFile,
-} from '@tanstack/create'
+} from '@tanstack/create/edge'
 
 type AddOnType = 'add-on' | 'example' | 'starter' | 'toolchain' | 'deployment'
-type AddOnPhase = 'setup' | 'add-on'
+type AddOnPhase = 'setup' | 'add-on' | 'example'
 
 export interface AddOnCompiled {
   id: string
@@ -250,6 +248,323 @@ export async function compileHandler(
   }
 }
 
+type AttributionSource = {
+  sourceId: string
+  sourceName: string
+}
+
+type FileProvenance = {
+  source: 'framework' | 'add-on' | 'starter'
+  sourceId: string
+  sourceName: string
+}
+
+type CtaLineAttribution = {
+  line: number
+  sourceId: string
+  sourceName: string
+  type: 'original' | 'injected'
+}
+
+type CtaAttributedFile = {
+  content: string
+  provenance: FileProvenance
+  lineAttributions: Array<CtaLineAttribution>
+}
+
+type DependencyAttribution = {
+  name: string
+  version: string
+  type: 'dependency' | 'devDependency'
+  sourceId: string
+  sourceName: string
+}
+
+type AttributionOutput = {
+  attributedFiles: Record<string, CtaAttributedFile>
+  dependencies: Array<DependencyAttribution>
+}
+
+type IntegrationWithSource = NonNullable<AddOn['integrations']>[number] & {
+  _sourceId: string
+  _sourceName: string
+}
+
+type InjectionPattern = {
+  matches: (line: string) => boolean
+  appliesTo: (path: string) => boolean
+  source: AttributionSource
+}
+
+function normalizeAttributionPath(path: string) {
+  let nextPath = path.startsWith('./') ? path.slice(2) : path
+  nextPath = nextPath.replace(/\.ejs$/, '').replace(/_dot_/g, '.')
+
+  const match = nextPath.match(/^(.+\/)?__([^_]+)__(.+)$/)
+  return match ? (match[1] || '') + match[3] : nextPath
+}
+
+async function getFileProvenance(
+  filePath: string,
+  framework: Framework,
+  addOns: Array<AddOn>,
+  starter: Starter | undefined,
+): Promise<FileProvenance | null> {
+  const target = filePath.startsWith('./') ? filePath.slice(2) : filePath
+
+  if (starter) {
+    const files = await starter.getFiles()
+    if (files.some((file) => normalizeAttributionPath(file) === target)) {
+      return {
+        source: 'starter',
+        sourceId: starter.id,
+        sourceName: starter.name,
+      }
+    }
+  }
+
+  const typeOrder: Array<AddOnType> = [
+    'add-on',
+    'example',
+    'toolchain',
+    'deployment',
+  ]
+  const phaseOrder: Array<AddOnPhase> = ['setup', 'add-on', 'example']
+  const ordered = typeOrder.flatMap((type) =>
+    phaseOrder.flatMap((phase) =>
+      addOns.filter((addOn) => addOn.phase === phase && addOn.type === type),
+    ),
+  )
+
+  for (let index = ordered.length - 1; index >= 0; index--) {
+    const addOn = ordered[index]
+    if (!addOn) continue
+
+    const files = await addOn.getFiles()
+    if (files.some((file) => normalizeAttributionPath(file) === target)) {
+      return {
+        source: 'add-on',
+        sourceId: addOn.id,
+        sourceName: addOn.name,
+      }
+    }
+  }
+
+  const frameworkFiles = await framework.getFiles()
+  if (
+    frameworkFiles.some((file) => normalizeAttributionPath(file) === target)
+  ) {
+    return {
+      source: 'framework',
+      sourceId: framework.id,
+      sourceName: framework.name,
+    }
+  }
+
+  return null
+}
+
+function integrationInjections(
+  integration: IntegrationWithSource,
+): Array<InjectionPattern> {
+  const source = {
+    sourceId: integration._sourceId,
+    sourceName: integration._sourceName,
+  }
+  const injections: Array<InjectionPattern> = []
+  const appliesTo = (path: string) => {
+    if (integration.type === 'vite-plugin') return path.includes('vite.config')
+    if (
+      integration.type === 'provider' ||
+      integration.type === 'root-provider' ||
+      integration.type === 'devtools'
+    ) {
+      return path.includes('__root') || path.includes('root.tsx')
+    }
+    return false
+  }
+
+  if (integration.import) {
+    const prefix = integration.import.split(' from ')[0]
+    injections.push({
+      matches: (line) => line.includes(prefix),
+      appliesTo,
+      source,
+    })
+  }
+
+  const code = integration.code || integration.jsName
+  if (code) {
+    injections.push({
+      matches: (line) => line.includes(code),
+      appliesTo,
+      source,
+    })
+  }
+
+  return injections
+}
+
+function dependencyInjection(dep: DependencyAttribution): InjectionPattern {
+  return {
+    matches: (line) => line.includes(`"${dep.name}"`),
+    appliesTo: (path) => path.endsWith('package.json'),
+    source: { sourceId: dep.sourceId, sourceName: dep.sourceName },
+  }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
+function readStringRecord(value: unknown): Record<string, string> | undefined {
+  if (!isRecord(value)) return undefined
+
+  const result: Record<string, string> = {}
+  for (const [key, entryValue] of Object.entries(value)) {
+    if (typeof entryValue !== 'string') {
+      return undefined
+    }
+    result[key] = entryValue
+  }
+
+  return result
+}
+
+function collectPackageTemplateDependencies(
+  packageTemplate: string,
+  source: AttributionSource,
+): Array<DependencyAttribution> {
+  try {
+    const value: unknown = JSON.parse(
+      packageTemplate.replace(/"[^"]*<%[^%]*%>[^"]*"/g, '""'),
+    )
+    if (!isRecord(value)) return []
+
+    return [
+      ...collectDependencies(
+        readStringRecord(value.dependencies),
+        'dependency',
+        source,
+      ),
+      ...collectDependencies(
+        readStringRecord(value.devDependencies),
+        'devDependency',
+        source,
+      ),
+    ]
+  } catch {
+    return []
+  }
+}
+
+function collectDependencies(
+  deps: Record<string, string> | undefined,
+  type: 'dependency' | 'devDependency',
+  source: AttributionSource,
+): Array<DependencyAttribution> {
+  if (!deps) return []
+
+  return Object.entries(deps).map(([name, version]) => ({
+    name,
+    version,
+    type,
+    ...source,
+  }))
+}
+
+async function computeAttribution(input: {
+  framework: Framework
+  chosenAddOns: Array<AddOn>
+  starter?: Starter
+  files: Record<string, string>
+}): Promise<AttributionOutput> {
+  const { framework, chosenAddOns, starter, files } = input
+
+  const integrations = chosenAddOns.flatMap((addOn) =>
+    (addOn.integrations ?? []).map((integration) => ({
+      ...integration,
+      _sourceId: addOn.id,
+      _sourceName: addOn.name,
+    })),
+  )
+
+  const dependencies = chosenAddOns.flatMap((addOn) => {
+    const source = { sourceId: addOn.id, sourceName: addOn.name }
+
+    return [
+      ...collectDependencies(
+        addOn.packageAdditions?.dependencies,
+        'dependency',
+        source,
+      ),
+      ...collectDependencies(
+        addOn.packageAdditions?.devDependencies,
+        'devDependency',
+        source,
+      ),
+      ...(addOn.packageTemplate
+        ? collectPackageTemplateDependencies(addOn.packageTemplate, source)
+        : []),
+    ]
+  })
+
+  const injections = [
+    ...integrations.flatMap(integrationInjections),
+    ...dependencies.map(dependencyInjection),
+  ]
+  const attributedFiles: Record<string, CtaAttributedFile> = {}
+
+  for (const [filePath, content] of Object.entries(files)) {
+    const provenance = await getFileProvenance(
+      filePath,
+      framework,
+      chosenAddOns,
+      starter,
+    )
+    if (!provenance) continue
+
+    const lines = content.split('\n')
+    const relevant = injections.filter((injection) =>
+      injection.appliesTo(filePath),
+    )
+    const injectedLines = new Map<number, AttributionSource>()
+
+    for (const injection of relevant) {
+      lines.forEach((line, index) => {
+        if (injection.matches(line) && !injectedLines.has(index + 1)) {
+          injectedLines.set(index + 1, injection.source)
+        }
+      })
+    }
+
+    attributedFiles[filePath] = {
+      content,
+      provenance,
+      lineAttributions: lines.map((_, index) => {
+        const line = index + 1
+        const injected = injectedLines.get(line)
+
+        return injected
+          ? {
+              line,
+              sourceId: injected.sourceId,
+              sourceName: injected.sourceName,
+              type: 'injected',
+            }
+          : {
+              line,
+              sourceId: provenance.sourceId,
+              sourceName: provenance.sourceName,
+              type: 'original',
+            }
+      }),
+    }
+  }
+
+  return { attributedFiles, dependencies }
+}
+
 // Line attribution interface (used by the UI)
 export interface LineAttribution {
   lineNumber: number
@@ -327,11 +642,10 @@ export async function compileWithAttributionHandler(
   const attributedFiles: Record<string, AttributedFile> = {}
 
   for (const [filePath, ctaFile] of Object.entries(attribution.attributedFiles)) {
-    const file = ctaFile as CtaAttributedFile
     attributedFiles[filePath] = {
       path: filePath,
-      content: file.content,
-      attributions: file.lineAttributions.map((attr: CtaLineAttribution) => {
+      content: ctaFile.content,
+      attributions: ctaFile.lineAttributions.map((attr) => {
         const isBaseline = baselineSourceIds.has(attr.sourceId)
         return {
           lineNumber: attr.line,
@@ -346,10 +660,10 @@ export async function compileWithAttributionHandler(
   // For files that weren't in the attribution (e.g., generated files), use base attribution
   for (const [filePath, content] of Object.entries(output.files)) {
     if (!attributedFiles[filePath]) {
-      const lines = (content as string).split('\n')
+      const lines = content.split('\n')
       attributedFiles[filePath] = {
         path: filePath,
-        content: content as string,
+        content,
         attributions: lines.map((_, i) => ({
           lineNumber: i + 1,
           featureId: 'base',

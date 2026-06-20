@@ -1,4 +1,4 @@
-import { getFrameworkById } from '@tanstack/create'
+import { getFrameworkById } from '@tanstack/create/edge'
 import { normalizeFrameworkId, type FrameworkId } from '../frameworks'
 
 export { type FrameworkId, FRAMEWORKS, normalizeFrameworkId } from '../frameworks'

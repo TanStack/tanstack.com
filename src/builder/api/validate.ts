@@ -4,7 +4,7 @@
  * Uses cta-engine to validate project definitions.
  */
 
-import { getAllAddOns, type AddOn } from '@tanstack/create'
+import { getAllAddOns, type AddOn } from '@tanstack/create/edge'
 import type { ProjectDefinition } from './compile'
 import { getFramework, DEFAULT_MODE } from './config'
 

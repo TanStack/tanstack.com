@@ -1,4 +1,4 @@
-import { getAllAddOns, type AddOn, type AddOnOption } from '@tanstack/create'
+import { getAllAddOns, type AddOn, type AddOnOption } from '@tanstack/create/edge'
 import { getFramework, DEFAULT_MODE, DEFAULT_REQUIRED_ADDONS, type FrameworkId } from './config'
 import { partners } from '~/utils/partners'
 

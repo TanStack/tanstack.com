@@ -7,3 +7,7 @@
 
 // Import generated route tree types if available
 import '../.tanstack-start/server-routes/routeTree.gen'
+
+declare global {
+  const __TANSTACK_ENABLE_SERVER_BUILDER_GENERATION__: boolean
+}

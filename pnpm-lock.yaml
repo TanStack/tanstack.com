@@ -106,8 +106,8 @@ importers:
         specifier: ^0.9.5
         version: 0.9.5(@tanstack/ai-client@0.11.3(@opentelemetry/api@1.9.1))(@tanstack/ai@0.20.1(@opentelemetry/api@1.9.1))(ws@8.21.0)(zod@4.3.6)
       '@tanstack/create':
-        specifier: ^0.68.0
-        version: 0.68.0(tslib@2.8.1)
+        specifier: ^0.68.3
+        version: 0.68.3(tslib@2.8.1)
       '@tanstack/highlight':
         specifier: ^0.0.2
         version: 0.0.2
@@ -3875,8 +3875,8 @@ packages:
       '@opentelemetry/api':
         optional: true
 
-  '@tanstack/create@0.68.0':
-    resolution: {integrity: sha512-QQBnDj9p6gEo0TSqCDEUAfAhv5GKChd60yuk6XXjxgH4vgwLCuWeb6U9lOQ61tUk4Wmk2n49zabHtplz05GcKQ==}
+  '@tanstack/create@0.68.3':
+    resolution: {integrity: sha512-BBOmj+dEtRCOLqQzjEvivBJl1ZN5KgV6kcHoijhMVgn5oq1xX7BixBiNUJ3sgPzHWFriI/pkgTlbnEtBezvsWA==}
     engines: {node: '>=20'}
 
   '@tanstack/devtools-client@0.0.6':
@@ -11989,7 +11989,7 @@ snapshots:
     optionalDependencies:
       '@opentelemetry/api': 1.9.1
 
-  '@tanstack/create@0.68.0(tslib@2.8.1)':
+  '@tanstack/create@0.68.3(tslib@2.8.1)':
     dependencies:
       ejs: 3.1.10
       execa: 9.6.1

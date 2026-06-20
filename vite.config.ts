@@ -135,6 +135,10 @@ const routerSsrPackages = [
 
 export default defineConfig({
   envDir,
+  define: {
+    __TANSTACK_ENABLE_SERVER_BUILDER_GENERATION__:
+      JSON.stringify(!isCloudflareTarget),
+  },
   resolve: {
     alias: [
       {

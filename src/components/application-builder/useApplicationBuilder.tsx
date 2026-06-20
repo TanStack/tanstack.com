@@ -978,6 +978,10 @@ export function useApplicationBuilder({
       await withResolvedResult((nextResult) => {
         trackAction(kind === 'advanced' ? 'open_advanced' : 'download')
 
+        if (kind === 'download' && builderIntegration?.downloadResult) {
+          return builderIntegration.downloadResult(nextResult)
+        }
+
         const destination =
           kind === 'download'
             ? nextResult.downloadUrl
@@ -990,7 +994,7 @@ export function useApplicationBuilder({
         window.location.assign(destination)
       })
     },
-    [trackAction, withResolvedResult],
+    [builderIntegration, trackAction, withResolvedResult],
   )
 
   const openDeployDialog = React.useCallback(

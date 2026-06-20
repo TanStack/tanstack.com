@@ -1,120 +1,82 @@
 # Cloudflare Workers Migration Spike
 
-This spike adds Cloudflare Workers deployment support for the current TanStack.com Start app while keeping Netlify config in place for rollback.
+Cloudflare Workers support is wired for the current TanStack.com Start app while Netlify config remains in place for rollback.
 
 ## Files Changed
 
-- `package.json`, `pnpm-lock.yaml`: Cloudflare scripts and dependencies.
-- `wrangler.jsonc`: Worker name, account, `nodejs_compat`, assets binding, staging vars.
-- `vite.config.ts`: deploy-target switch, Cloudflare plugin, Redact/React server aliases, Worker-only compatibility aliases, Shiki/Takumi bundle handling.
-- `src/server/runtime/host.server.ts`, `src/types/host-runtime.d.ts`: isolated host runtime adapter for static assets, isolate detection, and runtime capability checks.
-- `src/server/og/*`, `src/routes/api/og/{$}.png.ts`: runtime-compatible OG asset and WASM loading through the host adapter.
-- `src/components/markdown/renderCodeBlock.server.tsx`: explicit Shiki languages/themes to keep server output smaller.
-- `src/routes/explore.tsx`, `src/components/game/IslandExplorer.client.tsx`: Island Explorer is client-only for Cloudflare builds.
-- `src/utils/github-content-cache.server.ts`, `src/utils/prod-diagnostics.server.ts`: generic runtime capability guards.
-- `docs/cloudflare-workers-migration.md`: this report.
+- `package.json`, `pnpm-lock.yaml`: `@tanstack/create@^0.68.3`, Cloudflare deploy scripts with build-time `SITE_URL`/`VITE_SITE_URL`.
+- `vite.config.ts`: Cloudflare target switch and server builder-generation define.
+- `wrangler.jsonc`: Worker config, assets binding, `nodejs_compat`, staging vars.
+- `src/builder/api/*`: worker-friendly `@tanstack/create/edge` imports, local attribution/template helpers, remote add-on edge import.
+- `src/components/builder/*`, `src/components/application-builder/*`: client-side builder feature loading, ZIP generation, and GitHub deploy file handoff.
+- `src/routes/api/builder/*`: Cloudflare-safe 501 responses for server-generation-only builder routes; GitHub deploy accepts precompiled client files.
+- `src/utils/env.ts`, `src/utils/seo.ts`: generic `VITE_SITE_URL` support so staging client/server canonical URLs match.
+- `src/tanstack-start.d.ts`, `src/types/tanstack-create-edge.d.ts`: build flag and private edge import declarations.
 
-## Commands
+Earlier migration work in this branch also added the host runtime adapter, OG image Worker compatibility, Cloudflare headers/redirects, and Island Explorer client-only handling.
+
+## Commands Used
 
 ```bash
-pnpm exec wrangler login
-pnpm exec wrangler whoami
-pnpm exec wrangler secret bulk .env.local --name tanstack-com-staging
-pnpm exec wrangler secret list --name tanstack-com-staging
-pnpm run dev:cloudflare
-pnpm test
 pnpm run build
-pnpm run build:cloudflare
+pnpm test
+SITE_URL=https://tanstack-com-staging.thetanstack.workers.dev VITE_SITE_URL=https://tanstack-com-staging.thetanstack.workers.dev pnpm run build:cloudflare
 pnpm exec wrangler deploy --name tanstack-com-staging --var SITE_URL:https://tanstack-com-staging.thetanstack.workers.dev
+pnpm run with-env -- sh -c 'DISABLE_REDACT=true TANSTACK_DEPLOY_TARGET=cloudflare vite dev --host 127.0.0.1 --port 3001'
+node --input-type=module -e "const { compileHandler } = await import('./dist/client/assets/compile-Bgcl59oJ.js'); const result = await compileHandler({ name: 'my-tanstack-app', framework: 'react', packageManager: 'pnpm', tailwind: true, features: ['cloudflare'], featureOptions: {} }); console.log(Object.keys(result.files).length)"
 ```
 
-`pnpm run dev:cloudflare` intentionally disables Redact in local dev because the Vite Worker dev optimizer currently leaves a raw `require("react-dom")` in the RSC Flight client prebundle when Redact is enabled. Production and staging Cloudflare builds keep Redact enabled.
+Representative staging checks used `curl` against `/`, docs, `/builder`, `/login`, `/auth/github/start`, `/api/data/libraries`, `/api/og/query.png`, analytics proxy routes, Discord interactions, MCP, stats, and builder API routes.
 
 ## Staging
 
 - Account: `8da95258a9c70b54c3e2b374a0079106`
 - Worker: `tanstack-com-staging`
 - URL: `https://tanstack-com-staging.thetanstack.workers.dev`
-- Current version: `47af3869-1fb5-4c97-a8e3-f7e51f20b76a`
-- Upload size: `27875.92 KiB` raw, `8804.58 KiB` gzip
-- Startup time: `31 ms`
+- Current version: `5f53ee15-451a-452d-88f1-241f2627de6f`
+- Upload size: `26939.40 KiB` raw, `8512.56 KiB` gzip
+- Startup time: `23 ms`
 
-The current upload fits the paid Workers 10 MiB gzip limit.
-
-## Secrets And Vars
-
-Staging secrets were bulk uploaded from `.env.local`:
-
-```bash
-pnpm exec wrangler secret bulk .env.local --name tanstack-com-staging
-```
-
-Uploaded secret names:
-
-- `GITHUB_AUTH_TOKEN`
-- `GITHUB_OAUTH_CLIENT_ID`
-- `GITHUB_OAUTH_CLIENT_SECRET`
-- `GOOGLE_OAUTH_CLIENT_ID`
-- `GOOGLE_OAUTH_CLIENT_SECRET`
-- `BETTER_AUTH_SECRET`
-- `DATABASE_URL`
-- `UPLOADTHING_TOKEN`
-- `DISCORD_APPLICATION_ID`
-- `DISCORD_PUBLIC_KEY`
-- `DISCORD_WEBHOOK_URL`
-- `SESSION_SECRET`
-- `ALGOLIA_ASSISTANT_ID`
-- `OPENAI_API_KEY`
-- `ANTHROPIC_API_KEY`
-- `VITE_KAPA_INTEGRATION_ID`
-- `KAPA_PROJECT_ID`
-- `KAPA_API_KEY`
-- `SHOPIFY_STORE_DOMAIN`
-- `SHOPIFY_API_VERSION`
-- `SHOPIFY_PUBLIC_STOREFRONT_TOKEN`
-- `SHOPIFY_PRIVATE_STOREFRONT_TOKEN`
-
-`SITE_URL` is configured as a Wrangler var. Static asset reads go through `src/server/runtime/host.server.ts`, which uses the deployment asset binding when available and falls back to `fetch`.
+This fits the paid Workers 10 MiB gzip limit.
 
 ## Passed
 
-- `pnpm test` passed with 10 existing oxlint warnings.
 - `pnpm run build` passed.
-- `pnpm run build:cloudflare` passed.
-- `pnpm run dev:cloudflare` started locally on `http://localhost:3001`; `/` and `/api/og/query.png` returned 200.
+- `pnpm test` passed with 10 existing oxlint warnings.
+- Staging Cloudflare build passed.
 - Staging deploy passed.
+- Server bundle no longer contains the generated `@tanstack/create` manifest strings checked during the size investigation.
+- `/builder` hydrates on staging and loads the client builder chunks.
+- Browser builder smoke: default Cloudflare starter UI renders, no console warnings/errors, generated prompt flow works.
+- Local browser-built `compileHandler` generated a 21-file Cloudflare starter including `package.json` and `wrangler.jsonc`.
 
 Staging route checks:
 
 - `/` 200 HTML.
-- `/query/latest/docs/framework/react/guides/queries` 200 HTML.
 - `/start/latest/docs/framework/react/overview` 200 HTML.
-- `/builder` 200 HTML with `Cross-Origin-Opener-Policy: same-origin` and `Cross-Origin-Embedder-Policy: require-corp`.
+- `/builder` 200 HTML with COOP/COEP/security headers.
 - `/login` 200 HTML.
-- `/auth/github/start` 302 to GitHub and sets OAuth state cookies.
-- `/auth/signout` 302 and clears `session_token`.
+- `/auth/github/start` 302 to GitHub with staging callback URL.
 - `/api/data/libraries` 200 JSON.
 - `/api/og/query.png` 200 PNG.
-- `/_a/gtag.js` 200.
+- `/_a/gtag.js` 200 JavaScript.
 - `/_a/g/collect` 204.
-- `/stats/npm/%40tanstack%2Freact-query` 200 HTML.
-- `/feedback-leaderboard` 200 HTML.
+- `/stats/npm/%40tanstack%2Freact-query` redirects then 200 HTML.
 - `/.well-known/oauth-authorization-server` 200 JSON.
-- `/api/discord/interactions` returned expected 401 for unsigned request.
+- `POST /api/discord/interactions` returns expected 401 for unsigned request.
+- `/api/builder/features` and `/api/builder/download` return intentional 501 JSON on Cloudflare.
 
 ## Failed Or Not Proven
 
-- Builder API routes still fail on Workers:
-  - `/api/builder/features?framework=react` returns 500.
-  - `/api/builder/download?...` returns 500.
-  - Tail shows Cloudflare global-scope operation errors while importing builder code.
-- MCP endpoint returned 500 for an anonymous GET instead of a clean unauthenticated response.
-- Full GitHub OAuth callback was not completed because it requires an interactive browser OAuth round-trip.
+- `pnpm run dev:cloudflare` did not bind to `127.0.0.1:3001` after 60 seconds in this worktree.
+- `GET /api/mcp` still returns 500 JSON: `HTTPError`.
+- Full GitHub OAuth callback was not completed.
 - Authenticated account/admin flows were not manually verified.
-- Builder GitHub deploy flow was not proven because builder APIs fail before that flow is usable.
+- Browser wrapper did not observe the blob ZIP download event, although the browser-built compile handler itself succeeds.
+- GitHub deploy was not completed end-to-end; server route is ready to accept client-generated files.
 
-## Current Readiness
+## Readiness
 
-Core marketing SSR, docs SSR, login page rendering, auth start/signout cookies, analytics proxying, security headers, static assets, OG image generation, and public DB-backed pages are Worker-compatible on staging.
+Core marketing SSR, docs SSR, login rendering, auth start cookies/redirect, analytics proxying, security headers, static assets, OG image generation, DB-backed stats pages, Discord request validation, and the Builder UI are Worker-compatible on staging.
 
-Production cutover is not safe yet because Builder API parity is not proven. The next focused fix should make `@tanstack/create` Worker-compatible by avoiding package filesystem/template scanning during Worker runtime, likely via precompiled builder metadata or an upstream package export designed for Workers.
+Production cutover is closer but not fully safe yet. Remaining blockers are local Cloudflare dev startup, MCP 500, authenticated OAuth/account verification, and an end-to-end Builder ZIP/GitHub deploy check in a browser environment that can observe downloads.

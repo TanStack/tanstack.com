@@ -25,6 +25,7 @@ const serverEnvSchema = v.object({
 
 const clientEnvSchema = v.object({
   URL: v.optional(v.string()),
+  VITE_SITE_URL: v.optional(v.string()),
   VITE_KAPA_INTEGRATION_ID: v.optional(v.string()),
   VITE_KAPA_SOURCE_GROUP_IDS: v.optional(v.string()),
 })

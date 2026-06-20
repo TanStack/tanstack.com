@@ -28,11 +28,16 @@ export const Route = createFileRoute('/blog/$')({
     return fetchBlogPost({ data: blogPath })
   },
   head: ({ loaderData }) => {
-    // Generate optimized social media image URL using Netlify Image CDN
     const getSocialImageUrl = (headerImage?: string) => {
       if (!headerImage) return undefined
 
-      // Use Netlify Image CDN to optimize for social media (1200x630 is the standard for og:image)
+      const sourceUrl = headerImage.startsWith('http')
+        ? headerImage
+        : `https://tanstack.com${headerImage}`
+
+      if (__TANSTACK_IMAGE_CDN__ !== 'netlify') {
+        return sourceUrl
+      }
 
       return `https://tanstack.com/.netlify/images?url=${encodeURIComponent(
         headerImage,

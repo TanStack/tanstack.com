@@ -8,8 +8,8 @@ export function getNetlifyImageUrl(
   src: string,
   options: { width?: number; height?: number; quality?: number } = {},
 ): string {
-  // Skip in development - Netlify Image CDN only works in production
-  if (import.meta.env.DEV) {
+  // Skip in development and on hosts without Netlify Image CDN support.
+  if (import.meta.env.DEV || __TANSTACK_IMAGE_CDN__ !== 'netlify') {
     return src
   }
 

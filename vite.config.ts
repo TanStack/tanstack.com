@@ -138,6 +138,9 @@ export default defineConfig({
   define: {
     __TANSTACK_ENABLE_SERVER_BUILDER_GENERATION__:
       JSON.stringify(!isCloudflareTarget),
+    __TANSTACK_IMAGE_CDN__: JSON.stringify(
+      isCloudflareTarget ? 'static' : 'netlify',
+    ),
   },
   resolve: {
     alias: [

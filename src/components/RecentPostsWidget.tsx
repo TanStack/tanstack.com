@@ -22,22 +22,45 @@ function RecentPostsList() {
         </Link>
       </div>
       <div className="flex flex-col divide-y divide-gray-500/10">
-        {posts.map((post) => (
-          <Link
-            key={post.slug}
-            to="/blog/$"
-            params={{ _splat: post.slug } as never}
-            className="flex flex-col gap-0.5 px-3 py-2.5
-              hover:bg-gray-500/5 transition-colors duration-150"
-          >
-            <span className="text-xs font-medium leading-snug line-clamp-2">
-              {post.title}
-            </span>
-            <span className="text-[10px] text-gray-500 dark:text-gray-500">
-              {formatPublishedDate(post.published)}
-            </span>
-          </Link>
-        ))}
+        {posts.map((post) => {
+          const content = (
+            <>
+              <span className="text-xs font-medium leading-snug line-clamp-2">
+                {post.title}
+              </span>
+              <span className="text-[10px] text-gray-500 dark:text-gray-500">
+                {formatPublishedDate(post.published)}
+              </span>
+            </>
+          )
+          const className = `flex flex-col gap-0.5 px-3 py-2.5
+              hover:bg-gray-500/5 transition-colors duration-150`
+
+          if (post.externalUrl) {
+            return (
+              <a
+                key={post.slug}
+                href={post.externalUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={className}
+              >
+                {content}
+              </a>
+            )
+          }
+
+          return (
+            <Link
+              key={post.slug}
+              to="/blog/$"
+              params={{ _splat: post.slug } as never}
+              className={className}
+            >
+              {content}
+            </Link>
+          )
+        })}
       </div>
     </div>
   )

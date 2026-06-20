@@ -6,12 +6,38 @@ const listJoiner = new Intl.ListFormat('en-US', {
   type: 'conjunction',
 })
 
+const authorAliases = new Map<string, string>([
+  ['TkDodo', 'Dominik Dorfmeister'],
+])
+
+export function normalizeBlogAuthor(author: string) {
+  return authorAliases.get(author) ?? author
+}
+
+export function normalizeBlogAuthors(authors: Array<string>) {
+  const normalizedAuthors: Array<string> = []
+  const seen = new Set<string>()
+
+  for (const author of authors) {
+    const normalizedAuthor = normalizeBlogAuthor(author)
+
+    if (!seen.has(normalizedAuthor)) {
+      seen.add(normalizedAuthor)
+      normalizedAuthors.push(normalizedAuthor)
+    }
+  }
+
+  return normalizedAuthors
+}
+
 export function formatAuthors(authors: Array<string>) {
-  if (!authors.length) {
+  const normalizedAuthors = normalizeBlogAuthors(authors)
+
+  if (!normalizedAuthors.length) {
     return 'TanStack'
   }
 
-  return listJoiner.format(authors)
+  return listJoiner.format(normalizedAuthors)
 }
 
 function getUtcDateString(date = new Date()) {
@@ -39,6 +65,39 @@ export function isPublishedDateReleased(published: string, now = new Date()) {
 
 export function publishedDateToUTCString(published: string) {
   return parsePublishedDate(published).toUTCString()
+}
+
+export type BlogCardPost = {
+  slug: string
+  title: string
+  published: string
+  excerpt: string
+  headerImage: string | undefined
+  authors: Array<string>
+  library: string | undefined
+  externalUrl?: string
+  source?: string
+}
+
+export function postToBlogCardPost(post: Post): BlogCardPost {
+  return {
+    slug: post.slug,
+    title: post.title,
+    published: post.published,
+    excerpt: post.excerpt,
+    headerImage: post.headerImage,
+    authors: normalizeBlogAuthors(post.authors),
+    library: post.library,
+  }
+}
+
+export function sortBlogCardPosts(posts: Array<BlogCardPost>) {
+  return [...posts].sort(
+    (a, b) =>
+      b.published.localeCompare(a.published) ||
+      a.title.localeCompare(b.title) ||
+      a.slug.localeCompare(b.slug),
+  )
 }
 
 /**
@@ -74,13 +133,20 @@ export function getPostsForLibrary(libraryId: LibraryId): Post[] {
   )
 }
 
+export function isBlogCardPostForLibrary(
+  post: BlogCardPost,
+  libraryId: LibraryId,
+) {
+  return getBlogLibraries(post.library).some((lib) => lib.id === libraryId)
+}
+
 export function getDistinctAuthors(
   posts: ReadonlyArray<{ authors: string[] }>,
 ): string[] {
   const authors = new Set<string>()
   for (const post of posts) {
     for (const author of post.authors) {
-      authors.add(author)
+      authors.add(normalizeBlogAuthor(author))
     }
   }
   return [...authors].sort((a, b) => a.localeCompare(b))

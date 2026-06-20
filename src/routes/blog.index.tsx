@@ -2,12 +2,10 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { BlogCard, type BlogCardPost } from '~/components/BlogCard'
 import { BlogAuthorFilter } from '~/components/BlogAuthorFilter'
-import { getDistinctAuthors, getPublishedPosts } from '~/utils/blog'
+import { getDistinctAuthors, normalizeBlogAuthor } from '~/utils/blog'
 
 import { Footer } from '~/components/Footer'
 import { PostNotFound } from './blog'
-import { createServerFn } from '@tanstack/react-start'
-import { setResponseHeaders } from '@tanstack/react-start/server'
 import { RssIcon } from 'lucide-react'
 import { libraries, type LibrarySlim } from '~/libraries'
 import { LibrariesWidget } from '~/components/LibrariesWidget'
@@ -15,39 +13,16 @@ import { Card } from '~/components/Card'
 import { partners } from '~/utils/partners'
 import { PartnersRail, RightRail } from '~/components/RightRail'
 import { RecentPostsWidget } from '~/components/RecentPostsWidget'
+import { fetchBlogIndexPosts } from '~/utils/blog.functions'
 
 const searchSchema = v.object({
   author: v.fallback(v.optional(v.string()), undefined),
 })
 
-const fetchFrontMatters = createServerFn({ method: 'GET' }).handler(
-  async () => {
-    setResponseHeaders(
-      new Headers({
-        'Cache-Control': 'public, max-age=0, must-revalidate',
-        'Netlify-CDN-Cache-Control':
-          'public, max-age=300, durable, stale-while-revalidate=300',
-      }),
-    )
-
-    return getPublishedPosts().map((post) => {
-      return {
-        slug: post.slug,
-        title: post.title,
-        published: post.published,
-        excerpt: post.excerpt,
-        headerImage: post.headerImage,
-        authors: post.authors,
-        library: post.library,
-      }
-    })
-  },
-)
-
 export const Route = createFileRoute('/blog/')({
   staleTime: Infinity,
   validateSearch: searchSchema,
-  loader: () => fetchFrontMatters(),
+  loader: () => fetchBlogIndexPosts(),
   notFoundComponent: () => <PostNotFound />,
   component: BlogIndex,
   head: () => ({
@@ -75,12 +50,13 @@ function BlogIndex() {
   const { author } = Route.useSearch()
   const navigate = Route.useNavigate()
   const activePartners = partners.filter((d) => d.status === 'active')
+  const selectedAuthor = author ? normalizeBlogAuthor(author) : undefined
 
   const authors = getDistinctAuthors(frontMatters)
   const librariesWithPosts = getLibrariesWithPosts(frontMatters)
 
-  const filteredPosts = author
-    ? frontMatters.filter((post) => post.authors.includes(author))
+  const filteredPosts = selectedAuthor
+    ? frontMatters.filter((post) => post.authors.includes(selectedAuthor))
     : frontMatters
 
   return (
@@ -118,7 +94,7 @@ function BlogIndex() {
                 <div id="blog-author-filter" className="w-64 max-w-full">
                   <BlogAuthorFilter
                     authors={authors}
-                    selected={author}
+                    selected={selectedAuthor}
                     onSelect={(nextAuthor) =>
                       navigate({
                         search: () => ({ author: nextAuthor }),
@@ -165,7 +141,7 @@ function BlogIndex() {
                 {author ? (
                   <>
                     {' '}
-                    by <span className="font-medium">{author}</span>
+                    by <span className="font-medium">{selectedAuthor}</span>
                   </>
                 ) : null}
                 .

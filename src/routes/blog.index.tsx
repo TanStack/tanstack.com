@@ -2,7 +2,12 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { BlogCard, type BlogCardPost } from '~/components/BlogCard'
 import { BlogAuthorFilter } from '~/components/BlogAuthorFilter'
-import { getDistinctAuthors, normalizeBlogAuthor } from '~/utils/blog'
+import { BlogSearchFilter } from '~/components/BlogSearchFilter'
+import {
+  getDistinctAuthors,
+  normalizeBlogAuthor,
+  searchBlogCardPosts,
+} from '~/utils/blog'
 
 import { Footer } from '~/components/Footer'
 import { PostNotFound } from './blog'
@@ -17,6 +22,7 @@ import { fetchBlogIndexPosts } from '~/utils/blog.functions'
 
 const searchSchema = v.object({
   author: v.fallback(v.optional(v.string()), undefined),
+  q: v.fallback(v.optional(v.string()), undefined),
 })
 
 export const Route = createFileRoute('/blog/')({
@@ -47,17 +53,19 @@ function getLibrariesWithPosts(posts: BlogCardPost[]): LibrarySlim[] {
 
 function BlogIndex() {
   const frontMatters = Route.useLoaderData() as BlogCardPost[]
-  const { author } = Route.useSearch()
+  const { author, q } = Route.useSearch()
   const navigate = Route.useNavigate()
   const activePartners = partners.filter((d) => d.status === 'active')
   const selectedAuthor = author ? normalizeBlogAuthor(author) : undefined
+  const searchQuery = q ?? ''
 
   const authors = getDistinctAuthors(frontMatters)
   const librariesWithPosts = getLibrariesWithPosts(frontMatters)
 
-  const filteredPosts = selectedAuthor
+  const authorFilteredPosts = selectedAuthor
     ? frontMatters.filter((post) => post.authors.includes(selectedAuthor))
     : frontMatters
+  const filteredPosts = searchBlogCardPosts(authorFilteredPosts, searchQuery)
 
   return (
     <div className="flex flex-col max-w-full min-h-screen">
@@ -85,23 +93,50 @@ function BlogIndex() {
 
             <section className="space-y-6">
               <div className="flex flex-wrap items-center gap-3">
-                <label
-                  htmlFor="blog-author-filter"
-                  className="text-sm font-medium text-gray-600 dark:text-gray-400"
-                >
-                  Author
-                </label>
-                <div id="blog-author-filter" className="w-64 max-w-full">
-                  <BlogAuthorFilter
-                    authors={authors}
-                    selected={selectedAuthor}
-                    onSelect={(nextAuthor) =>
+                <div className="flex items-center gap-3">
+                  <label
+                    htmlFor="blog-search-filter"
+                    className="text-sm font-medium text-gray-600 dark:text-gray-400"
+                  >
+                    Search
+                  </label>
+                  <BlogSearchFilter
+                    id="blog-search-filter"
+                    value={searchQuery}
+                    onChange={(nextQuery) =>
                       navigate({
-                        search: () => ({ author: nextAuthor }),
+                        search: (prev) => ({
+                          ...prev,
+                          q: nextQuery || undefined,
+                        }),
                         replace: true,
                       })
                     }
+                    className="w-72 max-w-full"
                   />
+                </div>
+                <div className="flex items-center gap-3">
+                  <label
+                    htmlFor="blog-author-filter"
+                    className="text-sm font-medium text-gray-600 dark:text-gray-400"
+                  >
+                    Author
+                  </label>
+                  <div id="blog-author-filter" className="w-64 max-w-full">
+                    <BlogAuthorFilter
+                      authors={authors}
+                      selected={selectedAuthor}
+                      onSelect={(nextAuthor) =>
+                        navigate({
+                          search: (prev) => ({
+                            ...prev,
+                            author: nextAuthor,
+                          }),
+                          replace: true,
+                        })
+                      }
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -138,6 +173,12 @@ function BlogIndex() {
             {filteredPosts.length === 0 ? (
               <div className="text-center text-gray-600 dark:text-gray-400 py-8">
                 No posts found
+                {searchQuery ? (
+                  <>
+                    {' '}
+                    matching <span className="font-medium">{searchQuery}</span>
+                  </>
+                ) : null}
                 {author ? (
                   <>
                     {' '}

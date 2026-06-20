@@ -5,12 +5,18 @@ import { DocContainer } from '~/components/DocContainer'
 import { DocTitle } from '~/components/DocTitle'
 import { BlogCard, type BlogCardPost } from '~/components/BlogCard'
 import { BlogAuthorFilter } from '~/components/BlogAuthorFilter'
+import { BlogSearchFilter } from '~/components/BlogSearchFilter'
 import { getLibrary, type LibraryId } from '~/libraries'
-import { getDistinctAuthors, normalizeBlogAuthor } from '~/utils/blog'
+import {
+  getDistinctAuthors,
+  normalizeBlogAuthor,
+  searchBlogCardPosts,
+} from '~/utils/blog'
 import { fetchBlogPostsForLibrary } from '~/utils/blog.functions'
 
 const searchSchema = v.object({
   author: v.fallback(v.optional(v.string()), undefined),
+  q: v.fallback(v.optional(v.string()), undefined),
 })
 
 export const Route = createFileRoute('/_library/$libraryId/$version/docs/blog')(
@@ -31,17 +37,19 @@ export const Route = createFileRoute('/_library/$libraryId/$version/docs/blog')(
 
 function RouteComponent() {
   const { libraryId } = Route.useParams()
-  const { author } = Route.useSearch()
+  const { author, q } = Route.useSearch()
   const navigate = Route.useNavigate()
   const library = getLibrary(libraryId as LibraryId)
   const selectedAuthor = author ? normalizeBlogAuthor(author) : undefined
+  const searchQuery = q ?? ''
 
   const posts = Route.useLoaderData() as Array<BlogCardPost>
   const authors = getDistinctAuthors(posts)
 
-  const filteredPosts = selectedAuthor
+  const authorFilteredPosts = selectedAuthor
     ? posts.filter((post) => post.authors.includes(selectedAuthor))
     : posts
+  const filteredPosts = searchBlogCardPosts(authorFilteredPosts, searchQuery)
 
   return (
     <DocContainer>
@@ -60,28 +68,55 @@ function RouteComponent() {
             Posts about {library.name}.
           </p>
 
-          {authors.length > 0 ? (
-            <div className="flex flex-wrap items-center gap-3 mt-6">
+          <div className="flex flex-wrap items-center gap-3 mt-6">
+            <div className="flex items-center gap-3">
               <label
-                htmlFor="docs-blog-author-filter"
+                htmlFor="docs-blog-search-filter"
                 className="text-sm font-medium text-gray-600 dark:text-gray-400"
               >
-                Author
+                Search
               </label>
-              <div id="docs-blog-author-filter" className="w-64 max-w-full">
-                <BlogAuthorFilter
-                  authors={authors}
-                  selected={selectedAuthor}
-                  onSelect={(nextAuthor) =>
-                    navigate({
-                      search: () => ({ author: nextAuthor }),
-                      replace: true,
-                    })
-                  }
-                />
-              </div>
+              <BlogSearchFilter
+                id="docs-blog-search-filter"
+                value={searchQuery}
+                onChange={(nextQuery) =>
+                  navigate({
+                    search: (prev) => ({
+                      ...prev,
+                      q: nextQuery || undefined,
+                    }),
+                    replace: true,
+                  })
+                }
+                className="w-72 max-w-full"
+              />
             </div>
-          ) : null}
+            {authors.length > 0 ? (
+              <div className="flex items-center gap-3">
+                <label
+                  htmlFor="docs-blog-author-filter"
+                  className="text-sm font-medium text-gray-600 dark:text-gray-400"
+                >
+                  Author
+                </label>
+                <div id="docs-blog-author-filter" className="w-64 max-w-full">
+                  <BlogAuthorFilter
+                    authors={authors}
+                    selected={selectedAuthor}
+                    onSelect={(nextAuthor) =>
+                      navigate({
+                        search: (prev) => ({
+                          ...prev,
+                          author: nextAuthor,
+                        }),
+                        replace: true,
+                      })
+                    }
+                  />
+                </div>
+              </div>
+            ) : null}
+          </div>
 
           <section className="grid grid-cols-1 xl:grid-cols-2 gap-4 mt-8">
             {filteredPosts.map((post) => (
@@ -94,8 +129,8 @@ function RouteComponent() {
               {posts.length === 0
                 ? `No blog posts yet for ${library.name}.`
                 : `No posts found${
-                    selectedAuthor ? ` by ${selectedAuthor}` : ''
-                  }.`}
+                    searchQuery ? ` matching ${searchQuery}` : ''
+                  }${selectedAuthor ? ` by ${selectedAuthor}` : ''}.`}
             </div>
           ) : null}
 

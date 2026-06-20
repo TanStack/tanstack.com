@@ -1,4 +1,5 @@
 import { allPosts, type Post } from 'content-collections'
+import { matchSorter } from 'match-sorter'
 import { findLibrary, type LibraryId, type LibrarySlim } from '~/libraries'
 
 const listJoiner = new Intl.ListFormat('en-US', {
@@ -150,4 +151,28 @@ export function getDistinctAuthors(
     }
   }
   return [...authors].sort((a, b) => a.localeCompare(b))
+}
+
+export function searchBlogCardPosts(
+  posts: Array<BlogCardPost>,
+  query: string | undefined,
+) {
+  const trimmedQuery = query?.trim()
+
+  if (!trimmedQuery) {
+    return posts
+  }
+
+  return matchSorter(posts, trimmedQuery, {
+    keys: [
+      'title',
+      'excerpt',
+      (post) => post.authors.join(' '),
+      (post) =>
+        getBlogLibraries(post.library)
+          .map((library) => `${library.id} ${library.name}`)
+          .join(' '),
+      (post) => post.library ?? '',
+    ],
+  })
 }

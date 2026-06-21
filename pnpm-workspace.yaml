@@ -1,6 +1,5 @@
 packages:
   - .
-  - packages/*
 
 overrides:
   cross-spawn: '>=6.0.6'

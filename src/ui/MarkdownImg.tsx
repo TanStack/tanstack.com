@@ -34,20 +34,18 @@ export const MarkdownImg = React.memo(function MarkdownImg({
     typeof resolvedHeight === 'number' ? resolvedHeight : parseDimension(height)
   const aspectRatio =
     numericWidth && numericHeight
-      ? `${numericWidth} / ${numericHeight}`
+      ? `auto ${numericWidth} / ${numericHeight}`
       : src?.toLowerCase().endsWith('.svg')
-        ? '3 / 1'
-        : '16 / 9'
-  const fallbackWidth = src?.toLowerCase().endsWith('.svg') ? 600 : 800
-  const fallbackHeight = src?.toLowerCase().endsWith('.svg') ? 200 : 450
+        ? 'auto 3 / 1'
+        : 'auto 16 / 9'
 
   return (
     <img
       {...props}
       src={src ? getNetlifyImageUrl(src) : undefined}
       alt={alt ?? ''}
-      width={resolvedWidth ?? fallbackWidth}
-      height={resolvedHeight ?? fallbackHeight}
+      width={resolvedWidth}
+      height={resolvedHeight}
       style={{
         aspectRatio,
         ...style,

@@ -1,4 +1,5 @@
 import { setResponseHeaders } from '@tanstack/react-start/server'
+import { shouldBypassPersistentCache } from '~/server/runtime/host.server'
 
 // Re-export pure functions for use in server functions
 export {
@@ -26,11 +27,12 @@ import type {
   GitHubStats,
   NpmPackageStats,
   NpmStats,
+  OSSStatsWithDelta,
   RecentDownloadStats,
   RecentDownloadStatsQueryParams,
-  OSSStatsWithDelta,
   StatsQueryParams,
 } from './stats.types'
+import type { NpmDownloadChunkData } from './stats-db.server'
 import { libraries } from '~/libraries'
 import { fetchGitHubOwnerStats, fetchGitHubRepoStats } from './stats.functions'
 import {
@@ -249,6 +251,37 @@ function sumDailyDownloadsInRange({
   }, 0)
 }
 
+async function fetchNpmPointDownloads({
+  dateFrom,
+  dateTo,
+  packageName,
+}: {
+  dateFrom: string
+  dateTo: string
+  packageName: string
+}) {
+  const response = await fetch(
+    `https://api.npmjs.org/downloads/point/${dateFrom}:${dateTo}/${encodeURIComponent(packageName)}`,
+    {
+      headers: {
+        Accept: 'application/json',
+        'User-Agent': 'TanStack-Stats',
+      },
+    },
+  )
+
+  if (response.status === 404) {
+    return 0
+  }
+
+  if (!response.ok) {
+    throw new Error(`NPM API error: ${response.status}`)
+  }
+
+  const result = await response.json()
+  return typeof result.downloads === 'number' ? result.downloads : 0
+}
+
 async function fetchLiveNpmStats(data: StatsQueryParams): Promise<NpmStats> {
   const packageNames = getOSSStatsPackageNames(data)
 
@@ -256,7 +289,9 @@ async function fetchLiveNpmStats(data: StatsQueryParams): Promise<NpmStats> {
     return { totalDownloads: 0 }
   }
 
-  if (envFunctions.DATABASE_URL) {
+  const bypassPersistentCache = shouldBypassPersistentCache()
+
+  if (envFunctions.DATABASE_URL && !bypassPersistentCache) {
     if (!data.library) {
       const { getExpiredNpmOrgStats } = await import('./stats-db.server')
       const cachedOrgStats = await getExpiredNpmOrgStats('tanstack')
@@ -274,6 +309,41 @@ async function fetchLiveNpmStats(data: StatsQueryParams): Promise<NpmStats> {
   }
 
   const endDate = getLastCompletedStatsDay()
+  const weekStart = addUtcDays(endDate, -6)
+
+  if (bypassPersistentCache) {
+    const [totalDownloads, weeklyDownloads] = await Promise.all([
+      Promise.all(
+        packageNames.map((packageName) =>
+          fetchNpmPointDownloads({
+            packageName,
+            dateFrom: '2015-01-10',
+            dateTo: endDate,
+          }),
+        ),
+      ).then((downloads) =>
+        downloads.reduce((total, value) => total + value, 0),
+      ),
+      Promise.all(
+        packageNames.map((packageName) =>
+          fetchNpmPointDownloads({
+            packageName,
+            dateFrom: weekStart,
+            dateTo: endDate,
+          }),
+        ),
+      ).then((downloads) =>
+        downloads.reduce((total, value) => total + value, 0),
+      ),
+    ])
+
+    return {
+      totalDownloads,
+      ratePerDay: weeklyDownloads > 0 ? weeklyDownloads / 7 : undefined,
+      updatedAt: Date.now(),
+    }
+  }
+
   const statsResults = await fetchNpmDownloadsBulk({
     data: {
       packageGroups: [
@@ -295,7 +365,6 @@ async function fetchLiveNpmStats(data: StatsQueryParams): Promise<NpmStats> {
     (total, point) => total + point.downloads,
     0,
   )
-  const weekStart = addUtcDays(endDate, -6)
   const weeklyDownloads = sumDailyDownloadsInRange({
     downloads,
     start: weekStart,
@@ -392,7 +461,7 @@ export async function getOSSStats({
 
   let cachedStats: OSSStatsWithDelta | null = null
 
-  if (envFunctions.DATABASE_URL) {
+  if (envFunctions.DATABASE_URL && !shouldBypassPersistentCache()) {
     const { getCachedOssStats } = await import('./stats-db.server')
     cachedStats = await getCachedOssStats(scopeType, scopeKey)
   }
@@ -435,9 +504,9 @@ function getEmptyOSSStats(): OSSStatsWithDelta {
 export async function fetchNpmDownloadsBulk({ data }: { data: any }) {
   const { packageGroups, startDate, endDate } = data
 
-  // Import cache functions
-  const { getBatchNpmDownloadChunks, setCachedNpmDownloadChunk } =
-    await import('./stats-db.server')
+  const dbCache = shouldBypassPersistentCache()
+    ? undefined
+    : await import('./stats-db.server')
 
   const NPM_STATS_START_DATE = '2015-01-10'
   const today = new Date().toISOString().substring(0, 10)
@@ -495,44 +564,50 @@ export async function fetchNpmDownloadsBulk({ data }: { data: any }) {
     }
   }
 
-  // Batch fetch all chunks from cache
-  const cachedChunks = await getBatchNpmDownloadChunks(
-    chunkRequests.map((req) => ({
-      packageName: req.packageName,
-      dateFrom: req.startDate,
-      dateTo: req.endDate,
-      binSize: 'daily',
-    })),
-  )
-
   // Identify chunks that need to be fetched from NPM API
   const chunksToFetch: ChunkRequest[] = []
   const resultChunks = new Map<string, any>()
 
-  for (const req of chunkRequests) {
-    const cacheKey = `${req.packageName}|${req.startDate}|${req.endDate}|daily`
-    const cached = cachedChunks.get(cacheKey)
+  if (dbCache) {
+    // Batch fetch all chunks from cache
+    const cachedChunks = await dbCache.getBatchNpmDownloadChunks(
+      chunkRequests.map((req) => ({
+        packageName: req.packageName,
+        dateFrom: req.startDate,
+        dateTo: req.endDate,
+        binSize: 'daily',
+      })),
+    )
 
-    if (cached) {
-      // For current year, check if cache is from today
-      if (req.isCurrentYear && !cached.isImmutable) {
-        // Check if the cache was updated today
-        const cacheDate = new Date(cached.updatedAt || 0)
-          .toISOString()
-          .substring(0, 10)
-        if (cacheDate === today) {
-          // Cache is from today, use it
+    for (const req of chunkRequests) {
+      const cacheKey = `${req.packageName}|${req.startDate}|${req.endDate}|daily`
+      const cached = cachedChunks.get(cacheKey)
+
+      if (cached) {
+        // For current year, check if cache is from today
+        if (req.isCurrentYear && !cached.isImmutable) {
+          // Check if the cache was updated today
+          const cacheDate = new Date(cached.updatedAt || 0)
+            .toISOString()
+            .substring(0, 10)
+          if (cacheDate === today) {
+            // Cache is from today, use it
+            resultChunks.set(cacheKey, cached)
+            continue
+          }
+          // Cache is stale, need to refetch
+          chunksToFetch.push(req)
+        } else {
+          // Immutable historical data, always use cache
           resultChunks.set(cacheKey, cached)
-          continue
         }
-        // Cache is stale, need to refetch
-        chunksToFetch.push(req)
       } else {
-        // Immutable historical data, always use cache
-        resultChunks.set(cacheKey, cached)
+        // Not in cache, need to fetch
+        chunksToFetch.push(req)
       }
-    } else {
-      // Not in cache, need to fetch
+    }
+  } else {
+    for (const req of chunkRequests) {
       chunksToFetch.push(req)
     }
   }
@@ -585,9 +660,16 @@ export async function fetchNpmDownloadsBulk({ data }: { data: any }) {
         }
 
         // Cache this chunk asynchronously (don't wait)
-        setCachedNpmDownloadChunk(chunkData).catch((err) =>
-          console.warn(`Failed to cache chunk for ${req.packageName}:`, err),
-        )
+        if (dbCache) {
+          dbCache
+            .setCachedNpmDownloadChunk(chunkData)
+            .catch((err) =>
+              console.warn(
+                `Failed to cache chunk for ${req.packageName}:`,
+                err,
+              ),
+            )
+        }
 
         return {
           key: `${req.packageName}|${req.startDate}|${req.endDate}|daily`,
@@ -886,7 +968,8 @@ export async function fetchNpmDownloadChunk({ data }: { data: any }) {
 
 /**
  * Fetch recent download statistics (daily, weekly, monthly) for a library
- * Uses getRegisteredPackages to include all framework adapters
+ * Uses getRegisteredPackages to include all framework adapters when the host
+ * can safely use the persistent stats cache.
  */
 export async function fetchRecentDownloadStats({
   data,
@@ -902,13 +985,10 @@ export async function fetchRecentDownloadStats({
     }),
   )
 
-  // Import db functions dynamically
-  const {
-    getRegisteredPackages,
-    getBatchNpmDownloadChunks,
-    getLatestNpmDownloadChunksCoveringRange,
-    setCachedNpmDownloadChunk,
-  } = await import('./stats-db.server')
+  const bypassPersistentCache = shouldBypassPersistentCache()
+  const dbCache = bypassPersistentCache
+    ? undefined
+    : await import('./stats-db.server')
 
   const explicitPackageNames = data.library.npmPackageNames ?? []
 
@@ -917,7 +997,9 @@ export async function fetchRecentDownloadStats({
   let packageNames =
     explicitPackageNames.length > 0
       ? explicitPackageNames
-      : await getRegisteredPackages(data.library.id)
+      : dbCache
+        ? await dbCache.getRegisteredPackages(data.library.id)
+        : []
 
   // If no packages registered, fall back to basic package name
   if (packageNames.length === 0) {
@@ -938,54 +1020,57 @@ export async function fetchRecentDownloadStats({
   const previousWeeklyEnd = getDayAgo(8)
   const monthlyStart = getDayAgo(30)
 
-  const latestCachedChunks = await getLatestNpmDownloadChunksCoveringRange({
-    packageNames,
-    dateFrom: monthlyStart,
-    dateTo: lastCompletedDay,
-  })
-
-  if (latestCachedChunks.size > 0) {
-    let dailyTotal = 0
-    let previousWeeklyTotal = 0
-    let weeklyTotal = 0
-    let monthlyTotal = 0
-
-    for (const chunk of latestCachedChunks.values()) {
-      const normalizedDownloads = normalizeNpmDownloadSeries(
-        chunk.packageName,
-        chunk.dailyData,
-        todayStr,
-      )
-
-      dailyTotal += sumDailyDownloadsInRange({
-        downloads: normalizedDownloads,
-        start: dailyStart,
-        end: lastCompletedDay,
+  if (dbCache) {
+    const latestCachedChunks =
+      await dbCache.getLatestNpmDownloadChunksCoveringRange({
+        packageNames,
+        dateFrom: monthlyStart,
+        dateTo: lastCompletedDay,
       })
-      previousWeeklyTotal += sumDailyDownloadsInRange({
-        downloads: normalizedDownloads,
-        start: previousWeeklyStart,
-        end: previousWeeklyEnd,
-      })
-      weeklyTotal += sumDailyDownloadsInRange({
-        downloads: normalizedDownloads,
-        start: weeklyStart,
-        end: lastCompletedDay,
-      })
-      monthlyTotal += sumDailyDownloadsInRange({
-        downloads: normalizedDownloads,
-        start: monthlyStart,
-        end: lastCompletedDay,
-      })
-    }
 
-    return {
-      dailyDownloads: dailyTotal,
-      monthlyDownloads: monthlyTotal,
-      previousWeeklyDownloads: previousWeeklyTotal,
-      sparklineDownloads: [],
-      updatedAt: Date.now(),
-      weeklyDownloads: weeklyTotal,
+    if (latestCachedChunks.size > 0) {
+      let dailyTotal = 0
+      let previousWeeklyTotal = 0
+      let weeklyTotal = 0
+      let monthlyTotal = 0
+
+      for (const chunk of latestCachedChunks.values()) {
+        const normalizedDownloads = normalizeNpmDownloadSeries(
+          chunk.packageName,
+          chunk.dailyData,
+          todayStr,
+        )
+
+        dailyTotal += sumDailyDownloadsInRange({
+          downloads: normalizedDownloads,
+          start: dailyStart,
+          end: lastCompletedDay,
+        })
+        previousWeeklyTotal += sumDailyDownloadsInRange({
+          downloads: normalizedDownloads,
+          start: previousWeeklyStart,
+          end: previousWeeklyEnd,
+        })
+        weeklyTotal += sumDailyDownloadsInRange({
+          downloads: normalizedDownloads,
+          start: weeklyStart,
+          end: lastCompletedDay,
+        })
+        monthlyTotal += sumDailyDownloadsInRange({
+          downloads: normalizedDownloads,
+          start: monthlyStart,
+          end: lastCompletedDay,
+        })
+      }
+
+      return {
+        dailyDownloads: dailyTotal,
+        monthlyDownloads: monthlyTotal,
+        previousWeeklyDownloads: previousWeeklyTotal,
+        sparklineDownloads: [],
+        updatedAt: Date.now(),
+        weeklyDownloads: weeklyTotal,
+      }
     }
   }
 
@@ -1034,28 +1119,38 @@ export async function fetchRecentDownloadStats({
     )
   }
 
-  // Try to get cached data first
-  const cachedChunks = await getBatchNpmDownloadChunks(chunkRequests)
   const needsFetch: typeof chunkRequests = []
-  const results = new Map<string, any>()
+  const results = new Map<
+    string,
+    NpmDownloadChunkData & { createdAt?: string; updatedAt?: number | string }
+  >()
 
-  // Check what we have in cache vs what needs fetching
-  for (const req of chunkRequests) {
-    const cacheKey = `${req.packageName}|${req.dateFrom}|${req.dateTo}|${req.binSize}`
-    const cached = cachedChunks.get(cacheKey)
+  if (dbCache) {
+    // Try to get cached data first
+    const cachedChunks = await dbCache.getBatchNpmDownloadChunks(chunkRequests)
 
-    if (cached) {
-      // Check if cache is recent enough (within last hour for recent data)
-      const cacheAge = Date.now() - Number(cached.updatedAt ?? 0)
-      const isStale = cacheAge > 60 * 60 * 1000 // 1 hour
+    // Check what we have in cache vs what needs fetching
+    for (const req of chunkRequests) {
+      const cacheKey = `${req.packageName}|${req.dateFrom}|${req.dateTo}|${req.binSize}`
+      const cached = cachedChunks.get(cacheKey)
 
-      if (!isStale) {
-        results.set(cacheKey, cached)
-        continue
+      if (cached) {
+        // Check if cache is recent enough (within last hour for recent data)
+        const cacheAge = Date.now() - Number(cached.updatedAt ?? 0)
+        const isStale = cacheAge > 60 * 60 * 1000 // 1 hour
+
+        if (!isStale) {
+          results.set(cacheKey, cached)
+          continue
+        }
       }
-    }
 
-    needsFetch.push(req)
+      needsFetch.push(req)
+    }
+  } else {
+    for (const req of chunkRequests) {
+      needsFetch.push(req)
+    }
   }
 
   // Fetch missing/stale data from NPM API
@@ -1110,12 +1205,16 @@ export async function fetchRecentDownloadStats({
         }
 
         // Cache this chunk asynchronously
-        setCachedNpmDownloadChunk(chunkData).catch((err) =>
-          console.warn(
-            `Failed to cache recent downloads for ${req.packageName}:`,
-            err,
-          ),
-        )
+        if (dbCache) {
+          dbCache
+            .setCachedNpmDownloadChunk(chunkData)
+            .catch((err) =>
+              console.warn(
+                `Failed to cache recent downloads for ${req.packageName}:`,
+                err,
+              ),
+            )
+        }
 
         return {
           key: `${req.packageName}|${req.dateFrom}|${req.dateTo}|${req.binSize}`,

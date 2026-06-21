@@ -1,15 +1,15 @@
-import { load } from 'cheerio'
 import type { LibraryId } from '~/libraries'
 import { normalizeBlogAuthors, type BlogCardPost } from '~/utils/blog'
 import { fetchCached } from '~/utils/cache.server'
-import { externalBlogPostHeaderImages } from '~/utils/external-blog-post-images.generated'
 
-const DEFAULT_RSS_TIMEOUT_MS = 5000 // 5 seconds
-const DEFAULT_RSS_CACHE_TTL_MS = 60 * 60 * 1000 // 1 hour
+const DEFAULT_STANDARD_SITE_TIMEOUT_MS = 5000 // 5 seconds
+const DEFAULT_STANDARD_SITE_CACHE_TTL_MS = 60 * 60 * 1000 // 1 hour
+const STANDARD_SITE_DOCUMENT_COLLECTION = 'site.standard.document'
+const STANDARD_SITE_PAGE_LIMIT = 100
 
 type ExternalLibraryId = Extract<LibraryId, 'query' | 'router'>
 
-type ExternalFeedItem = {
+type ExternalBlogItem = {
   title: string
   link: string
   excerpt: string
@@ -17,30 +17,63 @@ type ExternalFeedItem = {
   categories: Array<string>
 }
 
-type ExternalBlogSource = {
+type StandardSiteBlob = {
+  ref?: {
+    $link?: string
+  }
+  mimeType?: string
+  size?: number
+}
+
+type StandardSiteDocument = {
+  $type?: string
+  canonicalUrl?: string
+  coverImage?: StandardSiteBlob
+  description?: string
+  path?: string
+  publishedAt?: string
+  title?: string
+}
+
+type StandardSiteRecord = {
+  uri: string
+  value: StandardSiteDocument
+}
+
+type StandardSiteListRecordsResponse = {
+  cursor?: string
+  records?: Array<StandardSiteRecord>
+}
+
+type StandardSiteExternalBlogSource = {
+  type: 'standard-site'
   id: string
   name: string
-  feedUrl: string
+  siteUrl: string
+  pdsUrl: string
+  repo: string
+  collection?: string
   slugPrefix: string
   authors: Array<string>
-  headerImages?: Record<string, string>
-  defaultHeaderImage?: string
   externalUrlSearchParams?: Record<string, string>
   cacheTtlMs?: number
   timeoutMs?: number
-  inferLibraries?: (item: ExternalFeedItem) => Array<LibraryId>
-  parseFeed?: (source: ExternalBlogSource, feed: string) => Array<BlogCardPost>
+  maxPages?: number
+  inferLibraries?: (item: ExternalBlogItem) => Array<LibraryId>
 }
+
+type ExternalBlogSource = StandardSiteExternalBlogSource
 
 const externalBlogSources = [
   {
+    type: 'standard-site',
     id: 'tkdodo',
     name: "TkDodo's Blog",
-    feedUrl: 'https://tkdodo.eu/blog/rss.xml',
+    siteUrl: 'https://tkdodo.eu',
+    pdsUrl: 'https://eurosky.social',
+    repo: 'did:plc:3nqrhu5mthmias3zc4a2ovzj',
     slugPrefix: 'tkdodo',
     authors: ['Dominik Dorfmeister'],
-    headerImages: externalBlogPostHeaderImages.tkdodo,
-    defaultHeaderImage: '/blog-assets/tkdodosblog/tkdodosblog.webp',
     externalUrlSearchParams: {
       utm_source: 'tanstack.com',
       utm_medium: 'referral',
@@ -66,7 +99,7 @@ function hasWord(value: string, word: string) {
 }
 
 function inferTanStackQueryAndRouterLibraries(
-  item: ExternalFeedItem,
+  item: ExternalBlogItem,
 ): Array<LibraryId> {
   const signal = normalizeSearchValue(
     `${item.title} ${item.link} ${item.categories.join(' ')}`,
@@ -106,8 +139,12 @@ export function inferExternalPostLibraries(
   }) as Array<ExternalLibraryId>
 }
 
-function parseRssPublishedDate(pubDate: string) {
-  const date = new Date(pubDate)
+function parseStandardSitePublishedDate(publishedAt: string | undefined) {
+  if (!publishedAt) {
+    return undefined
+  }
+
+  const date = new Date(publishedAt)
 
   if (Number.isNaN(date.getTime())) {
     return undefined
@@ -122,7 +159,7 @@ function slugify(value: string) {
 
 function getExternalPostSlug(
   source: ExternalBlogSource,
-  item: ExternalFeedItem,
+  item: ExternalBlogItem,
 ) {
   try {
     const pathnameSlug = new URL(item.link).pathname
@@ -161,74 +198,64 @@ function addSearchParams(
   }
 }
 
-function parseRssFeed(
-  source: ExternalBlogSource,
-  feed: string,
-): Array<BlogCardPost> {
-  const $ = load(feed, { xmlMode: true })
+function buildStandardSiteCanonicalUrl(
+  source: StandardSiteExternalBlogSource,
+  document: StandardSiteDocument,
+) {
+  if (document.canonicalUrl) {
+    return document.canonicalUrl
+  }
 
-  return $('item')
-    .toArray()
-    .flatMap((item) => {
-      const $item = $(item)
-      const feedItem: ExternalFeedItem = {
-        title: $item.children('title').first().text().trim(),
-        link: $item.children('link').first().text().trim(),
-        excerpt: $item.children('description').first().text().trim(),
-        published: parseRssPublishedDate(
-          $item.children('pubDate').first().text().trim(),
-        ),
-        categories: $item
-          .children('category')
-          .toArray()
-          .map((category) => $(category).text().trim())
-          .filter(Boolean),
-      }
-      const libraries =
-        source.inferLibraries?.(feedItem) ??
-        inferTanStackQueryAndRouterLibraries(feedItem)
+  if (!document.path) {
+    return undefined
+  }
 
-      if (
-        !feedItem.title ||
-        !feedItem.link ||
-        !feedItem.published ||
-        !libraries.length
-      ) {
-        return []
-      }
-
-      const slug = getExternalPostSlug(source, feedItem)
-
-      return [
-        {
-          slug,
-          title: feedItem.title,
-          published: feedItem.published,
-          excerpt: feedItem.excerpt,
-          headerImage: source.headerImages?.[slug] ?? source.defaultHeaderImage,
-          authors: normalizeBlogAuthors(source.authors),
-          library: libraries.join(','),
-          externalUrl: addSearchParams(
-            feedItem.link,
-            source.externalUrlSearchParams,
-          ),
-          source: source.name,
-        },
-      ]
-    })
+  return new URL(document.path, source.siteUrl).toString()
 }
 
-async function fetchExternalFeed(source: ExternalBlogSource) {
+function buildStandardSiteBlobUrl(
+  source: StandardSiteExternalBlogSource,
+  blob: StandardSiteBlob | undefined,
+) {
+  const cid = blob?.ref?.$link
+
+  if (!cid) {
+    return undefined
+  }
+
+  const url = new URL('/xrpc/com.atproto.sync.getBlob', source.pdsUrl)
+  url.searchParams.set('did', source.repo)
+  url.searchParams.set('cid', cid)
+
+  return url.toString()
+}
+
+async function fetchStandardSitePage(
+  source: StandardSiteExternalBlogSource,
+  cursor?: string,
+): Promise<StandardSiteListRecordsResponse> {
   const controller = new AbortController()
   const timeout = setTimeout(
     () => controller.abort(),
-    source.timeoutMs ?? DEFAULT_RSS_TIMEOUT_MS,
+    source.timeoutMs ?? DEFAULT_STANDARD_SITE_TIMEOUT_MS,
   )
 
   try {
-    const response = await fetch(source.feedUrl, {
+    const url = new URL('/xrpc/com.atproto.repo.listRecords', source.pdsUrl)
+    url.searchParams.set('repo', source.repo)
+    url.searchParams.set(
+      'collection',
+      source.collection ?? STANDARD_SITE_DOCUMENT_COLLECTION,
+    )
+    url.searchParams.set('limit', String(STANDARD_SITE_PAGE_LIMIT))
+
+    if (cursor) {
+      url.searchParams.set('cursor', cursor)
+    }
+
+    const response = await fetch(url, {
       headers: {
-        Accept: 'application/rss+xml, application/xml;q=0.9, text/xml;q=0.8',
+        Accept: 'application/json',
         'Cache-Control': 'max-age=3600',
       },
       signal: controller.signal,
@@ -236,24 +263,98 @@ async function fetchExternalFeed(source: ExternalBlogSource) {
 
     if (!response.ok) {
       throw new Error(
-        `Failed to fetch ${source.feedUrl}: ${response.status} ${response.statusText}`,
+        `Failed to fetch ${url.toString()}: ${response.status} ${
+          response.statusText
+        }`,
       )
     }
 
-    return response.text()
+    return response.json() as Promise<StandardSiteListRecordsResponse>
   } finally {
     clearTimeout(timeout)
   }
 }
 
-async function getExternalBlogPostsForSource(source: ExternalBlogSource) {
+async function fetchStandardSiteRecords(
+  source: StandardSiteExternalBlogSource,
+) {
+  const records: Array<StandardSiteRecord> = []
+  const maxPages = source.maxPages ?? 10
+  let cursor: string | undefined
+
+  for (let page = 0; page < maxPages; page++) {
+    const response = await fetchStandardSitePage(source, cursor)
+    const pageRecords = Array.isArray(response.records) ? response.records : []
+
+    records.push(...pageRecords)
+
+    if (!response.cursor || pageRecords.length < STANDARD_SITE_PAGE_LIMIT) {
+      break
+    }
+
+    cursor = response.cursor
+  }
+
+  return records
+}
+
+function standardSiteRecordToBlogCardPost(
+  source: StandardSiteExternalBlogSource,
+  record: StandardSiteRecord,
+): BlogCardPost | undefined {
+  const document = record.value
+  const title = document.title?.trim()
+  const link = buildStandardSiteCanonicalUrl(source, document)
+  const published = parseStandardSitePublishedDate(document.publishedAt)
+
+  if (!title || !link || !published) {
+    return undefined
+  }
+
+  const item: ExternalBlogItem = {
+    title,
+    link,
+    excerpt: document.description?.trim() ?? '',
+    published,
+    categories: [],
+  }
+  const libraries =
+    source.inferLibraries?.(item) ?? inferTanStackQueryAndRouterLibraries(item)
+
+  if (!libraries.length) {
+    return undefined
+  }
+
+  return {
+    slug: getExternalPostSlug(source, item),
+    title,
+    published,
+    excerpt: item.excerpt,
+    headerImage: buildStandardSiteBlobUrl(source, document.coverImage),
+    authors: normalizeBlogAuthors(source.authors),
+    library: libraries.join(','),
+    externalUrl: addSearchParams(link, source.externalUrlSearchParams),
+    source: source.name,
+  }
+}
+
+async function fetchStandardSiteBlogPosts(
+  source: StandardSiteExternalBlogSource,
+) {
+  const records = await fetchStandardSiteRecords(source)
+
+  return records.flatMap((record) => {
+    const post = standardSiteRecordToBlogCardPost(source, record)
+
+    return post ? [post] : []
+  })
+}
+
+async function fetchExternalBlogPostsForSource(source: ExternalBlogSource) {
   return fetchCached({
     key: `external-blog-posts:${source.id}`,
-    ttl: source.cacheTtlMs ?? DEFAULT_RSS_CACHE_TTL_MS,
-    fn: async () => {
-      const feed = await fetchExternalFeed(source)
-      return (source.parseFeed ?? parseRssFeed)(source, feed)
-    },
+    ttl: source.cacheTtlMs ?? DEFAULT_STANDARD_SITE_CACHE_TTL_MS,
+    fn: async () => fetchStandardSiteBlogPosts(source),
   }).catch((error) => {
     console.warn(
       `Unable to load external blog posts from ${source.name}`,
@@ -265,7 +366,9 @@ async function getExternalBlogPostsForSource(source: ExternalBlogSource) {
 
 export async function getExternalBlogPosts() {
   const postsBySource = await Promise.all(
-    externalBlogSources.map((source) => getExternalBlogPostsForSource(source)),
+    externalBlogSources.map((source) =>
+      fetchExternalBlogPostsForSource(source),
+    ),
   )
 
   return postsBySource.flat()

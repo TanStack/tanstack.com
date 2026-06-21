@@ -1,15 +1,9 @@
 import * as React from 'react'
-import {
-  ClientOnly,
-  Link,
-  createFileRoute,
-  useRouterState,
-} from '@tanstack/react-router'
-import { Hydrate } from '@tanstack/react-start'
-import { idle, load, visible } from '@tanstack/react-start/hydration'
+import { ClientOnly, Link, createFileRoute } from '@tanstack/react-router'
 
 import discordImage from '~/images/discord-logo-white.svg'
 import { librariesByGroup, librariesGroupNamesMap, Library } from '~/libraries'
+import { BrandContextMenu } from '~/components/BrandContextMenu'
 import { groupToSlug } from '~/components/stack/stack-categories'
 import { twMerge } from 'tailwind-merge'
 import { NetlifyImage } from '~/components/NetlifyImage'
@@ -25,11 +19,6 @@ import {
 } from 'lucide-react'
 import { YouTubeIcon } from '~/components/icons/YouTubeIcon'
 import { HomeApplicationStarter } from '~/components/home/HomeApplicationStarter'
-import {
-  HomeCommunityFallback,
-  HomeNewsletterFallback,
-  HomeSocialProofFallback,
-} from '~/components/home/HomeSectionFallbacks'
 import { HomeCommunitySection } from '~/components/home/HomeCommunitySection'
 import { HomeNewsletterSection } from '~/components/home/HomeNewsletterSection'
 import { HomeSocialProofSection } from '~/components/home/HomeSocialProofSection'
@@ -37,34 +26,6 @@ import { HomeStatsSection } from '~/components/home/HomeStatsSection'
 import { ossStatsQuery } from '~/queries/stats'
 import { Button } from '~/ui'
 import { seo } from '~/utils/seo'
-
-const LazyBrandContextMenu = React.lazy(() =>
-  import('~/components/BrandContextMenu').then((m) => ({
-    default: m.BrandContextMenu,
-  })),
-)
-
-function getDeferredSectionStage(hash: string) {
-  const normalizedHash = hash.replace(/^#/, '')
-
-  if (!normalizedHash) {
-    return 0
-  }
-
-  if (['partners', 'blog'].includes(normalizedHash)) {
-    return 1
-  }
-
-  if (['sponsors', 'maintainers'].includes(normalizedHash)) {
-    return 2
-  }
-
-  if (normalizedHash === 'newsletter') {
-    return 3
-  }
-
-  return 0
-}
 
 export const Route = createFileRoute('/')({
   loader: async ({ context: { queryClient } }) => {
@@ -80,12 +41,34 @@ export const Route = createFileRoute('/')({
   component: Index,
 })
 
-function Index() {
-  const locationHash = useRouterState({
-    select: (state) => state.location.hash,
-  })
-  const deferredSectionStage = getDeferredSectionStage(locationHash)
+function HomeSplashLogo() {
+  return (
+    <>
+      <NetlifyImage
+        src="/images/logos/splash-light.png"
+        width={500}
+        height={500}
+        quality={85}
+        className="absolute inset-0 block h-full w-full object-contain dark:hidden"
+        alt="TanStack Logo"
+        loading="eager"
+        fetchPriority="high"
+      />
+      <NetlifyImage
+        src="/images/logos/splash-dark.png"
+        width={500}
+        height={500}
+        quality={85}
+        className="absolute inset-0 hidden h-full w-full object-contain dark:block"
+        alt="TanStack Logo"
+        loading="eager"
+        fetchPriority="high"
+      />
+    </>
+  )
+}
 
+function Index() {
   return (
     <>
       <div className="max-w-full z-10 space-y-24">
@@ -121,59 +104,11 @@ function Index() {
                   />
                 </Link>
               </ClientOnly>
-              <React.Suspense
-                fallback={
-                  <div className="relative z-10 aspect-square">
-                    <div className="cursor-pointer relative h-full w-full">
-                      <NetlifyImage
-                        src="/images/logos/splash-light.png"
-                        width={500}
-                        height={500}
-                        quality={85}
-                        className="absolute inset-0 block h-full w-full object-contain dark:hidden"
-                        alt="TanStack Logo"
-                        loading="eager"
-                        fetchPriority="high"
-                      />
-                      <NetlifyImage
-                        src="/images/logos/splash-dark.png"
-                        width={500}
-                        height={500}
-                        quality={85}
-                        className="absolute inset-0 hidden h-full w-full object-contain dark:block"
-                        alt="TanStack Logo"
-                        loading="eager"
-                        fetchPriority="high"
-                      />
-                    </div>
-                  </div>
-                }
-              >
-                <div className="relative z-10 aspect-square">
-                  <LazyBrandContextMenu className="cursor-pointer relative h-full w-full">
-                    <NetlifyImage
-                      src="/images/logos/splash-light.png"
-                      width={500}
-                      height={500}
-                      quality={85}
-                      className="absolute inset-0 block h-full w-full object-contain dark:hidden"
-                      alt="TanStack Logo"
-                      loading="eager"
-                      fetchPriority="high"
-                    />
-                    <NetlifyImage
-                      src="/images/logos/splash-dark.png"
-                      width={500}
-                      height={500}
-                      quality={85}
-                      className="absolute inset-0 hidden h-full w-full object-contain dark:block"
-                      alt="TanStack Logo"
-                      loading="eager"
-                      fetchPriority="high"
-                    />
-                  </LazyBrandContextMenu>
-                </div>
-              </React.Suspense>
+              <div className="relative z-10 aspect-square">
+                <BrandContextMenu className="cursor-pointer relative h-full w-full">
+                  <HomeSplashLogo />
+                </BrandContextMenu>
+              </div>
             </div>
             <div className="flex w-full max-w-md flex-col items-center gap-6 px-4 text-center md:max-w-2xl xl:max-w-[44rem] xl:items-start xl:px-0 xl:text-left 2xl:max-w-[48rem]">
               <div className="flex gap-2 lg:gap-4 items-center">
@@ -259,25 +194,9 @@ function Index() {
 
         <WhyTanStackSection />
 
-        <Hydrate
-          when={() =>
-            deferredSectionStage >= 1 ? load() : visible({ rootMargin: '20%' })
-          }
-          prefetch={idle({ timeout: 4000 })}
-          fallback={<HomeSocialProofFallback />}
-        >
-          <HomeSocialProofSection />
-        </Hydrate>
+        <HomeSocialProofSection />
 
-        <Hydrate
-          when={() =>
-            deferredSectionStage >= 2 ? load() : visible({ rootMargin: '20%' })
-          }
-          prefetch={idle({ timeout: 4000 })}
-          fallback={<HomeCommunityFallback />}
-        >
-          <HomeCommunitySection />
-        </Hydrate>
+        <HomeCommunitySection />
 
         <div className="px-4 mx-auto max-w-(--breakpoint-lg)">
           <div
@@ -374,15 +293,7 @@ function Index() {
         </div>
 
         <div className="h-4" />
-        <Hydrate
-          when={() =>
-            deferredSectionStage >= 3 ? load() : visible({ rootMargin: '10%' })
-          }
-          prefetch={idle({ timeout: 4000 })}
-          fallback={<HomeNewsletterFallback />}
-        >
-          <HomeNewsletterSection />
-        </Hydrate>
+        <HomeNewsletterSection />
       </div>
     </>
   )

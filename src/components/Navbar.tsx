@@ -1,15 +1,12 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
-const LazyBrandContextMenu = React.lazy(() =>
-  import('./BrandContextMenu').then((m) => ({ default: m.BrandContextMenu })),
+const LazyAiDock = React.lazy(() =>
+  import('./SearchModal').then((m) => ({ default: m.AiDock })),
 )
 const LazyNavbarAuthControls = React.lazy(() =>
   import('./NavbarAuthControls').then((m) => ({
     default: m.NavbarAuthControls,
   })),
-)
-const LazyAiDock = React.lazy(() =>
-  import('./SearchModal').then((m) => ({ default: m.AiDock })),
 )
 import { NavbarCartButton } from './NavbarCartButton'
 import { Link, useLocation, useMatches } from '@tanstack/react-router'
@@ -36,6 +33,7 @@ import {
 } from 'lucide-react'
 import { ThemeToggle } from './ThemeToggle'
 import { AiDockButton, SearchButton } from './SearchButton'
+import { BrandContextMenu } from './BrandContextMenu'
 import { useSearchContext } from '~/contexts/SearchContext'
 import {
   librariesByGroup,
@@ -519,31 +517,8 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     [blurActiveNavigationElement],
   )
 
-  React.useEffect(() => {
-    if (typeof window === 'undefined') {
-      return
-    }
-
-    if (typeof window.requestIdleCallback === 'function') {
-      const idleId = window.requestIdleCallback(
-        () => {
-          setCanLoadAuthControls(true)
-        },
-        { timeout: 3000 },
-      )
-
-      return () => {
-        window.cancelIdleCallback(idleId)
-      }
-    }
-
-    const timeout = window.setTimeout(() => {
-      setCanLoadAuthControls(true)
-    }, 3000)
-
-    return () => {
-      window.clearTimeout(timeout)
-    }
+  const requestAuthControls = React.useCallback(() => {
+    setCanLoadAuthControls(true)
   }, [])
 
   React.useEffect(() => {
@@ -603,13 +578,11 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     >
       <div className="flex min-w-0 flex-1 items-center gap-2 min-[1120px]:gap-3">
         <div className="flex items-center gap-2 font-black text-xl uppercase min-w-0">
-          <React.Suspense fallback={<LogoSection title={Title} />}>
-            <LazyBrandContextMenu
-              className={twMerge(`flex items-center group flex-shrink-0`)}
-            >
-              <LogoSection title={Title} />
-            </LazyBrandContextMenu>
-          </React.Suspense>
+          <BrandContextMenu
+            className={twMerge(`flex items-center group flex-shrink-0`)}
+          >
+            <LogoSection title={Title} />
+          </BrandContextMenu>
           {Title ? (
             <div className="truncate">
               <Title />
@@ -647,7 +620,12 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         <NavbarCartButton />
         <SearchButton iconOnly />
         <AiDockButton />
-        <div className={twMerge(DESKTOP_NAV_CLASS, 'items-center gap-2')}>
+        <div
+          className={twMerge(DESKTOP_NAV_CLASS, 'items-center gap-2')}
+          onFocusCapture={requestAuthControls}
+          onPointerEnter={requestAuthControls}
+          onTouchStart={requestAuthControls}
+        >
           {renderAuthControls()}
         </div>
         <button
@@ -697,7 +675,12 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           )}
         >
           <div className="border-t border-white/30 dark:border-white/10">
-            <div className="flex items-center justify-end gap-2 p-2">
+            <div
+              className="flex items-center justify-end gap-2 p-2"
+              onFocusCapture={requestAuthControls}
+              onPointerEnter={requestAuthControls}
+              onTouchStart={requestAuthControls}
+            >
               {socialLinks}
               {renderAuthControls('h-9 px-3 text-sm')}
             </div>

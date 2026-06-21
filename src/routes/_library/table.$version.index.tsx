@@ -29,7 +29,5 @@ function TableNavbarTitle() {
 }
 
 function TableLandingRoute() {
-  const { landingCodeExampleRsc } = Route.useLoaderData()
-
-  return <TableLanding landingCodeExampleRsc={landingCodeExampleRsc} />
+  return <TableLanding />
 }

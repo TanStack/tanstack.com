@@ -29,7 +29,5 @@ function WorkflowNavbarTitle() {
 }
 
 function WorkflowLandingRoute() {
-  const { landingCodeExampleRsc } = Route.useLoaderData()
-
-  return <WorkflowLanding landingCodeExampleRsc={landingCodeExampleRsc} />
+  return <WorkflowLanding />
 }

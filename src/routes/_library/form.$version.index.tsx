@@ -29,7 +29,5 @@ function FormNavbarTitle() {
 }
 
 function FormLandingRoute() {
-  const { landingCodeExampleRsc } = Route.useLoaderData()
-
-  return <FormLanding landingCodeExampleRsc={landingCodeExampleRsc} />
+  return <FormLanding />
 }

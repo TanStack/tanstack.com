@@ -3,12 +3,12 @@ import { FileTabs } from './FileTabs'
 import { FrameworkContent } from './FrameworkContent'
 import { PackageManagerTabs } from './PackageManagerTabs'
 import { BundlerTabs } from './BundlerTabs'
-import { CodeBlock } from './CodeBlock.server'
+import { CodeBlock } from './CodeBlock'
 import { Tabs } from './Tabs'
 import {
   getInstallCommand,
   PACKAGE_MANAGERS,
-  type PackageManager,
+  type InstallMode,
 } from '~/utils/markdown/installCommand'
 
 function parseJson(value: string | undefined) {
@@ -20,6 +20,82 @@ function parseJson(value: string | undefined) {
     return JSON.parse(value)
   } catch {
     return null
+  }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
+type TabMeta = {
+  name: string
+  slug: string
+}
+
+function getTabs(value: unknown): Array<TabMeta> {
+  if (!isRecord(value) || !Array.isArray(value.tabs)) {
+    return []
+  }
+
+  return value.tabs.filter(
+    (tab): tab is TabMeta =>
+      isRecord(tab) &&
+      typeof tab.name === 'string' &&
+      typeof tab.slug === 'string',
+  )
+}
+
+function isPackageGroups(value: unknown): value is string[][] {
+  return (
+    Array.isArray(value) &&
+    value.every(
+      (group) =>
+        Array.isArray(group) &&
+        group.every((packageName) => typeof packageName === 'string'),
+    )
+  )
+}
+
+function isInstallMode(value: unknown): value is InstallMode {
+  return (
+    value === 'install' ||
+    value === 'dev-install' ||
+    value === 'local-install' ||
+    value === 'create' ||
+    value === 'custom'
+  )
+}
+
+type PackageManagerMeta = {
+  mode: InstallMode
+  packagesByFramework: Record<string, string[][]>
+}
+
+function getPackageManagerMeta(value: unknown): PackageManagerMeta | null {
+  if (!isRecord(value) || !isInstallMode(value.mode)) {
+    return null
+  }
+
+  const rawPackagesByFramework = value.packagesByFramework
+  if (!isRecord(rawPackagesByFramework)) {
+    return null
+  }
+
+  const packagesByFramework: Record<string, string[][]> = {}
+
+  for (const [framework, packageGroups] of Object.entries(
+    rawPackagesByFramework,
+  )) {
+    if (!isPackageGroups(packageGroups)) {
+      return null
+    }
+
+    packagesByFramework[framework] = packageGroups
+  }
+
+  return {
+    mode: value.mode,
+    packagesByFramework,
   }
 }
 
@@ -83,27 +159,19 @@ export function MdCommentComponent({
 
   if (normalizedComponentName === 'tabs') {
     const parsedPackageManagerMeta = parseJson(packageManagerMeta)
+    const resolvedPackageManagerMeta = getPackageManagerMeta(
+      parsedPackageManagerMeta,
+    )
 
-    if (
-      parsedPackageManagerMeta &&
-      typeof parsedPackageManagerMeta === 'object' &&
-      'packagesByFramework' in parsedPackageManagerMeta &&
-      'mode' in parsedPackageManagerMeta &&
-      typeof parsedPackageManagerMeta.mode === 'string' &&
-      parsedPackageManagerMeta.packagesByFramework &&
-      typeof parsedPackageManagerMeta.packagesByFramework === 'object'
-    ) {
+    if (resolvedPackageManagerMeta) {
       const frameworkPanels = Object.entries(
-        parsedPackageManagerMeta.packagesByFramework as Record<
-          string,
-          string[][]
-        >,
+        resolvedPackageManagerMeta.packagesByFramework,
       ).flatMap(([framework, packageGroups]) => {
         return PACKAGE_MANAGERS.map((packageManager) => {
           const commandText = getInstallCommand(
-            packageManager as PackageManager,
+            packageManager,
             packageGroups,
-            parsedPackageManagerMeta.mode,
+            resolvedPackageManagerMeta.mode,
           ).join('\n')
 
           return (
@@ -133,10 +201,7 @@ export function MdCommentComponent({
       typeof parsedBundlerMeta === 'object' &&
       panels.length
     ) {
-      const tabs = Array.isArray((attributes as { tabs?: unknown }).tabs)
-        ? ((attributes as { tabs: Array<{ name: string; slug: string }> })
-            .tabs ?? [])
-        : []
+      const tabs = getTabs(attributes)
 
       const panelContent: Record<string, 'code-only' | 'mixed'> = {}
       const childrenBySlug = new Map<string, React.ReactNode>()
@@ -170,10 +235,7 @@ export function MdCommentComponent({
       typeof parsedFilesMeta === 'object' &&
       panels.length
     ) {
-      const tabs = Array.isArray((attributes as { tabs?: unknown }).tabs)
-        ? ((attributes as { tabs: Array<{ name: string; slug: string }> })
-            .tabs ?? [])
-        : []
+      const tabs = getTabs(attributes)
 
       return (
         <FileTabs tabs={tabs}>
@@ -182,10 +244,7 @@ export function MdCommentComponent({
       )
     }
 
-    const tabs = Array.isArray((attributes as { tabs?: unknown }).tabs)
-      ? ((attributes as { tabs: Array<{ name: string; slug: string }> }).tabs ??
-        [])
-      : []
+    const tabs = getTabs(attributes)
 
     if (!tabs.length) {
       return <div>{children}</div>

@@ -8,7 +8,7 @@ import {
 import { seo } from '~/utils/seo'
 import { ogImageUrl } from '~/utils/og'
 import { Doc } from '~/components/Doc'
-import { loadDocsPage, resolveDocsRedirect } from '~/utils/docs'
+import { loadDocs, resolveDocsRedirect } from '~/utils/docs'
 import { getBranch, getLibrary } from '~/libraries'
 import { capitalize } from '~/utils/utils'
 import { DocContainer } from '~/components/DocContainer'
@@ -26,7 +26,7 @@ export const Route = createFileRoute(
     const docsRoot = library.docsRoot || 'docs'
 
     try {
-      return await loadDocsPage({
+      return await loadDocs({
         repo: library.repo,
         branch,
         docsRoot,
@@ -93,7 +93,7 @@ export const Route = createFileRoute(
 })
 
 function Docs() {
-  const { contentRsc, filePath, headings, title } = Route.useLoaderData()
+  const { content, filePath, title } = Route.useLoaderData()
   const versionMatch = useMatch({ from: '/_library/$libraryId/$version' })
   const config = versionMatch.loaderData?.config
   const { version, libraryId, framework } = Route.useParams()
@@ -106,11 +106,10 @@ function Docs() {
       <Doc
         key={filePath}
         title={title}
-        contentRsc={contentRsc}
+        content={content}
         repo={library.repo}
         branch={branch}
         filePath={filePath}
-        headings={headings}
         colorFrom={library.colorFrom}
         colorTo={library.colorTo}
         textColor={library.textColor}

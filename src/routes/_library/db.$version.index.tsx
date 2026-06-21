@@ -29,7 +29,5 @@ function DbNavbarTitle() {
 }
 
 function DbLandingRoute() {
-  const { landingCodeExampleRsc } = Route.useLoaderData()
-
-  return <DbLanding landingCodeExampleRsc={landingCodeExampleRsc} />
+  return <DbLanding />
 }

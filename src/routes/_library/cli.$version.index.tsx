@@ -29,7 +29,5 @@ function CliNavbarTitle() {
 }
 
 function CliLandingRoute() {
-  const { landingCodeExampleRsc } = Route.useLoaderData()
-
-  return <CliLanding landingCodeExampleRsc={landingCodeExampleRsc} />
+  return <CliLanding />
 }

@@ -7,7 +7,7 @@ import {
 import React from 'react'
 import { DocTitle } from '~/components/DocTitle'
 import { Framework, getBranch, getLibrary } from '~/libraries'
-import { fetchRepoDirectoryContents } from '~/utils/docs'
+import { fetchFile, fetchRepoDirectoryContents } from '~/utils/docs'
 import {
   getExampleStartingFileName,
   getExampleStartingPath,
@@ -19,7 +19,6 @@ import * as v from 'valibot'
 import { CodeExplorer } from '~/components/CodeExplorer'
 import type { GitHubFileNode } from '~/utils/documents.server'
 import { ExternalLink } from 'lucide-react'
-import { fetchRenderedCodeFile } from '~/utils/codeBlock.functions'
 import {
   ExampleDeployDialog,
   type DeployProvider,
@@ -31,15 +30,11 @@ import {
   useDeploymentProviderPlacement,
 } from '~/utils/useDeploymentProviderPlacement'
 
-const renderedFileQueryOptions = (
-  repo: string,
-  branch: string,
-  filePath: string,
-) => {
+const fileQueryOptions = (repo: string, branch: string, filePath: string) => {
   return queryOptions({
-    queryKey: ['currentCodeRsc', repo, branch, filePath],
+    queryKey: ['currentCode', repo, branch, filePath],
     queryFn: () =>
-      fetchRenderedCodeFile({
+      fetchFile({
         data: { repo, branch, filePath },
       }),
     staleTime: Infinity, // We can cache this forever. A refresh can invalidate the cache if necessary.
@@ -105,14 +100,10 @@ export const Route = createFileRoute(
       )
 
       const currentCode = await queryClient.ensureQueryData(
-        renderedFileQueryOptions(library.repo, branch, currentPath),
+        fileQueryOptions(library.repo, branch, currentPath),
       )
 
-      return {
-        currentCodeRsc: currentCode.contentRsc,
-        repoStartingDirPath,
-        currentPath,
-      }
+      return { currentCode, repoStartingDirPath, currentPath }
     } catch (error) {
       const isNotFoundError =
         isNotFound(error) ||
@@ -159,7 +150,7 @@ function RouteComponent() {
 }
 
 function PageComponent() {
-  const { currentCodeRsc, repoStartingDirPath, currentPath } =
+  const { currentCode, repoStartingDirPath, currentPath } =
     Route.useLoaderData()
 
   const navigate = Route.useNavigate()
@@ -255,7 +246,7 @@ function PageComponent() {
       }
 
       const queryState = queryClient.getQueryState([
-        'currentCodeRsc',
+        'currentCode',
         library.repo,
         branch,
         path,
@@ -268,9 +259,7 @@ function PageComponent() {
         return
       }
 
-      queryClient.prefetchQuery(
-        renderedFileQueryOptions(library.repo, branch, path),
-      )
+      queryClient.prefetchQuery(fileQueryOptions(library.repo, branch, path))
     },
     [queryClient, library.repo, branch, currentPath],
   )
@@ -396,7 +385,7 @@ function PageComponent() {
         <CodeExplorer
           activeTab={activeTab as 'code' | 'sandbox'}
           codeSandboxUrl={codeSandboxUrl}
-          currentCodeRsc={currentCodeRsc}
+          currentCode={currentCode}
           currentPath={currentPath}
           examplePath={examplePath}
           githubContents={githubContents || undefined}

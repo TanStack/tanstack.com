@@ -8,7 +8,7 @@ import { Button } from '~/ui'
 import PlaceholderSponsorPack from './PlaceholderSponsorPack'
 import SponsorPack from './SponsorPack'
 
-type LazySponsorSectionProps = {
+type SponsorSectionProps = {
   title?: ReactNode
   aspectRatio?: string
   packMaxWidth?: CSSProperties['maxWidth']
@@ -29,12 +29,12 @@ function SponsorPackWithQuery() {
   return <SponsorPack sponsors={sponsors} />
 }
 
-export function LazySponsorSection({
+export function SponsorSection({
   title = 'Sponsors',
   aspectRatio = '1/1',
   packMaxWidth,
   showCTA = true,
-}: LazySponsorSectionProps) {
+}: SponsorSectionProps) {
   return (
     <div className="px-4 w-full lg:max-w-(--breakpoint-lg) md:mx-auto">
       <div className="space-y-8">

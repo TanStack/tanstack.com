@@ -1,5 +1,3 @@
-'use client'
-
 import * as React from 'react'
 import { User } from 'lucide-react'
 import { Link, useNavigate } from '@tanstack/react-router'

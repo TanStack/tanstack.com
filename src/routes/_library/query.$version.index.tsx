@@ -29,7 +29,5 @@ function QueryNavbarTitle() {
 }
 
 function QueryLandingRoute() {
-  const { landingCodeExampleRsc } = Route.useLoaderData()
-
-  return <QueryLanding landingCodeExampleRsc={landingCodeExampleRsc} />
+  return <QueryLanding />
 }

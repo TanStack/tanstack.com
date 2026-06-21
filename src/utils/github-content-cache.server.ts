@@ -5,6 +5,7 @@ import {
   githubContentCache,
   type GithubContentCache,
 } from '~/db/schema'
+import { fetchCached } from './cache.server'
 import { isValidRepoPath, MAX_REPO_PATH_LENGTH } from './repo-path'
 
 const POSITIVE_STALE_MS = 5 * 60 * 1000
@@ -86,6 +87,10 @@ function assertValidCacheKey(opts: {
 const pendingRefreshes = new Map<string, Promise<unknown>>()
 
 type CachedValue<T> = T | null | undefined
+
+function canUseDatabaseCache() {
+  return typeof process.env.DATABASE_URL === 'string'
+}
 
 function withPendingRefresh<T>(key: string, fn: () => Promise<T>) {
   const pending = pendingRefreshes.get(key)
@@ -227,6 +232,14 @@ async function getCachedGitHubContent<T>(opts: {
 }) {
   assertValidCacheKey(opts)
 
+  if (!canUseDatabaseCache()) {
+    return fetchCached({
+      key: opts.cacheKey,
+      ttl: POSITIVE_STALE_MS,
+      fn: opts.origin,
+    })
+  }
+
   const readRow = () =>
     findGithubContentRow({
       repo: opts.repo,
@@ -365,6 +378,15 @@ export async function getCachedDocsArtifact<T>(opts: {
   assertValidContentPath(opts.docsRoot)
 
   const cacheKey = `docs-artifact:${opts.repo}:${opts.gitRef}:${opts.docsRoot}:${opts.artifactType}:${opts.artifactKey}`
+
+  if (!canUseDatabaseCache()) {
+    return fetchCached({
+      key: cacheKey,
+      ttl: POSITIVE_STALE_MS,
+      fn: opts.build,
+    })
+  }
+
   const readRow = () =>
     db.query.docsArtifactCache.findFirst({
       where: and(

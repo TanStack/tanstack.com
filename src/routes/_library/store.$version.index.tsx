@@ -29,7 +29,5 @@ function StoreNavbarTitle() {
 }
 
 function StoreLandingRoute() {
-  const { landingCodeExampleRsc } = Route.useLoaderData()
-
-  return <StoreLanding landingCodeExampleRsc={landingCodeExampleRsc} />
+  return <StoreLanding />
 }

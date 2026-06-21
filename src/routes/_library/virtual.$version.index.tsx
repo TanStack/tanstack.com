@@ -29,7 +29,5 @@ function VirtualNavbarTitle() {
 }
 
 function VirtualLandingRoute() {
-  const { landingCodeExampleRsc } = Route.useLoaderData()
-
-  return <VirtualLanding landingCodeExampleRsc={landingCodeExampleRsc} />
+  return <VirtualLanding />
 }

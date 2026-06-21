@@ -29,7 +29,5 @@ function AiNavbarTitle() {
 }
 
 function AiLandingRoute() {
-  const { landingCodeExampleRsc } = Route.useLoaderData()
-
-  return <AiLanding landingCodeExampleRsc={landingCodeExampleRsc} />
+  return <AiLanding />
 }

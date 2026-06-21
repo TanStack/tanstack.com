@@ -683,15 +683,133 @@ pre {
   /* All code samples get a grey border, twoslash ones get a different color */
   @apply text-black overflow-x-auto relative leading-tight;
 }
-pre.shiki {
+pre.shiki,
+pre.th-code {
   overflow-x: auto;
   padding: 1rem;
 
   @apply bg-white;
+}
 
+pre.th-code {
+  @apply dark:bg-gray-950 dark:text-gray-400;
+}
+
+pre.shiki {
   &.aurora-x {
     @apply text-gray-400 bg-gray-950;
   }
+}
+
+:root {
+  --th-token: inherit;
+  --th-keyword: #cf222e;
+  --th-string: #0a7f64;
+  --th-comment: #6e7781;
+  --th-function: #8250df;
+  --th-type: #953800;
+  --th-property: #0550ae;
+  --th-tag: #116329;
+  --th-attr: #0550ae;
+  --th-literal: #0550ae;
+  --th-number: #0550ae;
+  --th-variable: #953800;
+  --th-operator: #8250df;
+  --th-inserted: #1a7f37;
+  --th-deleted: #cf222e;
+  --th-meta: #57606a;
+  --th-heading: #0550ae;
+  --th-link: #0969da;
+  --th-code-inline: #953800;
+  --th-selector: #116329;
+  --th-command: #8250df;
+}
+
+.dark {
+  --th-keyword: #ff7b72;
+  --th-string: #a5d6ff;
+  --th-comment: #8b949e;
+  --th-function: #d2a8ff;
+  --th-type: #ffa657;
+  --th-property: #79c0ff;
+  --th-tag: #7ee787;
+  --th-attr: #79c0ff;
+  --th-literal: #79c0ff;
+  --th-number: #79c0ff;
+  --th-variable: #ffa657;
+  --th-operator: #d2a8ff;
+  --th-inserted: #7ee787;
+  --th-deleted: #ff7b72;
+  --th-meta: #8b949e;
+  --th-heading: #79c0ff;
+  --th-link: #58a6ff;
+  --th-code-inline: #ffa657;
+  --th-selector: #7ee787;
+  --th-command: #d2a8ff;
+}
+
+.th-token {
+  color: var(--th-token);
+}
+.th-keyword {
+  color: var(--th-keyword);
+}
+.th-string {
+  color: var(--th-string);
+}
+.th-comment {
+  color: var(--th-comment);
+}
+.th-function {
+  color: var(--th-function);
+}
+.th-type {
+  color: var(--th-type);
+}
+.th-property {
+  color: var(--th-property);
+}
+.th-tag {
+  color: var(--th-tag);
+}
+.th-attr {
+  color: var(--th-attr);
+}
+.th-literal {
+  color: var(--th-literal);
+}
+.th-number {
+  color: var(--th-number);
+}
+.th-variable {
+  color: var(--th-variable);
+}
+.th-operator {
+  color: var(--th-operator);
+}
+.th-inserted {
+  color: var(--th-inserted);
+}
+.th-deleted {
+  color: var(--th-deleted);
+}
+.th-meta {
+  color: var(--th-meta);
+}
+.th-heading {
+  color: var(--th-heading);
+}
+.th-link {
+  color: var(--th-link);
+}
+.th-code-inline {
+  color: var(--th-code-inline);
+}
+.th-selector {
+  color: var(--th-selector);
+}
+.th-command {
+  color: var(--th-command);
 }
 pre.shiki:hover .dim {
   opacity: 1;

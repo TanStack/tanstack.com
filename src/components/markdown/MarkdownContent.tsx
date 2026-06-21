@@ -5,6 +5,8 @@ import { ButtonGroup } from '~/components/ButtonGroup'
 import { DocTitle } from '~/components/DocTitle'
 import { DocFeedbackProvider } from '~/components/DocFeedbackProvider'
 import { Button } from '~/ui'
+import type { SiteMarkdownDocument } from '~/utils/markdown'
+import { Markdown } from './Markdown'
 
 const LazyCopyPageDropdown = React.lazy(() =>
   import('~/components/CopyPageDropdown').then((m) => ({
@@ -17,7 +19,8 @@ type MarkdownContentProps = {
   repo: string
   branch: string
   filePath: string
-  contentRsc: React.ReactNode
+  markdown: SiteMarkdownDocument
+  preserveTabPanels?: boolean
   /** Additional elements to render in the title bar (e.g., width toggle button) */
   titleBarActions?: React.ReactNode
   /** Additional class names for the prose container */
@@ -64,7 +67,8 @@ export function MarkdownContent({
   repo,
   branch,
   filePath,
-  contentRsc,
+  markdown,
+  preserveTabPanels,
   titleBarActions,
   proseClassName,
   containerRef,
@@ -79,23 +83,22 @@ export function MarkdownContent({
     setCanLoadCopyControls(true)
   }, [])
 
-  const renderMarkdownContent = () => {
-    const markdownElement = contentRsc
+  const renderedMarkdown = (
+    <Markdown document={markdown} preserveTabPanels={preserveTabPanels} />
+  )
 
-    if (libraryId && libraryVersion && pagePath) {
-      return (
-        <DocFeedbackProvider
-          pagePath={pagePath}
-          libraryId={libraryId}
-          libraryVersion={libraryVersion}
-        >
-          {markdownElement}
-        </DocFeedbackProvider>
-      )
-    }
-
-    return markdownElement
-  }
+  const contentNode =
+    libraryId && libraryVersion && pagePath ? (
+      <DocFeedbackProvider
+        pagePath={pagePath}
+        libraryId={libraryId}
+        libraryVersion={libraryVersion}
+      >
+        {renderedMarkdown}
+      </DocFeedbackProvider>
+    ) : (
+      renderedMarkdown
+    )
 
   return (
     <>
@@ -142,7 +145,7 @@ export function MarkdownContent({
           proseClassName,
         )}
       >
-        {renderMarkdownContent()}
+        {contentNode}
       </div>
       <div className="h-12" />
       <div className="w-full h-px bg-gray-500 opacity-30" />

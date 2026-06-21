@@ -29,7 +29,5 @@ function ConfigNavbarTitle() {
 }
 
 function ConfigLandingRoute() {
-  const { landingCodeExampleRsc } = Route.useLoaderData()
-
-  return <ConfigLanding landingCodeExampleRsc={landingCodeExampleRsc} />
+  return <ConfigLanding />
 }

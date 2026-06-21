@@ -9,7 +9,6 @@ import {
   getPublishedPosts,
   isPublishedDateReleased,
 } from '~/utils/blog'
-import { renderMarkdownToRsc } from './markdown'
 import { buildRedirectManifest } from './redirects'
 
 export type RecentPost = {
@@ -86,23 +85,19 @@ export const fetchBlogPost = createServerFn({ method: 'GET' })
       }),
     )
 
-    const blogContent = `<small>_by ${formatAuthors(post.authors)} on ${formatPublishedDate(
+    const blogContent = `<small><em>by ${formatAuthors(post.authors)} on ${formatPublishedDate(
       post.published || '1970-01-01',
-    )}._</small>
+    )}.</em></small>
 
 ${post.content}`
 
-    const { contentRsc, headings } = await renderMarkdownToRsc(blogContent, {
-      preserveTabPanels: true,
-    })
     const isUnpublished = post.draft || !isPublishedDateReleased(post.published)
 
     return {
       authors: post.authors,
-      contentRsc,
+      content: blogContent,
       description: post.excerpt,
       filePath: `src/blog/${data}.md`,
-      headings,
       headerImage: post.headerImage,
       isUnpublished,
       library: post.library,

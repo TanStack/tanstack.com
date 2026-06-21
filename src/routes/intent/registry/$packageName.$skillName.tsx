@@ -11,6 +11,7 @@ import {
   getIntentSkillPage,
   type SkillVersionEntry,
 } from '~/utils/intent.functions'
+import { Markdown } from '~/components/markdown/Markdown'
 import { CopyPageDropdown } from '~/components/CopyPageDropdown'
 import { SkillSparklineFallback } from '~/components/intent/SkillSparklineFallback'
 import {
@@ -98,7 +99,6 @@ function SkillDetailPage() {
   )
   const skills = skillsQuery.data?.skills ?? []
   const skill = skills.find((s) => s.name === skillName)
-
   if (!skill) {
     return (
       <div className="flex flex-col items-center justify-center h-full min-h-48 text-center px-4">
@@ -221,7 +221,9 @@ function SkillDetailPage() {
           {/* Skill content */}
           <div className="rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden p-6">
             <div className="prose prose-gray dark:prose-invert max-w-none [font-size:16px] styled-markdown-content">
-              {skillPage?.contentRsc ?? null}
+              {skillPage?.content ? (
+                <Markdown content={skillPage.content} />
+              ) : null}
             </div>
           </div>
         </>

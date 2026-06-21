@@ -1,5 +1,3 @@
-'use client'
-
 import * as React from 'react'
 import { getPartnersForPlacement } from '~/utils/partner-placement'
 import { partners, type Partner } from '~/utils/partners'

@@ -7,14 +7,12 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import tailwindcss from '@tailwindcss/vite'
 import { analyzer } from 'vite-bundle-analyzer'
 import viteReact from '@vitejs/plugin-react'
-import rsc from '@vitejs/plugin-rsc'
 import netlify from '@netlify/vite-plugin-tanstack-start'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
 const isDev = process.env.NODE_ENV !== 'production'
-const shouldUseRedact = process.env.DISABLE_REDACT !== 'true'
 const localRedactPackageRoot = process.env.LOCAL_REDACT_PACKAGE_ROOT
 const shouldUseSentryPlugin =
   process.env.NODE_ENV === 'production' &&
@@ -22,7 +20,7 @@ const shouldUseSentryPlugin =
 const shouldBuildSourcemaps =
   shouldUseSentryPlugin || process.env.BUILD_SOURCEMAPS === 'true'
 
-const rscSsrExternals = [
+const ssrExternals = [
   // OpenTelemetry uses require-in-the-middle which is CJS-only and breaks
   // under Vite's ESM module runner during dev SSR.
   'require-in-the-middle',
@@ -36,7 +34,7 @@ const rscSsrExternals = [
   // Compression/archive stack has known CJS transform issues in dev SSR.
   'jszip',
   'pako',
-  // These packages also have known CJS/ESM interop issues in the RSC/SSR path.
+  // These packages also have known CJS/ESM interop issues in the SSR path.
   'discord-interactions',
   // OG image generation: takumi ships a native .node binary that cannot
   // be bundled by rolldown — must be externalized for SSR environments.
@@ -58,12 +56,8 @@ const envDir =
     : __dirname
 
 // Runtime-specific `react-dom/server` variants aren't in @tanstack/redact/vite's
-// default alias map — our shim ships a single universal server build, unlike
-// React which maintains per-runtime forks (edge/node/bun/browser + static.*).
-// @vitejs/plugin-rsc and Netlify's edge adapter import them conditionally, so
-// we funnel them all to `@tanstack/redact/server` at the top-level resolve
-// (Vite 8's `EnvironmentResolveOptions` doesn't accept `alias`, so env-scoped
-// aliasing isn't an option).
+// default alias map. Netlify's edge adapter imports them conditionally, so we
+// funnel them all to `@tanstack/redact/server` at the top-level resolve.
 const serverVariantAliases: Record<string, string> = {
   'react-dom/server.edge': '@tanstack/redact/server',
   'react-dom/server.node': '@tanstack/redact/server',
@@ -79,12 +73,31 @@ const useSyncExternalStoreShimIndexAlias = {
   replacement: '@tanstack/redact',
 }
 
-// These browser-facing packages are imported by RSC assets. Bundle them into
+// These browser-facing packages are imported by SSR assets. Bundle them into
 // server output so Netlify's Node runtime never loads their raw package entries.
 const serverBundledClientPackages = [
-  ...(shouldUseRedact ? ['@tanstack/redact'] : []),
+  '@tanstack/redact',
+  /^@radix-ui\//,
   '@kapaai/react-sdk',
+  '@tanstack/highlight',
+  '@tanstack/markdown',
+  '@tanstack/react-hotkeys',
+  '@tanstack/react-pacer',
+  '@tanstack/react-table',
+  'lucide-react',
+  'zustand',
   /^@fingerprintjs\//,
+]
+
+const routerSsrPackages = [
+  '@tanstack/history',
+  '@tanstack/query-core',
+  '@tanstack/react-query',
+  '@tanstack/react-router',
+  '@tanstack/react-router-ssr-query',
+  '@tanstack/react-router/ssr',
+  '@tanstack/react-router/ssr/server',
+  '@tanstack/router-core',
 ]
 
 export default defineConfig({
@@ -95,17 +108,11 @@ export default defineConfig({
         find: '~',
         replacement: path.resolve(__dirname, './src'),
       },
-      ...(shouldUseRedact
-        ? [
-            useSyncExternalStoreShimIndexAlias,
-            ...Object.entries(serverVariantAliases).map(
-              ([find, replacement]) => ({
-                find,
-                replacement,
-              }),
-            ),
-          ]
-        : []),
+      useSyncExternalStoreShimIndexAlias,
+      ...Object.entries(serverVariantAliases).map(([find, replacement]) => ({
+        find,
+        replacement,
+      })),
     ],
   },
   server: {
@@ -123,23 +130,10 @@ export default defineConfig({
       : undefined,
   },
   environments: {
-    rsc: {
-      resolve: {
-        noExternal: serverBundledClientPackages,
-        external: [
-          '@tanstack/react-start-server',
-          '@tanstack/react-router/ssr/server',
-        ],
-      },
-    },
     ssr: {
       resolve: {
-        noExternal: serverBundledClientPackages,
-        external: [
-          ...rscSsrExternals,
-          ...sentrySsrExternals,
-          ...dbSsrExternals,
-        ],
+        noExternal: [...serverBundledClientPackages, ...routerSsrPackages],
+        external: [...ssrExternals, ...sentrySsrExternals, ...dbSsrExternals],
       },
     },
   },
@@ -151,7 +145,7 @@ export default defineConfig({
       '@tanstack/create',
       // Externalize CLI so server reloads it on changes
       '@tanstack/cli',
-      ...rscSsrExternals,
+      ...ssrExternals,
       ...sentrySsrExternals,
     ],
     noExternal: [
@@ -161,6 +155,7 @@ export default defineConfig({
       '@tanstack/react-hotkeys',
       '@webcontainer/api',
       ...serverBundledClientPackages,
+      ...routerSsrPackages,
     ],
   },
   optimizeDeps: {
@@ -176,11 +171,8 @@ export default defineConfig({
       'takumi-js',
       // Don't pre-bundle CLI so we always get fresh changes during dev
       ...(isDev ? ['@tanstack/cli'] : []),
-      // `use client` libraries that plugin-rsc pre-bundles inconsistently
-      // across client/ssr/rsc envs when combined with our React shim — each
-      // env resolves `react` to a different target, so the optimizer's hash
-      // diverges. Excluding from optimize keeps resolution deterministic per
-      // env and silences the 50k+ "inconsistently optimized" warning flood.
+      // Lucide can resolve differently across Vite environments when combined
+      // with our React shim. Excluding it keeps resolution deterministic.
       'lucide-react',
     ],
   },
@@ -243,19 +235,15 @@ export default defineConfig({
     },
   },
   plugins: [
-    ...(shouldUseRedact
-      ? [
-          redact(
-            localRedactPackageRoot
-              ? {
-                  packageRoots: {
-                    '@tanstack/redact': localRedactPackageRoot,
-                  },
-                }
-              : undefined,
-          ),
-        ]
-      : []),
+    redact(
+      localRedactPackageRoot
+        ? {
+            packageRoots: {
+              '@tanstack/redact': localRedactPackageRoot,
+            },
+          }
+        : undefined,
+    ),
     ...(isDev
       ? [
           tanstackDevtools({
@@ -278,11 +266,11 @@ export default defineConfig({
       : []),
     tanstackStart({
       rsc: {
-        enabled: true,
+        enabled: false,
       },
       server: {
         build: {
-          inlineCss: true,
+          inlineCss: false,
         },
       },
       importProtection: {
@@ -311,7 +299,6 @@ export default defineConfig({
         },
       },
     }),
-    rsc(),
     // Only enable Netlify plugin during build or when NETLIFY env is set
     ...(process.env.NETLIFY || process.env.NODE_ENV === 'production'
       ? [netlify()]

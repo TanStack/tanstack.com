@@ -17,11 +17,9 @@ interface CliTicket {
   authorized: boolean
 }
 
-// The Vite RSC plugin duplicates .server.ts modules — one copy ends up in the
-// regular server bundle (used by route handlers) and another in the RSC server
-// bundle (used by createServerFn). Each copy gets its own module-level state,
-// which would silently fragment the ticket store. Pin the Map to globalThis so
-// both copies share a single instance.
+// Server handlers and server-function handlers can load this module through
+// different bundled entry points. Pin the Map to globalThis so those callers
+// share one ticket store instead of fragmenting module-level state.
 const TICKETS_KEY = Symbol.for('tanstack.cli-auth.tickets')
 const TICKETS_INTERVAL_KEY = Symbol.for('tanstack.cli-auth.cleanup')
 

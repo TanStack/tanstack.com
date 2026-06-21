@@ -1,5 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
+import { Hydrate } from '@tanstack/react-start'
+import { visible } from '@tanstack/react-start/hydration'
 import { ArrowRight } from 'lucide-react'
 import { Card } from '~/components/Card'
 import { PartnersGrid } from '~/components/PartnersGrid'
@@ -8,6 +10,56 @@ import { formatAuthors, formatPublishedDate } from '~/utils/blog'
 import { fetchRecentPosts } from '~/utils/blog.functions'
 
 export function HomeSocialProofSection() {
+  return (
+    <Hydrate
+      when={visible({ rootMargin: '25%' })}
+      fallback={<SocialProofSkeleton />}
+    >
+      <HomeSocialProofContent />
+    </Hydrate>
+  )
+}
+
+function SocialProofSkeleton() {
+  return (
+    <div className="space-y-24">
+      <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
+        <div className="h-10 w-40 rounded bg-gray-200/70 dark:bg-gray-800/70 animate-pulse mb-6" />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-px overflow-hidden rounded-md border border-gray-200 dark:border-gray-800">
+          {Array.from({ length: 8 }).map((_, index) => (
+            <div
+              key={`partner-skeleton-${index}`}
+              className="min-h-[130px] bg-gray-100/70 dark:bg-gray-900/60 animate-pulse"
+            />
+          ))}
+        </div>
+      </div>
+      <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
+        <div className="h-10 w-56 rounded bg-gray-200/70 dark:bg-gray-800/70 animate-pulse mb-6" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <Card
+              key={`post-skeleton-${index}`}
+              className="overflow-hidden animate-pulse"
+            >
+              <div className="aspect-video bg-gray-100 dark:bg-gray-800" />
+              <div className="p-4">
+                <div className="h-5 w-5/6 rounded bg-gray-200 dark:bg-gray-700" />
+                <div className="mt-3 h-3 w-2/3 rounded bg-gray-200 dark:bg-gray-700" />
+                <div className="mt-4 space-y-2">
+                  <div className="h-3 rounded bg-gray-100 dark:bg-gray-800" />
+                  <div className="h-3 rounded bg-gray-100 dark:bg-gray-800" />
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function HomeSocialProofContent() {
   const { data: recentPosts = [], isLoading: isRecentPostsLoading } = useQuery({
     queryKey: ['recentPosts'],
     queryFn: () => fetchRecentPosts(),

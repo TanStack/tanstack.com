@@ -29,7 +29,5 @@ function DevtoolsNavbarTitle() {
 }
 
 function DevtoolsLandingRoute() {
-  const { landingCodeExampleRsc } = Route.useLoaderData()
-
-  return <DevtoolsLanding landingCodeExampleRsc={landingCodeExampleRsc} />
+  return <DevtoolsLanding />
 }

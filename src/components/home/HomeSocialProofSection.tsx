@@ -70,15 +70,11 @@ export function HomeSocialProofSection() {
                     excerpt,
                     headerImage,
                     authors,
+                    externalUrl,
+                    source,
                   }) => {
-                    return (
-                      <Card
-                        as={Link}
-                        key={slug}
-                        to="/blog/$"
-                        params={{ _splat: slug } as never}
-                        className="flex flex-col justify-between overflow-hidden transition-all hover:shadow-md hover:border-blue-500"
-                      >
+                    const content = (
+                      <>
                         {headerImage ? (
                           <div className="aspect-video overflow-hidden bg-gray-100 dark:bg-gray-800">
                             <img
@@ -112,9 +108,40 @@ export function HomeSocialProofSection() {
                             ) : null}
                           </div>
                           <div className="text-blue-500 uppercase font-bold text-xs">
-                            Read More →
+                            {externalUrl
+                              ? `Read on ${source ?? 'Source'} →`
+                              : 'Read More →'}
                           </div>
                         </div>
+                      </>
+                    )
+                    const className =
+                      'flex flex-col justify-between overflow-hidden transition-all hover:shadow-md hover:border-blue-500'
+
+                    if (externalUrl) {
+                      return (
+                        <Card
+                          as="a"
+                          key={slug}
+                          href={externalUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={className}
+                        >
+                          {content}
+                        </Card>
+                      )
+                    }
+
+                    return (
+                      <Card
+                        as={Link}
+                        key={slug}
+                        to="/blog/$"
+                        params={{ _splat: slug } as never}
+                        className={className}
+                      >
+                        {content}
                       </Card>
                     )
                   },

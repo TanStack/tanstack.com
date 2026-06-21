@@ -31,6 +31,49 @@ Code size/complexity:
 | Remaining RSC references     |                                             none |
 | Remaining `use client` files | `CopyPageDropdown.tsx`, `CopyMarkdownButton.tsx` |
 
+## Markdown and Highlight package story
+
+The original reason RSC helped tanstack.com was real: our docs/blog path was making the browser pay for markdown rendering and Shiki. The earlier performance work measured about 1.1 MiB of script transfer on a docs page, with about 358 KiB clearly tied to syntax highlighting alone: Shiki, its WASM/runtime pieces, themes, and language chunks. The RSC migration solved that by moving markdown and code rendering back to the server, and the RSC launch post recorded the client JS graph dropping about 153 KB gzip on docs/blog pages and about 40 KB gzip on docs example pages.
+
+This SSR pass keeps the same underlying bet, but changes the implementation. Instead of using RSC as the mechanism that hides the markdown/highlight cost from the client, we made the markdown/highlight cost small enough to ship normally, then moved only raw markdown/source data through Start server functions. That is the real byte story: with the custom markdown/highlight libraries in place, SSR is a net negative on first-load gzip across the measured content pages, `Hydrate` fixes the byte scheduling problem for below-fold sections, and long sessions compound the win because each navigation reuses the renderer already sitting in the client bundle instead of transferring rendered Flight output again.
+
+Current packages in this worktree:
+
+| Package                          | npm unpacked size | Files | Notes                                                                  |
+| -------------------------------- | ----------------: | ----: | ---------------------------------------------------------------------- |
+| `@tanstack/highlight@0.0.2`      |          80.6 KiB |    62 | tiny tokenizer/highlighter, class-based output, isolated theme exports |
+| `@tanstack/markdown@0.0.4`       |          79.2 KiB |    44 | parser/rendering path for the markdown subset tanstack.com needs       |
+| Combined TanStack packages       |         159.8 KiB |   106 | no runtime dependencies, React is a peer for markdown                  |
+| Shiki 4.0.2 direct package graph |         10.49 MiB | 1,725 | `shiki` plus direct `@shikijs/*` packages and `vscode-textmate`        |
+
+That package-size comparison is npm unpacked size, not browser transfer. The browser transfer fact we already have is the old 358 KiB docs-page script cost tied to Shiki. The package fact is still useful for the post because it shows how much general-purpose machinery we stopped depending on: the Shiki package graph is about 67x larger than the two new TanStack packages combined before app bundling even starts.
+
+The current highlight integration is also simpler than the old Shiki path:
+
+- one highlighted HTML tree, not duplicated light/dark markup,
+- no inline token styles,
+- theme CSS generated from `createThemeCss`,
+- light mode uses `githubLightTheme`,
+- dark mode uses `auroraXTheme`,
+- docs smoke test found 20 `pre.th-code` blocks, 381 token spans, 0 `pre.shiki` blocks, and 0 inline token styles.
+
+The blog angle should be framed carefully: AI helped make it practical to write purpose-built packages quickly, but the win is not "AI wrote magic." The win is that we replaced a broad markdown plus Shiki stack with small libraries designed around the exact rendering contract we need, then measured whether that was enough to remove the RSC pipeline without giving back the performance. So far, the answer is yes for the tested pages, with one important caveat: these packages are young enough that conformance matters. We found a tight-list regression in `@tanstack/markdown` where Related Resources rendered as `<li><p>...</p></li>`, fixed that link-list case in `@tanstack/markdown@0.0.4`, and found an image-sizing regression in the site wrapper around markdown images. The future post should include that part too, because the cost of going tiny is owning the test suite.
+
+Remaining markdown package issue: `@tanstack/markdown@0.0.4` still marks some tight lists as loose when the list is followed by another block. Minimal repro:
+
+````md
+Call server functions from:
+
+- **Route loaders** - Perfect for data fetching
+- **Components** - Use with `useServerFn()` hook
+
+```tsx
+const x = 1
+```
+````
+
+Expected: direct `<li><strong>Route loaders</strong> ...</li>` items. Current output: `<li><p><strong>Route loaders</strong> ...</p></li>`. This is not a tanstack.com CSS issue, and the temporary `li > p` styling workaround was removed.
+
 ## First-load HTML + JS/CSS
 
 Production servers, local Node, `.env.local` copied from the main checkout. This table counts HTML plus scheduled local JS/CSS assets. It excludes images/fonts because those are better captured by Lighthouse byte weight.

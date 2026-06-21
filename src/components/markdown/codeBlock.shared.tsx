@@ -17,7 +17,7 @@ export function escapeHtml(value: string) {
 }
 
 export function buildPlainCodeBlockHtml(code: string) {
-  return `<pre class="shiki h-full github-light dark:aurora-x"><code>${escapeHtml(
+  return `<pre class="th-code th-code--plaintext h-full" data-language="plaintext"><code>${escapeHtml(
     code,
   )}</code></pre>`
 }

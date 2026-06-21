@@ -105,11 +105,11 @@ importers:
         specifier: ^0.68.0
         version: 0.68.0(tslib@2.8.1)
       '@tanstack/highlight':
-        specifier: workspace:*
-        version: link:packages/highlight
+        specifier: ^0.0.2
+        version: 0.0.2
       '@tanstack/markdown':
-        specifier: workspace:*
-        version: link:packages/markdown
+        specifier: ^0.0.4
+        version: 0.0.4(react@19.2.3)
       '@tanstack/pacer':
         specifier: ^0.21.1
         version: 0.21.1
@@ -351,14 +351,6 @@ importers:
       vite:
         specifier: ^8.0.13
         version: 8.0.13(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.3)
-
-  packages/highlight: {}
-
-  packages/markdown:
-    dependencies:
-      react:
-        specifier: '>=18'
-        version: 19.2.3
 
 packages:
 
@@ -3681,6 +3673,9 @@ packages:
     peerDependencies:
       solid-js: '>=1.9.7'
 
+  '@tanstack/highlight@0.0.2':
+    resolution: {integrity: sha512-zxC5bJwG8BOJkAEzPHhW8djKbIsNca7CBA27CBs5LVDgoecw3Kaqf4E6YyOHpyuJAwVPwe9SMmyBTbQ/F0Ycjw==}
+
   '@tanstack/history@1.162.0':
     resolution: {integrity: sha512-79pf/RkhteYZTRgcR4F9kbk84P2N8rugQJswxfIqovlbRiT3yI7eBE+5QorIrZaOKktsgzRlXh1l/du/xpl4iA==}
     engines: {node: '>=20.19'}
@@ -3688,6 +3683,14 @@ packages:
   '@tanstack/hotkeys@0.8.0':
     resolution: {integrity: sha512-vqH7X9nb0MTJ/O08++dB5bP9jgj4+BIPOUu/U+6myG86lDsirZSVSobpq5UQpE7nBuk62i8eIYeOhd+OMl/UrA==}
     engines: {node: '>=18'}
+
+  '@tanstack/markdown@0.0.4':
+    resolution: {integrity: sha512-RBuVsbhelscwmUq1l1AF6/w/ZETl43L00DO2wgFGRCZHGb4qdFEtwM7A1mD5Wges6V5PfJU9O7A6rBIDF7Euqw==}
+    peerDependencies:
+      react: '>=18'
+    peerDependenciesMeta:
+      react:
+        optional: true
 
   '@tanstack/openai-base@0.3.4':
     resolution: {integrity: sha512-AhNGgbpuMFVQB9zDuSPA5+x4twjc1Q3ql28T9XVZvGldTwOFYJbAmQ0pnQXcbumM+3Cgius2PylDJ6AxK72YTQ==}
@@ -11608,11 +11611,17 @@ snapshots:
       - csstype
       - utf-8-validate
 
+  '@tanstack/highlight@0.0.2': {}
+
   '@tanstack/history@1.162.0': {}
 
   '@tanstack/hotkeys@0.8.0':
     dependencies:
       '@tanstack/store': 0.11.0
+
+  '@tanstack/markdown@0.0.4(react@19.2.3)':
+    optionalDependencies:
+      react: 19.2.3
 
   '@tanstack/openai-base@0.3.4(@tanstack/ai@0.20.1(@opentelemetry/api@1.9.1))(ws@8.20.0)(zod@4.3.6)':
     dependencies:

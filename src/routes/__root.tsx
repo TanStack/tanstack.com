@@ -9,6 +9,9 @@ import {
   defaultStringifySearch,
 } from '@tanstack/react-router'
 import { QueryClient } from '@tanstack/react-query'
+import { createThemeCss } from '@tanstack/highlight/theme'
+import { auroraXTheme } from '@tanstack/highlight/themes/aurora-x'
+import { githubLightTheme } from '@tanstack/highlight/themes/github-light'
 import '~/styles/app.css'
 import {
   canonicalUrl,
@@ -42,6 +45,11 @@ const GOOGLE_ANALYTICS_ID = 'G-JMT1Z50SPS'
 const GOOGLE_ANALYTICS_PROXY_PREFIX = '/_a'
 const GOOGLE_ANALYTICS_SCRIPT_SRC = `${GOOGLE_ANALYTICS_PROXY_PREFIX}/gtag.js`
 const GOOGLE_ANALYTICS_BOOTSTRAP = `(function(){var id='${GOOGLE_ANALYTICS_ID}';var src='${GOOGLE_ANALYTICS_SCRIPT_SRC}';window.dataLayer=window.dataLayer||[];window.gtag=window.gtag||function(){window.dataLayer.push(arguments)};window.gtag('js',new Date());window.gtag('config',id,{transport_url:window.location.origin+'${GOOGLE_ANALYTICS_PROXY_PREFIX}'});var loaded=false;var load=function(){if(loaded)return;loaded=true;var script=document.createElement('script');script.async=true;script.src=src;script.setAttribute('data-ga-loader','true');document.head.appendChild(script)};if(typeof window.requestIdleCallback==='function'){window.requestIdleCallback(load,{timeout:3000});return}if(document.readyState==='complete'){window.setTimeout(load,1500);return}window.addEventListener('load',function(){window.setTimeout(load,1500)},{once:true})})();`
+const HIGHLIGHT_THEME_CSS = createThemeCss({
+  light: githubLightTheme,
+  dark: auroraXTheme,
+  darkSelector: '.dark',
+})
 
 type CanonicalHeadMatch = {
   pathname: string
@@ -273,6 +281,10 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
     <html lang="en" className={htmlClass} suppressHydrationWarning>
       <head>
         <HeadContent />
+        <style
+          id="tanstack-highlight-theme"
+          dangerouslySetInnerHTML={{ __html: HIGHLIGHT_THEME_CSS }}
+        />
         {hasBaseParent ? <base target="_parent" /> : null}
       </head>
       <body className="overflow-x-hidden">

@@ -1,14 +1,11 @@
 import { Hydrate } from '@tanstack/react-start'
 import { visible } from '@tanstack/react-start/hydration'
-
 import type { LibraryId } from '~/libraries'
 import { MaintainersSection } from './MaintainersSection'
 import { PartnersSection } from './PartnersSection'
 
-interface LazyLandingCommunitySectionProps {
+interface LandingCommunitySectionProps {
   libraryId: LibraryId
-  libraryName: string
-  showShowcases?: boolean
 }
 
 function SectionSkeleton({ title }: { title: string }) {
@@ -29,9 +26,9 @@ function SectionSkeleton({ title }: { title: string }) {
   )
 }
 
-export function LazyLandingCommunitySection({
+export function LandingCommunitySection({
   libraryId,
-}: LazyLandingCommunitySectionProps) {
+}: LandingCommunitySectionProps) {
   return (
     <Hydrate
       when={visible({ rootMargin: '25%' })}

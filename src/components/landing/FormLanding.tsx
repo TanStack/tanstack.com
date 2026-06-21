@@ -18,15 +18,16 @@ import {
 import { BottomCTA } from '~/components/BottomCTA'
 import { Footer } from '~/components/Footer'
 import { GithubIcon } from '~/components/icons/GithubIcon'
-import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
-import { LazySponsorSection } from '~/components/LazySponsorSection'
+import { LandingCommunitySection } from '~/components/LandingCommunitySection'
+import { SponsorSection } from '~/components/SponsorSection'
 import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
 import { LibraryTestimonials } from '~/components/LibraryTestimonials'
 import { LibraryWordmark } from '~/components/LibraryWordmark'
 import LandingPageGad from '~/components/LandingPageGad'
 import { getLibrary } from '~/libraries'
 import { formProject } from '~/libraries/form'
-import type { LandingComponentProps } from '~/routes/-library-landing'
+import { LandingCodeExampleCard } from '~/components/landing/LandingCodeExampleCard'
+import { formCodeExample } from '~/components/landing/codeExamples'
 
 import { LandingEcosystemProof } from '~/components/landing/LandingEcosystemProof'
 import { LandingCopyPromptButton } from '~/components/landing/LandingCopyPromptButton'
@@ -147,9 +148,7 @@ const frameworkAdapters = [
   'Preact',
 ]
 
-export default function FormLanding({
-  landingCodeExampleRsc,
-}: LandingComponentProps) {
+export default function FormLanding() {
   const { version } = useParams({ strict: false })
   const resolvedVersion = version ?? library.latestVersion
 
@@ -314,7 +313,7 @@ export default function FormLanding({
           </div>
 
           <div className="min-w-0 max-w-full overflow-hidden">
-            {landingCodeExampleRsc}
+            <LandingCodeExampleCard example={formCodeExample} />
           </div>
         </div>
       </section>
@@ -360,11 +359,8 @@ export default function FormLanding({
         </div>
 
         <div className="mt-10 flex flex-col gap-14">
-          <LazyLandingCommunitySection
-            libraryId="form"
-            libraryName="TanStack Form"
-          />
-          <LazySponsorSection
+          <LandingCommunitySection libraryId="form" />
+          <SponsorSection
             title="GitHub Sponsors"
             aspectRatio="1/1"
             packMaxWidth="900px"

@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
-import { MarkdownHeading } from '~/utils/markdown/processor.rsc'
+import type { MarkdownHeading } from '~/utils/markdown'
 
 const headingLevels: Record<number, string> = {
   1: '',

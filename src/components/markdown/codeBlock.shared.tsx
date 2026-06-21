@@ -1,45 +1,10 @@
 import * as React from 'react'
 
 export type CodeBlockProps = React.HTMLProps<HTMLPreElement> & {
+  'data-code-title'?: string
   dataCodeTitle?: string
   isEmbedded?: boolean
   showTypeCopyButton?: boolean
-}
-
-export type RenderedCodeBlockData = {
-  copyText: string
-  htmlMarkup: string
-  lang: string
-  title?: string
-}
-
-export function getCodeLanguageFromPath(filePath: string) {
-  const ext = filePath.split('.').pop()
-
-  if (!ext) return 'txt'
-  if (['cts', 'mts'].includes(ext)) return 'ts'
-  if (['cjs', 'mjs'].includes(ext)) return 'js'
-  if (['prettierrc', 'babelrc', 'webmanifest'].includes(ext)) return 'json'
-  if (['env', 'example'].includes(ext)) return 'sh'
-  if (
-    [
-      'gitignore',
-      'prettierignore',
-      'log',
-      'gitattributes',
-      'editorconfig',
-      'lock',
-      'opts',
-      'Dockerfile',
-      'dockerignore',
-      'npmrc',
-      'nvmrc',
-    ].includes(ext)
-  ) {
-    return 'txt'
-  }
-
-  return ext
 }
 
 export function escapeHtml(value: string) {
@@ -58,27 +23,54 @@ export function buildPlainCodeBlockHtml(code: string) {
 }
 
 export function extractCodeBlockData(props: CodeBlockProps) {
-  const rawTitle = ((props as { dataCodeTitle?: string })?.dataCodeTitle ||
-    (props as { 'data-code-title'?: string })?.['data-code-title']) as
-    | string
-    | undefined
+  const rawTitle = props.dataCodeTitle || props['data-code-title']
 
   const title =
     rawTitle && rawTitle !== 'undefined' && rawTitle.trim().length > 0
       ? rawTitle.trim()
       : undefined
 
-  const childElement = props.children as
-    | undefined
-    | { props?: { children?: string; className?: string } }
-  const lang =
-    childElement?.props?.className?.replace('language-', '') || 'plaintext'
-  const code = childElement?.props?.children || ''
+  const codeElement = getCodeElementProps(props.children)
+  const lang = codeElement.className?.replace('language-', '') || 'plaintext'
+  const code = codeElement.children
 
   return {
     code,
     lang,
     title,
+  }
+}
+
+function getCodeElementProps(node: React.ReactNode) {
+  if (!React.isValidElement(node)) {
+    return {
+      children: '',
+      className: undefined,
+    }
+  }
+
+  const { props } = node
+
+  if (typeof props !== 'object' || props === null) {
+    return {
+      children: '',
+      className: undefined,
+    }
+  }
+
+  const className =
+    'className' in props && typeof props.className === 'string'
+      ? props.className
+      : undefined
+
+  const children =
+    'children' in props && typeof props.children === 'string'
+      ? props.children
+      : ''
+
+  return {
+    children,
+    className,
   }
 }
 

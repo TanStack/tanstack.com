@@ -1,21 +1,33 @@
 import * as React from 'react'
-import { CodeBlock } from '~/components/markdown/CodeBlock.server'
+import { CodeBlock } from '~/components/markdown/CodeBlock'
 import { Tabs, type TabDefinition } from '~/components/markdown/Tabs'
 import type { Framework } from '~/libraries'
 
-export interface LandingCodeExample {
+export interface LandingCodeExampleData {
   frameworks: Array<Framework>
-  renderFallback?: (framework: Framework) => React.ReactNode
   title?: string
   codeByFramework: Partial<Record<Framework, { lang: string; code: string }>>
 }
 
+export interface LandingCodeExampleCardProps {
+  example?: LandingCodeExampleData | null
+  renderFallback?: (framework: Framework) => React.ReactNode
+}
+
 export function LandingCodeExampleCard({
-  codeByFramework,
-  frameworks = [],
+  example,
   renderFallback,
-  title = 'Just a quick look...',
-}: LandingCodeExample) {
+}: LandingCodeExampleCardProps) {
+  if (!example) {
+    return null
+  }
+
+  const {
+    codeByFramework,
+    frameworks,
+    title = 'Just a quick look...',
+  } = example
+
   if (frameworks.length === 0) {
     return null
   }

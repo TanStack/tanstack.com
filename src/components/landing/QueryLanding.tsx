@@ -20,8 +20,8 @@ import {
 import { BottomCTA } from '~/components/BottomCTA'
 import { Footer } from '~/components/Footer'
 import { GithubIcon } from '~/components/icons/GithubIcon'
-import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
-import { LazySponsorSection } from '~/components/LazySponsorSection'
+import { LandingCommunitySection } from '~/components/LandingCommunitySection'
+import { SponsorSection } from '~/components/SponsorSection'
 import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
 import { LibraryTestimonials } from '~/components/LibraryTestimonials'
 import { LibraryWordmark } from '~/components/LibraryWordmark'
@@ -29,7 +29,8 @@ import LandingPageGad from '~/components/LandingPageGad'
 import { QueryGGBanner } from '~/components/QueryGGBanner'
 import { getLibrary } from '~/libraries'
 import { queryProject } from '~/libraries/query'
-import type { LandingComponentProps } from '~/routes/-library-landing'
+import { LandingCodeExampleCard } from '~/components/landing/LandingCodeExampleCard'
+import { queryCodeExample } from '~/components/landing/codeExamples'
 import { usePrefersReducedMotion } from '~/utils/usePrefersReducedMotion'
 
 import { LandingEcosystemProof } from '~/components/landing/LandingEcosystemProof'
@@ -178,9 +179,7 @@ const frameworkAdapters = [
   'Lit',
 ]
 
-export default function QueryLanding({
-  landingCodeExampleRsc,
-}: LandingComponentProps) {
+export default function QueryLanding() {
   const { version } = useParams({ strict: false })
   const resolvedVersion = version ?? library.latestVersion
 
@@ -339,7 +338,7 @@ export default function QueryLanding({
           </div>
 
           <div className="min-w-0 max-w-full overflow-hidden">
-            {landingCodeExampleRsc}
+            <LandingCodeExampleCard example={queryCodeExample} />
           </div>
         </div>
       </section>
@@ -384,16 +383,13 @@ export default function QueryLanding({
         </div>
 
         <div className="mt-10 flex flex-col gap-14">
-          <LazyLandingCommunitySection
-            libraryId="query"
-            libraryName="TanStack Query"
-          />
+          <LandingCommunitySection libraryId="query" />
 
           <div className="mx-auto w-full max-w-[80rem] px-4 xl:max-w-[92rem]">
             <QueryGGBanner />
           </div>
 
-          <LazySponsorSection
+          <SponsorSection
             title="GitHub Sponsors"
             aspectRatio="1/1"
             packMaxWidth="900px"

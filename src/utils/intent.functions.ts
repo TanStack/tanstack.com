@@ -1,6 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
 import * as v from 'valibot'
-import { renderMarkdownToRsc } from './markdown'
 import {
   getAllVerifiedPackages,
   getPackageByName,
@@ -548,12 +547,8 @@ export const getIntentSkillPage = createServerFn({ method: 'GET' })
       return null
     }
 
-    const { contentRsc } = await renderMarkdownToRsc(
-      stripFrontmatter(skill.content),
-    )
-
     return {
-      contentRsc,
+      content: stripFrontmatter(skill.content),
     }
   })
 

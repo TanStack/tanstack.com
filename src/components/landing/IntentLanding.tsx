@@ -20,8 +20,8 @@ import { Footer } from '~/components/Footer'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { SkillSparkline } from '~/components/intent/SkillSparkline'
 import LandingPageGad from '~/components/LandingPageGad'
-import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
-import { LazySponsorSection } from '~/components/LazySponsorSection'
+import { LandingCommunitySection } from '~/components/LandingCommunitySection'
+import { SponsorSection } from '~/components/SponsorSection'
 import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
 import { LibraryWordmark } from '~/components/LibraryWordmark'
 import { getLibrary } from '~/libraries'
@@ -30,7 +30,6 @@ import {
   intentSkillHistoryQueryOptions,
   intentStatsQueryOptions,
 } from '~/queries/intent'
-import type { LandingComponentProps } from '~/routes/-library-landing'
 import type { SkillHistoryEntry } from '~/utils/intent.functions'
 
 import { LandingCopyPromptButton } from '~/components/landing/LandingCopyPromptButton'
@@ -105,9 +104,7 @@ const lifecycleSteps = [
   },
 ]
 
-export default function IntentLanding({
-  landingCodeExampleRsc,
-}: LandingComponentProps) {
+export default function IntentLanding() {
   const { version } = useParams({ strict: false })
   const resolvedVersion = version ?? library.latestVersion
 
@@ -241,10 +238,6 @@ export default function IntentLanding({
               guess.
             </p>
           </div>
-
-          <div className="min-w-0 max-w-full overflow-hidden">
-            {landingCodeExampleRsc}
-          </div>
         </div>
       </section>
 
@@ -265,12 +258,8 @@ export default function IntentLanding({
         </div>
 
         <div className="mt-10 flex flex-col gap-14">
-          <LazyLandingCommunitySection
-            libraryId="intent"
-            libraryName="TanStack Intent"
-            showShowcases={false}
-          />
-          <LazySponsorSection
+          <LandingCommunitySection libraryId="intent" />
+          <SponsorSection
             title="GitHub Sponsors"
             aspectRatio="1/1"
             packMaxWidth="900px"

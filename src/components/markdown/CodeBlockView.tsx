@@ -1,5 +1,3 @@
-'use client'
-
 import * as React from 'react'
 import { Copy } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'

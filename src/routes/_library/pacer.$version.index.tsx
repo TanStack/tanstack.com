@@ -29,7 +29,5 @@ function PacerNavbarTitle() {
 }
 
 function PacerLandingRoute() {
-  const { landingCodeExampleRsc } = Route.useLoaderData()
-
-  return <PacerLanding landingCodeExampleRsc={landingCodeExampleRsc} />
+  return <PacerLanding />
 }

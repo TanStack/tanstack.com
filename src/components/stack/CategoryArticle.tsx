@@ -23,7 +23,7 @@ import {
   Zap,
 } from 'lucide-react'
 
-import { DeferredApplicationStarter } from '~/components/DeferredApplicationStarter'
+import { ApplicationStarter } from '~/components/ApplicationStarter'
 import { LibraryWordmark } from '~/components/LibraryWordmark'
 import type { LibrarySlim } from '~/libraries'
 import { formatPublishedDate, getPostsForLibrary } from '~/utils/blog'
@@ -171,7 +171,7 @@ function FrameworkCategory({
                 Start-first
               </span>
             </div>
-            <DeferredApplicationStarter
+            <ApplicationStarter
               context="start"
               mode="compact"
               primaryActionLabel="Generate Start prompt"

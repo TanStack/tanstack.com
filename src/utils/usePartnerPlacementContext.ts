@@ -1,5 +1,3 @@
-'use client'
-
 import * as React from 'react'
 import { useLoaderData } from '@tanstack/react-router'
 import type { Partner } from '~/utils/partners'

@@ -14,6 +14,7 @@ import { Toc } from '~/components/Toc'
 import { Breadcrumbs } from '~/components/Breadcrumbs'
 import { CoverFallback } from '~/components/CoverFallback'
 import { fetchBlogPost } from '~/utils/blog.functions'
+import { parseSiteMarkdown } from '~/utils/markdown'
 
 export const Route = createFileRoute('/blog/$')({
   staleTime: Infinity,
@@ -62,9 +63,11 @@ export const Route = createFileRoute('/blog/$')({
 })
 
 function BlogPost() {
-  const { contentRsc, filePath, headings, title, headerImage, library } =
+  const { content, filePath, title, headerImage, library } =
     Route.useLoaderData()
   const { _splat: slug } = Route.useParams()
+  const markdown = React.useMemo(() => parseSiteMarkdown(content), [content])
+  const headings = markdown.headings
 
   const isTocVisible = headings.length > 1
 
@@ -167,7 +170,8 @@ function BlogPost() {
                       ) : null}
                       <MarkdownContent
                         title={title}
-                        contentRsc={contentRsc}
+                        markdown={markdown}
+                        preserveTabPanels
                         repo={repo}
                         branch={branch}
                         filePath={filePath}

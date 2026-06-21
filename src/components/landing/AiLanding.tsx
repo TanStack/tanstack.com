@@ -18,13 +18,12 @@ import {
 import { BottomCTA } from '~/components/BottomCTA'
 import { Footer } from '~/components/Footer'
 import { GithubIcon } from '~/components/icons/GithubIcon'
-import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
-import { LazySponsorSection } from '~/components/LazySponsorSection'
+import { LandingCommunitySection } from '~/components/LandingCommunitySection'
+import { SponsorSection } from '~/components/SponsorSection'
 import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
 import { LibraryWordmark } from '~/components/LibraryWordmark'
 import LandingPageGad from '~/components/LandingPageGad'
 import { getLibrary } from '~/libraries'
-import type { LandingComponentProps } from '~/routes/-library-landing'
 
 import { LandingEcosystemProof } from '~/components/landing/LandingEcosystemProof'
 import { LandingCopyPromptButton } from '~/components/landing/LandingCopyPromptButton'
@@ -183,9 +182,7 @@ const frameworkAdapters = [
   'Vanilla',
 ]
 
-export default function AiLanding({
-  landingCodeExampleRsc,
-}: LandingComponentProps) {
+export default function AiLanding() {
   const { version } = useParams({ strict: false })
   const resolvedVersion = version ?? library.latestVersion
 
@@ -341,10 +338,6 @@ export default function AiLanding({
               ))}
             </div>
           </div>
-
-          <div className="min-w-0 max-w-full overflow-hidden">
-            {landingCodeExampleRsc}
-          </div>
         </div>
       </section>
 
@@ -384,12 +377,8 @@ export default function AiLanding({
         </div>
 
         <div className="mt-10 flex flex-col gap-14">
-          <LazyLandingCommunitySection
-            libraryId="ai"
-            libraryName="TanStack AI"
-            showShowcases={false}
-          />
-          <LazySponsorSection
+          <LandingCommunitySection libraryId="ai" />
+          <SponsorSection
             title="GitHub Sponsors"
             aspectRatio="1/1"
             packMaxWidth="900px"
@@ -590,7 +579,6 @@ function AiGraphChatPanel() {
           <svg
             className="pointer-events-none absolute inset-0 h-full w-full"
             viewBox="0 0 420 420"
-            preserveAspectRatio="none"
             aria-hidden="true"
           >
             {graphClientNodes.map((node, index) => (

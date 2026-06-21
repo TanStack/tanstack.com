@@ -29,7 +29,5 @@ function HotkeysNavbarTitle() {
 }
 
 function HotkeysLandingRoute() {
-  const { landingCodeExampleRsc } = Route.useLoaderData()
-
-  return <HotkeysLanding landingCodeExampleRsc={landingCodeExampleRsc} />
+  return <HotkeysLanding />
 }

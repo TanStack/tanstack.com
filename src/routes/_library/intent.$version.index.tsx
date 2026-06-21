@@ -29,7 +29,5 @@ function IntentNavbarTitle() {
 }
 
 function IntentLandingRoute() {
-  const { landingCodeExampleRsc } = Route.useLoaderData()
-
-  return <IntentLanding landingCodeExampleRsc={landingCodeExampleRsc} />
+  return <IntentLanding />
 }

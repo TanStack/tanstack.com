@@ -10,7 +10,6 @@ import {
   isRecoverableGitHubContentError,
   shouldUseLocalDocsFiles,
 } from '~/utils/documents.server'
-import { renderMarkdownToRsc } from './markdown'
 import { extractFrameworksFromMarkdown } from './markdown/filterFrameworkContent'
 import { getCachedDocsArtifact } from './github-content-cache.server'
 import { buildRedirectManifest, type RedirectManifestEntry } from './redirects'
@@ -278,39 +277,17 @@ export const fetchDocs = createServerFn({ method: 'GET' })
     const description =
       frontMatter.userDescription ?? removeMarkdown(frontMatter.excerpt ?? '')
     const keywords = extractFrontMatterKeywords(frontMatter.data.keywords)
-    const { contentRsc, headings } = await renderMarkdownToRsc(
-      frontMatter.content,
-    )
 
     setDocsCacheHeaders('max-age=60, stale-while-revalidate=60, durable')
 
     return {
       content: frontMatter.content,
-      contentRsc,
       title: frontMatter.data?.title ?? 'Content temporarily unavailable',
       description,
       keywords,
       frameworks: extractFrameworksFromMarkdown(frontMatter.content),
       filePath,
-      headings,
       frontmatter: frontMatter.data,
-    }
-  })
-
-export const fetchDocsPage = createServerFn({ method: 'GET' })
-  .inputValidator(repoFileInput)
-  .handler(async ({ data }: { data: RepoFileRequest }) => {
-    const doc = await fetchDocs({ data })
-
-    return {
-      contentRsc: doc.contentRsc,
-      description: doc.description,
-      keywords: doc.keywords,
-      filePath: doc.filePath,
-      frontmatter: doc.frontmatter,
-      frameworks: doc.frameworks,
-      headings: doc.headings,
-      title: doc.title,
     }
   })
 

@@ -1,10 +1,5 @@
-import * as React from 'react'
-import type { Framework, LibraryId } from '~/libraries'
-import { routerProject } from '~/libraries/router'
-import {
-  LandingCodeExampleCard,
-  type LandingCodeExample,
-} from './LandingCodeExampleCard.server'
+import type { Framework } from '~/libraries'
+import type { LandingCodeExampleData } from './LandingCodeExampleCard'
 
 const queryCodeExampleFrameworks: Array<Framework> = [
   'react',
@@ -16,7 +11,7 @@ const queryCodeExampleFrameworks: Array<Framework> = [
   'lit',
 ]
 
-const queryCodeExample: LandingCodeExample = {
+export const queryCodeExample: LandingCodeExampleData = {
   frameworks: queryCodeExampleFrameworks,
   codeByFramework: {
     react: {
@@ -166,47 +161,7 @@ export class TodosList extends LitElement {
   },
 }
 
-const routerCodeExample: LandingCodeExample = {
-  frameworks: routerProject.frameworks,
-  codeByFramework: {
-    react: {
-      lang: 'tsx',
-      code: `import { createRootRoute, createRoute, createRouter, RouterProvider } from '@tanstack/react-router'
-
-const rootRoute = createRootRoute()
-const indexRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/',
-  component: () => <div>Hello World</div>,
-})
-const routeTree = rootRoute.addChildren([indexRoute])
-const router = createRouter({ routeTree })
-
-export default function App() {
-  return <RouterProvider router={router} />
-}`,
-    },
-    solid: {
-      lang: 'tsx',
-      code: `import { createRootRoute, createRoute, createRouter, RouterProvider } from '@tanstack/solid-router'
-
-const rootRoute = createRootRoute()
-const indexRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/',
-  component: () => <div>Hello World</div>,
-})
-const routeTree = rootRoute.addChildren([indexRoute])
-const router = createRouter({ routeTree })
-
-export default function App() {
-  return <RouterProvider router={router} />
-}`,
-    },
-  },
-}
-
-const formCodeExample: LandingCodeExample = {
+export const formCodeExample: LandingCodeExampleData = {
   frameworks: ['react'],
   title: 'React field and submit state',
   codeByFramework: {
@@ -268,7 +223,7 @@ export default function PeoplePage() {
   },
 }
 
-const virtualCodeExample: LandingCodeExample = {
+export const virtualCodeExample: LandingCodeExampleData = {
   frameworks: ['react'],
   title: 'React virtual rows',
   codeByFramework: {
@@ -316,7 +271,7 @@ export default function VirtualRows() {
   },
 }
 
-const tableCodeExample: LandingCodeExample = {
+export const tableCodeExample: LandingCodeExampleData = {
   frameworks: ['react'],
   title: 'React table instance',
   codeByFramework: {
@@ -366,26 +321,4 @@ export default function SimpleTable() {
 }`,
     },
   },
-}
-
-const landingCodeExamples: Partial<Record<LibraryId, LandingCodeExample>> = {
-  form: formCodeExample,
-  query: queryCodeExample,
-  router: routerCodeExample,
-  table: tableCodeExample,
-  virtual: virtualCodeExample,
-}
-
-export function getLandingCodeExample(libraryId: string) {
-  return landingCodeExamples[libraryId as LibraryId] || null
-}
-
-export function renderLandingCodeExample(libraryId: string) {
-  const codeExample = getLandingCodeExample(libraryId)
-
-  if (!codeExample) {
-    return null
-  }
-
-  return <LandingCodeExampleCard {...codeExample} />
 }

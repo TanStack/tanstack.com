@@ -14,11 +14,11 @@ import {
 } from 'lucide-react'
 
 import { BottomCTA } from '~/components/BottomCTA'
-import { DeferredApplicationStarter } from '~/components/DeferredApplicationStarter'
+import { ApplicationStarter } from '~/components/ApplicationStarter'
 import { Footer } from '~/components/Footer'
 import { GithubIcon } from '~/components/icons/GithubIcon'
-import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
-import { LazySponsorSection } from '~/components/LazySponsorSection'
+import { LandingCommunitySection } from '~/components/LandingCommunitySection'
+import { SponsorSection } from '~/components/SponsorSection'
 import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
 import { LibraryWordmark } from '~/components/LibraryWordmark'
 import { getLibrary } from '~/libraries'
@@ -234,7 +234,7 @@ export default function RouterLanding() {
           </div>
 
           <div className="min-w-0 max-w-full overflow-hidden">
-            <DeferredApplicationStarter
+            <ApplicationStarter
               context="router"
               forceRouterOnly
               mode="compact"
@@ -328,11 +328,8 @@ export default function RouterLanding() {
         </div>
 
         <div className="mt-10 flex flex-col gap-14">
-          <LazyLandingCommunitySection
-            libraryId="router"
-            libraryName="TanStack Router"
-          />
-          <LazySponsorSection
+          <LandingCommunitySection libraryId="router" />
+          <SponsorSection
             title="GitHub Sponsors"
             aspectRatio="1/1"
             packMaxWidth="900px"

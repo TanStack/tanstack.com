@@ -36,15 +36,16 @@ import {
 import { BottomCTA } from '~/components/BottomCTA'
 import { Footer } from '~/components/Footer'
 import { GithubIcon } from '~/components/icons/GithubIcon'
-import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
-import { LazySponsorSection } from '~/components/LazySponsorSection'
+import { LandingCommunitySection } from '~/components/LandingCommunitySection'
+import { SponsorSection } from '~/components/SponsorSection'
 import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
 import { LibraryTestimonials } from '~/components/LibraryTestimonials'
 import { LibraryWordmark } from '~/components/LibraryWordmark'
 import LandingPageGad from '~/components/LandingPageGad'
 import { getLibrary } from '~/libraries'
 import { tableProject } from '~/libraries/table'
-import type { LandingComponentProps } from '~/routes/-library-landing'
+import { LandingCodeExampleCard } from '~/components/landing/LandingCodeExampleCard'
+import { tableCodeExample } from '~/components/landing/codeExamples'
 
 import { LandingEcosystemProof } from '~/components/landing/LandingEcosystemProof'
 import { LandingCopyPromptButton } from '~/components/landing/LandingCopyPromptButton'
@@ -226,9 +227,7 @@ const frameworkAdapters = [
   'Vanilla',
 ]
 
-export default function TableLanding({
-  landingCodeExampleRsc,
-}: LandingComponentProps) {
+export default function TableLanding() {
   const { version } = useParams({ strict: false })
   const resolvedVersion = version ?? library.latestVersion
 
@@ -385,7 +384,7 @@ export default function TableLanding({
           </div>
 
           <div className="min-w-0 max-w-full overflow-hidden">
-            {landingCodeExampleRsc}
+            <LandingCodeExampleCard example={tableCodeExample} />
           </div>
         </div>
       </section>
@@ -431,11 +430,8 @@ export default function TableLanding({
         </div>
 
         <div className="mt-10 flex flex-col gap-14">
-          <LazyLandingCommunitySection
-            libraryId="table"
-            libraryName="TanStack Table"
-          />
-          <LazySponsorSection
+          <LandingCommunitySection libraryId="table" />
+          <SponsorSection
             title="GitHub Sponsors"
             aspectRatio="1/1"
             packMaxWidth="900px"

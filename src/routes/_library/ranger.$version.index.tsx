@@ -29,7 +29,5 @@ function RangerNavbarTitle() {
 }
 
 function RangerLandingRoute() {
-  const { landingCodeExampleRsc } = Route.useLoaderData()
-
-  return <RangerLanding landingCodeExampleRsc={landingCodeExampleRsc} />
+  return <RangerLanding />
 }

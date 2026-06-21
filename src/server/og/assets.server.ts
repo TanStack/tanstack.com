@@ -1,11 +1,12 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
-import interRegularUrl from '../../../public/fonts/Inter-Regular.ttf?url'
-import interExtraBoldUrl from '../../../public/fonts/Inter-ExtraBold.ttf?url'
-import interBlackUrl from '../../../public/fonts/Inter-Black.ttf?url'
-import islandPngUrl from '../../../public/images/logos/splash-dark.png?url'
 import { fetchStaticAsset } from '~/server/runtime/host.server'
+
+const interRegularUrl = '/fonts/Inter-Regular.ttf'
+const interExtraBoldUrl = '/fonts/Inter-ExtraBold.ttf'
+const interBlackUrl = '/fonts/Inter-Black.ttf'
+const islandPngUrl = '/images/logos/splash-dark.png'
 
 function tryReadBinary(relPath: string): Buffer | null {
   // Resolve from the project root. In Netlify functions the working directory

@@ -12,6 +12,7 @@ TanStack.com is configured as a Cloudflare Workers deployment for this branch. N
 - `src/components/OptimizedImage.tsx`, `src/utils/optimizedImage.ts`: host-neutral optimized image helper with Cloudflare image transformations behind an explicit build flag.
 - `src/routes/api/builder/*`, `src/components/builder/*`: builder deploy/download path uses browser-generated files; direct server-generation endpoints return explicit 501 on Workers.
 - `src/routes/*`, `src/utils/*`, `src/server/*`: CDN cache headers moved from Netlify-specific headers to portable `CDN-Cache-Control` / `Cache-Tag`.
+- `src/utils/markdown/processor.ts`: site-side compatibility guard for escaped angle brackets in generated TypeDoc markdown until `@tanstack/markdown` handles `\<...\>` as escaped text.
 - Removed hosting-only Netlify files: `netlify.toml`, `netlify/functions/*`, `scripts/run-built-server.mjs`.
 
 ## Commands Used
@@ -25,16 +26,16 @@ pnpm run deploy:cloudflare
 pnpm run preview:cloudflare -- --host 127.0.0.1 --port 3001
 ```
 
-Additional checks used `curl` and Playwright with system Chrome against the Workers preview URL.
+Additional checks used `curl`, Node fetch scripts, Wrangler tail, and Playwright with system Chrome against the Workers preview URL.
 
 ## Worker
 
 - Account: `8da95258a9c70b54c3e2b374a0079106`
 - Worker: `tanstack-com`
 - URL: `https://tanstack-com.thetanstack.workers.dev`
-- Current version: `ee22ac5c-2681-4b55-acbc-d11ee0adacfc`
-- Upload size: `14872.99 KiB` raw, `4804.71 KiB` gzip
-- Startup time: `27 ms`
+- Current version: `5fc0f032-4b93-4f9a-8983-cd27803ac9d9`
+- Upload size: `14607.10 KiB` raw, `4735.79 KiB` gzip
+- Startup time: `35 ms`
 - Note: the secret-bearing `tanstack-com-staging` Worker was renamed to `tanstack-com`, and the older empty `tanstack-com` Worker was removed.
 
 ## Passed
@@ -56,6 +57,10 @@ Additional checks used `curl` and Playwright with system Chrome against the Work
 - `/.well-known/oauth-authorization-server` returned OAuth metadata.
 - `/api/mcp/` returned the expected unauthenticated JSON-RPC auth error instead of a runtime failure.
 - `POST /api/application-starter/resolve` returned a Start recipe.
+- `Link` response headers for static assets are emitted on SSR responses for Cloudflare Early Hints fallback.
+- Broad docs/blog audit generated 2,767 latest-doc/blog URLs from GitHub doc trees plus local blog posts and compared production vs Worker.
+- Escaped generic headings in TypeDoc markdown now render correctly, e.g. `Interface: AudioAdapter<TModel, TProviderOptions>` with the production-compatible `interface-audioadaptertmodel-tprovideroptions` anchor.
+- Three full-body rechecks of 43 URLs that intermittently returned Worker 500/timeout during the high-concurrency audit cleared; the only stable non-200s were `/hotkeys/latest/docs/reference` and `/pacer/latest/docs/reference`, both 404 on production and Worker.
 
 ## Failed Or Not Proven
 
@@ -69,6 +74,7 @@ Additional checks used `curl` and Playwright with system Chrome against the Work
 - Full GitHub OAuth callback/account login was not completed.
 - End-to-end GitHub repository deploy was not completed with a logged-in account.
 - Cron trigger behavior was deployed but not manually invoked.
+- High-concurrency audit runs can still produce transient Worker 500s with `{"status":500,"unhandled":true,"message":"HTTPError"}` on changing docs paths, but targeted full-body rechecks did not reproduce stable page failures. Treat this as a load/audit-cache risk, not a confirmed content regression.
 
 ## Builder Generation Note
 
@@ -79,6 +85,16 @@ The deployable compromise in this branch keeps dynamic generation in the browser
 ## Image Transformation Note
 
 Cloudflare image transformations are disabled by default because `/cdn-cgi/image/*` returned 404 on the Worker preview URL before custom-domain image resizing was proven. Set `TANSTACK_IMAGE_TRANSFORMATIONS=true` during build only after Image Resizing works on the routed `tanstack.com` zone.
+
+## Markdown Audit Note
+
+The new markdown renderer initially parsed escaped TypeDoc generics like `\<T\>` as inline HTML. The site now protects escaped `<` / `>` outside code fences and inline code before parsing, restores them into text nodes before render, and rebuilds headings so rendered content and ToC anchors stay aligned.
+
+Remaining markdown differences observed during audit:
+
+- Production duplicates light/dark code blocks; the Worker branch renders one theme-aware code block. This explains large HTML-size and `<pre>` count differences.
+- Blog footnote headings are omitted by the new renderer on a few posts. Confirm whether this is an intentional markdown package behavior change before treating it as a site regression.
+- Two table-count diffs remain in `/ai/latest/docs/code-mode/code-mode` and `/db/latest/docs/collections/powersync-collection`; these should be reviewed upstream in `@tanstack/markdown` because route/status/content otherwise match.
 
 ## Readiness
 

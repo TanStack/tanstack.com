@@ -1,5 +1,4 @@
-import { loadRemoteAddOn } from '@tanstack/create/dist/edge-add-ons.js'
-import type { AddOn } from '@tanstack/create/edge'
+import { loadRemoteAddOn, type AddOn } from './create-worker'
 import { type AddOnCompiled, type StarterCompiled } from './compile'
 import { validateRemoteUrl } from '~/utils/url-validation.server'
 

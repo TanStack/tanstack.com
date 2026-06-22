@@ -1,5 +1,6 @@
-import { getAllAddOns, type AddOn, type AddOnOption } from '@tanstack/create/edge'
 import { getFramework, DEFAULT_MODE, DEFAULT_REQUIRED_ADDONS, type FrameworkId } from './config'
+import { create, type AddOn } from './create-worker'
+import type { AddOnOption } from '@tanstack/create/worker'
 import { partners } from '~/utils/partners'
 
 // Set of active partner IDs for matching addons to partners
@@ -110,8 +111,8 @@ function toFeatureInfo(addOn: AddOn): FeatureInfo {
 export async function getFeaturesHandler(
   frameworkId: FrameworkId = 'react',
 ): Promise<FeaturesResponse> {
-  const framework = getFramework(frameworkId)
-  const allAddOns = getAllAddOns(framework, DEFAULT_MODE)
+  const framework = await getFramework(frameworkId)
+  const allAddOns = create.getAllAddOns(framework, DEFAULT_MODE)
 
   const features = allAddOns
     .filter((addOn: AddOn) => {

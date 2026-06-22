@@ -59,7 +59,7 @@
     "@tanstack/ai-anthropic": "^0.10.1",
     "@tanstack/ai-client": "^0.11.3",
     "@tanstack/ai-openai": "^0.9.5",
-    "@tanstack/create": "^0.68.3",
+    "@tanstack/create": "^0.68.4",
     "@tanstack/highlight": "^0.0.2",
     "@tanstack/markdown": "^0.0.5",
     "@tanstack/pacer": "^0.21.1",

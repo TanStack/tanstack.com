@@ -6,18 +6,6 @@ export const Route = createFileRoute('/api/builder/feature-artifacts')({
     handlers: {
       POST: async ({ request }: { request: Request }) => {
         try {
-          if (!__TANSTACK_ENABLE_SERVER_BUILDER_GENERATION__) {
-            return new Response(
-              JSON.stringify({
-                error: 'Builder server generation is disabled for this deployment',
-              }),
-              {
-                status: 501,
-                headers: { 'Content-Type': 'application/json' },
-              },
-            )
-          }
-
           const body = await request.json()
           const {
             features,

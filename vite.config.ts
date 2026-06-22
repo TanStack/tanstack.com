@@ -104,7 +104,7 @@ const routerSsrPackages = [
 export default defineConfig({
   envDir,
   define: {
-    __TANSTACK_ENABLE_SERVER_BUILDER_GENERATION__: JSON.stringify(false),
+    __TANSTACK_ENABLE_SERVER_BUILDER_GENERATION__: JSON.stringify(true),
     __TANSTACK_ENABLE_IMAGE_TRANSFORMATIONS__: JSON.stringify(
       shouldUseCloudflareImageTransformations,
     ),

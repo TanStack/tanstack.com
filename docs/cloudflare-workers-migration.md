@@ -4,13 +4,14 @@ TanStack.com is configured as a Cloudflare Workers deployment for this branch. N
 
 ## Files Changed
 
-- `package.json`, `pnpm-lock.yaml`: Cloudflare build/preview/deploy scripts, `@cloudflare/vite-plugin`, `wrangler`, and removal of Netlify hosting packages.
-- `vite.config.ts`: Cloudflare Vite plugin, Worker build constants, opt-in image transformation flag, and server builder-generation disabled for Worker size.
+- `package.json`, `pnpm-lock.yaml`: Cloudflare build/preview/deploy scripts, `@cloudflare/vite-plugin`, `wrangler`, `@tanstack/create@0.68.4`, and removal of Netlify hosting packages.
+- `vite.config.ts`: Cloudflare Vite plugin, Worker build constants, opt-in image transformation flag, and server builder-generation enabled with the Worker-safe create API.
 - `wrangler.jsonc`: Worker name/account, assets binding, `nodejs_compat`, CPU limit, cron triggers, and production `SITE_URL`.
 - `src/server.ts`, `src/server/scheduled.server.ts`: Worker `fetch` and `scheduled` entrypoints, replacing former Netlify scheduled functions.
 - `src/server/runtime/host.server.ts`, `src/utils/hosting-cache.server.ts`: host cache purge adapter using Cloudflare cache-tag purge.
 - `src/components/OptimizedImage.tsx`, `src/utils/optimizedImage.ts`: host-neutral optimized image helper with Cloudflare image transformations behind an explicit build flag.
-- `src/routes/api/builder/*`, `src/components/builder/*`: builder deploy/download path uses browser-generated files; direct server-generation endpoints return explicit 501 on Workers.
+- `src/builder/api/create-worker.ts`: host-neutral adapter around `@tanstack/create/worker` with local Worker manifest loaders for supported frameworks and add-ons.
+- `src/builder/api/*`, `src/routes/api/builder/*`: builder feature catalog, compile, download, validate, suggest, and GitHub deploy paths use the Worker-safe create adapter.
 - `src/routes/*`, `src/utils/*`, `src/server/*`: CDN cache headers moved from Netlify-specific headers to portable `CDN-Cache-Control` / `Cache-Tag`.
 - `src/utils/markdown/processor.ts`: site-side compatibility guard for escaped angle brackets in generated TypeDoc markdown until `@tanstack/markdown` handles `\<...\>` as escaped text.
 - `package.json`, `pnpm-lock.yaml`: `@tanstack/markdown@0.0.5` for compact table delimiters, footnotes, and legacy single-tilde strike headings without the temporary pnpm patch.
@@ -20,9 +21,12 @@ TanStack.com is configured as a Cloudflare Workers deployment for this branch. N
 
 ```bash
 pnpm install --lockfile-only
+pnpm add @tanstack/create@^0.68.4
 pnpm run test:tsc
+pnpm exec tsc --noEmit
 pnpm run build:cloudflare
 pnpm test
+pnpm run dev:cloudflare
 pnpm run deploy:cloudflare
 pnpm run preview:cloudflare -- --host 127.0.0.1 --port 3001
 pnpm install
@@ -35,9 +39,9 @@ Additional checks used `curl`, Node fetch scripts, Wrangler tail, and Playwright
 - Account: `8da95258a9c70b54c3e2b374a0079106`
 - Worker: `tanstack-com`
 - URL: `https://tanstack-com.thetanstack.workers.dev`
-- Current version: `586b99ec-4a2c-46d2-b3b3-eb775de13141`
-- Upload size: `14609.48 KiB` raw, `4736.36 KiB` gzip
-- Startup time: `29 ms`
+- Current version: `ff011a60-320b-43b7-9a03-bd650a41bc7b`
+- Upload size: `17748.26 KiB` raw, `6413.10 KiB` gzip
+- Startup time: `33 ms`
 - Note: the secret-bearing `tanstack-com-staging` Worker was renamed to `tanstack-com`, and the older empty `tanstack-com` Worker was removed.
 
 ## Passed
@@ -59,6 +63,13 @@ Additional checks used `curl`, Node fetch scripts, Wrangler tail, and Playwright
 - `/.well-known/oauth-authorization-server` returned OAuth metadata.
 - `/api/mcp/` returned the expected unauthenticated JSON-RPC auth error instead of a runtime failure.
 - `POST /api/application-starter/resolve` returned a Start recipe.
+- `/api/builder/features?framework=react` returned the Worker-safe catalog, including `tanstack-query`, `cloudflare`, and `biome`.
+- `/api/builder/compile` generated representative React and Solid projects server-side on the Worker.
+- `/api/builder/download` returned a valid zip for a representative React builder project.
+- `https://tanstack.com/api/builder/features?framework=react` returned the same Worker-safe builder catalog.
+- `https://tanstack.com/builder` returned 200 HTML with COOP/COEP headers.
+- Worker output does not include `generated/create-manifest.js` or a `create-manifest` chunk.
+- Cloudflare dry-run/upload size stayed below the paid Worker 10 MiB gzip limit after excluding the heavy React `events` example implementation chunk.
 - `Link` response headers for static assets are emitted on SSR responses for Cloudflare Early Hints fallback.
 - Broad docs/blog audit generated 2,767 latest-doc/blog URLs from GitHub doc trees plus local blog posts and compared production vs Worker.
 - Escaped generic headings in TypeDoc markdown now render correctly, e.g. `Interface: AudioAdapter<TModel, TProviderOptions>` with the production-compatible `interface-audioadaptertmodel-tprovideroptions` anchor.
@@ -72,23 +83,19 @@ Additional checks used `curl`, Node fetch scripts, Wrangler tail, and Playwright
 
 ## Failed Or Not Proven
 
-- Direct server-side builder generation endpoints return 501 on Workers:
-  - `/api/builder/features`
-  - `/api/builder/compile`
-  - `/api/builder/compile-attributed`
-  - `/api/builder/download`
-  - `/api/builder/validate`
-  - `/api/builder/feature-artifacts`
 - Full GitHub OAuth callback/account login was not completed.
 - End-to-end GitHub repository deploy was not completed with a logged-in account.
 - Cron trigger behavior was deployed but not manually invoked.
+- The React `events` example is not exposed in the Worker builder catalog because its implementation chunk pushes the Worker over Cloudflare's paid 10 MiB gzip upload limit.
 - High-concurrency audit runs can still produce transient Worker 500s with `{"status":500,"unhandled":true,"message":"HTTPError"}` on changing docs paths, but targeted full-body rechecks did not reproduce stable page failures. Treat this as a load/audit-cache risk, not a confirmed content regression.
 
 ## Builder Generation Note
 
-The released `@tanstack/create@0.68.3` `edge` import is Worker-runtime compatible, but it still statically imports the generated create manifest. That manifest made the Worker upload `11222.23 KiB` gzip, over the paid 10 MiB Worker script limit.
+`@tanstack/create@0.68.4` adds the lazy `@tanstack/create/worker` API. The site now imports that API through `src/builder/api/create-worker.ts` instead of importing `@tanstack/create/edge` from route logic.
 
-The deployable compromise in this branch keeps dynamic generation in the browser for the builder UI, downloads, and GitHub deploy handoff, and excludes server-side create generation from the Worker bundle. After that change, the Worker upload is `4804.51 KiB` gzip.
+`/api/builder/features` remains catalog-only by using `create.getFrameworkById` and `create.getAllAddOns`. ZIP/project generation loads only the requested framework/add-on chunks, then calls `create.finalizeAddOns`, `create.populateAddOnOptionsDefaults`, `createMemoryEnvironment`, and `create.createApp`.
+
+The Worker build was checked for `generated/create-manifest.js` and `create-manifest` output, and no generated manifest bundle was present. Including the React `events` example implementation still pushed upload size to `11179.57 KiB` gzip, so the Worker loader intentionally omits that chunk. The deployed Worker is `6413.10 KiB` gzip.
 
 ## Image Transformation Note
 
@@ -112,6 +119,6 @@ Remaining markdown differences observed during audit:
 
 ## Readiness
 
-Core marketing SSR, docs/start navigation, security headers, static assets, analytics proxying, GitHub auth start, MCP auth rejection, application-starter API, scheduled Worker registration, Cloudflare preview, deploy, and dynamic OG image generation are working on Cloudflare Workers.
+Core marketing SSR, docs/start navigation, security headers, static assets, analytics proxying, GitHub auth start, MCP auth rejection, application-starter API, scheduled Worker registration, Cloudflare preview, deploy, dynamic OG image generation, and representative Worker-side builder generation are working on Cloudflare Workers.
 
-Production migration is close, but not fully safe until logged-in OAuth/account flows, cron jobs, and an authenticated builder GitHub deploy are verified. The biggest remaining product parity decision is whether direct server-side builder generation APIs must be supported on the Worker; supporting them requires a smaller create manifest/runtime from `@tanstack/create` or a separate generation service.
+Production migration is close, but not fully safe until logged-in OAuth/account flows pass, cron jobs are verified, and an authenticated builder GitHub deploy is completed. The main remaining builder gap is the omitted React `events` example chunk.

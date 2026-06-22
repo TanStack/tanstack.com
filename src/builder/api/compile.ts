@@ -1,12 +1,10 @@
 import {
-  createApp,
+  create,
   createMemoryEnvironment,
-  finalizeAddOns,
-  populateAddOnOptionsDefaults,
   type AddOn,
   type Framework,
   type Starter,
-} from '@tanstack/create/edge'
+} from './create-worker'
 
 type AddOnType = 'add-on' | 'example' | 'starter' | 'toolchain' | 'deployment'
 type AddOnPhase = 'setup' | 'add-on' | 'example'
@@ -62,7 +60,7 @@ export interface ProjectDefinition {
   packageManager?: 'bun' | 'npm' | 'pnpm' | 'yarn'
   tailwind?: boolean
   features: Array<string>
-  featureOptions: Record<string, Record<string, unknown>>
+  featureOptions?: Record<string, Record<string, unknown>>
   selectedExample?: string
   customIntegrations?: Array<AddOnCompiled>
   customTemplate?: StarterCompiled | null
@@ -102,14 +100,14 @@ async function resolveAddOns(
   customAddOns: Array<AddOnCompiled>,
   frameworkId: FrameworkId = 'react',
 ): Promise<Array<AddOn>> {
-  const framework = getFramework(frameworkId)
+  const framework = await getFramework(frameworkId)
   const allFrameworkAddOns = framework.getAddOns()
 
   const customIds = new Set(customAddOns.map((a: AddOnCompiled) => a.id))
 
   const frameworkFeatureIds = featureIds.filter((id) => !customIds.has(id))
 
-  const resolvedFramework = await finalizeAddOns(
+  const resolvedFramework = await create.finalizeAddOns(
     framework,
     DEFAULT_MODE,
     [...DEFAULT_REQUIRED_ADDONS, ...frameworkFeatureIds],
@@ -186,7 +184,7 @@ function mergeOptionsWithDefaults(
   chosenAddOns: Array<AddOn>,
   userOptions: Record<string, Record<string, unknown>>,
 ): Record<string, Record<string, unknown>> {
-  const defaults = populateAddOnOptionsDefaults(chosenAddOns)
+  const defaults = create.populateAddOnOptionsDefaults(chosenAddOns)
   const merged: Record<string, Record<string, unknown>> = { ...defaults }
 
   for (const [addonId, options] of Object.entries(userOptions)) {
@@ -201,7 +199,8 @@ export async function compileHandler(
   options: CompileHandlerOptions = {},
 ): Promise<CompileResponse> {
   const frameworkId = definition.framework ?? 'react'
-  const framework = getFramework(frameworkId)
+  const framework = await getFramework(frameworkId)
+  const featureOptions = definition.featureOptions ?? {}
 
   // Merge selectedExample into features (CTA treats examples as add-ons)
   const allFeatures = definition.selectedExample
@@ -216,7 +215,7 @@ export async function compileHandler(
   )
 
   // Custom starters disabled until stable launch
-  await createApp(environment, {
+  await create.createApp(environment, {
     projectName: definition.name,
     targetDir: `/project/${definition.name}`,
     framework,
@@ -228,7 +227,7 @@ export async function compileHandler(
     install: false,
     intent: false,
     chosenAddOns,
-    addOnOptions: mergeOptionsWithDefaults(chosenAddOns, definition.featureOptions),
+    addOnOptions: mergeOptionsWithDefaults(chosenAddOns, featureOptions),
   })
 
   const packageJson = output.files['package.json']
@@ -594,7 +593,8 @@ export async function compileWithAttributionHandler(
   definition: ProjectDefinition,
 ): Promise<AttributedCompileOutput> {
   const frameworkId = definition.framework ?? 'react'
-  const framework = getFramework(frameworkId)
+  const framework = await getFramework(frameworkId)
+  const featureOptions = definition.featureOptions ?? {}
 
   // Merge selectedExample into features (CTA treats examples as add-ons)
   const allFeatures = definition.selectedExample
@@ -609,7 +609,7 @@ export async function compileWithAttributionHandler(
   )
 
   // Custom starters disabled until stable launch
-  await createApp(environment, {
+  await create.createApp(environment, {
     projectName: definition.name,
     targetDir: `/project/${definition.name}`,
     framework,
@@ -621,7 +621,7 @@ export async function compileWithAttributionHandler(
     install: false,
     intent: false,
     chosenAddOns,
-    addOnOptions: mergeOptionsWithDefaults(chosenAddOns, definition.featureOptions),
+    addOnOptions: mergeOptionsWithDefaults(chosenAddOns, featureOptions),
   })
 
   const packageJson = output.files['package.json']

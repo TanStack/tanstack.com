@@ -190,17 +190,6 @@ export const Route = createFileRoute("/api/builder/deploy/github")({
         if (isStringRecord(files)) {
           compiledFiles = files;
         } else {
-          if (!__TANSTACK_ENABLE_SERVER_BUILDER_GENERATION__) {
-            return Response.json(
-              {
-                success: false,
-                error: "Project files are required for this deployment",
-                code: "COMPILE_FAILED",
-              } satisfies DeployError,
-              { status: 400 },
-            );
-          }
-
           try {
             const { compileHandler } = await import("~/builder/api/compile");
             const result = await compileHandler({

@@ -209,4 +209,4 @@ This is a tradeoff worth making in a breaking change release, especially if it i
 
 This is definitely a refactor worth making for a library like TanStack Table. I wonder how many other libraries or even applications out there could benefit from this same optimization when needed to scale. We definitely thought that it was worth sharing here in case it is useful for you.
 
-If you are wondering what this means for you as a user of TanStack Table, hopefully this is just an invsible improvment that you'll barely notice. We will be documenting the small breaking changes in the migration guide for V8 to V9.
+If you are wondering what this means for you as a user of TanStack Table, hopefully this is just an invisible improvment that you'll barely notice. We will be documenting the small breaking changes in the migration guide for V8 to V9.

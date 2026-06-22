@@ -8,7 +8,7 @@ import {
   markDocsArtifactsStale,
   markGitHubContentStale,
 } from './github-content-cache.server'
-import { purgeNetlifyTags } from './netlify-purge.server'
+import { purgeHostingCacheTags } from './hosting-cache.server'
 
 function normalizeDateValue(value: Date | number | string | null | undefined) {
   if (!value) {
@@ -181,7 +181,7 @@ export async function invalidateDocsCacheAdmin(opts: {
       ]
     : ['docs:all', 'docs-config:all']
 
-  const purge = await purgeNetlifyTags(tags)
+  const purge = await purgeHostingCacheTags(tags)
 
   return {
     repo: opts.data.repo ?? null,

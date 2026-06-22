@@ -9,9 +9,8 @@ const interBlackUrl = '/fonts/Inter-Black.ttf'
 const islandPngUrl = '/images/logos/splash-dark.png'
 
 function tryReadBinary(relPath: string): Buffer | null {
-  // Resolve from the project root. In Netlify functions the working directory
-  // is the function bundle root, which includes `public/` via the included_files
-  // config. Locally (dev + preview script) cwd is the repo root.
+  // Resolve from the project root for local dev and tests. Workers normally
+  // load these through the static assets binding below.
   try {
     return readFileSync(resolve(process.cwd(), relPath))
   } catch {

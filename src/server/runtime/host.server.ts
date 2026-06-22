@@ -4,6 +4,8 @@ type StaticAssetService = {
 
 type HostRuntimeModule = {
   env: Record<string, unknown> & {
+    CLOUDFLARE_CACHE_PURGE_TOKEN?: string
+    CLOUDFLARE_ZONE_ID?: string
     HYPERDRIVE?: {
       connectionString: string
     }
@@ -94,8 +96,41 @@ export async function getDatabaseConnectionString() {
   return process.env.DATABASE_URL
 }
 
-export function shouldBypassPersistentCache() {
-  return isIsolateRuntime()
+function getStringEnvValue(
+  hostEnv: Record<string, unknown> | undefined,
+  key: string,
+) {
+  const hostValue = hostEnv?.[key]
+  if (typeof hostValue === 'string' && hostValue.length > 0) {
+    return hostValue
+  }
+
+  const processValue = process.env[key]
+  return typeof processValue === 'string' && processValue.length > 0
+    ? processValue
+    : undefined
+}
+
+export async function purgeHostCacheTags(tags: Array<string>) {
+  const hostEnv = await getHostRuntimeEnv()
+  const zoneId = getStringEnvValue(hostEnv, 'CLOUDFLARE_ZONE_ID')
+  const token = getStringEnvValue(hostEnv, 'CLOUDFLARE_CACHE_PURGE_TOKEN')
+
+  if (!zoneId || !token) {
+    return undefined
+  }
+
+  return fetch(
+    `https://api.cloudflare.com/client/v4/zones/${zoneId}/purge_cache`,
+    {
+      body: JSON.stringify({ tags }),
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+    },
+  )
 }
 
 export function supportsProcessDiagnostics() {

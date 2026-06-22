@@ -23,7 +23,7 @@ export const Route = createFileRoute('/llms.txt')({
         setResponseHeader('Cache-Control', 'public, max-age=0, must-revalidate')
         setResponseHeader(
           'CDN-Cache-Control',
-          'max-age=86400, stale-while-revalidate=86400, durable',
+          'max-age=86400, stale-while-revalidate=86400',
         )
 
         return new Response(content)

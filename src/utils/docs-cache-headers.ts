@@ -1,10 +1,8 @@
 import { findLibrary, getBranch } from '~/libraries'
 import { docsContentNegotiationVaryHeader } from './http'
 
-const latestDocsCdnCacheControl =
-  'max-age=60, stale-while-revalidate=60, durable'
-const versionedDocsCdnCacheControl =
-  'max-age=300, stale-while-revalidate=300, durable'
+const latestDocsCdnCacheControl = 'max-age=60, stale-while-revalidate=60'
+const versionedDocsCdnCacheControl = 'max-age=300, stale-while-revalidate=300'
 
 export function getDocsCacheHeaders({
   libraryId,
@@ -31,7 +29,7 @@ export function getDocsCacheHeaders({
     'CDN-Cache-Control': isLatestVersion
       ? latestDocsCdnCacheControl
       : versionedDocsCdnCacheControl,
-    'Netlify-Cache-Tag': cacheTags.join(', '),
+    'Cache-Tag': cacheTags.join(', '),
     Vary: docsContentNegotiationVaryHeader,
   }
 }

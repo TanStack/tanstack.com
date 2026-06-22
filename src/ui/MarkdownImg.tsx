@@ -1,6 +1,6 @@
 import * as React from 'react'
 import type { HTMLProps } from 'react'
-import { getNetlifyImageUrl } from '~/utils/netlifyImage'
+import { getOptimizedImageUrl } from '~/utils/optimizedImage'
 import { getPublicImageDimensions } from '~/utils/publicImageDimensions'
 
 export const MarkdownImg = React.memo(function MarkdownImg({
@@ -42,7 +42,16 @@ export const MarkdownImg = React.memo(function MarkdownImg({
   return (
     <img
       {...props}
-      src={src ? getNetlifyImageUrl(src) : undefined}
+      src={
+        src
+          ? getOptimizedImageUrl(src, {
+              format: 'auto',
+              height: numericHeight,
+              quality: 80,
+              width: numericWidth,
+            })
+          : undefined
+      }
       alt={alt ?? ''}
       width={resolvedWidth}
       height={resolvedHeight}

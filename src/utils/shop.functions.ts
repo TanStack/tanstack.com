@@ -77,8 +77,7 @@ function setBrowseCacheHeaders() {
   setResponseHeaders(
     new Headers({
       'Cache-Control': 'public, max-age=0, must-revalidate',
-      'Netlify-CDN-Cache-Control':
-        'public, max-age=300, durable, stale-while-revalidate=600',
+      'CDN-Cache-Control': 'public, max-age=300, stale-while-revalidate=600',
     }),
   )
 }

@@ -18,10 +18,10 @@ allowBuilds:
   # root dependency
   esbuild: true
 
-  # @netlify/vite-plugin-tanstack-start
+  # watcher optional native package
   '@parcel/watcher': false
 
-  # @netlify/vite-plugin-tanstack-start & uploadthing
+  # uploadthing optional native package
   msgpackr-extract: false
 
   #@takumi-rs

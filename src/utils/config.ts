@@ -120,9 +120,9 @@ export const getTanstackDocsConfig = createServerFn({ method: 'GET' })
         setResponseHeaders(
           new Headers({
             'Cache-Control': 'public, max-age=0, must-revalidate',
-            'Netlify-CDN-Cache-Control':
-              'public, max-age=300, durable, stale-while-revalidate=300',
-            'Netlify-Cache-Tag': [
+            'CDN-Cache-Control':
+              'public, max-age=300, stale-while-revalidate=300',
+            'Cache-Tag': [
               'docs-config:all',
               `docs-config:${repo}`,
               `docs-config:${repo}:${branch}`,

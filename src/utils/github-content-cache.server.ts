@@ -1,6 +1,6 @@
 import { and, eq, lt, sql } from 'drizzle-orm'
 import { db } from '~/db/client'
-import { shouldBypassPersistentCache } from '~/server/runtime/host.server'
+import { isIsolateRuntime } from '~/server/runtime/host.server'
 import {
   docsArtifactCache,
   githubContentCache,
@@ -90,7 +90,7 @@ const pendingRefreshes = new Map<string, Promise<unknown>>()
 type CachedValue<T> = T | null | undefined
 
 function canUseDatabaseCache() {
-  return typeof process.env.DATABASE_URL === 'string'
+  return isIsolateRuntime() || typeof process.env.DATABASE_URL === 'string'
 }
 
 function withPendingRefresh<T>(key: string, fn: () => Promise<T>) {
@@ -232,10 +232,6 @@ async function getCachedGitHubContent<T>(opts: {
   repo: string
 }) {
   assertValidCacheKey(opts)
-
-  if (shouldBypassPersistentCache()) {
-    return opts.origin()
-  }
 
   if (!canUseDatabaseCache()) {
     return fetchCached({
@@ -381,10 +377,6 @@ export async function getCachedDocsArtifact<T>(opts: {
   assertValidRepo(opts.repo)
   assertValidGitRef(opts.gitRef)
   assertValidContentPath(opts.docsRoot)
-
-  if (shouldBypassPersistentCache()) {
-    return opts.build()
-  }
 
   const cacheKey = `docs-artifact:${opts.repo}:${opts.gitRef}:${opts.docsRoot}:${opts.artifactType}:${opts.artifactKey}`
 

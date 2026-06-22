@@ -4,9 +4,9 @@ import { ClientOnly, Link, createFileRoute } from '@tanstack/react-router'
 import discordImage from '~/images/discord-logo-white.svg'
 import { librariesByGroup, librariesGroupNamesMap, Library } from '~/libraries'
 import { BrandContextMenu } from '~/components/BrandContextMenu'
+import { OptimizedImage } from '~/components/OptimizedImage'
 import { groupToSlug } from '~/components/stack/stack-categories'
 import { twMerge } from 'tailwind-merge'
-import { NetlifyImage } from '~/components/NetlifyImage'
 
 import {
   ArrowRight,
@@ -44,7 +44,7 @@ export const Route = createFileRoute('/')({
 function HomeSplashLogo() {
   return (
     <>
-      <NetlifyImage
+      <OptimizedImage
         src="/images/logos/splash-light.png"
         width={500}
         height={500}
@@ -54,7 +54,7 @@ function HomeSplashLogo() {
         loading="eager"
         fetchPriority="high"
       />
-      <NetlifyImage
+      <OptimizedImage
         src="/images/logos/splash-dark.png"
         width={500}
         height={500}
@@ -82,7 +82,7 @@ function Index() {
             >
               <ClientOnly>
                 <div className="absolute left-1/3 bottom-[25%] z-0 animate-ship-peek">
-                  <NetlifyImage
+                  <OptimizedImage
                     src="/images/ship.png"
                     alt=""
                     width={240}
@@ -95,7 +95,7 @@ function Index() {
                   className="absolute left-1/3 bottom-[25%] z-20 animate-ship-peek-clickable"
                   title="Explore TanStack"
                 >
-                  <NetlifyImage
+                  <OptimizedImage
                     src="/images/ship.png"
                     alt="Explore TanStack"
                     width={240}

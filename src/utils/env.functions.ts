@@ -1,10 +1,4 @@
-/**
- * Environment variable utility that works in both TanStack Start and Netlify functions
- * Uses process.env when import.meta is not available (Netlify functions)
- */
-
 function getEnvVar(key: string): string | undefined {
-  // In Netlify functions, import.meta is not available, so use process.env
   try {
     if (typeof import.meta === 'undefined' || !import.meta.env) {
       return process.env[key]
@@ -17,7 +11,6 @@ function getEnvVar(key: string): string | undefined {
 
     return import.meta.env[key]
   } catch {
-    // import.meta not available (e.g., in Netlify functions CJS build)
     return process.env[key]
   }
 }

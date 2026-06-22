@@ -3,6 +3,7 @@ import './instrument.server.mjs'
 import { wrapFetchWithSentry } from '@sentry/tanstackstart-react'
 import handler, { createServerEntry } from '@tanstack/react-start/server-entry'
 import { runWithDatabaseContext } from '~/db/client'
+import { runScheduledTasks } from '~/server/scheduled.server'
 import {
   installProductionFetchProbe,
   installProductionProcessProbe,
@@ -26,6 +27,15 @@ const GOOGLE_ANALYTICS_SCRIPT_URL =
   'https://www.googletagmanager.com/gtag/js?id=G-JMT1Z50SPS'
 const GOOGLE_ANALYTICS_COLLECT_URL =
   'https://www.google-analytics.com/g/collect'
+
+type ScheduledController = {
+  cron: string
+  scheduledTime: number
+}
+
+type WorkerExecutionContext = {
+  waitUntil(promise: Promise<unknown>): void
+}
 
 installProductionFetchProbe()
 installProductionProcessProbe()
@@ -97,7 +107,7 @@ async function proxyAnalyticsRequest(request: Request, url: URL) {
   return applyHostingHeaders(response, url)
 }
 
-export default createServerEntry(
+const server = createServerEntry(
   wrapFetchWithSentry({
     async fetch(request) {
       return runWithRequestDiagnostics(request, async (context) => {
@@ -148,3 +158,18 @@ export default createServerEntry(
     },
   }),
 )
+
+export default {
+  fetch: server.fetch,
+  scheduled(
+    controller: ScheduledController,
+    _env: unknown,
+    context: WorkerExecutionContext,
+  ) {
+    context.waitUntil(
+      runWithDatabaseContext(() =>
+        runScheduledTasks(controller.cron, controller.scheduledTime),
+      ),
+    )
+  },
+}

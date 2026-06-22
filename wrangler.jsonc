@@ -8,6 +8,12 @@
   "observability": {
     "enabled": true,
   },
+  "limits": {
+    "cpu_ms": 300000,
+  },
+  "triggers": {
+    "crons": ["0 9 * * *", "0 */6 * * *", "*/15 * * * *"],
+  },
   "assets": {
     "binding": "ASSETS",
   },

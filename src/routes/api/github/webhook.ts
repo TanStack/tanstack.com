@@ -57,12 +57,12 @@ export const Route = createFileRoute("/api/github/webhook")({
           { markDocsArtifactsStale, markGitHubContentStale },
           { env },
           { libraries },
-          { purgeNetlifyTags },
+          { purgeHostingCacheTags },
         ] = await Promise.all([
           import("~/utils/github-content-cache.server"),
           import("~/utils/env"),
           import("~/libraries"),
-          import("~/utils/netlify-purge.server"),
+          import("~/utils/hosting-cache.server"),
         ]);
         const rawBody = await request.text();
         const event = request.headers.get("x-github-event");
@@ -148,7 +148,7 @@ export const Route = createFileRoute("/api/github/webhook")({
             .map((library) => `docs:${library.id}:branch:${gitRef}`),
         ];
 
-        const purge = await purgeNetlifyTags(tags);
+        const purge = await purgeHostingCacheTags(tags);
 
         return Response.json({
           ok: true,

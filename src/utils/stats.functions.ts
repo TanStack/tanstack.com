@@ -1,6 +1,6 @@
 /**
  * Pure stats functions that can be used by both TanStack Start server functions
- * and Netlify functions. No TanStack Start dependencies.
+ * and Worker cron tasks. No TanStack Start dependencies.
  */
 
 import { envFunctions } from './env.functions'
@@ -239,7 +239,7 @@ async function fetchNpmPackageDownloadsChunked(
   let totalDownloadCount = 0
   let lastChunkData: { day: string; downloads: number }[] = []
 
-  // Load cache functions (dynamic import for Netlify compatibility)
+  // Load cache functions dynamically to keep the shared stats module light.
   const { getCachedNpmDownloadChunk, setCachedNpmDownloadChunk } =
     await import('./stats-db.server')
 

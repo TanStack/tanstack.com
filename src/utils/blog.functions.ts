@@ -80,8 +80,7 @@ export const fetchBlogPost = createServerFn({ method: 'GET' })
     setResponseHeaders(
       new Headers({
         'Cache-Control': 'public, max-age=0, must-revalidate',
-        'Netlify-CDN-Cache-Control':
-          'public, max-age=300, durable, stale-while-revalidate=300',
+        'CDN-Cache-Control': 'public, max-age=300, stale-while-revalidate=300',
       }),
     )
 
@@ -111,8 +110,7 @@ export const fetchRecentPosts = createServerFn({ method: 'GET' }).handler(
     setResponseHeaders(
       new Headers({
         'Cache-Control': 'public, max-age=0, must-revalidate',
-        'Netlify-CDN-Cache-Control':
-          'public, max-age=300, durable, stale-while-revalidate=300',
+        'CDN-Cache-Control': 'public, max-age=300, stale-while-revalidate=300',
       }),
     )
 

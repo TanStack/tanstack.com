@@ -10,7 +10,6 @@ const LazyNavbarAuthControls = React.lazy(() =>
 )
 import { NavbarCartButton } from './NavbarCartButton'
 import { Link, useLocation, useMatches } from '@tanstack/react-router'
-import { NetlifyImage } from './NetlifyImage'
 import {
   BookOpen,
   Code,
@@ -49,6 +48,7 @@ import {
 } from '~/components/Dropdown'
 import { DiscordIcon } from '~/components/icons/DiscordIcon'
 import { InstagramIcon } from '~/components/icons/InstagramIcon'
+import { OptimizedImage } from '~/components/OptimizedImage'
 import { BSkyIcon } from '~/components/icons/BSkyIcon'
 import { BrandXIcon } from '~/components/icons/BrandXIcon'
 import { YouTubeIcon } from '~/components/icons/YouTubeIcon'
@@ -76,10 +76,11 @@ const LogoSection = ({ title }: LogoProps) => {
       )}
     >
       <div className="w-[30px] inline-grid items-center grid-cols-1 grid-rows-1 [&>*]:transition-opacity [&>*]:duration-1000">
-        <NetlifyImage
+        <OptimizedImage
           src="/images/logos/logo-color-100.png"
           alt=""
           width={30}
+          quality={90}
           className="row-start-1 col-start-1 w-full group-hover:opacity-0"
         />
         <img

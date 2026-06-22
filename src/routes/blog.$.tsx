@@ -15,6 +15,7 @@ import { Breadcrumbs } from '~/components/Breadcrumbs'
 import { CoverFallback } from '~/components/CoverFallback'
 import { fetchBlogPost } from '~/utils/blog.functions'
 import { parseSiteMarkdown } from '~/utils/markdown'
+import { getAbsoluteOptimizedImageUrl } from '~/utils/optimizedImage'
 
 export const Route = createFileRoute('/blog/$')({
   staleTime: Infinity,
@@ -31,17 +32,17 @@ export const Route = createFileRoute('/blog/$')({
     const getSocialImageUrl = (headerImage?: string) => {
       if (!headerImage) return undefined
 
-      const sourceUrl = headerImage.startsWith('http')
-        ? headerImage
-        : `https://tanstack.com${headerImage}`
-
-      if (__TANSTACK_IMAGE_CDN__ !== 'netlify') {
-        return sourceUrl
+      if (headerImage.startsWith('http')) {
+        return headerImage
       }
 
-      return `https://tanstack.com/.netlify/images?url=${encodeURIComponent(
-        headerImage,
-      )}&w=1200&h=630&fit=cover&fm=jpg&q=80`
+      return getAbsoluteOptimizedImageUrl(headerImage, {
+        fit: 'cover',
+        format: 'auto',
+        height: 630,
+        quality: 80,
+        width: 1200,
+      })
     }
 
     return {

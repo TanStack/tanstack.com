@@ -1,82 +1,82 @@
-# Cloudflare Workers Migration Spike
+# Cloudflare Workers Migration Report
 
-Cloudflare Workers support is wired for the current TanStack.com Start app while Netlify config remains in place for rollback.
+TanStack.com is configured as a Cloudflare Workers deployment for this branch. Netlify is no longer part of this site's hosting configuration, but Netlify remains available in builder/deploy-provider UX for users who choose it.
 
 ## Files Changed
 
-- `package.json`, `pnpm-lock.yaml`: `@tanstack/create@^0.68.3`, Cloudflare deploy scripts with build-time `SITE_URL`/`VITE_SITE_URL`.
-- `vite.config.ts`: Cloudflare target switch and server builder-generation define.
-- `wrangler.jsonc`: Worker config, assets binding, `nodejs_compat`, staging vars.
-- `src/builder/api/*`: worker-friendly `@tanstack/create/edge` imports, local attribution/template helpers, remote add-on edge import.
-- `src/components/builder/*`, `src/components/application-builder/*`: client-side builder feature loading, ZIP generation, and GitHub deploy file handoff.
-- `src/routes/api/builder/*`: Cloudflare-safe 501 responses for server-generation-only builder routes; GitHub deploy accepts precompiled client files.
-- `src/utils/env.ts`, `src/utils/seo.ts`: generic `VITE_SITE_URL` support so staging client/server canonical URLs match.
-- `src/tanstack-start.d.ts`, `src/types/tanstack-create-edge.d.ts`: build flag and private edge import declarations.
-
-Earlier migration work in this branch also added the host runtime adapter, OG image Worker compatibility, Cloudflare headers/redirects, and Island Explorer client-only handling.
+- `package.json`, `pnpm-lock.yaml`: Cloudflare build/preview/deploy scripts, `@cloudflare/vite-plugin`, `wrangler`, and removal of Netlify hosting packages.
+- `vite.config.ts`: Cloudflare Vite plugin, Worker build constants, Cloudflare image transformation flag, and server builder-generation disabled for Worker size.
+- `wrangler.jsonc`: Worker name/account, assets binding, `nodejs_compat`, CPU limit, cron triggers, staging vars.
+- `src/server.ts`, `src/server/scheduled.server.ts`: Worker `fetch` and `scheduled` entrypoints, replacing former Netlify scheduled functions.
+- `src/server/runtime/host.server.ts`, `src/utils/hosting-cache.server.ts`: host cache purge adapter using Cloudflare cache-tag purge.
+- `src/components/OptimizedImage.tsx`, `src/utils/optimizedImage.ts`: host-neutral optimized image helper backed by Cloudflare image transformations in production.
+- `src/routes/api/builder/*`, `src/components/builder/*`: builder deploy/download path uses browser-generated files; direct server-generation endpoints return explicit 501 on Workers.
+- `src/routes/*`, `src/utils/*`, `src/server/*`: CDN cache headers moved from Netlify-specific headers to portable `CDN-Cache-Control` / `Cache-Tag`.
+- Removed hosting-only Netlify files: `netlify.toml`, `netlify/functions/*`, `scripts/run-built-server.mjs`.
 
 ## Commands Used
 
 ```bash
-pnpm run build
+pnpm install --lockfile-only
+pnpm run test:tsc
+pnpm run build:cloudflare
 pnpm test
-SITE_URL=https://tanstack-com-staging.thetanstack.workers.dev VITE_SITE_URL=https://tanstack-com-staging.thetanstack.workers.dev pnpm run build:cloudflare
-pnpm exec wrangler deploy --name tanstack-com-staging --var SITE_URL:https://tanstack-com-staging.thetanstack.workers.dev
-pnpm run with-env -- sh -c 'DISABLE_REDACT=true TANSTACK_DEPLOY_TARGET=cloudflare vite dev --host 127.0.0.1 --port 3001'
-node --input-type=module -e "const { compileHandler } = await import('./dist/client/assets/compile-Bgcl59oJ.js'); const result = await compileHandler({ name: 'my-tanstack-app', framework: 'react', packageManager: 'pnpm', tailwind: true, features: ['cloudflare'], featureOptions: {} }); console.log(Object.keys(result.files).length)"
+pnpm run deploy:cloudflare:staging
+pnpm run preview:cloudflare -- --host 127.0.0.1 --port 3001
 ```
 
-Representative staging checks used `curl` against `/`, docs, `/builder`, `/login`, `/auth/github/start`, `/api/data/libraries`, `/api/og/query.png`, analytics proxy routes, Discord interactions, MCP, stats, and builder API routes.
+Additional checks used `curl` and Playwright with system Chrome against `https://tanstack-com-staging.thetanstack.workers.dev`.
 
 ## Staging
 
 - Account: `8da95258a9c70b54c3e2b374a0079106`
 - Worker: `tanstack-com-staging`
 - URL: `https://tanstack-com-staging.thetanstack.workers.dev`
-- Current version: `5f53ee15-451a-452d-88f1-241f2627de6f`
-- Upload size: `26939.40 KiB` raw, `8512.56 KiB` gzip
-- Startup time: `23 ms`
-
-This fits the paid Workers 10 MiB gzip limit.
+- Current version: `1eee9b37-74c8-4232-bb6c-f5c755e0855d`
+- Upload size: `14872.99 KiB` raw, `4804.51 KiB` gzip
+- Startup time: `30 ms`
 
 ## Passed
 
-- `pnpm run build` passed.
+- `pnpm run build:cloudflare` passed.
+- `pnpm run test:tsc` passed.
 - `pnpm test` passed with 10 existing oxlint warnings.
-- Staging Cloudflare build passed.
 - Staging deploy passed.
-- Server bundle no longer contains the generated `@tanstack/create` manifest strings checked during the size investigation.
-- `/builder` hydrates on staging and loads the client builder chunks.
-- Browser builder smoke: default Cloudflare starter UI renders, no console warnings/errors, generated prompt flow works.
-- Local browser-built `compileHandler` generated a 21-file Cloudflare starter including `package.json` and `wrangler.jsonc`.
-
-Staging route checks:
-
-- `/` 200 HTML.
-- `/start/latest/docs/framework/react/overview` 200 HTML.
-- `/builder` 200 HTML with COOP/COEP/security headers.
-- `/login` 200 HTML.
-- `/auth/github/start` 302 to GitHub with staging callback URL.
-- `/api/data/libraries` 200 JSON.
-- `/api/og/query.png` 200 PNG.
-- `/_a/gtag.js` 200 JavaScript.
-- `/_a/g/collect` 204.
-- `/stats/npm/%40tanstack%2Freact-query` redirects then 200 HTML.
-- `/.well-known/oauth-authorization-server` 200 JSON.
-- `POST /api/discord/interactions` returns expected 401 for unsigned request.
-- `/api/builder/features` and `/api/builder/download` return intentional 501 JSON on Cloudflare.
+- Local Cloudflare preview started and returned 200 for `/` and `/builder`.
+- `/` returned 200 HTML on staging.
+- `/start/latest` returned 200 HTML on staging.
+- Browser SPA navigation from `/` to `/start/latest` did not reproduce the `npm-recent-downloads ... data is undefined` error.
+- `/builder` returned 200 HTML with COOP/COEP headers and loaded the client builder/integration surface.
+- Primary homepage images loaded in browser on staging.
+- `/api/og/query.png?title=Query&description=Smoke` returned a valid 1200x630 PNG.
+- `/_a/gtag.js` returned Google's JavaScript.
+- `/_a/g/collect` returned 204.
+- `/auth/github/start?returnTo=/account` redirected to GitHub with secure state/return cookies and the staging callback URL.
+- `/.well-known/oauth-authorization-server` returned OAuth metadata with the staging issuer.
+- `/api/mcp/` returned the expected unauthenticated JSON-RPC auth error instead of a runtime failure.
+- `POST /api/application-starter/resolve` returned a Start recipe.
 
 ## Failed Or Not Proven
 
-- `pnpm run dev:cloudflare` did not bind to `127.0.0.1:3001` after 60 seconds in this worktree.
-- `GET /api/mcp` still returns 500 JSON: `HTTPError`.
-- Full GitHub OAuth callback was not completed.
-- Authenticated account/admin flows were not manually verified.
-- Browser wrapper did not observe the blob ZIP download event, although the browser-built compile handler itself succeeds.
-- GitHub deploy was not completed end-to-end; server route is ready to accept client-generated files.
+- Direct server-side builder generation endpoints return 501 on Workers:
+  - `/api/builder/features`
+  - `/api/builder/compile`
+  - `/api/builder/compile-attributed`
+  - `/api/builder/download`
+  - `/api/builder/validate`
+  - `/api/builder/feature-artifacts`
+- Full GitHub OAuth callback/account login was not completed.
+- End-to-end GitHub repository deploy was not completed with a logged-in account.
+- Cron trigger behavior was deployed but not manually invoked in staging.
+
+## Builder Generation Note
+
+The released `@tanstack/create@0.68.3` `edge` import is Worker-runtime compatible, but it still statically imports the generated create manifest. That manifest made the Worker upload `11222.23 KiB` gzip, over the paid 10 MiB Worker script limit.
+
+The deployable compromise in this branch keeps dynamic generation in the browser for the builder UI, downloads, and GitHub deploy handoff, and excludes server-side create generation from the Worker bundle. After that change, the Worker upload is `4804.51 KiB` gzip.
 
 ## Readiness
 
-Core marketing SSR, docs SSR, login rendering, auth start cookies/redirect, analytics proxying, security headers, static assets, OG image generation, DB-backed stats pages, Discord request validation, and the Builder UI are Worker-compatible on staging.
+Core marketing SSR, docs/start navigation, security headers, static assets, analytics proxying, GitHub auth start, MCP auth rejection, application-starter API, scheduled Worker registration, Cloudflare preview, staging deploy, and dynamic OG image generation are working on Cloudflare Workers.
 
-Production cutover is closer but not fully safe yet. Remaining blockers are local Cloudflare dev startup, MCP 500, authenticated OAuth/account verification, and an end-to-end Builder ZIP/GitHub deploy check in a browser environment that can observe downloads.
+Production migration is close, but not fully safe until logged-in OAuth/account flows, cron jobs, and an authenticated builder GitHub deploy are verified. The biggest remaining product parity decision is whether direct server-side builder generation APIs must be supported on the Worker; supporting them requires a smaller create manifest/runtime from `@tanstack/create` or a separate generation service.

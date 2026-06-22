@@ -17,6 +17,9 @@ overrides:
   minimatch@10.2.5>brace-expansion: 5.0.5
   npm-run-path@6.0.0>unicorn-magic: 0.4.0
 
+patchedDependencies:
+  '@tanstack/markdown@0.0.4': 3aafad3faaedd269d1d95cbe4188c56ab829904116ca831c22d95dcb1b5decf2
+
 importers:
 
   .:
@@ -106,8 +109,8 @@ importers:
         specifier: ^0.0.2
         version: 0.0.2
       '@tanstack/markdown':
-        specifier: ^0.0.4
-        version: 0.0.4(react@19.2.3)
+        specifier: 0.0.4
+        version: 0.0.4(patch_hash=3aafad3faaedd269d1d95cbe4188c56ab829904116ca831c22d95dcb1b5decf2)(react@19.2.3)
       '@tanstack/pacer':
         specifier: ^0.21.1
         version: 0.21.1
@@ -9755,7 +9758,7 @@ snapshots:
     dependencies:
       '@tanstack/store': 0.11.0
 
-  '@tanstack/markdown@0.0.4(react@19.2.3)':
+  '@tanstack/markdown@0.0.4(patch_hash=3aafad3faaedd269d1d95cbe4188c56ab829904116ca831c22d95dcb1b5decf2)(react@19.2.3)':
     optionalDependencies:
       react: 19.2.3
 

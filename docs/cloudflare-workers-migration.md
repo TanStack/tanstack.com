@@ -13,6 +13,7 @@ TanStack.com is configured as a Cloudflare Workers deployment for this branch. N
 - `src/routes/api/builder/*`, `src/components/builder/*`: builder deploy/download path uses browser-generated files; direct server-generation endpoints return explicit 501 on Workers.
 - `src/routes/*`, `src/utils/*`, `src/server/*`: CDN cache headers moved from Netlify-specific headers to portable `CDN-Cache-Control` / `Cache-Tag`.
 - `src/utils/markdown/processor.ts`: site-side compatibility guard for escaped angle brackets in generated TypeDoc markdown until `@tanstack/markdown` handles `\<...\>` as escaped text.
+- `patches/@tanstack__markdown@0.0.4.patch`, `pnpm-workspace.yaml`, `pnpm-lock.yaml`: temporary `@tanstack/markdown` patch for compact table delimiters, footnotes, and legacy single-tilde strike headings until an upstream package release is available.
 - Removed hosting-only Netlify files: `netlify.toml`, `netlify/functions/*`, `scripts/run-built-server.mjs`.
 
 ## Commands Used
@@ -24,18 +25,21 @@ pnpm run build:cloudflare
 pnpm test
 pnpm run deploy:cloudflare
 pnpm run preview:cloudflare -- --host 127.0.0.1 --port 3001
+pnpm patch @tanstack/markdown@0.0.4
+pnpm patch-commit node_modules/.pnpm_patches/@tanstack/markdown@0.0.4
+pnpm install --force
 ```
 
-Additional checks used `curl`, Node fetch scripts, Wrangler tail, and Playwright with system Chrome against the Workers preview URL.
+Additional checks used `curl`, Node fetch scripts, Wrangler tail, and Playwright with system Chrome against the Workers preview URL. The local `/Users/tannerlinsley/GitHub/markdown` package source was also checked with `pnpm run typecheck`, `pnpm test`, and `pnpm run build` before refreshing the site patch.
 
 ## Worker
 
 - Account: `8da95258a9c70b54c3e2b374a0079106`
 - Worker: `tanstack-com`
 - URL: `https://tanstack-com.thetanstack.workers.dev`
-- Current version: `5fc0f032-4b93-4f9a-8983-cd27803ac9d9`
-- Upload size: `14607.10 KiB` raw, `4735.79 KiB` gzip
-- Startup time: `35 ms`
+- Current version: `3e098f31-77b6-44bf-ba39-d5c4617977ae`
+- Upload size: `14609.48 KiB` raw, `4736.36 KiB` gzip
+- Startup time: `33 ms`
 - Note: the secret-bearing `tanstack-com-staging` Worker was renamed to `tanstack-com`, and the older empty `tanstack-com` Worker was removed.
 
 ## Passed
@@ -60,6 +64,12 @@ Additional checks used `curl`, Node fetch scripts, Wrangler tail, and Playwright
 - `Link` response headers for static assets are emitted on SSR responses for Cloudflare Early Hints fallback.
 - Broad docs/blog audit generated 2,767 latest-doc/blog URLs from GitHub doc trees plus local blog posts and compared production vs Worker.
 - Escaped generic headings in TypeDoc markdown now render correctly, e.g. `Interface: AudioAdapter<TModel, TProviderOptions>` with the production-compatible `interface-audioadaptertmodel-tprovideroptions` anchor.
+- Local site parser checks now match the remaining markdown audit diffs:
+  - `/ai/latest/docs/code-mode/code-mode` parses 4 content tables.
+  - `/db/latest/docs/collections/powersync-collection` parses 24 content tables.
+  - `/start/latest/docs/framework/react/migrate-from-next-js` headings render as `Server Actions Functions` and `Server Routes Handlers`.
+  - `/blog/tanstack-router-signal-graph` renders footnotes with `data-footnotes` and production-compatible footnote anchors.
+- Live Worker rechecks against production passed for the same table, heading, and footnote signals after deploying version `3e098f31-77b6-44bf-ba39-d5c4617977ae`.
 - Three full-body rechecks of 43 URLs that intermittently returned Worker 500/timeout during the high-concurrency audit cleared; the only stable non-200s were `/hotkeys/latest/docs/reference` and `/pacer/latest/docs/reference`, both 404 on production and Worker.
 
 ## Failed Or Not Proven
@@ -90,11 +100,17 @@ Cloudflare image transformations are disabled by default because `/cdn-cgi/image
 
 The new markdown renderer initially parsed escaped TypeDoc generics like `\<T\>` as inline HTML. The site now protects escaped `<` / `>` outside code fences and inline code before parsing, restores them into text nodes before render, and rebuilds headings so rendered content and ToC anchors stay aligned.
 
+Resolved markdown differences from the broad audit:
+
+- Escaped TypeDoc generics no longer become inline HTML.
+- Compact markdown table delimiters like `:--:` now parse as tables, matching the existing production renderer.
+- Blog footnotes now render with `data-footnotes`, `user-content-fn-*`, and `user-content-fnref-*` anchors.
+- Legacy single-tilde strike headings now render without visible `~` markers.
+
 Remaining markdown differences observed during audit:
 
 - Production duplicates light/dark code blocks; the Worker branch renders one theme-aware code block. This explains large HTML-size and `<pre>` count differences.
-- Blog footnote headings are omitted by the new renderer on a few posts. Confirm whether this is an intentional markdown package behavior change before treating it as a site regression.
-- Two table-count diffs remain in `/ai/latest/docs/code-mode/code-mode` and `/db/latest/docs/collections/powersync-collection`; these should be reviewed upstream in `@tanstack/markdown` because route/status/content otherwise match.
+- The `@tanstack/markdown` fixes are currently carried as a pnpm patch in this branch. Replace it with the next published package version once upstream includes the same behavior.
 
 ## Readiness
 

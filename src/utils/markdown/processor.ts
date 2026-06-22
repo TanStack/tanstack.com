@@ -161,6 +161,13 @@ function restoreEscapedAngleBracketsInBlock(block: BlockNode) {
         restoreEscapedAngleBracketsInInlineNodes(cell.children)
       }
       return
+    case 'footnotes':
+      for (const item of block.items) {
+        for (const child of item.children) {
+          restoreEscapedAngleBracketsInBlock(child)
+        }
+      }
+      return
     case 'code':
     case 'html':
     case 'thematicBreak':
@@ -184,6 +191,7 @@ function restoreEscapedAngleBracketsInInlineNodes(nodes: Array<InlineNode>) {
       case 'image':
       case 'break':
       case 'inlineHtml':
+      case 'footnoteReference':
         break
     }
   }
@@ -268,6 +276,7 @@ function collectHeadingsFromBlocks(
       case 'paragraph':
       case 'code':
       case 'table':
+      case 'footnotes':
       case 'html':
       case 'thematicBreak':
         break
@@ -295,6 +304,7 @@ function inlineText(nodes: Array<InlineNode>): string {
         break
       case 'break':
       case 'inlineHtml':
+      case 'footnoteReference':
         break
     }
   }

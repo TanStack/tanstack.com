@@ -28,6 +28,10 @@ const GOOGLE_ANALYTICS_SCRIPT_URL =
 const GOOGLE_ANALYTICS_COLLECT_URL =
   'https://www.google-analytics.com/g/collect'
 
+const STATIC_RESPONSE_LINK_HEADERS = {
+  filter: ({ phase }: { phase: 'static' | 'dynamic' }) => phase === 'static',
+}
+
 type ScheduledController = {
   cron: string
   scheduledTime: number
@@ -144,7 +148,9 @@ const server = createServerEntry(
               return applyHostingHeaders(markdownResponse, url)
             }
 
-            const response = await handler.fetch(request)
+            const response = await handler.fetch(request, {
+              responseLinkHeader: STATIC_RESPONSE_LINK_HEADERS,
+            })
             const hostedResponse = applyHostingHeaders(response, url)
 
             logRequestEnd(context, response.status)

@@ -19,10 +19,9 @@ export function getOptimizedImageUrl(
     return src
   }
 
-  return `/cdn-cgi/image/${transformOptions}/${encodeURI(src).replace(
-    /^%2F/i,
-    '/',
-  )}`
+  const source = encodeURI(src).replace(/^\//, '')
+
+  return `/cdn-cgi/image/${transformOptions}/${source}`
 }
 
 export function getAbsoluteOptimizedImageUrl(

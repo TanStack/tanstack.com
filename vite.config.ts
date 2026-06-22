@@ -28,17 +28,9 @@ const shouldUseSentryPlugin =
 const shouldBuildSourcemaps =
   shouldUseSentryPlugin || process.env.BUILD_SOURCEMAPS === 'true'
 const siteUrl = process.env.VITE_SITE_URL || process.env.SITE_URL || ''
-const siteHostname = (() => {
-  try {
-    return siteUrl ? new URL(siteUrl).hostname : ''
-  } catch {
-    return ''
-  }
-})()
 const imageTransformationsEnv = process.env.TANSTACK_IMAGE_TRANSFORMATIONS
 const shouldUseCloudflareImageTransformations =
-  imageTransformationsEnv === 'true' ||
-  (imageTransformationsEnv !== 'false' && siteHostname === 'tanstack.com')
+  imageTransformationsEnv === 'true'
 
 const localEnvPath = path.resolve(__dirname, '.env.local')
 const defaultCheckoutEnvDir = path.join(os.homedir(), 'GitHub/tanstack.com')

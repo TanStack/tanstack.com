@@ -5,11 +5,11 @@ TanStack.com is configured as a Cloudflare Workers deployment for this branch. N
 ## Files Changed
 
 - `package.json`, `pnpm-lock.yaml`: Cloudflare build/preview/deploy scripts, `@cloudflare/vite-plugin`, `wrangler`, and removal of Netlify hosting packages.
-- `vite.config.ts`: Cloudflare Vite plugin, Worker build constants, Cloudflare image transformation flag, and server builder-generation disabled for Worker size.
+- `vite.config.ts`: Cloudflare Vite plugin, Worker build constants, opt-in image transformation flag, and server builder-generation disabled for Worker size.
 - `wrangler.jsonc`: Worker name/account, assets binding, `nodejs_compat`, CPU limit, cron triggers, and production `SITE_URL`.
 - `src/server.ts`, `src/server/scheduled.server.ts`: Worker `fetch` and `scheduled` entrypoints, replacing former Netlify scheduled functions.
 - `src/server/runtime/host.server.ts`, `src/utils/hosting-cache.server.ts`: host cache purge adapter using Cloudflare cache-tag purge.
-- `src/components/OptimizedImage.tsx`, `src/utils/optimizedImage.ts`: host-neutral optimized image helper backed by Cloudflare image transformations in production.
+- `src/components/OptimizedImage.tsx`, `src/utils/optimizedImage.ts`: host-neutral optimized image helper with Cloudflare image transformations behind an explicit build flag.
 - `src/routes/api/builder/*`, `src/components/builder/*`: builder deploy/download path uses browser-generated files; direct server-generation endpoints return explicit 501 on Workers.
 - `src/routes/*`, `src/utils/*`, `src/server/*`: CDN cache headers moved from Netlify-specific headers to portable `CDN-Cache-Control` / `Cache-Tag`.
 - Removed hosting-only Netlify files: `netlify.toml`, `netlify/functions/*`, `scripts/run-built-server.mjs`.
@@ -75,6 +75,10 @@ Additional checks used `curl` and Playwright with system Chrome against the Work
 The released `@tanstack/create@0.68.3` `edge` import is Worker-runtime compatible, but it still statically imports the generated create manifest. That manifest made the Worker upload `11222.23 KiB` gzip, over the paid 10 MiB Worker script limit.
 
 The deployable compromise in this branch keeps dynamic generation in the browser for the builder UI, downloads, and GitHub deploy handoff, and excludes server-side create generation from the Worker bundle. After that change, the Worker upload is `4804.51 KiB` gzip.
+
+## Image Transformation Note
+
+Cloudflare image transformations are disabled by default because `/cdn-cgi/image/*` returned 404 on the Worker preview URL before custom-domain image resizing was proven. Set `TANSTACK_IMAGE_TRANSFORMATIONS=true` during build only after Image Resizing works on the routed `tanstack.com` zone.
 
 ## Readiness
 

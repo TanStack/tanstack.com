@@ -17,9 +17,6 @@ overrides:
   minimatch@10.2.5>brace-expansion: 5.0.5
   npm-run-path@6.0.0>unicorn-magic: 0.4.0
 
-patchedDependencies:
-  '@tanstack/markdown@0.0.4': 3aafad3faaedd269d1d95cbe4188c56ab829904116ca831c22d95dcb1b5decf2
-
 importers:
 
   .:
@@ -109,8 +106,8 @@ importers:
         specifier: ^0.0.2
         version: 0.0.2
       '@tanstack/markdown':
-        specifier: 0.0.4
-        version: 0.0.4(patch_hash=3aafad3faaedd269d1d95cbe4188c56ab829904116ca831c22d95dcb1b5decf2)(react@19.2.3)
+        specifier: ^0.0.5
+        version: 0.0.5(react@19.2.3)
       '@tanstack/pacer':
         specifier: ^0.21.1
         version: 0.21.1
@@ -3403,8 +3400,8 @@ packages:
     resolution: {integrity: sha512-vqH7X9nb0MTJ/O08++dB5bP9jgj4+BIPOUu/U+6myG86lDsirZSVSobpq5UQpE7nBuk62i8eIYeOhd+OMl/UrA==}
     engines: {node: '>=18'}
 
-  '@tanstack/markdown@0.0.4':
-    resolution: {integrity: sha512-RBuVsbhelscwmUq1l1AF6/w/ZETl43L00DO2wgFGRCZHGb4qdFEtwM7A1mD5Wges6V5PfJU9O7A6rBIDF7Euqw==}
+  '@tanstack/markdown@0.0.5':
+    resolution: {integrity: sha512-npKs8RdEoPIa9C+ujeKBeLZoEbHw1DivBiy/yBmCIL3ajQbYaMaj03KD4gyQ9wVqSLIJ5nX2StzjJ9l/ft4Rag==}
     peerDependencies:
       react: '>=18'
     peerDependenciesMeta:
@@ -9758,7 +9755,7 @@ snapshots:
     dependencies:
       '@tanstack/store': 0.11.0
 
-  '@tanstack/markdown@0.0.4(patch_hash=3aafad3faaedd269d1d95cbe4188c56ab829904116ca831c22d95dcb1b5decf2)(react@19.2.3)':
+  '@tanstack/markdown@0.0.5(react@19.2.3)':
     optionalDependencies:
       react: 19.2.3
 

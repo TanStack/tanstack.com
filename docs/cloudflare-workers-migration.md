@@ -13,7 +13,7 @@ TanStack.com is configured as a Cloudflare Workers deployment for this branch. N
 - `src/routes/api/builder/*`, `src/components/builder/*`: builder deploy/download path uses browser-generated files; direct server-generation endpoints return explicit 501 on Workers.
 - `src/routes/*`, `src/utils/*`, `src/server/*`: CDN cache headers moved from Netlify-specific headers to portable `CDN-Cache-Control` / `Cache-Tag`.
 - `src/utils/markdown/processor.ts`: site-side compatibility guard for escaped angle brackets in generated TypeDoc markdown until `@tanstack/markdown` handles `\<...\>` as escaped text.
-- `patches/@tanstack__markdown@0.0.4.patch`, `pnpm-workspace.yaml`, `pnpm-lock.yaml`: temporary `@tanstack/markdown` patch for compact table delimiters, footnotes, and legacy single-tilde strike headings until an upstream package release is available.
+- `package.json`, `pnpm-lock.yaml`: `@tanstack/markdown@0.0.5` for compact table delimiters, footnotes, and legacy single-tilde strike headings without the temporary pnpm patch.
 - Removed hosting-only Netlify files: `netlify.toml`, `netlify/functions/*`, `scripts/run-built-server.mjs`.
 
 ## Commands Used
@@ -25,21 +25,19 @@ pnpm run build:cloudflare
 pnpm test
 pnpm run deploy:cloudflare
 pnpm run preview:cloudflare -- --host 127.0.0.1 --port 3001
-pnpm patch @tanstack/markdown@0.0.4
-pnpm patch-commit node_modules/.pnpm_patches/@tanstack/markdown@0.0.4
-pnpm install --force
+pnpm install
 ```
 
-Additional checks used `curl`, Node fetch scripts, Wrangler tail, and Playwright with system Chrome against the Workers preview URL. The local `/Users/tannerlinsley/GitHub/markdown` package source was also checked with `pnpm run typecheck`, `pnpm test`, and `pnpm run build` before refreshing the site patch.
+Additional checks used `curl`, Node fetch scripts, Wrangler tail, and Playwright with system Chrome against the Workers preview URL.
 
 ## Worker
 
 - Account: `8da95258a9c70b54c3e2b374a0079106`
 - Worker: `tanstack-com`
 - URL: `https://tanstack-com.thetanstack.workers.dev`
-- Current version: `3e098f31-77b6-44bf-ba39-d5c4617977ae`
+- Current version: `586b99ec-4a2c-46d2-b3b3-eb775de13141`
 - Upload size: `14609.48 KiB` raw, `4736.36 KiB` gzip
-- Startup time: `33 ms`
+- Startup time: `29 ms`
 - Note: the secret-bearing `tanstack-com-staging` Worker was renamed to `tanstack-com`, and the older empty `tanstack-com` Worker was removed.
 
 ## Passed
@@ -69,7 +67,7 @@ Additional checks used `curl`, Node fetch scripts, Wrangler tail, and Playwright
   - `/db/latest/docs/collections/powersync-collection` parses 24 content tables.
   - `/start/latest/docs/framework/react/migrate-from-next-js` headings render as `Server Actions Functions` and `Server Routes Handlers`.
   - `/blog/tanstack-router-signal-graph` renders footnotes with `data-footnotes` and production-compatible footnote anchors.
-- Live Worker rechecks against production passed for the same table, heading, and footnote signals after deploying version `3e098f31-77b6-44bf-ba39-d5c4617977ae`.
+- Live Worker rechecks against production passed for the same table, heading, and footnote signals after deploying version `586b99ec-4a2c-46d2-b3b3-eb775de13141`.
 - Three full-body rechecks of 43 URLs that intermittently returned Worker 500/timeout during the high-concurrency audit cleared; the only stable non-200s were `/hotkeys/latest/docs/reference` and `/pacer/latest/docs/reference`, both 404 on production and Worker.
 
 ## Failed Or Not Proven
@@ -110,7 +108,7 @@ Resolved markdown differences from the broad audit:
 Remaining markdown differences observed during audit:
 
 - Production duplicates light/dark code blocks; the Worker branch renders one theme-aware code block. This explains large HTML-size and `<pre>` count differences.
-- The `@tanstack/markdown` fixes are currently carried as a pnpm patch in this branch. Replace it with the next published package version once upstream includes the same behavior.
+- The temporary `@tanstack/markdown@0.0.4` pnpm patch has been removed after upgrading to `@tanstack/markdown@0.0.5`.
 
 ## Readiness
 

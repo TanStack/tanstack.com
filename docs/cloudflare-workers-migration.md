@@ -99,7 +99,7 @@ The Worker build was checked for `generated/create-manifest.js` and `create-mani
 
 ## Image Transformation Note
 
-Cloudflare image transformations are disabled by default because `/cdn-cgi/image/*` returned 404 on the Worker preview URL before custom-domain image resizing was proven. Set `TANSTACK_IMAGE_TRANSFORMATIONS=true` during build only after Image Resizing works on the routed `tanstack.com` zone.
+Cloudflare image transformations are enabled for `build:cloudflare`. Transformed image URLs are emitted through the configured `SITE_URL` origin because `/cdn-cgi/image/*` works on the routed `tanstack.com` zone but still returns 404 on the `workers.dev` hostname.
 
 ## Markdown Audit Note
 

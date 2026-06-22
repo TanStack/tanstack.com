@@ -19,9 +19,10 @@ export function getOptimizedImageUrl(
     return src
   }
 
+  const transformOrigin = getTransformOrigin()
   const source = encodeURI(src).replace(/^\//, '')
 
-  return `/cdn-cgi/image/${transformOptions}/${source}`
+  return `${transformOrigin}/cdn-cgi/image/${transformOptions}/${source}`
 }
 
 export function getAbsoluteOptimizedImageUrl(
@@ -52,6 +53,10 @@ function shouldTransformImage(src: string) {
     !normalized.startsWith('data:') &&
     !normalized.endsWith('.svg')
   )
+}
+
+function getTransformOrigin() {
+  return __TANSTACK_SITE_URL__.replace(/\/$/, '')
 }
 
 function createCloudflareTransformOptions(

@@ -11,7 +11,7 @@
     "dev:frontend": "pnpm run with-env vite dev",
     "dev:cloudflare": "pnpm run with-env -- sh -c 'DISABLE_REDACT=true vite dev'",
     "build": "vite build --logLevel warn",
-    "build:cloudflare": "pnpm run build",
+    "build:cloudflare": "TANSTACK_IMAGE_TRANSFORMATIONS=true pnpm run build",
     "preview": "vite preview",
     "preview:cloudflare": "pnpm run preview",
     "deploy:cloudflare": "SITE_URL=https://tanstack.com VITE_SITE_URL=https://tanstack.com pnpm run build:cloudflare && wrangler deploy --name tanstack-com --var SITE_URL:https://tanstack.com",

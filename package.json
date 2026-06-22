@@ -15,7 +15,6 @@
     "preview": "vite preview",
     "preview:cloudflare": "pnpm run preview",
     "deploy:cloudflare": "SITE_URL=https://tanstack.com VITE_SITE_URL=https://tanstack.com pnpm run build:cloudflare && wrangler deploy --name tanstack-com --var SITE_URL:https://tanstack.com",
-    "deploy:cloudflare:staging": "SITE_URL=https://tanstack-com-staging.thetanstack.workers.dev VITE_SITE_URL=https://tanstack-com-staging.thetanstack.workers.dev pnpm run build:cloudflare && wrangler deploy --name tanstack-com-staging --var SITE_URL:https://tanstack-com-staging.thetanstack.workers.dev",
     "cf:typegen": "wrangler types",
     "content:build": "node scripts/build-content-collections.mjs",
     "lint": "oxlint --type-aware --disable-nested-config",

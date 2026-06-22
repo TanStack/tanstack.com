@@ -3,7 +3,11 @@ type StaticAssetService = {
 }
 
 type HostRuntimeModule = {
-  env: Record<string, unknown>
+  env: Record<string, unknown> & {
+    HYPERDRIVE?: {
+      connectionString: string
+    }
+  }
 }
 
 function isStaticAssetService(value: unknown): value is StaticAssetService {
@@ -12,6 +16,17 @@ function isStaticAssetService(value: unknown): value is StaticAssetService {
     value !== null &&
     'fetch' in value &&
     typeof value.fetch === 'function'
+  )
+}
+
+function isHyperdriveBinding(
+  value: unknown,
+): value is { connectionString: string } {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'connectionString' in value &&
+    typeof value.connectionString === 'string'
   )
 }
 
@@ -40,12 +55,43 @@ async function getStaticAssetService() {
   }
 }
 
+async function getHostRuntimeEnv() {
+  if (!isIsolateRuntime()) return
+
+  const hostRuntimeSpecifier = 'cloudflare' + ':workers'
+  try {
+    const { env }: HostRuntimeModule = await import(
+      /* @vite-ignore */
+      hostRuntimeSpecifier
+    )
+
+    return env
+  } catch {
+    return undefined
+  }
+}
+
 export async function fetchStaticAsset(
   input: RequestInfo | URL,
   init?: RequestInit,
 ) {
   const staticAssets = await getStaticAssetService()
   return staticAssets ? staticAssets.fetch(input, init) : fetch(input, init)
+}
+
+export async function getDatabaseConnectionString() {
+  const hostEnv = await getHostRuntimeEnv()
+
+  if (isHyperdriveBinding(hostEnv?.HYPERDRIVE)) {
+    return hostEnv.HYPERDRIVE.connectionString
+  }
+
+  const hostDatabaseUrl = hostEnv?.DATABASE_URL
+  if (typeof hostDatabaseUrl === 'string') {
+    return hostDatabaseUrl
+  }
+
+  return process.env.DATABASE_URL
 }
 
 export function shouldBypassPersistentCache() {

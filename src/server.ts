@@ -2,6 +2,7 @@ import './instrument.server.mjs'
 
 import { wrapFetchWithSentry } from '@sentry/tanstackstart-react'
 import handler, { createServerEntry } from '@tanstack/react-start/server-entry'
+import { runWithDatabaseContext } from '~/db/client'
 import {
   installProductionFetchProbe,
   installProductionProcessProbe,
@@ -100,47 +101,49 @@ export default createServerEntry(
   wrapFetchWithSentry({
     async fetch(request) {
       return runWithRequestDiagnostics(request, async (context) => {
-        const url = new URL(request.url)
-        logRequestStart(context)
+        return runWithDatabaseContext(async () => {
+          const url = new URL(request.url)
+          logRequestStart(context)
 
-        try {
-          const analyticsResponse = await proxyAnalyticsRequest(request, url)
-          if (analyticsResponse) {
-            logRequestEnd(context, analyticsResponse.status, {
-              analyticsProxy: true,
-            })
-            return analyticsResponse
+          try {
+            const analyticsResponse = await proxyAnalyticsRequest(request, url)
+            if (analyticsResponse) {
+              logRequestEnd(context, analyticsResponse.status, {
+                analyticsProxy: true,
+              })
+              return analyticsResponse
+            }
+
+            if (shouldRewriteDocsRequestToMarkdown(request, url)) {
+              const mdUrl = new URL(request.url)
+              mdUrl.pathname = `${url.pathname}.md`
+              const mdRequest = new Request(mdUrl, request)
+              const mdResponse = await handler.fetch(mdRequest)
+              const markdownHeaders = new Headers(mdResponse.headers)
+              markdownHeaders.set('Vary', docsContentNegotiationVaryHeader)
+
+              const markdownResponse = new Response(mdResponse.body, {
+                status: mdResponse.status,
+                statusText: mdResponse.statusText,
+                headers: markdownHeaders,
+              })
+
+              logRequestEnd(context, mdResponse.status, {
+                rewrittenToMarkdown: true,
+              })
+              return applyHostingHeaders(markdownResponse, url)
+            }
+
+            const response = await handler.fetch(request)
+            const hostedResponse = applyHostingHeaders(response, url)
+
+            logRequestEnd(context, response.status)
+            return hostedResponse
+          } catch (error) {
+            logRequestError(context, error)
+            throw error
           }
-
-          if (shouldRewriteDocsRequestToMarkdown(request, url)) {
-            const mdUrl = new URL(request.url)
-            mdUrl.pathname = `${url.pathname}.md`
-            const mdRequest = new Request(mdUrl, request)
-            const mdResponse = await handler.fetch(mdRequest)
-            const markdownHeaders = new Headers(mdResponse.headers)
-            markdownHeaders.set('Vary', docsContentNegotiationVaryHeader)
-
-            const markdownResponse = new Response(mdResponse.body, {
-              status: mdResponse.status,
-              statusText: mdResponse.statusText,
-              headers: markdownHeaders,
-            })
-
-            logRequestEnd(context, mdResponse.status, {
-              rewrittenToMarkdown: true,
-            })
-            return applyHostingHeaders(markdownResponse, url)
-          }
-
-          const response = await handler.fetch(request)
-          const hostedResponse = applyHostingHeaders(response, url)
-
-          logRequestEnd(context, response.status)
-          return hostedResponse
-        } catch (error) {
-          logRequestError(context, error)
-          throw error
-        }
+        })
       })
     },
   }),

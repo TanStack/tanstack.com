@@ -278,7 +278,9 @@ type CloudflareAiToolDefinition = {
 }
 
 type CloudflareAiTextGenerationInput = {
+  max_tokens?: number
   messages: Array<CloudflareAiMessage>
+  temperature?: number
   tools: Array<CloudflareAiToolDefinition>
 }
 
@@ -1007,7 +1009,9 @@ async function runCloudflareWorkersAiForgeHarness({
 
       for (let step = 0; step < LOCAL_FORGE_MAX_ITERATIONS; step++) {
         const response = await ai.run(LOCAL_FORGE_CLOUDFLARE_AI_MODEL, {
+          max_tokens: 8192,
           messages,
+          temperature: 0.2,
           tools: cloudflareTools,
         })
         const text = readCloudflareAiText(response)
@@ -1021,6 +1025,22 @@ async function runCloudflareWorkersAiForgeHarness({
         }
 
         if (toolCalls.length === 0) {
+          const nextTool = readNextRequiredCloudflareAiTool({
+            state,
+            toolEvents,
+          })
+
+          if (!nextTool) {
+            if (text) {
+              await appendAssistantMessage({
+                runContext,
+                text,
+              })
+              state.streamedAssistantMessage = true
+            }
+            return
+          }
+
           if (text) {
             await appendAssistantMessage({
               runContext,
@@ -1028,7 +1048,16 @@ async function runCloudflareWorkersAiForgeHarness({
             })
             state.streamedAssistantMessage = true
           }
-          return
+
+          messages.push({
+            role: 'user',
+            content: [
+              `You responded without a tool call. Continue now by calling ${nextTool}.`,
+              'Use the provided tools to modify the workspace. Do not answer in prose instead of calling tools.',
+              'Keep calling tools until the required tool flow is complete.',
+            ].join(' '),
+          })
+          continue
         }
 
         messages.push({
@@ -1091,6 +1120,40 @@ async function runCloudflareWorkersAiForgeHarness({
     runContext,
     status: 'finished',
   })
+}
+
+function readNextRequiredCloudflareAiTool({
+  state,
+  toolEvents,
+}: {
+  state: ForgeAgentState
+  toolEvents: Set<string>
+}) {
+  if (!toolEvents.has('planRun')) {
+    return 'planRun'
+  }
+
+  if (!toolEvents.has('listFiles')) {
+    return 'listFiles'
+  }
+
+  if (!toolEvents.has('readFile')) {
+    return 'readFile'
+  }
+
+  if (state.changeCount === 0) {
+    return 'writeFile'
+  }
+
+  if (!state.validated || state.validatedChangeCount !== state.changeCount) {
+    return 'validateFiles'
+  }
+
+  if (!state.summaryReceived) {
+    return 'setSummary'
+  }
+
+  return undefined
 }
 
 async function getCloudflareAiBinding() {

@@ -176,6 +176,36 @@ async function testWorkerEnvUsesBlobStorage() {
   assert.deepEqual(JSON.parse(object.value), { value: 'blob' })
 }
 
+async function testBlobStorageInfersGithubContentMetadataFromKey() {
+  resetGitHubContentCacheForTest()
+
+  const mockR2 = createMockR2Bucket()
+  const key = 'github:dir/tanstack/router/main/docs/seeded-tree'
+  mockR2.objects.set(key, {
+    uploaded: new Date(),
+    value: JSON.stringify({ value: ['docs/index.md'] }),
+  })
+
+  let originCalls = 0
+  const result = await runWithHostRuntimeEnv(
+    { GITHUB_CONTENT_CACHE: mockR2.bucket },
+    () =>
+      getCachedGitHubJsonContent({
+        repo,
+        gitRef,
+        path: 'docs/seeded-tree',
+        isValue: isStringArray,
+        origin: async () => {
+          originCalls += 1
+          return ['origin.md']
+        },
+      }),
+  )
+
+  assert.deepEqual(result, ['docs/index.md'])
+  assert.equal(originCalls, 0)
+}
+
 async function testForcedStaleRefreshes() {
   resetGitHubContentCacheForTest()
 
@@ -337,6 +367,7 @@ async function testArtifactInvalidationAndPruneDelete() {
 await testMissStoresContent()
 await testFreshHitSkipsOrigin()
 await testWorkerEnvUsesBlobStorage()
+await testBlobStorageInfersGithubContentMetadataFromKey()
 await testForcedStaleRefreshes()
 await testNegativeHitSkipsOrigin()
 await testJsonNegativeEntryRefreshes()

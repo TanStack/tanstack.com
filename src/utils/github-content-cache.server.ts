@@ -427,11 +427,45 @@ function getDocsArtifactMetadata(record: DocsArtifactRecord) {
   }
 }
 
-function getStoredBlob(
-  text: string,
-  metadata: Record<string, string> | undefined,
-) {
-  const value = readStoredValue(text)
+function inferGithubContentMetadataFromBlobKey(key: string, uploaded?: Date) {
+  const segments = key.split('/')
+  const prefix = segments[0]
+  const contentKind =
+    prefix === 'github:file' ? 'file' : prefix === 'github:dir' ? 'dir' : null
+
+  if (!contentKind || segments.length < 5) {
+    return undefined
+  }
+
+  const repo = `${segments[1]}/${segments[2]}`
+  const gitRef = decodeURIComponent(segments[3])
+  const path = segments.slice(4).join('/')
+  const updatedAt = uploaded ?? new Date()
+  const staleAt = new Date(updatedAt.getTime() + POSITIVE_STALE_MS)
+
+  return {
+    contentKind,
+    gitRef,
+    isPresent: 'true',
+    path,
+    repo,
+    staleAt: staleAt.toISOString(),
+    updatedAt: updatedAt.toISOString(),
+  }
+}
+
+function getStoredBlob(opts: {
+  key?: string
+  metadata: Record<string, string> | undefined
+  text: string
+  uploaded?: Date
+}) {
+  const value = readStoredValue(opts.text)
+  const metadata =
+    opts.metadata ??
+    (opts.key
+      ? inferGithubContentMetadataFromBlobKey(opts.key, opts.uploaded)
+      : undefined)
 
   if (value === undefined || !metadata) {
     return undefined
@@ -439,7 +473,7 @@ function getStoredBlob(
 
   return {
     metadata,
-    text,
+    text: opts.text,
     value,
   }
 }
@@ -521,7 +555,7 @@ async function readBlob(
 ) {
   const cached = await cache?.get(key)
   const cachedBlob = cached
-    ? getStoredBlob(cached.text, cached.metadata)
+    ? getStoredBlob({ key, metadata: cached.metadata, text: cached.text })
     : undefined
 
   if (cachedBlob) {
@@ -535,7 +569,12 @@ async function readBlob(
   }
 
   const text = await object.text()
-  const stored = getStoredBlob(text, object.metadata)
+  const stored = getStoredBlob({
+    key,
+    metadata: object.metadata,
+    text,
+    uploaded: object.uploaded,
+  })
 
   if (!stored) {
     return undefined

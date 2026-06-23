@@ -1112,22 +1112,56 @@ function createCloudflareAiToolDefinition(
 }
 
 function readCloudflareAiToolParameters(inputSchema: unknown): JSONSchema {
-  if (isStandardJsonSchemaInput(inputSchema)) {
-    return sanitizeCloudflareAiJsonSchema(
-      inputSchema['~standard'].jsonSchema.input({
-        target: 'draft-7',
-      }),
-      'Tool parameters',
-    )
-  }
+  const schema = (() => {
+    if (isStandardJsonSchemaInput(inputSchema)) {
+      return sanitizeCloudflareAiJsonSchema(
+        inputSchema['~standard'].jsonSchema.input({
+          target: 'draft-7',
+        }),
+        'Tool parameters',
+      )
+    }
 
-  if (isJsonSchema(inputSchema)) {
-    return sanitizeCloudflareAiJsonSchema(inputSchema, 'Tool parameters')
-  }
+    if (isJsonSchema(inputSchema)) {
+      return sanitizeCloudflareAiJsonSchema(inputSchema, 'Tool parameters')
+    }
+
+    return {
+      properties: {},
+      type: 'object',
+    } satisfies JSONSchema
+  })()
+  const properties = isRecord(schema.properties)
+    ? Object.fromEntries(
+        Object.entries(schema.properties).map(([key, value]) => {
+          const property = isRecord(value) ? value : {}
+          const type =
+            typeof property.type === 'string' ? property.type : 'string'
+          const description =
+            typeof property.description === 'string'
+              ? property.description
+              : `${key} parameter`
+
+          return [
+            key,
+            {
+              description,
+              type,
+            },
+          ]
+        }),
+      )
+    : {}
+  const required = Array.isArray(schema.required)
+    ? schema.required.filter(
+        (item): item is string =>
+          typeof item === 'string' && Object.hasOwn(properties, item),
+      )
+    : []
 
   return {
-    additionalProperties: false,
-    properties: {},
+    ...(required.length > 0 ? { required } : {}),
+    properties,
     type: 'object',
   }
 }

@@ -140,7 +140,7 @@ function CommunitySection({
             </span>
             <div className="h-2" />
             <div className="h-px bg-gray-500 opacity-20 w-full" />
-            <p className="text-sm dark:text-gray-400 text-gray-50 line-clamp-3 w-full h-14">
+            <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3 w-full h-14">
               {res.description}
             </p>
           </a>

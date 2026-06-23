@@ -27,13 +27,23 @@ export const loadDocs = async ({
     })
   }
 
-  return fetchDocs({
+  const doc = await fetchDocs({
     data: {
       repo,
       branch,
       filePath: `${removeLeadingSlash(docsRoot)}/${docsPath}.md`,
     },
   })
+
+  if (!doc) {
+    throw notFound({
+      data: {
+        message: 'No doc was found here!',
+      },
+    })
+  }
+
+  return doc
 }
 
 export async function getDocsManifest(opts: {

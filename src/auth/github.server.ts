@@ -4,6 +4,7 @@
  * Helper functions for checking GitHub OAuth scopes and tokens.
  */
 
+import { getRequest } from '@tanstack/react-start/server'
 import { env } from '~/utils/env'
 import { SITE_URL } from '~/utils/site'
 import {
@@ -13,6 +14,17 @@ import {
 } from './index.server'
 
 const REPO_SCOPE = 'public_repo'
+
+function getOAuthOrigin() {
+  try {
+    const request = getRequest()
+    if (request?.url) return new URL(request.url).origin
+  } catch {
+    // getRequest() throws outside a request context.
+  }
+
+  return SITE_URL
+}
 
 function hasRepoScopeInString(tokenScope: string | null): boolean {
   if (!tokenScope) return false
@@ -99,7 +111,7 @@ export function buildGitHubReAuthUrl(
     throw new Error('GITHUB_OAUTH_CLIENT_ID is not configured')
   }
 
-  const redirectUri = `${SITE_URL}/api/auth/callback/github`
+  const redirectUri = `${getOAuthOrigin()}/api/auth/callback/github`
   const state = generateOAuthState()
 
   // Build auth URL with additional scopes

@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { env } from "~/utils/env";
-import { SITE_URL } from "~/utils/site";
 
 export const Route = createFileRoute("/api/auth/callback/$provider")({
   server: {
@@ -92,7 +91,8 @@ export const Route = createFileRoute("/api/auth/callback/$provider")({
           const clearStateCookieHeader = clearOAuthStateCookie(isProduction);
 
           // Exchange code for access token
-          const redirectUri = `${SITE_URL}/api/auth/callback/${provider}`;
+          const origin = new URL(request.url).origin;
+          const redirectUri = `${origin}/api/auth/callback/${provider}`;
 
           let userProfile: {
             id: string;

@@ -87,7 +87,7 @@ Local production payload checks showed that direction pretty clearly:
 | Router example initial file  |   5.6 KB |   1.5 KB | -4.1 KB |
 | Heavy blog post content      |  15.0 KB |   9.4 KB | -5.6 KB |
 
-That matters for docs. People do not always land on one page, read it, and leave. They click around, bounce between examples, open adjacent guides, and search again. For that kind of session, shipping a tiny renderer once and then sending smaller content payloads is a much more reasonable trade than it would have been when the renderer was Shiki plus the old markdown stack.
+That matters for docs. People do not always land on one page, read it, and leave. Our average visitor hits about six pages per session, which is exactly where this trade starts paying off. Shipping a tiny renderer once and then sending smaller content payloads across the rest of the session is a much more reasonable trade than it would have been when the renderer was Shiki plus the old markdown stack.
 
 ## The code got easier to explain
 

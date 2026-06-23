@@ -45,6 +45,10 @@ const GOOGLE_ANALYTICS_ID = 'G-JMT1Z50SPS'
 const GOOGLE_ANALYTICS_PROXY_PREFIX = '/_a'
 const GOOGLE_ANALYTICS_SCRIPT_SRC = `${GOOGLE_ANALYTICS_PROXY_PREFIX}/gtag.js`
 const GOOGLE_ANALYTICS_BOOTSTRAP = `(function(){var id='${GOOGLE_ANALYTICS_ID}';var src='${GOOGLE_ANALYTICS_SCRIPT_SRC}';window.dataLayer=window.dataLayer||[];window.gtag=window.gtag||function(){window.dataLayer.push(arguments)};window.gtag('js',new Date());window.gtag('config',id,{transport_url:window.location.origin+'${GOOGLE_ANALYTICS_PROXY_PREFIX}'});var loaded=false;var load=function(){if(loaded)return;loaded=true;var script=document.createElement('script');script.async=true;script.src=src;script.setAttribute('data-ga-loader','true');document.head.appendChild(script)};if(typeof window.requestIdleCallback==='function'){window.requestIdleCallback(load,{timeout:3000});return}if(document.readyState==='complete'){window.setTimeout(load,1500);return}window.addEventListener('load',function(){window.setTimeout(load,1500)},{once:true})})();`
+const DOCUMENT_CACHE_HEADERS = {
+  'Cache-Control': 'public, max-age=0, must-revalidate',
+  'Cloudflare-CDN-Cache-Control': 'no-store',
+}
 const tanstackNeutralDarkTheme = {
   ...auroraXTheme,
   background: '#111111',
@@ -225,6 +229,7 @@ export const Route = createRootRouteWithContext<{
       ],
     }
   },
+  headers: () => DOCUMENT_CACHE_HEADERS,
   staleTime: Infinity,
   shellComponent: ({ children }) => {
     return <RootShell>{children}</RootShell>

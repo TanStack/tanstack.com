@@ -4,7 +4,7 @@ export const getExampleStartingPath = (
   framework: Framework,
   libraryId?: string,
 ) => {
-  if (libraryId && ['start', 'router'].includes(libraryId)) {
+  if (libraryId === 'start') {
     return 'src/routes/__root.tsx'
   }
 

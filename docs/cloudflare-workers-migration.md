@@ -12,7 +12,7 @@ TanStack.com is configured as a Cloudflare Workers deployment for this branch. N
 - `src/components/OptimizedImage.tsx`, `src/utils/optimizedImage.ts`: host-neutral optimized image helper with Cloudflare image transformations behind an explicit build flag.
 - `src/builder/api/create-worker.ts`: host-neutral adapter around `@tanstack/create/worker` with local Worker manifest loaders for supported frameworks and add-ons.
 - `src/builder/api/*`, `src/routes/api/builder/*`: builder feature catalog, compile, download, validate, suggest, and GitHub deploy paths use the Worker-safe create adapter.
-- `src/routes/*`, `src/utils/*`, `src/server/*`: CDN cache headers moved from Netlify-specific headers to portable `CDN-Cache-Control` / `Cache-Tag`.
+- `src/routes/*`, `src/utils/*`, `src/server/*`: CDN cache headers moved from Netlify-specific headers to Cloudflare Workers Cache headers / `Cache-Tag`.
 - `src/utils/markdown/processor.ts`: site-side compatibility guard for escaped angle brackets in generated TypeDoc markdown until `@tanstack/markdown` handles `\<...\>` as escaped text.
 - `package.json`, `pnpm-lock.yaml`: `@tanstack/markdown@0.0.5` for compact table delimiters, footnotes, and legacy single-tilde strike headings without the temporary pnpm patch.
 - Removed hosting-only Netlify files: `netlify.toml`, `netlify/functions/*`, `scripts/run-built-server.mjs`.

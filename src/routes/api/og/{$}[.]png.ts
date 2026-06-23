@@ -5,8 +5,9 @@ type GenerateOgImageResponse = typeof import(
 )['generateOgImageResponse']
 
 const CACHE_HEADERS = {
-  'Cache-Control':
-    'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800',
+  'Cache-Control': 'public, max-age=3600',
+  'Cloudflare-CDN-Cache-Control':
+    'public, max-age=86400, stale-while-revalidate=604800',
 } as const
 
 export const Route = createFileRoute('/api/og/{$}.png')({

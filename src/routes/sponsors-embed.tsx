@@ -3,7 +3,9 @@ import SponsorPack from '~/components/SponsorPack'
 import { getSponsorsForSponsorPack } from '~/utils/sponsors.functions'
 
 const cacheHeaders = {
-  'Cache-Control': 'max-age=300, s-maxage=3600, stale-while-revalidate',
+  'Cache-Control': 'public, max-age=300',
+  'Cloudflare-CDN-Cache-Control':
+    'public, max-age=3600, stale-while-revalidate=300',
 }
 
 export const Route = createFileRoute('/sponsors-embed')({

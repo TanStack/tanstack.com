@@ -41,7 +41,8 @@ export const getSponsorsForSponsorPack = createServerFn({
   setResponseHeaders(
     new Headers({
       'Cache-Control': 'public, max-age=0, must-revalidate',
-      'CDN-Cache-Control': 'public, max-age=300, stale-while-revalidate=300',
+      'Cloudflare-CDN-Cache-Control':
+        'public, max-age=300, stale-while-revalidate=300',
     }),
   )
 

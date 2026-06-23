@@ -124,7 +124,7 @@ async function readRepoFileOrFallback(
 
 function setDocsCacheHeaders(cdnCacheControl: string) {
   setResponseHeader('Cache-Control', 'public, max-age=0, must-revalidate')
-  setResponseHeader('CDN-Cache-Control', cdnCacheControl)
+  setResponseHeader('Cloudflare-CDN-Cache-Control', cdnCacheControl)
 }
 
 function isDocsManifest(value: unknown): value is DocsManifest {
@@ -288,7 +288,7 @@ export const fetchDocs = createServerFn({ method: 'GET' })
       frontMatter.userDescription ?? removeMarkdown(frontMatter.excerpt ?? '')
     const keywords = extractFrontMatterKeywords(frontMatter.data.keywords)
 
-    setDocsCacheHeaders('max-age=60, stale-while-revalidate=60')
+    setDocsCacheHeaders('public, max-age=60, stale-while-revalidate=60')
 
     return {
       content: frontMatter.content,
@@ -329,7 +329,7 @@ export const fetchFile = createServerFn({ method: 'GET' })
       throw notFound()
     }
 
-    setDocsCacheHeaders('max-age=300, stale-while-revalidate=300')
+    setDocsCacheHeaders('public, max-age=300, stale-while-revalidate=300')
 
     return file
   })
@@ -352,7 +352,7 @@ export const fetchRepoDirectoryContents = createServerFn({
       return null
     }
 
-    setDocsCacheHeaders('max-age=300, stale-while-revalidate=300')
+    setDocsCacheHeaders('public, max-age=300, stale-while-revalidate=300')
 
     return githubContents
   })

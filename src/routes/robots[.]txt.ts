@@ -14,8 +14,8 @@ export const Route = createFileRoute('/robots.txt')({
           'public, max-age=300, must-revalidate',
         )
         setResponseHeader(
-          'CDN-Cache-Control',
-          'max-age=3600, stale-while-revalidate=3600',
+          'Cloudflare-CDN-Cache-Control',
+          'public, max-age=3600, stale-while-revalidate=3600',
         )
 
         return new Response(content)

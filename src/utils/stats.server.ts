@@ -383,7 +383,8 @@ export async function getOSSStats({
     new Headers({
       'Cache-Control':
         'public, max-age=300, stale-while-revalidate=3600, stale-if-error=3600',
-      'CDN-Cache-Control': 'public, max-age=300, stale-while-revalidate=3600',
+      'Cloudflare-CDN-Cache-Control':
+        'public, max-age=300, stale-while-revalidate=3600',
     }),
   )
 
@@ -699,7 +700,8 @@ export async function fetchNpmDownloadsBulk({ data }: { data: any }) {
   setResponseHeaders(
     new Headers({
       'Cache-Control': 'public, max-age=3600, stale-while-revalidate=7200',
-      'CDN-Cache-Control': 'public, max-age=3600, stale-while-revalidate=7200',
+      'Cloudflare-CDN-Cache-Control':
+        'public, max-age=3600, stale-while-revalidate=7200',
     }),
   )
 
@@ -761,7 +763,7 @@ export async function fetchNpmDownloadChunk({ data }: { data: any }) {
     new Headers({
       // Keep CDN and browser TTLs separate so historical data can stay hot at
       // the edge without forcing longer browser freshness.
-      'CDN-Cache-Control': `public, max-age=${cdnMaxAge}${isCurrentYear ? '' : ', stale-while-revalidate=86400'}`,
+      'Cloudflare-CDN-Cache-Control': `public, max-age=${cdnMaxAge}${isCurrentYear ? '' : ', stale-while-revalidate=86400'}`,
       'Cache-Control': `public, max-age=${cacheMaxAge}`,
     }),
   )
@@ -929,7 +931,8 @@ export async function fetchRecentDownloadStats({
   setResponseHeaders(
     new Headers({
       'Cache-Control': 'public, max-age=300, stale-while-revalidate=600',
-      'CDN-Cache-Control': 'public, max-age=300, stale-while-revalidate=600',
+      'Cloudflare-CDN-Cache-Control':
+        'public, max-age=300, stale-while-revalidate=600',
     }),
   )
 

@@ -78,7 +78,7 @@ export const Route = createFileRoute("/api/builder/download")({
           // Cache for 1 hour on CDN, allow stale for 1 day while revalidating
           const cacheControl =
             process.env.NODE_ENV === "production"
-              ? "public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400"
+              ? "public, max-age=3600, stale-while-revalidate=86400"
               : "no-cache";
 
           return new Response(blob, {

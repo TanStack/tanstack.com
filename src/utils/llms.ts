@@ -55,8 +55,8 @@ export function setLlmsTxtResponseHeaders() {
   setResponseHeader('Content-Type', 'text/plain; charset=utf-8')
   setResponseHeader('Cache-Control', 'public, max-age=0, must-revalidate')
   setResponseHeader(
-    'CDN-Cache-Control',
-    'max-age=86400, stale-while-revalidate=86400',
+    'Cloudflare-CDN-Cache-Control',
+    'public, max-age=86400, stale-while-revalidate=86400',
   )
 }
 

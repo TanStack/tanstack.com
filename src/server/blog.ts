@@ -16,7 +16,8 @@ export const fetchRecentPosts = createServerFn({ method: 'GET' }).handler(
     setResponseHeaders(
       new Headers({
         'Cache-Control': 'public, max-age=0, must-revalidate',
-        'CDN-Cache-Control': 'public, max-age=300, stale-while-revalidate=300',
+        'Cloudflare-CDN-Cache-Control':
+          'public, max-age=300, stale-while-revalidate=300',
       }),
     )
 

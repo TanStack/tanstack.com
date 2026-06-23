@@ -255,6 +255,14 @@ function toProofSnapshot(
   return {
     activeChatId: snapshot.activeChatId,
     agentEventCount: snapshot.agentEvents.length,
+    agentEvents: snapshot.agentEvents.slice(-20).map((event) => ({
+      detail: event.detail,
+      elapsedMs: event.elapsedMs,
+      message: event.message,
+      name: event.name,
+      path: event.path,
+      status: event.status,
+    })),
     fileCount: snapshot.fileCount,
     files: readProofFilePreviews(snapshot),
     latestRun: snapshot.latestRun,

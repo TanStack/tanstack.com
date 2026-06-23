@@ -1,6 +1,8 @@
 /// <reference types="node" />
 
 import assert from 'node:assert/strict'
+import { request } from 'node:https'
+import { Buffer } from 'node:buffer'
 
 const proofUrl =
   process.env.FORGE_PROOF_URL ??
@@ -11,6 +13,11 @@ const apiKey = process.env.FORGE_PROOF_PROVIDER_API_KEY
 const model = process.env.FORGE_PROOF_MODEL
 const sessionId =
   process.env.FORGE_PROOF_SESSION_ID ?? 'branch-proof-hosting-company'
+const proofHttpTimeoutMs = readPositiveIntegerEnv(
+  'FORGE_PROOF_HTTP_TIMEOUT_MS',
+  20 * 60_000,
+)
+const proofMaxAttempts = readPositiveIntegerEnv('FORGE_PROOF_MAX_ATTEMPTS', 3)
 
 assert.ok(proofToken, 'FORGE_PROOF_TOKEN is required')
 assert.ok(
@@ -45,7 +52,7 @@ const turns = [
 let latest: ProofResponse | undefined
 
 for (const turn of turns) {
-  latest = await runProofTurn(turn)
+  latest = await runProofTurnWithRetry(turn)
   assert.equal(latest.latestRun?.status, 'finished')
   assert.ok(latest.manifestVersionId, 'missing manifestVersionId')
   assert.ok(latest.fileCount > 0, 'expected generated files')
@@ -64,7 +71,7 @@ const assistantMessages = finalResponse.messages
 
 assert.ok(assistantMessages.length > 0, 'expected assistant output')
 assert.ok(
-  finalResponse.topFiles.some((file) => file === 'src/routes/index.tsx'),
+  Boolean(finalResponse.files['src/routes/index.tsx']),
   'expected generated home route',
 )
 
@@ -102,6 +109,38 @@ console.log(
   ),
 )
 
+async function runProofTurnWithRetry(
+  turn: (typeof turns)[number],
+): Promise<ProofResponse> {
+  let lastError: unknown
+
+  for (let attempt = 1; attempt <= proofMaxAttempts; attempt++) {
+    try {
+      return await runProofTurn({
+        ...turn,
+        clientRequestId:
+          attempt === 1
+            ? turn.clientRequestId
+            : `${turn.clientRequestId}-retry-${attempt}`,
+      })
+    } catch (error) {
+      lastError = error
+
+      if (attempt >= proofMaxAttempts || !isRetryableProofError(error)) {
+        throw error
+      }
+
+      const delayMs = attempt * 15_000
+      console.warn(
+        `Forge proof turn ${turn.clientRequestId} failed with a retryable error; retrying in ${delayMs}ms.`,
+      )
+      await sleep(delayMs)
+    }
+  }
+
+  throw lastError
+}
+
 async function runProofTurn({
   clientRequestId,
   prompt,
@@ -111,8 +150,8 @@ async function runProofTurn({
   prompt: string
   reset: boolean
 }) {
-  const response = await fetch(proofUrl, {
-    body: JSON.stringify({
+  const response = await postJson(proofUrl, {
+    body: {
       ...(apiKey ? { apiKey } : {}),
       clientRequestId,
       model,
@@ -120,22 +159,101 @@ async function runProofTurn({
       ...(provider ? { provider } : {}),
       reset,
       sessionId,
-    }),
+    },
     headers: {
       Authorization: `Bearer ${proofToken}`,
-      'Content-Type': 'application/json',
     },
-    method: 'POST',
   })
-  const text = await response.text()
+  const text = response.body
 
-  if (!response.ok) {
+  if (response.status < 200 || response.status >= 300) {
     throw new Error(
       `Forge proof turn failed with ${response.status}: ${text.slice(0, 1200)}`,
     )
   }
 
   return JSON.parse(text) as ProofResponse
+}
+
+function isRetryableProofError(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error)
+
+  return (
+    message.includes('Capacity temporarily exceeded') ||
+    message.includes('fetch failed') ||
+    message.includes('Headers Timeout Error') ||
+    message.includes('timed out')
+  )
+}
+
+function sleep(ms: number) {
+  return new Promise<void>((resolve) => {
+    setTimeout(resolve, ms)
+  })
+}
+
+function postJson(
+  url: string,
+  {
+    body,
+    headers,
+  }: {
+    body: Record<string, unknown>
+    headers: Record<string, string>
+  },
+) {
+  const text = JSON.stringify(body)
+  const contentLength = Buffer.byteLength(text)
+
+  return new Promise<{ body: string; status: number }>((resolve, reject) => {
+    const req = request(
+      url,
+      {
+        headers: {
+          ...headers,
+          'Content-Length': String(contentLength),
+          'Content-Type': 'application/json',
+        },
+        method: 'POST',
+        timeout: proofHttpTimeoutMs,
+      },
+      (res) => {
+        const chunks = Array<Buffer>()
+
+        res.on('data', (chunk: Buffer) => {
+          chunks.push(chunk)
+        })
+        res.on('end', () => {
+          resolve({
+            body: Buffer.concat(chunks).toString('utf8'),
+            status: res.statusCode ?? 0,
+          })
+        })
+      },
+    )
+
+    req.on('error', reject)
+    req.setTimeout(proofHttpTimeoutMs, () => {
+      req.destroy(
+        new Error(
+          `Forge proof request timed out after ${proofHttpTimeoutMs}ms`,
+        ),
+      )
+    })
+    req.end(text)
+  })
+}
+
+function readPositiveIntegerEnv(name: string, fallback: number) {
+  const value = process.env[name]
+
+  if (!value) {
+    return fallback
+  }
+
+  const parsed = Number(value)
+
+  return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : fallback
 }
 
 type ProofResponse = {

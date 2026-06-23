@@ -59,7 +59,10 @@ import { getHostRuntimeEnv } from '~/server/runtime/host.server'
 
 const LOCAL_FORGE_CONTEXT_VERSION = 'forge-local-agent-2026-06-18'
 const LOCAL_FORGE_MAX_ITERATIONS = 10
-const LOCAL_FORGE_TIMEOUT_MS = 180_000
+const LOCAL_FORGE_TIMEOUT_MS = readPositiveIntegerEnv(
+  'FORGE_AGENT_TIMEOUT_MS',
+  180_000,
+)
 const LOCAL_FORGE_BASELINE_LOCK_STALE_MS = 10 * 60_000
 const LOCAL_FORGE_BASELINE_LOCK_WAIT_MS = 30_000
 const LOCAL_FORGE_RUN_LOCK_STALE_MS = 10 * 60_000
@@ -71,7 +74,8 @@ const LOCAL_FORGE_CODEX_TIMEOUT_MS = readPositiveIntegerEnv(
 const LOCAL_FORGE_CODEX_MAX_EVENTS = 80
 const LOCAL_FORGE_CODEX_MAX_OUTPUT_CHARS = 80_000
 const LOCAL_FORGE_CLOUDFLARE_AI_MODEL =
-  process.env.FORGE_CLOUDFLARE_AI_MODEL?.trim() || '@cf/openai/gpt-oss-120b'
+  process.env.FORGE_CLOUDFLARE_AI_MODEL?.trim() ||
+  '@cf/moonshotai/kimi-k2.7-code'
 const LOCAL_FORGE_CODEX_APP_CLI =
   '/Applications/Codex.app/Contents/Resources/codex'
 const LOCAL_FORGE_CODEX_IGNORED_DIRECTORIES = new Set<string>([
@@ -265,13 +269,19 @@ type CloudflareAiBinding = {
 
 type CloudflareAiMessage = {
   content: string
+  name?: string
   role: 'assistant' | 'system' | 'tool' | 'user'
+  tool_call_id?: string
+  tool_calls?: Array<CloudflareAiMessageToolCall>
 }
 
 type CloudflareAiToolDefinition = {
-  description: string
-  name: string
-  parameters: JSONSchema
+  function: {
+    description: string
+    name: string
+    parameters: JSONSchema
+  }
+  type: 'function'
 }
 
 type CloudflareAiTextGenerationInput = {
@@ -281,9 +291,24 @@ type CloudflareAiTextGenerationInput = {
   tools: Array<CloudflareAiToolDefinition>
 }
 
+type CloudflareAiMessageToolCall = {
+  function: {
+    arguments: string
+    name: string
+  }
+  id: string
+  type: 'function'
+}
+
 type CloudflareAiToolCall = {
   arguments: unknown
   id?: string
+  name: string
+}
+
+type CloudflareAiExecutableToolCall = {
+  arguments: unknown
+  id: string
   name: string
 }
 
@@ -1014,14 +1039,22 @@ async function runCloudflareWorkersAiForgeHarness({
         const text = readCloudflareAiText(response)
         const toolCalls = readCloudflareAiToolCalls(response)
 
-        if (text) {
-          messages.push({
-            role: 'assistant',
-            content: text,
-          })
-        }
-
         if (toolCalls.length === 0) {
+          if (text) {
+            messages.push({
+              role: 'assistant',
+              content: text,
+            })
+          }
+
+          await appendAgentEvent({
+            detail: summarizeCloudflareAiResponse(response),
+            message: 'Cloudflare Workers AI returned no tool call',
+            name: 'agent.cloudflare-ai.no-tool-call',
+            runContext,
+            status: 'running',
+          })
+
           const nextTool = readNextRequiredCloudflareAiTool({
             state,
             toolEvents,
@@ -1057,15 +1090,21 @@ async function runCloudflareWorkersAiForgeHarness({
           continue
         }
 
+        const executableToolCalls = toolCalls.map((toolCall) => ({
+          ...toolCall,
+          id: toolCall.id ?? `cloudflare-tool-${crypto.randomUUID()}`,
+        }))
+
         messages.push({
           role: 'assistant',
-          content: JSON.stringify({ tool_calls: toolCalls }),
+          content: text ?? '',
+          tool_calls: executableToolCalls.map(
+            createCloudflareAiMessageToolCall,
+          ),
         })
 
-        for (const toolCall of toolCalls) {
+        for (const toolCall of executableToolCalls) {
           const tool = toolByName.get(toolCall.name)
-          const toolCallId =
-            toolCall.id ?? `cloudflare-tool-${crypto.randomUUID()}`
 
           if (!tool) {
             const result = {
@@ -1074,6 +1113,8 @@ async function runCloudflareWorkersAiForgeHarness({
             }
             messages.push({
               role: 'tool',
+              name: toolCall.name,
+              tool_call_id: toolCall.id,
               content: JSON.stringify(result),
             })
             continue
@@ -1086,6 +1127,8 @@ async function runCloudflareWorkersAiForgeHarness({
             }
             messages.push({
               role: 'tool',
+              name: toolCall.name,
+              tool_call_id: toolCall.id,
               content: JSON.stringify(result),
             })
             continue
@@ -1093,13 +1136,27 @@ async function runCloudflareWorkersAiForgeHarness({
 
           const result = await tool.execute(toolCall.arguments, {
             emitCustomEvent: () => {},
-            toolCallId,
+            toolCallId: toolCall.id,
           })
 
           messages.push({
             role: 'tool',
+            name: toolCall.name,
+            tool_call_id: toolCall.id,
             content: JSON.stringify(result),
           })
+        }
+
+        if (getLocalForgeAgentCompletionProblems(state).length === 0) {
+          if (!state.streamedAssistantMessage && state.summary) {
+            await appendAssistantMessage({
+              runContext,
+              text: state.summary,
+            })
+            state.streamedAssistantMessage = true
+          }
+
+          return
         }
       }
 
@@ -1117,6 +1174,70 @@ async function runCloudflareWorkersAiForgeHarness({
     runContext,
     status: 'finished',
   })
+}
+
+function summarizeCloudflareAiResponse(response: unknown) {
+  return JSON.stringify(sanitizeCloudflareAiResponse(response)).slice(0, 2000)
+}
+
+function summarizeToolArguments(args: unknown) {
+  return JSON.stringify(sanitizeCloudflareAiResponse(args)).slice(0, 1000)
+}
+
+function createCloudflareAiMessageToolCall(
+  toolCall: CloudflareAiExecutableToolCall,
+): CloudflareAiMessageToolCall {
+  return {
+    function: {
+      arguments: JSON.stringify(
+        isRecord(toolCall.arguments) ? toolCall.arguments : {},
+      ),
+      name: toolCall.name,
+    },
+    id: toolCall.id,
+    type: 'function',
+  }
+}
+
+function sanitizeCloudflareAiResponse(value: unknown, depth = 0): unknown {
+  if (
+    value === null ||
+    typeof value === 'number' ||
+    typeof value === 'boolean'
+  ) {
+    return value
+  }
+
+  if (typeof value === 'string') {
+    return value.length > 500 ? `${value.slice(0, 500)}...` : value
+  }
+
+  if (Array.isArray(value)) {
+    if (depth >= 3) {
+      return `[${value.length} items]`
+    }
+
+    return value
+      .slice(0, 5)
+      .map((item) => sanitizeCloudflareAiResponse(item, depth + 1))
+  }
+
+  if (!isRecord(value)) {
+    return typeof value
+  }
+
+  if (depth >= 3) {
+    return Object.keys(value).sort()
+  }
+
+  return Object.fromEntries(
+    Object.entries(value)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([key, entry]) => [
+        key,
+        sanitizeCloudflareAiResponse(entry, depth + 1),
+      ]),
+  )
 }
 
 function readNextRequiredCloudflareAiTool({
@@ -1168,9 +1289,12 @@ function createCloudflareAiToolDefinition(
   tool: ServerTool,
 ): CloudflareAiToolDefinition {
   return {
-    description: tool.description,
-    name: tool.name,
-    parameters: readCloudflareAiToolParameters(tool.inputSchema),
+    function: {
+      description: tool.description,
+      name: tool.name,
+      parameters: readCloudflareAiToolParameters(tool.inputSchema),
+    },
+    type: 'function',
   }
 }
 
@@ -1350,15 +1474,51 @@ function readCloudflareAiText(response: unknown) {
     return text
   }
 
-  return undefined
+  const choiceText = readCloudflareAiChoices(response)
+    .map((choice) => {
+      const message = isRecord(choice) ? choice.message : undefined
+      const content = isRecord(message) ? message.content : undefined
+
+      return typeof content === 'string' ? content.trim() : ''
+    })
+    .filter(Boolean)
+    .join('\n\n')
+
+  return choiceText || undefined
 }
 
 function readCloudflareAiToolCalls(response: unknown) {
-  if (!isRecord(response) || !Array.isArray(response.tool_calls)) {
+  if (!isRecord(response)) {
     return []
   }
 
-  return response.tool_calls.flatMap(readCloudflareAiToolCall)
+  const rootToolCalls = Array.isArray(response.tool_calls)
+    ? response.tool_calls.flatMap(readCloudflareAiToolCall)
+    : []
+  const choiceToolCalls = readCloudflareAiChoices(response).flatMap(
+    (choice) => {
+      const message = isRecord(choice) ? choice.message : undefined
+
+      if (!isRecord(message)) {
+        return []
+      }
+
+      const toolCalls = Array.isArray(message.tool_calls)
+        ? message.tool_calls.flatMap(readCloudflareAiToolCall)
+        : []
+      const functionCall = isRecord(message.function_call)
+        ? readCloudflareAiToolCall({ function: message.function_call })
+        : []
+
+      return [...toolCalls, ...functionCall]
+    },
+  )
+
+  return [...rootToolCalls, ...choiceToolCalls]
+}
+
+function readCloudflareAiChoices(response: Record<string, unknown>) {
+  return Array.isArray(response.choices) ? response.choices : []
 }
 
 function readCloudflareAiToolCall(value: unknown): Array<CloudflareAiToolCall> {
@@ -1681,7 +1841,23 @@ function createForgeTools({
     outputSchema: z.object({
       ok: z.boolean(),
     }),
-  }).server(async ({ reason, title }, context) => {
+  }).server(async (args, context) => {
+    const reason = readToolStringArgument(args, 'reason', { trim: true })
+    const title = readToolStringArgument(args, 'title', { trim: true })
+
+    if (!reason || !title) {
+      await appendAgentEvent({
+        detail: `planRun requires string title and reason arguments: ${summarizeToolArguments(args)}`,
+        message: 'Plan rejected',
+        name: 'agent.tool.planRun',
+        runContext,
+        status: 'failed',
+        toolCallId: context?.toolCallId,
+      })
+
+      return { ok: false }
+    }
+
     toolEvents.add('planRun')
     state.planReceived = true
     state.title = title
@@ -1743,15 +1919,33 @@ function createForgeTools({
       found: z.boolean(),
       path: z.string(),
     }),
-  }).server(async ({ path }, context) => {
+  }).server(async (args, context) => {
+    const filePath = readToolStringArgument(args, 'path', { trim: true })
+
+    if (!filePath) {
+      await appendAgentEvent({
+        detail: `readFile requires a non-empty string path argument: ${summarizeToolArguments(args)}`,
+        message: 'File read rejected',
+        name: 'agent.tool.readFile',
+        runContext,
+        status: 'failed',
+        toolCallId: context?.toolCallId,
+      })
+
+      return {
+        found: false,
+        path: '',
+      }
+    }
+
     toolEvents.add('readFile')
-    const file = workspace.get(path)
+    const file = workspace.get(filePath)
 
     await appendAgentEvent({
       detail: file ? `${textBytes(file.contents)} bytes` : 'missing',
       message: file ? 'File read' : 'File missing',
       name: 'agent.tool.readFile',
-      path,
+      path: filePath,
       runContext,
       status: 'finished',
       toolCallId: context?.toolCallId,
@@ -1760,7 +1954,7 @@ function createForgeTools({
     return {
       contents: file?.contents,
       found: Boolean(file),
-      path,
+      path: filePath,
     }
   })
 
@@ -1779,16 +1973,21 @@ function createForgeTools({
       path: z.string(),
       problems: z.array(z.string()),
     }),
-  }).server(async ({ contents, path, purpose }, context) => {
-    toolEvents.add('writeFile')
-    const problem = validateGeneratedPath(path)
+  }).server(async (args, context) => {
+    const contents = readToolStringArgument(args, 'contents')
+    const filePath = readToolStringArgument(args, 'path', { trim: true })
+    const purpose = readToolStringArgument(args, 'purpose', { trim: true })
+    const argumentProblems = [
+      ...(filePath ? [] : ['writeFile requires a non-empty string path']),
+      ...(contents ? [] : ['writeFile requires non-empty string contents']),
+    ]
 
-    if (problem) {
+    if (!filePath || !contents) {
       await appendAgentEvent({
-        detail: problem,
+        detail: `${argumentProblems.join('; ')}: ${summarizeToolArguments(args)}`,
         message: 'File rejected',
         name: 'agent.tool.writeFile',
-        path,
+        path: filePath,
         runContext,
         status: 'failed',
         toolCallId: context?.toolCallId,
@@ -1796,14 +1995,35 @@ function createForgeTools({
 
       return {
         ok: false,
-        path,
+        path: filePath ?? '',
+        problems: argumentProblems,
+      }
+    }
+
+    toolEvents.add('writeFile')
+    const problem = validateGeneratedPath(filePath)
+
+    if (problem) {
+      await appendAgentEvent({
+        detail: problem,
+        message: 'File rejected',
+        name: 'agent.tool.writeFile',
+        path: filePath,
+        runContext,
+        status: 'failed',
+        toolCallId: context?.toolCallId,
+      })
+
+      return {
+        ok: false,
+        path: filePath,
         problems: [problem],
       }
     }
 
-    workspace.set(path, {
+    workspace.set(filePath, {
       contents,
-      path,
+      path: filePath,
       source: 'agent',
     })
     state.changeCount += 1
@@ -1812,7 +2032,7 @@ function createForgeTools({
       detail: purpose,
       message: `Wrote ${textBytes(contents)} bytes`,
       name: 'agent.tool.writeFile',
-      path,
+      path: filePath,
       runContext,
       status: 'finished',
       toolCallId: context?.toolCallId,
@@ -1821,7 +2041,7 @@ function createForgeTools({
     return {
       bytes: textBytes(contents),
       ok: true,
-      path,
+      path: filePath,
       problems: [],
     }
   })
@@ -1840,10 +2060,31 @@ function createForgeTools({
       path: z.string(),
       problems: z.array(z.string()),
     }),
-  }).server(async ({ path, reason }, context) => {
+  }).server(async (args, context) => {
+    const filePath = readToolStringArgument(args, 'path', { trim: true })
+    const reason = readToolStringArgument(args, 'reason', { trim: true })
+
+    if (!filePath) {
+      await appendAgentEvent({
+        detail: `deleteFile requires a non-empty string path argument: ${summarizeToolArguments(args)}`,
+        message: 'File delete rejected',
+        name: 'agent.tool.deleteFile',
+        runContext,
+        status: 'failed',
+        toolCallId: context?.toolCallId,
+      })
+
+      return {
+        found: false,
+        ok: false,
+        path: '',
+        problems: ['deleteFile requires a non-empty string path'],
+      }
+    }
+
     toolEvents.add('deleteFile')
     const result = deleteLocalForgeWorkspaceFile({
-      path,
+      path: filePath,
       workspace,
     })
 
@@ -1852,7 +2093,7 @@ function createForgeTools({
         detail: result.problems.join('; '),
         message: 'File delete rejected',
         name: 'agent.tool.deleteFile',
-        path,
+        path: filePath,
         runContext,
         status: 'failed',
         toolCallId: context?.toolCallId,
@@ -1869,7 +2110,7 @@ function createForgeTools({
       detail: reason,
       message: result.found ? 'File deleted' : 'File already absent',
       name: 'agent.tool.deleteFile',
-      path,
+      path: filePath,
       runContext,
       status: 'finished',
       toolCallId: context?.toolCallId,
@@ -1924,7 +2165,23 @@ function createForgeTools({
     outputSchema: z.object({
       ok: z.boolean(),
     }),
-  }).server(async ({ summary, title }, context) => {
+  }).server(async (args, context) => {
+    const summary = readToolStringArgument(args, 'summary', { trim: true })
+    const title = readToolStringArgument(args, 'title', { trim: true })
+
+    if (!summary || !title) {
+      await appendAgentEvent({
+        detail: `setSummary requires string title and summary arguments: ${summarizeToolArguments(args)}`,
+        message: 'Summary rejected',
+        name: 'agent.tool.setSummary',
+        runContext,
+        status: 'failed',
+        toolCallId: context?.toolCallId,
+      })
+
+      return { ok: false }
+    }
+
     toolEvents.add('setSummary')
     state.summary = summary
     state.summaryReceived = true
@@ -1951,6 +2208,26 @@ function createForgeTools({
     validateFilesTool,
     setSummaryTool,
   ]
+}
+
+function readToolStringArgument(
+  args: unknown,
+  key: string,
+  options?: { trim?: boolean },
+) {
+  if (!isRecord(args)) {
+    return undefined
+  }
+
+  const value = args[key]
+
+  if (typeof value !== 'string') {
+    return undefined
+  }
+
+  const text = options?.trim ? value.trim() : value
+
+  return text ? text : undefined
 }
 
 async function recoverOrRejectActiveRun(snapshot: LocalForgeSnapshot) {
@@ -2599,7 +2876,11 @@ async function validateWorkspace({
     }
   }
 
-  if (includeWorkspaceCommands && problems.length === 0) {
+  if (
+    includeWorkspaceCommands &&
+    problems.length === 0 &&
+    !isIsolateRuntime()
+  ) {
     // Workspace commands are diagnostics. Source safety and syntax problems are
     // the manifest gate; TypeScript/build failures should still persist.
     await validateWorkspaceCommands(workspace)
@@ -2819,6 +3100,10 @@ function toSafeValidationWorkspacePath(filePath: string) {
 
 async function validateSourceSyntax(file: ForgeWorkspaceFile) {
   if (!isJavaScriptModulePath(file.path)) {
+    return null
+  }
+
+  if (isIsolateRuntime()) {
     return null
   }
 

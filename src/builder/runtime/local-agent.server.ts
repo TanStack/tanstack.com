@@ -989,16 +989,16 @@ async function runCloudflareWorkersAiForgeHarness({
       }
       const messages: Array<CloudflareAiMessage> = [
         {
-          role: 'system',
-          content:
-            'You are the TanStack Forge Cloudflare Workers AI harness. Use the provided tools to inspect and edit the workspace. Do not answer with code instead of writing files.',
-        },
-        {
           role: 'user',
-          content: buildForgeAgentPrompt({
-            currentFiles: Object.keys(initialSnapshot.files).sort(),
-            prompt,
-          }),
+          content: [
+            'You are the TanStack Forge Cloudflare Workers AI harness.',
+            'Use the provided tools to inspect and edit the workspace.',
+            'Do not answer with code instead of writing files.',
+            buildForgeAgentPrompt({
+              currentFiles: Object.keys(initialSnapshot.files).sort(),
+              prompt,
+            }),
+          ].join('\n\n'),
         },
       ]
 

@@ -178,9 +178,7 @@ export async function fetchBulkDownloads(
     await Promise.all(
       scoped.slice(i, i + SCOPED_CONCURRENCY).map((name) =>
         fetch(`${NPM_DOWNLOADS_API}/downloads/point/last-month/${name}`)
-          .then((r) =>
-            parseJsonIfOk<{ downloads: number; package: string }>(r),
-          )
+          .then((r) => parseJsonIfOk<{ downloads: number; package: string }>(r))
           .then((data) => {
             if (data?.downloads != null) {
               result.set(name, data.downloads)

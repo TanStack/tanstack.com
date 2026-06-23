@@ -27,6 +27,7 @@ import { Route as MerchRouteImport } from './routes/merch'
 import { Route as MaintainersRouteImport } from './routes/maintainers'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
+import { Route as LlmsFullDottxtRouteImport } from './routes/llms-full[.]txt'
 import { Route as LibrariesRouteImport } from './routes/libraries'
 import { Route as LearnRouteImport } from './routes/learn'
 import { Route as FeedbackLeaderboardRouteImport } from './routes/feedback-leaderboard'
@@ -143,11 +144,13 @@ import { Route as ApiBuilderDeployGithubRouteImport } from './routes/api/builder
 import { Route as ApiBuilderDeployCheckNameRouteImport } from './routes/api/builder/deploy/check-name'
 import { Route as ApiAuthCliCreateTicketRouteImport } from './routes/api/auth/cli/create-ticket'
 import { Route as ApiAuthCallbackProviderRouteImport } from './routes/api/auth/callback/$provider'
+import { Route as LibraryLibraryIdVersionLlmsDottxtRouteImport } from './routes/_library/$libraryId/$version.llms[.]txt'
 import { Route as LibraryLibraryIdVersionDocsRouteImport } from './routes/_library/$libraryId/$version.docs'
 import { Route as LibraryLibraryIdVersionDocsIndexRouteImport } from './routes/_library/$libraryId/$version.docs.index'
 import { Route as ApiAuthCliStatusTicketIdRouteImport } from './routes/api/auth/cli/status.$ticketId'
 import { Route as LibraryLibraryIdVersionDocsChar123Char125DotmdRouteImport } from './routes/_library/$libraryId/$version.docs.{$}[.]md'
 import { Route as LibraryLibraryIdVersionDocsNpmStatsRouteImport } from './routes/_library/$libraryId/$version.docs.npm-stats'
+import { Route as LibraryLibraryIdVersionDocsIndexDotmdRouteImport } from './routes/_library/$libraryId/$version.docs.index[.]md'
 import { Route as LibraryLibraryIdVersionDocsContributorsRouteImport } from './routes/_library/$libraryId/$version.docs.contributors'
 import { Route as LibraryLibraryIdVersionDocsCommunityResourcesRouteImport } from './routes/_library/$libraryId/$version.docs.community-resources'
 import { Route as LibraryLibraryIdVersionDocsBlogRouteImport } from './routes/_library/$libraryId/$version.docs.blog'
@@ -246,6 +249,11 @@ const LoginRoute = LoginRouteImport.update({
 const LlmsDottxtRoute = LlmsDottxtRouteImport.update({
   id: '/llms.txt',
   path: '/llms.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LlmsFullDottxtRoute = LlmsFullDottxtRouteImport.update({
+  id: '/llms-full.txt',
+  path: '/llms-full.txt',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LibrariesRoute = LibrariesRouteImport.update({
@@ -853,6 +861,12 @@ const ApiAuthCallbackProviderRoute = ApiAuthCallbackProviderRouteImport.update({
   path: '/api/auth/callback/$provider',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LibraryLibraryIdVersionLlmsDottxtRoute =
+  LibraryLibraryIdVersionLlmsDottxtRouteImport.update({
+    id: '/llms.txt',
+    path: '/llms.txt',
+    getParentRoute: () => LibraryLibraryIdVersionRoute,
+  } as any)
 const LibraryLibraryIdVersionDocsRoute =
   LibraryLibraryIdVersionDocsRouteImport.update({
     id: '/docs',
@@ -881,6 +895,12 @@ const LibraryLibraryIdVersionDocsNpmStatsRoute =
   LibraryLibraryIdVersionDocsNpmStatsRouteImport.update({
     id: '/npm-stats',
     path: '/npm-stats',
+    getParentRoute: () => LibraryLibraryIdVersionDocsRoute,
+  } as any)
+const LibraryLibraryIdVersionDocsIndexDotmdRoute =
+  LibraryLibraryIdVersionDocsIndexDotmdRouteImport.update({
+    id: '/index.md',
+    path: '/index.md',
     getParentRoute: () => LibraryLibraryIdVersionDocsRoute,
   } as any)
 const LibraryLibraryIdVersionDocsContributorsRoute =
@@ -954,6 +974,7 @@ export interface FileRoutesByFullPath {
   '/feedback-leaderboard': typeof FeedbackLeaderboardRoute
   '/learn': typeof LearnRoute
   '/libraries': typeof LibrariesRoute
+  '/llms-full.txt': typeof LlmsFullDottxtRoute
   '/llms.txt': typeof LlmsDottxtRoute
   '/login': typeof LoginRoute
   '/maintainers': typeof MaintainersRoute
@@ -1050,6 +1071,7 @@ export interface FileRoutesByFullPath {
   '/intent/registry/': typeof IntentRegistryIndexRoute
   '/stats/npm/': typeof StatsNpmIndexRoute
   '/$libraryId/$version/docs': typeof LibraryLibraryIdVersionDocsRouteWithChildren
+  '/$libraryId/$version/llms.txt': typeof LibraryLibraryIdVersionLlmsDottxtRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
   '/api/auth/cli/create-ticket': typeof ApiAuthCliCreateTicketRoute
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
@@ -1079,6 +1101,7 @@ export interface FileRoutesByFullPath {
   '/$libraryId/$version/docs/blog': typeof LibraryLibraryIdVersionDocsBlogRoute
   '/$libraryId/$version/docs/community-resources': typeof LibraryLibraryIdVersionDocsCommunityResourcesRoute
   '/$libraryId/$version/docs/contributors': typeof LibraryLibraryIdVersionDocsContributorsRoute
+  '/$libraryId/$version/docs/index.md': typeof LibraryLibraryIdVersionDocsIndexDotmdRoute
   '/$libraryId/$version/docs/npm-stats': typeof LibraryLibraryIdVersionDocsNpmStatsRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryLibraryIdVersionDocsChar123Char125DotmdRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
@@ -1099,6 +1122,7 @@ export interface FileRoutesByTo {
   '/feedback-leaderboard': typeof FeedbackLeaderboardRoute
   '/learn': typeof LearnRoute
   '/libraries': typeof LibrariesRoute
+  '/llms-full.txt': typeof LlmsFullDottxtRoute
   '/llms.txt': typeof LlmsDottxtRoute
   '/login': typeof LoginRoute
   '/maintainers': typeof MaintainersRoute
@@ -1189,6 +1213,7 @@ export interface FileRoutesByTo {
   '/api/mcp': typeof ApiMcpIndexRoute
   '/intent/registry': typeof IntentRegistryIndexRoute
   '/stats/npm': typeof StatsNpmIndexRoute
+  '/$libraryId/$version/llms.txt': typeof LibraryLibraryIdVersionLlmsDottxtRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
   '/api/auth/cli/create-ticket': typeof ApiAuthCliCreateTicketRoute
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
@@ -1218,6 +1243,7 @@ export interface FileRoutesByTo {
   '/$libraryId/$version/docs/blog': typeof LibraryLibraryIdVersionDocsBlogRoute
   '/$libraryId/$version/docs/community-resources': typeof LibraryLibraryIdVersionDocsCommunityResourcesRoute
   '/$libraryId/$version/docs/contributors': typeof LibraryLibraryIdVersionDocsContributorsRoute
+  '/$libraryId/$version/docs/index.md': typeof LibraryLibraryIdVersionDocsIndexDotmdRoute
   '/$libraryId/$version/docs/npm-stats': typeof LibraryLibraryIdVersionDocsNpmStatsRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryLibraryIdVersionDocsChar123Char125DotmdRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
@@ -1244,6 +1270,7 @@ export interface FileRoutesById {
   '/feedback-leaderboard': typeof FeedbackLeaderboardRoute
   '/learn': typeof LearnRoute
   '/libraries': typeof LibrariesRoute
+  '/llms-full.txt': typeof LlmsFullDottxtRoute
   '/llms.txt': typeof LlmsDottxtRoute
   '/login': typeof LoginRoute
   '/maintainers': typeof MaintainersRoute
@@ -1340,6 +1367,7 @@ export interface FileRoutesById {
   '/intent/registry/': typeof IntentRegistryIndexRoute
   '/stats/npm/': typeof StatsNpmIndexRoute
   '/_library/$libraryId/$version/docs': typeof LibraryLibraryIdVersionDocsRouteWithChildren
+  '/_library/$libraryId/$version/llms.txt': typeof LibraryLibraryIdVersionLlmsDottxtRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
   '/api/auth/cli/create-ticket': typeof ApiAuthCliCreateTicketRoute
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
@@ -1369,6 +1397,7 @@ export interface FileRoutesById {
   '/_library/$libraryId/$version/docs/blog': typeof LibraryLibraryIdVersionDocsBlogRoute
   '/_library/$libraryId/$version/docs/community-resources': typeof LibraryLibraryIdVersionDocsCommunityResourcesRoute
   '/_library/$libraryId/$version/docs/contributors': typeof LibraryLibraryIdVersionDocsContributorsRoute
+  '/_library/$libraryId/$version/docs/index.md': typeof LibraryLibraryIdVersionDocsIndexDotmdRoute
   '/_library/$libraryId/$version/docs/npm-stats': typeof LibraryLibraryIdVersionDocsNpmStatsRoute
   '/_library/$libraryId/$version/docs/{$}.md': typeof LibraryLibraryIdVersionDocsChar123Char125DotmdRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
@@ -1395,6 +1424,7 @@ export interface FileRouteTypes {
     | '/feedback-leaderboard'
     | '/learn'
     | '/libraries'
+    | '/llms-full.txt'
     | '/llms.txt'
     | '/login'
     | '/maintainers'
@@ -1491,6 +1521,7 @@ export interface FileRouteTypes {
     | '/intent/registry/'
     | '/stats/npm/'
     | '/$libraryId/$version/docs'
+    | '/$libraryId/$version/llms.txt'
     | '/api/auth/callback/$provider'
     | '/api/auth/cli/create-ticket'
     | '/api/builder/deploy/check-name'
@@ -1520,6 +1551,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/blog'
     | '/$libraryId/$version/docs/community-resources'
     | '/$libraryId/$version/docs/contributors'
+    | '/$libraryId/$version/docs/index.md'
     | '/$libraryId/$version/docs/npm-stats'
     | '/$libraryId/$version/docs/{$}.md'
     | '/api/auth/cli/status/$ticketId'
@@ -1540,6 +1572,7 @@ export interface FileRouteTypes {
     | '/feedback-leaderboard'
     | '/learn'
     | '/libraries'
+    | '/llms-full.txt'
     | '/llms.txt'
     | '/login'
     | '/maintainers'
@@ -1630,6 +1663,7 @@ export interface FileRouteTypes {
     | '/api/mcp'
     | '/intent/registry'
     | '/stats/npm'
+    | '/$libraryId/$version/llms.txt'
     | '/api/auth/callback/$provider'
     | '/api/auth/cli/create-ticket'
     | '/api/builder/deploy/check-name'
@@ -1659,6 +1693,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/blog'
     | '/$libraryId/$version/docs/community-resources'
     | '/$libraryId/$version/docs/contributors'
+    | '/$libraryId/$version/docs/index.md'
     | '/$libraryId/$version/docs/npm-stats'
     | '/$libraryId/$version/docs/{$}.md'
     | '/api/auth/cli/status/$ticketId'
@@ -1684,6 +1719,7 @@ export interface FileRouteTypes {
     | '/feedback-leaderboard'
     | '/learn'
     | '/libraries'
+    | '/llms-full.txt'
     | '/llms.txt'
     | '/login'
     | '/maintainers'
@@ -1780,6 +1816,7 @@ export interface FileRouteTypes {
     | '/intent/registry/'
     | '/stats/npm/'
     | '/_library/$libraryId/$version/docs'
+    | '/_library/$libraryId/$version/llms.txt'
     | '/api/auth/callback/$provider'
     | '/api/auth/cli/create-ticket'
     | '/api/builder/deploy/check-name'
@@ -1809,6 +1846,7 @@ export interface FileRouteTypes {
     | '/_library/$libraryId/$version/docs/blog'
     | '/_library/$libraryId/$version/docs/community-resources'
     | '/_library/$libraryId/$version/docs/contributors'
+    | '/_library/$libraryId/$version/docs/index.md'
     | '/_library/$libraryId/$version/docs/npm-stats'
     | '/_library/$libraryId/$version/docs/{$}.md'
     | '/api/auth/cli/status/$ticketId'
@@ -1835,6 +1873,7 @@ export interface RootRouteChildren {
   FeedbackLeaderboardRoute: typeof FeedbackLeaderboardRoute
   LearnRoute: typeof LearnRoute
   LibrariesRoute: typeof LibrariesRoute
+  LlmsFullDottxtRoute: typeof LlmsFullDottxtRoute
   LlmsDottxtRoute: typeof LlmsDottxtRoute
   LoginRoute: typeof LoginRoute
   MaintainersRoute: typeof MaintainersRoute
@@ -2025,6 +2064,13 @@ declare module '@tanstack/react-router' {
       path: '/llms.txt'
       fullPath: '/llms.txt'
       preLoaderRoute: typeof LlmsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/llms-full.txt': {
+      id: '/llms-full.txt'
+      path: '/llms-full.txt'
+      fullPath: '/llms-full.txt'
+      preLoaderRoute: typeof LlmsFullDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/libraries': {
@@ -2839,6 +2885,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthCallbackProviderRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_library/$libraryId/$version/llms.txt': {
+      id: '/_library/$libraryId/$version/llms.txt'
+      path: '/llms.txt'
+      fullPath: '/$libraryId/$version/llms.txt'
+      preLoaderRoute: typeof LibraryLibraryIdVersionLlmsDottxtRouteImport
+      parentRoute: typeof LibraryLibraryIdVersionRoute
+    }
     '/_library/$libraryId/$version/docs': {
       id: '/_library/$libraryId/$version/docs'
       path: '/docs'
@@ -2872,6 +2925,13 @@ declare module '@tanstack/react-router' {
       path: '/npm-stats'
       fullPath: '/$libraryId/$version/docs/npm-stats'
       preLoaderRoute: typeof LibraryLibraryIdVersionDocsNpmStatsRouteImport
+      parentRoute: typeof LibraryLibraryIdVersionDocsRoute
+    }
+    '/_library/$libraryId/$version/docs/index.md': {
+      id: '/_library/$libraryId/$version/docs/index.md'
+      path: '/index.md'
+      fullPath: '/$libraryId/$version/docs/index.md'
+      preLoaderRoute: typeof LibraryLibraryIdVersionDocsIndexDotmdRouteImport
       parentRoute: typeof LibraryLibraryIdVersionDocsRoute
     }
     '/_library/$libraryId/$version/docs/contributors': {
@@ -2997,6 +3057,7 @@ interface LibraryLibraryIdVersionDocsRouteChildren {
   LibraryLibraryIdVersionDocsBlogRoute: typeof LibraryLibraryIdVersionDocsBlogRoute
   LibraryLibraryIdVersionDocsCommunityResourcesRoute: typeof LibraryLibraryIdVersionDocsCommunityResourcesRoute
   LibraryLibraryIdVersionDocsContributorsRoute: typeof LibraryLibraryIdVersionDocsContributorsRoute
+  LibraryLibraryIdVersionDocsIndexDotmdRoute: typeof LibraryLibraryIdVersionDocsIndexDotmdRoute
   LibraryLibraryIdVersionDocsNpmStatsRoute: typeof LibraryLibraryIdVersionDocsNpmStatsRoute
   LibraryLibraryIdVersionDocsChar123Char125DotmdRoute: typeof LibraryLibraryIdVersionDocsChar123Char125DotmdRoute
   LibraryLibraryIdVersionDocsIndexRoute: typeof LibraryLibraryIdVersionDocsIndexRoute
@@ -3016,6 +3077,8 @@ const LibraryLibraryIdVersionDocsRouteChildren: LibraryLibraryIdVersionDocsRoute
       LibraryLibraryIdVersionDocsCommunityResourcesRoute,
     LibraryLibraryIdVersionDocsContributorsRoute:
       LibraryLibraryIdVersionDocsContributorsRoute,
+    LibraryLibraryIdVersionDocsIndexDotmdRoute:
+      LibraryLibraryIdVersionDocsIndexDotmdRoute,
     LibraryLibraryIdVersionDocsNpmStatsRoute:
       LibraryLibraryIdVersionDocsNpmStatsRoute,
     LibraryLibraryIdVersionDocsChar123Char125DotmdRoute:
@@ -3041,6 +3104,7 @@ const LibraryLibraryIdVersionDocsRouteWithChildren =
 
 interface LibraryLibraryIdVersionRouteChildren {
   LibraryLibraryIdVersionDocsRoute: typeof LibraryLibraryIdVersionDocsRouteWithChildren
+  LibraryLibraryIdVersionLlmsDottxtRoute: typeof LibraryLibraryIdVersionLlmsDottxtRoute
   LibraryLibraryIdVersionIndexRoute: typeof LibraryLibraryIdVersionIndexRoute
 }
 
@@ -3048,6 +3112,8 @@ const LibraryLibraryIdVersionRouteChildren: LibraryLibraryIdVersionRouteChildren
   {
     LibraryLibraryIdVersionDocsRoute:
       LibraryLibraryIdVersionDocsRouteWithChildren,
+    LibraryLibraryIdVersionLlmsDottxtRoute:
+      LibraryLibraryIdVersionLlmsDottxtRoute,
     LibraryLibraryIdVersionIndexRoute: LibraryLibraryIdVersionIndexRoute,
   }
 
@@ -3233,6 +3299,7 @@ const rootRouteChildren: RootRouteChildren = {
   FeedbackLeaderboardRoute: FeedbackLeaderboardRoute,
   LearnRoute: LearnRoute,
   LibrariesRoute: LibrariesRoute,
+  LlmsFullDottxtRoute: LlmsFullDottxtRoute,
   LlmsDottxtRoute: LlmsDottxtRoute,
   LoginRoute: LoginRoute,
   MaintainersRoute: MaintainersRoute,

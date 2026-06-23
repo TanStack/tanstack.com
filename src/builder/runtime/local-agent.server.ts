@@ -1117,11 +1117,12 @@ function readCloudflareAiToolParameters(inputSchema: unknown): JSONSchema {
       inputSchema['~standard'].jsonSchema.input({
         target: 'draft-7',
       }),
+      'Tool parameters',
     )
   }
 
   if (isJsonSchema(inputSchema)) {
-    return sanitizeCloudflareAiJsonSchema(inputSchema)
+    return sanitizeCloudflareAiJsonSchema(inputSchema, 'Tool parameters')
   }
 
   return {
@@ -1158,12 +1159,31 @@ function isJsonSchema(value: unknown): value is JSONSchema {
   return isRecord(value)
 }
 
-function sanitizeCloudflareAiJsonSchema(schema: unknown): JSONSchema {
+function sanitizeCloudflareAiJsonSchema(
+  schema: unknown,
+  fallbackDescription: string,
+): JSONSchema {
   if (!isRecord(schema)) {
     return {
-      properties: {},
-      type: 'object',
+      description: fallbackDescription,
+      type: 'string',
     }
+  }
+
+  const unionSchemas = Array.isArray(schema.oneOf)
+    ? schema.oneOf
+    : Array.isArray(schema.anyOf)
+      ? schema.anyOf
+      : undefined
+  const preferredUnionSchema = unionSchemas?.find(
+    (item) => isRecord(item) && item.type !== 'null',
+  )
+
+  if (!schema.type && preferredUnionSchema) {
+    return sanitizeCloudflareAiJsonSchema(
+      preferredUnionSchema,
+      fallbackDescription,
+    )
   }
 
   const result: JSONSchema = {}
@@ -1179,6 +1199,8 @@ function sanitizeCloudflareAiJsonSchema(schema: unknown): JSONSchema {
 
   if (typeof schema.description === 'string') {
     result.description = schema.description
+  } else {
+    result.description = fallbackDescription
   }
 
   if (Array.isArray(schema.required)) {
@@ -1191,13 +1213,16 @@ function sanitizeCloudflareAiJsonSchema(schema: unknown): JSONSchema {
     result.properties = Object.fromEntries(
       Object.entries(schema.properties).map(([key, value]) => [
         key,
-        sanitizeCloudflareAiJsonSchema(value),
+        sanitizeCloudflareAiJsonSchema(value, `${key} parameter`),
       ]),
     )
   }
 
   if (isRecord(schema.items)) {
-    result.items = sanitizeCloudflareAiJsonSchema(schema.items)
+    result.items = sanitizeCloudflareAiJsonSchema(
+      schema.items,
+      `${fallbackDescription} item`,
+    )
   }
 
   if (Array.isArray(schema.enum)) {
@@ -1206,6 +1231,8 @@ function sanitizeCloudflareAiJsonSchema(schema: unknown): JSONSchema {
 
   if (!result.type && result.properties) {
     result.type = 'object'
+  } else if (!result.type) {
+    result.type = 'string'
   }
 
   return result

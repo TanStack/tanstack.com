@@ -174,6 +174,28 @@ This also eliminates those per-instance method closures. The shared prototype me
 
 We repeated this pattern for `column`, `cell`, and `header` objects too, though the largest impact was on the `row` objects, since those are the most likely to both scale and have a large amount of methods on them. We did not need to use prototype methods for the `table` object, because the `table` is already just 1 object instance.
 
+### Why Not Use JavaScript Classes?
+
+A natural question here is: why not just create `Row`, `Column`, `Cell`, and `Header` classes and put the methods there?
+
+For a normal library, that would make a lot of sense. JavaScript class methods already live on the class prototype, so a `class Row { getValue() {} }` implementation could get many of the same memory benefits as this refactor, as long as we did not use class fields or constructor-assigned arrow functions for the methods.
+
+The problem is that TanStack Table V9's APIs are dynamically composed from features. We only want `row.getVisibleCells()` to exist if the column visibility feature is registered. We only want `column.toggleSorting()` to exist if the row sorting feature is registered. The same idea applies across rows, columns, cells, headers, and custom plugin APIs.
+
+Trying to model that with classes would get awkward quickly. JavaScript classes have single inheritance, but TanStack Table's feature system is closer to conditional multiple inheritance. A table might use sorting, filtering, pagination, column visibility, row selection, pinning, grouping, and a custom plugin. Another table might use only sorting. Another might use a totally different combination.
+
+You could imagine building a chain of mixins like:
+
+```ts
+Row = withSorting(withColumnVisibility(withPagination(BaseRow)))
+```
+
+But then every feature needs to participate in class composition, ordering becomes more fragile, and custom plugins have to extend the right class shape at the right time. It is possible, but it is not simpler.
+
+The manual prototype approach gives us the part we actually want from classes, shared prototype methods, while keeping the feature system dynamic:
+
+Each table gets prototypes that contain exactly the APIs for the features it registered. That is the important part for the tree-shakable runtime model, and it is much cleaner than trying to force every possible feature combination through class inheritance.
+
 ### Why Not Do This in Table V8?
 
 There was an original [PR](https://github.com/TanStack/table/pull/5927) from [Michael Leibman](https://github.com/mleibman-db) that proposed this kind of refactor for TanStack Table V8. However, we discovered that this technically introduces subtle breaking changes. So we decided that this would be less risky to implement in Table V9 instead.

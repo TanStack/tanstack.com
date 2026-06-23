@@ -28,13 +28,11 @@ const clientEnvSchema = v.object({
 })
 
 // Validate and parse environment variables
-const parsedServerEnv = import.meta.env.SSR
-  ? v.parse(serverEnvSchema, process.env)
-  : {}
+const viteEnv = import.meta.env ?? {}
 
-const parsedClientEnv = import.meta.env
-  ? v.parse(clientEnvSchema, import.meta.env)
-  : {}
+const parsedServerEnv = viteEnv.SSR ? v.parse(serverEnvSchema, process.env) : {}
+
+const parsedClientEnv = v.parse(clientEnvSchema, viteEnv)
 
 type ParsedServerEnv = v.InferOutput<typeof serverEnvSchema>
 type ParsedClientEnv = v.InferOutput<typeof clientEnvSchema>
@@ -42,9 +40,7 @@ type ParsedEnv = ParsedServerEnv & ParsedClientEnv
 
 // Merge parsed environments, with server env hidden from client
 export const env = new Proxy(
-  import.meta.env.SSR
-    ? { ...parsedClientEnv, ...parsedServerEnv }
-    : parsedClientEnv,
+  viteEnv.SSR ? { ...parsedClientEnv, ...parsedServerEnv } : parsedClientEnv,
   {
     get(target, prop) {
       if (prop in parsedServerEnv && typeof window !== 'undefined') {

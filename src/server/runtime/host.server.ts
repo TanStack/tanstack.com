@@ -7,6 +7,7 @@ type StaticAssetService = {
 type HostRuntimeEnv = Record<string, unknown> & {
   CLOUDFLARE_CACHE_PURGE_TOKEN?: string
   CLOUDFLARE_ZONE_ID?: string
+  GITHUB_AUTH_TOKEN?: string
   GITHUB_CONTENT_CACHE?: unknown
   HYPERDRIVE?: {
     connectionString: string
@@ -61,6 +62,10 @@ export function runWithHostRuntimeEnv<T>(env: unknown, fn: () => T): T {
   return hostRuntimeEnvStorage.run(env, fn)
 }
 
+export function getCurrentHostRuntimeEnv() {
+  return hostRuntimeEnvStorage.getStore()
+}
+
 async function getStaticAssetService() {
   if (!isIsolateRuntime()) return
 
@@ -78,7 +83,7 @@ async function getStaticAssetService() {
 }
 
 export async function getHostRuntimeEnv() {
-  const scopedEnv = hostRuntimeEnvStorage.getStore()
+  const scopedEnv = getCurrentHostRuntimeEnv()
   if (scopedEnv) return scopedEnv
 
   if (!isIsolateRuntime()) return

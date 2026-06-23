@@ -4,6 +4,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parse as parseYaml } from 'yaml'
+import { getCurrentHostRuntimeEnv } from '~/server/runtime/host.server'
 import { fetchCached } from '~/utils/cache.server'
 import {
   getCachedGitHubJsonContent,
@@ -826,7 +827,8 @@ function getValidGitHubToken(token: string | undefined) {
 }
 
 function getGitHubAuthToken() {
-  return getValidGitHubToken(env.GITHUB_AUTH_TOKEN)
+  const hostToken = getCurrentHostRuntimeEnv()?.GITHUB_AUTH_TOKEN
+  return getValidGitHubToken(hostToken ?? env.GITHUB_AUTH_TOKEN)
 }
 
 export function isGitHubAuthFailureStatus(status: number) {

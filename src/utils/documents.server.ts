@@ -4,7 +4,10 @@ import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parse as parseYaml } from 'yaml'
-import { getCurrentHostRuntimeEnv } from '~/server/runtime/host.server'
+import {
+  getCurrentHostRuntimeEnv,
+  getHostRuntimeEnv,
+} from '~/server/runtime/host.server'
 import { fetchCached } from '~/utils/cache.server'
 import {
   getCachedGitHubJsonContent,
@@ -111,20 +114,20 @@ async function fetchRemote(
 
   try {
     response = await fetch(href, {
-      ...getGitHubContentFetchOptions({
+      ...(await getGitHubContentFetchOptionsAsync({
         includeApiVersion: false,
         userAgent: `docs:${owner}/${repo}`,
-      }),
+      })),
     })
 
     if (isGitHubAuthFailureStatus(response.status)) {
       await cancelUnusedResponseBody(response)
       response = await fetch(href, {
-        ...getGitHubContentFetchOptions({
+        ...(await getGitHubContentFetchOptionsAsync({
           includeApiVersion: false,
           includeAuthorization: false,
           userAgent: `docs:${owner}/${repo}`,
-        }),
+        })),
       })
     }
   } catch (error) {
@@ -813,6 +816,11 @@ function getGitHubAuthToken() {
   return getValidGitHubToken(hostToken ?? env.GITHUB_AUTH_TOKEN)
 }
 
+async function getGitHubAuthTokenAsync() {
+  const hostToken = (await getHostRuntimeEnv())?.GITHUB_AUTH_TOKEN
+  return getValidGitHubToken(hostToken ?? env.GITHUB_AUTH_TOKEN)
+}
+
 export function isGitHubAuthFailureStatus(status: number) {
   // GitHub can mask token-scoping failures as 404, especially for raw
   // content URLs. Retry unauthenticated before treating the content as missing.
@@ -824,6 +832,28 @@ export function getGitHubContentFetchOptions(opts?: {
   includeAuthorization?: boolean
   userAgent?: string
 }): RequestInit {
+  return getGitHubContentFetchOptionsWithToken(getGitHubAuthToken(), opts)
+}
+
+async function getGitHubContentFetchOptionsAsync(opts?: {
+  includeApiVersion?: boolean
+  includeAuthorization?: boolean
+  userAgent?: string
+}): Promise<RequestInit> {
+  return getGitHubContentFetchOptionsWithToken(
+    await getGitHubAuthTokenAsync(),
+    opts,
+  )
+}
+
+function getGitHubContentFetchOptionsWithToken(
+  token: string | undefined,
+  opts?: {
+    includeApiVersion?: boolean
+    includeAuthorization?: boolean
+    userAgent?: string
+  },
+): RequestInit {
   const headers: Record<string, string> = {}
 
   if (opts?.includeApiVersion !== false) {
@@ -833,8 +863,6 @@ export function getGitHubContentFetchOptions(opts?: {
   if (opts?.userAgent) {
     headers['User-Agent'] = opts.userAgent
   }
-
-  const token = getGitHubAuthToken()
 
   if (token && opts?.includeAuthorization !== false) {
     headers.Authorization = `Bearer ${token}`
@@ -849,13 +877,15 @@ async function fetchGitHubApiJson(url: string) {
   let response: Response
 
   try {
-    response = await fetch(url, getGitHubContentFetchOptions())
+    response = await fetch(url, await getGitHubContentFetchOptionsAsync())
 
     if (isGitHubAuthFailureStatus(response.status)) {
       await cancelUnusedResponseBody(response)
       response = await fetch(
         url,
-        getGitHubContentFetchOptions({ includeAuthorization: false }),
+        await getGitHubContentFetchOptionsAsync({
+          includeAuthorization: false,
+        }),
       )
     }
   } catch (error) {

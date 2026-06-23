@@ -38,16 +38,14 @@ import {
   type NpmDailyDownload,
 } from './npm-download-outliers'
 import { envFunctions } from './env.functions'
-
-function toIsoDayUtc(date: Date): string {
-  return date.toISOString().slice(0, 10)
-}
-
-function addUtcDays(day: string, amount: number): string {
-  const date = new Date(`${day}T00:00:00.000Z`)
-  date.setUTCDate(date.getUTCDate() + amount)
-  return toIsoDayUtc(date)
-}
+import {
+  NPM_STATS_START_DATE,
+  addUtcDays,
+  getNormalizedNpmDownloadChunks,
+  getNpmDailyDownloadsFromResponse,
+  hasCompleteDailyCoverage,
+  toIsoDayUtc,
+} from './npm-download-ranges'
 
 /**
  * NPM sometimes reports ecosystem-wide zero days.
@@ -435,10 +433,12 @@ export async function fetchNpmDownloadsBulk({ data }: { data: any }) {
   const { packageGroups, startDate, endDate } = data
 
   // Import cache functions
-  const { getBatchNpmDownloadChunks, setCachedNpmDownloadChunk } =
-    await import('./stats-db.server')
+  const {
+    getBatchNpmDownloadChunks,
+    getLatestNpmDownloadChunksBeforeRangeEnd,
+    setCachedNpmDownloadChunk,
+  } = await import('./npm-download-cache.server')
 
-  const NPM_STATS_START_DATE = '2015-01-10'
   const today = new Date().toISOString().substring(0, 10)
   const currentYear = new Date().getFullYear().toString()
 
@@ -451,6 +451,21 @@ export async function fetchNpmDownloadsBulk({ data }: { data: any }) {
     isCurrentYear: boolean
   }
 
+  type DownloadChunk = {
+    packageName: string
+    dateFrom: string
+    dateTo: string
+    binSize: string
+    dailyData: Array<NpmDailyDownload>
+    totalDownloads: number
+    isImmutable: boolean
+    updatedAt?: string
+  }
+
+  function getChunkCacheKey(req: ChunkRequest) {
+    return `${req.packageName}|${req.startDate}|${req.endDate}|daily`
+  }
+
   const chunkRequests: ChunkRequest[] = []
   const allPackageNames = new Set<string>()
 
@@ -458,37 +473,20 @@ export async function fetchNpmDownloadsBulk({ data }: { data: any }) {
     for (const pkg of group.packages) {
       allPackageNames.add(pkg.name)
 
-      // Generate year-based chunks from startDate to endDate
-      const startYear = new Date(startDate).getFullYear()
-      const endYear = new Date(endDate).getFullYear()
-
-      for (let year = startYear; year <= endYear; year++) {
-        const yearStr = year.toString()
-        const isCurrentYear = yearStr === currentYear
-
-        let chunkStart = `${yearStr}-01-01`
-        let chunkEnd = `${yearStr}-12-31`
-
-        if (isCurrentYear) {
-          chunkEnd = today
-        }
-
-        // Adjust start date if before npm stats started
-        if (chunkStart < NPM_STATS_START_DATE) {
-          chunkStart = NPM_STATS_START_DATE
-        }
-
-        // Skip future years
-        if (year > parseInt(currentYear)) {
-          continue
-        }
-
+      for (const chunk of getNormalizedNpmDownloadChunks({
+        startDate,
+        endDate,
+        today,
+      })) {
+        const yearStr = new Date(`${chunk.from}T00:00:00.000Z`)
+          .getUTCFullYear()
+          .toString()
         chunkRequests.push({
           packageName: pkg.name,
           year: yearStr,
-          startDate: chunkStart,
-          endDate: chunkEnd,
-          isCurrentYear,
+          startDate: chunk.from,
+          endDate: chunk.to,
+          isCurrentYear: yearStr === currentYear,
         })
       }
     }
@@ -506,7 +504,7 @@ export async function fetchNpmDownloadsBulk({ data }: { data: any }) {
 
   // Identify chunks that need to be fetched from NPM API
   const chunksToFetch: ChunkRequest[] = []
-  const resultChunks = new Map<string, any>()
+  const resultChunks = new Map<string, DownloadChunk>()
 
   for (const req of chunkRequests) {
     const cacheKey = `${req.packageName}|${req.startDate}|${req.endDate}|daily`
@@ -538,7 +536,19 @@ export async function fetchNpmDownloadsBulk({ data }: { data: any }) {
 
   // Fetch missing chunks from NPM API in parallel
   if (chunksToFetch.length > 0) {
+    const fallbackChunks = await getLatestNpmDownloadChunksBeforeRangeEnd(
+      chunksToFetch.map((req) => ({
+        packageName: req.packageName,
+        dateFrom: req.startDate,
+        dateTo: req.endDate,
+        binSize: 'daily',
+      })),
+    )
+
     const fetchPromises = chunksToFetch.map(async (req) => {
+      const cacheKey = getChunkCacheKey(req)
+      const fallbackChunk = fallbackChunks.get(cacheKey)
+
       try {
         const response = await fetch(
           `https://api.npmjs.org/downloads/range/${req.startDate}:${req.endDate}/${req.packageName}`,
@@ -552,12 +562,20 @@ export async function fetchNpmDownloadsBulk({ data }: { data: any }) {
 
         if (!response.ok) {
           if (response.status === 404) {
+            if (fallbackChunk) {
+              return {
+                key: cacheKey,
+                data: fallbackChunk,
+              }
+            }
+
             return {
-              key: `${req.packageName}|${req.startDate}|${req.endDate}|daily`,
+              key: cacheKey,
               data: {
                 packageName: req.packageName,
                 dateFrom: req.startDate,
                 dateTo: req.endDate,
+                binSize: 'daily',
                 dailyData: [],
                 totalDownloads: 0,
                 isImmutable: !req.isCurrentYear,
@@ -568,7 +586,13 @@ export async function fetchNpmDownloadsBulk({ data }: { data: any }) {
         }
 
         const result = await response.json()
-        const downloads = result.downloads || []
+        const downloads = getNpmDailyDownloadsFromResponse(result)
+
+        if (!hasCompleteDailyCoverage(downloads, req.startDate, req.endDate)) {
+          throw new Error(
+            `NPM API returned incomplete range ${downloads[0]?.day ?? 'empty'}:${downloads.at(-1)?.day ?? 'empty'} for ${req.startDate}:${req.endDate}`,
+          )
+        }
 
         const chunkData = {
           packageName: req.packageName,
@@ -576,31 +600,40 @@ export async function fetchNpmDownloadsBulk({ data }: { data: any }) {
           dateTo: req.endDate,
           binSize: 'daily',
           totalDownloads: downloads.reduce(
-            (sum: number, d: any) => sum + d.downloads,
+            (sum, point) => sum + point.downloads,
             0,
           ),
           dailyData: downloads,
           isImmutable: !req.isCurrentYear,
         }
 
-        // Cache this chunk asynchronously (don't wait)
-        setCachedNpmDownloadChunk(chunkData).catch((err) =>
-          console.warn(`Failed to cache chunk for ${req.packageName}:`, err),
-        )
+        await setCachedNpmDownloadChunk(chunkData)
 
         return {
-          key: `${req.packageName}|${req.startDate}|${req.endDate}|daily`,
+          key: cacheKey,
           data: chunkData,
         }
       } catch (error) {
         console.error(`Failed to fetch ${req.packageName} ${req.year}:`, error)
+
+        if (fallbackChunk) {
+          console.warn(
+            `[NPM Download Chunks] Using fallback ${fallbackChunk.dateFrom}:${fallbackChunk.dateTo} for ${req.packageName} ${req.startDate}:${req.endDate}`,
+          )
+          return {
+            key: cacheKey,
+            data: fallbackChunk,
+          }
+        }
+
         // Return empty data on error
         return {
-          key: `${req.packageName}|${req.startDate}|${req.endDate}|daily`,
+          key: cacheKey,
           data: {
             packageName: req.packageName,
             dateFrom: req.startDate,
             dateTo: req.endDate,
+            binSize: 'daily',
             dailyData: [],
             totalDownloads: 0,
             isImmutable: !req.isCurrentYear,
@@ -619,7 +652,7 @@ export async function fetchNpmDownloadsBulk({ data }: { data: any }) {
   const results = packageGroups.map((group: any) => {
     const packages = group.packages.map((pkg: any) => {
       // Collect all chunks for this package
-      const packageChunks: any[] = []
+      const packageChunks: Array<DownloadChunk> = []
 
       for (const req of chunkRequests) {
         if (req.packageName === pkg.name) {
@@ -633,15 +666,12 @@ export async function fetchNpmDownloadsBulk({ data }: { data: any }) {
 
       // Combine all chunks and filter to requested date range
       const allDownloads = packageChunks
-        .flatMap((chunk) => chunk.dailyData || [])
-        .filter((d: any) => {
+        .flatMap((chunk) => chunk.dailyData)
+        .filter((d) => {
           const date = new Date(d.day)
           return date >= new Date(startDate) && date <= new Date(endDate)
         })
-        .sort(
-          (a: any, b: any) =>
-            new Date(a.day).getTime() - new Date(b.day).getTime(),
-        )
+        .sort((a, b) => new Date(a.day).getTime() - new Date(b.day).getTime())
 
       const correctedDownloads = normalizeNpmDownloadSeries(
         pkg.name,
@@ -688,7 +718,6 @@ export async function fetchNpmDownloadChunk({ data }: { data: any }) {
   const { packageName, year } = data
 
   // NPM download statistics only go back to January 10, 2015
-  const NPM_STATS_START_DATE = '2015-01-10'
   const today = new Date().toISOString().substring(0, 10)
   const currentYear = new Date().getFullYear().toString()
 
@@ -739,9 +768,9 @@ export async function fetchNpmDownloadChunk({ data }: { data: any }) {
 
   // Import cache functions
   const { getCachedNpmDownloadChunk, setCachedNpmDownloadChunk } =
-    await import('./stats-db.server')
+    await import('./npm-download-cache.server')
 
-  // Check database cache first
+  // Check R2 cache first
   let cachedChunk
   try {
     cachedChunk = await getCachedNpmDownloadChunk(
@@ -824,7 +853,13 @@ export async function fetchNpmDownloadChunk({ data }: { data: any }) {
     }
 
     const result = await response.json()
-    const downloads = result.downloads || []
+    const downloads = getNpmDailyDownloadsFromResponse(result)
+
+    if (!hasCompleteDailyCoverage(downloads, startDate, endDate)) {
+      throw new Error(
+        `NPM API returned incomplete range ${downloads[0]?.day ?? 'empty'}:${downloads.at(-1)?.day ?? 'empty'} for ${startDate}:${endDate}`,
+      )
+    }
 
     // Cache this chunk
     try {
@@ -849,8 +884,8 @@ export async function fetchNpmDownloadChunk({ data }: { data: any }) {
     }
 
     return {
-      start: result.start || startDate,
-      end: result.end || endDate,
+      start: startDate,
+      end: endDate,
       package: packageName,
       year,
       downloads: normalizeNpmDownloadSeries(
@@ -898,13 +933,12 @@ export async function fetchRecentDownloadStats({
     }),
   )
 
-  // Import db functions dynamically
+  const { getRegisteredPackages } = await import('./stats-db.server')
   const {
-    getRegisteredPackages,
     getBatchNpmDownloadChunks,
     getLatestNpmDownloadChunksCoveringRange,
     setCachedNpmDownloadChunk,
-  } = await import('./stats-db.server')
+  } = await import('./npm-download-cache.server')
 
   const explicitPackageNames = data.library.npmPackageNames ?? []
 
@@ -995,6 +1029,17 @@ export async function fetchRecentDownloadStats({
     period: RecentDownloadPeriod
   }
 
+  type RecentDownloadChunk = {
+    packageName: string
+    dateFrom: string
+    dateTo: string
+    binSize: string
+    dailyData: Array<NpmDailyDownload>
+    totalDownloads: number
+    isImmutable: boolean
+    updatedAt?: number | string
+  }
+
   // Create chunk requests for all packages and time periods
   const chunkRequests: Array<RecentDownloadChunkRequest> = []
   for (const packageName of packageNames) {
@@ -1033,7 +1078,7 @@ export async function fetchRecentDownloadStats({
   // Try to get cached data first
   const cachedChunks = await getBatchNpmDownloadChunks(chunkRequests)
   const needsFetch: typeof chunkRequests = []
-  const results = new Map<string, any>()
+  const results = new Map<string, RecentDownloadChunk>()
 
   // Check what we have in cache vs what needs fetching
   for (const req of chunkRequests) {
@@ -1042,8 +1087,9 @@ export async function fetchRecentDownloadStats({
 
     if (cached) {
       // Check if cache is recent enough (within last hour for recent data)
-      const cacheAge = Date.now() - Number(cached.updatedAt ?? 0)
-      const isStale = cacheAge > 60 * 60 * 1000 // 1 hour
+      const updatedAt = cached.updatedAt ? Date.parse(cached.updatedAt) : 0
+      const isStale =
+        !Number.isFinite(updatedAt) || Date.now() - updatedAt > 60 * 60 * 1000
 
       if (!isStale) {
         results.set(cacheKey, cached)
@@ -1089,7 +1135,13 @@ export async function fetchRecentDownloadStats({
         }
 
         const result = await response.json()
-        const downloads = result.downloads || []
+        const downloads = getNpmDailyDownloadsFromResponse(result)
+
+        if (!hasCompleteDailyCoverage(downloads, req.dateFrom, req.dateTo)) {
+          throw new Error(
+            `NPM API returned incomplete recent range ${downloads[0]?.day ?? 'empty'}:${downloads.at(-1)?.day ?? 'empty'} for ${req.dateFrom}:${req.dateTo}`,
+          )
+        }
 
         const chunkData = {
           packageName: req.packageName,
@@ -1097,7 +1149,7 @@ export async function fetchRecentDownloadStats({
           dateTo: req.dateTo,
           binSize: req.binSize,
           totalDownloads: downloads.reduce(
-            (sum: number, d: any) => sum + d.downloads,
+            (sum, point) => sum + point.downloads,
             0,
           ),
           dailyData: downloads,
@@ -1105,13 +1157,7 @@ export async function fetchRecentDownloadStats({
           updatedAt: Date.now(),
         }
 
-        // Cache this chunk asynchronously
-        setCachedNpmDownloadChunk(chunkData).catch((err) =>
-          console.warn(
-            `Failed to cache recent downloads for ${req.packageName}:`,
-            err,
-          ),
-        )
+        await setCachedNpmDownloadChunk(chunkData)
 
         return {
           key: `${req.packageName}|${req.dateFrom}|${req.dateTo}|${req.binSize}`,
@@ -1158,7 +1204,7 @@ export async function fetchRecentDownloadStats({
     if (chunk) {
       const normalizedDownloads = normalizeNpmDownloadSeries(
         req.packageName,
-        chunk.dailyData || [],
+        chunk.dailyData,
         todayStr,
       )
       const downloads = normalizedDownloads.reduce(

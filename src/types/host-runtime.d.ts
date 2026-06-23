@@ -4,5 +4,6 @@ declare module 'cloudflare:workers' {
     HYPERDRIVE?: {
       connectionString: string
     }
+    NPM_DOWNLOAD_CACHE?: unknown
   }
 }

@@ -11,6 +11,7 @@ type HostRuntimeEnv = Record<string, unknown> & {
   HYPERDRIVE?: {
     connectionString: string
   }
+  NPM_DOWNLOAD_CACHE?: unknown
 }
 
 type HostRuntimeModule = {

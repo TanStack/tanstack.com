@@ -1,6 +1,6 @@
 import { getHostRuntimeEnv, isIsolateRuntime } from './host.server'
 
-export type BlobStorageName = 'githubContentCache'
+export type BlobStorageName = 'githubContentCache' | 'npmDownloadCache'
 
 export type BlobStorageObject = {
   key: string
@@ -158,6 +158,8 @@ function getRuntimeBindingName(name: BlobStorageName) {
   switch (name) {
     case 'githubContentCache':
       return 'GITHUB_CONTENT_CACHE'
+    case 'npmDownloadCache':
+      return 'NPM_DOWNLOAD_CACHE'
   }
 }
 

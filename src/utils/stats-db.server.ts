@@ -1258,6 +1258,25 @@ export interface NpmDownloadChunkData {
   isImmutable: boolean
 }
 
+function isNpmDailyDownloadPoint(
+  value: unknown,
+): value is { day: string; downloads: number } {
+  return (
+    !!value &&
+    typeof value === 'object' &&
+    typeof Reflect.get(value, 'day') === 'string' &&
+    typeof Reflect.get(value, 'downloads') === 'number'
+  )
+}
+
+function getNpmDailyDownloadData(value: unknown) {
+  if (!Array.isArray(value)) {
+    return []
+  }
+
+  return value.filter(isNpmDailyDownloadPoint)
+}
+
 /**
  * Get the freshest cached daily chunks that cover a date window.
  *
@@ -1308,7 +1327,7 @@ export async function getLatestNpmDownloadChunksCoveringRange({
         dateTo: row.dateTo,
         binSize: row.binSize,
         totalDownloads: row.totalDownloads,
-        dailyData: row.dailyData as Array<{ day: string; downloads: number }>,
+        dailyData: getNpmDailyDownloadData(row.dailyData),
         isImmutable: row.isImmutable,
       })
     }
@@ -1377,10 +1396,7 @@ export async function getBatchNpmDownloadChunks(
           dateTo: chunk.dateTo,
           binSize: chunk.binSize,
           totalDownloads: chunk.totalDownloads,
-          dailyData: chunk.dailyData as Array<{
-            day: string
-            downloads: number
-          }>,
+          dailyData: getNpmDailyDownloadData(chunk.dailyData),
           isImmutable: chunk.isImmutable,
           updatedAt: chunk.updatedAt?.toISOString(),
           createdAt: chunk.createdAt?.toISOString(),
@@ -1391,6 +1407,91 @@ export async function getBatchNpmDownloadChunks(
     return results
   } catch (error) {
     console.error('[NPM Download Chunks] Error reading batch cache:', error)
+    return results
+  }
+}
+
+/**
+ * Get the newest cached chunks that start at the requested range start and end
+ * on or before the requested range end.
+ *
+ * This is only a fallback for transient upstream fetch failures. It lets the
+ * stats page keep using yesterday's current-year chunk instead of dropping a
+ * series to zero when today's exact cache key has not been written yet.
+ */
+export async function getLatestNpmDownloadChunksBeforeRangeEnd(
+  requests: Array<{
+    packageName: string
+    dateFrom: string
+    dateTo: string
+    binSize: string
+  }>,
+): Promise<
+  Map<string, NpmDownloadChunkData & { updatedAt?: string; createdAt?: string }>
+> {
+  const results = new Map<
+    string,
+    NpmDownloadChunkData & { updatedAt?: string; createdAt?: string }
+  >()
+
+  if (requests.length === 0) {
+    return results
+  }
+
+  try {
+    const { or } = await import('drizzle-orm')
+
+    const conditions = requests.map((req) =>
+      and(
+        eq(npmDownloadChunks.packageName, req.packageName),
+        eq(npmDownloadChunks.dateFrom, req.dateFrom),
+        lte(npmDownloadChunks.dateTo, req.dateTo),
+        eq(npmDownloadChunks.binSize, req.binSize),
+      ),
+    )
+
+    const cached = await db.query.npmDownloadChunks.findMany({
+      where: or(...conditions),
+      orderBy: [
+        desc(npmDownloadChunks.dateTo),
+        desc(npmDownloadChunks.updatedAt),
+      ],
+    })
+
+    for (const chunk of cached) {
+      for (const req of requests) {
+        const cacheKey = `${req.packageName}|${req.dateFrom}|${req.dateTo}|${req.binSize}`
+
+        if (results.has(cacheKey)) {
+          continue
+        }
+
+        if (
+          chunk.packageName !== req.packageName ||
+          chunk.dateFrom !== req.dateFrom ||
+          chunk.dateTo > req.dateTo ||
+          chunk.binSize !== req.binSize
+        ) {
+          continue
+        }
+
+        results.set(cacheKey, {
+          packageName: chunk.packageName,
+          dateFrom: chunk.dateFrom,
+          dateTo: chunk.dateTo,
+          binSize: chunk.binSize,
+          totalDownloads: chunk.totalDownloads,
+          dailyData: getNpmDailyDownloadData(chunk.dailyData),
+          isImmutable: chunk.isImmutable,
+          updatedAt: chunk.updatedAt?.toISOString(),
+          createdAt: chunk.createdAt?.toISOString(),
+        })
+      }
+    }
+
+    return results
+  } catch (error) {
+    console.error('[NPM Download Chunks] Error reading fallback ranges:', error)
     return results
   }
 }
@@ -1428,10 +1529,7 @@ export async function getCachedNpmDownloadChunk(
         dateTo: cached.dateTo,
         binSize: cached.binSize,
         totalDownloads: cached.totalDownloads,
-        dailyData: cached.dailyData as Array<{
-          day: string
-          downloads: number
-        }>,
+        dailyData: getNpmDailyDownloadData(cached.dailyData),
         isImmutable: cached.isImmutable,
       }
     }
@@ -1444,10 +1542,7 @@ export async function getCachedNpmDownloadChunk(
         dateTo: cached.dateTo,
         binSize: cached.binSize,
         totalDownloads: cached.totalDownloads,
-        dailyData: cached.dailyData as Array<{
-          day: string
-          downloads: number
-        }>,
+        dailyData: getNpmDailyDownloadData(cached.dailyData),
         isImmutable: cached.isImmutable,
       }
     }

@@ -5,6 +5,12 @@
 
 import { envFunctions } from './env.functions'
 import type { GitHubStats, NpmPackageStats, NpmStats } from './stats.types'
+import {
+  getNormalizedNpmDownloadChunks,
+  getNpmDailyDownloadsFromResponse,
+  getNpmDownloadResponseError,
+  hasCompleteDailyCoverage,
+} from './npm-download-ranges'
 
 function getGitHubHeaders() {
   const token = envFunctions.GITHUB_AUTH_TOKEN
@@ -170,56 +176,6 @@ async function fetchNpmPackageCreationDate(
 }
 
 /**
- * Normalize date ranges into consistent year-based chunk boundaries
- * Uses calendar years for stable cache keys that don't shift daily
- *
- * This ensures the same date ranges are used across all fetches, preventing
- * duplicate cache entries. Historical years are immutable (Jan 1 - Dec 31),
- * current year ends at today's date.
- */
-function generateNormalizedChunks(
-  startDate: string,
-  endDate: string,
-): Array<{ from: string; to: string }> {
-  const NPM_STATS_START_DATE = '2015-01-10'
-  const chunks: Array<{ from: string; to: string }> = []
-
-  const startYear = new Date(startDate).getFullYear()
-  const endYear = new Date(endDate).getFullYear()
-  const currentYear = new Date().getFullYear()
-  const today = new Date().toISOString().substring(0, 10)
-
-  for (let year = startYear; year <= endYear; year++) {
-    let from = `${year}-01-01`
-    let to = `${year}-12-31`
-
-    // Adjust start date if before npm stats started
-    if (from < NPM_STATS_START_DATE) {
-      from = NPM_STATS_START_DATE
-    }
-
-    // Current year ends at today
-    if (year === currentYear) {
-      to = today
-    }
-
-    // Skip if the entire chunk is before npm stats started
-    if (to < NPM_STATS_START_DATE) {
-      continue
-    }
-
-    // Skip future years
-    if (year > currentYear) {
-      continue
-    }
-
-    chunks.push({ from, to })
-  }
-
-  return chunks
-}
-
-/**
  * Fetch all-time download counts using chunked /range/ requests
  * This is the correct method as npm API limits /point/ to 18 months
  *
@@ -234,14 +190,18 @@ async function fetchNpmPackageDownloadsChunked(
   const today = new Date().toISOString().substring(0, 10)
 
   // Generate normalized chunks for consistent cache keys
-  const chunks = generateNormalizedChunks(createdDate, today)
+  const chunks = getNormalizedNpmDownloadChunks({
+    startDate: createdDate,
+    endDate: today,
+    today,
+  })
 
   let totalDownloadCount = 0
   let lastChunkData: { day: string; downloads: number }[] = []
 
   // Load cache functions dynamically to keep the shared stats module light.
   const { getCachedNpmDownloadChunk, setCachedNpmDownloadChunk } =
-    await import('./stats-db.server')
+    await import('./npm-download-cache.server')
 
   // Fetch chunks sequentially to avoid nested AsyncQueuer complexity
   // The outer queue (per-package) provides concurrency control
@@ -339,25 +299,32 @@ async function fetchNpmPackageDownloadsChunked(
           throw new Error(`NPM API error: ${response.status}`)
         }
 
-        const pageData: {
-          end: string
-          downloads: { day: string; downloads: number }[]
-          error?: string
-        } = await response.json()
+        const pageData: unknown = await response.json()
 
-        if (pageData.error === `package ${packageName} not found`) {
+        if (
+          getNpmDownloadResponseError(pageData) ===
+          `package ${packageName} not found`
+        ) {
           success = true // Exit retry loop
           continue
         }
 
-        const downloadCount = pageData.downloads.reduce(
+        const downloads = getNpmDailyDownloadsFromResponse(pageData)
+
+        if (!hasCompleteDailyCoverage(downloads, chunk.from, chunk.to)) {
+          throw new Error(
+            `NPM API returned incomplete range ${downloads[0]?.day ?? 'empty'}:${downloads.at(-1)?.day ?? 'empty'} for ${chunk.from}:${chunk.to}`,
+          )
+        }
+
+        const downloadCount = downloads.reduce(
           (acc, cur) => acc + cur.downloads,
           0,
         )
 
         totalDownloadCount += downloadCount
-        if (pageData.downloads.length > 0) {
-          lastChunkData = pageData.downloads
+        if (downloads.length > 0) {
+          lastChunkData = downloads
         }
 
         // Cache the fetched chunk for future use (best-effort)
@@ -368,7 +335,7 @@ async function fetchNpmPackageDownloadsChunked(
             dateTo: chunk.to,
             binSize: 'daily',
             totalDownloads: downloadCount,
-            dailyData: pageData.downloads,
+            dailyData: downloads,
             isImmutable: false, // Will be calculated by setCachedNpmDownloadChunk
           })
         } catch (error) {

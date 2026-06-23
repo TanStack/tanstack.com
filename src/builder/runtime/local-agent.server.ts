@@ -1161,7 +1161,6 @@ function isJsonSchema(value: unknown): value is JSONSchema {
 function sanitizeCloudflareAiJsonSchema(schema: unknown): JSONSchema {
   if (!isRecord(schema)) {
     return {
-      additionalProperties: false,
       properties: {},
       type: 'object',
     }
@@ -1175,7 +1174,7 @@ function sanitizeCloudflareAiJsonSchema(schema: unknown): JSONSchema {
     Array.isArray(schema.type) &&
     schema.type.every((item) => typeof item === 'string')
   ) {
-    result.type = schema.type
+    result.type = schema.type.find((item) => item !== 'null') ?? schema.type[0]
   }
 
   if (typeof schema.description === 'string') {
@@ -1201,32 +1200,12 @@ function sanitizeCloudflareAiJsonSchema(schema: unknown): JSONSchema {
     result.items = sanitizeCloudflareAiJsonSchema(schema.items)
   }
 
-  if (typeof schema.additionalProperties === 'boolean') {
-    result.additionalProperties = schema.additionalProperties
-  }
-
   if (Array.isArray(schema.enum)) {
     result.enum = schema.enum
   }
 
-  if (typeof schema.minimum === 'number') {
-    result.minimum = schema.minimum
-  }
-
-  if (typeof schema.maximum === 'number') {
-    result.maximum = schema.maximum
-  }
-
-  if (typeof schema.minLength === 'number') {
-    result.minLength = schema.minLength
-  }
-
-  if (typeof schema.maxLength === 'number') {
-    result.maxLength = schema.maxLength
-  }
-
-  if (typeof schema.pattern === 'string') {
-    result.pattern = schema.pattern
+  if (!result.type && result.properties) {
+    result.type = 'object'
   }
 
   return result

@@ -269,12 +269,9 @@ type CloudflareAiMessage = {
 }
 
 type CloudflareAiToolDefinition = {
-  function: {
-    description: string
-    name: string
-    parameters: JSONSchema
-  }
-  type: 'function'
+  description: string
+  name: string
+  parameters: JSONSchema
 }
 
 type CloudflareAiTextGenerationInput = {
@@ -1171,12 +1168,9 @@ function createCloudflareAiToolDefinition(
   tool: ServerTool,
 ): CloudflareAiToolDefinition {
   return {
-    function: {
-      description: tool.description,
-      name: tool.name,
-      parameters: readCloudflareAiToolParameters(tool.inputSchema),
-    },
-    type: 'function',
+    description: tool.description,
+    name: tool.name,
+    parameters: readCloudflareAiToolParameters(tool.inputSchema),
   }
 }
 

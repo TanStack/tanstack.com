@@ -58,6 +58,18 @@ export async function handleMcpRequest(request: Request): Promise<Response> {
     keyId: authResult.keyId,
   }
 
+  if (request.method === 'GET') {
+    return jsonRpcError(
+      -32000,
+      'SSE streams are not supported by this stateless MCP endpoint. Send JSON-RPC requests with POST.',
+      405,
+      {
+        Allow: 'POST, DELETE',
+        'Cache-Control': 'no-store',
+      },
+    )
+  }
+
   // Check rate limit
   const rateLimit = await checkRateLimit(
     authResult.keyId,

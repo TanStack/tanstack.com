@@ -79,6 +79,25 @@ export interface ParsedSkill {
 
 const NPM_REGISTRY = 'https://registry.npmjs.org'
 
+async function cancelUnusedResponseBody(response: Response): Promise<void> {
+  if (!response.body) return
+
+  try {
+    await response.body.cancel()
+  } catch {
+    // Best effort cleanup for responses we intentionally do not read.
+  }
+}
+
+async function parseJsonIfOk<T>(response: Response): Promise<T | null> {
+  if (!response.ok) {
+    await cancelUnusedResponseBody(response)
+    return null
+  }
+
+  return response.json()
+}
+
 export async function searchIntentPackages(): Promise<NpmSearchResult> {
   const results: NpmSearchResult = { objects: [], total: 0, time: '' }
   let from = 0
@@ -90,6 +109,7 @@ export async function searchIntentPackages(): Promise<NpmSearchResult> {
       headers: { Accept: 'application/json' },
     })
     if (!res.ok) {
+      await cancelUnusedResponseBody(res)
       throw new Error(`NPM search failed: ${res.status} ${res.statusText}`)
     }
     const page = (await res.json()) as NpmSearchResult
@@ -137,7 +157,7 @@ export async function fetchBulkDownloads(
       fetch(
         `${NPM_DOWNLOADS_API}/downloads/point/last-month/${batch.join(',')}`,
       )
-        .then((r) => (r.ok ? (r.json() as Promise<NpmDownloadCounts>) : null))
+        .then((r) => parseJsonIfOk<NpmDownloadCounts>(r))
         .then((data) => {
           if (!data) return
           for (const [name, info] of Object.entries(data)) {
@@ -151,22 +171,26 @@ export async function fetchBulkDownloads(
   }
 
   // Scoped packages: individual fetches in parallel
-  const scopedFetches = scoped.map((name) =>
-    fetch(`${NPM_DOWNLOADS_API}/downloads/point/last-month/${name}`)
-      .then((r) =>
-        r.ok
-          ? (r.json() as Promise<{ downloads: number; package: string }>)
-          : null,
-      )
-      .then((data) => {
-        if (data?.downloads != null) {
-          result.set(name, data.downloads)
-        }
-      })
-      .catch(() => {}),
-  )
+  const SCOPED_CONCURRENCY = 8
+  await Promise.all(unscopedFetches)
 
-  await Promise.all([...unscopedFetches, ...scopedFetches])
+  for (let i = 0; i < scoped.length; i += SCOPED_CONCURRENCY) {
+    await Promise.all(
+      scoped.slice(i, i + SCOPED_CONCURRENCY).map((name) =>
+        fetch(`${NPM_DOWNLOADS_API}/downloads/point/last-month/${name}`)
+          .then((r) =>
+            parseJsonIfOk<{ downloads: number; package: string }>(r),
+          )
+          .then((data) => {
+            if (data?.downloads != null) {
+              result.set(name, data.downloads)
+            }
+          })
+          .catch(() => {}),
+      ),
+    )
+  }
+
   return result
 }
 
@@ -179,6 +203,7 @@ export async function fetchPackument(name: string): Promise<NpmPackument> {
     headers: { Accept: 'application/json' },
   })
   if (!res.ok) {
+    await cancelUnusedResponseBody(res)
     throw new Error(
       `Failed to fetch packument for ${name}: ${res.status} ${res.statusText}`,
     )
@@ -272,6 +297,7 @@ export async function extractSkillsFromTarball(
 ): Promise<Array<ParsedSkill>> {
   const res = await fetch(tarballUrl)
   if (!res.ok) {
+    await cancelUnusedResponseBody(res)
     throw new Error(
       `Failed to download tarball ${tarballUrl}: ${res.status} ${res.statusText}`,
     )

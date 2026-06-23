@@ -5,6 +5,7 @@
  */
 
 import {
+  cancelUnusedResponseBody,
   fetchGitHubRecursiveTree,
   getGitHubContentFetchOptions,
   GitHubContentError,
@@ -124,6 +125,7 @@ async function fetchRawGitHubFile(
         })
 
         if (isGitHubAuthFailureStatus(response.status)) {
+          await cancelUnusedResponseBody(response)
           response = await fetch(href, {
             ...getGitHubContentFetchOptions({
               includeApiVersion: false,
@@ -141,6 +143,8 @@ async function fetchRawGitHubFile(
       }
 
       if (!response.ok) {
+        await cancelUnusedResponseBody(response)
+
         if (response.status === 404) {
           return null
         }

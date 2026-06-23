@@ -70,6 +70,18 @@ export function isRecoverableGitHubContentError(
   )
 }
 
+export async function cancelUnusedResponseBody(
+  response: Response,
+): Promise<void> {
+  if (!response.body) return
+
+  try {
+    await response.body.cancel()
+  } catch {
+    // Best effort cleanup for responses we intentionally do not read.
+  }
+}
+
 export function shouldUseLocalDocsFiles() {
   if (process.env.NODE_ENV !== 'development') {
     return false
@@ -105,6 +117,7 @@ async function fetchRemote(
     })
 
     if (isGitHubAuthFailureStatus(response.status)) {
+      await cancelUnusedResponseBody(response)
       response = await fetch(href, {
         ...getGitHubContentFetchOptions({
           includeApiVersion: false,
@@ -122,6 +135,8 @@ async function fetchRemote(
   }
 
   if (!response.ok) {
+    await cancelUnusedResponseBody(response)
+
     if (response.status === 404) {
       return null
     }
@@ -853,6 +868,7 @@ async function fetchGitHubApiJson(url: string) {
     response = await fetch(url, getGitHubContentFetchOptions())
 
     if (isGitHubAuthFailureStatus(response.status)) {
+      await cancelUnusedResponseBody(response)
       response = await fetch(
         url,
         getGitHubContentFetchOptions({ includeAuthorization: false }),
@@ -869,6 +885,8 @@ async function fetchGitHubApiJson(url: string) {
   }
 
   if (!response.ok) {
+    await cancelUnusedResponseBody(response)
+
     if (response.status === 404) {
       return null
     }

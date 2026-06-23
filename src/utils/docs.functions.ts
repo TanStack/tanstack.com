@@ -340,7 +340,17 @@ export const fetchRepoDirectoryContents = createServerFn({
   .inputValidator(repoDirectoryInput)
   .handler(async ({ data }: { data: RepoDirectoryRequest }) => {
     const { repo, branch, startingPath } = data
-    const githubContents = await fetchApiContents(repo, branch, startingPath)
+    let githubContents: Awaited<ReturnType<typeof fetchApiContents>>
+
+    try {
+      githubContents = await fetchApiContents(repo, branch, startingPath)
+    } catch (error) {
+      if (!isRecoverableGitHubContentError(error)) {
+        throw error
+      }
+
+      return null
+    }
 
     if (!githubContents) {
       throw notFound()

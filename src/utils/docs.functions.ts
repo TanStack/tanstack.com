@@ -235,13 +235,23 @@ export const fetchDocsManifest = createServerFn({ method: 'GET' })
 export const fetchDocsRedirect = createServerFn({ method: 'GET' })
   .inputValidator(docsRedirectInput)
   .handler(async ({ data }) => {
-    const manifest = await fetchDocsManifest({
-      data: {
-        repo: data.repo,
-        branch: data.branch,
-        docsRoot: data.docsRoot,
-      },
-    })
+    let manifest: DocsManifest
+
+    try {
+      manifest = await fetchDocsManifest({
+        data: {
+          repo: data.repo,
+          branch: data.branch,
+          docsRoot: data.docsRoot,
+        },
+      })
+    } catch (error) {
+      if (isRecoverableGitHubContentError(error)) {
+        return null
+      }
+
+      throw error
+    }
 
     for (const docsPath of data.docsPaths) {
       const normalizedDocsPath = normalizeDocsRedirectPath(

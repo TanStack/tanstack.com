@@ -9,7 +9,7 @@
     "enabled": true,
   },
   "cache": {
-    "enabled": true,
+    "enabled": false,
   },
   "limits": {
     "cpu_ms": 300000,

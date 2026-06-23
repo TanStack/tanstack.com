@@ -52,6 +52,7 @@ import {
   minimalLocalForgeSeedNeedsUpdate,
 } from './local-template.server'
 import type { ForgeProviderCredential } from './forge-byok.server'
+import { isIsolateRuntime } from '~/server/runtime/host.server'
 
 const LOCAL_FORGE_CONTEXT_VERSION = 'forge-local-agent-2026-06-18'
 const LOCAL_FORGE_MAX_ITERATIONS = 10
@@ -701,11 +702,27 @@ async function drainLocalForgeAgentRun({
     })
 
     await persistLocalForgeManifestBundle(bundle)
-    const materialized = await materializeLocalForgeManifest({
-      commitSystemSnapshotTimeline: false,
-      manifest: bundle.manifest,
-      runId: runContext.runId,
-    })
+    const materialized = isIsolateRuntime()
+      ? {
+          manifest: bundle.manifest,
+        }
+      : await materializeLocalForgeManifest({
+          commitSystemSnapshotTimeline: false,
+          manifest: bundle.manifest,
+          runId: runContext.runId,
+        })
+
+    if (isIsolateRuntime()) {
+      await appendAgentEvent({
+        detail:
+          'Cloudflare isolate runtime cannot run local filesystem/process validation.',
+        message: 'Workspace materialization skipped',
+        name: 'agent.runtime.materialize.skipped',
+        runContext,
+        status: 'finished',
+      })
+    }
+
     await appendLocalForgeManifestTimeline({
       bundle: {
         blobs: {},

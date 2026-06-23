@@ -101,6 +101,7 @@ import { Route as AuthProviderStartRouteImport } from './routes/auth/$provider/s
 import { Route as ApiOgChar123Char125DotpngRouteImport } from './routes/api/og/{$}[.]png'
 import { Route as ApiMcpSplatRouteImport } from './routes/api/mcp/$'
 import { Route as ApiGithubWebhookRouteImport } from './routes/api/github/webhook'
+import { Route as ApiForgeProofRouteImport } from './routes/api/forge/proof'
 import { Route as ApiForgeEventsRouteImport } from './routes/api/forge/events'
 import { Route as ApiForgeDownloadRouteImport } from './routes/api/forge/download'
 import { Route as ApiExampleDeployRouteImport } from './routes/api/example/deploy'
@@ -628,6 +629,11 @@ const ApiGithubWebhookRoute = ApiGithubWebhookRouteImport.update({
   path: '/api/github/webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiForgeProofRoute = ApiForgeProofRouteImport.update({
+  id: '/api/forge/proof',
+  path: '/api/forge/proof',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiForgeEventsRoute = ApiForgeEventsRouteImport.update({
   id: '/api/forge/events',
   path: '/api/forge/events',
@@ -1085,6 +1091,7 @@ export interface FileRoutesByFullPath {
   '/api/example/deploy': typeof ApiExampleDeployRoute
   '/api/forge/download': typeof ApiForgeDownloadRoute
   '/api/forge/events': typeof ApiForgeEventsRoute
+  '/api/forge/proof': typeof ApiForgeProofRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/api/og/{$}.png': typeof ApiOgChar123Char125DotpngRoute
@@ -1234,6 +1241,7 @@ export interface FileRoutesByTo {
   '/api/example/deploy': typeof ApiExampleDeployRoute
   '/api/forge/download': typeof ApiForgeDownloadRoute
   '/api/forge/events': typeof ApiForgeEventsRoute
+  '/api/forge/proof': typeof ApiForgeProofRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/api/og/{$}.png': typeof ApiOgChar123Char125DotpngRoute
@@ -1391,6 +1399,7 @@ export interface FileRoutesById {
   '/api/example/deploy': typeof ApiExampleDeployRoute
   '/api/forge/download': typeof ApiForgeDownloadRoute
   '/api/forge/events': typeof ApiForgeEventsRoute
+  '/api/forge/proof': typeof ApiForgeProofRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/api/og/{$}.png': typeof ApiOgChar123Char125DotpngRoute
@@ -1550,6 +1559,7 @@ export interface FileRouteTypes {
     | '/api/example/deploy'
     | '/api/forge/download'
     | '/api/forge/events'
+    | '/api/forge/proof'
     | '/api/github/webhook'
     | '/api/mcp/$'
     | '/api/og/{$}.png'
@@ -1699,6 +1709,7 @@ export interface FileRouteTypes {
     | '/api/example/deploy'
     | '/api/forge/download'
     | '/api/forge/events'
+    | '/api/forge/proof'
     | '/api/github/webhook'
     | '/api/mcp/$'
     | '/api/og/{$}.png'
@@ -1855,6 +1866,7 @@ export interface FileRouteTypes {
     | '/api/example/deploy'
     | '/api/forge/download'
     | '/api/forge/events'
+    | '/api/forge/proof'
     | '/api/github/webhook'
     | '/api/mcp/$'
     | '/api/og/{$}.png'
@@ -1985,6 +1997,7 @@ export interface RootRouteChildren {
   ApiExampleDeployRoute: typeof ApiExampleDeployRoute
   ApiForgeDownloadRoute: typeof ApiForgeDownloadRoute
   ApiForgeEventsRoute: typeof ApiForgeEventsRoute
+  ApiForgeProofRoute: typeof ApiForgeProofRoute
   ApiGithubWebhookRoute: typeof ApiGithubWebhookRoute
   ApiMcpSplatRoute: typeof ApiMcpSplatRoute
   ApiOgChar123Char125DotpngRoute: typeof ApiOgChar123Char125DotpngRoute
@@ -2647,6 +2660,13 @@ declare module '@tanstack/react-router' {
       path: '/api/github/webhook'
       fullPath: '/api/github/webhook'
       preLoaderRoute: typeof ApiGithubWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/forge/proof': {
+      id: '/api/forge/proof'
+      path: '/api/forge/proof'
+      fullPath: '/api/forge/proof'
+      preLoaderRoute: typeof ApiForgeProofRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/forge/events': {
@@ -3452,6 +3472,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiExampleDeployRoute: ApiExampleDeployRoute,
   ApiForgeDownloadRoute: ApiForgeDownloadRoute,
   ApiForgeEventsRoute: ApiForgeEventsRoute,
+  ApiForgeProofRoute: ApiForgeProofRoute,
   ApiGithubWebhookRoute: ApiGithubWebhookRoute,
   ApiMcpSplatRoute: ApiMcpSplatRoute,
   ApiOgChar123Char125DotpngRoute: ApiOgChar123Char125DotpngRoute,

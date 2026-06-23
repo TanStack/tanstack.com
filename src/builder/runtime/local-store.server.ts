@@ -41,6 +41,7 @@ import {
   type LocalBuilderTimelineEvent,
   type LocalWorkflowEventRecordedPayload,
 } from '~/builder/projection'
+import { isIsolateRuntime } from '~/server/runtime/host.server'
 
 export const LOCAL_FORGE_PROJECT_ID = 'local-project'
 export const LOCAL_FORGE_SESSION_ID = 'local-session'
@@ -747,6 +748,12 @@ export async function acquireLocalForgeLockLease({
   staleMs: number
   waitMs: number
 }): Promise<LocalForgeLockLease> {
+  if (isIsolateRuntime() && (await hasLocalForgeCloudRuntime())) {
+    return {
+      release: async () => {},
+    }
+  }
+
   const ownerId = crypto.randomUUID()
   const lockPath = path.join(getLocksDir(), `${name}.lock`)
 
@@ -1407,6 +1414,10 @@ async function readAllLocalForgeStateEvents() {
 }
 
 async function ensureLocalForgeChatIndex(): Promise<LocalForgeChatIndex> {
+  if (isIsolateRuntime() && (await hasLocalForgeCloudRuntime())) {
+    return createEphemeralCloudForgeChatIndex()
+  }
+
   await mkdir(runtimeDir, { recursive: true })
 
   try {
@@ -1526,8 +1537,31 @@ async function updateActiveLocalForgeChat({
 }
 
 async function writeLocalForgeChatIndex(chatIndex: LocalForgeChatIndex) {
+  if (isIsolateRuntime() && (await hasLocalForgeCloudRuntime())) {
+    activeLocalForgeSessionId = chatIndex.activeChatId
+    return
+  }
+
   await mkdir(runtimeDir, { recursive: true })
   await writeFile(chatsPath, JSON.stringify(chatIndex, null, 2), 'utf8')
+}
+
+function createEphemeralCloudForgeChatIndex(): LocalForgeChatIndex {
+  const now = new Date().toISOString()
+  const sessionId = getCurrentLocalForgeSessionId()
+  activeLocalForgeSessionId = sessionId
+
+  return {
+    activeChatId: sessionId,
+    chats: [
+      {
+        createdAt: now,
+        id: sessionId,
+        title: DEFAULT_LOCAL_FORGE_CHAT_TITLE,
+        updatedAt: now,
+      },
+    ],
+  }
 }
 
 function getSessionDir() {

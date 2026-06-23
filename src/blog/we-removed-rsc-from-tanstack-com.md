@@ -130,11 +130,11 @@ The migration commit tells the story better than a rant would. In `92b1c481`, mo
 
 The top-line diff is a bad headline because the same commit also added the first in-repo versions of the markdown and highlight packages. Counted by file bucket, the relevant parts looked like this:
 
-| Bucket                                  | Files | Added | Removed |
-| --------------------------------------- | ----: | ----: | ------: |
-| RSC-specific content plumbing           |     9 |    25 |     555 |
-| Old markdown/rendering plugins          |     8 |     0 |     994 |
-| New markdown/highlight package code     |    21 | 3,610 |       0 |
+| Bucket                              | Files | Added | Removed |
+| ----------------------------------- | ----: | ----: | ------: |
+| RSC-specific content plumbing       |     9 |    25 |     555 |
+| Old markdown/rendering plugins      |     8 |     0 |     994 |
+| New markdown/highlight package code |    21 | 3,610 |       0 |
 
 The markdown/highlight code later moved out to packages. The useful part is the shape: the RSC-specific content path and old rendering plugins were real code, and once the renderer was small enough, most of that path no longer earned its keep.
 

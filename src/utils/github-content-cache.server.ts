@@ -461,8 +461,12 @@ function getStoredBlob(opts: {
   uploaded?: Date
 }) {
   const value = readStoredValue(opts.text)
+  const storedMetadata =
+    opts.metadata && Object.keys(opts.metadata).length > 0
+      ? opts.metadata
+      : undefined
   const metadata =
-    opts.metadata ??
+    storedMetadata ??
     (opts.key
       ? inferGithubContentMetadataFromBlobKey(opts.key, opts.uploaded)
       : undefined)

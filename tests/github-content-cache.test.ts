@@ -182,6 +182,7 @@ async function testBlobStorageInfersGithubContentMetadataFromKey() {
   const mockR2 = createMockR2Bucket()
   const key = 'github:dir/tanstack/router/main/docs/seeded-tree'
   mockR2.objects.set(key, {
+    customMetadata: {},
     uploaded: new Date(),
     value: JSON.stringify({ value: ['docs/index.md'] }),
   })

@@ -192,16 +192,22 @@ export class OAuthService implements IOAuthService {
  */
 export function buildGitHubAuthUrl(
   clientId: string,
-  redirectUri: string,
+  redirectUri: string | undefined,
   state: string,
   additionalScopes?: Array<string>,
 ): string {
   const scopes = ['user:email', ...(additionalScopes ?? [])].join(' ')
-  return `https://github.com/login/oauth/authorize?client_id=${encodeURIComponent(
-    clientId,
-  )}&redirect_uri=${encodeURIComponent(
-    redirectUri,
-  )}&scope=${encodeURIComponent(scopes)}&state=${encodeURIComponent(state)}`
+  const params = new URLSearchParams({
+    client_id: clientId,
+    scope: scopes,
+    state,
+  })
+
+  if (redirectUri) {
+    params.set('redirect_uri', redirectUri)
+  }
+
+  return `https://github.com/login/oauth/authorize?${params.toString()}`
 }
 
 /**
@@ -231,8 +237,23 @@ export async function exchangeGitHubCode(
   code: string,
   clientId: string,
   clientSecret: string,
-  redirectUri: string,
+  redirectUri?: string,
 ): Promise<GitHubTokenResult> {
+  const body: {
+    client_id: string
+    client_secret: string
+    code: string
+    redirect_uri?: string
+  } = {
+    client_id: clientId,
+    client_secret: clientSecret,
+    code,
+  }
+
+  if (redirectUri) {
+    body.redirect_uri = redirectUri
+  }
+
   const tokenResponse = await fetch(
     'https://github.com/login/oauth/access_token',
     {
@@ -241,12 +262,7 @@ export async function exchangeGitHubCode(
         'Content-Type': 'application/json',
         Accept: 'application/json',
       },
-      body: JSON.stringify({
-        client_id: clientId,
-        client_secret: clientSecret,
-        code,
-        redirect_uri: redirectUri,
-      }),
+      body: JSON.stringify(body),
     },
   )
 

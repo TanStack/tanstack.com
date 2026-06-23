@@ -113,7 +113,6 @@ export const Route = createFileRoute("/api/auth/callback/$provider")({
               code,
               clientId,
               clientSecret,
-              redirectUri,
             );
             tokenInfo = githubToken;
             userProfile = await fetchGitHubProfile(githubToken.accessToken);

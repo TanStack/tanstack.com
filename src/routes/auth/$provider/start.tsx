@@ -66,7 +66,7 @@ export const Route = createFileRoute('/auth/$provider/start')({
           }
           authUrl = buildGitHubAuthUrl(
             clientId,
-            redirectUri,
+            undefined,
             state,
             additionalScopes,
           )

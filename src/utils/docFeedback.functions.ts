@@ -24,7 +24,7 @@ import { docFeedbackStatusSchema, docFeedbackTypeSchema } from './schemas'
  * Create new doc feedback
  */
 export const createDocFeedback = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.variant('type', [
       v.object({
         type: v.literal('note'),
@@ -120,7 +120,7 @@ export const createDocFeedback = createServerFn({ method: 'POST' })
  * Update existing doc feedback (user can edit their own)
  */
 export const updateDocFeedback = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       feedbackId: v.pipe(v.string(), v.uuid()),
       content: v.pipe(v.string(), v.minLength(1, 'Content cannot be empty')),
@@ -173,7 +173,7 @@ export const updateDocFeedback = createServerFn({ method: 'POST' })
  * Delete doc feedback (user can delete their own)
  */
 export const deleteDocFeedback = createServerFn({ method: 'POST' })
-  .inputValidator(v.object({ feedbackId: v.pipe(v.string(), v.uuid()) }))
+  .validator(v.object({ feedbackId: v.pipe(v.string(), v.uuid()) }))
   .handler(async ({ data }) => {
     const user = await getAuthenticatedUser()
 
@@ -194,7 +194,7 @@ export const deleteDocFeedback = createServerFn({ method: 'POST' })
  * Update doc feedback collapsed state
  */
 export const updateDocFeedbackCollapsed = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       feedbackId: v.pipe(v.string(), v.uuid()),
       isCollapsed: v.boolean(),
@@ -226,7 +226,7 @@ export const updateDocFeedbackCollapsed = createServerFn({ method: 'POST' })
  * Get user's own feedback with status and points
  */
 export const getUserDocFeedback = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       pagination: v.object({
         page: v.optional(v.number(), 1),
@@ -309,7 +309,7 @@ export const getUserDocFeedback = createServerFn({ method: 'POST' })
  * List all feedback for moderation (moderate-feedback capability required)
  */
 export const listDocFeedbackForModeration = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       pagination: v.object({
         page: v.optional(v.number(), 1),
@@ -415,7 +415,7 @@ export const listDocFeedbackForModeration = createServerFn({ method: 'POST' })
  * Moderate feedback (approve or deny)
  */
 export const moderateDocFeedback = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       feedbackId: v.pipe(v.string(), v.uuid()),
       action: v.picklist(['approve', 'deny']),
@@ -446,7 +446,7 @@ export const moderateDocFeedback = createServerFn({ method: 'POST' })
  * Get feedback leaderboard (public) - all-time
  */
 export const getDocFeedbackLeaderboard = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       pagination: v.object({
         page: v.optional(v.number(), 1),
@@ -529,7 +529,7 @@ export const getDocFeedbackLeaderboard = createServerFn({ method: 'POST' })
  * Get feedback for a specific doc page (for displaying on the page)
  */
 export const getDocFeedbackForPage = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       pagePath: v.string(),
       libraryVersion: v.string(),
@@ -590,7 +590,7 @@ export const getDocFeedbackForPage = createServerFn({ method: 'POST' })
  * Get single feedback for admin detail view
  */
 export const adminGetDocFeedback = createServerFn({ method: 'POST' })
-  .inputValidator(v.object({ feedbackId: v.pipe(v.string(), v.uuid()) }))
+  .validator(v.object({ feedbackId: v.pipe(v.string(), v.uuid()) }))
   .handler(async ({ data }) => {
     await requireModerateFeedback()
 
@@ -620,7 +620,7 @@ export const adminGetDocFeedback = createServerFn({ method: 'POST' })
  * Mark feedback as detached (when block no longer exists)
  */
 export const markFeedbackDetached = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       feedbackIds: v.array(v.pipe(v.string(), v.uuid())),
     }),

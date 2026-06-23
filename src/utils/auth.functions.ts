@@ -26,7 +26,7 @@ export const requireAuth = createServerFn({ method: 'POST' }).handler(
 )
 
 export const requireCapability = createServerFn({ method: 'POST' })
-  .inputValidator((data: { capability: string }) => ({
+  .validator((data: { capability: string }) => ({
     capability: data.capability as Capability,
   }))
   .handler(async ({ data: { capability } }) => {

@@ -30,7 +30,7 @@ import { showcaseUseCaseSchema, showcaseStatusSchema } from './schemas'
  * Submit a new showcase
  */
 export const submitShowcase = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       name: v.pipe(
         v.string(),
@@ -89,7 +89,7 @@ export const submitShowcase = createServerFn({ method: 'POST' })
  * Update an existing showcase (resets to pending)
  */
 export const updateShowcase = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       showcaseId: v.pipe(v.string(), v.uuid()),
       name: v.pipe(
@@ -145,7 +145,7 @@ export const updateShowcase = createServerFn({ method: 'POST' })
  * Delete a showcase
  */
 export const deleteShowcase = createServerFn({ method: 'POST' })
-  .inputValidator(v.object({ showcaseId: v.pipe(v.string(), v.uuid()) }))
+  .validator(v.object({ showcaseId: v.pipe(v.string(), v.uuid()) }))
   .handler(async ({ data }) => {
     const user = await getAuthenticatedUser()
 
@@ -163,7 +163,7 @@ export const deleteShowcase = createServerFn({ method: 'POST' })
  * Get user's own showcases
  */
 export const getMyShowcases = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       pagination: v.object({
         page: v.optional(v.number(), 1),
@@ -188,7 +188,7 @@ export const getMyShowcases = createServerFn({ method: 'POST' })
  * Get approved showcases (public)
  */
 export const getApprovedShowcases = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       pagination: v.object({
         page: v.optional(v.number(), 1),
@@ -216,7 +216,7 @@ export const getApprovedShowcases = createServerFn({ method: 'POST' })
  * Get showcases by library (public)
  */
 export const getShowcasesByLibrary = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       libraryId: v.string(),
       limit: v.optional(v.number(), 6),
@@ -235,7 +235,7 @@ export const getShowcasesByLibrary = createServerFn({ method: 'POST' })
  * Shows featured first, then by popularity (Tranco rank), then by date
  */
 export const getFeaturedShowcases = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       limit: v.optional(v.number(), 6),
     }),
@@ -251,7 +251,7 @@ export const getFeaturedShowcases = createServerFn({ method: 'POST' })
  * List showcases for moderation (moderate-showcases capability required)
  */
 export const listShowcasesForModeration = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       pagination: v.object({
         page: v.optional(v.number(), 1),
@@ -348,7 +348,7 @@ export const listShowcasesForModeration = createServerFn({ method: 'POST' })
  * Moderate a showcase (approve or deny)
  */
 export const moderateShowcase = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       showcaseId: v.pipe(v.string(), v.uuid()),
       action: v.picklist(['approve', 'deny']),
@@ -404,7 +404,7 @@ export const moderateShowcase = createServerFn({ method: 'POST' })
  * Set featured status for a showcase
  */
 export const setShowcaseFeatured = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       showcaseId: v.pipe(v.string(), v.uuid()),
       isFeatured: v.boolean(),
@@ -452,7 +452,7 @@ export const setShowcaseFeatured = createServerFn({ method: 'POST' })
  * Get a single showcase by ID (public for approved, owner for any status)
  */
 export const getShowcase = createServerFn({ method: 'POST' })
-  .inputValidator(v.object({ showcaseId: v.pipe(v.string(), v.uuid()) }))
+  .validator(v.object({ showcaseId: v.pipe(v.string(), v.uuid()) }))
   .handler(async ({ data }) => {
     let user
     try {
@@ -468,7 +468,7 @@ export const getShowcase = createServerFn({ method: 'POST' })
  * Get a single showcase by ID for admin (moderate-showcases capability required)
  */
 export const adminGetShowcase = createServerFn({ method: 'POST' })
-  .inputValidator(v.object({ showcaseId: v.pipe(v.string(), v.uuid()) }))
+  .validator(v.object({ showcaseId: v.pipe(v.string(), v.uuid()) }))
   .handler(async ({ data }) => {
     await requireModerateShowcases()
 
@@ -499,7 +499,7 @@ export const adminGetShowcase = createServerFn({ method: 'POST' })
  * Allows editing all fields without resetting status
  */
 export const adminUpdateShowcase = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       showcaseId: v.pipe(v.string(), v.uuid()),
       name: v.pipe(
@@ -637,7 +637,7 @@ export const adminUpdateShowcase = createServerFn({ method: 'POST' })
  * Admin delete a showcase (moderate-showcases capability required)
  */
 export const adminDeleteShowcase = createServerFn({ method: 'POST' })
-  .inputValidator(v.object({ showcaseId: v.pipe(v.string(), v.uuid()) }))
+  .validator(v.object({ showcaseId: v.pipe(v.string(), v.uuid()) }))
   .handler(async ({ data }) => {
     const moderator = await requireModerateShowcases()
 
@@ -673,7 +673,7 @@ export const adminDeleteShowcase = createServerFn({ method: 'POST' })
  * If user voted with different value, updates to new value
  */
 export const voteShowcase = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       showcaseId: v.pipe(v.string(), v.uuid()),
       value: v.picklist([1, -1]),
@@ -755,7 +755,7 @@ export const voteShowcase = createServerFn({ method: 'POST' })
  * Get current user's votes for a batch of showcases
  */
 export const getMyShowcaseVotes = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       showcaseIds: v.array(v.pipe(v.string(), v.uuid())),
     }),
@@ -791,7 +791,7 @@ export const getMyShowcaseVotes = createServerFn({ method: 'POST' })
  * Get related showcases (same libraries, excluding current showcase)
  */
 export const getRelatedShowcases = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       showcaseId: v.pipe(v.string(), v.uuid()),
       libraries: v.array(v.string()),

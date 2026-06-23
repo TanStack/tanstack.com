@@ -87,7 +87,7 @@ function parseDocsConfig(config: string) {
   Fetch the config file for the project and validate it.
   */
 export const getTanstackDocsConfig = createServerFn({ method: 'GET' })
-  .inputValidator(
+  .validator(
     v.object({ repo: v.string(), branch: v.string(), docsRoot: v.string() }),
   )
   .handler(

@@ -213,7 +213,7 @@ async function buildDocsManifest({
 }
 
 export const fetchDocsManifest = createServerFn({ method: 'GET' })
-  .inputValidator(docsManifestInput)
+  .validator(docsManifestInput)
   .handler(async ({ data }) => {
     const { repo, branch, docsRoot } = data
 
@@ -233,7 +233,7 @@ export const fetchDocsManifest = createServerFn({ method: 'GET' })
   })
 
 export const fetchDocsRedirect = createServerFn({ method: 'GET' })
-  .inputValidator(docsRedirectInput)
+  .validator(docsRedirectInput)
   .handler(async ({ data }) => {
     let manifest: DocsManifest
 
@@ -274,7 +274,7 @@ export const fetchDocsRedirect = createServerFn({ method: 'GET' })
   })
 
 export const fetchDocs = createServerFn({ method: 'GET' })
-  .inputValidator(repoFileInput)
+  .validator(repoFileInput)
   .handler(async ({ data }: { data: RepoFileRequest }) => {
     const { repo, branch, filePath } = data
     const file = await readRepoFileOrFallback(repo, branch, filePath)
@@ -320,7 +320,7 @@ function extractFrontMatterKeywords(value: unknown): string | undefined {
 }
 
 export const fetchFile = createServerFn({ method: 'GET' })
-  .inputValidator(repoFileInput)
+  .validator(repoFileInput)
   .handler(async ({ data }: { data: RepoFileRequest }) => {
     const { repo, branch, filePath } = data
     const file = await readRepoFileOrFallback(repo, branch, filePath)
@@ -337,7 +337,7 @@ export const fetchFile = createServerFn({ method: 'GET' })
 export const fetchRepoDirectoryContents = createServerFn({
   method: 'GET',
 })
-  .inputValidator(repoDirectoryInput)
+  .validator(repoDirectoryInput)
   .handler(async ({ data }: { data: RepoDirectoryRequest }) => {
     const { repo, branch, startingPath } = data
     let githubContents: Awaited<ReturnType<typeof fetchApiContents>>

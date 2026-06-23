@@ -29,7 +29,7 @@ export const listConnectedApps = createServerFn({ method: 'POST' }).handler(
  * Revoke access for a connected OAuth app
  */
 export const revokeConnectedApp = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       clientId: v.string(),
     }),
@@ -46,7 +46,7 @@ export const revokeConnectedApp = createServerFn({ method: 'POST' })
  * Create an OAuth authorization code
  */
 export const createAuthorizationCode = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       clientId: v.string(),
       redirectUri: v.string(),

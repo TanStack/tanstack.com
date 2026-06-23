@@ -9,7 +9,7 @@ import { ALL_TIME_FLOOR_DATE } from './chart'
 
 // Query login history (admin only)
 export const listLoginHistory = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       pagination: v.object({
         limit: v.number(),
@@ -107,7 +107,7 @@ export const listLoginHistory = createServerFn({ method: 'POST' })
 
 // Query audit logs (admin only)
 export const listAuditLogs = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       pagination: v.object({
         limit: v.number(),
@@ -428,7 +428,7 @@ export const getActivityStats = createServerFn({ method: 'POST' }).handler(
  * Get daily login data for charts with configurable time range
  */
 export const getLoginsChartData = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       days: v.optional(v.nullable(v.number())), // null = all time
     }),

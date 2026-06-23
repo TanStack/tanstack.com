@@ -63,7 +63,7 @@ function handleRedirects(blogPath: string) {
 }
 
 export const fetchBlogPost = createServerFn({ method: 'GET' })
-  .inputValidator(v.optional(v.string()))
+  .validator(v.optional(v.string()))
   .handler(async ({ data }: { data: string | undefined }) => {
     if (!data) {
       throw new Error('Invalid blog path')

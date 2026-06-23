@@ -16,7 +16,7 @@ export const listGitHubStatsCache = createServerFn({ method: 'POST' }).handler(
 )
 
 export const refreshGitHubStats = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       cacheKey: v.string(),
     }),
@@ -28,7 +28,7 @@ export const refreshAllGitHubStats = createServerFn({ method: 'POST' }).handler(
 )
 
 export const listNpmPackages = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       libraryId: v.optional(v.string()),
       search: v.optional(v.string()),
@@ -37,7 +37,7 @@ export const listNpmPackages = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => listNpmPackagesServer({ data }))
 
 export const refreshNpmPackageStats = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       packageName: v.string(),
     }),
@@ -53,7 +53,7 @@ export const getLibraryNpmStats = createServerFn({ method: 'POST' }).handler(
 )
 
 export const refreshAllNpmStats = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       org: v.string(),
     }),

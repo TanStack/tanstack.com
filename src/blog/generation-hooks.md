@@ -93,7 +93,7 @@ const { generate, result, isLoading } = useGenerateImage({
 ```typescript
 // Server - just add stream: true and wrap with toServerSentEventsResponse
 export const generateImageStreamFn = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     z.object({
       prompt: z.string(),
       numberOfImages: z.number().optional(),
@@ -218,7 +218,7 @@ import { generateImage, toServerSentEventsResponse } from '@tanstack/ai'
 import { openaiImage } from '@tanstack/ai-openai'
 
 export const generateImageStreamFn = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({ prompt: z.string() }))
+  .validator(z.object({ prompt: z.string() }))
   .handler(({ data }) => {
     return toServerSentEventsResponse(
       generateImage({

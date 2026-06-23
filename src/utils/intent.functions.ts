@@ -102,7 +102,7 @@ export const getIntentStats = createServerFn({ method: 'GET' }).handler(
 // ---------------------------------------------------------------------------
 
 export const getIntentDirectory = createServerFn({ method: 'GET' })
-  .inputValidator(
+  .validator(
     v.object({
       search: v.optional(v.string()),
       framework: v.optional(v.string()),
@@ -420,7 +420,7 @@ function refreshPackageInBackground(name: string): void {
 }
 
 export const getIntentPackageDetail = createServerFn({ method: 'GET' })
-  .inputValidator(v.object({ name: v.string() }))
+  .validator(v.object({ name: v.string() }))
   .handler(async ({ data }) => {
     const { name } = data
 
@@ -460,7 +460,7 @@ export const getIntentPackageDetail = createServerFn({ method: 'GET' })
 // ---------------------------------------------------------------------------
 
 export const getIntentVersionSkills = createServerFn({ method: 'GET' })
-  .inputValidator(
+  .validator(
     v.object({
       packageName: v.string(),
       version: v.string(),
@@ -519,7 +519,7 @@ function stripFrontmatter(content: string) {
 }
 
 export const getIntentSkillPage = createServerFn({ method: 'GET' })
-  .inputValidator(
+  .validator(
     v.object({
       packageName: v.string(),
       skillName: v.string(),
@@ -553,7 +553,7 @@ export const getIntentSkillPage = createServerFn({ method: 'GET' })
   })
 
 export const getIntentSkillMarkdown = createServerFn({ method: 'GET' })
-  .inputValidator(
+  .validator(
     v.object({
       packageName: v.string(),
       skillName: v.string(),
@@ -593,9 +593,7 @@ export const getIntentSkillMarkdown = createServerFn({ method: 'GET' })
 // ---------------------------------------------------------------------------
 
 export const searchIntentSkills = createServerFn({ method: 'GET' })
-  .inputValidator(
-    v.object({ query: v.string(), limit: v.optional(v.number()) }),
-  )
+  .validator(v.object({ query: v.string(), limit: v.optional(v.number()) }))
   .handler(async ({ data }) => {
     const { query, limit = 50 } = data
     if (!query.trim()) return [] as Array<SkillSearchResult>
@@ -614,7 +612,7 @@ export interface SkillDiff {
 }
 
 export const diffIntentVersions = createServerFn({ method: 'GET' })
-  .inputValidator(
+  .validator(
     v.object({
       packageName: v.string(),
       fromVersion: v.string(),
@@ -697,7 +695,7 @@ export const diffIntentVersions = createServerFn({ method: 'GET' })
 // ---------------------------------------------------------------------------
 
 export const getIntentSkillHistory = createServerFn({ method: 'GET' })
-  .inputValidator(
+  .validator(
     v.object({
       packageNames: v.array(v.string()),
       limit: v.optional(v.number()),
@@ -799,7 +797,7 @@ export interface ChangelogEntry {
 }
 
 export const getIntentPackageChangelog = createServerFn({ method: 'GET' })
-  .inputValidator(
+  .validator(
     v.object({
       packageName: v.string(),
       limit: v.optional(v.number()),
@@ -913,7 +911,7 @@ export const getIntentPackageChangelog = createServerFn({ method: 'GET' })
 // ---------------------------------------------------------------------------
 
 export const getIntentSkillContentDiff = createServerFn({ method: 'GET' })
-  .inputValidator(
+  .validator(
     v.object({
       packageName: v.string(),
       skillName: v.string(),
@@ -966,7 +964,7 @@ export interface SkillVersionEntry {
 }
 
 export const getIntentSingleSkillHistory = createServerFn({ method: 'GET' })
-  .inputValidator(
+  .validator(
     v.object({
       packageName: v.string(),
       skillName: v.string(),

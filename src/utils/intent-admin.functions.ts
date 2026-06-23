@@ -30,7 +30,7 @@ export const triggerIntentDiscover = createServerFn({ method: 'POST' }).handler(
 )
 
 export const triggerIntentProcess = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       limit: v.optional(v.number(), 10),
     }),
@@ -38,7 +38,7 @@ export const triggerIntentProcess = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => triggerIntentProcessServer({ data }))
 
 export const retryIntentVersion = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       versionId: v.number(),
     }),
@@ -46,7 +46,7 @@ export const retryIntentVersion = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => retryIntentVersionServer({ data }))
 
 export const deleteIntentPackage = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       name: v.string(),
     }),
@@ -58,7 +58,7 @@ export const resetFailedVersions = createServerFn({ method: 'POST' }).handler(
 )
 
 export const seedIntentPackage = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       name: v.string(),
     }),

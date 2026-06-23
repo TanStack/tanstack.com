@@ -14,7 +14,9 @@ import {
   chat,
   maxIterations,
   toolDefinition,
+  type JSONSchema,
   type ModelMessage,
+  type ServerTool,
   type StreamChunk,
 } from '@tanstack/ai'
 import { anthropicText, createAnthropicChat } from '@tanstack/ai-anthropic'
@@ -53,6 +55,7 @@ import {
 } from './local-template.server'
 import type { ForgeProviderCredential } from './forge-byok.server'
 import { isIsolateRuntime } from '~/server/runtime/host.server'
+import { getHostRuntimeEnv } from '~/server/runtime/host.server'
 
 const LOCAL_FORGE_CONTEXT_VERSION = 'forge-local-agent-2026-06-18'
 const LOCAL_FORGE_MAX_ITERATIONS = 10
@@ -67,6 +70,8 @@ const LOCAL_FORGE_CODEX_TIMEOUT_MS = readPositiveIntegerEnv(
 )
 const LOCAL_FORGE_CODEX_MAX_EVENTS = 80
 const LOCAL_FORGE_CODEX_MAX_OUTPUT_CHARS = 80_000
+const LOCAL_FORGE_CLOUDFLARE_AI_MODEL =
+  process.env.FORGE_CLOUDFLARE_AI_MODEL?.trim() || '@cf/openai/gpt-oss-120b'
 const LOCAL_FORGE_CODEX_APP_CLI =
   '/Applications/Codex.app/Contents/Resources/codex'
 const LOCAL_FORGE_CODEX_IGNORED_DIRECTORIES = new Set<string>([
@@ -206,7 +211,10 @@ type PreparedForgeAgentRun = {
   runContext: ForgeRunContext
 }
 
-type ForgeAgentHarnessName = 'codex-cli' | 'tanstack-ai'
+type ForgeAgentHarnessName =
+  | 'cloudflare-workers-ai'
+  | 'codex-cli'
+  | 'tanstack-ai'
 
 type ForgeAgentHarnessRunInput = {
   initialSnapshot: LocalForgeSnapshot
@@ -246,6 +254,35 @@ type NormalizedCodexCliEvent = {
   path?: string
   status?: BuilderRunStatus
   toolCallId?: string
+}
+
+type CloudflareAiBinding = {
+  run: (
+    model: string,
+    input: CloudflareAiTextGenerationInput,
+  ) => Promise<unknown>
+}
+
+type CloudflareAiMessage = {
+  content: string
+  role: 'assistant' | 'system' | 'tool' | 'user'
+}
+
+type CloudflareAiToolDefinition = {
+  description: string
+  name: string
+  parameters: JSONSchema
+}
+
+type CloudflareAiTextGenerationInput = {
+  messages: Array<CloudflareAiMessage>
+  tools: Array<CloudflareAiToolDefinition>
+}
+
+type CloudflareAiToolCall = {
+  arguments: unknown
+  id?: string
+  name: string
 }
 
 export interface LocalForgeWorkspaceDeleteResult {
@@ -768,6 +805,14 @@ function getLocalForgeHarness(
     }
   }
 
+  if (harnessName === 'cloudflare-workers-ai') {
+    return {
+      label: 'Cloudflare Workers AI',
+      name: 'cloudflare-workers-ai',
+      run: runCloudflareWorkersAiForgeHarness,
+    }
+  }
+
   const adapter = getLocalForgeAdapter(providerCredential)
 
   if (!adapter) {
@@ -802,6 +847,14 @@ export function resolveLocalForgeAgentHarnessName(
     return 'codex-cli'
   }
 
+  if (
+    normalizedHarness === 'cloudflare-workers-ai' ||
+    normalizedHarness === 'cloudflare-ai' ||
+    normalizedHarness === 'workers-ai'
+  ) {
+    return 'cloudflare-workers-ai'
+  }
+
   return 'tanstack-ai'
 }
 
@@ -810,6 +863,10 @@ function getLocalForgeHarnessUnavailableMessage() {
 
   if (harnessName === 'codex-cli') {
     return 'Forge needs Codex CLI available locally to use FORGE_AGENT_HARNESS=codex-cli.'
+  }
+
+  if (harnessName === 'cloudflare-workers-ai') {
+    return 'Forge needs a Cloudflare Workers AI binding to use FORGE_AGENT_HARNESS=cloudflare-workers-ai.'
   }
 
   return 'Forge needs OPENAI_API_KEY or ANTHROPIC_API_KEY to run the TanStack AI harness.'
@@ -889,6 +946,350 @@ async function runTanStackAiForgeHarness({
     runContext,
     status: 'finished',
   })
+}
+
+async function runCloudflareWorkersAiForgeHarness({
+  initialSnapshot,
+  prompt,
+  runContext,
+  state,
+  toolEvents,
+  workspace,
+}: ForgeAgentHarnessRunInput) {
+  const ai = await getCloudflareAiBinding()
+
+  if (!ai) {
+    throw new Error(
+      'Cloudflare Workers AI binding is not available to the Forge runtime.',
+    )
+  }
+
+  await appendAgentEvent({
+    detail: LOCAL_FORGE_CLOUDFLARE_AI_MODEL,
+    message: 'Cloudflare Workers AI model loop started',
+    name: 'agent.cloudflare-ai.started',
+    runContext,
+    status: 'running',
+  })
+
+  await runAbortableForgeTask({
+    label: 'Forge Cloudflare Workers AI agent run',
+    task: async () => {
+      const tools = createForgeTools({
+        prompt,
+        runContext,
+        state,
+        toolEvents,
+        workspace,
+      })
+      const cloudflareTools = tools.map(createCloudflareAiToolDefinition)
+      const toolByName = new Map<string, ServerTool>()
+      for (const tool of tools) {
+        toolByName.set(tool.name, tool)
+      }
+      const messages: Array<CloudflareAiMessage> = [
+        {
+          role: 'system',
+          content:
+            'You are the TanStack Forge Cloudflare Workers AI harness. Use the provided tools to inspect and edit the workspace. Do not answer with code instead of writing files.',
+        },
+        {
+          role: 'user',
+          content: buildForgeAgentPrompt({
+            currentFiles: Object.keys(initialSnapshot.files).sort(),
+            prompt,
+          }),
+        },
+      ]
+
+      for (let step = 0; step < LOCAL_FORGE_MAX_ITERATIONS; step++) {
+        const response = await ai.run(LOCAL_FORGE_CLOUDFLARE_AI_MODEL, {
+          messages,
+          tools: cloudflareTools,
+        })
+        const text = readCloudflareAiText(response)
+        const toolCalls = readCloudflareAiToolCalls(response)
+
+        if (text) {
+          messages.push({
+            role: 'assistant',
+            content: text,
+          })
+        }
+
+        if (toolCalls.length === 0) {
+          if (text) {
+            await appendAssistantMessage({
+              runContext,
+              text,
+            })
+            state.streamedAssistantMessage = true
+          }
+          return
+        }
+
+        messages.push({
+          role: 'assistant',
+          content: JSON.stringify({ tool_calls: toolCalls }),
+        })
+
+        for (const toolCall of toolCalls) {
+          const tool = toolByName.get(toolCall.name)
+          const toolCallId =
+            toolCall.id ?? `cloudflare-tool-${crypto.randomUUID()}`
+
+          if (!tool) {
+            const result = {
+              error: `Unknown tool ${toolCall.name}`,
+              ok: false,
+            }
+            messages.push({
+              role: 'tool',
+              content: JSON.stringify(result),
+            })
+            continue
+          }
+
+          if (!tool.execute) {
+            const result = {
+              error: `Tool ${tool.name} cannot execute on the server.`,
+              ok: false,
+            }
+            messages.push({
+              role: 'tool',
+              content: JSON.stringify(result),
+            })
+            continue
+          }
+
+          const result = await tool.execute(toolCall.arguments, {
+            emitCustomEvent: () => {},
+            toolCallId,
+          })
+
+          messages.push({
+            role: 'tool',
+            content: JSON.stringify(result),
+          })
+        }
+      }
+
+      throw new Error(
+        `Cloudflare Workers AI exceeded ${LOCAL_FORGE_MAX_ITERATIONS} iterations before finishing.`,
+      )
+    },
+    timeoutMs: LOCAL_FORGE_TIMEOUT_MS,
+  })
+
+  await appendAgentEvent({
+    detail: LOCAL_FORGE_CLOUDFLARE_AI_MODEL,
+    message: 'Cloudflare Workers AI model loop finished',
+    name: 'agent.cloudflare-ai.finished',
+    runContext,
+    status: 'finished',
+  })
+}
+
+async function getCloudflareAiBinding() {
+  const hostEnv = await getHostRuntimeEnv()
+  const ai = hostEnv?.AI
+
+  return isCloudflareAiBinding(ai) ? ai : undefined
+}
+
+function isCloudflareAiBinding(value: unknown): value is CloudflareAiBinding {
+  return isRecord(value) && typeof value.run === 'function'
+}
+
+function createCloudflareAiToolDefinition(
+  tool: ServerTool,
+): CloudflareAiToolDefinition {
+  return {
+    description: tool.description,
+    name: tool.name,
+    parameters: readCloudflareAiToolParameters(tool.inputSchema),
+  }
+}
+
+function readCloudflareAiToolParameters(inputSchema: unknown): JSONSchema {
+  if (isStandardJsonSchemaInput(inputSchema)) {
+    return sanitizeCloudflareAiJsonSchema(
+      inputSchema['~standard'].jsonSchema.input({
+        target: 'draft-7',
+      }),
+    )
+  }
+
+  if (isJsonSchema(inputSchema)) {
+    return sanitizeCloudflareAiJsonSchema(inputSchema)
+  }
+
+  return {
+    additionalProperties: false,
+    properties: {},
+    type: 'object',
+  }
+}
+
+function isStandardJsonSchemaInput(value: unknown): value is {
+  '~standard': {
+    jsonSchema: {
+      input: (options: { target: 'draft-7' }) => unknown
+    }
+    version: 1
+  }
+} {
+  if (!isRecord(value)) {
+    return false
+  }
+
+  const standard = value['~standard']
+
+  if (!isRecord(standard) || standard.version !== 1) {
+    return false
+  }
+
+  const jsonSchema = standard.jsonSchema
+
+  return isRecord(jsonSchema) && typeof jsonSchema.input === 'function'
+}
+
+function isJsonSchema(value: unknown): value is JSONSchema {
+  return isRecord(value)
+}
+
+function sanitizeCloudflareAiJsonSchema(schema: unknown): JSONSchema {
+  if (!isRecord(schema)) {
+    return {
+      additionalProperties: false,
+      properties: {},
+      type: 'object',
+    }
+  }
+
+  const result: JSONSchema = {}
+
+  if (typeof schema.type === 'string') {
+    result.type = schema.type
+  } else if (
+    Array.isArray(schema.type) &&
+    schema.type.every((item) => typeof item === 'string')
+  ) {
+    result.type = schema.type
+  }
+
+  if (typeof schema.description === 'string') {
+    result.description = schema.description
+  }
+
+  if (Array.isArray(schema.required)) {
+    result.required = schema.required.filter(
+      (item): item is string => typeof item === 'string',
+    )
+  }
+
+  if (isRecord(schema.properties)) {
+    result.properties = Object.fromEntries(
+      Object.entries(schema.properties).map(([key, value]) => [
+        key,
+        sanitizeCloudflareAiJsonSchema(value),
+      ]),
+    )
+  }
+
+  if (isRecord(schema.items)) {
+    result.items = sanitizeCloudflareAiJsonSchema(schema.items)
+  }
+
+  if (typeof schema.additionalProperties === 'boolean') {
+    result.additionalProperties = schema.additionalProperties
+  }
+
+  if (Array.isArray(schema.enum)) {
+    result.enum = schema.enum
+  }
+
+  if (typeof schema.minimum === 'number') {
+    result.minimum = schema.minimum
+  }
+
+  if (typeof schema.maximum === 'number') {
+    result.maximum = schema.maximum
+  }
+
+  if (typeof schema.minLength === 'number') {
+    result.minLength = schema.minLength
+  }
+
+  if (typeof schema.maxLength === 'number') {
+    result.maxLength = schema.maxLength
+  }
+
+  if (typeof schema.pattern === 'string') {
+    result.pattern = schema.pattern
+  }
+
+  return result
+}
+
+function readCloudflareAiText(response: unknown) {
+  if (!isRecord(response)) {
+    return undefined
+  }
+
+  const responseText = response.response
+  if (typeof responseText === 'string' && responseText.trim()) {
+    return responseText
+  }
+
+  const text = response.text
+  if (typeof text === 'string' && text.trim()) {
+    return text
+  }
+
+  return undefined
+}
+
+function readCloudflareAiToolCalls(response: unknown) {
+  if (!isRecord(response) || !Array.isArray(response.tool_calls)) {
+    return []
+  }
+
+  return response.tool_calls.flatMap(readCloudflareAiToolCall)
+}
+
+function readCloudflareAiToolCall(value: unknown): Array<CloudflareAiToolCall> {
+  if (!isRecord(value)) {
+    return []
+  }
+
+  const name = value.name
+
+  if (typeof name !== 'string' || !name) {
+    return []
+  }
+
+  const id = typeof value.id === 'string' ? value.id : undefined
+  const args =
+    typeof value.arguments === 'string'
+      ? parseJsonObject(value.arguments)
+      : value.arguments
+
+  return [
+    {
+      arguments: isRecord(args) ? args : {},
+      id,
+      name,
+    },
+  ]
+}
+
+function parseJsonObject(value: string): unknown {
+  try {
+    return JSON.parse(value)
+  } catch {
+    return undefined
+  }
 }
 
 async function appendTanStackAiStreamChunk({

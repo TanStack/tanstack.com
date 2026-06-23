@@ -10,6 +10,18 @@ assert.equal(resolveLocalForgeAgentHarnessName('tanstack-ai'), 'tanstack-ai')
 assert.equal(resolveLocalForgeAgentHarnessName('codex'), 'codex-cli')
 assert.equal(resolveLocalForgeAgentHarnessName('codex-cli'), 'codex-cli')
 assert.equal(resolveLocalForgeAgentHarnessName('local-codex'), 'codex-cli')
+assert.equal(
+  resolveLocalForgeAgentHarnessName('cloudflare-workers-ai'),
+  'cloudflare-workers-ai',
+)
+assert.equal(
+  resolveLocalForgeAgentHarnessName('cloudflare-ai'),
+  'cloudflare-workers-ai',
+)
+assert.equal(
+  resolveLocalForgeAgentHarnessName('workers-ai'),
+  'cloudflare-workers-ai',
+)
 
 assert.equal(
   isCodexCliForgeHarnessAllowed({

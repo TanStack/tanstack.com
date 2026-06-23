@@ -4,6 +4,7 @@ type StaticAssetService = {
 
 type HostRuntimeModule = {
   env: Record<string, unknown> & {
+    AI?: unknown
     CLOUDFLARE_CACHE_PURGE_TOKEN?: string
     CLOUDFLARE_ZONE_ID?: string
     FORGE_RUNTIME?: unknown

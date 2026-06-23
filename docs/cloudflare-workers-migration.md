@@ -34,6 +34,17 @@ pnpm install
 
 Additional checks used `curl`, Node fetch scripts, Wrangler tail, and Playwright with system Chrome against the Workers preview URL.
 
+## Deploy Cache Purge
+
+`pnpm run deploy:cloudflare` builds, deploys the Worker, then runs `pnpm run purge:cloudflare`. The purge step clears the Cloudflare zone cache with `purge_everything` so stale HTML documents cannot keep pointing at removed route chunks after a deploy.
+
+Required environment:
+
+- `CLOUDFLARE_ZONE_ID`: the active `tanstack.com` zone ID.
+- `CLOUDFLARE_CACHE_PURGE_TOKEN`: Cloudflare API token with `Cache Purge` permission for that zone.
+
+`CLOUDFLARE_API_TOKEN` / `CF_API_TOKEN` and `CF_ZONE_ID` are accepted as aliases. If `CLOUDFLARE_ZONE_ID` is missing, the script can discover it only when the token also has zone read access.
+
 ## Worker
 
 - Account: `8da95258a9c70b54c3e2b374a0079106`

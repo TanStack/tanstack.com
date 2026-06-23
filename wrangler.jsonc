@@ -17,6 +17,12 @@
   "assets": {
     "binding": "ASSETS",
   },
+  "r2_buckets": [
+    {
+      "binding": "GITHUB_CONTENT_CACHE",
+      "bucket_name": "tanstack-github-content-cache",
+    },
+  ],
   "vars": {
     "SITE_URL": "https://tanstack.com",
   },

@@ -6,18 +6,20 @@ type HostRuntimeModule = {
   env: Record<string, unknown> & {
     CLOUDFLARE_CACHE_PURGE_TOKEN?: string
     CLOUDFLARE_ZONE_ID?: string
+    GITHUB_CONTENT_CACHE?: unknown
     HYPERDRIVE?: {
       connectionString: string
     }
   }
 }
 
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
 function isStaticAssetService(value: unknown): value is StaticAssetService {
   return (
-    typeof value === 'object' &&
-    value !== null &&
-    'fetch' in value &&
-    typeof value.fetch === 'function'
+    isObject(value) && 'fetch' in value && typeof value.fetch === 'function'
   )
 }
 
@@ -25,8 +27,7 @@ function isHyperdriveBinding(
   value: unknown,
 ): value is { connectionString: string } {
   return (
-    typeof value === 'object' &&
-    value !== null &&
+    isObject(value) &&
     'connectionString' in value &&
     typeof value.connectionString === 'string'
   )
@@ -57,7 +58,7 @@ async function getStaticAssetService() {
   }
 }
 
-async function getHostRuntimeEnv() {
+export async function getHostRuntimeEnv() {
   if (!isIsolateRuntime()) return
 
   const hostRuntimeSpecifier = 'cloudflare' + ':workers'

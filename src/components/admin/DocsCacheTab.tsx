@@ -163,7 +163,7 @@ export function DocsCacheTab() {
               ? `Invalidated ${invalidateMutation.data.repo}`
               : 'Invalidated all docs repos'
           }
-          description={`${invalidateMutation.data.totalInvalidated.toLocaleString()} rows marked stale (${invalidateMutation.data.staleContentCount.toLocaleString()} content, ${invalidateMutation.data.staleArtifactCount.toLocaleString()} artifacts).`}
+          description={`${invalidateMutation.data.totalInvalidated.toLocaleString()} entries marked stale (${invalidateMutation.data.staleContentCount.toLocaleString()} content, ${invalidateMutation.data.staleArtifactCount.toLocaleString()} artifacts).`}
           onDismiss={() => invalidateMutation.reset()}
         />
       ) : null}
@@ -305,7 +305,7 @@ export function DocsCacheTab() {
                           invalidateMutation.isPending ||
                           repo.totalEntries === 0
                         }
-                        title={`Mark ${repo.repo} docs cache rows stale`}
+                        title={`Mark ${repo.repo} docs cache entries stale`}
                       >
                         <RefreshCw
                           className={

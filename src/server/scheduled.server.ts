@@ -73,7 +73,7 @@ async function runContentCachePrune(scheduledTime: number) {
     const duration = Date.now() - startTime
 
     console.log(
-      `[prune-content-cache] Completed in ${duration}ms - deleted ${result.githubContentDeleted} content rows (${result.githubContentNegativesDeleted} negatives), ${result.docsArtifactDeleted} artifact rows (cutoff: ${result.cutoff.toISOString()}, negativeCutoff: ${result.negativeCutoff.toISOString()})`,
+      `[prune-content-cache] Completed in ${duration}ms - deleted ${result.githubContentDeleted} content entries (${result.githubContentNegativesDeleted} negatives), ${result.docsArtifactDeleted} artifact entries (cutoff: ${result.cutoff.toISOString()}, negativeCutoff: ${result.negativeCutoff.toISOString()})`,
     )
     console.log(
       '[prune-content-cache] Scheduled time:',

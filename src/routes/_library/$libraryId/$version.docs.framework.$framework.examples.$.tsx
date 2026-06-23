@@ -68,7 +68,19 @@ export const Route = createFileRoute(
   loader: async ({ params, context: { queryClient }, deps: { path } }) => {
     const library = getLibrary(params.libraryId)
     const branch = getBranch(library, params.version)
-    const examplePath = [params.framework, params._splat].join('/')
+    const framework = library.frameworks.find(
+      (candidate) => candidate === params.framework,
+    )
+
+    if (!framework) {
+      throw notFound()
+    }
+
+    const examplePath = [framework, params._splat].join('/')
+    const defaultStartingPath = getExampleStartingPath(
+      framework,
+      params.libraryId,
+    )
 
     // Used to tell the github contents api where to start looking for files in the target repository
     const repoStartingDirPath = `examples/${examplePath}`
@@ -82,37 +94,60 @@ export const Route = createFileRoute(
           repoStartingDirPath,
         ),
       )
+      const repoDirectoryContents = githubContents ?? null
 
       // Used to determine the starting file name for the explorer
       // It's either the selected path in the search params or a default we can derive
       // i.e. app.tsx, main.tsx, src/routes/__root.tsx, etc.
       // This value is not absolutely guaranteed to be available, so further resolution may be necessary
-      const explorerCandidateStartingFileName =
-        path ||
-        getExampleStartingPath(params.framework as Framework, params.libraryId)
+      const explorerCandidateStartingFileName = path || defaultStartingPath
 
       // Using the fetched contents, get the actual starting file-path for the explorer
       // The `explorerCandidateStartingFileName` is used for matching, but the actual file-path may differ
-      const currentPath = joinRepoPath(
+      let currentPath = joinRepoPath(
         repoStartingDirPath,
         determineStartingFilePath(
-          githubContents,
+          repoDirectoryContents,
           explorerCandidateStartingFileName,
-          params.framework as Framework,
+          framework,
           params.libraryId,
         ),
       )
 
-      const currentCode = await queryClient.ensureQueryData(
-        fileQueryOptions(library.repo, branch, currentPath),
-      )
+      let currentCode: string
+
+      try {
+        currentCode = await queryClient.ensureQueryData(
+          fileQueryOptions(library.repo, branch, currentPath),
+        )
+      } catch (error) {
+        if (!path || !isRouteNotFoundError(error)) {
+          throw error
+        }
+
+        const fallbackPath = joinRepoPath(
+          repoStartingDirPath,
+          determineStartingFilePath(
+            repoDirectoryContents,
+            defaultStartingPath,
+            framework,
+            params.libraryId,
+          ),
+        )
+
+        if (fallbackPath === currentPath) {
+          throw error
+        }
+
+        currentPath = fallbackPath
+        currentCode = await queryClient.ensureQueryData(
+          fileQueryOptions(library.repo, branch, currentPath),
+        )
+      }
 
       return { currentCode, repoStartingDirPath, currentPath }
     } catch (error) {
-      const isNotFoundError =
-        isNotFound(error) ||
-        (error && typeof error === 'object' && 'isNotFound' in error)
-      if (isNotFoundError) {
+      if (isRouteNotFoundError(error)) {
         throw notFound()
       }
       throw error
@@ -162,13 +197,17 @@ function PageComponent() {
   const { version, framework, _splat, libraryId } = Route.useParams()
   const library = getLibrary(libraryId)
   const branch = getBranch(library, version)
-
-  const examplePath = [framework, _splat].join('/')
-
-  const mainExampleFile = getExampleStartingPath(
-    framework as Framework,
-    libraryId,
+  const frameworkId = library.frameworks.find(
+    (candidate) => candidate === framework,
   )
+
+  if (!frameworkId) {
+    throw notFound()
+  }
+
+  const examplePath = [frameworkId, _splat].join('/')
+
+  const mainExampleFile = getExampleStartingPath(frameworkId, libraryId)
 
   const { data: githubContents } = useSuspenseQuery(
     repoDirApiContentsQueryOptions(library.repo, branch, repoStartingDirPath),
@@ -472,6 +511,13 @@ function determineStartingFilePath(
 
   // If no file is found, return the candidate
   return candidate
+}
+
+function isRouteNotFoundError(error: unknown) {
+  return (
+    isNotFound(error) ||
+    (error !== null && typeof error === 'object' && 'isNotFound' in error)
+  )
 }
 
 function recursiveFlattenGithubContents(

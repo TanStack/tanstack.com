@@ -712,12 +712,6 @@ export interface GitHubFileNode extends GitHubFile {
   parentPath?: string
 }
 
-interface GitHubBranchResponse {
-  commit: {
-    sha: string
-  }
-}
-
 interface GitHubTreeEntry {
   path: string
   sha: string
@@ -760,18 +754,6 @@ function isGitHubFileNode(value: unknown): value is GitHubFileNode {
 
 function isGitHubFileNodeArray(value: unknown): value is Array<GitHubFileNode> {
   return Array.isArray(value) && value.every((item) => isGitHubFileNode(item))
-}
-
-function isGitHubBranchResponse(value: unknown): value is GitHubBranchResponse {
-  if (typeof value !== 'object' || value === null) {
-    return false
-  }
-
-  const candidate = value as {
-    commit?: { sha?: unknown }
-  }
-
-  return typeof candidate.commit?.sha === 'string'
 }
 
 function isGitHubTreeEntry(value: unknown): value is GitHubTreeEntry {
@@ -923,48 +905,14 @@ async function fetchGitHubApiJson(url: string) {
   }
 }
 
-async function fetchGitHubBranchSha(repo: string, branch: string) {
-  const data = await getCachedGitHubJsonContent({
-    repo,
-    gitRef: branch,
-    path: '__github_branch__',
-    isValue: isGitHubBranchResponse,
-    origin: async () => {
-      const url = `https://api.github.com/repos/${repo}/branches/${branch}`
-      const response = await fetchGitHubApiJson(url)
-
-      if (response === null) {
-        return null
-      }
-
-      if (!isGitHubBranchResponse(response)) {
-        throw new GitHubContentError(
-          'invalid-response',
-          `Unexpected branch response for ${repo}@${branch}`,
-        )
-      }
-
-      return response
-    },
-  })
-
-  return data?.commit.sha ?? null
-}
-
 export async function fetchGitHubRecursiveTree(repo: string, branch: string) {
-  const branchSha = await fetchGitHubBranchSha(repo, branch)
-
-  if (!branchSha) {
-    return null
-  }
-
   const data = await getCachedGitHubJsonContent({
     repo,
     gitRef: branch,
     path: '__github_recursive_tree__',
     isValue: isGitHubRecursiveTreeResponse,
     origin: async () => {
-      const url = `https://api.github.com/repos/${repo}/git/trees/${branchSha}?recursive=1`
+      const url = `https://api.github.com/repos/${repo}/git/trees/${encodeURIComponent(branch)}?recursive=1`
       const response = await fetchGitHubApiJson(url)
 
       if (response === null) {

@@ -638,6 +638,20 @@ function readStoredJsonValue<T>(
   return isValue(row.jsonContent) ? row.jsonContent : undefined
 }
 
+function canUseStoredGithubContentValue<T>(
+  contentKind: ContentKind,
+  value: CachedValue<T>,
+): value is T | null {
+  if (value === undefined) {
+    return false
+  }
+
+  // Directory metadata is derived from the GitHub API. A transient API failure
+  // used to poison examples with fresh null entries, hiding the file explorer.
+  // Revalidate those negative JSON entries on the next read-through.
+  return !(contentKind === 'dir' && value === null)
+}
+
 function metadataMatches(
   metadata: Record<string, string> | undefined,
   opts: {
@@ -1221,7 +1235,10 @@ async function getCachedGitHubContent<T>(opts: {
   const storedValue = opts.readStoredValue(cachedRow)
   const forciblyStale = !!cachedRow && isForciblyStale(cachedRow.staleAt)
 
-  if (storedValue !== undefined && !forciblyStale) {
+  if (
+    canUseStoredGithubContentValue(opts.contentKind, storedValue) &&
+    !forciblyStale
+  ) {
     if (cachedRow && isFresh(cachedRow.staleAt)) {
       return storedValue
     }
@@ -1234,7 +1251,7 @@ async function getCachedGitHubContent<T>(opts: {
       !!latestRow && isForciblyStale(latestRow.staleAt)
 
     if (
-      latestValue !== undefined &&
+      canUseStoredGithubContentValue(opts.contentKind, latestValue) &&
       latestRow &&
       !latestForciblyStale &&
       isFresh(latestRow.staleAt)

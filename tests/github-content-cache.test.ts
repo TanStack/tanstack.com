@@ -222,6 +222,28 @@ async function testNegativeHitSkipsOrigin() {
   assert.equal(originCalls, 1)
 }
 
+async function testJsonNegativeEntryRefreshes() {
+  resetGitHubContentCacheForTest()
+
+  let originCalls = 0
+  const opts = {
+    repo,
+    gitRef,
+    path: 'examples/react/missing',
+    isValue: isStringArray,
+    origin: async () => {
+      originCalls += 1
+      return originCalls === 1 ? null : ['examples/react/basic/src/main.tsx']
+    },
+  }
+
+  assert.equal(await getCachedGitHubJsonContent(opts), null)
+  assert.deepEqual(await getCachedGitHubJsonContent(opts), [
+    'examples/react/basic/src/main.tsx',
+  ])
+  assert.equal(originCalls, 2)
+}
+
 async function testRefreshFailureFallsBackToStaleContent() {
   resetGitHubContentCacheForTest()
 
@@ -317,6 +339,7 @@ await testFreshHitSkipsOrigin()
 await testWorkerEnvUsesBlobStorage()
 await testForcedStaleRefreshes()
 await testNegativeHitSkipsOrigin()
+await testJsonNegativeEntryRefreshes()
 await testRefreshFailureFallsBackToStaleContent()
 await testJsonContentUsesTypeGuard()
 await testArtifactInvalidationAndPruneDelete()

@@ -7,6 +7,7 @@ export const CAPABILITIES = [
   'api-keys',
   'disableAds',
   'builder',
+  'forge',
   'mcp',
   'moderate-feedback',
   'moderate-showcases',

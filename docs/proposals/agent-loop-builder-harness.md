@@ -160,6 +160,13 @@ The local `/forge` PoC now mirrors the intended production ownership model with 
 | Browser sidebar query           | TanStack DB query collection over meta server facade | TanStack DB query collection over Start/Postgres facade |
 | Browser transcript/files/events | TanStack DB local projection from SSE state batches  | TanStack DB projection from Durable Streams state rows  |
 
+Cloudflare substrate status:
+
+- `FORGE_RUNTIME` R2 binding exists for content-addressed blobs, manifests, and session snapshots.
+- `FORGE_SESSIONS` Durable Object binding exists for per-session timeline/state ownership.
+- The local adapter mirrors manifest/blob/timeline/state snapshots into those bindings when they are available.
+- Full Cloudflare Sandbox execution and Durable Streams-compatible streaming are still follow-up runtime work.
+
 Neon is intentionally limited to shell metadata and pointers:
 
 - project id, owner, name, active chat id
@@ -1605,6 +1612,7 @@ Initial classification:
 - Use one sandbox per project/session isolation boundary. Do not multiplex users inside one sandbox.
 - Treat sandbox sessions as convenience shells, not security boundaries.
 - Keep provider keys, GitHub tokens, R2 credentials, and deployment credentials in the Worker when possible.
+- Interim Forge BYOK may use server-sealed browser storage: the browser stores only an encrypted, user-bound provider-key blob, and the server decrypts it in memory for a single run.
 - Prefer short-lived Worker proxy tokens over passing real credentials into the sandbox.
 - Redact logs before appending raw command/process output.
 - Require auth on preview/proxy routes unless a user explicitly creates a share link.
@@ -2490,7 +2498,7 @@ Keep shared schema/projection code framework-agnostic. UI components should cons
 
 ### First PR Scope
 
-The initial contract slice should avoid Cloudflare-backed sandbox execution and WebContainer execution, but it must stay aligned with the TanStack AI Sandbox boundary. The local product path should no longer be mocked. Use deterministic fixtures for projection/adapter contract tests, and use local harnesses for the `/forge` PoC only as development adapters behind the same Forge timeline/manifest contract.
+The initial contract slice should avoid Cloudflare-backed sandbox execution, but it must stay aligned with the TanStack AI Sandbox boundary. The local product path should no longer be mocked. Use deterministic fixtures for projection/adapter contract tests, and use local harnesses for the `/forge` PoC only as development adapters behind the same Forge timeline/manifest contract.
 
 Include:
 
@@ -2503,9 +2511,8 @@ Include:
 
 Exclude:
 
-- Durable Object implementation.
+- Full Durable Streams-compatible DO runtime implementation.
 - Cloudflare-backed TSAI Sandbox execution.
-- WebContainer preview changes.
 - Multi-user collaboration/presence.
 - Branch UI/execution.
 
@@ -2748,6 +2755,7 @@ Done when:
 4. First preview target: default generated TanStack Start app from builder manifest.
 5. Collaboration/presence: default not v1.
 6. Sharing: default private projects with explicit authenticated/share preview links.
+7. Production access: default disabled unless `FORGE_ENABLED=true`; every route, server function, and API endpoint requires the `forge` capability or `admin`.
 
 ### Runtime
 
@@ -2762,7 +2770,30 @@ Done when:
 1. Which harness besides TSAI must be v1-critical? Default none.
 2. Interactive approval resume for v1: default required for TSAI path, coarse policy plus post-run diff acceptable for later harnesses.
 3. Raw fields to preserve: default full raw payload with redaction for the debug retention window.
-4. Model/provider credentials: default support both TanStack-owned defaults and user BYOK, scoped per project/session.
+4. Model/provider credentials: default BYOK-only for the first production phase; TanStack-owned provider keys stay disabled until billing, quotas, and abuse controls exist.
+
+Production DB and deployment runbook:
+
+- Operational runbook: `docs/ops/forge-production-rollout.md`
+- Idempotent SQL delta: `scripts/sql/forge-production-readiness.sql`
+
+The SQL delta must run before granting access. It adds the `forge` capability
+and the current Forge metadata tables:
+
+```sql
+ALTER TYPE capability ADD VALUE IF NOT EXISTS 'forge';
+CREATE TABLE IF NOT EXISTS forge_projects (...);
+CREATE TABLE IF NOT EXISTS forge_chat_sessions (...);
+```
+
+Production env defaults:
+
+```txt
+FORGE_ENABLED=true
+FORGE_BYOK_SEALING_KEY=<server-only 32+ byte secret>
+FORGE_REQUIRE_BYOK=true
+FORGE_AGENT_HARNESS=tanstack-ai
+```
 
 ### Source and Export
 

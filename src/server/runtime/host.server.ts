@@ -6,12 +6,18 @@ type HostRuntimeModule = {
   env: Record<string, unknown> & {
     CLOUDFLARE_CACHE_PURGE_TOKEN?: string
     CLOUDFLARE_ZONE_ID?: string
+    FORGE_RUNTIME?: unknown
+    FORGE_SESSIONS?: unknown
     GITHUB_CONTENT_CACHE?: unknown
     HYPERDRIVE?: {
       connectionString: string
     }
   }
 }
+
+type HostRuntimeEnv = HostRuntimeModule['env']
+
+let hostRuntimeEnvOverride: HostRuntimeEnv | undefined
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
@@ -59,6 +65,8 @@ async function getStaticAssetService() {
 }
 
 export async function getHostRuntimeEnv() {
+  if (hostRuntimeEnvOverride) return hostRuntimeEnvOverride
+
   if (!isIsolateRuntime()) return
 
   const hostRuntimeSpecifier = 'cloudflare' + ':workers'
@@ -72,6 +80,12 @@ export async function getHostRuntimeEnv() {
   } catch {
     return undefined
   }
+}
+
+export function setHostRuntimeEnvOverrideForTest(
+  env: HostRuntimeEnv | undefined,
+) {
+  hostRuntimeEnvOverride = env
 }
 
 export async function fetchStaticAsset(

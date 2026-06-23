@@ -17,8 +17,8 @@ import {
   type ModelMessage,
   type StreamChunk,
 } from '@tanstack/ai'
-import { anthropicText } from '@tanstack/ai-anthropic'
-import { openaiText } from '@tanstack/ai-openai'
+import { anthropicText, createAnthropicChat } from '@tanstack/ai-anthropic'
+import { createOpenaiChat, openaiText } from '@tanstack/ai-openai'
 import { transform } from 'esbuild'
 import { z } from 'zod'
 import {
@@ -51,6 +51,7 @@ import {
   createMinimalLocalForgeSeedFiles,
   minimalLocalForgeSeedNeedsUpdate,
 } from './local-template.server'
+import type { ForgeProviderCredential } from './forge-byok.server'
 
 const LOCAL_FORGE_CONTEXT_VERSION = 'forge-local-agent-2026-06-18'
 const LOCAL_FORGE_MAX_ITERATIONS = 10
@@ -200,6 +201,7 @@ type ForgeValidationCommandResult = {
 type PreparedForgeAgentRun = {
   initialSnapshot: LocalForgeSnapshot
   prompt: string
+  providerCredential?: ForgeProviderCredential
   runContext: ForgeRunContext
 }
 
@@ -208,6 +210,7 @@ type ForgeAgentHarnessName = 'codex-cli' | 'tanstack-ai'
 type ForgeAgentHarnessRunInput = {
   initialSnapshot: LocalForgeSnapshot
   prompt: string
+  providerCredential?: ForgeProviderCredential
   runContext: ForgeRunContext
   state: ForgeAgentState
   toolEvents: Set<string>
@@ -438,9 +441,11 @@ function localForgeSnapshotCanRefreshSeedTemplate(
 export async function runLocalForgeAgent({
   clientRequestId = `local-request-${crypto.randomUUID()}`,
   prompt,
+  providerCredential,
 }: {
   clientRequestId?: string
   prompt: string
+  providerCredential?: ForgeProviderCredential
 }): Promise<LocalForgeSnapshot> {
   try {
     return await withLocalForgeLock({
@@ -448,7 +453,11 @@ export async function runLocalForgeAgent({
       staleMs: LOCAL_FORGE_RUN_LOCK_STALE_MS,
       task: async () =>
         (await readExistingClientRequestSnapshot(clientRequestId)) ??
-        runLocalForgeAgentLocked({ clientRequestId, prompt }),
+        runLocalForgeAgentLocked({
+          clientRequestId,
+          prompt,
+          providerCredential,
+        }),
       waitMs: LOCAL_FORGE_RUN_LOCK_WAIT_MS,
     })
   } catch (error) {
@@ -463,9 +472,11 @@ export async function runLocalForgeAgent({
 export async function startLocalForgeAgentRun({
   clientRequestId,
   prompt,
+  providerCredential,
 }: {
   clientRequestId: string
   prompt: string
+  providerCredential?: ForgeProviderCredential
 }): Promise<LocalForgeSnapshot> {
   const existingSnapshot =
     await readExistingClientRequestSnapshot(clientRequestId)
@@ -497,6 +508,7 @@ export async function startLocalForgeAgentRun({
     const preparedRun = await prepareLocalForgeAgentRun({
       clientRequestId,
       prompt,
+      providerCredential,
     })
     const startedSnapshot = await readLocalForgeSnapshot()
 
@@ -541,14 +553,17 @@ function isLocalForgeWorkflowLockError(error: unknown) {
 async function runLocalForgeAgentLocked({
   clientRequestId,
   prompt,
+  providerCredential,
 }: {
   clientRequestId: string
   prompt: string
+  providerCredential?: ForgeProviderCredential
 }): Promise<LocalForgeSnapshot> {
   await drainLocalForgeAgentRun(
     await prepareLocalForgeAgentRun({
       clientRequestId,
       prompt,
+      providerCredential,
     }),
   )
 
@@ -558,9 +573,11 @@ async function runLocalForgeAgentLocked({
 async function prepareLocalForgeAgentRun({
   clientRequestId,
   prompt,
+  providerCredential,
 }: {
   clientRequestId: string
   prompt: string
+  providerCredential?: ForgeProviderCredential
 }): Promise<PreparedForgeAgentRun> {
   await ensureLocalForgeBaseline()
 
@@ -575,6 +592,7 @@ async function prepareLocalForgeAgentRun({
   return {
     initialSnapshot,
     prompt,
+    providerCredential,
     runContext,
   }
 }
@@ -597,9 +615,10 @@ async function readExistingClientRequestSnapshot(clientRequestId: string) {
 async function drainLocalForgeAgentRun({
   initialSnapshot,
   prompt,
+  providerCredential,
   runContext,
 }: PreparedForgeAgentRun) {
-  const harness = getLocalForgeHarness()
+  const harness = getLocalForgeHarness(providerCredential)
   const state: ForgeAgentState = {
     changeCount: 0,
     planReceived: false,
@@ -635,6 +654,7 @@ async function drainLocalForgeAgentRun({
     await harness.run({
       initialSnapshot,
       prompt,
+      providerCredential,
       runContext,
       state,
       toolEvents,
@@ -718,7 +738,9 @@ async function drainLocalForgeAgentRun({
   }
 }
 
-function getLocalForgeHarness(): ForgeAgentHarness | null {
+function getLocalForgeHarness(
+  providerCredential?: ForgeProviderCredential,
+): ForgeAgentHarness | null {
   const harnessName = getRequestedLocalForgeHarnessName()
 
   if (harnessName === 'codex-cli') {
@@ -729,7 +751,7 @@ function getLocalForgeHarness(): ForgeAgentHarness | null {
     }
   }
 
-  const adapter = getLocalForgeAdapter()
+  const adapter = getLocalForgeAdapter(providerCredential)
 
   if (!adapter) {
     return null
@@ -3712,7 +3734,21 @@ function buildForgeContextFile(prompt: string) {
   ].join('\n')
 }
 
-function getLocalForgeAdapter() {
+function getLocalForgeAdapter(providerCredential?: ForgeProviderCredential) {
+  if (providerCredential?.provider === 'openai') {
+    return createOpenaiChat(
+      getOpenAiForgeModel(providerCredential.model),
+      providerCredential.apiKey,
+    )
+  }
+
+  if (providerCredential?.provider === 'anthropic') {
+    return createAnthropicChat(
+      getAnthropicForgeModel(providerCredential.model),
+      providerCredential.apiKey,
+    )
+  }
+
   if (process.env.OPENAI_API_KEY) {
     return openaiText(getOpenAiForgeModel())
   }
@@ -3724,22 +3760,20 @@ function getLocalForgeAdapter() {
   return null
 }
 
-function getOpenAiForgeModel(): OpenAiForgeModel {
-  const requestedModel = process.env.BUILDER_AI_MODEL
-
-  return (
-    supportedOpenAiForgeModels.find((model) => model === requestedModel) ??
-    'gpt-4o-mini'
+function getOpenAiForgeModel(requestedModel = process.env.BUILDER_AI_MODEL) {
+  const model = supportedOpenAiForgeModels.find(
+    (supportedModel) => supportedModel === requestedModel,
   )
+
+  return model ?? 'gpt-5'
 }
 
-function getAnthropicForgeModel(): AnthropicForgeModel {
-  const requestedModel = process.env.BUILDER_AI_MODEL
-
-  return (
-    supportedAnthropicForgeModels.find((model) => model === requestedModel) ??
-    'claude-sonnet-4-5'
+function getAnthropicForgeModel(requestedModel = process.env.BUILDER_AI_MODEL) {
+  const model = supportedAnthropicForgeModels.find(
+    (supportedModel) => supportedModel === requestedModel,
   )
+
+  return model ?? 'claude-sonnet-4-5'
 }
 
 async function runAbortableForgeTask<T>({

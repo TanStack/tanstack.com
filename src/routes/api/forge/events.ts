@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { getAuthGuards } from '~/auth/index.server'
 import {
   ensureForgeMetaSession,
   readForgeMetaSessionForChat,
@@ -17,6 +16,10 @@ import {
   type LocalForgeStateStreamBatch,
   type LocalForgeSnapshotStreamEvent,
 } from '~/builder/runtime/local-store.server'
+import {
+  getForgeAccessErrorResponse,
+  requireForgeAccess,
+} from '~/utils/forge-access.server'
 
 const encoder = new TextEncoder()
 const heartbeatMs = 15_000
@@ -25,8 +28,13 @@ export const Route = createFileRoute('/api/forge/events')({
   server: {
     handlers: {
       GET: async ({ request }: { request: Request }) => {
-        const guards = getAuthGuards()
-        const user = await guards.requireAuth(request)
+        let user: Awaited<ReturnType<typeof requireForgeAccess>>
+
+        try {
+          user = await requireForgeAccess(request)
+        } catch (error) {
+          return getForgeAccessErrorResponse(error)
+        }
 
         const chatId = new URL(request.url).searchParams.get('chatId')
         const meta = chatId

@@ -13,7 +13,6 @@ import {
   Mic,
   Plus,
   Settings,
-  ShieldAlert,
   Trash2,
   Zap,
 } from 'lucide-react'
@@ -24,25 +23,31 @@ import {
   DropdownItem,
   DropdownTrigger,
 } from '~/components/Dropdown'
-import { requireAuth } from '~/utils/auth.functions'
 import {
   createForgeChatShell,
+  requireForgeAccess,
   startLocalForgeRun,
+  type ForgeBrowserProviderKey,
   type ForgeChatShell,
 } from '~/utils/forge.functions'
 import {
   createForgeChatShellsCollection,
   forgeChatShellsQueryKey,
 } from '~/utils/forge-collections'
+import { ForgeByokMenu } from '~/components/forge/ForgeByokMenu'
 import { seo } from '~/utils/seo'
 
 export const Route = createFileRoute('/forge_/new')({
   beforeLoad: async () => {
     try {
-      const user = await requireAuth()
+      const user = await requireForgeAccess()
       return { user }
-    } catch {
-      throw redirect({ to: '/login' })
+    } catch (error) {
+      if (isNotAuthenticatedError(error)) {
+        throw redirect({ to: '/login' })
+      }
+
+      throw error
     }
   },
   head: () => ({
@@ -58,6 +63,8 @@ function ForgeNewRoute() {
   const navigate = Route.useNavigate()
   const queryClient = useQueryClient()
   const [prompt, setPrompt] = useState('')
+  const [browserProviderKey, setBrowserProviderKey] =
+    useState<ForgeBrowserProviderKey>()
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const promptFormRef = useRef<HTMLFormElement>(null)
@@ -134,6 +141,7 @@ function ForgeNewRoute() {
         data: {
           chatId: nextChat.activeChatId,
           clientRequestId,
+          providerKey: browserProviderKey,
           prompt: nextPrompt,
         },
       })
@@ -259,14 +267,11 @@ function ForgeNewRoute() {
                         <Plus className="h-5 w-5" />
                         <span className="sr-only">Add context</span>
                       </button>
-                      <button
-                        className="inline-flex h-9 items-center gap-2 rounded-full px-2 text-orange-600 transition hover:bg-orange-50 dark:text-orange-300 dark:hover:bg-orange-400/10"
-                        type="button"
-                      >
-                        <ShieldAlert className="h-4 w-4" />
-                        <span>Full access</span>
-                        <ChevronDown className="h-3.5 w-3.5" />
-                      </button>
+                      <ForgeByokMenu
+                        disabled={isSubmitting}
+                        onProviderKeyChange={setBrowserProviderKey}
+                        providerKey={browserProviderKey}
+                      />
                     </div>
 
                     <div className="flex shrink-0 items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400">
@@ -420,4 +425,8 @@ function sendButtonClassName(enabled: boolean) {
   }
 
   return `${base} bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-black dark:hover:bg-neutral-200`
+}
+
+function isNotAuthenticatedError(error: unknown) {
+  return error instanceof Error && error.message.includes('Not authenticated')
 }

@@ -20,6 +20,22 @@ import {
   summarizeLocalManifestChanges,
 } from '~/builder/manifest'
 import {
+  hasForgeCloudRuntimeStorage,
+  persistForgeCloudBlob,
+  persistForgeCloudManifestBundle,
+  persistForgeCloudStateSnapshot,
+  persistForgeCloudTimelineSnapshot,
+  readForgeCloudBlob,
+  readForgeCloudManifest,
+} from './forge-cloud-store.server'
+import {
+  appendForgeSessionTimelineEvents,
+  hasForgeSessionDurableObjects,
+  readForgeSessionState,
+  readForgeSessionTimeline,
+  resetForgeSessionRuntime,
+} from './forge-session-runtime.server'
+import {
   projectLocalBuilderTimeline,
   type LocalAgentEventRecordedPayload,
   type LocalBuilderTimelineEvent,
@@ -136,7 +152,10 @@ const localForgeStateSubscribers = new Set<LocalForgeStateSubscriber>()
 
 export async function readLocalForgeSnapshot(): Promise<LocalForgeSnapshot> {
   const chatIndex = await readLocalForgeChats()
-  await ensureRuntimeDirs()
+
+  if (!(await hasLocalForgeCloudRuntime())) {
+    await ensureRuntimeDirs()
+  }
 
   return readLocalForgeSnapshotWithChatIndex(chatIndex)
 }
@@ -151,7 +170,9 @@ export async function readLocalForgeSnapshotForRuntimeSession({
   runtimeSessionId: string
 }) {
   return withLocalForgeRuntimeSession(runtimeSessionId, async () => {
-    await ensureRuntimeDirs()
+    if (!(await hasLocalForgeCloudRuntime())) {
+      await ensureRuntimeDirs()
+    }
 
     return readLocalForgeSnapshotWithChatIndex({
       activeChatId,
@@ -228,9 +249,11 @@ export async function createLocalForgeChat() {
 
   activeLocalForgeSessionId = chat.id
   await writeLocalForgeChatIndex(nextIndex)
-  await ensureRuntimeDirs()
-  await writeJsonLines(getTimelinePath(), [])
-  await writeJsonLines(getStatePath(), [])
+  if (!(await resetLocalForgeCloudRuntime())) {
+    await ensureRuntimeDirs()
+    await writeJsonLines(getTimelinePath(), [])
+    await writeJsonLines(getStatePath(), [])
+  }
 
   return readLocalForgeSnapshot()
 }
@@ -252,7 +275,9 @@ export async function selectLocalForgeChat(chatId: string) {
     ...chatIndex,
     activeChatId: chat.id,
   })
-  await ensureRuntimeDirs()
+  if (!(await hasLocalForgeCloudRuntime())) {
+    await ensureRuntimeDirs()
+  }
 
   return readLocalForgeSnapshot()
 }
@@ -277,6 +302,7 @@ export async function deleteLocalForgeChat(chatId: string) {
         })[0]
       : chatIndex.chats.find((item) => item.id === chatIndex.activeChatId)
 
+  await resetLocalForgeCloudRuntimeForSession(chatId)
   await rm(getLocalForgeSessionDir(chatId), { force: true, recursive: true })
 
   if (!nextActiveChat) {
@@ -293,9 +319,11 @@ export async function deleteLocalForgeChat(chatId: string) {
       activeChatId: replacementChat.id,
       chats: [replacementChat],
     })
-    await ensureRuntimeDirs()
-    await writeJsonLines(getTimelinePath(), [])
-    await writeJsonLines(getStatePath(), [])
+    if (!(await resetLocalForgeCloudRuntime())) {
+      await ensureRuntimeDirs()
+      await writeJsonLines(getTimelinePath(), [])
+      await writeJsonLines(getStatePath(), [])
+    }
 
     return readLocalForgeSnapshot()
   }
@@ -305,7 +333,9 @@ export async function deleteLocalForgeChat(chatId: string) {
     activeChatId: nextActiveChat.id,
     chats: remainingChats,
   })
-  await ensureRuntimeDirs()
+  if (!(await hasLocalForgeCloudRuntime())) {
+    await ensureRuntimeDirs()
+  }
 
   return readLocalForgeSnapshot()
 }
@@ -354,6 +384,10 @@ export async function initializeLocalForgeRuntimeSession(
   runtimeSessionId: string,
 ) {
   await withLocalForgeRuntimeSession(runtimeSessionId, async () => {
+    if (await resetLocalForgeCloudRuntime()) {
+      return
+    }
+
     await ensureRuntimeDirs()
     await writeJsonLines(getTimelinePath(), [])
     await writeJsonLines(getStatePath(), [])
@@ -361,10 +395,17 @@ export async function initializeLocalForgeRuntimeSession(
 }
 
 export async function deleteLocalForgeRuntimeSession(runtimeSessionId: string) {
-  await rm(getLocalForgeSessionDir(runtimeSessionId), {
-    force: true,
-    recursive: true,
-  })
+  const didResetCloudRuntime = await withLocalForgeRuntimeSession(
+    runtimeSessionId,
+    resetLocalForgeCloudRuntime,
+  )
+
+  if (!didResetCloudRuntime) {
+    await rm(getLocalForgeSessionDir(runtimeSessionId), {
+      force: true,
+      recursive: true,
+    })
+  }
 }
 
 export async function assertNoActiveLocalForgeRun(action: string) {
@@ -496,6 +537,18 @@ export function localForgeStateBatchNeedsSnapshot(
 }
 
 export async function readLocalForgeTimeline() {
+  if (await hasLocalForgeCloudRuntime()) {
+    const cloudTimeline = await readForgeSessionTimeline(
+      getCurrentLocalForgeSessionId(),
+    )
+
+    if (!cloudTimeline) {
+      throw new Error('Forge Cloudflare runtime did not return a timeline.')
+    }
+
+    return cloudTimeline.events
+  }
+
   await ensureRuntimeDirs()
 
   try {
@@ -518,6 +571,10 @@ export async function appendLocalForgeTimelineEvents(
   events: Array<LocalBuilderTimelineEvent>,
 ) {
   if (events.length === 0) {
+    return
+  }
+
+  if (await appendLocalForgeTimelineEventsToCloud(events)) {
     return
   }
 
@@ -561,6 +618,11 @@ async function appendLocalForgeTimelineEventsUnlocked(
   await writeJsonLines(getTimelinePath(), next)
   await writeJsonLines(getStatePath(), nextStateEvents)
   await updateActiveLocalForgeChat()
+  await mirrorLocalForgeCloudRuntime({
+    acceptedEvents,
+    stateEvents: nextStateEvents,
+    timelineEvents: next,
+  })
   await notifyLocalForgeStateSubscribers({
     events: nextStateEvents.slice(existingStateEvents.length),
     stateOffset: nextStateEvents.length,
@@ -727,11 +789,27 @@ export async function acquireLocalForgeLockLease({
 
 export async function resetLocalForgeRuntime() {
   await ensureLocalForgeChatIndex()
+
+  if (await resetLocalForgeCloudRuntime()) {
+    await notifyLocalForgeStateSubscribers({
+      events: [],
+      stateOffset: 0,
+      timelineOffset: 0,
+      type: 'state-batch',
+    })
+    return
+  }
+
   await rm(getSessionDir(), { force: true, recursive: true })
   await rm(getLocalForgeWorkspaceDir(), { force: true, recursive: true })
   await ensureRuntimeDirs()
   await writeJsonLines(getTimelinePath(), [])
   await writeJsonLines(getStatePath(), [])
+  await mirrorLocalForgeCloudRuntime({
+    acceptedEvents: [],
+    stateEvents: [],
+    timelineEvents: [],
+  })
   await notifyLocalForgeStateSubscribers({
     events: [],
     stateOffset: 0,
@@ -743,6 +821,15 @@ export async function resetLocalForgeRuntime() {
 export async function persistLocalForgeManifestBundle(
   bundle: BuilderLocalManifestBundle,
 ) {
+  if (
+    await persistForgeCloudManifestBundle({
+      bundle,
+      scope: getLocalForgeCloudScope(),
+    })
+  ) {
+    return
+  }
+
   await ensureRuntimeDirs()
 
   await writeFile(
@@ -867,6 +954,15 @@ export async function appendLocalForgeManifestTimeline({
 }
 
 export async function persistLocalForgeBlob(blob: BuilderLocalFileBlob) {
+  if (
+    await persistForgeCloudBlob({
+      blob,
+      scope: getLocalForgeCloudScope(),
+    })
+  ) {
+    return
+  }
+
   await ensureRuntimeDirs()
   await writeFile(
     path.join(getBlobsDir(), encodeRef(blob.blobRef)),
@@ -875,6 +971,16 @@ export async function persistLocalForgeBlob(blob: BuilderLocalFileBlob) {
 }
 
 export async function readLocalForgeManifest(manifestVersionId: string) {
+  const cloudManifest = await readForgeCloudManifest({ manifestVersionId })
+
+  if (cloudManifest) {
+    return cloudManifest
+  }
+
+  if (cloudManifest === null) {
+    throw new Error(`Local Forge manifest ${manifestVersionId} is missing.`)
+  }
+
   await ensureRuntimeDirs()
   const raw = await readFile(
     path.join(getManifestsDir(), encodeRef(manifestVersionId)),
@@ -884,6 +990,16 @@ export async function readLocalForgeManifest(manifestVersionId: string) {
 }
 
 export async function readLocalForgeBlob(blobRef: string) {
+  const cloudBlob = await readForgeCloudBlob({ blobRef })
+
+  if (cloudBlob) {
+    return cloudBlob
+  }
+
+  if (cloudBlob === null) {
+    throw new Error(`Local Forge blob ${blobRef} is missing.`)
+  }
+
   await ensureRuntimeDirs()
   const raw = await readFile(
     path.join(getBlobsDir(), encodeRef(blobRef)),
@@ -931,23 +1047,42 @@ async function readManifestFiles(manifest: BuilderManifest) {
   }
 
   for (const file of Object.values(manifest.files)) {
-    const raw = await readFile(
-      path.join(getBlobsDir(), encodeRef(file.blobRef)),
-      'utf8',
-    ).catch((error: unknown) => {
-      if (isMissingFileError(error)) {
-        throw new Error(
-          `Local Forge manifest ${manifest.manifestVersionId} is missing blob ${file.blobRef} for ${file.path}.`,
-        )
-      }
+    const blob = await readLocalForgeBlob(file.blobRef).catch(
+      (error: unknown) => {
+        if (isMissingLocalForgeBlobError(error, file.blobRef)) {
+          throw new Error(
+            `Local Forge manifest ${manifest.manifestVersionId} is missing blob ${file.blobRef} for ${file.path}.`,
+          )
+        }
 
-      throw error
-    })
-    const blob = JSON.parse(raw) as BuilderLocalFileBlob
+        throw error
+      },
+    )
+
     bundle.blobs[blob.blobRef] = blob
   }
 
   return getLocalManifestFiles(bundle)
+}
+
+async function readManifestReference({
+  context,
+  manifestVersionId,
+}: {
+  context: string
+  manifestVersionId: string
+}) {
+  try {
+    return await readLocalForgeManifest(manifestVersionId)
+  } catch (error) {
+    if (isMissingLocalForgeManifestError(error, manifestVersionId)) {
+      throw new Error(
+        `Local Forge ${context} references missing manifest ${manifestVersionId}.`,
+      )
+    }
+
+    throw error
+  }
 }
 
 async function readManifestChangeSummary(
@@ -970,30 +1105,6 @@ async function readManifestChangeSummary(
     parentFiles,
     parentManifest,
   })
-}
-
-async function readManifestReference({
-  context,
-  manifestVersionId,
-}: {
-  context: string
-  manifestVersionId: string
-}) {
-  try {
-    const raw = await readFile(
-      path.join(getManifestsDir(), encodeRef(manifestVersionId)),
-      'utf8',
-    )
-    return JSON.parse(raw) as BuilderManifest
-  } catch (error) {
-    if (isMissingFileError(error)) {
-      throw new Error(
-        `Local Forge ${context} references missing manifest ${manifestVersionId}.`,
-      )
-    }
-
-    throw error
-  }
 }
 
 function readLatestRun(stateEvents: Array<BuilderStateEvent>) {
@@ -1275,6 +1386,18 @@ async function ensureRuntimeDirs() {
 }
 
 async function readAllLocalForgeStateEvents() {
+  if (await hasLocalForgeCloudRuntime()) {
+    const cloudState = await readForgeSessionState(
+      getCurrentLocalForgeSessionId(),
+    )
+
+    if (!cloudState) {
+      throw new Error('Forge Cloudflare runtime did not return state.')
+    }
+
+    return cloudState.events
+  }
+
   const stateEvents = projectLocalBuilderTimeline(
     await readLocalForgeTimeline(),
   )
@@ -1454,6 +1577,179 @@ async function notifyLocalForgeStateSubscribers(
 
   for (const subscriber of localForgeStateSubscribers) {
     subscriber(event, runtimeSessionId)
+  }
+}
+
+async function hasLocalForgeCloudRuntime() {
+  const [hasSessions, hasStorage] = await Promise.all([
+    hasForgeSessionDurableObjects(),
+    hasForgeCloudRuntimeStorage(),
+  ])
+
+  return hasSessions && hasStorage
+}
+
+async function resetLocalForgeCloudRuntime() {
+  return resetLocalForgeCloudRuntimeForSession(getCurrentLocalForgeSessionId())
+}
+
+async function resetLocalForgeCloudRuntimeForSession(sessionId: string) {
+  if (!(await hasLocalForgeCloudRuntime())) {
+    return false
+  }
+
+  if (!(await resetForgeSessionRuntime(sessionId))) {
+    return false
+  }
+
+  const scope = {
+    projectId: LOCAL_FORGE_PROJECT_ID,
+    sessionId,
+  }
+  const [didPersistTimelineSnapshot, didPersistStateSnapshot] =
+    await Promise.all([
+      persistForgeCloudTimelineSnapshot({
+        events: [],
+        scope,
+      }),
+      persistForgeCloudStateSnapshot({
+        events: [],
+        scope,
+        timelineOffset: 0,
+      }),
+    ])
+
+  assertForgeCloudSnapshotPersisted(
+    didPersistTimelineSnapshot,
+    'timeline reset',
+  )
+  assertForgeCloudSnapshotPersisted(didPersistStateSnapshot, 'state reset')
+
+  return true
+}
+
+async function appendLocalForgeTimelineEventsToCloud(
+  events: Array<LocalBuilderTimelineEvent>,
+) {
+  if (!(await hasLocalForgeCloudRuntime())) {
+    return false
+  }
+
+  const sessionId = getCurrentLocalForgeSessionId()
+  const scope = getLocalForgeCloudScope()
+  const previousState = await readForgeSessionState(sessionId)
+  const appendResult = await appendForgeSessionTimelineEvents({
+    events,
+    sessionId,
+  })
+
+  if (!appendResult) {
+    return false
+  }
+
+  if (appendResult.accepted === 0) {
+    return true
+  }
+
+  const [timeline, state] = await Promise.all([
+    readForgeSessionTimeline(sessionId),
+    readForgeSessionState(sessionId),
+  ])
+
+  if (!timeline || !state) {
+    throw new Error('Forge Cloudflare runtime did not return appended state.')
+  }
+
+  const [didPersistTimelineSnapshot, didPersistStateSnapshot] =
+    await Promise.all([
+      persistForgeCloudTimelineSnapshot({
+        events: timeline.events,
+        scope,
+      }),
+      persistForgeCloudStateSnapshot({
+        events: state.events,
+        scope,
+        timelineOffset: timeline.timelineOffset,
+      }),
+    ])
+
+  assertForgeCloudSnapshotPersisted(
+    didPersistTimelineSnapshot,
+    'timeline append',
+  )
+  assertForgeCloudSnapshotPersisted(didPersistStateSnapshot, 'state append')
+
+  await updateActiveLocalForgeChat()
+
+  const previousStateOffset = previousState?.stateOffset ?? 0
+  const appendedStateEvents = state.events.slice(previousStateOffset)
+
+  if (appendedStateEvents.length > 0) {
+    await notifyLocalForgeStateSubscribers({
+      events: appendedStateEvents,
+      stateOffset: state.stateOffset,
+      timelineOffset: state.timelineOffset,
+      type: 'state-batch',
+    })
+  }
+
+  return true
+}
+
+function assertForgeCloudSnapshotPersisted(
+  persisted: boolean,
+  operation: string,
+) {
+  if (!persisted) {
+    throw new Error(`Forge Cloudflare runtime failed to persist ${operation}.`)
+  }
+}
+
+async function mirrorLocalForgeCloudRuntime({
+  acceptedEvents,
+  stateEvents,
+  timelineEvents,
+}: {
+  acceptedEvents: Array<LocalBuilderTimelineEvent>
+  stateEvents: Array<BuilderStateEvent>
+  timelineEvents: Array<LocalBuilderTimelineEvent>
+}) {
+  const scope = getLocalForgeCloudScope()
+
+  await mirrorLocalForgeCloudOperation(async () => {
+    if (acceptedEvents.length > 0) {
+      await appendForgeSessionTimelineEvents({
+        events: acceptedEvents,
+        sessionId: scope.sessionId,
+      })
+    }
+
+    await Promise.all([
+      persistForgeCloudTimelineSnapshot({
+        events: timelineEvents,
+        scope,
+      }),
+      persistForgeCloudStateSnapshot({
+        events: stateEvents,
+        scope,
+        timelineOffset: timelineEvents.length,
+      }),
+    ])
+  })
+}
+
+async function mirrorLocalForgeCloudOperation(task: () => Promise<unknown>) {
+  try {
+    await task()
+  } catch (error) {
+    console.error('[forge-cloud-runtime] mirror failed', error)
+  }
+}
+
+function getLocalForgeCloudScope() {
+  return {
+    projectId: LOCAL_FORGE_PROJECT_ID,
+    sessionId: getCurrentLocalForgeSessionId(),
   }
 }
 
@@ -1666,6 +1962,31 @@ function readBuilderExportVisibility(value: unknown) {
     default:
       return undefined
   }
+}
+
+function isMissingLocalForgeManifestError(
+  error: unknown,
+  manifestVersionId: string,
+) {
+  if (isMissingFileError(error)) {
+    return true
+  }
+
+  return (
+    error instanceof Error &&
+    error.message.includes(`manifest ${manifestVersionId} is missing`)
+  )
+}
+
+function isMissingLocalForgeBlobError(error: unknown, blobRef: string) {
+  if (isMissingFileError(error)) {
+    return true
+  }
+
+  return (
+    error instanceof Error &&
+    error.message.includes(`blob ${blobRef} is missing`)
+  )
 }
 
 function getErrorCode(error: unknown) {

@@ -17,10 +17,28 @@
   "assets": {
     "binding": "ASSETS",
   },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "FORGE_SESSIONS",
+        "class_name": "ForgeSessionDurableObject",
+      },
+    ],
+  },
+  "migrations": [
+    {
+      "tag": "forge-sessions-v1",
+      "new_sqlite_classes": ["ForgeSessionDurableObject"],
+    },
+  ],
   "r2_buckets": [
     {
       "binding": "GITHUB_CONTENT_CACHE",
       "bucket_name": "tanstack-github-content-cache",
+    },
+    {
+      "binding": "FORGE_RUNTIME",
+      "bucket_name": "tanstack-forge-runtime",
     },
   ],
   "vars": {

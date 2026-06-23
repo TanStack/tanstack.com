@@ -1,12 +1,17 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { getAuthGuards } from '~/auth/index.server'
 import { getGitHubAuthState } from '~/auth/github.server'
+import { ensureForgeMetaSession } from '~/builder/runtime/forge-meta.server'
 import { createLocalForgeGitHubExport } from '~/builder/runtime/local-export.server'
+import { withLocalForgeRuntimeSession } from '~/builder/runtime/local-store.server'
 import {
   checkIpRateLimit,
   RATE_LIMITS,
   rateLimitedResponse,
 } from '~/utils/rateLimit.server'
+import {
+  getForgeAccessErrorResponse,
+  requireForgeAccess,
+} from '~/utils/forge-access.server'
 import {
   validateBranchName,
   validateRepoName,
@@ -53,8 +58,24 @@ export const Route = createFileRoute('/api/forge/export/github')({
   server: {
     handlers: {
       GET: async ({ request }: { request: Request }) => {
-        const guards = getAuthGuards()
-        const user = await guards.getCurrentUser(request)
+        let user: Awaited<ReturnType<typeof requireForgeAccess>>
+
+        try {
+          user = await requireForgeAccess(request)
+        } catch (error) {
+          const response = getForgeAccessErrorResponse(error)
+
+          if (response.status === 401) {
+            return Response.json({
+              authenticated: false,
+              hasGitHubAccount: false,
+              hasPrivateRepoScope: false,
+              hasRepoScope: false,
+            } satisfies ForgeGitHubExportAuthResponse)
+          }
+
+          return response
+        }
 
         if (!user) {
           return Response.json({
@@ -82,8 +103,14 @@ export const Route = createFileRoute('/api/forge/export/github')({
           return rateLimitedResponse(rateLimit)
         }
 
-        const guards = getAuthGuards()
-        const user = await guards.requireAuth(request)
+        let user: Awaited<ReturnType<typeof requireForgeAccess>>
+
+        try {
+          user = await requireForgeAccess(request)
+        } catch (error) {
+          return getForgeAccessErrorResponse(error)
+        }
+
         const authState = await getGitHubAuthState(user.userId)
 
         if (!authState.hasGitHubAccount) {
@@ -138,12 +165,14 @@ export const Route = createFileRoute('/api/forge/export/github')({
           )
         }
 
+        const accessToken = authState.accessToken
+
         if (
           !hasRequiredGitHubRepoScope({
             authState,
             isPrivate: body.isPrivate,
           }) ||
-          !authState.accessToken
+          !accessToken
         ) {
           return Response.json(
             {
@@ -158,13 +187,30 @@ export const Route = createFileRoute('/api/forge/export/github')({
         }
 
         try {
-          const result = await createLocalForgeGitHubExport({
-            accessToken: authState.accessToken,
-            branch: body.branch,
-            isPrivate: body.isPrivate,
-            manifestVersionId: body.manifestVersionId,
-            repoName: body.repoName,
-          })
+          const meta = await ensureForgeMetaSession(user.userId)
+
+          if (!meta.activeChatSession) {
+            return Response.json(
+              {
+                code: 'INVALID_REQUEST',
+                error: 'Forge has no active chat.',
+                success: false,
+              } satisfies ForgeGitHubExportError,
+              { status: 404 },
+            )
+          }
+
+          const result = await withLocalForgeRuntimeSession(
+            meta.activeChatSession.runtimeSessionId,
+            () =>
+              createLocalForgeGitHubExport({
+                accessToken,
+                branch: body.branch,
+                isPrivate: body.isPrivate,
+                manifestVersionId: body.manifestVersionId,
+                repoName: body.repoName,
+              }),
+          )
 
           return Response.json({
             ...result,

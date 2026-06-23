@@ -51,9 +51,53 @@ assert.match(
   'preview bridge should report readiness to the parent frame',
 )
 assert.match(
+  previewFiles['index.html'] ?? '',
+  /annotation\.set/,
+  'preview bridge should accept annotation mode controls',
+)
+assert.match(
+  previewFiles['index.html'] ?? '',
+  /annotation\.submit/,
+  'preview bridge should submit element annotations to the parent frame',
+)
+
+const bridgeSource = (previewFiles['index.html'] ?? '').match(
+  /<script data-forge-preview-bridge>([\s\S]+)<\/script>/,
+)?.[1]
+assert.ok(bridgeSource, 'preview bridge script should be present')
+new Function(bridgeSource)
+
+assert.match(
   createForgeWebContainerPreviewFiles(previewFiles)['index.html'] ?? '',
   /data-forge-preview-bridge/,
   'preview bridge injection should be idempotent',
+)
+
+const startPreviewFiles = createForgeWebContainerPreviewFiles({
+  'src/routes/__root.tsx': [
+    "import { createRootRoute } from '@tanstack/react-router'",
+    '',
+    'export const Route = createRootRoute({})',
+  ].join('\n'),
+  'src/router.tsx': 'export function getRouter() {}\n',
+})
+assert.match(
+  startPreviewFiles['src/routes/__root.tsx'] ?? '',
+  /import '..\/forge-preview-bridge'/,
+  'Start preview should import the preview bridge module from the root route',
+)
+assert.match(
+  startPreviewFiles['src/forge-preview-bridge.ts'] ?? '',
+  /annotation\.set/,
+  'Start preview should include the preview bridge module',
+)
+new Function(startPreviewFiles['src/forge-preview-bridge.ts'])
+assert.equal(
+  createForgeWebContainerPreviewFiles(startPreviewFiles)[
+    'src/routes/__root.tsx'
+  ],
+  startPreviewFiles['src/routes/__root.tsx'],
+  'Start preview bridge import should be idempotent',
 )
 
 for (const unsafePath of [

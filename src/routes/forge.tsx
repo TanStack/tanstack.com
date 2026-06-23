@@ -19,7 +19,6 @@ import {
   GitPullRequest,
   Loader2,
   MonitorPlay,
-  Play,
   Plus,
   RefreshCw,
   Search,
@@ -28,14 +27,17 @@ import {
 import {
   useCallback,
   useEffect,
+  isValidElement,
   useMemo,
   useRef,
   useState,
   type AnchorHTMLAttributes,
   type CSSProperties,
   type FormEvent,
+  type HTMLProps,
   type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
+  type ReactElement,
   type ReactNode,
 } from 'react'
 import {
@@ -54,15 +56,20 @@ import {
   buildFileTreeFromPaths,
   type FileTreeNode,
 } from '~/components/FileTree'
-import { ForgeWebContainerPreview } from '~/components/forge/WebContainerPreview'
+import {
+  ForgeWebContainerPreview,
+  type ForgePreviewAnnotation,
+} from '~/components/forge/WebContainerPreview'
+import { ForgeByokMenu } from '~/components/forge/ForgeByokMenu'
 import { CodeBlock } from '~/components/markdown/CodeBlock'
 import { getCodeBlockLanguageFromFilePath } from '~/components/markdown/codeBlock.shared'
 import { InlineCode } from '~/ui/InlineCode'
-import { requireAuth } from '~/utils/auth.functions'
 import {
   getForgeChatShells,
   getLocalForgeSession,
+  requireForgeAccess,
   startLocalForgeRun,
+  type ForgeBrowserProviderKey,
   type ForgeChatShell,
   validateLocalForgeWorkspace,
 } from '~/utils/forge.functions'
@@ -72,7 +79,6 @@ import {
 } from '~/utils/forge-state'
 import {
   getForgeGitHubExportDisplayState,
-  getForgeRunSummaryTitle,
   getForgeWorkflowStatusText,
   getLatestForgeGitHubExport,
 } from '~/utils/forge-ui'
@@ -130,6 +136,11 @@ type ForgeActivityTranscriptItem = {
 type ForgeTranscriptMessage = Pick<
   ForgeSession['messages'][number],
   'content' | 'createdAt' | 'id' | 'role' | 'status'
+>
+type ForgeSessionMessage = ForgeSession['messages'][number]
+type ForgeOptimisticMessagesByChatId = Record<
+  string,
+  Array<ForgeSessionMessage>
 >
 type ForgeMessageTranscriptItem = {
   createdAt: string
@@ -190,16 +201,7 @@ type ForgeValidationStep = {
 type ForgeChatVirtualRow =
   | {
       id: string
-      kind: 'activityHeader'
-      showLabel: boolean
-    }
-  | {
-      id: string
       kind: 'activeWork'
-    }
-  | {
-      id: string
-      kind: 'summary'
     }
   | {
       id: string
@@ -220,6 +222,7 @@ const FORGE_RIGHT_PANE_MIN_WIDTH = 420
 const FORGE_RIGHT_PANE_MAX_WIDTH = 960
 const FORGE_CHAT_PANE_MIN_WIDTH = 360
 const FORGE_RIGHT_PANE_BREAKPOINT = 1280
+const FORGE_OPTIMISTIC_MESSAGE_ID_PREFIX = 'optimistic-message:'
 
 const forgeSearchSchema = v.object({
   chatId: v.optional(
@@ -235,6 +238,202 @@ function toDefaultRepoName(value?: string) {
     .replace(/^[.-]+|[.-]+$/g, '')
 
   return normalized || 'forge-local-app'
+}
+
+function formatPreviewAnnotationPrompt(annotation: ForgePreviewAnnotation) {
+  const attributes = Object.entries(annotation.attributes)
+    .map(([name, value]) => `- ${name}: ${truncateAnnotationText(value, 180)}`)
+    .join('\n')
+  const outerHtml = annotation.outerHtml
+    ? truncateAnnotationText(annotation.outerHtml, 1200)
+    : undefined
+
+  return [
+    'I annotated an element in the preview.',
+    '',
+    'User note:',
+    annotation.comment,
+    '',
+    'Preview target:',
+    `- URL: ${annotation.href}`,
+    `- Path: ${annotation.path}`,
+    `- Selector: ${annotation.selector}`,
+    `- Element: <${annotation.tagName}>`,
+    annotation.text
+      ? `- Text: ${truncateAnnotationText(annotation.text, 500)}`
+      : undefined,
+    `- Bounds: x=${annotation.rect.x}, y=${annotation.rect.y}, width=${annotation.rect.width}, height=${annotation.rect.height}`,
+    attributes ? `- Attributes:\n${attributes}` : undefined,
+    outerHtml
+      ? `\nOuter HTML excerpt:\n\`\`\`html\n${outerHtml}\n\`\`\``
+      : undefined,
+    '',
+    'Use this preview annotation to update the app. Target the selected element and its nearby UI context.',
+  ]
+    .filter((value) => value !== undefined)
+    .join('\n')
+}
+
+function truncateAnnotationText(value: string, maxLength: number) {
+  const normalized = value.replace(/\s+/g, ' ').trim()
+
+  if (normalized.length <= maxLength) {
+    return normalized
+  }
+
+  return `${normalized.slice(0, maxLength - 3).trimEnd()}...`
+}
+
+function createForgeOptimisticUserMessage({
+  clientRequestId,
+  content,
+  createdAt,
+}: {
+  clientRequestId: string
+  content: string
+  createdAt: string
+}): ForgeSessionMessage {
+  return {
+    completedAt: createdAt,
+    content,
+    createdAt,
+    id: `${FORGE_OPTIMISTIC_MESSAGE_ID_PREFIX}${clientRequestId}`,
+    role: 'user',
+    status: 'complete',
+  }
+}
+
+function addForgeOptimisticMessage(
+  current: ForgeOptimisticMessagesByChatId,
+  chatId: string,
+  message: ForgeSessionMessage,
+): ForgeOptimisticMessagesByChatId {
+  const messages = current[chatId] ?? []
+
+  if (messages.some((currentMessage) => currentMessage.id === message.id)) {
+    return current
+  }
+
+  return {
+    ...current,
+    [chatId]: [...messages, message],
+  }
+}
+
+function removeForgeOptimisticMessage(
+  current: ForgeOptimisticMessagesByChatId,
+  chatId: string,
+  messageId: string,
+): ForgeOptimisticMessagesByChatId {
+  const messages = current[chatId]
+
+  if (!messages) {
+    return current
+  }
+
+  const nextMessages = messages.filter((message) => message.id !== messageId)
+
+  if (nextMessages.length === messages.length) {
+    return current
+  }
+
+  if (nextMessages.length === 0) {
+    const next = { ...current }
+    delete next[chatId]
+    return next
+  }
+
+  return {
+    ...current,
+    [chatId]: nextMessages,
+  }
+}
+
+function removeFulfilledForgeOptimisticMessages(
+  current: ForgeOptimisticMessagesByChatId,
+  chatId: string,
+  session: ForgeSession,
+): ForgeOptimisticMessagesByChatId {
+  const messages = current[chatId]
+
+  if (!messages) {
+    return current
+  }
+
+  const nextMessages = messages.filter(
+    (message) => !isForgeOptimisticMessageFulfilled(session.messages, message),
+  )
+
+  if (nextMessages.length === messages.length) {
+    return current
+  }
+
+  if (nextMessages.length === 0) {
+    const next = { ...current }
+    delete next[chatId]
+    return next
+  }
+
+  return {
+    ...current,
+    [chatId]: nextMessages,
+  }
+}
+
+function mergeForgeOptimisticMessages(
+  session: ForgeSession,
+  optimisticMessages: Array<ForgeSessionMessage> | undefined,
+): ForgeSession {
+  if (!optimisticMessages?.length) {
+    return session
+  }
+
+  const pendingMessages = optimisticMessages.filter((message) => {
+    return (
+      !session.messages.some(
+        (currentMessage) => currentMessage.id === message.id,
+      ) && !isForgeOptimisticMessageFulfilled(session.messages, message)
+    )
+  })
+
+  if (pendingMessages.length === 0) {
+    return session
+  }
+
+  return {
+    ...session,
+    messages: [...session.messages, ...pendingMessages],
+  }
+}
+
+function isForgeOptimisticMessage(message: ForgeSessionMessage) {
+  return message.id.startsWith(FORGE_OPTIMISTIC_MESSAGE_ID_PREFIX)
+}
+
+function isForgeOptimisticMessageFulfilled(
+  messages: Array<ForgeSessionMessage>,
+  optimisticMessage: ForgeSessionMessage,
+) {
+  if (!isForgeOptimisticMessage(optimisticMessage)) {
+    return false
+  }
+
+  const optimisticCreatedAt = Date.parse(optimisticMessage.createdAt)
+  const minimumCreatedAt = Number.isFinite(optimisticCreatedAt)
+    ? optimisticCreatedAt - 1000
+    : 0
+
+  return messages.some((message) => {
+    const messageCreatedAt = Date.parse(message.createdAt)
+
+    return (
+      !isForgeOptimisticMessage(message) &&
+      message.role === optimisticMessage.role &&
+      message.content === optimisticMessage.content &&
+      Number.isFinite(messageCreatedAt) &&
+      messageCreatedAt >= minimumCreatedAt
+    )
+  })
 }
 
 function resolveForgeChatId({
@@ -305,10 +504,14 @@ function toForgeSnapshotChat(
 export const Route = createFileRoute('/forge')({
   beforeLoad: async () => {
     try {
-      const user = await requireAuth()
+      const user = await requireForgeAccess()
       return { user }
-    } catch {
-      throw redirect({ to: '/login' })
+    } catch (error) {
+      if (isNotAuthenticatedError(error)) {
+        throw redirect({ to: '/login' })
+      }
+
+      throw error
     }
   },
   head: () => ({
@@ -351,7 +554,11 @@ function ForgeRoute() {
     }),
   )
   const [prompt, setPrompt] = useState('')
+  const [browserProviderKey, setBrowserProviderKey] =
+    useState<ForgeBrowserProviderKey>()
   const [runError, setRunError] = useState<string | null>(null)
+  const [optimisticMessagesByChatId, setOptimisticMessagesByChatId] =
+    useState<ForgeOptimisticMessagesByChatId>({})
   const [showLogEvents, setShowLogEvents] = useState(false)
   const [openTranscriptItemIds, setOpenTranscriptItemIds] = useState<
     Record<string, boolean>
@@ -566,10 +773,15 @@ function ForgeRoute() {
       session.manifestChange?.files.map((file) => [file.path, file]) ?? [],
     )
   }, [session.manifestChange])
-  const firstChangedFile = session.manifestChange?.files[0]?.path
+  const activeOptimisticMessages =
+    optimisticMessagesByChatId[session.activeChatId]
+  const transcriptSession = useMemo(
+    () => mergeForgeOptimisticMessages(session, activeOptimisticMessages),
+    [activeOptimisticMessages, session],
+  )
   const transcriptItems = useMemo(
-    () => createForgeTranscriptItems(session),
-    [session],
+    () => createForgeTranscriptItems(transcriptSession),
+    [transcriptSession],
   )
   const manifestShortId = session.manifestVersionId
     ? compactManifestId(session.manifestVersionId)
@@ -584,18 +796,13 @@ function ForgeRoute() {
     latestRun?.status === 'running' ||
     latestRun?.status === 'paused' ||
     latestRun?.status === 'finishing'
-  const canRun =
-    prompt.trim().length > 0 &&
+  const canStartRun =
     !isSubmitting &&
     !isValidating &&
     !isExportingGitHub &&
     !persistedRunIsActive
-  const canValidate =
-    Boolean(session.manifestVersionId) &&
-    !isSubmitting &&
-    !isValidating &&
-    !isExportingGitHub &&
-    !persistedRunIsActive
+  const canRun = prompt.trim().length > 0 && canStartRun
+  const canValidate = Boolean(session.manifestVersionId) && canStartRun
   const canExportGitHub =
     Boolean(session.manifestVersionId) &&
     githubAuthState?.authenticated === true &&
@@ -605,21 +812,15 @@ function ForgeRoute() {
       isPrivate: githubIsPrivate,
     }) &&
     githubRepoNameValidation.valid &&
-    !isSubmitting &&
-    !isValidating &&
-    !isExportingGitHub &&
-    !persistedRunIsActive
-  const canManageChats =
-    !isSubmitting &&
-    !isValidating &&
-    !isExportingGitHub &&
-    !persistedRunIsActive
+    canStartRun
+  const canManageChats = canStartRun
   const statusText = getForgeWorkflowStatusText({
     isExportingGitHub,
     isValidating,
     isSubmitting,
     latestRunStatus: latestRun?.status,
   })
+  const composerStatusText = runError ?? statusText
   const selectedFileContent = selectedFile
     ? session.files[selectedFile]
     : undefined
@@ -879,6 +1080,38 @@ function ForgeRoute() {
   }, [fileChangeMap, files, selectedFile, session.files])
 
   useEffect(() => {
+    if (!activeOptimisticMessages?.length) {
+      return
+    }
+
+    const remainingMessages = activeOptimisticMessages.filter(
+      (message) =>
+        !isForgeOptimisticMessageFulfilled(session.messages, message),
+    )
+
+    if (remainingMessages.length === activeOptimisticMessages.length) {
+      return
+    }
+
+    setOptimisticMessagesByChatId((current) => {
+      if (current[session.activeChatId] !== activeOptimisticMessages) {
+        return current
+      }
+
+      if (remainingMessages.length === 0) {
+        const next = { ...current }
+        delete next[session.activeChatId]
+        return next
+      }
+
+      return {
+        ...current,
+        [session.activeChatId]: remainingMessages,
+      }
+    })
+  }, [activeOptimisticMessages, session.activeChatId, session.messages])
+
+  useEffect(() => {
     const chatId = streamChatId
 
     if (!chatId) {
@@ -1023,29 +1256,54 @@ function ForgeRoute() {
     }
   }
 
-  async function handleRun(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
+  async function submitForgePrompt(promptText: string) {
+    const trimmedPrompt = promptText.trim()
 
-    if (!canRun) {
+    if (!trimmedPrompt) {
+      return
+    }
+
+    if (!canStartRun) {
+      setPrompt(trimmedPrompt)
+      promptTextareaRef.current?.focus()
       return
     }
 
     setIsSubmitting(true)
     setRunError(null)
+    const clientRequestId = `forge-request-${crypto.randomUUID()}`
+    const optimisticMessage = createForgeOptimisticUserMessage({
+      clientRequestId,
+      content: trimmedPrompt,
+      createdAt: new Date().toISOString(),
+    })
+    const chatId = session.activeChatId
+
+    setOptimisticMessagesByChatId((current) =>
+      addForgeOptimisticMessage(current, chatId, optimisticMessage),
+    )
+    setPrompt('')
 
     try {
       const nextSession = await startLocalForgeRun({
         data: {
-          chatId: session.activeChatId,
-          clientRequestId: `forge-request-${crypto.randomUUID()}`,
-          prompt,
+          chatId,
+          clientRequestId,
+          providerKey: browserProviderKey,
+          prompt: trimmedPrompt,
         },
       })
       setSession(nextSession)
-      setPrompt('')
+      setOptimisticMessagesByChatId((current) =>
+        removeFulfilledForgeOptimisticMessages(current, chatId, nextSession),
+      )
       await queryClient.invalidateQueries({ queryKey: forgeChatShellsQueryKey })
       await router.invalidate()
     } catch (error) {
+      setOptimisticMessagesByChatId((current) =>
+        removeForgeOptimisticMessage(current, chatId, optimisticMessage.id),
+      )
+      setPrompt(trimmedPrompt)
       setRunError(
         error instanceof Error ? error.message : 'Forge run failed to start.',
       )
@@ -1053,6 +1311,17 @@ function ForgeRoute() {
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  async function handleRun(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    await submitForgePrompt(prompt)
+  }
+
+  async function handlePreviewAnnotationSubmit(
+    annotation: ForgePreviewAnnotation,
+  ) {
+    await submitForgePrompt(formatPreviewAnnotationPrompt(annotation))
   }
 
   async function handleValidate() {
@@ -1237,31 +1506,6 @@ function ForgeRoute() {
             onItemOpenChange={handleTranscriptItemOpenChange}
             openItemIds={openTranscriptItemIds}
             showLogEvents={showLogEvents}
-            summary={
-              <RunSummaryCard
-                error={latestRun?.error ?? runError}
-                fileCount={session.fileCount}
-                latestRun={latestRun}
-                manifestChange={session.manifestChange}
-                manifestVersionId={session.manifestVersionId}
-                onChangeSelect={(filePath) => {
-                  setSelectedFile(filePath)
-                  setRightPanelMode('files')
-                  setWorkspaceMode('changes')
-                }}
-                onOpenChanges={
-                  firstChangedFile
-                    ? () => {
-                        setSelectedFile(firstChangedFile)
-                        setRightPanelMode('files')
-                        setWorkspaceMode('changes')
-                      }
-                    : undefined
-                }
-                statusText={statusText}
-                totalBytes={session.totalBytes}
-              />
-            }
           />
 
           <form
@@ -1281,6 +1525,11 @@ function ForgeRoute() {
               />
               <div className="flex items-center justify-between gap-3">
                 <div className="flex min-w-0 items-center gap-2 px-2 text-xs text-neutral-500 dark:text-neutral-500">
+                  <ForgeByokMenu
+                    disabled={isSubmitting}
+                    onProviderKeyChange={setBrowserProviderKey}
+                    providerKey={browserProviderKey}
+                  />
                   <span
                     className={`h-2 w-2 shrink-0 rounded-full ${
                       streamStatus === 'live'
@@ -1288,7 +1537,13 @@ function ForgeRoute() {
                         : 'bg-neutral-400 dark:bg-neutral-600'
                     }`}
                   />
-                  <span className="truncate">{statusText}</span>
+                  <span
+                    className={`truncate ${
+                      runError ? 'text-red-600 dark:text-red-300' : ''
+                    }`}
+                  >
+                    {composerStatusText}
+                  </span>
                   <span className="hidden rounded border border-neutral-200 px-1.5 py-0.5 font-mono text-[11px] text-neutral-500 dark:border-white/10 dark:text-neutral-600 sm:inline">
                     {manifestShortId}
                   </span>
@@ -1365,8 +1620,10 @@ function ForgeRoute() {
               }`}
             >
               <ForgeWebContainerPreview
+                annotationDisabled={!canStartRun}
                 files={session.files}
                 manifestVersionId={session.manifestVersionId}
+                onAnnotationSubmit={handlePreviewAnnotationSubmit}
                 packageManager={session.packageManager}
               />
             </div>
@@ -1668,182 +1925,6 @@ function SidebarChatRow({
   )
 }
 
-function RunSummaryCard({
-  error,
-  fileCount,
-  latestRun,
-  manifestChange,
-  manifestVersionId,
-  onChangeSelect,
-  onOpenChanges,
-  statusText,
-  totalBytes,
-}: {
-  error?: string | null
-  fileCount: number
-  latestRun?: {
-    endedAt?: string
-    id: string
-    startedAt?: string
-    status: string
-  }
-  manifestChange?: ForgeSession['manifestChange']
-  manifestVersionId?: string
-  onChangeSelect: (filePath: string) => void
-  onOpenChanges?: () => void
-  statusText: string
-  totalBytes: number
-}) {
-  const [showAllChanges, setShowAllChanges] = useState(false)
-  const changedFileCount = manifestChange?.changedFileCount ?? 0
-  const hasChanges = changedFileCount > 0
-  const hiddenChangeCount = Math.max(0, (manifestChange?.files.length ?? 0) - 5)
-  const visibleFileChanges =
-    manifestChange?.files.slice(0, showAllChanges ? undefined : 5) ?? []
-  const summaryTitle = getForgeRunSummaryTitle({
-    changedFileCount,
-    hasParentManifest: Boolean(manifestChange?.parentManifestVersionId),
-    statusText,
-  })
-
-  return (
-    <div className="overflow-hidden rounded-lg border border-neutral-200 bg-white dark:border-white/10 dark:bg-[#1e1e1e]">
-      <div className="flex items-start justify-between gap-4 px-4 py-3.5">
-        <div className="flex min-w-0 gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-neutral-100 ring-1 ring-neutral-200 dark:bg-black/35 dark:ring-white/10">
-            {latestRun?.status === 'failed' ? (
-              <AlertCircle className="h-5 w-5 text-red-400" />
-            ) : latestRun?.status === 'finished' ? (
-              <CheckCircle2 className="h-5 w-5 text-emerald-400" />
-            ) : (
-              <Play className="h-5 w-5 text-neutral-500 dark:text-neutral-300" />
-            )}
-          </div>
-          <div className="min-w-0">
-            <div className="text-[13px] font-semibold text-neutral-950 dark:text-neutral-100">
-              {summaryTitle}
-            </div>
-            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-neutral-500 dark:text-neutral-500">
-              {hasChanges && manifestChange ? (
-                <LineChangeSummary
-                  additions={manifestChange.additions}
-                  deletions={manifestChange.deletions}
-                />
-              ) : (
-                <>
-                  <span>{fileCount.toLocaleString()} files</span>
-                  <span>{formatBytes(totalBytes)}</span>
-                </>
-              )}
-              {latestRun?.startedAt ? (
-                <span>{formatRunDuration(latestRun)}</span>
-              ) : null}
-            </div>
-          </div>
-        </div>
-        <div className="flex shrink-0 items-center gap-2">
-          <div className="max-w-[150px] truncate font-mono text-xs text-neutral-500 dark:text-neutral-500">
-            {manifestVersionId ? compactManifestId(manifestVersionId) : ''}
-          </div>
-          {onOpenChanges ? (
-            <button
-              className="h-7 rounded-md border border-neutral-200 bg-neutral-50 px-2.5 text-xs font-medium text-neutral-800 transition hover:bg-neutral-100 hover:text-neutral-950 dark:border-white/10 dark:bg-white/5 dark:text-neutral-200 dark:hover:bg-white/10 dark:hover:text-white"
-              onClick={onOpenChanges}
-              type="button"
-            >
-              Review
-            </button>
-          ) : null}
-        </div>
-      </div>
-      {hasChanges && manifestChange ? (
-        <div className="border-t border-neutral-200 dark:border-white/10">
-          <div className="divide-y divide-neutral-200 dark:divide-white/5">
-            {visibleFileChanges.map((change) => (
-              <ChangedFileRow
-                change={change}
-                key={change.path}
-                onSelect={() => onChangeSelect(change.path)}
-              />
-            ))}
-          </div>
-          {hiddenChangeCount > 0 ? (
-            <button
-              className="flex w-full items-center gap-1 border-t border-neutral-200 px-4 py-1.5 text-left text-[11px] text-neutral-500 transition hover:bg-neutral-50 hover:text-neutral-800 dark:border-white/10 dark:hover:bg-white/5 dark:hover:text-neutral-300"
-              onClick={() => setShowAllChanges((value) => !value)}
-              type="button"
-            >
-              <span>
-                {showAllChanges
-                  ? 'Show fewer files'
-                  : `Show ${hiddenChangeCount.toLocaleString()} more ${
-                      hiddenChangeCount === 1 ? 'file' : 'files'
-                    }`}
-              </span>
-              <ChevronDown
-                className={`h-3.5 w-3.5 transition ${
-                  showAllChanges ? 'rotate-180' : ''
-                }`}
-              />
-            </button>
-          ) : null}
-        </div>
-      ) : null}
-      {error ? (
-        <div className="border-t border-neutral-200 px-4 py-3 text-sm text-red-600 dark:border-white/10 dark:text-red-300">
-          {error}
-        </div>
-      ) : null}
-    </div>
-  )
-}
-
-function ChangedFileRow({
-  change,
-  onSelect,
-}: {
-  change: ForgeManifestFileChange
-  onSelect: () => void
-}) {
-  return (
-    <button
-      className="flex w-full min-w-0 items-center gap-2 bg-neutral-50 px-3 py-1.5 text-left transition hover:bg-neutral-100 dark:bg-black/15 dark:hover:bg-white/5"
-      onClick={onSelect}
-      type="button"
-    >
-      <span className={fileChangeBadgeClassName(change.status)}>
-        {formatFileChangeStatus(change.status)}
-      </span>
-      <span className="min-w-0 flex-1 truncate font-mono text-[11px] text-neutral-700 dark:text-neutral-300">
-        {change.path}
-      </span>
-      <LineChangeSummary
-        additions={change.additions}
-        deletions={change.deletions}
-      />
-    </button>
-  )
-}
-
-function LineChangeSummary({
-  additions,
-  deletions,
-}: {
-  additions: number
-  deletions: number
-}) {
-  return (
-    <span className="flex shrink-0 items-center gap-2 font-mono text-[11px]">
-      <span className="text-emerald-600 dark:text-emerald-400">
-        +{additions.toLocaleString()}
-      </span>
-      <span className="text-red-600 dark:text-red-400">
-        -{deletions.toLocaleString()}
-      </span>
-    </span>
-  )
-}
-
 function ManifestCodeView({
   content,
   file,
@@ -2051,7 +2132,6 @@ function ForgeChatScrollPane({
   onItemOpenChange,
   openItemIds,
   showLogEvents,
-  summary,
 }: {
   activeChatId: string
   items: Array<ForgeTranscriptItem>
@@ -2059,7 +2139,6 @@ function ForgeChatScrollPane({
   onItemOpenChange: (itemId: string, open: boolean) => void
   openItemIds: Record<string, boolean>
   showLogEvents: boolean
-  summary: ReactNode
 }) {
   const parentRef = useRef<HTMLDivElement>(null)
   const activeRun = isActiveForgeRunStatus(latestRun?.status)
@@ -2129,7 +2208,6 @@ function ForgeChatScrollPane({
                     onItemOpenChange,
                     openItemIds,
                     showLogEvents,
-                    summary,
                   })}
                 </div>
               </div>
@@ -2169,20 +2247,7 @@ function createForgeChatVirtualRows({
   latestRunId?: string
   visibleItems: Array<ForgeTranscriptItem>
 }): Array<ForgeChatVirtualRow> {
-  const rows: Array<ForgeChatVirtualRow> = [
-    {
-      id: 'summary',
-      kind: 'summary',
-    },
-  ]
-
-  if (visibleItems.length > 0 || activeRun) {
-    rows.push({
-      id: 'activity-header',
-      kind: 'activityHeader',
-      showLabel: visibleItems.length > 0,
-    })
-  }
+  const rows = Array<ForgeChatVirtualRow>()
 
   for (const item of visibleItems) {
     rows.push({
@@ -2208,12 +2273,8 @@ function estimateForgeChatRowSize(row?: ForgeChatVirtualRow) {
   }
 
   switch (row.kind) {
-    case 'activityHeader':
-      return 36
     case 'activeWork':
       return 72
-    case 'summary':
-      return 180
     case 'transcript':
       return estimateForgeTranscriptItemSize(row.item)
   }
@@ -2240,27 +2301,15 @@ function renderForgeChatVirtualRow(
     onItemOpenChange,
     openItemIds,
     showLogEvents,
-    summary,
   }: {
     latestRun: ForgeSession['latestRun']
     latestWorkItem?: ForgeTranscriptWorkItem
     onItemOpenChange: (itemId: string, open: boolean) => void
     openItemIds: Record<string, boolean>
     showLogEvents: boolean
-    summary: ReactNode
   },
 ) {
   switch (row.kind) {
-    case 'activityHeader':
-      return (
-        <div className="border-t border-neutral-200 pt-5 dark:border-white/10">
-          {row.showLabel ? (
-            <div className="text-xs font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-600">
-              Activity
-            </div>
-          ) : null}
-        </div>
-      )
     case 'activeWork':
       return (
         <ActiveWorkIndicator
@@ -2269,8 +2318,6 @@ function renderForgeChatVirtualRow(
           showLogEvents={showLogEvents}
         />
       )
-    case 'summary':
-      return summary
     case 'transcript':
       return renderForgeTranscriptItem(row.item, {
         onItemOpenChange,
@@ -2353,42 +2400,112 @@ function MessageBubble({
   )
 }
 
-const forgeStreamdownComponents = {
-  pre: CodeBlock,
-  code: InlineCode,
+const forgeMarkdownComponents = {
+  pre: ForgeMarkdownPre,
+  code: ForgeMarkdownCode,
   a: ForgeMarkdownLink,
-  p: ({ children }: { children?: ReactNode }) => (
-    <p className="my-2 first:mt-0 last:mb-0">{children}</p>
-  ),
-  h1: ({ children }: { children?: ReactNode }) => (
+  p: ForgeMarkdownParagraph,
+  h1: ForgeMarkdownHeading1,
+  h2: ForgeMarkdownHeading2,
+  h3: ForgeMarkdownHeading3,
+  ul: ForgeMarkdownUnorderedList,
+  ol: ForgeMarkdownOrderedList,
+  li: ForgeMarkdownListItem,
+  blockquote: ForgeMarkdownBlockquote,
+}
+
+function ForgeMarkdownParagraph({ children }: { children?: ReactNode }) {
+  return <p className="my-2 first:mt-0 last:mb-0">{children}</p>
+}
+
+function ForgeMarkdownHeading1({ children }: { children?: ReactNode }) {
+  return (
     <h1 className="mb-2 mt-4 text-base font-semibold text-neutral-950 first:mt-0 dark:text-neutral-100">
       {children}
     </h1>
-  ),
-  h2: ({ children }: { children?: ReactNode }) => (
+  )
+}
+
+function ForgeMarkdownHeading2({ children }: { children?: ReactNode }) {
+  return (
     <h2 className="mb-2 mt-4 text-sm font-semibold text-neutral-950 first:mt-0 dark:text-neutral-100">
       {children}
     </h2>
-  ),
-  h3: ({ children }: { children?: ReactNode }) => (
+  )
+}
+
+function ForgeMarkdownHeading3({ children }: { children?: ReactNode }) {
+  return (
     <h3 className="mb-1.5 mt-3 text-[13px] font-semibold text-neutral-950 first:mt-0 dark:text-neutral-100">
       {children}
     </h3>
-  ),
-  ul: ({ children }: { children?: ReactNode }) => (
-    <ul className="my-2 list-disc space-y-1 pl-5">{children}</ul>
-  ),
-  ol: ({ children }: { children?: ReactNode }) => (
-    <ol className="my-2 list-decimal space-y-1 pl-5">{children}</ol>
-  ),
-  li: ({ children }: { children?: ReactNode }) => (
-    <li className="leading-5">{children}</li>
-  ),
-  blockquote: ({ children }: { children?: ReactNode }) => (
+  )
+}
+
+function ForgeMarkdownUnorderedList({ children }: { children?: ReactNode }) {
+  return <ul className="my-2 list-disc space-y-1 pl-5">{children}</ul>
+}
+
+function ForgeMarkdownOrderedList({ children }: { children?: ReactNode }) {
+  return <ol className="my-2 list-decimal space-y-1 pl-5">{children}</ol>
+}
+
+function ForgeMarkdownListItem({ children }: { children?: ReactNode }) {
+  return <li className="leading-5">{children}</li>
+}
+
+function ForgeMarkdownBlockquote({ children }: { children?: ReactNode }) {
+  return (
     <blockquote className="my-2 border-l-2 border-neutral-300 pl-3 text-neutral-600 dark:border-white/20 dark:text-neutral-400">
       {children}
     </blockquote>
-  ),
+  )
+}
+
+type MarkdownCodeElementProps = {
+  children?: ReactNode
+  className?: string
+}
+
+function isMarkdownCodeElement(
+  node: ReactNode,
+): node is ReactElement<MarkdownCodeElementProps> {
+  return isValidElement<MarkdownCodeElementProps>(node)
+}
+
+function ForgeMarkdownPre({ children, ...props }: HTMLProps<HTMLPreElement>) {
+  const codeElement = isMarkdownCodeElement(children) ? children : undefined
+  const codeClassName = codeElement?.props.className?.replace(
+    /^lang-/,
+    'language-',
+  )
+  const code = codeElement?.props.children
+
+  return (
+    <CodeBlock {...props} showTypeCopyButton={false}>
+      <code className={codeClassName}>
+        {typeof code === 'string' ? code : ''}
+      </code>
+    </CodeBlock>
+  )
+}
+
+function ForgeMarkdownCode({
+  children,
+  className,
+}: {
+  children?: ReactNode
+  className?: string
+}) {
+  if (className?.startsWith('lang-')) {
+    return (
+      <code className={className.replace(/^lang-/, 'language-')}>
+        {children}
+      </code>
+    )
+  }
+
+  return <InlineCode>{children}</InlineCode>
 }
 
 function ForgeAssistantMarkdown({
@@ -2408,12 +2525,10 @@ function ForgeAssistantMarkdown({
           : 'text-neutral-800 dark:text-neutral-200'
       }`}
     >
-      <Streamdown
-        components={forgeStreamdownComponents}
-        isAnimating={isStreaming}
-      >
-        {content}
-      </Streamdown>
+      <Streamdown components={forgeMarkdownComponents}>{content}</Streamdown>
+      {isStreaming ? (
+        <span className="ml-1 inline-block h-3 w-1 translate-y-0.5 animate-pulse rounded-full bg-current opacity-55" />
+      ) : null}
     </div>
   )
 }
@@ -4352,6 +4467,10 @@ function parseForgeStateBatchEvent(
   }
 }
 
+function isNotAuthenticatedError(error: unknown) {
+  return error instanceof Error && error.message.includes('Not authenticated')
+}
+
 function isForgeSession(value: unknown): value is ForgeSession {
   if (!isRecord(value)) {
     return false
@@ -5126,17 +5245,6 @@ function compactManifestId(manifestVersionId: string) {
   }
 
   return manifestVersionId.replace(prefix, 'sha256:').slice(0, 19)
-}
-
-function formatRunDuration(run: { endedAt?: string; startedAt?: string }) {
-  if (!run.startedAt || !run.endedAt) {
-    return 'running'
-  }
-
-  const durationMs =
-    new Date(run.endedAt).getTime() - new Date(run.startedAt).getTime()
-
-  return formatDuration(durationMs)
 }
 
 function formatDuration(durationMs: number) {

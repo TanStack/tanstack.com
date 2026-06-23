@@ -22,8 +22,15 @@ import {
   ensureLocalForgeBaseline,
   startLocalForgeAgentRun,
 } from '~/builder/runtime/local-agent.server'
+import {
+  forgeByokProviders,
+  forgeRequiresByokForRuns,
+  sealForgeProviderKey,
+  unsealForgeProviderKey,
+  type ForgeSealedProviderKey,
+} from '~/builder/runtime/forge-byok.server'
 import { materializeLatestLocalForgeManifest } from '~/builder/runtime/local-materialize.server'
-import { getAuthGuards } from '~/auth/index.server'
+import { requireForgeAccess as requireForgeRequestAccess } from '~/utils/forge-access.server'
 
 export interface ForgeChatShell {
   archivedAt?: string
@@ -49,11 +56,28 @@ export interface ForgeChatShellResult {
   projectId: string
 }
 
+export type ForgeBrowserProviderKey = ForgeSealedProviderKey
+
+const forgeProviderSchema = v.picklist(forgeByokProviders)
+
+const forgeProviderModelSchema = v.optional(
+  v.pipe(v.string(), v.trim(), v.minLength(1), v.maxLength(120)),
+)
+
+const forgeBrowserProviderKeySchema = v.object({
+  fingerprint: v.pipe(v.string(), v.trim(), v.minLength(1), v.maxLength(120)),
+  model: forgeProviderModelSchema,
+  provider: forgeProviderSchema,
+  sealedKey: v.pipe(v.string(), v.trim(), v.minLength(1), v.maxLength(12000)),
+})
+
 async function requireForgeUser() {
-  const request = getRequest()
-  const guards = getAuthGuards()
-  return guards.requireAuth(request)
+  return requireForgeRequestAccess(getRequest())
 }
+
+export const requireForgeAccess = createServerFn({ method: 'POST' }).handler(
+  requireForgeUser,
+)
 
 export const getLocalForgeSession = createServerFn({ method: 'POST' })
   .inputValidator(
@@ -102,11 +126,24 @@ export const startLocalForgeRun = createServerFn({ method: 'POST' })
         v.minLength(1),
         v.maxLength(120),
       ),
+      providerKey: v.optional(forgeBrowserProviderKeySchema),
       prompt: v.pipe(v.string(), v.trim(), v.minLength(1), v.maxLength(4000)),
     }),
   )
   .handler(async ({ data }) => {
     const user = await requireForgeUser()
+    const providerCredential = data.providerKey
+      ? unsealForgeProviderKey({
+          provider: data.providerKey.provider,
+          sealedKey: data.providerKey.sealedKey,
+          userId: user.userId,
+        })
+      : undefined
+
+    if (!providerCredential && forgeRequiresByokForRuns()) {
+      throw new Error('Add a Forge provider key before starting a run.')
+    }
+
     const meta = requireActiveForgeMetaSession(
       await selectForgeMetaChatSession({
         chatId: data.chatId,
@@ -120,12 +157,32 @@ export const startLocalForgeRun = createServerFn({ method: 'POST' })
         startLocalForgeAgentRun({
           clientRequestId: data.clientRequestId,
           prompt: data.prompt,
+          providerCredential,
         }),
     )
 
     return readForgeSnapshotFromMeta({
       meta,
       prompt: data.prompt,
+      userId: user.userId,
+    })
+  })
+
+export const sealForgeBrowserProviderKey = createServerFn({ method: 'POST' })
+  .inputValidator(
+    v.object({
+      apiKey: v.pipe(v.string(), v.trim(), v.minLength(20), v.maxLength(4000)),
+      model: forgeProviderModelSchema,
+      provider: forgeProviderSchema,
+    }),
+  )
+  .handler(async ({ data }): Promise<ForgeBrowserProviderKey> => {
+    const user = await requireForgeUser()
+
+    return sealForgeProviderKey({
+      apiKey: data.apiKey,
+      model: data.model,
+      provider: data.provider,
       userId: user.userId,
     })
   })

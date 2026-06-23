@@ -14,6 +14,8 @@ import {
 } from '~/utils/prod-diagnostics.server'
 import { docsContentNegotiationVaryHeader } from '~/utils/http'
 
+export { ForgeSessionDurableObject } from '~/builder/runtime/forge-session-do.server'
+
 const SECURITY_HEADERS = {
   'X-Frame-Options': 'DENY',
   'X-Content-Type-Options': 'nosniff',

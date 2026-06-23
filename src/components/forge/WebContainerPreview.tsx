@@ -3,6 +3,7 @@ import {
   ArrowRight,
   ArrowUpRight,
   AlertCircle,
+  MousePointer2,
   RefreshCw,
   Terminal,
 } from 'lucide-react'
@@ -30,9 +31,30 @@ import {
 } from '~/utils/forge-webcontainer'
 
 type ForgeWebContainerPreviewProps = {
+  annotationDisabled?: boolean
   files: Record<string, string>
   manifestVersionId?: string
+  onAnnotationSubmit?: (
+    annotation: ForgePreviewAnnotation,
+  ) => void | Promise<void>
   packageManager?: string
+}
+
+export type ForgePreviewAnnotation = {
+  attributes: Record<string, string>
+  comment: string
+  href: string
+  outerHtml?: string
+  path: string
+  rect: {
+    height: number
+    width: number
+    x: number
+    y: number
+  }
+  selector: string
+  tagName: string
+  text?: string
 }
 
 type ForgePreviewLogTone = 'error' | 'info' | 'muted'
@@ -42,6 +64,8 @@ type ForgePreviewLog = {
   message: string
   tone: ForgePreviewLogTone
 }
+
+type AnnotationBridgeStatus = 'idle' | 'pending' | 'refreshing'
 
 type ConsoleResizeState = {
   handle: HTMLDivElement
@@ -61,6 +85,8 @@ type PreviewConsolePanelProps = {
 }
 
 type PreviewBridgeMessage = {
+  annotation?: unknown
+  enabled?: unknown
   href?: unknown
   path?: unknown
   source?: unknown
@@ -99,8 +125,10 @@ async function getWebContainer() {
 }
 
 export function ForgeWebContainerPreview({
+  annotationDisabled,
   files,
   manifestVersionId,
+  onAnnotationSubmit,
   packageManager,
 }: ForgeWebContainerPreviewProps) {
   const [status, setStatus] = useState<ForgeWebContainerPreviewStatus>('idle')
@@ -117,6 +145,9 @@ export function ForgeWebContainerPreview({
   const [loadingConsoleVisible, setLoadingConsoleVisible] = useState(false)
   const [consoleHeight, setConsoleHeight] = useState(CONSOLE_DEFAULT_HEIGHT)
   const [consoleResizing, setConsoleResizing] = useState(false)
+  const [annotationEnabled, setAnnotationEnabled] = useState(false)
+  const [annotationBridgeStatus, setAnnotationBridgeStatus] =
+    useState<AnnotationBridgeStatus>('idle')
   const [previewPaneHeight, setPreviewPaneHeight] = useState(0)
   const [previewActive, setPreviewActive] = useState(true)
   const [restartKey, setRestartKey] = useState(0)
@@ -129,6 +160,14 @@ export function ForgeWebContainerPreview({
   const locationHistoryRef = useRef<Array<string>>([])
   const nextLogIdRef = useRef(0)
   const filesRef = useRef(files)
+  const annotationEnabledRef = useRef(false)
+  const annotationAckTimeoutRef = useRef<
+    ReturnType<typeof setTimeout> | undefined
+  >(undefined)
+  const annotationBridgeRecoveryAttemptRef = useRef(0)
+  const annotationBridgeRefreshRef = useRef<Promise<void> | undefined>(
+    undefined,
+  )
   const previewPaintTimeoutRef = useRef<
     ReturnType<typeof setTimeout> | undefined
   >(undefined)
@@ -150,6 +189,8 @@ export function ForgeWebContainerPreview({
   const previewBusy = sandboxLoading || frameLoading
   const consoleVisible = consoleOpen
   const consoleButtonActive = consoleOpen || loadingConsoleVisible
+  const annotationActive = annotationEnabled && !annotationDisabled
+  const canAnnotate = Boolean(previewUrl) && !annotationDisabled
   const canGoBack = historyIndex > 0
   const canGoForward =
     historyIndex >= 0 && historyIndex < locationHistory.length - 1
@@ -164,6 +205,10 @@ export function ForgeWebContainerPreview({
   useEffect(() => {
     filesRef.current = files
   }, [files, manifestVersionId])
+
+  useEffect(() => {
+    annotationEnabledRef.current = annotationEnabled
+  }, [annotationEnabled])
 
   useEffect(() => {
     const element = previewPaneRef.current
@@ -260,11 +305,21 @@ export function ForgeWebContainerPreview({
     setPreviewActive(true)
     setConsoleOpen(false)
     setLoadingConsoleVisible(false)
+    setAnnotationEnabled(false)
+    setAnnotationBridgeStatus('idle')
+    annotationBridgeRecoveryAttemptRef.current = 0
+    clearAnnotationAckTimeout()
   }, [manifestVersionId])
 
   useEffect(() => {
+    return () => {
+      clearAnnotationAckTimeout()
+    }
+  }, [])
+
+  useEffect(() => {
     function handleMessage(event: MessageEvent) {
-      const message = event.data as PreviewBridgeMessage
+      const message = readPreviewBridgeMessage(event.data)
 
       if (!message || message.source !== 'forge-webcontainer-preview') {
         return
@@ -272,6 +327,37 @@ export function ForgeWebContainerPreview({
 
       if (message.type === 'ready') {
         markPreviewReady()
+        return
+      }
+
+      if (message.type === 'annotation.mode') {
+        clearAnnotationAckTimeout()
+        annotationBridgeRecoveryAttemptRef.current = 0
+        setAnnotationBridgeStatus('idle')
+        setAnnotationEnabled(message.enabled === true)
+        return
+      }
+
+      if (message.type === 'annotation.submit') {
+        const annotation = readPreviewAnnotation(message.annotation)
+        if (!annotation) {
+          return
+        }
+
+        setAnnotationEnabled(false)
+        clearAnnotationAckTimeout()
+        setAnnotationBridgeStatus('idle')
+        if (onAnnotationSubmit) {
+          void Promise.resolve(onAnnotationSubmit(annotation)).catch(
+            (error: unknown) => {
+              setError(
+                error instanceof Error
+                  ? error.message
+                  : 'Preview annotation could not be submitted.',
+              )
+            },
+          )
+        }
         return
       }
 
@@ -297,7 +383,16 @@ export function ForgeWebContainerPreview({
     return () => {
       window.removeEventListener('message', handleMessage)
     }
-  }, [previewUrl])
+  }, [onAnnotationSubmit, previewUrl])
+
+  useEffect(() => {
+    if (annotationEnabled && annotationDisabled) {
+      clearAnnotationAckTimeout()
+      setAnnotationBridgeStatus('idle')
+      setAnnotationEnabled(false)
+      sendAnnotationMode(false)
+    }
+  }, [annotationDisabled, annotationEnabled])
 
   useEffect(() => {
     if (!canStart || !manifestVersionId || !previewActive) {
@@ -744,6 +839,140 @@ export function ForgeWebContainerPreview({
     setFrameLoadKey((value) => value + 1)
   }
 
+  function sendAnnotationMode(enabled: boolean) {
+    iframeRef.current?.contentWindow?.postMessage(
+      {
+        enabled,
+        source: 'forge-preview-controls',
+        type: 'annotation.set',
+      },
+      '*',
+    )
+  }
+
+  function clearAnnotationAckTimeout() {
+    if (annotationAckTimeoutRef.current) {
+      clearTimeout(annotationAckTimeoutRef.current)
+      annotationAckTimeoutRef.current = undefined
+    }
+  }
+
+  function requestAnnotationMode(
+    enabled: boolean,
+    options?: {
+      resetRecovery?: boolean
+    },
+  ) {
+    setAnnotationEnabled(enabled)
+    sendAnnotationMode(enabled)
+
+    if (!enabled) {
+      clearAnnotationAckTimeout()
+      setAnnotationBridgeStatus('idle')
+      annotationBridgeRecoveryAttemptRef.current = 0
+      return
+    }
+
+    if (options?.resetRecovery) {
+      annotationBridgeRecoveryAttemptRef.current = 0
+    }
+
+    clearAnnotationAckTimeout()
+    setAnnotationBridgeStatus('pending')
+    annotationAckTimeoutRef.current = setTimeout(() => {
+      void recoverMissingAnnotationBridge()
+    }, 900)
+  }
+
+  async function recoverMissingAnnotationBridge() {
+    clearAnnotationAckTimeout()
+
+    if (!annotationEnabledRef.current || annotationDisabled) {
+      setAnnotationBridgeStatus('idle')
+      return
+    }
+
+    if (annotationBridgeRecoveryAttemptRef.current > 0) {
+      annotationBridgeRecoveryAttemptRef.current = 0
+      setAnnotationBridgeStatus('idle')
+      setAnnotationEnabled(false)
+      setError(
+        'Preview annotation bridge did not start. Reload the preview and try annotation again.',
+      )
+      return
+    }
+
+    annotationBridgeRecoveryAttemptRef.current += 1
+    setAnnotationBridgeStatus('refreshing')
+
+    try {
+      if (!annotationBridgeRefreshRef.current) {
+        annotationBridgeRefreshRef.current = refreshPreviewBridge()
+      }
+
+      await annotationBridgeRefreshRef.current
+      annotationBridgeRefreshRef.current = undefined
+
+      const nextFrameSrc = currentUrlRef.current ?? previewUrl
+      if (nextFrameSrc) {
+        setFrameLoading(true)
+        setFrameSrc(nextFrameSrc)
+        setFrameLoadKey((value) => value + 1)
+      }
+    } catch (refreshError) {
+      annotationBridgeRefreshRef.current = undefined
+      annotationBridgeRecoveryAttemptRef.current = 0
+      setAnnotationBridgeStatus('idle')
+      setAnnotationEnabled(false)
+      setError(
+        refreshError instanceof Error
+          ? refreshError.message
+          : 'Preview annotation bridge could not be refreshed.',
+      )
+    }
+  }
+
+  async function refreshPreviewBridge() {
+    if (!manifestVersionId) {
+      throw new Error('Preview annotation bridge needs an active manifest.')
+    }
+
+    const nextFiles = createForgeWebContainerPreviewFiles(filesRef.current)
+    const changedPreviewFiles = Object.keys(nextFiles).filter(
+      (filePath) => nextFiles[filePath] !== filesRef.current[filePath],
+    )
+
+    if (changedPreviewFiles.length === 0) {
+      throw new Error('Preview annotation bridge could not find an entry file.')
+    }
+
+    const webContainer = await getWebContainer()
+    const workspaceName = getForgeWebContainerWorkspaceName(manifestVersionId)
+
+    for (const filePath of changedPreviewFiles) {
+      const directoryPath = filePath.split('/').slice(0, -1).join('/')
+      if (directoryPath) {
+        await webContainer.fs.mkdir(`${workspaceName}/${directoryPath}`, {
+          recursive: true,
+        })
+      }
+
+      await webContainer.fs.writeFile(
+        `${workspaceName}/${filePath}`,
+        nextFiles[filePath],
+      )
+    }
+  }
+
+  function handleAnnotationToggle() {
+    if (!canAnnotate) {
+      return
+    }
+
+    const nextEnabled = !annotationActive
+    requestAnnotationMode(nextEnabled, { resetRecovery: nextEnabled })
+  }
+
   function revealLoadingConsole() {
     setLoadingConsoleVisible(true)
     setConsoleOpen(true)
@@ -834,6 +1063,26 @@ export function ForgeWebContainerPreview({
             </button>
           </form>
           <button
+            aria-pressed={annotationActive}
+            className={consoleButtonClassName(annotationActive)}
+            disabled={!canAnnotate}
+            onClick={handleAnnotationToggle}
+            title={
+              annotationBridgeStatus === 'refreshing'
+                ? 'Refreshing annotation bridge'
+                : annotationActive
+                  ? 'Exit annotation mode'
+                  : 'Annotate preview'
+            }
+            type="button"
+          >
+            <MousePointer2
+              className={`h-3.5 w-3.5 ${
+                annotationBridgeStatus === 'refreshing' ? 'animate-pulse' : ''
+              }`}
+            />
+          </button>
+          <button
             aria-pressed={consoleButtonActive}
             className={consoleButtonClassName(consoleButtonActive)}
             onClick={handleConsoleToggle}
@@ -865,6 +1114,11 @@ export function ForgeWebContainerPreview({
                 setFrameLoading(false)
               }}
               onLoad={() => {
+                if (annotationActive) {
+                  requestAnnotationMode(true)
+                } else {
+                  sendAnnotationMode(false)
+                }
                 if (previewPaintTimeoutRef.current) {
                   clearTimeout(previewPaintTimeoutRef.current)
                 }
@@ -1137,6 +1391,96 @@ function getPreviewLoadingStepIndex(status: ForgeWebContainerPreviewStatus) {
 
 function clampNumber(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max)
+}
+
+function readPreviewBridgeMessage(
+  value: unknown,
+): PreviewBridgeMessage | undefined {
+  if (!isRecord(value)) {
+    return undefined
+  }
+
+  return {
+    annotation: value.annotation,
+    enabled: value.enabled,
+    href: value.href,
+    path: value.path,
+    source: value.source,
+    type: value.type,
+  }
+}
+
+function readPreviewAnnotation(
+  value: unknown,
+): ForgePreviewAnnotation | undefined {
+  if (!isRecord(value) || !isRecord(value.rect)) {
+    return undefined
+  }
+
+  const comment = readString(value.comment)?.trim()
+  const href = readString(value.href)
+  const path = readString(value.path)
+  const selector = readString(value.selector)
+  const tagName = readString(value.tagName)
+  const height = readNumber(value.rect.height)
+  const width = readNumber(value.rect.width)
+  const x = readNumber(value.rect.x)
+  const y = readNumber(value.rect.y)
+
+  if (
+    !comment ||
+    !href ||
+    !path ||
+    !selector ||
+    !tagName ||
+    height === undefined ||
+    width === undefined ||
+    x === undefined ||
+    y === undefined
+  ) {
+    return undefined
+  }
+
+  return {
+    attributes: readStringRecord(value.attributes),
+    comment,
+    href,
+    outerHtml: readString(value.outerHtml),
+    path,
+    rect: {
+      height,
+      width,
+      x,
+      y,
+    },
+    selector,
+    tagName,
+    text: readString(value.text),
+  }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+function readString(value: unknown) {
+  return typeof value === 'string' ? value : undefined
+}
+
+function readNumber(value: unknown) {
+  return typeof value === 'number' && Number.isFinite(value) ? value : undefined
+}
+
+function readStringRecord(value: unknown): Record<string, string> {
+  if (!isRecord(value)) {
+    return {}
+  }
+
+  return Object.fromEntries(
+    Object.entries(value).filter(
+      (entry): entry is [string, string] => typeof entry[1] === 'string',
+    ),
+  )
 }
 
 function resolvePreviewBridgeUrl({

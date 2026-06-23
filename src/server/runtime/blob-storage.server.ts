@@ -1,6 +1,6 @@
 import { getHostRuntimeEnv, isIsolateRuntime } from './host.server'
 
-export type BlobStorageName = 'githubContentCache'
+export type BlobStorageName = 'forgeRuntime' | 'githubContentCache'
 
 export type BlobStorageObject = {
   key: string
@@ -156,6 +156,8 @@ function readMetadataHeader(value: string | null) {
 
 function getRuntimeBindingName(name: BlobStorageName) {
   switch (name) {
+    case 'forgeRuntime':
+      return 'FORGE_RUNTIME'
     case 'githubContentCache':
       return 'GITHUB_CONTENT_CACHE'
   }

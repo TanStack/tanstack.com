@@ -87,7 +87,7 @@ Local production payload checks showed that direction pretty clearly:
 | Router example initial file  |   5.6 KB |   1.5 KB | -4.1 KB |
 | Heavy blog post content      |  15.0 KB |   9.4 KB | -5.6 KB |
 
-That matters for docs. People do not always land on one page, read it, and leave. They click around, bounce between examples, open adjacent guides, and search again. For that kind of session, shipping a tiny renderer once and then sending smaller content payloads is a much more reasonable trade than it would have been when the renderer was Shiki plus the old markdown stack.
+That matters for docs. People do not always land on one page, read it, and leave. Our average visitor hits about six pages per session, which is exactly where this trade starts paying off. Shipping a tiny renderer once and then sending smaller content payloads across the rest of the session is a much more reasonable trade than it would have been when the renderer was Shiki plus the old markdown stack.
 
 ## The code got easier to explain
 
@@ -130,11 +130,11 @@ The migration commit tells the story better than a rant would. In `92b1c481`, mo
 
 The top-line diff is a bad headline because the same commit also added the first in-repo versions of the markdown and highlight packages. Counted by file bucket, the relevant parts looked like this:
 
-| Bucket                                  | Files | Added | Removed |
-| --------------------------------------- | ----: | ----: | ------: |
-| RSC-specific content plumbing           |     9 |    25 |     555 |
-| Old markdown/rendering plugins          |     8 |     0 |     994 |
-| New markdown/highlight package code     |    21 | 3,610 |       0 |
+| Bucket                              | Files | Added | Removed |
+| ----------------------------------- | ----: | ----: | ------: |
+| RSC-specific content plumbing       |     9 |    25 |     555 |
+| Old markdown/rendering plugins      |     8 |     0 |     994 |
+| New markdown/highlight package code |    21 | 3,610 |       0 |
 
 The markdown/highlight code later moved out to packages. The useful part is the shape: the RSC-specific content path and old rendering plugins were real code, and once the renderer was small enough, most of that path no longer earned its keep.
 

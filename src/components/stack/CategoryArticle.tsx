@@ -21,7 +21,6 @@ import {
   Zap,
 } from 'lucide-react'
 
-import { ApplicationStarter } from '~/components/ApplicationStarter'
 import { LibraryWordmark } from '~/components/LibraryWordmark'
 import type { LibrarySlim } from '~/libraries'
 import { formatPublishedDate, getPostsForLibrary } from '~/utils/blog'
@@ -127,11 +126,11 @@ function FrameworkCategory({
               Framework
             </SectionKicker>
             <h1 className={heroTitleClassName}>
-              Router-first apps, from SPA to full-stack.
+              Typed apps, from SPA to full-stack.
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-7 text-zinc-700 dark:text-zinc-300 sm:text-lg">
-              Start adds SSR, streaming, server functions, and deployable output
-              around Router's typed route model.
+              Keep the same route model when an app stays client-side or grows a
+              server boundary.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
               <LibraryButton library={start} label="Explore Start" />
@@ -139,7 +138,7 @@ function FrameworkCategory({
             </div>
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
               {[
-                ['Router model', 'Routes, search, loaders, links'],
+                ['Route model', 'Routes, search, loaders, links'],
                 ['Server boundary', 'Rendering and functions in one app'],
                 ['Portable output', 'Ready for common hosts'],
               ].map(([label, detail]) => (
@@ -155,30 +154,7 @@ function FrameworkCategory({
             </div>
           </div>
 
-          <div className="rounded-lg border border-cyan-950/10 bg-white p-3 shadow-sm shadow-cyan-950/5 dark:border-cyan-300/15 dark:bg-zinc-950">
-            <div className="mb-3 flex flex-wrap items-center justify-between gap-2 px-1">
-              <div>
-                <p className="text-xs font-bold text-cyan-700 dark:text-cyan-300">
-                  Application builder
-                </p>
-                <p className="mt-0.5 text-sm text-zinc-600 dark:text-zinc-400">
-                  Turn a product brief into a Start-ready stack.
-                </p>
-              </div>
-              <span className="inline-flex items-center gap-1 rounded-md border border-cyan-200 bg-cyan-50 px-2 py-1 text-xs font-semibold text-cyan-800 dark:border-cyan-800 dark:bg-cyan-950/50 dark:text-cyan-200">
-                <Rocket size={13} aria-hidden="true" />
-                Start-first
-              </span>
-            </div>
-            <ApplicationStarter
-              context="start"
-              mode="compact"
-              primaryActionLabel="Copy Start Prompt"
-              secondaryActionLabel="Build Start app on Netlify"
-              title="Describe the app you want to build"
-              tone="cyan"
-            />
-          </div>
+          <FrameworkPlanPanel />
         </div>
       </section>
 
@@ -202,14 +178,17 @@ function FrameworkCategory({
             />
           </Link>
 
-          <div className="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
+          <Link
+            to={router.to ?? '#'}
+            className={twMerge(libraryLinkClassName, 'p-6')}
+          >
             <LibraryTitle library={router} overline="Foundation" />
             <div className="mt-5 rounded-lg border border-emerald-200 bg-white p-4 font-mono text-xs leading-6 text-zinc-700 dark:border-emerald-900 dark:bg-zinc-950 dark:text-zinc-300">
               {[
                 'routes/__root.tsx',
                 'routes/index.tsx',
                 'routes/projects.$id.tsx',
-                'loader: typed project query',
+                'loader: typed project data',
                 'search: validated filters',
               ].map((line, index) => (
                 <div key={line} className="flex items-center gap-3">
@@ -224,13 +203,60 @@ function FrameworkCategory({
               Use it when routing is the foundation, without needing a full
               server app.
             </p>
-            <LibraryButton library={router} label="Open Router" muted />
-          </div>
+            <OpenLibraryCta library={router} className="mt-5" />
+          </Link>
         </div>
       </section>
 
       <RelatedPostsBlock items={relatedPosts} />
     </>
+  )
+}
+
+function FrameworkPlanPanel() {
+  return (
+    <div className="rounded-lg border border-cyan-950/10 bg-white p-5 shadow-sm shadow-cyan-950/5 dark:border-cyan-300/15 dark:bg-zinc-950">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <p className="text-xs font-bold text-cyan-700 dark:text-cyan-300">
+            App plan
+          </p>
+          <p className="mt-0.5 text-sm text-zinc-600 dark:text-zinc-400">
+            Map the product brief before choosing the runtime boundary.
+          </p>
+        </div>
+        <span className="inline-flex items-center gap-1 rounded-md border border-cyan-200 bg-cyan-50 px-2 py-1 text-xs font-semibold text-cyan-800 dark:border-cyan-800 dark:bg-cyan-950/50 dark:text-cyan-200">
+          <Rocket size={13} aria-hidden="true" />
+          App-ready
+        </span>
+      </div>
+      <div className="mt-5 grid gap-3 sm:grid-cols-3">
+        {[
+          ['Routes', 'Nested screens'],
+          ['Data', 'Load before render'],
+          ['Server', 'Add only when needed'],
+        ].map(([label, detail]) => (
+          <div key={label} className="border-l-2 border-cyan-500/60 pl-3">
+            <p className="text-sm font-black text-zinc-950 dark:text-white">
+              {label}
+            </p>
+            <p className="mt-1 text-xs font-semibold text-zinc-600 dark:text-zinc-400">
+              {detail}
+            </p>
+          </div>
+        ))}
+      </div>
+      <div className="mt-5 rounded-lg border border-zinc-200 bg-zinc-50 p-4 font-mono text-xs leading-6 text-zinc-600 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300">
+        {[
+          '/ routes and layouts',
+          '+ loaders before render',
+          '+ server boundary when needed',
+          '-> deploy target ready',
+        ].map((line) => (
+          <div key={line}>{line}</div>
+        ))}
+      </div>
+    </div>
   )
 }
 
@@ -269,43 +295,29 @@ function StateCategory({
                 {
                   key: 'cache',
                   label: 'Cache',
-                  colorFrom: query.colorFrom,
-                  colorTo: query.colorTo,
                   detail: 'freshness, retries, invalidation',
                 },
                 {
                   key: 'collect',
                   label: 'Collect',
-                  colorFrom: db.colorFrom,
-                  colorTo: db.colorTo,
                   detail: 'live queries, optimistic writes',
                 },
                 {
                   key: 'signal',
                   label: 'Signal',
-                  colorFrom: store.colorFrom,
-                  colorTo: store.colorTo,
                   detail: 'selectors, derived state, adapters',
                 },
                 {
                   key: 'model',
                   label: 'Model',
-                  colorFrom: ai.colorFrom,
-                  colorTo: ai.colorTo,
                   detail: 'providers, tools, AG-UI streams',
                 },
-              ].map(({ key, label, colorFrom, colorTo, detail }) => (
+              ].map(({ key, label, detail }) => (
                 <div
                   key={key}
-                  className="grid gap-3 rounded-lg border border-zinc-100 bg-zinc-50 p-3 dark:border-zinc-800 dark:bg-zinc-950 sm:grid-cols-[7rem_1fr] sm:items-center"
+                  className="grid gap-2 border-l-2 border-zinc-200 py-2 pl-3 dark:border-zinc-700 sm:grid-cols-[7rem_1fr] sm:items-baseline"
                 >
-                  <div
-                    className={twMerge(
-                      'inline-flex w-fit items-center rounded-md bg-gradient-to-r px-2.5 py-1 text-sm font-black text-white',
-                      colorFrom,
-                      colorTo,
-                    )}
-                  >
+                  <div className="text-sm font-black text-zinc-950 dark:text-white">
                     {label}
                   </div>
                   <p className="text-sm font-semibold text-zinc-600 dark:text-zinc-400">
@@ -333,7 +345,7 @@ function StateCategory({
             <StateLibraryCard
               library={db}
               title="Synced client collections"
-              body="Query live collections locally while writes reconcile with an API."
+              body="Read live collections locally while writes reconcile with an API."
             />
             <StateLibraryCard
               library={store}
@@ -835,26 +847,26 @@ function ToolingWorkbench() {
         <span className="h-2.5 w-2.5 rounded-md bg-red-400" />
         <span className="h-2.5 w-2.5 rounded-md bg-yellow-400" />
         <span className="h-2.5 w-2.5 rounded-md bg-emerald-400" />
-        <span className="ml-2 font-mono">tanstack-workbench</span>
+        <span className="ml-2 font-mono">package-workbench</span>
       </div>
       <div className="grid gap-3 md:grid-cols-2">
         <WorkbenchCell
-          code={['pnpm dlx @tanstack/cli init', 'template: start + query']}
+          code={['create app workspace', 'template: app + data']}
           icon={<Terminal size={16} />}
           label="Create"
         />
         <WorkbenchCell
-          code={['config extends tanstack', 'publish: changesets ready']}
+          code={['shared lint/build/test', 'publish: versions ready']}
           icon={<PackageCheck size={16} />}
           label="Package"
         />
         <WorkbenchCell
-          code={['panel: router + query', 'custom dock: app metrics']}
+          code={['runtime panel open', 'custom dock: app metrics']}
           icon={<Search size={16} />}
           label="Inspect"
         />
         <WorkbenchCell
-          code={['intent skills installed', 'agent context: package-scoped']}
+          code={['package notes installed', 'context: dependency-scoped']}
           icon={<Braces size={16} />}
           label="Remember"
         />

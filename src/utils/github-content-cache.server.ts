@@ -515,6 +515,13 @@ function readGithubContentRecord(stored: StoredBlob) {
   }
 }
 
+function isNegativeGithubDirectoryBlob(stored: StoredBlob) {
+  return (
+    readMetadataContentKind(stored.metadata) === 'dir' &&
+    readMetadataBoolean(stored.metadata, 'isPresent') === false
+  )
+}
+
 function readDocsArtifactRecord(stored: StoredBlob) {
   const repo = readMetadataString(stored.metadata, 'repo')
   const gitRef = readMetadataString(stored.metadata, 'gitRef')
@@ -558,7 +565,7 @@ async function readBlob(
     ? getStoredBlob({ key, metadata: cached.metadata, text: cached.text })
     : undefined
 
-  if (cachedBlob) {
+  if (cachedBlob && !isNegativeGithubDirectoryBlob(cachedBlob)) {
     return cachedBlob
   }
 

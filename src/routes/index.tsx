@@ -25,11 +25,17 @@ import { HomeSocialProofSection } from '~/components/home/HomeSocialProofSection
 import { HomeStatsSection } from '~/components/home/HomeStatsSection'
 import { ossStatsQuery } from '~/queries/stats'
 import { Button } from '~/ui'
+import { fetchRecentPosts } from '~/utils/blog.functions'
 import { seo } from '~/utils/seo'
 
 export const Route = createFileRoute('/')({
   loader: async ({ context: { queryClient } }) => {
-    await queryClient.ensureQueryData(ossStatsQuery())
+    const [, recentPosts] = await Promise.all([
+      queryClient.ensureQueryData(ossStatsQuery()),
+      fetchRecentPosts(),
+    ])
+
+    return { recentPosts }
   },
   head: () => ({
     meta: seo({
@@ -69,6 +75,8 @@ function HomeSplashLogo() {
 }
 
 function Index() {
+  const { recentPosts } = Route.useLoaderData()
+
   return (
     <>
       <div className="max-w-full z-10 space-y-24">
@@ -194,7 +202,7 @@ function Index() {
 
         <WhyTanStackSection />
 
-        <HomeSocialProofSection />
+        <HomeSocialProofSection recentPosts={recentPosts} />
 
         <HomeCommunitySection />
 

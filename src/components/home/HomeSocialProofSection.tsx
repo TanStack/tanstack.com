@@ -1,5 +1,4 @@
 import { Link } from '@tanstack/react-router'
-import { useQuery } from '@tanstack/react-query'
 import { Hydrate } from '@tanstack/react-start'
 import { visible } from '@tanstack/react-start/hydration'
 import { ArrowRight } from 'lucide-react'
@@ -7,15 +6,21 @@ import { Card } from '~/components/Card'
 import { PartnersGrid } from '~/components/PartnersGrid'
 import { Button } from '~/ui'
 import { formatAuthors, formatPublishedDate } from '~/utils/blog'
-import { fetchRecentPosts } from '~/utils/blog.functions'
+import type { RecentPost } from '~/utils/blog.functions'
 
-export function HomeSocialProofSection() {
+type HomeSocialProofSectionProps = {
+  recentPosts: ReadonlyArray<RecentPost>
+}
+
+export function HomeSocialProofSection({
+  recentPosts,
+}: HomeSocialProofSectionProps) {
   return (
     <Hydrate
       when={visible({ rootMargin: '25%' })}
       fallback={<SocialProofSkeleton />}
     >
-      <HomeSocialProofContent />
+      <HomeSocialProofContent recentPosts={recentPosts} />
     </Hydrate>
   )
 }
@@ -59,13 +64,7 @@ function SocialProofSkeleton() {
   )
 }
 
-function HomeSocialProofContent() {
-  const { data: recentPosts = [], isLoading: isRecentPostsLoading } = useQuery({
-    queryKey: ['recentPosts'],
-    queryFn: () => fetchRecentPosts(),
-    staleTime: 1000 * 60 * 5,
-  })
-
+function HomeSocialProofContent({ recentPosts }: HomeSocialProofSectionProps) {
   return (
     <div className="space-y-24">
       <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
@@ -88,7 +87,7 @@ function HomeSocialProofContent() {
         </div>
       </div>
 
-      {(isRecentPostsLoading || recentPosts.length > 0) && (
+      {recentPosts.length > 0 && (
         <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
           <h3 id="blog" className="text-3xl font-bold mb-6 scroll-mt-24">
             <a
@@ -99,78 +98,56 @@ function HomeSocialProofContent() {
             </a>
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {isRecentPostsLoading
-              ? Array.from({ length: 3 }).map((_, idx) => (
+            {recentPosts.map(
+              ({ slug, title, published, excerpt, headerImage, authors }) => {
+                return (
                   <Card
-                    key={`recent-post-skeleton-${idx}`}
-                    className="p-4 animate-pulse"
+                    as={Link}
+                    key={slug}
+                    to="/blog/$"
+                    params={{ _splat: slug } as never}
+                    className="flex flex-col justify-between overflow-hidden transition-all hover:shadow-md hover:border-blue-500"
                   >
-                    <div className="h-5 w-5/6 rounded bg-gray-200 dark:bg-gray-700" />
-                    <div className="mt-3 h-3 w-2/3 rounded bg-gray-200 dark:bg-gray-700" />
-                    <div className="mt-4 space-y-2">
-                      <div className="h-3 rounded bg-gray-100 dark:bg-gray-800" />
-                      <div className="h-3 rounded bg-gray-100 dark:bg-gray-800" />
-                    </div>
-                    <div className="mt-6 h-3 w-20 rounded bg-blue-100 dark:bg-blue-950/50" />
-                  </Card>
-                ))
-              : recentPosts.map(
-                  ({
-                    slug,
-                    title,
-                    published,
-                    excerpt,
-                    headerImage,
-                    authors,
-                  }) => {
-                    return (
-                      <Card
-                        as={Link}
-                        key={slug}
-                        to="/blog/$"
-                        params={{ _splat: slug } as never}
-                        className="flex flex-col justify-between overflow-hidden transition-all hover:shadow-md hover:border-blue-500"
-                      >
-                        {headerImage ? (
-                          <div className="aspect-video overflow-hidden bg-gray-100 dark:bg-gray-800">
-                            <img
-                              src={headerImage}
-                              alt=""
-                              loading="lazy"
-                              decoding="async"
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        ) : null}
-                        <div className="p-4 flex flex-col gap-3 flex-1 justify-between">
-                          <div>
-                            <div className="text-base font-bold">{title}</div>
-                            <div className="text-xs italic font-light mt-1 text-gray-600 dark:text-gray-400">
-                              by {formatAuthors(authors)}
-                              {published ? (
-                                <time
-                                  dateTime={published}
-                                  title={formatPublishedDate(published)}
-                                >
-                                  {' '}
-                                  on {formatPublishedDate(published)}
-                                </time>
-                              ) : null}
-                            </div>
-                            {excerpt ? (
-                              <p className="text-sm mt-3 text-gray-600 dark:text-gray-400 line-clamp-4 leading-relaxed">
-                                {excerpt}
-                              </p>
-                            ) : null}
-                          </div>
-                          <div className="text-blue-500 uppercase font-bold text-xs">
-                            Read More →
-                          </div>
+                    {headerImage ? (
+                      <div className="aspect-video overflow-hidden bg-gray-100 dark:bg-gray-800">
+                        <img
+                          src={headerImage}
+                          alt=""
+                          loading="lazy"
+                          decoding="async"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ) : null}
+                    <div className="p-4 flex flex-col gap-3 flex-1 justify-between">
+                      <div>
+                        <div className="text-base font-bold">{title}</div>
+                        <div className="text-xs italic font-light mt-1 text-gray-600 dark:text-gray-400">
+                          by {formatAuthors(authors)}
+                          {published ? (
+                            <time
+                              dateTime={published}
+                              title={formatPublishedDate(published)}
+                            >
+                              {' '}
+                              on {formatPublishedDate(published)}
+                            </time>
+                          ) : null}
                         </div>
-                      </Card>
-                    )
-                  },
-                )}
+                        {excerpt ? (
+                          <p className="text-sm mt-3 text-gray-600 dark:text-gray-400 line-clamp-4 leading-relaxed">
+                            {excerpt}
+                          </p>
+                        ) : null}
+                      </div>
+                      <div className="text-blue-500 uppercase font-bold text-xs">
+                        Read More →
+                      </div>
+                    </div>
+                  </Card>
+                )
+              },
+            )}
           </div>
           <div className="flex justify-center mt-6">
             <Button as={Link} to="/blog">

@@ -21,8 +21,8 @@ export function LibrariesWidget() {
         {featuredLibraries.map((library) => (
           <Link
             key={library.id}
-            to="/$libraryId/$version"
-            params={{ libraryId: library.id, version: 'latest' }}
+            to="/$libraryId"
+            params={{ libraryId: library.id }}
             className="text-xs opacity-70 hover:opacity-100 hover:underline"
           >
             {library.name.replace('TanStack ', '')}

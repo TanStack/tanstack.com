@@ -54,6 +54,35 @@ interface UseApplicationBuilderOptions {
 
 type CopyTrigger = 'automatic' | 'user'
 
+function openPendingDeployWindow(providerName: string) {
+  const deployWindow = window.open('', '_blank')
+
+  if (deployWindow) {
+    deployWindow.opener = null
+    deployWindow.document.title = `Opening ${providerName}`
+    deployWindow.document.body.textContent = `Opening ${providerName}...`
+  }
+
+  return deployWindow
+}
+
+function navigatePendingDeployWindow(
+  deployWindow: Window | null,
+  deployUrl: string,
+) {
+  if (deployWindow) {
+    deployWindow.location.href = deployUrl
+    deployWindow.focus()
+    return
+  }
+
+  window.location.assign(deployUrl)
+}
+
+function closePendingDeployWindow(deployWindow: Window | null) {
+  deployWindow?.close()
+}
+
 export function useApplicationBuilder({
   builderIntegration,
   context,
@@ -709,6 +738,8 @@ export function useApplicationBuilder({
   )
 
   const openNetlifyStart = React.useCallback(async () => {
+    const deployWindow = openPendingDeployWindow('Netlify')
+    let openedDeployUrl = false
     const netlifyPartner = partnerSuggestions.find(
       (partner) => partner.id === 'netlify',
     )
@@ -744,32 +775,38 @@ export function useApplicationBuilder({
       nextSelectedLibraries,
     )
 
-    if (!submittedInput.trim()) {
-      return
+    try {
+      if (!submittedInput.trim()) {
+        return
+      }
+
+      const nextResult =
+        !removedConflictingPartner && result && !isDirtySinceLastResult
+          ? result
+          : await resolveSubmittedInput(submittedInput)
+
+      if (!nextResult?.prompt) {
+        return
+      }
+
+      trackEvent('builder_activated', {
+        ...sessionContextRef.current,
+        action: 'netlify_start',
+        surface: 'result_panel',
+        provider: 'netlify',
+        automatic: false,
+      })
+
+      openedDeployUrl = true
+      navigatePendingDeployWindow(
+        deployWindow,
+        buildStarterPromptDeployUrl('netlify', nextResult.prompt),
+      )
+    } finally {
+      if (!openedDeployUrl) {
+        closePendingDeployWindow(deployWindow)
+      }
     }
-
-    const nextResult =
-      !removedConflictingPartner && result && !isDirtySinceLastResult
-        ? result
-        : await resolveSubmittedInput(submittedInput)
-
-    if (!nextResult?.prompt) {
-      return
-    }
-
-    trackEvent('builder_activated', {
-      ...sessionContextRef.current,
-      action: 'netlify_start',
-      surface: 'result_panel',
-      provider: 'netlify',
-      automatic: false,
-    })
-
-    window.open(
-      buildStarterPromptDeployUrl('netlify', nextResult.prompt),
-      '_blank',
-      'noopener,noreferrer',
-    )
   }, [
     buildSubmittedInput,
     explicitlySelectedPartners,
@@ -782,19 +819,28 @@ export function useApplicationBuilder({
   ])
 
   const openLovableStart = React.useCallback(async () => {
-    await withResolvedPrompt((nextResult) => {
-      trackActivation({
-        action: 'deploy',
-        surface: 'result_panel',
-        provider: 'lovable',
-      })
+    const deployWindow = openPendingDeployWindow('Lovable')
+    let openedDeployUrl = false
 
-      window.open(
-        buildStarterPromptDeployUrl('lovable', nextResult.prompt),
-        '_blank',
-        'noopener,noreferrer',
-      )
-    })
+    try {
+      await withResolvedPrompt((nextResult) => {
+        trackActivation({
+          action: 'deploy',
+          surface: 'result_panel',
+          provider: 'lovable',
+        })
+
+        openedDeployUrl = true
+        navigatePendingDeployWindow(
+          deployWindow,
+          buildStarterPromptDeployUrl('lovable', nextResult.prompt),
+        )
+      })
+    } finally {
+      if (!openedDeployUrl) {
+        closePendingDeployWindow(deployWindow)
+      }
+    }
   }, [trackActivation, withResolvedPrompt])
 
   const openCodexStart = React.useCallback(async () => {

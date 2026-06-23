@@ -2,7 +2,7 @@ import { getBranch, libraries } from '~/libraries'
 import type { LibrarySlim } from '~/libraries/types'
 import { getPublishedPosts } from '~/utils/blog'
 import { getDocsManifest } from '~/utils/docs'
-import { env } from '~/utils/env'
+import { SITE_URL } from '~/utils/site'
 
 export type SitemapEntry = {
   path: string
@@ -103,8 +103,8 @@ function getBlogEntries(): Array<SitemapEntry> {
   }))
 }
 
-export function getSiteOrigin(request: Request) {
-  return trimTrailingSlash(env.SITE_URL || new URL(request.url).origin)
+export function getSiteOrigin() {
+  return trimTrailingSlash(SITE_URL)
 }
 
 export async function getSitemapEntries(): Promise<Array<SitemapEntry>> {

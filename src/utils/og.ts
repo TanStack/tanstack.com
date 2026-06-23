@@ -6,8 +6,7 @@ import {
   MAX_OG_TITLE_LENGTH,
   clampOgText,
 } from './og-limits'
-
-const DEFAULT_SITE_URL = 'https://tanstack.com'
+import { SITE_URL } from './site'
 
 type OgImageOptions = {
   title?: string | null
@@ -37,10 +36,10 @@ const getOgOrigin = createIsomorphicFn()
     } catch {
       // getRequest() throws if called outside an SSR request context.
     }
-    return DEFAULT_SITE_URL
+    return SITE_URL
   })
   .client((): string =>
-    typeof window !== 'undefined' ? window.location.origin : DEFAULT_SITE_URL,
+    typeof window !== 'undefined' ? window.location.origin : SITE_URL,
   )
 
 /**

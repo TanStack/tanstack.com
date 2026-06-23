@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { env } from '~/utils/env'
+import { SITE_URL } from '~/utils/site'
 import {
   generateOAuthState,
   createOAuthStateCookie,
@@ -50,8 +51,7 @@ export const Route = createFileRoute('/auth/$provider/start')({
         }
 
         // Build OAuth URL based on provider
-        const origin = env.SITE_URL || new URL(request.url).origin
-        const redirectUri = `${origin}/api/auth/callback/${provider}`
+        const redirectUri = `${SITE_URL}/api/auth/callback/${provider}`
 
         // Check for additional scopes (e.g., public_repo for deploy flow)
         const additionalScopes =

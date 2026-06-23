@@ -8,7 +8,6 @@ const serverEnvSchema = v.object({
   GITHUB_OAUTH_CLIENT_SECRET: v.optional(v.string()),
   GOOGLE_OAUTH_CLIENT_ID: v.optional(v.string()),
   GOOGLE_OAUTH_CLIENT_SECRET: v.optional(v.string()),
-  SITE_URL: v.optional(v.string()), // Base URL for OAuth redirects (e.g., https://tanstack.com or http://localhost:3000)
   DATABASE_URL: v.optional(v.string()),
   SESSION_SECRET: v.optional(v.string()), // Secret key for signing session cookies (required in production)
   DISCORD_WEBHOOK_URL: v.optional(v.string()),
@@ -24,8 +23,6 @@ const serverEnvSchema = v.object({
 })
 
 const clientEnvSchema = v.object({
-  URL: v.optional(v.string()),
-  VITE_SITE_URL: v.optional(v.string()),
   VITE_KAPA_INTEGRATION_ID: v.optional(v.string()),
   VITE_KAPA_SOURCE_GROUP_IDS: v.optional(v.string()),
 })

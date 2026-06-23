@@ -27,11 +27,7 @@ const shouldUseSentryPlugin =
   Boolean(process.env.SENTRY_AUTH_TOKEN)
 const shouldBuildSourcemaps =
   shouldUseSentryPlugin || process.env.BUILD_SOURCEMAPS === 'true'
-const siteUrl = process.env.VITE_SITE_URL || process.env.SITE_URL || ''
-const imageTransformationsEnv = process.env.TANSTACK_IMAGE_TRANSFORMATIONS
-const shouldUseCloudflareImageTransformations =
-  imageTransformationsEnv === 'true' ||
-  (imageTransformationsEnv !== 'false' && !isDev)
+const SITE_URL = 'https://tanstack.com'
 
 const localEnvPath = path.resolve(__dirname, '.env.local')
 const defaultCheckoutEnvDir = path.join(os.homedir(), 'GitHub/tanstack.com')
@@ -106,10 +102,8 @@ export default defineConfig({
   envDir,
   define: {
     __TANSTACK_ENABLE_SERVER_BUILDER_GENERATION__: JSON.stringify(true),
-    __TANSTACK_ENABLE_IMAGE_TRANSFORMATIONS__: JSON.stringify(
-      shouldUseCloudflareImageTransformations,
-    ),
-    __TANSTACK_SITE_URL__: JSON.stringify(siteUrl || 'https://tanstack.com'),
+    __TANSTACK_ENABLE_IMAGE_TRANSFORMATIONS__: JSON.stringify(true),
+    __TANSTACK_SITE_URL__: JSON.stringify(SITE_URL),
   },
   resolve: {
     alias: [

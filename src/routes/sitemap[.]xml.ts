@@ -5,8 +5,8 @@ import { generateSitemapXml, getSiteOrigin } from '~/utils/sitemap'
 export const Route = createFileRoute('/sitemap.xml')({
   server: {
     handlers: {
-      GET: async ({ request }: { request: Request }) => {
-        const content = await generateSitemapXml(getSiteOrigin(request))
+      GET: async () => {
+        const content = await generateSitemapXml(getSiteOrigin())
 
         setResponseHeader('Content-Type', 'application/xml; charset=utf-8')
         setResponseHeader(

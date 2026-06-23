@@ -5,6 +5,7 @@
  */
 
 import { env } from '~/utils/env'
+import { SITE_URL } from '~/utils/site'
 import {
   buildGitHubAuthUrl,
   generateOAuthState,
@@ -98,12 +99,7 @@ export function buildGitHubReAuthUrl(
     throw new Error('GITHUB_OAUTH_CLIENT_ID is not configured')
   }
 
-  const origin = env.SITE_URL
-  if (!origin) {
-    throw new Error('SITE_URL is not configured')
-  }
-
-  const redirectUri = `${origin}/api/auth/callback/github`
+  const redirectUri = `${SITE_URL}/api/auth/callback/github`
   const state = generateOAuthState()
 
   // Build auth URL with additional scopes

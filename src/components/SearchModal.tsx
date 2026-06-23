@@ -224,6 +224,7 @@ const AI_DOCK_MAX_WIDTH_RATIO = 0.5
 const AI_DOCK_MAXIMIZED_WIDTH = 1200
 const DEFAULT_SEARCH_FRAMEWORK: Framework = 'react'
 const KAPA_RECAPTCHA_READY_TIMEOUT_MS = 8_000
+const KAPA_INTEGRATION_ID = '86e864f7-401e-48c8-ac6f-5fcbc86c5668'
 
 type SearchSurface = 'modal' | 'dock'
 type AiDockStyle = React.CSSProperties & {
@@ -2282,7 +2283,7 @@ function SearchPanel({
   isDockMaximized?: boolean
   onToggleDockMaximized?: () => void
 }) {
-  const integrationId = env.VITE_KAPA_INTEGRATION_ID
+  const integrationId = KAPA_INTEGRATION_ID
   const threadIdOverrideRef = React.useRef<string | null>(null)
   const apiService = React.useMemo(
     () => new KapaThreadOverrideApiService(threadIdOverrideRef),

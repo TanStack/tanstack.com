@@ -23,7 +23,4 @@
       "bucket_name": "tanstack-github-content-cache",
     },
   ],
-  "vars": {
-    "SITE_URL": "https://tanstack.com",
-  },
 }

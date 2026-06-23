@@ -5,8 +5,8 @@ import { generateRobotsTxt, getSiteOrigin } from '~/utils/sitemap'
 export const Route = createFileRoute('/robots.txt')({
   server: {
     handlers: {
-      GET: async ({ request }: { request: Request }) => {
-        const content = generateRobotsTxt(getSiteOrigin(request))
+      GET: async () => {
+        const content = generateRobotsTxt(getSiteOrigin())
 
         setResponseHeader('Content-Type', 'text/plain; charset=utf-8')
         setResponseHeader(

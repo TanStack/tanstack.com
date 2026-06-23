@@ -1,5 +1,5 @@
-import { env } from '~/utils/env'
-const DEFAULT_SITE_URL = 'https://tanstack.com'
+import { SITE_URL } from '~/utils/site'
+
 const NON_INDEXABLE_PATH_PREFIXES = ['/account', '/admin', '/login'] as const
 
 function trimTrailingSlash(value: string) {
@@ -36,12 +36,7 @@ export function shouldIndexPath(path: string) {
 }
 
 export function canonicalUrl(path: string, search?: string) {
-  const origin = trimTrailingSlash(
-    env.URL ||
-      (import.meta.env.SSR ? env.SITE_URL : undefined) ||
-      env.VITE_SITE_URL ||
-      DEFAULT_SITE_URL,
-  )
+  const origin = trimTrailingSlash(SITE_URL)
 
   const normalizedSearch = search && search !== '?' ? search : ''
 

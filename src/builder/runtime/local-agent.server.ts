@@ -269,9 +269,12 @@ type CloudflareAiMessage = {
 }
 
 type CloudflareAiToolDefinition = {
-  description: string
-  name: string
-  parameters: JSONSchema
+  function: {
+    description: string
+    name: string
+    parameters: JSONSchema
+  }
+  type: 'function'
 }
 
 type CloudflareAiTextGenerationInput = {
@@ -1105,9 +1108,12 @@ function createCloudflareAiToolDefinition(
   tool: ServerTool,
 ): CloudflareAiToolDefinition {
   return {
-    description: tool.description,
-    name: tool.name,
-    parameters: readCloudflareAiToolParameters(tool.inputSchema),
+    function: {
+      description: tool.description,
+      name: tool.name,
+      parameters: readCloudflareAiToolParameters(tool.inputSchema),
+    },
+    type: 'function',
   }
 }
 
@@ -1303,17 +1309,21 @@ function readCloudflareAiToolCall(value: unknown): Array<CloudflareAiToolCall> {
     return []
   }
 
-  const name = value.name
+  const functionValue = value.function
+  const name = isRecord(functionValue) ? functionValue.name : value.name
 
   if (typeof name !== 'string' || !name) {
     return []
   }
 
   const id = typeof value.id === 'string' ? value.id : undefined
+  const rawArguments = isRecord(functionValue)
+    ? functionValue.arguments
+    : value.arguments
   const args =
-    typeof value.arguments === 'string'
-      ? parseJsonObject(value.arguments)
-      : value.arguments
+    typeof rawArguments === 'string'
+      ? parseJsonObject(rawArguments)
+      : rawArguments
 
   return [
     {

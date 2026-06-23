@@ -4,12 +4,20 @@ import { hasForgeSessionDurableObjects } from '~/builder/runtime/forge-session-r
 import type { ForgeProviderCredential } from '~/builder/runtime/forge-byok.server'
 import {
   initializeLocalForgeRuntimeSession,
+  readLocalForgeSnapshot,
   withLocalForgeRuntimeSession,
+  type LocalForgeSnapshot,
 } from '~/builder/runtime/local-store.server'
 import { runLocalForgeAgent } from '~/builder/runtime/local-agent.server'
 
 const DEFAULT_PROOF_SESSION_ID = 'branch-proof-hosting-company'
 const MAX_PROOF_PROMPT_LENGTH = 4000
+const PROOF_FILE_PREVIEW_LIMIT = 20_000
+const PROOF_FILE_PREVIEW_PATHS = [
+  'src/routes/index.tsx',
+  'src/styles.css',
+  'src/components/Header.tsx',
+] as const
 
 export const Route = createFileRoute('/api/forge/proof')({
   server: {
@@ -49,38 +57,48 @@ export const Route = createFileRoute('/api/forge/proof')({
           return cloudRuntimeError
         }
 
-        const snapshot = await withLocalForgeRuntimeSession(
+        const result = await withLocalForgeRuntimeSession(
           runtimeSessionId,
           async () => {
             if (body.value.reset !== false) {
               await initializeLocalForgeRuntimeSession(runtimeSessionId)
             }
 
-            return runLocalForgeAgent({
-              clientRequestId:
-                normalizeProofSessionId(body.value.clientRequestId) ??
-                `proof-request-${crypto.randomUUID()}`,
-              prompt,
-              providerCredential,
-            })
+            try {
+              return {
+                ok: true,
+                snapshot: await runLocalForgeAgent({
+                  clientRequestId:
+                    normalizeProofSessionId(body.value.clientRequestId) ??
+                    `proof-request-${crypto.randomUUID()}`,
+                  prompt,
+                  providerCredential,
+                }),
+              } as const
+            } catch (error) {
+              return {
+                error: readProofError(error),
+                ok: false,
+                snapshot: await readLocalForgeSnapshot().catch(() => undefined),
+              } as const
+            }
           },
         )
 
-        return Response.json({
-          activeChatId: snapshot.activeChatId,
-          agentEventCount: snapshot.agentEvents.length,
-          fileCount: snapshot.fileCount,
-          latestRun: snapshot.latestRun,
-          manifestVersionId: snapshot.manifestVersionId,
-          messages: snapshot.messages.map((message) => ({
-            content: message.content,
-            role: message.role,
-            status: message.status,
-          })),
-          runtimeSessionId,
-          topFiles: snapshot.topFiles,
-          workflowEventCount: snapshot.workflowEvents.length,
-        })
+        if (!result.ok) {
+          return Response.json(
+            {
+              error: result.error,
+              runtimeSessionId,
+              snapshot: result.snapshot
+                ? toProofSnapshot(result.snapshot, runtimeSessionId)
+                : undefined,
+            },
+            { status: 500 },
+          )
+        }
+
+        return Response.json(toProofSnapshot(result.snapshot, runtimeSessionId))
       },
     },
   },
@@ -212,6 +230,53 @@ function readProofToken(request: Request) {
   }
 
   return request.headers.get('x-forge-proof-token')?.trim()
+}
+
+function toProofSnapshot(
+  snapshot: LocalForgeSnapshot,
+  runtimeSessionId: string,
+) {
+  return {
+    activeChatId: snapshot.activeChatId,
+    agentEventCount: snapshot.agentEvents.length,
+    fileCount: snapshot.fileCount,
+    files: readProofFilePreviews(snapshot),
+    latestRun: snapshot.latestRun,
+    manifestVersionId: snapshot.manifestVersionId,
+    messages: snapshot.messages.map((message) => ({
+      content: message.content,
+      role: message.role,
+      status: message.status,
+    })),
+    runtimeSessionId,
+    topFiles: snapshot.topFiles,
+    workflowEventCount: snapshot.workflowEvents.length,
+  }
+}
+
+function readProofFilePreviews(snapshot: LocalForgeSnapshot) {
+  return Object.fromEntries(
+    PROOF_FILE_PREVIEW_PATHS.flatMap((filePath) => {
+      const contents = snapshot.files[filePath]
+
+      if (!contents) {
+        return []
+      }
+
+      return [
+        [
+          filePath,
+          contents.length > PROOF_FILE_PREVIEW_LIMIT
+            ? contents.slice(0, PROOF_FILE_PREVIEW_LIMIT)
+            : contents,
+        ],
+      ]
+    }),
+  )
+}
+
+function readProofError(error: unknown) {
+  return error instanceof Error ? error.message : 'Forge proof run failed.'
 }
 
 function normalizeProofSessionId(value: unknown) {

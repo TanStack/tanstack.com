@@ -65,11 +65,28 @@ assert.ok(
   'expected generated home route',
 )
 
+const generatedSource = Object.values(finalResponse.files).join('\n')
+const requiredContent = [
+  'Northstar Cloud',
+  'migration',
+  'pricing',
+  'comparison',
+  'infrastructure',
+] as const
+
+for (const phrase of requiredContent) {
+  assert.ok(
+    generatedSource.toLowerCase().includes(phrase.toLowerCase()),
+    `expected generated source to include ${phrase}`,
+  )
+}
+
 console.log(
   JSON.stringify(
     {
       agentEventCount: finalResponse.agentEventCount,
       fileCount: finalResponse.fileCount,
+      filePreviewPaths: Object.keys(finalResponse.files),
       latestRun: finalResponse.latestRun,
       manifestVersionId: finalResponse.manifestVersionId,
       messagePreview: assistantMessages.at(-1)?.slice(0, 500),
@@ -122,6 +139,7 @@ type ProofResponse = {
   activeChatId: string
   agentEventCount: number
   fileCount: number
+  files: Record<string, string>
   latestRun?: {
     createdAt?: string
     endedAt?: string

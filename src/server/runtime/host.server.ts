@@ -1,20 +1,30 @@
+import { AsyncLocalStorage } from 'node:async_hooks'
+
 type StaticAssetService = {
   fetch: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>
 }
 
-type HostRuntimeModule = {
-  env: Record<string, unknown> & {
-    CLOUDFLARE_CACHE_PURGE_TOKEN?: string
-    CLOUDFLARE_ZONE_ID?: string
-    GITHUB_CONTENT_CACHE?: unknown
-    HYPERDRIVE?: {
-      connectionString: string
-    }
+type HostRuntimeEnv = Record<string, unknown> & {
+  CLOUDFLARE_CACHE_PURGE_TOKEN?: string
+  CLOUDFLARE_ZONE_ID?: string
+  GITHUB_CONTENT_CACHE?: unknown
+  HYPERDRIVE?: {
+    connectionString: string
   }
 }
 
+type HostRuntimeModule = {
+  env: HostRuntimeEnv
+}
+
+const hostRuntimeEnvStorage = new AsyncLocalStorage<HostRuntimeEnv>()
+
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
+}
+
+function isHostRuntimeEnv(value: unknown): value is HostRuntimeEnv {
+  return isObject(value)
 }
 
 function isStaticAssetService(value: unknown): value is StaticAssetService {
@@ -42,6 +52,14 @@ export function isIsolateRuntime(): boolean {
   )
 }
 
+export function runWithHostRuntimeEnv<T>(env: unknown, fn: () => T): T {
+  if (!isHostRuntimeEnv(env)) {
+    return fn()
+  }
+
+  return hostRuntimeEnvStorage.run(env, fn)
+}
+
 async function getStaticAssetService() {
   if (!isIsolateRuntime()) return
 
@@ -59,6 +77,9 @@ async function getStaticAssetService() {
 }
 
 export async function getHostRuntimeEnv() {
+  const scopedEnv = hostRuntimeEnvStorage.getStore()
+  if (scopedEnv) return scopedEnv
+
   if (!isIsolateRuntime()) return
 
   const hostRuntimeSpecifier = 'cloudflare' + ':workers'

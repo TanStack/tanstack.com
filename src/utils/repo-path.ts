@@ -24,3 +24,29 @@ export function isValidRepoPath(path: string) {
     return REPO_PATH_SEGMENT_PATTERN.test(segment)
   })
 }
+
+export function joinRepoPath(basePath: string, childPath: string) {
+  const normalizedBasePath = trimRepoPath(basePath)
+  const normalizedChildPath = trimRepoPath(childPath)
+
+  if (!normalizedBasePath) {
+    return normalizedChildPath
+  }
+
+  if (!normalizedChildPath) {
+    return normalizedBasePath
+  }
+
+  if (
+    normalizedChildPath === normalizedBasePath ||
+    normalizedChildPath.startsWith(`${normalizedBasePath}/`)
+  ) {
+    return normalizedChildPath
+  }
+
+  return `${normalizedBasePath}/${normalizedChildPath}`
+}
+
+function trimRepoPath(path: string) {
+  return path.replace(/^\/+|\/+$/g, '')
+}

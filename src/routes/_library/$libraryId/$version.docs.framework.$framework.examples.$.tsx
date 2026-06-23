@@ -29,6 +29,7 @@ import {
   type DeploymentProviderId,
   useDeploymentProviderPlacement,
 } from '~/utils/useDeploymentProviderPlacement'
+import { joinRepoPath } from '~/utils/repo-path'
 
 const fileQueryOptions = (repo: string, branch: string, filePath: string) => {
   return queryOptions({
@@ -92,11 +93,14 @@ export const Route = createFileRoute(
 
       // Using the fetched contents, get the actual starting file-path for the explorer
       // The `explorerCandidateStartingFileName` is used for matching, but the actual file-path may differ
-      const currentPath = determineStartingFilePath(
-        githubContents,
-        explorerCandidateStartingFileName,
-        params.framework as Framework,
-        params.libraryId,
+      const currentPath = joinRepoPath(
+        repoStartingDirPath,
+        determineStartingFilePath(
+          githubContents,
+          explorerCandidateStartingFileName,
+          params.framework as Framework,
+          params.libraryId,
+        ),
       )
 
       const currentCode = await queryClient.ensureQueryData(
@@ -241,7 +245,9 @@ function PageComponent() {
 
   const prefetchFileContent = React.useCallback(
     (path: string) => {
-      if (path === currentPath) {
+      const repoFilePath = joinRepoPath(repoStartingDirPath, path)
+
+      if (repoFilePath === currentPath) {
         return
       }
 
@@ -249,7 +255,7 @@ function PageComponent() {
         'currentCode',
         library.repo,
         branch,
-        path,
+        repoFilePath,
       ])
 
       if (
@@ -259,9 +265,11 @@ function PageComponent() {
         return
       }
 
-      queryClient.prefetchQuery(fileQueryOptions(library.repo, branch, path))
+      queryClient.prefetchQuery(
+        fileQueryOptions(library.repo, branch, repoFilePath),
+      )
     },
-    [queryClient, library.repo, branch, currentPath],
+    [queryClient, library.repo, branch, repoStartingDirPath, currentPath],
   )
 
   // Update local storage when tab changes

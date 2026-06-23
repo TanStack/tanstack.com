@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { runWithHostRuntimeEnv } from '../src/server/runtime/host.server'
 import {
   getCachedDocsArtifact,
   getCachedGitHubJsonContent,
@@ -26,6 +27,78 @@ function isDocsManifest(value: unknown): value is { paths: Array<string> } {
   }
 
   return isStringArray(value.paths)
+}
+
+function createMockR2Bucket() {
+  const objects = new Map<
+    string,
+    {
+      customMetadata?: Record<string, string>
+      uploaded: Date
+      value: string
+    }
+  >()
+
+  const bucket = {
+    async delete(keys: string | Array<string>) {
+      for (const key of Array.isArray(keys) ? keys : [keys]) {
+        objects.delete(key)
+      }
+    },
+    async get(key: string) {
+      const object = objects.get(key)
+
+      if (!object) {
+        return null
+      }
+
+      return {
+        key,
+        customMetadata: object.customMetadata,
+        text: async () => object.value,
+        uploaded: object.uploaded,
+      }
+    },
+    async list(options?: {
+      cursor?: string
+      include?: Array<'customMetadata'>
+      limit?: number
+      prefix?: string
+    }) {
+      const prefix = options?.prefix ?? ''
+      const limit = options?.limit ?? 1000
+      const entries = Array.from(objects.entries()).filter(([key]) =>
+        key.startsWith(prefix),
+      )
+
+      return {
+        objects: entries.slice(0, limit).map(([key, object]) => ({
+          key,
+          customMetadata: object.customMetadata,
+          uploaded: object.uploaded,
+        })),
+        truncated: entries.length > limit,
+      }
+    },
+    async put(
+      key: string,
+      value: string,
+      options?: {
+        customMetadata?: Record<string, string>
+        httpMetadata?: {
+          contentType?: string
+        }
+      },
+    ) {
+      objects.set(key, {
+        customMetadata: options?.customMetadata,
+        uploaded: new Date(),
+        value,
+      })
+    },
+  }
+
+  return { bucket, objects }
 }
 
 async function testMissStoresContent() {
@@ -63,6 +136,44 @@ async function testFreshHitSkipsOrigin() {
   assert.equal(await getCachedGitHubTextFile(opts), 'fresh')
   assert.equal(await getCachedGitHubTextFile(opts), 'fresh')
   assert.equal(originCalls, 1)
+}
+
+async function testWorkerEnvUsesBlobStorage() {
+  resetGitHubContentCacheForTest()
+
+  const mockR2 = createMockR2Bucket()
+  let originCalls = 0
+  const opts = {
+    repo,
+    gitRef,
+    path: 'docs/blob.md',
+    origin: async () => {
+      originCalls += 1
+      return 'blob'
+    },
+  }
+
+  const firstResult = await runWithHostRuntimeEnv(
+    { GITHUB_CONTENT_CACHE: mockR2.bucket },
+    () => getCachedGitHubTextFile(opts),
+  )
+  const secondResult = await runWithHostRuntimeEnv(
+    { GITHUB_CONTENT_CACHE: mockR2.bucket },
+    () => getCachedGitHubTextFile(opts),
+  )
+
+  assert.equal(firstResult, 'blob')
+  assert.equal(secondResult, 'blob')
+  assert.equal(originCalls, 1)
+
+  const object = mockR2.objects.get(
+    'github:file/tanstack/router/main/docs/blob.md',
+  )
+  assert.ok(object)
+  assert.equal(object.customMetadata?.repo, repo)
+  assert.equal(object.customMetadata?.gitRef, gitRef)
+  assert.equal(object.customMetadata?.isPresent, 'true')
+  assert.deepEqual(JSON.parse(object.value), { value: 'blob' })
 }
 
 async function testForcedStaleRefreshes() {
@@ -203,6 +314,7 @@ async function testArtifactInvalidationAndPruneDelete() {
 
 await testMissStoresContent()
 await testFreshHitSkipsOrigin()
+await testWorkerEnvUsesBlobStorage()
 await testForcedStaleRefreshes()
 await testNegativeHitSkipsOrigin()
 await testRefreshFailureFallsBackToStaleContent()

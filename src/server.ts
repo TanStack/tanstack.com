@@ -4,6 +4,7 @@ import { wrapFetchWithSentry } from '@sentry/tanstackstart-react'
 import handler, { createServerEntry } from '@tanstack/react-start/server-entry'
 import { runWithDatabaseContext } from '~/db/client'
 import { runScheduledTasks } from '~/server/scheduled.server'
+import { runWithHostRuntimeEnv } from '~/server/runtime/host.server'
 import {
   installProductionFetchProbe,
   installProductionProcessProbe,
@@ -166,15 +167,19 @@ const server = createServerEntry(
 )
 
 export default {
-  fetch: server.fetch,
+  fetch(request: Request, env: unknown) {
+    return runWithHostRuntimeEnv(env, () => server.fetch(request))
+  },
   scheduled(
     controller: ScheduledController,
-    _env: unknown,
+    env: unknown,
     context: WorkerExecutionContext,
   ) {
     context.waitUntil(
-      runWithDatabaseContext(() =>
-        runScheduledTasks(controller.cron, controller.scheduledTime),
+      runWithHostRuntimeEnv(env, () =>
+        runWithDatabaseContext(() =>
+          runScheduledTasks(controller.cron, controller.scheduledTime),
+        ),
       ),
     )
   },

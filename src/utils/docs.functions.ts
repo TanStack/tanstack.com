@@ -352,10 +352,6 @@ export const fetchRepoDirectoryContents = createServerFn({
       return null
     }
 
-    if (!githubContents) {
-      throw notFound()
-    }
-
     setDocsCacheHeaders('max-age=300, stale-while-revalidate=300')
 
     return githubContents

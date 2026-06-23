@@ -30,7 +30,8 @@ const shouldBuildSourcemaps =
 const siteUrl = process.env.VITE_SITE_URL || process.env.SITE_URL || ''
 const imageTransformationsEnv = process.env.TANSTACK_IMAGE_TRANSFORMATIONS
 const shouldUseCloudflareImageTransformations =
-  imageTransformationsEnv === 'true'
+  imageTransformationsEnv === 'true' ||
+  (imageTransformationsEnv !== 'false' && !isDev)
 
 const localEnvPath = path.resolve(__dirname, '.env.local')
 const defaultCheckoutEnvDir = path.join(os.homedir(), 'GitHub/tanstack.com')

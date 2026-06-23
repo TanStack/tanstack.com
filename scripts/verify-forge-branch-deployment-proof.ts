@@ -14,10 +14,13 @@ const sessionId =
 
 assert.ok(proofToken, 'FORGE_PROOF_TOKEN is required')
 assert.ok(
-  provider === 'openai' || provider === 'anthropic',
-  'FORGE_PROOF_PROVIDER must be openai or anthropic',
+  !provider || provider === 'openai' || provider === 'anthropic',
+  'FORGE_PROOF_PROVIDER must be openai or anthropic when provided',
 )
-assert.ok(apiKey, 'FORGE_PROOF_PROVIDER_API_KEY is required')
+assert.ok(
+  !apiKey || provider === 'openai' || provider === 'anthropic',
+  'FORGE_PROOF_PROVIDER is required when FORGE_PROOF_PROVIDER_API_KEY is set',
+)
 
 const turns = [
   {
@@ -110,11 +113,11 @@ async function runProofTurn({
 }) {
   const response = await fetch(proofUrl, {
     body: JSON.stringify({
-      apiKey,
+      ...(apiKey ? { apiKey } : {}),
       clientRequestId,
       model,
       prompt,
-      provider,
+      ...(provider ? { provider } : {}),
       reset,
       sessionId,
     }),

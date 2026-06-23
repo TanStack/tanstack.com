@@ -39,16 +39,11 @@ export const Route = createFileRoute('/api/forge/proof')({
           normalizeProofSessionId(body.value.sessionId) ??
           DEFAULT_PROOF_SESSION_ID
         const prompt = body.value.prompt.trim()
-        const providerCredential = readProofProviderCredential(body.value)
+        const providerCredential =
+          readProofProviderCredential(body.value)
 
-        if (!providerCredential) {
-          return Response.json(
-            {
-              error:
-                'Proof runs require a provider and apiKey in the request body.',
-            },
-            { status: 400 },
-          )
+        if (!providerCredential.ok) {
+          return Response.json({ error: providerCredential.error }, { status: 400 })
         }
 
         const cloudRuntimeError = await validateForgeCloudRuntime()
@@ -72,7 +67,7 @@ export const Route = createFileRoute('/api/forge/proof')({
                     normalizeProofSessionId(body.value.clientRequestId) ??
                     `proof-request-${crypto.randomUUID()}`,
                   prompt,
-                  providerCredential,
+                  providerCredential: providerCredential.value,
                 }),
               } as const
             } catch (error) {
@@ -202,23 +197,44 @@ async function readProofBody(request: Request) {
 
 function readProofProviderCredential(
   body: NonNullable<Awaited<ReturnType<typeof readProofBody>>['value']>,
-): ForgeProviderCredential | undefined {
+):
+  | { ok: true; value: ForgeProviderCredential | undefined }
+  | { error: string; ok: false } {
   const provider = body.provider?.trim()
   const apiKey = body.apiKey?.trim()
   const model = body.model?.trim()
 
-  if (!apiKey) {
-    return undefined
+  if (!provider && !apiKey) {
+    return { ok: true, value: undefined }
   }
 
   if (provider !== 'openai' && provider !== 'anthropic') {
-    return undefined
+    return {
+      error: 'Proof provider must be openai or anthropic.',
+      ok: false,
+    }
+  }
+
+  const resolvedApiKey =
+    apiKey ??
+    (provider === 'openai'
+      ? process.env.OPENAI_API_KEY?.trim()
+      : process.env.ANTHROPIC_API_KEY?.trim())
+
+  if (!resolvedApiKey) {
+    return {
+      error: `Proof runs require a ${provider} apiKey in the request body or matching Worker secret.`,
+      ok: false,
+    }
   }
 
   return {
-    apiKey,
-    model: model || undefined,
-    provider,
+    ok: true,
+    value: {
+      apiKey: resolvedApiKey,
+      model: model || undefined,
+      provider,
+    },
   }
 }
 

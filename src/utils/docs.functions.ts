@@ -349,14 +349,6 @@ export const fetchRepoDirectoryContents = createServerFn({
         throw error
       }
 
-      console.warn('[GitHub Content] Directory fetch failed', {
-        branch,
-        kind: error.kind,
-        repo,
-        startingPath,
-        status: error.status,
-      })
-
       return null
     }
 

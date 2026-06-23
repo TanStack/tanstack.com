@@ -18,12 +18,9 @@ const STORED_CONTENT_TYPE = 'application/json; charset=utf-8'
 const EPOCH_ISO = new Date(0).toISOString()
 const MAX_MEMORY_CACHE_ENTRIES = 300
 
-// Internal sentinel paths used for non-file metadata (branch SHA lookup,
-// recursive tree). Allowed alongside normal repo paths.
-const SENTINEL_PATHS = new Set([
-  '__github_branch__',
-  '__github_recursive_tree__',
-])
+// Internal sentinel path used for recursive repository tree metadata. Allowed
+// alongside normal repo paths.
+const SENTINEL_PATHS = new Set(['__github_recursive_tree__'])
 
 const REPO_PATTERN = /^[a-zA-Z0-9._-]+\/[a-zA-Z0-9._-]+$/
 // Git refs allow a fairly wide character set, but we restrict to the subset

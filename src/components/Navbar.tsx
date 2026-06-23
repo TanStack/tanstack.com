@@ -140,6 +140,8 @@ type NavigationLibrary = LibrarySlim & {
   to: string
 }
 
+const MERCH_MENU_PRODUCT_COUNT = 6
+
 type LibraryGroupId = keyof typeof librariesByGroup
 
 const DESKTOP_NAV_CLASS = 'hidden min-[900px]:flex'
@@ -1160,7 +1162,7 @@ function MerchMenuContent({
       try {
         const page = await getProducts({
           data: {
-            first: 3,
+            first: MERCH_MENU_PRODUCT_COUNT,
             sortKey: 'CREATED_AT',
             reverse: true,
           },
@@ -1206,19 +1208,31 @@ function MerchMenuContent({
         <div
           className={twMerge(
             'grid gap-1',
-            variant === 'desktop' && 'md:grid-cols-3',
+            variant === 'desktop' && 'md:grid-cols-2',
           )}
         >
           {shouldLoad && loading
-            ? Array.from({ length: 3 }, (_, index) => (
+            ? Array.from({ length: MERCH_MENU_PRODUCT_COUNT }, (_, index) => (
                 <div
                   key={index}
-                  className="rounded-lg px-2 py-2.5"
+                  className={twMerge(
+                    'rounded-lg px-2 py-1.5',
+                    variant === 'desktop'
+                      ? 'flex w-44 items-center gap-2'
+                      : 'flex items-center gap-2',
+                  )}
                   aria-hidden="true"
                 >
-                  <div className="aspect-[4/3] animate-pulse rounded-md bg-gray-200 dark:bg-gray-800" />
-                  <div className="mt-2 h-4 w-3/4 animate-pulse rounded bg-gray-200 dark:bg-gray-800" />
-                  <div className="mt-1 h-3 w-1/3 animate-pulse rounded bg-gray-200 dark:bg-gray-800" />
+                  <div
+                    className={twMerge(
+                      'shrink-0 animate-pulse rounded-md bg-gray-200 dark:bg-gray-800',
+                      variant === 'desktop' ? 'h-10 w-10' : 'h-11 w-11',
+                    )}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="h-3 w-3/4 animate-pulse rounded bg-gray-200 dark:bg-gray-800" />
+                    <div className="mt-1.5 h-2.5 w-1/3 animate-pulse rounded bg-gray-200 dark:bg-gray-800" />
+                  </div>
                 </div>
               ))
             : products.map((product) => (
@@ -1259,20 +1273,21 @@ function MerchProductLink({
       params={{ handle: product.handle }}
       onClick={onNavigate}
       className={twMerge(
-        'group rounded-lg px-2 py-2.5 text-left hover:bg-gray-500/10 focus:bg-gray-500/10 focus:outline-none',
-        variant === 'mobile' && 'flex items-center gap-3 py-3',
+        'group flex items-center gap-2 rounded-lg px-2 py-1.5 text-left hover:bg-gray-500/10 focus:bg-gray-500/10 focus:outline-none',
+        variant === 'desktop' && 'w-44',
+        variant === 'mobile' && 'py-2',
       )}
       preload="intent"
     >
       <span
         className={twMerge(
           'block overflow-hidden rounded-md bg-gray-100 dark:bg-gray-900',
-          variant === 'desktop' ? 'aspect-[4/3]' : 'h-14 w-14 shrink-0',
+          variant === 'desktop' ? 'h-10 w-10 shrink-0' : 'h-11 w-11 shrink-0',
         )}
       >
         {image ? (
           <img
-            src={shopifyImageUrl(image.url, { width: 360, format: 'webp' })}
+            src={shopifyImageUrl(image.url, { width: 160, format: 'webp' })}
             alt={image.altText ?? product.title}
             className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
             loading="lazy"
@@ -1283,13 +1298,11 @@ function MerchProductLink({
           </span>
         )}
       </span>
-      <span
-        className={twMerge('block min-w-0', variant === 'desktop' && 'mt-2')}
-      >
-        <span className="block truncate font-bold text-gray-950 dark:text-white">
+      <span className="block min-w-0">
+        <span className="block truncate text-sm font-bold text-gray-950 dark:text-white">
           {product.title}
         </span>
-        <span className="mt-0.5 block text-sm text-gray-600 dark:text-gray-400">
+        <span className="mt-0.5 block text-xs text-gray-600 dark:text-gray-400">
           {formatMoney(price.amount, price.currencyCode)}
         </span>
       </span>

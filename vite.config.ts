@@ -287,9 +287,6 @@ export default defineConfig({
         ]
       : []),
     tanstackStart({
-      rsc: {
-        enabled: false,
-      },
       server: {
         build: {
           inlineCss: false,

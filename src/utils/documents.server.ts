@@ -759,6 +759,26 @@ function isGitHubFileNodeArray(value: unknown): value is Array<GitHubFileNode> {
   return Array.isArray(value) && value.every((item) => isGitHubFileNode(item))
 }
 
+function isGitHubFile(value: unknown): value is GitHubFile {
+  if (!isRecord(value)) {
+    return false
+  }
+
+  const links = value._links
+
+  return (
+    typeof value.name === 'string' &&
+    typeof value.path === 'string' &&
+    typeof value.type === 'string' &&
+    isRecord(links) &&
+    typeof links.self === 'string'
+  )
+}
+
+function isGitHubFileArray(value: unknown): value is Array<GitHubFile> {
+  return Array.isArray(value) && value.every((item) => isGitHubFile(item))
+}
+
 function isGitHubTreeEntry(value: unknown): value is GitHubTreeEntry {
   if (typeof value !== 'object' || value === null) {
     return false
@@ -1036,6 +1056,15 @@ function buildFileTreeFromRecursiveTree(
 
 const API_CONTENTS_MAX_DEPTH = 3
 
+function encodeGitHubContentsPath(path: string) {
+  return removeLeadingSlash(path)
+    .replace(/\/+$/g, '')
+    .split('/')
+    .filter(Boolean)
+    .map((segment) => encodeURIComponent(segment))
+    .join('/')
+}
+
 export function fetchApiContents(
   repoPair: string,
   branch: string,
@@ -1182,11 +1211,98 @@ async function fetchApiContentsRemote(
   branch: string,
   startingPath: string,
 ): Promise<Array<GitHubFileNode> | null> {
-  const tree = await fetchGitHubRecursiveTree(repo, branch)
+  try {
+    const tree = await fetchGitHubRecursiveTree(repo, branch)
 
-  if (!tree) {
+    if (tree) {
+      const fileTree = buildFileTreeFromRecursiveTree(tree, startingPath)
+
+      if (fileTree) {
+        return fileTree
+      }
+    }
+  } catch (error) {
+    if (!isRecoverableGitHubContentError(error)) {
+      throw error
+    }
+  }
+
+  return fetchApiContentsRemoteFromContentsApi(repo, branch, startingPath)
+}
+
+async function fetchGitHubDirectoryContents(
+  repo: string,
+  branch: string,
+  directoryPath: string,
+) {
+  const encodedPath = encodeGitHubContentsPath(directoryPath)
+  const url = new URL(
+    `https://api.github.com/repos/${repo}/contents/${encodedPath}`,
+  )
+  url.searchParams.set('ref', branch)
+
+  const response = await fetchGitHubApiJson(url.href)
+
+  if (response === null) {
     return null
   }
 
-  return buildFileTreeFromRecursiveTree(tree, startingPath)
+  if (!isGitHubFileArray(response)) {
+    throw new GitHubContentError(
+      'invalid-response',
+      `Unexpected directory contents response for ${repo}@${branch}:${directoryPath}`,
+    )
+  }
+
+  return response.filter((file) => file.type === 'dir' || file.type === 'file')
+}
+
+async function fetchApiContentsRemoteFromContentsApi(
+  repo: string,
+  branch: string,
+  startingPath: string,
+): Promise<Array<GitHubFileNode> | null> {
+  const data = await fetchGitHubDirectoryContents(repo, branch, startingPath)
+
+  if (!data || data.length === 0) {
+    return null
+  }
+
+  async function buildFileTree(
+    nodes: Array<GitHubFile>,
+    depth: number,
+    parentPath: string,
+  ): Promise<Array<GitHubFileNode>> {
+    const result: Array<GitHubFileNode> = []
+    const sortedNodes = sortApiContents(nodes)
+
+    for (const node of sortedNodes) {
+      const file: GitHubFileNode = {
+        ...node,
+        depth,
+        parentPath,
+      }
+
+      if (file.type === 'dir' && depth <= API_CONTENTS_MAX_DEPTH) {
+        const directoryFiles = await fetchGitHubDirectoryContents(
+          repo,
+          branch,
+          file.path,
+        )
+        file.children = directoryFiles
+          ? await buildFileTree(
+              directoryFiles,
+              depth + 1,
+              `${parentPath}${file.path}/`,
+            )
+          : []
+      }
+
+      result.push(file)
+    }
+
+    return result
+  }
+
+  return buildFileTree(data, 0, '')
 }

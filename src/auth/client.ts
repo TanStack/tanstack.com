@@ -6,6 +6,7 @@
  */
 
 import type { OAuthProvider } from './types'
+import { openCenteredPopupWindow } from '~/utils/browser-effects'
 
 // ============================================================================
 // Auth Client
@@ -36,15 +37,13 @@ export const authClient = {
      * Initiate OAuth sign-in in a popup window (for modal-based login)
      */
     socialPopup: ({ provider }: { provider: OAuthProvider }) => {
-      const width = 500
-      const height = 600
-      const left = window.screenX + (window.outerWidth - width) / 2
-      const top = window.screenY + (window.outerHeight - height) / 2
-      return window.open(
-        `/auth/${provider}/start?popup=true`,
-        'tanstack-oauth',
-        `width=${width},height=${height},left=${left},top=${top},popup=yes`,
-      )
+      return openCenteredPopupWindow({
+        url: `/auth/${provider}/start?popup=true`,
+        target: 'tanstack-oauth',
+        width: 500,
+        height: 600,
+        features: ['popup=yes'],
+      })
     },
   },
 

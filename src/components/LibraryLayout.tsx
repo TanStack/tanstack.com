@@ -1263,19 +1263,12 @@ export function LibraryLayout({
   const docsTabs = (
     <div className="sticky top-[var(--navbar-height)] z-30 border-b border-gray-500/20 bg-white/90 dark:bg-black/80 backdrop-blur-lg">
       <div className="flex items-stretch">
-        <label
-          htmlFor={mobileMenuToggleId}
-          role="button"
-          tabIndex={0}
+        <button
+          type="button"
           aria-label="Documentation menu"
           aria-expanded={mobileMenuOpen ? true : undefined}
           aria-controls="docs-mobile-menu"
-          onKeyDown={(event) => {
-            if (event.key === 'Enter' || event.key === ' ') {
-              event.preventDefault()
-              setMobileMenuOpen((prev) => !prev)
-            }
-          }}
+          onClick={() => setMobileMenuOpen((prev) => !prev)}
           data-docs-mobile-trigger
           className="min-[900px]:hidden flex items-center gap-1.5 shrink-0 px-3 border-r border-gray-500/20 text-slate-600 dark:text-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-current"
         >
@@ -1284,7 +1277,7 @@ export function LibraryLayout({
           <span className="text-xs font-medium max-[479.98px]:sr-only">
             Menu
           </span>
-        </label>
+        </button>
         <button
           ref={largeMenuTriggerRef}
           type="button"

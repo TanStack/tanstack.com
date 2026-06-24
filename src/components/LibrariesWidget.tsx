@@ -1,13 +1,10 @@
 import { Link } from '@tanstack/react-router'
-import { libraries } from '~/libraries'
+import { publicLibraries } from '~/libraries'
 
-const featuredLibraries = libraries
-  .filter((library) => library.visible !== false)
-  .slice(0, 8)
-  .map((library) => ({
-    id: library.id,
-    name: library.name,
-  }))
+const featuredLibraries = publicLibraries.slice(0, 8).map((library) => ({
+  id: library.id,
+  name: library.name,
+}))
 
 export function LibrariesWidget() {
   return (

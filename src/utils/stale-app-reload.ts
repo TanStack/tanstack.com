@@ -1,3 +1,8 @@
+import {
+  getSessionStorageItem,
+  setSessionStorageItem,
+} from '~/utils/browser-storage'
+
 const staleAppReloadKey = 'tanstack-stale-app-reload-at'
 const staleAppReloadWindowMs = 10_000
 
@@ -109,13 +114,9 @@ function installConsoleReloadHandler(method: 'error' | 'warn') {
 }
 
 function readLastReloadAt() {
-  try {
-    const value = window.sessionStorage.getItem(staleAppReloadKey)
-    if (value) {
-      return Number.parseInt(value, 10)
-    }
-  } catch {
-    // Session storage can be unavailable in hardened browser modes.
+  const value = getSessionStorageItem(staleAppReloadKey)
+  if (value) {
+    return Number.parseInt(value, 10)
   }
 
   return lastReloadAt
@@ -123,12 +124,7 @@ function readLastReloadAt() {
 
 function writeLastReloadAt(value: number) {
   lastReloadAt = value
-
-  try {
-    window.sessionStorage.setItem(staleAppReloadKey, value.toString())
-  } catch {
-    // The in-memory timestamp still prevents reload loops for this page load.
-  }
+  setSessionStorageItem(staleAppReloadKey, value.toString())
 }
 
 function isFailedAppAssetEvent(error: unknown) {

@@ -45,7 +45,7 @@ import {
 import { Streamdown } from 'streamdown'
 import { Link, useRouterState } from '@tanstack/react-router'
 import { useSearchContext } from '~/contexts/SearchContext'
-import { libraries, type Framework } from '~/libraries'
+import { publicLibraries, type Framework } from '~/libraries'
 import { frameworkOptions } from '~/libraries/frameworks'
 import { capitalize } from '~/utils/utils'
 import { usePersistFrameworkPreference } from './FrameworkSelect'
@@ -355,9 +355,7 @@ function buildSearchFilters({
 }
 
 function getSearchableLibraries() {
-  return libraries.filter(
-    (library) => library.visible !== false && library.latestVersion,
-  )
+  return publicLibraries.filter((library) => library.latestVersion)
 }
 
 function isFramework(value: string): value is Framework {
@@ -1107,7 +1105,7 @@ function getSourceScope(sourceUrl: string) {
 
   const pathParts = pathname.split('/').filter(Boolean)
   const libraryId = pathParts[0]
-  const library = libraries.find((item) => item.id === libraryId)
+  const library = publicLibraries.find((item) => item.id === libraryId)
   const frameworkIndex = pathParts.indexOf('framework')
   const frameworkValue =
     frameworkIndex >= 0 ? pathParts[frameworkIndex + 1] : undefined
@@ -2989,7 +2987,7 @@ const Hit = ({
     frameworkOptions.find((f) => f.value === hit.framework) ??
     frameworkOptions.find((f) => hit.url.includes(`/framework/${f.value}`))
   const hitLibraryInfo = hitLibrary
-    ? libraries.find((l) => l.id === hitLibrary)
+    ? publicLibraries.find((l) => l.id === hitLibrary)
     : null
   const hitUrl = hit.urlWithAnchor ?? hit.url
 
@@ -3146,7 +3144,7 @@ function LibraryRefinement({ compact = false }: SearchScopePickerProps) {
     libraryItems: items,
   } = useSearchFilters()
 
-  const currentLibrary = libraries.find((l) => l.id === selectedLibrary)
+  const currentLibrary = publicLibraries.find((l) => l.id === selectedLibrary)
 
   return (
     <Dropdown modal={false}>
@@ -3179,7 +3177,7 @@ function LibraryRefinement({ compact = false }: SearchScopePickerProps) {
           All Libraries
         </DropdownItem>
         {items.map((item) => {
-          const lib = libraries.find((l) => l.id === item.value)
+          const lib = publicLibraries.find((l) => l.id === item.value)
           return (
             <DropdownItem
               key={item.value}
@@ -3301,7 +3299,7 @@ function NoResults({
     ? frameworkOptions.find((f) => f.value === refinedFramework)
     : null
   const currentLibrary = refinedLibrary
-    ? libraries.find((l) => l.id === refinedLibrary)
+    ? publicLibraries.find((l) => l.id === refinedLibrary)
     : null
 
   return (

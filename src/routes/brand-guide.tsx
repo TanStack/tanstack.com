@@ -5,6 +5,7 @@ import { useMemo } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { useToast } from '~/components/ToastProvider'
 import { Copy, Download } from 'lucide-react'
+import { copyTextToClipboard } from '~/utils/browser-effects'
 
 export const Route = createFileRoute('/brand-guide')({
   component: RouteComponent,
@@ -77,6 +78,7 @@ function AssetCard({ title, description, asset, url, bg }: AssetCardProps) {
         {url ? (
           <div className="flex items-center justify-end gap-2">
             <button
+              type="button"
               onClick={handleDirectDownload}
               className="inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:hover:bg-gray-700"
               aria-label="Download asset"
@@ -85,13 +87,14 @@ function AssetCard({ title, description, asset, url, bg }: AssetCardProps) {
               Download
             </button>
             <button
+              type="button"
               onClick={async () => {
                 try {
                   if (!url) return
                   const absoluteUrl = url.startsWith('http')
                     ? url
                     : new URL(url, window.location.origin).toString()
-                  await navigator.clipboard.writeText(absoluteUrl)
+                  await copyTextToClipboard(absoluteUrl)
                   notify(
                     <div>
                       <div className="font-medium">Copied to clipboard</div>
@@ -119,12 +122,13 @@ function AssetCard({ title, description, asset, url, bg }: AssetCardProps) {
             </button>
             {isSvg ? (
               <button
+                type="button"
                 onClick={async () => {
                   try {
                     if (!url) return
                     const res = await fetch(url)
                     const text = await res.text()
-                    await navigator.clipboard.writeText(text)
+                    await copyTextToClipboard(text)
                     notify(
                       <div>
                         <div className="font-medium">Copied to clipboard</div>

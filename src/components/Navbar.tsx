@@ -35,9 +35,11 @@ import { AiDockButton, SearchButton } from './SearchButton'
 import { BrandContextMenu } from './BrandContextMenu'
 import { useSearchContext } from '~/contexts/SearchContext'
 import {
+  isPublicLibrary,
   librariesByGroup,
   librariesGroupNamesMap,
   type LibrarySlim,
+  type PublicLibrarySlim,
 } from '~/libraries'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import {
@@ -136,9 +138,7 @@ type NavMenuGroup = {
   }
 }
 
-type NavigationLibrary = LibrarySlim & {
-  to: string
-}
+type NavigationLibrary = PublicLibrarySlim
 
 const MERCH_MENU_PRODUCT_COUNT = 6
 
@@ -354,11 +354,7 @@ const NAV_GROUPS = [
 function isNavigationLibrary(
   library: LibrarySlim,
 ): library is NavigationLibrary {
-  return (
-    typeof library.to === 'string' &&
-    library.to.startsWith('/') &&
-    library.visible !== false
-  )
+  return isPublicLibrary(library)
 }
 
 function getLibraryDisplayName(library: LibrarySlim) {

@@ -17,9 +17,11 @@ These are quick, high-leverage patches because later fixes can reuse them instea
 - [done 2026-06-24: `pnpm run test:unit`, `pnpm test`] Make `pnpm test` honest about TypeScript tests, or split script names so validation expectations are clear.
 - [done 2026-06-24: `pnpm run test:tsc`, `pnpm run test:lint`] Default non-submit buttons/select triggers to `type="button"`, fix the shared pagination label/id contract, and clean up tooltip child prop merging.
 - [done 2026-06-24: `pnpm run test:unit`, `pnpm run test:tsc`, `pnpm run test:lint`] Add tiny helpers for response filenames, package slug encoding, and row-local ids.
-- Add tiny helpers for external URL normalization, internal route classification, and guarded storage.
-- Fix custom `useMutation` stale callbacks, clipboard/copied-state timers, docs sidebar timers, popup blocked-state handling, and simple page-visibility/reduced-motion helpers.
-- Normalize easy static data contracts: maintainer bare-domain URLs, Scarf id validation, public-library selector, partner analytics seed buckets, blog image URLs, host cache purge response policy.
+- [done 2026-06-24: `pnpm test`, 60-route local smoke] Add tiny helpers for external URL normalization, internal route classification, and guarded storage.
+- [done 2026-06-24: `pnpm test`, 60-route local smoke] Share low-risk clipboard/copy-state timers and auth popup centering.
+- Fix custom `useMutation` stale callbacks, docs sidebar timers, remaining popup blocked-state handling, and remaining page-visibility/reduced-motion call sites.
+- [done 2026-06-24: `pnpm test`, 60-route local smoke] Normalize maintainer bare-domain URLs, add Scarf/social URL contract tests, and centralize the public-library selector.
+- Normalize partner analytics seed buckets, blog image URLs, and host cache purge response policy.
 
 ### 2. One-off cleanup that lowers noise
 
@@ -94,6 +96,7 @@ Treat these as tracked initiatives, not normal cleanup PRs.
 - 2026-06-24: Added shared response filename/content-disposition helpers, package route slug encoding helpers, and row-local id helpers; wired them into builder/docs downloads, Intent registry links, and moderation note inputs.
 - 2026-06-24: Hardened shared UI primitives: defaulted shop buttons and shared select triggers to non-submit buttons, gave pagination a unique page-size label/id pair plus non-submit controls, and made Tooltip merge trigger handlers/refs without `any`.
 - 2026-06-24: Added `test:unit` and wired it into `pnpm test` so existing TypeScript assertion tests run in the default validation path.
+- 2026-06-24: Added guarded browser storage/effect helpers, migrated low-risk clipboard/timer/popup/storage/reduced-motion call sites, centralized public-library selection, normalized maintainer URLs, and added static data contract tests.
 - 2026-06-23: Audit created and ordered.
 
 ## Highest Priority Findings
@@ -2185,7 +2188,7 @@ This is a strong candidate for a reusable TanStack docs-site cache helper or at 
 
 ### Good pattern: slim data modules with explicit heavy-data escape hatches
 
-`src/libraries/libraries.ts:1-2` keeps base library data lightweight, while `src/libraries/index.tsx:34-44` explicitly avoids re-exporting extended per-library landing-page projects that contain React nodes and heavier assets. This is the right shape for global navigation/docs data: a slim default import path plus opt-in heavy modules for routes that actually render the full experience.
+`src/libraries/libraries.ts:1-2` keeps base library data lightweight, while `src/libraries/index.tsx:34-44` explicitly avoids re-exporting extended per-library landing-page projects that contain React nodes and heavier assets. `publicLibraries` and `isPublicLibrary` now give navigation/search/API callers one shared public catalog boundary. This is the right shape for global navigation/docs data: a slim default import path plus opt-in heavy modules for routes that actually render the full experience.
 
 ### Good pattern: lazy activation for expensive navbar features
 
@@ -2208,6 +2211,7 @@ This is a strong candidate for a reusable TanStack docs-site cache helper or at 
 - Builder definition schema shared between client UI, validate, compile, download, deploy, and MCP.
 - A deploy-dialog controller shared by builder-generated projects and docs example deployment.
 - React/browser effect helpers for timed flags, popup polling, clipboard writes, guarded storage, outside-click behavior, and drag-resize listeners.
+- Static data contract tests for public catalogs, maintainer/social URLs, package metadata IDs, and other small hand-authored data tables.
 - An OAuth PKCE helper with atomic code consumption patterns for Drizzle/Postgres.
 - A first-party OAuth callback helper that validates provider params, clears transient cookies on every exit, and normalizes provider token/profile responses.
 - A React Query query-options linter/helper that asserts query keys include every query-function input.

@@ -195,15 +195,10 @@ export function ProductCard({
             onMouseLeave={() => setHoveredColor(null)}
           >
             {swatches.map((s) => (
-              <button
+              <span
                 key={s.name}
-                type="button"
                 title={s.name}
                 onMouseEnter={() => setHoveredColor(s.name)}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  e.preventDefault()
-                }}
                 className={`w-4 h-4 rounded-full shrink-0 cursor-pointer border transition-[box-shadow,border-color,transform] duration-150 ${
                   hoveredColor === s.name
                     ? 'border-white/70 ring-2 ring-white/30 scale-125'
@@ -240,17 +235,13 @@ export function ProductCard({
 
   if (onQuickView) {
     return (
-      <div
-        role="button"
-        tabIndex={0}
+      <button
+        type="button"
         onClick={() => onQuickView(product.handle)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') onQuickView(product.handle)
-        }}
-        className="text-left block cursor-pointer"
+        className="text-left block cursor-pointer bg-transparent border-0 p-0"
       >
         {cardBody}
-      </div>
+      </button>
     )
   }
 

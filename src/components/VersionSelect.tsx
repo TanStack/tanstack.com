@@ -4,6 +4,10 @@ import { useNavigate, useParams } from '@tanstack/react-router'
 import { Tag } from 'lucide-react'
 import { Select, SelectOption } from './Select'
 import { getLibrary, LibraryId } from '~/libraries'
+import {
+  getLocalStorageItem,
+  setLocalStorageItem,
+} from '~/utils/browser-storage'
 
 export function VersionSelect({ libraryId }: { libraryId: LibraryId }) {
   const library = getLibrary(libraryId)
@@ -28,12 +32,9 @@ const useLocalCurrentVersion = create<{
   currentVersion?: string
   setCurrentVersion: (version: string) => void
 }>((set) => ({
-  currentVersion:
-    typeof document !== 'undefined'
-      ? localStorage.getItem('version') || undefined
-      : undefined,
+  currentVersion: getLocalStorageItem('version') || undefined,
   setCurrentVersion: (version: string) => {
-    localStorage.setItem('version', version)
+    setLocalStorageItem('version', version)
     set({ currentVersion: version })
   },
 }))

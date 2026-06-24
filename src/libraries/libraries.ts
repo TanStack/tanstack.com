@@ -909,6 +909,22 @@ export const libraries: LibrarySlim[] = [
   },
 ]
 
+export type PublicLibrarySlim = LibrarySlim & {
+  to: string
+}
+
+export function isPublicLibrary(
+  library: LibrarySlim,
+): library is PublicLibrarySlim {
+  return (
+    typeof library.to === 'string' &&
+    library.to.startsWith('/') &&
+    library.visible !== false
+  )
+}
+
+export const publicLibraries = libraries.filter(isPublicLibrary)
+
 export const librariesByGroup = {
   framework: [start, router],
   state: [query, db, store, ai],

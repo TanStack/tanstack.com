@@ -30,6 +30,18 @@ import {
   useDeploymentProviderPlacement,
 } from '~/utils/useDeploymentProviderPlacement'
 import { joinRepoPath } from '~/utils/repo-path'
+import {
+  getLocalStorageItem,
+  setLocalStorageItem,
+} from '~/utils/browser-storage'
+
+type ExamplePanel = 'code' | 'sandbox'
+
+const examplePanelValues: ReadonlyArray<ExamplePanel> = ['code', 'sandbox']
+
+function getExamplePanel(value: string | undefined) {
+  return examplePanelValues.find((candidate) => candidate === value)
+}
 
 const fileQueryOptions = (repo: string, branch: string, filePath: string) => {
   return queryOptions({
@@ -255,18 +267,15 @@ function PageComponent() {
 
   const activeTab = Route.useSearch({
     select: (s) => {
-      if (typeof window === 'undefined') return s.panel || 'code'
-      const localValue = localStorage.getItem('exampleViewPreference') as
-        | 'code'
-        | 'sandbox'
-        | null
-      return s.panel || localValue || 'code'
+      const panel = getExamplePanel(s.panel)
+      if (typeof window === 'undefined') return panel || 'code'
+      const localValue = getExamplePanel(
+        getLocalStorageItem('exampleViewPreference') ?? undefined,
+      )
+      return panel || localValue || 'code'
     },
   })
-  const setActiveTab = (tab: string) => {
-    if (typeof window === 'undefined') {
-      localStorage.setItem('exampleViewPreference', tab)
-    }
+  const setActiveTab = (tab: ExamplePanel) => {
     navigate({
       search: { path: undefined, panel: tab },
       replace: true,
@@ -313,7 +322,7 @@ function PageComponent() {
 
   // Update local storage when tab changes
   React.useEffect(() => {
-    localStorage.setItem('exampleViewPreference', activeTab)
+    setLocalStorageItem('exampleViewPreference', activeTab)
   }, [activeTab])
 
   React.useEffect(() => {
@@ -430,7 +439,7 @@ function PageComponent() {
       </div>
       <div className="flex-1 lg:px-6 flex flex-col min-h-0">
         <CodeExplorer
-          activeTab={activeTab as 'code' | 'sandbox'}
+          activeTab={activeTab}
           codeSandboxUrl={codeSandboxUrl}
           currentCode={currentCode}
           currentPath={currentPath}

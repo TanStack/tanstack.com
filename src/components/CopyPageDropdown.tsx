@@ -11,6 +11,12 @@ import {
   DropdownItem,
 } from './Dropdown'
 import { getPackageManager } from '~/utils/markdown/installCommand'
+import {
+  copyTextToClipboard,
+  openPopupWindow,
+  useTemporaryFlag,
+} from '~/utils/browser-effects'
+import { getLocalStorageItem } from '~/utils/browser-storage'
 
 // Markdown icon component matching the screenshot
 function MarkdownIcon({ className }: { className?: string }) {
@@ -110,25 +116,26 @@ export function CopyPageDropdown({
   label = 'Copy page',
 }: CopyPageDropdownProps = {}) {
   const [open, setOpen] = React.useState(false)
-  const [copied, setCopied] = React.useState(false)
+  const copied = useTemporaryFlag()
   const { notify } = useToast()
 
   // For docs pages in this repo, prefer the site's markdown endpoint so requests stay behind site caching.
   const pageMarkdownUrl = (() => {
-    const base = `${typeof window !== 'undefined' ? window.location.origin : ''}${typeof window !== 'undefined' ? window.location.pathname.replace(/\/$/, '') : ''}.md`
-    const params =
-      typeof window !== 'undefined'
-        ? new URLSearchParams(window.location.search)
-        : new URLSearchParams()
+    if (typeof window === 'undefined') {
+      return '.md'
+    }
+
+    const base = `${window.location.origin}${window.location.pathname.replace(/\/$/, '')}.md`
+    const params = new URLSearchParams(window.location.search)
     if (currentFramework) {
       params.set('framework', currentFramework)
     }
+
     // Read package manager from localStorage (same key as PackageManagerTabs)
-    if (typeof localStorage !== 'undefined') {
-      const pm = localStorage.getItem('packageManager')
-      const validPm = getPackageManager(pm)
-      params.set('pm', validPm)
-    }
+    const pm = getLocalStorageItem('packageManager')
+    const validPm = getPackageManager(pm)
+    params.set('pm', validPm)
+
     const queryString = params.toString()
     return queryString ? `${base}?${queryString}` : base
   })()
@@ -142,9 +149,8 @@ export function CopyPageDropdown({
 
   const handleCopyPage = async () => {
     if (rawContent) {
-      await navigator.clipboard.writeText(rawContent)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      await copyTextToClipboard(rawContent)
+      copied.trigger()
       notify(
         <div>
           <div className="font-medium">Copied to clipboard</div>
@@ -157,9 +163,8 @@ export function CopyPageDropdown({
     const cached = markdownCache.get(urlToFetch)
 
     const copyContent = async (content: string, source: string) => {
-      await navigator.clipboard.writeText(content)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      await copyTextToClipboard(content)
+      copied.trigger()
       notify(
         <div>
           <div className="font-medium">Copied to clipboard</div>
@@ -194,9 +199,8 @@ export function CopyPageDropdown({
         await copyContent(pageContent, 'Copied rendered page content')
       } else {
         // Last resort: copy the URL
-        await navigator.clipboard.writeText(window.location.href)
-        setCopied(true)
-        setTimeout(() => setCopied(false), 2000)
+        await copyTextToClipboard(window.location.href)
+        copied.trigger()
         notify(
           <div>
             <div className="font-medium">Copied to clipboard</div>
@@ -211,7 +215,7 @@ export function CopyPageDropdown({
 
   const handleViewMarkdown = () => {
     const url = sourceMarkdownUrl
-    window.open(url, '_blank')
+    openPopupWindow(url)
   }
 
   const handleOpenInClaude = () => {
@@ -219,7 +223,7 @@ export function CopyPageDropdown({
     const prompt = encodeURIComponent(
       `Read from this URL: ${pageUrl} and explain it to me`,
     )
-    window.open(`https://claude.ai/new?q=${prompt}`, '_blank')
+    openPopupWindow(`https://claude.ai/new?q=${prompt}`)
   }
 
   const handleOpenInChatGPT = () => {
@@ -227,17 +231,16 @@ export function CopyPageDropdown({
     const prompt = encodeURIComponent(
       `Read from this URL: ${pageUrl} and explain it to me`,
     )
-    window.open(`https://chatgpt.com/?q=${prompt}`, '_blank')
+    openPopupWindow(`https://chatgpt.com/?q=${prompt}`)
   }
 
   const handleOpenInCursor = () => {
     const pageUrl = window.location.href
     const prompt = `Read from this URL:\n${pageUrl}\nand explain it to me`
-    window.open(
+    openPopupWindow(
       `cursor://anysphere.cursor-deeplink/prompt?text=${encodeURIComponent(
         prompt,
       )}`,
-      '_blank',
     )
   }
 
@@ -246,7 +249,7 @@ export function CopyPageDropdown({
     const prompt = encodeURIComponent(
       `Read from this URL: ${pageUrl} and explain it to me`,
     )
-    window.open(`https://t3.chat/new?q=${prompt}`, '_blank')
+    openPopupWindow(`https://t3.chat/new?q=${prompt}`)
   }
 
   const menuItems = [
@@ -289,13 +292,14 @@ export function CopyPageDropdown({
   return (
     <ButtonGroup>
       <Button
+        type="button"
         variant="ghost"
         size="xs"
         rounded="none"
         className="border-0"
         onClick={handleCopyPage}
       >
-        {copied ? (
+        {copied.active ? (
           <>
             <Check className="w-3 h-3" />
             Copied!
@@ -310,6 +314,7 @@ export function CopyPageDropdown({
       <Dropdown open={open} onOpenChange={setOpen}>
         <DropdownTrigger>
           <Button
+            type="button"
             variant="ghost"
             size="xs"
             rounded="none"

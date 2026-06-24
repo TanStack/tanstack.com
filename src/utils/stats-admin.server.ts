@@ -2,7 +2,6 @@
  * Admin server functions for managing GitHub and NPM stats
  */
 
-import * as v from 'valibot'
 import { db } from '~/db/client'
 import { githubStatsCache, npmPackages, npmOrgStatsCache } from '~/db/schema'
 import { eq, desc, and, like } from 'drizzle-orm'

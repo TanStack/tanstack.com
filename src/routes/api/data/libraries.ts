@@ -1,16 +1,17 @@
 import { createFileRoute } from '@tanstack/react-router'
 import {
-  libraries,
   librariesByGroup,
   librariesGroupNamesMap,
+  isPublicLibrary,
+  publicLibraries,
 } from '~/libraries/libraries'
 
 export const Route = createFileRoute('/api/data/libraries')({
   server: {
     handlers: {
       GET: async () => {
-        const filteredLibraries = libraries
-          .filter((lib) => lib.to && lib.id !== 'mcp')
+        const filteredLibraries = publicLibraries
+          .filter((lib) => lib.id !== 'mcp')
           .map((lib) => ({
             id: lib.id,
             name: lib.name,
@@ -33,7 +34,7 @@ export const Route = createFileRoute('/api/data/libraries')({
           Object.entries(librariesByGroup).map(([key, libs]) => [
             key,
             libs
-              .filter((lib) => lib.to && lib.id !== 'mcp')
+              .filter((lib) => isPublicLibrary(lib) && lib.id !== 'mcp')
               .map((lib) => lib.id),
           ]),
         )

@@ -1,7 +1,7 @@
-import { libraries, type Framework, type LibrarySlim } from '~/libraries'
+import { publicLibraries, type Framework, type LibrarySlim } from '~/libraries'
 
 export function getVisibleLibraries() {
-  return libraries.filter((library) => library.to && library.visible !== false)
+  return publicLibraries
 }
 
 export function orderLibrariesForBrowse<TLibrary extends LibrarySlim>(

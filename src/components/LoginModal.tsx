@@ -57,6 +57,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
 
           <div className="space-y-3">
             <button
+              type="button"
               onClick={() => openSocialPopup('github')}
               className="w-full flex items-center justify-center gap-2 bg-gray-900 hover:bg-black text-white dark:bg-white dark:hover:bg-gray-100 dark:text-gray-900 font-medium py-2.5 px-4 rounded-lg transition-colors"
             >
@@ -64,6 +65,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
               Continue with GitHub
             </button>
             <button
+              type="button"
               onClick={() => openSocialPopup('google')}
               className="w-full flex items-center justify-center gap-2 bg-[#DB4437] hover:bg-[#c53929] text-white font-medium py-2.5 px-4 rounded-lg transition-colors"
             >

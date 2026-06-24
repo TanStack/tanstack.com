@@ -4,10 +4,12 @@ export {
   libraries,
   librariesByGroup,
   librariesGroupNamesMap,
+  publicLibraries,
   libraryIds,
   SIDEBAR_LIBRARY_IDS,
   findLibrary,
   getLibrary,
+  isPublicLibrary,
   // Individual library exports
   query,
   router,
@@ -29,6 +31,7 @@ export {
 } from './libraries'
 
 // Re-export types
+export type { PublicLibrarySlim } from './libraries'
 export type { Framework, Library, LibraryId, LibrarySlim } from './types'
 
 // NOTE: Extended library projects (queryProject, routerProject, etc.) with

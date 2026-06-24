@@ -16,7 +16,8 @@ const LazyBrandContextMenu = React.lazy(() =>
 
 const searchSchema = v.object({
   error: v.optional(v.string()),
-  redirect: v.optional(v.string()),
+  redirect: v.optional(v.pipe(v.string(), v.maxLength(2048))),
+  returnTo: v.optional(v.pipe(v.string(), v.maxLength(2048))),
 })
 
 function SplashImages() {
@@ -76,6 +77,7 @@ export function SignInForm({ returnTo }: { returnTo?: string } = {}) {
         Sign into TanStack
       </h2>
       <button
+        type="button"
         onClick={() =>
           authClient.signIn.social({
             provider: 'github',
@@ -87,6 +89,7 @@ export function SignInForm({ returnTo }: { returnTo?: string } = {}) {
         <GithubIcon className="inline-block mr-2 -mt-0.5" /> Sign in with GitHub
       </button>
       <button
+        type="button"
         onClick={() =>
           authClient.signIn.social({
             provider: 'google',
@@ -102,7 +105,7 @@ export function SignInForm({ returnTo }: { returnTo?: string } = {}) {
 }
 
 function LoginPage() {
-  const { error } = Route.useSearch()
+  const { error, redirect, returnTo } = Route.useSearch()
 
   const errorMessages: Record<string, string> = {
     oauth_failed: 'Authentication failed. Please try again.',
@@ -121,7 +124,7 @@ function LoginPage() {
               {errorMessage}
             </div>
           )}
-          <SignInForm />
+          <SignInForm returnTo={redirect ?? returnTo} />
         </div>
       </div>
     </div>

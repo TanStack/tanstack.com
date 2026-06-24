@@ -33,10 +33,10 @@ Do these early when they're obvious and isolated, but don't let them block highe
 
 These are small enough to do before deeper refactors and they reduce risk while larger helpers are being designed.
 
-- Analytics proxy header allowlist, GitHub webhook fail-closed secret, Cloudflare-first IP extraction, route response filename sanitizing, Discord raw-body size/signature-shape guard, MCP transport content-type/length guard and masked errors.
-- Public pagination and route-search caps, admin pagination/range caps, docs feedback content caps, showcase field/array caps, Shopify page-size/quantity/discount caps, UploadThing client preflight caps, image transform clamps, community-resource frontmatter schema.
-- URL/link hardening: Intent metadata URLs, Intent tarball source paths, markdown/source/search link classification, legacy redirect segment matching, local docs path containment.
-- OAuth/login quick fixes: return-to key mismatch, login modal stale callbacks, provider route param picklists, session revocation conflict retry, and session base64 fallback removal once covered.
+- [done 2026-06-24: `pnpm test:tsc`, `pnpm test:lint`, `pnpm test`] Analytics proxy header allowlist, GitHub webhook fail-closed secret, Cloudflare-first IP extraction, route response filename sanitizing, Discord raw-body size/signature-shape guard, MCP transport content-type/length guard and masked errors.
+- [done 2026-06-24: `pnpm test:tsc`, `pnpm test:lint`, `pnpm test`] Public pagination and route-search caps, admin pagination/range caps, docs feedback content caps, showcase field/array caps, Shopify page-size/quantity/discount caps, UploadThing client preflight caps, image transform clamps, community-resource frontmatter schema.
+- [done 2026-06-24: `pnpm test:tsc`, `pnpm test:lint`, `pnpm test`] URL/link hardening: Intent metadata URLs, Intent tarball source paths, markdown/source/search link classification, legacy redirect segment matching, local docs path containment.
+- [done 2026-06-24: `pnpm test:tsc`, `pnpm test:lint`, `pnpm test`] OAuth/login quick fixes: return-to key mismatch, login modal stale callbacks, provider route param picklists, session revocation conflict retry, and session base64 fallback removal once covered.
 
 ### 4. Small controllers that prevent repeat bugs
 
@@ -89,6 +89,8 @@ Treat these as tracked initiatives, not normal cleanup PRs.
 
 ## Batch Log
 
+- 2026-06-24: Landed the grouped security pass across public request boundaries, OAuth/login/session flows, builder/GitHub deploy APIs, outbound fetches, stats/Intent/docs/shop/showcase caps, UploadThing/image preflight, markdown/search link classification, docs redirects/path containment, and community-resource frontmatter validation.
+- 2026-06-24: Second pass simplified the security patch by sharing bounded body readers, npm package-name/page/date/chart schemas, and URL normalization; removed the local application-starter request guard while preserving same-origin/content-type/body-size enforcement.
 - 2026-06-24: Added shared response filename/content-disposition helpers, package route slug encoding helpers, and row-local id helpers; wired them into builder/docs downloads, Intent registry links, and moderation note inputs.
 - 2026-06-24: Hardened shared UI primitives: defaulted shop buttons and shared select triggers to non-submit buttons, gave pagination a unique page-size label/id pair plus non-submit controls, and made Tooltip merge trigger handlers/refs without `any`.
 - 2026-06-24: Added `test:unit` and wired it into `pnpm test` so existing TypeScript assertion tests run in the default validation path.

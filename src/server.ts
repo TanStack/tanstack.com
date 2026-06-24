@@ -82,6 +82,24 @@ function applyHostingHeaders(response: Response, url: URL) {
   })
 }
 
+function getAnalyticsProxyHeaders(request: Request) {
+  const headers = new Headers()
+
+  for (const headerName of ['accept', 'accept-language', 'user-agent']) {
+    const value = request.headers.get(headerName)
+    if (value) {
+      headers.set(headerName, value)
+    }
+  }
+
+  const contentType = request.headers.get('content-type')
+  if (contentType) {
+    headers.set('content-type', contentType)
+  }
+
+  return headers
+}
+
 async function proxyAnalyticsRequest(request: Request, url: URL) {
   const upstreamUrl =
     url.pathname === '/_a/gtag.js'
@@ -100,7 +118,7 @@ async function proxyAnalyticsRequest(request: Request, url: URL) {
 
   const init: RequestInit = {
     method: request.method,
-    headers: request.headers,
+    headers: getAnalyticsProxyHeaders(request),
     redirect: 'follow',
   }
 

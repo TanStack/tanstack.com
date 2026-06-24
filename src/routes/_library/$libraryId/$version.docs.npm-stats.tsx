@@ -40,6 +40,7 @@ import {
   packageGroupSchema,
   type BaselinePreset,
 } from '~/routes/stats/npm/-comparisons'
+import { chartHeightSchema } from '~/utils/schemas'
 
 const LazyNPMStatsChart = React.lazy(() =>
   import('~/components/npm-stats/NPMStatsChart').then((m) => ({
@@ -65,7 +66,7 @@ export const Route = createFileRoute(
 )({
   validateSearch: v.object({
     packageGroups: v.fallback(
-      v.optional(v.array(packageGroupSchema)),
+      v.optional(v.pipe(v.array(packageGroupSchema), v.maxLength(12))),
       undefined,
     ),
     range: v.fallback(
@@ -89,7 +90,7 @@ export const Route = createFileRoute(
     showDataMode: v.fallback(v.optional(showDataModeSchema, 'all'), 'all'),
     normalizeBaseline: v.fallback(v.optional(v.boolean(), true), true),
     showBaseline: v.fallback(v.optional(v.boolean(), false), false),
-    height: v.fallback(v.optional(v.number(), 400), 400),
+    height: v.fallback(v.optional(chartHeightSchema, 400), 400),
   }),
   component: RouteComponent,
   staticData: {

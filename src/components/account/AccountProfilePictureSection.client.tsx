@@ -8,6 +8,10 @@ import { Button } from '~/ui'
 import { removeProfileImage, revertProfileImage } from '~/utils/users.functions'
 import { useUploadThing } from '~/utils/uploadthing.client'
 import { currentUserQueryOptions } from '~/hooks/useCurrentUser'
+import {
+  AVATAR_IMAGE_MAX_BYTES,
+  validateImageUploadFile,
+} from '~/utils/upload-preflight'
 
 type AccountProfileUser = {
   image?: string | null
@@ -60,10 +64,30 @@ export function AccountProfilePictureSection({
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
+      const validationError = validateImageUploadFile(
+        file,
+        AVATAR_IMAGE_MAX_BYTES,
+      )
+
+      if (validationError) {
+        notify(
+          <div>
+            <div className="font-medium">Upload unavailable</div>
+            <div className="text-gray-500 dark:text-gray-400 text-xs">
+              {validationError}
+            </div>
+          </div>,
+        )
+        e.target.value = ''
+        return
+      }
+
       const reader = new FileReader()
       reader.onload = () => {
-        setSelectedImage(reader.result as string)
-        setCropModalOpen(true)
+        if (typeof reader.result === 'string') {
+          setSelectedImage(reader.result)
+          setCropModalOpen(true)
+        }
       }
       reader.readAsDataURL(file)
     }
@@ -158,7 +182,7 @@ export function AccountProfilePictureSection({
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*"
+            accept="image/png,image/jpeg,image/webp,image/gif"
             onChange={handleFileSelect}
             className="hidden"
           />

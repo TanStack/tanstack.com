@@ -263,8 +263,9 @@ async function fetchFs(repo: string, filepath: string) {
   for (const baseDir of getLocalRepoBaseDirs(repo)) {
     const localFilePath = path.resolve(baseDir, filepath)
     attemptedPaths.push(localFilePath)
+    const relativePath = path.relative(baseDir, localFilePath)
 
-    if (!localFilePath.startsWith(baseDir)) {
+    if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
       console.warn(
         `[fetchFs] Path traversal attempt blocked: ${filepath} resolved to ${localFilePath}\n`,
       )

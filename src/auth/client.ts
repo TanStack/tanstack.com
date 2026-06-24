@@ -40,7 +40,7 @@ export const authClient = {
       const height = 600
       const left = window.screenX + (window.outerWidth - width) / 2
       const top = window.screenY + (window.outerHeight - height) / 2
-      window.open(
+      return window.open(
         `/auth/${provider}/start?popup=true`,
         'tanstack-oauth',
         `width=${width},height=${height},left=${left},top=${top},popup=yes`,
@@ -74,7 +74,7 @@ export function navigateToSignIn(
     window.location.href = url
   } else {
     const url = returnTo
-      ? `/login?returnTo=${encodeURIComponent(returnTo)}`
+      ? `/login?redirect=${encodeURIComponent(returnTo)}`
       : '/login'
     window.location.href = url
   }

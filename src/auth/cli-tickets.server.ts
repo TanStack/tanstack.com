@@ -9,6 +9,7 @@
  */
 
 const TICKET_TTL_MS = 5 * 60 * 1000
+const MAX_TICKETS = 1_000
 
 interface CliTicket {
   userId: string | null
@@ -38,18 +39,34 @@ const tickets: Map<string, CliTicket> = (globalScope[TICKETS_KEY] ??= new Map<
 if (!globalScope[TICKETS_INTERVAL_KEY]) {
   globalScope[TICKETS_INTERVAL_KEY] = setInterval(
     () => {
-      const now = Date.now()
-      for (const [id, ticket] of tickets) {
-        if (ticket.expiresAt < now) {
-          tickets.delete(id)
-        }
-      }
+      cleanupExpiredTickets()
     },
     60 * 1000, // every minute
   )
 }
 
+function cleanupExpiredTickets() {
+  const now = Date.now()
+  for (const [id, ticket] of tickets) {
+    if (ticket.expiresAt < now) {
+      tickets.delete(id)
+    }
+  }
+}
+
+function trimTicketStore() {
+  cleanupExpiredTickets()
+
+  while (tickets.size >= MAX_TICKETS) {
+    const oldestId = tickets.keys().next().value
+    if (!oldestId) break
+    tickets.delete(oldestId)
+  }
+}
+
 export function createCliTicket(): string {
+  trimTicketStore()
+
   const id = crypto.randomUUID()
   tickets.set(id, {
     userId: null,

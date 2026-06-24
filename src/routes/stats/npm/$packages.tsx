@@ -10,6 +10,7 @@ import {
   timeRangeSchema,
 } from './-utils'
 import { Spinner } from '~/components/Spinner'
+import { chartHeightSchema } from '~/utils/schemas'
 
 export const Route = createFileRoute('/stats/npm/$packages')({
   validateSearch: v.object({
@@ -19,7 +20,7 @@ export const Route = createFileRoute('/stats/npm/$packages')({
     facetY: v.fallback(v.optional(v.picklist(['name'])), undefined),
     binType: v.fallback(v.optional(binTypeSchema, 'weekly'), 'weekly'),
     showDataMode: v.fallback(v.optional(showDataModeSchema, 'all'), 'all'),
-    height: v.fallback(v.optional(v.number(), 400), 400),
+    height: v.fallback(v.optional(chartHeightSchema, 400), 400),
   }),
   loader: ({ params }) => {
     const packages = parsePackagesFromUrl(params.packages)

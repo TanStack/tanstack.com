@@ -6,19 +6,22 @@ import { loginHistory, auditLogs, users, type AuditAction } from '~/db/schema'
 import { desc, asc, eq, sql, and, gte, lte } from 'drizzle-orm'
 import { alias } from 'drizzle-orm/pg-core'
 import { ALL_TIME_FLOOR_DATE } from './chart'
+import { isoDateSchema, pageIndexSchema, pageSizeSchema } from './schemas'
+
+const adminPaginationSchema = v.object({
+  limit: pageSizeSchema,
+  page: v.optional(pageIndexSchema),
+})
 
 // Query login history (admin only)
 export const listLoginHistory = createServerFn({ method: 'POST' })
   .validator(
     v.object({
-      pagination: v.object({
-        limit: v.number(),
-        page: v.optional(v.number()),
-      }),
+      pagination: adminPaginationSchema,
       userId: v.optional(v.pipe(v.string(), v.uuid())),
       provider: v.optional(v.picklist(['github', 'google'])),
-      dateFrom: v.optional(v.string()),
-      dateTo: v.optional(v.string()),
+      dateFrom: v.optional(isoDateSchema),
+      dateTo: v.optional(isoDateSchema),
       sortBy: v.optional(v.string()),
       sortDir: v.optional(v.picklist(['asc', 'desc'])),
     }),
@@ -109,16 +112,13 @@ export const listLoginHistory = createServerFn({ method: 'POST' })
 export const listAuditLogs = createServerFn({ method: 'POST' })
   .validator(
     v.object({
-      pagination: v.object({
-        limit: v.number(),
-        page: v.optional(v.number()),
-      }),
+      pagination: adminPaginationSchema,
       actorId: v.optional(v.pipe(v.string(), v.uuid())),
       action: v.optional(v.string()),
       targetType: v.optional(v.string()),
       targetId: v.optional(v.string()),
-      dateFrom: v.optional(v.string()),
-      dateTo: v.optional(v.string()),
+      dateFrom: v.optional(isoDateSchema),
+      dateTo: v.optional(isoDateSchema),
     }),
   )
   .handler(async ({ data }) => {
@@ -430,7 +430,11 @@ export const getActivityStats = createServerFn({ method: 'POST' }).handler(
 export const getLoginsChartData = createServerFn({ method: 'POST' })
   .validator(
     v.object({
-      days: v.optional(v.nullable(v.number())), // null = all time
+      days: v.optional(
+        v.nullable(
+          v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(3650)),
+        ),
+      ), // null = all time
     }),
   )
   .handler(async ({ data: { days } }) => {

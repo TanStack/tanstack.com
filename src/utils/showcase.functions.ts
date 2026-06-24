@@ -24,7 +24,45 @@ import {
   getShowcaseCore,
 } from './showcase.server'
 import { getTrancoRank } from './tranco.server'
-import { showcaseUseCaseSchema, showcaseStatusSchema } from './schemas'
+import {
+  pageNumberSchema,
+  pageSizeSchema,
+  showcaseUseCaseSchema,
+  showcaseStatusSchema,
+} from './schemas'
+
+const showcaseLimitSchema = v.pipe(
+  v.number(),
+  v.integer(),
+  v.minValue(1),
+  v.maxValue(24),
+)
+const showcaseTextSchema = (maxLength: number) =>
+  v.pipe(v.string(), v.minLength(1), v.maxLength(maxLength))
+const optionalShowcaseTextSchema = (maxLength: number) =>
+  v.optional(v.pipe(v.string(), v.maxLength(maxLength)))
+const optionalNullableShowcaseTextSchema = (maxLength: number) =>
+  v.optional(v.nullable(v.pipe(v.string(), v.maxLength(maxLength))))
+const showcaseUrlSchema = v.pipe(v.string(), v.minLength(1), v.maxLength(2048))
+const optionalShowcaseUrlSchema = v.optional(
+  v.pipe(v.string(), v.maxLength(2048)),
+)
+const optionalNullableShowcaseUrlSchema = v.optional(
+  v.nullable(v.pipe(v.string(), v.maxLength(2048))),
+)
+const showcaseLibrariesSchema = v.pipe(
+  v.array(v.pipe(v.string(), v.maxLength(64))),
+  v.minLength(1, 'At least one library is required'),
+  v.maxLength(16),
+)
+const optionalShowcaseUseCasesSchema = v.optional(
+  v.pipe(v.array(showcaseUseCaseSchema), v.maxLength(12)),
+  [],
+)
+const showcaseUseCasesSchema = v.pipe(
+  v.array(showcaseUseCaseSchema),
+  v.maxLength(12),
+)
 
 /**
  * Submit a new showcase
@@ -32,29 +70,15 @@ import { showcaseUseCaseSchema, showcaseStatusSchema } from './schemas'
 export const submitShowcase = createServerFn({ method: 'POST' })
   .validator(
     v.object({
-      name: v.pipe(
-        v.string(),
-        v.minLength(1, 'Name is required'),
-        v.maxLength(255),
-      ),
-      tagline: v.pipe(
-        v.string(),
-        v.minLength(1, 'Tagline is required'),
-        v.maxLength(500),
-      ),
-      description: v.optional(v.string()),
-      url: v.pipe(v.string(), v.minLength(1, 'URL is required')),
-      logoUrl: v.optional(v.string()),
-      screenshotUrl: v.pipe(
-        v.string(),
-        v.minLength(1, 'Screenshot URL is required'),
-      ),
-      sourceUrl: v.optional(v.string()),
-      libraries: v.pipe(
-        v.array(v.string()),
-        v.minLength(1, 'At least one library is required'),
-      ),
-      useCases: v.optional(v.array(showcaseUseCaseSchema), []),
+      name: showcaseTextSchema(255),
+      tagline: showcaseTextSchema(500),
+      description: optionalShowcaseTextSchema(4000),
+      url: showcaseUrlSchema,
+      logoUrl: optionalShowcaseUrlSchema,
+      screenshotUrl: showcaseUrlSchema,
+      sourceUrl: optionalShowcaseUrlSchema,
+      libraries: showcaseLibrariesSchema,
+      useCases: optionalShowcaseUseCasesSchema,
     }),
   )
   .handler(async ({ data }) => {
@@ -92,29 +116,15 @@ export const updateShowcase = createServerFn({ method: 'POST' })
   .validator(
     v.object({
       showcaseId: v.pipe(v.string(), v.uuid()),
-      name: v.pipe(
-        v.string(),
-        v.minLength(1, 'Name is required'),
-        v.maxLength(255),
-      ),
-      tagline: v.pipe(
-        v.string(),
-        v.minLength(1, 'Tagline is required'),
-        v.maxLength(500),
-      ),
-      description: v.optional(v.string()),
-      url: v.pipe(v.string(), v.minLength(1, 'URL is required')),
-      logoUrl: v.optional(v.string()),
-      screenshotUrl: v.pipe(
-        v.string(),
-        v.minLength(1, 'Screenshot URL is required'),
-      ),
-      sourceUrl: v.optional(v.string()),
-      libraries: v.pipe(
-        v.array(v.string()),
-        v.minLength(1, 'At least one library is required'),
-      ),
-      useCases: v.optional(v.array(showcaseUseCaseSchema), []),
+      name: showcaseTextSchema(255),
+      tagline: showcaseTextSchema(500),
+      description: optionalShowcaseTextSchema(4000),
+      url: showcaseUrlSchema,
+      logoUrl: optionalShowcaseUrlSchema,
+      screenshotUrl: showcaseUrlSchema,
+      sourceUrl: optionalShowcaseUrlSchema,
+      libraries: showcaseLibrariesSchema,
+      useCases: optionalShowcaseUseCasesSchema,
     }),
   )
   .handler(async ({ data }) => {
@@ -166,8 +176,8 @@ export const getMyShowcases = createServerFn({ method: 'POST' })
   .validator(
     v.object({
       pagination: v.object({
-        page: v.optional(v.number(), 1),
-        pageSize: v.optional(v.number(), 20),
+        page: v.optional(pageNumberSchema, 1),
+        pageSize: v.optional(pageSizeSchema, 20),
       }),
     }),
   )
@@ -191,16 +201,23 @@ export const getApprovedShowcases = createServerFn({ method: 'POST' })
   .validator(
     v.object({
       pagination: v.object({
-        page: v.optional(v.number(), 1),
-        pageSize: v.optional(v.number(), 24),
+        page: v.optional(pageNumberSchema, 1),
+        pageSize: v.optional(pageSizeSchema, 24),
       }),
       filters: v.optional(
         v.object({
-          libraryIds: v.optional(v.array(v.string())),
-          useCases: v.optional(v.array(showcaseUseCaseSchema)),
+          libraryIds: v.optional(
+            v.pipe(
+              v.array(v.pipe(v.string(), v.maxLength(64))),
+              v.maxLength(16),
+            ),
+          ),
+          useCases: v.optional(
+            v.pipe(v.array(showcaseUseCaseSchema), v.maxLength(12)),
+          ),
           featured: v.optional(v.boolean()),
           hasSourceCode: v.optional(v.boolean()),
-          q: v.optional(v.string()),
+          q: v.optional(v.pipe(v.string(), v.maxLength(120))),
         }),
       ),
     }),
@@ -218,8 +235,8 @@ export const getApprovedShowcases = createServerFn({ method: 'POST' })
 export const getShowcasesByLibrary = createServerFn({ method: 'POST' })
   .validator(
     v.object({
-      libraryId: v.string(),
-      limit: v.optional(v.number(), 6),
+      libraryId: v.pipe(v.string(), v.maxLength(64)),
+      limit: v.optional(showcaseLimitSchema, 6),
     }),
   )
   .handler(async ({ data }) => {
@@ -237,7 +254,7 @@ export const getShowcasesByLibrary = createServerFn({ method: 'POST' })
 export const getFeaturedShowcases = createServerFn({ method: 'POST' })
   .validator(
     v.object({
-      limit: v.optional(v.number(), 6),
+      limit: v.optional(showcaseLimitSchema, 6),
     }),
   )
   .handler(async ({ data }) => {
@@ -254,13 +271,20 @@ export const listShowcasesForModeration = createServerFn({ method: 'POST' })
   .validator(
     v.object({
       pagination: v.object({
-        page: v.optional(v.number(), 1),
-        pageSize: v.optional(v.number(), 50),
+        page: v.optional(pageNumberSchema, 1),
+        pageSize: v.optional(pageSizeSchema, 50),
       }),
       filters: v.optional(
         v.object({
-          status: v.optional(v.array(showcaseStatusSchema)),
-          libraryId: v.optional(v.array(v.string())),
+          status: v.optional(
+            v.pipe(v.array(showcaseStatusSchema), v.maxLength(3)),
+          ),
+          libraryId: v.optional(
+            v.pipe(
+              v.array(v.pipe(v.string(), v.maxLength(64))),
+              v.maxLength(16),
+            ),
+          ),
           userId: v.optional(v.pipe(v.string(), v.uuid())),
           isFeatured: v.optional(v.boolean()),
         }),
@@ -352,7 +376,7 @@ export const moderateShowcase = createServerFn({ method: 'POST' })
     v.object({
       showcaseId: v.pipe(v.string(), v.uuid()),
       action: v.picklist(['approve', 'deny']),
-      moderationNote: v.optional(v.string()),
+      moderationNote: optionalShowcaseTextSchema(1000),
     }),
   )
   .handler(async ({ data }) => {
@@ -502,34 +526,20 @@ export const adminUpdateShowcase = createServerFn({ method: 'POST' })
   .validator(
     v.object({
       showcaseId: v.pipe(v.string(), v.uuid()),
-      name: v.pipe(
-        v.string(),
-        v.minLength(1, 'Name is required'),
-        v.maxLength(255),
-      ),
-      tagline: v.pipe(
-        v.string(),
-        v.minLength(1, 'Tagline is required'),
-        v.maxLength(500),
-      ),
-      description: v.optional(v.nullable(v.string())),
-      url: v.pipe(v.string(), v.minLength(1, 'URL is required')),
-      logoUrl: v.optional(v.nullable(v.string())),
-      screenshotUrl: v.pipe(
-        v.string(),
-        v.minLength(1, 'Screenshot URL is required'),
-      ),
-      sourceUrl: v.optional(v.nullable(v.string())),
-      libraries: v.pipe(
-        v.array(v.string()),
-        v.minLength(1, 'At least one library is required'),
-      ),
-      useCases: v.array(showcaseUseCaseSchema),
+      name: showcaseTextSchema(255),
+      tagline: showcaseTextSchema(500),
+      description: optionalNullableShowcaseTextSchema(4000),
+      url: showcaseUrlSchema,
+      logoUrl: optionalNullableShowcaseUrlSchema,
+      screenshotUrl: showcaseUrlSchema,
+      sourceUrl: optionalNullableShowcaseUrlSchema,
+      libraries: showcaseLibrariesSchema,
+      useCases: showcaseUseCasesSchema,
       status: showcaseStatusSchema,
       isFeatured: v.boolean(),
-      moderationNote: v.optional(v.nullable(v.string())),
-      trancoRank: v.optional(v.nullable(v.number())),
-      voteScore: v.number(),
+      moderationNote: optionalNullableShowcaseTextSchema(1000),
+      trancoRank: v.optional(v.nullable(v.pipe(v.number(), v.minValue(1)))),
+      voteScore: v.pipe(v.number(), v.integer()),
     }),
   )
   .handler(async ({ data }) => {
@@ -757,7 +767,10 @@ export const voteShowcase = createServerFn({ method: 'POST' })
 export const getMyShowcaseVotes = createServerFn({ method: 'POST' })
   .validator(
     v.object({
-      showcaseIds: v.array(v.pipe(v.string(), v.uuid())),
+      showcaseIds: v.pipe(
+        v.array(v.pipe(v.string(), v.uuid())),
+        v.maxLength(100),
+      ),
     }),
   )
   .handler(async ({ data }) => {
@@ -794,8 +807,11 @@ export const getRelatedShowcases = createServerFn({ method: 'POST' })
   .validator(
     v.object({
       showcaseId: v.pipe(v.string(), v.uuid()),
-      libraries: v.array(v.string()),
-      limit: v.optional(v.number(), 4),
+      libraries: v.pipe(
+        v.array(v.pipe(v.string(), v.maxLength(64))),
+        v.maxLength(16),
+      ),
+      limit: v.optional(showcaseLimitSchema, 4),
     }),
   )
   .handler(async ({ data }) => {

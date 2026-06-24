@@ -8,6 +8,19 @@ import {
   buildGitHubAuthUrl,
   buildGoogleAuthUrl,
 } from '~/auth/index.server'
+import { normalizeSameOriginPath } from '~/utils/url-boundary'
+
+function readOAuthScopes(value: string | null) {
+  if (!value) {
+    return []
+  }
+
+  return value
+    .split(',')
+    .map((scope) => scope.trim())
+    .filter((scope) => /^[a-zA-Z0-9:_-]{1,64}$/.test(scope))
+    .slice(0, 8)
+}
 
 export const Route = createFileRoute('/auth/$provider/start')({
   server: {
@@ -19,7 +32,7 @@ export const Route = createFileRoute('/auth/$provider/start')({
         request: Request
         params: { provider: string }
       }) => {
-        const provider = params.provider as 'github' | 'google'
+        const provider = params.provider
 
         if (provider !== 'github' && provider !== 'google') {
           return Response.redirect(new URL('/login', request.url), 302)
@@ -40,7 +53,10 @@ export const Route = createFileRoute('/auth/$provider/start')({
           : null
 
         // Check for returnTo URL (for redirect after auth)
-        const returnTo = url.searchParams.get('returnTo')
+        const returnTo = normalizeSameOriginPath(
+          url.searchParams.get('returnTo') ?? url.searchParams.get('redirect'),
+          request.url,
+        )
         const returnToCookie = returnTo
           ? createOAuthReturnToCookie(returnTo, isProduction)
           : null
@@ -54,8 +70,7 @@ export const Route = createFileRoute('/auth/$provider/start')({
         const redirectUri = `${origin}/api/auth/callback/${provider}`
 
         // Check for additional scopes (e.g., public_repo for deploy flow)
-        const additionalScopes =
-          url.searchParams.get('scope')?.split(',').filter(Boolean) ?? []
+        const additionalScopes = readOAuthScopes(url.searchParams.get('scope'))
 
         let authUrl: string
 

@@ -3,6 +3,7 @@
  *
  * Functions for creating and managing GitHub repositories via the API.
  */
+import { fetchWithTimeout } from '~/utils/outbound-fetch.server'
 
 export interface CreateRepoOptions {
   name: string
@@ -29,6 +30,99 @@ export interface CreateRepoError {
     | 'UNKNOWN'
 }
 
+export interface GitHubFileBudgetOptions {
+  maxFiles?: number
+  maxFileBytes?: number
+  maxTotalBytes?: number
+}
+
+const GITHUB_API_TIMEOUT_MS = 10_000
+const DEFAULT_GITHUB_FILE_BUDGET = {
+  maxFiles: 500,
+  maxFileBytes: 1 * 1024 * 1024,
+  maxTotalBytes: 8 * 1024 * 1024,
+} satisfies Required<GitHubFileBudgetOptions>
+
+const BLOCKED_GITHUB_PATH_SEGMENTS = new Set([
+  '.git',
+  '.hg',
+  '.svn',
+  'node_modules',
+])
+
+async function fetchGitHub(
+  input: string | URL | Request,
+  init: RequestInit = {},
+) {
+  return fetchWithTimeout(input, {
+    ...init,
+    timeoutMs: GITHUB_API_TIMEOUT_MS,
+  })
+}
+
+function isSafeGitHubPath(path: string) {
+  if (!path || path.length > 260) return false
+  if (path.startsWith('/') || path.includes('\\')) return false
+
+  const segments = path.split('/')
+  return segments.every(
+    (segment) =>
+      segment &&
+      segment !== '.' &&
+      segment !== '..' &&
+      !BLOCKED_GITHUB_PATH_SEGMENTS.has(segment),
+  )
+}
+
+export function validateGitHubFiles(
+  files: Record<string, string>,
+  options: GitHubFileBudgetOptions = {},
+): { valid: true } | { valid: false; error: string } {
+  const budget = {
+    ...DEFAULT_GITHUB_FILE_BUDGET,
+    ...options,
+  }
+  const entries = Object.entries(files)
+
+  if (entries.length === 0) {
+    return { valid: false, error: 'No files to push' }
+  }
+
+  if (entries.length > budget.maxFiles) {
+    return {
+      valid: false,
+      error: `Too many files to push; maximum is ${budget.maxFiles}`,
+    }
+  }
+
+  let totalBytes = 0
+  const encoder = new TextEncoder()
+
+  for (const [path, content] of entries) {
+    if (!isSafeGitHubPath(path)) {
+      return { valid: false, error: `Invalid file path: ${path}` }
+    }
+
+    const fileBytes = encoder.encode(content).byteLength
+    if (fileBytes > budget.maxFileBytes) {
+      return {
+        valid: false,
+        error: `File is too large: ${path}`,
+      }
+    }
+
+    totalBytes += fileBytes
+    if (totalBytes > budget.maxTotalBytes) {
+      return {
+        valid: false,
+        error: `Total file size exceeds ${budget.maxTotalBytes} bytes`,
+      }
+    }
+  }
+
+  return { valid: true }
+}
+
 /**
  * Create a new GitHub repository
  */
@@ -36,7 +130,7 @@ export async function createRepository(
   accessToken: string,
   options: CreateRepoOptions,
 ): Promise<CreateRepoResult | CreateRepoError> {
-  const response = await fetch('https://api.github.com/user/repos', {
+  const response = await fetchGitHub('https://api.github.com/user/repos', {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -112,7 +206,7 @@ export async function checkRepoNameAvailable(
 
   try {
     // Get the authenticated user's username
-    const userResponse = await fetch('https://api.github.com/user', {
+    const userResponse = await fetchGitHub('https://api.github.com/user', {
       headers: {
         Authorization: `Bearer ${accessToken}`,
         Accept: 'application/vnd.github.v3+json',
@@ -126,7 +220,7 @@ export async function checkRepoNameAvailable(
     const username = user.login
 
     // Check if repo exists
-    const repoResponse = await fetch(
+    const repoResponse = await fetchGitHub(
       `https://api.github.com/repos/${username}/${name}`,
       {
         headers: {
@@ -252,6 +346,11 @@ export async function pushFiles(
     branch = 'main',
   } = options
 
+  const fileValidation = validateGitHubFiles(files)
+  if (!fileValidation.valid) {
+    return { success: false, error: fileValidation.error }
+  }
+
   // Log file paths for debugging
   const paths = Object.keys(files)
   console.log(
@@ -268,10 +367,13 @@ export async function pushFiles(
   }
 
   // Check if the repo is empty by trying to get the branch
-  const refResponse = await fetch(`${baseUrl}/git/ref/heads/${branch}`, {
+  const refResponse = await fetchGitHub(`${baseUrl}/git/ref/heads/${branch}`, {
     headers,
   })
-  const isEmptyRepo = !refResponse.ok
+  if (!refResponse.ok && refResponse.status !== 404) {
+    return { success: false, error: 'Failed to inspect repository branch' }
+  }
+  const isEmptyRepo = refResponse.status === 404
 
   if (isEmptyRepo) {
     // For empty repos, bootstrap with Contents API (creates first commit)
@@ -291,7 +393,7 @@ export async function pushFiles(
     const [bootstrapPath, bootstrapContent] = bootstrapEntry
 
     // Create first file using Contents API
-    const createFileResponse = await fetch(
+    const createFileResponse = await fetchGitHub(
       `${baseUrl}/contents/${bootstrapPath}`,
       {
         method: 'PUT',
@@ -327,7 +429,7 @@ export async function pushFiles(
 
     // Now use Git Data API to add remaining files in one commit
     // Get base commit's tree using the SHA from the bootstrap commit
-    const baseCommitResponse = await fetch(
+    const baseCommitResponse = await fetchGitHub(
       `${baseUrl}/git/commits/${baseSha}`,
       { headers },
     )
@@ -350,7 +452,7 @@ export async function pushFiles(
       }),
     )
 
-    const treeResponse = await fetch(`${baseUrl}/git/trees`, {
+    const treeResponse = await fetchGitHub(`${baseUrl}/git/trees`, {
       method: 'POST',
       headers,
       body: JSON.stringify({
@@ -370,7 +472,7 @@ export async function pushFiles(
     const tree = await treeResponse.json()
 
     // Create commit
-    const commitResponse = await fetch(`${baseUrl}/git/commits`, {
+    const commitResponse = await fetchGitHub(`${baseUrl}/git/commits`, {
       method: 'POST',
       headers,
       body: JSON.stringify({
@@ -391,7 +493,7 @@ export async function pushFiles(
     const commit = await commitResponse.json()
 
     // Update branch ref
-    const updateRefResponse = await fetch(
+    const updateRefResponse = await fetchGitHub(
       `${baseUrl}/git/refs/heads/${branch}`,
       {
         method: 'PATCH',
@@ -416,9 +518,12 @@ export async function pushFiles(
   const baseSha = ref.object.sha
 
   // Get the base tree
-  const baseCommitResponse = await fetch(`${baseUrl}/git/commits/${baseSha}`, {
-    headers,
-  })
+  const baseCommitResponse = await fetchGitHub(
+    `${baseUrl}/git/commits/${baseSha}`,
+    {
+      headers,
+    },
+  )
   if (!baseCommitResponse.ok) {
     return { success: false, error: 'Failed to get base commit' }
   }
@@ -432,7 +537,7 @@ export async function pushFiles(
     content,
   }))
 
-  const treeResponse = await fetch(`${baseUrl}/git/trees`, {
+  const treeResponse = await fetchGitHub(`${baseUrl}/git/trees`, {
     method: 'POST',
     headers,
     body: JSON.stringify({
@@ -452,7 +557,7 @@ export async function pushFiles(
   const tree = await treeResponse.json()
 
   // Create commit with parent
-  const commitResponse = await fetch(`${baseUrl}/git/commits`, {
+  const commitResponse = await fetchGitHub(`${baseUrl}/git/commits`, {
     method: 'POST',
     headers,
     body: JSON.stringify({
@@ -473,11 +578,14 @@ export async function pushFiles(
   const commit = await commitResponse.json()
 
   // Update the branch reference
-  const updateRefResponse = await fetch(`${baseUrl}/git/refs/heads/${branch}`, {
-    method: 'PATCH',
-    headers,
-    body: JSON.stringify({ sha: commit.sha }),
-  })
+  const updateRefResponse = await fetchGitHub(
+    `${baseUrl}/git/refs/heads/${branch}`,
+    {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify({ sha: commit.sha }),
+    },
+  )
 
   if (!updateRefResponse.ok) {
     const error = await updateRefResponse.json().catch(() => ({}))

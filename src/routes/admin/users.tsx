@@ -51,6 +51,7 @@ import { useAdminGuard } from '~/hooks/useAdminGuard'
 import { useToggleArray } from '~/hooks/useToggleArray'
 import { handleAdminError } from '~/utils/adminErrors'
 import { requireCapability } from '~/utils/auth.functions'
+import { pageIndexSchema, pageSizeSchema } from '~/utils/schemas'
 import { Badge, Button } from '~/ui'
 
 // User type for table - matches the shape returned by listUsers
@@ -184,8 +185,8 @@ const searchSchema = v.object({
   noCapabilities: v.optional(v.boolean()),
   ads: v.optional(v.picklist(['all', 'true', 'false'])),
   waitlist: v.optional(v.picklist(['all', 'true', 'false'])),
-  page: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0))),
-  pageSize: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
+  page: v.optional(pageIndexSchema),
+  pageSize: v.optional(pageSizeSchema),
   useEffectiveCapabilities: v.optional(v.boolean(), true),
   sortBy: v.optional(v.string()),
   sortDir: v.optional(v.picklist(['asc', 'desc'])),

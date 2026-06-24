@@ -7,6 +7,7 @@ import { X } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { Card } from '~/components/Card'
 import { seo } from '~/utils/seo'
+import { chartHeightSchema } from '~/utils/schemas'
 import {
   getPopularComparisons,
   getBaselinePresets,
@@ -56,7 +57,10 @@ const showDataModeSchema = v.picklist(['all', 'complete'])
 export const Route = createFileRoute('/stats/npm/')({
   validateSearch: v.object({
     packageGroups: v.fallback(
-      v.optional(v.array(packageGroupSchema), defaultPackageGroups),
+      v.optional(
+        v.pipe(v.array(packageGroupSchema), v.maxLength(12)),
+        defaultPackageGroups,
+      ),
       defaultPackageGroups,
     ),
     range: v.fallback(
@@ -82,7 +86,7 @@ export const Route = createFileRoute('/stats/npm/')({
     showDataMode: v.fallback(v.optional(showDataModeSchema, 'all'), 'all'),
     normalizeBaseline: v.fallback(v.optional(v.boolean(), true), true),
     showBaseline: v.fallback(v.optional(v.boolean(), false), false),
-    height: v.fallback(v.optional(v.number(), 400), 400),
+    height: v.fallback(v.optional(chartHeightSchema, 400), 400),
   }),
   loaderDeps: ({ search }) => ({
     packageList: search.packageGroups

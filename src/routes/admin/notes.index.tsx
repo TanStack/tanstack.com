@@ -4,7 +4,12 @@ import { seo } from '~/utils/seo'
 import { NotesModerationPage } from '~/components/NotesModerationPage'
 import { listDocFeedbackForModerationQueryOptions } from '~/queries/docFeedback'
 import { requireCapability } from '~/utils/auth.functions'
-import { libraryIdSchema } from '~/utils/schemas'
+import {
+  isoDateSchema,
+  libraryIdSchema,
+  pageNumberSchema,
+  pageSizeSchema,
+} from '~/utils/schemas'
 
 export const Route = createFileRoute('/admin/notes/')({
   staleTime: 1000 * 60 * 5, // 5 minutes
@@ -21,15 +26,12 @@ export const Route = createFileRoute('/admin/notes/')({
   validateSearch: (search) => {
     const parsed = v.parse(
       v.object({
-        page: v.optional(v.number(), 1),
-        pageSize: v.optional(
-          v.pipe(v.number(), v.integer(), v.minValue(1)),
-          50,
-        ),
+        page: v.optional(pageNumberSchema, 1),
+        pageSize: v.optional(pageSizeSchema, 50),
         libraryId: v.optional(libraryIdSchema),
         isDetached: v.optional(v.boolean()),
-        dateFrom: v.optional(v.string()),
-        dateTo: v.optional(v.string()),
+        dateFrom: v.optional(isoDateSchema),
+        dateTo: v.optional(isoDateSchema),
       }),
       search,
     )

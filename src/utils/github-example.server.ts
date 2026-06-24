@@ -12,8 +12,15 @@ import {
   isGitHubAuthFailureStatus,
 } from './documents.server'
 import { getCachedGitHubTextFile } from './github-content-cache.server'
+import {
+  fetchWithTimeout,
+  readResponseTextWithLimit,
+} from './outbound-fetch.server'
 
-const RAW_FETCH_CONCURRENCY = 8
+const RAW_FETCH_CONCURRENCY = 6
+const MAX_EXAMPLE_FILES = 500
+const MAX_EXAMPLE_FILE_BYTES = 1 * 1024 * 1024
+const EXAMPLE_FETCH_TIMEOUT_MS = 10_000
 
 export interface FetchExampleFilesResult {
   success: true
@@ -51,6 +58,13 @@ export async function fetchExampleFiles(
       entry.path.startsWith(`${normalizedExamplePath}/`) &&
       !shouldExcludeFile(entry.path.slice(normalizedExamplePath.length + 1)),
   )
+
+  if (fileEntries.length > MAX_EXAMPLE_FILES) {
+    return {
+      success: false,
+      error: `Example has too many files; maximum is ${MAX_EXAMPLE_FILES}`,
+    }
+  }
 
   if (fileEntries.length === 0) {
     return {
@@ -117,21 +131,23 @@ async function fetchRawGitHubFile(
       let response: Response
 
       try {
-        response = await fetch(href, {
+        response = await fetchWithTimeout(href, {
           ...getGitHubContentFetchOptions({
             includeApiVersion: false,
             userAgent: `examples:${repo}`,
           }),
+          timeoutMs: EXAMPLE_FETCH_TIMEOUT_MS,
         })
 
         if (isGitHubAuthFailureStatus(response.status)) {
           await cancelUnusedResponseBody(response)
-          response = await fetch(href, {
+          response = await fetchWithTimeout(href, {
             ...getGitHubContentFetchOptions({
               includeApiVersion: false,
               includeAuthorization: false,
               userAgent: `examples:${repo}`,
             }),
+            timeoutMs: EXAMPLE_FETCH_TIMEOUT_MS,
           })
         }
       } catch (error) {
@@ -160,7 +176,7 @@ async function fetchRawGitHubFile(
         )
       }
 
-      return response.text()
+      return readResponseTextWithLimit(response, MAX_EXAMPLE_FILE_BYTES)
     },
   })
 }

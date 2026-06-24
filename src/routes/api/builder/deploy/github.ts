@@ -1,16 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-
-interface DeployRequest {
-  repoName: string;
-  isPrivate: boolean;
-  projectName: string;
-  framework?: "react" | "solid";
-  packageManager?: "bun" | "npm" | "pnpm" | "yarn";
-  features: Array<string>;
-  featureOptions: Record<string, Record<string, unknown>>;
-  tailwind: boolean;
-  files?: Record<string, string>;
-}
+import {
+  jsonResponse,
+  readJsonBody,
+  validateJsonRequest,
+} from "~/utils/api-boundary.server";
+import {
+  builderDeployBodySchema,
+  parseBuilderRequest,
+} from "~/builder/api/request-schema.server";
 
 interface DeployResponse {
   success: true;
@@ -34,12 +31,8 @@ interface DeployError {
     | "INVALID_REQUEST";
 }
 
-function isStringRecord(value: unknown): value is Record<string, string> {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    Object.values(value).every((entry) => typeof entry === "string")
-  );
+function deployErrorResponse(error: DeployError, status: number, headers?: Headers) {
+  return jsonResponse(error, { status, headers });
 }
 
 export const Route = createFileRoute("/api/builder/deploy/github")({
@@ -57,7 +50,7 @@ export const Route = createFileRoute("/api/builder/deploy/github")({
         const user = await authService.getCurrentUser(request);
 
         if (!user) {
-          return Response.json({
+          return jsonResponse({
             authenticated: false,
             hasGitHubAccount: false,
             hasRepoScope: false,
@@ -66,7 +59,7 @@ export const Route = createFileRoute("/api/builder/deploy/github")({
 
         const authState = await getGitHubAuthState(user.userId);
 
-        return Response.json({
+        return jsonResponse({
           authenticated: true,
           ...authState,
         });
@@ -89,6 +82,7 @@ export const Route = createFileRoute("/api/builder/deploy/github")({
           createRepository,
           pushFiles,
           validateRepoName,
+          validateGitHubFiles,
           generateRepoDescription,
         } = githubRepo;
         const { checkIpRateLimit, rateLimitedResponse, RATE_LIMITS } =
@@ -99,30 +93,47 @@ export const Route = createFileRoute("/api/builder/deploy/github")({
           return rateLimitedResponse(rateLimit);
         }
 
+        const guardError = validateJsonRequest(request, {
+          maxContentLength: 1024 * 1024,
+        });
+        if (guardError) {
+          return deployErrorResponse(
+            {
+              success: false,
+              error: guardError.message,
+              code: "INVALID_REQUEST",
+            },
+            guardError.status,
+            rateLimit.headers,
+          );
+        }
+
         const authService = getAuthService();
         const user = await authService.getCurrentUser(request);
 
         if (!user) {
-          return Response.json(
+          return deployErrorResponse(
             {
               success: false,
               error: "You must be logged in to deploy",
               code: "NOT_AUTHENTICATED",
-            } satisfies DeployError,
-            { status: 401 },
+            },
+            401,
+            rateLimit.headers,
           );
         }
 
         const authState = await getGitHubAuthState(user.userId);
 
         if (!authState.hasGitHubAccount) {
-          return Response.json(
+          return deployErrorResponse(
             {
               success: false,
               error: "No GitHub account linked",
               code: "NO_GITHUB_ACCOUNT",
-            } satisfies DeployError,
-            { status: 403 },
+            },
+            403,
+            rateLimit.headers,
           );
         }
 
@@ -131,14 +142,15 @@ export const Route = createFileRoute("/api/builder/deploy/github")({
             hasRepoScope: authState.hasRepoScope,
             hasToken: !!authState.accessToken,
           });
-          return Response.json(
+          return deployErrorResponse(
             {
               success: false,
               error:
                 "Missing public_repo scope. Please re-authenticate with GitHub.",
               code: "MISSING_REPO_SCOPE",
-            } satisfies DeployError,
-            { status: 403 },
+            },
+            403,
+            rateLimit.headers,
           );
         }
         console.log(
@@ -146,17 +158,24 @@ export const Route = createFileRoute("/api/builder/deploy/github")({
           authState.hasRepoScope,
         );
 
-        let body: DeployRequest;
+        let body;
         try {
-          body = await request.json();
+          const bodyResult = await readJsonBody(request, {
+            maxContentLength: 1024 * 1024,
+          });
+          if (!bodyResult.success) {
+            throw new Error(bodyResult.error.message);
+          }
+          body = parseBuilderRequest(builderDeployBodySchema, bodyResult.body);
         } catch {
-          return Response.json(
+          return deployErrorResponse(
             {
               success: false,
               error: "Invalid request body",
               code: "INVALID_REQUEST",
-            } satisfies DeployError,
-            { status: 400 },
+            },
+            400,
+            rateLimit.headers,
           );
         }
 
@@ -171,23 +190,37 @@ export const Route = createFileRoute("/api/builder/deploy/github")({
           tailwind,
           files,
         } = body;
+        const safeFeatureOptions = featureOptions ?? {};
 
         // Validate repo name
         const validation = validateRepoName(repoName);
         if (!validation.valid) {
-          return Response.json(
+          return deployErrorResponse(
             {
               success: false,
               error: validation.error ?? "Invalid repository name",
               code: "INVALID_REPO_NAME",
-            } satisfies DeployError,
-            { status: 400 },
+            },
+            400,
+            rateLimit.headers,
           );
         }
 
         // Compile the project, or use files generated by the client-only builder.
         let compiledFiles: Record<string, string>;
-        if (isStringRecord(files)) {
+        if (files) {
+          const fileValidation = validateGitHubFiles(files);
+          if (!fileValidation.valid) {
+            return deployErrorResponse(
+              {
+                success: false,
+                error: fileValidation.error,
+                code: "INVALID_REQUEST",
+              },
+              400,
+              rateLimit.headers,
+            );
+          }
           compiledFiles = files;
         } else {
           try {
@@ -198,20 +231,34 @@ export const Route = createFileRoute("/api/builder/deploy/github")({
               packageManager,
               tailwind,
               features,
-              featureOptions,
+              featureOptions: safeFeatureOptions,
             });
             compiledFiles = result.files;
           } catch (error) {
             console.error("[Deploy] Compile failed:", error);
-            return Response.json(
+            return deployErrorResponse(
               {
                 success: false,
                 error: "Failed to compile project",
                 code: "COMPILE_FAILED",
-              } satisfies DeployError,
-              { status: 500 },
+              },
+              500,
+              rateLimit.headers,
             );
           }
+        }
+
+        const compiledFileValidation = validateGitHubFiles(compiledFiles);
+        if (!compiledFileValidation.valid) {
+          return deployErrorResponse(
+            {
+              success: false,
+              error: compiledFileValidation.error,
+              code: "INVALID_REQUEST",
+            },
+            400,
+            rateLimit.headers,
+          );
         }
 
         // Create the repository
@@ -236,13 +283,14 @@ export const Route = createFileRoute("/api/builder/deploy/github")({
             createResult.code === "NAME_TAKEN"
               ? "REPO_NAME_TAKEN"
               : "REPO_CREATION_FAILED";
-          return Response.json(
+          return deployErrorResponse(
             {
               success: false,
               error: createResult.error,
               code,
-            } satisfies DeployError,
-            { status: code === "REPO_NAME_TAKEN" ? 409 : 500 },
+            },
+            code === "REPO_NAME_TAKEN" ? 409 : 500,
+            rateLimit.headers,
           );
         }
         console.log("[Deploy] Repository created:", createResult.repoUrl);
@@ -257,22 +305,26 @@ export const Route = createFileRoute("/api/builder/deploy/github")({
 
         if (!pushResult.success) {
           console.error("[Deploy] Push failed:", pushResult.error);
-          return Response.json(
+          return deployErrorResponse(
             {
               success: false,
               error: `Repository created but failed to push files: ${pushResult.error}`,
               code: "PUSH_FAILED",
-            } satisfies DeployError,
-            { status: 500 },
+            },
+            500,
+            rateLimit.headers,
           );
         }
 
-        return Response.json({
-          success: true,
-          repoUrl: createResult.repoUrl,
-          owner: createResult.owner,
-          repoName: createResult.name,
-        } satisfies DeployResponse);
+        return jsonResponse(
+          {
+            success: true,
+            repoUrl: createResult.repoUrl,
+            owner: createResult.owner,
+            repoName: createResult.name,
+          } satisfies DeployResponse,
+          { headers: rateLimit.headers },
+        );
       },
     },
   },

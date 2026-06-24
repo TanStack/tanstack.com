@@ -104,12 +104,49 @@ const productSortKeys = [
   'UPDATED_AT',
   'VENDOR',
 ] as const
+const shopHandleSchema = v.pipe(
+  v.string(),
+  v.minLength(1),
+  v.maxLength(120),
+  v.regex(/^[a-z0-9][a-z0-9-]*$/i),
+)
+const shopCursorSchema = v.pipe(v.string(), v.maxLength(512))
+const shopPageSizeSchema = v.pipe(
+  v.number(),
+  v.integer(),
+  v.minValue(1),
+  v.maxValue(48),
+)
+const shopSearchQuerySchema = v.pipe(
+  v.string(),
+  v.minLength(1),
+  v.maxLength(120),
+)
+const shopifyIdSchema = v.pipe(
+  v.string(),
+  v.minLength(1),
+  v.maxLength(160),
+  v.regex(/^gid:\/\/shopify\/[A-Za-z]+\/[A-Za-z0-9_-]+$/),
+)
+const discountCodeSchema = v.pipe(v.string(), v.minLength(1), v.maxLength(100))
+const cartQuantitySchema = v.pipe(
+  v.number(),
+  v.integer(),
+  v.minValue(1),
+  v.maxValue(99),
+)
+const cartUpdateQuantitySchema = v.pipe(
+  v.number(),
+  v.integer(),
+  v.minValue(0),
+  v.maxValue(99),
+)
 
 export const getProducts = createServerFn({ method: 'POST' })
   .validator(
     v.object({
-      first: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1)), 24),
-      after: v.optional(v.nullable(v.string())),
+      first: v.optional(shopPageSizeSchema, 24),
+      after: v.optional(v.nullable(shopCursorSchema)),
       sortKey: v.optional(v.picklist(productSortKeys)),
       reverse: v.optional(v.boolean()),
     }),
@@ -146,7 +183,7 @@ export const getCollections = createServerFn({ method: 'GET' }).handler(
 )
 
 export const getProduct = createServerFn({ method: 'POST' })
-  .validator(v.object({ handle: v.string() }))
+  .validator(v.object({ handle: shopHandleSchema }))
   .handler(async ({ data }): Promise<ProductDetail | null> => {
     setBrowseCacheHeaders()
     const result = await shopifyServerFetch<
@@ -173,9 +210,9 @@ const collectionSortKeys = [
 export const getCollection = createServerFn({ method: 'POST' })
   .validator(
     v.object({
-      handle: v.string(),
-      first: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1)), 24),
-      after: v.optional(v.nullable(v.string())),
+      handle: shopHandleSchema,
+      first: v.optional(shopPageSizeSchema, 24),
+      after: v.optional(v.nullable(shopCursorSchema)),
       sortKey: v.optional(v.picklist(collectionSortKeys)),
       reverse: v.optional(v.boolean()),
     }),
@@ -205,7 +242,7 @@ export const getCollection = createServerFn({ method: 'POST' })
   })
 
 export const getPage = createServerFn({ method: 'POST' })
-  .validator(v.object({ handle: v.string() }))
+  .validator(v.object({ handle: shopHandleSchema }))
   .handler(async ({ data }): Promise<PageDetail | null> => {
     setBrowseCacheHeaders()
     const result = await shopifyServerFetch<
@@ -229,7 +266,7 @@ export const getShopPolicies = createServerFn({ method: 'GET' }).handler(
 )
 
 export const getShopPolicy = createServerFn({ method: 'POST' })
-  .validator(v.object({ handle: v.string() }))
+  .validator(v.object({ handle: shopHandleSchema }))
   .handler(
     async ({
       data,
@@ -251,9 +288,9 @@ export const getShopPolicy = createServerFn({ method: 'POST' })
 export const searchProducts = createServerFn({ method: 'POST' })
   .validator(
     v.object({
-      query: v.pipe(v.string(), v.minLength(1)),
-      first: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1)), 24),
-      after: v.optional(v.nullable(v.string())),
+      query: shopSearchQuerySchema,
+      first: v.optional(shopPageSizeSchema, 24),
+      after: v.optional(v.nullable(shopCursorSchema)),
     }),
   )
   .handler(
@@ -324,8 +361,8 @@ export const getCart = createServerFn({ method: 'GET' }).handler(
 export const addToCart = createServerFn({ method: 'POST' })
   .validator(
     v.object({
-      variantId: v.string(),
-      quantity: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1)), 1),
+      variantId: shopifyIdSchema,
+      quantity: v.optional(cartQuantitySchema, 1),
     }),
   )
   .handler(async ({ data }): Promise<CartDetail> => {
@@ -387,8 +424,8 @@ export const addToCart = createServerFn({ method: 'POST' })
 export const updateCartLine = createServerFn({ method: 'POST' })
   .validator(
     v.object({
-      lineId: v.string(),
-      quantity: v.pipe(v.number(), v.integer(), v.minValue(0)),
+      lineId: shopifyIdSchema,
+      quantity: cartUpdateQuantitySchema,
     }),
   )
   .handler(async ({ data }): Promise<CartDetail> => {
@@ -410,7 +447,7 @@ export const updateCartLine = createServerFn({ method: 'POST' })
   })
 
 export const removeCartLine = createServerFn({ method: 'POST' })
-  .validator(v.object({ lineId: v.string() }))
+  .validator(v.object({ lineId: shopifyIdSchema }))
   .handler(async ({ data }): Promise<CartDetail> => {
     setCartResponseHeaders()
     const cartId = getCookie(CART_COOKIE_NAME)
@@ -427,7 +464,7 @@ export const removeCartLine = createServerFn({ method: 'POST' })
   })
 
 export const applyDiscountCode = createServerFn({ method: 'POST' })
-  .validator(v.object({ code: v.pipe(v.string(), v.minLength(1)) }))
+  .validator(v.object({ code: discountCodeSchema }))
   .handler(async ({ data }): Promise<CartDetail> => {
     setCartResponseHeaders()
     const cartId = getCookie(CART_COOKIE_NAME)

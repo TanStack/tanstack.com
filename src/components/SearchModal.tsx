@@ -53,6 +53,7 @@ import { shouldPersistFrameworkForHit } from '~/utils/searchRecords'
 import { CodeBlock } from '~/components/markdown/CodeBlock'
 import { InlineCode } from '~/ui/InlineCode'
 import { env } from '~/utils/env'
+import { getRoutableInternalLinkTarget, isSafeHref } from '~/utils/url-boundary'
 
 /**
  * Safely decode HTML entities without using innerHTML.
@@ -605,22 +606,7 @@ function DynamicFilters() {
 }
 
 function getInternalLinkTarget(hrefValue: string) {
-  const internalUrl = hrefValue.includes('//tanstack.com')
-    ? hrefValue.split('//tanstack.com')[1]
-    : hrefValue
-  const [internalPath, internalHash] = internalUrl.split('#')
-  const isInternal =
-    hrefValue.includes('//tanstack.com') || hrefValue.startsWith('/')
-  const isRoutableInternal =
-    internalPath.startsWith('/') &&
-    !internalPath.startsWith('//') &&
-    internalPath !== '/api' &&
-    !internalPath.startsWith('/api/') &&
-    !/\.[a-z0-9]+$/i.test(internalPath)
-
-  return isInternal && isRoutableInternal
-    ? { path: internalPath, hash: internalHash }
-    : null
+  return getRoutableInternalLinkTarget(hrefValue)
 }
 
 const SafeLink = React.forwardRef(
@@ -643,7 +629,7 @@ const SafeLink = React.forwardRef(
     if (!internalTarget) {
       return (
         <a
-          href={href}
+          href={isSafeHref(hrefValue) ? href : undefined}
           className={className}
           onKeyDown={onKeyDown}
           role={role}
@@ -908,7 +894,13 @@ function parseKapaSource(value: unknown): StreamSource | null {
   const title = readString(value.title)
   const sourceUrl = readString(value.source_url)
 
-  if (!title || !sourceUrl) {
+  if (
+    !title ||
+    title.length > 160 ||
+    !sourceUrl ||
+    sourceUrl.length > 2048 ||
+    !isSafeHref(sourceUrl)
+  ) {
     return null
   }
 

@@ -382,7 +382,7 @@ function getCanonicalDocsPath(filePath: string, docsRoot: string) {
 function normalizeDocsRedirectPath(path: string, docsRoot?: string) {
   const normalizedPath = removeLeadingSlash(path.trim()).replace(/\/+$/g, '')
 
-  if (!normalizedPath) {
+  if (!normalizedPath || !isValidRepoPath(normalizedPath)) {
     return null
   }
 

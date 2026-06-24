@@ -7,6 +7,13 @@ import {
   rateLimitedResponse,
 } from '~/utils/rateLimit.server'
 import { envFunctions } from '~/utils/env.functions'
+import {
+  isRecord,
+  readJsonBody,
+  validateJsonRequest,
+} from '~/utils/api-boundary.server'
+
+const MAX_APPLICATION_STARTER_BODY_BYTES = 16 * 1024
 
 export const Route = createFileRoute('/api/application-starter/resolve')({
   server: {
@@ -97,7 +104,9 @@ export const Route = createFileRoute('/api/application-starter/resolve')({
             return rateLimitedResponse(rateLimit)
           }
 
-          const requestGuardError = validateApplicationStarterRequest(request)
+          const requestGuardError = validateJsonRequest(request, {
+            maxContentLength: MAX_APPLICATION_STARTER_BODY_BYTES,
+          })
           if (requestGuardError) {
             return new Response(
               JSON.stringify({ error: requestGuardError.message }),
@@ -111,11 +120,25 @@ export const Route = createFileRoute('/api/application-starter/resolve')({
             )
           }
 
-          const rawBody = await request.json()
+          const bodyResult = await readJsonBody(request, {
+            maxContentLength: MAX_APPLICATION_STARTER_BODY_BYTES,
+          })
+          if (!bodyResult.success) {
+            return new Response(
+              JSON.stringify({ error: bodyResult.error.message }),
+              {
+                status: bodyResult.error.status,
+                headers: {
+                  'Content-Type': 'application/json',
+                  ...Object.fromEntries(rateLimit.headers.entries()),
+                },
+              },
+            )
+          }
+
+          const rawBody = bodyResult.body
           const isAnalyzeRequest =
-            typeof rawBody === 'object' &&
-            rawBody !== null &&
-            rawBody.mode === 'analyze'
+            isRecord(rawBody) && rawBody.mode === 'analyze'
           const body = starterServer.applicationStarterRequestSchema.parse(rawBody)
 
           const authService = getAuthService()
@@ -170,7 +193,6 @@ export const Route = createFileRoute('/api/application-starter/resolve')({
           return new Response(
             JSON.stringify({
               error: 'Failed to resolve application starter',
-              details: error instanceof Error ? error.message : String(error),
             }),
             {
               status: 500,
@@ -182,62 +204,3 @@ export const Route = createFileRoute('/api/application-starter/resolve')({
     },
   },
 })
-
-function validateApplicationStarterRequest(request: Request) {
-  const contentLength = Number(request.headers.get('content-length') || '0')
-  if (Number.isFinite(contentLength) && contentLength > 16_384) {
-    return {
-      message: 'Request body too large',
-      status: 413,
-    }
-  }
-
-  const contentType = request.headers.get('content-type') || ''
-  if (!contentType.toLowerCase().includes('application/json')) {
-    return {
-      message: 'Expected application/json request body',
-      status: 415,
-    }
-  }
-
-  const requestUrl = new URL(request.url)
-  const origin = request.headers.get('origin')
-  const referer = request.headers.get('referer')
-  const secFetchSite = request.headers.get('sec-fetch-site')
-
-  if (origin && origin !== requestUrl.origin) {
-    return {
-      message: 'Cross-origin requests are not allowed',
-      status: 403,
-    }
-  }
-
-  if (referer) {
-    try {
-      const refererUrl = new URL(referer)
-      if (refererUrl.origin !== requestUrl.origin) {
-        return {
-          message: 'Cross-origin requests are not allowed',
-          status: 403,
-        }
-      }
-    } catch {
-      return {
-        message: 'Invalid referer header',
-        status: 400,
-      }
-    }
-  }
-
-  if (
-    secFetchSite &&
-    !['none', 'same-origin', 'same-site'].includes(secFetchSite)
-  ) {
-    return {
-      message: 'Cross-site requests are not allowed',
-      status: 403,
-    }
-  }
-
-  return null
-}

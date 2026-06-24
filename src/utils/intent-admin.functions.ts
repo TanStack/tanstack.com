@@ -12,6 +12,7 @@ import {
   triggerIntentDiscover as triggerIntentDiscoverServer,
   triggerIntentProcess as triggerIntentProcessServer,
 } from '~/utils/intent-admin.server'
+import { pageSizeSchema } from './schemas'
 
 export const getIntentAdminStats = createServerFn({ method: 'GET' }).handler(
   async () => getIntentAdminStatsServer(),
@@ -32,7 +33,7 @@ export const triggerIntentDiscover = createServerFn({ method: 'POST' }).handler(
 export const triggerIntentProcess = createServerFn({ method: 'POST' })
   .validator(
     v.object({
-      limit: v.optional(v.number(), 10),
+      limit: v.optional(pageSizeSchema, 10),
     }),
   )
   .handler(async ({ data }) => triggerIntentProcessServer({ data }))

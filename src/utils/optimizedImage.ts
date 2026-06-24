@@ -6,10 +6,24 @@ export type ImageOptimizationOptions = {
   width?: number
 }
 
+const MAX_TRANSFORM_DIMENSION = 3840
+
+function clampInteger(value: number | undefined, min: number, max: number) {
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
+    return undefined
+  }
+
+  return Math.min(max, Math.max(min, Math.round(value)))
+}
+
 export function getOptimizedImageUrl(
   src: string,
   options: ImageOptimizationOptions = {},
 ) {
+  if (!src.trim() || /^(?:javascript|vbscript):/i.test(src.trim())) {
+    return ''
+  }
+
   if (!shouldTransformImage(src)) {
     return src
   }
@@ -30,6 +44,10 @@ export function getAbsoluteOptimizedImageUrl(
   options: ImageOptimizationOptions = {},
 ) {
   const optimizedSrc = getOptimizedImageUrl(src, options)
+  if (!optimizedSrc) {
+    return ''
+  }
+
   if (optimizedSrc.startsWith('http')) {
     return optimizedSrc
   }
@@ -63,20 +81,23 @@ function createCloudflareTransformOptions(
   options: ImageOptimizationOptions,
 ): string | undefined {
   const params: Array<string> = []
+  const width = clampInteger(options.width, 1, MAX_TRANSFORM_DIMENSION)
+  const height = clampInteger(options.height, 1, MAX_TRANSFORM_DIMENSION)
+  const quality = clampInteger(options.quality ?? 80, 1, 100) ?? 80
 
-  if (options.width) {
-    params.push(`width=${Math.round(options.width)}`)
+  if (width) {
+    params.push(`width=${width}`)
   }
 
-  if (options.height) {
-    params.push(`height=${Math.round(options.height)}`)
+  if (height) {
+    params.push(`height=${height}`)
   }
 
   if (options.fit) {
     params.push(`fit=${options.fit}`)
   }
 
-  params.push(`quality=${Math.round(options.quality ?? 80)}`)
+  params.push(`quality=${quality}`)
   params.push(`format=${options.format ?? 'auto'}`)
 
   return params.length > 0 ? params.join(',') : undefined

@@ -46,6 +46,140 @@ import {
   hasCompleteDailyCoverage,
   toIsoDayUtc,
 } from './npm-download-ranges'
+import { isNpmPackageName } from './schemas'
+
+type NpmDownloadsBulkPackage = {
+  hidden?: boolean
+  name: string
+}
+
+type NpmDownloadsBulkGroup = {
+  packages: Array<NpmDownloadsBulkPackage>
+}
+
+type NpmDownloadsBulkRequest = {
+  packageGroups: Array<NpmDownloadsBulkGroup>
+  startDate: string
+  endDate: string
+}
+
+const MAX_NPM_STATS_GROUPS = 12
+const MAX_NPM_STATS_PACKAGES_PER_GROUP = 5
+const MAX_NPM_STATS_TOTAL_PACKAGES = 24
+const MAX_NPM_STATS_CHUNK_FETCH_CONCURRENCY = 8
+const MAX_NPM_STATS_RANGE_DAYS = 12 * 366
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+function parseIsoDay(value: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return null
+
+  const date = new Date(`${value}T00:00:00.000Z`)
+  if (Number.isNaN(date.getTime())) return null
+
+  return date.toISOString().substring(0, 10) === value ? date : null
+}
+
+function parseNpmDownloadsBulkRequest(data: unknown): NpmDownloadsBulkRequest {
+  if (!isRecord(data)) {
+    throw new Error('Invalid npm stats request')
+  }
+
+  const rawGroups = data.packageGroups
+  const startDate = data.startDate
+  const endDate = data.endDate
+
+  if (
+    !Array.isArray(rawGroups) ||
+    rawGroups.length === 0 ||
+    rawGroups.length > MAX_NPM_STATS_GROUPS ||
+    typeof startDate !== 'string' ||
+    typeof endDate !== 'string'
+  ) {
+    throw new Error('Invalid npm stats request')
+  }
+
+  const parsedStart = parseIsoDay(startDate)
+  const parsedEnd = parseIsoDay(endDate)
+  if (!parsedStart || !parsedEnd || parsedStart > parsedEnd) {
+    throw new Error('Invalid npm stats date range')
+  }
+
+  const rangeDays = Math.ceil(
+    (parsedEnd.getTime() - parsedStart.getTime()) / (24 * 60 * 60 * 1000),
+  )
+  if (rangeDays > MAX_NPM_STATS_RANGE_DAYS) {
+    throw new Error('NPM stats date range is too large')
+  }
+
+  let totalPackages = 0
+  const packageGroups = rawGroups.map((rawGroup) => {
+    if (!isRecord(rawGroup) || !Array.isArray(rawGroup.packages)) {
+      throw new Error('Invalid npm stats package group')
+    }
+
+    if (
+      rawGroup.packages.length === 0 ||
+      rawGroup.packages.length > MAX_NPM_STATS_PACKAGES_PER_GROUP
+    ) {
+      throw new Error('Invalid npm stats package group size')
+    }
+
+    const packages = rawGroup.packages.map((rawPackage) => {
+      if (!isRecord(rawPackage) || typeof rawPackage.name !== 'string') {
+        throw new Error('Invalid npm stats package')
+      }
+
+      const name = rawPackage.name.trim()
+      if (!isNpmPackageName(name)) {
+        throw new Error(`Invalid npm package name: ${name}`)
+      }
+
+      return {
+        name,
+        hidden:
+          typeof rawPackage.hidden === 'boolean'
+            ? rawPackage.hidden
+            : undefined,
+      }
+    })
+
+    totalPackages += packages.length
+    return { packages }
+  })
+
+  if (totalPackages > MAX_NPM_STATS_TOTAL_PACKAGES) {
+    throw new Error('Too many npm packages requested')
+  }
+
+  return { packageGroups, startDate, endDate }
+}
+
+async function mapWithConcurrency<T, TResult>(
+  values: Array<T>,
+  concurrency: number,
+  fn: (value: T) => Promise<TResult>,
+) {
+  const results = new Array<TResult>(values.length)
+  let index = 0
+
+  const workers = Array.from(
+    { length: Math.min(concurrency, values.length) },
+    async () => {
+      while (index < values.length) {
+        const currentIndex = index
+        index += 1
+        results[currentIndex] = await fn(values[currentIndex])
+      }
+    },
+  )
+
+  await Promise.all(workers)
+
+  return results
+}
 
 /**
  * NPM sometimes reports ecosystem-wide zero days.
@@ -430,8 +564,9 @@ function getEmptyOSSStats(): OSSStatsWithDelta {
  * Optimized to handle all packages in a single request with batch cache lookup
  * and parallel NPM API fetching. Current year data is cached daily.
  */
-export async function fetchNpmDownloadsBulk({ data }: { data: any }) {
-  const { packageGroups, startDate, endDate } = data
+export async function fetchNpmDownloadsBulk({ data }: { data: unknown }) {
+  const { packageGroups, startDate, endDate } =
+    parseNpmDownloadsBulkRequest(data)
 
   // Import cache functions
   const {
@@ -468,12 +603,9 @@ export async function fetchNpmDownloadsBulk({ data }: { data: any }) {
   }
 
   const chunkRequests: ChunkRequest[] = []
-  const allPackageNames = new Set<string>()
 
   for (const group of packageGroups) {
     for (const pkg of group.packages) {
-      allPackageNames.add(pkg.name)
-
       for (const chunk of getNormalizedNpmDownloadChunks({
         startDate,
         endDate,
@@ -546,112 +678,119 @@ export async function fetchNpmDownloadsBulk({ data }: { data: any }) {
       })),
     )
 
-    const fetchPromises = chunksToFetch.map(async (req) => {
-      const cacheKey = getChunkCacheKey(req)
-      const fallbackChunk = fallbackChunks.get(cacheKey)
+    const fetchedResults = await mapWithConcurrency(
+      chunksToFetch,
+      MAX_NPM_STATS_CHUNK_FETCH_CONCURRENCY,
+      async (req) => {
+        const cacheKey = getChunkCacheKey(req)
+        const fallbackChunk = fallbackChunks.get(cacheKey)
 
-      try {
-        const response = await fetch(
-          `https://api.npmjs.org/downloads/range/${req.startDate}:${req.endDate}/${req.packageName}`,
-          {
-            headers: {
-              Accept: 'application/json',
-              'User-Agent': 'TanStack-Stats',
+        try {
+          const response = await fetch(
+            `https://api.npmjs.org/downloads/range/${req.startDate}:${req.endDate}/${req.packageName}`,
+            {
+              headers: {
+                Accept: 'application/json',
+                'User-Agent': 'TanStack-Stats',
+              },
             },
-          },
-        )
+          )
 
-        if (!response.ok) {
-          if (response.status === 404) {
-            if (fallbackChunk) {
+          if (!response.ok) {
+            if (response.status === 404) {
+              if (fallbackChunk) {
+                return {
+                  key: cacheKey,
+                  data: fallbackChunk,
+                }
+              }
+
               return {
                 key: cacheKey,
-                data: fallbackChunk,
+                data: {
+                  packageName: req.packageName,
+                  dateFrom: req.startDate,
+                  dateTo: req.endDate,
+                  binSize: 'daily',
+                  dailyData: [],
+                  totalDownloads: 0,
+                  isImmutable: !req.isCurrentYear,
+                },
               }
             }
-
-            return {
-              key: cacheKey,
-              data: {
-                packageName: req.packageName,
-                dateFrom: req.startDate,
-                dateTo: req.endDate,
-                binSize: 'daily',
-                dailyData: [],
-                totalDownloads: 0,
-                isImmutable: !req.isCurrentYear,
-              },
-            }
+            throw new Error(`NPM API error: ${response.status}`)
           }
-          throw new Error(`NPM API error: ${response.status}`)
-        }
 
-        const result = await response.json()
-        const downloads = getNpmDailyDownloadsFromResponse(result)
+          const result = await response.json()
+          const downloads = getNpmDailyDownloadsFromResponse(result)
 
-        if (!hasCompleteDailyCoverage(downloads, req.startDate, req.endDate)) {
-          throw new Error(
-            `NPM API returned incomplete range ${downloads[0]?.day ?? 'empty'}:${downloads.at(-1)?.day ?? 'empty'} for ${req.startDate}:${req.endDate}`,
-          )
-        }
-
-        const chunkData = {
-          packageName: req.packageName,
-          dateFrom: req.startDate,
-          dateTo: req.endDate,
-          binSize: 'daily',
-          totalDownloads: downloads.reduce(
-            (sum, point) => sum + point.downloads,
-            0,
-          ),
-          dailyData: downloads,
-          isImmutable: !req.isCurrentYear,
-        }
-
-        await setCachedNpmDownloadChunk(chunkData)
-
-        return {
-          key: cacheKey,
-          data: chunkData,
-        }
-      } catch (error) {
-        console.error(`Failed to fetch ${req.packageName} ${req.year}:`, error)
-
-        if (fallbackChunk) {
-          console.warn(
-            `[NPM Download Chunks] Using fallback ${fallbackChunk.dateFrom}:${fallbackChunk.dateTo} for ${req.packageName} ${req.startDate}:${req.endDate}`,
-          )
-          return {
-            key: cacheKey,
-            data: fallbackChunk,
+          if (
+            !hasCompleteDailyCoverage(downloads, req.startDate, req.endDate)
+          ) {
+            throw new Error(
+              `NPM API returned incomplete range ${downloads[0]?.day ?? 'empty'}:${downloads.at(-1)?.day ?? 'empty'} for ${req.startDate}:${req.endDate}`,
+            )
           }
-        }
 
-        // Return empty data on error
-        return {
-          key: cacheKey,
-          data: {
+          const chunkData = {
             packageName: req.packageName,
             dateFrom: req.startDate,
             dateTo: req.endDate,
             binSize: 'daily',
-            dailyData: [],
-            totalDownloads: 0,
+            totalDownloads: downloads.reduce(
+              (sum, point) => sum + point.downloads,
+              0,
+            ),
+            dailyData: downloads,
             isImmutable: !req.isCurrentYear,
-          },
-        }
-      }
-    })
+          }
 
-    const fetchedResults = await Promise.all(fetchPromises)
+          await setCachedNpmDownloadChunk(chunkData)
+
+          return {
+            key: cacheKey,
+            data: chunkData,
+          }
+        } catch (error) {
+          console.error(
+            `Failed to fetch ${req.packageName} ${req.year}:`,
+            error,
+          )
+
+          if (fallbackChunk) {
+            console.warn(
+              `[NPM Download Chunks] Using fallback ${fallbackChunk.dateFrom}:${fallbackChunk.dateTo} for ${req.packageName} ${req.startDate}:${req.endDate}`,
+            )
+            return {
+              key: cacheKey,
+              data: fallbackChunk,
+            }
+          }
+
+          // Return empty data on error
+          return {
+            key: cacheKey,
+            data: {
+              packageName: req.packageName,
+              dateFrom: req.startDate,
+              dateTo: req.endDate,
+              binSize: 'daily',
+              dailyData: [],
+              totalDownloads: 0,
+              isImmutable: !req.isCurrentYear,
+            },
+          }
+        }
+      },
+    )
     for (const result of fetchedResults) {
       resultChunks.set(result.key, result.data)
     }
   }
 
   // Organize results by package group
-  const results = packageGroups.map((group: any) => {
-    const packages = group.packages.map((pkg: any) => {
+  const results = packageGroups.map((group) => {
+    const packages = group.packages.map((pkg) => {
       // Collect all chunks for this package
       const packageChunks: Array<DownloadChunk> = []
 

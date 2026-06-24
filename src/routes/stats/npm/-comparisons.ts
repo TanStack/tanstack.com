@@ -1,20 +1,24 @@
 import * as v from 'valibot'
+import { npmPackageNameSchema } from '~/utils/schemas'
 
 export const packageGroupSchema = v.object({
-  packages: v.array(
-    v.object({
-      name: v.string(),
-      hidden: v.optional(v.boolean()),
-    }),
+  packages: v.pipe(
+    v.array(
+      v.object({
+        name: npmPackageNameSchema,
+        hidden: v.optional(v.boolean()),
+      }),
+    ),
+    v.maxLength(5),
   ),
-  color: v.optional(v.nullable(v.string())),
+  color: v.optional(v.nullable(v.pipe(v.string(), v.maxLength(32)))),
   baseline: v.optional(v.boolean()),
-  baselineLabel: v.optional(v.string()),
+  baselineLabel: v.optional(v.pipe(v.string(), v.maxLength(80))),
 })
 
 export const packageComparisonSchema = v.object({
-  title: v.string(),
-  packageGroups: v.array(packageGroupSchema),
+  title: v.pipe(v.string(), v.maxLength(120)),
+  packageGroups: v.pipe(v.array(packageGroupSchema), v.maxLength(12)),
   baseline: v.optional(v.string()),
 })
 

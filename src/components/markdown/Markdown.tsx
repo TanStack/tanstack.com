@@ -2,6 +2,7 @@ import { renderMarkdownReact } from '@tanstack/markdown/react'
 import * as React from 'react'
 import { InlineCode, MarkdownImg } from '~/ui'
 import { parseSiteMarkdown, type MarkdownDocument } from '~/utils/markdown'
+import { isSafeHttpUrl } from '~/utils/url-boundary'
 import { CodeBlock } from './CodeBlock'
 import { MarkdownLink } from './MarkdownLink'
 import {
@@ -83,7 +84,36 @@ function createHeadingComponent(
   return HeadingComponent
 }
 
+const trustedIframeHosts = [
+  'codesandbox.io',
+  'stackblitz.com',
+  'www.youtube.com',
+  'youtube.com',
+  'www.youtube-nocookie.com',
+  'youtube-nocookie.com',
+  'player.vimeo.com',
+]
+
+function isTrustedIframeSrc(src: string | undefined) {
+  if (!src || !isSafeHttpUrl(src)) {
+    return false
+  }
+
+  try {
+    const url = new URL(src)
+    return trustedIframeHosts.some(
+      (host) => url.hostname === host || url.hostname.endsWith(`.${host}`),
+    )
+  } catch {
+    return false
+  }
+}
+
 function MarkdownIframe(props: React.IframeHTMLAttributes<HTMLIFrameElement>) {
+  if (!isTrustedIframeSrc(props.src)) {
+    return null
+  }
+
   return <iframe {...props} className="w-full" title="Embedded Content" />
 }
 

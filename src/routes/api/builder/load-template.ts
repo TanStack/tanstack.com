@@ -1,46 +1,49 @@
 import { createFileRoute } from "@tanstack/react-router";
+import {
+  builderErrorResponse,
+  builderJsonResponse,
+  readBuilderJsonRequest,
+} from "~/builder/api/request-boundary.server";
+import {
+  builderRemoteLoadBodySchema,
+  parseBuilderRequest,
+} from "~/builder/api/request-schema.server";
+import { RATE_LIMITS } from "~/utils/rateLimit.server";
 
 export const Route = createFileRoute("/api/builder/load-template")({
   server: {
     handlers: {
       POST: async ({ request }: { request: Request }) => {
-        const { checkIpRateLimit, rateLimitedResponse, RATE_LIMITS } =
-          await import("~/utils/rateLimit.server");
-        const rateLimit = await checkIpRateLimit(
-          request,
-          RATE_LIMITS.builderRemote,
-        );
-        if (!rateLimit.allowed) {
-          return rateLimitedResponse(rateLimit);
-        }
-
         try {
-          const body = await request.json();
-          const templateUrl = body.url;
+          const requestBody = await readBuilderJsonRequest(request, {
+            rateLimit: RATE_LIMITS.builderRemote,
+          });
+          if ("response" in requestBody) {
+            return requestBody.response;
+          }
 
-          if (!templateUrl) {
-            return new Response(JSON.stringify({ error: "URL is required" }), {
-              status: 400,
-              headers: { "Content-Type": "application/json" },
-            });
+          let body;
+          try {
+            body = parseBuilderRequest(
+              builderRemoteLoadBodySchema,
+              requestBody.body,
+            );
+          } catch {
+            return builderErrorResponse(
+              "Invalid request body",
+              400,
+              requestBody.rateLimit,
+            );
           }
 
           const { loadRemoteTemplateHandler } = await import(
             "~/builder/api/remote",
           );
-          const response = await loadRemoteTemplateHandler(templateUrl);
-          return new Response(JSON.stringify(response), {
-            status: response.error ? 400 : 200,
-            headers: { "Content-Type": "application/json" },
-          });
-        } catch {
-          return new Response(
-            JSON.stringify({ error: "Invalid request body" }),
-            {
-              status: 400,
-              headers: { "Content-Type": "application/json" },
-            },
-          );
+          const response = await loadRemoteTemplateHandler(body.url);
+          return builderJsonResponse(response, requestBody.rateLimit);
+        } catch (error) {
+          console.error("Error loading remote template:", error);
+          return builderErrorResponse("Failed to load remote template", 500);
         }
       },
     },

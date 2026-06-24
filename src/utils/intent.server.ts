@@ -1,7 +1,8 @@
 import { createGunzip } from 'node:zlib'
 import { createHash } from 'node:crypto'
-import { Readable } from 'node:stream'
+import { Readable, Transform } from 'node:stream'
 import extract from 'tar-stream'
+import { fetchWithTimeout } from './outbound-fetch.server'
 
 // ---------------------------------------------------------------------------
 // NPM Registry API types
@@ -78,6 +79,15 @@ export interface ParsedSkill {
 // ---------------------------------------------------------------------------
 
 const NPM_REGISTRY = 'https://registry.npmjs.org'
+const NPM_FETCH_TIMEOUT_MS = 10_000
+const MAX_TARBALL_BYTES = 20 * 1024 * 1024
+const MAX_SKILL_FILE_BYTES = 256 * 1024
+const MAX_SKILLS_PER_TARBALL = 100
+const MAX_INTENT_SEARCH_RESULTS = 1_000
+const ALLOWED_TARBALL_HOSTS = new Set([
+  'registry.npmjs.org',
+  'registry.npmjs.com',
+])
 
 async function cancelUnusedResponseBody(response: Response): Promise<void> {
   if (!response.body) return
@@ -96,6 +106,52 @@ async function parseJsonIfOk<T>(response: Response): Promise<T | null> {
   }
 
   return response.json()
+}
+
+function validateNpmTarballUrl(tarballUrl: string) {
+  try {
+    const url = new URL(tarballUrl)
+    return (
+      url.protocol === 'https:' &&
+      ALLOWED_TARBALL_HOSTS.has(url.hostname.toLowerCase()) &&
+      !url.pathname.includes('..')
+    )
+  } catch {
+    return false
+  }
+}
+
+function createByteLimitStream(maxBytes: number, label: string) {
+  let totalBytes = 0
+
+  return new Transform({
+    transform(chunk: Buffer, _encoding, callback) {
+      totalBytes += chunk.byteLength
+      if (totalBytes > maxBytes) {
+        callback(new Error(`${label} exceeds ${maxBytes} bytes`))
+        return
+      }
+
+      callback(null, chunk)
+    },
+  })
+}
+
+function isSafeSkillPath(skillPath: string) {
+  return (
+    skillPath.length > 0 &&
+    skillPath.length <= 240 &&
+    !skillPath.includes('\\') &&
+    skillPath
+      .split('/')
+      .every(
+        (segment) =>
+          segment &&
+          segment !== '.' &&
+          segment !== '..' &&
+          /^[a-z0-9._-]+$/i.test(segment),
+      )
+  )
 }
 
 export async function searchIntentPackages(): Promise<NpmSearchResult> {
@@ -119,7 +175,15 @@ export async function searchIntentPackages(): Promise<NpmSearchResult> {
     results.time = page.time
 
     from += size
-    if (from >= page.total || page.objects.length === 0) break
+    if (
+      from >= page.total ||
+      page.objects.length === 0 ||
+      results.objects.length >= MAX_INTENT_SEARCH_RESULTS
+    ) {
+      results.objects = results.objects.slice(0, MAX_INTENT_SEARCH_RESULTS)
+      results.total = Math.min(results.total, MAX_INTENT_SEARCH_RESULTS)
+      break
+    }
   }
 
   return results
@@ -293,7 +357,14 @@ export function selectVersionsToSync(
 export async function extractSkillsFromTarball(
   tarballUrl: string,
 ): Promise<Array<ParsedSkill>> {
-  const res = await fetch(tarballUrl)
+  if (!validateNpmTarballUrl(tarballUrl)) {
+    throw new Error(`Invalid tarball URL: ${tarballUrl}`)
+  }
+
+  const res = await fetchWithTimeout(tarballUrl, {
+    headers: { Accept: 'application/octet-stream' },
+    timeoutMs: NPM_FETCH_TIMEOUT_MS,
+  })
   if (!res.ok) {
     await cancelUnusedResponseBody(res)
     throw new Error(
@@ -302,6 +373,17 @@ export async function extractSkillsFromTarball(
   }
   if (!res.body) {
     throw new Error(`Tarball response body is null: ${tarballUrl}`)
+  }
+
+  const contentLength = res.headers.get('content-length')
+  if (contentLength) {
+    const parsedLength = Number(contentLength)
+    if (!Number.isFinite(parsedLength) || parsedLength < 0) {
+      throw new Error(`Invalid tarball content-length: ${tarballUrl}`)
+    }
+    if (parsedLength > MAX_TARBALL_BYTES) {
+      throw new Error(`Tarball is too large: ${tarballUrl}`)
+    }
   }
 
   const skills: Array<ParsedSkill> = []
@@ -328,14 +410,44 @@ export async function extractSkillsFromTarball(
           return
         }
 
+        if (skills.length >= MAX_SKILLS_PER_TARBALL) {
+          stream.resume()
+          stream.on('end', () => {
+            reject(new Error('Tarball contains too many skills'))
+          })
+          stream.on('error', reject)
+          return
+        }
+
         // Extract the skill directory path: `package/skills/foo/bar/SKILL.md` -> `foo/bar`
         const skillPath = header.name
           .replace(/^package\/skills\//i, '')
           .replace(/\/SKILL\.md$/i, '')
 
+        if (!isSafeSkillPath(skillPath)) {
+          stream.resume()
+          stream.on('end', next)
+          stream.on('error', reject)
+          return
+        }
+
         const chunks: Array<Buffer> = []
-        stream.on('data', (chunk: Buffer) => chunks.push(chunk))
+        let skillBytes = 0
+        let skillTooLarge = false
+        stream.on('data', (chunk: Buffer) => {
+          if (skillTooLarge) return
+          skillBytes += chunk.byteLength
+          if (skillBytes > MAX_SKILL_FILE_BYTES) {
+            skillTooLarge = true
+            chunks.length = 0
+            reject(new Error(`Skill file is too large: ${skillPath}`))
+            stream.resume()
+            return
+          }
+          chunks.push(chunk)
+        })
         stream.on('end', () => {
+          if (skillTooLarge) return
           const content = Buffer.concat(chunks).toString('utf8')
           const parsed = parseSkillFile(content, skillPath)
           if (parsed) skills.push(parsed)
@@ -352,7 +464,10 @@ export async function extractSkillsFromTarball(
     const nodeReadable = Readable.fromWeb(
       res.body as import('stream/web').ReadableStream,
     )
-    nodeReadable.pipe(createGunzip()).pipe(extractor)
+    nodeReadable
+      .pipe(createByteLimitStream(MAX_TARBALL_BYTES, 'Tarball'))
+      .pipe(createGunzip())
+      .pipe(extractor)
   })
 
   return skills

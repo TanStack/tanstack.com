@@ -14,21 +14,22 @@ import {
   updateLastUsedFramework as updateLastUsedFrameworkServer,
   updateUserCapabilities as updateUserCapabilitiesServer,
 } from '~/utils/users.server'
+import { pageIndexSchema, pageSizeSchema } from './schemas'
 
 const listUsersInput = v.pipe(
   v.object({
     pagination: v.object({
-      limit: v.number(),
-      page: v.optional(v.number()),
+      limit: pageSizeSchema,
+      page: v.optional(pageIndexSchema),
     }),
-    emailFilter: v.optional(v.string()),
-    nameFilter: v.optional(v.string()),
-    capabilityFilter: v.optional(v.array(v.string())),
+    emailFilter: v.optional(v.pipe(v.string(), v.maxLength(255))),
+    nameFilter: v.optional(v.pipe(v.string(), v.maxLength(255))),
+    capabilityFilter: v.optional(v.pipe(v.array(v.string()), v.maxLength(32))),
     noCapabilitiesFilter: v.optional(v.boolean()),
     adsDisabledFilter: v.optional(v.boolean()),
     interestedInHidingAdsFilter: v.optional(v.boolean()),
     useEffectiveCapabilities: v.optional(v.boolean(), true),
-    sortBy: v.optional(v.string()),
+    sortBy: v.optional(v.pipe(v.string(), v.maxLength(64))),
     sortDir: v.optional(v.picklist(['asc', 'desc'])),
   }),
   v.transform((data) => ({
@@ -61,7 +62,7 @@ export const updateUserCapabilities = createServerFn({ method: 'POST' })
   .validator(
     v.object({
       userId: v.pipe(v.string(), v.uuid()),
-      capabilities: v.array(v.string()),
+      capabilities: v.pipe(v.array(v.string()), v.maxLength(64)),
     }),
   )
   .handler(async ({ data }) =>
@@ -85,8 +86,8 @@ export const adminSetAdsDisabled = createServerFn({ method: 'POST' })
 export const bulkUpdateUserCapabilities = createServerFn({ method: 'POST' })
   .validator(
     v.object({
-      userIds: v.array(v.pipe(v.string(), v.uuid())),
-      capabilities: v.array(v.string()),
+      userIds: v.pipe(v.array(v.pipe(v.string(), v.uuid())), v.maxLength(100)),
+      capabilities: v.pipe(v.array(v.string()), v.maxLength(64)),
     }),
   )
   .handler(async ({ data }) =>

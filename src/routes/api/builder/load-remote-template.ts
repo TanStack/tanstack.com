@@ -1,36 +1,32 @@
 import { createFileRoute } from "@tanstack/react-router";
+import {
+  builderErrorResponse,
+  builderJsonResponse,
+  validateBuilderGetRequest,
+} from "~/builder/api/request-boundary.server";
+import { RATE_LIMITS } from "~/utils/rateLimit.server";
 
 export const Route = createFileRoute("/api/builder/load-remote-template")({
   server: {
     handlers: {
       GET: async ({ request }: { request: Request }) => {
-        const { checkIpRateLimit, rateLimitedResponse, RATE_LIMITS } =
-          await import("~/utils/rateLimit.server");
-        // Rate limiting (30 requests/minute per IP)
-        const rateLimit = await checkIpRateLimit(
-          request,
-          RATE_LIMITS.builderRemote,
-        );
-        if (!rateLimit.allowed) {
-          return rateLimitedResponse(rateLimit);
+        const requestGuard = await validateBuilderGetRequest(request, {
+          rateLimit: RATE_LIMITS.builderRemote,
+        });
+        if ("response" in requestGuard) {
+          return requestGuard.response;
         }
 
         const url = new URL(request.url);
         const templateUrl = url.searchParams.get("url");
 
         if (!templateUrl) {
-          return new Response(JSON.stringify({ error: "URL is required" }), {
-            status: 400,
-            headers: { "Content-Type": "application/json" },
-          });
+          return builderErrorResponse("URL is required", 400, requestGuard.rateLimit);
         }
 
         const { loadRemoteTemplateHandler } = await import("~/builder/api/remote");
         const response = await loadRemoteTemplateHandler(templateUrl);
-        return new Response(JSON.stringify(response), {
-          status: response.error ? 400 : 200,
-          headers: { "Content-Type": "application/json" },
-        });
+        return builderJsonResponse(response, requestGuard.rateLimit);
       },
     },
   },

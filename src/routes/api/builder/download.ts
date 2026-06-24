@@ -4,8 +4,17 @@ import {
   getContentDispositionHeader,
   sanitizeResponseFilename,
 } from "~/utils/http-response";
+import {
+  builderErrorResponse,
+  builderInternalErrorResponse,
+  validateBuilderGetRequest,
+} from "~/builder/api/request-boundary.server";
 
 const BASE64_PREFIX = "base64::";
+const MAX_BUILDER_DOWNLOAD_FEATURES = 80;
+const MAX_BUILDER_DOWNLOAD_OPTIONS = 200;
+const BUILDER_ID_PATTERN = /^[a-z0-9._-]{1,120}$/i;
+const BUILDER_PROJECT_NAME_PATTERN = /^[a-z0-9][a-z0-9_-]{0,119}$/;
 
 function decodeBase64File(content: string): Uint8Array | null {
   if (content.startsWith(BASE64_PREFIX)) {
@@ -22,6 +31,11 @@ export const Route = createFileRoute("/api/builder/download")({
     handlers: {
       GET: async ({ request }: { request: Request }) => {
         try {
+          const requestGuard = await validateBuilderGetRequest(request);
+          if ("response" in requestGuard) {
+            return requestGuard.response;
+          }
+
           const url = new URL(request.url);
           const name = url.searchParams.get("name") || "my-tanstack-app";
           const featuresParam = url.searchParams.get("features") || "";
@@ -34,11 +48,37 @@ export const Route = createFileRoute("/api/builder/download")({
             .map((f) => f.trim())
             .filter(Boolean);
 
+          if (
+            !BUILDER_PROJECT_NAME_PATTERN.test(name) ||
+            features.length > MAX_BUILDER_DOWNLOAD_FEATURES ||
+            features.some((feature) => !BUILDER_ID_PATTERN.test(feature))
+          ) {
+            return builderErrorResponse(
+              "Invalid builder download request",
+              400,
+              requestGuard.rateLimit,
+            );
+          }
+
           // Parse feature options (keys like "drizzle.database=postgres")
           const featureOptions: Record<string, Record<string, unknown>> = {};
+          let optionCount = 0;
           for (const [key, value] of url.searchParams.entries()) {
             if (key.includes(".") && value) {
               const [featureId, optionKey] = key.split(".");
+              optionCount++;
+              if (
+                optionCount > MAX_BUILDER_DOWNLOAD_OPTIONS ||
+                !BUILDER_ID_PATTERN.test(featureId) ||
+                !BUILDER_ID_PATTERN.test(optionKey) ||
+                value.length > 500
+              ) {
+                return builderErrorResponse(
+                  "Invalid builder download options",
+                  400,
+                  requestGuard.rateLimit,
+                );
+              }
               if (!featureOptions[featureId]) {
                 featureOptions[featureId] = {};
               }
@@ -100,16 +140,7 @@ export const Route = createFileRoute("/api/builder/download")({
           });
         } catch (error) {
           console.error("Error generating ZIP:", error);
-          return new Response(
-            JSON.stringify({
-              error: "Failed to generate ZIP",
-              details: error instanceof Error ? error.message : String(error),
-            }),
-            {
-              status: 500,
-              headers: { "Content-Type": "application/json" },
-            },
-          );
+          return builderInternalErrorResponse("Failed to generate ZIP");
         }
       },
     },

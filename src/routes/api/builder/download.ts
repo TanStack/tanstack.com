@@ -1,5 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import JSZip from "jszip";
+import {
+  getContentDispositionHeader,
+  sanitizeResponseFilename,
+} from "~/utils/http-response";
 
 const BASE64_PREFIX = "base64::";
 
@@ -58,7 +62,9 @@ export const Route = createFileRoute("/api/builder/download")({
           });
 
           const zip = new JSZip();
-          const rootFolder = zip.folder(name);
+          const zipFilename = sanitizeResponseFilename(`${name}.zip`, "app.zip");
+          const rootFolderName = sanitizeResponseFilename(name, "app");
+          const rootFolder = zip.folder(rootFolderName);
           if (!rootFolder) {
             throw new Error("Failed to create ZIP folder");
           }
@@ -84,7 +90,11 @@ export const Route = createFileRoute("/api/builder/download")({
           return new Response(blob, {
             headers: {
               "Content-Type": "application/zip",
-              "Content-Disposition": `attachment; filename="${name}.zip"`,
+              "Content-Disposition": getContentDispositionHeader(
+                "attachment",
+                zipFilename,
+                "app.zip",
+              ),
               "Cache-Control": cacheControl,
             },
           });

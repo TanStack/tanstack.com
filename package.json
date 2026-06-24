@@ -28,9 +28,10 @@
     "docs:webhooks:sync": "tsx scripts/sync-docs-webhooks.ts",
     "husky": "pnpm run format && pnpm run test",
     "pretest": "pnpm run content:build",
-    "test": "run-p test:tsc test:lint",
+    "test": "run-p test:tsc test:lint test:unit",
     "test:tsc": "tsc",
     "test:lint": "pnpm run lint",
+    "test:unit": "tsx --test \"tests/**/*.test.ts\"",
     "prepare": "husky"
   },
   "dependencies": {

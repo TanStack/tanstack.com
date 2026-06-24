@@ -31,6 +31,7 @@ import {
   intentStatsQueryOptions,
 } from '~/queries/intent'
 import type { SkillHistoryEntry } from '~/utils/intent.functions'
+import { encodePackageNameSlug } from '~/utils/route-encoding'
 
 import { LandingCopyPromptButton } from '~/components/landing/LandingCopyPromptButton'
 const library = getLibrary('intent')
@@ -412,7 +413,7 @@ function IntentRegistryPreview() {
               <Link
                 key={pkg.name}
                 to="/intent/registry/$packageName"
-                params={{ packageName: pkg.name.replace('/', '__') }}
+                params={{ packageName: encodePackageNameSlug(pkg.name) }}
                 className="group flex flex-col gap-2 rounded-lg border border-zinc-200 bg-zinc-50 p-4 transition-colors hover:border-sky-300 dark:border-zinc-800 dark:bg-zinc-900/50 dark:hover:border-sky-700"
               >
                 <div className="mb-1 flex items-start justify-between gap-2">
@@ -430,7 +431,7 @@ function IntentRegistryPreview() {
                           navigate({
                             to: '/intent/registry/$packageName',
                             params: {
-                              packageName: pkg.name.replace('/', '__'),
+                              packageName: encodePackageNameSlug(pkg.name),
                             },
                             search: { version: entry.version },
                           })

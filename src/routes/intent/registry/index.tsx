@@ -14,7 +14,7 @@ import type {
   SkillHistoryEntry,
   SkillSearchResult,
 } from '~/utils/intent.functions'
-import { SkillTypeBadge } from './$packageName'
+import { encodePkgName, SkillTypeBadge } from './$packageName'
 import { SkillSparklineFallback } from '~/components/intent/SkillSparklineFallback'
 
 const LazySkillSparkline = React.lazy(() =>
@@ -553,7 +553,7 @@ function PackageCard({
 }) {
   const publishedLabel = formatRelativeDate(pkg.publishedAt)
   const navigate = useNavigate()
-  const pkgSlug = pkg.name.replace('/', '__')
+  const pkgSlug = encodePkgName(pkg.name)
 
   const handleVersionClick = React.useCallback(
     (entry: SkillHistoryEntry) => {
@@ -652,7 +652,7 @@ function PackageRow({
 }) {
   const publishedLabel = formatRelativeDate(pkg.publishedAt)
   const navigate = useNavigate()
-  const pkgSlug = pkg.name.replace('/', '__')
+  const pkgSlug = encodePkgName(pkg.name)
 
   const handleVersionClick = React.useCallback(
     (entry: SkillHistoryEntry) => {
@@ -751,7 +751,7 @@ function SkillHitRow({
     <Link
       to="/intent/registry/$packageName/$skillName"
       params={{
-        packageName: hit.packageName.replace('/', '__'),
+        packageName: encodePkgName(hit.packageName),
         skillName: hit.skillName,
       }}
       className="group flex items-start gap-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 hover:border-sky-300 dark:hover:border-sky-700 hover:shadow-sm transition-all"

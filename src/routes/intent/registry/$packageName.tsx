@@ -19,6 +19,10 @@ import {
 import type { IntentPackageDetail } from '~/utils/intent.functions'
 import { useToast } from '~/components/ToastProvider'
 import { SkillSparklineFallback } from '~/components/intent/SkillSparklineFallback'
+import {
+  decodePackageNameSlug,
+  encodePackageNameSlug,
+} from '~/utils/route-encoding'
 
 const LazySkillSparkline = React.lazy(() =>
   import('~/components/intent/SkillSparkline').then((m) => ({
@@ -26,10 +30,12 @@ const LazySkillSparkline = React.lazy(() =>
   })),
 )
 
-// npm scoped package names (@scope/name) can't go in a URL segment directly.
-// We encode `@scope/name` as `@scope__name` in the URL.
 export function decodePkgName(slug: string): string {
-  return slug.replace('__', '/')
+  return decodePackageNameSlug(slug)
+}
+
+export function encodePkgName(packageName: string): string {
+  return encodePackageNameSlug(packageName)
 }
 
 // Context for sharing version + package metadata between layout and child routes
@@ -184,7 +190,7 @@ function PackageLayoutInner({
             <span>/</span>
             <Link
               to="/intent/registry/$packageName"
-              params={{ packageName: name.replace('/', '__') }}
+              params={{ packageName: encodePkgName(name) }}
               className="font-mono text-gray-900 dark:text-gray-100 hover:text-sky-600 dark:hover:text-sky-400 transition-colors"
             >
               {name}

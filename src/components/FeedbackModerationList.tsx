@@ -14,6 +14,7 @@ import { PaginationControls } from './PaginationControls'
 import { Spinner } from './Spinner'
 import type { DocFeedback } from '~/db/types'
 import { calculatePoints } from '~/utils/docFeedback.shared'
+import { getRowFieldId } from '~/utils/route-encoding'
 import { Check, Lightbulb, TriangleAlert } from 'lucide-react'
 import { MessageSquare, X } from 'lucide-react'
 import { Badge, Button } from '~/ui'
@@ -155,6 +156,11 @@ export function FeedbackModerationList({
             const isExpanded = expandedIds.has(feedback.id)
             const isPending = feedback.status === 'pending'
             const isModeratingThis = isModeratingId === feedback.id
+            const moderationNoteId = getRowFieldId(
+              'feedback-moderation',
+              feedback.id,
+              'note',
+            )
 
             return (
               <React.Fragment key={feedback.id}>
@@ -333,12 +339,13 @@ export function FeedbackModerationList({
                         {isPending && (
                           <div>
                             <label
-                              htmlFor={`moderation-note-${feedback.id}`}
+                              htmlFor={moderationNoteId}
                               className="block text-sm font-semibold mb-2"
                             >
                               Internal Moderation Note (optional):
                             </label>
                             <textarea
+                              id={moderationNoteId}
                               value={moderationNotes[feedback.id] || ''}
                               onChange={(e) =>
                                 handleModerationNoteChange(

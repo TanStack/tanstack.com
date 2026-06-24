@@ -2,6 +2,7 @@ import { createFileRoute, notFound } from '@tanstack/react-router'
 import { findLibrary, getBranch } from '~/libraries'
 import { loadDocs } from '~/utils/docs'
 import { getDocsCacheHeaders } from '~/utils/docs-cache-headers'
+import { getContentDispositionHeader } from '~/utils/http-response'
 import { filterFrameworkContent } from '~/utils/markdown/filterFrameworkContent'
 import { getPackageManager } from '~/utils/markdown/installCommand'
 
@@ -49,13 +50,17 @@ export const Route = createFileRoute(
           : doc.content
 
         const markdownContent = `# ${doc.title}\n${filteredContent}`
-        const filename = (docsPath || 'file').split('/').join('-')
+        const filename = `${docsPath || 'file'}.md`
 
         return new Response(markdownContent, {
           headers: {
             ...cacheHeaders,
             'Content-Type': 'text/markdown',
-            'Content-Disposition': `inline; filename="${filename}.md"`,
+            'Content-Disposition': getContentDispositionHeader(
+              'inline',
+              filename,
+              'file.md',
+            ),
           },
         })
       },

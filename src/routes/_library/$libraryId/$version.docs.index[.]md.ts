@@ -2,6 +2,7 @@ import { createFileRoute, notFound } from '@tanstack/react-router'
 import { findLibrary, getBranch } from '~/libraries'
 import { getTanstackDocsConfig } from '~/utils/config'
 import { getDocsCacheHeaders } from '~/utils/docs-cache-headers'
+import { getContentDispositionHeader } from '~/utils/http-response'
 import { generateLibraryDocsIndexMarkdown } from '~/utils/llms'
 
 export const Route = createFileRoute(
@@ -40,7 +41,10 @@ export const Route = createFileRoute(
             headers: {
               ...getDocsCacheHeaders({ libraryId, version }),
               'Content-Type': 'text/markdown; charset=utf-8',
-              'Content-Disposition': 'inline; filename="index.md"',
+              'Content-Disposition': getContentDispositionHeader(
+                'inline',
+                'index.md',
+              ),
             },
           },
         )

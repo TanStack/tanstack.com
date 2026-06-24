@@ -14,9 +14,10 @@ Tracking model: work this list top to bottom. Leave untouched bullets plain, pre
 
 These are quick, high-leverage patches because later fixes can reuse them instead of adding another local workaround.
 
-- Make `pnpm test` honest about TypeScript tests, or split script names so validation expectations are clear.
-- Default non-submit buttons/select triggers to `type="button"`, fix the shared pagination label/id contract, and clean up tooltip child prop merging.
-- Add tiny helpers for response filenames, external URL normalization, internal route classification, package slug encoding, row-local ids, and guarded storage.
+- [done 2026-06-24: `pnpm run test:unit`, `pnpm test`] Make `pnpm test` honest about TypeScript tests, or split script names so validation expectations are clear.
+- [done 2026-06-24: `pnpm run test:tsc`, `pnpm run test:lint`] Default non-submit buttons/select triggers to `type="button"`, fix the shared pagination label/id contract, and clean up tooltip child prop merging.
+- [done 2026-06-24: `pnpm run test:unit`, `pnpm run test:tsc`, `pnpm run test:lint`] Add tiny helpers for response filenames, package slug encoding, and row-local ids.
+- Add tiny helpers for external URL normalization, internal route classification, and guarded storage.
 - Fix custom `useMutation` stale callbacks, clipboard/copied-state timers, docs sidebar timers, popup blocked-state handling, and simple page-visibility/reduced-motion helpers.
 - Normalize easy static data contracts: maintainer bare-domain URLs, Scarf id validation, public-library selector, partner analytics seed buckets, blog image URLs, host cache purge response policy.
 
@@ -88,7 +89,10 @@ Treat these as tracked initiatives, not normal cleanup PRs.
 
 ## Batch Log
 
-- 2026-06-23: Audit created and ordered. No implementation batch has landed yet.
+- 2026-06-24: Added shared response filename/content-disposition helpers, package route slug encoding helpers, and row-local id helpers; wired them into builder/docs downloads, Intent registry links, and moderation note inputs.
+- 2026-06-24: Hardened shared UI primitives: defaulted shop buttons and shared select triggers to non-submit buttons, gave pagination a unique page-size label/id pair plus non-submit controls, and made Tooltip merge trigger handlers/refs without `any`.
+- 2026-06-24: Added `test:unit` and wired it into `pnpm test` so existing TypeScript assertion tests run in the default validation path.
+- 2026-06-23: Audit created and ordered.
 
 ## Highest Priority Findings
 

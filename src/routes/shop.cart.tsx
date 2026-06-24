@@ -225,7 +225,7 @@ function CartLineRow({ line }: { line: CartLineDetail }) {
   return (
     <li className="flex gap-4 py-5 border-b border-shop-line items-start">
       <Link
-        to="/shop/products/$handle"
+        to="/shop/$handle"
         params={{ handle: merchandise.product.handle }}
         className="shrink-0 w-24 h-24 rounded-lg border border-shop-line bg-shop-panel overflow-hidden"
       >
@@ -245,7 +245,7 @@ function CartLineRow({ line }: { line: CartLineDetail }) {
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
             <Link
-              to="/shop/products/$handle"
+              to="/shop/$handle"
               params={{ handle: merchandise.product.handle }}
               className="font-semibold text-shop-text hover:underline"
             >

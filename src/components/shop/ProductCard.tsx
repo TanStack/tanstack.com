@@ -256,7 +256,7 @@ export function ProductCard({
 
   return (
     <Link
-      to="/shop/products/$handle"
+      to="/shop/$handle"
       params={{ handle: product.handle }}
       className="block"
     >

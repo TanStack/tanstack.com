@@ -159,7 +159,7 @@ function DrawerCartLine({
   return (
     <li className="flex gap-3 py-4 border-b border-shop-line">
       <Link
-        to="/shop/products/$handle"
+        to="/shop/$handle"
         params={{ handle: merchandise.product.handle }}
         onClick={onClose}
         className="shrink-0 w-16 h-16 rounded-md border border-shop-line bg-shop-panel overflow-hidden"
@@ -177,7 +177,7 @@ function DrawerCartLine({
       </Link>
       <div className="flex-1 min-w-0 flex flex-col gap-1">
         <Link
-          to="/shop/products/$handle"
+          to="/shop/$handle"
           params={{ handle: merchandise.product.handle }}
           onClick={onClose}
           className="text-sm font-semibold text-shop-text hover:underline truncate"

@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 
-type OptionData = { value: string; label: string }
+type OptionData = { value: string; label: string; disabled: boolean }
 
 type Props = {
   value?: string
@@ -11,6 +11,16 @@ type Props = {
   children?: React.ReactNode
 }
 
+function getOptionLabel(children: React.ReactNode, value: string): string {
+  const text = React.Children.toArray(children)
+    .map((part) =>
+      typeof part === 'string' || typeof part === 'number' ? String(part) : '',
+    )
+    .join('')
+    .trim()
+  return text || value
+}
+
 function extractOptions(children: React.ReactNode): Array<OptionData> {
   const options: Array<OptionData> = []
   React.Children.forEach(children, (child) => {
@@ -18,13 +28,11 @@ function extractOptions(children: React.ReactNode): Array<OptionData> {
     const el = child as React.ReactElement<{
       value?: string
       children?: React.ReactNode
+      disabled?: boolean
     }>
     const value = String(el.props.value ?? '')
-    const label =
-      typeof el.props.children === 'string'
-        ? el.props.children
-        : String(el.props.value ?? '')
-    options.push({ value, label })
+    const label = getOptionLabel(el.props.children, value)
+    options.push({ value, label, disabled: el.props.disabled ?? false })
   })
   return options
 }
@@ -88,6 +96,7 @@ export function ShopSelect({
   }
 
   const select = (optValue: string) => {
+    if (options.find((opt) => opt.value === optValue)?.disabled) return
     onChange?.({ target: { value: optValue } })
     setOpen(false)
     triggerRef.current?.focus()
@@ -141,7 +150,7 @@ export function ShopSelect({
           role="listbox"
           className={twMerge(
             'absolute right-0 top-[calc(100%+6px)] z-[200] min-w-full',
-            'bg-shop-panel border border-shop-line rounded-xl overflow-hidden',
+            'bg-shop-panel border border-shop-line rounded-xl max-h-[min(320px,60vh)] overflow-y-auto overflow-x-hidden',
             'shadow-[0_8px_24px_-4px_rgba(0,0,0,0.18),0_2px_8px_-2px_rgba(0,0,0,0.12)]',
           )}
         >
@@ -154,13 +163,17 @@ export function ShopSelect({
                 type="button"
                 role="option"
                 aria-selected={isSelected}
+                disabled={opt.disabled}
                 onMouseEnter={() => setFocused(opt.value)}
                 onClick={() => select(opt.value)}
                 className={twMerge(
                   'w-full text-left px-4 py-2.5 font-shop-mono text-shop-ui whitespace-nowrap',
                   'transition-colors duration-75 flex items-center gap-2',
                   isSelected ? 'text-shop-accent' : 'text-shop-text-2',
-                  isFocused && 'bg-shop-surface text-shop-text',
+                  isFocused &&
+                    !opt.disabled &&
+                    'bg-shop-surface text-shop-text',
+                  opt.disabled && 'opacity-40 cursor-not-allowed line-through',
                 )}
               >
                 <span

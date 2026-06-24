@@ -2370,7 +2370,6 @@ This is a strong candidate for a reusable TanStack docs-site cache helper or at 
 - `admin-keyed-row-action-audit`: find table/list actions whose mutation state disables every row, then replace them with keyed pending/error state and per-row double-click guards.
 - `route-font-asset-audit`: compare route `<link>` font loads, CSS `@import`s, and Tailwind font tokens to remove duplicate families, unused families, and mismatched mono/display tokens.
 
-
 ## Suggested Next Passes
 
 1. Triage the P0/P1/P2 findings into small fix PRs, starting with auth/OAuth, analytics proxy headers, builder endpoint guards, stats fan-out caps, and Shopify/search validation.

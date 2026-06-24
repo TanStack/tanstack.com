@@ -74,6 +74,8 @@ export function isRecoverableGitHubContentError(
   )
 }
 
+const DEFAULT_GITHUB_API_USER_AGENT = 'TanStack-Docs'
+
 export async function cancelUnusedResponseBody(
   response: Response,
 ): Promise<void> {
@@ -880,9 +882,7 @@ function getGitHubContentFetchOptionsWithToken(
     headers['X-GitHub-Api-Version'] = '2022-11-28'
   }
 
-  if (opts?.userAgent) {
-    headers['User-Agent'] = opts.userAgent
-  }
+  headers['User-Agent'] = opts?.userAgent ?? DEFAULT_GITHUB_API_USER_AGENT
 
   if (token && opts?.includeAuthorization !== false) {
     headers.Authorization = `Bearer ${token}`

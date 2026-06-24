@@ -16,6 +16,11 @@ assert.equal(
   'Bearer host-token',
   'GitHub API fetches use the Worker env token when present',
 )
+assert.equal(
+  getHeaderValue(authenticatedOptions, 'User-Agent'),
+  'TanStack-Docs',
+  'GitHub API fetches include the required default User-Agent',
+)
 
 const unauthenticatedOptions = runWithHostRuntimeEnv(
   { GITHUB_AUTH_TOKEN: 'host-token' },
@@ -26,6 +31,14 @@ assert.equal(
   getHeaderValue(unauthenticatedOptions, 'Authorization'),
   null,
   'GitHub API fetches can still opt out of authorization',
+)
+assert.equal(
+  getHeaderValue(
+    getGitHubContentFetchOptions({ userAgent: 'docs:tanstack/table' }),
+    'User-Agent',
+  ),
+  'docs:tanstack/table',
+  'GitHub API fetches can override the default User-Agent',
 )
 
 console.log('github-content-fetch-options tests passed')

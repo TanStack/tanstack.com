@@ -475,8 +475,8 @@ function DrawerContent({ product }: { product: ProductDetail }) {
               <ProductImage
                 image={heroImage}
                 alt={product.title}
-                width={800}
-                sizes="(min-width: 768px) 520px, 100vw"
+                width={1200}
+                sizes="(min-width: 1120px) 60vw, (min-width: 768px) 520px, 100vw"
                 loading="eager"
                 className="w-full h-full object-cover"
               />

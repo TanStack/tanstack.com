@@ -122,7 +122,7 @@ html.dark .shop-scope {
 @container shop-product-drawer (min-width: 860px) {
   .shop-product-drawer-layout {
     display: grid;
-    grid-template-columns: minmax(360px, 520px) minmax(0, 1fr);
+    grid-template-columns: minmax(360px, 1fr) minmax(420px, 640px);
     align-items: start;
   }
 
@@ -146,13 +146,15 @@ html.dark .shop-scope {
 
   .shop-product-drawer-details {
     min-width: 0;
+    width: 100%;
+    max-width: 640px;
     min-height: calc(100svh - 48px);
   }
 }
 
 @container shop-product-drawer (min-width: 1120px) {
   .shop-product-drawer-layout {
-    grid-template-columns: minmax(400px, 560px) minmax(0, 1fr);
+    grid-template-columns: minmax(520px, 1fr) minmax(480px, 640px);
   }
 
   .shop-product-option {

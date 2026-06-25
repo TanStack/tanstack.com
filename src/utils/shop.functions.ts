@@ -8,6 +8,10 @@ import {
 import * as v from 'valibot'
 import { shopifyServerFetch } from '~/server/shopify/fetch'
 import {
+  shopifyCartLineIdSchema,
+  shopifyProductVariantIdSchema,
+} from '~/utils/shopify-id'
+import {
   CART_CREATE_MUTATION,
   CART_DISCOUNT_CODES_UPDATE_MUTATION,
   CART_LINES_ADD_MUTATION,
@@ -121,12 +125,6 @@ const shopSearchQuerySchema = v.pipe(
   v.string(),
   v.minLength(1),
   v.maxLength(120),
-)
-const shopifyIdSchema = v.pipe(
-  v.string(),
-  v.minLength(1),
-  v.maxLength(160),
-  v.regex(/^gid:\/\/shopify\/[A-Za-z]+\/[A-Za-z0-9_-]+$/),
 )
 const discountCodeSchema = v.pipe(v.string(), v.minLength(1), v.maxLength(100))
 const cartQuantitySchema = v.pipe(
@@ -361,7 +359,7 @@ export const getCart = createServerFn({ method: 'GET' }).handler(
 export const addToCart = createServerFn({ method: 'POST' })
   .validator(
     v.object({
-      variantId: shopifyIdSchema,
+      variantId: shopifyProductVariantIdSchema,
       quantity: v.optional(cartQuantitySchema, 1),
     }),
   )
@@ -424,7 +422,7 @@ export const addToCart = createServerFn({ method: 'POST' })
 export const updateCartLine = createServerFn({ method: 'POST' })
   .validator(
     v.object({
-      lineId: shopifyIdSchema,
+      lineId: shopifyCartLineIdSchema,
       quantity: cartUpdateQuantitySchema,
     }),
   )
@@ -447,7 +445,7 @@ export const updateCartLine = createServerFn({ method: 'POST' })
   })
 
 export const removeCartLine = createServerFn({ method: 'POST' })
-  .validator(v.object({ lineId: shopifyIdSchema }))
+  .validator(v.object({ lineId: shopifyCartLineIdSchema }))
   .handler(async ({ data }): Promise<CartDetail> => {
     setCartResponseHeaders()
     const cartId = getCookie(CART_COOKIE_NAME)

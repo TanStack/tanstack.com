@@ -224,6 +224,12 @@ export interface GitHubTokenResult {
   scope: string
 }
 
+interface GitHubEmail {
+  email: string
+  primary: boolean
+  verified: boolean
+}
+
 /**
  * Exchange GitHub authorization code for access token
  */
@@ -240,6 +246,7 @@ export async function exchangeGitHubCode(
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
+        'User-Agent': 'TanStack-Auth',
       },
       body: JSON.stringify({
         client_id: clientId,
@@ -250,15 +257,20 @@ export async function exchangeGitHubCode(
     },
   )
 
-  const tokenData = await tokenResponse.json()
-  if (tokenData.error) {
+  const tokenData = await readOAuthJsonResponse(
+    tokenResponse,
+    'GitHub token exchange',
+  )
+  const tokenError = readStringProperty(tokenData, 'error')
+  if (tokenError) {
     console.error(
-      `[OAuth] GitHub token exchange failed: ${tokenData.error}, description: ${tokenData.error_description || 'none'}`,
+      `[OAuth] GitHub token exchange failed: ${tokenError}, description: ${readStringProperty(tokenData, 'error_description') ?? 'none'}`,
     )
-    throw new AuthError(`GitHub OAuth error: ${tokenData.error}`, 'OAUTH_ERROR')
+    throw new AuthError(`GitHub OAuth error: ${tokenError}`, 'OAUTH_ERROR')
   }
 
-  if (!tokenData.access_token) {
+  const accessToken = readStringProperty(tokenData, 'access_token')
+  if (!accessToken) {
     console.error(
       '[OAuth] GitHub token exchange succeeded but no access_token returned',
     )
@@ -266,8 +278,8 @@ export async function exchangeGitHubCode(
   }
 
   return {
-    accessToken: tokenData.access_token,
-    scope: tokenData.scope ?? '',
+    accessToken,
+    scope: readStringProperty(tokenData, 'scope') ?? '',
   }
 }
 
@@ -278,24 +290,30 @@ export async function fetchGitHubProfile(
   accessToken: string,
 ): Promise<OAuthProfile> {
   const profileResponse = await fetch('https://api.github.com/user', {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      Accept: 'application/vnd.github.v3+json',
-    },
+    headers: getGitHubApiHeaders(accessToken),
   })
 
-  const profile = await profileResponse.json()
+  const profile = await readOAuthJsonResponse(
+    profileResponse,
+    'GitHub profile fetch',
+  )
+  const profileId = readGitHubProfileId(profile)
+  const login = readStringProperty(profile, 'login')
+
+  if (!profileId || !login) {
+    throw new AuthError('Invalid GitHub profile response', 'OAUTH_ERROR')
+  }
 
   // Fetch email (may require separate call)
-  let email = profile.email
+  let email = readStringProperty(profile, 'email')
   if (!email) {
     const emailResponse = await fetch('https://api.github.com/user/emails', {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        Accept: 'application/vnd.github.v3+json',
-      },
+      headers: getGitHubApiHeaders(accessToken),
     })
-    const emails = await emailResponse.json()
+    const emails = await readOAuthJsonResponse(
+      emailResponse,
+      'GitHub email fetch',
+    )
 
     if (!Array.isArray(emails)) {
       console.error(
@@ -303,24 +321,24 @@ export async function fetchGitHubProfile(
         emails,
       )
       throw new AuthError(
-        emails?.message || 'Failed to fetch GitHub emails',
+        readStringProperty(emails, 'message') ||
+          'Failed to fetch GitHub emails',
         'OAUTH_ERROR',
       )
     }
 
-    const primaryEmail = emails.find(
-      (e: { primary: boolean; verified: boolean; email: string }) =>
-        e.primary && e.verified,
-    )
-    const verifiedEmail = emails.find(
-      (e: { verified: boolean; email: string }) => e.verified,
-    )
+    const githubEmails = emails.flatMap((value) => {
+      const githubEmail = readGitHubEmail(value)
+      return githubEmail ? [githubEmail] : []
+    })
+    const primaryEmail = githubEmails.find((e) => e.primary && e.verified)
+    const verifiedEmail = githubEmails.find((e) => e.verified)
     email = primaryEmail?.email || verifiedEmail?.email
   }
 
   if (!email) {
     console.error(
-      `[OAuth] No verified email found for GitHub user ${profile.id} (${profile.login})`,
+      `[OAuth] No verified email found for GitHub user ${profileId} (${login})`,
     )
     throw new AuthError(
       'No verified email found for GitHub account',
@@ -329,10 +347,110 @@ export async function fetchGitHubProfile(
   }
 
   return {
-    id: String(profile.id),
+    id: profileId,
     email,
-    name: profile.name || profile.login,
-    image: profile.avatar_url,
+    name: readStringProperty(profile, 'name') || login,
+    image: readStringProperty(profile, 'avatar_url'),
+  }
+}
+
+function getGitHubApiHeaders(accessToken: string): HeadersInit {
+  return {
+    Authorization: `Bearer ${accessToken}`,
+    Accept: 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28',
+    'User-Agent': 'TanStack-Auth',
+  }
+}
+
+async function readOAuthJsonResponse(
+  response: Response,
+  context: string,
+): Promise<unknown> {
+  const body = await response.text()
+  const parsed = parseJson(body)
+
+  if (!response.ok) {
+    const message =
+      readStringProperty(parsed, 'message') ||
+      readStringProperty(parsed, 'error_description') ||
+      readStringProperty(parsed, 'error') ||
+      truncateResponseBody(body) ||
+      response.statusText
+
+    throw new AuthError(
+      `${context} failed with HTTP ${response.status}: ${message}`,
+      'OAUTH_ERROR',
+    )
+  }
+
+  if (parsed === undefined) {
+    throw new AuthError(
+      `${context} returned a non-JSON response: ${truncateResponseBody(body) || 'empty body'}`,
+      'OAUTH_ERROR',
+    )
+  }
+
+  return parsed
+}
+
+function parseJson(value: string): unknown {
+  if (!value.trim()) {
+    return undefined
+  }
+
+  try {
+    return JSON.parse(value)
+  } catch {
+    return undefined
+  }
+}
+
+function truncateResponseBody(value: string) {
+  const normalized = value.trim().replace(/\s+/g, ' ')
+  return normalized ? normalized.slice(0, 240) : undefined
+}
+
+function readStringProperty(value: unknown, key: string) {
+  const property = readProperty(value, key)
+  return typeof property === 'string' ? property : undefined
+}
+
+function readBooleanProperty(value: unknown, key: string) {
+  const property = readProperty(value, key)
+  return typeof property === 'boolean' ? property : undefined
+}
+
+function readProperty(value: unknown, key: string) {
+  if (typeof value !== 'object' || value === null) {
+    return undefined
+  }
+
+  return Reflect.get(value, key)
+}
+
+function readGitHubProfileId(value: unknown) {
+  const id = readProperty(value, 'id')
+
+  if (typeof id === 'number' || typeof id === 'string') {
+    return String(id)
+  }
+
+  return undefined
+}
+
+function readGitHubEmail(value: unknown): GitHubEmail | undefined {
+  const email = readStringProperty(value, 'email')
+  const verified = readBooleanProperty(value, 'verified')
+
+  if (!email || verified === undefined) {
+    return undefined
+  }
+
+  return {
+    email,
+    primary: readBooleanProperty(value, 'primary') ?? false,
+    verified,
   }
 }
 

@@ -2755,7 +2755,7 @@ Done when:
 4. First preview target: default generated TanStack Start app from builder manifest.
 5. Collaboration/presence: default not v1.
 6. Sharing: default private projects with explicit authenticated/share preview links.
-7. Production access: default disabled unless `FORGE_ENABLED=true`; every route, server function, and API endpoint requires the `forge` capability or `admin`.
+7. Production access: enabled by default; every route, server function, and API endpoint requires the `forge` capability or `admin`. Set `FORGE_ENABLED=false` only to disable the surface.
 
 ### Runtime
 
@@ -2786,14 +2786,22 @@ CREATE TABLE IF NOT EXISTS forge_projects (...);
 CREATE TABLE IF NOT EXISTS forge_chat_sessions (...);
 ```
 
-Production env defaults:
+Production defaults and required secrets:
 
 ```txt
-FORGE_ENABLED=true
 FORGE_BYOK_SEALING_KEY=<server-only 32+ byte secret>
-FORGE_REQUIRE_BYOK=true
-FORGE_AGENT_HARNESS=tanstack-ai
 ```
+
+Forge uses Codex CLI by default in local dev so `pnpm dev` does not spend
+server-side provider tokens. Production uses the TanStack AI harness and
+requires browser-provided BYOK by default. Set
+`FORGE_AGENT_HARNESS=cloudflare-workers-ai` only for the Cloudflare Workers AI
+proof path, or `FORGE_AGENT_HARNESS=tanstack-ai` for explicit local
+production-like testing.
+
+`FORGE_AUTH_BYPASS=true` is only for temporary proof hosts where normal auth
+cannot complete on the preview domain. It bypasses Forge auth/capability checks
+with a synthetic Forge-only user and should stay unset on the production domain.
 
 ### Source and Export
 

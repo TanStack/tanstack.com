@@ -26,6 +26,7 @@ drizzle/migrations
 dist
 .vscode/
 .env.local
+.dev.vars
 
 # Content Collections generated files
 .content-collections

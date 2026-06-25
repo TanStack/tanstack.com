@@ -1,5 +1,5 @@
 import { ChevronDown, KeyRound, Loader2, Trash2 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   Dropdown,
   DropdownContent,
@@ -24,12 +24,14 @@ type ForgeByokMenuProps = {
   disabled?: boolean
   onProviderKeyChange: (key: ForgeBrowserProviderKey | undefined) => void
   providerKey?: ForgeBrowserProviderKey
+  required?: boolean
 }
 
 export function ForgeByokMenu({
   disabled,
   onProviderKeyChange,
   providerKey,
+  required,
 }: ForgeByokMenuProps) {
   const [open, setOpen] = useState(false)
   const [provider, setProvider] = useState<ForgeBrowserByokProvider>('openai')
@@ -39,6 +41,11 @@ export function ForgeByokMenu({
   const [apiKey, setApiKey] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
+  const onProviderKeyChangeRef = useRef(onProviderKeyChange)
+
+  useEffect(() => {
+    onProviderKeyChangeRef.current = onProviderKeyChange
+  }, [onProviderKeyChange])
 
   useEffect(() => {
     const storedProviderKey = readForgeBrowserProviderKey()
@@ -52,8 +59,8 @@ export function ForgeByokMenu({
       storedProviderKey.model ??
         getDefaultForgeByokModel(storedProviderKey.provider),
     )
-    onProviderKeyChange(storedProviderKey)
-  }, [onProviderKeyChange])
+    onProviderKeyChangeRef.current(storedProviderKey)
+  }, [])
 
   async function handleSave() {
     const trimmedApiKey = apiKey.trim()
@@ -110,14 +117,18 @@ export function ForgeByokMenu({
           className={`inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full px-2 text-xs transition ${
             providerKey
               ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-400/10 dark:text-emerald-300 dark:hover:bg-emerald-400/15'
-              : 'text-neutral-500 hover:bg-neutral-100 hover:text-neutral-800 dark:text-neutral-400 dark:hover:bg-white/10 dark:hover:text-white'
+              : required
+                ? 'bg-amber-50 text-amber-700 hover:bg-amber-100 dark:bg-amber-400/10 dark:text-amber-200 dark:hover:bg-amber-400/15'
+                : 'text-neutral-500 hover:bg-neutral-100 hover:text-neutral-800 dark:text-neutral-400 dark:hover:bg-white/10 dark:hover:text-white'
           }`}
           disabled={disabled}
           title="Forge provider key"
           type="button"
         >
           <KeyRound className="h-3.5 w-3.5" />
-          <span>{providerKey ? providerKey.label : 'BYOK'}</span>
+          <span>
+            {providerKey ? providerKey.label : required ? 'Add key' : 'BYOK'}
+          </span>
           <ChevronDown className="h-3.5 w-3.5" />
         </button>
       </DropdownTrigger>
@@ -134,6 +145,13 @@ export function ForgeByokMenu({
               only while starting a run.
             </div>
           </div>
+
+          {required && !providerKey ? (
+            <div className="rounded-lg bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-800 dark:bg-amber-400/10 dark:text-amber-100">
+              This Forge environment requires your own provider key before
+              starting a run.
+            </div>
+          ) : null}
 
           {providerKey ? (
             <div className="rounded-lg bg-neutral-100 px-3 py-2 text-xs dark:bg-white/10">

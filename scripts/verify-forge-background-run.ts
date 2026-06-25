@@ -5,11 +5,13 @@ import path from 'node:path'
 
 const originalAnthropicApiKey = process.env.ANTHROPIC_API_KEY
 const originalCwd = process.cwd()
+const originalHarness = process.env.FORGE_AGENT_HARNESS
 const originalOpenAiApiKey = process.env.OPENAI_API_KEY
 const runtimeRoot = await mkdtemp(path.join(os.tmpdir(), 'forge-background-'))
 
 delete process.env.ANTHROPIC_API_KEY
 delete process.env.OPENAI_API_KEY
+process.env.FORGE_AGENT_HARNESS = 'tanstack-ai'
 process.chdir(runtimeRoot)
 
 try {
@@ -58,6 +60,8 @@ try {
 } finally {
   process.chdir(originalCwd)
 
+  restoreEnvVar('FORGE_AGENT_HARNESS', originalHarness)
+
   if (originalAnthropicApiKey === undefined) {
     delete process.env.ANTHROPIC_API_KEY
   } else {
@@ -105,4 +109,13 @@ function delay(delayMs: number) {
   return new Promise((resolve) => {
     setTimeout(resolve, delayMs)
   })
+}
+
+function restoreEnvVar(name: string, value: string | undefined) {
+  if (value === undefined) {
+    delete process.env[name]
+    return
+  }
+
+  process.env[name] = value
 }

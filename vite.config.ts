@@ -29,9 +29,11 @@ const shouldBuildSourcemaps =
   shouldUseSentryPlugin || process.env.BUILD_SOURCEMAPS === 'true'
 const siteUrl = process.env.VITE_SITE_URL || process.env.SITE_URL || ''
 const imageTransformationsEnv = process.env.TANSTACK_IMAGE_TRANSFORMATIONS
+const siteHostname = readSiteHostname(siteUrl)
+const siteUrlUsesWorkersDev = siteHostname.endsWith('.workers.dev')
 const shouldUseCloudflareImageTransformations =
   imageTransformationsEnv === 'true' ||
-  (imageTransformationsEnv !== 'false' && !isDev)
+  (imageTransformationsEnv !== 'false' && !isDev && !siteUrlUsesWorkersDev)
 
 const localEnvPath = path.resolve(__dirname, '.env.local')
 const defaultCheckoutEnvDir = path.join(os.homedir(), 'GitHub/tanstack.com')
@@ -40,6 +42,18 @@ const envDir =
   fs.existsSync(path.join(defaultCheckoutEnvDir, '.env.local'))
     ? defaultCheckoutEnvDir
     : __dirname
+
+function readSiteHostname(value: string) {
+  if (!value) {
+    return ''
+  }
+
+  try {
+    return new URL(value).hostname
+  } catch {
+    return ''
+  }
+}
 
 function edgeTakumiWasmImport(): PluginOption {
   return {

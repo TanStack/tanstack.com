@@ -58,7 +58,7 @@ try {
 
   delete process.env.FORGE_REQUIRE_BYOK
   process.env.NODE_ENV = 'development'
-  assert.equal(forgeRequiresByokForRuns(), false)
+  assert.equal(forgeRequiresByokForRuns(), true)
 
   process.env.FORGE_REQUIRE_BYOK = 'true'
   assert.equal(forgeRequiresByokForRuns(), true)
@@ -66,6 +66,9 @@ try {
   delete process.env.FORGE_REQUIRE_BYOK
   process.env.NODE_ENV = 'production'
   assert.equal(forgeRequiresByokForRuns(), true)
+
+  process.env.FORGE_REQUIRE_BYOK = 'false'
+  assert.equal(forgeRequiresByokForRuns(), false)
 } finally {
   restoreEnvVar('FORGE_BYOK_SEALING_KEY', originalByokSealingKey)
   restoreEnvVar('NODE_ENV', originalNodeEnv)

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { getOAuthRedirectOrigin } from "~/auth/oauth-redirect-origin.server";
 import { env } from "~/utils/env";
 
 export const Route = createFileRoute("/api/auth/callback/$provider")({
@@ -91,7 +92,7 @@ export const Route = createFileRoute("/api/auth/callback/$provider")({
           const clearStateCookieHeader = clearOAuthStateCookie(isProduction);
 
           // Exchange code for access token
-          const origin = env.SITE_URL || new URL(request.url).origin;
+          const origin = getOAuthRedirectOrigin(request);
           const redirectUri = `${origin}/api/auth/callback/${provider}`;
 
           let userProfile: {
@@ -244,10 +245,26 @@ export const Route = createFileRoute("/api/auth/callback/$provider")({
             stack: err instanceof Error ? err.stack : undefined,
             provider: params.provider,
           });
-          return Response.redirect(
-            new URL("/login?error=oauth_failed", request.url),
-            302,
+          const headers = new Headers();
+          headers.set(
+            "Location",
+            new URL("/login?error=oauth_failed", request.url).toString(),
           );
+          headers.append("Set-Cookie", clearOAuthStateCookie(isProduction));
+          headers.append("Set-Cookie", clearOAuthPopupCookie(isProduction));
+          headers.append(
+            "Set-Cookie",
+            clearOAuthReturnToCookie(isProduction),
+          );
+          headers.append(
+            "Set-Cookie",
+            getSessionService().createClearSessionCookieHeader(),
+          );
+
+          return new Response(null, {
+            status: 302,
+            headers,
+          });
         }
       },
     },

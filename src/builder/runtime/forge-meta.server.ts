@@ -257,10 +257,10 @@ export async function updateForgeMetaChatSessionFromSnapshot({
   await db
     .update(forgeChatSessions)
     .set({
-      currentManifestVersionId: snapshot.manifestVersionId,
-      latestRunId: snapshot.latestRun?.id,
-      latestRunStatus: snapshot.latestRun?.status,
-      title,
+      currentManifestVersionId: snapshot.manifestVersionId ?? null,
+      latestRunId: snapshot.latestRun?.id ?? null,
+      latestRunStatus: snapshot.latestRun?.status ?? null,
+      ...(title ? { title } : {}),
       updatedAt: new Date(),
     })
     .where(

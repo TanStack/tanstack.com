@@ -2,6 +2,10 @@ type StaticAssetService = {
   fetch: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>
 }
 
+type HostExecutionContext = {
+  waitUntil(promise: Promise<unknown>): void
+}
+
 type HostRuntimeModule = {
   env: Record<string, unknown> & {
     AI?: unknown
@@ -19,6 +23,7 @@ type HostRuntimeModule = {
 type HostRuntimeEnv = HostRuntimeModule['env']
 
 let hostRuntimeEnvOverride: HostRuntimeEnv | undefined
+let hostExecutionContext: HostExecutionContext | undefined
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
@@ -87,6 +92,38 @@ export function setHostRuntimeEnvOverrideForTest(
   env: HostRuntimeEnv | undefined,
 ) {
   hostRuntimeEnvOverride = env
+}
+
+export function runWithHostExecutionContext<T>(
+  context: HostExecutionContext,
+  task: () => T,
+) {
+  const previousContext = hostExecutionContext
+  hostExecutionContext = context
+
+  try {
+    const result = task()
+
+    Promise.resolve(result).finally(() => {
+      if (hostExecutionContext === context) {
+        hostExecutionContext = previousContext
+      }
+    })
+
+    return result
+  } catch (error) {
+    hostExecutionContext = previousContext
+    throw error
+  }
+}
+
+export function waitUntilHostRuntime(promise: Promise<unknown>) {
+  if (!hostExecutionContext) {
+    return false
+  }
+
+  hostExecutionContext.waitUntil(promise)
+  return true
 }
 
 export async function fetchStaticAsset(

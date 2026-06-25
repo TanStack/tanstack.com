@@ -37,10 +37,13 @@ assert.equal(
 )
 
 const requiredRolloutSnippets = [
-  'FORGE_ENABLED=true',
-  'FORGE_REQUIRE_BYOK=true',
+  'FORGE_ENABLED=false',
+  'Runs require a browser-provided BYOK key by default.',
   'FORGE_BYOK_SEALING_KEY',
-  'FORGE_AGENT_HARNESS=tanstack-ai',
+  'Local dev uses Codex CLI by default',
+  'Production uses the TanStack AI harness by default.',
+  'FORGE_AUTH_BYPASS',
+  'Leave `FORGE_AUTH_BYPASS` unset on the production domain.',
   'FORGE_ENABLE_CODEX_CLI',
   'psql "$DATABASE_URL" -f scripts/sql/forge-production-readiness.sql',
   'not the TanStack AI sandbox PR runtime',

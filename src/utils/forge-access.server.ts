@@ -1,7 +1,16 @@
 import { getRequest } from '@tanstack/react-start/server'
 import { AuthError, getAuthGuards, type AuthUser } from '~/auth/index.server'
-import { FORGE_CAPABILITY, isForgeEnabled } from '~/utils/forge-access'
-export { FORGE_CAPABILITY, isForgeEnabled } from '~/utils/forge-access'
+import {
+  createForgeBypassUser,
+  FORGE_CAPABILITY,
+  isForgeAuthBypassEnabled,
+  isForgeEnabled,
+} from '~/utils/forge-access'
+export {
+  FORGE_CAPABILITY,
+  isForgeAuthBypassEnabled,
+  isForgeEnabled,
+} from '~/utils/forge-access'
 
 export function assertForgeEnabled() {
   if (!isForgeEnabled()) {
@@ -13,6 +22,11 @@ export async function requireForgeAccess(
   request: Request = getRequest(),
 ): Promise<AuthUser> {
   assertForgeEnabled()
+
+  if (isForgeAuthBypassEnabled()) {
+    return createForgeBypassUser()
+  }
+
   return getAuthGuards().requireCapability(request, FORGE_CAPABILITY)
 }
 

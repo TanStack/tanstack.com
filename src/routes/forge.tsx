@@ -9,6 +9,7 @@ import {
   AlertCircle,
   ArrowDown,
   ArrowUp,
+  Bug,
   ChevronDown,
   CheckCircle2,
   Clock3,
@@ -88,6 +89,14 @@ import {
   forgeChatShellsQueryKey,
   insertForgeProjectedStateEvents,
 } from '~/utils/forge-collections'
+import {
+  subscribeForgePendingLaunchFailures,
+  takeForgePendingLaunch,
+  takeForgePendingLaunchFailure,
+  writeForgePendingLaunchFailure,
+  type ForgePendingLaunchFailure,
+  type ForgePendingLaunch,
+} from '~/utils/forge-pending-launch'
 import { validateRepoName } from '~/utils/github-validation'
 import { seo } from '~/utils/seo'
 
@@ -112,7 +121,7 @@ type ForgeManifestFile = NonNullable<
   ForgeSession['currentManifest']
 >['files'][string]
 type ForgeStreamStatus = 'connecting' | 'disconnected' | 'live'
-type ForgeRightPanelMode = 'files' | 'preview' | 'source'
+type ForgeRightPanelMode = 'debug' | 'files' | 'preview' | 'source'
 type ForgeWorkspaceMode = 'changes' | 'file'
 type ForgeGitHubAuthState = {
   authenticated: boolean
@@ -126,6 +135,26 @@ type ForgeStateBatchStreamEvent = {
   timelineOffset: number
   type: 'state-batch'
 }
+type ForgeDebugEventSource =
+  | 'agent'
+  | 'export'
+  | 'manifest'
+  | 'message'
+  | 'run'
+  | 'state'
+  | 'warning'
+  | 'workflow'
+type ForgeDebugEvent = {
+  createdAt?: string
+  id: string
+  name: string
+  offset?: number
+  payload: unknown
+  source: ForgeDebugEventSource
+  status?: string
+  summary?: string
+}
+type ForgeDebugStreamEventsByChatId = Record<string, Array<ForgeStateEvent>>
 type ForgeActivityTranscriptItem = {
   createdAt: string
   id: string
@@ -490,6 +519,56 @@ function createPendingForgeSession({
   }
 }
 
+function applyPendingForgeLaunch(
+  session: ForgeSession,
+  launch: ForgePendingLaunch,
+): ForgeSession {
+  if (session.activeChatId !== launch.chatId) {
+    return session
+  }
+
+  const title = launch.prompt.trim().replace(/\s+/g, ' ').slice(0, 64)
+  const latestRun = isActiveForgeRunStatus(session.latestRun?.status)
+    ? session.latestRun
+    : {
+        createdAt: launch.createdAt,
+        id: launch.clientRequestId,
+        startedAt: launch.createdAt,
+        status: 'running',
+      }
+
+  return {
+    ...session,
+    chats: session.chats.map((chat) =>
+      chat.id === launch.chatId
+        ? {
+            ...chat,
+            title: title || chat.title,
+            updatedAt: launch.createdAt,
+          }
+        : chat,
+    ),
+    latestRun,
+  }
+}
+
+function applyPendingForgeLaunchFailure(
+  session: ForgeSession,
+  failure: ForgePendingLaunchFailure,
+): ForgeSession {
+  if (
+    session.activeChatId !== failure.chatId ||
+    session.latestRun?.id !== failure.clientRequestId
+  ) {
+    return session
+  }
+
+  return {
+    ...session,
+    latestRun: undefined,
+  }
+}
+
 function toForgeSnapshotChat(
   chat: ForgeRouteChat,
 ): ForgeSession['chats'][number] {
@@ -522,13 +601,7 @@ export const Route = createFileRoute('/forge')({
   }),
   validateSearch: forgeSearchSchema,
   loader: async () => {
-    const chatShells = await getForgeChatShells()
-
-    if (!chatShells.activeChatId) {
-      throw redirect({ to: '/forge/new' })
-    }
-
-    return chatShells
+    return getForgeChatShells()
   },
   shouldReload: false,
   component: ForgeRoute,
@@ -546,6 +619,8 @@ function ForgeRoute() {
     requestedChatId: search.chatId,
   })
   const sessionCacheRef = useRef(new Map<string, ForgeSession>())
+  const pendingLaunchesRef = useRef(new Map<string, ForgePendingLaunch>())
+  const startedPendingLaunchIdsRef = useRef(new Set<string>())
   const [selectedChatId, setSelectedChatId] = useState(initialChatId)
   const [session, setSession] = useState(() =>
     createPendingForgeSession({
@@ -579,6 +654,10 @@ function ForgeRoute() {
   const [fileFilter, setFileFilter] = useState('')
   const [rightPanelMode, setRightPanelMode] =
     useState<ForgeRightPanelMode>('preview')
+  const [debugFilter, setDebugFilter] = useState('')
+  const [selectedDebugEventId, setSelectedDebugEventId] = useState<string>()
+  const [debugStreamEventsByChatId, setDebugStreamEventsByChatId] =
+    useState<ForgeDebugStreamEventsByChatId>({})
   const [leftPaneWidth, setLeftPaneWidth] = useState(
     FORGE_LEFT_PANE_DEFAULT_WIDTH,
   )
@@ -790,6 +869,22 @@ function ForgeRoute() {
     () => getLatestForgeGitHubExport(session.exports),
     [session.exports],
   )
+  const debugStreamEvents =
+    debugStreamEventsByChatId[session.activeChatId] ?? []
+  const debugEvents = useMemo(
+    () =>
+      createForgeDebugEvents({
+        session,
+        streamEvents: debugStreamEvents,
+      }),
+    [debugStreamEvents, session],
+  )
+  const selectedDebugEvent =
+    debugEvents.find((event) => event.id === selectedDebugEventId) ??
+    debugEvents[0]
+  const runRequiresProviderKey = loaderChatShells.runRequiresProviderKey
+  const isMissingRequiredProviderKey =
+    runRequiresProviderKey && !browserProviderKey
   const persistedRunIsActive =
     latestRun?.status === 'queued' ||
     latestRun?.status === 'starting' ||
@@ -801,7 +896,8 @@ function ForgeRoute() {
     !isValidating &&
     !isExportingGitHub &&
     !persistedRunIsActive
-  const canRun = prompt.trim().length > 0 && canStartRun
+  const canRun =
+    prompt.trim().length > 0 && canStartRun && !isMissingRequiredProviderKey
   const canValidate = Boolean(session.manifestVersionId) && canStartRun
   const canExportGitHub =
     Boolean(session.manifestVersionId) &&
@@ -820,7 +916,11 @@ function ForgeRoute() {
     isSubmitting,
     latestRunStatus: latestRun?.status,
   })
-  const composerStatusText = runError ?? statusText
+  const missingProviderKeyText =
+    'Add a Forge provider key before starting a run.'
+  const composerStatusText =
+    runError ??
+    (isMissingRequiredProviderKey ? missingProviderKeyText : statusText)
   const selectedFileContent = selectedFile
     ? session.files[selectedFile]
     : undefined
@@ -857,6 +957,22 @@ function ForgeRoute() {
     },
     [],
   )
+  const preservePendingLaunch = useCallback((nextSession: ForgeSession) => {
+    const pendingLaunch = pendingLaunchesRef.current.get(
+      nextSession.activeChatId,
+    )
+
+    if (!pendingLaunch) {
+      return nextSession
+    }
+
+    if (nextSession.latestRun) {
+      pendingLaunchesRef.current.delete(nextSession.activeChatId)
+      return nextSession
+    }
+
+    return applyPendingForgeLaunch(nextSession, pendingLaunch)
+  }, [])
 
   const activateForgeChat = useCallback(
     ({
@@ -988,6 +1104,124 @@ function ForgeRoute() {
   ])
 
   useEffect(() => {
+    const chatId = selectedChatId
+
+    if (!chatId) {
+      return
+    }
+
+    const pendingLaunch = takeForgePendingLaunch(chatId)
+
+    if (!pendingLaunch) {
+      return
+    }
+
+    const optimisticMessage = createForgeOptimisticUserMessage({
+      clientRequestId: pendingLaunch.clientRequestId,
+      content: pendingLaunch.prompt,
+      createdAt: pendingLaunch.createdAt,
+    })
+
+    setOptimisticMessagesByChatId((current) =>
+      addForgeOptimisticMessage(current, chatId, optimisticMessage),
+    )
+    pendingLaunchesRef.current.set(chatId, pendingLaunch)
+    setSession((currentSession) => {
+      const nextSession = applyPendingForgeLaunch(currentSession, pendingLaunch)
+
+      sessionCacheRef.current.set(nextSession.activeChatId, nextSession)
+
+      return nextSession
+    })
+
+    const pendingLaunchId = `${chatId}:${pendingLaunch.clientRequestId}`
+
+    if (startedPendingLaunchIdsRef.current.has(pendingLaunchId)) {
+      return
+    }
+
+    startedPendingLaunchIdsRef.current.add(pendingLaunchId)
+
+    void startLocalForgeRun({
+      data: {
+        chatId,
+        clientRequestId: pendingLaunch.clientRequestId,
+        providerKey: pendingLaunch.providerKey ?? browserProviderKey,
+        prompt: pendingLaunch.prompt,
+      },
+    })
+      .then(async (nextSession) => {
+        pendingLaunchesRef.current.delete(chatId)
+        setSession(nextSession)
+        setOptimisticMessagesByChatId((current) =>
+          removeFulfilledForgeOptimisticMessages(current, chatId, nextSession),
+        )
+        await queryClient.invalidateQueries({
+          queryKey: forgeChatShellsQueryKey,
+        })
+        await router.invalidate()
+      })
+      .catch((launchError: unknown) => {
+        writeForgePendingLaunchFailure({
+          chatId,
+          clientRequestId: pendingLaunch.clientRequestId,
+          createdAt: new Date().toISOString(),
+          message:
+            launchError instanceof Error
+              ? launchError.message
+              : 'Forge run failed to start.',
+          prompt: pendingLaunch.prompt,
+        })
+      })
+  }, [browserProviderKey, queryClient, router, selectedChatId])
+
+  useEffect(() => {
+    const chatId = selectedChatId
+
+    if (!chatId) {
+      return
+    }
+
+    function handlePendingLaunchFailure(failure: ForgePendingLaunchFailure) {
+      if (failure.chatId !== chatId) {
+        return
+      }
+
+      const optimisticMessageId = `${FORGE_OPTIMISTIC_MESSAGE_ID_PREFIX}${failure.clientRequestId}`
+
+      setRunError(failure.message)
+      setPrompt(failure.prompt)
+      pendingLaunchesRef.current.delete(failure.chatId)
+      setOptimisticMessagesByChatId((current) =>
+        removeForgeOptimisticMessage(
+          current,
+          failure.chatId,
+          optimisticMessageId,
+        ),
+      )
+      setSession((currentSession) => {
+        const nextSession = applyPendingForgeLaunchFailure(
+          currentSession,
+          failure,
+        )
+
+        sessionCacheRef.current.set(nextSession.activeChatId, nextSession)
+
+        return nextSession
+      })
+      void queryClient.invalidateQueries({ queryKey: forgeChatShellsQueryKey })
+    }
+
+    const pendingFailure = takeForgePendingLaunchFailure(chatId)
+
+    if (pendingFailure) {
+      handlePendingLaunchFailure(pendingFailure)
+    }
+
+    return subscribeForgePendingLaunchFailures(handlePendingLaunchFailure)
+  }, [queryClient, selectedChatId])
+
+  useEffect(() => {
     let cancelled = false
     const chatId = selectedChatId
 
@@ -1011,8 +1245,10 @@ function ForgeRoute() {
           return
         }
 
-        sessionCacheRef.current.set(nextSession.activeChatId, nextSession)
-        setSession(nextSession)
+        const visibleSession = preservePendingLaunch(nextSession)
+
+        sessionCacheRef.current.set(visibleSession.activeChatId, visibleSession)
+        setSession(visibleSession)
       })
       .catch((error: unknown) => {
         if (!cancelled) {
@@ -1027,7 +1263,7 @@ function ForgeRoute() {
     return () => {
       cancelled = true
     }
-  }, [selectedChatId])
+  }, [preservePendingLaunch, selectedChatId])
 
   useEffect(() => {
     let cancelled = false
@@ -1132,8 +1368,10 @@ function ForgeRoute() {
       const nextSession = parseForgeSnapshotEvent(event.data)
 
       if (nextSession && nextSession.activeChatId === chatId) {
-        sessionCacheRef.current.set(nextSession.activeChatId, nextSession)
-        setSession(nextSession)
+        const visibleSession = preservePendingLaunch(nextSession)
+
+        sessionCacheRef.current.set(visibleSession.activeChatId, visibleSession)
+        setSession(visibleSession)
       }
     }
 
@@ -1149,6 +1387,9 @@ function ForgeRoute() {
           projectedStateEventsCollection,
           chatId,
           batch.events,
+        )
+        setDebugStreamEventsByChatId((current) =>
+          appendForgeDebugStreamEvents(current, chatId, batch.events),
         )
         setSession((currentSession) => {
           if (currentSession.activeChatId !== chatId) {
@@ -1181,7 +1422,7 @@ function ForgeRoute() {
       eventSource.removeEventListener('state-batch', handleStateBatch)
       eventSource.close()
     }
-  }, [projectedStateEventsCollection, streamChatId])
+  }, [preservePendingLaunch, projectedStateEventsCollection, streamChatId])
 
   function handleCreateChat() {
     void navigate({ to: '/forge/new' })
@@ -1263,6 +1504,11 @@ function ForgeRoute() {
       return
     }
 
+    if (isMissingRequiredProviderKey) {
+      setRunError(missingProviderKeyText)
+      return
+    }
+
     if (!canStartRun) {
       setPrompt(trimmedPrompt)
       promptTextareaRef.current?.focus()
@@ -1272,16 +1518,31 @@ function ForgeRoute() {
     setIsSubmitting(true)
     setRunError(null)
     const clientRequestId = `forge-request-${crypto.randomUUID()}`
+    const createdAt = new Date().toISOString()
     const optimisticMessage = createForgeOptimisticUserMessage({
       clientRequestId,
       content: trimmedPrompt,
-      createdAt: new Date().toISOString(),
+      createdAt,
     })
     const chatId = session.activeChatId
+    const pendingLaunch: ForgePendingLaunch = {
+      chatId,
+      clientRequestId,
+      createdAt,
+      prompt: trimmedPrompt,
+    }
 
     setOptimisticMessagesByChatId((current) =>
       addForgeOptimisticMessage(current, chatId, optimisticMessage),
     )
+    pendingLaunchesRef.current.set(chatId, pendingLaunch)
+    setSession((currentSession) => {
+      const nextSession = applyPendingForgeLaunch(currentSession, pendingLaunch)
+
+      sessionCacheRef.current.set(nextSession.activeChatId, nextSession)
+
+      return nextSession
+    })
     setPrompt('')
 
     try {
@@ -1294,6 +1555,7 @@ function ForgeRoute() {
         },
       })
       setSession(nextSession)
+      pendingLaunchesRef.current.delete(chatId)
       setOptimisticMessagesByChatId((current) =>
         removeFulfilledForgeOptimisticMessages(current, chatId, nextSession),
       )
@@ -1303,6 +1565,24 @@ function ForgeRoute() {
       setOptimisticMessagesByChatId((current) =>
         removeForgeOptimisticMessage(current, chatId, optimisticMessage.id),
       )
+      pendingLaunchesRef.current.delete(chatId)
+      setSession((currentSession) => {
+        if (
+          currentSession.activeChatId !== chatId ||
+          currentSession.latestRun?.id !== clientRequestId
+        ) {
+          return currentSession
+        }
+
+        const nextSession = {
+          ...currentSession,
+          latestRun: undefined,
+        }
+
+        sessionCacheRef.current.set(nextSession.activeChatId, nextSession)
+
+        return nextSession
+      })
       setPrompt(trimmedPrompt)
       setRunError(
         error instanceof Error ? error.message : 'Forge run failed to start.',
@@ -1518,8 +1798,13 @@ function ForgeRoute() {
             >
               <textarea
                 className="max-h-40 min-h-14 w-full resize-none bg-transparent px-2 py-2 text-[13px] leading-5 text-neutral-950 outline-none placeholder:text-neutral-500 dark:text-white dark:placeholder:text-neutral-500"
+                disabled={isMissingRequiredProviderKey}
                 onChange={(event) => setPrompt(event.currentTarget.value)}
-                placeholder="Ask Forge to change the app"
+                placeholder={
+                  isMissingRequiredProviderKey
+                    ? 'Add a provider key to start'
+                    : 'Ask Forge to change the app'
+                }
                 ref={promptTextareaRef}
                 value={prompt}
               />
@@ -1527,8 +1812,14 @@ function ForgeRoute() {
                 <div className="flex min-w-0 items-center gap-2 px-2 text-xs text-neutral-500 dark:text-neutral-500">
                   <ForgeByokMenu
                     disabled={isSubmitting}
-                    onProviderKeyChange={setBrowserProviderKey}
+                    onProviderKeyChange={(key) => {
+                      setBrowserProviderKey(key)
+                      if (key && runError === missingProviderKeyText) {
+                        setRunError(null)
+                      }
+                    }}
                     providerKey={browserProviderKey}
+                    required={runRequiresProviderKey}
                   />
                   <span
                     className={`h-2 w-2 shrink-0 rounded-full ${
@@ -1611,6 +1902,16 @@ function ForgeRoute() {
               <GitPullRequest className="h-3.5 w-3.5 text-neutral-500 dark:text-neutral-500" />
               <span className="truncate">Source</span>
             </button>
+            <button
+              className={rightPanelModeButtonClassName(
+                rightPanelMode === 'debug',
+              )}
+              onClick={() => setRightPanelMode('debug')}
+              type="button"
+            >
+              <Bug className="h-3.5 w-3.5 text-neutral-500 dark:text-neutral-500" />
+              <span className="truncate">Debug</span>
+            </button>
           </div>
 
           {hasMountedPreviewPanel ? (
@@ -1648,19 +1949,31 @@ function ForgeRoute() {
             </div>
           ) : null}
 
+          {rightPanelMode === 'debug' ? (
+            <ForgeDebugPanel
+              events={debugEvents}
+              filter={debugFilter}
+              onFilterChange={setDebugFilter}
+              onSelectedEventChange={setSelectedDebugEventId}
+              selectedEvent={selectedDebugEvent}
+              session={session}
+              streamStatus={streamStatus}
+            />
+          ) : null}
+
           {rightPanelMode === 'files' ? (
             <div className="grid min-h-0">
               <div className="grid min-h-0 grid-cols-[minmax(0,1fr)_minmax(300px,38%)]">
-                <div className="order-2 grid min-h-0 grid-rows-[auto_1fr] border-l border-neutral-200 bg-[#151515] text-neutral-200 dark:border-white/10">
-                  <div className="px-3 pb-2 pt-3">
+                <div className="order-2 grid min-h-0 grid-rows-[auto_1fr] border-l border-neutral-200 bg-white text-neutral-900 dark:border-white/10 dark:bg-[#151515] dark:text-neutral-200">
+                  <div className="px-2.5 pb-2 pt-2.5">
                     <label className="relative block">
                       <Search
                         aria-hidden="true"
-                        className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500"
+                        className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-neutral-400 dark:text-neutral-500"
                       />
                       <input
                         aria-label="Filter files"
-                        className="h-9 w-full rounded-xl border border-white/10 bg-[#1f1f1f] pl-9 pr-3 text-[13px] text-neutral-100 outline-none transition placeholder:text-neutral-500 focus:border-sky-400/40 focus:ring-2 focus:ring-sky-400/10"
+                        className="h-8 w-full rounded-lg border border-neutral-200 bg-white pl-8 pr-2.5 text-xs text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-sky-400/50 focus:ring-2 focus:ring-sky-400/10 dark:border-white/10 dark:bg-[#1f1f1f] dark:text-neutral-100 dark:placeholder:text-neutral-500 dark:focus:border-sky-400/40"
                         onChange={(event) => setFileFilter(event.target.value)}
                         placeholder="Filter files..."
                         type="search"
@@ -1702,22 +2015,22 @@ function ForgeRoute() {
                           tone="forge"
                         />
                       ) : (
-                        <div className="px-2 py-2 text-[13px] text-neutral-500">
+                        <div className="px-2 py-2 text-xs text-neutral-500">
                           No matching files.
                         </div>
                       )}
                     </div>
                   ) : (
-                    <div className="px-4 py-2 text-[13px] text-neutral-500">
+                    <div className="px-4 py-2 text-xs text-neutral-500">
                       No files yet.
                     </div>
                   )}
                 </div>
 
-                <div className="order-1 grid min-h-0 grid-rows-[44px_1fr_160px]">
+                <div className="order-1 grid min-h-0 grid-rows-[40px_1fr_140px]">
                   <div className="flex min-w-0 items-center justify-between border-b border-neutral-200 px-4 dark:border-white/10">
                     <div className="flex min-w-0 items-center gap-3">
-                      <div className="min-w-0 truncate font-mono text-xs text-neutral-700 dark:text-neutral-300">
+                      <div className="min-w-0 truncate font-mono text-[11px] text-neutral-700 dark:text-neutral-300">
                         {selectedFile ?? 'No file selected'}
                       </div>
                       {selectedFileChange ? (
@@ -1752,7 +2065,7 @@ function ForgeRoute() {
                         </button>
                       </div>
                     ) : selectedFileContent ? (
-                      <div className="text-xs text-neutral-500 dark:text-neutral-500">
+                      <div className="text-[11px] text-neutral-500 dark:text-neutral-500">
                         {formatBytes(textBytes(selectedFileContent))}
                       </div>
                     ) : null}
@@ -1769,10 +2082,10 @@ function ForgeRoute() {
                     />
                   )}
                   <div className="min-h-0 overflow-auto border-t border-neutral-200 bg-neutral-50 dark:border-white/10 dark:bg-[#111111]">
-                    <div className="border-b border-neutral-200 px-4 py-2 text-xs font-medium text-neutral-600 dark:border-white/10 dark:text-neutral-400">
+                    <div className="border-b border-neutral-200 px-4 py-1.5 text-[11px] font-medium text-neutral-600 dark:border-white/10 dark:text-neutral-400">
                       Warnings
                     </div>
-                    <div className="whitespace-pre-wrap px-4 py-3 text-xs leading-5 text-neutral-500 dark:text-neutral-500">
+                    <div className="whitespace-pre-wrap px-4 py-2.5 text-[11px] leading-5 text-neutral-500 dark:text-neutral-500">
                       {session.warnings.length > 0
                         ? session.warnings.join('\n')
                         : 'No warnings'}
@@ -1925,6 +2238,175 @@ function SidebarChatRow({
   )
 }
 
+function ForgeDebugPanel({
+  events,
+  filter,
+  onFilterChange,
+  onSelectedEventChange,
+  selectedEvent,
+  session,
+  streamStatus,
+}: {
+  events: Array<ForgeDebugEvent>
+  filter: string
+  onFilterChange: (value: string) => void
+  onSelectedEventChange: (eventId: string) => void
+  selectedEvent?: ForgeDebugEvent
+  session: ForgeSession
+  streamStatus: ForgeStreamStatus
+}) {
+  const filteredEvents = useMemo(
+    () => filterForgeDebugEvents(events, filter),
+    [events, filter],
+  )
+  const selectedPayload = selectedEvent
+    ? stringifyForgeDebugPayload(selectedEvent.payload)
+    : 'No event selected'
+
+  return (
+    <div className="grid min-h-0 grid-rows-[auto_1fr] bg-neutral-50 text-neutral-950 dark:bg-[#101010] dark:text-neutral-100">
+      <div className="border-b border-neutral-200 bg-white px-4 py-3 dark:border-white/10 dark:bg-[#151515]">
+        <div className="flex min-w-0 items-start justify-between gap-4">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 text-sm font-semibold">
+              <Bug className="h-4 w-4 text-neutral-500 dark:text-neutral-400" />
+              <span>Loop debug</span>
+            </div>
+            <div className="mt-1 truncate text-xs text-neutral-500 dark:text-neutral-500">
+              Raw session, harness, workflow, and stream projection events.
+            </div>
+          </div>
+          <span className={debugStreamStatusClassName(streamStatus)}>
+            {streamStatus}
+          </span>
+        </div>
+
+        <div className="mt-3 grid grid-cols-4 gap-2">
+          <DebugStat label="Events" value={events.length.toLocaleString()} />
+          <DebugStat
+            label="State"
+            value={session.stateEventCount.toLocaleString()}
+          />
+          <DebugStat
+            label="Timeline"
+            value={session.timelineEventCount.toLocaleString()}
+          />
+          <DebugStat
+            label="Manifest"
+            value={
+              session.manifestVersionId
+                ? compactManifestId(session.manifestVersionId)
+                : 'none'
+            }
+          />
+        </div>
+
+        <label className="relative mt-3 block">
+          <Search
+            aria-hidden="true"
+            className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-neutral-400 dark:text-neutral-500"
+          />
+          <input
+            aria-label="Filter debug events"
+            className="h-8 w-full rounded-lg border border-neutral-200 bg-white pl-8 pr-2.5 text-xs text-neutral-900 outline-none transition placeholder:text-neutral-400 focus:border-sky-400/50 focus:ring-2 focus:ring-sky-400/10 dark:border-white/10 dark:bg-[#202020] dark:text-neutral-100 dark:placeholder:text-neutral-500 dark:focus:border-sky-400/40"
+            onChange={(event) => onFilterChange(event.currentTarget.value)}
+            placeholder="Filter source, name, status, payload..."
+            type="search"
+            value={filter}
+          />
+        </label>
+      </div>
+
+      <div className="grid min-h-0 grid-cols-[minmax(220px,36%)_minmax(0,1fr)]">
+        <div className="min-h-0 overflow-auto border-r border-neutral-200 bg-white dark:border-white/10 dark:bg-[#151515]">
+          {filteredEvents.length > 0 ? (
+            <div className="divide-y divide-neutral-100 dark:divide-white/[0.06]">
+              {filteredEvents.map((event) => (
+                <button
+                  className={debugEventRowClassName(
+                    event.id === selectedEvent?.id,
+                  )}
+                  key={event.id}
+                  onClick={() => onSelectedEventChange(event.id)}
+                  type="button"
+                >
+                  <div className="flex min-w-0 items-center gap-2">
+                    <span className={debugSourceBadgeClassName(event.source)}>
+                      {event.source}
+                    </span>
+                    {event.status ? (
+                      <span className="truncate text-[11px] text-neutral-500 dark:text-neutral-500">
+                        {event.status}
+                      </span>
+                    ) : null}
+                  </div>
+                  <div className="mt-1 truncate font-mono text-xs text-neutral-900 dark:text-neutral-100">
+                    {event.name}
+                  </div>
+                  <div className="mt-1 flex min-w-0 items-center justify-between gap-2 text-[11px] text-neutral-500 dark:text-neutral-500">
+                    <span className="truncate">
+                      {event.summary ?? event.id}
+                    </span>
+                    <span className="shrink-0">
+                      {formatForgeDebugEventMeta(event)}
+                    </span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="px-4 py-3 text-xs text-neutral-500 dark:text-neutral-500">
+              No matching debug events.
+            </div>
+          )}
+        </div>
+
+        <div className="grid min-h-0 grid-rows-[auto_1fr] bg-neutral-50 dark:bg-[#101010]">
+          <div className="border-b border-neutral-200 bg-white px-4 py-3 dark:border-white/10 dark:bg-[#151515]">
+            {selectedEvent ? (
+              <>
+                <div className="flex min-w-0 items-center gap-2">
+                  <span
+                    className={debugSourceBadgeClassName(selectedEvent.source)}
+                  >
+                    {selectedEvent.source}
+                  </span>
+                  <span className="min-w-0 truncate font-mono text-xs font-semibold">
+                    {selectedEvent.name}
+                  </span>
+                </div>
+                <div className="mt-1 truncate text-[11px] text-neutral-500 dark:text-neutral-500">
+                  {selectedEvent.id}
+                </div>
+              </>
+            ) : (
+              <div className="text-xs text-neutral-500 dark:text-neutral-500">
+                Select an event.
+              </div>
+            )}
+          </div>
+          <pre className="min-h-0 overflow-auto whitespace-pre-wrap break-words p-4 font-mono text-[11px] leading-5 text-neutral-700 dark:text-neutral-300">
+            {selectedPayload}
+          </pre>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function DebugStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0 rounded-md border border-neutral-200 bg-neutral-50 px-2.5 py-2 dark:border-white/10 dark:bg-white/[0.03]">
+      <div className="truncate text-[10px] uppercase tracking-wide text-neutral-500 dark:text-neutral-500">
+        {label}
+      </div>
+      <div className="mt-0.5 truncate font-mono text-xs text-neutral-900 dark:text-neutral-100">
+        {value}
+      </div>
+    </div>
+  )
+}
+
 function ManifestCodeView({
   content,
   file,
@@ -1941,7 +2423,7 @@ function ManifestCodeView({
 
   if (isBinary) {
     return (
-      <div className="min-h-0 overflow-auto bg-neutral-50 p-4 text-sm leading-6 text-neutral-500 dark:bg-[#101010] dark:text-neutral-500">
+      <div className="min-h-0 overflow-auto bg-neutral-50 p-4 text-xs leading-5 text-neutral-500 dark:bg-[#101010] dark:text-neutral-500">
         Binary file preview is not available.
       </div>
     )
@@ -1951,7 +2433,7 @@ function ManifestCodeView({
   const language = path ? getCodeBlockLanguageFromFilePath(path) : 'txt'
 
   return (
-    <div className="min-h-0 overflow-hidden bg-white dark:bg-[#101010] [&_.codeblock]:h-full [&_.codeblock]:rounded-none [&_.codeblock]:border-0 [&_.codeblock>div]:h-full [&_pre]:h-full [&_pre]:overflow-auto [&_pre]:!p-4">
+    <div className="min-h-0 overflow-hidden bg-white dark:bg-[#101010] [&_.codeblock]:h-full [&_.codeblock]:rounded-none [&_.codeblock]:border-0 [&_.codeblock>div]:h-full [&_code]:!text-[11px] [&_pre]:h-full [&_pre]:overflow-auto [&_pre]:!p-3 [&_pre]:!text-[11px] [&_pre]:!leading-5">
       <CodeBlock
         className="h-full rounded-none border-0"
         isEmbedded
@@ -1966,14 +2448,14 @@ function ManifestCodeView({
 function ManifestDiffView({ change }: { change: ForgeManifestFileChange }) {
   if (change.diffLines.length === 0) {
     return (
-      <div className="min-h-0 overflow-auto p-4 text-sm text-neutral-500 dark:text-neutral-500">
+      <div className="min-h-0 overflow-auto p-4 text-xs text-neutral-500 dark:text-neutral-500">
         No text diff available.
       </div>
     )
   }
 
   return (
-    <div className="min-h-0 overflow-auto bg-white py-3 font-mono text-xs leading-5 dark:bg-[#101010]">
+    <div className="min-h-0 overflow-auto bg-white py-2.5 font-mono text-[11px] leading-5 dark:bg-[#101010]">
       {change.diffLines.map((line, index) => (
         <DiffLine line={line} key={`${index}-${line.kind}`} />
       ))}
@@ -4422,6 +4904,354 @@ function isValidationWorkflowEvent(
     event.name.startsWith('workflow.manifest.system-snapshot.') ||
     event.name.startsWith('workflow.validation.')
   )
+}
+
+type ForgeDebugEventWithSequence = ForgeDebugEvent & {
+  sequence: number
+}
+
+function appendForgeDebugStreamEvents(
+  current: ForgeDebugStreamEventsByChatId,
+  chatId: string,
+  events: Array<ForgeStateEvent>,
+): ForgeDebugStreamEventsByChatId {
+  if (events.length === 0) {
+    return current
+  }
+
+  const existingEvents = current[chatId] ?? []
+  const existingIds = new Set(existingEvents.map(getForgeStateEventDebugId))
+  const nextEvents = [...existingEvents]
+
+  for (const event of events) {
+    const id = getForgeStateEventDebugId(event)
+
+    if (!existingIds.has(id)) {
+      existingIds.add(id)
+      nextEvents.push(event)
+    }
+  }
+
+  return {
+    ...current,
+    [chatId]: nextEvents.slice(-500),
+  }
+}
+
+function createForgeDebugEvents({
+  session,
+  streamEvents,
+}: {
+  session: ForgeSession
+  streamEvents: Array<ForgeStateEvent>
+}): Array<ForgeDebugEvent> {
+  const events = Array<ForgeDebugEventWithSequence>()
+  let sequence = 0
+
+  function add(event: ForgeDebugEvent) {
+    events.push({
+      ...event,
+      sequence,
+    })
+    sequence += 1
+  }
+
+  if (session.latestRun) {
+    add({
+      createdAt: session.latestRun.createdAt,
+      id: `run:${session.latestRun.id}`,
+      name: `run.${session.latestRun.status}`,
+      payload: session.latestRun,
+      source: 'run',
+      status: session.latestRun.status,
+      summary: session.latestRun.error ?? session.latestRun.id,
+    })
+  }
+
+  for (const message of session.messages) {
+    add({
+      createdAt: message.createdAt,
+      id: `message:${message.id}`,
+      name: `message.${message.role}`,
+      payload: message,
+      source: 'message',
+      status: message.status,
+      summary: message.content,
+    })
+  }
+
+  for (const event of session.agentEvents) {
+    add({
+      createdAt: event.createdAt,
+      id: `agent:${event.id}`,
+      name: event.name,
+      payload: event,
+      source: 'agent',
+      status: event.status,
+      summary: event.message ?? event.detail ?? event.path,
+    })
+  }
+
+  for (const event of session.workflowEvents) {
+    add({
+      createdAt: event.createdAt,
+      id: `workflow:${event.id}`,
+      name: event.name,
+      payload: event,
+      source: 'workflow',
+      status: event.status,
+      summary: event.message ?? event.detail ?? event.path,
+    })
+  }
+
+  for (const event of streamEvents) {
+    add({
+      createdAt: readForgeStateEventTimestamp(event),
+      id: `state:${getForgeStateEventDebugId(event)}`,
+      name: `${event.type}.${event.key}`,
+      offset: readForgeStateEventOffset(event),
+      payload: event,
+      source: 'state',
+      status: readForgeStateEventStatus(event),
+      summary: summarizeForgeStateEvent(event),
+    })
+  }
+
+  for (const exportRow of session.exports) {
+    add({
+      createdAt: exportRow.startedAt,
+      id: `export:${exportRow.id}`,
+      name: `export.${exportRow.kind}`,
+      payload: exportRow,
+      source: 'export',
+      status: exportRow.status,
+      summary: exportRow.error ?? exportRow.repoUrl ?? exportRow.kind,
+    })
+  }
+
+  if (session.manifestChange) {
+    add({
+      id: `manifest-change:${session.manifestVersionId ?? 'current'}`,
+      name: 'manifest.change',
+      payload: session.manifestChange,
+      source: 'manifest',
+      summary: `${session.manifestChange.files.length.toLocaleString()} changed files`,
+    })
+  }
+
+  if (session.currentManifest) {
+    add({
+      createdAt: session.currentManifest.createdAt,
+      id: `manifest:${session.manifestVersionId ?? 'current'}`,
+      name: 'manifest.current',
+      payload: session.currentManifest,
+      source: 'manifest',
+      summary: session.currentManifest.app.name,
+    })
+  }
+
+  for (const [index, warning] of session.warnings.entries()) {
+    add({
+      id: `warning:${index}`,
+      name: 'warning',
+      payload: warning,
+      source: 'warning',
+      summary: warning,
+    })
+  }
+
+  return events
+    .sort(compareForgeDebugEvents)
+    .map(({ sequence: _sequence, ...event }) => event)
+}
+
+function compareForgeDebugEvents(
+  first: ForgeDebugEventWithSequence,
+  second: ForgeDebugEventWithSequence,
+) {
+  const firstValue = getForgeDebugEventSortValue(first)
+  const secondValue = getForgeDebugEventSortValue(second)
+
+  if (firstValue !== secondValue) {
+    return firstValue - secondValue
+  }
+
+  return first.sequence - second.sequence
+}
+
+function getForgeDebugEventSortValue(event: ForgeDebugEvent) {
+  if (event.createdAt) {
+    const createdAt = Date.parse(event.createdAt)
+
+    if (Number.isFinite(createdAt)) {
+      return createdAt
+    }
+  }
+
+  if (event.offset !== undefined) {
+    return Number.MAX_SAFE_INTEGER - 1_000_000 + event.offset
+  }
+
+  return Number.MAX_SAFE_INTEGER
+}
+
+function getForgeStateEventDebugId(event: ForgeStateEvent) {
+  return [
+    event.headers.stateOffset,
+    event.headers.timelineOffset,
+    event.type,
+    event.key,
+  ].join(':')
+}
+
+function readForgeStateEventOffset(event: ForgeStateEvent) {
+  const stateOffset = Number(event.headers.stateOffset)
+
+  return Number.isFinite(stateOffset) ? stateOffset : undefined
+}
+
+function readForgeStateEventTimestamp(event: ForgeStateEvent) {
+  if (!isRecord(event.value)) {
+    return undefined
+  }
+
+  return (
+    readString(event.value.createdAt) ??
+    readString(event.value.startedAt) ??
+    readString(event.value.updatedAt)
+  )
+}
+
+function readForgeStateEventStatus(event: ForgeStateEvent) {
+  if (!isRecord(event.value)) {
+    return undefined
+  }
+
+  return readString(event.value.status)
+}
+
+function summarizeForgeStateEvent(event: ForgeStateEvent) {
+  const offsetSummary = `state ${event.headers.stateOffset}, timeline ${event.headers.timelineOffset}`
+
+  if (!isRecord(event.value)) {
+    return offsetSummary
+  }
+
+  return (
+    readString(event.value.message) ??
+    readString(event.value.detail) ??
+    readString(event.value.error) ??
+    readString(event.value.path) ??
+    readString(event.value.role) ??
+    offsetSummary
+  )
+}
+
+function filterForgeDebugEvents(
+  events: Array<ForgeDebugEvent>,
+  filter: string,
+) {
+  const normalizedFilter = filter.trim().toLowerCase()
+
+  if (!normalizedFilter) {
+    return events
+  }
+
+  return events.filter((event) => {
+    return getForgeDebugSearchText(event).includes(normalizedFilter)
+  })
+}
+
+function getForgeDebugSearchText(event: ForgeDebugEvent) {
+  return [
+    event.id,
+    event.name,
+    event.source,
+    event.status,
+    event.summary,
+    stringifyForgeDebugPayload(event.payload),
+  ]
+    .filter((value): value is string => typeof value === 'string')
+    .join('\n')
+    .toLowerCase()
+}
+
+function stringifyForgeDebugPayload(payload: unknown) {
+  if (typeof payload === 'string') {
+    return payload
+  }
+
+  try {
+    return JSON.stringify(payload, null, 2)
+  } catch {
+    return String(payload)
+  }
+}
+
+function formatForgeDebugEventMeta(event: ForgeDebugEvent) {
+  if (event.offset !== undefined) {
+    return `#${event.offset.toLocaleString()}`
+  }
+
+  if (event.createdAt) {
+    const createdAt = new Date(event.createdAt)
+
+    if (!Number.isNaN(createdAt.getTime())) {
+      return createdAt.toLocaleTimeString([], {
+        hour: 'numeric',
+        minute: '2-digit',
+        second: '2-digit',
+      })
+    }
+  }
+
+  return ''
+}
+
+function debugEventRowClassName(active: boolean) {
+  return `block w-full px-3 py-2.5 text-left transition ${
+    active
+      ? 'bg-sky-50 text-neutral-950 dark:bg-sky-400/10 dark:text-white'
+      : 'text-neutral-800 hover:bg-neutral-50 dark:text-neutral-200 dark:hover:bg-white/[0.04]'
+  }`
+}
+
+function debugSourceBadgeClassName(source: ForgeDebugEventSource) {
+  const base =
+    'inline-flex h-5 shrink-0 items-center rounded px-1.5 font-mono text-[10px] uppercase tracking-wide'
+
+  switch (source) {
+    case 'agent':
+      return `${base} bg-violet-50 text-violet-700 dark:bg-violet-400/10 dark:text-violet-300`
+    case 'export':
+      return `${base} bg-indigo-50 text-indigo-700 dark:bg-indigo-400/10 dark:text-indigo-300`
+    case 'manifest':
+      return `${base} bg-amber-50 text-amber-700 dark:bg-amber-400/10 dark:text-amber-300`
+    case 'message':
+      return `${base} bg-sky-50 text-sky-700 dark:bg-sky-400/10 dark:text-sky-300`
+    case 'run':
+      return `${base} bg-emerald-50 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300`
+    case 'state':
+      return `${base} bg-neutral-100 text-neutral-700 dark:bg-white/10 dark:text-neutral-300`
+    case 'warning':
+      return `${base} bg-orange-50 text-orange-700 dark:bg-orange-400/10 dark:text-orange-300`
+    case 'workflow':
+      return `${base} bg-teal-50 text-teal-700 dark:bg-teal-400/10 dark:text-teal-300`
+  }
+}
+
+function debugStreamStatusClassName(status: ForgeStreamStatus) {
+  const base =
+    'inline-flex h-6 shrink-0 items-center rounded-full px-2 text-[11px] font-medium'
+
+  switch (status) {
+    case 'live':
+      return `${base} bg-emerald-50 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300`
+    case 'connecting':
+      return `${base} bg-amber-50 text-amber-700 dark:bg-amber-400/10 dark:text-amber-300`
+    case 'disconnected':
+      return `${base} bg-red-50 text-red-700 dark:bg-red-400/10 dark:text-red-300`
+  }
 }
 
 function parseForgeSnapshotEvent(data: string): ForgeSession | undefined {

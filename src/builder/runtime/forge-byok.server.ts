@@ -153,10 +153,7 @@ export function unsealForgeProviderKey({
 }
 
 export function forgeRequiresByokForRuns() {
-  return (
-    process.env.FORGE_REQUIRE_BYOK === 'true' ||
-    process.env.NODE_ENV === 'production'
-  )
+  return process.env.FORGE_REQUIRE_BYOK !== 'false'
 }
 
 function normalizeForgeProviderApiKey(apiKey: string) {

@@ -8,6 +8,7 @@ import {
   buildGitHubAuthUrl,
   buildGoogleAuthUrl,
 } from '~/auth/index.server'
+import { getOAuthRedirectOrigin } from '~/auth/oauth-redirect-origin.server'
 
 export const Route = createFileRoute('/auth/$provider/start')({
   server: {
@@ -50,7 +51,7 @@ export const Route = createFileRoute('/auth/$provider/start')({
         }
 
         // Build OAuth URL based on provider
-        const origin = env.SITE_URL || new URL(request.url).origin
+        const origin = getOAuthRedirectOrigin(request)
         const redirectUri = `${origin}/api/auth/callback/${provider}`
 
         // Check for additional scopes (e.g., public_repo for deploy flow)

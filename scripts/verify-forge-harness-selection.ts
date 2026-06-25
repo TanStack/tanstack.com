@@ -4,8 +4,35 @@ import {
   resolveLocalForgeAgentHarnessName,
 } from '../src/builder/runtime/local-agent.server'
 
-assert.equal(resolveLocalForgeAgentHarnessName(undefined), 'tanstack-ai')
-assert.equal(resolveLocalForgeAgentHarnessName(''), 'tanstack-ai')
+assert.equal(resolveLocalForgeAgentHarnessName(undefined), 'codex-cli')
+assert.equal(
+  resolveLocalForgeAgentHarnessName(undefined, {
+    isolateRuntime: false,
+    nodeEnv: 'development',
+  }),
+  'codex-cli',
+)
+assert.equal(
+  resolveLocalForgeAgentHarnessName('', {
+    isolateRuntime: false,
+    nodeEnv: 'development',
+  }),
+  'codex-cli',
+)
+assert.equal(
+  resolveLocalForgeAgentHarnessName(undefined, {
+    isolateRuntime: true,
+    nodeEnv: 'development',
+  }),
+  'codex-cli',
+)
+assert.equal(
+  resolveLocalForgeAgentHarnessName(undefined, {
+    isolateRuntime: true,
+    nodeEnv: 'production',
+  }),
+  'tanstack-ai',
+)
 assert.equal(resolveLocalForgeAgentHarnessName('tanstack-ai'), 'tanstack-ai')
 assert.equal(resolveLocalForgeAgentHarnessName('codex'), 'codex-cli')
 assert.equal(resolveLocalForgeAgentHarnessName('codex-cli'), 'codex-cli')

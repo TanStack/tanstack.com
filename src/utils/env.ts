@@ -15,6 +15,7 @@ const serverEnvSchema = v.object({
   RESEND_API_KEY: v.optional(v.string()),
   SENTRY_DSN: v.optional(v.string()),
   FORGE_BYOK_SEALING_KEY: v.optional(v.string()),
+  FORGE_AUTH_BYPASS: v.optional(v.string()),
   FORGE_ENABLED: v.optional(v.string()),
   FORGE_REQUIRE_BYOK: v.optional(v.string()),
   TANSTACK_MCP_ENABLED_TOOLS: v.optional(v.string()),

@@ -1,4 +1,4 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { useLiveQuery } from '@tanstack/react-db'
 import { useQueryClient } from '@tanstack/react-query'
 import { useHotkey } from '@tanstack/react-hotkeys'
@@ -25,8 +25,7 @@ import {
 } from '~/components/Dropdown'
 import {
   createForgeChatShell,
-  requireForgeAccess,
-  startLocalForgeRun,
+  getForgeRunConfig,
   type ForgeBrowserProviderKey,
   type ForgeChatShell,
 } from '~/utils/forge.functions'
@@ -34,22 +33,11 @@ import {
   createForgeChatShellsCollection,
   forgeChatShellsQueryKey,
 } from '~/utils/forge-collections'
+import { writeForgePendingLaunch } from '~/utils/forge-pending-launch'
 import { ForgeByokMenu } from '~/components/forge/ForgeByokMenu'
 import { seo } from '~/utils/seo'
 
 export const Route = createFileRoute('/forge_/new')({
-  beforeLoad: async () => {
-    try {
-      const user = await requireForgeAccess()
-      return { user }
-    } catch (error) {
-      if (isNotAuthenticatedError(error)) {
-        throw redirect({ to: '/login' })
-      }
-
-      throw error
-    }
-  },
   head: () => ({
     meta: seo({
       title: 'New Forge Chat',
@@ -67,6 +55,7 @@ function ForgeNewRoute() {
     useState<ForgeBrowserProviderKey>()
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [runRequiresProviderKey, setRunRequiresProviderKey] = useState(false)
   const promptFormRef = useRef<HTMLFormElement>(null)
   const promptTextareaRef = useRef<HTMLTextAreaElement>(null)
   const chatShellsCollection = useMemo(
@@ -81,10 +70,39 @@ function ForgeNewRoute() {
     [chatShellsCollection],
   )
   const chats = chatShellsQuery.data ?? []
-  const canSubmit = prompt.trim().length > 0 && !isSubmitting
+  const isMissingRequiredProviderKey =
+    runRequiresProviderKey && !browserProviderKey
+  const missingProviderKeyText =
+    'Add a Forge provider key before starting a run.'
+  const canSubmit =
+    prompt.trim().length > 0 && !isSubmitting && !isMissingRequiredProviderKey
 
   useEffect(() => {
     promptTextareaRef.current?.focus()
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+
+    void getForgeRunConfig()
+      .then((config) => {
+        if (!cancelled) {
+          setRunRequiresProviderKey(config?.runRequiresProviderKey ?? false)
+        }
+      })
+      .catch((configError: unknown) => {
+        if (!cancelled) {
+          setError(
+            configError instanceof Error
+              ? configError.message
+              : 'Forge run settings could not load.',
+          )
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   useHotkey(
@@ -130,28 +148,32 @@ function ForgeNewRoute() {
       return
     }
 
+    if (isMissingRequiredProviderKey) {
+      setError(missingProviderKeyText)
+      return
+    }
+
     setIsSubmitting(true)
     setError(null)
 
     try {
       const nextChat = await createForgeChatShell()
       const clientRequestId = `forge-request-${crypto.randomUUID()}`
-      upsertChatShell(nextChat.chat)
-      void startLocalForgeRun({
-        data: {
-          chatId: nextChat.activeChatId,
-          clientRequestId,
-          providerKey: browserProviderKey,
-          prompt: nextPrompt,
-        },
+      const createdAt = new Date().toISOString()
+      writeForgePendingLaunch({
+        chatId: nextChat.activeChatId,
+        clientRequestId,
+        createdAt,
+        prompt: nextPrompt,
+        providerKey: browserProviderKey,
       })
-        .then(() =>
-          queryClient.invalidateQueries({ queryKey: forgeChatShellsQueryKey }),
-        )
-        .catch((runError: unknown) => {
-          console.error('Forge run failed to start', runError)
-        })
-
+      upsertChatShell({
+        ...nextChat.chat,
+        latestRunId: clientRequestId,
+        latestRunStatus: 'running',
+        title: nextPrompt.slice(0, 64),
+        updatedAt: createdAt,
+      })
       await navigate({
         search: {
           chatId: nextChat.activeChatId,
@@ -252,8 +274,13 @@ function ForgeNewRoute() {
                 <div className="overflow-hidden rounded-[22px] border border-neutral-200 bg-white shadow-xl shadow-neutral-200/60 dark:border-white/10 dark:bg-[#242424] dark:shadow-black/30">
                   <textarea
                     className="max-h-44 min-h-28 w-full resize-none bg-transparent px-5 py-5 text-sm leading-6 text-neutral-950 outline-none placeholder:text-neutral-400 dark:text-white dark:placeholder:text-neutral-500"
+                    disabled={isMissingRequiredProviderKey}
                     onChange={(event) => setPrompt(event.currentTarget.value)}
-                    placeholder="Do anything"
+                    placeholder={
+                      isMissingRequiredProviderKey
+                        ? 'Add a provider key to start'
+                        : 'Do anything'
+                    }
                     ref={promptTextareaRef}
                     value={prompt}
                   />
@@ -269,8 +296,14 @@ function ForgeNewRoute() {
                       </button>
                       <ForgeByokMenu
                         disabled={isSubmitting}
-                        onProviderKeyChange={setBrowserProviderKey}
+                        onProviderKeyChange={(key) => {
+                          setBrowserProviderKey(key)
+                          if (key) {
+                            setError(null)
+                          }
+                        }}
                         providerKey={browserProviderKey}
+                        required={runRequiresProviderKey}
                       />
                     </div>
 
@@ -425,8 +458,4 @@ function sendButtonClassName(enabled: boolean) {
   }
 
   return `${base} bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-black dark:hover:bg-neutral-200`
-}
-
-function isNotAuthenticatedError(error: unknown) {
-  return error instanceof Error && error.message.includes('Not authenticated')
 }

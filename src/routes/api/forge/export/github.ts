@@ -10,6 +10,7 @@ import {
 } from '~/utils/rateLimit.server'
 import {
   getForgeAccessErrorResponse,
+  isForgeAuthBypassEnabled,
   requireForgeAccess,
 } from '~/utils/forge-access.server'
 import {
@@ -80,6 +81,15 @@ export const Route = createFileRoute('/api/forge/export/github')({
         if (!user) {
           return Response.json({
             authenticated: false,
+            hasGitHubAccount: false,
+            hasPrivateRepoScope: false,
+            hasRepoScope: false,
+          } satisfies ForgeGitHubExportAuthResponse)
+        }
+
+        if (isForgeAuthBypassEnabled()) {
+          return Response.json({
+            authenticated: true,
             hasGitHubAccount: false,
             hasPrivateRepoScope: false,
             hasRepoScope: false,

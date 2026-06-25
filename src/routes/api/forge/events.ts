@@ -18,8 +18,10 @@ import {
 } from '~/builder/runtime/local-store.server'
 import {
   getForgeAccessErrorResponse,
+  isForgeAuthBypassEnabled,
   requireForgeAccess,
 } from '~/utils/forge-access.server'
+import { createForgeBypassRuntimeScope } from '~/utils/forge-bypass-runtime.server'
 
 const encoder = new TextEncoder()
 const heartbeatMs = 15_000
@@ -37,6 +39,20 @@ export const Route = createFileRoute('/api/forge/events')({
         }
 
         const chatId = new URL(request.url).searchParams.get('chatId')
+
+        if (isForgeAuthBypassEnabled()) {
+          const scope = createForgeBypassRuntimeScope({ chatId })
+
+          return new Response(createLocalForgeEventStream(request, scope), {
+            headers: {
+              'Cache-Control': 'no-store, no-transform',
+              Connection: 'keep-alive',
+              'Content-Type': 'text/event-stream',
+              'X-Accel-Buffering': 'no',
+            },
+          })
+        }
+
         const meta = chatId
           ? await readForgeMetaSessionForChat({
               chatId,

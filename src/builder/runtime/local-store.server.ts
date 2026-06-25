@@ -53,6 +53,7 @@ const LOCK_POLL_MS = 25
 const LOCK_REFRESH_MIN_MS = 25
 const TIMELINE_APPEND_LOCK_STALE_MS = 60_000
 const TIMELINE_APPEND_LOCK_WAIT_MS = 30_000
+const ACTIVE_RUN_STALE_MS = 10 * 60_000
 const workspaceRootId = Buffer.from(process.cwd()).toString('base64url')
 const DEFAULT_LOCAL_FORGE_CHAT_TITLE = 'New chat'
 let activeLocalForgeSessionId = LOCAL_FORGE_SESSION_ID
@@ -417,9 +418,86 @@ export async function assertNoActiveLocalForgeRun(action: string) {
     return
   }
 
+  if (await recoverStaleActiveLocalForgeRun(latestRun)) {
+    return
+  }
+
   throw new Error(
     `Cannot ${action} while Forge run ${latestRun.id} is ${latestRun.status}.`,
   )
+}
+
+type LocalForgeLatestRun = NonNullable<LocalForgeSnapshot['latestRun']>
+
+export async function recoverStaleActiveLocalForgeRun(
+  latestRun: LocalForgeLatestRun,
+) {
+  if (!isActiveLocalForgeRunStatus(latestRun.status)) {
+    return false
+  }
+
+  const staleSource = latestRun.startedAt ?? latestRun.createdAt
+  const staleSourceMs = staleSource ? Date.parse(staleSource) : undefined
+
+  if (
+    staleSourceMs === undefined ||
+    !Number.isFinite(staleSourceMs) ||
+    Date.now() - staleSourceMs <= ACTIVE_RUN_STALE_MS
+  ) {
+    return false
+  }
+
+  const existing = await readLocalForgeTimeline()
+  const createdAt = new Date().toISOString()
+  const error = latestRun.startedAt
+    ? `Recovered stale local Forge run that started at ${latestRun.startedAt}.`
+    : 'Recovered stale local Forge run.'
+
+  await appendLocalForgeTimelineEvents([
+    {
+      createdAt,
+      eventId: `local-stale-run-workflow-${crypto.randomUUID()}`,
+      projectId: LOCAL_FORGE_PROJECT_ID,
+      producer: createLocalForgeProducer({
+        index: existing.length,
+        kind: 'system',
+        producerId: 'local-runtime',
+      }),
+      runId: latestRun.id,
+      schemaVersion: 1,
+      sessionId: getActiveLocalForgeSessionId(),
+      type: 'workflow.event.recorded',
+      payload: {
+        detail: error,
+        id: `local-stale-run-row-${crypto.randomUUID()}`,
+        message: 'Stale run recovered',
+        name: 'run.recovered.failed',
+        runId: latestRun.id,
+        status: 'failed',
+      },
+    },
+    {
+      createdAt,
+      eventId: `local-stale-run-terminal-${crypto.randomUUID()}`,
+      projectId: LOCAL_FORGE_PROJECT_ID,
+      producer: createLocalForgeProducer({
+        index: existing.length + 1,
+        kind: 'system',
+        producerId: 'local-runtime',
+      }),
+      runId: latestRun.id,
+      schemaVersion: 1,
+      sessionId: getActiveLocalForgeSessionId(),
+      type: 'run.failed',
+      payload: {
+        error,
+        runId: latestRun.id,
+        status: 'failed',
+      },
+    },
+  ])
+
+  return true
 }
 
 export function isActiveLocalForgeRunStatus(status: string) {

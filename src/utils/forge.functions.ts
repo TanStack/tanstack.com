@@ -16,10 +16,12 @@ import {
 import {
   readLocalForgeSnapshotForRuntimeSession,
   withLocalForgeRuntimeSession,
+  type LocalForgeChat,
   type LocalForgeSnapshot,
 } from '~/builder/runtime/local-store.server'
 import {
   ensureLocalForgeBaseline,
+  resolveLocalForgeAgentHarnessName,
   startLocalForgeAgentRun,
 } from '~/builder/runtime/local-agent.server'
 import {
@@ -30,7 +32,16 @@ import {
   type ForgeSealedProviderKey,
 } from '~/builder/runtime/forge-byok.server'
 import { materializeLatestLocalForgeManifest } from '~/builder/runtime/local-materialize.server'
-import { requireForgeAccess as requireForgeRequestAccess } from '~/utils/forge-access.server'
+import {
+  isForgeAuthBypassEnabled,
+  requireForgeAccess as requireForgeRequestAccess,
+} from '~/utils/forge-access.server'
+import {
+  applyForgeBypassRuntimeScope,
+  createForgeBypassRuntimeScope,
+  LOCAL_FORGE_PROJECT_ID,
+  readForgeBypassRuntimeSnapshot,
+} from '~/utils/forge-bypass-runtime.server'
 
 export interface ForgeChatShell {
   archivedAt?: string
@@ -48,12 +59,18 @@ export interface ForgeChatShellsResult {
   activeChatId?: string
   chats: Array<ForgeChatShell>
   projectId: string
+  runRequiresProviderKey: boolean
 }
 
 export interface ForgeChatShellResult {
   activeChatId: string
   chat: ForgeChatShell
   projectId: string
+  runRequiresProviderKey: boolean
+}
+
+export interface ForgeRunConfig {
+  runRequiresProviderKey: boolean
 }
 
 export type ForgeBrowserProviderKey = ForgeSealedProviderKey
@@ -79,6 +96,16 @@ export const requireForgeAccess = createServerFn({ method: 'POST' }).handler(
   requireForgeUser,
 )
 
+export const getForgeRunConfig = createServerFn({ method: 'POST' }).handler(
+  async (): Promise<ForgeRunConfig> => {
+    await requireForgeUser()
+
+    return {
+      runRequiresProviderKey: forgeRunRequiresBrowserProviderKey(),
+    }
+  },
+)
+
 export const getLocalForgeSession = createServerFn({ method: 'POST' })
   .inputValidator(
     v.object({
@@ -89,6 +116,11 @@ export const getLocalForgeSession = createServerFn({ method: 'POST' })
   )
   .handler(async ({ data }) => {
     const user = await requireForgeUser()
+
+    if (isForgeAuthBypassEnabled()) {
+      return readForgeBypassRuntimeSnapshot({ chatId: data.chatId })
+    }
+
     const meta = data.chatId
       ? await readForgeMetaSessionForChat({
           chatId: data.chatId,
@@ -106,12 +138,27 @@ export const getLocalForgeSession = createServerFn({ method: 'POST' })
 export const getForgeChatShells = createServerFn({ method: 'POST' }).handler(
   async (): Promise<ForgeChatShellsResult> => {
     const user = await requireForgeUser()
+
+    if (isForgeAuthBypassEnabled()) {
+      const snapshot = await readForgeBypassRuntimeSnapshot()
+
+      return {
+        activeChatId: snapshot.activeChatId,
+        chats: snapshot.chats.map((chat) =>
+          toForgeBypassChatShell(chat, snapshot),
+        ),
+        projectId: LOCAL_FORGE_PROJECT_ID,
+        runRequiresProviderKey: forgeRunRequiresBrowserProviderKey(),
+      }
+    }
+
     const meta = await ensureForgeMetaSession(user.userId)
 
     return {
       activeChatId: meta.activeChatId,
       chats: meta.chats.map(toForgeChatShell),
       projectId: meta.project.id,
+      runRequiresProviderKey: forgeRunRequiresBrowserProviderKey(),
     }
   },
 )
@@ -140,8 +187,29 @@ export const startLocalForgeRun = createServerFn({ method: 'POST' })
         })
       : undefined
 
-    if (!providerCredential && forgeRequiresByokForRuns()) {
+    if (!providerCredential && forgeRunRequiresBrowserProviderKey()) {
       throw new Error('Add a Forge provider key before starting a run.')
+    }
+
+    if (isForgeAuthBypassEnabled()) {
+      const scope = createForgeBypassRuntimeScope({
+        chatId: data.chatId,
+        title: data.prompt,
+      })
+      const snapshot = await withLocalForgeRuntimeSession(
+        scope.runtimeSessionId,
+        () =>
+          startLocalForgeAgentRun({
+            clientRequestId: data.clientRequestId,
+            prompt: data.prompt,
+            providerCredential,
+          }),
+      )
+
+      return applyForgeBypassRuntimeScope(snapshot, {
+        chatId: scope.runtimeSessionId,
+        title: data.prompt,
+      })
     }
 
     const meta = requireActiveForgeMetaSession(
@@ -167,6 +235,14 @@ export const startLocalForgeRun = createServerFn({ method: 'POST' })
       userId: user.userId,
     })
   })
+
+function forgeRunRequiresBrowserProviderKey() {
+  return (
+    forgeRequiresByokForRuns() &&
+    resolveLocalForgeAgentHarnessName(process.env.FORGE_AGENT_HARNESS) ===
+      'tanstack-ai'
+  )
+}
 
 export const sealForgeBrowserProviderKey = createServerFn({ method: 'POST' })
   .inputValidator(
@@ -195,6 +271,20 @@ export const validateLocalForgeWorkspace = createServerFn({ method: 'POST' })
   )
   .handler(async ({ data }) => {
     const user = await requireForgeUser()
+
+    if (isForgeAuthBypassEnabled()) {
+      const scope = createForgeBypassRuntimeScope({ chatId: data.chatId })
+
+      await withLocalForgeRuntimeSession(
+        scope.runtimeSessionId,
+        materializeLatestLocalForgeManifest,
+      )
+
+      return readForgeBypassRuntimeSnapshot({
+        chatId: scope.runtimeSessionId,
+      })
+    }
+
     const meta = requireActiveForgeMetaSession(
       await selectForgeMetaChatSession({
         chatId: data.chatId,
@@ -216,6 +306,13 @@ export const validateLocalForgeWorkspace = createServerFn({ method: 'POST' })
 export const createForgeChat = createServerFn({ method: 'POST' }).handler(
   async () => {
     const user = await requireForgeUser()
+
+    if (isForgeAuthBypassEnabled()) {
+      return readForgeBypassRuntimeSnapshot({
+        chatId: createForgeBypassChatId(),
+      })
+    }
+
     const meta = await createForgeMetaChatSession(user.userId)
 
     return readForgeSnapshotFromMeta({
@@ -228,12 +325,32 @@ export const createForgeChat = createServerFn({ method: 'POST' }).handler(
 export const createForgeChatShell = createServerFn({ method: 'POST' }).handler(
   async (): Promise<ForgeChatShellResult> => {
     const user = await requireForgeUser()
+
+    if (isForgeAuthBypassEnabled()) {
+      const scope = createForgeBypassRuntimeScope({
+        chatId: createForgeBypassChatId(),
+      })
+      const chat = scope.chats[0]
+
+      if (!chat) {
+        throw new Error('Forge bypass chat could not be created.')
+      }
+
+      return {
+        activeChatId: scope.activeChatId,
+        chat: toForgeBypassChatShell(chat),
+        projectId: LOCAL_FORGE_PROJECT_ID,
+        runRequiresProviderKey: forgeRunRequiresBrowserProviderKey(),
+      }
+    }
+
     const meta = await createForgeMetaChatSession(user.userId)
 
     return {
       activeChatId: meta.activeChatId,
       chat: toForgeChatShell(meta.activeChatSession),
       projectId: meta.project.id,
+      runRequiresProviderKey: forgeRunRequiresBrowserProviderKey(),
     }
   },
 )
@@ -246,6 +363,16 @@ export const deleteForgeChatShell = createServerFn({ method: 'POST' })
   )
   .handler(async ({ data }): Promise<ForgeChatShellsResult> => {
     const user = await requireForgeUser()
+
+    if (isForgeAuthBypassEnabled()) {
+      return {
+        activeChatId: undefined,
+        chats: [],
+        projectId: LOCAL_FORGE_PROJECT_ID,
+        runRequiresProviderKey: forgeRunRequiresBrowserProviderKey(),
+      }
+    }
+
     const meta = requireActiveForgeMetaSession(
       await deleteForgeMetaChatSession({
         chatId: data.chatId,
@@ -257,6 +384,7 @@ export const deleteForgeChatShell = createServerFn({ method: 'POST' })
       activeChatId: meta.activeChatId,
       chats: meta.chats.map(toForgeChatShell),
       projectId: meta.project.id,
+      runRequiresProviderKey: forgeRunRequiresBrowserProviderKey(),
     }
   })
 
@@ -268,6 +396,11 @@ export const selectForgeChat = createServerFn({ method: 'POST' })
   )
   .handler(async ({ data }) => {
     const user = await requireForgeUser()
+
+    if (isForgeAuthBypassEnabled()) {
+      return readForgeBypassRuntimeSnapshot({ chatId: data.chatId })
+    }
+
     const meta = await selectForgeMetaChatSession({
       chatId: data.chatId,
       userId: user.userId,
@@ -287,6 +420,11 @@ export const deleteForgeChat = createServerFn({ method: 'POST' })
   )
   .handler(async ({ data }) => {
     const user = await requireForgeUser()
+
+    if (isForgeAuthBypassEnabled()) {
+      return readForgeBypassRuntimeSnapshot()
+    }
+
     const meta = await deleteForgeMetaChatSession({
       chatId: data.chatId,
       userId: user.userId,
@@ -310,6 +448,26 @@ function toForgeChatShell(chat: ForgeMetaChatSession): ForgeChatShell {
     title: chat.title,
     updatedAt: chat.updatedAt,
   }
+}
+
+function toForgeBypassChatShell(
+  chat: LocalForgeChat,
+  snapshot?: LocalForgeSnapshot,
+): ForgeChatShell {
+  return {
+    createdAt: chat.createdAt,
+    currentManifestVersionId: snapshot?.manifestVersionId,
+    id: chat.id,
+    latestRunId: snapshot?.latestRun?.id,
+    latestRunStatus: snapshot?.latestRun?.status,
+    projectId: LOCAL_FORGE_PROJECT_ID,
+    title: chat.title,
+    updatedAt: chat.updatedAt,
+  }
+}
+
+function createForgeBypassChatId() {
+  return `local-chat-${crypto.randomUUID()}`
 }
 
 function requireActiveForgeMetaSession(
@@ -352,7 +510,10 @@ async function readForgeSnapshotFromMeta({
     runtimeSessionId: meta.activeChatSession.runtimeSessionId,
   })
 
-  if (ensureBaseline) {
+  if (
+    ensureBaseline ||
+    forgeMetaChatSessionNeedsSnapshotUpdate(meta.activeChatSession, snapshot)
+  ) {
     await updateForgeMetaChatSessionFromSnapshot({
       chatId: meta.activeChatId,
       prompt,
@@ -373,4 +534,16 @@ async function readForgeSnapshotFromMeta({
     chats: toLocalForgeChats(activeNextMeta.chats),
     runtimeSessionId: activeNextMeta.activeChatSession.runtimeSessionId,
   })
+}
+
+function forgeMetaChatSessionNeedsSnapshotUpdate(
+  chat: ForgeMetaChatSession,
+  snapshot: LocalForgeSnapshot,
+) {
+  return (
+    (chat.currentManifestVersionId ?? undefined) !==
+      snapshot.manifestVersionId ||
+    (chat.latestRunId ?? undefined) !== snapshot.latestRun?.id ||
+    (chat.latestRunStatus ?? undefined) !== snapshot.latestRun?.status
+  )
 }

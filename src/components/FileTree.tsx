@@ -126,7 +126,7 @@ function getGuideWidth(tone: FileTreeTone) {
 
 function getGuideClassName(tone: FileTreeTone) {
   if (tone === 'forge') {
-    return 'bg-white/10'
+    return 'bg-neutral-200 dark:bg-white/10'
   }
 
   return tone === 'dark'
@@ -147,10 +147,14 @@ function fileTreeButtonClassName({
     'flex w-full min-w-0 items-center gap-2 rounded px-2 text-left transition-colors duration-200'
 
   if (tone === 'forge') {
+    const forgeActiveClassName =
+      activeClassName ??
+      'bg-neutral-100 text-neutral-950 dark:bg-white/[0.075] dark:text-white'
+
     return twMerge(
       base,
-      'h-8 rounded-md text-[13px] text-neutral-300 hover:bg-white/[0.055] hover:text-white',
-      isActive ? (activeClassName ?? 'bg-white/[0.075] text-white') : '',
+      'h-7 rounded-md text-xs text-neutral-700 hover:bg-neutral-100 hover:text-neutral-950 dark:text-neutral-300 dark:hover:bg-white/[0.055] dark:hover:text-white',
+      isActive ? forgeActiveClassName : '',
     )
   }
 

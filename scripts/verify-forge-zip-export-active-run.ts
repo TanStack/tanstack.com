@@ -135,10 +135,7 @@ function createRunEvent({
   type: 'run.queued' | 'run.started'
 }): LocalBuilderTimelineEvent {
   return {
-    createdAt:
-      type === 'run.queued'
-        ? '2026-06-18T00:00:01.000Z'
-        : '2026-06-18T00:00:02.000Z',
+    createdAt: new Date().toISOString(),
     eventId,
     payload: {
       inputEventId: 'zip-export-active-run-input',

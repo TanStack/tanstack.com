@@ -4,8 +4,10 @@ import { createLocalForgeZipArchive } from '~/builder/runtime/local-export.serve
 import { withLocalForgeRuntimeSession } from '~/builder/runtime/local-store.server'
 import {
   getForgeAccessErrorResponse,
+  isForgeAuthBypassEnabled,
   requireForgeAccess,
 } from '~/utils/forge-access.server'
+import { createForgeBypassRuntimeScope } from '~/utils/forge-bypass-runtime.server'
 import { getForgeDownloadErrorResponse } from '~/utils/forge-download'
 
 export const Route = createFileRoute('/api/forge/download')({
@@ -23,6 +25,28 @@ export const Route = createFileRoute('/api/forge/download')({
         const url = new URL(request.url)
 
         try {
+          if (isForgeAuthBypassEnabled()) {
+            const scope = createForgeBypassRuntimeScope({
+              chatId: url.searchParams.get('chatId'),
+            })
+            const result = await withLocalForgeRuntimeSession(
+              scope.runtimeSessionId,
+              () =>
+                createLocalForgeZipArchive({
+                  manifestVersionId:
+                    url.searchParams.get('manifestVersionId') ?? undefined,
+                }),
+            )
+
+            return new Response(result.zip, {
+              headers: {
+                'Cache-Control': 'no-store',
+                'Content-Disposition': `attachment; filename="${result.fileName}"`,
+                'Content-Type': 'application/zip',
+              },
+            })
+          }
+
           const meta = await ensureForgeMetaSession(user.userId)
 
           if (!meta.activeChatSession) {

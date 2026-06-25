@@ -28,7 +28,10 @@ import {
   type CompileResponse,
   type ProjectDefinition,
 } from '~/builder/api/compile'
-import { createLocalBuilderManifestBundleFromFiles } from '~/builder/manifest'
+import {
+  createLocalBuilderManifestBundleFromFiles,
+  createLocalBuilderManifestBundleFromManifestFiles,
+} from '~/builder/manifest'
 import type { BuilderFileSource, BuilderRunStatus } from '~/builder/schema'
 import type { LocalBuilderTimelineEvent } from '~/builder/projection'
 import {
@@ -44,6 +47,7 @@ import {
   persistLocalForgeManifestBundle,
   readLocalForgeSnapshot,
   readLocalForgeTimeline,
+  recoverStaleActiveLocalForgeRun,
   updateActiveLocalForgeChatTitleFromPrompt,
   withLocalForgeLock,
   type LocalForgeSnapshot,
@@ -56,6 +60,7 @@ import {
 import type { ForgeProviderCredential } from './forge-byok.server'
 import { isIsolateRuntime } from '~/server/runtime/host.server'
 import { getHostRuntimeEnv } from '~/server/runtime/host.server'
+import { waitUntilHostRuntime } from '~/server/runtime/host.server'
 
 const LOCAL_FORGE_CONTEXT_VERSION = 'forge-local-agent-2026-06-18'
 const LOCAL_FORGE_MAX_ITERATIONS = 10
@@ -238,10 +243,20 @@ type ForgeAgentHarness = {
 
 type CodexCliCommandResult = {
   exitCode: number | null
+  files?: Record<string, string>
   finalMessage: string
   stderr: string
+  stdout?: string
   workspaceDir: string
 }
+
+const codexCliSidecarResultSchema = z.object({
+  exitCode: z.number().nullable(),
+  files: z.record(z.string(), z.string()),
+  finalMessage: z.string(),
+  stderr: z.string(),
+  stdout: z.string(),
+})
 
 type CodexCliWorkspaceScan = {
   changeCount: number
@@ -577,15 +592,22 @@ export async function startLocalForgeAgentRun({
     })
     const startedSnapshot = await readLocalForgeSnapshot()
 
-    void drainLocalForgeAgentRun(preparedRun)
-      .catch(() => {
+    const drainPromise = drainLocalForgeAgentRun(preparedRun)
+      .catch((error: unknown) => {
         // The run failure is already persisted into the Forge timeline.
+        console.error('[Forge] background agent run failed', error)
       })
       .finally(() => {
         void lease?.release().catch((error) => {
           console.error('Local Forge run lock release failed', error)
         })
       })
+
+    if (!waitUntilHostRuntime(drainPromise) && isIsolateRuntime()) {
+      await drainPromise
+    } else {
+      void drainPromise
+    }
 
     return startedSnapshot
   } catch (error) {
@@ -684,6 +706,7 @@ async function drainLocalForgeAgentRun({
   runContext,
 }: PreparedForgeAgentRun) {
   const harness = getLocalForgeHarness(providerCredential)
+
   const state: ForgeAgentState = {
     changeCount: 0,
     planReceived: false,
@@ -703,7 +726,6 @@ async function drainLocalForgeAgentRun({
     throw new Error(error)
   }
 
-  const seedCompile = await compileHandler(localForgeDefinition)
   const workspace = createLocalForgeWorkspaceFromSnapshot(initialSnapshot)
   const toolEvents = new Set<string>()
 
@@ -753,17 +775,27 @@ async function drainLocalForgeAgentRun({
     assertCompletedRun(state)
 
     const finalFiles = addLocalForgePackageSupport(workspaceToFiles(workspace))
-    const finalCompile = mergeCompileWithFiles(seedCompile, finalFiles)
-    const bundle = await createManifestBundle({
-      createdAt: new Date().toISOString(),
-      files: finalFiles,
-      fileSources: Object.fromEntries(
-        Array.from(workspace.values()).map((file) => [file.path, file.source]),
-      ),
-      parentManifestVersionId: initialSnapshot.manifestVersionId,
-      runId: runContext.runId,
-      seedCompile: finalCompile,
-    })
+    const finalFileSources = Object.fromEntries(
+      Array.from(workspace.values()).map((file) => [file.path, file.source]),
+    )
+    const bundle = initialSnapshot.currentManifest
+      ? await createLocalBuilderManifestBundleFromManifestFiles({
+          createdAt: new Date().toISOString(),
+          createdByRunId: runContext.runId,
+          files: finalFiles,
+          fileSource: 'builder-definition',
+          fileSources: finalFileSources,
+          manifest: initialSnapshot.currentManifest,
+          parentManifestVersionId: initialSnapshot.manifestVersionId,
+        })
+      : await createManifestBundle({
+          createdAt: new Date().toISOString(),
+          files: finalFiles,
+          fileSources: finalFileSources,
+          parentManifestVersionId: initialSnapshot.manifestVersionId,
+          runId: runContext.runId,
+          seedCompile: await compileHandler(localForgeDefinition),
+        })
 
     await persistLocalForgeManifestBundle(bundle)
     const materialized = isIsolateRuntime()
@@ -863,6 +895,13 @@ function getRequestedLocalForgeHarnessName(): ForgeAgentHarnessName {
 
 export function resolveLocalForgeAgentHarnessName(
   requestedHarness: string | undefined,
+  {
+    isolateRuntime = isIsolateRuntime(),
+    nodeEnv = process.env.NODE_ENV,
+  }: {
+    isolateRuntime?: boolean
+    nodeEnv?: string
+  } = {},
 ): ForgeAgentHarnessName {
   const normalizedHarness = requestedHarness?.trim().toLowerCase()
 
@@ -880,6 +919,10 @@ export function resolveLocalForgeAgentHarnessName(
     normalizedHarness === 'workers-ai'
   ) {
     return 'cloudflare-workers-ai'
+  }
+
+  if (!normalizedHarness && nodeEnv !== 'production') {
+    return 'codex-cli'
   }
 
   return 'tanstack-ai'
@@ -925,6 +968,7 @@ async function runTanStackAiForgeHarness({
       const completedMessageIds = new Set<string>()
       const toolArgsById = new Map<string, string>()
       const toolNamesById = new Map<string, string>()
+      let toolFlowCompleted = false
       const stream = chat({
         abortController,
         adapter,
@@ -962,6 +1006,15 @@ async function runTanStackAiForgeHarness({
           toolArgsById,
           toolNamesById,
         })
+
+        if (getLocalForgeAgentCompletionProblems(state).length === 0) {
+          toolFlowCompleted = true
+          break
+        }
+      }
+
+      if (!toolFlowCompleted) {
+        assertCompletedRun(state)
       }
     },
     timeoutMs: LOCAL_FORGE_TIMEOUT_MS,
@@ -1749,6 +1802,7 @@ async function runCodexCliForgeHarness({
     }),
     runContext,
     state,
+    workspace,
     workspaceDir,
   })
 
@@ -1760,10 +1814,15 @@ async function runCodexCliForgeHarness({
     )
   }
 
-  const scan = await scanCodexCliWorkspace({
-    originalWorkspace: workspace,
-    workspaceDir,
-  })
+  const scan = result.files
+    ? scanCodexCliReturnedWorkspace({
+        files: result.files,
+        originalWorkspace: workspace,
+      })
+    : await scanCodexCliWorkspace({
+        originalWorkspace: workspace,
+        workspaceDir,
+      })
 
   workspace.clear()
 
@@ -2237,82 +2296,11 @@ async function recoverOrRejectActiveRun(snapshot: LocalForgeSnapshot) {
     return snapshot
   }
 
-  const startedAtMs = latestRun.startedAt
-    ? Date.parse(latestRun.startedAt)
-    : undefined
-
-  if (
-    startedAtMs !== undefined &&
-    Number.isFinite(startedAtMs) &&
-    Date.now() - startedAtMs > LOCAL_FORGE_RUN_LOCK_STALE_MS
-  ) {
-    await appendStaleActiveRunFailure({
-      runId: latestRun.id,
-      startedAt: latestRun.startedAt,
-    })
-
+  if (await recoverStaleActiveLocalForgeRun(latestRun)) {
     return readLocalForgeSnapshot()
   }
 
   throw new Error(`Forge run ${latestRun.id} is already ${latestRun.status}.`)
-}
-
-async function appendStaleActiveRunFailure({
-  runId,
-  startedAt,
-}: {
-  runId: string
-  startedAt?: string
-}) {
-  const existing = await readLocalForgeTimeline()
-  const createdAt = new Date().toISOString()
-  const error = startedAt
-    ? `Recovered stale local Forge run that started at ${startedAt}.`
-    : 'Recovered stale local Forge run.'
-
-  await appendLocalForgeTimelineEvents([
-    {
-      createdAt,
-      eventId: `local-stale-run-workflow-${crypto.randomUUID()}`,
-      projectId: LOCAL_FORGE_PROJECT_ID,
-      producer: createLocalForgeProducer({
-        index: existing.length,
-        kind: 'system',
-        producerId: 'local-runtime',
-      }),
-      runId,
-      schemaVersion: 1,
-      sessionId: getActiveLocalForgeSessionId(),
-      type: 'workflow.event.recorded',
-      payload: {
-        detail: error,
-        id: `local-stale-run-row-${crypto.randomUUID()}`,
-        message: 'Stale run recovered',
-        name: 'run.recovered.failed',
-        runId,
-        status: 'failed',
-      },
-    },
-    {
-      createdAt,
-      eventId: `local-stale-run-terminal-${crypto.randomUUID()}`,
-      projectId: LOCAL_FORGE_PROJECT_ID,
-      producer: createLocalForgeProducer({
-        index: existing.length + 1,
-        kind: 'system',
-        producerId: 'local-runtime',
-      }),
-      runId,
-      schemaVersion: 1,
-      sessionId: getActiveLocalForgeSessionId(),
-      type: 'run.failed',
-      payload: {
-        error,
-        runId,
-        status: 'failed',
-      },
-    },
-  ])
 }
 
 async function appendRunStart({
@@ -3483,8 +3471,11 @@ function getCodexCliOutputMessagePath(runId: string) {
 }
 
 function getCodexCliRuntimeDir() {
+  const tempDir = os.tmpdir()
+  const tempRoot = path.isAbsolute(tempDir) ? tempDir : '/tmp'
+
   return path.join(
-    os.tmpdir(),
+    tempRoot,
     'tanstack-forge-runtime',
     Buffer.from(process.cwd()).toString('base64url'),
     getActiveLocalForgeSessionId(),
@@ -3502,6 +3493,12 @@ async function prepareCodexCliWorkspace({
   await rm(workspaceDir, {
     force: true,
     recursive: true,
+  }).catch((error: unknown) => {
+    if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
+      return
+    }
+
+    throw error
   })
   await mkdir(workspaceDir, { recursive: true })
 
@@ -3551,12 +3548,14 @@ async function runCodexCliCommand({
   prompt,
   runContext,
   state,
+  workspace,
   workspaceDir,
 }: {
   outputLastMessagePath: string
   prompt: string
   runContext: ForgeRunContext
   state: ForgeAgentState
+  workspace: Map<string, ForgeWorkspaceFile>
   workspaceDir: string
 }): Promise<CodexCliCommandResult> {
   const command = await resolveCodexCliCommand()
@@ -3574,6 +3573,26 @@ async function runCodexCliCommand({
     runContext,
     status: 'running',
   })
+
+  if (isIsolateRuntime()) {
+    const result = await runCodexCliCommandWithSidecar({
+      args,
+      command,
+      outputLastMessagePath,
+      prompt,
+      workspace,
+      workspaceDir,
+    })
+
+    await replayCodexCliStdout({
+      runContext,
+      state,
+      stdout: result.stdout,
+      workspaceDir,
+    })
+
+    return result
+  }
 
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, {
@@ -3736,6 +3755,169 @@ async function runCodexCliCommand({
   })
 }
 
+async function runCodexCliCommandWithSidecar({
+  args,
+  command,
+  outputLastMessagePath,
+  prompt,
+  workspace,
+  workspaceDir,
+}: {
+  args: Array<string>
+  command: string
+  outputLastMessagePath: string
+  prompt: string
+  workspace: Map<string, ForgeWorkspaceFile>
+  workspaceDir: string
+}): Promise<CodexCliCommandResult & { stdout: string }> {
+  const response = await fetchCodexCliSidecar('/run', {
+    body: JSON.stringify({
+      args,
+      command,
+      cwd: workspaceDir,
+      files: addLocalForgePackageSupport(workspaceToFiles(workspace)),
+      maxOutputChars: LOCAL_FORGE_CODEX_MAX_OUTPUT_CHARS * 10,
+      outputLastMessagePath,
+      prompt,
+      timeoutMs: LOCAL_FORGE_CODEX_TIMEOUT_MS,
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    method: 'POST',
+  })
+
+  if (!response.ok) {
+    throw new Error(
+      `Forge Codex sidecar failed with ${response.status}: ${await response.text()}`,
+    )
+  }
+
+  const result = codexCliSidecarResultSchema.parse(await response.json())
+
+  return {
+    exitCode: result.exitCode,
+    files: result.files,
+    finalMessage: result.finalMessage,
+    stderr: result.stderr,
+    stdout: result.stdout,
+    workspaceDir,
+  }
+}
+
+async function fetchCodexCliSidecar(pathname: string, init: RequestInit) {
+  const sidecarUrl = new URL(pathname, getCodexCliSidecarBaseUrl())
+  let lastError: unknown
+
+  for (let attempt = 0; attempt < 20; attempt++) {
+    try {
+      return await fetch(sidecarUrl, init)
+    } catch (error) {
+      lastError = error
+      await sleep(150)
+    }
+  }
+
+  throw lastError instanceof Error
+    ? lastError
+    : new Error('Forge Codex sidecar is unavailable.')
+}
+
+function getCodexCliSidecarBaseUrl() {
+  const configuredUrl = process.env.FORGE_CODEX_SIDECAR_URL?.trim()
+
+  if (configuredUrl) {
+    return configuredUrl
+  }
+
+  const port = process.env.FORGE_CODEX_SIDECAR_PORT?.trim() || '48731'
+
+  return `http://127.0.0.1:${port}`
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms)
+  })
+}
+
+async function replayCodexCliStdout({
+  runContext,
+  state,
+  stdout,
+  workspaceDir,
+}: {
+  runContext: ForgeRunContext
+  state: ForgeAgentState
+  stdout: string
+  workspaceDir: string
+}) {
+  let emittedEventCount = 0
+  let emittedAssistantDeltaChars = 0
+  let assistantMessageStarted = false
+  let assistantMessageText = ''
+
+  for (const line of stdout.split(/\r?\n/)) {
+    const event = normalizeCodexCliJsonLine(line, workspaceDir)
+
+    if (!event) {
+      continue
+    }
+
+    if (event.assistantDelta !== undefined) {
+      if (emittedAssistantDeltaChars >= LOCAL_FORGE_CODEX_MAX_OUTPUT_CHARS) {
+        continue
+      }
+
+      const remaining =
+        LOCAL_FORGE_CODEX_MAX_OUTPUT_CHARS - emittedAssistantDeltaChars
+      const delta = event.assistantDelta.slice(0, remaining)
+      emittedAssistantDeltaChars += delta.length
+
+      if (!assistantMessageStarted) {
+        assistantMessageStarted = true
+        await appendAssistantMessageStarted({
+          messageId: runContext.assistantMessageId,
+          runContext,
+        })
+      }
+
+      assistantMessageText += delta
+      state.streamedAssistantMessage =
+        state.streamedAssistantMessage || delta.trim().length > 0
+      await appendAssistantMessageDelta({
+        delta,
+        messageId: runContext.assistantMessageId,
+        runContext,
+      })
+      continue
+    }
+
+    if (emittedEventCount >= LOCAL_FORGE_CODEX_MAX_EVENTS) {
+      continue
+    }
+
+    emittedEventCount += 1
+    await appendAgentEvent({
+      detail: event.detail,
+      message: event.message,
+      name: event.name,
+      path: event.path,
+      runContext,
+      status: event.status,
+      toolCallId: event.toolCallId,
+    })
+  }
+
+  if (assistantMessageStarted) {
+    await appendAssistantMessageCompleted({
+      messageId: runContext.assistantMessageId,
+      runContext,
+      text: assistantMessageText,
+    })
+  }
+}
+
 function buildCodexCliArgs({
   outputLastMessagePath,
   workspaceDir,
@@ -3871,6 +4053,100 @@ async function scanCodexCliWorkspace({
         filePath,
         workspaceDir,
       }),
+      path: filePath,
+      source: 'agent',
+    })
+    changedPaths.push(filePath)
+  }
+
+  return {
+    changeCount: changedPaths.length,
+    changedPaths,
+    problems,
+    workspace: nextWorkspace,
+  }
+}
+
+function scanCodexCliReturnedWorkspace({
+  files,
+  originalWorkspace,
+}: {
+  files: Record<string, string>
+  originalWorkspace: Map<string, ForgeWorkspaceFile>
+}): CodexCliWorkspaceScan {
+  const filePaths = Object.keys(files).sort((left, right) =>
+    left.localeCompare(right),
+  )
+  const filePathSet = new Set(filePaths)
+  const changedPaths = Array<string>()
+  const problems = Array<string>()
+  const nextWorkspace = new Map<string, ForgeWorkspaceFile>()
+
+  for (const [filePath, file] of originalWorkspace) {
+    nextWorkspace.set(filePath, file)
+  }
+
+  for (const [filePath, originalFile] of originalWorkspace) {
+    if (LOCAL_FORGE_CODEX_SCANNER_IGNORED_FILE_PATHS.has(filePath)) {
+      continue
+    }
+
+    if (!filePathSet.has(filePath)) {
+      const problem = validateDeletedPath(filePath)
+
+      if (problem === null) {
+        nextWorkspace.delete(filePath)
+        changedPaths.push(filePath)
+      } else if (LOCAL_FORGE_PROTECTED_WORKSPACE_PATHS.has(filePath)) {
+        problems.push(
+          `Codex CLI deleted unsupported file ${filePath}: ${problem}`,
+        )
+      }
+
+      continue
+    }
+
+    const contents = files[filePath]
+
+    if (contents === originalFile.contents) {
+      continue
+    }
+
+    const problem = validateGeneratedPath(filePath)
+
+    if (problem) {
+      problems.push(
+        `Codex CLI changed unsupported file ${filePath}: ${problem}`,
+      )
+      continue
+    }
+
+    nextWorkspace.set(filePath, {
+      contents,
+      path: filePath,
+      source: 'agent',
+    })
+    changedPaths.push(filePath)
+  }
+
+  for (const filePath of filePaths) {
+    if (LOCAL_FORGE_CODEX_SCANNER_IGNORED_FILE_PATHS.has(filePath)) {
+      continue
+    }
+
+    if (originalWorkspace.has(filePath)) {
+      continue
+    }
+
+    const problem = validateGeneratedPath(filePath)
+
+    if (problem) {
+      problems.push(`Codex CLI wrote unsupported file ${filePath}: ${problem}`)
+      continue
+    }
+
+    nextWorkspace.set(filePath, {
+      contents: files[filePath],
       path: filePath,
       source: 'agent',
     })

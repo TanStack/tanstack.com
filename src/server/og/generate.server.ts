@@ -2,6 +2,7 @@ import {
   ImageResponse,
   type ImageResponseOptions,
 } from '@takumi-rs/image-response'
+import takumiWasmModule from '@takumi-rs/wasm/auto'
 import { findLibrary } from '~/libraries'
 import type { LibraryId } from '~/libraries'
 import { loadOgAssets as loadNodeOgAssets } from './assets.server'
@@ -74,7 +75,8 @@ export async function generateOgImageResponse(
         style: 'normal',
       },
     ],
-    persistentImages: [{ src: ISLAND_KEY, data: assets.islandPng }],
+    images: [{ src: ISLAND_KEY, data: assets.islandPng }],
+    module: takumiWasmModule,
     ...init,
   }
 

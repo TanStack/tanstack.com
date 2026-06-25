@@ -11,7 +11,7 @@ import { chartHeightSchema } from '~/utils/schemas'
 import {
   getPopularComparisons,
   getBaselinePresets,
-  packageGroupSchema,
+  packageGroupsSchema,
   defaultPackageGroups,
   type BaselinePreset,
 } from './-comparisons'
@@ -27,6 +27,7 @@ import { StatsTable } from '~/components/npm-stats/StatsTable'
 import { npmQueryOptions } from '~/components/npm-stats/npmQueryOptions'
 import {
   defaultRangeBinTypes,
+  getPackageGroupLabel,
   getPackageColor,
   type BinType,
   type FacetValue,
@@ -57,10 +58,7 @@ const showDataModeSchema = v.picklist(['all', 'complete'])
 export const Route = createFileRoute('/stats/npm/')({
   validateSearch: v.object({
     packageGroups: v.fallback(
-      v.optional(
-        v.pipe(v.array(packageGroupSchema), v.maxLength(12)),
-        defaultPackageGroups,
-      ),
+      v.optional(packageGroupsSchema, defaultPackageGroups),
       defaultPackageGroups,
     ),
     range: v.fallback(
@@ -89,10 +87,8 @@ export const Route = createFileRoute('/stats/npm/')({
     height: v.fallback(v.optional(chartHeightSchema, 400), 400),
   }),
   loaderDeps: ({ search }) => ({
-    packageList: search.packageGroups
-      ?.map((p) => p.packages[0].name)
-      .join(' vs '),
-    packageNames: search.packageGroups?.map((p) => p.packages[0].name) ?? [],
+    packageList: search.packageGroups?.map(getPackageGroupLabel).join(' vs '),
+    packageNames: search.packageGroups?.map(getPackageGroupLabel) ?? [],
   }),
   loader: async ({ deps }) => {
     return deps
@@ -216,6 +212,8 @@ export const Route = createFileRoute('/stats/npm/')({
 type _NpmStatsSearch = {
   packageGroups?: Array<{
     name?: string
+    label?: string
+    hidden?: boolean
     color?: string
     baseline?: boolean
     baselineLabel?: string
@@ -372,12 +370,14 @@ function RouteComponent() {
         ...prev,
         packageGroups: prev.packageGroups?.map((pkg, i) =>
           i === index
-            ? {
-                ...pkg,
-                packages: pkg.packages.map((p) =>
-                  p.name === packageName ? { ...p, hidden: !p.hidden } : p,
-                ),
-              }
+            ? pkg.label === packageName
+              ? { ...pkg, hidden: !pkg.hidden }
+              : {
+                  ...pkg,
+                  packages: pkg.packages.map((p) =>
+                    p.name === packageName ? { ...p, hidden: !p.hidden } : p,
+                  ),
+                }
             : pkg,
         ),
       }),
@@ -435,6 +435,36 @@ function RouteComponent() {
     })
   }
 
+  const handleLabelChange = (packageGroupIndex: number, label: string) => {
+    navigate({
+      to: '.',
+      search: (prev) => {
+        const nextLabel = label.slice(0, 80)
+        const hasNextLabel = nextLabel.trim().length > 0
+        const groups = prev.packageGroups ?? packageGroups
+
+        return {
+          ...prev,
+          packageGroups: groups.map((pkg, i) => {
+            if (i !== packageGroupIndex) return pkg
+
+            const nextPackageGroup = { ...pkg }
+            if (hasNextLabel) {
+              nextPackageGroup.label = nextLabel
+            } else {
+              delete nextPackageGroup.label
+              delete nextPackageGroup.hidden
+            }
+
+            return nextPackageGroup
+          }),
+        }
+      },
+      replace: true,
+      resetScroll: false,
+    })
+  }
+
   const setBinningOption = (newBinningOption: BinType) => {
     navigate({
       to: '.',
@@ -485,8 +515,10 @@ function RouteComponent() {
       navigate({
         to: '.',
         search: (prev) => {
-          const packageGroup = packageGroups.find((pkg) =>
-            pkg.packages.some((p) => p.name === packageName),
+          const packageGroup = packageGroups.find(
+            (pkg) =>
+              pkg.label === packageName ||
+              pkg.packages.some((p) => p.name === packageName),
           )
           if (!packageGroup) return prev
 
@@ -619,9 +651,7 @@ function RouteComponent() {
   }
 
   // Generate dynamic H1 based on packages being compared
-  const packageListForH1 = packageGroups
-    .map((p) => p.packages[0].name)
-    .join(' vs ')
+  const packageListForH1 = packageGroups.map(getPackageGroupLabel).join(' vs ')
 
   return (
     <div className="min-h-dvh p-2 sm:p-4 space-y-2 sm:space-y-4">
@@ -669,6 +699,7 @@ function RouteComponent() {
             onToggleVisibility={togglePackageVisibility}
             onRemove={handleRemovePackageName}
             onCombinePackage={handleCombinePackage}
+            onLabelChange={handleLabelChange}
             onRemoveFromGroup={handleRemoveFromGroup}
             openMenuPackage={openMenuPackage}
             onMenuOpenChange={handleMenuOpenChange}

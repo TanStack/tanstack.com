@@ -1,4 +1,5 @@
 import * as v from 'valibot'
+import { MAX_NPM_STATS_GROUPS } from '~/utils/npm-stats-limits'
 
 // Re-export shared types from chart utils
 export {
@@ -54,7 +55,7 @@ export function decodePackageName(urlName: string): string {
 
 // Parse packages from URL like "react-vs-vue" or "@tanstack__react-query-vs-swr"
 export function parsePackagesFromUrl(packagesParam: string): string[] {
-  const parts = packagesParam.split('-vs-').slice(0, 12)
+  const parts = packagesParam.split('-vs-').slice(0, MAX_NPM_STATS_GROUPS)
   return parts
     .map(decodePackageName)
     .filter((packageName) =>

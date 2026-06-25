@@ -12,7 +12,13 @@ import type {
   TimeRange,
   TransformMode,
 } from './shared'
-import { getBaselineDisplayName, getPackageColor } from './shared'
+import {
+  getBaselineDisplayName,
+  getPackageColor,
+  getPackageGroupLabel,
+  hasPackageGroupLabel,
+  isPackageGroupHidden,
+} from './shared'
 import { BASELINE_LINE_COLOR } from './BaselineSection'
 
 const BASELINE_LINE_SERIES = '__baseline__'
@@ -95,6 +101,10 @@ export function NPMStatsChart({
   const combinedPackageGroups = queryData.map((queryPackageGroup, index) => {
     // Get the corresponding package group from the packages prop to get the hidden state
     const packageGroupWithHidden = packages[index]
+    const shouldAlwaysIncludeFirstPackage =
+      !packageGroupWithHidden ||
+      !hasPackageGroupLabel(packageGroupWithHidden) ||
+      !!packageGroupWithHidden.baseline
 
     // Filter out any sub packages that are hidden before
     // summing them into a unified downloads count
@@ -102,7 +112,7 @@ export function NPMStatsChart({
       const hiddenState = packageGroupWithHidden?.packages.find(
         (pg) => pg.name === p.name,
       )?.hidden
-      return !i || !hiddenState
+      return (i === 0 && shouldAlwaysIncludeFirstPackage) || !hiddenState
     })
 
     const downloadsByDate: Map<number, number> = new Map()
@@ -123,6 +133,9 @@ export function NPMStatsChart({
 
     return {
       ...queryPackageGroup,
+      label: packageGroupWithHidden
+        ? getPackageGroupLabel(packageGroupWithHidden)
+        : undefined,
       downloads: Array.from(downloadsByDate.entries()).map(
         ([date, downloads]) => [d3.utcDay(new Date(date)), downloads],
       ) as [Date, number][],
@@ -142,7 +155,7 @@ export function NPMStatsChart({
     )
 
     const downloads = binned.map((d) => ({
-      name: packageGroup.packages[0]?.name,
+      name: packageGroup.label || packageGroup.packages[0]?.name,
       date: d3.utcDay(new Date(d[0])),
       downloads: d[1],
     }))
@@ -242,8 +255,9 @@ export function NPMStatsChart({
   // normalized series.
   const filteredPackageData = correctedPackageData.filter((_, index) => {
     const packageGroupWithHidden = packages[index]
-    const isHidden = packageGroupWithHidden?.packages[0]?.hidden
-    return !isHidden
+    return packageGroupWithHidden
+      ? !isPackageGroupHidden(packageGroupWithHidden)
+      : true
   })
 
   const plotData = filteredPackageData.flatMap((d) =>

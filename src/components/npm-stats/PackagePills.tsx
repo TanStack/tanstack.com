@@ -8,7 +8,13 @@ import {
   DropdownMenuTrigger,
 } from '@radix-ui/react-dropdown-menu'
 import { Tooltip } from '~/components/Tooltip'
-import { type PackageGroup, getPackageColor } from './shared'
+import {
+  type PackageGroup,
+  getPackageColor,
+  getPackageGroupLabel,
+  hasPackageGroupLabel,
+  isPackageGroupHidden,
+} from './shared'
 
 export type PackagePillProps = {
   packageGroup: PackageGroup
@@ -20,6 +26,7 @@ export type PackagePillProps = {
   onRemove: (index: number) => void
   // Optional advanced features (main page only)
   onCombinePackage?: (packageName: string) => void
+  onLabelChange?: (index: number, label: string) => void
   onRemoveFromGroup?: (mainPackage: string, subPackage: string) => void
   openMenuPackage?: string | null
   onMenuOpenChange?: (packageName: string, open: boolean) => void
@@ -34,19 +41,40 @@ export function PackagePill({
   onToggleVisibility,
   onRemove,
   onCombinePackage,
+  onLabelChange,
   onRemoveFromGroup,
   openMenuPackage,
   onMenuOpenChange,
 }: PackagePillProps) {
+  const currentLabel = packageGroup.label ?? ''
+  const [draftLabel, setDraftLabel] = React.useState(currentLabel)
+  const labelInputId = React.useId()
+
+  React.useEffect(() => {
+    setDraftLabel(currentLabel)
+  }, [currentLabel])
+
   const mainPackage = packageGroup.packages[0]
   if (!mainPackage) return null
 
+  const hasLabel = hasPackageGroupLabel(packageGroup)
   const packageList = packageGroup.packages
-  const isCombined = packageList.length > 1
-  const subPackages = packageList.filter((p) => p.name !== mainPackage.name)
+  const listedPackages = hasLabel
+    ? packageList
+    : packageList.filter((p) => p.name !== mainPackage.name)
+  const showPackageList = listedPackages.length > 0
+  const showPackageCount = !hasLabel && showPackageList
   const color = getPackageColor(mainPackage.name, allPackageGroups)
+  const label = getPackageGroupLabel(packageGroup)
+  const isGroupHidden = isPackageGroupHidden(packageGroup)
 
-  const showAdvancedMenu = onCombinePackage && onMenuOpenChange
+  const showAdvancedMenu =
+    onMenuOpenChange && (onCombinePackage || onLabelChange)
+  const handleLabelBlur = () => {
+    if (draftLabel !== currentLabel) {
+      onLabelChange?.(index, draftLabel)
+    }
+  }
 
   return (
     <div
@@ -73,21 +101,23 @@ export function PackagePill({
         </Tooltip>
         <Tooltip content="Toggle package visibility">
           <button
-            onClick={() => onToggleVisibility(index, mainPackage.name)}
+            onClick={() =>
+              onToggleVisibility(index, hasLabel ? label : mainPackage.name)
+            }
             className={twMerge(
               'hover:text-blue-500 flex items-center gap-1',
-              mainPackage.hidden ? 'opacity-50' : '',
+              isGroupHidden ? 'opacity-50' : '',
             )}
           >
-            {mainPackage.name}
-            {mainPackage.hidden ? (
+            {label}
+            {isGroupHidden ? (
               <EyeOff className="w-3 h-3 sm:w-4 sm:h-4" />
             ) : null}
           </button>
         </Tooltip>
-        {isCombined ? (
+        {showPackageCount ? (
           <span className="text-black/70 dark:text-white/70 text-[.7em] font-black py-0.5 px-1 leading-none rounded-md border-[1.5px] border-current opacity-80">
-            + {subPackages.length}
+            + {listedPackages.length}
           </span>
         ) : null}
 
@@ -113,19 +143,50 @@ export function PackagePill({
                   <span className="text-sm font-medium">Options</span>
                 </div>
                 <div className="space-y-1">
+                  {onLabelChange && (
+                    <div className="px-2 py-1.5 space-y-1">
+                      <label
+                        className="block text-xs font-medium text-gray-500"
+                        htmlFor={labelInputId}
+                      >
+                        Label
+                      </label>
+                      <input
+                        className="w-full rounded border border-gray-500/20 bg-white px-2 py-1 text-sm outline-none focus:border-blue-500 dark:bg-gray-900"
+                        id={labelInputId}
+                        maxLength={80}
+                        onBlur={handleLabelBlur}
+                        onChange={(event) =>
+                          setDraftLabel(event.currentTarget.value)
+                        }
+                        onClick={(event) => event.stopPropagation()}
+                        onKeyDown={(event) => {
+                          event.stopPropagation()
+                          if (event.key === 'Enter') {
+                            event.currentTarget.blur()
+                          }
+                        }}
+                        placeholder={mainPackage.name}
+                        value={draftLabel}
+                      />
+                    </div>
+                  )}
                   <DropdownMenuItem
                     onSelect={(e) => {
                       e.preventDefault()
-                      onToggleVisibility(index, mainPackage.name)
+                      onToggleVisibility(
+                        index,
+                        hasLabel ? label : mainPackage.name,
+                      )
                     }}
                     className="w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer"
                   >
-                    {mainPackage.hidden ? (
+                    {isGroupHidden ? (
                       <EyeOff className="text-sm" />
                     ) : (
                       <Eye className="text-sm" />
                     )}
-                    {mainPackage.hidden ? 'Show Package' : 'Hide Package'}
+                    {isGroupHidden ? 'Show Package' : 'Hide Package'}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onSelect={(e) => {
@@ -143,13 +204,13 @@ export function PackagePill({
                     />
                     Change Color
                   </DropdownMenuItem>
-                  {isCombined && onRemoveFromGroup && (
+                  {showPackageList && onRemoveFromGroup && (
                     <>
                       <div className="h-px bg-gray-500/20 my-1" />
                       <div className="px-2 py-1 text-xs font-medium text-gray-500">
-                        Sub-packages
+                        {hasLabel ? 'Packages' : 'Sub-packages'}
                       </div>
-                      {subPackages.map((subPackage) => (
+                      {listedPackages.map((subPackage) => (
                         <DropdownMenuItem
                           key={subPackage.name}
                           onSelect={(e) => {
@@ -190,16 +251,18 @@ export function PackagePill({
                       ))}
                     </>
                   )}
-                  <DropdownMenuItem
-                    onSelect={(e) => {
-                      e.preventDefault()
-                      onCombinePackage(mainPackage.name)
-                    }}
-                    className="w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer"
-                  >
-                    <Plus className="text-sm" />
-                    Add Packages
-                  </DropdownMenuItem>
+                  {onCombinePackage && (
+                    <DropdownMenuItem
+                      onSelect={(e) => {
+                        e.preventDefault()
+                        onCombinePackage(mainPackage.name)
+                      }}
+                      className="w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer"
+                    >
+                      <Plus className="text-sm" />
+                      Add Packages
+                    </DropdownMenuItem>
+                  )}
                 </div>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -230,6 +293,7 @@ export type PackagePillsProps = {
   onRemove: (index: number) => void
   // Optional advanced features (main page only)
   onCombinePackage?: (packageName: string) => void
+  onLabelChange?: (index: number, label: string) => void
   onRemoveFromGroup?: (mainPackage: string, subPackage: string) => void
   openMenuPackage?: string | null
   onMenuOpenChange?: (packageName: string, open: boolean) => void
@@ -242,6 +306,7 @@ export function PackagePills({
   onToggleVisibility,
   onRemove,
   onCombinePackage,
+  onLabelChange,
   onRemoveFromGroup,
   openMenuPackage,
   onMenuOpenChange,
@@ -261,6 +326,7 @@ export function PackagePills({
             onToggleVisibility={onToggleVisibility}
             onRemove={onRemove}
             onCombinePackage={onCombinePackage}
+            onLabelChange={onLabelChange}
             onRemoveFromGroup={onRemoveFromGroup}
             openMenuPackage={openMenuPackage}
             onMenuOpenChange={onMenuOpenChange}

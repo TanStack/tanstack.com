@@ -5,6 +5,24 @@ import { defaultColors } from '~/utils/npm-packages'
 
 export type PackageGroup = v.InferOutput<typeof packageGroupSchema>
 
+export function getPackageGroupLabel(packageGroup: PackageGroup): string {
+  return packageGroup.label?.trim() || packageGroup.packages[0]?.name || ''
+}
+
+export function hasPackageGroupLabel(packageGroup: PackageGroup): boolean {
+  return !!packageGroup.label?.trim()
+}
+
+export function isPackageGroupHidden(packageGroup: PackageGroup): boolean {
+  if (packageGroup.hidden !== undefined) return packageGroup.hidden
+
+  if (hasPackageGroupLabel(packageGroup) && !packageGroup.baseline) {
+    return false
+  }
+
+  return !!packageGroup.packages[0]?.hidden
+}
+
 export const binTypeSchema = v.picklist([
   'yearly',
   'monthly',
@@ -92,19 +110,23 @@ export function getPackageColor(
   packageName: string,
   packages: PackageGroup[],
 ): string {
-  const packageInfo = packages.find((pkg) =>
-    pkg.packages.some((p) => p.name === packageName),
+  const packageInfo = packages.find(
+    (pkg) =>
+      pkg.label === packageName ||
+      pkg.packages.some((p) => p.name === packageName),
   )
 
   if (packageInfo?.color) {
     return packageInfo.color
   }
 
-  const packageIndex = packages.findIndex((pkg) =>
-    pkg.packages.some((p) => p.name === packageName),
+  const packageIndex = packages.findIndex(
+    (pkg) =>
+      pkg.label === packageName ||
+      pkg.packages.some((p) => p.name === packageName),
   )
 
-  return defaultColors[packageIndex % defaultColors.length]
+  return defaultColors[Math.max(packageIndex, 0) % defaultColors.length]
 }
 
 export function getBaselineDisplayName(packageGroups: PackageGroup[]): string {
@@ -114,8 +136,8 @@ export function getBaselineDisplayName(packageGroups: PackageGroup[]): string {
       const label = packageGroup.baselineLabel?.trim()
       if (label) return [label]
 
-      const packageNames = packageGroup.packages.map((pkg) => pkg.name)
-      return packageNames.length ? [packageNames.join(', ')] : []
+      const groupLabel = getPackageGroupLabel(packageGroup)
+      return groupLabel ? [groupLabel] : []
     })
 
   return [...new Set(baselineNames)].join(', ') || 'Baseline'

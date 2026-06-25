@@ -37,7 +37,7 @@ import {
 } from '~/utils/npm-packages'
 import {
   getBaselinePresets,
-  packageGroupSchema,
+  packageGroupsSchema,
   type BaselinePreset,
 } from '~/routes/stats/npm/-comparisons'
 import { chartHeightSchema } from '~/utils/schemas'
@@ -65,10 +65,7 @@ export const Route = createFileRoute(
   '/_library/$libraryId/$version/docs/npm-stats',
 )({
   validateSearch: v.object({
-    packageGroups: v.fallback(
-      v.optional(v.pipe(v.array(packageGroupSchema), v.maxLength(12))),
-      undefined,
-    ),
+    packageGroups: v.fallback(v.optional(packageGroupsSchema), undefined),
     range: v.fallback(
       v.optional(
         v.picklist([
@@ -137,7 +134,7 @@ function RouteComponent() {
     x: number
     y: number
   } | null>(null)
-  const [_openMenuPackage, setOpenMenuPackage] = React.useState<string | null>(
+  const [openMenuPackage, setOpenMenuPackage] = React.useState<string | null>(
     null,
   )
 
@@ -199,12 +196,14 @@ function RouteComponent() {
         ...prev,
         packageGroups: prev.packageGroups?.map((pkg, i) =>
           i === index
-            ? {
-                ...pkg,
-                packages: pkg.packages.map((p) =>
-                  p.name === packageName ? { ...p, hidden: !p.hidden } : p,
-                ),
-              }
+            ? pkg.label === packageName
+              ? { ...pkg, hidden: !pkg.hidden }
+              : {
+                  ...pkg,
+                  packages: pkg.packages.map((p) =>
+                    p.name === packageName ? { ...p, hidden: !p.hidden } : p,
+                  ),
+                }
             : pkg,
         ),
       }),
@@ -222,6 +221,36 @@ function RouteComponent() {
           (_, i: number) => i !== packageGroupIndex,
         ),
       }),
+      resetScroll: false,
+    })
+  }
+
+  const handleLabelChange = (packageGroupIndex: number, label: string) => {
+    navigate({
+      to: '.',
+      search: (prev: NpmStatsSearch) => {
+        const nextLabel = label.slice(0, 80)
+        const hasNextLabel = nextLabel.trim().length > 0
+        const groups = prev.packageGroups ?? packageGroups
+
+        return {
+          ...prev,
+          packageGroups: groups.map((pkg, i) => {
+            if (i !== packageGroupIndex) return pkg
+
+            const nextPackageGroup = { ...pkg }
+            if (hasNextLabel) {
+              nextPackageGroup.label = nextLabel
+            } else {
+              delete nextPackageGroup.label
+              delete nextPackageGroup.hidden
+            }
+
+            return nextPackageGroup
+          }),
+        }
+      },
+      replace: true,
       resetScroll: false,
     })
   }
@@ -353,8 +382,10 @@ function RouteComponent() {
       navigate({
         to: '.',
         search: (prev: NpmStatsSearch) => {
-          const packageGroup = packageGroups.find((pkg) =>
-            pkg.packages.some((p) => p.name === packageName),
+          const packageGroup = packageGroups.find(
+            (pkg) =>
+              pkg.label === packageName ||
+              pkg.packages.some((p) => p.name === packageName),
           )
           if (!packageGroup) return prev
 
@@ -393,7 +424,7 @@ function RouteComponent() {
     },
   )
 
-  const _handleMenuOpenChange = (packageName: string, open: boolean) => {
+  const handleMenuOpenChange = (packageName: string, open: boolean) => {
     if (!open) {
       setOpenMenuPackage(null)
     } else {
@@ -438,6 +469,9 @@ function RouteComponent() {
               onColorClick={handleColorClick}
               onToggleVisibility={togglePackageVisibility}
               onRemove={handleRemovePackageName}
+              onLabelChange={handleLabelChange}
+              openMenuPackage={openMenuPackage}
+              onMenuOpenChange={handleMenuOpenChange}
             />
           </div>
 

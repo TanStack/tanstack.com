@@ -9,6 +9,9 @@ import {
   type NpmQueryData,
   type BinType,
   getPackageColor,
+  getPackageGroupLabel,
+  hasPackageGroupLabel,
+  isPackageGroupHidden,
   formatNumber,
 } from './shared'
 
@@ -24,6 +27,11 @@ export interface StatsTableProps {
 
 interface PackageStat {
   package: string
+  packageName: string
+  packages: Array<{
+    hidden: boolean | undefined
+    name: string
+  }>
   totalDownloads: number
   binDownloads: number
   growth: number
@@ -52,10 +60,23 @@ function calculateStats(
         return null
       }
 
+      const packageGroup = packageGroups[index]
       const firstPackage = packageGroupDownloads.packages[0]
       if (!firstPackage?.name) return null
 
-      const sortedDownloads = packageGroupDownloads.packages
+      const shouldAlwaysIncludeFirstPackage =
+        !packageGroup ||
+        !hasPackageGroupLabel(packageGroup) ||
+        !!packageGroup.baseline
+
+      const visiblePackages = packageGroupDownloads.packages.filter((p, i) => {
+        const hiddenState = packageGroup?.packages.find(
+          (pg) => pg.name === p.name,
+        )?.hidden
+        return (i === 0 && shouldAlwaysIncludeFirstPackage) || !hiddenState
+      })
+
+      const sortedDownloads = visiblePackages
         .flatMap((p) => p.downloads)
         .sort(
           (a, b) =>
@@ -91,13 +112,23 @@ function calculateStats(
       const growthPercentage = growth / (firstBin[1] || 1)
 
       return {
-        package: firstPackage.name,
+        package: packageGroup
+          ? getPackageGroupLabel(packageGroup)
+          : firstPackage.name,
+        packageName:
+          packageGroup && hasPackageGroupLabel(packageGroup)
+            ? getPackageGroupLabel(packageGroup)
+            : firstPackage.name,
+        packages: packageGroup?.packages.map((pkg) => ({
+          hidden: pkg.hidden,
+          name: pkg.name,
+        })) ?? [{ hidden: firstPackage.hidden, name: firstPackage.name }],
         totalDownloads: d3.sum(binnedDownloads, (d) => d[1]),
         binDownloads: lastBin[1],
         growth,
         growthPercentage,
         color,
-        hidden: firstPackage.hidden,
+        hidden: packageGroup ? isPackageGroupHidden(packageGroup) : undefined,
         index,
       }
     })
@@ -124,6 +155,11 @@ export function StatsTable({
       ? b.growth - a.growth
       : b.binDownloads - a.binDownloads,
   )
+  const showPackagesColumn = packageGroups.some(
+    (packageGroup) =>
+      !packageGroup.baseline &&
+      (hasPackageGroupLabel(packageGroup) || packageGroup.packages.length > 1),
+  )
 
   return (
     <div className="overflow-x-auto rounded-xl">
@@ -133,6 +169,11 @@ export function StatsTable({
             <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
               Package Name
             </th>
+            {showPackagesColumn && (
+              <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                NPM Packages
+              </th>
+            )}
             <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
               Total Period Downloads
             </th>
@@ -148,7 +189,7 @@ export function StatsTable({
                 <div className="flex items-center gap-2">
                   <Tooltip content="Change color">
                     <button
-                      onClick={(e) => onColorClick(stat.package, e)}
+                      onClick={(e) => onColorClick(stat.packageName, e)}
                       className="hover:opacity-80"
                     >
                       <div
@@ -162,7 +203,7 @@ export function StatsTable({
                       <Tooltip content="Toggle visibility">
                         <button
                           onClick={() =>
-                            onToggleVisibility(stat.index, stat.package)
+                            onToggleVisibility(stat.index, stat.packageName)
                           }
                           className="p-0.5 hover:text-blue-500 flex items-center gap-1"
                         >
@@ -184,6 +225,25 @@ export function StatsTable({
                   </div>
                 </div>
               </td>
+              {showPackagesColumn && (
+                <td className="px-3 sm:px-6 py-1 sm:py-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                  <div className="flex flex-wrap gap-1">
+                    {stat.packages.slice(0, 4).map((pkg) => (
+                      <span
+                        key={pkg.name}
+                        className={`rounded bg-gray-500/10 px-1.5 py-0.5 leading-none ${pkg.hidden ? 'opacity-50' : ''}`}
+                      >
+                        {pkg.name}
+                      </span>
+                    ))}
+                    {stat.packages.length > 4 && (
+                      <span className="rounded bg-gray-500/10 px-1.5 py-0.5 leading-none">
+                        + {stat.packages.length - 4} more
+                      </span>
+                    )}
+                  </div>
+                </td>
+              )}
               <td className="px-3 sm:px-6 py-1 sm:py-2 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400 text-right">
                 {formatNumber(stat.totalDownloads)}
               </td>

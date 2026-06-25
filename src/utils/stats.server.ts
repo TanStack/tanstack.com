@@ -47,6 +47,11 @@ import {
   toIsoDayUtc,
 } from './npm-download-ranges'
 import { isNpmPackageName } from './schemas'
+import {
+  MAX_NPM_STATS_GROUPS,
+  MAX_NPM_STATS_PACKAGES_PER_GROUP,
+  MAX_NPM_STATS_TOTAL_PACKAGES,
+} from './npm-stats-limits'
 
 type NpmDownloadsBulkPackage = {
   hidden?: boolean
@@ -63,9 +68,6 @@ type NpmDownloadsBulkRequest = {
   endDate: string
 }
 
-const MAX_NPM_STATS_GROUPS = 12
-const MAX_NPM_STATS_PACKAGES_PER_GROUP = 5
-const MAX_NPM_STATS_TOTAL_PACKAGES = 24
 const MAX_NPM_STATS_CHUNK_FETCH_CONCURRENCY = 8
 const MAX_NPM_STATS_RANGE_DAYS = 12 * 366
 

@@ -11,6 +11,7 @@ import {
   shopifyCartLineIdSchema,
   shopifyProductVariantIdSchema,
 } from '~/utils/shopify-id'
+import { shopifyHandleSchema } from '~/utils/shopify-handle'
 import {
   CART_CREATE_MUTATION,
   CART_DISCOUNT_CODES_UPDATE_MUTATION,
@@ -108,12 +109,6 @@ const productSortKeys = [
   'UPDATED_AT',
   'VENDOR',
 ] as const
-const shopHandleSchema = v.pipe(
-  v.string(),
-  v.minLength(1),
-  v.maxLength(120),
-  v.regex(/^[a-z0-9][a-z0-9-]*$/i),
-)
 const shopCursorSchema = v.pipe(v.string(), v.maxLength(512))
 const shopPageSizeSchema = v.pipe(
   v.number(),
@@ -181,7 +176,7 @@ export const getCollections = createServerFn({ method: 'GET' }).handler(
 )
 
 export const getProduct = createServerFn({ method: 'POST' })
-  .validator(v.object({ handle: shopHandleSchema }))
+  .validator(v.object({ handle: shopifyHandleSchema }))
   .handler(async ({ data }): Promise<ProductDetail | null> => {
     setBrowseCacheHeaders()
     const result = await shopifyServerFetch<
@@ -208,7 +203,7 @@ const collectionSortKeys = [
 export const getCollection = createServerFn({ method: 'POST' })
   .validator(
     v.object({
-      handle: shopHandleSchema,
+      handle: shopifyHandleSchema,
       first: v.optional(shopPageSizeSchema, 24),
       after: v.optional(v.nullable(shopCursorSchema)),
       sortKey: v.optional(v.picklist(collectionSortKeys)),
@@ -240,7 +235,7 @@ export const getCollection = createServerFn({ method: 'POST' })
   })
 
 export const getPage = createServerFn({ method: 'POST' })
-  .validator(v.object({ handle: shopHandleSchema }))
+  .validator(v.object({ handle: shopifyHandleSchema }))
   .handler(async ({ data }): Promise<PageDetail | null> => {
     setBrowseCacheHeaders()
     const result = await shopifyServerFetch<
@@ -264,7 +259,7 @@ export const getShopPolicies = createServerFn({ method: 'GET' }).handler(
 )
 
 export const getShopPolicy = createServerFn({ method: 'POST' })
-  .validator(v.object({ handle: shopHandleSchema }))
+  .validator(v.object({ handle: shopifyHandleSchema }))
   .handler(
     async ({
       data,

@@ -135,9 +135,7 @@ export function getBaselinePresets(): BaselinePreset[] {
   ]
 }
 
-// Default comparison for route validation - extracted to avoid bundling all comparisons
-// This is used in validateSearch defaults and must be kept in sync with the first comparison
-export const defaultPackageGroups: v.InferInput<typeof packageGroupSchema>[] = [
+const dataFetchingPackageGroups = [
   {
     packages: [{ name: '@tanstack/react-query' }, { name: 'react-query' }],
     color: '#FF4500',
@@ -154,7 +152,7 @@ export const defaultPackageGroups: v.InferInput<typeof packageGroupSchema>[] = [
     packages: [{ name: '@trpc/client' }],
     color: '#2596BE',
   },
-]
+] satisfies PackageGroupInput[]
 
 const tanstackLibraryPackageGroups = [
   {
@@ -377,6 +375,9 @@ const ecosystemComparisonPackageGroups = [
   },
 ] satisfies PackageGroupInput[]
 
+// Default comparison for route validation.
+export const defaultPackageGroups = ecosystemComparisonPackageGroups
+
 const ecosystemFlattenedPackageGroups = [
   ...ecosystemTanStackPackageGroups,
   {
@@ -451,14 +452,6 @@ export function getPopularComparisons(): v.InferInput<
 >[] {
   return [
     {
-      title: 'TanStack Total',
-      packageGroups: [tanstackAggregatePackageGroup],
-    },
-    {
-      title: 'TanStack Libraries',
-      packageGroups: tanstackLibraryPackageGroups,
-    },
-    {
       title: 'JavaScript Ecosystem',
       packageGroups: ecosystemComparisonPackageGroups,
     },
@@ -467,8 +460,16 @@ export function getPopularComparisons(): v.InferInput<
       packageGroups: ecosystemFlattenedPackageGroups,
     },
     {
+      title: 'TanStack Total',
+      packageGroups: [tanstackAggregatePackageGroup],
+    },
+    {
+      title: 'TanStack Libraries',
+      packageGroups: tanstackLibraryPackageGroups,
+    },
+    {
       title: 'Data Fetching',
-      packageGroups: defaultPackageGroups,
+      packageGroups: dataFetchingPackageGroups,
     },
     {
       title: 'State Management',

@@ -73,14 +73,14 @@ export const Route = createFileRoute('/stats/npm/')({
           '1825-days',
           'all-time',
         ]),
-        '365-days',
+        '1825-days',
       ),
-      '365-days',
+      '1825-days',
     ),
     transform: v.fallback(v.optional(transformModeSchema, 'none'), 'none'),
     facetX: v.fallback(v.optional(v.picklist(['name'])), undefined),
     facetY: v.fallback(v.optional(v.picklist(['name'])), undefined),
-    binType: v.fallback(v.optional(binTypeSchema, 'weekly'), 'weekly'),
+    binType: v.fallback(v.optional(binTypeSchema, 'monthly'), 'monthly'),
     showDataMode: v.fallback(v.optional(showDataModeSchema, 'all'), 'all'),
     normalizeBaseline: v.fallback(v.optional(v.boolean(), true), true),
     showBaseline: v.fallback(v.optional(v.boolean(), false), false),
@@ -231,7 +231,7 @@ type _NpmStatsSearch = {
 function RouteComponent() {
   const search = Route.useSearch()
   const packageGroups: PackageGroup[] = search.packageGroups ?? []
-  const range: TimeRange = search.range ?? '7-days'
+  const range: TimeRange = search.range ?? '1825-days'
   const transform: TransformMode = search.transform ?? 'none'
   const facetX: FacetValue | undefined = search.facetX
   const facetY: FacetValue | undefined = search.facetY

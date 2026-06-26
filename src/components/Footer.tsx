@@ -1,3 +1,5 @@
+import * as React from 'react'
+import { ConsentDialogLink } from '@c15t/react'
 import { Link } from '@tanstack/react-router'
 import { Card } from './Card'
 
@@ -53,10 +55,31 @@ export function Footer() {
             )}
           </div>
         ))}
+        <FooterConsentSettingsLink />
       </div>
       <div className={`text-center opacity-60`}>
         &copy; {new Date().getFullYear()} TanStack LLC
       </div>
     </Card>
+  )
+}
+
+function FooterConsentSettingsLink() {
+  const [hasMounted, setHasMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setHasMounted(true)
+  }, [])
+
+  if (!hasMounted) {
+    return null
+  }
+
+  return (
+    <div>
+      <ConsentDialogLink className="appearance-none border-0 bg-transparent p-0 text-left text-current [font:inherit]">
+        Privacy Settings
+      </ConsentDialogLink>
+    </div>
   )
 }

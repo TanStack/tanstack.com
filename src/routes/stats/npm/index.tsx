@@ -107,7 +107,7 @@ export const Route = createFileRoute('/stats/npm/')({
       '1825-days',
     ),
     transform: v.fallback(v.optional(transformModeSchema, 'none'), 'none'),
-    binType: v.fallback(v.optional(binTypeSchema, 'monthly'), 'monthly'),
+    binType: v.fallback(v.optional(binTypeSchema, 'weekly'), 'weekly'),
     viewMode: v.fallback(v.optional(viewModeSchema, 'history'), 'history'),
     chartType: v.fallback(v.optional(chartTypeSchema, 'line'), 'line'),
     barOrientation: v.fallback(v.optional(barOrientationSchema), undefined),
@@ -1107,6 +1107,9 @@ function RouteComponent() {
                           showBaseline={viewMode === 'history' && showBaseline}
                           timelineStart={timelineStart}
                           timelineEnd={timelineEnd}
+                          animationQueryData={npmQuery.data}
+                          animationBucketOffsetBounds={latestBucketBounds}
+                          animationFrameIntervalMs={playbackIntervalMs}
                           onTimelineRangeChange={handleTimelineRangeChange}
                         />
                       </React.Suspense>

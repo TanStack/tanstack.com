@@ -146,9 +146,9 @@ export const defaultRangeBinTypes: Record<TimeRange, BinType> = {
   '90-days': 'weekly',
   '180-days': 'weekly',
   '365-days': 'weekly',
-  '730-days': 'monthly',
-  '1825-days': 'monthly',
-  'all-time': 'monthly',
+  '730-days': 'weekly',
+  '1825-days': 'weekly',
+  'all-time': 'weekly',
 }
 
 export function getPackageColor(

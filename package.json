@@ -88,6 +88,7 @@
     "discord-interactions": "^4.4.0",
     "drizzle-orm": "^0.45.2",
     "encoding-sniffer": "^0.2.1",
+    "gifenc": "^1.0.3",
     "gray-matter": "^4.0.3",
     "iconv-lite": "^0.7.2",
     "jszip": "^3.10.1",

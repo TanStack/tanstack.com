@@ -928,6 +928,9 @@ function RouteComponent() {
                         showBaseline={viewMode === 'history' && showBaseline}
                         timelineStart={timelineStart}
                         timelineEnd={timelineEnd}
+                        animationQueryData={npmQuery.data}
+                        animationBucketOffsetBounds={latestBucketBounds}
+                        animationFrameIntervalMs={playbackIntervalMs}
                         onTimelineRangeChange={handleTimelineRangeChange}
                       />
                     </React.Suspense>

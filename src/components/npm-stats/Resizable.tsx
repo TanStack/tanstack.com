@@ -23,6 +23,14 @@ export type ResizableProps = {
   enableWidthResize?: boolean
 }
 
+type ResizePreviewSize = {
+  height: number
+  width: number
+}
+
+const dimensionTooltipStyles =
+  'pointer-events-none absolute z-50 whitespace-nowrap rounded bg-gray-900 px-1.5 py-0.5 text-[10px] font-medium leading-4 text-white shadow-sm dark:bg-gray-100 dark:text-gray-900'
+
 export function Resizable({
   height,
   width,
@@ -37,6 +45,8 @@ export function Resizable({
   const [isWidthDragging, setIsWidthDragging] = React.useState(false)
   const [isCornerDragging, setIsCornerDragging] = React.useState(false)
   const [containerWidth, setContainerWidth] = React.useState(0)
+  const [previewSize, setPreviewSize] =
+    React.useState<ResizePreviewSize | null>(null)
   const containerRef = React.useRef<HTMLDivElement>(null)
   const startYRef = React.useRef<number>(0)
   const startXRef = React.useRef<number>(0)
@@ -112,6 +122,8 @@ export function Resizable({
     (e: React.MouseEvent<HTMLDivElement>) => {
       e.preventDefault()
       setIsHeightDragging(true)
+      const currentWidth = width ?? getMaxWidth()
+      setPreviewSize({ height, width: currentWidth })
       startYRef.current = e.clientY
       startHeightRef.current = height
 
@@ -124,6 +136,7 @@ export function Resizable({
       const handleMouseMove = (e: MouseEvent) => {
         const deltaY = e.clientY - startYRef.current
         const newHeight = getHeightFromDelta(deltaY)
+        setPreviewSize({ height: newHeight, width: currentWidth })
         onSizeChangeRef.current({ height: newHeight }, { replace: true })
       }
 
@@ -137,6 +150,7 @@ export function Resizable({
         }
 
         setIsHeightDragging(false)
+        setPreviewSize(null)
         ownerDocument.body.style.cursor = previousCursor
         ownerDocument.body.style.userSelect = previousUserSelect
         ownerDocument.removeEventListener('mousemove', handleMouseMove)
@@ -146,7 +160,7 @@ export function Resizable({
       ownerDocument.addEventListener('mousemove', handleMouseMove)
       ownerDocument.addEventListener('mouseup', handleMouseUp)
     },
-    [getHeightFromDelta, height],
+    [getHeightFromDelta, getMaxWidth, height, width],
   )
 
   const handleWidthMouseDown = React.useCallback(
@@ -158,6 +172,7 @@ export function Resizable({
       setIsWidthDragging(true)
       startXRef.current = e.clientX
       startWidthRef.current = Math.min(width ?? maxWidth, maxWidth)
+      setPreviewSize({ height, width: startWidthRef.current })
 
       const ownerDocument = e.currentTarget.ownerDocument
       const previousCursor = ownerDocument.body.style.cursor
@@ -168,6 +183,7 @@ export function Resizable({
       const handleMouseMove = (e: MouseEvent) => {
         const deltaX = e.clientX - startXRef.current
         const newWidth = getWidthFromDelta({ deltaX, maxWidth })
+        setPreviewSize({ height, width: newWidth ?? maxWidth })
         onSizeChangeRef.current({ width: newWidth }, { replace: true })
       }
 
@@ -181,6 +197,7 @@ export function Resizable({
         }
 
         setIsWidthDragging(false)
+        setPreviewSize(null)
         ownerDocument.body.style.cursor = previousCursor
         ownerDocument.body.style.userSelect = previousUserSelect
         ownerDocument.removeEventListener('mousemove', handleMouseMove)
@@ -190,7 +207,7 @@ export function Resizable({
       ownerDocument.addEventListener('mousemove', handleMouseMove)
       ownerDocument.addEventListener('mouseup', handleMouseUp)
     },
-    [getMaxWidth, getWidthFromDelta, width],
+    [getMaxWidth, getWidthFromDelta, height, width],
   )
 
   const handleWidthDoubleClick = React.useCallback(
@@ -218,6 +235,7 @@ export function Resizable({
       startYRef.current = e.clientY
       startHeightRef.current = height
       startWidthRef.current = Math.min(width ?? maxWidth, maxWidth)
+      setPreviewSize({ height, width: startWidthRef.current })
 
       const ownerDocument = e.currentTarget.ownerDocument
       const previousCursor = ownerDocument.body.style.cursor
@@ -231,6 +249,7 @@ export function Resizable({
         const newHeight = getHeightFromDelta(deltaY)
         const newWidth = getWidthFromDelta({ deltaX, maxWidth })
 
+        setPreviewSize({ height: newHeight, width: newWidth ?? maxWidth })
         onSizeChangeRef.current(
           { height: newHeight, width: newWidth },
           { replace: true },
@@ -260,6 +279,7 @@ export function Resizable({
         setIsHeightDragging(false)
         setIsWidthDragging(false)
         setIsCornerDragging(false)
+        setPreviewSize(null)
         ownerDocument.body.style.cursor = previousCursor
         ownerDocument.body.style.userSelect = previousUserSelect
         ownerDocument.removeEventListener('mousemove', handleMouseMove)
@@ -271,6 +291,14 @@ export function Resizable({
     },
     [getHeightFromDelta, getMaxWidth, getWidthFromDelta, height, width],
   )
+
+  const visibleWidth = Math.round(previewSize?.width ?? width ?? containerWidth)
+  const visibleHeight = Math.round(previewSize?.height ?? height)
+  const widthLabel = `${visibleWidth}px`
+  const heightLabel = `${visibleHeight}px`
+  const cornerLabel = `${visibleWidth}px x ${visibleHeight}px`
+  const showWidthTooltip = isWidthDragging && !isCornerDragging
+  const showHeightTooltip = isHeightDragging && !isCornerDragging
 
   return (
     <div ref={containerRef} className="relative w-full">
@@ -286,11 +314,17 @@ export function Resizable({
             aria-orientation="vertical"
             onMouseDown={handleWidthMouseDown}
             onDoubleClick={handleWidthDoubleClick}
-            className={`absolute right-0 top-0 z-20 flex w-3 cursor-ew-resize select-none items-center justify-center ${
-              isWidthDragging ? 'bg-blue-500/20' : 'hover:bg-gray-500/20'
-            }`}
+            className="group absolute right-0 top-0 z-20 flex w-3 cursor-ew-resize select-none items-center justify-center hover:bg-gray-500/20"
             style={{ height: Math.max(0, height - 8) }}
           >
+            <span
+              aria-hidden="true"
+              className={`${dimensionTooltipStyles} right-full top-1/2 mr-1 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100 ${
+                showWidthTooltip ? 'opacity-100' : ''
+              }`}
+            >
+              {widthLabel}
+            </span>
             <div className="h-8 w-1 rounded-full bg-gray-400" />
           </div>
         ) : null}
@@ -301,11 +335,17 @@ export function Resizable({
             aria-orientation="horizontal"
             onMouseDown={handleCornerMouseDown}
             onDoubleClick={handleWidthDoubleClick}
-            className={`absolute right-0 z-40 flex h-5 w-5 cursor-nwse-resize select-none items-end justify-end rounded-tl-md p-1 ${
-              isCornerDragging ? 'bg-blue-500/25' : 'hover:bg-gray-500/20'
-            }`}
+            className="group absolute right-0 z-40 flex h-5 w-5 cursor-nwse-resize select-none items-end justify-end rounded-tl-md p-1 hover:bg-gray-500/20"
             style={{ top: Math.max(0, height - 20) }}
           >
+            <span
+              aria-hidden="true"
+              className={`${dimensionTooltipStyles} bottom-full right-full mb-1 mr-1 opacity-0 transition-opacity group-hover:opacity-100 ${
+                isCornerDragging ? 'opacity-100' : ''
+              }`}
+            >
+              {cornerLabel}
+            </span>
             <div className="h-2.5 w-2.5 border-b-2 border-r-2 border-gray-400" />
           </div>
         ) : null}
@@ -314,11 +354,17 @@ export function Resizable({
           aria-label="Resize chart height"
           aria-orientation="horizontal"
           onMouseDown={handleHeightMouseDown}
-          className={`absolute left-0 right-0 z-30 flex h-2 cursor-ns-resize select-none items-center justify-center ${
-            isHeightDragging ? 'bg-blue-500' : 'hover:bg-gray-500/20'
-          }`}
+          className="group absolute left-0 right-0 z-30 flex h-2 cursor-ns-resize select-none items-center justify-center hover:bg-gray-500/20"
           style={{ top: Math.max(0, height - 2) }}
         >
+          <span
+            aria-hidden="true"
+            className={`${dimensionTooltipStyles} bottom-full left-1/2 mb-1 -translate-x-1/2 opacity-0 transition-opacity group-hover:opacity-100 ${
+              showHeightTooltip ? 'opacity-100' : ''
+            }`}
+          >
+            {heightLabel}
+          </span>
           <div className="h-1 w-8 rounded-full bg-gray-400" />
         </div>
       </div>

@@ -174,6 +174,7 @@ type ForgeWorkspaceFile = {
 }
 
 type ForgeRunContext = {
+  abortSignal?: AbortSignal
   assistantMessageId: string
   clientRequestId: string
   inputEventId: string
@@ -723,6 +724,7 @@ async function drainLocalForgeAgentRun({
   if (!harness) {
     const error = getLocalForgeHarnessUnavailableMessage()
     await failRun({ error, runContext })
+    releaseLocalForgeRunAbortController(runContext.runId)
     throw new Error(error)
   }
 
@@ -842,12 +844,20 @@ async function drainLocalForgeAgentRun({
 
     return readLocalForgeSnapshot()
   } catch (error) {
+    // A cancelled run already had its terminal event written by the canceller;
+    // don't override it with a failure.
+    if (wasLocalForgeRunCancelled(runContext.runId)) {
+      return readLocalForgeSnapshot()
+    }
+
     const message = readError(error)
     await failRun({
       error: message,
       runContext,
     })
     throw error
+  } finally {
+    releaseLocalForgeRunAbortController(runContext.runId)
   }
 }
 
@@ -962,6 +972,7 @@ async function runTanStackAiForgeHarness({
 
   await runAbortableForgeTask({
     label: 'Forge TanStack AI agent run',
+    signal: runContext.abortSignal,
     task: async (abortController) => {
       const messageTextById = new Map<string, string>()
       const startedMessageIds = new Set<string>()
@@ -1054,6 +1065,7 @@ async function runCloudflareWorkersAiForgeHarness({
 
   await runAbortableForgeTask({
     label: 'Forge Cloudflare Workers AI agent run',
+    signal: runContext.abortSignal,
     task: async () => {
       const tools = createForgeTools({
         prompt,
@@ -2303,6 +2315,110 @@ async function recoverOrRejectActiveRun(snapshot: LocalForgeSnapshot) {
   throw new Error(`Forge run ${latestRun.id} is already ${latestRun.status}.`)
 }
 
+// Per-run abort controllers for runs executing in THIS process. Used by
+// cancellation to interrupt a live run; a run absent from this map has no live
+// executor (e.g. an orphan after a restart) and can only be cancelled by
+// writing a terminal event.
+const localForgeRunAbortControllers = new Map<string, AbortController>()
+const cancelledLocalForgeRunIds = new Set<string>()
+
+function registerLocalForgeRunAbortController(runId: string) {
+  const abortController = new AbortController()
+  localForgeRunAbortControllers.set(runId, abortController)
+  return abortController
+}
+
+function releaseLocalForgeRunAbortController(runId: string) {
+  localForgeRunAbortControllers.delete(runId)
+  cancelledLocalForgeRunIds.delete(runId)
+}
+
+function wasLocalForgeRunCancelled(runId: string) {
+  return cancelledLocalForgeRunIds.has(runId)
+}
+
+// Best-effort interrupt of a live in-process run. Returns true when a live
+// executor was signalled, false when the run has no executor in this process.
+export function requestLocalForgeRunCancellation(runId: string) {
+  const abortController = localForgeRunAbortControllers.get(runId)
+
+  if (!abortController) {
+    return false
+  }
+
+  cancelledLocalForgeRunIds.add(runId)
+
+  if (!abortController.signal.aborted) {
+    abortController.abort('Forge run cancelled')
+  }
+
+  return true
+}
+
+// Cancels the active run for the current runtime session: interrupts a live
+// executor when present, and always writes a terminal cancelled event so the
+// UI is released even for orphaned runs.
+export async function cancelLocalForgeAgentRun(): Promise<LocalForgeSnapshot> {
+  const snapshot = await readLocalForgeSnapshot()
+  const latestRun = snapshot.latestRun
+
+  if (!latestRun || !isActiveLocalForgeRunStatus(latestRun.status)) {
+    return snapshot
+  }
+
+  requestLocalForgeRunCancellation(latestRun.id)
+  await appendRunCancelled(latestRun.id)
+
+  return readLocalForgeSnapshot()
+}
+
+async function appendRunCancelled(runId: string) {
+  const existing = await readLocalForgeTimeline()
+  const createdAt = new Date().toISOString()
+
+  await appendLocalForgeTimelineEvents([
+    {
+      createdAt,
+      eventId: `local-run-cancelled-${crypto.randomUUID()}`,
+      projectId: LOCAL_FORGE_PROJECT_ID,
+      producer: createLocalForgeProducer({
+        index: existing.length,
+        kind: 'system',
+        producerId: 'local-runtime',
+      }),
+      runId,
+      schemaVersion: 1,
+      sessionId: getActiveLocalForgeSessionId(),
+      type: 'workflow.event.recorded',
+      payload: {
+        id: `local-run-cancelled-row-${crypto.randomUUID()}`,
+        message: 'Run cancelled',
+        name: 'run.cancelled',
+        runId,
+        status: 'cancelled',
+      },
+    },
+    {
+      createdAt,
+      eventId: `local-run-cancelled-terminal-${crypto.randomUUID()}`,
+      projectId: LOCAL_FORGE_PROJECT_ID,
+      producer: createLocalForgeProducer({
+        index: existing.length + 1,
+        kind: 'system',
+        producerId: 'local-runtime',
+      }),
+      runId,
+      schemaVersion: 1,
+      sessionId: getActiveLocalForgeSessionId(),
+      type: 'run.finished',
+      payload: {
+        runId,
+        status: 'cancelled',
+      },
+    },
+  ])
+}
+
 async function appendRunStart({
   clientRequestId,
   prompt,
@@ -2318,6 +2434,7 @@ async function appendRunStart({
   const createdAt = new Date(startedAt).toISOString()
   const existing = await readLocalForgeTimeline()
   const runContext = {
+    abortSignal: registerLocalForgeRunAbortController(runId).signal,
     assistantMessageId,
     clientRequestId,
     inputEventId,
@@ -4864,14 +4981,30 @@ function getAnthropicForgeModel(requestedModel = process.env.BUILDER_AI_MODEL) {
 
 async function runAbortableForgeTask<T>({
   label,
+  signal,
   task,
   timeoutMs,
 }: {
   label: string
+  signal?: AbortSignal
   task: (abortController: AbortController) => Promise<T> | T
   timeoutMs: number
 }) {
   const abortController = new AbortController()
+
+  // Let an external signal (e.g. a run cancellation) abort this task too.
+  if (signal) {
+    if (signal.aborted) {
+      abortController.abort(signal.reason)
+    } else {
+      signal.addEventListener(
+        'abort',
+        () => abortController.abort(signal.reason),
+        { once: true },
+      )
+    }
+  }
+
   let timeoutId: ReturnType<typeof setTimeout> | undefined
   const taskPromise = Promise.resolve().then(() => task(abortController))
   void taskPromise.catch(() => {})

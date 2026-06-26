@@ -23,6 +23,7 @@ import {
   Plus,
   RefreshCw,
   Search,
+  Square,
   Trash2,
 } from 'lucide-react'
 import {
@@ -66,6 +67,7 @@ import { CodeBlock } from '~/components/markdown/CodeBlock'
 import { getCodeBlockLanguageFromFilePath } from '~/components/markdown/codeBlock.shared'
 import { InlineCode } from '~/ui/InlineCode'
 import {
+  cancelLocalForgeRun,
   getForgeChatShells,
   getLocalForgeSession,
   requireForgeAccess,
@@ -639,6 +641,7 @@ function ForgeRoute() {
     Record<string, boolean>
   >({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isCancelling, setIsCancelling] = useState(false)
   const [isValidating, setIsValidating] = useState(false)
   const [isExportingGitHub, setIsExportingGitHub] = useState(false)
   const [githubRepoName, setGithubRepoName] = useState(() =>
@@ -1598,6 +1601,34 @@ function ForgeRoute() {
     await submitForgePrompt(prompt)
   }
 
+  async function handleCancelRun() {
+    const chatId = selectedChatId
+
+    if (!chatId || isCancelling) {
+      return
+    }
+
+    setIsCancelling(true)
+    setRunError(null)
+
+    try {
+      const nextSession = await cancelLocalForgeRun({ data: { chatId } })
+      pendingLaunchesRef.current.delete(chatId)
+      setSession(nextSession)
+      setOptimisticMessagesByChatId((current) =>
+        removeFulfilledForgeOptimisticMessages(current, chatId, nextSession),
+      )
+      await queryClient.invalidateQueries({ queryKey: forgeChatShellsQueryKey })
+      await router.invalidate()
+    } catch (error) {
+      setRunError(
+        error instanceof Error ? error.message : 'Failed to cancel the run.',
+      )
+    } finally {
+      setIsCancelling(false)
+    }
+  }
+
   async function handlePreviewAnnotationSubmit(
     annotation: ForgePreviewAnnotation,
   ) {
@@ -1839,21 +1870,40 @@ function ForgeRoute() {
                     {manifestShortId}
                   </span>
                 </div>
-                <button
-                  className={sendButtonClassName(canRun)}
-                  disabled={!canRun}
-                  title="Run"
-                  type="submit"
-                >
-                  {isSubmitting ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <ArrowUp className="h-4 w-4" />
-                  )}
-                  <span className="sr-only">
-                    {isSubmitting ? 'Running' : 'Run'}
-                  </span>
-                </button>
+                {persistedRunIsActive ? (
+                  <button
+                    className={sendButtonClassName(!isCancelling)}
+                    disabled={isCancelling}
+                    onClick={handleCancelRun}
+                    title="Stop run"
+                    type="button"
+                  >
+                    {isCancelling ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Square className="h-4 w-4" />
+                    )}
+                    <span className="sr-only">
+                      {isCancelling ? 'Stopping' : 'Stop run'}
+                    </span>
+                  </button>
+                ) : (
+                  <button
+                    className={sendButtonClassName(canRun)}
+                    disabled={!canRun}
+                    title="Run"
+                    type="submit"
+                  >
+                    {isSubmitting ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <ArrowUp className="h-4 w-4" />
+                    )}
+                    <span className="sr-only">
+                      {isSubmitting ? 'Running' : 'Run'}
+                    </span>
+                  </button>
+                )}
               </div>
             </div>
           </form>

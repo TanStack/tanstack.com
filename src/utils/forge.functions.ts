@@ -15,11 +15,13 @@ import {
 } from '~/builder/runtime/forge-meta.server'
 import {
   readLocalForgeSnapshotForRuntimeSession,
+  reconcileInterruptedLocalForgeRun,
   withLocalForgeRuntimeSession,
   type LocalForgeChat,
   type LocalForgeSnapshot,
 } from '~/builder/runtime/local-store.server'
 import {
+  cancelLocalForgeAgentRun,
   ensureLocalForgeBaseline,
   resolveLocalForgeAgentHarnessName,
   startLocalForgeAgentRun,
@@ -232,6 +234,44 @@ export const startLocalForgeRun = createServerFn({ method: 'POST' })
     return readForgeSnapshotFromMeta({
       meta,
       prompt: data.prompt,
+      userId: user.userId,
+    })
+  })
+
+export const cancelLocalForgeRun = createServerFn({ method: 'POST' })
+  .validator(
+    v.object({
+      chatId: v.pipe(v.string(), v.trim(), v.minLength(1), v.maxLength(120)),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const user = await requireForgeUser()
+
+    if (isForgeAuthBypassEnabled()) {
+      const scope = createForgeBypassRuntimeScope({ chatId: data.chatId })
+      await withLocalForgeRuntimeSession(
+        scope.runtimeSessionId,
+        cancelLocalForgeAgentRun,
+      )
+
+      return readForgeBypassRuntimeSnapshot({ chatId: data.chatId })
+    }
+
+    const meta = requireActiveForgeMetaSession(
+      await selectForgeMetaChatSession({
+        chatId: data.chatId,
+        userId: user.userId,
+      }),
+    )
+
+    await withLocalForgeRuntimeSession(
+      meta.activeChatSession.runtimeSessionId,
+      cancelLocalForgeAgentRun,
+    )
+
+    return readForgeSnapshotFromMeta({
+      meta,
+      ensureBaseline: false,
       userId: user.userId,
     })
   })
@@ -497,12 +537,17 @@ async function readForgeSnapshotFromMeta({
   prompt?: string
   userId: string
 }): Promise<LocalForgeSnapshot> {
-  if (ensureBaseline) {
-    await withLocalForgeRuntimeSession(
-      meta.activeChatSession.runtimeSessionId,
-      ensureLocalForgeBaseline,
-    )
-  }
+  // Self-heal an orphaned run (e.g. left active by a runtime restart) before
+  // reading so the UI isn't wedged waiting on a run that can't complete.
+  await withLocalForgeRuntimeSession(
+    meta.activeChatSession.runtimeSessionId,
+    async () => {
+      await reconcileInterruptedLocalForgeRun()
+      if (ensureBaseline) {
+        await ensureLocalForgeBaseline()
+      }
+    },
+  )
 
   const snapshot = await readLocalForgeSnapshotForRuntimeSession({
     activeChatId: meta.activeChatId,

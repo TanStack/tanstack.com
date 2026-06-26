@@ -54,6 +54,11 @@ const LOCK_REFRESH_MIN_MS = 25
 const TIMELINE_APPEND_LOCK_STALE_MS = 60_000
 const TIMELINE_APPEND_LOCK_WAIT_MS = 30_000
 const ACTIVE_RUN_STALE_MS = 10 * 60_000
+// Captured when this process boots. The local Forge executor lives in process
+// memory, so any run still flagged active but started before this boot is an
+// orphan left behind by a previous process (e.g. a dev-server restart) and can
+// never be completed by a live executor.
+const LOCAL_FORGE_PROCESS_BOOT_MS = Date.now()
 const workspaceRootId = Buffer.from(process.cwd()).toString('base64url')
 const DEFAULT_LOCAL_FORGE_CHAT_TITLE = 'New chat'
 let activeLocalForgeSessionId = LOCAL_FORGE_SESSION_ID
@@ -439,19 +444,27 @@ export async function recoverStaleActiveLocalForgeRun(
   const staleSource = latestRun.startedAt ?? latestRun.createdAt
   const staleSourceMs = staleSource ? Date.parse(staleSource) : undefined
 
-  if (
-    staleSourceMs === undefined ||
-    !Number.isFinite(staleSourceMs) ||
-    Date.now() - staleSourceMs <= ACTIVE_RUN_STALE_MS
-  ) {
+  if (staleSourceMs === undefined || !Number.isFinite(staleSourceMs)) {
+    return false
+  }
+
+  // Recover a run when either it was started before this process booted (its
+  // in-memory executor is gone — see LOCAL_FORGE_PROCESS_BOOT_MS) or it has been
+  // active far longer than any run should take.
+  const startedBeforeProcessBoot = staleSourceMs < LOCAL_FORGE_PROCESS_BOOT_MS
+  const exceededStaleWindow = Date.now() - staleSourceMs > ACTIVE_RUN_STALE_MS
+
+  if (!startedBeforeProcessBoot && !exceededStaleWindow) {
     return false
   }
 
   const existing = await readLocalForgeTimeline()
   const createdAt = new Date().toISOString()
   const error = latestRun.startedAt
-    ? `Recovered stale local Forge run that started at ${latestRun.startedAt}.`
-    : 'Recovered stale local Forge run.'
+    ? startedBeforeProcessBoot
+      ? `Recovered interrupted local Forge run that started at ${latestRun.startedAt}; its runtime was restarted.`
+      : `Recovered stale local Forge run that started at ${latestRun.startedAt}.`
+    : 'Recovered interrupted local Forge run.'
 
   await appendLocalForgeTimelineEvents([
     {
@@ -498,6 +511,24 @@ export async function recoverStaleActiveLocalForgeRun(
   ])
 
   return true
+}
+
+// Self-heals the active session when read: if the latest run is still flagged
+// active but its executor is gone (recoverable per the rules above), mark it
+// terminal so the UI stops waiting on a run that can never complete.
+export async function reconcileInterruptedLocalForgeRun() {
+  const snapshot = await readLocalForgeSnapshot()
+  const latestRun = snapshot.latestRun
+
+  if (!latestRun || !isActiveLocalForgeRunStatus(latestRun.status)) {
+    return snapshot
+  }
+
+  if (await recoverStaleActiveLocalForgeRun(latestRun)) {
+    return readLocalForgeSnapshot()
+  }
+
+  return snapshot
 }
 
 export function isActiveLocalForgeRunStatus(status: string) {

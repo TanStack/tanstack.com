@@ -427,12 +427,12 @@ export async function fetchSingleNpmPackageFresh(
           `[NPM Stats] Error fetching ${packageName} after all retries:`,
           lastError.message,
         )
-        return { downloads: 0 }
+        throw lastError
       }
     }
   }
 
-  return { downloads: 0 }
+  throw lastError ?? new Error(`Failed to fetch ${packageName}`)
 }
 
 /**
@@ -506,13 +506,21 @@ export async function computeNpmOrgStats(org: string): Promise<NpmStats> {
         packageNames = [...packageNames, ...legacyPackages]
       }
 
-      // Fetch fresh data for all packages (always bypassing cache)
+      const { getBatchCachedNpmPackageStats } =
+        await import('./stats-db.server')
+      const cachedPackageStats =
+        await getBatchCachedNpmPackageStats(packageNames)
+
+      // Fetch fresh data for all packages. If a package fetch fails, reuse the
+      // previous package value so a transient npm outage cannot deflate totals.
       const results = new Map<string, NpmPackageStats>()
+      const uncachedFailures: Array<{ packageName: string; error: string }> = []
 
       // Fetch packages using single AsyncQueuer (chunks are sequential within each package)
       const { AsyncQueuer } = await import('@tanstack/pacer')
       let successCount = 0
       let failCount = 0
+      let fallbackCount = 0
 
       await new Promise<void>((resolve) => {
         const checkIdle = () => {
@@ -548,12 +556,24 @@ export async function computeNpmOrgStats(org: string): Promise<NpmStats> {
             },
             onError: (error, packageName) => {
               failCount++
-              console.error(
-                `[NPM Stats] Failed ${packageName}: ${error.message}`,
-              )
-              // Store 0 for failed packages
-              const zeroStats = { downloads: 0 }
-              results.set(packageName, zeroStats)
+              const cachedStats = cachedPackageStats.get(packageName)
+
+              if (cachedStats && cachedStats.downloads > 0) {
+                fallbackCount++
+                results.set(packageName, cachedStats)
+                console.warn(
+                  `[NPM Stats] Failed ${packageName}, using cached stats: ${error.message}`,
+                )
+              } else {
+                uncachedFailures.push({
+                  packageName,
+                  error: error.message,
+                })
+                console.error(
+                  `[NPM Stats] Failed ${packageName} with no cached stats: ${error.message}`,
+                )
+              }
+
               checkIdle()
             },
           },
@@ -567,6 +587,27 @@ export async function computeNpmOrgStats(org: string): Promise<NpmStats> {
           resolve()
         }
       })
+
+      if (uncachedFailures.length > 0) {
+        const failedPackageNames = uncachedFailures
+          .slice(0, 10)
+          .map((failure) => failure.packageName)
+          .join(', ')
+        const suffix =
+          uncachedFailures.length > 10
+            ? `, and ${uncachedFailures.length - 10} more`
+            : ''
+
+        throw new Error(
+          `Failed to refresh ${uncachedFailures.length} npm packages with no cached fallback: ${failedPackageNames}${suffix}`,
+        )
+      }
+
+      if (fallbackCount > 0) {
+        console.warn(
+          `[NPM Stats] Used cached fallback stats for ${fallbackCount} packages`,
+        )
+      }
 
       // Calculate total downloads, aggregate rate, and find most recent update
       const packageStats: Record<string, NpmPackageStats> = {}
@@ -611,12 +652,12 @@ export async function computeNpmOrgStats(org: string): Promise<NpmStats> {
           `[NPM Stats] Error fetching org stats for ${org} after all retries:`,
           lastError.message,
         )
-        return { totalDownloads: 0, packageStats: {} }
+        throw lastError
       }
     }
   }
 
-  return { totalDownloads: 0, packageStats: {} }
+  throw lastError ?? new Error(`Failed to fetch org stats for ${org}`)
 }
 
 /**

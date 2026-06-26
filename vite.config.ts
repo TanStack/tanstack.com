@@ -75,6 +75,10 @@ const useSyncExternalStoreShimIndexAlias = {
 // Worker server output so the runtime never loads their raw package entries.
 const serverBundledClientPackages = [
   ...(shouldUseRedact ? ['@tanstack/redact'] : []),
+  '@c15t/react',
+  '@c15t/scripts',
+  '@c15t/ui',
+  'c15t',
   /^@radix-ui\//,
   '@kapaai/react-sdk',
   '@tanstack/highlight',

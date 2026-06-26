@@ -32,6 +32,7 @@ import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { SearchProvider } from '~/contexts/SearchContext'
 import { ToastProvider } from '~/components/ToastProvider'
 import { LoginModalProvider } from '~/contexts/LoginModalContext'
+import { ConsentManager } from '~/components/ConsentManager'
 
 import { Spinner } from '~/components/Spinner'
 import { ThemeProvider, useHtmlClass } from '~/components/ThemeProvider'
@@ -41,10 +42,6 @@ import { trackPageView } from '~/utils/analytics'
 import { createPartnerPlacementSessionSeed } from '~/utils/partner-placement'
 import { twMerge } from 'tailwind-merge'
 
-const GOOGLE_ANALYTICS_ID = 'G-JMT1Z50SPS'
-const GOOGLE_ANALYTICS_PROXY_PREFIX = '/_a'
-const GOOGLE_ANALYTICS_SCRIPT_SRC = `${GOOGLE_ANALYTICS_PROXY_PREFIX}/gtag.js`
-const GOOGLE_ANALYTICS_BOOTSTRAP = `(function(){var id='${GOOGLE_ANALYTICS_ID}';var src='${GOOGLE_ANALYTICS_SCRIPT_SRC}';window.dataLayer=window.dataLayer||[];window.gtag=window.gtag||function(){window.dataLayer.push(arguments)};window.gtag('js',new Date());window.gtag('config',id,{transport_url:window.location.origin+'${GOOGLE_ANALYTICS_PROXY_PREFIX}'});var loaded=false;var load=function(){if(loaded)return;loaded=true;var script=document.createElement('script');script.async=true;script.src=src;script.setAttribute('data-ga-loader','true');document.head.appendChild(script)};if(typeof window.requestIdleCallback==='function'){window.requestIdleCallback(load,{timeout:3000});return}if(document.readyState==='complete'){window.setTimeout(load,1500);return}window.addEventListener('load',function(){window.setTimeout(load,1500)},{once:true})})();`
 const DOCUMENT_CACHE_HEADERS = {
   'Cache-Control': 'public, max-age=0, must-revalidate',
   'Cloudflare-CDN-Cache-Control': 'no-store',
@@ -223,9 +220,6 @@ export const Route = createRootRouteWithContext<{
         {
           children: `(function(){try{var t=localStorage.getItem('theme')||'auto';var v=['light','dark','auto'].includes(t)?t:'auto';if(v==='auto'){var a=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.classList.add(a,'auto')}else{document.documentElement.classList.add(v)}}catch(e){var a=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.classList.add(a,'auto')}})()`,
         },
-        {
-          children: GOOGLE_ANALYTICS_BOOTSTRAP,
-        },
       ],
     }
   },
@@ -305,44 +299,46 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
         {hasBaseParent ? <base target="_parent" /> : null}
       </head>
       <body className="overflow-x-hidden">
-        <LoginModalProvider>
-          <ToastProvider>
-            <PageViewTracker />
-            {hideNavbar ? children : <Navbar>{children}</Navbar>}
-            {showDevtools && LazyAppDevtools ? (
-              <OptionalDevtoolsBoundary>
-                <React.Suspense fallback={null}>
-                  <LazyAppDevtools />
-                </React.Suspense>
-              </OptionalDevtoolsBoundary>
-            ) : null}
-            <div
-              aria-hidden="true"
-              className={twMerge(
-                'pointer-events-none fixed top-0 left-0 z-99999999 h-[320px] w-full select-none',
-              )}
-            >
+        <ConsentManager showControls={!hasBaseParent}>
+          <LoginModalProvider>
+            <ToastProvider>
+              <PageViewTracker />
+              {hideNavbar ? children : <Navbar>{children}</Navbar>}
+              {showDevtools && LazyAppDevtools ? (
+                <OptionalDevtoolsBoundary>
+                  <React.Suspense fallback={null}>
+                    <LazyAppDevtools />
+                  </React.Suspense>
+                </OptionalDevtoolsBoundary>
+              ) : null}
               <div
+                aria-hidden="true"
                 className={twMerge(
-                  'absolute top-0 w-full h-80 rounded-[100%] bg-amber-500/30 blur-3xl transition-all duration-500 dark:bg-sky-400/25',
-                  showNavigationSpinner
-                    ? '-translate-y-1/2 opacity-100'
-                    : '-translate-y-full opacity-0',
-                )}
-              />
-              <div
-                className={twMerge(
-                  'absolute top-6 left-1/2 -translate-x-1/2 rounded-full bg-white/75 p-2 shadow-lg backdrop-blur-lg transition-all duration-300 dark:bg-slate-900/40',
-                  showNavigationSpinner
-                    ? 'translate-y-0 opacity-100'
-                    : '-translate-y-6 opacity-0',
+                  'pointer-events-none fixed top-0 left-0 z-99999999 h-[320px] w-full select-none',
                 )}
               >
-                <Spinner className="text-4xl" />
+                <div
+                  className={twMerge(
+                    'absolute top-0 w-full h-80 rounded-[100%] bg-amber-500/30 blur-3xl transition-all duration-500 dark:bg-sky-400/25',
+                    showNavigationSpinner
+                      ? '-translate-y-1/2 opacity-100'
+                      : '-translate-y-full opacity-0',
+                  )}
+                />
+                <div
+                  className={twMerge(
+                    'absolute top-6 left-1/2 -translate-x-1/2 rounded-full bg-white/75 p-2 shadow-lg backdrop-blur-lg transition-all duration-300 dark:bg-slate-900/40',
+                    showNavigationSpinner
+                      ? 'translate-y-0 opacity-100'
+                      : '-translate-y-6 opacity-0',
+                  )}
+                >
+                  <Spinner className="text-4xl" />
+                </div>
               </div>
-            </div>
-          </ToastProvider>
-        </LoginModalProvider>
+            </ToastProvider>
+          </LoginModalProvider>
+        </ConsentManager>
         <Scripts />
       </body>
     </html>

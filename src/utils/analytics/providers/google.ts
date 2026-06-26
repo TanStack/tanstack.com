@@ -2,8 +2,8 @@ import type { AnalyticsProvider } from '../types'
 
 declare global {
   interface Window {
-    dataLayer: unknown[] | undefined
-    gtag: ((...args: unknown[]) => void) | undefined
+    dataLayer: unknown[]
+    gtag: (...args: unknown[]) => void
   }
 }
 

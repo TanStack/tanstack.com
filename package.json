@@ -35,6 +35,8 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@c15t/react": "^2.1.0",
+    "@c15t/scripts": "^2.1.0",
     "@fingerprintjs/fingerprintjs-pro-react": "^2.7.1",
     "@floating-ui/react": "^0.27.19",
     "@kapaai/react-sdk": "^0.9.10",

@@ -533,6 +533,56 @@ export function getPopularComparisons(): v.InferInput<
       ],
     },
     {
+      title: 'AI & Agent Harnesses',
+      packageGroups: [
+        {
+          label: 'TanStack AI',
+          packages: [{ name: '@tanstack/ai' }],
+          color: '#EC4899',
+        },
+        {
+          label: 'AI SDK',
+          packages: [{ name: 'ai' }],
+          color: '#111827',
+        },
+        {
+          label: 'LangChain',
+          packages: [{ name: 'langchain' }],
+          color: '#1C3C3C',
+        },
+        {
+          label: 'LangGraph',
+          packages: [{ name: '@langchain/langgraph' }],
+          color: '#2E8B57',
+        },
+        {
+          label: 'Mastra',
+          packages: [{ name: '@mastra/core' }],
+          color: '#7C3AED',
+        },
+        {
+          label: 'OpenAI Agents',
+          packages: [{ name: '@openai/agents' }],
+          color: '#10A37F',
+        },
+        {
+          label: 'Genkit',
+          packages: [{ name: 'genkit' }],
+          color: '#4285F4',
+        },
+        {
+          label: 'CopilotKit',
+          packages: [{ name: '@copilotkit/react-core' }],
+          color: '#F97316',
+        },
+        {
+          label: 'Promptfoo',
+          packages: [{ name: 'promptfoo' }],
+          color: '#FACC15',
+        },
+      ],
+    },
+    {
       title: 'Data Grids',
       packageGroups: [
         {

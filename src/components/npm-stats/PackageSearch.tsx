@@ -14,6 +14,7 @@ type NpmSearchResult = {
 }
 
 const CREATE_ITEM_VALUE = '__create__'
+const MIN_SEARCH_QUERY_LENGTH = 2
 
 export type PackageSearchProps = {
   onSelect: (packageName: string) => void
@@ -50,14 +51,15 @@ export function PackageSearch({
     }
   }, [])
 
-  const hasUsableQuery = debouncedInputValue.length > 2
+  const trimmedInput = debouncedInputValue.trim()
+  const hasUsableQuery = trimmedInput.length >= MIN_SEARCH_QUERY_LENGTH
 
   const searchQuery = useQuery({
-    queryKey: ['npm-search', debouncedInputValue],
+    queryKey: ['npm-search', trimmedInput],
     queryFn: async () => {
       const response = await fetch(
         `https://registry.npmjs.org/-/v1/search?text=${encodeURIComponent(
-          debouncedInputValue,
+          trimmedInput,
         )}&size=10`,
       )
       const data = (await response.json()) as {
@@ -70,7 +72,6 @@ export function PackageSearch({
   })
 
   const searchResults = hasUsableQuery ? (searchQuery.data ?? []) : []
-  const trimmedInput = debouncedInputValue.trim()
   const showCreateItem =
     hasUsableQuery &&
     trimmedInput.length > 0 &&
@@ -122,7 +123,7 @@ export function PackageSearch({
             !showList && 'hidden',
           )}
         >
-          {inputValue.length < 3 ? (
+          {inputValue.trim().length < MIN_SEARCH_QUERY_LENGTH ? (
             <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
               Keep typing to search...
             </div>

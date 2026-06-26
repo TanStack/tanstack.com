@@ -8,6 +8,7 @@ import {
   type TransformMode,
   type NpmQueryData,
   type BinType,
+  type ViewMode,
   getPackageColor,
   getPackageGroupLabel,
   hasPackageGroupLabel,
@@ -20,6 +21,8 @@ export interface StatsTableProps {
   packageGroups: PackageGroup[]
   binType: BinType
   transform: TransformMode
+  viewMode?: ViewMode
+  packageGroupIndexes?: number[]
   onColorClick: (packageName: string, event: React.MouseEvent) => void
   onToggleVisibility: (index: number, packageName: string) => void
   onRemove: (index: number) => void
@@ -48,6 +51,8 @@ function calculateStats(
   queryData: NpmQueryData | undefined,
   packageGroups: PackageGroup[],
   binType: BinType,
+  viewMode: ViewMode,
+  packageGroupIndexes: number[] | undefined,
 ): PackageStat[] {
   if (!queryData) return []
 
@@ -88,9 +93,12 @@ function calculateStats(
       const now = d3.utcDay(new Date())
       const partialBinEnd = binUnit.floor(now)
 
-      const filteredDownloads = sortedDownloads.filter(
-        (d) => d3.utcDay(new Date(d.day)) < partialBinEnd,
-      )
+      const filteredDownloads =
+        viewMode === 'latest'
+          ? sortedDownloads
+          : sortedDownloads.filter(
+              (d) => d3.utcDay(new Date(d.day)) < partialBinEnd,
+            )
 
       const binnedDownloads = d3.sort(
         d3.rollup(
@@ -129,7 +137,7 @@ function calculateStats(
         growthPercentage,
         color,
         hidden: packageGroup ? isPackageGroupHidden(packageGroup) : undefined,
-        index,
+        index: packageGroupIndexes?.[index] ?? index,
       }
     })
     .filter((stat): stat is PackageStat => stat != null)
@@ -144,12 +152,20 @@ export function StatsTable({
   packageGroups,
   binType,
   transform,
+  viewMode = 'history',
+  packageGroupIndexes,
   onColorClick,
   onToggleVisibility,
   onRemove,
 }: StatsTableProps) {
   const binOption = binningOptionsByType[binType]
-  const stats = calculateStats(queryData, packageGroups, binType)
+  const stats = calculateStats(
+    queryData,
+    packageGroups,
+    binType,
+    viewMode,
+    packageGroupIndexes,
+  )
   const sortedStats = [...stats].sort((a, b) =>
     transform === 'normalize-y'
       ? b.growth - a.growth
@@ -175,10 +191,13 @@ export function StatsTable({
               </th>
             )}
             <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              Total Period Downloads
+              {viewMode === 'latest'
+                ? 'Selected Bucket Downloads'
+                : 'Total Period Downloads'}
             </th>
             <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              Downloads last {binOption.single}
+              Downloads {viewMode === 'latest' ? 'selected' : 'last'}{' '}
+              {binOption.single}
             </th>
           </tr>
         </thead>

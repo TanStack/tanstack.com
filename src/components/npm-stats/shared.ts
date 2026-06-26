@@ -37,6 +37,35 @@ export type TransformMode = v.InferOutput<typeof transformModeSchema>
 export const showDataModeSchema = v.picklist(['all', 'complete'])
 export type ShowDataMode = v.InferOutput<typeof showDataModeSchema>
 
+export const latestBarSortSchema = v.picklist(['name', 'value'])
+export type LatestBarSort = v.InferOutput<typeof latestBarSortSchema>
+
+export const defaultPlaybackIntervalMs = 350
+export const maxPlaybackIntervalMs = 60000
+export const playbackIntervalMsSchema = v.pipe(
+  v.number(),
+  v.integer(),
+  v.minValue(1),
+  v.maxValue(maxPlaybackIntervalMs),
+)
+
+export const barOrientationSchema = v.picklist(['vertical', 'horizontal'])
+export type BarOrientation = v.InferOutput<typeof barOrientationSchema>
+
+export const viewModeSchema = v.picklist(['history', 'latest'])
+export type ViewMode = v.InferOutput<typeof viewModeSchema>
+
+export const chartTypeSchema = v.picklist([
+  'line',
+  'stacked',
+  'stacked-area',
+  'stacked-stream',
+  'bar',
+  'horizontal-bar',
+  'stacked-bar',
+])
+export type ChartType = v.InferOutput<typeof chartTypeSchema>
+
 export type TimeRange =
   | '7-days'
   | '30-days'
@@ -46,8 +75,6 @@ export type TimeRange =
   | '730-days'
   | '1825-days'
   | 'all-time'
-
-export type FacetValue = 'name'
 
 export type NpmQueryData = Array<{
   packages: Array<{
@@ -83,6 +110,24 @@ export const binningOptions = [
     single: 'day',
   },
 ] as const
+
+export const historyChartTypes = [
+  { label: 'Line', value: 'line' },
+  { label: 'Stacked', value: 'stacked' },
+  { label: 'Stacked Area', value: 'stacked-area' },
+  { label: 'Stream', value: 'stacked-stream' },
+] as const satisfies ReadonlyArray<{
+  label: string
+  value: ChartType
+}>
+
+export const latestChartTypes = [
+  { label: 'Bar', value: 'bar' },
+  { label: 'Stacked Bar', value: 'stacked-bar' },
+] as const satisfies ReadonlyArray<{
+  label: string
+  value: ChartType
+}>
 
 export const timeRanges = [
   { value: '7-days', label: '7 Days' },
@@ -172,4 +217,16 @@ export function isBinningOptionValidForRange(
     case 'all-time':
       return true
   }
+}
+
+export function isChartTypeValidForViewMode(
+  viewMode: ViewMode,
+  chartType: ChartType,
+): boolean {
+  const options = viewMode === 'history' ? historyChartTypes : latestChartTypes
+  return options.some((option) => option.value === chartType)
+}
+
+export function getDefaultChartTypeForViewMode(viewMode: ViewMode): ChartType {
+  return viewMode === 'history' ? 'line' : 'bar'
 }

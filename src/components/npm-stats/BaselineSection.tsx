@@ -17,6 +17,7 @@ export const BASELINE_LINE_COLOR = '#3b82f6'
 export type BaselineSectionProps = {
   packageGroups: PackageGroup[]
   presets: BaselinePreset[]
+  canToggleShowBaseline: boolean
   normalizeBaseline: boolean
   showBaseline: boolean
   onToggleNormalizeBaseline: () => void
@@ -29,6 +30,7 @@ export type BaselineSectionProps = {
 export function BaselineSection({
   packageGroups,
   presets,
+  canToggleShowBaseline,
   normalizeBaseline,
   showBaseline,
   onToggleNormalizeBaseline,
@@ -74,34 +76,44 @@ export function BaselineSection({
     </Tooltip>
   )
 
+  const isBaselineShown = canToggleShowBaseline && showBaseline
+  const baselineName = (
+    <span className={twMerge('font-medium', !isBaselineShown && 'opacity-70')}>
+      {baselineDisplayName}
+    </span>
+  )
+
   const chip = hasBaselines && (
     <div
       className="flex items-center gap-1.5 rounded px-1.5 py-0.5 text-xs text-blue-900 dark:text-blue-100"
       style={{ backgroundColor: `${BASELINE_LINE_COLOR}25` }}
     >
-      <Tooltip
-        content={
-          showBaseline
-            ? 'Hide combined baseline line on chart'
-            : 'Show combined baseline line on chart'
-        }
-      >
-        <button
-          onClick={onToggleShowBaseline}
-          className="flex items-center gap-1.5 hover:brightness-110"
+      {canToggleShowBaseline ? (
+        <Tooltip
+          content={
+            isBaselineShown
+              ? 'Hide combined baseline line on chart'
+              : 'Show combined baseline line on chart'
+          }
         >
-          {showBaseline ? (
-            <Eye className="w-3 h-3 text-blue-600 dark:text-blue-300" />
-          ) : (
-            <EyeOff className="w-3 h-3 text-gray-400 dark:text-gray-500" />
-          )}
-          <span
-            className={twMerge('font-medium', !showBaseline && 'opacity-70')}
+          <button
+            onClick={onToggleShowBaseline}
+            className="flex items-center gap-1.5 hover:brightness-110"
           >
-            {baselineDisplayName}
-          </span>
-        </button>
-      </Tooltip>
+            {isBaselineShown ? (
+              <Eye className="w-3 h-3 text-blue-600 dark:text-blue-300" />
+            ) : (
+              <EyeOff className="w-3 h-3 text-gray-400 dark:text-gray-500" />
+            )}
+            {baselineName}
+          </button>
+        </Tooltip>
+      ) : (
+        <div className="flex items-center gap-1.5">
+          <EyeOff className="w-3 h-3 text-gray-400 dark:text-gray-500" />
+          {baselineName}
+        </div>
+      )}
       <Tooltip content="Clear all baselines">
         <button
           onClick={onClearBaselines}

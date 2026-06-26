@@ -4,22 +4,31 @@ export type {
   NpmQueryData,
   PackageGroup,
   BinType,
+  ChartType,
   TransformMode,
   ShowDataMode,
+  LatestBarSort,
+  BarOrientation,
   TimeRange,
-  FacetValue,
+  ViewMode,
 } from './shared'
 
 export {
   binTypeSchema,
+  chartTypeSchema,
   transformModeSchema,
   showDataModeSchema,
+  latestBarSortSchema,
+  barOrientationSchema,
+  viewModeSchema,
   binningOptions,
   timeRanges,
   defaultRangeBinTypes,
   getPackageColor,
   formatNumber,
   isBinningOptionValidForRange,
+  isChartTypeValidForViewMode,
+  getDefaultChartTypeForViewMode,
 } from './shared'
 
 export { binningOptionsByType } from './binning'
@@ -40,6 +49,11 @@ export {
 export { StatsTable, type StatsTableProps } from './StatsTable'
 
 export { NPMSummary } from './NPMSummary'
+
+export {
+  LatestBucketNavigator,
+  type LatestBucketNavigatorProps,
+} from './LatestBucketNavigator'
 
 export { ChartControls, type ChartControlsProps } from './ChartControls'
 

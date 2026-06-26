@@ -1,13 +1,14 @@
 import * as React from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
-import { useThrottledCallback } from '@tanstack/react-pacer'
+import { useThrottledCallback, useThrottler } from '@tanstack/react-pacer'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
-import { X } from 'lucide-react'
+import { HelpCircle, X } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { Card } from '~/components/Card'
+import { Tooltip } from '~/components/Tooltip'
 import { seo } from '~/utils/seo'
-import { chartHeightSchema } from '~/utils/schemas'
+import { chartHeightSchema, chartWidthSchema } from '~/utils/schemas'
 import {
   getPopularComparisons,
   getBaselinePresets,
@@ -19,22 +20,43 @@ import { Spinner } from '~/components/Spinner'
 import { BaselineSection } from '~/components/npm-stats/BaselineSection'
 import { ChartControls } from '~/components/npm-stats/ChartControls'
 import { ColorPickerPopover } from '~/components/npm-stats/ColorPickerPopover'
+import { DisabledChartActions } from '~/components/npm-stats/DisabledChartActions'
 import { PackagePills } from '~/components/npm-stats/PackagePills'
 import { PackageSearch } from '~/components/npm-stats/PackageSearch'
 import { PopularComparisons } from '~/components/npm-stats/PopularComparisons'
-import { Resizable } from '~/components/npm-stats/Resizable'
+import {
+  Resizable,
+  type ResizableSizeChange,
+  type ResizeChangeOptions,
+} from '~/components/npm-stats/Resizable'
 import { StatsTable } from '~/components/npm-stats/StatsTable'
-import { npmQueryOptions } from '~/components/npm-stats/npmQueryOptions'
+import { LatestBucketNavigator } from '~/components/npm-stats/LatestBucketNavigator'
+import {
+  npmQueryOptions,
+  selectLatestBucketQueryData,
+} from '~/components/npm-stats/npmQueryOptions'
+import { getLatestBucketOffsetBounds } from '~/components/npm-stats/binning'
 import {
   defaultRangeBinTypes,
   getPackageGroupLabel,
   getPackageColor,
+  getDefaultChartTypeForViewMode,
+  isChartTypeValidForViewMode,
+  defaultPlaybackIntervalMs,
+  playbackIntervalMsSchema,
+  chartTypeSchema,
+  barOrientationSchema,
+  latestBarSortSchema,
+  viewModeSchema,
+  type BarOrientation,
   type BinType,
-  type FacetValue,
+  type ChartType,
+  type LatestBarSort,
   type PackageGroup,
   type ShowDataMode,
   type TimeRange,
   type TransformMode,
+  type ViewMode,
 } from '~/components/npm-stats/shared'
 
 const LazyNPMStatsChart = React.lazy(() =>
@@ -55,6 +77,13 @@ function ChartFallback({ height }: { height: number }) {
 const transformModeSchema = v.picklist(['none', 'normalize-y'])
 const binTypeSchema = v.picklist(['yearly', 'monthly', 'weekly', 'daily'])
 const showDataModeSchema = v.picklist(['all', 'complete'])
+const bucketOffsetSchema = v.pipe(
+  v.number(),
+  v.integer(),
+  v.minValue(-5000),
+  v.maxValue(0),
+)
+const timelineZoomTimeSchema = v.pipe(v.number(), v.integer(), v.minValue(0))
 export const Route = createFileRoute('/stats/npm/')({
   validateSearch: v.object({
     packageGroups: v.fallback(
@@ -78,13 +107,25 @@ export const Route = createFileRoute('/stats/npm/')({
       '1825-days',
     ),
     transform: v.fallback(v.optional(transformModeSchema, 'none'), 'none'),
-    facetX: v.fallback(v.optional(v.picklist(['name'])), undefined),
-    facetY: v.fallback(v.optional(v.picklist(['name'])), undefined),
     binType: v.fallback(v.optional(binTypeSchema, 'monthly'), 'monthly'),
+    viewMode: v.fallback(v.optional(viewModeSchema, 'history'), 'history'),
+    chartType: v.fallback(v.optional(chartTypeSchema, 'line'), 'line'),
+    barOrientation: v.fallback(v.optional(barOrientationSchema), undefined),
+    barSort: v.fallback(v.optional(latestBarSortSchema, 'value'), 'value'),
+    bucketOffset: v.fallback(v.optional(bucketOffsetSchema, 0), 0),
+    playbackIntervalMs: v.fallback(
+      v.optional(playbackIntervalMsSchema, defaultPlaybackIntervalMs),
+      defaultPlaybackIntervalMs,
+    ),
+    playbackLoop: v.fallback(v.optional(v.boolean(), false), false),
+    playbackPlaying: v.fallback(v.optional(v.boolean(), false), false),
     showDataMode: v.fallback(v.optional(showDataModeSchema, 'all'), 'all'),
     normalizeBaseline: v.fallback(v.optional(v.boolean(), true), true),
     showBaseline: v.fallback(v.optional(v.boolean(), false), false),
     height: v.fallback(v.optional(chartHeightSchema, 400), 400),
+    width: v.fallback(v.optional(chartWidthSchema), undefined),
+    timelineStart: v.fallback(v.optional(timelineZoomTimeSchema), undefined),
+    timelineEnd: v.fallback(v.optional(timelineZoomTimeSchema), undefined),
   }),
   loaderDeps: ({ search }) => ({
     packageList: search.packageGroups?.map(getPackageGroupLabel).join(' vs '),
@@ -221,11 +262,20 @@ type _NpmStatsSearch = {
   }>
   range?: TimeRange
   transform?: 'none' | 'normalize-y'
-  facetX?: 'name'
-  facetY?: 'name'
   binType?: BinType
+  viewMode?: ViewMode
+  chartType?: ChartType
+  barOrientation?: BarOrientation
+  barSort?: LatestBarSort
+  bucketOffset?: number
+  playbackIntervalMs?: number
+  playbackLoop?: boolean
+  playbackPlaying?: boolean
   showDataMode?: 'all' | 'complete'
   height?: number
+  width?: number
+  timelineStart?: number
+  timelineEnd?: number
 }
 
 function RouteComponent() {
@@ -233,13 +283,25 @@ function RouteComponent() {
   const packageGroups: PackageGroup[] = search.packageGroups ?? []
   const range: TimeRange = search.range ?? '1825-days'
   const transform: TransformMode = search.transform ?? 'none'
-  const facetX: FacetValue | undefined = search.facetX
-  const facetY: FacetValue | undefined = search.facetY
   const binTypeParam: BinType | undefined = search.binType
+  const viewMode: ViewMode = search.viewMode ?? 'history'
+  const chartTypeParam: ChartType = search.chartType ?? 'line'
+  const barOrientationParam: BarOrientation =
+    search.barOrientation ??
+    (chartTypeParam === 'horizontal-bar' ? 'horizontal' : 'vertical')
+  const barSort: LatestBarSort = search.barSort ?? 'value'
   const showDataModeParam: ShowDataMode = search.showDataMode ?? 'all'
   const normalizeBaseline: boolean = search.normalizeBaseline ?? true
   const showBaseline: boolean = search.showBaseline ?? false
+  const bucketOffsetParam: number = search.bucketOffset ?? 0
+  const playbackIntervalMs: number =
+    search.playbackIntervalMs ?? defaultPlaybackIntervalMs
+  const playbackLoop: boolean = search.playbackLoop ?? false
+  const playbackPlaying: boolean = search.playbackPlaying ?? false
   const height: number = search.height ?? 400
+  const width: number | undefined = search.width
+  const timelineStart: number | undefined = search.timelineStart
+  const timelineEnd: number | undefined = search.timelineEnd
   const [combiningPackage, setCombiningPackage] = React.useState<string | null>(
     null,
   )
@@ -254,8 +316,38 @@ function RouteComponent() {
   const [openMenuPackage, setOpenMenuPackage] = React.useState<string | null>(
     null,
   )
+  const [chartActionsContainer, setChartActionsContainer] =
+    React.useState<HTMLDivElement | null>(null)
+  const [chartActionsMounted, setChartActionsMounted] = React.useState(false)
 
   const binType: BinType = binTypeParam ?? defaultRangeBinTypes[range]
+  const chartType = isChartTypeValidForViewMode(viewMode, chartTypeParam)
+    ? chartTypeParam
+    : getDefaultChartTypeForViewMode(viewMode)
+  const barOrientation: BarOrientation =
+    viewMode === 'latest' &&
+    (chartType === 'bar' || chartType === 'stacked-bar')
+      ? barOrientationParam
+      : 'vertical'
+  const latestBucketBounds = getLatestBucketOffsetBounds({ binType, range })
+  const bucketOffset = Math.max(
+    latestBucketBounds.minOffset,
+    Math.min(bucketOffsetParam, latestBucketBounds.maxOffset),
+  )
+  const queryPackageGroupEntries = packageGroups
+    .map((packageGroup, index) => ({ packageGroup, index }))
+    .filter(
+      ({ packageGroup }) => viewMode === 'history' || !packageGroup.baseline,
+    )
+  const queryPackageGroups = queryPackageGroupEntries.map(
+    ({ packageGroup }) => packageGroup,
+  )
+  const queryPackageGroupIndexes = queryPackageGroupEntries.map(
+    ({ index }) => index,
+  )
+  const tableTransform: TransformMode =
+    viewMode === 'history' && chartType === 'line' ? transform : 'none'
+  const canToggleShowBaseline = viewMode === 'history' && chartType === 'line'
 
   const handleBinnedChange = (value: BinType) => {
     navigate({
@@ -263,7 +355,119 @@ function RouteComponent() {
       search: (prev) => ({
         ...prev,
         binType: value,
+        bucketOffset: 0,
+        playbackPlaying: false,
+        timelineStart: undefined,
+        timelineEnd: undefined,
       }),
+      resetScroll: false,
+    })
+  }
+
+  const handleViewModeChange = (mode: ViewMode) => {
+    navigate({
+      to: '.',
+      search: (prev) => ({
+        ...prev,
+        viewMode: mode,
+        chartType: isChartTypeValidForViewMode(mode, chartType)
+          ? chartType
+          : getDefaultChartTypeForViewMode(mode),
+        transform: mode === 'latest' ? 'none' : prev.transform,
+        barOrientation,
+        showBaseline: mode === 'latest' ? false : prev.showBaseline,
+        playbackPlaying: mode === 'latest' ? prev.playbackPlaying : false,
+        bucketOffset: 0,
+        timelineStart: undefined,
+        timelineEnd: undefined,
+      }),
+      resetScroll: false,
+    })
+  }
+
+  const handleChartTypeChange = (nextChartType: ChartType) => {
+    navigate({
+      to: '.',
+      search: (prev) => ({
+        ...prev,
+        chartType: nextChartType,
+        barOrientation,
+        transform: nextChartType === 'line' ? prev.transform : 'none',
+      }),
+      resetScroll: false,
+    })
+  }
+
+  const handleBarSortChange = (nextBarSort: LatestBarSort) => {
+    navigate({
+      to: '.',
+      search: (prev) => ({
+        ...prev,
+        barSort: nextBarSort,
+      }),
+      resetScroll: false,
+    })
+  }
+
+  const handleBarOrientationChange = (nextBarOrientation: BarOrientation) => {
+    navigate({
+      to: '.',
+      search: (prev) => ({
+        ...prev,
+        barOrientation: nextBarOrientation,
+      }),
+      resetScroll: false,
+    })
+  }
+
+  const handleBucketOffsetChange = (nextBucketOffset: number) => {
+    const nextOffset = Math.max(
+      latestBucketBounds.minOffset,
+      Math.min(nextBucketOffset, latestBucketBounds.maxOffset),
+    )
+
+    navigate({
+      to: '.',
+      search: (prev) => ({
+        ...prev,
+        bucketOffset: nextOffset,
+      }),
+      replace: true,
+      resetScroll: false,
+    })
+  }
+
+  const handlePlaybackIntervalChange = (nextPlaybackIntervalMs: number) => {
+    navigate({
+      to: '.',
+      search: (prev) => ({
+        ...prev,
+        playbackIntervalMs: nextPlaybackIntervalMs,
+      }),
+      replace: true,
+      resetScroll: false,
+    })
+  }
+
+  const handlePlaybackLoopChange = (nextPlaybackLoop: boolean) => {
+    navigate({
+      to: '.',
+      search: (prev) => ({
+        ...prev,
+        playbackLoop: nextPlaybackLoop,
+      }),
+      resetScroll: false,
+    })
+  }
+
+  const handlePlaybackPlayingChange = (nextPlaybackPlaying: boolean) => {
+    navigate({
+      to: '.',
+      search: (prev) => ({
+        ...prev,
+        playbackPlaying: nextPlaybackPlaying,
+      }),
+      replace: true,
       resetScroll: false,
     })
   }
@@ -303,6 +507,8 @@ function RouteComponent() {
         )
         return {
           ...prev,
+          bucketOffset: 0,
+          playbackPlaying: false,
           packageGroups: [
             ...nonBaseline,
             ...preset.packages.map((p) => ({
@@ -331,6 +537,8 @@ function RouteComponent() {
   }
 
   const handleToggleShowBaseline = () => {
+    if (!canToggleShowBaseline) return
+
     navigate({
       to: '.',
       search: (prev) => ({
@@ -388,10 +596,36 @@ function RouteComponent() {
 
   const npmQuery = useQuery(
     npmQueryOptions({
-      packageGroups: packageGroups,
+      packageGroups: queryPackageGroups,
       range,
+      viewMode,
+      binType,
+      bucketOffset,
     }),
   )
+  const displayQueryData = React.useMemo(
+    () =>
+      viewMode === 'latest'
+        ? selectLatestBucketQueryData({
+            queryData: npmQuery.data,
+            binType,
+            bucketOffset,
+          })
+        : npmQuery.data,
+    [binType, bucketOffset, npmQuery.data, viewMode],
+  )
+  const packagePillQueryData = (() => {
+    if (viewMode === 'history') return npmQuery.data
+
+    let queryIndex = 0
+    return packageGroups.map((packageGroup) => {
+      if (packageGroup.baseline) return undefined
+
+      const queryData = npmQuery.data?.[queryIndex]
+      queryIndex++
+      return queryData
+    })
+  })()
 
   const handleRemoveFromGroup = (mainPackage: string, subPackage: string) => {
     // Find the package group
@@ -465,27 +699,19 @@ function RouteComponent() {
     })
   }
 
-  const setBinningOption = (newBinningOption: BinType) => {
-    navigate({
-      to: '.',
-      search: (prev) => ({
-        ...prev,
-        binType: newBinningOption,
-      }),
-      resetScroll: false,
-    })
-  }
-
   const handleRangeChange = (newRange: TimeRange) => {
-    // Set default binning option based on the new range
-    setBinningOption(defaultRangeBinTypes[newRange])
-
     navigate({
       to: '.',
       search: (prev) => ({
         ...prev,
         range: newRange,
+        binType: defaultRangeBinTypes[newRange],
+        bucketOffset: 0,
+        playbackPlaying: false,
+        timelineStart: undefined,
+        timelineEnd: undefined,
       }),
+      resetScroll: false,
     })
   }
 
@@ -544,17 +770,58 @@ function RouteComponent() {
     },
   )
 
-  const onHeightChange = useThrottledCallback(
-    (height: number) => {
+  const navigateChartSize = React.useCallback(
+    (size: ResizableSizeChange, replace: boolean) => {
       navigate({
         to: '.',
-        search: (prev) => ({ ...prev, height }),
+        search: (prev) => ({
+          ...prev,
+          ...('height' in size ? { height: size.height } : {}),
+          ...('width' in size ? { width: size.width } : {}),
+        }),
+        replace,
         resetScroll: false,
       })
     },
+    [navigate],
+  )
+
+  const chartSizeThrottler = useThrottler(
+    (size: ResizableSizeChange) => navigateChartSize(size, true),
     {
       wait: 16,
     },
+  )
+
+  const onSizeChange = React.useCallback(
+    (size: ResizableSizeChange, options: ResizeChangeOptions) => {
+      if (options.replace) {
+        chartSizeThrottler.maybeExecute(size)
+        return
+      }
+
+      chartSizeThrottler.cancel()
+      if (!('height' in size) && !('width' in size)) return
+
+      navigateChartSize(size, false)
+    },
+    [chartSizeThrottler, navigateChartSize],
+  )
+
+  const handleTimelineRangeChange = React.useCallback(
+    (nextRange: { end: number | undefined; start: number | undefined }) => {
+      navigate({
+        to: '.',
+        search: (prev) => ({
+          ...prev,
+          timelineStart: nextRange.start,
+          timelineEnd: nextRange.end,
+        }),
+        replace: true,
+        resetScroll: false,
+      })
+    },
+    [navigate],
   )
 
   const handleMenuOpenChange = (packageName: string, open: boolean) => {
@@ -563,28 +830,6 @@ function RouteComponent() {
     } else {
       setOpenMenuPackage(packageName)
     }
-  }
-
-  const handleFacetXChange = (value: FacetValue | undefined) => {
-    navigate({
-      to: '.',
-      search: (prev) => ({
-        ...prev,
-        facetX: value,
-      }),
-      resetScroll: false,
-    })
-  }
-
-  const handleFacetYChange = (value: FacetValue | undefined) => {
-    navigate({
-      to: '.',
-      search: (prev) => ({
-        ...prev,
-        facetY: value,
-      }),
-      resetScroll: false,
-    })
   }
 
   const handleAddPackage = (packageName: string) => {
@@ -655,19 +900,12 @@ function RouteComponent() {
 
   return (
     <div className="min-h-dvh p-2 sm:p-4 space-y-2 sm:space-y-4">
-      {/* SEO Header Section */}
-      <header className="max-w-4xl">
+      <header className="sr-only">
         <h1>
-          <span className="block text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
-            NPM Download Comparison
-          </span>
-          {packageGroups.length > 0 && (
-            <span className="block text-base sm:text-lg font-normal text-gray-600 dark:text-gray-400 mt-0.5">
-              {packageListForH1}
-            </span>
-          )}
+          NPM Download Comparison
+          {packageGroups.length > 0 ? `: ${packageListForH1}` : ''}
         </h1>
-        <p className="text-gray-500 dark:text-gray-500 text-xs sm:text-sm mt-2">
+        <p>
           Compare npm package downloads with interactive charts. Track trends
           and make data-driven decisions.
         </p>
@@ -675,26 +913,42 @@ function RouteComponent() {
 
       <div className="flex gap-4">
         <Card className="flex-1 space-y-4 p-4 max-w-full">
-          <div className="flex gap-2 flex-wrap items-center">
+          <div className="flex flex-wrap items-center gap-1">
             <PackageSearch onSelect={handleAddPackage} />
             <ChartControls
+              viewMode={viewMode}
+              chartType={chartType}
               range={range}
               binType={binType}
               transform={transform}
               showDataMode={showDataModeParam}
+              barSort={barSort}
+              barOrientation={barOrientation}
+              onViewModeChange={handleViewModeChange}
+              onChartTypeChange={handleChartTypeChange}
               onRangeChange={handleRangeChange}
               onBinTypeChange={handleBinnedChange}
               onTransformChange={handleTransformChange}
               onShowDataModeChange={handleShowDataModeChange}
-              facetX={facetX}
-              facetY={facetY}
-              onFacetXChange={handleFacetXChange}
-              onFacetYChange={handleFacetYChange}
+              onBarSortChange={handleBarSortChange}
+              onBarOrientationChange={handleBarOrientationChange}
             />
+            <Tooltip
+              content="Compare npm package downloads with interactive charts. Track trends and make data-driven decisions."
+              placement="bottom"
+            >
+              <button
+                aria-label="About NPM download comparison"
+                className="flex size-6 items-center justify-center rounded bg-gray-500/10 text-gray-500 hover:bg-gray-500/20 hover:text-blue-500"
+                type="button"
+              >
+                <HelpCircle className="size-3" />
+              </button>
+            </Tooltip>
           </div>
           <PackagePills
             packageGroups={packageGroups}
-            queryData={npmQuery.data}
+            queryData={packagePillQueryData}
             onColorClick={handleColorClick}
             onToggleVisibility={togglePackageVisibility}
             onRemove={handleRemovePackageName}
@@ -705,17 +959,49 @@ function RouteComponent() {
             onMenuOpenChange={handleMenuOpenChange}
           />
 
-          <BaselineSection
-            packageGroups={packageGroups}
-            presets={getBaselinePresets()}
-            normalizeBaseline={normalizeBaseline}
-            showBaseline={showBaseline}
-            onToggleNormalizeBaseline={handleToggleNormalizeBaseline}
-            onToggleShowBaseline={handleToggleShowBaseline}
-            onAddBaseline={handleAddBaseline}
-            onApplyPreset={handleApplyBaselinePreset}
-            onClearBaselines={handleClearBaselines}
-          />
+          <div
+            className={
+              viewMode === 'history'
+                ? 'flex flex-wrap items-center justify-between gap-2'
+                : 'flex flex-wrap items-center gap-2'
+            }
+          >
+            {viewMode === 'history' ? (
+              <div className="min-w-0 flex-1">
+                <BaselineSection
+                  packageGroups={packageGroups}
+                  presets={getBaselinePresets()}
+                  canToggleShowBaseline={canToggleShowBaseline}
+                  normalizeBaseline={normalizeBaseline}
+                  showBaseline={showBaseline}
+                  onToggleNormalizeBaseline={handleToggleNormalizeBaseline}
+                  onToggleShowBaseline={handleToggleShowBaseline}
+                  onAddBaseline={handleAddBaseline}
+                  onApplyPreset={handleApplyBaselinePreset}
+                  onClearBaselines={handleClearBaselines}
+                />
+              </div>
+            ) : (
+              <LatestBucketNavigator
+                binType={binType}
+                range={range}
+                bucketOffset={bucketOffset}
+                isLooping={playbackLoop}
+                isPlaying={playbackPlaying}
+                playbackIntervalMs={playbackIntervalMs}
+                onBucketOffsetChange={handleBucketOffsetChange}
+                onLoopingChange={handlePlaybackLoopChange}
+                onPlaybackIntervalChange={handlePlaybackIntervalChange}
+                onPlayingChange={handlePlaybackPlayingChange}
+              />
+            )}
+            <div
+              className="ml-auto flex min-h-6 items-center justify-end"
+              ref={setChartActionsContainer}
+            >
+              {chartActionsMounted ? null : <DisabledChartActions />}
+            </div>
+          </div>
 
           {/* Combine Package Dialog */}
           <DialogPrimitive.Root
@@ -766,7 +1052,7 @@ function RouteComponent() {
             />
           )}
 
-          {Object.keys(packageGroups).length ? (
+          {queryPackageGroups.length ? (
             <div className="">
               <div className="space-y-2 sm:space-y-4">
                 <div className="relative">
@@ -780,7 +1066,11 @@ function RouteComponent() {
                       </div>
                     </div>
                   ) : null}
-                  <Resizable height={height} onHeightChange={onHeightChange}>
+                  <Resizable
+                    height={height}
+                    width={width}
+                    onSizeChange={onSizeChange}
+                  >
                     {npmQuery.isLoading ? (
                       <div
                         className="flex items-center justify-center"
@@ -798,26 +1088,38 @@ function RouteComponent() {
                         fallback={<ChartFallback height={height} />}
                       >
                         <LazyNPMStatsChart
+                          actionsContainer={chartActionsContainer}
+                          onActionsMountedChange={setChartActionsMounted}
                           range={range}
-                          queryData={npmQuery.data}
+                          queryData={displayQueryData}
+                          height={height}
+                          viewMode={viewMode}
+                          chartType={chartType}
+                          barSort={barSort}
+                          barOrientation={barOrientation}
                           transform={transform}
                           binType={binType}
-                          packages={packageGroups}
-                          facetX={facetX}
-                          facetY={facetY}
+                          packages={queryPackageGroups}
                           showDataMode={showDataModeParam}
-                          normalizeBaseline={normalizeBaseline}
-                          showBaseline={showBaseline}
+                          normalizeBaseline={
+                            viewMode === 'history' && normalizeBaseline
+                          }
+                          showBaseline={viewMode === 'history' && showBaseline}
+                          timelineStart={timelineStart}
+                          timelineEnd={timelineEnd}
+                          onTimelineRangeChange={handleTimelineRangeChange}
                         />
                       </React.Suspense>
                     )}
                   </Resizable>
                 </div>
                 <StatsTable
-                  queryData={npmQuery.data}
-                  packageGroups={packageGroups}
+                  queryData={displayQueryData}
+                  packageGroups={queryPackageGroups}
+                  packageGroupIndexes={queryPackageGroupIndexes}
                   binType={binType}
-                  transform={transform}
+                  transform={tableTransform}
+                  viewMode={viewMode}
                   onColorClick={handleColorClick}
                   onToggleVisibility={togglePackageVisibility}
                   onRemove={handleRemovePackageName}

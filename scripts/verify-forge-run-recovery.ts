@@ -23,9 +23,8 @@ try {
     reconcileInterruptedLocalForgeRun,
     resetLocalForgeRuntime,
   } = await import('../src/builder/runtime/local-store.server')
-  const { cancelLocalForgeAgentRun } = await import(
-    '../src/builder/runtime/local-agent.server'
-  )
+  const { cancelLocalForgeAgentRun } =
+    await import('../src/builder/runtime/local-agent.server')
 
   async function seedActiveRun({
     createdAt,

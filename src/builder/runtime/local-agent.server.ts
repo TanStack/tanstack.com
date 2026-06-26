@@ -68,6 +68,13 @@ const LOCAL_FORGE_TIMEOUT_MS = readPositiveIntegerEnv(
   'FORGE_AGENT_TIMEOUT_MS',
   180_000,
 )
+// The provider adapters default to a tiny output cap (Anthropic falls back to
+// 1024), which truncates a single file-writing turn mid tool call. Give each
+// model turn enough room to emit a full file plus reasoning.
+const LOCAL_FORGE_MAX_OUTPUT_TOKENS = readPositiveIntegerEnv(
+  'FORGE_AGENT_MAX_OUTPUT_TOKENS',
+  16_384,
+)
 const LOCAL_FORGE_BASELINE_LOCK_STALE_MS = 10 * 60_000
 const LOCAL_FORGE_BASELINE_LOCK_WAIT_MS = 30_000
 const LOCAL_FORGE_RUN_LOCK_STALE_MS = 10 * 60_000
@@ -984,6 +991,7 @@ async function runTanStackAiForgeHarness({
         abortController,
         adapter,
         agentLoopStrategy: maxIterations(LOCAL_FORGE_MAX_ITERATIONS),
+        maxTokens: LOCAL_FORGE_MAX_OUTPUT_TOKENS,
         messages: [
           {
             role: 'user',

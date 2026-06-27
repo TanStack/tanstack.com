@@ -2,6 +2,7 @@ import * as React from 'react'
 import { createPortal } from 'react-dom'
 import * as Plot from '@observablehq/plot'
 import * as d3 from 'd3'
+import { GIFEncoder, applyPalette, quantize } from 'gifenc'
 import { Download, List } from 'lucide-react'
 import {
   DropdownMenu,
@@ -18,6 +19,7 @@ import {
   getUtcToday,
   NPM_STATS_START_DATE,
 } from './binning'
+import { selectLatestBucketQueryData } from './npmQueryOptions'
 import type {
   BarOrientation,
   BinType,
@@ -140,7 +142,7 @@ const timelineScrubberDateFormatter = new Intl.DateTimeFormat('en-US', {
   year: 'numeric',
 })
 const timelineScrubberInputStyles =
-  'pointer-events-none absolute inset-0 h-8 w-full appearance-none bg-transparent outline-none [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:w-3 [&::-moz-range-thumb]:cursor-ew-resize [&::-moz-range-thumb]:border [&::-moz-range-thumb]:border-gray-400 [&::-moz-range-thumb]:bg-gray-300 [&::-moz-range-thumb]:shadow-xs [&::-moz-range-track]:h-3 [&::-moz-range-track]:bg-transparent [&::-webkit-slider-runnable-track]:h-3 [&::-webkit-slider-runnable-track]:bg-transparent [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:-mt-1 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:cursor-ew-resize [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:border [&::-webkit-slider-thumb]:border-gray-400 [&::-webkit-slider-thumb]:bg-gray-300 [&::-webkit-slider-thumb]:shadow-xs dark:[&::-moz-range-thumb]:border-gray-500 dark:[&::-moz-range-thumb]:bg-gray-700 dark:[&::-webkit-slider-thumb]:border-gray-500 dark:[&::-webkit-slider-thumb]:bg-gray-700'
+  'pointer-events-none absolute inset-0 h-8 w-full appearance-none bg-transparent outline-none [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:h-3 [&::-moz-range-thumb]:w-3 [&::-moz-range-thumb]:cursor-ew-resize [&::-moz-range-thumb]:border [&::-moz-range-thumb]:border-gray-400 [&::-moz-range-thumb]:bg-gray-300 [&::-moz-range-thumb]:shadow-xs [&::-moz-range-track]:h-3 [&::-moz-range-track]:bg-transparent [&::-webkit-slider-runnable-track]:h-3 [&::-webkit-slider-runnable-track]:bg-transparent [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:mt-0 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:cursor-ew-resize [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:border [&::-webkit-slider-thumb]:border-gray-400 [&::-webkit-slider-thumb]:bg-gray-300 [&::-webkit-slider-thumb]:shadow-xs dark:[&::-moz-range-thumb]:border-gray-500 dark:[&::-moz-range-thumb]:bg-gray-700 dark:[&::-webkit-slider-thumb]:border-gray-500 dark:[&::-webkit-slider-thumb]:bg-gray-700'
 const timelineScrubberStartInputStyles =
   '[&::-moz-range-thumb]:rounded-l-sm [&::-moz-range-thumb]:rounded-r-[1px] [&::-webkit-slider-thumb]:rounded-l-sm [&::-webkit-slider-thumb]:rounded-r-[1px]'
 const timelineScrubberEndInputStyles =
@@ -243,6 +245,14 @@ function getBarGroup(svg: SVGSVGElement) {
   return svg.querySelector<SVGGElement>('g[aria-label="bar"]')
 }
 
+function getBarCapLayer(svg: SVGSVGElement) {
+  return svg.querySelector<SVGElement>('g[aria-label="tick"]')
+}
+
+function getBarCapElements(svg: SVGSVGElement) {
+  return [...svg.querySelectorAll<SVGElement>('g[aria-label="tick"]>*')]
+}
+
 function getKeyedBarRects({
   barKeys,
   svg,
@@ -263,6 +273,26 @@ function getKeyedBarRects({
   return keyedBars
 }
 
+function getKeyedBarCapElements({
+  barKeys,
+  svg,
+}: {
+  barKeys: Array<string>
+  svg: SVGSVGElement
+}) {
+  const keyedCaps: Array<KeyedTickElement> = []
+
+  getBarCapElements(svg).forEach((element, index) => {
+    const key = barKeys[index]
+    if (!key) return
+
+    element.setAttribute('data-bar-cap-key', key)
+    keyedCaps.push({ category: key, element, key, part: 'tick' })
+  })
+
+  return keyedCaps
+}
+
 function getLiveKeyedBarRects(svg: SVGSVGElement) {
   const keyedBars: Array<KeyedBarRect> = []
 
@@ -274,6 +304,19 @@ function getLiveKeyedBarRects(svg: SVGSVGElement) {
   })
 
   return keyedBars
+}
+
+function getLiveKeyedBarCapElements(svg: SVGSVGElement) {
+  const keyedCaps: Array<KeyedTickElement> = []
+
+  getBarCapElements(svg).forEach((element) => {
+    const key = element.getAttribute('data-bar-cap-key')
+    if (!key) return
+
+    keyedCaps.push({ category: key, element, key, part: 'tick' })
+  })
+
+  return keyedCaps
 }
 
 function getBarRectAttributesByKey({
@@ -306,6 +349,22 @@ function getBarRectsByKey({
   })
 
   return rectsByKey
+}
+
+function getBarCapElementsByKey({
+  barKeys,
+  svg,
+}: {
+  barKeys: Array<string>
+  svg: SVGSVGElement
+}) {
+  const elementByKey = new Map<string, KeyedTickElement>()
+
+  getKeyedBarCapElements({ barKeys, svg }).forEach((keyedCap) => {
+    elementByKey.set(keyedCap.key, keyedCap)
+  })
+
+  return elementByKey
 }
 
 function getUniqueKeyedBarRects(svg: SVGSVGElement) {
@@ -691,6 +750,7 @@ function attachCategoricalDomainUpdater({
   const valueAxis: CategoricalAxis = axis === 'x' ? 'y' : 'x'
 
   getKeyedBarRects({ barKeys, svg })
+  getKeyedBarCapElements({ barKeys, svg })
   getCategoricalTickElements({ axis, domain, svg })
   getValueAxisTickElements({ axis: valueAxis, svg })
 
@@ -716,6 +776,32 @@ function attachCategoricalDomainUpdater({
       svg: nextSvg,
     })
     const nextBarGroup = getBarGroup(nextSvg)
+    const currentBarCaps = getLiveKeyedBarCapElements(svg)
+    const currentBarCapElementsByKey = new Map<string, KeyedTickElement>()
+
+    currentBarCaps.forEach((cap) => {
+      if (!currentBarCapElementsByKey.has(cap.key)) {
+        currentBarCapElementsByKey.set(cap.key, cap)
+      }
+    })
+
+    const targetBarCapElementsByKey = getBarCapElementsByKey({
+      barKeys: nextBarKeys,
+      svg: nextSvg,
+    })
+    const targetBarCapAttributesByKey = new Map<
+      string,
+      AxisTickElementAttributes
+    >()
+
+    targetBarCapElementsByKey.forEach(({ element }, key) => {
+      targetBarCapAttributesByKey.set(
+        key,
+        getAxisTickElementAttributes(element),
+      )
+    })
+
+    const nextBarCapLayer = getBarCapLayer(nextSvg)
     const currentKeyedTicks = getLiveCategoricalTickElements({ axis, svg })
     const currentTickElementsByKey = new Map<string, KeyedTickElement>()
 
@@ -843,6 +929,41 @@ function attachCategoricalDomainUpdater({
 
     const retainedTicks: Array<KeyedTickElement> = []
     const enteringTicks: Array<KeyedTickElement> = []
+    const retainedBarCaps: Array<KeyedTickElement> = []
+    const enteringBarCaps: Array<KeyedTickElement> = []
+
+    targetBarCapElementsByKey.forEach((targetCap, key) => {
+      const currentCap = currentBarCapElementsByKey.get(key)
+
+      if (currentCap) {
+        setAxisTickElementAttributes(
+          targetCap.element,
+          getAxisTickElementAttributes(currentCap.element),
+        )
+        retainedBarCaps.push(targetCap)
+        return
+      }
+
+      targetCap.element.setAttribute('opacity', '0')
+      enteringBarCaps.push(targetCap)
+    })
+
+    currentBarCaps.forEach((currentCap) => {
+      if (targetBarCapElementsByKey.has(currentCap.key) || !nextBarCapLayer) {
+        return
+      }
+
+      const exitingCap = cloneTickElement(currentCap.element)
+      if (!exitingCap) return
+
+      setAxisTickElementAttributes(
+        exitingCap,
+        getAxisTickElementAttributes(currentCap.element),
+      )
+      exitingCap.setAttribute('data-bar-cap-key', currentCap.key)
+      nextBarCapLayer.append(exitingCap)
+      d3.select(exitingCap).transition(transition).attr('opacity', 0).remove()
+    })
 
     targetTickElementsByKey.forEach((targetTick, key) => {
       const currentTick = currentTickElementsByKey.get(key)
@@ -1035,6 +1156,18 @@ function attachCategoricalDomainUpdater({
       ticks: enteringValueTicks,
       transition,
     })
+
+    transitionAxisTickElementsToTarget({
+      targetAttributesByKey: targetBarCapAttributesByKey,
+      ticks: retainedBarCaps,
+      transition,
+    })
+
+    transitionAxisTickElementsToTarget({
+      targetAttributesByKey: targetBarCapAttributesByKey,
+      ticks: enteringBarCaps,
+      transition,
+    })
   }
 }
 
@@ -1073,9 +1206,27 @@ function getInsideOutOrderByLatestValue({
   return bottoms.reverse().concat(tops)
 }
 
+function getSubPackageColorForPackages({
+  groupName,
+  packageIndex,
+  packages,
+}: {
+  groupName: string
+  packageIndex: number
+  packages: Array<PackageGroup>
+}) {
+  const groupColor = getPackageColor(groupName, packages)
+  const color = d3.color(groupColor)
+  if (!color || packageIndex === 0) return groupColor
+
+  return packageIndex % 2 === 0
+    ? color.darker(packageIndex * 0.25).toString()
+    : color.brighter(packageIndex * 0.35).toString()
+}
+
 // Plot figure component
 type PlotOptions = NonNullable<Parameters<typeof Plot.plot>[0]>
-type ChartExportFormat = 'svg' | 'png' | 'jpeg'
+type ChartExportFormat = 'svg' | 'png' | 'jpeg' | 'gif' | 'webm'
 type ColorLegendEntry = {
   label: string
   color: string
@@ -1092,6 +1243,12 @@ type ExportLegendLayoutRow = {
   items: Array<ExportLegendLayoutItem>
   width: number
 }
+type ChartFillGradient = {
+  bottomOpacity: number
+  color: string
+  id: string
+  topOpacity: number
+}
 type ExportBackgroundMode = 'opaque' | 'transparent'
 type ExportStyle = {
   backgroundColor: string
@@ -1103,24 +1260,143 @@ type SerializedExportSvg = {
   source: string
   width: number
 }
+type SerializedAnimationFrame = SerializedExportSvg & {
+  delayMs: number
+}
+type LatestBucketOffsetBounds = {
+  maxOffset: number
+  minOffset: number
+}
 
 const chartExportOptions = [
   { value: 'svg', label: 'SVG' },
   { value: 'png', label: 'PNG' },
   { value: 'jpeg', label: 'JPEG' },
+  { value: 'gif', label: 'GIF' },
+  { value: 'webm', label: 'WebM' },
 ] as const satisfies ReadonlyArray<{
   value: ChartExportFormat
   label: string
 }>
+const animatedExportMaxFrames = 240
+const animatedExportMinDelayMs = 35
+const animatedExportMaxDelayMs = 100
 const chartActionButtonStyles =
   'flex size-6 items-center justify-center rounded bg-gray-500/10 text-gray-600 hover:bg-gray-500/20 hover:text-blue-500 dark:text-gray-400 dark:hover:text-gray-100'
 const chartActionDropdownContentStyles =
   'z-50 min-w-[120px] rounded-md bg-white p-1.5 shadow-lg dark:bg-gray-800'
 const chartActionDropdownItemStyles =
   'flex w-full cursor-pointer items-center rounded px-1.5 py-1 text-left text-xs outline-none hover:bg-gray-500/20 data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500'
+const svgNamespace = 'http://www.w3.org/2000/svg'
 
 function getExportFileName(format: ChartExportFormat) {
-  return `npm-stats-chart.${format === 'jpeg' ? 'jpg' : format}`
+  if (format === 'jpeg') return 'npm-stats-chart.jpg'
+  return `npm-stats-chart.${format}`
+}
+
+function isAnimatedExportFormat(
+  format: ChartExportFormat,
+): format is 'gif' | 'webm' {
+  return format === 'gif' || format === 'webm'
+}
+
+function getStableIdPart(value: string) {
+  let hash = 2166136261
+
+  for (let index = 0; index < value.length; index++) {
+    hash = Math.imul(hash ^ value.charCodeAt(index), 16777619)
+  }
+
+  return (hash >>> 0).toString(36)
+}
+
+function getChartFillGradients({
+  bottomOpacity = 0.1,
+  entries,
+  idPrefix,
+  topOpacity = 0.8,
+}: {
+  bottomOpacity?: number
+  entries: Array<ColorLegendEntry>
+  idPrefix: string
+  topOpacity?: number
+}) {
+  const seenColors = new Set<string>()
+  const gradients: Array<ChartFillGradient> = []
+
+  entries.forEach((entry) => {
+    if (seenColors.has(entry.color)) return
+
+    seenColors.add(entry.color)
+    gradients.push({
+      bottomOpacity,
+      color: entry.color,
+      id: `${idPrefix}-${getStableIdPart(entry.color)}`,
+      topOpacity,
+    })
+  })
+
+  return gradients
+}
+
+function getChartFillGradientUrl({
+  color,
+  gradients,
+}: {
+  color: string
+  gradients: Array<ChartFillGradient>
+}) {
+  const gradient = gradients.find((entry) => entry.color === color)
+
+  return gradient ? `url(#${gradient.id})` : color
+}
+
+function applyChartFillGradients({
+  gradients,
+  svg,
+}: {
+  gradients: Array<ChartFillGradient>
+  svg: SVGSVGElement
+}) {
+  if (!gradients.length) return
+
+  const ownerDocument = svg.ownerDocument
+  const defs =
+    svg.querySelector('defs') ??
+    ownerDocument.createElementNS(svgNamespace, 'defs')
+
+  if (!defs.parentNode) {
+    svg.prepend(defs)
+  }
+
+  gradients.forEach((entry) => {
+    let gradient = defs.querySelector<SVGLinearGradientElement>(`#${entry.id}`)
+
+    if (!gradient) {
+      gradient = ownerDocument.createElementNS(svgNamespace, 'linearGradient')
+      gradient.setAttribute('id', entry.id)
+      defs.append(gradient)
+    } else {
+      gradient.replaceChildren()
+    }
+
+    gradient.setAttribute('x1', '0')
+    gradient.setAttribute('x2', '0')
+    gradient.setAttribute('y1', '1')
+    gradient.setAttribute('y2', '0')
+
+    const bottomStop = ownerDocument.createElementNS(svgNamespace, 'stop')
+    bottomStop.setAttribute('offset', '0%')
+    bottomStop.setAttribute('stop-color', entry.color)
+    bottomStop.setAttribute('stop-opacity', `${entry.bottomOpacity}`)
+    gradient.append(bottomStop)
+
+    const topStop = ownerDocument.createElementNS(svgNamespace, 'stop')
+    topStop.setAttribute('offset', '100%')
+    topStop.setAttribute('stop-color', entry.color)
+    topStop.setAttribute('stop-opacity', `${entry.topOpacity}`)
+    gradient.append(topStop)
+  })
 }
 
 function getUniqueColorLegendEntries(entries: Array<ColorLegendEntry>) {
@@ -1139,6 +1415,323 @@ function getPlotSvg(plot: ReturnType<typeof Plot.plot> | null) {
   if (!plot) return undefined
   if (plot instanceof SVGSVGElement) return plot
   return plot.querySelector('svg') ?? undefined
+}
+
+function getLatestExportPackageData({
+  binType,
+  packages,
+  queryData,
+}: {
+  binType: BinType
+  packages: Array<PackageGroup>
+  queryData: NpmQueryData
+}) {
+  const binUnit = binningOptionsByType[binType].bin
+  const earliestQueryStart = queryData
+    .map((pkg) => getUtcDay(new Date(pkg.start)))
+    .sort((a, b) => a.getTime() - b.getTime())[0]
+  const startDate = binUnit.floor(earliestQueryStart || NPM_STATS_START_DATE)
+
+  const combinedPackageGroups = queryData.map((queryPackageGroup, index) => {
+    const packageGroupWithHidden = packages[index]
+    const shouldAlwaysIncludeFirstPackage =
+      !packageGroupWithHidden ||
+      !hasPackageGroupLabel(packageGroupWithHidden) ||
+      !!packageGroupWithHidden.baseline
+    const visiblePackages = queryPackageGroup.packages.filter((p, i) => {
+      const hiddenState = packageGroupWithHidden?.packages.find(
+        (pg) => pg.name === p.name,
+      )?.hidden
+      return (i === 0 && shouldAlwaysIncludeFirstPackage) || !hiddenState
+    })
+    const groupName = packageGroupWithHidden
+      ? getPackageGroupLabel(packageGroupWithHidden)
+      : queryPackageGroup.packages[0]?.name || 'Unknown'
+    const downloadsByDate = new Map<number, number>()
+
+    visiblePackages.forEach((pkg) => {
+      pkg.downloads.forEach((d) => {
+        const date = getUtcDay(new Date(d.day))
+        if (date < startDate) return
+
+        downloadsByDate.set(
+          date.getTime(),
+          (downloadsByDate.get(date.getTime()) || 0) + d.downloads,
+        )
+      })
+    })
+
+    const packageDownloads = visiblePackages.map((pkg) => {
+      const packageName = pkg.name || groupName
+      const packageDownloadsByDate = new Map<number, number>()
+
+      pkg.downloads.forEach((d) => {
+        const date = getUtcDay(new Date(d.day))
+        if (date < startDate) return
+
+        packageDownloadsByDate.set(
+          date.getTime(),
+          (packageDownloadsByDate.get(date.getTime()) || 0) + d.downloads,
+        )
+      })
+
+      return {
+        packageName,
+        downloads: Array.from(packageDownloadsByDate.entries()).map(
+          ([date, downloads]) => ({
+            date: getUtcDay(new Date(date)),
+            downloads,
+          }),
+        ),
+      }
+    })
+
+    return {
+      groupName,
+      packageDownloads,
+      downloads: Array.from(downloadsByDate.entries()).map(
+        ([date, downloads]) => [getUtcDay(new Date(date)), downloads],
+      ) as Array<[Date, number]>,
+    }
+  })
+
+  return combinedPackageGroups
+    .map((packageGroup) => {
+      const binned = d3.sort(
+        d3.rollup(
+          packageGroup.downloads,
+          (v) => d3.sum(v, (d) => d[1]),
+          (d) => binUnit.floor(d[0]),
+        ),
+        (d) => d[0],
+      )
+
+      return {
+        ...packageGroup,
+        downloads: binned.map((d) => ({
+          name: packageGroup.groupName,
+          date: getUtcDay(new Date(d[0])),
+          downloads: d[1],
+        })),
+        packageDownloads: packageGroup.packageDownloads.map((pkg) => {
+          const packageBinned = d3.sort(
+            d3.rollup(
+              pkg.downloads,
+              (v) => d3.sum(v, (d) => d.downloads),
+              (d) => binUnit.floor(d.date),
+            ),
+            (d) => d[0],
+          )
+
+          return {
+            ...pkg,
+            groupName: packageGroup.groupName,
+            downloads: packageBinned.map((d) => ({
+              groupName: packageGroup.groupName,
+              packageName: pkg.packageName,
+              date: getUtcDay(new Date(d[0])),
+              downloads: d[1],
+            })),
+          }
+        }),
+      }
+    })
+    .filter((_, index) => {
+      const packageGroupWithHidden = packages[index]
+      return packageGroupWithHidden
+        ? !isPackageGroupHidden(packageGroupWithHidden)
+        : true
+    })
+}
+
+function createLatestBarExportPlot({
+  barOrientation,
+  barSort,
+  binType,
+  chartType,
+  gradientIdPrefix,
+  height,
+  packages,
+  queryData,
+  width,
+}: {
+  barOrientation: BarOrientation
+  barSort: LatestBarSort
+  binType: BinType
+  chartType: ChartType
+  gradientIdPrefix: string
+  height: number
+  packages: Array<PackageGroup>
+  queryData: NpmQueryData
+  width: number
+}) {
+  const filteredPackageData = getLatestExportPackageData({
+    binType,
+    packages,
+    queryData,
+  })
+  const latestBarGroups = filteredPackageData
+    .map((packageGroup) => ({
+      packageGroup,
+      name: packageGroup.groupName,
+      downloads: d3.sum(packageGroup.downloads, (d) => d.downloads),
+    }))
+    .filter((group) => group.downloads > 0)
+    .sort((a, b) =>
+      barSort === 'value'
+        ? d3.descending(a.downloads, b.downloads) ||
+          a.name.localeCompare(b.name)
+        : a.name.localeCompare(b.name),
+    )
+  const latestBarDomain = latestBarGroups.map((group) => group.name)
+  const latestGroupedBarData = latestBarGroups.map((group) => ({
+    name: group.name,
+    seriesName: group.name,
+    downloads: group.downloads,
+    label: `${group.name}: ${formatNumber(group.downloads)}`,
+  }))
+  const latestStackedBarData = latestBarGroups.flatMap((group) => {
+    let y0 = 0
+    const sortedPackageDownloads = group.packageGroup.packageDownloads
+      .map((pkg, packageIndex) => ({
+        ...pkg,
+        packageIndex,
+        totalDownloads: d3.sum(pkg.downloads, (d) => d.downloads),
+      }))
+      .filter((pkg) => pkg.totalDownloads > 0)
+      .sort((a, b) => b.totalDownloads - a.totalDownloads)
+
+    return sortedPackageDownloads.map((pkg) => {
+      const point = {
+        groupName: group.name,
+        packageName: pkg.packageName,
+        packageIndex: pkg.packageIndex,
+        downloads: pkg.totalDownloads,
+        y0,
+        y1: y0 + pkg.totalDownloads,
+        label: `${pkg.packageName}: ${formatNumber(pkg.totalDownloads)}`,
+      }
+      y0 += pkg.totalDownloads
+      return point
+    })
+  })
+  const isStackedBar = chartType === 'stacked-bar'
+  const isHorizontalBar = barOrientation === 'horizontal'
+  const longestLatestBarLabelLength =
+    d3.max(latestBarDomain, (label) => label.length) ?? 0
+  const marginLeft = isHorizontalBar
+    ? Math.min(240, Math.max(90, longestLatestBarLabelLength * 7 + 20))
+    : 70
+  const getSeriesColor = (d: { name?: string }) =>
+    d.name ? getPackageColor(d.name, packages) : 'currentColor'
+  const getSubPackageColor = (d: { groupName: string; packageIndex: number }) =>
+    getSubPackageColorForPackages({ ...d, packages })
+  const colorLegendEntries = getUniqueColorLegendEntries(
+    isStackedBar
+      ? latestStackedBarData.map((bar) => ({
+          label: `${bar.groupName} / ${bar.packageName}`,
+          color: getSubPackageColor(bar),
+        }))
+      : latestGroupedBarData.map((bar) => ({
+          label: bar.name,
+          color: getPackageColor(bar.name, packages),
+        })),
+  )
+  const fillGradients = getChartFillGradients({
+    bottomOpacity: 0.7,
+    entries: colorLegendEntries,
+    idPrefix: gradientIdPrefix,
+    topOpacity: 1,
+  })
+  const getSeriesGradientFill = (d: { name?: string }) =>
+    getChartFillGradientUrl({
+      color: getSeriesColor(d),
+      gradients: fillGradients,
+    })
+  const getSubPackageGradientFill = (d: {
+    groupName: string
+    packageIndex: number
+  }) =>
+    getChartFillGradientUrl({
+      color: getSubPackageColor(d),
+      gradients: fillGradients,
+    })
+  const plot = Plot.plot({
+    marginLeft,
+    marginRight: 10,
+    marginBottom: isHorizontalBar ? 70 : 90,
+    width,
+    height,
+    marks: (
+      [
+        isHorizontalBar
+          ? Plot.ruleX([0], {
+              stroke: 'currentColor',
+              strokeWidth: 1.5,
+              strokeOpacity: 0.5,
+            })
+          : Plot.ruleY([0], {
+              stroke: 'currentColor',
+              strokeWidth: 1.5,
+              strokeOpacity: 0.5,
+            }),
+        !isStackedBar && !isHorizontalBar
+          ? Plot.barY(latestGroupedBarData, {
+              x: 'name',
+              y: 'downloads',
+              fill: getSeriesGradientFill,
+            })
+          : undefined,
+        !isStackedBar && isHorizontalBar
+          ? Plot.barX(latestGroupedBarData, {
+              x: 'downloads',
+              y: 'name',
+              fill: getSeriesGradientFill,
+            })
+          : undefined,
+        isStackedBar && !isHorizontalBar
+          ? Plot.barY(latestStackedBarData, {
+              x: 'groupName',
+              y1: 'y0',
+              y2: 'y1',
+              fill: getSubPackageGradientFill,
+            })
+          : undefined,
+        isStackedBar && isHorizontalBar
+          ? Plot.barX(latestStackedBarData, {
+              y: 'groupName',
+              x1: 'y0',
+              x2: 'y1',
+              fill: getSubPackageGradientFill,
+            })
+          : undefined,
+      ] as const
+    ).filter(Boolean),
+    x: {
+      domain: isHorizontalBar ? undefined : latestBarDomain,
+      label: isHorizontalBar ? 'Downloads' : null,
+      labelOffset: isHorizontalBar ? 35 : 55,
+      tickFormat: isHorizontalBar ? formatCompactAxisNumber : undefined,
+      tickRotate: isHorizontalBar ? undefined : -30,
+    },
+    y: {
+      domain: isHorizontalBar ? latestBarDomain : undefined,
+      label: null,
+      labelOffset: 35,
+    },
+    grid: true,
+    color: {
+      domain: colorLegendEntries.map((entry) => entry.label),
+      range: colorLegendEntries.map((entry) => entry.color),
+      legend: false,
+    },
+  })
+  const svg = getPlotSvg(plot)
+  if (svg) {
+    applyChartFillGradients({ gradients: fillGradients, svg })
+  }
+
+  return plot
 }
 
 function getSvgDimensions(svg: SVGSVGElement) {
@@ -1205,7 +1798,10 @@ function getExportStyle({
 
   return {
     backgroundColor: getEffectiveBackgroundColor(svg),
-    backgroundMode: format === 'jpeg' ? 'opaque' : 'transparent',
+    backgroundMode:
+      format === 'jpeg' || isAnimatedExportFormat(format)
+        ? 'opaque'
+        : 'transparent',
     color,
   }
 }
@@ -1453,6 +2049,100 @@ function canvasToBlob({
   })
 }
 
+function waitForMs(defaultView: Window, durationMs: number) {
+  return new Promise<void>((resolve) => {
+    defaultView.setTimeout(resolve, durationMs)
+  })
+}
+
+function getAnimatedExportFrameDelayMs(playbackIntervalMs: number | undefined) {
+  const interval = playbackIntervalMs ?? animatedExportMaxDelayMs
+
+  return Math.max(
+    animatedExportMinDelayMs,
+    Math.min(interval, animatedExportMaxDelayMs),
+  )
+}
+
+function getAnimatedExportBucketOffsets(bounds: LatestBucketOffsetBounds) {
+  const bucketCount = bounds.maxOffset - bounds.minOffset + 1
+  if (bucketCount <= 1) return [bounds.maxOffset]
+  if (bucketCount <= animatedExportMaxFrames) {
+    return d3.range(bounds.minOffset, bounds.maxOffset + 1)
+  }
+
+  const offsets: Array<number> = []
+  const seenOffsets = new Set<number>()
+
+  for (let index = 0; index < animatedExportMaxFrames; index++) {
+    const progress = index / (animatedExportMaxFrames - 1)
+    const offset = Math.round(
+      bounds.minOffset + progress * (bounds.maxOffset - bounds.minOffset),
+    )
+
+    if (!seenOffsets.has(offset)) {
+      seenOffsets.add(offset)
+      offsets.push(offset)
+    }
+  }
+
+  return offsets
+}
+
+async function drawSerializedSvgToCanvas({
+  canvas,
+  exportStyle,
+  ownerDocument,
+  serializedSvg,
+}: {
+  canvas: HTMLCanvasElement
+  exportStyle: ExportStyle
+  ownerDocument: Document
+  serializedSvg: SerializedExportSvg
+}) {
+  const defaultView = ownerDocument.defaultView
+  const ImageConstructor = defaultView?.Image
+  if (!ImageConstructor) return undefined
+
+  if (
+    canvas.width !== serializedSvg.width ||
+    canvas.height !== serializedSvg.height
+  ) {
+    canvas.width = serializedSvg.width
+    canvas.height = serializedSvg.height
+  }
+
+  const context = canvas.getContext('2d')
+  if (!context) return undefined
+
+  const image = new ImageConstructor()
+  const sourceBlob = new Blob([serializedSvg.source], {
+    type: 'image/svg+xml;charset=utf-8',
+  })
+  const sourceUrl = URL.createObjectURL(sourceBlob)
+
+  try {
+    const loaded = await new Promise<boolean>((resolve) => {
+      image.onload = () => resolve(true)
+      image.onerror = () => resolve(false)
+      image.src = sourceUrl
+    })
+    if (!loaded) return undefined
+
+    context.setTransform(1, 0, 0, 1, 0, 0)
+    context.clearRect(0, 0, serializedSvg.width, serializedSvg.height)
+    if (exportStyle.backgroundMode === 'opaque') {
+      context.fillStyle = exportStyle.backgroundColor
+      context.fillRect(0, 0, serializedSvg.width, serializedSvg.height)
+    }
+    context.drawImage(image, 0, 0, serializedSvg.width, serializedSvg.height)
+
+    return context
+  } finally {
+    URL.revokeObjectURL(sourceUrl)
+  }
+}
+
 async function rasterizeSvg({
   exportStyle,
   legendItems,
@@ -1507,6 +2197,201 @@ async function rasterizeSvg({
   }
 }
 
+function getSupportedWebmMimeType(defaultView: Window) {
+  const MediaRecorderConstructor = defaultView.MediaRecorder
+  if (!MediaRecorderConstructor) return undefined
+
+  return (
+    ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'].find(
+      (mimeType) => MediaRecorderConstructor.isTypeSupported(mimeType),
+    ) ?? undefined
+  )
+}
+
+async function encodeGifFrames({
+  exportStyle,
+  frames,
+  ownerDocument,
+}: {
+  exportStyle: ExportStyle
+  frames: Array<SerializedAnimationFrame>
+  ownerDocument: Document
+}) {
+  if (!frames.length) return undefined
+
+  const canvas = ownerDocument.createElement('canvas')
+  const gif = GIFEncoder()
+
+  for (const frame of frames) {
+    const context = await drawSerializedSvgToCanvas({
+      canvas,
+      exportStyle,
+      ownerDocument,
+      serializedSvg: frame,
+    })
+    if (!context) return undefined
+
+    const imageData = context.getImageData(0, 0, frame.width, frame.height)
+    const palette = quantize(imageData.data, 256)
+    const index = applyPalette(imageData.data, palette)
+    gif.writeFrame(index, frame.width, frame.height, {
+      delay: frame.delayMs,
+      palette,
+    })
+  }
+
+  gif.finish()
+  const bytes = gif.bytes()
+  const buffer = new ArrayBuffer(bytes.byteLength)
+  new Uint8Array(buffer).set(bytes)
+
+  return new Blob([buffer], { type: 'image/gif' })
+}
+
+async function encodeWebmFrames({
+  exportStyle,
+  frames,
+  ownerDocument,
+}: {
+  exportStyle: ExportStyle
+  frames: Array<SerializedAnimationFrame>
+  ownerDocument: Document
+}) {
+  const defaultView = ownerDocument.defaultView
+  if (!defaultView || !frames.length) return undefined
+
+  const mimeType = getSupportedWebmMimeType(defaultView)
+  const MediaRecorderConstructor = defaultView.MediaRecorder
+  if (!mimeType || !MediaRecorderConstructor) return undefined
+
+  const canvas = ownerDocument.createElement('canvas')
+  const firstFrame = frames[0]
+  if (!firstFrame) return undefined
+  if (typeof canvas.captureStream !== 'function') return undefined
+
+  canvas.width = firstFrame.width
+  canvas.height = firstFrame.height
+
+  const stream = canvas.captureStream(
+    1000 / Math.max(animatedExportMinDelayMs, firstFrame.delayMs),
+  )
+  const recorder = new MediaRecorderConstructor(stream, { mimeType })
+  const chunks: Array<Blob> = []
+  const stopped = new Promise<Blob | undefined>((resolve) => {
+    recorder.ondataavailable = (event) => {
+      if (event.data.size > 0) {
+        chunks.push(event.data)
+      }
+    }
+    recorder.onerror = () => resolve(undefined)
+    recorder.onstop = () => {
+      resolve(chunks.length ? new Blob(chunks, { type: mimeType }) : undefined)
+    }
+  })
+  const videoTrack = stream.getVideoTracks()[0]
+  const requestFrame = videoTrack
+    ? Reflect.get(videoTrack, 'requestFrame')
+    : undefined
+  let failed = false
+
+  recorder.start()
+
+  try {
+    for (const frame of frames) {
+      const context = await drawSerializedSvgToCanvas({
+        canvas,
+        exportStyle,
+        ownerDocument,
+        serializedSvg: frame,
+      })
+      if (!context) {
+        failed = true
+        break
+      }
+
+      if (typeof requestFrame === 'function' && videoTrack) {
+        requestFrame.call(videoTrack)
+      }
+      await waitForMs(defaultView, frame.delayMs)
+    }
+  } finally {
+    if (recorder.state !== 'inactive') {
+      recorder.stop()
+    }
+  }
+
+  const blob = await stopped
+  stream.getTracks().forEach((track) => track.stop())
+
+  return failed ? undefined : blob
+}
+
+function getSnapshotAnimationFrames({
+  barOrientation,
+  barSort,
+  binType,
+  bucketOffsetBounds,
+  chartType,
+  exportStyle,
+  gradientIdPrefix,
+  height,
+  legendItems,
+  packages,
+  playbackIntervalMs,
+  queryData,
+  width,
+}: {
+  barOrientation: BarOrientation
+  barSort: LatestBarSort
+  binType: BinType
+  bucketOffsetBounds: LatestBucketOffsetBounds
+  chartType: ChartType
+  exportStyle: ExportStyle
+  gradientIdPrefix: string
+  height: number
+  legendItems: Array<ExportLegendItem>
+  packages: Array<PackageGroup>
+  playbackIntervalMs: number | undefined
+  queryData: NpmQueryData
+  width: number
+}) {
+  const frameDelayMs = getAnimatedExportFrameDelayMs(playbackIntervalMs)
+
+  return getAnimatedExportBucketOffsets(bucketOffsetBounds)
+    .map((bucketOffset): SerializedAnimationFrame | undefined => {
+      const bucketQueryData = selectLatestBucketQueryData({
+        queryData,
+        binType,
+        bucketOffset,
+      })
+      if (!bucketQueryData) return undefined
+
+      const plot = createLatestBarExportPlot({
+        barOrientation,
+        barSort,
+        binType,
+        chartType,
+        gradientIdPrefix: `${gradientIdPrefix}-frame-${bucketOffset}`,
+        height,
+        packages,
+        queryData: bucketQueryData,
+        width,
+      })
+      const svg = getPlotSvg(plot)
+      const serializedSvg = svg
+        ? serializeSvg({ exportStyle, legendItems, svg })
+        : undefined
+      plot.remove()
+      if (!serializedSvg) return undefined
+
+      return {
+        ...serializedSvg,
+        delayMs: frameDelayMs,
+      }
+    })
+    .filter((frame): frame is SerializedAnimationFrame => frame !== undefined)
+}
+
 function renderPlotLegend({
   container,
   plot,
@@ -1529,12 +2414,16 @@ function renderPlotLegend({
 }
 
 function ChartActions({
+  canExportAnimation,
   disabled,
+  exportingFormat,
   onExport,
   onToggleLegend,
   showLegend,
 }: {
+  canExportAnimation: boolean
   disabled: boolean
+  exportingFormat: ChartExportFormat | null
   onExport: (format: ChartExportFormat) => void
   onToggleLegend: () => void
   showLegend: boolean
@@ -1549,7 +2438,11 @@ function ChartActions({
       <DropdownMenu>
         <Tooltip
           content={
-            disabled ? 'Chart export available after render' : 'Export chart'
+            exportingFormat
+              ? `Exporting ${getExportFileName(exportingFormat)}`
+              : disabled
+                ? 'Chart export available after render'
+                : 'Export chart'
           }
         >
           <DropdownMenuTrigger asChild>
@@ -1571,16 +2464,21 @@ function ChartActions({
           <div className="mb-1 flex items-center justify-between px-0.5 text-xs font-medium">
             <span>Export</span>
           </div>
-          {chartExportOptions.map(({ label, value }) => (
-            <DropdownMenuItem
-              className={chartActionDropdownItemStyles}
-              disabled={disabled}
-              key={value}
-              onSelect={() => onExport(value)}
-            >
-              {label}
-            </DropdownMenuItem>
-          ))}
+          {chartExportOptions
+            .filter(
+              ({ value }) =>
+                canExportAnimation || !isAnimatedExportFormat(value),
+            )
+            .map(({ label, value }) => (
+              <DropdownMenuItem
+                className={chartActionDropdownItemStyles}
+                disabled={disabled}
+                key={value}
+                onSelect={() => onExport(value)}
+              >
+                {label}
+              </DropdownMenuItem>
+            ))}
         </DropdownMenuContent>
       </DropdownMenu>
       <Tooltip
@@ -1860,7 +2758,7 @@ function TimelineRangeScrubber({
         <button
           aria-label="Pan timeline zoom range"
           className={twMerge(
-            'absolute top-1/2 z-10 hidden h-5 w-6 -translate-x-1/2 -translate-y-1/2 cursor-grab items-center justify-center gap-0.5 rounded-sm border border-gray-500/25 bg-gray-500/25 text-gray-700 shadow-xs group-hover:flex dark:border-gray-100/20 dark:bg-gray-100/20 dark:text-gray-200',
+            'absolute top-1/2 z-10 hidden h-3 w-6 -translate-x-1/2 -translate-y-1/2 cursor-grab items-center justify-center gap-0.5 rounded-sm border border-gray-400 bg-gray-300 text-gray-700 shadow-xs group-hover:flex dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200',
             panState && 'flex cursor-grabbing',
           )}
           onPointerCancel={handlePanPointerCancel}
@@ -1870,8 +2768,8 @@ function TimelineRangeScrubber({
           style={{ left: `${middlePercent}%` }}
           type="button"
         >
-          <span className="h-2.5 w-px bg-current opacity-80" />
-          <span className="h-2.5 w-px bg-current opacity-80" />
+          <span className="h-2 w-px bg-current opacity-80" />
+          <span className="h-2 w-px bg-current opacity-80" />
         </button>
       ) : null}
       <input
@@ -1914,6 +2812,7 @@ function PlotFigure({
   domainAxis,
   domainIdentityKey,
   dataUpdateKey,
+  fillGradients,
   footer,
   legendRef,
   layoutKey,
@@ -1927,6 +2826,7 @@ function PlotFigure({
   domainAxis?: CategoricalAxis
   domainIdentityKey?: string
   dataUpdateKey?: string
+  fillGradients: Array<ChartFillGradient>
   footer?: React.ReactNode
   legendRef: { current: HTMLDivElement | null }
   layoutKey?: string
@@ -1970,6 +2870,9 @@ function PlotFigure({
         showLegend: showLegendRef.current,
       })
       const svg = getPlotSvg(plot)
+      if (svg) {
+        applyChartFillGradients({ gradients: fillGradients, svg })
+      }
       if (svg && domain && domainAxis && barKeys) {
         attachCategoricalDomainUpdater({
           axis: domainAxis,
@@ -2025,6 +2928,7 @@ function PlotFigure({
     domain,
     domainAxis,
     domainIdentityKey,
+    fillGradients,
     legendRef,
     layoutKey,
     onRenderedChange,
@@ -2084,6 +2988,9 @@ export type NPMStatsChartProps = {
   showBaseline?: boolean
   timelineEnd?: number
   timelineStart?: number
+  animationBucketOffsetBounds?: LatestBucketOffsetBounds
+  animationFrameIntervalMs?: number
+  animationQueryData?: NpmQueryData
   onTimelineRangeChange?: (range: TimelineRangeValue) => void
 }
 
@@ -2105,14 +3012,24 @@ export function NPMStatsChart({
   showBaseline = false,
   timelineEnd,
   timelineStart,
+  animationBucketOffsetBounds,
+  animationFrameIntervalMs,
+  animationQueryData,
   onTimelineRangeChange,
 }: NPMStatsChartProps) {
   const { containerRef, width } = useElementWidth()
+  const rawGradientId = React.useId()
+  const gradientIdPrefix = `npm-stats-fill-${rawGradientId.replace(
+    /[^a-zA-Z0-9_-]/g,
+    '',
+  )}`
   const legendRef = React.useRef<HTMLDivElement>(null)
   const plotRef = React.useRef<ReturnType<typeof Plot.plot> | null>(null)
   const [showLegend, setShowLegend] = React.useState(false)
   const showLegendRef = React.useRef(showLegend)
   const [chartRendered, setChartRendered] = React.useState(false)
+  const [exportingFormat, setExportingFormat] =
+    React.useState<ChartExportFormat | null>(null)
 
   React.useEffect(() => {
     showLegendRef.current = showLegend
@@ -2132,51 +3049,131 @@ export function NPMStatsChart({
       previousRendered === rendered ? previousRendered : rendered,
     )
   }, [])
+  const canExportAnimation =
+    viewMode === 'latest' &&
+    !!animationQueryData?.length &&
+    !!animationBucketOffsetBounds &&
+    animationBucketOffsetBounds.minOffset <
+      animationBucketOffsetBounds.maxOffset
 
-  const handleExport = React.useCallback(async (format: ChartExportFormat) => {
-    const svg = getPlotSvg(plotRef.current)
-    if (!svg) return
+  const handleExport = React.useCallback(
+    async (format: ChartExportFormat) => {
+      if (exportingFormat) return
 
-    const exportStyle = getExportStyle({ format, svg })
-    const legendItems = getExportLegendItems({
-      container: legendRef.current,
-      showLegend: showLegendRef.current,
-    })
+      const svg = getPlotSvg(plotRef.current)
+      if (!svg) return
 
-    if (format === 'svg') {
-      const serializedSvg = serializeSvg({ exportStyle, legendItems, svg })
-      if (!serializedSvg) return
+      setExportingFormat(format)
 
-      downloadBlob({
-        blob: new Blob([serializedSvg.source], {
-          type: 'image/svg+xml;charset=utf-8',
-        }),
-        fileName: getExportFileName(format),
-        ownerDocument: svg.ownerDocument,
-      })
-      return
-    }
+      try {
+        const exportStyle = getExportStyle({ format, svg })
+        const legendItems = getExportLegendItems({
+          container: legendRef.current,
+          showLegend: showLegendRef.current,
+        })
 
-    const blob = await rasterizeSvg({
-      exportStyle,
-      legendItems,
-      svg,
-      type: format === 'png' ? 'image/png' : 'image/jpeg',
-    })
-    if (!blob) return
+        if (format === 'svg') {
+          const serializedSvg = serializeSvg({ exportStyle, legendItems, svg })
+          if (!serializedSvg) return
 
-    downloadBlob({
-      blob,
-      fileName: getExportFileName(format),
-      ownerDocument: svg.ownerDocument,
-    })
-  }, [])
+          downloadBlob({
+            blob: new Blob([serializedSvg.source], {
+              type: 'image/svg+xml;charset=utf-8',
+            }),
+            fileName: getExportFileName(format),
+            ownerDocument: svg.ownerDocument,
+          })
+          return
+        }
 
-  const canUseChartActions = chartRendered && !!queryData?.length && width > 0
+        if (isAnimatedExportFormat(format)) {
+          if (
+            !canExportAnimation ||
+            !animationQueryData ||
+            !animationBucketOffsetBounds
+          ) {
+            return
+          }
+
+          const frames = getSnapshotAnimationFrames({
+            barOrientation,
+            barSort,
+            binType,
+            bucketOffsetBounds: animationBucketOffsetBounds,
+            chartType,
+            exportStyle,
+            gradientIdPrefix,
+            height,
+            legendItems,
+            packages,
+            playbackIntervalMs: animationFrameIntervalMs,
+            queryData: animationQueryData,
+            width,
+          })
+          const blob =
+            format === 'gif'
+              ? await encodeGifFrames({
+                  exportStyle,
+                  frames,
+                  ownerDocument: svg.ownerDocument,
+                })
+              : await encodeWebmFrames({
+                  exportStyle,
+                  frames,
+                  ownerDocument: svg.ownerDocument,
+                })
+          if (!blob) return
+
+          downloadBlob({
+            blob,
+            fileName: getExportFileName(format),
+            ownerDocument: svg.ownerDocument,
+          })
+          return
+        }
+
+        const blob = await rasterizeSvg({
+          exportStyle,
+          legendItems,
+          svg,
+          type: format === 'png' ? 'image/png' : 'image/jpeg',
+        })
+        if (!blob) return
+
+        downloadBlob({
+          blob,
+          fileName: getExportFileName(format),
+          ownerDocument: svg.ownerDocument,
+        })
+      } finally {
+        setExportingFormat(null)
+      }
+    },
+    [
+      animationBucketOffsetBounds,
+      animationFrameIntervalMs,
+      animationQueryData,
+      barOrientation,
+      barSort,
+      binType,
+      canExportAnimation,
+      chartType,
+      exportingFormat,
+      gradientIdPrefix,
+      height,
+      packages,
+      width,
+    ],
+  )
+
+  const canUseChartActions =
+    chartRendered && !!queryData?.length && width > 0 && !exportingFormat
   const chartActions = actionsContainer
     ? createPortal(
         <ChartActions
+          canExportAnimation={canExportAnimation}
           disabled={!canUseChartActions}
+          exportingFormat={exportingFormat}
           onExport={(format) => {
             void handleExport(format)
           }}
@@ -2692,18 +3689,8 @@ export function NPMStatsChart({
       return point
     })
   })
-  const getSubPackageColor = (d: {
-    groupName: string
-    packageIndex: number
-  }) => {
-    const groupColor = getPackageColor(d.groupName, packages)
-    const color = d3.color(groupColor)
-    if (!color || d.packageIndex === 0) return groupColor
-
-    return d.packageIndex % 2 === 0
-      ? color.darker(d.packageIndex * 0.25).toString()
-      : color.brighter(d.packageIndex * 0.35).toString()
-  }
+  const getSubPackageColor = (d: { groupName: string; packageIndex: number }) =>
+    getSubPackageColorForPackages({ ...d, packages })
   const latestStackedBarDataUpdateKey = latestStackedBarData
     .map(
       (bar) =>
@@ -2787,6 +3774,30 @@ export function NPMStatsChart({
                   : getPackageColor(name, packages),
             })),
   )
+  const useHistoryAreaFill =
+    viewMode === 'history' &&
+    (chartType === 'stacked' ||
+      chartType === 'stacked-area' ||
+      chartType === 'stacked-stream')
+  const fillGradients = getChartFillGradients({
+    bottomOpacity: isLatestBar ? 0.7 : useHistoryAreaFill ? 0.25 : 0.1,
+    entries: colorLegendEntries,
+    idPrefix: gradientIdPrefix,
+    topOpacity: isLatestBar ? 1 : useHistoryAreaFill ? 0.9 : 0.8,
+  })
+  const getSeriesGradientFill = (d: { name?: string; seriesName?: string }) =>
+    getChartFillGradientUrl({
+      color: getStrokeColor(d),
+      gradients: fillGradients,
+    })
+  const getSubPackageGradientFill = (d: {
+    groupName: string
+    packageIndex: number
+  }) =>
+    getChartFillGradientUrl({
+      color: getSubPackageColor(d),
+      gradients: fillGradients,
+    })
 
   return (
     <div ref={containerRef} className="w-full">
@@ -2806,6 +3817,7 @@ export function NPMStatsChart({
             isLatestBar ? latestBarDomainIdentityKey : undefined
           }
           dataUpdateKey={isLatestBar ? latestBarDataUpdateKey : undefined}
+          fillGradients={fillGradients}
           footer={
             viewMode === 'history' && timelineScrubberMaxIndex > 0 ? (
               <TimelineRangeScrubber
@@ -2909,10 +3921,7 @@ export function NPMStatsChart({
                       y1: 'y0',
                       y2: 'y1',
                       z: 'seriesName',
-                      fill: getStrokeColor,
-                      fillOpacity: 0.8,
-                      stroke: getStrokeColor,
-                      strokeOpacity: 0.35,
+                      fill: getSeriesGradientFill,
                       curve: 'monotone-x',
                     })
                   : undefined,
@@ -2922,10 +3931,21 @@ export function NPMStatsChart({
                       y1: 'y0',
                       y2: 'y1',
                       z: 'seriesName',
-                      fill: getStrokeColor,
-                      fillOpacity: 0.85,
+                      fill: getSeriesGradientFill,
+                      curve: 'monotone-x',
+                    })
+                  : undefined,
+                viewMode === 'history' &&
+                (chartType === 'stacked' ||
+                  chartType === 'stacked-area' ||
+                  chartType === 'stacked-stream')
+                  ? Plot.lineY(stackedTimeData, {
+                      x: 'date',
+                      y: 'y1',
+                      z: 'seriesName',
                       stroke: getStrokeColor,
-                      strokeOpacity: 0.35,
+                      strokeWidth: 1.4,
+                      strokeOpacity: 0.95,
                       curve: 'monotone-x',
                     })
                   : undefined,
@@ -2956,9 +3976,7 @@ export function NPMStatsChart({
                   ? Plot.barY(latestGroupedBarData, {
                       x: 'name',
                       y: 'downloads',
-                      fill: getStrokeColor,
-                      stroke: 'currentColor',
-                      strokeOpacity: 0.12,
+                      fill: getSeriesGradientFill,
                     })
                   : undefined,
                 isLatestGroupedBar && barOrientation === 'vertical'
@@ -2977,9 +3995,7 @@ export function NPMStatsChart({
                   ? Plot.barX(latestGroupedBarData, {
                       x: 'downloads',
                       y: 'name',
-                      fill: getStrokeColor,
-                      stroke: 'currentColor',
-                      strokeOpacity: 0.12,
+                      fill: getSeriesGradientFill,
                     })
                   : undefined,
                 isLatestGroupedBar && barOrientation === 'horizontal'
@@ -2999,9 +4015,7 @@ export function NPMStatsChart({
                       x: 'groupName',
                       y1: 'y0',
                       y2: 'y1',
-                      fill: getSubPackageColor,
-                      stroke: 'currentColor',
-                      strokeOpacity: 0.12,
+                      fill: getSubPackageGradientFill,
                     })
                   : undefined,
                 isLatestStackedBar && barOrientation === 'vertical'
@@ -3021,9 +4035,7 @@ export function NPMStatsChart({
                       y: 'groupName',
                       x1: 'y0',
                       x2: 'y1',
-                      fill: getSubPackageColor,
-                      stroke: 'currentColor',
-                      strokeOpacity: 0.12,
+                      fill: getSubPackageGradientFill,
                     })
                   : undefined,
                 isLatestStackedBar && barOrientation === 'horizontal'

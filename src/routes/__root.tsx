@@ -1,7 +1,6 @@
 import * as React from 'react'
 import {
   createRootRouteWithContext,
-  redirect,
   useMatches,
   useRouterState,
   HeadContent,
@@ -142,18 +141,7 @@ class OptionalDevtoolsBoundary extends React.Component<
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
 }>()({
-  loader: (ctx) => {
-    if (
-      ctx.location.href.match(/\/docs\/(react|vue|angular|svelte|solid)\//gm)
-    ) {
-      throw redirect({
-        href: ctx.location.href.replace(
-          /\/docs\/(react|vue|angular|svelte|solid)\//gm,
-          '/docs/framework/$1/',
-        ),
-      })
-    }
-
+  loader: () => {
     return {
       partnerPlacementSessionSeed: createPartnerPlacementSessionSeed(),
     }

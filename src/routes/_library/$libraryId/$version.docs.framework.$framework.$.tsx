@@ -1,5 +1,4 @@
 import {
-  isNotFound,
   redirect,
   useLocation,
   useMatch,
@@ -8,7 +7,7 @@ import {
 import { seo } from '~/utils/seo'
 import { ogImageUrl } from '~/utils/og'
 import { Doc } from '~/components/Doc'
-import { loadDocs, resolveDocsRedirect } from '~/utils/docs'
+import { buildDocsRedirectHref, loadDocsRoute } from '~/utils/docs'
 import { getBranch, getLibrary } from '~/libraries'
 import { capitalize } from '~/utils/utils'
 import { DocContainer } from '~/components/DocContainer'
@@ -24,46 +23,39 @@ export const Route = createFileRoute(
     const library = getLibrary(libraryId)
     const branch = getBranch(library, version)
     const docsRoot = library.docsRoot || 'docs'
+    const requestedDocsPath = `framework/${framework}/${docsPath ?? ''}`
+    const result = await loadDocsRoute({
+      repo: library.repo,
+      branch,
+      docsRoot,
+      docsPath: requestedDocsPath,
+      defaultDocs: library.defaultDocs ?? 'overview',
+      frameworks: library.frameworks,
+      redirectFromPaths: docsPath
+        ? [requestedDocsPath, `${framework}/${docsPath}`]
+        : [requestedDocsPath],
+    })
 
-    try {
-      return await loadDocs({
-        repo: library.repo,
-        branch,
-        docsRoot,
-        docsPath: `framework/${framework}/${docsPath ?? ''}`,
+    if (result.type === 'redirect') {
+      throw redirect({
+        href: buildDocsRedirectHref({
+          baseHref: ctx.location.href,
+          docsPath: result.docsPath,
+          libraryId,
+          version,
+        }),
+        statusCode: 308,
       })
-    } catch (error) {
-      // If doc not found, redirect to framework docs root instead of showing 404
-      // This handles cases like switching frameworks where the same doc path doesn't exist
-      // Check both isNotFound() and the serialized form from server functions
-      const isNotFoundError =
-        isNotFound(error) ||
-        (error && typeof error === 'object' && 'isNotFound' in error)
-
-      if (isNotFoundError) {
-        const redirectPath = await resolveDocsRedirect({
-          repo: library.repo,
-          branch,
-          docsRoot,
-          docsPaths: docsPath
-            ? [`framework/${framework}/${docsPath}`, `${framework}/${docsPath}`]
-            : [],
-        })
-
-        if (redirectPath !== null) {
-          throw redirect({
-            href: `/${libraryId}/${version}/docs${redirectPath ? `/${redirectPath}` : ''}`,
-            statusCode: 308,
-          })
-        }
-
-        throw redirect({
-          to: '/$libraryId/$version/docs/framework/$framework',
-          params: { libraryId, version, framework },
-        })
-      }
-      throw error
     }
+
+    if (result.type === 'not-found') {
+      throw redirect({
+        to: '/$libraryId/$version/docs/framework/$framework',
+        params: { libraryId, version, framework },
+      })
+    }
+
+    return result.doc
   },
   component: Docs,
   headers: ({ params }) => {

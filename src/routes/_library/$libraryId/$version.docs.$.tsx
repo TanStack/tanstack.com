@@ -1,7 +1,7 @@
 import { seo } from '~/utils/seo'
 import { ogImageUrl } from '~/utils/og'
 import { Doc } from '~/components/Doc'
-import { loadDocs, resolveDocsRedirect } from '~/utils/docs'
+import { buildDocsRedirectHref, loadDocsRoute } from '~/utils/docs'
 import { findLibrary, getBranch, getLibrary } from '~/libraries'
 import { DocContainer } from '~/components/DocContainer'
 import { getDocsCacheHeaders } from '~/utils/docs-cache-headers'
@@ -10,7 +10,6 @@ import {
   redirect,
   useLocation,
   useMatch,
-  isNotFound,
   createFileRoute,
 } from '@tanstack/react-router'
 
@@ -26,39 +25,34 @@ export const Route = createFileRoute('/_library/$libraryId/$version/docs/$')({
 
     const branch = getBranch(library, version)
     const docsRoot = library.docsRoot || 'docs'
+    const requestedDocsPath = docsPath ?? ''
+    const result = await loadDocsRoute({
+      repo: library.repo,
+      branch,
+      docsRoot,
+      docsPath: requestedDocsPath,
+      defaultDocs: library.defaultDocs ?? 'overview',
+      frameworks: library.frameworks,
+      redirectFromPaths: requestedDocsPath ? [requestedDocsPath] : [],
+    })
 
-    try {
-      return await loadDocs({
-        repo: library.repo,
-        branch,
-        docsRoot,
-        docsPath: docsPath ?? '',
+    if (result.type === 'redirect') {
+      throw redirect({
+        href: buildDocsRedirectHref({
+          baseHref: ctx.location.href,
+          docsPath: result.docsPath,
+          libraryId,
+          version,
+        }),
+        statusCode: 308,
       })
-    } catch (error) {
-      const isNotFoundError =
-        isNotFound(error) ||
-        (error && typeof error === 'object' && 'isNotFound' in error)
-
-      if (isNotFoundError) {
-        const redirectPath = await resolveDocsRedirect({
-          repo: library.repo,
-          branch,
-          docsRoot,
-          docsPaths: docsPath ? [docsPath] : [],
-        })
-
-        if (redirectPath !== null) {
-          throw redirect({
-            href: `/${libraryId}/${version}/docs${redirectPath ? `/${redirectPath}` : ''}`,
-            statusCode: 308,
-          })
-        }
-
-        throw notFound()
-      }
-
-      throw error
     }
+
+    if (result.type === 'not-found') {
+      throw notFound()
+    }
+
+    return result.doc
   },
   head: ({ loaderData, params }) => {
     const { libraryId, version, _splat: docsPath } = params

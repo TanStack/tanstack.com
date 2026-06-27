@@ -15,16 +15,14 @@ import { getCachedDocsArtifact } from './github-content-cache.server'
 import { buildRedirectManifest, type RedirectManifestEntry } from './redirects'
 import { isValidRepoPath, MAX_REPO_PATH_LENGTH } from './repo-path'
 import { removeLeadingSlash } from './utils'
+import type { DocsRedirectManifest } from './docs-redirects'
 
 type DocsTreeNode = {
   path: string
   children?: Array<DocsTreeNode>
 }
 
-type DocsManifest = {
-  paths: Array<string>
-  redirects: Record<string, string>
-}
+type DocsManifest = DocsRedirectManifest
 
 type RepoFileRequest = {
   repo: string
@@ -212,6 +210,34 @@ async function buildDocsManifest({
   }
 }
 
+async function buildDocsPathManifest({
+  repo,
+  branch,
+  docsRoot,
+}: {
+  repo: string
+  branch: string
+  docsRoot: string
+}): Promise<DocsManifest> {
+  const nodes = await fetchApiContents(repo, branch, docsRoot)
+
+  if (!nodes) {
+    return { paths: [], redirects: {} }
+  }
+
+  const paths = flattenDocsNodes(nodes)
+    .filter((node) => node.path.endsWith('.md'))
+    .flatMap((node) => {
+      const canonicalPath = getCanonicalDocsPath(node.path, docsRoot)
+      return canonicalPath === null ? [] : [canonicalPath]
+    })
+
+  return {
+    paths,
+    redirects: {},
+  }
+}
+
 export const fetchDocsManifest = createServerFn({ method: 'GET' })
   .validator(docsManifestInput)
   .handler(async ({ data }) => {
@@ -229,6 +255,26 @@ export const fetchDocsManifest = createServerFn({ method: 'GET' })
       artifactKey: 'default',
       isValue: isDocsManifest,
       build: () => buildDocsManifest({ repo, branch, docsRoot }),
+    })
+  })
+
+export const fetchDocsPathManifest = createServerFn({ method: 'GET' })
+  .validator(docsManifestInput)
+  .handler(async ({ data }) => {
+    const { repo, branch, docsRoot } = data
+
+    if (shouldUseLocalDocsFiles()) {
+      return buildDocsPathManifest({ repo, branch, docsRoot })
+    }
+
+    return getCachedDocsArtifact({
+      repo,
+      gitRef: branch,
+      docsRoot,
+      artifactType: 'docs-path-manifest',
+      artifactKey: 'default',
+      isValue: isDocsManifest,
+      build: () => buildDocsPathManifest({ repo, branch, docsRoot }),
     })
   })
 

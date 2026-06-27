@@ -934,5 +934,59 @@ export function getPopularComparisons(): v.InferInput<
         },
       ],
     },
+    {
+      title: 'Drag & Drop',
+      packageGroups: [
+        {
+          label: 'dnd-kit',
+          packages: [{ name: '@dnd-kit/core' }],
+          color: '#eb2f06',
+        },
+        {
+          label: 'Pragmatic DnD',
+          packages: [{ name: '@atlaskit/pragmatic-drag-and-drop' }],
+          color: '#0652dd',
+        },
+        {
+          label: 'React DnD',
+          packages: [{ name: 'react-dnd' }],
+          color: '#10ac84',
+        },
+        {
+          label: 'SortableJS',
+          packages: [
+            { name: 'sortablejs' },
+            { name: 'react-sortablejs' },
+            { name: 'vuedraggable' },
+            { name: 'vue-draggable-next' },
+            { name: 'vue-draggable-plus' },
+          ],
+          color: '#f39c12',
+        },
+        {
+          label: 'Hello Pangea DnD',
+          packages: [
+            { name: '@hello-pangea/dnd' },
+            { name: 'react-beautiful-dnd' },
+          ],
+          color: '#8854d0',
+        },
+        {
+          label: 'React Draggable',
+          packages: [{ name: 'react-draggable' }],
+          color: '#20bf6b',
+        },
+        {
+          label: 'React Grid Layout',
+          packages: [{ name: 'react-grid-layout' }],
+          color: '#d81b60',
+        },
+        {
+          label: 'React Rnd',
+          packages: [{ name: 'react-rnd' }],
+          color: '#a55d35',
+        },
+      ],
+    },
   ] as const
 }

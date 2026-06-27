@@ -23,6 +23,8 @@ const LazySkillSparkline = React.lazy(() =>
   })),
 )
 
+const SKILL_HISTORY_PACKAGE_LIMIT = 12
+
 const searchSchema = v.object({
   q: v.optional(v.string()),
   tab: v.optional(v.picklist(['packages', 'skills']), 'packages'),
@@ -83,8 +85,12 @@ function IntentRegistryPage() {
     () => packages.map((p) => p.name),
     [packages],
   )
+  const skillHistoryPackageNames = React.useMemo(
+    () => packageNames.slice(0, SKILL_HISTORY_PACKAGE_LIMIT),
+    [packageNames],
+  )
   const skillHistoryQuery = useQuery(
-    intentSkillHistoryQueryOptions(packageNames),
+    intentSkillHistoryQueryOptions(skillHistoryPackageNames),
   )
   const skillHistory = React.useMemo(
     () => skillHistoryQuery.data ?? {},

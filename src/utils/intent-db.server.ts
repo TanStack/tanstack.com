@@ -29,6 +29,14 @@ export type {
   IntentSkillContent,
 }
 
+export interface IntentLatestVersionSkillSummary {
+  packageName: string
+  latestVersion: string
+  publishedAt: Date | null
+  skillNames: Array<string>
+  frameworks: Array<string>
+}
+
 // ---------------------------------------------------------------------------
 // Reads
 // ---------------------------------------------------------------------------
@@ -120,6 +128,66 @@ export async function getSkillsForVersion(
     )
     .where(eq(intentSkills.packageVersionId, packageVersionId))
   return rows
+}
+
+export async function getLatestIntentVersionSkillSummaries(): Promise<
+  Array<IntentLatestVersionSkillSummary>
+> {
+  const latestVersions = db
+    .selectDistinctOn([intentPackageVersions.packageName], {
+      id: intentPackageVersions.id,
+      packageName: intentPackageVersions.packageName,
+      latestVersion: intentPackageVersions.version,
+      publishedAt: intentPackageVersions.publishedAt,
+    })
+    .from(intentPackageVersions)
+    .innerJoin(
+      intentPackages,
+      eq(intentPackageVersions.packageName, intentPackages.name),
+    )
+    .where(
+      and(
+        eq(intentPackages.verified, true),
+        eq(intentPackageVersions.syncStatus, 'synced'),
+      ),
+    )
+    .orderBy(
+      intentPackageVersions.packageName,
+      sql`${intentPackageVersions.publishedAt} desc nulls last`,
+      desc(intentPackageVersions.id),
+    )
+    .as('latest_versions')
+
+  return db
+    .select({
+      packageName: latestVersions.packageName,
+      latestVersion: latestVersions.latestVersion,
+      publishedAt: latestVersions.publishedAt,
+      skillNames: sql<Array<string>>`
+        coalesce(
+          jsonb_agg(${intentSkills.name} order by ${intentSkills.name})
+            filter (where ${intentSkills.name} is not null),
+          '[]'::jsonb
+        )
+      `,
+      frameworks: sql<Array<string>>`
+        coalesce(
+          jsonb_agg(distinct ${intentSkills.framework} order by ${intentSkills.framework})
+            filter (where ${intentSkills.framework} is not null),
+          '[]'::jsonb
+        )
+      `,
+    })
+    .from(latestVersions)
+    .leftJoin(
+      intentSkills,
+      eq(intentSkills.packageVersionId, latestVersions.id),
+    )
+    .groupBy(
+      latestVersions.packageName,
+      latestVersions.latestVersion,
+      latestVersions.publishedAt,
+    )
 }
 
 // Lightweight query for diffing: only name + contentHash, no content body join

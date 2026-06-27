@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { Link } from '@tanstack/react-router'
 import * as React from 'react'
 import { libraries, type Library } from '~/libraries'
 import { ossStatsQuery, recentDownloadsQuery } from '~/queries/stats'
@@ -10,6 +11,40 @@ const tanStackNpmStatsLibrary = {
   npmPackageNames: [
     ...new Set(libraries.flatMap((library) => library.npmPackageNames ?? [])),
   ],
+}
+
+const tanStackTotalNpmStatsSearch = {
+  packageGroups: [
+    {
+      label: 'TanStack',
+      packages: [
+        { name: '@tanstack/query-core' },
+        { name: 'react-query' },
+        { name: '@tanstack/table-core' },
+        { name: 'react-table' },
+        { name: '@tanstack/router-core' },
+        { name: 'react-location' },
+        { name: '@tanstack/start-client-core' },
+        { name: '@tanstack/form-core' },
+        { name: '@tanstack/virtual-core' },
+        { name: 'react-virtual' },
+        { name: '@tanstack/db' },
+        { name: '@tanstack/pacer' },
+        { name: '@tanstack/pacer-lite' },
+        { name: '@tanstack/ai' },
+        { name: '@tanstack/intent' },
+        { name: '@tanstack/store', hidden: true },
+        { name: '@tanstack/hotkeys' },
+        { name: '@tanstack/ranger' },
+        { name: 'react-ranger' },
+        { name: '@tanstack/config' },
+        { name: '@tanstack/devtools' },
+        { name: '@tanstack/cli' },
+      ],
+      color: '#01a7b9',
+    },
+  ],
+  bucketOffset: 0,
 }
 
 function formatBillions(value: number) {
@@ -64,24 +99,44 @@ function StatValue({
   )
 }
 
+type BaseHomeStatLinkProps = {
+  children: React.ReactNode
+  className: string
+  gradientClassName: string
+}
+
+type HomeStatLinkProps =
+  | (BaseHomeStatLinkProps & {
+      href: string
+      search?: never
+      to?: never
+    })
+  | (BaseHomeStatLinkProps & {
+      href?: never
+      search: typeof tanStackTotalNpmStatsSearch
+      to: '/stats/npm'
+    })
+
 function HomeStatLink({
   children,
   className,
   gradientClassName,
   href,
-}: {
-  children: React.ReactNode
-  className: string
-  gradientClassName: string
-  href: string
-}) {
+  search,
+  to,
+}: HomeStatLinkProps) {
+  const mergedClassName = `group min-w-0 rounded-r-md border-l-2 px-4 py-2 text-left transition-opacity ${className} ${gradientClassName}`
+
+  if (to) {
+    return (
+      <Link to={to} search={search} className={mergedClassName}>
+        {children}
+      </Link>
+    )
+  }
+
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      className={`group min-w-0 rounded-r-md border-l-2 px-4 py-2 text-left transition-opacity ${className} ${gradientClassName}`}
-    >
+    <a href={href} target="_blank" rel="noreferrer" className={mergedClassName}>
       {children}
     </a>
   )
@@ -126,7 +181,8 @@ export default function OssStats({ library }: { library?: Library }) {
     <div className="mx-auto grid w-full max-w-3xl grid-cols-1 gap-4 sm:grid-cols-3">
       {loading || hasNpmDownloads ? (
         <HomeStatLink
-          href="https://www.npmjs.com/org/tanstack"
+          to="/stats/npm"
+          search={tanStackTotalNpmStatsSearch}
           className="border-emerald-500 hover:text-emerald-500"
           gradientClassName="bg-linear-to-r from-transparent to-emerald-500/5"
         >
@@ -150,7 +206,8 @@ export default function OssStats({ library }: { library?: Library }) {
 
       {weeklyLoading || hasWeeklyDownloads ? (
         <HomeStatLink
-          href="https://www.npmjs.com/org/tanstack"
+          to="/stats/npm"
+          search={tanStackTotalNpmStatsSearch}
           className="border-cyan-500 hover:text-cyan-500"
           gradientClassName="bg-linear-to-r from-transparent to-cyan-500/5"
         >

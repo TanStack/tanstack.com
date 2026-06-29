@@ -2,7 +2,11 @@ import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import * as React from 'react'
 import { type Library } from '~/libraries'
-import { ossStatsQuery, recentDownloadsQuery } from '~/queries/stats'
+import {
+  homepageNpmStatsSummaryQuery,
+  ossStatsQuery,
+  recentDownloadsQuery,
+} from '~/queries/stats'
 import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
 import { Download, Star, TrendingUp } from 'lucide-react'
 import {
@@ -107,9 +111,9 @@ function HomeStatLink({
 
 export default function OssStats({ library }: { library?: Library }) {
   const { data: stats, isLoading } = useQuery(ossStatsQuery({ library }))
-  const { data: tanStackTotalStats, isLoading: isLoadingTanStackTotalStats } =
+  const { data: homepageNpmSummary, isLoading: isLoadingHomepageNpmSummary } =
     useQuery({
-      ...ossStatsQuery({ library: tanStackTotalNpmStatsLibrary }),
+      ...homepageNpmStatsSummaryQuery(),
       enabled: !library,
     })
   const { data: recentDownloads, isLoading: isLoadingRecentDownloads } =
@@ -120,36 +124,35 @@ export default function OssStats({ library }: { library?: Library }) {
       enabled: Boolean(library),
     })
 
-  // Homepage total uses the org aggregate; homepage weekly uses the curated
-  // TanStack Total preset that excludes hidden packages like store.
   const totalNpmStats = stats?.npm
-  const weeklyNpmStats = library ? stats?.npm : tanStackTotalStats?.npm
-  const isLoadingWeeklyNpmStats = library
-    ? isLoading
-    : isLoadingTanStackTotalStats
-  const npmDownloads = totalNpmStats?.totalDownloads ?? 0
+  const npmDownloads = library
+    ? (totalNpmStats?.totalDownloads ?? 0)
+    : (homepageNpmSummary?.totalDownloads ?? 0)
   const starCount = stats?.github?.starCount ?? 0
-  const cachedWeeklyDownloads = Math.round(
-    (weeklyNpmStats?.ratePerDay ?? 0) * 7,
-  )
   const weeklyDownloads = library
     ? (recentDownloads?.weeklyDownloads ?? 0)
-    : cachedWeeklyDownloads
-  const weeklyRatePerDay = library ? undefined : weeklyNpmStats?.ratePerDay
+    : (homepageNpmSummary?.weeklyDownloads ?? 0)
+  const weeklyRatePerDay = library
+    ? undefined
+    : homepageNpmSummary?.weeklyRatePerDay
 
-  const hasNpmDownloads = !isLoading && isValidMetric(npmDownloads)
+  const hasNpmDownloads =
+    !(library ? isLoading : isLoadingHomepageNpmSummary) &&
+    isValidMetric(npmDownloads)
   const hasStarCount = !isLoading && isValidMetric(starCount)
   const hasWeeklyDownloads =
-    !(library ? isLoadingRecentDownloads : isLoadingWeeklyNpmStats) &&
+    !(library ? isLoadingRecentDownloads : isLoadingHomepageNpmSummary) &&
     isValidMetric(weeklyDownloads)
 
   const hasAnyData = hasNpmDownloads || hasWeeklyDownloads || hasStarCount
 
   const loading = isLoading || !stats
-  const npmLoading = isLoading || !totalNpmStats
+  const npmLoading = library
+    ? isLoading || !totalNpmStats
+    : isLoadingHomepageNpmSummary || !homepageNpmSummary
   const weeklyLoading = library
     ? isLoadingRecentDownloads || !recentDownloads
-    : isLoadingWeeklyNpmStats || !weeklyNpmStats
+    : isLoadingHomepageNpmSummary || !homepageNpmSummary
 
   if (!loading && !npmLoading && !weeklyLoading && !hasAnyData) {
     return null

@@ -23,6 +23,7 @@ import {
   getLibraryNpmStats,
   refreshAllNpmStats,
 } from '~/utils/stats-admin.functions'
+import { homepageNpmStatsSummaryQuery } from '~/queries/stats'
 import { formatDistanceToNow } from '~/utils/dates'
 import { Download, RefreshCw } from 'lucide-react'
 import { NpmIcon } from '~/components/icons/NpmIcon'
@@ -73,6 +74,9 @@ function NpmStatsAdmin() {
     queryKey: ['admin', 'npm-packages'],
     queryFn: () => listNpmPackages({ data: {} }),
   })
+  const { data: homepageSummary, isLoading: homepageSummaryLoading } = useQuery(
+    homepageNpmStatsSummaryQuery(),
+  )
 
   const refreshPackageMutation = useMutation({
     mutationFn: (packageName: string) =>
@@ -96,6 +100,9 @@ function NpmStatsAdmin() {
     onSuccess: (data) => {
       console.log('[Admin UI] Refresh succeeded:', data)
       queryClient.invalidateQueries({ queryKey: ['admin'] })
+      queryClient.invalidateQueries({
+        queryKey: ['stats', 'homepage-npm-summary'],
+      })
     },
     onError: (error) => {
       console.error('[Admin UI] Refresh failed:', error)
@@ -301,9 +308,8 @@ function NpmStatsAdmin() {
               </h1>
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              View cached NPM statistics. Queue a batched Workflow refresh to
-              discover packages, fetch fresh download counts with growth rates,
-              and rebuild caches as batches complete.
+              View cached NPM statistics and refresh the homepage NPM summary
+              cache.
             </p>
           </div>
           <div className="flex flex-col items-end gap-2">
@@ -314,25 +320,121 @@ function NpmStatsAdmin() {
                 refreshAllMutation.mutate('tanstack')
               }}
               disabled={refreshAllMutation.isPending}
-              title="Queue a batched Workflow refresh for NPM package stats and caches"
+              title="Refresh the homepage NPM summary cache from NPM stats chunks"
             >
               <RefreshCw
                 className={refreshAllMutation.isPending ? 'animate-spin' : ''}
               />
               {refreshAllMutation.isPending
-                ? 'Queueing...'
-                : 'Queue Stats Refresh'}
+                ? 'Refreshing...'
+                : 'Refresh Summary'}
             </Button>
-            {refreshAllMutation.data?.workflow ? (
+            {refreshAllMutation.data?.summary ? (
               <div className="max-w-sm text-right text-xs text-gray-500 dark:text-gray-400">
-                Queued {refreshAllMutation.data.workflow.workflowId}:{' '}
-                {refreshAllMutation.data.workflow.status}
+                Updated homepage summary:{' '}
+                {refreshAllMutation.data.summary.totalDownloads.toLocaleString()}{' '}
+                total,{' '}
+                {refreshAllMutation.data.summary.weeklyDownloads.toLocaleString()}{' '}
+                weekly
               </div>
             ) : null}
           </div>
         </div>
 
-        {/* Org Stats Section - Top of Page */}
+        {homepageSummaryLoading ? (
+          <div className="text-center py-8 mb-8">
+            <div className="text-gray-600 dark:text-gray-400">
+              Loading homepage summary...
+            </div>
+          </div>
+        ) : homepageSummary ? (
+          <Card className="mb-8 p-6 bg-gradient-to-br from-cyan-50 to-emerald-50 dark:from-cyan-900/20 dark:to-emerald-900/20 rounded-xl border-cyan-200 dark:border-cyan-800">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+                  Homepage NPM Summary
+                </h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Cached counters used by the homepage.
+                </p>
+              </div>
+              <div className="text-right">
+                <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                  Last Updated
+                </div>
+                <div className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  {formatDistanceToNow(new Date(homepageSummary.updatedAt), {
+                    addSuffix: true,
+                  })}
+                </div>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="bg-white/60 dark:bg-gray-800/60 p-4 rounded-lg">
+                <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+                  Total Downloads
+                </div>
+                <div className="flex items-center gap-3">
+                  <Download className="text-2xl text-emerald-500" />
+                  <div className="text-3xl font-bold text-gray-900 dark:text-white">
+                    {homepageSummary.totalDownloads.toLocaleString()}
+                  </div>
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                  {homepageSummary.totalPackageCount.toLocaleString()} packages
+                </div>
+              </div>
+              <div className="bg-white/60 dark:bg-gray-800/60 p-4 rounded-lg">
+                <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+                  Weekly Downloads
+                </div>
+                <div className="flex items-center gap-3">
+                  <Download className="text-2xl text-cyan-500" />
+                  <div className="text-3xl font-bold text-cyan-600 dark:text-cyan-400">
+                    {homepageSummary.weeklyDownloads.toLocaleString()}
+                  </div>
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                  {homepageSummary.weeklyPackageCount.toLocaleString()} preset
+                  packages
+                </div>
+              </div>
+              <div className="bg-white/60 dark:bg-gray-800/60 p-4 rounded-lg">
+                <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+                  Weekly Window
+                </div>
+                <div className="text-xl font-bold text-gray-900 dark:text-white">
+                  {homepageSummary.weeklyStartDate}
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  through {homepageSummary.weeklyEndDate}
+                </div>
+              </div>
+              <div className="bg-white/60 dark:bg-gray-800/60 p-4 rounded-lg">
+                <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+                  Cache Status
+                </div>
+                <div
+                  className={`text-2xl font-bold mb-1 ${
+                    homepageSummary.expiresAt < Date.now()
+                      ? 'text-red-600 dark:text-red-400'
+                      : 'text-green-600 dark:text-green-400'
+                  }`}
+                >
+                  {homepageSummary.expiresAt < Date.now() ? 'Stale' : 'Fresh'}
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  expires{' '}
+                  {formatDistanceToNow(new Date(homepageSummary.expiresAt), {
+                    addSuffix: true,
+                  })}
+                </div>
+              </div>
+            </div>
+          </Card>
+        ) : null}
+
+        {/* Org Stats Section - Legacy cache */}
         {orgLoading ? (
           <div className="text-center py-8 mb-8">
             <div className="text-gray-600 dark:text-gray-400">
@@ -344,10 +446,10 @@ function NpmStatsAdmin() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-                  @{orgStats.orgName} Organization
+                  @{orgStats.orgName} Organization Cache
                 </h2>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Total statistics across all packages
+                  Legacy DB aggregate. The homepage uses the summary above.
                 </p>
               </div>
               <div className="text-right">

@@ -1,6 +1,7 @@
 import { queryOptions } from '@tanstack/react-query'
 import {
   fetchRecentDownloadStats,
+  getHomepageNpmStatsSummary,
   getOSSStats,
 } from '~/utils/stats-queries.functions'
 import type { StatsQueryParams } from '~/utils/stats-queries.functions'
@@ -16,6 +17,13 @@ export const ossStatsQueryOptions = (params?: StatsQueryParams) =>
     queryKey: ['stats', 'oss', params],
     queryFn: () => getOSSStats({ data: { library: params?.library } }),
     staleTime: 1000 * 60 * 15, // Cache for 15 minutes
+  })
+
+export const homepageNpmStatsSummaryQuery = () =>
+  queryOptions({
+    queryKey: ['stats', 'homepage-npm-summary'],
+    queryFn: () => getHomepageNpmStatsSummary(),
+    staleTime: 1000 * 60 * 15,
   })
 
 export function ossStatsQuery({

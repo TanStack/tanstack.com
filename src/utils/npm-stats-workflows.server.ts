@@ -1,6 +1,5 @@
 import { createWorkflow } from '@tanstack/workflow-core'
 import type { StepOptions } from '@tanstack/workflow-core'
-import { every } from '@tanstack/workflow-runtime'
 import type { WorkflowRegistrationMap } from '@tanstack/workflow-runtime'
 import { z } from 'zod'
 import {
@@ -88,18 +87,6 @@ const npmStatsRefreshWorkflow = createNpmStatsRefreshWorkflow()
 export const npmStatsWorkflowRegistrations = {
   [npmStatsRefreshWorkflow.id]: {
     load: async () => npmStatsRefreshWorkflow,
-    schedules: [
-      {
-        id: 'npm-stats-refresh-every-6h',
-        schedule: every.hours(6),
-        overlapPolicy: 'skip',
-        input: {
-          batchSize: 5,
-          forceRefresh: false,
-          org: 'tanstack',
-          source: 'schedule',
-        },
-      },
-    ],
+    schedules: [],
   },
 } satisfies WorkflowRegistrationMap

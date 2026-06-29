@@ -15,8 +15,7 @@ import {
   setCachedNpmOrgStats,
 } from './stats-db.server'
 import { requireCapability } from './auth.server'
-import { npmStatsRefreshWorkflowId } from './npm-stats-workflows.server'
-import { workflowRuntime } from './workflow-runtime.server'
+import { refreshHomepageNpmStatsSummary } from './homepage-npm-stats.server'
 
 /**
  * List all GitHub stats cache entries
@@ -342,42 +341,16 @@ export async function getLibraryNpmStats() {
   })
 }
 
-/**
- * Queue a batched Workflow refresh of all NPM stats.
- * The workflow discovers packages, refreshes package stats in small batches,
- * and rebuilds visible caches after each completed batch.
- */
 export async function refreshAllNpmStats({ data }: { data: any }) {
   console.log(`[Admin] refreshAllNpmStats handler called with org: ${data.org}`)
 
   await requireCapability({ data: { capability: 'admin' } })
 
-  const now = Date.now()
-  const runId = `${npmStatsRefreshWorkflowId}:${data.org}:admin:${now}`
-  const result = await workflowRuntime.startRun({
-    workflowId: npmStatsRefreshWorkflowId,
-    runId,
-    input: {
-      batchSize: 2,
-      forceRefresh: false,
-      org: data.org,
-      source: 'admin',
-    },
-    now,
-    includeEvents: false,
-  })
-
-  console.log(
-    `[Admin] NPM stats refresh workflow ${runId} started with status ${result.kind}`,
-  )
+  const summary = await refreshHomepageNpmStatsSummary({ org: data.org })
 
   return {
     success: true,
     org: data.org,
-    workflow: {
-      runId,
-      status: result.kind,
-      workflowId: npmStatsRefreshWorkflowId,
-    },
+    summary,
   }
 }

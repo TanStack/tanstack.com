@@ -566,7 +566,7 @@ function getEmptyOSSStats(): OSSStatsWithDelta {
  * Optimized to handle all packages in a single request with batch cache lookup
  * and parallel NPM API fetching. Current year data is cached daily.
  */
-export async function fetchNpmDownloadsBulk({ data }: { data: unknown }) {
+export async function fetchNpmDownloadsBulkData({ data }: { data: unknown }) {
   const { packageGroups, startDate, endDate } =
     parseNpmDownloadsBulkRequest(data)
 
@@ -836,8 +836,12 @@ export async function fetchNpmDownloadsBulk({ data }: { data: unknown }) {
     }
   })
 
-  // Set cache headers for CDN caching
-  // Cache for 1 hour since we're now handling daily caching internally
+  return results
+}
+
+export async function fetchNpmDownloadsBulk({ data }: { data: unknown }) {
+  const results = await fetchNpmDownloadsBulkData({ data })
+
   setResponseHeaders(
     new Headers({
       'Cache-Control': 'public, max-age=3600, stale-while-revalidate=7200',

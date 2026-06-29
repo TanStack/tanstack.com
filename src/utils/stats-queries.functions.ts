@@ -6,12 +6,17 @@ import {
   type RecentDownloadStatsQueryParams,
   type StatsQueryParams,
 } from './stats.server'
+import { getHomepageNpmStatsSummary as getHomepageNpmStatsSummaryServer } from './homepage-npm-stats.server'
 
 export type { StatsQueryParams } from './stats.server'
 
 export const getOSSStats = createServerFn({ method: 'POST' })
   .validator((data: StatsQueryParams) => data)
   .handler(async ({ data }) => getOSSStatsServer({ data }))
+
+export const getHomepageNpmStatsSummary = createServerFn({
+  method: 'GET',
+}).handler(async () => getHomepageNpmStatsSummaryServer())
 
 export const fetchNpmDownloadsBulk = createServerFn({ method: 'POST' })
   .validator(

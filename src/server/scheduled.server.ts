@@ -1,5 +1,6 @@
 import { materializeWorkflowSchedules } from '@tanstack/workflow-runtime'
 import { pruneStaleCacheRows } from '~/utils/github-content-cache.server'
+import { refreshHomepageNpmStatsSummary } from '~/utils/homepage-npm-stats.server'
 import { refreshGitHubOrgStats } from '~/utils/stats.functions'
 import { workflowRuntime } from '~/utils/workflow-runtime.server'
 
@@ -16,6 +17,7 @@ export async function runScheduledTasks(cron: string, scheduledTime: number) {
     case STATS_AND_INTENT_DISCOVER_CRON:
       await Promise.all([
         runGitHubStatsRefresh(scheduledTime),
+        runHomepageNpmStatsSummaryRefresh(scheduledTime),
         runWorkflowSweep(cron, scheduledTime),
       ])
       return
@@ -98,6 +100,28 @@ async function runGitHubStatsRefresh(scheduledTime: number) {
     )
   } catch (error) {
     logScheduledError('refresh-github-stats', startTime, error)
+  }
+}
+
+async function runHomepageNpmStatsSummaryRefresh(scheduledTime: number) {
+  const startTime = Date.now()
+  console.log(
+    '[refresh-homepage-npm-stats] Starting NPM stats summary refresh...',
+  )
+
+  try {
+    const summary = await refreshHomepageNpmStatsSummary()
+    const duration = Date.now() - startTime
+
+    console.log(
+      `[refresh-homepage-npm-stats] Completed in ${duration}ms - total: ${summary.totalDownloads.toLocaleString()} across ${summary.totalPackageCount} packages, weekly: ${summary.weeklyDownloads.toLocaleString()} across ${summary.weeklyPackageCount} packages`,
+    )
+    console.log(
+      '[refresh-homepage-npm-stats] Scheduled time:',
+      new Date(scheduledTime).toISOString(),
+    )
+  } catch (error) {
+    logScheduledError('refresh-homepage-npm-stats', startTime, error)
   }
 }
 

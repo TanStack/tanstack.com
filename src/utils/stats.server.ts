@@ -689,7 +689,7 @@ export async function fetchNpmDownloadsBulk({ data }: { data: unknown }) {
 
         try {
           const response = await fetch(
-            `https://api.npmjs.org/downloads/range/${req.startDate}:${req.endDate}/${req.packageName}`,
+            `https://api.npmjs.org/downloads/range/${req.startDate}:${req.endDate}/${encodeURIComponent(req.packageName)}`,
             {
               headers: {
                 Accept: 'application/json',
@@ -951,7 +951,7 @@ export async function fetchNpmDownloadChunk({ data }: { data: any }) {
   // Fetch from NPM API
   try {
     const response = await fetch(
-      `https://api.npmjs.org/downloads/range/${startDate}:${endDate}/${packageName}`,
+      `https://api.npmjs.org/downloads/range/${startDate}:${endDate}/${encodeURIComponent(packageName)}`,
       {
         headers: {
           Accept: 'application/json',
@@ -1249,7 +1249,7 @@ export async function fetchRecentDownloadStats({
     const fetchPromises = needsFetch.map(async (req) => {
       try {
         const response = await fetch(
-          `https://api.npmjs.org/downloads/range/${req.dateFrom}:${req.dateTo}/${req.packageName}`,
+          `https://api.npmjs.org/downloads/range/${req.dateFrom}:${req.dateTo}/${encodeURIComponent(req.packageName)}`,
           {
             headers: {
               Accept: 'application/json',

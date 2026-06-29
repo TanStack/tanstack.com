@@ -1,9 +1,6 @@
 import { materializeWorkflowSchedules } from '@tanstack/workflow-runtime'
 import { pruneStaleCacheRows } from '~/utils/github-content-cache.server'
-import {
-  refreshGitHubOrgStats,
-  refreshNpmOrgStats,
-} from '~/utils/stats.functions'
+import { refreshGitHubOrgStats } from '~/utils/stats.functions'
 import { workflowRuntime } from '~/utils/workflow-runtime.server'
 
 const CONTENT_CACHE_PRUNE_CRON = '0 9 * * *'
@@ -19,7 +16,6 @@ export async function runScheduledTasks(cron: string, scheduledTime: number) {
     case STATS_AND_INTENT_DISCOVER_CRON:
       await Promise.all([
         runGitHubStatsRefresh(scheduledTime),
-        runNpmStatsRefresh(scheduledTime),
         runWorkflowSweep(cron, scheduledTime),
       ])
       return
@@ -102,31 +98,6 @@ async function runGitHubStatsRefresh(scheduledTime: number) {
     )
   } catch (error) {
     logScheduledError('refresh-github-stats', startTime, error)
-  }
-}
-
-async function runNpmStatsRefresh(scheduledTime: number) {
-  const startTime = Date.now()
-  console.log('[refresh-npm-stats] Starting NPM stats refresh...')
-
-  try {
-    const org = 'tanstack'
-
-    console.log('[refresh-npm-stats] Refreshing NPM org stats...')
-    const npmStats = await refreshNpmOrgStats(org)
-    const duration = Date.now() - startTime
-
-    console.log(
-      `[refresh-npm-stats] Completed in ${duration}ms - NPM: ${npmStats.totalDownloads.toLocaleString()} downloads (${
-        Object.keys(npmStats.packageStats || {}).length
-      } packages)`,
-    )
-    console.log(
-      '[refresh-npm-stats] Scheduled time:',
-      new Date(scheduledTime).toISOString(),
-    )
-  } catch (error) {
-    logScheduledError('refresh-npm-stats', startTime, error)
   }
 }
 

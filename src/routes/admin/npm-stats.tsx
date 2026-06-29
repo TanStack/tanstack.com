@@ -301,27 +301,35 @@ function NpmStatsAdmin() {
               </h1>
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              View cached NPM statistics. Click "Refresh All Stats" to discover
-              packages, fetch fresh download counts with growth rates, and
-              rebuild all caches.
+              View cached NPM statistics. Queue a batched Workflow refresh to
+              discover packages, fetch fresh download counts with growth rates,
+              and rebuild caches as batches complete.
             </p>
           </div>
-          <Button
-            color="green"
-            onClick={() => {
-              console.log('[Admin UI] Refresh button clicked')
-              refreshAllMutation.mutate('tanstack')
-            }}
-            disabled={refreshAllMutation.isPending}
-            title="Complete refresh: discover packages, fetch fresh stats with growth rates, and rebuild all caches"
-          >
-            <RefreshCw
-              className={refreshAllMutation.isPending ? 'animate-spin' : ''}
-            />
-            {refreshAllMutation.isPending
-              ? 'Refreshing...'
-              : 'Refresh All Stats'}
-          </Button>
+          <div className="flex flex-col items-end gap-2">
+            <Button
+              color="green"
+              onClick={() => {
+                console.log('[Admin UI] Refresh button clicked')
+                refreshAllMutation.mutate('tanstack')
+              }}
+              disabled={refreshAllMutation.isPending}
+              title="Queue a batched Workflow refresh for NPM package stats and caches"
+            >
+              <RefreshCw
+                className={refreshAllMutation.isPending ? 'animate-spin' : ''}
+              />
+              {refreshAllMutation.isPending
+                ? 'Queueing...'
+                : 'Queue Stats Refresh'}
+            </Button>
+            {refreshAllMutation.data?.workflow ? (
+              <div className="max-w-sm text-right text-xs text-gray-500 dark:text-gray-400">
+                Queued {refreshAllMutation.data.workflow.workflowId}:{' '}
+                {refreshAllMutation.data.workflow.status}
+              </div>
+            ) : null}
+          </div>
         </div>
 
         {/* Org Stats Section - Top of Page */}

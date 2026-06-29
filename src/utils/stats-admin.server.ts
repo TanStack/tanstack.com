@@ -6,10 +6,17 @@ import { db } from '~/db/client'
 import { githubStatsCache, npmPackages, npmOrgStatsCache } from '~/db/schema'
 import { eq, desc, and, like } from 'drizzle-orm'
 import { fetchGitHubOwnerStats, fetchGitHubRepoStats } from './stats.functions'
-import { refreshNpmOrgStats } from './stats.server'
-import { rebuildOssStatsCache, setCachedGitHubStats } from './stats-db.server'
-import { setCachedNpmPackageStats } from './stats-db.server'
+import { fetchSingleNpmPackageFresh } from './stats.server'
+import {
+  computeOrgStatsFromCache,
+  rebuildLibraryCaches,
+  rebuildOssStatsCache,
+  setCachedGitHubStats,
+  setCachedNpmOrgStats,
+} from './stats-db.server'
 import { requireCapability } from './auth.server'
+import { npmStatsRefreshWorkflowId } from './npm-stats-workflows.server'
+import { workflowRuntime } from './workflow-runtime.server'
 
 /**
  * List all GitHub stats cache entries
@@ -205,39 +212,19 @@ export async function refreshNpmPackageStats({ data }: { data: any }) {
   await requireCapability({ data: { capability: 'admin' } })
 
   try {
-    // Use wide date range to get all-time download counts
-    const response = await fetch(
-      `https://api.npmjs.org/downloads/point/2010-01-01:2030-12-31/${data.packageName}`,
-      {
-        headers: {
-          Accept: 'application/json',
-          'User-Agent': 'TanStack-Stats',
-        },
-      },
-    )
-
-    if (!response.ok) {
-      if (response.status === 404) {
-        await setCachedNpmPackageStats(data.packageName, 0, 1)
-        return {
-          success: true,
-          packageName: data.packageName,
-          downloads: 0,
-          message: 'Package not found, cached as 0',
-        }
-      }
-      throw new Error(`NPM API error: ${response.status}`)
-    }
-
-    const apiData = await response.json()
-    const downloads = apiData.downloads ?? 0
-
-    await setCachedNpmPackageStats(data.packageName, downloads, 24)
+    const stats = await fetchSingleNpmPackageFresh(data.packageName, 3, {
+      forceRefresh: true,
+    })
+    const orgStats = await computeOrgStatsFromCache('tanstack')
+    await setCachedNpmOrgStats('tanstack', orgStats)
+    await rebuildLibraryCaches()
+    await rebuildOssStatsCache('tanstack')
 
     return {
       success: true,
       packageName: data.packageName,
-      downloads,
+      downloads: stats.downloads,
+      ratePerDay: stats.ratePerDay,
     }
   } catch (error) {
     return {
@@ -356,28 +343,41 @@ export async function getLibraryNpmStats() {
 }
 
 /**
- * Complete atomic refresh of all NPM stats
- * Wraps refreshNpmOrgStats which handles:
- * 1. Package discovery
- * 2. Fresh stats fetch with growth rates
- * 3. Library cache rebuild
- * 4. Org cache update
+ * Queue a batched Workflow refresh of all NPM stats.
+ * The workflow discovers packages, refreshes package stats in small batches,
+ * and rebuilds visible caches after each completed batch.
  */
 export async function refreshAllNpmStats({ data }: { data: any }) {
   console.log(`[Admin] refreshAllNpmStats handler called with org: ${data.org}`)
 
   await requireCapability({ data: { capability: 'admin' } })
 
-  console.log(`[Admin] Starting complete NPM stats refresh for ${data.org}`)
+  const now = Date.now()
+  const runId = `${npmStatsRefreshWorkflowId}:${data.org}:admin:${now}`
+  const result = await workflowRuntime.startRun({
+    workflowId: npmStatsRefreshWorkflowId,
+    runId,
+    input: {
+      batchSize: 2,
+      forceRefresh: false,
+      org: data.org,
+      source: 'admin',
+    },
+    now,
+    includeEvents: false,
+  })
 
-  // refreshNpmOrgStats handles everything atomically (always bypasses cache)
-  const stats = await refreshNpmOrgStats(data.org)
-
-  console.log('[Admin] Complete NPM stats refresh finished')
+  console.log(
+    `[Admin] NPM stats refresh workflow ${runId} started with status ${result.kind}`,
+  )
 
   return {
     success: true,
     org: data.org,
-    stats,
+    workflow: {
+      runId,
+      status: result.kind,
+      workflowId: npmStatsRefreshWorkflowId,
+    },
   }
 }

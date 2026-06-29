@@ -359,11 +359,5 @@ export async function refreshHomepageNpmStatsSummary({
 }
 
 export async function getHomepageNpmStatsSummary() {
-  const cached = await readHomepageNpmStatsSummary({ allowStale: true })
-
-  if (cached) {
-    return cached
-  }
-
-  return refreshHomepageNpmStatsSummary()
+  return (await readHomepageNpmStatsSummary({ allowStale: true })) ?? null
 }

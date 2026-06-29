@@ -120,29 +120,36 @@ export default function OssStats({ library }: { library?: Library }) {
       enabled: Boolean(library),
     })
 
-  const npmStats = library ? stats?.npm : tanStackTotalStats?.npm
-  const isLoadingNpmStats = library ? isLoading : isLoadingTanStackTotalStats
-  const npmDownloads = npmStats?.totalDownloads ?? 0
+  // Homepage total uses the org aggregate; homepage weekly uses the curated
+  // TanStack Total preset that excludes hidden packages like store.
+  const totalNpmStats = stats?.npm
+  const weeklyNpmStats = library ? stats?.npm : tanStackTotalStats?.npm
+  const isLoadingWeeklyNpmStats = library
+    ? isLoading
+    : isLoadingTanStackTotalStats
+  const npmDownloads = totalNpmStats?.totalDownloads ?? 0
   const starCount = stats?.github?.starCount ?? 0
-  const cachedWeeklyDownloads = Math.round((npmStats?.ratePerDay ?? 0) * 7)
+  const cachedWeeklyDownloads = Math.round(
+    (weeklyNpmStats?.ratePerDay ?? 0) * 7,
+  )
   const weeklyDownloads = library
     ? (recentDownloads?.weeklyDownloads ?? 0)
     : cachedWeeklyDownloads
-  const weeklyRatePerDay = library ? undefined : npmStats?.ratePerDay
+  const weeklyRatePerDay = library ? undefined : weeklyNpmStats?.ratePerDay
 
-  const hasNpmDownloads = !isLoadingNpmStats && isValidMetric(npmDownloads)
+  const hasNpmDownloads = !isLoading && isValidMetric(npmDownloads)
   const hasStarCount = !isLoading && isValidMetric(starCount)
   const hasWeeklyDownloads =
-    !(library ? isLoadingRecentDownloads : isLoadingNpmStats) &&
+    !(library ? isLoadingRecentDownloads : isLoadingWeeklyNpmStats) &&
     isValidMetric(weeklyDownloads)
 
   const hasAnyData = hasNpmDownloads || hasWeeklyDownloads || hasStarCount
 
   const loading = isLoading || !stats
-  const npmLoading = isLoadingNpmStats || !npmStats
+  const npmLoading = isLoading || !totalNpmStats
   const weeklyLoading = library
     ? isLoadingRecentDownloads || !recentDownloads
-    : npmLoading
+    : isLoadingWeeklyNpmStats || !weeklyNpmStats
 
   if (!loading && !npmLoading && !weeklyLoading && !hasAnyData) {
     return null
@@ -162,9 +169,7 @@ export default function OssStats({ library }: { library?: Library }) {
             <div className="min-w-0">
               <div className="relative text-2xl font-black leading-none tracking-tight transition-colors duration-200">
                 <StatValue placeholder="00.00 Billion">
-                  {hasNpmDownloads && stats
-                    ? formatBillions(stats.npm.totalDownloads)
-                    : null}
+                  {hasNpmDownloads ? formatBillions(npmDownloads) : null}
                 </StatValue>
               </div>
               <div className="mt-1 text-sm font-semibold italic text-zinc-500 transition-colors duration-200 dark:text-zinc-400">

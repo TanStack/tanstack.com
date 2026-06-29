@@ -12,9 +12,18 @@ import {
 import { fetchNpmDownloadsBulkData } from './stats.server'
 import { getNpmOrgPackageNames } from './stats.functions'
 import { tanStackTotalVisibleNpmPackageNames } from './tanstack-npm-stats'
+import { libraries } from '~/libraries'
+
+export type NpmStatsLibrarySummary = {
+  libraryId: string
+  packageCount: number
+  totalDownloads: number
+  updatedAt: number
+}
 
 export type HomepageNpmStatsSummary = {
   expiresAt: number
+  librarySummaries: Array<NpmStatsLibrarySummary>
   totalDownloads: number
   totalEndDate: string
   totalPackageCount: number
@@ -66,6 +75,43 @@ function readString(value: Record<string, unknown>, key: string) {
     : undefined
 }
 
+function parseLibrarySummaries(value: unknown): Array<NpmStatsLibrarySummary> {
+  if (!Array.isArray(value)) {
+    return []
+  }
+
+  const summaries: Array<NpmStatsLibrarySummary> = []
+
+  for (const item of value) {
+    if (!isRecord(item)) {
+      continue
+    }
+
+    const libraryId = readString(item, 'libraryId')
+    const packageCount = readNumber(item, 'packageCount')
+    const totalDownloads = readNumber(item, 'totalDownloads')
+    const updatedAt = readNumber(item, 'updatedAt')
+
+    if (
+      libraryId === undefined ||
+      packageCount === undefined ||
+      totalDownloads === undefined ||
+      updatedAt === undefined
+    ) {
+      continue
+    }
+
+    summaries.push({
+      libraryId,
+      packageCount,
+      totalDownloads,
+      updatedAt,
+    })
+  }
+
+  return summaries
+}
+
 function parseHomepageNpmStatsSummary(
   value: unknown,
 ): HomepageNpmStatsSummary | undefined {
@@ -103,6 +149,9 @@ function parseHomepageNpmStatsSummary(
 
   return {
     expiresAt,
+    librarySummaries: parseLibrarySummaries(
+      Reflect.get(value, 'librarySummaries'),
+    ),
     totalDownloads,
     totalEndDate,
     totalPackageCount,
@@ -265,7 +314,7 @@ async function fetchPackageDownloads({
   const uniquePackageNames = [...new Set(packageNames)].sort()
 
   if (uniquePackageNames.length === 0) {
-    return 0
+    return new Map<string, number>()
   }
 
   const results = await mapWithConcurrency(
@@ -285,22 +334,43 @@ async function fetchPackageDownloads({
       }),
   )
 
-  return results
-    .flat()
-    .reduce(
-      (total, group) =>
-        total +
-        group.packages.reduce(
-          (packageTotal, pkg) =>
-            packageTotal +
-            pkg.downloads.reduce(
-              (downloadTotal, point) => downloadTotal + point.downloads,
-              0,
-            ),
-          0,
-        ),
-      0,
-    )
+  const packageDownloads = new Map<string, number>()
+
+  for (const group of results.flat()) {
+    for (const pkg of group.packages) {
+      const downloads = pkg.downloads.reduce(
+        (downloadTotal, point) => downloadTotal + point.downloads,
+        0,
+      )
+      packageDownloads.set(
+        pkg.name,
+        (packageDownloads.get(pkg.name) ?? 0) + downloads,
+      )
+    }
+  }
+
+  return packageDownloads
+}
+
+function getLibraryNpmPackageNames(library: {
+  corePackageName?: string
+  npmPackageNames?: Array<string>
+}) {
+  if (library.npmPackageNames?.length) {
+    return library.npmPackageNames
+  }
+
+  return library.corePackageName ? [library.corePackageName] : []
+}
+
+function sumPackageDownloads(
+  packageDownloads: Map<string, number>,
+  packageNames: Array<string>,
+) {
+  return packageNames.reduce(
+    (total, packageName) => total + (packageDownloads.get(packageName) ?? 0),
+    0,
+  )
 }
 
 function getLastCompletedNpmStatsDay() {
@@ -317,8 +387,18 @@ export async function refreshHomepageNpmStatsSummary({
 }: {
   org?: string
 } = {}) {
+  const orgPackageNames = await getNpmOrgPackageNames(org)
+  const libraryPackageEntries = libraries
+    .map((library) => ({
+      libraryId: library.id,
+      packageNames: getLibraryNpmPackageNames(library),
+    }))
+    .filter((entry) => entry.packageNames.length > 0)
   const totalPackageNames = [
-    ...new Set(await getNpmOrgPackageNames(org)),
+    ...new Set([
+      ...orgPackageNames,
+      ...libraryPackageEntries.flatMap((entry) => entry.packageNames),
+    ]),
   ].sort()
   const weeklyPackageNames = [...tanStackTotalVisibleNpmPackageNames].sort()
   const totalEndDate = getLastCompletedNpmStatsDay()
@@ -326,7 +406,7 @@ export async function refreshHomepageNpmStatsSummary({
   const weeklyStartDate = addUtcDays(weeklyEndDate, -6)
   const updatedAt = Date.now()
 
-  const [totalDownloads, weeklyDownloads] = await Promise.all([
+  const [totalPackageDownloads, weeklyPackageDownloads] = await Promise.all([
     fetchPackageDownloads({
       packageNames: totalPackageNames,
       startDate: NPM_STATS_START_DATE,
@@ -338,9 +418,27 @@ export async function refreshHomepageNpmStatsSummary({
       endDate: weeklyEndDate,
     }),
   ])
+  const totalDownloads = sumPackageDownloads(
+    totalPackageDownloads,
+    totalPackageNames,
+  )
+  const weeklyDownloads = sumPackageDownloads(
+    weeklyPackageDownloads,
+    weeklyPackageNames,
+  )
+  const librarySummaries = libraryPackageEntries.map((entry) => ({
+    libraryId: entry.libraryId,
+    packageCount: entry.packageNames.length,
+    totalDownloads: sumPackageDownloads(
+      totalPackageDownloads,
+      entry.packageNames,
+    ),
+    updatedAt,
+  }))
 
   const summary: HomepageNpmStatsSummary = {
     expiresAt: updatedAt + HOME_NPM_STATS_TTL_MS,
+    librarySummaries,
     totalDownloads,
     totalEndDate,
     totalPackageCount: totalPackageNames.length,
@@ -360,4 +458,14 @@ export async function refreshHomepageNpmStatsSummary({
 
 export async function getHomepageNpmStatsSummary() {
   return (await readHomepageNpmStatsSummary({ allowStale: true })) ?? null
+}
+
+export async function getCachedLibraryNpmStatsSummary(libraryId: string) {
+  const summary = await readHomepageNpmStatsSummary({ allowStale: true })
+
+  return (
+    summary?.librarySummaries.find(
+      (librarySummary) => librarySummary.libraryId === libraryId,
+    ) ?? null
+  )
 }

@@ -248,6 +248,21 @@ export async function rebuildOssStatsCache(org: string = 'tanstack') {
     { npm: NpmStats; packageCount: number; updatedAt?: Date }
   >()
 
+  // When a library declares explicit npmPackageNames, only those packages
+  // count toward its aggregate. This avoids counting internal sub-packages
+  // (e.g. start-server-core, start-plugin-core) that are co-installed as
+  // dependencies of a single user-facing install and would otherwise inflate
+  // the totals several times over.
+  const explicitPackagesByLibrary = new Map<string, Set<string>>()
+  for (const library of libraries) {
+    if (library.npmPackageNames?.length) {
+      explicitPackagesByLibrary.set(
+        library.id,
+        new Set(library.npmPackageNames),
+      )
+    }
+  }
+
   for (const pkg of packages) {
     if (pkg.downloads === null) {
       continue
@@ -263,6 +278,11 @@ export async function rebuildOssStatsCache(org: string = 'tanstack') {
     }
 
     if (!pkg.libraryId) {
+      continue
+    }
+
+    const explicitPackages = explicitPackagesByLibrary.get(pkg.libraryId)
+    if (explicitPackages && !explicitPackages.has(pkg.packageName)) {
       continue
     }
 

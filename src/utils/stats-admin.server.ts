@@ -6,7 +6,7 @@ import { db } from '~/db/client'
 import { githubStatsCache, npmPackages, npmOrgStatsCache } from '~/db/schema'
 import { eq, desc, and, like } from 'drizzle-orm'
 import { fetchGitHubOwnerStats, fetchGitHubRepoStats } from './stats.functions'
-import { fetchSingleNpmPackageFresh, refreshNpmOrgStats } from './stats.server'
+import { fetchSingleNpmPackageFresh } from './stats.server'
 import {
   computeOrgStatsFromCache,
   rebuildLibraryCaches,
@@ -15,6 +15,8 @@ import {
   setCachedNpmOrgStats,
 } from './stats-db.server'
 import { requireCapability } from './auth.server'
+import { npmStatsRefreshWorkflowId } from './npm-stats-workflows.server'
+import { workflowRuntime } from './workflow-runtime.server'
 
 /**
  * List all GitHub stats cache entries
@@ -341,29 +343,41 @@ export async function getLibraryNpmStats() {
 }
 
 /**
- * Complete atomic refresh of all NPM stats
- * Wraps refreshNpmOrgStats which handles:
- * 1. Package discovery
- * 2. Fresh stats fetch with growth rates
- * 3. Library cache rebuild
- * 4. Org cache update
+ * Queue a batched Workflow refresh of all NPM stats.
+ * The workflow discovers packages, refreshes package stats in small batches,
+ * and rebuilds visible caches after each completed batch.
  */
 export async function refreshAllNpmStats({ data }: { data: any }) {
   console.log(`[Admin] refreshAllNpmStats handler called with org: ${data.org}`)
 
   await requireCapability({ data: { capability: 'admin' } })
 
-  console.log(`[Admin] Starting complete NPM stats refresh for ${data.org}`)
+  const now = Date.now()
+  const runId = `${npmStatsRefreshWorkflowId}:${data.org}:admin:${now}`
+  const result = await workflowRuntime.startRun({
+    workflowId: npmStatsRefreshWorkflowId,
+    runId,
+    input: {
+      batchSize: 2,
+      forceRefresh: false,
+      org: data.org,
+      source: 'admin',
+    },
+    now,
+    includeEvents: false,
+  })
 
-  // Admin refreshes are repair operations, so bypass chunk cache to overwrite
-  // any stale zero chunks from previous failed fetches.
-  const stats = await refreshNpmOrgStats(data.org, { forceRefresh: true })
-
-  console.log('[Admin] Complete NPM stats refresh finished')
+  console.log(
+    `[Admin] NPM stats refresh workflow ${runId} started with status ${result.kind}`,
+  )
 
   return {
     success: true,
     org: data.org,
-    stats,
+    workflow: {
+      runId,
+      status: result.kind,
+      workflowId: npmStatsRefreshWorkflowId,
+    },
   }
 }

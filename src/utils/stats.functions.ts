@@ -190,7 +190,7 @@ async function fetchNpmPackageCreationDate(
  * Fetches chunks sequentially (concurrency controlled at package level)
  * Returns total downloads and daily rate (average from last full week)
  */
-type FetchNpmPackageDownloadsOptions = {
+export type FetchNpmPackageDownloadsOptions = {
   forceRefresh?: boolean
 }
 
@@ -495,6 +495,80 @@ export async function fetchSingleNpmPackageFresh(
   throw lastError ?? new Error(`Failed to fetch ${packageName}`)
 }
 
+export async function getNpmOrgPackageNames(org: string): Promise<string[]> {
+  const response = await fetch(
+    `https://registry.npmjs.org/-/org/${org}/package`,
+    {
+      headers: {
+        Accept: 'application/json',
+        'User-Agent': 'TanStack-Stats',
+      },
+    },
+  )
+
+  if (!response.ok) {
+    console.error(
+      `[NPM Stats] Org packages fetch failed: ${response.status} ${response.statusText}`,
+    )
+    throw new Error(`NPM API error: ${response.status}`)
+  }
+
+  const data = await response.json()
+  const packageNames = Object.keys(data)
+
+  if (packageNames.length === 0) {
+    console.error(`[NPM Stats] No packages found for org ${org}`)
+    return []
+  }
+
+  const { libraries } = await import('~/libraries')
+  const legacyPackages = libraries.flatMap(
+    (library) => library.legacyPackages ?? [],
+  )
+
+  return [...new Set([...packageNames, ...legacyPackages])]
+}
+
+export async function refreshNpmPackageStatsBatch(
+  packageNames: string[],
+  options: FetchNpmPackageDownloadsOptions = {},
+): Promise<{
+  failed: Array<{ error: string; packageName: string }>
+  fallback: Array<string>
+  refreshed: Array<string>
+}> {
+  const { getBatchCachedNpmPackageStats } = await import('./stats-db.server')
+  const cachedPackageStats = await getBatchCachedNpmPackageStats(packageNames)
+  const failed: Array<{ error: string; packageName: string }> = []
+  const fallback: Array<string> = []
+  const refreshed: Array<string> = []
+
+  for (const packageName of packageNames) {
+    try {
+      await fetchSingleNpmPackageFresh(packageName, 3, options)
+      refreshed.push(packageName)
+    } catch (error) {
+      const cachedStats = cachedPackageStats.get(packageName)
+      const errorMessage =
+        error instanceof Error ? error.message : String(error)
+
+      if (cachedStats && cachedStats.downloads > 0) {
+        fallback.push(packageName)
+        console.warn(
+          `[NPM Stats] Failed ${packageName}, keeping cached stats: ${errorMessage}`,
+        )
+      } else {
+        failed.push({ packageName, error: errorMessage })
+        console.error(
+          `[NPM Stats] Failed ${packageName} with no cached stats: ${errorMessage}`,
+        )
+      }
+    }
+  }
+
+  return { failed, fallback, refreshed }
+}
+
 /**
  * Compute NPM organization statistics (expensive operation)
  * Fetches all packages and aggregates their stats
@@ -511,63 +585,10 @@ export async function computeNpmOrgStats(
 
   while (retries > 0) {
     try {
-      const response = await fetch(
-        `https://registry.npmjs.org/-/org/${org}/package`,
-        {
-          headers: {
-            Accept: 'application/json',
-            'User-Agent': 'TanStack-Stats',
-          },
-        },
-      )
-
-      if (!response.ok) {
-        console.error(
-          `[NPM Stats] Org packages fetch failed: ${response.status} ${response.statusText}`,
-        )
-        if (response.status === 429) {
-          // Note: NPM's Retry-After header is unreliable (often returns "0")
-          // Use fixed 5 second wait time instead
-          const waitTime = 5000 // 5 seconds
-
-          console.warn(
-            `[NPM Stats] Rate limited fetching org packages, waiting ${waitTime}ms before retry (attempt ${
-              4 - retries
-            }/3)...`,
-          )
-
-          if (retries > 1) {
-            await new Promise((resolve) => setTimeout(resolve, waitTime))
-            retries--
-            continue
-          } else {
-            throw new Error(`NPM API rate limited: ${response.status}`)
-          }
-        }
-
-        throw new Error(`NPM API error: ${response.status}`)
-      }
-
-      const data = await response.json()
-      let packageNames = Object.keys(data)
+      const packageNames = await getNpmOrgPackageNames(org)
 
       if (packageNames.length === 0) {
-        console.error(`[NPM Stats] No packages found for org ${org}`)
         return { totalDownloads: 0, packageStats: {} }
-      }
-
-      // Add legacy (non-scoped) packages from library definitions
-      // The org endpoint only returns @tanstack/* scoped packages
-      const { libraries } = await import('~/libraries')
-      const legacyPackages: string[] = []
-      for (const library of libraries) {
-        if (library.legacyPackages) {
-          legacyPackages.push(...library.legacyPackages)
-        }
-      }
-
-      if (legacyPackages.length > 0) {
-        packageNames = [...packageNames, ...legacyPackages]
       }
 
       const { getBatchCachedNpmPackageStats } =

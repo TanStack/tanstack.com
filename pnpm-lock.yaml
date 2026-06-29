@@ -17,8 +17,6 @@ overrides:
   minimatch@10.2.5>brace-expansion: 5.0.5
   npm-run-path@6.0.0>unicorn-magic: 0.4.0
 
-pnpmfileChecksum: sha256-YCZ4WLk6+c48Uc0M/YjAU0PHsew0tG/ugn+OYO5ie1M=
-
 importers:
 
   .:
@@ -143,15 +141,12 @@ importers:
       '@tanstack/workflow-core':
         specifier: 0.0.3
         version: 0.0.3
-      '@tanstack/workflow-netlify':
-        specifier: 0.0.3
-        version: 0.0.3
       '@tanstack/workflow-runtime':
         specifier: 0.0.2
         version: 0.0.2
       '@tanstack/workflow-store-drizzle-postgres':
         specifier: 0.0.4
-        version: 0.0.4(@electric-sql/pglite@0.3.16)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(postgres@3.4.8)
+        version: 0.0.4(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(postgres@3.4.8)
       '@types/d3':
         specifier: ^7.4.3
         version: 7.4.3
@@ -3607,10 +3602,6 @@ packages:
 
   '@tanstack/workflow-core@0.0.3':
     resolution: {integrity: sha512-0ev5ISQR8knUBAco46bc8h2/bMGS3ZPlEC/I/EgeD7PXE0DnmNJLvrkwZ5KfdzcbdM8pqJQLR5coBHtNurOcEg==}
-    engines: {node: '>=18'}
-
-  '@tanstack/workflow-netlify@0.0.3':
-    resolution: {integrity: sha512-FuGXcrdPyDuznUfMRvOSBQpSSJoKUVo9jUL0ULPOjX+BKMI0JFyMXnPyF/klMmxlMg6KFIkbybQiHFXl6TtVpQ==}
     engines: {node: '>=18'}
 
   '@tanstack/workflow-runtime@0.0.2':
@@ -9985,19 +9976,15 @@ snapshots:
     dependencies:
       '@standard-schema/spec': 1.1.0
 
-  '@tanstack/workflow-netlify@0.0.3':
-    dependencies:
-      '@tanstack/workflow-runtime': 0.0.2
-
   '@tanstack/workflow-runtime@0.0.2':
     dependencies:
       '@tanstack/workflow-core': 0.0.3
 
-  '@tanstack/workflow-store-drizzle-postgres@0.0.4(@electric-sql/pglite@0.3.16)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(postgres@3.4.8)':
+  '@tanstack/workflow-store-drizzle-postgres@0.0.4(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(postgres@3.4.8)':
     dependencies:
       '@tanstack/workflow-core': 0.0.3
       '@tanstack/workflow-runtime': 0.0.2
-      drizzle-orm: 0.45.2(@electric-sql/pglite@0.3.16)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(postgres@3.4.8)
+      drizzle-orm: 0.45.2(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(postgres@3.4.8)
     transitivePeerDependencies:
       - '@aws-sdk/client-rds-data'
       - '@cloudflare/workers-types'

@@ -75,7 +75,6 @@
     "@tanstack/react-start-client": "1.168.14",
     "@tanstack/react-table": "^8.21.3",
     "@tanstack/workflow-core": "0.0.3",
-    "@tanstack/workflow-netlify": "0.0.3",
     "@tanstack/workflow-runtime": "0.0.2",
     "@tanstack/workflow-store-drizzle-postgres": "0.0.4",
     "@types/d3": "^7.4.3",

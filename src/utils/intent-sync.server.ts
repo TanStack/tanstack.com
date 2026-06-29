@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { getCurrentHostRuntimeEnv } from '~/server/runtime/host.server'
 import {
   extractSkillsFromTarball,
   fetchPackument,
@@ -115,7 +116,9 @@ export async function discoverIntentPackages(): Promise<IntentDiscoveryResult> {
     errors.push(`npm-search: ${getErrorMessage(error)}`)
   }
 
-  const githubToken = process.env.GITHUB_AUTH_TOKEN
+  const githubToken =
+    getCurrentHostRuntimeEnv()?.GITHUB_AUTH_TOKEN ??
+    process.env.GITHUB_AUTH_TOKEN
   if (githubToken) {
     try {
       const githubResult = await discoverGitHubPackages(githubToken)

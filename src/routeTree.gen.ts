@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WorkshopsRouteImport } from './routes/workshops'
+import { Route as VoyageRouteImport } from './routes/voyage'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TenetsRouteImport } from './routes/tenets'
 import { Route as SupportRouteImport } from './routes/support'
@@ -165,6 +166,11 @@ import { Route as LibraryLibraryIdVersionDocsFrameworkFrameworkExamplesSplatRout
 const WorkshopsRoute = WorkshopsRouteImport.update({
   id: '/workshops',
   path: '/workshops',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VoyageRoute = VoyageRouteImport.update({
+  id: '/voyage',
+  path: '/voyage',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TermsRoute = TermsRouteImport.update({
@@ -998,6 +1004,7 @@ export interface FileRoutesByFullPath {
   '/support': typeof SupportRoute
   '/tenets': typeof TenetsRoute
   '/terms': typeof TermsRoute
+  '/voyage': typeof VoyageRoute
   '/workshops': typeof WorkshopsRoute
   '/$libraryId': typeof LibraryLibraryIdRouteRouteWithChildren
   '/.well-known/oauth-authorization-server': typeof DotwellKnownOauthAuthorizationServerRoute
@@ -1145,6 +1152,7 @@ export interface FileRoutesByTo {
   '/support': typeof SupportRoute
   '/tenets': typeof TenetsRoute
   '/terms': typeof TermsRoute
+  '/voyage': typeof VoyageRoute
   '/workshops': typeof WorkshopsRoute
   '/.well-known/oauth-authorization-server': typeof DotwellKnownOauthAuthorizationServerRoute
   '/account/feedback': typeof AccountFeedbackRoute
@@ -1296,6 +1304,7 @@ export interface FileRoutesById {
   '/support': typeof SupportRoute
   '/tenets': typeof TenetsRoute
   '/terms': typeof TermsRoute
+  '/voyage': typeof VoyageRoute
   '/workshops': typeof WorkshopsRoute
   '/_library/$libraryId': typeof LibraryLibraryIdRouteRouteWithChildren
   '/.well-known/oauth-authorization-server': typeof DotwellKnownOauthAuthorizationServerRoute
@@ -1451,6 +1460,7 @@ export interface FileRouteTypes {
     | '/support'
     | '/tenets'
     | '/terms'
+    | '/voyage'
     | '/workshops'
     | '/$libraryId'
     | '/.well-known/oauth-authorization-server'
@@ -1598,6 +1608,7 @@ export interface FileRouteTypes {
     | '/support'
     | '/tenets'
     | '/terms'
+    | '/voyage'
     | '/workshops'
     | '/.well-known/oauth-authorization-server'
     | '/account/feedback'
@@ -1748,6 +1759,7 @@ export interface FileRouteTypes {
     | '/support'
     | '/tenets'
     | '/terms'
+    | '/voyage'
     | '/workshops'
     | '/_library/$libraryId'
     | '/.well-known/oauth-authorization-server'
@@ -1903,6 +1915,7 @@ export interface RootRouteChildren {
   SupportRoute: typeof SupportRoute
   TenetsRoute: typeof TenetsRoute
   TermsRoute: typeof TermsRoute
+  VoyageRoute: typeof VoyageRoute
   WorkshopsRoute: typeof WorkshopsRoute
   DotwellKnownOauthAuthorizationServerRoute: typeof DotwellKnownOauthAuthorizationServerRoute
   ApiUploadthingRoute: typeof ApiUploadthingRoute
@@ -1957,6 +1970,13 @@ declare module '@tanstack/react-router' {
       path: '/workshops'
       fullPath: '/workshops'
       preLoaderRoute: typeof WorkshopsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/voyage': {
+      id: '/voyage'
+      path: '/voyage'
+      fullPath: '/voyage'
+      preLoaderRoute: typeof VoyageRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/terms': {
@@ -3338,6 +3358,7 @@ const rootRouteChildren: RootRouteChildren = {
   SupportRoute: SupportRoute,
   TenetsRoute: TenetsRoute,
   TermsRoute: TermsRoute,
+  VoyageRoute: VoyageRoute,
   WorkshopsRoute: WorkshopsRoute,
   DotwellKnownOauthAuthorizationServerRoute:
     DotwellKnownOauthAuthorizationServerRoute,

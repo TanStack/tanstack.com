@@ -5,6 +5,7 @@ import {
   MAX_NPM_STATS_PACKAGES_PER_GROUP,
   MAX_NPM_STATS_TOTAL_PACKAGES,
 } from '~/utils/npm-stats-limits'
+import { tanStackTotalNpmStatsPackageGroup } from '~/utils/tanstack-npm-stats'
 
 export const packageGroupSchema = v.object({
   label: v.optional(v.pipe(v.string(), v.maxLength(80))),
@@ -237,15 +238,8 @@ const tanstackLibraryPackageGroups = [
   },
 ] satisfies PackageGroupInput[]
 
-const tanstackAggregatePackageGroup = {
-  label: 'TanStack',
-  packages: tanstackLibraryPackageGroups
-    .flatMap((group) => group.packages)
-    .map((pkg) =>
-      pkg.name === '@tanstack/store' ? { ...pkg, hidden: true } : pkg,
-    ),
-  color: '#01a7b9',
-} satisfies PackageGroupInput
+const tanstackAggregatePackageGroup =
+  tanStackTotalNpmStatsPackageGroup satisfies PackageGroupInput
 
 const ecosystemTanStackPackageGroups = [
   {

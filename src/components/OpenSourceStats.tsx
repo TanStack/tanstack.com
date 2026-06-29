@@ -1,51 +1,14 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import * as React from 'react'
-import { libraries, type Library } from '~/libraries'
+import { type Library } from '~/libraries'
 import { ossStatsQuery, recentDownloadsQuery } from '~/queries/stats'
 import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
 import { Download, Star, TrendingUp } from 'lucide-react'
-
-const tanStackNpmStatsLibrary = {
-  id: 'tanstack',
-  npmPackageNames: [
-    ...new Set(libraries.flatMap((library) => library.npmPackageNames ?? [])),
-  ],
-}
-
-const tanStackTotalNpmStatsSearch = {
-  packageGroups: [
-    {
-      label: 'TanStack',
-      packages: [
-        { name: '@tanstack/query-core' },
-        { name: 'react-query' },
-        { name: '@tanstack/table-core' },
-        { name: 'react-table' },
-        { name: '@tanstack/router-core' },
-        { name: 'react-location' },
-        { name: '@tanstack/start-client-core' },
-        { name: '@tanstack/form-core' },
-        { name: '@tanstack/virtual-core' },
-        { name: 'react-virtual' },
-        { name: '@tanstack/db' },
-        { name: '@tanstack/pacer' },
-        { name: '@tanstack/pacer-lite' },
-        { name: '@tanstack/ai' },
-        { name: '@tanstack/intent' },
-        { name: '@tanstack/store', hidden: true },
-        { name: '@tanstack/hotkeys' },
-        { name: '@tanstack/ranger' },
-        { name: 'react-ranger' },
-        { name: '@tanstack/config' },
-        { name: '@tanstack/devtools' },
-        { name: '@tanstack/cli' },
-      ],
-      color: '#01a7b9',
-    },
-  ],
-  bucketOffset: 0,
-}
+import {
+  tanStackTotalNpmStatsLibrary,
+  tanStackTotalNpmStatsSearch,
+} from '~/utils/tanstack-npm-stats'
 
 function formatBillions(value: number) {
   return `${(value / 1_000_000_000).toFixed(2)} Billion`
@@ -144,42 +107,50 @@ function HomeStatLink({
 
 export default function OssStats({ library }: { library?: Library }) {
   const { data: stats, isLoading } = useQuery(ossStatsQuery({ library }))
+  const { data: tanStackTotalStats, isLoading: isLoadingTanStackTotalStats } =
+    useQuery({
+      ...ossStatsQuery({ library: tanStackTotalNpmStatsLibrary }),
+      enabled: !library,
+    })
   const { data: recentDownloads, isLoading: isLoadingRecentDownloads } =
     useQuery({
       ...recentDownloadsQuery({
-        library: library ?? tanStackNpmStatsLibrary,
+        library: library ?? tanStackTotalNpmStatsLibrary,
       }),
       enabled: Boolean(library),
     })
 
-  const npmDownloads = stats?.npm?.totalDownloads ?? 0
+  const npmStats = library ? stats?.npm : tanStackTotalStats?.npm
+  const isLoadingNpmStats = library ? isLoading : isLoadingTanStackTotalStats
+  const npmDownloads = npmStats?.totalDownloads ?? 0
   const starCount = stats?.github?.starCount ?? 0
-  const cachedWeeklyDownloads = Math.round((stats?.npm?.ratePerDay ?? 0) * 7)
+  const cachedWeeklyDownloads = Math.round((npmStats?.ratePerDay ?? 0) * 7)
   const weeklyDownloads = library
     ? (recentDownloads?.weeklyDownloads ?? 0)
     : cachedWeeklyDownloads
-  const weeklyRatePerDay = library ? undefined : stats?.npm?.ratePerDay
+  const weeklyRatePerDay = library ? undefined : npmStats?.ratePerDay
 
-  const hasNpmDownloads = !isLoading && isValidMetric(npmDownloads)
+  const hasNpmDownloads = !isLoadingNpmStats && isValidMetric(npmDownloads)
   const hasStarCount = !isLoading && isValidMetric(starCount)
   const hasWeeklyDownloads =
-    !(library ? isLoadingRecentDownloads : isLoading) &&
+    !(library ? isLoadingRecentDownloads : isLoadingNpmStats) &&
     isValidMetric(weeklyDownloads)
 
   const hasAnyData = hasNpmDownloads || hasWeeklyDownloads || hasStarCount
 
   const loading = isLoading || !stats
+  const npmLoading = isLoadingNpmStats || !npmStats
   const weeklyLoading = library
     ? isLoadingRecentDownloads || !recentDownloads
-    : loading
+    : npmLoading
 
-  if (!loading && !weeklyLoading && !hasAnyData) {
+  if (!loading && !npmLoading && !weeklyLoading && !hasAnyData) {
     return null
   }
 
   return (
     <div className="mx-auto grid w-full max-w-3xl grid-cols-1 gap-4 sm:grid-cols-3">
-      {loading || hasNpmDownloads ? (
+      {npmLoading || hasNpmDownloads ? (
         <HomeStatLink
           to="/stats/npm"
           search={tanStackTotalNpmStatsSearch}

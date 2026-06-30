@@ -166,7 +166,8 @@ const NAV_GROUPS = [
   },
   {
     key: 'learn',
-    label: 'Learn',
+    label: 'Blog',
+    to: '/blog',
     sections: [
       {
         label: 'Resources',

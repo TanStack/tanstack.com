@@ -13,7 +13,7 @@ Wiring a coding agent into your own app sounds simple until you actually do it. 
 
 So you write a bespoke adapter for Claude Code. A different one for Codex. A third for whatever ships next quarter. And then you still have to answer the scary question: where does this thing run, and what can it reach while it runs?
 
-TanStack AI's new sandbox layer collapses both walls into one pattern. A coding agent runs **inside an isolated sandbox**, and its work streams straight back through the same `chat()` you already use. This post walks through how it fits together, and the part that has no equivalent anywhere else: plugging in *any* agent that speaks the Agent Client Protocol, with no dedicated package.
+TanStack AI's new sandbox layer collapses both walls into one pattern. A coding agent runs **inside an isolated sandbox**, and its work streams straight back through the same `chat()` you already use. This post walks through how it fits together, and the part that has no equivalent anywhere else: plugging in _any_ agent that speaks the Agent Client Protocol, with no dedicated package.
 
 ## The real problem: two moving parts, glued by hand
 
@@ -65,7 +65,7 @@ Everything below is a variation on this one snippet.
 
 ## Pick where it runs: the provider axis
 
-The provider owns isolation - *where* the agent actually runs. Every provider implements the same `SandboxHandle` contract, so swapping one is a one-line change to your sandbox definition:
+The provider owns isolation - _where_ the agent actually runs. Every provider implements the same `SandboxHandle` contract, so swapping one is a one-line change to your sandbox definition:
 
 ```ts
 import { localProcessSandbox } from '@tanstack/ai-sandbox-local-process'
@@ -73,9 +73,9 @@ import { dockerSandbox } from '@tanstack/ai-sandbox-docker'
 import { daytonaSandbox } from '@tanstack/ai-sandbox-daytona'
 import { vercelSandbox } from '@tanstack/ai-sandbox-vercel'
 
-const dev = localProcessSandbox()                 // your machine, fast dev loop
+const dev = localProcessSandbox() // your machine, fast dev loop
 const isolated = dockerSandbox({ image: 'node:22' }) // a real container boundary
-const cloud = daytonaSandbox()                    // managed cloud sandbox
+const cloud = daytonaSandbox() // managed cloud sandbox
 const microvm = vercelSandbox({ runtime: 'node24' }) // managed microVM
 ```
 
@@ -83,7 +83,7 @@ There is also a Cloudflare provider for running the agent and a live preview at 
 
 ## Pick which agent runs: the harness axis
 
-The harness decides *what* runs. The first-class adapters cover the agents most people reach for:
+The harness decides _what_ runs. The first-class adapters cover the agents most people reach for:
 
 - `@tanstack/ai-grok-build` - `grokBuildText`
 - `@tanstack/ai-claude-code` - `claudeCodeText`
@@ -108,14 +108,15 @@ Same sandbox, same wiring, different agent. The two axes really are independent.
 
 First-class adapters are great until the agent you want does not have one. This is where most stacks stop and you go back to writing glue.
 
-TanStack AI does not. The [Agent Client Protocol](https://agentclientprotocol.com) (ACP) is a shared JSON-RPC protocol that a growing list of coding agents already speak. `acpCompatible` turns *any* of them into a `chat()` adapter, with no dedicated package. Think of it as the `openaiCompatible` of coding agents.
+TanStack AI does not. The [Agent Client Protocol](https://agentclientprotocol.com) (ACP) is a shared JSON-RPC protocol that a growing list of coding agents already speak. `acpCompatible` turns _any_ of them into a `chat()` adapter, with no dedicated package. Think of it as the `openaiCompatible` of coding agents.
 
 ```ts
 import { acpCompatible } from '@tanstack/ai-acp'
 
 const pi = acpCompatible({
   name: 'pi',
-  command: ({ model, harnessCwd }) => `pi --acp -m ${model} --cwd ${harnessCwd}`,
+  command: ({ model, harnessCwd }) =>
+    `pi --acp -m ${model} --cwd ${harnessCwd}`,
 })
 
 const stream = chat({

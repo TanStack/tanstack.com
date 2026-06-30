@@ -104,7 +104,7 @@ test('failed package version step does not prevent other versions from processin
   const result = await runtime.startRun({
     workflowId: processWorkflow.id,
     runId: 'intent-process:test-partial-failure',
-    input: { batchSize: 3, source: 'admin' },
+    input: { source: 'admin' },
     now: Date.UTC(2026, 4, 26, 12, 15, 0),
     includeEvents: false,
   })
@@ -188,7 +188,6 @@ function createTestIntentRuntime(options: {
     schedule: every.minutes(15),
     overlapPolicy: 'skip',
     input: {
-      batchSize: 50,
       source: 'schedule',
     },
   } as const

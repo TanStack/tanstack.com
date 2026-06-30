@@ -10,7 +10,7 @@ import {
   intentSkills,
   intentSkillContent,
 } from '~/db/schema'
-import { eq, desc, sql, and, inArray, or, ilike } from 'drizzle-orm'
+import { eq, desc, sql, and, inArray, or, ilike, notInArray } from 'drizzle-orm'
 import type {
   IntentPackage,
   IntentPackageVersion,
@@ -92,7 +92,15 @@ export interface PendingIntentVersion {
 
 export async function getPendingVersions(
   limit: number,
+  options?: { excludeIds?: Array<number> },
 ): Promise<Array<PendingIntentVersion>> {
+  const where = and(
+    inArray(intentPackageVersions.syncStatus, ['pending', 'failed']),
+    options?.excludeIds?.length
+      ? notInArray(intentPackageVersions.id, options.excludeIds)
+      : undefined,
+  )
+
   return db
     .select({
       id: intentPackageVersions.id,
@@ -101,7 +109,7 @@ export async function getPendingVersions(
       tarballUrl: intentPackageVersions.tarballUrl,
     })
     .from(intentPackageVersions)
-    .where(inArray(intentPackageVersions.syncStatus, ['pending', 'failed']))
+    .where(where)
     .orderBy(intentPackageVersions.createdAt)
     .limit(limit)
 }

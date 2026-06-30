@@ -3,6 +3,7 @@
  * All functions require the 'admin' capability.
  */
 
+import { randomUUID } from 'node:crypto'
 import { db } from '~/db/client'
 import {
   intentPackages,
@@ -23,15 +24,22 @@ import {
   replaceSkillsForVersion,
   markVersionSynced,
 } from './intent-db.server'
-import { intentWorkflowRegistrations } from '~/utils/intent-workflows.server'
 import {
-  discoverIntentPackages,
-  processIntentVersion,
-  selectPendingIntentVersions,
-  summarizeIntentProcessResults,
+  INTENT_DISCOVER_WORKFLOW_ID,
+  INTENT_PROCESS_WORKFLOW_ID,
+  intentWorkflowRegistrations,
+} from '~/utils/intent-workflows.server'
+import {
+  intentDiscoveryResultSchema,
+  intentProcessResultSchema,
 } from '~/utils/intent-sync.server'
-import type { IntentVersionProcessResult } from '~/utils/intent-sync.server'
-import { workflowExecutionStore } from '~/utils/workflow-runtime.server'
+import {
+  getWorkflowRuntimeHealth,
+  reconcileWorkflowRuntimeStore,
+  workflowExecutionStore,
+  workflowRuntime,
+} from '~/utils/workflow-runtime.server'
+import type { WorkflowRuntimeRunResult } from '@tanstack/workflow-runtime'
 
 // ---------------------------------------------------------------------------
 // Stats / overview
@@ -106,6 +114,18 @@ export async function listIntentWorkflowRuns() {
     }))
 }
 
+export async function getIntentWorkflowHealth() {
+  await requireCapability({ data: { capability: 'admin' } })
+
+  return getWorkflowRuntimeHealth()
+}
+
+export async function repairIntentWorkflowStore() {
+  await requireCapability({ data: { capability: 'admin' } })
+
+  return reconcileWorkflowRuntimeStore()
+}
+
 // ---------------------------------------------------------------------------
 // Package list (all known packages with status)
 // ---------------------------------------------------------------------------
@@ -176,32 +196,33 @@ export async function listFailedVersions() {
 export async function triggerIntentDiscover() {
   await requireCapability({ data: { capability: 'admin' } })
 
-  return discoverIntentPackages()
+  const result = await workflowRuntime.startRun({
+    workflowId: INTENT_DISCOVER_WORKFLOW_ID,
+    runId: createAdminRunId(INTENT_DISCOVER_WORKFLOW_ID),
+    input: { source: 'admin' },
+    includeEvents: false,
+  })
+
+  return intentDiscoveryResultSchema.parse(getCompletedWorkflowOutput(result))
 }
 
 // ---------------------------------------------------------------------------
-// Trigger: process N pending versions (respects a time budget)
+// Trigger: process pending versions using the same time budget as scheduled runs
 // ---------------------------------------------------------------------------
 
-export async function triggerIntentProcess({ data }: { data: any }) {
+export async function triggerIntentProcess() {
   await requireCapability({ data: { capability: 'admin' } })
 
-  const pending = await selectPendingIntentVersions({ limit: data.limit ?? 10 })
-  const results: Array<IntentVersionProcessResult> = []
-  for (const version of pending) {
-    try {
-      results.push(await processIntentVersion(version.id))
-    } catch (error) {
-      results.push({
-        packageName: version.packageName,
-        version: version.version,
-        status: 'failed',
-        error: error instanceof Error ? error.message : String(error),
-      })
-    }
-  }
+  const result = await workflowRuntime.startRun({
+    workflowId: INTENT_PROCESS_WORKFLOW_ID,
+    runId: createAdminRunId(INTENT_PROCESS_WORKFLOW_ID),
+    input: {
+      source: 'admin',
+    },
+    includeEvents: false,
+  })
 
-  return summarizeIntentProcessResults(results)
+  return intentProcessResultSchema.parse(getCompletedWorkflowOutput(result))
 }
 
 // ---------------------------------------------------------------------------
@@ -410,4 +431,18 @@ export async function resetFailedVersions() {
     .returning({ id: intentPackageVersions.id })
 
   return { resetCount: result.length }
+}
+
+function createAdminRunId(workflowId: string) {
+  return `${workflowId}:admin:${Date.now()}:${randomUUID()}`
+}
+
+function getCompletedWorkflowOutput(result: WorkflowRuntimeRunResult): unknown {
+  if (result.kind !== 'completed' || !result.run) {
+    throw new Error(
+      `Workflow ${result.workflowId ?? 'unknown'} did not complete: ${result.kind}`,
+    )
+  }
+
+  return result.run.output
 }

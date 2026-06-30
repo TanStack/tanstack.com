@@ -16,8 +16,18 @@ const intentDiscoverInputSchema = z.object({
   source: z.enum(['schedule', 'admin']).default('schedule'),
 })
 
+const PROCESS_WORKFLOW_DEFAULT_MAX_DURATION_MS = 4 * 60 * 1000
+const PROCESS_WORKFLOW_MAX_DURATION_MS = 4 * 60 * 1000
+const PROCESS_WORKFLOW_MIN_REMAINING_MS = 30_000
+const PROCESS_WORKFLOW_SELECT_LIMIT = 50
+
 const intentProcessInputSchema = z.object({
-  batchSize: z.number().int().positive().max(100),
+  maxDurationMs: z
+    .number()
+    .int()
+    .positive()
+    .max(PROCESS_WORKFLOW_MAX_DURATION_MS)
+    .default(PROCESS_WORKFLOW_DEFAULT_MAX_DURATION_MS),
   source: z.enum(['schedule', 'admin']).default('schedule'),
 })
 
@@ -34,11 +44,16 @@ const processVersionStepOptions = {
   timeout: 2 * 60 * 1000,
 } satisfies StepOptions
 
+export const INTENT_DISCOVER_WORKFLOW_ID = 'intent-discover-workflow'
+export const INTENT_PROCESS_WORKFLOW_ID = 'intent-process-workflow'
+export const INTENT_DISCOVER_SCHEDULE_ID = 'intent-discover-every-6h'
+export const INTENT_PROCESS_SCHEDULE_ID = 'intent-process-every-15m'
+
 function createIntentDiscoverWorkflow(
   operations: IntentSyncOperations = defaultIntentSyncOperations,
 ) {
   return createWorkflow({
-    id: 'intent-discover-workflow',
+    id: INTENT_DISCOVER_WORKFLOW_ID,
     input: intentDiscoverInputSchema,
   }).handler((ctx) =>
     ctx.step(
@@ -53,39 +68,67 @@ export function createIntentProcessWorkflow(
   operations: IntentSyncOperations = defaultIntentSyncOperations,
 ) {
   return createWorkflow({
-    id: 'intent-process-workflow',
+    id: INTENT_PROCESS_WORKFLOW_ID,
     input: intentProcessInputSchema,
   }).handler(async (ctx) => {
-    const versions = await ctx.step(
-      'select-pending-versions',
-      () =>
-        operations.selectPendingIntentVersions({
-          limit: ctx.input.batchSize,
-        }),
-      selectPendingVersionsStepOptions,
-    )
+    const deadline = Date.now() + ctx.input.maxDurationMs
+    const attemptedIds = new Set<number>()
     const results: Array<IntentVersionProcessResult> = []
+    let deferred = 0
+    let selectIteration = 0
+    let shouldContinue = true
 
-    for (const version of versions) {
-      try {
-        results.push(
-          await ctx.step(
-            `process-version:${version.id}`,
-            () => operations.processIntentVersion(version.id),
-            processVersionStepOptions,
-          ),
-        )
-      } catch (error) {
-        results.push({
-          packageName: version.packageName,
-          version: version.version,
-          status: 'failed',
-          error: getErrorMessage(error),
-        })
+    while (shouldContinue && hasProcessBudget(deadline)) {
+      const versions = await ctx.step(
+        `select-pending-versions:${selectIteration}`,
+        () =>
+          operations.selectPendingIntentVersions({
+            limit: PROCESS_WORKFLOW_SELECT_LIMIT,
+            excludeIds: [...attemptedIds],
+          }),
+        selectPendingVersionsStepOptions,
+      )
+      selectIteration++
+
+      if (versions.length === 0) break
+
+      const unattemptedVersions = versions.filter(
+        (version) => !attemptedIds.has(version.id),
+      )
+      if (unattemptedVersions.length === 0) break
+
+      for (let index = 0; index < unattemptedVersions.length; index++) {
+        if (!hasProcessBudget(deadline)) {
+          deferred += unattemptedVersions.length - index
+          shouldContinue = false
+          break
+        }
+
+        const version = unattemptedVersions[index]!
+        attemptedIds.add(version.id)
+
+        try {
+          results.push(
+            await ctx.step(
+              `process-version:${version.id}`,
+              () => operations.processIntentVersion(version.id),
+              processVersionStepOptions,
+            ),
+          )
+        } catch (error) {
+          results.push({
+            packageName: version.packageName,
+            version: version.version,
+            status: 'failed',
+            error: getErrorMessage(error),
+          })
+        }
       }
+
+      if (versions.length < PROCESS_WORKFLOW_SELECT_LIMIT) break
     }
 
-    return summarizeIntentProcessResults(results)
+    return summarizeIntentProcessResults(results, { deferred })
   })
 }
 
@@ -97,7 +140,7 @@ export const intentWorkflowRegistrations = {
     load: async () => intentDiscoverWorkflow,
     schedules: [
       {
-        id: 'intent-discover-every-6h',
+        id: INTENT_DISCOVER_SCHEDULE_ID,
         schedule: every.hours(6),
         overlapPolicy: 'skip',
         input: { source: 'schedule' },
@@ -108,11 +151,11 @@ export const intentWorkflowRegistrations = {
     load: async () => intentProcessWorkflow,
     schedules: [
       {
-        id: 'intent-process-every-15m',
+        id: INTENT_PROCESS_SCHEDULE_ID,
         schedule: every.minutes(15),
         overlapPolicy: 'skip',
         input: {
-          batchSize: 50,
+          maxDurationMs: PROCESS_WORKFLOW_DEFAULT_MAX_DURATION_MS,
           source: 'schedule',
         },
       },
@@ -122,4 +165,8 @@ export const intentWorkflowRegistrations = {
 
 function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
+}
+
+function hasProcessBudget(deadline: number): boolean {
+  return Date.now() + PROCESS_WORKFLOW_MIN_REMAINING_MS < deadline
 }

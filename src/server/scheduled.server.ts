@@ -2,11 +2,14 @@ import { materializeWorkflowSchedules } from '@tanstack/workflow-runtime'
 import { pruneStaleCacheRows } from '~/utils/github-content-cache.server'
 import { refreshHomepageNpmStatsSummary } from '~/utils/homepage-npm-stats.server'
 import { refreshGitHubOrgStats } from '~/utils/stats.functions'
-import { workflowRuntime } from '~/utils/workflow-runtime.server'
+import {
+  reconcileWorkflowRuntimeStore,
+  workflowRuntime,
+} from '~/utils/workflow-runtime.server'
 
 const CONTENT_CACHE_PRUNE_CRON = '0 9 * * *'
-const STATS_AND_INTENT_DISCOVER_CRON = '0 */6 * * *'
-const INTENT_PROCESS_CRON = '*/15 * * * *'
+const STATS_REFRESH_CRON = '0 */6 * * *'
+const WORKFLOW_SWEEP_CRON = '* * * * *'
 const WORKFLOW_SWEEP_MAX_DURATION_MS = 25_000
 
 export async function runScheduledTasks(cron: string, scheduledTime: number) {
@@ -14,14 +17,13 @@ export async function runScheduledTasks(cron: string, scheduledTime: number) {
     case CONTENT_CACHE_PRUNE_CRON:
       await runContentCachePrune(scheduledTime)
       return
-    case STATS_AND_INTENT_DISCOVER_CRON:
+    case STATS_REFRESH_CRON:
       await Promise.all([
         runGitHubStatsRefresh(scheduledTime),
         runHomepageNpmStatsSummaryRefresh(scheduledTime),
-        runWorkflowSweep(cron, scheduledTime),
       ])
       return
-    case INTENT_PROCESS_CRON:
+    case WORKFLOW_SWEEP_CRON:
       await runWorkflowSweep(cron, scheduledTime)
       return
     default:
@@ -34,6 +36,7 @@ async function runWorkflowSweep(cron: string, scheduledTime: number) {
   console.log('[workflow-sweep] Starting workflow sweep...')
 
   try {
+    const reconciliation = await reconcileWorkflowRuntimeStore()
     const materialized = await materializeWorkflowSchedules(workflowRuntime, {
       now: scheduledTime,
     })
@@ -48,7 +51,7 @@ async function runWorkflowSweep(cron: string, scheduledTime: number) {
     const duration = Date.now() - startTime
 
     console.log(
-      `[workflow-sweep] Completed in ${duration}ms - materialized: ${materialized.length}, scheduled: ${JSON.stringify(sweep.summary.scheduled)}, timers: ${JSON.stringify(sweep.summary.timers)}, remaining: ${sweep.remainingMayExist}`,
+      `[workflow-sweep] Completed in ${duration}ms - staleRuns: ${reconciliation.staleRunsMarkedErrored}, prunedSchedules: ${reconciliation.unregisteredSchedulesDeleted}, materialized: ${materialized.length}, scheduled: ${JSON.stringify(sweep.summary.scheduled)}, timers: ${JSON.stringify(sweep.summary.timers)}, remaining: ${sweep.remainingMayExist}`,
     )
     console.log(
       '[workflow-sweep] Scheduled time:',

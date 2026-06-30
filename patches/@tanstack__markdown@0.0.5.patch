@@ -1,0 +1,13 @@
+diff --git a/dist/parser.js b/dist/parser.js
+index 6616130a037737d109c527ec23ea8149ad8a68aa..1b4898b9ac1e749eeb136a5b8d13f8338a026b2b 100644
+--- a/dist/parser.js
++++ b/dist/parser.js
+@@ -334,7 +334,7 @@ function extractDefinitions(lines) {
+                 footnotes[normalizeReferenceLabel(label)] = { label, content: content.join('\n') };
+                 continue;
+             }
+-            const definition = line.match(/^ {0,3}\[([^\]\n]+)\]:[ \t]*(\S+)[ \t]*$/);
++            const definition = line.match(/^ {0,3}\[([^\]\n]+)\]:[ \t]*(\S+)(?:[ \t]+"[^"]*"|[ \t]+'[^']*'|[ \t]+\([^)]*\))?[ \t]*$/);
+             if (definition) {
+                 references[normalizeReferenceLabel(definition[1])] = { href: definition[2].replace(/^<|>$/g, '') };
+                 index++;

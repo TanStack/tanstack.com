@@ -33,3 +33,6 @@ allowBuilds:
 
   # Cloudflare Workers local runtime
   workerd: true
+
+patchedDependencies:
+  '@tanstack/markdown@0.0.5': patches/@tanstack__markdown@0.0.5.patch

@@ -538,7 +538,7 @@ export const pacer: LibrarySlim = {
   bgRadial: 'from-lime-500 via-lime-700/50 to-transparent',
   badge: 'beta',
   repo: 'tanstack/pacer',
-  frameworks: ['react', 'preact', 'solid', 'angular'],
+  frameworks: ['react', 'preact', 'solid', 'angular', 'vanilla'],
   corePackageName: '@tanstack/pacer',
   npmPackageNames: ['@tanstack/pacer', '@tanstack/pacer-lite'],
   legacyPackages: ['@tanstack/pacer-lite'],

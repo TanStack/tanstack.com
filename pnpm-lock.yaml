@@ -18,7 +18,7 @@ overrides:
   npm-run-path@6.0.0>unicorn-magic: 0.4.0
 
 patchedDependencies:
-  '@tanstack/markdown@0.0.5': ae0825e87ec7335f705ad024eb28d31d0a2e99c8d9acab09e671828b432dba89
+  '@tanstack/markdown@0.0.5': 42bdbc7f0f0d0183adfdfc9c93d706e36a0b099c6bd25a2ad09e22ddc94e426e
 
 importers:
 
@@ -110,7 +110,7 @@ importers:
         version: 0.0.2
       '@tanstack/markdown':
         specifier: ^0.0.5
-        version: 0.0.5(patch_hash=ae0825e87ec7335f705ad024eb28d31d0a2e99c8d9acab09e671828b432dba89)(react@19.2.3)
+        version: 0.0.5(patch_hash=42bdbc7f0f0d0183adfdfc9c93d706e36a0b099c6bd25a2ad09e22ddc94e426e)(react@19.2.3)
       '@tanstack/pacer':
         specifier: ^0.21.1
         version: 0.21.1
@@ -9671,7 +9671,7 @@ snapshots:
     dependencies:
       '@tanstack/store': 0.11.0
 
-  '@tanstack/markdown@0.0.5(patch_hash=ae0825e87ec7335f705ad024eb28d31d0a2e99c8d9acab09e671828b432dba89)(react@19.2.3)':
+  '@tanstack/markdown@0.0.5(patch_hash=42bdbc7f0f0d0183adfdfc9c93d706e36a0b099c6bd25a2ad09e22ddc94e426e)(react@19.2.3)':
     optionalDependencies:
       react: 19.2.3
 

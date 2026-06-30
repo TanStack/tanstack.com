@@ -984,6 +984,14 @@ export function LibraryLayout({
             const isHomeLink = child.to === '..'
             const frameworkDocsTarget = getFrameworkDocsLinkTarget(child.to)
 
+            const recency = getDocRecency(child.addedAt, child.updatedAt)
+            const recencyPill = recency ? (
+              <DocRecencyPill
+                recency={recency}
+                date={recency === 'new' ? child.addedAt : child.updatedAt}
+              />
+            ) : null
+
             const renderLinkContent = (isActive: boolean) => (
               <div className={twMerge(linkClasses, isActive && 'opacity-100')}>
                 <div
@@ -996,16 +1004,9 @@ export function LibraryLayout({
                 >
                   {child.label}
                 </div>
+                {recencyPill}
               </div>
             )
-
-            const recency = getDocRecency(child.addedAt, child.updatedAt)
-            const recencyPill = recency ? (
-              <DocRecencyPill
-                recency={recency}
-                date={recency === 'new' ? child.addedAt : child.updatedAt}
-              />
-            ) : null
 
             return (
               <li key={i}>

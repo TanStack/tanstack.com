@@ -48,6 +48,47 @@ for (const testCase of markdownCases) {
     `${testCase.name} visible paragraph is preserved`,
   )
 
+  const commentReferenceDocument = parseSiteMarkdown(
+    `${testCase.markdown}\n\n[Example][//]`,
+  )
+  const commentReferenceParagraph = commentReferenceDocument.children[1]
+
+  assert.equal(
+    commentReferenceParagraph?.type,
+    'paragraph',
+    `${testCase.name} comment reference link paragraph is parsed`,
+  )
+
+  if (commentReferenceParagraph?.type !== 'paragraph') {
+    throw new Error(
+      `${testCase.name} did not produce a comment reference paragraph`,
+    )
+  }
+
+  const commentReferenceLink = commentReferenceParagraph.children[0]
+
+  assert.equal(
+    commentReferenceLink?.type,
+    'link',
+    `${testCase.name} comment reference link resolves`,
+  )
+
+  if (commentReferenceLink?.type !== 'link') {
+    throw new Error(`${testCase.name} did not produce a comment reference link`)
+  }
+
+  assert.equal(
+    commentReferenceLink.href,
+    '#',
+    `${testCase.name} comment reference link href is preserved`,
+  )
+
+  assert.equal(
+    commentReferenceLink.title,
+    'SomeLabel',
+    `${testCase.name} comment reference link title is preserved`,
+  )
+
   const referenceDocument = parseSiteMarkdown(testCase.referenceMarkdown)
   const referenceParagraph = referenceDocument.children[0]
 

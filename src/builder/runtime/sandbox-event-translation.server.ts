@@ -207,6 +207,15 @@ export function translateChunk(chunk: StreamChunk, ctx: ForgeChunkTranslationCtx
         return
       }
 
+      // NOTE: the Codex adapter (`codexText`) currently emits only
+      // `codex.session-id` as a CUSTOM chunk — it does NOT emit `sandbox.file`
+      // or `file.changed`. For the forge sandbox path, live file activity comes
+      // from `forgePersistenceHooks.onFile` (mirroring sandbox writes to R2 +
+      // the activity feed) and the authoritative final manifest comes from
+      // `collectWorkspaceFiles` feeding the shared `drainLocalForgeAgentRun`
+      // finalize. These two branches are therefore dead for Codex today; they
+      // are kept as forward-compat for adapters (e.g. Grok, Claude Code) that
+      // DO surface file events as CUSTOM chunks.
       if (chunk.name === 'sandbox.file') {
         const fileEvent = readSandboxFileValue(chunk.value)
         if (fileEvent) {

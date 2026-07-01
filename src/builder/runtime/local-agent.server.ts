@@ -1267,6 +1267,9 @@ async function runForgeSandboxForgeHarness({
         ] satisfies Array<ModelMessage>,
         onChunk: (chunk) => translateChunk(chunk, ctx),
         projectId: LOCAL_FORGE_PROJECT_ID,
+        // Activity-feed events from the persistence hooks must group under the
+        // live run, not the manifest version id.
+        runId: runContext.runId,
         threadId: getActiveLocalForgeSessionId(),
       }),
     timeoutMs: LOCAL_FORGE_TIMEOUT_MS,

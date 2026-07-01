@@ -88,11 +88,14 @@ export async function runForgeSandboxAgent({
   messages,
   onChunk,
   projectId,
+  runId,
   threadId,
 }: {
   threadId: string
   projectId: string
   manifestVersionId?: string
+  /** Live run identity the persistence hooks key activity-feed events under. */
+  runId: string
   messages: Array<ModelMessage>
   byokKey: string
   env: ForgeSandboxEnv & { FORGE_RUNTIME?: BlobStorage; PREVIEW_HOSTNAME?: string }
@@ -103,9 +106,14 @@ export async function runForgeSandboxAgent({
   // lifecycle (onReady/onFile) AND exposes the final tree afterwards via
   // `collectWorkspaceFiles` — the handle it captures in `onReady` is what
   // `collectWorkspaceFiles` reads back out below.
+  //
+  // R2 manifest/blob lookups key off the durable `manifestVersionId`
+  // (falling back to `projectId`); activity-feed events key off the ephemeral
+  // `runId` so they group under the live run like the rest of its events.
   const hooks = forgePersistenceHooks({
     env,
-    projectId: manifestVersionId ?? projectId,
+    manifestVersionId: manifestVersionId ?? projectId,
+    runId,
   })
 
   const sandbox = buildForgeSandbox({
@@ -148,7 +156,25 @@ export async function runForgeSandboxAgent({
     onChunk(chunk)
   }
 
+  // Flush any debounced file mirrors (R2 writes + activity events) queued by
+  // the final edits before they can be dropped when the isolate tears down.
+  // `flush()` never rejects, but guard it anyway so a mirror failure can't
+  // abort the scan-back.
+  try {
+    await hooks.flush()
+  } catch (error) {
+    console.error('[forge-sandbox] flush failed', error)
+  }
+
   // Scan the sandbox's final `/workspace/app` tree back out so the caller can
   // repopulate the in-memory workspace Map the shared finalize persists from.
-  return { files: await hooks.collectWorkspaceFiles() }
+  // `collectWorkspaceFiles` already returns `{}` on any failure (e.g. an
+  // aborted run whose sandbox was destroyed), but guard here too so this
+  // function can never throw an unhandled rejection out of a failed run.
+  try {
+    return { files: await hooks.collectWorkspaceFiles() }
+  } catch (error) {
+    console.error('[forge-sandbox] collectWorkspaceFiles threw', error)
+    return { files: {} }
+  }
 }

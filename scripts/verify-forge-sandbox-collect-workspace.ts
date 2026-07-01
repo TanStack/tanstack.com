@@ -46,7 +46,8 @@ if (importError || !forgePersistenceHooks) {
   const handle = createFakeSandboxHandle(tree)
   const hooks = forgePersistenceHooks({
     env: {},
-    projectId: 'manifest:fixture/current',
+    manifestVersionId: 'manifest:fixture/current',
+    runId: 'run-fixture',
   })
 
   assert.ok(hooks.onReady)
@@ -91,7 +92,8 @@ if (importError || !forgePersistenceHooks) {
   // --- No captured handle (onReady never fired) returns {} ------------------
   const noReadyHooks = forgePersistenceHooks({
     env: {},
-    projectId: 'manifest:fixture/current',
+    manifestVersionId: 'manifest:fixture/current',
+    runId: 'run-fixture',
   })
   const emptyFiles = await noReadyHooks.collectWorkspaceFiles()
   assert.deepEqual(

@@ -87,7 +87,8 @@ try {
     const handle = createFakeSandboxHandle()
     const hooks = forgePersistenceHooks({
       env: { FORGE_RUNTIME: storage },
-      projectId,
+      manifestVersionId: projectId,
+      runId: 'run-fixture',
     })
 
     assert.ok(hooks.onReady)
@@ -133,7 +134,8 @@ try {
 
     const hooks = forgePersistenceHooks({
       env: { FORGE_RUNTIME: storage },
-      projectId,
+      manifestVersionId: projectId,
+      runId: 'run-fixture',
     })
 
     assert.ok(hooks.onReady)
@@ -175,7 +177,8 @@ try {
     const handle = createFakeSandboxHandle()
     const hooks = forgePersistenceHooks({
       env: { FORGE_RUNTIME: storage },
-      projectId,
+      manifestVersionId: projectId,
+      runId: 'run-fixture',
     })
 
     assert.ok(hooks.onReady && hooks.onFile)
@@ -188,8 +191,9 @@ try {
       type: 'change',
     })
 
-    // Debounce window is 500ms — wait past it for the mirror to fire.
-    await delay(700)
+    // `flush()` fires the pending debounced mirror immediately and awaits it,
+    // so no wall-clock delay is needed for the mirror + activity event to land.
+    await hooks.flush()
 
     const mirroredKeys = (await storage.list({ prefix: 'forge/v1/blobs/' }))
       .objects.map((object) => object.key)
@@ -218,10 +222,6 @@ try {
 }
 
 console.log('Forge sandbox materialize verifier passed')
-
-function delay(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
 
 function createFakeSandboxHandle(): SandboxHandle & {
   writeCalls: Array<{ data: string; path: string }>

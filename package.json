@@ -71,6 +71,7 @@
     "test:forge-run-terminal-projection": "tsx scripts/verify-forge-run-terminal-projection.ts",
     "test:forge-sandbox-definition": "tsx scripts/verify-forge-sandbox-definition.ts",
     "test:forge-sandbox-materialize": "tsx scripts/verify-forge-sandbox-materialize.ts",
+    "test:forge-sandbox-event-translation": "tsx scripts/verify-forge-sandbox-event-translation.ts",
     "test:forge-sandbox-preview-tool": "tsx scripts/verify-forge-sandbox-preview-tool.ts",
     "test:forge-session-workspace-scope": "tsx scripts/verify-forge-session-workspace-scope.ts",
     "test:forge-snapshot-projection": "tsx scripts/verify-forge-snapshot-projection.ts",

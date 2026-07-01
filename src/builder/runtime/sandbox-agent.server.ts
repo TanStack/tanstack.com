@@ -81,6 +81,7 @@ const FORGE_SANDBOX_AGENT_MAX_ITERATIONS = 30
  * (`./sandbox-event-translation.server`).
  */
 export async function runForgeSandboxAgent({
+  abortSignal,
   byokKey,
   env,
   manifestVersionId,
@@ -96,19 +97,44 @@ export async function runForgeSandboxAgent({
   byokKey: string
   env: ForgeSandboxEnv & { FORGE_RUNTIME?: BlobStorage; PREVIEW_HOSTNAME?: string }
   onChunk: (chunk: StreamChunk) => void
-}): Promise<void> {
+  abortSignal?: AbortSignal
+}): Promise<{ files: Record<string, string> }> {
+  // Build the persistence hooks ONCE so the same instance drives the sandbox
+  // lifecycle (onReady/onFile) AND exposes the final tree afterwards via
+  // `collectWorkspaceFiles` — the handle it captures in `onReady` is what
+  // `collectWorkspaceFiles` reads back out below.
+  const hooks = forgePersistenceHooks({
+    env,
+    projectId: manifestVersionId ?? projectId,
+  })
+
   const sandbox = buildForgeSandbox({
     byokKey,
     env,
-    hooks: forgePersistenceHooks({
-      env,
-      projectId: manifestVersionId ?? projectId,
-    }),
+    hooks,
     projectId,
     threadId,
   })
 
+  // Mirror `runTanStackAiForgeHarness`: create an AbortController and forward
+  // an external abort signal into it so `chat()` can be cancelled by the run's
+  // timeout/cancellation.
+  const abortController = new AbortController()
+
+  if (abortSignal) {
+    if (abortSignal.aborted) {
+      abortController.abort(abortSignal.reason)
+    } else {
+      abortSignal.addEventListener(
+        'abort',
+        () => abortController.abort(abortSignal.reason),
+        { once: true },
+      )
+    }
+  }
+
   const stream = chat({
+    abortController,
     adapter: codexText('gpt-5.3-codex', { sandboxMode: 'danger-full-access' }),
     agentLoopStrategy: maxIterations(FORGE_SANDBOX_AGENT_MAX_ITERATIONS),
     messages,
@@ -121,4 +147,8 @@ export async function runForgeSandboxAgent({
   for await (const chunk of stream) {
     onChunk(chunk)
   }
+
+  // Scan the sandbox's final `/workspace/app` tree back out so the caller can
+  // repopulate the in-memory workspace Map the shared finalize persists from.
+  return { files: await hooks.collectWorkspaceFiles() }
 }

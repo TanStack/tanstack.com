@@ -37,6 +37,7 @@ import type { LocalBuilderTimelineEvent } from '~/builder/projection'
 import {
   acquireLocalForgeLockLease,
   appendLocalForgeManifestTimeline,
+  appendLocalForgeRuntimeEvent,
   appendLocalForgeTimelineEvents,
   createLocalForgeProducer,
   getActiveLocalForgeSessionId,
@@ -58,6 +59,7 @@ import {
   minimalLocalForgeSeedNeedsUpdate,
 } from './local-template.server'
 import type { ForgeProviderCredential } from './forge-byok.server'
+import type { ForgeChunkTranslationCtx } from './sandbox-event-translation.server'
 import { isIsolateRuntime } from '~/server/runtime/host.server'
 import { getHostRuntimeEnv } from '~/server/runtime/host.server'
 import { waitUntilHostRuntime } from '~/server/runtime/host.server'
@@ -192,6 +194,7 @@ type ForgeRunContext = {
 
 type ForgeAgentState = {
   changeCount: number
+  codexSessionId?: string
   planReceived: boolean
   summary: string
   summaryReceived: boolean
@@ -713,7 +716,7 @@ async function drainLocalForgeAgentRun({
   providerCredential,
   runContext,
 }: PreparedForgeAgentRun) {
-  const harness = getLocalForgeHarness(providerCredential)
+  const harness = await getLocalForgeHarness(providerCredential)
 
   const state: ForgeAgentState = {
     changeCount: 0,
@@ -868,9 +871,9 @@ async function drainLocalForgeAgentRun({
   }
 }
 
-function getLocalForgeHarness(
+export async function getLocalForgeHarness(
   providerCredential?: ForgeProviderCredential,
-): ForgeAgentHarness | null {
+): Promise<ForgeAgentHarness | null> {
   const harnessName = getRequestedLocalForgeHarnessName()
 
   if (harnessName === 'codex-cli') {
@@ -889,6 +892,20 @@ function getLocalForgeHarness(
     }
   }
 
+  // `tanstack-ai` is selected. When the host exposes a Cloudflare `Sandbox`
+  // Durable Object binding (cloud runtime), drive the run through the Codex
+  // sandbox agent instead of the in-memory model loop. Without the binding
+  // (local dev) we fall back to the in-memory `runTanStackAiForgeHarness`.
+  const hostEnv = await getHostRuntimeEnv()
+
+  if (hasForgeSandboxBinding(hostEnv)) {
+    return {
+      label: 'TanStack AI (Sandbox)',
+      name: 'tanstack-ai',
+      run: (input) => runForgeSandboxForgeHarness({ ...input, hostEnv }),
+    }
+  }
+
   const adapter = getLocalForgeAdapter(providerCredential)
 
   if (!adapter) {
@@ -904,6 +921,25 @@ function getLocalForgeHarness(
         adapter,
       }),
   }
+}
+
+/**
+ * Selection predicate used by both the live harness seam and the verify
+ * script: a Cloudflare `Sandbox` Durable Object binding is present on the
+ * host env when it exposes a `Sandbox` value with an `idFromName` factory
+ * (the DO-namespace shape). Kept as a pure function of an arbitrary env
+ * record so it can be exercised with a fake host env under plain `tsx`.
+ */
+export function hasForgeSandboxBinding(
+  hostEnv: Record<string, unknown> | undefined,
+): boolean {
+  const binding = hostEnv?.Sandbox
+
+  return (
+    isRecord(binding) &&
+    (typeof binding.idFromName === 'function' ||
+      typeof binding.get === 'function')
+  )
 }
 
 function getRequestedLocalForgeHarnessName(): ForgeAgentHarnessName {
@@ -1069,6 +1105,360 @@ async function runTanStackAiForgeHarness({
     name: 'agent.model.finished',
     runContext,
     status: 'finished',
+  })
+}
+
+/**
+ * Drive a `tanstack-ai` run through the Cloudflare-sandbox Codex agent
+ * (`runForgeSandboxAgent`) instead of the in-memory model loop. Selected by
+ * `getLocalForgeHarness` only when the host exposes a `Sandbox` DO binding.
+ *
+ * Each raw `StreamChunk` from the sandbox run is routed through
+ * `translateChunk`, whose injected `ctx` delegates to the SAME forge append
+ * helpers `appendTanStackAiStreamChunk` uses — so the existing
+ * `/api/forge/events` SSE surfaces sandbox runs identically to local runs.
+ *
+ * `runForgeSandboxAgent` (and thus `@tanstack/ai-sandbox-cloudflare`) is
+ * imported LAZILY so this module stays loadable under plain `tsx`, which the
+ * repo's forge verify scripts rely on. `translateChunk`'s module is not
+ * Cloudflare-touching but is imported lazily too for symmetry.
+ */
+async function runForgeSandboxForgeHarness({
+  hostEnv,
+  initialSnapshot,
+  prompt,
+  providerCredential,
+  runContext,
+  state,
+  workspace,
+}: ForgeAgentHarnessRunInput & {
+  hostEnv: Record<string, unknown> | undefined
+}) {
+  const byokKey = providerCredential?.apiKey
+
+  if (!byokKey) {
+    throw new Error(
+      'Forge sandbox harness requires a BYOK provider key to run Codex in the Cloudflare sandbox.',
+    )
+  }
+
+  await appendAgentEvent({
+    message: 'TanStack AI sandbox agent started',
+    name: 'agent.model.started',
+    runContext,
+    status: 'running',
+  })
+
+  const [{ runForgeSandboxAgent }, { translateChunk }] = await Promise.all([
+    import('./sandbox-agent.server'),
+    import('./sandbox-event-translation.server'),
+  ])
+
+  const messageTextById = new Map<string, string>()
+  const startedMessageIds = new Set<string>()
+  const completedMessageIds = new Set<string>()
+  const toolNamesById = new Map<string, string>()
+  const toolArgsById = new Map<string, string>()
+
+  // `translateChunk`'s `ctx` callbacks are synchronous (they return `void`),
+  // but every forge append is async. Chunks stream in order from a single
+  // `for await` loop, so we chain each append onto a tail promise to preserve
+  // that order (assistant deltas must not reorder), then await the drained
+  // chain after the run so no append is dropped before the finished event.
+  let appendChain: Promise<void> = Promise.resolve()
+  const enqueueAppend = (work: () => Promise<void>) => {
+    appendChain = appendChain
+      .then(work)
+      .catch((error: unknown) => {
+        console.error('[Forge] sandbox event append failed', error)
+      })
+  }
+
+  const ctx: ForgeChunkTranslationCtx = {
+    onText: (event) => {
+      enqueueAppend(() =>
+        handleForgeSandboxTextEvent({
+          completedMessageIds,
+          event,
+          messageTextById,
+          runContext,
+          startedMessageIds,
+          state,
+        }),
+      )
+    },
+    onToolCall: (event) => {
+      enqueueAppend(() =>
+        handleForgeSandboxToolCallEvent({
+          event,
+          runContext,
+          toolArgsById,
+          toolNamesById,
+        }),
+      )
+    },
+    onReasoning: (event) => {
+      enqueueAppend(() =>
+        handleForgeSandboxReasoningEvent({ event, runContext }),
+      )
+    },
+    persistSessionId: (sessionId) => {
+      state.codexSessionId = sessionId
+    },
+    onFileActivity: (event) => {
+      enqueueAppend(() =>
+        appendLocalForgeRuntimeEvent({
+          detail: event.path,
+          message: `Sandbox file ${event.type}`,
+          name: `workflow.sandbox.file.${event.type}`,
+          path: event.path,
+          producerId: 'local-agent',
+          runId: runContext.runId,
+          status: 'finished',
+        }),
+      )
+    },
+    finalizeManifest: (event) => {
+      // The R2 manifest itself is rebuilt by the sandbox persistence hooks
+      // (`forgePersistenceHooks`) wired inside `runForgeSandboxAgent`, and
+      // the run's terminal manifest snapshot is persisted by the shared
+      // post-harness path in `drainLocalForgeAgentRun`. Here we only surface
+      // the change into forge's activity feed; we do NOT invent a second
+      // manifest-persist path.
+      enqueueAppend(() =>
+        appendLocalForgeRuntimeEvent({
+          detail: event.path,
+          message: `Sandbox manifest change: ${event.path}`,
+          name: 'workflow.sandbox.manifest.finalized',
+          path: event.path,
+          producerId: 'local-agent',
+          runId: runContext.runId,
+          status: 'finished',
+        }),
+      )
+    },
+  }
+
+  const { files } = await runAbortableForgeTask({
+    label: 'Forge TanStack AI sandbox agent run',
+    signal: runContext.abortSignal,
+    task: async (abortController) =>
+      runForgeSandboxAgent({
+        // Thread the abortable task's controller into the sandbox run so a
+        // run cancellation / timeout aborts the underlying `chat()` stream.
+        abortSignal: abortController.signal,
+        byokKey,
+        // `hostEnv` was already narrowed by `hasForgeSandboxBinding` to carry
+        // the `Sandbox` DO binding; the host env is intentionally an untyped
+        // `Record<string, unknown>` (see `host.server.ts`), so we cast it to
+        // the sandbox env surface `runForgeSandboxAgent` consumes.
+        env: hostEnv as unknown as Parameters<
+          typeof runForgeSandboxAgent
+        >[0]['env'],
+        manifestVersionId: initialSnapshot.manifestVersionId,
+        messages: [
+          {
+            role: 'user',
+            content: buildForgeAgentPrompt({
+              currentFiles: Object.keys(initialSnapshot.files).sort(),
+              prompt,
+            }),
+          },
+        ] satisfies Array<ModelMessage>,
+        onChunk: (chunk) => translateChunk(chunk, ctx),
+        projectId: LOCAL_FORGE_PROJECT_ID,
+        threadId: getActiveLocalForgeSessionId(),
+      }),
+    timeoutMs: LOCAL_FORGE_TIMEOUT_MS,
+  })
+
+  // Drain any still-pending appends queued during the final chunks before we
+  // write the terminal finished event.
+  await appendChain
+
+  // The sandbox harness never populates the in-memory `workspace` Map (files
+  // live in the Cloudflare container, mirrored to R2 by the persistence
+  // hooks) and never sets completion state, so the shared
+  // `drainLocalForgeAgentRun` finalize would both fail `assertCompletedRun`
+  // and persist a STALE manifest. Mirror `runCodexCliForgeHarness` EXACTLY:
+  // scan the sandbox's returned files back into the Map and set completion
+  // state, after which the UNCHANGED shared finalize persists correctly.
+  const scan = scanCodexCliReturnedWorkspace({
+    files,
+    originalWorkspace: workspace,
+  })
+
+  workspace.clear()
+
+  for (const [filePath, file] of scan.workspace) {
+    workspace.set(filePath, file)
+  }
+
+  // The sandbox Codex run has no single machine-readable "final message" the
+  // way the codex-cli harness's `--output-last-message` file does, so there
+  // is no JSON summary to parse. Derive a sensible title from the prompt and a
+  // generic summary — see report concern.
+  const title = titleFromPrompt(prompt)
+  state.planReceived = true
+  state.changeCount = scan.changeCount
+  state.summary = limitText(
+    `Updated the Forge app in the sandbox for: ${limitText(prompt, 180)}`,
+    260,
+  )
+  state.summaryReceived = true
+  state.title = title
+  state.validatedChangeCount = scan.changeCount
+  state.validatedWithWorkspaceCommands = false
+  state.validationProblems = uniqueStrings([
+    ...state.validationProblems,
+    ...scan.problems,
+  ])
+  state.validated = true
+
+  await appendAgentEvent({
+    message: 'TanStack AI sandbox agent finished',
+    name: 'agent.model.finished',
+    runContext,
+    status: 'finished',
+  })
+}
+
+async function handleForgeSandboxTextEvent({
+  completedMessageIds,
+  event,
+  messageTextById,
+  runContext,
+  startedMessageIds,
+  state,
+}: {
+  completedMessageIds: Set<string>
+  event: { kind: 'start' | 'content' | 'end'; messageId: string; delta?: string }
+  messageTextById: Map<string, string>
+  runContext: ForgeRunContext
+  startedMessageIds: Set<string>
+  state: ForgeAgentState
+}) {
+  if (event.kind === 'start') {
+    await ensureAssistantMessageStarted({
+      messageId: event.messageId,
+      runContext,
+      startedMessageIds,
+    })
+    return
+  }
+
+  if (event.kind === 'content') {
+    await ensureAssistantMessageStarted({
+      messageId: event.messageId,
+      runContext,
+      startedMessageIds,
+    })
+    const delta = event.delta ?? ''
+    messageTextById.set(
+      event.messageId,
+      `${messageTextById.get(event.messageId) ?? ''}${delta}`,
+    )
+    state.streamedAssistantMessage =
+      state.streamedAssistantMessage || delta.trim().length > 0
+    await appendAssistantMessageDelta({
+      delta,
+      messageId: event.messageId,
+      runContext,
+    })
+    return
+  }
+
+  if (completedMessageIds.has(event.messageId)) {
+    return
+  }
+
+  completedMessageIds.add(event.messageId)
+  await appendAssistantMessageCompleted({
+    messageId: event.messageId,
+    runContext,
+    text: messageTextById.get(event.messageId) ?? '',
+  })
+}
+
+async function handleForgeSandboxToolCallEvent({
+  event,
+  runContext,
+  toolArgsById,
+  toolNamesById,
+}: {
+  event: {
+    kind: 'start' | 'args' | 'end'
+    toolCallId: string
+    toolCallName?: string
+    delta?: string
+  }
+  runContext: ForgeRunContext
+  toolArgsById: Map<string, string>
+  toolNamesById: Map<string, string>
+}) {
+  if (event.kind === 'start') {
+    const toolName = event.toolCallName ?? 'tool'
+    toolNamesById.set(event.toolCallId, toolName)
+    await appendAgentEvent({
+      detail: 'Tool call started',
+      message: `Started ${toolName}`,
+      name: `agent.tool.${toolName}`,
+      runContext,
+      status: 'running',
+      toolCallId: event.toolCallId,
+    })
+    return
+  }
+
+  if (event.kind === 'args') {
+    toolArgsById.set(
+      event.toolCallId,
+      `${toolArgsById.get(event.toolCallId) ?? ''}${event.delta ?? ''}`,
+    )
+    return
+  }
+
+  const toolName =
+    event.toolCallName ?? toolNamesById.get(event.toolCallId) ?? 'tool'
+  const args = toolArgsById.get(event.toolCallId)
+
+  if (!args) {
+    return
+  }
+
+  await appendAgentEvent({
+    detail: limitText(args, 1200),
+    message: `${toolName} arguments ready`,
+    name: `agent.tool.${toolName}`,
+    runContext,
+    status: 'running',
+    toolCallId: event.toolCallId,
+  })
+}
+
+async function handleForgeSandboxReasoningEvent({
+  event,
+  runContext,
+}: {
+  event: { kind: 'start' | 'content' | 'end'; messageId: string; delta?: string }
+  runContext: ForgeRunContext
+}) {
+  if (event.kind !== 'content') {
+    return
+  }
+
+  const delta = event.delta?.trim()
+
+  if (!delta) {
+    return
+  }
+
+  await appendAgentEvent({
+    detail: limitText(delta, 1200),
+    message: 'Sandbox agent reasoning',
+    name: 'agent.model.reasoning',
+    runContext,
+    status: 'running',
   })
 }
 

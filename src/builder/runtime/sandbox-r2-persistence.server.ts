@@ -11,6 +11,15 @@ import { appendLocalForgeRuntimeEvent } from './local-store.server'
 
 const FORGE_WORKSPACE_APP_DIR = '/workspace/app'
 const FORGE_MANIFEST_MARKER_PATH = `${FORGE_WORKSPACE_APP_DIR}/.forge-manifest`
+const FORGE_MANIFEST_MARKER_NAME = '.forge-manifest'
+// Directory names never scanned back out of the sandbox workspace: build
+// output, VCS metadata, and installed dependencies are not part of the
+// forge manifest and would balloon (or corrupt) the persisted file set.
+const FORGE_WORKSPACE_COLLECT_IGNORED_DIRECTORIES = new Set([
+  '.git',
+  'dist',
+  'node_modules',
+])
 // Debounce window for mirroring a single file's edits to R2 — bursts of
 // rapid writes to the same path within this window collapse into one
 // persisted blob instead of one R2 write per keystroke-level event.
@@ -55,12 +64,24 @@ export function forgePersistenceHooks({
 }: {
   projectId: string
   env: ForgeSandboxPersistenceEnv
-}): Pick<SandboxHooks, 'onFile' | 'onReady'> {
+}): Pick<SandboxHooks, 'onFile' | 'onReady'> & {
+  collectWorkspaceFiles: () => Promise<Record<string, string>>
+} {
   const storage = env.FORGE_RUNTIME
   const pendingMirrors = new Map<string, ReturnType<typeof setTimeout>>()
   let readyHandle: SandboxHandle | undefined
 
   return {
+    async collectWorkspaceFiles() {
+      if (!readyHandle) {
+        // `onReady` never fired (e.g. the run failed before the sandbox
+        // became ready), so there is no live handle to read the final tree
+        // from. Return nothing rather than fabricating a workspace.
+        return {}
+      }
+
+      return collectForgeWorkspaceFiles(readyHandle)
+    },
     async onReady(handle) {
       readyHandle = handle
       await materializeForgeWorkspace({ handle, projectId, storage })
@@ -74,6 +95,68 @@ export function forgePersistenceHooks({
         storage,
       })
     },
+  }
+}
+
+/**
+ * Walk the sandbox's `/workspace/app` tree via `handle.fs.list`/`handle.fs.read`
+ * and return `{ [relativePath]: content }` for every file, ignoring build
+ * output (`dist`), VCS metadata (`.git`), installed dependencies
+ * (`node_modules`), and the `.forge-manifest` marker. Relative paths are keyed
+ * off `/workspace/app` so they match the manifest's workspace-relative paths.
+ */
+async function collectForgeWorkspaceFiles(
+  handle: SandboxHandle,
+): Promise<Record<string, string>> {
+  const files: Record<string, string> = {}
+
+  await walkForgeWorkspaceDir({
+    absoluteDir: FORGE_WORKSPACE_APP_DIR,
+    files,
+    handle,
+    relativeDir: '',
+  })
+
+  return files
+}
+
+async function walkForgeWorkspaceDir({
+  absoluteDir,
+  files,
+  handle,
+  relativeDir,
+}: {
+  absoluteDir: string
+  files: Record<string, string>
+  handle: SandboxHandle
+  relativeDir: string
+}) {
+  const entries = await handle.fs.list(absoluteDir)
+
+  for (const entry of entries) {
+    const relativePath = relativeDir ? `${relativeDir}/${entry.name}` : entry.name
+
+    if (entry.type === 'dir') {
+      if (FORGE_WORKSPACE_COLLECT_IGNORED_DIRECTORIES.has(entry.name)) {
+        continue
+      }
+
+      await walkForgeWorkspaceDir({
+        absoluteDir: `${absoluteDir}/${entry.name}`,
+        files,
+        handle,
+        relativeDir: relativePath,
+      })
+
+      continue
+    }
+
+    if (entry.name === FORGE_MANIFEST_MARKER_NAME) {
+      // The marker is sandbox bookkeeping, not a workspace file.
+      continue
+    }
+
+    files[relativePath] = await handle.fs.read(`${absoluteDir}/${entry.name}`)
   }
 }
 

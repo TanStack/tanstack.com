@@ -987,11 +987,20 @@ async function runTanStackAiForgeHarness({
       const toolArgsById = new Map<string, string>()
       const toolNamesById = new Map<string, string>()
       let toolFlowCompleted = false
-      const stream = chat({
+      // @tanstack/ai 0.39 removed the top-level `maxTokens` chat option. The
+      // per-request output cap is no longer part of the public chat/adapter
+      // option types, so we thread it through the adapter's `modelOptions`
+      // under each provider's native request key. The OpenAI adapter spreads
+      // `modelOptions` straight into its Responses request, so
+      // `max_output_tokens` still reaches the wire. The Anthropic adapter
+      // filters `modelOptions` to its known provider keys and drops
+      // `max_tokens`, so the cap is best-effort there (see report). We branch on
+      // the adapter so each `chat()` call keeps a concrete (non-union) adapter,
+      // and cast the option object because the key is intentionally outside the
+      // public `modelOptions` type surface.
+      const commonChatOptions = {
         abortController,
-        adapter,
         agentLoopStrategy: maxIterations(LOCAL_FORGE_MAX_ITERATIONS),
-        maxTokens: LOCAL_FORGE_MAX_OUTPUT_TOKENS,
         messages: [
           {
             role: 'user',
@@ -1001,7 +1010,7 @@ async function runTanStackAiForgeHarness({
             }),
           },
         ] satisfies Array<ModelMessage>,
-        stream: true,
+        stream: true as const,
         systemPrompts: [
           'You are the TanStack Forge local workspace agent. Use the provided tools to inspect and edit the actual workspace. Do not answer with code instead of writing files.',
         ],
@@ -1012,7 +1021,23 @@ async function runTanStackAiForgeHarness({
           toolEvents,
           workspace,
         }),
-      })
+      }
+      const stream =
+        adapter.name === 'anthropic'
+          ? chat({
+              ...commonChatOptions,
+              adapter,
+              modelOptions: {
+                max_tokens: LOCAL_FORGE_MAX_OUTPUT_TOKENS,
+              } as (typeof adapter)['~types']['providerOptions'],
+            })
+          : chat({
+              ...commonChatOptions,
+              adapter,
+              modelOptions: {
+                max_output_tokens: LOCAL_FORGE_MAX_OUTPUT_TOKENS,
+              } as (typeof adapter)['~types']['providerOptions'],
+            })
 
       for await (const chunk of stream) {
         await appendTanStackAiStreamChunk({

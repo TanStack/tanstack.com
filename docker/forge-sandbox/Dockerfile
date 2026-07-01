@@ -15,7 +15,11 @@ RUN npm i -g @openai/codex @tanstack/cli --include=optional && codex --version
 # filesystem location is controlled by --target-dir.
 RUN tanstack create app --framework react --no-examples --intent -y --target-dir /workspace/app
 
-WORKDIR /workspace/app
+# Vite preview-readiness: the forge preview URL hits the dev server on a
+# Cloudflare-assigned host, not localhost, so Vite must bind all interfaces
+# and allow that host. Runs AFTER scaffold — vite.config.ts only exists once
+# the app has been created above. Idempotent by design (safe to re-run).
+COPY patch-vite-config.mjs /tmp/patch-vite-config.mjs
+RUN node /tmp/patch-vite-config.mjs /workspace/app/vite.config.ts
 
-# Vite preview-readiness (server.host/allowedHosts patch) is applied in Task 2.1 —
-# not raw-echoed or hand-edited here.
+WORKDIR /workspace/app

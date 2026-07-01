@@ -69,6 +69,7 @@
     "test:forge-run-recovery": "tsx scripts/verify-forge-run-recovery.ts",
     "test:forge-run-summary-title": "tsx scripts/verify-forge-run-summary-title.ts",
     "test:forge-run-terminal-projection": "tsx scripts/verify-forge-run-terminal-projection.ts",
+    "test:forge-sandbox-e2e": "tsx scripts/verify-forge-sandbox-e2e.ts",
     "test:forge-sandbox-collect-workspace": "tsx scripts/verify-forge-sandbox-collect-workspace.ts",
     "test:forge-sandbox-definition": "tsx scripts/verify-forge-sandbox-definition.ts",
     "test:forge-sandbox-harness-config": "tsx scripts/verify-forge-sandbox-harness-config.ts",

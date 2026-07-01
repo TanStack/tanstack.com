@@ -6,13 +6,11 @@ import {
   type SandboxHooks,
 } from '@tanstack/ai-sandbox'
 import { cloudflareSandbox } from '@tanstack/ai-sandbox-cloudflare'
-import type { Sandbox } from '@cloudflare/sandbox'
+import type { Sandbox, SandboxEnv } from '@cloudflare/sandbox'
 
 const FORGE_SANDBOX_PREVIEW_HOSTNAME = 'forge.tanstack.com'
 
-export type ForgeSandboxEnv = {
-  Sandbox: DurableObjectNamespace<Sandbox>
-}
+export type ForgeSandboxEnv = SandboxEnv<Sandbox>
 
 /**
  * Build the sandbox definition a Forge thread's chat run resolves into. One

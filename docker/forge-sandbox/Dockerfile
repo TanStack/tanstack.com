@@ -1,0 +1,25 @@
+# Forge sandbox image: a baked template + Codex CLI, so a forge run starts
+# from an already-scaffolded, already-installed TanStack Start app instead of
+# paying scaffold/install cost on every session. The container's disk is
+# ephemeral (Cloudflare containers report snapshots: false), so this image
+# IS the warm starting point every sandbox boots from.
+#
+# Pin base tag to the @cloudflare/sandbox version in package.json.
+FROM docker.io/cloudflare/sandbox:0.12.1
+
+# Codex CLI + TanStack CLI baked (native binaries are OPTIONAL deps → --include=optional).
+RUN npm i -g @openai/codex @tanstack/cli --include=optional && codex --version
+
+# The expensive part, ONCE: scaffold + install + write Intent skill mappings.
+# `project-name` must be URL-friendly (no path separators) — the actual
+# filesystem location is controlled by --target-dir.
+RUN tanstack create app --framework react --no-examples --intent -y --target-dir /workspace/app
+
+# Vite preview-readiness: the forge preview URL hits the dev server on a
+# Cloudflare-assigned host, not localhost, so Vite must bind all interfaces
+# and allow that host. Runs AFTER scaffold — vite.config.ts only exists once
+# the app has been created above. Idempotent by design (safe to re-run).
+COPY patch-vite-config.mjs /tmp/patch-vite-config.mjs
+RUN node /tmp/patch-vite-config.mjs /workspace/app/vite.config.ts
+
+WORKDIR /workspace/app

@@ -38,3 +38,5 @@ test-results
 .tsbuildinfo
 src/routeTree.gen.ts
 .og-preview/
+.wave-state.md
+worker-configuration.d.ts

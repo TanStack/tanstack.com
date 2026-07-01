@@ -428,7 +428,7 @@ export const virtual: LibrarySlim = {
   to: '/virtual',
   tagline: 'Headless UI for Virtualizing Large Element Lists',
   description:
-    'Virtualize only the visible content for massive scrollable DOM nodes at 60FPS in TS/JS, React, Vue, Solid, Svelte, Lit & Angular while retaining 100% control over markup and styles.',
+    'Virtualize only the visible content for massive scrollable DOM nodes at 60FPS in TS/JS, React, Vue, Solid, Svelte, Lit, Angular & Marko while retaining 100% control over markup and styles.',
   bgStyle: 'bg-purple-500',
   borderStyle: 'border-purple-500/50',
   textStyle: 'text-purple-500',
@@ -438,7 +438,7 @@ export const virtual: LibrarySlim = {
   bgRadial: 'from-purple-500 via-violet-600/50 to-transparent',
   badge: undefined,
   repo: 'tanstack/virtual',
-  frameworks: ['react', 'solid', 'vue', 'svelte', 'lit', 'angular'],
+  frameworks: ['react', 'solid', 'vue', 'svelte', 'lit', 'angular', 'marko'],
   corePackageName: '@tanstack/virtual-core',
   npmPackageNames: ['@tanstack/virtual-core', 'react-virtual'],
   latestVersion: 'v3',

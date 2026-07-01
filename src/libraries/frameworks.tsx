@@ -2,6 +2,7 @@ import alpineLogo from '../images/alpine-logo.svg'
 import angularLogo from '../images/angular-logo.svg'
 import jsLogo from '../images/js-logo.svg'
 import litLogo from '../images/lit-logo.svg'
+import markoLogo from '../images/marko-logo.svg'
 import qwikLogo from '../images/qwik-logo.svg'
 import preactLogo from '../images/preact-logo.svg'
 import reactLogo from '../images/react-logo.svg'
@@ -52,6 +53,13 @@ export const frameworkOptions = [
     logo: svelteLogo,
     color: 'bg-orange-600',
     fontColor: 'text-orange-600',
+  },
+  {
+    label: 'Marko',
+    value: 'marko',
+    logo: markoLogo,
+    color: 'bg-cyan-500',
+    fontColor: 'text-cyan-500',
   },
   {
     label: 'Qwik',

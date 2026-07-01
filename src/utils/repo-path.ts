@@ -1,6 +1,6 @@
 export const MAX_REPO_PATH_LENGTH = 512
 
-const REPO_PATH_SEGMENT_PATTERN = /^[a-zA-Z0-9._$-]+$/
+const REPO_PATH_SEGMENT_PATTERN = /^[a-zA-Z0-9._$+-]+$/
 
 export function isValidRepoPath(path: string) {
   if (path === '') {

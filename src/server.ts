@@ -2,6 +2,7 @@ import './instrument.server.mjs'
 
 import { wrapFetchWithSentry } from '@sentry/tanstackstart-react'
 import handler, { createServerEntry } from '@tanstack/react-start/server-entry'
+import { proxyToSandbox, type Sandbox, type SandboxEnv } from '@cloudflare/sandbox'
 import { runWithDatabaseContext } from '~/db/client'
 import { runScheduledTasks } from '~/server/scheduled.server'
 import {
@@ -15,6 +16,15 @@ import {
 import { docsContentNegotiationVaryHeader } from '~/utils/http'
 
 export { ForgeSessionDurableObject } from '~/builder/runtime/forge-session-do.server'
+export { Sandbox } from '@cloudflare/sandbox'
+
+// The Workers env this entry needs to know about, structurally: the
+// `Sandbox` container-host DO binding `proxyToSandbox` routes preview
+// subdomain traffic (`*.forge.tanstack.com`) into by hostname. Mirrors
+// `ForgeSandboxEnv` in `~/builder/runtime/sandbox-agent.server` — no
+// generated `worker-configuration.d.ts` `Env` is relied on here since that
+// file is intentionally gitignored.
+type ForgeWorkerEnv = SandboxEnv<Sandbox>
 
 const SECURITY_HEADERS = {
   'X-Frame-Options': 'DENY',
@@ -173,7 +183,15 @@ const server = createServerEntry(
 )
 
 export default {
-  fetch: server.fetch,
+  async fetch(request: Request, env: ForgeWorkerEnv) {
+    // Preview-subdomain traffic (`*.forge.tanstack.com`) must be routed into
+    // the matching sandbox container by hostname BEFORE any other routing —
+    // it never reaches the TanStack Start handler below.
+    const proxied = await proxyToSandbox(request, env)
+    if (proxied) return proxied
+
+    return server.fetch(request)
+  },
   scheduled(
     controller: ScheduledController,
     _env: unknown,

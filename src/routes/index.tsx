@@ -249,7 +249,7 @@ function Index() {
                 href="https://discord.com/invite/WrRKjPJ"
                 target="_blank"
                 rel="noreferrer"
-                className="w-full mt-4 bg-white border-white hover:bg-gray-100 text-discord justify-center shadow-lg text-sm"
+                className="z-1 w-full mt-4 bg-white border-white hover:bg-gray-100 text-discord justify-center shadow-lg text-sm"
               >
                 Join TanStack Discord
               </Button>
@@ -292,7 +292,7 @@ function Index() {
                 href="https://youtube.com/@tan_stack"
                 target="_blank"
                 rel="noreferrer"
-                className="w-full mt-4 bg-white border-white hover:bg-gray-100 text-red-600 justify-center shadow-lg text-sm"
+                className="z-1 w-full mt-4 bg-white border-white hover:bg-gray-100 text-red-600 justify-center shadow-lg text-sm"
               >
                 <Play className="w-4 h-4" />
                 Subscribe on YouTube

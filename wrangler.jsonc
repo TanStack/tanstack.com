@@ -26,12 +26,20 @@
         "name": "FORGE_SESSIONS",
         "class_name": "ForgeSessionDurableObject",
       },
+      {
+        "name": "Sandbox",
+        "class_name": "Sandbox",
+      },
     ],
   },
   "migrations": [
     {
       "tag": "forge-sessions-v1",
       "new_sqlite_classes": ["ForgeSessionDurableObject"],
+    },
+    {
+      "tag": "forge-sandbox-v1",
+      "new_sqlite_classes": ["Sandbox"],
     },
   ],
   "r2_buckets": [
@@ -44,7 +52,26 @@
       "bucket_name": "tanstack-forge-runtime",
     },
   ],
+  // containers: hosts the @cloudflare/sandbox container image used to run forge coding-agent
+  // sessions. `max_instances` is a tunable starting value for the internal rollout.
+  "containers": [
+    {
+      "class_name": "Sandbox",
+      "image": "./docker/forge-sandbox/Dockerfile",
+      "max_instances": 5,
+    },
+  ],
+  // routes: wildcard preview subdomain fronted by proxyToSandbox (forwards *.forge.tanstack.com
+  // requests into the matching sandbox container's exposed port).
+  "routes": [
+    {
+      "pattern": "*.forge.tanstack.com/*",
+      "zone_name": "tanstack.com",
+    },
+  ],
   "vars": {
     "SITE_URL": "https://tanstack.com",
+    "PREVIEW_HOSTNAME": "forge.tanstack.com",
+    "SANDBOX_TRANSPORT": "http",
   },
 }

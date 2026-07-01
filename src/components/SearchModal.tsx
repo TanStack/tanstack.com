@@ -3355,12 +3355,21 @@ function isSearchModalPortalTarget(target: EventTarget | null) {
 
 const searchModalTransitionMs = 140
 
-function scheduleSearchInputFocus(container: HTMLElement | null) {
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
+function scheduleSearchInputFocus(container: HTMLElement | null): () => void {
+  let secondFrame: number | null = null
+  const firstFrame = requestAnimationFrame(() => {
+    secondFrame = requestAnimationFrame(() => {
       focusSearchInputInContainer(container)
     })
   })
+
+  return () => {
+    cancelAnimationFrame(firstFrame)
+
+    if (secondFrame !== null) {
+      cancelAnimationFrame(secondFrame)
+    }
+  }
 }
 
 export function SearchModal() {
@@ -3402,9 +3411,7 @@ export function SearchModal() {
       return
     }
 
-    scheduleSearchInputFocus(contentRef.current)
-
-    return undefined
+    return scheduleSearchInputFocus(contentRef.current)
   }, [isOpen])
 
   React.useEffect(() => {
@@ -3466,7 +3473,6 @@ export function SearchModal() {
               )}
               onOpenAutoFocus={(event) => {
                 event.preventDefault()
-                scheduleSearchInputFocus(contentRef.current)
               }}
               onInteractOutside={(event) => {
                 if (isSearchModalPortalTarget(event.target)) {
@@ -3571,9 +3577,7 @@ export function AiDock() {
       return
     }
 
-    scheduleSearchInputFocus(contentRef.current)
-
-    return undefined
+    return scheduleSearchInputFocus(contentRef.current)
   }, [isAiDockOpen, isDockVisible])
 
   const toggleDockMaximized = React.useCallback(() => {

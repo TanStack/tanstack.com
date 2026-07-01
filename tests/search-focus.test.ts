@@ -46,7 +46,7 @@ const cmdkInput = createMockInput({
 
 const cmdkContainer = createMockContainer({
   '[cmdk-input]': cmdkInput,
-  'input[aria-label="Search TanStack"]': cmdkInput,
+  'input[aria-label="Search TanStack"]': createMockInput({ type: 'text' }),
   'input[aria-label="Search"]': null,
   'input[type="search"]': createMockInput({ type: 'search' }),
 })
@@ -57,18 +57,58 @@ assert.equal(
   'prefers cmdk search input over type=search',
 )
 
+const tanStackLabelInput = createMockInput({ type: 'text' })
+const tanStackLabelContainer = createMockContainer({
+  '[cmdk-input]': null,
+  'input[aria-label="Search TanStack"]': tanStackLabelInput,
+  'input[aria-label="Search"]': createMockInput({ type: 'text' }),
+  'input[type="search"]': createMockInput({ type: 'search' }),
+})
+
+assert.equal(
+  getSearchInputFromContainer(tanStackLabelContainer),
+  tanStackLabelInput,
+  'falls back to TanStack search label input',
+)
+
+const searchLabelInput = createMockInput({ type: 'text' })
+const searchLabelContainer = createMockContainer({
+  '[cmdk-input]': null,
+  'input[aria-label="Search TanStack"]': null,
+  'input[aria-label="Search"]': searchLabelInput,
+  'input[type="search"]': createMockInput({ type: 'search' }),
+})
+
+assert.equal(
+  getSearchInputFromContainer(searchLabelContainer),
+  searchLabelInput,
+  'falls back to generic search label input',
+)
+
 const searchTypeInput = createMockInput({ type: 'search' })
 const searchTypeContainer = createMockContainer({
   '[cmdk-input]': null,
   'input[aria-label="Search TanStack"]': null,
-  'input[aria-label="Search"]': searchTypeInput,
+  'input[aria-label="Search"]': null,
   'input[type="search"]': searchTypeInput,
 })
 
 assert.equal(
   getSearchInputFromContainer(searchTypeContainer),
   searchTypeInput,
-  'falls back to search input selectors',
+  'falls back to search input type',
+)
+
+assert.equal(
+  getSearchInputFromContainer(null),
+  null,
+  'returns null without a container',
+)
+
+assert.equal(
+  getSearchInputFromContainer(createMockContainer({})),
+  null,
+  'returns null when no search input matches',
 )
 
 let focusedInput: MockInput | null = null

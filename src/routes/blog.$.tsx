@@ -9,6 +9,7 @@ import { LibrariesWidget } from '~/components/LibrariesWidget'
 import { partners } from '~/utils/partners'
 import { PartnersRail, RightRail } from '~/components/RightRail'
 import { RecentPostsWidget } from '~/components/RecentPostsWidget'
+import { useMediaQuery } from '~/utils/useMediaQuery'
 
 import { Toc } from '~/components/Toc'
 import { Breadcrumbs } from '~/components/Breadcrumbs'
@@ -76,6 +77,7 @@ function BlogPost() {
   const headings = markdown.headings
 
   const isTocVisible = headings.length > 1
+  const isDesktopViewport = useMediaQuery('(min-width: 768px)')
 
   const markdownContainerRef = React.useRef<HTMLDivElement>(null)
   const [activeHeadings, setActiveHeadings] = React.useState<Array<string>>([])
@@ -203,7 +205,7 @@ function BlogPost() {
               partners={activePartners}
             />
             <div className="hidden md:block border border-gray-500/20 rounded-l-lg overflow-hidden w-full">
-              <RecentPostsWidget />
+              <RecentPostsWidget enabled={isDesktopViewport} />
             </div>
             <Card>
               <LibrariesWidget />

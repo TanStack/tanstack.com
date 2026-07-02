@@ -359,7 +359,8 @@ export const fetchDocsPathManifest = createServerFn({ method: 'GET' })
 export const fetchDocsRedirect = createServerFn({ method: 'GET' })
   .validator(docsRedirectInput)
   .handler(async ({ data }) => {
-    const { isRecoverableGitHubContentError } = await loadDocumentsServerModule()
+    const { isRecoverableGitHubContentError } =
+      await loadDocumentsServerModule()
     let manifest: DocsManifest
 
     try {

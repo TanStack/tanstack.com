@@ -13,33 +13,41 @@ import {
 
 type MarkdownRenderOptions = {
   preserveTabPanels?: boolean
+  eagerFirstImage?: boolean
 }
 
 export type MarkdownProps = {
   content?: string
   document?: MarkdownDocument
   preserveTabPanels?: boolean
+  /** Render the first image in the document as high-priority/eager (e.g. blog post hero images) */
+  eagerFirstImage?: boolean
 }
 
 export function Markdown({
   content,
   document,
   preserveTabPanels,
+  eagerFirstImage,
 }: MarkdownProps) {
   const parsed = React.useMemo(
     () => document ?? parseSiteMarkdown(content ?? ''),
     [content, document],
   )
+  const heroConsumedRef = React.useRef(false)
+  heroConsumedRef.current = false
 
   return React.useMemo(() => {
     return renderMarkdownReact(parsed, {
       allowHtml: true,
       components: createMarkdownComponents({
         preserveTabPanels,
+        eagerFirstImage,
+        heroConsumedRef,
       }),
       headingAnchors,
     })
-  }, [parsed, preserveTabPanels])
+  }, [parsed, preserveTabPanels, eagerFirstImage])
 }
 
 const headingAnchors = {
@@ -160,7 +168,11 @@ function TableElement({
   )
 }
 
-function createMarkdownComponents(options: MarkdownRenderOptions = {}) {
+function createMarkdownComponents(
+  options: MarkdownRenderOptions & {
+    heroConsumedRef?: React.RefObject<boolean>
+  } = {},
+) {
   function MdCommentComponentWithOptions(
     props: React.ComponentProps<typeof MdCommentComponent>,
   ) {
@@ -170,6 +182,18 @@ function createMarkdownComponents(options: MarkdownRenderOptions = {}) {
         preserveTabPanels={options.preserveTabPanels}
       />
     )
+  }
+
+  function ImgElement(props: React.ComponentProps<typeof MarkdownImg>) {
+    const heroConsumedRef = options.heroConsumedRef
+    const isFirstImage =
+      options.eagerFirstImage && heroConsumedRef && !heroConsumedRef.current
+
+    if (isFirstImage) {
+      heroConsumedRef.current = true
+    }
+
+    return <MarkdownImg {...props} priority={isFirstImage} />
   }
 
   return {
@@ -184,7 +208,7 @@ function createMarkdownComponents(options: MarkdownRenderOptions = {}) {
     h5: createHeadingComponent('h5'),
     h6: createHeadingComponent('h6'),
     iframe: MarkdownIframe,
-    img: MarkdownImg,
+    img: ImgElement,
     'md-comment-component': MdCommentComponentWithOptions,
     'md-framework-panel': MdFrameworkPanel,
     'md-tab-panel': MdTabPanel,

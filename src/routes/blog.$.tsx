@@ -182,6 +182,7 @@ function BlogPost() {
                         branch={branch}
                         filePath={filePath}
                         containerRef={markdownContainerRef}
+                        eagerFirstImage
                       />
                     </div>
                     {isTocVisible && (

@@ -5,6 +5,10 @@ import { getPublicImageDimensions } from '~/utils/publicImageDimensions'
 
 const DEFAULT_TRANSFORM_WIDTH = 1200
 
+export type MarkdownImgProps = HTMLProps<HTMLImageElement> & {
+  priority?: boolean
+}
+
 export const MarkdownImg = React.memo(function MarkdownImg({
   alt,
   src,
@@ -12,9 +16,10 @@ export const MarkdownImg = React.memo(function MarkdownImg({
   width,
   height,
   style,
+  priority,
   children: _,
   ...props
-}: HTMLProps<HTMLImageElement>) {
+}: MarkdownImgProps) {
   const sourceDimensions = src ? getPublicImageDimensions(src) : undefined
   const providedWidth = parseDimension(width)
   const providedHeight = parseDimension(height)
@@ -64,7 +69,8 @@ export const MarkdownImg = React.memo(function MarkdownImg({
         ...style,
       }}
       className={`block max-w-full h-auto rounded-lg shadow-md ${className ?? ''}`}
-      loading="lazy"
+      loading={priority ? 'eager' : 'lazy'}
+      fetchPriority={priority ? 'high' : undefined}
       decoding="async"
     />
   )

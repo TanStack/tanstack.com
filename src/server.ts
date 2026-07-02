@@ -70,6 +70,10 @@ function applyHostingHeaders(response: Response, url: URL) {
     headers.set(key, value)
   }
 
+  if (url.pathname === '/stats/npm/embed') {
+    headers.delete('X-Frame-Options')
+  }
+
   if (url.pathname === '/builder' || url.pathname.startsWith('/builder/')) {
     headers.set('Cross-Origin-Opener-Policy', 'same-origin')
     headers.set('Cross-Origin-Embedder-Policy', 'require-corp')

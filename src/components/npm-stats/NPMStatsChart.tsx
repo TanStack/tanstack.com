@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import * as Plot from '@observablehq/plot'
 import * as d3 from 'd3'
 import { GIFEncoder, applyPalette, quantize } from 'gifenc'
-import { Download, List } from 'lucide-react'
+import { Check, Code2, Copy, Download, List } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -1267,6 +1267,16 @@ type LatestBucketOffsetBounds = {
   maxOffset: number
   minOffset: number
 }
+export type NpmStatsChartEmbedOptions = {
+  includeTimelineRange: boolean
+  lockWidth: boolean
+  showLegend: boolean
+}
+export type NpmStatsChartEmbedConfig = {
+  buildUrl: (options: NpmStatsChartEmbedOptions) => string
+  hasTimelineRange: boolean
+  hasWidth: boolean
+}
 
 const chartExportOptions = [
   { value: 'svg', label: 'SVG' },
@@ -1287,6 +1297,8 @@ const chartActionDropdownContentStyles =
   'z-50 min-w-[120px] rounded-md bg-white p-1.5 shadow-lg dark:bg-gray-800'
 const chartActionDropdownItemStyles =
   'flex w-full cursor-pointer items-center rounded px-1.5 py-1 text-left text-xs outline-none hover:bg-gray-500/20 data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500'
+const chartEmbedInputStyles =
+  'w-full rounded border border-gray-500/20 bg-gray-50 px-2 py-1.5 font-mono text-[11px] leading-snug outline-none focus:border-blue-500 dark:bg-gray-900'
 const svgNamespace = 'http://www.w3.org/2000/svg'
 
 function getExportFileName(format: ChartExportFormat) {
@@ -2416,6 +2428,7 @@ function renderPlotLegend({
 function ChartActions({
   canExportAnimation,
   disabled,
+  embedConfig,
   exportingFormat,
   onExport,
   onToggleLegend,
@@ -2423,6 +2436,7 @@ function ChartActions({
 }: {
   canExportAnimation: boolean
   disabled: boolean
+  embedConfig?: NpmStatsChartEmbedConfig
   exportingFormat: ChartExportFormat | null
   onExport: (format: ChartExportFormat) => void
   onToggleLegend: () => void
@@ -2504,7 +2518,219 @@ function ChartActions({
           <List className="size-3" />
         </button>
       </Tooltip>
+      {embedConfig ? <EmbedChartAction embedConfig={embedConfig} /> : null}
     </div>
+  )
+}
+
+function getAbsoluteEmbedUrl(url: string) {
+  const base =
+    typeof window === 'undefined'
+      ? 'https://tanstack.com'
+      : window.location.origin
+
+  return new URL(url, base).toString()
+}
+
+function CopyButton({
+  copied,
+  label,
+  onCopy,
+}: {
+  copied: boolean
+  label: string
+  onCopy: () => void
+}) {
+  return (
+    <button
+      className="flex shrink-0 items-center gap-1 rounded bg-gray-500/10 px-2 py-1 text-[11px] font-medium text-gray-600 hover:bg-gray-500/20 hover:text-blue-500 dark:text-gray-300 dark:hover:text-gray-100"
+      onClick={onCopy}
+      type="button"
+    >
+      {copied ? <Check className="size-3" /> : <Copy className="size-3" />}
+      {copied ? 'Copied' : label}
+    </button>
+  )
+}
+
+function EmbedOption({
+  checked,
+  children,
+  disabled,
+  onCheckedChange,
+}: {
+  checked: boolean
+  children: React.ReactNode
+  disabled?: boolean
+  onCheckedChange: (checked: boolean) => void
+}) {
+  return (
+    <label
+      className={twMerge(
+        'flex items-center gap-2 text-xs text-gray-700 dark:text-gray-200',
+        disabled && 'cursor-not-allowed opacity-50',
+      )}
+    >
+      <input
+        checked={checked}
+        className="size-3.5 accent-blue-500"
+        disabled={disabled}
+        onChange={(event) => onCheckedChange(event.currentTarget.checked)}
+        type="checkbox"
+      />
+      <span>{children}</span>
+    </label>
+  )
+}
+
+function EmbedChartAction({
+  embedConfig,
+}: {
+  embedConfig: NpmStatsChartEmbedConfig
+}) {
+  const [showLegend, setShowLegend] = React.useState(true)
+  const [includeTimelineRange, setIncludeTimelineRange] = React.useState(
+    embedConfig.hasTimelineRange,
+  )
+  const [lockWidth, setLockWidth] = React.useState(false)
+  const [iframeHeight, setIframeHeight] = React.useState(420)
+  const [copiedTarget, setCopiedTarget] = React.useState<
+    'iframe' | 'url' | null
+  >(null)
+
+  React.useEffect(() => {
+    if (!embedConfig.hasTimelineRange) {
+      setIncludeTimelineRange(false)
+    }
+  }, [embedConfig.hasTimelineRange])
+
+  React.useEffect(() => {
+    if (!embedConfig.hasWidth) {
+      setLockWidth(false)
+    }
+  }, [embedConfig.hasWidth])
+
+  const embedUrl = getAbsoluteEmbedUrl(
+    embedConfig.buildUrl({
+      includeTimelineRange,
+      lockWidth,
+      showLegend,
+    }),
+  )
+  const iframeCode = `<iframe src="${embedUrl}" title="TanStack NPM Stats chart" loading="lazy" style="width:100%;height:${iframeHeight}px;border:0;"></iframe>`
+
+  const copyText = React.useCallback(
+    async (target: 'iframe' | 'url', text: string) => {
+      await navigator.clipboard.writeText(text)
+      setCopiedTarget(target)
+      window.setTimeout(() => {
+        setCopiedTarget((currentTarget) =>
+          currentTarget === target ? null : currentTarget,
+        )
+      }, 1500)
+    },
+    [],
+  )
+
+  return (
+    <DropdownMenu>
+      <Tooltip content="Embed chart">
+        <DropdownMenuTrigger asChild>
+          <button
+            aria-label="Embed chart"
+            className={chartActionButtonStyles}
+            type="button"
+          >
+            <Code2 className="size-3" />
+          </button>
+        </DropdownMenuTrigger>
+      </Tooltip>
+      <DropdownMenuContent
+        align="end"
+        className="z-50 w-[min(420px,calc(100vw-2rem))] rounded-md bg-white p-3 text-gray-900 shadow-lg dark:bg-gray-800 dark:text-gray-100"
+        collisionPadding={8}
+        sideOffset={5}
+      >
+        <div className="space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <div className="text-xs font-medium">Embed chart</div>
+            <label className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300">
+              <span>Iframe height</span>
+              <input
+                className="w-16 rounded border border-gray-500/20 bg-gray-50 px-1.5 py-1 text-right font-mono text-[11px] outline-none focus:border-blue-500 dark:bg-gray-900"
+                max={1200}
+                min={240}
+                onChange={(event) => {
+                  const nextHeight = Number(event.currentTarget.value)
+                  if (!Number.isFinite(nextHeight)) return
+                  setIframeHeight(Math.max(240, Math.min(1200, nextHeight)))
+                }}
+                type="number"
+                value={iframeHeight}
+              />
+            </label>
+          </div>
+
+          <div className="grid gap-1.5">
+            <EmbedOption checked={showLegend} onCheckedChange={setShowLegend}>
+              Show legend by default
+            </EmbedOption>
+            <EmbedOption
+              checked={includeTimelineRange}
+              disabled={!embedConfig.hasTimelineRange}
+              onCheckedChange={setIncludeTimelineRange}
+            >
+              Include current timeline zoom
+            </EmbedOption>
+            <EmbedOption
+              checked={lockWidth}
+              disabled={!embedConfig.hasWidth}
+              onCheckedChange={setLockWidth}
+            >
+              Lock current chart width
+            </EmbedOption>
+          </div>
+
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[11px] font-medium text-gray-500">URL</span>
+              <CopyButton
+                copied={copiedTarget === 'url'}
+                label="Copy URL"
+                onCopy={() => {
+                  void copyText('url', embedUrl)
+                }}
+              />
+            </div>
+            <input
+              className={chartEmbedInputStyles}
+              readOnly
+              value={embedUrl}
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[11px] font-medium text-gray-500">
+                Iframe
+              </span>
+              <CopyButton
+                copied={copiedTarget === 'iframe'}
+                label="Copy iframe"
+                onCopy={() => {
+                  void copyText('iframe', iframeCode)
+                }}
+              />
+            </div>
+            <textarea
+              className={twMerge(chartEmbedInputStyles, 'min-h-20 resize-none')}
+              readOnly
+              value={iframeCode}
+            />
+          </div>
+        </div>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
 
@@ -2972,6 +3198,7 @@ function PlotFigure({
 // Props for the NPMStatsChart component
 export type NPMStatsChartProps = {
   actionsContainer?: HTMLElement | null
+  embedConfig?: NpmStatsChartEmbedConfig
   onActionsMountedChange?: (mounted: boolean) => void
   queryData: NpmQueryData | undefined
   height: number
@@ -2986,16 +3213,19 @@ export type NPMStatsChartProps = {
   showDataMode: ShowDataMode
   normalizeBaseline?: boolean
   showBaseline?: boolean
+  showLegend?: boolean
   timelineEnd?: number
   timelineStart?: number
   animationBucketOffsetBounds?: LatestBucketOffsetBounds
   animationFrameIntervalMs?: number
   animationQueryData?: NpmQueryData
+  onShowLegendChange?: (showLegend: boolean) => void
   onTimelineRangeChange?: (range: TimelineRangeValue) => void
 }
 
 export function NPMStatsChart({
   actionsContainer,
+  embedConfig,
   onActionsMountedChange,
   queryData,
   height,
@@ -3010,11 +3240,13 @@ export function NPMStatsChart({
   showDataMode,
   normalizeBaseline = true,
   showBaseline = false,
+  showLegend: controlledShowLegend,
   timelineEnd,
   timelineStart,
   animationBucketOffsetBounds,
   animationFrameIntervalMs,
   animationQueryData,
+  onShowLegendChange,
   onTimelineRangeChange,
 }: NPMStatsChartProps) {
   const { containerRef, width } = useElementWidth()
@@ -3025,7 +3257,9 @@ export function NPMStatsChart({
   )}`
   const legendRef = React.useRef<HTMLDivElement>(null)
   const plotRef = React.useRef<ReturnType<typeof Plot.plot> | null>(null)
-  const [showLegend, setShowLegend] = React.useState(false)
+  const [uncontrolledShowLegend, setUncontrolledShowLegend] =
+    React.useState(false)
+  const showLegend = controlledShowLegend ?? uncontrolledShowLegend
   const showLegendRef = React.useRef(showLegend)
   const [chartRendered, setChartRendered] = React.useState(false)
   const [exportingFormat, setExportingFormat] =
@@ -3166,6 +3400,16 @@ export function NPMStatsChart({
     ],
   )
 
+  const handleToggleLegend = React.useCallback(() => {
+    const nextShowLegend = !showLegend
+
+    if (controlledShowLegend === undefined) {
+      setUncontrolledShowLegend(nextShowLegend)
+    }
+
+    onShowLegendChange?.(nextShowLegend)
+  }, [controlledShowLegend, onShowLegendChange, showLegend])
+
   const canUseChartActions =
     chartRendered && !!queryData?.length && width > 0 && !exportingFormat
   const chartActions = actionsContainer
@@ -3173,11 +3417,12 @@ export function NPMStatsChart({
         <ChartActions
           canExportAnimation={canExportAnimation}
           disabled={!canUseChartActions}
+          embedConfig={embedConfig}
           exportingFormat={exportingFormat}
           onExport={(format) => {
             void handleExport(format)
           }}
-          onToggleLegend={() => setShowLegend((value) => !value)}
+          onToggleLegend={handleToggleLegend}
           showLegend={canUseChartActions && showLegend}
         />,
         actionsContainer,

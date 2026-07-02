@@ -21,6 +21,7 @@ import { BaselineSection } from '~/components/npm-stats/BaselineSection'
 import { ChartControls } from '~/components/npm-stats/ChartControls'
 import { ColorPickerPopover } from '~/components/npm-stats/ColorPickerPopover'
 import { DisabledChartActions } from '~/components/npm-stats/DisabledChartActions'
+import type { NpmStatsChartEmbedOptions } from '~/components/npm-stats/NPMStatsChart'
 import { PackagePills } from '~/components/npm-stats/PackagePills'
 import { PackageSearch } from '~/components/npm-stats/PackageSearch'
 import { PopularComparisons } from '~/components/npm-stats/PopularComparisons'
@@ -122,6 +123,7 @@ export const Route = createFileRoute('/stats/npm/')({
     showDataMode: v.fallback(v.optional(showDataModeSchema, 'all'), 'all'),
     normalizeBaseline: v.fallback(v.optional(v.boolean(), true), true),
     showBaseline: v.fallback(v.optional(v.boolean(), false), false),
+    showLegend: v.fallback(v.optional(v.boolean(), false), false),
     height: v.fallback(v.optional(chartHeightSchema, 400), 400),
     width: v.fallback(v.optional(chartWidthSchema), undefined),
     timelineStart: v.fallback(v.optional(timelineZoomTimeSchema), undefined),
@@ -272,6 +274,7 @@ type _NpmStatsSearch = {
   playbackLoop?: boolean
   playbackPlaying?: boolean
   showDataMode?: 'all' | 'complete'
+  showLegend?: boolean
   height?: number
   width?: number
   timelineStart?: number
@@ -280,7 +283,8 @@ type _NpmStatsSearch = {
 
 function RouteComponent() {
   const search = Route.useSearch()
-  const packageGroups: PackageGroup[] = search.packageGroups ?? []
+  const packageGroups: PackageGroup[] =
+    search.packageGroups ?? defaultPackageGroups
   const range: TimeRange = search.range ?? '1825-days'
   const transform: TransformMode = search.transform ?? 'none'
   const binTypeParam: BinType | undefined = search.binType
@@ -293,6 +297,7 @@ function RouteComponent() {
   const showDataModeParam: ShowDataMode = search.showDataMode ?? 'all'
   const normalizeBaseline: boolean = search.normalizeBaseline ?? true
   const showBaseline: boolean = search.showBaseline ?? false
+  const showLegend: boolean = search.showLegend ?? false
   const bucketOffsetParam: number = search.bucketOffset ?? 0
   const playbackIntervalMs: number =
     search.playbackIntervalMs ?? defaultPlaybackIntervalMs
@@ -556,6 +561,18 @@ function RouteComponent() {
         ...prev,
         normalizeBaseline: !(prev.normalizeBaseline ?? true),
       }),
+      resetScroll: false,
+    })
+  }
+
+  const handleShowLegendChange = (nextShowLegend: boolean) => {
+    navigate({
+      to: '.',
+      search: (prev) => ({
+        ...prev,
+        showLegend: nextShowLegend,
+      }),
+      replace: true,
       resetScroll: false,
     })
   }
@@ -824,6 +841,70 @@ function RouteComponent() {
     [navigate],
   )
 
+  const buildEmbedUrl = React.useCallback(
+    (options: NpmStatsChartEmbedOptions) => {
+      const params = new URLSearchParams()
+
+      params.set('packageGroups', JSON.stringify(packageGroups))
+      params.set('range', range)
+      params.set('transform', transform)
+      params.set('binType', binType)
+      params.set('viewMode', viewMode)
+      params.set('chartType', chartType)
+      params.set('barOrientation', barOrientation)
+      params.set('barSort', barSort)
+      params.set('bucketOffset', `${bucketOffset}`)
+      params.set('playbackIntervalMs', `${playbackIntervalMs}`)
+      params.set('showDataMode', showDataModeParam)
+      params.set('normalizeBaseline', `${normalizeBaseline}`)
+      params.set('showBaseline', `${viewMode === 'history' && showBaseline}`)
+      params.set('showLegend', `${options.showLegend}`)
+
+      if (
+        options.includeTimelineRange &&
+        timelineStart !== undefined &&
+        timelineEnd !== undefined
+      ) {
+        params.set('timelineStart', `${timelineStart}`)
+        params.set('timelineEnd', `${timelineEnd}`)
+      }
+
+      if (options.lockWidth && width !== undefined) {
+        params.set('width', `${width}`)
+      }
+
+      return `/stats/npm/embed?${params}`
+    },
+    [
+      barOrientation,
+      barSort,
+      binType,
+      bucketOffset,
+      chartType,
+      normalizeBaseline,
+      packageGroups,
+      playbackIntervalMs,
+      range,
+      showBaseline,
+      showDataModeParam,
+      timelineEnd,
+      timelineStart,
+      transform,
+      viewMode,
+      width,
+    ],
+  )
+
+  const embedConfig = React.useMemo(
+    () => ({
+      buildUrl: buildEmbedUrl,
+      hasTimelineRange:
+        timelineStart !== undefined && timelineEnd !== undefined,
+      hasWidth: width !== undefined,
+    }),
+    [buildEmbedUrl, timelineEnd, timelineStart, width],
+  )
+
   const handleMenuOpenChange = (packageName: string, open: boolean) => {
     if (!open) {
       setOpenMenuPackage(null)
@@ -1089,6 +1170,7 @@ function RouteComponent() {
                       >
                         <LazyNPMStatsChart
                           actionsContainer={chartActionsContainer}
+                          embedConfig={embedConfig}
                           onActionsMountedChange={setChartActionsMounted}
                           range={range}
                           queryData={displayQueryData}
@@ -1105,11 +1187,13 @@ function RouteComponent() {
                             viewMode === 'history' && normalizeBaseline
                           }
                           showBaseline={viewMode === 'history' && showBaseline}
+                          showLegend={showLegend}
                           timelineStart={timelineStart}
                           timelineEnd={timelineEnd}
                           animationQueryData={npmQuery.data}
                           animationBucketOffsetBounds={latestBucketBounds}
                           animationFrameIntervalMs={playbackIntervalMs}
+                          onShowLegendChange={handleShowLegendChange}
                           onTimelineRangeChange={handleTimelineRangeChange}
                         />
                       </React.Suspense>

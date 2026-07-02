@@ -3,7 +3,8 @@ import { setResponseHeaders } from '@tanstack/react-start/server'
 import { notFound, redirect } from '@tanstack/react-router'
 import { allPosts } from 'content-collections'
 import * as v from 'valibot'
-import { getPublishedPosts } from '~/utils/blog'
+import type { LibraryId } from '~/libraries'
+import { getPostsForLibrary, getPublishedPosts } from '~/utils/blog'
 import {
   formatAuthors,
   formatPublishedDate,
@@ -128,3 +129,36 @@ export const fetchRecentPosts = createServerFn({ method: 'GET' }).handler(
       }))
   },
 )
+
+export type RelatedPost = {
+  libraryId: LibraryId
+  post: {
+    slug: string
+    title: string
+    published: string
+    excerpt: string
+  }
+}
+
+/**
+ * Mirrors CategoryArticle's original client-side
+ * `libraries.flatMap((lib) => getPostsForLibrary(lib.id)...).slice(0, 4)`
+ * so the display order/cutoff of related posts is unchanged.
+ */
+export const fetchRelatedPostsForLibraries = createServerFn({ method: 'GET' })
+  .validator(v.array(v.string()))
+  .handler(({ data }): Array<RelatedPost> => {
+    return (data as Array<LibraryId>)
+      .flatMap((libraryId) =>
+        getPostsForLibrary(libraryId).map((post) => ({
+          libraryId,
+          post: {
+            slug: post.slug,
+            title: post.title,
+            published: post.published,
+            excerpt: post.excerpt,
+          },
+        })),
+      )
+      .slice(0, 4)
+  })

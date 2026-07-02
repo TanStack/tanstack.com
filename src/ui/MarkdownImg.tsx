@@ -3,6 +3,12 @@ import type { HTMLProps } from 'react'
 import { getOptimizedImageUrl } from '~/utils/optimizedImage'
 import { getPublicImageDimensions } from '~/utils/publicImageDimensions'
 
+const DEFAULT_TRANSFORM_WIDTH = 1200
+
+export type MarkdownImgProps = HTMLProps<HTMLImageElement> & {
+  priority?: boolean
+}
+
 export const MarkdownImg = React.memo(function MarkdownImg({
   alt,
   src,
@@ -10,9 +16,10 @@ export const MarkdownImg = React.memo(function MarkdownImg({
   width,
   height,
   style,
+  priority,
   children: _,
   ...props
-}: HTMLProps<HTMLImageElement>) {
+}: MarkdownImgProps) {
   const sourceDimensions = src ? getPublicImageDimensions(src) : undefined
   const providedWidth = parseDimension(width)
   const providedHeight = parseDimension(height)
@@ -29,7 +36,9 @@ export const MarkdownImg = React.memo(function MarkdownImg({
   const resolvedWidth = width ?? inferredWidth
   const resolvedHeight = height ?? inferredHeight
   const numericWidth =
-    typeof resolvedWidth === 'number' ? resolvedWidth : parseDimension(width)
+    typeof resolvedWidth === 'number'
+      ? resolvedWidth
+      : (parseDimension(width) ?? DEFAULT_TRANSFORM_WIDTH)
   const numericHeight =
     typeof resolvedHeight === 'number' ? resolvedHeight : parseDimension(height)
   const aspectRatio =
@@ -60,7 +69,8 @@ export const MarkdownImg = React.memo(function MarkdownImg({
         ...style,
       }}
       className={`block max-w-full h-auto rounded-lg shadow-md ${className ?? ''}`}
-      loading="lazy"
+      loading={priority ? 'eager' : 'lazy'}
+      fetchPriority={priority ? 'high' : undefined}
       decoding="async"
     />
   )

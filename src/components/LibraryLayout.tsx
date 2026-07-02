@@ -4,6 +4,7 @@ import { GithubIcon } from '~/components/icons/GithubIcon'
 import { DiscordIcon } from '~/components/icons/DiscordIcon'
 import { Link, useMatches, useParams } from '@tanstack/react-router'
 import { useLocalStorage } from '~/utils/useLocalStorage'
+import { useMediaQuery } from '~/utils/useMediaQuery'
 import { useClickOutside } from '~/hooks/useClickOutside'
 import { last } from '~/utils/utils'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
@@ -422,26 +423,6 @@ function clampProgress(value: number) {
   }
 
   return Math.min(Math.max(value, 0), 1)
-}
-
-function useMediaQuery(query: string) {
-  const [matches, setMatches] = React.useState(false)
-
-  React.useEffect(() => {
-    const mediaQueryList = window.matchMedia(query)
-    const updateMatches = () => {
-      setMatches(mediaQueryList.matches)
-    }
-
-    updateMatches()
-    mediaQueryList.addEventListener('change', updateMatches)
-
-    return () => {
-      mediaQueryList.removeEventListener('change', updateMatches)
-    }
-  }, [query])
-
-  return matches
 }
 
 function areDocsPartnerSlotsEqual(
@@ -903,6 +884,7 @@ export function LibraryLayout({
     surface: 'docs_rail',
   })
   const shouldShowDocsPartnerSlot = useMediaQuery('(max-width: 767.98px)')
+  const isDesktopViewport = useMediaQuery('(min-width: 768px)')
 
   const groupInitialOpenState = React.useMemo(() => {
     return visibleMenuConfig.reduce<Record<string, boolean>>(
@@ -1431,7 +1413,7 @@ export function LibraryLayout({
                   partners={activePartners}
                 />
                 <div className="hidden md:block border border-gray-500/20 rounded-l-lg overflow-hidden w-full">
-                  <RecentPostsWidget />
+                  <RecentPostsWidget enabled={isDesktopViewport} />
                 </div>
               </RightRail>
             )}

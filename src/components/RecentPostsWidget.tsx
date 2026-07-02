@@ -1,10 +1,12 @@
 import { Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { fetchRecentPosts, type RecentPost } from '~/utils/blog.functions'
-import { formatPublishedDate } from '~/utils/blog'
+import { formatPublishedDate } from '~/utils/blog-format'
 
 type RecentPostsWidgetProps = {
   posts?: ReadonlyArray<RecentPost>
+  /** Set to false to skip the client fetch when the widget is rendered but not visible (e.g. hidden below a CSS breakpoint). Ignored when `posts` is provided. */
+  enabled?: boolean
 }
 
 function RecentPostsList({ posts }: { posts: ReadonlyArray<RecentPost> }) {
@@ -63,11 +65,14 @@ function RecentPostsSkeleton() {
   )
 }
 
-export function RecentPostsWidget({ posts }: RecentPostsWidgetProps) {
+export function RecentPostsWidget({
+  posts,
+  enabled = true,
+}: RecentPostsWidgetProps) {
   const recentPostsQuery = useQuery({
     queryKey: ['recentPosts'],
     queryFn: () => fetchRecentPosts(),
-    enabled: posts === undefined,
+    enabled: posts === undefined && enabled,
     staleTime: 1000 * 60 * 5,
   })
 

@@ -3,19 +3,12 @@ import { createServerFn } from '@tanstack/react-start'
 import { setResponseHeader } from '@tanstack/react-start/server'
 import removeMarkdown from 'remove-markdown'
 import * as v from 'valibot'
-import {
-  extractFrontMatter,
-  fetchApiContents,
-  fetchRepoFile,
-  isRecoverableGitHubContentError,
-  shouldUseLocalDocsFiles,
-} from '~/utils/documents.server'
 import { extractFrameworksFromMarkdown } from './markdown/filterFrameworkContent'
-import { getCachedDocsArtifact } from './github-content-cache.server'
 import { buildRedirectManifest, type RedirectManifestEntry } from './redirects'
 import { isValidRepoPath, MAX_REPO_PATH_LENGTH } from './repo-path'
 import { removeLeadingSlash } from './utils'
 import type { DocsRedirectManifest } from './docs-redirects'
+import type { GitHubFileNode } from './documents.server'
 
 export type DocsTreeNode = {
   path: string
@@ -123,6 +116,14 @@ const temporarilyUnavailableMarkdown = `# Content temporarily unavailable
 
 We are having trouble fetching this document from GitHub right now. Please try again in a minute.`
 
+async function loadDocumentsServerModule() {
+  return import('./documents.server')
+}
+
+async function loadGitHubContentCacheServerModule() {
+  return import('./github-content-cache.server')
+}
+
 function buildUnavailableFile(filePath: string) {
   if (filePath.toLowerCase().endsWith('.md')) {
     return temporarilyUnavailableMarkdown
@@ -136,6 +137,9 @@ async function readRepoFileOrFallback(
   branch: string,
   filePath: string,
 ) {
+  const { fetchRepoFile, isRecoverableGitHubContentError } =
+    await loadDocumentsServerModule()
+
   try {
     return await fetchRepoFile(repo, branch, filePath)
   } catch (error) {
@@ -183,6 +187,8 @@ export async function collectRedirectEntriesForFile(
     onCanonicalPath: (canonicalPath: string) => void
   },
 ): Promise<Array<RedirectManifestEntry>> {
+  const { extractFrontMatter, isRecoverableGitHubContentError } =
+    await loadDocumentsServerModule()
   const canonicalPath = getCanonicalDocsPath(node.path, opts.docsRoot)
 
   if (canonicalPath === null) {
@@ -238,6 +244,7 @@ async function buildDocsManifest({
   branch: string
   docsRoot: string
 }): Promise<DocsManifest> {
+  const { fetchApiContents, fetchRepoFile } = await loadDocumentsServerModule()
   const nodes = await fetchApiContents(repo, branch, docsRoot)
 
   if (!nodes) {
@@ -279,6 +286,7 @@ async function buildDocsPathManifest({
   branch: string
   docsRoot: string
 }): Promise<DocsManifest> {
+  const { fetchApiContents } = await loadDocumentsServerModule()
   const nodes = await fetchApiContents(repo, branch, docsRoot)
 
   if (!nodes) {
@@ -302,6 +310,11 @@ export const fetchDocsManifest = createServerFn({ method: 'GET' })
   .validator(docsManifestInput)
   .handler(async ({ data }) => {
     const { repo, branch, docsRoot } = data
+    const [{ shouldUseLocalDocsFiles }, { getCachedDocsArtifact }] =
+      await Promise.all([
+        loadDocumentsServerModule(),
+        loadGitHubContentCacheServerModule(),
+      ])
 
     if (shouldUseLocalDocsFiles()) {
       return buildDocsManifest({ repo, branch, docsRoot })
@@ -322,6 +335,11 @@ export const fetchDocsPathManifest = createServerFn({ method: 'GET' })
   .validator(docsManifestInput)
   .handler(async ({ data }) => {
     const { repo, branch, docsRoot } = data
+    const [{ shouldUseLocalDocsFiles }, { getCachedDocsArtifact }] =
+      await Promise.all([
+        loadDocumentsServerModule(),
+        loadGitHubContentCacheServerModule(),
+      ])
 
     if (shouldUseLocalDocsFiles()) {
       return buildDocsPathManifest({ repo, branch, docsRoot })
@@ -341,6 +359,7 @@ export const fetchDocsPathManifest = createServerFn({ method: 'GET' })
 export const fetchDocsRedirect = createServerFn({ method: 'GET' })
   .validator(docsRedirectInput)
   .handler(async ({ data }) => {
+    const { isRecoverableGitHubContentError } = await loadDocumentsServerModule()
     let manifest: DocsManifest
 
     try {
@@ -389,6 +408,7 @@ export const fetchDocs = createServerFn({ method: 'GET' })
       throw notFound()
     }
 
+    const { extractFrontMatter } = await loadDocumentsServerModule()
     const frontMatter = extractFrontMatter(file)
     const description =
       frontMatter.userDescription ?? removeMarkdown(frontMatter.excerpt ?? '')
@@ -446,7 +466,9 @@ export const fetchRepoDirectoryContents = createServerFn({
   .validator(repoDirectoryInput)
   .handler(async ({ data }: { data: RepoDirectoryRequest }) => {
     const { repo, branch, startingPath } = data
-    let githubContents: Awaited<ReturnType<typeof fetchApiContents>>
+    const { fetchApiContents, isRecoverableGitHubContentError } =
+      await loadDocumentsServerModule()
+    let githubContents: Array<GitHubFileNode> | null
 
     try {
       githubContents = await fetchApiContents(repo, branch, startingPath)

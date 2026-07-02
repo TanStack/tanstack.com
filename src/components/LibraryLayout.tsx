@@ -884,6 +884,7 @@ export function LibraryLayout({
     surface: 'docs_rail',
   })
   const shouldShowDocsPartnerSlot = useMediaQuery('(max-width: 767.98px)')
+  const isDesktopViewport = useMediaQuery('(min-width: 768px)')
 
   const groupInitialOpenState = React.useMemo(() => {
     return visibleMenuConfig.reduce<Record<string, boolean>>(
@@ -1412,7 +1413,7 @@ export function LibraryLayout({
                   partners={activePartners}
                 />
                 <div className="hidden md:block border border-gray-500/20 rounded-l-lg overflow-hidden w-full">
-                  <RecentPostsWidget enabled={!shouldShowDocsPartnerSlot} />
+                  <RecentPostsWidget enabled={isDesktopViewport} />
                 </div>
               </RightRail>
             )}

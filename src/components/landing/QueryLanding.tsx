@@ -2,20 +2,20 @@ import * as React from 'react'
 import { Link, useParams } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
-  Activity,
+  Pulse,
   ArrowRight,
   BookOpen,
-  DatabaseZap,
+  Database,
   Eye,
   Flame,
   GitBranch,
   Infinity as InfinityIcon,
   Network,
   Plus,
-  RefreshCcw,
-  RotateCcw,
-  Sparkles,
-} from 'lucide-react'
+  ArrowsCounterClockwise,
+  ArrowCounterClockwise,
+  Sparkle,
+} from '@phosphor-icons/react'
 
 import { BottomCTA } from '~/components/BottomCTA'
 import { Footer } from '~/components/Footer'
@@ -131,7 +131,7 @@ const featureCards = [
   {
     title: 'Important defaults do the boring work.',
     body: 'Caching, request dedupe, retries, background refetching, window-focus updates, and garbage collection are already wired for the shape of real apps.',
-    icon: <Sparkles size={18} />,
+    icon: <Sparkle size={18} />,
   },
   {
     title: 'Query keys become the cache contract.',
@@ -141,7 +141,7 @@ const featureCards = [
   {
     title: 'Mutations have a real lifecycle.',
     body: 'Handle pending UI, optimistic writes, invalidation, rollback, and follow-up refetches without inventing an ad hoc client-state machine.',
-    icon: <RefreshCcw size={18} />,
+    icon: <ArrowsCounterClockwise size={18} />,
   },
   {
     title: 'Devtools make the cache visible.',
@@ -188,7 +188,7 @@ export default function QueryLanding() {
       <section className="max-w-full overflow-hidden border-b border-red-950/10 bg-[#fff3ec] dark:border-red-300/10 dark:bg-[#130806]">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-10 lg:max-w-[80rem] lg:grid-cols-[0.86fr_1.14fr] lg:items-start lg:py-12 xl:max-w-[92rem]">
           <div className="min-w-0 max-w-full sm:max-w-3xl">
-            <SectionKicker icon={<DatabaseZap size={14} />}>
+            <SectionKicker icon={<Database size={14} />}>
               Server-state manager
             </SectionKicker>
 
@@ -247,9 +247,7 @@ export default function QueryLanding() {
       <section className="border-b border-red-950/10 bg-[#fff7ed] dark:border-red-300/10 dark:bg-[#170b07]">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.74fr_1.26fr] xl:max-w-[92rem]">
           <div>
-            <SectionKicker icon={<Activity size={14} />}>
-              Why Query
-            </SectionKicker>
+            <SectionKicker icon={<Pulse size={14} />}>Why Query</SectionKicker>
             <h2 className="mt-3 max-w-xl text-3xl font-black leading-tight sm:text-4xl">
               Server state is not the same problem as client state.
             </h2>
@@ -273,7 +271,7 @@ export default function QueryLanding() {
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[1.08fr_0.92fr] lg:items-center xl:max-w-[92rem]">
           <CacheLifecyclePanel />
           <div>
-            <SectionKicker icon={<RotateCcw size={14} />}>
+            <SectionKicker icon={<ArrowCounterClockwise size={14} />}>
               Cache lifecycle
             </SectionKicker>
             <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
@@ -564,7 +562,7 @@ function QueryCachePanel() {
             type="button"
             onClick={() => projectsQuery.refetch()}
           >
-            <RefreshCcw
+            <ArrowsCounterClockwise
               aria-hidden="true"
               className={projectsQuery.isFetching ? 'animate-spin' : ''}
               size={14}

@@ -99,6 +99,284 @@ html.theme-switching *::after {
   --color-shop-orange: #ff7a3a;
 }
 
+/* ============================================================================
+   TanStack DS tokens — sourced from Figma ("Tanstack.com" file).
+   Single source of truth for the /ds style book. Primitive ramps feed the
+   semantic tokens (via var()), so changing a primitive propagates everywhere
+   the semantic token is used. Namespaced (ds-/lib-) to avoid colliding with
+   Tailwind's built-in palette during the transition.
+   ============================================================================ */
+/* `static` forces every token to be emitted to :root even when unused, so the
+   /ds style book (and var() lookups) always resolve them. */
+@theme static {
+  /* --- Primitive color ramps (100 = lightest, 500 = darkest) --- */
+  --color-ds-green-100: #daeedc;
+  --color-ds-green-200: #a7dbad;
+  --color-ds-green-300: #70b57a;
+  --color-ds-green-400: #44a54e;
+  --color-ds-green-500: #203f28;
+
+  --color-ds-terracotta-100: #f4d9c9;
+  --color-ds-terracotta-200: #e5ad95;
+  --color-ds-terracotta-300: #d37556;
+  --color-ds-terracotta-400: #c3502b;
+  --color-ds-terracotta-500: #571e0e;
+
+  --color-ds-blue-100: #daeef1;
+  --color-ds-blue-200: #a2d1dc;
+  --color-ds-blue-300: #69a8b7;
+  --color-ds-blue-400: #469db8;
+  --color-ds-blue-500: #013e53;
+
+  --color-ds-purple-100: #c9c1cb;
+  --color-ds-purple-200: #c593c1;
+  --color-ds-purple-300: #be76c7;
+  --color-ds-purple-400: #af57bc;
+  --color-ds-purple-500: #502457;
+
+  --color-ds-amber-100: #faf3d0;
+  --color-ds-amber-200: #f0e18e;
+  --color-ds-amber-300: #e5cc57;
+  --color-ds-amber-400: #eb9e2a;
+  --color-ds-amber-500: #5a4608;
+
+  --color-ds-neutral-100: #ece9d6;
+  --color-ds-neutral-200: #aba594;
+  --color-ds-neutral-300: #736b5d;
+  --color-ds-neutral-400: #3c352b;
+  --color-ds-neutral-500: #111111;
+
+  /* --- Library brand colors --- */
+  --color-lib-start: #00b9c8;
+  --color-lib-router: #3bcb77;
+  --color-lib-query: #ffa24b;
+  --color-lib-table: #008ded;
+  --color-lib-db: #e95100;
+  --color-lib-ai: #dd0070;
+  --color-lib-form: #e4ae22;
+  --color-lib-virtual: #bc90e5;
+  --color-lib-pacer: #a9e451;
+  --color-lib-hotkeys: #f62f32;
+  --color-lib-store: #873c00;
+  --color-lib-devtools: #1c1b1c;
+  --color-lib-cli: #490abd;
+  --color-lib-intent: #5cafdf;
+
+  /* --- Semantic tokens (reference primitives so edits propagate) --- */
+  /* NOTE: Figma reported text/primary as #ffffff (a dark-mode/mode artifact);
+     using neutral-500 for the light context. Confirm intended value. */
+  --color-text-primary: var(--color-ds-neutral-500);
+  --color-text-secondary: var(--color-ds-neutral-400);
+  --color-text-muted: var(--color-ds-neutral-300);
+  --color-text-accent: var(--color-ds-blue-500);
+  --color-text-disabled: var(--color-ds-neutral-200);
+  --color-text-inverse: #ffffff;
+  --color-text-success: var(--color-ds-green-500);
+  --color-text-warning: var(--color-ds-amber-500);
+  --color-text-error: var(--color-ds-terracotta-500);
+  --color-text-info: var(--color-ds-blue-400);
+
+  --color-background-default: #ffffff;
+  --color-background-surface: #ffffff;
+  --color-background-elevated: #ffffff;
+  --color-background-subtle: #f5f2e9;
+  --color-background-inverse: var(--color-ds-neutral-500);
+
+  --color-border-default: var(--color-ds-neutral-200);
+  --color-border-strong: var(--color-ds-neutral-400);
+  --color-border-subtle: var(--color-ds-neutral-100);
+  --color-border-focus: var(--color-ds-blue-400);
+  --color-border-error: var(--color-ds-terracotta-400);
+  --color-border-success: var(--color-ds-green-400);
+
+  --color-icon-default: var(--color-ds-neutral-400);
+  --color-icon-accent: var(--color-ds-blue-500);
+  --color-icon-muted: var(--color-ds-neutral-300);
+  --color-icon-inverse: #ffffff;
+  --color-icon-success: var(--color-ds-green-400);
+  --color-icon-warning: var(--color-ds-amber-400);
+  --color-icon-error: var(--color-ds-terracotta-400);
+
+  --color-action-primary: var(--color-ds-blue-500);
+  --color-action-primary-hover: var(--color-ds-blue-400);
+  --color-action-primary-text: #ffffff;
+  --color-action-secondary: var(--color-ds-neutral-100);
+  --color-action-secondary-hover: var(--color-ds-neutral-200);
+  --color-action-destructive: var(--color-ds-terracotta-400);
+  --color-action-disabled: var(--color-ds-neutral-200);
+
+  --color-status-success: var(--color-ds-green-400);
+  --color-status-success-bg: var(--color-ds-green-100);
+  --color-status-warning: var(--color-ds-amber-400);
+  --color-status-warning-bg: var(--color-ds-amber-100);
+  --color-status-error: var(--color-ds-terracotta-400);
+  --color-status-error-bg: var(--color-ds-terracotta-100);
+  --color-status-info: var(--color-ds-blue-400);
+  --color-status-info-bg: var(--color-ds-blue-100);
+
+  --color-accent-brand: var(--color-ds-blue-500);
+  --color-accent-warm: var(--color-ds-terracotta-300);
+  --color-accent-highlight: var(--color-ds-amber-300);
+  --color-accent-nature: var(--color-ds-green-400);
+  --color-accent-creative: var(--color-ds-purple-400);
+
+  /* --- Font families ---
+     display/heading = Bricolage Grotesque, body/label = Inter (--font-sans),
+     mono = IBM Plex Mono. Loaded globally from __root.tsx. */
+  --font-ds-display:
+    'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+  --font-ds-mono:
+    'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* --- Text styles (size / line-height / tracking / weight) --- */
+  --text-ds-display-2xl: 96px;
+  --text-ds-display-2xl--line-height: 96px;
+  --text-ds-display-2xl--letter-spacing: -1px;
+  --text-ds-display-2xl--font-weight: 700;
+  --text-ds-display-xl: 72px;
+  --text-ds-display-xl--line-height: 76px;
+  --text-ds-display-xl--letter-spacing: -0.8px;
+  --text-ds-display-xl--font-weight: 700;
+  --text-ds-display-lg: 56px;
+  --text-ds-display-lg--line-height: 60px;
+  --text-ds-display-lg--letter-spacing: -0.5px;
+  --text-ds-display-lg--font-weight: 700;
+  --text-ds-display-md: 48px;
+  --text-ds-display-md--line-height: 53px;
+  --text-ds-display-md--letter-spacing: -0.3px;
+  --text-ds-display-md--font-weight: 500;
+  --text-ds-display-sm: 40px;
+  --text-ds-display-sm--line-height: 46px;
+  --text-ds-display-sm--font-weight: 500;
+
+  --text-ds-heading-1: 36px;
+  --text-ds-heading-1--line-height: 41px;
+  --text-ds-heading-1--font-weight: 500;
+  --text-ds-heading-2: 28px;
+  --text-ds-heading-2--line-height: 34px;
+  --text-ds-heading-2--font-weight: 500;
+  --text-ds-heading-3: 24px;
+  --text-ds-heading-3--line-height: 29px;
+  --text-ds-heading-3--font-weight: 700;
+  --text-ds-heading-4: 20px;
+  --text-ds-heading-4--line-height: 25px;
+  --text-ds-heading-4--font-weight: 700;
+  --text-ds-heading-5: 16px;
+  --text-ds-heading-5--line-height: 21px;
+  --text-ds-heading-5--font-weight: 700;
+  --text-ds-heading-6: 14px;
+  --text-ds-heading-6--line-height: 18px;
+  --text-ds-heading-6--font-weight: 500;
+
+  --text-ds-body-xl: 20px;
+  --text-ds-body-xl--line-height: 32px;
+  --text-ds-body-xl--font-weight: 400;
+  --text-ds-body-lg: 18px;
+  --text-ds-body-lg--line-height: 28px;
+  --text-ds-body-lg--font-weight: 400;
+  --text-ds-body-md: 16px;
+  --text-ds-body-md--line-height: 24px;
+  --text-ds-body-md--font-weight: 400;
+  --text-ds-body-sm: 14px;
+  --text-ds-body-sm--line-height: 20px;
+  --text-ds-body-sm--font-weight: 400;
+  --text-ds-body-xs: 12px;
+  --text-ds-body-xs--line-height: 17px;
+  --text-ds-body-xs--font-weight: 400;
+
+  --text-ds-label-lg: 16px;
+  --text-ds-label-lg--line-height: 19px;
+  --text-ds-label-lg--font-weight: 500;
+  --text-ds-label-md: 14px;
+  --text-ds-label-md--line-height: 17px;
+  --text-ds-label-md--font-weight: 500;
+  --text-ds-label-sm: 12px;
+  --text-ds-label-sm--line-height: 14px;
+  --text-ds-label-sm--letter-spacing: 0.5px;
+  --text-ds-label-sm--font-weight: 500;
+
+  --text-ds-mono-display: 24px;
+  --text-ds-mono-display--line-height: 31px;
+  --text-ds-mono-display--font-weight: 400;
+  --text-ds-mono-lg: 18px;
+  --text-ds-mono-lg--line-height: 27px;
+  --text-ds-mono-lg--font-weight: 400;
+  --text-ds-mono-md: 16px;
+  --text-ds-mono-md--line-height: 24px;
+  --text-ds-mono-md--font-weight: 300;
+  --text-ds-mono-sm: 14px;
+  --text-ds-mono-sm--line-height: 21px;
+  --text-ds-mono-sm--font-weight: 300;
+  --text-ds-mono-xs: 12px;
+  --text-ds-mono-xs--line-height: 16px;
+  --text-ds-mono-xs--font-weight: 300;
+  --text-ds-mono-caps: 12px;
+  --text-ds-mono-caps--line-height: 14px;
+  --text-ds-mono-caps--letter-spacing: 1.5px;
+  --text-ds-mono-caps--font-weight: 400;
+}
+
+/* Dark-mode values for the DS semantic tokens (from Figma "Color Specimens /
+   Dark Mode"). Applied when the site theme resolves to dark (html.dark), so the
+   /ds style book and /staging pages flip with the global theme toggle.
+   Primitives don't change between modes — only these semantic mappings do. */
+html.dark {
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #aba594;
+  --color-text-muted: #736b5d;
+  --color-text-accent: #69a8b7;
+  --color-text-disabled: #3c352b;
+  --color-text-inverse: #111111;
+  --color-text-success: #70b57a;
+  --color-text-warning: #e5cc57;
+  --color-text-error: #d37556;
+  --color-text-info: #a2d1dc;
+
+  --color-background-default: #111111;
+  --color-background-surface: #1f1f1f;
+  --color-background-elevated: #2b2b2b;
+  --color-background-subtle: #1b1b1b;
+  --color-background-inverse: #ffffff;
+
+  --color-border-default: #2d2d2d;
+  --color-border-strong: #aba594;
+  --color-border-subtle: #232323;
+  --color-border-focus: #69a8b7;
+  --color-border-error: #d37556;
+  --color-border-success: #70b57a;
+
+  --color-icon-default: #aba594;
+  --color-icon-accent: #69a8b7;
+  --color-icon-muted: #736b5d;
+  --color-icon-inverse: #111111;
+  --color-icon-success: #70b57a;
+  --color-icon-warning: #e5cc57;
+  --color-icon-error: #d37556;
+
+  --color-action-primary: #469db8;
+  --color-action-primary-hover: #69a8b7;
+  --color-action-primary-text: #ffffff;
+  --color-action-secondary: #2b2b2b;
+  --color-action-secondary-hover: #3a3a3a;
+  --color-action-destructive: #d37556;
+  --color-action-disabled: #2b2b2b;
+
+  --color-status-success: #70b57a;
+  --color-status-success-bg: #203f28;
+  --color-status-warning: #e5cc57;
+  --color-status-warning-bg: #5a4608;
+  --color-status-error: #d37556;
+  --color-status-error-bg: #571e0e;
+  --color-status-info: #69a8b7;
+  --color-status-info-bg: #013e53;
+
+  --color-accent-brand: #469db8;
+  --color-accent-warm: #e5ad95;
+  --color-accent-highlight: #f0e18e;
+  --color-accent-nature: #70b57a;
+  --color-accent-creative: #be76c7;
+}
+
 /* Safelist for dynamic colors */
 @source inline('{bg-blue-{4,5,6}00,bg-emerald-500,bg-purple-500,bg-pink-500,bg-cyan-500,bg-slate-{4,5}00,bg-twine-700,bg-orange-{5,6,7}00,bg-yellow-500,bg-lime-700,bg-red-500,bg-green-500}/{20,30,40,80}');
 @source inline('{hover:{bg-blue-{4,5,6}00,bg-emerald-500,bg-purple-500,bg-pink-500,bg-cyan-500,bg-slate-{4,5}00,bg-twine-700,bg-orange-{5,6,7}00,bg-yellow-500,bg-lime-700,bg-red-500,bg-green-500}/40}');
@@ -174,15 +452,18 @@ button {
 }
 
 .ts-mega-dropdown {
-  --ts-mega-dropdown-x: 0;
-  position: absolute;
-  left: -1rem;
-  top: 100%;
+  /* Centered in the viewport (under the centered nav), not left-aligned to
+     the trigger. */
+  --ts-mega-dropdown-x: -50%;
+  position: fixed;
+  left: 50%;
+  right: auto;
+  top: calc(var(--navbar-height) - 0.625rem);
   z-index: 90;
   width: max-content;
   min-width: var(--ts-primary-nav-target-width, 0px);
   max-width: min(calc(100vw - 2rem), 70rem);
-  padding-top: 1rem;
+  padding-top: calc(1rem + 0.625rem);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -422,6 +703,21 @@ button {
   html.dark,
   html.dark body {
     background-color: #0a0a0a; /* 96% black */
+  }
+
+  /* Design-system typography — headings use the display face (Bricolage
+     Grotesque, via --font-ds-display) so the DS is the source of truth for type
+     across the whole site: change the token and every heading updates. Body &
+     labels inherit Inter (--font-sans). Sizes/weights stay with each element's
+     own utilities; add `font-sans` to opt a specific heading back to Inter. */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-ds-display);
+    letter-spacing: -0.01em;
   }
 
   .using-mouse * {
@@ -723,13 +1019,7 @@ pre.twoslash data-lsp:hover::before {
   text-align: left;
   padding: 5px 8px;
   border-radius: 2px;
-  font-family:
-    'JetBrains Mono',
-    Menlo,
-    Monaco,
-    Consolas,
-    monospace,
-    Courier New;
+  font-family: var(--font-ds-mono);
   font-size: 14px;
   white-space: pre-wrap;
   z-index: 100;
@@ -768,13 +1058,7 @@ pre .code-container:hover a {
 
 pre code {
   font-size: 12px;
-  font-family:
-    'JetBrains Mono',
-    Menlo,
-    Monaco,
-    Consolas,
-    monospace,
-    Courier New;
+  font-family: var(--font-ds-mono);
   white-space: pre;
   -webkit-overflow-scrolling: touch;
 }
@@ -913,13 +1197,7 @@ data-lsp {
 }
 .tag-container .twoslash-annotation {
   position: absolute;
-  font-family:
-    'JetBrains Mono',
-    Menlo,
-    Monaco,
-    Consolas,
-    monospace,
-    Courier New;
+  font-family: var(--font-ds-mono);
   right: -10px;
   /** Default annotation text to 200px */
   width: 200px;
@@ -1120,6 +1398,28 @@ mark {
   }
   100% {
     transform: scale(1);
+  }
+}
+
+/* Palm-tree loading spinner — sways at the trunk base like a palm in the wind */
+@keyframes palm-sway {
+  0%,
+  100% {
+    transform: rotate(-7deg);
+  }
+  50% {
+    transform: rotate(7deg);
+  }
+}
+
+.animate-palm-sway {
+  transform-origin: 40% 88%;
+  animation: palm-sway 1.1s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-palm-sway {
+    animation: none;
   }
 }
 

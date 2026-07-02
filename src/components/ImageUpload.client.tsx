@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useUploadThing } from '~/utils/uploadthing.client'
 import { useToast } from './ToastProvider'
-import { Upload, X, Loader2 } from 'lucide-react'
+import { Upload, X, CircleNotch } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import {
   SHOWCASE_IMAGE_MAX_BYTES,
@@ -165,7 +165,7 @@ export function ImageUploadClient({
         >
           {isUploading ? (
             <div className="p-4 text-center">
-              <Loader2
+              <CircleNotch
                 className={twMerge(
                   'text-blue-500 animate-spin mx-auto',
                   isSmall ? 'w-5 h-5' : 'w-8 h-8',

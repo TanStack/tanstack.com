@@ -14,7 +14,7 @@ import { PaginationControls } from './PaginationControls'
 import { Spinner } from './Spinner'
 import type { DocFeedback } from '~/db/types'
 import { calculatePoints } from '~/utils/docFeedback.shared'
-import { ExternalLink, TriangleAlert } from 'lucide-react'
+import { ArrowSquareOut, Warning } from '@phosphor-icons/react'
 import { Badge } from '~/ui'
 
 interface NotesModerationListProps {
@@ -186,7 +186,7 @@ export function NotesModerationList({
                     </span>
                     {feedback.isDetached && (
                       <div className="flex items-center gap-1 text-xs text-yellow-600 dark:text-yellow-400 mt-1">
-                        <TriangleAlert />
+                        <Warning />
                         Detached
                       </div>
                     )}
@@ -218,7 +218,7 @@ export function NotesModerationList({
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
                     >
-                      <ExternalLink className="text-[10px]" />
+                      <ArrowSquareOut className="text-[10px]" />
                       View Doc
                     </Link>
                   </TableCell>

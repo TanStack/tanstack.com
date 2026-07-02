@@ -24,7 +24,7 @@ import {
   refreshAllNpmStats,
 } from '~/utils/stats-admin.functions'
 import { formatDistanceToNow } from '~/utils/dates'
-import { Download, RefreshCw } from 'lucide-react'
+import { Download, ArrowsClockwise } from '@phosphor-icons/react'
 import { NpmIcon } from '~/components/icons/NpmIcon'
 import { Card } from '~/components/Card'
 import { Button } from '~/ui'
@@ -257,7 +257,7 @@ function NpmStatsAdmin() {
             }
             disabled={refreshPackageMutation.isPending}
           >
-            <RefreshCw
+            <ArrowsClockwise
               className={refreshPackageMutation.isPending ? 'animate-spin' : ''}
             />
             Refresh
@@ -315,7 +315,7 @@ function NpmStatsAdmin() {
             disabled={refreshAllMutation.isPending}
             title="Complete refresh: discover packages, fetch fresh stats with growth rates, and rebuild all caches"
           >
-            <RefreshCw
+            <ArrowsClockwise
               className={refreshAllMutation.isPending ? 'animate-spin' : ''}
             />
             {refreshAllMutation.isPending

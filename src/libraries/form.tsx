@@ -1,4 +1,4 @@
-import { WandSparkles, Zap } from 'lucide-react'
+import { MagicWand, Lightning } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { CogsIcon } from '~/components/icons/CogsIcon'
 import { form } from './libraries'
@@ -37,7 +37,7 @@ export const formProject = {
   featureHighlights: [
     {
       title: 'First-Class TypeScript Support',
-      icon: <WandSparkles className="text-yellow-400" />,
+      icon: <MagicWand className="text-yellow-400" />,
       description: (
         <div>
           TanStack Form touts first-class TypeScript support with outstanding
@@ -54,7 +54,7 @@ export const formProject = {
     },
     {
       title: 'Headless and Framework Agnostic',
-      icon: <Zap className="text-yellow-500" />,
+      icon: <Lightning className="text-yellow-500" />,
       description: (
         <div>
           Form's headless and framework agnostic approach ensures maximum

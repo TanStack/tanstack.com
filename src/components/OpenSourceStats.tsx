@@ -3,7 +3,7 @@ import * as React from 'react'
 import { libraries, type Library } from '~/libraries'
 import { ossStatsQuery, recentDownloadsQuery } from '~/queries/stats'
 import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
-import { Download, Star, TrendingUp } from 'lucide-react'
+import { Download, Star, TrendUp } from '@phosphor-icons/react'
 
 const tanStackNpmStatsLibrary = {
   id: 'tanstack',
@@ -155,7 +155,7 @@ export default function OssStats({ library }: { library?: Library }) {
           gradientClassName="bg-linear-to-r from-transparent to-cyan-500/5"
         >
           <div className="flex min-w-0 items-start gap-3">
-            <TrendingUp className="mt-1 size-5 shrink-0 transition-colors duration-200" />
+            <TrendUp className="mt-1 size-5 shrink-0 transition-colors duration-200" />
             <div className="min-w-0">
               <div className="relative text-2xl font-black leading-none tracking-tight transition-colors duration-200">
                 <StatValue placeholder="00,000,000">

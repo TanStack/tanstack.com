@@ -1,4 +1,4 @@
-import { MessageCircleQuestionMark, PlugZap, RotateCw } from 'lucide-react'
+import { ChatCircleDots, Plugs, ArrowClockwise } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { ranger } from './libraries'
 
@@ -12,7 +12,7 @@ export const rangerProject = {
     {
       title: 'Typesafe & powerful, yet familiarly simple',
       icon: (
-        <PlugZap className={twMerge('scale-125 animate-pulse', textStyles)} />
+        <Plugs className={twMerge('scale-125 animate-pulse', textStyles)} />
       ),
       description: (
         <div>
@@ -27,7 +27,7 @@ export const rangerProject = {
     {
       title: '"Headless" UI library',
       icon: (
-        <RotateCw
+        <ArrowClockwise
           className={twMerge('animate-spin', textStyles)}
           style={{
             animationDuration: '3s',
@@ -48,7 +48,7 @@ export const rangerProject = {
     },
     {
       title: 'Extensible',
-      icon: <MessageCircleQuestionMark className={twMerge('', textStyles)} />,
+      icon: <ChatCircleDots className={twMerge('', textStyles)} />,
       description: (
         <div>
           Designed with maximum inversion of control in mind, Ranger is built to

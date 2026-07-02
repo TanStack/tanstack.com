@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { Camera, RotateCcw, Trash2 } from 'lucide-react'
+import { Camera, ArrowCounterClockwise, Trash } from '@phosphor-icons/react'
 import { Avatar } from '~/components/Avatar'
 import { AvatarCropModal } from '~/components/AvatarCropModal'
 import { useToast } from '~/components/ToastProvider'
@@ -204,7 +204,7 @@ export function AccountProfilePictureSection({
               onClick={handleRevertToOAuth}
               disabled={isReverting}
             >
-              <RotateCcw className="w-3.5 h-3.5" />
+              <ArrowCounterClockwise className="w-3.5 h-3.5" />
               {isReverting ? 'Reverting...' : 'Revert to original'}
             </Button>
           )}
@@ -215,7 +215,7 @@ export function AccountProfilePictureSection({
               onClick={handleRemovePhoto}
               disabled={isRemoving}
             >
-              <Trash2 className="w-3.5 h-3.5" />
+              <Trash className="w-3.5 h-3.5" />
               {isRemoving ? 'Removing...' : 'Remove photo'}
             </Button>
           )}

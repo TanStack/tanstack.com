@@ -3,15 +3,15 @@ import { Link, useParams } from '@tanstack/react-router'
 import {
   ArrowRight,
   BookOpen,
-  CheckCircle2,
-  ExternalLink,
+  CheckCircle,
+  ArrowSquareOut,
   GitBranch,
-  Layers,
+  Stack,
   Network,
   Rocket,
-  Server,
-  Sparkles,
-} from 'lucide-react'
+  HardDrives,
+  Sparkle,
+} from '@phosphor-icons/react'
 
 import { BottomCTA } from '~/components/BottomCTA'
 import { ApplicationStarter } from '~/components/ApplicationStarter'
@@ -48,12 +48,12 @@ const featureCards = [
   {
     title: 'Server work stays explicit',
     body: 'createServerFn gives loaders, components, hooks, and handlers access to server-only work with validation, serializable boundaries, and same-origin RPC semantics.',
-    icon: <Server size={18} />,
+    icon: <HardDrives size={18} />,
   },
   {
     title: 'SSR keeps the app model',
     body: 'Start can render the full document, stream useful UI, or opt routes into SPA/selective SSR modes while preserving the interactive client-side Router experience.',
-    icon: <Layers size={18} />,
+    icon: <Stack size={18} />,
   },
 ]
 
@@ -156,7 +156,7 @@ export default function StartLanding() {
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-10 lg:max-w-[80rem] lg:grid-cols-[0.85fr_1.15fr] lg:items-start lg:py-12 xl:max-w-[92rem] 2xl:grid-cols-[0.78fr_1.22fr]">
           <div className="min-w-0 max-w-full sm:max-w-3xl">
             <p className="inline-flex items-center gap-2 text-sm font-black uppercase text-cyan-700 dark:text-cyan-300">
-              <Sparkles size={14} aria-hidden="true" />
+              <Sparkle size={14} aria-hidden="true" />
               Full-stack framework
             </p>
 
@@ -235,7 +235,7 @@ export default function StartLanding() {
       <section className="border-b border-cyan-950/10 bg-[#eefafa] dark:border-cyan-300/10 dark:bg-[#061515]">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.72fr_1.28fr] lg:items-start xl:max-w-[92rem]">
           <div className="max-w-xl">
-            <SectionKicker icon={<Sparkles size={14} />}>
+            <SectionKicker icon={<Sparkle size={14} />}>
               Application builder
             </SectionKicker>
             <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
@@ -308,7 +308,7 @@ export default function StartLanding() {
                     key={item.label}
                     className="grid grid-cols-[auto_1fr] gap-2 text-sm leading-6 text-cyan-950 dark:text-cyan-100"
                   >
-                    <CheckCircle2
+                    <CheckCircle
                       className="mt-1 h-4 w-4 text-cyan-700 dark:text-cyan-300"
                       aria-hidden="true"
                     />
@@ -583,7 +583,7 @@ function FieldNoteCard({
           <p className="text-xs font-black uppercase text-cyan-700 dark:text-cyan-300">
             {source}
           </p>
-          <ExternalLink
+          <ArrowSquareOut
             className="mt-0.5 h-4 w-4 shrink-0 text-zinc-400 transition-colors group-hover:text-cyan-600 dark:group-hover:text-cyan-300"
             aria-hidden="true"
           />

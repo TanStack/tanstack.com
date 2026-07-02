@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Link, createFileRoute, notFound } from '@tanstack/react-router'
-import { ArrowUpRight, CheckCircle2, CircleDashed } from 'lucide-react'
+import { ArrowUpRight, CheckCircle, CircleDashed } from '@phosphor-icons/react'
 import { Footer } from '~/components/Footer'
 import { Card } from '~/components/Card'
 import { Button } from '~/ui'
@@ -99,7 +99,7 @@ function PartnerDetailPage() {
                     }`}
                   >
                     {isActive ? (
-                      <CheckCircle2 className="h-3.5 w-3.5" />
+                      <CheckCircle className="h-3.5 w-3.5" />
                     ) : (
                       <CircleDashed className="h-3.5 w-3.5" />
                     )}

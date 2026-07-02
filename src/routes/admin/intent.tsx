@@ -2,17 +2,17 @@ import * as React from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
-  RefreshCw,
+  ArrowsClockwise,
   Play,
-  RotateCcw,
-  Trash2,
+  ArrowCounterClockwise,
+  Trash,
   BookOpen,
-  ChevronDown,
-  ChevronRight,
-  AlertTriangle,
-  CheckCircle2,
+  CaretDown,
+  CaretRight,
+  Warning,
+  CheckCircle,
   Clock,
-} from 'lucide-react'
+} from '@phosphor-icons/react'
 import { Button } from '~/ui'
 import { Card } from '~/components/Card'
 import { formatDistanceToNow } from '~/utils/dates'
@@ -125,7 +125,7 @@ function IntentAdminPage() {
             disabled={discoverMutation.isPending}
             title="Search NPM for tanstack-intent keyword, verify packages, and enqueue"
           >
-            <RefreshCw
+            <ArrowsClockwise
               className={
                 discoverMutation.isPending ? 'animate-spin w-4 h-4' : 'w-4 h-4'
               }
@@ -138,7 +138,7 @@ function IntentAdminPage() {
             disabled={githubDiscoverMutation.isPending}
             title="Search GitHub for repos with @tanstack/intent dependency and skills"
           >
-            <RefreshCw
+            <ArrowsClockwise
               className={
                 githubDiscoverMutation.isPending
                   ? 'animate-spin w-4 h-4'
@@ -175,7 +175,7 @@ function IntentAdminPage() {
               disabled={resetFailedMutation.isPending}
               title="Reset all failed versions back to pending so they'll be retried"
             >
-              <RotateCcw className="w-4 h-4" />
+              <ArrowCounterClockwise className="w-4 h-4" />
               Reset {stats?.failedVersions} Failed
             </Button>
           )}
@@ -406,9 +406,9 @@ function ResultBanner({
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2 font-medium text-gray-900 dark:text-white">
           {hasErrors ? (
-            <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
+            <Warning className="w-4 h-4 text-amber-500 shrink-0" />
           ) : (
-            <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+            <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0" />
           )}
           {title}
         </div>
@@ -470,7 +470,7 @@ function FailedVersionsSection({
   return (
     <div className="mb-6">
       <h2 className="text-sm font-semibold text-red-600 dark:text-red-400 flex items-center gap-1.5 mb-2">
-        <AlertTriangle className="w-4 h-4" />
+        <Warning className="w-4 h-4" />
         Failed Versions
         <span className="ml-1 px-1.5 py-0.5 rounded bg-red-100 dark:bg-red-900/40 text-xs tabular-nums">
           {versions.length}
@@ -517,7 +517,7 @@ function FailedVersionsSection({
                     onClick={() => retryMutation.mutate(v.id)}
                     disabled={retryMutation.isPending}
                   >
-                    <RotateCcw className="w-3 h-3" />
+                    <ArrowCounterClockwise className="w-3 h-3" />
                     Retry
                   </Button>
                 </td>
@@ -649,9 +649,9 @@ function PackageRow({
       <td className="px-3 py-2.5">
         <div className="flex items-center gap-1.5">
           {isExpanded ? (
-            <ChevronDown className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+            <CaretDown className="w-3.5 h-3.5 text-gray-400 shrink-0" />
           ) : (
-            <ChevronRight className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+            <CaretRight className="w-3.5 h-3.5 text-gray-400 shrink-0" />
           )}
           <span className="font-mono text-xs text-gray-900 dark:text-gray-100">
             {pkg.name}
@@ -661,7 +661,7 @@ function PackageRow({
       <td className="px-3 py-2.5 hidden sm:table-cell">
         {pkg.verified ? (
           <span className="inline-flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
-            <CheckCircle2 className="w-3.5 h-3.5" /> Verified
+            <CheckCircle className="w-3.5 h-3.5" /> Verified
           </span>
         ) : (
           <span className="inline-flex items-center gap-1 text-xs text-gray-400">
@@ -708,7 +708,7 @@ function PackageRow({
           disabled={deleteMutation.isPending}
           title="Remove this package and all versions from the registry"
         >
-          <Trash2 className="w-3 h-3" />
+          <Trash className="w-3 h-3" />
         </Button>
       </td>
     </tr>

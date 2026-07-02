@@ -1,4 +1,4 @@
-import { WandSparkles, Zap } from 'lucide-react'
+import { MagicWand, Lightning } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { CogsIcon } from '~/components/icons/CogsIcon'
 import { devtools } from './libraries'
@@ -12,7 +12,7 @@ export const devtoolsProject = {
   featureHighlights: [
     {
       title: 'Unified Devtools Panel',
-      icon: <WandSparkles className="text-black dark:text-gray-100" />,
+      icon: <MagicWand className="text-black dark:text-gray-100" />,
       description: (
         <div>
           TanStack Devtools provides a centralized panel that houses all
@@ -27,7 +27,7 @@ export const devtoolsProject = {
     },
     {
       title: 'Framework Agnostic',
-      icon: <Zap className="text-black dark:text-gray-100" />,
+      icon: <Lightning className="text-black dark:text-gray-100" />,
       description: (
         <div>
           Built with Solid.js for lightweight performance, but designed to work

@@ -14,17 +14,17 @@ import {
   ArrowDown,
   ArrowUp,
   ChartLine,
-  EyeOff,
+  EyeSlash,
   Flame,
-  LayoutDashboard,
+  SquaresFour,
   List,
   Lock,
-  LogIn,
+  SignIn,
   Minus,
   Shield,
   Trophy,
   Users,
-} from 'lucide-react'
+} from '@phosphor-icons/react'
 import { Card } from '~/components/Card'
 import { Badge, Button } from '~/ui'
 import * as v from 'valibot'
@@ -152,10 +152,10 @@ function AdminDashboard() {
   }
 
   const tabs = [
-    { id: 'overview', label: 'Overview', icon: <LayoutDashboard /> },
+    { id: 'overview', label: 'Overview', icon: <SquaresFour /> },
     { id: 'users', label: 'Users', icon: <Users /> },
-    { id: 'activity', label: 'Activity', icon: <LogIn /> },
-    { id: 'ads', label: 'Ads', icon: <EyeOff /> },
+    { id: 'activity', label: 'Activity', icon: <SignIn /> },
+    { id: 'ads', label: 'Ads', icon: <EyeSlash /> },
   ] as const
 
   return (
@@ -331,7 +331,7 @@ function OverviewTab({
         {activityStats && (
           <Card className="p-6">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-              <LogIn className="text-cyan-500" />
+              <SignIn className="text-cyan-500" />
               Login Activity
             </h3>
             <div className="grid grid-cols-3 gap-4">
@@ -1057,7 +1057,7 @@ function AdsTab({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="p-6">
           <div className="flex items-center gap-3 mb-4">
-            <EyeOff className="text-2xl text-green-500" />
+            <EyeSlash className="text-2xl text-green-500" />
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
               Users with Ads Disabled
             </h3>
@@ -1322,7 +1322,7 @@ function LoginsChartCard({
     <Card className="p-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-          <LogIn className="text-cyan-500" />
+          <SignIn className="text-cyan-500" />
           {title}
         </h3>
         <ChartControls

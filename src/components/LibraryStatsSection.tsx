@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { Download, Star } from 'lucide-react'
+import { Download, Star } from '@phosphor-icons/react'
 import type * as React from 'react'
 import type { Library } from '~/libraries'
 import { ossStatsQuery } from '~/queries/stats'

@@ -5,12 +5,12 @@ import {
   BookOpen,
   Crosshair,
   Keyboard,
-  ListOrdered,
+  ListNumbers,
   Monitor,
-  Pointer,
+  Cursor,
   Radio,
-  Sparkles,
-} from 'lucide-react'
+  Sparkle,
+} from '@phosphor-icons/react'
 
 import { BottomCTA } from '~/components/BottomCTA'
 import { Footer } from '~/components/Footer'
@@ -73,7 +73,7 @@ const featureCards = [
   {
     title: 'Sequences and holds unlock richer UI.',
     body: 'Support Vim-style sequences, multi-step commands, key hold detection, and contextual command flows.',
-    icon: <ListOrdered size={18} />,
+    icon: <ListNumbers size={18} />,
   },
   {
     title: 'Recording belongs in the product.',
@@ -186,7 +186,7 @@ export default function HotkeysLanding() {
       <section className="border-b border-rose-950/10 bg-[#fff7f8] dark:border-rose-300/10 dark:bg-[#230914]">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.74fr_1.26fr] xl:max-w-[92rem]">
           <div>
-            <SectionKicker icon={<Sparkles size={14} />}>
+            <SectionKicker icon={<Sparkle size={14} />}>
               Why Hotkeys
             </SectionKicker>
             <h2 className="mt-3 max-w-xl text-3xl font-black leading-tight sm:text-4xl">
@@ -229,7 +229,7 @@ export default function HotkeysLanding() {
       <section className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.72fr_1.28fr] lg:items-start xl:max-w-[92rem]">
           <div className="max-w-xl">
-            <SectionKicker icon={<Pointer size={14} />}>
+            <SectionKicker icon={<Cursor size={14} />}>
               Framework adapters
             </SectionKicker>
             <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">

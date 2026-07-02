@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
-import { EllipsisVertical } from 'lucide-react'
+import { DotsThreeVertical } from '@phosphor-icons/react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -76,7 +76,7 @@ export function ChartControls({
           <DropdownMenuTrigger asChild>
             <button className={twMerge(dropdownButtonStyles.base)}>
               {timeRanges.find((r) => r.value === range)?.label}
-              <EllipsisVertical className="w-3 h-3" />
+              <DotsThreeVertical className="w-3 h-3" />
             </button>
           </DropdownMenuTrigger>
         </Tooltip>
@@ -111,7 +111,7 @@ export function ChartControls({
               )}
             >
               {binningOptions.find((b) => b.value === binType)?.label}
-              <EllipsisVertical className="w-3 h-3" />
+              <DotsThreeVertical className="w-3 h-3" />
             </button>
           </DropdownMenuTrigger>
         </Tooltip>
@@ -150,7 +150,7 @@ export function ChartControls({
               )}
             >
               {transformOptions.find((opt) => opt.value === transform)?.label}
-              <EllipsisVertical className="w-3 h-3" />
+              <DotsThreeVertical className="w-3 h-3" />
             </button>
           </DropdownMenuTrigger>
         </Tooltip>
@@ -188,7 +188,7 @@ export function ChartControls({
                 {facetX
                   ? `Facet X by ${facetOptions.find((opt) => opt.value === facetX)?.label}`
                   : 'No Facet X'}
-                <EllipsisVertical className="w-3 h-3" />
+                <DotsThreeVertical className="w-3 h-3" />
               </button>
             </DropdownMenuTrigger>
           </Tooltip>
@@ -237,7 +237,7 @@ export function ChartControls({
                 {facetY
                   ? `Facet Y by ${facetOptions.find((opt) => opt.value === facetY)?.label}`
                   : 'No Facet Y'}
-                <EllipsisVertical className="w-3 h-3" />
+                <DotsThreeVertical className="w-3 h-3" />
               </button>
             </DropdownMenuTrigger>
           </Tooltip>
@@ -294,7 +294,7 @@ export function ChartControls({
                 showDataModeOptions.find((opt) => opt.value === showDataMode)
                   ?.label
               }
-              <EllipsisVertical className="w-3 h-3" />
+              <DotsThreeVertical className="w-3 h-3" />
             </button>
           </DropdownMenuTrigger>
         </Tooltip>

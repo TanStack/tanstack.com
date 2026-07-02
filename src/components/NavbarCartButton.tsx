@@ -1,5 +1,5 @@
 import { Link, useLocation } from '@tanstack/react-router'
-import { ShoppingCart } from 'lucide-react'
+import { ShoppingCart } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { useCart } from '~/hooks/useCart'
 import { useCartDrawerStore } from '~/components/shop/cartDrawerStore'

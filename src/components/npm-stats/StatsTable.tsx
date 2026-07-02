@@ -1,6 +1,6 @@
 import * as React from 'react'
 import * as d3 from 'd3'
-import { X, EyeOff } from 'lucide-react'
+import { X, EyeSlash } from '@phosphor-icons/react'
 import { Tooltip } from '~/components/Tooltip'
 import { binningOptionsByType } from './binning'
 import {
@@ -210,7 +210,7 @@ export function StatsTable({
                           <span className={stat.hidden ? 'opacity-50' : ''}>
                             {stat.package}
                           </span>
-                          {stat.hidden ? <EyeOff className="" /> : null}
+                          {stat.hidden ? <EyeSlash className="" /> : null}
                         </button>
                       </Tooltip>
                       <Tooltip content="Remove package">

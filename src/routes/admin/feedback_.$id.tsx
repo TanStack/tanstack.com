@@ -7,15 +7,15 @@ import {
 import { libraries } from '~/libraries'
 import {
   ArrowLeft,
-  MessageSquare,
+  ChatCentered,
   User,
   Calendar,
   FileText,
   Check,
   X,
   Clock,
-  AlertTriangle,
-} from 'lucide-react'
+  Warning,
+} from '@phosphor-icons/react'
 import { Card } from '~/components/Card'
 import { Badge, Button } from '~/ui'
 import { format } from '~/utils/dates'
@@ -68,7 +68,7 @@ function FeedbackDetailPage() {
       <div className="w-full p-4">
         <div className="max-w-4xl mx-auto">
           <div className="text-center py-12">
-            <MessageSquare className="mx-auto h-12 w-12 text-gray-400" />
+            <ChatCentered className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
               Feedback not found
             </h3>
@@ -117,7 +117,7 @@ function FeedbackDetailPage() {
 
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 rounded-lg bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-              <MessageSquare className="w-6 h-6 text-gray-400" />
+              <ChatCentered className="w-6 h-6 text-gray-400" />
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-3 flex-wrap">
@@ -140,7 +140,7 @@ function FeedbackDetailPage() {
                 </Badge>
                 {feedback.isDetached && (
                   <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300">
-                    <AlertTriangle className="w-3 h-3" />
+                    <Warning className="w-3 h-3" />
                     Detached
                   </span>
                 )}

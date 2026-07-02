@@ -10,13 +10,13 @@ import { twMerge } from 'tailwind-merge'
 
 import {
   ArrowRight,
-  Code2,
-  Layers,
+  Code,
+  Stack,
   Shield,
-  Zap,
+  Lightning,
   Play,
-  type LucideIcon,
-} from 'lucide-react'
+  type Icon,
+} from '@phosphor-icons/react'
 import { YouTubeIcon } from '~/components/icons/YouTubeIcon'
 import { HomeApplicationStarter } from '~/components/home/HomeApplicationStarter'
 import { HomeCommunitySection } from '~/components/home/HomeCommunitySection'
@@ -140,10 +140,6 @@ function Index() {
                 className="font-bold text-2xl max-w-md
             md:text-4xl md:max-w-2xl
             2xl:text-5xl lg:max-w-2xl text-balance"
-                style={{
-                  fontFamily:
-                    'ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"',
-                }}
               >
                 The <OpenSourceGradientText /> application stack for the web.
               </h2>
@@ -313,7 +309,7 @@ type WhyTanStackPrinciple = {
   label: string
   title: string
   body: string
-  Icon: LucideIcon
+  Icon: Icon
   accentClassName: string
   iconClassName: string
   proof: PrincipleProof
@@ -343,7 +339,7 @@ const whyTanStackPrinciples = [
     label: 'Portable core',
     title: 'Framework Agnostic',
     body: 'Every library starts with a provider-agnostic core. Use React, Vue, Solid, Angular, or vanilla JS—your choice.',
-    Icon: Layers,
+    Icon: Stack,
     accentClassName: 'from-blue-500 to-cyan-500',
     iconClassName:
       'border-cyan-200 bg-cyan-50 text-cyan-700 dark:border-cyan-900 dark:bg-cyan-950/40 dark:text-cyan-300',
@@ -353,7 +349,7 @@ const whyTanStackPrinciples = [
     label: 'Compile-time contracts',
     title: 'Type-Safe by Design',
     body: 'First-class TypeScript support that catches bugs at compile time and makes refactoring fearless.',
-    Icon: Code2,
+    Icon: Code,
     accentClassName: 'from-emerald-500 to-teal-500',
     iconClassName:
       'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300',
@@ -363,7 +359,7 @@ const whyTanStackPrinciples = [
     label: 'Real workloads',
     title: 'Production-Grade',
     body: "Battle-tested in the world's largest apps. Built for real workloads, not just happy-path demos.",
-    Icon: Zap,
+    Icon: Lightning,
     accentClassName: 'from-orange-500 to-red-500',
     iconClassName:
       'border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-900 dark:bg-orange-950/40 dark:text-orange-300',

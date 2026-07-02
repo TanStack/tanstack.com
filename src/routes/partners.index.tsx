@@ -19,7 +19,7 @@ import { seo } from '~/utils/seo'
 import { Library } from '~/libraries'
 import { useState } from 'react'
 import * as React from 'react'
-import { ListFilter, X } from 'lucide-react'
+import { Funnel, X } from '@phosphor-icons/react'
 import { Button } from '~/ui'
 import { startProject } from '~/libraries/start'
 import { routerProject } from '~/libraries/router'
@@ -156,7 +156,7 @@ function PartnersFilter({
             onClick={() => setIsOpen(!isOpen)}
             className="inline-flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
-            <ListFilter className="w-4 h-4" />
+            <Funnel className="w-4 h-4" />
             Filter Partners
             {hasFilters && (
               <span className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-0.5 rounded-full text-xs">

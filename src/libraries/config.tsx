@@ -1,4 +1,4 @@
-import { WandSparkles, Zap } from 'lucide-react'
+import { MagicWand, Lightning } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { CogsIcon } from '~/components/icons/CogsIcon'
 import { config } from './libraries'
@@ -12,7 +12,7 @@ export const configProject = {
   featureHighlights: [
     {
       title: 'Intuitive Configuration',
-      icon: <WandSparkles className="text-black dark:text-gray-100" />,
+      icon: <MagicWand className="text-black dark:text-gray-100" />,
       description: (
         <div>
           TanStack Config offers a seamless and intuitive configuration
@@ -28,7 +28,7 @@ export const configProject = {
     },
     {
       title: 'Vite-Powered Builds',
-      icon: <Zap className="text-black dark:text-gray-100" />,
+      icon: <Lightning className="text-black dark:text-gray-100" />,
       description: (
         <div>
           TanStack Config's build configuration harnesses the Vite ecosystem.

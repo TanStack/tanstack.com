@@ -39,7 +39,7 @@ import {
   getBulkEffectiveCapabilitiesQueryOptions,
 } from '~/queries/roles'
 import { getUserRoles } from '~/utils/roles.functions'
-import { Save, SquarePen, X, Users } from 'lucide-react'
+import { FloppyDisk, PencilSimpleLine, X, Users } from '@phosphor-icons/react'
 import {
   AdminAccessDenied,
   AdminLoading,
@@ -701,7 +701,7 @@ function UsersPage() {
                 onClick={handleSaveUser}
                 className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
               >
-                <Save className="w-4 h-4" />
+                <FloppyDisk className="w-4 h-4" />
               </button>
               <button
                 onClick={handleCancelEdit}
@@ -715,7 +715,7 @@ function UsersPage() {
               onClick={() => handleEditUser(user)}
               className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
             >
-              <SquarePen className="w-4 h-4" />
+              <PencilSimpleLine className="w-4 h-4" />
             </button>
           )
         },

@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Command, Search } from 'lucide-react'
+import { Command, MagnifyingGlass } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { Button } from '~/ui'
 import { useSearchContext } from '~/contexts/SearchContext'
@@ -43,7 +43,7 @@ export function SearchButton({
         className,
       )}
     >
-      <Search className="w-3.5 h-3.5" />
+      <MagnifyingGlass className="w-3.5 h-3.5" />
       {iconOnly ? (
         <span className="sr-only">Search</span>
       ) : (

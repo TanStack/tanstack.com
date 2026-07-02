@@ -33,6 +33,7 @@ import { Route as LearnRouteImport } from './routes/learn'
 import { Route as FeedbackLeaderboardRouteImport } from './routes/feedback-leaderboard'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as EthosRouteImport } from './routes/ethos'
+import { Route as DsRouteImport } from './routes/ds'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as BuilderRouteImport } from './routes/builder'
 import { Route as BrandGuideRouteImport } from './routes/brand-guide'
@@ -46,6 +47,7 @@ import { Route as StatsIndexRouteImport } from './routes/stats/index'
 import { Route as ShowcaseIndexRouteImport } from './routes/showcase/index'
 import { Route as ShopIndexRouteImport } from './routes/shop.index'
 import { Route as PartnersIndexRouteImport } from './routes/partners.index'
+import { Route as DsIndexRouteImport } from './routes/ds.index'
 import { Route as BuilderIndexRouteImport } from './routes/builder.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
@@ -62,6 +64,23 @@ import { Route as OauthTokenRouteImport } from './routes/oauth/token'
 import { Route as OauthRegisterRouteImport } from './routes/oauth/register'
 import { Route as OauthAuthorizeRouteImport } from './routes/oauth/authorize'
 import { Route as LibrariesFrameworkRouteImport } from './routes/libraries_.$framework'
+import { Route as DsTypographyRouteImport } from './routes/ds.typography'
+import { Route as DsSpinnerRouteImport } from './routes/ds.spinner'
+import { Route as DsShadowsRouteImport } from './routes/ds.shadows'
+import { Route as DsSemanticRouteImport } from './routes/ds.semantic'
+import { Route as DsPaletteRouteImport } from './routes/ds.palette'
+import { Route as DsInputsRouteImport } from './routes/ds.inputs'
+import { Route as DsIconographyRouteImport } from './routes/ds.iconography'
+import { Route as DsIconMigrationRouteImport } from './routes/ds.icon-migration'
+import { Route as DsEffectsRouteImport } from './routes/ds.effects'
+import { Route as DsDropdownRouteImport } from './routes/ds.dropdown'
+import { Route as DsColorsRouteImport } from './routes/ds.colors'
+import { Route as DsCollapsibleRouteImport } from './routes/ds.collapsible'
+import { Route as DsCardsRouteImport } from './routes/ds.cards'
+import { Route as DsButtonsRouteImport } from './routes/ds.buttons'
+import { Route as DsBreadcrumbsRouteImport } from './routes/ds.breadcrumbs'
+import { Route as DsBadgesRouteImport } from './routes/ds.badges'
+import { Route as DsAvatarRouteImport } from './routes/ds.avatar'
 import { Route as BuilderDocsRouteImport } from './routes/builder.docs'
 import { Route as BlogSplatRouteImport } from './routes/blog.$'
 import { Route as AuthSignoutRouteImport } from './routes/auth/signout'
@@ -282,6 +301,11 @@ const EthosRoute = EthosRouteImport.update({
   path: '/ethos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DsRoute = DsRouteImport.update({
+  id: '/ds',
+  path: '/ds',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -345,6 +369,11 @@ const PartnersIndexRoute = PartnersIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => PartnersRoute,
+} as any)
+const DsIndexRoute = DsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DsRoute,
 } as any)
 const BuilderIndexRoute = BuilderIndexRouteImport.update({
   id: '/',
@@ -425,6 +454,91 @@ const LibrariesFrameworkRoute = LibrariesFrameworkRouteImport.update({
   id: '/libraries_/$framework',
   path: '/libraries/$framework',
   getParentRoute: () => rootRouteImport,
+} as any)
+const DsTypographyRoute = DsTypographyRouteImport.update({
+  id: '/typography',
+  path: '/typography',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsSpinnerRoute = DsSpinnerRouteImport.update({
+  id: '/spinner',
+  path: '/spinner',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsShadowsRoute = DsShadowsRouteImport.update({
+  id: '/shadows',
+  path: '/shadows',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsSemanticRoute = DsSemanticRouteImport.update({
+  id: '/semantic',
+  path: '/semantic',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsPaletteRoute = DsPaletteRouteImport.update({
+  id: '/palette',
+  path: '/palette',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsInputsRoute = DsInputsRouteImport.update({
+  id: '/inputs',
+  path: '/inputs',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsIconographyRoute = DsIconographyRouteImport.update({
+  id: '/iconography',
+  path: '/iconography',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsIconMigrationRoute = DsIconMigrationRouteImport.update({
+  id: '/icon-migration',
+  path: '/icon-migration',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsEffectsRoute = DsEffectsRouteImport.update({
+  id: '/effects',
+  path: '/effects',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsDropdownRoute = DsDropdownRouteImport.update({
+  id: '/dropdown',
+  path: '/dropdown',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsColorsRoute = DsColorsRouteImport.update({
+  id: '/colors',
+  path: '/colors',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsCollapsibleRoute = DsCollapsibleRouteImport.update({
+  id: '/collapsible',
+  path: '/collapsible',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsCardsRoute = DsCardsRouteImport.update({
+  id: '/cards',
+  path: '/cards',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsButtonsRoute = DsButtonsRouteImport.update({
+  id: '/buttons',
+  path: '/buttons',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsBreadcrumbsRoute = DsBreadcrumbsRouteImport.update({
+  id: '/breadcrumbs',
+  path: '/breadcrumbs',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsBadgesRoute = DsBadgesRouteImport.update({
+  id: '/badges',
+  path: '/badges',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsAvatarRoute = DsAvatarRouteImport.update({
+  id: '/avatar',
+  path: '/avatar',
+  getParentRoute: () => DsRoute,
 } as any)
 const BuilderDocsRoute = BuilderDocsRouteImport.update({
   id: '/docs',
@@ -975,6 +1089,7 @@ export interface FileRoutesByFullPath {
   '/brand-guide': typeof BrandGuideRoute
   '/builder': typeof BuilderRouteWithChildren
   '/dashboard': typeof DashboardRoute
+  '/ds': typeof DsRouteWithChildren
   '/ethos': typeof EthosRoute
   '/explore': typeof ExploreRoute
   '/feedback-leaderboard': typeof FeedbackLeaderboardRoute
@@ -1018,6 +1133,23 @@ export interface FileRoutesByFullPath {
   '/auth/signout': typeof AuthSignoutRoute
   '/blog/$': typeof BlogSplatRoute
   '/builder/docs': typeof BuilderDocsRoute
+  '/ds/avatar': typeof DsAvatarRoute
+  '/ds/badges': typeof DsBadgesRoute
+  '/ds/breadcrumbs': typeof DsBreadcrumbsRoute
+  '/ds/buttons': typeof DsButtonsRoute
+  '/ds/cards': typeof DsCardsRoute
+  '/ds/collapsible': typeof DsCollapsibleRoute
+  '/ds/colors': typeof DsColorsRoute
+  '/ds/dropdown': typeof DsDropdownRoute
+  '/ds/effects': typeof DsEffectsRoute
+  '/ds/icon-migration': typeof DsIconMigrationRoute
+  '/ds/iconography': typeof DsIconographyRoute
+  '/ds/inputs': typeof DsInputsRoute
+  '/ds/palette': typeof DsPaletteRoute
+  '/ds/semantic': typeof DsSemanticRoute
+  '/ds/shadows': typeof DsShadowsRoute
+  '/ds/spinner': typeof DsSpinnerRoute
+  '/ds/typography': typeof DsTypographyRoute
   '/libraries/$framework': typeof LibrariesFrameworkRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
@@ -1034,6 +1166,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/builder/': typeof BuilderIndexRoute
+  '/ds/': typeof DsIndexRoute
   '/partners/': typeof PartnersIndexRoute
   '/shop/': typeof ShopIndexRoute
   '/showcase/': typeof ShowcaseIndexRoute
@@ -1164,6 +1297,23 @@ export interface FileRoutesByTo {
   '/auth/signout': typeof AuthSignoutRoute
   '/blog/$': typeof BlogSplatRoute
   '/builder/docs': typeof BuilderDocsRoute
+  '/ds/avatar': typeof DsAvatarRoute
+  '/ds/badges': typeof DsBadgesRoute
+  '/ds/breadcrumbs': typeof DsBreadcrumbsRoute
+  '/ds/buttons': typeof DsButtonsRoute
+  '/ds/cards': typeof DsCardsRoute
+  '/ds/collapsible': typeof DsCollapsibleRoute
+  '/ds/colors': typeof DsColorsRoute
+  '/ds/dropdown': typeof DsDropdownRoute
+  '/ds/effects': typeof DsEffectsRoute
+  '/ds/icon-migration': typeof DsIconMigrationRoute
+  '/ds/iconography': typeof DsIconographyRoute
+  '/ds/inputs': typeof DsInputsRoute
+  '/ds/palette': typeof DsPaletteRoute
+  '/ds/semantic': typeof DsSemanticRoute
+  '/ds/shadows': typeof DsShadowsRoute
+  '/ds/spinner': typeof DsSpinnerRoute
+  '/ds/typography': typeof DsTypographyRoute
   '/libraries/$framework': typeof LibrariesFrameworkRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
@@ -1180,6 +1330,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/blog': typeof BlogIndexRoute
   '/builder': typeof BuilderIndexRoute
+  '/ds': typeof DsIndexRoute
   '/partners': typeof PartnersIndexRoute
   '/shop': typeof ShopIndexRoute
   '/showcase': typeof ShowcaseIndexRoute
@@ -1273,6 +1424,7 @@ export interface FileRoutesById {
   '/brand-guide': typeof BrandGuideRoute
   '/builder': typeof BuilderRouteWithChildren
   '/dashboard': typeof DashboardRoute
+  '/ds': typeof DsRouteWithChildren
   '/ethos': typeof EthosRoute
   '/explore': typeof ExploreRoute
   '/feedback-leaderboard': typeof FeedbackLeaderboardRoute
@@ -1316,6 +1468,23 @@ export interface FileRoutesById {
   '/auth/signout': typeof AuthSignoutRoute
   '/blog/$': typeof BlogSplatRoute
   '/builder/docs': typeof BuilderDocsRoute
+  '/ds/avatar': typeof DsAvatarRoute
+  '/ds/badges': typeof DsBadgesRoute
+  '/ds/breadcrumbs': typeof DsBreadcrumbsRoute
+  '/ds/buttons': typeof DsButtonsRoute
+  '/ds/cards': typeof DsCardsRoute
+  '/ds/collapsible': typeof DsCollapsibleRoute
+  '/ds/colors': typeof DsColorsRoute
+  '/ds/dropdown': typeof DsDropdownRoute
+  '/ds/effects': typeof DsEffectsRoute
+  '/ds/icon-migration': typeof DsIconMigrationRoute
+  '/ds/iconography': typeof DsIconographyRoute
+  '/ds/inputs': typeof DsInputsRoute
+  '/ds/palette': typeof DsPaletteRoute
+  '/ds/semantic': typeof DsSemanticRoute
+  '/ds/shadows': typeof DsShadowsRoute
+  '/ds/spinner': typeof DsSpinnerRoute
+  '/ds/typography': typeof DsTypographyRoute
   '/libraries_/$framework': typeof LibrariesFrameworkRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
@@ -1332,6 +1501,7 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/builder/': typeof BuilderIndexRoute
+  '/ds/': typeof DsIndexRoute
   '/partners/': typeof PartnersIndexRoute
   '/shop/': typeof ShopIndexRoute
   '/showcase/': typeof ShowcaseIndexRoute
@@ -1428,6 +1598,7 @@ export interface FileRouteTypes {
     | '/brand-guide'
     | '/builder'
     | '/dashboard'
+    | '/ds'
     | '/ethos'
     | '/explore'
     | '/feedback-leaderboard'
@@ -1471,6 +1642,23 @@ export interface FileRouteTypes {
     | '/auth/signout'
     | '/blog/$'
     | '/builder/docs'
+    | '/ds/avatar'
+    | '/ds/badges'
+    | '/ds/breadcrumbs'
+    | '/ds/buttons'
+    | '/ds/cards'
+    | '/ds/collapsible'
+    | '/ds/colors'
+    | '/ds/dropdown'
+    | '/ds/effects'
+    | '/ds/icon-migration'
+    | '/ds/iconography'
+    | '/ds/inputs'
+    | '/ds/palette'
+    | '/ds/semantic'
+    | '/ds/shadows'
+    | '/ds/spinner'
+    | '/ds/typography'
     | '/libraries/$framework'
     | '/oauth/authorize'
     | '/oauth/register'
@@ -1487,6 +1675,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/blog/'
     | '/builder/'
+    | '/ds/'
     | '/partners/'
     | '/shop/'
     | '/showcase/'
@@ -1617,6 +1806,23 @@ export interface FileRouteTypes {
     | '/auth/signout'
     | '/blog/$'
     | '/builder/docs'
+    | '/ds/avatar'
+    | '/ds/badges'
+    | '/ds/breadcrumbs'
+    | '/ds/buttons'
+    | '/ds/cards'
+    | '/ds/collapsible'
+    | '/ds/colors'
+    | '/ds/dropdown'
+    | '/ds/effects'
+    | '/ds/icon-migration'
+    | '/ds/iconography'
+    | '/ds/inputs'
+    | '/ds/palette'
+    | '/ds/semantic'
+    | '/ds/shadows'
+    | '/ds/spinner'
+    | '/ds/typography'
     | '/libraries/$framework'
     | '/oauth/authorize'
     | '/oauth/register'
@@ -1633,6 +1839,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/blog'
     | '/builder'
+    | '/ds'
     | '/partners'
     | '/shop'
     | '/showcase'
@@ -1725,6 +1932,7 @@ export interface FileRouteTypes {
     | '/brand-guide'
     | '/builder'
     | '/dashboard'
+    | '/ds'
     | '/ethos'
     | '/explore'
     | '/feedback-leaderboard'
@@ -1768,6 +1976,23 @@ export interface FileRouteTypes {
     | '/auth/signout'
     | '/blog/$'
     | '/builder/docs'
+    | '/ds/avatar'
+    | '/ds/badges'
+    | '/ds/breadcrumbs'
+    | '/ds/buttons'
+    | '/ds/cards'
+    | '/ds/collapsible'
+    | '/ds/colors'
+    | '/ds/dropdown'
+    | '/ds/effects'
+    | '/ds/icon-migration'
+    | '/ds/iconography'
+    | '/ds/inputs'
+    | '/ds/palette'
+    | '/ds/semantic'
+    | '/ds/shadows'
+    | '/ds/spinner'
+    | '/ds/typography'
     | '/libraries_/$framework'
     | '/oauth/authorize'
     | '/oauth/register'
@@ -1784,6 +2009,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/blog/'
     | '/builder/'
+    | '/ds/'
     | '/partners/'
     | '/shop/'
     | '/showcase/'
@@ -1880,6 +2106,7 @@ export interface RootRouteChildren {
   BrandGuideRoute: typeof BrandGuideRoute
   BuilderRoute: typeof BuilderRouteWithChildren
   DashboardRoute: typeof DashboardRoute
+  DsRoute: typeof DsRouteWithChildren
   EthosRoute: typeof EthosRoute
   ExploreRoute: typeof ExploreRoute
   FeedbackLeaderboardRoute: typeof FeedbackLeaderboardRoute
@@ -2120,6 +2347,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EthosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ds': {
+      id: '/ds'
+      path: '/ds'
+      fullPath: '/ds'
+      preLoaderRoute: typeof DsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -2210,6 +2444,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/partners/'
       preLoaderRoute: typeof PartnersIndexRouteImport
       parentRoute: typeof PartnersRoute
+    }
+    '/ds/': {
+      id: '/ds/'
+      path: '/'
+      fullPath: '/ds/'
+      preLoaderRoute: typeof DsIndexRouteImport
+      parentRoute: typeof DsRoute
     }
     '/builder/': {
       id: '/builder/'
@@ -2322,6 +2563,125 @@ declare module '@tanstack/react-router' {
       fullPath: '/libraries/$framework'
       preLoaderRoute: typeof LibrariesFrameworkRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/ds/typography': {
+      id: '/ds/typography'
+      path: '/typography'
+      fullPath: '/ds/typography'
+      preLoaderRoute: typeof DsTypographyRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/spinner': {
+      id: '/ds/spinner'
+      path: '/spinner'
+      fullPath: '/ds/spinner'
+      preLoaderRoute: typeof DsSpinnerRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/shadows': {
+      id: '/ds/shadows'
+      path: '/shadows'
+      fullPath: '/ds/shadows'
+      preLoaderRoute: typeof DsShadowsRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/semantic': {
+      id: '/ds/semantic'
+      path: '/semantic'
+      fullPath: '/ds/semantic'
+      preLoaderRoute: typeof DsSemanticRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/palette': {
+      id: '/ds/palette'
+      path: '/palette'
+      fullPath: '/ds/palette'
+      preLoaderRoute: typeof DsPaletteRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/inputs': {
+      id: '/ds/inputs'
+      path: '/inputs'
+      fullPath: '/ds/inputs'
+      preLoaderRoute: typeof DsInputsRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/iconography': {
+      id: '/ds/iconography'
+      path: '/iconography'
+      fullPath: '/ds/iconography'
+      preLoaderRoute: typeof DsIconographyRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/icon-migration': {
+      id: '/ds/icon-migration'
+      path: '/icon-migration'
+      fullPath: '/ds/icon-migration'
+      preLoaderRoute: typeof DsIconMigrationRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/effects': {
+      id: '/ds/effects'
+      path: '/effects'
+      fullPath: '/ds/effects'
+      preLoaderRoute: typeof DsEffectsRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/dropdown': {
+      id: '/ds/dropdown'
+      path: '/dropdown'
+      fullPath: '/ds/dropdown'
+      preLoaderRoute: typeof DsDropdownRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/colors': {
+      id: '/ds/colors'
+      path: '/colors'
+      fullPath: '/ds/colors'
+      preLoaderRoute: typeof DsColorsRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/collapsible': {
+      id: '/ds/collapsible'
+      path: '/collapsible'
+      fullPath: '/ds/collapsible'
+      preLoaderRoute: typeof DsCollapsibleRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/cards': {
+      id: '/ds/cards'
+      path: '/cards'
+      fullPath: '/ds/cards'
+      preLoaderRoute: typeof DsCardsRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/buttons': {
+      id: '/ds/buttons'
+      path: '/buttons'
+      fullPath: '/ds/buttons'
+      preLoaderRoute: typeof DsButtonsRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/breadcrumbs': {
+      id: '/ds/breadcrumbs'
+      path: '/breadcrumbs'
+      fullPath: '/ds/breadcrumbs'
+      preLoaderRoute: typeof DsBreadcrumbsRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/badges': {
+      id: '/ds/badges'
+      path: '/badges'
+      fullPath: '/ds/badges'
+      preLoaderRoute: typeof DsBadgesRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/avatar': {
+      id: '/ds/avatar'
+      path: '/avatar'
+      fullPath: '/ds/avatar'
+      preLoaderRoute: typeof DsAvatarRouteImport
+      parentRoute: typeof DsRoute
     }
     '/builder/docs': {
       id: '/builder/docs'
@@ -3245,6 +3605,50 @@ const BuilderRouteChildren: BuilderRouteChildren = {
 const BuilderRouteWithChildren =
   BuilderRoute._addFileChildren(BuilderRouteChildren)
 
+interface DsRouteChildren {
+  DsAvatarRoute: typeof DsAvatarRoute
+  DsBadgesRoute: typeof DsBadgesRoute
+  DsBreadcrumbsRoute: typeof DsBreadcrumbsRoute
+  DsButtonsRoute: typeof DsButtonsRoute
+  DsCardsRoute: typeof DsCardsRoute
+  DsCollapsibleRoute: typeof DsCollapsibleRoute
+  DsColorsRoute: typeof DsColorsRoute
+  DsDropdownRoute: typeof DsDropdownRoute
+  DsEffectsRoute: typeof DsEffectsRoute
+  DsIconMigrationRoute: typeof DsIconMigrationRoute
+  DsIconographyRoute: typeof DsIconographyRoute
+  DsInputsRoute: typeof DsInputsRoute
+  DsPaletteRoute: typeof DsPaletteRoute
+  DsSemanticRoute: typeof DsSemanticRoute
+  DsShadowsRoute: typeof DsShadowsRoute
+  DsSpinnerRoute: typeof DsSpinnerRoute
+  DsTypographyRoute: typeof DsTypographyRoute
+  DsIndexRoute: typeof DsIndexRoute
+}
+
+const DsRouteChildren: DsRouteChildren = {
+  DsAvatarRoute: DsAvatarRoute,
+  DsBadgesRoute: DsBadgesRoute,
+  DsBreadcrumbsRoute: DsBreadcrumbsRoute,
+  DsButtonsRoute: DsButtonsRoute,
+  DsCardsRoute: DsCardsRoute,
+  DsCollapsibleRoute: DsCollapsibleRoute,
+  DsColorsRoute: DsColorsRoute,
+  DsDropdownRoute: DsDropdownRoute,
+  DsEffectsRoute: DsEffectsRoute,
+  DsIconMigrationRoute: DsIconMigrationRoute,
+  DsIconographyRoute: DsIconographyRoute,
+  DsInputsRoute: DsInputsRoute,
+  DsPaletteRoute: DsPaletteRoute,
+  DsSemanticRoute: DsSemanticRoute,
+  DsShadowsRoute: DsShadowsRoute,
+  DsSpinnerRoute: DsSpinnerRoute,
+  DsTypographyRoute: DsTypographyRoute,
+  DsIndexRoute: DsIndexRoute,
+}
+
+const DsRouteWithChildren = DsRoute._addFileChildren(DsRouteChildren)
+
 interface PartnersRouteChildren {
   PartnersPartnerRoute: typeof PartnersPartnerRoute
   PartnersRailwayRoute: typeof PartnersRailwayRoute
@@ -3315,6 +3719,7 @@ const rootRouteChildren: RootRouteChildren = {
   BrandGuideRoute: BrandGuideRoute,
   BuilderRoute: BuilderRouteWithChildren,
   DashboardRoute: DashboardRoute,
+  DsRoute: DsRouteWithChildren,
   EthosRoute: EthosRoute,
   ExploreRoute: ExploreRoute,
   FeedbackLeaderboardRoute: FeedbackLeaderboardRoute,

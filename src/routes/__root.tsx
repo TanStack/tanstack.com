@@ -198,6 +198,18 @@ export const Route = createRootRouteWithContext<{
           type: 'font/woff2',
           crossOrigin: 'anonymous',
         },
+        // Rebrand type system: Bricolage Grotesque (display/headings) + IBM Plex
+        // Mono (code). Loaded globally so the new styles apply across the site.
+        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+        {
+          rel: 'preconnect',
+          href: 'https://fonts.gstatic.com',
+          crossOrigin: 'anonymous',
+        },
+        {
+          rel: 'stylesheet',
+          href: 'https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@300;400;500&display=swap',
+        },
         {
           rel: 'apple-touch-icon',
           sizes: '180x180',

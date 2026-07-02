@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
-import { HelpCircle, X } from 'lucide-react'
+import { Question, X } from '@phosphor-icons/react'
 import { useBuilderStore } from './store'
 import { useBuilderUrl } from './useBuilderUrl'
 import { BuilderSummaryPanel, useBuilderSummaryData } from './BuilderSummary'
@@ -153,7 +153,7 @@ export function BuilderWorkspace() {
                 {showIntro ? (
                   <X className="h-4 w-4" />
                 ) : (
-                  <HelpCircle className="h-4 w-4" />
+                  <Question className="h-4 w-4" />
                 )}
               </button>
             }

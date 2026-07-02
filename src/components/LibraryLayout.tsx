@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { ChevronLeft, ChevronRight, Menu, X } from 'lucide-react'
+import { CaretLeft, CaretRight, List, X } from '@phosphor-icons/react'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { DiscordIcon } from '~/components/icons/DiscordIcon'
 import { Link, useMatches, useParams } from '@tanstack/react-router'
@@ -617,7 +617,7 @@ function DocNavigationCard({
   const children =
     direction === 'previous' ? (
       <>
-        <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
+        <CaretLeft className="w-3 h-3 sm:w-4 sm:h-4" />
         <div className="flex flex-col">
           <span className="hidden sm:block text-[10px] uppercase tracking-wider opacity-60 mb-0.5">
             Previous
@@ -637,7 +637,7 @@ function DocNavigationCard({
             {item.label}
           </span>
         </div>
-        <ChevronRight className={twMerge('w-3 h-3 sm:w-4 sm:h-4', textColor)} />
+        <CaretRight className={twMerge('w-3 h-3 sm:w-4 sm:h-4', textColor)} />
       </>
     )
 
@@ -1272,7 +1272,7 @@ export function LibraryLayout({
           data-docs-mobile-trigger
           className="min-[900px]:hidden flex items-center gap-1.5 shrink-0 px-3 border-r border-gray-500/20 text-slate-600 dark:text-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-current"
         >
-          <Menu className="w-4 h-4" data-docs-mobile-closed-icon />
+          <List className="w-4 h-4" data-docs-mobile-closed-icon />
           <X className="w-4 h-4" data-docs-mobile-open-icon />
           <span className="text-xs font-medium max-[479.98px]:sr-only">
             Menu
@@ -1295,7 +1295,7 @@ export function LibraryLayout({
           data-docs-menu-trigger
           className="hidden min-[900px]:flex xl:hidden items-center gap-1 shrink-0 px-2 border-r border-gray-500/20 text-xs font-medium text-slate-600 dark:text-slate-300 min-[1120px]:gap-1.5 min-[1120px]:px-3 min-[1120px]:text-[13px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-current"
         >
-          <Menu className="w-4 h-4" />
+          <List className="w-4 h-4" />
           <span className="text-xs font-medium">Menu</span>
         </button>
         <div className="relative flex min-w-0 flex-1 items-stretch">

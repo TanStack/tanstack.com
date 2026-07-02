@@ -15,8 +15,8 @@ import { Spinner } from './Spinner'
 import type { DocFeedback } from '~/db/types'
 import { calculatePoints } from '~/utils/docFeedback.shared'
 import { getRowFieldId } from '~/utils/route-encoding'
-import { Check, Lightbulb, TriangleAlert } from 'lucide-react'
-import { MessageSquare, X } from 'lucide-react'
+import { Check, Lightbulb, Warning } from '@phosphor-icons/react'
+import { ChatCentered, X } from '@phosphor-icons/react'
 import { Badge, Button } from '~/ui'
 
 interface FeedbackModerationListProps {
@@ -189,7 +189,7 @@ export function FeedbackModerationList({
                       onClick={(e) => e.stopPropagation()}
                     >
                       {feedback.type === 'note' ? (
-                        <MessageSquare className="text-blue-500" />
+                        <ChatCentered className="text-blue-500" />
                       ) : (
                         <Lightbulb className="text-yellow-500" />
                       )}
@@ -226,7 +226,7 @@ export function FeedbackModerationList({
                     </span>
                     {feedback.isDetached && (
                       <div className="flex items-center gap-1 text-xs text-yellow-600 dark:text-yellow-400 mt-1">
-                        <TriangleAlert />
+                        <Warning />
                         Detached
                       </div>
                     )}

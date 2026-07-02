@@ -1,5 +1,5 @@
 import { getLibrary, LibraryId } from '~/libraries'
-import { HeartHandshake } from 'lucide-react'
+import { HandHeart } from '@phosphor-icons/react'
 import { Card } from './Card'
 import { trackEvent } from '~/utils/analytics'
 
@@ -17,7 +17,7 @@ export function PartnershipCallout({ libraryId }: PartnershipCalloutProps) {
                     w-[500px] max-w-full mx-auto"
     >
       <span className="flex items-center gap-2 p-8 text-3xl text-rose-500 font-black uppercase">
-        {library.name.replace('TanStack ', '')} <HeartHandshake /> You?
+        {library.name.replace('TanStack ', '')} <HandHeart /> You?
       </span>
       <div className="flex flex-col p-4 gap-3 text-sm">
         <div>

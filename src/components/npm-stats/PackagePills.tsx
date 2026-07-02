@@ -1,6 +1,12 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
-import { X, Plus, Eye, EyeOff, EllipsisVertical } from 'lucide-react'
+import {
+  X,
+  Plus,
+  Eye,
+  EyeSlash,
+  DotsThreeVertical,
+} from '@phosphor-icons/react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -111,7 +117,7 @@ export function PackagePill({
           >
             {label}
             {isGroupHidden ? (
-              <EyeOff className="w-3 h-3 sm:w-4 sm:h-4" />
+              <EyeSlash className="w-3 h-3 sm:w-4 sm:h-4" />
             ) : null}
           </button>
         </Tooltip>
@@ -131,7 +137,7 @@ export function PackagePill({
               <Tooltip content="More options">
                 <DropdownMenuTrigger asChild>
                   <button className="px-0.5 sm:px-1 hover:text-blue-500">
-                    <EllipsisVertical className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <DotsThreeVertical className="w-3 h-3 sm:w-4 sm:h-4" />
                   </button>
                 </DropdownMenuTrigger>
               </Tooltip>
@@ -182,7 +188,7 @@ export function PackagePill({
                     className="w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer"
                   >
                     {isGroupHidden ? (
-                      <EyeOff className="text-sm" />
+                      <EyeSlash className="text-sm" />
                     ) : (
                       <Eye className="text-sm" />
                     )}
@@ -222,7 +228,7 @@ export function PackagePill({
                           <div className="flex-1 flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               {subPackage.hidden ? (
-                                <EyeOff className="text-sm" />
+                                <EyeSlash className="text-sm" />
                               ) : (
                                 <Eye className="text-sm" />
                               )}

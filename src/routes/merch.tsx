@@ -2,7 +2,13 @@ import { createFileRoute } from '@tanstack/react-router'
 import * as React from 'react'
 import { Footer } from '~/components/Footer'
 import { seo } from '~/utils/seo'
-import { Shirt, ShoppingBag, Smartphone, Tag, Circle } from 'lucide-react'
+import {
+  TShirt,
+  ShoppingBag,
+  DeviceMobile,
+  Tag,
+  Circle,
+} from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { BaseballCapIcon } from '~/components/icons/BaseballCapIcon'
 
@@ -23,10 +29,10 @@ const merchItems = [
     description:
       'T-shirts, sweatshirts, hoodies, onesies, hats, totes, and phone cases featuring TanStack designs',
     icons: [
-      { Icon: Shirt, label: 'T-shirts' },
+      { Icon: TShirt, label: 'T-shirts' },
       { Icon: BaseballCapIcon, label: 'Hats' },
       { Icon: ShoppingBag, label: 'Totes' },
-      { Icon: Smartphone, label: 'Phone cases' },
+      { Icon: DeviceMobile, label: 'Phone cases' },
     ],
     href: 'https://cottonbureau.com/people/tanstack',
     iconColor: 'text-blue-500',

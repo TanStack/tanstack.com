@@ -3,16 +3,16 @@ import { Link, useRouterState } from '@tanstack/react-router'
 import {
   ArrowRight,
   BookOpen,
-  Boxes,
+  Stack,
   Compass,
-  HelpCircle,
-  Home,
-  LifeBuoy,
+  Question,
+  House,
+  Lifebuoy,
   Newspaper,
   ShoppingBag,
-  Sparkles,
-  type LucideIcon,
-} from 'lucide-react'
+  Sparkle,
+  type Icon,
+} from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { libraries, type LibrarySlim } from '~/libraries'
 import { Button } from '~/ui'
@@ -24,7 +24,7 @@ type NotFoundDestination = {
   label: string
   description: string
   href: string
-  icon: LucideIcon
+  icon: Icon
   accent: Accent
   score: number
 }
@@ -46,7 +46,7 @@ const fallbackDestinations: NotFoundDestination[] = [
     label: 'All libraries',
     description: 'Browse TanStack Query, Router, Table, Start, and more.',
     href: '/libraries',
-    icon: Boxes,
+    icon: Stack,
     accent: 'emerald',
     score: 1,
   },
@@ -64,7 +64,7 @@ const fallbackDestinations: NotFoundDestination[] = [
     label: 'Support',
     description: 'Find paid support, community help, and project resources.',
     href: '/support',
-    icon: LifeBuoy,
+    icon: Lifebuoy,
     accent: 'amber',
     score: 1,
   },
@@ -85,7 +85,7 @@ const sectionDestinations: NotFoundDestination[] = [
     label: 'Showcase',
     description: 'Explore projects built with TanStack.',
     href: '/showcase',
-    icon: Sparkles,
+    icon: Sparkle,
     accent: 'cyan',
     score: 0,
   },
@@ -258,7 +258,7 @@ function getSectionDestinations(pathname: string) {
     label: 'Support',
     description: 'Get help when the missing page was supposed to unblock you.',
     href: '/support',
-    icon: HelpCircle,
+    icon: Question,
     accent: 'amber',
     score: 0,
   }
@@ -364,15 +364,15 @@ export function NotFound({ children }: { children?: React.ReactNode }) {
 
           <div className="flex flex-wrap gap-3">
             <Button as={Link} to="/libraries" color="emerald">
-              <Boxes className="h-4 w-4" />
+              <Stack className="h-4 w-4" />
               Browse libraries
             </Button>
             <Button as={Link} to="/support" variant="ghost">
-              <LifeBuoy className="h-4 w-4" />
+              <Lifebuoy className="h-4 w-4" />
               Support
             </Button>
             <Button as={Link} to="/" variant="ghost">
-              <Home className="h-4 w-4" />
+              <House className="h-4 w-4" />
               Home
             </Button>
           </div>

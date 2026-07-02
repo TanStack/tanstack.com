@@ -8,12 +8,12 @@ import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 import {
-  Loader2,
-  AlertCircle,
+  CircleNotch,
+  WarningCircle,
   Link as LinkIcon,
   X,
-  HelpCircle,
-} from 'lucide-react'
+  Question,
+} from '@phosphor-icons/react'
 import { useBuilderStore, useCustomTemplate } from './store'
 import type { CustomTemplateCompiled } from '~/builder/api'
 
@@ -108,7 +108,11 @@ export function CustomTemplateDialog({ onClose }: CustomTemplateDialogProps) {
                 : 'bg-cyan-500 text-white hover:bg-cyan-600',
             )}
           >
-            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Load'}
+            {isLoading ? (
+              <CircleNotch className="w-4 h-4 animate-spin" />
+            ) : (
+              'Load'
+            )}
           </button>
         </div>
         <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
@@ -119,7 +123,7 @@ export function CustomTemplateDialog({ onClose }: CustomTemplateDialogProps) {
       {/* Error */}
       {error && (
         <div className="flex items-start gap-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-700 dark:text-red-400">
-          <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+          <WarningCircle className="w-4 h-4 mt-0.5 shrink-0" />
           <span>{error}</span>
         </div>
       )}
@@ -227,7 +231,7 @@ export function CustomTemplateSection() {
               onClick={(e) => e.stopPropagation()}
               className="p-0.5 hover:text-blue-600 dark:hover:text-cyan-400"
             >
-              <HelpCircle className="w-3.5 h-3.5" />
+              <Question className="w-3.5 h-3.5" />
             </Link>
           </>
         )}
@@ -323,7 +327,7 @@ export function CustomTemplateItem({
               onClick={(e) => e.stopPropagation()}
               className="p-0.5 text-gray-400 hover:text-blue-600 dark:hover:text-cyan-400"
             >
-              <HelpCircle className="w-3.5 h-3.5" />
+              <Question className="w-3.5 h-3.5" />
             </Link>
           </div>
           <div className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">

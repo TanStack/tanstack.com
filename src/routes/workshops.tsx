@@ -8,9 +8,9 @@ import {
   Star,
   Code,
   Rocket,
-  Settings,
-  CodeXml,
-} from 'lucide-react'
+  Gear,
+  CodeSimple,
+} from '@phosphor-icons/react'
 import * as React from 'react'
 import { Footer } from '~/components/Footer'
 import { Card } from '~/components/Card'
@@ -18,7 +18,7 @@ import { allMaintainers, Maintainer } from '~/libraries/maintainers'
 import { MaintainerCard } from '~/components/MaintainerCard'
 import { shuffleWithSeed } from '~/utils/utils'
 import { CheckCircleIcon } from '~/components/icons/CheckCircleIcon'
-import { Mail } from 'lucide-react'
+import { Envelope } from '@phosphor-icons/react'
 
 // Server function to get the seed based on 10-second intervals
 // This ensures consistency between server and client
@@ -75,7 +75,7 @@ function WorkshopsPage() {
               href="mailto:workshops@tanstack.com?subject=Workshop%20Inquiry"
               className="inline-flex items-center gap-3 px-8 py-4 bg-linear-to-r from-blue-600 to-purple-600 text-white rounded-lg font-black text-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 hover:shadow-xl hover:scale-105"
             >
-              <Mail className="w-6 h-6" />
+              <Envelope className="w-6 h-6" />
               Get a Quote
             </a>
           </header>
@@ -197,14 +197,14 @@ function WorkshopsPage() {
             <div className="grid md:grid-cols-2 gap-6 mt-8">
               {[
                 {
-                  Icon: Settings,
+                  Icon: Gear,
                   iconColor: 'text-blue-500 dark:text-blue-400',
                   title: 'Customized to Your Stack',
                   description:
                     "Every workshop is tailored to your team's specific tech stack, challenges, and goals. We work with you beforehand to understand your codebase and create relevant examples that resonate with your developers.",
                 },
                 {
-                  Icon: CodeXml,
+                  Icon: CodeSimple,
                   iconColor: 'text-blue-600 dark:text-blue-500',
                   title: 'Hands-On Learning',
                   description:
@@ -235,7 +235,7 @@ function WorkshopsPage() {
               href="mailto:workshops@tanstack.com?subject=Workshop%20Inquiry"
               className="inline-flex items-center gap-3 px-8 py-4 bg-linear-to-r from-blue-600 to-purple-600 text-white rounded-lg font-black text-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 hover:shadow-xl hover:scale-105"
             >
-              <Mail className="w-6 h-6" />
+              <Envelope className="w-6 h-6" />
               Get a Quote
             </a>
           </div>
@@ -315,7 +315,7 @@ function WorkshopsPage() {
                 href="mailto:workshops@tanstack.com?subject=Workshop%20Questions"
                 className="inline-flex items-center gap-3 px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all duration-200 hover:shadow-lg"
               >
-                <Mail className="w-5 h-5" />
+                <Envelope className="w-5 h-5" />
                 Ask Us Anything
               </a>
             </div>
@@ -419,7 +419,7 @@ function WorkshopsPage() {
               href="mailto:workshops@tanstack.com?subject=Workshop%20Inquiry"
               className="inline-flex items-center gap-3 px-8 py-4 bg-linear-to-r from-green-600 to-cyan-600 text-white rounded-lg font-black text-lg hover:from-green-700 hover:to-cyan-700 transition-all duration-200 hover:shadow-xl hover:scale-105"
             >
-              <Mail className="w-6 h-6" />
+              <Envelope className="w-6 h-6" />
               Get Started Today
             </a>
           </div>
@@ -562,7 +562,7 @@ function InstructorsSection({ instructors }: { instructors: Maintainer[] }) {
           href="mailto:workshops@tanstack.com?subject=Workshop%20Inquiry&body=I'm interested in learning more about your workshop instructors and availability."
           className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all duration-200 hover:shadow-lg"
         >
-          <Mail className="w-5 h-5" />
+          <Envelope className="w-5 h-5" />
           Learn More About Our Instructors
         </a>
       </div>

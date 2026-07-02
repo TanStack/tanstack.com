@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { ShoppingCart, Trash2, X } from 'lucide-react'
+import { ShoppingCart, Trash, X } from '@phosphor-icons/react'
 import {
   ShopButton,
   ShopCrumbs,
@@ -281,7 +281,7 @@ function CartLineRow({ line }: { line: CartLineDetail }) {
             aria-label="Remove from cart"
             className="p-2 rounded-md text-shop-muted hover:text-shop-text disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <Trash2 className="w-4 h-4" />
+            <Trash className="w-4 h-4" />
           </button>
         </div>
       </div>

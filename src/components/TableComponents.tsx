@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { ChevronUp, ChevronDown } from 'lucide-react'
+import { CaretUp, CaretDown } from '@phosphor-icons/react'
 
 // Table - Main table wrapper
 interface TableProps {
@@ -141,10 +141,10 @@ export function SortableTableHeaderCell({
       >
         {children}
         <span className="w-3 h-3 flex items-center justify-center">
-          {sortDirection === 'asc' && <ChevronUp className="w-3 h-3" />}
-          {sortDirection === 'desc' && <ChevronDown className="w-3 h-3" />}
+          {sortDirection === 'asc' && <CaretUp className="w-3 h-3" />}
+          {sortDirection === 'desc' && <CaretDown className="w-3 h-3" />}
           {!sortDirection && (
-            <ChevronUp className="w-3 h-3 opacity-0 group-hover:opacity-40 transition-opacity" />
+            <CaretUp className="w-3 h-3 opacity-0 group-hover:opacity-40 transition-opacity" />
           )}
         </span>
       </span>

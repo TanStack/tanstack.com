@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { CheckCircle2, Copy } from 'lucide-react'
+import { CheckCircle, Copy } from '@phosphor-icons/react'
 import { copyTextToClipboard } from '~/utils/browser-effects'
 
 type LandingCopyPromptButtonProps = {
@@ -54,7 +54,7 @@ export function LandingCopyPromptButton({
       }}
     >
       {status === 'copied' ? (
-        <CheckCircle2 size={16} aria-hidden="true" />
+        <CheckCircle size={16} aria-hidden="true" />
       ) : (
         <Copy size={16} aria-hidden="true" />
       )}

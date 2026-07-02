@@ -3,12 +3,12 @@ import { ClientOnly } from '@tanstack/react-router'
 import {
   ArrowRight,
   Check,
-  ChevronDown,
+  CaretDown,
   Copy,
   Download,
-  Loader2,
+  CircleNotch,
   Rocket,
-} from 'lucide-react'
+} from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import anthropicDarkLogo from '~/images/anthropic-dark.svg'
 import anthropicLightLogo from '~/images/anthropic-light.svg'
@@ -318,7 +318,7 @@ export function ApplicationStarter({
       disabled={!canUseFinalActions}
     >
       {isGeneratingPrompt ? (
-        <Loader2 className="h-4 w-4 animate-spin" />
+        <CircleNotch className="h-4 w-4 animate-spin" />
       ) : isPromptCopied ? (
         <Check className="h-4 w-4" />
       ) : (
@@ -342,7 +342,7 @@ export function ApplicationStarter({
       disabled={!canUseFinalActions}
     >
       {isGeneratingPrompt ? (
-        <Loader2 className="h-4 w-4 animate-spin" />
+        <CircleNotch className="h-4 w-4 animate-spin" />
       ) : isCommandCopied ? (
         <Check className="h-4 w-4" />
       ) : (
@@ -387,7 +387,7 @@ export function ApplicationStarter({
           aria-label={`Deploy to ${hostingDeployPartnerLabels[selectedHostingDeployPartner]}`}
         >
           {isDeployFeedbackActive ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <CircleNotch className="h-4 w-4 animate-spin" />
           ) : (
             <Rocket className="h-4 w-4" />
           )}
@@ -414,7 +414,7 @@ export function ApplicationStarter({
         aria-label={`Deploy to ${hostingDeployPartnerLabels[selectedHostingDeployPartner]}`}
       >
         {isDeployFeedbackActive ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <CircleNotch className="h-4 w-4 animate-spin" />
         ) : (
           <Rocket className="h-4 w-4" />
         )}
@@ -895,7 +895,7 @@ export function ApplicationStarter({
                                 >
                                   {isGeneratingNetlify ||
                                   transientAction === 'netlify' ? (
-                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    <CircleNotch className="h-4 w-4 animate-spin" />
                                   ) : (
                                     <Rocket className="h-4 w-4" />
                                   )}
@@ -919,7 +919,7 @@ export function ApplicationStarter({
                                 className="border-gray-900 bg-gray-900 text-white hover:bg-gray-800 dark:border-gray-100 dark:bg-gray-100 dark:text-gray-950 dark:hover:bg-gray-200"
                               >
                                 {transientAction === 'codex' ? (
-                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                  <CircleNotch className="h-4 w-4 animate-spin" />
                                 ) : (
                                   <span className="relative h-4 w-4 shrink-0">
                                     <img
@@ -981,7 +981,7 @@ export function ApplicationStarter({
                                 className="h-6 gap-1 px-2 text-[11px] border-gray-900 bg-gray-900 text-white hover:bg-gray-800 dark:border-gray-100 dark:bg-gray-100 dark:text-gray-950 dark:hover:bg-gray-200"
                               >
                                 {transientAction === 'codex' ? (
-                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                  <CircleNotch className="h-3 w-3 animate-spin" />
                                 ) : (
                                   <span className="relative h-3 w-3 shrink-0">
                                     <img
@@ -1017,7 +1017,7 @@ export function ApplicationStarter({
                                 className="h-6 gap-1 px-2 text-[11px] border-[#D4A373] bg-[#D4A373] text-white hover:bg-[#C6905C] dark:border-[#E6C49A] dark:bg-[#E6C49A] dark:text-gray-950 dark:hover:bg-[#DBB684]"
                               >
                                 {transientAction === 'claude' ? (
-                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                  <CircleNotch className="h-3 w-3 animate-spin" />
                                 ) : (
                                   <span className="relative h-3 w-3 shrink-0">
                                     <img
@@ -1053,7 +1053,7 @@ export function ApplicationStarter({
                                 className="h-6 gap-1 px-2 text-[11px] border-black bg-black text-white hover:bg-gray-900 dark:border-white dark:bg-white dark:text-black dark:hover:bg-gray-100"
                               >
                                 {transientAction === 'cursor' ? (
-                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                  <CircleNotch className="h-3 w-3 animate-spin" />
                                 ) : (
                                   <CursorIcon className="h-3 w-3" />
                                 )}
@@ -1077,7 +1077,7 @@ export function ApplicationStarter({
                                 className="h-6 gap-1 px-2 text-[11px]"
                               >
                                 {transientAction === 'clone' ? (
-                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                  <CircleNotch className="h-3 w-3 animate-spin" />
                                 ) : (
                                   <GitHub className="h-3 w-3" />
                                 )}
@@ -1101,7 +1101,7 @@ export function ApplicationStarter({
                                 className="h-6 gap-1 px-2 text-[11px]"
                               >
                                 {transientAction === 'download' ? (
-                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                  <CircleNotch className="h-3 w-3 animate-spin" />
                                 ) : (
                                   <Download className="h-3 w-3" />
                                 )}
@@ -1185,7 +1185,7 @@ function StarterCustomizationSection({
           )}
         >
           {title}
-          <ChevronDown
+          <CaretDown
             className={twMerge(
               'h-3 w-3 transition-transform duration-200',
               open && 'rotate-180',

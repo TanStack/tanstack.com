@@ -2,7 +2,7 @@ import * as React from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { useThrottledCallback } from '@tanstack/react-pacer'
-import { Plus } from 'lucide-react'
+import { Plus } from '@phosphor-icons/react'
 import { useQuery } from '@tanstack/react-query'
 import { twMerge } from 'tailwind-merge'
 

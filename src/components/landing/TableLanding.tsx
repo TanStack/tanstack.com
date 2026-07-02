@@ -17,21 +17,20 @@ import {
 import {
   ArrowRight,
   BookOpen,
-  Boxes,
-  ChevronDown,
-  ChevronUp,
-  Columns3,
-  EyeOff,
-  Filter,
-  Grid3X3,
-  Layers,
-  MoveHorizontal,
-  Rows3,
-  Scaling,
-  Search,
+  Stack,
+  CaretDown,
+  CaretUp,
+  Columns,
+  EyeSlash,
+  Funnel,
+  GridNine,
+  ArrowsHorizontal,
+  Rows,
+  Resize,
+  MagnifyingGlass,
   SlidersHorizontal,
-  Sparkles,
-} from 'lucide-react'
+  Sparkle,
+} from '@phosphor-icons/react'
 
 import { BottomCTA } from '~/components/BottomCTA'
 import { Footer } from '~/components/Footer'
@@ -154,12 +153,12 @@ const pipelineSteps = [
   {
     label: 'Columns',
     body: 'Column defs describe accessors, headers, cells, metadata, and feature behavior without owning your DOM.',
-    icon: <Columns3 size={18} />,
+    icon: <Columns size={18} />,
   },
   {
     label: 'Rows',
     body: 'Core, filtered, sorted, grouped, expanded, and paginated row models compose into the exact data shape you need.',
-    icon: <Rows3 size={18} />,
+    icon: <Rows size={18} />,
   },
   {
     label: 'State',
@@ -169,7 +168,7 @@ const pipelineSteps = [
   {
     label: 'Markup',
     body: 'Render semantic tables, card grids, virtualized panes, or spreadsheet-like layouts from the same engine.',
-    icon: <Grid3X3 size={18} />,
+    icon: <GridNine size={18} />,
   },
 ]
 
@@ -177,22 +176,22 @@ const featureCards = [
   {
     title: 'Headless means the designer still wins.',
     body: 'Table gives you the math and state. Your app keeps the elements, classes, interactions, density, empty states, and brand-specific details.',
-    icon: <Sparkles size={18} />,
+    icon: <Sparkle size={18} />,
   },
   {
     title: 'Feature power without a grid tax.',
     body: 'Sorting, filtering, faceting, grouping, aggregation, expansion, selection, sizing, pinning, visibility, ordering, and pagination are opt-in row models.',
-    icon: <Boxes size={18} />,
+    icon: <Stack size={18} />,
   },
   {
     title: 'Server-side data is not an afterthought.',
     body: 'Pagination, sorting, and filters can be local, controlled, URL-driven, or backed by your API. Table does not assume where the data lives.',
-    icon: <Filter size={18} />,
+    icon: <Funnel size={18} />,
   },
   {
     title: 'Virtualization stays your choice.',
     body: 'Pair with TanStack Virtual when the table needs huge rows or columns, without turning the table engine into a scroll container framework.',
-    icon: <Scaling size={18} />,
+    icon: <Resize size={18} />,
   },
 ]
 
@@ -236,7 +235,7 @@ export default function TableLanding() {
       <section className="max-w-full overflow-hidden border-b border-blue-950/10 bg-[#eef7ff] dark:border-blue-300/10 dark:bg-[#06101a]">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-10 lg:max-w-[80rem] lg:grid-cols-[0.84fr_1.16fr] lg:items-start lg:py-12 xl:max-w-[92rem]">
           <div className="min-w-0 max-w-full sm:max-w-3xl">
-            <SectionKicker icon={<Grid3X3 size={14} />}>
+            <SectionKicker icon={<GridNine size={14} />}>
               Headless table engine
             </SectionKicker>
 
@@ -296,7 +295,7 @@ export default function TableLanding() {
       <section className="border-b border-blue-950/10 bg-[#f8fbff] dark:border-blue-300/10 dark:bg-[#08131f]">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.74fr_1.26fr] xl:max-w-[92rem]">
           <div>
-            <SectionKicker icon={<Layers size={14} />}>Why Table</SectionKicker>
+            <SectionKicker icon={<Stack size={14} />}>Why Table</SectionKicker>
             <h2 className="mt-3 max-w-xl text-3xl font-black leading-tight sm:text-4xl">
               A data grid should not decide your UI system.
             </h2>
@@ -320,7 +319,7 @@ export default function TableLanding() {
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[1.05fr_0.95fr] lg:items-center xl:max-w-[92rem]">
           <PipelinePanel />
           <div>
-            <SectionKicker icon={<MoveHorizontal size={14} />}>
+            <SectionKicker icon={<ArrowsHorizontal size={14} />}>
               Row model pipeline
             </SectionKicker>
             <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
@@ -360,7 +359,7 @@ export default function TableLanding() {
       <section className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.72fr_1.28fr] lg:items-start xl:max-w-[92rem]">
           <div className="max-w-xl">
-            <SectionKicker icon={<Grid3X3 size={14} />}>
+            <SectionKicker icon={<GridNine size={14} />}>
               Framework adapters
             </SectionKicker>
             <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
@@ -392,7 +391,7 @@ export default function TableLanding() {
       <section className="border-b border-zinc-200 bg-[#f4f9ff] py-12 dark:border-zinc-800 dark:bg-zinc-900">
         <div className="mx-auto w-full max-w-[80rem] px-4 xl:max-w-[92rem]">
           <div className="max-w-3xl">
-            <SectionKicker icon={<EyeOff size={14} />}>
+            <SectionKicker icon={<EyeSlash size={14} />}>
               Field notes
             </SectionKicker>
             <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
@@ -584,7 +583,7 @@ function TableWorkbenchPanel() {
 
       <div className="mt-4 grid gap-3 lg:grid-cols-[1fr_auto]">
         <label className="flex min-w-0 items-center gap-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-800 dark:bg-zinc-900">
-          <Search
+          <MagnifyingGlass
             aria-hidden="true"
             className="shrink-0 text-blue-700 dark:text-blue-300"
             size={16}
@@ -668,9 +667,9 @@ function TableWorkbenchPanel() {
                           )}
                         </span>
                         {header.column.getIsSorted() === 'asc' ? (
-                          <ChevronUp aria-hidden="true" size={13} />
+                          <CaretUp aria-hidden="true" size={13} />
                         ) : header.column.getIsSorted() === 'desc' ? (
-                          <ChevronDown aria-hidden="true" size={13} />
+                          <CaretDown aria-hidden="true" size={13} />
                         ) : null}
                       </button>
                     ) : (

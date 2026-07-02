@@ -1,27 +1,26 @@
 import * as React from 'react'
 import { Link, useParams } from '@tanstack/react-router'
 import {
-  ArrowDownToLine,
+  ArrowLineDown,
   ArrowRight,
   BookOpen,
-  BoxSelect,
+  BoundingBox,
   Eye,
   Gauge,
-  Grid3X3,
-  History,
+  GridNine,
+  ClockCounterClockwise,
   List,
-  MessageSquareText,
-  MoveHorizontal,
-  MousePointer2,
+  ChatCenteredText,
+  ArrowsHorizontal,
+  Cursor,
   Pause,
   Play,
   Ruler,
-  Scaling,
-  Send,
-  Sparkles,
-  StretchHorizontal,
+  Resize,
+  PaperPlaneTilt,
+  Sparkle,
   Timer,
-} from 'lucide-react'
+} from '@phosphor-icons/react'
 
 import { BottomCTA } from '~/components/BottomCTA'
 import { Footer } from '~/components/Footer'
@@ -81,12 +80,12 @@ const featureCards = [
   {
     title: 'Scroll containers stay product-owned.',
     body: 'Window scrolling, element scrolling, grids, lanes, sticky UI, and custom markup remain your responsibility and your freedom.',
-    icon: <MousePointer2 size={18} />,
+    icon: <Cursor size={18} />,
   },
   {
     title: 'It composes with the rest of the stack.',
     body: 'Pair Virtual with Table for giant grids, Query for paged data, Router for URL state, or your own renderer for anything else.',
-    icon: <Sparkles size={18} />,
+    icon: <Sparkle size={18} />,
   },
 ]
 
@@ -118,12 +117,12 @@ const virtualModes = [
   {
     title: 'Horizontal lanes',
     body: 'Calendars, kanban lanes, timelines, image strips, and dense inspectors.',
-    icon: <MoveHorizontal size={18} />,
+    icon: <ArrowsHorizontal size={18} />,
   },
   {
     title: 'Grid surfaces',
     body: 'Rows and columns that need windowing without adopting a canned grid UI.',
-    icon: <Grid3X3 size={18} />,
+    icon: <GridNine size={18} />,
   },
 ]
 
@@ -284,7 +283,7 @@ export default function VirtualLanding() {
       <section className="max-w-full overflow-hidden border-b border-purple-950/10 bg-[#f8f0ff] dark:border-purple-300/10 dark:bg-[#120818]">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-10 lg:max-w-[80rem] lg:grid-cols-[0.84fr_1.16fr] lg:items-start lg:py-12 xl:max-w-[92rem]">
           <div className="min-w-0 max-w-full sm:max-w-3xl">
-            <SectionKicker icon={<StretchHorizontal size={14} />}>
+            <SectionKicker icon={<ArrowsHorizontal size={14} />}>
               Headless virtualization
             </SectionKicker>
 
@@ -388,7 +387,7 @@ export default function VirtualLanding() {
       <section className="border-b border-zinc-200 bg-[#f4fbff] dark:border-zinc-800 dark:bg-[#071016]">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.76fr_1.24fr] lg:items-start xl:max-w-[92rem]">
           <div className="max-w-xl">
-            <SectionKicker icon={<MessageSquareText size={14} />}>
+            <SectionKicker icon={<ChatCenteredText size={14} />}>
               AI chat virtualization
             </SectionKicker>
             <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
@@ -426,7 +425,7 @@ export default function VirtualLanding() {
       <section className="border-b border-zinc-200 bg-[#fbfaf6] dark:border-zinc-800 dark:bg-zinc-900">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.82fr_1.18fr] lg:items-start xl:max-w-[92rem]">
           <div>
-            <SectionKicker icon={<BoxSelect size={14} />}>
+            <SectionKicker icon={<BoundingBox size={14} />}>
               Scroll surfaces
             </SectionKicker>
             <h2 className="mt-3 max-w-xl text-3xl font-black leading-tight sm:text-4xl">
@@ -446,7 +445,7 @@ export default function VirtualLanding() {
       <section className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.72fr_1.28fr] lg:items-start xl:max-w-[92rem]">
           <div className="max-w-xl">
-            <SectionKicker icon={<Scaling size={14} />}>
+            <SectionKicker icon={<Resize size={14} />}>
               Framework adapters
             </SectionKicker>
             <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
@@ -1165,7 +1164,7 @@ function VirtualChatPanel() {
             type="button"
             onClick={prependHistory}
           >
-            <History aria-hidden="true" size={14} />
+            <ClockCounterClockwise aria-hidden="true" size={14} />
             History
           </button>
           <button
@@ -1178,7 +1177,7 @@ function VirtualChatPanel() {
             type="button"
             onClick={streamReply}
           >
-            <Send aria-hidden="true" size={14} />
+            <PaperPlaneTilt aria-hidden="true" size={14} />
             Stream
           </button>
           <button
@@ -1186,7 +1185,7 @@ function VirtualChatPanel() {
             type="button"
             onClick={scrollChatToEnd}
           >
-            <ArrowDownToLine aria-hidden="true" size={14} />
+            <ArrowLineDown aria-hidden="true" size={14} />
             Latest
           </button>
         </div>

@@ -1,10 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { setResponseHeader } from '@tanstack/react-start/server'
 import { getPublishedPosts } from '~/utils/blog'
-import {
-  formatAuthors,
-  publishedDateToUTCString,
-} from '~/utils/blog-format'
+import { formatAuthors, publishedDateToUTCString } from '~/utils/blog-format'
 
 function escapeXml(unsafe: string): string {
   return unsafe

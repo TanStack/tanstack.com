@@ -7,7 +7,7 @@ import { DocTitle } from '~/components/DocTitle'
 import { BlogCard } from '~/components/BlogCard'
 import { BlogAuthorFilter } from '~/components/BlogAuthorFilter'
 import { getLibrary, type LibraryId } from '~/libraries'
-import { getPostsForLibrary } from '~/utils/blog'
+import { fetchPostsForLibrary } from '~/utils/blog.functions'
 import { getDistinctAuthors } from '~/utils/blog-format'
 
 const searchSchema = v.object({
@@ -16,7 +16,10 @@ const searchSchema = v.object({
 
 export const Route = createFileRoute('/_library/$libraryId/$version/docs/blog')(
   {
+    staleTime: Infinity,
     validateSearch: searchSchema,
+    loader: ({ params }) =>
+      fetchPostsForLibrary({ data: params.libraryId }),
     component: RouteComponent,
   },
 )
@@ -27,7 +30,7 @@ function RouteComponent() {
   const navigate = Route.useNavigate()
   const library = getLibrary(libraryId as LibraryId)
 
-  const posts = getPostsForLibrary(libraryId as LibraryId)
+  const posts = Route.useLoaderData()
   const authors = getDistinctAuthors(posts)
 
   const filteredPosts = author

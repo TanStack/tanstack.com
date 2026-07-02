@@ -162,3 +162,32 @@ export const fetchRelatedPostsForLibraries = createServerFn({ method: 'GET' })
       )
       .slice(0, 4)
   })
+
+export type LibraryBlogPost = {
+  slug: string
+  title: string
+  published: string
+  excerpt: string
+  headerImage: string | undefined
+  authors: Array<string>
+  library: string | undefined
+}
+
+/**
+ * Wider 7-field shape (matches blog.index.tsx's fetchFrontMatters) since
+ * /docs/blog needs authors (author filter), headerImage (cover), and
+ * library (badge suppression) in addition to slug/title/published/excerpt.
+ */
+export const fetchPostsForLibrary = createServerFn({ method: 'GET' })
+  .validator(v.string())
+  .handler(({ data }): Array<LibraryBlogPost> => {
+    return getPostsForLibrary(data as LibraryId).map((post) => ({
+      slug: post.slug,
+      title: post.title,
+      published: post.published,
+      excerpt: post.excerpt,
+      headerImage: post.headerImage,
+      authors: post.authors,
+      library: post.library,
+    }))
+  })

@@ -1,7 +1,9 @@
 import * as React from 'react'
 
+const searchModalModule = () => import('~/components/SearchModal')
+
 const LazySearchModal = React.lazy(() =>
-  import('~/components/SearchModal').then((m) => ({ default: m.SearchModal })),
+  searchModalModule().then((m) => ({ default: m.SearchModal })),
 )
 
 interface SearchContextType {
@@ -143,6 +145,28 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
       scheduleAiDockHoverClose,
     ],
   )
+
+  React.useEffect(() => {
+    const preloadSearchModal = () => {
+      void searchModalModule()
+    }
+
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    if ('requestIdleCallback' in window) {
+      const idleId = window.requestIdleCallback(preloadSearchModal)
+      return () => {
+        window.cancelIdleCallback(idleId)
+      }
+    }
+
+    const timeoutId = globalThis.setTimeout(preloadSearchModal, 1500)
+    return () => {
+      globalThis.clearTimeout(timeoutId)
+    }
+  }, [])
 
   React.useEffect(() => {
     const handleDocumentClick = (event: MouseEvent) => {

@@ -1291,6 +1291,8 @@ const chartExportOptions = [
 const animatedExportMaxFrames = 240
 const animatedExportMinDelayMs = 35
 const animatedExportMaxDelayMs = 100
+const axisTickAverageCharacterWidth = 6.4
+const axisTickLineHeight = 12
 const chartActionButtonStyles =
   'flex size-6 items-center justify-center rounded bg-gray-500/10 text-gray-600 hover:bg-gray-500/20 hover:text-blue-500 dark:text-gray-400 dark:hover:text-gray-100'
 const chartActionDropdownContentStyles =
@@ -1300,6 +1302,80 @@ const chartActionDropdownItemStyles =
 const chartEmbedInputStyles =
   'w-full rounded border border-gray-500/20 bg-gray-50 px-2 py-1.5 font-mono text-[11px] leading-snug outline-none focus:border-blue-500 dark:bg-gray-900'
 const svgNamespace = 'http://www.w3.org/2000/svg'
+
+function clampNumber(value: number, min: number, max: number) {
+  return Math.max(min, Math.min(value, max))
+}
+
+function getEstimatedAxisLabelWidth(label: string) {
+  return Math.ceil(label.length * axisTickAverageCharacterWidth)
+}
+
+function getCategoricalAxisLeftMargin({
+  labels,
+  width,
+}: {
+  labels: Array<string>
+  width: number
+}) {
+  const longestLabelWidth =
+    d3.max(labels, (label) => getEstimatedAxisLabelWidth(label)) ?? 0
+  const maxMargin = clampNumber(Math.round(width * 0.38), 110, 280)
+
+  return clampNumber(longestLabelWidth + 26, 90, maxMargin)
+}
+
+function getVerticalCategoricalXAxisLayout({
+  height,
+  labels,
+  marginLeft,
+  marginRight,
+  width,
+}: {
+  height: number
+  labels: Array<string>
+  marginLeft: number
+  marginRight: number
+  width: number
+}) {
+  const availableWidth = Math.max(0, width - marginLeft - marginRight)
+  const tickSlotWidth = labels.length ? availableWidth / labels.length : 0
+  const longestLabelWidth =
+    d3.max(labels, (label) => getEstimatedAxisLabelWidth(label)) ?? 0
+  const shouldRotateTicks =
+    labels.length > 0 && longestLabelWidth > Math.max(36, tickSlotWidth - 8)
+
+  if (!shouldRotateTicks) {
+    return {
+      labelOffset: 35,
+      marginBottom: 64,
+      tickRotate: undefined,
+    }
+  }
+
+  const tickAngle = Math.PI / 6
+  const rotatedTickHeight = Math.ceil(
+    longestLabelWidth * Math.sin(tickAngle) +
+      axisTickLineHeight * Math.cos(tickAngle),
+  )
+  const maxMarginBottom = clampNumber(Math.round(height * 0.45), 88, 160)
+
+  return {
+    labelOffset: 55,
+    marginBottom: clampNumber(44 + rotatedTickHeight, 76, maxMarginBottom),
+    tickRotate: -30,
+  }
+}
+
+function getPlotContentHeight({
+  reservedHeight,
+  totalHeight,
+}: {
+  reservedHeight: number
+  totalHeight: number | undefined
+}) {
+  return Math.max(1, Math.floor((totalHeight ?? 0) - reservedHeight))
+}
 
 function getExportFileName(format: ChartExportFormat) {
   if (format === 'jpeg') return 'npm-stats-chart.jpg'
@@ -1629,11 +1705,17 @@ function createLatestBarExportPlot({
   })
   const isStackedBar = chartType === 'stacked-bar'
   const isHorizontalBar = barOrientation === 'horizontal'
-  const longestLatestBarLabelLength =
-    d3.max(latestBarDomain, (label) => label.length) ?? 0
+  const marginRight = 10
   const marginLeft = isHorizontalBar
-    ? Math.min(240, Math.max(90, longestLatestBarLabelLength * 7 + 20))
+    ? getCategoricalAxisLeftMargin({ labels: latestBarDomain, width })
     : 70
+  const verticalXAxisLayout = getVerticalCategoricalXAxisLayout({
+    height,
+    labels: latestBarDomain,
+    marginLeft,
+    marginRight,
+    width,
+  })
   const getSeriesColor = (d: { name?: string }) =>
     d.name ? getPackageColor(d.name, packages) : 'currentColor'
   const getSubPackageColor = (d: { groupName: string; packageIndex: number }) =>
@@ -1670,8 +1752,8 @@ function createLatestBarExportPlot({
     })
   const plot = Plot.plot({
     marginLeft,
-    marginRight: 10,
-    marginBottom: isHorizontalBar ? 70 : 90,
+    marginRight,
+    marginBottom: isHorizontalBar ? 64 : verticalXAxisLayout.marginBottom,
     width,
     height,
     marks: (
@@ -1722,9 +1804,9 @@ function createLatestBarExportPlot({
     x: {
       domain: isHorizontalBar ? undefined : latestBarDomain,
       label: isHorizontalBar ? 'Downloads' : null,
-      labelOffset: isHorizontalBar ? 35 : 55,
+      labelOffset: isHorizontalBar ? 35 : verticalXAxisLayout.labelOffset,
       tickFormat: isHorizontalBar ? formatCompactAxisNumber : undefined,
-      tickRotate: isHorizontalBar ? undefined : -30,
+      tickRotate: isHorizontalBar ? undefined : verticalXAxisLayout.tickRotate,
     },
     y: {
       domain: isHorizontalBar ? latestBarDomain : undefined,
@@ -2779,6 +2861,51 @@ function useElementWidth() {
   return { containerRef, width }
 }
 
+function useMeasuredElementHeight<T extends HTMLElement>() {
+  const [element, setElement] = React.useState<T | null>(null)
+  const [height, setHeight] = React.useState(0)
+
+  const ref = React.useCallback((nextElement: T | null) => {
+    setElement(nextElement)
+  }, [])
+
+  React.useEffect(() => {
+    if (!element) {
+      setHeight(0)
+      return
+    }
+
+    const setMeasuredHeight = (nextHeight: number) => {
+      setHeight((previousHeight) =>
+        previousHeight === nextHeight ? previousHeight : nextHeight,
+      )
+    }
+
+    const updateHeight = () => {
+      setMeasuredHeight(Math.ceil(element.getBoundingClientRect().height))
+    }
+
+    updateHeight()
+
+    const ownerWindow = element.ownerDocument.defaultView
+    if (!ownerWindow?.ResizeObserver) {
+      ownerWindow?.addEventListener('resize', updateHeight)
+      return () => {
+        ownerWindow?.removeEventListener('resize', updateHeight)
+      }
+    }
+
+    const resizeObserver = new ownerWindow.ResizeObserver(updateHeight)
+    resizeObserver.observe(element)
+
+    return () => {
+      resizeObserver.disconnect()
+    }
+  }, [element])
+
+  return { height, ref }
+}
+
 function TimelineRangeScrubber({
   dates,
   endIndex,
@@ -2963,7 +3090,7 @@ function TimelineRangeScrubber({
 
   return (
     <div
-      className="group relative mt-1 h-8 cursor-crosshair"
+      className="group relative h-8 cursor-crosshair"
       onDoubleClick={handleSelectionDoubleClick}
       onPointerCancel={handleSelectionPointerCancel}
       onPointerDown={handleSelectionPointerDown}
@@ -3067,18 +3194,40 @@ function PlotFigure({
   const dataUpdateKeyRef = React.useRef<string | undefined>(undefined)
   const layoutKeyRef = React.useRef<string | undefined>(undefined)
   const showLegendRef = React.useRef(showLegend)
+  const { height: legendHeight, ref: measuredLegendRef } =
+    useMeasuredElementHeight<HTMLDivElement>()
+  const { height: footerHeight, ref: footerRef } =
+    useMeasuredElementHeight<HTMLDivElement>()
   const sizeRef = React.useRef<{
     height: number | undefined
     width: number | undefined
   } | null>(null)
+
+  const setLegendRef = React.useCallback(
+    (element: HTMLDivElement | null) => {
+      legendRef.current = element
+      measuredLegendRef(element)
+    },
+    [legendRef, measuredLegendRef],
+  )
+  const plotOptions = React.useMemo(
+    () => ({
+      ...options,
+      height: getPlotContentHeight({
+        reservedHeight: legendHeight + footerHeight,
+        totalHeight: options.height,
+      }),
+    }),
+    [footerHeight, legendHeight, options],
+  )
 
   React.useEffect(() => {
     const container = containerRef.current
     if (!container) return
 
     const nextSize = {
-      height: options.height,
-      width: options.width,
+      height: plotOptions.height,
+      width: plotOptions.width,
     }
     const previousSize = sizeRef.current
     const sizeChanged =
@@ -3115,7 +3264,7 @@ function PlotFigure({
     }
 
     const replacePlot = () => {
-      commitPlot(Plot.plot(options))
+      commitPlot(Plot.plot(plotOptions))
     }
 
     const domainOrderKey = domain?.join('\u0000')
@@ -3136,7 +3285,7 @@ function PlotFigure({
       plotSvg?.updateBarPlot
     ) {
       if (domainOrderChanged || domainIdentityChanged || dataChanged) {
-        const nextPlot = Plot.plot(options)
+        const nextPlot = Plot.plot(plotOptions)
         commitPlot(nextPlot)
         plotSvg.updateBarPlot({
           nextBarKeys: barKeys,
@@ -3158,7 +3307,7 @@ function PlotFigure({
     legendRef,
     layoutKey,
     onRenderedChange,
-    options,
+    plotOptions,
     plotRef,
   ])
 
@@ -3181,16 +3330,20 @@ function PlotFigure({
   )
 
   return (
-    <div className="relative">
+    <div className="relative" style={{ height: options.height }}>
       <div
         className={twMerge(
-          'mb-2 flex justify-center overflow-x-auto px-2 text-xs',
+          'flex justify-center overflow-x-auto px-2 pb-2 text-xs',
           !showLegend && 'hidden',
         )}
-        ref={legendRef}
+        ref={setLegendRef}
       />
       <div ref={containerRef} />
-      {footer}
+      {footer ? (
+        <div className="flow-root pt-1" ref={footerRef}>
+          {footer}
+        </div>
+      ) : null}
     </div>
   )
 }
@@ -3963,11 +4116,17 @@ export function NPMStatsChart({
   const isLatestBar = isLatestGroupedBar || isLatestStackedBar
   const isHorizontalBar = isLatestBar && barOrientation === 'horizontal'
   const isLatestVerticalBar = isLatestBar && barOrientation === 'vertical'
-  const longestLatestBarLabelLength =
-    d3.max(latestBarDomain, (label) => label.length) ?? 0
+  const marginRight = 10
   const marginLeft = isHorizontalBar
-    ? Math.min(240, Math.max(90, longestLatestBarLabelLength * 7 + 20))
+    ? getCategoricalAxisLeftMargin({ labels: latestBarDomain, width })
     : 70
+  const latestVerticalXAxisLayout = getVerticalCategoricalXAxisLayout({
+    height,
+    labels: latestBarDomain,
+    marginLeft,
+    marginRight,
+    width,
+  })
   const xLabel = isHorizontalBar
     ? 'Downloads'
     : viewMode === 'latest'
@@ -4069,7 +4228,7 @@ export function NPMStatsChart({
                 dates={timelineScrubberDates}
                 endIndex={timelineEndIndex}
                 marginLeft={marginLeft}
-                marginRight={10}
+                marginRight={marginRight}
                 onRangeChange={(nextStartIndex, nextEndIndex) => {
                   if (
                     nextStartIndex <= 0 &&
@@ -4098,8 +4257,10 @@ export function NPMStatsChart({
           showLegend={showLegend}
           options={{
             marginLeft,
-            marginRight: 10,
-            marginBottom: isLatestVerticalBar ? 90 : 70,
+            marginRight,
+            marginBottom: isLatestVerticalBar
+              ? latestVerticalXAxisLayout.marginBottom
+              : 70,
             width,
             height,
             clip: hasTimelineZoom ? true : undefined,
@@ -4302,9 +4463,13 @@ export function NPMStatsChart({
                 ? latestBarDomain
                 : timelineZoomDomain,
               label: xLabel,
-              labelOffset: isLatestVerticalBar ? 55 : 35,
+              labelOffset: isLatestVerticalBar
+                ? latestVerticalXAxisLayout.labelOffset
+                : 35,
               tickFormat: xTickFormat,
-              tickRotate: isLatestVerticalBar ? -30 : undefined,
+              tickRotate: isLatestVerticalBar
+                ? latestVerticalXAxisLayout.tickRotate
+                : undefined,
             },
             y: {
               domain: isHorizontalBar ? latestBarDomain : undefined,

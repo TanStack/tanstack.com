@@ -270,21 +270,27 @@ function NpmStatsEmbed() {
     : undefined
 
   return (
-    <div
-      className="relative flex h-dvh w-screen items-stretch overflow-hidden bg-white text-gray-950 dark:bg-gray-950 dark:text-gray-50"
-      ref={containerRef}
-    >
+    <div className="relative flex h-dvh w-screen overflow-hidden bg-white text-gray-950 dark:bg-gray-950 dark:text-gray-50">
       <style
         dangerouslySetInnerHTML={{
           __html: `
 html, body {
   background: transparent !important;
+  height: 100%;
+  margin: 0 !important;
+  overflow: hidden;
+  width: 100%;
 }
 `,
         }}
       />
       <div
-        className={width ? 'min-w-0' : 'min-w-0 flex-1'}
+        className={
+          width
+            ? 'min-h-0 min-w-0 flex-1'
+            : 'min-h-0 min-w-0 flex-1 self-stretch'
+        }
+        ref={containerRef}
         style={chartWidthStyle}
       >
         {queryPackageGroups.length ? (
@@ -329,7 +335,7 @@ html, body {
         ) : null}
       </div>
       <a
-        className="absolute right-2 bottom-2 rounded bg-white/85 px-2 py-1 text-[10px] font-medium text-gray-600 shadow-sm ring-1 ring-gray-200 backdrop-blur hover:text-gray-950 dark:bg-gray-950/85 dark:text-gray-400 dark:ring-gray-800 dark:hover:text-gray-50"
+        className="absolute top-1 right-1 z-10 rounded bg-white/75 px-1.5 py-0.5 text-[9px] leading-none font-medium text-gray-500 ring-1 ring-gray-200/80 backdrop-blur hover:text-gray-950 dark:bg-gray-950/75 dark:text-gray-500 dark:ring-gray-800/80 dark:hover:text-gray-50"
         href="/stats/npm"
         rel="noreferrer"
         target="_blank"

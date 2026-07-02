@@ -64,7 +64,10 @@ test('collectRedirectEntriesForFile returns no entries (not a rejection) when th
   const entries = await collectRedirectEntriesForFile(node, {
     docsRoot: 'docs',
     fetchFile: async () => {
-      throw new GitHubContentError('rate-limit', 'GitHub rate limited this file')
+      throw new GitHubContentError(
+        'rate-limit',
+        'GitHub rate limited this file',
+      )
     },
     onCanonicalPath: (path) => paths.push(path),
   })

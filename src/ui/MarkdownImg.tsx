@@ -3,6 +3,8 @@ import type { HTMLProps } from 'react'
 import { getOptimizedImageUrl } from '~/utils/optimizedImage'
 import { getPublicImageDimensions } from '~/utils/publicImageDimensions'
 
+const DEFAULT_TRANSFORM_WIDTH = 1200
+
 export const MarkdownImg = React.memo(function MarkdownImg({
   alt,
   src,
@@ -29,7 +31,9 @@ export const MarkdownImg = React.memo(function MarkdownImg({
   const resolvedWidth = width ?? inferredWidth
   const resolvedHeight = height ?? inferredHeight
   const numericWidth =
-    typeof resolvedWidth === 'number' ? resolvedWidth : parseDimension(width)
+    typeof resolvedWidth === 'number'
+      ? resolvedWidth
+      : (parseDimension(width) ?? DEFAULT_TRANSFORM_WIDTH)
   const numericHeight =
     typeof resolvedHeight === 'number' ? resolvedHeight : parseDimension(height)
   const aspectRatio =

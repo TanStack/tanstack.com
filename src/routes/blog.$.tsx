@@ -75,9 +75,9 @@ function BlogPost() {
   const { _splat: slug } = Route.useParams()
   const markdown = React.useMemo(() => parseSiteMarkdown(content), [content])
   const headings = markdown.headings
-  const isDesktopViewport = useMediaQuery('(min-width: 768px)')
 
   const isTocVisible = headings.length > 1
+  const isDesktopViewport = useMediaQuery('(min-width: 768px)')
 
   const markdownContainerRef = React.useRef<HTMLDivElement>(null)
   const [activeHeadings, setActiveHeadings] = React.useState<Array<string>>([])

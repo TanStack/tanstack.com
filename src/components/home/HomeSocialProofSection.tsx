@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { Hydrate } from '@tanstack/react-start'
 import { visible } from '@tanstack/react-start/hydration'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight } from '@phosphor-icons/react'
 import { Card } from '~/components/Card'
 import { PartnersGrid } from '~/components/PartnersGrid'
 import { Button } from '~/ui'

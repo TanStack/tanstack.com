@@ -3,12 +3,12 @@ import { ClientOnly } from '@tanstack/react-router'
 import {
   ArrowRight,
   Check,
-  ChevronDown,
+  CaretDown as ChevronDown,
   Copy,
   Download,
-  Loader2,
+  CircleNotch as Loader2,
   Rocket,
-} from 'lucide-react'
+} from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import anthropicDarkLogo from '~/images/anthropic-dark.svg'
 import anthropicLightLogo from '~/images/anthropic-light.svg'

@@ -1,6 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
-import { Users, Video, MapPin, Star, Play } from 'lucide-react'
+import { Users, Video, MapPin, Star, Play } from '@phosphor-icons/react'
 import { LogoQueryGG } from '~/ui'
 import { CheckCircleIcon } from '~/components/icons/CheckCircleIcon'
 import { YouTubeIcon } from '~/components/icons/YouTubeIcon'

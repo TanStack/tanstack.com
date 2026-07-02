@@ -3,17 +3,16 @@ import { Link, useParams } from '@tanstack/react-router'
 import {
   ArrowRight,
   BookOpen,
-  CircleGauge,
   Clock,
   Gauge,
-  Layers,
+  Stack,
   ListChecks,
   PauseCircle,
-  RefreshCcw,
-  Rows3,
-  Split,
-  WandSparkles,
-} from 'lucide-react'
+  ArrowsCounterClockwise,
+  Rows,
+  ArrowsSplit,
+  MagicWand,
+} from '@phosphor-icons/react'
 
 import { BottomCTA } from '~/components/BottomCTA'
 import { Footer } from '~/components/Footer'
@@ -86,12 +85,12 @@ const featureCards = [
   {
     title: 'Queue the work that needs order.',
     body: 'Run async tasks with FIFO, LIFO, priority, pause/resume, cancellation, retries, and concurrency control.',
-    icon: <Rows3 size={18} />,
+    icon: <Rows size={18} />,
   },
   {
     title: 'Batch the work that should travel together.',
     body: 'Collect writes, logs, telemetry, or cache operations into sensible flushes instead of shipping every item alone.',
-    icon: <Split size={18} />,
+    icon: <ArrowsSplit size={18} />,
   },
 ]
 
@@ -125,7 +124,7 @@ export default function PacerLanding() {
       <section className="max-w-full overflow-hidden border-b border-lime-950/10 bg-[#ecfccb] dark:border-lime-300/10 dark:bg-[#0b1604]">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-10 lg:max-w-[80rem] lg:grid-cols-[0.84fr_1.16fr] lg:items-start lg:py-12 xl:max-w-[92rem]">
           <div className="min-w-0 max-w-full sm:max-w-3xl">
-            <SectionKicker icon={<CircleGauge size={14} />}>
+            <SectionKicker icon={<Gauge size={14} />}>
               Timing and pressure control
             </SectionKicker>
 
@@ -186,7 +185,7 @@ export default function PacerLanding() {
       <section className="border-b border-lime-950/10 bg-[#f7fee7] dark:border-lime-300/10 dark:bg-[#0f1b07]">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.74fr_1.26fr] xl:max-w-[92rem]">
           <div>
-            <SectionKicker icon={<WandSparkles size={14} />}>
+            <SectionKicker icon={<MagicWand size={14} />}>
               Why Pacer
             </SectionKicker>
             <h2 className="mt-3 max-w-xl text-3xl font-black leading-tight sm:text-4xl">
@@ -211,7 +210,7 @@ export default function PacerLanding() {
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[1.05fr_0.95fr] lg:items-center xl:max-w-[92rem]">
           <LifecyclePanel />
           <div>
-            <SectionKicker icon={<RefreshCcw size={14} />}>
+            <SectionKicker icon={<ArrowsCounterClockwise size={14} />}>
               Control lifecycle
             </SectionKicker>
             <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
@@ -249,7 +248,7 @@ export default function PacerLanding() {
       <section className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.72fr_1.28fr] lg:items-start xl:max-w-[92rem]">
           <div className="max-w-xl">
-            <SectionKicker icon={<Layers size={14} />}>
+            <SectionKicker icon={<Stack size={14} />}>
               Framework adapters
             </SectionKicker>
             <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">

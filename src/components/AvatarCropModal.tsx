@@ -2,7 +2,7 @@ import * as React from 'react'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import Cropper from 'react-easy-crop'
 import type { Area, Point } from 'react-easy-crop'
-import { X } from 'lucide-react'
+import { X } from '@phosphor-icons/react'
 import { Button } from '~/ui'
 
 interface AvatarCropModalProps {

@@ -1,5 +1,5 @@
 import { Library } from '.'
-import { Plug, Zap } from 'lucide-react'
+import { Plug, Lightning } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { CogsIcon } from '~/components/icons/CogsIcon'
 import { ai } from './libraries'
@@ -27,7 +27,7 @@ export const aiProject = {
     },
     {
       title: 'AG-UI Native Clients',
-      icon: <Zap className={twMerge(textStyles)} />,
+      icon: <Lightning className={twMerge(textStyles)} />,
       description: (
         <div>
           A headless client plus React, Vue, Solid, Svelte, and Preact bindings

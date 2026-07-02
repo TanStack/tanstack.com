@@ -13,23 +13,23 @@ import { Link, useLocation, useMatches } from '@tanstack/react-router'
 import {
   BookOpen,
   Code,
-  ExternalLink,
-  Grid2X2,
+  ArrowSquareOut as ExternalLink,
+  SquaresFour as Grid2X2,
   Hammer,
   Heart,
-  HelpCircle,
-  Mail,
-  Menu,
+  Question as HelpCircle,
+  Envelope as Mail,
+  List as Menu,
   Newspaper,
-  Paintbrush,
+  PaintBrush as Paintbrush,
   ShieldCheck,
   ShoppingBag,
-  Sparkles,
-  TrendingUp,
+  Sparkle as Sparkles,
+  TrendUp as TrendingUp,
   User,
   Users,
   X,
-} from 'lucide-react'
+} from '@phosphor-icons/react'
 import { ThemeToggle } from './ThemeToggle'
 import { AiDockButton, SearchButton } from './SearchButton'
 import { BrandContextMenu } from './BrandContextMenu'

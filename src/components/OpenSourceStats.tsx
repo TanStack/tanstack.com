@@ -8,7 +8,11 @@ import {
   recentDownloadsQuery,
 } from '~/queries/stats'
 import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
-import { Download, Star, TrendingUp } from 'lucide-react'
+import {
+  Download,
+  Star,
+  TrendUp as TrendingUp,
+} from '@phosphor-icons/react'
 import {
   tanStackTotalNpmStatsLibrary,
   tanStackTotalNpmStatsSearch,

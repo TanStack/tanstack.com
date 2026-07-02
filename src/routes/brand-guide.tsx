@@ -4,7 +4,7 @@ import { Footer } from '~/components/Footer'
 import { useMemo } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { useToast } from '~/components/ToastProvider'
-import { Copy, Download } from 'lucide-react'
+import { Copy, Download } from '@phosphor-icons/react'
 import { copyTextToClipboard } from '~/utils/browser-effects'
 
 export const Route = createFileRoute('/brand-guide')({

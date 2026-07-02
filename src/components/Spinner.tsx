@@ -1,5 +1,5 @@
 import { twMerge } from 'tailwind-merge'
-import { Loader2 } from 'lucide-react'
+import { CircleNotch } from '@phosphor-icons/react'
 
 interface SpinnerProps {
   className?: string
@@ -7,7 +7,7 @@ interface SpinnerProps {
 
 export function Spinner({ className }: SpinnerProps) {
   return (
-    <Loader2
+    <CircleNotch
       className={twMerge(
         'animate-spin text-gray-900 dark:text-white text-2xl',
         className,

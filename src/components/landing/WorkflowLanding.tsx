@@ -7,12 +7,12 @@ import {
   Hourglass,
   Network,
   PlayCircle,
-  RotateCcw,
-  ScanSearch,
+  ArrowCounterClockwise,
+  MagnifyingGlass,
   ShieldCheck,
-  Sparkles,
-  Workflow,
-} from 'lucide-react'
+  Sparkle,
+  FlowArrow,
+} from '@phosphor-icons/react'
 
 import { BottomCTA } from '~/components/BottomCTA'
 import { Footer } from '~/components/Footer'
@@ -84,12 +84,12 @@ const featureCards = [
   {
     title: 'Retries live next to the work.',
     body: 'Backoff, recovery, compensation, and error handling stay close to the step that can fail, where maintainers can reason about it.',
-    icon: <RotateCcw size={18} />,
+    icon: <ArrowCounterClockwise size={18} />,
   },
   {
     title: 'Workflow state is meant to be inspected.',
     body: 'A process that matters needs visible history, status, inputs, outputs, and next actions, not a hidden promise chain.',
-    icon: <ScanSearch size={18} />,
+    icon: <MagnifyingGlass size={18} />,
   },
 ]
 
@@ -140,7 +140,7 @@ export default function WorkflowLanding() {
       <section className="max-w-full overflow-hidden border-b border-blue-950/10 bg-[#dbeafe] dark:border-blue-300/10 dark:bg-[#061325]">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-10 lg:max-w-[80rem] lg:grid-cols-[0.84fr_1.16fr] lg:items-start lg:py-12 xl:max-w-[92rem]">
           <div className="min-w-0 max-w-full sm:max-w-3xl">
-            <SectionKicker icon={<Workflow size={14} />}>
+            <SectionKicker icon={<FlowArrow size={14} />}>
               Durable typed processes
             </SectionKicker>
 
@@ -201,7 +201,7 @@ export default function WorkflowLanding() {
       <section className="border-b border-blue-950/10 bg-[#f4f8ff] dark:border-blue-300/10 dark:bg-[#07182d]">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.74fr_1.26fr] xl:max-w-[92rem]">
           <div>
-            <SectionKicker icon={<Sparkles size={14} />}>
+            <SectionKicker icon={<Sparkle size={14} />}>
               Why Workflow
             </SectionKicker>
             <h2 className="mt-3 max-w-xl text-3xl font-black leading-tight sm:text-4xl">

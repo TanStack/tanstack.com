@@ -5,12 +5,11 @@ import {
   BookOpen,
   Gauge,
   GitBranch,
-  MoveHorizontal,
+  ArrowsHorizontal,
   Ruler,
   SlidersHorizontal,
-  Sparkles,
-  StretchHorizontal,
-} from 'lucide-react'
+  Sparkle,
+} from '@phosphor-icons/react'
 
 import { BottomCTA } from '~/components/BottomCTA'
 import { Footer } from '~/components/Footer'
@@ -56,7 +55,7 @@ const featureCards = [
   {
     title: 'Multi-range without bespoke math.',
     body: 'Build price filters, timelines, editors, split ranges, or multi-thumb controls with bounds and steps handled predictably.',
-    icon: <MoveHorizontal size={18} />,
+    icon: <ArrowsHorizontal size={18} />,
   },
   {
     title: 'Ticks and labels can be product-specific.',
@@ -99,7 +98,7 @@ export default function RangerLanding() {
       <section className="max-w-full overflow-hidden border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-black">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-10 lg:max-w-[80rem] lg:grid-cols-[0.84fr_1.16fr] lg:items-start lg:py-12 xl:max-w-[92rem]">
           <div className="min-w-0 max-w-full sm:max-w-3xl">
-            <SectionKicker icon={<StretchHorizontal size={14} />}>
+            <SectionKicker icon={<ArrowsHorizontal size={14} />}>
               Headless range controls
             </SectionKicker>
 
@@ -153,7 +152,7 @@ export default function RangerLanding() {
       <section className="border-b border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.74fr_1.26fr] xl:max-w-[92rem]">
           <div>
-            <SectionKicker icon={<Sparkles size={14} />}>
+            <SectionKicker icon={<Sparkle size={14} />}>
               Why Ranger
             </SectionKicker>
             <h2 className="mt-3 max-w-xl text-3xl font-black leading-tight sm:text-4xl">

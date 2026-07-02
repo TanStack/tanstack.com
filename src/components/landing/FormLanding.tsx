@@ -2,18 +2,18 @@ import * as React from 'react'
 import { Link, useParams } from '@tanstack/react-router'
 import {
   ArrowRight,
-  BadgeCheck,
+  SealCheck,
   BookOpen,
-  FileCheck2,
+  FileText,
   Fingerprint,
   Keyboard,
   ListChecks,
-  Loader2,
+  CircleNotch,
   ShieldCheck,
   SlidersHorizontal,
-  Split,
-  WandSparkles,
-} from 'lucide-react'
+  ArrowsSplit,
+  MagicWand,
+} from '@phosphor-icons/react'
 
 import { BottomCTA } from '~/components/BottomCTA'
 import { Footer } from '~/components/Footer'
@@ -105,17 +105,17 @@ const featureCards = [
   {
     title: 'Headless composition keeps forms honest.',
     body: 'Use components or hooks, but keep the real controls in your product UI. Labels, hints, validation states, layout, and accessibility remain yours.',
-    icon: <FileCheck2 size={18} />,
+    icon: <FileText size={18} />,
   },
   {
     title: 'Subscriptions make big forms feel small.',
     body: 'A checkout, onboarding wizard, or admin editor can subscribe to narrow field and form state instead of repainting the whole surface on every keystroke.',
-    icon: <Split size={18} />,
+    icon: <ArrowsSplit size={18} />,
   },
   {
     title: 'Async validation is built for users.',
     body: 'Debounced async checks, validation events, and pending states let the form stay responsive while slow business rules happen in the background.',
-    icon: <Loader2 size={18} />,
+    icon: <CircleNotch size={18} />,
   },
 ]
 
@@ -224,7 +224,7 @@ export default function FormLanding() {
       <section className="border-b border-yellow-950/10 bg-[#fffbea] dark:border-yellow-300/10 dark:bg-[#181205]">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.74fr_1.26fr] xl:max-w-[92rem]">
           <div>
-            <SectionKicker icon={<WandSparkles size={14} />}>
+            <SectionKicker icon={<MagicWand size={14} />}>
               Why Form
             </SectionKicker>
             <h2 className="mt-3 max-w-xl text-3xl font-black leading-tight sm:text-4xl">
@@ -321,7 +321,7 @@ export default function FormLanding() {
       <section className="border-b border-zinc-200 bg-[#fffbeb] py-12 dark:border-zinc-800 dark:bg-zinc-900">
         <div className="mx-auto w-full max-w-[80rem] px-4 xl:max-w-[92rem]">
           <div className="max-w-3xl">
-            <SectionKicker icon={<BadgeCheck size={14} />}>
+            <SectionKicker icon={<SealCheck size={14} />}>
               Field notes
             </SectionKicker>
             <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">

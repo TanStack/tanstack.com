@@ -7,9 +7,9 @@ import {
   FileText,
   Palette,
   Rocket,
-  Settings2,
+  GearSix,
   Terminal,
-} from 'lucide-react'
+} from '@phosphor-icons/react'
 import {
   useAvailableExamples,
   useAvailableFeatures,
@@ -270,7 +270,7 @@ export function BuilderSummaryPanel({
                 ) : null}
                 {summary.toolingFeatures.length > 0 ? (
                   <SummaryBadge
-                    icon={Settings2}
+                    icon={GearSix}
                     label={summary.toolingFeatures
                       .map((feature) => feature.name)
                       .join(', ')}

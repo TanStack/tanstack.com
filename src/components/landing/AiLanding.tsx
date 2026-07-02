@@ -2,18 +2,18 @@ import * as React from 'react'
 import { Link, useParams } from '@tanstack/react-router'
 import {
   ArrowRight,
-  Bot,
+  Robot,
   BookOpen,
   GitBranch,
-  Mic,
-  MonitorCog,
+  Microphone,
+  MonitorArrowUp,
   Plug,
   Radio,
-  ScanSearch,
-  Sparkles,
-  Split,
-  WandSparkles,
-} from 'lucide-react'
+  MagnifyingGlass,
+  Sparkle,
+  ArrowsSplit,
+  MagicWand,
+} from '@phosphor-icons/react'
 
 import { BottomCTA } from '~/components/BottomCTA'
 import { Footer } from '~/components/Footer'
@@ -126,12 +126,12 @@ const featureCards = [
   {
     title: 'Tools stay typed where they run.',
     body: 'Define client, server, isomorphic, and provider-native tools with input/output types, approvals, and runtime boundaries that remain visible.',
-    icon: <Bot size={18} />,
+    icon: <Robot size={18} />,
   },
   {
     title: 'Media is part of the same SDK story.',
     body: 'Text, structured output, reasoning streams, image, speech, transcription, realtime voice, and video can share provider-aware primitives.',
-    icon: <Mic size={18} />,
+    icon: <Microphone size={18} />,
   },
 ]
 
@@ -191,7 +191,7 @@ export default function AiLanding() {
       <section className="max-w-full overflow-hidden border-b border-pink-950/10 bg-[#ffe4f0] dark:border-pink-300/10 dark:bg-[#190612]">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-10 lg:max-w-[80rem] lg:grid-cols-[0.84fr_1.16fr] lg:items-start lg:py-12 xl:max-w-[92rem]">
           <div className="min-w-0 max-w-full sm:max-w-3xl">
-            <SectionKicker icon={<WandSparkles size={14} />}>
+            <SectionKicker icon={<MagicWand size={14} />}>
               Open AI application SDK
             </SectionKicker>
 
@@ -254,7 +254,7 @@ export default function AiLanding() {
       <section className="border-b border-pink-950/10 bg-[#fff7fb] dark:border-pink-300/10 dark:bg-[#1f0916]">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.74fr_1.26fr] xl:max-w-[92rem]">
           <div>
-            <SectionKicker icon={<Sparkles size={14} />}>Why AI</SectionKicker>
+            <SectionKicker icon={<Sparkle size={14} />}>Why AI</SectionKicker>
             <h2 className="mt-3 max-w-xl text-3xl font-black leading-tight sm:text-4xl">
               AI apps need protocols and boundaries, not another black box.
             </h2>
@@ -296,7 +296,7 @@ export default function AiLanding() {
       <section className="border-b border-zinc-200 bg-[#fbfaf6] dark:border-zinc-800 dark:bg-zinc-900">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.82fr_1.18fr] lg:items-start xl:max-w-[92rem]">
           <div>
-            <SectionKicker icon={<ScanSearch size={14} />}>
+            <SectionKicker icon={<MagnifyingGlass size={14} />}>
               Observable runtime
             </SectionKicker>
             <h2 className="mt-3 max-w-xl text-3xl font-black leading-tight sm:text-4xl">
@@ -316,7 +316,7 @@ export default function AiLanding() {
       <section className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.72fr_1.28fr] lg:items-start xl:max-w-[92rem]">
           <div className="max-w-xl">
-            <SectionKicker icon={<Split size={14} />}>
+            <SectionKicker icon={<ArrowsSplit size={14} />}>
               Framework adapters
             </SectionKicker>
             <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
@@ -344,7 +344,7 @@ export default function AiLanding() {
       <section className="border-b border-zinc-200 bg-[#fff1f7] py-12 dark:border-zinc-800 dark:bg-zinc-900">
         <div className="mx-auto w-full max-w-[80rem] px-4 xl:max-w-[92rem]">
           <div className="max-w-3xl">
-            <SectionKicker icon={<MonitorCog size={14} />}>
+            <SectionKicker icon={<MonitorArrowUp size={14} />}>
               Product control
             </SectionKicker>
             <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">

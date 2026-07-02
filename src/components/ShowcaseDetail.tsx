@@ -3,12 +3,12 @@ import { Link } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   ArrowLeft,
-  ExternalLink,
+  ArrowSquareOut,
   ThumbsUp,
   ThumbsDown,
-  Sparkles,
+  Sparkle,
   Code,
-} from 'lucide-react'
+} from '@phosphor-icons/react'
 import { Button } from '~/ui'
 import { twMerge } from 'tailwind-merge'
 import { libraries, type LibraryId } from '~/libraries'
@@ -193,7 +193,7 @@ export function ShowcaseDetail({ showcaseId }: ShowcaseDetailProps) {
     return (
       <div className="min-h-screen">
         <div className="max-w-4xl mx-auto px-4 py-16 text-center">
-          <Sparkles className="mx-auto h-16 w-16 text-gray-400 mb-4" />
+          <Sparkle className="mx-auto h-16 w-16 text-gray-400 mb-4" />
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
             Showcase not found
           </h1>
@@ -280,7 +280,7 @@ export function ShowcaseDetail({ showcaseId }: ShowcaseDetailProps) {
               className="px-4 py-2 text-sm bg-gray-900 dark:bg-white text-white dark:text-gray-900 border-gray-900 dark:border-white hover:bg-gray-700 dark:hover:bg-gray-200"
             >
               Visit Site
-              <ExternalLink className="w-4 h-4" />
+              <ArrowSquareOut className="w-4 h-4" />
             </Button>
           </div>
         </div>
@@ -356,7 +356,7 @@ export function ShowcaseDetail({ showcaseId }: ShowcaseDetailProps) {
             >
               <ThumbsUp
                 className="w-5 h-5"
-                fill={currentUserVote === 1 ? 'currentColor' : 'none'}
+                weight={currentUserVote === 1 ? 'fill' : 'regular'}
               />
             </button>
 
@@ -386,7 +386,7 @@ export function ShowcaseDetail({ showcaseId }: ShowcaseDetailProps) {
             >
               <ThumbsDown
                 className="w-5 h-5"
-                fill={currentUserVote === -1 ? 'currentColor' : 'none'}
+                weight={currentUserVote === -1 ? 'fill' : 'regular'}
               />
             </button>
           </div>

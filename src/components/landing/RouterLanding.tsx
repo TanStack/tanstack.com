@@ -3,15 +3,15 @@ import { Link, useParams } from '@tanstack/react-router'
 import {
   ArrowRight,
   BookOpen,
-  Boxes,
-  DatabaseZap,
+  Stack,
+  Database,
   Link as LinkIcon,
-  ListTree,
-  MousePointerClick,
-  Route,
-  Search,
-  Sparkles,
-} from 'lucide-react'
+  TreeStructure,
+  CursorClick,
+  Path,
+  MagnifyingGlass,
+  Sparkle,
+} from '@phosphor-icons/react'
 
 import { BottomCTA } from '~/components/BottomCTA'
 import { ApplicationStarter } from '~/components/ApplicationStarter'
@@ -83,19 +83,19 @@ const routeContractCards = [
     eyebrow: 'search',
     title: 'Search params behave like state.',
     body: 'Parse, validate, inherit, update, and share URL state with the same confidence you expect from a state manager.',
-    icon: <Search size={18} />,
+    icon: <MagnifyingGlass size={18} />,
   },
   {
     eyebrow: 'loaders',
     title: 'Data work starts at the route.',
     body: 'Route loaders run in parallel, preload on intent, cache results, and hand typed data to the component before render.',
-    icon: <DatabaseZap size={18} />,
+    icon: <Database size={18} />,
   },
   {
     eyebrow: 'boundaries',
     title: 'Every route owns its lifecycle.',
     body: 'Pending UI, errors, not-found states, code splitting, and context can live where the product route actually changes.',
-    icon: <Boxes size={18} />,
+    icon: <Stack size={18} />,
   },
 ]
 
@@ -159,7 +159,7 @@ export default function RouterLanding() {
       <section className="max-w-full overflow-hidden border-b border-emerald-950/10 bg-[#f3fbf5] dark:border-emerald-300/10 dark:bg-[#04100b]">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-10 lg:max-w-[80rem] lg:grid-cols-[0.88fr_1.12fr] lg:items-start lg:py-12 xl:max-w-[92rem]">
           <div className="min-w-0 max-w-full sm:max-w-3xl">
-            <SectionKicker icon={<Route size={14} />}>
+            <SectionKicker icon={<Path size={14} />}>
               Type-safe router
             </SectionKicker>
 
@@ -219,7 +219,7 @@ export default function RouterLanding() {
       <section className="border-b border-emerald-950/10 bg-[#ecf9ef] dark:border-emerald-300/10 dark:bg-[#06150d]">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.72fr_1.28fr] lg:items-start xl:max-w-[92rem]">
           <div className="max-w-xl">
-            <SectionKicker icon={<Sparkles size={14} />}>
+            <SectionKicker icon={<Sparkle size={14} />}>
               Application builder
             </SectionKicker>
             <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
@@ -250,7 +250,7 @@ export default function RouterLanding() {
       <section className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.7fr_1.3fr] xl:max-w-[92rem]">
           <div>
-            <SectionKicker icon={<ListTree size={14} />}>
+            <SectionKicker icon={<TreeStructure size={14} />}>
               Route contract
             </SectionKicker>
             <h2 className="mt-3 max-w-xl text-3xl font-black leading-tight sm:text-4xl">
@@ -275,7 +275,9 @@ export default function RouterLanding() {
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[1.1fr_0.9fr] lg:items-center xl:max-w-[92rem]">
           <SearchStatePanel />
           <div>
-            <SectionKicker icon={<Search size={14} />}>URL state</SectionKicker>
+            <SectionKicker icon={<MagnifyingGlass size={14} />}>
+              URL state
+            </SectionKicker>
             <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
               Search params without the URLSearchParams ceremony.
             </h2>
@@ -292,7 +294,7 @@ export default function RouterLanding() {
       <section className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.76fr_1.24fr] lg:items-start xl:max-w-[92rem]">
           <div>
-            <SectionKicker icon={<MousePointerClick size={14} />}>
+            <SectionKicker icon={<CursorClick size={14} />}>
               Loaders and preload
             </SectionKicker>
             <h2 className="mt-3 max-w-xl text-3xl font-black leading-tight sm:text-4xl">

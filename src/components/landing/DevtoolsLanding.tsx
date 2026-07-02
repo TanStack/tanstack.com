@@ -3,17 +3,17 @@ import { Link, useParams } from '@tanstack/react-router'
 import {
   ArrowRight,
   BookOpen,
-  Dock,
+  AppWindow,
   Eye,
   Gauge,
-  Layers,
-  PanelRight,
+  Stack,
+  Sidebar,
   Plug,
-  Puzzle,
-  ScanSearch,
-  Sparkles,
-  Workflow,
-} from 'lucide-react'
+  PuzzlePiece,
+  MagnifyingGlass,
+  Sparkle,
+  FlowArrow,
+} from '@phosphor-icons/react'
 
 import { BottomCTA } from '~/components/BottomCTA'
 import { Footer } from '~/components/Footer'
@@ -67,12 +67,12 @@ const featureCards = [
   {
     title: 'A shared place for runtime truth.',
     body: 'TanStack apps already have rich runtime state. Devtools gives that state a consistent panel instead of scattering inspectors across the UI.',
-    icon: <ScanSearch size={18} />,
+    icon: <MagnifyingGlass size={18} />,
   },
   {
     title: 'Custom panels belong next to library panels.',
     body: 'Register product-specific devtools beside Query and Router so teams can inspect the state that matters for their own workflow.',
-    icon: <Puzzle size={18} />,
+    icon: <PuzzlePiece size={18} />,
   },
   {
     title: 'The shell stays light.',
@@ -82,7 +82,7 @@ const featureCards = [
   {
     title: 'Frameworks get adapters, not rewrites.',
     body: 'Use the shell from React, Vue, Solid, Preact, Angular, or vanilla integration points while panels keep their own internal state model.',
-    icon: <Layers size={18} />,
+    icon: <Stack size={18} />,
   },
 ]
 
@@ -123,7 +123,7 @@ export default function DevtoolsLanding() {
       <section className="max-w-full overflow-hidden border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-black">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-10 lg:max-w-[80rem] lg:grid-cols-[0.84fr_1.16fr] lg:items-start lg:py-12 xl:max-w-[92rem]">
           <div className="min-w-0 max-w-full sm:max-w-3xl">
-            <SectionKicker icon={<Dock size={14} />}>
+            <SectionKicker icon={<AppWindow size={14} />}>
               Unified devtools shell
             </SectionKicker>
 
@@ -185,7 +185,7 @@ export default function DevtoolsLanding() {
       <section className="border-b border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.74fr_1.26fr] xl:max-w-[92rem]">
           <div>
-            <SectionKicker icon={<Sparkles size={14} />}>
+            <SectionKicker icon={<Sparkle size={14} />}>
               Why Devtools
             </SectionKicker>
             <h2 className="mt-3 max-w-xl text-3xl font-black leading-tight sm:text-4xl">
@@ -210,7 +210,7 @@ export default function DevtoolsLanding() {
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[1.05fr_0.95fr] lg:items-center xl:max-w-[92rem]">
           <LifecyclePanel />
           <div>
-            <SectionKicker icon={<Workflow size={14} />}>
+            <SectionKicker icon={<FlowArrow size={14} />}>
               Panel workflow
             </SectionKicker>
             <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
@@ -248,7 +248,7 @@ export default function DevtoolsLanding() {
       <section className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.72fr_1.28fr] lg:items-start xl:max-w-[92rem]">
           <div className="max-w-xl">
-            <SectionKicker icon={<PanelRight size={14} />}>
+            <SectionKicker icon={<Sidebar size={14} />}>
               Framework adapters
             </SectionKicker>
             <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">

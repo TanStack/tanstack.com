@@ -1,4 +1,4 @@
-import { PersonStanding, Zap } from 'lucide-react'
+import { PersonSimple, Lightning } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { CogsIcon } from '~/components/icons/CogsIcon'
 import { table } from './libraries'
@@ -48,7 +48,7 @@ export const tableProject = {
       title: 'Designed for zero design',
       icon: (
         <div className="text-center overflow-hidden">
-          <PersonStanding className={twMerge(textStyles)} />
+          <PersonSimple className={twMerge(textStyles)} />
         </div>
       ),
       description: (
@@ -65,7 +65,7 @@ export const tableProject = {
     },
     {
       title: 'Big Power, Small Package',
-      icon: <Zap className={twMerge(textStyles)} />,
+      icon: <Lightning className={twMerge(textStyles)} />,
       description: (
         <div>
           Don't be fooled by the small bundle size. TanStack Table is a

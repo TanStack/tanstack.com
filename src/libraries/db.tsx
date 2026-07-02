@@ -1,4 +1,4 @@
-import { GalleryVerticalEnd, Zap } from 'lucide-react'
+import { Stack, Lightning } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { CogsIcon } from '~/components/icons/CogsIcon'
 import { db } from './libraries'
@@ -15,7 +15,7 @@ export const dbProject = {
   featureHighlights: [
     {
       title: 'Collections',
-      icon: <GalleryVerticalEnd className={twMerge(textStyles)} />,
+      icon: <Stack className={twMerge(textStyles)} />,
       description: (
         <div>
           Collections are typed sets of objects. Sync or load data into them.
@@ -26,7 +26,7 @@ export const dbProject = {
     },
     {
       title: 'Live Queries',
-      icon: <Zap className={twMerge(textStyles)} />,
+      icon: <Lightning className={twMerge(textStyles)} />,
       description: (
         <div>
           Live queries run reactively against and across collections. They're

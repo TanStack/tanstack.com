@@ -1,11 +1,11 @@
 import React from 'react'
 import {
-  ArrowLeftFromLine,
-  ArrowRightFromLine,
-  Maximize,
-  Minimize,
-  TextAlignStart,
-} from 'lucide-react'
+  ArrowLineLeft,
+  ArrowLineRight,
+  ArrowsOut,
+  ArrowsIn,
+  TextAlignLeft,
+} from '@phosphor-icons/react'
 
 interface CodeExplorerTopBarProps {
   activeTab: 'code' | 'sandbox'
@@ -34,7 +34,7 @@ export function CodeExplorerTopBar({
               className="p-2 text-sm rounded transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400"
               title={'Hide sidebar'}
             >
-              <ArrowLeftFromLine className="w-4 h-4" />
+              <ArrowLineLeft className="w-4 h-4" />
             </button>
           ) : (
             <button
@@ -42,12 +42,12 @@ export function CodeExplorerTopBar({
               className="p-2 text-sm rounded transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400"
               title={'Show sidebar'}
             >
-              <ArrowRightFromLine className="w-4 h-4" />
+              <ArrowLineRight className="w-4 h-4" />
             </button>
           )
         ) : (
           <div className="p-2 text-sm rounded" aria-hidden>
-            <TextAlignStart className="w-4 h-4 text-transparent" aria-hidden />
+            <TextAlignLeft className="w-4 h-4 text-transparent" aria-hidden />
           </div>
         )}
         <button
@@ -96,9 +96,9 @@ export function CodeExplorerTopBar({
           title={isFullScreen ? 'Exit full screen' : 'Enter full screen'}
         >
           {isFullScreen ? (
-            <Minimize className="w-4 h-4" />
+            <ArrowsIn className="w-4 h-4" />
           ) : (
-            <Maximize className="w-4 h-4" />
+            <ArrowsOut className="w-4 h-4" />
           )}
         </button>
       </div>

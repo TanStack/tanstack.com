@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { ChevronDown, Copy, SquarePen } from 'lucide-react'
+import { CaretDown, Copy, PencilSimpleLine } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { ButtonGroup } from '~/components/ButtonGroup'
 import { DocTitle } from '~/components/DocTitle'
@@ -58,7 +58,7 @@ function CopyPageDropdownFallback() {
         disabled
         aria-label="More copy actions"
       >
-        <ChevronDown className="w-3 h-3" />
+        <CaretDown className="w-3 h-3" />
       </Button>
     </ButtonGroup>
   )
@@ -163,7 +163,7 @@ export function MarkdownContent({
           as="a"
           href={`https://github.com/${repo}/edit/${branch}/${filePath}`}
         >
-          <SquarePen className="w-3.5 h-3.5" />
+          <PencilSimpleLine className="w-3.5 h-3.5" />
           Edit on GitHub
         </Button>
       </div>

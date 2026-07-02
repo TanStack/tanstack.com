@@ -3,16 +3,16 @@ import { Link, useParams } from '@tanstack/react-router'
 import {
   ArrowRight,
   BookOpen,
-  Boxes,
-  ClipboardCheck,
-  FileCheck2,
+  Stack,
+  ClipboardText,
+  FileText,
   GitBranch,
-  PackageCheck,
-  ScanLine,
+  Package,
+  Scan,
   ShieldCheck,
-  Sparkles,
-  TerminalSquare,
-} from 'lucide-react'
+  Sparkle,
+  Terminal,
+} from '@phosphor-icons/react'
 
 import { BottomCTA } from '~/components/BottomCTA'
 import { Footer } from '~/components/Footer'
@@ -59,17 +59,17 @@ const featureCards = [
   {
     title: 'Opinionated where packages are repetitive.',
     body: 'Linting, package builds, CI tasks, publishing, and release hygiene should not become bespoke work in every package repo.',
-    icon: <ClipboardCheck size={18} />,
+    icon: <ClipboardText size={18} />,
   },
   {
     title: 'Vite ecosystem without a hand-built pipeline.',
     body: 'Use modern build primitives and package output conventions without rebuilding the same config stack for every library.',
-    icon: <TerminalSquare size={18} />,
+    icon: <Terminal size={18} />,
   },
   {
     title: 'Publishing rules stay visible.',
     body: 'Exports, package metadata, release branches, and npm publish behavior can be reviewed as part of the same workflow.',
-    icon: <PackageCheck size={18} />,
+    icon: <Package size={18} />,
   },
   {
     title: 'Minimal config, consistent results.',
@@ -125,7 +125,7 @@ export default function ConfigLanding() {
       <section className="max-w-full overflow-hidden border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-black">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-10 lg:max-w-[80rem] lg:grid-cols-[0.84fr_1.16fr] lg:items-start lg:py-12 xl:max-w-[92rem]">
           <div className="min-w-0 max-w-full sm:max-w-3xl">
-            <SectionKicker icon={<FileCheck2 size={14} />}>
+            <SectionKicker icon={<FileText size={14} />}>
               Package maintenance tooling
             </SectionKicker>
 
@@ -179,7 +179,7 @@ export default function ConfigLanding() {
       <section className="border-b border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.74fr_1.26fr] xl:max-w-[92rem]">
           <div>
-            <SectionKicker icon={<Sparkles size={14} />}>
+            <SectionKicker icon={<Sparkle size={14} />}>
               Why Config
             </SectionKicker>
             <h2 className="mt-3 max-w-xl text-3xl font-black leading-tight sm:text-4xl">
@@ -223,7 +223,7 @@ export default function ConfigLanding() {
       <section className="border-b border-zinc-200 bg-[#fbfaf6] dark:border-zinc-800 dark:bg-zinc-900">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.82fr_1.18fr] lg:items-start xl:max-w-[92rem]">
           <div>
-            <SectionKicker icon={<ScanLine size={14} />}>
+            <SectionKicker icon={<Scan size={14} />}>
               Package audit
             </SectionKicker>
             <h2 className="mt-3 max-w-xl text-3xl font-black leading-tight sm:text-4xl">
@@ -243,7 +243,7 @@ export default function ConfigLanding() {
       <section className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.72fr_1.28fr] lg:items-start xl:max-w-[92rem]">
           <div className="max-w-xl">
-            <SectionKicker icon={<Boxes size={14} />}>
+            <SectionKicker icon={<Stack size={14} />}>
               Maintainer ergonomics
             </SectionKicker>
             <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">

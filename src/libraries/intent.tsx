@@ -1,5 +1,5 @@
 import { Library } from '.'
-import { BookOpen, Package, RefreshCw } from 'lucide-react'
+import { BookOpen, Package, ArrowsClockwise } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { intent } from './libraries'
 
@@ -39,7 +39,7 @@ export const intentProject = {
     },
     {
       title: 'Staleness Detection',
-      icon: <RefreshCw className={twMerge(textStyles)} />,
+      icon: <ArrowsClockwise className={twMerge(textStyles)} />,
       description: (
         <div>
           Each skill declares its source docs. When those docs change,{' '}

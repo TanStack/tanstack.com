@@ -9,12 +9,12 @@ import { Link } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 import {
   Plus,
-  Loader2,
-  AlertCircle,
+  CircleNotch,
+  WarningCircle,
   X,
-  ExternalLink,
-  HelpCircle,
-} from 'lucide-react'
+  ArrowSquareOut,
+  Question,
+} from '@phosphor-icons/react'
 import { useBuilderStore, useTailwind } from './store'
 import type { IntegrationCompiled } from '~/builder/api'
 
@@ -117,7 +117,11 @@ export function CustomAddonDialog({ onClose }: CustomAddonDialogProps) {
                 : 'bg-cyan-500 text-white hover:bg-cyan-600',
             )}
           >
-            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Load'}
+            {isLoading ? (
+              <CircleNotch className="w-4 h-4 animate-spin" />
+            ) : (
+              'Load'
+            )}
           </button>
         </div>
         <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
@@ -129,7 +133,7 @@ export function CustomAddonDialog({ onClose }: CustomAddonDialogProps) {
       {/* Error */}
       {error && (
         <div className="flex items-start gap-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-700 dark:text-red-400">
-          <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+          <WarningCircle className="w-4 h-4 mt-0.5 shrink-0" />
           <span>{error}</span>
         </div>
       )}
@@ -153,7 +157,7 @@ export function CustomAddonDialog({ onClose }: CustomAddonDialogProps) {
                 rel="noopener noreferrer"
                 className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
               >
-                <ExternalLink className="w-4 h-4" />
+                <ArrowSquareOut className="w-4 h-4" />
               </a>
             )}
           </div>
@@ -231,7 +235,7 @@ export function CustomAddonButton() {
               onClick={(e) => e.stopPropagation()}
               className="p-0.5 hover:text-blue-600 dark:hover:text-cyan-400"
             >
-              <HelpCircle className="w-3.5 h-3.5" />
+              <Question className="w-3.5 h-3.5" />
             </Link>
           </>
         )}

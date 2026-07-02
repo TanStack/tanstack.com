@@ -1,5 +1,13 @@
 import * as React from 'react'
-import { Pin, PinOff, Plus, X, ChevronDown, Eye, EyeOff } from 'lucide-react'
+import {
+  PushPin as Pin,
+  PushPinSlash as PinOff,
+  Plus,
+  X,
+  CaretDown as ChevronDown,
+  Eye,
+  EyeSlash as EyeOff,
+} from '@phosphor-icons/react'
 import {
   DropdownMenu,
   DropdownMenuContent,

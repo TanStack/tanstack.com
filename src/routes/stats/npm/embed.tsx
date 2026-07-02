@@ -85,7 +85,7 @@ export const Route = createFileRoute('/stats/npm/embed')({
     ),
     showDataMode: v.fallback(v.optional(showDataModeSchema, 'all'), 'all'),
     normalizeBaseline: v.fallback(v.optional(v.boolean(), true), true),
-    showBaseline: v.fallback(v.optional(v.boolean(), false), false),
+    showBaseline: v.fallback(v.optional(v.boolean(), true), true),
     showLegend: v.fallback(v.optional(v.boolean(), false), false),
     width: v.fallback(v.optional(chartWidthSchema), undefined),
     timelineStart: v.fallback(v.optional(timelineZoomTimeSchema), undefined),
@@ -197,7 +197,7 @@ function NpmStatsEmbed() {
   const barSort: LatestBarSort = search.barSort ?? 'value'
   const showDataMode: ShowDataMode = search.showDataMode ?? 'all'
   const normalizeBaseline: boolean = search.normalizeBaseline ?? true
-  const showBaseline: boolean = search.showBaseline ?? false
+  const showBaseline: boolean = search.showBaseline ?? true
   const showLegend: boolean = search.showLegend ?? false
   const bucketOffsetParam: number = search.bucketOffset ?? 0
   const playbackIntervalMs: number =

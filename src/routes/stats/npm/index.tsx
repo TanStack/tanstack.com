@@ -857,7 +857,7 @@ function RouteComponent() {
       params.set('playbackIntervalMs', `${playbackIntervalMs}`)
       params.set('showDataMode', showDataModeParam)
       params.set('normalizeBaseline', `${normalizeBaseline}`)
-      params.set('showBaseline', `${viewMode === 'history' && showBaseline}`)
+      params.set('showBaseline', `${viewMode === 'history'}`)
       params.set('showLegend', `${options.showLegend}`)
 
       if (
@@ -885,7 +885,6 @@ function RouteComponent() {
       packageGroups,
       playbackIntervalMs,
       range,
-      showBaseline,
       showDataModeParam,
       timelineEnd,
       timelineStart,

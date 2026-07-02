@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { fetchRecentPosts, type RecentPost } from '~/utils/blog.functions'
-import { formatPublishedDate } from '~/utils/blog'
+import { formatPublishedDate } from '~/utils/blog-format'
 
 type RecentPostsWidgetProps = {
   posts?: ReadonlyArray<RecentPost>

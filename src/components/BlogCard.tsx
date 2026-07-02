@@ -5,7 +5,7 @@ import {
   formatAuthors,
   formatPublishedDate,
   getBlogLibraries,
-} from '~/utils/blog'
+} from '~/utils/blog-format'
 import { getOptimizedImageUrl } from '~/utils/optimizedImage'
 
 export type BlogCardPost = {

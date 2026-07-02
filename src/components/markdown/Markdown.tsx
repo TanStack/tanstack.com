@@ -1,7 +1,11 @@
 import { renderMarkdownReact } from '@tanstack/markdown/react'
 import * as React from 'react'
 import { InlineCode, MarkdownImg } from '~/ui'
-import { parseSiteMarkdown, type MarkdownDocument } from '~/utils/markdown'
+import {
+  findFirstImageSrc,
+  parseSiteMarkdown,
+  type MarkdownDocument,
+} from '~/utils/markdown'
 import { isSafeHttpUrl } from '~/utils/url-boundary'
 import { CodeBlock } from './CodeBlock'
 import { MarkdownLink } from './MarkdownLink'
@@ -13,7 +17,6 @@ import {
 
 type MarkdownRenderOptions = {
   preserveTabPanels?: boolean
-  eagerFirstImage?: boolean
 }
 
 export type MarkdownProps = {
@@ -34,16 +37,17 @@ export function Markdown({
     () => document ?? parseSiteMarkdown(content ?? ''),
     [content, document],
   )
-  const heroConsumedRef = React.useRef(false)
-  heroConsumedRef.current = false
 
   return React.useMemo(() => {
+    const firstImageSrc = eagerFirstImage
+      ? findFirstImageSrc(parsed)
+      : undefined
+
     return renderMarkdownReact(parsed, {
       allowHtml: true,
       components: createMarkdownComponents({
         preserveTabPanels,
-        eagerFirstImage,
-        heroConsumedRef,
+        firstImageSrc,
       }),
       headingAnchors,
     })
@@ -169,9 +173,7 @@ function TableElement({
 }
 
 function createMarkdownComponents(
-  options: MarkdownRenderOptions & {
-    heroConsumedRef?: React.RefObject<boolean>
-  } = {},
+  options: MarkdownRenderOptions & { firstImageSrc?: string } = {},
 ) {
   function MdCommentComponentWithOptions(
     props: React.ComponentProps<typeof MdCommentComponent>,
@@ -185,13 +187,9 @@ function createMarkdownComponents(
   }
 
   function ImgElement(props: React.ComponentProps<typeof MarkdownImg>) {
-    const heroConsumedRef = options.heroConsumedRef
     const isFirstImage =
-      options.eagerFirstImage && heroConsumedRef && !heroConsumedRef.current
-
-    if (isFirstImage) {
-      heroConsumedRef.current = true
-    }
+      options.firstImageSrc !== undefined &&
+      props.src === options.firstImageSrc
 
     return <MarkdownImg {...props} priority={isFirstImage} />
   }

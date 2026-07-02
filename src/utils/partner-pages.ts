@@ -57,6 +57,12 @@ const partnerGuidance: Record<
     whyTanStack:
       'That can be a strong fit for TanStack Start apps that want to run close to users on Workers and take advantage of bindings and prerendering support.',
   },
+  lovable: {
+    whyGreat:
+      'Lovable is useful when the shortest path from idea to working app matters, especially because it combines AI-assisted building, visual editing, GitHub sync, and hosted deployment.',
+    whyTanStack:
+      'Its move to TanStack Start for new SSR projects makes the generated app foundation much closer to the stack TanStack teams already want to own.',
+  },
   sentry: {
     whyGreat:
       'Sentry turns production issues into actionable debugging data instead of just error logs, especially once tracing and replay are in the mix.',

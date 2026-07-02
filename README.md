@@ -2,7 +2,7 @@
 
 # TanStack.com
 
-The home of the TanStack ecosystem. Built with [TanStack Router](https://tanstack.com/router) and deployed automagically with [Netlify](https://netlify.com/).
+The home of the TanStack ecosystem. Built with [TanStack Router](https://tanstack.com/router) and deployed on [Cloudflare Workers](https://workers.cloudflare.com/).
 
 <a href="https://twitter.com/tan_stack"><img src="https://img.shields.io/twitter/follow/tan_stack.svg?style=social" alt="Follow @TanStack"/></a>
 

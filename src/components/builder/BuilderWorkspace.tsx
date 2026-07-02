@@ -6,6 +6,7 @@ import { BuilderSummaryPanel, useBuilderSummaryData } from './BuilderSummary'
 import { ApplicationStarter } from '~/components/ApplicationStarter'
 import { useToast } from '~/components/ToastProvider'
 import type { ApplicationStarterResult } from '~/utils/application-starter'
+import { downloadBuilderResult } from './client-generation'
 
 export function BuilderWorkspace() {
   useBuilderUrl()
@@ -15,6 +16,8 @@ export function BuilderWorkspace() {
     useState<string | null>(null)
   const [isPromptDirtySinceGenerate, setIsPromptDirtySinceGenerate] =
     useState(false)
+  const [latestStarterResult, setLatestStarterResult] =
+    useState<ApplicationStarterResult | null>(null)
   const features = useBuilderStore((state) => state.features)
   const featureOptions = useBuilderStore((state) => state.featureOptions)
   const framework = useBuilderStore((state) => state.framework)
@@ -27,6 +30,17 @@ export function BuilderWorkspace() {
   )
   const summary = useBuilderSummaryData()
   const { notify } = useToast()
+  const displayedSummary = useMemo(
+    () =>
+      latestStarterResult
+        ? {
+            ...summary,
+            cliCommand: latestStarterResult.cliCommand,
+            prompt: latestStarterResult.prompt,
+          }
+        : summary,
+    [latestStarterResult, summary],
+  )
 
   const currentBuilderSignature = useMemo(
     () =>
@@ -57,21 +71,26 @@ export function BuilderWorkspace() {
       ? {
           title: 'Summary out of date',
           description:
-            'The prompt or builder options changed. Generate again to refresh this summary.',
+            'The prompt or builder options changed. Copy the prompt again to refresh this summary.',
         }
       : null
 
   const applyStarterResult = useCallback(
-    async (result: ApplicationStarterResult) => {
+    async (
+      result: ApplicationStarterResult,
+      options?: { silent?: boolean },
+    ) => {
       if (result.recipe.target === 'router') {
-        notify(
-          <div>
-            <div className="font-medium">Router-only stays prompt-first</div>
-            <div className="text-xs text-gray-500 dark:text-gray-400">
-              `/builder` remains a TanStack Start advanced surface.
-            </div>
-          </div>,
-        )
+        if (!options?.silent) {
+          notify(
+            <div>
+              <div className="font-medium">Router-only stays prompt-first</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                `/builder` remains a TanStack Start advanced surface.
+              </div>
+            </div>,
+          )
+        }
 
         return false
       }
@@ -84,6 +103,13 @@ export function BuilderWorkspace() {
       return true
     },
     [applyStarterRecipe, notify],
+  )
+  const starterBuilderIntegration = useMemo(
+    () => ({
+      applyResult: applyStarterResult,
+      downloadResult: downloadBuilderResult,
+    }),
+    [applyStarterResult],
   )
 
   return (
@@ -109,10 +135,7 @@ export function BuilderWorkspace() {
           ) : null}
 
           <ApplicationStarter
-            alwaysShowPostAnalysisSection
-            builderIntegration={{
-              applyResult: applyStarterResult,
-            }}
+            builderIntegration={starterBuilderIntegration}
             className="rounded-[28px]"
             context="builder"
             enableHotkeys
@@ -139,6 +162,8 @@ export function BuilderWorkspace() {
                 setIsPromptDirtySinceGenerate(dirty)
               }
             }}
+            onResolvedResult={setLatestStarterResult}
+            revealOptionsImmediately
             showPromptPreview={false}
             tone="cyan"
           />
@@ -147,7 +172,7 @@ export function BuilderWorkspace() {
         <div className="min-w-0 xl:sticky xl:top-0 xl:self-start">
           <BuilderSummaryPanel
             overlay={summaryOverlay}
-            summary={summary}
+            summary={displayedSummary}
             compact
           />
         </div>

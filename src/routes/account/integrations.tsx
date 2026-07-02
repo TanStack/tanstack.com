@@ -11,6 +11,7 @@ import {
   listConnectedApps,
   revokeConnectedApp,
 } from '~/utils/oauthClient.functions'
+import { copyTextToClipboard, useTemporaryFlag } from '~/utils/browser-effects'
 import { useToast } from '~/components/ToastProvider'
 import { Card } from '~/components/Card'
 import { Button, FormInput } from '~/ui'
@@ -40,7 +41,7 @@ function IntegrationsPage() {
   const [newlyCreatedKey, setNewlyCreatedKey] = React.useState<string | null>(
     null,
   )
-  const [copied, setCopied] = React.useState(false)
+  const copied = useTemporaryFlag()
 
   const keysQuery = useQuery({
     queryKey: ['api-keys'],
@@ -129,9 +130,8 @@ function IntegrationsPage() {
 
   const handleCopy = async () => {
     if (!newlyCreatedKey) return
-    await navigator.clipboard.writeText(newlyCreatedKey)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    await copyTextToClipboard(newlyCreatedKey)
+    copied.trigger()
   }
 
   const formatDate = (dateStr: string | null) => {
@@ -191,12 +191,12 @@ function IntegrationsPage() {
                   {newlyCreatedKey}
                 </code>
                 <Button onClick={handleCopy} className="flex-shrink-0">
-                  {copied ? (
+                  {copied.active ? (
                     <Check className="w-3.5 h-3.5 text-green-600" />
                   ) : (
                     <Copy className="w-3.5 h-3.5" />
                   )}
-                  {copied ? 'Copied' : 'Copy'}
+                  {copied.active ? 'Copied' : 'Copy'}
                 </Button>
               </div>
               <button

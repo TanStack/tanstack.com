@@ -10,6 +10,7 @@ import {
   getFrameworkDocsHash,
   getFrameworkDocsPath,
 } from '~/libraries/frameworkSupport'
+import { copyTextToClipboard } from '~/utils/browser-effects'
 
 export function FrameworkCard({
   framework,
@@ -28,7 +29,7 @@ export function FrameworkCard({
 }) {
   const { notify } = useToast()
   const [copied, onCopyClick] = useCopyButton(async () => {
-    await navigator.clipboard.writeText(packageName)
+    await copyTextToClipboard(packageName)
     notify(
       <div>
         <div className="font-medium">Copied package name</div>

@@ -23,6 +23,7 @@ import {
 } from 'lucide-react'
 import { libraries } from '~/libraries'
 import { Badge, Button } from '~/ui'
+import { getRowFieldId } from '~/utils/route-encoding'
 import { Fragment, useState } from 'react'
 
 interface ShowcaseModerationListProps {
@@ -205,6 +206,11 @@ export function ShowcaseModerationList({
             const isExpanded = expandedIds.has(showcase.id)
             const isPending = showcase.status === 'pending'
             const isModeratingThis = isModeratingId === showcase.id
+            const moderationNoteId = getRowFieldId(
+              'showcase-moderation',
+              showcase.id,
+              'note',
+            )
 
             return (
               <Fragment key={showcase.id}>
@@ -528,13 +534,13 @@ export function ShowcaseModerationList({
                         {isPending && (
                           <div>
                             <label
-                              htmlFor="note"
+                              htmlFor={moderationNoteId}
                               className="block text-sm font-semibold mb-2"
                             >
                               Internal Moderation Note (optional):
                             </label>
                             <textarea
-                              id="note"
+                              id={moderationNoteId}
                               value={moderationNotes[showcase.id] || ''}
                               onChange={(e) =>
                                 handleModerationNoteChange(

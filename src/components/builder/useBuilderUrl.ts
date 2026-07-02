@@ -234,9 +234,7 @@ export function useCliCommand(): string {
     cmd += ' --framework Solid'
   }
 
-  if (packageManager !== 'pnpm') {
-    cmd += ` --package-manager ${packageManager}`
-  }
+  cmd += ` --package-manager ${packageManager}`
 
   if (tailwind) {
     cmd += ' --tailwind'

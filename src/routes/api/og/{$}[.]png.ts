@@ -1,9 +1,13 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { generateOgImageResponse } from '~/server/og/generate.server'
+
+type GenerateOgImageResponse = typeof import(
+  '~/server/og/generate.server'
+)['generateOgImageResponse']
 
 const CACHE_HEADERS = {
-  'Cache-Control':
-    'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800',
+  'Cache-Control': 'public, max-age=3600',
+  'Cloudflare-CDN-Cache-Control':
+    'public, max-age=86400, stale-while-revalidate=604800',
 } as const
 
 export const Route = createFileRoute('/api/og/{$}.png')({
@@ -20,11 +24,15 @@ export const Route = createFileRoute('/api/og/{$}.png')({
         const libraryId = rawParam.replace(/\.png$/, '')
 
         const url = new URL(request.url)
-        let result: ReturnType<typeof generateOgImageResponse>
+        let result: Awaited<ReturnType<GenerateOgImageResponse>>
         try {
-          result = generateOgImageResponse(
+          const { generateOgImageResponse } = await import(
+            '~/server/og/generate.server'
+          )
+          result = await generateOgImageResponse(
             {
               libraryId,
+              requestUrl: request.url,
               title: url.searchParams.get('title') ?? undefined,
               description: url.searchParams.get('description') ?? undefined,
             },

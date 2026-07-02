@@ -15,6 +15,38 @@ import type {
 } from './types'
 import { AuthError } from './types'
 
+const GITHUB_USER_AGENT = 'TanStack.com'
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
+async function parseOAuthJson(
+  response: Response,
+  context: string,
+): Promise<unknown> {
+  const text = await response.text()
+
+  try {
+    return JSON.parse(text)
+  } catch {
+    const body = text.trim().slice(0, 300)
+    console.error(
+      `[OAuth] ${context} returned non-JSON response: status=${response.status}, statusText=${response.statusText}, body=${body}`,
+    )
+    throw new AuthError(`${context} returned non-JSON response`, 'OAUTH_ERROR')
+  }
+}
+
+function getStringField(record: Record<string, unknown>, key: string) {
+  const value = record[key]
+  return typeof value === 'string' ? value : undefined
+}
+
+function getGitHubApiError(data: unknown) {
+  return isRecord(data) ? getStringField(data, 'message') : undefined
+}
+
 // ============================================================================
 // OAuth Service Implementation
 // ============================================================================
@@ -192,16 +224,22 @@ export class OAuthService implements IOAuthService {
  */
 export function buildGitHubAuthUrl(
   clientId: string,
-  redirectUri: string,
+  redirectUri: string | undefined,
   state: string,
   additionalScopes?: Array<string>,
 ): string {
   const scopes = ['user:email', ...(additionalScopes ?? [])].join(' ')
-  return `https://github.com/login/oauth/authorize?client_id=${encodeURIComponent(
-    clientId,
-  )}&redirect_uri=${encodeURIComponent(
-    redirectUri,
-  )}&scope=${encodeURIComponent(scopes)}&state=${encodeURIComponent(state)}`
+  const params = new URLSearchParams({
+    client_id: clientId,
+    scope: scopes,
+    state,
+  })
+
+  if (redirectUri) {
+    params.set('redirect_uri', redirectUri)
+  }
+
+  return `https://github.com/login/oauth/authorize?${params.toString()}`
 }
 
 /**
@@ -231,8 +269,23 @@ export async function exchangeGitHubCode(
   code: string,
   clientId: string,
   clientSecret: string,
-  redirectUri: string,
+  redirectUri?: string,
 ): Promise<GitHubTokenResult> {
+  const body: {
+    client_id: string
+    client_secret: string
+    code: string
+    redirect_uri?: string
+  } = {
+    client_id: clientId,
+    client_secret: clientSecret,
+    code,
+  }
+
+  if (redirectUri) {
+    body.redirect_uri = redirectUri
+  }
+
   const tokenResponse = await fetch(
     'https://github.com/login/oauth/access_token',
     {
@@ -240,25 +293,28 @@ export async function exchangeGitHubCode(
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
+        'User-Agent': GITHUB_USER_AGENT,
       },
-      body: JSON.stringify({
-        client_id: clientId,
-        client_secret: clientSecret,
-        code,
-        redirect_uri: redirectUri,
-      }),
+      body: JSON.stringify(body),
     },
   )
 
-  const tokenData = await tokenResponse.json()
-  if (tokenData.error) {
-    console.error(
-      `[OAuth] GitHub token exchange failed: ${tokenData.error}, description: ${tokenData.error_description || 'none'}`,
-    )
-    throw new AuthError(`GitHub OAuth error: ${tokenData.error}`, 'OAUTH_ERROR')
+  const tokenData = await parseOAuthJson(tokenResponse, 'GitHub token exchange')
+  if (!isRecord(tokenData)) {
+    throw new AuthError('Invalid GitHub token response', 'OAUTH_ERROR')
   }
 
-  if (!tokenData.access_token) {
+  const error = getStringField(tokenData, 'error')
+  if (error) {
+    const errorDescription = getStringField(tokenData, 'error_description')
+    console.error(
+      `[OAuth] GitHub token exchange failed: ${error}, description: ${errorDescription || 'none'}`,
+    )
+    throw new AuthError(`GitHub OAuth error: ${error}`, 'OAUTH_ERROR')
+  }
+
+  const accessToken = getStringField(tokenData, 'access_token')
+  if (!accessToken) {
     console.error(
       '[OAuth] GitHub token exchange succeeded but no access_token returned',
     )
@@ -266,8 +322,8 @@ export async function exchangeGitHubCode(
   }
 
   return {
-    accessToken: tokenData.access_token,
-    scope: tokenData.scope ?? '',
+    accessToken,
+    scope: getStringField(tokenData, 'scope') ?? '',
   }
 }
 
@@ -281,21 +337,31 @@ export async function fetchGitHubProfile(
     headers: {
       Authorization: `Bearer ${accessToken}`,
       Accept: 'application/vnd.github.v3+json',
+      'User-Agent': GITHUB_USER_AGENT,
     },
   })
 
-  const profile = await profileResponse.json()
+  const profile = await parseOAuthJson(profileResponse, 'GitHub profile API')
+  if (!isRecord(profile)) {
+    throw new AuthError('Invalid GitHub profile response', 'OAUTH_ERROR')
+  }
+
+  if (!profileResponse.ok) {
+    const message = getGitHubApiError(profile) ?? 'Failed to fetch GitHub user'
+    throw new AuthError(message, 'OAUTH_ERROR')
+  }
 
   // Fetch email (may require separate call)
-  let email = profile.email
+  let email = getStringField(profile, 'email')
   if (!email) {
     const emailResponse = await fetch('https://api.github.com/user/emails', {
       headers: {
         Authorization: `Bearer ${accessToken}`,
         Accept: 'application/vnd.github.v3+json',
+        'User-Agent': GITHUB_USER_AGENT,
       },
     })
-    const emails = await emailResponse.json()
+    const emails = await parseOAuthJson(emailResponse, 'GitHub emails API')
 
     if (!Array.isArray(emails)) {
       console.error(
@@ -303,24 +369,34 @@ export async function fetchGitHubProfile(
         emails,
       )
       throw new AuthError(
-        emails?.message || 'Failed to fetch GitHub emails',
+        getGitHubApiError(emails) || 'Failed to fetch GitHub emails',
         'OAUTH_ERROR',
       )
     }
 
     const primaryEmail = emails.find(
-      (e: { primary: boolean; verified: boolean; email: string }) =>
-        e.primary && e.verified,
+      (emailRecord): emailRecord is Record<string, unknown> =>
+        isRecord(emailRecord) &&
+        emailRecord.primary === true &&
+        emailRecord.verified === true &&
+        typeof emailRecord.email === 'string',
     )
     const verifiedEmail = emails.find(
-      (e: { verified: boolean; email: string }) => e.verified,
+      (emailRecord): emailRecord is Record<string, unknown> =>
+        isRecord(emailRecord) &&
+        emailRecord.verified === true &&
+        typeof emailRecord.email === 'string',
     )
-    email = primaryEmail?.email || verifiedEmail?.email
+    email =
+      getStringField(primaryEmail ?? {}, 'email') ||
+      getStringField(verifiedEmail ?? {}, 'email')
   }
 
   if (!email) {
     console.error(
-      `[OAuth] No verified email found for GitHub user ${profile.id} (${profile.login})`,
+      `[OAuth] No verified email found for GitHub user ${String(
+        profile.id,
+      )} (${getStringField(profile, 'login') ?? 'unknown'})`,
     )
     throw new AuthError(
       'No verified email found for GitHub account',
@@ -331,8 +407,8 @@ export async function fetchGitHubProfile(
   return {
     id: String(profile.id),
     email,
-    name: profile.name || profile.login,
-    image: profile.avatar_url,
+    name: getStringField(profile, 'name') || getStringField(profile, 'login'),
+    image: getStringField(profile, 'avatar_url'),
   }
 }
 

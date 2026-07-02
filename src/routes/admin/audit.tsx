@@ -31,6 +31,7 @@ import {
 } from '~/components/admin'
 import { useAdminGuard } from '~/hooks/useAdminGuard'
 import { requireCapability } from '~/utils/auth.functions'
+import { pageIndexSchema, pageSizeSchema } from '~/utils/schemas'
 
 type AuditLogEntry = {
   id: string
@@ -96,8 +97,8 @@ export const Route = createFileRoute('/admin/audit')({
         actorId: v.optional(v.string()),
         action: v.optional(v.string()),
         targetType: v.optional(v.string()),
-        page: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0))),
-        pageSize: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
+        page: v.optional(pageIndexSchema),
+        pageSize: v.optional(pageSizeSchema),
       }),
       search,
     ),

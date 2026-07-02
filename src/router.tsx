@@ -5,8 +5,11 @@ import { DefaultCatchBoundary } from './components/DefaultCatchBoundary'
 import { NotFound } from './components/NotFound'
 import { QueryClient } from '@tanstack/react-query'
 import * as Sentry from '@sentry/tanstackstart-react'
+import { installStaleAppReloadHandlers } from './utils/stale-app-reload'
 
 if (typeof document !== 'undefined') {
+  installStaleAppReloadHandlers()
+
   Sentry.init({
     dsn: 'https://ac4bfc43ff4a892f8dc7053c4a50d92f@o4507236158537728.ingest.us.sentry.io/4507236163649536',
     sendDefaultPii: true,

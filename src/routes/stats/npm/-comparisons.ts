@@ -1,22 +1,47 @@
 import * as v from 'valibot'
+import { npmPackageNameSchema } from '~/utils/schemas'
+import {
+  MAX_NPM_STATS_GROUPS,
+  MAX_NPM_STATS_PACKAGES_PER_GROUP,
+  MAX_NPM_STATS_TOTAL_PACKAGES,
+} from '~/utils/npm-stats-limits'
+import { tanStackTotalNpmStatsPackageGroup } from '~/utils/tanstack-npm-stats'
 
 export const packageGroupSchema = v.object({
-  packages: v.array(
-    v.object({
-      name: v.string(),
-      hidden: v.optional(v.boolean()),
-    }),
+  label: v.optional(v.pipe(v.string(), v.maxLength(80))),
+  hidden: v.optional(v.boolean()),
+  packages: v.pipe(
+    v.array(
+      v.object({
+        name: npmPackageNameSchema,
+        hidden: v.optional(v.boolean()),
+      }),
+    ),
+    v.maxLength(MAX_NPM_STATS_PACKAGES_PER_GROUP),
   ),
-  color: v.optional(v.nullable(v.string())),
+  color: v.optional(v.nullable(v.pipe(v.string(), v.maxLength(32)))),
   baseline: v.optional(v.boolean()),
-  baselineLabel: v.optional(v.string()),
+  baselineLabel: v.optional(v.pipe(v.string(), v.maxLength(80))),
 })
 
+export const packageGroupsSchema = v.pipe(
+  v.array(packageGroupSchema),
+  v.maxLength(MAX_NPM_STATS_GROUPS),
+  v.check(
+    (groups) =>
+      groups.reduce((count, group) => count + group.packages.length, 0) <=
+      MAX_NPM_STATS_TOTAL_PACKAGES,
+    `NPM stats comparisons support up to ${MAX_NPM_STATS_TOTAL_PACKAGES} total packages.`,
+  ),
+)
+
 export const packageComparisonSchema = v.object({
-  title: v.string(),
-  packageGroups: v.array(packageGroupSchema),
+  title: v.pipe(v.string(), v.maxLength(120)),
+  packageGroups: packageGroupsSchema,
   baseline: v.optional(v.string()),
 })
+
+type PackageGroupInput = v.InferInput<typeof packageGroupSchema>
 
 export type BaselinePreset = {
   id: string
@@ -111,9 +136,7 @@ export function getBaselinePresets(): BaselinePreset[] {
   ]
 }
 
-// Default comparison for route validation - extracted to avoid bundling all comparisons
-// This is used in validateSearch defaults and must be kept in sync with the first comparison
-export const defaultPackageGroups: v.InferInput<typeof packageGroupSchema>[] = [
+const dataFetchingPackageGroups = [
   {
     packages: [{ name: '@tanstack/react-query' }, { name: 'react-query' }],
     color: '#FF4500',
@@ -130,15 +153,317 @@ export const defaultPackageGroups: v.InferInput<typeof packageGroupSchema>[] = [
     packages: [{ name: '@trpc/client' }],
     color: '#2596BE',
   },
-]
+] satisfies PackageGroupInput[]
+
+const tanstackLibraryPackageGroups = [
+  {
+    label: 'TanStack Query',
+    packages: [{ name: '@tanstack/query-core' }, { name: 'react-query' }],
+    color: '#FF4500',
+  },
+  {
+    label: 'TanStack Table',
+    packages: [{ name: '@tanstack/table-core' }, { name: 'react-table' }],
+    color: '#FF7043',
+  },
+  {
+    label: 'TanStack Router',
+    packages: [{ name: '@tanstack/router-core' }, { name: 'react-location' }],
+    color: '#32CD32',
+  },
+  {
+    label: 'TanStack Start',
+    packages: [{ name: '@tanstack/start-client-core' }],
+    color: '#00CED1',
+  },
+  {
+    label: 'TanStack Form',
+    packages: [{ name: '@tanstack/form-core' }],
+    color: '#FFD700',
+  },
+  {
+    label: 'TanStack Virtual',
+    packages: [{ name: '@tanstack/virtual-core' }, { name: 'react-virtual' }],
+    color: '#8B5CF6',
+  },
+  {
+    label: 'TanStack DB',
+    packages: [{ name: '@tanstack/db' }],
+    color: '#F97316',
+  },
+  {
+    label: 'TanStack Pacer',
+    packages: [{ name: '@tanstack/pacer' }, { name: '@tanstack/pacer-lite' }],
+    color: '#84CC16',
+  },
+  {
+    label: 'TanStack AI',
+    packages: [{ name: '@tanstack/ai' }],
+    color: '#EC4899',
+  },
+  {
+    label: 'TanStack Intent',
+    packages: [{ name: '@tanstack/intent' }],
+    color: '#0EA5E9',
+  },
+  {
+    label: 'TanStack Store',
+    packages: [{ name: '@tanstack/store' }],
+    color: '#B89A56',
+  },
+  {
+    label: 'TanStack Hotkeys',
+    packages: [{ name: '@tanstack/hotkeys' }],
+    color: '#F43F5E',
+  },
+  {
+    label: 'TanStack Ranger',
+    packages: [{ name: '@tanstack/ranger' }, { name: 'react-ranger' }],
+    color: '#1F2937',
+  },
+  {
+    label: 'TanStack Config',
+    packages: [{ name: '@tanstack/config' }],
+    color: '#1F2937',
+  },
+  {
+    label: 'TanStack Devtools',
+    packages: [{ name: '@tanstack/devtools' }],
+    color: '#1F2937',
+  },
+  {
+    label: 'TanStack CLI',
+    packages: [{ name: '@tanstack/cli' }],
+    color: '#6366F1',
+  },
+] satisfies PackageGroupInput[]
+
+const tanstackAggregatePackageGroup =
+  tanStackTotalNpmStatsPackageGroup satisfies PackageGroupInput
+
+const ecosystemTanStackPackageGroups = [
+  {
+    label: 'TanStack Query',
+    packages: [{ name: '@tanstack/query-core' }, { name: 'react-query' }],
+    color: '#FF4500',
+  },
+  {
+    label: 'TanStack Table',
+    packages: [{ name: '@tanstack/table-core' }, { name: 'react-table' }],
+    color: '#FF7043',
+  },
+  {
+    label: 'TanStack Router',
+    packages: [{ name: '@tanstack/router-core' }],
+    color: '#32CD32',
+  },
+  {
+    label: 'TanStack Start',
+    packages: [{ name: '@tanstack/start-client-core' }],
+    color: '#00CED1',
+  },
+  {
+    label: 'TanStack Form',
+    packages: [{ name: '@tanstack/form-core' }],
+    color: '#FFD700',
+  },
+  {
+    label: 'TanStack Virtual',
+    packages: [{ name: '@tanstack/virtual-core' }, { name: 'react-virtual' }],
+    color: '#8B5CF6',
+  },
+  {
+    label: 'TanStack DB',
+    packages: [{ name: '@tanstack/db' }],
+    color: '#F97316',
+  },
+  {
+    label: 'TanStack Pacer',
+    packages: [{ name: '@tanstack/pacer' }],
+    color: '#84CC16',
+  },
+  {
+    label: 'TanStack AI',
+    packages: [{ name: '@tanstack/ai' }],
+    color: '#EC4899',
+  },
+  {
+    label: 'TanStack Intent',
+    packages: [{ name: '@tanstack/intent' }],
+    color: '#0EA5E9',
+  },
+  {
+    label: 'TanStack Store',
+    packages: [{ name: '@tanstack/store' }],
+    color: '#B89A56',
+  },
+] satisfies PackageGroupInput[]
+
+const ecosystemComparisonPackageGroups = [
+  {
+    label: 'TanStack',
+    packages: [
+      { name: '@tanstack/query-core' },
+      { name: 'react-query' },
+      { name: '@tanstack/table-core' },
+      { name: 'react-table' },
+      { name: '@tanstack/router-core' },
+      { name: '@tanstack/start-client-core' },
+      { name: '@tanstack/form-core' },
+      { name: '@tanstack/virtual-core' },
+      { name: 'react-virtual' },
+      { name: '@tanstack/db' },
+      { name: '@tanstack/pacer' },
+      { name: '@tanstack/ai' },
+      { name: '@tanstack/intent' },
+      { name: '@tanstack/store', hidden: true },
+    ],
+    color: '#01a7b9',
+  },
+  {
+    label: 'Next.js',
+    packages: [{ name: 'next' }, { name: 'ai' }, { name: 'workflow' }],
+    color: '#6d6a6a',
+  },
+  {
+    label: 'React Router',
+    packages: [
+      { name: 'react-router' },
+      { name: '@remix-run/react' },
+      { name: 'remix' },
+    ],
+    color: '#ff7580',
+  },
+  {
+    label: 'Astro',
+    packages: [{ name: 'astro' }],
+    color: '#BC52EE',
+  },
+  {
+    label: 'Vue',
+    packages: [{ name: 'vue' }],
+    color: '#6aaf04',
+  },
+  {
+    label: 'Angular',
+    packages: [{ name: '@angular/core' }, { name: 'angular' }],
+    color: '#DD0031',
+  },
+  {
+    label: 'Expo',
+    packages: [{ name: 'expo' }],
+    color: '#F59E0B',
+  },
+  {
+    packages: [{ name: 'svelte' }],
+  },
+  {
+    packages: [{ name: 'vite' }],
+  },
+  {
+    label: 'React',
+    packages: [{ name: 'react', hidden: true }],
+    color: '#61DAFB',
+    baseline: true,
+    baselineLabel: 'React',
+  },
+] satisfies PackageGroupInput[]
+
+// Default comparison for route validation.
+export const defaultPackageGroups = ecosystemComparisonPackageGroups
+
+const ecosystemFlattenedPackageGroups = [
+  ...ecosystemTanStackPackageGroups,
+  {
+    label: 'Next.js',
+    packages: [{ name: 'next' }],
+    color: '#6d6a6a',
+  },
+  {
+    label: 'AI SDK',
+    packages: [{ name: 'ai' }],
+    color: '#111827',
+  },
+  {
+    label: 'Workflow',
+    packages: [{ name: 'workflow' }],
+    color: '#9CA3AF',
+  },
+  {
+    label: 'React Router',
+    packages: [{ name: 'react-router' }],
+    color: '#ff7580',
+  },
+  {
+    label: 'Remix React',
+    packages: [{ name: '@remix-run/react' }],
+    color: '#EC4899',
+  },
+  {
+    label: 'Remix',
+    packages: [{ name: 'remix' }],
+    color: '#F97316',
+  },
+  {
+    label: 'Astro',
+    packages: [{ name: 'astro' }],
+    color: '#BC52EE',
+  },
+  {
+    label: 'Vue',
+    packages: [{ name: 'vue' }],
+    color: '#6aaf04',
+  },
+  {
+    label: 'Angular',
+    packages: [{ name: '@angular/core' }, { name: 'angular' }],
+    color: '#DD0031',
+  },
+  {
+    label: 'Expo',
+    packages: [{ name: 'expo' }],
+    color: '#F59E0B',
+  },
+  {
+    label: 'Svelte',
+    packages: [{ name: 'svelte' }],
+  },
+  {
+    label: 'Vite',
+    packages: [{ name: 'vite' }],
+  },
+  {
+    label: 'React',
+    packages: [{ name: 'react', hidden: true }],
+    color: '#61DAFB',
+    baseline: true,
+    baselineLabel: 'React',
+  },
+] satisfies PackageGroupInput[]
 
 export function getPopularComparisons(): v.InferInput<
   typeof packageComparisonSchema
 >[] {
   return [
     {
+      title: 'JavaScript Ecosystem',
+      packageGroups: ecosystemComparisonPackageGroups,
+    },
+    {
+      title: 'JavaScript Ecosystem (flat)',
+      packageGroups: ecosystemFlattenedPackageGroups,
+    },
+    {
+      title: 'TanStack Total',
+      packageGroups: [tanstackAggregatePackageGroup],
+    },
+    {
+      title: 'TanStack Libraries',
+      packageGroups: tanstackLibraryPackageGroups,
+    },
+    {
       title: 'Data Fetching',
-      packageGroups: defaultPackageGroups,
+      packageGroups: dataFetchingPackageGroups,
     },
     {
       title: 'State Management',
@@ -198,6 +523,56 @@ export function getPopularComparisons(): v.InferInput<
         {
           packages: [{ name: 'expo' }],
           color: '#f59e0b',
+        },
+      ],
+    },
+    {
+      title: 'AI & Agent Harnesses',
+      packageGroups: [
+        {
+          label: 'TanStack AI',
+          packages: [{ name: '@tanstack/ai' }],
+          color: '#EC4899',
+        },
+        {
+          label: 'AI SDK',
+          packages: [{ name: 'ai' }],
+          color: '#111827',
+        },
+        {
+          label: 'LangChain',
+          packages: [{ name: 'langchain' }],
+          color: '#1C3C3C',
+        },
+        {
+          label: 'LangGraph',
+          packages: [{ name: '@langchain/langgraph' }],
+          color: '#2E8B57',
+        },
+        {
+          label: 'Mastra',
+          packages: [{ name: '@mastra/core' }],
+          color: '#7C3AED',
+        },
+        {
+          label: 'OpenAI Agents',
+          packages: [{ name: '@openai/agents' }],
+          color: '#10A37F',
+        },
+        {
+          label: 'Genkit',
+          packages: [{ name: 'genkit' }],
+          color: '#4285F4',
+        },
+        {
+          label: 'CopilotKit',
+          packages: [{ name: '@copilotkit/react-core' }],
+          color: '#F97316',
+        },
+        {
+          label: 'Promptfoo',
+          packages: [{ name: 'promptfoo' }],
+          color: '#FACC15',
         },
       ],
     },
@@ -554,56 +929,56 @@ export function getPopularComparisons(): v.InferInput<
       ],
     },
     {
-      title: 'All TanStack Packages',
+      title: 'Drag & Drop',
       packageGroups: [
         {
+          label: 'dnd-kit',
+          packages: [{ name: '@dnd-kit/core' }],
+          color: '#eb2f06',
+        },
+        {
+          label: 'Pragmatic DnD',
+          packages: [{ name: '@atlaskit/pragmatic-drag-and-drop' }],
+          color: '#0652dd',
+        },
+        {
+          label: 'React DnD',
+          packages: [{ name: 'react-dnd' }],
+          color: '#10ac84',
+        },
+        {
+          label: 'SortableJS',
           packages: [
-            { name: '@tanstack/react-query' },
-            { name: 'react-query' },
+            { name: 'sortablejs' },
+            { name: 'react-sortablejs' },
+            { name: 'vuedraggable' },
+            { name: 'vue-draggable-next' },
+            { name: 'vue-draggable-plus' },
           ],
-          color: '#FF4500',
+          color: '#f39c12',
         },
         {
+          label: 'Hello Pangea DnD',
           packages: [
-            { name: '@tanstack/react-table' },
-            { name: 'react-table' },
+            { name: '@hello-pangea/dnd' },
+            { name: 'react-beautiful-dnd' },
           ],
-          color: '#FF7043',
+          color: '#8854d0',
         },
         {
-          packages: [{ name: '@tanstack/react-router' }],
-          color: '#32CD32',
+          label: 'React Draggable',
+          packages: [{ name: 'react-draggable' }],
+          color: '#20bf6b',
         },
         {
-          packages: [
-            { name: '@tanstack/react-virtual' },
-            { name: 'react-virtual' },
-          ],
-          color: '#8B5CF6',
+          label: 'React Grid Layout',
+          packages: [{ name: 'react-grid-layout' }],
+          color: '#d81b60',
         },
         {
-          packages: [{ name: '@tanstack/react-form' }],
-          color: '#FFD700',
-        },
-        {
-          packages: [{ name: '@tanstack/start' }],
-          color: '#00CED1',
-        },
-        {
-          packages: [{ name: '@tanstack/store' }],
-          color: '#FF69B4',
-        },
-        {
-          packages: [{ name: '@tanstack/ranger' }],
-          color: '#98D8C8',
-        },
-        {
-          packages: [{ name: '@tanstack/config' }],
-          color: '#FFA500',
-        },
-        {
-          packages: [{ name: '@tanstack/react-charts' }],
-          color: '#4169E1',
+          label: 'React Rnd',
+          packages: [{ name: 'react-rnd' }],
+          color: '#a55d35',
         },
       ],
     },

@@ -14,7 +14,8 @@ export const Route = createFileRoute('/_library/store/$version/')({
   beforeLoad: ({ params, location }) => {
     beforeLoadLibraryLanding('store', params.version, location.href)
   },
-  loader: ({ params }) => loadLibraryLandingRouteData('store', params.version),
+  loader: ({ params, context: { queryClient } }) =>
+    loadLibraryLandingRouteData('store', params.version, queryClient),
   head: () => getLibraryLandingHead('store'),
   headers: () => getLibraryLandingHeaders('store'),
   staticData: {
@@ -28,7 +29,5 @@ function StoreNavbarTitle() {
 }
 
 function StoreLandingRoute() {
-  const { landingCodeExampleRsc } = Route.useLoaderData()
-
-  return <StoreLanding landingCodeExampleRsc={landingCodeExampleRsc} />
+  return <StoreLanding />
 }

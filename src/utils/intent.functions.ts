@@ -1,6 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
 import * as v from 'valibot'
-import { renderMarkdownToRsc } from './markdown'
 import {
   getAllVerifiedPackages,
   getPackageByName,
@@ -8,6 +7,7 @@ import {
   getSkillsForVersion,
   getSkillFingerprintsForVersion,
   getIntentRegistryStats,
+  getLatestIntentVersionSkillSummaries,
   searchPackagesByName,
   searchSkills,
   touchPackageSyncTime,
@@ -24,6 +24,7 @@ import {
   selectVersionsToSync,
   extractSkillsFromTarball,
   fetchBulkDownloads,
+  searchIntentPackagesByText,
 } from './intent.server'
 import { fetchCached } from './cache.server'
 import type {
@@ -32,9 +33,59 @@ import type {
   SkillSearchResult,
 } from './intent-db.server'
 import type { NpmSearchResult } from './intent.server'
+import { npmPackageNameSchema } from './schemas'
+import { normalizePublicHttpUrl } from './url-boundary'
 
 // Re-export types used by routes
 export type { IntentPackage, IntentPackageVersion, SkillSearchResult }
+
+const emptyNpmSearchResult: NpmSearchResult = {
+  objects: [],
+  total: 0,
+  time: '',
+}
+
+const intentVersionSchema = v.pipe(
+  v.string(),
+  v.minLength(1),
+  v.maxLength(120),
+  v.regex(/^[a-z0-9.+_-]+$/i),
+)
+const intentSkillNameSchema = v.pipe(
+  v.string(),
+  v.minLength(1),
+  v.maxLength(160),
+)
+const intentSearchSchema = v.pipe(v.string(), v.maxLength(120))
+const intentFrameworkSchema = v.pipe(v.string(), v.maxLength(80))
+const intentPageSchema = v.pipe(v.number(), v.integer(), v.minValue(0))
+const intentPageSizeSchema = v.pipe(
+  v.number(),
+  v.integer(),
+  v.minValue(1),
+  v.maxValue(48),
+)
+const intentLimitSchema = v.pipe(
+  v.number(),
+  v.integer(),
+  v.minValue(1),
+  v.maxValue(50),
+)
+
+function normalizeRepositoryUrl(value: string | undefined | null) {
+  if (!value) return null
+
+  const withoutGitPrefix = value.replace(/^git\+/, '').replace(/\.git$/, '')
+  return normalizePublicHttpUrl(withoutGitPrefix)
+}
+
+function normalizeOptionalPublicHttpUrl(value: string | undefined | null) {
+  return normalizePublicHttpUrl(value) ?? undefined
+}
+
+function normalizeOptionalRepositoryUrl(value: string | undefined | null) {
+  return normalizeRepositoryUrl(value) ?? undefined
+}
 
 // ---------------------------------------------------------------------------
 // Enriched types (DB rows + live NPM metadata merged)
@@ -103,13 +154,13 @@ export const getIntentStats = createServerFn({ method: 'GET' }).handler(
 // ---------------------------------------------------------------------------
 
 export const getIntentDirectory = createServerFn({ method: 'GET' })
-  .inputValidator(
+  .validator(
     v.object({
-      search: v.optional(v.string()),
-      framework: v.optional(v.string()),
+      search: v.optional(intentSearchSchema),
+      framework: v.optional(intentFrameworkSchema),
       sort: v.optional(v.picklist(['downloads', 'name', 'skills', 'newest'])),
-      page: v.optional(v.number()),
-      pageSize: v.optional(v.number()),
+      page: v.optional(intentPageSchema),
+      pageSize: v.optional(intentPageSizeSchema),
     }),
   )
   .handler(async ({ data }) => {
@@ -121,26 +172,27 @@ export const getIntentDirectory = createServerFn({ method: 'GET' })
       pageSize = 24,
     } = data
 
-    // Pull live NPM search results (cached 5 min) to get metadata/scores
-    const npmData = await fetchCached<NpmSearchResult>({
+    const npmSearchPromise = fetchCached<NpmSearchResult>({
       key: `intent:npm-search:${search ?? ''}`,
       ttl: 5 * 60 * 1000,
-      fn: () => {
-        if (search) {
-          return fetch(
-            `https://registry.npmjs.org/-/v1/search?text=${encodeURIComponent(search)}+keywords:tanstack-intent&size=250`,
-            { headers: { Accept: 'application/json' } },
-          ).then((r) => r.json() as Promise<NpmSearchResult>)
-        }
-        return searchIntentPackages()
-      },
-    })
+      fn: () =>
+        search ? searchIntentPackagesByText(search) : searchIntentPackages(),
+    }).catch(() => emptyNpmSearchResult)
 
-    // Get verified packages from DB (authoritative list).
-    // When searching, also include DB-only matches (packages without the keyword yet).
-    const [verifiedPackages, dbSearchMatches] = await Promise.all([
+    const [
+      npmData,
+      verifiedPackages,
+      dbSearchMatches,
+      latestVersionSkillSummaries,
+    ] = await Promise.all([
+      npmSearchPromise,
       getAllVerifiedPackages(),
       search ? searchPackagesByName(search) : Promise.resolve([]),
+      fetchCached({
+        key: 'intent:latest-version-skill-summaries:v2',
+        ttl: 10 * 60 * 1000,
+        fn: () => getLatestIntentVersionSkillSummaries(),
+      }),
     ])
 
     // Fetch real download counts from the npm downloads API (cached 5 min)
@@ -155,6 +207,12 @@ export const getIntentDirectory = createServerFn({ method: 'GET' })
       npmData.objects.map((obj) => [obj.package.name, obj]),
     )
     const dbMatchNames = new Set(dbSearchMatches.map((p) => p.name))
+    const summaryByPackageName = new Map(
+      latestVersionSkillSummaries.map((summary) => [
+        summary.packageName,
+        summary,
+      ]),
+    )
 
     // Merge: DB record + NPM metadata. Only show verified packages.
     const packages: Array<EnrichedIntentPackage> = []
@@ -164,34 +222,9 @@ export const getIntentDirectory = createServerFn({ method: 'GET' })
       if (search && !npmObj && !dbMatchNames.has(pkg.name)) continue
 
       const npmPkg = npmObj?.package
-
-      // Get latest version info for skill count + framework list
-      // (aggregated in DB; we just need latest version's skills breakdown)
-      const versions = await fetchCached({
-        key: `intent:versions:${pkg.name}`,
-        ttl: 10 * 60 * 1000,
-        fn: () => getPackageVersions(pkg.name),
-      })
-
-      const latestVersion = versions[0]
-
-      // Collect skill names + distinct frameworks from skills in the latest version
-      let skillNames: Array<string> = []
-      let frameworks: Array<string> = []
-      if (latestVersion) {
-        const skills = await fetchCached({
-          key: `intent:skills:${latestVersion.id}`,
-          ttl: 30 * 60 * 1000,
-          fn: () => getSkillsForVersion(latestVersion.id),
-        })
-        skillNames = skills.map((s) => s.name)
-        const frameworkSet = new Set(
-          skills
-            .map((s) => s.framework)
-            .filter((f): f is string => f !== null && f !== undefined),
-        )
-        frameworks = [...frameworkSet].sort()
-      }
+      const summary = summaryByPackageName.get(pkg.name)
+      const skillNames = summary?.skillNames ?? []
+      const frameworks = summary?.frameworks ?? []
 
       // Filter by framework if requested
       if (framework && !frameworks.includes(framework)) continue
@@ -199,12 +232,13 @@ export const getIntentDirectory = createServerFn({ method: 'GET' })
       packages.push({
         name: pkg.name,
         description: npmPkg?.description ?? '',
-        homepage: npmPkg?.links.homepage ?? undefined,
-        repositoryUrl: npmPkg?.links.repository ?? undefined,
+        homepage: normalizeOptionalPublicHttpUrl(npmPkg?.links.homepage),
+        repositoryUrl: normalizeOptionalRepositoryUrl(npmPkg?.links.repository),
         npmUrl:
-          npmPkg?.links.npm ?? `https://www.npmjs.com/package/${pkg.name}`,
-        latestVersion: latestVersion?.version ?? 'unknown',
-        publishedAt: latestVersion?.publishedAt?.toISOString() ?? null,
+          normalizePublicHttpUrl(npmPkg?.links.npm) ??
+          `https://www.npmjs.com/package/${pkg.name}`,
+        latestVersion: summary?.latestVersion ?? 'unknown',
+        publishedAt: summary?.publishedAt?.toISOString() ?? null,
         monthlyDownloads: downloadCounts.get(pkg.name) ?? 0,
         weeklyDownloads: 0,
         npmScore: npmObj?.score.final ?? 0,
@@ -273,15 +307,15 @@ async function buildPackageDetail(
 
   const repoUrl = latestMeta?.repository
     ? typeof latestMeta.repository === 'string'
-      ? latestMeta.repository
-      : latestMeta.repository.url.replace(/^git\+/, '').replace(/\.git$/, '')
-    : null
+      ? normalizeRepositoryUrl(latestMeta.repository)
+      : normalizeRepositoryUrl(latestMeta.repository.url)
+    : undefined
 
   return {
     name,
     description: latestMeta?.description ?? '',
-    homepage: latestMeta?.homepage ?? null,
-    repositoryUrl: repoUrl,
+    homepage: normalizePublicHttpUrl(latestMeta?.homepage) ?? null,
+    repositoryUrl: repoUrl ?? null,
     npmUrl: `https://www.npmjs.com/package/${name}`,
     latestVersion,
     versions: versions.map(
@@ -421,7 +455,7 @@ function refreshPackageInBackground(name: string): void {
 }
 
 export const getIntentPackageDetail = createServerFn({ method: 'GET' })
-  .inputValidator(v.object({ name: v.string() }))
+  .validator(v.object({ name: npmPackageNameSchema }))
   .handler(async ({ data }) => {
     const { name } = data
 
@@ -461,10 +495,10 @@ export const getIntentPackageDetail = createServerFn({ method: 'GET' })
 // ---------------------------------------------------------------------------
 
 export const getIntentVersionSkills = createServerFn({ method: 'GET' })
-  .inputValidator(
+  .validator(
     v.object({
-      packageName: v.string(),
-      version: v.string(),
+      packageName: npmPackageNameSchema,
+      version: intentVersionSchema,
     }),
   )
   .handler(async ({ data }) => {
@@ -520,11 +554,11 @@ function stripFrontmatter(content: string) {
 }
 
 export const getIntentSkillPage = createServerFn({ method: 'GET' })
-  .inputValidator(
+  .validator(
     v.object({
-      packageName: v.string(),
-      skillName: v.string(),
-      version: v.string(),
+      packageName: npmPackageNameSchema,
+      skillName: intentSkillNameSchema,
+      version: intentVersionSchema,
     }),
   )
   .handler(async ({ data }) => {
@@ -548,21 +582,17 @@ export const getIntentSkillPage = createServerFn({ method: 'GET' })
       return null
     }
 
-    const { contentRsc } = await renderMarkdownToRsc(
-      stripFrontmatter(skill.content),
-    )
-
     return {
-      contentRsc,
+      content: stripFrontmatter(skill.content),
     }
   })
 
 export const getIntentSkillMarkdown = createServerFn({ method: 'GET' })
-  .inputValidator(
+  .validator(
     v.object({
-      packageName: v.string(),
-      skillName: v.string(),
-      version: v.string(),
+      packageName: npmPackageNameSchema,
+      skillName: intentSkillNameSchema,
+      version: intentVersionSchema,
     }),
   )
   .handler(async ({ data }) => {
@@ -598,12 +628,18 @@ export const getIntentSkillMarkdown = createServerFn({ method: 'GET' })
 // ---------------------------------------------------------------------------
 
 export const searchIntentSkills = createServerFn({ method: 'GET' })
-  .inputValidator(
-    v.object({ query: v.string(), limit: v.optional(v.number()) }),
+  .validator(
+    v.object({
+      query: intentSearchSchema,
+      limit: v.optional(intentLimitSchema),
+    }),
   )
   .handler(async ({ data }) => {
     const { query, limit = 50 } = data
-    if (!query.trim()) return [] as Array<SkillSearchResult>
+    if (!query.trim()) {
+      const empty: Array<SkillSearchResult> = []
+      return empty
+    }
     return searchSkills(query.trim(), limit)
   })
 
@@ -619,11 +655,11 @@ export interface SkillDiff {
 }
 
 export const diffIntentVersions = createServerFn({ method: 'GET' })
-  .inputValidator(
+  .validator(
     v.object({
-      packageName: v.string(),
-      fromVersion: v.string(),
-      toVersion: v.string(),
+      packageName: npmPackageNameSchema,
+      fromVersion: intentVersionSchema,
+      toVersion: intentVersionSchema,
     }),
   )
   .handler(async ({ data }) => {
@@ -702,10 +738,10 @@ export const diffIntentVersions = createServerFn({ method: 'GET' })
 // ---------------------------------------------------------------------------
 
 export const getIntentSkillHistory = createServerFn({ method: 'GET' })
-  .inputValidator(
+  .validator(
     v.object({
-      packageNames: v.array(v.string()),
-      limit: v.optional(v.number()),
+      packageNames: v.pipe(v.array(npmPackageNameSchema), v.maxLength(12)),
+      limit: v.optional(intentLimitSchema),
     }),
   )
   .handler(
@@ -804,10 +840,10 @@ export interface ChangelogEntry {
 }
 
 export const getIntentPackageChangelog = createServerFn({ method: 'GET' })
-  .inputValidator(
+  .validator(
     v.object({
-      packageName: v.string(),
-      limit: v.optional(v.number()),
+      packageName: npmPackageNameSchema,
+      limit: v.optional(intentLimitSchema),
     }),
   )
   .handler(async ({ data }): Promise<Array<ChangelogEntry>> => {
@@ -918,12 +954,12 @@ export const getIntentPackageChangelog = createServerFn({ method: 'GET' })
 // ---------------------------------------------------------------------------
 
 export const getIntentSkillContentDiff = createServerFn({ method: 'GET' })
-  .inputValidator(
+  .validator(
     v.object({
-      packageName: v.string(),
-      skillName: v.string(),
-      fromVersion: v.string(),
-      toVersion: v.string(),
+      packageName: npmPackageNameSchema,
+      skillName: intentSkillNameSchema,
+      fromVersion: intentVersionSchema,
+      toVersion: intentVersionSchema,
     }),
   )
   .handler(async ({ data }) => {
@@ -971,10 +1007,10 @@ export interface SkillVersionEntry {
 }
 
 export const getIntentSingleSkillHistory = createServerFn({ method: 'GET' })
-  .inputValidator(
+  .validator(
     v.object({
-      packageName: v.string(),
-      skillName: v.string(),
+      packageName: npmPackageNameSchema,
+      skillName: intentSkillNameSchema,
     }),
   )
   .handler(async ({ data }): Promise<Array<SkillVersionEntry>> => {

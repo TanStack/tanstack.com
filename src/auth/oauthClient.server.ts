@@ -6,6 +6,7 @@ import {
 } from '~/db/schema'
 import { eq, and, sql, lt } from 'drizzle-orm'
 import { sha256Hex } from '~/utils/hash'
+import { envFunctions } from '~/utils/env.functions'
 
 // Token TTLs
 const AUTH_CODE_TTL_MS = 10 * 60 * 1000 // 10 minutes
@@ -15,6 +16,9 @@ const REFRESH_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000 // 30 days
 // Token prefixes (new generic prefixes)
 const ACCESS_TOKEN_PREFIX = 'oa_'
 const REFRESH_TOKEN_PREFIX = 'oar_'
+const REGISTERED_CLIENT_PREFIX = 'tsr_'
+const LAST_USED_WRITE_INTERVAL_MS = 5 * 60 * 1000
+const MAX_REGISTERED_CLIENT_PAYLOAD_LENGTH = 8192
 
 // Legacy prefixes for backwards compatibility
 const LEGACY_ACCESS_TOKEN_PREFIX = 'mcp_'
@@ -32,6 +36,161 @@ export type OAuthValidationResult =
       error: string
       status: number
     }
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+function isStringArray(value: unknown): value is Array<string> {
+  return Array.isArray(value) && value.every((item) => typeof item === 'string')
+}
+
+function normalizeRedirectUri(uri: string): string | null {
+  try {
+    return new URL(uri).toString()
+  } catch {
+    return null
+  }
+}
+
+function bytesToBase64Url(bytes: Uint8Array) {
+  let binary = ''
+  for (const byte of bytes) {
+    binary += String.fromCharCode(byte)
+  }
+
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
+}
+
+function stringToBase64Url(value: string) {
+  return bytesToBase64Url(new TextEncoder().encode(value))
+}
+
+function base64UrlToString(value: string): string | null {
+  try {
+    const padded = value
+      .replace(/-/g, '+')
+      .replace(/_/g, '/')
+      .padEnd(Math.ceil(value.length / 4) * 4, '=')
+    const binary = atob(padded)
+    const bytes = new Uint8Array(binary.length)
+    for (let index = 0; index < binary.length; index++) {
+      bytes[index] = binary.charCodeAt(index)
+    }
+    return new TextDecoder().decode(bytes)
+  } catch {
+    return null
+  }
+}
+
+function getOAuthClientSigningSecret() {
+  const secret = envFunctions.SESSION_SECRET
+  if (!secret && process.env.NODE_ENV === 'production') {
+    throw new Error('SESSION_SECRET is required for OAuth client registration')
+  }
+
+  return secret ?? 'development-oauth-client-registration-secret'
+}
+
+async function signOAuthClientPayload(payload: string) {
+  const key = await crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode(getOAuthClientSigningSecret()),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign'],
+  )
+  const signature = await crypto.subtle.sign(
+    'HMAC',
+    key,
+    new TextEncoder().encode(payload),
+  )
+  return bytesToBase64Url(new Uint8Array(signature))
+}
+
+function parseRegisteredClientPayload(
+  value: unknown,
+): { clientName: string; redirectUris: Array<string> } | null {
+  if (!isRecord(value)) return null
+
+  const clientName = value.clientName
+  const redirectUris = value.redirectUris
+  if (typeof clientName !== 'string' || !isStringArray(redirectUris)) {
+    return null
+  }
+
+  if (
+    clientName.length > 100 ||
+    redirectUris.length === 0 ||
+    redirectUris.length > 10 ||
+    redirectUris.join('').length > 4096 ||
+    redirectUris.some((uri) => uri.length > 2048 || !validateRedirectUri(uri))
+  ) {
+    return null
+  }
+
+  return { clientName, redirectUris }
+}
+
+export async function createRegisteredClientId(params: {
+  clientName: string
+  redirectUris: Array<string>
+}) {
+  const payload = JSON.stringify({
+    clientName: params.clientName,
+    redirectUris: params.redirectUris
+      .map(normalizeRedirectUri)
+      .filter((uri) => uri !== null),
+  })
+  const encodedPayload = stringToBase64Url(payload)
+  const signature = await signOAuthClientPayload(encodedPayload)
+
+  return `${REGISTERED_CLIENT_PREFIX}${encodedPayload}.${signature}`
+}
+
+export async function validateOAuthClientRedirectUri(
+  clientId: string,
+  redirectUri: string,
+) {
+  if (!clientId.startsWith(REGISTERED_CLIENT_PREFIX)) {
+    return false
+  }
+
+  const body = clientId.slice(REGISTERED_CLIENT_PREFIX.length)
+  const [encodedPayload, signature] = body.split('.')
+  if (
+    !encodedPayload ||
+    !signature ||
+    encodedPayload.length > MAX_REGISTERED_CLIENT_PAYLOAD_LENGTH
+  ) {
+    return false
+  }
+
+  const expectedSignature = await signOAuthClientPayload(encodedPayload)
+  if (expectedSignature !== signature) {
+    return false
+  }
+
+  const payloadText = base64UrlToString(encodedPayload)
+  if (!payloadText) {
+    return false
+  }
+
+  let payload: unknown
+  try {
+    payload = JSON.parse(payloadText)
+  } catch {
+    return false
+  }
+
+  const metadata = parseRegisteredClientPayload(payload)
+  const normalizedRedirectUri = normalizeRedirectUri(redirectUri)
+  return (
+    !!metadata &&
+    !!normalizedRedirectUri &&
+    metadata.redirectUris.includes(normalizedRedirectUri)
+  )
+}
 
 /**
  * Generate a secure random token with prefix
@@ -56,6 +215,9 @@ export const hashToken = sha256Hex
 export function validateRedirectUri(uri: string): boolean {
   try {
     const url = new URL(uri)
+    if (url.username || url.password) {
+      return false
+    }
 
     // Allow localhost (any port)
     if (
@@ -63,7 +225,7 @@ export function validateRedirectUri(uri: string): boolean {
       url.hostname === '127.0.0.1' ||
       url.hostname === '[::1]'
     ) {
-      return true
+      return url.protocol === 'http:' || url.protocol === 'https:'
     }
 
     // Allow HTTPS URLs
@@ -130,6 +292,12 @@ export async function createAuthorizationCode(params: {
   codeChallengeMethod?: string
   scope?: string
 }): Promise<string> {
+  if (
+    !(await validateOAuthClientRedirectUri(params.clientId, params.redirectUri))
+  ) {
+    throw new Error('Client is not registered for this redirect URI')
+  }
+
   const code = generateToken('')
   const codeHash = await hashToken(code)
   const expiresAt = new Date(Date.now() + AUTH_CODE_TTL_MS)
@@ -167,12 +335,12 @@ export async function exchangeAuthorizationCode(params: {
 > {
   const codeHash = await hashToken(params.code)
 
-  // Find and validate auth code
+  // Atomically consume the authorization code before validation. Any exchange
+  // attempt makes the code single-use, even when the verifier is wrong.
   const authCodes = await db
-    .select()
-    .from(oauthAuthorizationCodes)
+    .delete(oauthAuthorizationCodes)
     .where(eq(oauthAuthorizationCodes.codeHash, codeHash))
-    .limit(1)
+    .returning()
 
   const authCode = authCodes[0]
 
@@ -182,9 +350,6 @@ export async function exchangeAuthorizationCode(params: {
 
   // Check expiration
   if (authCode.expiresAt < new Date()) {
-    await db
-      .delete(oauthAuthorizationCodes)
-      .where(eq(oauthAuthorizationCodes.id, authCode.id))
     return { success: false, error: 'invalid_grant' }
   }
 
@@ -201,11 +366,6 @@ export async function exchangeAuthorizationCode(params: {
   if (!pkceValid) {
     return { success: false, error: 'invalid_grant' }
   }
-
-  // Delete auth code (one-time use)
-  await db
-    .delete(oauthAuthorizationCodes)
-    .where(eq(oauthAuthorizationCodes.id, authCode.id))
 
   // Generate tokens (using new prefixes)
   const accessToken = generateToken(ACCESS_TOKEN_PREFIX)
@@ -327,6 +487,7 @@ export async function validateOAuthToken(
       userId: oauthAccessTokens.userId,
       clientId: oauthAccessTokens.clientId,
       expiresAt: oauthAccessTokens.expiresAt,
+      lastUsedAt: oauthAccessTokens.lastUsedAt,
     })
     .from(oauthAccessTokens)
     .where(eq(oauthAccessTokens.tokenHash, tokenHash))
@@ -351,11 +512,15 @@ export async function validateOAuthToken(
     }
   }
 
-  // Update last used (fire and forget)
-  db.update(oauthAccessTokens)
-    .set({ lastUsedAt: new Date() })
-    .where(eq(oauthAccessTokens.id, accessToken.id))
-    .catch(() => {})
+  if (
+    !accessToken.lastUsedAt ||
+    Date.now() - accessToken.lastUsedAt.getTime() > LAST_USED_WRITE_INTERVAL_MS
+  ) {
+    db.update(oauthAccessTokens)
+      .set({ lastUsedAt: new Date() })
+      .where(eq(oauthAccessTokens.id, accessToken.id))
+      .catch(() => {})
+  }
 
   return {
     success: true,

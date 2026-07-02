@@ -14,11 +14,11 @@ import {
 } from 'lucide-react'
 
 import { BottomCTA } from '~/components/BottomCTA'
-import { DeferredApplicationStarter } from '~/components/DeferredApplicationStarter'
+import { ApplicationStarter } from '~/components/ApplicationStarter'
 import { Footer } from '~/components/Footer'
 import { GithubIcon } from '~/components/icons/GithubIcon'
-import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
-import { LazySponsorSection } from '~/components/LazySponsorSection'
+import { LandingCommunitySection } from '~/components/LandingCommunitySection'
+import { SponsorSection } from '~/components/SponsorSection'
 import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
 import { LibraryWordmark } from '~/components/LibraryWordmark'
 import { getLibrary } from '~/libraries'
@@ -250,10 +250,10 @@ export default function StartLanding() {
           </div>
 
           <div className="min-w-0 max-w-full overflow-hidden">
-            <DeferredApplicationStarter
+            <ApplicationStarter
               context="start"
               mode="compact"
-              primaryActionLabel="Generate Start prompt"
+              primaryActionLabel="Copy Start Prompt"
               secondaryActionLabel="Build Start on Netlify"
               title="Describe the app you want to build"
               tone="cyan"
@@ -350,12 +350,8 @@ export default function StartLanding() {
         </div>
 
         <div className="mt-10 flex flex-col gap-14">
-          <LazyLandingCommunitySection
-            libraryId="start"
-            libraryName="TanStack Start"
-            showShowcases={false}
-          />
-          <LazySponsorSection
+          <LandingCommunitySection libraryId="start" />
+          <SponsorSection
             title="GitHub Sponsors"
             aspectRatio="1/1"
             packMaxWidth="900px"

@@ -6,20 +6,47 @@ import {
   parsePackagesFromUrl,
   transformModeSchema,
   binTypeSchema,
+  chartTypeSchema,
+  barOrientationSchema,
+  latestBarSortSchema,
+  defaultPlaybackIntervalMs,
+  playbackIntervalMsSchema,
   showDataModeSchema,
   timeRangeSchema,
+  viewModeSchema,
 } from './-utils'
 import { Spinner } from '~/components/Spinner'
+import { chartHeightSchema, chartWidthSchema } from '~/utils/schemas'
+
+const timelineZoomTimeSchema = v.pipe(v.number(), v.integer(), v.minValue(0))
 
 export const Route = createFileRoute('/stats/npm/$packages')({
   validateSearch: v.object({
     range: v.fallback(v.optional(timeRangeSchema, '365-days'), '365-days'),
     transform: v.fallback(v.optional(transformModeSchema, 'none'), 'none'),
-    facetX: v.fallback(v.optional(v.picklist(['name'])), undefined),
-    facetY: v.fallback(v.optional(v.picklist(['name'])), undefined),
     binType: v.fallback(v.optional(binTypeSchema, 'weekly'), 'weekly'),
+    viewMode: v.fallback(v.optional(viewModeSchema, 'history'), 'history'),
+    chartType: v.fallback(v.optional(chartTypeSchema, 'line'), 'line'),
+    barOrientation: v.fallback(v.optional(barOrientationSchema), undefined),
+    barSort: v.fallback(v.optional(latestBarSortSchema, 'value'), 'value'),
+    bucketOffset: v.fallback(
+      v.optional(
+        v.pipe(v.number(), v.integer(), v.minValue(-5000), v.maxValue(0)),
+        0,
+      ),
+      0,
+    ),
+    playbackIntervalMs: v.fallback(
+      v.optional(playbackIntervalMsSchema, defaultPlaybackIntervalMs),
+      defaultPlaybackIntervalMs,
+    ),
+    playbackLoop: v.fallback(v.optional(v.boolean(), false), false),
+    playbackPlaying: v.fallback(v.optional(v.boolean(), false), false),
     showDataMode: v.fallback(v.optional(showDataModeSchema, 'all'), 'all'),
-    height: v.fallback(v.optional(v.number(), 400), 400),
+    height: v.fallback(v.optional(chartHeightSchema, 400), 400),
+    width: v.fallback(v.optional(chartWidthSchema), undefined),
+    timelineStart: v.fallback(v.optional(timelineZoomTimeSchema), undefined),
+    timelineEnd: v.fallback(v.optional(timelineZoomTimeSchema), undefined),
   }),
   loader: ({ params }) => {
     const packages = parsePackagesFromUrl(params.packages)

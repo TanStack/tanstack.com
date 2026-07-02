@@ -1,4 +1,5 @@
 import * as v from 'valibot'
+import { MAX_NPM_STATS_GROUPS } from '~/utils/npm-stats-limits'
 
 // Re-export shared types from chart utils
 export {
@@ -7,6 +8,18 @@ export {
   binningOptions,
   getBinFunction,
 } from '~/utils/chart'
+export {
+  chartTypeSchema,
+  type ChartType,
+  barOrientationSchema,
+  type BarOrientation,
+  latestBarSortSchema,
+  type LatestBarSort,
+  defaultPlaybackIntervalMs,
+  playbackIntervalMsSchema,
+  viewModeSchema,
+  type ViewMode,
+} from '~/components/npm-stats/shared'
 
 // NPM-specific schemas (extends shared with additional time ranges)
 export const transformModeSchema = v.picklist(['none', 'normalize-y'])
@@ -30,20 +43,36 @@ export const timeRangeSchema = v.picklist([
 export type TimeRange = v.InferOutput<typeof timeRangeSchema>
 
 // URL encoding/decoding for package names
-// @tanstack/react-query -> @tanstack__react-query
+// @tanstack/react-query -> @tanstack~1react-query
 export function encodePackageName(packageName: string): string {
-  return packageName.replace(/\//g, '__')
+  return packageName.replace(/~/g, '~0').replace(/\//g, '~1')
 }
 
-// @tanstack__react-query -> @tanstack/react-query
+// @tanstack~1react-query -> @tanstack/react-query
 export function decodePackageName(urlName: string): string {
-  return urlName.replace(/__/g, '/')
+  try {
+    const decoded = decodeURIComponent(urlName)
+    if (
+      decoded.startsWith('@') &&
+      decoded.includes('__') &&
+      !decoded.includes('/')
+    ) {
+      return decoded.replace('__', '/')
+    }
+    return decoded.replace(/~1/g, '/').replace(/~0/g, '~')
+  } catch {
+    return ''
+  }
 }
 
 // Parse packages from URL like "react-vs-vue" or "@tanstack__react-query-vs-swr"
 export function parsePackagesFromUrl(packagesParam: string): string[] {
-  const parts = packagesParam.split('-vs-')
-  return parts.map(decodePackageName)
+  const parts = packagesParam.split('-vs-').slice(0, MAX_NPM_STATS_GROUPS)
+  return parts
+    .map(decodePackageName)
+    .filter((packageName) =>
+      /^(?:@[a-z0-9][a-z0-9._-]*\/)?[a-z0-9][a-z0-9._-]*$/.test(packageName),
+    )
 }
 
 // Generate a comparison URL from package names

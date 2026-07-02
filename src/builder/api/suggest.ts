@@ -1,6 +1,6 @@
-import { getAllAddOns, type AddOn } from '@tanstack/create'
 import type { ProjectDefinition } from './compile'
 import { getFramework, DEFAULT_MODE } from './config'
+import { create, type AddOn } from './create-worker'
 
 export interface SuggestRequest {
   description?: string
@@ -102,8 +102,8 @@ function getCategoryFromType(type: string): string {
 export async function suggestHandler(
   request: SuggestRequest,
 ): Promise<SuggestResponse> {
-  const framework = getFramework()
-  const allAddOns = getAllAddOns(framework, DEFAULT_MODE)
+  const framework = await getFramework()
+  const allAddOns = create.getAllAddOns(framework, DEFAULT_MODE)
   const addOnMap = new Map(allAddOns.map((a: AddOn) => [a.id, a] as const))
 
   const suggestions: Array<FeatureSuggestion> = []

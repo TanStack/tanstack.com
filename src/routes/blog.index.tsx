@@ -2,7 +2,8 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { BlogCard, type BlogCardPost } from '~/components/BlogCard'
 import { BlogAuthorFilter } from '~/components/BlogAuthorFilter'
-import { getDistinctAuthors, getPublishedPosts } from '~/utils/blog'
+import { getPublishedPosts } from '~/utils/blog'
+import { getDistinctAuthors } from '~/utils/blog-format'
 
 import { Footer } from '~/components/Footer'
 import { PostNotFound } from './blog'
@@ -25,8 +26,8 @@ const fetchFrontMatters = createServerFn({ method: 'GET' }).handler(
     setResponseHeaders(
       new Headers({
         'Cache-Control': 'public, max-age=0, must-revalidate',
-        'Netlify-CDN-Cache-Control':
-          'public, max-age=300, durable, stale-while-revalidate=300',
+        'Cloudflare-CDN-Cache-Control':
+          'public, max-age=300, stale-while-revalidate=300',
       }),
     )
 
@@ -179,7 +180,7 @@ function BlogIndex() {
             partners={activePartners}
           />
           <div className="hidden md:block border border-gray-500/20 rounded-l-lg overflow-hidden w-full">
-            <RecentPostsWidget />
+            <RecentPostsWidget posts={frontMatters.slice(0, 3)} />
           </div>
           <Card>
             <LibrariesWidget />

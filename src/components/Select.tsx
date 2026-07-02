@@ -43,7 +43,10 @@ export function Select<T extends SelectOption>({
     <div className={twMerge('w-full', className)}>
       <Dropdown>
         <DropdownTrigger>
-          <button className="relative items-center w-full gap-2 flex hover:bg-gray-500/10 cursor-pointer rounded-md py-1.5 px-2 text-left focus:outline-none text-sm">
+          <button
+            type="button"
+            className="relative items-center w-full gap-2 flex hover:bg-gray-500/10 cursor-pointer rounded-md py-1.5 px-2 text-left focus:outline-none text-sm"
+          >
             {icon ? (
               <span className="flex items-center justify-center w-6 h-6 rounded border border-gray-500/20">
                 {icon}

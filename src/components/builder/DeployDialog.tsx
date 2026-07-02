@@ -39,6 +39,7 @@ import {
   type ApplicationStarterRecipe,
 } from '~/utils/application-starter'
 import type { BuilderAction } from '~/utils/analytics'
+import { compileBuilderProject } from './client-generation'
 
 interface DeployDialogProps {
   isOpen: boolean
@@ -213,9 +214,20 @@ export function DeployDialog({
   }, [countdown, onClose, providerInfo, state, trackDialogLinkClick])
 
   const handleDeploy = useCallback(async () => {
-    setState({ step: 'deploying', message: 'Creating repository...' })
+    setState({ step: 'deploying', message: 'Generating project...' })
 
     try {
+      const files = await compileBuilderProject({
+        name: projectName,
+        framework,
+        packageManager,
+        tailwind,
+        features,
+        featureOptions,
+      })
+
+      setState({ step: 'deploying', message: 'Creating repository...' })
+
       const response = await fetch('/api/builder/deploy/github', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -228,6 +240,7 @@ export function DeployDialog({
           features,
           featureOptions,
           tailwind,
+          files,
         }),
       })
 
@@ -504,23 +517,31 @@ export function DeployDialog({
                       Redirecting to {providerInfo.name} in {countdown}s...
                     </p>
                   )}
-                  <Button
-                    variant="primary"
-                    onClick={() => {
-                      setCountdown(null) // Cancel auto-redirect
-                      const deployUrl = providerInfo.deployUrl(
-                        state.owner,
-                        state.repoName,
-                      )
-                      trackDialogLinkClick('provider_manual_redirect')
-                      window.open(deployUrl, '_blank')
-                    }}
-                    className="gap-2"
-                    style={{ backgroundColor: providerInfo.color }}
-                  >
-                    <Rocket className="w-4 h-4" />
-                    Deploy Now
-                  </Button>
+                  {(() => {
+                    const deployUrl = providerInfo.deployUrl(
+                      state.owner,
+                      state.repoName,
+                    )
+
+                    return (
+                      <Button
+                        as="a"
+                        variant="primary"
+                        href={deployUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => {
+                          setCountdown(null) // Cancel auto-redirect
+                          trackDialogLinkClick('provider_manual_redirect')
+                        }}
+                        className="gap-2"
+                        style={{ backgroundColor: providerInfo.color }}
+                      >
+                        <Rocket className="w-4 h-4" />
+                        Deploy Now
+                      </Button>
+                    )
+                  })()}
                 </>
               ) : (
                 <Button variant="secondary" onClick={onClose}>

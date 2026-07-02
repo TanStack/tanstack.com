@@ -315,7 +315,7 @@ export const allMaintainers: Maintainer[] = [
     frameworkExpertise: ['react'],
     social: {
       linkedIn: 'https://www.linkedin.com/in/harry-whorlow/',
-      website: 'harry-whorlow.dev',
+      website: 'https://harry-whorlow.dev',
     },
   },
   {

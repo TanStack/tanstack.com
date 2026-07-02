@@ -14,7 +14,8 @@ export const Route = createFileRoute('/_library/db/$version/')({
   beforeLoad: ({ params, location }) => {
     beforeLoadLibraryLanding('db', params.version, location.href)
   },
-  loader: ({ params }) => loadLibraryLandingRouteData('db', params.version),
+  loader: ({ params, context: { queryClient } }) =>
+    loadLibraryLandingRouteData('db', params.version, queryClient),
   head: () => getLibraryLandingHead('db'),
   headers: () => getLibraryLandingHeaders('db'),
   staticData: {
@@ -28,7 +29,5 @@ function DbNavbarTitle() {
 }
 
 function DbLandingRoute() {
-  const { landingCodeExampleRsc } = Route.useLoaderData()
-
-  return <DbLanding landingCodeExampleRsc={landingCodeExampleRsc} />
+  return <DbLanding />
 }

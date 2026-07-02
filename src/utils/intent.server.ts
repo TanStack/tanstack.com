@@ -1,7 +1,8 @@
 import { createGunzip } from 'node:zlib'
 import { createHash } from 'node:crypto'
-import { Readable } from 'node:stream'
+import { Readable, Transform } from 'node:stream'
 import extract from 'tar-stream'
+import { fetchWithTimeout } from './outbound-fetch.server'
 
 // ---------------------------------------------------------------------------
 // NPM Registry API types
@@ -78,6 +79,95 @@ export interface ParsedSkill {
 // ---------------------------------------------------------------------------
 
 const NPM_REGISTRY = 'https://registry.npmjs.org'
+const NPM_FETCH_TIMEOUT_MS = 10_000
+const MAX_TARBALL_BYTES = 20 * 1024 * 1024
+const MAX_SKILL_FILE_BYTES = 256 * 1024
+const MAX_SKILLS_PER_TARBALL = 100
+const MAX_INTENT_SEARCH_RESULTS = 1_000
+const ALLOWED_TARBALL_HOSTS = new Set([
+  'registry.npmjs.org',
+  'registry.npmjs.com',
+])
+
+async function cancelUnusedResponseBody(response: Response): Promise<void> {
+  if (!response.body) return
+
+  try {
+    await response.body.cancel()
+  } catch {
+    // Best effort cleanup for responses we intentionally do not read.
+  }
+}
+
+async function parseJsonIfOk<T>(response: Response): Promise<T | null> {
+  if (!response.ok) {
+    await cancelUnusedResponseBody(response)
+    return null
+  }
+
+  return response.json()
+}
+
+async function fetchNpmSearch(url: string): Promise<NpmSearchResult> {
+  const res = await fetchWithTimeout(url, {
+    headers: { Accept: 'application/json' },
+    timeoutMs: NPM_FETCH_TIMEOUT_MS,
+  })
+
+  if (!res.ok) {
+    await cancelUnusedResponseBody(res)
+    throw new Error(`NPM search failed: ${res.status} ${res.statusText}`)
+  }
+
+  const data: NpmSearchResult = await res.json()
+  return data
+}
+
+function validateNpmTarballUrl(tarballUrl: string) {
+  try {
+    const url = new URL(tarballUrl)
+    return (
+      url.protocol === 'https:' &&
+      ALLOWED_TARBALL_HOSTS.has(url.hostname.toLowerCase()) &&
+      !url.pathname.includes('..')
+    )
+  } catch {
+    return false
+  }
+}
+
+function createByteLimitStream(maxBytes: number, label: string) {
+  let totalBytes = 0
+
+  return new Transform({
+    transform(chunk: Buffer, _encoding, callback) {
+      totalBytes += chunk.byteLength
+      if (totalBytes > maxBytes) {
+        callback(new Error(`${label} exceeds ${maxBytes} bytes`))
+        return
+      }
+
+      callback(null, chunk)
+    },
+  })
+}
+
+function isSafeSkillPath(skillPath: string) {
+  return (
+    skillPath.length > 0 &&
+    skillPath.length <= 240 &&
+    !skillPath.includes('\\') &&
+    skillPath
+      .split('/')
+      .every(
+        (segment) =>
+          segment &&
+          segment !== '.' &&
+          segment !== '..' &&
+          /^[a-z0-9._-]+$/i.test(segment),
+      )
+  )
+}
 
 export async function searchIntentPackages(): Promise<NpmSearchResult> {
   const results: NpmSearchResult = { objects: [], total: 0, time: '' }
@@ -86,23 +176,33 @@ export async function searchIntentPackages(): Promise<NpmSearchResult> {
 
   while (true) {
     const url = `${NPM_REGISTRY}/-/v1/search?text=keywords:tanstack-intent&size=${size}&from=${from}`
-    const res = await fetch(url, {
-      headers: { Accept: 'application/json' },
-    })
-    if (!res.ok) {
-      throw new Error(`NPM search failed: ${res.status} ${res.statusText}`)
-    }
-    const page = (await res.json()) as NpmSearchResult
+    const page = await fetchNpmSearch(url)
 
     results.objects.push(...page.objects)
     results.total = page.total
     results.time = page.time
 
     from += size
-    if (from >= page.total || page.objects.length === 0) break
+    if (
+      from >= page.total ||
+      page.objects.length === 0 ||
+      results.objects.length >= MAX_INTENT_SEARCH_RESULTS
+    ) {
+      results.objects = results.objects.slice(0, MAX_INTENT_SEARCH_RESULTS)
+      results.total = Math.min(results.total, MAX_INTENT_SEARCH_RESULTS)
+      break
+    }
   }
 
   return results
+}
+
+export async function searchIntentPackagesByText(
+  search: string,
+): Promise<NpmSearchResult> {
+  return fetchNpmSearch(
+    `${NPM_REGISTRY}/-/v1/search?text=${encodeURIComponent(search)}+keywords:tanstack-intent&size=250`,
+  )
 }
 
 // ---------------------------------------------------------------------------
@@ -134,10 +234,11 @@ export async function fetchBulkDownloads(
   for (let i = 0; i < unscoped.length; i += CHUNK) {
     const batch = unscoped.slice(i, i + CHUNK)
     unscopedFetches.push(
-      fetch(
+      fetchWithTimeout(
         `${NPM_DOWNLOADS_API}/downloads/point/last-month/${batch.join(',')}`,
+        { timeoutMs: NPM_FETCH_TIMEOUT_MS },
       )
-        .then((r) => (r.ok ? (r.json() as Promise<NpmDownloadCounts>) : null))
+        .then((r) => parseJsonIfOk<NpmDownloadCounts>(r))
         .then((data) => {
           if (!data) return
           for (const [name, info] of Object.entries(data)) {
@@ -151,22 +252,27 @@ export async function fetchBulkDownloads(
   }
 
   // Scoped packages: individual fetches in parallel
-  const scopedFetches = scoped.map((name) =>
-    fetch(`${NPM_DOWNLOADS_API}/downloads/point/last-month/${name}`)
-      .then((r) =>
-        r.ok
-          ? (r.json() as Promise<{ downloads: number; package: string }>)
-          : null,
-      )
-      .then((data) => {
-        if (data?.downloads != null) {
-          result.set(name, data.downloads)
-        }
-      })
-      .catch(() => {}),
-  )
+  const SCOPED_CONCURRENCY = 8
+  await Promise.all(unscopedFetches)
 
-  await Promise.all([...unscopedFetches, ...scopedFetches])
+  for (let i = 0; i < scoped.length; i += SCOPED_CONCURRENCY) {
+    await Promise.all(
+      scoped.slice(i, i + SCOPED_CONCURRENCY).map((name) =>
+        fetchWithTimeout(
+          `${NPM_DOWNLOADS_API}/downloads/point/last-month/${name}`,
+          { timeoutMs: NPM_FETCH_TIMEOUT_MS },
+        )
+          .then((r) => parseJsonIfOk<{ downloads: number; package: string }>(r))
+          .then((data) => {
+            if (data?.downloads != null) {
+              result.set(name, data.downloads)
+            }
+          })
+          .catch(() => {}),
+      ),
+    )
+  }
+
   return result
 }
 
@@ -175,10 +281,12 @@ export async function fetchPackument(name: string): Promise<NpmPackument> {
     ? `@${encodeURIComponent(name.slice(1))}`
     : encodeURIComponent(name)
   const url = `${NPM_REGISTRY}/${encoded}`
-  const res = await fetch(url, {
+  const res = await fetchWithTimeout(url, {
     headers: { Accept: 'application/json' },
+    timeoutMs: NPM_FETCH_TIMEOUT_MS,
   })
   if (!res.ok) {
+    await cancelUnusedResponseBody(res)
     throw new Error(
       `Failed to fetch packument for ${name}: ${res.status} ${res.statusText}`,
     )
@@ -270,14 +378,33 @@ export function selectVersionsToSync(
 export async function extractSkillsFromTarball(
   tarballUrl: string,
 ): Promise<Array<ParsedSkill>> {
-  const res = await fetch(tarballUrl)
+  if (!validateNpmTarballUrl(tarballUrl)) {
+    throw new Error(`Invalid tarball URL: ${tarballUrl}`)
+  }
+
+  const res = await fetchWithTimeout(tarballUrl, {
+    headers: { Accept: 'application/octet-stream' },
+    timeoutMs: NPM_FETCH_TIMEOUT_MS,
+  })
   if (!res.ok) {
+    await cancelUnusedResponseBody(res)
     throw new Error(
       `Failed to download tarball ${tarballUrl}: ${res.status} ${res.statusText}`,
     )
   }
   if (!res.body) {
     throw new Error(`Tarball response body is null: ${tarballUrl}`)
+  }
+
+  const contentLength = res.headers.get('content-length')
+  if (contentLength) {
+    const parsedLength = Number(contentLength)
+    if (!Number.isFinite(parsedLength) || parsedLength < 0) {
+      throw new Error(`Invalid tarball content-length: ${tarballUrl}`)
+    }
+    if (parsedLength > MAX_TARBALL_BYTES) {
+      throw new Error(`Tarball is too large: ${tarballUrl}`)
+    }
   }
 
   const skills: Array<ParsedSkill> = []
@@ -304,14 +431,44 @@ export async function extractSkillsFromTarball(
           return
         }
 
+        if (skills.length >= MAX_SKILLS_PER_TARBALL) {
+          stream.resume()
+          stream.on('end', () => {
+            reject(new Error('Tarball contains too many skills'))
+          })
+          stream.on('error', reject)
+          return
+        }
+
         // Extract the skill directory path: `package/skills/foo/bar/SKILL.md` -> `foo/bar`
         const skillPath = header.name
           .replace(/^package\/skills\//i, '')
           .replace(/\/SKILL\.md$/i, '')
 
+        if (!isSafeSkillPath(skillPath)) {
+          stream.resume()
+          stream.on('end', next)
+          stream.on('error', reject)
+          return
+        }
+
         const chunks: Array<Buffer> = []
-        stream.on('data', (chunk: Buffer) => chunks.push(chunk))
+        let skillBytes = 0
+        let skillTooLarge = false
+        stream.on('data', (chunk: Buffer) => {
+          if (skillTooLarge) return
+          skillBytes += chunk.byteLength
+          if (skillBytes > MAX_SKILL_FILE_BYTES) {
+            skillTooLarge = true
+            chunks.length = 0
+            reject(new Error(`Skill file is too large: ${skillPath}`))
+            stream.resume()
+            return
+          }
+          chunks.push(chunk)
+        })
         stream.on('end', () => {
+          if (skillTooLarge) return
           const content = Buffer.concat(chunks).toString('utf8')
           const parsed = parseSkillFile(content, skillPath)
           if (parsed) skills.push(parsed)
@@ -328,7 +485,10 @@ export async function extractSkillsFromTarball(
     const nodeReadable = Readable.fromWeb(
       res.body as import('stream/web').ReadableStream,
     )
-    nodeReadable.pipe(createGunzip()).pipe(extractor)
+    nodeReadable
+      .pipe(createByteLimitStream(MAX_TARBALL_BYTES, 'Tarball'))
+      .pipe(createGunzip())
+      .pipe(extractor)
   })
 
   return skills

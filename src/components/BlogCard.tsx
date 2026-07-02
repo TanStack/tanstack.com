@@ -5,8 +5,8 @@ import {
   formatAuthors,
   formatPublishedDate,
   getBlogLibraries,
-} from '~/utils/blog'
-import { getNetlifyImageUrl } from '~/utils/netlifyImage'
+} from '~/utils/blog-format'
+import { getOptimizedImageUrl } from '~/utils/optimizedImage'
 
 export type BlogCardPost = {
   slug: string
@@ -50,7 +50,12 @@ export function BlogCard({ post, showLibraryBadges = true }: BlogCardProps) {
       {headerImage ? (
         <div className="aspect-video overflow-hidden bg-gray-100 dark:bg-gray-800">
           <img
-            src={getNetlifyImageUrl(headerImage)}
+            src={getOptimizedImageUrl(headerImage, {
+              fit: 'cover',
+              format: 'auto',
+              quality: 80,
+              width: 800,
+            })}
             alt=""
             loading="lazy"
             decoding="async"

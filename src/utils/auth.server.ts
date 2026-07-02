@@ -19,13 +19,11 @@ async function loadAuthServer() {
  * Get the current user. Plain async function: callable from anywhere
  * server-side (route handlers, server-fn handlers, other helpers).
  *
- * NOTE: Defining this as a `createServerFn` inside a `.server.ts` file is
- * unsafe -- the Vite RSC plugin emits two duplicate copies (one per server
- * environment), the inner server-fn registration ends up as a stale
- * `createSsrRpc` stub that isn't in the runtime registry, and any chain that
- * goes server-fn -> server-fn through this file blows up at runtime with
- * "Server function info not found for <id>". Keep `.server.ts` modules as
- * plain functions; the client-facing RPC wrappers live in `auth.functions.ts`.
+ * NOTE: Keep this as a plain server-side function. Nesting `createServerFn`
+ * inside this `.server.ts` helper can leave callers with a stale `createSsrRpc`
+ * stub that is not in the runtime registry, so server-fn -> server-fn chains
+ * fail with "Server function info not found for <id>". The client-facing RPC
+ * wrappers live in `auth.functions.ts`.
  */
 export async function getCurrentUser() {
   const request = getRequest()

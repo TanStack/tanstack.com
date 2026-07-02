@@ -8,7 +8,7 @@ async function main() {
   const duration = Date.now() - startTime
 
   console.log(
-    `[prune-content-cache] ✓ Completed in ${duration}ms - deleted ${result.githubContentDeleted} content rows, ${result.docsArtifactDeleted} artifact rows (cutoff: ${result.cutoff.toISOString()})`,
+    `[prune-content-cache] ✓ Completed in ${duration}ms - deleted ${result.githubContentDeleted} content entries, ${result.docsArtifactDeleted} artifact entries (cutoff: ${result.cutoff.toISOString()})`,
   )
 }
 

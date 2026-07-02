@@ -14,7 +14,8 @@ export const Route = createFileRoute('/_library/query/$version/')({
   beforeLoad: ({ params, location }) => {
     beforeLoadLibraryLanding('query', params.version, location.href)
   },
-  loader: ({ params }) => loadLibraryLandingRouteData('query', params.version),
+  loader: ({ params, context: { queryClient } }) =>
+    loadLibraryLandingRouteData('query', params.version, queryClient),
   head: () => getLibraryLandingHead('query'),
   headers: () => getLibraryLandingHeaders('query'),
   staticData: {
@@ -28,7 +29,5 @@ function QueryNavbarTitle() {
 }
 
 function QueryLandingRoute() {
-  const { landingCodeExampleRsc } = Route.useLoaderData()
-
-  return <QueryLanding landingCodeExampleRsc={landingCodeExampleRsc} />
+  return <QueryLanding />
 }

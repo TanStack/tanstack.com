@@ -10,6 +10,10 @@ import {
   useCurrentUserQuery,
 } from '~/hooks/useCurrentUser'
 import { updateLastUsedFramework } from '~/utils/users.functions'
+import {
+  getLocalStorageItem,
+  setLocalStorageItem,
+} from '~/utils/browser-storage'
 
 function persistFrameworkToServer(framework: string) {
   void updateLastUsedFramework({ data: { framework } }).catch(() => {
@@ -51,12 +55,9 @@ export const useLocalCurrentFramework = create<{
   currentFramework?: string
   setCurrentFramework: (framework: string) => void
 }>((set) => ({
-  currentFramework:
-    typeof document !== 'undefined'
-      ? localStorage.getItem('framework') || undefined
-      : undefined,
+  currentFramework: getLocalStorageItem('framework') || undefined,
   setCurrentFramework: (framework: string) => {
-    localStorage.setItem('framework', framework)
+    setLocalStorageItem('framework', framework)
     set({ currentFramework: framework })
   },
 }))
@@ -66,8 +67,7 @@ export const useLocalCurrentFramework = create<{
  * Safe to call during SSR (returns undefined).
  */
 export function getStoredFrameworkPreference(): string | undefined {
-  if (typeof window === 'undefined') return undefined
-  return localStorage.getItem('framework') || undefined
+  return getLocalStorageItem('framework') || undefined
 }
 
 /**

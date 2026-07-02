@@ -9,6 +9,7 @@
  */
 
 const TICKET_TTL_MS = 5 * 60 * 1000
+const MAX_TICKETS = 1_000
 
 interface CliTicket {
   userId: string | null
@@ -17,11 +18,9 @@ interface CliTicket {
   authorized: boolean
 }
 
-// The Vite RSC plugin duplicates .server.ts modules — one copy ends up in the
-// regular server bundle (used by route handlers) and another in the RSC server
-// bundle (used by createServerFn). Each copy gets its own module-level state,
-// which would silently fragment the ticket store. Pin the Map to globalThis so
-// both copies share a single instance.
+// Server handlers and server-function handlers can load this module through
+// different bundled entry points. Pin the Map to globalThis so those callers
+// share one ticket store instead of fragmenting module-level state.
 const TICKETS_KEY = Symbol.for('tanstack.cli-auth.tickets')
 const TICKETS_INTERVAL_KEY = Symbol.for('tanstack.cli-auth.cleanup')
 
@@ -40,18 +39,34 @@ const tickets: Map<string, CliTicket> = (globalScope[TICKETS_KEY] ??= new Map<
 if (!globalScope[TICKETS_INTERVAL_KEY]) {
   globalScope[TICKETS_INTERVAL_KEY] = setInterval(
     () => {
-      const now = Date.now()
-      for (const [id, ticket] of tickets) {
-        if (ticket.expiresAt < now) {
-          tickets.delete(id)
-        }
-      }
+      cleanupExpiredTickets()
     },
     60 * 1000, // every minute
   )
 }
 
+function cleanupExpiredTickets() {
+  const now = Date.now()
+  for (const [id, ticket] of tickets) {
+    if (ticket.expiresAt < now) {
+      tickets.delete(id)
+    }
+  }
+}
+
+function trimTicketStore() {
+  cleanupExpiredTickets()
+
+  while (tickets.size >= MAX_TICKETS) {
+    const oldestId = tickets.keys().next().value
+    if (!oldestId) break
+    tickets.delete(oldestId)
+  }
+}
+
 export function createCliTicket(): string {
+  trimTicketStore()
+
   const id = crypto.randomUUID()
   tickets.set(id, {
     userId: null,

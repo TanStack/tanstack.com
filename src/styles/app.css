@@ -80,6 +80,22 @@ html.theme-switching *::after {
   --color-gray-950: #0a0a0a;
 }
 
+/* Keep neutral grays stable before client CSS injection reorders Tailwind layers. */
+:root,
+:host {
+  --color-gray-50: #fafafa;
+  --color-gray-100: #f5f5f5;
+  --color-gray-200: #e5e5e5;
+  --color-gray-300: #d4d4d4;
+  --color-gray-400: #a3a3a3;
+  --color-gray-500: #737373;
+  --color-gray-600: #525252;
+  --color-gray-700: #404040;
+  --color-gray-800: #262626;
+  --color-gray-900: #171717;
+  --color-gray-950: #0a0a0a;
+}
+
 /* Shop color tokens — inline so they resolve via var() at runtime (scoped to .shop-scope / html.dark .shop-scope) */
 @theme inline {
   --color-shop-bg: var(--shop-bg);
@@ -678,43 +694,8 @@ button {
 
 /* ============================================================================ */
 
-/* https://github.com/shikijs/twoslash/tree/main/packages/remark-shiki-twoslash#plugin-setup */
 pre {
-  /* All code samples get a grey border, twoslash ones get a different color */
   @apply text-black overflow-x-auto relative leading-tight;
-}
-pre.shiki {
-  overflow-x: auto;
-  padding: 1rem;
-
-  @apply bg-white;
-
-  &.aurora-x {
-    @apply text-gray-400 bg-gray-950;
-  }
-}
-pre.shiki:hover .dim {
-  opacity: 1;
-}
-pre.shiki div.dim {
-  opacity: 0.5;
-}
-pre.shiki div.dim,
-pre.shiki div.highlight {
-  margin: 0;
-  padding: 0;
-}
-pre.shiki div.highlight {
-  opacity: 1;
-  background-color: #f1f8ff;
-}
-pre.shiki div.line {
-  min-height: auto;
-}
-
-/** Don't show the language identifiers */
-pre.shiki .language-id {
-  display: none;
 }
 
 span.line {
@@ -1009,23 +990,6 @@ pre .logger.log-log svg {
   margin-right: 9px;
 }
 
-html:not(.dark) .shiki.aurora-x {
-  display: none;
-}
-
-html.dark .shiki.github-light {
-  display: none;
-}
-
-/* Improve comment contrast in dark mode */
-html.dark .shiki.aurora-x .token.comment,
-html.dark .shiki.aurora-x span[style*='color:#546E7A'],
-html.dark .shiki.aurora-x span[style*='color:#546E7A'],
-html.dark .shiki.aurora-x span[style*='color:#546E7A'],
-html.dark .shiki.aurora-x span[style*='color:#546E7A'] {
-  color: #9099c0 !important;
-}
-
 /* TanStack Router Devtools */
 
 .TanStackRouterDevtools > button {
@@ -1231,121 +1195,67 @@ mark {
   pointer-events: none;
 }
 
-@keyframes open-source-underline-color {
-  0%,
-  22%,
-  100% {
-    color: rgb(234 179 8);
-  }
-  25%,
-  47% {
-    color: rgb(20 184 166);
-  }
-  50%,
-  72% {
-    color: rgb(59 130 246);
-  }
-  75%,
-  97% {
-    color: rgb(244 63 94);
-  }
+.home-adapter-graph-flow {
+  display: block;
+  width: 1.25rem;
+  height: 3px;
+  pointer-events: none;
+  border-radius: 9999px;
+  background: linear-gradient(
+    90deg,
+    rgb(34 211 238 / 0),
+    rgb(165 243 252 / 0.98),
+    rgb(34 211 238 / 0.98),
+    rgb(59 130 246 / 0)
+  );
+  box-shadow: 0 0 10px rgb(34 211 238 / 0.7);
+  transition: opacity 120ms linear;
 }
 
-@keyframes open-source-underline-draw {
-  from {
-    stroke-dashoffset: 1;
-  }
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
-@keyframes open-source-underline-drift {
+@keyframes home-open-source-gradient-shift {
   0%,
   100% {
-    transform: translate3d(0, 0, 0);
+    background-position: 0% 50%;
   }
 
-  30% {
-    transform: translate3d(2.2px, -1.7px, 0);
-  }
-
-  55% {
-    transform: translate3d(-2.5px, 1.45px, 0);
-  }
-
-  80% {
-    transform: translate3d(1.2px, -0.8px, 0);
+  50% {
+    background-position: 100% 50%;
   }
 }
 
-.home-open-source-underline {
+.home-open-source-gradient {
+  --home-open-source-gradient: linear-gradient(
+    90deg,
+    rgb(20 184 166),
+    rgb(59 130 246),
+    rgb(168 85 247),
+    rgb(244 63 94),
+    rgb(234 179 8),
+    rgb(20 184 166)
+  );
+
   position: relative;
-  display: inline-flex;
-  padding-inline: 0.08em;
-  padding-bottom: 0.12em;
-}
-
-.home-open-source-underline__svg {
-  position: absolute;
-  left: -0.04em;
-  bottom: -0.24em;
-  width: calc(100% + 0.08em);
-  height: 0.68em;
-  overflow: visible;
-  color: rgb(234 179 8);
-  animation: open-source-underline-color 20s ease-in-out infinite;
-}
-
-.home-open-source-underline__path {
-  fill: none;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  transform-box: fill-box;
-  transform-origin: center;
-  animation:
-    open-source-underline-draw 1.9s cubic-bezier(0.22, 1, 0.36, 1) forwards,
-    open-source-underline-drift 4.6s ease-in-out infinite;
-}
-
-.home-open-source-underline__path--primary {
-  stroke-width: 11.5;
-  opacity: 0.34;
-  filter: blur(0.35px);
-  animation-delay: 0.45s, 0s;
-  animation-duration: 1.9s, 5.4s;
-}
-
-.home-open-source-underline__path--secondary {
-  stroke-width: 7;
-  opacity: 0.92;
-  animation-delay:
-    0.7s,
-    -1.8s;
-  animation-duration: 1.9s, 4.8s;
-}
-
-.home-open-source-underline__path--tertiary {
-  stroke-width: 4.5;
-  opacity: 0.78;
-  animation-delay:
-    0.95s,
-    -3.1s;
-  animation-duration: 1.9s, 4.2s;
+  display: inline-block;
+  white-space: nowrap;
+  font-weight: 400;
+  font-style: oblique 8deg;
+  color: rgb(20 184 166);
+  background-image: var(--home-open-source-gradient);
+  background-size: 720% 100%;
+  background-position: 0% 50%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: home-open-source-gradient-shift 34s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .home-open-source-underline__svg {
+  .home-open-source-gradient {
     animation: none;
   }
 
-  .home-open-source-underline__path {
-    animation: none;
-    stroke-dashoffset: 0;
-    transform: none;
+  .home-adapter-graph-flow {
+    display: none;
   }
 }
 

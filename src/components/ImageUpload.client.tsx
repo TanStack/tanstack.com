@@ -3,6 +3,10 @@ import { useUploadThing } from '~/utils/uploadthing.client'
 import { useToast } from './ToastProvider'
 import { Upload, X, Loader2 } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
+import {
+  SHOWCASE_IMAGE_MAX_BYTES,
+  validateImageUploadFile,
+} from '~/utils/upload-preflight'
 
 export interface ImageUploadProps {
   value?: string
@@ -51,12 +55,17 @@ export function ImageUploadClient({
   })
 
   const handleFileSelect = async (file: File) => {
-    if (!file.type.startsWith('image/')) {
+    const validationError = validateImageUploadFile(
+      file,
+      SHOWCASE_IMAGE_MAX_BYTES,
+    )
+
+    if (validationError) {
       notify(
         <div>
           <div className="font-medium">Invalid file type</div>
           <div className="text-gray-500 dark:text-gray-400 text-xs">
-            Please select an image file
+            {validationError}
           </div>
         </div>,
       )
@@ -194,7 +203,7 @@ export function ImageUploadClient({
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*"
+        accept="image/png,image/jpeg,image/webp,image/gif"
         onChange={handleInputChange}
         className="hidden"
       />

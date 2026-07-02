@@ -1,12 +1,15 @@
 import { Link, redirect } from '@tanstack/react-router'
+import type { QueryClient } from '@tanstack/react-query'
 import { getLibrary } from '~/libraries'
 import type { LibraryId } from '~/libraries'
-import { fetchLandingCodeExample } from '~/utils/landing-code-example.functions'
+import { docsConfigQueryOptions } from '~/queries/docsConfig'
+import { ossStatsQuery, recentDownloadsQuery } from '~/queries/stats'
 import { ogImageUrl } from '~/utils/og'
 import { seo } from '~/utils/seo'
 import { stackBlitzEmbedHeaders } from '~/utils/stackblitz-embed'
-import { loadLibraryConfig, validateLibraryVersion } from './-library-landing'
+import { validateLibraryVersion } from './-library-landing'
 import type { LandingLibraryId } from './-library-landing'
+import type { ConfigSchema } from '~/utils/config'
 
 const stackBlitzLandingLibraryIds = new Set<LibraryId>([
   'form',
@@ -34,19 +37,19 @@ export function beforeLoadLibraryLanding(
 export async function loadLibraryLandingRouteData(
   libraryId: LandingLibraryId,
   version: string,
-) {
-  const [config, landingCodeExample] = await Promise.all([
-    loadLibraryConfig(libraryId, version),
-    fetchLandingCodeExample({
-      data: {
-        libraryId,
-      },
-    }),
+  queryClient: QueryClient,
+): Promise<{
+  config: ConfigSchema
+}> {
+  const library = getLibrary(libraryId)
+  const [config] = await Promise.all([
+    queryClient.ensureQueryData(docsConfigQueryOptions(libraryId, version)),
+    queryClient.ensureQueryData(ossStatsQuery({ library })),
+    queryClient.ensureQueryData(recentDownloadsQuery({ library })),
   ])
 
   return {
     config,
-    landingCodeExampleRsc: landingCodeExample?.contentRsc ?? null,
   }
 }
 

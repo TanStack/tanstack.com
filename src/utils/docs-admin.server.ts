@@ -1,120 +1,39 @@
-import { sql } from 'drizzle-orm'
-import { db } from '~/db/client'
-import { docsArtifactCache, githubContentCache } from '~/db/schema'
 import { libraries } from '~/libraries'
 import { docsWebhookSources } from '~/utils/docs-webhook-sources'
 import { requireCapability } from './auth.server'
 import {
+  listDocsCacheRepoStats,
   markDocsArtifactsStale,
   markGitHubContentStale,
 } from './github-content-cache.server'
-import { purgeNetlifyTags } from './netlify-purge.server'
-
-function normalizeDateValue(value: Date | number | string | null | undefined) {
-  if (!value) {
-    return null
-  }
-
-  const date = value instanceof Date ? value : new Date(value)
-
-  if (Number.isNaN(date.getTime())) {
-    return null
-  }
-
-  return date
-}
-
-function getLatestDate(
-  ...dates: Array<Date | number | string | null | undefined>
-) {
-  let latest: Date | null = null
-
-  for (const dateValue of dates) {
-    const date = normalizeDateValue(dateValue)
-
-    if (!date) {
-      continue
-    }
-
-    if (!latest || date.getTime() > latest.getTime()) {
-      latest = date
-    }
-  }
-
-  return latest
-}
+import { purgeHostingCacheTags } from './hosting-cache.server'
 
 export async function listDocsCacheReposAdmin() {
   await requireCapability({ data: { capability: 'admin' } })
 
-  const [contentRows, artifactRows] = await Promise.all([
-    db
-      .select({
-        repo: githubContentCache.repo,
-        entryCount: sql<number>`count(*)::int`.as('entry_count'),
-        refCount:
-          sql<number>`count(distinct ${githubContentCache.gitRef})::int`.as(
-            'ref_count',
-          ),
-        staleEntryCount:
-          sql<number>`count(*) filter (where ${githubContentCache.staleAt} <= now())::int`.as(
-            'stale_entry_count',
-          ),
-        lastUpdatedAt:
-          sql<Date | null>`max(${githubContentCache.updatedAt})`.as(
-            'last_updated_at',
-          ),
-      })
-      .from(githubContentCache)
-      .groupBy(githubContentCache.repo),
-    db
-      .select({
-        repo: docsArtifactCache.repo,
-        entryCount: sql<number>`count(*)::int`.as('entry_count'),
-        refCount:
-          sql<number>`count(distinct ${docsArtifactCache.gitRef})::int`.as(
-            'ref_count',
-          ),
-        staleEntryCount:
-          sql<number>`count(*) filter (where ${docsArtifactCache.staleAt} <= now())::int`.as(
-            'stale_entry_count',
-          ),
-        lastUpdatedAt: sql<Date | null>`max(${docsArtifactCache.updatedAt})`.as(
-          'last_updated_at',
-        ),
-      })
-      .from(docsArtifactCache)
-      .groupBy(docsArtifactCache.repo),
-  ])
-
+  const cacheRows = await listDocsCacheRepoStats()
   const watchedRefsByRepo = new Map(
     docsWebhookSources.map((source) => [source.repo, source.refs]),
   )
-  const contentByRepo = new Map(contentRows.map((row) => [row.repo, row]))
-  const artifactByRepo = new Map(artifactRows.map((row) => [row.repo, row]))
+  const cacheByRepo = new Map(cacheRows.map((row) => [row.repo, row]))
   const repoNames = new Set<string>()
 
   for (const repo of watchedRefsByRepo.keys()) {
     repoNames.add(repo)
   }
 
-  for (const repo of contentByRepo.keys()) {
-    repoNames.add(repo)
-  }
-
-  for (const repo of artifactByRepo.keys()) {
+  for (const repo of cacheByRepo.keys()) {
     repoNames.add(repo)
   }
 
   const repos = Array.from(repoNames)
     .map((repo) => {
-      const content = contentByRepo.get(repo)
-      const artifact = artifactByRepo.get(repo)
+      const cache = cacheByRepo.get(repo)
       const refs = watchedRefsByRepo.get(repo) ?? []
-      const contentEntries = content?.entryCount ?? 0
-      const artifactEntries = artifact?.entryCount ?? 0
-      const staleContentEntries = content?.staleEntryCount ?? 0
-      const staleArtifactEntries = artifact?.staleEntryCount ?? 0
+      const contentEntries = cache?.contentEntries ?? 0
+      const artifactEntries = cache?.artifactEntries ?? 0
+      const staleContentEntries = cache?.staleContentEntries ?? 0
+      const staleArtifactEntries = cache?.staleArtifactEntries ?? 0
 
       return {
         repo,
@@ -126,15 +45,8 @@ export async function listDocsCacheReposAdmin() {
         staleArtifactEntries,
         totalEntries: contentEntries + artifactEntries,
         staleEntries: staleContentEntries + staleArtifactEntries,
-        cachedRefCount: Math.max(
-          content?.refCount ?? 0,
-          artifact?.refCount ?? 0,
-        ),
-        lastUpdatedAt:
-          getLatestDate(
-            content?.lastUpdatedAt ?? null,
-            artifact?.lastUpdatedAt ?? null,
-          )?.toISOString() ?? null,
+        cachedRefCount: cache?.cachedRefCount ?? 0,
+        lastUpdatedAt: cache?.lastUpdatedAt ?? null,
       }
     })
     .sort(
@@ -181,7 +93,7 @@ export async function invalidateDocsCacheAdmin(opts: {
       ]
     : ['docs:all', 'docs-config:all']
 
-  const purge = await purgeNetlifyTags(tags)
+  const purge = await purgeHostingCacheTags(tags)
 
   return {
     repo: opts.data.repo ?? null,

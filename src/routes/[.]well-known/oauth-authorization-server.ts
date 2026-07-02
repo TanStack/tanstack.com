@@ -1,19 +1,17 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { setResponseHeader } from '@tanstack/react-start/server'
-import { env } from '~/utils/env'
+import { SITE_URL } from '~/utils/site'
 
 export const Route = createFileRoute('/.well-known/oauth-authorization-server')(
   {
     server: {
       handlers: {
-        GET: async ({ request }: { request: Request }) => {
-          const origin = env.SITE_URL || new URL(request.url).origin
-
+        GET: async () => {
           const metadata = {
-            issuer: origin,
-            authorization_endpoint: `${origin}/oauth/authorize`,
-            token_endpoint: `${origin}/oauth/token`,
-            registration_endpoint: `${origin}/oauth/register`,
+            issuer: SITE_URL,
+            authorization_endpoint: `${SITE_URL}/oauth/authorize`,
+            token_endpoint: `${SITE_URL}/oauth/token`,
+            registration_endpoint: `${SITE_URL}/oauth/register`,
             response_types_supported: ['code'],
             grant_types_supported: ['authorization_code', 'refresh_token'],
             code_challenge_methods_supported: ['S256'],

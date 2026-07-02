@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
+import * as v from 'valibot'
 import { twMerge } from 'tailwind-merge'
 import { DocContainer } from '~/components/DocContainer'
 import { DocTitle } from '~/components/DocTitle'
@@ -7,6 +8,7 @@ import { seo } from '~/utils/seo'
 import { ogImageUrl } from '~/utils/og'
 import { loadDocs } from '~/utils/docs'
 import { getDocsCacheHeaders } from '~/utils/docs-cache-headers'
+import { isSafeHttpUrl } from '~/utils/url-boundary'
 
 export const Route = createFileRoute(
   '/_library/$libraryId/$version/docs/community-resources',
@@ -16,7 +18,7 @@ export const Route = createFileRoute(
     const { libraryId, version } = ctx.params
     const library = findLibrary(libraryId)
 
-    if (!library) return { doc: null as null | any }
+    if (!library) return { doc: null }
 
     const root = library.docsRoot || 'docs'
 
@@ -30,7 +32,7 @@ export const Route = createFileRoute(
 
       return { doc }
     } catch {
-      return { doc: null as null | any }
+      return { doc: null }
     }
   },
   head: ({ params }) => {
@@ -56,10 +58,21 @@ export const Route = createFileRoute(
 
 type ResourceType = 'article' | 'media' | 'utility' | 'other'
 
-type Resource = {
-  title: string
-  description: string
-  url: string
+const resourceSchema = v.object({
+  title: v.pipe(v.string(), v.minLength(1), v.maxLength(120)),
+  description: v.pipe(v.string(), v.maxLength(500)),
+  url: v.pipe(
+    v.string(),
+    v.maxLength(2048),
+    v.check((url) => isSafeHttpUrl(url), 'invalid resource URL'),
+  ),
+})
+
+type Resource = v.InferOutput<typeof resourceSchema>
+
+function readResources(value: unknown): Array<Resource> {
+  const result = v.safeParse(v.array(resourceSchema), value)
+  return result.success ? result.output.slice(0, 50) : []
 }
 
 function RouteComponent() {
@@ -67,6 +80,10 @@ function RouteComponent() {
   const library = getLibrary(libraryId)
   const data = Route.useLoaderData()
   const frontmatter = data.doc?.frontmatter
+  const articles = readResources(frontmatter?.articles)
+  const media = readResources(frontmatter?.media)
+  const utilities = readResources(frontmatter?.utilities)
+  const others = readResources(frontmatter?.others)
 
   return (
     <DocContainer>
@@ -94,23 +111,17 @@ function RouteComponent() {
             </a>{' '}
             to contribute to this list.
           </span>
-          {frontmatter?.articles && (
-            <CommunitySection
-              type="article"
-              resources={frontmatter?.articles}
-            />
+          {articles.length > 0 && (
+            <CommunitySection type="article" resources={articles} />
           )}
-          {frontmatter?.media && (
-            <CommunitySection type="media" resources={frontmatter?.media} />
+          {media.length > 0 && (
+            <CommunitySection type="media" resources={media} />
           )}
-          {frontmatter?.utilities && (
-            <CommunitySection
-              type="utility"
-              resources={frontmatter?.utilities}
-            />
+          {utilities.length > 0 && (
+            <CommunitySection type="utility" resources={utilities} />
           )}
-          {frontmatter?.others && (
-            <CommunitySection type="other" resources={frontmatter?.others} />
+          {others.length > 0 && (
+            <CommunitySection type="other" resources={others} />
           )}
         </div>
       </div>
@@ -133,6 +144,8 @@ function CommunitySection({
           <a
             key={res.url}
             href={res.url}
+            target="_blank"
+            rel="noopener noreferrer"
             className="flex flex-wrap items-center space-y-2 dark:text-gray-500 p-3 cursor-pointer bg-white dark:bg-white/5 rounded-lg overflow-hidden shadow-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors border border-1 border-gray-200 dark:border-gray-700"
           >
             <span className="text-base font-bold text-gray-800 dark:text-white truncate">
@@ -140,7 +153,7 @@ function CommunitySection({
             </span>
             <div className="h-2" />
             <div className="h-px bg-gray-500 opacity-20 w-full" />
-            <p className="text-sm dark:text-gray-400 text-gray-50 line-clamp-3 w-full h-14">
+            <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3 w-full h-14">
               {res.description}
             </p>
           </a>

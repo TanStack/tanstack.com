@@ -14,8 +14,8 @@ export const Route = createFileRoute('/_library/hotkeys/$version/')({
   beforeLoad: ({ params, location }) => {
     beforeLoadLibraryLanding('hotkeys', params.version, location.href)
   },
-  loader: ({ params }) =>
-    loadLibraryLandingRouteData('hotkeys', params.version),
+  loader: ({ params, context: { queryClient } }) =>
+    loadLibraryLandingRouteData('hotkeys', params.version, queryClient),
   head: () => getLibraryLandingHead('hotkeys'),
   headers: () => getLibraryLandingHeaders('hotkeys'),
   staticData: {
@@ -29,7 +29,5 @@ function HotkeysNavbarTitle() {
 }
 
 function HotkeysLandingRoute() {
-  const { landingCodeExampleRsc } = Route.useLoaderData()
-
-  return <HotkeysLanding landingCodeExampleRsc={landingCodeExampleRsc} />
+  return <HotkeysLanding />
 }

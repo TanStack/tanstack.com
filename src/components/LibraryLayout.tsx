@@ -4,6 +4,7 @@ import { GithubIcon } from '~/components/icons/GithubIcon'
 import { DiscordIcon } from '~/components/icons/DiscordIcon'
 import { Link, useMatches, useParams } from '@tanstack/react-router'
 import { useLocalStorage } from '~/utils/useLocalStorage'
+import { useMediaQuery } from '~/utils/useMediaQuery'
 import { useClickOutside } from '~/hooks/useClickOutside'
 import { last } from '~/utils/utils'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
@@ -422,26 +423,6 @@ function clampProgress(value: number) {
   }
 
   return Math.min(Math.max(value, 0), 1)
-}
-
-function useMediaQuery(query: string) {
-  const [matches, setMatches] = React.useState(false)
-
-  React.useEffect(() => {
-    const mediaQueryList = window.matchMedia(query)
-    const updateMatches = () => {
-      setMatches(mediaQueryList.matches)
-    }
-
-    updateMatches()
-    mediaQueryList.addEventListener('change', updateMatches)
-
-    return () => {
-      mediaQueryList.removeEventListener('change', updateMatches)
-    }
-  }, [query])
-
-  return matches
 }
 
 function areDocsPartnerSlotsEqual(
@@ -903,6 +884,7 @@ export function LibraryLayout({
     surface: 'docs_rail',
   })
   const shouldShowDocsPartnerSlot = useMediaQuery('(max-width: 767.98px)')
+  const isDesktopViewport = useMediaQuery('(min-width: 768px)')
 
   const groupInitialOpenState = React.useMemo(() => {
     return visibleMenuConfig.reduce<Record<string, boolean>>(
@@ -984,6 +966,14 @@ export function LibraryLayout({
             const isHomeLink = child.to === '..'
             const frameworkDocsTarget = getFrameworkDocsLinkTarget(child.to)
 
+            const recency = getDocRecency(child.addedAt, child.updatedAt)
+            const recencyPill = recency ? (
+              <DocRecencyPill
+                recency={recency}
+                date={recency === 'new' ? child.addedAt : child.updatedAt}
+              />
+            ) : null
+
             const renderLinkContent = (isActive: boolean) => (
               <div className={twMerge(linkClasses, isActive && 'opacity-100')}>
                 <div
@@ -996,16 +986,9 @@ export function LibraryLayout({
                 >
                   {child.label}
                 </div>
+                {recencyPill}
               </div>
             )
-
-            const recency = getDocRecency(child.addedAt, child.updatedAt)
-            const recencyPill = recency ? (
-              <DocRecencyPill
-                recency={recency}
-                date={recency === 'new' ? child.addedAt : child.updatedAt}
-              />
-            ) : null
 
             return (
               <li key={i}>
@@ -1263,19 +1246,12 @@ export function LibraryLayout({
   const docsTabs = (
     <div className="sticky top-[var(--navbar-height)] z-30 border-b border-gray-500/20 bg-white/90 dark:bg-black/80 backdrop-blur-lg">
       <div className="flex items-stretch">
-        <label
-          htmlFor={mobileMenuToggleId}
-          role="button"
-          tabIndex={0}
+        <button
+          type="button"
           aria-label="Documentation menu"
           aria-expanded={mobileMenuOpen ? true : undefined}
           aria-controls="docs-mobile-menu"
-          onKeyDown={(event) => {
-            if (event.key === 'Enter' || event.key === ' ') {
-              event.preventDefault()
-              setMobileMenuOpen((prev) => !prev)
-            }
-          }}
+          onClick={() => setMobileMenuOpen((prev) => !prev)}
           data-docs-mobile-trigger
           className="min-[900px]:hidden flex items-center gap-1.5 shrink-0 px-3 border-r border-gray-500/20 text-slate-600 dark:text-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-current"
         >
@@ -1284,7 +1260,7 @@ export function LibraryLayout({
           <span className="text-xs font-medium max-[479.98px]:sr-only">
             Menu
           </span>
-        </label>
+        </button>
         <button
           ref={largeMenuTriggerRef}
           type="button"
@@ -1437,7 +1413,7 @@ export function LibraryLayout({
                   partners={activePartners}
                 />
                 <div className="hidden md:block border border-gray-500/20 rounded-l-lg overflow-hidden w-full">
-                  <RecentPostsWidget />
+                  <RecentPostsWidget enabled={isDesktopViewport} />
                 </div>
               </RightRail>
             )}

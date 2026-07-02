@@ -6,8 +6,7 @@ import {
   MAX_OG_TITLE_LENGTH,
   clampOgText,
 } from './og-limits'
-
-const DEFAULT_SITE_URL = 'https://tanstack.com'
+import { SITE_URL } from './site'
 
 type OgImageOptions = {
   title?: string | null
@@ -20,13 +19,12 @@ type OgImageOptions = {
  * Unlike canonical links (which always point to production), og:image
  * URLs MUST be reachable on the same deploy that emitted them — social-
  * card validators fetch the URL from the meta tag verbatim, so on a
- * Netlify deploy preview the og:image must point at the preview origin,
- * not at production.
+ * staging deploy the og:image must point at the preview origin, not at
+ * production.
  *
- * The incoming request URL is the source of truth. `process.env.URL` /
- * `DEPLOY_PRIME_URL` etc. turned out to be unreliable inside our bundled
- * SSR function, so read the origin from the live request via TanStack
- * Start's `getRequest()`. The server import is referenced only inside
+ * The incoming request URL is the source of truth. Read the origin from the
+ * live request via TanStack Start's `getRequest()`. The server import is
+ * referenced only inside
  * `.server()`, which the start compiler treats as a client-safe boundary
  * — the import is tree-shaken from the client bundle.
  */
@@ -38,10 +36,10 @@ const getOgOrigin = createIsomorphicFn()
     } catch {
       // getRequest() throws if called outside an SSR request context.
     }
-    return DEFAULT_SITE_URL
+    return SITE_URL
   })
   .client((): string =>
-    typeof window !== 'undefined' ? window.location.origin : DEFAULT_SITE_URL,
+    typeof window !== 'undefined' ? window.location.origin : SITE_URL,
   )
 
 /**

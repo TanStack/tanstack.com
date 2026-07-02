@@ -17,13 +17,12 @@ import {
 import { BottomCTA } from '~/components/BottomCTA'
 import { Footer } from '~/components/Footer'
 import { GithubIcon } from '~/components/icons/GithubIcon'
-import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
-import { LazySponsorSection } from '~/components/LazySponsorSection'
+import { LandingCommunitySection } from '~/components/LandingCommunitySection'
+import { SponsorSection } from '~/components/SponsorSection'
 import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
 import { LibraryWordmark } from '~/components/LibraryWordmark'
 import LandingPageGad from '~/components/LandingPageGad'
 import { getLibrary } from '~/libraries'
-import type { LandingComponentProps } from '~/routes/-library-landing'
 
 import { LandingCopyPromptButton } from '~/components/landing/LandingCopyPromptButton'
 const library = getLibrary('config')
@@ -117,9 +116,7 @@ const auditSignals = [
   },
 ]
 
-export default function ConfigLanding({
-  landingCodeExampleRsc,
-}: LandingComponentProps) {
+export default function ConfigLanding() {
   const { version } = useParams({ strict: false })
   const resolvedVersion = version ?? library.latestVersion
 
@@ -258,10 +255,6 @@ export default function ConfigLanding({
               a small escape hatch when the package needs something special.
             </p>
           </div>
-
-          <div className="min-w-0 max-w-full overflow-hidden">
-            {landingCodeExampleRsc}
-          </div>
         </div>
       </section>
 
@@ -283,12 +276,8 @@ export default function ConfigLanding({
         </div>
 
         <div className="mt-10 flex flex-col gap-14">
-          <LazyLandingCommunitySection
-            libraryId="config"
-            libraryName="TanStack Config"
-            showShowcases={false}
-          />
-          <LazySponsorSection
+          <LandingCommunitySection libraryId="config" />
+          <SponsorSection
             title="GitHub Sponsors"
             aspectRatio="1/1"
             packMaxWidth="900px"

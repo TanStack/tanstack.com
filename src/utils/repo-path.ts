@@ -1,6 +1,6 @@
 export const MAX_REPO_PATH_LENGTH = 512
 
-const REPO_PATH_SEGMENT_PATTERN = /^[a-zA-Z0-9._$-]+$/
+const REPO_PATH_SEGMENT_PATTERN = /^[a-zA-Z0-9._$+-]+$/
 
 export function isValidRepoPath(path: string) {
   if (path === '') {
@@ -23,4 +23,30 @@ export function isValidRepoPath(path: string) {
   return path.split('/').every((segment) => {
     return REPO_PATH_SEGMENT_PATTERN.test(segment)
   })
+}
+
+export function joinRepoPath(basePath: string, childPath: string) {
+  const normalizedBasePath = trimRepoPath(basePath)
+  const normalizedChildPath = trimRepoPath(childPath)
+
+  if (!normalizedBasePath) {
+    return normalizedChildPath
+  }
+
+  if (!normalizedChildPath) {
+    return normalizedBasePath
+  }
+
+  if (
+    normalizedChildPath === normalizedBasePath ||
+    normalizedChildPath.startsWith(`${normalizedBasePath}/`)
+  ) {
+    return normalizedChildPath
+  }
+
+  return `${normalizedBasePath}/${normalizedChildPath}`
+}
+
+function trimRepoPath(path: string) {
+  return path.replace(/^\/+|\/+$/g, '')
 }

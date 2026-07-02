@@ -11,7 +11,7 @@
 
 import { db } from '~/db/client'
 import { users, oauthAccounts, roles, roleAssignments } from '~/db/schema'
-import { eq, and, inArray } from 'drizzle-orm'
+import { eq, and, inArray, sql } from 'drizzle-orm'
 import type {
   Capability,
   DbUser,
@@ -101,17 +101,13 @@ export class DrizzleUserRepository implements IUserRepository {
   }
 
   async incrementSessionVersion(userId: string): Promise<void> {
-    // Get current version first
-    const user = await this.findById(userId)
-    if (user) {
-      await db
-        .update(users)
-        .set({
-          sessionVersion: user.sessionVersion + 1,
-          updatedAt: new Date(),
-        })
-        .where(eq(users.id, userId))
-    }
+    await db
+      .update(users)
+      .set({
+        sessionVersion: sql`${users.sessionVersion} + 1`,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, userId))
   }
 
   private mapToDbUser(user: typeof users.$inferSelect): DbUser {

@@ -1,19 +1,15 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
-const LazyBrandContextMenu = React.lazy(() =>
-  import('./BrandContextMenu').then((m) => ({ default: m.BrandContextMenu })),
+const LazyAiDock = React.lazy(() =>
+  import('./SearchModal').then((m) => ({ default: m.AiDock })),
 )
 const LazyNavbarAuthControls = React.lazy(() =>
   import('./NavbarAuthControls').then((m) => ({
     default: m.NavbarAuthControls,
   })),
 )
-const LazyAiDock = React.lazy(() =>
-  import('./SearchModal').then((m) => ({ default: m.AiDock })),
-)
 import { NavbarCartButton } from './NavbarCartButton'
 import { Link, useLocation, useMatches } from '@tanstack/react-router'
-import { NetlifyImage } from './NetlifyImage'
 import {
   BookOpen,
   Code,
@@ -36,11 +32,14 @@ import {
 } from 'lucide-react'
 import { ThemeToggle } from './ThemeToggle'
 import { AiDockButton, SearchButton } from './SearchButton'
+import { BrandContextMenu } from './BrandContextMenu'
 import { useSearchContext } from '~/contexts/SearchContext'
 import {
+  isPublicLibrary,
   librariesByGroup,
   librariesGroupNamesMap,
   type LibrarySlim,
+  type PublicLibrarySlim,
 } from '~/libraries'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import {
@@ -51,6 +50,7 @@ import {
 } from '~/components/Dropdown'
 import { DiscordIcon } from '~/components/icons/DiscordIcon'
 import { InstagramIcon } from '~/components/icons/InstagramIcon'
+import { OptimizedImage } from '~/components/OptimizedImage'
 import { BSkyIcon } from '~/components/icons/BSkyIcon'
 import { BrandXIcon } from '~/components/icons/BrandXIcon'
 import { YouTubeIcon } from '~/components/icons/YouTubeIcon'
@@ -78,10 +78,11 @@ const LogoSection = ({ title }: LogoProps) => {
       )}
     >
       <div className="w-[30px] inline-grid items-center grid-cols-1 grid-rows-1 [&>*]:transition-opacity [&>*]:duration-1000">
-        <NetlifyImage
+        <OptimizedImage
           src="/images/logos/logo-color-100.png"
           alt=""
           width={30}
+          quality={90}
           className="row-start-1 col-start-1 w-full group-hover:opacity-0"
         />
         <img
@@ -137,9 +138,9 @@ type NavMenuGroup = {
   }
 }
 
-type NavigationLibrary = LibrarySlim & {
-  to: string
-}
+type NavigationLibrary = PublicLibrarySlim
+
+const MERCH_MENU_PRODUCT_COUNT = 6
 
 type LibraryGroupId = keyof typeof librariesByGroup
 
@@ -165,7 +166,8 @@ const NAV_GROUPS = [
   },
   {
     key: 'learn',
-    label: 'Learn',
+    label: 'Blog',
+    to: '/blog',
     sections: [
       {
         label: 'Resources',
@@ -353,11 +355,7 @@ const NAV_GROUPS = [
 function isNavigationLibrary(
   library: LibrarySlim,
 ): library is NavigationLibrary {
-  return (
-    typeof library.to === 'string' &&
-    library.to.startsWith('/') &&
-    library.visible !== false
-  )
+  return isPublicLibrary(library)
 }
 
 function getLibraryDisplayName(library: LibrarySlim) {
@@ -519,31 +517,8 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     [blurActiveNavigationElement],
   )
 
-  React.useEffect(() => {
-    if (typeof window === 'undefined') {
-      return
-    }
-
-    if (typeof window.requestIdleCallback === 'function') {
-      const idleId = window.requestIdleCallback(
-        () => {
-          setCanLoadAuthControls(true)
-        },
-        { timeout: 3000 },
-      )
-
-      return () => {
-        window.cancelIdleCallback(idleId)
-      }
-    }
-
-    const timeout = window.setTimeout(() => {
-      setCanLoadAuthControls(true)
-    }, 3000)
-
-    return () => {
-      window.clearTimeout(timeout)
-    }
+  const requestAuthControls = React.useCallback(() => {
+    setCanLoadAuthControls(true)
   }, [])
 
   React.useEffect(() => {
@@ -603,13 +578,11 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     >
       <div className="flex min-w-0 flex-1 items-center gap-2 min-[1120px]:gap-3">
         <div className="flex items-center gap-2 font-black text-xl uppercase min-w-0">
-          <React.Suspense fallback={<LogoSection title={Title} />}>
-            <LazyBrandContextMenu
-              className={twMerge(`flex items-center group flex-shrink-0`)}
-            >
-              <LogoSection title={Title} />
-            </LazyBrandContextMenu>
-          </React.Suspense>
+          <BrandContextMenu
+            className={twMerge(`flex items-center group flex-shrink-0`)}
+          >
+            <LogoSection title={Title} />
+          </BrandContextMenu>
           {Title ? (
             <div className="truncate">
               <Title />
@@ -647,7 +620,12 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         <NavbarCartButton />
         <SearchButton iconOnly />
         <AiDockButton />
-        <div className={twMerge(DESKTOP_NAV_CLASS, 'items-center gap-2')}>
+        <div
+          className={twMerge(DESKTOP_NAV_CLASS, 'items-center gap-2')}
+          onFocusCapture={requestAuthControls}
+          onPointerEnter={requestAuthControls}
+          onTouchStart={requestAuthControls}
+        >
           {renderAuthControls()}
         </div>
         <button
@@ -697,7 +675,12 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           )}
         >
           <div className="border-t border-white/30 dark:border-white/10">
-            <div className="flex items-center justify-end gap-2 p-2">
+            <div
+              className="flex items-center justify-end gap-2 p-2"
+              onFocusCapture={requestAuthControls}
+              onPointerEnter={requestAuthControls}
+              onTouchStart={requestAuthControls}
+            >
               {socialLinks}
               {renderAuthControls('h-9 px-3 text-sm')}
             </div>
@@ -1176,7 +1159,7 @@ function MerchMenuContent({
       try {
         const page = await getProducts({
           data: {
-            first: 3,
+            first: MERCH_MENU_PRODUCT_COUNT,
             sortKey: 'CREATED_AT',
             reverse: true,
           },
@@ -1222,19 +1205,31 @@ function MerchMenuContent({
         <div
           className={twMerge(
             'grid gap-1',
-            variant === 'desktop' && 'md:grid-cols-3',
+            variant === 'desktop' && 'md:grid-cols-2',
           )}
         >
           {shouldLoad && loading
-            ? Array.from({ length: 3 }, (_, index) => (
+            ? Array.from({ length: MERCH_MENU_PRODUCT_COUNT }, (_, index) => (
                 <div
                   key={index}
-                  className="rounded-lg px-2 py-2.5"
+                  className={twMerge(
+                    'rounded-lg px-2 py-1.5',
+                    variant === 'desktop'
+                      ? 'flex w-44 items-center gap-2'
+                      : 'flex items-center gap-2',
+                  )}
                   aria-hidden="true"
                 >
-                  <div className="aspect-[4/3] animate-pulse rounded-md bg-gray-200 dark:bg-gray-800" />
-                  <div className="mt-2 h-4 w-3/4 animate-pulse rounded bg-gray-200 dark:bg-gray-800" />
-                  <div className="mt-1 h-3 w-1/3 animate-pulse rounded bg-gray-200 dark:bg-gray-800" />
+                  <div
+                    className={twMerge(
+                      'shrink-0 animate-pulse rounded-md bg-gray-200 dark:bg-gray-800',
+                      variant === 'desktop' ? 'h-10 w-10' : 'h-11 w-11',
+                    )}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="h-3 w-3/4 animate-pulse rounded bg-gray-200 dark:bg-gray-800" />
+                    <div className="mt-1.5 h-2.5 w-1/3 animate-pulse rounded bg-gray-200 dark:bg-gray-800" />
+                  </div>
                 </div>
               ))
             : products.map((product) => (
@@ -1275,20 +1270,21 @@ function MerchProductLink({
       params={{ handle: product.handle }}
       onClick={onNavigate}
       className={twMerge(
-        'group rounded-lg px-2 py-2.5 text-left hover:bg-gray-500/10 focus:bg-gray-500/10 focus:outline-none',
-        variant === 'mobile' && 'flex items-center gap-3 py-3',
+        'group flex items-center gap-2 rounded-lg px-2 py-1.5 text-left hover:bg-gray-500/10 focus:bg-gray-500/10 focus:outline-none',
+        variant === 'desktop' && 'w-44',
+        variant === 'mobile' && 'py-2',
       )}
       preload="intent"
     >
       <span
         className={twMerge(
           'block overflow-hidden rounded-md bg-gray-100 dark:bg-gray-900',
-          variant === 'desktop' ? 'aspect-[4/3]' : 'h-14 w-14 shrink-0',
+          variant === 'desktop' ? 'h-10 w-10 shrink-0' : 'h-11 w-11 shrink-0',
         )}
       >
         {image ? (
           <img
-            src={shopifyImageUrl(image.url, { width: 360, format: 'webp' })}
+            src={shopifyImageUrl(image.url, { width: 160, format: 'webp' })}
             alt={image.altText ?? product.title}
             className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
             loading="lazy"
@@ -1299,13 +1295,11 @@ function MerchProductLink({
           </span>
         )}
       </span>
-      <span
-        className={twMerge('block min-w-0', variant === 'desktop' && 'mt-2')}
-      >
-        <span className="block truncate font-bold text-gray-950 dark:text-white">
+      <span className="block min-w-0">
+        <span className="block truncate text-sm font-bold text-gray-950 dark:text-white">
           {product.title}
         </span>
-        <span className="mt-0.5 block text-sm text-gray-600 dark:text-gray-400">
+        <span className="mt-0.5 block text-xs text-gray-600 dark:text-gray-400">
           {formatMoney(price.amount, price.currencyCode)}
         </span>
       </span>

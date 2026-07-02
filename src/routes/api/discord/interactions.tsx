@@ -1,4 +1,15 @@
 import { createFileRoute } from '@tanstack/react-router'
+import {
+  isRecord,
+  jsonError,
+  jsonResponse,
+  readTextBody,
+} from '~/utils/api-boundary.server'
+
+const MAX_DISCORD_INTERACTION_BYTES = 64 * 1024
+const DISCORD_SIGNATURE_PATTERN = /^[a-f0-9]{128}$/i
+const DISCORD_TIMESTAMP_PATTERN = /^\d{1,20}$/
+const DISCORD_PUBLIC_KEY_PATTERN = /^[a-f0-9]{64}$/i
 
 const InteractionType = {
   APPLICATION_COMMAND: 2,
@@ -24,6 +35,10 @@ type Interaction = {
 
 function valueToUint8Array(value: string, format?: 'hex') {
   if (format === 'hex') {
+    if (!/^[a-f0-9]+$/i.test(value) || value.length % 2 !== 0) {
+      throw new Error('Value is not a valid hex string')
+    }
+
     const matches = value.match(/.{1,2}/g)
 
     if (!matches) {
@@ -88,6 +103,48 @@ function handleUnknownCommand(commandName: string) {
   }
 }
 
+function parseInteraction(value: unknown): Interaction | null {
+  if (!isRecord(value) || typeof value.type !== 'number') {
+    return null
+  }
+
+  const data = value.data
+  if (data === undefined) {
+    return { type: value.type }
+  }
+
+  if (!isRecord(data) || typeof data.name !== 'string') {
+    return null
+  }
+
+  const options = data.options
+  const parsedOptions: InteractionData['options'] = []
+  if (Array.isArray(options)) {
+    for (const option of options) {
+      if (
+        !isRecord(option) ||
+        typeof option.name !== 'string' ||
+        typeof option.value !== 'string'
+      ) {
+        return null
+      }
+
+      parsedOptions.push({
+        name: option.name,
+        value: option.value,
+      })
+    }
+  }
+
+  return {
+    type: value.type,
+    data: {
+      name: data.name,
+      options: parsedOptions.length > 0 ? parsedOptions : undefined,
+    },
+  }
+}
+
 export const Route = createFileRoute('/api/discord/interactions')({
   server: {
     handlers: {
@@ -95,24 +152,35 @@ export const Route = createFileRoute('/api/discord/interactions')({
         try {
           if (!DISCORD_PUBLIC_KEY) {
             console.error('[Discord] DISCORD_PUBLIC_KEY not configured')
-            return new Response(
-              JSON.stringify({ error: 'Discord public key not configured' }),
-              { status: 500, headers: { 'Content-Type': 'application/json' } },
-            )
+            return jsonError('Discord public key not configured', 500)
+          }
+
+          if (!DISCORD_PUBLIC_KEY_PATTERN.test(DISCORD_PUBLIC_KEY)) {
+            console.error('[Discord] DISCORD_PUBLIC_KEY is malformed')
+            return jsonError('Discord public key is malformed', 500)
           }
 
           const signature = request.headers.get('X-Signature-Ed25519')
           const timestamp = request.headers.get('X-Signature-Timestamp')
 
-          if (!signature || !timestamp) {
+          if (
+            !signature ||
+            !timestamp ||
+            !DISCORD_SIGNATURE_PATTERN.test(signature) ||
+            !DISCORD_TIMESTAMP_PATTERN.test(timestamp)
+          ) {
             console.error('[Discord] Missing signature headers')
-            return new Response(
-              JSON.stringify({ error: 'Missing signature headers' }),
-              { status: 401, headers: { 'Content-Type': 'application/json' } },
-            )
+            return jsonError('Missing signature headers', 401)
           }
 
-          const body = await request.text()
+          const bodyResult = await readTextBody(
+            request,
+            MAX_DISCORD_INTERACTION_BYTES,
+          )
+          if (!bodyResult.success) {
+            return jsonError(bodyResult.error.message, bodyResult.error.status)
+          }
+          const body = bodyResult.text
 
           const isValid = await verifyDiscordKey(
             body,
@@ -123,22 +191,20 @@ export const Route = createFileRoute('/api/discord/interactions')({
 
           if (!isValid) {
             console.error('[Discord] Invalid signature')
-            return new Response(
-              JSON.stringify({ error: 'Invalid signature' }),
-              { status: 401, headers: { 'Content-Type': 'application/json' } },
-            )
+            return jsonError('Invalid signature', 401)
           }
 
-          const interaction: Interaction = JSON.parse(body)
+          const interaction = parseInteraction(JSON.parse(body))
+          if (!interaction) {
+            return jsonError('Invalid interaction payload', 400)
+          }
+
           console.log('[Discord] Interaction type:', interaction.type)
 
           // Handle PING (Discord uses this to verify endpoint)
           if (interaction.type === InteractionType.PING) {
             console.log('[Discord] Responding to PING')
-            return new Response(
-              JSON.stringify({ type: InteractionResponseType.PONG }),
-              { status: 200, headers: { 'Content-Type': 'application/json' } },
-            )
+            return jsonResponse({ type: InteractionResponseType.PONG })
           }
 
           // Handle slash commands
@@ -155,23 +221,14 @@ export const Route = createFileRoute('/api/discord/interactions')({
                 response = handleUnknownCommand(commandName || 'unknown')
             }
 
-            return new Response(JSON.stringify(response), {
-              status: 200,
-              headers: { 'Content-Type': 'application/json' },
-            })
+            return jsonResponse(response)
           }
 
           console.error('[Discord] Unknown interaction type:', interaction.type)
-          return new Response(
-            JSON.stringify({ error: 'Unknown interaction type' }),
-            { status: 400, headers: { 'Content-Type': 'application/json' } },
-          )
+          return jsonError('Unknown interaction type', 400)
         } catch (error) {
           console.error('[Discord] Handler error:', error)
-          return new Response(
-            JSON.stringify({ error: 'Internal server error' }),
-            { status: 500, headers: { 'Content-Type': 'application/json' } },
-          )
+          return jsonError('Internal server error', 500)
         }
       },
     },

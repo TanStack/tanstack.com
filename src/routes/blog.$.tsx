@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { PostNotFound } from './blog'
-import { formatAuthors } from '~/utils/blog'
+import { formatAuthors } from '~/utils/blog-format'
 import * as React from 'react'
 import { MarkdownContent } from '~/components/markdown'
 import { Card } from '~/components/Card'
@@ -9,11 +9,14 @@ import { LibrariesWidget } from '~/components/LibrariesWidget'
 import { partners } from '~/utils/partners'
 import { PartnersRail, RightRail } from '~/components/RightRail'
 import { RecentPostsWidget } from '~/components/RecentPostsWidget'
+import { useMediaQuery } from '~/utils/useMediaQuery'
 
 import { Toc } from '~/components/Toc'
 import { Breadcrumbs } from '~/components/Breadcrumbs'
 import { CoverFallback } from '~/components/CoverFallback'
 import { fetchBlogPost } from '~/utils/blog.functions'
+import { parseSiteMarkdown } from '~/utils/markdown'
+import { getAbsoluteOptimizedImageUrl } from '~/utils/optimizedImage'
 
 export const Route = createFileRoute('/blog/$')({
   staleTime: Infinity,
@@ -27,15 +30,20 @@ export const Route = createFileRoute('/blog/$')({
     return fetchBlogPost({ data: blogPath })
   },
   head: ({ loaderData }) => {
-    // Generate optimized social media image URL using Netlify Image CDN
     const getSocialImageUrl = (headerImage?: string) => {
       if (!headerImage) return undefined
 
-      // Use Netlify Image CDN to optimize for social media (1200x630 is the standard for og:image)
+      if (headerImage.startsWith('http')) {
+        return headerImage
+      }
 
-      return `https://tanstack.com/.netlify/images?url=${encodeURIComponent(
-        headerImage,
-      )}&w=1200&h=630&fit=cover&fm=jpg&q=80`
+      return getAbsoluteOptimizedImageUrl(headerImage, {
+        fit: 'cover',
+        format: 'auto',
+        height: 630,
+        quality: 80,
+        width: 1200,
+      })
     }
 
     return {
@@ -62,11 +70,14 @@ export const Route = createFileRoute('/blog/$')({
 })
 
 function BlogPost() {
-  const { contentRsc, filePath, headings, title, headerImage, library } =
+  const { content, filePath, title, headerImage, library } =
     Route.useLoaderData()
   const { _splat: slug } = Route.useParams()
+  const markdown = React.useMemo(() => parseSiteMarkdown(content), [content])
+  const headings = markdown.headings
 
   const isTocVisible = headings.length > 1
+  const isDesktopViewport = useMediaQuery('(min-width: 768px)')
 
   const markdownContainerRef = React.useRef<HTMLDivElement>(null)
   const [activeHeadings, setActiveHeadings] = React.useState<Array<string>>([])
@@ -167,11 +178,13 @@ function BlogPost() {
                       ) : null}
                       <MarkdownContent
                         title={title}
-                        contentRsc={contentRsc}
+                        markdown={markdown}
+                        preserveTabPanels
                         repo={repo}
                         branch={branch}
                         filePath={filePath}
                         containerRef={markdownContainerRef}
+                        eagerFirstImage
                       />
                     </div>
                     {isTocVisible && (
@@ -193,7 +206,7 @@ function BlogPost() {
               partners={activePartners}
             />
             <div className="hidden md:block border border-gray-500/20 rounded-l-lg overflow-hidden w-full">
-              <RecentPostsWidget />
+              <RecentPostsWidget enabled={isDesktopViewport} />
             </div>
             <Card>
               <LibrariesWidget />

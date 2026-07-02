@@ -14,7 +14,8 @@ export const Route = createFileRoute('/_library/ai/$version/')({
   beforeLoad: ({ params, location }) => {
     beforeLoadLibraryLanding('ai', params.version, location.href)
   },
-  loader: ({ params }) => loadLibraryLandingRouteData('ai', params.version),
+  loader: ({ params, context: { queryClient } }) =>
+    loadLibraryLandingRouteData('ai', params.version, queryClient),
   head: () => getLibraryLandingHead('ai'),
   headers: () => getLibraryLandingHeaders('ai'),
   staticData: {
@@ -28,7 +29,5 @@ function AiNavbarTitle() {
 }
 
 function AiLandingRoute() {
-  const { landingCodeExampleRsc } = Route.useLoaderData()
-
-  return <AiLanding landingCodeExampleRsc={landingCodeExampleRsc} />
+  return <AiLanding />
 }

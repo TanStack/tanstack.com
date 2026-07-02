@@ -12,75 +12,13 @@ import type { SessionCookieData, ISessionService } from './types'
 // ============================================================================
 
 function base64UrlEncode(str: string): string {
-  if (typeof btoa !== 'undefined') {
-    return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
-  }
-
-  const encoder = new TextEncoder()
-  const bytes = encoder.encode(str)
-  const base64 = bytesToBase64(bytes)
-  return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
+  return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
 }
 
 function base64UrlDecode(str: string): string {
   const normalized = str.replace(/-/g, '+').replace(/_/g, '/')
-
-  if (typeof atob !== 'undefined') {
-    return atob(normalized)
-  }
-
-  const bytes = base64ToBytes(normalized)
-  const decoder = new TextDecoder()
-  return decoder.decode(bytes)
-}
-
-function bytesToBase64(bytes: Uint8Array): string {
-  const chars =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-  let result = ''
-  let i = 0
-
-  while (i < bytes.length) {
-    const a = bytes[i++]
-    const b = i < bytes.length ? bytes[i++] : 0
-    const c = i < bytes.length ? bytes[i++] : 0
-
-    const bitmap = (a << 16) | (b << 8) | c
-
-    result += chars.charAt((bitmap >> 18) & 63)
-    result += chars.charAt((bitmap >> 12) & 63)
-    result += i - 2 < bytes.length ? chars.charAt((bitmap >> 6) & 63) : '='
-    result += i - 1 < bytes.length ? chars.charAt(bitmap & 63) : '='
-  }
-
-  return result
-}
-
-function base64ToBytes(base64: string): Uint8Array {
-  const chars =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-  const lookup = new Map<string, number>()
-  for (let i = 0; i < chars.length; i++) {
-    lookup.set(chars[i], i)
-  }
-
-  base64 = base64.replace(/=+$/, '')
-  const bytes: number[] = []
-
-  for (let i = 0; i < base64.length; i += 4) {
-    const enc1 = lookup.get(base64[i]) ?? 0
-    const enc2 = lookup.get(base64[i + 1]) ?? 0
-    const enc3 = lookup.get(base64[i + 2]) ?? 0
-    const enc4 = lookup.get(base64[i + 3]) ?? 0
-
-    const bitmap = (enc1 << 18) | (enc2 << 12) | (enc3 << 6) | enc4
-
-    bytes.push((bitmap >> 16) & 255)
-    if (enc3 !== 64) bytes.push((bitmap >> 8) & 255)
-    if (enc4 !== 64) bytes.push(bitmap & 255)
-  }
-
-  return new Uint8Array(bytes)
+  const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=')
+  return atob(padded)
 }
 
 // ============================================================================

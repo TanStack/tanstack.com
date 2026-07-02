@@ -87,7 +87,7 @@ function parseDocsConfig(config: string) {
   Fetch the config file for the project and validate it.
   */
 export const getTanstackDocsConfig = createServerFn({ method: 'GET' })
-  .inputValidator(
+  .validator(
     v.object({ repo: v.string(), branch: v.string(), docsRoot: v.string() }),
   )
   .handler(
@@ -120,13 +120,13 @@ export const getTanstackDocsConfig = createServerFn({ method: 'GET' })
         setResponseHeaders(
           new Headers({
             'Cache-Control': 'public, max-age=0, must-revalidate',
-            'Netlify-CDN-Cache-Control':
-              'public, max-age=300, durable, stale-while-revalidate=300',
-            'Netlify-Cache-Tag': [
+            'Cloudflare-CDN-Cache-Control':
+              'public, max-age=300, stale-while-revalidate=300',
+            'Cache-Tag': [
               'docs-config:all',
               `docs-config:${repo}`,
               `docs-config:${repo}:${branch}`,
-            ].join(', '),
+            ].join(','),
           }),
         )
 

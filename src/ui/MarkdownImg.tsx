@@ -1,6 +1,13 @@
 import * as React from 'react'
 import type { HTMLProps } from 'react'
-import { getNetlifyImageUrl } from '~/utils/netlifyImage'
+import { getOptimizedImageUrl } from '~/utils/optimizedImage'
+import { getPublicImageDimensions } from '~/utils/publicImageDimensions'
+
+const DEFAULT_TRANSFORM_WIDTH = 1200
+
+export type MarkdownImgProps = HTMLProps<HTMLImageElement> & {
+  priority?: boolean
+}
 
 export const MarkdownImg = React.memo(function MarkdownImg({
   alt,
@@ -9,24 +16,34 @@ export const MarkdownImg = React.memo(function MarkdownImg({
   width,
   height,
   style,
+  priority,
   children: _,
   ...props
-}: HTMLProps<HTMLImageElement>) {
+}: MarkdownImgProps) {
+  const sourceDimensions = src ? getPublicImageDimensions(src) : undefined
+  const providedWidth = parseDimension(width)
+  const providedHeight = parseDimension(height)
+  const inferredWidth =
+    sourceDimensions && width === undefined
+      ? Math.min(sourceDimensions.width, 800)
+      : providedWidth
+  const inferredHeight =
+    sourceDimensions && height === undefined && inferredWidth
+      ? Math.round(
+          inferredWidth * (sourceDimensions.height / sourceDimensions.width),
+        )
+      : providedHeight
+  const resolvedWidth = width ?? inferredWidth
+  const resolvedHeight = height ?? inferredHeight
   const numericWidth =
-    typeof width === 'number'
-      ? width
-      : typeof width === 'string'
-        ? Number(width)
-        : undefined
+    typeof resolvedWidth === 'number'
+      ? resolvedWidth
+      : (parseDimension(width) ?? DEFAULT_TRANSFORM_WIDTH)
   const numericHeight =
-    typeof height === 'number'
-      ? height
-      : typeof height === 'string'
-        ? Number(height)
-        : undefined
+    typeof resolvedHeight === 'number' ? resolvedHeight : parseDimension(height)
   const aspectRatio =
     numericWidth && numericHeight
-      ? `${numericWidth} / ${numericHeight}`
+      ? `auto ${numericWidth} / ${numericHeight}`
       : src?.toLowerCase().endsWith('.svg')
         ? 'auto 3 / 1'
         : 'auto 16 / 9'
@@ -34,17 +51,41 @@ export const MarkdownImg = React.memo(function MarkdownImg({
   return (
     <img
       {...props}
-      src={src ? getNetlifyImageUrl(src) : undefined}
+      src={
+        src
+          ? getOptimizedImageUrl(src, {
+              format: 'auto',
+              height: numericHeight,
+              quality: 80,
+              width: numericWidth,
+            })
+          : undefined
+      }
       alt={alt ?? ''}
-      width={width}
-      height={height}
+      width={resolvedWidth}
+      height={resolvedHeight}
       style={{
         aspectRatio,
         ...style,
       }}
       className={`block max-w-full h-auto rounded-lg shadow-md ${className ?? ''}`}
-      loading="lazy"
+      loading={priority ? 'eager' : 'lazy'}
+      fetchPriority={priority ? 'high' : undefined}
       decoding="async"
     />
   )
 })
+
+function parseDimension(value: HTMLProps<HTMLImageElement>['width']) {
+  if (typeof value === 'number') {
+    return value
+  }
+
+  if (typeof value !== 'string') {
+    return undefined
+  }
+
+  const parsed = Number(value)
+
+  return Number.isFinite(parsed) ? parsed : undefined
+}

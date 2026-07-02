@@ -14,21 +14,22 @@ import {
   updateLastUsedFramework as updateLastUsedFrameworkServer,
   updateUserCapabilities as updateUserCapabilitiesServer,
 } from '~/utils/users.server'
+import { pageIndexSchema, pageSizeSchema } from './schemas'
 
 const listUsersInput = v.pipe(
   v.object({
     pagination: v.object({
-      limit: v.number(),
-      page: v.optional(v.number()),
+      limit: pageSizeSchema,
+      page: v.optional(pageIndexSchema),
     }),
-    emailFilter: v.optional(v.string()),
-    nameFilter: v.optional(v.string()),
-    capabilityFilter: v.optional(v.array(v.string())),
+    emailFilter: v.optional(v.pipe(v.string(), v.maxLength(255))),
+    nameFilter: v.optional(v.pipe(v.string(), v.maxLength(255))),
+    capabilityFilter: v.optional(v.pipe(v.array(v.string()), v.maxLength(32))),
     noCapabilitiesFilter: v.optional(v.boolean()),
     adsDisabledFilter: v.optional(v.boolean()),
     interestedInHidingAdsFilter: v.optional(v.boolean()),
     useEffectiveCapabilities: v.optional(v.boolean(), true),
-    sortBy: v.optional(v.string()),
+    sortBy: v.optional(v.pipe(v.string(), v.maxLength(64))),
     sortDir: v.optional(v.picklist(['asc', 'desc'])),
   }),
   v.transform((data) => ({
@@ -38,19 +39,19 @@ const listUsersInput = v.pipe(
 )
 
 export const listUsers = createServerFn({ method: 'POST' })
-  .inputValidator(listUsersInput)
+  .validator(listUsersInput)
   .handler(async ({ data }) => listUsersServer({ data }))
 
 export const getUser = createServerFn({ method: 'POST' })
-  .inputValidator(v.object({ userId: v.pipe(v.string(), v.uuid()) }))
+  .validator(v.object({ userId: v.pipe(v.string(), v.uuid()) }))
   .handler(async ({ data }) => getUserServer({ data }))
 
 export const updateAdPreference = createServerFn({ method: 'POST' })
-  .inputValidator(v.object({ adsDisabled: v.boolean() }))
+  .validator(v.object({ adsDisabled: v.boolean() }))
   .handler(async ({ data }) => updateAdPreferenceServer({ data }))
 
 export const updateLastUsedFramework = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       framework: v.pipe(v.string(), v.minLength(1), v.maxLength(50)),
     }),
@@ -58,10 +59,10 @@ export const updateLastUsedFramework = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => updateLastUsedFrameworkServer({ data }))
 
 export const updateUserCapabilities = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       userId: v.pipe(v.string(), v.uuid()),
-      capabilities: v.array(v.string()),
+      capabilities: v.pipe(v.array(v.string()), v.maxLength(64)),
     }),
   )
   .handler(async ({ data }) =>
@@ -74,7 +75,7 @@ export const updateUserCapabilities = createServerFn({ method: 'POST' })
   )
 
 export const adminSetAdsDisabled = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
       userId: v.pipe(v.string(), v.uuid()),
       adsDisabled: v.boolean(),
@@ -83,10 +84,10 @@ export const adminSetAdsDisabled = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => adminSetAdsDisabledServer({ data }))
 
 export const bulkUpdateUserCapabilities = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     v.object({
-      userIds: v.array(v.pipe(v.string(), v.uuid())),
-      capabilities: v.array(v.string()),
+      userIds: v.pipe(v.array(v.pipe(v.string(), v.uuid())), v.maxLength(100)),
+      capabilities: v.pipe(v.array(v.string()), v.maxLength(64)),
     }),
   )
   .handler(async ({ data }) =>
@@ -99,11 +100,11 @@ export const bulkUpdateUserCapabilities = createServerFn({ method: 'POST' })
   )
 
 export const setInterestedInHidingAds = createServerFn({ method: 'POST' })
-  .inputValidator(v.object({ interested: v.boolean() }))
+  .validator(v.object({ interested: v.boolean() }))
   .handler(async ({ data }) => setInterestedInHidingAdsServer({ data }))
 
 export const addUserSignupSource = createServerFn({ method: 'POST' })
-  .inputValidator(v.object({ source: v.picklist(SIGNUP_SOURCES) }))
+  .validator(v.object({ source: v.picklist(SIGNUP_SOURCES) }))
   .handler(async ({ data }) => addUserSignupSourceServer({ data }))
 
 export const revertProfileImage = createServerFn({ method: 'POST' }).handler(

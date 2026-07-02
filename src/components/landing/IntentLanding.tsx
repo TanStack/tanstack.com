@@ -20,8 +20,8 @@ import { Footer } from '~/components/Footer'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { SkillSparkline } from '~/components/intent/SkillSparkline'
 import LandingPageGad from '~/components/LandingPageGad'
-import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
-import { LazySponsorSection } from '~/components/LazySponsorSection'
+import { LandingCommunitySection } from '~/components/LandingCommunitySection'
+import { SponsorSection } from '~/components/SponsorSection'
 import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
 import { LibraryWordmark } from '~/components/LibraryWordmark'
 import { getLibrary } from '~/libraries'
@@ -30,8 +30,8 @@ import {
   intentSkillHistoryQueryOptions,
   intentStatsQueryOptions,
 } from '~/queries/intent'
-import type { LandingComponentProps } from '~/routes/-library-landing'
 import type { SkillHistoryEntry } from '~/utils/intent.functions'
+import { encodePackageNameSlug } from '~/utils/route-encoding'
 
 import { LandingCopyPromptButton } from '~/components/landing/LandingCopyPromptButton'
 const library = getLibrary('intent')
@@ -105,9 +105,7 @@ const lifecycleSteps = [
   },
 ]
 
-export default function IntentLanding({
-  landingCodeExampleRsc,
-}: LandingComponentProps) {
+export default function IntentLanding() {
   const { version } = useParams({ strict: false })
   const resolvedVersion = version ?? library.latestVersion
 
@@ -241,10 +239,6 @@ export default function IntentLanding({
               guess.
             </p>
           </div>
-
-          <div className="min-w-0 max-w-full overflow-hidden">
-            {landingCodeExampleRsc}
-          </div>
         </div>
       </section>
 
@@ -265,12 +259,8 @@ export default function IntentLanding({
         </div>
 
         <div className="mt-10 flex flex-col gap-14">
-          <LazyLandingCommunitySection
-            libraryId="intent"
-            libraryName="TanStack Intent"
-            showShowcases={false}
-          />
-          <LazySponsorSection
+          <LandingCommunitySection libraryId="intent" />
+          <SponsorSection
             title="GitHub Sponsors"
             aspectRatio="1/1"
             packMaxWidth="900px"
@@ -423,7 +413,7 @@ function IntentRegistryPreview() {
               <Link
                 key={pkg.name}
                 to="/intent/registry/$packageName"
-                params={{ packageName: pkg.name.replace('/', '__') }}
+                params={{ packageName: encodePackageNameSlug(pkg.name) }}
                 className="group flex flex-col gap-2 rounded-lg border border-zinc-200 bg-zinc-50 p-4 transition-colors hover:border-sky-300 dark:border-zinc-800 dark:bg-zinc-900/50 dark:hover:border-sky-700"
               >
                 <div className="mb-1 flex items-start justify-between gap-2">
@@ -441,7 +431,7 @@ function IntentRegistryPreview() {
                           navigate({
                             to: '/intent/registry/$packageName',
                             params: {
-                              packageName: pkg.name.replace('/', '__'),
+                              packageName: encodePackageNameSlug(pkg.name),
                             },
                             search: { version: entry.version },
                           })

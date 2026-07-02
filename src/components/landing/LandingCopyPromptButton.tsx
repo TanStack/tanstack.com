@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { CheckCircle2, Copy } from 'lucide-react'
+import { copyTextToClipboard } from '~/utils/browser-effects'
 
 type LandingCopyPromptButtonProps = {
   getPrompt?: () => Promise<string> | string
@@ -66,38 +67,4 @@ export function LandingCopyPromptButton({
             : label}
     </button>
   )
-}
-
-async function copyTextToClipboard(value: string) {
-  if (typeof navigator !== 'undefined' && navigator.clipboard) {
-    await navigator.clipboard.writeText(value)
-    return
-  }
-
-  if (typeof document === 'undefined') {
-    throw new Error('Clipboard unavailable')
-  }
-
-  const textarea = document.createElement('textarea')
-  textarea.value = value
-  textarea.setAttribute('readonly', '')
-  textarea.style.position = 'fixed'
-  textarea.style.left = '-9999px'
-  textarea.style.top = '0'
-
-  document.body.appendChild(textarea)
-  textarea.focus()
-  textarea.select()
-
-  let didCopy = false
-
-  try {
-    didCopy = document.execCommand('copy')
-  } finally {
-    document.body.removeChild(textarea)
-  }
-
-  if (!didCopy) {
-    throw new Error('Copy failed')
-  }
 }

@@ -14,8 +14,8 @@ export const Route = createFileRoute('/_library/workflow/$version/')({
   beforeLoad: ({ params, location }) => {
     beforeLoadLibraryLanding('workflow', params.version, location.href)
   },
-  loader: ({ params }) =>
-    loadLibraryLandingRouteData('workflow', params.version),
+  loader: ({ params, context: { queryClient } }) =>
+    loadLibraryLandingRouteData('workflow', params.version, queryClient),
   head: () => getLibraryLandingHead('workflow'),
   headers: () => getLibraryLandingHeaders('workflow'),
   staticData: {
@@ -29,7 +29,5 @@ function WorkflowNavbarTitle() {
 }
 
 function WorkflowLandingRoute() {
-  const { landingCodeExampleRsc } = Route.useLoaderData()
-
-  return <WorkflowLanding landingCodeExampleRsc={landingCodeExampleRsc} />
+  return <WorkflowLanding />
 }

@@ -11,6 +11,7 @@ import {
   getIntentSkillPage,
   type SkillVersionEntry,
 } from '~/utils/intent.functions'
+import { Markdown } from '~/components/markdown/Markdown'
 import { CopyPageDropdown } from '~/components/CopyPageDropdown'
 import { SkillSparklineFallback } from '~/components/intent/SkillSparklineFallback'
 import {
@@ -25,6 +26,26 @@ const LazySkillSparkline = React.lazy(() =>
     default: m.SkillSparkline,
   })),
 )
+
+function encodePathSegments(value: string) {
+  return value.split('/').map(encodeURIComponent).join('/')
+}
+
+function getSkillSourceUrl({
+  packageName,
+  skillPath,
+  version,
+}: {
+  packageName: string
+  skillPath: string
+  version: string
+}) {
+  return `https://app.unpkg.com/${encodePathSegments(
+    packageName,
+  )}@${encodeURIComponent(version)}/files/skills/${encodePathSegments(
+    skillPath,
+  )}/SKILL.md`
+}
 
 export const Route = createFileRoute(
   '/intent/registry/$packageName/$skillName',
@@ -98,7 +119,6 @@ function SkillDetailPage() {
   )
   const skills = skillsQuery.data?.skills ?? []
   const skill = skills.find((s) => s.name === skillName)
-
   if (!skill) {
     return (
       <div className="flex flex-col items-center justify-center h-full min-h-48 text-center px-4">
@@ -142,7 +162,11 @@ function SkillDetailPage() {
             </span>
             {skill.skillPath && (
               <a
-                href={`https://app.unpkg.com/${pkgName}@${activeVersion}/files/skills/${skill.skillPath}/SKILL.md`}
+                href={getSkillSourceUrl({
+                  packageName: pkgName,
+                  skillPath: skill.skillPath,
+                  version: activeVersion,
+                })}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
@@ -221,7 +245,9 @@ function SkillDetailPage() {
           {/* Skill content */}
           <div className="rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden p-6">
             <div className="prose prose-gray dark:prose-invert max-w-none [font-size:16px] styled-markdown-content">
-              {skillPage?.contentRsc ?? null}
+              {skillPage?.content ? (
+                <Markdown content={skillPage.content} />
+              ) : null}
             </div>
           </div>
         </>

@@ -4,6 +4,66 @@ import {
   exchangeAuthorizationCode,
   refreshAccessToken,
 } from '~/auth/oauthClient.server'
+import {
+  isRecord,
+  readJsonBody,
+  readTextBody,
+} from '~/utils/api-boundary.server'
+
+const MAX_OAUTH_TOKEN_BODY_BYTES = 16 * 1024
+
+function oauthTokenError(
+  error: string,
+  errorDescription: string,
+  status: number,
+) {
+  return new Response(
+    JSON.stringify({
+      error,
+      error_description: errorDescription,
+    }),
+    { status },
+  )
+}
+
+async function readLimitedFormBody(request: Request) {
+  const result = await readTextBody(request, MAX_OAUTH_TOKEN_BODY_BYTES)
+  if (!result.success) {
+    return {
+      error: oauthTokenError(
+        'invalid_request',
+        result.error.message,
+        result.error.status,
+      ),
+    }
+  }
+
+  return { params: new URLSearchParams(result.text) }
+}
+
+async function readLimitedJsonBody(request: Request) {
+  const result = await readJsonBody(request, {
+    maxContentLength: MAX_OAUTH_TOKEN_BODY_BYTES,
+  })
+  if (!result.success || !isRecord(result.body)) {
+    return {
+      error: oauthTokenError(
+        'invalid_request',
+        'Could not parse token request body',
+        400,
+      ),
+    }
+  }
+
+  const params = new URLSearchParams()
+  for (const [key, value] of Object.entries(result.body)) {
+    if (typeof value === 'string') {
+      params.set(key, value)
+    }
+  }
+
+  return { params }
+}
 
 export const Route = createFileRoute('/oauth/token')({
   server: {
@@ -30,19 +90,18 @@ export const Route = createFileRoute('/oauth/token')({
         let params: URLSearchParams
 
         if (contentType.includes('application/x-www-form-urlencoded')) {
-          const body = await request.text()
-          params = new URLSearchParams(body)
+          const result = await readLimitedFormBody(request)
+          if ('error' in result) return result.error
+          params = result.params
         } else if (contentType.includes('application/json')) {
-          const body = await request.json()
-          params = new URLSearchParams(body)
+          const result = await readLimitedJsonBody(request)
+          if ('error' in result) return result.error
+          params = result.params
         } else {
-          return new Response(
-            JSON.stringify({
-              error: 'invalid_request',
-              error_description:
-                'Content-Type must be application/x-www-form-urlencoded or application/json',
-            }),
-            { status: 400 },
+          return oauthTokenError(
+            'invalid_request',
+            'Content-Type must be application/x-www-form-urlencoded or application/json',
+            400,
           )
         }
 
@@ -54,13 +113,10 @@ export const Route = createFileRoute('/oauth/token')({
           const redirectUri = params.get('redirect_uri')
 
           if (!code || !codeVerifier || !redirectUri) {
-            return new Response(
-              JSON.stringify({
-                error: 'invalid_request',
-                error_description:
-                  'Missing required parameters: code, code_verifier, redirect_uri',
-              }),
-              { status: 400 },
+            return oauthTokenError(
+              'invalid_request',
+              'Missing required parameters: code, code_verifier, redirect_uri',
+              400,
             )
           }
 
@@ -71,13 +127,10 @@ export const Route = createFileRoute('/oauth/token')({
           })
 
           if (!result.success) {
-            return new Response(
-              JSON.stringify({
-                error: result.error,
-                error_description:
-                  'The authorization code is invalid or has expired',
-              }),
-              { status: 400 },
+            return oauthTokenError(
+              result.error,
+              'The authorization code is invalid or has expired',
+              400,
             )
           }
 
@@ -97,25 +150,20 @@ export const Route = createFileRoute('/oauth/token')({
           const refreshToken = params.get('refresh_token')
 
           if (!refreshToken) {
-            return new Response(
-              JSON.stringify({
-                error: 'invalid_request',
-                error_description: 'Missing required parameter: refresh_token',
-              }),
-              { status: 400 },
+            return oauthTokenError(
+              'invalid_request',
+              'Missing required parameter: refresh_token',
+              400,
             )
           }
 
           const result = await refreshAccessToken(refreshToken)
 
           if (!result.success) {
-            return new Response(
-              JSON.stringify({
-                error: result.error,
-                error_description:
-                  'The refresh token is invalid or has expired',
-              }),
-              { status: 400 },
+            return oauthTokenError(
+              result.error,
+              'The refresh token is invalid or has expired',
+              400,
             )
           }
 
@@ -130,13 +178,10 @@ export const Route = createFileRoute('/oauth/token')({
           )
         }
 
-        return new Response(
-          JSON.stringify({
-            error: 'unsupported_grant_type',
-            error_description:
-              'Only authorization_code and refresh_token grant types are supported',
-          }),
-          { status: 400 },
+        return oauthTokenError(
+          'unsupported_grant_type',
+          'Only authorization_code and refresh_token grant types are supported',
+          400,
         )
       },
       OPTIONS: async ({ request }: { request: Request }) => {

@@ -2,10 +2,12 @@ import type { FrameworkId } from '~/builder/frameworks'
 import type { LibraryId } from '~/libraries'
 import {
   getApplicationStarterForceRouterOnly,
+  getApplicationStarterCompatiblePartnerIds,
   getApplicationStarterGuidanceLines,
   getApplicationStarterInferredPartnerIds,
   getApplicationStarterSelectedPartnerIds,
   getApplicationStarterUserBrief,
+  hasApplicationStarterPartnerConflictWithAny,
 } from '~/utils/partners'
 
 export type ApplicationStarterContext = 'builder' | 'home' | 'router' | 'start'
@@ -712,11 +714,21 @@ function buildRecipe(
     }
   }
 
+  const selectedPartnerIds = getApplicationStarterCompatiblePartnerIds(
+    partnerConfig.selectedPartnerIds,
+  )
+  const inferredPartnerIds = getApplicationStarterCompatiblePartnerIds(
+    partnerConfig.inferredPartnerIds.filter(
+      (partnerId) =>
+        !hasApplicationStarterPartnerConflictWithAny(
+          partnerId,
+          selectedPartnerIds,
+        ),
+    ),
+  )
+
   applyPartnerOverrides(recipe, {
-    partnerIds: [
-      ...partnerConfig.selectedPartnerIds,
-      ...partnerConfig.inferredPartnerIds,
-    ],
+    partnerIds: [...selectedPartnerIds, ...inferredPartnerIds],
   })
   applyInputOverrides(input, recipe)
   normalizeRecipe(recipe)
@@ -1255,9 +1267,9 @@ export function buildCliCommand(recipe: ApplicationStarterRecipe) {
     commandParts.push('--router-only')
   }
 
-  if (recipe.packageManager !== 'pnpm') {
-    commandParts.push('--package-manager', recipe.packageManager)
-  }
+  commandParts.push('--package-manager', recipe.packageManager)
+
+  commandParts.push(recipe.tailwind ? '--tailwind' : '--no-tailwind')
 
   if (recipe.deployment) {
     commandParts.push('--deployment', recipe.deployment)

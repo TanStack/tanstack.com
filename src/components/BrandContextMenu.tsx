@@ -9,6 +9,7 @@ import {
   DropdownItem,
   DropdownSeparator,
 } from './Dropdown'
+import { copyTextToClipboard } from '~/utils/browser-effects'
 
 interface BrandContextMenuProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode
@@ -32,7 +33,7 @@ export function BrandContextMenu({ children, ...rest }: BrandContextMenuProps) {
 
   const copyText = async (text: string) => {
     try {
-      await navigator.clipboard.writeText(text)
+      await copyTextToClipboard(text)
       notify(
         <div>
           <div className="font-medium">Copied to clipboard</div>

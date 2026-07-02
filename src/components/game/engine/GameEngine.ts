@@ -698,8 +698,16 @@ export class GameEngine {
   }
 
   start(): void {
+    if (this.animationFrameId !== null || this.isDisposed) {
+      return
+    }
+
+    this.isPaused = document.hidden
     this.clock.start()
-    this.loop()
+
+    if (!this.isPaused) {
+      this.animationFrameId = requestAnimationFrame(this.loop)
+    }
   }
 
   stop(): void {
@@ -710,18 +718,18 @@ export class GameEngine {
   }
 
   private loop = (): void => {
-    if (this.isDisposed) return
+    this.animationFrameId = null
 
-    this.animationFrameId = requestAnimationFrame(this.loop)
-
-    // Skip updates when tab is not visible
-    if (this.isPaused) return
+    if (this.isDisposed || this.isPaused) {
+      return
+    }
 
     const delta = this.clock.getDelta()
     const time = this.clock.getElapsedTime()
 
     this.update(delta, time)
     this.render()
+    this.animationFrameId = requestAnimationFrame(this.loop)
   }
 
   private update(delta: number, time: number): void {
@@ -815,9 +823,19 @@ export class GameEngine {
 
   private handleVisibilityChange = (): void => {
     this.isPaused = document.hidden
+
+    if (document.hidden) {
+      this.stop()
+      return
+    }
+
     if (!document.hidden) {
       // Reset clock delta when resuming to avoid large time jumps
       this.clock.getDelta()
+
+      if (this.animationFrameId === null && !this.isDisposed) {
+        this.animationFrameId = requestAnimationFrame(this.loop)
+      }
     }
   }
 

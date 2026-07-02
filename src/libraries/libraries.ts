@@ -201,6 +201,7 @@ const queryCommunityLinks = [
 export const router: LibrarySlim = {
   id: 'router',
   name: 'TanStack Router',
+  installPath: 'framework/$framework/quick-start',
   cardStyles: 'text-emerald-500 dark:text-emerald-400 hover:border-current',
   to: '/router',
   tagline: 'Type-safe Routing for React and Solid applications',
@@ -427,7 +428,7 @@ export const virtual: LibrarySlim = {
   to: '/virtual',
   tagline: 'Headless UI for Virtualizing Large Element Lists',
   description:
-    'Virtualize only the visible content for massive scrollable DOM nodes at 60FPS in TS/JS, React, Vue, Solid, Svelte, Lit & Angular while retaining 100% control over markup and styles.',
+    'Virtualize only the visible content for massive scrollable DOM nodes at 60FPS in TS/JS, React, Vue, Solid, Svelte, Lit, Angular & Marko while retaining 100% control over markup and styles.',
   bgStyle: 'bg-purple-500',
   borderStyle: 'border-purple-500/50',
   textStyle: 'text-purple-500',
@@ -437,7 +438,7 @@ export const virtual: LibrarySlim = {
   bgRadial: 'from-purple-500 via-violet-600/50 to-transparent',
   badge: undefined,
   repo: 'tanstack/virtual',
-  frameworks: ['react', 'solid', 'vue', 'svelte', 'lit', 'angular'],
+  frameworks: ['react', 'solid', 'vue', 'svelte', 'lit', 'angular', 'marko'],
   corePackageName: '@tanstack/virtual-core',
   npmPackageNames: ['@tanstack/virtual-core', 'react-virtual'],
   latestVersion: 'v3',
@@ -537,7 +538,7 @@ export const pacer: LibrarySlim = {
   bgRadial: 'from-lime-500 via-lime-700/50 to-transparent',
   badge: 'beta',
   repo: 'tanstack/pacer',
-  frameworks: ['react', 'preact', 'solid', 'angular'],
+  frameworks: ['react', 'preact', 'solid', 'angular', 'vanilla'],
   corePackageName: '@tanstack/pacer',
   npmPackageNames: ['@tanstack/pacer', '@tanstack/pacer-lite'],
   legacyPackages: ['@tanstack/pacer-lite'],
@@ -907,6 +908,22 @@ export const libraries: LibrarySlim[] = [
     availableVersions: [],
   },
 ]
+
+export type PublicLibrarySlim = LibrarySlim & {
+  to: string
+}
+
+export function isPublicLibrary(
+  library: LibrarySlim,
+): library is PublicLibrarySlim {
+  return (
+    typeof library.to === 'string' &&
+    library.to.startsWith('/') &&
+    library.visible !== false
+  )
+}
+
+export const publicLibraries = libraries.filter(isPublicLibrary)
 
 export const librariesByGroup = {
   framework: [start, router],

@@ -18,13 +18,12 @@ import {
 import { BottomCTA } from '~/components/BottomCTA'
 import { Footer } from '~/components/Footer'
 import { GithubIcon } from '~/components/icons/GithubIcon'
-import { LazyLandingCommunitySection } from '~/components/LazyLandingCommunitySection'
-import { LazySponsorSection } from '~/components/LazySponsorSection'
+import { LandingCommunitySection } from '~/components/LandingCommunitySection'
+import { SponsorSection } from '~/components/SponsorSection'
 import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
 import { LibraryWordmark } from '~/components/LibraryWordmark'
 import LandingPageGad from '~/components/LandingPageGad'
 import { getLibrary } from '~/libraries'
-import type { LandingComponentProps } from '~/routes/-library-landing'
 
 import { LandingEcosystemProof } from '~/components/landing/LandingEcosystemProof'
 import { LandingCopyPromptButton } from '~/components/landing/LandingCopyPromptButton'
@@ -150,9 +149,7 @@ const queryDrivenSync = [
 
 const frameworkAdapters = ['React', 'Vue', 'Solid', 'Svelte', 'Vanilla']
 
-export default function DbLanding({
-  landingCodeExampleRsc,
-}: LandingComponentProps) {
+export default function DbLanding() {
   const { version } = useParams({ strict: false })
   const resolvedVersion = version ?? library.latestVersion
 
@@ -313,10 +310,6 @@ export default function DbLanding({
               ))}
             </div>
           </div>
-
-          <div className="min-w-0 max-w-full overflow-hidden">
-            {landingCodeExampleRsc}
-          </div>
         </div>
       </section>
 
@@ -357,12 +350,8 @@ export default function DbLanding({
         </div>
 
         <div className="mt-10 flex flex-col gap-14">
-          <LazyLandingCommunitySection
-            libraryId="db"
-            libraryName="TanStack DB"
-            showShowcases={false}
-          />
-          <LazySponsorSection
+          <LandingCommunitySection libraryId="db" />
+          <SponsorSection
             title="GitHub Sponsors"
             aspectRatio="1/1"
             packMaxWidth="900px"

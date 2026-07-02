@@ -1,41 +1,37 @@
 import * as React from 'react'
-import { useMutation } from '@tanstack/react-query'
-import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { useLoginModal } from '~/contexts/LoginModalContext'
+import { useDebouncedValue } from '@tanstack/react-pacer'
 import { useToast } from '~/components/ToastProvider'
 import {
   trackEvent,
   defaultBuilderSessionContext,
   type BuilderAction,
-  type BuilderMode,
   type BuilderSessionContext,
 } from '~/utils/analytics'
 import {
   extractMigrationRepositoryUrl,
-  type ApplicationStarterAnalysis,
   getApplicationStarterSuggestions,
+  resolveApplicationStarterDeterministically,
   type ApplicationStarterContext,
-  type ApplicationStarterRequest,
   type ApplicationStarterResult,
 } from '~/utils/application-starter'
 import {
+  getApplicationStarterCompatiblePartnerIds,
+  getApplicationStarterConflictingPartnerIds,
   getApplicationStarterInferredPartnerIds,
   getApplicationStarterPartnerSuggestions,
   getApplicationStarterSelectedPartnerIds,
+  getApplicationStarterVisiblePartnerSuggestions,
   type ApplicationStarterPartnerSuggestion,
 } from '~/utils/partners'
+import { usePartnerPlacementContext } from '~/utils/usePartnerPlacementContext'
 import type { LibraryId } from '~/libraries'
 import {
-  analyzeApplicationStarter,
-  type ApplicationStarterAnonymousQuota,
-  ApplicationStarterError,
+  buildStarterPromptDeployUrl,
   composeStarterInput,
-  isApplicationStarterStatusResponse,
   isNextJsMigrationInput,
   isPinnedStarterLibrary,
   isValidMigrationRepositoryUrl,
   normalizeMigrationRepositoryUrl,
-  resolveApplicationStarter,
   type StarterPackageManager,
   starterAddonLibraryIds,
   starterLoadingPhrases,
@@ -52,71 +48,68 @@ interface UseApplicationBuilderOptions {
   mode: 'compact' | 'full'
   onDirtyStateChange?: (dirty: boolean) => void
   onResolvedResult?: (result: ApplicationStarterResult | null) => void
+  revealOptionsImmediately?: boolean
   suggestionContext?: ApplicationStarterContext
 }
 
 type CopyTrigger = 'automatic' | 'user'
 
-const starterFeatureLibraryMap: Record<string, LibraryId | undefined> = {
-  ai: 'ai',
-  form: 'form',
-  hotkeys: 'hotkeys',
-  pacer: 'pacer',
-  store: 'store',
-  table: 'table',
-  'tanstack-query': 'query',
-  virtual: 'virtual',
+function openPendingDeployWindow(providerName: string) {
+  const deployWindow = window.open('', '_blank')
+
+  if (deployWindow) {
+    deployWindow.opener = null
+    deployWindow.document.title = `Opening ${providerName}`
+    deployWindow.document.body.textContent = `Opening ${providerName}...`
+  }
+
+  return deployWindow
 }
 
-function getGeneratedLibraryIds({
-  featureIds,
-  promptText,
-}: {
-  featureIds: Array<string>
-  promptText: string
-}) {
-  const libraryIds = Array<LibraryId>()
-
-  for (const featureId of featureIds) {
-    const libraryId = starterFeatureLibraryMap[featureId]
-
-    if (!libraryId || libraryIds.includes(libraryId)) {
-      continue
-    }
-
-    libraryIds.push(libraryId)
+function navigatePendingDeployWindow(
+  deployWindow: Window | null,
+  deployUrl: string,
+) {
+  if (deployWindow) {
+    deployWindow.location.href = deployUrl
+    deployWindow.focus()
+    return
   }
 
-  if (promptText.includes('tanstack db') && !libraryIds.includes('db')) {
-    libraryIds.push('db')
-  }
+  window.location.assign(deployUrl)
+}
 
-  return libraryIds
+function closePendingDeployWindow(deployWindow: Window | null) {
+  deployWindow?.close()
 }
 
 export function useApplicationBuilder({
   builderIntegration,
   context,
   forceRouterOnly = false,
-  mode,
   onDirtyStateChange,
   onResolvedResult,
+  revealOptionsImmediately = false,
   suggestionContext = context,
 }: UseApplicationBuilderOptions) {
   const { notify } = useToast()
-  const currentUser = useCurrentUser()
-  const { openLoginModal } = useLoginModal()
   const suggestions = getApplicationStarterSuggestions(suggestionContext)
-  const partnerSuggestions = getApplicationStarterPartnerSuggestions()
+  const partnerPlacementContext = usePartnerPlacementContext({
+    orderStrategy: 'tier-rotated',
+    surface: 'application_starter_suggestions',
+  })
+  const partnerSuggestions = React.useMemo(
+    () => getApplicationStarterPartnerSuggestions(partnerPlacementContext),
+    [partnerPlacementContext],
+  )
   const [input, setInput] = React.useState(() => suggestions[0]?.input ?? '')
-  const [analysis, setAnalysis] =
-    React.useState<ApplicationStarterAnalysis | null>(null)
-  const [isAnalysisStale, setIsAnalysisStale] = React.useState(false)
+  const [hasRevealedOptions, setHasRevealedOptions] = React.useState(
+    revealOptionsImmediately,
+  )
   const [result, setResult] = React.useState<ApplicationStarterResult | null>(
     null,
   )
   const [copiedKind, setCopiedKind] = React.useState<string | null>(null)
-  const [showLuckyActions, setShowLuckyActions] = React.useState(false)
   const [showPromptCopyNotice, setShowPromptCopyNotice] = React.useState(false)
   const [loadingPhrase, setLoadingPhrase] = React.useState(
     starterLoadingPhrases[0]!,
@@ -126,13 +119,15 @@ export function useApplicationBuilder({
   const [isDeployDialogOpen, setIsDeployDialogOpen] = React.useState(false)
   const [isDirtySinceLastResult, setIsDirtySinceLastResult] =
     React.useState(false)
+  const [isRebuildingResult, setIsRebuildingResult] = React.useState(false)
   const [isModHeld, setIsModHeld] = React.useState(false)
-  const [isLocked, setIsLocked] = React.useState(false)
-  const [lockMessage, setLockMessage] = React.useState<string | null>(null)
-  const [anonymousGenerationQuota, setAnonymousGenerationQuota] =
-    React.useState<ApplicationStarterAnonymousQuota | null>(null)
   const [migrationRepositoryUrl, setMigrationRepositoryUrl] = React.useState(
     () => extractMigrationRepositoryUrl(suggestions[0]?.input ?? '') ?? '',
+  )
+  const [debouncedInput] = useDebouncedValue(input, { wait: 300 })
+  const [debouncedMigrationRepositoryUrl] = useDebouncedValue(
+    migrationRepositoryUrl,
+    { wait: 300 },
   )
   const [explicitLibrarySelections, setExplicitLibrarySelections] =
     React.useState<Partial<Record<LibraryId, boolean>>>({})
@@ -145,24 +140,9 @@ export function useApplicationBuilder({
     StarterToolchain | undefined
   >(undefined)
   const latestRequestIdRef = React.useRef(0)
-  const generationCountRef = React.useRef(0)
+  const hasUserEditedStarterRef = React.useRef(false)
   const migrationRepositoryInputRef = React.useRef<HTMLInputElement | null>(
     null,
-  )
-  const analyzedPartnerIds = React.useMemo(
-    () => analysis?.inferredPartnerIds ?? [],
-    [analysis],
-  )
-  const analyzedLibraryIds = React.useMemo(
-    () => analysis?.inferredLibraryIds ?? [],
-    [analysis],
-  )
-  const effectiveInferredPartners = React.useMemo(
-    () =>
-      analyzedPartnerIds.filter(
-        (partnerId) => explicitPartnerSelections[partnerId] === undefined,
-      ),
-    [analyzedPartnerIds, explicitPartnerSelections],
   )
   const explicitlySelectedPartners = React.useMemo(
     () =>
@@ -172,17 +152,20 @@ export function useApplicationBuilder({
     [explicitPartnerSelections, partnerSuggestions],
   )
   const selectedPartners = React.useMemo(
-    () => [
-      ...new Set([...explicitlySelectedPartners, ...effectiveInferredPartners]),
-    ],
-    [effectiveInferredPartners, explicitlySelectedPartners],
-  )
-  const effectiveInferredLibraries = React.useMemo(
     () =>
-      analyzedLibraryIds.filter(
-        (libraryId) => explicitLibrarySelections[libraryId] === undefined,
+      getApplicationStarterCompatiblePartnerIds(
+        explicitlySelectedPartners,
+        partnerSuggestions,
       ),
-    [analyzedLibraryIds, explicitLibrarySelections],
+    [explicitlySelectedPartners, partnerSuggestions],
+  )
+  const visiblePartnerSuggestions = React.useMemo(
+    () =>
+      getApplicationStarterVisiblePartnerSuggestions(
+        partnerSuggestions,
+        selectedPartners,
+      ),
+    [partnerSuggestions, selectedPartners],
   )
   const explicitlySelectedLibraries = React.useMemo(
     () =>
@@ -191,15 +174,9 @@ export function useApplicationBuilder({
       ),
     [explicitLibrarySelections],
   )
-  const selectedLibraries = React.useMemo(
-    () => [
-      ...starterPinnedLibraryIds,
-      ...new Set([
-        ...explicitlySelectedLibraries,
-        ...effectiveInferredLibraries,
-      ]),
-    ],
-    [effectiveInferredLibraries, explicitlySelectedLibraries],
+  const selectedLibraries = React.useMemo<Array<LibraryId>>(
+    () => [...starterPinnedLibraryIds, ...explicitlySelectedLibraries],
+    [explicitlySelectedLibraries],
   )
   // Session context (mode_used, idea_used) is stamped on every builder
   // event so any breakdown works without joining sessions in BigQuery.
@@ -208,13 +185,6 @@ export function useApplicationBuilder({
     defaultBuilderSessionContext,
   )
 
-  const setSessionMode = React.useCallback((nextMode: BuilderMode) => {
-    sessionContextRef.current = {
-      ...sessionContextRef.current,
-      mode_used: nextMode,
-    }
-  }, [])
-
   const setSessionIdea = React.useCallback((label: string) => {
     sessionContextRef.current = {
       ...sessionContextRef.current,
@@ -222,25 +192,38 @@ export function useApplicationBuilder({
     }
   }, [])
 
-  const invalidateResult = React.useCallback(() => {
-    latestRequestIdRef.current += 1
+  const invalidateResult = React.useCallback(
+    (options?: { clearResult?: boolean }) => {
+      latestRequestIdRef.current += 1
 
-    if (result) {
-      setIsDirtySinceLastResult(true)
+      if (result) {
+        setIsDirtySinceLastResult(true)
+      }
+
+      if (options?.clearResult ?? true) {
+        setResult(null)
+        onResolvedResult?.(null)
+      }
+
+      setShowPromptCopyNotice(false)
+    },
+    [onResolvedResult, result],
+  )
+
+  const markUserEditedStarter = React.useCallback(() => {
+    hasUserEditedStarterRef.current = true
+  }, [])
+
+  const markInputDirty = React.useCallback(() => {
+    markUserEditedStarter()
+    invalidateResult({ clearResult: false })
+  }, [invalidateResult, markUserEditedStarter])
+
+  React.useEffect(() => {
+    if (revealOptionsImmediately) {
+      setHasRevealedOptions(true)
     }
-
-    setResult(null)
-    setShowPromptCopyNotice(false)
-    onResolvedResult?.(null)
-  }, [onResolvedResult, result])
-
-  const markAnalysisStale = React.useCallback(() => {
-    invalidateResult()
-
-    if (analysis) {
-      setIsAnalysisStale(true)
-    }
-  }, [analysis, invalidateResult])
+  }, [revealOptionsImmediately])
 
   React.useEffect(() => {
     onDirtyStateChange?.(isDirtySinceLastResult)
@@ -272,7 +255,7 @@ export function useApplicationBuilder({
   const buildSubmittedInput = React.useCallback(
     (
       nextSelectedPartners: Array<string> = explicitlySelectedPartners,
-      nextInferredPartners: Array<string> = effectiveInferredPartners,
+      nextInferredPartners: Array<string> = [],
       nextSelectedLibraries: Array<LibraryId> = selectedLibraries,
     ) =>
       composeStarterInput({
@@ -286,11 +269,37 @@ export function useApplicationBuilder({
         toolchain: selectedToolchain,
       }),
     [
-      effectiveInferredPartners,
       explicitlySelectedPartners,
       forceRouterOnly,
       input,
       migrationRepositoryUrl,
+      selectedPackageManager,
+      selectedLibraries,
+      selectedToolchain,
+    ],
+  )
+
+  const buildDebouncedSubmittedInput = React.useCallback(
+    (
+      nextSelectedPartners: Array<string> = explicitlySelectedPartners,
+      nextInferredPartners: Array<string> = [],
+      nextSelectedLibraries: Array<LibraryId> = selectedLibraries,
+    ) =>
+      composeStarterInput({
+        forceRouterOnly,
+        inferredPartners: nextInferredPartners,
+        input: debouncedInput,
+        migrationRepositoryUrl: debouncedMigrationRepositoryUrl,
+        packageManager: selectedPackageManager,
+        selectedLibraries: nextSelectedLibraries,
+        selectedPartners: nextSelectedPartners,
+        toolchain: selectedToolchain,
+      }),
+    [
+      debouncedInput,
+      debouncedMigrationRepositoryUrl,
+      explicitlySelectedPartners,
+      forceRouterOnly,
       selectedPackageManager,
       selectedLibraries,
       selectedToolchain,
@@ -303,6 +312,7 @@ export function useApplicationBuilder({
         return
       }
 
+      markUserEditedStarter()
       invalidateResult()
       const selected = selectedLibraries.includes(libraryId)
 
@@ -311,80 +321,58 @@ export function useApplicationBuilder({
         [libraryId]: !selected,
       }))
     },
-    [invalidateResult, selectedLibraries],
+    [invalidateResult, markUserEditedStarter, selectedLibraries],
   )
 
   const togglePartner = React.useCallback(
     (partner: ApplicationStarterPartnerSuggestion, selected: boolean) => {
+      markUserEditedStarter()
       invalidateResult()
-      setExplicitPartnerSelections((current) => ({
-        ...current,
-        [partner.id]: !selected,
-      }))
+      setExplicitPartnerSelections((current) => {
+        const nextSelected = !selected
+        const next = {
+          ...current,
+          [partner.id]: nextSelected,
+        }
+
+        if (nextSelected) {
+          for (const partnerId of getApplicationStarterConflictingPartnerIds(
+            partner,
+            partnerSuggestions,
+          )) {
+            next[partnerId] = false
+          }
+        }
+
+        return next
+      })
     },
-    [invalidateResult],
+    [invalidateResult, markUserEditedStarter, partnerSuggestions],
   )
 
   const togglePackageManager = React.useCallback(
     (packageManager: StarterPackageManager) => {
+      markUserEditedStarter()
       invalidateResult()
 
       setSelectedPackageManager((current) =>
         current === packageManager ? undefined : packageManager,
       )
     },
-    [invalidateResult],
+    [invalidateResult, markUserEditedStarter],
   )
 
   const toggleToolchain = React.useCallback(
     (toolchain: StarterToolchain) => {
+      markUserEditedStarter()
       invalidateResult()
 
       setSelectedToolchain((current) =>
         current === toolchain ? undefined : toolchain,
       )
     },
-    [invalidateResult],
+    [invalidateResult, markUserEditedStarter],
   )
-
-  React.useEffect(() => {
-    if (currentUser) {
-      setIsLocked(false)
-      setLockMessage(null)
-    }
-  }, [currentUser])
-
-  const refreshAnonymousQuota = React.useCallback(async () => {
-    if (currentUser) {
-      setAnonymousGenerationQuota(null)
-      return
-    }
-
-    try {
-      const response = await fetch('/api/application-starter/resolve', {
-        method: 'GET',
-        cache: 'no-store',
-      })
-
-      if (!response.ok) {
-        return
-      }
-
-      const payload = await response.json()
-
-      if (!isApplicationStarterStatusResponse(payload)) {
-        return
-      }
-
-      setAnonymousGenerationQuota(payload.anonymousGenerationQuota)
-    } catch {
-      // Ignore silent status refresh failures and fall back to existing UI.
-    }
-  }, [currentUser])
-
-  React.useEffect(() => {
-    void refreshAnonymousQuota()
-  }, [refreshAnonymousQuota])
 
   const dismissPromptCopyNotice = React.useCallback(() => {
     setShowPromptCopyNotice(false)
@@ -456,160 +444,87 @@ export function useApplicationBuilder({
     [markCopied, notify],
   )
 
-  const finishWithResult = React.useCallback(
-    async (nextResult: ApplicationStarterResult) => {
+  const applyResolvedResultState = React.useCallback(
+    (nextResult: ApplicationStarterResult) => {
       setIsDirtySinceLastResult(false)
       setResult(nextResult)
       onResolvedResult?.(nextResult)
-
-      if (mode !== 'compact') {
-        void handleCopy(nextResult.prompt, 'prompt', {
-          notify: false,
-          trigger: 'automatic',
-        })
-      }
-
-      if (!builderIntegration) {
-        return
-      }
-
-      const applied = await builderIntegration.applyResult(nextResult)
-
-      if (applied) {
-        notify(
-          <div>
-            <div className="font-medium">Builder configured</div>
-            <div className="text-xs text-gray-500 dark:text-gray-400">
-              The prompt was applied to the builder immediately.
-            </div>
-          </div>,
-        )
-      }
     },
-    [builderIntegration, handleCopy, mode, notify, onResolvedResult],
+    [onResolvedResult],
   )
 
-  const handleResolveMutate = React.useCallback(() => {
-    const phraseIndex = Math.floor(Math.random() * starterLoadingPhrases.length)
-    setLoadingPhrase(starterLoadingPhrases[phraseIndex]!)
-  }, [])
-
-  const handleAnalysisError = React.useCallback(
-    (error: unknown, variables: { requestId: number }) => {
-      if (variables.requestId !== latestRequestIdRef.current) {
-        return
-      }
-
-      trackEvent('builder_failed', {
-        ...sessionContextRef.current,
-        stage: 'analysis',
-        error_message: error instanceof Error ? error.message : 'unknown_error',
-      })
-
-      notify(
-        <div>
-          <div className="font-medium">Could not analyze the prompt</div>
-          <div className="text-xs text-gray-500 dark:text-gray-400">
-            {error instanceof Error ? error.message : 'Please try again.'}
-          </div>
-        </div>,
-      )
-    },
-    [notify],
-  )
-
-  const handleAnalysisSuccess = React.useCallback(
-    (
-      nextAnalysis: ApplicationStarterAnalysis,
-      variables: { requestId: number },
-    ) => {
-      if (variables.requestId !== latestRequestIdRef.current) {
-        return
-      }
-
-      setAnalysis(nextAnalysis)
-      setIsAnalysisStale(false)
-      setIsLocked(false)
-      setLockMessage(null)
-
-      trackEvent('builder_analyzed', {
-        ...sessionContextRef.current,
-        analysis_deployment: nextAnalysis.recipe.deployment,
-        inferred_library_count: nextAnalysis.inferredLibraryIds.length,
-        inferred_partner_count: nextAnalysis.inferredPartnerIds.length,
-        feature_count: nextAnalysis.recipe.features?.length ?? 0,
-      })
-    },
-    [],
-  )
-
-  const handleResolveError = React.useCallback(
-    (error: unknown, variables: { requestId: number }) => {
-      if (variables.requestId !== latestRequestIdRef.current) {
-        return
-      }
-
-      void refreshAnonymousQuota()
-
-      notify(
-        <div>
-          <div className="font-medium">Could not generate a prompt</div>
-          <div className="text-xs text-gray-500 dark:text-gray-400">
-            {error instanceof Error ? error.message : 'Please try again.'}
-          </div>
-        </div>,
-      )
-
-      const isLoginRequired =
-        error instanceof ApplicationStarterError && !!error.loginRequired
-
-      // login_blocked is a more specific failure than generation — emit
-      // only one event per failure to avoid double-counting in dashboards.
-      if (isLoginRequired && !currentUser) {
-        setIsLocked(true)
-        setLockMessage(
-          error.retryAfter
-            ? `Anonymous generations are limited. Sign in to unlock more, or wait about ${Math.max(1, Math.ceil(error.retryAfter / 60))} minute${Math.ceil(error.retryAfter / 60) === 1 ? '' : 's'}.`
-            : 'Anonymous generations are limited. Sign in to unlock more.',
-        )
-
-        trackEvent('builder_failed', {
-          ...sessionContextRef.current,
-          stage: 'login_blocked',
-          retry_after: error.retryAfter,
-        })
-      } else {
-        trackEvent('builder_failed', {
-          ...sessionContextRef.current,
-          stage: 'generation',
-          error_message:
-            error instanceof Error ? error.message : 'unknown_error',
-        })
-      }
-    },
-    [currentUser, notify, refreshAnonymousQuota],
-  )
-
-  const handleResolveSuccess = React.useCallback(
+  const resolveSubmittedInput = React.useCallback(
     async (
-      nextResult: ApplicationStarterResult,
-      variables: { request: ApplicationStarterRequest; requestId: number },
+      submittedInput: string,
+      options?: { applyBuilder?: boolean; silentBuilder?: boolean },
     ) => {
-      if (variables.requestId !== latestRequestIdRef.current) {
-        return
+      const trimmed = submittedInput.trim()
+      if (!trimmed) {
+        return null
       }
 
-      setIsLocked(false)
-      setLockMessage(null)
-      void refreshAnonymousQuota()
-      generationCountRef.current += 1
+      const requestId = latestRequestIdRef.current + 1
+      latestRequestIdRef.current = requestId
+      const phraseIndex = Math.floor(
+        Math.random() * starterLoadingPhrases.length,
+      )
+      setLoadingPhrase(starterLoadingPhrases[phraseIndex]!)
+      setIsRebuildingResult(true)
 
-      const selectedPartnerIds = getApplicationStarterSelectedPartnerIds(
-        variables.request.input,
-      )
-      const inferredPartnerIds = getApplicationStarterInferredPartnerIds(
-        variables.request.input,
-      )
+      try {
+        const nextResult = await resolveApplicationStarterDeterministically({
+          context,
+          input: trimmed,
+        })
+
+        if (requestId !== latestRequestIdRef.current) {
+          return null
+        }
+
+        applyResolvedResultState(nextResult)
+
+        if (options?.applyBuilder && builderIntegration) {
+          await builderIntegration.applyResult(nextResult, {
+            silent: options.silentBuilder,
+          })
+        }
+
+        return nextResult
+      } catch (error) {
+        if (requestId === latestRequestIdRef.current) {
+          notify(
+            <div>
+              <div className="font-medium">Could not rebuild the prompt</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                {error instanceof Error ? error.message : 'Please try again.'}
+              </div>
+            </div>,
+          )
+
+          trackEvent('builder_failed', {
+            ...sessionContextRef.current,
+            stage: 'generation',
+            error_message:
+              error instanceof Error ? error.message : 'unknown_error',
+          })
+        }
+
+        return null
+      } finally {
+        if (requestId === latestRequestIdRef.current) {
+          setIsRebuildingResult(false)
+        }
+      }
+    },
+    [applyResolvedResultState, builderIntegration, context, notify],
+  )
+
+  const trackGeneratedResult = React.useCallback(
+    (nextResult: ApplicationStarterResult, submittedInput: string) => {
+      const selectedPartnerIds =
+        getApplicationStarterSelectedPartnerIds(submittedInput)
+      const inferredPartnerIds =
+        getApplicationStarterInferredPartnerIds(submittedInput)
       const finalPartnerIds = [
         ...new Set([...selectedPartnerIds, ...inferredPartnerIds]),
       ]
@@ -624,62 +539,9 @@ export function useApplicationBuilder({
       ]
       const promptText =
         `${nextResult.prompt}\n${nextResult.cliCommand}`.toLowerCase()
-      const finalPromptPartnerIds = partnerSuggestions
-        .filter((partner) => {
-          const needles = [partner.id, partner.label].map((value) =>
-            value.toLowerCase(),
-          )
-
-          return needles.some((needle) => promptText.includes(needle))
-        })
-        .map((partner) => partner.id)
       const finalPromptFeatureIds = finalFeatureIds.filter((featureId) =>
         promptText.includes(featureId.toLowerCase()),
       )
-
-      if (!analysis || isAnalysisStale) {
-        const generatedLibraryIds = getGeneratedLibraryIds({
-          featureIds: finalPromptFeatureIds,
-          promptText,
-        })
-        const generatedPartnerIds = Array.from(
-          new Set(
-            [...finalPromptPartnerIds, nextResult.recipe.deployment].filter(
-              (partnerId): partnerId is string => !!partnerId,
-            ),
-          ),
-        )
-
-        if (generatedLibraryIds.length > 0) {
-          setExplicitLibrarySelections((current) => {
-            const next = { ...current }
-
-            for (const libraryId of generatedLibraryIds) {
-              next[libraryId] = true
-            }
-
-            return next
-          })
-        }
-
-        if (generatedPartnerIds.length > 0) {
-          setExplicitPartnerSelections((current) => {
-            const next = { ...current }
-
-            for (const partnerId of generatedPartnerIds) {
-              next[partnerId] = true
-            }
-
-            return next
-          })
-        }
-
-        setSelectedPackageManager(nextResult.recipe.packageManager)
-
-        if (nextResult.recipe.toolchain) {
-          setSelectedToolchain(nextResult.recipe.toolchain)
-        }
-      }
 
       trackEvent('builder_generated', {
         ...sessionContextRef.current,
@@ -688,150 +550,31 @@ export function useApplicationBuilder({
         final_library_count: selectedLibraries.length,
         final_partner_count: finalPartnerIds.length,
         final_addon_count: finalPromptFeatureIds.length,
-        // Joined arrays — use SPLIT() in BigQuery for top-N analysis.
+        // Joined arrays - use SPLIT() in BigQuery for top-N reporting.
         library_ids: selectedLibraries.join(','),
         partner_ids: finalPartnerIds.join(','),
         addon_ids: finalPromptFeatureIds.join(','),
       })
-
-      await finishWithResult(nextResult)
     },
-    [
-      analysis,
-      finishWithResult,
-      isAnalysisStale,
-      partnerSuggestions,
-      refreshAnonymousQuota,
-      selectedLibraries,
-    ],
+    [selectedLibraries],
   )
 
-  const promptResolveMutation = useMutation({
-    mutationFn: async ({
-      request,
-    }: {
-      request: ApplicationStarterRequest
-      requestId: number
-    }) => resolveApplicationStarter(request),
-    onMutate: handleResolveMutate,
-    onError: handleResolveError,
-    onSuccess: handleResolveSuccess,
-  })
-
-  const analysisMutation = useMutation({
-    mutationFn: async ({
-      request,
-    }: {
-      request: ApplicationStarterRequest
-      requestId: number
-    }) => analyzeApplicationStarter(request),
-    onMutate: handleResolveMutate,
-    onError: handleAnalysisError,
-    onSuccess: handleAnalysisSuccess,
-  })
-
-  const netlifyResolveMutation = useMutation({
-    mutationFn: async ({
-      request,
-    }: {
-      request: ApplicationStarterRequest
-      requestId: number
-    }) => resolveApplicationStarter(request),
-    onMutate: handleResolveMutate,
-    onError: handleResolveError,
-    onSuccess: handleResolveSuccess,
-  })
-
-  const submit = React.useCallback(
-    async (submittedInput: string) => {
-      const trimmed = submittedInput.trim()
-      if (!trimmed) {
-        return null
-      }
-
-      const requestId = latestRequestIdRef.current + 1
-      latestRequestIdRef.current = requestId
-
-      try {
-        const nextResult = await promptResolveMutation.mutateAsync({
-          request: {
-            context,
-            input: trimmed,
-          },
-          requestId,
-        })
-
-        if (requestId !== latestRequestIdRef.current) {
-          return null
-        }
-
-        return nextResult
-      } catch {
-        return null
-      }
-    },
-    [context, promptResolveMutation],
-  )
-
-  const submitAnalysis = React.useCallback(async () => {
-    const trimmedInput = input.trim()
-
-    if (!trimmedInput) {
-      return null
+  React.useEffect(() => {
+    if (!hasRevealedOptions) {
+      return
     }
 
-    const requestId = latestRequestIdRef.current + 1
-    latestRequestIdRef.current = requestId
+    const submittedInput = buildDebouncedSubmittedInput()
 
-    try {
-      const nextAnalysis = await analysisMutation.mutateAsync({
-        request: {
-          context,
-          input: trimmedInput,
-        },
-        requestId,
-      })
-
-      if (requestId !== latestRequestIdRef.current) {
-        return null
-      }
-
-      return nextAnalysis
-    } catch {
-      return null
+    if (!submittedInput.trim()) {
+      return
     }
-  }, [analysisMutation, context, input])
 
-  const handleNetlifySubmit = React.useCallback(
-    async (submittedInput: string) => {
-      const trimmed = submittedInput.trim()
-      if (!trimmed) {
-        return null
-      }
-
-      const requestId = latestRequestIdRef.current + 1
-      latestRequestIdRef.current = requestId
-
-      try {
-        const nextResult = await netlifyResolveMutation.mutateAsync({
-          request: {
-            context,
-            input: trimmed,
-          },
-          requestId,
-        })
-
-        if (requestId !== latestRequestIdRef.current) {
-          return null
-        }
-
-        return nextResult
-      } catch {
-        return null
-      }
-    },
-    [context, netlifyResolveMutation],
-  )
+    void resolveSubmittedInput(submittedInput, {
+      applyBuilder: hasUserEditedStarterRef.current,
+      silentBuilder: true,
+    })
+  }, [buildDebouncedSubmittedInput, hasRevealedOptions, resolveSubmittedInput])
 
   const selectSuggestion = React.useCallback(
     async ({
@@ -839,7 +582,7 @@ export function useApplicationBuilder({
     }: {
       suggestion: { input: string; label: string }
     }) => {
-      markAnalysisStale()
+      markInputDirty()
       setInput(suggestion.input)
 
       if (!isNextJsMigrationInput(suggestion.input)) {
@@ -850,24 +593,10 @@ export function useApplicationBuilder({
       // outcome (analyzed/generated/activated) carries this attribution.
       setSessionIdea(suggestion.label)
     },
-    [markAnalysisStale, setSessionIdea],
+    [markInputDirty, setSessionIdea],
   )
 
   const ensureResolvedResult = React.useCallback(async () => {
-    if ((!analysis || isAnalysisStale) && !showLuckyActions) {
-      notify(
-        <div>
-          <div className="font-medium">Refresh recommendations first</div>
-          <div className="text-xs text-gray-500 dark:text-gray-400">
-            Analyze again to refresh integrations and libraries before
-            generating.
-          </div>
-        </div>,
-      )
-
-      return null
-    }
-
     const submittedInput = buildSubmittedInput()
 
     if (!submittedInput.trim()) {
@@ -878,16 +607,12 @@ export function useApplicationBuilder({
       return result
     }
 
-    return submit(submittedInput)
+    return resolveSubmittedInput(submittedInput)
   }, [
-    analysis,
     buildSubmittedInput,
-    isAnalysisStale,
     isDirtySinceLastResult,
-    notify,
+    resolveSubmittedInput,
     result,
-    showLuckyActions,
-    submit,
   ])
 
   const copyResultValue = React.useCallback(
@@ -978,6 +703,10 @@ export function useApplicationBuilder({
       await withResolvedResult((nextResult) => {
         trackAction(kind === 'advanced' ? 'open_advanced' : 'download')
 
+        if (kind === 'download' && builderIntegration?.downloadResult) {
+          return builderIntegration.downloadResult(nextResult)
+        }
+
         const destination =
           kind === 'download'
             ? nextResult.downloadUrl
@@ -990,7 +719,7 @@ export function useApplicationBuilder({
         window.location.assign(destination)
       })
     },
-    [trackAction, withResolvedResult],
+    [builderIntegration, trackAction, withResolvedResult],
   )
 
   const openDeployDialog = React.useCallback(
@@ -1009,66 +738,110 @@ export function useApplicationBuilder({
   )
 
   const openNetlifyStart = React.useCallback(async () => {
+    const deployWindow = openPendingDeployWindow('Netlify')
+    let openedDeployUrl = false
+    const netlifyPartner = partnerSuggestions.find(
+      (partner) => partner.id === 'netlify',
+    )
+    const netlifyConflictIds = netlifyPartner
+      ? getApplicationStarterConflictingPartnerIds(
+          netlifyPartner,
+          partnerSuggestions,
+        )
+      : ['cloudflare']
     const nextSelectedPartners = explicitlySelectedPartners.filter(
-      (partnerId) => partnerId !== 'cloudflare',
+      (partnerId) => !netlifyConflictIds.includes(partnerId),
     )
-    const nextInferredPartners = effectiveInferredPartners.filter(
-      (partnerId) => partnerId !== 'cloudflare',
-    )
-    const removedCloudflare =
-      nextSelectedPartners.length !== explicitlySelectedPartners.length ||
-      nextInferredPartners.length !== effectiveInferredPartners.length
+    const removedConflictingPartner =
+      nextSelectedPartners.length !== explicitlySelectedPartners.length
 
-    if (removedCloudflare) {
-      setExplicitPartnerSelections((current) => ({
-        ...current,
-        cloudflare: false,
-      }))
+    if (removedConflictingPartner) {
+      setExplicitPartnerSelections((current) => {
+        const next = { ...current }
+
+        for (const partnerId of netlifyConflictIds) {
+          next[partnerId] = false
+        }
+
+        return next
+      })
       invalidateResult()
     }
 
     const nextSelectedLibraries = selectedLibraries
     const submittedInput = buildSubmittedInput(
       nextSelectedPartners,
-      nextInferredPartners,
+      [],
       nextSelectedLibraries,
     )
 
-    if (!submittedInput.trim()) {
-      return
+    try {
+      if (!submittedInput.trim()) {
+        return
+      }
+
+      const nextResult =
+        !removedConflictingPartner && result && !isDirtySinceLastResult
+          ? result
+          : await resolveSubmittedInput(submittedInput)
+
+      if (!nextResult?.prompt) {
+        return
+      }
+
+      trackEvent('builder_activated', {
+        ...sessionContextRef.current,
+        action: 'netlify_start',
+        surface: 'result_panel',
+        provider: 'netlify',
+        automatic: false,
+      })
+
+      openedDeployUrl = true
+      navigatePendingDeployWindow(
+        deployWindow,
+        buildStarterPromptDeployUrl('netlify', nextResult.prompt),
+      )
+    } finally {
+      if (!openedDeployUrl) {
+        closePendingDeployWindow(deployWindow)
+      }
     }
-
-    const nextResult =
-      !removedCloudflare && result
-        ? result
-        : await handleNetlifySubmit(submittedInput)
-
-    if (!nextResult?.prompt) {
-      return
-    }
-
-    trackEvent('builder_activated', {
-      ...sessionContextRef.current,
-      action: 'netlify_start',
-      surface: 'result_panel',
-      provider: 'netlify',
-      automatic: false,
-    })
-
-    window.open(
-      `https://app.netlify.com/start?prompt=${encodeURIComponent(nextResult.prompt)}&utm_source=tanstack`,
-      '_blank',
-      'noopener,noreferrer',
-    )
   }, [
     buildSubmittedInput,
-    effectiveInferredPartners,
     explicitlySelectedPartners,
-    handleNetlifySubmit,
     invalidateResult,
+    isDirtySinceLastResult,
+    partnerSuggestions,
     result,
+    resolveSubmittedInput,
     selectedLibraries,
   ])
+
+  const openLovableStart = React.useCallback(async () => {
+    const deployWindow = openPendingDeployWindow('Lovable')
+    let openedDeployUrl = false
+
+    try {
+      await withResolvedPrompt((nextResult) => {
+        trackActivation({
+          action: 'deploy',
+          surface: 'result_panel',
+          provider: 'lovable',
+        })
+
+        openedDeployUrl = true
+        navigatePendingDeployWindow(
+          deployWindow,
+          buildStarterPromptDeployUrl('lovable', nextResult.prompt),
+        )
+      })
+    } finally {
+      if (!openedDeployUrl) {
+        closePendingDeployWindow(deployWindow)
+      }
+    }
+  }, [trackActivation, withResolvedPrompt])
 
   const openCodexStart = React.useCallback(async () => {
     await withResolvedPrompt((nextResult) => {
@@ -1102,15 +875,33 @@ export function useApplicationBuilder({
   }, [trackAction, withResolvedPrompt])
 
   const generatePrompt = React.useCallback(async () => {
-    if ((!analysis || isAnalysisStale) && !showLuckyActions) {
-      await submitAnalysis()
-      return
-    }
-
-    const nextResult = await submit(buildSubmittedInput())
+    const submittedInput = buildSubmittedInput()
+    const nextResult =
+      result && !isDirtySinceLastResult
+        ? result
+        : await resolveSubmittedInput(submittedInput)
 
     if (!nextResult) {
       return
+    }
+
+    trackGeneratedResult(nextResult, submittedInput)
+
+    if (builderIntegration) {
+      const applied = await builderIntegration.applyResult(nextResult, {
+        silent: false,
+      })
+
+      if (applied) {
+        notify(
+          <div>
+            <div className="font-medium">Builder configured</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">
+              The prompt was applied to the builder immediately.
+            </div>
+          </div>,
+        )
+      }
     }
 
     await handleCopy(nextResult.prompt, 'prompt', {
@@ -1118,70 +909,55 @@ export function useApplicationBuilder({
       showPromptNotice: true,
     })
   }, [
-    analysis,
     buildSubmittedInput,
+    builderIntegration,
     handleCopy,
-    isAnalysisStale,
-    showLuckyActions,
-    submit,
-    submitAnalysis,
+    isDirtySinceLastResult,
+    notify,
+    resolveSubmittedInput,
+    result,
+    trackGeneratedResult,
   ])
 
-  const enableLuckyActions = React.useCallback(() => {
-    setShowLuckyActions(true)
-  }, [])
-
   const hasInput = buildSubmittedInput().trim().length > 0
-  const hasFreshAnalysis = !!analysis && !isAnalysisStale
   const hasGeneratedPrompt = !!result?.prompt
-  const isAnalyzing = analysisMutation.isPending
-  const isGeneratingPrompt = promptResolveMutation.isPending
-  const isGeneratingNetlify = netlifyResolveMutation.isPending
-  const isGenerating = isAnalyzing || isGeneratingPrompt || isGeneratingNetlify
+  const isGeneratingPrompt = isRebuildingResult
+  const isGeneratingNetlify = false
+  const isGenerating = isRebuildingResult
 
   const updateInput = React.useCallback(
     (value: string) => {
-      markAnalysisStale()
+      markInputDirty()
       setInput(value)
     },
-    [markAnalysisStale],
+    [markInputDirty],
   )
 
   const updateMigrationRepositoryUrl = React.useCallback(
     (value: string) => {
+      markUserEditedStarter()
       invalidateResult()
       setMigrationRepositoryUrl(value)
     },
-    [invalidateResult],
+    [invalidateResult, markUserEditedStarter],
   )
 
   const submitCurrentInput = React.useCallback(async () => {
-    await submitAnalysis()
-  }, [submitAnalysis])
+    if (!input.trim()) {
+      return
+    }
 
-  const openLogin = React.useCallback(
-    (onSuccess?: () => void) => {
-      openLoginModal({
-        onSuccess: () => {
-          setIsLocked(false)
-          setLockMessage(null)
-          setAnonymousGenerationQuota(null)
-          onSuccess?.()
-        },
-      })
-    },
-    [openLoginModal],
-  )
+    setHasRevealedOptions(true)
+  }, [input])
 
   return {
-    anonymousGenerationQuota,
     copiedKind,
     copyResultValue,
     dismissPromptCopyNotice,
     deployDialogProvider,
-    enableLuckyActions,
     generatePrompt,
     hasGeneratedPrompt,
+    hasRevealedOptions,
     hasInput,
     hasMigrationRepositoryUrlError,
     input,
@@ -1189,10 +965,8 @@ export function useApplicationBuilder({
     isGenerating,
     isGeneratingNetlify,
     isGeneratingPrompt,
-    isLocked,
     isModHeld,
     loadingPhrase,
-    lockMessage,
     migrationRepositoryInputRef,
     migrationRepositoryUrl,
     navigateToResult,
@@ -1200,24 +974,18 @@ export function useApplicationBuilder({
     openCursorStart,
     openCodexStart,
     openDeployDialog,
-    openLogin,
+    openLovableStart,
     openNetlifyStart,
-    partnerSuggestions,
+    partnerSuggestions: visiblePartnerSuggestions,
     promptCopyNotice: showPromptCopyNotice,
     result,
     selectSuggestion,
-    analysis,
-    hasFreshAnalysis,
-    isAnalysisStale,
-    isAnalyzing,
-    showLuckyActions,
     selectedPackageManager,
     selectedLibraries,
     selectedPartners,
     selectedToolchain,
     setIsDeployDialogOpen,
     setIsModHeld,
-    setSessionMode,
     showMigrationRepositoryInput,
     trackActivation,
     submitCurrentInput,

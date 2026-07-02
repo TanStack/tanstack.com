@@ -6,6 +6,9 @@ import {
   cleanupRateLimits,
 } from './auth.server'
 import { initSentryServer } from '~/utils/sentry.server'
+import { validateContentLength } from '~/utils/api-boundary.server'
+
+const MAX_MCP_REQUEST_BYTES = 128 * 1024
 
 /**
  * Create a JSON-RPC error response
@@ -36,6 +39,18 @@ export async function handleMcpRequest(request: Request): Promise<Response> {
   // Initialize Sentry once per request
   initSentryServer()
 
+  const contentLengthError = validateContentLength(
+    request,
+    MAX_MCP_REQUEST_BYTES,
+  )
+  if (contentLengthError) {
+    return jsonRpcError(
+      -32600,
+      contentLengthError.message,
+      contentLengthError.status,
+    )
+  }
+
   // Validate auth
   const authHeader = request.headers.get('Authorization')
 
@@ -56,6 +71,25 @@ export async function handleMcpRequest(request: Request): Promise<Response> {
   const authContext: McpAuthContext = {
     userId: authResult.userId,
     keyId: authResult.keyId,
+  }
+
+  if (request.method === 'GET') {
+    return jsonRpcError(
+      -32000,
+      'SSE streams are not supported by this stateless MCP endpoint. Send JSON-RPC requests with POST.',
+      405,
+      {
+        Allow: 'POST, DELETE',
+        'Cache-Control': 'no-store',
+      },
+    )
+  }
+
+  if (request.method !== 'DELETE') {
+    const contentType = request.headers.get('content-type') || ''
+    if (!contentType.toLowerCase().includes('application/json')) {
+      return jsonRpcError(-32600, 'Expected application/json request body', 415)
+    }
   }
 
   // Check rate limit
@@ -107,11 +141,8 @@ export async function handleMcpRequest(request: Request): Promise<Response> {
       headers,
     })
   } catch (error) {
+    console.error('[MCP] Request failed:', error)
     // Return error response for unhandled errors
-    return jsonRpcError(
-      -32603,
-      error instanceof Error ? error.message : 'Internal error',
-      500,
-    )
+    return jsonRpcError(-32603, 'Internal error', 500)
   }
 }

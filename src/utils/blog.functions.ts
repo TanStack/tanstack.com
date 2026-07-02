@@ -3,13 +3,13 @@ import { setResponseHeaders } from '@tanstack/react-start/server'
 import { notFound, redirect } from '@tanstack/react-router'
 import { allPosts } from 'content-collections'
 import * as v from 'valibot'
+import type { LibraryId } from '~/libraries'
+import { getPostsForLibrary, getPublishedPosts } from '~/utils/blog'
 import {
   formatAuthors,
   formatPublishedDate,
-  getPublishedPosts,
   isPublishedDateReleased,
-} from '~/utils/blog'
-import { renderMarkdownToRsc } from './markdown'
+} from '~/utils/blog-format'
 import { buildRedirectManifest } from './redirects'
 
 export type RecentPost = {
@@ -64,7 +64,7 @@ function handleRedirects(blogPath: string) {
 }
 
 export const fetchBlogPost = createServerFn({ method: 'GET' })
-  .inputValidator(v.optional(v.string()))
+  .validator(v.optional(v.string()))
   .handler(async ({ data }: { data: string | undefined }) => {
     if (!data) {
       throw new Error('Invalid blog path')
@@ -81,28 +81,24 @@ export const fetchBlogPost = createServerFn({ method: 'GET' })
     setResponseHeaders(
       new Headers({
         'Cache-Control': 'public, max-age=0, must-revalidate',
-        'Netlify-CDN-Cache-Control':
-          'public, max-age=300, durable, stale-while-revalidate=300',
+        'Cloudflare-CDN-Cache-Control':
+          'public, max-age=300, stale-while-revalidate=300',
       }),
     )
 
-    const blogContent = `<small>_by ${formatAuthors(post.authors)} on ${formatPublishedDate(
+    const blogContent = `<small><em>by ${formatAuthors(post.authors)} on ${formatPublishedDate(
       post.published || '1970-01-01',
-    )}._</small>
+    )}.</em></small>
 
 ${post.content}`
 
-    const { contentRsc, headings } = await renderMarkdownToRsc(blogContent, {
-      preserveTabPanels: true,
-    })
     const isUnpublished = post.draft || !isPublishedDateReleased(post.published)
 
     return {
       authors: post.authors,
-      contentRsc,
+      content: blogContent,
       description: post.excerpt,
       filePath: `src/blog/${data}.md`,
-      headings,
       headerImage: post.headerImage,
       isUnpublished,
       library: post.library,
@@ -116,8 +112,8 @@ export const fetchRecentPosts = createServerFn({ method: 'GET' }).handler(
     setResponseHeaders(
       new Headers({
         'Cache-Control': 'public, max-age=0, must-revalidate',
-        'Netlify-CDN-Cache-Control':
-          'public, max-age=300, durable, stale-while-revalidate=300',
+        'Cloudflare-CDN-Cache-Control':
+          'public, max-age=300, stale-while-revalidate=300',
       }),
     )
 
@@ -133,3 +129,65 @@ export const fetchRecentPosts = createServerFn({ method: 'GET' }).handler(
       }))
   },
 )
+
+export type RelatedPost = {
+  libraryId: LibraryId
+  post: {
+    slug: string
+    title: string
+    published: string
+    excerpt: string
+  }
+}
+
+/**
+ * Mirrors CategoryArticle's original client-side
+ * `libraries.flatMap((lib) => getPostsForLibrary(lib.id)...).slice(0, 4)`
+ * so the display order/cutoff of related posts is unchanged.
+ */
+export const fetchRelatedPostsForLibraries = createServerFn({ method: 'GET' })
+  .validator(v.array(v.string()))
+  .handler(({ data }): Array<RelatedPost> => {
+    return (data as Array<LibraryId>)
+      .flatMap((libraryId) =>
+        getPostsForLibrary(libraryId).map((post) => ({
+          libraryId,
+          post: {
+            slug: post.slug,
+            title: post.title,
+            published: post.published,
+            excerpt: post.excerpt,
+          },
+        })),
+      )
+      .slice(0, 4)
+  })
+
+export type LibraryBlogPost = {
+  slug: string
+  title: string
+  published: string
+  excerpt: string
+  headerImage: string | undefined
+  authors: Array<string>
+  library: string | undefined
+}
+
+/**
+ * Wider 7-field shape (matches blog.index.tsx's fetchFrontMatters) since
+ * /docs/blog needs authors (author filter), headerImage (cover), and
+ * library (badge suppression) in addition to slug/title/published/excerpt.
+ */
+export const fetchPostsForLibrary = createServerFn({ method: 'GET' })
+  .validator(v.string())
+  .handler(({ data }): Array<LibraryBlogPost> => {
+    return getPostsForLibrary(data as LibraryId).map((post) => ({
+      slug: post.slug,
+      title: post.title,
+      published: post.published,
+      excerpt: post.excerpt,
+      headerImage: post.headerImage,
+      authors: post.authors,
+      library: post.library,
+    }))
+  })

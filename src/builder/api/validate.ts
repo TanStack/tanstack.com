@@ -4,9 +4,9 @@
  * Uses cta-engine to validate project definitions.
  */
 
-import { getAllAddOns, type AddOn } from '@tanstack/create'
 import type { ProjectDefinition } from './compile'
 import { getFramework, DEFAULT_MODE } from './config'
+import { create, type AddOn } from './create-worker'
 
 export interface ValidationError {
   field: string
@@ -30,8 +30,8 @@ export interface ValidateResponse {
 export async function validateHandler(
   definition: ProjectDefinition,
 ): Promise<ValidateResponse> {
-  const framework = getFramework()
-  const allAddOns = getAllAddOns(framework, DEFAULT_MODE)
+  const framework = await getFramework()
+  const allAddOns = create.getAllAddOns(framework, DEFAULT_MODE)
 
   const errors: Array<ValidationError> = []
   const suggestions: Array<ValidationSuggestion> = []

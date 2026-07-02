@@ -14,7 +14,7 @@ export function HomeApplicationStarter() {
       <ApplicationStarter
         context="home"
         enableHotkeys
-        primaryButtonColor="cyan"
+        showPromptPreview={false}
         tone="cyan"
       />
     </Hydrate>

@@ -13,6 +13,7 @@ import {
   ShopPanel,
   ShopPulse,
   ShopQty,
+  ShopSelect,
   ShopSize,
 } from '~/components/shop/ui'
 import { useAddToCart } from '~/hooks/useCart'
@@ -23,6 +24,8 @@ import {
 } from '~/utils/shopify-queries'
 import { formatMoney, shopifyImageUrl } from '~/utils/shopify-format'
 import { seo } from '~/utils/seo'
+
+const MAX_INLINE_OPTION_VALUES = 8
 
 export const Route = createFileRoute('/shop/products/$handle')({
   loader: async ({ params }) => {
@@ -49,11 +52,26 @@ export const Route = createFileRoute('/shop/products/$handle')({
       }),
     }
   },
-  component: ProductPage,
+  component: ShopProductsHandleRoute,
 })
 
-function ProductPage() {
+function ShopProductsHandleRoute() {
   const { product } = Route.useLoaderData()
+  return (
+    <ProductPage
+      product={product}
+      canonicalPath={`/shop/products/${product.handle}`}
+    />
+  )
+}
+
+export function ProductPage({
+  product,
+  canonicalPath,
+}: {
+  product: ProductDetail
+  canonicalPath: string
+}) {
   const variants = product.variants.nodes
 
   const [selected, setSelected] = React.useState<Record<string, string>>(() =>
@@ -174,7 +192,11 @@ function ProductPage() {
         </div>
       </div>
 
-      <ProductJsonLd product={product} selectedVariant={selectedVariant} />
+      <ProductJsonLd
+        product={product}
+        selectedVariant={selectedVariant}
+        canonicalPath={canonicalPath}
+      />
     </div>
   )
 }
@@ -257,6 +279,7 @@ function VariantSelector({
       {options.map((option) => {
         if (option.values.length <= 1) return null
         const isSizeOption = /size/i.test(option.name)
+        const shouldUseSelect = option.values.length > MAX_INLINE_OPTION_VALUES
         return (
           <fieldset key={option.id} className="mt-4.5">
             <legend className="flex items-center justify-between w-full mb-2.5">
@@ -267,44 +290,69 @@ function VariantSelector({
                 </span>
               </ShopLabel>
             </legend>
-            <div
-              className={
-                isSizeOption
-                  ? 'grid grid-cols-[repeat(auto-fill,minmax(54px,1fr))] gap-1.5'
-                  : 'flex flex-wrap gap-2'
-              }
-            >
-              {option.values.map((value) => {
-                const isSelected = selected[option.name] === value
-                const candidate = { ...selected, [option.name]: value }
-                const match = findMatchingVariant(variants, candidate)
-                const isUnavailable = !match?.availableForSale
-                const handleClick = () =>
-                  onChange({ ...selected, [option.name]: value })
-                if (isSizeOption) {
+            {shouldUseSelect ? (
+              <ShopSelect
+                value={selected[option.name]}
+                className="w-full"
+                triggerClassName="w-full justify-between rounded-md px-3.5 py-2.5 text-shop-sm"
+                onChange={(e) =>
+                  onChange({ ...selected, [option.name]: e.target.value })
+                }
+              >
+                {option.values.map((value) => {
+                  const candidate = { ...selected, [option.name]: value }
+                  const match = findMatchingVariant(variants, candidate)
                   return (
-                    <ShopSize
+                    <option
+                      key={value}
+                      value={value}
+                      disabled={!match?.availableForSale}
+                    >
+                      {value}
+                    </option>
+                  )
+                })}
+              </ShopSelect>
+            ) : (
+              <div
+                className={
+                  isSizeOption
+                    ? 'grid grid-cols-[repeat(auto-fill,minmax(54px,1fr))] gap-1.5'
+                    : 'flex flex-wrap gap-2'
+                }
+              >
+                {option.values.map((value) => {
+                  const isSelected = selected[option.name] === value
+                  const candidate = { ...selected, [option.name]: value }
+                  const match = findMatchingVariant(variants, candidate)
+                  const isUnavailable = !match?.availableForSale
+                  const handleClick = () =>
+                    onChange({ ...selected, [option.name]: value })
+                  if (isSizeOption) {
+                    return (
+                      <ShopSize
+                        key={value}
+                        onClick={handleClick}
+                        isSelected={isSelected}
+                        isUnavailable={isUnavailable}
+                      >
+                        {value}
+                      </ShopSize>
+                    )
+                  }
+                  return (
+                    <ShopChip
                       key={value}
                       onClick={handleClick}
                       isSelected={isSelected}
                       isUnavailable={isUnavailable}
                     >
                       {value}
-                    </ShopSize>
+                    </ShopChip>
                   )
-                }
-                return (
-                  <ShopChip
-                    key={value}
-                    onClick={handleClick}
-                    isSelected={isSelected}
-                    isUnavailable={isUnavailable}
-                  >
-                    {value}
-                  </ShopChip>
-                )
-              })}
-            </div>
+                })}
+              </div>
+            )}
           </fieldset>
         )
       })}
@@ -427,9 +475,11 @@ function findMatchingVariant(
 function ProductJsonLd({
   product,
   selectedVariant,
+  canonicalPath,
 }: {
   product: ProductDetail
   selectedVariant: ProductDetailVariant | undefined
+  canonicalPath: string
 }) {
   const offers = product.variants.nodes.map((v) => ({
     '@type': 'Offer',
@@ -440,7 +490,7 @@ function ProductJsonLd({
       ? 'https://schema.org/InStock'
       : 'https://schema.org/OutOfStock',
     itemCondition: 'https://schema.org/NewCondition',
-    url: `https://tanstack.com/shop/products/${product.handle}`,
+    url: `https://tanstack.com${canonicalPath}`,
   }))
 
   const jsonLd = {

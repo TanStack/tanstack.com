@@ -1,5 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
+import * as v from "valibot";
 import type { DeployProvider } from "~/utils/provider-config.server";
+import {
+  jsonResponse,
+  readJsonBody,
+  validateJsonRequest,
+} from "~/utils/api-boundary.server";
+import { parseBuilderRequest } from "~/builder/api/request-schema.server";
 
 interface DeployRequest {
   repoName: string;
@@ -34,6 +41,38 @@ interface DeployError {
     | "INVALID_REQUEST";
 }
 
+const exampleDeployBodySchema = v.object({
+  repoName: v.pipe(v.string(), v.minLength(1), v.maxLength(100)),
+  isPrivate: v.boolean(),
+  sourceRepo: v.pipe(v.string(), v.minLength(3), v.maxLength(200)),
+  branch: v.pipe(v.string(), v.minLength(1), v.maxLength(200)),
+  examplePath: v.pipe(v.string(), v.minLength(1), v.maxLength(260)),
+  provider: v.picklist(["cloudflare", "netlify", "railway"]),
+  libraryName: v.pipe(v.string(), v.minLength(1), v.maxLength(120)),
+  exampleName: v.pipe(v.string(), v.minLength(1), v.maxLength(120)),
+});
+
+function deployErrorResponse(error: DeployError, status: number, headers?: Headers) {
+  return jsonResponse(error, { status, headers });
+}
+
+function isSafeSourceRepo(repo: string) {
+  return /^[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+$/.test(repo);
+}
+
+function isSafeGitRef(ref: string) {
+  return !ref.startsWith("/") && !ref.includes("..") && !ref.includes("\\");
+}
+
+function isSafeExamplePath(path: string) {
+  return (
+    !path.startsWith("/") &&
+    !path.includes("..") &&
+    !path.includes("\\") &&
+    !path.split("/").some((segment) => !segment || segment === ".")
+  );
+}
+
 export const Route = createFileRoute("/api/example/deploy")({
   server: {
     handlers: {
@@ -58,7 +97,12 @@ export const Route = createFileRoute("/api/example/deploy")({
         ]);
         const { getAuthService } = authIndex;
         const { getGitHubAuthState } = authGithub;
-        const { createRepository, pushFiles, validateRepoName } = githubRepo;
+        const {
+          createRepository,
+          pushFiles,
+          validateGitHubFiles,
+          validateRepoName,
+        } = githubRepo;
         const { fetchExampleFiles, filterExcludedFiles } = githubExample;
         const {
           applyProviderConfig,
@@ -73,56 +117,81 @@ export const Route = createFileRoute("/api/example/deploy")({
           return rateLimitedResponse(rateLimit);
         }
 
+        const guardError = validateJsonRequest(request, {
+          maxContentLength: 64 * 1024,
+        });
+        if (guardError) {
+          return deployErrorResponse(
+            {
+              success: false,
+              error: guardError.message,
+              code: "INVALID_REQUEST",
+            },
+            guardError.status,
+            rateLimit.headers,
+          );
+        }
+
         const authService = getAuthService();
         const user = await authService.getCurrentUser(request);
 
         if (!user) {
-          return Response.json(
+          return deployErrorResponse(
             {
               success: false,
               error: "You must be logged in to deploy",
               code: "NOT_AUTHENTICATED",
-            } satisfies DeployError,
-            { status: 401 },
+            },
+            401,
+            rateLimit.headers,
           );
         }
 
         const authState = await getGitHubAuthState(user.userId);
 
         if (!authState.hasGitHubAccount) {
-          return Response.json(
+          return deployErrorResponse(
             {
               success: false,
               error: "No GitHub account linked",
               code: "NO_GITHUB_ACCOUNT",
-            } satisfies DeployError,
-            { status: 403 },
+            },
+            403,
+            rateLimit.headers,
           );
         }
 
         if (!authState.hasRepoScope || !authState.accessToken) {
-          return Response.json(
+          return deployErrorResponse(
             {
               success: false,
               error:
                 "Missing public_repo scope. Please re-authenticate with GitHub.",
               code: "MISSING_REPO_SCOPE",
-            } satisfies DeployError,
-            { status: 403 },
+            },
+            403,
+            rateLimit.headers,
           );
         }
 
         let body: DeployRequest;
         try {
-          body = await request.json();
+          const bodyResult = await readJsonBody(request, {
+            maxContentLength: 64 * 1024,
+          });
+          if (!bodyResult.success) {
+            throw new Error(bodyResult.error.message);
+          }
+          body = parseBuilderRequest(exampleDeployBodySchema, bodyResult.body);
         } catch {
-          return Response.json(
+          return deployErrorResponse(
             {
               success: false,
               error: "Invalid request body",
               code: "INVALID_REQUEST",
-            } satisfies DeployError,
-            { status: 400 },
+            },
+            400,
+            rateLimit.headers,
           );
         }
 
@@ -137,16 +206,33 @@ export const Route = createFileRoute("/api/example/deploy")({
           exampleName,
         } = body;
 
+        if (
+          !isSafeSourceRepo(sourceRepo) ||
+          !isSafeGitRef(branch) ||
+          !isSafeExamplePath(examplePath)
+        ) {
+          return deployErrorResponse(
+            {
+              success: false,
+              error: "Invalid source repository, branch, or example path",
+              code: "INVALID_REQUEST",
+            },
+            400,
+            rateLimit.headers,
+          );
+        }
+
         // Validate repo name
         const validation = validateRepoName(repoName);
         if (!validation.valid) {
-          return Response.json(
+          return deployErrorResponse(
             {
               success: false,
               error: validation.error ?? "Invalid repository name",
               code: "INVALID_REPO_NAME",
-            } satisfies DeployError,
-            { status: 400 },
+            },
+            400,
+            rateLimit.headers,
           );
         }
 
@@ -165,13 +251,14 @@ export const Route = createFileRoute("/api/example/deploy")({
 
         if (!fetchResult.success) {
           console.error("[ExampleDeploy] Fetch failed:", fetchResult.error);
-          return Response.json(
+          return deployErrorResponse(
             {
               success: false,
               error: `Failed to fetch example files: ${fetchResult.error}`,
               code: "FETCH_FAILED",
-            } satisfies DeployError,
-            { status: 500 },
+            },
+            500,
+            rateLimit.headers,
           );
         }
 
@@ -181,6 +268,19 @@ export const Route = createFileRoute("/api/example/deploy")({
         // Apply provider-specific configuration (only modifies Start apps)
         console.log("[ExampleDeploy] Applying provider config:", provider);
         files = applyProviderConfig(files, provider, repoName);
+
+        const fileValidation = validateGitHubFiles(files);
+        if (!fileValidation.valid) {
+          return deployErrorResponse(
+            {
+              success: false,
+              error: fileValidation.error,
+              code: "INVALID_REQUEST",
+            },
+            400,
+            rateLimit.headers,
+          );
+        }
 
         // Create the repository
         const description = generateExampleDescription(
@@ -209,13 +309,14 @@ export const Route = createFileRoute("/api/example/deploy")({
             createResult.code === "NAME_TAKEN"
               ? "REPO_NAME_TAKEN"
               : "REPO_CREATION_FAILED";
-          return Response.json(
+          return deployErrorResponse(
             {
               success: false,
               error: createResult.error,
               code,
-            } satisfies DeployError,
-            { status: code === "REPO_NAME_TAKEN" ? 409 : 500 },
+            },
+            code === "REPO_NAME_TAKEN" ? 409 : 500,
+            rateLimit.headers,
           );
         }
         console.log(
@@ -233,24 +334,28 @@ export const Route = createFileRoute("/api/example/deploy")({
 
         if (!pushResult.success) {
           console.error("[ExampleDeploy] Push failed:", pushResult.error);
-          return Response.json(
+          return deployErrorResponse(
             {
               success: false,
               error: `Repository created but failed to push files: ${pushResult.error}`,
               code: "PUSH_FAILED",
-            } satisfies DeployError,
-            { status: 500 },
+            },
+            500,
+            rateLimit.headers,
           );
         }
 
         console.log("[ExampleDeploy] Success!");
 
-        return Response.json({
-          success: true,
-          repoUrl: createResult.repoUrl,
-          owner: createResult.owner,
-          repoName: createResult.name,
-        } satisfies DeployResponse);
+        return jsonResponse(
+          {
+            success: true,
+            repoUrl: createResult.repoUrl,
+            owner: createResult.owner,
+            repoName: createResult.name,
+          } satisfies DeployResponse,
+          { headers: rateLimit.headers },
+        );
       },
     },
   },

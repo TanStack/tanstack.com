@@ -5,22 +5,11 @@
  */
 
 import { db } from '~/db/client'
-import {
-  githubStatsCache,
-  npmPackages,
-  npmOrgStatsCache,
-  npmLibraryStatsCache,
-  npmDownloadChunks,
-  ossStatsCache,
-} from '~/db/schema'
+import { githubStatsCache, npmDownloadChunks, ossStatsCache } from '~/db/schema'
 import type { OssStatsCache } from '~/db/schema'
 import { desc, eq, gte, inArray, and, lte } from 'drizzle-orm'
-import type {
-  GitHubStats,
-  NpmPackageStats,
-  NpmStats,
-  OSSStatsWithDelta,
-} from './stats.types'
+import type { GitHubStats, NpmStats, OSSStatsWithDelta } from './stats.types'
+import type { HomepageNpmStatsSummary } from './homepage-npm-stats.server'
 
 type OssStatsScopeType = 'org' | 'library'
 
@@ -112,44 +101,6 @@ function mapOssStatsRow(row: OssStatsCache): OSSStatsWithDelta {
   }
 }
 
-/**
- * Batch fetch cached NPM package stats for multiple packages
- * Much more efficient than calling getCachedNpmPackageStats individually
- * Returns a map of packageName -> NpmPackageStats
- */
-export async function getBatchCachedNpmPackageStats(
-  packageNames: string[],
-): Promise<Map<string, NpmPackageStats>> {
-  const results = new Map<string, NpmPackageStats>()
-
-  if (packageNames.length === 0) {
-    return results
-  }
-
-  try {
-    // Single query to fetch all packages at once
-    const cached = await db.query.npmPackages.findMany({
-      where: inArray(npmPackages.packageName, packageNames),
-    })
-
-    // Process all cached results
-    for (const pkg of cached) {
-      if (pkg.downloads !== null) {
-        results.set(pkg.packageName, {
-          downloads: pkg.downloads,
-          ratePerDay: pkg.ratePerDay ?? undefined,
-          updatedAt: pkg.updatedAt.getTime(),
-        })
-      }
-    }
-
-    return results
-  } catch (error) {
-    console.error('[NPM Stats Cache] Error reading batch cache:', error)
-    return results
-  }
-}
-
 export async function getCachedOssStats(
   scopeType: OssStatsScopeType,
   scopeKey: string,
@@ -224,69 +175,87 @@ export async function upsertOssStatsCacheRow({
     })
 }
 
+function getExistingOssNpmStats(row: OssStatsCache | undefined) {
+  return {
+    npm: {
+      totalDownloads: row?.npmTotalDownloads ?? 0,
+      ratePerDay: row?.npmRatePerDay ?? undefined,
+      updatedAt: row?.npmUpdatedAt?.getTime(),
+    } satisfies NpmStats,
+    packageCount: row?.npmPackageCount ?? 0,
+    updatedAt: row?.npmUpdatedAt,
+  }
+}
+
+function getOrgNpmStatsFromSummary(
+  summary: HomepageNpmStatsSummary | null,
+  existing: OssStatsCache | undefined,
+) {
+  if (!summary) {
+    return getExistingOssNpmStats(existing)
+  }
+
+  return {
+    npm: {
+      totalDownloads: summary.totalDownloads,
+      ratePerDay: summary.weeklyRatePerDay,
+      updatedAt: summary.updatedAt,
+    },
+    packageCount: summary.totalPackageCount,
+    updatedAt: new Date(summary.updatedAt),
+  }
+}
+
+function getLibraryNpmStatsFromSummary({
+  existing,
+  libraryId,
+  summary,
+}: {
+  existing: OssStatsCache | undefined
+  libraryId: string
+  summary: HomepageNpmStatsSummary | null
+}) {
+  const librarySummary = summary?.librarySummaries.find(
+    (item) => item.libraryId === libraryId,
+  )
+
+  if (!librarySummary) {
+    return getExistingOssNpmStats(existing)
+  }
+
+  return {
+    npm: {
+      totalDownloads: librarySummary.totalDownloads,
+      updatedAt: librarySummary.updatedAt,
+    },
+    packageCount: librarySummary.packageCount,
+    updatedAt: new Date(librarySummary.updatedAt),
+  }
+}
+
+function getOssScopeCacheKey(scopeType: string, scopeKey: string) {
+  return `${scopeType}:${scopeKey}`
+}
+
 export async function rebuildOssStatsCache(org: string = 'tanstack') {
   const now = new Date()
   const { libraries } = await import('~/libraries')
+  const { getHomepageNpmStatsSummary } =
+    await import('./homepage-npm-stats.server')
 
-  const [packages, githubCacheRows] = await Promise.all([
-    db.query.npmPackages.findMany(),
+  const [githubCacheRows, ossCacheRows, npmSummary] = await Promise.all([
     db.query.githubStatsCache.findMany(),
+    db.query.ossStatsCache.findMany(),
+    getHomepageNpmStatsSummary(),
   ])
 
-  const githubCacheMap = new Map(
-    githubCacheRows.map((row) => [row.cacheKey, row] as const),
+  const githubCacheEntries: Array<[string, (typeof githubCacheRows)[number]]> =
+    githubCacheRows.map((row) => [row.cacheKey, row])
+  const ossCacheEntries: Array<[string, OssStatsCache]> = ossCacheRows.map(
+    (row) => [getOssScopeCacheKey(row.scopeType, row.scopeKey), row],
   )
-
-  const orgNpmStats: NpmStats = {
-    totalDownloads: 0,
-  }
-  let orgPackageCount = 0
-  let orgLatestUpdate: Date | undefined
-
-  const libraryNpmStatsMap = new Map<
-    string,
-    { npm: NpmStats; packageCount: number; updatedAt?: Date }
-  >()
-
-  for (const pkg of packages) {
-    if (pkg.downloads === null) {
-      continue
-    }
-
-    orgNpmStats.totalDownloads += pkg.downloads
-    orgNpmStats.ratePerDay =
-      (orgNpmStats.ratePerDay ?? 0) + (pkg.ratePerDay ?? 0)
-    orgPackageCount += 1
-
-    if (!orgLatestUpdate || pkg.updatedAt > orgLatestUpdate) {
-      orgLatestUpdate = pkg.updatedAt
-    }
-
-    if (!pkg.libraryId) {
-      continue
-    }
-
-    const existing = libraryNpmStatsMap.get(pkg.libraryId) ?? {
-      npm: { totalDownloads: 0 },
-      packageCount: 0,
-      updatedAt: undefined,
-    }
-
-    existing.npm.totalDownloads += pkg.downloads
-    existing.npm.ratePerDay =
-      (existing.npm.ratePerDay ?? 0) + (pkg.ratePerDay ?? 0)
-    existing.packageCount += 1
-
-    if (!existing.updatedAt || pkg.updatedAt > existing.updatedAt) {
-      existing.updatedAt = pkg.updatedAt
-    }
-
-    libraryNpmStatsMap.set(pkg.libraryId, existing)
-  }
-
-  if (orgLatestUpdate) {
-    orgNpmStats.updatedAt = orgLatestUpdate.getTime()
-  }
+  const githubCacheMap = new Map(githubCacheEntries)
+  const ossCacheMap = new Map(ossCacheEntries)
 
   const orgGithubRow = githubCacheMap.get(`org:${org}`)
   const orgGithubStats = getGitHubStats(orgGithubRow?.stats)
@@ -296,25 +265,24 @@ export async function rebuildOssStatsCache(org: string = 'tanstack') {
   const orgTimeDelta = orgGithubRow?.updatedAt
     ? orgGithubRow.updatedAt.getTime() - orgGithubRow.createdAt.getTime()
     : undefined
+  const orgNpmStats = getOrgNpmStatsFromSummary(
+    npmSummary,
+    ossCacheMap.get(getOssScopeCacheKey('org', org)),
+  )
 
   await upsertOssStatsCacheRow({
     github: orgGithubStats,
     previousGithub: orgPreviousGithubStats,
     githubUpdatedAt: orgGithubRow?.updatedAt ?? now,
-    npm: orgNpmStats,
-    npmPackageCount: orgPackageCount,
-    npmUpdatedAt: orgLatestUpdate ?? now,
+    npm: orgNpmStats.npm,
+    npmPackageCount: orgNpmStats.packageCount,
+    npmUpdatedAt: orgNpmStats.updatedAt ?? now,
     scopeKey: org,
     scopeType: 'org',
     timeDelta: orgTimeDelta,
   })
 
   for (const library of libraries) {
-    const npmAggregate = libraryNpmStatsMap.get(library.id) ?? {
-      npm: { totalDownloads: 0 },
-      packageCount: 0,
-      updatedAt: undefined,
-    }
     const githubRow = githubCacheMap.get(library.repo)
     const githubStats = getGitHubStats(githubRow?.stats)
     const previousGithubStats = githubRow?.previousStats
@@ -323,762 +291,23 @@ export async function rebuildOssStatsCache(org: string = 'tanstack') {
     const timeDelta = githubRow?.updatedAt
       ? githubRow.updatedAt.getTime() - githubRow.createdAt.getTime()
       : undefined
-
-    if (npmAggregate.updatedAt) {
-      npmAggregate.npm.updatedAt = npmAggregate.updatedAt.getTime()
-    }
+    const libraryNpmStats = getLibraryNpmStatsFromSummary({
+      existing: ossCacheMap.get(getOssScopeCacheKey('library', library.id)),
+      libraryId: library.id,
+      summary: npmSummary,
+    })
 
     await upsertOssStatsCacheRow({
       github: githubStats,
       previousGithub: previousGithubStats,
       githubUpdatedAt: githubRow?.updatedAt ?? now,
-      npm: npmAggregate.npm,
-      npmPackageCount: npmAggregate.packageCount,
-      npmUpdatedAt: npmAggregate.updatedAt ?? now,
+      npm: libraryNpmStats.npm,
+      npmPackageCount: libraryNpmStats.packageCount,
+      npmUpdatedAt: libraryNpmStats.updatedAt ?? now,
       scopeKey: library.id,
       scopeType: 'library',
       timeDelta,
     })
-  }
-}
-
-/**
- * Store NPM package stats in cache with calculated growth rate
- * Also incrementally updates library and org-level caches
- */
-export async function setCachedNpmPackageStats(
-  packageName: string,
-  downloads: number,
-  ttlHours: number = 24,
-  ratePerDay?: number,
-): Promise<void> {
-  try {
-    const expiresAt = new Date()
-    expiresAt.setHours(expiresAt.getHours() + ttlHours)
-    const now = new Date()
-
-    const existing = await db.query.npmPackages.findFirst({
-      where: eq(npmPackages.packageName, packageName),
-    })
-
-    const oldDownloads = existing?.downloads ?? 0
-    const downloadDelta = downloads - oldDownloads
-    // Get libraryId from existing record, or we'll need to look it up after update
-    const libraryId = existing?.libraryId
-
-    if (existing) {
-      // Update stats with new data
-      await db
-        .update(npmPackages)
-        .set({
-          downloads, // New download count
-          ratePerDay: ratePerDay ?? null, // Store calculated growth rate
-          statsExpiresAt: expiresAt,
-          updatedAt: now,
-        })
-        .where(eq(npmPackages.packageName, packageName))
-    } else {
-      try {
-        // First time inserting package
-        await db.insert(npmPackages).values({
-          packageName,
-          downloads,
-          ratePerDay: ratePerDay ?? null,
-          statsExpiresAt: expiresAt,
-        })
-      } catch (insertError: any) {
-        // Handle race condition: if another request inserted the same package concurrently,
-        // try updating instead
-        if (insertError?.code === '23505') {
-          // Unique constraint violation - fetch existing and update properly
-          const raceExisting = await db.query.npmPackages.findFirst({
-            where: eq(npmPackages.packageName, packageName),
-          })
-          if (raceExisting) {
-            await db
-              .update(npmPackages)
-              .set({
-                downloads,
-                ratePerDay: ratePerDay ?? null,
-                statsExpiresAt: expiresAt,
-                updatedAt: now,
-              })
-              .where(eq(npmPackages.packageName, packageName))
-          }
-        } else {
-          throw insertError
-        }
-      }
-    }
-
-    // Get libraryId after update (in case it was set during package discovery)
-    const updated = await db.query.npmPackages.findFirst({
-      where: eq(npmPackages.packageName, packageName),
-    })
-    const finalLibraryId = updated?.libraryId ?? libraryId
-
-    // Incrementally update library cache if libraryId exists
-    if (finalLibraryId && downloadDelta !== 0) {
-      await updateLibraryStatsCache(finalLibraryId, downloadDelta)
-    }
-
-    // Incrementally update org cache (always update for @tanstack packages)
-    if (packageName.startsWith('@tanstack/') && downloadDelta !== 0) {
-      await updateOrgStatsCache(
-        'tanstack',
-        packageName,
-        oldDownloads,
-        downloads,
-      )
-    }
-  } catch (error) {
-    console.error('[NPM Stats Cache] Error writing cache:', error)
-    // Don't throw - cache failures shouldn't break the request
-  }
-}
-
-/**
- * Incrementally update library stats cache
- */
-async function updateLibraryStatsCache(
-  libraryId: string,
-  downloadDelta: number,
-): Promise<void> {
-  try {
-    const existing = await db.query.npmLibraryStatsCache.findFirst({
-      where: eq(npmLibraryStatsCache.libraryId, libraryId),
-    })
-
-    if (existing) {
-      await db
-        .update(npmLibraryStatsCache)
-        .set({
-          previousTotalDownloads: existing.totalDownloads,
-          totalDownloads: existing.totalDownloads + downloadDelta,
-          updatedAt: new Date(),
-        })
-        .where(eq(npmLibraryStatsCache.libraryId, libraryId))
-    } else {
-      // Get package count for this library
-      const packages = await db.query.npmPackages.findMany({
-        where: eq(npmPackages.libraryId, libraryId),
-      })
-      const totalDownloads = packages.reduce(
-        (sum, pkg) => sum + (pkg.downloads ?? 0),
-        0,
-      )
-
-      await db.insert(npmLibraryStatsCache).values({
-        libraryId,
-        totalDownloads,
-        packageCount: packages.length,
-        previousTotalDownloads: null,
-      })
-    }
-  } catch (error) {
-    console.error(
-      `[Library Stats Cache] Error updating cache for ${libraryId}:`,
-      error,
-    )
-  }
-}
-
-/**
- * Incrementally update org stats cache
- */
-async function updateOrgStatsCache(
-  orgName: string,
-  packageName: string,
-  oldDownloads: number,
-  newDownloads: number,
-): Promise<void> {
-  try {
-    const existing = await db.query.npmOrgStatsCache.findFirst({
-      where: eq(npmOrgStatsCache.orgName, orgName),
-    })
-
-    if (existing) {
-      const packageStats = (existing.packageStats as Record<string, any>) || {}
-      const downloadDelta = newDownloads - oldDownloads
-
-      // Update package stats
-      packageStats[packageName] = {
-        downloads: newDownloads,
-        previousDownloads: oldDownloads,
-      }
-
-      await db
-        .update(npmOrgStatsCache)
-        .set({
-          totalDownloads: existing.totalDownloads + downloadDelta,
-          packageStats,
-          updatedAt: new Date(),
-        })
-        .where(eq(npmOrgStatsCache.orgName, orgName))
-    } else {
-      // If org cache doesn't exist, we'll need to compute it from all packages
-      // This should be rare - scheduled tasks should create it
-      console.warn(
-        `[Org Stats Cache] Cache doesn't exist for ${orgName}, skipping incremental update`,
-      )
-    }
-  } catch (error) {
-    console.error(
-      `[Org Stats Cache] Error updating cache for ${orgName}:`,
-      error,
-    )
-  }
-}
-
-/**
- * Get cached NPM org stats if available and not expired
- */
-export async function getCachedNpmOrgStats(
-  orgName: string,
-): Promise<NpmStats | null> {
-  try {
-    const cached = await db.query.npmOrgStatsCache.findFirst({
-      where: eq(npmOrgStatsCache.orgName, orgName),
-    })
-
-    if (cached && cached.expiresAt > new Date()) {
-      console.log(`[NPM Org Stats Cache] Cache hit for org ${orgName}`)
-
-      // Calculate org-level ratePerDay from packages in the database
-      const { like, or } = await import('drizzle-orm')
-      const { libraries } = await import('~/libraries')
-
-      const legacyPackages: string[] = []
-      for (const library of libraries) {
-        if (
-          'legacyPackages' in library &&
-          Array.isArray(library.legacyPackages)
-        ) {
-          legacyPackages.push(...library.legacyPackages)
-        }
-      }
-
-      let packages = await db.query.npmPackages.findMany({
-        where: like(npmPackages.packageName, `@${orgName}/%`),
-      })
-
-      if (legacyPackages.length > 0) {
-        const legacyResults = await db.query.npmPackages.findMany({
-          where: or(
-            ...legacyPackages.map((pkg) => eq(npmPackages.packageName, pkg)),
-          ),
-        })
-        packages = [...packages, ...legacyResults]
-      }
-
-      const totalRatePerDay = packages.reduce(
-        (sum, pkg) => sum + (pkg.ratePerDay ?? 0),
-        0,
-      )
-
-      return {
-        totalDownloads: cached.totalDownloads,
-        packageStats: cached.packageStats as Record<string, NpmPackageStats>,
-        ratePerDay: totalRatePerDay > 0 ? totalRatePerDay : undefined,
-        updatedAt: cached.updatedAt.getTime(),
-      }
-    }
-
-    return null
-  } catch (error) {
-    console.error('[NPM Org Stats Cache] Error reading cache:', error)
-    return null
-  }
-}
-
-/**
- * Get expired NPM org stats cache if available (for fallback when cache is expired)
- */
-export async function getExpiredNpmOrgStats(
-  orgName: string,
-): Promise<NpmStats | null> {
-  try {
-    const cached = await db.query.npmOrgStatsCache.findFirst({
-      where: eq(npmOrgStatsCache.orgName, orgName),
-    })
-
-    if (cached) {
-      console.log(
-        `[NPM Org Stats Cache] Using expired cache for org ${orgName}`,
-      )
-
-      // Calculate org-level ratePerDay from packages in the database
-      const { like, or } = await import('drizzle-orm')
-      const { libraries } = await import('~/libraries')
-
-      const legacyPackages: string[] = []
-      for (const library of libraries) {
-        if (
-          'legacyPackages' in library &&
-          Array.isArray(library.legacyPackages)
-        ) {
-          legacyPackages.push(...library.legacyPackages)
-        }
-      }
-
-      let packages = await db.query.npmPackages.findMany({
-        where: like(npmPackages.packageName, `@${orgName}/%`),
-      })
-
-      if (legacyPackages.length > 0) {
-        const legacyResults = await db.query.npmPackages.findMany({
-          where: or(
-            ...legacyPackages.map((pkg) => eq(npmPackages.packageName, pkg)),
-          ),
-        })
-        packages = [...packages, ...legacyResults]
-      }
-
-      const totalRatePerDay = packages.reduce(
-        (sum, pkg) => sum + (pkg.ratePerDay ?? 0),
-        0,
-      )
-
-      return {
-        totalDownloads: cached.totalDownloads,
-        packageStats: cached.packageStats as Record<string, NpmPackageStats>,
-        ratePerDay: totalRatePerDay > 0 ? totalRatePerDay : undefined,
-        updatedAt: cached.updatedAt.getTime(),
-      }
-    }
-
-    return null
-  } catch (error) {
-    console.error('[NPM Org Stats Cache] Error reading expired cache:', error)
-    return null
-  }
-}
-
-/**
- * Store NPM org stats in cache, preserving previous stats for rate calculation
- */
-export async function setCachedNpmOrgStats(
-  orgName: string,
-  stats: NpmStats,
-  ttlHours: number = 24,
-): Promise<void> {
-  try {
-    const expiresAt = new Date()
-    expiresAt.setHours(expiresAt.getHours() + ttlHours)
-    const now = new Date()
-
-    const existing = await db.query.npmOrgStatsCache.findFirst({
-      where: eq(npmOrgStatsCache.orgName, orgName),
-    })
-
-    if (existing) {
-      // Update stats
-      await db
-        .update(npmOrgStatsCache)
-        .set({
-          totalDownloads: stats.totalDownloads,
-          packageStats: stats.packageStats,
-          expiresAt,
-          updatedAt: now,
-        })
-        .where(eq(npmOrgStatsCache.orgName, orgName))
-      console.log(
-        `[NPM Org Stats Cache] Updated cache for org ${orgName} (expires at ${expiresAt.toISOString()})`,
-      )
-    } else {
-      // First time
-      await db.insert(npmOrgStatsCache).values({
-        orgName,
-        totalDownloads: stats.totalDownloads,
-        packageStats: stats.packageStats,
-        expiresAt,
-      })
-      console.log(
-        `[NPM Org Stats Cache] Created cache for org ${orgName} (expires at ${expiresAt.toISOString()})`,
-      )
-    }
-  } catch (error) {
-    console.error('[NPM Org Stats Cache] Error writing cache:', error)
-    // Don't throw - cache failures shouldn't break the request
-  }
-}
-
-/**
- * Get cached library stats
- */
-export async function getCachedLibraryStats(libraryId: string): Promise<{
-  libraryId: string
-  totalDownloads: number
-  packageCount: number
-  previousTotalDownloads: number | null
-} | null> {
-  try {
-    const cached = await db.query.npmLibraryStatsCache.findFirst({
-      where: eq(npmLibraryStatsCache.libraryId, libraryId),
-    })
-
-    if (cached) {
-      return {
-        libraryId: cached.libraryId,
-        totalDownloads: cached.totalDownloads,
-        packageCount: cached.packageCount,
-        previousTotalDownloads: cached.previousTotalDownloads,
-      }
-    }
-
-    return null
-  } catch (error) {
-    console.error(
-      `[Library Stats Cache] Error reading cache for ${libraryId}:`,
-      error,
-    )
-    return null
-  }
-}
-
-/**
- * Get all cached library stats
- */
-export async function getAllCachedLibraryStats(): Promise<
-  Array<{
-    libraryId: string
-    totalDownloads: number
-    packageCount: number
-    previousTotalDownloads: number | null
-  }>
-> {
-  try {
-    const allCached = await db.query.npmLibraryStatsCache.findMany({
-      orderBy: [npmLibraryStatsCache.libraryId],
-    })
-
-    return allCached.map((cached) => ({
-      libraryId: cached.libraryId,
-      totalDownloads: cached.totalDownloads,
-      packageCount: cached.packageCount,
-      previousTotalDownloads: cached.previousTotalDownloads,
-    }))
-  } catch (error) {
-    console.error('[Library Stats Cache] Error reading all cache:', error)
-    return []
-  }
-}
-
-/**
- * Get all registered packages for a specific library or all packages
- */
-export async function getRegisteredPackages(
-  libraryId?: string,
-): Promise<string[]> {
-  try {
-    const packages = libraryId
-      ? await db.query.npmPackages.findMany({
-          where: eq(npmPackages.libraryId, libraryId),
-        })
-      : await db.query.npmPackages.findMany()
-
-    return packages.map((p) => p.packageName)
-  } catch (error) {
-    console.error(
-      '[Package Registry] Error fetching packages:',
-      error instanceof Error ? error.message : String(error),
-    )
-    return []
-  }
-}
-
-/**
- * Discover and register all packages for an org
- * This fetches all packages from npm registry and registers them in the database
- */
-export async function discoverAndRegisterPackages(org: string): Promise<void> {
-  try {
-    // Fetch all packages in the org
-    const response = await fetch(
-      `https://registry.npmjs.org/-/org/${org}/package`,
-      {
-        headers: {
-          Accept: 'application/json',
-          'User-Agent': 'TanStack-Stats',
-        },
-      },
-    )
-
-    if (!response.ok) {
-      throw new Error(
-        `NPM Registry API error: ${response.status} ${response.statusText}`,
-      )
-    }
-
-    const data = await response.json()
-    let packageNames = Object.keys(data)
-
-    // Import libraries to map packages to library IDs
-    const { libraries } = await import('~/libraries')
-
-    // Add legacy (non-scoped) packages from library definitions
-    // The org endpoint only returns @tanstack/* scoped packages
-    const legacyPackages: string[] = []
-    for (const library of libraries) {
-      if (
-        'legacyPackages' in library &&
-        Array.isArray(library.legacyPackages)
-      ) {
-        legacyPackages.push(...library.legacyPackages)
-      }
-    }
-
-    if (legacyPackages.length > 0) {
-      packageNames = [...packageNames, ...legacyPackages]
-    }
-
-    // For each package, check if it exists and register/update metadata
-    for (const packageName of packageNames) {
-      try {
-        // Check if package already exists
-        const existing = await db.query.npmPackages.findFirst({
-          where: eq(npmPackages.packageName, packageName),
-        })
-
-        // Try to determine libraryId from package name
-        let libraryId: string | null = null
-        let isLegacy = false
-
-        // Check for legacy packages first (exact match)
-        for (const library of libraries) {
-          if (
-            'legacyPackages' in library &&
-            Array.isArray(library.legacyPackages) &&
-            library.legacyPackages.includes(packageName)
-          ) {
-            libraryId = library.id
-            isLegacy = true
-            break
-          }
-        }
-
-        // If not a legacy package, try to map based on package name patterns
-        if (!libraryId) {
-          for (const library of libraries) {
-            const libraryName = library.id
-
-            // Special handling for "react-charts" library id
-            if (libraryName === 'react-charts') {
-              if (
-                packageName === `@${org}/react-charts` ||
-                packageName.includes('/react-charts')
-              ) {
-                libraryId = libraryName
-                break
-              }
-            }
-
-            // Special handling for "create-tsrouter-app" library id
-            if (libraryName === 'create-tsrouter-app') {
-              if (
-                packageName === `@${org}/create-router` ||
-                packageName === `@${org}/create-start` ||
-                packageName.includes('/create-router') ||
-                packageName.includes('/create-start')
-              ) {
-                libraryId = libraryName
-                break
-              }
-            }
-
-            // Check various patterns:
-            // 1. Exact match: @tanstack/query
-            // 2. Prefixed: @tanstack/react-query, @tanstack/vue-query
-            // 3. Suffixed: @tanstack/query-core, @tanstack/query-devtools
-            if (
-              packageName === `@${org}/${libraryName}` ||
-              packageName.includes(`/${libraryName}-`) ||
-              packageName.includes(`-${libraryName}-`) ||
-              packageName.includes(`-${libraryName}`) ||
-              new RegExp(`^@${org}/[a-z]+-${libraryName}$`, 'i').test(
-                packageName,
-              )
-            ) {
-              libraryId = libraryName
-              break
-            }
-          }
-        }
-
-        const now = new Date()
-
-        if (existing) {
-          // Update metadata if not checked recently (within last 7 days)
-          const shouldUpdate =
-            !existing.metadataCheckedAt ||
-            now.getTime() - existing.metadataCheckedAt.getTime() >
-              7 * 24 * 60 * 60 * 1000
-
-          if (shouldUpdate || existing.libraryId !== libraryId) {
-            await db
-              .update(npmPackages)
-              .set({
-                libraryId,
-                isLegacy,
-                metadataCheckedAt: now,
-                updatedAt: now,
-              })
-              .where(eq(npmPackages.packageName, packageName))
-          }
-        } else {
-          // Register new package
-          await db.insert(npmPackages).values({
-            packageName,
-            libraryId,
-            isLegacy,
-            metadataCheckedAt: now,
-            downloads: null,
-            statsExpiresAt: null,
-          })
-        }
-      } catch (error) {
-        console.error(
-          `[Package Discovery] Error processing ${packageName}:`,
-          error instanceof Error ? error.message : String(error),
-        )
-        // Continue with next package
-      }
-    }
-  } catch (error) {
-    console.error(
-      '[Package Discovery] Error discovering packages:',
-      error instanceof Error ? error.message : String(error),
-    )
-    throw error
-  }
-}
-
-/**
- * Compute org stats purely from cached package data in the database
- * This is a fast recalculation that doesn't fetch from NPM API
- */
-export async function computeOrgStatsFromCache(org: string): Promise<NpmStats> {
-  try {
-    const { like, or, eq } = await import('drizzle-orm')
-
-    // Get legacy package names
-    const { libraries } = await import('~/libraries')
-    const legacyPackages: string[] = []
-    for (const library of libraries) {
-      if (
-        'legacyPackages' in library &&
-        Array.isArray(library.legacyPackages)
-      ) {
-        legacyPackages.push(...library.legacyPackages)
-      }
-    }
-
-    // Get all packages for this org (e.g., all @tanstack/* packages + legacy packages)
-    let packages = await db.query.npmPackages.findMany({
-      where: like(npmPackages.packageName, `@${org}/%`),
-    })
-
-    // Add legacy packages if they exist in the database
-    if (legacyPackages.length > 0) {
-      const legacyResults = await db.query.npmPackages.findMany({
-        where: or(
-          ...legacyPackages.map((pkg) => eq(npmPackages.packageName, pkg)),
-        ),
-      })
-      packages = [...packages, ...legacyResults]
-    }
-
-    const packageStats: Record<string, NpmPackageStats> = {}
-    let totalDownloads = 0
-    let totalRatePerDay = 0
-
-    for (const pkg of packages) {
-      if (pkg.downloads !== null) {
-        const stats: NpmPackageStats = {
-          downloads: pkg.downloads,
-        }
-
-        if (pkg.ratePerDay !== null) {
-          stats.ratePerDay = pkg.ratePerDay
-          totalRatePerDay += pkg.ratePerDay
-        }
-
-        packageStats[pkg.packageName] = stats
-        totalDownloads += pkg.downloads
-      }
-    }
-
-    console.log(
-      `[Org Stats Recalc] Computed from ${
-        packages.length
-      } cached packages: ${totalDownloads.toLocaleString()} total downloads, ${Math.round(
-        totalRatePerDay,
-      ).toLocaleString()}/day`,
-    )
-
-    return {
-      totalDownloads,
-      packageStats,
-      ratePerDay: totalRatePerDay > 0 ? totalRatePerDay : undefined,
-    }
-  } catch (error) {
-    console.error(
-      `[Org Stats Recalc] Error computing stats for org ${org}:`,
-      error instanceof Error ? error.message : String(error),
-    )
-    return {
-      totalDownloads: 0,
-      packageStats: {},
-    }
-  }
-}
-
-/**
- * Rebuild all library caches from cached package data
- * This recalculates library stats from the current package data in the database
- */
-export async function rebuildLibraryCaches(): Promise<void> {
-  try {
-    const { libraries } = await import('~/libraries')
-
-    for (const library of libraries) {
-      const packages = await db.query.npmPackages.findMany({
-        where: eq(npmPackages.libraryId, library.id),
-      })
-
-      if (packages.length === 0) continue
-
-      const totalDownloads = packages.reduce(
-        (sum, pkg) => sum + (pkg.downloads ?? 0),
-        0,
-      )
-
-      const existing = await db.query.npmLibraryStatsCache.findFirst({
-        where: eq(npmLibraryStatsCache.libraryId, library.id),
-      })
-
-      if (existing) {
-        await db
-          .update(npmLibraryStatsCache)
-          .set({
-            previousTotalDownloads: existing.totalDownloads,
-            totalDownloads,
-            packageCount: packages.length,
-            updatedAt: new Date(),
-          })
-          .where(eq(npmLibraryStatsCache.libraryId, library.id))
-      } else {
-        await db.insert(npmLibraryStatsCache).values({
-          libraryId: library.id,
-          totalDownloads,
-          packageCount: packages.length,
-          previousTotalDownloads: null,
-        })
-      }
-    }
-  } catch (error) {
-    console.error('[Library Stats Cache] Error rebuilding caches:', error)
-    throw error
   }
 }
 
@@ -1258,6 +487,25 @@ export interface NpmDownloadChunkData {
   isImmutable: boolean
 }
 
+function isNpmDailyDownloadPoint(
+  value: unknown,
+): value is { day: string; downloads: number } {
+  return (
+    !!value &&
+    typeof value === 'object' &&
+    typeof Reflect.get(value, 'day') === 'string' &&
+    typeof Reflect.get(value, 'downloads') === 'number'
+  )
+}
+
+function getNpmDailyDownloadData(value: unknown) {
+  if (!Array.isArray(value)) {
+    return []
+  }
+
+  return value.filter(isNpmDailyDownloadPoint)
+}
+
 /**
  * Get the freshest cached daily chunks that cover a date window.
  *
@@ -1308,7 +556,7 @@ export async function getLatestNpmDownloadChunksCoveringRange({
         dateTo: row.dateTo,
         binSize: row.binSize,
         totalDownloads: row.totalDownloads,
-        dailyData: row.dailyData as Array<{ day: string; downloads: number }>,
+        dailyData: getNpmDailyDownloadData(row.dailyData),
         isImmutable: row.isImmutable,
       })
     }
@@ -1377,10 +625,7 @@ export async function getBatchNpmDownloadChunks(
           dateTo: chunk.dateTo,
           binSize: chunk.binSize,
           totalDownloads: chunk.totalDownloads,
-          dailyData: chunk.dailyData as Array<{
-            day: string
-            downloads: number
-          }>,
+          dailyData: getNpmDailyDownloadData(chunk.dailyData),
           isImmutable: chunk.isImmutable,
           updatedAt: chunk.updatedAt?.toISOString(),
           createdAt: chunk.createdAt?.toISOString(),
@@ -1391,6 +636,91 @@ export async function getBatchNpmDownloadChunks(
     return results
   } catch (error) {
     console.error('[NPM Download Chunks] Error reading batch cache:', error)
+    return results
+  }
+}
+
+/**
+ * Get the newest cached chunks that start at the requested range start and end
+ * on or before the requested range end.
+ *
+ * This is only a fallback for transient upstream fetch failures. It lets the
+ * stats page keep using yesterday's current-year chunk instead of dropping a
+ * series to zero when today's exact cache key has not been written yet.
+ */
+export async function getLatestNpmDownloadChunksBeforeRangeEnd(
+  requests: Array<{
+    packageName: string
+    dateFrom: string
+    dateTo: string
+    binSize: string
+  }>,
+): Promise<
+  Map<string, NpmDownloadChunkData & { updatedAt?: string; createdAt?: string }>
+> {
+  const results = new Map<
+    string,
+    NpmDownloadChunkData & { updatedAt?: string; createdAt?: string }
+  >()
+
+  if (requests.length === 0) {
+    return results
+  }
+
+  try {
+    const { or } = await import('drizzle-orm')
+
+    const conditions = requests.map((req) =>
+      and(
+        eq(npmDownloadChunks.packageName, req.packageName),
+        eq(npmDownloadChunks.dateFrom, req.dateFrom),
+        lte(npmDownloadChunks.dateTo, req.dateTo),
+        eq(npmDownloadChunks.binSize, req.binSize),
+      ),
+    )
+
+    const cached = await db.query.npmDownloadChunks.findMany({
+      where: or(...conditions),
+      orderBy: [
+        desc(npmDownloadChunks.dateTo),
+        desc(npmDownloadChunks.updatedAt),
+      ],
+    })
+
+    for (const chunk of cached) {
+      for (const req of requests) {
+        const cacheKey = `${req.packageName}|${req.dateFrom}|${req.dateTo}|${req.binSize}`
+
+        if (results.has(cacheKey)) {
+          continue
+        }
+
+        if (
+          chunk.packageName !== req.packageName ||
+          chunk.dateFrom !== req.dateFrom ||
+          chunk.dateTo > req.dateTo ||
+          chunk.binSize !== req.binSize
+        ) {
+          continue
+        }
+
+        results.set(cacheKey, {
+          packageName: chunk.packageName,
+          dateFrom: chunk.dateFrom,
+          dateTo: chunk.dateTo,
+          binSize: chunk.binSize,
+          totalDownloads: chunk.totalDownloads,
+          dailyData: getNpmDailyDownloadData(chunk.dailyData),
+          isImmutable: chunk.isImmutable,
+          updatedAt: chunk.updatedAt?.toISOString(),
+          createdAt: chunk.createdAt?.toISOString(),
+        })
+      }
+    }
+
+    return results
+  } catch (error) {
+    console.error('[NPM Download Chunks] Error reading fallback ranges:', error)
     return results
   }
 }
@@ -1428,10 +758,7 @@ export async function getCachedNpmDownloadChunk(
         dateTo: cached.dateTo,
         binSize: cached.binSize,
         totalDownloads: cached.totalDownloads,
-        dailyData: cached.dailyData as Array<{
-          day: string
-          downloads: number
-        }>,
+        dailyData: getNpmDailyDownloadData(cached.dailyData),
         isImmutable: cached.isImmutable,
       }
     }
@@ -1444,10 +771,7 @@ export async function getCachedNpmDownloadChunk(
         dateTo: cached.dateTo,
         binSize: cached.binSize,
         totalDownloads: cached.totalDownloads,
-        dailyData: cached.dailyData as Array<{
-          day: string
-          downloads: number
-        }>,
+        dailyData: getNpmDailyDownloadData(cached.dailyData),
         isImmutable: cached.isImmutable,
       }
     }

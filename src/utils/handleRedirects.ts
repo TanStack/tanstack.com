@@ -17,7 +17,11 @@ export function handleRedirects(
   const url = new URL(urlFromRequest, origin)
 
   redirectItems.forEach((item) => {
-    if (url.pathname.startsWith(`${urlFromPathStart}/${item.from}`)) {
+    const fromPath = `${urlFromPathStart}/${item.from}`.replace(/\/+/g, '/')
+    const matchesPath =
+      url.pathname === fromPath || url.pathname.startsWith(`${fromPath}/`)
+
+    if (matchesPath) {
       const urlTo = new URL(`${url.origin}${urlToPathStart}/${item.to}`)
       urlTo.search = urlToQueryParams
 

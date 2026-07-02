@@ -14,7 +14,8 @@ export const Route = createFileRoute('/_library/cli/$version/')({
   beforeLoad: ({ params, location }) => {
     beforeLoadLibraryLanding('cli', params.version, location.href)
   },
-  loader: ({ params }) => loadLibraryLandingRouteData('cli', params.version),
+  loader: ({ params, context: { queryClient } }) =>
+    loadLibraryLandingRouteData('cli', params.version, queryClient),
   head: () => getLibraryLandingHead('cli'),
   headers: () => getLibraryLandingHeaders('cli'),
   staticData: {
@@ -28,7 +29,5 @@ function CliNavbarTitle() {
 }
 
 function CliLandingRoute() {
-  const { landingCodeExampleRsc } = Route.useLoaderData()
-
-  return <CliLanding landingCodeExampleRsc={landingCodeExampleRsc} />
+  return <CliLanding />
 }

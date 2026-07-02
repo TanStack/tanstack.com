@@ -47,6 +47,7 @@ export async function getGitHubUsername(
     headers: {
       Authorization: `Bearer ${accessToken}`,
       Accept: 'application/vnd.github.v3+json',
+      'User-Agent': 'TanStack.com',
     },
   })
 
@@ -98,14 +99,8 @@ export function buildGitHubReAuthUrl(
     throw new Error('GITHUB_OAUTH_CLIENT_ID is not configured')
   }
 
-  const origin = env.SITE_URL
-  if (!origin) {
-    throw new Error('SITE_URL is not configured')
-  }
-
-  const redirectUri = `${origin}/api/auth/callback/github`
   const state = generateOAuthState()
 
   // Build auth URL with additional scopes
-  return buildGitHubAuthUrl(clientId, redirectUri, state, additionalScopes)
+  return buildGitHubAuthUrl(clientId, undefined, state, additionalScopes)
 }

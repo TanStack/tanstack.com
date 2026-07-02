@@ -23,7 +23,8 @@ import {
 
 import { LibraryWordmark } from '~/components/LibraryWordmark'
 import type { LibrarySlim } from '~/libraries'
-import { formatPublishedDate, getPostsForLibrary } from '~/utils/blog'
+import { getPostsForLibrary } from '~/utils/blog'
+import { formatPublishedDate } from '~/utils/blog-format'
 import {
   categoryMeta,
   getCategoryLibraries,

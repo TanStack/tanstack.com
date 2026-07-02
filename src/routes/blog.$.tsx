@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { PostNotFound } from './blog'
-import { formatAuthors } from '~/utils/blog'
+import { formatAuthors } from '~/utils/blog-format'
 import * as React from 'react'
 import { MarkdownContent } from '~/components/markdown'
 import { Card } from '~/components/Card'

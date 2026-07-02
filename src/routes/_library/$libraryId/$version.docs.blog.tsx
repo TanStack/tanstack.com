@@ -7,7 +7,8 @@ import { DocTitle } from '~/components/DocTitle'
 import { BlogCard } from '~/components/BlogCard'
 import { BlogAuthorFilter } from '~/components/BlogAuthorFilter'
 import { getLibrary, type LibraryId } from '~/libraries'
-import { getDistinctAuthors, getPostsForLibrary } from '~/utils/blog'
+import { getPostsForLibrary } from '~/utils/blog'
+import { getDistinctAuthors } from '~/utils/blog-format'
 
 const searchSchema = v.object({
   author: v.fallback(v.optional(v.string()), undefined),

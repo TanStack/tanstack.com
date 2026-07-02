@@ -3,12 +3,12 @@ import { setResponseHeaders } from '@tanstack/react-start/server'
 import { notFound, redirect } from '@tanstack/react-router'
 import { allPosts } from 'content-collections'
 import * as v from 'valibot'
+import { getPublishedPosts } from '~/utils/blog'
 import {
   formatAuthors,
   formatPublishedDate,
-  getPublishedPosts,
   isPublishedDateReleased,
-} from '~/utils/blog'
+} from '~/utils/blog-format'
 import { buildRedirectManifest } from './redirects'
 
 export type RecentPost = {

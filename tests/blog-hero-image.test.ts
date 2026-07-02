@@ -20,14 +20,9 @@ function stripFrontmatter(content: string) {
   return match ? content.slice(match[0].length) : content
 }
 
-const postFiles = fs
-  .readdirSync(blogDir)
-  .filter((file) => file.endsWith('.md'))
+const postFiles = fs.readdirSync(blogDir).filter((file) => file.endsWith('.md'))
 
-assert.ok(
-  postFiles.length > 0,
-  'expected to find blog posts in src/blog',
-)
+assert.ok(postFiles.length > 0, 'expected to find blog posts in src/blog')
 
 for (const file of postFiles) {
   const raw = fs.readFileSync(path.join(blogDir, file), 'utf-8')

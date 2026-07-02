@@ -188,8 +188,7 @@ function createMarkdownComponents(
 
   function ImgElement(props: React.ComponentProps<typeof MarkdownImg>) {
     const isFirstImage =
-      options.firstImageSrc !== undefined &&
-      props.src === options.firstImageSrc
+      options.firstImageSrc !== undefined && props.src === options.firstImageSrc
 
     return <MarkdownImg {...props} priority={isFirstImage} />
   }

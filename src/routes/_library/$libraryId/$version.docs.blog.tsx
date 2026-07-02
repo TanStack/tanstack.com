@@ -18,8 +18,7 @@ export const Route = createFileRoute('/_library/$libraryId/$version/docs/blog')(
   {
     staleTime: Infinity,
     validateSearch: searchSchema,
-    loader: ({ params }) =>
-      fetchPostsForLibrary({ data: params.libraryId }),
+    loader: ({ params }) => fetchPostsForLibrary({ data: params.libraryId }),
     component: RouteComponent,
   },
 )

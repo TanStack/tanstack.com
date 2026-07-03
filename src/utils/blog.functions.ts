@@ -4,7 +4,7 @@ import { notFound, redirect } from '@tanstack/react-router'
 import { allPosts } from 'content-collections'
 import * as v from 'valibot'
 import type { LibraryId } from '~/libraries'
-import { getPostsForLibrary, getPublishedPosts } from '~/utils/blog'
+import { getPostsForLibrary, getVisiblePosts } from '~/utils/blog'
 import {
   formatAuthors,
   formatPublishedDate,
@@ -117,7 +117,7 @@ export const fetchRecentPosts = createServerFn({ method: 'GET' }).handler(
       }),
     )
 
-    return getPublishedPosts()
+    return getVisiblePosts()
       .slice(0, 3)
       .map((post) => ({
         slug: post.slug,

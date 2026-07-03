@@ -29,8 +29,8 @@ import { getPartnerById, PartnerImage } from '~/utils/partners'
 import { getPartnerJsonLd } from '~/utils/partner-pages'
 import { trackEvent } from '~/utils/analytics'
 
-const NETLIFY_HREF =
-  'https://app.netlify.com/signup?utm_medium=sponsor&utm_source=tanstack&utm_campaign=partner-page'
+// TanStack referral link — encodes sponsor attribution on Netlify's side
+const NETLIFY_HREF = 'https://join.netlify.com/ukkf22691ki9'
 const NETLIFY_DOCS_HREF =
   'https://docs.netlify.com/build/frameworks/framework-setup-guides/tanstack-start/?utm_medium=sponsor&utm_source=tanstack&utm_campaign=partner-page'
 const NETLIFY_HOME_HREF =

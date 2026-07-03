@@ -4,6 +4,14 @@ type ImageDimensions = {
 }
 
 const publicImageDimensions: Record<string, ImageDimensions> = {
+  '/blog-assets/tanstack-has-a-new-look/logo-swatch.svg': {
+    height: 520,
+    width: 1200,
+  },
+  '/blog-assets/tanstack-has-a-new-look/design-system-snapshot.svg': {
+    height: 720,
+    width: 1200,
+  },
   '/blog-assets/react-server-components/header.jpg': {
     height: 701,
     width: 1200,

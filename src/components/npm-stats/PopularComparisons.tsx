@@ -106,6 +106,7 @@ export function PopularComparisons({
               search={(prev: Record<string, unknown>) => ({
                 ...prev,
                 packageGroups: comparison.packageGroups,
+                bucketOffset: 0,
               })}
               resetScroll={false}
               onClick={() => {

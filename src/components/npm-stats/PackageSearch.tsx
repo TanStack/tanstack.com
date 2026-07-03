@@ -14,6 +14,7 @@ type NpmSearchResult = {
 }
 
 const CREATE_ITEM_VALUE = '__create__'
+const MIN_SEARCH_QUERY_LENGTH = 2
 
 export type PackageSearchProps = {
   onSelect: (packageName: string) => void
@@ -50,14 +51,15 @@ export function PackageSearch({
     }
   }, [])
 
-  const hasUsableQuery = debouncedInputValue.length > 2
+  const trimmedInput = debouncedInputValue.trim()
+  const hasUsableQuery = trimmedInput.length >= MIN_SEARCH_QUERY_LENGTH
 
   const searchQuery = useQuery({
-    queryKey: ['npm-search', debouncedInputValue],
+    queryKey: ['npm-search', trimmedInput],
     queryFn: async () => {
       const response = await fetch(
         `https://registry.npmjs.org/-/v1/search?text=${encodeURIComponent(
-          debouncedInputValue,
+          trimmedInput,
         )}&size=10`,
       )
       const data = (await response.json()) as {
@@ -70,7 +72,6 @@ export function PackageSearch({
   })
 
   const searchResults = hasUsableQuery ? (searchQuery.data ?? []) : []
-  const trimmedInput = debouncedInputValue.trim()
   const showCreateItem =
     hasUsableQuery &&
     trimmedInput.length > 0 &&
@@ -92,18 +93,18 @@ export function PackageSearch({
   const showList = open && inputValue.length > 0
 
   return (
-    <div className="flex-1 relative" ref={containerRef}>
+    <div className="relative w-full max-w-[250px]" ref={containerRef}>
       <Command
         className="w-full"
         shouldFilter={false}
         loop
         label="Search npm packages"
       >
-        <div className="flex items-center gap-1">
-          <MagnifyingGlass className="text-lg" />
+        <div className="relative text-xs">
+          <MagnifyingGlass className="pointer-events-none absolute left-1.5 top-1/2 size-3.5 -translate-y-1/2 text-gray-500" />
           <Command.Input
             placeholder={placeholder}
-            className="w-full bg-gray-500/10 rounded-md px-2 py-1 min-w-[200px] text-sm"
+            className="h-6 w-full min-w-[180px] rounded bg-gray-500/10 py-0.5 pl-6 pr-6 text-xs outline-none"
             value={inputValue}
             onValueChange={setInputValue}
             onFocus={() => setOpen(true)}
@@ -111,27 +112,27 @@ export function PackageSearch({
             autoFocus={autoFocus}
           />
           {searchQuery.isFetching && (
-            <div className="absolute right-2 top-0 bottom-0 flex items-center justify-center pointer-events-none">
-              <Spinner className="text-sm" />
+            <div className="pointer-events-none absolute bottom-0 right-1.5 top-0 flex items-center justify-center">
+              <Spinner className="text-xs" />
             </div>
           )}
         </div>
         <Command.List
           className={twMerge(
-            'absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 rounded-md shadow-lg max-h-60 overflow-auto divide-y divide-gray-500/10',
+            'absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded bg-white text-xs shadow-lg divide-y divide-gray-500/10 dark:bg-gray-800',
             !showList && 'hidden',
           )}
         >
-          {inputValue.length < 3 ? (
-            <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
+          {inputValue.trim().length < MIN_SEARCH_QUERY_LENGTH ? (
+            <div className="px-2 py-1.5 text-gray-500 dark:text-gray-400">
               Keep typing to search...
             </div>
           ) : searchQuery.isLoading ? (
-            <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
+            <div className="px-2 py-1.5 text-gray-500 dark:text-gray-400">
               Searching...
             </div>
           ) : !searchResults.length && !showCreateItem ? (
-            <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
+            <div className="px-2 py-1.5 text-gray-500 dark:text-gray-400">
               No packages found
             </div>
           ) : null}
@@ -140,7 +141,7 @@ export function PackageSearch({
               key={CREATE_ITEM_VALUE}
               value={CREATE_ITEM_VALUE}
               onSelect={handleSelect}
-              className="px-3 py-2 cursor-pointer hover:bg-gray-500/20 data-[selected=true]:bg-gray-500/20"
+              className="cursor-pointer px-2 py-1.5 hover:bg-gray-500/20 data-[selected=true]:bg-gray-500/20"
             >
               <div className="font-medium">Use "{trimmedInput}"</div>
             </Command.Item>
@@ -150,15 +151,15 @@ export function PackageSearch({
               key={item.name}
               value={item.name}
               onSelect={handleSelect}
-              className="px-3 py-2 cursor-pointer hover:bg-gray-500/20 data-[selected=true]:bg-gray-500/20"
+              className="cursor-pointer px-2 py-1.5 hover:bg-gray-500/20 data-[selected=true]:bg-gray-500/20"
             >
               <div className="font-medium">{item.name}</div>
               {item.description ? (
-                <div className="text-sm text-gray-500 dark:text-gray-400">
+                <div className="text-[11px] leading-snug text-gray-500 dark:text-gray-400">
                   {item.description}
                 </div>
               ) : null}
-              <div className="text-xs text-gray-400 dark:text-gray-500">
+              <div className="text-[10px] leading-snug text-gray-400 dark:text-gray-500">
                 {item.version ? `v${item.version}` : ''}
                 {item.version && item.publisher?.username ? ' • ' : ''}
                 {item.publisher?.username}

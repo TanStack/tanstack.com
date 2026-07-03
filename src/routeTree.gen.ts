@@ -108,6 +108,7 @@ import { Route as AdminRolesIndexRouteImport } from './routes/admin/roles.index'
 import { Route as AdminNotesIndexRouteImport } from './routes/admin/notes.index'
 import { Route as AdminFeedbackIndexRouteImport } from './routes/admin/feedback.index'
 import { Route as LibraryLibraryIdIndexRouteImport } from './routes/_library/$libraryId/index'
+import { Route as StatsNpmEmbedRouteImport } from './routes/stats/npm/embed'
 import { Route as StatsNpmPackagesRouteImport } from './routes/stats/npm/$packages'
 import { Route as ShowcaseEditIdRouteImport } from './routes/showcase/edit.$id'
 import { Route as ShopProductsHandleRouteImport } from './routes/shop.products.$handle'
@@ -676,6 +677,11 @@ const LibraryLibraryIdIndexRoute = LibraryLibraryIdIndexRouteImport.update({
   path: '/',
   getParentRoute: () => LibraryLibraryIdRouteRoute,
 } as any)
+const StatsNpmEmbedRoute = StatsNpmEmbedRouteImport.update({
+  id: '/stats/npm/embed',
+  path: '/stats/npm/embed',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StatsNpmPackagesRoute = StatsNpmPackagesRouteImport.update({
   id: '/stats/npm/$packages',
   path: '/stats/npm/$packages',
@@ -1202,6 +1208,7 @@ export interface FileRoutesByFullPath {
   '/shop/products/$handle': typeof ShopProductsHandleRoute
   '/showcase/edit/$id': typeof ShowcaseEditIdRoute
   '/stats/npm/$packages': typeof StatsNpmPackagesRoute
+  '/stats/npm/embed': typeof StatsNpmEmbedRoute
   '/$libraryId/': typeof LibraryLibraryIdIndexRoute
   '/admin/feedback/': typeof AdminFeedbackIndexRoute
   '/admin/notes/': typeof AdminNotesIndexRoute
@@ -1364,6 +1371,7 @@ export interface FileRoutesByTo {
   '/shop/products/$handle': typeof ShopProductsHandleRoute
   '/showcase/edit/$id': typeof ShowcaseEditIdRoute
   '/stats/npm/$packages': typeof StatsNpmPackagesRoute
+  '/stats/npm/embed': typeof StatsNpmEmbedRoute
   '/$libraryId': typeof LibraryLibraryIdIndexRoute
   '/admin/feedback': typeof AdminFeedbackIndexRoute
   '/admin/notes': typeof AdminNotesIndexRoute
@@ -1537,6 +1545,7 @@ export interface FileRoutesById {
   '/shop/products/$handle': typeof ShopProductsHandleRoute
   '/showcase/edit/$id': typeof ShowcaseEditIdRoute
   '/stats/npm/$packages': typeof StatsNpmPackagesRoute
+  '/stats/npm/embed': typeof StatsNpmEmbedRoute
   '/_library/$libraryId/': typeof LibraryLibraryIdIndexRoute
   '/admin/feedback/': typeof AdminFeedbackIndexRoute
   '/admin/notes/': typeof AdminNotesIndexRoute
@@ -1711,6 +1720,7 @@ export interface FileRouteTypes {
     | '/shop/products/$handle'
     | '/showcase/edit/$id'
     | '/stats/npm/$packages'
+    | '/stats/npm/embed'
     | '/$libraryId/'
     | '/admin/feedback/'
     | '/admin/notes/'
@@ -1873,6 +1883,7 @@ export interface FileRouteTypes {
     | '/shop/products/$handle'
     | '/showcase/edit/$id'
     | '/stats/npm/$packages'
+    | '/stats/npm/embed'
     | '/$libraryId'
     | '/admin/feedback'
     | '/admin/notes'
@@ -2045,6 +2056,7 @@ export interface FileRouteTypes {
     | '/shop/products/$handle'
     | '/showcase/edit/$id'
     | '/stats/npm/$packages'
+    | '/stats/npm/embed'
     | '/_library/$libraryId/'
     | '/admin/feedback/'
     | '/admin/notes/'
@@ -2167,6 +2179,7 @@ export interface RootRouteChildren {
   IntentRegistryPackageNameRoute: typeof IntentRegistryPackageNameRouteWithChildren
   ShowcaseEditIdRoute: typeof ShowcaseEditIdRoute
   StatsNpmPackagesRoute: typeof StatsNpmPackagesRoute
+  StatsNpmEmbedRoute: typeof StatsNpmEmbedRoute
   ApiMcpIndexRoute: typeof ApiMcpIndexRoute
   IntentRegistryIndexRoute: typeof IntentRegistryIndexRoute
   StatsNpmIndexRoute: typeof StatsNpmIndexRoute
@@ -2871,6 +2884,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/$libraryId/'
       preLoaderRoute: typeof LibraryLibraryIdIndexRouteImport
       parentRoute: typeof LibraryLibraryIdRouteRoute
+    }
+    '/stats/npm/embed': {
+      id: '/stats/npm/embed'
+      path: '/stats/npm/embed'
+      fullPath: '/stats/npm/embed'
+      preLoaderRoute: typeof StatsNpmEmbedRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/stats/npm/$packages': {
       id: '/stats/npm/$packages'
@@ -3781,6 +3801,7 @@ const rootRouteChildren: RootRouteChildren = {
   IntentRegistryPackageNameRoute: IntentRegistryPackageNameRouteWithChildren,
   ShowcaseEditIdRoute: ShowcaseEditIdRoute,
   StatsNpmPackagesRoute: StatsNpmPackagesRoute,
+  StatsNpmEmbedRoute: StatsNpmEmbedRoute,
   ApiMcpIndexRoute: ApiMcpIndexRoute,
   IntentRegistryIndexRoute: IntentRegistryIndexRoute,
   StatsNpmIndexRoute: StatsNpmIndexRoute,

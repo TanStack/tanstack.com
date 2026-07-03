@@ -5,7 +5,7 @@ import { ArrowRight } from '@phosphor-icons/react'
 import { Card } from '~/components/Card'
 import { PartnersGrid } from '~/components/PartnersGrid'
 import { Button } from '~/ui'
-import { formatAuthors, formatPublishedDate } from '~/utils/blog'
+import { formatAuthors, formatPublishedDate } from '~/utils/blog-format'
 import type { RecentPost } from '~/utils/blog.functions'
 
 type HomeSocialProofSectionProps = {

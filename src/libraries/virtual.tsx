@@ -7,7 +7,7 @@ const textStyles = 'text-violet-700 dark:text-violet-400'
 
 export const virtualProject = {
   ...virtual,
-  description: `Virtualize only the visible content for massive scrollable DOM nodes at 60FPS in TS/JS, React, Vue, Solid, Svelte, Lit & Angular while retaining 100% control over markup and styles.`,
+  description: `Virtualize only the visible content for massive scrollable DOM nodes at 60FPS in TS/JS, React, Vue, Solid, Svelte, Lit, Angular & Marko while retaining 100% control over markup and styles.`,
   latestBranch: 'main',
   bgRadial: 'from-purple-500 via-violet-600/50 to-transparent',
   textColor: 'text-purple-600',

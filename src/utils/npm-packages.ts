@@ -26,6 +26,7 @@ export const frameworkMeta: Record<Framework, { name: string; color: string }> =
     solid: { name: 'Solid', color: '#2C4F7C' },
     vue: { name: 'Vue', color: '#42B883' },
     svelte: { name: 'Svelte', color: '#FF3E00' },
+    marko: { name: 'Marko', color: '#44bfef' },
     angular: { name: 'Angular', color: '#DD0031' },
     alpine: { name: 'Alpine', color: '#77C1D2' },
     lit: { name: 'Lit', color: '#325CFF' },

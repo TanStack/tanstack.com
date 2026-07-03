@@ -108,6 +108,21 @@ async function parseJsonIfOk<T>(response: Response): Promise<T | null> {
   return response.json()
 }
 
+async function fetchNpmSearch(url: string): Promise<NpmSearchResult> {
+  const res = await fetchWithTimeout(url, {
+    headers: { Accept: 'application/json' },
+    timeoutMs: NPM_FETCH_TIMEOUT_MS,
+  })
+
+  if (!res.ok) {
+    await cancelUnusedResponseBody(res)
+    throw new Error(`NPM search failed: ${res.status} ${res.statusText}`)
+  }
+
+  const data: NpmSearchResult = await res.json()
+  return data
+}
+
 function validateNpmTarballUrl(tarballUrl: string) {
   try {
     const url = new URL(tarballUrl)
@@ -161,14 +176,7 @@ export async function searchIntentPackages(): Promise<NpmSearchResult> {
 
   while (true) {
     const url = `${NPM_REGISTRY}/-/v1/search?text=keywords:tanstack-intent&size=${size}&from=${from}`
-    const res = await fetch(url, {
-      headers: { Accept: 'application/json' },
-    })
-    if (!res.ok) {
-      await cancelUnusedResponseBody(res)
-      throw new Error(`NPM search failed: ${res.status} ${res.statusText}`)
-    }
-    const page = (await res.json()) as NpmSearchResult
+    const page = await fetchNpmSearch(url)
 
     results.objects.push(...page.objects)
     results.total = page.total
@@ -187,6 +195,14 @@ export async function searchIntentPackages(): Promise<NpmSearchResult> {
   }
 
   return results
+}
+
+export async function searchIntentPackagesByText(
+  search: string,
+): Promise<NpmSearchResult> {
+  return fetchNpmSearch(
+    `${NPM_REGISTRY}/-/v1/search?text=${encodeURIComponent(search)}+keywords:tanstack-intent&size=250`,
+  )
 }
 
 // ---------------------------------------------------------------------------
@@ -218,8 +234,9 @@ export async function fetchBulkDownloads(
   for (let i = 0; i < unscoped.length; i += CHUNK) {
     const batch = unscoped.slice(i, i + CHUNK)
     unscopedFetches.push(
-      fetch(
+      fetchWithTimeout(
         `${NPM_DOWNLOADS_API}/downloads/point/last-month/${batch.join(',')}`,
+        { timeoutMs: NPM_FETCH_TIMEOUT_MS },
       )
         .then((r) => parseJsonIfOk<NpmDownloadCounts>(r))
         .then((data) => {
@@ -241,7 +258,10 @@ export async function fetchBulkDownloads(
   for (let i = 0; i < scoped.length; i += SCOPED_CONCURRENCY) {
     await Promise.all(
       scoped.slice(i, i + SCOPED_CONCURRENCY).map((name) =>
-        fetch(`${NPM_DOWNLOADS_API}/downloads/point/last-month/${name}`)
+        fetchWithTimeout(
+          `${NPM_DOWNLOADS_API}/downloads/point/last-month/${name}`,
+          { timeoutMs: NPM_FETCH_TIMEOUT_MS },
+        )
           .then((r) => parseJsonIfOk<{ downloads: number; package: string }>(r))
           .then((data) => {
             if (data?.downloads != null) {
@@ -261,8 +281,9 @@ export async function fetchPackument(name: string): Promise<NpmPackument> {
     ? `@${encodeURIComponent(name.slice(1))}`
     : encodeURIComponent(name)
   const url = `${NPM_REGISTRY}/${encoded}`
-  const res = await fetch(url, {
+  const res = await fetchWithTimeout(url, {
     headers: { Accept: 'application/json' },
+    timeoutMs: NPM_FETCH_TIMEOUT_MS,
   })
   if (!res.ok) {
     await cancelUnusedResponseBody(res)

@@ -71,3 +71,10 @@ export const chartHeightSchema = v.pipe(
   v.minValue(240),
   v.maxValue(1200),
 )
+
+export const chartWidthSchema = v.pipe(
+  v.number(),
+  v.integer(),
+  v.minValue(320),
+  v.maxValue(2400),
+)

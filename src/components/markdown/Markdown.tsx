@@ -1,7 +1,11 @@
 import { renderMarkdownReact } from '@tanstack/markdown/react'
 import * as React from 'react'
 import { InlineCode, MarkdownImg } from '~/ui'
-import { parseSiteMarkdown, type MarkdownDocument } from '~/utils/markdown'
+import {
+  findFirstImageSrc,
+  parseSiteMarkdown,
+  type MarkdownDocument,
+} from '~/utils/markdown'
 import { isSafeHttpUrl } from '~/utils/url-boundary'
 import { CodeBlock } from './CodeBlock'
 import { MarkdownLink } from './MarkdownLink'
@@ -19,12 +23,15 @@ export type MarkdownProps = {
   content?: string
   document?: MarkdownDocument
   preserveTabPanels?: boolean
+  /** Render the first image in the document as high-priority/eager (e.g. blog post hero images) */
+  eagerFirstImage?: boolean
 }
 
 export function Markdown({
   content,
   document,
   preserveTabPanels,
+  eagerFirstImage,
 }: MarkdownProps) {
   const parsed = React.useMemo(
     () => document ?? parseSiteMarkdown(content ?? ''),
@@ -32,14 +39,19 @@ export function Markdown({
   )
 
   return React.useMemo(() => {
+    const firstImageSrc = eagerFirstImage
+      ? findFirstImageSrc(parsed)
+      : undefined
+
     return renderMarkdownReact(parsed, {
       allowHtml: true,
       components: createMarkdownComponents({
         preserveTabPanels,
+        firstImageSrc,
       }),
       headingAnchors,
     })
-  }, [parsed, preserveTabPanels])
+  }, [parsed, preserveTabPanels, eagerFirstImage])
 }
 
 const headingAnchors = {
@@ -160,7 +172,9 @@ function TableElement({
   )
 }
 
-function createMarkdownComponents(options: MarkdownRenderOptions = {}) {
+function createMarkdownComponents(
+  options: MarkdownRenderOptions & { firstImageSrc?: string } = {},
+) {
   function MdCommentComponentWithOptions(
     props: React.ComponentProps<typeof MdCommentComponent>,
   ) {
@@ -170,6 +184,13 @@ function createMarkdownComponents(options: MarkdownRenderOptions = {}) {
         preserveTabPanels={options.preserveTabPanels}
       />
     )
+  }
+
+  function ImgElement(props: React.ComponentProps<typeof MarkdownImg>) {
+    const isFirstImage =
+      options.firstImageSrc !== undefined && props.src === options.firstImageSrc
+
+    return <MarkdownImg {...props} priority={isFirstImage} />
   }
 
   return {
@@ -184,7 +205,7 @@ function createMarkdownComponents(options: MarkdownRenderOptions = {}) {
     h5: createHeadingComponent('h5'),
     h6: createHeadingComponent('h6'),
     iframe: MarkdownIframe,
-    img: MarkdownImg,
+    img: ImgElement,
     'md-comment-component': MdCommentComponentWithOptions,
     'md-framework-panel': MdFrameworkPanel,
     'md-tab-panel': MdTabPanel,

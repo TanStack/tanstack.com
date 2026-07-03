@@ -93,9 +93,21 @@ const features: Array<{ Icon: FeatureIcon; title: string; desc: string }> = [
 ]
 
 const steps: Array<{ num: string; title: string; code: string }> = [
-  { num: '01', title: 'Describe your app', code: '"Build a TanStack Start dashboard with auth"' },
-  { num: '02', title: 'Lovable generates it', code: 'TanStack Start + Router + Query' },
-  { num: '03', title: 'Refine visually or in code', code: 'edit in Lovable or push to GitHub' },
+  {
+    num: '01',
+    title: 'Describe your app',
+    code: '"Build a TanStack Start dashboard with auth"',
+  },
+  {
+    num: '02',
+    title: 'Lovable generates it',
+    code: 'TanStack Start + Router + Query',
+  },
+  {
+    num: '03',
+    title: 'Refine visually or in code',
+    code: 'edit in Lovable or push to GitHub',
+  },
   { num: '04', title: 'Deploy to Lovable Cloud', code: 'one-click publish' },
 ]
 
@@ -214,7 +226,7 @@ const faqs: Array<{ q: string; a: string }> = [
   },
   {
     q: 'Can I add a database and authentication?',
-    a: "Yes. Lovable Cloud provides a managed backend with auth, database, and storage that Lovable wires into your TanStack app automatically as you build — just ask for it in the prompt.",
+    a: 'Yes. Lovable Cloud provides a managed backend with auth, database, and storage that Lovable wires into your TanStack app automatically as you build — just ask for it in the prompt.',
   },
   {
     q: 'What kinds of apps can I build with Lovable?',
@@ -222,7 +234,8 @@ const faqs: Array<{ q: string; a: string }> = [
   },
 ]
 
-const PAGE_TITLE = 'Build & Deploy TanStack Apps with Lovable — Official Gold Partner'
+const PAGE_TITLE =
+  'Build & Deploy TanStack Apps with Lovable — Official Gold Partner'
 const PAGE_DESCRIPTION =
   'Lovable is the AI app builder that generates production TanStack Start apps from a prompt — file-based routing, SSR, and type safety included — then deploys them to Lovable Cloud with one click. Trusted by 8M+ builders.'
 
@@ -321,7 +334,10 @@ function LovablePartnerPage() {
     <div className="flex min-h-screen flex-col bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100">
       <div className="mx-auto w-full max-w-4xl flex-1 px-4 pb-16 pt-6 md:px-8">
         <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-          <Link to="/partners" className="transition-colors hover:text-blue-500">
+          <Link
+            to="/partners"
+            className="transition-colors hover:text-blue-500"
+          >
             Partners
           </Link>
           <span>/</span>

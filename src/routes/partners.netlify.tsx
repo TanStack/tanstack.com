@@ -33,8 +33,8 @@ import { trackEvent } from '~/utils/analytics'
 const NETLIFY_HREF = 'https://join.netlify.com/ukkf22691ki9'
 const NETLIFY_DOCS_HREF =
   'https://docs.netlify.com/build/frameworks/framework-setup-guides/tanstack-start/?utm_medium=sponsor&utm_source=tanstack&utm_campaign=partner-page'
-const NETLIFY_HOME_HREF =
-  'https://www.netlify.com/?utm_medium=sponsor&utm_source=tanstack&utm_campaign=partner-page'
+// TanStack referral link for the netlify.com reference — carries sponsor attribution
+const NETLIFY_HOME_HREF = 'https://join.netlify.com/mnxfbfs7shtf-w6zrwt'
 const NETLIFY_PRICING_HREF =
   'https://www.netlify.com/pricing/?utm_medium=sponsor&utm_source=tanstack&utm_campaign=partner-page'
 

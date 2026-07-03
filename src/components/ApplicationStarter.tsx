@@ -32,10 +32,8 @@ import {
   StarterTooltipProvider,
 } from '~/components/application-builder/parts'
 import {
-  buildStarterPromptDeployUrl,
   toneClasses,
   type ApplicationStarterBuilderIntegration,
-  type StarterPromptDeployProvider,
   type StarterTone,
 } from '~/components/application-builder/shared'
 import { useApplicationBuilder } from '~/components/application-builder/useApplicationBuilder'
@@ -106,19 +104,6 @@ function getHostingDeployPartnerId(
     case 'railway':
       return partnerId
     default:
-      return undefined
-  }
-}
-
-function getPromptDeployProvider(
-  partnerId: HostingDeployPartnerId,
-): StarterPromptDeployProvider | undefined {
-  switch (partnerId) {
-    case 'lovable':
-    case 'netlify':
-      return partnerId
-    case 'cloudflare':
-    case 'railway':
       return undefined
   }
 }
@@ -257,31 +242,6 @@ export function ApplicationStarter({
     isSelectedHostingDeployPending || transientAction === 'deploy'
   const isPromptCopied = copiedKind === 'prompt'
   const isCommandCopied = copiedKind === 'command'
-  const selectedPromptDeployProvider = selectedHostingDeployPartner
-    ? getPromptDeployProvider(selectedHostingDeployPartner)
-    : undefined
-  const selectedHostingDeployHref = React.useMemo(
-    () =>
-      selectedPromptDeployProvider && result?.prompt
-        ? buildStarterPromptDeployUrl(
-            selectedPromptDeployProvider,
-            result.prompt,
-          )
-        : undefined,
-    [result?.prompt, selectedPromptDeployProvider],
-  )
-  const trackSelectedHostingDeployLink = React.useCallback(() => {
-    if (!selectedHostingDeployPartner) {
-      return
-    }
-
-    trackActivation({
-      action:
-        selectedHostingDeployPartner === 'netlify' ? 'netlify_start' : 'deploy',
-      surface: 'result_panel',
-      provider: selectedHostingDeployPartner,
-    })
-  }, [selectedHostingDeployPartner, trackActivation])
   const deployToSelectedHostingPartner = async () => {
     if (!selectedHostingDeployPartner) {
       return
@@ -360,42 +320,6 @@ export function ApplicationStarter({
       return null
     }
 
-    if (selectedHostingDeployHref) {
-      const disabled = !canUseFinalActions || transientAction === 'deploy'
-
-      return (
-        <Button
-          as="a"
-          color="emerald"
-          variant="primary"
-          size="sm"
-          href={disabled ? undefined : selectedHostingDeployHref}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-disabled={disabled}
-          tabIndex={disabled ? -1 : undefined}
-          onClick={(event) => {
-            if (disabled) {
-              event.preventDefault()
-              return
-            }
-
-            trackSelectedHostingDeployLink()
-            showTransientActionFeedback('deploy')
-          }}
-          className={disabled ? 'pointer-events-none opacity-50' : undefined}
-          aria-label={`Deploy to ${hostingDeployPartnerLabels[selectedHostingDeployPartner]}`}
-        >
-          {isDeployFeedbackActive ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Rocket className="h-4 w-4" />
-          )}
-          {isDeployFeedbackActive ? 'Opening...' : 'Deploy'}
-        </Button>
-      )
-    }
-
     return (
       <Button
         color="emerald"
@@ -403,8 +327,8 @@ export function ApplicationStarter({
         size="sm"
         type="button"
         onClick={() => {
-          showTransientActionFeedback('deploy')
           void deployToSelectedHostingPartner()
+          showTransientActionFeedback('deploy')
         }}
         disabled={
           !canUseFinalActions ||

@@ -46,6 +46,7 @@ export function ToastProvider({
       <Toaster
         theme={resolvedTheme}
         position="bottom-right"
+        swipeDirections={['right']}
         offset={16}
         gap={8}
         toastOptions={{

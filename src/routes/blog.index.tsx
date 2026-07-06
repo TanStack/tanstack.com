@@ -2,7 +2,7 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { BlogCard, type BlogCardPost } from '~/components/BlogCard'
 import { BlogAuthorFilter } from '~/components/BlogAuthorFilter'
-import { getPublishedPosts } from '~/utils/blog'
+import { getVisiblePosts } from '~/utils/blog'
 import { getDistinctAuthors } from '~/utils/blog-format'
 
 import { Footer } from '~/components/Footer'
@@ -31,7 +31,7 @@ const fetchFrontMatters = createServerFn({ method: 'GET' }).handler(
       }),
     )
 
-    return getPublishedPosts().map((post) => {
+    return getVisiblePosts().map((post) => {
       return {
         slug: post.slug,
         title: post.title,

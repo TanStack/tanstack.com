@@ -1,6 +1,5 @@
-import { PersonSimple, Lightning } from '@phosphor-icons/react'
+import { PersonSimple, Lightning, Gear } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
-import { CogsIcon } from '~/components/icons/CogsIcon'
 import { virtual } from './libraries'
 
 const textStyles = 'text-violet-700 dark:text-violet-400'
@@ -72,7 +71,7 @@ export const virtualProject = {
     },
     {
       title: 'Maximum Composability',
-      icon: <CogsIcon className="text-purple-600" />,
+      icon: <Gear className="text-purple-600" />,
       description: (
         <div>
           With a single function/hook, you'll get limitless virtualization for{' '}

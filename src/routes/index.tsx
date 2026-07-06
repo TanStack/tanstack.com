@@ -2,10 +2,8 @@ import * as React from 'react'
 import { ClientOnly, Link, createFileRoute } from '@tanstack/react-router'
 
 import discordImage from '~/images/discord-logo-white.svg'
-import { librariesByGroup, librariesGroupNamesMap, Library } from '~/libraries'
 import { BrandContextMenu } from '~/components/BrandContextMenu'
 import { OptimizedImage } from '~/components/OptimizedImage'
-import { groupToSlug } from '~/components/stack/stack-categories'
 import { twMerge } from 'tailwind-merge'
 
 import {
@@ -160,41 +158,6 @@ function Index() {
           <div className="mx-auto mt-16 w-full max-w-[1021px] px-4 sm:px-6 md:mt-20 lg:mt-14 xl:mt-12">
             <HomeApplicationStarter />
           </div>
-        </div>
-
-        <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-          <h3
-            id="libraries"
-            className={`text-4xl font-light mb-2 scroll-mt-24`}
-          >
-            <a
-              href="#libraries"
-              className="hover:underline decoration-gray-400 dark:decoration-gray-600"
-            >
-              Browse the stack
-            </a>
-          </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
-            Every TanStack library, organized by what it does.
-          </p>
-
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-            {Object.entries(librariesByGroup).map(
-              ([groupName, groupLibraries]) => (
-                <StackCategoryCard
-                  key={groupName}
-                  groupId={groupName as keyof typeof librariesByGroup}
-                  libraries={groupLibraries as Library[]}
-                />
-              ),
-            )}
-          </div>
-        </div>
-
-        <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto mt-8 flex justify-center">
-          <Button as={Link} to="/libraries">
-            See all libraries
-          </Button>
         </div>
 
         <WhyTanStackSection />
@@ -534,8 +497,9 @@ function cubicAngle(
 function WhyTanStackSection() {
   return (
     <section className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-      <div className="grid gap-8 border-y border-gray-200 py-10 dark:border-gray-800 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)] lg:gap-12 lg:py-12">
-        <div className="max-w-xl lg:max-w-sm">
+      <div className="border-y border-gray-200 py-10 dark:border-gray-800 lg:py-12">
+        {/* Lead-in header */}
+        <div className="mx-auto max-w-2xl text-center">
           <div className="inline-flex items-center gap-2 text-xs font-black uppercase text-gray-500 dark:text-gray-400">
             <span className="h-2 w-2 rounded-full bg-cyan-500 shadow-[0_0_0_4px_rgba(6,182,212,0.12)]" />
             Product principles
@@ -543,14 +507,10 @@ function WhyTanStackSection() {
           <h3 className="mt-4 text-3xl font-black leading-tight sm:text-4xl">
             Why TanStack?
           </h3>
-          <p className="mt-4 text-base leading-7 text-gray-600 dark:text-gray-400">
+          <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-gray-600 dark:text-gray-400">
             Our libraries are built around real products and the developers
             shipping them
           </p>
-          <div
-            aria-hidden="true"
-            className="mt-7 hidden h-px bg-linear-to-r from-gray-300 via-gray-200 to-transparent dark:from-gray-700 dark:via-gray-800 lg:block"
-          />
           <Button
             as={Link}
             to="/tenets"
@@ -563,50 +523,55 @@ function WhyTanStackSection() {
           </Button>
         </div>
 
-        <ol className="grid gap-3 sm:grid-cols-2">
+        {/* Four distinct principle sections */}
+        <ol className="mt-16 space-y-16 lg:mt-20 lg:space-y-24">
           {whyTanStackPrinciples.map((principle, index) => (
             <li
               key={principle.title}
-              className="group relative flex min-h-[19rem] flex-col overflow-hidden border border-gray-200 bg-white/70 p-5 shadow-sm transition-colors hover:bg-white dark:border-gray-800 dark:bg-gray-950/50 dark:hover:bg-gray-950 sm:p-6"
+              className="mx-auto flex max-w-2xl flex-col items-center text-center"
             >
+              <span
+                className={twMerge(
+                  'flex h-12 w-12 items-center justify-center rounded-xl border',
+                  principle.iconClassName,
+                )}
+              >
+                <principle.Icon className="h-6 w-6" />
+              </span>
+              <p className="mt-5 flex items-center justify-center gap-2 font-mono text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-500">
+                <span
+                  className={twMerge(
+                    'bg-gradient-to-r bg-clip-text text-transparent',
+                    principle.accentClassName,
+                  )}
+                >
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <span
+                  aria-hidden="true"
+                  className="text-gray-300 dark:text-gray-700"
+                >
+                  /
+                </span>
+                {principle.label}
+              </p>
+              <h4 className="mt-3 text-2xl font-black leading-tight text-gray-950 dark:text-white sm:text-3xl">
+                {principle.title}
+              </h4>
+              <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-gray-600 dark:text-gray-400">
+                {principle.body}
+              </p>
               <div
                 aria-hidden="true"
                 className={twMerge(
-                  'absolute inset-x-0 top-0 h-1 bg-linear-to-r',
+                  'mt-6 h-1 w-16 rounded-full bg-linear-to-r',
                   principle.accentClassName,
                 )}
               />
-              <div className="relative flex items-start justify-between gap-4">
-                <div>
-                  <p className="font-mono text-[11px] font-bold uppercase text-gray-500 dark:text-gray-500">
-                    {principle.label}
-                  </p>
-                  <h4 className="mt-4 max-w-64 text-xl font-black leading-tight text-gray-950 dark:text-white">
-                    {principle.title}
-                  </h4>
-                </div>
-                <span
-                  className={twMerge(
-                    'flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border',
-                    principle.iconClassName,
-                  )}
-                >
-                  <principle.Icon className="h-5 w-5" />
-                </span>
-              </div>
-              <p className="relative mt-4 max-w-[25rem] text-sm leading-6 text-gray-600 dark:text-gray-400">
-                {principle.body}
-              </p>
               <PrincipleProof
                 proof={principle.proof}
                 accentClassName={principle.accentClassName}
               />
-              <span
-                aria-hidden="true"
-                className="absolute bottom-3 right-5 font-mono text-5xl font-black leading-none text-gray-100 transition-colors group-hover:text-gray-200 dark:text-white/[0.04] dark:group-hover:text-white/[0.07]"
-              >
-                {String(index + 1).padStart(2, '0')}
-              </span>
             </li>
           ))}
         </ol>
@@ -659,7 +624,7 @@ function FrameworkAdapterGraph({
   return (
     <div
       aria-hidden="true"
-      className="relative mt-auto h-32 pt-5 font-mono text-[10px] font-bold"
+      className="relative mx-auto mt-8 h-32 w-full max-w-xs pt-5 font-mono text-[10px] font-bold"
     >
       <div className="home-adapter-graph absolute inset-x-0 top-1 h-[7.5rem] overflow-visible">
         {frameworkAdapterNodes.map((adapter, adapterIndex) => {
@@ -770,8 +735,8 @@ function PrincipleProof({
 
   if (proof === 'types') {
     return (
-      <div className="mt-auto pt-7 font-mono text-[11px] leading-5">
-        <div className="rounded-lg border border-gray-200 bg-white/70 p-3 text-gray-600 dark:border-gray-800 dark:bg-black/30 dark:text-gray-400">
+      <div className="mx-auto mt-8 w-full max-w-sm font-mono text-[11px] leading-5">
+        <div className="rounded-lg border border-gray-200 bg-white/70 p-3 text-left text-gray-600 dark:border-gray-800 dark:bg-black/30 dark:text-gray-400">
           {[
             ['params.postId', 'string'],
             ['query.data', 'Project[]'],
@@ -796,7 +761,7 @@ function PrincipleProof({
 
   if (proof === 'adoption') {
     return (
-      <div className="mt-auto pt-7">
+      <div className="mx-auto mt-8 w-full max-w-md">
         <div className="mb-2 flex items-center justify-between gap-3 font-mono text-[11px] font-bold uppercase text-gray-500 dark:text-gray-500">
           <span>critical paths</span>
           <span
@@ -829,8 +794,8 @@ function PrincipleProof({
   }
 
   return (
-    <div className="mt-auto pt-7">
-      <div className="flex flex-wrap gap-1.5 font-mono text-[11px] font-bold text-gray-600 dark:text-gray-400">
+    <div className="mx-auto mt-8 w-full max-w-md">
+      <div className="flex flex-wrap justify-center gap-1.5 font-mono text-[11px] font-bold text-gray-600 dark:text-gray-400">
         {['MIT', 'self-host', 'any host', 'no paid products'].map((item) => (
           <span
             key={item}
@@ -890,7 +855,6 @@ function StackCategoryCard({
     </Link>
   )
 }
-
 function OpenSourceGradientText() {
   return <span className="home-open-source-gradient">open-source</span>
 }

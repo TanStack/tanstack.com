@@ -1,6 +1,5 @@
-import { MagicWand, Lightning } from '@phosphor-icons/react'
+import { MagicWand, Lightning, Gear } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
-import { CogsIcon } from '~/components/icons/CogsIcon'
 import { devtools } from './libraries'
 
 const textStyles = 'text-black dark:text-gray-100'
@@ -42,7 +41,7 @@ export const devtoolsProject = {
     },
     {
       title: 'Custom Devtools Support',
-      icon: <CogsIcon className="text-black dark:text-gray-100" />,
+      icon: <Gear className="text-black dark:text-gray-100" />,
       description: (
         <div>
           Extend the devtools panel with your own custom devtools. The platform

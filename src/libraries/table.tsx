@@ -1,6 +1,5 @@
-import { PersonSimple, Lightning } from '@phosphor-icons/react'
+import { PersonSimple, Lightning, Gear } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
-import { CogsIcon } from '~/components/icons/CogsIcon'
 import { table } from './libraries'
 
 const textStyles = 'text-blue-500 dark:text-blue-400'
@@ -81,7 +80,7 @@ export const tableProject = {
     },
     {
       title: 'Extensible',
-      icon: <CogsIcon className={twMerge(textStyles)} />,
+      icon: <Gear className={twMerge(textStyles)} />,
       description: (
         <div>
           TanStack table ships with excellent defaults to get you off the ground

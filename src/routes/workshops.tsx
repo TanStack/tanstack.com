@@ -17,8 +17,7 @@ import { Card } from '~/components/Card'
 import { allMaintainers, Maintainer } from '~/libraries/maintainers'
 import { MaintainerCard } from '~/components/MaintainerCard'
 import { shuffleWithSeed } from '~/utils/utils'
-import { CheckCircleIcon } from '~/components/icons/CheckCircleIcon'
-import { Envelope } from '@phosphor-icons/react'
+import { CheckCircle, Envelope } from '@phosphor-icons/react'
 
 // Server function to get the seed based on 10-second intervals
 // This ensures consistency between server and client
@@ -100,7 +99,7 @@ function WorkshopsPage() {
                   'Access to maintainers and creators',
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-2">
-                    <CheckCircleIcon className="w-5 h-5 text-green-500 flex-shrink-0" />
+                    <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -347,7 +346,7 @@ function WorkshopsPage() {
                     key={topic}
                     className="flex items-center gap-3 rounded-lg bg-white dark:bg-gray-800 px-4 py-3 shadow-sm border border-gray-200 dark:border-gray-700"
                   >
-                    <CheckCircleIcon className="w-5 h-5 text-green-500 flex-shrink-0" />
+                    <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
                     <span className="text-gray-600 dark:text-gray-400 font-medium">
                       {topic}
                     </span>

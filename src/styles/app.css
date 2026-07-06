@@ -66,18 +66,22 @@ html.theme-switching *::after {
 
   --color-discord: #536bbd;
 
-  /* Neutral gray scale (no blue tint) */
-  --color-gray-50: #fafafa;
-  --color-gray-100: #f5f5f5;
-  --color-gray-200: #e5e5e5;
-  --color-gray-300: #d4d4d4;
-  --color-gray-400: #a3a3a3;
-  --color-gray-500: #737373;
-  --color-gray-600: #525252;
-  --color-gray-700: #404040;
-  --color-gray-800: #262626;
-  --color-gray-900: #171717;
-  --color-gray-950: #0a0a0a;
+  /* Neutral scale — BRIDGED to the warm DS neutral hue so the whole site adopts
+     the new palette without touching components. Anchored to the DS neutral ramp
+     at key steps (100=DS background-subtle, 200=ds-neutral-100, 400=ds-neutral-200,
+     800=ds-neutral-400, 950=ds-neutral-500); mids interpolated to preserve the
+     original lightness curve (and therefore contrast) in both light and dark. */
+  --color-gray-50: #faf8f2;
+  --color-gray-100: #f5f2e9;
+  --color-gray-200: #eae5d7;
+  --color-gray-300: #d6cfbd;
+  --color-gray-400: #aba594;
+  --color-gray-500: #7c7464;
+  --color-gray-600: #5f574a;
+  --color-gray-700: #453f34;
+  --color-gray-800: #332d24;
+  --color-gray-900: #201b15;
+  --color-gray-950: #111111;
 }
 
 /* Shop color tokens — inline so they resolve via var() at runtime (scoped to .shop-scope / html.dark .shop-scope) */
@@ -385,6 +389,54 @@ html.dark {
 /* Accent colors for docs UI (sidebar, TOC, prev/next) */
 @source inline('from-gray-700 to-gray-900 text-gray-700 dark:text-gray-300');
 
+/*
+ * Semantic heading classes — a convenience alias layer over the DS heading
+ * scale. `class="h1"` renders a complete heading (display font + size +
+ * line-height + weight) mapping 1:1 to text-ds-heading-1…6. Values reference
+ * the same --text-ds-heading-* tokens (@theme), so this stays the single
+ * source of truth. See /ds/typography.
+ */
+@layer components {
+  .h1,
+  .h2,
+  .h3,
+  .h4,
+  .h5,
+  .h6 {
+    font-family: var(--font-ds-display);
+  }
+  .h1 {
+    font-size: var(--text-ds-heading-1);
+    line-height: var(--text-ds-heading-1--line-height);
+    font-weight: var(--text-ds-heading-1--font-weight);
+  }
+  .h2 {
+    font-size: var(--text-ds-heading-2);
+    line-height: var(--text-ds-heading-2--line-height);
+    font-weight: var(--text-ds-heading-2--font-weight);
+  }
+  .h3 {
+    font-size: var(--text-ds-heading-3);
+    line-height: var(--text-ds-heading-3--line-height);
+    font-weight: var(--text-ds-heading-3--font-weight);
+  }
+  .h4 {
+    font-size: var(--text-ds-heading-4);
+    line-height: var(--text-ds-heading-4--line-height);
+    font-weight: var(--text-ds-heading-4--font-weight);
+  }
+  .h5 {
+    font-size: var(--text-ds-heading-5);
+    line-height: var(--text-ds-heading-5--line-height);
+    font-weight: var(--text-ds-heading-5--font-weight);
+  }
+  .h6 {
+    font-size: var(--text-ds-heading-6);
+    line-height: var(--text-ds-heading-6--line-height);
+    font-weight: var(--text-ds-heading-6--font-weight);
+  }
+}
+
 @layer base {
   *,
   ::after,
@@ -395,7 +447,7 @@ html.dark {
   }
 
   :root {
-    --navbar-height: 52px;
+    --navbar-height: 58px;
     --docs-tabs-height: 0px;
     --anchor-scroll-padding-top: calc(
       var(--navbar-height) + var(--docs-tabs-height)

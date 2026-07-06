@@ -84,6 +84,24 @@ html.theme-switching *::after {
   --color-gray-950: #111111;
 }
 
+/* Keep neutral grays stable before client CSS injection reorders Tailwind layers.
+   Mirrors the warm DS-neutral bridge in @theme above, so the palette shift also
+   survives the layer reorder (otherwise this block would revert grays to cool). */
+:root,
+:host {
+  --color-gray-50: #faf8f2;
+  --color-gray-100: #f5f2e9;
+  --color-gray-200: #eae5d7;
+  --color-gray-300: #d6cfbd;
+  --color-gray-400: #aba594;
+  --color-gray-500: #7c7464;
+  --color-gray-600: #5f574a;
+  --color-gray-700: #453f34;
+  --color-gray-800: #332d24;
+  --color-gray-900: #201b15;
+  --color-gray-950: #111111;
+}
+
 /* Shop color tokens — inline so they resolve via var() at runtime (scoped to .shop-scope / html.dark .shop-scope) */
 @theme inline {
   --color-shop-bg: var(--shop-bg);

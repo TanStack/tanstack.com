@@ -1,6 +1,16 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
-import { DotsThreeVertical } from '@phosphor-icons/react'
+import {
+  ArrowDown,
+  ChartBar,
+  ChartLine,
+  Clock,
+  ClockCounterClockwise,
+  Columns,
+  Rows,
+  Stack,
+  type Icon,
+} from '@phosphor-icons/react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,85 +21,157 @@ import { Tooltip } from '~/components/Tooltip'
 import {
   type TimeRange,
   type BinType,
+  type ChartType,
   type TransformMode,
   type ShowDataMode,
-  type FacetValue,
+  type ViewMode,
+  type LatestBarSort,
+  type BarOrientation,
   timeRanges,
   binningOptions,
+  historyChartTypes,
+  latestChartTypes,
   isBinningOptionValidForRange,
 } from './shared'
 
 const dropdownButtonStyles = {
-  base: 'bg-gray-500/10 rounded-md px-2 py-1 text-sm flex items-center gap-1',
+  base: 'flex h-6 items-center gap-0.5 rounded bg-gray-500/10 px-1.5 py-0.5 text-xs leading-none',
   active: 'bg-gray-500/20',
 } as const
+
+const dropdownContentStyles =
+  'min-w-[180px] rounded-md bg-white p-1.5 shadow-lg dark:bg-gray-800 z-50'
+const dropdownHeaderStyles =
+  'mb-1 flex items-center justify-between px-0.5 text-xs font-medium'
+const dropdownItemStyles =
+  'flex w-full cursor-pointer items-center gap-1.5 rounded px-1.5 py-1 text-left text-xs outline-none hover:bg-gray-500/20 data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500'
+const segmentedControlStyles =
+  'flex h-6 items-center rounded bg-gray-500/10 p-0.5 text-xs leading-none'
+const segmentedButtonStyles = 'flex h-5 items-center gap-0.5 rounded px-1.5'
+const iconSegmentedButtonStyles =
+  'flex size-5 items-center justify-center rounded'
+
+const chartTypeIcons = {
+  line: ChartLine,
+  stacked: Stack,
+  'stacked-area': ChartLine,
+  'stacked-stream': Stack,
+  bar: ChartBar,
+  'stacked-bar': Stack,
+} as const satisfies Partial<Record<ChartType, Icon>>
 
 const transformOptions = [
   { value: 'none', label: 'Actual Values' },
   { value: 'normalize-y', label: 'Relative Change' },
-] as const
+] as const satisfies ReadonlyArray<{
+  value: TransformMode
+  label: string
+}>
 
 const showDataModeOptions = [
   { value: 'all', label: 'All Data' },
   { value: 'complete', label: 'Hide Partial Data' },
 ] as const
 
-const facetOptions = [{ value: 'name', label: 'Package' }] as const
-
 export type ChartControlsProps = {
+  viewMode: ViewMode
+  chartType: ChartType
   range: TimeRange
   binType: BinType
   transform: TransformMode
   showDataMode: ShowDataMode
+  barSort: LatestBarSort
+  barOrientation: BarOrientation
+  onViewModeChange: (mode: ViewMode) => void
+  onChartTypeChange: (chartType: ChartType) => void
   onRangeChange: (range: TimeRange) => void
   onBinTypeChange: (binType: BinType) => void
   onTransformChange: (transform: TransformMode) => void
   onShowDataModeChange: (mode: ShowDataMode) => void
-  // Optional facet controls (main page only)
-  facetX?: FacetValue
-  facetY?: FacetValue
-  onFacetXChange?: (value: FacetValue | undefined) => void
-  onFacetYChange?: (value: FacetValue | undefined) => void
+  onBarSortChange: (barSort: LatestBarSort) => void
+  onBarOrientationChange: (barOrientation: BarOrientation) => void
 }
 
 export function ChartControls({
+  viewMode,
+  chartType,
   range,
   binType,
   transform,
   showDataMode,
+  barSort,
+  barOrientation,
+  onViewModeChange,
+  onChartTypeChange,
   onRangeChange,
   onBinTypeChange,
   onTransformChange,
   onShowDataModeChange,
-  facetX,
-  facetY,
-  onFacetXChange,
-  onFacetYChange,
+  onBarSortChange,
+  onBarOrientationChange,
 }: ChartControlsProps) {
-  const showFacets = onFacetXChange && onFacetYChange
+  const chartTypeOptions =
+    viewMode === 'history' ? historyChartTypes : latestChartTypes
+  const canUseTransform = viewMode === 'history' && chartType === 'line'
+  const showDataModeDisabled =
+    viewMode === 'latest' || transform === 'normalize-y'
+  const showBarSort =
+    viewMode === 'latest' &&
+    (chartType === 'bar' || chartType === 'stacked-bar')
+  const showBarOrientation = showBarSort
 
   return (
     <>
+      <div className={segmentedControlStyles}>
+        <Tooltip content="Show the full timeline">
+          <button
+            onClick={() => onViewModeChange('history')}
+            className={twMerge(
+              segmentedButtonStyles,
+              viewMode === 'history'
+                ? 'bg-white text-blue-600 shadow-sm dark:bg-gray-900 dark:text-blue-400'
+                : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100',
+            )}
+          >
+            <ClockCounterClockwise className="size-3" />
+            Timeline
+          </button>
+        </Tooltip>
+        <Tooltip content="Show one selected bucket snapshot">
+          <button
+            onClick={() => onViewModeChange('latest')}
+            className={twMerge(
+              segmentedButtonStyles,
+              viewMode === 'latest'
+                ? 'bg-white text-blue-600 shadow-sm dark:bg-gray-900 dark:text-blue-400'
+                : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100',
+            )}
+          >
+            <Clock className="size-3" />
+            Snapshot
+          </button>
+        </Tooltip>
+      </div>
+
       {/* Time Range */}
       <DropdownMenu>
         <Tooltip content="Select time range">
           <DropdownMenuTrigger asChild>
             <button className={twMerge(dropdownButtonStyles.base)}>
               {timeRanges.find((r) => r.value === range)?.label}
-              <DotsThreeVertical className="w-3 h-3" />
             </button>
           </DropdownMenuTrigger>
         </Tooltip>
-        <DropdownMenuContent className="min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 z-50">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium">Time Range</span>
+        <DropdownMenuContent className={dropdownContentStyles}>
+          <div className={dropdownHeaderStyles}>
+            <span>Time Range</span>
           </div>
           {timeRanges.map(({ value, label }) => (
             <DropdownMenuItem
               key={value}
               onSelect={() => onRangeChange(value)}
               className={twMerge(
-                'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
+                dropdownItemStyles,
                 value === range ? 'text-blue-500 bg-blue-500/10' : '',
                 'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500',
               )}
@@ -111,24 +193,27 @@ export function ChartControls({
               )}
             >
               {binningOptions.find((b) => b.value === binType)?.label}
-              <DotsThreeVertical className="w-3 h-3" />
             </button>
           </DropdownMenuTrigger>
         </Tooltip>
-        <DropdownMenuContent className="min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 z-50">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium">Binning Interval</span>
+        <DropdownMenuContent className={dropdownContentStyles}>
+          <div className={dropdownHeaderStyles}>
+            <span>Binning Interval</span>
           </div>
           {binningOptions.map(({ label, value }) => (
             <DropdownMenuItem
               key={value}
               onSelect={() => onBinTypeChange(value)}
-              disabled={!isBinningOptionValidForRange(range, value)}
+              disabled={
+                viewMode === 'history' &&
+                !isBinningOptionValidForRange(range, value)
+              }
               className={twMerge(
-                'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
+                dropdownItemStyles,
                 binType === value ? 'text-blue-500 bg-blue-500/10' : '',
                 'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500',
-                !isBinningOptionValidForRange(range, value)
+                viewMode === 'history' &&
+                  !isBinningOptionValidForRange(range, value)
                   ? 'opacity-50 cursor-not-allowed'
                   : '',
               )}
@@ -139,33 +224,124 @@ export function ChartControls({
         </DropdownMenuContent>
       </DropdownMenu>
 
+      {/* Chart Type */}
+      <div aria-label="Chart type" className={segmentedControlStyles}>
+        {chartTypeOptions.map(({ value, label }) => {
+          const Icon = chartTypeIcons[value] ?? ChartBar
+
+          return (
+            <Tooltip content={label} key={value}>
+              <button
+                aria-label={`${label} chart`}
+                aria-pressed={chartType === value}
+                className={twMerge(
+                  iconSegmentedButtonStyles,
+                  chartType === value
+                    ? 'bg-white text-blue-600 shadow-sm dark:bg-gray-900 dark:text-blue-400'
+                    : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100',
+                )}
+                onClick={() => onChartTypeChange(value)}
+                type="button"
+              >
+                <Icon className="size-3.5" />
+              </button>
+            </Tooltip>
+          )
+        })}
+      </div>
+
+      {showBarOrientation ? (
+        <div className={segmentedControlStyles}>
+          <Tooltip content="Use vertical bars">
+            <button
+              onClick={() => onBarOrientationChange('vertical')}
+              className={twMerge(
+                segmentedButtonStyles,
+                barOrientation === 'vertical'
+                  ? 'bg-white text-blue-600 shadow-sm dark:bg-gray-900 dark:text-blue-400'
+                  : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100',
+              )}
+            >
+              <Columns className="size-3" />
+              Vertical
+            </button>
+          </Tooltip>
+          <Tooltip content="Use horizontal bars">
+            <button
+              onClick={() => onBarOrientationChange('horizontal')}
+              className={twMerge(
+                segmentedButtonStyles,
+                barOrientation === 'horizontal'
+                  ? 'bg-white text-blue-600 shadow-sm dark:bg-gray-900 dark:text-blue-400'
+                  : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100',
+              )}
+            >
+              <Rows className="size-3" />
+              Horizontal
+            </button>
+          </Tooltip>
+        </div>
+      ) : null}
+
+      {showBarSort ? (
+        <Tooltip
+          content={
+            barSort === 'value'
+              ? 'Sort bars by series name'
+              : 'Sort bars by value'
+          }
+        >
+          <button
+            className={twMerge(
+              dropdownButtonStyles.base,
+              barSort === 'value' && dropdownButtonStyles.active,
+            )}
+            onClick={() =>
+              onBarSortChange(barSort === 'value' ? 'name' : 'value')
+            }
+          >
+            <ArrowDown className="size-3" />
+            {barSort === 'value' ? 'Value Sort' : 'Name Sort'}
+          </button>
+        </Tooltip>
+      ) : null}
+
       {/* Y-Axis Transform */}
       <DropdownMenu>
-        <Tooltip content="Transform the Y-axis to show relative changes between packages. 'None' shows actual download numbers, while 'Normalize Y' shows percentage changes relative to the first data point.">
+        <Tooltip
+          content={
+            canUseTransform
+              ? "Transform the Y-axis to show relative changes between packages. 'None' shows actual download numbers, while 'Normalize Y' shows percentage changes relative to the first data point."
+              : 'Relative change is only available for history line charts'
+          }
+        >
           <DropdownMenuTrigger asChild>
             <button
               className={twMerge(
                 dropdownButtonStyles.base,
                 transform !== 'none' && dropdownButtonStyles.active,
+                !canUseTransform && 'opacity-50 cursor-not-allowed',
               )}
+              disabled={!canUseTransform}
             >
               {transformOptions.find((opt) => opt.value === transform)?.label}
-              <DotsThreeVertical className="w-3 h-3" />
             </button>
           </DropdownMenuTrigger>
         </Tooltip>
-        <DropdownMenuContent className="min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 z-50">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium">Y-Axis Transform</span>
+        <DropdownMenuContent className={dropdownContentStyles}>
+          <div className={dropdownHeaderStyles}>
+            <span>Y-Axis Transform</span>
           </div>
           {transformOptions.map(({ value, label }) => (
             <DropdownMenuItem
               key={value}
-              onSelect={() => onTransformChange(value as TransformMode)}
+              onSelect={() => onTransformChange(value)}
+              disabled={!canUseTransform}
               className={twMerge(
-                'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
+                dropdownItemStyles,
                 transform === value ? 'text-blue-500 bg-blue-500/10' : '',
                 'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500',
+                !canUseTransform ? 'opacity-50 cursor-not-allowed' : '',
               )}
             >
               {label}
@@ -174,111 +350,15 @@ export function ChartControls({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {/* Facet X (optional) */}
-      {showFacets && (
-        <DropdownMenu>
-          <Tooltip content="Split the visualization horizontally by package">
-            <DropdownMenuTrigger asChild>
-              <button
-                className={twMerge(
-                  dropdownButtonStyles.base,
-                  facetX && dropdownButtonStyles.active,
-                )}
-              >
-                {facetX
-                  ? `Facet X by ${facetOptions.find((opt) => opt.value === facetX)?.label}`
-                  : 'No Facet X'}
-                <DotsThreeVertical className="w-3 h-3" />
-              </button>
-            </DropdownMenuTrigger>
-          </Tooltip>
-          <DropdownMenuContent className="min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 z-50">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium">Horizontal Facet</span>
-            </div>
-            <DropdownMenuItem
-              onSelect={() => onFacetXChange(undefined)}
-              className={twMerge(
-                'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
-                !facetX ? 'text-blue-500 bg-blue-500/10' : '',
-                'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500',
-              )}
-            >
-              No Facet
-            </DropdownMenuItem>
-            {facetOptions.map(({ value, label }) => (
-              <DropdownMenuItem
-                key={value}
-                onSelect={() => onFacetXChange(value)}
-                className={twMerge(
-                  'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
-                  facetX === value ? 'text-blue-500 bg-blue-500/10' : '',
-                  'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500',
-                )}
-              >
-                {label}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
-
-      {/* Facet Y (optional) */}
-      {showFacets && (
-        <DropdownMenu>
-          <Tooltip content="Split the visualization vertically by package">
-            <DropdownMenuTrigger asChild>
-              <button
-                className={twMerge(
-                  dropdownButtonStyles.base,
-                  facetY && dropdownButtonStyles.active,
-                )}
-              >
-                {facetY
-                  ? `Facet Y by ${facetOptions.find((opt) => opt.value === facetY)?.label}`
-                  : 'No Facet Y'}
-                <DotsThreeVertical className="w-3 h-3" />
-              </button>
-            </DropdownMenuTrigger>
-          </Tooltip>
-          <DropdownMenuContent className="min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 z-50">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium">Vertical Facet</span>
-            </div>
-            <DropdownMenuItem
-              onSelect={() => onFacetYChange(undefined)}
-              className={twMerge(
-                'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
-                !facetY ? 'text-blue-500 bg-blue-500/10' : '',
-                'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500',
-              )}
-            >
-              No Facet
-            </DropdownMenuItem>
-            {facetOptions.map(({ value, label }) => (
-              <DropdownMenuItem
-                key={value}
-                onSelect={() => onFacetYChange(value)}
-                className={twMerge(
-                  'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
-                  facetY === value ? 'text-blue-500 bg-blue-500/10' : '',
-                  'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500',
-                )}
-              >
-                {label}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
-
       {/* Show Data Mode */}
       <DropdownMenu>
         <Tooltip
           content={
-            transform === 'normalize-y'
-              ? 'Only complete data is shown when using relative change'
-              : 'Control how data is displayed'
+            viewMode === 'latest'
+              ? 'Snapshot mode always shows the selected bucket'
+              : transform === 'normalize-y'
+                ? 'Only complete data is shown when using relative change'
+                : 'Control how data is displayed'
           }
         >
           <DropdownMenuTrigger asChild>
@@ -286,34 +366,31 @@ export function ChartControls({
               className={twMerge(
                 dropdownButtonStyles.base,
                 showDataMode !== 'all' && dropdownButtonStyles.active,
-                transform === 'normalize-y' && 'opacity-50 cursor-not-allowed',
+                showDataModeDisabled && 'opacity-50 cursor-not-allowed',
               )}
-              disabled={transform === 'normalize-y'}
+              disabled={showDataModeDisabled}
             >
               {
                 showDataModeOptions.find((opt) => opt.value === showDataMode)
                   ?.label
               }
-              <DotsThreeVertical className="w-3 h-3" />
             </button>
           </DropdownMenuTrigger>
         </Tooltip>
-        <DropdownMenuContent className="min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 z-50">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium">Data Display Mode</span>
+        <DropdownMenuContent className={dropdownContentStyles}>
+          <div className={dropdownHeaderStyles}>
+            <span>Data Display Mode</span>
           </div>
           {showDataModeOptions.map(({ value, label }) => (
             <DropdownMenuItem
               key={value}
               onSelect={() => onShowDataModeChange(value)}
-              disabled={transform === 'normalize-y'}
+              disabled={showDataModeDisabled}
               className={twMerge(
-                'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
+                dropdownItemStyles,
                 showDataMode === value ? 'text-blue-500 bg-blue-500/10' : '',
                 'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500',
-                transform === 'normalize-y'
-                  ? 'opacity-50 cursor-not-allowed'
-                  : '',
+                showDataModeDisabled ? 'opacity-50 cursor-not-allowed' : '',
               )}
             >
               {label}

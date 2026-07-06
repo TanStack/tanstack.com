@@ -141,6 +141,15 @@ importers:
       '@tanstack/react-table':
         specifier: ^8.21.3
         version: 8.21.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@tanstack/workflow-core':
+        specifier: 0.0.3
+        version: 0.0.3
+      '@tanstack/workflow-runtime':
+        specifier: 0.0.2
+        version: 0.0.2
+      '@tanstack/workflow-store-drizzle-postgres':
+        specifier: 0.0.4
+        version: 0.0.4(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(postgres@3.4.8)
       '@types/d3':
         specifier: ^7.4.3
         version: 7.4.3
@@ -183,6 +192,9 @@ importers:
       encoding-sniffer:
         specifier: ^0.2.1
         version: 0.2.1
+      gifenc:
+        specifier: ^1.0.3
+        version: 1.0.3
       gray-matter:
         specifier: ^4.0.3
         version: 4.0.3
@@ -3637,6 +3649,18 @@ packages:
     resolution: {integrity: sha512-uhOeFyxLcU41HzvrxsGpiWdcMbScY1EDgbZ5K7DVRMYInbLYWAC0EA/kx9wXAoSM8q82bUG2hRl8+EAjE6XAbA==}
     engines: {node: '>=20.19'}
 
+  '@tanstack/workflow-core@0.0.3':
+    resolution: {integrity: sha512-0ev5ISQR8knUBAco46bc8h2/bMGS3ZPlEC/I/EgeD7PXE0DnmNJLvrkwZ5KfdzcbdM8pqJQLR5coBHtNurOcEg==}
+    engines: {node: '>=18'}
+
+  '@tanstack/workflow-runtime@0.0.2':
+    resolution: {integrity: sha512-v+cv8rIOaE0a50Md6WSPge11wLn9NVxcGbVanKQe2BlZuNtDVIayZFUgn3RXHQp68MQmrdu2bK6aT9BSMZ4z2g==}
+    engines: {node: '>=18'}
+
+  '@tanstack/workflow-store-drizzle-postgres@0.0.4':
+    resolution: {integrity: sha512-IguipqLh04rvO3FnWxuPp/BiTJPnJiB7jlGH/M/qlfhUkFA0x4bPJ+MjYxa1sQaJLJbpYJI/Z2AVzRwfhDAFRw==}
+    engines: {node: '>=18'}
+
   '@ts-morph/common@0.28.1':
     resolution: {integrity: sha512-W74iWf7ILp1ZKNYXY5qbddNaml7e9Sedv5lvU1V8lftlitkc9Pq1A+jlH23ltDgWYeZFFEqGCD1Ies9hqu3O+g==}
 
@@ -5024,6 +5048,9 @@ packages:
 
   get-tsconfig@4.13.7:
     resolution: {integrity: sha512-7tN6rFgBlMgpBML5j8typ92BKFi2sFQvIdpAqLA2beia5avZDrMs0FLZiM5etShWq5irVyGcGMEA1jcDaK7A/Q==}
+
+  gifenc@1.0.3:
+    resolution: {integrity: sha512-xdr6AdrfGBcfzncONUOlXMBuc5wJDtOueE3c5rdG0oNgtINLD+f2iFZltrBRZYzACRbKr+mSVU/x98zv2u3jmw==}
 
   glob-to-regex.js@1.2.0:
     resolution: {integrity: sha512-QMwlOQKU/IzqMUOAZWubUOT8Qft+Y0KQWnX9nK3ch0CJg0tTp4TvGZsTfudYKv2NzoQSyPcnA6TYeIQ3jGichQ==}
@@ -10345,6 +10372,50 @@ snapshots:
 
   '@tanstack/virtual-file-routes@1.162.0': {}
 
+  '@tanstack/workflow-core@0.0.3':
+    dependencies:
+      '@standard-schema/spec': 1.1.0
+
+  '@tanstack/workflow-runtime@0.0.2':
+    dependencies:
+      '@tanstack/workflow-core': 0.0.3
+
+  '@tanstack/workflow-store-drizzle-postgres@0.0.4(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(postgres@3.4.8)':
+    dependencies:
+      '@tanstack/workflow-core': 0.0.3
+      '@tanstack/workflow-runtime': 0.0.2
+      drizzle-orm: 0.45.2(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(postgres@3.4.8)
+    transitivePeerDependencies:
+      - '@aws-sdk/client-rds-data'
+      - '@cloudflare/workers-types'
+      - '@electric-sql/pglite'
+      - '@libsql/client'
+      - '@libsql/client-wasm'
+      - '@neondatabase/serverless'
+      - '@op-engineering/op-sqlite'
+      - '@opentelemetry/api'
+      - '@planetscale/database'
+      - '@prisma/client'
+      - '@tidbcloud/serverless'
+      - '@types/better-sqlite3'
+      - '@types/pg'
+      - '@types/sql.js'
+      - '@upstash/redis'
+      - '@vercel/postgres'
+      - '@xata.io/client'
+      - better-sqlite3
+      - bun-types
+      - expo-sqlite
+      - gel
+      - knex
+      - kysely
+      - mysql2
+      - pg
+      - postgres
+      - prisma
+      - sql.js
+      - sqlite3
+
   '@ts-morph/common@0.28.1':
     dependencies:
       minimatch: 10.2.5
@@ -11884,6 +11955,8 @@ snapshots:
   get-tsconfig@4.13.7:
     dependencies:
       resolve-pkg-maps: 1.0.0
+
+  gifenc@1.0.3: {}
 
   glob-to-regex.js@1.2.0(tslib@2.8.1):
     dependencies:

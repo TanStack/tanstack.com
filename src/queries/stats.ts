@@ -1,19 +1,16 @@
 import { queryOptions } from '@tanstack/react-query'
 import {
   fetchRecentDownloadStats,
+  getHomepageNpmStatsSummary,
   getOSSStats,
 } from '~/utils/stats-queries.functions'
 import type { StatsQueryParams } from '~/utils/stats-queries.functions'
-import type { LibrarySlim } from '~/libraries'
 import type { RecentDownloadStats } from '~/utils/stats.types'
 
 export type { StatsQueryParams } from '~/utils/stats-queries.functions'
 
-type RecentDownloadsLibrary = Pick<LibrarySlim, 'npmPackageNames'> & {
-  frameworks?: LibrarySlim['frameworks']
-  id: string
-  repo?: LibrarySlim['repo']
-}
+type StatsQueryLibrary = NonNullable<StatsQueryParams['library']>
+type RecentDownloadsLibrary = StatsQueryLibrary
 
 export const ossStatsQueryOptions = (params?: StatsQueryParams) =>
   queryOptions({
@@ -22,7 +19,16 @@ export const ossStatsQueryOptions = (params?: StatsQueryParams) =>
     staleTime: 1000 * 60 * 15, // Cache for 15 minutes
   })
 
-export function ossStatsQuery({ library }: { library?: LibrarySlim } = {}) {
+export const homepageNpmStatsSummaryQuery = () =>
+  queryOptions({
+    queryKey: ['stats', 'homepage-npm-summary'],
+    queryFn: () => getHomepageNpmStatsSummary(),
+    staleTime: 1000 * 60 * 15,
+  })
+
+export function ossStatsQuery({
+  library,
+}: { library?: StatsQueryLibrary } = {}) {
   return ossStatsQueryOptions({
     library: library
       ? {

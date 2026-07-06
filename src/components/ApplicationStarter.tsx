@@ -123,6 +123,18 @@ function getPromptDeployProvider(
   }
 }
 
+function buildCodexStartUrl(prompt: string) {
+  return `codex://new?prompt=${encodeURIComponent(prompt)}`
+}
+
+function buildClaudeStartUrl(prompt: string) {
+  return `https://claude.ai/code?q=${encodeURIComponent(prompt)}`
+}
+
+function buildCursorStartUrl(prompt: string) {
+  return `cursor://anysphere.cursor-deeplink/prompt?text=${encodeURIComponent(prompt)}`
+}
+
 export function ApplicationStarter({
   builderIntegration,
   className,
@@ -158,19 +170,12 @@ export function ApplicationStarter({
     input,
     isDeployDialogOpen,
     isGenerating,
-    isGeneratingNetlify,
     isGeneratingPrompt,
     isModHeld,
     loadingPhrase,
     migrationRepositoryInputRef,
     migrationRepositoryUrl,
-    navigateToResult,
-    openClaudeStart,
-    openCursorStart,
-    openCodexStart,
     openDeployDialog,
-    openLovableStart,
-    openNetlifyStart,
     partnerSuggestions,
     promptCopyNotice,
     result,
@@ -257,6 +262,7 @@ export function ApplicationStarter({
     isSelectedHostingDeployPending || transientAction === 'deploy'
   const isPromptCopied = copiedKind === 'prompt'
   const isCommandCopied = copiedKind === 'command'
+  const resultPrompt = result?.prompt
   const selectedPromptDeployProvider = selectedHostingDeployPartner
     ? getPromptDeployProvider(selectedHostingDeployPartner)
     : undefined
@@ -270,6 +276,26 @@ export function ApplicationStarter({
         : undefined,
     [result?.prompt, selectedPromptDeployProvider],
   )
+  const netlifyStartHref = React.useMemo(
+    () =>
+      resultPrompt
+        ? buildStarterPromptDeployUrl('netlify', resultPrompt)
+        : undefined,
+    [resultPrompt],
+  )
+  const codexStartHref = React.useMemo(
+    () => (resultPrompt ? buildCodexStartUrl(resultPrompt) : undefined),
+    [resultPrompt],
+  )
+  const claudeStartHref = React.useMemo(
+    () => (resultPrompt ? buildClaudeStartUrl(resultPrompt) : undefined),
+    [resultPrompt],
+  )
+  const cursorStartHref = React.useMemo(
+    () => (resultPrompt ? buildCursorStartUrl(resultPrompt) : undefined),
+    [resultPrompt],
+  )
+  const downloadHref = result?.downloadUrl
   const trackSelectedHostingDeployLink = React.useCallback(() => {
     if (!selectedHostingDeployPartner) {
       return
@@ -295,10 +321,8 @@ export function ApplicationStarter({
           await openDeployDialog('cloudflare')
           break
         case 'lovable':
-          await openLovableStart()
           break
         case 'netlify':
-          await openNetlifyStart()
           break
         case 'railway':
           await openDeployDialog('railway')
@@ -355,13 +379,85 @@ export function ApplicationStarter({
           : 'Copy CLI Command'}
     </Button>
   )
+  const renderActionAnchor = ({
+    action,
+    className,
+    href,
+    icon,
+    label,
+    onTrack,
+    rel = 'noopener noreferrer',
+    size,
+    target = '_blank',
+    variant = 'primary',
+  }: {
+    action: StarterTransientAction
+    className?: string
+    href?: string
+    icon: React.ReactNode
+    label: string
+    onTrack: () => void
+    rel?: string
+    size: 'xs' | 'sm'
+    target?: string
+    variant?: 'primary' | 'secondary'
+  }) => {
+    const disabled = !canUseFinalActions || !href || transientAction === action
+    const waitingForHref = !href
+
+    return (
+      <Button
+        as="a"
+        variant={variant}
+        size={size}
+        href={disabled ? undefined : href}
+        target={target}
+        rel={rel}
+        aria-disabled={disabled}
+        tabIndex={disabled ? -1 : undefined}
+        onClick={(event) => {
+          if (disabled) {
+            event.preventDefault()
+            return
+          }
+
+          onTrack()
+          showTransientActionFeedback(action)
+        }}
+        className={twMerge(
+          className,
+          disabled && 'pointer-events-none opacity-50',
+        )}
+      >
+        {transientAction === action || waitingForHref ? (
+          <CircleNotch
+            className={twMerge(
+              'animate-spin',
+              size === 'xs' ? 'h-3 w-3' : 'h-4 w-4',
+            )}
+          />
+        ) : (
+          icon
+        )}
+        {transientAction === action
+          ? 'Opening...'
+          : waitingForHref
+            ? 'Preparing...'
+            : label}
+      </Button>
+    )
+  }
   const renderSelectedHostingDeployButton = () => {
     if (!selectedHostingDeployPartner) {
       return null
     }
 
-    if (selectedHostingDeployHref) {
-      const disabled = !canUseFinalActions || transientAction === 'deploy'
+    if (selectedPromptDeployProvider) {
+      const disabled =
+        !canUseFinalActions ||
+        !selectedHostingDeployHref ||
+        transientAction === 'deploy'
+      const waitingForHref = !selectedHostingDeployHref
 
       return (
         <Button
@@ -386,12 +482,16 @@ export function ApplicationStarter({
           className={disabled ? 'pointer-events-none opacity-50' : undefined}
           aria-label={`Deploy to ${hostingDeployPartnerLabels[selectedHostingDeployPartner]}`}
         >
-          {isDeployFeedbackActive ? (
+          {isDeployFeedbackActive || waitingForHref ? (
             <CircleNotch className="h-4 w-4 animate-spin" />
           ) : (
             <Rocket className="h-4 w-4" />
           )}
-          {isDeployFeedbackActive ? 'Opening...' : 'Deploy'}
+          {isDeployFeedbackActive
+            ? 'Opening...'
+            : waitingForHref
+              ? 'Preparing...'
+              : 'Deploy'}
         </Button>
       )
     }
@@ -879,48 +979,31 @@ export function ApplicationStarter({
                         <div className="flex flex-col gap-4">
                           {!showCliExportActions ? (
                             <div className="flex flex-wrap items-center gap-3">
-                              {!selectedHostingDeployPartner ? (
-                                <Button
-                                  size="sm"
-                                  type="button"
-                                  onClick={() => {
-                                    showTransientActionFeedback('netlify')
-                                    void openNetlifyStart()
-                                  }}
-                                  disabled={
-                                    !canUseFinalActions ||
-                                    transientAction === 'netlify'
-                                  }
-                                  className="border-[#00AD9F] bg-[#00AD9F] text-white hover:bg-[#009a8e]"
-                                >
-                                  {isGeneratingNetlify ||
-                                  transientAction === 'netlify' ? (
-                                    <CircleNotch className="h-4 w-4 animate-spin" />
-                                  ) : (
-                                    <Rocket className="h-4 w-4" />
-                                  )}
-                                  {transientAction === 'netlify'
-                                    ? 'Opening...'
-                                    : secondaryActionLabel}
-                                </Button>
-                              ) : null}
+                              {!selectedHostingDeployPartner
+                                ? renderActionAnchor({
+                                    action: 'netlify',
+                                    className:
+                                      'border-[#00AD9F] bg-[#00AD9F] text-white hover:bg-[#009a8e]',
+                                    href: netlifyStartHref,
+                                    icon: <Rocket className="h-4 w-4" />,
+                                    label: secondaryActionLabel,
+                                    onTrack: () => {
+                                      trackActivation({
+                                        action: 'netlify_start',
+                                        surface: 'result_panel',
+                                        provider: 'netlify',
+                                      })
+                                    },
+                                    size: 'sm',
+                                  })
+                                : null}
 
-                              <Button
-                                size="sm"
-                                type="button"
-                                onClick={() => {
-                                  showTransientActionFeedback('codex')
-                                  void openCodexStart()
-                                }}
-                                disabled={
-                                  !canUseFinalActions ||
-                                  transientAction === 'codex'
-                                }
-                                className="border-gray-900 bg-gray-900 text-white hover:bg-gray-800 dark:border-gray-100 dark:bg-gray-100 dark:text-gray-950 dark:hover:bg-gray-200"
-                              >
-                                {transientAction === 'codex' ? (
-                                  <CircleNotch className="h-4 w-4 animate-spin" />
-                                ) : (
+                              {renderActionAnchor({
+                                action: 'codex',
+                                className:
+                                  'border-gray-900 bg-gray-900 text-white hover:bg-gray-800 dark:border-gray-100 dark:bg-gray-100 dark:text-gray-950 dark:hover:bg-gray-200',
+                                href: codexStartHref,
+                                icon: (
                                   <span className="relative h-4 w-4 shrink-0">
                                     <img
                                       src={openaiDarkLogo}
@@ -935,11 +1018,16 @@ export function ApplicationStarter({
                                       className="hidden h-4 w-4 dark:block"
                                     />
                                   </span>
-                                )}
-                                {transientAction === 'codex'
-                                  ? 'Opening...'
-                                  : 'Open in Codex'}
-                              </Button>
+                                ),
+                                label: 'Open in Codex',
+                                onTrack: () => {
+                                  trackActivation({
+                                    action: 'open_codex',
+                                    surface: 'result_panel',
+                                  })
+                                },
+                                size: 'sm',
+                              })}
                             </div>
                           ) : null}
 
@@ -967,22 +1055,12 @@ export function ApplicationStarter({
 
                           {showCliExportActions && showMoreActions ? (
                             <div className="flex flex-wrap items-center gap-2">
-                              <Button
-                                size="xs"
-                                type="button"
-                                onClick={() => {
-                                  showTransientActionFeedback('codex')
-                                  void openCodexStart()
-                                }}
-                                disabled={
-                                  !canUseFinalActions ||
-                                  transientAction === 'codex'
-                                }
-                                className="h-6 gap-1 px-2 text-[11px] border-gray-900 bg-gray-900 text-white hover:bg-gray-800 dark:border-gray-100 dark:bg-gray-100 dark:text-gray-950 dark:hover:bg-gray-200"
-                              >
-                                {transientAction === 'codex' ? (
-                                  <CircleNotch className="h-3 w-3 animate-spin" />
-                                ) : (
+                              {renderActionAnchor({
+                                action: 'codex',
+                                className:
+                                  'h-6 gap-1 px-2 text-[11px] border-gray-900 bg-gray-900 text-white hover:bg-gray-800 dark:border-gray-100 dark:bg-gray-100 dark:text-gray-950 dark:hover:bg-gray-200',
+                                href: codexStartHref,
+                                icon: (
                                   <span className="relative h-3 w-3 shrink-0">
                                     <img
                                       src={openaiDarkLogo}
@@ -997,28 +1075,23 @@ export function ApplicationStarter({
                                       className="hidden h-3 w-3 dark:block"
                                     />
                                   </span>
-                                )}
-                                {transientAction === 'codex'
-                                  ? 'Opening...'
-                                  : 'Open in Codex'}
-                              </Button>
+                                ),
+                                label: 'Open in Codex',
+                                onTrack: () => {
+                                  trackActivation({
+                                    action: 'open_codex',
+                                    surface: 'result_panel',
+                                  })
+                                },
+                                size: 'xs',
+                              })}
 
-                              <Button
-                                size="xs"
-                                type="button"
-                                onClick={() => {
-                                  showTransientActionFeedback('claude')
-                                  void openClaudeStart()
-                                }}
-                                disabled={
-                                  !canUseFinalActions ||
-                                  transientAction === 'claude'
-                                }
-                                className="h-6 gap-1 px-2 text-[11px] border-[#D4A373] bg-[#D4A373] text-white hover:bg-[#C6905C] dark:border-[#E6C49A] dark:bg-[#E6C49A] dark:text-gray-950 dark:hover:bg-[#DBB684]"
-                              >
-                                {transientAction === 'claude' ? (
-                                  <CircleNotch className="h-3 w-3 animate-spin" />
-                                ) : (
+                              {renderActionAnchor({
+                                action: 'claude',
+                                className:
+                                  'h-6 gap-1 px-2 text-[11px] border-[#D4A373] bg-[#D4A373] text-white hover:bg-[#C6905C] dark:border-[#E6C49A] dark:bg-[#E6C49A] dark:text-gray-950 dark:hover:bg-[#DBB684]',
+                                href: claudeStartHref,
+                                icon: (
                                   <span className="relative h-3 w-3 shrink-0">
                                     <img
                                       src={anthropicDarkLogo}
@@ -1033,34 +1106,32 @@ export function ApplicationStarter({
                                       className="hidden h-3 w-3 dark:block"
                                     />
                                   </span>
-                                )}
-                                {transientAction === 'claude'
-                                  ? 'Opening...'
-                                  : 'Open in Claude'}
-                              </Button>
+                                ),
+                                label: 'Open in Claude',
+                                onTrack: () => {
+                                  trackActivation({
+                                    action: 'open_claude',
+                                    surface: 'result_panel',
+                                  })
+                                },
+                                size: 'xs',
+                              })}
 
-                              <Button
-                                size="xs"
-                                type="button"
-                                onClick={() => {
-                                  showTransientActionFeedback('cursor')
-                                  void openCursorStart()
-                                }}
-                                disabled={
-                                  !canUseFinalActions ||
-                                  transientAction === 'cursor'
-                                }
-                                className="h-6 gap-1 px-2 text-[11px] border-black bg-black text-white hover:bg-gray-900 dark:border-white dark:bg-white dark:text-black dark:hover:bg-gray-100"
-                              >
-                                {transientAction === 'cursor' ? (
-                                  <CircleNotch className="h-3 w-3 animate-spin" />
-                                ) : (
-                                  <CursorIcon className="h-3 w-3" />
-                                )}
-                                {transientAction === 'cursor'
-                                  ? 'Opening...'
-                                  : 'Open in Cursor'}
-                              </Button>
+                              {renderActionAnchor({
+                                action: 'cursor',
+                                className:
+                                  'h-6 gap-1 px-2 text-[11px] border-black bg-black text-white hover:bg-gray-900 dark:border-white dark:bg-white dark:text-black dark:hover:bg-gray-100',
+                                href: cursorStartHref,
+                                icon: <CursorIcon className="h-3 w-3" />,
+                                label: 'Open in Cursor',
+                                onTrack: () => {
+                                  trackActivation({
+                                    action: 'open_cursor',
+                                    surface: 'result_panel',
+                                  })
+                                },
+                                size: 'xs',
+                              })}
 
                               <Button
                                 variant="secondary"
@@ -1086,29 +1157,21 @@ export function ApplicationStarter({
                                   : 'Clone to GitHub'}
                               </Button>
 
-                              <Button
-                                variant="secondary"
-                                size="xs"
-                                type="button"
-                                onClick={() => {
-                                  showTransientActionFeedback('download')
-                                  void navigateToResult('download')
-                                }}
-                                disabled={
-                                  !canUseFinalActions ||
-                                  transientAction === 'download'
-                                }
-                                className="h-6 gap-1 px-2 text-[11px]"
-                              >
-                                {transientAction === 'download' ? (
-                                  <CircleNotch className="h-3 w-3 animate-spin" />
-                                ) : (
-                                  <Download className="h-3 w-3" />
-                                )}
-                                {transientAction === 'download'
-                                  ? 'Opening...'
-                                  : 'Download ZIP'}
-                              </Button>
+                              {renderActionAnchor({
+                                action: 'download',
+                                className: 'h-6 gap-1 px-2 text-[11px]',
+                                href: downloadHref,
+                                icon: <Download className="h-3 w-3" />,
+                                label: 'Download ZIP',
+                                onTrack: () => {
+                                  trackActivation({
+                                    action: 'download',
+                                    surface: 'result_panel',
+                                  })
+                                },
+                                size: 'xs',
+                                variant: 'secondary',
+                              })}
                             </div>
                           ) : null}
                         </div>

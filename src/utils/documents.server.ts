@@ -17,6 +17,7 @@ import {
 import { normalizeRedirectFrom } from './redirects'
 import { multiSortBy, removeLeadingSlash } from './utils'
 import { env } from './env'
+import { fetchWithTimeout } from './outbound-fetch.server'
 
 type FrontMatterValue =
   | string
@@ -115,7 +116,7 @@ async function fetchRemote(
   let response: Response
 
   try {
-    response = await fetch(href, {
+    response = await fetchWithTimeout(href, {
       ...(await getGitHubContentFetchOptionsAsync({
         includeApiVersion: false,
         userAgent: `docs:${owner}/${repo}`,
@@ -124,7 +125,7 @@ async function fetchRemote(
 
     if (isGitHubAuthFailureStatus(response.status)) {
       await cancelUnusedResponseBody(response)
-      response = await fetch(href, {
+      response = await fetchWithTimeout(href, {
         ...(await getGitHubContentFetchOptionsAsync({
           includeApiVersion: false,
           includeAuthorization: false,
@@ -898,11 +899,14 @@ async function fetchGitHubApiJson(url: string) {
   let response: Response
 
   try {
-    response = await fetch(url, await getGitHubContentFetchOptionsAsync())
+    response = await fetchWithTimeout(
+      url,
+      await getGitHubContentFetchOptionsAsync(),
+    )
 
     if (isGitHubAuthFailureStatus(response.status)) {
       await cancelUnusedResponseBody(response)
-      response = await fetch(
+      response = await fetchWithTimeout(
         url,
         await getGitHubContentFetchOptionsAsync({
           includeAuthorization: false,

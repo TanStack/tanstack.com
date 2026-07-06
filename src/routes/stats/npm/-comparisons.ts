@@ -5,6 +5,7 @@ import {
   MAX_NPM_STATS_PACKAGES_PER_GROUP,
   MAX_NPM_STATS_TOTAL_PACKAGES,
 } from '~/utils/npm-stats-limits'
+import { tanStackTotalNpmStatsPackageGroup } from '~/utils/tanstack-npm-stats'
 
 export const packageGroupSchema = v.object({
   label: v.optional(v.pipe(v.string(), v.maxLength(80))),
@@ -237,15 +238,8 @@ const tanstackLibraryPackageGroups = [
   },
 ] satisfies PackageGroupInput[]
 
-const tanstackAggregatePackageGroup = {
-  label: 'TanStack',
-  packages: tanstackLibraryPackageGroups
-    .flatMap((group) => group.packages)
-    .map((pkg) =>
-      pkg.name === '@tanstack/store' ? { ...pkg, hidden: true } : pkg,
-    ),
-  color: '#01a7b9',
-} satisfies PackageGroupInput
+const tanstackAggregatePackageGroup =
+  tanStackTotalNpmStatsPackageGroup satisfies PackageGroupInput
 
 const ecosystemTanStackPackageGroups = [
   {
@@ -529,6 +523,56 @@ export function getPopularComparisons(): v.InferInput<
         {
           packages: [{ name: 'expo' }],
           color: '#f59e0b',
+        },
+      ],
+    },
+    {
+      title: 'AI & Agent Harnesses',
+      packageGroups: [
+        {
+          label: 'TanStack AI',
+          packages: [{ name: '@tanstack/ai' }],
+          color: '#EC4899',
+        },
+        {
+          label: 'AI SDK',
+          packages: [{ name: 'ai' }],
+          color: '#111827',
+        },
+        {
+          label: 'LangChain',
+          packages: [{ name: 'langchain' }],
+          color: '#1C3C3C',
+        },
+        {
+          label: 'LangGraph',
+          packages: [{ name: '@langchain/langgraph' }],
+          color: '#2E8B57',
+        },
+        {
+          label: 'Mastra',
+          packages: [{ name: '@mastra/core' }],
+          color: '#7C3AED',
+        },
+        {
+          label: 'OpenAI Agents',
+          packages: [{ name: '@openai/agents' }],
+          color: '#10A37F',
+        },
+        {
+          label: 'Genkit',
+          packages: [{ name: 'genkit' }],
+          color: '#4285F4',
+        },
+        {
+          label: 'CopilotKit',
+          packages: [{ name: '@copilotkit/react-core' }],
+          color: '#F97316',
+        },
+        {
+          label: 'Promptfoo',
+          packages: [{ name: 'promptfoo' }],
+          color: '#FACC15',
         },
       ],
     },
@@ -881,6 +925,60 @@ export function getPopularComparisons(): v.InferInput<
         {
           packages: [{ name: 'fumadocs-core' }],
           color: '#DA70D6',
+        },
+      ],
+    },
+    {
+      title: 'Drag & Drop',
+      packageGroups: [
+        {
+          label: 'dnd-kit',
+          packages: [{ name: '@dnd-kit/core' }],
+          color: '#eb2f06',
+        },
+        {
+          label: 'Pragmatic DnD',
+          packages: [{ name: '@atlaskit/pragmatic-drag-and-drop' }],
+          color: '#0652dd',
+        },
+        {
+          label: 'React DnD',
+          packages: [{ name: 'react-dnd' }],
+          color: '#10ac84',
+        },
+        {
+          label: 'SortableJS',
+          packages: [
+            { name: 'sortablejs' },
+            { name: 'react-sortablejs' },
+            { name: 'vuedraggable' },
+            { name: 'vue-draggable-next' },
+            { name: 'vue-draggable-plus' },
+          ],
+          color: '#f39c12',
+        },
+        {
+          label: 'Hello Pangea DnD',
+          packages: [
+            { name: '@hello-pangea/dnd' },
+            { name: 'react-beautiful-dnd' },
+          ],
+          color: '#8854d0',
+        },
+        {
+          label: 'React Draggable',
+          packages: [{ name: 'react-draggable' }],
+          color: '#20bf6b',
+        },
+        {
+          label: 'React Grid Layout',
+          packages: [{ name: 'react-grid-layout' }],
+          color: '#d81b60',
+        },
+        {
+          label: 'React Rnd',
+          packages: [{ name: 'react-rnd' }],
+          color: '#a55d35',
         },
       ],
     },

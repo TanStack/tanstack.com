@@ -1,16 +1,18 @@
 import { useQuery } from '@tanstack/react-query'
+import { Link } from '@tanstack/react-router'
 import * as React from 'react'
-import { libraries, type Library } from '~/libraries'
-import { ossStatsQuery, recentDownloadsQuery } from '~/queries/stats'
+import { type Library } from '~/libraries'
+import {
+  homepageNpmStatsSummaryQuery,
+  ossStatsQuery,
+  recentDownloadsQuery,
+} from '~/queries/stats'
 import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
 import { Download, Star, TrendUp } from '@phosphor-icons/react'
-
-const tanStackNpmStatsLibrary = {
-  id: 'tanstack',
-  npmPackageNames: [
-    ...new Set(libraries.flatMap((library) => library.npmPackageNames ?? [])),
-  ],
-}
+import {
+  tanStackTotalNpmStatsLibrary,
+  tanStackTotalNpmStatsSearch,
+} from '~/utils/tanstack-npm-stats'
 
 function formatBillions(value: number) {
   return `${(value / 1_000_000_000).toFixed(2)} Billion`
@@ -64,24 +66,44 @@ function StatValue({
   )
 }
 
+type BaseHomeStatLinkProps = {
+  children: React.ReactNode
+  className: string
+  gradientClassName: string
+}
+
+type HomeStatLinkProps =
+  | (BaseHomeStatLinkProps & {
+      href: string
+      search?: never
+      to?: never
+    })
+  | (BaseHomeStatLinkProps & {
+      href?: never
+      search: typeof tanStackTotalNpmStatsSearch
+      to: '/stats/npm'
+    })
+
 function HomeStatLink({
   children,
   className,
   gradientClassName,
   href,
-}: {
-  children: React.ReactNode
-  className: string
-  gradientClassName: string
-  href: string
-}) {
+  search,
+  to,
+}: HomeStatLinkProps) {
+  const mergedClassName = `group min-w-0 rounded-r-md border-l-2 px-4 py-2 text-left transition-opacity ${className} ${gradientClassName}`
+
+  if (to) {
+    return (
+      <Link to={to} search={search} className={mergedClassName}>
+        {children}
+      </Link>
+    )
+  }
+
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      className={`group min-w-0 rounded-r-md border-l-2 px-4 py-2 text-left transition-opacity ${className} ${gradientClassName}`}
-    >
+    <a href={href} target="_blank" rel="noreferrer" className={mergedClassName}>
       {children}
     </a>
   )
@@ -89,44 +111,59 @@ function HomeStatLink({
 
 export default function OssStats({ library }: { library?: Library }) {
   const { data: stats, isLoading } = useQuery(ossStatsQuery({ library }))
+  const { data: homepageNpmSummary, isLoading: isLoadingHomepageNpmSummary } =
+    useQuery({
+      ...homepageNpmStatsSummaryQuery(),
+      enabled: !library,
+    })
   const { data: recentDownloads, isLoading: isLoadingRecentDownloads } =
     useQuery({
       ...recentDownloadsQuery({
-        library: library ?? tanStackNpmStatsLibrary,
+        library: library ?? tanStackTotalNpmStatsLibrary,
       }),
       enabled: Boolean(library),
     })
 
-  const npmDownloads = stats?.npm?.totalDownloads ?? 0
+  const totalNpmStats = stats?.npm
+  const npmDownloads = library
+    ? (totalNpmStats?.totalDownloads ?? 0)
+    : (homepageNpmSummary?.totalDownloads ?? 0)
   const starCount = stats?.github?.starCount ?? 0
-  const cachedWeeklyDownloads = Math.round((stats?.npm?.ratePerDay ?? 0) * 7)
   const weeklyDownloads = library
     ? (recentDownloads?.weeklyDownloads ?? 0)
-    : cachedWeeklyDownloads
-  const weeklyRatePerDay = library ? undefined : stats?.npm?.ratePerDay
+    : (homepageNpmSummary?.weeklyDownloads ?? 0)
+  const weeklyRatePerDay = library
+    ? undefined
+    : homepageNpmSummary?.weeklyRatePerDay
 
-  const hasNpmDownloads = !isLoading && isValidMetric(npmDownloads)
+  const hasNpmDownloads =
+    !(library ? isLoading : isLoadingHomepageNpmSummary) &&
+    isValidMetric(npmDownloads)
   const hasStarCount = !isLoading && isValidMetric(starCount)
   const hasWeeklyDownloads =
-    !(library ? isLoadingRecentDownloads : isLoading) &&
+    !(library ? isLoadingRecentDownloads : isLoadingHomepageNpmSummary) &&
     isValidMetric(weeklyDownloads)
 
   const hasAnyData = hasNpmDownloads || hasWeeklyDownloads || hasStarCount
 
   const loading = isLoading || !stats
+  const npmLoading = library
+    ? isLoading || !totalNpmStats
+    : isLoadingHomepageNpmSummary || !homepageNpmSummary
   const weeklyLoading = library
     ? isLoadingRecentDownloads || !recentDownloads
-    : loading
+    : isLoadingHomepageNpmSummary || !homepageNpmSummary
 
-  if (!loading && !weeklyLoading && !hasAnyData) {
+  if (!loading && !npmLoading && !weeklyLoading && !hasAnyData) {
     return null
   }
 
   return (
     <div className="mx-auto grid w-full max-w-3xl grid-cols-1 gap-4 sm:grid-cols-3">
-      {loading || hasNpmDownloads ? (
+      {npmLoading || hasNpmDownloads ? (
         <HomeStatLink
-          href="https://www.npmjs.com/org/tanstack"
+          to="/stats/npm"
+          search={tanStackTotalNpmStatsSearch}
           className="border-emerald-500 hover:text-emerald-500"
           gradientClassName="bg-linear-to-r from-transparent to-emerald-500/5"
         >
@@ -135,9 +172,7 @@ export default function OssStats({ library }: { library?: Library }) {
             <div className="min-w-0">
               <div className="relative text-2xl font-black leading-none tracking-tight transition-colors duration-200">
                 <StatValue placeholder="00.00 Billion">
-                  {hasNpmDownloads && stats
-                    ? formatBillions(stats.npm.totalDownloads)
-                    : null}
+                  {hasNpmDownloads ? formatBillions(npmDownloads) : null}
                 </StatValue>
               </div>
               <div className="mt-1 text-sm font-semibold italic text-zinc-500 transition-colors duration-200 dark:text-zinc-400">
@@ -150,7 +185,8 @@ export default function OssStats({ library }: { library?: Library }) {
 
       {weeklyLoading || hasWeeklyDownloads ? (
         <HomeStatLink
-          href="https://www.npmjs.com/org/tanstack"
+          to="/stats/npm"
+          search={tanStackTotalNpmStatsSearch}
           className="border-cyan-500 hover:text-cyan-500"
           gradientClassName="bg-linear-to-r from-transparent to-cyan-500/5"
         >

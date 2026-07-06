@@ -33,6 +33,8 @@ type MarkdownContentProps = {
   pagePath?: string
   /** Current framework for filtering markdown content */
   currentFramework?: string
+  /** Render the first image in the document as high-priority/eager (e.g. blog post hero images) */
+  eagerFirstImage?: boolean
 }
 
 function CopyPageDropdownFallback() {
@@ -76,6 +78,7 @@ export function MarkdownContent({
   libraryVersion,
   pagePath,
   currentFramework,
+  eagerFirstImage,
 }: MarkdownContentProps) {
   const [canLoadCopyControls, setCanLoadCopyControls] = React.useState(false)
 
@@ -84,7 +87,11 @@ export function MarkdownContent({
   }, [])
 
   const renderedMarkdown = (
-    <Markdown document={markdown} preserveTabPanels={preserveTabPanels} />
+    <Markdown
+      document={markdown}
+      preserveTabPanels={preserveTabPanels}
+      eagerFirstImage={eagerFirstImage}
+    />
   )
 
   const contentNode =

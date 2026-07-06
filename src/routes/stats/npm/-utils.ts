@@ -8,6 +8,18 @@ export {
   binningOptions,
   getBinFunction,
 } from '~/utils/chart'
+export {
+  chartTypeSchema,
+  type ChartType,
+  barOrientationSchema,
+  type BarOrientation,
+  latestBarSortSchema,
+  type LatestBarSort,
+  defaultPlaybackIntervalMs,
+  playbackIntervalMsSchema,
+  viewModeSchema,
+  type ViewMode,
+} from '~/components/npm-stats/shared'
 
 // NPM-specific schemas (extends shared with additional time ranges)
 export const transformModeSchema = v.picklist(['none', 'normalize-y'])

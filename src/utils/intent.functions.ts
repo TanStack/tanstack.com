@@ -7,6 +7,7 @@ import {
   getSkillsForVersion,
   getSkillFingerprintsForVersion,
   getIntentRegistryStats,
+  getLatestIntentVersionSkillSummaries,
   searchPackagesByName,
   searchSkills,
   touchPackageSyncTime,
@@ -23,6 +24,7 @@ import {
   selectVersionsToSync,
   extractSkillsFromTarball,
   fetchBulkDownloads,
+  searchIntentPackagesByText,
 } from './intent.server'
 import { fetchCached } from './cache.server'
 import type {
@@ -36,6 +38,12 @@ import { normalizePublicHttpUrl } from './url-boundary'
 
 // Re-export types used by routes
 export type { IntentPackage, IntentPackageVersion, SkillSearchResult }
+
+const emptyNpmSearchResult: NpmSearchResult = {
+  objects: [],
+  total: 0,
+  time: '',
+}
 
 const intentVersionSchema = v.pipe(
   v.string(),
@@ -164,26 +172,27 @@ export const getIntentDirectory = createServerFn({ method: 'GET' })
       pageSize = 24,
     } = data
 
-    // Pull live NPM search results (cached 5 min) to get metadata/scores
-    const npmData = await fetchCached<NpmSearchResult>({
+    const npmSearchPromise = fetchCached<NpmSearchResult>({
       key: `intent:npm-search:${search ?? ''}`,
       ttl: 5 * 60 * 1000,
-      fn: () => {
-        if (search) {
-          return fetch(
-            `https://registry.npmjs.org/-/v1/search?text=${encodeURIComponent(search)}+keywords:tanstack-intent&size=250`,
-            { headers: { Accept: 'application/json' } },
-          ).then((r) => r.json() as Promise<NpmSearchResult>)
-        }
-        return searchIntentPackages()
-      },
-    })
+      fn: () =>
+        search ? searchIntentPackagesByText(search) : searchIntentPackages(),
+    }).catch(() => emptyNpmSearchResult)
 
-    // Get verified packages from DB (authoritative list).
-    // When searching, also include DB-only matches (packages without the keyword yet).
-    const [verifiedPackages, dbSearchMatches] = await Promise.all([
+    const [
+      npmData,
+      verifiedPackages,
+      dbSearchMatches,
+      latestVersionSkillSummaries,
+    ] = await Promise.all([
+      npmSearchPromise,
       getAllVerifiedPackages(),
       search ? searchPackagesByName(search) : Promise.resolve([]),
+      fetchCached({
+        key: 'intent:latest-version-skill-summaries:v2',
+        ttl: 10 * 60 * 1000,
+        fn: () => getLatestIntentVersionSkillSummaries(),
+      }),
     ])
 
     // Fetch real download counts from the npm downloads API (cached 5 min)
@@ -198,6 +207,12 @@ export const getIntentDirectory = createServerFn({ method: 'GET' })
       npmData.objects.map((obj) => [obj.package.name, obj]),
     )
     const dbMatchNames = new Set(dbSearchMatches.map((p) => p.name))
+    const summaryByPackageName = new Map(
+      latestVersionSkillSummaries.map((summary) => [
+        summary.packageName,
+        summary,
+      ]),
+    )
 
     // Merge: DB record + NPM metadata. Only show verified packages.
     const packages: Array<EnrichedIntentPackage> = []
@@ -207,34 +222,9 @@ export const getIntentDirectory = createServerFn({ method: 'GET' })
       if (search && !npmObj && !dbMatchNames.has(pkg.name)) continue
 
       const npmPkg = npmObj?.package
-
-      // Get latest version info for skill count + framework list
-      // (aggregated in DB; we just need latest version's skills breakdown)
-      const versions = await fetchCached({
-        key: `intent:versions:${pkg.name}`,
-        ttl: 10 * 60 * 1000,
-        fn: () => getPackageVersions(pkg.name),
-      })
-
-      const latestVersion = versions[0]
-
-      // Collect skill names + distinct frameworks from skills in the latest version
-      let skillNames: Array<string> = []
-      let frameworks: Array<string> = []
-      if (latestVersion) {
-        const skills = await fetchCached({
-          key: `intent:skills:${latestVersion.id}`,
-          ttl: 30 * 60 * 1000,
-          fn: () => getSkillsForVersion(latestVersion.id),
-        })
-        skillNames = skills.map((s) => s.name)
-        const frameworkSet = new Set(
-          skills
-            .map((s) => s.framework)
-            .filter((f): f is string => f !== null && f !== undefined),
-        )
-        frameworks = [...frameworkSet].sort()
-      }
+      const summary = summaryByPackageName.get(pkg.name)
+      const skillNames = summary?.skillNames ?? []
+      const frameworks = summary?.frameworks ?? []
 
       // Filter by framework if requested
       if (framework && !frameworks.includes(framework)) continue
@@ -247,8 +237,8 @@ export const getIntentDirectory = createServerFn({ method: 'GET' })
         npmUrl:
           normalizePublicHttpUrl(npmPkg?.links.npm) ??
           `https://www.npmjs.com/package/${pkg.name}`,
-        latestVersion: latestVersion?.version ?? 'unknown',
-        publishedAt: latestVersion?.publishedAt?.toISOString() ?? null,
+        latestVersion: summary?.latestVersion ?? 'unknown',
+        publishedAt: summary?.publishedAt?.toISOString() ?? null,
         monthlyDownloads: downloadCounts.get(pkg.name) ?? 0,
         weeklyDownloads: 0,
         npmScore: npmObj?.score.final ?? 0,

@@ -21,15 +21,16 @@ import { HomeCommunitySection } from '~/components/home/HomeCommunitySection'
 import { HomeNewsletterSection } from '~/components/home/HomeNewsletterSection'
 import { HomeSocialProofSection } from '~/components/home/HomeSocialProofSection'
 import { HomeStatsSection } from '~/components/home/HomeStatsSection'
-import { ossStatsQuery } from '~/queries/stats'
+import { homepageNpmStatsSummaryQuery, ossStatsQuery } from '~/queries/stats'
 import { Button } from '~/ui'
 import { fetchRecentPosts } from '~/utils/blog.functions'
 import { seo } from '~/utils/seo'
 
 export const Route = createFileRoute('/')({
   loader: async ({ context: { queryClient } }) => {
-    const [, recentPosts] = await Promise.all([
+    const [, , recentPosts] = await Promise.all([
       queryClient.ensureQueryData(ossStatsQuery()),
+      queryClient.ensureQueryData(homepageNpmStatsSummaryQuery()),
       fetchRecentPosts(),
     ])
 

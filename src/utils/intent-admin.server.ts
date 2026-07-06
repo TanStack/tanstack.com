@@ -3,6 +3,7 @@
  * All functions require the 'admin' capability.
  */
 
+import { randomUUID } from 'node:crypto'
 import { db } from '~/db/client'
 import {
   intentPackages,
@@ -12,9 +13,7 @@ import {
 import { eq, desc, sql } from 'drizzle-orm'
 import { requireCapability } from './auth.server'
 import {
-  searchIntentPackages,
   fetchPackument,
-  isIntentCompatible,
   selectVersionsToSync,
   extractSkillsFromTarball,
 } from './intent.server'
@@ -22,12 +21,25 @@ import {
   upsertIntentPackage,
   getKnownVersions,
   enqueuePackageVersion,
-  markPackageVerified,
   replaceSkillsForVersion,
-  getPendingVersions,
   markVersionSynced,
-  markVersionFailed,
 } from './intent-db.server'
+import {
+  INTENT_DISCOVER_WORKFLOW_ID,
+  INTENT_PROCESS_WORKFLOW_ID,
+  intentWorkflowRegistrations,
+} from '~/utils/intent-workflows.server'
+import {
+  intentDiscoveryResultSchema,
+  intentProcessResultSchema,
+} from '~/utils/intent-sync.server'
+import {
+  getWorkflowRuntimeHealth,
+  reconcileWorkflowRuntimeStore,
+  workflowExecutionStore,
+  workflowRuntime,
+} from '~/utils/workflow-runtime.server'
+import type { WorkflowRuntimeRunResult } from '@tanstack/workflow-runtime'
 
 // ---------------------------------------------------------------------------
 // Stats / overview
@@ -72,6 +84,46 @@ export async function getIntentAdminStats() {
     syncedVersions: syncedVersions[0]?.count ?? 0,
     totalSkills: totalSkills[0]?.count ?? 0,
   }
+}
+
+export async function listIntentWorkflowRuns() {
+  await requireCapability({ data: { capability: 'admin' } })
+
+  const runs = await Promise.all(
+    Object.keys(intentWorkflowRegistrations).map((workflowId) =>
+      workflowExecutionStore.listRuns({
+        workflowId,
+        limit: 5,
+      }),
+    ),
+  )
+
+  return runs
+    .flat()
+    .sort((a, b) => b.updatedAt - a.updatedAt)
+    .slice(0, 10)
+    .map((run) => ({
+      runId: run.runId,
+      workflowId: run.workflowId,
+      workflowVersion: run.workflowVersion,
+      status: run.status,
+      waitingFor: run.waitingFor?.signalName,
+      wakeAt: run.wakeAt ? new Date(run.wakeAt) : null,
+      createdAt: new Date(run.createdAt),
+      updatedAt: new Date(run.updatedAt),
+    }))
+}
+
+export async function getIntentWorkflowHealth() {
+  await requireCapability({ data: { capability: 'admin' } })
+
+  return getWorkflowRuntimeHealth()
+}
+
+export async function repairIntentWorkflowStore() {
+  await requireCapability({ data: { capability: 'admin' } })
+
+  return reconcileWorkflowRuntimeStore()
 }
 
 // ---------------------------------------------------------------------------
@@ -144,101 +196,33 @@ export async function listFailedVersions() {
 export async function triggerIntentDiscover() {
   await requireCapability({ data: { capability: 'admin' } })
 
-  let packagesDiscovered = 0
-  let packagesVerified = 0
-  let versionsEnqueued = 0
-  const errors: Array<string> = []
+  const result = await workflowRuntime.startRun({
+    workflowId: INTENT_DISCOVER_WORKFLOW_ID,
+    runId: createAdminRunId(INTENT_DISCOVER_WORKFLOW_ID),
+    input: { source: 'admin' },
+    includeEvents: false,
+  })
 
-  const searchResults = await searchIntentPackages()
-  packagesDiscovered = searchResults.objects.length
-
-  for (const { package: pkg } of searchResults.objects) {
-    try {
-      await upsertIntentPackage({ name: pkg.name, verified: false })
-
-      const packument = await fetchPackument(pkg.name)
-      const latestVersion = packument['dist-tags'].latest
-      if (!latestVersion) continue
-
-      const latestMeta = packument.versions[latestVersion]
-      if (!latestMeta || !isIntentCompatible(latestMeta)) continue
-
-      await markPackageVerified(pkg.name)
-      packagesVerified++
-
-      const knownVersions = await getKnownVersions(pkg.name)
-      const versionsToEnqueue = selectVersionsToSync(packument, knownVersions)
-
-      for (const { version, tarball, publishedAt } of versionsToEnqueue) {
-        await enqueuePackageVersion({
-          packageName: pkg.name,
-          version,
-          tarballUrl: tarball,
-          publishedAt,
-        })
-        versionsEnqueued++
-      }
-    } catch (err) {
-      errors.push(
-        `${pkg.name}: ${err instanceof Error ? err.message : String(err)}`,
-      )
-    }
-  }
-
-  return { packagesDiscovered, packagesVerified, versionsEnqueued, errors }
+  return intentDiscoveryResultSchema.parse(getCompletedWorkflowOutput(result))
 }
 
 // ---------------------------------------------------------------------------
-// Trigger: process N pending versions (respects a time budget)
+// Trigger: process pending versions using the same time budget as scheduled runs
 // ---------------------------------------------------------------------------
 
-export async function triggerIntentProcess({ data }: { data: any }) {
+export async function triggerIntentProcess() {
   await requireCapability({ data: { capability: 'admin' } })
 
-  const pending = await getPendingVersions(data.limit)
-  const results: Array<{
-    packageName: string
-    version: string
-    status: 'synced' | 'failed'
-    skillCount?: number
-    error?: string
-  }> = []
+  const result = await workflowRuntime.startRun({
+    workflowId: INTENT_PROCESS_WORKFLOW_ID,
+    runId: createAdminRunId(INTENT_PROCESS_WORKFLOW_ID),
+    input: {
+      source: 'admin',
+    },
+    includeEvents: false,
+  })
 
-  for (const item of pending) {
-    if (!item.tarballUrl) {
-      await markVersionFailed(item.id, 'No tarball URL recorded')
-      results.push({
-        packageName: item.packageName,
-        version: item.version,
-        status: 'failed',
-        error: 'No tarball URL recorded',
-      })
-      continue
-    }
-
-    try {
-      const skills = await extractSkillsFromTarball(item.tarballUrl)
-      await replaceSkillsForVersion(item.id, skills)
-      await markVersionSynced(item.id, skills.length)
-      results.push({
-        packageName: item.packageName,
-        version: item.version,
-        status: 'synced',
-        skillCount: skills.length,
-      })
-    } catch (err) {
-      const error = err instanceof Error ? err.message : String(err)
-      await markVersionFailed(item.id, error)
-      results.push({
-        packageName: item.packageName,
-        version: item.version,
-        status: 'failed',
-        error,
-      })
-    }
-  }
-
-  return { processed: results.length, results }
+  return intentProcessResultSchema.parse(getCompletedWorkflowOutput(result))
 }
 
 // ---------------------------------------------------------------------------
@@ -447,4 +431,18 @@ export async function resetFailedVersions() {
     .returning({ id: intentPackageVersions.id })
 
   return { resetCount: result.length }
+}
+
+function createAdminRunId(workflowId: string) {
+  return `${workflowId}:admin:${Date.now()}:${randomUUID()}`
+}
+
+function getCompletedWorkflowOutput(result: WorkflowRuntimeRunResult): unknown {
+  if (result.kind !== 'completed' || !result.run) {
+    throw new Error(
+      `Workflow ${result.workflowId ?? 'unknown'} did not complete: ${result.kind}`,
+    )
+  }
+
+  return result.run.output
 }

@@ -1,13 +1,7 @@
 import { setResponseHeaders } from '@tanstack/react-start/server'
 
 // Re-export pure functions for use in server functions
-export {
-  fetchGitHubOwnerStats,
-  fetchGitHubRepoStats,
-  refreshNpmOrgStats,
-  fetchSingleNpmPackageFresh,
-  computeNpmOrgStats,
-} from './stats.functions'
+export { fetchGitHubOwnerStats, fetchGitHubRepoStats } from './stats.functions'
 
 // Re-export types from shared types file
 export type {
@@ -24,7 +18,6 @@ export type {
 
 import type {
   GitHubStats,
-  NpmPackageStats,
   NpmStats,
   RecentDownloadStats,
   RecentDownloadStatsQueryParams,
@@ -263,66 +256,9 @@ function normalizeNpmDownloadSeries(
 }
 
 /**
- * Fetch NPM package statistics for multiple packages
- * Aggregates stats from individual package cache
- * Uses batched database query for better performance
- */
-export async function fetchNpmPackageStats(
-  packageNames: string[],
-): Promise<NpmStats> {
-  // Handle empty array case
-  if (packageNames.length === 0) {
-    return {
-      totalDownloads: 0,
-      packageStats: {},
-    }
-  }
-
-  // Import db functions dynamically to avoid pulling server code into client bundle
-  const { getBatchCachedNpmPackageStats } = await import('./stats-db.server')
-
-  // Batch fetch all packages in a single database query
-  const results = await getBatchCachedNpmPackageStats(packageNames)
-
-  // Fill in zeros for any missing packages
-  for (const packageName of packageNames) {
-    if (!results.has(packageName)) {
-      results.set(packageName, { downloads: 0 })
-    }
-  }
-
-  // Calculate total downloads, aggregate rate, and find most recent update
-  const packageStats: Record<string, NpmPackageStats> = {}
-  let totalDownloads = 0
-  let totalRatePerDay = 0
-  let mostRecentUpdate = 0
-
-  for (const [packageName, stats] of results.entries()) {
-    totalDownloads += stats.downloads
-    packageStats[packageName] = stats
-
-    // Sum up rates for aggregate animation
-    if (stats.ratePerDay) {
-      totalRatePerDay += stats.ratePerDay
-    }
-
-    // Track most recent update timestamp
-    if (stats.updatedAt && stats.updatedAt > mostRecentUpdate) {
-      mostRecentUpdate = stats.updatedAt
-    }
-  }
-
-  return {
-    totalDownloads,
-    packageStats,
-    ratePerDay: totalRatePerDay !== 0 ? totalRatePerDay : undefined,
-    updatedAt: mostRecentUpdate > 0 ? mostRecentUpdate : undefined,
-  }
-}
-
-/**
  * Server function to get OSS statistics
- * GitHub stats are cached separately, NPM stats are aggregated from individual package cache
+ * GitHub stats are cached separately. NPM stats prefer the small summary cache
+ * and fall back to the bulk NPM stats product cache when needed.
  */
 function hasAnyOSSStats(
   stats: OSSStatsWithDelta | null | undefined,
@@ -383,6 +319,37 @@ function sumDailyDownloadsInRange({
   }, 0)
 }
 
+async function getCachedSummaryNpmStats(
+  data: StatsQueryParams,
+): Promise<NpmStats | null> {
+  if (data.library) {
+    const { getCachedLibraryNpmStatsSummary } =
+      await import('./homepage-npm-stats.server')
+    const librarySummary = await getCachedLibraryNpmStatsSummary(
+      data.library.id,
+    )
+
+    return librarySummary
+      ? {
+          totalDownloads: librarySummary.totalDownloads,
+          updatedAt: librarySummary.updatedAt,
+        }
+      : null
+  }
+
+  const { getHomepageNpmStatsSummary } =
+    await import('./homepage-npm-stats.server')
+  const summary = await getHomepageNpmStatsSummary()
+
+  return summary
+    ? {
+        totalDownloads: summary.totalDownloads,
+        ratePerDay: summary.weeklyRatePerDay,
+        updatedAt: summary.updatedAt,
+      }
+    : null
+}
+
 async function fetchLiveNpmStats(data: StatsQueryParams): Promise<NpmStats> {
   const packageNames = getOSSStatsPackageNames(data)
 
@@ -390,21 +357,10 @@ async function fetchLiveNpmStats(data: StatsQueryParams): Promise<NpmStats> {
     return { totalDownloads: 0 }
   }
 
-  if (envFunctions.DATABASE_URL) {
-    if (!data.library) {
-      const { getExpiredNpmOrgStats } = await import('./stats-db.server')
-      const cachedOrgStats = await getExpiredNpmOrgStats('tanstack')
+  const cachedSummaryStats = await getCachedSummaryNpmStats(data)
 
-      if (cachedOrgStats && cachedOrgStats.totalDownloads > 0) {
-        return cachedOrgStats
-      }
-    }
-
-    const cachedPackageStats = await fetchNpmPackageStats(packageNames)
-
-    if (cachedPackageStats.totalDownloads > 0) {
-      return cachedPackageStats
-    }
+  if (cachedSummaryStats && cachedSummaryStats.totalDownloads > 0) {
+    return cachedSummaryStats
   }
 
   const endDate = getLastCompletedStatsDay()
@@ -505,6 +461,28 @@ async function fetchLiveOSSStats(
   }
 }
 
+async function mergeCachedSummaryNpmStats(
+  data: StatsQueryParams,
+  stats: OSSStatsWithDelta | null,
+) {
+  const npm = await getCachedSummaryNpmStats(data)
+
+  if (!npm) {
+    return stats
+  }
+
+  return {
+    github: stats?.github ?? {
+      starCount: 0,
+      contributorCount: 0,
+      dependentCount: 0,
+    },
+    npm,
+    delta: stats?.delta,
+    timeDelta: stats?.timeDelta,
+  } satisfies OSSStatsWithDelta
+}
+
 export async function getOSSStats({
   data,
 }: {
@@ -531,12 +509,17 @@ export async function getOSSStats({
     cachedStats = await getCachedOssStats(scopeType, scopeKey)
   }
 
-  if (hasAnyOSSStats(cachedStats)) {
-    return cachedStats
+  const cachedStatsWithSummary = await mergeCachedSummaryNpmStats(
+    data,
+    cachedStats,
+  )
+
+  if (hasAnyOSSStats(cachedStatsWithSummary)) {
+    return cachedStatsWithSummary
   }
 
   if (!data.library) {
-    return cachedStats ?? getEmptyOSSStats()
+    return cachedStatsWithSummary ?? getEmptyOSSStats()
   }
 
   const liveStats = await fetchLiveOSSStats(data)
@@ -545,7 +528,7 @@ export async function getOSSStats({
     return liveStats
   }
 
-  return cachedStats ?? getEmptyOSSStats()
+  return cachedStatsWithSummary ?? getEmptyOSSStats()
 }
 
 function getEmptyOSSStats(): OSSStatsWithDelta {
@@ -566,7 +549,7 @@ function getEmptyOSSStats(): OSSStatsWithDelta {
  * Optimized to handle all packages in a single request with batch cache lookup
  * and parallel NPM API fetching. Current year data is cached daily.
  */
-export async function fetchNpmDownloadsBulk({ data }: { data: unknown }) {
+export async function fetchNpmDownloadsBulkData({ data }: { data: unknown }) {
   const { packageGroups, startDate, endDate } =
     parseNpmDownloadsBulkRequest(data)
 
@@ -689,7 +672,7 @@ export async function fetchNpmDownloadsBulk({ data }: { data: unknown }) {
 
         try {
           const response = await fetch(
-            `https://api.npmjs.org/downloads/range/${req.startDate}:${req.endDate}/${req.packageName}`,
+            `https://api.npmjs.org/downloads/range/${req.startDate}:${req.endDate}/${encodeURIComponent(req.packageName)}`,
             {
               headers: {
                 Accept: 'application/json',
@@ -836,8 +819,12 @@ export async function fetchNpmDownloadsBulk({ data }: { data: unknown }) {
     }
   })
 
-  // Set cache headers for CDN caching
-  // Cache for 1 hour since we're now handling daily caching internally
+  return results
+}
+
+export async function fetchNpmDownloadsBulk({ data }: { data: unknown }) {
+  const results = await fetchNpmDownloadsBulkData({ data })
+
   setResponseHeaders(
     new Headers({
       'Cache-Control': 'public, max-age=3600, stale-while-revalidate=7200',
@@ -951,7 +938,7 @@ export async function fetchNpmDownloadChunk({ data }: { data: any }) {
   // Fetch from NPM API
   try {
     const response = await fetch(
-      `https://api.npmjs.org/downloads/range/${startDate}:${endDate}/${packageName}`,
+      `https://api.npmjs.org/downloads/range/${startDate}:${endDate}/${encodeURIComponent(packageName)}`,
       {
         headers: {
           Accept: 'application/json',
@@ -1060,8 +1047,7 @@ export async function fetchNpmDownloadChunk({ data }: { data: any }) {
 }
 
 /**
- * Fetch recent download statistics (daily, weekly, monthly) for a library
- * Uses getRegisteredPackages to include all framework adapters
+ * Fetch recent download statistics (daily, weekly, monthly) for a library.
  */
 export async function fetchRecentDownloadStats({
   data,
@@ -1077,23 +1063,14 @@ export async function fetchRecentDownloadStats({
     }),
   )
 
-  const { getRegisteredPackages } = await import('./stats-db.server')
   const {
     getBatchNpmDownloadChunks,
     getLatestNpmDownloadChunksCoveringRange,
     setCachedNpmDownloadChunk,
   } = await import('./npm-download-cache.server')
 
-  const explicitPackageNames = data.library.npmPackageNames ?? []
+  let packageNames = data.library.npmPackageNames ?? []
 
-  // Prefer explicit packages when a library declares them. This keeps new
-  // product-family pages from inheriting broad or stale registry mappings.
-  let packageNames =
-    explicitPackageNames.length > 0
-      ? explicitPackageNames
-      : await getRegisteredPackages(data.library.id)
-
-  // If no packages registered, fall back to basic package name
   if (packageNames.length === 0) {
     packageNames = [`@tanstack/${data.library.id}`]
   }
@@ -1249,7 +1226,7 @@ export async function fetchRecentDownloadStats({
     const fetchPromises = needsFetch.map(async (req) => {
       try {
         const response = await fetch(
-          `https://api.npmjs.org/downloads/range/${req.dateFrom}:${req.dateTo}/${req.packageName}`,
+          `https://api.npmjs.org/downloads/range/${req.dateFrom}:${req.dateTo}/${encodeURIComponent(req.packageName)}`,
           {
             headers: {
               Accept: 'application/json',

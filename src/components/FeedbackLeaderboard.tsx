@@ -136,7 +136,7 @@ export function FeedbackLeaderboard() {
                         key={entry.userId}
                         className={twMerge(
                           rank <= 3 && page === 1
-                            ? 'bg-gradient-to-r from-yellow-50 to-transparent dark:from-yellow-900/10'
+                            ? 'bg-linear-to-r from-yellow-50 to-transparent dark:from-yellow-900/10'
                             : '',
                         )}
                       >
@@ -179,7 +179,7 @@ export function FeedbackLeaderboard() {
                 </TableBody>
               </Table>
 
-              <div className="p-3 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 border-t border-gray-200 dark:border-gray-700">
+              <div className="p-3 bg-linear-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 border-t border-gray-200 dark:border-gray-700">
                 <PaginationControls
                   currentPage={page - 1}
                   totalPages={pagination.totalPages}

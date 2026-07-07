@@ -257,7 +257,7 @@ function OverviewTab({
     <div className="space-y-6">
       {/* Key Metrics Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800 p-4">
+        <Card className="bg-linear-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800 p-4">
           <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
             Total Users
           </div>
@@ -281,7 +281,7 @@ function OverviewTab({
         </Card>
 
         {dauStats && (
-          <Card className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border-emerald-200 dark:border-emerald-800 p-4">
+          <Card className="bg-linear-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border-emerald-200 dark:border-emerald-800 p-4">
             <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
               DAU
             </div>
@@ -365,7 +365,7 @@ function OverviewTab({
 
         {/* Streak Leaderboard Preview */}
         {dauStats && dauStats.streakLeaderboard.length > 0 && (
-          <Card className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-amber-200 dark:border-amber-800 p-6">
+          <Card className="bg-linear-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-amber-200 dark:border-amber-800 p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                 <Trophy className="text-amber-500" />
@@ -447,7 +447,7 @@ function UsersTab({
     <div className="space-y-6">
       {/* Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800 p-6">
+        <Card className="bg-linear-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800 p-6">
           <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
             Total Users
           </div>
@@ -561,7 +561,7 @@ function ActivityTab({
       {/* DAU/WAU/MAU Cards */}
       {dauStats && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border-emerald-200 dark:border-emerald-800 p-6">
+          <Card className="bg-linear-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border-emerald-200 dark:border-emerald-800 p-6">
             <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
               DAU (Today)
             </div>
@@ -650,7 +650,7 @@ function ActivityTab({
       {/* Login Stats */}
       {activityStats && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-cyan-900/20 dark:to-blue-900/20 border-cyan-200 dark:border-cyan-800 p-6">
+          <Card className="bg-linear-to-br from-cyan-50 to-blue-50 dark:from-cyan-900/20 dark:to-blue-900/20 border-cyan-200 dark:border-cyan-800 p-6">
             <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
               Today's Logins
             </div>
@@ -850,7 +850,7 @@ function ActivityTab({
 
       {/* Streak Leaderboard */}
       {dauStats && dauStats.streakLeaderboard.length > 0 && (
-        <Card className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-amber-200 dark:border-amber-800 p-6">
+        <Card className="bg-linear-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-amber-200 dark:border-amber-800 p-6">
           <div className="flex items-center gap-3 mb-4">
             <Trophy className="text-2xl text-amber-500" />
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -916,7 +916,7 @@ function ActivityTab({
 
       {/* Admin Activity */}
       {activityStats && (
-        <Card className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 border-orange-200 dark:border-orange-800 p-6">
+        <Card className="bg-linear-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 border-orange-200 dark:border-orange-800 p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <Shield className="text-2xl text-orange-500" />
@@ -997,7 +997,7 @@ function AdsTab({
   return (
     <div className="space-y-6">
       {/* Waitlist Demand - Primary Focus */}
-      <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200 dark:border-purple-800 p-6">
+      <Card className="bg-linear-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200 dark:border-purple-800 p-6">
         <div className="flex items-center gap-3 mb-4">
           <List className="text-2xl text-purple-500" />
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">

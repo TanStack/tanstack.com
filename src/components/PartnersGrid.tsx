@@ -153,7 +153,7 @@ export function PartnersGrid({
         return (
           <Card
             key={row.tier}
-            className={`overflow-hidden rounded-none rounded-l-sm rounded-r-2xl bg-gradient-to-b ${flare.gradientStops}`}
+            className={`overflow-hidden rounded-none rounded-l-sm rounded-r-2xl bg-linear-to-b ${flare.gradientStops}`}
           >
             <div className="ml-1.5 bg-white dark:bg-gray-900">
               <div className="px-4 pt-3 pb-2 border-b border-gray-200 dark:border-gray-800 flex items-center gap-2">

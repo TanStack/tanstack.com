@@ -100,7 +100,7 @@ function WorkshopsPage() {
                   'Access to maintainers and creators',
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-2">
-                    <CheckCircleIcon className="w-5 h-5 text-green-500 flex-shrink-0" />
+                    <CheckCircleIcon className="w-5 h-5 text-green-500 shrink-0" />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -125,7 +125,7 @@ function WorkshopsPage() {
                   'Extended Q&A and networking sessions',
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-2">
-                    <Star className="w-5 h-5 flex-shrink-0" />
+                    <Star className="w-5 h-5 shrink-0" />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -347,7 +347,7 @@ function WorkshopsPage() {
                     key={topic}
                     className="flex items-center gap-3 rounded-lg bg-white dark:bg-gray-800 px-4 py-3 shadow-sm border border-gray-200 dark:border-gray-700"
                   >
-                    <CheckCircleIcon className="w-5 h-5 text-green-500 flex-shrink-0" />
+                    <CheckCircleIcon className="w-5 h-5 text-green-500 shrink-0" />
                     <span className="text-gray-600 dark:text-gray-400 font-medium">
                       {topic}
                     </span>
@@ -505,7 +505,7 @@ function TestimonialsMarquee() {
         >
           {[...testimonials, ...testimonials, ...testimonials].map(
             (testimonial, i) => (
-              <Card key={i} className="flex-shrink-0 w-80 p-6">
+              <Card key={i} className="shrink-0 w-80 p-6">
                 <div className="flex items-start gap-2 mb-4">
                   {[...Array(5)].map((_, j) => (
                     <Star

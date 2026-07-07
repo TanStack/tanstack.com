@@ -131,7 +131,7 @@ function RoleDetailPage() {
           const displayName = user.name || user.displayUsername || ''
           return (
             <div className="flex items-center gap-3">
-              <div className="flex-shrink-0 h-10 w-10">
+              <div className="shrink-0 h-10 w-10">
                 {user.image ? (
                   <img
                     className="h-10 w-10 rounded-full"

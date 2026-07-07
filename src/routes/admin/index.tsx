@@ -818,7 +818,7 @@ function ActivityTab({
                         <span className="text-sm font-medium text-gray-500 dark:text-gray-400 w-6">
                           #{index + 1}
                         </span>
-                        <div className="flex-shrink-0 h-8 w-8">
+                        <div className="shrink-0 h-8 w-8">
                           {user.userImage ? (
                             <img
                               className="h-8 w-8 rounded-full"
@@ -877,7 +877,7 @@ function ActivityTab({
                   >
                     #{index + 1}
                   </span>
-                  <div className="flex-shrink-0 h-8 w-8">
+                  <div className="shrink-0 h-8 w-8">
                     {user.userImage ? (
                       <img
                         className="h-8 w-8 rounded-full"

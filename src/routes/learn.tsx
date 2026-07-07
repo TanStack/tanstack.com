@@ -48,15 +48,15 @@ function LearnPage() {
               </p>
               <div className="grid gap-2 text-xs text-left">
                 <div className="flex items-start gap-2">
-                  <Play className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <Play className="w-4 h-4 mt-0.5 shrink-0" />
                   <div>Tutorials & walkthroughs</div>
                 </div>
                 <div className="flex items-start gap-2">
-                  <Video className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <Video className="w-4 h-4 mt-0.5 shrink-0" />
                   <div>Deep dives into library internals</div>
                 </div>
                 <div className="flex items-start gap-2">
-                  <Star className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <Star className="w-4 h-4 mt-0.5 shrink-0" />
                   <div>Release announcements & demos</div>
                 </div>
               </div>
@@ -88,15 +88,15 @@ function LearnPage() {
               </p>
               <div className="grid gap-2 text-xs text-left">
                 <div className="flex items-start gap-2">
-                  <Video className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <Video className="w-4 h-4 mt-0.5 shrink-0" />
                   <div>Remote workshops worldwide</div>
                 </div>
                 <div className="flex items-start gap-2">
-                  <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <MapPin className="w-4 h-4 mt-0.5 shrink-0" />
                   <div>Premium in-person options</div>
                 </div>
                 <div className="flex items-start gap-2">
-                  <Star className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <Star className="w-4 h-4 mt-0.5 shrink-0" />
                   <div>From maintainers & creators</div>
                 </div>
               </div>

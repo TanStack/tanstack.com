@@ -8,15 +8,7 @@ import { OptimizedImage } from '~/components/OptimizedImage'
 import { groupToSlug } from '~/components/stack/stack-categories'
 import { twMerge } from 'tailwind-merge'
 
-import {
-  ArrowRight,
-  Code,
-  Stack,
-  Shield,
-  Lightning,
-  Play,
-  type Icon,
-} from '@phosphor-icons/react'
+import { ArrowRight, Play } from '@phosphor-icons/react'
 import { YouTubeIcon } from '~/components/icons/YouTubeIcon'
 import { HomeApplicationStarter } from '~/components/home/HomeApplicationStarter'
 import { HomeCommunitySection } from '~/components/home/HomeCommunitySection'
@@ -310,9 +302,8 @@ type WhyTanStackPrinciple = {
   label: string
   title: string
   body: string
-  Icon: Icon
+  eyebrowClassName: string
   accentClassName: string
-  iconClassName: string
   proof: PrincipleProof
 }
 
@@ -340,40 +331,32 @@ const whyTanStackPrinciples = [
     label: 'Portable core',
     title: 'Framework Agnostic',
     body: 'Every library starts with a provider-agnostic core. Use React, Vue, Solid, Angular, or vanilla JS—your choice.',
-    Icon: Stack,
+    eyebrowClassName: 'text-ds-terracotta-400',
     accentClassName: 'from-blue-500 to-cyan-500',
-    iconClassName:
-      'border-cyan-200 bg-cyan-50 text-cyan-700 dark:border-cyan-900 dark:bg-cyan-950/40 dark:text-cyan-300',
     proof: 'adapters',
   },
   {
     label: 'Compile-time contracts',
     title: 'Type-Safe by Design',
     body: 'First-class TypeScript support that catches bugs at compile time and makes refactoring fearless.',
-    Icon: Code,
+    eyebrowClassName: 'text-ds-green-400',
     accentClassName: 'from-emerald-500 to-teal-500',
-    iconClassName:
-      'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300',
     proof: 'types',
   },
   {
     label: 'Real workloads',
     title: 'Production-Grade',
     body: "Battle-tested in the world's largest apps. Built for real workloads, not just happy-path demos.",
-    Icon: Lightning,
+    eyebrowClassName: 'text-ds-blue-400',
     accentClassName: 'from-orange-500 to-red-500',
-    iconClassName:
-      'border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-900 dark:bg-orange-950/40 dark:text-orange-300',
     proof: 'adoption',
   },
   {
     label: 'Independent tools',
     title: 'No Vendor Lock-in',
     body: 'Open source and independent. No hidden agendas, no platform bias—just great tools for developers.',
-    Icon: Shield,
+    eyebrowClassName: 'text-ds-purple-400',
     accentClassName: 'from-purple-500 to-pink-500',
-    iconClassName:
-      'border-purple-200 bg-purple-50 text-purple-700 dark:border-purple-900 dark:bg-purple-950/40 dark:text-purple-300',
     proof: 'portable',
   },
 ] satisfies ReadonlyArray<WhyTanStackPrinciple>
@@ -533,83 +516,69 @@ function cubicAngle(
 
 function WhyTanStackSection() {
   return (
-    <section className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-      <div className="grid gap-8 border-y border-gray-200 py-10 dark:border-gray-800 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)] lg:gap-12 lg:py-12">
-        <div className="max-w-xl lg:max-w-sm">
-          <div className="inline-flex items-center gap-2 text-xs font-black uppercase text-gray-500 dark:text-gray-400">
-            <span className="h-2 w-2 rounded-full bg-cyan-500 shadow-[0_0_0_4px_rgba(6,182,212,0.12)]" />
-            Product principles
-          </div>
-          <h3 className="mt-4 text-3xl font-black leading-tight sm:text-4xl">
-            Why TanStack?
-          </h3>
-          <p className="mt-4 text-base leading-7 text-gray-600 dark:text-gray-400">
-            Our libraries are built around real products and the developers
-            shipping them
+    <section className="px-4">
+      <div className="mx-auto flex max-w-[960px] flex-col gap-12">
+        <div className="flex flex-col items-center gap-6 text-center">
+          <p className="font-ds-mono text-[13px] font-semibold uppercase tracking-[2px] text-text-warning">
+            Principles
           </p>
-          <div
-            aria-hidden="true"
-            className="mt-7 hidden h-px bg-gradient-to-r from-gray-300 via-gray-200 to-transparent dark:from-gray-700 dark:via-gray-800 lg:block"
-          />
+          <div className="flex flex-col items-center gap-4">
+            <h3 className="font-ds-display text-ds-display-md font-bold text-text-primary sm:text-ds-display-lg lg:text-ds-display-xl">
+              Why TanStack?
+            </h3>
+            <p className="max-w-sm text-ds-body-sm text-text-secondary">
+              Our libraries are built around real products and the developers
+              shipping them.
+            </p>
+          </div>
+        </div>
+
+        <ol className="flex flex-col divide-y divide-border-default overflow-hidden rounded-[20px] border border-border-default">
+          {whyTanStackPrinciples.map((principle) => (
+            <li
+              key={principle.title}
+              className="flex flex-col gap-8 p-6 sm:p-10 lg:flex-row lg:gap-12"
+            >
+              <div className="flex flex-1 flex-col justify-end gap-6 lg:self-stretch">
+                <div className="flex flex-1 flex-col justify-between gap-6">
+                  <p
+                    className={twMerge(
+                      'font-ds-mono text-[13px] font-semibold uppercase tracking-[2px]',
+                      principle.eyebrowClassName,
+                    )}
+                  >
+                    {principle.label}
+                  </p>
+                  <h4 className="font-ds-display text-ds-heading-3 font-bold text-text-primary">
+                    {principle.title}
+                  </h4>
+                </div>
+                <p className="text-ds-body-md text-text-secondary">
+                  {principle.body}
+                </p>
+              </div>
+              <div className="flex h-[233px] w-full items-center justify-center lg:w-[460px] lg:shrink-0">
+                <PrincipleProof
+                  proof={principle.proof}
+                  accentClassName={principle.accentClassName}
+                />
+              </div>
+            </li>
+          ))}
+        </ol>
+
+        <div className="flex justify-center">
           <Button
             as={Link}
             to="/tenets"
             variant="ghost"
             color="gray"
-            className="mt-7 border-gray-300 bg-white/70 text-gray-950 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-950/70 dark:text-white dark:hover:bg-gray-900"
+            className="border-border-default bg-background-surface text-text-primary hover:bg-background-subtle"
           >
             Read our product tenets
             <ArrowRight className="h-4 w-4" />
           </Button>
         </div>
-
-        <ol className="grid gap-3 sm:grid-cols-2">
-          {whyTanStackPrinciples.map((principle, index) => (
-            <li
-              key={principle.title}
-              className="group relative flex min-h-[19rem] flex-col overflow-hidden border border-gray-200 bg-white/70 p-5 shadow-sm transition-colors hover:bg-white dark:border-gray-800 dark:bg-gray-950/50 dark:hover:bg-gray-950 sm:p-6"
-            >
-              <div
-                aria-hidden="true"
-                className={twMerge(
-                  'absolute inset-x-0 top-0 h-1 bg-gradient-to-r',
-                  principle.accentClassName,
-                )}
-              />
-              <div className="relative flex items-start justify-between gap-4">
-                <div>
-                  <p className="font-mono text-[11px] font-bold uppercase text-gray-500 dark:text-gray-500">
-                    {principle.label}
-                  </p>
-                  <h4 className="mt-4 max-w-64 text-xl font-black leading-tight text-gray-950 dark:text-white">
-                    {principle.title}
-                  </h4>
-                </div>
-                <span
-                  className={twMerge(
-                    'flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border',
-                    principle.iconClassName,
-                  )}
-                >
-                  <principle.Icon className="h-5 w-5" />
-                </span>
-              </div>
-              <p className="relative mt-4 max-w-[25rem] text-sm leading-6 text-gray-600 dark:text-gray-400">
-                {principle.body}
-              </p>
-              <PrincipleProof
-                proof={principle.proof}
-                accentClassName={principle.accentClassName}
-              />
-              <span
-                aria-hidden="true"
-                className="absolute bottom-3 right-5 font-mono text-5xl font-black leading-none text-gray-100 transition-colors group-hover:text-gray-200 dark:text-white/[0.04] dark:group-hover:text-white/[0.07]"
-              >
-                {String(index + 1).padStart(2, '0')}
-              </span>
-            </li>
-          ))}
-        </ol>
       </div>
     </section>
   )
@@ -659,9 +628,9 @@ function FrameworkAdapterGraph({
   return (
     <div
       aria-hidden="true"
-      className="relative mt-auto h-32 pt-5 font-mono text-[10px] font-bold"
+      className="relative aspect-[5/2] w-full font-mono text-xs font-bold"
     >
-      <div className="home-adapter-graph absolute inset-x-0 top-1 h-[7.5rem] overflow-visible">
+      <div className="home-adapter-graph absolute inset-0 overflow-visible">
         {frameworkAdapterNodes.map((adapter, adapterIndex) => {
           const isActive = activeAdapterIndex === adapterIndex
 
@@ -686,7 +655,7 @@ function FrameworkAdapterGraph({
           data-adapter-label={frameworkAdapterCore.label}
           style={adapterGraphStyle(frameworkAdapterCore)}
           className={twMerge(
-            'absolute z-30 flex items-center justify-center rounded-lg bg-gradient-to-r text-center text-[11px] text-white shadow-lg shadow-cyan-500/15',
+            'absolute z-30 flex items-center justify-center rounded-lg bg-gradient-to-r text-center text-[13px] text-white shadow-lg shadow-cyan-500/15',
             accentClassName,
           )}
         >
@@ -770,8 +739,8 @@ function PrincipleProof({
 
   if (proof === 'types') {
     return (
-      <div className="mt-auto pt-7 font-mono text-[11px] leading-5">
-        <div className="rounded-lg border border-gray-200 bg-white/70 p-3 text-gray-600 dark:border-gray-800 dark:bg-black/30 dark:text-gray-400">
+      <div className="w-full font-mono text-[13px] leading-7">
+        <div className="rounded-lg border border-gray-200 bg-white/70 p-4 text-gray-600 dark:border-gray-800 dark:bg-black/30 dark:text-gray-400">
           {[
             ['params.postId', 'string'],
             ['query.data', 'Project[]'],
@@ -796,8 +765,8 @@ function PrincipleProof({
 
   if (proof === 'adoption') {
     return (
-      <div className="mt-auto pt-7">
-        <div className="mb-2 flex items-center justify-between gap-3 font-mono text-[11px] font-bold uppercase text-gray-500 dark:text-gray-500">
+      <div className="w-full">
+        <div className="mb-3 flex items-center justify-between gap-3 font-mono text-xs font-bold uppercase text-gray-500 dark:text-gray-500">
           <span>critical paths</span>
           <span
             className={twMerge(
@@ -808,11 +777,11 @@ function PrincipleProof({
             used daily
           </span>
         </div>
-        <div className="grid grid-cols-2 gap-1.5 font-mono text-[11px] font-bold text-gray-600 dark:text-gray-400">
+        <div className="grid grid-cols-2 gap-2 font-mono text-[13px] font-bold text-gray-600 dark:text-gray-400">
           {['websites', 'AI tools', 'apps', 'services'].map((useCase) => (
             <span
               key={useCase}
-              className="flex items-center gap-1.5 rounded-md border border-gray-200 bg-white/70 px-2 py-1.5 dark:border-gray-800 dark:bg-black/30"
+              className="flex items-center gap-2 rounded-md border border-gray-200 bg-white/70 px-3 py-2.5 dark:border-gray-800 dark:bg-black/30"
             >
               <span
                 className={twMerge(
@@ -829,12 +798,12 @@ function PrincipleProof({
   }
 
   return (
-    <div className="mt-auto pt-7">
-      <div className="flex flex-wrap gap-1.5 font-mono text-[11px] font-bold text-gray-600 dark:text-gray-400">
+    <div className="w-full">
+      <div className="flex flex-wrap gap-2 font-mono text-[13px] font-bold text-gray-600 dark:text-gray-400">
         {['MIT', 'self-host', 'any host', 'no paid products'].map((item) => (
           <span
             key={item}
-            className="rounded-md border border-gray-200 bg-white/70 px-2 py-1.5 dark:border-gray-800 dark:bg-black/30"
+            className="rounded-md border border-gray-200 bg-white/70 px-3 py-2.5 dark:border-gray-800 dark:bg-black/30"
           >
             {item}
           </span>

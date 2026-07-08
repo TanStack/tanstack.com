@@ -248,7 +248,7 @@ function RouteComp() {
                 {/* Header */}
                 <div className="flex items-start gap-4 mb-6">
                   <div
-                    className={`shrink-0 w-12 h-12 rounded-lg bg-gradient-to-br ${tenet.gradient} flex items-center justify-center`}
+                    className={`shrink-0 w-12 h-12 rounded-lg bg-linear-to-br ${tenet.gradient} flex items-center justify-center`}
                   >
                     <Icon className="w-6 h-6 text-white" />
                   </div>
@@ -270,7 +270,7 @@ function RouteComp() {
                       className="flex gap-3 items-start"
                     >
                       <div
-                        className={`shrink-0 w-1.5 h-1.5 rounded-full bg-gradient-to-br ${tenet.gradient} mt-2`}
+                        className={`shrink-0 w-1.5 h-1.5 rounded-full bg-linear-to-br ${tenet.gradient} mt-2`}
                       />
                       <div>
                         <span className="font-semibold">
@@ -323,7 +323,7 @@ function RouteComp() {
               return (
                 <Card key={audience.title} className="p-5">
                   <div
-                    className={`w-10 h-10 rounded-lg bg-gradient-to-br ${audience.gradient} flex items-center justify-center mb-3`}
+                    className={`w-10 h-10 rounded-lg bg-linear-to-br ${audience.gradient} flex items-center justify-center mb-3`}
                   >
                     <Icon className="w-5 h-5 text-white" />
                   </div>

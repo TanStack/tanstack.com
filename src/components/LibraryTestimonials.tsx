@@ -51,7 +51,7 @@ export function LibraryTestimonials({
 
 function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
   return (
-    <Card className="flex-shrink-0 w-72 md:w-80 p-5">
+    <Card className="shrink-0 w-72 md:w-80 p-5">
       <div className="flex items-start gap-1 mb-3">
         {[...Array(5)].map((_, j) => (
           <Star

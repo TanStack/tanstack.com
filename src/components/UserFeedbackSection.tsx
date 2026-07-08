@@ -34,7 +34,7 @@ export function UserFeedbackSection(_props: UserFeedbackSectionProps) {
   return (
     <div className="space-y-6">
       {/* Points Summary Box */}
-      <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg p-6 border border-blue-200 dark:border-blue-800">
+      <div className="bg-linear-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg p-6 border border-blue-200 dark:border-blue-800">
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-2 mb-2">

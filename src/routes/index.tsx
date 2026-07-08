@@ -220,7 +220,7 @@ function Index() {
           <div
             className={`
           rounded-md p-4 grid gap-6
-          bg-linear-to-br from-red-500 to-red-700 text-white overflow-hidden relative
+          bg-gradient-to-br from-red-500 to-red-700 text-white overflow-hidden relative
           shadow-xl shadow-red-700/30
           sm:p-8 sm:grid-cols-3 items-center`}
           >
@@ -564,7 +564,7 @@ function WhyTanStackSection() {
               <div
                 aria-hidden="true"
                 className={twMerge(
-                  'mt-6 h-1 w-16 rounded-full bg-linear-to-r',
+                  'mt-6 h-1 w-16 rounded-full bg-gradient-to-r',
                   principle.accentClassName,
                 )}
               />
@@ -651,7 +651,7 @@ function FrameworkAdapterGraph({
           data-adapter-label={frameworkAdapterCore.label}
           style={adapterGraphStyle(frameworkAdapterCore)}
           className={twMerge(
-            'absolute z-30 flex items-center justify-center rounded-lg bg-linear-to-r text-center text-[11px] text-white shadow-lg shadow-cyan-500/15',
+            'absolute z-30 flex items-center justify-center rounded-lg bg-gradient-to-r text-center text-[11px] text-white shadow-lg shadow-cyan-500/15',
             accentClassName,
           )}
         >
@@ -746,7 +746,7 @@ function PrincipleProof({
               <span>{name}</span>
               <span
                 className={twMerge(
-                  'bg-linear-to-r bg-clip-text font-black text-transparent',
+                  'bg-gradient-to-r bg-clip-text font-black text-transparent',
                   accentClassName,
                 )}
               >
@@ -766,7 +766,7 @@ function PrincipleProof({
           <span>critical paths</span>
           <span
             className={twMerge(
-              'bg-linear-to-r bg-clip-text text-transparent',
+              'bg-gradient-to-r bg-clip-text text-transparent',
               accentClassName,
             )}
           >
@@ -781,7 +781,7 @@ function PrincipleProof({
             >
               <span
                 className={twMerge(
-                  'h-1.5 w-1.5 rounded-full bg-linear-to-r',
+                  'h-1.5 w-1.5 rounded-full bg-gradient-to-r',
                   accentClassName,
                 )}
               />
@@ -807,54 +807,12 @@ function PrincipleProof({
       </div>
       <div
         aria-hidden="true"
-        className={twMerge('mt-3 h-px bg-linear-to-r', accentClassName)}
+        className={twMerge('mt-3 h-px bg-gradient-to-r', accentClassName)}
       />
     </div>
   )
 }
 
-function StackCategoryCard({
-  groupId,
-  libraries,
-}: {
-  groupId: keyof typeof librariesByGroup
-  libraries: Library[]
-}) {
-  const groupName = librariesGroupNamesMap[groupId]
-  const categorySlug = groupToSlug[groupId]
-
-  return (
-    <Link
-      to="/stack/$category"
-      params={{ category: categorySlug }}
-      className="group flex flex-col rounded-xl border border-gray-200 bg-white/60 p-5 transition-all hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-md dark:border-gray-800 dark:bg-gray-900/40 dark:hover:border-gray-700"
-    >
-      <h4 className="text-base font-bold group-hover:underline">{groupName}</h4>
-      <ol className="mt-4 space-y-2.5">
-        {libraries.map((lib, i) => (
-          <li key={lib.id} className="flex items-start gap-2.5">
-            <span
-              className={twMerge(
-                'flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-linear-to-br text-[10px] font-black text-white',
-                lib.colorFrom,
-                lib.colorTo,
-              )}
-            >
-              {i + 1}
-            </span>
-            <span className="min-w-0 flex-1 text-sm font-semibold leading-snug">
-              {lib.name.replace('TanStack ', '')}
-            </span>
-          </li>
-        ))}
-      </ol>
-      <span className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-gray-600 dark:text-gray-400">
-        Browse {groupName.toLowerCase()}
-        <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
-      </span>
-    </Link>
-  )
-}
 function OpenSourceGradientText() {
   return <span className="home-open-source-gradient">open-source</span>
 }

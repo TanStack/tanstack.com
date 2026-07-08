@@ -26,9 +26,8 @@ let liveRunForgeSandboxAgent:
   | typeof import('../src/builder/runtime/sandbox-agent.server').runForgeSandboxAgent
   | undefined
 try {
-  ;({ runForgeSandboxAgent: liveRunForgeSandboxAgent } = await import(
-    '../src/builder/runtime/sandbox-agent.server'
-  ))
+  ;({ runForgeSandboxAgent: liveRunForgeSandboxAgent } =
+    await import('../src/builder/runtime/sandbox-agent.server'))
 } catch (error) {
   importError = error
 }
@@ -49,16 +48,13 @@ if (importError) {
   )
 }
 
-// `codexText`, `withSandbox`, `exposeForgePreview`, and the raw-chunk
-// forwarding cannot be exercised end-to-end without a live sandbox +
-// Workers runtime (a real Codex run streaming real StreamChunks), so assert
-// the implementation source directly.
+// The per-provider adapters (`codexText`/`claudeCodeText`), `withSandbox`,
+// `exposeForgePreview`, and the raw-chunk forwarding cannot be exercised
+// end-to-end without a live sandbox + Workers runtime (a real coding-agent run
+// streaming real StreamChunks), so assert the implementation source directly.
 const { readFileSync } = await import('node:fs')
 const implementationSource = readFileSync(
-  new URL(
-    '../src/builder/runtime/sandbox-agent.server.ts',
-    import.meta.url,
-  ),
+  new URL('../src/builder/runtime/sandbox-agent.server.ts', import.meta.url),
   'utf8',
 )
 
@@ -66,13 +62,31 @@ assert.ok(
   implementationSource.includes('export async function runForgeSandboxAgent'),
   'expected runForgeSandboxAgent to be exported from sandbox-agent.server.ts',
 )
+// OpenAI keys drive the Codex CLI; Anthropic keys drive the Claude Code CLI.
 assert.ok(
-  implementationSource.includes("codexText('gpt-5.3-codex'"),
-  'expected runForgeSandboxAgent to drive the gpt-5.3-codex model',
+  implementationSource.includes('codexText(FORGE_SANDBOX_OPENAI_MODEL'),
+  'expected the OpenAI branch to drive codexText',
+)
+assert.ok(
+  implementationSource.includes("FORGE_SANDBOX_OPENAI_MODEL = 'gpt-5.3-codex'"),
+  'expected the Codex model to be gpt-5.3-codex',
 )
 assert.ok(
   implementationSource.includes("sandboxMode: 'danger-full-access'"),
-  'expected runForgeSandboxAgent to configure danger-full-access sandbox mode',
+  'expected the Codex branch to configure danger-full-access sandbox mode',
+)
+assert.ok(
+  implementationSource.includes('claudeCodeText(FORGE_SANDBOX_ANTHROPIC_MODEL'),
+  'expected the Anthropic branch to drive claudeCodeText',
+)
+assert.ok(
+  implementationSource.includes("permissionMode: 'bypassPermissions'"),
+  'expected the Claude Code branch to configure bypassPermissions mode',
+)
+assert.ok(
+  implementationSource.includes("anthropic: 'ANTHROPIC_API_KEY'") &&
+    implementationSource.includes("openai: 'CODEX_API_KEY'"),
+  'expected each provider key to inject under its own sandbox env var',
 )
 assert.ok(
   implementationSource.includes('withSandbox('),

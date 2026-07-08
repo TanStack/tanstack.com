@@ -893,8 +893,9 @@ export async function getLocalForgeHarness(
   }
 
   // `tanstack-ai` is selected. When the host exposes a Cloudflare `Sandbox`
-  // Durable Object binding (cloud runtime), drive the run through the Codex
-  // sandbox agent instead of the in-memory model loop. Without the binding
+  // Durable Object binding (cloud runtime), drive the run through the
+  // provider's sandbox coding agent (Codex for OpenAI, Claude Code for
+  // Anthropic) instead of the in-memory model loop. Without the binding
   // (local dev) we fall back to the in-memory `runTanStackAiForgeHarness`.
   const hostEnv = await getHostRuntimeEnv()
 
@@ -948,13 +949,7 @@ function getRequestedLocalForgeHarnessName(): ForgeAgentHarnessName {
 
 export function resolveLocalForgeAgentHarnessName(
   requestedHarness: string | undefined,
-  {
-    isolateRuntime = isIsolateRuntime(),
-    nodeEnv = process.env.NODE_ENV,
-  }: {
-    isolateRuntime?: boolean
-    nodeEnv?: string
-  } = {},
+  { nodeEnv = process.env.NODE_ENV }: { nodeEnv?: string } = {},
 ): ForgeAgentHarnessName {
   const normalizedHarness = requestedHarness?.trim().toLowerCase()
 
@@ -1134,13 +1129,14 @@ async function runForgeSandboxForgeHarness({
 }: ForgeAgentHarnessRunInput & {
   hostEnv: Record<string, unknown> | undefined
 }) {
-  const byokKey = providerCredential?.apiKey
-
-  if (!byokKey) {
+  if (!providerCredential?.apiKey) {
     throw new Error(
-      'Forge sandbox harness requires a BYOK provider key to run Codex in the Cloudflare sandbox.',
+      'Forge sandbox harness requires a BYOK provider key to run the coding agent in the Cloudflare sandbox.',
     )
   }
+
+  const byokKey = providerCredential.apiKey
+  const provider = providerCredential.provider
 
   await appendAgentEvent({
     message: 'TanStack AI sandbox agent started',
@@ -1167,11 +1163,9 @@ async function runForgeSandboxForgeHarness({
   // chain after the run so no append is dropped before the finished event.
   let appendChain: Promise<void> = Promise.resolve()
   const enqueueAppend = (work: () => Promise<void>) => {
-    appendChain = appendChain
-      .then(work)
-      .catch((error: unknown) => {
-        console.error('[Forge] sandbox event append failed', error)
-      })
+    appendChain = appendChain.then(work).catch((error: unknown) => {
+      console.error('[Forge] sandbox event append failed', error)
+    })
   }
 
   const ctx: ForgeChunkTranslationCtx = {
@@ -1267,6 +1261,7 @@ async function runForgeSandboxForgeHarness({
         ] satisfies Array<ModelMessage>,
         onChunk: (chunk) => translateChunk(chunk, ctx),
         projectId: LOCAL_FORGE_PROJECT_ID,
+        provider,
         // Activity-feed events from the persistence hooks must group under the
         // live run, not the manifest version id.
         runId: runContext.runId,
@@ -1335,7 +1330,11 @@ async function handleForgeSandboxTextEvent({
   state,
 }: {
   completedMessageIds: Set<string>
-  event: { kind: 'start' | 'content' | 'end'; messageId: string; delta?: string }
+  event: {
+    kind: 'start' | 'content' | 'end'
+    messageId: string
+    delta?: string
+  }
   messageTextById: Map<string, string>
   runContext: ForgeRunContext
   startedMessageIds: Set<string>
@@ -1443,7 +1442,11 @@ async function handleForgeSandboxReasoningEvent({
   event,
   runContext,
 }: {
-  event: { kind: 'start' | 'content' | 'end'; messageId: string; delta?: string }
+  event: {
+    kind: 'start' | 'content' | 'end'
+    messageId: string
+    delta?: string
+  }
   runContext: ForgeRunContext
 }) {
   if (event.kind !== 'content') {

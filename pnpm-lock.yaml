@@ -96,6 +96,9 @@ importers:
       '@tanstack/ai-anthropic':
         specifier: ^0.10.1
         version: 0.10.1(@tanstack/ai@0.39.0(@opentelemetry/api@1.9.1))(zod@4.3.6)
+      '@tanstack/ai-claude-code':
+        specifier: ^0.2.0
+        version: 0.2.0(@tanstack/ai-sandbox@0.2.0(@tanstack/ai@0.39.0(@opentelemetry/api@1.9.1))(zod@4.3.6))(@tanstack/ai@0.39.0(@opentelemetry/api@1.9.1))
       '@tanstack/ai-client':
         specifier: ^0.11.3
         version: 0.11.3(@opentelemetry/api@1.9.1)
@@ -3349,6 +3352,12 @@ packages:
     peerDependencies:
       '@tanstack/ai': ^0.20.1
       zod: ^4.0.0
+
+  '@tanstack/ai-claude-code@0.2.0':
+    resolution: {integrity: sha512-B9LAT8ItTUmPJIXq4JBBIDn5WpaxP4w2i7J6zEtz4QHNHl3SuDy61BPxAaYXBo0fDTF5VbdbQ7IwBSouoOIXgQ==}
+    peerDependencies:
+      '@tanstack/ai': ^0.39.0
+      '@tanstack/ai-sandbox': ^0.2.0
 
   '@tanstack/ai-client@0.11.3':
     resolution: {integrity: sha512-mUjKdbMIjNg9AcxsFi2YgT75oWBajZI9KJn4AzseWJwWxoVdZItmZZ1yyuFKMPJHy8LmB6H7XwWcPZbigjNazw==}
@@ -9757,6 +9766,11 @@ snapshots:
       '@tanstack/ai': 0.39.0(@opentelemetry/api@1.9.1)
       '@tanstack/ai-utils': 0.2.0
       zod: 4.3.6
+
+  '@tanstack/ai-claude-code@0.2.0(@tanstack/ai-sandbox@0.2.0(@tanstack/ai@0.39.0(@opentelemetry/api@1.9.1))(zod@4.3.6))(@tanstack/ai@0.39.0(@opentelemetry/api@1.9.1))':
+    dependencies:
+      '@tanstack/ai': 0.39.0(@opentelemetry/api@1.9.1)
+      '@tanstack/ai-sandbox': 0.2.0(@tanstack/ai@0.39.0(@opentelemetry/api@1.9.1))(zod@4.3.6)
 
   '@tanstack/ai-client@0.11.3(@opentelemetry/api@1.9.1)':
     dependencies:

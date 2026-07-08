@@ -216,7 +216,9 @@ async function walkForgeWorkspaceDir({
   const entries = await handle.fs.list(absoluteDir)
 
   for (const entry of entries) {
-    const relativePath = relativeDir ? `${relativeDir}/${entry.name}` : entry.name
+    const relativePath = relativeDir
+      ? `${relativeDir}/${entry.name}`
+      : entry.name
 
     if (entry.type === 'dir') {
       if (FORGE_WORKSPACE_COLLECT_IGNORED_DIRECTORIES.has(entry.name)) {

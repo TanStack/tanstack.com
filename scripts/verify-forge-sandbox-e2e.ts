@@ -101,7 +101,8 @@ function requireEnvVar(name: string): string {
 }
 
 const PROMPT = 'build a kanban board'
-const PREVIEW_URL_PATTERN = /https:\/\/[a-z0-9.-]+\.forge\.tanstack\.com[^\s"']*/i
+const PREVIEW_URL_PATTERN =
+  /https:\/\/[a-z0-9.-]+\.forge\.tanstack\.com[^\s"']*/i
 
 interface SseEvent {
   event?: string
@@ -209,7 +210,9 @@ function isSandboxFileActivity(node: unknown): boolean {
   const record = node as Record<string, unknown>
   const name = record.name ?? record.type
   const looksLikeSandboxFile =
-    name === 'sandbox.file' || name === 'file.upserted' || name === 'file.deleted'
+    name === 'sandbox.file' ||
+    name === 'file.upserted' ||
+    name === 'file.deleted'
 
   const hasPath = typeof record.path === 'string' && record.path.length > 0
 
@@ -343,7 +346,10 @@ async function observeForgeEventStream(
         continue
       }
 
-      if (!observations.sawFileActivity && containsMatch(payload, isSandboxFileActivity)) {
+      if (
+        !observations.sawFileActivity &&
+        containsMatch(payload, isSandboxFileActivity)
+      ) {
         observations.sawFileActivity = true
       }
 
@@ -462,7 +468,9 @@ async function main() {
       'Did not observe a sandbox.file-derived file-activity event on /api/forge/events.',
     )
   }
-  console.log('[verify-forge-sandbox-e2e] observed sandbox file-activity event.')
+  console.log(
+    '[verify-forge-sandbox-e2e] observed sandbox file-activity event.',
+  )
 
   if (!observations.sawManifestFinalized) {
     throw new Error(
@@ -483,7 +491,9 @@ async function main() {
   await assertPreviewUrlServesHtml(observations.previewUrl)
   await assertFollowUpRunPreservesState(config, started.chatId)
 
-  console.log('[verify-forge-sandbox-e2e] PASS: forge sandbox E2E path verified.')
+  console.log(
+    '[verify-forge-sandbox-e2e] PASS: forge sandbox E2E path verified.',
+  )
 }
 
 await main()

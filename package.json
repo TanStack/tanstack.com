@@ -121,6 +121,7 @@
     "@cloudflare/sandbox": "^0.12.1",
     "@tanstack/ai": "^0.39.0",
     "@tanstack/ai-anthropic": "^0.10.1",
+    "@tanstack/ai-claude-code": "^0.2.0",
     "@tanstack/ai-codex": "^0.2.0",
     "@tanstack/ai-sandbox": "^0.2.0",
     "@tanstack/ai-sandbox-cloudflare": "^0.2.0",

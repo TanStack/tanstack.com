@@ -4,6 +4,7 @@ import {
   type ModelMessage,
   type StreamChunk,
 } from '@tanstack/ai'
+import { claudeCodeText } from '@tanstack/ai-claude-code'
 import { codexText } from '@tanstack/ai-codex'
 import {
   createSecrets,
@@ -16,10 +17,46 @@ import {
 import { cloudflareSandbox } from '@tanstack/ai-sandbox-cloudflare'
 import type { Sandbox, SandboxEnv } from '@cloudflare/sandbox'
 import type { BlobStorage } from '~/server/runtime/blob-storage.server'
+import type { ForgeByokProvider } from './forge-byok.server'
 import { forgePersistenceHooks } from './sandbox-r2-persistence.server'
 import { exposeForgePreview } from './sandbox-preview-tool.server'
 
 const FORGE_SANDBOX_PREVIEW_HOSTNAME = 'forge.tanstack.com'
+
+/**
+ * The sandbox env var each BYOK provider's coding CLI reads its key from. The
+ * baked container image (`docker/forge-sandbox/Dockerfile`) ships both CLIs;
+ * the caller's key is injected under the matching name so only the selected
+ * CLI can authenticate.
+ */
+const FORGE_SANDBOX_SECRET_BY_PROVIDER = {
+  anthropic: 'ANTHROPIC_API_KEY',
+  openai: 'CODEX_API_KEY',
+} as const satisfies Record<ForgeByokProvider, string>
+
+/**
+ * Coding model each provider's sandbox agent runs. Like the Codex model, this
+ * is pinned to the provider's strongest coding harness model and is
+ * independent of the user's chat-model selection — the sandbox path drives a
+ * CLI agent, not the picked chat model.
+ */
+const FORGE_SANDBOX_ANTHROPIC_MODEL = 'sonnet'
+const FORGE_SANDBOX_OPENAI_MODEL = 'gpt-5.3-codex'
+
+/**
+ * The sandbox-resident coding agent adapter for a BYOK provider. Codex drives
+ * the `codex` CLI, Claude Code drives the `claude` CLI — both spawn inside the
+ * sandbox and stream their thread events back through `withSandbox`.
+ */
+function forgeSandboxAdapter(provider: ForgeByokProvider) {
+  return provider === 'anthropic'
+    ? claudeCodeText(FORGE_SANDBOX_ANTHROPIC_MODEL, {
+        permissionMode: 'bypassPermissions',
+      })
+    : codexText(FORGE_SANDBOX_OPENAI_MODEL, {
+        sandboxMode: 'danger-full-access',
+      })
+}
 
 export type ForgeSandboxEnv = SandboxEnv<Sandbox>
 
@@ -27,19 +64,22 @@ export type ForgeSandboxEnv = SandboxEnv<Sandbox>
  * Build the sandbox definition a Forge thread's chat run resolves into. One
  * sandbox is reused per thread (`lifecycle.reuse: 'thread'`); the workspace
  * clones nothing (`source: { type: 'none' }`) and injects the caller's BYOK
- * key as `CODEX_API_KEY` — the harness reads it from the sandbox env, never
- * from the SandboxStore or event log.
+ * key under the selected provider's env var (`CODEX_API_KEY` for OpenAI,
+ * `ANTHROPIC_API_KEY` for Anthropic) — the harness reads it from the sandbox
+ * env, never from the SandboxStore or event log.
  */
 export function buildForgeSandbox({
   byokKey,
   env,
   hooks,
   projectId,
+  provider,
   threadId,
 }: {
   threadId: string
   projectId: string
   byokKey: string
+  provider: ForgeByokProvider
   env: ForgeSandboxEnv
   hooks?: SandboxHooks
 }): SandboxDefinition {
@@ -55,7 +95,9 @@ export function buildForgeSandbox({
       transport: 'http',
     }),
     workspace: defineWorkspace({
-      secrets: createSecrets({ CODEX_API_KEY: byokKey }),
+      secrets: createSecrets({
+        [FORGE_SANDBOX_SECRET_BY_PROVIDER[provider]]: byokKey,
+      }),
       source: { type: 'none' },
     }),
   })
@@ -69,11 +111,12 @@ const FORGE_SANDBOX_AGENT_SYSTEM_PROMPT =
 const FORGE_SANDBOX_AGENT_MAX_ITERATIONS = 30
 
 /**
- * Drive one Codex coding-agent run inside a Forge thread's Cloudflare
- * sandbox. Builds the sandbox via `buildForgeSandbox` (wiring R2
- * persistence hooks through `forgePersistenceHooks`), then runs `chat()`
- * with the sandbox-bound Codex adapter (`codexText`), the `withSandbox`
- * middleware, and the `exposeForgePreview` tool built fresh for this run.
+ * Drive one coding-agent run inside a Forge thread's Cloudflare sandbox.
+ * Builds the sandbox via `buildForgeSandbox` (wiring R2 persistence hooks
+ * through `forgePersistenceHooks`), then runs `chat()` with the provider's
+ * sandbox-bound coding adapter (`codexText` for OpenAI, `claudeCodeText` for
+ * Anthropic), the `withSandbox` middleware, and the `exposeForgePreview` tool
+ * built fresh for this run.
  *
  * `onChunk` receives each RAW `StreamChunk` from the stream unchanged — this
  * function performs no translation. A later task's SSE-proxy consumer is
@@ -88,6 +131,7 @@ export async function runForgeSandboxAgent({
   messages,
   onChunk,
   projectId,
+  provider,
   runId,
   threadId,
 }: {
@@ -98,7 +142,11 @@ export async function runForgeSandboxAgent({
   runId: string
   messages: Array<ModelMessage>
   byokKey: string
-  env: ForgeSandboxEnv & { FORGE_RUNTIME?: BlobStorage; PREVIEW_HOSTNAME?: string }
+  provider: ForgeByokProvider
+  env: ForgeSandboxEnv & {
+    FORGE_RUNTIME?: BlobStorage
+    PREVIEW_HOSTNAME?: string
+  }
   onChunk: (chunk: StreamChunk) => void
   abortSignal?: AbortSignal
 }): Promise<{ files: Record<string, string> }> {
@@ -121,6 +169,7 @@ export async function runForgeSandboxAgent({
     env,
     hooks,
     projectId,
+    provider,
     threadId,
   })
 
@@ -143,7 +192,7 @@ export async function runForgeSandboxAgent({
 
   const stream = chat({
     abortController,
-    adapter: codexText('gpt-5.3-codex', { sandboxMode: 'danger-full-access' }),
+    adapter: forgeSandboxAdapter(provider),
     agentLoopStrategy: maxIterations(FORGE_SANDBOX_AGENT_MAX_ITERATIONS),
     messages,
     middleware: [withSandbox(sandbox)],

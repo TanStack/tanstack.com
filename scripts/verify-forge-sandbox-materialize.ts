@@ -4,11 +4,13 @@ import os from 'node:os'
 import path from 'node:path'
 import type { SandboxHandle } from '@tanstack/ai-sandbox'
 import type { BlobStorage } from '../src/server/runtime/blob-storage.server'
-import type { BuilderLocalFileBlob, BuilderManifest } from '../src/builder/schema'
+import type {
+  BuilderLocalFileBlob,
+  BuilderManifest,
+} from '../src/builder/schema'
 
-const { forgePersistenceHooks } = await import(
-  '../src/builder/runtime/sandbox-r2-persistence.server'
-)
+const { forgePersistenceHooks } =
+  await import('../src/builder/runtime/sandbox-r2-persistence.server')
 
 const projectId = 'manifest:fixture/current'
 const blob: BuilderLocalFileBlob = {
@@ -99,10 +101,7 @@ try {
       2,
       `expected 2 fs.write calls (file + marker), got ${handle.writeCalls.length}`,
     )
-    assert.equal(
-      await handle.fs.read('/workspace/app/README.md'),
-      blob.content,
-    )
+    assert.equal(await handle.fs.read('/workspace/app/README.md'), blob.content)
     assert.equal(
       await handle.fs.read('/workspace/app/.forge-manifest'),
       manifest.manifestVersionId,
@@ -169,9 +168,8 @@ try {
       { contentType: 'application/json' },
     )
 
-    const { resetLocalForgeRuntime, readLocalForgeTimeline } = await import(
-      '../src/builder/runtime/local-store.server'
-    )
+    const { resetLocalForgeRuntime, readLocalForgeTimeline } =
+      await import('../src/builder/runtime/local-store.server')
     await resetLocalForgeRuntime()
 
     const handle = createFakeSandboxHandle()
@@ -195,8 +193,9 @@ try {
     // so no wall-clock delay is needed for the mirror + activity event to land.
     await hooks.flush()
 
-    const mirroredKeys = (await storage.list({ prefix: 'forge/v1/blobs/' }))
-      .objects.map((object) => object.key)
+    const mirroredKeys = (
+      await storage.list({ prefix: 'forge/v1/blobs/' })
+    ).objects.map((object) => object.key)
     assert.ok(
       mirroredKeys.some((key) => key.includes('forge-sandbox-mirror')),
       `expected a mirrored blob key, got ${JSON.stringify(mirroredKeys)}`,
@@ -272,7 +271,8 @@ function createFakeSandboxHandle(): SandboxHandle & {
         }
       },
       write: async (filePath: string, data: string | Uint8Array) => {
-        const text = typeof data === 'string' ? data : Buffer.from(data).toString('utf8')
+        const text =
+          typeof data === 'string' ? data : Buffer.from(data).toString('utf8')
         writeCalls.push({ data: text, path: filePath })
         files.set(filePath, text)
       },

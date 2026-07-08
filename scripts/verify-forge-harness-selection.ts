@@ -6,31 +6,15 @@ import {
 
 assert.equal(resolveLocalForgeAgentHarnessName(undefined), 'codex-cli')
 assert.equal(
-  resolveLocalForgeAgentHarnessName(undefined, {
-    isolateRuntime: false,
-    nodeEnv: 'development',
-  }),
+  resolveLocalForgeAgentHarnessName(undefined, { nodeEnv: 'development' }),
   'codex-cli',
 )
 assert.equal(
-  resolveLocalForgeAgentHarnessName('', {
-    isolateRuntime: false,
-    nodeEnv: 'development',
-  }),
+  resolveLocalForgeAgentHarnessName('', { nodeEnv: 'development' }),
   'codex-cli',
 )
 assert.equal(
-  resolveLocalForgeAgentHarnessName(undefined, {
-    isolateRuntime: true,
-    nodeEnv: 'development',
-  }),
-  'codex-cli',
-)
-assert.equal(
-  resolveLocalForgeAgentHarnessName(undefined, {
-    isolateRuntime: true,
-    nodeEnv: 'production',
-  }),
+  resolveLocalForgeAgentHarnessName(undefined, { nodeEnv: 'production' }),
   'tanstack-ai',
 )
 assert.equal(resolveLocalForgeAgentHarnessName('tanstack-ai'), 'tanstack-ai')

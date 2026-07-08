@@ -304,18 +304,27 @@ if (serverBlock) {
     // Insert right after the opening brace of the server block; the rest of
     // the original server body (and everything after it) follows unchanged.
     output =
-      source.slice(0, serverBodyStart) + '\n' + insertion + source.slice(serverBodyStart)
+      source.slice(0, serverBodyStart) +
+      '\n' +
+      insertion +
+      source.slice(serverBodyStart)
   }
 } else {
   // No top-level `server` key at all — add the whole block.
   const indent = indentOfLineAt(source, objectStart) + '  '
   const serverBlockText = `${indent}server: { host: true, allowedHosts: true },\n`
 
-  output = source.slice(0, bodyStart) + '\n' + serverBlockText + source.slice(bodyStart)
+  output =
+    source.slice(0, bodyStart) +
+    '\n' +
+    serverBlockText +
+    source.slice(bodyStart)
 }
 
 if (output === source) {
-  console.log(`patch-vite-config: ${filePath} already has server.host and server.allowedHosts — no changes made.`)
+  console.log(
+    `patch-vite-config: ${filePath} already has server.host and server.allowedHosts — no changes made.`,
+  )
   process.exit(0)
 }
 

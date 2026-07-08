@@ -80,7 +80,11 @@ function createSpyCtx() {
     ctx,
   )
   translateChunk(
-    { toolCallId: 't1', toolCallName: 'search', type: 'TOOL_CALL_END' } as StreamChunk,
+    {
+      toolCallId: 't1',
+      toolCallName: 'search',
+      type: 'TOOL_CALL_END',
+    } as StreamChunk,
     ctx,
   )
 
@@ -141,13 +145,35 @@ function createSpyCtx() {
   console.log('codex.session-id CUSTOM -> ctx.persistSessionId: pass')
 }
 
+// 4b. claude-code.session-id CUSTOM chunk -> ctx.persistSessionId (Claude Code
+// emits the same session-id shape under its own event name).
+{
+  const { calls, ctx } = createSpyCtx()
+  const chunk = {
+    name: 'claude-code.session-id',
+    type: 'CUSTOM',
+    value: { sessionId: 'sess-claude-456' },
+  } as StreamChunk
+
+  translateChunk(chunk, ctx)
+
+  assert.equal(calls.length, 1)
+  assert.equal(calls[0]?.fn, 'persistSessionId')
+  assert.equal(calls[0]?.args, 'sess-claude-456')
+  console.log('claude-code.session-id CUSTOM -> ctx.persistSessionId: pass')
+}
+
 // 5. sandbox.file CUSTOM chunk -> ctx.onFileActivity
 {
   const { calls, ctx } = createSpyCtx()
   const chunk = {
     name: 'sandbox.file',
     type: 'CUSTOM',
-    value: { path: '/workspace/src/app.ts', timestamp: 1_700_000_000, type: 'change' },
+    value: {
+      path: '/workspace/src/app.ts',
+      timestamp: 1_700_000_000,
+      type: 'change',
+    },
   } as StreamChunk
 
   translateChunk(chunk, ctx)
@@ -229,10 +255,7 @@ function createSpyCtx() {
 {
   const { calls, ctx } = createSpyCtx()
   assert.doesNotThrow(() =>
-    translateChunk(
-      { message: 'boom', type: 'RUN_ERROR' } as StreamChunk,
-      ctx,
-    ),
+    translateChunk({ message: 'boom', type: 'RUN_ERROR' } as StreamChunk, ctx),
   )
   assert.equal(calls.length, 0)
   console.log('unhandled chunk types are ignored without throwing: pass')

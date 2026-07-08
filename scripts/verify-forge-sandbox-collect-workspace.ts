@@ -14,9 +14,8 @@ let forgePersistenceHooks:
   | typeof import('../src/builder/runtime/sandbox-r2-persistence.server').forgePersistenceHooks
   | undefined
 try {
-  ;({ forgePersistenceHooks } = await import(
-    '../src/builder/runtime/sandbox-r2-persistence.server'
-  ))
+  ;({ forgePersistenceHooks } =
+    await import('../src/builder/runtime/sandbox-r2-persistence.server'))
 } catch (error) {
   importError = error
 }
@@ -39,7 +38,8 @@ if (importError || !forgePersistenceHooks) {
     '/workspace/app/node_modules/left-pad/index.js': 'dep — must be ignored',
     '/workspace/app/.git/config': 'vcs — must be ignored',
     '/workspace/app/src/main.tsx': 'export const main = () => {}\n',
-    '/workspace/app/src/routes/index.tsx': 'export default function Index() {}\n',
+    '/workspace/app/src/routes/index.tsx':
+      'export default function Index() {}\n',
     '/workspace/app/public/favicon.svg': '<svg/>\n',
   }
 
@@ -60,12 +60,7 @@ if (importError || !forgePersistenceHooks) {
 
   assert.deepEqual(
     Object.keys(files).sort(),
-    [
-      'README.md',
-      'public/favicon.svg',
-      'src/main.tsx',
-      'src/routes/index.tsx',
-    ],
+    ['README.md', 'public/favicon.svg', 'src/main.tsx', 'src/routes/index.tsx'],
     `collectWorkspaceFiles must return workspace-relative paths with node_modules/.git/dist/.forge-manifest ignored, got ${JSON.stringify(
       Object.keys(files).sort(),
     )}`,
@@ -114,9 +109,7 @@ console.log('Forge sandbox collect-workspace verifier passed')
  * `fs.list` synthesizes directory entries from the flat map so the recursive
  * tree-walk in `collectWorkspaceFiles` can be exercised for real.
  */
-function createFakeSandboxHandle(
-  tree: Record<string, string>,
-): SandboxHandle {
+function createFakeSandboxHandle(tree: Record<string, string>): SandboxHandle {
   const list = async (dirPath: string) => {
     const prefix = dirPath.endsWith('/') ? dirPath : `${dirPath}/`
     const names = new Map<string, 'dir' | 'file'>()

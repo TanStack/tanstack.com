@@ -46,7 +46,7 @@ assert.ok(
   /export\s*\{\s*Sandbox\s*\}\s*from\s*['"]@cloudflare\/sandbox['"]/.test(
     serverSource,
   ),
-  'expected `export { Sandbox } from \'@cloudflare/sandbox\'` in src/server.ts',
+  "expected `export { Sandbox } from '@cloudflare/sandbox'` in src/server.ts",
 )
 
 // 2. The existing `ForgeSessionDurableObject` re-export must still be there

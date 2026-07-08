@@ -34,9 +34,9 @@ export type ForgeChunkTranslationCtx = {
   }) => void
 
   /**
-   * `CUSTOM` chunk named `codex.session-id` -> best-effort session-id
-   * persistence so a dropped connection can resume against the same codex
-   * session.
+   * `CUSTOM` chunk named `codex.session-id` (Codex) or `claude-code.session-id`
+   * (Claude Code) -> best-effort session-id persistence so a dropped
+   * connection can resume against the same agent session.
    */
   persistSessionId: (sessionId: string) => void
 
@@ -62,7 +62,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
 }
 
-function readCodexSessionIdValue(value: unknown): string | undefined {
+function readSessionIdValue(value: unknown): string | undefined {
   if (!isRecord(value)) {
     return undefined
   }
@@ -79,7 +79,9 @@ function readCodexSessionIdValue(value: unknown): string | undefined {
 
 function readSandboxFileValue(
   value: unknown,
-): { type: 'create' | 'change' | 'delete'; path: string; timestamp: number } | undefined {
+):
+  | { type: 'create' | 'change' | 'delete'; path: string; timestamp: number }
+  | undefined {
   if (!isRecord(value)) {
     return undefined
   }
@@ -115,7 +117,11 @@ function readFileChangedValue(
 
   const { path, diff } = value
 
-  if (typeof path !== 'string' || path.length === 0 || typeof diff !== 'string') {
+  if (
+    typeof path !== 'string' ||
+    path.length === 0 ||
+    typeof diff !== 'string'
+  ) {
     return undefined
   }
 
@@ -128,7 +134,10 @@ function readFileChangedValue(
  * injected `ctx` callbacks, which keeps this function trivially testable and
  * safe to run under plain `tsx` (no sandbox/Cloudflare runtime imports).
  */
-export function translateChunk(chunk: StreamChunk, ctx: ForgeChunkTranslationCtx): void {
+export function translateChunk(
+  chunk: StreamChunk,
+  ctx: ForgeChunkTranslationCtx,
+): void {
   switch (chunk.type) {
     case 'TEXT_MESSAGE_START': {
       if (chunk.role && chunk.role !== 'assistant') {
@@ -199,23 +208,26 @@ export function translateChunk(chunk: StreamChunk, ctx: ForgeChunkTranslationCtx
     }
 
     case 'CUSTOM': {
-      if (chunk.name === 'codex.session-id') {
-        const sessionId = readCodexSessionIdValue(chunk.value)
+      if (
+        chunk.name === 'codex.session-id' ||
+        chunk.name === 'claude-code.session-id'
+      ) {
+        const sessionId = readSessionIdValue(chunk.value)
         if (sessionId) {
           ctx.persistSessionId(sessionId)
         }
         return
       }
 
-      // NOTE: the Codex adapter (`codexText`) currently emits only
-      // `codex.session-id` as a CUSTOM chunk — it does NOT emit `sandbox.file`
-      // or `file.changed`. For the forge sandbox path, live file activity comes
-      // from `forgePersistenceHooks.onFile` (mirroring sandbox writes to R2 +
-      // the activity feed) and the authoritative final manifest comes from
+      // NOTE: both harness adapters (`codexText`, `claudeCodeText`) emit their
+      // `*.session-id` as a CUSTOM chunk but do NOT emit `sandbox.file`. For the
+      // forge sandbox path, live file activity comes from
+      // `forgePersistenceHooks.onFile` (mirroring sandbox writes to R2 + the
+      // activity feed) and the authoritative final manifest comes from
       // `collectWorkspaceFiles` feeding the shared `drainLocalForgeAgentRun`
-      // finalize. These two branches are therefore dead for Codex today; they
-      // are kept as forward-compat for adapters (e.g. Grok, Claude Code) that
-      // DO surface file events as CUSTOM chunks.
+      // finalize. The `sandbox.file` branch is therefore dead today; it is kept
+      // as forward-compat for adapters that DO surface file events as CUSTOM
+      // chunks. Claude Code's `file.changed` (git diff) is handled below.
       if (chunk.name === 'sandbox.file') {
         const fileEvent = readSandboxFileValue(chunk.value)
         if (fileEvent) {

@@ -39,9 +39,8 @@ let liveBuildForgeSandbox:
   | typeof import('../src/builder/runtime/sandbox-agent.server').buildForgeSandbox
   | undefined
 try {
-  ;({ buildForgeSandbox: liveBuildForgeSandbox } = await import(
-    '../src/builder/runtime/sandbox-agent.server'
-  ))
+  ;({ buildForgeSandbox: liveBuildForgeSandbox } =
+    await import('../src/builder/runtime/sandbox-agent.server'))
 } catch (error) {
   importError = error
 }
@@ -63,21 +62,35 @@ if (importError) {
   const fakeBinding = {} as DurableObjectNamespace<
     import('@cloudflare/sandbox').Sandbox
   >
-  const definition = liveBuildForgeSandbox({
-    byokKey: 'sk-test-dummy-key',
-    env: { Sandbox: fakeBinding },
-    projectId: 'project-abc',
-    threadId: 'thread-123',
-  })
 
-  assert.equal(definition.provider.name, 'cloudflare')
-  assert.ok(definition.workspace)
-  assert.equal(definition.workspace?.source.type, 'none')
+  // Each BYOK provider injects the caller's key under a different env var so
+  // only that provider's baked CLI can authenticate.
+  const providerSecretCases = [
+    { provider: 'openai' as const, secret: 'CODEX_API_KEY' },
+    { provider: 'anthropic' as const, secret: 'ANTHROPIC_API_KEY' },
+  ]
 
-  const secretKeys = Object.keys(definition.workspace?.secrets ?? {})
-  assert.ok(secretKeys.includes('CODEX_API_KEY'))
-  assert.ok(!secretKeys.includes('OPENAI_API_KEY'))
-  assert.equal(definition.lifecycle?.reuse, 'thread')
+  for (const { provider, secret } of providerSecretCases) {
+    const definition = liveBuildForgeSandbox({
+      byokKey: 'sk-test-dummy-key',
+      env: { Sandbox: fakeBinding },
+      projectId: 'project-abc',
+      provider,
+      threadId: 'thread-123',
+    })
+
+    assert.equal(definition.provider.name, 'cloudflare')
+    assert.ok(definition.workspace)
+    assert.equal(definition.workspace?.source.type, 'none')
+
+    const secretKeys = Object.keys(definition.workspace?.secrets ?? {})
+    assert.deepEqual(
+      secretKeys,
+      [secret],
+      `expected only ${secret} for ${provider}, got ${JSON.stringify(secretKeys)}`,
+    )
+    assert.equal(definition.lifecycle?.reuse, 'thread')
+  }
 }
 
 // Build the SAME shape `buildForgeSandbox` builds, but with a no-op fake
@@ -116,35 +129,37 @@ const fakeCloudflareLikeProvider = {
   },
 }
 
-const referenceDefinition = defineSandbox({
-  id: `forge-${projectId}-${threadId}`,
-  lifecycle: {
-    reuse: 'thread',
-  },
-  provider: fakeCloudflareLikeProvider,
-  workspace: defineWorkspace({
-    secrets: createSecrets({ CODEX_API_KEY: byokKey }),
-    source: { type: 'none' },
-  }),
-})
+for (const { provider, secret } of [
+  { provider: 'openai' as const, secret: 'CODEX_API_KEY' },
+  { provider: 'anthropic' as const, secret: 'ANTHROPIC_API_KEY' },
+]) {
+  const referenceDefinition = defineSandbox({
+    id: `forge-${projectId}-${threadId}`,
+    lifecycle: {
+      reuse: 'thread',
+    },
+    provider: fakeCloudflareLikeProvider,
+    workspace: defineWorkspace({
+      secrets: createSecrets({ [secret]: byokKey }),
+      source: { type: 'none' },
+    }),
+  })
 
-assert.equal(referenceDefinition.id, 'forge-project-abc-thread-123')
-assert.equal(referenceDefinition.provider.name, 'cloudflare')
-assert.equal(referenceDefinition.workspace?.source.type, 'none')
+  assert.equal(referenceDefinition.id, 'forge-project-abc-thread-123')
+  assert.equal(referenceDefinition.provider.name, 'cloudflare')
+  assert.equal(referenceDefinition.workspace?.source.type, 'none')
 
-const referenceSecretKeys = Object.keys(
-  referenceDefinition.workspace?.secrets ?? {},
-)
-assert.ok(
-  referenceSecretKeys.includes('CODEX_API_KEY'),
-  `expected CODEX_API_KEY in secret keys, got ${JSON.stringify(referenceSecretKeys)}`,
-)
-assert.ok(
-  !referenceSecretKeys.includes('OPENAI_API_KEY'),
-  `did not expect OPENAI_API_KEY in secret keys, got ${JSON.stringify(referenceSecretKeys)}`,
-)
-assert.equal(referenceDefinition.lifecycle?.reuse, 'thread')
-assert.equal(referenceDefinition.hooks, undefined)
+  const referenceSecretKeys = Object.keys(
+    referenceDefinition.workspace?.secrets ?? {},
+  )
+  assert.deepEqual(
+    referenceSecretKeys,
+    [secret],
+    `expected only ${secret} for ${provider}, got ${JSON.stringify(referenceSecretKeys)}`,
+  )
+  assert.equal(referenceDefinition.lifecycle?.reuse, 'thread')
+  assert.equal(referenceDefinition.hooks, undefined)
+}
 
 // `previewHostname` is stored on the Cloudflare provider's private `config`
 // and is never re-exposed on `SandboxProvider` (no getter, no capability
@@ -155,10 +170,7 @@ assert.equal(referenceDefinition.hooks, undefined)
 // `previewHostname: 'forge.tanstack.com'` to `cloudflareSandbox(...)`.
 const { readFileSync } = await import('node:fs')
 const implementationSource = readFileSync(
-  new URL(
-    '../src/builder/runtime/sandbox-agent.server.ts',
-    import.meta.url,
-  ),
+  new URL('../src/builder/runtime/sandbox-agent.server.ts', import.meta.url),
   'utf8',
 )
 

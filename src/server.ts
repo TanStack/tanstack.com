@@ -2,7 +2,11 @@ import './instrument.server.mjs'
 
 import { wrapFetchWithSentry } from '@sentry/tanstackstart-react'
 import handler, { createServerEntry } from '@tanstack/react-start/server-entry'
-import { proxyToSandbox, type Sandbox, type SandboxEnv } from '@cloudflare/sandbox'
+import {
+  proxyToSandbox,
+  type Sandbox,
+  type SandboxEnv,
+} from '@cloudflare/sandbox'
 import { runWithDatabaseContext } from '~/db/client'
 import { runScheduledTasks } from '~/server/scheduled.server'
 import {

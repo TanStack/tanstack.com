@@ -7,8 +7,13 @@
 # Pin base tag to the @cloudflare/sandbox version in package.json.
 FROM docker.io/cloudflare/sandbox:0.12.1
 
-# Codex CLI + TanStack CLI baked (native binaries are OPTIONAL deps → --include=optional).
-RUN npm i -g @openai/codex @tanstack/cli --include=optional && codex --version
+# Codex CLI + Claude Code CLI + TanStack CLI baked (native binaries are
+# OPTIONAL deps → --include=optional). Both coding CLIs are present so a forge
+# run can drive either BYOK provider in-sandbox: Codex for OpenAI keys
+# (CODEX_API_KEY), Claude Code for Anthropic keys (ANTHROPIC_API_KEY).
+RUN npm i -g @openai/codex @anthropic-ai/claude-code @tanstack/cli --include=optional \
+  && codex --version \
+  && claude --version
 
 # The expensive part, ONCE: scaffold + install + write Intent skill mappings.
 # `project-name` must be URL-friendly (no path separators) — the actual

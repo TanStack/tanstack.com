@@ -38,7 +38,7 @@ export const Route = createFileRoute('/explore')({
 // Loading screen while game JS bundle loads
 function LoadingScreen() {
   return (
-    <div className="w-full h-[calc(100dvh-var(--navbar-height))] bg-gradient-to-b from-sky-400 to-cyan-600 flex items-center justify-center">
+    <div className="w-full h-[calc(100dvh-var(--navbar-height))] bg-linear-to-b from-sky-400 to-cyan-600 flex items-center justify-center">
       <div className="text-center">
         <div className="w-16 h-16 mx-auto mb-4 border-4 border-white/30 border-t-white rounded-full animate-spin" />
         <p className="text-white text-lg font-medium">

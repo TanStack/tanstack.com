@@ -134,7 +134,7 @@ function RouteComp() {
                 {/* Header */}
                 <div className="flex items-start gap-4 mb-4">
                   <div
-                    className={`shrink-0 w-12 h-12 rounded-lg bg-gradient-to-br ${section.gradient} flex items-center justify-center`}
+                    className={`shrink-0 w-12 h-12 rounded-lg bg-linear-to-br ${section.gradient} flex items-center justify-center`}
                   >
                     <Icon className="w-6 h-6 text-white" />
                   </div>
@@ -154,7 +154,7 @@ function RouteComp() {
                     {section.bullets.map((bullet) => (
                       <div key={bullet} className="flex gap-3 items-start">
                         <div
-                          className={`shrink-0 w-1.5 h-1.5 rounded-full bg-gradient-to-br ${section.gradient} mt-2`}
+                          className={`shrink-0 w-1.5 h-1.5 rounded-full bg-linear-to-br ${section.gradient} mt-2`}
                         />
                         <span className="text-gray-600 dark:text-gray-400">
                           {bullet}
@@ -193,7 +193,7 @@ function RouteComp() {
           className="p-6 md:p-8 hover:border-violet-500/50 transition-colors"
         >
           <div className="flex items-start gap-4">
-            <div className="shrink-0 w-12 h-12 rounded-lg bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center">
+            <div className="shrink-0 w-12 h-12 rounded-lg bg-linear-to-br from-violet-500 to-purple-500 flex items-center justify-center">
               <FileText className="w-6 h-6 text-white" />
             </div>
             <div>

@@ -138,7 +138,7 @@ function RouteComponent() {
         </div>
 
         {/* Footer CTA */}
-        <div className="mt-16 p-8 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 dark:from-blue-500/20 dark:to-cyan-500/20 rounded-2xl border border-blue-200 dark:border-cyan-800 text-center">
+        <div className="mt-16 p-8 bg-linear-to-r from-blue-500/10 to-cyan-500/10 dark:from-blue-500/20 dark:to-cyan-500/20 rounded-2xl border border-blue-200 dark:border-cyan-800 text-center">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
             Ready to Build?
           </h2>

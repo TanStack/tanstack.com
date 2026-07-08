@@ -38,9 +38,9 @@ function LearnPage() {
             href="https://youtube.com/@tan_stack"
             target="_blank"
             rel="noreferrer"
-            className="min-w-[300px] max-w-[300px] rounded-lg bg-gradient-to-br from-red-500 to-red-700 text-white shadow-black/20 shadow-lg hover:shadow-2xl hover:shadow-black/20 divide-y divide-white/30 transition-all duration-200 hover:scale-105 block relative overflow-visible"
+            className="min-w-[300px] max-w-[300px] rounded-lg bg-linear-to-br from-red-500 to-red-700 text-white shadow-black/20 shadow-lg hover:shadow-2xl hover:shadow-black/20 divide-y divide-white/30 transition-all duration-200 hover:scale-105 block relative overflow-visible"
           >
-            <div className="absolute -top-2 -right-2 z-40 px-2 py-1 rounded-md bg-gradient-to-r from-red-500 to-red-700 uppercase text-white font-black italic text-xs">
+            <div className="absolute -top-2 -right-2 z-40 px-2 py-1 rounded-md bg-linear-to-r from-red-500 to-red-700 uppercase text-white font-black italic text-xs">
               NEW
             </div>
             <div className="p-4 lg:p-8">
@@ -54,15 +54,15 @@ function LearnPage() {
               </p>
               <div className="grid gap-2 text-xs text-left">
                 <div className="flex items-start gap-2">
-                  <Play className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <Play className="w-4 h-4 mt-0.5 shrink-0" />
                   <div>Tutorials & walkthroughs</div>
                 </div>
                 <div className="flex items-start gap-2">
-                  <Video className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <Video className="w-4 h-4 mt-0.5 shrink-0" />
                   <div>Deep dives into library internals</div>
                 </div>
                 <div className="flex items-start gap-2">
-                  <Star className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <Star className="w-4 h-4 mt-0.5 shrink-0" />
                   <div>Release announcements & demos</div>
                 </div>
               </div>
@@ -78,9 +78,9 @@ function LearnPage() {
           </a>
           <Link
             to="/workshops"
-            className="min-w-[300px] max-w-[300px] rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-black/20 shadow-lg hover:shadow-2xl hover:shadow-black/20 divide-y divide-white/30 transition-all duration-200 hover:scale-105 block relative overflow-visible"
+            className="min-w-[300px] max-w-[300px] rounded-lg bg-linear-to-br from-blue-600 to-purple-600 text-white shadow-black/20 shadow-lg hover:shadow-2xl hover:shadow-black/20 divide-y divide-white/30 transition-all duration-200 hover:scale-105 block relative overflow-visible"
           >
-            <div className="absolute -top-2 -right-2 z-40 px-2 py-1 rounded-md bg-gradient-to-r from-blue-500 to-purple-500 uppercase text-white font-black italic text-xs">
+            <div className="absolute -top-2 -right-2 z-40 px-2 py-1 rounded-md bg-linear-to-r from-blue-500 to-purple-500 uppercase text-white font-black italic text-xs">
               NEW
             </div>
             <div className="p-4 lg:p-8">
@@ -94,15 +94,15 @@ function LearnPage() {
               </p>
               <div className="grid gap-2 text-xs text-left">
                 <div className="flex items-start gap-2">
-                  <Video className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <Video className="w-4 h-4 mt-0.5 shrink-0" />
                   <div>Remote workshops worldwide</div>
                 </div>
                 <div className="flex items-start gap-2">
-                  <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <MapPin className="w-4 h-4 mt-0.5 shrink-0" />
                   <div>Premium in-person options</div>
                 </div>
                 <div className="flex items-start gap-2">
-                  <Star className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <Star className="w-4 h-4 mt-0.5 shrink-0" />
                   <div>From maintainers & creators</div>
                 </div>
               </div>

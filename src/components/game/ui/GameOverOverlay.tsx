@@ -69,7 +69,7 @@ export function GameOverOverlay() {
               transform: animationStep >= 1 ? 'scale(1)' : 'scale(0.5)',
             }}
           >
-            <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center shadow-lg">
+            <div className="w-20 h-20 mx-auto rounded-full bg-linear-to-br from-red-500 to-red-700 flex items-center justify-center shadow-lg">
               <span className="text-4xl">💀</span>
             </div>
           </div>

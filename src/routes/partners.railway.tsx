@@ -303,7 +303,7 @@ export const Route = createFileRoute('/partners/railway')({
 
 function CheckBadge() {
   return (
-    <span className="mt-0.5 inline-flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white">
+    <span className="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white">
       <Check className="h-2.5 w-2.5" />
     </span>
   )
@@ -727,7 +727,7 @@ function RailwayPartnerPage() {
                     </span>
                     <Plus
                       className={twMerge(
-                        'h-4 w-4 flex-shrink-0 text-gray-500 transition-transform duration-200 dark:text-gray-400',
+                        'h-4 w-4 shrink-0 text-gray-500 transition-transform duration-200 dark:text-gray-400',
                         isOpen && 'rotate-45',
                       )}
                     />

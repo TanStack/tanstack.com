@@ -728,7 +728,7 @@ function CreatingFeedbackNote({
             <React.Suspense
               fallback={<div className={`${colors.icon} text-xs`}>...</div>}
             >
-              <Icon className={`${colors.icon} text-xs flex-shrink-0`} />
+              <Icon className={`${colors.icon} text-xs shrink-0`} />
             </React.Suspense>
             <span className={`text-xs font-medium ${colors.text}`}>
               {isImprovement ? 'New Improvement' : 'New Note'}

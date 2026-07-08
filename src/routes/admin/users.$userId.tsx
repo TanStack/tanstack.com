@@ -103,7 +103,7 @@ function UserDetailPage() {
           </Link>
 
           <div className="flex items-center gap-4">
-            <div className="flex-shrink-0 h-16 w-16">
+            <div className="shrink-0 h-16 w-16">
               {user.image || user.oauthImage ? (
                 <img
                   className="h-16 w-16 rounded-full"

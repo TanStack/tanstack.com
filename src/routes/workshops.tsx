@@ -99,14 +99,14 @@ function WorkshopsPage() {
                   'Access to maintainers and creators',
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-2">
-                    <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                    <CheckCircle className="w-5 h-5 text-green-500 shrink-0" />
                     <span>{item}</span>
                   </li>
                 ))}
               </ul>
             </Card>
 
-            <div className="rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 p-6 shadow-lg text-white">
+            <div className="rounded-lg bg-linear-to-br from-purple-500 to-pink-500 p-6 shadow-lg text-white">
               <div className="flex items-center gap-3 mb-4">
                 <MapPin className="w-8 h-8" />
                 <h2 className="text-2xl font-black">In-Person Workshops</h2>
@@ -124,7 +124,7 @@ function WorkshopsPage() {
                   'Extended Q&A and networking sessions',
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-2">
-                    <Star className="w-5 h-5 flex-shrink-0" />
+                    <Star className="w-5 h-5 shrink-0" />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -346,7 +346,7 @@ function WorkshopsPage() {
                     key={topic}
                     className="flex items-center gap-3 rounded-lg bg-white dark:bg-gray-800 px-4 py-3 shadow-sm border border-gray-200 dark:border-gray-700"
                   >
-                    <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                    <CheckCircle className="w-5 h-5 text-green-500 shrink-0" />
                     <span className="text-gray-600 dark:text-gray-400 font-medium">
                       {topic}
                     </span>
@@ -363,7 +363,7 @@ function WorkshopsPage() {
           {/* Premium Appearance Section - Deal Sweetener */}
           <div className="relative py-20 px-4 md:px-8">
             <div className="max-w-4xl mx-auto text-center">
-              <div className="inline-block p-1 rounded-full bg-gradient-to-br from-amber-300 to-amber-600 mb-6 shadow-lg">
+              <div className="inline-block p-1 rounded-full bg-linear-to-br from-amber-300 to-amber-600 mb-6 shadow-lg">
                 <img
                   src="https://github.com/tannerlinsley.png"
                   alt="Tanner Linsley"
@@ -493,9 +493,9 @@ function TestimonialsMarquee() {
       </div>
       <div className="relative w-full">
         {/* Left fade overlay */}
-        <div className="absolute left-0 top-0 bottom-0 w-48 z-10 bg-gradient-to-r from-gray-50 dark:from-gray-900 via-gray-50/80 dark:via-gray-900/80 to-transparent pointer-events-none" />
+        <div className="absolute left-0 top-0 bottom-0 w-48 z-10 bg-linear-to-r from-gray-50 dark:from-gray-900 via-gray-50/80 dark:via-gray-900/80 to-transparent pointer-events-none" />
         {/* Right fade overlay */}
-        <div className="absolute right-0 top-0 bottom-0 w-48 z-10 bg-gradient-to-l from-gray-50 dark:from-gray-900 via-gray-50/80 dark:via-gray-900/80 to-transparent pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-48 z-10 bg-linear-to-l from-gray-50 dark:from-gray-900 via-gray-50/80 dark:via-gray-900/80 to-transparent pointer-events-none" />
         <div
           className="flex gap-8 items-stretch will-change-transform animate-[testimonials_linear_infinite]"
           style={{
@@ -504,7 +504,7 @@ function TestimonialsMarquee() {
         >
           {[...testimonials, ...testimonials, ...testimonials].map(
             (testimonial, i) => (
-              <Card key={i} className="flex-shrink-0 w-80 p-6">
+              <Card key={i} className="shrink-0 w-80 p-6">
                 <div className="flex items-start gap-2 mb-4">
                   {[...Array(5)].map((_, j) => (
                     <Star

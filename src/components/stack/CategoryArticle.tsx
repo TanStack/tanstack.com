@@ -976,7 +976,7 @@ function RelatedPostsBlock({ items }: { items: Array<RelatedPost> }) {
                 <div className="flex flex-wrap items-center gap-2">
                   <span
                     className={twMerge(
-                      'inline-flex rounded-md bg-gradient-to-r px-2 py-1 text-xs font-black text-white',
+                      'inline-flex rounded-md bg-linear-to-r px-2 py-1 text-xs font-black text-white',
                       lib.colorFrom,
                       lib.colorTo,
                     )}
@@ -1082,7 +1082,7 @@ function LibraryTitle({
         {library.badge ? (
           <span
             className={twMerge(
-              'rounded-md bg-gradient-to-r px-1.5 py-0.5 text-xs font-black uppercase',
+              'rounded-md bg-linear-to-r px-1.5 py-0.5 text-xs font-black uppercase',
               library.colorFrom,
               library.colorTo,
               library.badgeTextStyle ?? 'text-white',

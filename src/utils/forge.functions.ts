@@ -1,5 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import { getRequest } from '@tanstack/react-start/server'
+import { getSandbox } from '@cloudflare/sandbox'
 import * as v from 'valibot'
 import {
   ensureForgeMetaSession,
@@ -14,6 +15,7 @@ import {
   type ForgeMetaSession,
 } from '~/builder/runtime/forge-meta.server'
 import {
+  appendLocalForgeRuntimeEvent,
   readLocalForgeSnapshotForRuntimeSession,
   reconcileInterruptedLocalForgeRun,
   withLocalForgeRuntimeSession,
@@ -23,7 +25,6 @@ import {
 import {
   cancelLocalForgeAgentRun,
   ensureLocalForgeBaseline,
-  resolveLocalForgeAgentHarnessName,
   startLocalForgeAgentRun,
 } from '~/builder/runtime/local-agent.server'
 import {
@@ -34,6 +35,14 @@ import {
   type ForgeSealedProviderKey,
 } from '~/builder/runtime/forge-byok.server'
 import { materializeLatestLocalForgeManifest } from '~/builder/runtime/local-materialize.server'
+import { getForgeSandboxProviderId } from '~/builder/runtime/sandbox-agent.server'
+import {
+  createForgeSandboxPreviewUrl,
+  forgeSandboxPortIsListening,
+  FORGE_SANDBOX_OPTIONS,
+  type ForgeSandboxPreviewTunnelEnv,
+} from '~/builder/runtime/sandbox-preview.server'
+import { getHostRuntimeEnv } from '~/server/runtime/host.server'
 import {
   isForgeAuthBypassEnabled,
   requireForgeAccess as requireForgeRequestAccess,
@@ -181,6 +190,7 @@ export const startLocalForgeRun = createServerFn({ method: 'POST' })
   )
   .handler(async ({ data }) => {
     const user = await requireForgeUser()
+    const publicHost = new URL(getRequest().url).host
     const providerCredential = data.providerKey
       ? unsealForgeProviderKey({
           provider: data.providerKey.provider,
@@ -205,6 +215,7 @@ export const startLocalForgeRun = createServerFn({ method: 'POST' })
             clientRequestId: data.clientRequestId,
             prompt: data.prompt,
             providerCredential,
+            publicHost,
           }),
       )
 
@@ -228,6 +239,7 @@ export const startLocalForgeRun = createServerFn({ method: 'POST' })
           clientRequestId: data.clientRequestId,
           prompt: data.prompt,
           providerCredential,
+          publicHost,
         }),
     )
 
@@ -277,11 +289,7 @@ export const cancelLocalForgeRun = createServerFn({ method: 'POST' })
   })
 
 function forgeRunRequiresBrowserProviderKey() {
-  return (
-    forgeRequiresByokForRuns() &&
-    resolveLocalForgeAgentHarnessName(process.env.FORGE_AGENT_HARNESS) ===
-      'tanstack-ai'
-  )
+  return forgeRequiresByokForRuns()
 }
 
 export const sealForgeBrowserProviderKey = createServerFn({ method: 'POST' })
@@ -341,6 +349,52 @@ export const validateLocalForgeWorkspace = createServerFn({ method: 'POST' })
       meta,
       userId: user.userId,
     })
+  })
+
+export const reconnectForgeSandboxPreview = createServerFn({ method: 'POST' })
+  .inputValidator(
+    v.object({
+      chatId: v.pipe(v.string(), v.trim(), v.minLength(1), v.maxLength(120)),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const user = await requireForgeUser()
+    if (isForgeAuthBypassEnabled()) {
+      const scope = createForgeBypassRuntimeScope({ chatId: data.chatId })
+
+      return withLocalForgeRuntimeSession(scope.runtimeSessionId, async () => {
+        await reconnectForgeSandboxPreviewForRuntimeSession({
+          publicHost: new URL(getRequest().url).host,
+          runtimeSessionId: scope.runtimeSessionId,
+        })
+
+        return readForgeBypassRuntimeSnapshot({
+          chatId: scope.runtimeSessionId,
+        })
+      })
+    }
+
+    const meta = await readForgeMetaSessionForChat({
+      chatId: data.chatId,
+      userId: user.userId,
+    })
+
+    return withLocalForgeRuntimeSession(
+      meta.activeChatSession.runtimeSessionId,
+      async () => {
+        await reconnectForgeSandboxPreviewForRuntimeSession({
+          publicHost: new URL(getRequest().url).host,
+          runtimeSessionId: meta.activeChatSession.runtimeSessionId,
+          runId: meta.activeChatSession.latestRunId,
+        })
+
+        return readForgeSnapshotFromMeta({
+          ensureBaseline: false,
+          meta,
+          userId: user.userId,
+        })
+      },
+    )
   })
 
 export const createForgeChat = createServerFn({ method: 'POST' }).handler(
@@ -488,6 +542,95 @@ function toForgeChatShell(chat: ForgeMetaChatSession): ForgeChatShell {
     title: chat.title,
     updatedAt: chat.updatedAt,
   }
+}
+
+type ForgeSandboxBinding = Parameters<typeof getSandbox>[0]
+
+interface ForgeReconnectHostEnv extends ForgeSandboxPreviewTunnelEnv {
+  Sandbox: ForgeSandboxBinding
+}
+
+async function reconnectForgeSandboxPreviewForRuntimeSession({
+  publicHost,
+  runId,
+  runtimeSessionId,
+}: {
+  publicHost?: string
+  runId?: string
+  runtimeSessionId: string
+}) {
+  const hostEnv = readForgeReconnectHostEnv(await getHostRuntimeEnv())
+
+  if (!hostEnv) {
+    return
+  }
+
+  const sandboxId = getForgeSandboxProviderId({
+    projectId: LOCAL_FORGE_PROJECT_ID,
+    threadId: runtimeSessionId,
+  })
+  const sandbox = getSandbox(hostEnv.Sandbox, sandboxId, FORGE_SANDBOX_OPTIONS)
+
+  if (!(await forgeSandboxPortIsListening({ sandbox }))) {
+    return
+  }
+
+  const result = await createForgeSandboxPreviewUrl({
+    env: hostEnv,
+    publicHost,
+    sandbox,
+    sandboxId,
+  })
+
+  if (!result.ok) {
+    return
+  }
+
+  await appendLocalForgeRuntimeEvent({
+    detail: result.url,
+    message: 'Sandbox preview reconnected',
+    name: 'workflow.preview.reconnected',
+    producerId: 'forge-preview',
+    runId: runId ?? `preview-reconnect-${crypto.randomUUID()}`,
+    status: 'finished',
+  })
+}
+
+function readForgeReconnectHostEnv(
+  value: Record<string, unknown> | undefined,
+): ForgeReconnectHostEnv | undefined {
+  if (!value || !isForgeSandboxBinding(value.Sandbox)) {
+    return undefined
+  }
+
+  return {
+    CLOUDFLARE_ACCOUNT_ID: readOptionalString(value.CLOUDFLARE_ACCOUNT_ID),
+    CLOUDFLARE_API_TOKEN: readOptionalString(value.CLOUDFLARE_API_TOKEN),
+    CLOUDFLARE_TUNNEL_ACCOUNT_ID: readOptionalString(
+      value.CLOUDFLARE_TUNNEL_ACCOUNT_ID,
+    ),
+    CLOUDFLARE_TUNNEL_ZONE_ID: readOptionalString(
+      value.CLOUDFLARE_TUNNEL_ZONE_ID,
+    ),
+    CLOUDFLARE_ZONE_ID: readOptionalString(value.CLOUDFLARE_ZONE_ID),
+    FORGE_PREVIEW_URL_MODE: readOptionalString(value.FORGE_PREVIEW_URL_MODE),
+    FORGE_PREVIEW_TUNNEL_MODE: readOptionalString(
+      value.FORGE_PREVIEW_TUNNEL_MODE,
+    ),
+    FORGE_PREVIEW_TUNNEL_PREFIX: readOptionalString(
+      value.FORGE_PREVIEW_TUNNEL_PREFIX,
+    ),
+    PREVIEW_HOSTNAME: readOptionalString(value.PREVIEW_HOSTNAME),
+    Sandbox: value.Sandbox,
+  }
+}
+
+function isForgeSandboxBinding(value: unknown): value is ForgeSandboxBinding {
+  return typeof value === 'object' && value !== null
+}
+
+function readOptionalString(value: unknown) {
+  return typeof value === 'string' ? value : undefined
 }
 
 function toForgeBypassChatShell(

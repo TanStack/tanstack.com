@@ -25,6 +25,7 @@ import type {
 import {
   createForgeWebContainerFileTree,
   createForgeWebContainerPreviewFiles,
+  decodeForgeWebContainerFileContent,
   getForgeWebContainerPreviewCommands,
   getForgeWebContainerWorkspaceName,
   type ForgeWebContainerPreviewStatus,
@@ -97,6 +98,7 @@ const CONSOLE_DEFAULT_HEIGHT = 180
 const CONSOLE_MIN_HEIGHT = 96
 const PREVIEW_MIN_HEIGHT = 120
 const PREVIEW_ALIAS_HOST = 'localhost'
+const PREVIEW_WORKSPACE_ID = 'live'
 
 const PREVIEW_LOADING_STEPS = [
   { label: 'Starting preview', status: 'booting' },
@@ -160,6 +162,10 @@ export function ForgeWebContainerPreview({
   const locationHistoryRef = useRef<Array<string>>([])
   const nextLogIdRef = useRef(0)
   const filesRef = useRef(files)
+  const mountedPreviewFilesRef = useRef<Record<string, string>>({})
+  const pendingPreviewFileSyncRef = useRef(false)
+  const previewWorkspaceMountedRef = useRef(false)
+  const previewWorkspaceNameRef = useRef<string | undefined>(undefined)
   const annotationEnabledRef = useRef(false)
   const annotationAckTimeoutRef = useRef<
     ReturnType<typeof setTimeout> | undefined
@@ -204,7 +210,38 @@ export function ForgeWebContainerPreview({
 
   useEffect(() => {
     filesRef.current = files
-  }, [files, manifestVersionId])
+  }, [files])
+
+  useEffect(() => {
+    if (!canStart || !previewWorkspaceNameRef.current) {
+      return
+    }
+
+    let cancelled = false
+
+    async function syncPreviewFiles() {
+      if (!previewWorkspaceMountedRef.current) {
+        pendingPreviewFileSyncRef.current = true
+        return
+      }
+
+      await syncPreviewFilesToWorkspace(files, () => cancelled)
+    }
+
+    void syncPreviewFiles().catch((syncError: unknown) => {
+      if (!cancelled) {
+        setError(
+          syncError instanceof Error
+            ? syncError.message
+            : 'Preview files could not be updated.',
+        )
+      }
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [canStart, files])
 
   useEffect(() => {
     annotationEnabledRef.current = annotationEnabled
@@ -494,21 +531,32 @@ export function ForgeWebContainerPreview({
           return
         }
 
-        const workspaceName = getForgeWebContainerWorkspaceName(
-          activeManifestVersionId,
-        )
-        const fileTree = createForgeWebContainerFileTree(
-          createForgeWebContainerPreviewFiles(activeFiles),
-        )
+        const workspaceName =
+          previewWorkspaceNameRef.current ??
+          getForgeWebContainerWorkspaceName(PREVIEW_WORKSPACE_ID)
+        const previewFiles = createForgeWebContainerPreviewFiles(activeFiles)
+        const fileTree = createForgeWebContainerFileTree(previewFiles)
 
         setStatus('mounting')
         appendLog(`Hydrating ${activeFileCount.toLocaleString()} files.`)
+        previewWorkspaceNameRef.current = workspaceName
+        previewWorkspaceMountedRef.current = false
         await webContainer.fs.rm(workspaceName, {
           force: true,
           recursive: true,
         })
         await webContainer.fs.mkdir(workspaceName, { recursive: true })
         await webContainer.mount(fileTree, { mountPoint: workspaceName })
+        mountedPreviewFilesRef.current = previewFiles
+        previewWorkspaceMountedRef.current = true
+
+        if (
+          pendingPreviewFileSyncRef.current ||
+          filesRef.current !== activeFiles
+        ) {
+          pendingPreviewFileSyncRef.current = false
+          await syncPreviewFilesToWorkspace(filesRef.current, () => !active)
+        }
 
         unsubscribers.push(
           webContainer.on('server-ready', (port, url) => {
@@ -636,6 +684,7 @@ export function ForgeWebContainerPreview({
       }
       installProcess?.kill()
       previewProcess?.kill()
+      previewWorkspaceMountedRef.current = false
       if (previewLoadTimeout) {
         clearTimeout(previewLoadTimeout)
       }
@@ -655,7 +704,6 @@ export function ForgeWebContainerPreview({
     commands.install.args,
     commands.install.command,
     commands.install.label,
-    manifestVersionId,
     previewActive,
     restartKey,
   ])
@@ -672,6 +720,63 @@ export function ForgeWebContainerPreview({
     setLocationHistory(url ? [url] : [])
     setHistoryIndex(url ? 0 : -1)
     setFrameLoading(Boolean(url))
+  }
+
+  async function syncPreviewFilesToWorkspace(
+    nextSourceFiles: Record<string, string>,
+    isCancelled: () => boolean,
+  ) {
+    const workspaceName = previewWorkspaceNameRef.current
+
+    if (!workspaceName) {
+      return
+    }
+
+    const nextFiles = createForgeWebContainerPreviewFiles(nextSourceFiles)
+    const currentFiles = mountedPreviewFilesRef.current
+    const nextPaths = new Set(Object.keys(nextFiles))
+    const removedPaths = Object.keys(currentFiles).filter(
+      (filePath) => !nextPaths.has(filePath),
+    )
+    const changedPaths = Object.keys(nextFiles).filter(
+      (filePath) => nextFiles[filePath] !== currentFiles[filePath],
+    )
+
+    if (removedPaths.length === 0 && changedPaths.length === 0) {
+      return
+    }
+
+    const webContainer = await getWebContainer()
+
+    if (isCancelled()) {
+      return
+    }
+
+    for (const filePath of removedPaths) {
+      await webContainer.fs.rm(`${workspaceName}/${filePath}`, {
+        force: true,
+        recursive: true,
+      })
+    }
+
+    for (const filePath of changedPaths) {
+      const directoryPath = filePath.split('/').slice(0, -1).join('/')
+
+      if (directoryPath) {
+        await webContainer.fs.mkdir(`${workspaceName}/${directoryPath}`, {
+          recursive: true,
+        })
+      }
+
+      await webContainer.fs.writeFile(
+        `${workspaceName}/${filePath}`,
+        decodeForgeWebContainerFileContent(nextFiles[filePath]),
+      )
+    }
+
+    if (!isCancelled()) {
+      mountedPreviewFilesRef.current = nextFiles
+    }
   }
 
   function markPreviewReady() {
@@ -947,7 +1052,9 @@ export function ForgeWebContainerPreview({
     }
 
     const webContainer = await getWebContainer()
-    const workspaceName = getForgeWebContainerWorkspaceName(manifestVersionId)
+    const workspaceName =
+      previewWorkspaceNameRef.current ??
+      getForgeWebContainerWorkspaceName(PREVIEW_WORKSPACE_ID)
 
     for (const filePath of changedPreviewFiles) {
       const directoryPath = filePath.split('/').slice(0, -1).join('/')
@@ -1607,7 +1714,12 @@ function formatPreviewAddress(url: string, previewUrl: string) {
       return url
     }
 
-    return `${PREVIEW_ALIAS_HOST}${value.pathname}${value.search}${value.hash}`
+    const aliasHost =
+      value.port && value.port !== '80' && value.port !== '443'
+        ? `${PREVIEW_ALIAS_HOST}:${value.port}`
+        : PREVIEW_ALIAS_HOST
+
+    return `${aliasHost}${value.pathname}${value.search}${value.hash}`
   } catch {
     return url
   }

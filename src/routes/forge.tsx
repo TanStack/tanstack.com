@@ -1,4 +1,6 @@
-import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
+import { createFileRoute, useRouter } from '@tanstack/react-router'
+import { fetchServerSentEvents, useChat } from '@tanstack/ai-react'
+import type { StreamChunk } from '@tanstack/ai'
 import { useLiveQuery } from '@tanstack/react-db'
 import { useQueryClient } from '@tanstack/react-query'
 import { useHotkey } from '@tanstack/react-hotkeys'
@@ -58,20 +60,15 @@ import {
   buildFileTreeFromPaths,
   type FileTreeNode,
 } from '~/components/FileTree'
-import {
-  ForgeWebContainerPreview,
-  type ForgePreviewAnnotation,
-} from '~/components/forge/WebContainerPreview'
 import { ForgeByokMenu } from '~/components/forge/ForgeByokMenu'
 import { CodeBlock } from '~/components/markdown/CodeBlock'
 import { getCodeBlockLanguageFromFilePath } from '~/components/markdown/codeBlock.shared'
 import { InlineCode } from '~/ui/InlineCode'
 import {
   cancelLocalForgeRun,
+  getForgeRunConfig,
   getForgeChatShells,
   getLocalForgeSession,
-  requireForgeAccess,
-  startLocalForgeRun,
   type ForgeBrowserProviderKey,
   type ForgeChatShell,
   validateLocalForgeWorkspace,
@@ -98,6 +95,7 @@ import {
   writeForgePendingLaunchFailure,
   type ForgePendingLaunchFailure,
   type ForgePendingLaunch,
+  type ForgePendingLaunchProviderKey,
 } from '~/utils/forge-pending-launch'
 import { validateRepoName } from '~/utils/github-validation'
 import { seo } from '~/utils/seo'
@@ -144,6 +142,7 @@ type ForgeDebugEventSource =
   | 'message'
   | 'run'
   | 'state'
+  | 'stream'
   | 'warning'
   | 'workflow'
 type ForgeDebugEvent = {
@@ -157,6 +156,15 @@ type ForgeDebugEvent = {
   summary?: string
 }
 type ForgeDebugStreamEventsByChatId = Record<string, Array<ForgeStateEvent>>
+type ForgeDebugClientStreamChunksByChatId = Record<
+  string,
+  Array<ForgeDebugClientStreamChunk>
+>
+type ForgeDebugClientStreamChunk = {
+  chunk: StreamChunk
+  createdAt: string
+  id: string
+}
 type ForgeActivityTranscriptItem = {
   createdAt: string
   id: string
@@ -173,6 +181,13 @@ type ForgeOptimisticMessagesByChatId = Record<
   string,
   Array<ForgeSessionMessage>
 >
+type ForgeAiChatRequestBody = {
+  chatId: string
+  clientRequestId: string
+  previewUrl?: string
+  prompt: string
+  providerKey?: ForgeBrowserProviderKey | ForgePendingLaunchProviderKey
+}
 type ForgeMessageTranscriptItem = {
   createdAt: string
   id: string
@@ -254,7 +269,10 @@ const FORGE_RIGHT_PANE_MAX_WIDTH = 960
 const FORGE_CHAT_PANE_MIN_WIDTH = 360
 const FORGE_RIGHT_PANE_BREAKPOINT = 1280
 const FORGE_OPTIMISTIC_MESSAGE_ID_PREFIX = 'optimistic-message:'
-
+const FORGE_PREVIEW_RECONNECT_IDLE_ATTEMPTS = 2
+const FORGE_PREVIEW_RECONNECT_RUN_ATTEMPTS = 120
+const FORGE_PREVIEW_RECONNECT_IDLE_RETRY_MS = 4_000
+const FORGE_PREVIEW_RECONNECT_RUN_RETRY_MS = 1_500
 const forgeSearchSchema = v.object({
   chatId: v.optional(
     v.pipe(v.string(), v.trim(), v.minLength(1), v.maxLength(120)),
@@ -269,50 +287,6 @@ function toDefaultRepoName(value?: string) {
     .replace(/^[.-]+|[.-]+$/g, '')
 
   return normalized || 'forge-local-app'
-}
-
-function formatPreviewAnnotationPrompt(annotation: ForgePreviewAnnotation) {
-  const attributes = Object.entries(annotation.attributes)
-    .map(([name, value]) => `- ${name}: ${truncateAnnotationText(value, 180)}`)
-    .join('\n')
-  const outerHtml = annotation.outerHtml
-    ? truncateAnnotationText(annotation.outerHtml, 1200)
-    : undefined
-
-  return [
-    'I annotated an element in the preview.',
-    '',
-    'User note:',
-    annotation.comment,
-    '',
-    'Preview target:',
-    `- URL: ${annotation.href}`,
-    `- Path: ${annotation.path}`,
-    `- Selector: ${annotation.selector}`,
-    `- Element: <${annotation.tagName}>`,
-    annotation.text
-      ? `- Text: ${truncateAnnotationText(annotation.text, 500)}`
-      : undefined,
-    `- Bounds: x=${annotation.rect.x}, y=${annotation.rect.y}, width=${annotation.rect.width}, height=${annotation.rect.height}`,
-    attributes ? `- Attributes:\n${attributes}` : undefined,
-    outerHtml
-      ? `\nOuter HTML excerpt:\n\`\`\`html\n${outerHtml}\n\`\`\``
-      : undefined,
-    '',
-    'Use this preview annotation to update the app. Target the selected element and its nearby UI context.',
-  ]
-    .filter((value) => value !== undefined)
-    .join('\n')
-}
-
-function truncateAnnotationText(value: string, maxLength: number) {
-  const normalized = value.replace(/\s+/g, ' ').trim()
-
-  if (normalized.length <= maxLength) {
-    return normalized
-  }
-
-  return `${normalized.slice(0, maxLength - 3).trimEnd()}...`
 }
 
 function createForgeOptimisticUserMessage({
@@ -582,19 +556,17 @@ function toForgeSnapshotChat(
   }
 }
 
-export const Route = createFileRoute('/forge')({
-  beforeLoad: async () => {
-    try {
-      const user = await requireForgeAccess()
-      return { user }
-    } catch (error) {
-      if (isNotAuthenticatedError(error)) {
-        throw redirect({ to: '/login' })
-      }
+const EMPTY_FORGE_CHAT_SHELLS = {
+  activeChatId: undefined,
+  chats: Array<ForgeRouteChat>(),
+  runRequiresProviderKey: true,
+} satisfies {
+  activeChatId?: string
+  chats: Array<ForgeRouteChat>
+  runRequiresProviderKey: boolean
+}
 
-      throw error
-    }
-  },
+export const Route = createFileRoute('/forge')({
   head: () => ({
     meta: seo({
       title: 'TanStack Forge',
@@ -602,22 +574,19 @@ export const Route = createFileRoute('/forge')({
     }),
   }),
   validateSearch: forgeSearchSchema,
-  loader: async () => {
-    return getForgeChatShells()
-  },
   shouldReload: false,
   component: ForgeRoute,
 })
 
 function ForgeRoute() {
-  const loaderChatShells = Route.useLoaderData()
+  const initialChatShells = EMPTY_FORGE_CHAT_SHELLS
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
   const router = useRouter()
   const queryClient = useQueryClient()
   const initialChatId = resolveForgeChatId({
-    activeChatId: loaderChatShells.activeChatId,
-    chats: loaderChatShells.chats,
+    activeChatId: initialChatShells.activeChatId,
+    chats: initialChatShells.chats,
     requestedChatId: search.chatId,
   })
   const sessionCacheRef = useRef(new Map<string, ForgeSession>())
@@ -627,7 +596,7 @@ function ForgeRoute() {
   const [session, setSession] = useState(() =>
     createPendingForgeSession({
       chatId: initialChatId,
-      chats: loaderChatShells.chats,
+      chats: initialChatShells.chats,
     }),
   )
   const [prompt, setPrompt] = useState('')
@@ -653,6 +622,9 @@ function ForgeRoute() {
     null,
   )
   const [githubExportUrl, setGithubExportUrl] = useState<string | null>(null)
+  const [runRequiresProviderKey, setRunRequiresProviderKey] = useState<boolean>(
+    initialChatShells.runRequiresProviderKey,
+  )
   const [selectedFile, setSelectedFile] = useState<string | undefined>()
   const [fileFilter, setFileFilter] = useState('')
   const [rightPanelMode, setRightPanelMode] =
@@ -661,6 +633,15 @@ function ForgeRoute() {
   const [selectedDebugEventId, setSelectedDebugEventId] = useState<string>()
   const [debugStreamEventsByChatId, setDebugStreamEventsByChatId] =
     useState<ForgeDebugStreamEventsByChatId>({})
+  const [debugClientStreamChunksByChatId, setDebugClientStreamChunksByChatId] =
+    useState<ForgeDebugClientStreamChunksByChatId>({})
+  const [previewReconnectCheckingChatIds, setPreviewReconnectCheckingChatIds] =
+    useState<Record<string, boolean>>({})
+  const [freshPreviewUrlsByChatId, setFreshPreviewUrlsByChatId] = useState<
+    Record<string, string>
+  >({})
+  const [lastKnownPreviewUrlsByChatId, setLastKnownPreviewUrlsByChatId] =
+    useState<Record<string, string>>({})
   const [leftPaneWidth, setLeftPaneWidth] = useState(
     FORGE_LEFT_PANE_DEFAULT_WIDTH,
   )
@@ -674,6 +655,10 @@ function ForgeRoute() {
   const [workspaceMode, setWorkspaceMode] = useState<ForgeWorkspaceMode>('file')
   const [streamStatus, setStreamStatus] =
     useState<ForgeStreamStatus>('connecting')
+  const forgeAiChatRequestRef = useRef<ForgeAiChatRequestBody | undefined>(
+    undefined,
+  )
+  const previewReconnectAttemptKeysRef = useRef(new Set<string>())
   const promptFormRef = useRef<HTMLFormElement>(null)
   const promptTextareaRef = useRef<HTMLTextAreaElement>(null)
   const pendingChatNavigationRef = useRef<string | undefined>(undefined)
@@ -697,6 +682,29 @@ function ForgeRoute() {
         .orderBy(({ chat }) => chat.updatedAt, 'desc'),
     [chatShellsCollection],
   )
+  useEffect(() => {
+    let cancelled = false
+
+    void getForgeRunConfig()
+      .then((config) => {
+        if (!cancelled) {
+          setRunRequiresProviderKey(config?.runRequiresProviderKey ?? true)
+        }
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) {
+          setRunError(
+            error instanceof Error
+              ? error.message
+              : 'Forge run settings could not load.',
+          )
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
   const resizePane = useCallback(
     (pane: ForgeResizablePane, width: number) => {
       if (pane === 'left') {
@@ -811,14 +819,117 @@ function ForgeRoute() {
     return () => window.removeEventListener('resize', handleWindowResize)
   }, [leftPaneWidth, rightPaneWidth])
   const streamChatId = selectedChatId || session.activeChatId
+  const forgeAiChatId = streamChatId
+    ? `forge-chat:${streamChatId}`
+    : 'forge-chat:pending'
   const projectedStateEventsCollection = useMemo(
     () => createForgeProjectedStateEventsCollection(streamChatId),
     [streamChatId],
   )
+  const preservePendingLaunch = useCallback((nextSession: ForgeSession) => {
+    const pendingLaunch = pendingLaunchesRef.current.get(
+      nextSession.activeChatId,
+    )
+
+    if (!pendingLaunch) {
+      return nextSession
+    }
+
+    if (nextSession.latestRun) {
+      pendingLaunchesRef.current.delete(nextSession.activeChatId)
+      return nextSession
+    }
+
+    return applyPendingForgeLaunch(nextSession, pendingLaunch)
+  }, [])
+  const applyForgeLiveStateBatch = useCallback(
+    (chatId: string, batch: ForgeStateBatchStreamEvent) => {
+      insertForgeProjectedStateEvents(
+        projectedStateEventsCollection,
+        chatId,
+        batch.events,
+      )
+      setDebugStreamEventsByChatId((current) =>
+        appendForgeDebugStreamEvents(current, chatId, batch.events),
+      )
+      setSession((currentSession) => {
+        if (currentSession.activeChatId !== chatId) {
+          return currentSession
+        }
+
+        const nextSession = applyForgeStateEvents(currentSession, batch.events)
+
+        sessionCacheRef.current.set(nextSession.activeChatId, nextSession)
+
+        return nextSession
+      })
+    },
+    [projectedStateEventsCollection],
+  )
+  const applyForgeLiveSnapshot = useCallback(
+    (chatId: string, nextSession: ForgeSession) => {
+      if (nextSession.activeChatId !== chatId) {
+        return
+      }
+
+      const visibleSession = preservePendingLaunch(nextSession)
+
+      sessionCacheRef.current.set(visibleSession.activeChatId, visibleSession)
+      setSession(visibleSession)
+    },
+    [preservePendingLaunch],
+  )
+  const forgeAiChatConnection = useMemo(
+    () =>
+      fetchServerSentEvents('/api/forge/chat', () => ({
+        body: forgeAiChatRequestRef.current ?? {},
+      })),
+    [],
+  )
+  const forgeAiChat = useChat({
+    connection: forgeAiChatConnection,
+    id: forgeAiChatId,
+    onCustomEvent: (eventType, data) => {
+      const request = forgeAiChatRequestRef.current
+
+      if (!request) {
+        return
+      }
+
+      if (eventType === 'forge.state-batch') {
+        const batch = readForgeStateBatchStreamValue(data)
+
+        if (batch) {
+          applyForgeLiveStateBatch(request.chatId, batch)
+        }
+      } else if (eventType === 'forge.snapshot') {
+        const nextSession = readForgeSnapshotStreamValue(data)
+
+        if (nextSession) {
+          applyForgeLiveSnapshot(request.chatId, nextSession)
+        }
+      }
+    },
+    onChunk: (chunk) => {
+      const request = forgeAiChatRequestRef.current
+
+      if (!request) {
+        return
+      }
+
+      setDebugClientStreamChunksByChatId((current) =>
+        appendForgeDebugClientStreamChunk(current, request.chatId, chunk),
+      )
+    },
+    onError: (error) => {
+      setRunError(error.message)
+    },
+    threadId: streamChatId,
+  })
   const liveSidebarChats =
     chatShellsQuery.isReady && chatShellsQuery.data !== undefined
       ? chatShellsQuery.data
-      : loaderChatShells.chats
+      : initialChatShells.chats
   const sidebarChats = useMemo(() => {
     if (
       !selectedChatId ||
@@ -829,12 +940,40 @@ function ForgeRoute() {
 
     const selectedChat =
       session.chats.find((chat) => chat.id === selectedChatId) ??
-      loaderChatShells.chats.find((chat) => chat.id === selectedChatId)
+      initialChatShells.chats.find((chat) => chat.id === selectedChatId)
 
     return selectedChat ? [selectedChat, ...liveSidebarChats] : liveSidebarChats
-  }, [liveSidebarChats, loaderChatShells.chats, selectedChatId, session.chats])
+  }, [initialChatShells.chats, liveSidebarChats, selectedChatId, session.chats])
   const selectedSidebarChatId = selectedChatId
   const latestRun = session.latestRun
+  const sandboxPreviewEvents = useMemo(
+    () => [...session.agentEvents, ...session.workflowEvents],
+    [session.agentEvents, session.workflowEvents],
+  )
+  const sandboxPreviewUrl = useMemo(
+    () => readLatestForgeSandboxPreviewUrl(sandboxPreviewEvents),
+    [sandboxPreviewEvents],
+  )
+  const sandboxPreviewFailure = useMemo(
+    () => readLatestForgeSandboxPreviewFailure(sandboxPreviewEvents),
+    [sandboxPreviewEvents],
+  )
+  const freshSandboxPreviewUrl = selectedChatId
+    ? freshPreviewUrlsByChatId[selectedChatId]
+    : undefined
+  const lastKnownSandboxPreviewUrl = selectedChatId
+    ? lastKnownPreviewUrlsByChatId[selectedChatId]
+    : undefined
+  const displayedSandboxPreviewUrl =
+    freshSandboxPreviewUrl ?? sandboxPreviewUrl ?? lastKnownSandboxPreviewUrl
+  const existingSandboxPreviewUrl =
+    displayedSandboxPreviewUrl &&
+    !isLocalForgeQuickTunnelPreviewUrl(displayedSandboxPreviewUrl)
+      ? displayedSandboxPreviewUrl
+      : undefined
+  const previewReconnectIsChecking = selectedChatId
+    ? previewReconnectCheckingChatIds[selectedChatId] === true
+    : false
   const githubRepoNameForExport = githubRepoName.trim()
   const githubRepoNameValidation = useMemo(
     () => validateRepoName(githubRepoNameForExport),
@@ -874,20 +1013,23 @@ function ForgeRoute() {
   )
   const debugStreamEvents =
     debugStreamEventsByChatId[session.activeChatId] ?? []
+  const debugClientStreamChunks =
+    debugClientStreamChunksByChatId[session.activeChatId] ?? []
   const debugEvents = useMemo(
     () =>
       createForgeDebugEvents({
+        clientStreamChunks: debugClientStreamChunks,
         session,
         streamEvents: debugStreamEvents,
       }),
-    [debugStreamEvents, session],
+    [debugClientStreamChunks, debugStreamEvents, session],
   )
   const selectedDebugEvent =
     debugEvents.find((event) => event.id === selectedDebugEventId) ??
     debugEvents[0]
-  const runRequiresProviderKey = loaderChatShells.runRequiresProviderKey
   const isMissingRequiredProviderKey =
     runRequiresProviderKey && !browserProviderKey
+  const hasActiveChat = session.activeChatId.length > 0
   const persistedRunIsActive =
     latestRun?.status === 'queued' ||
     latestRun?.status === 'starting' ||
@@ -895,6 +1037,7 @@ function ForgeRoute() {
     latestRun?.status === 'paused' ||
     latestRun?.status === 'finishing'
   const canStartRun =
+    hasActiveChat &&
     !isSubmitting &&
     !isValidating &&
     !isExportingGitHub &&
@@ -913,6 +1056,187 @@ function ForgeRoute() {
     githubRepoNameValidation.valid &&
     canStartRun
   const canManageChats = canStartRun
+  useEffect(() => {
+    const nextPreviewUrl = freshSandboxPreviewUrl ?? sandboxPreviewUrl
+
+    if (!selectedChatId || !nextPreviewUrl) {
+      return
+    }
+
+    setLastKnownPreviewUrlsByChatId((current) =>
+      current[selectedChatId] === nextPreviewUrl
+        ? current
+        : {
+            ...current,
+            [selectedChatId]: nextPreviewUrl,
+          },
+    )
+  }, [freshSandboxPreviewUrl, sandboxPreviewUrl, selectedChatId])
+
+  useEffect(() => {
+    const previewNeedsReconnect = shouldReconnectForgeSandboxPreviewUrl({
+      latestRun,
+      previewUrl: displayedSandboxPreviewUrl,
+    })
+
+    if (!selectedChatId || !previewNeedsReconnect) {
+      return
+    }
+
+    const reconnectKey = displayedSandboxPreviewUrl
+      ? [
+          selectedChatId,
+          'existing-preview-url',
+          displayedSandboxPreviewUrl,
+        ].join(':')
+      : [selectedChatId, latestRun?.id ?? 'no-run', 'no-preview-url'].join(':')
+
+    if (previewReconnectAttemptKeysRef.current.has(reconnectKey)) {
+      return
+    }
+
+    previewReconnectAttemptKeysRef.current.add(reconnectKey)
+
+    let cancelled = false
+    let reconnectTimer: number | undefined
+    let attempt = 0
+    const activeRun = isActiveForgeRunStatus(latestRun?.status)
+    const maxAttempts = activeRun
+      ? FORGE_PREVIEW_RECONNECT_RUN_ATTEMPTS
+      : FORGE_PREVIEW_RECONNECT_IDLE_ATTEMPTS
+    const retryMs = activeRun
+      ? FORGE_PREVIEW_RECONNECT_RUN_RETRY_MS
+      : FORGE_PREVIEW_RECONNECT_IDLE_RETRY_MS
+
+    setPreviewReconnectCheckingChatIds((current) =>
+      setForgePreviewReconnectChecking(current, selectedChatId, true),
+    )
+
+    async function attemptReconnect() {
+      attempt += 1
+      let reconnectError: unknown
+
+      try {
+        const reconnectResult =
+          await reconnectForgeSandboxPreviewUrl(selectedChatId)
+        const recoveredPreviewUrl =
+          !activeRun &&
+          reconnectResult.reason === 'port-closed' &&
+          attempt >= maxAttempts
+            ? (
+                await reconnectForgeSandboxPreviewUrl(selectedChatId, {
+                  mode: 'restart',
+                })
+              ).url
+            : undefined
+        const previewUrl = reconnectResult.url ?? recoveredPreviewUrl
+
+        if (previewUrl) {
+          setFreshPreviewUrlsByChatId((current) =>
+            current[selectedChatId] === previewUrl
+              ? current
+              : {
+                  ...current,
+                  [selectedChatId]: previewUrl,
+                },
+          )
+
+          const eventId = `preview-reconnect-${crypto.randomUUID()}`
+
+          setSession((current) =>
+            current.activeChatId === selectedChatId &&
+            readLatestForgeSandboxPreviewUrl([
+              ...current.agentEvents,
+              ...current.workflowEvents,
+            ]) !== previewUrl
+              ? {
+                  ...current,
+                  workflowEvents: [
+                    ...current.workflowEvents,
+                    {
+                      createdAt: new Date().toISOString(),
+                      detail: previewUrl,
+                      id: eventId,
+                      message: 'Sandbox preview reconnected',
+                      name: 'workflow.preview.reconnected',
+                      producerId: 'forge-preview',
+                      runId: eventId,
+                      status: 'finished',
+                    },
+                  ],
+                }
+              : current,
+          )
+
+          setPreviewReconnectCheckingChatIds((current) =>
+            setForgePreviewReconnectChecking(current, selectedChatId, false),
+          )
+          return
+        }
+      } catch (error) {
+        reconnectError = error
+      }
+
+      if (cancelled) {
+        return
+      }
+
+      if (attempt < maxAttempts) {
+        reconnectTimer = window.setTimeout(attemptReconnect, retryMs)
+        return
+      }
+
+      if (reconnectError) {
+        const eventId = `preview-reconnect-${crypto.randomUUID()}`
+        const message =
+          reconnectError instanceof Error
+            ? reconnectError.message
+            : 'Forge sandbox preview reconnect failed.'
+
+        setSession((current) =>
+          current.activeChatId === selectedChatId
+            ? {
+                ...current,
+                workflowEvents: [
+                  ...current.workflowEvents,
+                  {
+                    createdAt: new Date().toISOString(),
+                    detail: message,
+                    id: eventId,
+                    message: 'Sandbox preview reconnect failed',
+                    name: 'workflow.preview.reconnect.failed',
+                    producerId: 'forge-preview',
+                    runId: eventId,
+                    status: 'failed',
+                  },
+                ],
+              }
+            : current,
+        )
+      }
+
+      setPreviewReconnectCheckingChatIds((current) =>
+        setForgePreviewReconnectChecking(current, selectedChatId, false),
+      )
+    }
+
+    void attemptReconnect()
+
+    return () => {
+      cancelled = true
+      if (reconnectTimer !== undefined) {
+        window.clearTimeout(reconnectTimer)
+      }
+      setPreviewReconnectCheckingChatIds((current) =>
+        setForgePreviewReconnectChecking(current, selectedChatId, false),
+      )
+    }
+  }, [
+    displayedSandboxPreviewUrl,
+    latestRun?.id,
+    latestRun?.status,
+    selectedChatId,
+  ])
   const statusText = getForgeWorkflowStatusText({
     isExportingGitHub,
     isValidating,
@@ -960,23 +1284,6 @@ function ForgeRoute() {
     },
     [],
   )
-  const preservePendingLaunch = useCallback((nextSession: ForgeSession) => {
-    const pendingLaunch = pendingLaunchesRef.current.get(
-      nextSession.activeChatId,
-    )
-
-    if (!pendingLaunch) {
-      return nextSession
-    }
-
-    if (nextSession.latestRun) {
-      pendingLaunchesRef.current.delete(nextSession.activeChatId)
-      return nextSession
-    }
-
-    return applyPendingForgeLaunch(nextSession, pendingLaunch)
-  }, [])
-
   const activateForgeChat = useCallback(
     ({
       chatId,
@@ -1077,7 +1384,7 @@ function ForgeRoute() {
     }
 
     const chatId = resolveForgeChatId({
-      activeChatId: loaderChatShells.activeChatId,
+      activeChatId: initialChatShells.activeChatId,
       chats: sidebarChats,
       requestedChatId: search.chatId,
     })
@@ -1099,7 +1406,7 @@ function ForgeRoute() {
     }
   }, [
     activateForgeChat,
-    loaderChatShells.activeChatId,
+    initialChatShells.activeChatId,
     navigate,
     search.chatId,
     selectedChatId,
@@ -1145,20 +1452,34 @@ function ForgeRoute() {
 
     startedPendingLaunchIdsRef.current.add(pendingLaunchId)
 
-    void startLocalForgeRun({
-      data: {
-        chatId,
-        clientRequestId: pendingLaunch.clientRequestId,
-        providerKey: pendingLaunch.providerKey ?? browserProviderKey,
-        prompt: pendingLaunch.prompt,
-      },
-    })
-      .then(async (nextSession) => {
+    const providerKey = pendingLaunch.providerKey ?? browserProviderKey
+    forgeAiChatRequestRef.current = {
+      chatId,
+      clientRequestId: pendingLaunch.clientRequestId,
+      ...(existingSandboxPreviewUrl
+        ? { previewUrl: existingSandboxPreviewUrl }
+        : {}),
+      prompt: pendingLaunch.prompt,
+      ...(providerKey ? { providerKey } : {}),
+    }
+
+    void forgeAiChat
+      .sendMessage(pendingLaunch.prompt)
+      .then(async () => {
+        const nextSession = sessionCacheRef.current.get(chatId)
+
         pendingLaunchesRef.current.delete(chatId)
-        setSession(nextSession)
-        setOptimisticMessagesByChatId((current) =>
-          removeFulfilledForgeOptimisticMessages(current, chatId, nextSession),
-        )
+
+        if (nextSession) {
+          setOptimisticMessagesByChatId((current) =>
+            removeFulfilledForgeOptimisticMessages(
+              current,
+              chatId,
+              nextSession,
+            ),
+          )
+        }
+
         await queryClient.invalidateQueries({
           queryKey: forgeChatShellsQueryKey,
         })
@@ -1176,7 +1497,14 @@ function ForgeRoute() {
           prompt: pendingLaunch.prompt,
         })
       })
-  }, [browserProviderKey, queryClient, router, selectedChatId])
+  }, [
+    browserProviderKey,
+    existingSandboxPreviewUrl,
+    forgeAiChat,
+    queryClient,
+    router,
+    selectedChatId,
+  ])
 
   useEffect(() => {
     const chatId = selectedChatId
@@ -1248,7 +1576,9 @@ function ForgeRoute() {
           return
         }
 
-        const visibleSession = preservePendingLaunch(nextSession)
+        const visibleSession = preservePendingLaunch(
+          requireForgeSession(nextSession),
+        )
 
         sessionCacheRef.current.set(visibleSession.activeChatId, visibleSession)
         setSession(visibleSession)
@@ -1386,28 +1716,7 @@ function ForgeRoute() {
       const batch = parseForgeStateBatchEvent(event.data)
 
       if (batch) {
-        insertForgeProjectedStateEvents(
-          projectedStateEventsCollection,
-          chatId,
-          batch.events,
-        )
-        setDebugStreamEventsByChatId((current) =>
-          appendForgeDebugStreamEvents(current, chatId, batch.events),
-        )
-        setSession((currentSession) => {
-          if (currentSession.activeChatId !== chatId) {
-            return currentSession
-          }
-
-          const nextSession = applyForgeStateEvents(
-            currentSession,
-            batch.events,
-          )
-
-          sessionCacheRef.current.set(nextSession.activeChatId, nextSession)
-
-          return nextSession
-        })
+        applyForgeLiveStateBatch(chatId, batch)
       }
     }
 
@@ -1425,7 +1734,7 @@ function ForgeRoute() {
       eventSource.removeEventListener('state-batch', handleStateBatch)
       eventSource.close()
     }
-  }, [preservePendingLaunch, projectedStateEventsCollection, streamChatId])
+  }, [applyForgeLiveStateBatch, preservePendingLaunch, streamChatId])
 
   function handleCreateChat() {
     void navigate({ to: '/forge/new' })
@@ -1549,19 +1858,27 @@ function ForgeRoute() {
     setPrompt('')
 
     try {
-      const nextSession = await startLocalForgeRun({
-        data: {
-          chatId,
-          clientRequestId,
-          providerKey: browserProviderKey,
-          prompt: trimmedPrompt,
-        },
-      })
-      setSession(nextSession)
+      forgeAiChatRequestRef.current = {
+        chatId,
+        clientRequestId,
+        ...(existingSandboxPreviewUrl
+          ? { previewUrl: existingSandboxPreviewUrl }
+          : {}),
+        prompt: trimmedPrompt,
+        ...(browserProviderKey ? { providerKey: browserProviderKey } : {}),
+      }
+
+      await forgeAiChat.sendMessage(trimmedPrompt)
+
+      const nextSession = sessionCacheRef.current.get(chatId)
       pendingLaunchesRef.current.delete(chatId)
-      setOptimisticMessagesByChatId((current) =>
-        removeFulfilledForgeOptimisticMessages(current, chatId, nextSession),
-      )
+
+      if (nextSession) {
+        setOptimisticMessagesByChatId((current) =>
+          removeFulfilledForgeOptimisticMessages(current, chatId, nextSession),
+        )
+      }
+
       await queryClient.invalidateQueries({ queryKey: forgeChatShellsQueryKey })
       await router.invalidate()
     } catch (error) {
@@ -1627,12 +1944,6 @@ function ForgeRoute() {
     } finally {
       setIsCancelling(false)
     }
-  }
-
-  async function handlePreviewAnnotationSubmit(
-    annotation: ForgePreviewAnnotation,
-  ) {
-    await submitForgePrompt(formatPreviewAnnotationPrompt(annotation))
   }
 
   async function handleValidate() {
@@ -1970,13 +2281,18 @@ function ForgeRoute() {
                 rightPanelMode === 'preview' ? 'block' : 'hidden'
               }`}
             >
-              <ForgeWebContainerPreview
-                annotationDisabled={!canStartRun}
-                files={session.files}
-                manifestVersionId={session.manifestVersionId}
-                onAnnotationSubmit={handlePreviewAnnotationSubmit}
-                packageManager={session.packageManager}
-              />
+              {displayedSandboxPreviewUrl ? (
+                <ForgeSandboxPreviewFrame
+                  key={selectedChatId}
+                  previewUrl={displayedSandboxPreviewUrl}
+                />
+              ) : (
+                <ForgeSandboxPreviewWaiting
+                  checking={previewReconnectIsChecking}
+                  failure={sandboxPreviewFailure}
+                  latestRun={latestRun}
+                />
+              )}
             </div>
           ) : null}
 
@@ -2688,6 +3004,15 @@ function ForgeChatScrollPane({
       }),
     [activeRun, latestRun?.id, visibleItems],
   )
+  const autoScrollKey = useMemo(
+    () =>
+      getForgeChatAutoScrollKey({
+        latestRun,
+        latestWorkItem,
+        rows,
+      }),
+    [latestRun, latestWorkItem, rows],
+  )
   const rowVirtualizer = useVirtualizer<HTMLDivElement, HTMLDivElement>({
     anchorTo: 'end',
     count: rows.length,
@@ -2706,8 +3031,16 @@ function ForgeChatScrollPane({
   const showJumpToLatest = rows.length > 1 && !rowVirtualizer.isAtEnd(96)
 
   useEffect(() => {
-    rowVirtualizer.scrollToEnd({ behavior: 'auto' })
-  }, [activeChatId, rowVirtualizer])
+    if (rows.length === 0) {
+      return
+    }
+
+    const animationFrameId = window.requestAnimationFrame(() => {
+      rowVirtualizer.scrollToEnd({ behavior: 'auto' })
+    })
+
+    return () => window.cancelAnimationFrame(animationFrameId)
+  }, [activeChatId, autoScrollKey, rowVirtualizer, rows.length])
 
   return (
     <div className="relative min-h-0 flex-1">
@@ -2797,6 +3130,144 @@ function createForgeChatVirtualRows({
   }
 
   return rows
+}
+
+function getForgeChatAutoScrollKey({
+  latestRun,
+  latestWorkItem,
+  rows,
+}: {
+  latestRun: ForgeSession['latestRun']
+  latestWorkItem?: ForgeTranscriptWorkItem
+  rows: Array<ForgeChatVirtualRow>
+}) {
+  const latestRow = rows.at(-1)
+
+  return [
+    rows.length.toString(),
+    latestRow
+      ? getForgeChatVirtualRowAutoScrollKey({
+          latestRun,
+          latestWorkItem,
+          row: latestRow,
+        })
+      : 'empty',
+    getLatestForgeMessageAutoScrollKey(rows),
+  ].join('\n')
+}
+
+function getLatestForgeMessageAutoScrollKey(rows: Array<ForgeChatVirtualRow>) {
+  for (let index = rows.length - 1; index >= 0; index--) {
+    const row = rows[index]
+
+    if (row?.kind === 'transcript' && row.item.kind === 'message') {
+      return getForgeTranscriptMessageAutoScrollKey(row.item)
+    }
+  }
+
+  return 'no-message'
+}
+
+function getForgeChatVirtualRowAutoScrollKey({
+  latestRun,
+  latestWorkItem,
+  row,
+}: {
+  latestRun: ForgeSession['latestRun']
+  latestWorkItem?: ForgeTranscriptWorkItem
+  row: ForgeChatVirtualRow
+}) {
+  switch (row.kind) {
+    case 'activeWork':
+      return [
+        row.id,
+        latestRun?.id ?? '',
+        latestRun?.status ?? '',
+        latestWorkItem
+          ? getForgeTranscriptWorkItemAutoScrollKey(latestWorkItem)
+          : 'no-work',
+      ].join('\n')
+    case 'transcript':
+      return getForgeTranscriptItemAutoScrollKey(row.item)
+  }
+}
+
+function getForgeTranscriptItemAutoScrollKey(item: ForgeTranscriptItem) {
+  switch (item.kind) {
+    case 'activity':
+    case 'tool':
+      return getForgeTranscriptWorkItemAutoScrollKey(item)
+    case 'activityGroup':
+    case 'semanticGroup':
+      return [
+        item.kind,
+        item.id,
+        item.items.length.toString(),
+        getForgeTranscriptWorkItemAutoScrollKey(item.items.at(-1)),
+      ].join('\n')
+    case 'message':
+      return getForgeTranscriptMessageAutoScrollKey(item)
+  }
+}
+
+function getForgeTranscriptMessageAutoScrollKey(
+  item?: ForgeMessageTranscriptItem,
+) {
+  if (!item) {
+    return 'no-message'
+  }
+
+  return [
+    item.id,
+    item.value.id,
+    item.value.status ?? '',
+    getForgeTextAutoScrollKey(item.value.content),
+  ].join('\n')
+}
+
+function getForgeTranscriptWorkItemAutoScrollKey(
+  item?: ForgeTranscriptWorkItem,
+) {
+  if (!item) {
+    return 'no-work'
+  }
+
+  switch (item.kind) {
+    case 'activity':
+      return [
+        item.id,
+        item.source,
+        getForgeActivityAutoScrollKey(item.value),
+      ].join('\n')
+    case 'tool': {
+      const latestEvent = item.value.events.at(-1)
+
+      return [
+        item.id,
+        item.value.name,
+        item.value.events.length.toString(),
+        item.value.path ?? '',
+        latestEvent ? getForgeActivityAutoScrollKey(latestEvent) : 'no-event',
+      ].join('\n')
+    }
+  }
+}
+
+function getForgeActivityAutoScrollKey(event: ForgeActivityEvent) {
+  return [
+    event.id,
+    event.name,
+    event.status ?? '',
+    event.path ?? '',
+    getForgeTextAutoScrollKey(event.message),
+    getForgeTextAutoScrollKey(event.detail),
+  ].join('\n')
+}
+
+function getForgeTextAutoScrollKey(value?: string) {
+  const text = value ?? ''
+
+  return `${text.length}:${text.slice(-120)}`
 }
 
 function estimateForgeChatRowSize(row?: ForgeChatVirtualRow) {
@@ -3130,12 +3601,19 @@ function ActiveWorkIndicator({
   latestRun: ForgeSession['latestRun']
   showLogEvents: boolean
 }) {
-  const activity =
+  const latestActivity =
     latestWorkItem?.kind === 'tool'
       ? latestWorkItem.value.events.at(-1)
       : latestWorkItem?.value
-  const source =
-    latestWorkItem?.kind === 'tool' ? 'agent' : latestWorkItem?.source
+  const activity =
+    latestActivity && latestActivity.runId === latestRun?.id
+      ? latestActivity
+      : undefined
+  const source = activity
+    ? latestWorkItem?.kind === 'tool'
+      ? 'agent'
+      : latestWorkItem?.source
+    : undefined
   const title =
     activity && source
       ? formatActiveWorkTitle(activity, source)
@@ -3672,6 +4150,10 @@ function getLatestTranscriptWorkItem(
     if (item.kind === 'activity' || item.kind === 'tool') {
       return item
     }
+
+    if (item.kind === 'message' && item.value.status === 'streaming') {
+      return undefined
+    }
   }
 
   return undefined
@@ -3876,6 +4358,22 @@ function formatActivityGroupTitle(
   items: Array<ForgeTranscriptWorkItem>,
   status?: string,
 ) {
+  const reasoningCount = items.filter(isReasoningTranscriptWorkItem).length
+
+  if (reasoningCount > 0 && reasoningCount === items.length) {
+    return status === 'finished' ? 'Reasoned through changes' : 'Reasoning'
+  }
+
+  const sandboxCustomCount = items.filter(
+    isSandboxCustomTranscriptWorkItem,
+  ).length
+
+  if (sandboxCustomCount > 0 && sandboxCustomCount === items.length) {
+    return sandboxCustomCount === 1
+      ? 'Sandbox event'
+      : `${sandboxCustomCount.toLocaleString()} sandbox events`
+  }
+
   const commandCount = items.filter(isCommandTranscriptWorkItem).length
 
   if (commandCount > 0 && commandCount === items.length) {
@@ -3901,6 +4399,14 @@ function formatActivityGroupTitle(
 }
 
 function formatActivityGroupSubtitle(items: Array<ForgeTranscriptWorkItem>) {
+  if (items.length > 0 && items.every(isReasoningTranscriptWorkItem)) {
+    return formatReasoningTranscriptSubtitle(items)
+  }
+
+  if (items.length > 0 && items.every(isSandboxCustomTranscriptWorkItem)) {
+    return formatSandboxCustomTranscriptSubtitle(items)
+  }
+
   if (
     items.length > 0 &&
     items.every((item) => isCommandTranscriptWorkItem(item))
@@ -3943,6 +4449,56 @@ function isCommandTranscriptWorkItem(item: ForgeTranscriptWorkItem) {
     item.value.name.startsWith('agent.codex.command.') ||
     isCodexLegacyItemType(item.value, 'command_execution')
   )
+}
+
+function isReasoningTranscriptWorkItem(item: ForgeTranscriptWorkItem) {
+  return (
+    item.kind === 'activity' &&
+    item.source === 'agent' &&
+    item.value.name === 'agent.model.reasoning'
+  )
+}
+
+function isSandboxCustomTranscriptWorkItem(item: ForgeTranscriptWorkItem) {
+  return (
+    item.kind === 'activity' &&
+    item.source === 'agent' &&
+    item.value.name.startsWith('agent.sandbox.custom.')
+  )
+}
+
+function formatSandboxCustomEventName(event: ForgeActivityEvent) {
+  return event.name.replace(/^agent\.sandbox\.custom\./, '') || 'event'
+}
+
+function formatReasoningTranscriptSubtitle(
+  items: Array<ForgeTranscriptWorkItem>,
+) {
+  const text = items
+    .map((item) => (item.kind === 'activity' ? item.value.detail : undefined))
+    .filter((value): value is string => Boolean(value))
+    .join(' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+
+  return text ? limitDisplayText(text, 220) : undefined
+}
+
+function formatSandboxCustomTranscriptSubtitle(
+  items: Array<ForgeTranscriptWorkItem>,
+) {
+  const labels = items
+    .map((item) =>
+      item.kind === 'activity' ? formatSandboxCustomEventName(item.value) : '',
+    )
+    .filter(Boolean)
+  const uniqueLabels = Array.from(new Set(labels))
+  const visibleLabels = uniqueLabels.slice(0, 4)
+  const hiddenCount = uniqueLabels.length - visibleLabels.length
+
+  return hiddenCount > 0
+    ? `${visibleLabels.join(', ')}, +${hiddenCount.toLocaleString()} more`
+    : visibleLabels.join(', ')
 }
 
 function getTranscriptWorkItemLabel(item: ForgeTranscriptWorkItem) {
@@ -4814,7 +5370,19 @@ function groupConsecutiveTranscriptWorkItems(
 }
 
 function getTranscriptWorkItemGroupTaskType(item: ForgeTranscriptWorkItem) {
-  return isCommandTranscriptWorkItem(item) ? 'command' : undefined
+  if (isCommandTranscriptWorkItem(item)) {
+    return 'command'
+  }
+
+  if (isReasoningTranscriptWorkItem(item)) {
+    return 'reasoning'
+  }
+
+  if (isSandboxCustomTranscriptWorkItem(item)) {
+    return 'sandbox-custom'
+  }
+
+  return undefined
 }
 
 function compareForgeTranscriptItems(
@@ -4922,19 +5490,7 @@ function isLowLevelActivityEvent(
       event.name === 'agent.harness.finished' ||
       event.name === 'agent.model.started' ||
       event.name === 'agent.model.finished' ||
-      event.name === 'agent.codex.output' ||
-      event.name === 'agent.codex.message' ||
-      event.name === 'agent.codex.plan' ||
-      event.name === 'agent.codex.notice' ||
-      event.name.startsWith('agent.codex.process.') ||
-      event.name.startsWith('agent.codex.thread.') ||
-      event.name.startsWith('agent.codex.turn.') ||
-      event.name === 'run.failed' ||
-      event.name === 'agent.codex.file.changed' ||
-      event.name === 'agent.codex.summary' ||
-      event.name === 'agent.codex.workspace.prepared' ||
-      isCodexLegacyItemType(event, 'error') ||
-      readCodexAgentMessageText(event) !== undefined
+      event.name === 'agent.codex.summary'
     )
   }
 
@@ -4988,10 +5544,36 @@ function appendForgeDebugStreamEvents(
   }
 }
 
+function appendForgeDebugClientStreamChunk(
+  current: ForgeDebugClientStreamChunksByChatId,
+  chatId: string,
+  chunk: StreamChunk,
+): ForgeDebugClientStreamChunksByChatId {
+  const existingChunks = current[chatId] ?? []
+  const createdAt = new Date().toISOString()
+  const nextChunk: ForgeDebugClientStreamChunk = {
+    chunk,
+    createdAt,
+    id: [
+      'stream',
+      Date.parse(createdAt).toString(),
+      existingChunks.length.toString(),
+      getForgeStreamChunkDebugName(chunk),
+    ].join(':'),
+  }
+
+  return {
+    ...current,
+    [chatId]: [...existingChunks, nextChunk].slice(-500),
+  }
+}
+
 function createForgeDebugEvents({
+  clientStreamChunks,
   session,
   streamEvents,
 }: {
+  clientStreamChunks: Array<ForgeDebugClientStreamChunk>
   session: ForgeSession
   streamEvents: Array<ForgeStateEvent>
 }): Array<ForgeDebugEvent> {
@@ -5064,6 +5646,17 @@ function createForgeDebugEvents({
       source: 'state',
       status: readForgeStateEventStatus(event),
       summary: summarizeForgeStateEvent(event),
+    })
+  }
+
+  for (const event of clientStreamChunks) {
+    add({
+      createdAt: event.createdAt,
+      id: event.id,
+      name: getForgeStreamChunkDebugName(event.chunk),
+      payload: event.chunk,
+      source: 'stream',
+      summary: summarizeForgeStreamChunk(event.chunk),
     })
   }
 
@@ -5197,6 +5790,53 @@ function summarizeForgeStateEvent(event: ForgeStateEvent) {
   )
 }
 
+function getForgeStreamChunkDebugName(chunk: StreamChunk) {
+  switch (chunk.type) {
+    case 'CUSTOM':
+      return `stream.custom.${chunk.name}`
+    case 'TOOL_CALL_START':
+    case 'TOOL_CALL_END':
+      return `stream.${chunk.type}.${chunk.toolCallName ?? chunk.toolName ?? chunk.toolCallId}`
+    case 'TOOL_CALL_ARGS':
+    case 'TOOL_CALL_RESULT':
+      return `stream.${chunk.type}.${chunk.toolCallId}`
+    default:
+      return `stream.${chunk.type}`
+  }
+}
+
+function summarizeForgeStreamChunk(chunk: StreamChunk) {
+  switch (chunk.type) {
+    case 'CUSTOM':
+      return summarizeForgeUnknownValue(chunk.value)
+    case 'TEXT_MESSAGE_CONTENT':
+    case 'REASONING_MESSAGE_CONTENT':
+    case 'TOOL_CALL_ARGS':
+      return limitDisplayText(chunk.delta, 220)
+    case 'TOOL_CALL_RESULT':
+      return limitDisplayText(chunk.content, 220)
+    case 'TOOL_CALL_START':
+    case 'TOOL_CALL_END':
+      return chunk.toolCallName ?? chunk.toolName ?? chunk.toolCallId
+    case 'RUN_ERROR':
+      return chunk.message
+    default:
+      return undefined
+  }
+}
+
+function summarizeForgeUnknownValue(value: unknown) {
+  if (typeof value === 'string') {
+    return limitDisplayText(value, 220)
+  }
+
+  try {
+    return limitDisplayText(JSON.stringify(value), 220)
+  } catch {
+    return limitDisplayText(String(value), 220)
+  }
+}
+
 function filterForgeDebugEvents(
   events: Array<ForgeDebugEvent>,
   filter: string,
@@ -5266,6 +5906,386 @@ function debugEventRowClassName(active: boolean) {
   }`
 }
 
+function ForgeSandboxPreviewFrame({ previewUrl }: { previewUrl: string }) {
+  const [reloadKey, setReloadKey] = useState(0)
+  const [effectivePreviewUrl, setEffectivePreviewUrl] = useState(previewUrl)
+  const mountIdRef = useRef<string | undefined>(undefined)
+  const iframeSrc = useMemo(
+    () => withForgePreviewReloadParam(effectivePreviewUrl, reloadKey),
+    [effectivePreviewUrl, reloadKey],
+  )
+
+  if (!mountIdRef.current && typeof crypto !== 'undefined') {
+    mountIdRef.current = crypto.randomUUID()
+  }
+
+  useEffect(() => {
+    setEffectivePreviewUrl((currentPreviewUrl) =>
+      currentPreviewUrl !== previewUrl &&
+      isLocalForgeQuickTunnelPreviewUrl(currentPreviewUrl)
+        ? previewUrl
+        : currentPreviewUrl,
+    )
+  }, [previewUrl])
+
+  useEffect(() => {
+    if (!import.meta.env.DEV) {
+      return
+    }
+
+    const mountId = mountIdRef.current ?? 'unknown'
+
+    console.debug('[forge-preview] iframe mounted', {
+      mountId,
+      previewUrl: effectivePreviewUrl,
+    })
+
+    return () => {
+      console.debug('[forge-preview] iframe unmounted', {
+        mountId,
+        previewUrl: effectivePreviewUrl,
+      })
+    }
+  }, [])
+
+  return (
+    <div className="grid h-full min-h-0 grid-rows-[36px_minmax(0,1fr)] overflow-hidden bg-white dark:bg-[#101010]">
+      <div className="flex min-w-0 items-center gap-2 border-b border-neutral-200 bg-[#fbfbfa] px-2 dark:border-white/10 dark:bg-[#171717]">
+        <div className="min-w-0 flex-1 truncate rounded-md border border-neutral-200 bg-white px-2 py-1 text-xs text-neutral-700 dark:border-white/10 dark:bg-black/25 dark:text-neutral-300">
+          {effectivePreviewUrl}
+        </div>
+        <button
+          className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-950 dark:text-neutral-300 dark:hover:bg-white/5 dark:hover:text-white"
+          onClick={() => setReloadKey((current) => current + 1)}
+          title="Reload preview"
+          type="button"
+        >
+          <RefreshCw className="h-3.5 w-3.5" />
+          <span className="sr-only">Reload preview</span>
+        </button>
+        <a
+          className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-950 dark:text-neutral-300 dark:hover:bg-white/5 dark:hover:text-white"
+          href={effectivePreviewUrl}
+          rel="noreferrer"
+          target="_blank"
+          title="Open preview"
+        >
+          <ExternalLink className="h-3.5 w-3.5" />
+          <span className="sr-only">Open preview</span>
+        </a>
+      </div>
+      <iframe
+        className="h-full min-h-0 w-full bg-white"
+        onLoad={() => {
+          if (import.meta.env.DEV) {
+            console.debug('[forge-preview] iframe loaded', {
+              mountId: mountIdRef.current ?? 'unknown',
+              src: iframeSrc,
+            })
+          }
+        }}
+        src={iframeSrc}
+        title="Forge sandbox preview"
+      />
+    </div>
+  )
+}
+
+function ForgeSandboxPreviewWaiting({
+  checking,
+  failure,
+  latestRun,
+}: {
+  checking: boolean
+  failure: string | undefined
+  latestRun: ForgeSession['latestRun']
+}) {
+  const activeRun = isActiveForgeRunStatus(latestRun?.status)
+  const hasRun = Boolean(latestRun)
+  const hasFailure = Boolean(failure)
+  const busy = !hasFailure && (checking || activeRun)
+  const startingPreview = !hasFailure && (activeRun || (checking && hasRun))
+
+  return (
+    <div className="flex h-full min-h-0 items-center justify-center bg-white px-6 dark:bg-[#101010]">
+      <div className="flex max-w-sm flex-col items-center gap-3 text-center">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200 text-neutral-500 dark:border-white/10 dark:text-neutral-400">
+          {hasFailure ? (
+            <AlertCircle className="h-4 w-4 text-red-500" />
+          ) : busy ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <MonitorPlay className="h-4 w-4" />
+          )}
+        </div>
+        <div className="space-y-1">
+          <div className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+            {hasFailure
+              ? 'Sandbox preview failed'
+              : startingPreview
+                ? 'Starting sandbox preview'
+                : checking
+                  ? 'Checking existing sandbox'
+                  : 'No sandbox preview yet'}
+          </div>
+          <div
+            className={`text-xs leading-5 text-neutral-500 dark:text-neutral-400 ${
+              hasFailure
+                ? 'max-h-32 overflow-auto whitespace-pre-wrap text-left'
+                : ''
+            }`}
+          >
+            {failure ??
+              (startingPreview
+                ? 'The preview will appear here as soon as the sandbox dev server is exposed.'
+                : checking
+                  ? 'Forge is looking for a live preview server in this chat sandbox.'
+                  : 'Run the agent to start the app inside the Cloudflare sandbox.')}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function readLatestForgeSandboxPreviewUrl(events: Array<ForgeActivityEvent>) {
+  for (const event of [...events].reverse()) {
+    if (
+      event.name !== 'agent.preview.exposed' &&
+      event.name !== 'workflow.preview.ready' &&
+      event.name !== 'workflow.preview.reconnected'
+    ) {
+      continue
+    }
+
+    const url = readValidForgePreviewUrl(event.detail)
+
+    if (url) {
+      return url
+    }
+  }
+
+  return undefined
+}
+
+function readLatestForgeSandboxPreviewFailure(
+  events: Array<ForgeActivityEvent>,
+) {
+  for (const event of [...events].reverse()) {
+    if (
+      (event.name === 'agent.preview.exposed' ||
+        event.name === 'workflow.preview.ready' ||
+        event.name === 'workflow.preview.reconnected') &&
+      readValidForgePreviewUrl(event.detail)
+    ) {
+      return undefined
+    }
+
+    if (
+      event.name !== 'workflow.preview.start.failed' &&
+      event.name !== 'workflow.preview.reconnect.failed'
+    ) {
+      continue
+    }
+
+    return (
+      readCompactForgePreviewFailure(event.detail) ||
+      readCompactForgePreviewFailure(event.message) ||
+      'Forge sandbox preview failed to start.'
+    )
+  }
+
+  return undefined
+}
+
+function readCompactForgePreviewFailure(value: unknown) {
+  const text = readString(value)?.trim()
+
+  if (!text) {
+    return undefined
+  }
+
+  return text.length > 1_200 ? `${text.slice(0, 1_200)}...` : text
+}
+
+function setForgePreviewReconnectChecking(
+  current: Record<string, boolean>,
+  chatId: string,
+  checking: boolean,
+) {
+  if (checking) {
+    return current[chatId] === true
+      ? current
+      : {
+          ...current,
+          [chatId]: true,
+        }
+  }
+
+  if (current[chatId] !== true) {
+    return current
+  }
+
+  const next = { ...current }
+  delete next[chatId]
+
+  return next
+}
+
+function withForgePreviewReloadParam(previewUrl: string, reloadKey: number) {
+  if (reloadKey === 0) {
+    return previewUrl
+  }
+
+  try {
+    const url = new URL(previewUrl)
+
+    url.searchParams.set('__forge_preview_reload', String(reloadKey))
+
+    return url.href
+  } catch {
+    return previewUrl
+  }
+}
+
+function readValidForgePreviewUrl(value: unknown) {
+  const urlText = readString(value)?.trim()
+
+  if (!urlText) {
+    return undefined
+  }
+
+  try {
+    const url = new URL(urlText)
+
+    if (
+      isLocalForgePreviewHostBlocked(url) &&
+      !isForgeSandboxPreviewProxyHost(url.hostname)
+    ) {
+      return undefined
+    }
+
+    return url.protocol === 'http:' || url.protocol === 'https:'
+      ? url.href
+      : undefined
+  } catch {
+    return undefined
+  }
+}
+
+function isLocalForgePreviewHostBlocked(url: URL) {
+  if (
+    typeof window === 'undefined' ||
+    !isLocalForgeAppHost(window.location.hostname)
+  ) {
+    return false
+  }
+
+  return (
+    (isLocalForgeAppHost(url.hostname) &&
+      url.pathname.startsWith('/__forge-preview/')) ||
+    url.hostname === 'lvh.me' ||
+    url.hostname.endsWith('-p.lvh.me') ||
+    url.hostname.endsWith('-v2.lvh.me') ||
+    url.hostname.endsWith('-v3.lvh.me') ||
+    url.hostname.endsWith('.localhost')
+  )
+}
+
+function isForgeSandboxPreviewProxyHost(hostname: string) {
+  const firstLabel = hostname.split('.')[0]
+
+  return /^\d{4,5}-[a-z0-9-]{1,63}-[a-z0-9_]{1,16}$/.test(firstLabel)
+}
+
+function shouldReconnectForgeSandboxPreviewUrl({
+  latestRun,
+  previewUrl,
+}: {
+  latestRun: ForgeSession['latestRun']
+  previewUrl: string | undefined
+}) {
+  if (previewUrl) {
+    return isLocalForgeQuickTunnelPreviewUrl(previewUrl)
+  }
+
+  if (isActiveForgeRunStatus(latestRun?.status)) {
+    return false
+  }
+
+  return Boolean(latestRun)
+}
+
+function isLocalForgeQuickTunnelPreviewUrl(previewUrl: string) {
+  if (
+    typeof window === 'undefined' ||
+    !isLocalForgeAppHost(window.location.hostname)
+  ) {
+    return false
+  }
+
+  try {
+    return new URL(previewUrl).hostname.endsWith('.trycloudflare.com')
+  } catch {
+    return false
+  }
+}
+
+type ForgeSandboxPreviewReconnectMode = 'attach' | 'restart' | 'retunnel'
+
+async function reconnectForgeSandboxPreviewUrl(
+  chatId: string,
+  options?: { mode?: ForgeSandboxPreviewReconnectMode },
+) {
+  const response = await fetch('/api/forge/preview/reconnect', {
+    body: JSON.stringify({ chatId, mode: options?.mode }),
+    headers: { 'Content-Type': 'application/json' },
+    method: 'POST',
+  })
+
+  if (!response.ok) {
+    throw new Error(await readForgePreviewReconnectError(response))
+  }
+
+  const value: unknown = await response.json()
+
+  if (!isRecord(value)) {
+    return {}
+  }
+
+  return {
+    reason: typeof value.reason === 'string' ? value.reason : undefined,
+    url: typeof value.url === 'string' ? value.url : undefined,
+  }
+}
+
+async function readForgePreviewReconnectError(response: Response) {
+  const contentType = response.headers.get('content-type')
+
+  if (contentType?.includes('application/json')) {
+    const value: unknown = await response.json().catch(() => undefined)
+
+    if (isRecord(value)) {
+      const error = readString(value.error)
+      const message = readString(value.message)
+      const logTail = readString(value.logTail)
+
+      return [error, message, logTail].filter(Boolean).join('\n\n')
+    }
+  }
+
+  return await response.text()
+}
+
+function isLocalForgeAppHost(hostname: string) {
+  return (
+    hostname === 'localhost' ||
+    hostname === '127.0.0.1' ||
+    hostname === '0.0.0.0' ||
+    hostname.endsWith('.localhost')
+  )
+}
+
 function debugSourceBadgeClassName(source: ForgeDebugEventSource) {
   const base =
     'inline-flex h-5 shrink-0 items-center rounded px-1.5 font-mono text-[10px] uppercase tracking-wide'
@@ -5283,6 +6303,8 @@ function debugSourceBadgeClassName(source: ForgeDebugEventSource) {
       return `${base} bg-emerald-50 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300`
     case 'state':
       return `${base} bg-neutral-100 text-neutral-700 dark:bg-white/10 dark:text-neutral-300`
+    case 'stream':
+      return `${base} bg-cyan-50 text-cyan-700 dark:bg-cyan-400/10 dark:text-cyan-300`
     case 'warning':
       return `${base} bg-orange-50 text-orange-700 dark:bg-orange-400/10 dark:text-orange-300`
     case 'workflow':
@@ -5347,8 +6369,36 @@ function parseForgeStateBatchEvent(
   }
 }
 
-function isNotAuthenticatedError(error: unknown) {
-  return error instanceof Error && error.message.includes('Not authenticated')
+function readForgeSnapshotStreamValue(
+  value: unknown,
+): ForgeSession | undefined {
+  if (!isRecord(value) || value.type !== 'snapshot') {
+    return undefined
+  }
+
+  return isForgeSession(value.snapshot) ? value.snapshot : undefined
+}
+
+function readForgeStateBatchStreamValue(
+  value: unknown,
+): ForgeStateBatchStreamEvent | undefined {
+  if (
+    !isRecord(value) ||
+    value.type !== 'state-batch' ||
+    !Array.isArray(value.events)
+  ) {
+    return undefined
+  }
+
+  const events = value.events.filter(isForgeStateEvent)
+
+  return {
+    events,
+    stateOffset: typeof value.stateOffset === 'number' ? value.stateOffset : 0,
+    timelineOffset:
+      typeof value.timelineOffset === 'number' ? value.timelineOffset : 0,
+    type: 'state-batch',
+  }
 }
 
 function isForgeSession(value: unknown): value is ForgeSession {
@@ -5374,6 +6424,14 @@ function isForgeSession(value: unknown): value is ForgeSession {
     Array.isArray(value.warnings) &&
     value.warnings.every((warning) => typeof warning === 'string')
   )
+}
+
+function requireForgeSession(value: unknown): ForgeSession {
+  if (isForgeSession(value)) {
+    return value
+  }
+
+  throw new Error('Forge chat returned an invalid session.')
 }
 
 function isForgeChat(value: unknown): value is ForgeSession['chats'][number] {
@@ -5451,6 +6509,25 @@ function getActivityDisplay(
 ): ForgeActivityDisplay | undefined {
   if (source !== 'agent') {
     return undefined
+  }
+
+  if (event.name === 'agent.model.reasoning') {
+    return {
+      detail: event.detail,
+      status: event.status,
+      title: 'Reasoning',
+    }
+  }
+
+  if (event.name.startsWith('agent.sandbox.custom.')) {
+    return {
+      detail: event.detail,
+      status: event.status,
+      subtitle: event.detail
+        ? limitDisplayText(event.detail.replace(/\s+/g, ' '), 220)
+        : undefined,
+      title: `Sandbox event: ${formatSandboxCustomEventName(event)}`,
+    }
   }
 
   if (event.name === 'agent.codex.summary') {
@@ -5749,6 +6826,10 @@ function formatKnownAgentActivityTitle(event: ForgeActivityEvent) {
     return display.title
   }
 
+  if (event.name.startsWith('agent.sandbox.custom.')) {
+    return `Sandbox event: ${formatSandboxCustomEventName(event)}`
+  }
+
   switch (event.name) {
     case 'agent.harness.started':
       return 'Harness started'
@@ -5760,10 +6841,22 @@ function formatKnownAgentActivityTitle(event: ForgeActivityEvent) {
       return 'Finished thinking'
     case 'agent.model.error':
       return 'Model error'
+    case 'agent.model.reasoning':
+      return 'Reasoning'
     case 'agent.codex.workspace.prepared':
       return 'Prepared Codex workspace'
     case 'agent.codex.plan':
       return 'Planned changes'
+    case 'agent.codex.process.started':
+      return 'Started Codex'
+    case 'agent.codex.thread.started':
+      return 'Started Codex thread'
+    case 'agent.codex.turn.started':
+      return 'Started Codex turn'
+    case 'agent.codex.turn.completed':
+      return 'Completed Codex turn'
+    case 'agent.codex.message':
+      return 'Codex message'
     case 'agent.codex.command.started':
       return 'Running command'
     case 'agent.codex.command.completed':
@@ -5785,7 +6878,7 @@ function formatKnownAgentActivityTitle(event: ForgeActivityEvent) {
     case 'agent.codex.summary':
       return 'Summarized changes'
     case 'agent.codex.output':
-      return 'Codex output'
+      return 'Streaming Codex output'
     default:
       return undefined
   }

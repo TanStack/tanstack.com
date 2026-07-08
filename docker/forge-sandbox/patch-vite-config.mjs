@@ -1,17 +1,20 @@
 #!/usr/bin/env node
 // Idempotently patches a scaffolded vite.config.ts so the dev server accepts
 // requests proxied through the forge preview host: adds/merges
-// `server: { host: true, allowedHosts: true }` into the object passed to
+// `server: { host: true, allowedHosts: true, ws, watch }`
+// into the object passed to
 // `defineConfig(...)`.
 //
 // Usage: node patch-vite-config.mjs <path/to/vite.config.ts>
 //
 // No dependencies (the sandbox image doesn't guarantee a TypeScript parser
 // is installed), so this uses careful brace-depth scanning instead of an AST.
-// It only ever inserts text — it never rewrites or reformats code it doesn't
-// need to touch, so running it twice is a no-op.
+// It keeps edits scoped to the Vite server config, so running it twice is a no-op.
 
 import fs from 'node:fs'
+
+const WS_CONFIG_VALUE =
+  '{ path: process.env.FORGE_PREVIEW_WS_PATH || process.env.FORGE_PREVIEW_HMR_PATH || undefined }'
 
 const filePath = process.argv[2]
 
@@ -181,12 +184,7 @@ function findTopLevelServerBlock(text, bodyStart, bodyEnd) {
   return null
 }
 
-/**
- * Checks whether a top-level key (e.g. `host` or `allowedHosts`) already
- * exists directly inside the object body spanning (bodyStart, bodyEnd)
- * (exclusive of the surrounding braces), ignoring nested objects/strings/comments.
- */
-function hasTopLevelKey(text, bodyStart, bodyEnd, keyName) {
+function findTopLevelProperty(text, bodyStart, bodyEnd, keyName) {
   let depth = 0
   let inString = null
   let inLineComment = false
@@ -232,12 +230,65 @@ function hasTopLevelKey(text, bodyStart, bodyEnd, keyName) {
 
     if (depth === 0 && keyRegex.test(text.slice(i, i + keyName.length + 8))) {
       const slice = text.slice(i)
-      const m = slice.match(new RegExp(`^${keyName}\\s*:`))
-      if (m) return true
+      const match = slice.match(new RegExp(`^${keyName}\\s*:`))
+      if (!match) continue
+
+      const valueStart = i + match[0].length
+      const valueEnd = findTopLevelValueEnd(text, valueStart, bodyEnd)
+
+      return { valueStart, valueEnd }
     }
   }
 
-  return false
+  return null
+}
+
+function findTopLevelValueEnd(text, valueStart, bodyEnd) {
+  let depth = 0
+  let inString = null
+  let inLineComment = false
+  let inBlockComment = false
+
+  for (let i = valueStart; i < bodyEnd; i++) {
+    const ch = text[i]
+    const prev = text[i - 1]
+
+    if (inLineComment) {
+      if (ch === '\n') inLineComment = false
+      continue
+    }
+    if (inBlockComment) {
+      if (prev === '*' && ch === '/') inBlockComment = false
+      continue
+    }
+    if (inString) {
+      if (ch === '\\') {
+        i++
+        continue
+      }
+      if (ch === inString) inString = null
+      continue
+    }
+
+    if (ch === '/' && text[i + 1] === '/') {
+      inLineComment = true
+      continue
+    }
+    if (ch === '/' && text[i + 1] === '*') {
+      inBlockComment = true
+      continue
+    }
+    if (ch === '"' || ch === "'" || ch === '`') {
+      inString = ch
+      continue
+    }
+
+    if (ch === '{' || ch === '(' || ch === '[') depth++
+    if (ch === '}' || ch === ')' || ch === ']') depth--
+    if (depth === 0 && ch === ',') return i
+  }
+
+  return bodyEnd
 }
 
 /** Returns the indentation (leading whitespace) of the line containing index. */
@@ -279,40 +330,89 @@ if (serverBlock && serverBlock.unrecognized) {
 let output = source
 
 if (serverBlock) {
-  // Merge host/allowedHosts into the existing server block.
+  // Merge preview-safe dev-server options into the existing server block. If
+  // the scaffold already supplied any key, force the value needed for sandbox
+  // previews: wide host binding, broad host allowlist, a browser-visible
+  // websocket endpoint, and polling file watch.
+  // Polling matters because sandbox RPC file writes may not reliably trigger
+  // inotify inside the container, which prevents Vite/TanStack Router HMR from
+  // noticing agent edits.
   const { braceStart, braceEnd } = serverBlock
   const serverBodyStart = braceStart + 1
   const serverBodyEnd = braceEnd
 
-  const hasHost = hasTopLevelKey(source, serverBodyStart, serverBodyEnd, 'host')
-  const hasAllowedHosts = hasTopLevelKey(
-    source,
+  const hostProperty = findTopLevelProperty(
+    output,
+    serverBodyStart,
+    serverBodyEnd,
+    'host',
+  )
+  const allowedHostsProperty = findTopLevelProperty(
+    output,
     serverBodyStart,
     serverBodyEnd,
     'allowedHosts',
   )
+  const wsProperty = findTopLevelProperty(
+    output,
+    serverBodyStart,
+    serverBodyEnd,
+    'ws',
+  )
+  const watchProperty = findTopLevelProperty(
+    output,
+    serverBodyStart,
+    serverBodyEnd,
+    'watch',
+  )
 
-  if (hasHost && hasAllowedHosts) {
+  const replacements = [
+    allowedHostsProperty,
+    hostProperty,
+    watchProperty,
+    wsProperty,
+  ]
+    .filter(Boolean)
+    .sort((a, b) => b.valueStart - a.valueStart)
+
+  for (const replacement of replacements) {
+    const replacementText =
+      replacement === watchProperty
+        ? ' { usePolling: true, interval: 300 }'
+        : replacement === wsProperty
+          ? ` ${WS_CONFIG_VALUE}`
+          : ' true'
+    output =
+      output.slice(0, replacement.valueStart) +
+      replacementText +
+      output.slice(replacement.valueEnd)
+  }
+
+  if (hostProperty && allowedHostsProperty && watchProperty && wsProperty) {
     // Already patched — no-op, keep output === source.
   } else {
     const indent = indentOfLineAt(source, braceStart) + '  '
     const additions = []
-    if (!hasAllowedHosts) additions.push(`${indent}allowedHosts: true,\n`)
-    if (!hasHost) additions.push(`${indent}host: true,\n`)
+    if (!allowedHostsProperty) additions.push(`${indent}allowedHosts: true,\n`)
+    if (!hostProperty) additions.push(`${indent}host: true,\n`)
+    if (!watchProperty) {
+      additions.push(`${indent}watch: { usePolling: true, interval: 300 },\n`)
+    }
+    if (!wsProperty) additions.push(`${indent}ws: ${WS_CONFIG_VALUE},\n`)
     const insertion = additions.join('')
 
     // Insert right after the opening brace of the server block; the rest of
     // the original server body (and everything after it) follows unchanged.
     output =
-      source.slice(0, serverBodyStart) +
+      output.slice(0, serverBodyStart) +
       '\n' +
       insertion +
-      source.slice(serverBodyStart)
+      output.slice(serverBodyStart)
   }
 } else {
   // No top-level `server` key at all — add the whole block.
   const indent = indentOfLineAt(source, objectStart) + '  '
-  const serverBlockText = `${indent}server: { host: true, allowedHosts: true },\n`
+  const serverBlockText = `${indent}server: { host: true, allowedHosts: true, watch: { usePolling: true, interval: 300 }, ws: ${WS_CONFIG_VALUE} },\n`
 
   output =
     source.slice(0, bodyStart) +
@@ -323,7 +423,7 @@ if (serverBlock) {
 
 if (output === source) {
   console.log(
-    `patch-vite-config: ${filePath} already has server.host and server.allowedHosts — no changes made.`,
+    `patch-vite-config: ${filePath} already has preview-safe server settings — no changes made.`,
   )
   process.exit(0)
 }

@@ -25,6 +25,9 @@ function createSpyCtx() {
     onToolCall: (event) => {
       calls.push({ args: event, fn: 'onToolCall' })
     },
+    onCustomEvent: (event) => {
+      calls.push({ args: event, fn: 'onCustomEvent' })
+    },
     persistSessionId: (sessionId) => {
       calls.push({ args: sessionId, fn: 'persistSessionId' })
     },
@@ -247,8 +250,16 @@ function createSpyCtx() {
   assert.doesNotThrow(() => translateChunk(malformedFileChangedWrongTypes, ctx))
   assert.doesNotThrow(() => translateChunk(unrelatedCustom, ctx))
 
-  assert.equal(calls.length, 0)
-  console.log('malformed/unrelated CUSTOM values are safely ignored: pass')
+  assert.equal(calls.length, 1)
+  assert.equal(calls[0]?.fn, 'onCustomEvent')
+  assert.deepEqual(calls[0]?.args, {
+    name: 'some.other.event',
+    timestamp: undefined,
+    value: { anything: true },
+  })
+  console.log(
+    'malformed CUSTOM values are ignored and unrelated CUSTOM values are forwarded: pass',
+  )
 }
 
 // 8. RUN_ERROR / unrelated chunk types are ignored without throwing

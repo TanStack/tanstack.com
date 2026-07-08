@@ -20,10 +20,11 @@ export type ForgeChunkTranslationCtx = {
 
   /** TOOL_CALL_START/ARGS/END -> assistant tool-call activity. */
   onToolCall: (event: {
-    kind: 'start' | 'args' | 'end'
+    kind: 'start' | 'args' | 'end' | 'result'
     toolCallId: string
     toolCallName?: string
     delta?: string
+    result?: string
   }) => void
 
   /** REASONING_MESSAGE_* chunks -> assistant reasoning activity. */
@@ -56,6 +57,16 @@ export type ForgeChunkTranslationCtx = {
    * the actual manifest persistence.
    */
   finalizeManifest: (event: { path: string; diff: string }) => void
+
+  /**
+   * Any other `CUSTOM` chunk -> observability event. These used to be silently
+   * ignored, which made sandbox-side activity impossible to inspect from Forge.
+   */
+  onCustomEvent: (event: {
+    name: string
+    timestamp?: number
+    value: unknown
+  }) => void
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -182,8 +193,18 @@ export function translateChunk(
     case 'TOOL_CALL_END': {
       ctx.onToolCall({
         kind: 'end',
+        result: typeof chunk.result === 'string' ? chunk.result : undefined,
         toolCallId: chunk.toolCallId,
         toolCallName: chunk.toolCallName ?? chunk.toolName,
+      })
+      return
+    }
+
+    case 'TOOL_CALL_RESULT': {
+      ctx.onToolCall({
+        kind: 'result',
+        result: chunk.content,
+        toolCallId: chunk.toolCallId,
       })
       return
     }
@@ -244,6 +265,11 @@ export function translateChunk(
         return
       }
 
+      ctx.onCustomEvent({
+        name: chunk.name,
+        timestamp: chunk.timestamp,
+        value: chunk.value,
+      })
       return
     }
 

@@ -26,7 +26,17 @@ export function createForgeChatShellsCollection(queryClient: QueryClient) {
       getKey: (chat) => chat.id,
       queryClient,
       queryFn: async (): Promise<Array<ForgeChatShell>> => {
-        return (await getForgeChatShells()).chats
+        try {
+          return (await getForgeChatShells()).chats
+        } catch (error) {
+          console.error('Forge chat list could not load.', error)
+
+          return (
+            queryClient.getQueryData<Array<ForgeChatShell>>(
+              forgeChatShellsQueryKey,
+            ) ?? []
+          )
+        }
       },
       queryKey: forgeChatShellsQueryKey,
       onDelete: async ({ collection, transaction }) => {

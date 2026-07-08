@@ -15,10 +15,10 @@ import { readFileSync } from 'node:fs'
 //    a controlled failure mode below, matched by error message so an
 //    unrelated regression still fails loudly.
 // 2. Everything that actually matters for this task — that
-//    `proxyToSandbox(...)` runs and returns BEFORE the TanStack Start
-//    fallthrough, that `Sandbox` is re-exported, and that `RunCoordinator`
-//    is never referenced — is asserted statically against the `server.ts`
-//    SOURCE text, ordering included.
+//    `proxyToSandbox(...)` runs and resolves BEFORE the TanStack Start
+//    fallthrough, that `Sandbox`/`ContainerProxy` are exported from the
+//    entrypoint, and that `RunCoordinator` is never referenced — is asserted
+//    statically against the `server.ts` SOURCE text, ordering included.
 let importError: unknown
 try {
   await import('../src/server')
@@ -39,14 +39,35 @@ const serverSource = readFileSync(
   new URL('../src/server.ts', import.meta.url),
   'utf8',
 )
+const forgeRouteSource = readFileSync(
+  new URL('../src/routes/forge.tsx', import.meta.url),
+  'utf8',
+)
+const forgeChatApiSource = readFileSync(
+  new URL('../src/routes/api/forge/chat.ts', import.meta.url),
+  'utf8',
+)
+const localAgentSource = readFileSync(
+  new URL('../src/builder/runtime/local-agent.server.ts', import.meta.url),
+  'utf8',
+)
 
-// 1. `Sandbox` (the @cloudflare/sandbox container-host DO class) must be
-//    re-exported so wrangler's `class_name: "Sandbox"` binding resolves.
+// 1. `Sandbox` (the @cloudflare/sandbox container-host DO class) and
+//    `ContainerProxy` must be exported as concrete entrypoint classes so
+//    wrangler's `class_name: "Sandbox"` binding resolves and sandbox
+//    outbound interception can find `ctx.exports.ContainerProxy`.
 assert.ok(
-  /export\s*\{\s*Sandbox\s*\}\s*from\s*['"]@cloudflare\/sandbox['"]/.test(
+  /\bContainerProxy\b/.test(serverSource) &&
+    /Sandbox\s+as\s+CloudflareSandbox/.test(serverSource) &&
+    /export\s*\{\s*ContainerProxy\s*\}/.test(serverSource) &&
+    /export\s+class\s+Sandbox\s+extends\s+CloudflareSandbox/.test(serverSource),
+  'expected SDK ContainerProxy export and concrete Sandbox entrypoint class export in src/server.ts',
+)
+assert.ok(
+  !/export\s*\{[^}]*\bSandbox\b[^}]*\}\s*from\s*['"]@cloudflare\/sandbox['"]/.test(
     serverSource,
   ),
-  "expected `export { Sandbox } from '@cloudflare/sandbox'` in src/server.ts",
+  'expected src/server.ts not to rely on the old bare Sandbox re-export',
 )
 
 // 2. The existing `ForgeSessionDurableObject` re-export must still be there
@@ -66,15 +87,13 @@ assert.ok(
   'expected proxyToSandbox to be imported from @cloudflare/sandbox',
 )
 
-// 4. `proxyToSandbox(...)` must be called, and its result returned, BEFORE
-//    the Start handler fallthrough — checked within the exported Workers
-//    entrypoint (`export default { async fetch(request, env) { ... } }`),
-//    which is the actual fetch chain Workers invokes. (The inner
-//    `createServerEntry(...)`/`wrapFetchWithSentry(...)` closure, assigned
-//    to `server` above, textually precedes `export default` in the file but
-//    is only reached once `export default`'s `fetch` falls through to
-//    `server.fetch(...)` — so ordering is checked inside that block, not
-//    across the whole file.)
+// 4. `proxyToSandbox(...)` must be called, and a proxied result must be
+//    returned before the Start handler fallthrough — checked within the
+//    exported Workers entrypoint (`export default { async fetch(request, env)
+//    { ... } }`), which is the actual fetch chain Workers invokes. The result
+//    can pass through `repairBlockedForgePreviewRequest(...)` so blocked Vite
+//    host responses can be repaired without letting preview traffic reach the
+//    Start app.
 const exportDefaultIndex = serverSource.indexOf('export default {')
 assert.ok(
   exportDefaultIndex !== -1,
@@ -91,8 +110,15 @@ assert.ok(
 
 const proxyCallSlice = exportDefaultBlock.slice(proxyCallIndex)
 assert.ok(
-  /return proxied/.test(proxyCallSlice.slice(0, 200)),
-  'expected the proxyToSandbox(...) result to be returned (e.g. `if (proxied) return proxied`) shortly after the call',
+  /return\s+(?:proxied|repairBlockedForgePreviewRequest\()/.test(
+    proxyCallSlice.slice(0, 320),
+  ),
+  'expected the proxyToSandbox(...) result to be returned, either directly or through repairBlockedForgePreviewRequest(...), shortly after the call',
+)
+
+assert.ok(
+  serverSource.includes('async function repairBlockedForgePreviewRequest('),
+  'expected repairBlockedForgePreviewRequest(...) to be defined in src/server.ts',
 )
 
 // The fallthrough out of `export default`'s fetch is a delegate call to the
@@ -124,6 +150,61 @@ assert.ok(
 assert.ok(
   !serverSource.includes('RunCoordinator'),
   'expected src/server.ts to NOT reference RunCoordinator',
+)
+
+assert.ok(
+  !serverSource.includes('.wsConnect('),
+  'expected preview WebSocket traffic to flow through proxyToSandbox(...), not a custom sandbox.wsConnect(...) bridge',
+)
+
+// 6. Locally persisted quick-tunnel preview URLs are ephemeral DNS names. They
+//    must be migrated to deterministic worker-preview URLs, while a live
+//    worker-preview iframe must be left alone during active follow-up runs so
+//    Vite HMR can update it in place.
+assert.ok(
+  /function\s+shouldReconnectForgeSandboxPreviewUrl\([\s\S]*?if\s*\(\s*previewUrl\s*\)\s*\{\s*return\s+isLocalForgeQuickTunnelPreviewUrl\(previewUrl\)\s*\}[\s\S]*?if\s*\(\s*isActiveForgeRunStatus\(latestRun\?\.status\)\s*\)\s*\{\s*return\s+false\s*\}[\s\S]*?return\s+Boolean\(latestRun\)/.test(
+    forgeRouteSource,
+  ),
+  'expected Forge UI reconnect logic to migrate stale local trycloudflare preview URLs without touching active worker-preview iframes',
+)
+assert.ok(
+  /function\s+isLocalForgeQuickTunnelPreviewUrl\([\s\S]*?isLocalForgeAppHost\(window\.location\.hostname\)[\s\S]*?hostname\.endsWith\('\.trycloudflare\.com'\)/.test(
+    forgeRouteSource,
+  ),
+  'expected stale trycloudflare preview migration to be limited to local Forge hosts',
+)
+
+assert.ok(
+  forgeRouteSource.includes('lastKnownPreviewUrlsByChatId') &&
+    /freshSandboxPreviewUrl\s*\?\?\s*sandboxPreviewUrl\s*\?\?\s*lastKnownSandboxPreviewUrl/.test(
+      forgeRouteSource,
+    ),
+  'expected Forge UI to keep a sticky per-chat preview URL when follow-up run snapshots omit preview events',
+)
+assert.ok(
+  forgeRouteSource.includes('key={selectedChatId}') &&
+    /currentPreviewUrl\s*!==\s*previewUrl[\s\S]*isLocalForgeQuickTunnelPreviewUrl\(currentPreviewUrl\)[\s\S]*\?\s*previewUrl[\s\S]*:\s*currentPreviewUrl/.test(
+      forgeRouteSource,
+    ),
+  'expected the preview iframe src to stay immutable within a chat, except when migrating a stale local quick-tunnel URL',
+)
+assert.ok(
+  forgeRouteSource.includes('existingSandboxPreviewUrl') &&
+    forgeRouteSource.includes('previewUrl: existingSandboxPreviewUrl'),
+  'expected Forge chat requests to carry the current live preview URL into follow-up runs',
+)
+assert.ok(
+  forgeChatApiSource.includes('previewUrl?: string') &&
+    forgeChatApiSource.includes('readForgePreviewUrlInput') &&
+    forgeChatApiSource.includes('existingPreviewUrl: previewUrl'),
+  'expected /api/forge/chat to parse the current preview URL and pass it to startLocalForgeAgentRun',
+)
+assert.ok(
+  localAgentSource.includes('existingPreviewUrl?: string') &&
+    /existingPreviewUrl\s*\?\?\s*readLatestForgeSandboxPreviewUrlFromSnapshot/.test(
+      localAgentSource,
+    ),
+  'expected local Forge sandbox runs to prefer the UI-provided preview URL over run-centric snapshot events',
 )
 
 console.log('Forge sandbox worker routing verifier passed')

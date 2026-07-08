@@ -60,8 +60,8 @@
       "max_instances": 5,
     },
   ],
-  // routes: wildcard preview subdomain fronted by proxyToSandbox (forwards *.forge.tanstack.com
-  // requests into the matching sandbox container's exposed port).
+  // routes: wildcard preview subdomain fronted by proxyToSandbox (forwards
+  // *.forge.tanstack.com requests into the matching sandbox container port).
   "routes": [
     {
       "pattern": "*.forge.tanstack.com/*",
@@ -71,6 +71,9 @@
   "vars": {
     "SITE_URL": "https://tanstack.com",
     "PREVIEW_HOSTNAME": "forge.tanstack.com",
-    "SANDBOX_TRANSPORT": "http",
+    "FORGE_PREVIEW_URL_MODE": "auto",
+    "FORGE_PREVIEW_TUNNEL_MODE": "auto",
+    "FORGE_PREVIEW_TUNNEL_PREFIX": "forge",
+    "SANDBOX_TRANSPORT": "rpc",
   },
 }

@@ -82,7 +82,7 @@ const manifest: BuilderManifest = {
   sandbox: {
     devCommand: 'pnpm dev',
     installCommand: 'pnpm install',
-    previewPort: 3000,
+    previewPort: 5173,
     workdir: '/workspace',
   },
   schemaVersion: 1,

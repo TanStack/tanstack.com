@@ -39,14 +39,16 @@ assert.equal(
 const requiredRolloutSnippets = [
   'FORGE_ENABLED=false',
   'Runs require a browser-provided BYOK key by default.',
+  'Forge runs through the TanStack AI sandbox runtime.',
+  'injected into the sandbox as `CODEX_API_KEY`',
   'FORGE_BYOK_SEALING_KEY',
-  'Local dev uses Codex CLI by default',
-  'Production uses the TanStack AI harness by default.',
+  'CLOUDFLARE_API_TOKEN',
+  'SANDBOX_TRANSPORT=rpc',
+  'FORGE_PREVIEW_TUNNEL_MODE=auto',
   'FORGE_AUTH_BYPASS',
   'Leave `FORGE_AUTH_BYPASS` unset on the production domain.',
-  'FORGE_ENABLE_CODEX_CLI',
   'psql "$DATABASE_URL" -f scripts/sql/forge-production-readiness.sql',
-  'not the TanStack AI sandbox PR runtime',
+  'sandbox-backed runtime hardens',
 ]
 
 for (const snippet of requiredRolloutSnippets) {
@@ -59,6 +61,8 @@ const requiredWranglerSnippets = [
   '"FORGE_SESSIONS"',
   '"ForgeSessionDurableObject"',
   '"new_sqlite_classes"',
+  '"SANDBOX_TRANSPORT": "rpc"',
+  '"FORGE_PREVIEW_TUNNEL_MODE": "auto"',
 ]
 
 for (const snippet of requiredWranglerSnippets) {

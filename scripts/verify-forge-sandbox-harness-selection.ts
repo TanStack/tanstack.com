@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import {
   getLocalForgeHarness,
   hasForgeSandboxBinding,
+  shouldUseForgeSandboxHarness,
 } from '../src/builder/runtime/local-agent.server'
 import { setHostRuntimeEnvOverrideForTest } from '../src/server/runtime/host.server'
 
@@ -44,6 +45,16 @@ assert.equal(
   false,
   'a non-binding Sandbox value must not be detected',
 )
+assert.equal(
+  shouldUseForgeSandboxHarness({ Sandbox: fakeSandboxBinding }),
+  true,
+  'local dev with a Sandbox binding must select the sandbox harness',
+)
+assert.equal(
+  shouldUseForgeSandboxHarness({}),
+  false,
+  'a missing Sandbox binding must not select a fallback harness',
+)
 
 const byokCredential = {
   apiKey: 'sk-test-forge-byok',
@@ -51,52 +62,34 @@ const byokCredential = {
 }
 
 // --- tanstack-ai WITH a Sandbox binding selects the sandbox driver ----------
-process.env.FORGE_AGENT_HARNESS = 'tanstack-ai'
+process.env.NODE_ENV = 'development'
 setHostRuntimeEnvOverrideForTest({ Sandbox: fakeSandboxBinding })
 try {
   const harness = await getLocalForgeHarness(byokCredential)
-  assert.ok(harness, 'a harness must be selected for tanstack-ai + Sandbox')
+  assert.ok(harness, 'a harness must be selected with a Sandbox binding')
   assert.equal(harness.name, 'tanstack-ai')
   assert.equal(
     harness.label,
     'TanStack AI (Sandbox)',
-    'tanstack-ai + Sandbox binding must select the sandbox-driver harness',
+    'a Sandbox binding must select the sandbox-driver harness',
   )
 } finally {
   setHostRuntimeEnvOverrideForTest(undefined)
+  delete process.env.NODE_ENV
 }
 
-// --- codex-cli always selects the local sidecar path ------------------------
-process.env.FORGE_AGENT_HARNESS = 'codex-cli'
-setHostRuntimeEnvOverrideForTest({ Sandbox: fakeSandboxBinding })
-try {
-  const harness = await getLocalForgeHarness(byokCredential)
-  assert.ok(harness, 'the codex-cli harness must be selected')
-  assert.equal(
-    harness.name,
-    'codex-cli',
-    'codex-cli must keep the local sidecar path even when a Sandbox binding exists',
-  )
-  assert.equal(harness.label, 'Codex CLI')
-} finally {
-  setHostRuntimeEnvOverrideForTest(undefined)
-}
-
-// --- tanstack-ai with NO Sandbox binding falls back to the in-memory loop ---
-process.env.FORGE_AGENT_HARNESS = 'tanstack-ai'
+// --- NO Sandbox binding fails closed instead of falling back ----------------
 setHostRuntimeEnvOverrideForTest(undefined)
 try {
   const harness = await getLocalForgeHarness(byokCredential)
-  assert.ok(harness, 'the in-memory tanstack-ai fallback must be selected')
-  assert.equal(harness.name, 'tanstack-ai')
   assert.equal(
-    harness.label,
-    'TanStack AI',
-    'tanstack-ai with no Sandbox binding must fall back to the in-memory model loop',
+    harness,
+    null,
+    'Forge must not fall back without a Sandbox binding',
   )
 } finally {
   setHostRuntimeEnvOverrideForTest(undefined)
-  delete process.env.FORGE_AGENT_HARNESS
+  delete process.env.NODE_ENV
 }
 
 console.log('Forge sandbox harness selection verifier passed')

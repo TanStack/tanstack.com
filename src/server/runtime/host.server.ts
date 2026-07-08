@@ -46,11 +46,27 @@ function isHyperdriveBinding(
 }
 
 export function isIsolateRuntime(): boolean {
-  if ('WebSocketPair' in globalThis) return true
+  if ('WebSocketPair' in globalThis) {
+    return true
+  }
+
+  const userAgent =
+    typeof navigator !== 'undefined' ? navigator.userAgent : undefined
+
+  if (
+    typeof userAgent === 'string' &&
+    /\b(cloudflare|workerd|miniflare)\b/i.test(userAgent)
+  ) {
+    return true
+  }
+
+  const runtimeVersions =
+    typeof process !== 'undefined' ? process.versions : undefined
 
   return (
-    typeof navigator !== 'undefined' &&
-    navigator.userAgent === 'Cloudflare-Workers'
+    typeof runtimeVersions === 'object' &&
+    runtimeVersions !== null &&
+    'workerd' in runtimeVersions
   )
 }
 

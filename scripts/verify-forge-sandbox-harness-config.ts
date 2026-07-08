@@ -15,7 +15,7 @@ import assert from 'node:assert/strict'
 //    mode below, matched by error message so an unrelated regression still
 //    fails loudly.
 // 2. `runForgeSandboxAgent`'s wiring — the Codex model/sandbox-mode
-//    selection, the `withSandbox` middleware, the `exposeForgePreview` tool,
+//    selection, the `withSandbox` middleware, Forge-owned preview lifecycle,
 //    and the raw (untranslated) `onChunk` forwarding — is verified directly
 //    against the implementation SOURCE, mirroring the static-source-assertion
 //    approach `verify-forge-sandbox-definition.ts` and
@@ -49,9 +49,10 @@ if (importError) {
 }
 
 // The per-provider adapters (`codexText`/`claudeCodeText`), `withSandbox`,
-// `exposeForgePreview`, and the raw-chunk forwarding cannot be exercised
-// end-to-end without a live sandbox + Workers runtime (a real coding-agent run
-// streaming real StreamChunks), so assert the implementation source directly.
+// Forge-owned preview lifecycle, and the raw-chunk forwarding cannot be
+// exercised end-to-end without a live sandbox + Workers runtime (a real
+// coding-agent run streaming real StreamChunks), so assert the implementation
+// source directly.
 const { readFileSync } = await import('node:fs')
 const implementationSource = readFileSync(
   new URL('../src/builder/runtime/sandbox-agent.server.ts', import.meta.url),
@@ -89,12 +90,56 @@ assert.ok(
   'expected each provider key to inject under its own sandbox env var',
 )
 assert.ok(
+  implementationSource.includes("approvalPolicy: 'never'"),
+  'expected runForgeSandboxAgent to run Codex non-interactively',
+)
+assert.ok(
+  implementationSource.includes('networkAccessEnabled: true'),
+  'expected runForgeSandboxAgent to allow network access inside Codex when needed',
+)
+assert.ok(
+  implementationSource.includes('cwd: FORGE_SANDBOX_APP_DIR'),
+  'expected Codex to run from /workspace/app so it edits the app root directly',
+)
+assert.ok(
+  implementationSource.includes('workingDirectory: FORGE_SANDBOX_APP_DIR'),
+  'expected Codex modelOptions to repeat /workspace/app as the harness working directory',
+)
+assert.ok(
+  implementationSource.includes('sessionId: codexSessionId'),
+  'expected runForgeSandboxAgent to resume the Codex thread when Forge has a prior sandbox session id',
+)
+assert.ok(
+  !implementationSource.includes("materializeMode: 'if-missing'"),
+  'expected sandbox runs to reconcile from the persisted manifest marker, not skip warm workspaces by package.json',
+)
+assert.ok(
   implementationSource.includes('withSandbox('),
   'expected runForgeSandboxAgent to wire the withSandbox middleware',
 )
 assert.ok(
-  implementationSource.includes('exposeForgePreview('),
-  'expected runForgeSandboxAgent to expose the exposeForgePreview tool',
+  implementationSource.includes('ensureForgeSandboxPreview('),
+  'expected runForgeSandboxAgent to start and expose the preview during sandbox onReady',
+)
+assert.ok(
+  !implementationSource.includes('void ensureForgeSandboxPreview('),
+  'expected sandbox onReady to await preview startup before the coding agent edits files',
+)
+assert.ok(
+  implementationSource.includes('existingPreviewUrl?: string'),
+  'expected sandbox runs to accept an existing preview URL for warm preview reuse',
+)
+assert.ok(
+  implementationSource.includes('if (existingPreviewUrl)'),
+  'expected warm sandbox preview reuse to skip preview startup/re-exposure when the chat already has a preview URL',
+)
+assert.ok(
+  !implementationSource.includes('forgeSandboxPreviewDevServerHasHmrPath('),
+  'expected follow-up runs not to probe/restart an already-exposed preview server',
+)
+assert.ok(
+  implementationSource.includes('tools: []'),
+  'expected runForgeSandboxAgent not to expose preview tools to the coding agent',
 )
 assert.ok(
   implementationSource.includes('forgePersistenceHooks('),

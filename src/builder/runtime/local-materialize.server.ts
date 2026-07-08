@@ -542,10 +542,7 @@ async function writeManifestWorkspace({
   manifest: BuilderManifest
   workspacePath: string
 }) {
-  await rm(workspacePath, {
-    force: true,
-    recursive: true,
-  })
+  await removeWorkspaceIfPresent(workspacePath)
   await mkdir(workspacePath, { recursive: true })
 
   for (const file of Object.values(manifest.files)) {
@@ -567,6 +564,21 @@ async function writeManifestWorkspace({
     manifest,
     workspacePath,
   })
+}
+
+async function removeWorkspaceIfPresent(workspacePath: string) {
+  try {
+    await rm(workspacePath, {
+      force: true,
+      recursive: true,
+    })
+  } catch (error) {
+    if (getErrorCode(error) === 'ENOENT') {
+      return
+    }
+
+    throw error
+  }
 }
 
 async function writePackageManagerWorkspaceFiles({

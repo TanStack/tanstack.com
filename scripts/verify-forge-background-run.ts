@@ -5,13 +5,11 @@ import path from 'node:path'
 
 const originalAnthropicApiKey = process.env.ANTHROPIC_API_KEY
 const originalCwd = process.cwd()
-const originalHarness = process.env.FORGE_AGENT_HARNESS
 const originalOpenAiApiKey = process.env.OPENAI_API_KEY
 const runtimeRoot = await mkdtemp(path.join(os.tmpdir(), 'forge-background-'))
 
 delete process.env.ANTHROPIC_API_KEY
 delete process.env.OPENAI_API_KEY
-process.env.FORGE_AGENT_HARNESS = 'tanstack-ai'
 process.chdir(runtimeRoot)
 
 try {
@@ -48,7 +46,7 @@ try {
   assert.equal(failedSnapshot.latestRun?.status, 'failed')
   assert.match(
     failedSnapshot.latestRun?.error ?? '',
-    /OPENAI_API_KEY or ANTHROPIC_API_KEY/,
+    /Cloudflare Sandbox binding/,
   )
 
   await withLocalForgeLock({
@@ -59,8 +57,6 @@ try {
   })
 } finally {
   process.chdir(originalCwd)
-
-  restoreEnvVar('FORGE_AGENT_HARNESS', originalHarness)
 
   if (originalAnthropicApiKey === undefined) {
     delete process.env.ANTHROPIC_API_KEY

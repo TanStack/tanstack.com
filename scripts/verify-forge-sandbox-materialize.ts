@@ -9,7 +9,7 @@ import type {
   BuilderManifest,
 } from '../src/builder/schema'
 
-const { forgePersistenceHooks } =
+const { forgePersistenceHooks, isIgnoredForgeWorkspaceFileEvent } =
   await import('../src/builder/runtime/sandbox-r2-persistence.server')
 
 const projectId = 'manifest:fixture/current'
@@ -50,7 +50,7 @@ const manifest: BuilderManifest = {
   sandbox: {
     devCommand: 'pnpm dev',
     installCommand: 'pnpm install',
-    previewPort: 3000,
+    previewPort: 5173,
     workdir: '/workspace',
   },
   schemaVersion: 1,
@@ -213,6 +213,79 @@ try {
 
     console.log(
       '[verify-forge-sandbox-materialize] onFile mirrored the changed file to R2 and recorded an activity event',
+    )
+  }
+
+  // 4) Generated/build output should never appear as live activity or R2
+  // mirrors. The final manifest scanner already ignores these paths; this
+  // keeps the live feed equally focused on user-editable source.
+  {
+    assert.equal(
+      isIgnoredForgeWorkspaceFileEvent('/workspace/app/dist/client/app.js'),
+      true,
+    )
+    assert.equal(
+      isIgnoredForgeWorkspaceFileEvent('/workspace/app/.tanstack/tmp.ts'),
+      true,
+    )
+    assert.equal(
+      isIgnoredForgeWorkspaceFileEvent('/workspace/app/.cta.json'),
+      true,
+    )
+    assert.equal(
+      isIgnoredForgeWorkspaceFileEvent(
+        '/workspace/app/node_modules/react/index.js',
+      ),
+      true,
+    )
+    assert.equal(
+      isIgnoredForgeWorkspaceFileEvent('/workspace/app/src/routes/index.tsx'),
+      false,
+    )
+    assert.equal(isIgnoredForgeWorkspaceFileEvent('/workspace/README.md'), true)
+
+    const storage = createMemoryBlobStorage()
+    const { resetLocalForgeRuntime, readLocalForgeTimeline } =
+      await import('../src/builder/runtime/local-store.server')
+    await resetLocalForgeRuntime()
+
+    const handle = createFakeSandboxHandle()
+    const hooks = forgePersistenceHooks({
+      env: { FORGE_RUNTIME: storage },
+      manifestVersionId: projectId,
+      runId: 'run-fixture',
+    })
+
+    assert.ok(hooks.onReady && hooks.onFile)
+    await hooks.onReady(handle)
+    await handle.fs.write('/workspace/app/dist/client/app.js', 'generated')
+
+    hooks.onFile({
+      path: '/workspace/app/dist/client/app.js',
+      timestamp: Date.now(),
+      type: 'create',
+    })
+
+    await hooks.flush()
+
+    const mirroredKeys = (
+      await storage.list({ prefix: 'forge/v1/blobs/' })
+    ).objects.map((object) => object.key)
+    assert.deepEqual(mirroredKeys, [])
+
+    const timeline = await readLocalForgeTimeline()
+    assert.equal(
+      timeline.some(
+        (event) =>
+          event.type === 'workflow.event.recorded' &&
+          event.payload.name.startsWith('workflow.sandbox.file.'),
+      ),
+      false,
+      'expected generated dist writes to be omitted from sandbox file activity',
+    )
+
+    console.log(
+      '[verify-forge-sandbox-materialize] generated sandbox file events are ignored',
     )
   }
 } finally {

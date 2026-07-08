@@ -104,6 +104,7 @@ import { Route as ApiGithubWebhookRouteImport } from './routes/api/github/webhoo
 import { Route as ApiForgeProofRouteImport } from './routes/api/forge/proof'
 import { Route as ApiForgeEventsRouteImport } from './routes/api/forge/events'
 import { Route as ApiForgeDownloadRouteImport } from './routes/api/forge/download'
+import { Route as ApiForgeChatRouteImport } from './routes/api/forge/chat'
 import { Route as ApiExampleDeployRouteImport } from './routes/api/example/deploy'
 import { Route as ApiDiscordInteractionsRouteImport } from './routes/api/discord/interactions'
 import { Route as ApiDataPartnersRouteImport } from './routes/api/data/partners'
@@ -145,6 +146,7 @@ import { Route as LibraryAiVersionIndexRouteImport } from './routes/_library/ai.
 import { Route as LibraryLibraryIdVersionIndexRouteImport } from './routes/_library/$libraryId/$version.index'
 import { Route as IntentRegistryPackageNameChar123Char125DotmdRouteImport } from './routes/intent/registry/$packageName.{$}[.]md'
 import { Route as IntentRegistryPackageNameSkillNameRouteImport } from './routes/intent/registry/$packageName.$skillName'
+import { Route as ApiForgePreviewReconnectRouteImport } from './routes/api/forge/preview/reconnect'
 import { Route as ApiForgeExportGithubRouteImport } from './routes/api/forge/export/github'
 import { Route as ApiBuilderDeployGithubRouteImport } from './routes/api/builder/deploy/github'
 import { Route as ApiBuilderDeployCheckNameRouteImport } from './routes/api/builder/deploy/check-name'
@@ -644,6 +646,11 @@ const ApiForgeDownloadRoute = ApiForgeDownloadRouteImport.update({
   path: '/api/forge/download',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiForgeChatRoute = ApiForgeChatRouteImport.update({
+  id: '/api/forge/chat',
+  path: '/api/forge/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiExampleDeployRoute = ApiExampleDeployRouteImport.update({
   id: '/api/example/deploy',
   path: '/api/example/deploy',
@@ -871,6 +878,12 @@ const IntentRegistryPackageNameSkillNameRoute =
     path: '/$skillName',
     getParentRoute: () => IntentRegistryPackageNameRoute,
   } as any)
+const ApiForgePreviewReconnectRoute =
+  ApiForgePreviewReconnectRouteImport.update({
+    id: '/api/forge/preview/reconnect',
+    path: '/api/forge/preview/reconnect',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiForgeExportGithubRoute = ApiForgeExportGithubRouteImport.update({
   id: '/api/forge/export/github',
   path: '/api/forge/export/github',
@@ -1089,6 +1102,7 @@ export interface FileRoutesByFullPath {
   '/api/data/partners': typeof ApiDataPartnersRoute
   '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
   '/api/example/deploy': typeof ApiExampleDeployRoute
+  '/api/forge/chat': typeof ApiForgeChatRoute
   '/api/forge/download': typeof ApiForgeDownloadRoute
   '/api/forge/events': typeof ApiForgeEventsRoute
   '/api/forge/proof': typeof ApiForgeProofRoute
@@ -1118,6 +1132,7 @@ export interface FileRoutesByFullPath {
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
   '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
   '/api/forge/export/github': typeof ApiForgeExportGithubRoute
+  '/api/forge/preview/reconnect': typeof ApiForgePreviewReconnectRoute
   '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
   '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   '/$libraryId/$version/': typeof LibraryLibraryIdVersionIndexRoute
@@ -1239,6 +1254,7 @@ export interface FileRoutesByTo {
   '/api/data/partners': typeof ApiDataPartnersRoute
   '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
   '/api/example/deploy': typeof ApiExampleDeployRoute
+  '/api/forge/chat': typeof ApiForgeChatRoute
   '/api/forge/download': typeof ApiForgeDownloadRoute
   '/api/forge/events': typeof ApiForgeEventsRoute
   '/api/forge/proof': typeof ApiForgeProofRoute
@@ -1266,6 +1282,7 @@ export interface FileRoutesByTo {
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
   '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
   '/api/forge/export/github': typeof ApiForgeExportGithubRoute
+  '/api/forge/preview/reconnect': typeof ApiForgePreviewReconnectRoute
   '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
   '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   '/$libraryId/$version': typeof LibraryLibraryIdVersionIndexRoute
@@ -1397,6 +1414,7 @@ export interface FileRoutesById {
   '/api/data/partners': typeof ApiDataPartnersRoute
   '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
   '/api/example/deploy': typeof ApiExampleDeployRoute
+  '/api/forge/chat': typeof ApiForgeChatRoute
   '/api/forge/download': typeof ApiForgeDownloadRoute
   '/api/forge/events': typeof ApiForgeEventsRoute
   '/api/forge/proof': typeof ApiForgeProofRoute
@@ -1426,6 +1444,7 @@ export interface FileRoutesById {
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
   '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
   '/api/forge/export/github': typeof ApiForgeExportGithubRoute
+  '/api/forge/preview/reconnect': typeof ApiForgePreviewReconnectRoute
   '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
   '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   '/_library/$libraryId/$version/': typeof LibraryLibraryIdVersionIndexRoute
@@ -1557,6 +1576,7 @@ export interface FileRouteTypes {
     | '/api/data/partners'
     | '/api/discord/interactions'
     | '/api/example/deploy'
+    | '/api/forge/chat'
     | '/api/forge/download'
     | '/api/forge/events'
     | '/api/forge/proof'
@@ -1586,6 +1606,7 @@ export interface FileRouteTypes {
     | '/api/builder/deploy/check-name'
     | '/api/builder/deploy/github'
     | '/api/forge/export/github'
+    | '/api/forge/preview/reconnect'
     | '/intent/registry/$packageName/$skillName'
     | '/intent/registry/$packageName/{$}.md'
     | '/$libraryId/$version/'
@@ -1707,6 +1728,7 @@ export interface FileRouteTypes {
     | '/api/data/partners'
     | '/api/discord/interactions'
     | '/api/example/deploy'
+    | '/api/forge/chat'
     | '/api/forge/download'
     | '/api/forge/events'
     | '/api/forge/proof'
@@ -1734,6 +1756,7 @@ export interface FileRouteTypes {
     | '/api/builder/deploy/check-name'
     | '/api/builder/deploy/github'
     | '/api/forge/export/github'
+    | '/api/forge/preview/reconnect'
     | '/intent/registry/$packageName/$skillName'
     | '/intent/registry/$packageName/{$}.md'
     | '/$libraryId/$version'
@@ -1864,6 +1887,7 @@ export interface FileRouteTypes {
     | '/api/data/partners'
     | '/api/discord/interactions'
     | '/api/example/deploy'
+    | '/api/forge/chat'
     | '/api/forge/download'
     | '/api/forge/events'
     | '/api/forge/proof'
@@ -1893,6 +1917,7 @@ export interface FileRouteTypes {
     | '/api/builder/deploy/check-name'
     | '/api/builder/deploy/github'
     | '/api/forge/export/github'
+    | '/api/forge/preview/reconnect'
     | '/intent/registry/$packageName/$skillName'
     | '/intent/registry/$packageName/{$}.md'
     | '/_library/$libraryId/$version/'
@@ -1995,6 +2020,7 @@ export interface RootRouteChildren {
   ApiDataPartnersRoute: typeof ApiDataPartnersRoute
   ApiDiscordInteractionsRoute: typeof ApiDiscordInteractionsRoute
   ApiExampleDeployRoute: typeof ApiExampleDeployRoute
+  ApiForgeChatRoute: typeof ApiForgeChatRoute
   ApiForgeDownloadRoute: typeof ApiForgeDownloadRoute
   ApiForgeEventsRoute: typeof ApiForgeEventsRoute
   ApiForgeProofRoute: typeof ApiForgeProofRoute
@@ -2013,6 +2039,7 @@ export interface RootRouteChildren {
   ApiBuilderDeployCheckNameRoute: typeof ApiBuilderDeployCheckNameRoute
   ApiBuilderDeployGithubRoute: typeof ApiBuilderDeployGithubRoute
   ApiForgeExportGithubRoute: typeof ApiForgeExportGithubRoute
+  ApiForgePreviewReconnectRoute: typeof ApiForgePreviewReconnectRoute
   ApiAuthCliStatusTicketIdRoute: typeof ApiAuthCliStatusTicketIdRoute
 }
 
@@ -2683,6 +2710,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiForgeDownloadRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/forge/chat': {
+      id: '/api/forge/chat'
+      path: '/api/forge/chat'
+      fullPath: '/api/forge/chat'
+      preLoaderRoute: typeof ApiForgeChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/example/deploy': {
       id: '/api/example/deploy'
       path: '/api/example/deploy'
@@ -2969,6 +3003,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/intent/registry/$packageName/$skillName'
       preLoaderRoute: typeof IntentRegistryPackageNameSkillNameRouteImport
       parentRoute: typeof IntentRegistryPackageNameRoute
+    }
+    '/api/forge/preview/reconnect': {
+      id: '/api/forge/preview/reconnect'
+      path: '/api/forge/preview/reconnect'
+      fullPath: '/api/forge/preview/reconnect'
+      preLoaderRoute: typeof ApiForgePreviewReconnectRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/forge/export/github': {
       id: '/api/forge/export/github'
@@ -3470,6 +3511,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiDataPartnersRoute: ApiDataPartnersRoute,
   ApiDiscordInteractionsRoute: ApiDiscordInteractionsRoute,
   ApiExampleDeployRoute: ApiExampleDeployRoute,
+  ApiForgeChatRoute: ApiForgeChatRoute,
   ApiForgeDownloadRoute: ApiForgeDownloadRoute,
   ApiForgeEventsRoute: ApiForgeEventsRoute,
   ApiForgeProofRoute: ApiForgeProofRoute,
@@ -3488,6 +3530,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiBuilderDeployCheckNameRoute: ApiBuilderDeployCheckNameRoute,
   ApiBuilderDeployGithubRoute: ApiBuilderDeployGithubRoute,
   ApiForgeExportGithubRoute: ApiForgeExportGithubRoute,
+  ApiForgePreviewReconnectRoute: ApiForgePreviewReconnectRoute,
   ApiAuthCliStatusTicketIdRoute: ApiAuthCliStatusTicketIdRoute,
 }
 export const routeTree = rootRouteImport

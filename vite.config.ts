@@ -11,6 +11,7 @@ import { analyzer } from 'vite-bundle-analyzer'
 import viteReact from '@vitejs/plugin-react'
 import fs from 'node:fs'
 import { createRequire } from 'node:module'
+import type { IncomingMessage, ServerResponse } from 'node:http'
 import os from 'node:os'
 import path from 'node:path'
 
@@ -68,6 +69,73 @@ function edgeTakumiWasmImport(): PluginOption {
       )
     },
   }
+}
+
+type ViteMiddlewareRequest = IncomingMessage & {
+  originalUrl?: string
+  url?: string
+}
+
+type ViteMiddlewareNext = (error?: unknown) => void
+
+type ViteMiddleware = (
+  request: ViteMiddlewareRequest,
+  response: ServerResponse,
+  next: ViteMiddlewareNext,
+) => void | Promise<void>
+
+function forgeSandboxPreviewDevProxy(): PluginOption {
+  return {
+    name: 'forge-sandbox-preview-dev-proxy',
+    apply: 'serve',
+    configureServer(viteDevServer) {
+      return () => {
+        const stack = viteDevServer.middlewares.stack
+        const maybeCloudflareFallback = stack[stack.length - 1]?.handle
+
+        if (!isViteMiddleware(maybeCloudflareFallback)) {
+          return
+        }
+
+        const cloudflareFallback = maybeCloudflareFallback
+
+        viteDevServer.middlewares.use(
+          function forgeSandboxPreviewDevProxyMiddleware(
+            request,
+            response,
+            next,
+          ) {
+            if (!isForgeSandboxPreviewDevRequest(request)) {
+              next()
+              return
+            }
+
+            return cloudflareFallback(request, response, next)
+          },
+        )
+
+        const proxyEntry = stack.pop()
+
+        if (proxyEntry) {
+          stack.unshift(proxyEntry)
+        }
+      }
+    },
+  }
+}
+
+function isViteMiddleware(value: unknown): value is ViteMiddleware {
+  return typeof value === 'function' && value.length < 4
+}
+
+function isForgeSandboxPreviewDevRequest(request: ViteMiddlewareRequest) {
+  const host = request.headers.host
+  const hostname = Array.isArray(host) ? host[0] : host
+
+  return (
+    typeof hostname === 'string' &&
+    /^\d{4,5}-[a-z0-9-]+-[a-z0-9_]+\.localhost(?::\d+)?$/i.test(hostname)
+  )
 }
 
 // Runtime-specific `react-dom/server` variants aren't in @tanstack/redact/vite's
@@ -160,6 +228,7 @@ export default defineConfig({
     ],
   },
   server: {
+    allowedHosts: true,
     port: Number(process.env.PORT) || 3000,
     // WebContainer headers for /builder route (SharedArrayBuffer support)
     headers: {
@@ -273,6 +342,7 @@ export default defineConfig({
     cloudflare({
       viteEnvironment: { name: 'ssr' },
     }),
+    forgeSandboxPreviewDevProxy(),
     ...(shouldUseRedact
       ? [
           redact(

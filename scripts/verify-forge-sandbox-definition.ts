@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { createHash } from 'node:crypto'
 import {
   createSecrets,
   defineSandbox,
@@ -11,8 +12,7 @@ import {
 // That module specifier, and the Workers-runtime globals its classes rely
 // on, only exist inside the real Workers runtime (or under
 // `wrangler`/`vitest-pool-workers`, neither of which this repo's plain
-// `tsx`-based `test:forge-*` scripts use — see `dev:forge-sidecar` /
-// every other `test:forge-*` entry). Every attempt to shim just
+// `tsx`-based `test:forge-*` scripts use. Every attempt to shim just
 // `cloudflare:workers` still bottoms out on `@cloudflare/containers`
 // failing to load under plain Node/tsx, so `buildForgeSandbox` — which
 // necessarily imports `cloudflareSandbox` from
@@ -59,9 +59,9 @@ if (importError) {
   // Node (e.g. an environment-conditional export lands upstream), exercise
   // it directly — this is the strongest possible assertion and should be
   // preferred the moment it becomes available.
-  const fakeBinding = {} as DurableObjectNamespace<
-    import('@cloudflare/sandbox').Sandbox
-  >
+  type LiveBuildForgeSandbox = NonNullable<typeof liveBuildForgeSandbox>
+  const fakeBinding =
+    {} as Parameters<LiveBuildForgeSandbox>[0]['env']['Sandbox']
 
   // Each BYOK provider injects the caller's key under a different env var so
   // only that provider's baked CLI can authenticate.
@@ -103,6 +103,10 @@ if (importError) {
 const threadId = 'thread-123'
 const projectId = 'project-abc'
 const byokKey = 'sk-test-dummy-key'
+const referenceSandboxId = `forge-${createHash('sha256')
+  .update(`${projectId}:${threadId}`)
+  .digest('hex')
+  .slice(0, 40)}`
 
 const fakeCloudflareLikeProvider = {
   name: 'cloudflare' as const,
@@ -134,7 +138,7 @@ for (const { provider, secret } of [
   { provider: 'anthropic' as const, secret: 'ANTHROPIC_API_KEY' },
 ]) {
   const referenceDefinition = defineSandbox({
-    id: `forge-${projectId}-${threadId}`,
+    id: referenceSandboxId,
     lifecycle: {
       reuse: 'thread',
     },
@@ -145,7 +149,7 @@ for (const { provider, secret } of [
     }),
   })
 
-  assert.equal(referenceDefinition.id, 'forge-project-abc-thread-123')
+  assert.equal(referenceDefinition.id, referenceSandboxId)
   assert.equal(referenceDefinition.provider.name, 'cloudflare')
   assert.equal(referenceDefinition.workspace?.source.type, 'none')
 
@@ -177,6 +181,8 @@ const implementationSource = readFileSync(
 assert.ok(implementationSource.includes('cloudflareSandbox('))
 assert.ok(implementationSource.includes("'forge.tanstack.com'"))
 assert.ok(implementationSource.includes('previewHostname'))
-assert.ok(implementationSource.includes("transport: 'http'"))
+assert.ok(
+  implementationSource.includes('transport: FORGE_SANDBOX_OPTIONS.transport'),
+)
 
 console.log('Forge sandbox definition verifier passed')

@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useLiveQuery } from '@tanstack/react-db'
 import { useQueryClient } from '@tanstack/react-query'
 import { useHotkey } from '@tanstack/react-hotkeys'
 import {
@@ -16,7 +15,7 @@ import {
   Trash2,
   Zap,
 } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import {
   Dropdown,
   DropdownContent,
@@ -25,14 +24,13 @@ import {
 } from '~/components/Dropdown'
 import {
   createForgeChatShell,
+  deleteForgeChatShell,
+  getForgeChatShells,
   getForgeRunConfig,
   type ForgeBrowserProviderKey,
   type ForgeChatShell,
 } from '~/utils/forge.functions'
-import {
-  createForgeChatShellsCollection,
-  forgeChatShellsQueryKey,
-} from '~/utils/forge-collections'
+import { forgeChatShellsQueryKey } from '~/utils/forge-collections'
 import { writeForgePendingLaunch } from '~/utils/forge-pending-launch'
 import { ForgeByokMenu } from '~/components/forge/ForgeByokMenu'
 import { seo } from '~/utils/seo'
@@ -54,22 +52,11 @@ function ForgeNewRoute() {
   const [browserProviderKey, setBrowserProviderKey] =
     useState<ForgeBrowserProviderKey>()
   const [error, setError] = useState<string | null>(null)
+  const [chats, setChats] = useState<Array<ForgeChatShell>>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [runRequiresProviderKey, setRunRequiresProviderKey] = useState(false)
   const promptFormRef = useRef<HTMLFormElement>(null)
   const promptTextareaRef = useRef<HTMLTextAreaElement>(null)
-  const chatShellsCollection = useMemo(
-    () => createForgeChatShellsCollection(queryClient),
-    [queryClient],
-  )
-  const chatShellsQuery = useLiveQuery(
-    (query) =>
-      query
-        .from({ chat: chatShellsCollection })
-        .orderBy(({ chat }) => chat.updatedAt, 'desc'),
-    [chatShellsCollection],
-  )
-  const chats = chatShellsQuery.data ?? []
   const isMissingRequiredProviderKey =
     runRequiresProviderKey && !browserProviderKey
   const missingProviderKeyText =
@@ -80,6 +67,28 @@ function ForgeNewRoute() {
   useEffect(() => {
     promptTextareaRef.current?.focus()
   }, [])
+
+  useEffect(() => {
+    let cancelled = false
+
+    void getForgeChatShells()
+      .then((result) => {
+        if (!cancelled) {
+          setChats(result.chats)
+          queryClient.setQueryData(forgeChatShellsQueryKey, result.chats)
+          setRunRequiresProviderKey(result.runRequiresProviderKey)
+        }
+      })
+      .catch((chatListError: unknown) => {
+        if (!cancelled) {
+          console.error('Forge chat list could not load.', chatListError)
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [queryClient])
 
   useEffect(() => {
     let cancelled = false
@@ -130,6 +139,10 @@ function ForgeNewRoute() {
   )
 
   function upsertChatShell(chat: ForgeChatShell) {
+    setChats((currentChats) => [
+      chat,
+      ...currentChats.filter((item) => item.id !== chat.id),
+    ])
     queryClient.setQueryData<Array<ForgeChatShell>>(
       forgeChatShellsQueryKey,
       (currentChats) => [
@@ -196,29 +209,25 @@ function ForgeNewRoute() {
     }
 
     setError(null)
+    setChats((currentChats) =>
+      currentChats.filter((chat) => chat.id !== chatId),
+    )
 
-    try {
-      const transaction = chatShellsCollection.delete(chatId)
-
-      void transaction.isPersisted.promise.catch(
-        async (deleteError: unknown) => {
-          setError(
-            deleteError instanceof Error
-              ? deleteError.message
-              : 'Forge chat could not delete.',
-          )
-          await queryClient.invalidateQueries({
-            queryKey: forgeChatShellsQueryKey,
-          })
-        },
-      )
-    } catch (deleteError) {
-      setError(
-        deleteError instanceof Error
-          ? deleteError.message
-          : 'Forge chat could not delete.',
-      )
-    }
+    void deleteForgeChatShell({ data: { chatId } })
+      .then((result) => {
+        setChats(result.chats)
+        queryClient.setQueryData(forgeChatShellsQueryKey, result.chats)
+      })
+      .catch(async (deleteError: unknown) => {
+        setError(
+          deleteError instanceof Error
+            ? deleteError.message
+            : 'Forge chat could not delete.',
+        )
+        await queryClient.invalidateQueries({
+          queryKey: forgeChatShellsQueryKey,
+        })
+      })
   }
 
   return (

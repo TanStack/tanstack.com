@@ -5,7 +5,7 @@
  * network (plain `fetch`, no mocking) and asserts the sandbox path works
  * end-to-end: trigger a run, stream `/api/forge/events` (SSE), and observe
  * sandbox file activity, a finalized manifest, and a live
- * `*.forge.tanstack.com` preview URL.
+ * sandbox tunnel preview URL.
  *
  * It CANNOT run in this repo/CI without a real Cloudflare deploy, so it is
  * gated on env vars (see below) and SKIPS cleanly (prints a `DEFERRED`
@@ -15,14 +15,12 @@
  *
  * Prerequisites (see `docs/ops/forge-production-rollout.md`):
  * - A Cloudflare deploy of this Worker with the Containers plan enabled and
- *   the `*.forge.tanstack.com` preview route wired up
- *   (`exposeForgePreview` in `src/builder/runtime/sandbox-preview-tool.server.ts`).
+ *   Sandbox SDK tunnel previews available over RPC transport.
  * - The `tanstack-forge-runtime` R2 bucket bound as `FORGE_RUNTIME` (durable
  *   file blobs / manifest snapshots / session state — see the "Cloudflare
  *   Bindings" section of the rollout doc).
  * - The `FORGE_BYOK_SEALING_KEY` Worker secret set (BYOK sealing).
- * - A user session with the `forge` capability granted, running with
- *   `FORGE_AGENT_HARNESS=tanstack-ai` (the production default) against the
+ * - A user session with the `forge` capability granted, running against the
  *   sandbox runtime (NOT `FORGE_AUTH_BYPASS`/local-runtime PoC mode).
  *
  * Required env vars (ALL must be set, or this script skips):
@@ -64,6 +62,8 @@
  * the stream observe the same authenticated session.
  */
 
+export {}
+
 const REQUIRED_ENV_VARS = [
   'FORGE_E2E_BASE_URL',
   'FORGE_E2E_AUTH',
@@ -71,7 +71,7 @@ const REQUIRED_ENV_VARS = [
 ] as const
 
 const DEFERRED_MESSAGE =
-  '[verify-forge-sandbox-e2e] DEFERRED: set FORGE_E2E_BASE_URL / FORGE_E2E_AUTH / FORGE_E2E_CODEX_KEY to run the real-deploy E2E (requires a Cloudflare deploy with Containers + the *.forge.tanstack.com route).'
+  '[verify-forge-sandbox-e2e] DEFERRED: set FORGE_E2E_BASE_URL / FORGE_E2E_AUTH / FORGE_E2E_CODEX_KEY to run the real-deploy E2E (requires a Cloudflare deploy with Containers + Sandbox SDK tunnel previews).'
 
 function readEnv() {
   const missing = REQUIRED_ENV_VARS.filter((name) => !process.env[name])
@@ -102,7 +102,7 @@ function requireEnvVar(name: string): string {
 
 const PROMPT = 'build a kanban board'
 const PREVIEW_URL_PATTERN =
-  /https:\/\/[a-z0-9.-]+\.forge\.tanstack\.com[^\s"']*/i
+  /https:\/\/[a-z0-9.-]+(?:\.trycloudflare\.(?:com|app)|\.tanstack\.com)[^\s"']*/i
 
 interface SseEvent {
   event?: string
@@ -434,7 +434,7 @@ async function assertFollowUpRunPreservesState(
 
   if (!observations.previewUrl) {
     throw new Error(
-      'Follow-up run on the same thread produced no forge.tanstack.com preview URL.',
+      'Follow-up run on the same thread produced no sandbox tunnel preview URL.',
     )
   }
 
@@ -481,7 +481,7 @@ async function main() {
 
   if (!observations.previewUrl) {
     throw new Error(
-      'Did not observe an assistant/tool event carrying a *.forge.tanstack.com preview URL.',
+      'Did not observe a workflow event carrying a sandbox tunnel preview URL.',
     )
   }
   console.log(

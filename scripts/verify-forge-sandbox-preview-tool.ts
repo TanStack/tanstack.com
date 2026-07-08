@@ -1,159 +1,312 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
+import {
+  createForgeSandboxPreviewTunnelName,
+  createForgeSandboxPreviewUrl,
+  FORGE_SANDBOX_OPTIONS,
+  FORGE_SANDBOX_PREVIEW_HMR_PATH,
+  getForgeSandboxPreviewTunnelOptions,
+  resolveForgeSandboxPreviewHmrOptions,
+  resolveForgeSandboxWorkerPreviewHostname,
+} from '../src/builder/runtime/sandbox-preview.server'
 
-// `sandbox-preview-tool.server.ts` imports `getSandbox` from
-// `@cloudflare/sandbox`, which (like `@tanstack/ai-sandbox-cloudflare`, see
-// `scripts/verify-forge-sandbox-definition.ts`) statically imports
-// `cloudflare:workers` at module load — a specifier that only resolves
-// inside the real Workers runtime, never under this repo's plain
-// `tsx`-based `test:forge-*` scripts. So this verifier proves two
-// independent things instead of one live call:
-//
-// 1. `exposeForgePreview` is at least *importable* under `tsx` (the module
-//    doesn't blow up merely by loading `@cloudflare/sandbox`, confirming its
-//    own module graph is otherwise intact) — captured as a controlled
-//    failure mode below, matched by error message so an unrelated
-//    regression still fails loudly.
-// 2. `exposeForgePreview`'s own logic — resolving the sandbox via
-//    `getSandbox(env.Sandbox, input.threadId)`, calling
-//    `sandbox.exposePort(port, { hostname })` with the resolved hostname,
-//    and returning `{ url }` verbatim — is verified against a FAKE sandbox
-//    handle that reimplements the exact hostname-resolution algorithm the
-//    real implementation uses (mirroring the `fakeCloudflareLikeProvider`
-//    pattern in `verify-forge-sandbox-definition.ts`), grounded by the
-//    static-source assertions at the bottom of this file.
-let importError: unknown
-try {
-  await import('../src/builder/runtime/sandbox-preview-tool.server')
-} catch (error) {
-  importError = error
-}
+assert.equal(FORGE_SANDBOX_OPTIONS.transport, 'rpc')
 
-if (importError) {
-  assert.ok(
-    importError instanceof Error &&
-      /cloudflare:|@cloudflare\/containers/.test(importError.message),
-    `expected the only possible import failure to be the known Workers-runtime-only gap, got: ${String(importError)}`,
-  )
-  console.log(
-    '[verify-forge-sandbox-preview-tool] @cloudflare/sandbox cannot load under plain tsx (Workers-runtime-only import chain) — verifying tool logic directly against a fake sandbox instead.',
-  )
-} else {
-  console.log(
-    '[verify-forge-sandbox-preview-tool] sandbox-preview-tool.server imported without error (unexpected but not a regression) — still verifying tool logic against a fake sandbox below.',
-  )
-}
+const tunnelName = createForgeSandboxPreviewTunnelName({
+  prefix: 'Forge Preview!',
+  sandboxId: 'provider:sandbox:thread',
+})
+assert.match(tunnelName, /^forge-preview-[a-f0-9]+$/)
+assert.ok(tunnelName.length <= 63)
 
-// Reimplements the EXACT algorithm `exposeForgePreview`'s `.server()`
-// handler uses: resolve the hostname (fallback to the Forge default, throw
-// on an explicitly-empty override), then call `exposePort(port, { hostname
-// })` on the sandbox resolved via `getSandbox`. The static-source
-// assertions below confirm the real implementation matches this shape.
-const DEFAULT_FORGE_PREVIEW_HOSTNAME = 'forge.tanstack.com'
+assert.equal(
+  getForgeSandboxPreviewTunnelOptions({
+    env: {},
+    sandboxId: 'sandbox-a',
+  }),
+  undefined,
+  'auto mode without Cloudflare API credentials should use quick tunnels',
+)
 
-function resolveHostname(previewHostname: string | undefined): string {
-  if (previewHostname !== undefined && previewHostname.trim().length === 0) {
-    throw new Error(
-      'exposeForgePreview: PREVIEW_HOSTNAME is set but empty. Unset it entirely to use the forge.tanstack.com default, or provide a real hostname.',
-    )
-  }
-  return previewHostname?.trim() || DEFAULT_FORGE_PREVIEW_HOSTNAME
-}
+assert.deepEqual(
+  getForgeSandboxPreviewTunnelOptions({
+    env: { CLOUDFLARE_API_TOKEN: 'cf-test-token' },
+    sandboxId: 'sandbox-a',
+  }),
+  {
+    name: createForgeSandboxPreviewTunnelName({
+      sandboxId: 'sandbox-a',
+    }),
+  },
+  'auto mode with Cloudflare API credentials should use named tunnels',
+)
 
-async function fakeExposeForgePreview(
-  port: number,
-  env: { PREVIEW_HOSTNAME?: string },
-  exposePort: (
-    port: number,
-    options: { hostname: string },
-  ) => Promise<{ url: string }>,
-) {
-  const hostname = resolveHostname(env.PREVIEW_HOSTNAME)
-  return exposePort(port, { hostname })
-}
+assert.equal(
+  getForgeSandboxPreviewTunnelOptions({
+    env: {
+      CLOUDFLARE_API_TOKEN: 'cf-test-token',
+      FORGE_PREVIEW_TUNNEL_MODE: 'quick',
+    },
+    sandboxId: 'sandbox-a',
+  }),
+  undefined,
+  'quick mode should force quick tunnels even when named-tunnel credentials exist',
+)
 
-const calls: Array<{ port: number; hostname: string }> = []
-const fakeSandboxHandle = {
+assert.deepEqual(
+  getForgeSandboxPreviewTunnelOptions({
+    env: { FORGE_PREVIEW_TUNNEL_MODE: 'named' },
+    sandboxId: 'sandbox-a',
+  }),
+  {
+    name: createForgeSandboxPreviewTunnelName({
+      sandboxId: 'sandbox-a',
+    }),
+  },
+  'named mode should request a named tunnel and let the SDK report missing credentials',
+)
+
+assert.equal(
+  resolveForgeSandboxWorkerPreviewHostname({
+    env: { PREVIEW_HOSTNAME: 'forge.tanstack.com' },
+    publicHost: 'localhost:3000',
+  }),
+  'localhost:3000',
+  'local request hosts should use deterministic worker-preview hostnames instead of ephemeral quick-tunnel DNS',
+)
+
+assert.equal(
+  resolveForgeSandboxWorkerPreviewHostname({
+    env: { PREVIEW_HOSTNAME: 'forge.tanstack.com' },
+    publicHost: 'tanstack.com',
+  }),
+  'forge.tanstack.com',
+)
+
+assert.equal(
+  resolveForgeSandboxWorkerPreviewHostname({
+    env: { FORGE_PREVIEW_TUNNEL_MODE: 'named' },
+    publicHost: 'localhost:3000',
+  }),
+  undefined,
+)
+
+assert.deepEqual(
+  resolveForgeSandboxPreviewHmrOptions({
+    publicHost: 'localhost:3000',
+  }),
+  { path: FORGE_SANDBOX_PREVIEW_HMR_PATH },
+)
+
+assert.deepEqual(
+  resolveForgeSandboxPreviewHmrOptions({
+    publicHost: 'tanstack.com',
+  }),
+  { path: FORGE_SANDBOX_PREVIEW_HMR_PATH },
+)
+
+assert.deepEqual(
+  resolveForgeSandboxPreviewHmrOptions({
+    previewUrl: 'http://5173-sandbox-preview.localhost:3000/',
+  }),
+  { path: FORGE_SANDBOX_PREVIEW_HMR_PATH },
+)
+
+assert.deepEqual(
+  resolveForgeSandboxPreviewHmrOptions({
+    previewUrl: 'https://assist-geneva-dist-aqua.trycloudflare.com/',
+  }),
+  { path: FORGE_SANDBOX_PREVIEW_HMR_PATH },
+)
+
+const tunnelCalls = Array<{
+  options?: { name?: string }
+  port: number
+}>()
+const exposeCalls = Array<{
+  hostname: string
+  port: number
+}>()
+
+const fakeSandbox = {
   exposePort: async (port: number, options: { hostname: string }) => {
-    calls.push({ port, hostname: options.hostname })
-    return { url: `https://${port}-fake-id-tok.${options.hostname}` }
+    exposeCalls.push({ hostname: options.hostname, port })
+
+    return {
+      port,
+      url: `http://${port}-sandbox-a-preview_token.${options.hostname}/`,
+    }
+  },
+  tunnels: {
+    destroy: async () => undefined,
+    get: async (port: number, options?: { name?: string }) => {
+      tunnelCalls.push({ options, port })
+
+      return {
+        url: options?.name
+          ? `https://${options.name}.example.com`
+          : 'https://quick-preview.trycloudflare.com',
+      }
+    },
   },
 }
 
-// Default hostname: falls back to forge.tanstack.com when PREVIEW_HOSTNAME
-// is unset.
-const result = await fakeExposeForgePreview(
-  5173,
-  {},
-  fakeSandboxHandle.exposePort,
-)
-assert.equal(result.url, 'https://5173-fake-id-tok.forge.tanstack.com')
-assert.equal(calls.length, 1)
-assert.equal(calls[0]?.port, 5173)
-assert.equal(calls[0]?.hostname, 'forge.tanstack.com')
+const localAutoResult = await createForgeSandboxPreviewUrl({
+  env: { PREVIEW_HOSTNAME: 'forge.tanstack.com' },
+  publicHost: 'localhost:3000',
+  sandbox: fakeSandbox,
+  sandboxId: 'sandbox-a',
+})
+assert.deepEqual(localAutoResult, {
+  ok: true,
+  url: 'http://5173-sandbox-a-preview_token.localhost:3000/',
+})
+assert.deepEqual(exposeCalls[0], { hostname: 'localhost:3000', port: 5173 })
+assert.equal(tunnelCalls.length, 0)
 
-// A custom (non-empty) PREVIEW_HOSTNAME override is honored verbatim.
-const overrideResult = await fakeExposeForgePreview(
-  8080,
-  { PREVIEW_HOSTNAME: 'preview.example.com' },
-  fakeSandboxHandle.exposePort,
-)
-assert.equal(overrideResult.url, 'https://8080-fake-id-tok.preview.example.com')
-assert.equal(calls[1]?.hostname, 'preview.example.com')
+const workerResult = await createForgeSandboxPreviewUrl({
+  env: { PREVIEW_HOSTNAME: 'forge.tanstack.com' },
+  publicHost: 'tanstack.com',
+  sandbox: fakeSandbox,
+  sandboxId: 'sandbox-a',
+})
+assert.deepEqual(workerResult, {
+  ok: true,
+  url: 'http://5173-sandbox-a-preview_token.forge.tanstack.com/',
+})
+assert.deepEqual(exposeCalls[1], { hostname: 'forge.tanstack.com', port: 5173 })
 
-// An explicitly-empty (or whitespace-only) PREVIEW_HOSTNAME throws a clear
-// error rather than silently minting a preview URL under an unintended
-// hostname.
-await assert.rejects(
+const quickResult = await createForgeSandboxPreviewUrl({
+  env: {},
+  sandbox: fakeSandbox,
+  sandboxId: 'sandbox-a',
+})
+assert.deepEqual(quickResult, {
+  ok: true,
+  url: 'https://quick-preview.trycloudflare.com',
+})
+assert.deepEqual(tunnelCalls[0], { options: undefined, port: 5173 })
+
+const namedResult = await createForgeSandboxPreviewUrl({
+  env: {
+    CLOUDFLARE_API_TOKEN: 'cf-test-token',
+    FORGE_PREVIEW_TUNNEL_MODE: 'named',
+    FORGE_PREVIEW_TUNNEL_PREFIX: 'forge',
+  },
+  publicHost: 'localhost:3000',
+  sandbox: fakeSandbox,
+  sandboxId: 'sandbox-b',
+})
+const expectedName = createForgeSandboxPreviewTunnelName({
+  prefix: 'forge',
+  sandboxId: 'sandbox-b',
+})
+assert.deepEqual(namedResult, {
+  ok: true,
+  url: `https://${expectedName}.example.com`,
+})
+assert.deepEqual(tunnelCalls[1], {
+  options: { name: expectedName },
+  port: 5173,
+})
+
+const ambiguousTunnelCalls = Array<{
+  options?: { name?: string }
+  port: number
+}>()
+const ambiguousTunnelDestroyCalls = Array<number>()
+const ambiguousTokenSandbox = {
+  tunnels: {
+    destroy: async (port: number) => {
+      ambiguousTunnelDestroyCalls.push(port)
+    },
+    get: async (port: number, options?: { name?: string }) => {
+      ambiguousTunnelCalls.push({ options, port })
+
+      if (options) {
+        throw new Error(
+          'Cloudflare token is not scoped to a single account (ambiguous). Set CLOUDFLARE_TUNNEL_ACCOUNT_ID or CLOUDFLARE_ACCOUNT_ID explicitly.',
+        )
+      }
+
+      return { url: 'https://quick-preview.trycloudflare.com' }
+    },
+  },
+}
+const ambiguousTokenResult = await createForgeSandboxPreviewUrl({
+  env: { CLOUDFLARE_API_TOKEN: 'cf-test-token' },
+  sandbox: ambiguousTokenSandbox,
+  sandboxId: 'sandbox-c',
+})
+assert.deepEqual(ambiguousTokenResult, {
+  ok: true,
+  url: 'https://quick-preview.trycloudflare.com',
+})
+assert.deepEqual(ambiguousTunnelCalls, [
+  {
+    options: {
+      name: createForgeSandboxPreviewTunnelName({ sandboxId: 'sandbox-c' }),
+    },
+    port: 5173,
+  },
+  { options: undefined, port: 5173 },
+])
+assert.deepEqual(ambiguousTunnelDestroyCalls, [5173])
+
+let conflictRaised = false
+const conflictTunnelDestroyCalls = Array<number>()
+const conflictingTunnelSandbox = {
+  tunnels: {
+    destroy: async (port: number) => {
+      conflictTunnelDestroyCalls.push(port)
+    },
+    get: async (port: number, options?: { name?: string }) => {
+      if (!conflictRaised) {
+        conflictRaised = true
+        throw new Error(
+          'Tunnel on port 5173 was created with different options. Call destroy(5173) before changing tunnel options.',
+        )
+      }
+
+      return {
+        url: options?.name
+          ? `https://${options.name}.example.com`
+          : 'https://quick-preview.trycloudflare.com',
+      }
+    },
+  },
+}
+const conflictTunnelResult = await createForgeSandboxPreviewUrl({
+  env: { CLOUDFLARE_API_TOKEN: 'cf-test-token' },
+  sandbox: conflictingTunnelSandbox,
+  sandboxId: 'sandbox-d',
+})
+assert.equal(conflictTunnelResult.ok, true)
+assert.deepEqual(conflictTunnelDestroyCalls, [5173])
+
+assert.throws(
   () =>
-    fakeExposeForgePreview(
-      5173,
-      { PREVIEW_HOSTNAME: '' },
-      fakeSandboxHandle.exposePort,
-    ),
-  (error: unknown) =>
-    error instanceof Error &&
-    /PREVIEW_HOSTNAME is set but empty/.test(error.message),
-)
-await assert.rejects(
-  () =>
-    fakeExposeForgePreview(
-      5173,
-      { PREVIEW_HOSTNAME: '   ' },
-      fakeSandboxHandle.exposePort,
-    ),
-  (error: unknown) =>
-    error instanceof Error &&
-    /PREVIEW_HOSTNAME is set but empty/.test(error.message),
+    getForgeSandboxPreviewTunnelOptions({
+      env: { FORGE_PREVIEW_TUNNEL_MODE: 'invalid' },
+      sandboxId: 'sandbox-a',
+    }),
+  /FORGE_PREVIEW_URL_MODE\/FORGE_PREVIEW_TUNNEL_MODE/,
 )
 
-// `exposeForgePreview`'s use of `getSandbox`/`exposePort`, its hostname
-// resolution/error message, and its deliberate avoidance of the quick-tunnel
-// API cannot be observed from outside a live Workers runtime, so assert the
-// implementation source directly — the same static-source-assertion
-// approach `verify-forge-sandbox-definition.ts` uses for `previewHostname`.
-const { readFileSync } = await import('node:fs')
 const implementationSource = readFileSync(
-  new URL(
-    '../src/builder/runtime/sandbox-preview-tool.server.ts',
-    import.meta.url,
-  ),
+  new URL('../src/builder/runtime/sandbox-preview.server.ts', import.meta.url),
   'utf8',
 )
 
-assert.ok(implementationSource.includes("name: 'exposeForgePreview'"))
-assert.ok(implementationSource.includes('getSandbox('))
-assert.ok(implementationSource.includes('input.threadId'))
+assert.ok(implementationSource.includes('sandbox.tunnels.get('))
 assert.ok(implementationSource.includes('sandbox.exposePort('))
-assert.ok(implementationSource.includes("'forge.tanstack.com'"))
-assert.ok(implementationSource.includes('PREVIEW_HOSTNAME'))
-// The tool's own handler must call `exposePort`, not the quick-tunnel
-// `tunnels` API. `sandbox.tunnels.get(` (no `await`) only appears in this
-// file's leading doc comment describing what we deliberately avoid — the
-// actual live call the shipped package's `exposePreviewTool` makes is
-// `await sandbox.tunnels.get(port)`, which must be absent here.
-assert.ok(
-  !implementationSource.includes('await sandbox.tunnels.get('),
-  'exposeForgePreview must use exposePort, not the quick-tunnel tunnels API',
-)
+assert.ok(implementationSource.includes('tunnels.destroy('))
+assert.ok(implementationSource.includes('FORGE_PREVIEW_HMR_PATH'))
+assert.ok(implementationSource.includes('FORGE_PREVIEW_WS_PATH'))
+assert.ok(implementationSource.includes('forge-vite.config.mjs'))
+assert.ok(implementationSource.includes('mergeConfig('))
+assert.ok(implementationSource.includes('ws: {'))
+assert.ok(implementationSource.includes('FORGE_ROUTE_TREE'))
+assert.ok(implementationSource.includes('/@vite/client'))
 
-console.log('Forge sandbox preview tool verifier passed')
+console.log('Forge sandbox preview verifier passed')

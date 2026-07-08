@@ -68,7 +68,7 @@ const LOCAL_FORGE_CONTEXT_VERSION = 'forge-local-agent-2026-06-18'
 const LOCAL_FORGE_MAX_ITERATIONS = 10
 const LOCAL_FORGE_TIMEOUT_MS = readPositiveIntegerEnv(
   'FORGE_AGENT_TIMEOUT_MS',
-  180_000,
+  600_000,
 )
 // The provider adapters default to a tiny output cap (Anthropic falls back to
 // 1024), which truncates a single file-writing turn mid tool call. Give each
@@ -100,9 +100,16 @@ const LOCAL_FORGE_CODEX_IGNORED_DIRECTORIES = new Set<string>([
   'node_modules',
 ])
 const LOCAL_FORGE_CODEX_SCANNER_IGNORED_FILE_PATHS = new Set<string>([
+  '.cta.json',
+  'bun.lock',
+  'bun.lockb',
+  'package-lock.json',
+  'pnpm-lock.yaml',
   'pnpm-workspace.yaml',
   'src/routeTree.gen.ts',
+  'yarn.lock',
 ])
+const sandboxCodexSessionIdsByForgeSession = new Map<string, string>()
 const LOCAL_FORGE_APP_SOURCE_PREFIXES = ['src/', 'public/']
 const LOCAL_FORGE_EDITABLE_ROOT_FILE_PATHS = new Set<string>([
   'AGENTS.md',
@@ -206,6 +213,14 @@ type ForgeAgentState = {
   validationProblems: Array<string>
 }
 
+type ForgeSandboxNativeActivity = {
+  commandExecutionCount: number
+  fileChangeCount: number
+  textMessagePreview: string
+  textMessageCount: number
+  toolNames: Set<string>
+}
+
 export type LocalForgeAgentCompletionState = Pick<
   ForgeAgentState,
   | 'changeCount'
@@ -225,21 +240,22 @@ type ForgeValidationCommandResult = {
 }
 
 type PreparedForgeAgentRun = {
+  existingPreviewUrl?: string
   initialSnapshot: LocalForgeSnapshot
   prompt: string
   providerCredential?: ForgeProviderCredential
+  publicHost?: string
   runContext: ForgeRunContext
 }
 
-type ForgeAgentHarnessName =
-  | 'cloudflare-workers-ai'
-  | 'codex-cli'
-  | 'tanstack-ai'
+type ForgeAgentHarnessName = 'tanstack-ai'
 
 type ForgeAgentHarnessRunInput = {
+  existingPreviewUrl?: string
   initialSnapshot: LocalForgeSnapshot
   prompt: string
   providerCredential?: ForgeProviderCredential
+  publicHost?: string
   runContext: ForgeRunContext
   state: ForgeAgentState
   toolEvents: Set<string>
@@ -268,6 +284,28 @@ const codexCliSidecarResultSchema = z.object({
   stderr: z.string(),
   stdout: z.string(),
 })
+
+const codexCliSidecarStreamEventSchema = z.discriminatedUnion('type', [
+  z.object({
+    line: z.string(),
+    type: z.literal('stdout'),
+  }),
+  z.object({
+    chunk: z.string(),
+    type: z.literal('stderr'),
+  }),
+  z.object({
+    error: z.string(),
+    type: z.literal('error'),
+  }),
+  z.object({
+    exitCode: z.number().nullable(),
+    files: z.record(z.string(), z.string()),
+    finalMessage: z.string(),
+    stderr: z.string(),
+    type: z.literal('result'),
+  }),
+])
 
 type CodexCliWorkspaceScan = {
   changeCount: number
@@ -531,12 +569,16 @@ function localForgeSnapshotCanRefreshSeedTemplate(
 
 export async function runLocalForgeAgent({
   clientRequestId = `local-request-${crypto.randomUUID()}`,
+  existingPreviewUrl,
   prompt,
   providerCredential,
+  publicHost,
 }: {
   clientRequestId?: string
+  existingPreviewUrl?: string
   prompt: string
   providerCredential?: ForgeProviderCredential
+  publicHost?: string
 }): Promise<LocalForgeSnapshot> {
   try {
     return await withLocalForgeLock({
@@ -546,8 +588,10 @@ export async function runLocalForgeAgent({
         (await readExistingClientRequestSnapshot(clientRequestId)) ??
         runLocalForgeAgentLocked({
           clientRequestId,
+          existingPreviewUrl,
           prompt,
           providerCredential,
+          publicHost,
         }),
       waitMs: LOCAL_FORGE_RUN_LOCK_WAIT_MS,
     })
@@ -562,12 +606,16 @@ export async function runLocalForgeAgent({
 
 export async function startLocalForgeAgentRun({
   clientRequestId,
+  existingPreviewUrl,
   prompt,
   providerCredential,
+  publicHost,
 }: {
   clientRequestId: string
+  existingPreviewUrl?: string
   prompt: string
   providerCredential?: ForgeProviderCredential
+  publicHost?: string
 }): Promise<LocalForgeSnapshot> {
   const existingSnapshot =
     await readExistingClientRequestSnapshot(clientRequestId)
@@ -598,8 +646,10 @@ export async function startLocalForgeAgentRun({
 
     const preparedRun = await prepareLocalForgeAgentRun({
       clientRequestId,
+      existingPreviewUrl,
       prompt,
       providerCredential,
+      publicHost,
     })
     const startedSnapshot = await readLocalForgeSnapshot()
 
@@ -650,18 +700,24 @@ function isLocalForgeWorkflowLockError(error: unknown) {
 
 async function runLocalForgeAgentLocked({
   clientRequestId,
+  existingPreviewUrl,
   prompt,
   providerCredential,
+  publicHost,
 }: {
   clientRequestId: string
+  existingPreviewUrl?: string
   prompt: string
   providerCredential?: ForgeProviderCredential
+  publicHost?: string
 }): Promise<LocalForgeSnapshot> {
   await drainLocalForgeAgentRun(
     await prepareLocalForgeAgentRun({
       clientRequestId,
+      existingPreviewUrl,
       prompt,
       providerCredential,
+      publicHost,
     }),
   )
 
@@ -670,27 +726,36 @@ async function runLocalForgeAgentLocked({
 
 async function prepareLocalForgeAgentRun({
   clientRequestId,
+  existingPreviewUrl,
   prompt,
   providerCredential,
+  publicHost,
 }: {
   clientRequestId: string
+  existingPreviewUrl?: string
   prompt: string
   providerCredential?: ForgeProviderCredential
+  publicHost?: string
 }): Promise<PreparedForgeAgentRun> {
-  await ensureLocalForgeBaseline()
-
-  const initialSnapshot = await recoverOrRejectActiveRun(
+  let initialSnapshot = await recoverOrRejectActiveRun(
     await readLocalForgeSnapshot(),
   )
+
+  if (!initialSnapshot.currentManifest) {
+    initialSnapshot = await ensureLocalForgeBaseline()
+  }
+
   const runContext = await appendRunStart({
     clientRequestId,
     prompt,
   })
 
   return {
+    ...(existingPreviewUrl ? { existingPreviewUrl } : {}),
     initialSnapshot,
     prompt,
     providerCredential,
+    publicHost,
     runContext,
   }
 }
@@ -711,15 +776,23 @@ async function readExistingClientRequestSnapshot(clientRequestId: string) {
 }
 
 async function drainLocalForgeAgentRun({
+  existingPreviewUrl,
   initialSnapshot,
   prompt,
   providerCredential,
+  publicHost,
   runContext,
 }: PreparedForgeAgentRun) {
   const harness = await getLocalForgeHarness(providerCredential)
+  const activeForgeSessionId = getActiveLocalForgeSessionId()
+  const previousCodexSessionId =
+    sandboxCodexSessionIdsByForgeSession.get(activeForgeSessionId)
 
   const state: ForgeAgentState = {
     changeCount: 0,
+    ...(previousCodexSessionId
+      ? { codexSessionId: previousCodexSessionId }
+      : {}),
     planReceived: false,
     summary: '',
     summaryReceived: false,
@@ -743,7 +816,7 @@ async function drainLocalForgeAgentRun({
 
   try {
     await appendAgentEvent({
-      detail: `FORGE_AGENT_HARNESS=${harness.name}`,
+      detail: `runtime=${harness.name}`,
       message: `${harness.label} harness started`,
       name: 'agent.harness.started',
       runContext,
@@ -752,8 +825,10 @@ async function drainLocalForgeAgentRun({
 
     await harness.run({
       initialSnapshot,
+      ...(existingPreviewUrl ? { existingPreviewUrl } : {}),
       prompt,
       providerCredential,
+      publicHost,
       runContext,
       state,
       toolEvents,
@@ -820,17 +895,6 @@ async function drainLocalForgeAgentRun({
           runId: runContext.runId,
         })
 
-    if (isIsolateRuntime()) {
-      await appendAgentEvent({
-        detail:
-          'Cloudflare isolate runtime cannot run local filesystem/process validation.',
-        message: 'Workspace materialization skipped',
-        name: 'agent.runtime.materialize.skipped',
-        runContext,
-        status: 'finished',
-      })
-    }
-
     await appendLocalForgeManifestTimeline({
       bundle: {
         blobs: {},
@@ -874,32 +938,9 @@ async function drainLocalForgeAgentRun({
 export async function getLocalForgeHarness(
   providerCredential?: ForgeProviderCredential,
 ): Promise<ForgeAgentHarness | null> {
-  const harnessName = getRequestedLocalForgeHarnessName()
-
-  if (harnessName === 'codex-cli') {
-    return {
-      label: 'Codex CLI',
-      name: 'codex-cli',
-      run: runCodexCliForgeHarness,
-    }
-  }
-
-  if (harnessName === 'cloudflare-workers-ai') {
-    return {
-      label: 'Cloudflare Workers AI',
-      name: 'cloudflare-workers-ai',
-      run: runCloudflareWorkersAiForgeHarness,
-    }
-  }
-
-  // `tanstack-ai` is selected. When the host exposes a Cloudflare `Sandbox`
-  // Durable Object binding (cloud runtime), drive the run through the
-  // provider's sandbox coding agent (Codex for OpenAI, Claude Code for
-  // Anthropic) instead of the in-memory model loop. Without the binding
-  // (local dev) we fall back to the in-memory `runTanStackAiForgeHarness`.
   const hostEnv = await getHostRuntimeEnv()
 
-  if (hasForgeSandboxBinding(hostEnv)) {
+  if (shouldUseForgeSandboxHarness(hostEnv)) {
     return {
       label: 'TanStack AI (Sandbox)',
       name: 'tanstack-ai',
@@ -907,21 +948,7 @@ export async function getLocalForgeHarness(
     }
   }
 
-  const adapter = getLocalForgeAdapter(providerCredential)
-
-  if (!adapter) {
-    return null
-  }
-
-  return {
-    label: 'TanStack AI',
-    name: 'tanstack-ai',
-    run: (input) =>
-      runTanStackAiForgeHarness({
-        ...input,
-        adapter,
-      }),
-  }
+  return null
 }
 
 /**
@@ -943,51 +970,14 @@ export function hasForgeSandboxBinding(
   )
 }
 
-function getRequestedLocalForgeHarnessName(): ForgeAgentHarnessName {
-  return resolveLocalForgeAgentHarnessName(process.env.FORGE_AGENT_HARNESS)
-}
-
-export function resolveLocalForgeAgentHarnessName(
-  requestedHarness: string | undefined,
-  { nodeEnv = process.env.NODE_ENV }: { nodeEnv?: string } = {},
-): ForgeAgentHarnessName {
-  const normalizedHarness = requestedHarness?.trim().toLowerCase()
-
-  if (
-    normalizedHarness === 'codex' ||
-    normalizedHarness === 'codex-cli' ||
-    normalizedHarness === 'local-codex'
-  ) {
-    return 'codex-cli'
-  }
-
-  if (
-    normalizedHarness === 'cloudflare-workers-ai' ||
-    normalizedHarness === 'cloudflare-ai' ||
-    normalizedHarness === 'workers-ai'
-  ) {
-    return 'cloudflare-workers-ai'
-  }
-
-  if (!normalizedHarness && nodeEnv !== 'production') {
-    return 'codex-cli'
-  }
-
-  return 'tanstack-ai'
+export function shouldUseForgeSandboxHarness(
+  hostEnv: Record<string, unknown> | undefined,
+): boolean {
+  return hasForgeSandboxBinding(hostEnv)
 }
 
 function getLocalForgeHarnessUnavailableMessage() {
-  const harnessName = getRequestedLocalForgeHarnessName()
-
-  if (harnessName === 'codex-cli') {
-    return 'Forge needs Codex CLI available locally to use FORGE_AGENT_HARNESS=codex-cli.'
-  }
-
-  if (harnessName === 'cloudflare-workers-ai') {
-    return 'Forge needs a Cloudflare Workers AI binding to use FORGE_AGENT_HARNESS=cloudflare-workers-ai.'
-  }
-
-  return 'Forge needs OPENAI_API_KEY or ANTHROPIC_API_KEY to run the TanStack AI harness.'
+  return 'Forge needs the Cloudflare Sandbox binding so TanStack AI can run Codex inside the preview sandbox.'
 }
 
 async function runTanStackAiForgeHarness({
@@ -1119,10 +1109,12 @@ async function runTanStackAiForgeHarness({
  * Cloudflare-touching but is imported lazily too for symmetry.
  */
 async function runForgeSandboxForgeHarness({
+  existingPreviewUrl,
   hostEnv,
   initialSnapshot,
   prompt,
   providerCredential,
+  publicHost,
   runContext,
   state,
   workspace,
@@ -1155,6 +1147,17 @@ async function runForgeSandboxForgeHarness({
   const completedMessageIds = new Set<string>()
   const toolNamesById = new Map<string, string>()
   const toolArgsById = new Map<string, string>()
+  const sandboxNativeActivity: ForgeSandboxNativeActivity = {
+    commandExecutionCount: 0,
+    fileChangeCount: 0,
+    textMessageCount: 0,
+    textMessagePreview: '',
+    toolNames: new Set<string>(),
+  }
+  const activeForgeSessionId = getActiveLocalForgeSessionId()
+  const effectiveExistingPreviewUrl =
+    existingPreviewUrl ??
+    readLatestForgeSandboxPreviewUrlFromSnapshot(initialSnapshot)
 
   // `translateChunk`'s `ctx` callbacks are synchronous (they return `void`),
   // but every forge append is async. Chunks stream in order from a single
@@ -1170,6 +1173,10 @@ async function runForgeSandboxForgeHarness({
 
   const ctx: ForgeChunkTranslationCtx = {
     onText: (event) => {
+      recordForgeSandboxTextActivity({
+        activity: sandboxNativeActivity,
+        event,
+      })
       enqueueAppend(() =>
         handleForgeSandboxTextEvent({
           completedMessageIds,
@@ -1182,6 +1189,11 @@ async function runForgeSandboxForgeHarness({
       )
     },
     onToolCall: (event) => {
+      recordForgeSandboxToolActivity({
+        activity: sandboxNativeActivity,
+        event,
+        toolNamesById,
+      })
       enqueueAppend(() =>
         handleForgeSandboxToolCallEvent({
           event,
@@ -1198,8 +1210,13 @@ async function runForgeSandboxForgeHarness({
     },
     persistSessionId: (sessionId) => {
       state.codexSessionId = sessionId
+      sandboxCodexSessionIdsByForgeSession.set(activeForgeSessionId, sessionId)
     },
     onFileActivity: (event) => {
+      if (isIgnoredForgeSandboxActivityPath(event.path)) {
+        return
+      }
+
       enqueueAppend(() =>
         appendLocalForgeRuntimeEvent({
           detail: event.path,
@@ -1231,43 +1248,70 @@ async function runForgeSandboxForgeHarness({
         }),
       )
     },
+    onCustomEvent: (event) => {
+      enqueueAppend(() =>
+        appendForgeSandboxCustomEvent({
+          event,
+          runContext,
+        }),
+      )
+    },
   }
 
-  const { files } = await runAbortableForgeTask({
+  const runSandboxAgentOnce = ({
+    content,
+    label,
+  }: {
+    content: string
+    label: string
+  }) =>
+    runAbortableForgeTask({
+      label,
+      signal: runContext.abortSignal,
+      task: async (abortController) =>
+        runForgeSandboxAgent({
+          // Thread the abortable task's controller into the sandbox run so a
+          // run cancellation / timeout aborts the underlying `chat()` stream.
+          abortSignal: abortController.signal,
+          byokKey,
+          ...(state.codexSessionId
+            ? { codexSessionId: state.codexSessionId }
+            : {}),
+          // `hostEnv` was already narrowed by `hasForgeSandboxBinding` to carry
+          // the `Sandbox` DO binding; the host env is intentionally an untyped
+          // `Record<string, unknown>` (see `host.server.ts`), so we cast it to
+          // the sandbox env surface `runForgeSandboxAgent` consumes.
+          env: hostEnv as unknown as Parameters<
+            typeof runForgeSandboxAgent
+          >[0]['env'],
+          ...(effectiveExistingPreviewUrl
+            ? { existingPreviewUrl: effectiveExistingPreviewUrl }
+            : {}),
+          manifestVersionId: initialSnapshot.manifestVersionId,
+          messages: [
+            {
+              role: 'user',
+              content,
+            },
+          ] satisfies Array<ModelMessage>,
+          onChunk: (chunk) => translateChunk(chunk, ctx),
+          projectId: LOCAL_FORGE_PROJECT_ID,
+          provider,
+          publicHost,
+          // Activity-feed events from the persistence hooks must group under the
+          // live run, not the manifest version id.
+          runId: runContext.runId,
+          threadId: getActiveLocalForgeSessionId(),
+        }),
+      timeoutMs: LOCAL_FORGE_TIMEOUT_MS,
+    })
+
+  let sandboxWorkspace = await runSandboxAgentOnce({
+    content: buildForgeSandboxAgentPrompt({
+      currentFiles: Object.keys(initialSnapshot.files).sort(),
+      prompt,
+    }),
     label: 'Forge TanStack AI sandbox agent run',
-    signal: runContext.abortSignal,
-    task: async (abortController) =>
-      runForgeSandboxAgent({
-        // Thread the abortable task's controller into the sandbox run so a
-        // run cancellation / timeout aborts the underlying `chat()` stream.
-        abortSignal: abortController.signal,
-        byokKey,
-        // `hostEnv` was already narrowed by `hasForgeSandboxBinding` to carry
-        // the `Sandbox` DO binding; the host env is intentionally an untyped
-        // `Record<string, unknown>` (see `host.server.ts`), so we cast it to
-        // the sandbox env surface `runForgeSandboxAgent` consumes.
-        env: hostEnv as unknown as Parameters<
-          typeof runForgeSandboxAgent
-        >[0]['env'],
-        manifestVersionId: initialSnapshot.manifestVersionId,
-        messages: [
-          {
-            role: 'user',
-            content: buildForgeAgentPrompt({
-              currentFiles: Object.keys(initialSnapshot.files).sort(),
-              prompt,
-            }),
-          },
-        ] satisfies Array<ModelMessage>,
-        onChunk: (chunk) => translateChunk(chunk, ctx),
-        projectId: LOCAL_FORGE_PROJECT_ID,
-        provider,
-        // Activity-feed events from the persistence hooks must group under the
-        // live run, not the manifest version id.
-        runId: runContext.runId,
-        threadId: getActiveLocalForgeSessionId(),
-      }),
-    timeoutMs: LOCAL_FORGE_TIMEOUT_MS,
   })
 
   // Drain any still-pending appends queued during the final chunks before we
@@ -1279,12 +1323,44 @@ async function runForgeSandboxForgeHarness({
   // hooks) and never sets completion state, so the shared
   // `drainLocalForgeAgentRun` finalize would both fail `assertCompletedRun`
   // and persist a STALE manifest. Mirror `runCodexCliForgeHarness` EXACTLY:
-  // scan the sandbox's returned files back into the Map and set completion
-  // state, after which the UNCHANGED shared finalize persists correctly.
-  const scan = scanCodexCliReturnedWorkspace({
-    files,
+  // merge the sandbox's returned file changes back into the Map and set
+  // completion state, after which the UNCHANGED shared finalize persists
+  // correctly.
+  let scan = scanForgeSandboxWorkspaceResult({
     originalWorkspace: workspace,
+    sandboxWorkspace,
   })
+
+  if (scan.changeCount === 0) {
+    const activitySummary = summarizeForgeSandboxNativeActivity(
+      sandboxNativeActivity,
+    )
+
+    await appendAgentEvent({
+      detail: activitySummary,
+      message:
+        'Sandbox agent made no file changes; retrying with edit-only prompt',
+      name: 'agent.sandbox.noop-retry.started',
+      runContext,
+      status: 'running',
+    })
+
+    sandboxWorkspace = await runSandboxAgentOnce({
+      content: buildForgeSandboxNoopRecoveryPrompt({
+        currentFiles: Object.keys(initialSnapshot.files).sort(),
+        previousActivitySummary: activitySummary,
+        prompt,
+      }),
+      label: 'Forge TanStack AI sandbox no-op recovery run',
+    })
+
+    await appendChain
+
+    scan = scanForgeSandboxWorkspaceResult({
+      originalWorkspace: workspace,
+      sandboxWorkspace,
+    })
+  }
 
   workspace.clear()
 
@@ -1292,17 +1368,32 @@ async function runForgeSandboxForgeHarness({
     workspace.set(filePath, file)
   }
 
+  await appendAgentEvent({
+    detail: [
+      `mode=${sandboxWorkspace.mode}`,
+      `changed=${scan.changedPaths.join(', ') || 'none'}`,
+      summarizeForgeSandboxNativeActivity(sandboxNativeActivity),
+      scan.problems.length > 0
+        ? `problems=${scan.problems.join('; ')}`
+        : undefined,
+    ]
+      .filter((line): line is string => Boolean(line))
+      .join('\n'),
+    message: `Sandbox final scan captured ${scan.changeCount} changed file${
+      scan.changeCount === 1 ? '' : 's'
+    }`,
+    name: 'agent.sandbox.final-scan',
+    runContext,
+    status: scan.changeCount > 0 ? 'finished' : 'failed',
+  })
+
   // The sandbox Codex run has no single machine-readable "final message" the
-  // way the codex-cli harness's `--output-last-message` file does, so there
-  // is no JSON summary to parse. Derive a sensible title from the prompt and a
-  // generic summary — see report concern.
+  // way the codex-cli harness's `--output-last-message` file does. Summarize
+  // the actual captured files so a no-op cannot look like a successful edit.
   const title = titleFromPrompt(prompt)
   state.planReceived = true
   state.changeCount = scan.changeCount
-  state.summary = limitText(
-    `Updated the Forge app in the sandbox for: ${limitText(prompt, 180)}`,
-    260,
-  )
+  state.summary = createSandboxRunSummary({ changedPaths: scan.changedPaths })
   state.summaryReceived = true
   state.title = title
   state.validatedChangeCount = scan.changeCount
@@ -1310,6 +1401,13 @@ async function runForgeSandboxForgeHarness({
   state.validationProblems = uniqueStrings([
     ...state.validationProblems,
     ...scan.problems,
+    ...(scan.changeCount === 0
+      ? [
+          `sandbox Codex completed without supported workspace edits (${summarizeForgeSandboxNativeActivity(
+            sandboxNativeActivity,
+          )})`,
+        ]
+      : []),
   ])
   state.validated = true
 
@@ -1319,6 +1417,195 @@ async function runForgeSandboxForgeHarness({
     runContext,
     status: 'finished',
   })
+}
+
+function isIgnoredForgeSandboxActivityPath(path: string) {
+  const workspacePrefix = '/workspace/app/'
+
+  if (!path.startsWith(workspacePrefix)) {
+    return true
+  }
+
+  const relativePath = path.slice(workspacePrefix.length)
+  const [topLevelDirectory] = relativePath.split('/')
+
+  return (
+    relativePath === '.forge-manifest' ||
+    topLevelDirectory === '.git' ||
+    topLevelDirectory === '.tanstack' ||
+    topLevelDirectory === 'dist' ||
+    topLevelDirectory === 'node_modules'
+  )
+}
+
+function createSandboxRunSummary({
+  changedPaths,
+}: {
+  changedPaths: Array<string>
+}) {
+  if (changedPaths.length === 0) {
+    return 'No app file changes were captured from the sandbox run.'
+  }
+
+  const visiblePaths = changedPaths.slice(0, 5)
+  const additionalCount = changedPaths.length - visiblePaths.length
+  const suffix =
+    additionalCount > 0 ? ` and ${additionalCount} more file(s)` : ''
+
+  return limitText(
+    `Updated ${visiblePaths.join(', ')}${suffix} in the sandbox.`,
+    260,
+  )
+}
+
+function scanForgeSandboxWorkspaceResult({
+  originalWorkspace,
+  sandboxWorkspace,
+}: {
+  originalWorkspace: Map<string, ForgeWorkspaceFile>
+  sandboxWorkspace:
+    | {
+        deletedPaths: Array<string>
+        files: Record<string, string>
+        mode: 'incremental'
+      }
+    | {
+        files: Record<string, string>
+        mode: 'full-scan'
+      }
+}) {
+  return sandboxWorkspace.mode === 'incremental'
+    ? scanSandboxIncrementalWorkspace({
+        changes: sandboxWorkspace,
+        originalWorkspace,
+      })
+    : scanCodexCliReturnedWorkspace({
+        files: sandboxWorkspace.files,
+        originalWorkspace,
+      })
+}
+
+function recordForgeSandboxTextActivity({
+  activity,
+  event,
+}: {
+  activity: ForgeSandboxNativeActivity
+  event: {
+    kind: 'start' | 'content' | 'end'
+    messageId: string
+    delta?: string
+  }
+}) {
+  if (event.kind === 'start') {
+    activity.textMessageCount += 1
+    return
+  }
+
+  if (event.kind !== 'content' || !event.delta) {
+    return
+  }
+
+  activity.textMessagePreview = limitText(
+    `${activity.textMessagePreview}${event.delta}`,
+    500,
+  )
+}
+
+function recordForgeSandboxToolActivity({
+  activity,
+  event,
+  toolNamesById,
+}: {
+  activity: ForgeSandboxNativeActivity
+  event: {
+    kind: 'start' | 'args' | 'end' | 'result'
+    toolCallId: string
+    toolCallName?: string
+    delta?: string
+    result?: string
+  }
+  toolNamesById: Map<string, string>
+}) {
+  const toolName = event.toolCallName ?? toolNamesById.get(event.toolCallId)
+
+  if (!toolName) {
+    return
+  }
+
+  activity.toolNames.add(toolName)
+
+  if (event.kind !== 'start') {
+    return
+  }
+
+  if (toolName === 'command_execution') {
+    activity.commandExecutionCount += 1
+  }
+
+  if (toolName === 'file_change') {
+    activity.fileChangeCount += 1
+  }
+}
+
+function readLatestForgeSandboxPreviewUrlFromSnapshot(
+  snapshot: LocalForgeSnapshot,
+) {
+  const events = [...snapshot.agentEvents, ...snapshot.workflowEvents]
+
+  for (const event of events.reverse()) {
+    if (
+      event.name !== 'agent.preview.exposed' &&
+      event.name !== 'workflow.preview.ready' &&
+      event.name !== 'workflow.preview.reconnected'
+    ) {
+      continue
+    }
+
+    const url = readForgeSandboxPreviewUrl(event.detail)
+
+    if (url) {
+      return url
+    }
+  }
+
+  return undefined
+}
+
+function readForgeSandboxPreviewUrl(value: unknown) {
+  if (typeof value !== 'string') {
+    return undefined
+  }
+
+  try {
+    const url = new URL(value.trim())
+
+    return url.protocol === 'http:' || url.protocol === 'https:'
+      ? url.href
+      : undefined
+  } catch {
+    return undefined
+  }
+}
+
+function summarizeForgeSandboxNativeActivity(
+  activity: ForgeSandboxNativeActivity,
+) {
+  const toolNames = Array.from(activity.toolNames).sort()
+  const assistantPreview = activity.textMessagePreview
+    .trim()
+    .replace(/\s+/g, ' ')
+
+  return [
+    `nativeTools=${toolNames.join(', ') || 'none'}`,
+    `commandExecutions=${activity.commandExecutionCount}`,
+    `fileChanges=${activity.fileChangeCount}`,
+    `assistantMessages=${activity.textMessageCount}`,
+    assistantPreview
+      ? `assistantPreview=${limitText(assistantPreview, 180)}`
+      : undefined,
+  ]
+    .filter((line): line is string => Boolean(line))
+    .join('\n')
 }
 
 async function handleForgeSandboxTextEvent({
@@ -1389,10 +1676,11 @@ async function handleForgeSandboxToolCallEvent({
   toolNamesById,
 }: {
   event: {
-    kind: 'start' | 'args' | 'end'
+    kind: 'start' | 'args' | 'end' | 'result'
     toolCallId: string
     toolCallName?: string
     delta?: string
+    result?: string
   }
   runContext: ForgeRunContext
   toolArgsById: Map<string, string>
@@ -1420,8 +1708,30 @@ async function handleForgeSandboxToolCallEvent({
     return
   }
 
+  if (event.kind === 'result') {
+    const toolName = toolNamesById.get(event.toolCallId) ?? 'tool'
+    await appendForgeSandboxToolResultEvent({
+      result: event.result,
+      runContext,
+      toolCallId: event.toolCallId,
+      toolName,
+    })
+    return
+  }
+
   const toolName =
     event.toolCallName ?? toolNamesById.get(event.toolCallId) ?? 'tool'
+
+  if (event.kind === 'end' && event.result) {
+    await appendForgeSandboxToolResultEvent({
+      result: event.result,
+      runContext,
+      toolCallId: event.toolCallId,
+      toolName,
+    })
+    return
+  }
+
   const args = toolArgsById.get(event.toolCallId)
 
   if (!args) {
@@ -1436,6 +1746,66 @@ async function handleForgeSandboxToolCallEvent({
     status: 'running',
     toolCallId: event.toolCallId,
   })
+}
+
+async function appendForgeSandboxToolResultEvent({
+  result,
+  runContext,
+  toolCallId,
+  toolName,
+}: {
+  result?: string
+  runContext: ForgeRunContext
+  toolCallId: string
+  toolName: string
+}) {
+  const sandboxPreviewUrl =
+    toolName === 'exposeForgePreview' ? readForgePreviewUrl(result) : undefined
+
+  await appendAgentEvent({
+    detail: sandboxPreviewUrl ?? limitText(result ?? '', 1200),
+    message: sandboxPreviewUrl
+      ? 'Sandbox preview exposed'
+      : `${toolName} result received`,
+    name: sandboxPreviewUrl
+      ? 'agent.preview.exposed'
+      : `agent.tool.${toolName}`,
+    runContext,
+    status: 'finished',
+    toolCallId,
+  })
+}
+
+function readForgePreviewUrl(value: string | undefined) {
+  if (!value) {
+    return undefined
+  }
+
+  try {
+    const parsed: unknown = JSON.parse(value)
+
+    if (isRecord(parsed) && typeof parsed.url === 'string') {
+      return readHttpUrl(parsed.url)
+    }
+  } catch {
+    return readHttpUrl(value)
+  }
+
+  return readHttpUrl(value)
+}
+
+function readHttpUrl(value: string) {
+  const trimmed = value.trim()
+
+  try {
+    const url = new URL(trimmed)
+
+    return url.protocol === 'http:' || url.protocol === 'https:'
+      ? url.href
+      : undefined
+  } catch {
+    return undefined
+  }
 }
 
 async function handleForgeSandboxReasoningEvent({
@@ -1466,6 +1836,56 @@ async function handleForgeSandboxReasoningEvent({
     runContext,
     status: 'running',
   })
+}
+
+async function appendForgeSandboxCustomEvent({
+  event,
+  runContext,
+}: {
+  event: { name: string; timestamp?: number; value: unknown }
+  runContext: ForgeRunContext
+}) {
+  const timestampText =
+    typeof event.timestamp === 'number' && Number.isFinite(event.timestamp)
+      ? new Date(event.timestamp).toISOString()
+      : undefined
+  const payloadText = stringifyForgeSandboxCustomEventValue(event.value)
+  const detail = [
+    timestampText ? `timestamp: ${timestampText}` : undefined,
+    payloadText,
+  ]
+    .filter((value): value is string => Boolean(value))
+    .join('\n\n')
+
+  await appendAgentEvent({
+    detail: limitText(detail, 1200),
+    message: `Sandbox event: ${event.name}`,
+    name: toForgeSandboxCustomEventName(event.name),
+    runContext,
+    status: 'running',
+  })
+}
+
+function toForgeSandboxCustomEventName(name: string) {
+  const suffix = name
+    .trim()
+    .replace(/[^a-zA-Z0-9_.-]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 80)
+
+  return `agent.sandbox.custom.${suffix || 'event'}`
+}
+
+function stringifyForgeSandboxCustomEventValue(value: unknown) {
+  if (typeof value === 'string') {
+    return value
+  }
+
+  try {
+    return JSON.stringify(value, null, 2)
+  } catch {
+    return String(value)
+  }
 }
 
 async function runCloudflareWorkersAiForgeHarness({
@@ -3726,7 +4146,13 @@ function validateRelativeImports({
         workspace,
       })
 
-      if (!resolved) {
+      if (
+        !resolved &&
+        !isKnownGeneratedWorkspaceImportPath({
+          fromPath: file.path,
+          importPath,
+        })
+      ) {
         problems.push(`${file.path} imports missing file ${importPath}`)
       }
     }
@@ -3745,6 +4171,30 @@ function resolveWorkspaceImportPath({
   fromPath: string
   importPath: string
   workspace: Map<string, ForgeWorkspaceFile>
+}) {
+  return resolveWorkspaceImportPathCandidates({ fromPath, importPath }).find(
+    (candidate) => workspace.has(candidate),
+  )
+}
+
+function isKnownGeneratedWorkspaceImportPath({
+  fromPath,
+  importPath,
+}: {
+  fromPath: string
+  importPath: string
+}) {
+  return resolveWorkspaceImportPathCandidates({ fromPath, importPath }).some(
+    (candidate) => LOCAL_FORGE_CODEX_SCANNER_IGNORED_FILE_PATHS.has(candidate),
+  )
+}
+
+function resolveWorkspaceImportPathCandidates({
+  fromPath,
+  importPath,
+}: {
+  fromPath: string
+  importPath: string
 }) {
   const normalizedImportPath = stripImportSpecifierSuffix(importPath)
   const baseParts = fromPath.split('/').slice(0, -1)
@@ -3765,7 +4215,7 @@ function resolveWorkspaceImportPath({
   }
 
   const basePath = resolvedParts.join('/')
-  const candidates = [
+  return [
     basePath,
     `${basePath}.ts`,
     `${basePath}.tsx`,
@@ -3774,8 +4224,6 @@ function resolveWorkspaceImportPath({
     `${basePath}/index.ts`,
     `${basePath}/index.tsx`,
   ]
-
-  return candidates.find((candidate) => workspace.has(candidate))
 }
 
 function stripImportSpecifierSuffix(importPath: string) {
@@ -3952,22 +4400,88 @@ function buildForgeAgentPrompt({
   ].join('\n')
 }
 
-function assertCodexCliHarnessAllowed() {
-  if (!isCodexCliForgeHarnessAllowed()) {
-    throw new Error(
-      'FORGE_AGENT_HARNESS=codex-cli is local-only. Set FORGE_ENABLE_CODEX_CLI=true only in an explicitly sandboxed local runtime.',
-    )
-  }
+function buildForgeSandboxAgentPrompt({
+  currentFiles,
+  prompt,
+}: {
+  currentFiles: Array<string>
+  prompt: string
+}) {
+  return [
+    'You are operating inside a real TanStack Start sandbox workspace.',
+    '',
+    'Workspace facts:',
+    '- The app root is /workspace/app.',
+    '- Run shell commands from /workspace/app unless you intentionally need a parent directory.',
+    '- Use shell commands and direct filesystem edits inside /workspace/app.',
+    '',
+    'Required workflow:',
+    '1. Inspect AGENTS.md, package.json, src/routes/index.tsx, and relevant files under /workspace/app.',
+    '2. Modify complete files directly on disk. For a new app, at minimum update src/routes/index.tsx.',
+    '3. Confirm your edit produced at least one Codex file_change item or a visible source/config file diff. If no file changed, keep editing.',
+    '4. Delete obsolete source files instead of leaving dead code in the workspace.',
+    '5. Validate the edited app enough to be confident it runs.',
+    '6. Rely on the already-running Forge preview dev server; do not start another server or call preview/expose tools.',
+    '7. Summarize the actual app title and what you implemented.',
+    '',
+    'Hard rules:',
+    '- Build the app the user asked for. Do not produce a generic dashboard or a page explaining a plan.',
+    '- Do not return code in final prose instead of editing files.',
+    '- Do not finish with only text. A run with zero supported file changes is failed and discarded.',
+    '- If the existing page already partially matches the request, still make the latest requested user-visible change.',
+    '- Use React, TypeScript, Tailwind classes, TanStack Router, and TanStack primitives where they fit.',
+    '- Generated TypeScript must pass noUnusedLocals and noUnusedParameters. Do not import default React just for JSX.',
+    '- For array state, define the item type and call useState<Item[]>(initialValue). Never rely on useState([]) inference.',
+    "- src/routes/index.tsx must be a TanStack Router route exporting createFileRoute('/').",
+    '- Keep src/routes/__root.tsx and src/router.tsx intact unless you are replacing them with valid TanStack Start equivalents.',
+    '- If the prompt asks for todos, include add, toggle completion, all/active/completed filters, delete, and counts.',
+    '- Only write or delete safe app source files under src/ or public/, root Markdown docs, or known root app config files.',
+    '- Do not write lockfiles, generated route trees, node_modules, dist, hidden files, or Forge runtime support files.',
+    '',
+    'Permanent TanStack context:',
+    ...TANSTACK_CONTEXT.map((line) => `- ${line}`),
+    '',
+    'Current files:',
+    ...currentFiles.map((file) => `- ${file}`),
+    '',
+    'Latest user brief:',
+    prompt,
+  ].join('\n')
 }
 
-export function isCodexCliForgeHarnessAllowed({
-  enabled = process.env.FORGE_ENABLE_CODEX_CLI,
-  nodeEnv = process.env.NODE_ENV,
+function buildForgeSandboxNoopRecoveryPrompt({
+  currentFiles,
+  previousActivitySummary,
+  prompt,
 }: {
-  enabled?: string
-  nodeEnv?: string
-} = {}) {
-  return nodeEnv !== 'production' || enabled === 'true'
+  currentFiles: Array<string>
+  previousActivitySummary: string
+  prompt: string
+}) {
+  return [
+    'The previous Forge sandbox attempt completed with zero supported file changes.',
+    'This is a recovery turn in the same real /workspace/app TanStack Start workspace.',
+    '',
+    'You must now edit at least one supported app file on disk before replying.',
+    'Prefer src/routes/index.tsx for landing-page or homepage requests.',
+    'Do not describe a plan, do not say the work is done, and do not finish until the filesystem has changed.',
+    'A final answer with no file_change under src/, public/, or an allowed root config file fails this run.',
+    '',
+    'Current files:',
+    ...currentFiles.map((file) => `- ${file}`),
+    '',
+    'Previous native activity summary:',
+    previousActivitySummary,
+    '',
+    'Original user brief:',
+    prompt,
+  ].join('\n')
+}
+
+function assertCodexCliHarnessAllowed() {
+  throw new Error(
+    'The Forge Codex CLI sidecar is disabled. Forge runs through the TanStack AI sandbox runtime.',
+  )
 }
 
 function buildCodexCliHarnessPrompt({
@@ -4121,23 +4635,16 @@ async function runCodexCliCommand({
   })
 
   if (isIsolateRuntime()) {
-    const result = await runCodexCliCommandWithSidecar({
+    return runCodexCliCommandWithSidecarStream({
       args,
       command,
       outputLastMessagePath,
       prompt,
+      runContext,
+      state,
       workspace,
       workspaceDir,
     })
-
-    await replayCodexCliStdout({
-      runContext,
-      state,
-      stdout: result.stdout,
-      workspaceDir,
-    })
-
-    return result
   }
 
   return new Promise((resolve, reject) => {
@@ -4348,6 +4855,230 @@ async function runCodexCliCommandWithSidecar({
     stderr: result.stderr,
     stdout: result.stdout,
     workspaceDir,
+  }
+}
+
+async function runCodexCliCommandWithSidecarStream({
+  args,
+  command,
+  outputLastMessagePath,
+  prompt,
+  runContext,
+  state,
+  workspace,
+  workspaceDir,
+}: {
+  args: Array<string>
+  command: string
+  outputLastMessagePath: string
+  prompt: string
+  runContext: ForgeRunContext
+  state: ForgeAgentState
+  workspace: Map<string, ForgeWorkspaceFile>
+  workspaceDir: string
+}): Promise<CodexCliCommandResult> {
+  const response = await fetchCodexCliSidecar('/run-stream', {
+    body: JSON.stringify({
+      args,
+      command,
+      cwd: workspaceDir,
+      files: addLocalForgePackageSupport(workspaceToFiles(workspace)),
+      maxOutputChars: LOCAL_FORGE_CODEX_MAX_OUTPUT_CHARS * 10,
+      outputLastMessagePath,
+      prompt,
+      timeoutMs: LOCAL_FORGE_CODEX_TIMEOUT_MS,
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    method: 'POST',
+  })
+
+  if (!response.ok) {
+    throw new Error(
+      `Forge Codex sidecar stream failed with ${response.status}: ${await response.text()}`,
+    )
+  }
+
+  if (!response.body) {
+    throw new Error(
+      'Forge Codex sidecar stream did not include a response body.',
+    )
+  }
+
+  let emittedEventCount = 0
+  let emittedAssistantDeltaChars = 0
+  let assistantMessageStarted = false
+  let assistantMessageText = ''
+  let stderr = ''
+  let result: CodexCliCommandResult | undefined
+  let lastHeartbeatAt = Date.now()
+
+  async function appendHeartbeat() {
+    const now = Date.now()
+
+    if (now - lastHeartbeatAt < 15_000) {
+      return
+    }
+
+    lastHeartbeatAt = now
+    await appendAgentEvent({
+      detail: workspaceDir,
+      message: 'Codex CLI is still running',
+      name: 'agent.codex.process.heartbeat',
+      path: workspaceDir,
+      runContext,
+      status: 'running',
+    })
+  }
+
+  async function appendEvent(event: NormalizedCodexCliEvent) {
+    lastHeartbeatAt = Date.now()
+
+    if (event.assistantDelta !== undefined) {
+      if (emittedAssistantDeltaChars >= LOCAL_FORGE_CODEX_MAX_OUTPUT_CHARS) {
+        return
+      }
+
+      const remaining =
+        LOCAL_FORGE_CODEX_MAX_OUTPUT_CHARS - emittedAssistantDeltaChars
+      const delta = event.assistantDelta.slice(0, remaining)
+      emittedAssistantDeltaChars += delta.length
+
+      if (!assistantMessageStarted) {
+        assistantMessageStarted = true
+        await appendAssistantMessageStarted({
+          messageId: runContext.assistantMessageId,
+          runContext,
+        })
+      }
+
+      assistantMessageText += delta
+      state.streamedAssistantMessage =
+        state.streamedAssistantMessage || delta.trim().length > 0
+      await appendAssistantMessageDelta({
+        delta,
+        messageId: runContext.assistantMessageId,
+        runContext,
+      })
+      return
+    }
+
+    if (emittedEventCount >= LOCAL_FORGE_CODEX_MAX_EVENTS) {
+      return
+    }
+
+    emittedEventCount += 1
+    await appendAgentEvent({
+      detail: event.detail,
+      message: event.message,
+      name: event.name,
+      path: event.path,
+      runContext,
+      status: event.status,
+      toolCallId: event.toolCallId,
+    })
+  }
+
+  for await (const line of readResponseLines(response.body, appendHeartbeat)) {
+    if (!line.trim()) {
+      continue
+    }
+
+    const event = codexCliSidecarStreamEventSchema.parse(JSON.parse(line))
+
+    if (event.type === 'stdout') {
+      const normalizedEvent = normalizeCodexCliJsonLine(
+        event.line,
+        workspaceDir,
+      )
+
+      if (normalizedEvent) {
+        await appendEvent(normalizedEvent)
+      }
+      continue
+    }
+
+    if (event.type === 'stderr') {
+      stderr = appendLimitedText(
+        stderr,
+        event.chunk,
+        LOCAL_FORGE_CODEX_MAX_OUTPUT_CHARS,
+      )
+      continue
+    }
+
+    if (event.type === 'error') {
+      throw new Error(event.error)
+    }
+
+    result = {
+      exitCode: event.exitCode,
+      files: event.files,
+      finalMessage: event.finalMessage,
+      stderr: event.stderr || stderr,
+      workspaceDir,
+    }
+  }
+
+  if (assistantMessageStarted) {
+    await appendAssistantMessageCompleted({
+      messageId: runContext.assistantMessageId,
+      runContext,
+      text: assistantMessageText,
+    })
+  }
+
+  if (!result) {
+    throw new Error('Forge Codex sidecar stream ended without a result.')
+  }
+
+  return result
+}
+
+async function* readResponseLines(
+  body: ReadableStream<Uint8Array>,
+  onWait: () => Promise<void>,
+) {
+  const reader = body.getReader()
+  const decoder = new TextDecoder()
+  let buffer = ''
+  let waitTimer: ReturnType<typeof setInterval> | undefined
+
+  try {
+    waitTimer = setInterval(() => {
+      void onWait().catch((error) => {
+        console.error('Failed to append Codex heartbeat', error)
+      })
+    }, 5_000)
+
+    while (true) {
+      const { done, value } = await reader.read()
+
+      if (done) {
+        break
+      }
+
+      buffer += decoder.decode(value, { stream: true })
+      const lines = buffer.split('\n')
+      buffer = lines.pop() ?? ''
+
+      for (const line of lines) {
+        yield line
+      }
+    }
+
+    buffer += decoder.decode()
+
+    if (buffer) {
+      yield buffer
+    }
+  } finally {
+    if (waitTimer) {
+      clearInterval(waitTimer)
+    }
+
+    reader.releaseLock()
   }
 }
 
@@ -4702,6 +5433,82 @@ function scanCodexCliReturnedWorkspace({
   return {
     changeCount: changedPaths.length,
     changedPaths,
+    problems,
+    workspace: nextWorkspace,
+  }
+}
+
+function scanSandboxIncrementalWorkspace({
+  changes,
+  originalWorkspace,
+}: {
+  changes: {
+    deletedPaths: Array<string>
+    files: Record<string, string>
+  }
+  originalWorkspace: Map<string, ForgeWorkspaceFile>
+}): CodexCliWorkspaceScan {
+  const changedPaths = Array<string>()
+  const problems = Array<string>()
+  const nextWorkspace = new Map<string, ForgeWorkspaceFile>()
+
+  for (const [filePath, file] of originalWorkspace) {
+    nextWorkspace.set(filePath, file)
+  }
+
+  for (const filePath of changes.deletedPaths) {
+    if (LOCAL_FORGE_CODEX_SCANNER_IGNORED_FILE_PATHS.has(filePath)) {
+      continue
+    }
+
+    if (!originalWorkspace.has(filePath)) {
+      continue
+    }
+
+    const problem = validateDeletedPath(filePath)
+
+    if (problem === null) {
+      nextWorkspace.delete(filePath)
+      changedPaths.push(filePath)
+    } else if (LOCAL_FORGE_PROTECTED_WORKSPACE_PATHS.has(filePath)) {
+      problems.push(`Sandbox deleted unsupported file ${filePath}: ${problem}`)
+    }
+  }
+
+  const filePaths = Object.keys(changes.files).sort((left, right) =>
+    left.localeCompare(right),
+  )
+
+  for (const filePath of filePaths) {
+    if (LOCAL_FORGE_CODEX_SCANNER_IGNORED_FILE_PATHS.has(filePath)) {
+      continue
+    }
+
+    const contents = changes.files[filePath]
+    const originalFile = originalWorkspace.get(filePath)
+
+    if (originalFile?.contents === contents) {
+      continue
+    }
+
+    const problem = validateGeneratedPath(filePath)
+
+    if (problem) {
+      problems.push(`Sandbox changed unsupported file ${filePath}: ${problem}`)
+      continue
+    }
+
+    nextWorkspace.set(filePath, {
+      contents,
+      path: filePath,
+      source: 'agent',
+    })
+    changedPaths.push(filePath)
+  }
+
+  return {
+    changeCount: uniqueStrings(changedPaths).length,
+    changedPaths: uniqueStrings(changedPaths),
     problems,
     workspace: nextWorkspace,
   }

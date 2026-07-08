@@ -3,10 +3,19 @@ import './instrument.server.mjs'
 import { wrapFetchWithSentry } from '@sentry/tanstackstart-react'
 import handler, { createServerEntry } from '@tanstack/react-start/server-entry'
 import {
+  ContainerProxy,
+  getSandbox,
   proxyToSandbox,
-  type Sandbox,
+  Sandbox as CloudflareSandbox,
+  type Sandbox as CloudflareSandboxInstance,
   type SandboxEnv,
 } from '@cloudflare/sandbox'
+import {
+  FORGE_SANDBOX_OPTIONS,
+  FORGE_SANDBOX_PREVIEW_PORT,
+  restartForgeSandboxPreviewDevServer,
+  resolveForgeSandboxPreviewHmrOptions,
+} from '~/builder/runtime/sandbox-preview.server'
 import { runWithDatabaseContext } from '~/db/client'
 import { runScheduledTasks } from '~/server/scheduled.server'
 import {
@@ -20,7 +29,9 @@ import {
 import { docsContentNegotiationVaryHeader } from '~/utils/http'
 
 export { ForgeSessionDurableObject } from '~/builder/runtime/forge-session-do.server'
-export { Sandbox } from '@cloudflare/sandbox'
+
+export { ContainerProxy }
+export class Sandbox extends CloudflareSandbox {}
 
 // The Workers env this entry needs to know about, structurally: the
 // `Sandbox` container-host DO binding `proxyToSandbox` routes preview
@@ -28,7 +39,7 @@ export { Sandbox } from '@cloudflare/sandbox'
 // `ForgeSandboxEnv` in `~/builder/runtime/sandbox-agent.server` — no
 // generated `worker-configuration.d.ts` `Env` is relied on here since that
 // file is intentionally gitignored.
-type ForgeWorkerEnv = SandboxEnv<Sandbox>
+type ForgeWorkerEnv = SandboxEnv<CloudflareSandboxInstance>
 
 const SECURITY_HEADERS = {
   'X-Frame-Options': 'DENY',
@@ -85,12 +96,7 @@ function applyHostingHeaders(response: Response, url: URL) {
     headers.set(key, value)
   }
 
-  if (
-    url.pathname === '/builder' ||
-    url.pathname === '/forge' ||
-    url.pathname.startsWith('/builder/') ||
-    url.pathname.startsWith('/forge/')
-  ) {
+  if (url.pathname === '/builder' || url.pathname.startsWith('/builder/')) {
     headers.set('Cross-Origin-Opener-Policy', 'same-origin')
     headers.set('Cross-Origin-Embedder-Policy', 'require-corp')
   }
@@ -130,6 +136,104 @@ async function proxyAnalyticsRequest(request: Request, url: URL) {
 
   const response = await fetch(upstreamUrl, init)
   return applyHostingHeaders(response, url)
+}
+
+async function repairBlockedForgePreviewRequest({
+  env,
+  request,
+  response,
+}: {
+  env: ForgeWorkerEnv
+  request: Request
+  response: Response
+}) {
+  if (
+    response.status !== 403 ||
+    !(await response.clone().text()).includes('Blocked request')
+  ) {
+    return response
+  }
+
+  const route = readForgePreviewRoute(new URL(request.url))
+
+  if (!route || route.port !== FORGE_SANDBOX_PREVIEW_PORT) {
+    return response
+  }
+
+  const sandbox = getSandbox(
+    env.Sandbox,
+    route.sandboxId,
+    FORGE_SANDBOX_OPTIONS,
+  )
+
+  const hmr = resolveForgeSandboxPreviewHmrOptions({ previewUrl: request.url })
+  const restartResult = await restartForgeSandboxPreviewDevServer(sandbox, {
+    ...(hmr ? { hmr } : {}),
+    waitTimeoutMs: 45_000,
+  }).catch((error: unknown) => {
+    console.warn('[forge-preview] repair failed', error)
+    return undefined
+  })
+
+  if (restartResult?.ok === false) {
+    console.warn('[forge-preview] repair did not start preview', {
+      logTail: restartResult.logTail,
+    })
+  }
+
+  const retryResponse = (await proxyToSandbox(request, env)) ?? response
+  const headers = new Headers(retryResponse.headers)
+  headers.set('X-Forge-Preview-Repair', 'attempted')
+
+  return new Response(retryResponse.body, {
+    headers,
+    status: retryResponse.status,
+    statusText: retryResponse.statusText,
+  })
+}
+
+function readForgePreviewRoute(url: URL) {
+  const dotIndex = url.hostname.indexOf('.')
+
+  if (dotIndex === -1) {
+    return undefined
+  }
+
+  const subdomain = url.hostname.slice(0, dotIndex)
+  const firstHyphen = subdomain.indexOf('-')
+
+  if (firstHyphen === -1) {
+    return undefined
+  }
+
+  const port = Number.parseInt(subdomain.slice(0, firstHyphen), 10)
+
+  if (!Number.isInteger(port) || port < 1024 || port > 65535 || port === 3000) {
+    return undefined
+  }
+
+  const rest = subdomain.slice(firstHyphen + 1)
+  const lastHyphen = rest.lastIndexOf('-')
+
+  if (lastHyphen === -1) {
+    return undefined
+  }
+
+  const sandboxId = rest.slice(0, lastHyphen)
+  const token = rest.slice(lastHyphen + 1)
+
+  if (
+    !/^[a-z0-9-]+$/.test(sandboxId) ||
+    sandboxId.length === 0 ||
+    sandboxId.length > 63 ||
+    !/^[a-z0-9_-]+$/.test(token) ||
+    token.length === 0 ||
+    token.length > 16
+  ) {
+    return undefined
+  }
+
+  return { port, sandboxId }
 }
 
 const server = createServerEntry(
@@ -192,7 +296,13 @@ export default {
     // the matching sandbox container by hostname BEFORE any other routing —
     // it never reaches the TanStack Start handler below.
     const proxied = await proxyToSandbox(request, env)
-    if (proxied) return proxied
+    if (proxied) {
+      return repairBlockedForgePreviewRequest({
+        env,
+        request,
+        response: proxied,
+      })
+    }
 
     return server.fetch(request)
   },

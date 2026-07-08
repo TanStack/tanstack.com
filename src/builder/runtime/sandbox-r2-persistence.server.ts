@@ -17,13 +17,30 @@ const FORGE_MANIFEST_MARKER_NAME = '.forge-manifest'
 // forge manifest and would balloon (or corrupt) the persisted file set.
 const FORGE_WORKSPACE_COLLECT_IGNORED_DIRECTORIES = new Set([
   '.git',
+  '.tanstack',
   'dist',
   'node_modules',
+])
+const FORGE_WORKSPACE_EVENT_IGNORED_DIRECTORIES = new Set([
+  ...FORGE_WORKSPACE_COLLECT_IGNORED_DIRECTORIES,
+])
+const FORGE_WORKSPACE_COLLECT_IGNORED_FILES = new Set([
+  '.cta.json',
+  '.forge-manifest',
+  'bun.lock',
+  'bun.lockb',
+  'package-lock.json',
+  'pnpm-lock.yaml',
+  'yarn.lock',
 ])
 // Debounce window for mirroring a single file's edits to R2 — bursts of
 // rapid writes to the same path within this window collapse into one
 // persisted blob instead of one R2 write per keystroke-level event.
 const FORGE_FILE_MIRROR_DEBOUNCE_MS = 500
+
+type ForgeCloudManifest = NonNullable<
+  Awaited<ReturnType<typeof readForgeCloudManifest>>
+>
 
 export type ForgeSandboxPersistenceEnv = {
   FORGE_RUNTIME?: BlobStorage
@@ -71,14 +88,22 @@ export type ForgeSandboxPersistenceEnv = {
 export function forgePersistenceHooks({
   env,
   manifestVersionId,
+  materializeMode = 'if-stale',
   runId,
+  startedAt,
 }: {
   /** Durable R2 manifest/blob lookup key. */
   manifestVersionId: string
+  materializeMode?: 'if-missing' | 'if-stale'
   /** Live run identity activity-feed events are grouped under. */
   runId: string
+  startedAt?: number
   env: ForgeSandboxPersistenceEnv
 }): Pick<SandboxHooks, 'onFile' | 'onReady'> & {
+  collectWorkspaceChanges: () => {
+    deletedPaths: Array<string>
+    files: Record<string, string>
+  }
   collectWorkspaceFiles: () => Promise<Record<string, string>>
   flush: () => Promise<void>
 } {
@@ -90,9 +115,24 @@ export function forgePersistenceHooks({
   // Every in-flight mirror settles into this set so `flush()` can await all
   // of them; a completed mirror removes itself.
   const inFlightMirrors = new Set<Promise<void>>()
+  const changedFiles = new Map<string, string>()
+  const deletedPaths = new Set<string>()
   let readyHandle: SandboxHandle | undefined
+  let recordedFirstFileEvent = false
 
   return {
+    collectWorkspaceChanges() {
+      return {
+        deletedPaths: Array.from(deletedPaths).sort((left, right) =>
+          left.localeCompare(right),
+        ),
+        files: Object.fromEntries(
+          Array.from(changedFiles).sort(([left], [right]) =>
+            left.localeCompare(right),
+          ),
+        ),
+      }
+    },
     async collectWorkspaceFiles() {
       if (!readyHandle) {
         // `onReady` never fired (e.g. the run failed before the sandbox
@@ -118,6 +158,8 @@ export function forgePersistenceHooks({
         }
 
         runForgeFileMirror({
+          changedFiles,
+          deletedPaths,
           event,
           getHandle: () => readyHandle,
           inFlightMirrors,
@@ -133,10 +175,50 @@ export function forgePersistenceHooks({
     },
     async onReady(handle) {
       readyHandle = handle
-      await materializeForgeWorkspace({ handle, manifestVersionId, storage })
+      const materializeStartedAt = Date.now()
+      const result = await materializeForgeWorkspace({
+        handle,
+        manifestVersionId,
+        mode: materializeMode,
+        storage,
+      })
+
+      await appendLocalForgeRuntimeEvent({
+        detail: `${result.status}; ${result.filesWritten} files written`,
+        message: 'Sandbox materialize phase finished',
+        name: 'workflow.phase.materialize.finished',
+        producerId: 'forge-sandbox-r2-persistence',
+        runId,
+        startedAt: materializeStartedAt,
+        status: 'finished',
+      })
     },
     onFile(event) {
+      if (
+        !recordedFirstFileEvent &&
+        !isIgnoredForgeWorkspaceFileEvent(event.path)
+      ) {
+        recordedFirstFileEvent = true
+        void appendLocalForgeRuntimeEvent({
+          detail: event.path,
+          message: 'First sandbox file activity observed',
+          name: 'workflow.phase.first-file-write.finished',
+          path: event.path,
+          producerId: 'forge-sandbox-r2-persistence',
+          runId,
+          startedAt,
+          status: 'finished',
+        }).catch((error: unknown) => {
+          console.error(
+            '[forge-sandbox-r2-persistence] first file timing failed',
+            error,
+          )
+        })
+      }
+
       scheduleForgeFileMirror({
+        changedFiles,
+        deletedPaths,
         event,
         getHandle: () => readyHandle,
         inFlightMirrors,
@@ -237,8 +319,8 @@ async function walkForgeWorkspaceDir({
       continue
     }
 
-    if (entry.name === FORGE_MANIFEST_MARKER_NAME) {
-      // The marker is sandbox bookkeeping, not a workspace file.
+    if (FORGE_WORKSPACE_COLLECT_IGNORED_FILES.has(entry.name)) {
+      // Sandbox/package-manager bookkeeping, not app source.
       continue
     }
 
@@ -249,12 +331,32 @@ async function walkForgeWorkspaceDir({
 async function materializeForgeWorkspace({
   handle,
   manifestVersionId,
+  mode,
   storage,
 }: {
   handle: SandboxHandle
   manifestVersionId: string
+  mode: 'if-missing' | 'if-stale'
   storage: BlobStorage | undefined
-}) {
+}): Promise<{
+  filesWritten: number
+  status:
+    | 'missing-cloud-manifest'
+    | 'skipped-existing-workspace'
+    | 'skipped-matching-marker'
+    | 'updated-stale-marker'
+    | 'wrote-manifest'
+}> {
+  if (
+    mode === 'if-missing' &&
+    (await forgeWorkspaceAppearsInitialized(handle))
+  ) {
+    return {
+      filesWritten: 0,
+      status: 'skipped-existing-workspace',
+    }
+  }
+
   const manifest = await readForgeCloudManifest({
     manifestVersionId,
     storage,
@@ -263,25 +365,76 @@ async function materializeForgeWorkspace({
   if (!manifest) {
     // No R2 manifest recorded for this project yet — nothing to
     // materialize. The sandbox starts from its provider-default workspace.
-    return
+    return {
+      filesWritten: 0,
+      status: 'missing-cloud-manifest',
+    }
   }
 
   const currentMarker = await readForgeManifestMarker(handle)
 
   if (currentMarker === manifest.manifestVersionId) {
     // Warm sandbox already matches the current R2 manifest — zero writes.
-    return
+    return {
+      filesWritten: 0,
+      status: 'skipped-matching-marker',
+    }
   }
 
   // Stale/mismatched (or cold) sandbox: reconcile `/workspace/app` to exactly
   // the manifest's file set. On a WARM sandbox, files that existed in a prior
   // manifest but are absent from this one must be removed first — otherwise
   // `collectWorkspaceFiles` would scan them back and resurrect deleted files.
-  const manifestPaths = new Set(
-    Object.values(manifest.files).map((file) => file.path),
-  )
+  const manifestFileContents = await readForgeManifestFileContents({
+    manifest,
+    storage,
+  })
+  const currentFiles = await collectForgeWorkspaceFiles(handle)
+
+  if (
+    forgeWorkspaceFilesMatchManifest({
+      currentFiles,
+      manifestFiles: manifestFileContents,
+    })
+  ) {
+    await handle.fs.write(
+      FORGE_MANIFEST_MARKER_PATH,
+      manifest.manifestVersionId,
+    )
+
+    return {
+      filesWritten: 0,
+      status: 'updated-stale-marker',
+    }
+  }
+
+  const manifestPaths = new Set(Object.keys(manifestFileContents))
 
   await pruneStaleForgeWorkspaceFiles({ handle, manifestPaths })
+
+  let filesWritten = 0
+
+  for (const [filePath, content] of Object.entries(manifestFileContents)) {
+    await handle.fs.write(`${FORGE_WORKSPACE_APP_DIR}/${filePath}`, content)
+    filesWritten += 1
+  }
+
+  await handle.fs.write(FORGE_MANIFEST_MARKER_PATH, manifest.manifestVersionId)
+
+  return {
+    filesWritten,
+    status: 'wrote-manifest',
+  }
+}
+
+async function readForgeManifestFileContents({
+  manifest,
+  storage,
+}: {
+  manifest: ForgeCloudManifest
+  storage: BlobStorage | undefined
+}) {
+  const files: Record<string, string> = {}
 
   for (const file of Object.values(manifest.files)) {
     const blob = await readForgeCloudBlob({ blobRef: file.blobRef, storage })
@@ -292,13 +445,46 @@ async function materializeForgeWorkspace({
       )
     }
 
-    await handle.fs.write(
-      `${FORGE_WORKSPACE_APP_DIR}/${file.path}`,
-      blob.content,
-    )
+    files[file.path] = blob.content
   }
 
-  await handle.fs.write(FORGE_MANIFEST_MARKER_PATH, manifest.manifestVersionId)
+  return files
+}
+
+function forgeWorkspaceFilesMatchManifest({
+  currentFiles,
+  manifestFiles,
+}: {
+  currentFiles: Record<string, string>
+  manifestFiles: Record<string, string>
+}) {
+  const currentPaths = Object.keys(currentFiles).sort((left, right) =>
+    left.localeCompare(right),
+  )
+  const manifestPaths = Object.keys(manifestFiles).sort((left, right) =>
+    left.localeCompare(right),
+  )
+
+  if (currentPaths.length !== manifestPaths.length) {
+    return false
+  }
+
+  for (let index = 0; index < manifestPaths.length; index++) {
+    const path = manifestPaths[index]
+    const currentPath = currentPaths[index]
+
+    if (path !== currentPath || currentFiles[path] !== manifestFiles[path]) {
+      return false
+    }
+  }
+
+  return true
+}
+
+async function forgeWorkspaceAppearsInitialized(handle: SandboxHandle) {
+  return handle.fs
+    .exists(`${FORGE_WORKSPACE_APP_DIR}/package.json`)
+    .catch(() => false)
 }
 
 /**
@@ -355,6 +541,8 @@ async function readForgeManifestMarker(handle: SandboxHandle) {
 }
 
 function scheduleForgeFileMirror({
+  changedFiles,
+  deletedPaths,
   event,
   getHandle,
   inFlightMirrors,
@@ -364,6 +552,8 @@ function scheduleForgeFileMirror({
   runId,
   storage,
 }: {
+  changedFiles: Map<string, string>
+  deletedPaths: Set<string>
   event: SandboxFileEvent
   getHandle: () => SandboxHandle | undefined
   inFlightMirrors: Set<Promise<void>>
@@ -373,6 +563,10 @@ function scheduleForgeFileMirror({
   runId: string
   storage: BlobStorage | undefined
 }) {
+  if (isIgnoredForgeWorkspaceFileEvent(event.path)) {
+    return
+  }
+
   const existingTimer = pendingMirrors.get(event.path)
 
   if (existingTimer) {
@@ -385,6 +579,8 @@ function scheduleForgeFileMirror({
     pendingMirrors.delete(event.path)
     pendingMirrorEvents.delete(event.path)
     runForgeFileMirror({
+      changedFiles,
+      deletedPaths,
       event,
       getHandle,
       inFlightMirrors,
@@ -405,6 +601,8 @@ function scheduleForgeFileMirror({
  * and it removes itself from the set once settled.
  */
 function runForgeFileMirror({
+  changedFiles,
+  deletedPaths,
   event,
   getHandle,
   inFlightMirrors,
@@ -412,6 +610,8 @@ function runForgeFileMirror({
   runId,
   storage,
 }: {
+  changedFiles: Map<string, string>
+  deletedPaths: Set<string>
   event: SandboxFileEvent
   getHandle: () => SandboxHandle | undefined
   inFlightMirrors: Set<Promise<void>>
@@ -420,6 +620,8 @@ function runForgeFileMirror({
   storage: BlobStorage | undefined
 }) {
   const promise = mirrorForgeFileEvent({
+    changedFiles,
+    deletedPaths,
     event,
     handle: getHandle(),
     manifestVersionId,
@@ -437,18 +639,26 @@ function runForgeFileMirror({
 }
 
 async function mirrorForgeFileEvent({
+  changedFiles,
+  deletedPaths,
   event,
   handle,
   manifestVersionId,
   runId,
   storage,
 }: {
+  changedFiles: Map<string, string>
+  deletedPaths: Set<string>
   event: SandboxFileEvent
   handle: SandboxHandle | undefined
   manifestVersionId: string
   runId: string
   storage: BlobStorage | undefined
 }) {
+  if (isIgnoredForgeWorkspaceFileEvent(event.path)) {
+    return
+  }
+
   await appendLocalForgeRuntimeEvent({
     detail: event.path,
     message: `Sandbox file ${event.type}`,
@@ -460,6 +670,13 @@ async function mirrorForgeFileEvent({
   })
 
   if (!storage || !handle || event.type === 'delete') {
+    const relativePath = toForgeWorkspaceRelativePath(event.path)
+
+    if (relativePath && event.type === 'delete') {
+      changedFiles.delete(relativePath)
+      deletedPaths.add(relativePath)
+    }
+
     // Deletions are reflected in the activity feed above only: tombstoning
     // a path out of the manifest happens through the normal
     // manifest-snapshot flow (`appendLocalForgeManifestTimeline`), not here.
@@ -473,6 +690,8 @@ async function mirrorForgeFileEvent({
   }
 
   const content = await handle.fs.read(event.path)
+  changedFiles.set(relativePath, content)
+  deletedPaths.delete(relativePath)
 
   await persistForgeCloudBlob({
     // The blob key is content-addressed (`buildForgeMirrorBlob`); this scope
@@ -496,6 +715,34 @@ function toForgeWorkspaceRelativePath(absolutePath: string) {
   }
 
   return absolutePath.slice(prefix.length)
+}
+
+export function isIgnoredForgeWorkspaceFileEvent(absolutePath: string) {
+  const relativePath = toForgeWorkspaceRelativePath(absolutePath)
+
+  if (!relativePath) {
+    return true
+  }
+
+  if (relativePath === FORGE_MANIFEST_MARKER_NAME) {
+    return true
+  }
+
+  const pathParts = relativePath.split('/')
+  const topLevelDirectory = pathParts[0]
+  const fileName = pathParts[pathParts.length - 1]
+
+  if (
+    FORGE_WORKSPACE_COLLECT_IGNORED_FILES.has(relativePath) ||
+    (fileName && FORGE_WORKSPACE_COLLECT_IGNORED_FILES.has(fileName))
+  ) {
+    return true
+  }
+
+  return (
+    topLevelDirectory !== undefined &&
+    FORGE_WORKSPACE_EVENT_IGNORED_DIRECTORIES.has(topLevelDirectory)
+  )
 }
 
 function buildForgeMirrorBlob({

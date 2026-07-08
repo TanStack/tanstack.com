@@ -249,7 +249,7 @@ function Index() {
           <div
             className={`
           rounded-md p-4 grid gap-6
-          bg-gradient-to-br from-red-500 to-red-700 text-white overflow-hidden relative
+          bg-linear-to-br from-red-500 to-red-700 text-white overflow-hidden relative
           shadow-xl shadow-red-700/30
           sm:p-8 sm:grid-cols-3 items-center`}
           >
@@ -655,7 +655,7 @@ function FrameworkAdapterGraph({
           data-adapter-label={frameworkAdapterCore.label}
           style={adapterGraphStyle(frameworkAdapterCore)}
           className={twMerge(
-            'absolute z-30 flex items-center justify-center rounded-lg bg-gradient-to-r text-center text-[13px] text-white shadow-lg shadow-cyan-500/15',
+            'absolute z-30 flex items-center justify-center rounded-lg bg-linear-to-r text-center text-[13px] text-white shadow-lg shadow-cyan-500/15',
             accentClassName,
           )}
         >
@@ -750,7 +750,7 @@ function PrincipleProof({
               <span>{name}</span>
               <span
                 className={twMerge(
-                  'bg-gradient-to-r bg-clip-text font-black text-transparent',
+                  'bg-linear-to-r bg-clip-text font-black text-transparent',
                   accentClassName,
                 )}
               >
@@ -770,7 +770,7 @@ function PrincipleProof({
           <span>critical paths</span>
           <span
             className={twMerge(
-              'bg-gradient-to-r bg-clip-text text-transparent',
+              'bg-linear-to-r bg-clip-text text-transparent',
               accentClassName,
             )}
           >
@@ -785,7 +785,7 @@ function PrincipleProof({
             >
               <span
                 className={twMerge(
-                  'h-1.5 w-1.5 rounded-full bg-gradient-to-r',
+                  'h-1.5 w-1.5 rounded-full bg-linear-to-r',
                   accentClassName,
                 )}
               />
@@ -811,7 +811,7 @@ function PrincipleProof({
       </div>
       <div
         aria-hidden="true"
-        className={twMerge('mt-3 h-px bg-gradient-to-r', accentClassName)}
+        className={twMerge('mt-3 h-px bg-linear-to-r', accentClassName)}
       />
     </div>
   )
@@ -839,7 +839,7 @@ function StackCategoryCard({
           <li key={lib.id} className="flex items-start gap-2.5">
             <span
               className={twMerge(
-                'flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-gradient-to-br text-[10px] font-black text-white',
+                'flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-linear-to-br text-[10px] font-black text-white',
                 lib.colorFrom,
                 lib.colorTo,
               )}

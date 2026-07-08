@@ -47,7 +47,7 @@ export function BlogAuthorFilter({
           >
             <span
               className={twMerge(
-                'flex items-center justify-center w-6 h-6 rounded border overflow-hidden flex-shrink-0',
+                'flex items-center justify-center w-6 h-6 rounded border overflow-hidden shrink-0',
                 activeAuthor ? 'border-blue-500/30' : 'border-gray-500/20',
               )}
             >
@@ -111,7 +111,7 @@ export function BlogAuthorFilter({
                   width={20}
                   src={getAuthorAvatar(name)}
                   alt=""
-                  className="w-5 h-5 rounded object-cover flex-shrink-0"
+                  className="w-5 h-5 rounded object-cover shrink-0"
                 />
                 <span className="truncate">{name}</span>
                 {isSelected ? (

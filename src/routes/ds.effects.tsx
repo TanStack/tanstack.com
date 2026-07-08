@@ -45,7 +45,7 @@ function EffectsPage() {
 </div>`}
         >
           <div className="relative overflow-hidden rounded-2xl p-8">
-            <div className="absolute inset-0 bg-gradient-to-br from-teal-400 via-blue-500 to-purple-600" />
+            <div className="absolute inset-0 bg-linear-to-br from-teal-400 via-blue-500 to-purple-600" />
             <div className="relative flex justify-center">
               <div className="ts-glass-menu rounded-2xl bg-white/10 px-8 py-6 text-center backdrop-blur-xl">
                 <div className="text-lg font-semibold text-white">

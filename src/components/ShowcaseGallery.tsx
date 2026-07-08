@@ -295,7 +295,7 @@ export function ShowcaseGallery() {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-950">
+      <div className="bg-linear-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-950">
         <div className="max-w-7xl mx-auto px-4 py-12 sm:py-16">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>

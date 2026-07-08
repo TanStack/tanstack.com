@@ -13,7 +13,7 @@ export function CompleteOverlay() {
   }
 
   return (
-    <div className="absolute inset-0 z-20 flex items-center justify-center bg-gradient-to-b from-amber-400/90 to-orange-500/90 backdrop-blur-sm">
+    <div className="absolute inset-0 z-20 flex items-center justify-center bg-linear-to-b from-amber-400/90 to-orange-500/90 backdrop-blur-sm">
       <div className="max-w-md mx-4 text-center">
         {/* Trophy */}
         <div className="w-24 h-24 mx-auto mb-6 bg-white/20 rounded-full flex items-center justify-center">

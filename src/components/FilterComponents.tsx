@@ -628,7 +628,7 @@ export function ViewModeToggle({
 
   if (compact) {
     return (
-      <div className="flex items-center gap-0.5 bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5 flex-shrink-0">
+      <div className="flex items-center gap-0.5 bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5 shrink-0">
         {compactViewModes.map(({ mode, icon: Icon, title }) => (
           <button
             key={mode}

@@ -84,7 +84,7 @@ export function Select<T extends SelectOption>({
                   width={18}
                   src={option.logo}
                   alt={`${option.label} logo`}
-                  className="flex-shrink-0"
+                  className="shrink-0"
                 />
               ) : null}
               <span className="truncate">{option.label}</span>

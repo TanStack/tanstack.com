@@ -766,6 +766,71 @@ export function ApplicationStarter({
                             ))}
                           </div>
                         </StarterCustomizationSection>
+                        {showActionSection ? (
+                          <div className="flex flex-col gap-4 mt-4">
+                            {!showCliExportActions ? (
+                              <div className="flex flex-wrap items-center gap-3">
+                                {!selectedHostingDeployPartner
+                                  ? renderActionAnchor({
+                                      action: 'netlify',
+                                      className:
+                                        'border-[#00AD9F] bg-[#00AD9F] text-white hover:bg-[#009a8e]',
+                                      href: netlifyStartHref,
+                                      icon: <Rocket className="h-4 w-4" />,
+                                      label: secondaryActionLabel,
+                                      onTrack: () => {
+                                        trackActivation({
+                                          action: 'netlify_start',
+                                          surface: 'result_panel',
+                                          provider: 'netlify',
+                                        })
+                                      },
+                                      size: 'sm',
+                                    })
+                                  : null}
+
+                                {renderActionAnchor({
+                                  action: 'codex',
+                                  className:
+                                    'border-gray-900 bg-gray-900 text-white hover:bg-gray-800 dark:border-gray-100 dark:bg-gray-100 dark:text-gray-950 dark:hover:bg-gray-200',
+                                  href: codexStartHref,
+                                  icon: (
+                                    <span className="relative h-4 w-4 shrink-0">
+                                      <img
+                                        src={openaiDarkLogo}
+                                        alt=""
+                                        aria-hidden="true"
+                                        className="h-4 w-4 dark:hidden"
+                                      />
+                                      <img
+                                        src={openaiLightLogo}
+                                        alt=""
+                                        aria-hidden="true"
+                                        className="hidden h-4 w-4 dark:block"
+                                      />
+                                    </span>
+                                  ),
+                                  label: 'Open in Codex',
+                                  onTrack: () => {
+                                    trackActivation({
+                                      action: 'open_codex',
+                                      surface: 'result_panel',
+                                    })
+                                  },
+                                  size: 'sm',
+                                })}
+                              </div>
+                            ) : null}
+
+                            <div className="flex flex-wrap items-center gap-3">
+                              {renderSelectedHostingDeployButton()}
+                              {renderCopyPromptButton()}
+                              {showCliExportActions
+                                ? renderCopyCliCommandButton()
+                                : null}
+                            </div>
+                          </div>
+                        ) : null}
                       </div>
                     </StarterTooltipProvider>
                   ) : null}

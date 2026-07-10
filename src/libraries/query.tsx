@@ -1,6 +1,5 @@
-import { MagicWand, Lightning } from '@phosphor-icons/react'
+import { MagicWand, Lightning, Gear } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
-import { CogsIcon } from '~/components/icons/CogsIcon'
 import { query } from './libraries'
 
 const textStyles = 'text-red-500 dark:text-red-400'
@@ -110,7 +109,7 @@ export const queryProject = {
     {
       title: 'Extensible',
       icon: (
-        <CogsIcon
+        <Gear
           className={twMerge('motion-safe:animate-spin', textStyles)}
           style={{
             animationDuration: '10s',

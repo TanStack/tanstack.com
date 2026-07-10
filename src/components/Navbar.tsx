@@ -9,11 +9,11 @@ const LazyNavbarAuthControls = React.lazy(() =>
   })),
 )
 import { NavbarCartButton } from './NavbarCartButton'
+import { MegaMenuItem } from './MegaMenuItem'
 import { Link, useLocation, useMatches } from '@tanstack/react-router'
 import {
   BookOpen,
   Code,
-  ArrowSquareOut,
   GridFour,
   Hammer,
   Heart,
@@ -330,6 +330,12 @@ const NAV_GROUPS = [
             description: 'Logos, colors, and brand usage.',
             icon: PaintBrush,
           },
+          {
+            label: 'Design System',
+            to: '/ds',
+            description: 'Design tokens and components for TanStack surfaces.',
+            icon: GridFour,
+          },
         ],
       },
     ],
@@ -354,10 +360,6 @@ function isNavigationLibrary(
 
 function getLibraryDisplayName(library: LibrarySlim) {
   return library.name.replace(/^TanStack\s+/, '')
-}
-
-function isExternalLink(to: string) {
-  return to.startsWith('http') || to.startsWith('mailto:')
 }
 
 function getLibraryDocsTo(library: NavigationLibrary) {
@@ -564,8 +566,8 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   const navbar = (
     <div
       className={twMerge(
-        'w-full h-[var(--navbar-height)] p-2 fixed top-0 z-[100] bg-white/90 dark:bg-black/90 backdrop-blur-lg',
-        'flex items-center justify-between gap-2 min-[1120px]:gap-3',
+        'w-full h-[var(--navbar-height)] px-3 py-2 min-[900px]:px-5 fixed top-0 z-[100] bg-white/90 dark:bg-black/90 backdrop-blur-lg',
+        'flex items-center justify-between gap-2 min-[1120px]:gap-4',
         'border-b border-gray-500/20',
       )}
       ref={containerRef}
@@ -590,7 +592,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         aria-label="Primary navigation"
         className={twMerge(
           DESKTOP_NAV_CLASS,
-          'relative shrink-0 items-center justify-center gap-0',
+          'relative shrink-0 items-center justify-center gap-1',
         )}
       >
         {NAV_GROUPS.map((group) => (
@@ -608,7 +610,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         ))}
       </nav>
 
-      <div className="flex flex-1 items-center justify-end gap-1.5 sm:gap-2">
+      <div className="flex flex-1 items-center justify-end gap-2 sm:gap-2.5">
         <div className={DESKTOP_SOCIAL_CLASS}>{socialLinks}</div>
         <ThemeToggle />
         <NavbarCartButton />
@@ -918,7 +920,7 @@ function MegaMenuContent({
               </div>
               <div
                 className={twMerge(
-                  'grid gap-1',
+                  'grid gap-2',
                   variant === 'desktop' &&
                     group.key === 'learn' &&
                     'grid-cols-[repeat(2,260px)]',
@@ -1382,89 +1384,19 @@ function MenuItemLink({
   variant: 'desktop' | 'mobile'
   compact?: boolean
 }) {
-  const Icon = item.icon
-  const isExternal = isExternalLink(item.to)
-  const className = twMerge(
-    'group flex items-start gap-3 rounded-lg px-2 py-2.5 text-left',
-    'hover:bg-gray-500/10 focus:bg-gray-500/10 focus:outline-none',
-    compact && 'bg-white dark:bg-black/40',
-    variant === 'desktop' && !compact && 'w-[260px]',
-    variant === 'mobile' && 'px-2 py-3',
-  )
-  const content = (
-    <>
-      {Icon ? (
-        <span className="mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300">
-          <Icon className="h-4 w-4" />
-        </span>
-      ) : null}
-      <span className="min-w-0 flex-1">
-        <span className="flex items-center gap-2">
-          <span className="font-bold text-gray-950 dark:text-white">
-            {item.label}
-          </span>
-          {item.badge ? (
-            <span className="rounded-md border border-green-500/50 px-1.5 py-0.5 text-[0.6rem] font-black uppercase leading-none text-green-600 dark:text-green-400">
-              {item.badge}
-            </span>
-          ) : null}
-          {isExternal && !item.to.startsWith('mailto:') ? (
-            <ArrowSquareOut className="h-3 w-3 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300" />
-          ) : null}
-        </span>
-        {item.description ? (
-          <span
-            className={twMerge(
-              'mt-0.5 block text-gray-600 dark:text-gray-400',
-              variant === 'desktop' ? 'text-xs leading-4' : 'text-sm leading-5',
-            )}
-          >
-            {item.description}
-          </span>
-        ) : null}
-      </span>
-    </>
-  )
-
-  if (item.onSelect) {
-    return (
-      <button
-        type="button"
-        className={className}
-        onClick={() => {
-          item.onSelect?.()
-          onNavigate()
-        }}
-      >
-        {content}
-      </button>
-    )
-  }
-
-  if (isExternal) {
-    return (
-      <a
-        href={item.to}
-        target={item.to.startsWith('mailto:') ? undefined : '_blank'}
-        rel={item.to.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
-        className={className}
-        onClick={onNavigate}
-      >
-        {content}
-      </a>
-    )
-  }
-
   return (
-    <Link
+    <MegaMenuItem
+      icon={item.icon}
+      title={item.label}
+      description={item.description}
       to={item.to}
       hash={item.hash}
-      className={className}
-      onClick={onNavigate}
-      preload="intent"
-    >
-      {content}
-    </Link>
+      badge={item.badge}
+      onSelect={item.onSelect}
+      onNavigate={onNavigate}
+      variant={variant}
+      compact={compact}
+    />
   )
 }
 

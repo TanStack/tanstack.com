@@ -1,6 +1,5 @@
-import { MagicWand, Lightning } from '@phosphor-icons/react'
+import { MagicWand, Lightning, Gear } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
-import { CogsIcon } from '~/components/icons/CogsIcon'
 import { config } from './libraries'
 
 const textStyles = 'text-black dark:text-gray-100'
@@ -45,7 +44,7 @@ export const configProject = {
     },
     {
       title: 'Effortless Publication',
-      icon: <CogsIcon className="text-black dark:text-gray-100" />,
+      icon: <Gear className="text-black dark:text-gray-100" />,
       description: (
         <div>
           Say goodbye to the complexities of code publishing. This package

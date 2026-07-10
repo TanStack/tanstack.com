@@ -128,6 +128,7 @@
     "@cloudflare/vite-plugin": "^1.42.0",
     "@content-collections/core": "^0.14.3",
     "@content-collections/vite": "^0.2.9",
+    "@figma/code-connect": "^1.4.8",
     "@tanstack/devtools-vite": "^0.7.0",
     "@tanstack/react-devtools": "^0.10.5",
     "@tanstack/react-query-devtools": "^5.100.11",

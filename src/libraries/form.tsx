@@ -1,6 +1,5 @@
-import { MagicWand, Lightning } from '@phosphor-icons/react'
+import { MagicWand, Lightning, Gear } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
-import { CogsIcon } from '~/components/icons/CogsIcon'
 import { form } from './libraries'
 
 const textStyles = 'text-yellow-600 dark:text-yellow-300'
@@ -71,7 +70,7 @@ export const formProject = {
     },
     {
       title: 'Granular Reactive Performance',
-      icon: <CogsIcon className="text-amber-500" />,
+      icon: <Gear className="text-amber-500" />,
       description: (
         <div>
           When it comes to performance, TanStack Form delivers amazing speed and

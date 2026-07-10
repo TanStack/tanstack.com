@@ -1,7 +1,6 @@
 import { Library } from '.'
-import { Plug, Lightning } from '@phosphor-icons/react'
+import { Plug, Lightning, Gear } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
-import { CogsIcon } from '~/components/icons/CogsIcon'
 import { ai } from './libraries'
 
 const textStyles = `text-pink-600 dark:text-pink-500`
@@ -37,7 +36,7 @@ export const aiProject = {
     },
     {
       title: 'Typed Tools & Media',
-      icon: <CogsIcon className={twMerge(textStyles)} />,
+      icon: <Gear className={twMerge(textStyles)} />,
       description: (
         <div>
           Type-safe client/server tools, provider-native tools, structured

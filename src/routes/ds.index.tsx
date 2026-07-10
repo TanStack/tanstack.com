@@ -15,6 +15,7 @@ import {
   Square,
   Tag,
   TextT,
+  Browser,
 } from '@phosphor-icons/react'
 import type { Icon } from '@phosphor-icons/react'
 import { seo } from '~/utils/seo'
@@ -38,6 +39,7 @@ const SECTION_ICONS: Record<string, Icon> = {
   '/ds/collapsible': CaretUpDown,
   '/ds/breadcrumbs': MapPinLine,
   '/ds/cards': Stack,
+  '/ds/navbar': Browser,
 }
 
 export const Route = createFileRoute('/ds/')({

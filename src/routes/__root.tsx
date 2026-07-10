@@ -31,6 +31,7 @@ import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { SearchProvider } from '~/contexts/SearchContext'
 import { ToastProvider } from '~/components/ToastProvider'
 import { LoginModalProvider } from '~/contexts/LoginModalContext'
+import { LibrariesOverlayProvider } from '~/contexts/LibrariesOverlayContext'
 
 import { Spinner } from '~/components/Spinner'
 import { ThemeProvider, useHtmlClass } from '~/components/ThemeProvider'
@@ -305,7 +306,9 @@ function ShellComponent({ children }: { children: React.ReactNode }) {
         <LoginModalProvider>
           <ToastProvider>
             <PageViewTracker />
-            {hideNavbar ? children : <Navbar>{children}</Navbar>}
+            <LibrariesOverlayProvider>
+              {hideNavbar ? children : <Navbar>{children}</Navbar>}
+            </LibrariesOverlayProvider>
             {showDevtools && LazyAppDevtools ? (
               <OptionalDevtoolsBoundary>
                 <React.Suspense fallback={null}>

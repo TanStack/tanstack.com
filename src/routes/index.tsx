@@ -23,6 +23,7 @@ import { HomeSocialProofSection } from '~/components/home/HomeSocialProofSection
 import { HomeStatsSection } from '~/components/home/HomeStatsSection'
 import { homepageNpmStatsSummaryQuery, ossStatsQuery } from '~/queries/stats'
 import { Button } from '~/ui'
+import { useLibrariesOverlay } from '~/contexts/LibrariesOverlayContext'
 import { fetchRecentPosts } from '~/utils/blog.functions'
 import { seo } from '~/utils/seo'
 
@@ -75,6 +76,7 @@ function HomeSplashLogo() {
 
 function Index() {
   const { recentPosts } = Route.useLoaderData()
+  const { openLibraries } = useLibrariesOverlay()
 
   return (
     <>

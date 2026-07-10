@@ -14,6 +14,7 @@ export interface MegaMenuItemProps {
   to: string
   hash?: string
   badge?: string
+  onSelect?: () => void
   onNavigate?: () => void
   variant?: 'desktop' | 'mobile'
   /** Elevated variant used for standalone / featured rows. */
@@ -39,6 +40,7 @@ export function MegaMenuItem({
   to,
   hash,
   badge,
+  onSelect,
   onNavigate,
   variant = 'desktop',
   compact,
@@ -91,6 +93,21 @@ export function MegaMenuItem({
       </span>
     </>
   )
+
+  if (onSelect) {
+    return (
+      <button
+        type="button"
+        className={rootClassName}
+        onClick={() => {
+          onSelect()
+          onNavigate?.()
+        }}
+      >
+        {content}
+      </button>
+    )
+  }
 
   if (external) {
     return (

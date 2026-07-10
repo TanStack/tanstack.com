@@ -67,6 +67,7 @@ import { Route as DsSpinnerRouteImport } from './routes/ds.spinner'
 import { Route as DsShadowsRouteImport } from './routes/ds.shadows'
 import { Route as DsSemanticRouteImport } from './routes/ds.semantic'
 import { Route as DsPaletteRouteImport } from './routes/ds.palette'
+import { Route as DsNavbarRouteImport } from './routes/ds.navbar'
 import { Route as DsInputsRouteImport } from './routes/ds.inputs'
 import { Route as DsIconographyRouteImport } from './routes/ds.iconography'
 import { Route as DsIconMigrationRouteImport } from './routes/ds.icon-migration'
@@ -469,6 +470,11 @@ const DsSemanticRoute = DsSemanticRouteImport.update({
 const DsPaletteRoute = DsPaletteRouteImport.update({
   id: '/palette',
   path: '/palette',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsNavbarRoute = DsNavbarRouteImport.update({
+  id: '/navbar',
+  path: '/navbar',
   getParentRoute: () => DsRoute,
 } as any)
 const DsInputsRoute = DsInputsRouteImport.update({
@@ -1152,6 +1158,7 @@ export interface FileRoutesByFullPath {
   '/ds/icon-migration': typeof DsIconMigrationRoute
   '/ds/iconography': typeof DsIconographyRoute
   '/ds/inputs': typeof DsInputsRoute
+  '/ds/navbar': typeof DsNavbarRoute
   '/ds/palette': typeof DsPaletteRoute
   '/ds/semantic': typeof DsSemanticRoute
   '/ds/shadows': typeof DsShadowsRoute
@@ -1317,6 +1324,7 @@ export interface FileRoutesByTo {
   '/ds/icon-migration': typeof DsIconMigrationRoute
   '/ds/iconography': typeof DsIconographyRoute
   '/ds/inputs': typeof DsInputsRoute
+  '/ds/navbar': typeof DsNavbarRoute
   '/ds/palette': typeof DsPaletteRoute
   '/ds/semantic': typeof DsSemanticRoute
   '/ds/shadows': typeof DsShadowsRoute
@@ -1489,6 +1497,7 @@ export interface FileRoutesById {
   '/ds/icon-migration': typeof DsIconMigrationRoute
   '/ds/iconography': typeof DsIconographyRoute
   '/ds/inputs': typeof DsInputsRoute
+  '/ds/navbar': typeof DsNavbarRoute
   '/ds/palette': typeof DsPaletteRoute
   '/ds/semantic': typeof DsSemanticRoute
   '/ds/shadows': typeof DsShadowsRoute
@@ -1664,6 +1673,7 @@ export interface FileRouteTypes {
     | '/ds/icon-migration'
     | '/ds/iconography'
     | '/ds/inputs'
+    | '/ds/navbar'
     | '/ds/palette'
     | '/ds/semantic'
     | '/ds/shadows'
@@ -1829,6 +1839,7 @@ export interface FileRouteTypes {
     | '/ds/icon-migration'
     | '/ds/iconography'
     | '/ds/inputs'
+    | '/ds/navbar'
     | '/ds/palette'
     | '/ds/semantic'
     | '/ds/shadows'
@@ -2000,6 +2011,7 @@ export interface FileRouteTypes {
     | '/ds/icon-migration'
     | '/ds/iconography'
     | '/ds/inputs'
+    | '/ds/navbar'
     | '/ds/palette'
     | '/ds/semantic'
     | '/ds/shadows'
@@ -2596,6 +2608,13 @@ declare module '@tanstack/react-router' {
       path: '/palette'
       fullPath: '/ds/palette'
       preLoaderRoute: typeof DsPaletteRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/navbar': {
+      id: '/ds/navbar'
+      path: '/navbar'
+      fullPath: '/ds/navbar'
+      preLoaderRoute: typeof DsNavbarRouteImport
       parentRoute: typeof DsRoute
     }
     '/ds/inputs': {
@@ -3642,6 +3661,7 @@ interface DsRouteChildren {
   DsIconMigrationRoute: typeof DsIconMigrationRoute
   DsIconographyRoute: typeof DsIconographyRoute
   DsInputsRoute: typeof DsInputsRoute
+  DsNavbarRoute: typeof DsNavbarRoute
   DsPaletteRoute: typeof DsPaletteRoute
   DsSemanticRoute: typeof DsSemanticRoute
   DsShadowsRoute: typeof DsShadowsRoute
@@ -3663,6 +3683,7 @@ const DsRouteChildren: DsRouteChildren = {
   DsIconMigrationRoute: DsIconMigrationRoute,
   DsIconographyRoute: DsIconographyRoute,
   DsInputsRoute: DsInputsRoute,
+  DsNavbarRoute: DsNavbarRoute,
   DsPaletteRoute: DsPaletteRoute,
   DsSemanticRoute: DsSemanticRoute,
   DsShadowsRoute: DsShadowsRoute,

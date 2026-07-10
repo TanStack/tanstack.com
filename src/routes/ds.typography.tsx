@@ -121,12 +121,47 @@ const GROUPS: Array<TypeGroup> = [
   },
 ]
 
+const SEMANTIC_HEADINGS: Array<{ cls: string; alias: string }> = [
+  { cls: 'h1', alias: '= text-ds-heading-1' },
+  { cls: 'h2', alias: '= text-ds-heading-2' },
+  { cls: 'h3', alias: '= text-ds-heading-3' },
+  { cls: 'h4', alias: '= text-ds-heading-4' },
+  { cls: 'h5', alias: '= text-ds-heading-5' },
+  { cls: 'h6', alias: '= text-ds-heading-6' },
+]
+
 function TypographyPage() {
   return (
     <DsPage
       title="Typography"
       description="The TanStack type system, sourced from Figma — 25 styles across five roles. Display & headings use Bricolage Grotesque, body & labels use Inter, and code uses IBM Plex Mono. Each style is a Tailwind text-ds-* utility (size, line-height, tracking, and weight baked in)."
     >
+      <DsSection
+        title="Font families"
+        description="The three families that carry the type system."
+      >
+        <div className="grid gap-3 sm:grid-cols-3">
+          <FamilyCard
+            name="Bricolage Grotesque"
+            token="--font-ds-display"
+            className="font-ds-display"
+            note="Display & headings"
+          />
+          <FamilyCard
+            name="Inter"
+            token="--font-sans"
+            className="font-sans"
+            note="Body & labels"
+          />
+          <FamilyCard
+            name="IBM Plex Mono"
+            token="--font-ds-mono"
+            className="font-ds-mono"
+            note="Code & mono"
+          />
+        </div>
+      </DsSection>
+
       {GROUPS.map((group) => (
         <DsSection key={group.title} title={group.title}>
           <div className="divide-y divide-border-default overflow-hidden rounded-xl border border-border-default">
@@ -155,28 +190,28 @@ function TypographyPage() {
       ))}
 
       <DsSection
-        title="Font families"
-        description="The three families that carry the type system."
+        title="Semantic headings"
+        description="Convenience classes that bundle the display font with each heading size — apply h1–h6 directly to an element instead of pairing font-ds-display with text-ds-heading-*. Aliases of the heading scale above, defined in app.css."
       >
-        <div className="grid gap-3 sm:grid-cols-2">
-          <FamilyCard
-            name="Bricolage Grotesque"
-            token="--font-ds-display"
-            className="font-ds-display"
-            note="Display & headings"
-          />
-          <FamilyCard
-            name="Inter"
-            token="--font-sans"
-            className="font-sans"
-            note="Body & labels"
-          />
-          <FamilyCard
-            name="IBM Plex Mono"
-            token="--font-ds-mono"
-            className="font-ds-mono"
-            note="Code & mono"
-          />
+        <div className="divide-y divide-border-default overflow-hidden rounded-xl border border-border-default">
+          {SEMANTIC_HEADINGS.map((h) => (
+            <div
+              key={h.cls}
+              className="flex items-baseline justify-between gap-6 bg-background-surface px-5 py-4"
+            >
+              <span className={`${h.cls} min-w-0 truncate text-text-primary`}>
+                Type-safe by default
+              </span>
+              <span className="shrink-0 text-right">
+                <span className="block font-ds-mono text-xs text-text-secondary">
+                  .{h.cls}
+                </span>
+                <span className="block text-[11px] text-text-muted">
+                  {h.alias}
+                </span>
+              </span>
+            </div>
+          ))}
         </div>
       </DsSection>
     </DsPage>
@@ -195,10 +230,14 @@ function FamilyCard({
   note: string
 }) {
   return (
-    <div className="rounded-xl border border-border-default bg-background-surface p-5">
-      <div className={`${className} text-2xl text-text-primary`}>{name}</div>
-      <div className="mt-1 font-ds-mono text-xs text-text-muted">{token}</div>
-      <div className="mt-0.5 text-[11px] uppercase tracking-wider text-text-muted">
+    <div className="rounded-lg border border-border-default bg-background-surface p-4">
+      <div className={`${className} text-lg leading-tight text-text-primary`}>
+        {name}
+      </div>
+      <div className="mt-2 font-ds-mono text-[11px] text-text-muted">
+        {token}
+      </div>
+      <div className="mt-0.5 text-[10px] uppercase tracking-wider text-text-muted">
         {note}
       </div>
     </div>

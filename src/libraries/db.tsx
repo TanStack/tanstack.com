@@ -1,6 +1,5 @@
-import { Stack, Lightning } from '@phosphor-icons/react'
+import { Stack, Lightning, Gear } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
-import { CogsIcon } from '~/components/icons/CogsIcon'
 import { db } from './libraries'
 
 const textStyles = `text-orange-600 dark:text-orange-500`
@@ -37,7 +36,7 @@ export const dbProject = {
     },
     {
       title: 'Optimistic mutations',
-      icon: <CogsIcon className={twMerge(textStyles)} />,
+      icon: <Gear className={twMerge(textStyles)} />,
       description: (
         <div>
           Batch and stage instant local changes across collections. Sync

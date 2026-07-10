@@ -1471,6 +1471,77 @@ mark {
   }
 }
 
+/* The /libraries overlay glass dissolves in first (~150ms), then the cards
+   cascade in by row on top of it. */
+@keyframes library-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-library-overlay-in {
+  animation: library-overlay-in 0.15s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-library-overlay-in {
+    animation: none;
+  }
+}
+
+/* Reverse vignette for the /libraries overlay glass: most opaque toward the
+   centre, fading to ~60% at the rim so more of the page shows through the edges.
+   Matches the mega-menu blur/saturation. */
+.libraries-overlay-glass {
+  background: radial-gradient(
+    ellipse farthest-side at center,
+    rgb(255 255 255 / 0.9) 0%,
+    rgb(255 255 255 / 0.6) 100%
+  );
+  backdrop-filter: blur(40px) saturate(1.5);
+  -webkit-backdrop-filter: blur(40px) saturate(1.5);
+}
+
+.dark .libraries-overlay-glass {
+  background: radial-gradient(
+    ellipse farthest-side at center,
+    rgb(0 0 0 / 0.85) 0%,
+    rgb(0 0 0 / 0.6) 100%
+  );
+}
+
+/* Staggered grid reveal for the /libraries waypoint cards. The transform rests
+   at its identity value (fill: both), so per-card hover transforms are unaffected. */
+@keyframes library-card-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-library-card-reveal {
+  animation: library-card-reveal 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-library-card-reveal {
+    animation: none;
+  }
+}
+
+/* Figma-style continuous corner smoothing (squircle). Progressive enhancement:
+   browsers without corner-shape keep the plain border-radius. */
+@utility corner-squircle {
+  corner-shape: squircle;
+}
+
 /* Palm-tree loading spinner — sways at the trunk base like a palm in the wind */
 @keyframes palm-sway {
   0%,

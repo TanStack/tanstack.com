@@ -166,78 +166,82 @@ function RouteComponent() {
   const sections = useMemo(
     () => [
       {
-        title: 'Logo Images',
+        title: 'Landscape Logo',
         items: [
           {
-            title: 'Logo Color (600px PNG)',
-            description: 'High resolution colored TanStack logo',
-            url: '/images/logos/logo-color-600.png',
-            bg: 'none',
-          },
-          {
-            title: 'Logo Color (100px PNG)',
-            description: 'Smaller colored TanStack logo',
-            url: '/images/logos/logo-color-100.png',
-            bg: 'none',
-          },
-          {
-            title: 'Logo Color Banner (600px PNG)',
-            description: 'Horizontal banner variant of colored logo',
-            url: '/images/logos/logo-color-banner-600.png',
-            bg: 'none',
-          },
-          {
-            title: 'Logo Color Banner (100px PNG)',
-            description: 'Small horizontal banner variant of colored logo',
-            url: '/images/logos/logo-color-banner-100.png',
-            bg: 'none',
-          },
-          {
-            title: 'Logo Black (SVG)',
-            description: 'Scalable black TanStack logo in SVG format',
-            url: '/images/logos/logo-black.svg',
+            title: 'Landscape Black (SVG)',
+            description: 'Emblem + wordmark on one line, for light backgrounds',
+            url: '/images/brand/tanstack-landscape-black.svg',
             bg: 'light',
           },
           {
-            title: 'Logo White (SVG)',
-            description: 'Scalable white TanStack logo in SVG format',
-            url: '/images/logos/logo-white.svg',
+            title: 'Landscape White (SVG)',
+            description: 'Emblem + wordmark on one line, for dark backgrounds',
+            url: '/images/brand/tanstack-landscape-white.svg',
+            bg: 'dark',
+          },
+          {
+            title: 'Landscape Charcoal (SVG)',
+            description: 'Softer charcoal variant for light backgrounds',
+            url: '/images/brand/tanstack-landscape-charcoal.svg',
+            bg: 'light',
+          },
+        ],
+      },
+      {
+        title: 'Stacked Logo',
+        items: [
+          {
+            title: 'Stacked Black (SVG)',
+            description: 'Emblem above a two-line wordmark, for light backgrounds',
+            url: '/images/brand/tanstack-stacked-black.svg',
+            bg: 'light',
+          },
+          {
+            title: 'Stacked White (SVG)',
+            description: 'Emblem above a two-line wordmark, for dark backgrounds',
+            url: '/images/brand/tanstack-stacked-white.svg',
+            bg: 'dark',
+          },
+          {
+            title: 'Stacked Charcoal (SVG)',
+            description: 'Softer charcoal variant for light backgrounds',
+            url: '/images/brand/tanstack-stacked-charcoal.svg',
+            bg: 'light',
+          },
+          {
+            title: 'Stacked Cream (SVG)',
+            description: 'Cream variant for dark or colored backgrounds',
+            url: '/images/brand/tanstack-stacked-cream.svg',
             bg: 'dark',
           },
         ],
       },
       {
-        title: 'Wordmarks',
+        title: 'Emblem',
         items: [
           {
-            title: 'Wordmark Black (SVG)',
-            description: 'Scalable black wordmark in SVG format',
-            url: '/images/logos/logo-word-black.svg',
+            title: 'Emblem Black (SVG)',
+            description: 'The palm-island emblem alone, for light backgrounds',
+            url: '/images/brand/tanstack-emblem-black.svg',
             bg: 'light',
           },
           {
-            title: 'Wordmark White (SVG)',
-            description: 'Scalable white wordmark in SVG format',
-            url: '/images/logos/logo-word-white.svg',
+            title: 'Emblem White (SVG)',
+            description: 'The palm-island emblem alone, for dark backgrounds',
+            url: '/images/brand/tanstack-emblem-white.svg',
             bg: 'dark',
           },
-        ],
-      },
-      {
-        title: 'Splash Images',
-        items: [
           {
-            title: 'Splash Light',
-            description:
-              'TanStack splash image optimized for light backgrounds and themes',
-            url: '/images/logos/splash-light.png',
+            title: 'Emblem Charcoal (SVG)',
+            description: 'Softer charcoal emblem for light backgrounds',
+            url: '/images/brand/tanstack-emblem-charcoal.svg',
             bg: 'light',
           },
           {
-            title: 'Splash Dark',
-            description:
-              'TanStack splash image optimized for dark backgrounds and themes',
-            url: '/images/logos/splash-dark.png',
+            title: 'Emblem Cream (SVG)',
+            description: 'Cream emblem for dark or colored backgrounds',
+            url: '/images/brand/tanstack-emblem-cream.svg',
             bg: 'dark',
           },
         ],

@@ -1412,9 +1412,15 @@ function AIMessageHeader({ action }: { action?: React.ReactNode }) {
       <div className="flex items-center gap-1.5 min-w-0">
         <div className="w-5 h-5 rounded-full overflow-hidden ring-1 ring-black/10 dark:ring-white/10 shrink-0">
           <img
-            src="/images/logos/logo-color-100.png"
+            src="/images/brand/tanstack-emblem-black.svg"
             alt="TanStack"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain p-0.5 dark:hidden"
+          />
+          <img
+            src="/images/brand/tanstack-emblem-white.svg"
+            alt="TanStack"
+            aria-hidden="true"
+            className="hidden w-full h-full object-contain p-0.5 dark:block"
           />
         </div>
         <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0 min-w-0">

@@ -1,10 +1,16 @@
 import * as React from 'react'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
-import { X } from '@phosphor-icons/react'
-import { twMerge } from 'tailwind-merge'
+import { CaretDown, Check, X } from '@phosphor-icons/react'
 import { type Framework, type Library } from '~/libraries'
 import { frameworkOptions } from '~/libraries/frameworks'
 import LibraryGridCard from '~/components/LibraryGridCard'
+import {
+  Dropdown,
+  DropdownContent,
+  DropdownItem,
+  DropdownSeparator,
+  DropdownTrigger,
+} from '~/components/ds/ui'
 import {
   getFrameworkLibraryCounts,
   getVisibleLibraries,
@@ -48,19 +54,29 @@ export function LibrariesOverlay({
     >
       <DialogPrimitive.Portal>
         {/* Full-viewport glass; clicking it (outside the content column) closes.
-            Mirrors the mega-menu glass (see .ts-mega-dropdown-panel in app.css). */}
-        <DialogPrimitive.Overlay
-          className={
-            'fixed inset-0 z-[110] bg-[rgb(255_255_255/0.94)] ' +
-            'dark:bg-[rgb(0_0_0/0.88)] [backdrop-filter:blur(100px)_saturate(1.9)] ' +
-            '[-webkit-backdrop-filter:blur(100px)_saturate(1.9)]'
-          }
-        />
+            Reverse-vignette tint (dark centre → ~60% rim) + mega-menu blur, so the
+            page shows through more toward the edges — see .libraries-overlay-glass. */}
+        <DialogPrimitive.Overlay className="animate-library-overlay-in libraries-overlay-glass fixed inset-0 z-[110]" />
         <DialogPrimitive.Content
           aria-label="All Libraries"
-          className="fixed inset-x-0 top-0 z-[111] mx-auto flex max-h-dvh w-full max-w-6xl flex-col overflow-y-auto px-4 py-10 outline-none md:py-16"
+          className="animate-library-overlay-in fixed inset-x-0 top-0 z-[111] mx-auto flex max-h-dvh w-full max-w-6xl flex-col overflow-y-auto px-4 pb-16 pt-28 outline-none"
+          onInteractOutside={(event) => {
+            // The framework dropdown portals outside this dialog's DOM, so
+            // selecting an item would otherwise read as an outside interaction
+            // and dismiss the overlay. Keep it open for menu interactions.
+            const target = event.detail.originalEvent.target
+            if (target instanceof Element && target.closest('[role="menu"]')) {
+              event.preventDefault()
+            }
+          }}
         >
-          <div className="flex items-start justify-between gap-4">
+          <DialogPrimitive.Close
+            aria-label="Close"
+            className="fixed right-6 top-6 z-[112] flex size-14 items-center justify-center rounded-full corner-squircle text-text-secondary transition-colors hover:bg-black/5 hover:text-text-primary dark:hover:bg-white/10"
+          >
+            <X className="size-10" weight="light" />
+          </DialogPrimitive.Close>
+          <div className="flex items-center gap-6">
             {activeFrameworkOption ? (
               <div className="min-w-0">
                 <div className="flex items-center gap-3">
@@ -89,86 +105,87 @@ export function LibrariesOverlay({
                 </DialogPrimitive.Description>
               </>
             )}
-            <DialogPrimitive.Close
-              aria-label="Close"
-              className="flex size-10 shrink-0 items-center justify-center rounded-full corner-squircle text-text-secondary transition-colors hover:bg-black/5 hover:text-text-primary dark:hover:bg-white/10"
-            >
-              <X className="size-5" weight="bold" />
-            </DialogPrimitive.Close>
-          </div>
 
-          <div className="mt-6 flex flex-wrap gap-3">
-            <FrameworkPill
-              active={activeFramework === null}
-              onClick={() => setActiveFramework(null)}
-            >
-              <span className="text-text-primary">All</span>
-              <span>{ordered.length}</span>
-            </FrameworkPill>
-            {frameworksWithLibraries.map((framework) => {
-              const count = frameworkCounts[framework.value] ?? 0
-
-              return (
-                <FrameworkPill
-                  key={framework.value}
-                  active={activeFramework === framework.value}
-                  onClick={() =>
-                    setActiveFramework((prev) =>
-                      prev === framework.value ? null : framework.value,
-                    )
-                  }
+            <Dropdown>
+              <DropdownTrigger>
+                <button
+                  type="button"
+                  className="inline-flex shrink-0 items-center gap-2 rounded-lg corner-squircle border border-black/[0.06] bg-background-surface px-3 py-2 font-ds-mono text-xs text-text-primary transition-colors hover:border-border-strong dark:border-white/[0.08] dark:bg-[#0a0a0a]"
                 >
-                  <img
-                    src={framework.logo}
-                    alt=""
-                    loading="lazy"
-                    className="h-5 w-5 object-contain"
-                  />
-                  <span className="text-text-primary">{framework.label}</span>
-                  <span>{count}</span>
-                </FrameworkPill>
-              )
-            })}
+                  {activeFrameworkOption ? (
+                    <img
+                      src={activeFrameworkOption.logo}
+                      alt=""
+                      className="h-4 w-4 object-contain opacity-80 brightness-0 dark:invert"
+                    />
+                  ) : null}
+                  <span>
+                    {activeFrameworkOption
+                      ? activeFrameworkOption.label
+                      : 'All frameworks'}
+                  </span>
+                  <CaretDown className="size-3 text-text-secondary" />
+                </button>
+              </DropdownTrigger>
+              <DropdownContent
+                align="end"
+                className="max-h-[60vh] overflow-y-auto font-ds-mono"
+              >
+                <DropdownItem onSelect={() => setActiveFramework(null)}>
+                  <span className="flex-1">All frameworks</span>
+                  <span className="text-text-muted">{ordered.length}</span>
+                  {activeFramework === null ? (
+                    <Check className="size-4 text-text-primary" />
+                  ) : null}
+                </DropdownItem>
+                <DropdownSeparator />
+                {frameworksWithLibraries.map((framework) => (
+                  <DropdownItem
+                    key={framework.value}
+                    onSelect={() => setActiveFramework(framework.value)}
+                  >
+                    <img
+                      src={framework.logo}
+                      alt=""
+                      loading="lazy"
+                      className="h-4 w-4 object-contain opacity-80 brightness-0 dark:invert"
+                    />
+                    <span className="flex-1">{framework.label}</span>
+                    <span className="text-text-muted">
+                      {frameworkCounts[framework.value] ?? 0}
+                    </span>
+                    {activeFramework === framework.value ? (
+                      <Check className="size-4 text-text-primary" />
+                    ) : null}
+                  </DropdownItem>
+                ))}
+              </DropdownContent>
+            </Dropdown>
           </div>
 
           <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {visibleLibraries.map((library, i) => (
-              <div
-                key={library.id}
-                className="h-full animate-library-card-reveal"
-                style={{ animationDelay: `${i * 35}ms` }}
-              >
-                <LibraryGridCard library={library as Library} />
-              </div>
-            ))}
+            {visibleLibraries.map((library, i) => {
+              // Cascade by row (3-col desktop layout): each row starts after the
+              // previous, with a slight left-to-right offset. Begins once the
+              // 150ms glass fade has settled.
+              const columns = 3
+              const row = Math.floor(i / columns)
+              const col = i % columns
+              const delay = 150 + row * 80 + col * 25
+
+              return (
+                <div
+                  key={library.id}
+                  className="h-full animate-library-card-reveal"
+                  style={{ animationDelay: `${delay}ms` }}
+                >
+                  <LibraryGridCard library={library as Library} />
+                </div>
+              )
+            })}
           </div>
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
-  )
-}
-
-function FrameworkPill({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean
-  onClick: () => void
-  children: React.ReactNode
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={twMerge(
-        'inline-flex items-center gap-2 rounded-lg corner-squircle border px-3 py-2 font-ds-mono text-xs transition-colors',
-        active
-          ? 'border-text-primary bg-background-subtle text-text-secondary dark:border-ds-neutral-100 dark:bg-[#151515]'
-          : 'border-border-subtle bg-background-surface text-text-secondary hover:border-border-strong dark:border-ds-neutral-400 dark:bg-[#0a0a0a]',
-      )}
-    >
-      {children}
-    </button>
   )
 }

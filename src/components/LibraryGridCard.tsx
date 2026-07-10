@@ -104,7 +104,7 @@ export default function LibraryGridCard({ library }: { library: Library }) {
         // technical feel (per design direction).
         'group relative flex h-full min-h-[158px] flex-col justify-between gap-4 overflow-hidden rounded-xl corner-squircle border p-[30px]',
         'bg-background-surface dark:bg-[#0a0a0a]',
-        'border-border-subtle dark:border-ds-neutral-400',
+        'border-black/[0.06] dark:border-white/[0.06]',
         'hover:-translate-y-0.5 hover:shadow-lg',
         'hover:bg-background-subtle dark:hover:bg-[#151515]',
         categoryHoverBorder[category],

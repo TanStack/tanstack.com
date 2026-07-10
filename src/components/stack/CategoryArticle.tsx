@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { Link } from '@tanstack/react-router'
+import { useLibrariesOverlay } from '~/contexts/LibrariesOverlayContext'
 import { twMerge } from 'tailwind-merge'
 import {
   ArrowRight,
@@ -102,6 +103,7 @@ function reconstructRelatedPosts(
 }
 
 function Breadcrumb({ categoryName }: { categoryName: string }) {
+  const { openLibraries } = useLibrariesOverlay()
   return (
     <nav
       aria-label="Breadcrumb"
@@ -112,12 +114,13 @@ function Breadcrumb({ categoryName }: { categoryName: string }) {
           Home
         </Link>
         <CaretRight size={12} aria-hidden="true" />
-        <Link
-          to="/libraries"
+        <button
+          type="button"
+          onClick={() => openLibraries()}
           className="hover:text-zinc-950 dark:hover:text-white"
         >
           Libraries
-        </Link>
+        </button>
         <CaretRight size={12} aria-hidden="true" />
         <span className="font-semibold text-zinc-700 dark:text-zinc-300">
           {categoryName}

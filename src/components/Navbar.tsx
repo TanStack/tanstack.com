@@ -34,6 +34,7 @@ import { ThemeToggle } from './ThemeToggle'
 import { AiDockButton, SearchButton } from './SearchButton'
 import { BrandContextMenu } from './BrandContextMenu'
 import { useSearchContext } from '~/contexts/SearchContext'
+import { useLibrariesOverlay } from '~/contexts/LibrariesOverlayContext'
 import {
   isPublicLibrary,
   librariesByGroup,
@@ -109,6 +110,8 @@ type NavMenuItem = {
   description?: string
   badge?: string
   icon?: IconComponent
+  // When set, the item renders as a button that runs this instead of navigating.
+  onSelect?: () => void
 }
 
 type NavMenuSection = {
@@ -735,6 +738,7 @@ function DesktopNavTrigger({
   onDismiss: () => void
   onResetDismissed: () => void
 }) {
+  const { openLibraries } = useLibrariesOverlay()
   const triggerClassName = twMerge(
     'ts-mega-trigger inline-flex items-center gap-1 rounded-md px-2 py-2 text-xs font-medium min-[1120px]:gap-1.5 min-[1120px]:px-3 min-[1120px]:text-[13px]',
     'text-gray-700 transition-colors hover:bg-gray-500/10 hover:text-gray-950',
@@ -749,7 +753,19 @@ function DesktopNavTrigger({
       onPointerLeave={onResetDismissed}
       onFocusCapture={onResetDismissed}
     >
-      {group.to ? (
+      {group.key === 'libraries' ? (
+        <button
+          type="button"
+          data-menu-key={group.key}
+          className={triggerClassName}
+          onClick={() => {
+            openLibraries()
+            onDismiss()
+          }}
+        >
+          <span>{group.label}</span>
+        </button>
+      ) : group.to ? (
         <Link
           to={group.to}
           data-menu-key={group.key}
@@ -938,14 +954,16 @@ function LibrariesMenuContent({
   onNavigate: () => void
   variant: 'desktop' | 'mobile'
 }) {
+  const { openLibraries } = useLibrariesOverlay()
   const libraryMenuGroups = getLibraryMenuGroups()
   const desktopLibraryMenuColumns =
     getDesktopLibraryMenuColumns(libraryMenuGroups)
   const allLibrariesItem: NavMenuItem = {
     label: 'All Libraries',
-    to: '/libraries',
+    to: '#',
     description: 'Browse the full set of public packages.',
     icon: GridFour,
+    onSelect: openLibraries,
   }
 
   return (
@@ -953,6 +971,16 @@ function LibrariesMenuContent({
       className={twMerge(variant === 'desktop' ? 'grid gap-4' : 'grid gap-3')}
     >
       <div>
+        {variant === 'desktop' ? (
+          <div className="mb-4 pr-2">
+            <MenuItemLink
+              item={allLibrariesItem}
+              onNavigate={onNavigate}
+              variant="desktop"
+              compact
+            />
+          </div>
+        ) : null}
         <div
           className={twMerge(
             variant === 'desktop'
@@ -1397,6 +1425,21 @@ function MenuItemLink({
       </span>
     </>
   )
+
+  if (item.onSelect) {
+    return (
+      <button
+        type="button"
+        className={className}
+        onClick={() => {
+          item.onSelect?.()
+          onNavigate()
+        }}
+      >
+        {content}
+      </button>
+    )
+  }
 
   if (isExternal) {
     return (

@@ -17,6 +17,7 @@ import { HomeSocialProofSection } from '~/components/home/HomeSocialProofSection
 import { HomeStatsSection } from '~/components/home/HomeStatsSection'
 import { homepageNpmStatsSummaryQuery, ossStatsQuery } from '~/queries/stats'
 import { Button } from '~/ui'
+import { useLibrariesOverlay } from '~/contexts/LibrariesOverlayContext'
 import { fetchRecentPosts } from '~/utils/blog.functions'
 import { seo } from '~/utils/seo'
 
@@ -69,6 +70,7 @@ function HomeSplashLogo() {
 
 function Index() {
   const { recentPosts } = Route.useLoaderData()
+  const { openLibraries } = useLibrariesOverlay()
 
   return (
     <>
@@ -184,9 +186,7 @@ function Index() {
         </div>
 
         <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto mt-8 flex justify-center">
-          <Button as={Link} to="/libraries">
-            See all libraries
-          </Button>
+          <Button onClick={() => openLibraries()}>See all libraries</Button>
         </div>
 
         <WhyTanStackSection />

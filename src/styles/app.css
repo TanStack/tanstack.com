@@ -1417,6 +1417,35 @@ mark {
   }
 }
 
+/* Staggered grid reveal for the /libraries waypoint cards. The transform rests
+   at its identity value (fill: both), so per-card hover transforms are unaffected. */
+@keyframes library-card-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-library-card-reveal {
+  animation: library-card-reveal 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-library-card-reveal {
+    animation: none;
+  }
+}
+
+/* Figma-style continuous corner smoothing (squircle). Progressive enhancement:
+   browsers without corner-shape keep the plain border-radius. */
+@utility corner-squircle {
+  corner-shape: squircle;
+}
+
 /* Palm-tree loading spinner — sways at the trunk base like a palm in the wind */
 @keyframes palm-sway {
   0%,

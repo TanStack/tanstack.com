@@ -16,6 +16,7 @@ import {
 import { twMerge } from 'tailwind-merge'
 import { libraries, type LibrarySlim } from '~/libraries'
 import { Button } from '~/ui'
+import { useLibrariesOverlay } from '~/contexts/LibrariesOverlayContext'
 
 type Accent = 'amber' | 'blue' | 'cyan' | 'emerald' | 'gray' | 'rose'
 
@@ -324,6 +325,7 @@ function DestinationCard({
 }
 
 export function NotFound({ children }: { children?: React.ReactNode }) {
+  const { openLibraries } = useLibrariesOverlay()
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
   })
@@ -363,7 +365,7 @@ export function NotFound({ children }: { children?: React.ReactNode }) {
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <Button as={Link} to="/libraries" color="emerald">
+            <Button onClick={() => openLibraries()} color="emerald">
               <Stack className="h-4 w-4" />
               Browse libraries
             </Button>

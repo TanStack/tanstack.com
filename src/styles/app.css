@@ -292,13 +292,13 @@ html.theme-switching *::after {
 
   --text-ds-body-xl: 20px;
   --text-ds-body-xl--line-height: 32px;
-  --text-ds-body-xl--font-weight: 400;
+  --text-ds-body-xl--font-weight: 300;
   --text-ds-body-lg: 18px;
   --text-ds-body-lg--line-height: 28px;
-  --text-ds-body-lg--font-weight: 400;
+  --text-ds-body-lg--font-weight: 300;
   --text-ds-body-md: 16px;
   --text-ds-body-md--line-height: 24px;
-  --text-ds-body-md--font-weight: 400;
+  --text-ds-body-md--font-weight: 300;
   --text-ds-body-sm: 14px;
   --text-ds-body-sm--line-height: 20px;
   --text-ds-body-sm--font-weight: 400;

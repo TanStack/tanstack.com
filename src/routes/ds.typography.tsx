@@ -77,9 +77,9 @@ const GROUPS: Array<TypeGroup> = [
     font: 'font-sans',
     sample: 'Headless, type-safe tools for building modern web apps.',
     items: [
-      { name: 'body/xl', cls: 'text-ds-body-xl', spec: '20 / 32 · Regular' },
-      { name: 'body/lg', cls: 'text-ds-body-lg', spec: '18 / 28 · Regular' },
-      { name: 'body/md', cls: 'text-ds-body-md', spec: '16 / 24 · Regular' },
+      { name: 'body/xl', cls: 'text-ds-body-xl', spec: '20 / 32 · Light' },
+      { name: 'body/lg', cls: 'text-ds-body-lg', spec: '18 / 28 · Light' },
+      { name: 'body/md', cls: 'text-ds-body-md', spec: '16 / 24 · Light' },
       { name: 'body/sm', cls: 'text-ds-body-sm', spec: '14 / 20 · Regular' },
       { name: 'body/xs', cls: 'text-ds-body-xs', spec: '12 / 17 · Regular' },
     ],

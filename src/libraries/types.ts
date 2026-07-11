@@ -7,6 +7,7 @@ export type Framework =
   | 'angular'
   | 'alpine'
   | 'lit'
+  | 'marko'
   | 'preact'
   | 'qwik'
   | 'react'

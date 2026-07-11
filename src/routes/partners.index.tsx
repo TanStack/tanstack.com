@@ -461,7 +461,7 @@ function TierSectionHeader({ tier }: { tier: PartnerTier }) {
   return (
     <div className="flex items-center gap-4 mb-8">
       <div
-        className={`h-px flex-1 bg-gradient-to-r from-transparent ${flare.gradientStops}`}
+        className={`h-px flex-1 bg-linear-to-r from-transparent ${flare.gradientStops}`}
       />
       <div
         className={`flex items-center gap-2 px-3 py-1 rounded-full ${flare.labelColor}`}
@@ -472,7 +472,7 @@ function TierSectionHeader({ tier }: { tier: PartnerTier }) {
         </span>
       </div>
       <div
-        className={`h-px flex-1 bg-gradient-to-l from-transparent ${flare.gradientStops}`}
+        className={`h-px flex-1 bg-linear-to-l from-transparent ${flare.gradientStops}`}
       />
     </div>
   )

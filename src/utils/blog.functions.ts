@@ -3,12 +3,13 @@ import { setResponseHeaders } from '@tanstack/react-start/server'
 import { notFound, redirect } from '@tanstack/react-router'
 import { allPosts } from 'content-collections'
 import * as v from 'valibot'
+import type { LibraryId } from '~/libraries'
+import { getPostsForLibrary, getPublishedPosts } from '~/utils/blog'
 import {
   formatAuthors,
   formatPublishedDate,
-  getPublishedPosts,
   isPublishedDateReleased,
-} from '~/utils/blog'
+} from '~/utils/blog-format'
 import { buildRedirectManifest } from './redirects'
 
 export type RecentPost = {
@@ -128,3 +129,65 @@ export const fetchRecentPosts = createServerFn({ method: 'GET' }).handler(
       }))
   },
 )
+
+export type RelatedPost = {
+  libraryId: LibraryId
+  post: {
+    slug: string
+    title: string
+    published: string
+    excerpt: string
+  }
+}
+
+/**
+ * Mirrors CategoryArticle's original client-side
+ * `libraries.flatMap((lib) => getPostsForLibrary(lib.id)...).slice(0, 4)`
+ * so the display order/cutoff of related posts is unchanged.
+ */
+export const fetchRelatedPostsForLibraries = createServerFn({ method: 'GET' })
+  .validator(v.array(v.string()))
+  .handler(({ data }): Array<RelatedPost> => {
+    return (data as Array<LibraryId>)
+      .flatMap((libraryId) =>
+        getPostsForLibrary(libraryId).map((post) => ({
+          libraryId,
+          post: {
+            slug: post.slug,
+            title: post.title,
+            published: post.published,
+            excerpt: post.excerpt,
+          },
+        })),
+      )
+      .slice(0, 4)
+  })
+
+export type LibraryBlogPost = {
+  slug: string
+  title: string
+  published: string
+  excerpt: string
+  headerImage: string | undefined
+  authors: Array<string>
+  library: string | undefined
+}
+
+/**
+ * Wider 7-field shape (matches blog.index.tsx's fetchFrontMatters) since
+ * /docs/blog needs authors (author filter), headerImage (cover), and
+ * library (badge suppression) in addition to slug/title/published/excerpt.
+ */
+export const fetchPostsForLibrary = createServerFn({ method: 'GET' })
+  .validator(v.string())
+  .handler(({ data }): Array<LibraryBlogPost> => {
+    return getPostsForLibrary(data as LibraryId).map((post) => ({
+      slug: post.slug,
+      title: post.title,
+      published: post.published,
+      excerpt: post.excerpt,
+      headerImage: post.headerImage,
+      authors: post.authors,
+      library: post.library,
+    }))
+  })

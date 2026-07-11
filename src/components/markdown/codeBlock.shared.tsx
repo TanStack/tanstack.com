@@ -86,6 +86,10 @@ export function getCodeBlockLanguageFromFilePath(filePath: string) {
   if (['prettierrc', 'babelrc', 'webmanifest'].includes(ext)) return 'json'
   if (['env', 'example'].includes(ext)) return 'sh'
 
+  // Marko is HTML-based; @tanstack/highlight has no Marko grammar, so fall
+  // back to html for reasonable tag/attribute/string coloring.
+  if (ext === 'marko') return 'html'
+
   if (
     [
       'gitignore',

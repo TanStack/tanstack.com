@@ -42,28 +42,34 @@ const npmLatestSchema = z.object({
   dist: z.object({ tarball: z.string().optional() }).optional(),
 })
 
-export interface IntentDiscoveryResult {
-  packagesDiscovered: number
-  githubCandidates: number
-  packagesVerified: number
-  versionsEnqueued: number
-  errors: Array<string>
-}
+export const intentDiscoveryResultSchema = z.object({
+  packagesDiscovered: z.number().int().nonnegative(),
+  githubCandidates: z.number().int().nonnegative(),
+  packagesVerified: z.number().int().nonnegative(),
+  versionsEnqueued: z.number().int().nonnegative(),
+  errors: z.array(z.string()),
+})
 
-export interface IntentVersionProcessResult {
-  packageName: string
-  version: string
-  status: 'synced' | 'failed'
-  skillCount?: number
-  error?: string
-}
+export const intentVersionProcessResultSchema = z.object({
+  packageName: z.string(),
+  version: z.string(),
+  status: z.enum(['synced', 'failed']),
+  skillCount: z.number().int().nonnegative().optional(),
+  error: z.string().optional(),
+})
 
-export interface IntentProcessResult {
-  processed: number
-  failed: number
-  deferred: number
-  results: Array<IntentVersionProcessResult>
-}
+export const intentProcessResultSchema = z.object({
+  processed: z.number().int().nonnegative(),
+  failed: z.number().int().nonnegative(),
+  deferred: z.number().int().nonnegative(),
+  results: z.array(intentVersionProcessResultSchema),
+})
+
+export type IntentDiscoveryResult = z.infer<typeof intentDiscoveryResultSchema>
+export type IntentVersionProcessResult = z.infer<
+  typeof intentVersionProcessResultSchema
+>
+export type IntentProcessResult = z.infer<typeof intentProcessResultSchema>
 
 export interface IntentVersionToProcess {
   id: number
@@ -75,6 +81,7 @@ export interface IntentSyncOperations {
   discoverIntentPackages: () => Promise<IntentDiscoveryResult>
   selectPendingIntentVersions: (options: {
     limit: number
+    excludeIds?: Array<number>
   }) => Promise<Array<IntentVersionToProcess>>
   processIntentVersion: (
     versionId: number,
@@ -142,8 +149,11 @@ export async function discoverIntentPackages(): Promise<IntentDiscoveryResult> {
 
 export async function selectPendingIntentVersions(options: {
   limit: number
+  excludeIds?: Array<number>
 }): Promise<Array<IntentVersionToProcess>> {
-  const versions = await getPendingVersions(options.limit)
+  const versions = await getPendingVersions(options.limit, {
+    excludeIds: options.excludeIds,
+  })
 
   return versions.map((version) => ({
     id: version.id,
@@ -154,11 +164,12 @@ export async function selectPendingIntentVersions(options: {
 
 export function summarizeIntentProcessResults(
   results: Array<IntentVersionProcessResult>,
+  options?: { deferred?: number },
 ): IntentProcessResult {
   return {
     processed: results.filter((result) => result.status === 'synced').length,
     failed: results.filter((result) => result.status === 'failed').length,
-    deferred: 0,
+    deferred: options?.deferred ?? 0,
     results,
   }
 }

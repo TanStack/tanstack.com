@@ -15,7 +15,7 @@ function createBubbleStyle(index: number) {
 
 export default function PlaceholderSponsorPack() {
   return (
-    <div className="relative w-full h-full overflow-hidden rounded-[2rem] bg-gradient-to-br from-gray-100/80 via-white to-gray-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900">
+    <div className="relative w-full h-full overflow-hidden rounded-[2rem] bg-linear-to-br from-gray-100/80 via-white to-gray-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900">
       {Array.from({ length: 48 }).map((_, index) => {
         const style = createBubbleStyle(index)
 

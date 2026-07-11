@@ -4,7 +4,10 @@ import { wrapFetchWithSentry } from '@sentry/tanstackstart-react'
 import handler, { createServerEntry } from '@tanstack/react-start/server-entry'
 import { runWithDatabaseContext } from '~/db/client'
 import { runScheduledTasks } from '~/server/scheduled.server'
-import { runWithHostRuntimeEnv } from '~/server/runtime/host.server'
+import {
+  runWithHostRuntimeContext,
+  runWithHostRuntimeEnv,
+} from '~/server/runtime/host.server'
 import {
   installProductionFetchProbe,
   installProductionProcessProbe,
@@ -68,6 +71,10 @@ function applyHostingHeaders(response: Response, url: URL) {
 
   for (const [key, value] of Object.entries(SECURITY_HEADERS)) {
     headers.set(key, value)
+  }
+
+  if (url.pathname === '/stats/npm/embed') {
+    headers.delete('X-Frame-Options')
   }
 
   if (url.pathname === '/builder' || url.pathname.startsWith('/builder/')) {
@@ -185,8 +192,10 @@ const server = createServerEntry(
 )
 
 export default {
-  fetch(request: Request, env: unknown) {
-    return runWithHostRuntimeEnv(env, () => server.fetch(request))
+  fetch(request: Request, env: unknown, context: unknown) {
+    return runWithHostRuntimeEnv(env, () =>
+      runWithHostRuntimeContext(context, () => server.fetch(request)),
+    )
   },
   scheduled(
     controller: ScheduledController,
@@ -195,8 +204,10 @@ export default {
   ) {
     context.waitUntil(
       runWithHostRuntimeEnv(env, () =>
-        runWithDatabaseContext(() =>
-          runScheduledTasks(controller.cron, controller.scheduledTime),
+        runWithHostRuntimeContext(context, () =>
+          runWithDatabaseContext(() =>
+            runScheduledTasks(controller.cron, controller.scheduledTime),
+          ),
         ),
       ),
     )

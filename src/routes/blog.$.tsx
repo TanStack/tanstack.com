@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { PostNotFound } from './blog'
-import { formatAuthors } from '~/utils/blog'
+import { formatAuthors } from '~/utils/blog-format'
 import * as React from 'react'
 import { MarkdownContent } from '~/components/markdown'
 import { Card } from '~/components/Card'
@@ -9,6 +9,7 @@ import { LibrariesWidget } from '~/components/LibrariesWidget'
 import { partners } from '~/utils/partners'
 import { PartnersRail, RightRail } from '~/components/RightRail'
 import { RecentPostsWidget } from '~/components/RecentPostsWidget'
+import { useMediaQuery } from '~/utils/useMediaQuery'
 
 import { Toc } from '~/components/Toc'
 import { Breadcrumbs } from '~/components/Breadcrumbs'
@@ -76,6 +77,7 @@ function BlogPost() {
   const headings = markdown.headings
 
   const isTocVisible = headings.length > 1
+  const isDesktopViewport = useMediaQuery('(min-width: 768px)')
 
   const markdownContainerRef = React.useRef<HTMLDivElement>(null)
   const [activeHeadings, setActiveHeadings] = React.useState<Array<string>>([])
@@ -182,6 +184,7 @@ function BlogPost() {
                         branch={branch}
                         filePath={filePath}
                         containerRef={markdownContainerRef}
+                        eagerFirstImage
                       />
                     </div>
                     {isTocVisible && (
@@ -203,7 +206,7 @@ function BlogPost() {
               partners={activePartners}
             />
             <div className="hidden md:block border border-gray-500/20 rounded-l-lg overflow-hidden w-full">
-              <RecentPostsWidget />
+              <RecentPostsWidget enabled={isDesktopViewport} />
             </div>
             <Card>
               <LibrariesWidget />

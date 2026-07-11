@@ -22,8 +22,9 @@ import {
 } from 'lucide-react'
 
 import { LibraryWordmark } from '~/components/LibraryWordmark'
-import type { LibrarySlim } from '~/libraries'
-import { formatPublishedDate, getPostsForLibrary } from '~/utils/blog'
+import type { LibraryId, LibrarySlim } from '~/libraries'
+import { formatPublishedDate } from '~/utils/blog-format'
+import type { RelatedPost as RelatedPostData } from '~/utils/blog.functions'
 import {
   categoryMeta,
   getCategoryLibraries,
@@ -44,10 +45,16 @@ const libraryLinkClassName =
 const staticPanelClassName =
   'rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950'
 
-export function CategoryArticle({ slug }: { slug: CategorySlug }) {
+export function CategoryArticle({
+  slug,
+  relatedPosts: relatedPostsData,
+}: {
+  slug: CategorySlug
+  relatedPosts: Array<RelatedPostData>
+}) {
   const meta = categoryMeta[slug]
   const libraries = getCategoryLibraries(slug)
-  const relatedPosts = getRelatedPosts(libraries)
+  const relatedPosts = reconstructRelatedPosts(libraries, relatedPostsData)
 
   return (
     <div className="bg-white text-zinc-950 dark:bg-zinc-950 dark:text-zinc-50">
@@ -75,10 +82,23 @@ export function CategoryArticle({ slug }: { slug: CategorySlug }) {
   )
 }
 
-function getRelatedPosts(libraries: Array<LibrarySlim>) {
-  return libraries
-    .flatMap((lib) => getPostsForLibrary(lib.id).map((post) => ({ post, lib })))
-    .slice(0, 4)
+/**
+ * Reconstructs {post, lib} pairs from the server-provided, already-ordered
+ * and already-sliced related-posts data, using the in-memory `libraries`
+ * array (pure, client-safe) rather than sending non-serializable LibrarySlim
+ * objects (e.g. `handleRedirects`) over the server-fn RPC boundary.
+ */
+function reconstructRelatedPosts(
+  libraries: Array<LibrarySlim>,
+  data: Array<RelatedPostData>,
+): Array<RelatedPost> {
+  const libraryById = new Map<LibraryId, LibrarySlim>(
+    libraries.map((lib) => [lib.id, lib]),
+  )
+  return data.flatMap(({ libraryId, post }) => {
+    const lib = libraryById.get(libraryId)
+    return lib ? [{ post, lib }] : []
+  })
 }
 
 function Breadcrumb({ categoryName }: { categoryName: string }) {
@@ -954,7 +974,7 @@ function RelatedPostsBlock({ items }: { items: Array<RelatedPost> }) {
                 <div className="flex flex-wrap items-center gap-2">
                   <span
                     className={twMerge(
-                      'inline-flex rounded-md bg-gradient-to-r px-2 py-1 text-xs font-black text-white',
+                      'inline-flex rounded-md bg-linear-to-r px-2 py-1 text-xs font-black text-white',
                       lib.colorFrom,
                       lib.colorTo,
                     )}
@@ -1060,7 +1080,7 @@ function LibraryTitle({
         {library.badge ? (
           <span
             className={twMerge(
-              'rounded-md bg-gradient-to-r px-1.5 py-0.5 text-xs font-black uppercase',
+              'rounded-md bg-linear-to-r px-1.5 py-0.5 text-xs font-black uppercase',
               library.colorFrom,
               library.colorTo,
               library.badgeTextStyle ?? 'text-white',

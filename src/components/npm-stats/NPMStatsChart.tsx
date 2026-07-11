@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import * as Plot from '@observablehq/plot'
 import * as d3 from 'd3'
 import { GIFEncoder, applyPalette, quantize } from 'gifenc'
-import { Download, List } from 'lucide-react'
+import { Check, Code2, Copy, Download, List } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -1267,6 +1267,16 @@ type LatestBucketOffsetBounds = {
   maxOffset: number
   minOffset: number
 }
+export type NpmStatsChartEmbedOptions = {
+  includeTimelineRange: boolean
+  lockWidth: boolean
+  showLegend: boolean
+}
+export type NpmStatsChartEmbedConfig = {
+  buildUrl: (options: NpmStatsChartEmbedOptions) => string
+  hasTimelineRange: boolean
+  hasWidth: boolean
+}
 
 const chartExportOptions = [
   { value: 'svg', label: 'SVG' },
@@ -1281,13 +1291,91 @@ const chartExportOptions = [
 const animatedExportMaxFrames = 240
 const animatedExportMinDelayMs = 35
 const animatedExportMaxDelayMs = 100
+const axisTickAverageCharacterWidth = 6.4
+const axisTickLineHeight = 12
 const chartActionButtonStyles =
   'flex size-6 items-center justify-center rounded bg-gray-500/10 text-gray-600 hover:bg-gray-500/20 hover:text-blue-500 dark:text-gray-400 dark:hover:text-gray-100'
 const chartActionDropdownContentStyles =
   'z-50 min-w-[120px] rounded-md bg-white p-1.5 shadow-lg dark:bg-gray-800'
 const chartActionDropdownItemStyles =
   'flex w-full cursor-pointer items-center rounded px-1.5 py-1 text-left text-xs outline-none hover:bg-gray-500/20 data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500'
+const chartEmbedInputStyles =
+  'w-full rounded border border-gray-500/20 bg-gray-50 px-2 py-1.5 font-mono text-[11px] leading-snug outline-none focus:border-blue-500 dark:bg-gray-900'
 const svgNamespace = 'http://www.w3.org/2000/svg'
+
+function clampNumber(value: number, min: number, max: number) {
+  return Math.max(min, Math.min(value, max))
+}
+
+function getEstimatedAxisLabelWidth(label: string) {
+  return Math.ceil(label.length * axisTickAverageCharacterWidth)
+}
+
+function getCategoricalAxisLeftMargin({
+  labels,
+  width,
+}: {
+  labels: Array<string>
+  width: number
+}) {
+  const longestLabelWidth =
+    d3.max(labels, (label) => getEstimatedAxisLabelWidth(label)) ?? 0
+  const maxMargin = clampNumber(Math.round(width * 0.38), 110, 280)
+
+  return clampNumber(longestLabelWidth + 26, 90, maxMargin)
+}
+
+function getVerticalCategoricalXAxisLayout({
+  height,
+  labels,
+  marginLeft,
+  marginRight,
+  width,
+}: {
+  height: number
+  labels: Array<string>
+  marginLeft: number
+  marginRight: number
+  width: number
+}) {
+  const availableWidth = Math.max(0, width - marginLeft - marginRight)
+  const tickSlotWidth = labels.length ? availableWidth / labels.length : 0
+  const longestLabelWidth =
+    d3.max(labels, (label) => getEstimatedAxisLabelWidth(label)) ?? 0
+  const shouldRotateTicks =
+    labels.length > 0 && longestLabelWidth > Math.max(36, tickSlotWidth - 8)
+
+  if (!shouldRotateTicks) {
+    return {
+      labelOffset: 35,
+      marginBottom: 64,
+      tickRotate: undefined,
+    }
+  }
+
+  const tickAngle = Math.PI / 6
+  const rotatedTickHeight = Math.ceil(
+    longestLabelWidth * Math.sin(tickAngle) +
+      axisTickLineHeight * Math.cos(tickAngle),
+  )
+  const maxMarginBottom = clampNumber(Math.round(height * 0.45), 88, 160)
+
+  return {
+    labelOffset: 55,
+    marginBottom: clampNumber(44 + rotatedTickHeight, 76, maxMarginBottom),
+    tickRotate: -30,
+  }
+}
+
+function getPlotContentHeight({
+  reservedHeight,
+  totalHeight,
+}: {
+  reservedHeight: number
+  totalHeight: number | undefined
+}) {
+  return Math.max(1, Math.floor((totalHeight ?? 0) - reservedHeight))
+}
 
 function getExportFileName(format: ChartExportFormat) {
   if (format === 'jpeg') return 'npm-stats-chart.jpg'
@@ -1617,11 +1705,17 @@ function createLatestBarExportPlot({
   })
   const isStackedBar = chartType === 'stacked-bar'
   const isHorizontalBar = barOrientation === 'horizontal'
-  const longestLatestBarLabelLength =
-    d3.max(latestBarDomain, (label) => label.length) ?? 0
+  const marginRight = 10
   const marginLeft = isHorizontalBar
-    ? Math.min(240, Math.max(90, longestLatestBarLabelLength * 7 + 20))
+    ? getCategoricalAxisLeftMargin({ labels: latestBarDomain, width })
     : 70
+  const verticalXAxisLayout = getVerticalCategoricalXAxisLayout({
+    height,
+    labels: latestBarDomain,
+    marginLeft,
+    marginRight,
+    width,
+  })
   const getSeriesColor = (d: { name?: string }) =>
     d.name ? getPackageColor(d.name, packages) : 'currentColor'
   const getSubPackageColor = (d: { groupName: string; packageIndex: number }) =>
@@ -1658,8 +1752,8 @@ function createLatestBarExportPlot({
     })
   const plot = Plot.plot({
     marginLeft,
-    marginRight: 10,
-    marginBottom: isHorizontalBar ? 70 : 90,
+    marginRight,
+    marginBottom: isHorizontalBar ? 64 : verticalXAxisLayout.marginBottom,
     width,
     height,
     marks: (
@@ -1710,9 +1804,9 @@ function createLatestBarExportPlot({
     x: {
       domain: isHorizontalBar ? undefined : latestBarDomain,
       label: isHorizontalBar ? 'Downloads' : null,
-      labelOffset: isHorizontalBar ? 35 : 55,
+      labelOffset: isHorizontalBar ? 35 : verticalXAxisLayout.labelOffset,
       tickFormat: isHorizontalBar ? formatCompactAxisNumber : undefined,
-      tickRotate: isHorizontalBar ? undefined : -30,
+      tickRotate: isHorizontalBar ? undefined : verticalXAxisLayout.tickRotate,
     },
     y: {
       domain: isHorizontalBar ? latestBarDomain : undefined,
@@ -2416,6 +2510,7 @@ function renderPlotLegend({
 function ChartActions({
   canExportAnimation,
   disabled,
+  embedConfig,
   exportingFormat,
   onExport,
   onToggleLegend,
@@ -2423,6 +2518,7 @@ function ChartActions({
 }: {
   canExportAnimation: boolean
   disabled: boolean
+  embedConfig?: NpmStatsChartEmbedConfig
   exportingFormat: ChartExportFormat | null
   onExport: (format: ChartExportFormat) => void
   onToggleLegend: () => void
@@ -2504,7 +2600,219 @@ function ChartActions({
           <List className="size-3" />
         </button>
       </Tooltip>
+      {embedConfig ? <EmbedChartAction embedConfig={embedConfig} /> : null}
     </div>
+  )
+}
+
+function getAbsoluteEmbedUrl(url: string) {
+  const base =
+    typeof window === 'undefined'
+      ? 'https://tanstack.com'
+      : window.location.origin
+
+  return new URL(url, base).toString()
+}
+
+function CopyButton({
+  copied,
+  label,
+  onCopy,
+}: {
+  copied: boolean
+  label: string
+  onCopy: () => void
+}) {
+  return (
+    <button
+      className="flex shrink-0 items-center gap-1 rounded bg-gray-500/10 px-2 py-1 text-[11px] font-medium text-gray-600 hover:bg-gray-500/20 hover:text-blue-500 dark:text-gray-300 dark:hover:text-gray-100"
+      onClick={onCopy}
+      type="button"
+    >
+      {copied ? <Check className="size-3" /> : <Copy className="size-3" />}
+      {copied ? 'Copied' : label}
+    </button>
+  )
+}
+
+function EmbedOption({
+  checked,
+  children,
+  disabled,
+  onCheckedChange,
+}: {
+  checked: boolean
+  children: React.ReactNode
+  disabled?: boolean
+  onCheckedChange: (checked: boolean) => void
+}) {
+  return (
+    <label
+      className={twMerge(
+        'flex items-center gap-2 text-xs text-gray-700 dark:text-gray-200',
+        disabled && 'cursor-not-allowed opacity-50',
+      )}
+    >
+      <input
+        checked={checked}
+        className="size-3.5 accent-blue-500"
+        disabled={disabled}
+        onChange={(event) => onCheckedChange(event.currentTarget.checked)}
+        type="checkbox"
+      />
+      <span>{children}</span>
+    </label>
+  )
+}
+
+function EmbedChartAction({
+  embedConfig,
+}: {
+  embedConfig: NpmStatsChartEmbedConfig
+}) {
+  const [showLegend, setShowLegend] = React.useState(true)
+  const [includeTimelineRange, setIncludeTimelineRange] = React.useState(
+    embedConfig.hasTimelineRange,
+  )
+  const [lockWidth, setLockWidth] = React.useState(false)
+  const [iframeHeight, setIframeHeight] = React.useState(420)
+  const [copiedTarget, setCopiedTarget] = React.useState<
+    'iframe' | 'url' | null
+  >(null)
+
+  React.useEffect(() => {
+    if (!embedConfig.hasTimelineRange) {
+      setIncludeTimelineRange(false)
+    }
+  }, [embedConfig.hasTimelineRange])
+
+  React.useEffect(() => {
+    if (!embedConfig.hasWidth) {
+      setLockWidth(false)
+    }
+  }, [embedConfig.hasWidth])
+
+  const embedUrl = getAbsoluteEmbedUrl(
+    embedConfig.buildUrl({
+      includeTimelineRange,
+      lockWidth,
+      showLegend,
+    }),
+  )
+  const iframeCode = `<iframe src="${embedUrl}" title="TanStack NPM Stats chart" loading="lazy" style="width:100%;height:${iframeHeight}px;border:0;"></iframe>`
+
+  const copyText = React.useCallback(
+    async (target: 'iframe' | 'url', text: string) => {
+      await navigator.clipboard.writeText(text)
+      setCopiedTarget(target)
+      window.setTimeout(() => {
+        setCopiedTarget((currentTarget) =>
+          currentTarget === target ? null : currentTarget,
+        )
+      }, 1500)
+    },
+    [],
+  )
+
+  return (
+    <DropdownMenu>
+      <Tooltip content="Embed chart">
+        <DropdownMenuTrigger asChild>
+          <button
+            aria-label="Embed chart"
+            className={chartActionButtonStyles}
+            type="button"
+          >
+            <Code2 className="size-3" />
+          </button>
+        </DropdownMenuTrigger>
+      </Tooltip>
+      <DropdownMenuContent
+        align="end"
+        className="z-50 w-[min(420px,calc(100vw-2rem))] rounded-md bg-white p-3 text-gray-900 shadow-lg dark:bg-gray-800 dark:text-gray-100"
+        collisionPadding={8}
+        sideOffset={5}
+      >
+        <div className="space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <div className="text-xs font-medium">Embed chart</div>
+            <label className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300">
+              <span>Iframe height</span>
+              <input
+                className="w-16 rounded border border-gray-500/20 bg-gray-50 px-1.5 py-1 text-right font-mono text-[11px] outline-none focus:border-blue-500 dark:bg-gray-900"
+                max={1200}
+                min={240}
+                onChange={(event) => {
+                  const nextHeight = Number(event.currentTarget.value)
+                  if (!Number.isFinite(nextHeight)) return
+                  setIframeHeight(Math.max(240, Math.min(1200, nextHeight)))
+                }}
+                type="number"
+                value={iframeHeight}
+              />
+            </label>
+          </div>
+
+          <div className="grid gap-1.5">
+            <EmbedOption checked={showLegend} onCheckedChange={setShowLegend}>
+              Show legend by default
+            </EmbedOption>
+            <EmbedOption
+              checked={includeTimelineRange}
+              disabled={!embedConfig.hasTimelineRange}
+              onCheckedChange={setIncludeTimelineRange}
+            >
+              Include current timeline zoom
+            </EmbedOption>
+            <EmbedOption
+              checked={lockWidth}
+              disabled={!embedConfig.hasWidth}
+              onCheckedChange={setLockWidth}
+            >
+              Lock current chart width
+            </EmbedOption>
+          </div>
+
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[11px] font-medium text-gray-500">URL</span>
+              <CopyButton
+                copied={copiedTarget === 'url'}
+                label="Copy URL"
+                onCopy={() => {
+                  void copyText('url', embedUrl)
+                }}
+              />
+            </div>
+            <input
+              className={chartEmbedInputStyles}
+              readOnly
+              value={embedUrl}
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[11px] font-medium text-gray-500">
+                Iframe
+              </span>
+              <CopyButton
+                copied={copiedTarget === 'iframe'}
+                label="Copy iframe"
+                onCopy={() => {
+                  void copyText('iframe', iframeCode)
+                }}
+              />
+            </div>
+            <textarea
+              className={twMerge(chartEmbedInputStyles, 'min-h-20 resize-none')}
+              readOnly
+              value={iframeCode}
+            />
+          </div>
+        </div>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
 
@@ -2551,6 +2859,51 @@ function useElementWidth() {
   }, [])
 
   return { containerRef, width }
+}
+
+function useMeasuredElementHeight<T extends HTMLElement>() {
+  const [element, setElement] = React.useState<T | null>(null)
+  const [height, setHeight] = React.useState(0)
+
+  const ref = React.useCallback((nextElement: T | null) => {
+    setElement(nextElement)
+  }, [])
+
+  React.useEffect(() => {
+    if (!element) {
+      setHeight(0)
+      return
+    }
+
+    const setMeasuredHeight = (nextHeight: number) => {
+      setHeight((previousHeight) =>
+        previousHeight === nextHeight ? previousHeight : nextHeight,
+      )
+    }
+
+    const updateHeight = () => {
+      setMeasuredHeight(Math.ceil(element.getBoundingClientRect().height))
+    }
+
+    updateHeight()
+
+    const ownerWindow = element.ownerDocument.defaultView
+    if (!ownerWindow?.ResizeObserver) {
+      ownerWindow?.addEventListener('resize', updateHeight)
+      return () => {
+        ownerWindow?.removeEventListener('resize', updateHeight)
+      }
+    }
+
+    const resizeObserver = new ownerWindow.ResizeObserver(updateHeight)
+    resizeObserver.observe(element)
+
+    return () => {
+      resizeObserver.disconnect()
+    }
+  }, [element])
+
+  return { height, ref }
 }
 
 function TimelineRangeScrubber({
@@ -2737,7 +3090,7 @@ function TimelineRangeScrubber({
 
   return (
     <div
-      className="group relative mt-1 h-8 cursor-crosshair"
+      className="group relative h-8 cursor-crosshair"
       onDoubleClick={handleSelectionDoubleClick}
       onPointerCancel={handleSelectionPointerCancel}
       onPointerDown={handleSelectionPointerDown}
@@ -2841,18 +3194,40 @@ function PlotFigure({
   const dataUpdateKeyRef = React.useRef<string | undefined>(undefined)
   const layoutKeyRef = React.useRef<string | undefined>(undefined)
   const showLegendRef = React.useRef(showLegend)
+  const { height: legendHeight, ref: measuredLegendRef } =
+    useMeasuredElementHeight<HTMLDivElement>()
+  const { height: footerHeight, ref: footerRef } =
+    useMeasuredElementHeight<HTMLDivElement>()
   const sizeRef = React.useRef<{
     height: number | undefined
     width: number | undefined
   } | null>(null)
+
+  const setLegendRef = React.useCallback(
+    (element: HTMLDivElement | null) => {
+      legendRef.current = element
+      measuredLegendRef(element)
+    },
+    [legendRef, measuredLegendRef],
+  )
+  const plotOptions = React.useMemo(
+    () => ({
+      ...options,
+      height: getPlotContentHeight({
+        reservedHeight: legendHeight + footerHeight,
+        totalHeight: options.height,
+      }),
+    }),
+    [footerHeight, legendHeight, options],
+  )
 
   React.useEffect(() => {
     const container = containerRef.current
     if (!container) return
 
     const nextSize = {
-      height: options.height,
-      width: options.width,
+      height: plotOptions.height,
+      width: plotOptions.width,
     }
     const previousSize = sizeRef.current
     const sizeChanged =
@@ -2889,7 +3264,7 @@ function PlotFigure({
     }
 
     const replacePlot = () => {
-      commitPlot(Plot.plot(options))
+      commitPlot(Plot.plot(plotOptions))
     }
 
     const domainOrderKey = domain?.join('\u0000')
@@ -2910,7 +3285,7 @@ function PlotFigure({
       plotSvg?.updateBarPlot
     ) {
       if (domainOrderChanged || domainIdentityChanged || dataChanged) {
-        const nextPlot = Plot.plot(options)
+        const nextPlot = Plot.plot(plotOptions)
         commitPlot(nextPlot)
         plotSvg.updateBarPlot({
           nextBarKeys: barKeys,
@@ -2932,7 +3307,7 @@ function PlotFigure({
     legendRef,
     layoutKey,
     onRenderedChange,
-    options,
+    plotOptions,
     plotRef,
   ])
 
@@ -2955,16 +3330,20 @@ function PlotFigure({
   )
 
   return (
-    <div className="relative">
+    <div className="relative" style={{ height: options.height }}>
       <div
         className={twMerge(
-          'mb-2 flex justify-center overflow-x-auto px-2 text-xs',
+          'flex justify-center overflow-x-auto px-2 pb-2 text-xs',
           !showLegend && 'hidden',
         )}
-        ref={legendRef}
+        ref={setLegendRef}
       />
       <div ref={containerRef} />
-      {footer}
+      {footer ? (
+        <div className="flow-root pt-1" ref={footerRef}>
+          {footer}
+        </div>
+      ) : null}
     </div>
   )
 }
@@ -2972,6 +3351,7 @@ function PlotFigure({
 // Props for the NPMStatsChart component
 export type NPMStatsChartProps = {
   actionsContainer?: HTMLElement | null
+  embedConfig?: NpmStatsChartEmbedConfig
   onActionsMountedChange?: (mounted: boolean) => void
   queryData: NpmQueryData | undefined
   height: number
@@ -2986,16 +3366,19 @@ export type NPMStatsChartProps = {
   showDataMode: ShowDataMode
   normalizeBaseline?: boolean
   showBaseline?: boolean
+  showLegend?: boolean
   timelineEnd?: number
   timelineStart?: number
   animationBucketOffsetBounds?: LatestBucketOffsetBounds
   animationFrameIntervalMs?: number
   animationQueryData?: NpmQueryData
+  onShowLegendChange?: (showLegend: boolean) => void
   onTimelineRangeChange?: (range: TimelineRangeValue) => void
 }
 
 export function NPMStatsChart({
   actionsContainer,
+  embedConfig,
   onActionsMountedChange,
   queryData,
   height,
@@ -3010,11 +3393,13 @@ export function NPMStatsChart({
   showDataMode,
   normalizeBaseline = true,
   showBaseline = false,
+  showLegend: controlledShowLegend,
   timelineEnd,
   timelineStart,
   animationBucketOffsetBounds,
   animationFrameIntervalMs,
   animationQueryData,
+  onShowLegendChange,
   onTimelineRangeChange,
 }: NPMStatsChartProps) {
   const { containerRef, width } = useElementWidth()
@@ -3025,7 +3410,9 @@ export function NPMStatsChart({
   )}`
   const legendRef = React.useRef<HTMLDivElement>(null)
   const plotRef = React.useRef<ReturnType<typeof Plot.plot> | null>(null)
-  const [showLegend, setShowLegend] = React.useState(false)
+  const [uncontrolledShowLegend, setUncontrolledShowLegend] =
+    React.useState(false)
+  const showLegend = controlledShowLegend ?? uncontrolledShowLegend
   const showLegendRef = React.useRef(showLegend)
   const [chartRendered, setChartRendered] = React.useState(false)
   const [exportingFormat, setExportingFormat] =
@@ -3166,6 +3553,16 @@ export function NPMStatsChart({
     ],
   )
 
+  const handleToggleLegend = React.useCallback(() => {
+    const nextShowLegend = !showLegend
+
+    if (controlledShowLegend === undefined) {
+      setUncontrolledShowLegend(nextShowLegend)
+    }
+
+    onShowLegendChange?.(nextShowLegend)
+  }, [controlledShowLegend, onShowLegendChange, showLegend])
+
   const canUseChartActions =
     chartRendered && !!queryData?.length && width > 0 && !exportingFormat
   const chartActions = actionsContainer
@@ -3173,11 +3570,12 @@ export function NPMStatsChart({
         <ChartActions
           canExportAnimation={canExportAnimation}
           disabled={!canUseChartActions}
+          embedConfig={embedConfig}
           exportingFormat={exportingFormat}
           onExport={(format) => {
             void handleExport(format)
           }}
-          onToggleLegend={() => setShowLegend((value) => !value)}
+          onToggleLegend={handleToggleLegend}
           showLegend={canUseChartActions && showLegend}
         />,
         actionsContainer,
@@ -3718,11 +4116,17 @@ export function NPMStatsChart({
   const isLatestBar = isLatestGroupedBar || isLatestStackedBar
   const isHorizontalBar = isLatestBar && barOrientation === 'horizontal'
   const isLatestVerticalBar = isLatestBar && barOrientation === 'vertical'
-  const longestLatestBarLabelLength =
-    d3.max(latestBarDomain, (label) => label.length) ?? 0
+  const marginRight = 10
   const marginLeft = isHorizontalBar
-    ? Math.min(240, Math.max(90, longestLatestBarLabelLength * 7 + 20))
+    ? getCategoricalAxisLeftMargin({ labels: latestBarDomain, width })
     : 70
+  const latestVerticalXAxisLayout = getVerticalCategoricalXAxisLayout({
+    height,
+    labels: latestBarDomain,
+    marginLeft,
+    marginRight,
+    width,
+  })
   const xLabel = isHorizontalBar
     ? 'Downloads'
     : viewMode === 'latest'
@@ -3824,7 +4228,7 @@ export function NPMStatsChart({
                 dates={timelineScrubberDates}
                 endIndex={timelineEndIndex}
                 marginLeft={marginLeft}
-                marginRight={10}
+                marginRight={marginRight}
                 onRangeChange={(nextStartIndex, nextEndIndex) => {
                   if (
                     nextStartIndex <= 0 &&
@@ -3853,8 +4257,10 @@ export function NPMStatsChart({
           showLegend={showLegend}
           options={{
             marginLeft,
-            marginRight: 10,
-            marginBottom: isLatestVerticalBar ? 90 : 70,
+            marginRight,
+            marginBottom: isLatestVerticalBar
+              ? latestVerticalXAxisLayout.marginBottom
+              : 70,
             width,
             height,
             clip: hasTimelineZoom ? true : undefined,
@@ -4057,9 +4463,13 @@ export function NPMStatsChart({
                 ? latestBarDomain
                 : timelineZoomDomain,
               label: xLabel,
-              labelOffset: isLatestVerticalBar ? 55 : 35,
+              labelOffset: isLatestVerticalBar
+                ? latestVerticalXAxisLayout.labelOffset
+                : 35,
               tickFormat: xTickFormat,
-              tickRotate: isLatestVerticalBar ? -30 : undefined,
+              tickRotate: isLatestVerticalBar
+                ? latestVerticalXAxisLayout.tickRotate
+                : undefined,
             },
             y: {
               domain: isHorizontalBar ? latestBarDomain : undefined,

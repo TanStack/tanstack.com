@@ -193,13 +193,15 @@ function RouteComponent() {
         items: [
           {
             title: 'Stacked Black (SVG)',
-            description: 'Emblem above a two-line wordmark, for light backgrounds',
+            description:
+              'Emblem above a two-line wordmark, for light backgrounds',
             url: '/images/brand/tanstack-stacked-black.svg',
             bg: 'light',
           },
           {
             title: 'Stacked White (SVG)',
-            description: 'Emblem above a two-line wordmark, for dark backgrounds',
+            description:
+              'Emblem above a two-line wordmark, for dark backgrounds',
             url: '/images/brand/tanstack-stacked-white.svg',
             bg: 'dark',
           },

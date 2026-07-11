@@ -70,9 +70,11 @@ import { Route as DsShadowsRouteImport } from './routes/ds.shadows'
 import { Route as DsSemanticRouteImport } from './routes/ds.semantic'
 import { Route as DsPaletteRouteImport } from './routes/ds.palette'
 import { Route as DsNavbarRouteImport } from './routes/ds.navbar'
+import { Route as DsLogosRouteImport } from './routes/ds.logos'
 import { Route as DsInputsRouteImport } from './routes/ds.inputs'
 import { Route as DsIconographyRouteImport } from './routes/ds.iconography'
 import { Route as DsIconMigrationRouteImport } from './routes/ds.icon-migration'
+import { Route as DsEyebrowRouteImport } from './routes/ds.eyebrow'
 import { Route as DsEffectsRouteImport } from './routes/ds.effects'
 import { Route as DsDropdownRouteImport } from './routes/ds.dropdown'
 import { Route as DsColorsRouteImport } from './routes/ds.colors'
@@ -489,6 +491,11 @@ const DsNavbarRoute = DsNavbarRouteImport.update({
   path: '/navbar',
   getParentRoute: () => DsRoute,
 } as any)
+const DsLogosRoute = DsLogosRouteImport.update({
+  id: '/logos',
+  path: '/logos',
+  getParentRoute: () => DsRoute,
+} as any)
 const DsInputsRoute = DsInputsRouteImport.update({
   id: '/inputs',
   path: '/inputs',
@@ -502,6 +509,11 @@ const DsIconographyRoute = DsIconographyRouteImport.update({
 const DsIconMigrationRoute = DsIconMigrationRouteImport.update({
   id: '/icon-migration',
   path: '/icon-migration',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsEyebrowRoute = DsEyebrowRouteImport.update({
+  id: '/eyebrow',
+  path: '/eyebrow',
   getParentRoute: () => DsRoute,
 } as any)
 const DsEffectsRoute = DsEffectsRouteImport.update({
@@ -1168,9 +1180,11 @@ export interface FileRoutesByFullPath {
   '/ds/colors': typeof DsColorsRoute
   '/ds/dropdown': typeof DsDropdownRoute
   '/ds/effects': typeof DsEffectsRoute
+  '/ds/eyebrow': typeof DsEyebrowRoute
   '/ds/icon-migration': typeof DsIconMigrationRoute
   '/ds/iconography': typeof DsIconographyRoute
   '/ds/inputs': typeof DsInputsRoute
+  '/ds/logos': typeof DsLogosRoute
   '/ds/navbar': typeof DsNavbarRoute
   '/ds/palette': typeof DsPaletteRoute
   '/ds/semantic': typeof DsSemanticRoute
@@ -1336,9 +1350,11 @@ export interface FileRoutesByTo {
   '/ds/colors': typeof DsColorsRoute
   '/ds/dropdown': typeof DsDropdownRoute
   '/ds/effects': typeof DsEffectsRoute
+  '/ds/eyebrow': typeof DsEyebrowRoute
   '/ds/icon-migration': typeof DsIconMigrationRoute
   '/ds/iconography': typeof DsIconographyRoute
   '/ds/inputs': typeof DsInputsRoute
+  '/ds/logos': typeof DsLogosRoute
   '/ds/navbar': typeof DsNavbarRoute
   '/ds/palette': typeof DsPaletteRoute
   '/ds/semantic': typeof DsSemanticRoute
@@ -1511,9 +1527,11 @@ export interface FileRoutesById {
   '/ds/colors': typeof DsColorsRoute
   '/ds/dropdown': typeof DsDropdownRoute
   '/ds/effects': typeof DsEffectsRoute
+  '/ds/eyebrow': typeof DsEyebrowRoute
   '/ds/icon-migration': typeof DsIconMigrationRoute
   '/ds/iconography': typeof DsIconographyRoute
   '/ds/inputs': typeof DsInputsRoute
+  '/ds/logos': typeof DsLogosRoute
   '/ds/navbar': typeof DsNavbarRoute
   '/ds/palette': typeof DsPaletteRoute
   '/ds/semantic': typeof DsSemanticRoute
@@ -1689,9 +1707,11 @@ export interface FileRouteTypes {
     | '/ds/colors'
     | '/ds/dropdown'
     | '/ds/effects'
+    | '/ds/eyebrow'
     | '/ds/icon-migration'
     | '/ds/iconography'
     | '/ds/inputs'
+    | '/ds/logos'
     | '/ds/navbar'
     | '/ds/palette'
     | '/ds/semantic'
@@ -1857,9 +1877,11 @@ export interface FileRouteTypes {
     | '/ds/colors'
     | '/ds/dropdown'
     | '/ds/effects'
+    | '/ds/eyebrow'
     | '/ds/icon-migration'
     | '/ds/iconography'
     | '/ds/inputs'
+    | '/ds/logos'
     | '/ds/navbar'
     | '/ds/palette'
     | '/ds/semantic'
@@ -2031,9 +2053,11 @@ export interface FileRouteTypes {
     | '/ds/colors'
     | '/ds/dropdown'
     | '/ds/effects'
+    | '/ds/eyebrow'
     | '/ds/icon-migration'
     | '/ds/iconography'
     | '/ds/inputs'
+    | '/ds/logos'
     | '/ds/navbar'
     | '/ds/palette'
     | '/ds/semantic'
@@ -2657,6 +2681,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DsNavbarRouteImport
       parentRoute: typeof DsRoute
     }
+    '/ds/logos': {
+      id: '/ds/logos'
+      path: '/logos'
+      fullPath: '/ds/logos'
+      preLoaderRoute: typeof DsLogosRouteImport
+      parentRoute: typeof DsRoute
+    }
     '/ds/inputs': {
       id: '/ds/inputs'
       path: '/inputs'
@@ -2676,6 +2707,13 @@ declare module '@tanstack/react-router' {
       path: '/icon-migration'
       fullPath: '/ds/icon-migration'
       preLoaderRoute: typeof DsIconMigrationRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/eyebrow': {
+      id: '/ds/eyebrow'
+      path: '/eyebrow'
+      fullPath: '/ds/eyebrow'
+      preLoaderRoute: typeof DsEyebrowRouteImport
       parentRoute: typeof DsRoute
     }
     '/ds/effects': {
@@ -3698,9 +3736,11 @@ interface DsRouteChildren {
   DsColorsRoute: typeof DsColorsRoute
   DsDropdownRoute: typeof DsDropdownRoute
   DsEffectsRoute: typeof DsEffectsRoute
+  DsEyebrowRoute: typeof DsEyebrowRoute
   DsIconMigrationRoute: typeof DsIconMigrationRoute
   DsIconographyRoute: typeof DsIconographyRoute
   DsInputsRoute: typeof DsInputsRoute
+  DsLogosRoute: typeof DsLogosRoute
   DsNavbarRoute: typeof DsNavbarRoute
   DsPaletteRoute: typeof DsPaletteRoute
   DsSemanticRoute: typeof DsSemanticRoute
@@ -3720,9 +3760,11 @@ const DsRouteChildren: DsRouteChildren = {
   DsColorsRoute: DsColorsRoute,
   DsDropdownRoute: DsDropdownRoute,
   DsEffectsRoute: DsEffectsRoute,
+  DsEyebrowRoute: DsEyebrowRoute,
   DsIconMigrationRoute: DsIconMigrationRoute,
   DsIconographyRoute: DsIconographyRoute,
   DsInputsRoute: DsInputsRoute,
+  DsLogosRoute: DsLogosRoute,
   DsNavbarRoute: DsNavbarRoute,
   DsPaletteRoute: DsPaletteRoute,
   DsSemanticRoute: DsSemanticRoute,

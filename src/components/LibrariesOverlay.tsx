@@ -3,7 +3,10 @@ import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { CaretDown, Check, X } from '@phosphor-icons/react'
 import { type Framework, type Library } from '~/libraries'
 import { frameworkOptions } from '~/libraries/frameworks'
-import LibraryGridCard from '~/components/LibraryGridCard'
+import LibraryGridCard, {
+  libraryCategories,
+  type LibraryCategory,
+} from '~/components/LibraryGridCard'
 import {
   Dropdown,
   DropdownContent,
@@ -16,6 +19,36 @@ import {
   getVisibleLibraries,
   orderLibrariesForBrowse,
 } from '~/libraries/browse-utils'
+
+// Cards are grouped under these category headers so the per-library colour
+// coding becomes a navigational aid (header tint matches the card icon tint).
+const CATEGORY_SECTIONS: ReadonlyArray<{
+  key: LibraryCategory
+  label: string
+  color: string
+}> = [
+  {
+    key: 'framework',
+    label: 'Framework',
+    color: 'text-ds-green-400 dark:text-ds-green-300',
+  },
+  {
+    key: 'data',
+    label: 'Data & State',
+    color: 'text-ds-terracotta-400 dark:text-ds-terracotta-300',
+  },
+  { key: 'ui', label: 'UI & UX', color: 'text-ds-blue-400 dark:text-ds-blue-300' },
+  {
+    key: 'performance',
+    label: 'Performance',
+    color: 'text-ds-amber-400 dark:text-ds-amber-300',
+  },
+  {
+    key: 'tooling',
+    label: 'Tooling',
+    color: 'text-ds-neutral-300 dark:text-ds-neutral-200',
+  },
+]
 
 export function LibrariesOverlay({
   open,
@@ -40,6 +73,25 @@ export function LibrariesOverlay({
     ? ordered.filter((library) => library.frameworks.includes(activeFramework))
     : ordered
 
+  // Group visible libraries under their category, giving each card a reveal
+  // delay that cascades row-by-row, section after section (starting once the
+  // 150ms glass fade has settled).
+  let cardDelayBase = 150
+  const sections = CATEGORY_SECTIONS.map((section) => {
+    const cards = visibleLibraries
+      .filter(
+        (library) => (libraryCategories[library.id] ?? 'tooling') === section.key,
+      )
+      .map((library, i) => ({
+        library,
+        delay: cardDelayBase + Math.floor(i / 3) * 80 + (i % 3) * 25,
+      }))
+    if (cards.length > 0) {
+      cardDelayBase += Math.ceil(cards.length / 3) * 80 + 40
+    }
+    return { ...section, cards }
+  }).filter((section) => section.cards.length > 0)
+
   // Reset the filter each time the overlay is opened.
   React.useEffect(() => {
     if (open) setActiveFramework(null)
@@ -59,7 +111,7 @@ export function LibrariesOverlay({
         <DialogPrimitive.Overlay className="animate-library-overlay-in libraries-overlay-glass fixed inset-0 z-[110]" />
         <DialogPrimitive.Content
           aria-label="All Libraries"
-          className="animate-library-overlay-in fixed inset-x-0 top-0 z-[111] mx-auto flex max-h-dvh w-full max-w-6xl flex-col overflow-y-auto px-4 pb-16 pt-28 outline-none"
+          className="animate-library-overlay-in fixed inset-x-0 top-0 z-[111] mx-auto flex max-h-dvh w-full max-w-6xl flex-col overflow-y-auto px-6 pb-16 pt-28 outline-none sm:px-10 lg:px-4"
           onInteractOutside={(event) => {
             // The framework dropdown portals outside this dialog's DOM, so
             // selecting an item would otherwise read as an outside interaction
@@ -76,7 +128,7 @@ export function LibrariesOverlay({
           >
             <X className="size-10" weight="light" />
           </DialogPrimitive.Close>
-          <div className="flex items-center gap-6">
+          <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-6">
             {activeFrameworkOption ? (
               <div className="min-w-0">
                 <div className="flex items-center gap-3">
@@ -163,26 +215,27 @@ export function LibrariesOverlay({
             </Dropdown>
           </div>
 
-          <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {visibleLibraries.map((library, i) => {
-              // Cascade by row (3-col desktop layout): each row starts after the
-              // previous, with a slight left-to-right offset. Begins once the
-              // 150ms glass fade has settled.
-              const columns = 3
-              const row = Math.floor(i / columns)
-              const col = i % columns
-              const delay = 150 + row * 80 + col * 25
-
-              return (
-                <div
-                  key={library.id}
-                  className="h-full animate-library-card-reveal"
-                  style={{ animationDelay: `${delay}ms` }}
+          <div className="mt-10 flex flex-col gap-10">
+            {sections.map((section) => (
+              <section key={section.key}>
+                <h2
+                  className={`font-ds-mono text-xs font-medium uppercase tracking-[0.2em] ${section.color}`}
                 >
-                  <LibraryGridCard library={library as Library} />
+                  {section.label}
+                </h2>
+                <div className="mt-4 grid grid-cols-1 gap-0 overflow-hidden rounded-2xl corner-squircle border border-black/[0.08] divide-y divide-black/[0.08] dark:border-white/[0.08] dark:divide-white/[0.08] sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:rounded-none sm:border-0 sm:divide-y-0">
+                  {section.cards.map(({ library, delay }) => (
+                    <div
+                      key={library.id}
+                      className="h-full animate-library-card-reveal"
+                      style={{ animationDelay: `${delay}ms` }}
+                    >
+                      <LibraryGridCard library={library as Library} />
+                    </div>
+                  ))}
                 </div>
-              )
-            })}
+              </section>
+            ))}
           </div>
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>

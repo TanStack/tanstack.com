@@ -4,6 +4,7 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { Link } from '@tanstack/react-router'
 import { CaretDown, CircleNotch, User } from '@phosphor-icons/react'
 import type { MarkdownHeading } from '~/utils/markdown'
+import type { LibraryId } from '~/libraries/ids'
 
 /**
  * New-system DS components — built on the Figma semantic tokens (action-*,
@@ -31,12 +32,28 @@ type ButtonColor =
 type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'icon-sm' | 'icon-md'
 type ButtonRounded = 'none' | 'md' | 'lg' | 'full'
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+// Polymorphic: defaults to <button>, but `as={Link}` / `as="a"` lets a CTA
+// render as a link while keeping the button styling. Mirrors the production
+// Button's API (src/ui/Button.tsx) so pages can swap imports 1:1.
+type ButtonOwnProps<TElement extends React.ElementType = 'button'> = {
+  as?: TElement
+  children: React.ReactNode
   variant?: ButtonVariant
   color?: ButtonColor
   size?: ButtonSize
   rounded?: ButtonRounded
+  className?: string
 }
+
+type ButtonProps<TElement extends React.ElementType = 'button'> =
+  ButtonOwnProps<TElement> &
+    Omit<React.ComponentPropsWithRef<TElement>, keyof ButtonOwnProps<TElement>>
+
+type ButtonComponent = <TElement extends React.ElementType = 'button'>(
+  props: ButtonProps<TElement>,
+) => React.ReactNode
+
+type ButtonInnerProps = ButtonOwnProps & Record<string, unknown>
 
 // Color set mapped onto the new palette (brand blue = the teal #013e53).
 const primaryColorStyles: Record<ButtonColor, string> = {
@@ -119,48 +136,49 @@ function getDefaultRounded(size: ButtonSize): ButtonRounded {
   return 'lg'
 }
 
-export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  function Button(
-    {
-      children,
-      variant = 'primary',
-      color = 'blue',
-      size,
-      rounded,
-      className,
-      ...rest
-    },
-    ref,
-  ) {
-    const resolvedSize = size ?? getDefaultSize(variant)
-    const resolvedRounded = rounded ?? getDefaultRounded(resolvedSize)
-    const colorStyles =
-      variant === 'primary'
-        ? primaryColorStyles[color]
-        : variant === 'icon'
-          ? iconColorStyles[color]
-          : variant === 'link'
-            ? linkColorStyles[color]
-            : ''
+export const Button: ButtonComponent = React.forwardRef<
+  HTMLElement,
+  ButtonInnerProps
+>(function Button(props, ref) {
+  const {
+    as,
+    children,
+    variant = 'primary',
+    color = 'blue',
+    size,
+    rounded,
+    className,
+    ...rest
+  } = props as ButtonOwnProps & Record<string, unknown>
+  const Component = as || 'button'
+  const resolvedSize = size ?? getDefaultSize(variant)
+  const resolvedRounded = rounded ?? getDefaultRounded(resolvedSize)
+  const colorStyles =
+    variant === 'primary'
+      ? primaryColorStyles[color]
+      : variant === 'icon'
+        ? iconColorStyles[color]
+        : variant === 'link'
+          ? linkColorStyles[color]
+          : ''
 
-    return (
-      <button
-        ref={ref}
-        className={twMerge(
-          baseStyles,
-          variantStyles[variant],
-          sizeStyles[resolvedSize],
-          roundedStyles[resolvedRounded],
-          colorStyles,
-          className,
-        )}
-        {...rest}
-      >
-        {children}
-      </button>
-    )
-  },
-)
+  return React.createElement(
+    Component,
+    {
+      ref,
+      className: twMerge(
+        baseStyles,
+        variantStyles[variant],
+        sizeStyles[resolvedSize],
+        roundedStyles[resolvedRounded],
+        colorStyles,
+        className,
+      ),
+      ...rest,
+    },
+    children,
+  )
+}) as unknown as ButtonComponent
 
 /* ------------------------------------------------------------------ Badge -- */
 
@@ -204,6 +222,83 @@ export function Badge({
     >
       {children}
     </span>
+  )
+}
+
+/* ---------------------------------------------------------------- Eyebrow -- */
+
+type EyebrowTone = 'muted' | 'secondary' | 'accent'
+
+const eyebrowToneStyles: Record<EyebrowTone, string> = {
+  muted: 'text-text-muted',
+  secondary: 'text-text-secondary',
+  accent: 'text-text-accent',
+}
+
+// Libraries that ship a `--color-lib-*` brand token. Written as literal classes
+// so Tailwind's JIT emits each `text-lib-*` utility. Libraries without a brand
+// token (e.g. ranger, config) simply fall back to the neutral tone.
+const eyebrowLibraryStyles: Partial<Record<LibraryId, string>> = {
+  start: 'text-lib-start',
+  router: 'text-lib-router',
+  query: 'text-lib-query',
+  table: 'text-lib-table',
+  db: 'text-lib-db',
+  ai: 'text-lib-ai',
+  form: 'text-lib-form',
+  virtual: 'text-lib-virtual',
+  pacer: 'text-lib-pacer',
+  hotkeys: 'text-lib-hotkeys',
+  store: 'text-lib-store',
+  devtools: 'text-lib-devtools',
+  cli: 'text-lib-cli',
+  intent: 'text-lib-intent',
+}
+
+/**
+ * Section eyebrow / kicker — the small uppercase label that sits above a
+ * heading. Locks in the DS `mono-caps` role (IBM Plex Mono, 12px, +1.5px
+ * tracking) plus the inline icon layout, so every eyebrow across the site stays
+ * on-system instead of hand-stacking `text-xs font-black uppercase`.
+ *
+ * Color resolves in priority order: `library` (brand the eyebrow by the
+ * category it sits within, via that library's `--color-lib-*` token) →
+ * `className` override → `tone` (neutral default). Pass a `library` to brand it,
+ * omit it for a neutral eyebrow.
+ */
+export function Eyebrow({
+  children,
+  icon,
+  tone = 'secondary',
+  library,
+  className,
+}: {
+  children: React.ReactNode
+  icon?: React.ReactNode
+  tone?: EyebrowTone
+  /** Brand the eyebrow by the library/category it's nested within. Falls back
+   *  to `tone` when unset or when the library has no brand token. */
+  library?: LibraryId
+  className?: string
+}) {
+  const color =
+    (library && eyebrowLibraryStyles[library]) ?? eyebrowToneStyles[tone]
+
+  // The `mono-caps` type role is a fixed base — never merged away — so the DS
+  // font/size/tracking can't be overridden. Only color (library / tone /
+  // className) goes through twMerge, which handles standard color utilities
+  // cleanly. This also sidesteps twMerge dropping the custom `text-ds-*` size
+  // when a caller passes a text color.
+  return (
+    <p
+      className={`inline-flex items-center gap-2 font-ds-mono text-ds-mono-caps uppercase ${twMerge(
+        color,
+        className,
+      )}`}
+    >
+      {icon}
+      {children}
+    </p>
   )
 }
 

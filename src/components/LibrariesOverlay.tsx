@@ -37,7 +37,11 @@ const CATEGORY_SECTIONS: ReadonlyArray<{
     label: 'Data & State',
     color: 'text-ds-terracotta-400 dark:text-ds-terracotta-300',
   },
-  { key: 'ui', label: 'UI & UX', color: 'text-ds-blue-400 dark:text-ds-blue-300' },
+  {
+    key: 'ui',
+    label: 'UI & UX',
+    color: 'text-ds-blue-400 dark:text-ds-blue-300',
+  },
   {
     key: 'performance',
     label: 'Performance',
@@ -80,7 +84,8 @@ export function LibrariesOverlay({
   const sections = CATEGORY_SECTIONS.map((section) => {
     const cards = visibleLibraries
       .filter(
-        (library) => (libraryCategories[library.id] ?? 'tooling') === section.key,
+        (library) =>
+          (libraryCategories[library.id] ?? 'tooling') === section.key,
       )
       .map((library, i) => ({
         library,

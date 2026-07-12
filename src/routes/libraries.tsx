@@ -7,6 +7,7 @@ import LibraryCard from '~/components/LibraryCard'
 import {
   getFrameworkLibraryCounts,
   getVisibleLibraries,
+  orderFrameworksForBrowse,
   orderLibrariesForBrowse,
 } from './-libraries-utils'
 
@@ -30,8 +31,11 @@ function LibrariesPage() {
   const allLibraries = getVisibleLibraries()
   const ordered = orderLibrariesForBrowse(allLibraries)
   const frameworkCounts = getFrameworkLibraryCounts(allLibraries)
-  const frameworksWithLibraries = frameworkOptions.filter(
-    (framework) => (frameworkCounts[framework.value] ?? 0) > 0,
+  const frameworksWithLibraries = orderFrameworksForBrowse(
+    frameworkOptions.filter(
+      (framework) => (frameworkCounts[framework.value] ?? 0) > 0,
+    ),
+    frameworkCounts,
   )
   const deprecatedLibraries = [reactChartsProject]
 

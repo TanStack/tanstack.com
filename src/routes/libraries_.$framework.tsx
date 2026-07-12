@@ -6,6 +6,7 @@ import LibraryCard from '~/components/LibraryCard'
 import {
   getFrameworkLibraryCounts,
   getVisibleLibraries,
+  orderFrameworksForBrowse,
   orderLibrariesForBrowse,
 } from './-libraries-utils'
 
@@ -45,8 +46,11 @@ function LibrariesFrameworkPage() {
 
   const allLibraries = getVisibleLibraries()
   const frameworkCounts = getFrameworkLibraryCounts(allLibraries)
-  const frameworksWithLibraries = frameworkOptions.filter(
-    (option) => (frameworkCounts[option.value] ?? 0) > 0,
+  const frameworksWithLibraries = orderFrameworksForBrowse(
+    frameworkOptions.filter(
+      (option) => (frameworkCounts[option.value] ?? 0) > 0,
+    ),
+    frameworkCounts,
   )
   const filteredLibraries = orderLibrariesForBrowse(
     allLibraries.filter((library) =>

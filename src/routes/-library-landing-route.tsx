@@ -79,7 +79,10 @@ export function LibraryNavbarTitle({
 }) {
   const library = getLibrary(libraryId)
   const libraryName = library.name.replace('TanStack ', '')
-  const gradientText = `inline-block text-transparent bg-clip-text bg-linear-to-r ${library.colorFrom} ${library.colorTo}`
+  // DS type role for the navbar wordmark: heading-4 (20px / 700) in the display
+  // font. `text-transparent` sets color only, so it coexists with the size/
+  // weight from `text-ds-heading-4` (no conflict) and keeps the gradient clip.
+  const gradientText = `inline-block font-ds-display text-ds-heading-4 text-transparent bg-clip-text bg-linear-to-r ${library.colorFrom} ${library.colorTo}`
 
   return (
     <Link

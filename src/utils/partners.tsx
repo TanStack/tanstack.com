@@ -853,7 +853,7 @@ const serpApi = (() => {
   const href = 'https://serpapi.com?utm_source=tanstack'
 
   return {
-    name: 'SerpAPI',
+    name: 'SerpApi',
     id: 'serpapi',
     libraries: libraries.map((l) => l.id),
     status: 'active' as const,

@@ -314,7 +314,7 @@ export const table: LibrarySlim = {
   to: '/table',
   tagline: 'Headless UI for building powerful tables & datagrids',
   description:
-    'Supercharge your tables or build a datagrid from scratch for TS/JS, React, Vue, Solid, Svelte, Qwik, Angular, and Lit while retaining 100% control over markup and styles.',
+    'Supercharge your tables or build a datagrid from scratch in any framework while retaining 100% control over markup and styles.',
   bgStyle: 'bg-blue-500',
   borderStyle: 'border-blue-500/50',
   textStyle: 'text-blue-500',
@@ -326,6 +326,7 @@ export const table: LibrarySlim = {
   repo: 'tanstack/table',
   frameworks: [
     'angular',
+    'ember',
     'react',
     'preact',
     'solid',

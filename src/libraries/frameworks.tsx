@@ -1,5 +1,6 @@
 import alpineLogo from '../images/alpine-logo.svg'
 import angularLogo from '../images/angular-logo.svg'
+import emberLogo from '../images/ember-logo.svg'
 import jsLogo from '../images/js-logo.svg'
 import litLogo from '../images/lit-logo.svg'
 import markoLogo from '../images/marko-logo.svg'
@@ -39,6 +40,13 @@ export const frameworkOptions = [
     logo: angularLogo,
     color: 'bg-red-500',
     fontColor: 'text-fuchsia-500',
+  },
+  {
+    label: 'Ember',
+    value: 'ember',
+    logo: emberLogo,
+    color: 'bg-orange-600',
+    fontColor: 'text-orange-600',
   },
   {
     label: 'Solid',

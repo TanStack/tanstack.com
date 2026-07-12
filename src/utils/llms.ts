@@ -41,6 +41,7 @@ const librarySections = [
 const frameworkLabels: Record<Framework, string> = {
   angular: 'Angular',
   alpine: 'Alpine',
+  ember: 'Ember',
   lit: 'Lit',
   marko: 'Marko',
   preact: 'Preact',

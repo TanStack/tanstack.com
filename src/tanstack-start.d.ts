@@ -1,5 +1,6 @@
 /// <reference types="vite/client" />
 /// <reference types="@tanstack/react-start" />
+/// <reference types="vite-font/client" />
 
 // This file ensures TanStack Start type augmentations are loaded
 // The reference above should trigger the serverRoute module augmentation

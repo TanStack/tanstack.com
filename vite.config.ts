@@ -8,6 +8,7 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import tailwindcss from '@tailwindcss/vite'
 import { cloudflare } from '@cloudflare/vite-plugin'
 import { analyzer } from 'vite-bundle-analyzer'
+import viteFont from 'vite-font'
 import viteReact from '@vitejs/plugin-react'
 import fs from 'node:fs'
 import { createRequire } from 'node:module'
@@ -28,6 +29,20 @@ const shouldUseSentryPlugin =
 const shouldBuildSourcemaps =
   shouldUseSentryPlugin || process.env.BUILD_SOURCEMAPS === 'true'
 const SITE_URL = 'https://tanstack.com'
+
+// vite-font measures the real Inter metrics and emits a fallback @font-face
+// under this name. It has to be spelled the same way in the `--font-sans`
+// stack in app.css, or the metric overrides never apply.
+const INTER_FALLBACK_FAMILY = 'Inter Fallback'
+
+// Inter ships pre-subset in public/fonts, so the ranges have to be declared
+// by hand — they are what makes the browser skip latin-ext on a latin page.
+const INTER_UNICODE_RANGE = {
+  latin:
+    'U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD',
+  latinExt:
+    'U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF',
+}
 
 const localEnvPath = path.resolve(__dirname, '.env.local')
 const defaultCheckoutEnvDir = path.join(os.homedir(), 'GitHub/tanstack.com')
@@ -331,6 +346,37 @@ export default defineConfig({
       : []),
     contentCollections(),
     tailwindcss(),
+    // Start renders its own <head>, so there is no HTML entry to transform.
+    // `__root.tsx` imports the generated tags from `virtual:vite-font` instead.
+    viteFont({
+      injectHtml: false,
+      config: [
+        {
+          name: 'Inter',
+          fallback: 'sans-serif',
+          fallbackName: INTER_FALLBACK_FAMILY,
+          display: 'swap',
+          src: [
+            {
+              path: 'public/fonts/Inter-latin.woff2',
+              style: 'normal',
+              weight: '100 900',
+              preload: true,
+              css: { 'unicode-range': INTER_UNICODE_RANGE.latin },
+            },
+            {
+              // Every page is latin; latin-ext is fetched on demand via
+              // unicode-range, so preloading it would just cost bandwidth.
+              path: 'public/fonts/Inter-latin-ext.woff2',
+              style: 'normal',
+              weight: '100 900',
+              preload: false,
+              css: { 'unicode-range': INTER_UNICODE_RANGE.latinExt },
+            },
+          ],
+        },
+      ],
+    }),
     ...(process.env.ANALYZE
       ? [
           analyzer({

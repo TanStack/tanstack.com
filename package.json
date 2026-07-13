@@ -26,6 +26,7 @@
     "db:studio": "drizzle-kit studio",
     "docs:webhooks:plan": "tsx scripts/sync-docs-webhooks.ts --dry-run",
     "docs:webhooks:sync": "tsx scripts/sync-docs-webhooks.ts",
+    "docs:links:check": "tsx scripts/check-docs-menu-links.ts",
     "husky": "pnpm run format && pnpm run test",
     "pretest": "pnpm run content:build",
     "test": "run-p test:tsc test:lint test:unit",

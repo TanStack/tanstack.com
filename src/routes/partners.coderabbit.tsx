@@ -240,6 +240,85 @@ const libDetails: Array<{ label: string; desc: string }> = [
   },
 ]
 
+const catches: Array<{ label: string; desc: string }> = [
+  {
+    label: 'Unstable hook inputs',
+    desc: 'Flags new object, array, or function references passed into Router and Query hooks that quietly trigger extra re-renders or refetches.',
+  },
+  {
+    label: 'Query key & cache mistakes',
+    desc: 'Catches query keys that drift out of sync with their invalidations, and effect-driven fetching that should really be a query.',
+  },
+  {
+    label: 'Server function safety',
+    desc: 'Points out missing awaits, unhandled errors, and unvalidated input in TanStack Start server functions before they reach production.',
+  },
+  {
+    label: 'Routing & loaders',
+    desc: 'Surfaces missing loader dependencies, unparsed search params, and route options that break on navigation or SSR.',
+  },
+  {
+    label: 'Type regressions',
+    desc: 'Reasons about the heavy generics in Table and Form so a subtle type break gets called out at review time, not in CI.',
+  },
+  {
+    label: 'Security & leaked secrets',
+    desc: 'Runs SAST scanners and secret detection over the diff, then explains each finding in context instead of dumping raw linter output.',
+  },
+]
+
+type ComparisonValue = boolean | 'partial'
+
+const comparison: Array<{
+  capability: string
+  manual: ComparisonValue
+  linters: ComparisonValue
+  coderabbit: ComparisonValue
+}> = [
+  {
+    capability: 'Catches context & logic bugs',
+    manual: true,
+    linters: false,
+    coderabbit: true,
+  },
+  {
+    capability: 'Runs 40+ security scanners',
+    manual: false,
+    linters: 'partial',
+    coderabbit: true,
+  },
+  {
+    capability: 'Explains findings in plain English',
+    manual: true,
+    linters: false,
+    coderabbit: true,
+  },
+  {
+    capability: 'One-click / "Fix with AI"',
+    manual: false,
+    linters: false,
+    coderabbit: true,
+  },
+  {
+    capability: "Learns your team's conventions",
+    manual: true,
+    linters: false,
+    coderabbit: true,
+  },
+  {
+    capability: 'Generates tests & docstrings',
+    manual: false,
+    linters: false,
+    coderabbit: true,
+  },
+  {
+    capability: 'Instant, on every pull request',
+    manual: false,
+    linters: true,
+    coderabbit: true,
+  },
+]
+
 const faqs: Array<{ q: string; a: string }> = [
   {
     q: 'Do I need to add CodeRabbit code to my TanStack app?',
@@ -264,6 +343,30 @@ const faqs: Array<{ q: string; a: string }> = [
   {
     q: 'How is this different from GitHub Copilot or a plain linter?',
     a: "CodeRabbit reviews the whole change with reasoning, not just the line under your cursor. It runs 40+ scanners for you, explains findings in context, offers one-click fixes, learns your standards, and gates merges on custom checks. As one CTO put it, the differentiator isn't generating code — it's governing it.",
+  },
+  {
+    q: 'Does CodeRabbit train on my code?',
+    a: 'No. CodeRabbit never uses customer code to train models, whether data retention is enabled or not. Your code is shared with its LLM providers only to generate a review, with data isolation for proprietary code, and Enterprise self-hosting lets you opt out of all retention entirely.',
+  },
+  {
+    q: 'What languages does CodeRabbit support?',
+    a: 'CodeRabbit is language-agnostic and reviews all major programming languages, with depth varying by how common the language is. For TanStack teams that means full TypeScript, JavaScript, and TSX/JSX coverage alongside whatever backend language shares the repo.',
+  },
+  {
+    q: 'Can I scope CodeRabbit to specific folders or a monorepo package?',
+    a: 'Yes. A .coderabbit.yaml file supports path filters and path-specific instructions, so you can focus reviews on the packages that matter and give per-directory guidance — handy in the monorepos many TanStack projects live in.',
+  },
+  {
+    q: 'Does CodeRabbit generate tests and docstrings?',
+    a: 'Yes. It can check test coverage and generate the missing unit tests, and it can create docstrings for changed files — automatically or on request in a pull request comment.',
+  },
+  {
+    q: 'Can I chat with CodeRabbit or ask it to make changes?',
+    a: 'Yes. You can chat with the CodeRabbit bot in any pull request, ask follow-up questions, and apply fixes with one-click commits or the "Fix with AI" button for the harder ones.',
+  },
+  {
+    q: 'Does CodeRabbit connect to Jira, Linear, or other tools?',
+    a: 'Yes. Pro and above integrate Jira and Linear, pull in linked issues and web context, and connect to MCP servers so reviews can reason about work that lives outside the diff.',
   },
 ]
 
@@ -322,6 +425,23 @@ function CheckBadge() {
     <span className="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white">
       <Check className="h-2.5 w-2.5" strokeWidth={3} />
     </span>
+  )
+}
+
+function ComparisonCell({ value }: { value: ComparisonValue }) {
+  if (value === 'partial') {
+    return (
+      <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+        Partial
+      </span>
+    )
+  }
+  return value ? (
+    <span className="inline-flex justify-center">
+      <CheckBadge />
+    </span>
+  ) : (
+    <span className="text-gray-300 dark:text-gray-600">—</span>
   )
 }
 
@@ -460,11 +580,13 @@ function CodeRabbitPartnerPage() {
         {/* Features */}
         <section className="py-10">
           <h2 className="text-2xl font-black tracking-tight md:text-3xl">
-            Why TanStack teams choose CodeRabbit
+            CodeRabbit is all-in on the TanStack community
           </h2>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-gray-600 dark:text-gray-300 md:text-base">
-            CodeRabbit shortens review cycles without lowering the bar. Here's
-            what makes it the right fit for TanStack developers.
+            CodeRabbit went all-in as a Gold sponsor to reach the developers its
+            AI reviews were built for — fast-moving teams shipping type-heavy,
+            full-stack code. Here's what that commitment brings to your
+            workflow.
           </p>
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
             {features.map(({ Icon, title, desc }) => (
@@ -582,6 +704,89 @@ function CodeRabbitPartnerPage() {
                 </p>
               </Card>
             ))}
+          </div>
+        </section>
+
+        {/* What it catches */}
+        <section className="border-t border-gray-200 py-10 dark:border-gray-800">
+          <h2 className="text-2xl font-black tracking-tight md:text-3xl">
+            What CodeRabbit catches in a TanStack PR
+          </h2>
+          <p className="mt-2 max-w-xl text-sm leading-relaxed text-gray-600 dark:text-gray-300 md:text-base">
+            Reviews are context-aware across the whole diff, so in a TanStack
+            codebase CodeRabbit routinely flags issues like these — and you can
+            steer it further with path instructions in{' '}
+            <code className="rounded bg-gray-100 px-1 py-0.5 font-mono text-[13px] dark:bg-gray-800">
+              .coderabbit.yaml
+            </code>
+            .
+          </p>
+          <div className="mt-6 grid gap-3 sm:grid-cols-2">
+            {catches.map(({ label, desc }) => (
+              <Card key={label} className="p-4 shadow-none">
+                <div className="flex items-start gap-2">
+                  <CheckBadge />
+                  <span className="text-sm font-semibold">{label}</span>
+                </div>
+                <p className="mt-2 text-xs leading-relaxed text-gray-600 dark:text-gray-400">
+                  {desc}
+                </p>
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        {/* Comparison */}
+        <section className="border-t border-gray-200 py-10 dark:border-gray-800">
+          <h2 className="text-2xl font-black tracking-tight md:text-3xl">
+            How CodeRabbit compares
+          </h2>
+          <p className="mt-2 max-w-xl text-sm leading-relaxed text-gray-600 dark:text-gray-300 md:text-base">
+            Manual review understands context but is slow and uneven. Linters
+            are instant but shallow. CodeRabbit is the only one that does both —
+            reasoning about your changes and running the scanners, on every pull
+            request.
+          </p>
+          <div className="mt-6 overflow-x-auto">
+            <table className="w-full min-w-[520px] border-collapse text-sm">
+              <thead>
+                <tr className="border-b border-gray-200 dark:border-gray-800">
+                  <th className="py-3 pr-4 text-left font-semibold">
+                    Capability
+                  </th>
+                  <th className="px-3 py-3 text-center font-medium text-gray-500 dark:text-gray-400">
+                    Manual review
+                  </th>
+                  <th className="px-3 py-3 text-center font-medium text-gray-500 dark:text-gray-400">
+                    Linters alone
+                  </th>
+                  <th className="px-3 py-3 text-center font-semibold">
+                    CodeRabbit
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {comparison.map((row) => (
+                  <tr
+                    key={row.capability}
+                    className="border-b border-gray-100 dark:border-gray-800/60"
+                  >
+                    <td className="py-3 pr-4 text-gray-700 dark:text-gray-300">
+                      {row.capability}
+                    </td>
+                    <td className="px-3 py-3 text-center">
+                      <ComparisonCell value={row.manual} />
+                    </td>
+                    <td className="px-3 py-3 text-center">
+                      <ComparisonCell value={row.linters} />
+                    </td>
+                    <td className="px-3 py-3 text-center">
+                      <ComparisonCell value={row.coderabbit} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </section>
 

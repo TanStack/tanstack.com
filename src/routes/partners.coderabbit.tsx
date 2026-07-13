@@ -366,7 +366,10 @@ function CodeRabbitPartnerPage() {
     <div className="flex min-h-screen flex-col bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100">
       <div className="mx-auto w-full max-w-4xl flex-1 px-4 pb-16 pt-6 md:px-8">
         <nav className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-          <Link to="/partners" className="transition-colors hover:text-blue-500">
+          <Link
+            to="/partners"
+            className="transition-colors hover:text-blue-500"
+          >
             Partners
           </Link>
           <span>/</span>

@@ -314,7 +314,7 @@ export const table: LibrarySlim = {
   to: '/table',
   tagline: 'Headless UI for building powerful tables & datagrids',
   description:
-    'Supercharge your tables or build a datagrid from scratch for TS/JS, React, Vue, Solid, Svelte, Qwik, Angular, and Lit while retaining 100% control over markup and styles.',
+    'Supercharge your tables or build a datagrid from scratch in any framework while retaining 100% control over markup and styles.',
   bgStyle: 'bg-blue-500',
   borderStyle: 'border-blue-500/50',
   textStyle: 'text-blue-500',
@@ -326,6 +326,7 @@ export const table: LibrarySlim = {
   repo: 'tanstack/table',
   frameworks: [
     'angular',
+    'ember',
     'react',
     'preact',
     'solid',
@@ -551,6 +552,20 @@ export const pacer: LibrarySlim = {
     includeLandingPage: true,
     includeDocsPages: true,
   },
+  handleRedirects: (href) => {
+    if (
+      /\/pacer\/[^/]+\/docs\/framework\/angular\/examples\/injectAsyncRateLimitedCallback/.test(
+        href,
+      )
+    ) {
+      throw redirect({
+        href: href.replace(
+          'injectAsyncRateLimitedCallback',
+          'injectAsyncRateLimiter',
+        ),
+      })
+    }
+  },
 }
 
 export const hotkeys: LibrarySlim = {
@@ -571,7 +586,16 @@ export const hotkeys: LibrarySlim = {
   colorTo: 'to-rose-700',
   bgRadial: 'from-rose-500 via-rose-700/50 to-transparent',
   repo: 'tanstack/hotkeys',
-  frameworks: ['react', 'preact', 'solid', 'svelte', 'vue', 'angular'],
+  frameworks: [
+    'vanilla',
+    'react',
+    'preact',
+    'solid',
+    'svelte',
+    'vue',
+    'angular',
+    'lit',
+  ],
   corePackageName: '@tanstack/hotkeys',
   npmPackageNames: ['@tanstack/hotkeys'],
   latestVersion: 'v0',
@@ -750,7 +774,15 @@ export const devtools: LibrarySlim = {
   bgRadial:
     'from-black via-gray-600/50 to-transparent dark:from-gray-100 dark:via-gray-400/50',
   repo: 'tanstack/devtools',
-  frameworks: ['react', 'preact', 'solid', 'vue', 'angular', 'vanilla'],
+  frameworks: [
+    'react',
+    'preact',
+    'solid',
+    'vue',
+    'svelte',
+    'angular',
+    'vanilla',
+  ],
   corePackageName: '@tanstack/devtools',
   npmPackageNames: ['@tanstack/devtools', '@tanstack/react-devtools'],
   latestVersion: 'v0',
@@ -759,6 +791,16 @@ export const devtools: LibrarySlim = {
   sitemap: {
     includeLandingPage: true,
     includeDocsPages: true,
+  },
+  handleRedirects: (href) => {
+    if (/\/devtools\/[^/]+\/docs\/framework\/solif\//.test(href)) {
+      throw redirect({
+        href: href.replace(
+          /\/devtools\/([^/]+)\/docs\/framework\/solif\//,
+          '/devtools/$1/docs/framework/solid/',
+        ),
+      })
+    }
   },
 }
 

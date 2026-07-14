@@ -176,6 +176,14 @@ assertNotFound({
   manifest: manifestWithPaths(['overview']),
 })
 
+assertRedirectsTo({
+  defaultDocs: 'overview',
+  docsPath: 'reference/type-aliases/RemovedType',
+  expectedTarget: 'reference',
+  frameworks: ['react'],
+  manifest: manifestWithPaths(['overview', 'reference']),
+})
+
 assert.equal(
   buildDocsRedirectHref({
     baseHref: '/query/v5/docs/react/overview?pm=pnpm#motivation',

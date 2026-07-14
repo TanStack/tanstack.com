@@ -12,16 +12,16 @@ import { NavbarCartButton } from './NavbarCartButton'
 import { MegaMenuItem } from './MegaMenuItem'
 import { Link, useLocation, useMatches } from '@tanstack/react-router'
 import {
+  ArrowRight,
+  ArrowSquareOut,
   BookOpen,
   Code,
-  SquaresFour as Grid2X2,
   GridFour,
   Hammer,
   Heart,
   Question as HelpCircle,
   Envelope as Mail,
   List as Menu,
-  Newspaper,
   PaintBrush as Paintbrush,
   ShieldCheck,
   ShoppingBag,
@@ -36,13 +36,15 @@ import { AiDockButton, SearchButton } from './SearchButton'
 import { BrandContextMenu } from './BrandContextMenu'
 import { useSearchContext } from '~/contexts/SearchContext'
 import { useLibrariesOverlay } from '~/contexts/LibrariesOverlayContext'
+import { publicLibraries, type LibrarySlim } from '~/libraries'
 import {
-  isPublicLibrary,
-  librariesByGroup,
-  librariesGroupNamesMap,
-  type LibrarySlim,
-  type PublicLibrarySlim,
-} from '~/libraries'
+  categoryLabels,
+  categoryOrder,
+  categoryTextColor,
+  libraryCategories,
+  type LibraryCategory,
+} from '~/libraries/categories'
+import { fallbackLibraryIcon, libraryIcons } from '~/libraries/icons'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import {
   Dropdown,
@@ -61,7 +63,6 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '~/components/Collapsible'
-import { groupToSlug } from '~/components/stack/stack-categories'
 import { getProducts } from '~/utils/shop.functions'
 import { formatMoney, shopifyImageUrl } from '~/utils/shopify-format'
 import type { ProductListItem } from '~/utils/shopify-queries'
@@ -70,6 +71,10 @@ import {
   PARTNER_INQUIRY_HREF,
   trackPartnerInquiry,
 } from '~/utils/partner-inquiry'
+import { fetchRecentPosts, type RecentPost } from '~/utils/blog.functions'
+import { formatAuthors, formatPublishedDate } from '~/utils/blog-format'
+import { getOptimizedImageUrl } from '~/utils/optimizedImage'
+import { CoverFallback } from '~/components/CoverFallback'
 
 type LogoProps = {
   title?: React.ComponentType | null
@@ -148,24 +153,11 @@ type NavMenuGroup = {
   }
 }
 
-type NavigationLibrary = PublicLibrarySlim
-
-const MERCH_MENU_PRODUCT_COUNT = 6
-
-type LibraryGroupId = keyof typeof librariesByGroup
+const MERCH_MENU_PRODUCT_COUNT = 3
 
 const DESKTOP_NAV_CLASS = 'hidden min-[900px]:flex'
 const MOBILE_NAV_CLASS = 'min-[900px]:hidden'
 const DESKTOP_SOCIAL_CLASS = 'hidden min-[1120px]:flex'
-const LIBRARY_MENU_GROUP_IDS: readonly LibraryGroupId[] = [
-  'framework',
-  'state',
-  'headlessUI',
-  'performance',
-  'tooling',
-]
-const DESKTOP_LIBRARY_MENU_GROUP_COLUMNS: readonly (readonly LibraryGroupId[])[] =
-  [['framework', 'state'], ['headlessUI', 'performance'], ['tooling']]
 
 const NAV_GROUPS = [
   {
@@ -180,34 +172,29 @@ const NAV_GROUPS = [
     to: '/blog',
     sections: [
       {
-        label: 'Resources',
+        label: 'About',
         items: [
-          {
-            label: 'Blog',
-            to: '/blog',
-            description: 'Release notes, architecture notes, and essays.',
-            icon: Newspaper,
-          },
           {
             label: 'YouTube',
             to: 'https://youtube.com/@tan_stack',
             description: 'The official TanStack channel.',
             icon: YouTubeIcon,
           },
+          {
+            label: 'Workshops',
+            to: '/workshops',
+            description: 'Remote and in-person sessions from maintainers.',
+            icon: Users,
+          },
+          {
+            label: 'Release Notes',
+            to: '/blog',
+            description: 'The latest releases and changelog.',
+            icon: Sparkle,
+          },
         ],
       },
     ],
-    rail: {
-      eyebrow: 'Workshops',
-      title: 'Learn from maintainers',
-      description:
-        'Remote and in-person TanStack workshops for teams that need depth.',
-      item: {
-        label: 'Professional Workshops',
-        to: '/workshops',
-        icon: Users,
-      },
-    },
   },
   {
     key: 'community',
@@ -369,47 +356,59 @@ const NAV_GROUPS = [
   },
 ] as const satisfies readonly NavMenuGroup[]
 
-function isNavigationLibrary(
-  library: LibrarySlim,
-): library is NavigationLibrary {
-  return isPublicLibrary(library)
-}
-
 function getLibraryDisplayName(library: LibrarySlim) {
   return library.name.replace(/^TanStack\s+/, '')
 }
 
-function getLibraryDocsTo(library: NavigationLibrary) {
-  return `${library.to}/latest/docs`
+type LibraryMenuEntry = {
+  id: string
+  name: string
+  to: string
+  icon: IconComponent
 }
 
-function getLibraryMenuGroups() {
-  return LIBRARY_MENU_GROUP_IDS.map((groupId) => {
-    const groupLibraries = librariesByGroup[groupId]
-    const libraries = groupLibraries.filter(isNavigationLibrary)
-
-    return {
-      id: groupId,
-      label: librariesGroupNamesMap[groupId],
-      libraries,
-    }
-  }).filter((group) => group.libraries.length > 0)
+type LibraryMenuColumn = {
+  category: LibraryCategory
+  label: string
+  colorClass: string
+  libraries: LibraryMenuEntry[]
 }
 
-function getDesktopLibraryMenuColumns(
-  libraryMenuGroups: ReturnType<typeof getLibraryMenuGroups>,
-) {
-  const groupsById = new Map(
-    libraryMenuGroups.map((group) => [group.id, group]),
+/**
+ * The Libraries mega-menu as five category columns (Framework, Data & State,
+ * UI & UX, Performance, Tooling), built from the canonical `libraryCategories`
+ * taxonomy. Iterating `libraryCategories` preserves the intended per-category
+ * order; only public, navigable libraries are shown.
+ */
+// Public libraries intentionally omitted from the Libraries mega-menu (still
+// reachable via the full-screen "Browse all libraries" overlay).
+const LIBRARY_MENU_EXCLUDED_IDS = new Set(['ranger'])
+
+function getLibraryCategoryColumns(): LibraryMenuColumn[] {
+  const byCategory = new Map<LibraryCategory, LibraryMenuEntry[]>(
+    categoryOrder.map((category) => [category, []]),
   )
 
-  return DESKTOP_LIBRARY_MENU_GROUP_COLUMNS.map((columnGroupIds) =>
-    columnGroupIds.flatMap((groupId) => {
-      const group = groupsById.get(groupId)
+  for (const [id, category] of Object.entries(libraryCategories)) {
+    if (LIBRARY_MENU_EXCLUDED_IDS.has(id)) continue
+    const library = publicLibraries.find((lib) => lib.id === id)
+    if (!library || !library.to) continue
+    byCategory.get(category)?.push({
+      id: library.id,
+      name: getLibraryDisplayName(library),
+      to: library.to,
+      icon: libraryIcons[library.id] ?? fallbackLibraryIcon,
+    })
+  }
 
-      return group ? [group] : []
-    }),
-  ).filter((columnGroups) => columnGroups.length > 0)
+  return categoryOrder
+    .map((category) => ({
+      category,
+      label: categoryLabels[category],
+      colorClass: categoryTextColor[category],
+      libraries: byCategory.get(category) ?? [],
+    }))
+    .filter((column) => column.libraries.length > 0)
 }
 
 function AiDockMount() {
@@ -845,6 +844,29 @@ function MobileMenuGroup({
   group: NavMenuGroup
   onNavigate: () => void
 }) {
+  const { openLibraries } = useLibrariesOverlay()
+
+  // Libraries defers to the full-screen browse overlay rather than expanding a
+  // tall inline list — one tap opens the same browser the desktop trigger uses.
+  if (group.key === 'libraries') {
+    return (
+      <button
+        type="button"
+        onClick={() => {
+          openLibraries()
+          onNavigate()
+        }}
+        className={twMerge(
+          'flex w-full items-center gap-2 rounded-lg border border-gray-500/10 bg-white/35 px-3 py-3 text-left font-black text-gray-800',
+          'hover:text-gray-950 focus:outline-none dark:border-white/10 dark:bg-white/[0.03] dark:text-gray-200 dark:hover:text-white',
+        )}
+      >
+        <span className="min-w-0 flex-1 truncate">{group.label}</span>
+        <ArrowRight className="size-4 shrink-0 text-gray-500 dark:text-gray-400" />
+      </button>
+    )
+  }
+
   return (
     <Collapsible className="overflow-hidden rounded-lg border border-gray-500/10 bg-white/35 dark:border-white/10 dark:bg-white/[0.03]">
       {({ open }) => (
@@ -901,6 +923,12 @@ function MegaMenuContent({
     return <LibrariesMenuContent onNavigate={onNavigate} variant={variant} />
   }
 
+  if (group.key === 'learn') {
+    return (
+      <BlogMenuContent group={group} onNavigate={onNavigate} variant={variant} />
+    )
+  }
+
   if (group.key === 'merch') {
     return <MerchMenuContent onNavigate={onNavigate} variant={variant} />
   }
@@ -910,7 +938,7 @@ function MegaMenuContent({
       className={twMerge(
         variant === 'desktop'
           ? group.rail
-            ? 'grid w-max items-start gap-4 grid-cols-[max-content_260px]'
+            ? 'grid w-max items-stretch gap-6 grid-cols-[max-content_240px]'
             : 'grid w-max gap-3'
           : 'grid gap-3',
       )}
@@ -974,176 +1002,312 @@ function LibrariesMenuContent({
   variant: 'desktop' | 'mobile'
 }) {
   const { openLibraries } = useLibrariesOverlay()
-  const libraryMenuGroups = getLibraryMenuGroups()
-  const desktopLibraryMenuColumns =
-    getDesktopLibraryMenuColumns(libraryMenuGroups)
-  const allLibrariesItem: NavMenuItem = {
-    label: 'All Libraries',
-    to: '#',
-    description: 'Browse the full set of public packages.',
-    icon: Grid2X2,
-    onSelect: openLibraries,
+  const columns = getLibraryCategoryColumns()
+
+  const allLibraries = (
+    <button
+      type="button"
+      onClick={() => {
+        openLibraries()
+        onNavigate()
+      }}
+      className="group/all flex items-center gap-1.5 rounded-lg px-[9px] py-2 font-ds-mono text-ds-mono-xs uppercase tracking-wider text-text-muted transition-colors hover:text-text-primary focus:text-text-primary focus:outline-none"
+    >
+      <GridFour className="size-4" />
+      Browse all libraries
+      <ArrowRight className="size-3.5 transition-transform group-hover/all:translate-x-0.5" />
+    </button>
+  )
+
+  if (variant === 'mobile') {
+    return (
+      <div className="grid gap-4">
+        {columns.map((column) => (
+          <LibraryCategoryColumn
+            key={column.category}
+            column={column}
+            onNavigate={onNavigate}
+            variant="mobile"
+          />
+        ))}
+        {allLibraries}
+      </div>
+    )
   }
 
   return (
+    <div className="flex flex-col gap-4">
+      <div className="flex items-start gap-9">
+        {columns.map((column) => (
+          <LibraryCategoryColumn
+            key={column.category}
+            column={column}
+            onNavigate={onNavigate}
+            variant="desktop"
+          />
+        ))}
+      </div>
+      <div className="border-t border-border-subtle pt-1.5">{allLibraries}</div>
+    </div>
+  )
+}
+
+function LibraryCategoryColumn({
+  column,
+  onNavigate,
+  variant,
+}: {
+  column: LibraryMenuColumn
+  onNavigate: () => void
+  variant: 'desktop' | 'mobile'
+}) {
+  return (
     <div
-      className={twMerge(variant === 'desktop' ? 'grid gap-4' : 'grid gap-3')}
+      className={twMerge(
+        'flex flex-col',
+        variant === 'desktop' ? 'w-[120px] gap-4' : 'gap-1',
+      )}
     >
-      <div>
-        {variant === 'desktop' ? (
-          <div className="mb-4 pr-2">
-            <MenuItemLink
-              item={allLibrariesItem}
-              onNavigate={onNavigate}
-              variant="desktop"
-              compact
-            />
-          </div>
-        ) : null}
-        <div
-          className={twMerge(
-            variant === 'desktop'
-              ? 'grid w-max max-h-[min(62dvh,560px)] grid-cols-[repeat(3,max-content)] items-start justify-start gap-x-8 overflow-y-auto pr-2'
-              : 'grid gap-3',
-          )}
-        >
-          {variant === 'mobile' ? (
-            <MenuItemLink
-              item={allLibrariesItem}
-              onNavigate={onNavigate}
-              variant="mobile"
-              compact
-            />
-          ) : null}
-          {variant === 'desktop'
-            ? desktopLibraryMenuColumns.map((columnGroups) => (
-                <div
-                  key={columnGroups.map((group) => group.id).join('-')}
-                  className="grid content-start gap-y-5"
-                >
-                  {columnGroups.map((group) => (
-                    <LibraryMenuGroup
-                      key={group.id}
-                      group={group}
-                      onNavigate={onNavigate}
-                      variant="desktop"
-                    />
-                  ))}
-                </div>
-              ))
-            : libraryMenuGroups.map((group) => (
-                <LibraryMenuGroup
-                  key={group.id}
-                  group={group}
-                  onNavigate={onNavigate}
-                  variant="mobile"
-                />
-              ))}
-        </div>
+      {/* Plain template string (not twMerge): the DS mono size utility and the
+          category color are both `text-*` utilities, and twMerge would drop one. */}
+      <div
+        className={`pl-[9px] font-ds-mono uppercase ${
+          variant === 'desktop' ? 'text-ds-mono-sm' : 'text-ds-mono-xs'
+        } ${column.colorClass}`}
+      >
+        {column.label}
+      </div>
+      <div className="flex flex-col items-stretch">
+        {column.libraries.map((library) => (
+          <LibraryMenuRow
+            key={library.id}
+            library={library}
+            onNavigate={onNavigate}
+            variant={variant}
+          />
+        ))}
       </div>
     </div>
   )
 }
 
-function LibraryMenuGroup({
+function LibraryMenuRow({
+  library,
+  onNavigate,
+  variant,
+}: {
+  library: LibraryMenuEntry
+  onNavigate: () => void
+  variant: 'desktop' | 'mobile'
+}) {
+  const Icon = library.icon
+  const external = library.to.startsWith('http')
+  const className = twMerge(
+    'group/lib flex items-center gap-2 rounded-[14px] py-2 pl-[9px] pr-3 text-text-secondary transition-colors hover:bg-surface-state-hover hover:text-text-primary focus:bg-surface-state-hover focus:text-text-primary focus:outline-none',
+    variant === 'desktop' ? 'h-[38px]' : 'py-2.5',
+  )
+  const content = (
+    <>
+      <Icon className="size-5 shrink-0" />
+      <span className="whitespace-nowrap font-ds-display text-[16px] tracking-[0.32px]">
+        {library.name}
+      </span>
+    </>
+  )
+
+  if (external) {
+    return (
+      <a
+        href={library.to}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={className}
+        onClick={onNavigate}
+      >
+        {content}
+      </a>
+    )
+  }
+
+  return (
+    <Link
+      to={library.to}
+      onClick={onNavigate}
+      preload="intent"
+      className={className}
+    >
+      {content}
+    </Link>
+  )
+}
+
+function BlogMenuContent({
   group,
   onNavigate,
   variant,
 }: {
-  group: ReturnType<typeof getLibraryMenuGroups>[number]
+  group: NavMenuGroup
   onNavigate: () => void
   variant: 'desktop' | 'mobile'
 }) {
-  const categorySlug = groupToSlug[group.id]
+  const rootRef = React.useRef<HTMLDivElement>(null)
+  const [shouldLoad, setShouldLoad] = React.useState(false)
+  const [posts, setPosts] = React.useState<Array<RecentPost>>([])
+  const [loading, setLoading] = React.useState(true)
+
+  React.useEffect(() => {
+    const root = rootRef.current
+    const triggerWrap =
+      variant === 'desktop'
+        ? root?.closest<HTMLElement>('.ts-mega-trigger-wrap')
+        : null
+    const target = triggerWrap ?? root
+    if (!target) return
+
+    const load = () => setShouldLoad(true)
+    target.addEventListener('pointerenter', load)
+    target.addEventListener('focusin', load)
+
+    return () => {
+      target.removeEventListener('pointerenter', load)
+      target.removeEventListener('focusin', load)
+    }
+  }, [variant])
+
+  React.useEffect(() => {
+    if (!shouldLoad) return
+    let cancelled = false
+
+    async function loadPosts() {
+      setLoading(true)
+      try {
+        const recent = await fetchRecentPosts()
+        if (!cancelled) setPosts(recent)
+      } catch {
+        if (!cancelled) setPosts([])
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+
+    loadPosts()
+    return () => {
+      cancelled = true
+    }
+  }, [shouldLoad])
+
+  const aboutSection = group.sections[0]
 
   return (
-    <section
+    <div
+      ref={rootRef}
       className={twMerge(
-        'break-inside-avoid',
-        variant === 'desktop' ? '[break-inside:avoid]' : 'pb-3',
+        'flex flex-col gap-5',
+        variant === 'desktop' && 'w-[840px]',
       )}
     >
-      <div className="mb-1.5 px-1">
-        {variant === 'desktop' ? (
-          <Link
-            to="/stack/$category"
-            params={{ category: categorySlug }}
-            onClick={onNavigate}
-            className="inline-flex rounded px-1 py-0.5 text-xs font-black uppercase text-gray-500 hover:bg-gray-500/10 hover:text-gray-950 focus:bg-gray-500/10 focus:text-gray-950 focus:outline-none dark:text-gray-400 dark:hover:text-white dark:focus:text-white"
-            preload="intent"
-          >
-            {group.label}
-          </Link>
-        ) : (
-          <div className="px-1 py-0.5 text-xs font-black uppercase text-gray-500 dark:text-gray-400">
-            {group.label}
+      <section>
+        <div className="mb-3 px-1 font-ds-mono text-ds-mono-xs uppercase tracking-wider text-text-muted">
+          Blog &amp; Release Notes
+        </div>
+        <div
+          className={twMerge(
+            'grid gap-3',
+            variant === 'desktop' ? 'grid-cols-3' : 'grid-cols-1',
+          )}
+        >
+          {shouldLoad && loading
+            ? Array.from({ length: 3 }, (_, index) => (
+                <div key={index} aria-hidden className="flex flex-col gap-2.5 p-2">
+                  <div className="aspect-video w-full animate-pulse rounded-lg bg-background-subtle" />
+                  <div className="h-4 w-3/4 animate-pulse rounded bg-background-subtle" />
+                  <div className="h-3 w-full animate-pulse rounded bg-background-subtle" />
+                </div>
+              ))
+            : posts.map((post) => (
+                <BlogMenuCard
+                  key={post.slug}
+                  post={post}
+                  onNavigate={onNavigate}
+                />
+              ))}
+        </div>
+      </section>
+
+      {aboutSection && aboutSection.items.length > 0 ? (
+        <section className="border-t border-border-subtle pt-4">
+          <div className="mb-2 px-1 font-ds-mono text-ds-mono-xs uppercase tracking-wider text-text-muted">
+            {aboutSection.label}
           </div>
-        )}
-      </div>
-      <div className="grid gap-0.5">
-        {group.libraries.map((library) => (
-          <LibraryMenuItem
-            key={library.id}
-            library={library}
-            onNavigate={onNavigate}
-          />
-        ))}
-      </div>
-    </section>
+          <div
+            className={twMerge(
+              'grid gap-1',
+              variant === 'desktop' ? 'grid-cols-3' : 'grid-cols-1',
+            )}
+          >
+            {aboutSection.items.map((item) => (
+              <MenuItemLink
+                key={`${item.label}-${item.to}`}
+                item={item}
+                onNavigate={onNavigate}
+                variant={variant}
+              />
+            ))}
+          </div>
+        </section>
+      ) : null}
+    </div>
   )
 }
 
-function LibraryMenuItem({
-  library,
+function BlogMenuCard({
+  post,
   onNavigate,
 }: {
-  library: NavigationLibrary
+  post: RecentPost
   onNavigate: () => void
 }) {
-  const name = getLibraryDisplayName(library)
-  const docsTo = getLibraryDocsTo(library)
-
   return (
-    <div data-library-menu-item className="flex items-center gap-1.5">
-      <Link
-        to={library.to}
-        onClick={onNavigate}
-        className="group/library flex min-w-0 flex-1 items-center gap-2 rounded-lg px-2 py-2 text-sm font-black text-gray-900 hover:bg-gray-500/10 focus:bg-gray-500/10 focus:outline-none dark:text-gray-100"
-        preload="intent"
-      >
-        <span
-          className={twMerge(
-            'h-4 w-3.5 shrink-0 rounded-[5px] border border-white/30',
-            library.bgStyle,
-          )}
+    <Link
+      to="/blog/$"
+      params={{ _splat: post.slug } as never}
+      onClick={onNavigate}
+      preload="intent"
+      className="group/post flex flex-col gap-2.5 rounded-xl p-2 transition-colors hover:bg-surface-state-hover"
+    >
+      {post.headerImage ? (
+        <div className="aspect-video w-full overflow-hidden rounded-lg border border-border-subtle">
+          <img
+            src={getOptimizedImageUrl(post.headerImage, {
+              fit: 'cover',
+              format: 'auto',
+              quality: 80,
+              width: 640,
+            })}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className="h-full w-full object-cover"
+          />
+        </div>
+      ) : (
+        <CoverFallback
+          slug={post.slug}
+          className="aspect-video w-full rounded-lg"
         />
-        <span className="flex min-w-0 flex-1 items-center gap-1.5">
-          <span className="min-w-0 truncate">{name}</span>
-          {library.badge ? (
-            <span
-              data-library-badge
-              className={twMerge(
-                'invisible inline-flex shrink-0 rounded-md border border-current px-1.5 py-0.5 text-[0.58rem] font-black uppercase leading-none',
-                'group-hover/library:visible group-focus-within/library:visible',
-                library.textStyle,
-              )}
-            >
-              {library.badge}
-            </span>
-          ) : null}
-        </span>
-      </Link>
-      <div className="flex shrink-0 items-center gap-1">
-        <Link
-          to={docsTo}
-          onClick={onNavigate}
-          className="rounded-lg px-2 py-2 text-xs font-bold text-gray-600 hover:bg-gray-500/10 hover:text-gray-950 focus:bg-gray-500/10 focus:text-gray-950 focus:outline-none dark:text-gray-400 dark:hover:text-white dark:focus:text-white"
-          preload="intent"
-        >
-          Docs
-        </Link>
+      )}
+      <div className="flex flex-col gap-1 px-0.5">
+        <div className="line-clamp-1 font-ds-display text-ds-heading-5 text-text-primary">
+          {post.title}
+        </div>
+        <p className="line-clamp-2 text-ds-body-xs text-text-secondary">
+          {post.excerpt}
+        </p>
+        <div className="mt-0.5 font-ds-mono text-ds-mono-xs text-text-muted">
+          {formatAuthors(post.authors)} · {formatPublishedDate(post.published)}
+        </div>
       </div>
-    </div>
+    </Link>
   )
 }
 
@@ -1224,68 +1388,42 @@ function MerchMenuContent({
     }
   }, [shouldLoad])
 
-  const allMerchItem: NavMenuItem = {
-    label: 'All Merch',
-    to: '/shop',
-    description: 'Browse all TanStack apparel, accessories, and stickers.',
-    icon: ShoppingBag,
-  }
-
   return (
     <div
       ref={rootRef}
-      className={twMerge(variant === 'desktop' ? 'grid gap-4' : 'grid gap-3')}
+      className={twMerge('flex flex-col gap-4', variant === 'desktop' && 'w-[560px]')}
     >
-      <section>
-        <div className="mb-2 px-2 text-xs font-black uppercase text-gray-500 dark:text-gray-400">
-          Recent Products
-        </div>
-        <div
-          className={twMerge(
-            'grid gap-1',
-            variant === 'desktop' && 'md:grid-cols-2',
-          )}
-        >
-          {shouldLoad && loading
-            ? Array.from({ length: MERCH_MENU_PRODUCT_COUNT }, (_, index) => (
-                <div
-                  key={index}
-                  className={twMerge(
-                    'rounded-lg px-2 py-1.5',
-                    variant === 'desktop'
-                      ? 'flex w-44 items-center gap-2'
-                      : 'flex items-center gap-2',
-                  )}
-                  aria-hidden="true"
-                >
-                  <div
-                    className={twMerge(
-                      'shrink-0 animate-pulse rounded-md bg-gray-200 dark:bg-gray-800',
-                      variant === 'desktop' ? 'h-10 w-10' : 'h-11 w-11',
-                    )}
-                  />
-                  <div className="min-w-0 flex-1">
-                    <div className="h-3 w-3/4 animate-pulse rounded bg-gray-200 dark:bg-gray-800" />
-                    <div className="mt-1.5 h-2.5 w-1/3 animate-pulse rounded bg-gray-200 dark:bg-gray-800" />
-                  </div>
-                </div>
-              ))
-            : products.map((product) => (
-                <MerchProductLink
-                  key={product.id}
-                  product={product}
-                  onNavigate={onNavigate}
-                  variant={variant}
-                />
-              ))}
-        </div>
-      </section>
-      <MenuItemLink
-        item={allMerchItem}
-        onNavigate={onNavigate}
-        variant={variant}
-        compact
-      />
+      <div
+        className={twMerge(
+          'grid gap-3',
+          variant === 'desktop' ? 'grid-cols-3' : 'grid-cols-2',
+        )}
+      >
+        {shouldLoad && loading
+          ? Array.from({ length: MERCH_MENU_PRODUCT_COUNT }, (_, index) => (
+              <div
+                key={index}
+                aria-hidden="true"
+                className="aspect-square w-full animate-pulse rounded-xl bg-background-subtle"
+              />
+            ))
+          : products.map((product) => (
+              <MerchProductLink
+                key={product.id}
+                product={product}
+                onNavigate={onNavigate}
+              />
+            ))}
+      </div>
+      <Link
+        to="/shop"
+        onClick={onNavigate}
+        preload="intent"
+        className="mx-auto inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-ds-mono text-ds-mono-xs uppercase tracking-wider text-text-secondary transition-colors hover:text-text-primary focus:text-text-primary focus:outline-none"
+      >
+        View all
+        <ArrowRight className="size-3.5" />
+      </Link>
     </div>
   )
 }
@@ -1293,11 +1431,9 @@ function MerchMenuContent({
 function MerchProductLink({
   product,
   onNavigate,
-  variant,
 }: {
   product: ProductListItem
   onNavigate: () => void
-  variant: 'desktop' | 'mobile'
 }) {
   const image = product.featuredImage
   const price = product.priceRange.minVariantPrice
@@ -1307,40 +1443,24 @@ function MerchProductLink({
       to="/shop/products/$handle"
       params={{ handle: product.handle }}
       onClick={onNavigate}
-      className={twMerge(
-        'group flex items-center gap-2 rounded-lg px-2 py-1.5 text-left hover:bg-gray-500/10 focus:bg-gray-500/10 focus:outline-none',
-        variant === 'desktop' && 'w-44',
-        variant === 'mobile' && 'py-2',
-      )}
       preload="intent"
+      className="group/merch block overflow-hidden rounded-xl border border-border-subtle bg-background-subtle transition-colors hover:border-border-strong focus:outline-none focus-visible:border-border-strong"
+      title={`${product.title} · ${formatMoney(price.amount, price.currencyCode)}`}
     >
-      <span
-        className={twMerge(
-          'block overflow-hidden rounded-md bg-gray-100 dark:bg-gray-900',
-          variant === 'desktop' ? 'h-10 w-10 shrink-0' : 'h-11 w-11 shrink-0',
-        )}
-      >
+      <div className="aspect-square w-full overflow-hidden">
         {image ? (
           <img
-            src={shopifyImageUrl(image.url, { width: 160, format: 'webp' })}
+            src={shopifyImageUrl(image.url, { width: 400, format: 'webp' })}
             alt={image.altText ?? product.title}
-            className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-200 group-hover/merch:scale-105"
             loading="lazy"
           />
         ) : (
-          <span className="flex h-full w-full items-center justify-center text-gray-400">
-            <ShoppingBag className="h-5 w-5" />
+          <span className="flex h-full w-full items-center justify-center text-text-muted">
+            <ShoppingBag className="size-7" />
           </span>
         )}
-      </span>
-      <span className="block min-w-0">
-        <span className="block truncate text-sm font-bold text-gray-950 dark:text-white">
-          {product.title}
-        </span>
-        <span className="mt-0.5 block text-xs text-gray-600 dark:text-gray-400">
-          {formatMoney(price.amount, price.currencyCode)}
-        </span>
-      </span>
+      </div>
     </Link>
   )
 }
@@ -1367,24 +1487,65 @@ function MenuRail({
     )
   }
 
+  const external =
+    rail.item.to.startsWith('http') || rail.item.to.startsWith('mailto:')
+  const getInTouchClassName =
+    'mt-3 inline-flex items-center gap-1.5 font-ds-mono text-ds-mono-xs uppercase tracking-wider text-text-secondary transition-colors hover:text-text-primary focus:text-text-primary focus:outline-none'
+  const getInTouch = (
+    <>
+      {rail.item.label}
+      {external && !rail.item.to.startsWith('mailto:') ? (
+        <ArrowSquareOut className="size-3" />
+      ) : null}
+    </>
+  )
+
   return (
-    <aside className="w-[260px] rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950">
-      <div className="text-xs font-black uppercase text-gray-500 dark:text-gray-400">
-        {rail.eyebrow}
+    <aside className="flex h-full flex-col justify-between self-stretch border-l border-border-subtle pl-6">
+      <div>
+        <div className="font-ds-mono text-ds-mono-xs uppercase tracking-wider text-category-data">
+          {rail.eyebrow}
+        </div>
+        <p className="mt-2 text-ds-body-sm text-text-secondary">
+          {rail.description}
+        </p>
       </div>
-      <div className="mt-2 text-base font-black text-gray-950 dark:text-white">
-        {rail.title}
-      </div>
-      <p className="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-400">
-        {rail.description}
-      </p>
-      <div className="mt-4">
-        <MenuItemLink
-          item={rail.item}
-          onNavigate={onNavigate}
-          variant="desktop"
-          compact
+      <div className="mt-8">
+        <div className="font-ds-display text-ds-heading-5 text-text-primary">
+          {rail.title}
+        </div>
+        <img
+          src="/images/brand/tanstack-stacked-black.svg"
+          alt="TanStack"
+          className="mt-3 h-11 w-auto dark:hidden"
         />
+        <img
+          src="/images/brand/tanstack-stacked-cream.svg"
+          alt=""
+          aria-hidden="true"
+          className="mt-3 hidden h-11 w-auto dark:block"
+        />
+        {external ? (
+          <a
+            href={rail.item.to}
+            onClick={onNavigate}
+            className={getInTouchClassName}
+            {...(rail.item.to.startsWith('mailto:')
+              ? {}
+              : { target: '_blank', rel: 'noopener noreferrer' })}
+          >
+            {getInTouch}
+          </a>
+        ) : (
+          <Link
+            to={rail.item.to}
+            onClick={onNavigate}
+            preload="intent"
+            className={getInTouchClassName}
+          >
+            {getInTouch}
+          </Link>
+        )}
       </div>
     </aside>
   )

@@ -1,73 +1,12 @@
 import { Link } from '@tanstack/react-router'
-import {
-  ArrowRight,
-  Brain,
-  ClipboardText,
-  Database,
-  Dresser,
-  GearSix,
-  Goggles,
-  SealQuestion,
-  Sliders,
-  SmileyMelting,
-  SunHorizon,
-  Table,
-  Target,
-  TerminalWindow,
-  Timer,
-  Toolbox,
-  TrafficSign,
-  type Icon,
-} from '@phosphor-icons/react'
+import { ArrowRight, CaretRight } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import type { Library } from '~/libraries'
+import { libraryCategories, type LibraryCategory } from '~/libraries/categories'
+import { fallbackLibraryIcon, libraryIcons } from '~/libraries/icons'
 
-export type LibraryCategory =
-  | 'framework'
-  | 'data'
-  | 'ui'
-  | 'performance'
-  | 'tooling'
-
-// Category assignment drives each card's icon tint and the grouped section it
-// renders under in the overlay.
-export const libraryCategories: Record<string, LibraryCategory> = {
-  start: 'framework',
-  router: 'framework',
-  query: 'data',
-  db: 'data',
-  store: 'data',
-  ai: 'data',
-  table: 'ui',
-  form: 'ui',
-  hotkeys: 'ui',
-  virtual: 'performance',
-  pacer: 'performance',
-  devtools: 'tooling',
-  config: 'tooling',
-  cli: 'tooling',
-  intent: 'tooling',
-  ranger: 'tooling',
-}
-
-const libraryIcons: Record<string, Icon> = {
-  start: SunHorizon,
-  router: TrafficSign,
-  query: SealQuestion,
-  db: Database,
-  store: Dresser,
-  ai: Brain,
-  table: Table,
-  form: ClipboardText,
-  hotkeys: SmileyMelting,
-  ranger: Sliders,
-  virtual: Goggles,
-  pacer: Timer,
-  devtools: Toolbox,
-  config: GearSix,
-  cli: TerminalWindow,
-  intent: Target,
-}
+// The canonical category type + library→category map live in
+// ~/libraries/categories; the shared icon map in ~/libraries/icons.
 
 // Static class strings (not composed at runtime) so Tailwind can see them.
 // On hover the icon steps one shade brighter up the DS ramp (100 = lightest).
@@ -92,7 +31,7 @@ const categoryHoverBorder: Record<LibraryCategory, string> = {
 
 export default function LibraryGridCard({ library }: { library: Library }) {
   const category = libraryCategories[library.id] ?? 'tooling'
-  const IconComponent = libraryIcons[library.id] ?? Toolbox
+  const IconComponent = libraryIcons[library.id] ?? fallbackLibraryIcon
   const name = library.name.replace(/^TanStack\s+/, '')
   // Short tagline drives scanning; the full description lives on the library page.
   const copy = library.tagline || library.description
@@ -107,11 +46,12 @@ export default function LibraryGridCard({ library }: { library: Library }) {
     <Component
       {...props}
       className={twMerge(
-        // Mobile: a flush list row (dividers come from the grid container).
-        // sm+: a standalone card with border, radius, and hover lift. No
-        // transitions on hover — state changes snap for a crisp, technical feel.
-        'group relative flex flex-col justify-between gap-4 p-6',
-        'sm:h-full sm:min-h-[158px] sm:overflow-hidden sm:rounded-xl sm:corner-squircle sm:border sm:p-[30px]',
+        // Mobile: a compact single-line list row (icon + name + caret); the
+        // description is dropped and dividers come from the grid container.
+        // sm+: a standalone card with description, border, radius, and hover
+        // lift. No transitions on hover — state snaps for a crisp, technical feel.
+        'group relative flex items-center gap-3 px-5 py-4',
+        'sm:h-full sm:min-h-[158px] sm:flex-col sm:items-stretch sm:justify-between sm:gap-4 sm:overflow-hidden sm:rounded-xl sm:corner-squircle sm:border sm:p-[30px]',
         'sm:border-black/[0.06] sm:dark:border-white/[0.06]',
         // 20% translucent fill at every breakpoint (mobile list rows + sm+ cards).
         'bg-background-surface/20 dark:bg-[#0a0a0a]/20',
@@ -122,25 +62,30 @@ export default function LibraryGridCard({ library }: { library: Library }) {
         categoryHoverBorder[category],
       )}
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-1">
+      <div className="flex min-w-0 flex-1 items-center gap-3 sm:w-full sm:items-start sm:justify-between sm:gap-3">
+        <div className="flex min-w-0 items-center gap-3">
           <IconComponent
-            className={twMerge('size-9 shrink-0', categoryIconColor[category])}
+            className={twMerge(
+              'size-7 shrink-0 sm:size-9',
+              categoryIconColor[category],
+            )}
           />
           <span
-            className="font-ds-display text-[28px] font-medium leading-tight text-text-primary/90 group-hover:text-text-primary"
+            className="truncate font-ds-display text-[20px] font-medium leading-tight text-text-primary/90 group-hover:text-text-primary sm:whitespace-normal sm:text-[28px]"
             style={{ viewTransitionName: `library-name-${library.id}` }}
           >
             {name}
           </span>
         </div>
-        {/* Persistent affordance that the card is clickable; brightens on hover/focus. */}
-        <span className="inline-flex shrink-0 translate-y-0.5 items-center gap-1 rounded-[11px] corner-squircle bg-black/[0.03] px-3 py-1.5 font-ds-display text-sm font-bold text-text-secondary opacity-70 group-hover:text-text-primary group-hover:opacity-100 group-focus-visible:text-text-primary group-focus-visible:opacity-100 dark:bg-white/5">
+        {/* Persistent affordance that the card is clickable; sm+ only. */}
+        <span className="hidden shrink-0 translate-y-0.5 items-center gap-1 rounded-[11px] corner-squircle bg-black/[0.03] px-3 py-1.5 font-ds-display text-sm font-bold text-text-secondary opacity-70 group-hover:text-text-primary group-hover:opacity-100 group-focus-visible:text-text-primary group-focus-visible:opacity-100 dark:bg-white/5 sm:inline-flex">
           Docs
           <ArrowRight className="size-3.5" />
         </span>
       </div>
-      <p className="line-clamp-2 font-ds-mono text-xs font-light leading-relaxed text-text-secondary">
+      {/* Compact-row caret (mobile only); the full card uses the Docs pill above. */}
+      <CaretRight className="size-5 shrink-0 text-text-muted sm:hidden" />
+      <p className="hidden font-sans text-ds-body-md text-text-secondary sm:line-clamp-2 sm:block">
         {copy}
       </p>
     </Component>

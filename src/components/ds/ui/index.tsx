@@ -5,6 +5,7 @@ import { Link } from '@tanstack/react-router'
 import { CaretDown, CircleNotch, User } from '@phosphor-icons/react'
 import type { MarkdownHeading } from '~/utils/markdown'
 import type { LibraryId } from '~/libraries/ids'
+import type { LibraryCategory } from '~/libraries/categories'
 
 /**
  * New-system DS components — built on the Figma semantic tokens (action-*,
@@ -238,6 +239,16 @@ const eyebrowToneStyles: Record<EyebrowTone, string> = {
 // Libraries that ship a `--color-lib-*` brand token. Written as literal classes
 // so Tailwind's JIT emits each `text-lib-*` utility. Libraries without a brand
 // token (e.g. ranger, config) simply fall back to the neutral tone.
+// Category brand colors (--color-category-*). Written as literal classes so
+// Tailwind's JIT emits each `text-category-*` utility.
+const eyebrowCategoryStyles: Record<LibraryCategory, string> = {
+  framework: 'text-category-framework',
+  data: 'text-category-data',
+  ui: 'text-category-ui',
+  performance: 'text-category-performance',
+  tooling: 'text-category-tooling',
+}
+
 const eyebrowLibraryStyles: Partial<Record<LibraryId, string>> = {
   start: 'text-lib-start',
   router: 'text-lib-router',
@@ -261,28 +272,34 @@ const eyebrowLibraryStyles: Partial<Record<LibraryId, string>> = {
  * tracking) plus the inline icon layout, so every eyebrow across the site stays
  * on-system instead of hand-stacking `text-xs font-black uppercase`.
  *
- * Color resolves in priority order: `library` (brand the eyebrow by the
- * category it sits within, via that library's `--color-lib-*` token) →
- * `className` override → `tone` (neutral default). Pass a `library` to brand it,
- * omit it for a neutral eyebrow.
+ * Color resolves in priority order: `category` (brand by category, via the
+ * `--color-category-*` token) → `library` (brand by a specific library's
+ * `--color-lib-*` token) → `className` override → `tone` (neutral default). Pass
+ * a `category`/`library` to brand it, omit both for a neutral eyebrow.
  */
 export function Eyebrow({
   children,
   icon,
   tone = 'secondary',
+  category,
   library,
   className,
 }: {
   children: React.ReactNode
   icon?: React.ReactNode
   tone?: EyebrowTone
-  /** Brand the eyebrow by the library/category it's nested within. Falls back
-   *  to `tone` when unset or when the library has no brand token. */
+  /** Brand the eyebrow by the library category it sits within. Takes priority
+   *  over `library`; falls back to `tone` when unset. */
+  category?: LibraryCategory
+  /** Brand the eyebrow by the library it's nested within. Falls back to `tone`
+   *  when unset or when the library has no brand token. */
   library?: LibraryId
   className?: string
 }) {
   const color =
-    (library && eyebrowLibraryStyles[library]) ?? eyebrowToneStyles[tone]
+    (category && eyebrowCategoryStyles[category]) ??
+    (library && eyebrowLibraryStyles[library]) ??
+    eyebrowToneStyles[tone]
 
   // The `mono-caps` type role is a fixed base — never merged away — so the DS
   // font/size/tracking can't be overridden. Only color (library / tone /
@@ -616,3 +633,4 @@ export function Breadcrumbs({
 }
 
 export { PalmSpinner } from './PalmSpinner'
+export { PixelSpinner } from './PixelSpinner'

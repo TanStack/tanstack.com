@@ -3,16 +3,15 @@ import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { CaretDown, Check, X } from '@phosphor-icons/react'
 import { type Framework, type Library } from '~/libraries'
 import { frameworkOptions } from '~/libraries/frameworks'
-import LibraryGridCard, {
-  libraryCategories,
-  type LibraryCategory,
-} from '~/components/LibraryGridCard'
+import LibraryGridCard from '~/components/LibraryGridCard'
+import { libraryCategories, type LibraryCategory } from '~/libraries/categories'
 import {
   Dropdown,
   DropdownContent,
   DropdownItem,
   DropdownSeparator,
   DropdownTrigger,
+  Eyebrow,
 } from '~/components/ds/ui'
 import {
   getFrameworkLibraryCounts,
@@ -25,33 +24,12 @@ import {
 const CATEGORY_SECTIONS: ReadonlyArray<{
   key: LibraryCategory
   label: string
-  color: string
 }> = [
-  {
-    key: 'framework',
-    label: 'Framework',
-    color: 'text-ds-green-400 dark:text-ds-green-300',
-  },
-  {
-    key: 'data',
-    label: 'Data & State',
-    color: 'text-ds-terracotta-400 dark:text-ds-terracotta-300',
-  },
-  {
-    key: 'ui',
-    label: 'UI & UX',
-    color: 'text-ds-blue-400 dark:text-ds-blue-300',
-  },
-  {
-    key: 'performance',
-    label: 'Performance',
-    color: 'text-ds-amber-400 dark:text-ds-amber-300',
-  },
-  {
-    key: 'tooling',
-    label: 'Tooling',
-    color: 'text-ds-neutral-300 dark:text-ds-neutral-200',
-  },
+  { key: 'framework', label: 'Framework' },
+  { key: 'data', label: 'Data & State' },
+  { key: 'ui', label: 'UI & UX' },
+  { key: 'performance', label: 'Performance' },
+  { key: 'tooling', label: 'Tooling' },
 ]
 
 export function LibrariesOverlay({
@@ -116,7 +94,7 @@ export function LibrariesOverlay({
         <DialogPrimitive.Overlay className="animate-library-overlay-in libraries-overlay-glass fixed inset-0 z-[110]" />
         <DialogPrimitive.Content
           aria-label="All Libraries"
-          className="animate-library-overlay-in fixed inset-x-0 top-0 z-[111] mx-auto flex max-h-dvh w-full max-w-6xl flex-col overflow-y-auto px-6 pb-16 pt-28 outline-none sm:px-10 lg:px-4"
+          className="animate-library-overlay-in libraries-overlay-scroll fixed inset-0 z-[111] flex flex-col overflow-y-auto outline-none"
           onInteractOutside={(event) => {
             // The framework dropdown portals outside this dialog's DOM, so
             // selecting an item would otherwise read as an outside interaction
@@ -126,6 +104,14 @@ export function LibrariesOverlay({
               event.preventDefault()
             }
           }}
+          onClick={(event) => {
+            // The content now spans the full viewport so the scrollbar renders
+            // at the screen edge; the glass overlay behind it no longer receives
+            // the click. Restore click-outside-to-close by dismissing when the
+            // press lands on the scroll container itself (the region outside the
+            // centred column), not on any of its children.
+            if (event.target === event.currentTarget) onClose()
+          }}
         >
           <DialogPrimitive.Close
             aria-label="Close"
@@ -133,6 +119,7 @@ export function LibrariesOverlay({
           >
             <X className="size-10" weight="light" />
           </DialogPrimitive.Close>
+          <div className="mx-auto flex w-full max-w-6xl flex-col px-6 pb-16 pt-24 sm:px-10 sm:pt-28 lg:px-4">
           <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-6">
             {activeFrameworkOption ? (
               <div className="min-w-0">
@@ -220,15 +207,11 @@ export function LibrariesOverlay({
             </Dropdown>
           </div>
 
-          <div className="mt-10 flex flex-col gap-10">
+          <div className="mt-6 flex flex-col gap-6 sm:mt-10 sm:gap-10">
             {sections.map((section) => (
               <section key={section.key}>
-                <h2
-                  className={`font-ds-mono text-xs font-medium uppercase tracking-[0.2em] ${section.color}`}
-                >
-                  {section.label}
-                </h2>
-                <div className="mt-4 grid grid-cols-1 gap-0 overflow-hidden rounded-2xl corner-squircle border border-black/[0.08] divide-y divide-black/[0.08] dark:border-white/[0.08] dark:divide-white/[0.08] sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:rounded-none sm:border-0 sm:divide-y-0">
+                <Eyebrow category={section.key}>{section.label}</Eyebrow>
+                <div className="mt-3 grid grid-cols-1 gap-0 overflow-hidden rounded-2xl corner-squircle border border-black/[0.08] divide-y divide-black/[0.08] dark:border-white/[0.08] dark:divide-white/[0.08] sm:mt-4 sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:rounded-none sm:border-0 sm:divide-y-0">
                   {section.cards.map(({ library, delay }) => (
                     <div
                       key={library.id}
@@ -241,6 +224,7 @@ export function LibrariesOverlay({
                 </div>
               </section>
             ))}
+          </div>
           </div>
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>

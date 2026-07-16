@@ -100,11 +100,11 @@ importers:
         specifier: ^0.68.4
         version: 0.68.4(tslib@2.8.1)
       '@tanstack/highlight':
-        specifier: ^0.0.2
-        version: 0.0.2
+        specifier: ^0.0.3
+        version: 0.0.3
       '@tanstack/markdown':
-        specifier: ^0.0.5
-        version: 0.0.5(react@19.2.3)
+        specifier: ^0.0.6
+        version: 0.0.6(react@19.2.3)
       '@tanstack/pacer':
         specifier: ^0.21.1
         version: 0.21.1
@@ -302,8 +302,8 @@ importers:
         specifier: ^5.100.11
         version: 5.100.11(@tanstack/react-query@5.100.11(react@19.2.3))(react@19.2.3)
       '@tanstack/redact':
-        specifier: ^0.0.17
-        version: 0.0.17(vite@8.0.13(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
+        specifier: ^0.0.18
+        version: 0.0.18(vite@8.0.13(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
       '@types/hast':
         specifier: ^3.0.4
         version: 3.0.4
@@ -3323,8 +3323,8 @@ packages:
     peerDependencies:
       solid-js: '>=1.9.7'
 
-  '@tanstack/highlight@0.0.2':
-    resolution: {integrity: sha512-zxC5bJwG8BOJkAEzPHhW8djKbIsNca7CBA27CBs5LVDgoecw3Kaqf4E6YyOHpyuJAwVPwe9SMmyBTbQ/F0Ycjw==}
+  '@tanstack/highlight@0.0.3':
+    resolution: {integrity: sha512-U+4VEcxpRH1hazU9DHkeK31+O3V3pjU71UUNzTs+C4w2PtVsC5hDcnxbJxMC+fCvl9aLJGEIPc78Uw4tpd6mUw==}
 
   '@tanstack/history@1.162.0':
     resolution: {integrity: sha512-79pf/RkhteYZTRgcR4F9kbk84P2N8rugQJswxfIqovlbRiT3yI7eBE+5QorIrZaOKktsgzRlXh1l/du/xpl4iA==}
@@ -3334,8 +3334,8 @@ packages:
     resolution: {integrity: sha512-vqH7X9nb0MTJ/O08++dB5bP9jgj4+BIPOUu/U+6myG86lDsirZSVSobpq5UQpE7nBuk62i8eIYeOhd+OMl/UrA==}
     engines: {node: '>=18'}
 
-  '@tanstack/markdown@0.0.5':
-    resolution: {integrity: sha512-npKs8RdEoPIa9C+ujeKBeLZoEbHw1DivBiy/yBmCIL3ajQbYaMaj03KD4gyQ9wVqSLIJ5nX2StzjJ9l/ft4Rag==}
+  '@tanstack/markdown@0.0.6':
+    resolution: {integrity: sha512-eR1rpkONRGQaHSP8JyTOlRttGIi18P2N+72CSJIHKRDzozwlPXHoGUdXmwntKp/etmRzIVRQLJeSiVkytJMM9w==}
     peerDependencies:
       react: '>=18'
     peerDependenciesMeta:
@@ -3487,8 +3487,8 @@ packages:
       react: '>=16.8'
       react-dom: '>=16.8'
 
-  '@tanstack/redact@0.0.17':
-    resolution: {integrity: sha512-BVzozXbmWr9X95KlULZSofSz6T/+VulphBGuXOlPwaGdHzul/ogpyrLlHcvAo6LEWM1RPaY836Fc1UWWy6+yJw==}
+  '@tanstack/redact@0.0.18':
+    resolution: {integrity: sha512-8HV0qg2fCQRb5Avqy+wG6dMgKKojyLdNo42h3E9FQqwj+VYnEkdkGFS7FO1Ig9T9zkNc8SlwRoDEEkdFhIAvlg==}
     peerDependencies:
       vite: '>=5'
     peerDependenciesMeta:
@@ -9633,7 +9633,7 @@ snapshots:
       - csstype
       - utf-8-validate
 
-  '@tanstack/highlight@0.0.2': {}
+  '@tanstack/highlight@0.0.3': {}
 
   '@tanstack/history@1.162.0': {}
 
@@ -9641,7 +9641,7 @@ snapshots:
     dependencies:
       '@tanstack/store': 0.11.0
 
-  '@tanstack/markdown@0.0.5(react@19.2.3)':
+  '@tanstack/markdown@0.0.6(react@19.2.3)':
     optionalDependencies:
       react: 19.2.3
 
@@ -9814,7 +9814,7 @@ snapshots:
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
 
-  '@tanstack/redact@0.0.17(vite@8.0.13(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))':
+  '@tanstack/redact@0.0.18(vite@8.0.13(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))':
     optionalDependencies:
       vite: 8.0.13(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0)
 

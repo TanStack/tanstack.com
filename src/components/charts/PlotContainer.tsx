@@ -1,6 +1,8 @@
 import * as React from 'react'
 import * as Plot from '@observablehq/plot'
 
+export const observablePlotClassName = 'tanstack-observable-plot'
+
 interface PlotContainerProps {
   /** Build Plot options given the measured container width. */
   options: (width: number) => Parameters<typeof Plot.plot>[0]
@@ -37,7 +39,12 @@ export function PlotContainer({
       if (width === 0) return
 
       currentPlot = Plot.plot({ ...options(width), width, height })
-      currentPlot.style.overflow = 'visible'
+      const svg =
+        currentPlot instanceof SVGSVGElement
+          ? currentPlot
+          : currentPlot.querySelector('svg')
+      svg?.classList.add(observablePlotClassName)
+      if (svg) svg.style.overflow = 'visible'
       container.appendChild(currentPlot)
       setReady(true)
     }

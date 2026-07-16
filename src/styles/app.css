@@ -152,6 +152,15 @@ html.theme-switching *::after {
   }
 }
 
+.tanstack-observable-plot {
+  --plot-background: var(--color-white);
+  overflow: visible;
+}
+
+html.dark .tanstack-observable-plot {
+  --plot-background: var(--color-gray-800);
+}
+
 button {
   @apply cursor-pointer;
 }

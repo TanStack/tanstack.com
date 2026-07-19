@@ -11,12 +11,20 @@ export function decodePackageNameSlug(slug: string) {
     try {
       const decoded = decodeURIComponent(next)
       if (decoded === next) {
-        return decoded
+        break
       }
       next = decoded
     } catch {
       return slug
     }
+  }
+
+  // Back-compat: legacy links encoded the scope separator as `__`
+  // (`@scope/name` -> `@scope__name`). Those URLs are still indexed, so
+  // restore the separator instead of failing package-name validation.
+  // Matches the stats route (`src/routes/stats/npm/-utils.ts`).
+  if (next.startsWith('@') && next.includes('__') && !next.includes('/')) {
+    return next.replace('__', '/')
   }
 
   return next

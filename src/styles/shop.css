@@ -1,11 +1,12 @@
 /*
  * Shop theme — scoped to /shop pages via `.shop-scope`.
  *
- * Only three things live here:
- *   1. CSS variable declarations for the light/dark token swap
- *   2. A `@theme inline` block that exposes those vars to Tailwind so you can
- *      write `bg-shop-panel`, `text-shop-muted`, `font-shop-display`, etc.
- *   3. Keyframes used by the live-stock indicator and CTA button.
+ * This file is injected as a plain <link> stylesheet (imported with `?url`),
+ * so it never passes through the Tailwind pipeline. The `bg-shop-panel`,
+ * `text-shop-muted`, `font-shop-display` utilities are generated from the
+ * matching `@theme inline` block in `app.css`; here we only declare the raw
+ * CSS variables those tokens resolve to, plus the light/dark swap and the
+ * keyframes used by the live-stock indicator and CTA button.
  *
  * Everything else is Tailwind utilities on components — no bespoke class
  * selectors, no global leakage.
@@ -13,25 +14,9 @@
 
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..900;1,9..40,100..900&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap');
 
-@theme inline {
-  --color-shop-bg: var(--shop-bg);
-  --color-shop-bg-2: var(--shop-bg-2);
-  --color-shop-panel: var(--shop-panel);
-  --color-shop-panel-2: var(--shop-panel-2);
-  --color-shop-surface: var(--shop-surface);
-  --color-shop-surface-hover: var(--shop-surface-hover);
-  --color-shop-line: var(--shop-line);
-  --color-shop-line-2: var(--shop-line-2);
-  --color-shop-text: var(--shop-text);
-  --color-shop-text-2: var(--shop-text-2);
-  --color-shop-muted: var(--shop-muted);
-  --color-shop-accent: var(--shop-accent);
-  --color-shop-accent-ink: var(--shop-accent-ink);
+:root {
   --color-shop-green: #22c993;
   --color-shop-orange: #ff7a3a;
-
-  --font-shop-display: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
-  --font-shop-mono: 'DM Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 /* Light mode (default) */

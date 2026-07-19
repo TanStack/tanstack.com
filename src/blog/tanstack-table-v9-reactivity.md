@@ -28,7 +28,8 @@ A Table computation should react to the state it actually reads. Selecting a row
 TanStack Table V9 gets there by representing each feature-state slice (pagination, row selection, column sizing, filters, and others) with its own reactive atom, while `table.store` derives the aggregated state view for compatibility.
 
 The core reactivity depends on a small shared atom contract provided by @tanstack/store:
-- Signal-native adapters implement it with their framework primitives and can keep option reads in the same reactive graph. 
+
+- Signal-native adapters implement it with their framework primitives and can keep option reads in the same reactive graph.
 - Store-backed adapters keep options synchronized during render; in React, granular rendering is opt-in through selectors and `Subscribe`.
 
 Applications still pass ordinary values and call the same Table methods. The rest of this article retraces how we got here: the adapter-level approaches we tried, the limits they exposed, and why the reactive boundary ultimately had to move underneath the Table APIs.
@@ -69,18 +70,18 @@ At the time, TanStack Table did not have an Angular adapter, and I was contribut
 I kept the Table V8 core contract intact. `createAngularTable` accepted a reactive options callback, allowing the adapter to track values such as `data()` and synchronize the latest options through `setOptions`.
 
 ```ts
-const data = signal<Person[]>([]);
+const data = signal<Person[]>([])
 const pagination = signal<PaginationState>({
   pageIndex: 0,
-  pageSize: 20
+  pageSize: 20,
 })
 
 const table = createAngularTable(() => ({
   data: data(),
   columns,
   state: {
-    pagination: pagination()
-  }
+    pagination: pagination(),
+  },
 }))
 ```
 

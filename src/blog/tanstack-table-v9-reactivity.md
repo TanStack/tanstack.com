@@ -11,6 +11,8 @@ authors:
 
 You might have found yourself in a situation where a data grid may have started as just a simple table, but then it slowly became a small application surface in of itself. One column renders a row-selection widget, another renders an inline editor, and a toolbar above the table shows how many rows are selected. When row selection changes, the selection widget and the counter need to update, while the other cells, editors, and pagination controls should not re-render just because one row became selected. Throw in features like search or especially column resizing, and you will find yourself in a situation where rendering performance really starts to matter.
 
+## Rethinking Reactivity for Table V9
+
 That rendering problem sits behind much of the recent TanStack Table V9 reactivity work. TanStack Table, along with an increasingly higher number of other TanStack libraries, challenges itself with having adapters for as many JavaScript frameworks as possible. Table V9 is shipping with a [record 9 dedicated framework adapters](https://tanstack.com/table/latest/docs/framework) so far, plus improved support for using it with no framework adapter at all in vanilla JavaScript. We have had to iterate multiple times during the development of Table V9 to get this correct — both in being performant and easy to maintain.
 
 TanStack Table was first built with just React in mind during the early years of this library, back when it was just called [react-table](https://www.npmjs.com/package/react-table). A lot of of those state management and rendering pattern assumptions stuck around in the library's core, all the way through the vanilla JS rewrite of table-core in V8. The primary purpose of a headless library like TanStack Table is to provide the correct state management core, but we needed to rethink how much of the core library worked under the hood and connected to each framework's reactive model.
@@ -19,13 +21,23 @@ The broader [TanStack Table V9: Taking Form](https://tanstack.com/blog/tanstack-
 
 Users should not have to understand that graph in order to build a table. Even though TanStack Table is headless, one of our requirements for Table V9 was that it fit naturally into each framework's reactive model. The complexity of translating between the framework-agnostic core and each rendering model belongs inside the TanStack Table library, not in your application code.
 
-## TL;DR
+## TL;DR: Where V9 Landed
 
-TanStack Table V9 moves state and options behind reactive primitives so updates can stay within the scopes that consume them. Pagination, row selection, column sizing, filters, and the other feature states are managed by separate atoms, while `table.store` derives the aggregated state view. A Table method can depend on the state and options it reads without subscribing to the entire table-state snapshot.
+A Table computation should react to the state it actually reads. Selecting a row should update its checkbox and the selected-row counter without forcing every cell to depend on the entire table state.
 
-Table creates and manages those atoms through the adapter. Applications continue to pass ordinary values, including values read from framework signals or refs. Signal-native adapters implement the atom contract with their own primitives, while React uses TanStack Store and provides opt-in granular rendering through selectors and `Subscribe`.
+TanStack Table V9 gets there by representing each feature-state slice (pagination, row selection, column sizing, filters, and others) with its own reactive atom, while `table.store` derives the aggregated state view for compatibility.
 
-## The Table V8 Contract
+The core reactivity depends on a small shared atom contract provided by @tanstack/store:
+- Signal-native adapters implement it with their framework primitives and can keep option reads in the same reactive graph. 
+- Store-backed adapters keep options synchronized during render; in React, granular rendering is opt-in through selectors and `Subscribe`.
+
+Applications still pass ordinary values and call the same Table methods. The rest of this article retraces how we got here: the adapter-level approaches we tried, the limits they exposed, and why the reactive boundary ultimately had to move underneath the Table APIs.
+
+## The Table V8 Starting Point
+
+Before V9 moved reactivity underneath the Table APIs, adapters connected the stable V8 table instance to each framework's update model.
+
+### Keeping a Stable Table Instance in Sync
 
 TanStack Table V8 used a contract that served the library well across frameworks. The core built one table instance, attached feature APIs to it, stored resolved options on it, and exposed `setOptions` and `setState` so each adapter could keep that instance aligned with its framework.
 
@@ -50,18 +62,25 @@ That contract kept the core portable, but the framework could not see which stat
 
 The React adapter also predated React Compiler, and the [Table V8 documentation](https://tanstack.com/table/v8/docs/installation) warned that compiler-enabled apps might not work.
 
-## Making Table V8 Reactive In Angular
+### Making Table V8 Reactive In Angular with Signals
 
 At the time, TanStack Table did not have an Angular adapter, and I was contributing to the project from the outside just as Angular introduced signals. The new reactive model made an Angular adapter practical to explore, and building it became my entry point into Table.
 
 I kept the Table V8 core contract intact. `createAngularTable` accepted a reactive options callback, allowing the adapter to track values such as `data()` and synchronize the latest options through `setOptions`.
 
 ```ts
-const data = signal<Person[]>([])
+const data = signal<Person[]>([]);
+const pagination = signal<PaginationState>({
+  pageIndex: 0,
+  pageSize: 20
+})
 
 const table = createAngularTable(() => ({
   data: data(),
   columns,
+  state: {
+    pagination: pagination()
+  }
 }))
 ```
 
@@ -106,7 +125,7 @@ The Angular adapter went through several iterations to make ordinary Table calls
 
 React Compiler later exposed a similar boundary in React. A cell component could receive a stable `row` reference while `row.getIsSelected()` changed behind it, allowing the compiler to reuse memoized JSX because it could not see the state read hidden inside the method. Both cases pointed to the same Table V9 requirement: move reactivity underneath the Table APIs so rows, cells, headers, and columns can expose the dependencies they actually read.
 
-## When Wrapping Methods Was Not Enough
+## Where V9 Reactivity Started: Wrapping Table Methods
 
 Table V9 introduced a deeper feature system, allowing a signal-based adapter to register reactivity while each table instance was constructed. Selected methods on the table, headers, columns, rows, and cells could be wrapped in derived reactive values. A call such as `row.getIsSelected()` could then participate in a tracked component, computed value, or effect without passing through the top-level table proxy.
 
@@ -114,13 +133,13 @@ That solved the proxy's limited reach, but attached reactive machinery to the AP
 
 The boundary needed to move underneath the methods instead. Making state and option reads reactive would let the same APIs expose their dependencies without wrapping each method on every object.
 
-## Store Moved State Into The Core
+## Moving the Reactive Boundary into the Core
 
 TanStack Table first adopted [TanStack Store](https://github.com/TanStack/table/pull/6143) as part of the Table V9 rewrite. The initial implementation used the class-based `Store` and `Derived` APIs available at the time: one base store held Table-owned state, while a derived table-state snapshot reconciled it with controlled values such as `state.rowSelection`. State management had moved into the core, but every feature still read from one aggregated snapshot, while options remained plain values outside the store.
 
 Shortly afterward, the [`@tanstack/store` 0.9 update](https://github.com/TanStack/table/pull/6180) moved Store itself to a signal-backed implementation built on a modified version of `alien-signals`. Table adopted the new `createStore` and `createAtom` API, bringing signal-based dependency tracking into the core without changing its high-level state model.
 
-## Options Became Part Of The Graph
+## Bringing Table Options into the Reactive Model
 
 The reactive state graph gave us a better place to read pagination, sorting, row selection, and the other state slices, but option changes still lived outside it. Since a table also depends on `data`, `columns`, row model factories, feature flags, callbacks, and user-provided getters, Table needed a reliable way for later reads to see those values when they changed after construction.
 
@@ -150,7 +169,7 @@ Object.defineProperty(table, 'options', {
 
 Options reactivity brought the core model closer to how users write table code, where `data`, feature flags, and callbacks come from components and need to remain live inputs rather than construction-time configuration.
 
-## One Core, Two Reactive Graphs
+## Keeping Two Reactive Graphs in Sync
 
 The Store-backed core still had to connect to each framework's reactive graph. A Store update could not schedule Angular, Solid, or Vue by itself; each adapter needed a native signal, memo, ref, or computed in the dependency path. Kevin and I iterated on where to make that translation.
 
@@ -212,7 +231,7 @@ In a native signal adapter, evaluating this method inside a component, `computed
 
 Per-feature atoms gave the graph the granularity we wanted, leaving one question: did every adapter have to build those atoms with the same runtime implementation, or could the core depend only on their shared contract?
 
-## The Shared Interface
+## The Final Design: One Contract, Many Reactive Runtimes
 
 TanStack Router gave us a useful precedent around the same time because it had its own state graph, its own adapters, and the same need to run well across React, Solid, and Vue. Its work on a [store factory](https://github.com/TanStack/router/pull/6704) and [native Solid primitives](https://github.com/TanStack/router/pull/6730) showed that the core could depend on a small shared shape while each adapter supplied the implementation that made sense for its framework.
 
@@ -282,7 +301,7 @@ The core was already framework-agnostic in Table V8; Table V9 makes its reactivi
 
 Reactivity now sits below the Table APIs, where each adapter can connect state and option reads to the component or subtree that should update.
 
-### Native Signals Where They Exist
+### Automatic Tracking in Signal-Native Adapters
 
 In signal-native adapters, calling a Table method inside a tracked component, computed value, or effect is enough to register its dependencies. A Solid component calling `table.getPageCount()`, for example, tracks the native primitives read underneath that method.
 

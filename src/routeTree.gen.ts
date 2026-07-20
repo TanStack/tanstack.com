@@ -57,6 +57,7 @@ import { Route as ShopSearchRouteImport } from './routes/shop.search'
 import { Route as ShopCartRouteImport } from './routes/shop.cart'
 import { Route as ShopHandleRouteImport } from './routes/shop.$handle'
 import { Route as PartnersRailwayRouteImport } from './routes/partners.railway'
+import { Route as PartnersAgGridRouteImport } from './routes/partners.ag-grid'
 import { Route as PartnersPartnerRouteImport } from './routes/partners.$partner'
 import { Route as OauthTokenRouteImport } from './routes/oauth/token'
 import { Route as OauthRegisterRouteImport } from './routes/oauth/register'
@@ -82,6 +83,7 @@ import { Route as AccountFeedbackRouteImport } from './routes/account/feedback'
 import { Route as DotwellKnownOauthAuthorizationServerRouteImport } from './routes/[.]well-known/oauth-authorization-server'
 import { Route as LibraryLibraryIdRouteRouteImport } from './routes/_library/$libraryId/route'
 import { Route as StatsNpmIndexRouteImport } from './routes/stats/npm/index'
+import { Route as PartnersAgGridIndexRouteImport } from './routes/partners.ag-grid.index'
 import { Route as IntentRegistryIndexRouteImport } from './routes/intent/registry/index'
 import { Route as ApiMcpIndexRouteImport } from './routes/api/mcp/index'
 import { Route as AdminShowcasesIndexRouteImport } from './routes/admin/showcases.index'
@@ -96,6 +98,10 @@ import { Route as ShopProductsHandleRouteImport } from './routes/shop.products.$
 import { Route as ShopPoliciesHandleRouteImport } from './routes/shop.policies.$handle'
 import { Route as ShopPagesHandleRouteImport } from './routes/shop.pages.$handle'
 import { Route as ShopCollectionsHandleRouteImport } from './routes/shop.collections.$handle'
+import { Route as PartnersAgGridVsTanstackTableRouteImport } from './routes/partners.ag-grid.vs-tanstack-table'
+import { Route as PartnersAgGridStudioRouteImport } from './routes/partners.ag-grid.studio'
+import { Route as PartnersAgGridGettingStartedRouteImport } from './routes/partners.ag-grid.getting-started'
+import { Route as PartnersAgGridEnterpriseRouteImport } from './routes/partners.ag-grid.enterprise'
 import { Route as IntentRegistryPackageNameRouteImport } from './routes/intent/registry/$packageName'
 import { Route as AuthProviderStartRouteImport } from './routes/auth/$provider/start'
 import { Route as ApiOgChar123Char125DotpngRouteImport } from './routes/api/og/{$}[.]png'
@@ -402,6 +408,11 @@ const PartnersRailwayRoute = PartnersRailwayRouteImport.update({
   path: '/railway',
   getParentRoute: () => PartnersRoute,
 } as any)
+const PartnersAgGridRoute = PartnersAgGridRouteImport.update({
+  id: '/ag-grid',
+  path: '/ag-grid',
+  getParentRoute: () => PartnersRoute,
+} as any)
 const PartnersPartnerRoute = PartnersPartnerRouteImport.update({
   id: '/$partner',
   path: '/$partner',
@@ -528,6 +539,11 @@ const StatsNpmIndexRoute = StatsNpmIndexRouteImport.update({
   path: '/stats/npm/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PartnersAgGridIndexRoute = PartnersAgGridIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PartnersAgGridRoute,
+} as any)
 const IntentRegistryIndexRoute = IntentRegistryIndexRouteImport.update({
   id: '/intent/registry/',
   path: '/intent/registry/',
@@ -598,6 +614,29 @@ const ShopCollectionsHandleRoute = ShopCollectionsHandleRouteImport.update({
   path: '/collections/$handle',
   getParentRoute: () => ShopRoute,
 } as any)
+const PartnersAgGridVsTanstackTableRoute =
+  PartnersAgGridVsTanstackTableRouteImport.update({
+    id: '/vs-tanstack-table',
+    path: '/vs-tanstack-table',
+    getParentRoute: () => PartnersAgGridRoute,
+  } as any)
+const PartnersAgGridStudioRoute = PartnersAgGridStudioRouteImport.update({
+  id: '/studio',
+  path: '/studio',
+  getParentRoute: () => PartnersAgGridRoute,
+} as any)
+const PartnersAgGridGettingStartedRoute =
+  PartnersAgGridGettingStartedRouteImport.update({
+    id: '/getting-started',
+    path: '/getting-started',
+    getParentRoute: () => PartnersAgGridRoute,
+  } as any)
+const PartnersAgGridEnterpriseRoute =
+  PartnersAgGridEnterpriseRouteImport.update({
+    id: '/enterprise',
+    path: '/enterprise',
+    getParentRoute: () => PartnersAgGridRoute,
+  } as any)
 const IntentRegistryPackageNameRoute =
   IntentRegistryPackageNameRouteImport.update({
     id: '/intent/registry/$packageName',
@@ -1029,6 +1068,7 @@ export interface FileRoutesByFullPath {
   '/oauth/register': typeof OauthRegisterRoute
   '/oauth/token': typeof OauthTokenRoute
   '/partners/$partner': typeof PartnersPartnerRoute
+  '/partners/ag-grid': typeof PartnersAgGridRouteWithChildren
   '/partners/railway': typeof PartnersRailwayRoute
   '/shop/$handle': typeof ShopHandleRoute
   '/shop/cart': typeof ShopCartRoute
@@ -1069,6 +1109,10 @@ export interface FileRoutesByFullPath {
   '/api/og/{$}.png': typeof ApiOgChar123Char125DotpngRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
   '/intent/registry/$packageName': typeof IntentRegistryPackageNameRouteWithChildren
+  '/partners/ag-grid/enterprise': typeof PartnersAgGridEnterpriseRoute
+  '/partners/ag-grid/getting-started': typeof PartnersAgGridGettingStartedRoute
+  '/partners/ag-grid/studio': typeof PartnersAgGridStudioRoute
+  '/partners/ag-grid/vs-tanstack-table': typeof PartnersAgGridVsTanstackTableRoute
   '/shop/collections/$handle': typeof ShopCollectionsHandleRoute
   '/shop/pages/$handle': typeof ShopPagesHandleRoute
   '/shop/policies/$handle': typeof ShopPoliciesHandleRoute
@@ -1083,6 +1127,7 @@ export interface FileRoutesByFullPath {
   '/admin/showcases/': typeof AdminShowcasesIndexRoute
   '/api/mcp/': typeof ApiMcpIndexRoute
   '/intent/registry/': typeof IntentRegistryIndexRoute
+  '/partners/ag-grid/': typeof PartnersAgGridIndexRoute
   '/stats/npm/': typeof StatsNpmIndexRoute
   '/$libraryId/$version/docs': typeof LibraryLibraryIdVersionDocsRouteWithChildren
   '/$libraryId/$version/llms.txt': typeof LibraryLibraryIdVersionLlmsDottxtRoute
@@ -1214,6 +1259,10 @@ export interface FileRoutesByTo {
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/api/og/{$}.png': typeof ApiOgChar123Char125DotpngRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
+  '/partners/ag-grid/enterprise': typeof PartnersAgGridEnterpriseRoute
+  '/partners/ag-grid/getting-started': typeof PartnersAgGridGettingStartedRoute
+  '/partners/ag-grid/studio': typeof PartnersAgGridStudioRoute
+  '/partners/ag-grid/vs-tanstack-table': typeof PartnersAgGridVsTanstackTableRoute
   '/shop/collections/$handle': typeof ShopCollectionsHandleRoute
   '/shop/pages/$handle': typeof ShopPagesHandleRoute
   '/shop/policies/$handle': typeof ShopPoliciesHandleRoute
@@ -1228,6 +1277,7 @@ export interface FileRoutesByTo {
   '/admin/showcases': typeof AdminShowcasesIndexRoute
   '/api/mcp': typeof ApiMcpIndexRoute
   '/intent/registry': typeof IntentRegistryIndexRoute
+  '/partners/ag-grid': typeof PartnersAgGridIndexRoute
   '/stats/npm': typeof StatsNpmIndexRoute
   '/$libraryId/$version/llms.txt': typeof LibraryLibraryIdVersionLlmsDottxtRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
@@ -1329,6 +1379,7 @@ export interface FileRoutesById {
   '/oauth/register': typeof OauthRegisterRoute
   '/oauth/token': typeof OauthTokenRoute
   '/partners/$partner': typeof PartnersPartnerRoute
+  '/partners/ag-grid': typeof PartnersAgGridRouteWithChildren
   '/partners/railway': typeof PartnersRailwayRoute
   '/shop/$handle': typeof ShopHandleRoute
   '/shop/cart': typeof ShopCartRoute
@@ -1369,6 +1420,10 @@ export interface FileRoutesById {
   '/api/og/{$}.png': typeof ApiOgChar123Char125DotpngRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
   '/intent/registry/$packageName': typeof IntentRegistryPackageNameRouteWithChildren
+  '/partners/ag-grid/enterprise': typeof PartnersAgGridEnterpriseRoute
+  '/partners/ag-grid/getting-started': typeof PartnersAgGridGettingStartedRoute
+  '/partners/ag-grid/studio': typeof PartnersAgGridStudioRoute
+  '/partners/ag-grid/vs-tanstack-table': typeof PartnersAgGridVsTanstackTableRoute
   '/shop/collections/$handle': typeof ShopCollectionsHandleRoute
   '/shop/pages/$handle': typeof ShopPagesHandleRoute
   '/shop/policies/$handle': typeof ShopPoliciesHandleRoute
@@ -1383,6 +1438,7 @@ export interface FileRoutesById {
   '/admin/showcases/': typeof AdminShowcasesIndexRoute
   '/api/mcp/': typeof ApiMcpIndexRoute
   '/intent/registry/': typeof IntentRegistryIndexRoute
+  '/partners/ag-grid/': typeof PartnersAgGridIndexRoute
   '/stats/npm/': typeof StatsNpmIndexRoute
   '/_library/$libraryId/$version/docs': typeof LibraryLibraryIdVersionDocsRouteWithChildren
   '/_library/$libraryId/$version/llms.txt': typeof LibraryLibraryIdVersionLlmsDottxtRoute
@@ -1485,6 +1541,7 @@ export interface FileRouteTypes {
     | '/oauth/register'
     | '/oauth/token'
     | '/partners/$partner'
+    | '/partners/ag-grid'
     | '/partners/railway'
     | '/shop/$handle'
     | '/shop/cart'
@@ -1525,6 +1582,10 @@ export interface FileRouteTypes {
     | '/api/og/{$}.png'
     | '/auth/$provider/start'
     | '/intent/registry/$packageName'
+    | '/partners/ag-grid/enterprise'
+    | '/partners/ag-grid/getting-started'
+    | '/partners/ag-grid/studio'
+    | '/partners/ag-grid/vs-tanstack-table'
     | '/shop/collections/$handle'
     | '/shop/pages/$handle'
     | '/shop/policies/$handle'
@@ -1539,6 +1600,7 @@ export interface FileRouteTypes {
     | '/admin/showcases/'
     | '/api/mcp/'
     | '/intent/registry/'
+    | '/partners/ag-grid/'
     | '/stats/npm/'
     | '/$libraryId/$version/docs'
     | '/$libraryId/$version/llms.txt'
@@ -1670,6 +1732,10 @@ export interface FileRouteTypes {
     | '/api/mcp/$'
     | '/api/og/{$}.png'
     | '/auth/$provider/start'
+    | '/partners/ag-grid/enterprise'
+    | '/partners/ag-grid/getting-started'
+    | '/partners/ag-grid/studio'
+    | '/partners/ag-grid/vs-tanstack-table'
     | '/shop/collections/$handle'
     | '/shop/pages/$handle'
     | '/shop/policies/$handle'
@@ -1684,6 +1750,7 @@ export interface FileRouteTypes {
     | '/admin/showcases'
     | '/api/mcp'
     | '/intent/registry'
+    | '/partners/ag-grid'
     | '/stats/npm'
     | '/$libraryId/$version/llms.txt'
     | '/api/auth/callback/$provider'
@@ -1784,6 +1851,7 @@ export interface FileRouteTypes {
     | '/oauth/register'
     | '/oauth/token'
     | '/partners/$partner'
+    | '/partners/ag-grid'
     | '/partners/railway'
     | '/shop/$handle'
     | '/shop/cart'
@@ -1824,6 +1892,10 @@ export interface FileRouteTypes {
     | '/api/og/{$}.png'
     | '/auth/$provider/start'
     | '/intent/registry/$packageName'
+    | '/partners/ag-grid/enterprise'
+    | '/partners/ag-grid/getting-started'
+    | '/partners/ag-grid/studio'
+    | '/partners/ag-grid/vs-tanstack-table'
     | '/shop/collections/$handle'
     | '/shop/pages/$handle'
     | '/shop/policies/$handle'
@@ -1838,6 +1910,7 @@ export interface FileRouteTypes {
     | '/admin/showcases/'
     | '/api/mcp/'
     | '/intent/registry/'
+    | '/partners/ag-grid/'
     | '/stats/npm/'
     | '/_library/$libraryId/$version/docs'
     | '/_library/$libraryId/$version/llms.txt'
@@ -2301,6 +2374,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PartnersRailwayRouteImport
       parentRoute: typeof PartnersRoute
     }
+    '/partners/ag-grid': {
+      id: '/partners/ag-grid'
+      path: '/ag-grid'
+      fullPath: '/partners/ag-grid'
+      preLoaderRoute: typeof PartnersAgGridRouteImport
+      parentRoute: typeof PartnersRoute
+    }
     '/partners/$partner': {
       id: '/partners/$partner'
       path: '/$partner'
@@ -2476,6 +2556,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StatsNpmIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/partners/ag-grid/': {
+      id: '/partners/ag-grid/'
+      path: '/'
+      fullPath: '/partners/ag-grid/'
+      preLoaderRoute: typeof PartnersAgGridIndexRouteImport
+      parentRoute: typeof PartnersAgGridRoute
+    }
     '/intent/registry/': {
       id: '/intent/registry/'
       path: '/intent/registry'
@@ -2573,6 +2660,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/shop/collections/$handle'
       preLoaderRoute: typeof ShopCollectionsHandleRouteImport
       parentRoute: typeof ShopRoute
+    }
+    '/partners/ag-grid/vs-tanstack-table': {
+      id: '/partners/ag-grid/vs-tanstack-table'
+      path: '/vs-tanstack-table'
+      fullPath: '/partners/ag-grid/vs-tanstack-table'
+      preLoaderRoute: typeof PartnersAgGridVsTanstackTableRouteImport
+      parentRoute: typeof PartnersAgGridRoute
+    }
+    '/partners/ag-grid/studio': {
+      id: '/partners/ag-grid/studio'
+      path: '/studio'
+      fullPath: '/partners/ag-grid/studio'
+      preLoaderRoute: typeof PartnersAgGridStudioRouteImport
+      parentRoute: typeof PartnersAgGridRoute
+    }
+    '/partners/ag-grid/getting-started': {
+      id: '/partners/ag-grid/getting-started'
+      path: '/getting-started'
+      fullPath: '/partners/ag-grid/getting-started'
+      preLoaderRoute: typeof PartnersAgGridGettingStartedRouteImport
+      parentRoute: typeof PartnersAgGridRoute
+    }
+    '/partners/ag-grid/enterprise': {
+      id: '/partners/ag-grid/enterprise'
+      path: '/enterprise'
+      fullPath: '/partners/ag-grid/enterprise'
+      preLoaderRoute: typeof PartnersAgGridEnterpriseRouteImport
+      parentRoute: typeof PartnersAgGridRoute
     }
     '/intent/registry/$packageName': {
       id: '/intent/registry/$packageName'
@@ -3265,14 +3380,36 @@ const BuilderRouteChildren: BuilderRouteChildren = {
 const BuilderRouteWithChildren =
   BuilderRoute._addFileChildren(BuilderRouteChildren)
 
+interface PartnersAgGridRouteChildren {
+  PartnersAgGridEnterpriseRoute: typeof PartnersAgGridEnterpriseRoute
+  PartnersAgGridGettingStartedRoute: typeof PartnersAgGridGettingStartedRoute
+  PartnersAgGridStudioRoute: typeof PartnersAgGridStudioRoute
+  PartnersAgGridVsTanstackTableRoute: typeof PartnersAgGridVsTanstackTableRoute
+  PartnersAgGridIndexRoute: typeof PartnersAgGridIndexRoute
+}
+
+const PartnersAgGridRouteChildren: PartnersAgGridRouteChildren = {
+  PartnersAgGridEnterpriseRoute: PartnersAgGridEnterpriseRoute,
+  PartnersAgGridGettingStartedRoute: PartnersAgGridGettingStartedRoute,
+  PartnersAgGridStudioRoute: PartnersAgGridStudioRoute,
+  PartnersAgGridVsTanstackTableRoute: PartnersAgGridVsTanstackTableRoute,
+  PartnersAgGridIndexRoute: PartnersAgGridIndexRoute,
+}
+
+const PartnersAgGridRouteWithChildren = PartnersAgGridRoute._addFileChildren(
+  PartnersAgGridRouteChildren,
+)
+
 interface PartnersRouteChildren {
   PartnersPartnerRoute: typeof PartnersPartnerRoute
+  PartnersAgGridRoute: typeof PartnersAgGridRouteWithChildren
   PartnersRailwayRoute: typeof PartnersRailwayRoute
   PartnersIndexRoute: typeof PartnersIndexRoute
 }
 
 const PartnersRouteChildren: PartnersRouteChildren = {
   PartnersPartnerRoute: PartnersPartnerRoute,
+  PartnersAgGridRoute: PartnersAgGridRouteWithChildren,
   PartnersRailwayRoute: PartnersRailwayRoute,
   PartnersIndexRoute: PartnersIndexRoute,
 }

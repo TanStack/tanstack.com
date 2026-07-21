@@ -568,7 +568,7 @@ function WhyTanStackSection() {
         </div>
 
         <ol className="grid gap-3 sm:grid-cols-2">
-          {whyTanStackPrinciples.map((principle, index) => (
+          {whyTanStackPrinciples.map((principle) => (
             <li
               key={principle.title}
               className="group relative flex min-h-[19rem] flex-col overflow-hidden border border-gray-200 bg-white/70 p-5 shadow-sm transition-colors hover:bg-white dark:border-gray-800 dark:bg-gray-950/50 dark:hover:bg-gray-950 sm:p-6"
@@ -605,12 +605,6 @@ function WhyTanStackSection() {
                 proof={principle.proof}
                 accentClassName={principle.accentClassName}
               />
-              <span
-                aria-hidden="true"
-                className="absolute bottom-3 right-5 font-mono text-5xl font-black leading-none text-gray-100 transition-colors group-hover:text-gray-200 dark:text-white/[0.04] dark:group-hover:text-white/[0.07]"
-              >
-                {String(index + 1).padStart(2, '0')}
-              </span>
             </li>
           ))}
         </ol>

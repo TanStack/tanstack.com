@@ -1,6 +1,12 @@
 import { SITE_URL } from '~/utils/site'
 
-const NON_INDEXABLE_PATH_PREFIXES = ['/account', '/admin', '/login'] as const
+const NON_INDEXABLE_PATH_PREFIXES = [
+  '/account',
+  '/admin',
+  '/login',
+  '/partners-embed',
+  '/sponsors-embed',
+] as const
 
 function trimTrailingSlash(value: string) {
   return value.replace(/\/$/, '')

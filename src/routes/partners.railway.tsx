@@ -31,8 +31,9 @@ import { trackEvent } from '~/utils/analytics'
 
 const RAILWAY_HREF =
   'https://railway.com/new?utm_medium=sponsor&utm_source=tanstack&utm_campaign=partner-page'
-const RAILWAY_DOCS_HREF =
-  'https://docs.railway.com/guides/tanstack-start?utm_medium=sponsor&utm_source=tanstack&utm_campaign=partner-page'
+const TANSTACK_START_RAILWAY_DOCS_PATH =
+  '/start/latest/docs/framework/react/guide/hosting'
+const TANSTACK_START_RAILWAY_DOCS_HASH = 'railway-official-partner'
 const RAILWAY_HOME_HREF =
   'https://railway.com/?utm_medium=sponsor&utm_source=tanstack&utm_campaign=partner-page'
 const RAILWAY_PRICING_HREF =
@@ -64,27 +65,27 @@ const features: Array<{ Icon: FeatureIcon; title: string; desc: string }> = [
   {
     Icon: GitPullRequest,
     title: 'Live PR previews',
-    desc: 'Every pull request spins up its own environment. Test routing, data, and server logic before merging.',
+    desc: 'Enable PR Environments on a GitHub-connected project to spin up isolated previews for eligible pull requests.',
   },
   {
     Icon: LineChart,
     title: 'Logs, metrics, and alerts',
-    desc: 'Observability is built in. Pipe custom alerts to Slack, Discord, or email without a third-party agent.',
+    desc: 'Logs and metrics are built in. Pro workspaces can configure Monitors that notify Slack, Discord, or email.',
   },
   {
     Icon: Network,
-    title: '100 Gbps private networking',
-    desc: 'Services in a project talk over private IPs at 100 Gbps. HTTP, TCP, gRPC, and WebSockets handled for you.',
+    title: 'Up to 100 Gbps private networking',
+    desc: 'Services in a project talk over private IPs at up to 100 Gbps. HTTP, TCP, gRPC, and WebSockets handled for you.',
   },
   {
     Icon: Undo2,
-    title: 'One-click rollbacks',
-    desc: 'Every deploy is versioned. Roll back to a previous deployment instantly when something breaks.',
+    title: 'Retained deployment versions',
+    desc: 'Redeploy an earlier version while its image is retained. Retention ranges from 24 hours to 360 hours by plan.',
   },
   {
     Icon: ShieldCheck,
     title: 'Hard spending limits',
-    desc: 'Set a hard cap on what a project can spend. Billing is per-second, so you only pay for actual compute.',
+    desc: 'Set a hard limit for workspace compute usage. Railway sends alerts as you approach it and stops workloads at the limit.',
   },
   {
     Icon: Globe,
@@ -106,7 +107,13 @@ const steps: Array<{ num: string; title: string; code: string }> = [
   },
   { num: '02', title: 'Install Nitro', code: 'npm install nitro' },
   { num: '03', title: 'Add Nitro to Vite', code: 'nitro()' },
-  { num: '04', title: 'Deploy', code: 'railway init && railway up' },
+  {
+    num: '04',
+    title: 'Install the Railway CLI',
+    code: 'npm install -g @railway/cli',
+  },
+  { num: '05', title: 'Authenticate', code: 'railway login' },
+  { num: '06', title: 'Deploy', code: 'railway init && railway up' },
 ]
 
 const pricing: Array<{
@@ -119,7 +126,7 @@ const pricing: Array<{
   {
     plan: 'Free',
     price: '$0',
-    note: '30-day trial with $5 credits',
+    note: '30-day trial, then $1 monthly credit',
     features: [
       'Up to 1 vCPU / 0.5 GB RAM',
       '0.5 GB volume storage',
@@ -130,7 +137,7 @@ const pricing: Array<{
   {
     plan: 'Hobby',
     price: '$5',
-    note: 'min/month · includes $5 credits',
+    note: 'month · includes $5 of usage',
     features: [
       'Up to 48 vCPU / 48 GB RAM',
       'Up to 5 GB storage',
@@ -166,8 +173,8 @@ const pricing: Array<{
 ]
 
 const meteredPricing: Array<[string, string]> = [
-  ['Memory', '$0.000004 / GB·sec'],
-  ['CPU', '$0.000008 / vCPU·sec'],
+  ['Memory', '$0.00000386 / GB·sec'],
+  ['CPU', '$0.00000772 / vCPU·sec'],
   ['Egress', '$0.05 / GB'],
 ]
 
@@ -179,7 +186,7 @@ const testimonials: Array<{ quote: string; author: string; role: string }> = [
   },
   {
     quote:
-      "I've moved $4.5k/month from AWS and $1k/month from Heroku. My Railway bill is about $300/month.",
+      "I've moved $4.5k per month from AWS and $1k per month from Heroku […] and my railway bill is like $300 per month.",
     author: 'John Nunemaker',
     role: 'Founder at BoxOutSports',
   },
@@ -190,40 +197,6 @@ const testimonials: Array<{ quote: string; author: string; role: string }> = [
   },
 ]
 
-const libraries = [
-  'Start',
-  'Router',
-  'Query',
-  'Table',
-  'Form',
-  'DB',
-  'AI',
-  'Virtual',
-  'Pacer',
-  'Store',
-  'Devtools',
-  'CLI',
-]
-
-const libDetails: Array<{ label: string; desc: string }> = [
-  {
-    label: 'TanStack Start',
-    desc: 'Full SSR, streaming, and server functions run on Railway as a standard Node service built through Nitro.',
-  },
-  {
-    label: 'TanStack Router',
-    desc: 'File-based routing apps deploy in SSR and SPA modes. PR previews mean every route change gets a live test environment.',
-  },
-  {
-    label: 'TanStack Query',
-    desc: "Pair with Railway-managed Postgres or Redis. Private networking keeps your server queries inside Railway's infrastructure.",
-  },
-  {
-    label: 'TanStack DB',
-    desc: "Railway's managed databases integrate with TanStack DB's sync engine via 100 Gbps private networking.",
-  },
-]
-
 const faqs: Array<{ q: string; a: string }> = [
   {
     q: 'Does Railway support TanStack Start SSR and streaming?',
@@ -231,19 +204,19 @@ const faqs: Array<{ q: string; a: string }> = [
   },
   {
     q: 'Can I run a database alongside my TanStack app?',
-    a: "Absolutely. Railway lets you provision Postgres, MySQL, Redis, or MongoDB in the same project as your app. They communicate over Railway's 100 Gbps private network — no VPC setup needed.",
+    a: "Absolutely. Railway lets you provision Postgres, MySQL, Redis, or MongoDB in the same project as your app. They communicate over Railway's private network at up to 100 Gbps — no VPC setup needed.",
   },
   {
     q: 'How does Railway pricing actually work?',
-    a: 'Railway charges by the second based on actual CPU and memory usage — not provisioned box sizes. The Hobby plan starts at $5/month (which includes $5 of credits). Most hobby TanStack projects run for free or under $5/month.',
+    a: 'Railway bills resource usage by the second. After the 30-day trial, the Free plan costs $0 and includes $1 of monthly resource credit. Hobby costs $5/month and includes $5 of monthly usage; you pay the difference if usage exceeds $5.',
   },
   {
     q: 'What makes Railway different from Vercel or Render?',
-    a: 'Railway is a full-stack cloud — not just a frontend host. You can run your TanStack app server, managed databases, background workers, cron jobs, and private networking all in one project. Railway also has hard spending limits, which no other major cloud provider offers.',
+    a: 'Railway is a full-stack cloud — not just a frontend host. You can run your TanStack app server, managed databases, background workers, cron jobs, and private networking all in one project. Configurable usage alerts and hard limits help keep resource spending under control.',
   },
   {
     q: 'Does Railway have PR preview environments?',
-    a: 'Yes — every pull request automatically gets its own live preview environment. For TanStack teams, this means you can test routing changes, data fetching behavior, and server logic before merging.',
+    a: 'Yes. Connect the project to GitHub and enable PR Environments in project settings. Railway then creates an isolated preview for eligible pull requests and removes it after the pull request is merged or closed.',
   },
   {
     q: 'Can I migrate an existing TanStack app to Railway?',
@@ -253,7 +226,7 @@ const faqs: Array<{ q: string; a: string }> = [
 
 const PAGE_TITLE = 'Deploy TanStack to Railway — Official Gold Partner'
 const PAGE_DESCRIPTION =
-  'Railway gives TanStack teams a single place to run app services, databases, and supporting infrastructure. Nitro-powered TanStack Start deploys, live PR previews, 100 Gbps private networking, and hard spending limits. Pay per second for the compute you actually use.'
+  'Railway gives TanStack teams a single place to run app services, databases, and supporting infrastructure. Nitro-powered TanStack Start deploys, optional PR preview environments, up to 100 Gbps private networking, and hard spending limits. Resource usage is billed by the second.'
 
 function getFaqJsonLd() {
   return {
@@ -315,6 +288,16 @@ function trackRailwayClick() {
     placement: 'detail',
     destination: 'external',
     destination_host: 'railway.com',
+    partner_tier: 'gold',
+  })
+}
+
+function trackTanStackDocsClick() {
+  trackEvent('partner_clicked', {
+    partner_id: 'railway',
+    placement: 'detail',
+    destination: 'internal_resource',
+    partner_tier: 'gold',
   })
 }
 
@@ -341,6 +324,7 @@ function RailwayPartnerPage() {
     trackEvent('partner_viewed', {
       partner_id: 'railway',
       placement: 'detail',
+      partner_tier: 'gold',
     })
   }, [])
 
@@ -394,8 +378,8 @@ function RailwayPartnerPage() {
           <p className="mt-5 max-w-xl text-base leading-relaxed text-gray-600 dark:text-gray-300 md:text-lg">
             Railway gives TanStack teams a single place to run app services,
             databases, and supporting infrastructure. Deploy a TanStack Start
-            app from GitHub or the CLI — and only pay per-second for the compute
-            you actually use.
+            app from GitHub or the CLI, with resource usage billed by the
+            second.
           </p>
 
           <p className="mt-3 max-w-xl text-sm italic leading-relaxed text-gray-500 dark:text-gray-400">
@@ -413,7 +397,7 @@ function RailwayPartnerPage() {
               size="lg"
               className="bg-gray-950 text-white border-gray-950 hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:border-white dark:hover:bg-gray-200"
             >
-              Deploy free in 2 minutes
+              Start free on Railway
               <ArrowUpRight className="h-4 w-4" />
             </Button>
             <Button as="a" href="#how-it-works" variant="ghost" size="lg">
@@ -429,8 +413,8 @@ function RailwayPartnerPage() {
         <section className="grid grid-cols-2 gap-x-8 gap-y-5 border-b border-gray-200 py-7 sm:flex sm:flex-wrap sm:gap-10 dark:border-gray-800">
           {[
             ['2M+', 'Developers on Railway'],
-            ['< 2 min', 'Time to first deploy'],
-            ['100 Gbps', 'Private networking'],
+            ['Per-second', 'Resource billing'],
+            ['100 Gbps', 'Private network maximum'],
             ['$0', 'To get started'],
           ].map(([value, label]) => (
             <div key={label}>
@@ -470,7 +454,7 @@ function RailwayPartnerPage() {
           className="border-t border-gray-200 py-10 dark:border-gray-800"
         >
           <h2 className="text-2xl font-black tracking-tight md:text-3xl">
-            From zero to deployed in 4 steps
+            Deploy from the Railway CLI in 6 steps
           </h2>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-gray-600 dark:text-gray-300 md:text-base">
             Railway runs TanStack Start as a standard Node service. Add Nitro to
@@ -522,11 +506,10 @@ function RailwayPartnerPage() {
               <ArrowUpRight className="h-4 w-4" />
             </Button>
             <Button
-              as="a"
-              href={RAILWAY_DOCS_HREF}
-              target="_blank"
-              rel="noreferrer"
-              onClick={trackRailwayClick}
+              as={Link}
+              to={TANSTACK_START_RAILWAY_DOCS_PATH}
+              hash={TANSTACK_START_RAILWAY_DOCS_HASH}
+              onClick={trackTanStackDocsClick}
               variant="ghost"
             >
               Read the deployment guide
@@ -534,40 +517,27 @@ function RailwayPartnerPage() {
           </div>
         </section>
 
-        {/* Library fit */}
+        {/* TanStack Start deployment path */}
         <section className="border-t border-gray-200 py-10 dark:border-gray-800">
           <h2 className="text-2xl font-black tracking-tight md:text-3xl">
-            Works with every TanStack library
+            TanStack Start on Railway
           </h2>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-gray-600 dark:text-gray-300 md:text-base">
-            From full-stack apps with TanStack Start to lightweight React apps
-            using Router and Query — Railway deploys them all.
+            Build TanStack Start as a Nitro-powered Node server, then deploy the
+            generated server and static assets as a Railway service. SSR,
+            streaming, and server functions run in the same Node process.
           </p>
 
-          <div className="mt-5 flex flex-wrap gap-2">
-            {libraries.map((lib) => (
-              <span
-                key={lib}
-                className="rounded-md border border-gray-200 bg-gray-50 px-3 py-1 text-xs font-medium dark:border-gray-800 dark:bg-gray-900"
-              >
-                {lib}
-              </span>
-            ))}
-          </div>
-
-          <div className="mt-6 grid gap-3 sm:grid-cols-2">
-            {libDetails.map(({ label, desc }) => (
-              <Card key={label} className="p-4 shadow-none">
-                <div className="flex items-start gap-2">
-                  <CheckBadge />
-                  <span className="text-sm font-semibold">{label}</span>
-                </div>
-                <p className="mt-2 text-xs leading-relaxed text-gray-600 dark:text-gray-400">
-                  {desc}
-                </p>
-              </Card>
-            ))}
-          </div>
+          <Button
+            as={Link}
+            to={TANSTACK_START_RAILWAY_DOCS_PATH}
+            hash={TANSTACK_START_RAILWAY_DOCS_HASH}
+            onClick={trackTanStackDocsClick}
+            variant="ghost"
+            className="mt-5"
+          >
+            Read the deployment guide
+          </Button>
         </section>
 
         {/* Pricing */}
@@ -576,9 +546,9 @@ function RailwayPartnerPage() {
             Pricing that scales with you
           </h2>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-gray-600 dark:text-gray-300 md:text-base">
-            Railway charges by the second based on actual usage — not
-            provisioned box sizes. Most TanStack hobby projects run free or
-            under $5/month.
+            Railway bills resource usage by the second. After the trial, Free
+            includes $1 of monthly resource credit. Hobby costs $5/month and
+            includes $5 of monthly usage.
           </p>
 
           <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -752,8 +722,8 @@ function RailwayPartnerPage() {
             Ready to ship TanStack peacefully?
           </h2>
           <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-gray-400">
-            No credit card required. No surprise bills. Pay only for what you
-            use.
+            No credit card required to start. Set a hard usage limit to keep
+            resource spending under control.
           </p>
           <p className="mt-1 text-xs text-gray-500">
             Most customers save ~40% by switching to Railway.
@@ -773,11 +743,10 @@ function RailwayPartnerPage() {
               <ArrowUpRight className="h-4 w-4" />
             </Button>
             <Button
-              as="a"
-              href={RAILWAY_DOCS_HREF}
-              target="_blank"
-              rel="noreferrer"
-              onClick={trackRailwayClick}
+              as={Link}
+              to={TANSTACK_START_RAILWAY_DOCS_PATH}
+              hash={TANSTACK_START_RAILWAY_DOCS_HASH}
+              onClick={trackTanStackDocsClick}
               size="lg"
               className="bg-transparent text-white border-gray-700 hover:bg-white/5"
             >

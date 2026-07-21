@@ -27,14 +27,14 @@ export type PartnerPlacement =
   | 'partners_index_cta'
   | 'library_callout'
 
-export type PartnerClickDestination = 'external' | 'internal_detail'
+export type PartnerClickDestination =
+  | 'external'
+  | 'internal_detail'
+  | 'internal_resource'
 
 export type PartnerTierValue = 'gold' | 'silver' | 'bronze'
 
-export type PartnerFilterChange =
-  | 'libraries_changed'
-  | 'status_changed'
-  | 'cleared_all'
+export type PartnerFilterChange = 'status_changed'
 
 export type BuilderMode = 'lucky' | 'confident' | 'none'
 
@@ -106,7 +106,6 @@ export type AnalyticsEvent =
       name: 'partner_filter_applied'
       props: {
         change: PartnerFilterChange
-        library_filters: string
         status_filter: string | null
         result_count: number
       }

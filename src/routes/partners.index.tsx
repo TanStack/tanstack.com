@@ -16,53 +16,23 @@ import {
 } from '~/utils/partner-placement'
 import { usePartnerPlacementContext } from '~/utils/usePartnerPlacementContext'
 import { seo } from '~/utils/seo'
-import { Library } from '~/libraries'
 import { useState } from 'react'
 import * as React from 'react'
-import { ListFilter, X } from 'lucide-react'
+import { ListFilter } from 'lucide-react'
 import { Button } from '~/ui'
-import { startProject } from '~/libraries/start'
-import { routerProject } from '~/libraries/router'
-import { queryProject } from '~/libraries/query'
-import { tableProject } from '~/libraries/table'
-import { configProject } from '~/libraries/config'
-import { dbProject } from '~/libraries/db'
-import { aiProject } from '~/libraries/ai'
-import { formProject } from '~/libraries/form'
-import { pacerProject } from '~/libraries/pacer'
-import { rangerProject } from '~/libraries/ranger'
-import { storeProject } from '~/libraries/store'
-import { virtualProject } from '~/libraries/virtual'
-import { libraryIdSchema } from '~/utils/schemas'
 import { trackEvent, useTrackedImpression } from '~/utils/analytics'
+import { getPartnerWindowLabel } from '~/utils/partner-lifecycle'
 import * as v from 'valibot'
-
-const availableLibraries = [
-  startProject,
-  routerProject,
-  queryProject,
-  tableProject,
-  formProject,
-  virtualProject,
-  rangerProject,
-  storeProject,
-  pacerProject,
-  dbProject,
-  aiProject,
-  configProject,
-]
 
 const statusSchema = v.picklist(['active', 'inactive'])
 
 const searchSchema = v.object({
-  libraries: v.fallback(v.optional(v.array(libraryIdSchema)), undefined),
   status: v.fallback(v.optional(statusSchema, 'active'), 'active'),
 })
 
 type PartnersSearch = v.InferOutput<typeof searchSchema>
 type PartnersSearchUpdates = {
-  libraries?: Library['id'][] | undefined
-  status?: 'active' | 'inactive' | undefined
+  status: 'active' | 'inactive'
 }
 
 const defaultPartnersSearch = {
@@ -73,7 +43,6 @@ function normalizePartnersSearch(
   search: Partial<PartnersSearch>,
 ): PartnersSearch {
   return {
-    libraries: search.libraries?.length ? search.libraries : undefined,
     status: search.status ?? defaultPartnersSearch.status,
   }
 }
@@ -94,193 +63,127 @@ export const Route = createFileRoute('/partners/')({
 })
 
 interface FilterProps {
-  selectedLibraries: Library['id'][] | undefined
-  selectedStatus: 'active' | 'inactive' | undefined
-  onLibrariesChange: (libraries: Library['id'][] | undefined) => void
-  onStatusChange: (status: 'active' | 'inactive' | undefined) => void
-  onClearAll: () => void
+  selectedStatus: 'active' | 'inactive'
+  onStatusChange: (status: 'active' | 'inactive') => void
 }
 
-function PartnersFilter({
-  selectedLibraries,
-  selectedStatus,
-  onLibrariesChange,
-  onStatusChange,
-  onClearAll,
-}: FilterProps) {
+function PartnersFilter({ selectedStatus, onStatusChange }: FilterProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const triggerRef = React.useRef<HTMLButtonElement>(null)
 
-  const toggleLibrary = (libraryId: Library['id']) => {
-    if (!selectedLibraries) {
-      onLibrariesChange([libraryId])
-      return
-    }
-
-    if (selectedLibraries.includes(libraryId)) {
-      const newLibraries = selectedLibraries.filter((id) => id !== libraryId)
-      onLibrariesChange(newLibraries.length > 0 ? newLibraries : undefined)
-    } else {
-      onLibrariesChange([...selectedLibraries, libraryId])
-    }
-  }
-
-  const clearFilters = () => {
-    onClearAll()
+  const selectStatus = (status: 'active' | 'inactive') => {
+    onStatusChange(status)
     setIsOpen(false)
+    triggerRef.current?.focus()
   }
 
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Element
-      if (!target.closest('[data-filter-dropdown]')) {
+      if (
+        event.target instanceof Element &&
+        !event.target.closest('[data-filter-dropdown]')
+      ) {
         setIsOpen(false)
+      }
+    }
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsOpen(false)
+        triggerRef.current?.focus()
       }
     }
 
     if (isOpen) {
       document.addEventListener('click', handleClickOutside)
-      return () => document.removeEventListener('click', handleClickOutside)
+      document.addEventListener('keydown', handleKeyDown)
+      return () => {
+        document.removeEventListener('click', handleClickOutside)
+        document.removeEventListener('keydown', handleKeyDown)
+      }
     }
   }, [isOpen])
 
-  const hasFilters =
-    (selectedLibraries && selectedLibraries.length > 0) || selectedStatus
-  const filterCount =
-    (selectedLibraries?.length || 0) + (selectedStatus ? 1 : 0)
+  const hasNonDefaultFilter = selectedStatus !== defaultPartnersSearch.status
 
   return (
     <div className="mb-6">
       <div className="flex items-center gap-3 flex-wrap">
         <div className="relative" data-filter-dropdown>
           <button
+            ref={triggerRef}
+            type="button"
             onClick={() => setIsOpen(!isOpen)}
+            aria-controls="partner-status-filter"
+            aria-expanded={isOpen}
+            aria-haspopup="dialog"
             className="inline-flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
             <ListFilter className="w-4 h-4" />
             Filter Partners
-            {hasFilters && (
+            {hasNonDefaultFilter && (
               <span className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-0.5 rounded-full text-xs">
-                {filterCount}
+                1
               </span>
             )}
           </button>
 
           {isOpen && (
-            <div className="absolute top-full left-0 mt-2 w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50">
+            <div
+              id="partner-status-filter"
+              role="dialog"
+              aria-label="Filter partners by status"
+              className="absolute top-full left-0 mt-2 w-[calc(100vw-2rem)] max-w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50"
+            >
               <div className="p-4">
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                    Filter Options
+                    Partner Status
                   </span>
-                  {hasFilters && (
+                  {hasNonDefaultFilter && (
                     <button
-                      onClick={clearFilters}
+                      type="button"
+                      onClick={() => selectStatus('active')}
                       className="text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
                     >
-                      Clear All
+                      Reset
                     </button>
                   )}
                 </div>
 
-                <div className="mb-4">
-                  <label
-                    htmlFor="partner-status"
-                    className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-2"
+                <div
+                  className="flex gap-2"
+                  role="group"
+                  aria-label="Partner status"
+                >
+                  <button
+                    type="button"
+                    aria-pressed={selectedStatus === 'active'}
+                    onClick={() => selectStatus('active')}
+                    className={`px-3 py-2 rounded-md text-sm transition-colors ${
+                      selectedStatus === 'active'
+                        ? 'bg-green-700 text-white'
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
+                    }`}
                   >
-                    Partner Status
-                  </label>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => {
-                        onStatusChange(
-                          selectedStatus === 'active' ? undefined : 'active',
-                        )
-                      }}
-                      className={`px-3 py-2 rounded-md text-sm transition-colors ${
-                        selectedStatus === 'active'
-                          ? 'bg-green-500 text-white'
-                          : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
-                      }`}
-                    >
-                      Current Partners
-                    </button>
-                    <button
-                      onClick={() => {
-                        onStatusChange(
-                          selectedStatus === 'inactive'
-                            ? undefined
-                            : 'inactive',
-                        )
-                      }}
-                      className={`px-3 py-2 rounded-md text-sm transition-colors ${
-                        selectedStatus === 'inactive'
-                          ? 'bg-orange-500 text-white'
-                          : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
-                      }`}
-                    >
-                      Previous Partners
-                    </button>
-                  </div>
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="library-filter"
-                    className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-2"
+                    Current Partners
+                  </button>
+                  <button
+                    type="button"
+                    aria-pressed={selectedStatus === 'inactive'}
+                    onClick={() => selectStatus('inactive')}
+                    className={`px-3 py-2 rounded-md text-sm transition-colors ${
+                      selectedStatus === 'inactive'
+                        ? 'bg-orange-700 text-white'
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
+                    }`}
                   >
-                    Filter by Libraries
-                  </label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {availableLibraries.map((library) => {
-                      const isSelected =
-                        selectedLibraries?.includes(library.id) || false
-
-                      const bgStyle = library.bgStyle ?? 'bg-gray-500'
-
-                      return (
-                        <button
-                          key={library.id}
-                          onClick={() => toggleLibrary(library.id)}
-                          className={`text-left px-3 py-2 rounded-md text-sm transition-colors ${
-                            isSelected
-                              ? `${bgStyle} text-white`
-                              : `${bgStyle}/30 text-gray-600 dark:text-gray-400 hover:${bgStyle}/40`
-                          }`}
-                        >
-                          {library.name}
-                        </button>
-                      )
-                    })}
-                  </div>
+                    Previous Partners
+                  </button>
                 </div>
               </div>
             </div>
           )}
         </div>
-
-        {hasFilters && (
-          <div className="flex flex-wrap gap-2">
-            {selectedLibraries?.map((libraryId) => {
-              const library = availableLibraries.find(
-                (lib) => lib.id === libraryId,
-              )
-              return (
-                <span
-                  key={libraryId}
-                  className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-md text-xs"
-                >
-                  {library?.name || libraryId}
-                  <button
-                    onClick={() => toggleLibrary(libraryId)}
-                    className="hover:bg-blue-200 dark:hover:bg-blue-800 rounded p-0.5 transition-colors"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              )
-            })}
-          </div>
-        )}
       </div>
     </div>
   )
@@ -292,12 +195,6 @@ function getFilteredPartners(search: PartnersSearch) {
   return partners.filter((partner) => {
     if (normalizedSearch.status && partner.status !== normalizedSearch.status) {
       return false
-    }
-
-    if (normalizedSearch.libraries && normalizedSearch.libraries.length > 0) {
-      return partner.libraries?.some((library) =>
-        normalizedSearch.libraries?.includes(library as Library['id']),
-      )
     }
 
     return true
@@ -373,10 +270,7 @@ function PartnerDirectoryCard({
     },
   })
 
-  const duration =
-    isShowingPrevious && partner.startDate && partner.endDate
-      ? `${partner.startDate} - ${partner.endDate}`
-      : null
+  const duration = isShowingPrevious ? getPartnerWindowLabel(partner) : null
 
   const layout = cardSizeLayout[size]
 
@@ -418,25 +312,11 @@ function PartnerDirectoryCard({
           {layout.showDescription && (
             <div className="text-sm flex-1">
               {isShowingPrevious ? (
-                <>
-                  {duration && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 text-center">
-                      {duration}
-                    </p>
-                  )}
-                  {partner.libraries && partner.libraries.length > 0 && (
-                    <div className="flex flex-wrap gap-1 justify-center">
-                      {partner.libraries.map((library) => (
-                        <span
-                          key={library}
-                          className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 rounded-md"
-                        >
-                          {library}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </>
+                duration && (
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 text-center">
+                    {duration}
+                  </p>
+                )
               ) : (
                 <p className="text-gray-700 dark:text-gray-300">
                   {partner.llmDescription}
@@ -523,16 +403,9 @@ function PartnersIndexPage() {
   const navigate = Route.useNavigate()
 
   const trackFiltersChanged = React.useCallback(
-    (
-      nextSearch: PartnersSearch,
-      change: 'libraries_changed' | 'status_changed' | 'cleared_all',
-    ) => {
+    (nextSearch: PartnersSearch, change: 'status_changed') => {
       trackEvent('partner_filter_applied', {
         change,
-        library_filters: nextSearch.libraries?.join(',') ?? '',
-        // Status defaults to 'active' even when the user hasn't touched it,
-        // so we can't distinguish "explicitly chose active" from "untouched".
-        // Pass the value as-is; doc explains this is a known limitation.
         status_filter: nextSearch.status ?? null,
         result_count: getFilteredPartners(nextSearch).length,
       })
@@ -542,7 +415,7 @@ function PartnersIndexPage() {
 
   const updateFilters = (
     updates: PartnersSearchUpdates,
-    change: 'libraries_changed' | 'status_changed',
+    change: 'status_changed',
   ) => {
     const nextSearch = normalizePartnersSearch({
       ...search,
@@ -559,8 +432,6 @@ function PartnersIndexPage() {
 
   const filteredPartners = getFilteredPartners(search)
 
-  const hasStatusFilter = search.status
-  const hasLibraryFilter = search.libraries && search.libraries.length > 0
   const hasResults = filteredPartners.length > 0
   const isShowingPrevious = search.status === 'inactive'
   const isShowingActive = search.status === 'active'
@@ -594,46 +465,21 @@ function PartnersIndexPage() {
         </header>
 
         <PartnersFilter
-          selectedLibraries={search.libraries}
           selectedStatus={search.status}
-          onLibrariesChange={(libraries) =>
-            updateFilters({ libraries }, 'libraries_changed')
-          }
           onStatusChange={(status) =>
             updateFilters({ status }, 'status_changed')
           }
-          onClearAll={() => {
-            navigate({ search: () => defaultPartnersSearch, replace: true })
-            trackFiltersChanged(defaultPartnersSearch, 'cleared_all')
-          }}
         />
 
         {hasResults ? (
           <div>
-            {(hasStatusFilter || hasLibraryFilter) && (
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 text-center">
-                Showing {filteredPartners.length} partner
-                {filteredPartners.length === 1 ? '' : 's'}
-                {hasStatusFilter && (
-                  <span>
-                    {' '}
-                    ({search.status === 'inactive' ? 'previous' : 'current'})
-                  </span>
-                )}
-                {hasLibraryFilter && search.libraries && (
-                  <span>
-                    {' '}
-                    for{' '}
-                    {search.libraries.length === 1 ? 'library' : 'libraries'}:{' '}
-                    <span className="font-medium">
-                      {search.libraries.join(', ')}
-                    </span>
-                  </span>
-                )}
-              </p>
-            )}
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 text-center">
+              Showing {filteredPartners.length} partner
+              {filteredPartners.length === 1 ? '' : 's'} (
+              {isShowingPrevious ? 'previous' : 'current'})
+            </p>
 
-            {isShowingActive && !hasLibraryFilter ? (
+            {isShowingActive ? (
               <TieredPartnerSections
                 partners={filteredPartners}
                 placementContext={placementContext}
@@ -654,21 +500,21 @@ function PartnersIndexPage() {
           </div>
         ) : (
           <div className="text-center text-gray-600 dark:text-gray-400">
-            {hasStatusFilter || hasLibraryFilter ? (
-              <div>
-                <p className="text-lg mb-4">
-                  No partners found for the selected filters.
-                </p>
+            <div>
+              <p className="text-lg mb-4">
+                No {isShowingPrevious ? 'previous' : 'current'} partners found.
+              </p>
+              {isShowingPrevious && (
                 <Button
                   size="sm"
-                  onClick={() => navigate({ search: {}, replace: true })}
+                  onClick={() =>
+                    updateFilters({ status: 'active' }, 'status_changed')
+                  }
                 >
-                  View All Partners
+                  View Current Partners
                 </Button>
-              </div>
-            ) : (
-              <p>No partners to display.</p>
-            )}
+              )}
+            </div>
           </div>
         )}
 

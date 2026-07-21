@@ -6,31 +6,56 @@
  */
 
 export type DeployProvider = 'cloudflare' | 'netlify' | 'railway'
+type StartFramework = 'react' | 'solid'
 
 interface ProviderConfigResult {
   files: Record<string, string>
   devDependencies: Record<string, string>
 }
 
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
+function hasDependency(packageJson: unknown, dependency: string): boolean {
+  if (!isObject(packageJson)) return false
+
+  return [packageJson.dependencies, packageJson.devDependencies].some(
+    (dependencies) => isObject(dependencies) && dependency in dependencies,
+  )
+}
+
+/**
+ * Get the TanStack Start framework used by an example from package.json.
+ */
+export function getStartFramework(
+  files: Record<string, string>,
+): StartFramework | null {
+  const packageJson = files['package.json']
+  if (!packageJson) return null
+
+  try {
+    const parsedPackageJson: unknown = JSON.parse(packageJson)
+
+    if (hasDependency(parsedPackageJson, '@tanstack/solid-start')) {
+      return 'solid'
+    }
+
+    if (hasDependency(parsedPackageJson, '@tanstack/react-start')) {
+      return 'react'
+    }
+
+    return null
+  } catch {
+    return null
+  }
+}
+
 /**
  * Check if an example is a TanStack Start app by looking at package.json
  */
 export function isStartApp(files: Record<string, string>): boolean {
-  const packageJson = files['package.json']
-  if (!packageJson) return false
-
-  try {
-    const pkg = JSON.parse(packageJson)
-    const allDeps = {
-      ...pkg.dependencies,
-      ...pkg.devDependencies,
-    }
-    return (
-      '@tanstack/react-start' in allDeps || '@tanstack/solid-start' in allDeps
-    )
-  } catch {
-    return false
-  }
+  return getStartFramework(files) !== null
 }
 
 /**
@@ -39,10 +64,11 @@ export function isStartApp(files: Record<string, string>): boolean {
 export function getProviderConfig(
   provider: DeployProvider,
   projectName: string,
+  framework: StartFramework,
 ): ProviderConfigResult {
   switch (provider) {
     case 'cloudflare':
-      return getCloudflareConfig(projectName)
+      return getCloudflareConfig(projectName, framework)
     case 'netlify':
       return getNetlifyConfig()
     case 'railway':
@@ -55,13 +81,16 @@ export function getProviderConfig(
 /**
  * Cloudflare Workers configuration
  */
-function getCloudflareConfig(projectName: string): ProviderConfigResult {
+function getCloudflareConfig(
+  projectName: string,
+  framework: StartFramework,
+): ProviderConfigResult {
   const wranglerConfig = {
     $schema: 'node_modules/wrangler/config-schema.json',
     name: sanitizeProjectName(projectName),
-    compatibility_date: '2025-01-01',
+    compatibility_date: '2025-09-02',
     compatibility_flags: ['nodejs_compat'],
-    main: '@tanstack/react-start/server-entry',
+    main: `@tanstack/${framework}-start/server-entry`,
   }
 
   return {
@@ -137,15 +166,15 @@ export function applyProviderConfig(
   provider: DeployProvider,
   projectName: string,
 ): Record<string, string> {
-  const isStart = isStartApp(files)
+  const framework = getStartFramework(files)
   const result = { ...files }
 
-  if (isStart) {
+  if (framework) {
     // Full server-side config for Start apps
     console.log(
       '[applyProviderConfig] Start app, applying full provider config',
     )
-    const config = getProviderConfig(provider, projectName)
+    const config = getProviderConfig(provider, projectName, framework)
 
     // Add provider-specific config files
     for (const [path, content] of Object.entries(config.files)) {
@@ -323,10 +352,12 @@ function updateViteConfig(content: string, provider: DeployProvider): string {
       }
 
       // Add cloudflare() to plugins array
-      result = addPluginToConfig(
-        result,
-        `cloudflare({ viteEnvironment: { name: 'ssr' } })`,
-      )
+      if (!hasPluginCall(result, 'cloudflare')) {
+        result = addPluginToConfig(
+          result,
+          `cloudflare({ viteEnvironment: { name: 'ssr' } })`,
+        )
+      }
       break
     }
 
@@ -342,7 +373,9 @@ function updateViteConfig(content: string, provider: DeployProvider): string {
       }
 
       // Add netlify() to plugins array
-      result = addPluginToConfig(result, 'netlify()')
+      if (!hasPluginCall(result, 'netlify')) {
+        result = addPluginToConfig(result, 'netlify()')
+      }
       break
     }
 
@@ -358,12 +391,21 @@ function updateViteConfig(content: string, provider: DeployProvider): string {
       }
 
       // Add nitro() to plugins array
-      result = addPluginToConfig(result, 'nitro()')
+      if (!hasPluginCall(result, 'nitro')) {
+        result = addPluginToConfig(result, 'nitro()')
+      }
       break
     }
   }
 
   return result
+}
+
+function hasPluginCall(
+  content: string,
+  pluginName: 'cloudflare' | 'netlify' | 'nitro',
+) {
+  return new RegExp(`\\b${pluginName}\\s*\\(`).test(content)
 }
 
 /**

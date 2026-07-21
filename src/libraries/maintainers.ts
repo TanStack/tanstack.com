@@ -65,6 +65,8 @@ export const allMaintainers: Maintainer[] = [
       'pacer',
       'cli',
       'mcp',
+      'markdown',
+      'highlight',
       'react-charts',
     ],
     maintainerOf: ['intent'],

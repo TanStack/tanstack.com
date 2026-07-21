@@ -36,8 +36,12 @@ function redirectToStaticLanding(libraryId: string, version: string) {
       throw redirect({ to: '/form/$version', params: { version } })
     case 'hotkeys':
       throw redirect({ to: '/hotkeys/$version', params: { version } })
+    case 'highlight':
+      throw redirect({ to: '/highlight/$version', params: { version } })
     case 'intent':
       throw redirect({ to: '/intent/$version', params: { version } })
+    case 'markdown':
+      throw redirect({ to: '/markdown/$version', params: { version } })
     case 'pacer':
       throw redirect({ to: '/pacer/$version', params: { version } })
     case 'query':

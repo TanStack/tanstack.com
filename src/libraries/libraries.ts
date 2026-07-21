@@ -608,6 +608,66 @@ export const hotkeys: LibrarySlim = {
   },
 }
 
+export const markdown: LibrarySlim = {
+  id: 'markdown',
+  name: 'TanStack Markdown',
+  cardStyles: 'text-violet-500 dark:text-violet-400 hover:border-current',
+  to: '/markdown',
+  tagline: 'Tiny, fast Markdown parsing and rendering for blogs and docs',
+  description:
+    'A tiny, fast, deterministic Markdown parser and renderer with zero runtime dependencies, a serializable AST, safe defaults, and matching HTML and React output.',
+  badge: 'alpha',
+  bgStyle: 'bg-violet-500',
+  borderStyle: 'border-violet-500/50',
+  textStyle: 'text-violet-500 dark:text-violet-400',
+  textColor: 'text-violet-600 dark:text-violet-400',
+  colorFrom: 'from-violet-500',
+  colorTo: 'to-fuchsia-600',
+  bgRadial: 'from-violet-500 via-fuchsia-600/50 to-transparent',
+  repo: 'tanstack/markdown',
+  frameworks: ['react', 'vanilla'],
+  corePackageName: '@tanstack/markdown',
+  npmPackageNames: ['@tanstack/markdown'],
+  latestVersion: 'v0',
+  latestBranch: 'main',
+  availableVersions: ['v0'],
+  defaultDocs: 'overview',
+  sitemap: {
+    includeLandingPage: true,
+    includeDocsPages: true,
+  },
+}
+
+export const highlight: LibrarySlim = {
+  id: 'highlight',
+  name: 'TanStack Highlight',
+  cardStyles: 'text-amber-500 dark:text-amber-400 hover:border-current',
+  to: '/highlight',
+  tagline: 'Tiny, synchronous syntax highlighting for blogs and docs',
+  description:
+    'A tiny, synchronous syntax highlighter with selective language imports, deterministic SSR and browser output, class-based themes, annotations, and Markdown pipeline adapters.',
+  badge: 'alpha',
+  bgStyle: 'bg-amber-500',
+  borderStyle: 'border-amber-500/50',
+  textStyle: 'text-amber-500 dark:text-amber-400',
+  textColor: 'text-amber-600 dark:text-amber-400',
+  colorFrom: 'from-amber-500',
+  colorTo: 'to-orange-600',
+  bgRadial: 'from-amber-500 via-orange-600/50 to-transparent',
+  repo: 'tanstack/highlight',
+  frameworks: ['react', 'vanilla'],
+  corePackageName: '@tanstack/highlight',
+  npmPackageNames: ['@tanstack/highlight'],
+  latestVersion: 'v0',
+  latestBranch: 'main',
+  availableVersions: ['v0'],
+  defaultDocs: 'overview',
+  sitemap: {
+    includeLandingPage: true,
+    includeDocsPages: true,
+  },
+}
+
 export const db: LibrarySlim = {
   id: 'db',
   name: 'TanStack DB',
@@ -908,6 +968,8 @@ export const libraries: LibrarySlim[] = [
   virtual,
   pacer,
   hotkeys,
+  markdown,
+  highlight,
   store,
   ranger,
   config,
@@ -970,7 +1032,7 @@ export const publicLibraries = libraries.filter(isPublicLibrary)
 export const librariesByGroup = {
   framework: [start, router],
   state: [query, db, store, ai],
-  headlessUI: [table, form, hotkeys],
+  headlessUI: [table, form, hotkeys, markdown, highlight],
   performance: [virtual, pacer],
   tooling: [devtools, config, cli, intent],
 }

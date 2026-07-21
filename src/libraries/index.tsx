@@ -21,6 +21,8 @@ export {
   store,
   pacer,
   hotkeys,
+  markdown,
+  highlight,
   db,
   ai,
   intent,

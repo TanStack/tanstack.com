@@ -63,7 +63,7 @@
     "@tanstack/ai-openai": "^0.9.5",
     "@tanstack/create": "^0.68.4",
     "@tanstack/highlight": "^0.0.3",
-    "@tanstack/markdown": "^0.0.6",
+    "@tanstack/markdown": "^0.0.7",
     "@tanstack/pacer": "^0.21.1",
     "@tanstack/react-hotkeys": "^0.10.0",
     "@tanstack/react-pacer": "^0.22.1",

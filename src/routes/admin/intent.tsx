@@ -180,7 +180,7 @@ function IntentAdminPage() {
               processMutation.isPending ||
               (stats?.pendingVersions ?? 0) + (stats?.failedVersions ?? 0) === 0
             }
-            title="Download tarballs and extract skills until the workflow nears its time budget"
+            title="Download tarballs and extract skills for pending versions"
           >
             <Play
               className={
@@ -249,21 +249,29 @@ function IntentAdminPage() {
       )}
       {processMutation.data && (
         <ResultBanner
-          title={`Processed ${processMutation.data.processed} version(s)`}
-          items={[
-            ...(processMutation.data.deferred > 0
-              ? [
-                  `${processMutation.data.deferred} version(s) deferred by the time budget`,
-                ]
-              : []),
-            ...processMutation.data.results.map(
-              (r) =>
-                `${r.packageName}@${r.version}: ${r.status === 'synced' ? `${r.skillCount} skills` : `FAILED — ${r.error}`}`,
-            ),
-          ]}
-          errors={processMutation.data.results
-            .filter((r) => r.status === 'failed')
-            .map((r) => `${r.packageName}@${r.version}: ${r.error}`)}
+          title={
+            processMutation.data.kind === 'completed'
+              ? `Processed ${processMutation.data.summary.processed} version(s)`
+              : 'Queue processing started'
+          }
+          items={
+            processMutation.data.kind === 'completed'
+              ? processMutation.data.summary.results.map(
+                  (result) =>
+                    `${result.packageName}@${result.version}: ${result.status === 'synced' ? `${result.skillCount} skills` : `FAILED — ${result.error}`}`,
+                )
+              : ['Remaining work will continue during scheduled processing.']
+          }
+          errors={
+            processMutation.data.kind === 'completed'
+              ? processMutation.data.summary.results
+                  .filter((result) => result.status === 'failed')
+                  .map(
+                    (result) =>
+                      `${result.packageName}@${result.version}: ${result.error}`,
+                  )
+              : []
+          }
           onDismiss={() => processMutation.reset()}
         />
       )}

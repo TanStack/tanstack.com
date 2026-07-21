@@ -10,6 +10,9 @@ import { intentWorkflowRegistrations } from '~/utils/intent-workflows.server'
 
 export const workflowExecutionStore = createDrizzlePostgresWorkflowStore({ db })
 
+export const WORKFLOW_RUNTIME_MAX_DURATION_MS = 25_000
+export const WORKFLOW_RUNTIME_MIN_REMAINING_MS = 5_000
+
 export const workflowRuntime = defineWorkflowRuntime({
   store: workflowExecutionStore,
   workflows: {

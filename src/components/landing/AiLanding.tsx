@@ -1,8 +1,6 @@
 import * as React from 'react'
 import {
   BracketsCurly,
-  CheckCircle,
-  HandPalm,
   Microphone,
   Plug,
   Radio,
@@ -47,13 +45,91 @@ const providers = [
   },
 ]
 
-const runtimeEvents = [
-  ['RUN_STARTED', 'AG-UI request accepted'],
-  ['TEXT_MESSAGE_CONTENT', 'The invoice total is…'],
-  ['TOOL_CALL_START', 'lookupInvoice({ id })'],
-  ['CUSTOM', 'approval-requested · waiting on the client'],
-  ['RUN_FINISHED', 'usage and result recorded'],
+type AiHeroServer = {
+  detail?: string
+  dotted?: boolean
+  kind?: 'tanstack'
+  label: string
+}
+
+type GraphNodePosition = {
+  height: number
+  label: string
+  width: number
+  x: number
+  y: number
+}
+
+type GraphPoint = {
+  x: number
+  y: number
+}
+
+const aiHeroClients = ['Vanilla', 'React', 'Vue', 'Solid', 'Svelte', 'Preact']
+const aiHeroServers: Array<AiHeroServer> = [
+  { label: 'TanStack AI', detail: 'TypeScript', kind: 'tanstack' },
+  { label: 'Python', dotted: true },
+  { label: 'Go', dotted: true },
+  { label: 'PHP', dotted: true },
 ]
+const aiHeroProviders = ['OpenRouter', 'OpenAI', 'Anthropic', 'Gemini']
+const graphClientNodes = aiHeroClients.map((label, index) => ({
+  label,
+  x: [34, 154, 274][index % 3] ?? 154,
+  y: index < 3 ? 44 : 90,
+  width: 86,
+  height: 34,
+}))
+const graphAgUiNode: GraphNodePosition & {
+  detail: string
+  kind: 'tanstack'
+} = {
+  label: 'TanStack AI Client',
+  detail: 'AG-UI',
+  kind: 'tanstack',
+  x: 142,
+  y: 138,
+  width: 136,
+  height: 58,
+}
+const graphServerNodes = aiHeroServers.map((server, index) => ({
+  ...server,
+  x: [38, 178, 254, 326][index] ?? 178,
+  y: index === 0 ? 254 : 260,
+  width: index === 0 ? 124 : 56,
+  height: index === 0 ? 54 : 42,
+}))
+const graphProviderNodes = aiHeroProviders.map((label, index) => ({
+  label,
+  x: 18 + index * 98,
+  y: 352,
+  width: 78,
+  height: 34,
+}))
+const aiHeroMessages = [
+  {
+    user: 'Build the invoice assistant on our stack.',
+    assistant:
+      'Using TanStack AI for TypeScript, AG-UI events, a server tool for invoices, and OpenRouter for model routing.',
+  },
+  {
+    user: 'Ask before it charges a card.',
+    assistant:
+      'Tool approval added. The UI will pause on chargeCard until your app confirms it.',
+  },
+  {
+    user: 'Can we switch providers later?',
+    assistant:
+      'Yes. The provider stays behind an adapter; the app keeps the same event stream and typed tools.',
+  },
+]
+
+type AiHeroChatMessage = {
+  assistant: string
+  id: string
+  isStreaming: boolean
+  user: string
+}
 
 export default function AiLanding() {
   return (
@@ -61,7 +137,7 @@ export default function AiLanding() {
       libraryId="ai"
       headline="Own the path between your interface and every model."
       description="TanStack AI is a typed, composable SDK for streaming model output, tools, structured data, media, and realtime experiences through infrastructure you control."
-      hero={<AiRuntimeHero />}
+      hero={<AiGraphChatHero />}
       prompt={aiPrompt}
       promptLabel="Copy AI prompt"
     >
@@ -115,107 +191,470 @@ export default function AiLanding() {
   )
 }
 
-function AiRuntimeHero() {
-  const [activeProviderIndex, setActiveProviderIndex] = React.useState(0)
-  const [approved, setApproved] = React.useState(false)
-  const provider = providers[activeProviderIndex] ?? providers[0]
+function AiGraphChatHero() {
+  const [activeClient, setActiveClient] = React.useState(0)
+  const [activeProvider, setActiveProvider] = React.useState(0)
+  const [chatMessages, setChatMessages] = React.useState<
+    Array<AiHeroChatMessage>
+  >([])
+  const [typingUserMessage, setTypingUserMessage] = React.useState('')
+  const primaryServerNode = graphServerNodes[0]
+  const chatScrollRef = React.useRef<HTMLDivElement>(null)
+  const chatLockedToBottomRef = React.useRef(true)
+
+  React.useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return
+    }
+
+    const clientIntervalId = window.setInterval(() => {
+      setActiveClient((current) => (current + 1) % aiHeroClients.length)
+    }, 2300)
+    const providerIntervalId = window.setInterval(() => {
+      setActiveProvider((current) => (current + 1) % aiHeroProviders.length)
+    }, 4100)
+
+    return () => {
+      window.clearInterval(clientIntervalId)
+      window.clearInterval(providerIntervalId)
+    }
+  }, [])
+
+  React.useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      const message = aiHeroMessages[0]
+
+      setChatMessages([
+        {
+          ...message,
+          id: 'reduced-motion-example',
+          isStreaming: false,
+        },
+      ])
+      return
+    }
+
+    let cancelled = false
+    const timeouts: Array<number> = []
+
+    const addTimeout = (callback: () => void, delay: number) => {
+      const timeoutId = window.setTimeout(callback, delay)
+      timeouts.push(timeoutId)
+    }
+
+    const streamAssistantResponse = (
+      id: string,
+      response: string,
+      onComplete: () => void,
+    ) => {
+      let currentIndex = 0
+
+      const streamChunk = () => {
+        if (cancelled) {
+          return
+        }
+
+        if (currentIndex < response.length) {
+          const chunkSize = 2 + Math.floor(Math.random() * 7)
+          const nextIndex = Math.min(currentIndex + chunkSize, response.length)
+          const nextText = response.slice(0, nextIndex)
+
+          setChatMessages((currentMessages) =>
+            currentMessages.map((message) =>
+              message.id === id
+                ? { ...message, assistant: nextText, isStreaming: true }
+                : message,
+            ),
+          )
+
+          currentIndex = nextIndex
+          addTimeout(streamChunk, 22 + Math.floor(Math.random() * 58))
+          return
+        }
+
+        setChatMessages((currentMessages) =>
+          currentMessages.map((message) =>
+            message.id === id ? { ...message, isStreaming: false } : message,
+          ),
+        )
+        addTimeout(onComplete, 1600)
+      }
+
+      addTimeout(streamChunk, 450)
+    }
+
+    const typeUserMessage = (
+      messageIndex: number,
+      onComplete: (id: string) => void,
+    ) => {
+      const message = aiHeroMessages[messageIndex]
+      let currentIndex = 0
+
+      setTypingUserMessage('')
+
+      const typeChar = () => {
+        if (cancelled) {
+          return
+        }
+
+        if (currentIndex < message.user.length) {
+          currentIndex += 1
+          setTypingUserMessage(message.user.slice(0, currentIndex))
+          addTimeout(typeChar, 30 + Math.floor(Math.random() * 40))
+          return
+        }
+
+        addTimeout(() => {
+          const id = `${messageIndex}-${Date.now()}`
+
+          setTypingUserMessage('')
+          setChatMessages((currentMessages) => [
+            ...currentMessages.slice(-1),
+            {
+              assistant: '',
+              id,
+              isStreaming: true,
+              user: message.user,
+            },
+          ])
+          onComplete(id)
+        }, 320)
+      }
+
+      typeChar()
+    }
+
+    const playMessage = (messageIndex: number) => {
+      if (cancelled) {
+        return
+      }
+
+      const nextMessageIndex = messageIndex % aiHeroMessages.length
+      const message = aiHeroMessages[nextMessageIndex]
+
+      typeUserMessage(nextMessageIndex, (id) => {
+        streamAssistantResponse(id, message.assistant, () => {
+          playMessage(nextMessageIndex + 1)
+        })
+      })
+    }
+
+    addTimeout(() => playMessage(0), 700)
+
+    return () => {
+      cancelled = true
+      timeouts.forEach((timeoutId) => window.clearTimeout(timeoutId))
+    }
+  }, [])
+
+  React.useEffect(() => {
+    const element = chatScrollRef.current
+    if (!element) {
+      return
+    }
+
+    const handleScroll = () => {
+      const distanceFromBottom =
+        element.scrollHeight - element.scrollTop - element.clientHeight
+
+      chatLockedToBottomRef.current = distanceFromBottom < 72
+    }
+
+    element.addEventListener('scroll', handleScroll, { passive: true })
+    return () => element.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  React.useEffect(() => {
+    const frameId = window.requestAnimationFrame(() => {
+      const element = chatScrollRef.current
+
+      if (element && chatLockedToBottomRef.current) {
+        element.scrollTop = element.scrollHeight
+      }
+    })
+
+    return () => window.cancelAnimationFrame(frameId)
+  }, [chatMessages])
 
   return (
-    <LandingWindow label="owned AI runtime">
-      <div className="grid min-h-[24rem] md:grid-cols-[0.9fr_1.1fr]">
-        <div className="border-white/5 p-4 md:border-r">
-          <p className="font-ds-mono text-[9px] uppercase tracking-[0.16em] text-white/30">
-            client
-          </p>
-          <div className="mt-3 rounded-lg border border-white/10 bg-[#141414] p-3">
-            <p className="text-ds-label-sm text-white">React useChat()</p>
-            <p className="mt-1 font-ds-mono text-[10px] text-white/35">
-              headless client · AG-UI
-            </p>
-          </div>
-          <div
-            aria-hidden="true"
-            className="mx-auto h-5 w-px bg-[var(--landing-accent)]"
-          />
-          <div className="rounded-lg border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.14)] p-3 text-center">
-            <p className="text-ds-label-md text-[var(--landing-accent-bright)]">
-              TanStack AI runtime
-            </p>
-            <p className="mt-1 font-ds-mono text-[10px] text-white/35">
-              stream · tools · middleware
-            </p>
-          </div>
-          <div
-            aria-hidden="true"
-            className="mx-auto h-5 w-px bg-[var(--landing-accent)]"
-          />
-          <div className="grid grid-cols-2 gap-2">
-            {providers.map((item, index) => (
-              <button
-                key={item.name}
-                type="button"
-                aria-pressed={index === activeProviderIndex}
-                className="rounded-lg border border-white/5 bg-[#141414] px-2 py-2 text-left font-ds-mono text-[10px] text-white/40 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
-                onClick={() => {
-                  setActiveProviderIndex(index)
-                  setApproved(false)
-                }}
-              >
-                {item.name}
-              </button>
-            ))}
-          </div>
-        </div>
+    <div className="grid w-full min-w-0 max-w-full items-start gap-4 lg:grid-cols-[1.05fr_0.95fr]">
+      <span className="sr-only">
+        A client graph shows six UI adapters converging on the TanStack AI
+        Client over AG-UI, then reaching a TypeScript runtime and
+        interchangeable model providers.
+      </span>
 
-        <div className="flex min-w-0 flex-col p-4" aria-live="polite">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="font-ds-mono text-[9px] uppercase tracking-[0.16em] text-white/30">
-                event stream
-              </p>
-              <p className="mt-1 truncate font-ds-mono text-[11px] text-[var(--landing-accent-bright)]">
-                {provider.name} / {provider.model}
-              </p>
-            </div>
-            <span className="rounded bg-emerald-400 px-2 py-1 font-ds-mono text-[9px] font-semibold uppercase text-emerald-950">
-              connected
-            </span>
-          </div>
-
-          <div className="mt-4 space-y-2">
-            {runtimeEvents.slice(0, approved ? 5 : 4).map(([event, detail]) => (
-              <div
-                key={event}
-                className="rounded-lg border border-white/5 bg-[#121212] px-3 py-2"
-              >
-                <p className="font-ds-mono text-[10px] text-[var(--landing-accent-bright)]">
-                  {event}
-                </p>
-                <p className="mt-1 truncate text-ds-body-xs text-white/35">
-                  {event === 'CUSTOM' && approved
-                    ? 'approval-requested · approved by client'
-                    : detail}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          <button
-            type="button"
-            aria-pressed={approved}
-            className="mt-4 inline-flex items-center justify-center gap-2 rounded-lg border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.14)] px-3 py-2 text-ds-label-sm text-[var(--landing-accent-bright)] hover:bg-[color:rgb(var(--landing-glow)/0.22)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
-            onClick={() => setApproved((current) => !current)}
+      <LandingWindow label="client graph">
+        <div
+          aria-hidden="true"
+          className="relative h-[23rem] overflow-hidden bg-[#0d090c] [container-type:inline-size] sm:h-[26rem]"
+        >
+          <div className="absolute inset-0 opacity-40 [background-image:linear-gradient(rgb(var(--landing-glow)/0.18)_1px,transparent_1px),linear-gradient(90deg,rgb(var(--landing-glow)/0.18)_1px,transparent_1px)] [background-size:28px_28px]" />
+          <svg
+            className="pointer-events-none absolute inset-0 h-full w-full"
+            viewBox="0 0 420 420"
           >
-            {approved ? (
-              <CheckCircle aria-hidden="true" size={16} />
-            ) : (
-              <HandPalm aria-hidden="true" size={16} />
-            )}
-            {approved ? 'Tool approved' : 'Approve lookupInvoice'}
-          </button>
+            {graphClientNodes.map((node, index) => (
+              <GraphLine
+                key={`client-${node.label}`}
+                active={activeClient === index}
+                d={curveBetween(
+                  bottomAnchor(node),
+                  topAnchor(graphAgUiNode),
+                  0.45,
+                )}
+              />
+            ))}
+            {graphServerNodes.map((node, index) => (
+              <GraphLine
+                key={`server-${node.label}`}
+                active={index === 0}
+                d={curveBetween(
+                  bottomAnchor(graphAgUiNode),
+                  topAnchor(node),
+                  0.5,
+                )}
+              />
+            ))}
+            {graphProviderNodes.map((node, index) => (
+              <GraphLine
+                key={`provider-${node.label}`}
+                active={activeProvider === index}
+                d={curveBetween(
+                  bottomAnchor(primaryServerNode),
+                  topAnchor(node),
+                  0.55,
+                )}
+              />
+            ))}
+          </svg>
+
+          <GraphLabel x={18} y={24}>
+            client
+          </GraphLabel>
+          <GraphLabel x={50} y={236}>
+            server / runtime
+          </GraphLabel>
+          <GraphLabel x={18} y={328}>
+            provider
+          </GraphLabel>
+
+          {graphClientNodes.map((node, index) => (
+            <GraphNode
+              key={node.label}
+              active={index === activeClient}
+              label={node.label}
+              node={node}
+            />
+          ))}
+          <GraphNode
+            active
+            detail={graphAgUiNode.detail}
+            kind={graphAgUiNode.kind}
+            label={graphAgUiNode.label}
+            node={graphAgUiNode}
+          />
+          {graphServerNodes.map((node, index) => (
+            <GraphNode
+              key={node.label}
+              active={index === 0}
+              detail={node.detail}
+              dotted={node.dotted}
+              kind={node.kind}
+              label={node.label}
+              node={node}
+            />
+          ))}
+          {graphProviderNodes.map((node, index) => (
+            <GraphNode
+              key={node.label}
+              active={index === activeProvider}
+              label={node.label}
+              node={node}
+            />
+          ))}
         </div>
-      </div>
-    </LandingWindow>
+      </LandingWindow>
+
+      <LandingWindow label="chat runtime">
+        <div
+          aria-hidden="true"
+          className="flex h-[23rem] min-w-0 flex-col bg-[#0d0d0d] sm:h-[26rem]"
+        >
+          <div
+            ref={chatScrollRef}
+            className="min-h-0 flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
+            <div className="flex min-h-full flex-col justify-end gap-2.5 p-4">
+              {chatMessages.map((message) => (
+                <React.Fragment key={message.id}>
+                  <div className="ml-auto max-w-[86%] rounded-xl bg-[var(--landing-accent)] px-3 py-2 text-ds-body-xs font-semibold leading-5 text-[var(--landing-accent-ink)] shadow-sm">
+                    {message.user}
+                  </div>
+                  {message.assistant || message.isStreaming ? (
+                    <div className="max-w-[90%] rounded-xl border border-white/10 bg-[#171717] px-3 py-2 text-ds-body-xs leading-5 text-white/65 shadow-sm">
+                      {message.assistant}
+                      {message.isStreaming ? (
+                        <span className="ml-1 inline-block h-3.5 w-1 rounded-sm bg-[var(--landing-accent)] align-[-0.2rem] motion-safe:animate-pulse" />
+                      ) : null}
+                    </div>
+                  ) : null}
+                </React.Fragment>
+              ))}
+              <div className="grid gap-2 pt-2 font-ds-mono text-[10px] font-semibold sm:grid-cols-2">
+                {[
+                  ['event', 'text content'],
+                  ['tool', 'approval gate'],
+                  ['provider', aiHeroProviders[activeProvider]],
+                  ['runtime', 'TanStack AI'],
+                ].map(([label, value]) => (
+                  <div
+                    key={label}
+                    className="rounded-lg bg-[#171717] px-3 py-2"
+                  >
+                    <p className="text-[9px] uppercase tracking-[0.12em] text-white/25">
+                      {label}
+                    </p>
+                    <p className="mt-1 truncate text-[var(--landing-accent-bright)]">
+                      {value}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="shrink-0 border-t border-white/5 p-4">
+            <div
+              className={
+                typingUserMessage
+                  ? 'rounded-lg border border-[var(--landing-accent)] bg-[#171717] px-3 py-2 text-ds-body-xs font-semibold text-white ring-1 ring-[color:rgb(var(--landing-glow)/0.3)]'
+                  : 'rounded-lg border border-white/10 bg-[#171717] px-3 py-2 text-ds-body-xs font-semibold text-white/30'
+              }
+            >
+              {typingUserMessage || 'Type a message...'}
+              {typingUserMessage ? (
+                <span className="ml-1 inline-block h-4 w-1 rounded-sm bg-[var(--landing-accent)] align-[-0.2rem] motion-safe:animate-pulse" />
+              ) : null}
+            </div>
+          </div>
+        </div>
+      </LandingWindow>
+    </div>
+  )
+}
+
+function topAnchor(node: GraphNodePosition): GraphPoint {
+  return {
+    x: node.x + node.width / 2,
+    y: node.y,
+  }
+}
+
+function bottomAnchor(node: GraphNodePosition): GraphPoint {
+  return {
+    x: node.x + node.width / 2,
+    y: node.y + node.height,
+  }
+}
+
+function curveBetween(start: GraphPoint, end: GraphPoint, bend = 0.5): string {
+  if (Math.abs(end.y - start.y) > Math.abs(end.x - start.x)) {
+    const controlY = start.y + (end.y - start.y) * bend
+
+    return `M ${start.x} ${start.y} C ${start.x} ${controlY}, ${end.x} ${controlY}, ${end.x} ${end.y}`
+  }
+
+  const controlX = start.x + (end.x - start.x) * bend
+  return `M ${start.x} ${start.y} C ${controlX} ${start.y}, ${controlX} ${end.y}, ${end.x} ${end.y}`
+}
+
+function graphStyle(node: GraphNodePosition): React.CSSProperties {
+  return {
+    height: `${(node.height / 420) * 100}%`,
+    left: `${(node.x / 420) * 100}%`,
+    top: `${(node.y / 420) * 100}%`,
+    width: `${(node.width / 420) * 100}%`,
+  }
+}
+
+function GraphLine({ active, d }: { active?: boolean; d: string }) {
+  return (
+    <path
+      d={d}
+      fill="none"
+      stroke={
+        active ? 'var(--landing-accent-bright)' : 'rgb(255 255 255 / 0.14)'
+      }
+      strokeLinecap="round"
+      strokeWidth={active ? 3 : 1.5}
+      className="transition-all duration-500 motion-reduce:transition-none"
+      style={{
+        filter: active
+          ? 'drop-shadow(0 0 4px rgb(var(--landing-glow) / 0.72))'
+          : undefined,
+      }}
+    />
+  )
+}
+
+function GraphLabel({
+  children,
+  x,
+  y,
+}: {
+  children: React.ReactNode
+  x: number
+  y: number
+}) {
+  return (
+    <div
+      className="absolute z-10 font-ds-mono text-[clamp(8px,2.5cqw,9px)] font-semibold uppercase tracking-[0.14em] text-white/25"
+      style={{
+        left: `${(x / 420) * 100}%`,
+        top: `${(y / 420) * 100}%`,
+      }}
+    >
+      {children}
+    </div>
+  )
+}
+
+function GraphNode({
+  active,
+  detail,
+  dotted,
+  kind,
+  label,
+  node,
+}: {
+  active?: boolean
+  detail?: string
+  dotted?: boolean
+  kind?: 'tanstack'
+  label: string
+  node: GraphNodePosition
+}) {
+  const isTanStack = kind === 'tanstack'
+  const className = isTanStack
+    ? active
+      ? 'absolute z-20 flex flex-col items-center justify-center rounded-lg border-2 border-[var(--landing-accent-bright)] bg-[linear-gradient(135deg,var(--landing-accent-bright),var(--landing-accent))] px-2 text-center font-ds-mono text-[clamp(8px,2.8cqw,10px)] font-semibold leading-tight text-[var(--landing-accent-ink)] shadow-[0_12px_28px_rgb(var(--landing-glow)/0.28)] ring-2 ring-[color:rgb(var(--landing-glow)/0.24)] transition-all duration-500 motion-reduce:transition-none'
+      : 'absolute z-20 flex flex-col items-center justify-center rounded-lg border-2 border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.15)] px-2 text-center font-ds-mono text-[clamp(8px,2.8cqw,10px)] font-semibold leading-tight text-[var(--landing-accent-bright)] transition-all duration-500 motion-reduce:transition-none'
+    : active
+      ? 'absolute z-20 flex flex-col items-center justify-center rounded-lg border border-white bg-white px-2 text-center font-ds-mono text-[clamp(8px,2.8cqw,10px)] font-semibold leading-tight text-[#111] shadow-[0_10px_24px_rgb(255_255_255/0.08)] transition-all duration-500 motion-reduce:transition-none'
+      : dotted
+        ? 'absolute z-20 flex flex-col items-center justify-center rounded-lg border border-dashed border-white/25 bg-[#111]/80 px-2 text-center font-ds-mono text-[clamp(8px,2.8cqw,10px)] font-medium leading-tight text-white/30 transition-all duration-500 motion-reduce:transition-none'
+        : 'absolute z-20 flex flex-col items-center justify-center rounded-lg border border-white/10 bg-[#111]/90 px-2 text-center font-ds-mono text-[clamp(8px,2.8cqw,10px)] font-medium leading-tight text-white/40 transition-all duration-500 motion-reduce:transition-none'
+
+  return (
+    <div style={graphStyle(node)} className={className}>
+      <span>{label}</span>
+      {detail ? (
+        <span className="mt-0.5 block text-[clamp(7px,2.2cqw,8px)] uppercase tracking-[0.08em] opacity-65">
+          {detail}
+        </span>
+      ) : null}
+    </div>
   )
 }
 

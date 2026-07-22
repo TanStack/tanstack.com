@@ -74,8 +74,8 @@ export default function HighlightLanding() {
   const [isLightTheme, setIsLightTheme] = React.useState(false)
 
   return (
-    <div className="w-full min-w-0 overflow-x-hidden bg-[#090b0e] text-zinc-100">
-      <section className="relative overflow-hidden border-b border-amber-300/15 bg-[#0b0e12]">
+    <div className="w-full min-w-0 overflow-x-hidden bg-[#f8f5ec] text-zinc-950 dark:bg-[#090b0e] dark:text-zinc-100">
+      <section className="relative overflow-hidden border-b border-amber-950/10 bg-[#f3eddd] dark:border-amber-300/15 dark:bg-[#0b0e12]">
         <SpectrumGrid />
         <div className="relative mx-auto grid w-full gap-9 px-4 py-10 lg:max-w-[80rem] lg:grid-cols-[0.82fr_1.18fr] lg:items-center lg:py-14 xl:max-w-[92rem]">
           <div className="max-w-3xl">
@@ -89,16 +89,16 @@ export default function HighlightLanding() {
                 <LibraryWordmark library={library} />
               </h1>
               {library.badge ? (
-                <span className="rounded-sm bg-amber-300 px-2 py-1 text-xs font-black uppercase text-zinc-950">
+                <span className="rounded-sm bg-zinc-950 px-2 py-1 text-xs font-black uppercase text-white dark:bg-amber-300 dark:text-zinc-950">
                   {library.badge}
                 </span>
               ) : null}
             </div>
 
-            <p className="mt-6 max-w-2xl text-2xl font-black leading-tight text-white sm:text-3xl">
+            <p className="mt-6 max-w-2xl text-2xl font-black leading-tight text-zinc-950 dark:text-white sm:text-3xl">
               Highlighting that knows it is going into a webpage.
             </p>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-400 sm:text-lg">
+            <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-700 dark:text-zinc-400 sm:text-lg">
               Register the languages your docs use, highlight synchronously, and
               ship one compact semantic HTML tree that every theme can share. No
               editor engine or initialization phase required.
@@ -117,7 +117,7 @@ export default function HighlightLanding() {
               <Link
                 to="/$libraryId/$version/docs"
                 params={{ libraryId: library.id, version: resolvedVersion }}
-                className="inline-flex items-center justify-center gap-2 rounded-md border border-amber-300 bg-amber-300 px-4 py-2.5 text-sm font-black text-zinc-950 transition-colors hover:bg-amber-200"
+                className="inline-flex items-center justify-center gap-2 rounded-md border border-amber-500 bg-amber-400 px-4 py-2.5 text-sm font-black text-zinc-950 transition-colors hover:bg-amber-300 dark:border-amber-300 dark:bg-amber-300 dark:hover:bg-amber-200"
               >
                 <BookOpen size={16} aria-hidden="true" /> Build a highlighter
               </Link>
@@ -127,7 +127,7 @@ export default function HighlightLanding() {
               />
             </div>
 
-            <div className="mt-8 grid grid-cols-3 border-y border-white/10 py-4 font-mono">
+            <div className="mt-8 grid grid-cols-3 border-y border-zinc-950/10 py-4 font-mono dark:border-white/10">
               <HeroStat value="1.74 KB" label="empty core" />
               <HeroStat value="25" label="languages" />
               <HeroStat value="1 tree" label="every theme" />
@@ -141,7 +141,7 @@ export default function HighlightLanding() {
         </div>
       </section>
 
-      <section className="border-b border-zinc-200 bg-[#f4f1e8] text-zinc-950">
+      <section className="border-b border-zinc-200 bg-[#f4f1e8] text-zinc-950 dark:border-zinc-800 dark:bg-[#15120c] dark:text-zinc-100">
         <div className="mx-auto grid w-full gap-10 px-4 py-14 lg:max-w-[80rem] lg:grid-cols-[0.7fr_1.3fr] xl:max-w-[92rem]">
           <div className="max-w-xl">
             <LightLabel>
@@ -150,14 +150,14 @@ export default function HighlightLanding() {
             <h2 className="mt-4 text-3xl font-black leading-tight sm:text-4xl">
               The registry is the bundle plan.
             </h2>
-            <p className="mt-4 text-base leading-7 text-zinc-700">
+            <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300">
               The core knows no languages. Direct imports make the site’s
               language set explicit, keep missing languages visible, and let the
               bundler discard everything else.
             </p>
-            <div className="mt-6 font-mono text-xs leading-6 text-zinc-500">
+            <div className="mt-6 font-mono text-xs leading-6 text-zinc-500 dark:text-zinc-400">
               <div>createHighlighter({'{'}</div>
-              <div className="pl-5 text-amber-800">
+              <div className="pl-5 text-amber-800 dark:text-amber-300">
                 languages: [tsx, css, markdown]
               </div>
               <div>{'}'})</div>
@@ -168,7 +168,7 @@ export default function HighlightLanding() {
         </div>
       </section>
 
-      <section className="border-b border-amber-300/15 bg-[#10141a]">
+      <section className="border-b border-amber-950/10 bg-[#fff8e7] text-zinc-950 dark:border-amber-300/15 dark:bg-[#10141a] dark:text-zinc-100">
         <div className="mx-auto grid w-full gap-10 px-4 py-14 lg:max-w-[80rem] lg:grid-cols-[0.76fr_1.24fr] lg:items-center xl:max-w-[92rem]">
           <div className="max-w-xl">
             <LabLabel>
@@ -177,8 +177,9 @@ export default function HighlightLanding() {
             <h2 className="mt-4 text-3xl font-black leading-tight sm:text-4xl">
               Change the palette. Keep the markup.
             </h2>
-            <p className="mt-4 text-base leading-7 text-zinc-400">
-              Tokens carry stable <code className="text-amber-300">th-*</code>{' '}
+            <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-400">
+              Tokens carry stable{' '}
+              <code className="text-amber-800 dark:text-amber-300">th-*</code>{' '}
               classes instead of theme colors. CSS variables recolor the same
               tree, so dark mode does not require a second highlighting pass or
               a second copy of the HTML.
@@ -189,7 +190,7 @@ export default function HighlightLanding() {
         </div>
       </section>
 
-      <section className="border-b border-zinc-200 bg-white text-zinc-950">
+      <section className="border-b border-zinc-200 bg-white text-zinc-950 dark:border-zinc-800 dark:bg-[#090b0e] dark:text-zinc-100">
         <div className="mx-auto w-full px-4 py-14 lg:max-w-[80rem] xl:max-w-[92rem]">
           <div className="grid gap-10 lg:grid-cols-[0.7fr_1.3fr]">
             <div className="max-w-xl">
@@ -199,7 +200,7 @@ export default function HighlightLanding() {
               <h2 className="mt-4 text-3xl font-black leading-tight sm:text-4xl">
                 Web languages rarely stay in their lane.
               </h2>
-              <p className="mt-4 text-base leading-7 text-zinc-700">
+              <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300">
                 HTML, Vue, Svelte, EJS, Markdown, and JavaScript templates embed
                 other languages. Highlight delegates those regions only when the
                 nested language is registered, while preserving every source
@@ -210,13 +211,13 @@ export default function HighlightLanding() {
             <EmbeddedLanguageMap />
           </div>
 
-          <div className="mt-12 grid gap-3 border-t border-zinc-200 pt-8 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-12 grid gap-3 border-t border-zinc-200 pt-8 dark:border-zinc-800 sm:grid-cols-2 lg:grid-cols-4">
             {languageGroups.map(([group, languages]) => (
               <div key={group}>
-                <div className="font-mono text-xs font-black uppercase tracking-widest text-amber-700">
+                <div className="font-mono text-xs font-black uppercase tracking-widest text-amber-700 dark:text-amber-300">
                   {group}
                 </div>
-                <p className="mt-2 text-sm leading-6 text-zinc-600">
+                <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
                   {languages}
                 </p>
               </div>
@@ -225,7 +226,7 @@ export default function HighlightLanding() {
         </div>
       </section>
 
-      <section className="border-b border-amber-300/15 bg-[#0b0e12]">
+      <section className="border-b border-amber-950/10 bg-[#f3eddd] text-zinc-950 dark:border-amber-300/15 dark:bg-[#0b0e12] dark:text-zinc-100">
         <div className="mx-auto grid w-full gap-10 px-4 py-14 lg:max-w-[80rem] lg:grid-cols-[1.2fr_0.8fr] lg:items-center xl:max-w-[92rem]">
           <AnnotationPanel />
           <div className="max-w-xl">
@@ -235,7 +236,7 @@ export default function HighlightLanding() {
             <h2 className="mt-4 text-3xl font-black leading-tight sm:text-4xl">
               Annotate the lesson, not the token stream.
             </h2>
-            <p className="mt-4 text-base leading-7 text-zinc-400">
+            <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-400">
               Highlight lines, exact character ranges, insertions, deletions,
               focus, errors, and warnings. Decorations split token boundaries
               cleanly without changing the underlying source or tokenizer.
@@ -245,7 +246,7 @@ export default function HighlightLanding() {
                 (annotation) => (
                   <span
                     key={annotation}
-                    className="border border-amber-300/20 bg-amber-300/5 px-3 py-2 text-amber-200"
+                    className="border border-amber-950/15 bg-white/40 px-3 py-2 text-amber-900 dark:border-amber-300/20 dark:bg-amber-300/5 dark:text-amber-200"
                   >
                     {annotation}
                   </span>
@@ -256,7 +257,7 @@ export default function HighlightLanding() {
         </div>
       </section>
 
-      <section className="border-b border-zinc-200 bg-[#f4f1e8] text-zinc-950">
+      <section className="border-b border-zinc-200 bg-[#f4f1e8] text-zinc-950 dark:border-zinc-800 dark:bg-[#15120c] dark:text-zinc-100">
         <div className="mx-auto w-full px-4 py-14 lg:max-w-[80rem] xl:max-w-[92rem]">
           <div className="grid gap-10 lg:grid-cols-[0.7fr_1.3fr]">
             <div className="max-w-xl">
@@ -266,7 +267,7 @@ export default function HighlightLanding() {
               <h2 className="mt-4 text-3xl font-black leading-tight sm:text-4xl">
                 Tuned against the docs it will actually render.
               </h2>
-              <p className="mt-4 text-base leading-7 text-zinc-700">
+              <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300">
                 The committed corpus samples 333 fixtures from 2,940 TanStack
                 documentation files. Release checks cover token fidelity,
                 deterministic HTML, bundle profiles, and at least 10,000 blocks
@@ -279,7 +280,7 @@ export default function HighlightLanding() {
         </div>
       </section>
 
-      <section className="border-b border-zinc-200 bg-white text-zinc-950">
+      <section className="border-b border-zinc-200 bg-white text-zinc-950 dark:border-zinc-800 dark:bg-[#090b0e] dark:text-zinc-100">
         <div className="mx-auto grid w-full gap-10 px-4 py-14 lg:max-w-[80rem] lg:grid-cols-[0.72fr_1.28fr] xl:max-w-[92rem]">
           <div className="max-w-xl">
             <LightLabel>
@@ -288,7 +289,7 @@ export default function HighlightLanding() {
             <h2 className="mt-4 text-3xl font-black leading-tight sm:text-4xl">
               A docs highlighter is not an editor highlighter.
             </h2>
-            <p className="mt-4 text-base leading-7 text-zinc-700">
+            <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300">
               Highlight is optimized for known web languages and compact page
               output. It deliberately does not chase TextMate completeness,
               automatic detection, hundreds of languages, or incremental editor
@@ -296,7 +297,7 @@ export default function HighlightLanding() {
             </p>
           </div>
 
-          <div className="divide-y divide-zinc-200 border-y border-zinc-300">
+          <div className="divide-y divide-zinc-200 border-y border-zinc-300 dark:divide-zinc-800 dark:border-zinc-700">
             <ChoiceRow
               name="TanStack Highlight"
               useWhen="Known docs languages, compact HTML, CSS themes, and annotations matter most."
@@ -313,7 +314,7 @@ export default function HighlightLanding() {
         </div>
       </section>
 
-      <section className="border-b border-amber-300/15 bg-[#10141a]">
+      <section className="border-b border-amber-950/10 bg-[#fff8e7] text-zinc-950 dark:border-amber-300/15 dark:bg-[#10141a] dark:text-zinc-100">
         <div className="mx-auto grid w-full gap-10 px-4 py-14 lg:max-w-[80rem] lg:grid-cols-[1.08fr_0.92fr] lg:items-center xl:max-w-[92rem]">
           <div>
             <LabLabel>
@@ -322,7 +323,7 @@ export default function HighlightLanding() {
             <h2 className="mt-4 max-w-3xl text-3xl font-black leading-tight sm:text-4xl">
               Drop it into Markdown without hiding the language set.
             </h2>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-400">
+            <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-700 dark:text-zinc-400">
               Use the direct renderer, a structured remark adapter, an
               idempotent rehype adapter, or the Octane MDX path. Every adapter
               receives the highlighter you assembled; none imports every
@@ -333,19 +334,19 @@ export default function HighlightLanding() {
           <Link
             to="/$libraryId"
             params={{ libraryId: markdownLibrary.id }}
-            className="group border border-amber-300/20 bg-amber-300/5 p-6 transition-colors hover:bg-amber-300/10"
+            className="group border border-amber-950/15 bg-white/45 p-6 transition-colors hover:bg-white/75 dark:border-amber-300/20 dark:bg-amber-300/5 dark:hover:bg-amber-300/10"
           >
-            <div className="font-mono text-xs font-bold uppercase tracking-widest text-amber-300">
+            <div className="font-mono text-xs font-bold uppercase tracking-widest text-amber-800 dark:text-amber-300">
               Natural companion
             </div>
             <div className="mt-4 text-2xl font-black">
               <LibraryWordmark library={markdownLibrary} />
             </div>
-            <p className="mt-3 text-sm leading-6 text-zinc-400">
+            <p className="mt-3 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
               A serializable document model that keeps code highlighting at an
               explicit boundary.
             </p>
-            <div className="mt-6 inline-flex items-center gap-2 text-sm font-black text-white">
+            <div className="mt-6 inline-flex items-center gap-2 text-sm font-black text-zinc-950 dark:text-white">
               Explore Markdown
               <ArrowRight
                 size={16}
@@ -357,7 +358,7 @@ export default function HighlightLanding() {
         </div>
       </section>
 
-      <section className="bg-[#0b0e12] py-14">
+      <section className="bg-[#f3eddd] py-14 text-zinc-950 dark:bg-[#0b0e12] dark:text-zinc-100">
         <div className="mx-auto w-full max-w-[80rem] px-4 xl:max-w-[92rem]">
           <LabLabel>
             <GithubIcon className="h-3.5 w-3.5" /> Open source, measured in
@@ -366,7 +367,7 @@ export default function HighlightLanding() {
           <h2 className="mt-4 max-w-3xl text-3xl font-black leading-tight sm:text-4xl">
             Every byte and every fixture has a job.
           </h2>
-          <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-400">
+          <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-700 dark:text-zinc-400">
             Language scanners, embedded delegation, renderer output, adapters,
             and bundle profiles are checked against the same committed corpus.
           </p>
@@ -384,7 +385,7 @@ export default function HighlightLanding() {
       </section>
 
       <LandingPageGad />
-      <section className="border-y border-zinc-200 bg-amber-300 px-4 py-14 text-center text-zinc-950">
+      <section className="border-y border-amber-500/30 bg-amber-300 px-4 py-14 text-center text-zinc-950 dark:border-amber-300/20 dark:bg-amber-400">
         <p className="font-mono text-xs font-black uppercase tracking-widest">
           Register. Highlight. Ship.
         </p>
@@ -591,11 +592,11 @@ function Token({
 
 function HeroStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="border-r border-white/10 px-3 first:pl-0 last:border-r-0">
-      <div className="text-sm font-black text-amber-300 sm:text-base">
+    <div className="border-r border-zinc-950/10 px-3 first:pl-0 last:border-r-0 dark:border-white/10">
+      <div className="text-sm font-black text-amber-800 dark:text-amber-300 sm:text-base">
         {value}
       </div>
-      <div className="mt-1 text-[10px] uppercase tracking-wider text-zinc-500">
+      <div className="mt-1 text-[10px] uppercase tracking-wider text-zinc-600 dark:text-zinc-500">
         {label}
       </div>
     </div>
@@ -604,8 +605,8 @@ function HeroStat({ label, value }: { label: string; value: string }) {
 
 function BundleDial() {
   return (
-    <div className="border border-zinc-300 bg-white p-5 shadow-sm sm:p-6">
-      <div className="flex items-center justify-between gap-4 border-b border-zinc-200 pb-3 font-mono text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+    <div className="border border-zinc-300 bg-white p-5 shadow-sm dark:border-zinc-700 dark:bg-[#0f1115] sm:p-6">
+      <div className="flex items-center justify-between gap-4 border-b border-zinc-200 pb-3 font-mono text-[10px] font-bold uppercase tracking-widest text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
         <span>gzip profile</span>
         <span>add only what is used →</span>
       </div>
@@ -613,11 +614,15 @@ function BundleDial() {
         {bundleProfiles.map((profile) => (
           <div key={profile.name}>
             <div className="mb-2 grid grid-cols-[4rem_1fr_auto] items-center gap-3 font-mono text-xs">
-              <span className="font-black text-amber-800">{profile.name}</span>
-              <span className="text-zinc-500">{profile.detail}</span>
+              <span className="font-black text-amber-800 dark:text-amber-300">
+                {profile.name}
+              </span>
+              <span className="text-zinc-500 dark:text-zinc-400">
+                {profile.detail}
+              </span>
               <span className="font-black">{profile.size}</span>
             </div>
-            <div className="h-2 bg-zinc-100">
+            <div className="h-2 bg-zinc-100 dark:bg-zinc-800">
               <div
                 className={`h-full bg-linear-to-r from-amber-400 via-orange-400 to-fuchsia-500 ${profile.width}`}
               />
@@ -631,39 +636,49 @@ function BundleDial() {
 
 function ThemeContract() {
   return (
-    <div className="grid overflow-hidden border border-white/15 font-mono text-xs md:grid-cols-2">
-      <div className="border-b border-white/10 bg-[#0b0e12] p-5 md:border-b-0 md:border-r">
+    <div className="grid overflow-hidden border border-amber-950/15 font-mono text-xs dark:border-white/15 md:grid-cols-2">
+      <div className="border-b border-amber-950/10 bg-white/70 p-5 dark:border-white/10 dark:bg-[#0b0e12] md:border-b-0 md:border-r">
         <div className="text-zinc-500">output.html</div>
-        <div className="mt-4 leading-7 text-zinc-300">
+        <div className="mt-4 leading-7 text-zinc-700 dark:text-zinc-300">
           <span className="text-zinc-500">&lt;span class=</span>
-          <span className="text-emerald-300">&quot;th-keyword&quot;</span>
+          <span className="text-emerald-700 dark:text-emerald-300">
+            &quot;th-keyword&quot;
+          </span>
           <span className="text-zinc-500">&gt;</span>
           <br />
           {'  '}const
           <br />
           <span className="text-zinc-500">&lt;/span&gt;</span>
         </div>
-        <div className="mt-6 border-t border-white/10 pt-3 text-[10px] uppercase tracking-widest text-amber-300">
+        <div className="mt-6 border-t border-amber-950/10 pt-3 text-[10px] uppercase tracking-widest text-amber-800 dark:border-white/10 dark:text-amber-300">
           emitted once
         </div>
       </div>
-      <div className="bg-[#151a22] p-5">
+      <div className="bg-amber-100/45 p-5 dark:bg-[#151a22]">
         <div className="text-zinc-500">themes.css</div>
         <div className="mt-4 space-y-4 leading-6">
           <div>
-            <span className="text-cyan-300">[data-theme=light]</span>
+            <span className="text-cyan-700 dark:text-cyan-300">
+              [data-theme=light]
+            </span>
             <br />
             <span className="text-zinc-500">--th-keyword:</span>{' '}
-            <span className="text-fuchsia-300">#a21caf</span>
+            <span className="text-fuchsia-700 dark:text-fuchsia-300">
+              #a21caf
+            </span>
           </div>
           <div>
-            <span className="text-cyan-300">[data-theme=dark]</span>
+            <span className="text-cyan-700 dark:text-cyan-300">
+              [data-theme=dark]
+            </span>
             <br />
             <span className="text-zinc-500">--th-keyword:</span>{' '}
-            <span className="text-fuchsia-300">#f0abfc</span>
+            <span className="text-fuchsia-700 dark:text-fuchsia-300">
+              #f0abfc
+            </span>
           </div>
         </div>
-        <div className="mt-6 border-t border-white/10 pt-3 text-[10px] uppercase tracking-widest text-amber-300">
+        <div className="mt-6 border-t border-amber-950/10 pt-3 text-[10px] uppercase tracking-widest text-amber-800 dark:border-white/10 dark:text-amber-300">
           recolored by CSS
         </div>
       </div>
@@ -789,8 +804,8 @@ function AnnotatedLine({
 
 function BenchmarkTape() {
   return (
-    <div className="border border-zinc-300 bg-white shadow-sm">
-      <div className="grid grid-cols-[1fr_auto_auto] gap-4 border-b border-zinc-200 px-4 py-3 font-mono text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+    <div className="border border-zinc-300 bg-white shadow-sm dark:border-zinc-700 dark:bg-[#0f1115]">
+      <div className="grid grid-cols-[1fr_auto_auto] gap-4 border-b border-zinc-200 px-4 py-3 font-mono text-[10px] font-bold uppercase tracking-widest text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
         <span>TanStack docs corpus</span>
         <span>time</span>
         <span>HTML</span>
@@ -807,18 +822,21 @@ function BenchmarkTape() {
         output="1,252 KiB"
         emphasis={false}
       />
-      <div className="grid gap-3 border-t border-zinc-200 bg-zinc-50 px-4 py-4 font-mono text-[11px] text-zinc-600 sm:grid-cols-3">
+      <div className="grid gap-3 border-t border-zinc-200 bg-zinc-50 px-4 py-4 font-mono text-[11px] text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400 sm:grid-cols-3">
         <span>
-          <strong className="text-zinc-950">2,940</strong> docs files scanned
+          <strong className="text-zinc-950 dark:text-zinc-100">2,940</strong>{' '}
+          docs files scanned
         </span>
         <span>
-          <strong className="text-zinc-950">333</strong> committed fixtures
+          <strong className="text-zinc-950 dark:text-zinc-100">333</strong>{' '}
+          committed fixtures
         </span>
         <span>
-          <strong className="text-zinc-950">10,000+</strong> blocks per gate
+          <strong className="text-zinc-950 dark:text-zinc-100">10,000+</strong>{' '}
+          blocks per gate
         </span>
       </div>
-      <p className="border-t border-zinc-200 px-4 py-3 text-xs leading-5 text-zinc-500">
+      <p className="border-t border-zinc-200 px-4 py-3 text-xs leading-5 text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
         Project benchmark report. This measures the tested corpus and output
         shape, not equivalent grammar accuracy; Shiki targets deeper TextMate
         fidelity.
@@ -840,10 +858,14 @@ function BenchmarkRow({
 }) {
   return (
     <div
-      className={`grid grid-cols-[1fr_auto_auto] gap-4 border-b border-zinc-200 px-4 py-4 font-mono text-xs last:border-b-0 ${emphasis ? 'bg-amber-50' : ''}`}
+      className={`grid grid-cols-[1fr_auto_auto] gap-4 border-b border-zinc-200 px-4 py-4 font-mono text-xs last:border-b-0 dark:border-zinc-800 ${emphasis ? 'bg-amber-50 dark:bg-amber-300/10' : ''}`}
     >
       <span
-        className={emphasis ? 'font-black text-amber-900' : 'text-zinc-600'}
+        className={
+          emphasis
+            ? 'font-black text-amber-900 dark:text-amber-200'
+            : 'text-zinc-600 dark:text-zinc-400'
+        }
       >
         {name}
       </span>
@@ -857,16 +879,23 @@ function ChoiceRow({ name, useWhen }: { name: string; useWhen: string }) {
   return (
     <div className="grid gap-2 py-5 sm:grid-cols-[12rem_1fr] sm:gap-5">
       <div className="inline-flex items-center gap-2 font-black">
-        <Check size={15} aria-hidden="true" className="text-amber-600" /> {name}
+        <Check
+          size={15}
+          aria-hidden="true"
+          className="text-amber-600 dark:text-amber-300"
+        />{' '}
+        {name}
       </div>
-      <p className="text-sm leading-6 text-zinc-600">{useWhen}</p>
+      <p className="text-sm leading-6 text-zinc-600 dark:text-zinc-400">
+        {useWhen}
+      </p>
     </div>
   )
 }
 
 function LabLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="inline-flex items-center gap-2 font-mono text-xs font-black uppercase tracking-widest text-amber-300">
+    <div className="inline-flex items-center gap-2 font-mono text-xs font-black uppercase tracking-widest text-amber-800 dark:text-amber-300">
       {children}
     </div>
   )
@@ -874,7 +903,7 @@ function LabLabel({ children }: { children: React.ReactNode }) {
 
 function LightLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="inline-flex items-center gap-2 font-mono text-xs font-black uppercase tracking-widest text-amber-700">
+    <div className="inline-flex items-center gap-2 font-mono text-xs font-black uppercase tracking-widest text-amber-700 dark:text-amber-300">
       {children}
     </div>
   )

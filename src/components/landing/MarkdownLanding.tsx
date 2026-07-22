@@ -142,7 +142,7 @@ export default function MarkdownLanding() {
         </div>
       </section>
 
-      <section className="border-b border-violet-950/10 bg-[#201725] text-white dark:border-violet-200/10 dark:bg-[#0b080d]">
+      <section className="border-b border-violet-950/10 bg-[#e8dcec] text-[#201725] dark:border-violet-200/10 dark:bg-[#0b080d] dark:text-white">
         <div className="mx-auto grid w-full gap-10 px-4 py-14 lg:max-w-[80rem] lg:grid-cols-[0.66fr_1.34fr] lg:items-center xl:max-w-[92rem]">
           <div className="max-w-xl">
             <DarkEyebrow>
@@ -151,7 +151,7 @@ export default function MarkdownLanding() {
             <h2 className="mt-4 text-4xl font-black leading-[1.02] sm:text-5xl">
               The AST is the product.
             </h2>
-            <p className="mt-5 text-base leading-7 text-violet-100/75 sm:text-lg">
+            <p className="mt-5 text-base leading-7 text-violet-950/65 dark:text-violet-100/75 sm:text-lg">
               Parsing does not trap your content inside a renderer. The public
               tree is ordinary data, so the expensive decision can happen once
               while every downstream use stays cheap and predictable.
@@ -247,7 +247,7 @@ export default function MarkdownLanding() {
         </div>
       </section>
 
-      <section className="border-b border-violet-950/10 bg-[#201725] text-white dark:border-violet-200/10 dark:bg-[#0b080d]">
+      <section className="border-b border-violet-950/10 bg-[#e8dcec] text-[#201725] dark:border-violet-200/10 dark:bg-[#0b080d] dark:text-white">
         <div className="mx-auto grid w-full gap-10 px-4 py-14 lg:max-w-[80rem] lg:grid-cols-[1.1fr_0.9fr] lg:items-center xl:max-w-[92rem]">
           <div>
             <DarkEyebrow>
@@ -256,20 +256,20 @@ export default function MarkdownLanding() {
             <h2 className="mt-4 max-w-3xl text-3xl font-black leading-tight sm:text-4xl">
               Syntax highlighting stays outside the parser.
             </h2>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-violet-100/75">
+            <p className="mt-4 max-w-2xl text-base leading-7 text-violet-950/65 dark:text-violet-100/75">
               Code fences carry language and metadata. An explicit highlighter
               can render them later, so the core never silently imports a
               grammar engine. The same boundary works with your own highlighter
               or TanStack Highlight.
             </p>
-            <div className="mt-6 flex flex-wrap gap-2 font-mono text-xs text-violet-100/75">
-              <span className="border border-violet-300/20 px-3 py-2">
+            <div className="mt-6 flex flex-wrap gap-2 font-mono text-xs text-violet-950/65 dark:text-violet-100/75">
+              <span className="border border-violet-950/15 px-3 py-2 dark:border-violet-300/20">
                 callouts · 0.4 KB
               </span>
-              <span className="border border-violet-300/20 px-3 py-2">
+              <span className="border border-violet-950/15 px-3 py-2 dark:border-violet-300/20">
                 docs preset · 2.4 KB
               </span>
-              <span className="border border-violet-300/20 px-3 py-2">
+              <span className="border border-violet-950/15 px-3 py-2 dark:border-violet-300/20">
                 heading collection
               </span>
             </div>
@@ -278,15 +278,15 @@ export default function MarkdownLanding() {
           <Link
             to="/$libraryId"
             params={{ libraryId: highlightLibrary.id }}
-            className="group border border-violet-300/20 bg-violet-300/5 p-6 transition-colors hover:bg-violet-300/10"
+            className="group border border-violet-950/15 bg-white/35 p-6 transition-colors hover:bg-white/60 dark:border-violet-300/20 dark:bg-violet-300/5 dark:hover:bg-violet-300/10"
           >
-            <div className="font-mono text-xs font-bold uppercase tracking-widest text-violet-300">
+            <div className="font-mono text-xs font-bold uppercase tracking-widest text-violet-700 dark:text-violet-300">
               Companion, not dependency
             </div>
             <div className="mt-4 text-2xl font-black">
               <LibraryWordmark library={highlightLibrary} />
             </div>
-            <p className="mt-3 text-sm leading-6 text-violet-100/65">
+            <p className="mt-3 text-sm leading-6 text-violet-950/60 dark:text-violet-100/65">
               Tiny, synchronous highlighting for the code fences your document
               model already understands.
             </p>
@@ -415,25 +415,29 @@ function TreeLine({
 function DocumentModel() {
   return (
     <div className="grid min-w-0 gap-3 font-mono text-xs sm:grid-cols-[0.85fr_auto_1.15fr] sm:items-center">
-      <div className="border border-violet-300/20 bg-white/5 p-4">
-        <div className="text-violet-300">Document</div>
-        <div className="mt-3 space-y-2 text-violet-100/65">
+      <div className="border border-violet-950/15 bg-white/35 p-4 dark:border-violet-300/20 dark:bg-white/5">
+        <div className="text-violet-700 dark:text-violet-300">Document</div>
+        <div className="mt-3 space-y-2 text-violet-950/60 dark:text-violet-100/65">
           <div>type: root</div>
           <div>children: Node[]</div>
           <div>metadata: serializable</div>
         </div>
       </div>
-      <div className="hidden h-px w-8 bg-violet-300/40 sm:block" />
-      <div className="grid gap-px bg-violet-300/15 sm:grid-cols-2">
+      <div className="hidden h-px w-8 bg-violet-950/20 dark:bg-violet-300/40 sm:block" />
+      <div className="grid gap-px bg-violet-950/10 dark:bg-violet-300/15 sm:grid-cols-2">
         {[
           ['HTML', 'render on the server'],
           ['React', 'render as components'],
           ['Octane', 'render in Glimmer'],
           ['JSON', 'cache, inspect, index'],
         ].map(([label, detail]) => (
-          <div key={label} className="bg-[#201725] p-4 dark:bg-[#0b080d]">
-            <div className="font-black text-white">{label}</div>
-            <div className="mt-1 text-violet-100/50">{detail}</div>
+          <div key={label} className="bg-[#f7f2f8] p-4 dark:bg-[#0b080d]">
+            <div className="font-black text-[#201725] dark:text-white">
+              {label}
+            </div>
+            <div className="mt-1 text-violet-950/50 dark:text-violet-100/50">
+              {detail}
+            </div>
           </div>
         ))}
       </div>
@@ -557,7 +561,7 @@ function Eyebrow({ children }: { children: ReactNode }) {
 
 function DarkEyebrow({ children }: { children: ReactNode }) {
   return (
-    <div className="inline-flex items-center gap-2 font-mono text-xs font-black uppercase tracking-widest text-violet-300">
+    <div className="inline-flex items-center gap-2 font-mono text-xs font-black uppercase tracking-widest text-violet-700 dark:text-violet-300">
       {children}
     </div>
   )

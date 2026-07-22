@@ -156,13 +156,13 @@ function ReplayHero() {
   return (
     <LandingWindow label="durable execution log">
       <div className="grid min-h-[24rem] md:grid-cols-[0.94fr_1.06fr]">
-        <div className="border-white/5 p-4 md:border-r">
+        <div className="border-border-subtle p-4 md:border-r">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-white/25">
+              <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
                 run
               </p>
-              <p className="mt-1 font-ds-mono text-[11px] text-white">
+              <p className="mt-1 font-ds-mono text-[11px] text-text-primary">
                 order-4832
               </p>
             </div>
@@ -182,16 +182,16 @@ function ReplayHero() {
             {rows.map((row, index) => (
               <div
                 key={row.label}
-                className="grid grid-cols-[2rem_1fr] gap-3 rounded-lg border border-white/5 bg-[#141414] p-3"
+                className="grid grid-cols-[2rem_1fr] gap-3 rounded-lg border border-border-subtle bg-background-subtle p-3"
               >
                 <span className="flex size-8 items-center justify-center rounded-full bg-[color:rgb(var(--landing-glow)/0.16)] font-ds-mono text-[10px] text-[var(--landing-accent-bright)]">
                   {index + 1}
                 </span>
                 <div className="min-w-0">
-                  <p className="truncate text-ds-label-sm text-white">
+                  <p className="truncate text-ds-label-sm text-text-primary">
                     {row.label}
                   </p>
-                  <p className="mt-1 font-ds-mono text-[9px] text-white/30">
+                  <p className="mt-1 font-ds-mono text-[9px] text-text-primary/30">
                     {row.state}
                   </p>
                 </div>
@@ -208,20 +208,20 @@ function ReplayHero() {
         </div>
 
         <div className="min-w-0 p-4" aria-live="polite">
-          <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-white/25">
+          <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
             append-only history
           </p>
           <ol className="mt-4 space-y-2">
             {events.map(([event, detail], index) => (
               <li
                 key={`${event}-${index}`}
-                className="grid grid-cols-[auto_1fr] gap-3 rounded-lg bg-black px-3 py-2.5"
+                className="grid grid-cols-[auto_1fr] gap-3 rounded-lg bg-ds-neutral-500 px-3 py-2.5"
               >
                 <span className="font-ds-mono text-[9px] text-white/20">
                   {String(index + 1).padStart(2, '0')}
                 </span>
                 <div className="min-w-0">
-                  <p className="font-ds-mono text-[10px] text-[var(--landing-accent-bright)]">
+                  <p className="font-ds-mono text-[10px] text-[var(--landing-accent-dark)]">
                     {event}
                   </p>
                   <p className="mt-1 truncate font-ds-mono text-[9px] text-white/30">
@@ -240,7 +240,7 @@ function ReplayHero() {
 function WorkflowCode() {
   return (
     <LandingWindow label="order-workflow.ts">
-      <div className="overflow-x-auto p-5 font-ds-mono text-[11px] leading-6 text-white/60 sm:p-6">
+      <div className="overflow-x-auto bg-ds-neutral-500 p-5 font-ds-mono text-[11px] leading-6 text-white/60 sm:p-6">
         <p>
           <span className="text-sky-300">export async function</span>{' '}
           fulfillOrder(input, ctx) {'{'}
@@ -295,7 +295,7 @@ function WaitLab() {
               key={item.id}
               type="button"
               aria-pressed={index === activeIndex}
-              className="rounded-lg border border-white/10 px-3 py-2 text-ds-label-sm text-white/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
+              className="rounded-lg border border-border-default px-3 py-2 text-ds-label-sm text-text-primary/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
               onClick={() => setActiveIndex(index)}
             >
               {item.label}
@@ -303,25 +303,25 @@ function WaitLab() {
           ))}
         </div>
         <div
-          className="mt-5 overflow-x-auto rounded-lg bg-black p-4 font-ds-mono text-[11px] text-white/60"
+          className="mt-5 overflow-x-auto rounded-lg bg-ds-neutral-500 p-4 font-ds-mono text-[11px] text-white/60"
           aria-live="polite"
         >
           {mode.code}
         </div>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
-          <div className="rounded-lg border border-white/5 bg-[#121212] p-4">
-            <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-white/25">
+          <div className="rounded-lg border border-border-subtle bg-background-subtle p-4">
+            <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
               history record
             </p>
             <p className="mt-3 font-ds-mono text-[10px] text-[var(--landing-accent-bright)]">
               {mode.stored}
             </p>
           </div>
-          <div className="rounded-lg border border-white/5 bg-[#121212] p-4">
-            <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-white/25">
+          <div className="rounded-lg border border-border-subtle bg-background-subtle p-4">
+            <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
               worker
             </p>
-            <p className="mt-3 font-ds-mono text-[10px] text-white/45">
+            <p className="mt-3 font-ds-mono text-[10px] text-text-primary/45">
               free to stop while waiting
             </p>
           </div>
@@ -357,7 +357,7 @@ function RuntimeBoundary() {
           const Icon = layer.icon
           return (
             <React.Fragment key={layer.label}>
-              <div className="min-w-0 flex-1 rounded-xl border border-white/10 bg-[#111] p-6">
+              <div className="min-w-0 flex-1 rounded-xl border border-border-default bg-background-surface p-6">
                 <Icon
                   aria-hidden="true"
                   className="text-[var(--landing-accent-bright)]"
@@ -365,7 +365,7 @@ function RuntimeBoundary() {
                   weight="light"
                 />
                 <h3 className="mt-5 text-ds-heading-4">{layer.label}</h3>
-                <p className="mt-3 text-ds-body-xs text-white/35">
+                <p className="mt-3 text-ds-body-xs text-text-primary/35">
                   {layer.detail}
                 </p>
               </div>
@@ -380,24 +380,24 @@ function RuntimeBoundary() {
         })}
       </div>
       <div className="mt-5 grid gap-3 md:grid-cols-2">
-        <div className="flex items-start gap-3 rounded-lg border border-white/10 bg-[#101010] p-5">
+        <div className="flex items-start gap-3 rounded-lg border border-border-default bg-background-surface p-5">
           <ArrowCounterClockwise
             aria-hidden="true"
             className="mt-0.5 shrink-0 text-[var(--landing-accent-bright)]"
             size={19}
           />
-          <p className="text-ds-body-xs text-white/40">
+          <p className="text-ds-body-xs text-text-primary/40">
             Replay skips recorded steps. It does not make arbitrary external
             side effects exactly once; use idempotent boundaries.
           </p>
         </div>
-        <div className="flex items-start gap-3 rounded-lg border border-white/10 bg-[#101010] p-5">
+        <div className="flex items-start gap-3 rounded-lg border border-border-default bg-background-surface p-5">
           <HandPalm
             aria-hidden="true"
             className="mt-0.5 shrink-0 text-[var(--landing-accent-bright)]"
             size={19}
           />
-          <p className="text-ds-body-xs text-white/40">
+          <p className="text-ds-body-xs text-text-primary/40">
             Route existing runs to compatible workflow versions when definitions
             evolve.
           </p>

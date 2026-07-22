@@ -98,17 +98,17 @@ export default function VirtualLanding() {
               return (
                 <div
                   key={surface.label}
-                  className="rounded-xl border border-white/8 bg-[#101010] p-5"
+                  className="rounded-xl border border-border-subtle bg-background-surface p-5"
                 >
                   <Icon
                     aria-hidden="true"
-                    className="text-[var(--landing-accent)]"
+                    className="text-[var(--landing-accent-bright)]"
                     size={21}
                   />
-                  <p className="mt-7 text-ds-heading-4 text-white">
+                  <p className="mt-7 text-ds-heading-4 text-text-primary">
                     {surface.label}
                   </p>
-                  <p className="mt-2 text-ds-body-xs text-white/35">
+                  <p className="mt-2 text-ds-body-xs text-text-primary/35">
                     {surface.body}
                   </p>
                 </div>
@@ -146,11 +146,11 @@ function VirtualizerLab() {
   return (
     <LandingWindow label="100k row viewport">
       <div className="grid min-h-[23rem] md:grid-cols-[1fr_11rem]">
-        <div className="border-white/5 p-4 md:border-r">
+        <div className="border-border-subtle p-4 md:border-r">
           <div
             ref={scrollRef}
             aria-label="Virtualized scroll viewport"
-            className="relative overflow-y-auto rounded-lg border border-white/7 bg-black/35 outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent)]"
+            className="relative overflow-y-auto rounded-lg border border-white/10 bg-ds-neutral-500 outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
             onScroll={(event) => setScrollTop(event.currentTarget.scrollTop)}
             role="region"
             style={{ height: VIEWPORT_HEIGHT }}
@@ -199,7 +199,7 @@ function VirtualizerLab() {
             ].map(([label, index]) => (
               <button
                 key={label}
-                className="rounded-md border border-white/8 px-3 py-1.5 font-ds-mono text-[9px] uppercase tracking-[0.1em] text-white/35 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent)]"
+                className="rounded-md border border-border-default px-3 py-1.5 font-ds-mono text-[9px] uppercase tracking-[0.1em] text-text-primary/35 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
                 onClick={() => jumpTo(Number(index))}
                 type="button"
               >
@@ -226,10 +226,10 @@ function VirtualizerLab() {
             <ViewportMetric label="overscan" value={`${OVERSCAN} each side`} />
           </dl>
           <div className="mt-auto rounded-lg bg-[color:rgb(var(--landing-glow)/0.12)] p-3">
-            <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-[var(--landing-accent)]">
+            <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-[var(--landing-accent-bright)]">
               full scroll range
             </p>
-            <p className="mt-2 font-ds-mono text-xs text-white">
+            <p className="mt-2 font-ds-mono text-xs text-text-primary">
               {(TOTAL_ROWS * ROW_HEIGHT).toLocaleString()}px
             </p>
           </div>
@@ -249,14 +249,14 @@ function MeasurementLab() {
   return (
     <LandingWindow label="measure pass">
       <div className="grid gap-5 p-5 sm:grid-cols-[1fr_11rem] sm:p-6">
-        <div className="flex h-72 items-start gap-2 overflow-hidden rounded-lg border border-white/6 bg-black/30 p-4">
+        <div className="flex h-72 items-start gap-2 overflow-hidden rounded-lg border border-border-subtle bg-background-subtle p-4">
           {heights.map((height, index) => (
             <div
               key={index}
               className="min-w-0 flex-1 rounded-md border border-[color:rgb(var(--landing-glow)/0.25)] bg-[color:rgb(var(--landing-glow)/0.09)] p-2 transition-[height] duration-500 motion-reduce:transition-none"
               style={{ height }}
             >
-              <span className="block font-ds-mono text-[8px] uppercase tracking-[0.1em] text-white/25">
+              <span className="block font-ds-mono text-[8px] uppercase tracking-[0.1em] text-text-primary/25">
                 row {241 + index}
               </span>
               <span className="mt-2 block font-ds-mono text-[10px] text-[var(--landing-accent-bright)]">
@@ -316,7 +316,7 @@ function ChatContract() {
       <div className="p-4 sm:p-5">
         <div className="flex items-center justify-between gap-3">
           <button
-            className="rounded-md border border-white/8 px-3 py-1.5 text-ds-label-sm text-white/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent)]"
+            className="rounded-md border border-border-default px-3 py-1.5 text-ds-label-sm text-text-primary/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
             onClick={() => {
               setEarlierCount((count) => count + 2)
               setAtLatest(false)
@@ -326,18 +326,18 @@ function ChatContract() {
           >
             Load earlier
           </button>
-          <span className="font-ds-mono text-[9px] uppercase tracking-[0.12em] text-white/25">
+          <span className="font-ds-mono text-[9px] uppercase tracking-[0.12em] text-text-primary/25">
             {atLatest ? 'following end' : 'anchor preserved'}
           </span>
         </div>
 
-        <div className="relative mt-4 h-60 overflow-hidden rounded-lg border border-white/6 bg-black/30 p-4">
-          <div className="absolute inset-x-0 top-0 h-5 bg-gradient-to-b from-black/70 to-transparent" />
+        <div className="relative mt-4 h-60 overflow-hidden rounded-lg border border-border-subtle bg-background-subtle p-4">
+          <div className="absolute inset-x-0 top-0 h-5 bg-gradient-to-b from-background-subtle to-transparent" />
           <div className="space-y-2 pt-2">
             {messages.map((message, index) => (
               <div
                 key={`${message}-${index}`}
-                className={`max-w-[85%] rounded-lg px-3 py-2 text-ds-body-xs ${index % 2 === 0 ? 'bg-white/[0.055] text-white/55' : 'ml-auto bg-[color:rgb(var(--landing-glow)/0.18)] text-white/75'}`}
+                className={`max-w-[85%] rounded-lg px-3 py-2 text-ds-body-xs ${index % 2 === 0 ? 'bg-text-primary/[0.055] text-text-primary/55' : 'ml-auto bg-[color:rgb(var(--landing-glow)/0.18)] text-text-primary/75'}`}
               >
                 {message}
               </div>
@@ -359,7 +359,7 @@ function ChatContract() {
 
         <div className="mt-4 flex flex-wrap justify-between gap-3">
           <button
-            className="rounded-md border border-white/8 px-3 py-1.5 text-ds-label-sm text-white/45 disabled:opacity-25"
+            className="rounded-md border border-border-default px-3 py-1.5 text-ds-label-sm text-text-primary/45 disabled:opacity-25"
             disabled={atLatest}
             onClick={() => {
               setAtLatest(true)
@@ -394,19 +394,21 @@ function SnapshotPanel() {
         <LandingEyebrow icon={<FloppyDisk aria-hidden="true" size={14} />}>
           leave → return
         </LandingEyebrow>
-        <div className="mt-7 rounded-lg border border-white/6 bg-black/30 p-4">
-          <p className="font-ds-mono text-[9px] uppercase tracking-[0.13em] text-white/25">
+        <div className="mt-7 rounded-lg border border-border-subtle bg-background-subtle p-4">
+          <p className="font-ds-mono text-[9px] uppercase tracking-[0.13em] text-text-primary/25">
             /logs/deploy-847
           </p>
-          <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-white/7">
+          <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-text-primary/7">
             <span
               className="block h-full rounded-full bg-[var(--landing-accent)] transition-[width] duration-500 motion-reduce:transition-none"
               style={{ width: restored ? '72%' : '0%' }}
             />
           </div>
-          <div className="mt-3 flex justify-between font-ds-mono text-[9px] text-white/25">
+          <div className="mt-3 flex justify-between font-ds-mono text-[9px] text-text-primary/25">
             <span>row 0</span>
-            <span className={restored ? 'text-[var(--landing-accent)]' : ''}>
+            <span
+              className={restored ? 'text-[var(--landing-accent-bright)]' : ''}
+            >
               row 72,418
             </span>
             <span>row 100k</span>
@@ -419,7 +421,7 @@ function SnapshotPanel() {
           />
           <ViewportMetric label="anchor" value={restored ? '#072419' : '—'} />
         </div>
-        <p className="mt-5 text-ds-body-xs text-white/35">
+        <p className="mt-5 text-ds-body-xs text-text-primary/35">
           Restore the measured coordinate system, not just an approximate item
           index.
         </p>
@@ -438,11 +440,13 @@ function SnapshotPanel() {
 
 function ViewportMetric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="border-b border-white/5 pb-3">
-      <dt className="font-ds-mono text-[9px] uppercase tracking-[0.13em] text-white/25">
+    <div className="border-b border-border-subtle pb-3">
+      <dt className="font-ds-mono text-[9px] uppercase tracking-[0.13em] text-text-primary/25">
         {label}
       </dt>
-      <dd className="mt-1 font-ds-mono text-xs text-white/70">{value}</dd>
+      <dd className="mt-1 font-ds-mono text-xs text-text-primary/70">
+        {value}
+      </dd>
     </div>
   )
 }

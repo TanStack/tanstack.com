@@ -75,9 +75,9 @@ export default function RangerLanding() {
           title="Values become handles. Gaps become segments."
         />
 
-        <div className="mt-10 rounded-xl border border-white/8 bg-[#101010] p-5 sm:p-8">
+        <div className="mt-10 rounded-xl border border-border-subtle bg-background-surface p-5 sm:p-8">
           <div className="relative h-20">
-            <div className="absolute inset-x-0 top-8 h-2 rounded-full bg-white/8" />
+            <div className="absolute inset-x-0 top-8 h-2 rounded-full bg-text-primary/8" />
             <Segment left={0} right={22} label="excluded" tone="muted" />
             <Segment left={22} right={58} label="selected" tone="accent" />
             <Segment left={58} right={81} label="buffer" tone="soft" />
@@ -85,7 +85,7 @@ export default function RangerLanding() {
             {[22, 58, 81].map((position, index) => (
               <span
                 key={position}
-                className="absolute top-[1.35rem] z-10 size-7 -translate-x-1/2 rounded-full border-4 border-[#101010] bg-[var(--landing-accent)] shadow-[0_0_20px_rgb(var(--landing-glow)/0.5)]"
+                className="absolute top-[1.35rem] z-10 size-7 -translate-x-1/2 rounded-full border-4 border-background-surface bg-[var(--landing-accent)] shadow-[0_0_20px_rgb(var(--landing-glow)/0.5)]"
                 style={{ left: `${position}%` }}
               >
                 <span className="sr-only">Handle {index + 1}</span>
@@ -98,11 +98,11 @@ export default function RangerLanding() {
               ['handles', '3 positions'],
               ['segments', '4 regions'],
             ].map(([label, value]) => (
-              <div key={label} className="rounded-lg bg-black/30 p-4">
-                <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-white/25">
+              <div key={label} className="rounded-lg bg-background-subtle p-4">
+                <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
                   {label}
                 </p>
-                <p className="mt-2 font-ds-mono text-xs text-white/75">
+                <p className="mt-2 font-ds-mono text-xs text-text-primary/75">
                   {value}
                 </p>
               </div>
@@ -121,7 +121,7 @@ export default function RangerLanding() {
           />
 
           <LandingWindow label="range contract">
-            <div className="grid gap-px bg-white/5 sm:grid-cols-2">
+            <div className="grid gap-px bg-border-subtle sm:grid-cols-2">
               <ContractColumn
                 accent
                 eyebrow="Ranger returns"
@@ -142,10 +142,10 @@ export default function RangerLanding() {
                 ]}
               />
             </div>
-            <div className="border-t border-white/5 px-5 py-4 font-ds-mono text-[10px] text-white/35">
+            <div className="border-t border-border-subtle px-5 py-4 font-ds-mono text-[10px] text-text-primary/35">
               <BracketsCurly
                 aria-hidden="true"
-                className="mr-2 inline text-[var(--landing-accent)]"
+                className="mr-2 inline text-[var(--landing-accent-bright)]"
                 size={15}
               />
               same geometry · entirely different surface
@@ -198,7 +198,7 @@ function RangeStudio() {
             <button
               key={item.id}
               aria-pressed={mode === item.id}
-              className="rounded-md border border-white/8 px-3 py-2 text-ds-label-sm text-white/40 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent)] aria-pressed:border-[var(--landing-accent)] aria-pressed:bg-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-ink)]"
+              className="rounded-md border border-border-default px-3 py-2 text-ds-label-sm text-text-primary/40 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:bg-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-ink)]"
               onClick={() => chooseMode(item.id)}
               type="button"
             >
@@ -207,9 +207,9 @@ function RangeStudio() {
           ))}
         </div>
 
-        <div className="mt-7 rounded-xl border border-white/7 bg-black/35 px-5 py-8">
+        <div className="mt-7 rounded-xl border border-border-subtle bg-background-subtle px-5 py-8">
           <div className="relative h-16">
-            <div className="absolute inset-x-0 top-7 h-2 rounded-full bg-white/10" />
+            <div className="absolute inset-x-0 top-7 h-2 rounded-full bg-text-primary/10" />
             <div
               className="absolute top-7 h-2 rounded-full bg-[var(--landing-accent)] shadow-[0_0_18px_rgb(var(--landing-glow)/0.4)]"
               style={getFillStyle(mode, values)}
@@ -217,16 +217,16 @@ function RangeStudio() {
             {visibleValues.map((value, index) => (
               <span
                 key={index}
-                className="absolute top-[1.1rem] size-7 -translate-x-1/2 rounded-full border-4 border-[#101010] bg-[var(--landing-accent-bright)]"
+                className="absolute top-[1.1rem] size-7 -translate-x-1/2 rounded-full border-4 border-background-subtle bg-[var(--landing-accent-dark)]"
                 style={{ left: `${value}%` }}
               >
-                <span className="absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap font-ds-mono text-[9px] text-white/60">
+                <span className="absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap font-ds-mono text-[9px] text-text-primary/60">
                   {formatValue(mode, value)}
                 </span>
               </span>
             ))}
           </div>
-          <div className="flex justify-between font-ds-mono text-[9px] text-white/20">
+          <div className="flex justify-between font-ds-mono text-[9px] text-text-primary/20">
             <span>{getBoundLabel(mode, false)}</span>
             <span>{getBoundLabel(mode, true)}</span>
           </div>
@@ -238,7 +238,7 @@ function RangeStudio() {
               key={index}
               className="grid grid-cols-[5rem_1fr] items-center gap-3"
             >
-              <span className="font-ds-mono text-[9px] uppercase tracking-[0.13em] text-white/30">
+              <span className="font-ds-mono text-[9px] uppercase tracking-[0.13em] text-text-primary/30">
                 {getHandleLabel(mode, index)}
               </span>
               <input
@@ -256,11 +256,11 @@ function RangeStudio() {
           ))}
         </div>
 
-        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-white/5 pt-4">
-          <p className="text-ds-body-xs text-white/35">
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-border-subtle pt-4">
+          <p className="text-ds-body-xs text-text-primary/35">
             {activeMode.description}
           </p>
-          <span className="font-ds-mono text-[9px] uppercase tracking-[0.13em] text-[var(--landing-accent)]">
+          <span className="font-ds-mono text-[9px] uppercase tracking-[0.13em] text-[var(--landing-accent-bright)]">
             {visibleValues.length} handle{visibleValues.length === 1 ? '' : 's'}
           </span>
         </div>
@@ -287,7 +287,7 @@ function ScaleLab() {
             <button
               key={name}
               aria-pressed={scale === name}
-              className="rounded-md border border-white/8 px-3 py-1.5 font-ds-mono text-[9px] uppercase tracking-[0.11em] text-white/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
+              className="rounded-md border border-border-default px-3 py-1.5 font-ds-mono text-[9px] uppercase tracking-[0.11em] text-text-primary/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
               onClick={() => setScale(name)}
               type="button"
             >
@@ -298,20 +298,20 @@ function ScaleLab() {
         <div className="mt-5 grid gap-5 sm:grid-cols-[1fr_0.72fr] sm:items-center">
           <svg
             aria-label={`${scale} interpolation curve`}
-            className="h-40 w-full overflow-visible rounded-lg bg-black/30 p-3"
+            className="h-40 w-full overflow-visible rounded-lg bg-background-subtle p-3"
             role="img"
             viewBox="0 0 240 124"
           >
             <path
               d="M 4 116 H 236 M 4 116 V 8"
               fill="none"
-              stroke="rgba(255,255,255,.08)"
+              className="stroke-text-primary/10"
               strokeWidth="1"
             />
             <path
               d={paths[scale]}
               fill="none"
-              stroke="var(--landing-accent)"
+              stroke="var(--landing-accent-bright)"
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth="4"
@@ -323,10 +323,10 @@ function ScaleLab() {
             >
               position → value
             </LandingEyebrow>
-            <p className="mt-4 font-ds-mono text-3xl text-white">
+            <p className="mt-4 font-ds-mono text-3xl text-text-primary">
               {output.toFixed(1)}
             </p>
-            <p className="mt-1 font-ds-mono text-[9px] uppercase tracking-[0.14em] text-white/25">
+            <p className="mt-1 font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
               output at {input}%
             </p>
             <input
@@ -358,7 +358,7 @@ function Segment({
 }) {
   const toneClassName = {
     accent: 'bg-[var(--landing-accent)]',
-    muted: 'bg-white/10',
+    muted: 'bg-text-primary/10',
     soft: 'bg-[color:rgb(var(--landing-glow)/0.34)]',
   }[tone]
   return (
@@ -366,7 +366,7 @@ function Segment({
       className={`absolute top-8 h-2 ${toneClassName}`}
       style={{ left: `${left}%`, width: `${right - left}%` }}
     >
-      <span className="absolute top-5 left-1/2 -translate-x-1/2 font-ds-mono text-[8px] uppercase tracking-[0.12em] text-white/25">
+      <span className="absolute top-5 left-1/2 -translate-x-1/2 font-ds-mono text-[8px] uppercase tracking-[0.12em] text-text-primary/25">
         {label}
       </span>
     </span>
@@ -383,9 +383,9 @@ function ContractColumn({
   items: readonly string[]
 }) {
   return (
-    <div className="bg-[#0c0c0c] p-5 sm:p-6">
+    <div className="bg-background-surface p-5 sm:p-6">
       <p
-        className={`font-ds-mono text-[10px] uppercase tracking-[0.15em] ${accent ? 'text-[var(--landing-accent)]' : 'text-white/35'}`}
+        className={`font-ds-mono text-[10px] uppercase tracking-[0.15em] ${accent ? 'text-[var(--landing-accent-bright)]' : 'text-text-primary/35'}`}
       >
         {eyebrow}
       </p>
@@ -393,7 +393,7 @@ function ContractColumn({
         {items.map((item) => (
           <li
             key={item}
-            className="flex items-center gap-3 text-ds-body-sm text-white/65"
+            className="flex items-center gap-3 text-ds-body-sm text-text-primary/65"
           >
             <span className="size-1.5 rounded-full bg-[var(--landing-accent)]" />
             {item}

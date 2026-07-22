@@ -164,10 +164,10 @@ function ExecutionMapHero() {
               key={item.id}
               type="button"
               aria-pressed={item.id === activeMode}
-              className="rounded-lg border border-white/10 bg-[#151515] px-3 py-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.16)]"
+              className="rounded-lg border border-border-default bg-background-subtle px-3 py-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.16)]"
               onClick={() => setActiveMode(item.id)}
             >
-              <span className="block text-ds-label-sm text-white/75">
+              <span className="block text-ds-label-sm text-text-primary/75">
                 {item.label}
               </span>
               <span className="mt-1 block font-ds-mono text-[9px] text-[var(--landing-accent-bright)]">
@@ -204,7 +204,9 @@ function ExecutionMapHero() {
           <p className="font-ds-mono text-[10px] uppercase tracking-[0.14em] text-[var(--landing-accent-bright)]">
             {mode.label}
           </p>
-          <p className="mt-2 text-ds-body-xs text-white/45">{mode.note}</p>
+          <p className="mt-2 text-ds-body-xs text-text-primary/45">
+            {mode.note}
+          </p>
         </div>
       </div>
     </LandingWindow>
@@ -221,7 +223,7 @@ function RuntimeColumn({
   steps: readonly string[]
 }) {
   return (
-    <div className="rounded-xl border border-white/8 bg-[#121212] p-4">
+    <div className="rounded-xl border border-border-subtle bg-background-subtle p-4">
       <div className="flex items-center gap-2 text-[var(--landing-accent-bright)]">
         {icon}
         <p className="font-ds-mono text-[10px] uppercase tracking-[0.16em]">
@@ -232,12 +234,12 @@ function RuntimeColumn({
         {steps.map((step, index) => (
           <li
             key={step}
-            className="flex items-center gap-3 rounded-lg bg-black/55 px-3 py-2.5"
+            className="flex items-center gap-3 rounded-lg bg-background-default px-3 py-2.5"
           >
             <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-[var(--landing-accent)] font-ds-mono text-[9px] font-semibold text-[var(--landing-accent-ink)]">
               {index + 1}
             </span>
-            <span className="font-ds-mono text-[10px] text-white/65">
+            <span className="font-ds-mono text-[10px] text-text-primary/65">
               {step}
             </span>
           </li>
@@ -279,7 +281,7 @@ function RouterFoundation() {
             className={
               layer.accent
                 ? 'relative rounded-xl border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.16)] p-5 shadow-[0_18px_50px_rgb(var(--landing-glow)/0.12)]'
-                : 'relative rounded-xl border border-white/10 bg-[#101010] p-5'
+                : 'relative rounded-xl border border-border-default bg-background-surface p-5'
             }
             style={{
               marginInline:
@@ -292,7 +294,7 @@ function RouterFoundation() {
               </span>
               <div>
                 <h3 className="text-ds-heading-4">{layer.label}</h3>
-                <p className="mt-2 font-ds-mono text-[10px] leading-5 text-white/35">
+                <p className="mt-2 font-ds-mono text-[10px] leading-5 text-text-primary/35">
                   {layer.detail}
                 </p>
               </div>
@@ -313,7 +315,7 @@ function ServerBoundaryLab() {
 
   return (
     <LandingWindow label="server boundary">
-      <div className="border-b border-white/5 px-4 pt-4">
+      <div className="border-b border-border-subtle px-4 pt-4">
         <div
           className="flex gap-5 overflow-x-auto"
           role="group"
@@ -324,7 +326,7 @@ function ServerBoundaryLab() {
               key={example.id}
               type="button"
               aria-pressed={activeId === example.id}
-              className="shrink-0 border-b-2 border-transparent pb-3 text-ds-label-sm text-white/35 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-white"
+              className="shrink-0 border-b-2 border-transparent pb-3 text-ds-label-sm text-text-primary/35 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-text-primary"
               onClick={() => setActiveId(example.id)}
             >
               {example.label}
@@ -334,7 +336,7 @@ function ServerBoundaryLab() {
       </div>
       <div aria-live="polite" className="p-5">
         <h3 className="text-ds-heading-4">{active.title}</h3>
-        <pre className="mt-5 overflow-x-auto rounded-lg bg-black p-4 font-ds-mono text-[11px] leading-6 text-white/65">
+        <pre className="mt-5 overflow-x-auto rounded-lg bg-ds-neutral-500 p-4 font-ds-mono text-[11px] leading-6 text-white/65">
           <code>{active.code}</code>
         </pre>
         <ol className="mt-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-0">
@@ -369,7 +371,7 @@ function DeploymentSelector() {
             key={target.label}
             type="button"
             aria-pressed={index === activeIndex}
-            className="flex w-full items-center justify-between gap-4 rounded-xl border border-white/8 bg-[#111] px-5 py-4 text-left text-white/45 hover:border-white/15 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.12)] aria-pressed:text-white"
+            className="flex w-full items-center justify-between gap-4 rounded-xl border border-border-subtle bg-background-subtle px-5 py-4 text-left text-text-primary/45 hover:border-border-default hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.12)] aria-pressed:text-text-primary"
             onClick={() => setActiveIndex(index)}
           >
             <span className="text-ds-label-md">{target.label}</span>
@@ -392,17 +394,17 @@ function DeploymentSelector() {
               weight="light"
             />
           </div>
-          <dl className="mt-7 grid gap-px overflow-hidden rounded-lg bg-white/5 sm:grid-cols-2">
-            <div className="bg-[#111] p-4">
-              <dt className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-white/25">
+          <dl className="mt-7 grid gap-px overflow-hidden rounded-lg bg-text-primary/5 sm:grid-cols-2">
+            <div className="bg-background-subtle p-4">
+              <dt className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
                 output
               </dt>
-              <dd className="mt-2 text-ds-label-md text-white/80">
+              <dd className="mt-2 text-ds-label-md text-text-primary/80">
                 {active.output}
               </dd>
             </div>
-            <div className="bg-[#111] p-4">
-              <dt className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-white/25">
+            <div className="bg-background-subtle p-4">
+              <dt className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
                 deploy
               </dt>
               <dd className="mt-2 break-words font-ds-mono text-[11px] text-[var(--landing-accent-bright)]">
@@ -419,7 +421,7 @@ function DeploymentSelector() {
             ].map((item) => (
               <div
                 key={item}
-                className="flex items-center gap-2 rounded-lg border border-white/5 bg-black/45 px-3 py-2.5 font-ds-mono text-[10px] text-white/55"
+                className="flex items-center gap-2 rounded-lg border border-border-subtle bg-background-default px-3 py-2.5 font-ds-mono text-[10px] text-text-primary/55"
               >
                 <BracketsCurly
                   aria-hidden="true"
@@ -430,7 +432,7 @@ function DeploymentSelector() {
               </div>
             ))}
           </div>
-          <p className="mt-5 text-ds-body-xs text-white/35">
+          <p className="mt-5 text-ds-body-xs text-text-primary/35">
             The authoring surface stays the same.
           </p>
         </div>

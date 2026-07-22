@@ -166,27 +166,27 @@ function DevtoolsCockpit() {
   return (
     <LandingWindow label="unified devtools">
       <div className="grid min-h-[23rem] lg:grid-cols-[0.72fr_1.28fr]">
-        <div className="border-white/5 bg-[#101010] p-4 lg:border-r">
+        <div className="border-border-subtle bg-background-surface p-4 lg:border-r">
           <div className="flex items-center justify-between gap-3">
-            <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-white/25">
+            <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
               your app
             </p>
             <button
               type="button"
               aria-pressed={isInspecting}
-              className="inline-flex items-center gap-1.5 rounded-md border border-white/10 px-2 py-1.5 font-ds-mono text-[9px] uppercase text-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
+              className="inline-flex items-center gap-1.5 rounded-md border border-border-default px-2 py-1.5 font-ds-mono text-[9px] uppercase text-text-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
               onClick={() => setIsInspecting((current) => !current)}
             >
               <MagnifyingGlass aria-hidden="true" size={12} /> Inspect
             </button>
           </div>
-          <div className="mt-4 overflow-hidden rounded-lg border border-white/8 bg-[#181818]">
+          <div className="mt-4 overflow-hidden rounded-lg border border-border-subtle bg-background-subtle">
             <button
               type="button"
               className={
                 isInspecting
-                  ? 'block w-full border-b border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.13)] px-3 py-3 text-left text-ds-label-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--landing-accent-bright)]'
-                  : 'block w-full border-b border-white/5 px-3 py-3 text-left text-ds-label-sm text-white/70'
+                  ? 'block w-full border-b border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.13)] px-3 py-3 text-left text-ds-label-sm text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--landing-accent-bright)]'
+                  : 'block w-full border-b border-border-subtle px-3 py-3 text-left text-ds-label-sm text-text-primary/70'
               }
               onClick={() => selectSource('src/components/AppHeader.tsx:18')}
             >
@@ -203,8 +203,8 @@ function DevtoolsCockpit() {
                   type="button"
                   className={
                     isInspecting
-                      ? 'rounded-lg border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.08)] px-3 py-3 text-left text-ds-body-xs text-white/70 hover:bg-[color:rgb(var(--landing-glow)/0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]'
-                      : 'rounded-lg border border-white/5 bg-[#111] px-3 py-3 text-left text-ds-body-xs text-white/40'
+                      ? 'rounded-lg border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.08)] px-3 py-3 text-left text-ds-body-xs text-text-primary/70 hover:bg-[color:rgb(var(--landing-glow)/0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]'
+                      : 'rounded-lg border border-border-subtle bg-background-surface px-3 py-3 text-left text-ds-body-xs text-text-primary/40'
                   }
                   onClick={() => selectSource(nextSource)}
                 >
@@ -214,14 +214,14 @@ function DevtoolsCockpit() {
             </div>
           </div>
           <div
-            className="mt-3 min-w-0 rounded-lg bg-black px-3 py-2 font-ds-mono text-[9px] text-[var(--landing-accent-bright)]"
+            className="mt-3 min-w-0 rounded-lg bg-ds-neutral-500 px-3 py-2 font-ds-mono text-[9px] text-[var(--landing-accent-bright)]"
             aria-live="polite"
           >
             <span className="block truncate">{source}</span>
           </div>
         </div>
 
-        <div className="min-w-0 bg-black p-4">
+        <div className="min-w-0 bg-background-default p-4">
           <div
             className="flex gap-2 overflow-x-auto"
             role="group"
@@ -232,7 +232,7 @@ function DevtoolsCockpit() {
                 key={panel.id}
                 type="button"
                 aria-pressed={activeId === panel.id}
-                className="shrink-0 rounded-lg border border-white/8 bg-[#151515] px-3 py-2 text-ds-label-sm text-white/35 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white aria-pressed:bg-white aria-pressed:text-black"
+                className="shrink-0 rounded-lg border border-border-subtle bg-background-subtle px-3 py-2 text-ds-label-sm text-text-primary/35 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary aria-pressed:bg-text-primary aria-pressed:text-background-default"
                 onClick={() => setActiveId(panel.id)}
               >
                 {panel.label}
@@ -242,11 +242,16 @@ function DevtoolsCockpit() {
           <div aria-live="polite" className="mt-4">
             <div className="grid grid-cols-3 gap-2">
               {active.stats.map(([label, value]) => (
-                <div key={label} className="rounded-lg bg-[#151515] p-3">
-                  <p className="font-ds-mono text-[8px] uppercase tracking-[0.1em] text-white/25">
+                <div
+                  key={label}
+                  className="rounded-lg bg-background-subtle p-3"
+                >
+                  <p className="font-ds-mono text-[8px] uppercase tracking-[0.1em] text-text-primary/25">
                     {label}
                   </p>
-                  <p className="mt-2 text-ds-heading-4 text-white">{value}</p>
+                  <p className="mt-2 text-ds-heading-4 text-text-primary">
+                    {value}
+                  </p>
                 </div>
               ))}
             </div>
@@ -254,16 +259,16 @@ function DevtoolsCockpit() {
               {active.rows.map((row, index) => (
                 <div
                   key={row}
-                  className="flex items-center justify-between gap-3 rounded-lg border border-white/8 bg-[#111] px-3 py-2.5"
+                  className="flex items-center justify-between gap-3 rounded-lg border border-border-subtle bg-background-surface px-3 py-2.5"
                 >
-                  <span className="truncate font-ds-mono text-[10px] text-white/55">
+                  <span className="truncate font-ds-mono text-[10px] text-text-primary/55">
                     {row}
                   </span>
                   <span
                     className={
                       index === 0
                         ? 'size-2 rounded-full bg-emerald-400'
-                        : 'size-2 rounded-full bg-white/15'
+                        : 'size-2 rounded-full bg-text-primary/15'
                     }
                   />
                 </div>
@@ -285,18 +290,18 @@ function ShellAnatomy() {
           return (
             <div
               key={part.label}
-              className="relative rounded-xl border border-white/8 bg-[#101010] p-5"
+              className="relative rounded-xl border border-border-subtle bg-background-surface p-5"
             >
               <div className="flex items-center justify-between gap-4">
                 <span className="flex size-10 items-center justify-center rounded-lg bg-[var(--landing-accent)] text-[var(--landing-accent-ink)]">
                   <Icon aria-hidden="true" size={19} />
                 </span>
-                <span className="font-ds-mono text-[9px] text-white/20">
+                <span className="font-ds-mono text-[9px] text-text-primary/20">
                   0{index + 1}
                 </span>
               </div>
               <h3 className="mt-5 text-ds-heading-4">{part.label}</h3>
-              <p className="mt-3 text-ds-body-xs text-white/35">
+              <p className="mt-3 text-ds-body-xs text-text-primary/35">
                 {part.detail}
               </p>
             </div>
@@ -325,24 +330,26 @@ function PluginEventLab() {
   return (
     <LandingWindow label="custom jobs plugin">
       <div className="grid lg:grid-cols-[1.05fr_0.95fr]">
-        <div className="border-white/5 p-5 lg:border-r">
-          <pre className="overflow-x-auto rounded-lg bg-black p-4 font-ds-mono text-[10px] leading-5 text-white/60">
+        <div className="border-border-subtle p-5 lg:border-r">
+          <pre className="overflow-x-auto rounded-lg bg-ds-neutral-500 p-4 font-ds-mono text-[10px] leading-5 text-white/60">
             <code>
               {
                 "type JobEvents = {\n  progress: { jobId: string; percent: number }\n}\nclass JobsClient extends EventClient<JobEvents> {\n  constructor() { super({ pluginId: 'jobs' }) }\n}\nconst jobs = new JobsClient()"
               }
             </code>
           </pre>
-          <div className="mt-4 rounded-lg border border-white/8 bg-[#141414] p-4">
-            <p className="text-ds-label-md text-white">Background Jobs</p>
-            <p className="mt-2 text-ds-body-xs text-white/35">
+          <div className="mt-4 rounded-lg border border-border-subtle bg-background-subtle p-4">
+            <p className="text-ds-label-md text-text-primary">
+              Background Jobs
+            </p>
+            <p className="mt-2 text-ds-body-xs text-text-primary/35">
               A product-owned panel registered beside library inspectors.
             </p>
           </div>
         </div>
         <div className="p-5">
           <div className="flex items-center justify-between gap-3">
-            <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-white/25">
+            <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
               typed event stream
             </p>
             <span className="inline-flex items-center gap-2 font-ds-mono text-[9px] text-emerald-300">
@@ -354,12 +361,12 @@ function PluginEventLab() {
             {events.map((event) => (
               <div
                 key={event.id}
-                className="rounded-lg border border-white/8 bg-[#121212] px-3 py-3"
+                className="rounded-lg border border-border-subtle bg-background-subtle px-3 py-3"
               >
                 <p className="font-ds-mono text-[10px] text-[var(--landing-accent-bright)]">
                   {event.label}
                 </p>
-                <p className="mt-1 text-ds-body-xs text-white/30">
+                <p className="mt-1 text-ds-body-xs text-text-primary/30">
                   sync-catalog · {event.id * 12}%
                 </p>
               </div>
@@ -394,7 +401,7 @@ function ConsoleBridge() {
         />
         <button
           type="button"
-          className="mx-auto flex size-10 items-center justify-center rounded-full border border-[var(--landing-accent)] text-[var(--landing-accent-bright)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          className="mx-auto flex size-10 items-center justify-center rounded-full border border-[var(--landing-accent)] text-[var(--landing-accent-bright)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary"
           aria-label="Reverse console piping direction"
           onClick={() =>
             setDirection((current) =>
@@ -415,7 +422,7 @@ function ConsoleBridge() {
         />
       </div>
       <div
-        className="border-t border-white/5 px-5 py-4 text-center text-ds-body-xs text-white/35"
+        className="border-t border-border-subtle px-5 py-4 text-center text-ds-body-xs text-text-primary/35"
         aria-live="polite"
       >
         {browserActive
@@ -440,24 +447,29 @@ function ConsolePane({
       className={
         active
           ? 'rounded-xl border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.12)] p-4'
-          : 'rounded-xl border border-white/8 bg-[#111] p-4'
+          : 'rounded-xl border border-border-subtle bg-background-subtle p-4'
       }
     >
       <div className="flex items-center gap-2">
         <Terminal
           aria-hidden="true"
           className={
-            active ? 'text-[var(--landing-accent-bright)]' : 'text-white/25'
+            active
+              ? 'text-[var(--landing-accent-bright)]'
+              : 'text-text-primary/25'
           }
           size={16}
         />
-        <p className="font-ds-mono text-[9px] uppercase tracking-[0.12em] text-white/35">
+        <p className="font-ds-mono text-[9px] uppercase tracking-[0.12em] text-text-primary/35">
           {label}
         </p>
       </div>
       <div className="mt-4 space-y-2">
         {lines.map((line) => (
-          <p key={line} className="font-ds-mono text-[9px] text-white/55">
+          <p
+            key={line}
+            className="font-ds-mono text-[9px] text-text-primary/55"
+          >
             {line}
           </p>
         ))}
@@ -469,24 +481,24 @@ function ConsolePane({
 function SourceToBuild() {
   return (
     <div className="mx-auto mt-14 grid max-w-[72rem] gap-5 lg:grid-cols-2">
-      <div className="rounded-xl border border-white/10 bg-[#101010] p-6 md:p-8">
+      <div className="rounded-xl border border-border-default bg-background-surface p-6 md:p-8">
         <LandingEyebrow icon={<Eye aria-hidden="true" size={14} />}>
           development
         </LandingEyebrow>
         <div className="mt-7 rounded-lg border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.12)] p-5">
           <p className="text-ds-heading-4">Project summary</p>
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded bg-black px-3 py-2 font-ds-mono text-[10px] text-[var(--landing-accent-bright)]">
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded bg-ds-neutral-500 px-3 py-2 font-ds-mono text-[10px] text-[var(--landing-accent-bright)]">
             <span>Summary.tsx:14</span>
             <ArrowSquareOut aria-hidden="true" size={15} />
           </div>
         </div>
-        <p className="mt-5 text-ds-body-xs text-white/35">
+        <p className="mt-5 text-ds-body-xs text-text-primary/35">
           Hold the inspector hotkey, click an element, and open its exact source
           location.
         </p>
       </div>
 
-      <div className="rounded-xl border border-white/10 bg-[#101010] p-6 md:p-8">
+      <div className="rounded-xl border border-border-default bg-background-surface p-6 md:p-8">
         <LandingEyebrow icon={<Gauge aria-hidden="true" size={14} />}>
           production build
         </LandingEyebrow>
@@ -498,7 +510,7 @@ function SourceToBuild() {
         <div className="mt-5 rounded-lg bg-emerald-400 px-4 py-3 text-center font-ds-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-950">
           imports + JSX removed
         </div>
-        <p className="mt-5 text-ds-body-xs text-white/35">
+        <p className="mt-5 text-ds-body-xs text-text-primary/35">
           The Vite plugin enables removeDevtoolsOnBuild by default.
         </p>
       </div>
@@ -508,8 +520,8 @@ function SourceToBuild() {
 
 function BuildLine({ label }: { label: string }) {
   return (
-    <div className="flex items-center justify-between gap-4 rounded-lg border border-white/8 bg-black px-3 py-3">
-      <span className="truncate text-white/45">{label}</span>
+    <div className="flex items-center justify-between gap-4 rounded-lg border border-border-subtle bg-background-subtle px-3 py-3">
+      <span className="truncate text-text-primary/45">{label}</span>
       <span className="shrink-0 text-emerald-300">removed</span>
     </div>
   )

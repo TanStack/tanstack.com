@@ -115,21 +115,21 @@ export default function HotkeysLanding() {
             return (
               <div
                 key={gesture.label}
-                className="rounded-xl border border-white/8 bg-[#111] p-5"
+                className="rounded-xl border border-border-subtle bg-background-surface p-5"
               >
                 <div className="flex items-center justify-between">
                   <Icon
                     aria-hidden="true"
-                    className="text-[var(--landing-accent)]"
+                    className="text-[var(--landing-accent-bright)]"
                     size={22}
                   />
-                  <span className="font-ds-mono text-[9px] uppercase tracking-[0.16em] text-white/20">
+                  <span className="font-ds-mono text-[9px] uppercase tracking-[0.16em] text-text-primary/20">
                     0{index + 1}
                   </span>
                 </div>
                 <h3 className="mt-7 text-ds-heading-4">{gesture.label}</h3>
                 <KeySequence binding={gesture.binding} className="mt-4" />
-                <p className="mt-5 text-ds-body-xs text-white/40">
+                <p className="mt-5 text-ds-body-xs text-text-primary/40">
                   {gesture.body}
                 </p>
               </div>
@@ -147,10 +147,10 @@ export default function HotkeysLanding() {
               icon={<ArrowsLeftRight aria-hidden="true" size={17} />}
               title="Let users own the muscle memory."
             />
-            <p className="mt-7 flex items-start gap-3 text-ds-body-xs text-white/40">
+            <p className="mt-7 flex items-start gap-3 text-ds-body-xs text-text-primary/40">
               <WarningCircle
                 aria-hidden="true"
-                className="mt-0.5 shrink-0 text-[var(--landing-accent)]"
+                className="mt-0.5 shrink-0 text-[var(--landing-accent-bright)]"
                 size={17}
               />
               Conflicts, reserved browser keys, and input filtering stay visible
@@ -159,21 +159,23 @@ export default function HotkeysLanding() {
           </div>
 
           <LandingWindow label="binding pipeline">
-            <div className="grid gap-px bg-white/5 sm:grid-cols-4">
+            <div className="grid gap-px bg-border-subtle sm:grid-cols-4">
               {[
                 ['01 / record', '⌘ ⇧ P', 'Raw keyboard event'],
                 ['02 / normalize', 'Mod+Shift+P', 'Portable definition'],
                 ['03 / display', '⌘⇧P', 'Platform label'],
                 ['04 / publish', 'Open palette', 'Menu + cheat sheet'],
               ].map(([label, value, body]) => (
-                <div key={label} className="bg-[#0c0c0c] p-5">
-                  <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-[var(--landing-accent)]">
+                <div key={label} className="bg-background-surface p-5">
+                  <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-[var(--landing-accent-bright)]">
                     {label}
                   </p>
-                  <p className="mt-8 font-ds-mono text-sm text-white">
+                  <p className="mt-8 font-ds-mono text-sm text-text-primary">
                     {value}
                   </p>
-                  <p className="mt-3 text-ds-body-xs text-white/30">{body}</p>
+                  <p className="mt-3 text-ds-body-xs text-text-primary/30">
+                    {body}
+                  </p>
                 </div>
               ))}
             </div>
@@ -218,7 +220,7 @@ function ShortcutStudio() {
   return (
     <LandingWindow label="shortcut settings">
       <div className="grid min-h-[23rem] md:grid-cols-[0.92fr_1.08fr]">
-        <div className="border-white/5 p-4 md:border-r">
+        <div className="border-border-subtle p-4 md:border-r">
           <LandingEyebrow icon={<Stack aria-hidden="true" size={14} />}>
             commands
           </LandingEyebrow>
@@ -227,17 +229,17 @@ function ShortcutStudio() {
               <button
                 key={command.name}
                 aria-pressed={activeIndex === index}
-                className="flex w-full items-center justify-between gap-4 rounded-lg border border-transparent bg-white/[0.025] px-3 py-3 text-left hover:border-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent)] aria-pressed:border-[color:rgb(var(--landing-glow)/0.45)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.1)]"
+                className="flex w-full items-center justify-between gap-4 rounded-lg border border-transparent bg-background-subtle px-3 py-3 text-left hover:border-border-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[color:rgb(var(--landing-glow)/0.45)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.1)]"
                 onClick={() => {
                   setActiveIndex(index)
                   setRecordedBinding(undefined)
                 }}
                 type="button"
               >
-                <span className="text-ds-label-sm text-white/70">
+                <span className="text-ds-label-sm text-text-primary/70">
                   {command.name}
                 </span>
-                <span className="font-ds-mono text-[10px] text-white/35">
+                <span className="font-ds-mono text-[10px] text-text-primary/35">
                   {formatBinding(command.binding, platform)}
                 </span>
               </button>
@@ -247,13 +249,15 @@ function ShortcutStudio() {
 
         <div className="flex min-w-0 flex-col p-5">
           <div className="flex items-center justify-between gap-4">
-            <p className="text-ds-label-md text-white">{activeCommand.name}</p>
-            <div className="flex rounded-md border border-white/8 p-0.5">
+            <p className="text-ds-label-md text-text-primary">
+              {activeCommand.name}
+            </p>
+            <div className="flex rounded-md border border-border-default p-0.5">
               {(['mac', 'windows'] as const).map((item) => (
                 <button
                   key={item}
                   aria-pressed={platform === item}
-                  className="rounded px-2 py-1 font-ds-mono text-[9px] uppercase text-white/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent)] aria-pressed:bg-white/10 aria-pressed:text-white"
+                  className="rounded px-2 py-1 font-ds-mono text-[9px] uppercase text-text-primary/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:bg-text-primary/10 aria-pressed:text-text-primary"
                   onClick={() => setPlatform(item)}
                   type="button"
                 >
@@ -270,12 +274,12 @@ function ShortcutStudio() {
           <button
             ref={triggerRef}
             aria-describedby="hotkeys-recorder-instructions hotkeys-recorder-status"
-            className="mt-6 rounded-xl border border-dashed border-[color:rgb(var(--landing-glow)/0.55)] bg-[color:rgb(var(--landing-glow)/0.08)] px-4 py-7 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent)]"
+            className="mt-6 rounded-xl border border-dashed border-[color:rgb(var(--landing-glow)/0.55)] bg-[color:rgb(var(--landing-glow)/0.08)] px-4 py-7 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
             onClick={beginRecording}
             type="button"
           >
             <KeySequence binding={formatBinding(binding, platform)} centered />
-            <span className="mt-4 block font-ds-mono text-[9px] uppercase tracking-[0.16em] text-white/30">
+            <span className="mt-4 block font-ds-mono text-[9px] uppercase tracking-[0.16em] text-text-primary/30">
               {isRecording ? 'Press a shortcut…' : 'Click to record'}
             </span>
           </button>
@@ -329,16 +333,16 @@ function ScopeStack() {
           <button
             key={scope.name}
             aria-pressed={isActive}
-            className={`relative block w-full rounded-xl border border-white/8 bg-[#0d0d0d] p-5 text-left shadow-[0_20px_45px_rgb(0_0_0/0.28)] transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent)] aria-pressed:border-[color:rgb(var(--landing-glow)/0.55)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.1)] sm:mt-[-0.75rem] ${offsetClassName}`}
+            className={`relative block w-full rounded-xl border border-border-subtle bg-background-surface p-5 text-left shadow-[0_20px_45px_rgb(0_0_0/0.12)] transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[color:rgb(var(--landing-glow)/0.55)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.1)] sm:mt-[-0.75rem] ${offsetClassName}`}
             onClick={() => setActiveScope(scope.name)}
             type="button"
           >
             <span className="flex flex-wrap items-start justify-between gap-3">
               <span>
-                <span className="font-ds-mono text-[10px] uppercase tracking-[0.16em] text-[var(--landing-accent)]">
+                <span className="font-ds-mono text-[10px] uppercase tracking-[0.16em] text-[var(--landing-accent-bright)]">
                   {index === scopes.length - 1 ? 'highest priority' : 'scope'}
                 </span>
-                <span className="mt-2 block text-ds-heading-4 text-white">
+                <span className="mt-2 block text-ds-heading-4 text-text-primary">
                   {scope.name}
                 </span>
               </span>
@@ -348,7 +352,7 @@ function ScopeStack() {
                 ))}
               </span>
             </span>
-            <span className="mt-3 block text-ds-body-xs text-white/35">
+            <span className="mt-3 block text-ds-body-xs text-text-primary/35">
               {scope.body}
             </span>
           </button>
@@ -375,7 +379,7 @@ function KeySequence({
       {groups.map((group, groupIndex) => (
         <React.Fragment key={`${group}-${groupIndex}`}>
           {groupIndex > 0 ? (
-            <span className="self-center font-ds-mono text-[9px] uppercase tracking-[0.1em] text-white/25">
+            <span className="self-center font-ds-mono text-[9px] uppercase tracking-[0.1em] text-text-primary/25">
               then
             </span>
           ) : null}
@@ -386,14 +390,14 @@ function KeySequence({
               key === '·' ? (
                 <span
                   key={`${key}-${keyIndex}`}
-                  className="self-center text-white/25"
+                  className="self-center text-text-primary/25"
                 >
                   ·
                 </span>
               ) : (
                 <kbd
                   key={`${key}-${keyIndex}`}
-                  className="min-w-8 rounded-md border border-white/12 bg-white/[0.055] px-2 py-1.5 text-center font-ds-mono text-xs text-white shadow-[inset_0_-2px_0_rgb(255_255_255/0.04)]"
+                  className="min-w-8 rounded-md border border-border-default bg-background-subtle px-2 py-1.5 text-center font-ds-mono text-xs text-text-primary shadow-[inset_0_-2px_0_rgb(0_0_0/0.07)] dark:shadow-[inset_0_-2px_0_rgb(255_255_255/0.04)]"
                 >
                   {key}
                 </kbd>
@@ -407,11 +411,13 @@ function KeySequence({
 
 function CommandFact({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg bg-white/[0.025] p-3">
-      <dt className="font-ds-mono text-[9px] uppercase tracking-[0.13em] text-white/25">
+    <div className="rounded-lg bg-background-subtle p-3">
+      <dt className="font-ds-mono text-[9px] uppercase tracking-[0.13em] text-text-primary/25">
         {label}
       </dt>
-      <dd className="mt-1 font-ds-mono text-xs text-white/70">{value}</dd>
+      <dd className="mt-1 font-ds-mono text-xs text-text-primary/70">
+        {value}
+      </dd>
     </div>
   )
 }

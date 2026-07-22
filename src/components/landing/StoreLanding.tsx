@@ -179,8 +179,8 @@ function RenderMicroscope() {
   return (
     <LandingWindow label="render microscope">
       <div className="grid min-h-[23rem] lg:grid-cols-[0.72fr_1.28fr]">
-        <div className="border-white/5 p-4 lg:border-r">
-          <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-white/25">
+        <div className="border-border-subtle p-4 lg:border-r">
+          <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
             uiStore.setState()
           </p>
           <div className="mt-4 space-y-2">
@@ -200,7 +200,7 @@ function RenderMicroscope() {
             <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-[var(--landing-accent-bright)]">
               derived store
             </p>
-            <p className="mt-2 text-ds-label-md text-white">
+            <p className="mt-2 text-ds-label-md text-text-primary">
               visibleRows = {rows.length}
             </p>
           </div>
@@ -210,7 +210,7 @@ function RenderMicroscope() {
           <div
             className={
               theme === 'dark'
-                ? 'rounded-xl bg-[#111] p-4 text-white'
+                ? 'rounded-xl bg-ds-neutral-500 p-4 text-white'
                 : 'rounded-xl bg-[#f1eadc] p-4 text-[#28170d]'
             }
             aria-live="polite"
@@ -261,7 +261,7 @@ function RenderMicroscope() {
               </div>
             </div>
           </div>
-          <p className="mt-4 text-ds-body-xs text-white/35">
+          <p className="mt-4 text-ds-body-xs text-text-primary/35">
             Each control updates one slice. Only the component selecting that
             slice increments its render count.
           </p>
@@ -283,10 +283,10 @@ function StateControl({
   return (
     <button
       type="button"
-      className="flex w-full items-center justify-between gap-3 rounded-lg border border-white/8 bg-[#151515] px-3 py-3 text-left hover:border-[var(--landing-accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
+      className="flex w-full items-center justify-between gap-3 rounded-lg border border-border-subtle bg-background-subtle px-3 py-3 text-left hover:border-[var(--landing-accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
       onClick={onClick}
     >
-      <span className="font-ds-mono text-[10px] text-white/45">
+      <span className="font-ds-mono text-[10px] text-text-primary/45">
         state.{label}
       </span>
       <span className="rounded bg-[var(--landing-accent)] px-2 py-1 font-ds-mono text-[9px] uppercase text-[var(--landing-accent-ink)]">
@@ -341,7 +341,7 @@ function SignalTopology() {
 
 function SignalNode({ label }: { label: string }) {
   return (
-    <div className="relative rounded-full border border-white/10 bg-[#101010] px-3 py-2 text-center font-ds-mono text-[9px] uppercase tracking-[0.1em] text-white/45 sm:px-5">
+    <div className="relative rounded-full border border-border-default bg-background-surface px-3 py-2 text-center font-ds-mono text-[9px] uppercase tracking-[0.1em] text-text-primary/45 sm:px-5">
       {label}
     </div>
   )
@@ -357,7 +357,7 @@ function PrimitiveLab() {
   return (
     <div className="mx-auto mt-14 max-w-[68rem]">
       <div
-        className="flex gap-5 overflow-x-auto border-b border-white/10"
+        className="flex gap-5 overflow-x-auto border-b border-border-default"
         role="group"
         aria-label="Store primitives"
       >
@@ -366,7 +366,7 @@ function PrimitiveLab() {
             key={primitive.id}
             type="button"
             aria-pressed={activeId === primitive.id}
-            className="shrink-0 border-b-2 border-transparent px-1 pb-4 font-ds-display text-ds-heading-4 font-light text-white/35 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
+            className="shrink-0 border-b-2 border-transparent px-1 pb-4 font-ds-display text-ds-heading-4 font-light text-text-primary/35 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
             onClick={() => setActiveId(primitive.id)}
           >
             {primitive.label}
@@ -375,15 +375,15 @@ function PrimitiveLab() {
       </div>
       <div
         aria-live="polite"
-        className="grid overflow-hidden rounded-b-xl border border-t-0 border-white/10 bg-[#101010] lg:grid-cols-[1.2fr_0.8fr]"
+        className="grid overflow-hidden rounded-b-xl border border-t-0 border-border-default bg-background-surface lg:grid-cols-[1.2fr_0.8fr]"
       >
         <div className="p-6 md:p-8">
           <h3 className="text-ds-heading-2">{active.title}</h3>
-          <pre className="mt-7 overflow-x-auto rounded-lg bg-black p-5 font-ds-mono text-[11px] leading-6 text-white/65">
+          <pre className="mt-7 overflow-x-auto rounded-lg bg-ds-neutral-500 p-5 font-ds-mono text-[11px] leading-6 text-white/65">
             <code>{active.code}</code>
           </pre>
         </div>
-        <div className="flex min-h-44 items-center justify-center border-t border-white/8 bg-[color:rgb(var(--landing-glow)/0.12)] p-8 lg:border-t-0 lg:border-l">
+        <div className="flex min-h-44 items-center justify-center border-t border-border-subtle bg-[color:rgb(var(--landing-glow)/0.12)] p-8 lg:border-t-0 lg:border-l">
           <div className="text-center">
             <ArrowsClockwise
               aria-hidden="true"
@@ -391,7 +391,7 @@ function PrimitiveLab() {
               size={30}
               weight="light"
             />
-            <p className="mt-5 font-ds-mono text-[12px] text-white/75">
+            <p className="mt-5 font-ds-mono text-[12px] text-text-primary/75">
               {active.result}
             </p>
           </div>
@@ -417,13 +417,13 @@ function AdapterField() {
           {frameworks.map((framework) => (
             <div
               key={framework}
-              className="rounded-lg border border-white/8 bg-[#141414] px-3 py-3 text-center text-ds-label-sm text-white/55 last:sm:col-start-2"
+              className="rounded-lg border border-border-subtle bg-background-subtle px-3 py-3 text-center text-ds-label-sm text-text-primary/55 last:sm:col-start-2"
             >
               {framework}
             </div>
           ))}
         </div>
-        <p className="mt-5 text-center font-ds-mono text-[9px] uppercase tracking-[0.14em] text-white/25">
+        <p className="mt-5 text-center font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
           vanilla core · renderer-specific binding
         </p>
       </div>
@@ -433,21 +433,21 @@ function AdapterField() {
 
 function StateToolMap() {
   return (
-    <div className="mx-auto mt-14 max-w-[72rem] overflow-hidden rounded-xl border border-white/10 bg-[#101010]">
+    <div className="mx-auto mt-14 max-w-[72rem] overflow-hidden rounded-xl border border-border-default bg-background-surface">
       {stateTools.map((tool) => (
         <div
           key={tool.name}
           className={
             tool.accent
               ? 'grid gap-4 border-b border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.14)] p-5 last:border-b-0 md:grid-cols-[0.45fr_0.55fr_1fr] md:items-center md:p-7'
-              : 'grid gap-4 border-b border-white/8 p-5 last:border-b-0 md:grid-cols-[0.45fr_0.55fr_1fr] md:items-center md:p-7'
+              : 'grid gap-4 border-b border-border-subtle p-5 last:border-b-0 md:grid-cols-[0.45fr_0.55fr_1fr] md:items-center md:p-7'
           }
         >
           <p className="text-ds-heading-4">{tool.name}</p>
           <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-[var(--landing-accent-bright)]">
             {tool.label}
           </p>
-          <p className="text-ds-body-sm text-white/40">{tool.detail}</p>
+          <p className="text-ds-body-sm text-text-primary/40">{tool.detail}</p>
         </div>
       ))}
     </div>

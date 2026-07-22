@@ -157,7 +157,7 @@ function OptimisticWorkbench() {
   return (
     <LandingWindow label="live todo collection">
       <div className="grid min-h-[23rem] lg:grid-cols-[0.72fr_1.28fr]">
-        <div className="border-white/5 p-4 lg:border-r">
+        <div className="border-border-subtle p-4 lg:border-r">
           <div className="space-y-3">
             {[
               ['collection', '3 records'],
@@ -166,9 +166,9 @@ function OptimisticWorkbench() {
             ].map(([label, value]) => (
               <div
                 key={label}
-                className="rounded-lg border border-white/5 bg-[#151515] p-4"
+                className="rounded-lg border border-border-subtle bg-background-subtle p-4"
               >
-                <p className="font-ds-mono text-[10px] uppercase tracking-[0.14em] text-white/25">
+                <p className="font-ds-mono text-[10px] uppercase tracking-[0.14em] text-text-primary/25">
                   {label}
                 </p>
                 <p className="mt-2 font-ds-mono text-[12px] text-[var(--landing-accent-bright)]">
@@ -181,7 +181,7 @@ function OptimisticWorkbench() {
             <p className="font-ds-mono text-[9px] uppercase tracking-[0.12em] text-[var(--landing-accent-bright)]">
               persist on your cadence
             </p>
-            <div className="mt-3 flex flex-wrap gap-2 text-ds-body-xs text-white/45">
+            <div className="mt-3 flex flex-wrap gap-2 text-ds-body-xs text-text-primary/45">
               <span>debounce</span>
               <span>·</span>
               <span>throttle</span>
@@ -193,7 +193,7 @@ function OptimisticWorkbench() {
 
         <div className="min-w-0 p-4 sm:p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="font-ds-mono text-[11px] text-white/70">
+            <p className="font-ds-mono text-[11px] text-text-primary/70">
               useLiveQuery(openTodos)
             </p>
             <span
@@ -208,8 +208,8 @@ function OptimisticWorkbench() {
             </span>
           </div>
 
-          <div className="mt-4 overflow-hidden rounded-lg border border-white/8">
-            <div className="grid grid-cols-[1fr_auto] bg-[#181818] px-3 py-2 font-ds-mono text-[9px] uppercase tracking-[0.12em] text-white/25">
+          <div className="mt-4 overflow-hidden rounded-lg border border-border-subtle">
+            <div className="grid grid-cols-[1fr_auto] bg-background-subtle px-3 py-2 font-ds-mono text-[9px] uppercase tracking-[0.12em] text-text-primary/25">
               <span>open task</span>
               <span>sync state</span>
             </div>
@@ -252,7 +252,7 @@ function OptimisticWorkbench() {
             {state !== 'idle' ? (
               <button
                 type="button"
-                className="rounded-lg px-3 py-2 text-ds-label-sm text-white/35 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                className="rounded-lg px-3 py-2 text-ds-label-sm text-text-primary/35 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary"
                 onClick={() => setState('idle')}
               >
                 Reset
@@ -260,7 +260,7 @@ function OptimisticWorkbench() {
             ) : null}
           </div>
 
-          <p className="mt-5 text-ds-body-xs text-white/35">
+          <p className="mt-5 text-ds-body-xs text-text-primary/35">
             The live result changes immediately. Persistence either confirms the
             local state or removes it automatically when the handler fails.
           </p>
@@ -272,8 +272,10 @@ function OptimisticWorkbench() {
 
 function TodoRow({ state, title }: { state: string; title: string }) {
   return (
-    <div className="grid grid-cols-[1fr_auto] items-center gap-4 border-t border-white/5 bg-[#101010] px-3 py-3">
-      <span className="truncate text-ds-label-sm text-white/75">{title}</span>
+    <div className="grid grid-cols-[1fr_auto] items-center gap-4 border-t border-border-subtle bg-background-surface px-3 py-3">
+      <span className="truncate text-ds-label-sm text-text-primary/75">
+        {title}
+      </span>
       <span className="font-ds-mono text-[9px] uppercase text-[var(--landing-accent-bright)]">
         {state}
       </span>
@@ -314,14 +316,16 @@ function DataShapeChoices() {
           className={
             choice.accent
               ? 'rounded-xl border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.18)] p-6 shadow-[0_20px_60px_rgb(var(--landing-glow)/0.12)]'
-              : 'rounded-xl border border-white/8 bg-[#101010] p-6'
+              : 'rounded-xl border border-border-subtle bg-background-surface p-6'
           }
         >
-          <p className="font-ds-display text-ds-display-md font-light text-[var(--landing-accent)]">
+          <p className="font-ds-display text-ds-display-md font-light text-[var(--landing-accent-bright)]">
             {choice.number}
           </p>
           <h3 className="mt-5 text-ds-heading-4">{choice.title}</h3>
-          <p className="mt-4 text-ds-body-xs text-white/35">{choice.detail}</p>
+          <p className="mt-4 text-ds-body-xs text-text-primary/35">
+            {choice.detail}
+          </p>
         </div>
       ))}
     </div>
@@ -358,7 +362,7 @@ function LiveQueryLab() {
   return (
     <LandingWindow label="cross-collection live query">
       <div className="p-5">
-        <pre className="overflow-x-auto rounded-lg bg-black p-4 font-ds-mono text-[10px] leading-5 text-white/55">
+        <pre className="overflow-x-auto rounded-lg bg-ds-neutral-500 p-4 font-ds-mono text-[10px] leading-5 text-white/55">
           <code>
             <span className="text-[var(--landing-accent-bright)]">from</span>{' '}
             issues
@@ -384,7 +388,7 @@ function LiveQueryLab() {
               key={filter.id}
               type="button"
               aria-pressed={team === filter.id}
-              className="rounded-full border border-white/10 px-3 py-1.5 text-ds-label-sm text-white/35 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
+              className="rounded-full border border-border-default px-3 py-1.5 text-ds-label-sm text-text-primary/35 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
               onClick={() => setTeam(filter.id)}
             >
               {filter.label}
@@ -395,21 +399,21 @@ function LiveQueryLab() {
           {joinedRows.map((row) => (
             <div
               key={row.id}
-              className="grid gap-2 rounded-lg border border-white/5 bg-[#121212] p-3 sm:grid-cols-[auto_1fr_auto] sm:items-center"
+              className="grid gap-2 rounded-lg border border-border-subtle bg-background-subtle p-3 sm:grid-cols-[auto_1fr_auto] sm:items-center"
             >
               <span className="font-ds-mono text-[10px] text-[var(--landing-accent-bright)]">
                 {row.id}
               </span>
-              <span className="min-w-0 truncate text-ds-label-sm text-white/70">
+              <span className="min-w-0 truncate text-ds-label-sm text-text-primary/70">
                 {row.title}
               </span>
-              <span className="font-ds-mono text-[9px] uppercase text-white/30">
+              <span className="font-ds-mono text-[9px] uppercase text-text-primary/30">
                 {row.project} · {row.priority}
               </span>
             </div>
           ))}
         </div>
-        <p className="mt-4 font-ds-mono text-[9px] uppercase tracking-[0.14em] text-white/25">
+        <p className="mt-4 font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
           {joinedRows.length} result{joinedRows.length === 1 ? '' : 's'} ·
           inferred output
         </p>
@@ -444,15 +448,15 @@ function QueryDrivenSync() {
           const Icon = step.icon
           return (
             <React.Fragment key={step.label}>
-              <li className="grid gap-4 rounded-xl border border-white/8 bg-[#121212] p-4 sm:grid-cols-[auto_1fr] sm:items-center">
+              <li className="grid gap-4 rounded-xl border border-border-subtle bg-background-subtle p-4 sm:grid-cols-[auto_1fr] sm:items-center">
                 <span className="flex size-10 items-center justify-center rounded-lg bg-[var(--landing-accent)] text-[var(--landing-accent-ink)]">
                   <Icon aria-hidden="true" size={19} />
                 </span>
                 <div className="min-w-0">
-                  <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-white/25">
+                  <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
                     {step.label}
                   </p>
-                  <p className="mt-2 overflow-x-auto font-ds-mono text-[11px] text-white/70">
+                  <p className="mt-2 overflow-x-auto font-ds-mono text-[11px] text-text-primary/70">
                     {step.code}
                   </p>
                 </div>
@@ -473,11 +477,11 @@ function QueryDrivenSync() {
 
 function AdoptionPaths() {
   return (
-    <div className="mx-auto mt-14 max-w-[72rem] overflow-hidden rounded-xl border border-white/10 bg-[#101010]">
+    <div className="mx-auto mt-14 max-w-[72rem] overflow-hidden rounded-xl border border-border-default bg-background-surface">
       {adoptionPaths.map((path, index) => (
         <div
           key={path.source}
-          className="grid gap-5 border-b border-white/8 p-5 last:border-b-0 md:grid-cols-[0.7fr_auto_1fr] md:items-center md:p-7"
+          className="grid gap-5 border-b border-border-subtle p-5 last:border-b-0 md:grid-cols-[0.7fr_auto_1fr] md:items-center md:p-7"
         >
           <div className="flex items-center gap-3">
             <Stack
@@ -487,7 +491,7 @@ function AdoptionPaths() {
             />
             <p className="text-ds-heading-5">{path.source}</p>
           </div>
-          <div className="flex items-center gap-3 text-[var(--landing-accent)]">
+          <div className="flex items-center gap-3 text-[var(--landing-accent-bright)]">
             <ArrowRight
               aria-hidden="true"
               className="rotate-90 md:rotate-0"
@@ -498,9 +502,11 @@ function AdoptionPaths() {
             </span>
           </div>
           <div>
-            <p className="text-ds-body-sm text-white/45">{path.detail}</p>
+            <p className="text-ds-body-sm text-text-primary/45">
+              {path.detail}
+            </p>
             {index === adoptionPaths.length - 1 ? (
-              <p className="mt-2 font-ds-mono text-[9px] uppercase tracking-[0.14em] text-white/25">
+              <p className="mt-2 font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
                 same collection · same live query
               </p>
             ) : null}

@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { ChevronDown } from 'lucide-react'
+import { CaretDown } from '@phosphor-icons/react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -47,7 +47,7 @@ export function ChartControls({
         <DropdownMenuTrigger asChild>
           <button className={buttonStyles.base}>
             {timeRangeOptions.find((r) => r.value === timeRange)?.label}
-            <ChevronDown className="w-3 h-3" />
+            <CaretDown className="w-3 h-3" />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="min-w-[120px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-1 z-50">
@@ -76,7 +76,7 @@ export function ChartControls({
             )}
           >
             {binningOptions.find((b) => b.value === binType)?.label}
-            <ChevronDown className="w-3 h-3" />
+            <CaretDown className="w-3 h-3" />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="min-w-[100px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-1 z-50">

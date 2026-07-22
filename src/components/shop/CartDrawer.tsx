@@ -1,6 +1,6 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import { Link } from '@tanstack/react-router'
-import { Minus, Plus, ShoppingCart, Trash2, X } from 'lucide-react'
+import { Minus, Plus, ShoppingCart, Trash, X } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { useCart, useRemoveCartLine, useUpdateCartLine } from '~/hooks/useCart'
 import { formatMoney, shopifyImageUrl } from '~/utils/shopify-format'
@@ -241,7 +241,7 @@ function DrawerCartLine({
               aria-label="Remove from cart"
               className="p-1 rounded-md text-shop-muted hover:text-shop-text disabled:opacity-50"
             >
-              <Trash2 className="w-3.5 h-3.5" />
+              <Trash className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>

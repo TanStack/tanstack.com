@@ -1,6 +1,6 @@
 import * as React from 'react'
 import * as TooltipPrimitive from '@radix-ui/react-tooltip'
-import { Check, Copy, Sparkles, X } from 'lucide-react'
+import { Check, Copy, Sparkle, X } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import {
   getApplicationStarterConflictingPartnerIds,
@@ -176,7 +176,7 @@ function StarterLibraryTooltip({ library }: { library: StarterTryLibrary }) {
   return (
     <div className="w-[min(22rem,calc(100vw-1rem))] rounded-xl border border-gray-200 bg-white/95 px-3.5 py-3 text-left shadow-lg shadow-gray-950/10 dark:border-gray-800 dark:bg-gray-950/95">
       <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.18em] text-gray-400 dark:text-gray-500">
-        <Sparkles className="h-3.5 w-3.5" />
+        <Sparkle className="h-3.5 w-3.5" />
         TanStack {library.label}
       </div>
       <div className="mt-2 flex flex-wrap gap-1.5">
@@ -438,7 +438,7 @@ function StarterPartnerTooltip({
   return (
     <div className="w-[min(22rem,calc(100vw-1rem))] rounded-xl border border-gray-200 bg-white/95 px-3.5 py-3 text-left shadow-lg shadow-gray-950/10 dark:border-gray-800 dark:bg-gray-950/95">
       <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.18em] text-gray-400 dark:text-gray-500">
-        <Sparkles className="h-3.5 w-3.5" />
+        <Sparkle className="h-3.5 w-3.5" />
         {partner.label}
       </div>
       {partner.tags.length > 0 ? (

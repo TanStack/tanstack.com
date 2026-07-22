@@ -4,16 +4,15 @@ import { useQuery } from '@tanstack/react-query'
 import {
   ArrowRight,
   BookOpen,
-  Bot,
-  FileSearch,
+  Robot,
+  FileMagnifyingGlass,
   GitBranch,
   Package,
-  PackageCheck,
-  RefreshCw,
-  ScanLine,
-  Sparkles,
-  WandSparkles,
-} from 'lucide-react'
+  ArrowsClockwise,
+  Scan,
+  Sparkle,
+  MagicWand,
+} from '@phosphor-icons/react'
 
 import { BottomCTA } from '~/components/BottomCTA'
 import { Footer } from '~/components/Footer'
@@ -72,17 +71,17 @@ const featureCards = [
   {
     title: 'Discovery happens from node_modules.',
     body: 'Install the package and compatible agents can find the skill metadata where the code already lives.',
-    icon: <Bot size={18} />,
+    icon: <Robot size={18} />,
   },
   {
     title: 'Source docs keep skills accountable.',
     body: 'Skills declare the docs they depend on, so stale checks can flag them when the source material changes.',
-    icon: <FileSearch size={18} />,
+    icon: <FileMagnifyingGlass size={18} />,
   },
   {
     title: 'The registry makes the ecosystem visible.',
     body: 'Packages, skills, versions, download signals, and history become browsable instead of hidden inside package tarballs.',
-    icon: <ScanLine size={18} />,
+    icon: <Scan size={18} />,
   },
 ]
 
@@ -114,7 +113,7 @@ export default function IntentLanding() {
       <section className="max-w-full overflow-hidden border-b border-sky-950/10 bg-[#e0f2fe] dark:border-sky-300/10 dark:bg-[#061522]">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-10 lg:max-w-[80rem] lg:grid-cols-[0.84fr_1.16fr] lg:items-start lg:py-12 xl:max-w-[92rem]">
           <div className="min-w-0 max-w-full sm:max-w-3xl">
-            <SectionKicker icon={<WandSparkles size={14} />}>
+            <SectionKicker icon={<MagicWand size={14} />}>
               Agent skills in npm
             </SectionKicker>
 
@@ -159,7 +158,7 @@ export default function IntentLanding() {
               <IntentSecondaryLink
                 to="/intent/registry"
                 label="View Registry"
-                icon={<PackageCheck size={16} aria-hidden="true" />}
+                icon={<Package size={16} aria-hidden="true" />}
               />
               <LandingCopyPromptButton
                 prompt={intentAgentPrompt}
@@ -181,7 +180,7 @@ export default function IntentLanding() {
       <section className="border-b border-sky-950/10 bg-[#f4fbff] dark:border-sky-300/10 dark:bg-[#071b2b]">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.74fr_1.26fr] xl:max-w-[92rem]">
           <div>
-            <SectionKicker icon={<Sparkles size={14} />}>
+            <SectionKicker icon={<Sparkle size={14} />}>
               Why Intent
             </SectionKicker>
             <h2 className="mt-3 max-w-xl text-3xl font-black leading-tight sm:text-4xl">
@@ -227,7 +226,7 @@ export default function IntentLanding() {
       <section className="border-b border-zinc-200 bg-[#fbfaf6] dark:border-zinc-800 dark:bg-zinc-900">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.72fr_1.28fr] lg:items-start xl:max-w-[92rem]">
           <div className="max-w-xl">
-            <SectionKicker icon={<RefreshCw size={14} />}>
+            <SectionKicker icon={<ArrowsClockwise size={14} />}>
               Staleness checks
             </SectionKicker>
             <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
@@ -376,7 +375,7 @@ function IntentRegistryPreview() {
       <div className="mx-auto w-full max-w-[80rem] px-4 xl:max-w-[92rem]">
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
-            <SectionKicker icon={<PackageCheck size={14} />}>
+            <SectionKicker icon={<Package size={14} />}>
               Skills Registry
             </SectionKicker>
             <h2 className="mt-3 text-3xl font-black leading-tight">

@@ -2,16 +2,16 @@ import * as React from 'react'
 import { Link, useParams } from '@tanstack/react-router'
 import {
   ArrowRight,
-  Bot,
+  Robot,
   BookOpen,
-  FileCode2,
+  FileCode,
   GitBranch,
-  Layers,
-  PackagePlus,
-  Puzzle,
-  Sparkles,
+  Stack,
+  Package,
+  PuzzlePiece,
+  Sparkle,
   Terminal,
-} from 'lucide-react'
+} from '@phosphor-icons/react'
 
 import { BottomCTA } from '~/components/BottomCTA'
 import { Footer } from '~/components/Footer'
@@ -62,17 +62,17 @@ const featureCards = [
   {
     title: 'CLI introspection turns docs into agent context.',
     body: 'Use JSON commands for docs, libraries, add-ons, and ecosystem data so generated work can reference current TanStack conventions.',
-    icon: <Bot size={18} />,
+    icon: <Robot size={18} />,
   },
   {
     title: 'Integrations become selectable building blocks.',
     body: 'Auth, databases, styling, deployment, and more can be composed into a Start-ready app without burying every choice in hand-written setup.',
-    icon: <Puzzle size={18} />,
+    icon: <PuzzlePiece size={18} />,
   },
   {
     title: 'The Builder makes the stack visible.',
     body: 'Use the web UI to select libraries and partners, preview generated choices, and export a plan the CLI or agent can execute.',
-    icon: <Layers size={18} />,
+    icon: <Stack size={18} />,
   },
 ]
 
@@ -167,7 +167,7 @@ export default function CliLanding() {
               <CliSecondaryLink
                 to="/builder"
                 label="Try the Builder"
-                icon={<Layers size={16} aria-hidden="true" />}
+                icon={<Stack size={16} aria-hidden="true" />}
               />
               <LandingCopyPromptButton
                 prompt={cliAgentPrompt}
@@ -189,7 +189,7 @@ export default function CliLanding() {
       <section className="border-b border-indigo-950/10 bg-[#f4f6ff] dark:border-indigo-300/10 dark:bg-[#0e1026]">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.74fr_1.26fr] xl:max-w-[92rem]">
           <div>
-            <SectionKicker icon={<Sparkles size={14} />}>Why CLI</SectionKicker>
+            <SectionKicker icon={<Sparkle size={14} />}>Why CLI</SectionKicker>
             <h2 className="mt-3 max-w-xl text-3xl font-black leading-tight sm:text-4xl">
               Project setup is where documentation meets the filesystem.
             </h2>
@@ -229,7 +229,7 @@ export default function CliLanding() {
       <section className="border-b border-zinc-200 bg-[#fbfaf6] dark:border-zinc-800 dark:bg-zinc-900">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.82fr_1.18fr] lg:items-start xl:max-w-[92rem]">
           <div>
-            <SectionKicker icon={<PackagePlus size={14} />}>
+            <SectionKicker icon={<Package size={14} />}>
               Builder output
             </SectionKicker>
             <h2 className="mt-3 max-w-xl text-3xl font-black leading-tight sm:text-4xl">
@@ -249,7 +249,7 @@ export default function CliLanding() {
       <section className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.72fr_1.28fr] lg:items-start xl:max-w-[92rem]">
           <div className="max-w-xl">
-            <SectionKicker icon={<FileCode2 size={14} />}>
+            <SectionKicker icon={<FileCode size={14} />}>
               Developer ergonomics
             </SectionKicker>
             <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">

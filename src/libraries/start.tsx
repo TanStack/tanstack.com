@@ -1,4 +1,4 @@
-import { Network, Rocket, ServerCrash } from 'lucide-react'
+import { Network, Rocket, Warning } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { redirect } from '@tanstack/react-router'
 import { YinYangIcon } from '~/components/icons/YinYangIcon'
@@ -79,7 +79,7 @@ export const startProject = {
     {
       title: 'SSR, Streaming and Server RPCs',
       icon: (
-        <ServerCrash
+        <Warning
           className={twMerge('motion-safe:animate-ping', textStyles)}
           style={{
             animationDuration: '2s',

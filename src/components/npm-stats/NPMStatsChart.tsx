@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import * as Plot from '@observablehq/plot'
 import * as d3 from 'd3'
 import { GIFEncoder, applyPalette, quantize } from 'gifenc'
-import { Check, Code2, Copy, Download, List } from 'lucide-react'
+import { Check, Code, Copy, Download, List } from '@phosphor-icons/react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -2724,7 +2724,7 @@ function EmbedChartAction({
             className={chartActionButtonStyles}
             type="button"
           >
-            <Code2 className="size-3" />
+            <Code className="size-3" />
           </button>
         </DropdownMenuTrigger>
       </Tooltip>

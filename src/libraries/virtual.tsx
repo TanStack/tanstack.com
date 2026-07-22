@@ -1,6 +1,5 @@
-import { PersonStanding, Zap } from 'lucide-react'
+import { PersonSimple, Lightning, Gear } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
-import { CogsIcon } from '~/components/icons/CogsIcon'
 import { virtual } from './libraries'
 
 const textStyles = 'text-violet-700 dark:text-violet-400'
@@ -41,7 +40,7 @@ export const virtualProject = {
       title: 'Designed for zero design',
       icon: (
         <div className="text-center overflow-hidden">
-          <PersonStanding className="text-purple-400" />
+          <PersonSimple className="text-purple-400" />
         </div>
       ),
       description: (
@@ -57,7 +56,7 @@ export const virtualProject = {
     },
     {
       title: 'Big Power, Small Package',
-      icon: <Zap className="text-purple-500" />,
+      icon: <Lightning className="text-purple-500" />,
       description: (
         <div>
           Don't be fooled by the small bundle size. TanStack Virtual uses every
@@ -72,7 +71,7 @@ export const virtualProject = {
     },
     {
       title: 'Maximum Composability',
-      icon: <CogsIcon className="text-purple-600" />,
+      icon: <Gear className="text-purple-600" />,
       description: (
         <div>
           With a single function/hook, you'll get limitless virtualization for{' '}

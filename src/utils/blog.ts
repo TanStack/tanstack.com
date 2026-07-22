@@ -12,8 +12,16 @@ export function getPublishedPosts(): Post[] {
     .sort((a, b) => b.published.localeCompare(a.published))
 }
 
+export function getVisiblePosts(): Post[] {
+  if (import.meta.env.DEV) {
+    return [...allPosts].sort((a, b) => b.published.localeCompare(a.published))
+  }
+
+  return getPublishedPosts()
+}
+
 export function getPostsForLibrary(libraryId: LibraryId): Post[] {
-  return getPublishedPosts().filter((post) =>
+  return getVisiblePosts().filter((post) =>
     getBlogLibraries(post.library).some((lib) => lib.id === libraryId),
   )
 }

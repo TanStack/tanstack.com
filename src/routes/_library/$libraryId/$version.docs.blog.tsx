@@ -1,6 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { DocContainer } from '~/components/DocContainer'
 import { DocTitle } from '~/components/DocTitle'

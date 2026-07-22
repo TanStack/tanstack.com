@@ -4,14 +4,14 @@ import { Card } from '~/components/Card'
 import { seo } from '~/utils/seo'
 import {
   Globe,
-  Blocks,
+  SquaresFour,
   Rocket,
   Eye,
   Users,
-  Code2,
+  Code,
   Wrench,
   Handshake,
-} from 'lucide-react'
+} from '@phosphor-icons/react'
 
 export const Route = createFileRoute('/tenets')({
   component: RouteComp,
@@ -69,7 +69,7 @@ const tenets = [
   {
     number: 2,
     title: 'Composable, Platform-Aligned Primitives',
-    icon: Blocks,
+    icon: SquaresFour,
     gradient: 'from-emerald-500 to-teal-500',
     borderColor: 'hover:border-emerald-500/50',
     description:
@@ -186,7 +186,7 @@ const audiences = [
   },
   {
     title: 'For contributors',
-    icon: Code2,
+    icon: Code,
     gradient: 'from-emerald-500 to-teal-500',
     description:
       'When proposing features or changes, consider how they align with these tenets. If your idea conflicts with a tenet, explicitly address why and how the conflict is justified.',

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { orderFrameworksForBrowse } from '../src/routes/-libraries-utils'
+import { orderFrameworksForBrowse } from '../src/libraries/browse-utils'
 import type { Framework } from '../src/libraries/types'
 
 const frameworks: Array<{ value: Framework }> = [

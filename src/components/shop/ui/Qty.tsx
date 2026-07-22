@@ -1,4 +1,4 @@
-import { Minus, Plus } from 'lucide-react'
+import { Minus, Plus } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 
 type Props = {

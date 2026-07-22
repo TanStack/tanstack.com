@@ -3,17 +3,16 @@ import { Link, useParams } from '@tanstack/react-router'
 import {
   ArrowRight,
   BookOpen,
-  DatabaseZap,
-  GalleryVerticalEnd,
+  Database,
+  Stack,
   GitBranch,
-  Layers,
   Network,
-  PlugZap,
-  RefreshCcw,
-  Sparkles,
-  Split,
-  Zap,
-} from 'lucide-react'
+  Plugs,
+  ArrowsCounterClockwise,
+  Sparkle,
+  ArrowsSplit,
+  Lightning,
+} from '@phosphor-icons/react'
 
 import { BottomCTA } from '~/components/BottomCTA'
 import { Footer } from '~/components/Footer'
@@ -90,22 +89,22 @@ const featureCards = [
   {
     title: 'Collections make API data queryable.',
     body: 'Load, sync, or persist typed records into collections, then query the data your UI actually needs instead of spreading derived state through components.',
-    icon: <GalleryVerticalEnd size={18} />,
+    icon: <Stack size={18} />,
   },
   {
     title: 'Live queries update the result, not the whole app.',
     body: 'DB uses differential dataflow to recompute only the changed parts of joins, filters, and aggregates, so large local graphs still feel instant.',
-    icon: <Zap size={18} />,
+    icon: <Lightning size={18} />,
   },
   {
     title: 'Local writes are first-class.',
     body: 'Optimistic mutations can stage transactions across collections, update the UI immediately, then commit or rollback with lifecycle support.',
-    icon: <RefreshCcw size={18} />,
+    icon: <ArrowsCounterClockwise size={18} />,
   },
   {
     title: 'Sync strategy can evolve with the product.',
     body: 'Start with REST, GraphQL, tRPC, TanStack Query, Electric, PowerSync, Trailbase, or your own collection creator without changing how components query.',
-    icon: <PlugZap size={18} />,
+    icon: <Plugs size={18} />,
   },
 ]
 
@@ -158,7 +157,7 @@ export default function DbLanding() {
       <section className="max-w-full overflow-hidden border-b border-orange-950/10 bg-[#fff1e4] dark:border-orange-300/10 dark:bg-[#160a03]">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-10 lg:max-w-[80rem] lg:grid-cols-[0.84fr_1.16fr] lg:items-start lg:py-12 xl:max-w-[92rem]">
           <div className="min-w-0 max-w-full sm:max-w-3xl">
-            <SectionKicker icon={<DatabaseZap size={14} />}>
+            <SectionKicker icon={<Database size={14} />}>
               Reactive client store
             </SectionKicker>
 
@@ -226,7 +225,7 @@ export default function DbLanding() {
       <section className="border-b border-orange-950/10 bg-[#fff8f0] dark:border-orange-300/10 dark:bg-[#1b0d05]">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.74fr_1.26fr] xl:max-w-[92rem]">
           <div>
-            <SectionKicker icon={<Sparkles size={14} />}>Why DB</SectionKicker>
+            <SectionKicker icon={<Sparkle size={14} />}>Why DB</SectionKicker>
             <h2 className="mt-3 max-w-xl text-3xl font-black leading-tight sm:text-4xl">
               Server state gets awkward when the UI needs a data graph.
             </h2>
@@ -289,7 +288,7 @@ export default function DbLanding() {
       <section className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.72fr_1.28fr] lg:items-start xl:max-w-[92rem]">
           <div className="max-w-xl">
-            <SectionKicker icon={<Layers size={14} />}>
+            <SectionKicker icon={<Stack size={14} />}>
               Framework adapters
             </SectionKicker>
             <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
@@ -316,7 +315,7 @@ export default function DbLanding() {
       <section className="border-b border-zinc-200 bg-[#fff7ed] py-12 dark:border-zinc-800 dark:bg-zinc-900">
         <div className="mx-auto w-full max-w-[80rem] px-4 xl:max-w-[92rem]">
           <div className="max-w-3xl">
-            <SectionKicker icon={<Split size={14} />}>
+            <SectionKicker icon={<ArrowsSplit size={14} />}>
               Product shape
             </SectionKicker>
             <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">

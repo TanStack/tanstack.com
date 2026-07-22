@@ -9,31 +9,32 @@ const LazyNavbarAuthControls = React.lazy(() =>
   })),
 )
 import { NavbarCartButton } from './NavbarCartButton'
+import { MegaMenuItem } from './MegaMenuItem'
 import { Link, useLocation, useMatches } from '@tanstack/react-router'
 import {
   BookOpen,
   Code,
-  ExternalLink,
-  Grid2X2,
+  GridFour,
   Hammer,
   Heart,
-  HelpCircle,
-  Mail,
-  Menu,
+  Question,
+  Envelope,
+  List,
   Newspaper,
-  Paintbrush,
+  PaintBrush,
   ShieldCheck,
   ShoppingBag,
-  Sparkles,
-  TrendingUp,
+  Sparkle,
+  TrendUp,
   User,
   Users,
   X,
-} from 'lucide-react'
+} from '@phosphor-icons/react'
 import { ThemeToggle } from './ThemeToggle'
 import { AiDockButton, SearchButton } from './SearchButton'
 import { BrandContextMenu } from './BrandContextMenu'
 import { useSearchContext } from '~/contexts/SearchContext'
+import { useLibrariesOverlay } from '~/contexts/LibrariesOverlayContext'
 import {
   isPublicLibrary,
   librariesByGroup,
@@ -50,7 +51,6 @@ import {
 } from '~/components/Dropdown'
 import { DiscordIcon } from '~/components/icons/DiscordIcon'
 import { InstagramIcon } from '~/components/icons/InstagramIcon'
-import { OptimizedImage } from '~/components/OptimizedImage'
 import { BSkyIcon } from '~/components/icons/BSkyIcon'
 import { BrandXIcon } from '~/components/icons/BrandXIcon'
 import { YouTubeIcon } from '~/components/icons/YouTubeIcon'
@@ -72,31 +72,23 @@ const LogoSection = ({ title }: LogoProps) => {
   return (
     <Link
       to="/"
+      aria-label="TanStack"
       className={twMerge(
-        `inline-flex items-center gap-1.5 cursor-pointer`,
+        `inline-flex items-center cursor-pointer`,
         title ? 'shrink-0' : '',
       )}
     >
-      <div className="w-[30px] inline-grid items-center grid-cols-1 grid-rows-1 [&>*]:transition-opacity [&>*]:duration-1000">
-        <OptimizedImage
-          src="/images/logos/logo-color-100.png"
-          alt=""
-          width={30}
-          quality={90}
-          className="row-start-1 col-start-1 w-full group-hover:opacity-0"
-        />
-        <img
-          src={'/images/logos/logo-black.svg'}
-          alt=""
-          className="row-start-1 col-start-1 w-full dark:opacity-0 opacity-0 group-hover:opacity-100"
-        />
-        <img
-          src={'/images/logos/logo-white.svg'}
-          alt=""
-          className="row-start-1 col-start-1 w-full light:opacity-0 dark:block opacity-0 group-hover:opacity-100"
-        />
-      </div>
-      <div>TanStack</div>
+      <img
+        src="/images/brand/tanstack-landscape-black.svg"
+        alt="TanStack"
+        className="h-7 w-auto dark:hidden"
+      />
+      <img
+        src="/images/brand/tanstack-landscape-white.svg"
+        alt="TanStack"
+        aria-hidden="true"
+        className="hidden h-7 w-auto dark:block"
+      />
     </Link>
   )
 }
@@ -118,6 +110,8 @@ type NavMenuItem = {
   description?: string
   badge?: string
   icon?: IconComponent
+  // When set, the item renders as a button that runs this instead of navigating.
+  onSelect?: () => void
 }
 
 type NavMenuSection = {
@@ -239,7 +233,7 @@ const NAV_GROUPS = [
             label: 'Showcase',
             to: '/showcase',
             description: 'Products and teams building with TanStack.',
-            icon: Sparkles,
+            icon: Sparkle,
           },
         ],
       },
@@ -263,7 +257,7 @@ const NAV_GROUPS = [
             label: 'Stats',
             to: '/stats/npm',
             description: 'NPM and ecosystem usage data.',
-            icon: TrendingUp,
+            icon: TrendUp,
           },
         ],
       },
@@ -286,7 +280,7 @@ const NAV_GROUPS = [
             label: 'Support Overview',
             to: '/support',
             description: 'Find the right support path.',
-            icon: HelpCircle,
+            icon: Question,
           },
           {
             label: 'Partners',
@@ -311,7 +305,7 @@ const NAV_GROUPS = [
             label: 'Contact',
             to: 'mailto:support@tanstack.com',
             description: 'Get in touch with the TanStack team.',
-            icon: Mail,
+            icon: Envelope,
           },
         ],
       },
@@ -334,7 +328,13 @@ const NAV_GROUPS = [
             label: 'Brand Guide',
             to: '/brand-guide',
             description: 'Logos, colors, and brand usage.',
-            icon: Paintbrush,
+            icon: PaintBrush,
+          },
+          {
+            label: 'Design System',
+            to: '/ds',
+            description: 'Design tokens and components for TanStack surfaces.',
+            icon: GridFour,
           },
         ],
       },
@@ -346,7 +346,7 @@ const NAV_GROUPS = [
       item: {
         label: 'Partnership Inquiry',
         to: 'mailto:partners@tanstack.com?subject=TanStack Partnership Inquiry',
-        icon: Mail,
+        icon: Envelope,
       },
     },
   },
@@ -360,10 +360,6 @@ function isNavigationLibrary(
 
 function getLibraryDisplayName(library: LibrarySlim) {
   return library.name.replace(/^TanStack\s+/, '')
-}
-
-function isExternalLink(to: string) {
-  return to.startsWith('http') || to.startsWith('mailto:')
 }
 
 function getLibraryDocsTo(library: NavigationLibrary) {
@@ -570,8 +566,8 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   const navbar = (
     <div
       className={twMerge(
-        'w-full h-[var(--navbar-height)] p-2 fixed top-0 z-[100] bg-white/90 dark:bg-black/90 backdrop-blur-lg',
-        'flex items-center justify-between gap-2 min-[1120px]:gap-3',
+        'w-full h-[var(--navbar-height)] px-3 py-2 min-[900px]:px-5 fixed top-0 z-[100] bg-white/90 dark:bg-black/90 backdrop-blur-lg',
+        'flex items-center justify-between gap-2 min-[1120px]:gap-4',
         'border-b border-gray-500/20',
       )}
       ref={containerRef}
@@ -589,32 +585,32 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             </div>
           ) : null}
         </div>
-
-        <nav
-          ref={desktopNavRef}
-          aria-label="Primary navigation"
-          className={twMerge(
-            DESKTOP_NAV_CLASS,
-            'relative shrink-0 items-center gap-0',
-          )}
-        >
-          {NAV_GROUPS.map((group) => (
-            <DesktopNavTrigger
-              key={group.key}
-              group={group}
-              dismissed={dismissedDesktopMenuKey === group.key}
-              onDismiss={() => dismissDesktopMenu(group.key)}
-              onResetDismissed={() => {
-                setDismissedDesktopMenuKey((dismissedKey) =>
-                  dismissedKey === group.key ? null : dismissedKey,
-                )
-              }}
-            />
-          ))}
-        </nav>
       </div>
 
-      <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+      <nav
+        ref={desktopNavRef}
+        aria-label="Primary navigation"
+        className={twMerge(
+          DESKTOP_NAV_CLASS,
+          'relative shrink-0 items-center justify-center gap-1',
+        )}
+      >
+        {NAV_GROUPS.map((group) => (
+          <DesktopNavTrigger
+            key={group.key}
+            group={group}
+            dismissed={dismissedDesktopMenuKey === group.key}
+            onDismiss={() => dismissDesktopMenu(group.key)}
+            onResetDismissed={() => {
+              setDismissedDesktopMenuKey((dismissedKey) =>
+                dismissedKey === group.key ? null : dismissedKey,
+              )
+            }}
+          />
+        ))}
+      </nav>
+
+      <div className="flex flex-1 items-center justify-end gap-2 sm:gap-2.5">
         <div className={DESKTOP_SOCIAL_CLASS}>{socialLinks}</div>
         <ThemeToggle />
         <NavbarCartButton />
@@ -644,7 +640,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           {mobileMenuOpen ? (
             <X className="h-5 w-5" />
           ) : (
-            <Menu className="h-5 w-5" />
+            <List className="h-5 w-5" />
           )}
         </button>
       </div>
@@ -744,6 +740,7 @@ function DesktopNavTrigger({
   onDismiss: () => void
   onResetDismissed: () => void
 }) {
+  const { openLibraries } = useLibrariesOverlay()
   const triggerClassName = twMerge(
     'ts-mega-trigger inline-flex items-center gap-1 rounded-md px-2 py-2 text-xs font-medium min-[1120px]:gap-1.5 min-[1120px]:px-3 min-[1120px]:text-[13px]',
     'text-gray-700 transition-colors hover:bg-gray-500/10 hover:text-gray-950',
@@ -758,7 +755,19 @@ function DesktopNavTrigger({
       onPointerLeave={onResetDismissed}
       onFocusCapture={onResetDismissed}
     >
-      {group.to ? (
+      {group.key === 'libraries' ? (
+        <button
+          type="button"
+          data-menu-key={group.key}
+          className={triggerClassName}
+          onClick={() => {
+            openLibraries()
+            onDismiss()
+          }}
+        >
+          <span>{group.label}</span>
+        </button>
+      ) : group.to ? (
         <Link
           to={group.to}
           data-menu-key={group.key}
@@ -911,7 +920,7 @@ function MegaMenuContent({
               </div>
               <div
                 className={twMerge(
-                  'grid gap-1',
+                  'grid gap-2',
                   variant === 'desktop' &&
                     group.key === 'learn' &&
                     'grid-cols-[repeat(2,260px)]',
@@ -947,14 +956,16 @@ function LibrariesMenuContent({
   onNavigate: () => void
   variant: 'desktop' | 'mobile'
 }) {
+  const { openLibraries } = useLibrariesOverlay()
   const libraryMenuGroups = getLibraryMenuGroups()
   const desktopLibraryMenuColumns =
     getDesktopLibraryMenuColumns(libraryMenuGroups)
   const allLibrariesItem: NavMenuItem = {
     label: 'All Libraries',
-    to: '/libraries',
+    to: '#',
     description: 'Browse the full set of public packages.',
-    icon: Grid2X2,
+    icon: GridFour,
+    onSelect: openLibraries,
   }
 
   return (
@@ -962,6 +973,16 @@ function LibrariesMenuContent({
       className={twMerge(variant === 'desktop' ? 'grid gap-4' : 'grid gap-3')}
     >
       <div>
+        {variant === 'desktop' ? (
+          <div className="mb-4 pr-2">
+            <MenuItemLink
+              item={allLibrariesItem}
+              onNavigate={onNavigate}
+              variant="desktop"
+              compact
+            />
+          </div>
+        ) : null}
         <div
           className={twMerge(
             variant === 'desktop'
@@ -1363,74 +1384,19 @@ function MenuItemLink({
   variant: 'desktop' | 'mobile'
   compact?: boolean
 }) {
-  const Icon = item.icon
-  const isExternal = isExternalLink(item.to)
-  const className = twMerge(
-    'group flex items-start gap-3 rounded-lg px-2 py-2.5 text-left',
-    'hover:bg-gray-500/10 focus:bg-gray-500/10 focus:outline-none',
-    compact && 'bg-white dark:bg-black/40',
-    variant === 'desktop' && !compact && 'w-[260px]',
-    variant === 'mobile' && 'px-2 py-3',
-  )
-  const content = (
-    <>
-      {Icon ? (
-        <span className="mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300">
-          <Icon className="h-4 w-4" />
-        </span>
-      ) : null}
-      <span className="min-w-0 flex-1">
-        <span className="flex items-center gap-2">
-          <span className="font-bold text-gray-950 dark:text-white">
-            {item.label}
-          </span>
-          {item.badge ? (
-            <span className="rounded-md border border-green-500/50 px-1.5 py-0.5 text-[0.6rem] font-black uppercase leading-none text-green-600 dark:text-green-400">
-              {item.badge}
-            </span>
-          ) : null}
-          {isExternal && !item.to.startsWith('mailto:') ? (
-            <ExternalLink className="h-3 w-3 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300" />
-          ) : null}
-        </span>
-        {item.description ? (
-          <span
-            className={twMerge(
-              'mt-0.5 block text-gray-600 dark:text-gray-400',
-              variant === 'desktop' ? 'text-xs leading-4' : 'text-sm leading-5',
-            )}
-          >
-            {item.description}
-          </span>
-        ) : null}
-      </span>
-    </>
-  )
-
-  if (isExternal) {
-    return (
-      <a
-        href={item.to}
-        target={item.to.startsWith('mailto:') ? undefined : '_blank'}
-        rel={item.to.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
-        className={className}
-        onClick={onNavigate}
-      >
-        {content}
-      </a>
-    )
-  }
-
   return (
-    <Link
+    <MegaMenuItem
+      icon={item.icon}
+      title={item.label}
+      description={item.description}
       to={item.to}
       hash={item.hash}
-      className={className}
-      onClick={onNavigate}
-      preload="intent"
-    >
-      {content}
-    </Link>
+      badge={item.badge}
+      onSelect={item.onSelect}
+      onNavigate={onNavigate}
+      variant={variant}
+      compact={compact}
+    />
   )
 }
 

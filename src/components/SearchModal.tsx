@@ -20,21 +20,21 @@ import {
 import { liteClient } from 'algoliasearch/lite'
 import {
   X,
-  Search,
-  SearchSlash,
-  ChevronDown,
-  CornerDownLeft,
+  MagnifyingGlass,
+  MagnifyingGlassMinus,
+  CaretDown,
+  ArrowElbowDownLeft,
   ArrowUp,
   Check,
   Copy,
-  ExternalLink,
-  History,
-  MessageSquarePlus,
+  ArrowSquareOut,
+  ClockCounterClockwise,
+  ChatCenteredDots,
   ThumbsDown,
   ThumbsUp,
-  Maximize2,
-  Minimize2,
-} from 'lucide-react'
+  ArrowsOutSimple,
+  ArrowsInSimple,
+} from '@phosphor-icons/react'
 import {
   DefaultKapaApiService,
   KapaProvider,
@@ -1193,9 +1193,9 @@ function DockMaximizeButton({
       )}
     >
       {isMaximized ? (
-        <Minimize2 className="w-3.5 h-3.5" />
+        <ArrowsInSimple className="w-3.5 h-3.5" />
       ) : (
-        <Maximize2 className="w-3.5 h-3.5" />
+        <ArrowsOutSimple className="w-3.5 h-3.5" />
       )}
       <ChatControlTooltip>{label}</ChatControlTooltip>
     </button>
@@ -1318,7 +1318,7 @@ function KapaHistoryButton({
               : 'gap-1 px-1.5 sm:px-2 py-1 rounded-md bg-white/80 dark:bg-black/80',
           )}
         >
-          <History className="w-3 h-3" />
+          <ClockCounterClockwise className="w-3 h-3" />
           {compact ? (
             <ChatControlTooltip>Chat history</ChatControlTooltip>
           ) : (
@@ -1412,9 +1412,15 @@ function AIMessageHeader({ action }: { action?: React.ReactNode }) {
       <div className="flex items-center gap-1.5 min-w-0">
         <div className="w-5 h-5 rounded-full overflow-hidden ring-1 ring-black/10 dark:ring-white/10 shrink-0">
           <img
-            src="/images/logos/logo-color-100.png"
+            src="/images/brand/tanstack-emblem-black.svg"
             alt="TanStack"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain p-0.5 dark:hidden"
+          />
+          <img
+            src="/images/brand/tanstack-emblem-white.svg"
+            alt="TanStack"
+            aria-hidden="true"
+            className="hidden w-full h-full object-contain p-0.5 dark:block"
           />
         </div>
         <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0 min-w-0">
@@ -1682,7 +1688,7 @@ function KapaAnswer({
                   >
                     <SourceScopeBadges {...sourceScope} />
                     {!hasSourceScope ? (
-                      <ExternalLink className="w-2.5 h-2.5 flex-none opacity-60" />
+                      <ArrowSquareOut className="w-2.5 h-2.5 flex-none opacity-60" />
                     ) : null}
                     <span className="truncate">{label}</span>
                   </SafeLink>
@@ -1988,9 +1994,9 @@ function KapaChatPanel({
                 aria-label={isFullHeight ? 'Collapse search' : 'Expand search'}
               >
                 {isFullHeight ? (
-                  <Minimize2 className="w-3 h-3" />
+                  <ArrowsInSimple className="w-3 h-3" />
                 ) : (
-                  <Maximize2 className="w-3 h-3" />
+                  <ArrowsOutSimple className="w-3 h-3" />
                 )}
               </button>
             </>
@@ -2035,7 +2041,7 @@ function KapaChatPanel({
                     : 'gap-1 px-2 py-1 rounded-md bg-white/80 dark:bg-black/80',
                 )}
               >
-                <MessageSquarePlus className="w-3.5 h-3.5" />
+                <ChatCenteredDots className="w-3.5 h-3.5" />
                 {isDock ? (
                   <ChatControlTooltip>New chat</ChatControlTooltip>
                 ) : (
@@ -2212,9 +2218,9 @@ function KapaUnavailablePanel({
                 aria-label={isFullHeight ? 'Collapse search' : 'Expand search'}
               >
                 {isFullHeight ? (
-                  <Minimize2 className="w-3 h-3" />
+                  <ArrowsInSimple className="w-3 h-3" />
                 ) : (
-                  <Maximize2 className="w-3 h-3" />
+                  <ArrowsOutSimple className="w-3 h-3" />
                 )}
               </button>
             </>
@@ -2388,7 +2394,7 @@ function CommandSearchInput({
     <header className="flex-none border-b border-gray-200/80 bg-white/95 px-3 py-3 dark:border-white/10 dark:bg-black/95 sm:px-4">
       <div className="flex items-center gap-2">
         <div className="flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-gray-200 bg-gray-500/[0.04] px-3 py-2.5 shadow-sm dark:border-white/10 dark:bg-white/[0.06]">
-          <Search className="h-5 w-5 shrink-0 text-gray-400 dark:text-gray-500" />
+          <MagnifyingGlass className="h-5 w-5 shrink-0 text-gray-400 dark:text-gray-500" />
           <Command.Input
             ref={inputRef}
             aria-label="Search TanStack"
@@ -2420,9 +2426,9 @@ function CommandSearchInput({
           aria-label={isFullHeight ? 'Collapse search' : 'Expand search'}
         >
           {isFullHeight ? (
-            <Minimize2 className="h-4 w-4" />
+            <ArrowsInSimple className="h-4 w-4" />
           ) : (
-            <Maximize2 className="h-4 w-4" />
+            <ArrowsOutSimple className="h-4 w-4" />
           )}
         </button>
         <button
@@ -2568,7 +2574,7 @@ function AskAIResult({ query }: { query: string }) {
       )}
     >
       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-cyan-500/10 text-cyan-700 dark:bg-cyan-400/15 dark:text-cyan-300">
-        <MessageSquarePlus className="h-4 w-4" />
+        <ChatCenteredDots className="h-4 w-4" />
       </span>
       <span className="min-w-0 flex-1">
         <span className="block text-sm font-semibold text-gray-900 dark:text-white">
@@ -2578,7 +2584,7 @@ function AskAIResult({ query }: { query: string }) {
           Open TanStack AI with this query
         </span>
       </span>
-      <CornerDownLeft className="h-4 w-4 shrink-0 text-gray-300 dark:text-gray-600" />
+      <ArrowElbowDownLeft className="h-4 w-4 shrink-0 text-gray-300 dark:text-gray-600" />
     </Command.Item>
   )
 }
@@ -2629,7 +2635,7 @@ function InputBar({
     <div className={twMerge('flex-none px-3', isDock ? 'pb-4' : 'pb-3')}>
       <div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.06] shadow-sm overflow-visible">
         <div className="flex items-center gap-2 px-3 py-2.5">
-          <Search className="w-4 h-4 opacity-30 flex-none" />
+          <MagnifyingGlass className="w-4 h-4 opacity-30 flex-none" />
           <form className="flex-1 min-w-0" onSubmit={handleSubmit}>
             <input
               ref={inputRef}
@@ -2744,9 +2750,9 @@ function SearchResultsToggle() {
         )}
       >
         {showSearchResults ? (
-          <SearchSlash className="w-[18px] h-[18px]" />
+          <MagnifyingGlassMinus className="w-[18px] h-[18px]" />
         ) : (
-          <Search className="w-[18px] h-[18px]" />
+          <MagnifyingGlass className="w-[18px] h-[18px]" />
         )}
       </button>
       {tooltipRect && typeof document !== 'undefined'
@@ -3166,7 +3172,7 @@ function LibraryRefinement({ compact = false }: SearchScopePickerProps) {
           ) : (
             <span className="truncate">All Libraries</span>
           )}
-          <ChevronDown className="w-3 h-3 opacity-50 shrink-0" />
+          <CaretDown className="w-3 h-3 opacity-50 shrink-0" />
         </button>
       </DropdownTrigger>
       <DropdownContent align="end" className="max-h-[60vh] w-64 overflow-auto">
@@ -3244,7 +3250,7 @@ function FrameworkRefinement({ compact = false }: SearchScopePickerProps) {
               ? capitalize(currentFramework.label)
               : 'All Frameworks'}
           </span>
-          <ChevronDown className="w-3 h-3 opacity-50 shrink-0" />
+          <CaretDown className="w-3 h-3 opacity-50 shrink-0" />
         </button>
       </DropdownTrigger>
       <DropdownContent align="end" className="max-h-[60vh] w-52 overflow-auto">
@@ -3321,7 +3327,7 @@ function NoResults({
               </span>
             )}
           </button>
-          <CornerDownLeft className="w-4 h-4 animate-bounce" />
+          <ArrowElbowDownLeft className="w-4 h-4 animate-bounce" />
         </div>
       )}
       {!refinedFramework && refinedLibrary && (
@@ -3337,7 +3343,7 @@ function NoResults({
               </span>
             )}
           </button>
-          <CornerDownLeft className="w-4 h-4 animate-bounce" />
+          <ArrowElbowDownLeft className="w-4 h-4 animate-bounce" />
         </div>
       )}
     </div>
@@ -3345,7 +3351,7 @@ function NoResults({
 }
 
 const _submitIconComponent = () => {
-  return <Search />
+  return <MagnifyingGlass />
 }
 
 function isSearchModalPortalTarget(target: EventTarget | null) {

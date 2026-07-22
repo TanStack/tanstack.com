@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { useGameStore } from '../hooks/useGameStore'
-import { Trophy, RotateCcw, Home } from 'lucide-react'
+import { Trophy, ArrowCounterClockwise, House } from '@phosphor-icons/react'
 
 export function CompleteOverlay() {
   const { phase, reset, setPhase } = useGameStore()
@@ -35,14 +35,14 @@ export function CompleteOverlay() {
             onClick={handlePlayAgain}
             className="flex items-center justify-center gap-2 px-6 py-3 bg-white text-orange-600 font-bold rounded-xl shadow-lg hover:bg-orange-50 hover:scale-105 transition-all duration-200"
           >
-            <RotateCcw className="w-5 h-5" />
+            <ArrowCounterClockwise className="w-5 h-5" />
             Explore Again
           </button>
           <Link
             to="/"
             className="flex items-center justify-center gap-2 px-6 py-3 bg-white/20 text-white font-bold rounded-xl hover:bg-white/30 transition-all duration-200"
           >
-            <Home className="w-5 h-5" />
+            <House className="w-5 h-5" />
             Back to TanStack
           </Link>
         </div>

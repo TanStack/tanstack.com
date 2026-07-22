@@ -1,15 +1,15 @@
 import * as React from 'react'
 import {
   Check,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-  MoreHorizontal,
+  CaretDown,
+  CaretLeft,
+  CaretRight,
+  CaretDoubleLeft,
+  CaretDoubleRight,
+  DotsThree,
   Pause,
   Play,
-} from 'lucide-react'
+} from '@phosphor-icons/react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -197,7 +197,7 @@ export function LatestBucketNavigator({
             </option>
           ))}
         </select>
-        <ChevronDown className="pointer-events-none absolute right-1.5 top-1/2 size-3 -translate-y-1/2 text-gray-500" />
+        <CaretDown className="pointer-events-none absolute right-1.5 top-1/2 size-3 -translate-y-1/2 text-gray-500" />
       </div>
       <div className="flex items-center overflow-hidden rounded border border-gray-500/15 bg-white/70 shadow-xs dark:bg-gray-900/70">
         <button
@@ -207,7 +207,7 @@ export function LatestBucketNavigator({
           onClick={() => onBucketOffsetChange(bounds.minOffset)}
           type="button"
         >
-          <ChevronsLeft className="size-3.5" />
+          <CaretDoubleLeft className="size-3.5" />
         </button>
         <button
           aria-label={`Previous ${binLabel}`}
@@ -216,7 +216,7 @@ export function LatestBucketNavigator({
           onClick={() => onBucketOffsetChange(clampedBucketOffset - 1)}
           type="button"
         >
-          <ChevronLeft className="size-3.5" />
+          <CaretLeft className="size-3.5" />
         </button>
         <button
           aria-label={`Next ${binLabel}`}
@@ -225,7 +225,7 @@ export function LatestBucketNavigator({
           onClick={() => onBucketOffsetChange(clampedBucketOffset + 1)}
           type="button"
         >
-          <ChevronRight className="size-3.5" />
+          <CaretRight className="size-3.5" />
         </button>
         <button
           aria-label={`Last ${binLabel}`}
@@ -234,7 +234,7 @@ export function LatestBucketNavigator({
           onClick={() => onBucketOffsetChange(bounds.maxOffset)}
           type="button"
         >
-          <ChevronsRight className="size-3.5" />
+          <CaretDoubleRight className="size-3.5" />
         </button>
       </div>
       <div className="flex max-w-[348px] flex-1 items-center overflow-hidden rounded border border-gray-500/15 bg-white/70 shadow-xs dark:bg-gray-900/70">
@@ -259,7 +259,7 @@ export function LatestBucketNavigator({
               className={borderedNavigatorButtonStyles}
               type="button"
             >
-              <MoreHorizontal className="size-3.5" />
+              <DotsThree className="size-3.5" />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent

@@ -1,4 +1,4 @@
-import { Star } from 'lucide-react'
+import { Star } from '@phosphor-icons/react'
 import type { Testimonial } from '~/libraries/types'
 import { Card } from './Card'
 

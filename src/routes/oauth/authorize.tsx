@@ -21,13 +21,14 @@ function SplashImages() {
   return (
     <>
       <img
-        src="/images/logos/splash-light.png"
+        src="/images/brand/tanstack-emblem-black.svg"
         alt="TanStack"
         className="w-24 h-24 dark:hidden"
       />
       <img
-        src="/images/logos/splash-dark.png"
+        src="/images/brand/tanstack-emblem-white.svg"
         alt="TanStack"
+        aria-hidden="true"
         className="w-24 h-24 hidden dark:block"
       />
     </>

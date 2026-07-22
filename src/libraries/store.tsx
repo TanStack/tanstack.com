@@ -1,4 +1,4 @@
-import { WandSparkles } from 'lucide-react'
+import { MagicWand } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { store } from './libraries'
 
@@ -14,7 +14,7 @@ export const storeProject = {
   featureHighlights: [
     {
       title: 'Battle-Tested',
-      icon: <WandSparkles className={twMerge(textStyles)} />,
+      icon: <MagicWand className={twMerge(textStyles)} />,
       description: (
         <div>
           TanStack Store is widely adopted across the TanStack ecosystem,
@@ -30,7 +30,7 @@ export const storeProject = {
     },
     {
       title: 'Tiny Bundle Size',
-      icon: <WandSparkles className={twMerge(textStyles)} />,
+      icon: <MagicWand className={twMerge(textStyles)} />,
       description: (
         <div>
           Designed with a focus on performance and efficiency, boasting a{' '}
@@ -45,7 +45,7 @@ export const storeProject = {
     },
     {
       title: 'Framework Agnostic',
-      icon: <WandSparkles className={twMerge(textStyles)} />,
+      icon: <MagicWand className={twMerge(textStyles)} />,
       description: (
         <div>
           TanStack Store is{' '}

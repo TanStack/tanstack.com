@@ -4,7 +4,12 @@ import { getUserDocFeedbackQueryOptions } from '~/queries/docFeedback'
 import { PaginationControls } from './PaginationControls'
 import { Spinner } from './Spinner'
 import { calculatePoints } from '~/utils/docFeedback.shared'
-import { Award, ExternalLink, Lightbulb, MessageSquare } from 'lucide-react'
+import {
+  Medal,
+  ArrowSquareOut,
+  Lightbulb,
+  ChatCentered,
+} from '@phosphor-icons/react'
 import { Badge } from '~/ui'
 import { useState } from 'react'
 
@@ -38,7 +43,7 @@ export function UserFeedbackSection(_props: UserFeedbackSectionProps) {
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <Award className="text-2xl text-blue-600 dark:text-blue-400" />
+              <Medal className="text-2xl text-blue-600 dark:text-blue-400" />
               <h3 className="text-lg font-bold text-gray-900 dark:text-white">
                 Feedback Points
               </h3>
@@ -82,7 +87,7 @@ export function UserFeedbackSection(_props: UserFeedbackSectionProps) {
             className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1"
           >
             View Leaderboard
-            <ExternalLink className="text-xs" />
+            <ArrowSquareOut className="text-xs" />
           </Link>
         </div>
       </div>
@@ -120,7 +125,7 @@ export function UserFeedbackSection(_props: UserFeedbackSectionProps) {
                       {/* Icon */}
                       <div className="mt-1">
                         {item.type === 'note' ? (
-                          <MessageSquare className="text-blue-500" />
+                          <ChatCentered className="text-blue-500" />
                         ) : (
                           <Lightbulb className="text-yellow-500" />
                         )}

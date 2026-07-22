@@ -3,7 +3,14 @@ import { useQuery } from '@tanstack/react-query'
 import { getUser } from '~/utils/users.functions'
 import { getUserRoles } from '~/utils/roles.functions'
 import { getUserEffectiveCapabilities } from '~/utils/roles.functions'
-import { ArrowLeft, User, Shield, Calendar, Mail, AtSign } from 'lucide-react'
+import {
+  ArrowLeft,
+  User,
+  Shield,
+  Calendar,
+  Envelope,
+  At,
+} from '@phosphor-icons/react'
 import { requireCapability } from '~/utils/auth.functions'
 import { Card } from '~/components/Card'
 import { format } from '~/utils/dates'
@@ -129,7 +136,7 @@ function UserDetailPage() {
             <dl className="space-y-4">
               <div>
                 <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                  <Mail className="w-4 h-4" />
+                  <Envelope className="w-4 h-4" />
                   Email
                 </dt>
                 <dd className="mt-1 text-sm text-gray-900 dark:text-white">
@@ -150,7 +157,7 @@ function UserDetailPage() {
               {user.displayUsername && (
                 <div>
                   <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                    <AtSign className="w-4 h-4" />
+                    <At className="w-4 h-4" />
                     Display Username
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 dark:text-white">

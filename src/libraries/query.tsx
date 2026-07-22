@@ -1,6 +1,5 @@
-import { WandSparkles, Zap } from 'lucide-react'
+import { MagicWand, Lightning, Gear } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
-import { CogsIcon } from '~/components/icons/CogsIcon'
 import { query } from './libraries'
 
 const textStyles = 'text-red-500 dark:text-red-400'
@@ -62,7 +61,7 @@ export const queryProject = {
     {
       title: 'Declarative & Automatic',
       icon: (
-        <WandSparkles
+        <MagicWand
           className={twMerge('motion-safe:animate-pulse', textStyles)}
           style={{
             animationDuration: '5s',
@@ -86,7 +85,7 @@ export const queryProject = {
     {
       title: 'Simple & Familiar',
       icon: (
-        <Zap
+        <Lightning
           className={twMerge('motion-safe:animate-bounce', textStyles)}
           style={{
             animationDuration: '2s',
@@ -110,7 +109,7 @@ export const queryProject = {
     {
       title: 'Extensible',
       icon: (
-        <CogsIcon
+        <Gear
           className={twMerge('motion-safe:animate-spin', textStyles)}
           style={{
             animationDuration: '10s',

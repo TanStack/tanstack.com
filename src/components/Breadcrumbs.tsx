@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { ChevronDown } from 'lucide-react'
+import { CaretDown } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import type { MarkdownHeading } from '~/utils/markdown'
 import {
@@ -56,7 +56,7 @@ export function Breadcrumbs({
                 )}
               >
                 <span>On this page</span>
-                <ChevronDown className="w-3.5 h-3.5" />
+                <CaretDown className="w-3.5 h-3.5" />
               </button>
             </DropdownTrigger>
             <DropdownContent align="end" sideOffset={8} className={hiddenClass}>

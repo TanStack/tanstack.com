@@ -1,4 +1,4 @@
-import { Keyboard, ListOrdered, WandSparkles } from 'lucide-react'
+import { Keyboard, ListNumbers, MagicWand } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { hotkeys } from './libraries'
 
@@ -29,7 +29,7 @@ export const hotkeysProject = {
     },
     {
       title: 'Better Defaults',
-      icon: <WandSparkles className={twMerge(textStyles)} />,
+      icon: <MagicWand className={twMerge(textStyles)} />,
       description: (
         <div>
           Ships with{' '}
@@ -46,7 +46,7 @@ export const hotkeysProject = {
     },
     {
       title: 'Sequences & Recording',
-      icon: <ListOrdered className={twMerge(textStyles)} />,
+      icon: <ListNumbers className={twMerge(textStyles)} />,
       description: (
         <div>
           Build{' '}

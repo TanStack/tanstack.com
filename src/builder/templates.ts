@@ -5,25 +5,25 @@
  * Users can select a template to pre-populate features, then modify freely.
  */
 
-import type { LucideIcon } from 'lucide-react'
+import type { Icon } from '@phosphor-icons/react'
 import {
   Rocket,
-  Bot,
-  LayoutDashboard,
+  Robot,
+  SquaresFour,
   FileText,
-  Server,
+  HardDrives,
   Radio,
   Globe,
   HardDrive,
   Plus,
   ShoppingBag,
-} from 'lucide-react'
+} from '@phosphor-icons/react'
 
 export interface Template {
   id: string
   name: string
   description: string
-  icon: LucideIcon
+  icon: Icon
   color: string
   features: Array<string>
   /**
@@ -63,7 +63,7 @@ export const TEMPLATES: Array<Template> = [
     id: 'ai-chat',
     name: 'AI Chat',
     description: 'LLM-powered app',
-    icon: Bot,
+    icon: Robot,
     color: '#8B5CF6', // violet
     features: ['cloudflare', 'ai', 'store', 'shadcn'],
   },
@@ -71,7 +71,7 @@ export const TEMPLATES: Array<Template> = [
     id: 'dashboard',
     name: 'Dashboard',
     description: 'Admin panels, data tables',
-    icon: LayoutDashboard,
+    icon: SquaresFour,
     color: '#3B82F6', // blue
     features: ['cloudflare', 'table', 'tanstack-query', 'shadcn', 'form'],
   },
@@ -87,7 +87,7 @@ export const TEMPLATES: Array<Template> = [
     id: 'api-first',
     name: 'API-First',
     description: 'Type-safe backend APIs',
-    icon: Server,
+    icon: HardDrives,
     color: '#10B981', // emerald
     features: ['cloudflare', 'tRPC', 'tanstack-query', 'drizzle'],
   },

@@ -12,21 +12,21 @@ import { libraries } from '~/libraries'
 import { USE_CASE_LABELS } from '~/utils/showcase.shared'
 import {
   ArrowLeft,
-  Sparkles,
+  Sparkle,
   User,
   Calendar,
   Link as LinkIcon,
   Check,
   X,
-  ExternalLink,
+  ArrowSquareOut,
   Clock,
   ThumbsUp,
   ThumbsDown,
   Pencil,
-  Trash2,
-  Save,
-  RotateCcw,
-} from 'lucide-react'
+  Trash,
+  FloppyDisk,
+  ArrowCounterClockwise,
+} from '@phosphor-icons/react'
 import { Card } from '~/components/Card'
 import { Badge, Button, FormInput } from '~/ui'
 import { ImageUpload } from '~/components/ImageUpload'
@@ -190,7 +190,7 @@ function ShowcaseDetailPage() {
       <div className="w-full p-4">
         <div className="max-w-4xl mx-auto">
           <div className="text-center py-12">
-            <Sparkles className="mx-auto h-12 w-12 text-gray-400" />
+            <Sparkle className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
               Showcase not found
             </h3>
@@ -259,7 +259,7 @@ function ShowcaseDetailPage() {
                     onClick={cancelEditing}
                     disabled={updateMutation.isPending}
                   >
-                    <RotateCcw className="w-4 h-4" />
+                    <ArrowCounterClockwise className="w-4 h-4" />
                     Cancel
                   </Button>
                   <Button
@@ -267,7 +267,7 @@ function ShowcaseDetailPage() {
                     className="bg-green-600 hover:bg-green-700 text-white border-green-600"
                     disabled={updateMutation.isPending}
                   >
-                    <Save className="w-4 h-4" />
+                    <FloppyDisk className="w-4 h-4" />
                     {updateMutation.isPending ? 'Saving...' : 'Save Changes'}
                   </Button>
                 </>
@@ -285,7 +285,7 @@ function ShowcaseDetailPage() {
                     className="hover:text-red-600 hover:border-red-300 dark:hover:border-red-700"
                     disabled={deleteMutation.isPending}
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash className="w-4 h-4" />
                     Delete
                   </Button>
                 </>
@@ -309,7 +309,7 @@ function ShowcaseDetailPage() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <Sparkles className="w-8 h-8 text-gray-400" />
+                  <Sparkle className="w-8 h-8 text-gray-400" />
                 )}
               </div>
             ) : showcase.logoUrl ? (
@@ -320,7 +320,7 @@ function ShowcaseDetailPage() {
               />
             ) : (
               <div className="w-16 h-16 rounded-lg bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                <Sparkles className="w-8 h-8 text-gray-400" />
+                <Sparkle className="w-8 h-8 text-gray-400" />
               </div>
             )}
             <div className="flex-1">
@@ -537,7 +537,7 @@ function ShowcaseDetailPage() {
                       className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 flex items-center gap-1"
                     >
                       {showcase.url}
-                      <ExternalLink className="w-3 h-3" />
+                      <ArrowSquareOut className="w-3 h-3" />
                     </a>
                   </dd>
                 </div>

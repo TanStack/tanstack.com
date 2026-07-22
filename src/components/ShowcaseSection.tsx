@@ -9,7 +9,7 @@ import {
 import { voteShowcase } from '~/utils/showcase.functions'
 import { ShowcaseCard, ShowcaseCardSkeleton } from './ShowcaseCard'
 import { Button } from '~/ui'
-import { ArrowRight, Plus } from 'lucide-react'
+import { ArrowRight, Plus } from '@phosphor-icons/react'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useLoginModal } from '~/contexts/LoginModalContext'
 import type { LibraryId } from '~/libraries'

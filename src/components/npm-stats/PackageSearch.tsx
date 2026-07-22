@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useDebouncedValue } from '@tanstack/react-pacer'
-import { Search } from 'lucide-react'
+import { MagnifyingGlass } from '@phosphor-icons/react'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { Command } from 'cmdk'
 import { twMerge } from 'tailwind-merge'
@@ -101,7 +101,7 @@ export function PackageSearch({
         label="Search npm packages"
       >
         <div className="relative text-xs">
-          <Search className="pointer-events-none absolute left-1.5 top-1/2 size-3.5 -translate-y-1/2 text-gray-500" />
+          <MagnifyingGlass className="pointer-events-none absolute left-1.5 top-1/2 size-3.5 -translate-y-1/2 text-gray-500" />
           <Command.Input
             placeholder={placeholder}
             className="h-6 w-full min-w-[180px] rounded bg-gray-500/10 py-0.5 pl-6 pr-6 text-xs outline-none"

@@ -1,6 +1,6 @@
 'use client'
 import * as React from 'react'
-import { ChevronDown, Copy, Check } from 'lucide-react'
+import { CaretDown, Copy, Check } from '@phosphor-icons/react'
 import { useToast } from '~/components/ToastProvider'
 import { Button } from '~/ui'
 import { ButtonGroup } from './ButtonGroup'
@@ -321,7 +321,7 @@ export function CopyPageDropdown({
             className="border-0 px-1.5"
             aria-label={`More ${label} options`}
           >
-            <ChevronDown className="w-3 h-3" />
+            <CaretDown className="w-3 h-3" />
           </Button>
         </DropdownTrigger>
         <DropdownContent align="end" className="min-w-72">

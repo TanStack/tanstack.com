@@ -1,5 +1,5 @@
 import { ReactNode } from 'react'
-import { Check, ChevronsUpDown } from 'lucide-react'
+import { Check, CaretUpDown } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import {
   Dropdown,
@@ -63,10 +63,7 @@ export function Select<T extends SelectOption>({
             ) : null}
             <span className="truncate font-medium">{selectedOption.label}</span>
             <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-              <ChevronsUpDown
-                className="h-4 w-4 opacity-40"
-                aria-hidden="true"
-              />
+              <CaretUpDown className="h-4 w-4 opacity-40" aria-hidden="true" />
             </span>
           </button>
         </DropdownTrigger>

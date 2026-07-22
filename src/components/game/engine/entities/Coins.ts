@@ -132,7 +132,7 @@ export class Coins {
         resolve([goldMaterial, goldMaterial, goldMaterial])
       }
 
-      img.src = '/images/logos/logo-black.svg'
+      img.src = '/images/brand/tanstack-emblem-black.svg'
     })
   }
 

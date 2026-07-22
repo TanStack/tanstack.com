@@ -1,7 +1,12 @@
 /* eslint-disable react-hooks/set-state-in-effect -- game animation state sync */
 import { useEffect, useState } from 'react'
 import { useGameStore } from '../hooks/useGameStore'
-import { Map, Coins, ShoppingBag, Zap } from 'lucide-react'
+import {
+  MapTrifold,
+  Coins,
+  ShoppingBag,
+  Lightning,
+} from '@phosphor-icons/react'
 
 export function GameHUD() {
   const {
@@ -163,7 +168,7 @@ export function GameHUD() {
 
         {/* Island counter */}
         <div className="pointer-events-auto bg-black/30 backdrop-blur-sm rounded-xl px-4 py-2 flex items-center gap-2 text-white ml-2">
-          <Map className="w-5 h-5" />
+          <MapTrifold className="w-5 h-5" />
           <span className="font-bold">
             {discoveredIslands.size} / {totalIslands}
           </span>
@@ -184,7 +189,7 @@ export function GameHUD() {
             className="md:hidden pointer-events-auto bg-red-500/80 backdrop-blur-sm rounded-full p-4 flex items-center justify-center text-white hover:bg-red-600/80 active:scale-95 transition-all shadow-lg"
             aria-label="Fire cannons"
           >
-            <Zap className="w-6 h-6" />
+            <Lightning className="w-6 h-6" />
           </button>
           {/* Health bar */}
           <div

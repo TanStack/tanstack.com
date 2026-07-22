@@ -3,12 +3,12 @@ import { ClientOnly } from '@tanstack/react-router'
 import {
   ArrowRight,
   Check,
-  ChevronDown,
+  CaretDown,
   Copy,
   Download,
-  Loader2,
+  CircleNotch,
   Rocket,
-} from 'lucide-react'
+} from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import anthropicDarkLogo from '~/images/anthropic-dark.svg'
 import anthropicLightLogo from '~/images/anthropic-light.svg'
@@ -342,7 +342,7 @@ export function ApplicationStarter({
       disabled={!canUseFinalActions}
     >
       {isGeneratingPrompt ? (
-        <Loader2 className="h-4 w-4 animate-spin" />
+        <CircleNotch className="h-4 w-4 animate-spin" />
       ) : isPromptCopied ? (
         <Check className="h-4 w-4" />
       ) : (
@@ -366,7 +366,7 @@ export function ApplicationStarter({
       disabled={!canUseFinalActions}
     >
       {isGeneratingPrompt ? (
-        <Loader2 className="h-4 w-4 animate-spin" />
+        <CircleNotch className="h-4 w-4 animate-spin" />
       ) : isCommandCopied ? (
         <Check className="h-4 w-4" />
       ) : (
@@ -430,7 +430,7 @@ export function ApplicationStarter({
         )}
       >
         {transientAction === action || waitingForHref ? (
-          <Loader2
+          <CircleNotch
             className={twMerge(
               'animate-spin',
               size === 'xs' ? 'h-3 w-3' : 'h-4 w-4',
@@ -483,7 +483,7 @@ export function ApplicationStarter({
           aria-label={`Deploy to ${hostingDeployPartnerLabels[selectedHostingDeployPartner]}`}
         >
           {isDeployFeedbackActive || waitingForHref ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <CircleNotch className="h-4 w-4 animate-spin" />
           ) : (
             <Rocket className="h-4 w-4" />
           )}
@@ -514,7 +514,7 @@ export function ApplicationStarter({
         aria-label={`Deploy to ${hostingDeployPartnerLabels[selectedHostingDeployPartner]}`}
       >
         {isDeployFeedbackActive ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <CircleNotch className="h-4 w-4 animate-spin" />
         ) : (
           <Rocket className="h-4 w-4" />
         )}
@@ -1148,7 +1148,7 @@ export function ApplicationStarter({
                                 className="h-6 gap-1 px-2 text-[11px]"
                               >
                                 {transientAction === 'clone' ? (
-                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                  <CircleNotch className="h-3 w-3 animate-spin" />
                                 ) : (
                                   <GitHub className="h-3 w-3" />
                                 )}
@@ -1248,7 +1248,7 @@ function StarterCustomizationSection({
           )}
         >
           {title}
-          <ChevronDown
+          <CaretDown
             className={twMerge(
               'h-3 w-3 transition-transform duration-200',
               open && 'rotate-180',

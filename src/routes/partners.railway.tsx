@@ -3,17 +3,17 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import {
   ArrowUpRight,
   Check,
-  DollarSign,
+  CurrencyDollar,
   GitPullRequest,
   Globe,
   Infinity as InfinityIcon,
-  LineChart,
+  ChartLine,
   Network,
   Plus,
   Rocket,
   ShieldCheck,
-  Undo2,
-} from 'lucide-react'
+  ArrowUUpLeft,
+} from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { Footer } from '~/components/Footer'
 import { Card } from '~/components/Card'
@@ -67,7 +67,7 @@ const features: Array<{ Icon: FeatureIcon; title: string; desc: string }> = [
     desc: 'Every pull request spins up its own environment. Test routing, data, and server logic before merging.',
   },
   {
-    Icon: LineChart,
+    Icon: ChartLine,
     title: 'Logs, metrics, and alerts',
     desc: 'Observability is built in. Pipe custom alerts to Slack, Discord, or email without a third-party agent.',
   },
@@ -77,7 +77,7 @@ const features: Array<{ Icon: FeatureIcon; title: string; desc: string }> = [
     desc: 'Services in a project talk over private IPs at 100 Gbps. HTTP, TCP, gRPC, and WebSockets handled for you.',
   },
   {
-    Icon: Undo2,
+    Icon: ArrowUUpLeft,
     title: 'One-click rollbacks',
     desc: 'Every deploy is versioned. Roll back to a previous deployment instantly when something breaks.',
   },
@@ -304,7 +304,7 @@ export const Route = createFileRoute('/partners/railway')({
 function CheckBadge() {
   return (
     <span className="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white">
-      <Check className="h-2.5 w-2.5" strokeWidth={3} />
+      <Check className="h-2.5 w-2.5" />
     </span>
   )
 }
@@ -696,7 +696,7 @@ function RailwayPartnerPage() {
               <ArrowUpRight className="h-4 w-4" />
             </Button>
             <span className="inline-flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
-              <DollarSign className="h-3.5 w-3.5" />
+              <CurrencyDollar className="h-3.5 w-3.5" />
               Per-second billing · no credit card required
             </span>
           </div>

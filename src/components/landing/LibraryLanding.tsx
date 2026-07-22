@@ -77,6 +77,16 @@ export type LibraryLandingConfig = {
   promptLabel?: string
 }
 
+export type LibraryLandingShellProps = {
+  children: React.ReactNode
+  description: string
+  headline: string
+  hero: React.ReactNode
+  libraryId: LibraryLandingId
+  prompt: string
+  promptLabel?: string
+}
+
 type LibraryLandingTheme = {
   accent: string
   accentBright: string
@@ -220,10 +230,39 @@ type LibraryLandingStyle = React.CSSProperties & {
 }
 
 export function LibraryLanding({ config }: { config: LibraryLandingConfig }) {
-  const library = getLibrary(config.libraryId)
+  return (
+    <LibraryLandingShell
+      description={config.description}
+      headline={config.headline}
+      hero={<LandingWorkbench config={config.hero} />}
+      libraryId={config.libraryId}
+      prompt={config.prompt}
+      promptLabel={config.promptLabel}
+    >
+      <FeatureSection
+        distinction={config.distinction}
+        features={config.features}
+        libraryId={config.libraryId}
+      />
+      <LifecycleSection lifecycle={config.lifecycle} />
+      <FlowSection flow={config.flow} />
+    </LibraryLandingShell>
+  )
+}
+
+export function LibraryLandingShell({
+  children,
+  description,
+  headline,
+  hero,
+  libraryId,
+  prompt,
+  promptLabel,
+}: LibraryLandingShellProps) {
+  const library = getLibrary(libraryId)
   const { version } = useParams({ strict: false })
   const resolvedVersion = version ?? library.latestVersion
-  const colors = libraryLandingThemes[config.libraryId]
+  const colors = libraryLandingThemes[libraryId]
   const landingStyle: LibraryLandingStyle = {
     '--landing-accent': colors.accent,
     '--landing-accent-bright': colors.accentBright,
@@ -275,17 +314,17 @@ export function LibraryLanding({ config }: { config: LibraryLandingConfig }) {
               </div>
 
               <p className="mt-10 max-w-[30rem] text-ds-heading-4 text-white">
-                {config.headline}
+                {headline}
               </p>
               <p className="mt-5 max-w-[34rem] text-ds-body-sm text-[#aea691] sm:text-ds-body-md">
-                {config.description}
+                {description}
               </p>
 
               <div className="mt-9 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-7">
                 <Link
                   to="/$libraryId/$version/docs"
                   params={{
-                    libraryId: config.libraryId,
+                    libraryId,
                     version: resolvedVersion,
                   }}
                   className="inline-flex items-center gap-3 rounded-xl px-5 py-3 text-ds-label-lg text-[var(--landing-accent-ink)] shadow-[inset_-5px_-5px_7px_-5px_var(--landing-accent-muted),0_12px_35px_rgb(var(--landing-glow)/0.2)] transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] motion-reduce:transition-none"
@@ -299,29 +338,103 @@ export function LibraryLanding({ config }: { config: LibraryLandingConfig }) {
                 </Link>
                 <LandingCopyPromptButton
                   className="border-0 bg-transparent px-0 py-2 font-ds-mono text-ds-mono-caps uppercase text-white/75 hover:bg-transparent hover:text-white dark:border-0 dark:bg-transparent dark:text-white/75 dark:hover:border-0 sm:w-auto"
-                  label={config.promptLabel ?? 'Copy prompt'}
-                  prompt={config.prompt}
+                  label={promptLabel ?? 'Copy prompt'}
+                  prompt={prompt}
                 />
               </div>
             </div>
 
-            <LandingWorkbench config={config.hero} />
+            {hero}
           </div>
 
-          <LandingStats libraryId={config.libraryId} />
+          <LandingStats libraryId={libraryId} />
         </div>
       </section>
 
-      <FeatureSection
-        distinction={config.distinction}
-        features={config.features}
-        libraryId={config.libraryId}
-      />
-      <LifecycleSection lifecycle={config.lifecycle} />
-      <FlowSection flow={config.flow} />
+      {children}
 
       <div aria-hidden="true" className="h-24 bg-[#0a0a0a]" />
     </main>
+  )
+}
+
+export function LandingSection({
+  children,
+  className = '',
+  tone = 'ink',
+}: {
+  children: React.ReactNode
+  className?: string
+  tone?: 'accent' | 'ink' | 'raised'
+}) {
+  const toneClassName = {
+    accent: 'border-[#242424] bg-[color:rgb(var(--landing-glow)/0.08)]',
+    ink: 'border-[#1e1e1e] bg-[#0a0a0a]',
+    raised: 'border-[#242424] bg-[#151515]',
+  }[tone]
+
+  return (
+    <section
+      className={`border-b px-5 py-16 md:px-10 lg:px-12 lg:py-20 2xl:px-20 ${toneClassName} ${className}`}
+    >
+      <div className="mx-auto w-full max-w-[90rem]">{children}</div>
+    </section>
+  )
+}
+
+export function LandingSectionIntro({
+  body,
+  centered = false,
+  eyebrow,
+  icon,
+  title,
+}: {
+  body: string
+  centered?: boolean
+  eyebrow: string
+  icon?: React.ReactNode
+  title: string
+}) {
+  return (
+    <div
+      className={
+        centered ? 'mx-auto max-w-[52rem] text-center' : 'max-w-[42rem]'
+      }
+    >
+      <LandingEyebrow icon={icon}>{eyebrow}</LandingEyebrow>
+      <h2 className="mt-6 text-ds-heading-1 md:text-ds-display-sm">{title}</h2>
+      <p className="mt-6 text-ds-body-sm text-white/45 sm:text-ds-body-md">
+        {body}
+      </p>
+    </div>
+  )
+}
+
+export function LandingWindow({
+  children,
+  className = '',
+  label,
+}: {
+  children: React.ReactNode
+  className?: string
+  label: string
+}) {
+  return (
+    <div
+      className={`min-w-0 overflow-hidden rounded-xl border border-[color:rgb(var(--landing-glow)/0.45)] bg-[#090909] shadow-[inset_-3px_-4px_18px_-7px_var(--landing-accent),0_24px_70px_rgb(0_0_0/0.28)] ${className}`}
+    >
+      <div className="flex items-center justify-between border-b border-white/5 px-4 py-3">
+        <div aria-hidden="true" className="flex gap-1.5">
+          <span className="size-2.5 rounded-full bg-[#ff5f57]" />
+          <span className="size-2.5 rounded-full bg-[#febc2e]" />
+          <span className="size-2.5 rounded-full bg-[#28c840]" />
+        </div>
+        <span className="font-ds-mono text-[10px] font-medium uppercase tracking-[0.16em] text-white/65">
+          {label}
+        </span>
+      </div>
+      {children}
+    </div>
   )
 }
 
@@ -741,7 +854,7 @@ function FlowStep({
   )
 }
 
-function LandingEyebrow({
+export function LandingEyebrow({
   children,
   icon,
 }: {

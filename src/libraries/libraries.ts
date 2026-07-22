@@ -613,9 +613,9 @@ export const markdown: LibrarySlim = {
   name: 'TanStack Markdown',
   cardStyles: 'text-violet-500 dark:text-violet-400 hover:border-current',
   to: '/markdown',
-  tagline: 'Tiny, fast Markdown parsing and rendering for blogs and docs',
+  tagline: 'A serializable document model for technical blogs and docs',
   description:
-    'A tiny, fast, deterministic Markdown parser and renderer with zero runtime dependencies, a serializable AST, safe defaults, and matching HTML and React output.',
+    'A deliberately bounded Markdown parser with a public serializable AST, safe defaults, deterministic output, and matching HTML, React, and Octane renderers.',
   badge: 'alpha',
   bgStyle: 'bg-violet-500',
   borderStyle: 'border-violet-500/50',
@@ -643,9 +643,9 @@ export const highlight: LibrarySlim = {
   name: 'TanStack Highlight',
   cardStyles: 'text-amber-500 dark:text-amber-400 hover:border-current',
   to: '/highlight',
-  tagline: 'Tiny, synchronous syntax highlighting for blogs and docs',
+  tagline: 'Web-first syntax highlighting with compact, themeable HTML',
   description:
-    'A tiny, synchronous syntax highlighter with selective language imports, deterministic SSR and browser output, class-based themes, annotations, and Markdown pipeline adapters.',
+    'A synchronous syntax highlighter with selective language imports, context-aware web scanners, semantic CSS themes, precise annotations, and compact deterministic output.',
   badge: 'alpha',
   bgStyle: 'bg-amber-500',
   borderStyle: 'border-amber-500/50',

@@ -11,6 +11,7 @@ import { QueryClient } from '@tanstack/react-query'
 import { createThemeCss, type HighlightTheme } from '@tanstack/highlight/theme'
 import { auroraXTheme } from '@tanstack/highlight/themes/aurora-x'
 import { githubLightTheme } from '@tanstack/highlight/themes/github-light'
+import { css as fontCss, preloads as fontPreloads } from 'virtual:vite-font'
 import '~/styles/app.css'
 import {
   canonicalUrl,
@@ -180,13 +181,15 @@ export const Route = createRootRouteWithContext<{
       ],
       links: [
         ...canonicalHeadTags.links,
-        {
-          rel: 'preload',
-          href: '/fonts/Inter-latin.woff2',
-          as: 'font',
-          type: 'font/woff2',
-          crossOrigin: 'anonymous',
-        },
+        ...fontPreloads.map(
+          (font): React.LinkHTMLAttributes<HTMLLinkElement> => ({
+            rel: 'preload',
+            href: font.href,
+            as: 'font',
+            type: font.type,
+            crossOrigin: 'anonymous',
+          }),
+        ),
         {
           rel: 'apple-touch-icon',
           sizes: '180x180',
@@ -207,6 +210,10 @@ export const Route = createRootRouteWithContext<{
         { rel: 'manifest', href: '/site.webmanifest', color: '#fffff' },
         { rel: 'icon', href: '/favicon.ico' },
       ],
+      // The @font-face rules plus the metric-matched fallback, inlined so the
+      // first byte of HTML already carries them — no stylesheet round-trip
+      // before the browser can start the font.
+      styles: [{ children: fontCss }],
       scripts: [{ children: GOOGLE_ANALYTICS_BOOTSTRAP }],
     }
   },

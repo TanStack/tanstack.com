@@ -312,15 +312,15 @@ function TableWorkbench() {
     <LandingWindow label="issue workbench">
       <div className="p-4">
         <div className="grid gap-3 lg:grid-cols-[1fr_auto]">
-          <label className="flex min-w-0 items-center gap-2 rounded-lg border border-white/7 bg-white/[0.025] px-3 py-2">
+          <label className="flex min-w-0 items-center gap-2 rounded-lg border border-border-subtle bg-text-primary/[0.025] px-3 py-2">
             <MagnifyingGlass
               aria-hidden="true"
-              className="shrink-0 text-[var(--landing-accent)]"
+              className="shrink-0 text-[var(--landing-accent-bright)]"
               size={15}
             />
             <span className="sr-only">Search projects and owners</span>
             <input
-              className="min-w-0 flex-1 bg-transparent font-ds-mono text-xs text-white outline-none placeholder:text-white/20"
+              className="min-w-0 flex-1 bg-transparent font-ds-mono text-xs text-text-primary outline-none placeholder:text-text-primary/20"
               onChange={(event) => {
                 table.setGlobalFilter(event.target.value)
                 table.setPageIndex(0)
@@ -338,7 +338,7 @@ function TableWorkbench() {
               <button
                 key={filter.value}
                 aria-pressed={statusFilter === filter.value}
-                className="rounded-md border border-white/7 px-2.5 py-2 font-ds-mono text-[9px] uppercase tracking-[0.1em] text-white/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent)] aria-pressed:border-[var(--landing-accent)] aria-pressed:bg-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-ink)]"
+                className="rounded-md border border-border-subtle px-2.5 py-2 font-ds-mono text-[9px] uppercase tracking-[0.1em] text-text-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:bg-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-ink)]"
                 onClick={() => {
                   setStatusFilter(filter.value)
                   table.setPageIndex(0)
@@ -363,7 +363,7 @@ function TableWorkbench() {
                 <button
                   key={columnId}
                   aria-pressed={column?.getIsVisible() ?? false}
-                  className="rounded-md border border-white/7 px-2 py-1 font-ds-mono text-[9px] capitalize text-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent)] aria-pressed:bg-white/8 aria-pressed:text-white/60"
+                  className="rounded-md border border-border-subtle px-2 py-1 font-ds-mono text-[9px] capitalize text-text-primary/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:bg-text-primary/8 aria-pressed:text-text-primary/60"
                   onClick={() => column?.toggleVisibility()}
                   type="button"
                 >
@@ -374,15 +374,15 @@ function TableWorkbench() {
           </div>
           <span
             aria-live="polite"
-            className="font-ds-mono text-[9px] uppercase tracking-[0.12em] text-white/25"
+            className="font-ds-mono text-[9px] uppercase tracking-[0.12em] text-text-primary/25"
           >
             {filteredRows} rows · {selectedRows} selected
           </span>
         </div>
 
-        <div className="mt-4 overflow-x-auto rounded-lg border border-white/7">
+        <div className="mt-4 overflow-x-auto rounded-lg border border-border-subtle">
           <table className="w-full min-w-[36rem] table-fixed border-collapse text-left">
-            <thead className="border-b border-white/7 bg-white/[0.035]">
+            <thead className="border-b border-border-subtle bg-text-primary/[0.035]">
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr key={headerGroup.id}>
                   {headerGroup.headers.map((header) => {
@@ -402,7 +402,7 @@ function TableWorkbench() {
                       >
                         {header.isPlaceholder ? null : header.column.getCanSort() ? (
                           <button
-                            className="flex w-full items-center gap-1 rounded-sm font-ds-mono text-[9px] uppercase tracking-[0.12em] text-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent)]"
+                            className="flex w-full items-center gap-1 rounded-sm font-ds-mono text-[9px] uppercase tracking-[0.12em] text-text-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
                             onClick={header.column.getToggleSortingHandler()}
                             type="button"
                           >
@@ -428,12 +428,12 @@ function TableWorkbench() {
                 </tr>
               ))}
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-border-subtle">
               {table.getRowModel().rows.length ? (
                 table.getRowModel().rows.map((row) => (
                   <tr
                     key={row.id}
-                    className="bg-black/20 transition-colors hover:bg-white/[0.025] data-[selected=true]:bg-[color:rgb(var(--landing-glow)/0.1)]"
+                    className="bg-background-default transition-colors hover:bg-text-primary/[0.025] data-[selected=true]:bg-[color:rgb(var(--landing-glow)/0.1)]"
                     data-selected={row.getIsSelected()}
                   >
                     {row.getVisibleCells().map((cell) => (
@@ -441,7 +441,7 @@ function TableWorkbench() {
                         key={cell.id}
                         className={getCellClassName(cell.column.id)}
                       >
-                        <span className="block truncate font-ds-mono text-[11px] text-white/65">
+                        <span className="block truncate font-ds-mono text-[11px] text-text-primary/65">
                           {flexRender(
                             cell.column.columnDef.cell,
                             cell.getContext(),
@@ -454,7 +454,7 @@ function TableWorkbench() {
               ) : (
                 <tr>
                   <td
-                    className="px-4 py-8 text-center font-ds-mono text-[10px] text-white/30"
+                    className="px-4 py-8 text-center font-ds-mono text-[10px] text-text-primary/30"
                     colSpan={table.getVisibleLeafColumns().length}
                   >
                     No rows match this view.
@@ -468,7 +468,7 @@ function TableWorkbench() {
         <div className="mt-4 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <button
-              className="rounded-md border border-white/8 px-3 py-1.5 text-ds-label-sm text-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent)] disabled:opacity-20"
+              className="rounded-md border border-border-subtle px-3 py-1.5 text-ds-label-sm text-text-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] disabled:opacity-20"
               disabled={!table.getCanPreviousPage()}
               onClick={() => table.previousPage()}
               type="button"
@@ -476,7 +476,7 @@ function TableWorkbench() {
               Prev
             </button>
             <button
-              className="rounded-md border border-white/8 px-3 py-1.5 text-ds-label-sm text-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent)] disabled:opacity-20"
+              className="rounded-md border border-border-subtle px-3 py-1.5 text-ds-label-sm text-text-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] disabled:opacity-20"
               disabled={!table.getCanNextPage()}
               onClick={() => table.nextPage()}
               type="button"
@@ -484,7 +484,7 @@ function TableWorkbench() {
               Next
             </button>
           </div>
-          <span className="font-ds-mono text-[9px] uppercase tracking-[0.12em] text-[var(--landing-accent)]">
+          <span className="font-ds-mono text-[9px] uppercase tracking-[0.12em] text-[var(--landing-accent-bright)]">
             page {table.getState().pagination.pageIndex + 1} /{' '}
             {Math.max(table.getPageCount(), 1)}
           </span>
@@ -502,15 +502,17 @@ function RowPipeline() {
         return (
           <div
             key={model.label}
-            className="relative rounded-xl border border-white/8 bg-[#0b0b0b] p-4"
+            className="relative rounded-xl border border-border-subtle bg-background-surface p-4"
           >
             <Icon
               aria-hidden="true"
-              className="text-[var(--landing-accent)]"
+              className="text-[var(--landing-accent-bright)]"
               size={19}
             />
-            <p className="mt-6 text-ds-label-md text-white">{model.label}</p>
-            <code className="mt-2 block break-all font-ds-mono text-[9px] leading-5 text-white/30">
+            <p className="mt-6 text-ds-label-md text-text-primary">
+              {model.label}
+            </p>
+            <code className="mt-2 block break-all font-ds-mono text-[9px] leading-5 text-text-primary/30">
               {model.code}
             </code>
             <p className="mt-5 font-ds-mono text-[10px] text-[var(--landing-accent-bright)]">
@@ -519,7 +521,7 @@ function RowPipeline() {
             {index < rowModels.length - 1 ? (
               <span
                 aria-hidden="true"
-                className="absolute -right-2 top-8 z-10 hidden size-4 rotate-45 border-r border-t border-[var(--landing-accent)] bg-[#0b0b0b] sm:block"
+                className="absolute -right-2 top-8 z-10 hidden size-4 rotate-45 border-r border-t border-[var(--landing-accent)] bg-background-surface sm:block"
               />
             ) : null}
           </div>
@@ -535,7 +537,7 @@ function SurfaceLab() {
 
   return (
     <LandingWindow label="render surface">
-      <div className="border-b border-white/5 p-4">
+      <div className="border-b border-border-subtle p-4">
         <div
           aria-label="Choose a render surface"
           className="flex flex-wrap gap-2"
@@ -545,7 +547,7 @@ function SurfaceLab() {
             <button
               key={item}
               aria-pressed={surface === item}
-              className="rounded-md border border-white/8 px-3 py-1.5 font-ds-mono text-[9px] uppercase tracking-[0.12em] text-white/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
+              className="rounded-md border border-border-subtle px-3 py-1.5 font-ds-mono text-[9px] uppercase tracking-[0.12em] text-text-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
               onClick={() => setSurface(item)}
               type="button"
             >
@@ -556,19 +558,19 @@ function SurfaceLab() {
       </div>
       <div className="min-h-[16rem] p-5">
         {surface === 'table' ? (
-          <div className="overflow-hidden rounded-lg border border-white/7">
+          <div className="overflow-hidden rounded-lg border border-border-subtle">
             {rows.map((row) => (
               <div
                 key={row.id}
-                className="grid grid-cols-[5rem_minmax(0,1fr)_5rem] gap-4 border-t border-white/5 px-4 py-3 first:border-t-0"
+                className="grid grid-cols-[5rem_minmax(0,1fr)_5rem] gap-4 border-t border-border-subtle px-4 py-3 first:border-t-0"
               >
-                <span className="font-ds-mono text-[10px] text-white/30">
+                <span className="font-ds-mono text-[10px] text-text-primary/30">
                   {row.id}
                 </span>
-                <span className="truncate text-ds-body-xs text-white/70">
+                <span className="truncate text-ds-body-xs text-text-primary/70">
                   {row.project}
                 </span>
-                <span className="text-right font-ds-mono text-[10px] text-[var(--landing-accent)]">
+                <span className="text-right font-ds-mono text-[10px] text-[var(--landing-accent-bright)]">
                   {row.score}
                 </span>
               </div>
@@ -579,33 +581,33 @@ function SurfaceLab() {
             {rows.map((row) => (
               <div
                 key={row.id}
-                className="rounded-lg border border-white/7 bg-white/[0.025] p-4"
+                className="rounded-lg border border-border-subtle bg-text-primary/[0.025] p-4"
               >
                 <StatusBadge status={row.status} />
-                <p className="mt-5 text-ds-label-md text-white">
+                <p className="mt-5 text-ds-label-md text-text-primary">
                   {row.project}
                 </p>
-                <p className="mt-2 text-ds-body-xs text-white/30">
+                <p className="mt-2 text-ds-body-xs text-text-primary/30">
                   {row.owner} · score {row.score}
                 </p>
               </div>
             ))}
           </div>
         ) : (
-          <div className="rounded-lg bg-black/30 p-2">
+          <div className="rounded-lg bg-background-subtle p-2">
             {rows.map((row) => (
               <div
                 key={row.id}
-                className="flex items-center gap-4 border-b border-white/5 px-3 py-2 last:border-b-0"
+                className="flex items-center gap-4 border-b border-border-subtle px-3 py-2 last:border-b-0"
               >
                 <span className="size-1.5 shrink-0 rounded-full bg-[var(--landing-accent)]" />
-                <span className="w-16 font-ds-mono text-[9px] text-white/25">
+                <span className="w-16 font-ds-mono text-[9px] text-text-primary/25">
                   {row.id}
                 </span>
-                <span className="min-w-0 flex-1 truncate font-ds-mono text-[10px] text-white/60">
+                <span className="min-w-0 flex-1 truncate font-ds-mono text-[10px] text-text-primary/60">
                   {row.project}
                 </span>
-                <span className="font-ds-mono text-[9px] text-white/25">
+                <span className="font-ds-mono text-[9px] text-text-primary/25">
                   {row.status}
                 </span>
               </div>
@@ -619,21 +621,21 @@ function SurfaceLab() {
 
 function TableVirtualBoundary() {
   return (
-    <div className="grid gap-px overflow-hidden rounded-lg border border-white/7 bg-white/7 sm:grid-cols-2">
-      <div className="bg-[#0b0b0b] p-4">
-        <p className="font-ds-mono text-[9px] uppercase tracking-[0.13em] text-[var(--landing-accent)]">
+    <div className="grid gap-px overflow-hidden rounded-lg border border-border-subtle bg-text-primary/7 sm:grid-cols-2">
+      <div className="bg-background-surface p-4">
+        <p className="font-ds-mono text-[9px] uppercase tracking-[0.13em] text-[var(--landing-accent-bright)]">
           Table
         </p>
-        <p className="mt-2 text-ds-body-xs text-white/40">
+        <p className="mt-2 text-ds-body-xs text-text-primary/40">
           Owns columns, row models, feature state, and the data handed to your
           renderer.
         </p>
       </div>
-      <div className="bg-[#0b0b0b] p-4">
-        <p className="font-ds-mono text-[9px] uppercase tracking-[0.13em] text-[var(--landing-accent)]">
+      <div className="bg-background-surface p-4">
+        <p className="font-ds-mono text-[9px] uppercase tracking-[0.13em] text-[var(--landing-accent-bright)]">
           Virtual
         </p>
-        <p className="mt-2 text-ds-body-xs text-white/40">
+        <p className="mt-2 text-ds-body-xs text-text-primary/40">
           Measures the scroll surface and limits which rows or columns are
           mounted. Pair it with Table when rendering volume demands it.
         </p>
@@ -658,32 +660,36 @@ function StateSwitchboard() {
             <button
               key={item}
               aria-pressed={owner === item}
-              className="rounded-lg border border-white/8 p-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent)] aria-pressed:border-[var(--landing-accent)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.1)]"
+              className="rounded-lg border border-border-subtle p-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.1)]"
               onClick={() => setOwner(item)}
               type="button"
             >
-              <span className="font-ds-mono text-[9px] uppercase tracking-[0.13em] text-white/30">
+              <span className="font-ds-mono text-[9px] uppercase tracking-[0.13em] text-text-primary/30">
                 owned by
               </span>
-              <span className="mt-1 block text-ds-label-md capitalize text-white">
+              <span className="mt-1 block text-ds-label-md capitalize text-text-primary">
                 {item}
               </span>
             </button>
           ))}
         </div>
 
-        <div className="mt-5 rounded-lg border border-white/6 bg-black/35 p-4">
+        <div className="mt-5 rounded-lg border border-border-subtle bg-background-subtle p-4">
           <code className="font-ds-mono text-xs text-[var(--landing-accent-bright)]">
             {selected.code}
           </code>
-          <p className="mt-3 text-ds-body-xs text-white/35">{selected.note}</p>
+          <p className="mt-3 text-ds-body-xs text-text-primary/35">
+            {selected.note}
+          </p>
         </div>
 
         <div className="mt-5 flex flex-wrap items-center gap-3">
           {selected.path.split(' → ').map((step, index) => (
             <React.Fragment key={step}>
-              {index > 0 ? <span className="text-white/15">→</span> : null}
-              <span className="rounded-md bg-white/[0.035] px-3 py-2 font-ds-mono text-[10px] text-white/55">
+              {index > 0 ? (
+                <span className="text-text-primary/15">→</span>
+              ) : null}
+              <span className="rounded-md bg-text-primary/[0.035] px-3 py-2 font-ds-mono text-[10px] text-text-primary/55">
                 {step}
               </span>
             </React.Fragment>

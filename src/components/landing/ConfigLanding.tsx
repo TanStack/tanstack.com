@@ -121,13 +121,13 @@ function MaintenanceConsole() {
   return (
     <LandingWindow label="package maintenance">
       <div className="grid min-h-[24rem] md:grid-cols-[0.76fr_1.24fr]">
-        <div className="grid grid-cols-2 gap-2 border-white/5 p-4 md:grid-cols-1 md:border-r">
+        <div className="grid grid-cols-2 gap-2 border-border-subtle p-4 md:grid-cols-1 md:border-r">
           {maintenanceSurfaces.map((item, index) => (
             <button
               key={item.action}
               type="button"
               aria-pressed={index === activeIndex}
-              className="rounded-lg border border-white/5 bg-[#141414] px-3 py-2.5 text-left text-ds-label-sm text-white/35 hover:border-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.12)] aria-pressed:text-[var(--landing-accent-bright)]"
+              className="rounded-lg border border-border-subtle bg-background-subtle px-3 py-2.5 text-left text-ds-label-sm text-text-primary/35 hover:border-border-default hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.12)] aria-pressed:text-[var(--landing-accent-bright)]"
               onClick={() => setActiveIndex(index)}
             >
               {item.action}
@@ -138,10 +138,10 @@ function MaintenanceConsole() {
         <div className="flex min-w-0 flex-col p-5" aria-live="polite">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
-              <p className="font-ds-mono text-[9px] uppercase tracking-[0.16em] text-white/25">
+              <p className="font-ds-mono text-[9px] uppercase tracking-[0.16em] text-text-primary/25">
                 configuration surface
               </p>
-              <p className="mt-2 truncate font-ds-mono text-[12px] text-white">
+              <p className="mt-2 truncate font-ds-mono text-[12px] text-text-primary">
                 {surface.file}
               </p>
             </div>
@@ -150,8 +150,8 @@ function MaintenanceConsole() {
             </span>
           </div>
 
-          <div className="mt-5 rounded-lg border border-white/5 bg-[#121212] p-4">
-            <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-white/25">
+          <div className="mt-5 rounded-lg border border-border-subtle bg-background-subtle p-4">
+            <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
               maintained by
             </p>
             <p className="mt-2 text-ds-label-md text-[var(--landing-accent-bright)]">
@@ -159,16 +159,16 @@ function MaintenanceConsole() {
             </p>
           </div>
 
-          <div className="mt-3 overflow-x-auto rounded-lg bg-black p-4 font-ds-mono text-[11px] text-white/60">
-            <span className="text-[var(--landing-accent-bright)]">$</span>{' '}
+          <div className="mt-3 overflow-x-auto rounded-lg bg-ds-neutral-500 p-4 font-ds-mono text-[11px] text-white/60">
+            <span className="text-[var(--landing-accent-dark)]">$</span>{' '}
             {surface.command}
           </div>
 
           <div className="mt-auto pt-5">
-            <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-white/25">
+            <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
               resulting contract
             </p>
-            <p className="mt-2 font-ds-mono text-[11px] text-white/60">
+            <p className="mt-2 font-ds-mono text-[11px] text-text-primary/60">
               {surface.result}
             </p>
           </div>
@@ -211,7 +211,7 @@ function PackageXRay() {
               key={option.id}
               type="button"
               aria-pressed={view === option.id}
-              className="flex-1 rounded-lg border border-white/10 px-3 py-2 text-ds-label-sm text-white/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
+              className="flex-1 rounded-lg border border-border-default px-3 py-2 text-ds-label-sm text-text-primary/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
               onClick={() =>
                 setView(option.id === 'repository' ? 'repository' : 'tarball')
               }
@@ -221,18 +221,18 @@ function PackageXRay() {
           ))}
         </div>
         <div
-          className="mt-5 overflow-hidden rounded-lg border border-white/5"
+          className="mt-5 overflow-hidden rounded-lg border border-border-subtle"
           aria-live="polite"
         >
           {files.map(([file, role]) => (
             <div
               key={file}
-              className="flex items-center justify-between gap-4 border-b border-white/5 bg-[#121212] px-4 py-3 last:border-b-0"
+              className="flex items-center justify-between gap-4 border-b border-border-subtle bg-background-subtle px-4 py-3 last:border-b-0"
             >
-              <span className="truncate font-ds-mono text-[11px] text-white/65">
+              <span className="truncate font-ds-mono text-[11px] text-text-primary/65">
                 {file}
               </span>
-              <span className="shrink-0 font-ds-mono text-[9px] text-white/25">
+              <span className="shrink-0 font-ds-mono text-[9px] text-text-primary/25">
                 {role}
               </span>
             </div>
@@ -244,7 +244,7 @@ function PackageXRay() {
             className="shrink-0 text-[var(--landing-accent-bright)]"
             size={18}
           />
-          <p className="text-ds-body-xs text-white/40">
+          <p className="text-ds-body-xs text-text-primary/40">
             {view === 'repository'
               ? 'Build inputs and release machinery stay visible to maintainers.'
               : 'Exports, types, files, and metadata are the consumer-facing API.'}
@@ -265,7 +265,7 @@ function AffectedGraph() {
   return (
     <LandingWindow label="affected task graph">
       <div className="p-5 sm:p-6">
-        <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-white/25">
+        <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
           changed package
         </p>
         <div className="mt-3 flex gap-2">
@@ -274,7 +274,7 @@ function AffectedGraph() {
               key={packageName}
               type="button"
               aria-pressed={changedPackage === packageName}
-              className="min-w-0 flex-1 truncate rounded-lg border border-white/10 px-3 py-2 font-ds-mono text-[10px] text-white/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
+              className="min-w-0 flex-1 truncate rounded-lg border border-border-default px-3 py-2 font-ds-mono text-[10px] text-text-primary/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
               onClick={() => setChangedPackage(packageName)}
             >
               {packageName}
@@ -289,10 +289,10 @@ function AffectedGraph() {
           {affected.map((packageName, index) => (
             <React.Fragment key={packageName}>
               <div className="min-w-0 flex-1 rounded-xl border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.1)] p-4 text-center">
-                <p className="truncate font-ds-mono text-[11px] text-white">
+                <p className="truncate font-ds-mono text-[11px] text-text-primary">
                   {packageName}
                 </p>
-                <p className="mt-2 font-ds-mono text-[9px] text-white/25">
+                <p className="mt-2 font-ds-mono text-[9px] text-text-primary/25">
                   lint · test · build
                 </p>
               </div>
@@ -307,23 +307,23 @@ function AffectedGraph() {
         </div>
 
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
-          <div className="rounded-lg bg-black p-4">
+          <div className="rounded-lg bg-background-subtle p-4">
             <Terminal
               aria-hidden="true"
               className="text-[var(--landing-accent-bright)]"
               size={18}
             />
-            <p className="mt-3 font-ds-mono text-[10px] text-white/50">
+            <p className="mt-3 font-ds-mono text-[10px] text-text-primary/50">
               Nx affected + task cache
             </p>
           </div>
-          <div className="rounded-lg bg-black p-4">
+          <div className="rounded-lg bg-background-subtle p-4">
             <Package
               aria-hidden="true"
               className="text-[var(--landing-accent-bright)]"
               size={18}
             />
-            <p className="mt-3 font-ds-mono text-[10px] text-white/50">
+            <p className="mt-3 font-ds-mono text-[10px] text-text-primary/50">
               pkg-pr-new preview
             </p>
           </div>
@@ -342,28 +342,30 @@ function ReleaseTrustPath() {
   ]
 
   return (
-    <div className="mx-auto mt-14 max-w-[72rem] overflow-hidden rounded-xl border border-white/10 bg-[#101010]">
+    <div className="mx-auto mt-14 max-w-[72rem] overflow-hidden rounded-xl border border-border-default bg-background-surface">
       <ol className="grid md:grid-cols-4">
         {steps.map(([label, detail], index) => (
           <li
             key={label}
-            className="relative border-b border-white/5 p-6 last:border-b-0 md:border-r md:border-b-0 md:last:border-r-0"
+            className="relative border-b border-border-subtle p-6 last:border-b-0 md:border-r md:border-b-0 md:last:border-r-0"
           >
-            <span className="font-ds-display text-ds-display-md font-light text-[var(--landing-accent)]">
+            <span className="font-ds-display text-ds-display-md font-light text-[var(--landing-accent-bright)]">
               {index + 1}
             </span>
             <p className="mt-5 text-ds-heading-4">{label}</p>
-            <p className="mt-3 text-ds-body-xs text-white/35">{detail}</p>
+            <p className="mt-3 text-ds-body-xs text-text-primary/35">
+              {detail}
+            </p>
           </li>
         ))}
       </ol>
-      <div className="flex items-center gap-3 border-t border-white/5 bg-black/60 p-5">
+      <div className="flex items-center gap-3 border-t border-border-subtle bg-background-subtle p-5">
         <CloudArrowUp
           aria-hidden="true"
           className="shrink-0 text-[var(--landing-accent-bright)]"
           size={20}
         />
-        <p className="text-ds-body-xs text-white/40">
+        <p className="text-ds-body-xs text-text-primary/40">
           No long-lived npm token has to be stored in the repository.
         </p>
       </div>

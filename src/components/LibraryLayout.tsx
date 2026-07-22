@@ -1354,25 +1354,25 @@ export function LibraryLayout({
           />
         </div>
         {isLandingPage ? (
-          <div className="hidden shrink-0 items-center gap-4 px-5 text-[11px] text-white/25 xl:flex">
+          <div className="hidden shrink-0 items-center gap-4 px-5 text-[11px] text-text-primary/35 xl:flex">
             <a
               href={`https://github.com/${repo}`}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1.5 font-semibold transition-colors hover:text-white/60"
+              className="inline-flex items-center gap-1.5 font-semibold transition-colors hover:text-text-primary/65"
             >
               <GithubIcon className="size-3" />
               Built in public
             </a>
             <Link
               to="/partners"
-              className="transition-colors hover:text-white/60"
+              className="transition-colors hover:text-text-primary/65"
             >
               Partner-backed
             </Link>
             <Link
               to="/support"
-              className="transition-colors hover:text-white/60"
+              className="transition-colors hover:text-text-primary/65"
             >
               Sponsor-supported
             </Link>
@@ -1407,7 +1407,7 @@ export function LibraryLayout({
           data-docs-menu-open={showLargeMenu ? 'true' : undefined}
           className={twMerge(
             'flex w-full flex-col [overflow-x:clip] md:min-h-[calc(100dvh-var(--navbar-height))] transition-all duration-300',
-            isLandingPage && 'dark bg-[#0a0a0a] text-white',
+            isLandingPage && 'bg-background-default text-text-primary',
           )}
         >
           {smallMenu}

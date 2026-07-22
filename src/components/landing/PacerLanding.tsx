@@ -94,11 +94,16 @@ export default function PacerLanding() {
                 ['workers', '2'],
                 ['retries', '2 max'],
               ].map(([label, value]) => (
-                <div key={label} className="border-l border-white/10 pl-4">
-                  <p className="font-ds-mono text-[9px] uppercase tracking-[0.15em] text-white/30">
+                <div
+                  key={label}
+                  className="border-l border-text-primary/10 pl-4"
+                >
+                  <p className="font-ds-mono text-[9px] uppercase tracking-[0.15em] text-text-primary/30">
                     {label}
                   </p>
-                  <p className="mt-2 text-ds-label-md text-white">{value}</p>
+                  <p className="mt-2 text-ds-label-md text-text-primary">
+                    {value}
+                  </p>
                 </div>
               ))}
             </div>
@@ -117,9 +122,9 @@ export default function PacerLanding() {
                 <StateCell label="pending" value="0" />
                 <StateCell label="last run" value="42ms" />
               </div>
-              <div className="mt-6 rounded-lg border border-white/6 bg-black/35 p-4 font-ds-mono text-xs leading-7 text-white/45">
+              <div className="mt-6 rounded-lg border border-white/10 bg-ds-neutral-500 p-4 font-ds-mono text-xs leading-7 text-white/45">
                 <p>
-                  <span className="text-[var(--landing-accent-bright)]">
+                  <span className="text-[var(--landing-accent-dark)]">
                     queue.store.subscribe
                   </span>
                   {'(state => {'}
@@ -131,10 +136,10 @@ export default function PacerLanding() {
                 <span className="rounded bg-[var(--landing-accent)] px-2 py-1 text-[var(--landing-accent-ink)]">
                   core
                 </span>
-                <span className="rounded bg-white/5 px-2 py-1 text-white/40">
+                <span className="rounded bg-text-primary/5 px-2 py-1 text-text-primary/40">
                   framework adapter
                 </span>
-                <span className="rounded bg-white/5 px-2 py-1 text-white/40">
+                <span className="rounded bg-text-primary/5 px-2 py-1 text-text-primary/40">
                   devtools
                 </span>
               </div>
@@ -219,7 +224,7 @@ function TimingLab() {
             <button
               key={item.name}
               aria-pressed={policyName === item.name}
-              className="rounded-md border border-white/7 px-2.5 py-1.5 font-ds-mono text-[9px] uppercase tracking-[0.1em] text-white/35 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent)] aria-pressed:border-[var(--landing-accent)] aria-pressed:bg-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-ink)]"
+              className="rounded-md border border-border-default px-2.5 py-1.5 font-ds-mono text-[9px] uppercase tracking-[0.1em] text-text-primary/35 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:bg-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-ink)]"
               onClick={() => {
                 if (workTimerRef.current) clearTimeout(workTimerRef.current)
                 if (rateWindowTimerRef.current)
@@ -257,19 +262,19 @@ function TimingLab() {
         </div>
 
         <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-          <p className="text-ds-body-xs text-white/30">
+          <p className="text-ds-body-xs text-text-primary/30">
             {policy.name === 'rate-limit'
               ? `${policy.keeps} · window ${rateWindowOpen ? 'open' : 'exhausted'}`
               : `${policy.keeps} · ${policy.trades.toLowerCase()}`}
           </p>
           <div className="flex gap-2">
             {policy.name === 'rate-limit' ? (
-              <span className="self-center font-ds-mono text-[9px] uppercase tracking-[0.12em] text-white/25">
+              <span className="self-center font-ds-mono text-[9px] uppercase tracking-[0.12em] text-text-primary/25">
                 excess is rejected
               </span>
             ) : (
               <button
-                className="rounded-md border border-white/10 px-3 py-2 text-ds-label-sm text-white/55 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent)] disabled:opacity-25"
+                className="rounded-md border border-border-default px-3 py-2 text-ds-label-sm text-text-primary/55 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] disabled:opacity-25"
                 disabled={pendingCount === 0}
                 onClick={flush}
                 type="button"
@@ -278,7 +283,7 @@ function TimingLab() {
               </button>
             )}
             <button
-              className="rounded-md bg-[var(--landing-accent)] px-3 py-2 text-ds-label-sm text-[var(--landing-accent-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              className="rounded-md bg-[var(--landing-accent)] px-3 py-2 text-ds-label-sm text-[var(--landing-accent-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
               onClick={fireBurst}
               type="button"
             >
@@ -302,11 +307,11 @@ function SignalTrack({
 }) {
   return (
     <div>
-      <div className="mb-2 flex items-center justify-between font-ds-mono text-[9px] uppercase tracking-[0.14em] text-white/30">
+      <div className="mb-2 flex items-center justify-between font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/30">
         <span>{label}</span>
         <span>650ms</span>
       </div>
-      <div className="flex h-20 items-end gap-1 rounded-lg border border-white/5 bg-black/40 px-3 pt-3">
+      <div className="flex h-20 items-end gap-1 rounded-lg border border-white/10 bg-ds-neutral-500 px-3 pt-3">
         {pattern.map((height, index) => (
           <span
             key={`${height}-${index}`}
@@ -321,13 +326,13 @@ function SignalTrack({
 
 function PolicyMap() {
   return (
-    <div className="mt-10 overflow-hidden rounded-xl border border-white/8">
+    <div className="mt-10 overflow-hidden rounded-xl border border-border-subtle">
       {policies.map((policy) => (
         <div
           key={policy.name}
-          className="grid gap-3 border-t border-white/5 px-5 py-5 first:border-t-0 md:grid-cols-[0.75fr_1fr_1fr_0.8fr] md:items-center"
+          className="grid gap-3 border-t border-border-subtle px-5 py-5 first:border-t-0 md:grid-cols-[0.75fr_1fr_1fr_0.8fr] md:items-center"
         >
-          <p className="text-ds-heading-4 text-white">{policy.label}</p>
+          <p className="text-ds-heading-4 text-text-primary">{policy.label}</p>
           <Decision label="keeps" value={policy.keeps} />
           <Decision label="tradeoff" value={policy.trades} />
           <span className="w-fit rounded-md bg-[color:rgb(var(--landing-glow)/0.13)] px-2 py-1 font-ds-mono text-[10px] text-[var(--landing-accent-bright)]">
@@ -357,7 +362,7 @@ function QueueControl() {
           </LandingEyebrow>
           <button
             aria-pressed={isPaused}
-            className="rounded-md border border-white/10 px-3 py-1.5 text-ds-label-sm text-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent)]"
+            className="rounded-md border border-border-default px-3 py-1.5 text-ds-label-sm text-text-primary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
             onClick={() => setIsPaused((value) => !value)}
             type="button"
           >
@@ -379,17 +384,17 @@ function QueueControl() {
             return (
               <div
                 key={job.name}
-                className="flex items-center justify-between gap-4 rounded-lg border border-white/6 bg-white/[0.025] p-3"
+                className="flex items-center justify-between gap-4 rounded-lg border border-border-subtle bg-background-subtle p-3"
               >
                 <span className="min-w-0">
-                  <span className="block truncate font-ds-mono text-xs text-white/75">
+                  <span className="block truncate font-ds-mono text-xs text-text-primary/75">
                     {job.name}
                   </span>
-                  <span className="mt-1 block text-ds-body-xs text-white/25">
+                  <span className="mt-1 block text-ds-body-xs text-text-primary/25">
                     {job.size} · {job.priority}
                   </span>
                 </span>
-                <span className="shrink-0 rounded bg-[color:rgb(var(--landing-glow)/0.13)] px-2 py-1 font-ds-mono text-[9px] uppercase tracking-[0.12em] text-[var(--landing-accent)]">
+                <span className="shrink-0 rounded bg-[color:rgb(var(--landing-glow)/0.13)] px-2 py-1 font-ds-mono text-[9px] uppercase tracking-[0.12em] text-[var(--landing-accent-bright)]">
                   {status}
                 </span>
               </div>
@@ -413,8 +418,8 @@ function QueueControl() {
 
 function Decision({ label, value }: { label: string; value: string }) {
   return (
-    <p className="text-ds-body-xs text-white/55">
-      <span className="mr-2 font-ds-mono text-[9px] uppercase tracking-[0.13em] text-white/25 md:hidden">
+    <p className="text-ds-body-xs text-text-primary/55">
+      <span className="mr-2 font-ds-mono text-[9px] uppercase tracking-[0.13em] text-text-primary/25 md:hidden">
         {label}
       </span>
       {value}
@@ -424,11 +429,11 @@ function Decision({ label, value }: { label: string; value: string }) {
 
 function StateCell({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-white/6 bg-white/[0.025] p-3">
-      <p className="font-ds-mono text-[9px] uppercase tracking-[0.13em] text-white/25">
+    <div className="rounded-lg border border-border-subtle bg-background-subtle p-3">
+      <p className="font-ds-mono text-[9px] uppercase tracking-[0.13em] text-text-primary/25">
         {label}
       </p>
-      <p className="mt-2 font-ds-mono text-sm text-white">{value}</p>
+      <p className="mt-2 font-ds-mono text-sm text-text-primary">{value}</p>
     </div>
   )
 }

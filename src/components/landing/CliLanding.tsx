@@ -134,8 +134,8 @@ function BuilderHero() {
   return (
     <LandingWindow label="TanStack Builder">
       <div className="grid min-h-[24rem] md:grid-cols-[0.86fr_1.14fr]">
-        <div className="border-white/5 p-4 md:border-r">
-          <p className="font-ds-mono text-[9px] uppercase tracking-[0.16em] text-white/30">
+        <div className="border-border-subtle p-4 md:border-r">
+          <p className="font-ds-mono text-[9px] uppercase tracking-[0.16em] text-text-primary/30">
             application
           </p>
           <div className="mt-3 grid grid-cols-2 gap-2">
@@ -147,7 +147,7 @@ function BuilderHero() {
                 key={kind.id}
                 type="button"
                 aria-pressed={appKind === kind.id}
-                className="rounded-lg border border-white/10 px-3 py-2 text-ds-label-sm text-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.14)] aria-pressed:text-[var(--landing-accent-bright)]"
+                className="rounded-lg border border-border-default px-3 py-2 text-ds-label-sm text-text-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.14)] aria-pressed:text-[var(--landing-accent-bright)]"
                 onClick={() => {
                   const nextKind = kind.id === 'start' ? 'start' : 'router'
                   setAppKind(nextKind)
@@ -162,7 +162,7 @@ function BuilderHero() {
             ))}
           </div>
 
-          <p className="mt-6 font-ds-mono text-[9px] uppercase tracking-[0.16em] text-white/30">
+          <p className="mt-6 font-ds-mono text-[9px] uppercase tracking-[0.16em] text-text-primary/30">
             add-ons
           </p>
           <div className="mt-3 space-y-2">
@@ -174,7 +174,7 @@ function BuilderHero() {
                   type="button"
                   disabled={appKind === 'router'}
                   aria-pressed={isSelected}
-                  className="flex w-full items-center justify-between rounded-lg border border-white/5 bg-[#141414] px-3 py-2.5 text-left text-ds-label-sm text-white/40 hover:border-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-white disabled:cursor-not-allowed disabled:opacity-30"
+                  className="flex w-full items-center justify-between rounded-lg border border-border-subtle bg-background-subtle px-3 py-2.5 text-left text-ds-label-sm text-text-primary/40 hover:border-border-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-text-primary disabled:cursor-not-allowed disabled:opacity-30"
                   onClick={() =>
                     setSelectedAddons((current) =>
                       current.includes(addOn.id)
@@ -188,7 +188,7 @@ function BuilderHero() {
                     className={
                       isSelected
                         ? 'text-[var(--landing-accent-bright)]'
-                        : 'text-white/15'
+                        : 'text-text-primary/15'
                     }
                   >
                     {appKind === 'router'
@@ -202,14 +202,14 @@ function BuilderHero() {
             })}
           </div>
 
-          <p className="mt-6 font-ds-mono text-[9px] uppercase tracking-[0.16em] text-white/30">
+          <p className="mt-6 font-ds-mono text-[9px] uppercase tracking-[0.16em] text-text-primary/30">
             deployment
           </p>
           <button
             type="button"
             disabled={appKind === 'router'}
             aria-pressed={deployment === 'cloudflare'}
-            className="mt-3 flex w-full items-center justify-between rounded-lg border border-white/5 bg-[#141414] px-3 py-2.5 text-left text-ds-label-sm text-white/40 hover:border-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-white disabled:cursor-not-allowed disabled:opacity-30"
+            className="mt-3 flex w-full items-center justify-between rounded-lg border border-border-subtle bg-background-subtle px-3 py-2.5 text-left text-ds-label-sm text-text-primary/40 hover:border-border-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-text-primary disabled:cursor-not-allowed disabled:opacity-30"
             onClick={() =>
               setDeployment((current) =>
                 current === 'cloudflare' ? null : 'cloudflare',
@@ -221,7 +221,7 @@ function BuilderHero() {
               className={
                 deployment === 'cloudflare'
                   ? 'text-[var(--landing-accent-bright)]'
-                  : 'text-white/15'
+                  : 'text-text-primary/15'
               }
             >
               {appKind === 'router'
@@ -234,13 +234,13 @@ function BuilderHero() {
         </div>
 
         <div className="flex min-w-0 flex-col p-4" aria-live="polite">
-          <div className="rounded-lg bg-black p-3 font-ds-mono text-[10px] leading-5 text-white/60">
-            <span className="text-[var(--landing-accent-bright)]">$</span>{' '}
+          <div className="rounded-lg bg-ds-neutral-500 p-3 font-ds-mono text-[10px] leading-5 text-white/60">
+            <span className="text-[var(--landing-accent-dark)]">$</span>{' '}
             {command}
           </div>
-          <div className="mt-4 min-h-0 flex-1 rounded-lg border border-white/5 bg-[#121212] p-3">
+          <div className="mt-4 min-h-0 flex-1 rounded-lg border border-border-subtle bg-background-subtle p-3">
             <div className="flex items-center justify-between gap-3">
-              <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-white/25">
+              <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
                 generated plan
               </p>
               <span className="font-ds-mono text-[9px] text-emerald-400">
@@ -251,9 +251,11 @@ function BuilderHero() {
               {files.map((file) => (
                 <p
                   key={file}
-                  className="truncate font-ds-mono text-[10px] text-white/55"
+                  className="truncate font-ds-mono text-[10px] text-text-primary/55"
                 >
-                  <span className="mr-2 text-[var(--landing-accent)]">+</span>
+                  <span className="mr-2 text-[var(--landing-accent-bright)]">
+                    +
+                  </span>
                   {file}
                 </p>
               ))}
@@ -266,8 +268,10 @@ function BuilderHero() {
               size={18}
             />
             <div className="min-w-0">
-              <p className="font-ds-mono text-[11px] text-white">.cta.json</p>
-              <p className="mt-1 truncate text-ds-body-xs text-white/30">
+              <p className="font-ds-mono text-[11px] text-text-primary">
+                .cta.json
+              </p>
+              <p className="mt-1 truncate text-ds-body-xs text-text-primary/30">
                 app shape, add-ons, and deployment
               </p>
             </div>
@@ -289,9 +293,9 @@ function AddonAnatomy() {
   ]
 
   return (
-    <div className="mx-auto mt-14 max-w-[72rem] overflow-hidden rounded-xl border border-white/10 bg-[#101010]">
+    <div className="mx-auto mt-14 max-w-[72rem] overflow-hidden rounded-xl border border-border-default bg-background-surface">
       <div className="grid md:grid-cols-[0.76fr_1.24fr]">
-        <div className="border-white/5 p-6 md:border-r md:p-8">
+        <div className="border-border-subtle p-6 md:border-r md:p-8">
           <PuzzlePiece
             aria-hidden="true"
             className="text-[var(--landing-accent-bright)]"
@@ -299,7 +303,7 @@ function AddonAnatomy() {
             weight="light"
           />
           <p className="mt-6 text-ds-heading-3">database / drizzle</p>
-          <p className="mt-3 text-ds-body-sm text-white/35">
+          <p className="mt-3 text-ds-body-sm text-text-primary/35">
             A composable unit with enough metadata to participate in the whole
             project plan.
           </p>
@@ -308,12 +312,14 @@ function AddonAnatomy() {
           {anatomy.map(([label, detail]) => (
             <div
               key={label}
-              className="border-b border-white/5 p-5 sm:border-l"
+              className="border-b border-border-subtle p-5 sm:border-l"
             >
               <dt className="font-ds-mono text-[10px] uppercase tracking-[0.14em] text-[var(--landing-accent-bright)]">
                 {label}
               </dt>
-              <dd className="mt-3 text-ds-body-xs text-white/35">{detail}</dd>
+              <dd className="mt-3 text-ds-body-xs text-text-primary/35">
+                {detail}
+              </dd>
             </div>
           ))}
         </dl>
@@ -335,19 +341,19 @@ function CatalogTerminal() {
               key={item.id}
               type="button"
               aria-pressed={index === activeIndex}
-              className="rounded-lg border border-white/10 px-3 py-2 font-ds-mono text-[10px] text-white/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
+              className="rounded-lg border border-border-default px-3 py-2 font-ds-mono text-[10px] text-text-primary/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
               onClick={() => setActiveIndex(index)}
             >
               {item.id}
             </button>
           ))}
         </div>
-        <div className="mt-4 overflow-x-auto rounded-lg bg-black p-4 font-ds-mono text-[11px] text-white/60">
-          <span className="text-[var(--landing-accent-bright)]">$</span> npx
+        <div className="mt-4 overflow-x-auto rounded-lg bg-ds-neutral-500 p-4 font-ds-mono text-[11px] text-white/60">
+          <span className="text-[var(--landing-accent-dark)]">$</span> npx
           @tanstack/cli {query.command}
         </div>
         <div
-          className="mt-3 rounded-lg border border-white/5 bg-[#121212] p-4"
+          className="mt-3 rounded-lg border border-white/5 bg-ds-neutral-500 p-4"
           aria-live="polite"
         >
           <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-white/25">
@@ -378,14 +384,14 @@ function TemplateVsAddon() {
     <LandingWindow label="composition model">
       <div className="p-5 sm:p-6">
         <div className="grid gap-4 sm:grid-cols-[1fr_auto_1fr] sm:items-stretch">
-          <div className="rounded-xl border border-white/10 bg-[#151515] p-5">
+          <div className="rounded-xl border border-border-default bg-background-subtle p-5">
             <Package
               aria-hidden="true"
               className="text-[var(--landing-accent-bright)]"
               size={24}
             />
             <p className="mt-5 text-ds-heading-4">Template</p>
-            <p className="mt-3 text-ds-body-xs text-white/35">
+            <p className="mt-3 text-ds-body-xs text-text-primary/35">
               Owns the starting application, package manager, file layout, and
               default conventions.
             </p>
@@ -403,19 +409,19 @@ function TemplateVsAddon() {
               size={24}
             />
             <p className="mt-5 text-ds-heading-4">Add-on</p>
-            <p className="mt-3 text-ds-body-xs text-white/35">
+            <p className="mt-3 text-ds-body-xs text-text-primary/35">
               Adds one capability through declared files, packages, options, and
               composition rules.
             </p>
           </div>
         </div>
-        <div className="mt-4 flex items-center gap-3 rounded-lg bg-black p-4">
+        <div className="mt-4 flex items-center gap-3 rounded-lg bg-background-subtle p-4">
           <GitDiff
             aria-hidden="true"
             className="shrink-0 text-[var(--landing-accent-bright)]"
             size={18}
           />
-          <p className="font-ds-mono text-[11px] text-white/55">
+          <p className="font-ds-mono text-[11px] text-text-primary/55">
             preview files → review plan → generate source
           </p>
         </div>

@@ -91,6 +91,7 @@ type LibraryLandingTheme = {
   accent: string
   accentBright: string
   accentInk: string
+  accentLight: string
   accentMuted: string
   glow: string
 }
@@ -116,14 +117,23 @@ const libraryLandingThemes = {
     '#111111',
     'var(--color-ds-neutral-100)',
     '171 165 148',
+    'var(--color-ds-neutral-400)',
   ),
-  db: theme('var(--color-lib-db)', '#ff8a4a', '#1a0800', '#ffc6a6', '233 81 0'),
+  db: theme(
+    'var(--color-lib-db)',
+    '#ff8a4a',
+    '#1a0800',
+    '#ffc6a6',
+    '233 81 0',
+    'var(--color-ds-terracotta-500)',
+  ),
   devtools: theme(
     'var(--color-ds-neutral-200)',
     'var(--color-ds-neutral-100)',
     '#111111',
     'var(--color-ds-neutral-100)',
     '171 165 148',
+    'var(--color-ds-neutral-400)',
   ),
   form: theme(
     'var(--color-lib-form)',
@@ -131,6 +141,7 @@ const libraryLandingThemes = {
     '#171003',
     'var(--color-ds-amber-100)',
     '228 174 34',
+    'var(--color-ds-amber-500)',
   ),
   hotkeys: theme(
     'var(--color-lib-hotkeys)',
@@ -138,6 +149,7 @@ const libraryLandingThemes = {
     '#1c0405',
     '#ffc0c1',
     '246 47 50',
+    '#9f1719',
   ),
   intent: theme(
     'var(--color-lib-intent)',
@@ -145,6 +157,7 @@ const libraryLandingThemes = {
     '#031317',
     'var(--color-ds-blue-100)',
     '92 175 223',
+    'var(--color-ds-blue-500)',
   ),
   pacer: theme(
     'var(--color-lib-pacer)',
@@ -152,6 +165,7 @@ const libraryLandingThemes = {
     '#0d1503',
     '#dcf7b5',
     '169 228 81',
+    'var(--color-ds-green-500)',
   ),
   query: theme(
     'var(--color-ds-terracotta-400)',
@@ -159,6 +173,7 @@ const libraryLandingThemes = {
     '#1c0a04',
     'var(--color-ds-terracotta-100)',
     '195 80 43',
+    'var(--color-ds-terracotta-500)',
   ),
   ranger: theme(
     'var(--color-ds-blue-300)',
@@ -166,6 +181,7 @@ const libraryLandingThemes = {
     '#061116',
     'var(--color-ds-blue-100)',
     '105 168 183',
+    'var(--color-ds-blue-500)',
   ),
   router: theme(
     'var(--color-lib-router)',
@@ -173,6 +189,7 @@ const libraryLandingThemes = {
     '#04130a',
     'var(--color-ds-green-100)',
     '59 203 119',
+    'var(--color-ds-green-500)',
   ),
   start: theme(
     'var(--color-lib-start)',
@@ -180,6 +197,7 @@ const libraryLandingThemes = {
     '#031517',
     '#b7f0f3',
     '0 185 200',
+    'var(--color-ds-blue-500)',
   ),
   store: theme(
     'var(--color-lib-store)',
@@ -187,6 +205,7 @@ const libraryLandingThemes = {
     '#160d06',
     'var(--color-twine-200)',
     '135 60 0',
+    'var(--color-lib-store)',
   ),
   table: theme(
     'var(--color-lib-table)',
@@ -194,6 +213,7 @@ const libraryLandingThemes = {
     '#03121e',
     'var(--color-ds-blue-100)',
     '0 141 237',
+    'var(--color-ds-blue-500)',
   ),
   virtual: theme(
     'var(--color-lib-virtual)',
@@ -201,6 +221,7 @@ const libraryLandingThemes = {
     '#140718',
     'var(--color-ds-purple-100)',
     '188 144 229',
+    'var(--color-ds-purple-500)',
   ),
   workflow: theme(
     'var(--color-ds-blue-400)',
@@ -208,6 +229,7 @@ const libraryLandingThemes = {
     '#031219',
     'var(--color-ds-blue-100)',
     '70 157 184',
+    'var(--color-ds-blue-500)',
   ),
 } satisfies Record<LibraryLandingId, LibraryLandingTheme>
 
@@ -217,15 +239,17 @@ function theme(
   accentInk: string,
   accentMuted: string,
   glow: string,
+  accentLight = accent,
 ): LibraryLandingTheme {
-  return { accent, accentBright, accentInk, accentMuted, glow }
+  return { accent, accentBright, accentInk, accentLight, accentMuted, glow }
 }
 
 type LibraryLandingStyle = React.CSSProperties & {
   '--landing-accent': string
-  '--landing-accent-bright': string
+  '--landing-accent-dark': string
   '--landing-accent-ink': string
-  '--landing-accent-muted': string
+  '--landing-accent-light': string
+  '--landing-accent-muted-dark': string
   '--landing-glow': string
 }
 
@@ -265,24 +289,25 @@ export function LibraryLandingShell({
   const colors = libraryLandingThemes[libraryId]
   const landingStyle: LibraryLandingStyle = {
     '--landing-accent': colors.accent,
-    '--landing-accent-bright': colors.accentBright,
+    '--landing-accent-dark': colors.accentBright,
     '--landing-accent-ink': colors.accentInk,
-    '--landing-accent-muted': colors.accentMuted,
+    '--landing-accent-light': colors.accentLight,
+    '--landing-accent-muted-dark': colors.accentMuted,
     '--landing-glow': colors.glow,
   }
 
   return (
     <main
-      className="w-full min-w-0 overflow-x-hidden bg-[#0a0a0a] font-sans text-white [color-scheme:dark]"
+      className="w-full min-w-0 overflow-x-hidden bg-background-default font-sans text-text-primary [--landing-accent-bright:var(--landing-accent-light)] [--landing-accent-muted:var(--landing-accent-light)] [--landing-hero-glow:0.18] [--landing-hero-wash:0.04] dark:[--landing-accent-bright:var(--landing-accent-dark)] dark:[--landing-accent-muted:var(--landing-accent-muted-dark)] dark:[--landing-hero-glow:0.5] dark:[--landing-hero-wash:0.08]"
       style={landingStyle}
     >
-      <section className="relative overflow-hidden border-b border-[#1e1e1e]">
+      <section className="relative overflow-hidden border-b border-border-subtle">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0"
           style={{
             backgroundImage:
-              'radial-gradient(90% 95% at 54% 108%, rgb(var(--landing-glow) / 0.5), transparent 62%), linear-gradient(180deg, rgb(var(--landing-glow) / 0.08), transparent 58%)',
+              'radial-gradient(90% 95% at 54% 108%, rgb(var(--landing-glow) / var(--landing-hero-glow)), transparent 62%), linear-gradient(180deg, rgb(var(--landing-glow) / var(--landing-hero-wash)), transparent 58%)',
           }}
         />
 
@@ -292,9 +317,15 @@ export function LibraryLandingShell({
               <div className="flex flex-wrap items-start gap-3">
                 <div>
                   <img
-                    src="/images/brand/tanstack-landscape-white.svg"
+                    src="/images/brand/tanstack-landscape-black.svg"
                     alt="TanStack"
-                    className="h-[18px] w-auto"
+                    className="h-[18px] w-auto dark:hidden"
+                  />
+                  <img
+                    src="/images/brand/tanstack-landscape-white.svg"
+                    alt=""
+                    aria-hidden="true"
+                    className="hidden h-[18px] w-auto dark:block"
                   />
                   <h1 className="mt-1">
                     <LibraryWordmark
@@ -307,16 +338,16 @@ export function LibraryLandingShell({
                   </h1>
                 </div>
                 {library.badge ? (
-                  <span className="mt-1 rounded-md border border-white/15 bg-white/5 px-2 py-1 font-ds-mono text-[10px] font-medium uppercase tracking-[0.16em] text-white/60">
+                  <span className="mt-1 rounded-md border border-text-primary/15 bg-text-primary/5 px-2 py-1 font-ds-mono text-[10px] font-medium uppercase tracking-[0.16em] text-text-primary/60">
                     {library.badge}
                   </span>
                 ) : null}
               </div>
 
-              <p className="mt-10 max-w-[30rem] text-ds-heading-4 text-white">
+              <p className="mt-10 max-w-[30rem] text-ds-heading-4 text-text-primary">
                 {headline}
               </p>
-              <p className="mt-5 max-w-[34rem] text-ds-body-sm text-[#aea691] sm:text-ds-body-md">
+              <p className="mt-5 max-w-[34rem] text-ds-body-sm text-text-secondary sm:text-ds-body-md">
                 {description}
               </p>
 
@@ -330,14 +361,14 @@ export function LibraryLandingShell({
                   className="inline-flex items-center gap-3 rounded-xl px-5 py-3 text-ds-label-lg text-[var(--landing-accent-ink)] shadow-[inset_-5px_-5px_7px_-5px_var(--landing-accent-muted),0_12px_35px_rgb(var(--landing-glow)/0.2)] transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] motion-reduce:transition-none"
                   style={{
                     backgroundImage:
-                      'linear-gradient(105deg, var(--landing-accent), var(--landing-accent-bright))',
+                      'linear-gradient(105deg, var(--landing-accent), var(--landing-accent-dark))',
                   }}
                 >
                   Docs
                   <ArrowRight aria-hidden="true" size={20} weight="bold" />
                 </Link>
                 <LandingCopyPromptButton
-                  className="border-0 bg-transparent px-0 py-2 font-ds-mono text-ds-mono-caps uppercase text-white/75 hover:bg-transparent hover:text-white dark:border-0 dark:bg-transparent dark:text-white/75 dark:hover:border-0 sm:w-auto"
+                  className="border-0 bg-transparent px-0 py-2 font-ds-mono text-ds-mono-caps uppercase text-text-primary/75 hover:bg-transparent hover:text-text-primary dark:border-0 dark:bg-transparent dark:text-text-primary/75 dark:hover:bg-transparent dark:hover:text-text-primary sm:w-auto"
                   label={promptLabel ?? 'Copy prompt'}
                   prompt={prompt}
                 />
@@ -353,7 +384,7 @@ export function LibraryLandingShell({
 
       {children}
 
-      <div aria-hidden="true" className="h-24 bg-[#0a0a0a]" />
+      <div aria-hidden="true" className="h-24 bg-background-default" />
     </main>
   )
 }
@@ -368,9 +399,9 @@ export function LandingSection({
   tone?: 'accent' | 'ink' | 'raised'
 }) {
   const toneClassName = {
-    accent: 'border-[#242424] bg-[color:rgb(var(--landing-glow)/0.08)]',
-    ink: 'border-[#1e1e1e] bg-[#0a0a0a]',
-    raised: 'border-[#242424] bg-[#151515]',
+    accent: 'border-border-subtle bg-[color:rgb(var(--landing-glow)/0.08)]',
+    ink: 'border-border-subtle bg-background-default',
+    raised: 'border-border-subtle bg-background-subtle',
   }[tone]
 
   return (
@@ -403,7 +434,7 @@ export function LandingSectionIntro({
     >
       <LandingEyebrow icon={icon}>{eyebrow}</LandingEyebrow>
       <h2 className="mt-6 text-ds-heading-1 md:text-ds-display-sm">{title}</h2>
-      <p className="mt-6 text-ds-body-sm text-white/45 sm:text-ds-body-md">
+      <p className="mt-6 text-ds-body-sm text-text-primary/55 sm:text-ds-body-md">
         {body}
       </p>
     </div>
@@ -421,15 +452,15 @@ export function LandingWindow({
 }) {
   return (
     <div
-      className={`min-w-0 overflow-hidden rounded-xl border border-[color:rgb(var(--landing-glow)/0.45)] bg-[#090909] shadow-[inset_-3px_-4px_18px_-7px_var(--landing-accent),0_24px_70px_rgb(0_0_0/0.28)] ${className}`}
+      className={`min-w-0 overflow-hidden rounded-xl border border-[color:rgb(var(--landing-glow)/0.45)] bg-background-surface shadow-[inset_-3px_-4px_18px_-7px_var(--landing-accent),0_24px_70px_rgb(0_0_0/0.18)] ${className}`}
     >
-      <div className="flex items-center justify-between border-b border-white/5 px-4 py-3">
+      <div className="flex items-center justify-between border-b border-border-subtle px-4 py-3">
         <div aria-hidden="true" className="flex gap-1.5">
           <span className="size-2.5 rounded-full bg-[#ff5f57]" />
           <span className="size-2.5 rounded-full bg-[#febc2e]" />
           <span className="size-2.5 rounded-full bg-[#28c840]" />
         </div>
-        <span className="font-ds-mono text-[10px] font-medium uppercase tracking-[0.16em] text-white/65">
+        <span className="font-ds-mono text-[10px] font-medium uppercase tracking-[0.16em] text-text-primary/65">
           {label}
         </span>
       </div>
@@ -448,25 +479,25 @@ function LandingWorkbench({
   const activeItem = config.items[activeIndex]
 
   return (
-    <div className="min-w-0 overflow-hidden rounded-xl border border-[color:rgb(var(--landing-glow)/0.45)] bg-[#090909] shadow-[inset_-3px_-4px_18px_-7px_var(--landing-accent),0_24px_70px_rgb(0_0_0/0.28)]">
-      <div className="flex items-center justify-between border-b border-white/5 px-4 py-3">
+    <div className="min-w-0 overflow-hidden rounded-xl border border-[color:rgb(var(--landing-glow)/0.45)] bg-background-surface shadow-[inset_-3px_-4px_18px_-7px_var(--landing-accent),0_24px_70px_rgb(0_0_0/0.18)]">
+      <div className="flex items-center justify-between border-b border-border-subtle px-4 py-3">
         <div aria-hidden="true" className="flex gap-1.5">
           <span className="size-2.5 rounded-full bg-[#ff5f57]" />
           <span className="size-2.5 rounded-full bg-[#febc2e]" />
           <span className="size-2.5 rounded-full bg-[#28c840]" />
         </div>
-        <span className="font-ds-mono text-[10px] font-medium uppercase tracking-[0.16em] text-white/65">
+        <span className="font-ds-mono text-[10px] font-medium uppercase tracking-[0.16em] text-text-primary/65">
           {config.label}
         </span>
       </div>
 
       <div className="grid min-h-[22rem] lg:grid-cols-[1.08fr_0.82fr]">
-        <div className="space-y-3 border-white/5 p-4 lg:border-r">
+        <div className="space-y-3 border-border-subtle p-4 lg:border-r">
           <div className="mb-4 flex flex-wrap items-center gap-2 font-ds-mono text-[9px] font-medium uppercase tracking-[0.12em]">
             <span className="rounded-sm bg-emerald-500 px-2 py-1 text-emerald-950">
               {isLive ? 'fresh' : 'paused'}
             </span>
-            <span className="rounded-sm bg-white/5 px-2 py-1 text-white/30">
+            <span className="rounded-sm bg-text-primary/5 px-2 py-1 text-text-primary/35">
               ready / local
             </span>
           </div>
@@ -479,15 +510,15 @@ function LandingWorkbench({
                 key={item.key}
                 type="button"
                 aria-pressed={isActive}
-                className="block w-full rounded-lg border border-transparent bg-[#171717] p-4 text-left transition-colors hover:border-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[color:rgb(var(--landing-glow)/0.42)] aria-pressed:bg-[#1b1715]"
+                className="block w-full rounded-lg border border-transparent bg-background-subtle p-4 text-left transition-colors hover:border-text-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[color:rgb(var(--landing-glow)/0.42)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.1)]"
                 onClick={() => setActiveIndex(index)}
               >
                 <span className="flex items-start justify-between gap-4">
                   <span className="min-w-0">
-                    <span className="block truncate font-ds-mono text-[13px] font-medium text-white">
+                    <span className="block truncate font-ds-mono text-[13px] font-medium text-text-primary">
                       {item.key}
                     </span>
-                    <span className="mt-1 block text-ds-body-xs text-white/35">
+                    <span className="mt-1 block text-ds-body-xs text-text-primary/45">
                       {item.title}
                     </span>
                   </span>
@@ -496,13 +527,13 @@ function LandingWorkbench({
                   </span>
                 </span>
                 <span className="mt-4 flex items-center gap-3">
-                  <span className="h-1 flex-1 overflow-hidden rounded-full bg-white/5">
+                  <span className="h-1 flex-1 overflow-hidden rounded-full bg-text-primary/5">
                     <span
                       className="block h-full rounded-full bg-[var(--landing-accent)] transition-[width] duration-500 motion-reduce:transition-none"
                       style={{ width: `${item.activity}%` }}
                     />
                   </span>
-                  <span className="font-ds-mono text-[9px] font-medium uppercase tracking-[0.16em] text-white/30">
+                  <span className="font-ds-mono text-[9px] font-medium uppercase tracking-[0.16em] text-text-primary/35">
                     {item.activity}%
                   </span>
                 </span>
@@ -542,16 +573,16 @@ function LandingWorkbench({
                 {activeItem.key}
               </p>
             ) : null}
-            <p className="mt-4 text-ds-body-sm text-white/45">
+            <p className="mt-4 text-ds-body-sm text-text-primary/55">
               {config.detailBody}
             </p>
           </div>
 
-          <dl className="mt-auto space-y-2 rounded-lg bg-[#121212] p-4 text-ds-body-xs">
+          <dl className="mt-auto space-y-2 rounded-lg bg-background-subtle p-4 text-ds-body-xs">
             {config.facts.map((fact) => (
               <div key={fact.label} className="flex justify-between gap-3">
-                <dt className="text-white/35">{fact.label}</dt>
-                <dd className="text-right font-ds-mono font-medium text-white/85">
+                <dt className="text-text-primary/45">{fact.label}</dt>
+                <dd className="text-right font-ds-mono font-medium text-text-primary/85">
                   {fact.value}
                 </dd>
               </div>
@@ -589,7 +620,7 @@ function LandingStats({ libraryId }: { libraryId: LibraryLandingId }) {
   ]
 
   return (
-    <div className="mx-auto mt-12 grid w-full max-w-[44rem] overflow-hidden rounded-xl border border-[color:rgb(var(--landing-glow)/0.22)] bg-black/70 shadow-[inset_-3px_-4px_18px_-7px_var(--landing-accent)] sm:grid-cols-3">
+    <div className="mx-auto mt-12 grid w-full max-w-[44rem] overflow-hidden rounded-xl border border-[color:rgb(var(--landing-glow)/0.22)] bg-background-surface shadow-[inset_-3px_-4px_18px_-7px_var(--landing-accent)] sm:grid-cols-3">
       {metrics.map((metric) => {
         const Icon = metric.icon
 
@@ -599,19 +630,19 @@ function LandingStats({ libraryId }: { libraryId: LibraryLandingId }) {
             href={metric.href}
             target="_blank"
             rel="noreferrer"
-            className="group flex items-center gap-4 border-b border-white/5 px-5 py-4 last:border-b-0 hover:bg-white/[0.025] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--landing-accent-bright)] sm:border-r sm:border-b-0 sm:last:border-r-0"
+            className="group flex items-center gap-4 border-b border-border-subtle px-5 py-4 last:border-b-0 hover:bg-text-primary/[0.025] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--landing-accent-bright)] sm:border-r sm:border-b-0 sm:last:border-r-0"
           >
             <Icon
               aria-hidden="true"
-              className="shrink-0 text-[var(--landing-accent)]"
+              className="shrink-0 text-[var(--landing-accent-bright)]"
               size={24}
               weight="light"
             />
             <span className="min-w-0">
-              <span className="block text-ds-heading-4 text-white/65 tabular-nums transition-colors group-hover:text-white">
+              <span className="block text-ds-heading-4 text-text-primary/65 tabular-nums transition-colors group-hover:text-text-primary">
                 {metric.value}
               </span>
-              <span className="mt-1 block font-ds-mono text-[9px] font-medium uppercase tracking-[0.18em] text-[var(--landing-accent)]">
+              <span className="mt-1 block font-ds-mono text-[9px] font-medium uppercase tracking-[0.18em] text-[var(--landing-accent-bright)]">
                 {metric.label}
               </span>
             </span>
@@ -646,7 +677,7 @@ function FeatureSection({
   }
 
   return (
-    <section className="border-b border-[#1e1e1e] bg-[#0a0a0a] px-5 py-16 md:px-10 lg:px-12 lg:py-20 2xl:px-20">
+    <section className="border-b border-border-subtle bg-background-default px-5 py-16 md:px-10 lg:px-12 lg:py-20 2xl:px-20">
       <div className="mx-auto w-full max-w-[96rem]">
         <LandingEyebrow icon={<ArrowsClockwise aria-hidden="true" size={14} />}>
           {distinction}
@@ -673,7 +704,7 @@ function FeatureSection({
                   aria-controls={tabPanelId}
                   aria-selected={index === activeIndex}
                   tabIndex={index === activeIndex ? 0 : -1}
-                  className="inline-flex shrink-0 items-center gap-3 border-b border-[#3a3a3a] pb-4 text-left font-ds-display text-[18px] leading-[1.2] font-light text-[#a3a3a3] transition-colors hover:text-white/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-selected:border-[var(--landing-accent-bright)] aria-selected:text-[var(--landing-accent-bright)] lg:text-[24px]"
+                  className="inline-flex shrink-0 items-center gap-3 border-b border-border-default pb-4 text-left font-ds-display text-[18px] leading-[1.2] font-light text-text-muted transition-colors hover:text-text-primary/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-selected:border-[var(--landing-accent-bright)] aria-selected:text-[var(--landing-accent-bright)] lg:text-[24px]"
                   onClick={() => setActiveIndex(index)}
                   onKeyDown={(event) => {
                     let nextIndex: number | undefined
@@ -733,7 +764,7 @@ function LifecycleSection({
   lifecycle: LibraryLandingConfig['lifecycle']
 }) {
   return (
-    <section className="border-b border-[#242424] bg-[#171717] px-5 py-16 md:px-10 lg:px-12 lg:py-20 2xl:px-20">
+    <section className="border-b border-border-subtle bg-background-subtle px-5 py-16 md:px-10 lg:px-12 lg:py-20 2xl:px-20">
       <div className="mx-auto grid w-full max-w-[90rem] items-center gap-14 lg:grid-cols-[minmax(18rem,0.9fr)_minmax(32rem,1.1fr)] lg:gap-16">
         <div className="max-w-[36rem]">
           <LandingEyebrow
@@ -744,7 +775,7 @@ function LifecycleSection({
           <h2 className="mt-8 text-ds-display-sm md:text-ds-display-md">
             {lifecycle.title}
           </h2>
-          <p className="mt-7 max-w-[34rem] text-ds-body-sm text-white/45">
+          <p className="mt-7 max-w-[34rem] text-ds-body-sm text-text-primary/55">
             {lifecycle.body}
           </p>
         </div>
@@ -753,19 +784,21 @@ function LifecycleSection({
           {lifecycle.steps.map((step, index) => (
             <div
               key={step.label}
-              className="min-h-[11.75rem] border-b border-white/10 p-6 sm:[&:nth-child(odd)]:border-r"
+              className="min-h-[11.75rem] border-b border-border-default p-6 sm:[&:nth-child(odd)]:border-r"
             >
               <p
                 className={
                   index === 0
                     ? 'font-ds-display text-ds-display-md font-light text-[var(--landing-accent-muted)]'
-                    : 'font-ds-display text-ds-display-md font-light text-[var(--landing-accent)]'
+                    : 'font-ds-display text-ds-display-md font-light text-[var(--landing-accent-bright)]'
                 }
               >
                 {index + 1}
               </p>
               <h3 className="mt-3 text-ds-heading-5">{step.label}</h3>
-              <p className="mt-3 text-ds-body-xs text-white/35">{step.body}</p>
+              <p className="mt-3 text-ds-body-xs text-text-primary/45">
+                {step.body}
+              </p>
             </div>
           ))}
         </div>
@@ -779,7 +812,7 @@ function FlowSection({ flow }: { flow: LibraryLandingConfig['flow'] }) {
   const branchStep = flow.steps[3]
 
   return (
-    <section className="min-h-[37.5rem] border-b border-[#151515] bg-[#0b0b0c] px-5 py-16 md:px-10 lg:px-12 lg:py-20 2xl:px-20">
+    <section className="min-h-[37.5rem] border-b border-border-subtle bg-background-default px-5 py-16 md:px-10 lg:px-12 lg:py-20 2xl:px-20">
       <div className="mx-auto flex w-full max-w-[70rem] flex-col items-center text-center">
         <LandingEyebrow icon={<Swap aria-hidden="true" size={16} />}>
           {flow.label}
@@ -787,7 +820,7 @@ function FlowSection({ flow }: { flow: LibraryLandingConfig['flow'] }) {
         <h2 className="mt-6 max-w-[47rem] text-ds-heading-1 md:text-ds-display-sm">
           {flow.title}
         </h2>
-        <p className="mt-6 max-w-[47rem] text-ds-body-sm text-white/35">
+        <p className="mt-6 max-w-[47rem] text-ds-body-sm text-text-primary/45">
           {flow.body}
         </p>
 
@@ -834,8 +867,8 @@ function FlowStep({
     <div
       className={
         accent
-          ? 'min-w-0 rounded-3xl border border-[var(--landing-accent)] bg-[var(--landing-accent-bright)] px-5 py-4 text-left text-[var(--landing-accent-ink)] lg:min-w-[12rem]'
-          : 'min-w-0 flex-1 rounded-3xl border border-[var(--landing-accent)] bg-[#171717] px-5 py-4 text-left lg:min-w-[12rem]'
+          ? 'min-w-0 rounded-3xl border border-[var(--landing-accent)] bg-[var(--landing-accent-dark)] px-5 py-4 text-left text-[var(--landing-accent-ink)] lg:min-w-[12rem]'
+          : 'min-w-0 flex-1 rounded-3xl border border-[var(--landing-accent)] bg-background-subtle px-5 py-4 text-left lg:min-w-[12rem]'
       }
     >
       <p

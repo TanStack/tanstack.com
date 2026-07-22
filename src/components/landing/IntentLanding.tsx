@@ -101,12 +101,12 @@ function SkillDiscoveryHero() {
   return (
     <LandingWindow label="workspace skill discovery">
       <div className="grid min-h-[24rem] md:grid-cols-[0.94fr_1.06fr]">
-        <div className="border-white/5 p-4 md:border-r">
+        <div className="border-border-subtle p-4 md:border-r">
           <div className="flex items-center justify-between gap-3">
-            <p className="font-ds-mono text-[9px] uppercase tracking-[0.16em] text-white/30">
+            <p className="font-ds-mono text-[9px] uppercase tracking-[0.16em] text-text-primary/30">
               installed dependencies
             </p>
-            <span className="font-ds-mono text-[9px] text-white/25">
+            <span className="font-ds-mono text-[9px] text-text-primary/25">
               lockfile
             </span>
           </div>
@@ -116,14 +116,14 @@ function SkillDiscoveryHero() {
                 key={item.packageName}
                 type="button"
                 aria-pressed={index === activeIndex}
-                className="block w-full rounded-lg border border-white/5 bg-[#141414] p-3 text-left hover:border-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.12)]"
+                className="block w-full rounded-lg border border-border-subtle bg-background-subtle p-3 text-left hover:border-border-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.12)]"
                 onClick={() => {
                   setActiveIndex(index)
                   setAllowed(false)
                   setLoaded(false)
                 }}
               >
-                <span className="block truncate font-ds-mono text-[11px] text-white/65">
+                <span className="block truncate font-ds-mono text-[11px] text-text-primary/65">
                   {item.packageName}
                 </span>
                 <span className="mt-1 block font-ds-mono text-[9px] text-[var(--landing-accent-bright)]">
@@ -132,11 +132,11 @@ function SkillDiscoveryHero() {
               </button>
             ))}
           </div>
-          <div className="mt-4 rounded-lg border border-white/5 bg-black p-3">
-            <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-white/25">
+          <div className="mt-4 rounded-lg border border-border-subtle bg-background-subtle p-3">
+            <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
               scan mode
             </p>
-            <p className="mt-2 font-ds-mono text-[10px] text-white/55">
+            <p className="mt-2 font-ds-mono text-[10px] text-text-primary/55">
               static files · no package code executed
             </p>
           </div>
@@ -145,10 +145,10 @@ function SkillDiscoveryHero() {
         <div className="flex min-w-0 flex-col p-5" aria-live="polite">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
-              <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-white/25">
+              <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
                 discovered skill
               </p>
-              <p className="mt-2 truncate text-ds-heading-4 text-white">
+              <p className="mt-2 truncate text-ds-heading-4 text-text-primary">
                 {activePackage.skill}
               </p>
             </div>
@@ -157,14 +157,14 @@ function SkillDiscoveryHero() {
             </span>
           </div>
 
-          <div className="mt-5 rounded-lg border border-white/5 bg-[#121212] p-4">
-            <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-white/25">
+          <div className="mt-5 rounded-lg border border-border-subtle bg-background-subtle p-4">
+            <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
               useful for
             </p>
-            <p className="mt-2 text-ds-body-sm text-white/55">
+            <p className="mt-2 text-ds-body-sm text-text-primary/55">
               {activePackage.task}
             </p>
-            <p className="mt-4 truncate font-ds-mono text-[9px] text-white/25">
+            <p className="mt-4 truncate font-ds-mono text-[9px] text-text-primary/25">
               source: {activePackage.source}
             </p>
           </div>
@@ -239,23 +239,23 @@ function TrustPath() {
           return (
             <li
               key={step.label}
-              className="rounded-xl border border-white/10 bg-[#111] p-5"
+              className="rounded-xl border border-border-default bg-background-surface p-5"
             >
               <span className="flex size-10 items-center justify-center rounded-full bg-[var(--landing-accent)] text-[var(--landing-accent-ink)]">
                 <Icon aria-hidden="true" size={19} />
               </span>
-              <p className="mt-6 font-ds-mono text-[9px] text-white/20">
+              <p className="mt-6 font-ds-mono text-[9px] text-text-primary/20">
                 0{index + 1}
               </p>
               <h3 className="mt-2 text-ds-heading-4">{step.label}</h3>
-              <p className="mt-3 text-ds-body-xs text-white/35">
+              <p className="mt-3 text-ds-body-xs text-text-primary/35">
                 {step.detail}
               </p>
             </li>
           )
         })}
       </ol>
-      <p className="mt-5 text-center text-ds-body-xs text-white/30">
+      <p className="mt-5 text-center text-ds-body-xs text-text-primary/30">
         Editor and install hooks may streamline discovery. They are not a
         security boundary.
       </p>
@@ -273,7 +273,7 @@ function FreshnessWorkbench() {
   return (
     <LandingWindow label="intent stale">
       <div className="p-5 sm:p-6">
-        <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-white/25">
+        <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
           documentation changed
         </p>
         <div className="mt-3 flex gap-2">
@@ -282,24 +282,24 @@ function FreshnessWorkbench() {
               key={source}
               type="button"
               aria-pressed={source === changedSource}
-              className="min-w-0 flex-1 truncate rounded-lg border border-white/10 px-3 py-2 font-ds-mono text-[10px] text-white/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
+              className="min-w-0 flex-1 truncate rounded-lg border border-border-default px-3 py-2 font-ds-mono text-[10px] text-text-primary/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
               onClick={() => setChangedSource(source)}
             >
               {source}
             </button>
           ))}
         </div>
-        <div className="mt-5 overflow-x-auto rounded-lg bg-black p-4 font-ds-mono text-[11px] text-white/55">
-          <span className="text-[var(--landing-accent-bright)]">$</span> intent
+        <div className="mt-5 overflow-x-auto rounded-lg bg-ds-neutral-500 p-4 font-ds-mono text-[11px] text-white/55">
+          <span className="text-[var(--landing-accent-dark)]">$</span> intent
           stale
         </div>
         <div className="mt-3 space-y-2" aria-live="polite">
           {matches.map((skill) => (
             <div
               key={skill}
-              className="flex items-center justify-between gap-4 rounded-lg border border-white/5 bg-[#121212] px-4 py-3"
+              className="flex items-center justify-between gap-4 rounded-lg border border-border-subtle bg-background-subtle px-4 py-3"
             >
-              <span className="truncate font-ds-mono text-[11px] text-white/60">
+              <span className="truncate font-ds-mono text-[11px] text-text-primary/60">
                 {skill}
               </span>
               <span className="shrink-0 rounded bg-amber-300 px-2 py-1 font-ds-mono text-[9px] font-semibold text-amber-950">
@@ -308,7 +308,7 @@ function FreshnessWorkbench() {
             </div>
           ))}
         </div>
-        <p className="mt-4 text-ds-body-xs text-white/30">
+        <p className="mt-4 text-ds-body-xs text-text-primary/30">
           The source relationship changed. A maintainer decides whether the
           skill needs an edit.
         </p>
@@ -332,14 +332,14 @@ function PublicationTimeline() {
           {releases.map(([label, detail], index) => (
             <li
               key={label}
-              className="grid grid-cols-[2.5rem_1fr_auto] items-center gap-3 rounded-lg border border-white/5 bg-[#121212] p-3"
+              className="grid grid-cols-[2.5rem_1fr_auto] items-center gap-3 rounded-lg border border-border-subtle bg-background-subtle p-3"
             >
               <span className="flex size-9 items-center justify-center rounded-full bg-[color:rgb(var(--landing-glow)/0.18)] font-ds-mono text-[10px] text-[var(--landing-accent-bright)]">
                 {index + 1}
               </span>
               <div className="min-w-0">
-                <p className="text-ds-label-sm text-white">{label}</p>
-                <p className="mt-1 truncate font-ds-mono text-[9px] text-white/25">
+                <p className="text-ds-label-sm text-text-primary">{label}</p>
+                <p className="mt-1 truncate font-ds-mono text-[9px] text-text-primary/25">
                   {detail}
                 </p>
               </div>
@@ -357,11 +357,11 @@ function PublicationTimeline() {
               <p className="font-ds-mono text-[10px] text-[var(--landing-accent-bright)]">
                 @tanstack/react-router
               </p>
-              <p className="mt-1 text-ds-body-xs text-white/35">
+              <p className="mt-1 text-ds-body-xs text-text-primary/35">
                 code + docs + skills share one release
               </p>
             </div>
-            <span className="font-ds-mono text-[9px] text-white/25">
+            <span className="font-ds-mono text-[9px] text-text-primary/25">
               npm version
             </span>
           </div>

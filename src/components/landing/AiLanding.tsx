@@ -387,7 +387,7 @@ function AiGraphChatHero() {
       <LandingWindow label="client graph">
         <div
           aria-hidden="true"
-          className="relative h-[23rem] overflow-hidden bg-[#0d090c] [container-type:inline-size] sm:h-[26rem]"
+          className="relative h-[23rem] overflow-hidden bg-background-default [container-type:inline-size] sm:h-[26rem]"
         >
           <div className="absolute inset-0 opacity-40 [background-image:linear-gradient(rgb(var(--landing-glow)/0.18)_1px,transparent_1px),linear-gradient(90deg,rgb(var(--landing-glow)/0.18)_1px,transparent_1px)] [background-size:28px_28px]" />
           <svg
@@ -479,7 +479,7 @@ function AiGraphChatHero() {
       <LandingWindow label="chat runtime">
         <div
           aria-hidden="true"
-          className="flex h-[23rem] min-w-0 flex-col bg-[#0d0d0d] sm:h-[26rem]"
+          className="flex h-[23rem] min-w-0 flex-col bg-background-default sm:h-[26rem]"
         >
           <div
             ref={chatScrollRef}
@@ -492,7 +492,7 @@ function AiGraphChatHero() {
                     {message.user}
                   </div>
                   {message.assistant || message.isStreaming ? (
-                    <div className="max-w-[90%] rounded-xl border border-white/10 bg-[#171717] px-3 py-2 text-ds-body-xs leading-5 text-white/65 shadow-sm">
+                    <div className="max-w-[90%] rounded-xl border border-border-default bg-background-subtle px-3 py-2 text-ds-body-xs leading-5 text-text-primary/65 shadow-sm">
                       {message.assistant}
                       {message.isStreaming ? (
                         <span className="ml-1 inline-block h-3.5 w-1 rounded-sm bg-[var(--landing-accent)] align-[-0.2rem] motion-safe:animate-pulse" />
@@ -510,9 +510,9 @@ function AiGraphChatHero() {
                 ].map(([label, value]) => (
                   <div
                     key={label}
-                    className="rounded-lg bg-[#171717] px-3 py-2"
+                    className="rounded-lg bg-background-subtle px-3 py-2"
                   >
-                    <p className="text-[9px] uppercase tracking-[0.12em] text-white/25">
+                    <p className="text-[9px] uppercase tracking-[0.12em] text-text-primary/25">
                       {label}
                     </p>
                     <p className="mt-1 truncate text-[var(--landing-accent-bright)]">
@@ -524,12 +524,12 @@ function AiGraphChatHero() {
             </div>
           </div>
 
-          <div className="shrink-0 border-t border-white/5 p-4">
+          <div className="shrink-0 border-t border-border-subtle p-4">
             <div
               className={
                 typingUserMessage
-                  ? 'rounded-lg border border-[var(--landing-accent)] bg-[#171717] px-3 py-2 text-ds-body-xs font-semibold text-white ring-1 ring-[color:rgb(var(--landing-glow)/0.3)]'
-                  : 'rounded-lg border border-white/10 bg-[#171717] px-3 py-2 text-ds-body-xs font-semibold text-white/30'
+                  ? 'rounded-lg border border-[var(--landing-accent)] bg-background-subtle px-3 py-2 text-ds-body-xs font-semibold text-text-primary ring-1 ring-[color:rgb(var(--landing-glow)/0.3)]'
+                  : 'rounded-lg border border-border-default bg-background-subtle px-3 py-2 text-ds-body-xs font-semibold text-text-primary/30'
               }
             >
               {typingUserMessage || 'Type a message...'}
@@ -583,12 +583,13 @@ function GraphLine({ active, d }: { active?: boolean; d: string }) {
     <path
       d={d}
       fill="none"
-      stroke={
-        active ? 'var(--landing-accent-bright)' : 'rgb(255 255 255 / 0.14)'
-      }
       strokeLinecap="round"
       strokeWidth={active ? 3 : 1.5}
-      className="transition-all duration-500 motion-reduce:transition-none"
+      className={
+        active
+          ? 'stroke-[var(--landing-accent-bright)] transition-all duration-500 motion-reduce:transition-none'
+          : 'stroke-text-primary/15 transition-all duration-500 motion-reduce:transition-none'
+      }
       style={{
         filter: active
           ? 'drop-shadow(0 0 4px rgb(var(--landing-glow) / 0.72))'
@@ -609,7 +610,7 @@ function GraphLabel({
 }) {
   return (
     <div
-      className="absolute z-10 font-ds-mono text-[clamp(8px,2.5cqw,9px)] font-semibold uppercase tracking-[0.14em] text-white/25"
+      className="absolute z-10 font-ds-mono text-[clamp(8px,2.5cqw,9px)] font-semibold uppercase tracking-[0.14em] text-text-primary/25"
       style={{
         left: `${(x / 420) * 100}%`,
         top: `${(y / 420) * 100}%`,
@@ -638,13 +639,13 @@ function GraphNode({
   const isTanStack = kind === 'tanstack'
   const className = isTanStack
     ? active
-      ? 'absolute z-20 flex flex-col items-center justify-center rounded-lg border-2 border-[var(--landing-accent-bright)] bg-[linear-gradient(135deg,var(--landing-accent-bright),var(--landing-accent))] px-2 text-center font-ds-mono text-[clamp(8px,2.8cqw,10px)] font-semibold leading-tight text-[var(--landing-accent-ink)] shadow-[0_12px_28px_rgb(var(--landing-glow)/0.28)] ring-2 ring-[color:rgb(var(--landing-glow)/0.24)] transition-all duration-500 motion-reduce:transition-none'
+      ? 'absolute z-20 flex flex-col items-center justify-center rounded-lg border-2 border-[var(--landing-accent-dark)] bg-[linear-gradient(135deg,var(--landing-accent-dark),var(--landing-accent))] px-2 text-center font-ds-mono text-[clamp(8px,2.8cqw,10px)] font-semibold leading-tight text-[var(--landing-accent-ink)] shadow-[0_12px_28px_rgb(var(--landing-glow)/0.28)] ring-2 ring-[color:rgb(var(--landing-glow)/0.24)] transition-all duration-500 motion-reduce:transition-none'
       : 'absolute z-20 flex flex-col items-center justify-center rounded-lg border-2 border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.15)] px-2 text-center font-ds-mono text-[clamp(8px,2.8cqw,10px)] font-semibold leading-tight text-[var(--landing-accent-bright)] transition-all duration-500 motion-reduce:transition-none'
     : active
-      ? 'absolute z-20 flex flex-col items-center justify-center rounded-lg border border-white bg-white px-2 text-center font-ds-mono text-[clamp(8px,2.8cqw,10px)] font-semibold leading-tight text-[#111] shadow-[0_10px_24px_rgb(255_255_255/0.08)] transition-all duration-500 motion-reduce:transition-none'
+      ? 'absolute z-20 flex flex-col items-center justify-center rounded-lg border border-text-primary bg-text-primary px-2 text-center font-ds-mono text-[clamp(8px,2.8cqw,10px)] font-semibold leading-tight text-background-default shadow-sm transition-all duration-500 motion-reduce:transition-none'
       : dotted
-        ? 'absolute z-20 flex flex-col items-center justify-center rounded-lg border border-dashed border-white/25 bg-[#111]/80 px-2 text-center font-ds-mono text-[clamp(8px,2.8cqw,10px)] font-medium leading-tight text-white/30 transition-all duration-500 motion-reduce:transition-none'
-        : 'absolute z-20 flex flex-col items-center justify-center rounded-lg border border-white/10 bg-[#111]/90 px-2 text-center font-ds-mono text-[clamp(8px,2.8cqw,10px)] font-medium leading-tight text-white/40 transition-all duration-500 motion-reduce:transition-none'
+        ? 'absolute z-20 flex flex-col items-center justify-center rounded-lg border border-dashed border-text-primary/25 bg-background-subtle/80 px-2 text-center font-ds-mono text-[clamp(8px,2.8cqw,10px)] font-medium leading-tight text-text-primary/30 transition-all duration-500 motion-reduce:transition-none'
+        : 'absolute z-20 flex flex-col items-center justify-center rounded-lg border border-border-default bg-background-subtle/90 px-2 text-center font-ds-mono text-[clamp(8px,2.8cqw,10px)] font-medium leading-tight text-text-primary/40 transition-all duration-500 motion-reduce:transition-none'
 
   return (
     <div style={graphStyle(node)} className={className}>
@@ -675,14 +676,14 @@ function ToolBoundary() {
               key={option}
               type="button"
               aria-pressed={boundary === option}
-              className="flex-1 rounded-lg border border-white/10 px-3 py-2 text-ds-label-sm capitalize text-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.14)] aria-pressed:text-[var(--landing-accent-bright)]"
+              className="flex-1 rounded-lg border border-border-default px-3 py-2 text-ds-label-sm capitalize text-text-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.14)] aria-pressed:text-[var(--landing-accent-bright)]"
               onClick={() => setBoundary(option)}
             >
               {option}
             </button>
           ))}
         </div>
-        <div className="mt-5 overflow-x-auto rounded-lg bg-black p-4 font-ds-mono text-[11px] leading-6 text-white/65">
+        <div className="mt-5 overflow-x-auto rounded-lg bg-ds-neutral-500 p-4 font-ds-mono text-[11px] leading-6 text-white/65">
           <p>
             <span className="text-pink-300">const</span> lookupInvoice =
             toolDefinition({'{'}
@@ -699,7 +700,10 @@ function ToolBoundary() {
             {boundary === 'client' ? 'openInvoicePanel' : 'readPrivateLedger'})
           </p>
         </div>
-        <p className="mt-4 text-ds-body-xs text-white/35" aria-live="polite">
+        <p
+          className="mt-4 text-ds-body-xs text-text-primary/35"
+          aria-live="polite"
+        >
           {boundary === 'client'
             ? 'Runs beside the UI and can update local application state.'
             : 'Runs behind your server boundary with private credentials and data.'}
@@ -716,13 +720,13 @@ function ProviderWorkbench() {
   return (
     <LandingWindow label="provider capability types">
       <div className="grid sm:grid-cols-[10rem_1fr]">
-        <div className="border-white/5 p-3 sm:border-r">
+        <div className="border-border-subtle p-3 sm:border-r">
           {providers.map((item, index) => (
             <button
               key={item.name}
               type="button"
               aria-pressed={index === activeIndex}
-              className="mb-1 block w-full rounded-lg px-3 py-2 text-left text-ds-label-sm text-white/35 hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.14)] aria-pressed:text-[var(--landing-accent-bright)]"
+              className="mb-1 block w-full rounded-lg px-3 py-2 text-left text-ds-label-sm text-text-primary/35 hover:bg-text-primary/5 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.14)] aria-pressed:text-[var(--landing-accent-bright)]"
               onClick={() => setActiveIndex(index)}
             >
               {item.name}
@@ -730,10 +734,10 @@ function ProviderWorkbench() {
           ))}
         </div>
         <div className="p-5" aria-live="polite">
-          <p className="font-ds-mono text-[10px] uppercase tracking-[0.14em] text-white/25">
+          <p className="font-ds-mono text-[10px] uppercase tracking-[0.14em] text-text-primary/25">
             selected model
           </p>
-          <p className="mt-2 font-ds-mono text-[13px] text-white">
+          <p className="mt-2 font-ds-mono text-[13px] text-text-primary">
             {provider.model}
           </p>
           <div className="mt-6 flex flex-wrap gap-2">
@@ -746,7 +750,7 @@ function ProviderWorkbench() {
                     className={
                       supported
                         ? 'rounded-full border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.14)] px-3 py-1.5 font-ds-mono text-[10px] text-[var(--landing-accent-bright)]'
-                        : 'rounded-full border border-white/5 px-3 py-1.5 font-ds-mono text-[10px] text-white/20 line-through'
+                        : 'rounded-full border border-border-subtle px-3 py-1.5 font-ds-mono text-[10px] text-text-primary/20 line-through'
                     }
                   >
                     {capability}
@@ -755,7 +759,7 @@ function ProviderWorkbench() {
               },
             )}
           </div>
-          <p className="mt-6 text-ds-body-xs text-white/35">
+          <p className="mt-6 text-ds-body-xs text-text-primary/35">
             Adapter-specific types expose the options and outputs available for
             this model.
           </p>
@@ -777,8 +781,8 @@ function ProtocolMap() {
     <div className="mx-auto mt-14 flex max-w-[68rem] flex-col items-stretch gap-2 md:flex-row md:items-center md:gap-0">
       {nodes.map(([label, detail], index) => (
         <React.Fragment key={label}>
-          <div className="min-w-0 flex-1 rounded-xl border border-[color:rgb(var(--landing-glow)/0.45)] bg-[#111] p-5 text-center">
-            <p className="text-ds-heading-4 text-white">{label}</p>
+          <div className="min-w-0 flex-1 rounded-xl border border-[color:rgb(var(--landing-glow)/0.45)] bg-background-subtle p-5 text-center">
+            <p className="text-ds-heading-4 text-text-primary">{label}</p>
             <p className="mt-2 font-ds-mono text-[10px] text-[var(--landing-accent-bright)]">
               {detail}
             </p>
@@ -820,25 +824,27 @@ function ModalityRail() {
   ]
 
   return (
-    <div className="overflow-hidden rounded-xl border border-white/10 bg-[#101010]">
+    <div className="overflow-hidden rounded-xl border border-border-default bg-background-surface">
       {modalities.map((modality, index) => {
         const Icon = modality.icon
 
         return (
           <div
             key={modality.label}
-            className="grid gap-3 border-b border-white/5 p-5 last:border-b-0 sm:grid-cols-[3rem_1fr_auto] sm:items-center"
+            className="grid gap-3 border-b border-border-subtle p-5 last:border-b-0 sm:grid-cols-[3rem_1fr_auto] sm:items-center"
           >
             <span className="flex size-10 items-center justify-center rounded-full bg-[color:rgb(var(--landing-glow)/0.18)] text-[var(--landing-accent-bright)]">
               <Icon aria-hidden="true" size={19} />
             </span>
             <div>
-              <p className="text-ds-label-md text-white">{modality.label}</p>
-              <p className="mt-1 font-ds-mono text-[10px] text-white/30">
+              <p className="text-ds-label-md text-text-primary">
+                {modality.label}
+              </p>
+              <p className="mt-1 font-ds-mono text-[10px] text-text-primary/30">
                 {modality.detail}
               </p>
             </div>
-            <span className="font-ds-mono text-[10px] text-white/20">
+            <span className="font-ds-mono text-[10px] text-text-primary/20">
               0{index + 1}
             </span>
           </div>

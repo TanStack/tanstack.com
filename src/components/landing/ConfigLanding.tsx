@@ -1,122 +1,372 @@
+import * as React from 'react'
 import {
   ClipboardText,
+  CloudArrowUp,
+  GitBranch,
   Package,
   ShieldCheck,
   Terminal,
 } from '@phosphor-icons/react'
-import * as React from 'react'
 
-import { LibraryLanding, type LibraryLandingConfig } from './LibraryLanding'
+import {
+  LandingSection,
+  LandingSectionIntro,
+  LandingWindow,
+  LibraryLandingShell,
+} from './LibraryLanding'
 
 const configPrompt = [
-  'Set up TanStack Config for a TypeScript package.',
-  'Use the opinionated ESLint, Vite package build, CI/CD, package structure, and publish defaults while keeping project-specific configuration minimal and explicit.',
-  'Show how the package should produce publint-friendly output, Changesets-backed releases, and repeatable local and CI workflows.',
+  'Set up a TypeScript package repository with TanStack Config conventions.',
+  'Use the maintained ESLint flat config, package build conventions, Nx affected tasks and caching, pkg-pr-new previews, Changesets, and trusted npm publishing where they fit.',
+  'Keep the underlying files and commands visible. Treat TanStack Config as a collection of shared packages and conventions, not a magic audit CLI, and verify the current build guidance before choosing legacy Vite helpers or the newer tsdown path.',
 ].join(' ')
 
-const config = {
-  libraryId: 'config',
-  headline: 'Make package publishing boring in the best way.',
-  description:
-    'Config is the opinionated toolchain TanStack uses to keep JavaScript packages linted, built, tested in CI, versioned with Changesets, and published with minimal per-package ceremony.',
-  distinction: 'Why Config',
-  hero: {
-    label: 'release pipeline',
-    actionLabel: 'Run check',
-    detailTitle: 'Release candidate',
-    detailBody:
-      'Review the same package boundary locally and in CI before anything reaches npm.',
-    items: [
-      {
-        key: 'typecheck',
-        title: 'Source and declarations agree',
-        badge: 'passed',
-        activity: 100,
-      },
-      {
-        key: 'package-exports',
-        title: 'Modules, types, and metadata resolve',
-        badge: 'verified',
-        activity: 94,
-      },
-      {
-        key: 'changesets',
-        title: 'Version and release notes are ready',
-        badge: 'ready',
-        activity: 86,
-      },
-    ],
-    facts: [
-      { label: 'build', value: 'Vite-powered' },
-      { label: 'lint', value: 'ESLint' },
-      { label: 'package', value: 'publint checked' },
-      { label: 'publish', value: 'npm + GitHub' },
-    ],
+const maintenanceSurfaces = [
+  {
+    action: 'Lint',
+    file: 'eslint.config.js',
+    owner: '@tanstack/eslint-config',
+    command: 'pnpm lint',
+    result: 'flat config · shared rules',
   },
-  features: [
-    {
-      icon: ClipboardText,
-      label: 'Defaults',
-      title: 'Opinionated where packages are repetitive.',
-      body: 'Linting, package builds, CI tasks, publishing, and release hygiene should not become bespoke work in every package repo.',
-    },
-    {
-      icon: Terminal,
-      label: 'Builds',
-      title: 'Use Vite without a hand-built pipeline.',
-      body: 'Get modern build primitives and package output conventions without rebuilding the same configuration stack for every library.',
-    },
-    {
-      icon: Package,
-      label: 'Publishing',
-      title: 'Keep publishing rules visible.',
-      body: 'Exports, package metadata, release branches, and npm publish behavior stay reviewable as part of one workflow.',
-    },
-    {
-      icon: ShieldCheck,
-      label: 'Escape hatches',
-      title: 'Minimal configuration. Consistent results.',
-      body: 'The goal is a small surface where deviations are intentional, explicit, and easy to audit.',
-    },
-  ],
-  lifecycle: {
-    label: 'Release pipeline',
-    title: 'Local and CI should agree about what shipping means.',
-    body: 'Config gives package repositories a shared path from source code to published artifact, so maintainers spend less time debugging release machinery.',
-    steps: [
-      {
-        label: 'Author',
-        body: 'Write library code while shared defaults handle the routine surrounding work.',
-      },
-      {
-        label: 'Build',
-        body: 'Generate modules, declarations, and exports with consistent expectations.',
-      },
-      {
-        label: 'Verify',
-        body: 'Run type, lint, test, package, and publication checks before release.',
-      },
-      {
-        label: 'Publish',
-        body: 'Version, tag, and publish through a repeatable release path.',
-      },
-    ],
+  {
+    action: 'Build',
+    file: 'tsdown.config.ts',
+    owner: 'package build conventions',
+    command: 'pnpm build',
+    result: 'ES modules · declarations',
   },
-  flow: {
-    label: 'Package audit',
-    title: 'The artifact matters as much as the source.',
-    body: 'Consumers see the package boundary: exports, module formats, types, metadata, and version. Config keeps that boundary inside the workflow.',
-    steps: [
-      { label: 'Source', code: 'src/index.ts' },
-      { label: 'Build', code: 'dist/index.js + .d.ts' },
-      { label: 'Verify', code: 'publint && test' },
-      { label: 'Release', code: 'changeset publish' },
-    ],
+  {
+    action: 'Test',
+    file: 'vitest.config.ts',
+    owner: 'workspace task graph',
+    command: 'pnpm test',
+    result: 'affected packages first',
   },
-  prompt: configPrompt,
-  promptLabel: 'Copy Config prompt',
-} satisfies LibraryLandingConfig
+  {
+    action: 'Preview',
+    file: 'package.json',
+    owner: 'pkg-pr-new',
+    command: 'publish preview from PR',
+    result: 'installable package URL',
+  },
+  {
+    action: 'Version',
+    file: '.changeset/*.md',
+    owner: '@changesets/cli',
+    command: 'changeset version',
+    result: 'versions · changelogs',
+  },
+  {
+    action: 'Publish',
+    file: '.github/workflows/publish.yml',
+    owner: 'npm trusted publishing',
+    command: 'release workflow',
+    result: 'OIDC · provenance',
+  },
+]
 
 export default function ConfigLanding() {
-  return <LibraryLanding config={config} />
+  return (
+    <LibraryLandingShell
+      libraryId="config"
+      headline="The package-maintenance contract behind TanStack."
+      description="TanStack Config collects the lint, build, monorepo, preview, versioning, and publishing conventions used to keep a large open-source package family moving together."
+      hero={<MaintenanceConsole />}
+      prompt={configPrompt}
+      promptLabel="Copy Config prompt"
+    >
+      <LandingSection tone="accent">
+        <div className="grid items-center gap-12 lg:grid-cols-[0.94fr_1.06fr] lg:gap-16">
+          <LandingSectionIntro
+            eyebrow="Consumer boundary"
+            icon={<Package aria-hidden="true" size={15} />}
+            title="The tarball is the product. Source is only its input."
+            body="Consumers receive exports, JavaScript, declarations, metadata, and documentation—not your repository. The conventions keep that package boundary reviewable and use package checks such as publint before a release reaches npm."
+          />
+          <PackageXRay />
+        </div>
+      </LandingSection>
+
+      <LandingSection tone="ink">
+        <div className="grid items-center gap-12 lg:grid-cols-[1.08fr_0.92fr] lg:gap-16">
+          <AffectedGraph />
+          <LandingSectionIntro
+            eyebrow="Monorepo economics"
+            icon={<GitBranch aria-hidden="true" size={15} />}
+            title="A pull request should pay only for what it can affect."
+            body="Nx connects package dependencies to affected lint, test, and build tasks, then reuses cached work. pkg-pr-new closes the feedback loop by turning a pull request into packages maintainers can install before merging."
+          />
+        </div>
+      </LandingSection>
+
+      <LandingSection tone="raised">
+        <LandingSectionIntro
+          centered
+          eyebrow="Release trust"
+          icon={<ShieldCheck aria-hidden="true" size={15} />}
+          title="Release intent is reviewed. Publish credentials are temporary."
+          body="Changesets record package-level release intent in the pull request. The release workflow turns that intent into versions and changelogs, while npm trusted publishing can exchange GitHub’s OIDC identity for short-lived publish access with provenance."
+        />
+        <ReleaseTrustPath />
+      </LandingSection>
+    </LibraryLandingShell>
+  )
+}
+
+function MaintenanceConsole() {
+  const [activeIndex, setActiveIndex] = React.useState(0)
+  const surface = maintenanceSurfaces[activeIndex] ?? maintenanceSurfaces[0]
+
+  return (
+    <LandingWindow label="package maintenance">
+      <div className="grid min-h-[24rem] md:grid-cols-[0.76fr_1.24fr]">
+        <div className="grid grid-cols-2 gap-2 border-white/5 p-4 md:grid-cols-1 md:border-r">
+          {maintenanceSurfaces.map((item, index) => (
+            <button
+              key={item.action}
+              type="button"
+              aria-pressed={index === activeIndex}
+              className="rounded-lg border border-white/5 bg-[#141414] px-3 py-2.5 text-left text-ds-label-sm text-white/35 hover:border-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.12)] aria-pressed:text-[var(--landing-accent-bright)]"
+              onClick={() => setActiveIndex(index)}
+            >
+              {item.action}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex min-w-0 flex-col p-5" aria-live="polite">
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <p className="font-ds-mono text-[9px] uppercase tracking-[0.16em] text-white/25">
+                configuration surface
+              </p>
+              <p className="mt-2 truncate font-ds-mono text-[12px] text-white">
+                {surface.file}
+              </p>
+            </div>
+            <span className="rounded bg-emerald-400 px-2 py-1 font-ds-mono text-[9px] font-semibold uppercase text-emerald-950">
+              explicit
+            </span>
+          </div>
+
+          <div className="mt-5 rounded-lg border border-white/5 bg-[#121212] p-4">
+            <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-white/25">
+              maintained by
+            </p>
+            <p className="mt-2 text-ds-label-md text-[var(--landing-accent-bright)]">
+              {surface.owner}
+            </p>
+          </div>
+
+          <div className="mt-3 overflow-x-auto rounded-lg bg-black p-4 font-ds-mono text-[11px] text-white/60">
+            <span className="text-[var(--landing-accent-bright)]">$</span>{' '}
+            {surface.command}
+          </div>
+
+          <div className="mt-auto pt-5">
+            <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-white/25">
+              resulting contract
+            </p>
+            <p className="mt-2 font-ds-mono text-[11px] text-white/60">
+              {surface.result}
+            </p>
+          </div>
+        </div>
+      </div>
+    </LandingWindow>
+  )
+}
+
+function PackageXRay() {
+  const [view, setView] = React.useState<'repository' | 'tarball'>('repository')
+  const repositoryFiles = [
+    ['src/index.ts', 'source'],
+    ['tests/index.test.ts', 'test only'],
+    ['tsdown.config.ts', 'build only'],
+    ['package.json', 'published metadata'],
+    ['README.md', 'published docs'],
+  ]
+  const tarballFiles = [
+    ['dist/index.js', 'export target'],
+    ['dist/index.d.ts', 'type target'],
+    ['package.json', 'exports + engines'],
+    ['README.md', 'package docs'],
+  ]
+  const files = view === 'repository' ? repositoryFiles : tarballFiles
+
+  return (
+    <LandingWindow label="package x-ray">
+      <div className="p-5 sm:p-6">
+        <div
+          className="flex gap-2"
+          role="group"
+          aria-label="Package boundary view"
+        >
+          {[
+            { id: 'repository', label: 'Repository' },
+            { id: 'tarball', label: 'npm tarball' },
+          ].map((option) => (
+            <button
+              key={option.id}
+              type="button"
+              aria-pressed={view === option.id}
+              className="flex-1 rounded-lg border border-white/10 px-3 py-2 text-ds-label-sm text-white/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
+              onClick={() =>
+                setView(option.id === 'repository' ? 'repository' : 'tarball')
+              }
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+        <div
+          className="mt-5 overflow-hidden rounded-lg border border-white/5"
+          aria-live="polite"
+        >
+          {files.map(([file, role]) => (
+            <div
+              key={file}
+              className="flex items-center justify-between gap-4 border-b border-white/5 bg-[#121212] px-4 py-3 last:border-b-0"
+            >
+              <span className="truncate font-ds-mono text-[11px] text-white/65">
+                {file}
+              </span>
+              <span className="shrink-0 font-ds-mono text-[9px] text-white/25">
+                {role}
+              </span>
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 flex items-center gap-3 rounded-lg border-l-2 border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.08)] p-4">
+          <ClipboardText
+            aria-hidden="true"
+            className="shrink-0 text-[var(--landing-accent-bright)]"
+            size={18}
+          />
+          <p className="text-ds-body-xs text-white/40">
+            {view === 'repository'
+              ? 'Build inputs and release machinery stay visible to maintainers.'
+              : 'Exports, types, files, and metadata are the consumer-facing API.'}
+          </p>
+        </div>
+      </div>
+    </LandingWindow>
+  )
+}
+
+function AffectedGraph() {
+  const [changedPackage, setChangedPackage] = React.useState('router-core')
+  const affected =
+    changedPackage === 'router-core'
+      ? ['router-core', 'react-router', 'start']
+      : ['query-core', 'react-query']
+
+  return (
+    <LandingWindow label="affected task graph">
+      <div className="p-5 sm:p-6">
+        <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-white/25">
+          changed package
+        </p>
+        <div className="mt-3 flex gap-2">
+          {['router-core', 'query-core'].map((packageName) => (
+            <button
+              key={packageName}
+              type="button"
+              aria-pressed={changedPackage === packageName}
+              className="min-w-0 flex-1 truncate rounded-lg border border-white/10 px-3 py-2 font-ds-mono text-[10px] text-white/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
+              onClick={() => setChangedPackage(packageName)}
+            >
+              {packageName}
+            </button>
+          ))}
+        </div>
+
+        <div
+          className="mt-7 flex flex-col items-stretch gap-2 sm:flex-row sm:items-center sm:gap-0"
+          aria-live="polite"
+        >
+          {affected.map((packageName, index) => (
+            <React.Fragment key={packageName}>
+              <div className="min-w-0 flex-1 rounded-xl border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.1)] p-4 text-center">
+                <p className="truncate font-ds-mono text-[11px] text-white">
+                  {packageName}
+                </p>
+                <p className="mt-2 font-ds-mono text-[9px] text-white/25">
+                  lint · test · build
+                </p>
+              </div>
+              {index < affected.length - 1 ? (
+                <span
+                  aria-hidden="true"
+                  className="mx-auto h-5 w-px bg-[var(--landing-accent)] sm:h-px sm:w-7"
+                />
+              ) : null}
+            </React.Fragment>
+          ))}
+        </div>
+
+        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-lg bg-black p-4">
+            <Terminal
+              aria-hidden="true"
+              className="text-[var(--landing-accent-bright)]"
+              size={18}
+            />
+            <p className="mt-3 font-ds-mono text-[10px] text-white/50">
+              Nx affected + task cache
+            </p>
+          </div>
+          <div className="rounded-lg bg-black p-4">
+            <Package
+              aria-hidden="true"
+              className="text-[var(--landing-accent-bright)]"
+              size={18}
+            />
+            <p className="mt-3 font-ds-mono text-[10px] text-white/50">
+              pkg-pr-new preview
+            </p>
+          </div>
+        </div>
+      </div>
+    </LandingWindow>
+  )
+}
+
+function ReleaseTrustPath() {
+  const steps = [
+    ['Pull request', 'changeset records intent'],
+    ['Release workflow', 'versions + changelogs'],
+    ['GitHub OIDC', 'job proves identity'],
+    ['npm', 'short-lived access + provenance'],
+  ]
+
+  return (
+    <div className="mx-auto mt-14 max-w-[72rem] overflow-hidden rounded-xl border border-white/10 bg-[#101010]">
+      <ol className="grid md:grid-cols-4">
+        {steps.map(([label, detail], index) => (
+          <li
+            key={label}
+            className="relative border-b border-white/5 p-6 last:border-b-0 md:border-r md:border-b-0 md:last:border-r-0"
+          >
+            <span className="font-ds-display text-ds-display-md font-light text-[var(--landing-accent)]">
+              {index + 1}
+            </span>
+            <p className="mt-5 text-ds-heading-4">{label}</p>
+            <p className="mt-3 text-ds-body-xs text-white/35">{detail}</p>
+          </li>
+        ))}
+      </ol>
+      <div className="flex items-center gap-3 border-t border-white/5 bg-black/60 p-5">
+        <CloudArrowUp
+          aria-hidden="true"
+          className="shrink-0 text-[var(--landing-accent-bright)]"
+          size={20}
+        />
+        <p className="text-ds-body-xs text-white/40">
+          No long-lived npm token has to be stored in the repository.
+        </p>
+      </div>
+    </div>
+  )
 }

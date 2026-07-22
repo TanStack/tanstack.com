@@ -482,6 +482,11 @@ html.dark {
       --docs-tabs-height: 42px;
     }
   }
+
+  :root:has([data-library-landing]) {
+    --navbar-height: 64px;
+    --docs-tabs-height: 48px;
+  }
 }
 
 button {

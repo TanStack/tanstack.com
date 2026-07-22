@@ -37,6 +37,7 @@ import { BrandContextMenu } from './BrandContextMenu'
 import { useSearchContext } from '~/contexts/SearchContext'
 import { useLibrariesOverlay } from '~/contexts/LibrariesOverlayContext'
 import {
+  findLibrary,
   isPublicLibrary,
   librariesByGroup,
   librariesGroupNamesMap,
@@ -436,6 +437,9 @@ function AiDockMount() {
 export function Navbar({ children }: { children: React.ReactNode }) {
   const matches = useMatches()
   const location = useLocation()
+  const pathSegments = location.pathname.split('/').filter(Boolean)
+  const isLibraryLanding =
+    pathSegments.length === 2 && Boolean(findLibrary(pathSegments[0]))
 
   const { Title } = React.useMemo(() => {
     const match = [...matches].reverse().find((m) => m.staticData.Title)
@@ -586,6 +590,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         'w-full h-[var(--navbar-height)] px-3 py-2 min-[900px]:px-5 fixed top-0 z-[100] bg-white/90 dark:bg-black/90 backdrop-blur-lg',
         'flex items-center justify-between gap-2 min-[1120px]:gap-4',
         'border-b border-gray-500/20',
+        isLibraryLanding && 'dark bg-black/90 text-white',
       )}
       ref={containerRef}
     >
@@ -594,9 +599,9 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           <BrandContextMenu
             className={twMerge(`flex items-center group shrink-0`)}
           >
-            <LogoSection title={Title} />
+            <LogoSection title={isLibraryLanding ? null : Title} />
           </BrandContextMenu>
-          {Title ? (
+          {Title && !isLibraryLanding ? (
             <div className="truncate">
               <Title />
             </div>

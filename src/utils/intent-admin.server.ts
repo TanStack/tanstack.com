@@ -36,6 +36,8 @@ import {
 import {
   getWorkflowRuntimeHealth,
   reconcileWorkflowRuntimeStore,
+  WORKFLOW_RUNTIME_MAX_DURATION_MS,
+  WORKFLOW_RUNTIME_MIN_REMAINING_MS,
   workflowExecutionStore,
   workflowRuntime,
 } from '~/utils/workflow-runtime.server'
@@ -219,10 +221,25 @@ export async function triggerIntentProcess() {
     input: {
       source: 'admin',
     },
+    maxDurationMs: WORKFLOW_RUNTIME_MAX_DURATION_MS,
+    minYieldRemainingMs: WORKFLOW_RUNTIME_MIN_REMAINING_MS,
     includeEvents: false,
   })
 
-  return intentProcessResultSchema.parse(getCompletedWorkflowOutput(result))
+  if (result.kind === 'paused') {
+    return {
+      kind: 'continuing' as const,
+      runId: result.runId,
+    }
+  }
+
+  return {
+    kind: 'completed' as const,
+    runId: result.runId,
+    summary: intentProcessResultSchema.parse(
+      getCompletedWorkflowOutput(result),
+    ),
+  }
 }
 
 // ---------------------------------------------------------------------------

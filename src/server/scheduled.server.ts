@@ -4,13 +4,14 @@ import { refreshHomepageNpmStatsSummary } from '~/utils/homepage-npm-stats.serve
 import { refreshGitHubOrgStats } from '~/utils/stats.functions'
 import {
   reconcileWorkflowRuntimeStore,
+  WORKFLOW_RUNTIME_MAX_DURATION_MS,
+  WORKFLOW_RUNTIME_MIN_REMAINING_MS,
   workflowRuntime,
 } from '~/utils/workflow-runtime.server'
 
 const CONTENT_CACHE_PRUNE_CRON = '0 9 * * *'
 const STATS_REFRESH_CRON = '0 */6 * * *'
 const WORKFLOW_SWEEP_CRON = '* * * * *'
-const WORKFLOW_SWEEP_MAX_DURATION_MS = 25_000
 
 export async function runScheduledTasks(cron: string, scheduledTime: number) {
   switch (cron) {
@@ -43,7 +44,8 @@ async function runWorkflowSweep(cron: string, scheduledTime: number) {
     const sweep = await workflowRuntime.sweep({
       now: scheduledTime,
       leaseOwner: `cloudflare:${cron}:${scheduledTime}`,
-      maxDurationMs: WORKFLOW_SWEEP_MAX_DURATION_MS,
+      maxDurationMs: WORKFLOW_RUNTIME_MAX_DURATION_MS,
+      minYieldRemainingMs: WORKFLOW_RUNTIME_MIN_REMAINING_MS,
       maxScheduledRuns: 10,
       maxTimers: 10,
       includeEvents: false,

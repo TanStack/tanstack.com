@@ -16,18 +16,9 @@ const intentDiscoverInputSchema = z.object({
   source: z.enum(['schedule', 'admin']).default('schedule'),
 })
 
-const PROCESS_WORKFLOW_DEFAULT_MAX_DURATION_MS = 4 * 60 * 1000
-const PROCESS_WORKFLOW_MAX_DURATION_MS = 4 * 60 * 1000
-const PROCESS_WORKFLOW_MIN_REMAINING_MS = 30_000
 const PROCESS_WORKFLOW_SELECT_LIMIT = 50
 
 const intentProcessInputSchema = z.object({
-  maxDurationMs: z
-    .number()
-    .int()
-    .positive()
-    .max(PROCESS_WORKFLOW_MAX_DURATION_MS)
-    .default(PROCESS_WORKFLOW_DEFAULT_MAX_DURATION_MS),
   source: z.enum(['schedule', 'admin']).default('schedule'),
 })
 
@@ -71,14 +62,11 @@ export function createIntentProcessWorkflow(
     id: INTENT_PROCESS_WORKFLOW_ID,
     input: intentProcessInputSchema,
   }).handler(async (ctx) => {
-    const deadline = Date.now() + ctx.input.maxDurationMs
     const attemptedIds = new Set<number>()
     const results: Array<IntentVersionProcessResult> = []
-    let deferred = 0
     let selectIteration = 0
-    let shouldContinue = true
 
-    while (shouldContinue && hasProcessBudget(deadline)) {
+    while (true) {
       const versions = await ctx.step(
         `select-pending-versions:${selectIteration}`,
         () =>
@@ -97,14 +85,7 @@ export function createIntentProcessWorkflow(
       )
       if (unattemptedVersions.length === 0) break
 
-      for (let index = 0; index < unattemptedVersions.length; index++) {
-        if (!hasProcessBudget(deadline)) {
-          deferred += unattemptedVersions.length - index
-          shouldContinue = false
-          break
-        }
-
-        const version = unattemptedVersions[index]!
+      for (const version of unattemptedVersions) {
         attemptedIds.add(version.id)
 
         try {
@@ -128,7 +109,7 @@ export function createIntentProcessWorkflow(
       if (versions.length < PROCESS_WORKFLOW_SELECT_LIMIT) break
     }
 
-    return summarizeIntentProcessResults(results, { deferred })
+    return summarizeIntentProcessResults(results)
   })
 }
 
@@ -155,7 +136,6 @@ export const intentWorkflowRegistrations = {
         schedule: every.minutes(15),
         overlapPolicy: 'skip',
         input: {
-          maxDurationMs: PROCESS_WORKFLOW_DEFAULT_MAX_DURATION_MS,
           source: 'schedule',
         },
       },
@@ -165,8 +145,4 @@ export const intentWorkflowRegistrations = {
 
 function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
-}
-
-function hasProcessBudget(deadline: number): boolean {
-  return Date.now() + PROCESS_WORKFLOW_MIN_REMAINING_MS < deadline
 }

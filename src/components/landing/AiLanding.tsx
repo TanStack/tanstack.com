@@ -488,11 +488,11 @@ function AiGraphChatHero() {
             <div className="flex min-h-full flex-col justify-end gap-2.5 p-4">
               {chatMessages.map((message) => (
                 <React.Fragment key={message.id}>
-                  <div className="ml-auto max-w-[86%] rounded-xl bg-[var(--landing-accent)] px-3 py-2 text-ds-body-xs font-semibold leading-5 text-[var(--landing-accent-ink)] shadow-sm">
+                  <div className="ml-auto max-w-[86%] rounded-xl bg-[var(--landing-accent)] px-3 py-2 text-ds-body-xs text-[var(--landing-accent-ink)] shadow-sm">
                     {message.user}
                   </div>
                   {message.assistant || message.isStreaming ? (
-                    <div className="max-w-[90%] rounded-xl border border-border-default bg-background-subtle px-3 py-2 text-ds-body-xs leading-5 text-text-primary/65 shadow-sm">
+                    <div className="max-w-[90%] rounded-xl border border-border-default bg-background-subtle px-3 py-2 text-ds-body-xs text-text-primary/65 shadow-sm">
                       {message.assistant}
                       {message.isStreaming ? (
                         <span className="ml-1 inline-block h-3.5 w-1 rounded-sm bg-[var(--landing-accent)] align-[-0.2rem] motion-safe:animate-pulse" />
@@ -501,7 +501,7 @@ function AiGraphChatHero() {
                   ) : null}
                 </React.Fragment>
               ))}
-              <div className="grid gap-2 pt-2 font-ds-mono text-[10px] font-semibold sm:grid-cols-2">
+              <div className="grid gap-2 pt-2 font-ds-mono text-ds-mono-2xs sm:grid-cols-2">
                 {[
                   ['event', 'text content'],
                   ['tool', 'approval gate'],
@@ -512,7 +512,7 @@ function AiGraphChatHero() {
                     key={label}
                     className="rounded-lg bg-background-subtle px-3 py-2"
                   >
-                    <p className="text-[9px] uppercase tracking-[0.12em] text-text-primary/25">
+                    <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
                       {label}
                     </p>
                     <p className="mt-1 truncate text-[var(--landing-accent-bright)]">
@@ -528,8 +528,8 @@ function AiGraphChatHero() {
             <div
               className={
                 typingUserMessage
-                  ? 'rounded-lg border border-[var(--landing-accent)] bg-background-subtle px-3 py-2 text-ds-body-xs font-semibold text-text-primary ring-1 ring-[color:rgb(var(--landing-glow)/0.3)]'
-                  : 'rounded-lg border border-border-default bg-background-subtle px-3 py-2 text-ds-body-xs font-semibold text-text-primary/30'
+                  ? 'rounded-lg border border-[var(--landing-accent)] bg-background-subtle px-3 py-2 text-ds-body-xs text-text-primary ring-1 ring-[color:rgb(var(--landing-glow)/0.3)]'
+                  : 'rounded-lg border border-border-default bg-background-subtle px-3 py-2 text-ds-body-xs text-text-primary/30'
               }
             >
               {typingUserMessage || 'Type a message...'}
@@ -610,7 +610,7 @@ function GraphLabel({
 }) {
   return (
     <div
-      className="absolute z-10 font-ds-mono text-[clamp(8px,2.5cqw,9px)] font-semibold uppercase tracking-[0.14em] text-text-primary/25"
+      className="absolute z-10 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25"
       style={{
         left: `${(x / 420) * 100}%`,
         top: `${(y / 420) * 100}%`,
@@ -639,19 +639,19 @@ function GraphNode({
   const isTanStack = kind === 'tanstack'
   const className = isTanStack
     ? active
-      ? 'absolute z-20 flex flex-col items-center justify-center rounded-lg border-2 border-[var(--landing-accent-dark)] bg-[linear-gradient(135deg,var(--landing-accent-dark),var(--landing-accent))] px-2 text-center font-ds-mono text-[clamp(8px,2.8cqw,10px)] font-semibold leading-tight text-[var(--landing-accent-ink)] shadow-[0_12px_28px_rgb(var(--landing-glow)/0.28)] ring-2 ring-[color:rgb(var(--landing-glow)/0.24)] transition-all duration-500 motion-reduce:transition-none'
-      : 'absolute z-20 flex flex-col items-center justify-center rounded-lg border-2 border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.15)] px-2 text-center font-ds-mono text-[clamp(8px,2.8cqw,10px)] font-semibold leading-tight text-[var(--landing-accent-bright)] transition-all duration-500 motion-reduce:transition-none'
+      ? 'absolute z-20 flex flex-col items-center justify-center rounded-lg border-2 border-[var(--landing-accent-dark)] bg-[linear-gradient(135deg,var(--landing-accent-dark),var(--landing-accent))] px-2 text-center font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-ink)] shadow-[0_12px_28px_rgb(var(--landing-glow)/0.28)] ring-2 ring-[color:rgb(var(--landing-glow)/0.24)] transition-all duration-500 motion-reduce:transition-none'
+      : 'absolute z-20 flex flex-col items-center justify-center rounded-lg border-2 border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.15)] px-2 text-center font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)] transition-all duration-500 motion-reduce:transition-none'
     : active
-      ? 'absolute z-20 flex flex-col items-center justify-center rounded-lg border border-text-primary bg-text-primary px-2 text-center font-ds-mono text-[clamp(8px,2.8cqw,10px)] font-semibold leading-tight text-background-default shadow-sm transition-all duration-500 motion-reduce:transition-none'
+      ? 'absolute z-20 flex flex-col items-center justify-center rounded-lg border border-text-primary bg-text-primary px-2 text-center font-ds-mono text-ds-mono-2xs text-background-default shadow-sm transition-all duration-500 motion-reduce:transition-none'
       : dotted
-        ? 'absolute z-20 flex flex-col items-center justify-center rounded-lg border border-dashed border-text-primary/25 bg-background-subtle/80 px-2 text-center font-ds-mono text-[clamp(8px,2.8cqw,10px)] font-medium leading-tight text-text-primary/30 transition-all duration-500 motion-reduce:transition-none'
-        : 'absolute z-20 flex flex-col items-center justify-center rounded-lg border border-border-default bg-background-subtle/90 px-2 text-center font-ds-mono text-[clamp(8px,2.8cqw,10px)] font-medium leading-tight text-text-primary/40 transition-all duration-500 motion-reduce:transition-none'
+        ? 'absolute z-20 flex flex-col items-center justify-center rounded-lg border border-dashed border-text-primary/25 bg-background-subtle/80 px-2 text-center font-ds-mono text-ds-mono-2xs text-text-primary/30 transition-all duration-500 motion-reduce:transition-none'
+        : 'absolute z-20 flex flex-col items-center justify-center rounded-lg border border-border-default bg-background-subtle/90 px-2 text-center font-ds-mono text-ds-mono-2xs text-text-primary/40 transition-all duration-500 motion-reduce:transition-none'
 
   return (
     <div style={graphStyle(node)} className={className}>
       <span>{label}</span>
       {detail ? (
-        <span className="mt-0.5 block text-[clamp(7px,2.2cqw,8px)] uppercase tracking-[0.08em] opacity-65">
+        <span className="mt-0.5 block font-ds-mono text-ds-mono-caps-xs uppercase opacity-65">
           {detail}
         </span>
       ) : null}
@@ -683,7 +683,7 @@ function ToolBoundary() {
             </button>
           ))}
         </div>
-        <div className="mt-5 overflow-x-auto rounded-lg bg-ds-neutral-500 p-4 font-ds-mono text-[11px] leading-6 text-white/65">
+        <div className="mt-5 overflow-x-auto rounded-lg bg-ds-neutral-500 p-4 font-ds-mono text-ds-mono-xs text-white/65">
           <p>
             <span className="text-pink-300">const</span> lookupInvoice =
             toolDefinition({'{'}
@@ -734,10 +734,10 @@ function ProviderWorkbench() {
           ))}
         </div>
         <div className="p-5" aria-live="polite">
-          <p className="font-ds-mono text-[10px] uppercase tracking-[0.14em] text-text-primary/25">
+          <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
             selected model
           </p>
-          <p className="mt-2 font-ds-mono text-[13px] text-text-primary">
+          <p className="mt-2 font-ds-mono text-ds-mono-xs text-text-primary">
             {provider.model}
           </p>
           <div className="mt-6 flex flex-wrap gap-2">
@@ -749,8 +749,8 @@ function ProviderWorkbench() {
                     key={capability}
                     className={
                       supported
-                        ? 'rounded-full border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.14)] px-3 py-1.5 font-ds-mono text-[10px] text-[var(--landing-accent-bright)]'
-                        : 'rounded-full border border-border-subtle px-3 py-1.5 font-ds-mono text-[10px] text-text-primary/20 line-through'
+                        ? 'rounded-full border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.14)] px-3 py-1.5 font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]'
+                        : 'rounded-full border border-border-subtle px-3 py-1.5 font-ds-mono text-ds-mono-2xs text-text-primary/20 line-through'
                     }
                   >
                     {capability}
@@ -783,7 +783,7 @@ function ProtocolMap() {
         <React.Fragment key={label}>
           <div className="min-w-0 flex-1 rounded-xl border border-[color:rgb(var(--landing-glow)/0.45)] bg-background-subtle p-5 text-center">
             <p className="text-ds-heading-4 text-text-primary">{label}</p>
-            <p className="mt-2 font-ds-mono text-[10px] text-[var(--landing-accent-bright)]">
+            <p className="mt-2 font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
               {detail}
             </p>
           </div>
@@ -840,11 +840,11 @@ function ModalityRail() {
               <p className="text-ds-label-md text-text-primary">
                 {modality.label}
               </p>
-              <p className="mt-1 font-ds-mono text-[10px] text-text-primary/30">
+              <p className="mt-1 font-ds-mono text-ds-mono-2xs text-text-primary/30">
                 {modality.detail}
               </p>
             </div>
-            <span className="font-ds-mono text-[10px] text-text-primary/20">
+            <span className="font-ds-mono text-ds-mono-2xs text-text-primary/20">
               0{index + 1}
             </span>
           </div>

@@ -176,10 +176,10 @@ function RouteContractHero() {
       <div className="grid min-h-[23rem] lg:grid-cols-[0.92fr_1.08fr]">
         <div className="border-border-subtle p-4 lg:border-r">
           <div className="mb-4 flex items-center justify-between gap-3">
-            <span className="font-ds-mono text-[10px] uppercase tracking-[0.16em] text-text-primary/30">
+            <span className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/30">
               route files
             </span>
-            <span className="rounded bg-emerald-400 px-2 py-1 font-ds-mono text-[9px] font-semibold uppercase text-emerald-950">
+            <span className="rounded bg-emerald-400 px-2 py-1 font-ds-mono text-ds-mono-caps-xs uppercase text-emerald-950">
               generated
             </span>
           </div>
@@ -195,7 +195,7 @@ function RouteContractHero() {
                   setUsesRefactoredParam(false)
                 }}
               >
-                <span className="block truncate font-ds-mono text-[12px] font-medium text-text-primary">
+                <span className="block truncate font-ds-mono text-ds-mono-xs text-text-primary">
                   {route.file}
                 </span>
                 <span className="mt-1 block text-ds-body-xs text-text-primary/30">
@@ -217,7 +217,7 @@ function RouteContractHero() {
 
         <div className="min-w-0 p-5" aria-live="polite">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="font-ds-mono text-[11px] font-medium text-[var(--landing-accent-bright)]">
+            <p className="font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
               routeTree.gen.ts
             </p>
             <span className="inline-flex items-center gap-1.5 text-ds-body-xs text-text-primary/35">
@@ -229,7 +229,7 @@ function RouteContractHero() {
               contract updated
             </span>
           </div>
-          <div className="mt-4 rounded-lg bg-ds-neutral-500 p-4 font-ds-mono text-[11px] leading-6 text-white/70">
+          <div className="mt-4 rounded-lg bg-ds-neutral-500 p-4 font-ds-mono text-ds-mono-xs text-white/70">
             <p className="break-all text-white/35">{file}</p>
             <p className="mt-2">
               <span className="text-[var(--landing-accent-bright)]">path</span>:
@@ -265,10 +265,10 @@ function RouteContractHero() {
 function CodeRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg border border-border-subtle bg-background-subtle px-3 py-2.5">
-      <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
+      <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
         {label}
       </p>
-      <p className="mt-1 overflow-x-auto font-ds-mono text-[11px] text-text-primary/75">
+      <p className="mt-1 overflow-x-auto font-ds-mono text-ds-mono-2xs text-text-primary/75">
         {value}
       </p>
     </div>
@@ -287,7 +287,7 @@ function SearchStateLab() {
   return (
     <LandingWindow label="validated search state">
       <div className="p-5 sm:p-6">
-        <p className="break-all font-ds-mono text-[12px] text-text-primary/70">
+        <p className="break-all font-ds-mono text-ds-mono-xs text-text-primary/70">
           /docs?
           <span className="text-[var(--landing-accent-bright)]">
             {params.toString()}
@@ -316,10 +316,10 @@ function SearchStateLab() {
             ['sort', active.sort],
           ].map(([label, value]) => (
             <div key={label} className="bg-background-subtle p-4">
-              <dt className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
+              <dt className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
                 {label}
               </dt>
-              <dd className="mt-2 truncate font-ds-mono text-[12px] text-text-primary/80">
+              <dd className="mt-2 truncate font-ds-mono text-ds-mono-xs text-text-primary/80">
                 {value}
               </dd>
             </div>
@@ -379,7 +379,7 @@ function PreloadTrace() {
                     : 'rounded-lg border border-border-subtle bg-background-subtle p-4'
                 }
               >
-                <span className="font-ds-display text-ds-heading-2 font-light text-[var(--landing-accent-bright)]">
+                <span className="font-ds-display text-ds-heading-2 text-[var(--landing-accent-bright)]">
                   {index + 1}
                 </span>
                 <p className="mt-3 text-ds-label-md capitalize text-text-primary">
@@ -394,7 +394,7 @@ function PreloadTrace() {
         </ol>
         <button
           type="button"
-          className="mt-5 font-ds-mono text-[10px] uppercase tracking-[0.14em] text-text-primary/35 underline decoration-text-primary/20 underline-offset-4 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
+          className="mt-5 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/35 underline decoration-text-primary/20 underline-offset-4 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
           onClick={() => setStage(0)}
         >
           Reset trace
@@ -423,12 +423,12 @@ function ContractMap() {
                 <span className="flex size-10 items-center justify-center rounded-full bg-[var(--landing-accent)] text-[var(--landing-accent-ink)]">
                   <Icon aria-hidden="true" size={19} />
                 </span>
-                <span className="font-ds-mono text-[10px] text-text-primary/20">
+                <span className="font-ds-mono text-ds-mono-2xs text-text-primary/20">
                   0{index + 1}
                 </span>
               </div>
               <h3 className="mt-6 text-ds-heading-4">{node.label}</h3>
-              <p className="mt-3 break-words font-ds-mono text-[11px] text-[var(--landing-accent-bright)]">
+              <p className="mt-3 break-words font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
                 {node.code}
               </p>
               <p className="mt-4 text-ds-body-xs text-text-primary/35">

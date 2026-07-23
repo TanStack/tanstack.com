@@ -168,17 +168,17 @@ function OptimisticWorkbench() {
                 key={label}
                 className="rounded-lg border border-border-subtle bg-background-subtle p-4"
               >
-                <p className="font-ds-mono text-[10px] uppercase tracking-[0.14em] text-text-primary/25">
+                <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
                   {label}
                 </p>
-                <p className="mt-2 font-ds-mono text-[12px] text-[var(--landing-accent-bright)]">
+                <p className="mt-2 font-ds-mono text-ds-mono-xs text-[var(--landing-accent-bright)]">
                   {value}
                 </p>
               </div>
             ))}
           </div>
           <div className="mt-4 rounded-lg bg-[color:rgb(var(--landing-glow)/0.12)] p-4">
-            <p className="font-ds-mono text-[9px] uppercase tracking-[0.12em] text-[var(--landing-accent-bright)]">
+            <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
               persist on your cadence
             </p>
             <div className="mt-3 flex flex-wrap gap-2 text-ds-body-xs text-text-primary/45">
@@ -193,14 +193,14 @@ function OptimisticWorkbench() {
 
         <div className="min-w-0 p-4 sm:p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="font-ds-mono text-[11px] text-text-primary/70">
+            <p className="font-ds-mono text-ds-mono-2xs text-text-primary/70">
               useLiveQuery(openTodos)
             </p>
             <span
               className={
                 state === 'failed'
-                  ? 'rounded bg-red-400 px-2 py-1 font-ds-mono text-[9px] uppercase text-red-950'
-                  : 'rounded bg-[var(--landing-accent)] px-2 py-1 font-ds-mono text-[9px] uppercase text-[var(--landing-accent-ink)]'
+                  ? 'rounded bg-red-400 px-2 py-1 font-ds-mono text-ds-mono-caps-xs uppercase text-red-950'
+                  : 'rounded bg-[var(--landing-accent)] px-2 py-1 font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-ink)]'
               }
               aria-live="polite"
             >
@@ -209,7 +209,7 @@ function OptimisticWorkbench() {
           </div>
 
           <div className="mt-4 overflow-hidden rounded-lg border border-border-subtle">
-            <div className="grid grid-cols-[1fr_auto] bg-background-subtle px-3 py-2 font-ds-mono text-[9px] uppercase tracking-[0.12em] text-text-primary/25">
+            <div className="grid grid-cols-[1fr_auto] bg-background-subtle px-3 py-2 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
               <span>open task</span>
               <span>sync state</span>
             </div>
@@ -276,7 +276,7 @@ function TodoRow({ state, title }: { state: string; title: string }) {
       <span className="truncate text-ds-label-sm text-text-primary/75">
         {title}
       </span>
-      <span className="font-ds-mono text-[9px] uppercase text-[var(--landing-accent-bright)]">
+      <span className="font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
         {state}
       </span>
     </div>
@@ -319,7 +319,7 @@ function DataShapeChoices() {
               : 'rounded-xl border border-border-subtle bg-background-surface p-6'
           }
         >
-          <p className="font-ds-display text-ds-display-md font-light text-[var(--landing-accent-bright)]">
+          <p className="font-ds-display text-ds-display-md text-[var(--landing-accent-bright)]">
             {choice.number}
           </p>
           <h3 className="mt-5 text-ds-heading-4">{choice.title}</h3>
@@ -362,8 +362,8 @@ function LiveQueryLab() {
   return (
     <LandingWindow label="cross-collection live query">
       <div className="p-5">
-        <pre className="overflow-x-auto rounded-lg bg-ds-neutral-500 p-4 font-ds-mono text-[10px] leading-5 text-white/55">
-          <code>
+        <pre className="overflow-x-auto rounded-lg bg-ds-neutral-500 p-4">
+          <code className="font-ds-mono text-ds-mono-xs text-white/55">
             <span className="text-[var(--landing-accent-bright)]">from</span>{' '}
             issues
             <br />
@@ -401,19 +401,19 @@ function LiveQueryLab() {
               key={row.id}
               className="grid gap-2 rounded-lg border border-border-subtle bg-background-subtle p-3 sm:grid-cols-[auto_1fr_auto] sm:items-center"
             >
-              <span className="font-ds-mono text-[10px] text-[var(--landing-accent-bright)]">
+              <span className="font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
                 {row.id}
               </span>
               <span className="min-w-0 truncate text-ds-label-sm text-text-primary/70">
                 {row.title}
               </span>
-              <span className="font-ds-mono text-[9px] uppercase text-text-primary/30">
+              <span className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/30">
                 {row.project} · {row.priority}
               </span>
             </div>
           ))}
         </div>
-        <p className="mt-4 font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
+        <p className="mt-4 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
           {joinedRows.length} result{joinedRows.length === 1 ? '' : 's'} ·
           inferred output
         </p>
@@ -453,10 +453,10 @@ function QueryDrivenSync() {
                   <Icon aria-hidden="true" size={19} />
                 </span>
                 <div className="min-w-0">
-                  <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
+                  <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
                     {step.label}
                   </p>
-                  <p className="mt-2 overflow-x-auto font-ds-mono text-[11px] text-text-primary/70">
+                  <p className="mt-2 overflow-x-auto font-ds-mono text-ds-mono-2xs text-text-primary/70">
                     {step.code}
                   </p>
                 </div>
@@ -497,7 +497,7 @@ function AdoptionPaths() {
               className="rotate-90 md:rotate-0"
               size={18}
             />
-            <span className="rounded-full border border-[var(--landing-accent)] px-3 py-1.5 font-ds-mono text-[9px] text-[var(--landing-accent-bright)]">
+            <span className="rounded-full border border-[var(--landing-accent)] px-3 py-1.5 font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
               {path.bridge}
             </span>
           </div>
@@ -506,7 +506,7 @@ function AdoptionPaths() {
               {path.detail}
             </p>
             {index === adoptionPaths.length - 1 ? (
-              <p className="mt-2 font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
+              <p className="mt-2 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
                 same collection · same live query
               </p>
             ) : null}

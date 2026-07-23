@@ -168,13 +168,13 @@ function DevtoolsCockpit() {
       <div className="grid min-h-[23rem] lg:grid-cols-[0.72fr_1.28fr]">
         <div className="border-border-subtle bg-background-surface p-4 lg:border-r">
           <div className="flex items-center justify-between gap-3">
-            <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
+            <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
               your app
             </p>
             <button
               type="button"
               aria-pressed={isInspecting}
-              className="inline-flex items-center gap-1.5 rounded-md border border-border-default px-2 py-1.5 font-ds-mono text-[9px] uppercase text-text-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
+              className="inline-flex items-center gap-1.5 rounded-md border border-border-default px-2 py-1.5 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
               onClick={() => setIsInspecting((current) => !current)}
             >
               <MagnifyingGlass aria-hidden="true" size={12} /> Inspect
@@ -214,7 +214,7 @@ function DevtoolsCockpit() {
             </div>
           </div>
           <div
-            className="mt-3 min-w-0 rounded-lg bg-ds-neutral-500 px-3 py-2 font-ds-mono text-[9px] text-[var(--landing-accent-bright)]"
+            className="mt-3 min-w-0 rounded-lg bg-ds-neutral-500 px-3 py-2 font-ds-mono text-ds-mono-xs text-[var(--landing-accent-bright)]"
             aria-live="polite"
           >
             <span className="block truncate">{source}</span>
@@ -246,7 +246,7 @@ function DevtoolsCockpit() {
                   key={label}
                   className="rounded-lg bg-background-subtle p-3"
                 >
-                  <p className="font-ds-mono text-[8px] uppercase tracking-[0.1em] text-text-primary/25">
+                  <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
                     {label}
                   </p>
                   <p className="mt-2 text-ds-heading-4 text-text-primary">
@@ -261,7 +261,7 @@ function DevtoolsCockpit() {
                   key={row}
                   className="flex items-center justify-between gap-3 rounded-lg border border-border-subtle bg-background-surface px-3 py-2.5"
                 >
-                  <span className="truncate font-ds-mono text-[10px] text-text-primary/55">
+                  <span className="truncate font-ds-mono text-ds-mono-2xs text-text-primary/55">
                     {row}
                   </span>
                   <span
@@ -296,7 +296,7 @@ function ShellAnatomy() {
                 <span className="flex size-10 items-center justify-center rounded-lg bg-[var(--landing-accent)] text-[var(--landing-accent-ink)]">
                   <Icon aria-hidden="true" size={19} />
                 </span>
-                <span className="font-ds-mono text-[9px] text-text-primary/20">
+                <span className="font-ds-mono text-ds-mono-2xs text-text-primary/20">
                   0{index + 1}
                 </span>
               </div>
@@ -308,7 +308,7 @@ function ShellAnatomy() {
           )
         })}
       </div>
-      <div className="mx-auto mt-4 flex max-w-[34rem] items-center justify-center rounded-full border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.16)] px-5 py-3 font-ds-mono text-[10px] uppercase tracking-[0.14em] text-[var(--landing-accent-bright)]">
+      <div className="mx-auto mt-4 flex max-w-[34rem] items-center justify-center rounded-full border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.16)] px-5 py-3 font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
         one cohesive development surface
       </div>
     </div>
@@ -330,9 +330,9 @@ function PluginEventLab() {
   return (
     <LandingWindow label="custom jobs plugin">
       <div className="grid lg:grid-cols-[1.05fr_0.95fr]">
-        <div className="border-border-subtle p-5 lg:border-r">
-          <pre className="overflow-x-auto rounded-lg bg-ds-neutral-500 p-4 font-ds-mono text-[10px] leading-5 text-white/60">
-            <code>
+        <div className="min-w-0 border-border-subtle p-5 lg:border-r">
+          <pre className="overflow-x-auto rounded-lg bg-ds-neutral-500 p-4">
+            <code className="font-ds-mono text-ds-mono-xs text-white/60">
               {
                 "type JobEvents = {\n  progress: { jobId: string; percent: number }\n}\nclass JobsClient extends EventClient<JobEvents> {\n  constructor() { super({ pluginId: 'jobs' }) }\n}\nconst jobs = new JobsClient()"
               }
@@ -347,12 +347,12 @@ function PluginEventLab() {
             </p>
           </div>
         </div>
-        <div className="p-5">
+        <div className="min-w-0 p-5">
           <div className="flex items-center justify-between gap-3">
-            <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
+            <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
               typed event stream
             </p>
-            <span className="inline-flex items-center gap-2 font-ds-mono text-[9px] text-emerald-300">
+            <span className="inline-flex items-center gap-2 font-ds-mono text-ds-mono-2xs text-emerald-300">
               <span className="size-1.5 rounded-full bg-emerald-400 motion-safe:animate-pulse" />{' '}
               connected
             </span>
@@ -363,7 +363,7 @@ function PluginEventLab() {
                 key={event.id}
                 className="rounded-lg border border-border-subtle bg-background-subtle px-3 py-3"
               >
-                <p className="font-ds-mono text-[10px] text-[var(--landing-accent-bright)]">
+                <p className="font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
                   {event.label}
                 </p>
                 <p className="mt-1 text-ds-body-xs text-text-primary/30">
@@ -460,7 +460,7 @@ function ConsolePane({
           }
           size={16}
         />
-        <p className="font-ds-mono text-[9px] uppercase tracking-[0.12em] text-text-primary/35">
+        <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/35">
           {label}
         </p>
       </div>
@@ -468,7 +468,7 @@ function ConsolePane({
         {lines.map((line) => (
           <p
             key={line}
-            className="font-ds-mono text-[9px] text-text-primary/55"
+            className="font-ds-mono text-ds-mono-2xs text-text-primary/55"
           >
             {line}
           </p>
@@ -487,7 +487,7 @@ function SourceToBuild() {
         </LandingEyebrow>
         <div className="mt-7 rounded-lg border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.12)] p-5">
           <p className="text-ds-heading-4">Project summary</p>
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded bg-ds-neutral-500 px-3 py-2 font-ds-mono text-[10px] text-[var(--landing-accent-bright)]">
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded bg-ds-neutral-500 px-3 py-2 font-ds-mono text-ds-mono-xs text-[var(--landing-accent-bright)]">
             <span>Summary.tsx:14</span>
             <ArrowSquareOut aria-hidden="true" size={15} />
           </div>
@@ -502,12 +502,12 @@ function SourceToBuild() {
         <LandingEyebrow icon={<Gauge aria-hidden="true" size={14} />}>
           production build
         </LandingEyebrow>
-        <div className="mt-7 space-y-3 font-ds-mono text-[10px]">
+        <div className="mt-7 space-y-3 font-ds-mono text-ds-mono-2xs">
           <BuildLine label="Devtools component imports" />
           <BuildLine label="<TanStackDevtools /> JSX" />
           <BuildLine label="plugin-only imports" />
         </div>
-        <div className="mt-5 rounded-lg bg-emerald-400 px-4 py-3 text-center font-ds-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-950">
+        <div className="mt-5 rounded-lg bg-emerald-400 px-4 py-3 text-center font-ds-mono text-ds-mono-caps-xs uppercase text-emerald-950">
           imports + JSX removed
         </div>
         <p className="mt-5 text-ds-body-xs text-text-primary/35">

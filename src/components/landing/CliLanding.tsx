@@ -135,7 +135,7 @@ function BuilderHero() {
     <LandingWindow label="TanStack Builder">
       <div className="grid min-h-[24rem] md:grid-cols-[0.86fr_1.14fr]">
         <div className="border-border-subtle p-4 md:border-r">
-          <p className="font-ds-mono text-[9px] uppercase tracking-[0.16em] text-text-primary/30">
+          <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/30">
             application
           </p>
           <div className="mt-3 grid grid-cols-2 gap-2">
@@ -162,7 +162,7 @@ function BuilderHero() {
             ))}
           </div>
 
-          <p className="mt-6 font-ds-mono text-[9px] uppercase tracking-[0.16em] text-text-primary/30">
+          <p className="mt-6 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/30">
             add-ons
           </p>
           <div className="mt-3 space-y-2">
@@ -202,7 +202,7 @@ function BuilderHero() {
             })}
           </div>
 
-          <p className="mt-6 font-ds-mono text-[9px] uppercase tracking-[0.16em] text-text-primary/30">
+          <p className="mt-6 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/30">
             deployment
           </p>
           <button
@@ -234,16 +234,16 @@ function BuilderHero() {
         </div>
 
         <div className="flex min-w-0 flex-col p-4" aria-live="polite">
-          <div className="rounded-lg bg-ds-neutral-500 p-3 font-ds-mono text-[10px] leading-5 text-white/60">
+          <div className="rounded-lg bg-ds-neutral-500 p-3 font-ds-mono text-ds-mono-xs text-white/60">
             <span className="text-[var(--landing-accent-dark)]">$</span>{' '}
             {command}
           </div>
           <div className="mt-4 min-h-0 flex-1 rounded-lg border border-border-subtle bg-background-subtle p-3">
             <div className="flex items-center justify-between gap-3">
-              <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
+              <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
                 generated plan
               </p>
-              <span className="font-ds-mono text-[9px] text-emerald-400">
+              <span className="font-ds-mono text-ds-mono-2xs text-emerald-400">
                 {files.length} files
               </span>
             </div>
@@ -251,7 +251,7 @@ function BuilderHero() {
               {files.map((file) => (
                 <p
                   key={file}
-                  className="truncate font-ds-mono text-[10px] text-text-primary/55"
+                  className="truncate font-ds-mono text-ds-mono-2xs text-text-primary/55"
                 >
                   <span className="mr-2 text-[var(--landing-accent-bright)]">
                     +
@@ -268,7 +268,7 @@ function BuilderHero() {
               size={18}
             />
             <div className="min-w-0">
-              <p className="font-ds-mono text-[11px] text-text-primary">
+              <p className="font-ds-mono text-ds-mono-2xs text-text-primary">
                 .cta.json
               </p>
               <p className="mt-1 truncate text-ds-body-xs text-text-primary/30">
@@ -314,7 +314,7 @@ function AddonAnatomy() {
               key={label}
               className="border-b border-border-subtle p-5 sm:border-l"
             >
-              <dt className="font-ds-mono text-[10px] uppercase tracking-[0.14em] text-[var(--landing-accent-bright)]">
+              <dt className="font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
                 {label}
               </dt>
               <dd className="mt-3 text-ds-body-xs text-text-primary/35">
@@ -341,14 +341,14 @@ function CatalogTerminal() {
               key={item.id}
               type="button"
               aria-pressed={index === activeIndex}
-              className="rounded-lg border border-border-default px-3 py-2 font-ds-mono text-[10px] text-text-primary/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
+              className="rounded-lg border border-border-default px-3 py-2 font-ds-mono text-ds-mono-2xs text-text-primary/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
               onClick={() => setActiveIndex(index)}
             >
               {item.id}
             </button>
           ))}
         </div>
-        <div className="mt-4 overflow-x-auto rounded-lg bg-ds-neutral-500 p-4 font-ds-mono text-[11px] text-white/60">
+        <div className="mt-4 overflow-x-auto rounded-lg bg-ds-neutral-500 p-4 font-ds-mono text-ds-mono-xs text-white/60">
           <span className="text-[var(--landing-accent-dark)]">$</span> npx
           @tanstack/cli {query.command}
         </div>
@@ -356,14 +356,14 @@ function CatalogTerminal() {
           className="mt-3 rounded-lg border border-white/5 bg-ds-neutral-500 p-4"
           aria-live="polite"
         >
-          <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-white/25">
+          <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-white/25">
             JSON
           </p>
           <ul className="mt-3 space-y-2">
             {query.output.map((line) => (
               <li
                 key={line}
-                className="flex items-center gap-3 font-ds-mono text-[11px] text-white/55"
+                className="flex items-center gap-3 font-ds-mono text-ds-mono-xs text-white/55"
               >
                 <span
                   aria-hidden="true"
@@ -421,7 +421,7 @@ function TemplateVsAddon() {
             className="shrink-0 text-[var(--landing-accent-bright)]"
             size={18}
           />
-          <p className="font-ds-mono text-[11px] text-text-primary/55">
+          <p className="font-ds-mono text-ds-mono-2xs text-text-primary/55">
             preview files → review plan → generate source
           </p>
         </div>

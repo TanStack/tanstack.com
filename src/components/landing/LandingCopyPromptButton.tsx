@@ -39,7 +39,7 @@ export function LandingCopyPromptButton({
       type="button"
       aria-live="polite"
       className={twMerge(
-        'inline-flex w-full max-w-full items-center justify-center gap-2 rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm font-bold text-zinc-900 transition-colors hover:border-zinc-400 disabled:cursor-wait disabled:opacity-75 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:border-zinc-500 sm:w-auto',
+        'inline-flex w-full max-w-full items-center justify-center gap-2 rounded-lg border border-border-default bg-background-surface px-4 py-2.5 text-ds-label-md text-text-primary transition-colors hover:border-border-strong disabled:cursor-wait disabled:opacity-75 sm:w-auto',
         className,
       )}
       disabled={status === 'copying'}

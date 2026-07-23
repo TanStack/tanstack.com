@@ -112,10 +112,16 @@ const GROUPS: Array<TypeGroup> = [
       { name: 'mono/md', cls: 'text-ds-mono-md', spec: '16 / 24 · Light' },
       { name: 'mono/sm', cls: 'text-ds-mono-sm', spec: '14 / 21 · Light' },
       { name: 'mono/xs', cls: 'text-ds-mono-xs', spec: '12 / 16 · Light' },
+      { name: 'mono/2xs', cls: 'text-ds-mono-2xs', spec: '10 / 14 · Light' },
       {
         name: 'mono/caps',
         cls: 'text-ds-mono-caps uppercase',
         spec: '12 / 14 · Regular · +1.5 · UPPER',
+      },
+      {
+        name: 'mono/caps-xs',
+        cls: 'text-ds-mono-caps-xs uppercase',
+        spec: '10 / 12 · Regular · +1.2 · UPPER',
       },
     ],
   },
@@ -134,7 +140,7 @@ function TypographyPage() {
   return (
     <DsPage
       title="Typography"
-      description="The TanStack type system, sourced from Figma — 25 styles across five roles. Display & headings use Bricolage Grotesque, body & labels use Inter, and code uses IBM Plex Mono. Each style is a Tailwind text-ds-* utility (size, line-height, tracking, and weight baked in)."
+      description="The TanStack type system, sourced from Figma and extended for dense product diagrams — 27 styles across five roles. Display & headings use Bricolage Grotesque, body & labels use Inter, and code uses IBM Plex Mono. Each style is a Tailwind text-ds-* utility (size, line-height, tracking, and weight baked in)."
     >
       <DsSection
         title="Font families"

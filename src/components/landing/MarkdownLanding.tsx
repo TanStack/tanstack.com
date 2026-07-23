@@ -1,10 +1,16 @@
+import * as React from 'react'
 import { Link, useParams } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
+import { parseMarkdown } from '@tanstack/markdown/parser'
+import { renderDocument, renderHtml } from '@tanstack/markdown/html'
+import { Markdown } from '@tanstack/markdown/react'
 import {
   ArrowRight,
   BookOpen,
   Braces,
   Check,
+  CheckCircle2,
+  Copy,
   FileText,
   Highlighter,
   LockKeyhole,
@@ -21,6 +27,7 @@ import { LibraryWordmark } from '~/components/LibraryWordmark'
 import { SponsorSection } from '~/components/SponsorSection'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { getLibrary } from '~/libraries'
+import { copyTextToClipboard } from '~/utils/browser-effects'
 
 import { LandingCopyPromptButton } from './LandingCopyPromptButton'
 
@@ -49,6 +56,70 @@ const deliberateBoundaries = [
   'A bundled highlighter',
   'A general HTML sanitizer',
 ]
+
+const heroSource = `---
+title: Ship the docs
+---
+
+# One source
+
+Parse it **once**. Render it where the product needs it.
+
+- cache the tree
+- index the text
+- choose a renderer`
+
+const workbenchPresets = [
+  {
+    id: 'docs',
+    label: 'Docs page',
+    source: `---
+title: Durable content
+---
+
+# One source, many destinations
+
+Parse the document **once**, then keep the tree.
+
+- cache it at the edge
+- index its text
+- render it with React or HTML
+
+> The renderer can change. The document does not.`,
+  },
+  {
+    id: 'code',
+    label: 'Code fence',
+    source: `# Typed examples
+
+Code metadata survives parsing so another layer can decide how it looks.
+
+\`\`\`tsx title="article.tsx" {2}
+import { Markdown } from '@tanstack/markdown/react'
+
+export function Article({ source }: { source: string }) {
+  return <Markdown>{source}</Markdown>
+}
+\`\`\``,
+  },
+  {
+    id: 'safety',
+    label: 'Unsafe input',
+    source: `# Untrusted content
+
+<script>alert("not today")</script>
+
+[Run code](javascript:alert("nope"))
+
+**Trusted Markdown still renders.**`,
+  },
+]
+
+const safetySource = `<script>alert("not today")</script>
+
+[Run code](javascript:alert("nope"))
+
+**Trusted Markdown still renders.**`
 
 const bundleComparisons = [
   {
@@ -131,6 +202,8 @@ export default function MarkdownLanding() {
               />
             </div>
 
+            <InstallCommand className="mt-4" />
+
             <div className="mt-8 flex flex-wrap gap-x-7 gap-y-3 border-t border-violet-950/15 pt-4 font-mono text-xs font-bold uppercase tracking-wider text-violet-900/70 dark:border-violet-200/15 dark:text-violet-200/70">
               <span>4.6 KB parser</span>
               <span>0 runtime dependencies</span>
@@ -143,22 +216,30 @@ export default function MarkdownLanding() {
       </section>
 
       <section className="border-b border-violet-950/10 bg-[#e8dcec] text-[#201725] dark:border-violet-200/10 dark:bg-[#0b080d] dark:text-white">
-        <div className="mx-auto grid w-full gap-10 px-4 py-14 lg:max-w-[80rem] lg:grid-cols-[0.66fr_1.34fr] lg:items-center xl:max-w-[92rem]">
-          <div className="max-w-xl">
-            <DarkEyebrow>
-              <Braces size={14} aria-hidden="true" /> The durable layer
-            </DarkEyebrow>
-            <h2 className="mt-4 text-4xl font-black leading-[1.02] sm:text-5xl">
-              The AST is the product.
-            </h2>
-            <p className="mt-5 text-base leading-7 text-violet-950/65 dark:text-violet-100/75 sm:text-lg">
-              Parsing does not trap your content inside a renderer. The public
-              tree is ordinary data, so the expensive decision can happen once
-              while every downstream use stays cheap and predictable.
-            </p>
+        <div className="mx-auto w-full px-4 py-14 lg:max-w-[80rem] xl:max-w-[92rem]">
+          <div className="grid gap-8 lg:grid-cols-[0.72fr_1.28fr] lg:items-end">
+            <div className="max-w-xl">
+              <DarkEyebrow>
+                <Braces size={14} aria-hidden="true" /> The durable layer
+              </DarkEyebrow>
+              <h2 className="mt-4 text-4xl font-black leading-[1.02] sm:text-5xl">
+                The AST is the product.
+              </h2>
+              <p className="mt-5 text-base leading-7 text-violet-950/65 dark:text-violet-100/75 sm:text-lg">
+                Parsing does not trap your content inside a renderer. Edit the
+                source and inspect the real serializable tree, deterministic
+                HTML, or React output below.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-3 border-y border-violet-950/15 py-4 font-mono dark:border-violet-200/15">
+              <WorkbenchStat value="1 parse" label="every output" />
+              <WorkbenchStat value="plain JSON" label="cache and index" />
+              <WorkbenchStat value="0 deps" label="runtime core" />
+            </div>
           </div>
 
-          <DocumentModel />
+          <MarkdownWorkbench />
         </div>
       </section>
 
@@ -220,7 +301,7 @@ export default function MarkdownLanding() {
                 part of its normal release gates.
               </p>
             </div>
-            <SafetyLedger />
+            <SafetyProof />
           </div>
         </div>
       </section>
@@ -350,43 +431,95 @@ export default function MarkdownLanding() {
 }
 
 function ManuscriptPanel() {
+  const [mode, setMode] = React.useState('ast')
+  const document = React.useMemo(
+    () => parseMarkdown(heroSource, { frontmatter: true, headingIds: true }),
+    [],
+  )
+  const html = React.useMemo(() => renderDocument(document), [document])
+
   return (
     <div className="relative min-w-0 pb-4 pr-0 sm:pr-5">
       <div className="absolute bottom-0 right-0 top-5 hidden w-[92%] border border-violet-950/10 bg-violet-200/50 sm:block dark:border-violet-200/10 dark:bg-violet-950/30" />
       <div className="relative overflow-hidden border border-violet-950/15 bg-[#fffdf8] shadow-[0_18px_50px_rgba(67,36,75,0.12)] dark:border-violet-200/15 dark:bg-[#141016] dark:shadow-black/30">
         <div className="flex items-center justify-between border-b border-violet-950/10 px-4 py-3 font-mono text-[11px] font-bold uppercase tracking-widest text-violet-900/55 dark:border-violet-200/10 dark:text-violet-200/55">
           <span>article.md</span>
-          <span>document / 017</span>
+          <span>{document.children.length} blocks / live</span>
         </div>
         <div className="grid md:grid-cols-[0.9fr_1.1fr]">
-          <pre className="overflow-x-auto border-b border-violet-950/10 p-5 font-mono text-xs leading-7 text-zinc-700 md:border-b-0 md:border-r dark:border-violet-200/10 dark:text-zinc-300 sm:text-sm">
-            <code>{`---
-title: Ship the docs
----
-
-# One source
-
-Parse it once. Render it
-where the product needs it.
-
-- cache the tree
-- index the text
-- choose a renderer`}</code>
+          <pre className="max-h-[24rem] overflow-auto border-b border-violet-950/10 p-5 font-mono text-xs leading-7 !text-zinc-700 md:border-b-0 md:border-r dark:border-violet-200/10 dark:!text-zinc-300 sm:text-sm [&_code]:!text-inherit">
+            <code>{heroSource}</code>
           </pre>
-          <div className="p-5 font-mono text-xs leading-6">
-            <div className="text-fuchsia-700 dark:text-fuchsia-300">
-              root <span className="text-zinc-400">{'{'}</span>
+          <div className="flex min-h-[18rem] min-w-0 flex-col md:min-h-[24rem]">
+            <div className="min-h-0 flex-1 overflow-auto p-5">
+              {mode === 'ast' ? (
+                <div className="font-mono text-xs leading-6">
+                  <div className="text-fuchsia-700 dark:text-fuchsia-300">
+                    root{' '}
+                    <span className="text-zinc-400">
+                      · {document.children.length} blocks
+                    </span>
+                  </div>
+                  <div className="pl-4 text-violet-700 dark:text-violet-300">
+                    frontmatter{' '}
+                    <span className="text-zinc-400">
+                      · {document.frontmatter ? 'string' : 'none'}
+                    </span>
+                  </div>
+                  {document.children.map((node, index) => (
+                    <div key={index} className="pl-4">
+                      <span className="text-violet-700 dark:text-violet-300">
+                        {node.type}
+                      </span>
+                      <span className="text-zinc-400">
+                        {' '}
+                        ·{' '}
+                        {node.type === 'heading'
+                          ? `depth: ${node.depth}`
+                          : node.type === 'list'
+                            ? `${node.items.length} items`
+                            : node.type === 'paragraph'
+                              ? `${node.children.length} inline nodes`
+                              : 'block'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : mode === 'html' ? (
+                <pre className="whitespace-pre-wrap break-words font-mono text-xs leading-6 !text-zinc-700 dark:!text-zinc-300 [&_code]:!text-inherit">
+                  <code>{html}</code>
+                </pre>
+              ) : (
+                <div className="prose prose-zinc max-w-none text-sm dark:prose-invert prose-headings:font-black prose-h1:text-2xl prose-p:leading-6">
+                  <Markdown>{document}</Markdown>
+                </div>
+              )}
             </div>
-            <TreeLine depth="pl-4" keyName="frontmatter" value="object" />
-            <TreeLine depth="pl-4" keyName="heading" value="depth: 1" />
-            <TreeLine depth="pl-8" keyName="text" value="One source" />
-            <TreeLine depth="pl-4" keyName="paragraph" value="2 children" />
-            <TreeLine depth="pl-4" keyName="list" value="3 items" />
-            <div className="text-fuchsia-700 dark:text-fuchsia-300">{'}'}</div>
-            <div className="mt-6 grid grid-cols-3 gap-2 border-t border-violet-950/10 pt-4 text-center text-[10px] font-bold uppercase tracking-wider text-violet-800 dark:border-violet-200/10 dark:text-violet-300">
-              <span>HTML</span>
-              <span>React</span>
-              <span>Octane</span>
+            <div
+              className="grid grid-cols-3 border-t border-violet-950/10 text-center font-mono text-[10px] font-bold uppercase tracking-wider dark:border-violet-200/10"
+              role="tablist"
+              aria-label="Hero output"
+            >
+              {[
+                ['ast', 'AST'],
+                ['html', 'HTML'],
+                ['react', 'React'],
+              ].map(([id, label]) => (
+                <button
+                  key={id}
+                  type="button"
+                  role="tab"
+                  aria-selected={mode === id}
+                  className={`px-2 py-4 transition-colors ${
+                    mode === id
+                      ? 'bg-violet-700 text-white dark:bg-violet-300 dark:text-violet-950'
+                      : 'text-violet-800 hover:bg-violet-950/5 dark:text-violet-300 dark:hover:bg-violet-200/5'
+                  }`}
+                  onClick={() => setMode(id)}
+                >
+                  {label}
+                </button>
+              ))}
             </div>
           </div>
         </div>
@@ -395,53 +528,191 @@ where the product needs it.
   )
 }
 
-function TreeLine({
-  depth,
-  keyName,
-  value,
-}: {
-  depth: string
-  keyName: string
-  value: string
-}) {
+function MarkdownWorkbench() {
+  const [source, setSource] = React.useState(
+    workbenchPresets[0]?.source ?? heroSource,
+  )
+  const [activePreset, setActivePreset] = React.useState('docs')
+  const [mode, setMode] = React.useState('ast')
+  const document = React.useMemo(
+    () => parseMarkdown(source, { frontmatter: true, headingIds: true }),
+    [source],
+  )
+  const ast = React.useMemo(
+    () => JSON.stringify(document, undefined, 2),
+    [document],
+  )
+  const html = React.useMemo(() => renderDocument(document), [document])
+  const nodeCount = (ast.match(/"type":/g) ?? []).length
+
   return (
-    <div className={depth}>
-      <span className="text-violet-700 dark:text-violet-300">{keyName}</span>
-      <span className="text-zinc-400"> · {value}</span>
+    <div className="mt-9 overflow-hidden rounded-lg border border-violet-950/15 bg-[#fffdf8] shadow-[0_18px_50px_rgba(67,36,75,0.1)] dark:border-violet-200/15 dark:bg-[#141016] dark:shadow-black/30">
+      <div className="flex flex-col justify-between gap-3 border-b border-violet-950/10 px-4 py-3 dark:border-violet-200/10 sm:flex-row sm:items-center">
+        <div className="flex flex-wrap gap-1.5" aria-label="Example documents">
+          {workbenchPresets.map((preset) => (
+            <button
+              key={preset.id}
+              type="button"
+              aria-pressed={activePreset === preset.id}
+              className={`rounded-md px-3 py-1.5 font-mono text-[11px] font-bold transition-colors ${
+                activePreset === preset.id
+                  ? 'bg-violet-700 text-white dark:bg-violet-300 dark:text-violet-950'
+                  : 'bg-violet-950/5 text-violet-950/65 hover:bg-violet-950/10 dark:bg-violet-200/5 dark:text-violet-100/65 dark:hover:bg-violet-200/10'
+              }`}
+              onClick={() => {
+                setActivePreset(preset.id)
+                setSource(preset.source)
+              }}
+            >
+              {preset.label}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-400">
+          <span className="h-1.5 w-1.5 rounded-full bg-current" />
+          Parsing locally
+        </div>
+      </div>
+
+      <div className="grid lg:grid-cols-[0.9fr_1.1fr]">
+        <div className="flex h-[28rem] min-w-0 flex-col border-b border-violet-950/10 lg:h-[34rem] lg:border-b-0 lg:border-r dark:border-violet-200/10">
+          <div className="flex items-center justify-between border-b border-violet-950/10 px-4 py-3 font-mono text-[11px] font-bold uppercase tracking-widest text-violet-900/55 dark:border-violet-200/10 dark:text-violet-200/55">
+            <span>article.md</span>
+            <span>editable source</span>
+          </div>
+          <textarea
+            aria-label="Editable Markdown source"
+            className="block min-h-0 w-full flex-1 resize-none bg-transparent p-5 font-mono text-xs leading-6 text-zinc-800 outline-none placeholder:text-zinc-400 focus:bg-white/55 dark:text-zinc-200 dark:focus:bg-black/10 sm:text-sm"
+            spellCheck={false}
+            value={source}
+            onChange={(event) => {
+              setActivePreset('custom')
+              setSource(event.currentTarget.value)
+            }}
+          />
+        </div>
+
+        <div className="flex h-[28rem] min-w-0 flex-col lg:h-[34rem]">
+          <div className="flex flex-col justify-between gap-2 border-b border-violet-950/10 px-4 py-2 dark:border-violet-200/10 sm:flex-row sm:items-center">
+            <span className="font-mono text-[11px] font-bold uppercase tracking-widest text-violet-900/55 dark:text-violet-200/55">
+              One document, three views
+            </span>
+            <div
+              className="flex rounded-md bg-violet-950/5 p-1 dark:bg-violet-200/5"
+              role="tablist"
+              aria-label="Document output"
+            >
+              {[
+                ['ast', 'AST'],
+                ['html', 'HTML'],
+                ['react', 'React'],
+              ].map(([id, label]) => (
+                <button
+                  key={id}
+                  type="button"
+                  role="tab"
+                  aria-selected={mode === id}
+                  className={`rounded px-3 py-1.5 font-mono text-[11px] font-bold transition-colors ${
+                    mode === id
+                      ? 'bg-white text-violet-800 shadow-sm dark:bg-violet-300 dark:text-violet-950'
+                      : 'text-violet-950/55 hover:text-violet-950 dark:text-violet-100/55 dark:hover:text-white'
+                  }`}
+                  onClick={() => setMode(id)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="min-h-0 flex-1 overflow-auto p-5" role="tabpanel">
+            {mode === 'ast' ? (
+              <pre className="whitespace-pre-wrap break-words font-mono text-xs leading-6 !text-zinc-700 dark:!text-zinc-300 [&_code]:!text-inherit">
+                <code>{ast}</code>
+              </pre>
+            ) : mode === 'html' ? (
+              <pre className="whitespace-pre-wrap break-words font-mono text-xs leading-6 !text-zinc-700 dark:!text-zinc-300 [&_code]:!text-inherit">
+                <code>{html}</code>
+              </pre>
+            ) : (
+              <article className="prose prose-zinc max-w-none dark:prose-invert prose-headings:font-black prose-h1:text-3xl prose-a:text-violet-700 dark:prose-a:text-violet-300 prose-pre:overflow-auto prose-pre:rounded-md prose-pre:bg-zinc-950 prose-pre:text-zinc-100">
+                <Markdown>{document}</Markdown>
+              </article>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-col justify-between gap-2 border-t border-violet-950/10 px-4 py-3 font-mono text-[10px] font-bold uppercase tracking-wider text-violet-950/45 dark:border-violet-200/10 dark:text-violet-100/45 sm:flex-row">
+        <span>{nodeCount} typed nodes</span>
+        <span>{source.length} source characters</span>
+        <span>JSON serializable</span>
+      </div>
     </div>
   )
 }
 
-function DocumentModel() {
+function WorkbenchStat({ value, label }: { value: string; label: string }) {
   return (
-    <div className="grid min-w-0 gap-3 font-mono text-xs sm:grid-cols-[0.85fr_auto_1.15fr] sm:items-center">
-      <div className="border border-violet-950/15 bg-white/35 p-4 dark:border-violet-300/20 dark:bg-white/5">
-        <div className="text-violet-700 dark:text-violet-300">Document</div>
-        <div className="mt-3 space-y-2 text-violet-950/60 dark:text-violet-100/65">
-          <div>type: root</div>
-          <div>children: Node[]</div>
-          <div>metadata: serializable</div>
-        </div>
+    <div className="px-3 text-center first:pl-0 last:pr-0 [&+&]:border-l [&+&]:border-violet-950/10 dark:[&+&]:border-violet-200/10">
+      <div className="text-sm font-black text-violet-800 dark:text-violet-300 sm:text-base">
+        {value}
       </div>
-      <div className="hidden h-px w-8 bg-violet-950/20 dark:bg-violet-300/40 sm:block" />
-      <div className="grid gap-px bg-violet-950/10 dark:bg-violet-300/15 sm:grid-cols-2">
-        {[
-          ['HTML', 'render on the server'],
-          ['React', 'render as components'],
-          ['Octane', 'render in Glimmer'],
-          ['JSON', 'cache, inspect, index'],
-        ].map(([label, detail]) => (
-          <div key={label} className="bg-[#f7f2f8] p-4 dark:bg-[#0b080d]">
-            <div className="font-black text-[#201725] dark:text-white">
-              {label}
-            </div>
-            <div className="mt-1 text-violet-950/50 dark:text-violet-100/50">
-              {detail}
-            </div>
-          </div>
-        ))}
+      <div className="mt-1 text-[9px] font-bold uppercase tracking-wider text-violet-950/45 dark:text-violet-100/45 sm:text-[10px]">
+        {label}
       </div>
     </div>
+  )
+}
+
+function InstallCommand({ className }: { className?: string }) {
+  const [status, setStatus] = React.useState('idle')
+  const command = 'pnpm add @tanstack/markdown'
+
+  React.useEffect(() => {
+    if (status !== 'copied' && status !== 'error') {
+      return
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setStatus('idle')
+    }, 1800)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+    }
+  }, [status])
+
+  return (
+    <button
+      type="button"
+      className={`${className ?? ''} inline-flex max-w-full items-center gap-3 rounded-md border border-violet-950/10 bg-white/55 px-3 py-2 text-left font-mono text-xs font-bold text-violet-950/70 transition-colors hover:border-violet-700/30 hover:bg-white dark:border-violet-200/10 dark:bg-white/5 dark:text-violet-100/70 dark:hover:border-violet-300/30 dark:hover:bg-white/10`}
+      aria-label="Copy install command"
+      onClick={async () => {
+        try {
+          await copyTextToClipboard(command)
+          setStatus('copied')
+        } catch {
+          setStatus('error')
+        }
+      }}
+    >
+      <span className="text-fuchsia-700 dark:text-fuchsia-300">$</span>
+      <code className="truncate">{command}</code>
+      <span className="ml-auto inline-flex shrink-0 items-center gap-1.5 text-[10px] uppercase tracking-wider text-violet-900/45 dark:text-violet-100/45">
+        {status === 'copied' ? (
+          <>
+            <CheckCircle2 size={13} aria-hidden="true" /> Copied
+          </>
+        ) : status === 'error' ? (
+          'Copy failed'
+        ) : (
+          <>
+            <Copy size={13} aria-hidden="true" /> Copy
+          </>
+        )}
+      </span>
+    </button>
   )
 }
 
@@ -483,27 +754,36 @@ function SyntaxList({
   )
 }
 
-function SafetyLedger() {
-  const rows = [
-    ['Raw HTML', 'escaped unless enabled'],
-    ['Executable URLs', 'stripped'],
-    ['Text and attributes', 'encoded'],
-    ['Malformed input', 'bounded and tested'],
-  ]
+function SafetyProof() {
+  const html = renderHtml(safetySource)
 
   return (
-    <div className="border-y border-violet-950/15 font-mono text-xs dark:border-violet-200/15">
-      {rows.map(([input, behavior]) => (
-        <div
-          key={input}
-          className="grid grid-cols-[1fr_auto] items-center gap-4 border-b border-violet-950/10 py-4 last:border-b-0 dark:border-violet-200/10"
-        >
-          <span className="text-zinc-500 dark:text-zinc-400">{input}</span>
-          <span className="inline-flex items-center gap-2 text-right font-bold text-emerald-700 dark:text-emerald-400">
-            <LockKeyhole size={13} aria-hidden="true" /> {behavior}
-          </span>
+    <div className="overflow-hidden rounded-lg border border-violet-950/15 bg-[#fffdf8] shadow-sm dark:border-violet-200/15 dark:bg-[#141016]">
+      <div className="grid md:grid-cols-2">
+        <div className="min-w-0 border-b border-violet-950/10 md:border-b-0 md:border-r dark:border-violet-200/10">
+          <div className="border-b border-violet-950/10 px-4 py-3 font-mono text-[10px] font-black uppercase tracking-widest text-rose-700 dark:border-violet-200/10 dark:text-rose-300">
+            Untrusted input
+          </div>
+          <pre className="overflow-auto !whitespace-pre-wrap break-words [overflow-wrap:anywhere] p-4 font-mono text-xs leading-6 !text-zinc-700 dark:!text-zinc-300 [&_code]:!whitespace-pre-wrap [&_code]:[overflow-wrap:anywhere] [&_code]:!text-inherit">
+            <code>{safetySource}</code>
+          </pre>
         </div>
-      ))}
+        <div className="min-w-0">
+          <div className="border-b border-violet-950/10 px-4 py-3 font-mono text-[10px] font-black uppercase tracking-widest text-emerald-700 dark:border-violet-200/10 dark:text-emerald-300">
+            Deterministic HTML
+          </div>
+          <pre className="overflow-auto !whitespace-pre-wrap break-words [overflow-wrap:anywhere] p-4 font-mono text-xs leading-6 !text-zinc-700 dark:!text-zinc-300 [&_code]:!whitespace-pre-wrap [&_code]:[overflow-wrap:anywhere] [&_code]:!text-inherit">
+            <code>{html}</code>
+          </pre>
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-x-5 gap-y-2 border-t border-violet-950/10 px-4 py-3 font-mono text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:border-violet-200/10 dark:text-emerald-400">
+        <span className="inline-flex items-center gap-1.5">
+          <LockKeyhole size={12} aria-hidden="true" /> HTML escaped
+        </span>
+        <span>Executable URL removed</span>
+        <span>Markdown preserved</span>
+      </div>
     </div>
   )
 }

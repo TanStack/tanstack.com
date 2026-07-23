@@ -613,9 +613,9 @@ export const markdown: LibrarySlim = {
   name: 'TanStack Markdown',
   cardStyles: 'text-fuchsia-500 dark:text-fuchsia-400 hover:border-current',
   to: '/markdown',
-  tagline: 'A serializable document model for technical blogs and docs',
+  tagline: 'A serializable document model for docs and AI streams',
   description:
-    'A deliberately bounded Markdown parser with a public serializable AST, safe defaults, deterministic output, and matching HTML, React, and Octane renderers.',
+    'A deliberately bounded Markdown parser with a public serializable AST, safe defaults, deterministic React, HTML, and Octane output, and a stateless profile for accumulated AI streams.',
   badge: 'alpha',
   bgStyle: 'bg-fuchsia-500',
   borderStyle: 'border-fuchsia-500/50',

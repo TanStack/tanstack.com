@@ -4,6 +4,7 @@ import type { ReactNode } from 'react'
 import { parseMarkdown } from '@tanstack/markdown/parser'
 import { renderDocument, renderHtml } from '@tanstack/markdown/html'
 import { Markdown } from '@tanstack/markdown/react'
+import { streamingMarkdownExtension } from '@tanstack/markdown/extensions/streaming'
 import {
   ArrowRight,
   BookOpen,
@@ -15,6 +16,10 @@ import {
   Highlighter,
   LockKeyhole,
   PackageOpen,
+  Pause,
+  Play,
+  Radio,
+  RotateCcw,
   ShieldCheck,
   X,
 } from 'lucide-react'
@@ -37,6 +42,7 @@ const highlightLibrary = getLibrary('highlight')
 const markdownPrompt = [
   'Build a technical content renderer with TanStack Markdown.',
   'Treat its serializable AST as the durable document model, render from that tree with HTML, React, or Octane, and enable only the syntax extensions the product needs.',
+  'For accumulated AI responses, use the optional streaming profile without carrying incremental parser state between updates.',
   'Preserve the safe defaults and deterministic output, and keep syntax highlighting as an explicit external integration.',
 ].join(' ')
 
@@ -121,10 +127,27 @@ const safetySource = `<script>alert("not today")</script>
 
 **Trusted Markdown still renders.**`
 
+const streamingSource = `# Streaming response
+
+The model can send **ordinary Markdown** as it thinks.
+
+- completed blocks stay stable
+- unfinished markers stay out of the way
+- React and HTML stay in sync
+
+\`\`\`ts
+const text = responseSoFar
+return render(text)
+\`\`\`
+
+[Unsafe links stay text-only](javascript:alert("nope"))`
+
+const streamingExtensions = [streamingMarkdownExtension()]
+
 const bundleComparisons = [
   {
     name: 'TanStack parser',
-    size: '4.6 KB',
+    size: '4.9 KB',
     width: 'w-[9%]',
     emphasis: true,
   },
@@ -173,9 +196,10 @@ export default function MarkdownLanding() {
               Markdown with an exit strategy.
             </p>
             <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-700 dark:text-zinc-300 sm:text-lg">
-              Parse once into a plain, serializable tree. Inspect it, cache it,
-              index it, or render it as HTML, React, or Octane without carrying
-              a content framework through the rest of your app.
+              Parse documents or accumulated AI output into a plain,
+              serializable tree. Inspect it, cache it, index it, or render it as
+              HTML, React, or Octane—without carrying a content framework or
+              incremental parser state through your app.
             </p>
 
             <LibraryDownloadsMicro
@@ -205,7 +229,7 @@ export default function MarkdownLanding() {
             <InstallCommand className="mt-4" />
 
             <div className="mt-8 flex flex-wrap gap-x-7 gap-y-3 border-t border-violet-950/15 pt-4 font-mono text-xs font-bold uppercase tracking-wider text-violet-900/70 dark:border-violet-200/15 dark:text-violet-200/70">
-              <span>4.6 KB parser</span>
+              <span>4.9 KB parser</span>
               <span>0 runtime dependencies</span>
               <span>1 public AST</span>
             </div>
@@ -240,6 +264,49 @@ export default function MarkdownLanding() {
           </div>
 
           <MarkdownWorkbench />
+        </div>
+      </section>
+
+      <section className="border-b border-violet-950/10 bg-white dark:border-violet-200/10 dark:bg-[#100b12]">
+        <div className="mx-auto grid w-full gap-10 px-4 py-14 lg:max-w-[80rem] lg:grid-cols-[0.68fr_1.32fr] lg:items-center xl:max-w-[92rem]">
+          <div className="max-w-xl">
+            <Eyebrow>
+              <Radio size={14} aria-hidden="true" /> Accumulated AI responses
+            </Eyebrow>
+            <h2 className="mt-4 text-3xl font-black leading-tight sm:text-4xl">
+              Stream the text. Keep the parser stateless.
+            </h2>
+            <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300 sm:text-lg">
+              Append each chunk and pass the complete string back through
+              TanStack Markdown. The optional streaming profile reparses
+              synchronously, so there is no incremental state to coordinate,
+              recover, or discard.
+            </p>
+
+            <div className="mt-7 border-y border-violet-950/10 font-mono text-xs dark:border-violet-200/10">
+              <StreamingProof value="+0.2 KB" label="added to the React path" />
+              <StreamingProof
+                value="Every prefix"
+                label="deterministic React / HTML parity"
+              />
+              <StreamingProof
+                value="Same defaults"
+                label="HTML escaped, executable URLs removed"
+              />
+            </div>
+
+            <pre className="mt-6 overflow-auto rounded-md border border-violet-950/10 bg-[#f7f2f8] p-4 font-mono text-xs leading-6 !text-violet-950/70 dark:border-violet-200/10 dark:bg-white/5 dark:!text-violet-100/70 [&_code]:!text-inherit">
+              <code>{`import { streamingMarkdownExtension } from '@tanstack/markdown/extensions/streaming'
+
+const extensions = [streamingMarkdownExtension()]
+
+<Markdown extensions={extensions} frontmatter={false} headingIds={false}>
+  {responseSoFar}
+</Markdown>`}</code>
+            </pre>
+          </div>
+
+          <StreamingReplay />
         </div>
       </section>
 
@@ -635,7 +702,7 @@ function MarkdownWorkbench() {
                 <code>{html}</code>
               </pre>
             ) : (
-              <article className="prose prose-zinc max-w-none dark:prose-invert prose-headings:font-black prose-h1:text-3xl prose-a:text-violet-700 dark:prose-a:text-violet-300 prose-pre:overflow-auto prose-pre:rounded-md prose-pre:bg-zinc-950 prose-pre:text-zinc-100">
+              <article className="prose prose-zinc max-w-none dark:prose-invert prose-headings:font-black prose-h1:text-3xl prose-a:text-violet-700 dark:prose-a:text-violet-300 prose-pre:overflow-auto prose-pre:rounded-md prose-pre:bg-zinc-950 prose-pre:text-zinc-100 [&_pre_code]:!text-zinc-100">
                 <Markdown>{document}</Markdown>
               </article>
             )}
@@ -660,6 +727,156 @@ function WorkbenchStat({ value, label }: { value: string; label: string }) {
       </div>
       <div className="mt-1 text-[9px] font-bold uppercase tracking-wider text-violet-950/45 dark:text-violet-100/45 sm:text-[10px]">
         {label}
+      </div>
+    </div>
+  )
+}
+
+function StreamingProof({ value, label }: { value: string; label: string }) {
+  return (
+    <div className="grid grid-cols-[auto_1fr] items-baseline gap-4 py-3 [&+&]:border-t [&+&]:border-violet-950/10 dark:[&+&]:border-violet-200/10">
+      <span className="font-black text-violet-800 dark:text-violet-300">
+        {value}
+      </span>
+      <span className="text-right text-violet-950/55 dark:text-violet-100/55">
+        {label}
+      </span>
+    </div>
+  )
+}
+
+function StreamingReplay() {
+  const [characterCount, setCharacterCount] = React.useState(
+    streamingSource.length,
+  )
+  const [isPlaying, setIsPlaying] = React.useState(false)
+  const isComplete = characterCount >= streamingSource.length
+  const visibleSource = streamingSource.slice(0, characterCount)
+  const document = React.useMemo(
+    () =>
+      parseMarkdown(visibleSource, {
+        extensions: streamingExtensions,
+        frontmatter: false,
+        headingIds: false,
+      }),
+    [visibleSource],
+  )
+  const progress = (characterCount / streamingSource.length) * 100
+  const stateLabel = isComplete
+    ? 'Complete'
+    : isPlaying
+      ? 'Streaming'
+      : 'Paused'
+
+  React.useEffect(() => {
+    if (!isPlaying || isComplete) {
+      return
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setCharacterCount((current) =>
+        Math.min(current + 4, streamingSource.length),
+      )
+    }, 35)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+    }
+  }, [characterCount, isComplete, isPlaying])
+
+  return (
+    <div className="min-w-0 overflow-hidden rounded-lg border border-violet-950/15 bg-[#f7f2f8] shadow-sm dark:border-violet-200/15 dark:bg-[#141016]">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-violet-950/10 px-4 py-3 dark:border-violet-200/10">
+        <div className="flex items-center gap-2 font-mono text-[10px] font-black uppercase tracking-widest text-violet-950/50 dark:text-violet-100/50">
+          <span
+            className={`size-2 rounded-full ${
+              isPlaying && !isComplete
+                ? 'animate-pulse bg-fuchsia-600 motion-reduce:animate-none dark:bg-fuchsia-400'
+                : 'bg-violet-950/25 dark:bg-violet-100/25'
+            }`}
+          />
+          {stateLabel}
+        </div>
+
+        <button
+          type="button"
+          aria-label={
+            isComplete
+              ? 'Replay the Markdown stream'
+              : isPlaying
+                ? 'Pause the Markdown stream'
+                : 'Resume the Markdown stream'
+          }
+          className="inline-flex items-center gap-2 rounded-md border border-violet-700/20 bg-white px-3 py-1.5 font-mono text-[10px] font-black uppercase tracking-wider text-violet-800 transition-colors hover:border-violet-700/40 hover:bg-violet-50 dark:border-violet-300/20 dark:bg-white/5 dark:text-violet-200 dark:hover:border-violet-300/40 dark:hover:bg-white/10"
+          onClick={() => {
+            if (isComplete) {
+              setCharacterCount(0)
+              setIsPlaying(true)
+              return
+            }
+
+            setIsPlaying((current) => !current)
+          }}
+        >
+          {isComplete ? (
+            <RotateCcw size={13} aria-hidden="true" />
+          ) : isPlaying ? (
+            <Pause size={13} aria-hidden="true" />
+          ) : (
+            <Play size={13} aria-hidden="true" />
+          )}
+          {isComplete ? 'Replay stream' : isPlaying ? 'Pause' : 'Resume'}
+        </button>
+      </div>
+
+      <div className="grid md:grid-cols-2">
+        <div className="min-w-0 border-b border-violet-950/10 md:border-b-0 md:border-r dark:border-violet-200/10">
+          <div className="border-b border-violet-950/10 px-4 py-3 font-mono text-[10px] font-black uppercase tracking-widest text-violet-700 dark:border-violet-200/10 dark:text-violet-300">
+            Accumulated source
+          </div>
+          <pre className="h-[22rem] overflow-auto !whitespace-pre-wrap break-words [overflow-wrap:anywhere] p-4 font-mono text-xs leading-6 !text-zinc-700 dark:!text-zinc-300 [&_code]:!whitespace-pre-wrap [&_code]:[overflow-wrap:anywhere] [&_code]:!text-inherit">
+            <code>
+              {visibleSource}
+              {!isComplete ? (
+                <span className="text-fuchsia-600 dark:text-fuchsia-400">
+                  ▋
+                </span>
+              ) : null}
+            </code>
+          </pre>
+        </div>
+
+        <div className="min-w-0">
+          <div className="border-b border-violet-950/10 px-4 py-3 font-mono text-[10px] font-black uppercase tracking-widest text-violet-700 dark:border-violet-200/10 dark:text-violet-300">
+            React output
+          </div>
+          <div className="h-[22rem] overflow-auto p-4">
+            {visibleSource ? (
+              <article className="prose prose-zinc max-w-none dark:prose-invert prose-headings:font-black prose-h1:text-2xl prose-a:text-violet-700 dark:prose-a:text-violet-300 prose-pre:overflow-auto prose-pre:rounded-md prose-pre:bg-zinc-950 prose-pre:text-zinc-100 [&_pre_code]:!text-zinc-100">
+                <Markdown>{document}</Markdown>
+              </article>
+            ) : (
+              <p className="font-mono text-xs text-violet-950/40 dark:text-violet-100/40">
+                Waiting for the first chunk…
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="border-t border-violet-950/10 px-4 py-3 dark:border-violet-200/10">
+        <div className="h-1 overflow-hidden bg-violet-950/10 dark:bg-violet-200/10">
+          <div
+            className="h-full bg-fuchsia-600 transition-[width] duration-75 ease-linear motion-reduce:transition-none dark:bg-fuchsia-400"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+        <div className="mt-2 flex items-center justify-between gap-4 font-mono text-[10px] font-bold uppercase tracking-wider text-violet-950/40 dark:text-violet-100/40">
+          <span>Complete input, reparsed</span>
+          <span>
+            {characterCount} / {streamingSource.length} chars
+          </span>
+        </div>
       </div>
     </div>
   )
@@ -814,9 +1031,9 @@ function BundleLedger() {
       ))}
       <div className="grid grid-cols-2 gap-px bg-violet-950/10 pt-px font-mono text-xs dark:bg-violet-200/10 sm:grid-cols-4">
         {[
-          ['6.4 KB', 'HTML renderer'],
-          ['6.3 KB', 'React adapter'],
-          ['6.3 KB', 'Octane adapter'],
+          ['6.7 KB', 'HTML renderer'],
+          ['6.7 KB', 'React adapter'],
+          ['6.7 KB', 'Octane adapter'],
           ['2.4 KB', 'docs preset'],
         ].map(([value, label]) => (
           <div key={label} className="bg-[#eee5f2] px-3 py-4 dark:bg-[#170f1b]">

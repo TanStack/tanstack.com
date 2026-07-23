@@ -15,6 +15,8 @@ const LIBRARY_ACCENT_COLORS: Partial<Record<LibraryId, string>> = {
   virtual: '#ad46ff', // purple-500
   pacer: '#7ccf00', // lime-500
   hotkeys: '#ff2056', // rose-500
+  markdown: '#8e51ff', // violet-500
+  highlight: '#f0b100', // amber-500
   store: '#ae7d44', // twine-500 (custom token in app.css)
   ranger: '#f5f5f5', // gray-100 (black/gray-100 library)
   config: '#f5f5f5', // gray-100

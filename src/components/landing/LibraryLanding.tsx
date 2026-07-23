@@ -12,7 +12,10 @@ import {
   type Icon,
 } from '@phosphor-icons/react'
 
-import { LibraryWordmark } from '~/components/LibraryWordmark'
+import {
+  libraryCategories,
+  type LibraryCategory,
+} from '~/components/LibraryGridCard'
 import { getLibrary } from '~/libraries'
 import type { LibraryId } from '~/libraries'
 import { ossStatsQuery, recentDownloadsQuery } from '~/queries/stats'
@@ -96,134 +99,40 @@ type LibraryLandingTheme = {
   glow: string
 }
 
-const libraryLandingThemes = {
-  ai: theme(
-    'var(--color-lib-ai)',
-    '#f05b9f',
-    '#17030c',
-    '#f4b6d4',
-    '221 0 112',
-  ),
-  cli: theme(
-    'var(--color-lib-cli)',
-    '#8f6ae8',
-    '#f8f5ff',
-    '#c9b7f4',
-    '73 10 189',
-  ),
-  config: theme(
-    'var(--color-ds-neutral-200)',
-    'var(--color-ds-neutral-100)',
-    '#111111',
-    'var(--color-ds-neutral-100)',
-    '171 165 148',
-    'var(--color-ds-neutral-400)',
-  ),
-  db: theme(
-    'var(--color-lib-db)',
-    '#ff8a4a',
-    '#1a0800',
-    '#ffc6a6',
-    '233 81 0',
-    'var(--color-ds-terracotta-500)',
-  ),
-  devtools: theme(
-    'var(--color-ds-neutral-200)',
-    'var(--color-ds-neutral-100)',
-    '#111111',
-    'var(--color-ds-neutral-100)',
-    '171 165 148',
-    'var(--color-ds-neutral-400)',
-  ),
-  form: theme(
-    'var(--color-lib-form)',
-    'var(--color-ds-amber-300)',
-    '#171003',
-    'var(--color-ds-amber-100)',
-    '228 174 34',
-    'var(--color-ds-amber-500)',
-  ),
-  hotkeys: theme(
-    'var(--color-lib-hotkeys)',
-    '#ff7375',
-    '#1c0405',
-    '#ffc0c1',
-    '246 47 50',
-    '#9f1719',
-  ),
-  intent: theme(
-    'var(--color-lib-intent)',
-    'var(--color-ds-blue-200)',
-    '#031317',
-    'var(--color-ds-blue-100)',
-    '92 175 223',
-    'var(--color-ds-blue-500)',
-  ),
-  pacer: theme(
-    'var(--color-lib-pacer)',
-    '#c7f28a',
-    '#0d1503',
-    '#dcf7b5',
-    '169 228 81',
-    'var(--color-ds-green-500)',
-  ),
-  query: theme(
+const libraryLandingCategoryThemes = {
+  data: theme(
     'var(--color-ds-terracotta-400)',
     'var(--color-ds-terracotta-300)',
-    '#1c0a04',
+    '#000000',
     'var(--color-ds-terracotta-100)',
     '195 80 43',
     'var(--color-ds-terracotta-500)',
   ),
-  ranger: theme(
-    'var(--color-ds-blue-300)',
-    'var(--color-ds-blue-200)',
-    '#061116',
-    'var(--color-ds-blue-100)',
-    '105 168 183',
-    'var(--color-ds-blue-500)',
-  ),
-  router: theme(
-    'var(--color-lib-router)',
+  framework: theme(
+    'var(--color-ds-green-400)',
     'var(--color-ds-green-300)',
     '#04130a',
     'var(--color-ds-green-100)',
-    '59 203 119',
+    '68 165 78',
     'var(--color-ds-green-500)',
   ),
-  start: theme(
-    'var(--color-lib-start)',
-    '#65dce5',
-    '#031517',
-    '#b7f0f3',
-    '0 185 200',
-    'var(--color-ds-blue-500)',
+  performance: theme(
+    'var(--color-ds-amber-400)',
+    'var(--color-ds-amber-300)',
+    '#171003',
+    'var(--color-ds-amber-100)',
+    '235 158 42',
+    'var(--color-ds-amber-500)',
   ),
-  store: theme(
-    'var(--color-lib-store)',
-    'var(--color-twine-300)',
-    '#160d06',
-    'var(--color-twine-200)',
-    '135 60 0',
-    'var(--color-lib-store)',
+  tooling: theme(
+    'var(--color-ds-neutral-200)',
+    'var(--color-ds-neutral-100)',
+    '#111111',
+    'var(--color-ds-neutral-100)',
+    '171 165 148',
+    'var(--color-ds-neutral-400)',
   ),
-  table: theme(
-    'var(--color-lib-table)',
-    'var(--color-ds-blue-300)',
-    '#03121e',
-    'var(--color-ds-blue-100)',
-    '0 141 237',
-    'var(--color-ds-blue-500)',
-  ),
-  virtual: theme(
-    'var(--color-lib-virtual)',
-    'var(--color-ds-purple-200)',
-    '#140718',
-    'var(--color-ds-purple-100)',
-    '188 144 229',
-    'var(--color-ds-purple-500)',
-  ),
-  workflow: theme(
+  ui: theme(
     'var(--color-ds-blue-400)',
     'var(--color-ds-blue-300)',
     '#031219',
@@ -231,7 +140,7 @@ const libraryLandingThemes = {
     '70 157 184',
     'var(--color-ds-blue-500)',
   ),
-} satisfies Record<LibraryLandingId, LibraryLandingTheme>
+} satisfies Record<LibraryCategory, LibraryLandingTheme>
 
 function theme(
   accent: string,
@@ -286,7 +195,8 @@ export function LibraryLandingShell({
   const library = getLibrary(libraryId)
   const { version } = useParams({ strict: false })
   const resolvedVersion = version ?? library.latestVersion
-  const colors = libraryLandingThemes[libraryId]
+  const category = libraryCategories[libraryId] ?? 'tooling'
+  const colors = libraryLandingCategoryThemes[category]
   const landingStyle: LibraryLandingStyle = {
     '--landing-accent': colors.accent,
     '--landing-accent-dark': colors.accentBright,
@@ -328,17 +238,13 @@ export function LibraryLandingShell({
                     className="hidden h-[18px] w-auto dark:block"
                   />
                   <h1 className="mt-1">
-                    <LibraryWordmark
-                      className="block font-ds-display"
-                      colorProduct={false}
-                      includeTanStack={false}
-                      library={library}
-                      productClassName="bg-[linear-gradient(110deg,var(--landing-accent-bright),var(--landing-accent))] bg-clip-text pr-1 text-[4rem] font-bold leading-[0.9] tracking-[-0.04em] text-transparent [filter:drop-shadow(0_4px_4px_rgb(0_0_0/0.25))] sm:text-[4.5rem] lg:text-ds-display-2xl"
-                    />
+                    <span className="block bg-[linear-gradient(110deg,var(--landing-accent-bright),var(--landing-accent))] bg-clip-text pr-1 font-ds-display text-ds-display-lg uppercase text-transparent [filter:drop-shadow(0_4px_4px_rgb(0_0_0/0.25))] sm:text-ds-display-xl lg:text-ds-display-2xl">
+                      {library.name.replace(/^TanStack\s+/i, '')}
+                    </span>
                   </h1>
                 </div>
                 {library.badge ? (
-                  <span className="mt-1 rounded-md border border-text-primary/15 bg-text-primary/5 px-2 py-1 font-ds-mono text-[10px] font-medium uppercase tracking-[0.16em] text-text-primary/60">
+                  <span className="mt-1 rounded-md border border-text-primary/15 bg-text-primary/5 px-2 py-1 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/60">
                     {library.badge}
                   </span>
                 ) : null}
@@ -460,7 +366,7 @@ export function LandingWindow({
           <span className="size-2.5 rounded-full bg-[#febc2e]" />
           <span className="size-2.5 rounded-full bg-[#28c840]" />
         </div>
-        <span className="font-ds-mono text-[10px] font-medium uppercase tracking-[0.16em] text-text-primary/65">
+        <span className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/65">
           {label}
         </span>
       </div>
@@ -486,14 +392,14 @@ function LandingWorkbench({
           <span className="size-2.5 rounded-full bg-[#febc2e]" />
           <span className="size-2.5 rounded-full bg-[#28c840]" />
         </div>
-        <span className="font-ds-mono text-[10px] font-medium uppercase tracking-[0.16em] text-text-primary/65">
+        <span className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/65">
           {config.label}
         </span>
       </div>
 
       <div className="grid min-h-[22rem] lg:grid-cols-[1.08fr_0.82fr]">
         <div className="space-y-3 border-border-subtle p-4 lg:border-r">
-          <div className="mb-4 flex flex-wrap items-center gap-2 font-ds-mono text-[9px] font-medium uppercase tracking-[0.12em]">
+          <div className="mb-4 flex flex-wrap items-center gap-2 font-ds-mono text-ds-mono-caps-xs uppercase">
             <span className="rounded-sm bg-emerald-500 px-2 py-1 text-emerald-950">
               {isLive ? 'fresh' : 'paused'}
             </span>
@@ -515,14 +421,14 @@ function LandingWorkbench({
               >
                 <span className="flex items-start justify-between gap-4">
                   <span className="min-w-0">
-                    <span className="block truncate font-ds-mono text-[13px] font-medium text-text-primary">
+                    <span className="block truncate font-ds-mono text-ds-mono-xs text-text-primary">
                       {item.key}
                     </span>
                     <span className="mt-1 block text-ds-body-xs text-text-primary/45">
                       {item.title}
                     </span>
                   </span>
-                  <span className="shrink-0 rounded bg-[var(--landing-accent)] px-2 py-1 font-ds-mono text-[10px] font-medium text-[var(--landing-accent-ink)]">
+                  <span className="shrink-0 rounded bg-[var(--landing-accent)] px-2 py-1 font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-ink)]">
                     {item.badge}
                   </span>
                 </span>
@@ -533,7 +439,7 @@ function LandingWorkbench({
                       style={{ width: `${item.activity}%` }}
                     />
                   </span>
-                  <span className="font-ds-mono text-[9px] font-medium uppercase tracking-[0.16em] text-text-primary/35">
+                  <span className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/35">
                     {item.activity}%
                   </span>
                 </span>
@@ -582,7 +488,7 @@ function LandingWorkbench({
             {config.facts.map((fact) => (
               <div key={fact.label} className="flex justify-between gap-3">
                 <dt className="text-text-primary/45">{fact.label}</dt>
-                <dd className="text-right font-ds-mono font-medium text-text-primary/85">
+                <dd className="text-right font-ds-mono text-ds-mono-xs text-text-primary/85">
                   {fact.value}
                 </dd>
               </div>
@@ -642,7 +548,7 @@ function LandingStats({ libraryId }: { libraryId: LibraryLandingId }) {
               <span className="block text-ds-heading-4 text-text-primary/65 tabular-nums transition-colors group-hover:text-text-primary">
                 {metric.value}
               </span>
-              <span className="mt-1 block font-ds-mono text-[9px] font-medium uppercase tracking-[0.18em] text-[var(--landing-accent-bright)]">
+              <span className="mt-1 block font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
                 {metric.label}
               </span>
             </span>
@@ -704,7 +610,7 @@ function FeatureSection({
                   aria-controls={tabPanelId}
                   aria-selected={index === activeIndex}
                   tabIndex={index === activeIndex ? 0 : -1}
-                  className="inline-flex shrink-0 items-center gap-3 border-b border-border-default pb-4 text-left font-ds-display text-[18px] leading-[1.2] font-light text-text-muted transition-colors hover:text-text-primary/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-selected:border-[var(--landing-accent-bright)] aria-selected:text-[var(--landing-accent-bright)] lg:text-[24px]"
+                  className="inline-flex shrink-0 items-center gap-3 border-b border-border-default pb-4 text-left font-ds-display text-ds-heading-5 text-text-muted transition-colors hover:text-text-primary/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-selected:border-[var(--landing-accent-bright)] aria-selected:text-[var(--landing-accent-bright)] lg:text-ds-heading-3"
                   onClick={() => setActiveIndex(index)}
                   onKeyDown={(event) => {
                     let nextIndex: number | undefined
@@ -789,8 +695,8 @@ function LifecycleSection({
               <p
                 className={
                   index === 0
-                    ? 'font-ds-display text-ds-display-md font-light text-[var(--landing-accent-muted)]'
-                    : 'font-ds-display text-ds-display-md font-light text-[var(--landing-accent-bright)]'
+                    ? 'font-ds-display text-ds-display-md text-[var(--landing-accent-muted)]'
+                    : 'font-ds-display text-ds-display-md text-[var(--landing-accent-bright)]'
                 }
               >
                 {index + 1}
@@ -880,7 +786,7 @@ function FlowStep({
       >
         {step.label}
       </p>
-      <p className="mt-4 break-words font-ds-mono text-ds-mono-xs font-medium">
+      <p className="mt-4 break-words font-ds-mono text-ds-mono-xs">
         {step.code}
       </p>
     </div>

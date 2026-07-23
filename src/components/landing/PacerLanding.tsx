@@ -98,7 +98,7 @@ export default function PacerLanding() {
                   key={label}
                   className="border-l border-text-primary/10 pl-4"
                 >
-                  <p className="font-ds-mono text-[9px] uppercase tracking-[0.15em] text-text-primary/30">
+                  <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/30">
                     {label}
                   </p>
                   <p className="mt-2 text-ds-label-md text-text-primary">
@@ -122,7 +122,7 @@ export default function PacerLanding() {
                 <StateCell label="pending" value="0" />
                 <StateCell label="last run" value="42ms" />
               </div>
-              <div className="mt-6 rounded-lg border border-white/10 bg-ds-neutral-500 p-4 font-ds-mono text-xs leading-7 text-white/45">
+              <div className="mt-6 rounded-lg border border-white/10 bg-ds-neutral-500 p-4 font-ds-mono text-ds-mono-xs text-white/45">
                 <p>
                   <span className="text-[var(--landing-accent-dark)]">
                     queue.store.subscribe
@@ -132,7 +132,7 @@ export default function PacerLanding() {
                 <p className="pl-4">renderProgress(state.executionCount)</p>
                 <p>{'})'}</p>
               </div>
-              <div className="mt-5 flex flex-wrap gap-2 font-ds-mono text-[9px] uppercase tracking-[0.13em]">
+              <div className="mt-5 flex flex-wrap gap-2 font-ds-mono text-ds-mono-caps-xs uppercase">
                 <span className="rounded bg-[var(--landing-accent)] px-2 py-1 text-[var(--landing-accent-ink)]">
                   core
                 </span>
@@ -224,7 +224,7 @@ function TimingLab() {
             <button
               key={item.name}
               aria-pressed={policyName === item.name}
-              className="rounded-md border border-border-default px-2.5 py-1.5 font-ds-mono text-[9px] uppercase tracking-[0.1em] text-text-primary/35 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:bg-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-ink)]"
+              className="rounded-md border border-border-default px-2.5 py-1.5 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/35 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:bg-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-ink)]"
               onClick={() => {
                 if (workTimerRef.current) clearTimeout(workTimerRef.current)
                 if (rateWindowTimerRef.current)
@@ -269,7 +269,7 @@ function TimingLab() {
           </p>
           <div className="flex gap-2">
             {policy.name === 'rate-limit' ? (
-              <span className="self-center font-ds-mono text-[9px] uppercase tracking-[0.12em] text-text-primary/25">
+              <span className="self-center font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
                 excess is rejected
               </span>
             ) : (
@@ -307,7 +307,7 @@ function SignalTrack({
 }) {
   return (
     <div>
-      <div className="mb-2 flex items-center justify-between font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/30">
+      <div className="mb-2 flex items-center justify-between font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/30">
         <span>{label}</span>
         <span>650ms</span>
       </div>
@@ -335,7 +335,7 @@ function PolicyMap() {
           <p className="text-ds-heading-4 text-text-primary">{policy.label}</p>
           <Decision label="keeps" value={policy.keeps} />
           <Decision label="tradeoff" value={policy.trades} />
-          <span className="w-fit rounded-md bg-[color:rgb(var(--landing-glow)/0.13)] px-2 py-1 font-ds-mono text-[10px] text-[var(--landing-accent-bright)]">
+          <span className="w-fit rounded-md bg-[color:rgb(var(--landing-glow)/0.13)] px-2 py-1 font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
             {policy.example}
           </span>
         </div>
@@ -387,14 +387,14 @@ function QueueControl() {
                 className="flex items-center justify-between gap-4 rounded-lg border border-border-subtle bg-background-subtle p-3"
               >
                 <span className="min-w-0">
-                  <span className="block truncate font-ds-mono text-xs text-text-primary/75">
+                  <span className="block truncate font-ds-mono text-ds-mono-xs text-text-primary/75">
                     {job.name}
                   </span>
                   <span className="mt-1 block text-ds-body-xs text-text-primary/25">
                     {job.size} · {job.priority}
                   </span>
                 </span>
-                <span className="shrink-0 rounded bg-[color:rgb(var(--landing-glow)/0.13)] px-2 py-1 font-ds-mono text-[9px] uppercase tracking-[0.12em] text-[var(--landing-accent-bright)]">
+                <span className="shrink-0 rounded bg-[color:rgb(var(--landing-glow)/0.13)] px-2 py-1 font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
                   {status}
                 </span>
               </div>
@@ -419,7 +419,7 @@ function QueueControl() {
 function Decision({ label, value }: { label: string; value: string }) {
   return (
     <p className="text-ds-body-xs text-text-primary/55">
-      <span className="mr-2 font-ds-mono text-[9px] uppercase tracking-[0.13em] text-text-primary/25 md:hidden">
+      <span className="mr-2 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25 md:hidden">
         {label}
       </span>
       {value}
@@ -430,10 +430,12 @@ function Decision({ label, value }: { label: string; value: string }) {
 function StateCell({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg border border-border-subtle bg-background-subtle p-3">
-      <p className="font-ds-mono text-[9px] uppercase tracking-[0.13em] text-text-primary/25">
+      <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
         {label}
       </p>
-      <p className="mt-2 font-ds-mono text-sm text-text-primary">{value}</p>
+      <p className="mt-2 font-ds-mono text-ds-mono-sm text-text-primary">
+        {value}
+      </p>
     </div>
   )
 }

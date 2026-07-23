@@ -159,20 +159,20 @@ function ReplayHero() {
         <div className="border-border-subtle p-4 md:border-r">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
+              <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
                 run
               </p>
-              <p className="mt-1 font-ds-mono text-[11px] text-text-primary">
+              <p className="mt-1 font-ds-mono text-ds-mono-2xs text-text-primary">
                 order-4832
               </p>
             </div>
             <span
               className={
                 phase === 'crashed'
-                  ? 'rounded bg-red-400 px-2 py-1 font-ds-mono text-[9px] font-semibold uppercase text-red-950'
+                  ? 'rounded bg-red-400 px-2 py-1 font-ds-mono text-ds-mono-caps-xs uppercase text-red-950'
                   : phase === 'finished'
-                    ? 'rounded bg-emerald-400 px-2 py-1 font-ds-mono text-[9px] font-semibold uppercase text-emerald-950'
-                    : 'rounded bg-amber-300 px-2 py-1 font-ds-mono text-[9px] font-semibold uppercase text-amber-950'
+                    ? 'rounded bg-emerald-400 px-2 py-1 font-ds-mono text-ds-mono-caps-xs uppercase text-emerald-950'
+                    : 'rounded bg-amber-300 px-2 py-1 font-ds-mono text-ds-mono-caps-xs uppercase text-amber-950'
               }
             >
               {phase}
@@ -184,14 +184,14 @@ function ReplayHero() {
                 key={row.label}
                 className="grid grid-cols-[2rem_1fr] gap-3 rounded-lg border border-border-subtle bg-background-subtle p-3"
               >
-                <span className="flex size-8 items-center justify-center rounded-full bg-[color:rgb(var(--landing-glow)/0.16)] font-ds-mono text-[10px] text-[var(--landing-accent-bright)]">
+                <span className="flex size-8 items-center justify-center rounded-full bg-[color:rgb(var(--landing-glow)/0.16)] font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
                   {index + 1}
                 </span>
                 <div className="min-w-0">
                   <p className="truncate text-ds-label-sm text-text-primary">
                     {row.label}
                   </p>
-                  <p className="mt-1 font-ds-mono text-[9px] text-text-primary/30">
+                  <p className="mt-1 font-ds-mono text-ds-mono-2xs text-text-primary/30">
                     {row.state}
                   </p>
                 </div>
@@ -208,7 +208,7 @@ function ReplayHero() {
         </div>
 
         <div className="min-w-0 p-4" aria-live="polite">
-          <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
+          <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
             append-only history
           </p>
           <ol className="mt-4 space-y-2">
@@ -217,14 +217,14 @@ function ReplayHero() {
                 key={`${event}-${index}`}
                 className="grid grid-cols-[auto_1fr] gap-3 rounded-lg bg-ds-neutral-500 px-3 py-2.5"
               >
-                <span className="font-ds-mono text-[9px] text-white/20">
+                <span className="font-ds-mono text-ds-mono-2xs text-white/20">
                   {String(index + 1).padStart(2, '0')}
                 </span>
                 <div className="min-w-0">
-                  <p className="font-ds-mono text-[10px] text-[var(--landing-accent-dark)]">
+                  <p className="font-ds-mono text-ds-mono-xs text-[var(--landing-accent-dark)]">
                     {event}
                   </p>
-                  <p className="mt-1 truncate font-ds-mono text-[9px] text-white/30">
+                  <p className="mt-1 truncate font-ds-mono text-ds-mono-xs text-white/30">
                     {detail}
                   </p>
                 </div>
@@ -240,7 +240,7 @@ function ReplayHero() {
 function WorkflowCode() {
   return (
     <LandingWindow label="order-workflow.ts">
-      <div className="overflow-x-auto bg-ds-neutral-500 p-5 font-ds-mono text-[11px] leading-6 text-white/60 sm:p-6">
+      <div className="overflow-x-auto bg-ds-neutral-500 p-5 font-ds-mono text-ds-mono-xs text-white/60 sm:p-6">
         <p>
           <span className="text-sky-300">export async function</span>{' '}
           fulfillOrder(input, ctx) {'{'}
@@ -303,25 +303,25 @@ function WaitLab() {
           ))}
         </div>
         <div
-          className="mt-5 overflow-x-auto rounded-lg bg-ds-neutral-500 p-4 font-ds-mono text-[11px] text-white/60"
+          className="mt-5 overflow-x-auto rounded-lg bg-ds-neutral-500 p-4 font-ds-mono text-ds-mono-xs text-white/60"
           aria-live="polite"
         >
           {mode.code}
         </div>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           <div className="rounded-lg border border-border-subtle bg-background-subtle p-4">
-            <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
+            <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
               history record
             </p>
-            <p className="mt-3 font-ds-mono text-[10px] text-[var(--landing-accent-bright)]">
+            <p className="mt-3 font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
               {mode.stored}
             </p>
           </div>
           <div className="rounded-lg border border-border-subtle bg-background-subtle p-4">
-            <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
+            <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
               worker
             </p>
-            <p className="mt-3 font-ds-mono text-[10px] text-text-primary/45">
+            <p className="mt-3 font-ds-mono text-ds-mono-2xs text-text-primary/45">
               free to stop while waiting
             </p>
           </div>

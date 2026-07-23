@@ -123,7 +123,7 @@ export default function HotkeysLanding() {
                     className="text-[var(--landing-accent-bright)]"
                     size={22}
                   />
-                  <span className="font-ds-mono text-[9px] uppercase tracking-[0.16em] text-text-primary/20">
+                  <span className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/20">
                     0{index + 1}
                   </span>
                 </div>
@@ -167,10 +167,10 @@ export default function HotkeysLanding() {
                 ['04 / publish', 'Open palette', 'Menu + cheat sheet'],
               ].map(([label, value, body]) => (
                 <div key={label} className="bg-background-surface p-5">
-                  <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-[var(--landing-accent-bright)]">
+                  <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
                     {label}
                   </p>
-                  <p className="mt-8 font-ds-mono text-sm text-text-primary">
+                  <p className="mt-8 font-ds-mono text-ds-mono-sm text-text-primary">
                     {value}
                   </p>
                   <p className="mt-3 text-ds-body-xs text-text-primary/30">
@@ -239,7 +239,7 @@ function ShortcutStudio() {
                 <span className="text-ds-label-sm text-text-primary/70">
                   {command.name}
                 </span>
-                <span className="font-ds-mono text-[10px] text-text-primary/35">
+                <span className="font-ds-mono text-ds-mono-2xs text-text-primary/35">
                   {formatBinding(command.binding, platform)}
                 </span>
               </button>
@@ -257,7 +257,7 @@ function ShortcutStudio() {
                 <button
                   key={item}
                   aria-pressed={platform === item}
-                  className="rounded px-2 py-1 font-ds-mono text-[9px] uppercase text-text-primary/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:bg-text-primary/10 aria-pressed:text-text-primary"
+                  className="rounded px-2 py-1 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:bg-text-primary/10 aria-pressed:text-text-primary"
                   onClick={() => setPlatform(item)}
                   type="button"
                 >
@@ -279,7 +279,7 @@ function ShortcutStudio() {
             type="button"
           >
             <KeySequence binding={formatBinding(binding, platform)} centered />
-            <span className="mt-4 block font-ds-mono text-[9px] uppercase tracking-[0.16em] text-text-primary/30">
+            <span className="mt-4 block font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/30">
               {isRecording ? 'Press a shortcut…' : 'Click to record'}
             </span>
           </button>
@@ -339,7 +339,7 @@ function ScopeStack() {
           >
             <span className="flex flex-wrap items-start justify-between gap-3">
               <span>
-                <span className="font-ds-mono text-[10px] uppercase tracking-[0.16em] text-[var(--landing-accent-bright)]">
+                <span className="font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
                   {index === scopes.length - 1 ? 'highest priority' : 'scope'}
                 </span>
                 <span className="mt-2 block text-ds-heading-4 text-text-primary">
@@ -379,7 +379,7 @@ function KeySequence({
       {groups.map((group, groupIndex) => (
         <React.Fragment key={`${group}-${groupIndex}`}>
           {groupIndex > 0 ? (
-            <span className="self-center font-ds-mono text-[9px] uppercase tracking-[0.1em] text-text-primary/25">
+            <span className="self-center font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
               then
             </span>
           ) : null}
@@ -397,7 +397,7 @@ function KeySequence({
               ) : (
                 <kbd
                   key={`${key}-${keyIndex}`}
-                  className="min-w-8 rounded-md border border-border-default bg-background-subtle px-2 py-1.5 text-center font-ds-mono text-xs text-text-primary shadow-[inset_0_-2px_0_rgb(0_0_0/0.07)] dark:shadow-[inset_0_-2px_0_rgb(255_255_255/0.04)]"
+                  className="min-w-8 rounded-md border border-border-default bg-background-subtle px-2 py-1.5 text-center font-ds-mono text-ds-mono-xs text-text-primary shadow-[inset_0_-2px_0_rgb(0_0_0/0.07)] dark:shadow-[inset_0_-2px_0_rgb(255_255_255/0.04)]"
                 >
                   {key}
                 </kbd>
@@ -412,10 +412,10 @@ function KeySequence({
 function CommandFact({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg bg-background-subtle p-3">
-      <dt className="font-ds-mono text-[9px] uppercase tracking-[0.13em] text-text-primary/25">
+      <dt className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
         {label}
       </dt>
-      <dd className="mt-1 font-ds-mono text-xs text-text-primary/70">
+      <dd className="mt-1 font-ds-mono text-ds-mono-xs text-text-primary/70">
         {value}
       </dd>
     </div>

@@ -99,10 +99,10 @@ export default function RangerLanding() {
               ['segments', '4 regions'],
             ].map(([label, value]) => (
               <div key={label} className="rounded-lg bg-background-subtle p-4">
-                <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
+                <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
                   {label}
                 </p>
-                <p className="mt-2 font-ds-mono text-xs text-text-primary/75">
+                <p className="mt-2 font-ds-mono text-ds-mono-xs text-text-primary/75">
                   {value}
                 </p>
               </div>
@@ -142,7 +142,7 @@ export default function RangerLanding() {
                 ]}
               />
             </div>
-            <div className="border-t border-border-subtle px-5 py-4 font-ds-mono text-[10px] text-text-primary/35">
+            <div className="border-t border-border-subtle px-5 py-4 font-ds-mono text-ds-mono-2xs text-text-primary/35">
               <BracketsCurly
                 aria-hidden="true"
                 className="mr-2 inline text-[var(--landing-accent-bright)]"
@@ -220,13 +220,13 @@ function RangeStudio() {
                 className="absolute top-[1.1rem] size-7 -translate-x-1/2 rounded-full border-4 border-background-subtle bg-[var(--landing-accent-dark)]"
                 style={{ left: `${value}%` }}
               >
-                <span className="absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap font-ds-mono text-[9px] text-text-primary/60">
+                <span className="absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap font-ds-mono text-ds-mono-2xs text-text-primary/60">
                   {formatValue(mode, value)}
                 </span>
               </span>
             ))}
           </div>
-          <div className="flex justify-between font-ds-mono text-[9px] text-text-primary/20">
+          <div className="flex justify-between font-ds-mono text-ds-mono-2xs text-text-primary/20">
             <span>{getBoundLabel(mode, false)}</span>
             <span>{getBoundLabel(mode, true)}</span>
           </div>
@@ -238,7 +238,7 @@ function RangeStudio() {
               key={index}
               className="grid grid-cols-[5rem_1fr] items-center gap-3"
             >
-              <span className="font-ds-mono text-[9px] uppercase tracking-[0.13em] text-text-primary/30">
+              <span className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/30">
                 {getHandleLabel(mode, index)}
               </span>
               <input
@@ -260,7 +260,7 @@ function RangeStudio() {
           <p className="text-ds-body-xs text-text-primary/35">
             {activeMode.description}
           </p>
-          <span className="font-ds-mono text-[9px] uppercase tracking-[0.13em] text-[var(--landing-accent-bright)]">
+          <span className="font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
             {visibleValues.length} handle{visibleValues.length === 1 ? '' : 's'}
           </span>
         </div>
@@ -287,7 +287,7 @@ function ScaleLab() {
             <button
               key={name}
               aria-pressed={scale === name}
-              className="rounded-md border border-border-default px-3 py-1.5 font-ds-mono text-[9px] uppercase tracking-[0.11em] text-text-primary/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
+              className="rounded-md border border-border-default px-3 py-1.5 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
               onClick={() => setScale(name)}
               type="button"
             >
@@ -323,10 +323,10 @@ function ScaleLab() {
             >
               position → value
             </LandingEyebrow>
-            <p className="mt-4 font-ds-mono text-3xl text-text-primary">
+            <p className="mt-4 font-ds-mono text-ds-mono-display text-text-primary">
               {output.toFixed(1)}
             </p>
-            <p className="mt-1 font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
+            <p className="mt-1 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
               output at {input}%
             </p>
             <input
@@ -366,7 +366,7 @@ function Segment({
       className={`absolute top-8 h-2 ${toneClassName}`}
       style={{ left: `${left}%`, width: `${right - left}%` }}
     >
-      <span className="absolute top-5 left-1/2 -translate-x-1/2 font-ds-mono text-[8px] uppercase tracking-[0.12em] text-text-primary/25">
+      <span className="absolute top-5 left-1/2 -translate-x-1/2 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
         {label}
       </span>
     </span>
@@ -385,7 +385,7 @@ function ContractColumn({
   return (
     <div className="bg-background-surface p-5 sm:p-6">
       <p
-        className={`font-ds-mono text-[10px] uppercase tracking-[0.15em] ${accent ? 'text-[var(--landing-accent-bright)]' : 'text-text-primary/35'}`}
+        className={`font-ds-mono text-ds-mono-caps-xs uppercase ${accent ? 'text-[var(--landing-accent-bright)]' : 'text-text-primary/35'}`}
       >
         {eyebrow}
       </p>

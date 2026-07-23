@@ -83,10 +83,10 @@ export default function FormLanding() {
                 key={layer.label}
                 className="relative rounded-xl border border-border-subtle bg-background-surface p-5"
               >
-                <span className="font-ds-mono text-[10px] font-medium uppercase tracking-[0.16em] text-[var(--landing-accent-bright)]">
+                <span className="font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
                   0{index + 1} / {layer.label}
                 </span>
-                <p className="mt-8 break-words font-ds-mono text-sm text-text-primary">
+                <p className="mt-8 break-words font-ds-mono text-ds-mono-sm text-text-primary">
                   {layer.code}
                 </p>
                 <p className="mt-3 text-ds-body-xs text-text-primary/40">
@@ -113,7 +113,7 @@ export default function FormLanding() {
         />
 
         <div className="mt-10 overflow-hidden rounded-xl border border-border-subtle">
-          <div className="hidden grid-cols-[0.72fr_1.35fr_1fr] bg-background-subtle px-5 py-3 font-ds-mono text-[10px] uppercase tracking-[0.14em] text-text-primary/30 md:grid">
+          <div className="hidden grid-cols-[0.72fr_1.35fr_1fr] bg-background-subtle px-5 py-3 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/30 md:grid">
             <span>Event</span>
             <span>Job</span>
             <span>Good for</span>
@@ -123,7 +123,7 @@ export default function FormLanding() {
               key={item.event}
               className="grid gap-3 border-t border-border-subtle px-5 py-5 first:border-t-0 md:grid-cols-[0.72fr_1.35fr_1fr] md:items-center"
             >
-              <code className="w-fit rounded-md bg-[color:rgb(var(--landing-glow)/0.16)] px-2 py-1 font-ds-mono text-xs text-[var(--landing-accent-bright)]">
+              <code className="w-fit rounded-md bg-[color:rgb(var(--landing-glow)/0.16)] px-2 py-1 font-ds-mono text-ds-mono-xs text-[var(--landing-accent-bright)]">
                 {item.event}
               </code>
               <p className="text-ds-body-sm text-text-primary/75">{item.use}</p>
@@ -154,7 +154,7 @@ export default function FormLanding() {
                   key={label}
                   className="border-l border-text-primary/10 pl-4"
                 >
-                  <p className="font-ds-mono text-[10px] uppercase tracking-[0.14em] text-text-primary/30">
+                  <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/30">
                     {label}
                   </p>
                   <p className="mt-2 text-ds-label-md text-text-primary">
@@ -167,8 +167,8 @@ export default function FormLanding() {
 
           <LandingWindow label="subscription graph">
             <div className="p-5 sm:p-7">
-              <pre className="overflow-x-auto font-ds-mono text-xs leading-7 text-text-primary/65">
-                <code>
+              <pre className="overflow-x-auto">
+                <code className="font-ds-mono text-ds-mono-xs text-text-primary/65">
                   <span className="text-[var(--landing-accent-bright)]">
                     {'<form.Subscribe>'}
                   </span>
@@ -229,7 +229,7 @@ function FormCockpit() {
               aria-describedby="form-demo-email-feedback"
               aria-invalid={!isEmailValid}
               aria-label="Profile email"
-              className="w-full rounded-md border border-border-default bg-background-subtle px-3 py-2 font-ds-mono text-xs text-text-primary outline-none focus:border-[var(--landing-accent-bright)]"
+              className="w-full rounded-md border border-border-default bg-background-subtle px-3 py-2 font-ds-mono text-ds-mono-xs text-text-primary outline-none focus:border-[var(--landing-accent-bright)]"
               onChange={(event) => setEmail(event.target.value)}
               value={email}
             />
@@ -275,7 +275,7 @@ function FormCockpit() {
               aria-describedby="form-demo-role-feedback"
               aria-invalid={!isRolePending && !isRoleValid}
               aria-label="Member role"
-              className="w-full rounded-md border border-border-default bg-background-subtle px-3 py-2 font-ds-mono text-xs text-text-primary outline-none focus:border-[var(--landing-accent-bright)]"
+              className="w-full rounded-md border border-border-default bg-background-subtle px-3 py-2 font-ds-mono text-ds-mono-xs text-text-primary outline-none focus:border-[var(--landing-accent-bright)]"
               onChange={(event) => setRole(event.target.value)}
               value={role}
             />
@@ -324,10 +324,10 @@ function FieldShell({
   return (
     <div className="rounded-lg border border-border-subtle bg-background-subtle p-3">
       <div className="mb-3 flex items-center justify-between gap-3">
-        <code className="truncate font-ds-mono text-xs text-text-primary/75">
+        <code className="truncate font-ds-mono text-ds-mono-xs text-text-primary/75">
           {path}
         </code>
-        <span className="rounded bg-[color:rgb(var(--landing-glow)/0.18)] px-2 py-1 font-ds-mono text-[9px] uppercase tracking-[0.12em] text-[var(--landing-accent-bright)]">
+        <span className="rounded bg-[color:rgb(var(--landing-glow)/0.18)] px-2 py-1 font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
           {state}
         </span>
       </div>
@@ -335,7 +335,7 @@ function FieldShell({
       {feedback && feedbackId ? (
         <p
           aria-live="polite"
-          className={`mt-2 text-[11px] ${state === 'error' ? 'text-text-error' : state === 'pending' ? 'text-[var(--landing-accent-bright)]' : 'text-text-primary/35'}`}
+          className={`mt-2 text-ds-body-xs ${state === 'error' ? 'text-text-error' : state === 'pending' ? 'text-[var(--landing-accent-bright)]' : 'text-text-primary/35'}`}
           id={feedbackId}
         >
           {feedback}
@@ -349,7 +349,9 @@ function Metric({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between gap-4 border-b border-border-subtle pb-3">
       <dt className="text-ds-body-xs text-text-primary/35">{label}</dt>
-      <dd className="font-ds-mono text-xs text-text-primary">{value}</dd>
+      <dd className="font-ds-mono text-ds-mono-xs text-text-primary">
+        {value}
+      </dd>
     </div>
   )
 }
@@ -357,8 +359,8 @@ function Metric({ label, value }: { label: string; value: string }) {
 function StateNode({ label, status }: { label: string; status: string }) {
   return (
     <div className="rounded-lg border border-[color:rgb(var(--landing-glow)/0.35)] bg-[color:rgb(var(--landing-glow)/0.09)] p-4 text-center">
-      <p className="font-ds-mono text-xs text-text-primary">{label}</p>
-      <p className="mt-2 font-ds-mono text-[9px] uppercase tracking-[0.14em] text-[var(--landing-accent-bright)]">
+      <p className="font-ds-mono text-ds-mono-xs text-text-primary">{label}</p>
+      <p className="mt-2 font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
         {status}
       </p>
     </div>

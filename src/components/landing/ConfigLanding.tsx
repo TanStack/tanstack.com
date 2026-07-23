@@ -138,20 +138,20 @@ function MaintenanceConsole() {
         <div className="flex min-w-0 flex-col p-5" aria-live="polite">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
-              <p className="font-ds-mono text-[9px] uppercase tracking-[0.16em] text-text-primary/25">
+              <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
                 configuration surface
               </p>
-              <p className="mt-2 truncate font-ds-mono text-[12px] text-text-primary">
+              <p className="mt-2 truncate font-ds-mono text-ds-mono-xs text-text-primary">
                 {surface.file}
               </p>
             </div>
-            <span className="rounded bg-emerald-400 px-2 py-1 font-ds-mono text-[9px] font-semibold uppercase text-emerald-950">
+            <span className="rounded bg-emerald-400 px-2 py-1 font-ds-mono text-ds-mono-caps-xs uppercase text-emerald-950">
               explicit
             </span>
           </div>
 
           <div className="mt-5 rounded-lg border border-border-subtle bg-background-subtle p-4">
-            <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
+            <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
               maintained by
             </p>
             <p className="mt-2 text-ds-label-md text-[var(--landing-accent-bright)]">
@@ -159,16 +159,16 @@ function MaintenanceConsole() {
             </p>
           </div>
 
-          <div className="mt-3 overflow-x-auto rounded-lg bg-ds-neutral-500 p-4 font-ds-mono text-[11px] text-white/60">
+          <div className="mt-3 overflow-x-auto rounded-lg bg-ds-neutral-500 p-4 font-ds-mono text-ds-mono-xs text-white/60">
             <span className="text-[var(--landing-accent-dark)]">$</span>{' '}
             {surface.command}
           </div>
 
           <div className="mt-auto pt-5">
-            <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
+            <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
               resulting contract
             </p>
-            <p className="mt-2 font-ds-mono text-[11px] text-text-primary/60">
+            <p className="mt-2 font-ds-mono text-ds-mono-2xs text-text-primary/60">
               {surface.result}
             </p>
           </div>
@@ -229,10 +229,10 @@ function PackageXRay() {
               key={file}
               className="flex items-center justify-between gap-4 border-b border-border-subtle bg-background-subtle px-4 py-3 last:border-b-0"
             >
-              <span className="truncate font-ds-mono text-[11px] text-text-primary/65">
+              <span className="truncate font-ds-mono text-ds-mono-2xs text-text-primary/65">
                 {file}
               </span>
-              <span className="shrink-0 font-ds-mono text-[9px] text-text-primary/25">
+              <span className="shrink-0 font-ds-mono text-ds-mono-2xs text-text-primary/25">
                 {role}
               </span>
             </div>
@@ -265,7 +265,7 @@ function AffectedGraph() {
   return (
     <LandingWindow label="affected task graph">
       <div className="p-5 sm:p-6">
-        <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
+        <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
           changed package
         </p>
         <div className="mt-3 flex gap-2">
@@ -274,7 +274,7 @@ function AffectedGraph() {
               key={packageName}
               type="button"
               aria-pressed={changedPackage === packageName}
-              className="min-w-0 flex-1 truncate rounded-lg border border-border-default px-3 py-2 font-ds-mono text-[10px] text-text-primary/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
+              className="min-w-0 flex-1 truncate rounded-lg border border-border-default px-3 py-2 font-ds-mono text-ds-mono-2xs text-text-primary/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
               onClick={() => setChangedPackage(packageName)}
             >
               {packageName}
@@ -289,10 +289,10 @@ function AffectedGraph() {
           {affected.map((packageName, index) => (
             <React.Fragment key={packageName}>
               <div className="min-w-0 flex-1 rounded-xl border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.1)] p-4 text-center">
-                <p className="truncate font-ds-mono text-[11px] text-text-primary">
+                <p className="truncate font-ds-mono text-ds-mono-2xs text-text-primary">
                   {packageName}
                 </p>
-                <p className="mt-2 font-ds-mono text-[9px] text-text-primary/25">
+                <p className="mt-2 font-ds-mono text-ds-mono-2xs text-text-primary/25">
                   lint · test · build
                 </p>
               </div>
@@ -313,7 +313,7 @@ function AffectedGraph() {
               className="text-[var(--landing-accent-bright)]"
               size={18}
             />
-            <p className="mt-3 font-ds-mono text-[10px] text-text-primary/50">
+            <p className="mt-3 font-ds-mono text-ds-mono-2xs text-text-primary/50">
               Nx affected + task cache
             </p>
           </div>
@@ -323,7 +323,7 @@ function AffectedGraph() {
               className="text-[var(--landing-accent-bright)]"
               size={18}
             />
-            <p className="mt-3 font-ds-mono text-[10px] text-text-primary/50">
+            <p className="mt-3 font-ds-mono text-ds-mono-2xs text-text-primary/50">
               pkg-pr-new preview
             </p>
           </div>
@@ -349,7 +349,7 @@ function ReleaseTrustPath() {
             key={label}
             className="relative border-b border-border-subtle p-6 last:border-b-0 md:border-r md:border-b-0 md:last:border-r-0"
           >
-            <span className="font-ds-display text-ds-display-md font-light text-[var(--landing-accent-bright)]">
+            <span className="font-ds-display text-ds-display-md text-[var(--landing-accent-bright)]">
               {index + 1}
             </span>
             <p className="mt-5 text-ds-heading-4">{label}</p>

@@ -180,7 +180,7 @@ function RenderMicroscope() {
     <LandingWindow label="render microscope">
       <div className="grid min-h-[23rem] lg:grid-cols-[0.72fr_1.28fr]">
         <div className="border-border-subtle p-4 lg:border-r">
-          <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
+          <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
             uiStore.setState()
           </p>
           <div className="mt-4 space-y-2">
@@ -197,7 +197,7 @@ function RenderMicroscope() {
             />
           </div>
           <div className="mt-4 rounded-lg bg-[color:rgb(var(--landing-glow)/0.12)] p-4">
-            <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-[var(--landing-accent-bright)]">
+            <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
               derived store
             </p>
             <p className="mt-2 text-ds-label-md text-text-primary">
@@ -229,7 +229,7 @@ function RenderMicroscope() {
               {sidebarOpen ? (
                 <div className="rounded-lg border border-current/10 bg-current/5 p-3 text-ds-body-xs">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <span className="font-semibold">Sidebar</span>
+                    <span>Sidebar</span>
                     <RenderBadge count={renders.sidebar} label="Sidebar" />
                   </div>
                   <div className="mt-4 space-y-2 opacity-60">
@@ -241,7 +241,7 @@ function RenderMicroscope() {
               ) : null}
               <div className="min-w-0 rounded-lg border border-current/10 p-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="font-semibold text-ds-body-xs">Rows</span>
+                  <span className="text-ds-body-xs">Rows</span>
                   <RenderBadge count={renders.rows} label="Rows" />
                 </div>
                 <div className="mt-3 space-y-2">
@@ -250,7 +250,7 @@ function RenderMicroscope() {
                       key={row}
                       className={
                         density === 'compact'
-                          ? 'rounded border border-current/10 px-2 py-1 text-[11px]'
+                          ? 'rounded border border-current/10 px-2 py-1 text-ds-body-xs'
                           : 'rounded border border-current/10 px-3 py-2 text-ds-body-xs'
                       }
                     >
@@ -286,10 +286,10 @@ function StateControl({
       className="flex w-full items-center justify-between gap-3 rounded-lg border border-border-subtle bg-background-subtle px-3 py-3 text-left hover:border-[var(--landing-accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
       onClick={onClick}
     >
-      <span className="font-ds-mono text-[10px] text-text-primary/45">
+      <span className="font-ds-mono text-ds-mono-2xs text-text-primary/45">
         state.{label}
       </span>
-      <span className="rounded bg-[var(--landing-accent)] px-2 py-1 font-ds-mono text-[9px] uppercase text-[var(--landing-accent-ink)]">
+      <span className="rounded bg-[var(--landing-accent)] px-2 py-1 font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-ink)]">
         {value}
       </span>
     </button>
@@ -299,7 +299,7 @@ function StateControl({
 function RenderBadge({ count, label }: { count: number; label: string }) {
   return (
     <span
-      className="rounded-full border border-current/15 px-2 py-1 font-ds-mono text-[8px] uppercase tracking-[0.08em] opacity-60"
+      className="rounded-full border border-current/15 px-2 py-1 font-ds-mono text-ds-mono-caps-xs uppercase opacity-60"
       title={label + ' render count'}
     >
       render {count}
@@ -341,7 +341,7 @@ function SignalTopology() {
 
 function SignalNode({ label }: { label: string }) {
   return (
-    <div className="relative rounded-full border border-border-default bg-background-surface px-3 py-2 text-center font-ds-mono text-[9px] uppercase tracking-[0.1em] text-text-primary/45 sm:px-5">
+    <div className="relative rounded-full border border-border-default bg-background-surface px-3 py-2 text-center font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/45 sm:px-5">
       {label}
     </div>
   )
@@ -366,7 +366,7 @@ function PrimitiveLab() {
             key={primitive.id}
             type="button"
             aria-pressed={activeId === primitive.id}
-            className="shrink-0 border-b-2 border-transparent px-1 pb-4 font-ds-display text-ds-heading-4 font-light text-text-primary/35 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
+            className="shrink-0 border-b-2 border-transparent px-1 pb-4 font-ds-display text-ds-heading-4 text-text-primary/35 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
             onClick={() => setActiveId(primitive.id)}
           >
             {primitive.label}
@@ -379,8 +379,10 @@ function PrimitiveLab() {
       >
         <div className="p-6 md:p-8">
           <h3 className="text-ds-heading-2">{active.title}</h3>
-          <pre className="mt-7 overflow-x-auto rounded-lg bg-ds-neutral-500 p-5 font-ds-mono text-[11px] leading-6 text-white/65">
-            <code>{active.code}</code>
+          <pre className="mt-7 overflow-x-auto rounded-lg bg-ds-neutral-500 p-5">
+            <code className="font-ds-mono text-ds-mono-xs text-white/65">
+              {active.code}
+            </code>
           </pre>
         </div>
         <div className="flex min-h-44 items-center justify-center border-t border-border-subtle bg-[color:rgb(var(--landing-glow)/0.12)] p-8 lg:border-t-0 lg:border-l">
@@ -391,7 +393,7 @@ function PrimitiveLab() {
               size={30}
               weight="light"
             />
-            <p className="mt-5 font-ds-mono text-[12px] text-text-primary/75">
+            <p className="mt-5 font-ds-mono text-ds-mono-xs text-text-primary/75">
               {active.result}
             </p>
           </div>
@@ -423,7 +425,7 @@ function AdapterField() {
             </div>
           ))}
         </div>
-        <p className="mt-5 text-center font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
+        <p className="mt-5 text-center font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
           vanilla core · renderer-specific binding
         </p>
       </div>
@@ -444,7 +446,7 @@ function StateToolMap() {
           }
         >
           <p className="text-ds-heading-4">{tool.name}</p>
-          <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-[var(--landing-accent-bright)]">
+          <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
             {tool.label}
           </p>
           <p className="text-ds-body-sm text-text-primary/40">{tool.detail}</p>

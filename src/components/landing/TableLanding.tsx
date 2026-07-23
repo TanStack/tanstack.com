@@ -320,7 +320,7 @@ function TableWorkbench() {
             />
             <span className="sr-only">Search projects and owners</span>
             <input
-              className="min-w-0 flex-1 bg-transparent font-ds-mono text-xs text-text-primary outline-none placeholder:text-text-primary/20"
+              className="min-w-0 flex-1 bg-transparent font-ds-mono text-ds-mono-xs text-text-primary outline-none placeholder:text-text-primary/20"
               onChange={(event) => {
                 table.setGlobalFilter(event.target.value)
                 table.setPageIndex(0)
@@ -338,7 +338,7 @@ function TableWorkbench() {
               <button
                 key={filter.value}
                 aria-pressed={statusFilter === filter.value}
-                className="rounded-md border border-border-subtle px-2.5 py-2 font-ds-mono text-[9px] uppercase tracking-[0.1em] text-text-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:bg-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-ink)]"
+                className="rounded-md border border-border-subtle px-2.5 py-2 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:bg-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-ink)]"
                 onClick={() => {
                   setStatusFilter(filter.value)
                   table.setPageIndex(0)
@@ -363,7 +363,7 @@ function TableWorkbench() {
                 <button
                   key={columnId}
                   aria-pressed={column?.getIsVisible() ?? false}
-                  className="rounded-md border border-border-subtle px-2 py-1 font-ds-mono text-[9px] capitalize text-text-primary/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:bg-text-primary/8 aria-pressed:text-text-primary/60"
+                  className="rounded-md border border-border-subtle px-2 py-1 font-ds-mono text-ds-mono-2xs capitalize text-text-primary/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:bg-text-primary/8 aria-pressed:text-text-primary/60"
                   onClick={() => column?.toggleVisibility()}
                   type="button"
                 >
@@ -374,7 +374,7 @@ function TableWorkbench() {
           </div>
           <span
             aria-live="polite"
-            className="font-ds-mono text-[9px] uppercase tracking-[0.12em] text-text-primary/25"
+            className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25"
           >
             {filteredRows} rows · {selectedRows} selected
           </span>
@@ -402,7 +402,7 @@ function TableWorkbench() {
                       >
                         {header.isPlaceholder ? null : header.column.getCanSort() ? (
                           <button
-                            className="flex w-full items-center gap-1 rounded-sm font-ds-mono text-[9px] uppercase tracking-[0.12em] text-text-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
+                            className="flex w-full items-center gap-1 rounded-sm font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
                             onClick={header.column.getToggleSortingHandler()}
                             type="button"
                           >
@@ -441,7 +441,7 @@ function TableWorkbench() {
                         key={cell.id}
                         className={getCellClassName(cell.column.id)}
                       >
-                        <span className="block truncate font-ds-mono text-[11px] text-text-primary/65">
+                        <span className="block truncate font-ds-mono text-ds-mono-2xs text-text-primary/65">
                           {flexRender(
                             cell.column.columnDef.cell,
                             cell.getContext(),
@@ -454,7 +454,7 @@ function TableWorkbench() {
               ) : (
                 <tr>
                   <td
-                    className="px-4 py-8 text-center font-ds-mono text-[10px] text-text-primary/30"
+                    className="px-4 py-8 text-center font-ds-mono text-ds-mono-2xs text-text-primary/30"
                     colSpan={table.getVisibleLeafColumns().length}
                   >
                     No rows match this view.
@@ -484,7 +484,7 @@ function TableWorkbench() {
               Next
             </button>
           </div>
-          <span className="font-ds-mono text-[9px] uppercase tracking-[0.12em] text-[var(--landing-accent-bright)]">
+          <span className="font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
             page {table.getState().pagination.pageIndex + 1} /{' '}
             {Math.max(table.getPageCount(), 1)}
           </span>
@@ -512,10 +512,10 @@ function RowPipeline() {
             <p className="mt-6 text-ds-label-md text-text-primary">
               {model.label}
             </p>
-            <code className="mt-2 block break-all font-ds-mono text-[9px] leading-5 text-text-primary/30">
+            <code className="mt-2 block break-all font-ds-mono text-ds-mono-xs text-text-primary/30">
               {model.code}
             </code>
-            <p className="mt-5 font-ds-mono text-[10px] text-[var(--landing-accent-bright)]">
+            <p className="mt-5 font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
               {model.rows}
             </p>
             {index < rowModels.length - 1 ? (
@@ -547,7 +547,7 @@ function SurfaceLab() {
             <button
               key={item}
               aria-pressed={surface === item}
-              className="rounded-md border border-border-subtle px-3 py-1.5 font-ds-mono text-[9px] uppercase tracking-[0.12em] text-text-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
+              className="rounded-md border border-border-subtle px-3 py-1.5 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
               onClick={() => setSurface(item)}
               type="button"
             >
@@ -564,13 +564,13 @@ function SurfaceLab() {
                 key={row.id}
                 className="grid grid-cols-[5rem_minmax(0,1fr)_5rem] gap-4 border-t border-border-subtle px-4 py-3 first:border-t-0"
               >
-                <span className="font-ds-mono text-[10px] text-text-primary/30">
+                <span className="font-ds-mono text-ds-mono-2xs text-text-primary/30">
                   {row.id}
                 </span>
                 <span className="truncate text-ds-body-xs text-text-primary/70">
                   {row.project}
                 </span>
-                <span className="text-right font-ds-mono text-[10px] text-[var(--landing-accent-bright)]">
+                <span className="text-right font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
                   {row.score}
                 </span>
               </div>
@@ -601,13 +601,13 @@ function SurfaceLab() {
                 className="flex items-center gap-4 border-b border-border-subtle px-3 py-2 last:border-b-0"
               >
                 <span className="size-1.5 shrink-0 rounded-full bg-[var(--landing-accent)]" />
-                <span className="w-16 font-ds-mono text-[9px] text-text-primary/25">
+                <span className="w-16 font-ds-mono text-ds-mono-2xs text-text-primary/25">
                   {row.id}
                 </span>
-                <span className="min-w-0 flex-1 truncate font-ds-mono text-[10px] text-text-primary/60">
+                <span className="min-w-0 flex-1 truncate font-ds-mono text-ds-mono-2xs text-text-primary/60">
                   {row.project}
                 </span>
-                <span className="font-ds-mono text-[9px] text-text-primary/25">
+                <span className="font-ds-mono text-ds-mono-2xs text-text-primary/25">
                   {row.status}
                 </span>
               </div>
@@ -623,7 +623,7 @@ function TableVirtualBoundary() {
   return (
     <div className="grid gap-px overflow-hidden rounded-lg border border-border-subtle bg-text-primary/7 sm:grid-cols-2">
       <div className="bg-background-surface p-4">
-        <p className="font-ds-mono text-[9px] uppercase tracking-[0.13em] text-[var(--landing-accent-bright)]">
+        <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
           Table
         </p>
         <p className="mt-2 text-ds-body-xs text-text-primary/40">
@@ -632,7 +632,7 @@ function TableVirtualBoundary() {
         </p>
       </div>
       <div className="bg-background-surface p-4">
-        <p className="font-ds-mono text-[9px] uppercase tracking-[0.13em] text-[var(--landing-accent-bright)]">
+        <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
           Virtual
         </p>
         <p className="mt-2 text-ds-body-xs text-text-primary/40">
@@ -664,7 +664,7 @@ function StateSwitchboard() {
               onClick={() => setOwner(item)}
               type="button"
             >
-              <span className="font-ds-mono text-[9px] uppercase tracking-[0.13em] text-text-primary/30">
+              <span className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/30">
                 owned by
               </span>
               <span className="mt-1 block text-ds-label-md capitalize text-text-primary">
@@ -675,7 +675,7 @@ function StateSwitchboard() {
         </div>
 
         <div className="mt-5 rounded-lg border border-border-subtle bg-background-subtle p-4">
-          <code className="font-ds-mono text-xs text-[var(--landing-accent-bright)]">
+          <code className="font-ds-mono text-ds-mono-xs text-[var(--landing-accent-bright)]">
             {selected.code}
           </code>
           <p className="mt-3 text-ds-body-xs text-text-primary/35">
@@ -689,7 +689,7 @@ function StateSwitchboard() {
               {index > 0 ? (
                 <span className="text-text-primary/15">→</span>
               ) : null}
-              <span className="rounded-md bg-text-primary/[0.035] px-3 py-2 font-ds-mono text-[10px] text-text-primary/55">
+              <span className="rounded-md bg-text-primary/[0.035] px-3 py-2 font-ds-mono text-ds-mono-2xs text-text-primary/55">
                 {step}
               </span>
             </React.Fragment>
@@ -703,7 +703,7 @@ function StateSwitchboard() {
 function StatusBadge({ status }: { status: TableIssue['status'] }) {
   return (
     <span
-      className={`inline-flex rounded px-2 py-1 font-ds-mono text-[9px] uppercase tracking-[0.1em] ${status === 'active' ? 'bg-emerald-400/12 text-emerald-300' : status === 'review' ? 'bg-amber-400/12 text-amber-300' : 'bg-blue-400/12 text-blue-300'}`}
+      className={`inline-flex rounded px-2 py-1 font-ds-mono text-ds-mono-caps-xs uppercase ${status === 'active' ? 'bg-emerald-400/12 text-emerald-300' : status === 'review' ? 'bg-amber-400/12 text-amber-300' : 'bg-blue-400/12 text-blue-300'}`}
     >
       {status}
     </span>

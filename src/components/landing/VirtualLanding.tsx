@@ -177,13 +177,13 @@ function VirtualizerLab() {
                     aria-hidden="true"
                     className="size-2 shrink-0 rounded-full bg-[var(--landing-accent)] opacity-70"
                   />
-                  <span className="w-16 shrink-0 font-ds-mono text-[9px] text-white/25">
+                  <span className="w-16 shrink-0 font-ds-mono text-ds-mono-2xs text-white/25">
                     #{String(index + 1).padStart(6, '0')}
                   </span>
-                  <span className="min-w-0 flex-1 truncate font-ds-mono text-[10px] text-white/60">
+                  <span className="min-w-0 flex-1 truncate font-ds-mono text-ds-mono-2xs text-white/60">
                     {getRowLabel(index)}
                   </span>
-                  <span className="font-ds-mono text-[9px] text-white/20">
+                  <span className="font-ds-mono text-ds-mono-2xs text-white/20">
                     {index % 7 === 0 ? 'warn' : 'info'}
                   </span>
                 </div>
@@ -199,7 +199,7 @@ function VirtualizerLab() {
             ].map(([label, index]) => (
               <button
                 key={label}
-                className="rounded-md border border-border-default px-3 py-1.5 font-ds-mono text-[9px] uppercase tracking-[0.1em] text-text-primary/35 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
+                className="rounded-md border border-border-default px-3 py-1.5 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/35 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
                 onClick={() => jumpTo(Number(index))}
                 type="button"
               >
@@ -226,10 +226,10 @@ function VirtualizerLab() {
             <ViewportMetric label="overscan" value={`${OVERSCAN} each side`} />
           </dl>
           <div className="mt-auto rounded-lg bg-[color:rgb(var(--landing-glow)/0.12)] p-3">
-            <p className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-[var(--landing-accent-bright)]">
+            <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
               full scroll range
             </p>
-            <p className="mt-2 font-ds-mono text-xs text-text-primary">
+            <p className="mt-2 font-ds-mono text-ds-mono-xs text-text-primary">
               {(TOTAL_ROWS * ROW_HEIGHT).toLocaleString()}px
             </p>
           </div>
@@ -256,10 +256,10 @@ function MeasurementLab() {
               className="min-w-0 flex-1 rounded-md border border-[color:rgb(var(--landing-glow)/0.25)] bg-[color:rgb(var(--landing-glow)/0.09)] p-2 transition-[height] duration-500 motion-reduce:transition-none"
               style={{ height }}
             >
-              <span className="block font-ds-mono text-[8px] uppercase tracking-[0.1em] text-text-primary/25">
+              <span className="block font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
                 row {241 + index}
               </span>
-              <span className="mt-2 block font-ds-mono text-[10px] text-[var(--landing-accent-bright)]">
+              <span className="mt-2 block font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
                 {height}px
               </span>
             </div>
@@ -326,7 +326,7 @@ function ChatContract() {
           >
             Load earlier
           </button>
-          <span className="font-ds-mono text-[9px] uppercase tracking-[0.12em] text-text-primary/25">
+          <span className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
             {atLatest ? 'following end' : 'anchor preserved'}
           </span>
         </div>
@@ -345,7 +345,7 @@ function ChatContract() {
           </div>
           {unseenCount > 0 ? (
             <button
-              className="absolute right-3 bottom-3 rounded-full bg-[var(--landing-accent)] px-3 py-1.5 font-ds-mono text-[9px] text-[var(--landing-accent-ink)]"
+              className="absolute right-3 bottom-3 rounded-full bg-[var(--landing-accent)] px-3 py-1.5 font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-ink)]"
               onClick={() => {
                 setAtLatest(true)
                 setUnseenCount(0)
@@ -395,7 +395,7 @@ function SnapshotPanel() {
           leave → return
         </LandingEyebrow>
         <div className="mt-7 rounded-lg border border-border-subtle bg-background-subtle p-4">
-          <p className="font-ds-mono text-[9px] uppercase tracking-[0.13em] text-text-primary/25">
+          <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
             /logs/deploy-847
           </p>
           <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-text-primary/7">
@@ -404,7 +404,7 @@ function SnapshotPanel() {
               style={{ width: restored ? '72%' : '0%' }}
             />
           </div>
-          <div className="mt-3 flex justify-between font-ds-mono text-[9px] text-text-primary/25">
+          <div className="mt-3 flex justify-between font-ds-mono text-ds-mono-2xs text-text-primary/25">
             <span>row 0</span>
             <span
               className={restored ? 'text-[var(--landing-accent-bright)]' : ''}
@@ -441,10 +441,10 @@ function SnapshotPanel() {
 function ViewportMetric({ label, value }: { label: string; value: string }) {
   return (
     <div className="border-b border-border-subtle pb-3">
-      <dt className="font-ds-mono text-[9px] uppercase tracking-[0.13em] text-text-primary/25">
+      <dt className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
         {label}
       </dt>
-      <dd className="mt-1 font-ds-mono text-xs text-text-primary/70">
+      <dd className="mt-1 font-ds-mono text-ds-mono-xs text-text-primary/70">
         {value}
       </dd>
     </div>

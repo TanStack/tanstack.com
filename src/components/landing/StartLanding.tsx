@@ -170,7 +170,7 @@ function ExecutionMapHero() {
               <span className="block text-ds-label-sm text-text-primary/75">
                 {item.label}
               </span>
-              <span className="mt-1 block font-ds-mono text-[9px] text-[var(--landing-accent-bright)]">
+              <span className="mt-1 block font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
                 {item.value}
               </span>
             </button>
@@ -201,7 +201,7 @@ function ExecutionMapHero() {
         </div>
 
         <div className="mt-4 rounded-lg border-l-2 border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.1)] px-4 py-3">
-          <p className="font-ds-mono text-[10px] uppercase tracking-[0.14em] text-[var(--landing-accent-bright)]">
+          <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
             {mode.label}
           </p>
           <p className="mt-2 text-ds-body-xs text-text-primary/45">
@@ -226,9 +226,7 @@ function RuntimeColumn({
     <div className="rounded-xl border border-border-subtle bg-background-subtle p-4">
       <div className="flex items-center gap-2 text-[var(--landing-accent-bright)]">
         {icon}
-        <p className="font-ds-mono text-[10px] uppercase tracking-[0.16em]">
-          {label}
-        </p>
+        <p className="font-ds-mono text-ds-mono-caps-xs uppercase">{label}</p>
       </div>
       <ol className="mt-4 space-y-2">
         {steps.map((step, index) => (
@@ -236,10 +234,10 @@ function RuntimeColumn({
             key={step}
             className="flex items-center gap-3 rounded-lg bg-background-default px-3 py-2.5"
           >
-            <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-[var(--landing-accent)] font-ds-mono text-[9px] font-semibold text-[var(--landing-accent-ink)]">
+            <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-[var(--landing-accent)] font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-ink)]">
               {index + 1}
             </span>
-            <span className="font-ds-mono text-[10px] text-text-primary/65">
+            <span className="font-ds-mono text-ds-mono-2xs text-text-primary/65">
               {step}
             </span>
           </li>
@@ -294,7 +292,7 @@ function RouterFoundation() {
               </span>
               <div>
                 <h3 className="text-ds-heading-4">{layer.label}</h3>
-                <p className="mt-2 font-ds-mono text-[10px] leading-5 text-text-primary/35">
+                <p className="mt-2 font-ds-mono text-ds-mono-2xs text-text-primary/35">
                   {layer.detail}
                 </p>
               </div>
@@ -336,13 +334,15 @@ function ServerBoundaryLab() {
       </div>
       <div aria-live="polite" className="p-5">
         <h3 className="text-ds-heading-4">{active.title}</h3>
-        <pre className="mt-5 overflow-x-auto rounded-lg bg-ds-neutral-500 p-4 font-ds-mono text-[11px] leading-6 text-white/65">
-          <code>{active.code}</code>
+        <pre className="mt-5 overflow-x-auto rounded-lg bg-ds-neutral-500 p-4">
+          <code className="font-ds-mono text-ds-mono-xs text-white/65">
+            {active.code}
+          </code>
         </pre>
         <ol className="mt-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-0">
           {active.flow.map((step, index) => (
             <React.Fragment key={step}>
-              <li className="min-w-0 flex-1 rounded-full border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.1)] px-3 py-2 text-center font-ds-mono text-[9px] uppercase tracking-[0.1em] text-[var(--landing-accent-bright)]">
+              <li className="min-w-0 flex-1 rounded-full border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.1)] px-3 py-2 text-center font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
                 {step}
               </li>
               {index < active.flow.length - 1 ? (
@@ -396,7 +396,7 @@ function DeploymentSelector() {
           </div>
           <dl className="mt-7 grid gap-px overflow-hidden rounded-lg bg-text-primary/5 sm:grid-cols-2">
             <div className="bg-background-subtle p-4">
-              <dt className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
+              <dt className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
                 output
               </dt>
               <dd className="mt-2 text-ds-label-md text-text-primary/80">
@@ -404,10 +404,10 @@ function DeploymentSelector() {
               </dd>
             </div>
             <div className="bg-background-subtle p-4">
-              <dt className="font-ds-mono text-[9px] uppercase tracking-[0.14em] text-text-primary/25">
+              <dt className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
                 deploy
               </dt>
-              <dd className="mt-2 break-words font-ds-mono text-[11px] text-[var(--landing-accent-bright)]">
+              <dd className="mt-2 break-words font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
                 {active.command}
               </dd>
             </div>
@@ -421,7 +421,7 @@ function DeploymentSelector() {
             ].map((item) => (
               <div
                 key={item}
-                className="flex items-center gap-2 rounded-lg border border-border-subtle bg-background-default px-3 py-2.5 font-ds-mono text-[10px] text-text-primary/55"
+                className="flex items-center gap-2 rounded-lg border border-border-subtle bg-background-default px-3 py-2.5 font-ds-mono text-ds-mono-2xs text-text-primary/55"
               >
                 <BracketsCurly
                   aria-hidden="true"

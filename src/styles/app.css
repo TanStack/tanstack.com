@@ -332,10 +332,17 @@ html.theme-switching *::after {
   --text-ds-mono-xs: 12px;
   --text-ds-mono-xs--line-height: 16px;
   --text-ds-mono-xs--font-weight: 300;
+  --text-ds-mono-2xs: 10px;
+  --text-ds-mono-2xs--line-height: 14px;
+  --text-ds-mono-2xs--font-weight: 300;
   --text-ds-mono-caps: 12px;
   --text-ds-mono-caps--line-height: 14px;
   --text-ds-mono-caps--letter-spacing: 1.5px;
   --text-ds-mono-caps--font-weight: 400;
+  --text-ds-mono-caps-xs: 10px;
+  --text-ds-mono-caps-xs--line-height: 12px;
+  --text-ds-mono-caps-xs--letter-spacing: 1.2px;
+  --text-ds-mono-caps-xs--font-weight: 400;
 }
 
 /* Dark-mode values for the DS semantic tokens (from Figma "Color Specimens /
@@ -481,6 +488,11 @@ html.dark {
     :root:has([data-docs-layout]) {
       --docs-tabs-height: 42px;
     }
+  }
+
+  :root:has([data-library-landing]) {
+    --navbar-height: 64px;
+    --docs-tabs-height: 48px;
   }
 }
 

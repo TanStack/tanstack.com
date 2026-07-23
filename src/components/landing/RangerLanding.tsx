@@ -1,242 +1,440 @@
 import * as React from 'react'
-import { useParams } from '@tanstack/react-router'
 import {
-  Gauge,
-  GitBranch,
-  ArrowsHorizontal,
+  ArrowsLeftRight,
+  BracketsCurly,
+  Palette,
   Ruler,
   SlidersHorizontal,
-  Sparkle,
 } from '@phosphor-icons/react'
 
-import { StackBlitzSection } from '~/components/StackBlitzSection'
-import { getBranch, getLibrary } from '~/libraries'
-import { rangerProject } from '~/libraries/ranger'
 import {
-  LibraryLanding,
-  type LibraryLandingConfig,
-} from '~/components/landing/LibraryLanding'
+  LandingEyebrow,
+  LandingSection,
+  LandingSectionIntro,
+  LandingWindow,
+  LibraryLandingShell,
+} from './LibraryLanding'
 
-const library = getLibrary('ranger')
+const rangerPrompt =
+  'Build a custom range control with TanStack Ranger. Use its headless geometry for multiple handles, segments, custom steps and ticks, drag and commit callbacks, and a custom interpolator when the scale is nonlinear. Keep the DOM, styling, labels, and accessible product semantics specific to the interface.'
 
-const rangerAgentPrompt = [
-  'Build a custom range or multi-range slider with TanStack Ranger.',
-  'Keep the slider headless: own the markup, track, ticks, labels, thumbs, formatting, and accessibility while using Ranger for range math and thumb interaction state.',
-  'Show min/max, steps, multiple thumbs, constrained movement, and product-specific styling.',
-].join(' ')
+const rangerModes = [
+  {
+    id: 'price',
+    label: 'Price filter',
+    description: 'Two handles define an included interval.',
+  },
+  {
+    id: 'video',
+    label: 'Video trim',
+    description: 'Three handles mark in, playhead, and out.',
+  },
+  {
+    id: 'gain',
+    label: 'Log gain',
+    description: 'One handle moves through a nonlinear scale.',
+  },
+] as const
 
-const rangeSteps = [
-  {
-    label: 'Values',
-    body: 'Start with one value, two bounds, or a set of range handles.',
-  },
-  {
-    label: 'Track',
-    body: 'Map percentages and segments into your own track UI.',
-  },
-  {
-    label: 'Thumbs',
-    body: 'Render handles with labels, tooltips, constraints, and focus state.',
-  },
-  {
-    label: 'Commit',
-    body: 'Send final values into filters, charts, editors, or forms.',
-  },
+type RangerMode = (typeof rangerModes)[number]['id']
+type ScaleName = 'linear' | 'logarithmic' | 'stepped'
+
+const scaleNames: ReadonlyArray<ScaleName> = [
+  'linear',
+  'logarithmic',
+  'stepped',
 ]
 
 export default function RangerLanding() {
-  const { version } = useParams({ strict: false })
-  const resolvedVersion = version ?? library.latestVersion
-  const branch = getBranch(rangerProject, resolvedVersion)
+  return (
+    <LibraryLandingShell
+      description="Ranger owns the difficult range math—handles, steps, ticks, segments, dragging, and interpolation—while your product owns the control."
+      headline="Keep the range math. Invent the control."
+      hero={<RangeStudio />}
+      libraryId="ranger"
+      prompt={rangerPrompt}
+      promptLabel="Copy Ranger prompt"
+    >
+      <LandingSection tone="accent">
+        <div className="grid gap-12 lg:grid-cols-[0.75fr_1.25fr] lg:items-center">
+          <LandingSectionIntro
+            body="Prices, audio gain, risk scores, and timelines do not all move through value space the same way. Supply the interpolation instead of forcing the product into a linear track."
+            eyebrow="Custom interpolation"
+            icon={<Ruler aria-hidden="true" size={17} />}
+            title="Not every useful scale is linear."
+          />
+          <ScaleLab />
+        </div>
+      </LandingSection>
 
-  const config: LibraryLandingConfig = {
-    libraryId: 'ranger',
-    hero: {
-      kicker: {
-        icon: <ArrowsHorizontal size={14} />,
-        text: 'Headless range controls',
-      },
-      tagline: 'Build the slider your product actually needs.',
-      description:
-        'Ranger provides headless primitives for range and multi-range sliders, leaving the track, thumbs, labels, ticks, and product UI completely under your control.',
-      prompt: rangerAgentPrompt,
-      promptLabel: 'Copy Ranger Prompt',
-      proof: [
-        { label: 'Headless track', value: 'bring your own UI and semantics' },
-        { label: 'Multi-thumb', value: 'ranges, bounds, steps, constraints' },
-        { label: 'React hooks', value: 'range math without a slider skin' },
-      ],
-      panel: <RangerLabPanel />,
-    },
-    why: {
-      kicker: { icon: <Sparkle size={14} />, text: 'Why Ranger' },
-      heading: 'Range controls are small until the product gets specific.',
-      intro:
-        'Once a slider needs multiple thumbs, custom labels, controlled values, meaningful ticks, and a design system skin, a prebuilt UI becomes the wrong abstraction. Ranger keeps the hard math below your component.',
-      features: [
-        {
-          title: 'The slider is yours.',
-          body: 'Ranger gives interaction state and range math without rendering the track, thumbs, labels, or layout for you.',
-          icon: <SlidersHorizontal size={18} />,
-        },
-        {
-          title: 'Multi-range without bespoke math.',
-          body: 'Build price filters, timelines, editors, split ranges, or multi-thumb controls with bounds and steps handled predictably.',
-          icon: <ArrowsHorizontal size={18} />,
-        },
-        {
-          title: 'Ticks and labels can be product-specific.',
-          body: 'Display percentages, dates, currency, logarithmic labels, marks, or custom annotations from the same headless primitives.',
-          icon: <Ruler size={18} />,
-        },
-        {
-          title: 'Small utility, high inversion of control.',
-          body: 'Ranger is useful precisely because it does not become your design system. It stays under the component you actually need.',
-          icon: <Gauge size={18} />,
-        },
-      ],
-    },
-    sections: [
-      {
-        kicker: { icon: <GitBranch size={14} />, text: 'Slider lifecycle' },
-        heading: 'Values in, product-specific control out.',
-        body: 'Ranger helps translate values into interactive geometry. Your app decides what those values mean and how the user should see them.',
-        panel: <StepPanel />,
-        side: 'left',
-      },
-    ],
-    interlude: (
-      <StackBlitzSection
-        project={rangerProject}
-        branch={branch}
-        examplePath="examples/${framework}/basic"
-        title="tannerlinsley/react-ranger: basic"
-      />
-    ),
-    ecosystem: {
-      heading: 'Ranger stays small so your component can be specific.',
-      body: 'Maintainers, examples, partners, and GitHub sponsors keep the headless range primitive useful without turning it into a UI kit.',
-    },
-  }
+      <LandingSection tone="raised">
+        <LandingSectionIntro
+          body="A set of values produces handles. The spaces around them produce meaningful regions: selected, excluded, buffered, safe, risky, or already played."
+          eyebrow="Multi-value geometry"
+          icon={<ArrowsLeftRight aria-hidden="true" size={17} />}
+          title="Values become handles. Gaps become segments."
+        />
 
-  return <LibraryLanding config={config} />
+        <div className="mt-10 rounded-xl border border-border-subtle bg-background-surface p-5 sm:p-8">
+          <div className="relative h-20">
+            <div className="absolute inset-x-0 top-8 h-2 rounded-full bg-text-primary/8" />
+            <Segment left={0} right={22} label="excluded" tone="muted" />
+            <Segment left={22} right={58} label="selected" tone="accent" />
+            <Segment left={58} right={81} label="buffer" tone="soft" />
+            <Segment left={81} right={100} label="excluded" tone="muted" />
+            {[22, 58, 81].map((position, index) => (
+              <span
+                key={position}
+                className="absolute top-[1.35rem] z-10 size-7 -translate-x-1/2 rounded-full border-4 border-background-surface bg-[var(--landing-accent)] shadow-[0_0_20px_rgb(var(--landing-glow)/0.5)]"
+                style={{ left: `${position}%` }}
+              >
+                <span className="sr-only">Handle {index + 1}</span>
+              </span>
+            ))}
+          </div>
+          <div className="mt-7 grid gap-3 sm:grid-cols-3">
+            {[
+              ['values', '[22, 58, 81]'],
+              ['handles', '3 positions'],
+              ['segments', '4 regions'],
+            ].map(([label, value]) => (
+              <div key={label} className="rounded-lg bg-background-subtle p-4">
+                <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+                  {label}
+                </p>
+                <p className="mt-2 font-ds-mono text-ds-mono-xs text-text-primary/75">
+                  {value}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </LandingSection>
+
+      <LandingSection tone="ink">
+        <div className="grid gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:items-center">
+          <LandingSectionIntro
+            body="Ranger provides positions, ticks, segments, and event handlers. Your interface decides whether those numbers become a price filter, a timeline, a color ramp, or something nobody has shipped yet."
+            eyebrow="Headless boundary"
+            icon={<Palette aria-hidden="true" size={17} />}
+            title="The engine ends where the product begins."
+          />
+
+          <LandingWindow label="range contract">
+            <div className="grid gap-px bg-border-subtle sm:grid-cols-2">
+              <ContractColumn
+                accent
+                eyebrow="Ranger returns"
+                items={[
+                  'handle positions',
+                  'track segments',
+                  'ticks and steps',
+                  'drag + keyboard handlers',
+                ]}
+              />
+              <ContractColumn
+                eyebrow="You render"
+                items={[
+                  'semantic controls',
+                  'product labels',
+                  'brand and motion',
+                  'domain-specific feedback',
+                ]}
+              />
+            </div>
+            <div className="border-t border-border-subtle px-5 py-4 font-ds-mono text-ds-mono-2xs text-text-primary/35">
+              <BracketsCurly
+                aria-hidden="true"
+                className="mr-2 inline text-[var(--landing-accent-bright)]"
+                size={15}
+              />
+              same geometry · entirely different surface
+            </div>
+          </LandingWindow>
+        </div>
+      </LandingSection>
+    </LibraryLandingShell>
+  )
 }
 
-function RangerLabPanel() {
-  const [values, setValues] = React.useState<Array<number>>([120, 310, 640])
-  const sortedValues = [...values].sort((a, b) => a - b)
-  const updateValue = (index: number, nextValue: number) => {
-    setValues((current) => {
-      const minValue = index > 0 ? current[index - 1] + 10 : 0
-      const maxValue =
-        index < current.length - 1 ? current[index + 1] - 10 : 1000
-      const nextValues = current.map((value, valueIndex) =>
-        valueIndex === index
-          ? Math.min(Math.max(nextValue, minValue), maxValue)
-          : value,
-      )
+function RangeStudio() {
+  const [mode, setMode] = React.useState<RangerMode>('price')
+  const [values, setValues] = React.useState([24, 68, 84])
+  const activeMode =
+    rangerModes.find((candidate) => candidate.id === mode) ?? rangerModes[0]
+  const visibleValues =
+    mode === 'gain'
+      ? values.slice(0, 1)
+      : mode === 'price'
+        ? values.slice(0, 2)
+        : values
 
-      return nextValues
+  function chooseMode(nextMode: RangerMode) {
+    setMode(nextMode)
+    if (nextMode === 'price') setValues([24, 68, 84])
+    if (nextMode === 'video') setValues([16, 47, 82])
+    if (nextMode === 'gain') setValues([61, 68, 84])
+  }
+
+  function updateValue(index: number, value: number) {
+    setValues((current) => {
+      const lastVisibleIndex = mode === 'price' ? 1 : mode === 'video' ? 2 : 0
+      const minimum = index === 0 ? 0 : (current[index - 1] ?? 0)
+      const maximum =
+        index === lastVisibleIndex ? 100 : (current[index + 1] ?? 100)
+      const nextValue = Math.max(minimum, Math.min(value, maximum))
+
+      return current.map((currentValue, currentIndex) =>
+        currentIndex === index ? nextValue : currentValue,
+      )
     })
   }
 
   return (
-    <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-zinc-300 bg-white p-4 shadow-sm shadow-zinc-950/5 dark:border-zinc-800 dark:bg-zinc-950">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <span className="h-2.5 w-2.5 rounded-md bg-red-400" />
-          <span className="h-2.5 w-2.5 rounded-md bg-yellow-400" />
-          <span className="h-2.5 w-2.5 rounded-md bg-emerald-400" />
-        </div>
-        <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400">
-          multi-range slider
-        </span>
-      </div>
-
-      <div className="mt-8 px-2">
-        <div className="relative h-4 rounded-full bg-zinc-200 dark:bg-zinc-800">
-          <div
-            className="absolute top-0 h-4 rounded-full bg-zinc-950 dark:bg-white"
-            style={{
-              left: `${sortedValues[0] / 10}%`,
-              right: `${100 - sortedValues[sortedValues.length - 1] / 10}%`,
-            }}
-          />
-          {values.map((value, index) => (
-            <div
-              key={index}
-              className="absolute top-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-white bg-zinc-950 shadow-md dark:border-zinc-950 dark:bg-white"
-              style={{ left: `${value / 10}%` }}
+    <LandingWindow label="range studio">
+      <div className="p-4 sm:p-5">
+        <div className="flex flex-wrap gap-2">
+          {rangerModes.map((item) => (
+            <button
+              key={item.id}
+              aria-pressed={mode === item.id}
+              className="rounded-md border border-border-default px-3 py-2 text-ds-label-sm text-text-primary/40 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:bg-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-ink)]"
+              onClick={() => chooseMode(item.id)}
+              type="button"
             >
-              <span className="absolute left-1/2 top-10 -translate-x-1/2 whitespace-nowrap rounded-md bg-zinc-950 px-2 py-1 text-xs font-black text-white dark:bg-white dark:text-zinc-950">
-                ${value}
-              </span>
-            </div>
+              {item.label}
+            </button>
           ))}
         </div>
-        <div className="mt-16 grid grid-cols-5 text-center text-xs font-bold text-zinc-500 dark:text-zinc-400">
-          {['0', '250', '500', '750', '1000'].map((tick) => (
-            <span key={tick}>{tick}</span>
-          ))}
-        </div>
-      </div>
 
-      <div className="mt-6 grid gap-2">
-        {values.map((value, index) => (
-          <label key={index} className="grid gap-1">
-            <span className="text-[0.65rem] font-black uppercase text-zinc-500 dark:text-zinc-400">
-              Handle {index + 1}
-            </span>
-            <input
-              className="accent-zinc-950 dark:accent-white"
-              max={1000}
-              min={0}
-              step={10}
-              type="range"
-              value={value}
-              onChange={(event) =>
-                updateValue(index, event.currentTarget.valueAsNumber)
-              }
+        <div className="mt-7 rounded-xl border border-border-subtle bg-background-subtle px-5 py-8">
+          <div className="relative h-16">
+            <div className="absolute inset-x-0 top-7 h-2 rounded-full bg-text-primary/10" />
+            <div
+              className="absolute top-7 h-2 rounded-full bg-[var(--landing-accent)] shadow-[0_0_18px_rgb(var(--landing-glow)/0.4)]"
+              style={getFillStyle(mode, values)}
             />
-          </label>
-        ))}
-      </div>
+            {visibleValues.map((value, index) => (
+              <span
+                key={index}
+                className="absolute top-[1.1rem] size-7 -translate-x-1/2 rounded-full border-4 border-background-subtle bg-[var(--landing-accent-dark)]"
+                style={{ left: `${value}%` }}
+              >
+                <span className="absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap font-ds-mono text-ds-mono-2xs text-text-primary/60">
+                  {formatValue(mode, value)}
+                </span>
+              </span>
+            ))}
+          </div>
+          <div className="flex justify-between font-ds-mono text-ds-mono-2xs text-text-primary/20">
+            <span>{getBoundLabel(mode, false)}</span>
+            <span>{getBoundLabel(mode, true)}</span>
+          </div>
+        </div>
 
-      <div className="mt-6 rounded-lg bg-zinc-950 p-4 text-sm text-zinc-100 dark:bg-black">
-        <p className="font-mono leading-6">
-          useRanger({'{'} getRangerElement: () =&gt; rangerRef.current,
-          <br />
-          &nbsp;&nbsp;min: 0, max: 1000,
-          <br />
-          &nbsp;&nbsp;stepSize: 10, values: [{values.join(', ')}],
-          <br />
-          &nbsp;&nbsp;onChange: instance =&gt; setValues(instance.sortedValues){' '}
-          {'}'})
-        </p>
+        <div className="mt-5 space-y-3">
+          {visibleValues.map((value, index) => (
+            <label
+              key={index}
+              className="grid grid-cols-[5rem_1fr] items-center gap-3"
+            >
+              <span className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/30">
+                {getHandleLabel(mode, index)}
+              </span>
+              <input
+                aria-label={`${activeMode.label} ${getHandleLabel(mode, index)}`}
+                className="accent-[var(--landing-accent)]"
+                max="100"
+                min="0"
+                onChange={(event) =>
+                  updateValue(index, event.target.valueAsNumber)
+                }
+                type="range"
+                value={value}
+              />
+            </label>
+          ))}
+        </div>
+
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-border-subtle pt-4">
+          <p className="text-ds-body-xs text-text-primary/35">
+            {activeMode.description}
+          </p>
+          <span className="font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
+            {visibleValues.length} handle{visibleValues.length === 1 ? '' : 's'}
+          </span>
+        </div>
       </div>
+    </LandingWindow>
+  )
+}
+
+function ScaleLab() {
+  const [scale, setScale] = React.useState<ScaleName>('logarithmic')
+  const [input, setInput] = React.useState(62)
+  const output = interpolate(scale, input)
+  const paths: Record<ScaleName, string> = {
+    linear: 'M 4 116 L 236 8',
+    logarithmic: 'M 4 116 C 70 114 152 92 236 8',
+    stepped: 'M 4 116 H 62 V 91 H 120 V 64 H 178 V 36 H 236 V 8',
+  }
+
+  return (
+    <LandingWindow label="interpolation lab">
+      <div className="p-5 sm:p-6">
+        <div className="flex flex-wrap gap-2">
+          {scaleNames.map((name) => (
+            <button
+              key={name}
+              aria-pressed={scale === name}
+              className="rounded-md border border-border-default px-3 py-1.5 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
+              onClick={() => setScale(name)}
+              type="button"
+            >
+              {name}
+            </button>
+          ))}
+        </div>
+        <div className="mt-5 grid gap-5 sm:grid-cols-[1fr_0.72fr] sm:items-center">
+          <svg
+            aria-label={`${scale} interpolation curve`}
+            className="h-40 w-full overflow-visible rounded-lg bg-background-subtle p-3"
+            role="img"
+            viewBox="0 0 240 124"
+          >
+            <path
+              d="M 4 116 H 236 M 4 116 V 8"
+              fill="none"
+              className="stroke-text-primary/10"
+              strokeWidth="1"
+            />
+            <path
+              d={paths[scale]}
+              fill="none"
+              stroke="var(--landing-accent-bright)"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="4"
+            />
+          </svg>
+          <div>
+            <LandingEyebrow
+              icon={<SlidersHorizontal aria-hidden="true" size={14} />}
+            >
+              position → value
+            </LandingEyebrow>
+            <p className="mt-4 font-ds-mono text-ds-mono-display text-text-primary">
+              {output.toFixed(1)}
+            </p>
+            <p className="mt-1 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+              output at {input}%
+            </p>
+            <input
+              aria-label="Interpolation input position"
+              className="mt-5 w-full accent-[var(--landing-accent)]"
+              max="100"
+              min="0"
+              onChange={(event) => setInput(event.target.valueAsNumber)}
+              type="range"
+              value={input}
+            />
+          </div>
+        </div>
+      </div>
+    </LandingWindow>
+  )
+}
+
+function Segment({
+  label,
+  left,
+  right,
+  tone,
+}: {
+  label: string
+  left: number
+  right: number
+  tone: 'accent' | 'muted' | 'soft'
+}) {
+  const toneClassName = {
+    accent: 'bg-[var(--landing-accent)]',
+    muted: 'bg-text-primary/10',
+    soft: 'bg-[color:rgb(var(--landing-glow)/0.34)]',
+  }[tone]
+  return (
+    <span
+      className={`absolute top-8 h-2 ${toneClassName}`}
+      style={{ left: `${left}%`, width: `${right - left}%` }}
+    >
+      <span className="absolute top-5 left-1/2 -translate-x-1/2 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+        {label}
+      </span>
+    </span>
+  )
+}
+
+function ContractColumn({
+  accent = false,
+  eyebrow,
+  items,
+}: {
+  accent?: boolean
+  eyebrow: string
+  items: readonly string[]
+}) {
+  return (
+    <div className="bg-background-surface p-5 sm:p-6">
+      <p
+        className={`font-ds-mono text-ds-mono-caps-xs uppercase ${accent ? 'text-[var(--landing-accent-bright)]' : 'text-text-primary/35'}`}
+      >
+        {eyebrow}
+      </p>
+      <ul className="mt-6 space-y-3">
+        {items.map((item) => (
+          <li
+            key={item}
+            className="flex items-center gap-3 text-ds-body-sm text-text-primary/65"
+          >
+            <span className="size-1.5 rounded-full bg-[var(--landing-accent)]" />
+            {item}
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }
 
-function StepPanel() {
-  return (
-    <div className="grid gap-3 sm:grid-cols-2">
-      {rangeSteps.map((step, index) => (
-        <div
-          key={step.label}
-          className="rounded-lg border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900"
-        >
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-950 text-sm font-black text-white dark:bg-white dark:text-zinc-950">
-            {index + 1}
-          </span>
-          <h3 className="mt-4 text-lg font-black leading-tight">
-            {step.label}
-          </h3>
-          <p className="mt-2 text-sm leading-6 text-zinc-700 dark:text-zinc-300">
-            {step.body}
-          </p>
-        </div>
-      ))}
-    </div>
-  )
+function getFillStyle(mode: RangerMode, values: readonly number[]) {
+  if (mode === 'gain') return { left: '0%', width: `${values[0]}%` }
+  return {
+    left: `${values[0]}%`,
+    width: `${values[mode === 'price' ? 1 : 2] - values[0]}%`,
+  }
+}
+
+function getHandleLabel(mode: RangerMode, index: number) {
+  if (mode === 'price') return index === 0 ? 'minimum' : 'maximum'
+  if (mode === 'video') return ['in point', 'playhead', 'out point'][index]
+  return 'gain'
+}
+
+function getBoundLabel(mode: RangerMode, maximum: boolean) {
+  if (mode === 'price') return maximum ? '$2,000' : '$0'
+  if (mode === 'video') return maximum ? '02:00' : '00:00'
+  return maximum ? '+12 dB' : '−60 dB'
+}
+
+function formatValue(mode: RangerMode, value: number) {
+  if (mode === 'price') return `$${Math.round(value * 20)}`
+  if (mode === 'video') {
+    const seconds = Math.round(value * 1.2)
+    return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`
+  }
+  return `${Math.round(-60 + value * 0.72)} dB`
+}
+
+function interpolate(scale: ScaleName, input: number) {
+  if (scale === 'linear') return input
+  if (scale === 'logarithmic') return ((10 ** (input / 100) - 1) / 9) * 100
+  return Math.round(input / 25) * 25
 }

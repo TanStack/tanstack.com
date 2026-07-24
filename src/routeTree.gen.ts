@@ -35,7 +35,6 @@ import { Route as EthosRouteImport } from './routes/ethos'
 import { Route as DsRouteImport } from './routes/ds'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as BuilderRouteImport } from './routes/builder'
-import { Route as BrandGuideRouteImport } from './routes/brand-guide'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AdsRouteImport } from './routes/ads'
 import { Route as AccountRouteImport } from './routes/account'
@@ -63,6 +62,7 @@ import { Route as OauthTokenRouteImport } from './routes/oauth/token'
 import { Route as OauthRegisterRouteImport } from './routes/oauth/register'
 import { Route as OauthAuthorizeRouteImport } from './routes/oauth/authorize'
 import { Route as DsTypographyRouteImport } from './routes/ds.typography'
+import { Route as DsStatsRouteImport } from './routes/ds.stats'
 import { Route as DsSpinnerRouteImport } from './routes/ds.spinner'
 import { Route as DsShadowsRouteImport } from './routes/ds.shadows'
 import { Route as DsSemanticRouteImport } from './routes/ds.semantic'
@@ -315,11 +315,6 @@ const BuilderRoute = BuilderRouteImport.update({
   path: '/builder',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BrandGuideRoute = BrandGuideRouteImport.update({
-  id: '/brand-guide',
-  path: '/brand-guide',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const BlogRoute = BlogRouteImport.update({
   id: '/blog',
   path: '/blog',
@@ -452,6 +447,11 @@ const OauthAuthorizeRoute = OauthAuthorizeRouteImport.update({
 const DsTypographyRoute = DsTypographyRouteImport.update({
   id: '/typography',
   path: '/typography',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsStatsRoute = DsStatsRouteImport.update({
+  id: '/stats',
+  path: '/stats',
   getParentRoute: () => DsRoute,
 } as any)
 const DsSpinnerRoute = DsSpinnerRouteImport.update({
@@ -1112,7 +1112,6 @@ export interface FileRoutesByFullPath {
   '/account': typeof AccountRouteWithChildren
   '/ads': typeof AdsRoute
   '/blog': typeof BlogRouteWithChildren
-  '/brand-guide': typeof BrandGuideRoute
   '/builder': typeof BuilderRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/ds': typeof DsRouteWithChildren
@@ -1177,6 +1176,7 @@ export interface FileRoutesByFullPath {
   '/ds/semantic': typeof DsSemanticRoute
   '/ds/shadows': typeof DsShadowsRoute
   '/ds/spinner': typeof DsSpinnerRoute
+  '/ds/stats': typeof DsStatsRoute
   '/ds/typography': typeof DsTypographyRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
@@ -1285,7 +1285,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ads': typeof AdsRoute
-  '/brand-guide': typeof BrandGuideRoute
   '/dashboard': typeof DashboardRoute
   '/ethos': typeof EthosRoute
   '/explore': typeof ExploreRoute
@@ -1345,6 +1344,7 @@ export interface FileRoutesByTo {
   '/ds/semantic': typeof DsSemanticRoute
   '/ds/shadows': typeof DsShadowsRoute
   '/ds/spinner': typeof DsSpinnerRoute
+  '/ds/stats': typeof DsStatsRoute
   '/ds/typography': typeof DsTypographyRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
@@ -1455,7 +1455,6 @@ export interface FileRoutesById {
   '/account': typeof AccountRouteWithChildren
   '/ads': typeof AdsRoute
   '/blog': typeof BlogRouteWithChildren
-  '/brand-guide': typeof BrandGuideRoute
   '/builder': typeof BuilderRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/ds': typeof DsRouteWithChildren
@@ -1520,6 +1519,7 @@ export interface FileRoutesById {
   '/ds/semantic': typeof DsSemanticRoute
   '/ds/shadows': typeof DsShadowsRoute
   '/ds/spinner': typeof DsSpinnerRoute
+  '/ds/stats': typeof DsStatsRoute
   '/ds/typography': typeof DsTypographyRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
@@ -1633,7 +1633,6 @@ export interface FileRouteTypes {
     | '/account'
     | '/ads'
     | '/blog'
-    | '/brand-guide'
     | '/builder'
     | '/dashboard'
     | '/ds'
@@ -1698,6 +1697,7 @@ export interface FileRouteTypes {
     | '/ds/semantic'
     | '/ds/shadows'
     | '/ds/spinner'
+    | '/ds/stats'
     | '/ds/typography'
     | '/oauth/authorize'
     | '/oauth/register'
@@ -1806,7 +1806,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/ads'
-    | '/brand-guide'
     | '/dashboard'
     | '/ethos'
     | '/explore'
@@ -1866,6 +1865,7 @@ export interface FileRouteTypes {
     | '/ds/semantic'
     | '/ds/shadows'
     | '/ds/spinner'
+    | '/ds/stats'
     | '/ds/typography'
     | '/oauth/authorize'
     | '/oauth/register'
@@ -1975,7 +1975,6 @@ export interface FileRouteTypes {
     | '/account'
     | '/ads'
     | '/blog'
-    | '/brand-guide'
     | '/builder'
     | '/dashboard'
     | '/ds'
@@ -2040,6 +2039,7 @@ export interface FileRouteTypes {
     | '/ds/semantic'
     | '/ds/shadows'
     | '/ds/spinner'
+    | '/ds/stats'
     | '/ds/typography'
     | '/oauth/authorize'
     | '/oauth/register'
@@ -2153,7 +2153,6 @@ export interface RootRouteChildren {
   AccountRoute: typeof AccountRouteWithChildren
   AdsRoute: typeof AdsRoute
   BlogRoute: typeof BlogRouteWithChildren
-  BrandGuideRoute: typeof BrandGuideRoute
   BuilderRoute: typeof BuilderRouteWithChildren
   DashboardRoute: typeof DashboardRoute
   DsRoute: typeof DsRouteWithChildren
@@ -2410,13 +2409,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BuilderRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/brand-guide': {
-      id: '/brand-guide'
-      path: '/brand-guide'
-      fullPath: '/brand-guide'
-      preLoaderRoute: typeof BrandGuideRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/blog': {
       id: '/blog'
       path: '/blog'
@@ -2604,6 +2596,13 @@ declare module '@tanstack/react-router' {
       path: '/typography'
       fullPath: '/ds/typography'
       preLoaderRoute: typeof DsTypographyRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/stats': {
+      id: '/ds/stats'
+      path: '/stats'
+      fullPath: '/ds/stats'
+      preLoaderRoute: typeof DsStatsRouteImport
       parentRoute: typeof DsRoute
     }
     '/ds/spinner': {
@@ -3706,6 +3705,7 @@ interface DsRouteChildren {
   DsSemanticRoute: typeof DsSemanticRoute
   DsShadowsRoute: typeof DsShadowsRoute
   DsSpinnerRoute: typeof DsSpinnerRoute
+  DsStatsRoute: typeof DsStatsRoute
   DsTypographyRoute: typeof DsTypographyRoute
   DsIndexRoute: typeof DsIndexRoute
 }
@@ -3730,6 +3730,7 @@ const DsRouteChildren: DsRouteChildren = {
   DsSemanticRoute: DsSemanticRoute,
   DsShadowsRoute: DsShadowsRoute,
   DsSpinnerRoute: DsSpinnerRoute,
+  DsStatsRoute: DsStatsRoute,
   DsTypographyRoute: DsTypographyRoute,
   DsIndexRoute: DsIndexRoute,
 }
@@ -3803,7 +3804,6 @@ const rootRouteChildren: RootRouteChildren = {
   AccountRoute: AccountRouteWithChildren,
   AdsRoute: AdsRoute,
   BlogRoute: BlogRouteWithChildren,
-  BrandGuideRoute: BrandGuideRoute,
   BuilderRoute: BuilderRouteWithChildren,
   DashboardRoute: DashboardRoute,
   DsRoute: DsRouteWithChildren,

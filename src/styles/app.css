@@ -182,6 +182,15 @@ html.theme-switching *::after {
   --color-lib-cli: #490abd;
   --color-lib-intent: #5cafdf;
 
+  /* --- Library category colors (mode-aware: DS palette 400 light / 300 dark).
+     Drive `text-category-*` / `bg-category-*` for the mega-menu labels and the
+     per-category icon hover. Dark values are overridden in html.dark below. --- */
+  --color-category-framework: var(--color-ds-green-400);
+  --color-category-data: var(--color-ds-terracotta-400);
+  --color-category-ui: var(--color-ds-blue-400);
+  --color-category-performance: var(--color-ds-purple-400);
+  --color-category-tooling: var(--color-ds-amber-400);
+
   /* --- Semantic tokens (reference primitives so edits propagate) --- */
   /* NOTE: Figma reported text/primary as #ffffff (a dark-mode/mode artifact);
      using neutral-500 for the light context. Confirm intended value. */
@@ -365,6 +374,13 @@ html.dark {
   --color-border-error: #d37556;
   --color-border-success: #70b57a;
 
+  /* Category colors step up to the 300s in dark for legibility on #111. */
+  --color-category-framework: var(--color-ds-green-300);
+  --color-category-data: var(--color-ds-terracotta-300);
+  --color-category-ui: var(--color-ds-blue-300);
+  --color-category-performance: var(--color-ds-purple-300);
+  --color-category-tooling: var(--color-ds-amber-300);
+
   --color-icon-default: #aba594;
   --color-icon-accent: #69a8b7;
   --color-icon-muted: #736b5d;
@@ -504,6 +520,28 @@ button {
   display: inline-flex;
   align-self: stretch;
   align-items: center;
+  position: relative;
+}
+
+/* Invisible hover bridge. The open dropdown sits a few px below the trigger,
+   leaving a dead zone that drops `:hover` (and the dropdown's pointer-events)
+   when the cursor travels from the nav item down into the menu — dismissing it
+   too early. This spans the gap so the hover is continuous. It's only as wide
+   as the trigger (never overlays sibling triggers) and is pointer-active only
+   while the menu is open, so it never blocks clicks below the navbar. */
+.ts-mega-trigger-wrap::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  height: 0.75rem;
+  pointer-events: none;
+}
+
+.ts-mega-trigger-wrap:not([data-menu-dismissed='true']):hover::after,
+.ts-mega-trigger-wrap:not([data-menu-dismissed='true']):focus-within::after {
+  pointer-events: auto;
 }
 
 .ts-mega-trigger::after {

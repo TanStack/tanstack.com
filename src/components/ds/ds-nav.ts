@@ -50,6 +50,7 @@ export const dsNav: Array<DsNavSection> = [
       { label: 'Collapsible', to: '/ds/collapsible' },
       { label: 'Breadcrumbs', to: '/ds/breadcrumbs' },
       { label: 'Cards & Surfaces', to: '/ds/cards' },
+      { label: 'Stats Section', to: '/ds/stats' },
       { label: 'Navbar', to: '/ds/navbar' },
     ],
   },

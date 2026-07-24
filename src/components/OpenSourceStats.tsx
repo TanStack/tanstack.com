@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { Link } from '@tanstack/react-router'
-import * as React from 'react'
+import { Download, Star, TrendUp } from '@phosphor-icons/react'
 import { type Library } from '~/libraries'
 import {
   homepageNpmStatsSummaryQuery,
@@ -8,39 +7,15 @@ import {
   recentDownloadsQuery,
 } from '~/queries/stats'
 import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
-import {
-  Download,
-  Star,
-  TrendUp as TrendingUp,
-} from '@phosphor-icons/react'
-import {
-  tanStackTotalNpmStatsLibrary,
-  tanStackTotalNpmStatsSearch,
-} from '~/utils/tanstack-npm-stats'
+import { StatsSection, type StatItem } from '~/components/ds/ui'
+import { tanStackTotalNpmStatsLibrary } from '~/utils/tanstack-npm-stats'
 
-function formatBillions(value: number) {
-  return `${(value / 1_000_000_000).toFixed(2)} Billion`
-}
-
-function WeeklyDownloadCounter({
-  ratePerDay,
-  weeklyDownloads,
-}: {
-  ratePerDay?: number
-  weeklyDownloads: number
-}) {
-  const startedAtRef = React.useRef(Date.now())
-  const ref = useNpmDownloadCounter({
-    totalDownloads: weeklyDownloads,
-    ratePerDay,
-    updatedAt: startedAtRef.current,
-  })
-
-  return (
-    <span ref={ref} style={{ fontVariantNumeric: 'tabular-nums' }}>
-      {weeklyDownloads.toLocaleString()}
-    </span>
-  )
+/** Compact count with a single-letter magnitude, e.g. 2_340_000_000 → "2.3B". */
+function formatCompact(value: number) {
+  if (value >= 1_000_000_000) return `${(value / 1_000_000_000).toFixed(1)}B`
+  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`
+  if (value >= 1_000) return `${Math.round(value / 1_000)}K`
+  return value.toLocaleString()
 }
 
 function isValidMetric(value: number | undefined | null): boolean {
@@ -50,66 +25,6 @@ function isValidMetric(value: number | undefined | null): boolean {
     !Number.isNaN(value) &&
     value > 0 &&
     Number.isFinite(value)
-  )
-}
-
-function StatValue({
-  placeholder,
-  children,
-}: {
-  placeholder: string
-  children: React.ReactNode
-}) {
-  return (
-    <span className="inline-grid [&>*]:col-start-1 [&>*]:row-start-1">
-      <span className="invisible" aria-hidden>
-        {placeholder}
-      </span>
-      <span>{children}</span>
-    </span>
-  )
-}
-
-type BaseHomeStatLinkProps = {
-  children: React.ReactNode
-  className: string
-  gradientClassName: string
-}
-
-type HomeStatLinkProps =
-  | (BaseHomeStatLinkProps & {
-      href: string
-      search?: never
-      to?: never
-    })
-  | (BaseHomeStatLinkProps & {
-      href?: never
-      search: typeof tanStackTotalNpmStatsSearch
-      to: '/stats/npm'
-    })
-
-function HomeStatLink({
-  children,
-  className,
-  gradientClassName,
-  href,
-  search,
-  to,
-}: HomeStatLinkProps) {
-  const mergedClassName = `group min-w-0 rounded-r-md border-l-2 px-4 py-2 text-left transition-opacity ${className} ${gradientClassName}`
-
-  if (to) {
-    return (
-      <Link to={to} search={search} className={mergedClassName}>
-        {children}
-      </Link>
-    )
-  }
-
-  return (
-    <a href={href} target="_blank" rel="noreferrer" className={mergedClassName}>
-      {children}
-    </a>
   )
 }
 
@@ -140,6 +55,12 @@ export default function OssStats({ library }: { library?: Library }) {
     ? undefined
     : homepageNpmSummary?.weeklyRatePerDay
 
+  // Live-ticking weekly counter — writes into the value node after mount.
+  const weeklyRef = useNpmDownloadCounter({
+    totalDownloads: weeklyDownloads,
+    ratePerDay: weeklyRatePerDay ?? 0,
+  })
+
   const hasNpmDownloads =
     !(library ? isLoading : isLoadingHomepageNpmSummary) &&
     isValidMetric(npmDownloads)
@@ -147,8 +68,6 @@ export default function OssStats({ library }: { library?: Library }) {
   const hasWeeklyDownloads =
     !(library ? isLoadingRecentDownloads : isLoadingHomepageNpmSummary) &&
     isValidMetric(weeklyDownloads)
-
-  const hasAnyData = hasNpmDownloads || hasWeeklyDownloads || hasStarCount
 
   const loading = isLoading || !stats
   const npmLoading = library
@@ -158,88 +77,44 @@ export default function OssStats({ library }: { library?: Library }) {
     ? isLoadingRecentDownloads || !recentDownloads
     : isLoadingHomepageNpmSummary || !homepageNpmSummary
 
-  if (!loading && !npmLoading && !weeklyLoading && !hasAnyData) {
+  const items: Array<StatItem> = []
+
+  if (npmLoading || hasNpmDownloads) {
+    items.push({
+      key: 'total',
+      icon: <TrendUp weight="regular" />,
+      value: hasNpmDownloads ? formatCompact(npmDownloads) : '',
+      placeholder: '00.0B',
+      label: 'Total Downloads',
+    })
+  }
+
+  if (weeklyLoading || hasWeeklyDownloads) {
+    items.push({
+      key: 'weekly',
+      icon: <Download weight="regular" />,
+      value: hasWeeklyDownloads ? weeklyDownloads.toLocaleString() : '',
+      placeholder: '00,000,000',
+      label: 'Weekly Downloads',
+      // Only hand the ticking counter a node once there's a real base value —
+      // otherwise it would write "0" over the empty placeholder while loading.
+      valueRef: hasWeeklyDownloads ? weeklyRef : undefined,
+    })
+  }
+
+  if (loading || hasStarCount) {
+    items.push({
+      key: 'stars',
+      icon: <Star weight="regular" />,
+      value: hasStarCount ? starCount.toLocaleString() : '',
+      placeholder: '000,000',
+      label: 'GitHub Stars',
+    })
+  }
+
+  if (!loading && !npmLoading && !weeklyLoading && items.length === 0) {
     return null
   }
 
-  return (
-    <div className="mx-auto grid w-full max-w-3xl grid-cols-1 gap-4 sm:grid-cols-3">
-      {npmLoading || hasNpmDownloads ? (
-        <HomeStatLink
-          to="/stats/npm"
-          search={tanStackTotalNpmStatsSearch}
-          className="border-emerald-500 hover:text-emerald-500"
-          gradientClassName="bg-linear-to-r from-transparent to-emerald-500/5"
-        >
-          <div className="flex min-w-0 items-start gap-3">
-            <Download className="mt-1 size-5 shrink-0 transition-colors duration-200" />
-            <div className="min-w-0">
-              <div className="relative text-2xl font-black leading-none tracking-tight transition-colors duration-200">
-                <StatValue placeholder="00.00 Billion">
-                  {hasNpmDownloads ? formatBillions(npmDownloads) : null}
-                </StatValue>
-              </div>
-              <div className="mt-1 text-sm font-semibold italic text-zinc-500 transition-colors duration-200 dark:text-zinc-400">
-                NPM Downloads
-              </div>
-            </div>
-          </div>
-        </HomeStatLink>
-      ) : null}
-
-      {weeklyLoading || hasWeeklyDownloads ? (
-        <HomeStatLink
-          to="/stats/npm"
-          search={tanStackTotalNpmStatsSearch}
-          className="border-cyan-500 hover:text-cyan-500"
-          gradientClassName="bg-linear-to-r from-transparent to-cyan-500/5"
-        >
-          <div className="flex min-w-0 items-start gap-3">
-            <TrendingUp className="mt-1 size-5 shrink-0 transition-colors duration-200" />
-            <div className="min-w-0">
-              <div className="relative text-2xl font-black leading-none tracking-tight transition-colors duration-200">
-                <StatValue placeholder="00,000,000">
-                  {hasWeeklyDownloads ? (
-                    <WeeklyDownloadCounter
-                      ratePerDay={weeklyRatePerDay}
-                      weeklyDownloads={weeklyDownloads}
-                    />
-                  ) : null}
-                </StatValue>
-              </div>
-              <div className="mt-1 text-sm font-semibold italic text-zinc-500 transition-colors duration-200 dark:text-zinc-400">
-                Weekly Downloads
-              </div>
-            </div>
-          </div>
-        </HomeStatLink>
-      ) : null}
-
-      {loading || hasStarCount ? (
-        <HomeStatLink
-          href={
-            library
-              ? `https://github.com/${library.repo}`
-              : 'https://github.com/orgs/TanStack/repositories?q=sort:stars'
-          }
-          className="border-yellow-500 hover:text-yellow-500"
-          gradientClassName="bg-linear-to-r from-transparent to-yellow-500/5"
-        >
-          <div className="flex min-w-0 items-start gap-3">
-            <Star className="mt-1 size-5 shrink-0 transition-colors duration-200" />
-            <div className="min-w-0">
-              <div className="relative text-2xl font-black leading-none tracking-tight transition-colors duration-200">
-                <StatValue placeholder="000,000">
-                  {hasStarCount ? starCount.toLocaleString() : null}
-                </StatValue>
-              </div>
-              <div className="mt-1 text-sm font-semibold italic text-zinc-500 transition-colors duration-200 dark:text-zinc-400">
-                GitHub Stars
-              </div>
-            </div>
-          </div>
-        </HomeStatLink>
-      ) : null}
-    </div>
-  )
+  return <StatsSection page="home" layout="landscape" stats={items} />
 }

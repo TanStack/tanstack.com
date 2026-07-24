@@ -6,7 +6,7 @@ import { ArrowSquareOut } from '@phosphor-icons/react'
 type IconComponent = React.ComponentType<{ className?: string }>
 
 export interface MegaMenuItemProps {
-  /** Leading icon, shown in a bordered rounded square. */
+  /** Leading icon — a plain glyph, top-aligned with the title (no border/box). */
   icon?: IconComponent
   title: React.ReactNode
   description?: React.ReactNode
@@ -28,10 +28,11 @@ function isExternal(to: string) {
 
 /**
  * A single mega-menu row — icon + title + description with rest / hover /
- * pressed states. Modeled on the Figma "Mega Menu Item" component: bordered
- * icon square, Bricolage-bold title (heading-5), muted body-xs description, and
- * a mode-adaptive overlay on hover/press. Used by the site Navbar and shown in
- * the design system at /ds/navbar.
+ * pressed states. Modeled on the Figma "Mega Menu Item" component: a plain
+ * leading icon top-aligned with the title (no bordered square), Bricolage-bold
+ * title (heading-5), muted body-xs description, and a mode-adaptive overlay on
+ * hover/press. Used by the site Navbar and shown in the design system at
+ * /ds/navbar.
  */
 export function MegaMenuItem({
   icon: Icon,
@@ -50,7 +51,8 @@ export function MegaMenuItem({
 
   const rootClassName = twMerge(
     // Figma "Mega Menu Item": gap 10px, pl 8 / pr 16 / py 8, radius 12px.
-    'group/mmi flex items-center gap-2.5 rounded-xl py-2 pl-2 pr-4 text-left transition-colors',
+    // items-start so the icon's top aligns with the title's top.
+    'group/mmi flex items-start gap-2.5 rounded-xl py-2 pl-2 pr-4 text-left transition-colors',
     // States differ only by row background: hover white/4%, pressed white/12%
     // (mode-adaptive via text-primary so it also works on light menu panels).
     'hover:bg-text-primary/[0.04] focus:bg-text-primary/[0.04] focus:outline-none active:bg-text-primary/[0.12]',
@@ -63,9 +65,7 @@ export function MegaMenuItem({
   const content = (
     <>
       {Icon ? (
-        <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-border-default text-text-secondary">
-          <Icon className="h-7 w-7" />
-        </span>
+        <Icon className="h-7 w-7 shrink-0 text-text-secondary" />
       ) : null}
       <span className="flex min-w-0 flex-1 flex-col gap-1.5">
         <span className="flex items-center gap-2">

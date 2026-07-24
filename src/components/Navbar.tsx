@@ -365,6 +365,18 @@ type LibraryMenuEntry = {
   name: string
   to: string
   icon: IconComponent
+  /** `group-hover/lib:text-category-*` — recolors the icon to its category. */
+  iconHoverColor: string
+}
+
+// Full static class strings (Tailwind can't see composed names) mapping each
+// category to the hover color applied to a library's icon in the mega-menu.
+const categoryIconHoverColor: Record<LibraryCategory, string> = {
+  framework: 'group-hover/lib:text-category-framework',
+  data: 'group-hover/lib:text-category-data',
+  ui: 'group-hover/lib:text-category-ui',
+  performance: 'group-hover/lib:text-category-performance',
+  tooling: 'group-hover/lib:text-category-tooling',
 }
 
 type LibraryMenuColumn = {
@@ -398,6 +410,7 @@ function getLibraryCategoryColumns(): LibraryMenuColumn[] {
       name: getLibraryDisplayName(library),
       to: library.to,
       icon: libraryIcons[library.id] ?? fallbackLibraryIcon,
+      iconHoverColor: categoryIconHoverColor[category],
     })
   }
 
@@ -1108,7 +1121,11 @@ function LibraryMenuRow({
   )
   const content = (
     <>
-      <Icon className="size-5 shrink-0" />
+      {/* Plain template string: the category hover color is a `text-*` utility
+          and twMerge would drop it against a base color. */}
+      <Icon
+        className={`size-5 shrink-0 transition-colors ${library.iconHoverColor}`}
+      />
       <span className="whitespace-nowrap font-ds-display text-[16px] tracking-[0.32px]">
         {library.name}
       </span>

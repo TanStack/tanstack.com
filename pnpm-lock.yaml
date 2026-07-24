@@ -103,8 +103,8 @@ importers:
         specifier: ^0.0.3
         version: 0.0.3
       '@tanstack/markdown':
-        specifier: ^0.0.9
-        version: 0.0.9(react@19.2.3)
+        specifier: ^0.0.11
+        version: 0.0.11(react@19.2.3)
       '@tanstack/pacer':
         specifier: ^0.21.1
         version: 0.21.1
@@ -3334,8 +3334,8 @@ packages:
     resolution: {integrity: sha512-vqH7X9nb0MTJ/O08++dB5bP9jgj4+BIPOUu/U+6myG86lDsirZSVSobpq5UQpE7nBuk62i8eIYeOhd+OMl/UrA==}
     engines: {node: '>=18'}
 
-  '@tanstack/markdown@0.0.9':
-    resolution: {integrity: sha512-vUqLs9YmmU3W/EHssxvCg2OQmeEkpvBfY2adpgQ0I5lfRdoEVRn+3+ZuLuMEgsypVECwotHndYpk+qIqtcfi1w==}
+  '@tanstack/markdown@0.0.11':
+    resolution: {integrity: sha512-Awu1PXI8VQ3limqRFe2GRFVnYAKzhEE9h/D5g6iTQYSpZVDn1kZ/1W40EFP3HWy8hVuop0fAlIhB+aEhrerpGw==}
     peerDependencies:
       octane: '>=0.1.12'
       react: '>=18'
@@ -9648,7 +9648,7 @@ snapshots:
     dependencies:
       '@tanstack/store': 0.11.0
 
-  '@tanstack/markdown@0.0.9(react@19.2.3)':
+  '@tanstack/markdown@0.0.11(react@19.2.3)':
     optionalDependencies:
       react: 19.2.3
 

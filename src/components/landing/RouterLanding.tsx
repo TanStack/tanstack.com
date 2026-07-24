@@ -1,659 +1,443 @@
 import * as React from 'react'
-import { Link, useParams } from '@tanstack/react-router'
 import {
   ArrowRight,
-  BookOpen,
-  Stack,
-  Database,
-  Link as LinkIcon,
-  TreeStructure,
+  BracketsCurly,
+  CheckCircle,
   CursorClick,
-  Path,
+  Link as LinkIcon,
   MagnifyingGlass,
-  Sparkle,
+  Path,
+  TreeStructure,
 } from '@phosphor-icons/react'
 
-import { BottomCTA } from '~/components/BottomCTA'
-import { ApplicationStarter } from '~/components/ApplicationStarter'
-import { Footer } from '~/components/Footer'
-import { GithubIcon } from '~/components/icons/GithubIcon'
-import { LandingCommunitySection } from '~/components/LandingCommunitySection'
-import { SponsorSection } from '~/components/SponsorSection'
-import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
-import { LibraryWordmark } from '~/components/LibraryWordmark'
-import { getLibrary } from '~/libraries'
 import {
-  getApplicationStarterSuggestions,
-  resolveApplicationStarterDeterministically,
-} from '~/utils/application-starter'
+  LandingSection,
+  LandingSectionIntro,
+  LandingWindow,
+  LibraryLandingShell,
+} from './LibraryLanding'
 
-import { LandingEcosystemProof } from '~/components/landing/LandingEcosystemProof'
-import { LandingCopyPromptButton } from '~/components/landing/LandingCopyPromptButton'
-const library = getLibrary('router')
-const routerBlankStarterInput = getRouterBlankStarterInput()
+const routerPrompt = [
+  'Build a TanStack Router application with a generated route tree, typed params and search schemas, route loaders, intent preloading, pending and error boundaries, and automatic code splitting.',
+  'Keep shareable UI state in the URL and make every link and navigation call type-safe.',
+].join(' ')
 
-let cachedRouterAgentPrompt: string | null = null
+const routeSpecs = [
+  {
+    file: 'routes/_app.invoices.$invoiceId.tsx',
+    path: '/invoices/$invoiceId',
+    param: 'invoiceId',
+    search: 'tab: "activity" | "details"',
+    loader: 'invoiceQuery(params.invoiceId)',
+  },
+  {
+    file: 'routes/_app.projects.$projectId.tsx',
+    path: '/projects/$projectId',
+    param: 'projectId',
+    search: 'view: "board" | "list"',
+    loader: 'projectQuery(params.projectId)',
+  },
+  {
+    file: 'routes/_app.users.$userId.tsx',
+    path: '/users/$userId',
+    param: 'userId',
+    search: 'panel?: "profile" | "access"',
+    loader: 'userQuery(params.userId)',
+  },
+] as const
 
-const routeFiles = [
-  {
-    file: 'routes/__root.tsx',
-    label: 'app shell',
-    detail: 'providers, error boundary, layout',
-  },
-  {
-    file: 'routes/_app.tsx',
-    label: 'layout route',
-    detail: 'authenticated product frame',
-  },
-  {
-    file: 'routes/_app.invoices.$id.tsx',
-    label: 'typed params',
-    detail: 'id, loader data, links',
-  },
-  {
-    file: 'routes/_app.search.tsx',
-    label: 'URL state',
-    detail: 'validated filters and pagination',
-  },
-]
+const searchPresets = [
+  { label: 'Popular', page: 2, q: 'router', sort: 'stars' },
+  { label: 'Recent', page: 1, q: 'loader', sort: 'recent' },
+  { label: 'Guides', page: 3, q: 'search params', sort: 'stars' },
+] as const
 
-const heroProof = [
+const contractNodes = [
   {
-    label: 'Typed route map',
-    value: 'paths, params, links, navigate',
+    icon: LinkIcon,
+    label: 'Link',
+    code: 'to + params + search',
+    detail: 'Navigation autocompletes against the route tree.',
   },
   {
-    label: 'URL state APIs',
-    value: 'search schemas, parse, serialize',
+    icon: Path,
+    label: 'Match',
+    code: 'beforeLoad({ params })',
+    detail: 'Path, search, and inherited context narrow together.',
   },
   {
-    label: 'Data before render',
-    value: 'loaders, cache, prefetch, pending UI',
-  },
-]
-
-const routeContractCards = [
-  {
-    eyebrow: 'links',
-    title: 'Navigation knows the route tree.',
-    body: 'Link, redirect, and navigate calls autocomplete against generated paths, params, and search contracts instead of stringly-typed guesses.',
-    icon: <LinkIcon size={18} />,
+    icon: BracketsCurly,
+    label: 'Load',
+    code: 'loader({ deps })',
+    detail: 'Typed dependencies start before the component renders.',
   },
   {
-    eyebrow: 'search',
-    title: 'Search params behave like state.',
-    body: 'Parse, validate, inherit, update, and share URL state with the same confidence you expect from a state manager.',
-    icon: <MagnifyingGlass size={18} />,
+    icon: CheckCircle,
+    label: 'Render',
+    code: 'Route.useLoaderData()',
+    detail: 'The component receives the exact loader result.',
   },
-  {
-    eyebrow: 'loaders',
-    title: 'Data work starts at the route.',
-    body: 'Route loaders run in parallel, preload on intent, cache results, and hand typed data to the component before render.',
-    icon: <Database size={18} />,
-  },
-  {
-    eyebrow: 'boundaries',
-    title: 'Every route owns its lifecycle.',
-    body: 'Pending UI, errors, not-found states, code splitting, and context can live where the product route actually changes.',
-    icon: <Stack size={18} />,
-  },
-]
-
-type RouterSearchPreset = {
-  label: string
-  page: number
-  q: string
-  sort: 'stars' | 'recent'
-  tags: Array<string>
-}
-
-const searchExamples: Array<RouterSearchPreset> = [
-  {
-    label: 'Popular docs',
-    page: 2,
-    q: 'router',
-    sort: 'stars',
-    tags: ['react', 'solid'],
-  },
-  {
-    label: 'Recent guides',
-    page: 1,
-    q: 'loader',
-    sort: 'recent',
-    tags: ['data'],
-  },
-  {
-    label: 'Vue examples',
-    page: 3,
-    q: 'search',
-    sort: 'stars',
-    tags: ['vue', 'url-state'],
-  },
-]
-
-const loaderSteps = [
-  {
-    label: 'match',
-    body: 'The next route is known before the component renders.',
-  },
-  {
-    label: 'preload',
-    body: 'Hover, viewport, or intent can start route data early.',
-  },
-  {
-    label: 'cache',
-    body: 'Loaders reuse fresh results and avoid waterfalls by default.',
-  },
-  {
-    label: 'render',
-    body: 'Components receive typed loader data and pending state.',
-  },
-]
+] as const
 
 export default function RouterLanding() {
-  const { version } = useParams({ strict: false })
-  const resolvedVersion = version ?? library.latestVersion
-
   return (
-    <div className="w-full min-w-0 overflow-x-hidden bg-[#f7fbf7] text-zinc-950 dark:bg-zinc-950 dark:text-white">
-      <section className="max-w-full overflow-hidden border-b border-emerald-950/10 bg-[#f3fbf5] dark:border-emerald-300/10 dark:bg-[#04100b]">
-        <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-10 lg:max-w-[80rem] lg:grid-cols-[0.88fr_1.12fr] lg:items-start lg:py-12 xl:max-w-[92rem]">
-          <div className="min-w-0 max-w-full sm:max-w-3xl">
-            <SectionKicker icon={<Path size={14} />}>
-              Type-safe router
-            </SectionKicker>
-
-            <h1 className="mt-4 text-5xl font-black leading-[0.95] sm:text-6xl lg:text-7xl">
-              <LibraryWordmark library={library} />
-            </h1>
-
-            <p className="mt-5 max-w-2xl text-lg font-bold leading-8 text-zinc-900 dark:text-zinc-100 sm:text-xl">
-              The route tree is the application contract.
-            </p>
-
-            <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-700 dark:text-zinc-300 sm:text-lg">
-              Router turns your routes into typed APIs for navigation, URL
-              state, loaders, pending states, and code splitting. Keep the app
-              client-first, then bring Start in when the same route tree needs a
-              server.
-            </p>
-
-            <LibraryDownloadsMicro
-              animateIncreaseTrend
-              library={library}
-              className="mt-5"
-              label="weekly downloads"
-              period="weekly"
-              showTotals
-            />
-
-            <p className="mt-4 max-w-xl border-l-2 border-emerald-500 pl-3 text-sm font-black text-emerald-800 dark:text-emerald-200">
-              The fastest-growing router in the JavaScript ecosystem.
-            </p>
-
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <RouterLink
-                to="/$libraryId/$version/docs"
-                params={{ libraryId: library.id, version: resolvedVersion }}
-                label="Read the docs"
-                icon={<BookOpen size={16} aria-hidden="true" />}
-              />
-              <LandingCopyPromptButton
-                getPrompt={getRouterAgentPrompt}
-                label="Copy Router Prompt"
-              />
-            </div>
-
-            <div className="mt-8 grid gap-3 sm:grid-cols-3">
-              {heroProof.map((proof) => (
-                <ProofPill key={proof.label} {...proof} />
-              ))}
-            </div>
-            <LandingEcosystemProof />
-          </div>
-
-          <RouteMapPanel />
-        </div>
-      </section>
-
-      <section className="border-b border-emerald-950/10 bg-[#ecf9ef] dark:border-emerald-300/10 dark:bg-[#06150d]">
-        <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.72fr_1.28fr] lg:items-start xl:max-w-[92rem]">
-          <div className="max-w-xl">
-            <SectionKicker icon={<Sparkle size={14} />}>
-              Application builder
-            </SectionKicker>
-            <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
-              Start with a Router app, then add only what the product asks for.
-            </h2>
-            <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300">
-              Describe the app shape and the builder will bias toward Router:
-              typed routes, search state, loaders, and a clean client-side
-              foundation. When the brief needs full-stack work, it can point you
-              toward Start instead of pretending every app is the same.
-            </p>
-          </div>
-
-          <div className="min-w-0 max-w-full overflow-hidden">
-            <ApplicationStarter
-              context="router"
-              forceRouterOnly
-              mode="compact"
-              primaryActionLabel="Copy Router Prompt"
-              secondaryActionLabel="Build Router app on Netlify"
-              title="Describe the app you want to route"
-              tone="emerald"
-            />
-          </div>
-        </div>
-      </section>
-
-      <section className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-        <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.7fr_1.3fr] xl:max-w-[92rem]">
-          <div>
-            <SectionKicker icon={<TreeStructure size={14} />}>
-              Route contract
-            </SectionKicker>
-            <h2 className="mt-3 max-w-xl text-3xl font-black leading-tight sm:text-4xl">
-              The file, the URL, and the component agree.
-            </h2>
-            <p className="mt-4 max-w-xl text-base leading-7 text-zinc-700 dark:text-zinc-300">
-              Router is not just a path matcher. It is a generated contract that
-              ties route params, search schemas, loader data, context, links,
-              and navigation to the same route tree.
-            </p>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            {routeContractCards.map((card) => (
-              <ContractCard key={card.title} {...card} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="border-b border-zinc-200 bg-[#fbfaf6] dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[1.1fr_0.9fr] lg:items-center xl:max-w-[92rem]">
-          <SearchStatePanel />
-          <div>
-            <SectionKicker icon={<MagnifyingGlass size={14} />}>
-              URL state
-            </SectionKicker>
-            <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
-              Search params without the URLSearchParams ceremony.
-            </h2>
-            <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300">
-              Filters, tabs, pagination, sort order, and shareable UI state can
-              live in the URL without becoming string parsing chores. Router
-              gives search params schemas, validation, inheritance, structural
-              sharing, and type-safe writes.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-        <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.76fr_1.24fr] lg:items-start xl:max-w-[92rem]">
-          <div>
-            <SectionKicker icon={<CursorClick size={14} />}>
-              Loaders and preload
-            </SectionKicker>
-            <h2 className="mt-3 max-w-xl text-3xl font-black leading-tight sm:text-4xl">
-              Navigation can start before the click lands.
-            </h2>
-            <p className="mt-4 max-w-xl text-base leading-7 text-zinc-700 dark:text-zinc-300">
-              Route loaders hoist async work out of components, run in parallel,
-              cache results, and preload when the user shows intent. The route
-              owns the data boundary, so pending and error UI stay close to the
-              product surface.
-            </p>
-          </div>
-
-          <LoaderPipeline />
-        </div>
-      </section>
-
-      <section className="bg-white py-12 dark:bg-zinc-950">
-        <div className="mx-auto w-full max-w-[80rem] px-4 xl:max-w-[92rem]">
-          <div className="max-w-3xl">
-            <SectionKicker icon={<GithubIcon className="h-4 w-4" />}>
-              Open source ecosystem
-            </SectionKicker>
-            <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
-              Router is the foundation many TanStack apps build on.
-            </h2>
-            <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300">
-              Router is built in public by the same community shaping Start,
-              Query, and the rest of the stack. Maintainers, examples, partners,
-              and sponsors stay part of the product story.
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-10 flex flex-col gap-14">
-          <LandingCommunitySection libraryId="router" />
-          <SponsorSection
-            title="GitHub Sponsors"
-            aspectRatio="1/1"
-            packMaxWidth="900px"
-            showCTA
+    <LibraryLandingShell
+      libraryId="router"
+      headline="The route tree is the application contract."
+      description="Define routes once, then let TypeScript carry paths, params, search state, loaders, links, and boundaries through every navigation."
+      hero={<RouteContractHero />}
+      prompt={routerPrompt}
+      promptLabel="Copy Router prompt"
+    >
+      <LandingSection tone="ink">
+        <div className="grid items-center gap-12 lg:grid-cols-[1.08fr_0.92fr] lg:gap-16">
+          <SearchStateLab />
+          <LandingSectionIntro
+            eyebrow="URL state"
+            icon={<MagnifyingGlass aria-hidden="true" size={15} />}
+            title="The URL is a state manager, not a string bucket."
+            body="Search params are parsed, validated, inherited, and typed. Filters, pagination, and tabs survive refreshes, back navigation, bookmarks, and shared links without hand-written serialization."
           />
         </div>
-      </section>
+      </LandingSection>
 
-      <BottomCTA
-        linkProps={{
-          to: '/$libraryId/$version/docs',
-          params: { libraryId: library.id, version: resolvedVersion },
-        }}
-        label="Get Started!"
-        className="border-emerald-500 bg-emerald-500 text-white hover:bg-emerald-600"
-      />
-      <Footer />
-    </div>
+      <LandingSection tone="accent">
+        <div className="grid items-center gap-12 lg:grid-cols-[0.88fr_1.12fr] lg:gap-16">
+          <LandingSectionIntro
+            eyebrow="Preloading"
+            icon={<CursorClick aria-hidden="true" size={15} />}
+            title="Navigation can begin before the click."
+            body="Intent, viewport, and render strategies can preload route code and data. By the time navigation commits, the next screen can already be waiting."
+          />
+          <PreloadTrace />
+        </div>
+      </LandingSection>
+
+      <LandingSection tone="raised">
+        <LandingSectionIntro
+          centered
+          eyebrow="One contract"
+          icon={<TreeStructure aria-hidden="true" size={15} />}
+          title="Types survive the whole trip."
+          body="The destination, matched route, loader dependencies, and rendered data all derive from the same route definition. Refactors fail in the editor instead of after deployment."
+        />
+        <ContractMap />
+      </LandingSection>
+
+      <LandingSection tone="ink">
+        <LandingSectionIntro
+          centered
+          eyebrow="Choose the boundary"
+          title="Use Router for the app. Add Start when the app needs a server."
+          body="Router is the complete client-first application model. Start preserves that route tree and adds full-document rendering, server functions, server routes, middleware, and deployable server output."
+        />
+        <div className="mx-auto mt-12 grid max-w-[62rem] gap-px overflow-hidden rounded-xl border border-border-default bg-text-primary/10 md:grid-cols-2">
+          <div className="bg-background-surface p-7 md:p-9">
+            <p className="font-ds-mono text-ds-mono-caps uppercase text-[var(--landing-accent-bright)]">
+              TanStack Router
+            </p>
+            <h3 className="mt-5 text-ds-heading-3">
+              Client-first application routing
+            </h3>
+            <p className="mt-4 text-ds-body-sm text-text-primary/45">
+              Typed navigation, URL state, route loaders, preloading, caching,
+              code splitting, and route-owned boundaries.
+            </p>
+          </div>
+          <div className="bg-background-surface p-7 md:p-9">
+            <p className="font-ds-mono text-ds-mono-caps uppercase text-cyan-300">
+              TanStack Start
+            </p>
+            <h3 className="mt-5 text-ds-heading-3">
+              The same routes, with a server
+            </h3>
+            <p className="mt-4 text-ds-body-sm text-text-primary/45">
+              Keep Router's app model, then add SSR, streaming, typed server
+              work, middleware, and hosting output.
+            </p>
+          </div>
+        </div>
+      </LandingSection>
+    </LibraryLandingShell>
   )
 }
 
-function RouteMapPanel() {
+function RouteContractHero() {
+  const [activeIndex, setActiveIndex] = React.useState(0)
+  const [usesRefactoredParam, setUsesRefactoredParam] = React.useState(false)
+  const activeRoute = routeSpecs[activeIndex] ?? routeSpecs[0]
+  const param = usesRefactoredParam ? 'recordId' : activeRoute.param
+  const file = activeRoute.file.replace(activeRoute.param, param)
+  const path = activeRoute.path.replace(activeRoute.param, param)
+  const loader = activeRoute.loader.replaceAll(activeRoute.param, param)
+
   return (
-    <div className="min-w-0 w-full max-w-full overflow-hidden rounded-lg border border-emerald-200 bg-white p-4 shadow-sm shadow-emerald-950/5 dark:border-emerald-900 dark:bg-zinc-950">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <span className="h-2.5 w-2.5 rounded-md bg-red-400" />
-          <span className="h-2.5 w-2.5 rounded-md bg-yellow-400" />
-          <span className="h-2.5 w-2.5 rounded-md bg-emerald-400" />
-        </div>
-        <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400">
-          generated route map
-        </span>
-      </div>
-
-      <div className="mt-4 grid gap-3 lg:grid-cols-[1.08fr_0.92fr]">
-        <div className="space-y-2">
-          {routeFiles.map((routeFile, index) => (
-            <div
-              key={routeFile.file}
-              className="grid grid-cols-[auto_1fr] gap-3 rounded-lg border border-zinc-100 bg-zinc-50 p-3 dark:border-zinc-800 dark:bg-zinc-900"
-            >
-              <span className="flex h-8 w-8 items-center justify-center rounded-md bg-emerald-100 font-mono text-sm font-black text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200">
-                {index + 1}
-              </span>
-              <div className="min-w-0">
-                <p className="truncate font-mono text-sm font-black text-zinc-950 dark:text-white">
-                  {routeFile.file}
-                </p>
-                <p className="mt-1 text-xs leading-5 text-zinc-600 dark:text-zinc-400">
-                  <span className="font-bold text-zinc-800 dark:text-zinc-200">
-                    {routeFile.label}
-                  </span>{' '}
-                  {routeFile.detail}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="grid content-between gap-3 rounded-lg bg-emerald-50 p-4 text-emerald-950 dark:bg-emerald-950/35 dark:text-emerald-100">
-          <div>
-            <p className="text-sm font-black">RouteTree.gen.ts</p>
-            <p className="mt-2 text-xs leading-5 text-emerald-950/75 dark:text-emerald-100/75">
-              A generated map keeps the route files, params, search schemas, and
-              loader outputs connected to the APIs you call every day.
-            </p>
+    <LandingWindow label="generated route contract">
+      <div className="grid min-h-[23rem] lg:grid-cols-[0.92fr_1.08fr]">
+        <div className="border-border-subtle p-4 lg:border-r">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <span className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/30">
+              route files
+            </span>
+            <span className="rounded bg-emerald-400 px-2 py-1 font-ds-mono text-ds-mono-caps-xs uppercase text-emerald-950">
+              generated
+            </span>
           </div>
-
-          <div className="grid gap-2 text-xs font-bold">
-            {[
-              '<Link to="/invoices/$id" />',
-              'navigate({ search })',
-              'useLoaderData()',
-              'validateSearch()',
-            ].map((item) => (
-              <div
-                key={item}
-                className="rounded-md bg-white/80 px-3 py-2 font-mono dark:bg-zinc-950/70"
+          <div className="space-y-2">
+            {routeSpecs.map((route, index) => (
+              <button
+                key={route.file}
+                type="button"
+                aria-pressed={index === activeIndex}
+                className="block w-full rounded-lg border border-transparent bg-background-subtle px-3 py-3 text-left transition-colors hover:border-border-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[color:rgb(var(--landing-glow)/0.55)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.12)]"
+                onClick={() => {
+                  setActiveIndex(index)
+                  setUsesRefactoredParam(false)
+                }}
               >
-                {item}
-              </div>
+                <span className="block truncate font-ds-mono text-ds-mono-xs text-text-primary">
+                  {route.file}
+                </span>
+                <span className="mt-1 block text-ds-body-xs text-text-primary/30">
+                  {route.search}
+                </span>
+              </button>
             ))}
           </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function SearchStatePanel() {
-  const [selectedPresetIndex, setSelectedPresetIndex] = React.useState(0)
-  const selectedPreset =
-    searchExamples[selectedPresetIndex] ?? searchExamples[0]
-  const searchParamDisplay = buildSearchParamDisplay(selectedPreset)
-
-  return (
-    <div className="min-w-0 rounded-lg border border-emerald-200 bg-white p-4 dark:border-emerald-900 dark:bg-zinc-950">
-      <div className="flex items-start justify-between gap-4">
-        <p className="min-w-0 break-all font-mono text-sm font-black leading-6 text-zinc-950 dark:text-white">
-          /docs
-          <span className="text-emerald-600 dark:text-emerald-300">
-            {searchParamDisplay.replace('/docs', '')}
-          </span>
-        </p>
-        <span className="rounded-md bg-emerald-100 px-2 py-1 text-xs font-black uppercase text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200">
-          validated
-        </span>
-      </div>
-
-      <div className="mt-4 flex flex-wrap gap-2">
-        {searchExamples.map((preset, index) => (
           <button
-            key={preset.label}
-            aria-pressed={selectedPresetIndex === index}
-            className={
-              selectedPresetIndex === index
-                ? 'rounded-lg border border-emerald-500 bg-emerald-500 px-3 py-2 text-left text-white'
-                : 'rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-left transition-colors hover:border-emerald-300 hover:bg-emerald-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-emerald-800 dark:hover:bg-emerald-950/25'
-            }
             type="button"
-            onClick={() => setSelectedPresetIndex(index)}
+            aria-pressed={usesRefactoredParam}
+            className="mt-4 inline-flex items-center gap-2 rounded-lg border border-[var(--landing-accent)] px-3 py-2 text-ds-label-sm text-[var(--landing-accent-bright)] transition-colors hover:bg-[color:rgb(var(--landing-glow)/0.14)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
+            onClick={() => setUsesRefactoredParam((current) => !current)}
           >
-            <p
-              className={
-                selectedPresetIndex === index
-                  ? 'text-[0.65rem] font-black uppercase text-white/75'
-                  : 'text-[0.65rem] font-black uppercase text-zinc-500 dark:text-zinc-400'
-              }
-            >
-              {preset.label}
-            </p>
-            <p
-              className={
-                selectedPresetIndex === index
-                  ? 'mt-1 font-mono text-sm font-bold text-white'
-                  : 'mt-1 font-mono text-sm font-bold text-zinc-950 dark:text-white'
-              }
-            >
-              q={preset.q}
-            </p>
+            <BracketsCurly aria-hidden="true" size={16} />
+            {usesRefactoredParam ? 'Restore param name' : 'Refactor param name'}
           </button>
-        ))}
-      </div>
+        </div>
 
-      <div className="mt-3 grid gap-2 sm:grid-cols-4">
-        {[
-          ['sort', selectedPreset.sort],
-          ['page', `${selectedPreset.page}`],
-          ['tags', selectedPreset.tags.join(',')],
-          ['matched', `${selectedPreset.tags.length + selectedPreset.page}`],
-        ].map(([key, value]) => (
-          <div
-            key={key}
-            className="rounded-lg bg-emerald-50 px-3 py-2 dark:bg-emerald-950/25"
-          >
-            <p className="text-[0.65rem] font-black uppercase text-emerald-800 dark:text-emerald-300">
-              {key}
+        <div className="min-w-0 p-5" aria-live="polite">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
+              routeTree.gen.ts
             </p>
-            <p className="mt-1 truncate font-mono text-sm font-bold text-emerald-950 dark:text-emerald-100">
-              {value}
+            <span className="inline-flex items-center gap-1.5 text-ds-body-xs text-text-primary/35">
+              <CheckCircle
+                aria-hidden="true"
+                className="text-emerald-400"
+                size={15}
+              />
+              contract updated
+            </span>
+          </div>
+          <div className="mt-4 rounded-lg bg-ds-neutral-500 p-4 font-ds-mono text-ds-mono-xs text-white/70">
+            <p className="break-all text-white/35">{file}</p>
+            <p className="mt-2">
+              <span className="text-[var(--landing-accent-bright)]">path</span>:
+              '{path}'
+            </p>
+            <p>
+              <span className="text-[var(--landing-accent-bright)]">
+                params
+              </span>
+              : {'{'} {param}: string {'}'}
+            </p>
+            <p>
+              <span className="text-[var(--landing-accent-bright)]">
+                search
+              </span>
+              : {'{'} {activeRoute.search} {'}'}
             </p>
           </div>
-        ))}
-      </div>
-
-      <div className="mt-4 rounded-lg bg-zinc-950 p-4 text-sm text-emerald-100 dark:bg-black">
-        <p className="font-mono leading-6">
-          <span className="text-emerald-300">validateSearch</span>: z.object(
-          {'{'}
-          <br />
-          &nbsp;&nbsp;q: z.string().optional(),
-          <br />
-          &nbsp;&nbsp;page: z.number().catch(1),
-          <br />
-          &nbsp;&nbsp;sort: z.enum(['stars', 'recent']),
-          <br />
-          &nbsp;&nbsp;tags: z.array(z.string()).catch([])
-          <br />
-          {'}'})
-        </p>
-      </div>
-    </div>
-  )
-}
-
-function buildSearchParamDisplay(preset: RouterSearchPreset) {
-  const params = new URLSearchParams({
-    page: `${preset.page}`,
-    q: preset.q,
-    sort: preset.sort,
-    tags: preset.tags.join(','),
-  })
-
-  return `/docs?${params.toString()}`
-}
-
-function LoaderPipeline() {
-  return (
-    <div className="grid gap-3 md:grid-cols-4">
-      {loaderSteps.map((step, index) => (
-        <div
-          key={step.label}
-          className="relative rounded-lg border border-zinc-200 bg-[#fbfaf7] p-4 dark:border-zinc-800 dark:bg-zinc-900"
-        >
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 text-sm font-black text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200">
-            {index + 1}
-          </span>
-          <h3 className="mt-4 text-lg font-black capitalize leading-tight">
-            {step.label}
-          </h3>
-          <p className="mt-2 text-sm leading-6 text-zinc-700 dark:text-zinc-300">
-            {step.body}
-          </p>
+          <div className="mt-3 space-y-2">
+            <CodeRow
+              label="link"
+              value={'<Link to="' + path + '" params={{ ' + param + ' }} />'}
+            />
+            <CodeRow label="loader" value={loader} />
+            <CodeRow label="read" value={'Route.useParams().' + param} />
+          </div>
         </div>
-      ))}
-    </div>
-  )
-}
-
-function ContractCard({
-  body,
-  eyebrow,
-  icon,
-  title,
-}: {
-  body: string
-  eyebrow: string
-  icon: React.ReactNode
-  title: string
-}) {
-  return (
-    <div className="rounded-lg border border-zinc-200 bg-[#fbfaf7] p-5 dark:border-zinc-800 dark:bg-zinc-900">
-      <div className="flex items-start justify-between gap-4">
-        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200">
-          {icon}
-        </span>
-        <span className="rounded-md bg-zinc-100 px-2 py-1 text-[0.65rem] font-black uppercase text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
-          {eyebrow}
-        </span>
       </div>
-      <h3 className="mt-4 text-xl font-black leading-tight">{title}</h3>
-      <p className="mt-3 text-sm leading-6 text-zinc-700 dark:text-zinc-300">
-        {body}
-      </p>
-    </div>
+    </LandingWindow>
   )
 }
 
-function SectionKicker({
-  children,
-  icon,
-}: {
-  children: React.ReactNode
-  icon: React.ReactNode
-}) {
+function CodeRow({ label, value }: { label: string; value: string }) {
   return (
-    <p className="inline-flex items-center gap-2 text-sm font-black uppercase text-emerald-700 dark:text-emerald-300">
-      {icon}
-      {children}
-    </p>
-  )
-}
-
-function ProofPill({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="border-l-2 border-emerald-500 pl-3">
-      <p className="text-sm font-black text-zinc-950 dark:text-white">
+    <div className="rounded-lg border border-border-subtle bg-background-subtle px-3 py-2.5">
+      <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
         {label}
       </p>
-      <p className="mt-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">
+      <p className="mt-1 overflow-x-auto font-ds-mono text-ds-mono-2xs text-text-primary/75">
         {value}
       </p>
     </div>
   )
 }
 
-function RouterLink({
-  icon,
-  label,
-  params,
-  to,
-}: {
-  icon: React.ReactNode
-  label: string
-  params: Record<string, string>
-  to: string
-}) {
-  return (
-    <Link
-      to={to}
-      params={params}
-      className="inline-flex w-full max-w-full items-center justify-center gap-2 rounded-lg border border-zinc-950 bg-zinc-950 px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-zinc-800 dark:border-white dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200 sm:w-auto"
-    >
-      {icon}
-      {label}
-      <ArrowRight size={15} aria-hidden="true" />
-    </Link>
-  )
-}
-
-function getRouterBlankStarterInput() {
-  const blankStarter = getApplicationStarterSuggestions('router').find(
-    (suggestion) => suggestion.label === 'Blank starter',
-  )
-
-  return (
-    blankStarter?.input ??
-    'Create a blank TanStack Router app with no extra integrations or feature scaffolding.'
-  )
-}
-
-async function getRouterAgentPrompt() {
-  if (cachedRouterAgentPrompt) {
-    return cachedRouterAgentPrompt
-  }
-
-  const result = await resolveApplicationStarterDeterministically({
-    context: 'router',
-    input: routerBlankStarterInput,
+function SearchStateLab() {
+  const [activeIndex, setActiveIndex] = React.useState(0)
+  const active = searchPresets[activeIndex] ?? searchPresets[0]
+  const params = new URLSearchParams({
+    page: String(active.page),
+    q: active.q,
+    sort: active.sort,
   })
 
-  cachedRouterAgentPrompt = result.prompt
-  return cachedRouterAgentPrompt
+  return (
+    <LandingWindow label="validated search state">
+      <div className="p-5 sm:p-6">
+        <p className="break-all font-ds-mono text-ds-mono-xs text-text-primary/70">
+          /docs?
+          <span className="text-[var(--landing-accent-bright)]">
+            {params.toString()}
+          </span>
+        </p>
+        <div className="mt-5 flex flex-wrap gap-2">
+          {searchPresets.map((preset, index) => (
+            <button
+              key={preset.label}
+              type="button"
+              aria-pressed={index === activeIndex}
+              className="rounded-lg border border-border-default bg-background-subtle px-3 py-2 text-left text-ds-label-sm text-text-primary/45 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
+              onClick={() => setActiveIndex(index)}
+            >
+              {preset.label}
+            </button>
+          ))}
+        </div>
+        <dl
+          className="mt-5 grid gap-px overflow-hidden rounded-lg bg-text-primary/5 sm:grid-cols-3"
+          aria-live="polite"
+        >
+          {[
+            ['q', active.q],
+            ['page', String(active.page)],
+            ['sort', active.sort],
+          ].map(([label, value]) => (
+            <div key={label} className="bg-background-subtle p-4">
+              <dt className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+                {label}
+              </dt>
+              <dd className="mt-2 truncate font-ds-mono text-ds-mono-xs text-text-primary/80">
+                {value}
+              </dd>
+            </div>
+          ))}
+        </dl>
+        <div className="mt-5 rounded-lg border-l-2 border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.1)] p-4 text-ds-body-xs text-text-primary/45">
+          Typed state is now bookmarkable, shareable, and safe to consume in
+          loaders and components.
+        </div>
+      </div>
+    </LandingWindow>
+  )
+}
+
+function PreloadTrace() {
+  const [stage, setStage] = React.useState(0)
+  const stages = [
+    ['match', 'Route and dependencies known'],
+    ['preload', 'Code and loader start'],
+    ['navigate', 'Fresh result promoted'],
+  ] as const
+
+  return (
+    <LandingWindow label="intent trace">
+      <div className="p-5 sm:p-6">
+        <button
+          type="button"
+          className="group flex w-full items-center justify-between gap-4 rounded-xl border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.12)] px-5 py-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
+          onPointerEnter={() => setStage((current) => Math.max(current, 1))}
+          onFocus={() => setStage((current) => Math.max(current, 1))}
+          onClick={() => setStage(2)}
+        >
+          <span>
+            <span className="block text-ds-label-lg text-text-primary">
+              Open project activity
+            </span>
+            <span className="mt-1 block text-ds-body-xs text-text-primary/35">
+              Hover or focus to preload. Click to navigate.
+            </span>
+          </span>
+          <ArrowRight
+            aria-hidden="true"
+            className="shrink-0 text-[var(--landing-accent-bright)] transition-transform group-hover:translate-x-1 motion-reduce:transition-none"
+            size={22}
+          />
+        </button>
+
+        <ol className="mt-7 grid gap-3 sm:grid-cols-3" aria-live="polite">
+          {stages.map(([label, detail], index) => {
+            const isActive = stage >= index
+            return (
+              <li
+                key={label}
+                className={
+                  isActive
+                    ? 'rounded-lg border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.12)] p-4'
+                    : 'rounded-lg border border-border-subtle bg-background-subtle p-4'
+                }
+              >
+                <span className="font-ds-display text-ds-heading-2 text-[var(--landing-accent-bright)]">
+                  {index + 1}
+                </span>
+                <p className="mt-3 text-ds-label-md capitalize text-text-primary">
+                  {label}
+                </p>
+                <p className="mt-2 text-ds-body-xs text-text-primary/35">
+                  {detail}
+                </p>
+              </li>
+            )
+          })}
+        </ol>
+        <button
+          type="button"
+          className="mt-5 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/35 underline decoration-text-primary/20 underline-offset-4 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
+          onClick={() => setStage(0)}
+        >
+          Reset trace
+        </button>
+      </div>
+    </LandingWindow>
+  )
+}
+
+function ContractMap() {
+  return (
+    <div className="relative mx-auto mt-14 max-w-[72rem]">
+      <div
+        aria-hidden="true"
+        className="absolute top-10 right-[12%] left-[12%] hidden h-px bg-[color:rgb(var(--landing-glow)/0.55)] md:block"
+      />
+      <ol className="relative grid gap-4 md:grid-cols-4">
+        {contractNodes.map((node, index) => {
+          const Icon = node.icon
+          return (
+            <li
+              key={node.label}
+              className="rounded-xl border border-border-default bg-background-subtle p-5"
+            >
+              <div className="flex items-center justify-between gap-4">
+                <span className="flex size-10 items-center justify-center rounded-full bg-[var(--landing-accent)] text-[var(--landing-accent-ink)]">
+                  <Icon aria-hidden="true" size={19} />
+                </span>
+                <span className="font-ds-mono text-ds-mono-2xs text-text-primary/20">
+                  0{index + 1}
+                </span>
+              </div>
+              <h3 className="mt-6 text-ds-heading-4">{node.label}</h3>
+              <p className="mt-3 break-words font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
+                {node.code}
+              </p>
+              <p className="mt-4 text-ds-body-xs text-text-primary/35">
+                {node.detail}
+              </p>
+            </li>
+          )
+        })}
+      </ol>
+    </div>
+  )
 }

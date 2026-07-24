@@ -1,601 +1,372 @@
 import * as React from 'react'
-import { Link, useNavigate, useParams } from '@tanstack/react-router'
-import { useQuery } from '@tanstack/react-query'
 import {
-  ArrowRight,
-  BookOpen,
-  Robot,
+  CheckCircle,
+  ClockCounterClockwise,
   FileMagnifyingGlass,
-  GitBranch,
+  LockKey,
   Package,
-  ArrowsClockwise,
+  Robot,
   Scan,
-  Sparkle,
-  MagicWand,
+  ShieldCheck,
 } from '@phosphor-icons/react'
 
-import { BottomCTA } from '~/components/BottomCTA'
-import { Footer } from '~/components/Footer'
-import { GithubIcon } from '~/components/icons/GithubIcon'
-import { SkillSparkline } from '~/components/intent/SkillSparkline'
-import LandingPageGad from '~/components/LandingPageGad'
-import { LandingCommunitySection } from '~/components/LandingCommunitySection'
-import { SponsorSection } from '~/components/SponsorSection'
-import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
-import { LibraryWordmark } from '~/components/LibraryWordmark'
-import { getLibrary } from '~/libraries'
 import {
-  intentDirectoryQueryOptions,
-  intentSkillHistoryQueryOptions,
-  intentStatsQueryOptions,
-} from '~/queries/intent'
-import type { SkillHistoryEntry } from '~/utils/intent.functions'
-import { encodePackageNameSlug } from '~/utils/route-encoding'
+  LandingSection,
+  LandingSectionIntro,
+  LandingWindow,
+  LibraryLandingShell,
+} from './LibraryLanding'
 
-import { LandingCopyPromptButton } from '~/components/landing/LandingCopyPromptButton'
-const library = getLibrary('intent')
-const intentAgentPrompt = [
-  'Ship Agent Skills with a TypeScript npm package using TanStack Intent.',
-  'Generate, validate, and publish versioned skills that agents can discover from node_modules, include source-doc references, and run stale checks in CI when documentation changes.',
-  'Show the package registry, skill history, versioned updates, and how skills travel with npm releases instead of depending on model training cutoffs.',
+const intentPrompt = [
+  'Ship versioned Agent Skills with a TypeScript npm package using TanStack Intent.',
+  'Keep skill files beside their source documentation, validate them in CI, publish them in the package tarball, and use conservative stale checks when referenced docs change.',
+  'For consumers, scan installed dependencies without executing package code, apply an explicit allowlist and exclusions, and load only the guidance needed for the current task. Treat editor hooks as convenience, not a security boundary.',
 ].join(' ')
 
-const heroProof = [
+const skillPackages = [
   {
-    label: 'In npm',
-    value: 'skills version with the package',
+    packageName: '@tanstack/react-router',
+    skill: 'tanstack-router',
+    task: 'Model typed search params and route loaders',
+    source: 'docs/framework/react/guide/search-params.md',
   },
   {
-    label: 'Discoverable',
-    value: 'agents load from node_modules',
+    packageName: '@tanstack/react-query',
+    skill: 'tanstack-query',
+    task: 'Choose query keys and invalidation boundaries',
+    source: 'docs/framework/react/guides/query-keys.md',
   },
   {
-    label: 'Freshness',
-    value: 'source docs and stale checks',
-  },
-]
-
-const packageFiles = [
-  ['package.json', 'keywords and files entries'],
-  ['skills/router/SKILL.md', 'procedural agent knowledge'],
-  ['docs/routing.md', 'source reference'],
-  ['stale report', 'flags source drift'],
-]
-
-const featureCards = [
-  {
-    title: 'Skills travel with library versions.',
-    body: 'Agent guidance updates through npm releases instead of waiting for model training data or copied prompt files to catch up.',
-    icon: <Package size={18} />,
-  },
-  {
-    title: 'Discovery happens from node_modules.',
-    body: 'Install the package and compatible agents can find the skill metadata where the code already lives.',
-    icon: <Robot size={18} />,
-  },
-  {
-    title: 'Source docs keep skills accountable.',
-    body: 'Skills declare the docs they depend on, so stale checks can flag them when the source material changes.',
-    icon: <FileMagnifyingGlass size={18} />,
-  },
-  {
-    title: 'The registry makes the ecosystem visible.',
-    body: 'Packages, skills, versions, download signals, and history become browsable instead of hidden inside package tarballs.',
-    icon: <Scan size={18} />,
-  },
-]
-
-const lifecycleSteps = [
-  {
-    label: 'Author',
-    body: 'Write the procedural skill close to the library and its source docs.',
-  },
-  {
-    label: 'Validate',
-    body: 'Check metadata, source references, and skill structure before release.',
-  },
-  {
-    label: 'Publish',
-    body: 'Ship the skill with the npm package version that contains the code.',
-  },
-  {
-    label: 'Discover',
-    body: 'Agents load versioned skills from installed packages on demand.',
+    packageName: '@tanstack/react-table',
+    skill: 'tanstack-table',
+    task: 'Compose row models for a data grid',
+    source: 'docs/guide/row-models.md',
   },
 ]
 
 export default function IntentLanding() {
-  const { version } = useParams({ strict: false })
-  const resolvedVersion = version ?? library.latestVersion
-
   return (
-    <div className="w-full min-w-0 overflow-x-hidden bg-[#f0f9ff] text-zinc-950 dark:bg-zinc-950 dark:text-white">
-      <section className="max-w-full overflow-hidden border-b border-sky-950/10 bg-[#e0f2fe] dark:border-sky-300/10 dark:bg-[#061522]">
-        <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-10 lg:max-w-[80rem] lg:grid-cols-[0.84fr_1.16fr] lg:items-start lg:py-12 xl:max-w-[92rem]">
-          <div className="min-w-0 max-w-full sm:max-w-3xl">
-            <SectionKicker icon={<MagicWand size={14} />}>
-              Agent skills in npm
-            </SectionKicker>
+    <LibraryLandingShell
+      libraryId="intent"
+      headline="Your dependency can ship the knowledge required to use it."
+      description="TanStack Intent gives maintainers a versioned path from source docs to Agent Skills, then gives consumers a controlled way to discover that guidance from installed packages."
+      hero={<SkillDiscoveryHero />}
+      prompt={intentPrompt}
+      promptLabel="Copy Intent prompt"
+    >
+      <LandingSection tone="accent">
+        <LandingSectionIntro
+          centered
+          eyebrow="Consumer trust model"
+          icon={<ShieldCheck aria-hidden="true" size={15} />}
+          title="Discovery can scan the workspace. Trust is still explicit."
+          body="Intent can inspect workspace dependencies for static skill files without executing package code. An allowlist and exclusions decide which packages may contribute guidance, and the agent loads a skill only when the task calls for it."
+        />
+        <TrustPath />
+      </LandingSection>
 
-            <div className="mt-4 flex flex-wrap items-start gap-x-3 gap-y-2">
-              <h1 className="text-5xl font-black leading-[0.95] sm:text-6xl lg:text-7xl">
-                <LibraryWordmark library={library} />
-              </h1>
-              {library.badge ? (
-                <span className="rounded-md bg-zinc-950 px-2 py-1 text-xs font-black uppercase text-white dark:bg-white dark:text-zinc-950">
-                  {library.badge}
-                </span>
-              ) : null}
-            </div>
-
-            <p className="mt-5 max-w-2xl text-lg font-bold leading-8 text-zinc-900 dark:text-zinc-100 sm:text-xl">
-              Package the knowledge agents need with the library itself.
-            </p>
-
-            <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-700 dark:text-zinc-300 sm:text-lg">
-              Intent lets maintainers generate, validate, publish, and track
-              Agent Skills alongside npm packages, so agents discover current
-              procedural knowledge from installed code instead of stale model
-              memory.
-            </p>
-
-            <LibraryDownloadsMicro
-              animateIncreaseTrend
-              library={library}
-              className="mt-5"
-              label="weekly downloads"
-              period="weekly"
-              showTotals
-            />
-
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <IntentLink
-                to="/$libraryId/$version/docs"
-                params={{ libraryId: library.id, version: resolvedVersion }}
-                label="Read the docs"
-                icon={<BookOpen size={16} aria-hidden="true" />}
-              />
-              <IntentSecondaryLink
-                to="/intent/registry"
-                label="View Registry"
-                icon={<Package size={16} aria-hidden="true" />}
-              />
-              <LandingCopyPromptButton
-                prompt={intentAgentPrompt}
-                label="Copy Intent Prompt"
-              />
-            </div>
-
-            <div className="mt-8 grid gap-3 sm:grid-cols-3">
-              {heroProof.map((proof) => (
-                <ProofPill key={proof.label} {...proof} />
-              ))}
-            </div>
-          </div>
-
-          <IntentPackagePanel />
-        </div>
-      </section>
-
-      <section className="border-b border-sky-950/10 bg-[#f4fbff] dark:border-sky-300/10 dark:bg-[#071b2b]">
-        <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.74fr_1.26fr] xl:max-w-[92rem]">
-          <div>
-            <SectionKicker icon={<Sparkle size={14} />}>
-              Why Intent
-            </SectionKicker>
-            <h2 className="mt-3 max-w-xl text-3xl font-black leading-tight sm:text-4xl">
-              Libraries need to ship agent knowledge, not just code.
-            </h2>
-            <p className="mt-4 max-w-xl text-base leading-7 text-zinc-700 dark:text-zinc-300">
-              Agents are only as useful as the procedural context they can
-              retrieve. Intent gives library authors a way to version that
-              context with the package and keep it tied to the docs it came
-              from.
-            </p>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            {featureCards.map((feature) => (
-              <FeatureCard key={feature.title} {...feature} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <IntentRegistryPreview />
-
-      <section className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-        <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[1.05fr_0.95fr] lg:items-center xl:max-w-[92rem]">
-          <LifecyclePanel />
-          <div>
-            <SectionKicker icon={<GitBranch size={14} />}>
-              Skill lifecycle
-            </SectionKicker>
-            <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
-              Author, validate, publish, discover.
-            </h2>
-            <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300">
-              Skills become part of the library release process. They are
-              written near the source, validated like package artifacts, and
-              discovered by agents from installed dependencies.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section className="border-b border-zinc-200 bg-[#fbfaf6] dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.72fr_1.28fr] lg:items-start xl:max-w-[92rem]">
-          <div className="max-w-xl">
-            <SectionKicker icon={<ArrowsClockwise size={14} />}>
-              Staleness checks
-            </SectionKicker>
-            <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
-              If the docs drift, the skill should know.
-            </h2>
-            <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300">
-              Intent can compare skill source references against documentation
-              changes, making skill freshness a release signal instead of a
-              guess.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-white py-12 dark:bg-zinc-950">
-        <div className="mx-auto w-full max-w-[80rem] px-4 xl:max-w-[92rem]">
-          <div className="max-w-3xl">
-            <SectionKicker icon={<GithubIcon className="h-4 w-4" />}>
-              Open source ecosystem
-            </SectionKicker>
-            <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
-              Intent helps open source libraries teach agents how to use them.
-            </h2>
-            <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300">
-              Maintainers, package authors, examples, partners, and GitHub
-              sponsors keep agent skills close to the libraries they describe.
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-10 flex flex-col gap-14">
-          <LandingCommunitySection libraryId="intent" />
-          <SponsorSection
-            title="GitHub Sponsors"
-            aspectRatio="1/1"
-            packMaxWidth="900px"
-            showCTA
+      <LandingSection tone="raised">
+        <div className="grid items-center gap-12 lg:grid-cols-[1.08fr_0.92fr] lg:gap-16">
+          <FreshnessWorkbench />
+          <LandingSectionIntro
+            eyebrow="Conservative freshness"
+            icon={<ClockCounterClockwise aria-hidden="true" size={15} />}
+            title="A changed source is a review signal, not proof of bad guidance."
+            body="Skills declare the documentation they depend on. intent stale can flag a skill when those sources move, but it does not pretend to understand whether the semantic advice is wrong. Maintainers make that call."
           />
         </div>
-      </section>
+      </LandingSection>
 
-      <LandingPageGad />
-      <BottomCTA
-        linkProps={{
-          to: '/$libraryId/$version/docs',
-          params: { libraryId: library.id, version: resolvedVersion },
-        }}
-        label="Get Started!"
-        className="border-sky-500 bg-sky-500 text-white hover:bg-sky-600"
-      />
-      <Footer />
-    </div>
-  )
-}
-
-function IntentPackagePanel() {
-  const [activeFileIndex, setActiveFileIndex] = React.useState(1)
-  const activeFile = packageFiles[activeFileIndex] ?? packageFiles[0]
-
-  return (
-    <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-sky-200 bg-white p-4 shadow-sm shadow-sky-950/5 dark:border-sky-900 dark:bg-zinc-950">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <span className="h-2.5 w-2.5 rounded-md bg-red-400" />
-          <span className="h-2.5 w-2.5 rounded-md bg-yellow-400" />
-          <span className="h-2.5 w-2.5 rounded-md bg-emerald-400" />
+      <LandingSection tone="ink">
+        <div className="grid gap-12 lg:grid-cols-[0.84fr_1.16fr] lg:items-center lg:gap-16">
+          <LandingSectionIntro
+            eyebrow="Maintainer loop"
+            icon={<Package aria-hidden="true" size={15} />}
+            title="The skill releases with the code it explains."
+            body="Generate or author guidance near the package, validate its structure and source references in CI, then include it in the npm tarball. The package version becomes the skill version; the public registry makes that history browsable after indexing."
+          />
+          <PublicationTimeline />
         </div>
-        <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400">
-          package skill map
-        </span>
-      </div>
-
-      <div className="mt-4 rounded-lg bg-zinc-950 p-4 text-sm text-sky-100 dark:bg-black">
-        <p className="font-mono leading-6">
-          npx @tanstack/intent scaffold
-          <br />
-          npx @tanstack/intent validate {activeFile[0]}
-          <br />
-          npx @tanstack/intent stale --json
-        </p>
-      </div>
-
-      <div className="mt-4 space-y-2">
-        {packageFiles.map(([file, detail], index) => (
-          <button
-            key={file}
-            aria-pressed={activeFileIndex === index}
-            className={
-              activeFileIndex === index
-                ? 'grid w-full gap-2 rounded-lg border border-sky-500 bg-sky-500 p-3 text-left text-white sm:grid-cols-[0.45fr_1fr]'
-                : 'grid w-full gap-2 rounded-lg border border-zinc-200 bg-sky-50 p-3 text-left transition-colors hover:border-sky-300 dark:border-zinc-800 dark:bg-sky-950/20 dark:hover:border-sky-800 sm:grid-cols-[0.45fr_1fr]'
-            }
-            type="button"
-            onClick={() => setActiveFileIndex(index)}
-          >
-            <span className="font-mono text-sm font-black">{file}</span>
-            <span
-              className={
-                activeFileIndex === index
-                  ? 'text-sm text-white/80'
-                  : 'text-sm text-zinc-700 dark:text-zinc-300'
-              }
-            >
-              {detail}
-            </span>
-          </button>
-        ))}
-      </div>
-    </div>
+      </LandingSection>
+    </LibraryLandingShell>
   )
 }
 
-function IntentRegistryPreview() {
-  const statsQuery = useQuery(intentStatsQueryOptions())
-  const directoryQuery = useQuery(
-    intentDirectoryQueryOptions({ sort: 'downloads', pageSize: 9 }),
-  )
-
-  const stats = statsQuery.data
-  const packages = directoryQuery.data?.packages
-
-  const packageNames = React.useMemo(
-    () => (packages ?? []).map((p) => p.name),
-    [packages],
-  )
-  const skillHistoryQuery = useQuery(
-    intentSkillHistoryQueryOptions(packageNames),
-  )
-  const skillHistory = React.useMemo(
-    () => skillHistoryQuery.data ?? {},
-    [skillHistoryQuery.data],
-  )
-  const maxSlots = React.useMemo(
-    () => Math.max(...Object.values(skillHistory).map((h) => h.length), 2),
-    [skillHistory],
-  )
-
-  const navigate = useNavigate()
-
-  if (!statsQuery.isLoading && (stats?.packageCount ?? 0) === 0) {
-    return null
-  }
+function SkillDiscoveryHero() {
+  const [activeIndex, setActiveIndex] = React.useState(0)
+  const [allowed, setAllowed] = React.useState(false)
+  const [loaded, setLoaded] = React.useState(false)
+  const activePackage = skillPackages[activeIndex] ?? skillPackages[0]
 
   return (
-    <section className="border-b border-zinc-200 bg-white py-12 dark:border-zinc-800 dark:bg-zinc-950">
-      <div className="mx-auto w-full max-w-[80rem] px-4 xl:max-w-[92rem]">
-        <div className="mb-6 flex items-end justify-between gap-4">
-          <div>
-            <SectionKicker icon={<Package size={14} />}>
-              Skills Registry
-            </SectionKicker>
-            <h2 className="mt-3 text-3xl font-black leading-tight">
-              Browse the packages already shipping skills.
-            </h2>
-            <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-              {stats ? (
-                <>
-                  <span className="font-black text-sky-600 dark:text-sky-400">
-                    {stats.packageCount}
-                  </span>{' '}
-                  {stats.packageCount === 1 ? 'package' : 'packages'},{' '}
-                  <span className="font-black text-sky-600 dark:text-sky-400">
-                    {stats.skillCount}
-                  </span>{' '}
-                  {stats.skillCount === 1 ? 'skill' : 'skills'} indexed
-                </>
-              ) : (
-                'Loading...'
-              )}
+    <LandingWindow label="workspace skill discovery">
+      <div className="grid min-h-[24rem] md:grid-cols-[0.94fr_1.06fr]">
+        <div className="border-border-subtle p-4 md:border-r">
+          <div className="flex items-center justify-between gap-3">
+            <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/30">
+              installed dependencies
+            </p>
+            <span className="font-ds-mono text-ds-mono-2xs text-text-primary/25">
+              lockfile
+            </span>
+          </div>
+          <div className="mt-4 space-y-2">
+            {skillPackages.map((item, index) => (
+              <button
+                key={item.packageName}
+                type="button"
+                aria-pressed={index === activeIndex}
+                className="block w-full rounded-lg border border-border-subtle bg-background-subtle p-3 text-left hover:border-border-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.12)]"
+                onClick={() => {
+                  setActiveIndex(index)
+                  setAllowed(false)
+                  setLoaded(false)
+                }}
+              >
+                <span className="block truncate font-ds-mono text-ds-mono-2xs text-text-primary/65">
+                  {item.packageName}
+                </span>
+                <span className="mt-1 block font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
+                  skills/{item.skill}/SKILL.md
+                </span>
+              </button>
+            ))}
+          </div>
+          <div className="mt-4 rounded-lg border border-border-subtle bg-background-subtle p-3">
+            <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+              scan mode
+            </p>
+            <p className="mt-2 font-ds-mono text-ds-mono-2xs text-text-primary/55">
+              static files · no package code executed
             </p>
           </div>
-          <Link
-            to="/intent/registry"
-            className="shrink-0 text-sm font-bold text-sky-600 hover:underline dark:text-sky-400"
-          >
-            Browse all
-          </Link>
         </div>
 
-        {packages && packages.length > 0 ? (
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {packages.map((pkg) => (
-              <Link
-                key={pkg.name}
-                to="/intent/registry/$packageName"
-                params={{ packageName: encodePackageNameSlug(pkg.name) }}
-                className="group flex flex-col gap-2 rounded-lg border border-zinc-200 bg-zinc-50 p-4 transition-colors hover:border-sky-300 dark:border-zinc-800 dark:bg-zinc-900/50 dark:hover:border-sky-700"
-              >
-                <div className="mb-1 flex items-start justify-between gap-2">
-                  <span className="truncate font-mono text-sm font-black text-zinc-900 transition-colors group-hover:text-sky-600 dark:text-zinc-100 dark:group-hover:text-sky-400">
-                    {pkg.name}
-                  </span>
-                  <div className="w-20 shrink-0">
-                    {skillHistory[pkg.name] &&
-                    skillHistory[pkg.name].length > 0 ? (
-                      <SkillSparkline
-                        history={skillHistory[pkg.name]}
-                        height={24}
-                        maxSlots={maxSlots}
-                        onVersionClick={(entry: SkillHistoryEntry) => {
-                          navigate({
-                            to: '/intent/registry/$packageName',
-                            params: {
-                              packageName: encodePackageNameSlug(pkg.name),
-                            },
-                            search: { version: entry.version },
-                          })
-                        }}
-                      />
-                    ) : null}
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 text-[11px] text-zinc-400 dark:text-zinc-500">
-                  <span className="shrink-0 text-xs font-bold tabular-nums text-sky-600 dark:text-sky-400">
-                    {pkg.skillNames.length}{' '}
-                    {pkg.skillNames.length === 1 ? 'skill' : 'skills'}
-                  </span>
-                  {pkg.monthlyDownloads > 0 ? (
-                    <span className="tabular-nums">
-                      {pkg.monthlyDownloads >= 1_000_000
-                        ? `${(pkg.monthlyDownloads / 1_000_000).toFixed(1)}M`
-                        : pkg.monthlyDownloads >= 1_000
-                          ? `${Math.floor(pkg.monthlyDownloads / 1_000)}K`
-                          : pkg.monthlyDownloads}
-                      /mo
-                    </span>
-                  ) : null}
-                  <span className="font-mono">v{pkg.latestVersion}</span>
-                  {pkg.frameworks.length > 0 ? (
-                    <span>{pkg.frameworks.slice(0, 2).join(', ')}</span>
-                  ) : null}
-                </div>
-                {pkg.description ? (
-                  <p className="line-clamp-1 text-xs text-zinc-500 dark:text-zinc-400">
-                    {pkg.description}
-                  </p>
-                ) : null}
-              </Link>
-            ))}
+        <div className="flex min-w-0 flex-col p-5" aria-live="polite">
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+                discovered skill
+              </p>
+              <p className="mt-2 truncate text-ds-heading-4 text-text-primary">
+                {activePackage.skill}
+              </p>
+            </div>
+            <span className="rounded bg-[color:rgb(var(--landing-glow)/0.18)] px-2 py-1 font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
+              package version
+            </span>
           </div>
-        ) : directoryQuery.isLoading ? (
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div
-                key={i}
-                className="h-20 animate-pulse rounded-lg border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900/30"
-              />
-            ))}
+
+          <div className="mt-5 rounded-lg border border-border-subtle bg-background-subtle p-4">
+            <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+              useful for
+            </p>
+            <p className="mt-2 text-ds-body-sm text-text-primary/55">
+              {activePackage.task}
+            </p>
+            <p className="mt-4 truncate font-ds-mono text-ds-mono-2xs text-text-primary/25">
+              source: {activePackage.source}
+            </p>
           </div>
-        ) : null}
+
+          <div className="mt-auto grid gap-2 pt-5 sm:grid-cols-2">
+            <button
+              type="button"
+              aria-pressed={allowed}
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-[var(--landing-accent)] px-3 py-2 text-ds-label-sm text-[var(--landing-accent-bright)] hover:bg-[color:rgb(var(--landing-glow)/0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
+              onClick={() => {
+                setAllowed((current) => !current)
+                setLoaded(false)
+              }}
+            >
+              <LockKey aria-hidden="true" size={16} />
+              {allowed ? 'Allowed' : 'Allow package'}
+            </button>
+            <button
+              type="button"
+              disabled={!allowed}
+              aria-pressed={loaded}
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--landing-accent)] px-3 py-2 text-ds-label-sm text-[var(--landing-accent-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] disabled:cursor-not-allowed disabled:opacity-25"
+              onClick={() => setLoaded((current) => !current)}
+            >
+              {loaded ? (
+                <CheckCircle aria-hidden="true" size={16} />
+              ) : (
+                <Robot aria-hidden="true" size={16} />
+              )}
+              {loaded ? 'Guidance loaded' : 'Load for task'}
+            </button>
+          </div>
+        </div>
       </div>
-    </section>
+    </LandingWindow>
   )
 }
 
-function LifecyclePanel() {
+function TrustPath() {
+  const steps = [
+    {
+      icon: Scan,
+      label: 'Scan',
+      detail: 'Read package metadata and static skill files.',
+    },
+    {
+      icon: LockKey,
+      label: 'Allow',
+      detail: 'Match package names against your allowlist and exclusions.',
+    },
+    {
+      icon: FileMagnifyingGlass,
+      label: 'Inspect',
+      detail: 'Keep source references and skill content visible.',
+    },
+    {
+      icon: Robot,
+      label: 'Load',
+      detail: 'Give only relevant guidance to the active agent task.',
+    },
+  ]
+
   return (
-    <div className="grid gap-3 sm:grid-cols-2">
-      {lifecycleSteps.map((step, index) => (
-        <div
-          key={step.label}
-          className="rounded-lg border border-zinc-200 bg-[#f0f9ff] p-4 dark:border-zinc-800 dark:bg-zinc-900"
-        >
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-sky-100 text-sm font-black text-sky-800 dark:bg-sky-950 dark:text-sky-200">
-            {index + 1}
-          </span>
-          <h3 className="mt-4 text-lg font-black leading-tight">
-            {step.label}
-          </h3>
-          <p className="mt-2 text-sm leading-6 text-zinc-700 dark:text-zinc-300">
-            {step.body}
-          </p>
+    <div className="relative mx-auto mt-14 max-w-[74rem]">
+      <div
+        aria-hidden="true"
+        className="absolute top-10 right-[11%] left-[11%] hidden h-px bg-[color:rgb(var(--landing-glow)/0.5)] md:block"
+      />
+      <ol className="relative grid gap-4 md:grid-cols-4">
+        {steps.map((step, index) => {
+          const Icon = step.icon
+          return (
+            <li
+              key={step.label}
+              className="rounded-xl border border-border-default bg-background-surface p-5"
+            >
+              <span className="flex size-10 items-center justify-center rounded-full bg-[var(--landing-accent)] text-[var(--landing-accent-ink)]">
+                <Icon aria-hidden="true" size={19} />
+              </span>
+              <p className="mt-6 font-ds-mono text-ds-mono-2xs text-text-primary/20">
+                0{index + 1}
+              </p>
+              <h3 className="mt-2 text-ds-heading-4">{step.label}</h3>
+              <p className="mt-3 text-ds-body-xs text-text-primary/35">
+                {step.detail}
+              </p>
+            </li>
+          )
+        })}
+      </ol>
+      <p className="mt-5 text-center text-ds-body-xs text-text-primary/30">
+        Editor and install hooks may streamline discovery. They are not a
+        security boundary.
+      </p>
+    </div>
+  )
+}
+
+function FreshnessWorkbench() {
+  const [changedSource, setChangedSource] = React.useState('search-params.md')
+  const matches =
+    changedSource === 'search-params.md'
+      ? ['tanstack-router', 'router-migrations']
+      : ['tanstack-query']
+
+  return (
+    <LandingWindow label="intent stale">
+      <div className="p-5 sm:p-6">
+        <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+          documentation changed
+        </p>
+        <div className="mt-3 flex gap-2">
+          {['search-params.md', 'query-keys.md'].map((source) => (
+            <button
+              key={source}
+              type="button"
+              aria-pressed={source === changedSource}
+              className="min-w-0 flex-1 truncate rounded-lg border border-border-default px-3 py-2 font-ds-mono text-ds-mono-2xs text-text-primary/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
+              onClick={() => setChangedSource(source)}
+            >
+              {source}
+            </button>
+          ))}
         </div>
-      ))}
-    </div>
+        <div className="mt-5 overflow-x-auto rounded-lg bg-ds-neutral-500 p-4 font-ds-mono text-ds-mono-xs text-white/55">
+          <span className="text-[var(--landing-accent-dark)]">$</span> intent
+          stale
+        </div>
+        <div className="mt-3 space-y-2" aria-live="polite">
+          {matches.map((skill) => (
+            <div
+              key={skill}
+              className="flex items-center justify-between gap-4 rounded-lg border border-border-subtle bg-background-subtle px-4 py-3"
+            >
+              <span className="truncate font-ds-mono text-ds-mono-2xs text-text-primary/60">
+                {skill}
+              </span>
+              <span className="shrink-0 rounded bg-amber-300 px-2 py-1 font-ds-mono text-ds-mono-caps-xs uppercase text-amber-950">
+                review
+              </span>
+            </div>
+          ))}
+        </div>
+        <p className="mt-4 text-ds-body-xs text-text-primary/30">
+          The source relationship changed. A maintainer decides whether the
+          skill needs an edit.
+        </p>
+      </div>
+    </LandingWindow>
   )
 }
 
-function FeatureCard({
-  body,
-  icon,
-  title,
-}: {
-  body: string
-  icon: React.ReactNode
-  title: string
-}) {
-  return (
-    <div className="rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
-      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-200">
-        {icon}
-      </span>
-      <h3 className="mt-4 text-xl font-black leading-tight">{title}</h3>
-      <p className="mt-3 text-sm leading-6 text-zinc-700 dark:text-zinc-300">
-        {body}
-      </p>
-    </div>
-  )
-}
+function PublicationTimeline() {
+  const releases = [
+    ['Author', 'SKILL.md + source refs'],
+    ['Validate', 'structure checked in CI'],
+    ['Publish', 'included in npm files'],
+    ['Discover', 'indexed package history'],
+  ]
 
-function SectionKicker({
-  children,
-  icon,
-}: {
-  children: React.ReactNode
-  icon: React.ReactNode
-}) {
   return (
-    <p className="inline-flex items-center gap-2 text-sm font-black uppercase text-sky-700 dark:text-sky-300">
-      {icon}
-      {children}
-    </p>
-  )
-}
-
-function ProofPill({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="border-l-2 border-sky-500 pl-3">
-      <p className="text-sm font-black text-zinc-950 dark:text-white">
-        {label}
-      </p>
-      <p className="mt-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">
-        {value}
-      </p>
-    </div>
-  )
-}
-
-function IntentLink({
-  icon,
-  label,
-  params,
-  to,
-}: {
-  icon: React.ReactNode
-  label: string
-  params: Record<string, string>
-  to: string
-}) {
-  return (
-    <Link
-      to={to}
-      params={params}
-      className="inline-flex w-full max-w-full items-center justify-center gap-2 rounded-lg border border-zinc-950 bg-zinc-950 px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-zinc-800 dark:border-white dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200 sm:w-auto"
-    >
-      {icon}
-      {label}
-      <ArrowRight size={15} aria-hidden="true" />
-    </Link>
-  )
-}
-
-function IntentSecondaryLink({
-  icon,
-  label,
-  to,
-}: {
-  icon: React.ReactNode
-  label: string
-  to: string
-}) {
-  return (
-    <Link
-      to={to}
-      className="inline-flex w-full max-w-full items-center justify-center gap-2 rounded-lg border border-sky-300 bg-transparent px-4 py-2.5 text-sm font-bold text-sky-700 transition-colors hover:bg-sky-500/10 dark:border-sky-700 dark:text-sky-300 sm:w-auto"
-    >
-      {icon}
-      {label}
-      <ArrowRight size={15} aria-hidden="true" />
-    </Link>
+    <LandingWindow label="versioned skill history">
+      <div className="p-5 sm:p-6">
+        <ol className="space-y-3">
+          {releases.map(([label, detail], index) => (
+            <li
+              key={label}
+              className="grid grid-cols-[2.5rem_1fr_auto] items-center gap-3 rounded-lg border border-border-subtle bg-background-subtle p-3"
+            >
+              <span className="flex size-9 items-center justify-center rounded-full bg-[color:rgb(var(--landing-glow)/0.18)] font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
+                {index + 1}
+              </span>
+              <div className="min-w-0">
+                <p className="text-ds-label-sm text-text-primary">{label}</p>
+                <p className="mt-1 truncate font-ds-mono text-ds-mono-2xs text-text-primary/25">
+                  {detail}
+                </p>
+              </div>
+              <CheckCircle
+                aria-hidden="true"
+                className="text-emerald-400"
+                size={17}
+              />
+            </li>
+          ))}
+        </ol>
+        <div className="mt-4 rounded-lg border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.1)] p-4">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
+                @tanstack/react-router
+              </p>
+              <p className="mt-1 text-ds-body-xs text-text-primary/35">
+                code + docs + skills share one release
+              </p>
+            </div>
+            <span className="font-ds-mono text-ds-mono-2xs text-text-primary/25">
+              npm version
+            </span>
+          </div>
+        </div>
+      </div>
+    </LandingWindow>
   )
 }

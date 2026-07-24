@@ -1,555 +1,330 @@
 import * as React from 'react'
-import { Link, useParams } from '@tanstack/react-router'
 import {
   ArrowRight,
-  BookOpen,
+  CheckCircle,
   Database,
-  Stack,
-  GitBranch,
+  Funnel,
+  Lightning,
   Network,
   Plugs,
-  ArrowsCounterClockwise,
-  Sparkle,
-  ArrowsSplit,
-  Lightning,
+  Stack,
+  XCircle,
 } from '@phosphor-icons/react'
 
-import { BottomCTA } from '~/components/BottomCTA'
-import { Footer } from '~/components/Footer'
-import { GithubIcon } from '~/components/icons/GithubIcon'
-import { LandingCommunitySection } from '~/components/LandingCommunitySection'
-import { SponsorSection } from '~/components/SponsorSection'
-import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
-import { LibraryWordmark } from '~/components/LibraryWordmark'
-import LandingPageGad from '~/components/LandingPageGad'
-import { getLibrary } from '~/libraries'
+import {
+  LandingSection,
+  LandingSectionIntro,
+  LandingWindow,
+  LibraryLandingShell,
+} from './LibraryLanding'
 
-import { LandingEcosystemProof } from '~/components/landing/LandingEcosystemProof'
-import { LandingCopyPromptButton } from '~/components/landing/LandingCopyPromptButton'
-const library = getLibrary('db')
-const dbAgentPrompt = [
+const dbPrompt = [
   'Build a TanStack DB data layer for a TypeScript app.',
-  'Model API data as typed collections, query across collections with live queries, use optimistic mutations for local writes, and keep derived UI reactive through the DB query engine.',
-  'Show how TanStack DB can start with an existing API or TanStack Query workflow, then add query-driven sync, incremental joins, and optional persistence when the product needs it.',
+  'Model API data as typed collections, query across collections with live queries, and use optimistic mutations with persistence and rollback.',
+  'Show how an existing TanStack Query or REST workflow can adopt collections first, then add on-demand query-driven sync when the backend supports it.',
 ].join(' ')
 
-const heroProof = [
-  {
-    label: 'Collections',
-    value: 'typed sets of synced API data',
-  },
-  {
-    label: 'Live queries',
-    value: 'joins, filters, aggregates, reactivity',
-  },
-  {
-    label: 'Local writes',
-    value: 'optimistic transactions and rollback',
-  },
-]
+const projects = [
+  { id: 'p1', name: 'Dashboard', team: 'platform' },
+  { id: 'p2', name: 'Onboarding', team: 'growth' },
+  { id: 'p3', name: 'Billing', team: 'platform' },
+] as const
 
-type DbTodoStatus = 'done' | 'open'
-
-type DbTodo = {
-  id: string
-  optimistic?: boolean
-  owner: string
-  status: DbTodoStatus
-  title: string
-}
-
-const dbInitialTodos: Array<DbTodo> = [
+const issues = [
   {
-    id: 'todo-1',
-    owner: 'Tanner',
+    id: 'ISS-42',
+    priority: 'high',
+    projectId: 'p1',
     status: 'open',
-    title: 'Ship invite flow',
+    title: 'Stream activity feed',
   },
   {
-    id: 'todo-2',
-    owner: 'Noah',
+    id: 'ISS-51',
+    priority: 'medium',
+    projectId: 'p2',
     status: 'open',
-    title: 'Review pricing copy',
+    title: 'Shorten invite flow',
   },
   {
-    id: 'todo-3',
-    owner: 'David',
-    status: 'done',
-    title: 'Wire product analytics',
+    id: 'ISS-58',
+    priority: 'high',
+    projectId: 'p3',
+    status: 'open',
+    title: 'Reconcile invoices',
   },
-]
+  {
+    id: 'ISS-60',
+    priority: 'low',
+    projectId: 'p1',
+    status: 'closed',
+    title: 'Archive old events',
+  },
+] as const
 
-const dbNewTodoTitles = [
-  'Follow up with design partner',
-  'Triage sync edge case',
-  'Publish roadmap note',
-]
-
-const featureCards = [
+const adoptionPaths = [
   {
-    title: 'Collections make API data queryable.',
-    body: 'Load, sync, or persist typed records into collections, then query the data your UI actually needs instead of spreading derived state through components.',
-    icon: <Stack size={18} />,
+    source: 'TanStack Query',
+    bridge: 'queryCollectionOptions()',
+    detail:
+      'Keep the Query client and materialize fetched rows into a collection.',
   },
   {
-    title: 'Live queries update the result, not the whole app.',
-    body: 'DB uses differential dataflow to recompute only the changed parts of joins, filters, and aggregates, so large local graphs still feel instant.',
-    icon: <Lightning size={18} />,
+    source: 'REST or GraphQL',
+    bridge: 'collection handlers',
+    detail:
+      'Load records and persist mutations through the API you already own.',
   },
   {
-    title: 'Local writes are first-class.',
-    body: 'Optimistic mutations can stage transactions across collections, update the UI immediately, then commit or rollback with lifecycle support.',
-    icon: <ArrowsCounterClockwise size={18} />,
+    source: 'Sync engine',
+    bridge: 'collection adapter',
+    detail:
+      'Use Electric, PowerSync, RxDB, TrailBase, or a custom collection creator.',
   },
-  {
-    title: 'Sync strategy can evolve with the product.',
-    body: 'Start with REST, GraphQL, tRPC, TanStack Query, Electric, PowerSync, Trailbase, or your own collection creator without changing how components query.',
-    icon: <Plugs size={18} />,
-  },
-]
-
-const pipelineSteps = [
-  {
-    label: 'Collect',
-    body: 'API records enter typed collections from sync engines, query functions, persistence, or custom loaders.',
-  },
-  {
-    label: 'Query',
-    body: 'The UI declares the live query shape: filters, joins, includes, aggregates, ordering, and limits.',
-  },
-  {
-    label: 'Increment',
-    body: 'When data changes, DB updates only the affected query results instead of recomputing the full graph.',
-  },
-  {
-    label: 'Render',
-    body: 'Framework adapters subscribe components to the result so the view stays current without manual cache wiring.',
-  },
-]
-
-const queryDrivenSync = [
-  {
-    label: 'predicate',
-    value: 'where issue.projectId = route.params.id',
-  },
-  {
-    label: 'subset',
-    value: 'load only the records this live query can see',
-  },
-  {
-    label: 'dedupe',
-    value: 'shared requirements collapse into fewer network calls',
-  },
-  {
-    label: 'fallback',
-    value: 'fetch broad, filter client-side, optimize later',
-  },
-]
-
-const frameworkAdapters = ['React', 'Vue', 'Solid', 'Svelte', 'Vanilla']
+] as const
 
 export default function DbLanding() {
-  const { version } = useParams({ strict: false })
-  const resolvedVersion = version ?? library.latestVersion
-
   return (
-    <div className="w-full min-w-0 overflow-x-hidden bg-[#fff7ed] text-zinc-950 dark:bg-zinc-950 dark:text-white">
-      <section className="max-w-full overflow-hidden border-b border-orange-950/10 bg-[#fff1e4] dark:border-orange-300/10 dark:bg-[#160a03]">
-        <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-10 lg:max-w-[80rem] lg:grid-cols-[0.84fr_1.16fr] lg:items-start lg:py-12 xl:max-w-[92rem]">
-          <div className="min-w-0 max-w-full sm:max-w-3xl">
-            <SectionKicker icon={<Database size={14} />}>
-              Reactive client store
-            </SectionKicker>
+    <LibraryLandingShell
+      libraryId="db"
+      headline="Take the network off the interaction path."
+      description="DB turns API data into typed collections, runs live relational queries over them, and applies optimistic writes immediately while persistence catches up."
+      hero={<OptimisticWorkbench />}
+      prompt={dbPrompt}
+      promptLabel="Copy DB prompt"
+    >
+      <LandingSection tone="raised">
+        <LandingSectionIntro
+          centered
+          eyebrow="A third path"
+          icon={<Database aria-hidden="true" size={15} />}
+          title="Stop choosing between endpoint sprawl and loading everything."
+          body="Normalized collections keep the backend shape simple. Components can ask a fast local query engine for the exact joined, filtered, and aggregated view they need."
+        />
+        <DataShapeChoices />
+      </LandingSection>
 
-            <div className="mt-4 flex flex-wrap items-start gap-x-3 gap-y-2">
-              <h1 className="text-5xl font-black leading-[0.95] sm:text-6xl lg:text-7xl">
-                <LibraryWordmark library={library} />
-              </h1>
-              {library.badge ? (
-                <span className="rounded-md bg-zinc-950 px-2 py-1 text-xs font-black uppercase text-white dark:bg-white dark:text-zinc-950">
-                  {library.badge}
-                </span>
-              ) : null}
-            </div>
-
-            <p className="mt-5 max-w-2xl text-lg font-bold leading-8 text-zinc-900 dark:text-zinc-100 sm:text-xl">
-              Query your API data like local reactive state.
-            </p>
-
-            <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-700 dark:text-zinc-300 sm:text-lg">
-              DB turns synced API data into typed collections, then runs live
-              queries over them so joins, filters, optimistic writes, and
-              derived UI stay fast and consistent without hand-built client
-              state.
-            </p>
-
-            <LibraryDownloadsMicro
-              animateIncreaseTrend
-              library={library}
-              className="mt-5"
-              label="weekly downloads"
-              period="weekly"
-              showTotals
-            />
-
-            <p className="mt-4 max-w-xl border-l-2 border-orange-500 pl-3 text-sm font-black text-orange-900 dark:text-orange-200">
-              The first brownfield, backend-agnostic sync engine for frontend
-              apps.
-            </p>
-
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <DbLink
-                to="/$libraryId/$version/docs"
-                params={{ libraryId: library.id, version: resolvedVersion }}
-                label="Read the docs"
-                icon={<BookOpen size={16} aria-hidden="true" />}
-              />
-              <LandingCopyPromptButton
-                prompt={dbAgentPrompt}
-                label="Copy DB Prompt"
-              />
-            </div>
-
-            <div className="mt-8 grid gap-3 sm:grid-cols-3">
-              {heroProof.map((proof) => (
-                <ProofPill key={proof.label} {...proof} />
-              ))}
-            </div>
-            <LandingEcosystemProof />
-          </div>
-
-          <DbWorkbenchPanel />
-        </div>
-      </section>
-
-      <section className="border-b border-orange-950/10 bg-[#fff8f0] dark:border-orange-300/10 dark:bg-[#1b0d05]">
-        <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.74fr_1.26fr] xl:max-w-[92rem]">
-          <div>
-            <SectionKicker icon={<Sparkle size={14} />}>Why DB</SectionKicker>
-            <h2 className="mt-3 max-w-xl text-3xl font-black leading-tight sm:text-4xl">
-              Server state gets awkward when the UI needs a data graph.
-            </h2>
-            <p className="mt-4 max-w-xl text-base leading-7 text-zinc-700 dark:text-zinc-300">
-              Query is excellent for fetching and caching resources. DB adds the
-              reactive relational layer that product apps eventually need: local
-              collections, cross-collection queries, optimistic transactions,
-              and incremental updates.
-            </p>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            {featureCards.map((feature) => (
-              <FeatureCard key={feature.title} {...feature} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-        <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[1.05fr_0.95fr] lg:items-center xl:max-w-[92rem]">
-          <PipelinePanel />
-          <div>
-            <SectionKicker icon={<GitBranch size={14} />}>
-              Differential dataflow
-            </SectionKicker>
-            <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
-              The view is a query over collections.
-            </h2>
-            <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300">
-              DB keeps normalized collections in memory, then updates live query
-              results incrementally as records change. The UI describes the data
-              shape; DB keeps it current.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section className="border-b border-zinc-200 bg-[#fbfaf6] dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.82fr_1.18fr] lg:items-start xl:max-w-[92rem]">
-          <div>
-            <SectionKicker icon={<Network size={14} />}>
-              Query-driven sync
-            </SectionKicker>
-            <h2 className="mt-3 max-w-xl text-3xl font-black leading-tight sm:text-4xl">
-              Let the component query become the loading contract.
-            </h2>
-            <p className="mt-4 max-w-xl text-base leading-7 text-zinc-700 dark:text-zinc-300">
-              When sync mode is on demand, DB can pass query predicates,
-              ordering, and limits to your loader. Map that shape to an API
-              precisely, or start broad and let DB filter locally while your API
-              catches up.
-            </p>
-          </div>
-
-          <SyncPanel />
-        </div>
-      </section>
-
-      <section className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-        <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.72fr_1.28fr] lg:items-start xl:max-w-[92rem]">
-          <div className="max-w-xl">
-            <SectionKicker icon={<Stack size={14} />}>
-              Framework adapters
-            </SectionKicker>
-            <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
-              A data model below your renderer.
-            </h2>
-            <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300">
-              Use the adapter that fits your app while keeping collections, live
-              queries, transactions, and sync strategy in the same DB model.
-            </p>
-            <div className="mt-5 flex flex-wrap gap-2">
-              {frameworkAdapters.map((framework) => (
-                <span
-                  key={framework}
-                  className="rounded-md border border-orange-200 bg-orange-50 px-3 py-1.5 text-sm font-bold text-orange-800 dark:border-orange-900 dark:bg-orange-950/40 dark:text-orange-200"
-                >
-                  {framework}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="border-b border-zinc-200 bg-[#fff7ed] py-12 dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="mx-auto w-full max-w-[80rem] px-4 xl:max-w-[92rem]">
-          <div className="max-w-3xl">
-            <SectionKicker icon={<ArrowsSplit size={14} />}>
-              Product shape
-            </SectionKicker>
-            <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
-              Use DB when a cache starts wanting to be a database.
-            </h2>
-            <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300">
-              It is built for apps with real relationships, local writes, subset
-              loading, sync engines, persistence, and UI-shaped derived data.
-              Keep Query for request orchestration; bring in DB when the client
-              needs a reactive data graph.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-white py-12 dark:bg-zinc-950">
-        <div className="mx-auto w-full max-w-[80rem] px-4 xl:max-w-[92rem]">
-          <div className="max-w-3xl">
-            <SectionKicker icon={<GithubIcon className="h-4 w-4" />}>
-              Open source ecosystem
-            </SectionKicker>
-            <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
-              DB is being shaped with teams building data-heavy products.
-            </h2>
-            <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300">
-              Maintainers, examples, sync integrations, partners, and GitHub
-              sponsors keep the reactive data layer close to production app
-              problems.
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-10 flex flex-col gap-14">
-          <LandingCommunitySection libraryId="db" />
-          <SponsorSection
-            title="GitHub Sponsors"
-            aspectRatio="1/1"
-            packMaxWidth="900px"
-            showCTA
+      <LandingSection tone="accent">
+        <div className="grid items-center gap-12 lg:grid-cols-[1.15fr_0.85fr] lg:gap-16">
+          <LiveQueryLab />
+          <LandingSectionIntro
+            eyebrow="Live relational queries"
+            icon={<Lightning aria-hidden="true" size={15} />}
+            title="Describe the view. DB keeps the result current."
+            body="Queries can filter, project, join, include, order, group, and aggregate across collections. Differential dataflow updates affected results incrementally as the underlying records change."
           />
         </div>
-      </section>
+      </LandingSection>
 
-      <LandingPageGad />
-      <BottomCTA
-        linkProps={{
-          to: '/$libraryId/$version/docs',
-          params: { libraryId: library.id, version: resolvedVersion },
-        }}
-        label="Get Started!"
-        className="border-orange-500 bg-orange-500 text-white hover:bg-orange-600"
-      />
-      <Footer />
-    </div>
+      <LandingSection tone="ink">
+        <div className="grid items-center gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:gap-16">
+          <LandingSectionIntro
+            eyebrow="On-demand sync"
+            icon={<Funnel aria-hidden="true" size={15} />}
+            title="The component query can shape the request."
+            body="With on-demand sync, predicates, ordering, limits, and offsets can reach the collection loader. Translate them into API parameters and load only the subset active views require."
+          />
+          <QueryDrivenSync />
+        </div>
+      </LandingSection>
+
+      <LandingSection tone="raised">
+        <LandingSectionIntro
+          centered
+          eyebrow="Brownfield by design"
+          icon={<Plugs aria-hidden="true" size={15} />}
+          title="Adopt collections without replacing the backend."
+          body="Start from the data source already in production. Components use the same live-query model whether records arrive through TanStack Query, an API, local persistence, or a sync engine."
+        />
+        <AdoptionPaths />
+      </LandingSection>
+    </LibraryLandingShell>
   )
 }
 
-function DbWorkbenchPanel() {
-  const [todos, setTodos] = React.useState(dbInitialTodos)
-  const [nextTodoIndex, setNextTodoIndex] = React.useState(0)
-  const [lastAction, setLastAction] = React.useState('live query: open todos')
-  const openTodos = todos.filter((todo) => todo.status === 'open')
-  const optimisticCount = todos.filter((todo) => todo.optimistic).length
-  const insertTodo = () => {
-    const title =
-      dbNewTodoTitles[nextTodoIndex % dbNewTodoTitles.length] ??
-      'New synced task'
-
-    setTodos((currentTodos) => [
-      {
-        id: `todo-local-${nextTodoIndex}`,
-        optimistic: true,
-        owner: 'You',
-        status: 'open',
-        title,
-      },
-      ...currentTodos,
-    ])
-    setNextTodoIndex((current) => current + 1)
-    setLastAction('todoCollection.insert()')
-  }
-  const completeFirstOpenTodo = () => {
-    const firstOpenTodo = openTodos[0]
-
-    if (!firstOpenTodo) {
-      return
-    }
-
-    setTodos((currentTodos) =>
-      currentTodos.map((todo) =>
-        todo.id === firstOpenTodo.id
-          ? { ...todo, optimistic: true, status: 'done' }
-          : todo,
-      ),
-    )
-    setLastAction('todoCollection.update()')
-  }
-  const confirmServerSync = () => {
-    setTodos((currentTodos) =>
-      currentTodos.map((todo) => ({ ...todo, optimistic: false })),
-    )
-    setLastAction('server transaction confirmed')
-  }
+function OptimisticWorkbench() {
+  const [state, setState] = React.useState<
+    'idle' | 'persisting' | 'completed' | 'failed'
+  >('idle')
+  const hasOptimisticChange = state === 'persisting' || state === 'completed'
+  const openCount = hasOptimisticChange ? 1 : 2
+  const transactionLabel = {
+    completed: 'confirmed',
+    failed: 'rolled back',
+    idle: 'ready',
+    persisting: 'optimistic',
+  }[state]
 
   return (
-    <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-orange-200 bg-white p-4 shadow-sm shadow-orange-950/5 dark:border-orange-900 dark:bg-zinc-950">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <span className="h-2.5 w-2.5 rounded-md bg-red-400" />
-          <span className="h-2.5 w-2.5 rounded-md bg-yellow-400" />
-          <span className="h-2.5 w-2.5 rounded-md bg-emerald-400" />
-        </div>
-        <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400">
-          todo collection
-        </span>
-      </div>
-
-      <div className="mt-4 grid gap-3 lg:grid-cols-[0.74fr_1.26fr]">
-        <div className="space-y-3">
-          {[
-            ['collection', `${todos.length} todos`],
-            ['live query', `${openTodos.length} open`],
-            ['optimistic', `${optimisticCount} pending`],
-          ].map(([label, value]) => (
-            <div
-              key={label}
-              className="rounded-lg border border-zinc-200 bg-orange-50 p-3 dark:border-zinc-800 dark:bg-orange-950/20"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="font-mono text-sm font-black">{label}</p>
-                  <p className="mt-1 text-xs font-bold text-zinc-500 dark:text-zinc-400">
-                    todosCollection
-                  </p>
-                </div>
-                <span className="rounded-md bg-orange-100 px-2 py-1 text-[0.65rem] font-black uppercase text-orange-800 dark:bg-orange-950 dark:text-orange-200">
-                  {value}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="min-w-0 rounded-lg border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-800 dark:bg-zinc-900">
-          <div className="flex items-center justify-between gap-3">
-            <span className="font-mono text-sm font-black">
-              useLiveQuery(openTodos)
-            </span>
-            <span className="rounded-md bg-orange-100 px-2 py-1 text-[0.65rem] font-black uppercase text-orange-800 dark:bg-orange-950 dark:text-orange-200">
-              {lastAction}
-            </span>
-          </div>
-
-          <div className="mt-3 flex flex-wrap gap-2">
-            <button
-              className="rounded-md border border-orange-200 bg-white px-3 py-2 text-xs font-black text-orange-800 transition-colors hover:border-orange-400 dark:border-orange-900 dark:bg-zinc-950 dark:text-orange-200"
-              type="button"
-              onClick={insertTodo}
-            >
-              Insert todo
-            </button>
-            <button
-              className="rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs font-black text-zinc-700 transition-colors hover:border-orange-300 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300"
-              type="button"
-              onClick={completeFirstOpenTodo}
-            >
-              Complete first
-            </button>
-            <button
-              className="rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs font-black text-zinc-700 transition-colors hover:border-orange-300 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300"
-              type="button"
-              onClick={confirmServerSync}
-            >
-              Server confirms
-            </button>
-            <span className="rounded-md bg-orange-50 px-3 py-2 text-xs font-black uppercase text-orange-900 dark:bg-orange-950/25 dark:text-orange-100">
-              {optimisticCount > 0 ? 'optimistic' : 'synced'}
-            </span>
-          </div>
-
-          <div className="mt-4 overflow-hidden rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-            <div className="grid grid-cols-[1.4fr_0.75fr_0.7fr] border-b border-zinc-200 bg-orange-50 text-[0.65rem] font-black uppercase text-orange-900 dark:border-zinc-800 dark:bg-orange-950/30 dark:text-orange-100">
-              {['Open todo', 'Owner', 'State'].map((header) => (
-                <div key={header} className="px-3 py-2">
-                  {header}
-                </div>
-              ))}
-            </div>
-            {openTodos.map((todo) => (
+    <LandingWindow label="live todo collection">
+      <div className="grid min-h-[23rem] lg:grid-cols-[0.72fr_1.28fr]">
+        <div className="border-border-subtle p-4 lg:border-r">
+          <div className="space-y-3">
+            {[
+              ['collection', '3 records'],
+              ['live query', openCount + ' open'],
+              ['transaction', transactionLabel],
+            ].map(([label, value]) => (
               <div
-                key={todo.id}
-                className="grid grid-cols-[1.4fr_0.75fr_0.7fr] border-b border-zinc-100 text-sm last:border-b-0 dark:border-zinc-800"
+                key={label}
+                className="rounded-lg border border-border-subtle bg-background-subtle p-4"
               >
-                <div className="min-w-0 px-3 py-3">
-                  <span className="block truncate font-bold">{todo.title}</span>
-                </div>
-                <div className="min-w-0 px-3 py-3">
-                  <span className="block truncate font-bold">{todo.owner}</span>
-                </div>
-                <div className="min-w-0 px-3 py-3">
-                  <span className="block truncate font-bold">
-                    {todo.optimistic ? 'pending' : 'synced'}
-                  </span>
-                </div>
+                <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+                  {label}
+                </p>
+                <p className="mt-2 font-ds-mono text-ds-mono-xs text-[var(--landing-accent-bright)]">
+                  {value}
+                </p>
               </div>
             ))}
           </div>
-
-          <div className="mt-4 rounded-lg bg-orange-50 p-3 text-sm leading-6 text-orange-950 dark:bg-orange-950/25 dark:text-orange-100">
-            Insert or complete a todo. The collection changes first, then the
-            live query result updates immediately while the server catches up.
+          <div className="mt-4 rounded-lg bg-[color:rgb(var(--landing-glow)/0.12)] p-4">
+            <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
+              persist on your cadence
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2 text-ds-body-xs text-text-primary/45">
+              <span>debounce</span>
+              <span>·</span>
+              <span>throttle</span>
+              <span>·</span>
+              <span>queue</span>
+            </div>
           </div>
         </div>
+
+        <div className="min-w-0 p-4 sm:p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="font-ds-mono text-ds-mono-2xs text-text-primary/70">
+              useLiveQuery(openTodos)
+            </p>
+            <span
+              className={
+                state === 'failed'
+                  ? 'rounded bg-red-400 px-2 py-1 font-ds-mono text-ds-mono-caps-xs uppercase text-red-950'
+                  : 'rounded bg-[var(--landing-accent)] px-2 py-1 font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-ink)]'
+              }
+              aria-live="polite"
+            >
+              {transactionLabel}
+            </span>
+          </div>
+
+          <div className="mt-4 overflow-hidden rounded-lg border border-border-subtle">
+            <div className="grid grid-cols-[1fr_auto] bg-background-subtle px-3 py-2 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+              <span>open task</span>
+              <span>sync state</span>
+            </div>
+            {!hasOptimisticChange ? (
+              <TodoRow
+                title="Ship invite flow"
+                state={state === 'failed' ? 'restored' : 'synced'}
+              />
+            ) : null}
+            <TodoRow title="Review pricing copy" state="synced" />
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            {state === 'idle' || state === 'failed' || state === 'completed' ? (
+              <button
+                type="button"
+                className="rounded-lg bg-[var(--landing-accent)] px-3 py-2 text-ds-label-sm text-[var(--landing-accent-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
+                onClick={() => setState('persisting')}
+              >
+                Complete first task
+              </button>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-2 rounded-lg bg-emerald-400 px-3 py-2 text-ds-label-sm text-emerald-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                  onClick={() => setState('completed')}
+                >
+                  <CheckCircle aria-hidden="true" size={15} /> Server confirms
+                </button>
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-2 rounded-lg border border-red-400 px-3 py-2 text-ds-label-sm text-red-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
+                  onClick={() => setState('failed')}
+                >
+                  <XCircle aria-hidden="true" size={15} /> Server rejects
+                </button>
+              </>
+            )}
+            {state !== 'idle' ? (
+              <button
+                type="button"
+                className="rounded-lg px-3 py-2 text-ds-label-sm text-text-primary/35 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary"
+                onClick={() => setState('idle')}
+              >
+                Reset
+              </button>
+            ) : null}
+          </div>
+
+          <p className="mt-5 text-ds-body-xs text-text-primary/35">
+            The live result changes immediately. Persistence either confirms the
+            local state or removes it automatically when the handler fails.
+          </p>
+        </div>
       </div>
+    </LandingWindow>
+  )
+}
+
+function TodoRow({ state, title }: { state: string; title: string }) {
+  return (
+    <div className="grid grid-cols-[1fr_auto] items-center gap-4 border-t border-border-subtle bg-background-surface px-3 py-3">
+      <span className="truncate text-ds-label-sm text-text-primary/75">
+        {title}
+      </span>
+      <span className="font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
+        {state}
+      </span>
     </div>
   )
 }
 
-function PipelinePanel() {
+function DataShapeChoices() {
+  const choices = [
+    {
+      number: '01',
+      title: 'Endpoint per screen',
+      detail:
+        'The backend inherits every view and relationship the product invents.',
+      accent: false,
+    },
+    {
+      number: '02',
+      title: 'Load everything',
+      detail:
+        'The browser receives broad payloads and repeatedly recomputes derived views.',
+      accent: false,
+    },
+    {
+      number: '03',
+      title: 'Collections + live queries',
+      detail:
+        'Keep normalized records locally and ask for each view as a reactive query.',
+      accent: true,
+    },
+  ] as const
+
   return (
-    <div className="grid gap-3 sm:grid-cols-2">
-      {pipelineSteps.map((step, index) => (
+    <div className="mx-auto mt-14 grid max-w-[72rem] gap-4 lg:grid-cols-3">
+      {choices.map((choice) => (
         <div
-          key={step.label}
-          className="rounded-lg border border-zinc-200 bg-[#fff7ed] p-4 dark:border-zinc-800 dark:bg-zinc-900"
+          key={choice.number}
+          className={
+            choice.accent
+              ? 'rounded-xl border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.18)] p-6 shadow-[0_20px_60px_rgb(var(--landing-glow)/0.12)]'
+              : 'rounded-xl border border-border-subtle bg-background-surface p-6'
+          }
         >
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-orange-100 text-sm font-black text-orange-800 dark:bg-orange-950 dark:text-orange-200">
-            {index + 1}
-          </span>
-          <h3 className="mt-4 text-lg font-black leading-tight">
-            {step.label}
-          </h3>
-          <p className="mt-2 text-sm leading-6 text-zinc-700 dark:text-zinc-300">
-            {step.body}
+          <p className="font-ds-display text-ds-display-md text-[var(--landing-accent-bright)]">
+            {choice.number}
+          </p>
+          <h3 className="mt-5 text-ds-heading-4">{choice.title}</h3>
+          <p className="mt-4 text-ds-body-xs text-text-primary/35">
+            {choice.detail}
           </p>
         </div>
       ))}
@@ -557,114 +332,187 @@ function PipelinePanel() {
   )
 }
 
-function SyncPanel() {
+function LiveQueryLab() {
+  const [team, setTeam] = React.useState<'all' | 'platform' | 'growth'>('all')
+  const joinedRows = issues.flatMap((issue) => {
+    const project = projects.find((item) => item.id === issue.projectId)
+    if (
+      !project ||
+      issue.status !== 'open' ||
+      (team !== 'all' && project.team !== team)
+    ) {
+      return []
+    }
+    return [
+      {
+        id: issue.id,
+        priority: issue.priority,
+        project: project.name,
+        title: issue.title,
+      },
+    ]
+  })
+
+  const filters = [
+    { id: 'all', label: 'All teams' },
+    { id: 'platform', label: 'Platform' },
+    { id: 'growth', label: 'Growth' },
+  ] as const
+
   return (
-    <div className="min-w-0 rounded-lg border border-orange-200 bg-white p-4 dark:border-orange-900 dark:bg-zinc-950">
-      <div className="rounded-lg bg-zinc-950 p-4 text-sm text-orange-100 dark:bg-black">
-        <p className="font-mono leading-6">
-          useLiveQuery((q) =&gt;
-          <br />
-          &nbsp;&nbsp;q.from({'{'} issue: issuesCollection {'}'})
-          <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;.join({'{'} project: projectsCollection {'}'},
-          ({`{`} issue, project {`}`}) =&gt;
-          <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;eq(issue.projectId, project.id))
-          <br />
-          &nbsp;&nbsp;&nbsp;&nbsp;.orderBy(({`{`} issue {`}`}) =&gt;
-          issue.updatedAt, &quot;desc&quot;))
+    <LandingWindow label="cross-collection live query">
+      <div className="p-5">
+        <pre className="overflow-x-auto rounded-lg bg-ds-neutral-500 p-4">
+          <code className="font-ds-mono text-ds-mono-xs text-white/55">
+            <span className="text-[var(--landing-accent-bright)]">from</span>{' '}
+            issues
+            <br />
+            <span className="text-[var(--landing-accent-bright)]">
+              join
+            </span>{' '}
+            projects on projectId
+            <br />
+            <span className="text-[var(--landing-accent-bright)]">
+              where
+            </span>{' '}
+            status = open
+          </code>
+        </pre>
+        <div
+          className="mt-4 flex flex-wrap gap-2"
+          role="group"
+          aria-label="Team filter"
+        >
+          {filters.map((filter) => (
+            <button
+              key={filter.id}
+              type="button"
+              aria-pressed={team === filter.id}
+              className="rounded-full border border-border-default px-3 py-1.5 text-ds-label-sm text-text-primary/35 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
+              onClick={() => setTeam(filter.id)}
+            >
+              {filter.label}
+            </button>
+          ))}
+        </div>
+        <div className="mt-4 space-y-2" aria-live="polite">
+          {joinedRows.map((row) => (
+            <div
+              key={row.id}
+              className="grid gap-2 rounded-lg border border-border-subtle bg-background-subtle p-3 sm:grid-cols-[auto_1fr_auto] sm:items-center"
+            >
+              <span className="font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
+                {row.id}
+              </span>
+              <span className="min-w-0 truncate text-ds-label-sm text-text-primary/70">
+                {row.title}
+              </span>
+              <span className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/30">
+                {row.project} · {row.priority}
+              </span>
+            </div>
+          ))}
+        </div>
+        <p className="mt-4 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+          {joinedRows.length} result{joinedRows.length === 1 ? '' : 's'} ·
+          inferred output
         </p>
       </div>
+    </LandingWindow>
+  )
+}
 
-      <div className="mt-4 grid gap-3 md:grid-cols-2">
-        {queryDrivenSync.map((item) => (
-          <div
-            key={item.label}
-            className="rounded-lg border border-zinc-200 bg-[#fff8f0] p-4 dark:border-zinc-800 dark:bg-zinc-900"
-          >
-            <p className="text-[0.65rem] font-black uppercase text-zinc-500 dark:text-zinc-400">
-              {item.label}
-            </p>
-            <p className="mt-2 text-sm font-bold leading-6 text-zinc-950 dark:text-white">
-              {item.value}
-            </p>
+function QueryDrivenSync() {
+  const steps = [
+    {
+      icon: Funnel,
+      label: 'active query',
+      code: 'team = platform · limit 20',
+    },
+    {
+      icon: Network,
+      label: 'load subset',
+      code: 'ctx.meta.loadSubsetOptions',
+    },
+    {
+      icon: Database,
+      label: 'API request',
+      code: 'GET /issues?team=platform&limit=20',
+    },
+  ] as const
+
+  return (
+    <LandingWindow label="query-driven sync">
+      <ol className="p-5 sm:p-6">
+        {steps.map((step, index) => {
+          const Icon = step.icon
+          return (
+            <React.Fragment key={step.label}>
+              <li className="grid gap-4 rounded-xl border border-border-subtle bg-background-subtle p-4 sm:grid-cols-[auto_1fr] sm:items-center">
+                <span className="flex size-10 items-center justify-center rounded-lg bg-[var(--landing-accent)] text-[var(--landing-accent-ink)]">
+                  <Icon aria-hidden="true" size={19} />
+                </span>
+                <div className="min-w-0">
+                  <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+                    {step.label}
+                  </p>
+                  <p className="mt-2 overflow-x-auto font-ds-mono text-ds-mono-2xs text-text-primary/70">
+                    {step.code}
+                  </p>
+                </div>
+              </li>
+              {index < steps.length - 1 ? (
+                <div
+                  aria-hidden="true"
+                  className="ml-5 h-5 w-px bg-[var(--landing-accent)]"
+                />
+              ) : null}
+            </React.Fragment>
+          )
+        })}
+      </ol>
+    </LandingWindow>
+  )
+}
+
+function AdoptionPaths() {
+  return (
+    <div className="mx-auto mt-14 max-w-[72rem] overflow-hidden rounded-xl border border-border-default bg-background-surface">
+      {adoptionPaths.map((path, index) => (
+        <div
+          key={path.source}
+          className="grid gap-5 border-b border-border-subtle p-5 last:border-b-0 md:grid-cols-[0.7fr_auto_1fr] md:items-center md:p-7"
+        >
+          <div className="flex items-center gap-3">
+            <Stack
+              aria-hidden="true"
+              className="text-[var(--landing-accent-bright)]"
+              size={20}
+            />
+            <p className="text-ds-heading-5">{path.source}</p>
           </div>
-        ))}
-      </div>
+          <div className="flex items-center gap-3 text-[var(--landing-accent-bright)]">
+            <ArrowRight
+              aria-hidden="true"
+              className="rotate-90 md:rotate-0"
+              size={18}
+            />
+            <span className="rounded-full border border-[var(--landing-accent)] px-3 py-1.5 font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
+              {path.bridge}
+            </span>
+          </div>
+          <div>
+            <p className="text-ds-body-sm text-text-primary/45">
+              {path.detail}
+            </p>
+            {index === adoptionPaths.length - 1 ? (
+              <p className="mt-2 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+                same collection · same live query
+              </p>
+            ) : null}
+          </div>
+        </div>
+      ))}
     </div>
-  )
-}
-
-function FeatureCard({
-  body,
-  icon,
-  title,
-}: {
-  body: string
-  icon: React.ReactNode
-  title: string
-}) {
-  return (
-    <div className="rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
-      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-200">
-        {icon}
-      </span>
-      <h3 className="mt-4 text-xl font-black leading-tight">{title}</h3>
-      <p className="mt-3 text-sm leading-6 text-zinc-700 dark:text-zinc-300">
-        {body}
-      </p>
-    </div>
-  )
-}
-
-function SectionKicker({
-  children,
-  icon,
-}: {
-  children: React.ReactNode
-  icon: React.ReactNode
-}) {
-  return (
-    <p className="inline-flex items-center gap-2 text-sm font-black uppercase text-orange-700 dark:text-orange-300">
-      {icon}
-      {children}
-    </p>
-  )
-}
-
-function ProofPill({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="border-l-2 border-orange-500 pl-3">
-      <p className="text-sm font-black text-zinc-950 dark:text-white">
-        {label}
-      </p>
-      <p className="mt-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">
-        {value}
-      </p>
-    </div>
-  )
-}
-
-function DbLink({
-  icon,
-  label,
-  params,
-  to,
-}: {
-  icon: React.ReactNode
-  label: string
-  params: Record<string, string>
-  to: string
-}) {
-  return (
-    <Link
-      to={to}
-      params={params}
-      className="inline-flex w-full max-w-full items-center justify-center gap-2 rounded-lg border border-zinc-950 bg-zinc-950 px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-zinc-800 dark:border-white dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200 sm:w-auto"
-    >
-      {icon}
-      {label}
-      <ArrowRight size={15} aria-hidden="true" />
-    </Link>
   )
 }

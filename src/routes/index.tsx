@@ -770,7 +770,10 @@ function PrincipleProof({
             ['query.data', 'Project[]'],
             ['form.email', 'Field<string>'],
           ].map(([name, value]) => (
-            <div key={name} className="flex items-baseline justify-between gap-4">
+            <div
+              key={name}
+              className="flex items-baseline justify-between gap-4"
+            >
               <span>{name}</span>
               <span
                 className={twMerge(

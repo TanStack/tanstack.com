@@ -77,7 +77,9 @@ function SocialProofSkeleton() {
               <div className="h-12 bg-gray-200/70 dark:bg-gray-800/70 animate-pulse" />
               <div
                 className="grid gap-px bg-gray-200/70 dark:bg-gray-800/70"
-                style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
+                style={{
+                  gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+                }}
               >
                 {Array.from({ length: cols * 2 }).map((_, index) => (
                   <div

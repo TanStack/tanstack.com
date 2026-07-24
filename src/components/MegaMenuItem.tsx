@@ -64,9 +64,7 @@ export function MegaMenuItem({
 
   const content = (
     <>
-      {Icon ? (
-        <Icon className="h-7 w-7 shrink-0 text-text-secondary" />
-      ) : null}
+      {Icon ? <Icon className="h-7 w-7 shrink-0 text-text-secondary" /> : null}
       <span className="flex min-w-0 flex-1 flex-col gap-1.5">
         <span className="flex items-center gap-2">
           <span className="font-ds-display text-ds-heading-5 text-text-primary">

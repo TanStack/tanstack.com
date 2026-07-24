@@ -120,111 +120,111 @@ export function LibrariesOverlay({
             <X className="size-10" weight="light" />
           </DialogPrimitive.Close>
           <div className="mx-auto flex w-full max-w-6xl flex-col px-6 pb-16 pt-24 sm:px-10 sm:pt-28 lg:px-4">
-          <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-6">
-            {activeFrameworkOption ? (
-              <div className="min-w-0">
-                <div className="flex items-center gap-3">
-                  <img
-                    src={activeFrameworkOption.logo}
-                    alt=""
-                    className="h-9 w-9 object-contain"
-                  />
-                  <DialogPrimitive.Title className="font-ds-display text-3xl font-medium text-text-primary">
-                    TanStack {activeFrameworkOption.label} libraries
-                  </DialogPrimitive.Title>
-                </div>
-                <DialogPrimitive.Description className="mt-2 max-w-2xl font-ds-mono text-xs leading-relaxed text-text-secondary">
-                  Type-safe, headless TanStack primitives with{' '}
-                  {activeFrameworkOption.label} support for routing, data, UI,
-                  performance, and tooling.
-                </DialogPrimitive.Description>
-              </div>
-            ) : (
-              <>
-                <DialogPrimitive.Title className="font-ds-display text-3xl font-medium text-text-primary">
-                  All Libraries
-                </DialogPrimitive.Title>
-                <DialogPrimitive.Description className="sr-only">
-                  Browse the full set of public TanStack libraries.
-                </DialogPrimitive.Description>
-              </>
-            )}
-
-            <Dropdown>
-              <DropdownTrigger>
-                <button
-                  type="button"
-                  className="inline-flex shrink-0 items-center gap-2 rounded-lg corner-squircle border border-black/[0.06] bg-background-surface px-3 py-2 font-ds-mono text-xs text-text-primary transition-colors hover:border-border-strong dark:border-white/[0.08] dark:bg-[#0a0a0a]"
-                >
-                  {activeFrameworkOption ? (
+            <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-6">
+              {activeFrameworkOption ? (
+                <div className="min-w-0">
+                  <div className="flex items-center gap-3">
                     <img
                       src={activeFrameworkOption.logo}
                       alt=""
-                      className="h-4 w-4 object-contain opacity-80 brightness-0 dark:invert"
+                      className="h-9 w-9 object-contain"
                     />
-                  ) : null}
-                  <span>
-                    {activeFrameworkOption
-                      ? activeFrameworkOption.label
-                      : 'All frameworks'}
-                  </span>
-                  <CaretDown className="size-3 text-text-secondary" />
-                </button>
-              </DropdownTrigger>
-              <DropdownContent
-                align="end"
-                className="max-h-[60vh] overflow-y-auto font-ds-mono"
-              >
-                <DropdownItem onSelect={() => setActiveFramework(null)}>
-                  <span className="flex-1">All frameworks</span>
-                  <span className="text-text-muted">{ordered.length}</span>
-                  {activeFramework === null ? (
-                    <Check className="size-4 text-text-primary" />
-                  ) : null}
-                </DropdownItem>
-                <DropdownSeparator />
-                {frameworksWithLibraries.map((framework) => (
-                  <DropdownItem
-                    key={framework.value}
-                    onSelect={() => setActiveFramework(framework.value)}
+                    <DialogPrimitive.Title className="font-ds-display text-3xl font-medium text-text-primary">
+                      TanStack {activeFrameworkOption.label} libraries
+                    </DialogPrimitive.Title>
+                  </div>
+                  <DialogPrimitive.Description className="mt-2 max-w-2xl font-ds-mono text-xs leading-relaxed text-text-secondary">
+                    Type-safe, headless TanStack primitives with{' '}
+                    {activeFrameworkOption.label} support for routing, data, UI,
+                    performance, and tooling.
+                  </DialogPrimitive.Description>
+                </div>
+              ) : (
+                <>
+                  <DialogPrimitive.Title className="font-ds-display text-3xl font-medium text-text-primary">
+                    All Libraries
+                  </DialogPrimitive.Title>
+                  <DialogPrimitive.Description className="sr-only">
+                    Browse the full set of public TanStack libraries.
+                  </DialogPrimitive.Description>
+                </>
+              )}
+
+              <Dropdown>
+                <DropdownTrigger>
+                  <button
+                    type="button"
+                    className="inline-flex shrink-0 items-center gap-2 rounded-lg corner-squircle border border-black/[0.06] bg-background-surface px-3 py-2 font-ds-mono text-xs text-text-primary transition-colors hover:border-border-strong dark:border-white/[0.08] dark:bg-[#0a0a0a]"
                   >
-                    <img
-                      src={framework.logo}
-                      alt=""
-                      loading="lazy"
-                      className="h-4 w-4 object-contain opacity-80 brightness-0 dark:invert"
-                    />
-                    <span className="flex-1">{framework.label}</span>
-                    <span className="text-text-muted">
-                      {frameworkCounts[framework.value] ?? 0}
+                    {activeFrameworkOption ? (
+                      <img
+                        src={activeFrameworkOption.logo}
+                        alt=""
+                        className="h-4 w-4 object-contain opacity-80 brightness-0 dark:invert"
+                      />
+                    ) : null}
+                    <span>
+                      {activeFrameworkOption
+                        ? activeFrameworkOption.label
+                        : 'All frameworks'}
                     </span>
-                    {activeFramework === framework.value ? (
+                    <CaretDown className="size-3 text-text-secondary" />
+                  </button>
+                </DropdownTrigger>
+                <DropdownContent
+                  align="end"
+                  className="max-h-[60vh] overflow-y-auto font-ds-mono"
+                >
+                  <DropdownItem onSelect={() => setActiveFramework(null)}>
+                    <span className="flex-1">All frameworks</span>
+                    <span className="text-text-muted">{ordered.length}</span>
+                    {activeFramework === null ? (
                       <Check className="size-4 text-text-primary" />
                     ) : null}
                   </DropdownItem>
-                ))}
-              </DropdownContent>
-            </Dropdown>
-          </div>
-
-          <div className="mt-6 flex flex-col gap-6 sm:mt-10 sm:gap-10">
-            {sections.map((section) => (
-              <section key={section.key}>
-                <Eyebrow category={section.key}>{section.label}</Eyebrow>
-                <div className="mt-3 grid grid-cols-1 gap-0 overflow-hidden rounded-2xl corner-squircle border border-black/[0.08] divide-y divide-black/[0.08] dark:border-white/[0.08] dark:divide-white/[0.08] sm:mt-4 sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:rounded-none sm:border-0 sm:divide-y-0">
-                  {section.cards.map(({ library, delay }) => (
-                    <div
-                      key={library.id}
-                      className="h-full animate-library-card-reveal"
-                      style={{ animationDelay: `${delay}ms` }}
+                  <DropdownSeparator />
+                  {frameworksWithLibraries.map((framework) => (
+                    <DropdownItem
+                      key={framework.value}
+                      onSelect={() => setActiveFramework(framework.value)}
                     >
-                      <LibraryGridCard library={library as Library} />
-                    </div>
+                      <img
+                        src={framework.logo}
+                        alt=""
+                        loading="lazy"
+                        className="h-4 w-4 object-contain opacity-80 brightness-0 dark:invert"
+                      />
+                      <span className="flex-1">{framework.label}</span>
+                      <span className="text-text-muted">
+                        {frameworkCounts[framework.value] ?? 0}
+                      </span>
+                      {activeFramework === framework.value ? (
+                        <Check className="size-4 text-text-primary" />
+                      ) : null}
+                    </DropdownItem>
                   ))}
-                </div>
-              </section>
-            ))}
-          </div>
+                </DropdownContent>
+              </Dropdown>
+            </div>
+
+            <div className="mt-6 flex flex-col gap-6 sm:mt-10 sm:gap-10">
+              {sections.map((section) => (
+                <section key={section.key}>
+                  <Eyebrow category={section.key}>{section.label}</Eyebrow>
+                  <div className="mt-3 grid grid-cols-1 gap-0 overflow-hidden rounded-2xl corner-squircle border border-black/[0.08] divide-y divide-black/[0.08] dark:border-white/[0.08] dark:divide-white/[0.08] sm:mt-4 sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:rounded-none sm:border-0 sm:divide-y-0">
+                    {section.cards.map(({ library, delay }) => (
+                      <div
+                        key={library.id}
+                        className="h-full animate-library-card-reveal"
+                        style={{ animationDelay: `${delay}ms` }}
+                      >
+                        <LibraryGridCard library={library as Library} />
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              ))}
+            </div>
           </div>
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>

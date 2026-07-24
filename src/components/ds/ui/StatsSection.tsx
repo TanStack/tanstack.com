@@ -81,13 +81,7 @@ function StatValue({
 
 /* --------------------------------------------------------------- home cards -- */
 
-function HomeStatCard({
-  stat,
-  iconTop,
-}: {
-  stat: StatItem
-  iconTop: boolean
-}) {
+function HomeStatCard({ stat, iconTop }: { stat: StatItem; iconTop: boolean }) {
   const className = twMerge(
     'rounded-xl border border-border-subtle bg-background-surface p-5',
     iconTop ? 'flex flex-col items-start gap-4' : 'flex items-center gap-4',

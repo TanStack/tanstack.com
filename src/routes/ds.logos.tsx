@@ -153,7 +153,9 @@ function LogosPage() {
         description="These marks are for use in connection with TanStack projects, educational materials, and content that supports the ecosystem."
       >
         <ul className="list-disc space-y-2 pl-5 text-ds-body-sm text-text-secondary">
-          <li>Keep the original proportions — never stretch or distort a mark.</li>
+          <li>
+            Keep the original proportions — never stretch or distort a mark.
+          </li>
           <li>
             Leave clear space around the mark equal to the height of the “T” in
             TanStack.

@@ -2,14 +2,12 @@ import { ArrowsLeftRight, Gauge, MagicWand } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { pacer } from './libraries'
 
-const textStyles = `text-lime-600 dark:text-lime-500`
+const textStyles = 'text-category-performance'
 
 export const pacerProject = {
   ...pacer,
   description: `Optimize your application's performance with TanStack Pacer's core primitives: Debouncing, Throttling, Rate Limiting, Queuing, and Batching.`,
   latestBranch: 'main',
-  bgRadial: 'from-lime-500 via-lime-700/50 to-transparent',
-  textColor: `text-lime-700`,
   defaultDocs: 'overview',
   featureHighlights: [
     {

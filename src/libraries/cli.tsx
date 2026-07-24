@@ -8,7 +8,7 @@ import {
 import { twMerge } from 'tailwind-merge'
 import { cli } from './libraries'
 
-const textStyles = 'text-indigo-600 dark:text-indigo-400'
+const textStyles = 'text-category-tooling'
 
 export const cliProject = {
   ...cli,

@@ -3,14 +3,12 @@ import { Plug, Lightning, Gear } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { ai } from './libraries'
 
-const textStyles = `text-pink-600 dark:text-pink-500`
+const textStyles = 'text-category-data'
 
 export const aiProject = {
   ...ai,
   description: `A powerful, open-source AI SDK with a unified interface across multiple providers. No vendor lock-in, no proprietary formats, just clean TypeScript and honest open source.`,
   latestBranch: 'main',
-  bgRadial: 'from-pink-500 via-pink-700/50 to-transparent',
-  textColor: `text-pink-700`,
   defaultDocs: 'getting-started/overview',
   featureHighlights: [
     {

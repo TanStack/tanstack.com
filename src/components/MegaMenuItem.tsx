@@ -58,7 +58,7 @@ export function MegaMenuItem({
     // light menu panels).
     'hover:rounded-[14px] hover:bg-text-primary/[0.04] focus:bg-text-primary/[0.04] focus:outline-none active:bg-text-primary/[0.12]',
     compact && 'border border-border-subtle bg-background-surface',
-    variant === 'desktop' && !compact && 'w-[260px]',
+    variant === 'desktop' && !compact && 'w-[330px]',
     variant === 'mobile' && 'py-2.5',
     className,
   )
@@ -77,7 +77,7 @@ export function MegaMenuItem({
           {/* Rest = neutral tint (Figma neutral/tint/200); brightens to
               text-primary on hover. Plain string (not twMerge) so the DS size
               utility and the color utilities coexist. */}
-          <span className="font-ds-display text-ds-heading-5 text-text-menu-title transition-colors group-hover/mmi:text-text-primary group-active/mmi:text-text-primary">
+          <span className="font-ds-display text-ds-heading-5 whitespace-nowrap text-text-menu-title transition-colors group-hover/mmi:text-text-primary group-active/mmi:text-text-primary">
             {title}
           </span>
           {badge ? (
@@ -92,8 +92,10 @@ export function MegaMenuItem({
         {description ? (
           // Plain string (not twMerge) — the DS text-size and text-color
           // utilities both start with `text-`, and twMerge would drop the color.
+          // Desktop rows never wrap the subtext (keeps the column balanced);
+          // descriptions are copy-constrained to fit the 330px item width.
           <span
-            className={`block text-text-secondary ${variant === 'desktop' ? 'text-ds-body-xs' : 'text-ds-body-sm'}`}
+            className={`block text-text-secondary ${variant === 'desktop' ? 'text-ds-body-xs whitespace-nowrap' : 'text-ds-body-sm'}`}
           >
             {description}
           </span>

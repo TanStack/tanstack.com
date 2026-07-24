@@ -183,7 +183,7 @@ const NAV_GROUPS = [
           {
             label: 'Workshops',
             to: '/workshops',
-            description: 'Remote and in-person sessions from maintainers.',
+            description: 'Live sessions from the maintainers.',
             icon: Users,
           },
           {
@@ -206,7 +206,7 @@ const NAV_GROUPS = [
           {
             label: 'Discord',
             to: 'https://tlinz.com/discord',
-            description: 'Community support and real-time discussion.',
+            description: 'Real-time community support.',
             icon: DiscordIcon,
           },
           {
@@ -235,7 +235,7 @@ const NAV_GROUPS = [
           {
             label: 'Showcase',
             to: '/showcase',
-            description: 'Products and teams building with TanStack.',
+            description: 'Teams building with TanStack.',
             icon: Sparkles,
           },
         ],
@@ -318,7 +318,7 @@ const NAV_GROUPS = [
           {
             label: 'Ethos',
             to: '/ethos',
-            description: 'How we think about open source and products.',
+            description: 'How we approach open source.',
             icon: ShieldCheck,
           },
           {
@@ -330,7 +330,7 @@ const NAV_GROUPS = [
           {
             label: 'Design System',
             to: '/ds',
-            description: 'Design tokens and components for TanStack surfaces.',
+            description: 'Logos, tokens, and UI components.',
             icon: GridFour,
           },
         ],
@@ -963,7 +963,7 @@ function MegaMenuContent({
             'grid gap-3',
             variant === 'desktop' &&
               group.sections.length > 1 &&
-              'grid-cols-[repeat(2,260px)]',
+              'grid-cols-[repeat(2,330px)]',
           )}
         >
           {group.sections.map((section, sectionIndex) => (
@@ -982,10 +982,10 @@ function MegaMenuContent({
                   'grid gap-2',
                   variant === 'desktop' &&
                     group.key === 'learn' &&
-                    'grid-cols-[repeat(2,260px)]',
+                    'grid-cols-[repeat(2,330px)]',
                   variant === 'desktop' &&
                     group.key === 'tools' &&
-                    'grid-cols-[repeat(2,260px)]',
+                    'grid-cols-[repeat(2,330px)]',
                 )}
               >
                 {section.items.map((item) => (

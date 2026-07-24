@@ -144,12 +144,8 @@ export const categoryStyles: Record<LibraryCategory, CategoryStyle> = {
     colorTo: 'to-category-tooling',
     bgRadial: 'from-category-tooling via-category-tooling/60 to-transparent',
     badgeTextStyle: 'text-white',
-    // Tooling's brand color is neutral gray; keep a legible blue accent for
-    // functional docs UI (sidebar/TOC/prev-next links) so they don't read as
-    // low-contrast gray.
-    accentColorFrom: 'from-ds-blue-400',
-    accentColorTo: 'to-ds-blue-500',
-    accentTextColor: 'text-ds-blue-500 dark:text-ds-blue-300',
+    // No accent override: tooling reads neutral everywhere (menu, landing, docs)
+    // from the single-source category token, which is contrast-tuned per mode.
   },
 }
 

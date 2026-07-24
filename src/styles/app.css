@@ -182,14 +182,61 @@ html.theme-switching *::after {
   --color-lib-cli: #490abd;
   --color-lib-intent: #5cafdf;
 
-  /* --- Library category colors (mode-aware: DS palette 400 light / 300 dark).
-     Drive `text-category-*` / `bg-category-*` for the mega-menu labels and the
-     per-category icon hover. Dark values are overridden in html.dark below. --- */
+  /* ================================================================
+     LIBRARY CATEGORY COLORS — SINGLE SOURCE OF TRUTH.
+     Each category maps to ONE DS palette ramp. Change a category's hue
+     by swapping its ramp here and it flows everywhere it's themed:
+     the mega-menu, docs pages, and library landing pages.
+       framework → green   data → terracotta   ui → blue
+       performance → amber   tooling → neutral
+     `--color-category-<cat>` is the mode-aware LABEL color (400 light /
+     300 dark, overridden in html.dark below) used by the mega-menu and
+     docs. The `-<role>` tokens are mode-stable ramp steps the landing
+     shell composes itself (it does its own light/dark switching), so
+     they are NOT overridden in html.dark.
+     ================================================================ */
   --color-category-framework: var(--color-ds-green-400);
+  --color-category-framework-accent: var(--color-ds-green-400);
+  --color-category-framework-bright: var(--color-ds-green-300);
+  --color-category-framework-deep: var(--color-ds-green-500);
+  --color-category-framework-tint: var(--color-ds-green-100);
+  --color-category-framework-ink: #04130a;
+  --color-category-framework-glow: 68 165 78;
+
   --color-category-data: var(--color-ds-terracotta-400);
+  --color-category-data-accent: var(--color-ds-terracotta-400);
+  --color-category-data-bright: var(--color-ds-terracotta-300);
+  --color-category-data-deep: var(--color-ds-terracotta-500);
+  --color-category-data-tint: var(--color-ds-terracotta-100);
+  --color-category-data-ink: #000000;
+  --color-category-data-glow: 195 80 43;
+
   --color-category-ui: var(--color-ds-blue-400);
-  --color-category-performance: var(--color-ds-purple-400);
-  --color-category-tooling: var(--color-ds-amber-400);
+  --color-category-ui-accent: var(--color-ds-blue-400);
+  --color-category-ui-bright: var(--color-ds-blue-300);
+  --color-category-ui-deep: var(--color-ds-blue-500);
+  --color-category-ui-tint: var(--color-ds-blue-100);
+  --color-category-ui-ink: #031219;
+  --color-category-ui-glow: 70 157 184;
+
+  --color-category-performance: var(--color-ds-amber-400);
+  --color-category-performance-accent: var(--color-ds-amber-400);
+  --color-category-performance-bright: var(--color-ds-amber-300);
+  --color-category-performance-deep: var(--color-ds-amber-500);
+  --color-category-performance-tint: var(--color-ds-amber-100);
+  --color-category-performance-ink: #171003;
+  --color-category-performance-glow: 235 158 42;
+
+  /* tooling → neutral. The label base is a dark warm-gray for legibility on
+     light surfaces (flips to a light gray on dark, below); the landing accent
+     stays a lighter gray so the wordmark reads on the dark landing hero. */
+  --color-category-tooling: var(--color-ds-neutral-400);
+  --color-category-tooling-accent: var(--color-ds-neutral-200);
+  --color-category-tooling-bright: var(--color-ds-neutral-100);
+  --color-category-tooling-deep: var(--color-ds-neutral-400);
+  --color-category-tooling-tint: var(--color-ds-neutral-100);
+  --color-category-tooling-ink: #111111;
+  --color-category-tooling-glow: 171 165 148;
 
   /* --- Semantic tokens (reference primitives so edits propagate) --- */
   /* NOTE: Figma reported text/primary as #ffffff (a dark-mode/mode artifact);
@@ -381,12 +428,13 @@ html.dark {
   --color-border-error: #d37556;
   --color-border-success: #70b57a;
 
-  /* Category colors step up to the 300s in dark for legibility on #111. */
+  /* Category label color steps up in dark for legibility on #111 (only the
+     mode-aware base flips; the landing `-<role>` steps are mode-stable). */
   --color-category-framework: var(--color-ds-green-300);
   --color-category-data: var(--color-ds-terracotta-300);
   --color-category-ui: var(--color-ds-blue-300);
-  --color-category-performance: var(--color-ds-purple-300);
-  --color-category-tooling: var(--color-ds-amber-300);
+  --color-category-performance: var(--color-ds-amber-300);
+  --color-category-tooling: var(--color-ds-neutral-200);
 
   --color-icon-default: #aba594;
   --color-icon-accent: #69a8b7;

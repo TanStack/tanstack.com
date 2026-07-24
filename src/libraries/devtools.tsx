@@ -2,7 +2,7 @@ import { MagicWand, Lightning, Gear } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { devtools } from './libraries'
 
-const textStyles = 'text-black dark:text-gray-100'
+const textStyles = 'text-category-tooling'
 
 export const devtoolsProject = {
   ...devtools,
@@ -11,7 +11,7 @@ export const devtoolsProject = {
   featureHighlights: [
     {
       title: 'Unified Devtools Panel',
-      icon: <MagicWand className="text-black dark:text-gray-100" />,
+      icon: <MagicWand className="text-category-tooling" />,
       description: (
         <div>
           TanStack Devtools provides a centralized panel that houses all
@@ -26,7 +26,7 @@ export const devtoolsProject = {
     },
     {
       title: 'Framework Agnostic',
-      icon: <Lightning className="text-black dark:text-gray-100" />,
+      icon: <Lightning className="text-category-tooling" />,
       description: (
         <div>
           Built with Solid.js for lightweight performance, but designed to work
@@ -41,7 +41,7 @@ export const devtoolsProject = {
     },
     {
       title: 'Custom Devtools Support',
-      icon: <Gear className="text-black dark:text-gray-100" />,
+      icon: <Gear className="text-category-tooling" />,
       description: (
         <div>
           Extend the devtools panel with your own custom devtools. The platform

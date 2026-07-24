@@ -839,7 +839,7 @@ function DesktopNavDropdown({
         className={twMerge(
           'ts-mega-dropdown-panel ts-glass-menu rounded-xl',
           'w-max min-w-[var(--ts-primary-nav-target-width,0px)] max-w-[calc(100vw-2rem)]',
-          'border border-white/45 bg-white/80 p-4 shadow-2xl shadow-black/15 backdrop-blur-2xl backdrop-saturate-150',
+          'border border-white/45 bg-white/80 pt-10 px-9 pb-8 shadow-2xl shadow-black/15 backdrop-blur-2xl backdrop-saturate-150',
           'dark:border-white/10 dark:bg-black/70 dark:shadow-black/50',
         )}
       >

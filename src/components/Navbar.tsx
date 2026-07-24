@@ -14,15 +14,15 @@ import { Link, useLocation, useMatches } from '@tanstack/react-router'
 import {
   ArrowRight,
   ArrowSquareOut,
-  BookOpen,
+  Briefcase,
   Code,
   GridFour,
   Hammer,
   Heart,
-  Question as HelpCircle,
-  Envelope as Mail,
+  Infinity as InfinityIcon,
+  Lifebuoy,
+  Mailbox,
   List as Menu,
-  PaintBrush as Paintbrush,
   ShieldCheck,
   ShoppingBag,
   Sparkle as Sparkles,
@@ -283,7 +283,7 @@ const NAV_GROUPS = [
             label: 'Support Overview',
             to: '/support',
             description: 'Find the right support path.',
-            icon: HelpCircle,
+            icon: Lifebuoy,
           },
           {
             label: 'Partners',
@@ -302,13 +302,13 @@ const NAV_GROUPS = [
             label: 'Enterprise Support',
             to: '/paid-support',
             description: 'Private consulting and expert support.',
-            icon: Users,
+            icon: Briefcase,
           },
           {
             label: 'Contact',
             to: 'mailto:support@tanstack.com',
             description: 'Get in touch with the TanStack team.',
-            icon: Mail,
+            icon: Mailbox,
           },
         ],
       },
@@ -325,13 +325,7 @@ const NAV_GROUPS = [
             label: 'Tenets',
             to: '/tenets',
             description: 'The values that shape TanStack libraries.',
-            icon: BookOpen,
-          },
-          {
-            label: 'Brand Guide',
-            to: '/brand-guide',
-            description: 'Logos, colors, and brand usage.',
-            icon: Paintbrush,
+            icon: InfinityIcon,
           },
           {
             label: 'Design System',
@@ -344,13 +338,13 @@ const NAV_GROUPS = [
     ],
     rail: {
       eyebrow: 'Partners',
-      title: 'Work with TanStack',
+      title: 'Work with',
       description: 'Sponsorships, placements, and partner pages.',
       item: {
         analyticsPlacement: 'navbar',
         label: 'Partnership Inquiry',
         to: PARTNER_INQUIRY_HREF,
-        icon: Mail,
+        icon: Mailbox,
       },
     },
   },
@@ -980,7 +974,7 @@ function MegaMenuContent({
                 variant === 'mobile' && sectionIndex > 0 && 'pt-3',
               )}
             >
-              <div className="mb-2 px-2 text-xs font-black uppercase text-gray-500 dark:text-gray-400">
+              <div className="mb-2 px-2 font-ds-mono text-ds-mono-sm uppercase text-text-muted">
                 {section.label}
               </div>
               <div
@@ -1520,8 +1514,11 @@ function MenuRail({
 
   const external =
     rail.item.to.startsWith('http') || rail.item.to.startsWith('mailto:')
-  const getInTouchClassName =
-    'mt-3 inline-flex items-center gap-1.5 font-ds-mono text-ds-mono-xs uppercase tracking-wider text-text-secondary transition-colors hover:text-text-primary focus:text-text-primary focus:outline-none'
+  // Figma inset "well" shadow (neutral-400 glow + soft bottom shade), shared by
+  // the rail panel and the "Get in touch" button.
+  const insetWellShadow =
+    'shadow-[inset_0_0_3px_0_var(--color-ds-neutral-400),inset_0_-3px_1.2px_0_rgba(0,0,0,0.25)]'
+  const getInTouchClassName = `inline-flex items-center gap-1.5 self-start rounded-[11px] px-4 py-2.5 font-ds-display text-ds-body-sm font-bold text-text-muted transition-colors hover:text-text-primary focus:text-text-primary focus:outline-none ${insetWellShadow}`
   const getInTouch = (
     <>
       {rail.item.label}
@@ -1532,52 +1529,56 @@ function MenuRail({
   )
 
   return (
-    <aside className="flex h-full flex-col justify-between self-stretch border-l border-border-subtle pl-6">
-      <div>
-        <div className="font-ds-mono text-ds-mono-xs uppercase tracking-wider text-category-data">
-          {rail.eyebrow}
-        </div>
-        <p className="mt-2 text-ds-body-sm text-text-secondary">
+    <aside
+      className={`flex h-full flex-col gap-2.5 self-stretch rounded-2xl bg-black/[0.03] p-6 dark:bg-black/30 ${insetWellShadow}`}
+    >
+      <div className="font-ds-mono text-ds-mono-sm uppercase text-category-data">
+        {rail.eyebrow}
+      </div>
+      <div className="flex flex-1 flex-col justify-between gap-6">
+        <p className="text-ds-body-sm text-text-secondary">
           {rail.description}
         </p>
-      </div>
-      <div className="mt-8">
-        <div className="font-ds-display text-ds-heading-5 text-text-primary">
-          {rail.title}
+        <div className="flex flex-col items-start gap-2.5">
+          {/* "Work with" + the TanStack lockup read together as "Work with
+              TanStack" (Figma: terracotta/200 label above the landscape mark). */}
+          <div className="font-ds-display text-base font-normal text-ds-terracotta-200">
+            {rail.title}
+          </div>
+          <img
+            src="/images/brand/tanstack-landscape-black.svg"
+            alt="TanStack"
+            className="h-9 w-auto dark:hidden"
+          />
+          <img
+            src="/images/brand/tanstack-landscape-white.svg"
+            alt=""
+            aria-hidden="true"
+            className="hidden h-9 w-auto dark:block"
+          />
         </div>
-        <img
-          src="/images/brand/tanstack-stacked-black.svg"
-          alt="TanStack"
-          className="mt-3 h-11 w-auto dark:hidden"
-        />
-        <img
-          src="/images/brand/tanstack-stacked-cream.svg"
-          alt=""
-          aria-hidden="true"
-          className="mt-3 hidden h-11 w-auto dark:block"
-        />
-        {external ? (
-          <a
-            href={rail.item.to}
-            onClick={onNavigate}
-            className={getInTouchClassName}
-            {...(rail.item.to.startsWith('mailto:')
-              ? {}
-              : { target: '_blank', rel: 'noopener noreferrer' })}
-          >
-            {getInTouch}
-          </a>
-        ) : (
-          <Link
-            to={rail.item.to}
-            onClick={onNavigate}
-            preload="intent"
-            className={getInTouchClassName}
-          >
-            {getInTouch}
-          </Link>
-        )}
       </div>
+      {external ? (
+        <a
+          href={rail.item.to}
+          onClick={onNavigate}
+          className={getInTouchClassName}
+          {...(rail.item.to.startsWith('mailto:')
+            ? {}
+            : { target: '_blank', rel: 'noopener noreferrer' })}
+        >
+          {getInTouch}
+        </a>
+      ) : (
+        <Link
+          to={rail.item.to}
+          onClick={onNavigate}
+          preload="intent"
+          className={getInTouchClassName}
+        >
+          {getInTouch}
+        </Link>
+      )}
     </aside>
   )
 }

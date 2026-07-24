@@ -75,7 +75,7 @@ html.theme-switching *::after {
   --color-gray-100: #f5f2e9;
   --color-gray-200: #eae5d7;
   --color-gray-300: #d6cfbd;
-  --color-gray-400: #aba594;
+  --color-gray-400: #aea691;
   --color-gray-500: #7c7464;
   --color-gray-600: #5f574a;
   --color-gray-700: #453f34;
@@ -87,17 +87,17 @@ html.theme-switching *::after {
 /* Keep neutral grays stable before client CSS injection reorders Tailwind layers. */
 :root,
 :host {
-  --color-gray-50: #fafafa;
-  --color-gray-100: #f5f5f5;
-  --color-gray-200: #e5e5e5;
-  --color-gray-300: #d4d4d4;
-  --color-gray-400: #a3a3a3;
-  --color-gray-500: #737373;
-  --color-gray-600: #525252;
-  --color-gray-700: #404040;
-  --color-gray-800: #262626;
-  --color-gray-900: #171717;
-  --color-gray-950: #0a0a0a;
+  --color-gray-50: #faf8f2;
+  --color-gray-100: #f5f2e9;
+  --color-gray-200: #eae5d7;
+  --color-gray-300: #d6cfbd;
+  --color-gray-400: #aea691;
+  --color-gray-500: #7c7464;
+  --color-gray-600: #5f574a;
+  --color-gray-700: #453f34;
+  --color-gray-800: #332d24;
+  --color-gray-900: #201b15;
+  --color-gray-950: #111111;
 }
 
 /* Shop color tokens — inline so they resolve via var() at runtime (scoped to .shop-scope / html.dark .shop-scope) */
@@ -136,9 +136,9 @@ html.theme-switching *::after {
   --color-ds-green-400: #44a54e;
   --color-ds-green-500: #203f28;
 
-  --color-ds-terracotta-100: #f4d9c9;
-  --color-ds-terracotta-200: #e5ad95;
-  --color-ds-terracotta-300: #d37556;
+  --color-ds-terracotta-100: #f9d8c4;
+  --color-ds-terracotta-200: #edaa8d;
+  --color-ds-terracotta-300: #e06e49;
   --color-ds-terracotta-400: #c3502b;
   --color-ds-terracotta-500: #571e0e;
 
@@ -160,9 +160,12 @@ html.theme-switching *::after {
   --color-ds-amber-400: #eb9e2a;
   --color-ds-amber-500: #5a4608;
 
-  --color-ds-neutral-100: #ece9d6;
-  --color-ds-neutral-200: #aba594;
-  --color-ds-neutral-300: #736b5d;
+  --color-ds-neutral-100: #eeebd4;
+  --color-ds-neutral-200: #aea691;
+  --color-ds-neutral-300: #756c5b;
+  /* Figma `neutral/tint/200`: a cooler mid-tint used for the rest state of
+     mega-menu item titles on the dark menu panel (brightens to white on hover). */
+  --color-ds-neutral-tint-200: #c5c3bf;
   --color-ds-neutral-400: #3c352b;
   --color-ds-neutral-500: #111111;
 
@@ -244,6 +247,9 @@ html.theme-switching *::after {
   --color-text-primary: var(--color-ds-neutral-500);
   --color-text-secondary: var(--color-ds-neutral-400);
   --color-text-muted: var(--color-ds-neutral-300);
+  /* Mega-menu item title rest color; brightens to text-primary on hover.
+     Light menu → muted dark; dark menu → neutral tint (see html.dark). */
+  --color-text-menu-title: var(--color-ds-neutral-400);
   --color-text-accent: var(--color-ds-blue-500);
   --color-text-disabled: var(--color-ds-neutral-200);
   --color-text-inverse: #ffffff;
@@ -405,14 +411,15 @@ html.theme-switching *::after {
    Primitives don't change between modes — only these semantic mappings do. */
 html.dark {
   --color-text-primary: #ffffff;
-  --color-text-secondary: #aba594;
-  --color-text-muted: #736b5d;
+  --color-text-secondary: #aea691;
+  --color-text-muted: #756c5b;
+  --color-text-menu-title: var(--color-ds-neutral-tint-200);
   --color-text-accent: #69a8b7;
   --color-text-disabled: #3c352b;
   --color-text-inverse: #111111;
   --color-text-success: #70b57a;
   --color-text-warning: #e5cc57;
-  --color-text-error: #d37556;
+  --color-text-error: #e06e49;
   --color-text-info: #a2d1dc;
 
   --color-background-default: #111111;
@@ -422,10 +429,10 @@ html.dark {
   --color-background-inverse: #ffffff;
 
   --color-border-default: #2d2d2d;
-  --color-border-strong: #aba594;
+  --color-border-strong: #aea691;
   --color-border-subtle: #232323;
   --color-border-focus: #69a8b7;
-  --color-border-error: #d37556;
+  --color-border-error: #e06e49;
   --color-border-success: #70b57a;
 
   /* Category label color steps up in dark for legibility on #111 (only the
@@ -436,33 +443,33 @@ html.dark {
   --color-category-performance: var(--color-ds-amber-300);
   --color-category-tooling: var(--color-ds-neutral-200);
 
-  --color-icon-default: #aba594;
+  --color-icon-default: #aea691;
   --color-icon-accent: #69a8b7;
-  --color-icon-muted: #736b5d;
+  --color-icon-muted: #756c5b;
   --color-icon-inverse: #111111;
   --color-icon-success: #70b57a;
   --color-icon-warning: #e5cc57;
-  --color-icon-error: #d37556;
+  --color-icon-error: #e06e49;
 
   --color-action-primary: #469db8;
   --color-action-primary-hover: #69a8b7;
   --color-action-primary-text: #ffffff;
   --color-action-secondary: #2b2b2b;
   --color-action-secondary-hover: #3a3a3a;
-  --color-action-destructive: #d37556;
+  --color-action-destructive: #e06e49;
   --color-action-disabled: #2b2b2b;
 
   --color-status-success: #70b57a;
   --color-status-success-bg: #203f28;
   --color-status-warning: #e5cc57;
   --color-status-warning-bg: #5a4608;
-  --color-status-error: #d37556;
+  --color-status-error: #e06e49;
   --color-status-error-bg: #571e0e;
   --color-status-info: #69a8b7;
   --color-status-info-bg: #013e53;
 
   --color-accent-brand: #469db8;
-  --color-accent-warm: #e5ad95;
+  --color-accent-warm: #edaa8d;
   --color-accent-highlight: #f0e18e;
   --color-accent-nature: #70b57a;
   --color-accent-creative: #be76c7;

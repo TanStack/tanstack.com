@@ -50,12 +50,13 @@ export function MegaMenuItem({
   const external = isExternal(to)
 
   const rootClassName = twMerge(
-    // Figma "Mega Menu Item": gap 10px, pl 8 / pr 16 / py 8, radius 12px.
-    // items-start so the icon's top aligns with the title's top.
-    'group/mmi flex items-start gap-2.5 rounded-xl py-2 pl-2 pr-4 text-left transition-colors',
-    // States differ only by row background: hover white/4%, pressed white/12%
-    // (mode-adaptive via text-primary so it also works on light menu panels).
-    'hover:bg-text-primary/[0.04] focus:bg-text-primary/[0.04] focus:outline-none active:bg-text-primary/[0.12]',
+    // Figma "Mege menu list item" (node 407:659): gap 10px, pl 12 / pr 16 /
+    // py 12, radius 12px (14px on hover). Icon box + text vertically centered.
+    'group/mmi flex items-center gap-2.5 rounded-xl py-3 pl-3 pr-4 text-left transition-[background-color,border-radius]',
+    // States differ only by row background: hover white/4% + radius 14px,
+    // pressed white/12% (mode-adaptive via text-primary so it also works on
+    // light menu panels).
+    'hover:rounded-[14px] hover:bg-text-primary/[0.04] focus:bg-text-primary/[0.04] focus:outline-none active:bg-text-primary/[0.12]',
     compact && 'border border-border-subtle bg-background-surface',
     variant === 'desktop' && !compact && 'w-[260px]',
     variant === 'mobile' && 'py-2.5',
@@ -64,10 +65,19 @@ export function MegaMenuItem({
 
   const content = (
     <>
-      {Icon ? <Icon className="h-7 w-7 shrink-0 text-text-secondary" /> : null}
+      {/* Figma "Menu Icon": 44px box (rounded-6) with 6px padding around a
+          32px glyph, so the icon reads consistently across rows. */}
+      {Icon ? (
+        <span className="flex size-11 shrink-0 items-center justify-center rounded-md">
+          <Icon className="h-8 w-8 text-text-secondary" />
+        </span>
+      ) : null}
       <span className="flex min-w-0 flex-1 flex-col gap-1.5">
         <span className="flex items-center gap-2">
-          <span className="font-ds-display text-ds-heading-5 text-text-primary">
+          {/* Rest = neutral tint (Figma neutral/tint/200); brightens to
+              text-primary on hover. Plain string (not twMerge) so the DS size
+              utility and the color utilities coexist. */}
+          <span className="font-ds-display text-ds-heading-5 text-text-menu-title transition-colors group-hover/mmi:text-text-primary group-active/mmi:text-text-primary">
             {title}
           </span>
           {badge ? (

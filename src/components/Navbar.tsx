@@ -1061,7 +1061,9 @@ function LibrariesMenuContent({
           />
         ))}
       </div>
-      <div className="border-t border-border-subtle pt-1.5">{allLibraries}</div>
+      <div className="flex justify-center border-t border-border-subtle pt-1.5">
+        {allLibraries}
+      </div>
     </div>
   )
 }
@@ -1091,7 +1093,7 @@ function LibraryCategoryColumn({
       >
         {column.label}
       </div>
-      <div className="flex flex-col items-stretch">
+      <div className="flex flex-col items-stretch gap-1">
         {column.libraries.map((library) => (
           <LibraryMenuRow
             key={library.id}
@@ -1117,7 +1119,10 @@ function LibraryMenuRow({
   const Icon = library.icon
   const external = library.to.startsWith('http')
   const className = twMerge(
-    'group/lib flex items-center gap-2 rounded-[14px] py-2 pl-[9px] pr-3 text-text-secondary transition-colors hover:bg-surface-state-hover hover:text-text-primary focus:bg-surface-state-hover focus:text-text-primary focus:outline-none',
+    // Subtle hover/pressed overlay matching the other mega menus (hover white/4%,
+    // pressed white/12%, mode-adaptive via text-primary). Replaces the dead
+    // `surface-state-hover` token, which was never defined.
+    'group/lib flex items-center gap-2 rounded-[14px] py-2 pl-[9px] pr-3 text-text-secondary transition-colors hover:bg-text-primary/[0.04] hover:text-text-primary focus:bg-text-primary/[0.04] focus:text-text-primary focus:outline-none active:bg-text-primary/[0.12]',
     variant === 'desktop' ? 'h-[38px]' : 'py-2.5',
   )
   const content = (

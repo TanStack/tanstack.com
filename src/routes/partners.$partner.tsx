@@ -1,20 +1,37 @@
 import * as React from 'react'
 import { Link, createFileRoute, notFound } from '@tanstack/react-router'
-import { ArrowUpRight, CheckCircle2, CircleDashed } from 'lucide-react'
+import {
+  ArrowRight,
+  ArrowUpRight,
+  CheckCircle2,
+  CircleDashed,
+} from 'lucide-react'
 import { Footer } from '~/components/Footer'
 import { Card } from '~/components/Card'
 import { Button } from '~/ui'
 import { seo } from '~/utils/seo'
-import { PartnerImage, partnerCategoryLabels } from '~/utils/partners'
+import {
+  PartnerImage,
+  partnerCategoryLabels,
+  partnerTierFlares,
+  partnerTierLabels,
+  type PartnerResourceKind,
+} from '~/utils/partners'
 import { trackEvent } from '~/utils/analytics'
 import {
   findPartnerForPage,
   getPartnerJsonLd,
-  getPartnerLibraryLabels,
   getPartnerPageCopy,
   getPartnerPageDescription,
   getPartnerPageTitle,
 } from '~/utils/partner-pages'
+import { getPartnerWindowLabel } from '~/utils/partner-lifecycle'
+
+const partnerResourceKindLabels: Record<PartnerResourceKind, string> = {
+  announcement: 'Announcement',
+  documentation: 'Documentation',
+  example: 'Example',
+}
 
 export const Route = createFileRoute('/partners/$partner')({
   loader: ({ params }) => {
@@ -60,15 +77,19 @@ function PartnerDetailPage() {
   }
 
   const copy = getPartnerPageCopy(partner)
-  const libraries = getPartnerLibraryLabels(partner)
+  const partnerWindow = getPartnerWindowLabel(partner)
   const isActive = partner.status === 'active'
+  const resources = partner.resources ?? []
+  const tier = isActive ? partner.tier : undefined
+  const tierFlare = tier ? partnerTierFlares[tier] : undefined
 
   React.useEffect(() => {
     trackEvent('partner_viewed', {
       partner_id: partner.id,
       placement: 'detail',
+      partner_tier: tier,
     })
-  }, [partner])
+  }, [partner, tier])
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -108,6 +129,16 @@ function PartnerDetailPage() {
                   <span className="inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-blue-700 dark:bg-blue-950/40 dark:text-blue-300">
                     {partnerCategoryLabels[partner.category]}
                   </span>
+                  {tier && tierFlare ? (
+                    <span
+                      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ${tierFlare.labelColor}`}
+                    >
+                      <span className={tierFlare.iconColor}>
+                        {tierFlare.icon}
+                      </span>
+                      {partnerTierLabels[tier]} Partner
+                    </span>
+                  ) : null}
                 </div>
 
                 <div>
@@ -148,6 +179,7 @@ function PartnerDetailPage() {
                         placement: 'detail',
                         destination: 'external',
                         destination_host: destinationHost,
+                        partner_tier: tier,
                       })
                     }}
                   >
@@ -167,6 +199,78 @@ function PartnerDetailPage() {
               </div>
             </div>
           </Card>
+
+          {resources.length > 0 ? (
+            <Card>
+              <div className="p-6 md:p-8">
+                <h2 className="text-2xl font-black text-gray-950 dark:text-white">
+                  Resources
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-400">
+                  Resources for using {partner.name} with TanStack.
+                </p>
+                <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                  {resources.map((resource) => {
+                    const isExternal = resource.href.startsWith('http')
+                    const className =
+                      'group flex items-center justify-between gap-4 rounded-xl border border-gray-200 bg-gray-50 p-4 transition-colors hover:border-blue-500/50 hover:bg-blue-50/50 dark:border-gray-800 dark:bg-gray-950/40 dark:hover:border-blue-400/50 dark:hover:bg-blue-950/20'
+                    const onClick = () => {
+                      trackEvent('partner_clicked', {
+                        partner_id: partner.id,
+                        placement: 'detail',
+                        destination: isExternal
+                          ? 'external'
+                          : 'internal_resource',
+                        destination_host: isExternal
+                          ? new URL(resource.href).host
+                          : undefined,
+                        partner_tier: tier,
+                      })
+                    }
+                    const content = (
+                      <>
+                        <span>
+                          <span className="block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                            {partnerResourceKindLabels[resource.kind]}
+                          </span>
+                          <span className="mt-1 block font-semibold text-gray-900 group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-300">
+                            {resource.label}
+                          </span>
+                        </span>
+                        {isExternal ? (
+                          <ArrowUpRight className="h-4 w-4 shrink-0 text-gray-400 transition-colors group-hover:text-blue-500" />
+                        ) : (
+                          <ArrowRight className="h-4 w-4 shrink-0 text-gray-400 transition-colors group-hover:text-blue-500" />
+                        )}
+                      </>
+                    )
+
+                    return isExternal ? (
+                      <a
+                        key={`${resource.kind}:${resource.href}`}
+                        href={resource.href}
+                        target="_blank"
+                        rel="noreferrer"
+                        className={className}
+                        onClick={onClick}
+                      >
+                        {content}
+                      </a>
+                    ) : (
+                      <Link
+                        key={`${resource.kind}:${resource.href}`}
+                        to={resource.href}
+                        className={className}
+                        onClick={onClick}
+                      >
+                        {content}
+                      </Link>
+                    )
+                  })}
+                </div>
+              </div>
+            </Card>
+          ) : null}
 
           <div className="grid gap-6 md:grid-cols-2">
             <Card>
@@ -192,43 +296,21 @@ function PartnerDetailPage() {
             </Card>
           </div>
 
-          {(libraries.length > 0 || partner.startDate) && (
+          {partnerWindow && (
             <Card>
               <div className="p-6 md:p-8">
                 <h2 className="text-2xl font-black text-gray-950 dark:text-white">
-                  Quick Fit
+                  Partnership History
                 </h2>
-                <div className="mt-5 grid gap-6 md:grid-cols-2">
-                  {libraries.length > 0 ? (
-                    <div>
-                      <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                        Relevant Libraries
-                      </h3>
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {libraries.map((library) => (
-                          <span
-                            key={library}
-                            className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300"
-                          >
-                            {library}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  ) : null}
-
-                  {partner.startDate ? (
-                    <div>
-                      <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                        Partner Window
-                      </h3>
-                      <p className="mt-3 text-base leading-7 text-gray-700 dark:text-gray-300">
-                        {partner.endDate
-                          ? `${partner.startDate} - ${partner.endDate}`
-                          : `${partner.startDate} - Present`}
-                      </p>
-                    </div>
-                  ) : null}
+                <div className="mt-5">
+                  <div>
+                    <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                      Dates
+                    </h3>
+                    <p className="mt-3 text-base leading-7 text-gray-700 dark:text-gray-300">
+                      {partnerWindow}
+                    </p>
+                  </div>
                 </div>
               </div>
             </Card>

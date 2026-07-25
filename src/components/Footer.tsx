@@ -14,10 +14,6 @@ const footerLinks = [
     to: 'https://youtube.com/@tan_stack',
   },
   {
-    label: 'Nozzle.io - Keyword Rank Tracker',
-    to: 'https://nozzle.io',
-  },
-  {
     label: 'Ethos',
     to: '/ethos',
   },

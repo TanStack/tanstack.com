@@ -6,7 +6,7 @@ import {
 import { twMerge } from 'tailwind-merge'
 import { workflow } from './libraries'
 
-const textStyles = 'text-blue-900 dark:text-blue-400'
+const textStyles = 'text-category-tooling'
 
 export const workflowProject = {
   ...workflow,

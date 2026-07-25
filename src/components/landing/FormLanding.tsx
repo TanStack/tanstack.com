@@ -153,8 +153,8 @@ export default function FormLanding() {
   const resolvedVersion = version ?? library.latestVersion
 
   return (
-    <div className="w-full min-w-0 overflow-x-hidden bg-[#fffbeb] text-zinc-950 dark:bg-zinc-950 dark:text-white">
-      <section className="max-w-full overflow-hidden border-b border-yellow-950/10 bg-[#fff7d6] dark:border-yellow-300/10 dark:bg-[#151005]">
+    <div className="w-full min-w-0 overflow-x-hidden bg-ds-blue-100 text-zinc-950 dark:bg-zinc-950 dark:text-white">
+      <section className="max-w-full overflow-hidden border-b border-ds-blue-500/10 bg-ds-blue-100 dark:border-ds-blue-300/10 dark:bg-ds-blue-500/40">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-10 lg:max-w-[80rem] lg:grid-cols-[0.84fr_1.16fr] lg:items-start lg:py-12 xl:max-w-[92rem]">
           <div className="min-w-0 max-w-full sm:max-w-3xl">
             <SectionKicker icon={<ListChecks size={14} />}>
@@ -192,7 +192,7 @@ export default function FormLanding() {
               showTotals
             />
 
-            <p className="mt-4 max-w-xl border-l-2 border-yellow-500 pl-3 text-sm font-black text-yellow-900 dark:text-yellow-200">
+            <p className="mt-4 max-w-xl border-l-2 border-ds-blue-400 pl-3 text-sm font-black text-ds-blue-500 dark:text-ds-blue-200">
               The most type-safe form library ever built for TypeScript apps.
             </p>
 
@@ -221,7 +221,7 @@ export default function FormLanding() {
         </div>
       </section>
 
-      <section className="border-b border-yellow-950/10 bg-[#fffbea] dark:border-yellow-300/10 dark:bg-[#181205]">
+      <section className="border-b border-ds-blue-500/10 bg-ds-blue-100 dark:border-ds-blue-300/10 dark:bg-ds-blue-500/40">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.74fr_1.26fr] xl:max-w-[92rem]">
           <div>
             <SectionKicker icon={<MagicWand size={14} />}>
@@ -265,7 +265,7 @@ export default function FormLanding() {
         </div>
       </section>
 
-      <section className="border-b border-zinc-200 bg-[#fbfaf6] dark:border-zinc-800 dark:bg-zinc-900">
+      <section className="border-b border-zinc-200 bg-ds-blue-100 dark:border-zinc-800 dark:bg-zinc-900">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.82fr_1.18fr] lg:items-start xl:max-w-[92rem]">
           <div>
             <SectionKicker icon={<SlidersHorizontal size={14} />}>
@@ -304,7 +304,7 @@ export default function FormLanding() {
               {frameworkAdapters.map((framework) => (
                 <span
                   key={framework}
-                  className="rounded-md border border-yellow-200 bg-yellow-50 px-3 py-1.5 text-sm font-bold text-yellow-900 dark:border-yellow-900 dark:bg-yellow-950/40 dark:text-yellow-200"
+                  className="rounded-md border border-ds-blue-200 bg-ds-blue-100 px-3 py-1.5 text-sm font-bold text-ds-blue-500 dark:border-ds-blue-500 dark:bg-ds-blue-500/40 dark:text-ds-blue-200"
                 >
                   {framework}
                 </span>
@@ -318,7 +318,7 @@ export default function FormLanding() {
         </div>
       </section>
 
-      <section className="border-b border-zinc-200 bg-[#fffbeb] py-12 dark:border-zinc-800 dark:bg-zinc-900">
+      <section className="border-b border-zinc-200 bg-ds-blue-100 py-12 dark:border-zinc-800 dark:bg-zinc-900">
         <div className="mx-auto w-full max-w-[80rem] px-4 xl:max-w-[92rem]">
           <div className="max-w-3xl">
             <SectionKicker icon={<SealCheck size={14} />}>
@@ -376,7 +376,7 @@ export default function FormLanding() {
           params: { libraryId: library.id, version: resolvedVersion },
         }}
         label="Get Started!"
-        className="border-yellow-500 bg-yellow-500 text-black hover:bg-yellow-600"
+        className="border-ds-blue-400 bg-ds-blue-400 text-black hover:bg-ds-blue-400"
       />
       <Footer />
     </div>
@@ -414,11 +414,11 @@ function FormStatePanel() {
   }
 
   return (
-    <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-yellow-200 bg-white p-4 shadow-sm shadow-yellow-950/5 dark:border-yellow-900 dark:bg-zinc-950">
+    <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-ds-blue-200 bg-white p-4 shadow-sm shadow-ds-blue-500/5 dark:border-ds-blue-500 dark:bg-zinc-950">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <span className="h-2.5 w-2.5 rounded-md bg-red-400" />
-          <span className="h-2.5 w-2.5 rounded-md bg-yellow-400" />
+          <span className="h-2.5 w-2.5 rounded-md bg-blue-400" />
           <span className="h-2.5 w-2.5 rounded-md bg-emerald-400" />
         </div>
         <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400">
@@ -441,14 +441,14 @@ function FormStatePanel() {
                   {field.detail}
                 </p>
               </div>
-              <span className="shrink-0 rounded-md bg-yellow-100 px-2 py-1 text-[0.65rem] font-black uppercase text-yellow-900 dark:bg-yellow-950 dark:text-yellow-200">
+              <span className="shrink-0 rounded-md bg-ds-blue-100 px-2 py-1 text-[0.65rem] font-black uppercase text-ds-blue-500 dark:bg-ds-blue-500 dark:text-ds-blue-200">
                 {getFieldState(field.name)}
               </span>
             </div>
             <div className="mt-3">
               {field.name === 'profile.email' ? (
                 <input
-                  className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm font-bold text-zinc-950 outline-none focus:border-yellow-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-white"
+                  className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm font-bold text-zinc-950 outline-none focus:border-ds-blue-400 dark:border-zinc-800 dark:bg-zinc-950 dark:text-white"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                 />
@@ -460,8 +460,8 @@ function FormStatePanel() {
                       aria-pressed={plan === option}
                       className={
                         plan === option
-                          ? 'rounded-md border border-yellow-500 bg-yellow-500 px-3 py-2 text-sm font-black capitalize text-black'
-                          : 'rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm font-black capitalize text-zinc-700 transition-colors hover:border-yellow-400 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300'
+                          ? 'rounded-md border border-ds-blue-400 bg-ds-blue-400 px-3 py-2 text-sm font-black capitalize text-black'
+                          : 'rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm font-black capitalize text-zinc-700 transition-colors hover:border-ds-blue-400 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300'
                       }
                       type="button"
                       onClick={() => setPlan(option)}
@@ -472,7 +472,7 @@ function FormStatePanel() {
                 </div>
               ) : (
                 <input
-                  className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm font-bold text-zinc-950 outline-none focus:border-yellow-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-white"
+                  className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm font-bold text-zinc-950 outline-none focus:border-ds-blue-400 dark:border-zinc-800 dark:bg-zinc-950 dark:text-white"
                   value={role}
                   onChange={(event) => setRole(event.target.value)}
                 />
@@ -490,12 +490,12 @@ function FormStatePanel() {
         ].map(([label, value]) => (
           <div
             key={label}
-            className="rounded-lg bg-yellow-50 p-3 dark:bg-yellow-950/25"
+            className="rounded-lg bg-ds-blue-100 p-3 dark:bg-ds-blue-500/25"
           >
-            <p className="text-[0.65rem] font-black uppercase text-yellow-800 dark:text-yellow-300">
+            <p className="text-[0.65rem] font-black uppercase text-ds-blue-500 dark:text-ds-blue-300">
               {label}
             </p>
-            <p className="mt-1 text-sm font-black text-yellow-950 dark:text-yellow-100">
+            <p className="mt-1 text-sm font-black text-ds-blue-500 dark:text-ds-blue-100">
               {value}
             </p>
           </div>
@@ -511,9 +511,9 @@ function ValidationPipeline() {
       {validationSteps.map((step, index) => (
         <div
           key={step.label}
-          className="rounded-lg border border-zinc-200 bg-[#fffdf2] p-4 dark:border-zinc-800 dark:bg-zinc-900"
+          className="rounded-lg border border-zinc-200 bg-ds-blue-100 p-4 dark:border-zinc-800 dark:bg-zinc-900"
         >
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-yellow-100 text-sm font-black text-yellow-900 dark:bg-yellow-950 dark:text-yellow-200">
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-ds-blue-100 text-sm font-black text-ds-blue-500 dark:bg-ds-blue-500 dark:text-ds-blue-200">
             {index + 1}
           </span>
           <h3 className="mt-4 text-lg font-black leading-tight">
@@ -530,8 +530,8 @@ function ValidationPipeline() {
 
 function SubscriptionPanel() {
   return (
-    <div className="min-w-0 rounded-lg border border-yellow-200 bg-white p-4 dark:border-yellow-900 dark:bg-zinc-950">
-      <div className="rounded-lg bg-zinc-950 p-4 text-sm text-yellow-100 dark:bg-black">
+    <div className="min-w-0 rounded-lg border border-ds-blue-200 bg-white p-4 dark:border-ds-blue-500 dark:bg-zinc-950">
+      <div className="rounded-lg bg-zinc-950 p-4 text-sm text-ds-blue-100 dark:bg-black">
         <p className="font-mono leading-6">
           useStore(form.store, state =&gt; state.values.profile.email)
           <br />
@@ -543,7 +543,7 @@ function SubscriptionPanel() {
         {fieldStates.map((state) => (
           <div
             key={state.label}
-            className="rounded-lg border border-zinc-200 bg-[#fffdf2] p-4 dark:border-zinc-800 dark:bg-zinc-900"
+            className="rounded-lg border border-zinc-200 bg-ds-blue-100 p-4 dark:border-zinc-800 dark:bg-zinc-900"
           >
             <p className="text-[0.65rem] font-black uppercase text-zinc-500 dark:text-zinc-400">
               {state.label}
@@ -569,7 +569,7 @@ function FeatureCard({
 }) {
   return (
     <div className="rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
-      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-yellow-100 text-yellow-900 dark:bg-yellow-950 dark:text-yellow-200">
+      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-ds-blue-100 text-ds-blue-500 dark:bg-ds-blue-500 dark:text-ds-blue-200">
         {icon}
       </span>
       <h3 className="mt-4 text-xl font-black leading-tight">{title}</h3>
@@ -588,7 +588,7 @@ function SectionKicker({
   icon: React.ReactNode
 }) {
   return (
-    <p className="inline-flex items-center gap-2 text-sm font-black uppercase text-yellow-700 dark:text-yellow-300">
+    <p className="inline-flex items-center gap-2 text-sm font-black uppercase text-ds-blue-500 dark:text-ds-blue-300">
       {icon}
       {children}
     </p>
@@ -597,7 +597,7 @@ function SectionKicker({
 
 function ProofPill({ label, value }: { label: string; value: string }) {
   return (
-    <div className="border-l-2 border-yellow-500 pl-3">
+    <div className="border-l-2 border-ds-blue-400 pl-3">
       <p className="text-sm font-black text-zinc-950 dark:text-white">
         {label}
       </p>

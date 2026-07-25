@@ -187,8 +187,8 @@ export default function AiLanding() {
   const resolvedVersion = version ?? library.latestVersion
 
   return (
-    <div className="w-full min-w-0 overflow-x-hidden bg-[#fff1f7] text-zinc-950 dark:bg-zinc-950 dark:text-white">
-      <section className="max-w-full overflow-hidden border-b border-pink-950/10 bg-[#ffe4f0] dark:border-pink-300/10 dark:bg-[#190612]">
+    <div className="w-full min-w-0 overflow-x-hidden bg-ds-terracotta-100 text-zinc-950 dark:bg-zinc-950 dark:text-white">
+      <section className="max-w-full overflow-hidden border-b border-ds-terracotta-500/10 bg-ds-terracotta-100 dark:border-ds-terracotta-300/10 dark:bg-ds-terracotta-500/40">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-10 lg:max-w-[80rem] lg:grid-cols-[0.84fr_1.16fr] lg:items-start lg:py-12 xl:max-w-[92rem]">
           <div className="min-w-0 max-w-full sm:max-w-3xl">
             <SectionKicker icon={<MagicWand size={14} />}>
@@ -251,7 +251,7 @@ export default function AiLanding() {
         </div>
       </section>
 
-      <section className="border-b border-pink-950/10 bg-[#fff7fb] dark:border-pink-300/10 dark:bg-[#1f0916]">
+      <section className="border-b border-ds-terracotta-500/10 bg-ds-terracotta-100 dark:border-ds-terracotta-300/10 dark:bg-ds-terracotta-500/40">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.74fr_1.26fr] xl:max-w-[92rem]">
           <div>
             <SectionKicker icon={<Sparkle size={14} />}>Why AI</SectionKicker>
@@ -331,7 +331,7 @@ export default function AiLanding() {
               {frameworkAdapters.map((framework) => (
                 <span
                   key={framework}
-                  className="rounded-md border border-pink-200 bg-pink-50 px-3 py-1.5 text-sm font-bold text-pink-800 dark:border-pink-900 dark:bg-pink-950/40 dark:text-pink-200"
+                  className="rounded-md border border-ds-terracotta-200 bg-ds-terracotta-100 px-3 py-1.5 text-sm font-bold text-ds-terracotta-500 dark:border-ds-terracotta-500 dark:bg-ds-terracotta-500/40 dark:text-ds-terracotta-200"
                 >
                   {framework}
                 </span>
@@ -341,7 +341,7 @@ export default function AiLanding() {
         </div>
       </section>
 
-      <section className="border-b border-zinc-200 bg-[#fff1f7] py-12 dark:border-zinc-800 dark:bg-zinc-900">
+      <section className="border-b border-zinc-200 bg-ds-terracotta-100 py-12 dark:border-zinc-800 dark:bg-zinc-900">
         <div className="mx-auto w-full max-w-[80rem] px-4 xl:max-w-[92rem]">
           <div className="max-w-3xl">
             <SectionKicker icon={<MonitorArrowUp size={14} />}>
@@ -394,7 +394,7 @@ export default function AiLanding() {
           params: { libraryId: library.id, version: resolvedVersion },
         }}
         label="Get Started!"
-        className="border-pink-500 bg-pink-500 text-white hover:bg-pink-600"
+        className="border-ds-terracotta-400 bg-ds-terracotta-400 text-white hover:bg-ds-terracotta-400"
       />
       <Footer />
     </div>
@@ -574,8 +574,8 @@ function AiGraphChatPanel() {
   return (
     <div className="grid w-full min-w-0 max-w-full items-start gap-5 lg:grid-cols-[1.05fr_0.95fr]">
       <AiDemoWindow title="client graph">
-        <div className="relative h-[26rem] overflow-hidden bg-[#fff7fb] dark:bg-[#120914]">
-          <div className="absolute inset-0 opacity-45 [background-image:linear-gradient(rgba(236,72,153,.14)_1px,transparent_1px),linear-gradient(90deg,rgba(236,72,153,.14)_1px,transparent_1px)] [background-size:28px_28px]" />
+        <div className="relative h-[26rem] overflow-hidden bg-ds-terracotta-100 dark:bg-ds-terracotta-500/40">
+          <div className="absolute inset-0 opacity-45 [background-image:linear-gradient(rgba(211,72,27,.14)_1px,transparent_1px),linear-gradient(90deg,rgba(211,72,27,.14)_1px,transparent_1px)] [background-size:28px_28px]" />
           <svg
             className="pointer-events-none absolute inset-0 h-full w-full"
             viewBox="0 0 420 420"
@@ -672,14 +672,14 @@ function AiGraphChatPanel() {
             <div className="flex min-h-full flex-col justify-end gap-2.5 p-4">
               {chatMessages.map((message) => (
                 <React.Fragment key={message.id}>
-                  <div className="ml-auto max-w-[86%] rounded-xl bg-pink-500 px-3 py-2 text-xs font-bold leading-5 text-white shadow-sm">
+                  <div className="ml-auto max-w-[86%] rounded-xl bg-ds-terracotta-400 px-3 py-2 text-xs font-bold leading-5 text-white shadow-sm">
                     {message.user}
                   </div>
                   {message.assistant || message.isStreaming ? (
                     <div className="max-w-[90%] rounded-xl border border-zinc-200 bg-white px-3 py-2 text-xs leading-5 text-zinc-800 shadow-sm dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-200">
                       {message.assistant}
                       {message.isStreaming ? (
-                        <span className="ml-1 inline-block h-3.5 w-1 rounded-sm bg-pink-500 align-[-0.2rem] motion-safe:animate-pulse" />
+                        <span className="ml-1 inline-block h-3.5 w-1 rounded-sm bg-ds-terracotta-400 align-[-0.2rem] motion-safe:animate-pulse" />
                       ) : null}
                     </div>
                   ) : null}
@@ -699,7 +699,7 @@ function AiGraphChatPanel() {
                     <p className="text-[0.58rem] uppercase text-zinc-500 dark:text-zinc-500">
                       {label}
                     </p>
-                    <p className="mt-1 truncate text-pink-700 dark:text-pink-300">
+                    <p className="mt-1 truncate text-ds-terracotta-500 dark:text-ds-terracotta-300">
                       {value}
                     </p>
                   </div>
@@ -712,13 +712,13 @@ function AiGraphChatPanel() {
             <div
               className={
                 typingUserMessage
-                  ? 'rounded-lg border border-pink-300 bg-white px-3 py-2 text-sm font-bold text-zinc-950 ring-1 ring-pink-500/30 dark:border-pink-900 dark:bg-zinc-950 dark:text-zinc-100'
-                  : 'rounded-lg border border-pink-200 bg-white px-3 py-2 text-sm font-bold text-zinc-500 dark:border-pink-950 dark:bg-zinc-950 dark:text-zinc-500'
+                  ? 'rounded-lg border border-ds-terracotta-300 bg-white px-3 py-2 text-sm font-bold text-zinc-950 ring-1 ring-ds-terracotta-400/30 dark:border-ds-terracotta-500 dark:bg-zinc-950 dark:text-zinc-100'
+                  : 'rounded-lg border border-ds-terracotta-200 bg-white px-3 py-2 text-sm font-bold text-zinc-500 dark:border-ds-terracotta-500 dark:bg-zinc-950 dark:text-zinc-500'
               }
             >
               {typingUserMessage || 'Type a message...'}
               {typingUserMessage ? (
-                <span className="ml-1 inline-block h-4 w-1 rounded-sm bg-pink-500 align-[-0.2rem] motion-safe:animate-pulse" />
+                <span className="ml-1 inline-block h-4 w-1 rounded-sm bg-ds-terracotta-400 align-[-0.2rem] motion-safe:animate-pulse" />
               ) : null}
             </div>
           </div>
@@ -736,8 +736,8 @@ function AiDemoWindow({
   title: string
 }) {
   return (
-    <div className="w-full min-w-0 overflow-hidden rounded-lg border border-pink-200 bg-white shadow-sm shadow-pink-950/5 dark:border-pink-900 dark:bg-zinc-950">
-      <div className="flex items-center justify-between gap-3 border-b border-pink-100 px-4 py-3 dark:border-pink-950/70">
+    <div className="w-full min-w-0 overflow-hidden rounded-lg border border-ds-terracotta-200 bg-white shadow-sm shadow-ds-terracotta-500/5 dark:border-ds-terracotta-500 dark:bg-zinc-950">
+      <div className="flex items-center justify-between gap-3 border-b border-ds-terracotta-100 px-4 py-3 dark:border-ds-terracotta-500/70">
         <div className="flex items-center gap-2">
           <span className="h-2.5 w-2.5 rounded-md bg-red-400" />
           <span className="h-2.5 w-2.5 rounded-md bg-yellow-400" />
@@ -861,8 +861,8 @@ function GraphNode({
       className={
         isTanStack
           ? active
-            ? 'absolute z-20 flex flex-col items-center justify-center rounded-lg border-2 border-pink-300 bg-linear-to-br from-pink-400 to-pink-700 px-2 text-center text-xs font-black leading-tight text-white shadow-xl shadow-pink-950/30 ring-2 ring-pink-200/70 transition-all duration-500 dark:from-pink-300 dark:to-pink-600 dark:ring-pink-400/25'
-            : 'absolute z-20 flex flex-col items-center justify-center rounded-lg border-2 border-pink-300 bg-linear-to-br from-white to-pink-100 px-2 text-center text-xs font-black leading-tight text-pink-700 shadow-md shadow-pink-950/10 transition-all duration-500 dark:border-pink-500/70 dark:from-pink-950/70 dark:to-pink-900/25 dark:text-pink-100'
+            ? 'absolute z-20 flex flex-col items-center justify-center rounded-lg border-2 border-ds-terracotta-300 bg-linear-to-br from-ds-terracotta-400 to-ds-terracotta-500 px-2 text-center text-xs font-black leading-tight text-white shadow-xl shadow-ds-terracotta-500/30 ring-2 ring-ds-terracotta-200/70 transition-all duration-500 dark:from-ds-terracotta-300 dark:to-ds-terracotta-400 dark:ring-ds-terracotta-400/25'
+            : 'absolute z-20 flex flex-col items-center justify-center rounded-lg border-2 border-ds-terracotta-300 bg-linear-to-br from-white to-ds-terracotta-100 px-2 text-center text-xs font-black leading-tight text-ds-terracotta-500 shadow-md shadow-ds-terracotta-500/10 transition-all duration-500 dark:border-ds-terracotta-400/70 dark:from-ds-terracotta-500/70 dark:to-ds-terracotta-500/25 dark:text-ds-terracotta-100'
           : active
             ? 'absolute z-20 flex flex-col items-center justify-center rounded-lg border border-zinc-950 bg-zinc-950 px-2 text-center text-xs font-black leading-tight text-white shadow-lg shadow-zinc-950/20 transition-all duration-500 dark:border-white dark:bg-white dark:text-zinc-950 dark:shadow-white/10'
             : dotted
@@ -892,9 +892,9 @@ function LifecyclePanel() {
       {pipelineSteps.map((step, index) => (
         <div
           key={step.label}
-          className="rounded-lg border border-zinc-200 bg-[#fff1f7] p-4 dark:border-zinc-800 dark:bg-zinc-900"
+          className="rounded-lg border border-zinc-200 bg-ds-terracotta-100 p-4 dark:border-zinc-800 dark:bg-zinc-900"
         >
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-pink-100 text-sm font-black text-pink-800 dark:bg-pink-950 dark:text-pink-200">
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-ds-terracotta-100 text-sm font-black text-ds-terracotta-500 dark:bg-ds-terracotta-500 dark:text-ds-terracotta-200">
             {index + 1}
           </span>
           <h3 className="mt-4 text-lg font-black leading-tight">
@@ -911,8 +911,8 @@ function LifecyclePanel() {
 
 function RuntimePanel() {
   return (
-    <div className="min-w-0 rounded-lg border border-pink-200 bg-white p-4 dark:border-pink-900 dark:bg-zinc-950">
-      <div className="rounded-lg bg-zinc-950 p-4 text-sm text-pink-100 dark:bg-black">
+    <div className="min-w-0 rounded-lg border border-ds-terracotta-200 bg-white p-4 dark:border-ds-terracotta-500 dark:bg-zinc-950">
+      <div className="rounded-lg bg-zinc-950 p-4 text-sm text-ds-terracotta-100 dark:bg-black">
         <p className="font-mono leading-6">
           const {'{'} messages, addToolApprovalResponse {'}'} = useChat({'{'}
           <br />
@@ -930,7 +930,7 @@ function RuntimePanel() {
         {runtimeSignals.map((signal) => (
           <div
             key={signal.label}
-            className="rounded-lg border border-zinc-200 bg-[#fff7fb] p-4 dark:border-zinc-800 dark:bg-zinc-900"
+            className="rounded-lg border border-zinc-200 bg-ds-terracotta-100 p-4 dark:border-zinc-800 dark:bg-zinc-900"
           >
             <p className="text-[0.65rem] font-black uppercase text-zinc-500 dark:text-zinc-400">
               {signal.label}
@@ -956,7 +956,7 @@ function FeatureCard({
 }) {
   return (
     <div className="rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
-      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-pink-100 text-pink-800 dark:bg-pink-950 dark:text-pink-200">
+      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-ds-terracotta-100 text-ds-terracotta-500 dark:bg-ds-terracotta-500 dark:text-ds-terracotta-200">
         {icon}
       </span>
       <h3 className="mt-4 text-xl font-black leading-tight">{title}</h3>
@@ -975,7 +975,7 @@ function SectionKicker({
   icon: React.ReactNode
 }) {
   return (
-    <p className="inline-flex items-center gap-2 text-sm font-black uppercase text-pink-700 dark:text-pink-300">
+    <p className="inline-flex items-center gap-2 text-sm font-black uppercase text-ds-terracotta-500 dark:text-ds-terracotta-300">
       {icon}
       {children}
     </p>
@@ -984,7 +984,7 @@ function SectionKicker({
 
 function ProofPill({ label, value }: { label: string; value: string }) {
   return (
-    <div className="border-l-2 border-pink-500 pl-3">
+    <div className="border-l-2 border-ds-terracotta-400 pl-3">
       <p className="text-sm font-black text-zinc-950 dark:text-white">
         {label}
       </p>

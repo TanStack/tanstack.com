@@ -119,6 +119,23 @@ const GROUPS: Array<TypeGroup> = [
       },
     ],
   },
+  {
+    title: 'Eyebrow',
+    font: 'font-ds-mono',
+    sample: 'Introducing',
+    items: [
+      {
+        name: 'eyebrow/lg',
+        cls: 'text-ds-eyebrow-lg uppercase',
+        spec: '13 / 16 · SemiBold · +2 · UPPER',
+      },
+      {
+        name: 'eyebrow/md',
+        cls: 'text-ds-eyebrow-md uppercase',
+        spec: '11 / 13 · Medium · +1.75 · UPPER',
+      },
+    ],
+  },
 ]
 
 const SEMANTIC_HEADINGS: Array<{ cls: string; alias: string }> = [

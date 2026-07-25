@@ -115,14 +115,14 @@ export default function HotkeysLanding() {
   const resolvedVersion = version ?? library.latestVersion
 
   return (
-    <div className="w-full min-w-0 overflow-x-hidden bg-[#fff1f2] text-zinc-950 dark:bg-zinc-950 dark:text-white">
+    <div className="w-full min-w-0 overflow-x-hidden bg-ds-blue-100 text-zinc-950 dark:bg-zinc-950 dark:text-white">
       <ClientOnly>
         <React.Suspense fallback={null}>
           <LazyHotkeysShortcutBinding />
         </React.Suspense>
       </ClientOnly>
 
-      <section className="max-w-full overflow-hidden border-b border-rose-950/10 bg-[#ffe4e6] dark:border-rose-300/10 dark:bg-[#1d0710]">
+      <section className="max-w-full overflow-hidden border-b border-ds-blue-500/10 bg-ds-blue-100 dark:border-ds-blue-300/10 dark:bg-ds-blue-500">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-10 lg:max-w-[80rem] lg:grid-cols-[0.84fr_1.16fr] lg:items-start lg:py-12 xl:max-w-[92rem]">
           <div className="min-w-0 max-w-full sm:max-w-3xl">
             <SectionKicker icon={<Keyboard size={14} />}>
@@ -183,7 +183,7 @@ export default function HotkeysLanding() {
         </div>
       </section>
 
-      <section className="border-b border-rose-950/10 bg-[#fff7f8] dark:border-rose-300/10 dark:bg-[#230914]">
+      <section className="border-b border-ds-blue-500/10 bg-ds-blue-100 dark:border-ds-blue-300/10 dark:bg-ds-blue-500">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.74fr_1.26fr] xl:max-w-[92rem]">
           <div>
             <SectionKicker icon={<Sparkle size={14} />}>
@@ -243,7 +243,7 @@ export default function HotkeysLanding() {
               {frameworkAdapters.map((framework) => (
                 <span
                   key={framework}
-                  className="rounded-md border border-rose-200 bg-rose-50 px-3 py-1.5 text-sm font-bold text-rose-800 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-200"
+                  className="rounded-md border border-ds-blue-200 bg-ds-blue-100 px-3 py-1.5 text-sm font-bold text-ds-blue-500 dark:border-ds-blue-500 dark:bg-ds-blue-500/40 dark:text-ds-blue-200"
                 >
                   {framework}
                 </span>
@@ -288,7 +288,7 @@ export default function HotkeysLanding() {
           params: { libraryId: library.id, version: resolvedVersion },
         }}
         label="Get Started!"
-        className="border-rose-600 bg-rose-600 text-white hover:bg-rose-700"
+        className="border-ds-blue-400 bg-ds-blue-400 text-white hover:bg-ds-blue-500"
       />
       <Footer />
     </div>
@@ -335,7 +335,7 @@ function ShortcutPanel() {
   }, [])
 
   return (
-    <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-rose-200 bg-white p-4 shadow-sm shadow-rose-950/5 dark:border-rose-900 dark:bg-zinc-950">
+    <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-ds-blue-200 bg-white p-4 shadow-sm shadow-ds-blue-500/5 dark:border-ds-blue-500 dark:bg-zinc-950">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <span className="h-2.5 w-2.5 rounded-md bg-red-400" />
@@ -354,8 +354,8 @@ function ShortcutPanel() {
             aria-pressed={activeShortcut === keys}
             className={
               activeShortcut === keys
-                ? 'grid w-full gap-3 rounded-lg border border-rose-500 bg-rose-500 p-3 text-left text-white sm:grid-cols-[0.42fr_1fr] sm:items-center'
-                : 'grid w-full gap-3 rounded-lg border border-zinc-200 bg-rose-50 p-3 text-left transition-colors hover:border-rose-300 dark:border-zinc-800 dark:bg-rose-950/20 dark:hover:border-rose-800 sm:grid-cols-[0.42fr_1fr] sm:items-center'
+                ? 'grid w-full gap-3 rounded-lg border border-ds-blue-400 bg-ds-blue-400 p-3 text-left text-white sm:grid-cols-[0.42fr_1fr] sm:items-center'
+                : 'grid w-full gap-3 rounded-lg border border-zinc-200 bg-ds-blue-100 p-3 text-left transition-colors hover:border-ds-blue-300 dark:border-zinc-800 dark:bg-ds-blue-500/20 dark:hover:border-ds-blue-500 sm:grid-cols-[0.42fr_1fr] sm:items-center'
             }
             type="button"
             onClick={() => setActiveShortcut(keys)}
@@ -363,7 +363,7 @@ function ShortcutPanel() {
             <kbd
               className={
                 activeShortcut === keys
-                  ? 'rounded-md bg-white px-3 py-2 text-center font-mono text-sm font-black text-rose-700'
+                  ? 'rounded-md bg-white px-3 py-2 text-center font-mono text-sm font-black text-ds-blue-500'
                   : 'rounded-md bg-zinc-950 px-3 py-2 text-center font-mono text-sm font-black text-white dark:bg-white dark:text-zinc-950'
               }
             >
@@ -374,7 +374,7 @@ function ShortcutPanel() {
         ))}
       </div>
 
-      <div className="mt-4 rounded-lg bg-zinc-950 p-4 text-sm text-rose-100 dark:bg-black">
+      <div className="mt-4 rounded-lg bg-zinc-950 p-4 text-sm text-ds-blue-100 dark:bg-black">
         <p className="font-mono leading-6">
           useHotkey(&quot;{activeShortcut}&quot;, runCommand, {'{'} enabled:{' '}
           isPanelOpen {'}'})
@@ -390,9 +390,9 @@ function LifecyclePanel() {
       {lifecycleSteps.map((step, index) => (
         <div
           key={step.label}
-          className="rounded-lg border border-zinc-200 bg-[#fff1f2] p-4 dark:border-zinc-800 dark:bg-zinc-900"
+          className="rounded-lg border border-zinc-200 bg-ds-blue-100 p-4 dark:border-zinc-800 dark:bg-zinc-900"
         >
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-rose-100 text-sm font-black text-rose-800 dark:bg-rose-950 dark:text-rose-200">
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-ds-blue-100 text-sm font-black text-ds-blue-500 dark:bg-ds-blue-500 dark:text-ds-blue-200">
             {index + 1}
           </span>
           <h3 className="mt-4 text-lg font-black leading-tight">
@@ -418,7 +418,7 @@ function FeatureCard({
 }) {
   return (
     <div className="rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
-      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-200">
+      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-ds-blue-100 text-ds-blue-500 dark:bg-ds-blue-500 dark:text-ds-blue-200">
         {icon}
       </span>
       <h3 className="mt-4 text-xl font-black leading-tight">{title}</h3>
@@ -437,7 +437,7 @@ function SectionKicker({
   icon: React.ReactNode
 }) {
   return (
-    <p className="inline-flex items-center gap-2 text-sm font-black uppercase text-rose-700 dark:text-rose-300">
+    <p className="inline-flex items-center gap-2 text-sm font-black uppercase text-ds-blue-500 dark:text-ds-blue-300">
       {icon}
       {children}
     </p>
@@ -446,7 +446,7 @@ function SectionKicker({
 
 function ProofPill({ label, value }: { label: string; value: string }) {
   return (
-    <div className="border-l-2 border-rose-500 pl-3">
+    <div className="border-l-2 border-ds-blue-400 pl-3">
       <p className="text-sm font-black text-zinc-950 dark:text-white">
         {label}
       </p>

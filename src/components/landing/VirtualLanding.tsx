@@ -279,8 +279,8 @@ export default function VirtualLanding() {
   const resolvedVersion = version ?? library.latestVersion
 
   return (
-    <div className="w-full min-w-0 overflow-x-hidden bg-[#fbf7ff] text-zinc-950 dark:bg-zinc-950 dark:text-white">
-      <section className="max-w-full overflow-hidden border-b border-purple-950/10 bg-[#f8f0ff] dark:border-purple-300/10 dark:bg-[#120818]">
+    <div className="w-full min-w-0 overflow-x-hidden bg-ds-amber-100 text-zinc-950 dark:bg-zinc-950 dark:text-white">
+      <section className="max-w-full overflow-hidden border-b border-ds-amber-500/10 bg-ds-amber-100 dark:border-ds-amber-300/10 dark:bg-ds-amber-500">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-10 lg:max-w-[80rem] lg:grid-cols-[0.84fr_1.16fr] lg:items-start lg:py-12 xl:max-w-[92rem]">
           <div className="min-w-0 max-w-full sm:max-w-3xl">
             <SectionKicker icon={<ArrowsHorizontal size={14} />}>
@@ -310,7 +310,7 @@ export default function VirtualLanding() {
               showTotals
             />
 
-            <p className="mt-4 max-w-xl border-l-2 border-purple-500 pl-3 text-sm font-black text-purple-800 dark:text-purple-200">
+            <p className="mt-4 max-w-xl border-l-2 border-ds-amber-400 pl-3 text-sm font-black text-ds-amber-500 dark:text-ds-amber-200">
               The most popular and most used virtualization engine for modern
               web apps.
             </p>
@@ -340,7 +340,7 @@ export default function VirtualLanding() {
         </div>
       </section>
 
-      <section className="border-b border-purple-950/10 bg-[#fcf8ff] dark:border-purple-300/10 dark:bg-[#160b1d]">
+      <section className="border-b border-ds-amber-500/10 bg-ds-amber-100 dark:border-ds-amber-300/10 dark:bg-ds-amber-500">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.74fr_1.26fr] xl:max-w-[92rem]">
           <div>
             <SectionKicker icon={<Gauge size={14} />}>
@@ -384,7 +384,7 @@ export default function VirtualLanding() {
         </div>
       </section>
 
-      <section className="border-b border-zinc-200 bg-[#f4fbff] dark:border-zinc-800 dark:bg-[#071016]">
+      <section className="border-b border-zinc-200 bg-ds-amber-100 dark:border-zinc-800 dark:bg-ds-amber-500">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.76fr_1.24fr] lg:items-start xl:max-w-[92rem]">
           <div className="max-w-xl">
             <SectionKicker icon={<ChatCenteredText size={14} />}>
@@ -406,8 +406,11 @@ export default function VirtualLanding() {
                 ['scrollToEnd', 'wire a Latest control to the API'],
                 ['measureElement', 'let streamed bubbles grow naturally'],
               ].map(([label, value]) => (
-                <div key={label} className="border-l-2 border-sky-500 pl-3">
-                  <p className="font-mono text-sm font-black text-sky-800 dark:text-sky-200">
+                <div
+                  key={label}
+                  className="border-l-2 border-ds-amber-400 pl-3"
+                >
+                  <p className="font-mono text-sm font-black text-ds-amber-500 dark:text-ds-amber-200">
                     {label}
                   </p>
                   <p className="mt-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">
@@ -460,7 +463,7 @@ export default function VirtualLanding() {
               {frameworkAdapters.map((framework) => (
                 <span
                   key={framework}
-                  className="rounded-md border border-purple-200 bg-purple-50 px-3 py-1.5 text-sm font-bold text-purple-800 dark:border-purple-900 dark:bg-purple-950/40 dark:text-purple-200"
+                  className="rounded-md border border-ds-amber-200 bg-ds-amber-100 px-3 py-1.5 text-sm font-bold text-ds-amber-500 dark:border-ds-amber-500 dark:bg-ds-amber-500/40 dark:text-ds-amber-200"
                 >
                   {framework}
                 </span>
@@ -474,7 +477,7 @@ export default function VirtualLanding() {
         </div>
       </section>
 
-      <section className="border-b border-zinc-200 bg-[#fbf7ff] py-12 dark:border-zinc-800 dark:bg-zinc-900">
+      <section className="border-b border-zinc-200 bg-ds-amber-100 py-12 dark:border-zinc-800 dark:bg-zinc-900">
         <div className="mx-auto w-full max-w-[80rem] px-4 xl:max-w-[92rem]">
           <div className="max-w-3xl">
             <SectionKicker icon={<Gauge size={14} />}>
@@ -530,7 +533,7 @@ export default function VirtualLanding() {
           params: { libraryId: library.id, version: resolvedVersion },
         }}
         label="Get Started!"
-        className="border-purple-500 bg-purple-500 text-white hover:bg-purple-600"
+        className="border-ds-amber-400 bg-ds-amber-400 text-white hover:bg-ds-amber-400"
       />
       <Footer />
     </div>
@@ -720,7 +723,7 @@ function VirtualWindowPanel() {
   }
 
   return (
-    <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-purple-200 bg-white p-4 shadow-sm shadow-purple-950/5 dark:border-purple-900 dark:bg-zinc-950">
+    <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-ds-amber-200 bg-white p-4 shadow-sm shadow-ds-amber-500/5 dark:border-ds-amber-500 dark:bg-zinc-950">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <span className="h-2.5 w-2.5 rounded-md bg-red-400" />
@@ -734,7 +737,7 @@ function VirtualWindowPanel() {
       </div>
 
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2 rounded-lg bg-purple-50 px-3 py-2 dark:bg-purple-950/25">
+        <div className="flex items-center gap-2 rounded-lg bg-ds-amber-100 px-3 py-2 dark:bg-ds-amber-500/25">
           <span
             className={
               isAutoScrolling
@@ -742,12 +745,12 @@ function VirtualWindowPanel() {
                 : 'h-2 w-2 rounded-full bg-zinc-400'
             }
           />
-          <span className="text-xs font-black uppercase text-purple-800 dark:text-purple-200">
+          <span className="text-xs font-black uppercase text-ds-amber-500 dark:text-ds-amber-200">
             {isAutoScrolling ? 'Auto loop' : 'Manual'}
           </span>
         </div>
         <button
-          className="inline-flex items-center gap-2 rounded-md border border-purple-200 bg-white px-3 py-2 text-xs font-black text-purple-800 transition-colors hover:border-purple-400 hover:bg-purple-50 dark:border-purple-900 dark:bg-zinc-950 dark:text-purple-200 dark:hover:border-purple-600 dark:hover:bg-purple-950/25"
+          className="inline-flex items-center gap-2 rounded-md border border-ds-amber-200 bg-white px-3 py-2 text-xs font-black text-ds-amber-500 transition-colors hover:border-ds-amber-400 hover:bg-ds-amber-100 dark:border-ds-amber-500 dark:bg-zinc-950 dark:text-ds-amber-200 dark:hover:border-ds-amber-400 dark:hover:bg-ds-amber-500/25"
           type="button"
           onClick={() => setIsAutoScrolling((current) => !current)}
         >
@@ -760,12 +763,12 @@ function VirtualWindowPanel() {
         </button>
       </div>
 
-      <div className="mt-4 rounded-lg border border-purple-100 bg-purple-50/70 p-3 dark:border-purple-900 dark:bg-purple-950/20">
+      <div className="mt-4 rounded-lg border border-ds-amber-100 bg-ds-amber-100/70 p-3 dark:border-ds-amber-500 dark:bg-ds-amber-500/20">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="text-xs font-black uppercase text-purple-800 dark:text-purple-200">
+          <p className="text-xs font-black uppercase text-ds-amber-500 dark:text-ds-amber-200">
             scroll API
           </p>
-          <code className="max-w-full truncate rounded bg-white px-2 py-1 font-mono text-[0.68rem] font-bold text-purple-800 dark:bg-zinc-950 dark:text-purple-200">
+          <code className="max-w-full truncate rounded bg-white px-2 py-1 font-mono text-[0.68rem] font-bold text-ds-amber-500 dark:bg-zinc-950 dark:text-ds-amber-200">
             {lastScrollOperation}
           </code>
         </div>
@@ -779,8 +782,8 @@ function VirtualWindowPanel() {
                 aria-pressed={isActive}
                 className={
                   isActive
-                    ? 'rounded-md border border-purple-500 bg-purple-500 px-3 py-2 text-left text-white shadow-sm shadow-purple-950/15'
-                    : 'rounded-md border border-purple-200 bg-white px-3 py-2 text-left text-purple-900 transition-colors hover:border-purple-400 hover:bg-purple-100 dark:border-purple-900 dark:bg-zinc-950 dark:text-purple-100 dark:hover:border-purple-600 dark:hover:bg-purple-950/30'
+                    ? 'rounded-md border border-ds-amber-400 bg-ds-amber-400 px-3 py-2 text-left text-white shadow-sm shadow-ds-amber-500/15'
+                    : 'rounded-md border border-ds-amber-200 bg-white px-3 py-2 text-left text-ds-amber-500 transition-colors hover:border-ds-amber-400 hover:bg-ds-amber-100 dark:border-ds-amber-500 dark:bg-zinc-950 dark:text-ds-amber-100 dark:hover:border-ds-amber-400 dark:hover:bg-ds-amber-500/30'
                 }
                 type="button"
                 onClick={() => runScrollAction(action)}
@@ -793,7 +796,7 @@ function VirtualWindowPanel() {
                   className={
                     isActive
                       ? 'mt-1 block text-[0.65rem] font-bold uppercase text-white/75'
-                      : 'mt-1 block text-[0.65rem] font-bold uppercase text-purple-600 dark:text-purple-300'
+                      : 'mt-1 block text-[0.65rem] font-bold uppercase text-ds-amber-400 dark:text-ds-amber-300'
                   }
                 >
                   {action.detail}
@@ -805,14 +808,14 @@ function VirtualWindowPanel() {
       </div>
 
       <div className="mt-4 grid gap-3 lg:grid-cols-[0.68fr_1.32fr]">
-        <div className="rounded-lg bg-purple-50 p-3 dark:bg-purple-950/25">
-          <p className="text-xs font-black uppercase text-purple-800 dark:text-purple-200">
+        <div className="rounded-lg bg-ds-amber-100 p-3 dark:bg-ds-amber-500/25">
+          <p className="text-xs font-black uppercase text-ds-amber-500 dark:text-ds-amber-200">
             range
           </p>
           <div className="mt-3 h-80 overflow-hidden rounded-md bg-white p-2 dark:bg-zinc-950">
             <div className="relative h-full overflow-hidden rounded-md bg-zinc-200 dark:bg-zinc-800">
               <div
-                className="absolute left-2 right-2 z-10 rounded-md border-2 border-purple-500 bg-purple-500/10 shadow-lg shadow-purple-950/20"
+                className="absolute left-2 right-2 z-10 rounded-md border-2 border-ds-amber-400 bg-ds-amber-400/10 shadow-lg shadow-ds-amber-500/20"
                 style={{
                   height: `${(viewportHeight / totalSize) * 100}%`,
                   top: `${(scrollOffset / totalSize) * 100}%`,
@@ -827,7 +830,7 @@ function VirtualWindowPanel() {
                     key={row.label}
                     className={
                       rowVisible
-                        ? 'absolute left-4 right-4 rounded bg-purple-400/90 shadow-sm shadow-purple-950/30 dark:bg-purple-300/90'
+                        ? 'absolute left-4 right-4 rounded bg-ds-amber-400/90 shadow-sm shadow-ds-amber-500/30 dark:bg-ds-amber-300/90'
                         : rowMounted
                           ? 'absolute left-4 right-4 rounded bg-zinc-400/40 dark:bg-zinc-600/70'
                           : 'absolute left-4 right-4 rounded bg-zinc-400/12 dark:bg-zinc-700/25'
@@ -873,7 +876,7 @@ function VirtualWindowPanel() {
                     key={row.label}
                     className={
                       rowVisible
-                        ? 'absolute left-3 right-3 rounded-md border border-purple-400 bg-purple-500/20 px-3 py-2 shadow-sm dark:border-purple-500 dark:bg-purple-500/25'
+                        ? 'absolute left-3 right-3 rounded-md border border-ds-amber-400 bg-ds-amber-400/20 px-3 py-2 shadow-sm dark:border-ds-amber-400 dark:bg-ds-amber-400/25'
                         : 'absolute left-3 right-3 rounded-md border border-zinc-200 bg-white px-3 py-2 shadow-sm dark:border-zinc-800 dark:bg-zinc-900'
                     }
                     style={{
@@ -888,7 +891,7 @@ function VirtualWindowPanel() {
                       <span
                         className={
                           rowVisible
-                            ? 'text-xs font-bold text-purple-700 dark:text-purple-200'
+                            ? 'text-xs font-bold text-ds-amber-500 dark:text-ds-amber-200'
                             : 'text-xs font-bold text-zinc-500 dark:text-zinc-400'
                         }
                       >
@@ -1129,12 +1132,12 @@ function VirtualChatPanel() {
   }
 
   return (
-    <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-sky-200 bg-white p-4 shadow-sm shadow-sky-950/5 dark:border-sky-900 dark:bg-zinc-950">
+    <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-ds-amber-200 bg-white p-4 shadow-sm shadow-ds-amber-500/5 dark:border-ds-amber-500 dark:bg-zinc-950">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <span className="h-2.5 w-2.5 rounded-md bg-sky-400" />
+          <span className="h-2.5 w-2.5 rounded-md bg-ds-amber-400" />
           <span className="h-2.5 w-2.5 rounded-md bg-emerald-400" />
-          <span className="h-2.5 w-2.5 rounded-md bg-purple-400" />
+          <span className="h-2.5 w-2.5 rounded-md bg-ds-amber-400" />
         </div>
         <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400">
           {messages.length} messages / {mountedMessages.length} mounted /{' '}
@@ -1143,8 +1146,8 @@ function VirtualChatPanel() {
       </div>
 
       <div className="mt-4 grid gap-3 md:grid-cols-[1fr_auto] md:items-center">
-        <div className="min-w-0 rounded-lg bg-sky-50 px-3 py-2 dark:bg-sky-950/25">
-          <p className="truncate font-mono text-xs font-bold text-sky-900 dark:text-sky-200">
+        <div className="min-w-0 rounded-lg bg-ds-amber-100 px-3 py-2 dark:bg-ds-amber-500/25">
+          <p className="truncate font-mono text-xs font-bold text-ds-amber-500 dark:text-ds-amber-200">
             {lastChatOperation}
           </p>
           <p className="mt-1 text-xs font-bold text-zinc-500 dark:text-zinc-400">
@@ -1158,7 +1161,7 @@ function VirtualChatPanel() {
             className={
               hasPrependedHistory
                 ? 'inline-flex items-center justify-center gap-1 rounded-md border border-zinc-200 bg-zinc-100 px-3 py-2 text-xs font-black text-zinc-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-600'
-                : 'inline-flex items-center justify-center gap-1 rounded-md border border-sky-200 bg-white px-3 py-2 text-xs font-black text-sky-800 transition-colors hover:border-sky-400 hover:bg-sky-50 dark:border-sky-900 dark:bg-zinc-950 dark:text-sky-200 dark:hover:border-sky-600 dark:hover:bg-sky-950/30'
+                : 'inline-flex items-center justify-center gap-1 rounded-md border border-ds-amber-200 bg-white px-3 py-2 text-xs font-black text-ds-amber-500 transition-colors hover:border-ds-amber-400 hover:bg-ds-amber-100 dark:border-ds-amber-500 dark:bg-zinc-950 dark:text-ds-amber-200 dark:hover:border-ds-amber-400 dark:hover:bg-ds-amber-500/30'
             }
             disabled={hasPrependedHistory}
             type="button"
@@ -1181,7 +1184,7 @@ function VirtualChatPanel() {
             Stream
           </button>
           <button
-            className="inline-flex items-center justify-center gap-1 rounded-md border border-purple-200 bg-white px-3 py-2 text-xs font-black text-purple-800 transition-colors hover:border-purple-400 hover:bg-purple-50 dark:border-purple-900 dark:bg-zinc-950 dark:text-purple-200 dark:hover:border-purple-600 dark:hover:bg-purple-950/30"
+            className="inline-flex items-center justify-center gap-1 rounded-md border border-ds-amber-200 bg-white px-3 py-2 text-xs font-black text-ds-amber-500 transition-colors hover:border-ds-amber-400 hover:bg-ds-amber-100 dark:border-ds-amber-500 dark:bg-zinc-950 dark:text-ds-amber-200 dark:hover:border-ds-amber-400 dark:hover:bg-ds-amber-500/30"
             type="button"
             onClick={scrollChatToEnd}
           >
@@ -1194,7 +1197,7 @@ function VirtualChatPanel() {
       <div
         ref={chatScrollRef}
         aria-label="Virtualized AI chat transcript"
-        className="mt-4 overflow-y-auto rounded-lg border border-zinc-200 bg-[#f7fbff] dark:border-zinc-800 dark:bg-zinc-900"
+        className="mt-4 overflow-y-auto rounded-lg border border-zinc-200 bg-ds-amber-100 dark:border-zinc-800 dark:bg-zinc-900"
         role="region"
         style={{ height: viewportHeight }}
         onScroll={(event) => setScrollOffset(event.currentTarget.scrollTop)}
@@ -1213,10 +1216,10 @@ function VirtualChatPanel() {
                 <div
                   className={
                     isUser
-                      ? 'ml-auto max-w-[78%] rounded-lg border border-purple-200 bg-purple-600 px-3 py-2 text-white shadow-sm shadow-purple-950/15'
+                      ? 'ml-auto max-w-[78%] rounded-lg border border-ds-amber-200 bg-ds-amber-400 px-3 py-2 text-white shadow-sm shadow-ds-amber-500/15'
                       : isTool
                         ? 'mr-auto max-w-[82%] rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-emerald-950 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-100'
-                        : 'mr-auto max-w-[82%] rounded-lg border border-sky-200 bg-white px-3 py-2 text-zinc-900 shadow-sm shadow-sky-950/5 dark:border-sky-900 dark:bg-zinc-950 dark:text-zinc-100'
+                        : 'mr-auto max-w-[82%] rounded-lg border border-ds-amber-200 bg-white px-3 py-2 text-zinc-900 shadow-sm shadow-ds-amber-500/5 dark:border-ds-amber-500 dark:bg-zinc-950 dark:text-zinc-100'
                   }
                 >
                   <div className="flex items-center justify-between gap-3">
@@ -1226,7 +1229,7 @@ function VirtualChatPanel() {
                           ? 'text-[0.65rem] font-black uppercase text-white/75'
                           : isTool
                             ? 'text-[0.65rem] font-black uppercase text-emerald-700 dark:text-emerald-300'
-                            : 'text-[0.65rem] font-black uppercase text-sky-700 dark:text-sky-300'
+                            : 'text-[0.65rem] font-black uppercase text-ds-amber-500 dark:text-ds-amber-300'
                       }
                     >
                       {message.role}
@@ -1267,9 +1270,9 @@ function PipelinePanel() {
       {pipelineSteps.map((step, index) => (
         <div
           key={step.label}
-          className="rounded-lg border border-zinc-200 bg-[#fbf7ff] p-4 dark:border-zinc-800 dark:bg-zinc-900"
+          className="rounded-lg border border-zinc-200 bg-ds-amber-100 p-4 dark:border-zinc-800 dark:bg-zinc-900"
         >
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-purple-100 text-sm font-black text-purple-800 dark:bg-purple-950 dark:text-purple-200">
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-ds-amber-100 text-sm font-black text-ds-amber-500 dark:bg-ds-amber-500 dark:text-ds-amber-200">
             {index + 1}
           </span>
           <h3 className="mt-4 text-lg font-black leading-tight">
@@ -1292,7 +1295,7 @@ function ModePanel() {
           key={mode.title}
           className="rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950"
         >
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-200">
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-ds-amber-100 text-ds-amber-500 dark:bg-ds-amber-500 dark:text-ds-amber-200">
             {mode.icon}
           </span>
           <h3 className="mt-4 text-lg font-black leading-tight">
@@ -1318,7 +1321,7 @@ function FeatureCard({
 }) {
   return (
     <div className="rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
-      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-200">
+      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-ds-amber-100 text-ds-amber-500 dark:bg-ds-amber-500 dark:text-ds-amber-200">
         {icon}
       </span>
       <h3 className="mt-4 text-xl font-black leading-tight">{title}</h3>
@@ -1337,7 +1340,7 @@ function SectionKicker({
   icon: React.ReactNode
 }) {
   return (
-    <p className="inline-flex items-center gap-2 text-sm font-black uppercase text-purple-700 dark:text-purple-300">
+    <p className="inline-flex items-center gap-2 text-sm font-black uppercase text-ds-amber-500 dark:text-ds-amber-300">
       {icon}
       {children}
     </p>
@@ -1346,7 +1349,7 @@ function SectionKicker({
 
 function ProofPill({ label, value }: { label: string; value: string }) {
   return (
-    <div className="border-l-2 border-purple-500 pl-3">
+    <div className="border-l-2 border-ds-amber-400 pl-3">
       <p className="text-sm font-black text-zinc-950 dark:text-white">
         {label}
       </p>

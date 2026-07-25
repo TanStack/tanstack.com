@@ -119,8 +119,8 @@ export default function CliLanding() {
   const resolvedVersion = version ?? library.latestVersion
 
   return (
-    <div className="w-full min-w-0 overflow-x-hidden bg-[#eef2ff] text-zinc-950 dark:bg-zinc-950 dark:text-white">
-      <section className="max-w-full overflow-hidden border-b border-indigo-950/10 bg-[#e0e7ff] dark:border-indigo-300/10 dark:bg-[#090b1e]">
+    <div className="w-full min-w-0 overflow-x-hidden bg-ds-neutral-100 text-zinc-950 dark:bg-zinc-950 dark:text-white">
+      <section className="max-w-full overflow-hidden border-b border-ds-neutral-500/10 bg-ds-neutral-100 dark:border-ds-neutral-300/10 dark:bg-ds-neutral-500">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-10 lg:max-w-[80rem] lg:grid-cols-[0.84fr_1.16fr] lg:items-start lg:py-12 xl:max-w-[92rem]">
           <div className="min-w-0 max-w-full sm:max-w-3xl">
             <SectionKicker icon={<Terminal size={14} />}>
@@ -186,7 +186,7 @@ export default function CliLanding() {
         </div>
       </section>
 
-      <section className="border-b border-indigo-950/10 bg-[#f4f6ff] dark:border-indigo-300/10 dark:bg-[#0e1026]">
+      <section className="border-b border-ds-neutral-500/10 bg-ds-neutral-100 dark:border-ds-neutral-300/10 dark:bg-ds-neutral-500">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.74fr_1.26fr] xl:max-w-[92rem]">
           <div>
             <SectionKicker icon={<Sparkle size={14} />}>Why CLI</SectionKicker>
@@ -298,7 +298,7 @@ export default function CliLanding() {
           params: { libraryId: library.id, version: resolvedVersion },
         }}
         label="Get Started!"
-        className="border-indigo-500 bg-indigo-500 text-white hover:bg-indigo-600"
+        className="border-ds-neutral-300 bg-ds-neutral-300 text-white hover:bg-ds-neutral-400"
       />
       <Footer />
     </div>
@@ -311,7 +311,7 @@ function CliWorkbenchPanel() {
   const activeCommandPreview = `npx @tanstack/cli ${activeCommand[0]} ${activeCommand[1]}`
 
   return (
-    <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-indigo-200 bg-white p-4 shadow-sm shadow-indigo-950/5 dark:border-indigo-900 dark:bg-zinc-950">
+    <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-ds-neutral-200 bg-white p-4 shadow-sm shadow-ds-neutral-500/5 dark:border-ds-neutral-500 dark:bg-zinc-950">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <span className="h-2.5 w-2.5 rounded-md bg-red-400" />
@@ -323,7 +323,7 @@ function CliWorkbenchPanel() {
         </span>
       </div>
 
-      <div className="mt-4 rounded-lg bg-zinc-950 p-4 text-sm text-indigo-100 dark:bg-black">
+      <div className="mt-4 rounded-lg bg-zinc-950 p-4 text-sm text-ds-neutral-100 dark:bg-black">
         <p className="font-mono leading-6">
           npx @tanstack/cli create --list-add-ons --json
           <br />
@@ -340,8 +340,8 @@ function CliWorkbenchPanel() {
             aria-pressed={activeCommandIndex === index}
             className={
               activeCommandIndex === index
-                ? 'rounded-lg border border-indigo-500 bg-indigo-500 p-4 text-left text-white'
-                : 'rounded-lg border border-zinc-200 bg-indigo-50 p-4 text-left transition-colors hover:border-indigo-300 dark:border-zinc-800 dark:bg-indigo-950/20 dark:hover:border-indigo-800'
+                ? 'rounded-lg border border-ds-neutral-300 bg-ds-neutral-300 p-4 text-left text-white'
+                : 'rounded-lg border border-zinc-200 bg-ds-neutral-100 p-4 text-left transition-colors hover:border-ds-neutral-300 dark:border-zinc-800 dark:bg-ds-neutral-500/20 dark:hover:border-ds-neutral-500'
             }
             type="button"
             onClick={() => setActiveCommandIndex(index)}
@@ -350,7 +350,7 @@ function CliWorkbenchPanel() {
               className={
                 activeCommandIndex === index
                   ? 'text-[0.65rem] font-black uppercase text-white/75'
-                  : 'text-[0.65rem] font-black uppercase text-indigo-700 dark:text-indigo-300'
+                  : 'text-[0.65rem] font-black uppercase text-ds-neutral-500 dark:text-ds-neutral-200'
               }
             >
               {label}
@@ -369,9 +369,9 @@ function WorkflowPanel() {
       {workflowSteps.map((step, index) => (
         <div
           key={step.label}
-          className="rounded-lg border border-zinc-200 bg-[#eef2ff] p-4 dark:border-zinc-800 dark:bg-zinc-900"
+          className="rounded-lg border border-zinc-200 bg-ds-neutral-100 p-4 dark:border-zinc-800 dark:bg-zinc-900"
         >
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-100 text-sm font-black text-indigo-800 dark:bg-indigo-950 dark:text-indigo-200">
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-ds-neutral-100 text-sm font-black text-ds-neutral-500 dark:bg-ds-neutral-500 dark:text-ds-neutral-200">
             {index + 1}
           </span>
           <h3 className="mt-4 text-lg font-black leading-tight">
@@ -388,12 +388,12 @@ function WorkflowPanel() {
 
 function BuilderPanel() {
   return (
-    <div className="min-w-0 rounded-lg border border-indigo-200 bg-white p-4 dark:border-indigo-900 dark:bg-zinc-950">
+    <div className="min-w-0 rounded-lg border border-ds-neutral-200 bg-white p-4 dark:border-ds-neutral-500 dark:bg-zinc-950">
       <div className="grid gap-3 md:grid-cols-2">
         {builderOutputs.map((output) => (
           <div
             key={output.label}
-            className="rounded-lg border border-zinc-200 bg-[#f4f6ff] p-4 dark:border-zinc-800 dark:bg-zinc-900"
+            className="rounded-lg border border-zinc-200 bg-ds-neutral-100 p-4 dark:border-zinc-800 dark:bg-zinc-900"
           >
             <p className="text-[0.65rem] font-black uppercase text-zinc-500 dark:text-zinc-400">
               {output.label}
@@ -405,7 +405,7 @@ function BuilderPanel() {
         ))}
       </div>
 
-      <div className="mt-4 rounded-lg bg-indigo-50 p-4 text-sm leading-6 text-indigo-950 dark:bg-indigo-950/25 dark:text-indigo-100">
+      <div className="mt-4 rounded-lg bg-ds-neutral-100 p-4 text-sm leading-6 text-ds-neutral-500 dark:bg-ds-neutral-500/25 dark:text-ds-neutral-100">
         The output is not just a template. It is a stack decision record that an
         agent, CLI command, or developer can follow.
       </div>
@@ -424,7 +424,7 @@ function FeatureCard({
 }) {
   return (
     <div className="rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
-      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-200">
+      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-ds-neutral-100 text-ds-neutral-500 dark:bg-ds-neutral-500 dark:text-ds-neutral-200">
         {icon}
       </span>
       <h3 className="mt-4 text-xl font-black leading-tight">{title}</h3>
@@ -443,7 +443,7 @@ function SectionKicker({
   icon: React.ReactNode
 }) {
   return (
-    <p className="inline-flex items-center gap-2 text-sm font-black uppercase text-indigo-700 dark:text-indigo-300">
+    <p className="inline-flex items-center gap-2 text-sm font-black uppercase text-ds-neutral-500 dark:text-ds-neutral-200">
       {icon}
       {children}
     </p>
@@ -452,7 +452,7 @@ function SectionKicker({
 
 function ProofPill({ label, value }: { label: string; value: string }) {
   return (
-    <div className="border-l-2 border-indigo-500 pl-3">
+    <div className="border-l-2 border-ds-neutral-300 pl-3">
       <p className="text-sm font-black text-zinc-950 dark:text-white">
         {label}
       </p>
@@ -499,7 +499,7 @@ function CliSecondaryLink({
   return (
     <Link
       to={to}
-      className="inline-flex w-full max-w-full items-center justify-center gap-2 rounded-lg border border-indigo-300 bg-transparent px-4 py-2.5 text-sm font-bold text-indigo-700 transition-colors hover:bg-indigo-500/10 dark:border-indigo-700 dark:text-indigo-300 sm:w-auto"
+      className="inline-flex w-full max-w-full items-center justify-center gap-2 rounded-lg border border-ds-neutral-300 bg-transparent px-4 py-2.5 text-sm font-bold text-ds-neutral-500 transition-colors hover:bg-ds-neutral-300/10 dark:border-ds-neutral-500 dark:text-ds-neutral-200 sm:w-auto"
     >
       {icon}
       {label}

@@ -27,10 +27,10 @@ import { queryProject } from '~/libraries/query'
 import { usePrefersReducedMotion } from '~/utils/usePrefersReducedMotion'
 
 const queryAccent: LandingAccent = {
-  kicker: 'text-red-700 dark:text-red-300',
-  chip: 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-200',
-  pill: 'border-red-500',
-  cta: 'border-red-500 bg-red-500 text-white hover:bg-red-600',
+  kicker: 'text-ds-terracotta-500 dark:text-ds-terracotta-300',
+  chip: 'bg-ds-terracotta-100 text-ds-terracotta-500 dark:bg-ds-terracotta-500 dark:text-ds-terracotta-200',
+  pill: 'border-ds-terracotta-400',
+  cta: 'border-ds-terracotta-400 bg-ds-terracotta-400 text-white hover:bg-ds-terracotta-400',
 }
 
 const queryAgentPrompt = [
@@ -363,7 +363,7 @@ function QueryCachePanel() {
   }
 
   return (
-    <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-red-200 bg-white p-4 shadow-sm shadow-red-950/5 dark:border-red-900 dark:bg-zinc-950">
+    <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-ds-terracotta-200 bg-white p-4 shadow-sm shadow-ds-terracotta-500/5 dark:border-ds-terracotta-500 dark:bg-zinc-950">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <span className="h-2.5 w-2.5 rounded-md bg-red-400" />
@@ -397,8 +397,8 @@ function QueryCachePanel() {
             aria-pressed={isLive}
             className={
               isLive
-                ? 'rounded-md border border-red-500 bg-red-500 px-3 py-2 text-xs font-black text-white'
-                : 'rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs font-black text-zinc-700 transition-colors hover:border-red-300 hover:text-red-800 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:border-red-700 dark:hover:text-red-200'
+                ? 'rounded-md border border-ds-terracotta-400 bg-ds-terracotta-400 px-3 py-2 text-xs font-black text-white'
+                : 'rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs font-black text-zinc-700 transition-colors hover:border-ds-terracotta-300 hover:text-ds-terracotta-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:border-ds-terracotta-500 dark:hover:text-ds-terracotta-200'
             }
             type="button"
             onClick={() => setIsLive((current) => !current)}
@@ -406,7 +406,7 @@ function QueryCachePanel() {
             Live {isLive ? 'on' : 'off'}
           </button>
           <button
-            className="inline-flex items-center gap-2 rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs font-black text-zinc-700 transition-colors hover:border-red-300 hover:text-red-800 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:border-red-700 dark:hover:text-red-200"
+            className="inline-flex items-center gap-2 rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs font-black text-zinc-700 transition-colors hover:border-ds-terracotta-300 hover:text-ds-terracotta-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:border-ds-terracotta-500 dark:hover:text-ds-terracotta-200"
             type="button"
             onClick={() => projectsQuery.refetch()}
           >
@@ -418,7 +418,7 @@ function QueryCachePanel() {
             Refetch
           </button>
           <button
-            className="inline-flex items-center gap-2 rounded-md border border-red-500 bg-red-500 px-3 py-2 text-xs font-black text-white transition-colors hover:bg-red-600 disabled:cursor-wait disabled:opacity-70"
+            className="inline-flex items-center gap-2 rounded-md border border-ds-terracotta-400 bg-ds-terracotta-400 px-3 py-2 text-xs font-black text-white transition-colors hover:bg-ds-terracotta-400 disabled:cursor-wait disabled:opacity-70"
             disabled={addIssueMutation.isPending}
             type="button"
             onClick={addIssue}
@@ -445,7 +445,7 @@ function QueryCachePanel() {
                     {row.title}
                   </p>
                 </div>
-                <span className="shrink-0 rounded-md bg-red-100 px-2 py-1 text-[0.65rem] font-black uppercase text-red-800 dark:bg-red-950 dark:text-red-200">
+                <span className="shrink-0 rounded-md bg-ds-terracotta-100 px-2 py-1 text-[0.65rem] font-black uppercase text-ds-terracotta-500 dark:bg-ds-terracotta-500 dark:text-ds-terracotta-200">
                   p{row.priority}
                 </span>
               </div>
@@ -453,7 +453,7 @@ function QueryCachePanel() {
                 {Array.from({ length: row.observers }).map((_, index) => (
                   <span
                     key={index}
-                    className="h-2 flex-1 rounded-full bg-red-400/80"
+                    className="h-2 flex-1 rounded-full bg-ds-terracotta-400/80"
                   />
                 ))}
                 <span className="ml-2 text-[0.65rem] font-black uppercase text-zinc-500 dark:text-zinc-400">
@@ -464,10 +464,10 @@ function QueryCachePanel() {
           ))}
         </div>
 
-        <div className="grid content-between gap-3 rounded-lg bg-amber-50 p-4 text-amber-950 dark:bg-amber-950/25 dark:text-amber-100">
+        <div className="grid content-between gap-3 rounded-lg bg-ds-terracotta-100 p-4 text-ds-terracotta-500 dark:bg-ds-terracotta-500/25 dark:text-ds-terracotta-100">
           <div>
             <p className="text-sm font-black">useQuery()</p>
-            <p className="mt-2 text-xs leading-5 text-amber-950/75 dark:text-amber-100/75">
+            <p className="mt-2 text-xs leading-5 text-ds-terracotta-500/75 dark:text-ds-terracotta-100/75">
               Components declare the data they need. The cache coordinates
               fetches, subscribers, freshness, and background updates.
             </p>
@@ -502,14 +502,14 @@ function waitForQueryHero(ms: number) {
 
 function CacheLifecyclePanel() {
   return (
-    <div className="min-w-0 rounded-lg border border-red-200 bg-white p-4 dark:border-red-900 dark:bg-zinc-950">
+    <div className="min-w-0 rounded-lg border border-ds-terracotta-200 bg-white p-4 dark:border-ds-terracotta-500 dark:bg-zinc-950">
       <div className="grid gap-3 sm:grid-cols-4">
         {lifecycleSteps.map((step, index) => (
           <div
             key={step.label}
-            className="rounded-lg border border-zinc-200 bg-[#fffaf4] p-4 dark:border-zinc-800 dark:bg-zinc-900"
+            className="rounded-lg border border-zinc-200 bg-ds-terracotta-100 p-4 dark:border-zinc-800 dark:bg-zinc-900"
           >
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-100 text-sm font-black text-red-800 dark:bg-red-950 dark:text-red-200">
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-ds-terracotta-100 text-sm font-black text-ds-terracotta-500 dark:bg-ds-terracotta-500 dark:text-ds-terracotta-200">
               {index + 1}
             </span>
             <h3 className="mt-4 text-lg font-black leading-tight">
@@ -522,11 +522,12 @@ function CacheLifecyclePanel() {
         ))}
       </div>
 
-      <div className="mt-4 rounded-lg bg-zinc-950 p-4 text-sm text-red-100 dark:bg-black">
+      <div className="mt-4 rounded-lg bg-zinc-950 p-4 text-sm text-ds-terracotta-100 dark:bg-black">
         <p className="font-mono leading-6">
-          <span className="text-red-300">queryKey</span>: ['projects', filters]
+          <span className="text-ds-terracotta-300">queryKey</span>: ['projects',
+          filters]
           <br />
-          <span className="text-amber-300">queryFn</span>: fetchProjects
+          <span className="text-ds-terracotta-300">queryFn</span>: fetchProjects
           <br />
           staleTime: 30_000
           <br />
@@ -539,15 +540,15 @@ function CacheLifecyclePanel() {
 
 function MutationPanel() {
   return (
-    <div className="min-w-0 rounded-lg border border-red-200 bg-white p-4 dark:border-red-900 dark:bg-zinc-950">
+    <div className="min-w-0 rounded-lg border border-ds-terracotta-200 bg-white p-4 dark:border-ds-terracotta-500 dark:bg-zinc-950">
       <div className="grid gap-3 md:grid-cols-2">
         {mutationSteps.map((step, index) => (
           <div
             key={step.label}
-            className="rounded-lg border border-zinc-200 bg-[#fffaf4] p-4 dark:border-zinc-800 dark:bg-zinc-900"
+            className="rounded-lg border border-zinc-200 bg-ds-terracotta-100 p-4 dark:border-zinc-800 dark:bg-zinc-900"
           >
             <div className="flex items-center justify-between gap-3">
-              <span className="rounded-md bg-red-100 px-2 py-1 text-xs font-black text-red-800 dark:bg-red-950 dark:text-red-200">
+              <span className="rounded-md bg-ds-terracotta-100 px-2 py-1 text-xs font-black text-ds-terracotta-500 dark:bg-ds-terracotta-500 dark:text-ds-terracotta-200">
                 {index + 1}
               </span>
               <span className="text-[0.65rem] font-black uppercase text-zinc-500 dark:text-zinc-400">
@@ -561,7 +562,7 @@ function MutationPanel() {
         ))}
       </div>
 
-      <div className="mt-4 rounded-lg bg-red-50 p-4 text-sm font-bold leading-6 text-red-950 dark:bg-red-950/30 dark:text-red-100">
+      <div className="mt-4 rounded-lg bg-ds-terracotta-100 p-4 text-sm font-bold leading-6 text-ds-terracotta-500 dark:bg-ds-terracotta-500/30 dark:text-ds-terracotta-100">
         Result: the UI can feel instant, the server remains the source of truth,
         and the cache knows exactly what changed.
       </div>

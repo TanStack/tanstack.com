@@ -120,8 +120,8 @@ export default function PacerLanding() {
   const resolvedVersion = version ?? library.latestVersion
 
   return (
-    <div className="w-full min-w-0 overflow-x-hidden bg-[#f7fee7] text-zinc-950 dark:bg-zinc-950 dark:text-white">
-      <section className="max-w-full overflow-hidden border-b border-lime-950/10 bg-[#ecfccb] dark:border-lime-300/10 dark:bg-[#0b1604]">
+    <div className="w-full min-w-0 overflow-x-hidden bg-ds-amber-100 text-zinc-950 dark:bg-zinc-950 dark:text-white">
+      <section className="max-w-full overflow-hidden border-b border-ds-amber-500/10 bg-ds-amber-100 dark:border-ds-amber-300/10 dark:bg-ds-amber-500">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-10 lg:max-w-[80rem] lg:grid-cols-[0.84fr_1.16fr] lg:items-start lg:py-12 xl:max-w-[92rem]">
           <div className="min-w-0 max-w-full sm:max-w-3xl">
             <SectionKicker icon={<Gauge size={14} />}>
@@ -182,7 +182,7 @@ export default function PacerLanding() {
         </div>
       </section>
 
-      <section className="border-b border-lime-950/10 bg-[#f7fee7] dark:border-lime-300/10 dark:bg-[#0f1b07]">
+      <section className="border-b border-ds-amber-500/10 bg-ds-amber-100 dark:border-ds-amber-300/10 dark:bg-ds-amber-500">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.74fr_1.26fr] xl:max-w-[92rem]">
           <div>
             <SectionKicker icon={<MagicWand size={14} />}>
@@ -263,7 +263,7 @@ export default function PacerLanding() {
               {frameworkAdapters.map((framework) => (
                 <span
                   key={framework}
-                  className="rounded-md border border-lime-200 bg-lime-50 px-3 py-1.5 text-sm font-bold text-lime-800 dark:border-lime-900 dark:bg-lime-950/40 dark:text-lime-200"
+                  className="rounded-md border border-ds-amber-200 bg-ds-amber-100 px-3 py-1.5 text-sm font-bold text-ds-amber-500 dark:border-ds-amber-500 dark:bg-ds-amber-500/40 dark:text-ds-amber-200"
                 >
                   {framework}
                 </span>
@@ -273,7 +273,7 @@ export default function PacerLanding() {
         </div>
       </section>
 
-      <section className="border-b border-zinc-200 bg-[#f7fee7] py-12 dark:border-zinc-800 dark:bg-zinc-900">
+      <section className="border-b border-zinc-200 bg-ds-amber-100 py-12 dark:border-zinc-800 dark:bg-zinc-900">
         <div className="mx-auto w-full max-w-[80rem] px-4 xl:max-w-[92rem]">
           <div className="max-w-3xl">
             <SectionKicker icon={<ListChecks size={14} />}>
@@ -326,7 +326,7 @@ export default function PacerLanding() {
           params: { libraryId: library.id, version: resolvedVersion },
         }}
         label="Get Started!"
-        className="border-lime-600 bg-lime-600 text-white hover:bg-lime-700"
+        className="border-ds-amber-400 bg-ds-amber-400 text-white hover:bg-ds-amber-500"
       />
       <Footer />
     </div>
@@ -390,7 +390,7 @@ function PacerPanel() {
   }
 
   return (
-    <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-lime-200 bg-white p-4 shadow-sm shadow-lime-950/5 dark:border-lime-900 dark:bg-zinc-950">
+    <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-ds-amber-200 bg-white p-4 shadow-sm shadow-ds-amber-500/5 dark:border-ds-amber-500 dark:bg-zinc-950">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <span className="h-2.5 w-2.5 rounded-md bg-red-400" />
@@ -404,14 +404,14 @@ function PacerPanel() {
 
       <div className="mt-4 rounded-lg border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900">
         <label
-          className="text-xs font-black uppercase text-lime-800 dark:text-lime-300"
+          className="text-xs font-black uppercase text-ds-amber-500 dark:text-ds-amber-300"
           htmlFor="pacer-search-demo"
         >
           Search docs
         </label>
         <input
           id="pacer-search-demo"
-          className="mt-2 w-full rounded-md border border-lime-200 bg-white px-3 py-2 text-sm font-bold text-zinc-950 outline-none focus:border-lime-500 dark:border-lime-900 dark:bg-zinc-950 dark:text-white"
+          className="mt-2 w-full rounded-md border border-ds-amber-200 bg-white px-3 py-2 text-sm font-bold text-zinc-950 outline-none focus:border-ds-amber-400 dark:border-ds-amber-500 dark:bg-zinc-950 dark:text-white"
           value={inputValue}
           onChange={(event) => changeInputValue(event.target.value)}
         />
@@ -419,7 +419,7 @@ function PacerPanel() {
           {pacerSearchResults.map((item) => (
             <button
               key={item.query}
-              className="rounded-md border border-lime-200 bg-white px-3 py-2 text-xs font-black text-lime-800 transition-colors hover:border-lime-400 dark:border-lime-900 dark:bg-zinc-950 dark:text-lime-200"
+              className="rounded-md border border-ds-amber-200 bg-white px-3 py-2 text-xs font-black text-ds-amber-500 transition-colors hover:border-ds-amber-400 dark:border-ds-amber-500 dark:bg-zinc-950 dark:text-ds-amber-200"
               type="button"
               onClick={() => changeInputValue(item.query)}
             >
@@ -427,7 +427,7 @@ function PacerPanel() {
             </button>
           ))}
           <button
-            className="rounded-md border border-lime-600 bg-lime-600 px-3 py-2 text-xs font-black text-white transition-colors hover:bg-lime-700"
+            className="rounded-md border border-ds-amber-400 bg-ds-amber-400 px-3 py-2 text-xs font-black text-white transition-colors hover:bg-ds-amber-500"
             type="button"
             onClick={flushSearch}
           >
@@ -445,28 +445,28 @@ function PacerPanel() {
         ].map(([label, value]) => (
           <div
             key={label}
-            className="rounded-lg bg-lime-50 p-3 dark:bg-lime-950/25"
+            className="rounded-lg bg-ds-amber-100 p-3 dark:bg-ds-amber-500/25"
           >
-            <p className="text-[0.65rem] font-black uppercase text-lime-800 dark:text-lime-300">
+            <p className="text-[0.65rem] font-black uppercase text-ds-amber-500 dark:text-ds-amber-300">
               {label}
             </p>
-            <p className="mt-1 text-sm font-black text-lime-950 dark:text-lime-100">
+            <p className="mt-1 text-sm font-black text-ds-amber-500 dark:text-ds-amber-100">
               {value}
             </p>
           </div>
         ))}
       </div>
 
-      <div className="mt-4 rounded-lg bg-lime-50 p-4 dark:bg-lime-950/25">
+      <div className="mt-4 rounded-lg bg-ds-amber-100 p-4 dark:bg-ds-amber-500/25">
         <div className="flex items-center justify-between gap-3">
-          <p className="text-xs font-black uppercase text-lime-800 dark:text-lime-300">
+          <p className="text-xs font-black uppercase text-ds-amber-500 dark:text-ds-amber-300">
             {isWaiting ? 'waiting 650ms' : 'result'}
           </p>
-          <span className="rounded-md bg-white px-2 py-1 text-[0.65rem] font-black uppercase text-lime-800 dark:bg-zinc-950 dark:text-lime-200">
+          <span className="rounded-md bg-white px-2 py-1 text-[0.65rem] font-black uppercase text-ds-amber-500 dark:bg-zinc-950 dark:text-ds-amber-200">
             debounce
           </span>
         </div>
-        <p className="mt-2 text-sm font-black text-lime-950 dark:text-lime-100">
+        <p className="mt-2 text-sm font-black text-ds-amber-500 dark:text-ds-amber-100">
           {activeResult?.result ?? 'No matching docs yet'}
         </p>
       </div>
@@ -480,9 +480,9 @@ function LifecyclePanel() {
       {lifecycleSteps.map((step, index) => (
         <div
           key={step.label}
-          className="rounded-lg border border-zinc-200 bg-[#f7fee7] p-4 dark:border-zinc-800 dark:bg-zinc-900"
+          className="rounded-lg border border-zinc-200 bg-ds-amber-100 p-4 dark:border-zinc-800 dark:bg-zinc-900"
         >
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-lime-100 text-sm font-black text-lime-800 dark:bg-lime-950 dark:text-lime-200">
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-ds-amber-100 text-sm font-black text-ds-amber-500 dark:bg-ds-amber-500 dark:text-ds-amber-200">
             {index + 1}
           </span>
           <h3 className="mt-4 text-lg font-black leading-tight">
@@ -499,8 +499,8 @@ function LifecyclePanel() {
 
 function AsyncPanel() {
   return (
-    <div className="min-w-0 rounded-lg border border-lime-200 bg-white p-4 dark:border-lime-900 dark:bg-zinc-950">
-      <div className="rounded-lg bg-zinc-950 p-4 text-sm text-lime-100 dark:bg-black">
+    <div className="min-w-0 rounded-lg border border-ds-amber-200 bg-white p-4 dark:border-ds-amber-500 dark:bg-zinc-950">
+      <div className="rounded-lg bg-zinc-950 p-4 text-sm text-ds-amber-100 dark:bg-black">
         <p className="font-mono leading-6">
           const queue = new AsyncQueuer(uploadFile, {'{'} concurrency: 3 {'}'})
           <br />
@@ -519,7 +519,7 @@ function AsyncPanel() {
         ].map(([label, body]) => (
           <div
             key={label}
-            className="rounded-lg border border-zinc-200 bg-[#f7fee7] p-4 dark:border-zinc-800 dark:bg-zinc-900"
+            className="rounded-lg border border-zinc-200 bg-ds-amber-100 p-4 dark:border-zinc-800 dark:bg-zinc-900"
           >
             <p className="text-sm font-black">{label}</p>
             <p className="mt-2 text-sm leading-6 text-zinc-700 dark:text-zinc-300">
@@ -543,7 +543,7 @@ function FeatureCard({
 }) {
   return (
     <div className="rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
-      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-lime-100 text-lime-800 dark:bg-lime-950 dark:text-lime-200">
+      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-ds-amber-100 text-ds-amber-500 dark:bg-ds-amber-500 dark:text-ds-amber-200">
         {icon}
       </span>
       <h3 className="mt-4 text-xl font-black leading-tight">{title}</h3>
@@ -562,7 +562,7 @@ function SectionKicker({
   icon: React.ReactNode
 }) {
   return (
-    <p className="inline-flex items-center gap-2 text-sm font-black uppercase text-lime-700 dark:text-lime-300">
+    <p className="inline-flex items-center gap-2 text-sm font-black uppercase text-ds-amber-500 dark:text-ds-amber-300">
       {icon}
       {children}
     </p>
@@ -571,7 +571,7 @@ function SectionKicker({
 
 function ProofPill({ label, value }: { label: string; value: string }) {
   return (
-    <div className="border-l-2 border-lime-500 pl-3">
+    <div className="border-l-2 border-ds-amber-400 pl-3">
       <p className="text-sm font-black text-zinc-950 dark:text-white">
         {label}
       </p>

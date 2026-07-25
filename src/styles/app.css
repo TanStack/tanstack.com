@@ -130,57 +130,75 @@ html.theme-switching *::after {
    /ds style book (and var() lookups) always resolve them. */
 @theme static {
   /* --- Primitive color ramps (100 = lightest, 500 = darkest) --- */
-  --color-ds-green-100: #daeedc;
-  --color-ds-green-200: #a7dbad;
-  --color-ds-green-300: #70b57a;
-  --color-ds-green-400: #44a54e;
-  --color-ds-green-500: #203f28;
+  --color-ds-green-100: #d8f0da;
+  --color-ds-green-200: #a2e1a9;
+  --color-ds-green-300: #69bc75;
+  --color-ds-green-400: #39af46;
+  --color-ds-green-500: #1d4226;
 
-  --color-ds-terracotta-100: #f4d9c9;
-  --color-ds-terracotta-200: #e5ad95;
-  --color-ds-terracotta-300: #d37556;
-  --color-ds-terracotta-400: #c3502b;
-  --color-ds-terracotta-500: #571e0e;
+  --color-ds-terracotta-100: #f9d8c4;
+  --color-ds-terracotta-200: #edaa8d;
+  --color-ds-terracotta-300: #e06e49;
+  --color-ds-terracotta-400: #d3481b;
+  --color-ds-terracotta-500: #5f1a06;
 
-  --color-ds-blue-100: #daeef1;
-  --color-ds-blue-200: #a2d1dc;
-  --color-ds-blue-300: #69a8b7;
-  --color-ds-blue-400: #469db8;
-  --color-ds-blue-500: #013e53;
+  --color-ds-blue-100: #d8f0f3;
+  --color-ds-blue-200: #9cd5e2;
+  --color-ds-blue-300: #61adbf;
+  --color-ds-blue-400: #3aa3c4;
+  --color-ds-blue-500: #003e53;
 
-  --color-ds-purple-100: #c9c1cb;
-  --color-ds-purple-200: #c593c1;
-  --color-ds-purple-300: #be76c7;
-  --color-ds-purple-400: #af57bc;
-  --color-ds-purple-500: #502457;
+  --color-ds-purple-100: #cabfcc;
+  --color-ds-purple-200: #ca8ec5;
+  --color-ds-purple-300: #c56dcf;
+  --color-ds-purple-400: #b64cc7;
+  --color-ds-purple-500: #541f5d;
 
-  --color-ds-amber-100: #faf3d0;
-  --color-ds-amber-200: #f0e18e;
-  --color-ds-amber-300: #e5cc57;
-  --color-ds-amber-400: #eb9e2a;
-  --color-ds-amber-500: #5a4608;
+  --color-ds-amber-100: #fef6cc;
+  --color-ds-amber-200: #fae884;
+  --color-ds-amber-300: #f4d648;
+  --color-ds-amber-400: #ffa216;
+  --color-ds-amber-500: #624a00;
 
-  --color-ds-neutral-100: #ece9d6;
-  --color-ds-neutral-200: #aba594;
-  --color-ds-neutral-300: #736b5d;
-  --color-ds-neutral-400: #3c352b;
+  --color-ds-neutral-0: #ffffff;
+  --color-ds-neutral-100: #eeebd4;
+  --color-ds-neutral-200: #aea691;
+  --color-ds-neutral-300: #756c5b;
+  --color-ds-neutral-400: #3e3529;
   --color-ds-neutral-500: #111111;
 
-  /* --- Library brand colors --- */
-  --color-lib-start: #00b9c8;
-  --color-lib-router: #3bcb77;
-  --color-lib-query: #ffa24b;
-  --color-lib-table: #008ded;
-  --color-lib-db: #e95100;
-  --color-lib-ai: #dd0070;
-  --color-lib-form: #e4ae22;
-  --color-lib-virtual: #bc90e5;
-  --color-lib-pacer: #a9e451;
-  --color-lib-hotkeys: #f62f32;
-  --color-lib-store: #873c00;
-  --color-lib-devtools: #1c1b1c;
-  --color-lib-cli: #490abd;
-  --color-lib-intent: #5cafdf;
+  /* Cool neutral tints (distinct from the warm neutral ramp above) */
+  --color-ds-neutral-tint-100: #e8e7e5;
+  --color-ds-neutral-tint-200: #c5c3bf;
+
+  /* --- Category brand colors ---
+     Libraries inherit their category's color as their core brand color. These
+     are semantic (reference the DS ramps at the 400 step) and flip to the 300
+     step in dark mode (see html.dark), so a single utility class like
+     `text-category-data` is mode-aware without a `dark:` variant. */
+  --color-category-framework: var(--color-ds-green-400);
+  --color-category-data: var(--color-ds-terracotta-400);
+  --color-category-ui: var(--color-ds-blue-400);
+  --color-category-performance: var(--color-ds-amber-400);
+  --color-category-tooling: var(--color-ds-neutral-300);
+
+  /* --- Library brand colors ---
+     Collapsed to the five category colors: each library aliases its category
+     rather than declaring a bespoke hue. */
+  --color-lib-start: var(--color-category-framework);
+  --color-lib-router: var(--color-category-framework);
+  --color-lib-query: var(--color-category-data);
+  --color-lib-table: var(--color-category-ui);
+  --color-lib-db: var(--color-category-data);
+  --color-lib-ai: var(--color-category-data);
+  --color-lib-form: var(--color-category-ui);
+  --color-lib-virtual: var(--color-category-performance);
+  --color-lib-pacer: var(--color-category-performance);
+  --color-lib-hotkeys: var(--color-category-ui);
+  --color-lib-store: var(--color-category-data);
+  --color-lib-devtools: var(--color-category-tooling);
+  --color-lib-cli: var(--color-category-tooling);
+  --color-lib-intent: var(--color-category-tooling);
 
   /* --- Semantic tokens (reference primitives so edits propagate) --- */
   /* NOTE: Figma reported text/primary as #ffffff (a dark-mode/mode artifact);
@@ -199,7 +217,7 @@ html.theme-switching *::after {
   --color-background-default: #ffffff;
   --color-background-surface: #ffffff;
   --color-background-elevated: #ffffff;
-  --color-background-subtle: #f5f2e9;
+  --color-background-subtle: #fafafa;
   --color-background-inverse: var(--color-ds-neutral-500);
 
   --color-border-default: var(--color-ds-neutral-200);
@@ -240,6 +258,16 @@ html.theme-switching *::after {
   --color-accent-nature: var(--color-ds-green-400);
   --color-accent-creative: var(--color-ds-purple-400);
 
+  /* --- Interaction-state overlays (from Figma; semi-transparent tints laid
+     over a surface). Figma exported these flat across modes; light values are
+     black tints, dark values (in html.dark) are white tints. --- */
+  --color-surface-state-hover: #1111110f; /* black 6% */
+  --color-surface-state-pressed: #1111111f; /* black 12% */
+  --color-input-bg-hover: #11111108; /* black ~3% */
+  --color-menu-item-pressed: #1111111f; /* black 12% */
+  --color-divider-subtle: var(--color-ds-neutral-100);
+  --color-divider-on-inverse: var(--color-ds-neutral-100);
+
   /* --- Font families ---
      display/heading = Bricolage Grotesque, body/label = Inter (--font-sans),
      mono = IBM Plex Mono. Loaded globally from __root.tsx. */
@@ -252,7 +280,7 @@ html.theme-switching *::after {
   --text-ds-display-2xl: 96px;
   --text-ds-display-2xl--line-height: 96px;
   --text-ds-display-2xl--letter-spacing: -1px;
-  --text-ds-display-2xl--font-weight: 700;
+  --text-ds-display-2xl--font-weight: 800;
   --text-ds-display-xl: 72px;
   --text-ds-display-xl--line-height: 76px;
   --text-ds-display-xl--letter-spacing: -0.8px;
@@ -334,6 +362,16 @@ html.theme-switching *::after {
   --text-ds-mono-caps--line-height: 14px;
   --text-ds-mono-caps--letter-spacing: 1.5px;
   --text-ds-mono-caps--font-weight: 400;
+
+  /* Eyebrow (mono, uppercase, wide tracking) — labels above headings */
+  --text-ds-eyebrow-lg: 13px;
+  --text-ds-eyebrow-lg--line-height: 16px;
+  --text-ds-eyebrow-lg--letter-spacing: 2px;
+  --text-ds-eyebrow-lg--font-weight: 600;
+  --text-ds-eyebrow-md: 11px;
+  --text-ds-eyebrow-md--line-height: 13px;
+  --text-ds-eyebrow-md--letter-spacing: 1.75px;
+  --text-ds-eyebrow-md--font-weight: 500;
 }
 
 /* Dark-mode values for the DS semantic tokens (from Figma "Color Specimens /
@@ -342,15 +380,15 @@ html.theme-switching *::after {
    Primitives don't change between modes — only these semantic mappings do. */
 html.dark {
   --color-text-primary: #ffffff;
-  --color-text-secondary: #aba594;
-  --color-text-muted: #736b5d;
-  --color-text-accent: #69a8b7;
-  --color-text-disabled: #3c352b;
+  --color-text-secondary: #aea691;
+  --color-text-muted: #756c5b;
+  --color-text-accent: #61adbf;
+  --color-text-disabled: #3e3529;
   --color-text-inverse: #111111;
-  --color-text-success: #70b57a;
-  --color-text-warning: #e5cc57;
-  --color-text-error: #d37556;
-  --color-text-info: #a2d1dc;
+  --color-text-success: #69bc75;
+  --color-text-warning: #f4d648;
+  --color-text-error: #e06e49;
+  --color-text-info: #9cd5e2;
 
   --color-background-default: #111111;
   --color-background-surface: #1f1f1f;
@@ -359,42 +397,60 @@ html.dark {
   --color-background-inverse: #ffffff;
 
   --color-border-default: #2d2d2d;
-  --color-border-strong: #aba594;
+  --color-border-strong: #aea691;
   --color-border-subtle: #232323;
-  --color-border-focus: #69a8b7;
-  --color-border-error: #d37556;
-  --color-border-success: #70b57a;
+  --color-border-focus: #61adbf;
+  --color-border-error: #e06e49;
+  --color-border-success: #69bc75;
 
-  --color-icon-default: #aba594;
-  --color-icon-accent: #69a8b7;
-  --color-icon-muted: #736b5d;
+  --color-icon-default: #aea691;
+  --color-icon-accent: #61adbf;
+  --color-icon-muted: #756c5b;
   --color-icon-inverse: #111111;
-  --color-icon-success: #70b57a;
-  --color-icon-warning: #e5cc57;
-  --color-icon-error: #d37556;
+  --color-icon-success: #69bc75;
+  --color-icon-warning: #f4d648;
+  --color-icon-error: #e06e49;
 
-  --color-action-primary: #469db8;
-  --color-action-primary-hover: #69a8b7;
+  --color-action-primary: #3aa3c4;
+  --color-action-primary-hover: #61adbf;
   --color-action-primary-text: #ffffff;
   --color-action-secondary: #2b2b2b;
   --color-action-secondary-hover: #3a3a3a;
-  --color-action-destructive: #d37556;
+  --color-action-destructive: #e06e49;
   --color-action-disabled: #2b2b2b;
 
-  --color-status-success: #70b57a;
-  --color-status-success-bg: #203f28;
-  --color-status-warning: #e5cc57;
-  --color-status-warning-bg: #5a4608;
-  --color-status-error: #d37556;
-  --color-status-error-bg: #571e0e;
-  --color-status-info: #69a8b7;
-  --color-status-info-bg: #013e53;
+  --color-status-success: #69bc75;
+  --color-status-success-bg: #1d4226;
+  --color-status-warning: #f4d648;
+  --color-status-warning-bg: #624a00;
+  --color-status-error: #e06e49;
+  --color-status-error-bg: #5f1a06;
+  --color-status-info: #61adbf;
+  --color-status-info-bg: #003e53;
 
-  --color-accent-brand: #469db8;
-  --color-accent-warm: #e5ad95;
-  --color-accent-highlight: #f0e18e;
-  --color-accent-nature: #70b57a;
-  --color-accent-creative: #be76c7;
+  --color-accent-brand: #3aa3c4;
+  --color-accent-warm: #edaa8d;
+  --color-accent-highlight: #fae884;
+  --color-accent-nature: #69bc75;
+  --color-accent-creative: #c56dcf;
+
+  /* Category brand colors step one lighter (300; tooling → neutral-200) so
+     they stay legible on dark surfaces. */
+  --color-category-framework: var(--color-ds-green-300);
+  --color-category-data: var(--color-ds-terracotta-300);
+  --color-category-ui: var(--color-ds-blue-300);
+  --color-category-performance: var(--color-ds-amber-300);
+  --color-category-tooling: var(--color-ds-neutral-200);
+
+  /* Interaction-state overlays — white tints for dark surfaces (Figma values
+     used directly where provided: input/background/hover, menu/item/pressed,
+     divider/subtle). */
+  --color-surface-state-hover: #ffffff14; /* white 8% */
+  --color-surface-state-pressed: #ffffff1f; /* white 12% */
+  --color-input-bg-hover: #ffffff0a; /* white 4% */
+  --color-menu-item-pressed: #ffffff1f; /* white 12% */
+  --color-divider-subtle: #1e1e1e;
+  --color-divider-on-inverse: #1e1e1e;
 }
 
 /* Safelist for dynamic colors */
@@ -854,6 +910,40 @@ button {
       border-radius: 0.5rem;
       border: 3px solid var(--color-gray-800);
     }
+  }
+
+  /* Subtle, track-less scrollbar for the "All Libraries" overlay. Uses the
+     primary text token at low opacity so the thumb reads on both the light
+     and dark glass surfaces. Selectors are prefixed with `html` so they
+     out-specify the global `html.dark *` scrollbar rules above (equal
+     specificity, later source order wins). */
+  html .libraries-overlay-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(
+        in srgb,
+        var(--color-text-primary) 25%,
+        transparent
+      )
+      transparent;
+  }
+
+  html .libraries-overlay-scroll::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  html .libraries-overlay-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  html .libraries-overlay-scroll::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--color-text-primary) 25%, transparent);
+    border: 0;
+    border-radius: 9999px;
+  }
+
+  html .libraries-overlay-scroll::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb, var(--color-text-primary) 40%, transparent);
   }
 
   [disabled] {

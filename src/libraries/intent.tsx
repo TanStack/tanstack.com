@@ -3,7 +3,7 @@ import { BookOpen, Package, ArrowsClockwise } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { intent } from './libraries'
 
-const textStyles = `text-sky-600 dark:text-sky-500`
+const textStyles = `text-category-tooling`
 
 export const intentProject = {
   ...intent,

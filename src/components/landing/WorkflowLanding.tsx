@@ -136,8 +136,8 @@ export default function WorkflowLanding() {
   const resolvedVersion = version ?? library.latestVersion
 
   return (
-    <div className="w-full min-w-0 overflow-x-hidden bg-[#eff6ff] text-zinc-950 dark:bg-zinc-950 dark:text-white">
-      <section className="max-w-full overflow-hidden border-b border-blue-950/10 bg-[#dbeafe] dark:border-blue-300/10 dark:bg-[#061325]">
+    <div className="w-full min-w-0 overflow-x-hidden bg-ds-neutral-100 text-zinc-950 dark:bg-zinc-950 dark:text-white">
+      <section className="max-w-full overflow-hidden border-b border-ds-neutral-500/10 bg-ds-neutral-100 dark:border-ds-neutral-300/10 dark:bg-ds-neutral-500/40">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-10 lg:max-w-[80rem] lg:grid-cols-[0.84fr_1.16fr] lg:items-start lg:py-12 xl:max-w-[92rem]">
           <div className="min-w-0 max-w-full sm:max-w-3xl">
             <SectionKicker icon={<FlowArrow size={14} />}>
@@ -198,7 +198,7 @@ export default function WorkflowLanding() {
         </div>
       </section>
 
-      <section className="border-b border-blue-950/10 bg-[#f4f8ff] dark:border-blue-300/10 dark:bg-[#07182d]">
+      <section className="border-b border-ds-neutral-500/10 bg-ds-neutral-100 dark:border-ds-neutral-300/10 dark:bg-ds-neutral-500/40">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.74fr_1.26fr] xl:max-w-[92rem]">
           <div>
             <SectionKicker icon={<Sparkle size={14} />}>
@@ -312,7 +312,7 @@ export default function WorkflowLanding() {
           params: { libraryId: library.id, version: resolvedVersion },
         }}
         label="Explore Workflow"
-        className="border-blue-800 bg-blue-800 text-white hover:bg-blue-900"
+        className="border-ds-neutral-500 bg-ds-neutral-500 text-white hover:bg-ds-neutral-500"
       />
       <Footer />
     </div>
@@ -342,7 +342,7 @@ function WorkflowRunPanel() {
   })
 
   return (
-    <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-blue-200 bg-white p-4 shadow-sm shadow-blue-950/5 dark:border-blue-900 dark:bg-zinc-950">
+    <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-ds-neutral-200 bg-white p-4 shadow-sm shadow-ds-neutral-500/5 dark:border-ds-neutral-500 dark:bg-zinc-950">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <span className="h-2.5 w-2.5 rounded-md bg-red-400" />
@@ -356,7 +356,7 @@ function WorkflowRunPanel() {
 
       <div className="mt-4 flex flex-wrap gap-2">
         <button
-          className="rounded-md border border-blue-600 bg-blue-600 px-3 py-2 text-xs font-black text-white transition-colors hover:bg-blue-700"
+          className="rounded-md border border-ds-neutral-400 bg-ds-neutral-400 px-3 py-2 text-xs font-black text-white transition-colors hover:bg-ds-neutral-500"
           type="button"
           onClick={() =>
             setActiveStepIndex((current) =>
@@ -367,14 +367,14 @@ function WorkflowRunPanel() {
           Advance
         </button>
         <button
-          className="rounded-md border border-blue-200 bg-white px-3 py-2 text-xs font-black text-blue-800 transition-colors hover:border-blue-400 dark:border-blue-900 dark:bg-zinc-950 dark:text-blue-200"
+          className="rounded-md border border-ds-neutral-200 bg-white px-3 py-2 text-xs font-black text-ds-neutral-500 transition-colors hover:border-ds-neutral-300 dark:border-ds-neutral-500 dark:bg-zinc-950 dark:text-ds-neutral-200"
           type="button"
           onClick={() => setRetryCount((current) => current + 1)}
         >
           Retry step
         </button>
         <button
-          className="rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs font-black text-zinc-700 transition-colors hover:border-blue-300 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300"
+          className="rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs font-black text-zinc-700 transition-colors hover:border-ds-neutral-300 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300"
           type="button"
           onClick={() => {
             setActiveStepIndex(0)
@@ -389,9 +389,9 @@ function WorkflowRunPanel() {
         {displayedRows.map((row, index) => (
           <div
             key={row.step}
-            className="grid gap-3 rounded-lg border border-zinc-200 bg-blue-50 p-3 dark:border-zinc-800 dark:bg-blue-950/20 sm:grid-cols-[auto_1fr_auto] sm:items-center"
+            className="grid gap-3 rounded-lg border border-zinc-200 bg-ds-neutral-100 p-3 dark:border-zinc-800 dark:bg-ds-neutral-500/20 sm:grid-cols-[auto_1fr_auto] sm:items-center"
           >
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-sm font-black text-blue-900 dark:bg-blue-950 dark:text-blue-200">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-ds-neutral-100 text-sm font-black text-ds-neutral-500 dark:bg-ds-neutral-500 dark:text-ds-neutral-200">
               {index + 1}
             </span>
             <div>
@@ -400,7 +400,7 @@ function WorkflowRunPanel() {
                 {row.detail}
               </p>
             </div>
-            <span className="rounded-md bg-white px-2 py-1 text-[0.65rem] font-black uppercase text-blue-900 dark:bg-zinc-950 dark:text-blue-200">
+            <span className="rounded-md bg-white px-2 py-1 text-[0.65rem] font-black uppercase text-ds-neutral-500 dark:bg-zinc-950 dark:text-ds-neutral-200">
               {row.state}
             </span>
           </div>
@@ -416,9 +416,9 @@ function LifecyclePanel() {
       {lifecycleSteps.map((step, index) => (
         <div
           key={step.label}
-          className="rounded-lg border border-zinc-200 bg-[#eff6ff] p-4 dark:border-zinc-800 dark:bg-zinc-900"
+          className="rounded-lg border border-zinc-200 bg-ds-neutral-100 p-4 dark:border-zinc-800 dark:bg-zinc-900"
         >
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 text-sm font-black text-blue-900 dark:bg-blue-950 dark:text-blue-200">
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-ds-neutral-100 text-sm font-black text-ds-neutral-500 dark:bg-ds-neutral-500 dark:text-ds-neutral-200">
             {index + 1}
           </span>
           <h3 className="mt-4 text-lg font-black leading-tight">
@@ -435,12 +435,12 @@ function LifecyclePanel() {
 
 function ObservabilityPanel() {
   return (
-    <div className="min-w-0 rounded-lg border border-blue-200 bg-white p-4 dark:border-blue-900 dark:bg-zinc-950">
+    <div className="min-w-0 rounded-lg border border-ds-neutral-200 bg-white p-4 dark:border-ds-neutral-500 dark:bg-zinc-950">
       <div className="grid gap-3 md:grid-cols-2">
         {observabilityItems.map((item) => (
           <div
             key={item.label}
-            className="rounded-lg border border-zinc-200 bg-[#f4f8ff] p-4 dark:border-zinc-800 dark:bg-zinc-900"
+            className="rounded-lg border border-zinc-200 bg-ds-neutral-100 p-4 dark:border-zinc-800 dark:bg-zinc-900"
           >
             <p className="text-[0.65rem] font-black uppercase text-zinc-500 dark:text-zinc-400">
               {item.label}
@@ -452,7 +452,7 @@ function ObservabilityPanel() {
         ))}
       </div>
 
-      <div className="mt-4 rounded-lg bg-zinc-950 p-4 text-sm text-blue-100 dark:bg-black">
+      <div className="mt-4 rounded-lg bg-zinc-950 p-4 text-sm text-ds-neutral-100 dark:bg-black">
         <p className="font-mono leading-6">
           step: &quot;reserve inventory&quot;
           <br />
@@ -476,7 +476,7 @@ function FeatureCard({
 }) {
   return (
     <div className="rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
-      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 text-blue-900 dark:bg-blue-950 dark:text-blue-200">
+      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-ds-neutral-100 text-ds-neutral-500 dark:bg-ds-neutral-500 dark:text-ds-neutral-200">
         {icon}
       </span>
       <h3 className="mt-4 text-xl font-black leading-tight">{title}</h3>
@@ -495,7 +495,7 @@ function SectionKicker({
   icon: React.ReactNode
 }) {
   return (
-    <p className="inline-flex items-center gap-2 text-sm font-black uppercase text-blue-800 dark:text-blue-300">
+    <p className="inline-flex items-center gap-2 text-sm font-black uppercase text-ds-neutral-500 dark:text-ds-neutral-300">
       {icon}
       {children}
     </p>
@@ -504,7 +504,7 @@ function SectionKicker({
 
 function ProofPill({ label, value }: { label: string; value: string }) {
   return (
-    <div className="border-l-2 border-blue-600 pl-3">
+    <div className="border-l-2 border-ds-neutral-400 pl-3">
       <p className="text-sm font-black text-zinc-950 dark:text-white">
         {label}
       </p>

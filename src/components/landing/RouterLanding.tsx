@@ -155,8 +155,8 @@ export default function RouterLanding() {
   const resolvedVersion = version ?? library.latestVersion
 
   return (
-    <div className="w-full min-w-0 overflow-x-hidden bg-[#f7fbf7] text-zinc-950 dark:bg-zinc-950 dark:text-white">
-      <section className="max-w-full overflow-hidden border-b border-emerald-950/10 bg-[#f3fbf5] dark:border-emerald-300/10 dark:bg-[#04100b]">
+    <div className="w-full min-w-0 overflow-x-hidden bg-ds-green-100 text-zinc-950 dark:bg-zinc-950 dark:text-white">
+      <section className="max-w-full overflow-hidden border-b border-ds-green-500/10 bg-ds-green-100 dark:border-ds-green-300/10 dark:bg-ds-green-500/40">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-10 lg:max-w-[80rem] lg:grid-cols-[0.88fr_1.12fr] lg:items-start lg:py-12 xl:max-w-[92rem]">
           <div className="min-w-0 max-w-full sm:max-w-3xl">
             <SectionKicker icon={<Path size={14} />}>
@@ -187,7 +187,7 @@ export default function RouterLanding() {
               showTotals
             />
 
-            <p className="mt-4 max-w-xl border-l-2 border-emerald-500 pl-3 text-sm font-black text-emerald-800 dark:text-emerald-200">
+            <p className="mt-4 max-w-xl border-l-2 border-ds-green-400 pl-3 text-sm font-black text-ds-green-500 dark:text-ds-green-200">
               The fastest-growing router in the JavaScript ecosystem.
             </p>
 
@@ -216,7 +216,7 @@ export default function RouterLanding() {
         </div>
       </section>
 
-      <section className="border-b border-emerald-950/10 bg-[#ecf9ef] dark:border-emerald-300/10 dark:bg-[#06150d]">
+      <section className="border-b border-ds-green-500/10 bg-ds-green-100 dark:border-ds-green-300/10 dark:bg-ds-green-500/40">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.72fr_1.28fr] lg:items-start xl:max-w-[92rem]">
           <div className="max-w-xl">
             <SectionKicker icon={<Sparkle size={14} />}>
@@ -346,7 +346,7 @@ export default function RouterLanding() {
           params: { libraryId: library.id, version: resolvedVersion },
         }}
         label="Get Started!"
-        className="border-emerald-500 bg-emerald-500 text-white hover:bg-emerald-600"
+        className="border-ds-green-400 bg-ds-green-400 text-white hover:bg-ds-green-400"
       />
       <Footer />
     </div>
@@ -355,7 +355,7 @@ export default function RouterLanding() {
 
 function RouteMapPanel() {
   return (
-    <div className="min-w-0 w-full max-w-full overflow-hidden rounded-lg border border-emerald-200 bg-white p-4 shadow-sm shadow-emerald-950/5 dark:border-emerald-900 dark:bg-zinc-950">
+    <div className="min-w-0 w-full max-w-full overflow-hidden rounded-lg border border-ds-green-200 bg-white p-4 shadow-sm shadow-ds-green-500/5 dark:border-ds-green-500 dark:bg-zinc-950">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <span className="h-2.5 w-2.5 rounded-md bg-red-400" />
@@ -374,7 +374,7 @@ function RouteMapPanel() {
               key={routeFile.file}
               className="grid grid-cols-[auto_1fr] gap-3 rounded-lg border border-zinc-100 bg-zinc-50 p-3 dark:border-zinc-800 dark:bg-zinc-900"
             >
-              <span className="flex h-8 w-8 items-center justify-center rounded-md bg-emerald-100 font-mono text-sm font-black text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200">
+              <span className="flex h-8 w-8 items-center justify-center rounded-md bg-ds-green-100 font-mono text-sm font-black text-ds-green-500 dark:bg-ds-green-500 dark:text-ds-green-200">
                 {index + 1}
               </span>
               <div className="min-w-0">
@@ -392,10 +392,10 @@ function RouteMapPanel() {
           ))}
         </div>
 
-        <div className="grid content-between gap-3 rounded-lg bg-emerald-50 p-4 text-emerald-950 dark:bg-emerald-950/35 dark:text-emerald-100">
+        <div className="grid content-between gap-3 rounded-lg bg-ds-green-100 p-4 text-ds-green-500 dark:bg-ds-green-500/35 dark:text-ds-green-100">
           <div>
             <p className="text-sm font-black">RouteTree.gen.ts</p>
-            <p className="mt-2 text-xs leading-5 text-emerald-950/75 dark:text-emerald-100/75">
+            <p className="mt-2 text-xs leading-5 text-ds-green-500/75 dark:text-ds-green-100/75">
               A generated map keeps the route files, params, search schemas, and
               loader outputs connected to the APIs you call every day.
             </p>
@@ -429,15 +429,15 @@ function SearchStatePanel() {
   const searchParamDisplay = buildSearchParamDisplay(selectedPreset)
 
   return (
-    <div className="min-w-0 rounded-lg border border-emerald-200 bg-white p-4 dark:border-emerald-900 dark:bg-zinc-950">
+    <div className="min-w-0 rounded-lg border border-ds-green-200 bg-white p-4 dark:border-ds-green-500 dark:bg-zinc-950">
       <div className="flex items-start justify-between gap-4">
         <p className="min-w-0 break-all font-mono text-sm font-black leading-6 text-zinc-950 dark:text-white">
           /docs
-          <span className="text-emerald-600 dark:text-emerald-300">
+          <span className="text-ds-green-400 dark:text-ds-green-300">
             {searchParamDisplay.replace('/docs', '')}
           </span>
         </p>
-        <span className="rounded-md bg-emerald-100 px-2 py-1 text-xs font-black uppercase text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200">
+        <span className="rounded-md bg-ds-green-100 px-2 py-1 text-xs font-black uppercase text-ds-green-500 dark:bg-ds-green-500 dark:text-ds-green-200">
           validated
         </span>
       </div>
@@ -449,8 +449,8 @@ function SearchStatePanel() {
             aria-pressed={selectedPresetIndex === index}
             className={
               selectedPresetIndex === index
-                ? 'rounded-lg border border-emerald-500 bg-emerald-500 px-3 py-2 text-left text-white'
-                : 'rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-left transition-colors hover:border-emerald-300 hover:bg-emerald-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-emerald-800 dark:hover:bg-emerald-950/25'
+                ? 'rounded-lg border border-ds-green-400 bg-ds-green-400 px-3 py-2 text-left text-white'
+                : 'rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-left transition-colors hover:border-ds-green-300 hover:bg-ds-green-100 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-ds-green-500 dark:hover:bg-ds-green-500/25'
             }
             type="button"
             onClick={() => setSelectedPresetIndex(index)}
@@ -486,21 +486,21 @@ function SearchStatePanel() {
         ].map(([key, value]) => (
           <div
             key={key}
-            className="rounded-lg bg-emerald-50 px-3 py-2 dark:bg-emerald-950/25"
+            className="rounded-lg bg-ds-green-100 px-3 py-2 dark:bg-ds-green-500/25"
           >
-            <p className="text-[0.65rem] font-black uppercase text-emerald-800 dark:text-emerald-300">
+            <p className="text-[0.65rem] font-black uppercase text-ds-green-500 dark:text-ds-green-300">
               {key}
             </p>
-            <p className="mt-1 truncate font-mono text-sm font-bold text-emerald-950 dark:text-emerald-100">
+            <p className="mt-1 truncate font-mono text-sm font-bold text-ds-green-500 dark:text-ds-green-100">
               {value}
             </p>
           </div>
         ))}
       </div>
 
-      <div className="mt-4 rounded-lg bg-zinc-950 p-4 text-sm text-emerald-100 dark:bg-black">
+      <div className="mt-4 rounded-lg bg-zinc-950 p-4 text-sm text-ds-green-100 dark:bg-black">
         <p className="font-mono leading-6">
-          <span className="text-emerald-300">validateSearch</span>: z.object(
+          <span className="text-ds-green-300">validateSearch</span>: z.object(
           {'{'}
           <br />
           &nbsp;&nbsp;q: z.string().optional(),
@@ -537,7 +537,7 @@ function LoaderPipeline() {
           key={step.label}
           className="relative rounded-lg border border-zinc-200 bg-[#fbfaf7] p-4 dark:border-zinc-800 dark:bg-zinc-900"
         >
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 text-sm font-black text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200">
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-ds-green-100 text-sm font-black text-ds-green-500 dark:bg-ds-green-500 dark:text-ds-green-200">
             {index + 1}
           </span>
           <h3 className="mt-4 text-lg font-black capitalize leading-tight">
@@ -566,7 +566,7 @@ function ContractCard({
   return (
     <div className="rounded-lg border border-zinc-200 bg-[#fbfaf7] p-5 dark:border-zinc-800 dark:bg-zinc-900">
       <div className="flex items-start justify-between gap-4">
-        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200">
+        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-ds-green-100 text-ds-green-500 dark:bg-ds-green-500 dark:text-ds-green-200">
           {icon}
         </span>
         <span className="rounded-md bg-zinc-100 px-2 py-1 text-[0.65rem] font-black uppercase text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
@@ -589,7 +589,7 @@ function SectionKicker({
   icon: React.ReactNode
 }) {
   return (
-    <p className="inline-flex items-center gap-2 text-sm font-black uppercase text-emerald-700 dark:text-emerald-300">
+    <p className="inline-flex items-center gap-2 text-sm font-black uppercase text-ds-green-500 dark:text-ds-green-300">
       {icon}
       {children}
     </p>
@@ -598,7 +598,7 @@ function SectionKicker({
 
 function ProofPill({ label, value }: { label: string; value: string }) {
   return (
-    <div className="border-l-2 border-emerald-500 pl-3">
+    <div className="border-l-2 border-ds-green-400 pl-3">
       <p className="text-sm font-black text-zinc-950 dark:text-white">
         {label}
       </p>

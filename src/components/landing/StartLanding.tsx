@@ -151,11 +151,11 @@ export default function StartLanding() {
   const resolvedVersion = version ?? library.latestVersion
 
   return (
-    <div className="w-full min-w-0 overflow-x-hidden bg-[#f6fbfb] text-zinc-950 dark:bg-zinc-950 dark:text-white">
-      <section className="max-w-full overflow-hidden border-b border-cyan-950/10 bg-[#f4fbfb] dark:border-cyan-300/10 dark:bg-[#041010]">
+    <div className="w-full min-w-0 overflow-x-hidden bg-ds-green-100 text-zinc-950 dark:bg-zinc-950 dark:text-white">
+      <section className="max-w-full overflow-hidden border-b border-ds-green-500/10 bg-ds-green-100 dark:border-ds-green-300/10 dark:bg-ds-green-500/40">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-10 lg:max-w-[80rem] lg:grid-cols-[0.85fr_1.15fr] lg:items-start lg:py-12 xl:max-w-[92rem] 2xl:grid-cols-[0.78fr_1.22fr]">
           <div className="min-w-0 max-w-full sm:max-w-3xl">
-            <p className="inline-flex items-center gap-2 text-sm font-black uppercase text-cyan-700 dark:text-cyan-300">
+            <p className="inline-flex items-center gap-2 text-sm font-black uppercase text-ds-green-500 dark:text-ds-green-300">
               <Sparkle size={14} aria-hidden="true" />
               Full-stack framework
             </p>
@@ -191,7 +191,7 @@ export default function StartLanding() {
               showTotals
             />
 
-            <p className="mt-4 max-w-xl border-l-2 border-cyan-500 pl-3 text-sm font-black text-cyan-800 dark:text-cyan-200">
+            <p className="mt-4 max-w-xl border-l-2 border-ds-green-400 pl-3 text-sm font-black text-ds-green-500 dark:text-ds-green-200">
               The fastest-growing full-stack framework in the JavaScript
               ecosystem.
             </p>
@@ -232,7 +232,7 @@ export default function StartLanding() {
         </div>
       </section>
 
-      <section className="border-b border-cyan-950/10 bg-[#eefafa] dark:border-cyan-300/10 dark:bg-[#061515]">
+      <section className="border-b border-ds-green-500/10 bg-ds-green-100 dark:border-ds-green-300/10 dark:bg-ds-green-500/40">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.72fr_1.28fr] lg:items-start xl:max-w-[92rem]">
           <div className="max-w-xl">
             <SectionKicker icon={<Sparkle size={14} />}>
@@ -256,7 +256,7 @@ export default function StartLanding() {
               primaryActionLabel="Copy Start Prompt"
               secondaryActionLabel="Build Start on Netlify"
               title="Describe the app you want to build"
-              tone="cyan"
+              tone="emerald"
             />
           </div>
         </div>
@@ -288,7 +288,7 @@ export default function StartLanding() {
 
       <section className="border-b border-zinc-200 bg-[#fbfaf6] dark:border-zinc-800 dark:bg-zinc-900">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-6 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.9fr_1.1fr]">
-          <div className="rounded-lg border border-cyan-200 bg-cyan-50 p-6 dark:border-cyan-900/70 dark:bg-cyan-950/20">
+          <div className="rounded-lg border border-ds-green-200 bg-ds-green-100 p-6 dark:border-ds-green-500/70 dark:bg-ds-green-500/20">
             <SectionKicker icon={<Rocket size={14} />}>RC status</SectionKicker>
             <h2 className="mt-3 text-3xl font-black leading-tight">
               Feature-complete, still listening.
@@ -298,23 +298,23 @@ export default function StartLanding() {
               production apps, lock dependencies to a specific version and keep
               up with the final feedback, docs polish, and last-mile fixes.
             </p>
-            <div className="mt-6 rounded-lg border border-cyan-200/70 bg-white/75 p-4 dark:border-cyan-900/70 dark:bg-zinc-950/60">
-              <p className="text-sm font-black text-cyan-950 dark:text-cyan-100">
+            <div className="mt-6 rounded-lg border border-ds-green-200/70 bg-white/75 p-4 dark:border-ds-green-500/70 dark:bg-zinc-950/60">
+              <p className="text-sm font-black text-ds-green-500 dark:text-ds-green-100">
                 Production RC checklist
               </p>
               <div className="mt-3 grid gap-3">
                 {rcChecklist.map((item) => (
                   <div
                     key={item.label}
-                    className="grid grid-cols-[auto_1fr] gap-2 text-sm leading-6 text-cyan-950 dark:text-cyan-100"
+                    className="grid grid-cols-[auto_1fr] gap-2 text-sm leading-6 text-ds-green-500 dark:text-ds-green-100"
                   >
                     <CheckCircle
-                      className="mt-1 h-4 w-4 text-cyan-700 dark:text-cyan-300"
+                      className="mt-1 h-4 w-4 text-ds-green-500 dark:text-ds-green-300"
                       aria-hidden="true"
                     />
                     <div>
                       <span className="font-black">{item.label}</span>
-                      <span className="text-cyan-950/75 dark:text-cyan-100/75">
+                      <span className="text-ds-green-500/75 dark:text-ds-green-100/75">
                         {' '}
                         {item.body}
                       </span>
@@ -366,7 +366,7 @@ export default function StartLanding() {
           params: { libraryId: library.id, version: resolvedVersion },
         }}
         label="Get Started!"
-        className="border-cyan-500 bg-cyan-500 text-white hover:bg-cyan-600"
+        className="border-ds-green-400 bg-ds-green-400 text-white hover:bg-ds-green-400"
       />
       <Footer />
     </div>
@@ -375,7 +375,7 @@ export default function StartLanding() {
 
 function StartRuntimePanel() {
   return (
-    <div className="min-w-0 w-full max-w-full overflow-hidden rounded-lg border border-cyan-200 bg-white p-4 shadow-sm shadow-cyan-950/5 dark:border-cyan-900 dark:bg-zinc-950">
+    <div className="min-w-0 w-full max-w-full overflow-hidden rounded-lg border border-ds-green-200 bg-white p-4 shadow-sm shadow-ds-green-500/5 dark:border-ds-green-500 dark:bg-zinc-950">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <span className="h-2.5 w-2.5 rounded-md bg-red-400" />
@@ -400,7 +400,7 @@ function StartRuntimePanel() {
       <div className="mt-4 grid gap-4 xl:grid-cols-[1.04fr_0.96fr]">
         <div className="min-w-0 overflow-hidden rounded-lg bg-zinc-950 p-4 text-zinc-100 shadow-inner shadow-black/20 dark:bg-black">
           <div className="flex min-w-0 items-center justify-between gap-3">
-            <p className="min-w-0 truncate font-mono text-xs font-bold text-cyan-200">
+            <p className="min-w-0 truncate font-mono text-xs font-bold text-ds-green-200">
               GET /projects/tanstack?tab=activity
             </p>
             <span className="shrink-0 rounded-md bg-emerald-400/15 px-1.5 py-0.5 text-[0.65rem] font-black uppercase leading-none text-emerald-200">
@@ -428,7 +428,7 @@ function StartRuntimePanel() {
             <p className="whitespace-nowrap">{'})'}</p>
             <p className="mt-3 whitespace-nowrap text-zinc-400">
               <span className="text-pink-300">const</span>{' '}
-              <span className="text-cyan-300">getProject</span> =
+              <span className="text-ds-green-300">getProject</span> =
               createServerFn({'{'} method:{' '}
               <span className="text-emerald-300">'GET'</span> {'}'})
             </p>
@@ -438,13 +438,13 @@ function StartRuntimePanel() {
           </div>
         </div>
 
-        <div className="rounded-lg bg-cyan-50 p-4 dark:bg-cyan-950/30">
+        <div className="rounded-lg bg-ds-green-100 p-4 dark:bg-ds-green-500/30">
           <div className="flex items-center justify-between gap-3">
-            <p className="text-sm font-black text-cyan-950 dark:text-cyan-100">
+            <p className="text-sm font-black text-ds-green-500 dark:text-ds-green-100">
               Request trace
             </p>
-            <span className="inline-flex items-center gap-1.5 rounded-md bg-white px-1.5 py-0.5 text-[0.65rem] font-black uppercase text-cyan-800 dark:bg-cyan-950 dark:text-cyan-200">
-              <span className="h-1.5 w-1.5 rounded-full bg-cyan-500 motion-safe:animate-pulse" />
+            <span className="inline-flex items-center gap-1.5 rounded-md bg-white px-1.5 py-0.5 text-[0.65rem] font-black uppercase text-ds-green-500 dark:bg-ds-green-500 dark:text-ds-green-200">
+              <span className="h-1.5 w-1.5 rounded-full bg-ds-green-400 motion-safe:animate-pulse" />
               streaming
             </span>
           </div>
@@ -458,25 +458,25 @@ function StartRuntimePanel() {
                   key={step.label}
                   className="grid grid-cols-[2rem_1fr] gap-3"
                 >
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-cyan-200 bg-white text-xs font-black text-cyan-800 dark:border-cyan-800 dark:bg-zinc-950 dark:text-cyan-200">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-ds-green-200 bg-white text-xs font-black text-ds-green-500 dark:border-ds-green-500 dark:bg-zinc-950 dark:text-ds-green-200">
                     {index + 1}
                   </span>
                   <div
                     className={
                       isLastStep
                         ? 'min-w-0'
-                        : 'min-w-0 border-b border-cyan-200/70 pb-3 dark:border-cyan-800/70'
+                        : 'min-w-0 border-b border-ds-green-200/70 pb-3 dark:border-ds-green-500/70'
                     }
                   >
                     <div className="flex min-w-0 items-start justify-between gap-3">
                       <p className="text-sm font-black leading-5 text-zinc-950 dark:text-white">
                         {step.label}
                       </p>
-                      <p className="min-w-0 truncate font-mono text-[0.65rem] font-bold text-cyan-800/80 dark:text-cyan-100/75">
+                      <p className="min-w-0 truncate font-mono text-[0.65rem] font-bold text-ds-green-500/80 dark:text-ds-green-100/75">
                         {step.file}
                       </p>
                     </div>
-                    <p className="mt-1 text-xs leading-5 text-cyan-950/75 dark:text-cyan-100/75">
+                    <p className="mt-1 text-xs leading-5 text-ds-green-500/75 dark:text-ds-green-100/75">
                       {step.body}
                     </p>
                   </div>
@@ -523,7 +523,7 @@ function SectionKicker({
 
 function ProofPill({ label, value }: { label: string; value: string }) {
   return (
-    <div className="border-l-2 border-cyan-500 pl-3">
+    <div className="border-l-2 border-ds-green-400 pl-3">
       <p className="text-sm font-black text-zinc-950 dark:text-white">
         {label}
       </p>
@@ -546,7 +546,7 @@ function FeatureCard({
   return (
     <div className="rounded-lg border border-zinc-200 bg-[#fbfaf7] p-5 dark:border-zinc-800 dark:bg-zinc-900">
       <div className="flex items-center gap-3">
-        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-cyan-100 text-cyan-800 dark:bg-cyan-950 dark:text-cyan-200">
+        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-ds-green-100 text-ds-green-500 dark:bg-ds-green-500 dark:text-ds-green-200">
           {icon}
         </span>
         <h3 className="text-xl font-black leading-tight">{title}</h3>
@@ -576,15 +576,15 @@ function FieldNoteCard({
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="group flex min-h-48 flex-col justify-between rounded-lg border border-zinc-200 bg-white p-5 transition-colors hover:border-cyan-300 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-cyan-800"
+      className="group flex min-h-48 flex-col justify-between rounded-lg border border-zinc-200 bg-white p-5 transition-colors hover:border-ds-green-300 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-ds-green-500"
     >
       <div>
         <div className="flex items-start justify-between gap-4">
-          <p className="text-xs font-black uppercase text-cyan-700 dark:text-cyan-300">
+          <p className="text-xs font-black uppercase text-ds-green-500 dark:text-ds-green-300">
             {source}
           </p>
           <ArrowSquareOut
-            className="mt-0.5 h-4 w-4 shrink-0 text-zinc-400 transition-colors group-hover:text-cyan-600 dark:group-hover:text-cyan-300"
+            className="mt-0.5 h-4 w-4 shrink-0 text-zinc-400 transition-colors group-hover:text-ds-green-400 dark:group-hover:text-ds-green-300"
             aria-hidden="true"
           />
         </div>

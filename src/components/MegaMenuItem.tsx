@@ -28,9 +28,9 @@ function isExternal(to: string) {
 
 /**
  * A single mega-menu row — icon + title + description with rest / hover /
- * pressed states. Modeled on the Figma "Mega Menu Item" component: bordered
- * icon square, Bricolage-bold title (heading-5), muted body-xs description, and
- * a mode-adaptive overlay on hover/press. Used by the site Navbar and shown in
+ * pressed states. Modeled on the Figma "Mega Menu Item" component: a floating
+ * icon, Bricolage-bold title (heading-5), muted body-xs description, and a
+ * mode-adaptive overlay on hover/press. Used by the site Navbar and shown in
  * the design system at /ds/navbar.
  */
 export function MegaMenuItem({
@@ -63,7 +63,7 @@ export function MegaMenuItem({
   const content = (
     <>
       {Icon ? (
-        <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-border-default text-text-secondary">
+        <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center text-text-secondary">
           <Icon className="h-7 w-7" />
         </span>
       ) : null}

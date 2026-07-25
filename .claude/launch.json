@@ -9,6 +9,13 @@
       "autoPort": true
     },
     {
+      "name": "web-cloudflare",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["dev:cloudflare"],
+      "port": 3000,
+      "autoPort": true
+    },
+    {
       "name": "db-studio",
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["db:studio"],

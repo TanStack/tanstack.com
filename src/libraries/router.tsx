@@ -2,15 +2,13 @@ import { Database, ChatCircleDots, Plugs } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { router } from './libraries'
 
-const textStyles = 'text-emerald-500 dark:text-emerald-400'
+const textStyles = 'text-category-framework'
 
 export const routerProject = {
   ...router,
   description: `A powerful React router for client-side and full-stack react applications. Fully type-safe APIs, first-class search-params for managing state in the URL and seamless integration with the existing React ecosystem.`,
   latestBranch: 'main',
   docsRoot: 'docs/router',
-  bgRadial: 'from-emerald-500 via-lime-600/50 to-transparent',
-  textColor: textStyles,
   defaultDocs: 'framework/react/overview',
   installPath: 'framework/$framework/quick-start',
   legacyPackages: ['react-location'],

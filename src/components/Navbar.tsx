@@ -925,7 +925,11 @@ function MegaMenuContent({
 
   if (group.key === 'learn') {
     return (
-      <BlogMenuContent group={group} onNavigate={onNavigate} variant={variant} />
+      <BlogMenuContent
+        group={group}
+        onNavigate={onNavigate}
+        variant={variant}
+      />
     )
   }
 
@@ -1218,7 +1222,11 @@ function BlogMenuContent({
         >
           {shouldLoad && loading
             ? Array.from({ length: 3 }, (_, index) => (
-                <div key={index} aria-hidden className="flex flex-col gap-2.5 p-2">
+                <div
+                  key={index}
+                  aria-hidden
+                  className="flex flex-col gap-2.5 p-2"
+                >
                   <div className="aspect-video w-full animate-pulse rounded-lg bg-background-subtle" />
                   <div className="h-4 w-3/4 animate-pulse rounded bg-background-subtle" />
                   <div className="h-3 w-full animate-pulse rounded bg-background-subtle" />
@@ -1391,7 +1399,10 @@ function MerchMenuContent({
   return (
     <div
       ref={rootRef}
-      className={twMerge('flex flex-col gap-4', variant === 'desktop' && 'w-[560px]')}
+      className={twMerge(
+        'flex flex-col gap-4',
+        variant === 'desktop' && 'w-[560px]',
+      )}
     >
       <div
         className={twMerge(

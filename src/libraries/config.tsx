@@ -2,7 +2,7 @@ import { MagicWand, Lightning, Gear } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { config } from './libraries'
 
-const textStyles = 'text-black dark:text-gray-100'
+const textStyles = 'text-category-tooling'
 
 export const configProject = {
   ...config,

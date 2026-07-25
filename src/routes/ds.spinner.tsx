@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
-import { Spinner } from '~/components/ds/ui'
+import { PixelSpinner, Spinner } from '~/components/ds/ui'
 import { ComponentPreview, DsPage, DsSection } from '~/components/ds/DsKit'
 
 export const Route = createFileRoute('/ds/spinner')({
@@ -30,6 +30,21 @@ function SpinnerPage() {
           <Spinner />
           <Spinner className="h-8 w-8" />
           <Spinner className="h-8 w-8 text-blue-500" />
+        </ComponentPreview>
+      </DsSection>
+
+      <DsSection
+        title="Headbanger"
+        description="A branded pixel-art loader — a 12-frame sprite animation on a canvas. Multi-color by design (it does not inherit currentColor); size it with w-/h- utilities. Holds on the first frame when prefers-reduced-motion is set. Source: src/components/ds/ui/PixelSpinner.tsx."
+      >
+        <ComponentPreview
+          code={`<PixelSpinner className="w-8 h-8" />
+<PixelSpinner className="w-12 h-12" />
+<PixelSpinner className="w-16 h-16" />`}
+        >
+          <PixelSpinner className="h-8 w-8" />
+          <PixelSpinner className="h-12 w-12" />
+          <PixelSpinner className="h-16 w-16" />
         </ComponentPreview>
       </DsSection>
     </DsPage>

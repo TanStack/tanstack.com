@@ -2,15 +2,13 @@ import { MagicWand, Lightning, Gear } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { query } from './libraries'
 
-const textStyles = 'text-red-500 dark:text-red-400'
+const textStyles = 'text-category-data'
 
 export const queryProject = {
   ...query,
   description:
     'Powerful asynchronous state management, server-state utilities and data fetching. Fetch, cache, update, and wrangle all forms of async data in your TS/JS, React, Vue, Solid, Svelte, Angular & Lit applications all without touching any "global state"',
   latestBranch: 'main',
-  bgRadial: 'from-red-500 via-red-500/60 to-transparent',
-  textColor: 'text-amber-500',
   defaultDocs: 'framework/react/overview',
   installPath: 'framework/$framework/installation',
   legacyPackages: ['react-query'],

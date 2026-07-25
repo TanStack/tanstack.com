@@ -231,8 +231,8 @@ export default function TableLanding() {
   const resolvedVersion = version ?? library.latestVersion
 
   return (
-    <div className="w-full min-w-0 overflow-x-hidden bg-[#f4f9ff] text-zinc-950 dark:bg-zinc-950 dark:text-white">
-      <section className="max-w-full overflow-hidden border-b border-blue-950/10 bg-[#eef7ff] dark:border-blue-300/10 dark:bg-[#06101a]">
+    <div className="w-full min-w-0 overflow-x-hidden bg-ds-blue-100 text-zinc-950 dark:bg-zinc-950 dark:text-white">
+      <section className="max-w-full overflow-hidden border-b border-ds-blue-500/10 bg-ds-blue-100 dark:border-ds-blue-300/10 dark:bg-ds-blue-500">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-10 lg:max-w-[80rem] lg:grid-cols-[0.84fr_1.16fr] lg:items-start lg:py-12 xl:max-w-[92rem]">
           <div className="min-w-0 max-w-full sm:max-w-3xl">
             <SectionKicker icon={<GridNine size={14} />}>
@@ -263,7 +263,7 @@ export default function TableLanding() {
               showTotals
             />
 
-            <p className="mt-4 max-w-xl border-l-2 border-blue-500 pl-3 text-sm font-black text-blue-800 dark:text-blue-200">
+            <p className="mt-4 max-w-xl border-l-2 border-ds-blue-400 pl-3 text-sm font-black text-ds-blue-500 dark:text-ds-blue-200">
               The most popular and most used data grid engine in the world.
             </p>
 
@@ -292,7 +292,7 @@ export default function TableLanding() {
         </div>
       </section>
 
-      <section className="border-b border-blue-950/10 bg-[#f8fbff] dark:border-blue-300/10 dark:bg-[#08131f]">
+      <section className="border-b border-ds-blue-500/10 bg-ds-blue-100 dark:border-ds-blue-300/10 dark:bg-ds-blue-500">
         <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.74fr_1.26fr] xl:max-w-[92rem]">
           <div>
             <SectionKicker icon={<Stack size={14} />}>Why Table</SectionKicker>
@@ -374,7 +374,7 @@ export default function TableLanding() {
               {frameworkAdapters.map((framework) => (
                 <span
                   key={framework}
-                  className="rounded-md border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm font-bold text-blue-800 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200"
+                  className="rounded-md border border-ds-blue-200 bg-ds-blue-100 px-3 py-1.5 text-sm font-bold text-ds-blue-500 dark:border-ds-blue-500 dark:bg-ds-blue-500/40 dark:text-ds-blue-200"
                 >
                   {framework}
                 </span>
@@ -388,7 +388,7 @@ export default function TableLanding() {
         </div>
       </section>
 
-      <section className="border-b border-zinc-200 bg-[#f4f9ff] py-12 dark:border-zinc-800 dark:bg-zinc-900">
+      <section className="border-b border-zinc-200 bg-ds-blue-100 py-12 dark:border-zinc-800 dark:bg-zinc-900">
         <div className="mx-auto w-full max-w-[80rem] px-4 xl:max-w-[92rem]">
           <div className="max-w-3xl">
             <SectionKicker icon={<EyeSlash size={14} />}>
@@ -446,7 +446,7 @@ export default function TableLanding() {
           params: { libraryId: library.id, version: resolvedVersion },
         }}
         label="Get Started!"
-        className="border-blue-500 bg-blue-500 text-white hover:bg-blue-600"
+        className="border-ds-blue-400 bg-ds-blue-400 text-white hover:bg-ds-blue-400"
       />
       <Footer />
     </div>
@@ -489,7 +489,7 @@ function TableWorkbenchPanel() {
           <input
             aria-label={`Select ${row.original.project}`}
             checked={row.getIsSelected()}
-            className="h-4 w-4 rounded border-zinc-300 text-blue-600"
+            className="h-4 w-4 rounded border-zinc-300 text-ds-blue-400"
             type="checkbox"
             onChange={() => row.toggleSelected()}
           />
@@ -569,7 +569,7 @@ function TableWorkbenchPanel() {
   }, [globalFilter, statusFilter])
 
   return (
-    <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-blue-200 bg-white p-4 shadow-sm shadow-blue-950/5 dark:border-blue-900 dark:bg-zinc-950">
+    <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-ds-blue-200 bg-white p-4 shadow-sm shadow-ds-blue-500/5 dark:border-ds-blue-500 dark:bg-zinc-950">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <span className="h-2.5 w-2.5 rounded-md bg-red-400" />
@@ -585,7 +585,7 @@ function TableWorkbenchPanel() {
         <label className="flex min-w-0 items-center gap-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-800 dark:bg-zinc-900">
           <MagnifyingGlass
             aria-hidden="true"
-            className="shrink-0 text-blue-700 dark:text-blue-300"
+            className="shrink-0 text-ds-blue-500 dark:text-ds-blue-300"
             size={16}
           />
           <span className="sr-only">Search table rows</span>
@@ -603,8 +603,8 @@ function TableWorkbenchPanel() {
               aria-pressed={statusFilter === filter.value}
               className={
                 statusFilter === filter.value
-                  ? 'rounded-md border border-blue-600 bg-blue-600 px-3 py-2 text-xs font-black text-white'
-                  : 'rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs font-black text-zinc-700 transition-colors hover:border-blue-300 hover:text-blue-800 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:border-blue-700 dark:hover:text-blue-200'
+                  ? 'rounded-md border border-ds-blue-400 bg-ds-blue-400 px-3 py-2 text-xs font-black text-white'
+                  : 'rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs font-black text-zinc-700 transition-colors hover:border-ds-blue-300 hover:text-ds-blue-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:border-ds-blue-500 dark:hover:text-ds-blue-200'
               }
               type="button"
               onClick={() => setStatusFilter(filter.value)}
@@ -627,7 +627,7 @@ function TableWorkbenchPanel() {
                 aria-pressed={isVisible}
                 className={
                   isVisible
-                    ? 'rounded-md border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-black capitalize text-blue-800 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200'
+                    ? 'rounded-md border border-ds-blue-200 bg-ds-blue-100 px-3 py-1.5 text-xs font-black capitalize text-ds-blue-500 dark:border-ds-blue-500 dark:bg-ds-blue-500/40 dark:text-ds-blue-200'
                     : 'rounded-md border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-xs font-black capitalize text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-500'
                 }
                 type="button"
@@ -645,7 +645,7 @@ function TableWorkbenchPanel() {
 
       <div className="mt-4 overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-800">
         <table className="w-full table-fixed border-collapse text-left text-sm">
-          <thead className="border-b border-zinc-200 bg-blue-50 text-xs font-black uppercase text-blue-950 dark:border-zinc-800 dark:bg-blue-950/30 dark:text-blue-100">
+          <thead className="border-b border-zinc-200 bg-ds-blue-100 text-xs font-black uppercase text-ds-blue-500 dark:border-zinc-800 dark:bg-ds-blue-500/30 dark:text-ds-blue-100">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
@@ -689,7 +689,7 @@ function TableWorkbenchPanel() {
                 key={row.id}
                 className={
                   row.getIsSelected()
-                    ? 'bg-blue-50/80 dark:bg-blue-950/25'
+                    ? 'bg-ds-blue-100/80 dark:bg-ds-blue-500/25'
                     : 'bg-white dark:bg-zinc-950'
                 }
               >
@@ -736,12 +736,12 @@ function TableWorkbenchPanel() {
           ].map(([label, value]) => (
             <div
               key={label}
-              className="rounded-lg bg-blue-50 p-3 dark:bg-blue-950/25"
+              className="rounded-lg bg-ds-blue-100 p-3 dark:bg-ds-blue-500/25"
             >
-              <p className="text-[0.65rem] font-black uppercase text-blue-700 dark:text-blue-300">
+              <p className="text-[0.65rem] font-black uppercase text-ds-blue-500 dark:text-ds-blue-300">
                 {label}
               </p>
-              <p className="mt-1 truncate text-sm font-black text-blue-950 dark:text-blue-100">
+              <p className="mt-1 truncate text-sm font-black text-ds-blue-500 dark:text-ds-blue-100">
                 {value}
               </p>
             </div>
@@ -749,7 +749,7 @@ function TableWorkbenchPanel() {
         </div>
         <div className="flex items-center justify-end gap-2">
           <button
-            className="rounded-md border border-zinc-200 px-3 py-2 text-xs font-black text-zinc-700 transition-colors hover:border-blue-300 hover:text-blue-800 disabled:cursor-not-allowed disabled:opacity-40 dark:border-zinc-800 dark:text-zinc-300 dark:hover:border-blue-700 dark:hover:text-blue-200"
+            className="rounded-md border border-zinc-200 px-3 py-2 text-xs font-black text-zinc-700 transition-colors hover:border-ds-blue-300 hover:text-ds-blue-500 disabled:cursor-not-allowed disabled:opacity-40 dark:border-zinc-800 dark:text-zinc-300 dark:hover:border-ds-blue-500 dark:hover:text-ds-blue-200"
             disabled={!table.getCanPreviousPage()}
             type="button"
             onClick={() => table.previousPage()}
@@ -764,7 +764,7 @@ function TableWorkbenchPanel() {
             / {Math.max(pageCount, 1)}
           </span>
           <button
-            className="rounded-md border border-zinc-200 px-3 py-2 text-xs font-black text-zinc-700 transition-colors hover:border-blue-300 hover:text-blue-800 disabled:cursor-not-allowed disabled:opacity-40 dark:border-zinc-800 dark:text-zinc-300 dark:hover:border-blue-700 dark:hover:text-blue-200"
+            className="rounded-md border border-zinc-200 px-3 py-2 text-xs font-black text-zinc-700 transition-colors hover:border-ds-blue-300 hover:text-ds-blue-500 disabled:cursor-not-allowed disabled:opacity-40 dark:border-zinc-800 dark:text-zinc-300 dark:hover:border-ds-blue-500 dark:hover:text-ds-blue-200"
             disabled={!table.getCanNextPage()}
             type="button"
             onClick={() => table.nextPage()}
@@ -818,10 +818,10 @@ function PipelinePanel() {
       {pipelineSteps.map((step, index) => (
         <div
           key={step.label}
-          className="rounded-lg border border-zinc-200 bg-[#f8fbff] p-4 dark:border-zinc-800 dark:bg-zinc-900"
+          className="rounded-lg border border-zinc-200 bg-ds-blue-100 p-4 dark:border-zinc-800 dark:bg-zinc-900"
         >
           <div className="flex items-start justify-between gap-4">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-200">
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-ds-blue-100 text-ds-blue-500 dark:bg-ds-blue-500 dark:text-ds-blue-200">
               {step.icon}
             </span>
             <span className="rounded-md bg-zinc-100 px-2 py-1 text-[0.65rem] font-black uppercase text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
@@ -842,8 +842,8 @@ function PipelinePanel() {
 
 function ControlledStatePanel() {
   return (
-    <div className="min-w-0 rounded-lg border border-blue-200 bg-white p-4 dark:border-blue-900 dark:bg-zinc-950">
-      <div className="rounded-lg bg-zinc-950 p-4 text-sm text-blue-100 dark:bg-black">
+    <div className="min-w-0 rounded-lg border border-ds-blue-200 bg-white p-4 dark:border-ds-blue-500 dark:bg-zinc-950">
+      <div className="rounded-lg bg-zinc-950 p-4 text-sm text-ds-blue-100 dark:bg-black">
         <p className="font-mono leading-6">
           state: {'{'}
           <br />
@@ -863,7 +863,7 @@ function ControlledStatePanel() {
         {stateControls.map((control) => (
           <div
             key={control.label}
-            className="rounded-lg border border-zinc-200 bg-[#f8fbff] p-4 dark:border-zinc-800 dark:bg-zinc-900"
+            className="rounded-lg border border-zinc-200 bg-ds-blue-100 p-4 dark:border-zinc-800 dark:bg-zinc-900"
           >
             <p className="text-[0.65rem] font-black uppercase text-zinc-500 dark:text-zinc-400">
               {control.label}
@@ -889,7 +889,7 @@ function FeatureCard({
 }) {
   return (
     <div className="rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
-      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-200">
+      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-ds-blue-100 text-ds-blue-500 dark:bg-ds-blue-500 dark:text-ds-blue-200">
         {icon}
       </span>
       <h3 className="mt-4 text-xl font-black leading-tight">{title}</h3>
@@ -908,7 +908,7 @@ function SectionKicker({
   icon: React.ReactNode
 }) {
   return (
-    <p className="inline-flex items-center gap-2 text-sm font-black uppercase text-blue-700 dark:text-blue-300">
+    <p className="inline-flex items-center gap-2 text-sm font-black uppercase text-ds-blue-500 dark:text-ds-blue-300">
       {icon}
       {children}
     </p>
@@ -917,7 +917,7 @@ function SectionKicker({
 
 function ProofPill({ label, value }: { label: string; value: string }) {
   return (
-    <div className="border-l-2 border-blue-500 pl-3">
+    <div className="border-l-2 border-ds-blue-400 pl-3">
       <p className="text-sm font-black text-zinc-950 dark:text-white">
         {label}
       </p>

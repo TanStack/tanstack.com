@@ -2,14 +2,12 @@ import { PersonSimple, Lightning, Gear } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { table } from './libraries'
 
-const textStyles = 'text-blue-500 dark:text-blue-400'
+const textStyles = 'text-category-ui'
 
 export const tableProject = {
   ...table,
   description: `Supercharge your tables or build a datagrid from scratch for TS/JS, React, Vue, Solid, Svelte, Qwik, Angular, and Lit while retaining 100% control over markup and styles.`,
   latestBranch: 'main',
-  bgRadial: 'from-cyan-500 via-blue-600/50 to-transparent',
-  textColor: 'text-blue-600',
   defaultDocs: 'introduction',
   legacyPackages: ['react-table'],
   testimonials: [

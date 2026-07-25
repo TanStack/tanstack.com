@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { existsSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { test } from 'node:test'
 
@@ -21,6 +22,16 @@ const {
 const {
   TEMPLATES,
 }: typeof import('../src/builder/templates') = require('../src/builder/templates')
+const {
+  getPartnerSitemapEntries,
+}: typeof import('../src/utils/partner-pages') = require('../src/utils/partner-pages')
+const {
+  createRailwayPartnerPageModel,
+  getRailwayPartnerPageModel,
+}: typeof import('../src/utils/railway-partner') = require('../src/utils/railway-partner')
+const {
+  addOn: reactRailwayAddOn,
+}: typeof import('@tanstack/create/worker-manifest/frameworks/react/add-ons/railway') = require('@tanstack/create/worker-manifest/frameworks/react/add-ons/railway')
 
 const formerPartnerFeatures = ['convex', 'neon', 'strapi']
 
@@ -33,6 +44,121 @@ test('active partner records include the audit contract', () => {
     assert.ok(partner.resources.length > 0)
     assert.equal(Object.hasOwn(partner, 'libraries'), false)
   }
+})
+
+test('partner records have stable ids and explicit lifecycle data', () => {
+  const partnerIds = new Set<string>()
+
+  for (const partner of partners) {
+    assert.match(partner.id, /^[a-z0-9]+(?:-[a-z0-9]+)*$/)
+    assert.equal(
+      partnerIds.has(partner.id),
+      false,
+      `duplicate id: ${partner.id}`,
+    )
+    partnerIds.add(partner.id)
+
+    if (partner.status === 'inactive') {
+      assert.equal(Object.hasOwn(partner, 'startDate'), true)
+      assert.equal(Object.hasOwn(partner, 'endDate'), true)
+    }
+  }
+})
+
+test('active partner reviews stay fresh', () => {
+  const dayMs = 24 * 60 * 60 * 1000
+  const maximumReviewAgeMs = 120 * dayMs
+  const now = Date.now()
+
+  for (const partner of partners) {
+    if (partner.status !== 'active') continue
+
+    const reviewedAt = Date.parse(`${partner.lastReviewedAt}T12:00:00.000Z`)
+    assert.equal(Number.isNaN(reviewedAt), false)
+    assert.ok(
+      reviewedAt <= now + dayMs,
+      `${partner.id} review is in the future`,
+    )
+    assert.ok(
+      now - reviewedAt <= maximumReviewAgeMs,
+      `${partner.id} review is more than 120 days old`,
+    )
+  }
+})
+
+test('internal partner resources point at matching TanStack content', () => {
+  for (const partner of partners) {
+    for (const resource of partner.resources ?? []) {
+      if (!resource.href.startsWith('/')) {
+        assert.doesNotThrow(() => new URL(resource.href))
+        continue
+      }
+
+      const url = new URL(resource.href, 'https://tanstack.com')
+      assert.equal(url.origin, 'https://tanstack.com')
+
+      if (url.pathname.startsWith('/blog/')) {
+        const slug = url.pathname.slice('/blog/'.length)
+        assert.ok(
+          existsSync(new URL(`../src/blog/${slug}.md`, import.meta.url)),
+          `${partner.id} references missing blog post ${url.pathname}`,
+        )
+        continue
+      }
+
+      assert.match(url.pathname, /^\/[^/]+\/latest\/docs\//)
+      const libraryId = url.pathname.split('/')[1]
+      const relatedProductIds = new Set<string>(partner.relatedProducts ?? [])
+      assert.ok(
+        libraryId && relatedProductIds.has(libraryId),
+        `${partner.id} resource ${url.pathname} does not match a related product`,
+      )
+    }
+  }
+})
+
+test('partner sitemap exposes both directory states and every detail page', () => {
+  const entries = getPartnerSitemapEntries()
+  const paths = entries.map((entry) => entry.path)
+
+  assert.equal(new Set(paths).size, paths.length)
+  assert.ok(paths.includes('/partners'))
+  assert.ok(paths.includes('/partners?status=inactive'))
+
+  for (const partner of partners) {
+    assert.ok(paths.includes(`/partners/${partner.id}`))
+  }
+})
+
+test('custom Railway page derives its partner contract from central data', () => {
+  const model = getRailwayPartnerPageModel()
+  const { create, docsResource, partner } = model
+  const centralPartner = partners.find(
+    (candidate) => candidate.id === 'railway',
+  )
+
+  assert.equal(partner, centralPartner)
+  assert.ok(partner)
+  assert.equal(centralPartner?.category, 'deployment')
+  assert.ok(centralPartner?.resources?.includes(docsResource))
+  assert.equal(create.deploymentId, reactRailwayAddOn.id)
+  assert.equal(reactRailwayAddOn.partner.id, partner.id)
+  assert.equal(
+    create.command,
+    `npx @tanstack/cli@latest create my-tanstack-app --deployment ${reactRailwayAddOn.id}`,
+  )
+
+  const previousModel = createRailwayPartnerPageModel({
+    ...partner,
+    status: 'inactive',
+    startDate: null,
+    endDate: null,
+    tier: undefined,
+  })
+
+  assert.equal(previousModel.partner.status, 'inactive')
+  assert.equal(previousModel.partner.tier, undefined)
+  assert.equal(previousModel.docsResource, docsResource)
 })
 
 function assertDoesNotDefaultToFormerPartners(features: Array<string>) {

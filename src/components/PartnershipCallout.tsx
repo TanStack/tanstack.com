@@ -1,6 +1,9 @@
 import { HeartHandshake } from 'lucide-react'
 import { Card } from './Card'
-import { trackEvent } from '~/utils/analytics'
+import {
+  PARTNER_INQUIRY_HREF,
+  trackPartnerInquiry,
+} from '~/utils/partner-inquiry'
 
 export function PartnershipCallout() {
   return (
@@ -18,13 +21,9 @@ export function PartnershipCallout() {
           and build useful integrations for the ecosystem.
         </div>
         <a
-          href="mailto:partners@tanstack.com?subject=TanStack Partnership"
+          href={PARTNER_INQUIRY_HREF}
           className="text-blue-500 uppercase font-black text-sm"
-          onClick={() => {
-            trackEvent('partner_inquiry_started', {
-              placement: 'library_callout',
-            })
-          }}
+          onClick={() => trackPartnerInquiry('library_callout')}
         >
           Let's chat
         </a>

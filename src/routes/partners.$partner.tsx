@@ -300,12 +300,12 @@ function PartnerDetailPage() {
             <Card>
               <div className="p-6 md:p-8">
                 <h2 className="text-2xl font-black text-gray-950 dark:text-white">
-                  Quick Fit
+                  Partnership History
                 </h2>
                 <div className="mt-5">
                   <div>
                     <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                      Partner Window
+                      Dates
                     </h3>
                     <p className="mt-3 text-base leading-7 text-gray-700 dark:text-gray-300">
                       {partnerWindow}

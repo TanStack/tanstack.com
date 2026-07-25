@@ -25,34 +25,52 @@ import {
 } from '~/components/Collapsible'
 import { CodeBlock } from '~/components/markdown/CodeBlock'
 import { seo } from '~/utils/seo'
-import { getPartnerById, PartnerImage } from '~/utils/partners'
+import {
+  PartnerImage,
+  partnerCategoryLabels,
+  partnerTierLabels,
+} from '~/utils/partners'
 import { getPartnerJsonLd } from '~/utils/partner-pages'
 import { trackEvent } from '~/utils/analytics'
+import { getRailwayPartnerPageModel } from '~/utils/railway-partner'
+import { SITE_URL } from '~/utils/site'
+import defaultOgImage from '~/images/og.png'
 
+const RAILWAY_PAGE_MODEL = getRailwayPartnerPageModel()
+const {
+  docsHash: TANSTACK_START_RAILWAY_DOCS_HASH,
+  docsResource: RAILWAY_DOCS_RESOURCE,
+  partner: RAILWAY_PARTNER,
+} = RAILWAY_PAGE_MODEL
 const RAILWAY_HREF =
   'https://railway.com/new?utm_medium=sponsor&utm_source=tanstack&utm_campaign=partner-page'
-const TANSTACK_START_RAILWAY_DOCS_PATH =
-  '/start/latest/docs/framework/react/guide/hosting'
-const TANSTACK_START_RAILWAY_DOCS_HASH = 'railway-official-partner'
-const RAILWAY_HOME_HREF =
-  'https://railway.com/?utm_medium=sponsor&utm_source=tanstack&utm_campaign=partner-page'
-const RAILWAY_PRICING_HREF =
-  'https://railway.com/pricing?utm_medium=sponsor&utm_source=tanstack&utm_campaign=partner-page'
-
-const CONFIG_SNIPPET = `import { defineConfig } from 'vite'
-import { tanstackStart } from '@tanstack/react-start/plugin/vite'
-import { nitro } from 'nitro/vite'
-import viteReact from '@vitejs/plugin-react'
-
-export default defineConfig({
-  plugins: [tanstackStart(), nitro(), viteReact()],
-})
-`
-
-const DEPLOY_SNIPPET = `# From your TanStack Start app directory
-railway init
-railway up
-`
+const TANSTACK_START_RAILWAY_DOCS_PATH = RAILWAY_DOCS_RESOURCE.href
+const RAILWAY_CANONICAL_HREF =
+  RAILWAY_PARTNER.canonicalHref ?? RAILWAY_PARTNER.href
+const railwayHomeUrl = new URL(RAILWAY_CANONICAL_HREF)
+railwayHomeUrl.search = new URL(RAILWAY_PARTNER.href).search
+const RAILWAY_HOME_HREF = railwayHomeUrl.toString()
+const railwayPricingUrl = new URL('/pricing', RAILWAY_CANONICAL_HREF)
+railwayPricingUrl.search = railwayHomeUrl.search
+const RAILWAY_PRICING_HREF = railwayPricingUrl.toString()
+const RAILWAY_OG_IMAGE = new URL(defaultOgImage, SITE_URL).toString()
+const RAILWAY_TIER_LABEL = RAILWAY_PARTNER.tier
+  ? partnerTierLabels[RAILWAY_PARTNER.tier]
+  : undefined
+const RAILWAY_PARTNERSHIP_LABEL =
+  RAILWAY_PARTNER.status === 'active'
+    ? 'Current TanStack partner'
+    : 'Previous TanStack partner'
+const RAILWAY_PARTNER_TITLE_LABEL =
+  RAILWAY_PARTNER.status === 'active'
+    ? `${partnerTierLabels[RAILWAY_PARTNER.tier]} TanStack Partner`
+    : 'Previous TanStack Partner'
+const RAILWAY_PARTNER_BADGE_LABEL =
+  RAILWAY_PARTNER.status === 'active'
+    ? `${partnerTierLabels[RAILWAY_PARTNER.tier]} Partner`
+    : RAILWAY_TIER_LABEL
+      ? `Previous ${RAILWAY_TIER_LABEL} Partner`
+      : 'Previous Partner'
 
 type FeatureIcon = React.ComponentType<{ className?: string }>
 
@@ -102,18 +120,16 @@ const features: Array<{ Icon: FeatureIcon; title: string; desc: string }> = [
 const steps: Array<{ num: string; title: string; code: string }> = [
   {
     num: '01',
-    title: 'Create your TanStack app',
-    code: 'npx @tanstack/cli@latest create',
+    title: 'Enter your app',
+    code: 'cd my-tanstack-app',
   },
-  { num: '02', title: 'Install Nitro', code: 'npm install nitro' },
-  { num: '03', title: 'Add Nitro to Vite', code: 'nitro()' },
   {
-    num: '04',
+    num: '02',
     title: 'Install the Railway CLI',
     code: 'npm install -g @railway/cli',
   },
-  { num: '05', title: 'Authenticate', code: 'railway login' },
-  { num: '06', title: 'Deploy', code: 'railway init && railway up' },
+  { num: '03', title: 'Authenticate', code: 'railway login' },
+  { num: '04', title: 'Deploy', code: 'railway init && railway up' },
 ]
 
 const pricing: Array<{
@@ -137,7 +153,7 @@ const pricing: Array<{
   {
     plan: 'Hobby',
     price: '$5',
-    note: 'month · includes $5 of usage',
+    note: 'month, includes $5 of usage',
     features: [
       'Up to 48 vCPU / 48 GB RAM',
       'Up to 5 GB storage',
@@ -148,7 +164,7 @@ const pricing: Array<{
   {
     plan: 'Pro',
     price: '$20',
-    note: 'min/month · includes $20 credits',
+    note: 'min/month, includes $20 credits',
     features: [
       'Up to 1,000 vCPU / 1 TB RAM',
       'Up to 1 TB storage',
@@ -173,8 +189,8 @@ const pricing: Array<{
 ]
 
 const meteredPricing: Array<[string, string]> = [
-  ['Memory', '$0.00000386 / GB·sec'],
-  ['CPU', '$0.00000772 / vCPU·sec'],
+  ['Memory', '$0.00000386 / GB-sec'],
+  ['CPU', '$0.00000772 / vCPU-sec'],
   ['Egress', '$0.05 / GB'],
 ]
 
@@ -200,11 +216,11 @@ const testimonials: Array<{ quote: string; author: string; role: string }> = [
 const faqs: Array<{ q: string; a: string }> = [
   {
     q: 'Does Railway support TanStack Start SSR and streaming?',
-    a: 'Yes. TanStack Start builds a Node server for SSR, streaming, server functions, and static assets. Follow the Nitro setup in the Start hosting docs, then deploy that Node service to Railway.',
+    a: 'Yes. Create a Railway-ready TanStack Start app with the TanStack CLI, or add the Nitro setup from the Start hosting guide to an existing app.',
   },
   {
     q: 'Can I run a database alongside my TanStack app?',
-    a: "Absolutely. Railway lets you provision Postgres, MySQL, Redis, or MongoDB in the same project as your app. They communicate over Railway's private network at up to 100 Gbps — no VPC setup needed.",
+    a: "Absolutely. Railway lets you provision Postgres, MySQL, Redis, or MongoDB in the same project as your app. They communicate over Railway's private network at up to 100 Gbps, with no VPC setup needed.",
   },
   {
     q: 'How does Railway pricing actually work?',
@@ -212,7 +228,7 @@ const faqs: Array<{ q: string; a: string }> = [
   },
   {
     q: 'What makes Railway different from Vercel or Render?',
-    a: 'Railway is a full-stack cloud — not just a frontend host. You can run your TanStack app server, managed databases, background workers, cron jobs, and private networking all in one project. Configurable usage alerts and hard limits help keep resource spending under control.',
+    a: 'Railway is a full-stack cloud. You can run your TanStack app server, managed databases, background workers, cron jobs, and private networking in one project. Configurable usage alerts and hard limits help keep resource spending under control.',
   },
   {
     q: 'Does Railway have PR preview environments?',
@@ -224,7 +240,7 @@ const faqs: Array<{ q: string; a: string }> = [
   },
 ]
 
-const PAGE_TITLE = 'Deploy TanStack to Railway — Official Gold Partner'
+const PAGE_TITLE = `Deploy TanStack to ${RAILWAY_PARTNER.name} | ${RAILWAY_PARTNER_TITLE_LABEL}`
 const PAGE_DESCRIPTION =
   'Railway gives TanStack teams a single place to run app services, databases, and supporting infrastructure. Nitro-powered TanStack Start deploys, optional PR preview environments, up to 100 Gbps private networking, and hard spending limits. Resource usage is billed by the second.'
 
@@ -244,33 +260,24 @@ function getFaqJsonLd() {
 }
 
 export const Route = createFileRoute('/partners/railway')({
-  head: () => {
-    const partner = getPartnerById('railway')
-
-    return {
-      meta: seo({
-        title: PAGE_TITLE,
-        description: PAGE_DESCRIPTION,
-        keywords:
-          'deploy tanstack to railway, tanstack start railway, tanstack router railway, railway hosting, tanstack deployment, railway gold sponsor',
-        image: 'https://tanstack.com/og.png',
-      }),
-      scripts: [
-        ...(partner
-          ? [
-              {
-                type: 'application/ld+json',
-                children: JSON.stringify(getPartnerJsonLd(partner)),
-              },
-            ]
-          : []),
-        {
-          type: 'application/ld+json',
-          children: JSON.stringify(getFaqJsonLd()),
-        },
-      ],
-    }
-  },
+  head: () => ({
+    meta: seo({
+      title: PAGE_TITLE,
+      description: PAGE_DESCRIPTION,
+      keywords: `deploy tanstack to railway, tanstack start railway, tanstack router railway, railway hosting, tanstack deployment, railway tanstack partner`,
+      image: RAILWAY_OG_IMAGE,
+    }),
+    scripts: [
+      {
+        type: 'application/ld+json',
+        children: JSON.stringify(getPartnerJsonLd(RAILWAY_PARTNER)),
+      },
+      {
+        type: 'application/ld+json',
+        children: JSON.stringify(getFaqJsonLd()),
+      },
+    ],
+  }),
   component: RailwayPartnerPage,
 })
 
@@ -284,20 +291,20 @@ function CheckBadge() {
 
 function trackRailwayClick() {
   trackEvent('partner_clicked', {
-    partner_id: 'railway',
+    partner_id: RAILWAY_PARTNER.id,
     placement: 'detail',
     destination: 'external',
-    destination_host: 'railway.com',
-    partner_tier: 'gold',
+    destination_host: new URL(RAILWAY_CANONICAL_HREF).host,
+    partner_tier: RAILWAY_PARTNER.tier,
   })
 }
 
 function trackTanStackDocsClick() {
   trackEvent('partner_clicked', {
-    partner_id: 'railway',
+    partner_id: RAILWAY_PARTNER.id,
     placement: 'detail',
     destination: 'internal_resource',
-    partner_tier: 'gold',
+    partner_tier: RAILWAY_PARTNER.tier,
   })
 }
 
@@ -322,13 +329,11 @@ function RailwayPartnerPage() {
 
   React.useEffect(() => {
     trackEvent('partner_viewed', {
-      partner_id: 'railway',
+      partner_id: RAILWAY_PARTNER.id,
       placement: 'detail',
-      partner_tier: 'gold',
+      partner_tier: RAILWAY_PARTNER.tier,
     })
   }, [])
-
-  const partner = getPartnerById('railway')
 
   return (
     <div className="flex min-h-screen flex-col bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100">
@@ -341,29 +346,36 @@ function RailwayPartnerPage() {
             Partners
           </Link>
           <span>/</span>
-          <span className="text-gray-900 dark:text-white">Railway</span>
+          <span className="text-gray-900 dark:text-white">
+            {RAILWAY_PARTNER.name}
+          </span>
         </nav>
 
         {/* Hero */}
         <section className="border-b border-gray-200 pb-10 pt-10 dark:border-gray-800">
           <div className="mb-5 flex items-center gap-4">
-            {partner ? (
-              <div className="flex h-12 w-44 items-center justify-start">
-                <PartnerImage
-                  config={partner.image}
-                  alt="Railway"
-                  className="max-h-10 w-auto"
-                />
-              </div>
-            ) : null}
+            <div className="flex h-12 w-44 items-center justify-start">
+              <PartnerImage
+                config={RAILWAY_PARTNER.image}
+                alt={RAILWAY_PARTNER.name}
+                className="max-h-10 w-auto"
+              />
+            </div>
             <div>
               <span className="text-[11px] font-medium uppercase tracking-[0.08em] text-gray-500 dark:text-gray-400">
-                Gold Sponsor · Deployment & Hosting
+                {RAILWAY_PARTNER_BADGE_LABEL} ·{' '}
+                {partnerCategoryLabels[RAILWAY_PARTNER.category]}
               </span>
               <div className="mt-1 flex items-center gap-2">
-                <span className="inline-block h-2 w-2 rounded-full bg-emerald-500" />
+                <span
+                  className={`inline-block h-2 w-2 rounded-full ${
+                    RAILWAY_PARTNER.status === 'active'
+                      ? 'bg-emerald-500'
+                      : 'bg-gray-400'
+                  }`}
+                />
                 <span className="text-xs text-gray-500 dark:text-gray-400">
-                  Railway V3 — faster and cheaper
+                  {RAILWAY_PARTNERSHIP_LABEL}
                 </span>
               </div>
             </div>
@@ -384,7 +396,7 @@ function RailwayPartnerPage() {
 
           <p className="mt-3 max-w-xl text-sm italic leading-relaxed text-gray-500 dark:text-gray-400">
             "Services that took 1 week to configure elsewhere take 1 day to spin
-            up in Railway." — Daniel Lobaton, CTO at G2X
+            up in Railway." - Daniel Lobaton, CTO at G2X
           </p>
 
           <div className="mt-7 flex flex-wrap gap-3">
@@ -454,13 +466,22 @@ function RailwayPartnerPage() {
           className="border-t border-gray-200 py-10 dark:border-gray-800"
         >
           <h2 className="text-2xl font-black tracking-tight md:text-3xl">
-            Deploy from the Railway CLI in 6 steps
+            Create a Railway-ready app
           </h2>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-gray-600 dark:text-gray-300 md:text-base">
-            Railway runs TanStack Start as a standard Node service. Add Nitro to
-            your Vite config, then deploy from GitHub or the Railway CLI.
+            The TanStack CLI adds the Railway deployment setup while it creates
+            your app.
           </p>
 
+          <div className="mt-6">
+            <RailwayCodeExample
+              code={RAILWAY_PAGE_MODEL.create.command}
+              lang="bash"
+              title="terminal"
+            />
+          </div>
+
+          <h3 className="mt-8 text-lg font-bold">Deploy the app</h3>
           <div className="mt-6 flex flex-col gap-3">
             {steps.map(({ num, title, code }) => (
               <Card
@@ -478,19 +499,6 @@ function RailwayPartnerPage() {
                 </div>
               </Card>
             ))}
-          </div>
-
-          <div className="mt-6 grid gap-4 md:grid-cols-2">
-            <RailwayCodeExample
-              code={CONFIG_SNIPPET}
-              lang="ts"
-              title="vite.config.ts"
-            />
-            <RailwayCodeExample
-              code={DEPLOY_SNIPPET}
-              lang="bash"
-              title="terminal"
-            />
           </div>
 
           <div className="mt-6 flex flex-wrap items-center gap-3">
@@ -517,27 +525,27 @@ function RailwayPartnerPage() {
           </div>
         </section>
 
-        {/* TanStack Start deployment path */}
+        {/* Existing TanStack Start apps */}
         <section className="border-t border-gray-200 py-10 dark:border-gray-800">
           <h2 className="text-2xl font-black tracking-tight md:text-3xl">
-            TanStack Start on Railway
+            Add Railway to an existing app
           </h2>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-gray-600 dark:text-gray-300 md:text-base">
-            Build TanStack Start as a Nitro-powered Node server, then deploy the
-            generated server and static assets as a Railway service. SSR,
-            streaming, and server functions run in the same Node process.
+            Follow the TanStack Start hosting guide to install Nitro, configure
+            Vite, and add the Node start command Railway needs.
           </p>
 
-          <Button
-            as={Link}
-            to={TANSTACK_START_RAILWAY_DOCS_PATH}
-            hash={TANSTACK_START_RAILWAY_DOCS_HASH}
-            onClick={trackTanStackDocsClick}
-            variant="ghost"
-            className="mt-5"
-          >
-            Read the deployment guide
-          </Button>
+          <div className="mt-5">
+            <Button
+              as={Link}
+              to={TANSTACK_START_RAILWAY_DOCS_PATH}
+              hash={TANSTACK_START_RAILWAY_DOCS_HASH}
+              onClick={trackTanStackDocsClick}
+              variant="ghost"
+            >
+              Open the Railway hosting guide
+            </Button>
+          </div>
         </section>
 
         {/* Pricing */}
@@ -667,7 +675,7 @@ function RailwayPartnerPage() {
             </Button>
             <span className="inline-flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
               <DollarSign className="h-3.5 w-3.5" />
-              Per-second billing · no credit card required
+              Per-second billing, no credit card required
             </span>
           </div>
         </section>
@@ -716,7 +724,7 @@ function RailwayPartnerPage() {
         {/* CTA */}
         <section className="mt-6 rounded-2xl bg-gray-950 px-6 py-10 text-center md:px-10 md:py-12 dark:bg-gray-900">
           <div className="inline-block rounded-full bg-white/5 px-3 py-1 text-[11px] text-gray-400">
-            Railway V3 — now faster and cheaper
+            Railway V3 is faster and cheaper
           </div>
           <h2 className="mt-4 text-2xl font-black tracking-tight text-white md:text-3xl">
             Ready to ship TanStack peacefully?
@@ -756,7 +764,9 @@ function RailwayPartnerPage() {
         </section>
 
         <p className="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">
-          Railway is a Gold-tier TanStack sponsor.{' '}
+          {RAILWAY_PARTNER.status === 'active'
+            ? `${RAILWAY_PARTNER.name} is a ${RAILWAY_TIER_LABEL} TanStack partner. `
+            : `${RAILWAY_PARTNER.name} is a previous TanStack partner. `}
           <Link
             to="/partners"
             className="underline decoration-dotted underline-offset-2 hover:text-gray-700 dark:hover:text-gray-300"

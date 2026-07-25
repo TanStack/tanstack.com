@@ -4,15 +4,16 @@ import {
   type PartnerLifecycle,
 } from '../src/utils/partner-lifecycle'
 
-const basePartner = {
+const basePartner: PartnerLifecycle = {
   status: 'inactive',
   startDate: 'Jan 2026',
-} satisfies PartnerLifecycle
+  endDate: null,
+}
 
 assert.equal(
   getPartnerWindowLabel(basePartner),
-  'Started Jan 2026',
-  'inactive partners without a known end date must not render as present',
+  'Jan 2026 - End date unknown',
+  'inactive partners must label an unknown end date',
 )
 
 assert.equal(
@@ -28,9 +29,23 @@ assert.equal(
 )
 
 assert.equal(
-  getPartnerWindowLabel({ status: 'inactive', endDate: 'Jun 2026' }),
-  'Ended Jun 2026',
-  'end-only partner windows still communicate when the relationship ended',
+  getPartnerWindowLabel({
+    status: 'inactive',
+    startDate: null,
+    endDate: 'Jun 2026',
+  }),
+  'Start date unknown - Jun 2026',
+  'inactive partners must label an unknown start date',
+)
+
+assert.equal(
+  getPartnerWindowLabel({
+    status: 'inactive',
+    startDate: null,
+    endDate: null,
+  }),
+  'Dates unavailable',
+  'fully unknown partner windows remain explicit',
 )
 
 console.log('partner page tests passed')

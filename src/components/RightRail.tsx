@@ -19,6 +19,10 @@ import {
   useTrackedImpression,
   type PartnerPlacement,
 } from '~/utils/analytics'
+import {
+  PARTNER_INQUIRY_HREF,
+  trackPartnerInquiry,
+} from '~/utils/partner-inquiry'
 
 type RailPartner = {
   category: Partner['category']
@@ -148,15 +152,9 @@ export function PartnersRail({
           {title}
         </Link>
         <a
-          href="https://docs.google.com/document/d/1Hg2MzY2TU6U3hFEZ3MLe2oEOM3JS4-eByti3kdJU3I8"
-          target="_blank"
-          rel="noopener noreferrer"
+          href={PARTNER_INQUIRY_HREF}
           className="font-medium opacity-60 hover:opacity-100 text-xs hover:underline"
-          onClick={() => {
-            trackEvent('partner_inquiry_started', {
-              placement: analyticsPlacement,
-            })
-          }}
+          onClick={() => trackPartnerInquiry(analyticsPlacement)}
         >
           Become a Partner
         </a>

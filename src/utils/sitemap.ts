@@ -2,7 +2,7 @@ import { getBranch, libraries } from '~/libraries'
 import type { LibrarySlim } from '~/libraries/types'
 import { getPublishedPosts } from '~/utils/blog'
 import { getDocsManifest } from '~/utils/docs'
-import { partners } from '~/utils/partners'
+import { getPartnerSitemapEntries } from '~/utils/partner-pages'
 import { SITE_URL } from '~/utils/site'
 
 export type SitemapEntry = {
@@ -19,7 +19,6 @@ const HIGH_VALUE_NON_DOC_PAGES = [
   '/support',
   '/workshops',
   '/paid-support',
-  '/partners',
 ] as const satisfies ReadonlyArray<string>
 
 const LOW_VALUE_DOCS_SITEMAP_SEGMENTS = new Set(['examples', 'community'])
@@ -105,15 +104,6 @@ function getBlogEntries(): Array<SitemapEntry> {
   }))
 }
 
-function getPartnerEntries(): Array<SitemapEntry> {
-  return partners.map((partner) => ({
-    path: `/partners/${partner.id}`,
-    lastModified: partner.lastReviewedAt
-      ? asLastModified(partner.lastReviewedAt)
-      : undefined,
-  }))
-}
-
 export function getSiteOrigin() {
   return trimTrailingSlash(SITE_URL)
 }
@@ -128,7 +118,7 @@ export async function getSitemapEntries(): Promise<Array<SitemapEntry>> {
     ...getLibraryEntries(),
     ...docsEntries.flat(),
     ...getBlogEntries(),
-    ...getPartnerEntries(),
+    ...getPartnerSitemapEntries(),
   ].filter(
     (entry) =>
       entry.path !== '/intent/registry' &&

@@ -26,6 +26,7 @@ export type PartnerPlacement =
   | 'ecosystem_game'
   | 'partners_index_cta'
   | 'library_callout'
+  | 'navbar'
 
 export type PartnerClickDestination =
   | 'external'

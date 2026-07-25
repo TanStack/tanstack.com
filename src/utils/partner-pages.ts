@@ -1,8 +1,43 @@
 import {
   getPartnerById,
   partnerCategoryLabels,
+  partners,
   type Partner,
 } from '~/utils/partners'
+
+function asLastModified(value: string) {
+  return new Date(`${value}T12:00:00.000Z`).toISOString()
+}
+
+export function getPartnerSitemapEntries() {
+  const mostRecentReview = partners
+    .flatMap((partner) =>
+      partner.lastReviewedAt ? [partner.lastReviewedAt] : [],
+    )
+    .sort()
+    .at(-1)
+
+  return [
+    {
+      path: '/partners',
+      lastModified: mostRecentReview
+        ? asLastModified(mostRecentReview)
+        : undefined,
+    },
+    {
+      path: '/partners?status=inactive',
+      lastModified: mostRecentReview
+        ? asLastModified(mostRecentReview)
+        : undefined,
+    },
+    ...partners.map((partner) => ({
+      path: `/partners/${partner.id}`,
+      lastModified: partner.lastReviewedAt
+        ? asLastModified(partner.lastReviewedAt)
+        : undefined,
+    })),
+  ]
+}
 
 const partnerGuidance: Record<
   string,

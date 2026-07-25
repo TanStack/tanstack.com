@@ -275,13 +275,12 @@ export type Partner =
     })
   | (PartnerBase & {
       canonicalHref?: string
+      endDate: string | null
       resources?: ReadonlyArray<PartnerResource>
+      startDate: string | null
       status: 'inactive'
       tier?: PartnerTier
-    } & (
-        | { endDate: string; startDate: string }
-        | { endDate?: string; startDate?: undefined }
-      ))
+    })
 
 export type ApplicationStarterPartnerSuggestion = {
   brandColor?: Partner['brandColor']
@@ -375,6 +374,7 @@ const neon = ((): Partner => {
     id: 'neon',
     relatedProducts: ['start', 'router'],
     status: 'inactive' as const,
+    startDate: null,
     endDate: 'Apr 2026',
     score: 0.297,
     href,
@@ -826,6 +826,8 @@ const fireship = ((): Partner => {
     id: 'fireship',
     relatedProducts: [],
     status: 'inactive' as const,
+    startDate: null,
+    endDate: null,
     score: 0.014,
     href,
     tagline: 'Dev Education',
@@ -882,6 +884,8 @@ const nozzle = ((): Partner => {
     id: 'nozzle',
     href,
     status: 'inactive' as const,
+    startDate: null,
+    endDate: null,
     score: 0.014,
     tagline: 'Enterprise SEO',
     image: {
@@ -1237,6 +1241,8 @@ const strapi = ((): Partner => {
     id: 'strapi',
     relatedProducts: ['start', 'router'] as const,
     status: 'inactive' as const,
+    startDate: null,
+    endDate: null,
     score: 0.069,
     tier: 'bronze' as const,
     href,

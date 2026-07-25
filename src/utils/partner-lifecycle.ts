@@ -1,10 +1,6 @@
 import type { Partner } from '~/utils/partners'
 
-export type PartnerLifecycle = {
-  endDate?: Partner['endDate']
-  startDate?: Partner['startDate']
-  status?: Partner['status']
-}
+export type PartnerLifecycle = Pick<Partner, 'endDate' | 'startDate' | 'status'>
 
 export function getPartnerWindowLabel(partner: PartnerLifecycle) {
   if (partner.startDate && partner.endDate) {
@@ -14,8 +10,12 @@ export function getPartnerWindowLabel(partner: PartnerLifecycle) {
   if (partner.startDate) {
     return partner.status === 'active'
       ? `${partner.startDate} - Present`
-      : `Started ${partner.startDate}`
+      : `${partner.startDate} - End date unknown`
   }
 
-  return partner.endDate ? `Ended ${partner.endDate}` : undefined
+  if (partner.endDate) {
+    return `Start date unknown - ${partner.endDate}`
+  }
+
+  return partner.status === 'inactive' ? 'Dates unavailable' : undefined
 }

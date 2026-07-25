@@ -1,7 +1,7 @@
 ---
 title: 'We Removed React Server Components from TanStack.com'
-published: 2026-06-23
-draft: true
+published: 2026-07-24
+draft: false
 excerpt: React Server Components solved a real performance problem for tanstack.com, but once our markdown and highlighting stack got small, we were left with a set of runtime and code-shape tradeoffs we didn't want anymore.
 library: start
 authors:

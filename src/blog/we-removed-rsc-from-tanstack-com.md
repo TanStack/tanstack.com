@@ -48,7 +48,7 @@ So we decided to find out whether the huge dependency was the use case.
 
 ## We made the expensive part small
 
-We replaced the old stack with `@tanstack/markdown` and `@tanstack/highlight`, small packages built around the exact markdown and code rendering contract tanstack.com needs. We stopped depending on a general-purpose highlighting engine for a site that mostly needs predictable docs code blocks, stopped generating duplicate light and dark markup, stopped shipping inline token styles, and moved to class-based output with theme CSS.
+We replaced the old stack with `@tanstack/markdown` and `@tanstack/highlight`, small packages built around the exact markdown and code rendering contract tanstack.com needs. [Introducing TanStack Markdown and TanStack Highlight](/blog/introducing-tanstack-markdown-and-highlight) covers why they're separate libraries, what each one does, and the deliberately narrow contracts that keep them small.
 
 The result wasn't zero JavaScript, but it was small enough that shipping it stopped feeling irresponsible. On the production routes we measured, the explicit markdown and code renderer is about **27 KiB transferred**, roughly **18 to 19 KiB** more than the RSC version.
 

@@ -75,7 +75,7 @@ html.theme-switching *::after {
   --color-gray-100: #f5f2e9;
   --color-gray-200: #eae5d7;
   --color-gray-300: #d6cfbd;
-  --color-gray-400: #aba594;
+  --color-gray-400: #aea691;
   --color-gray-500: #7c7464;
   --color-gray-600: #5f574a;
   --color-gray-700: #453f34;
@@ -87,17 +87,17 @@ html.theme-switching *::after {
 /* Keep neutral grays stable before client CSS injection reorders Tailwind layers. */
 :root,
 :host {
-  --color-gray-50: #fafafa;
-  --color-gray-100: #f5f5f5;
-  --color-gray-200: #e5e5e5;
-  --color-gray-300: #d4d4d4;
-  --color-gray-400: #a3a3a3;
-  --color-gray-500: #737373;
-  --color-gray-600: #525252;
-  --color-gray-700: #404040;
-  --color-gray-800: #262626;
-  --color-gray-900: #171717;
-  --color-gray-950: #0a0a0a;
+  --color-gray-50: #faf8f2;
+  --color-gray-100: #f5f2e9;
+  --color-gray-200: #eae5d7;
+  --color-gray-300: #d6cfbd;
+  --color-gray-400: #aea691;
+  --color-gray-500: #7c7464;
+  --color-gray-600: #5f574a;
+  --color-gray-700: #453f34;
+  --color-gray-800: #332d24;
+  --color-gray-900: #201b15;
+  --color-gray-950: #111111;
 }
 
 /* Shop color tokens — inline so they resolve via var() at runtime (scoped to .shop-scope / html.dark .shop-scope) */
@@ -200,12 +200,71 @@ html.theme-switching *::after {
   --color-lib-cli: var(--color-category-tooling);
   --color-lib-intent: var(--color-category-tooling);
 
+  /* ================================================================
+     LIBRARY CATEGORY COLORS — SINGLE SOURCE OF TRUTH.
+     Each category maps to ONE DS palette ramp. Change a category's hue
+     by swapping its ramp here and it flows everywhere it's themed:
+     the mega-menu, docs pages, and library landing pages.
+       framework → green   data → terracotta   ui → blue
+       performance → amber   tooling → neutral
+     `--color-category-<cat>` is the mode-aware LABEL color (400 light /
+     300 dark, overridden in html.dark below) used by the mega-menu and
+     docs. The `-<role>` tokens are mode-stable ramp steps the landing
+     shell composes itself (it does its own light/dark switching), so
+     they are NOT overridden in html.dark.
+     ================================================================ */
+  --color-category-framework: var(--color-ds-green-400);
+  --color-category-framework-accent: var(--color-ds-green-400);
+  --color-category-framework-bright: var(--color-ds-green-300);
+  --color-category-framework-deep: var(--color-ds-green-500);
+  --color-category-framework-tint: var(--color-ds-green-100);
+  --color-category-framework-ink: #04130a;
+  --color-category-framework-glow: 68 165 78;
+
+  --color-category-data: var(--color-ds-terracotta-400);
+  --color-category-data-accent: var(--color-ds-terracotta-400);
+  --color-category-data-bright: var(--color-ds-terracotta-300);
+  --color-category-data-deep: var(--color-ds-terracotta-500);
+  --color-category-data-tint: var(--color-ds-terracotta-100);
+  --color-category-data-ink: #000000;
+  --color-category-data-glow: 195 80 43;
+
+  --color-category-ui: var(--color-ds-blue-400);
+  --color-category-ui-accent: var(--color-ds-blue-400);
+  --color-category-ui-bright: var(--color-ds-blue-300);
+  --color-category-ui-deep: var(--color-ds-blue-500);
+  --color-category-ui-tint: var(--color-ds-blue-100);
+  --color-category-ui-ink: #031219;
+  --color-category-ui-glow: 70 157 184;
+
+  --color-category-performance: var(--color-ds-amber-400);
+  --color-category-performance-accent: var(--color-ds-amber-400);
+  --color-category-performance-bright: var(--color-ds-amber-300);
+  --color-category-performance-deep: var(--color-ds-amber-500);
+  --color-category-performance-tint: var(--color-ds-amber-100);
+  --color-category-performance-ink: #171003;
+  --color-category-performance-glow: 235 158 42;
+
+  /* tooling → neutral. The label base is a dark warm-gray for legibility on
+     light surfaces (flips to a light gray on dark, below); the landing accent
+     stays a lighter gray so the wordmark reads on the dark landing hero. */
+  --color-category-tooling: var(--color-ds-neutral-400);
+  --color-category-tooling-accent: var(--color-ds-neutral-200);
+  --color-category-tooling-bright: var(--color-ds-neutral-100);
+  --color-category-tooling-deep: var(--color-ds-neutral-400);
+  --color-category-tooling-tint: var(--color-ds-neutral-100);
+  --color-category-tooling-ink: #111111;
+  --color-category-tooling-glow: 171 165 148;
+
   /* --- Semantic tokens (reference primitives so edits propagate) --- */
   /* NOTE: Figma reported text/primary as #ffffff (a dark-mode/mode artifact);
      using neutral-500 for the light context. Confirm intended value. */
   --color-text-primary: var(--color-ds-neutral-500);
   --color-text-secondary: var(--color-ds-neutral-400);
   --color-text-muted: var(--color-ds-neutral-300);
+  /* Mega-menu item title rest color; brightens to text-primary on hover.
+     Light menu → muted dark; dark menu → neutral tint (see html.dark). */
+  --color-text-menu-title: var(--color-ds-neutral-400);
   --color-text-accent: var(--color-ds-blue-500);
   --color-text-disabled: var(--color-ds-neutral-200);
   --color-text-inverse: #ffffff;
@@ -358,11 +417,13 @@ html.theme-switching *::after {
   --text-ds-mono-xs: 12px;
   --text-ds-mono-xs--line-height: 16px;
   --text-ds-mono-xs--font-weight: 300;
+  --text-ds-mono-2xs: 10px;
+  --text-ds-mono-2xs--line-height: 14px;
+  --text-ds-mono-2xs--font-weight: 300;
   --text-ds-mono-caps: 12px;
   --text-ds-mono-caps--line-height: 14px;
   --text-ds-mono-caps--letter-spacing: 1.5px;
   --text-ds-mono-caps--font-weight: 400;
-
   /* Eyebrow (mono, uppercase, wide tracking) — labels above headings */
   --text-ds-eyebrow-lg: 13px;
   --text-ds-eyebrow-lg--line-height: 16px;
@@ -382,6 +443,7 @@ html.dark {
   --color-text-primary: #ffffff;
   --color-text-secondary: #aea691;
   --color-text-muted: #756c5b;
+  --color-text-menu-title: var(--color-ds-neutral-tint-200);
   --color-text-accent: #61adbf;
   --color-text-disabled: #3e3529;
   --color-text-inverse: #111111;
@@ -536,6 +598,11 @@ html.dark {
       --docs-tabs-height: 42px;
     }
   }
+
+  :root:has([data-library-landing]) {
+    --navbar-height: 64px;
+    --docs-tabs-height: 48px;
+  }
 }
 
 .tanstack-observable-plot {
@@ -560,6 +627,28 @@ button {
   display: inline-flex;
   align-self: stretch;
   align-items: center;
+  position: relative;
+}
+
+/* Invisible hover bridge. The open dropdown sits a few px below the trigger,
+   leaving a dead zone that drops `:hover` (and the dropdown's pointer-events)
+   when the cursor travels from the nav item down into the menu — dismissing it
+   too early. This spans the gap so the hover is continuous. It's only as wide
+   as the trigger (never overlays sibling triggers) and is pointer-active only
+   while the menu is open, so it never blocks clicks below the navbar. */
+.ts-mega-trigger-wrap::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  height: 0.75rem;
+  pointer-events: none;
+}
+
+.ts-mega-trigger-wrap:not([data-menu-dismissed='true']):hover::after,
+.ts-mega-trigger-wrap:not([data-menu-dismissed='true']):focus-within::after {
+  pointer-events: auto;
 }
 
 .ts-mega-trigger::after {

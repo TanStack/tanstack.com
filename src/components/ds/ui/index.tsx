@@ -21,6 +21,7 @@ import type { LibraryCategory } from '~/libraries/categories'
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'icon' | 'link'
 type ButtonColor =
+  | 'neutral'
   | 'blue'
   | 'green'
   | 'red'
@@ -57,7 +58,11 @@ type ButtonComponent = <TElement extends React.ElementType = 'button'>(
 type ButtonInnerProps = ButtonOwnProps & Record<string, unknown>
 
 // Color set mapped onto the new palette (brand blue = the teal #013e53).
+// `neutral` is the default: a high-contrast mark that flips with the theme —
+// near-black on light, white on dark — via the inverse semantic tokens.
 const primaryColorStyles: Record<ButtonColor, string> = {
+  neutral:
+    'bg-background-inverse text-text-inverse border-background-inverse hover:bg-background-inverse/90',
   blue: 'bg-ds-blue-500 text-white border-ds-blue-500 hover:bg-ds-blue-400',
   green: 'bg-ds-green-400 text-white border-ds-green-400 hover:bg-ds-green-300',
   red: 'bg-ds-terracotta-400 text-white border-ds-terracotta-400 hover:bg-ds-terracotta-300',
@@ -74,6 +79,7 @@ const primaryColorStyles: Record<ButtonColor, string> = {
 }
 
 const iconColorStyles: Record<ButtonColor, string> = {
+  neutral: 'text-text-primary hover:bg-background-subtle',
   blue: 'text-ds-blue-500 hover:bg-ds-blue-500/10',
   green: 'text-ds-green-400 hover:bg-ds-green-400/10',
   red: 'text-ds-terracotta-400 hover:bg-ds-terracotta-400/10',
@@ -86,6 +92,7 @@ const iconColorStyles: Record<ButtonColor, string> = {
 }
 
 const linkColorStyles: Record<ButtonColor, string> = {
+  neutral: 'text-text-primary hover:text-text-primary/70',
   blue: 'text-ds-blue-500 hover:text-ds-blue-400',
   green: 'text-ds-green-400 hover:text-ds-green-300',
   red: 'text-ds-terracotta-400 hover:text-ds-terracotta-300',
@@ -145,7 +152,7 @@ export const Button: ButtonComponent = React.forwardRef<
     as,
     children,
     variant = 'primary',
-    color = 'blue',
+    color = 'neutral',
     size,
     rounded,
     className,
@@ -633,4 +640,9 @@ export function Breadcrumbs({
 }
 
 export { PalmSpinner } from './PalmSpinner'
-export { PixelSpinner } from './PixelSpinner'
+export {
+  StatsSection,
+  type StatsPage,
+  type StatsLayout,
+  type StatItem,
+} from './StatsSection'

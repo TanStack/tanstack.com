@@ -132,8 +132,8 @@ export function BrandContextMenu({ children, ...rest }: BrandContextMenuProps) {
             </DropdownItem>
           ))}
           <DropdownSeparator />
-          <DropdownItem onSelect={() => navigate({ to: '/brand-guide' })}>
-            Brand Guide & All Assets
+          <DropdownItem onSelect={() => navigate({ to: '/ds/logos' })}>
+            All Logo Assets
           </DropdownItem>
         </DropdownContent>
       </Dropdown>

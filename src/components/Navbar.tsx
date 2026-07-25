@@ -14,15 +14,15 @@ import { Link, useLocation, useMatches } from '@tanstack/react-router'
 import {
   ArrowRight,
   ArrowSquareOut,
-  BookOpen,
+  Briefcase,
   Code,
   GridFour,
   Hammer,
   Heart,
-  Question as HelpCircle,
-  Envelope as Mail,
+  Infinity as InfinityIcon,
+  Lifebuoy,
+  Mailbox,
   List as Menu,
-  PaintBrush as Paintbrush,
   ShieldCheck,
   ShoppingBag,
   Sparkle as Sparkles,
@@ -36,7 +36,7 @@ import { AiDockButton, SearchButton } from './SearchButton'
 import { BrandContextMenu } from './BrandContextMenu'
 import { useSearchContext } from '~/contexts/SearchContext'
 import { useLibrariesOverlay } from '~/contexts/LibrariesOverlayContext'
-import { publicLibraries, type LibrarySlim } from '~/libraries'
+import { findLibrary, publicLibraries, type LibrarySlim } from '~/libraries'
 import {
   categoryLabels,
   categoryOrder,
@@ -183,7 +183,7 @@ const NAV_GROUPS = [
           {
             label: 'Workshops',
             to: '/workshops',
-            description: 'Remote and in-person sessions from maintainers.',
+            description: 'Live sessions from the maintainers.',
             icon: Users,
           },
           {
@@ -206,7 +206,7 @@ const NAV_GROUPS = [
           {
             label: 'Discord',
             to: 'https://tlinz.com/discord',
-            description: 'Community support and real-time discussion.',
+            description: 'Real-time community support.',
             icon: DiscordIcon,
           },
           {
@@ -235,7 +235,7 @@ const NAV_GROUPS = [
           {
             label: 'Showcase',
             to: '/showcase',
-            description: 'Products and teams building with TanStack.',
+            description: 'Teams building with TanStack.',
             icon: Sparkles,
           },
         ],
@@ -283,7 +283,7 @@ const NAV_GROUPS = [
             label: 'Support Overview',
             to: '/support',
             description: 'Find the right support path.',
-            icon: HelpCircle,
+            icon: Lifebuoy,
           },
           {
             label: 'Partners',
@@ -302,13 +302,13 @@ const NAV_GROUPS = [
             label: 'Enterprise Support',
             to: '/paid-support',
             description: 'Private consulting and expert support.',
-            icon: Users,
+            icon: Briefcase,
           },
           {
             label: 'Contact',
             to: 'mailto:support@tanstack.com',
             description: 'Get in touch with the TanStack team.',
-            icon: Mail,
+            icon: Mailbox,
           },
         ],
       },
@@ -318,25 +318,19 @@ const NAV_GROUPS = [
           {
             label: 'Ethos',
             to: '/ethos',
-            description: 'How we think about open source and products.',
+            description: 'How we approach open source.',
             icon: ShieldCheck,
           },
           {
             label: 'Tenets',
             to: '/tenets',
             description: 'The values that shape TanStack libraries.',
-            icon: BookOpen,
-          },
-          {
-            label: 'Brand Guide',
-            to: '/brand-guide',
-            description: 'Logos, colors, and brand usage.',
-            icon: Paintbrush,
+            icon: InfinityIcon,
           },
           {
             label: 'Design System',
             to: '/ds',
-            description: 'Design tokens and components for TanStack surfaces.',
+            description: 'Logos, tokens, and UI components.',
             icon: GridFour,
           },
         ],
@@ -344,13 +338,13 @@ const NAV_GROUPS = [
     ],
     rail: {
       eyebrow: 'Partners',
-      title: 'Work with TanStack',
+      title: 'Work with',
       description: 'Sponsorships, placements, and partner pages.',
       item: {
         analyticsPlacement: 'navbar',
         label: 'Partnership Inquiry',
         to: PARTNER_INQUIRY_HREF,
-        icon: Mail,
+        icon: Mailbox,
       },
     },
   },
@@ -365,6 +359,18 @@ type LibraryMenuEntry = {
   name: string
   to: string
   icon: IconComponent
+  /** `group-hover/lib:text-category-*` — recolors the icon to its category. */
+  iconHoverColor: string
+}
+
+// Full static class strings (Tailwind can't see composed names) mapping each
+// category to the hover color applied to a library's icon in the mega-menu.
+const categoryIconHoverColor: Record<LibraryCategory, string> = {
+  framework: 'group-hover/lib:text-category-framework',
+  data: 'group-hover/lib:text-category-data',
+  ui: 'group-hover/lib:text-category-ui',
+  performance: 'group-hover/lib:text-category-performance',
+  tooling: 'group-hover/lib:text-category-tooling',
 }
 
 type LibraryMenuColumn = {
@@ -398,6 +404,7 @@ function getLibraryCategoryColumns(): LibraryMenuColumn[] {
       name: getLibraryDisplayName(library),
       to: library.to,
       icon: libraryIcons[library.id] ?? fallbackLibraryIcon,
+      iconHoverColor: categoryIconHoverColor[category],
     })
   }
 
@@ -435,6 +442,9 @@ function AiDockMount() {
 export function Navbar({ children }: { children: React.ReactNode }) {
   const matches = useMatches()
   const location = useLocation()
+  const pathSegments = location.pathname.split('/').filter(Boolean)
+  const isLibraryLanding =
+    pathSegments.length === 2 && Boolean(findLibrary(pathSegments[0]))
 
   const { Title } = React.useMemo(() => {
     const match = [...matches].reverse().find((m) => m.staticData.Title)
@@ -593,9 +603,9 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           <BrandContextMenu
             className={twMerge(`flex items-center group shrink-0`)}
           >
-            <LogoSection title={Title} />
+            <LogoSection title={isLibraryLanding ? null : Title} />
           </BrandContextMenu>
-          {Title ? (
+          {Title && !isLibraryLanding ? (
             <div className="truncate">
               <Title />
             </div>
@@ -823,7 +833,7 @@ function DesktopNavDropdown({
         className={twMerge(
           'ts-mega-dropdown-panel ts-glass-menu rounded-xl',
           'w-max min-w-[var(--ts-primary-nav-target-width,0px)] max-w-[calc(100vw-2rem)]',
-          'border border-white/45 bg-white/80 p-4 shadow-2xl shadow-black/15 backdrop-blur-2xl backdrop-saturate-150',
+          'border border-white/45 bg-white/80 pt-10 px-9 pb-8 shadow-2xl shadow-black/15 backdrop-blur-2xl backdrop-saturate-150',
           'dark:border-white/10 dark:bg-black/70 dark:shadow-black/50',
         )}
       >
@@ -953,7 +963,7 @@ function MegaMenuContent({
             'grid gap-3',
             variant === 'desktop' &&
               group.sections.length > 1 &&
-              'grid-cols-[repeat(2,260px)]',
+              'grid-cols-[repeat(2,330px)]',
           )}
         >
           {group.sections.map((section, sectionIndex) => (
@@ -964,7 +974,7 @@ function MegaMenuContent({
                 variant === 'mobile' && sectionIndex > 0 && 'pt-3',
               )}
             >
-              <div className="mb-2 px-2 text-xs font-black uppercase text-gray-500 dark:text-gray-400">
+              <div className="mb-2 px-2 font-ds-mono text-ds-mono-sm uppercase text-text-muted">
                 {section.label}
               </div>
               <div
@@ -972,10 +982,10 @@ function MegaMenuContent({
                   'grid gap-2',
                   variant === 'desktop' &&
                     group.key === 'learn' &&
-                    'grid-cols-[repeat(2,260px)]',
+                    'grid-cols-[repeat(2,330px)]',
                   variant === 'desktop' &&
                     group.key === 'tools' &&
-                    'grid-cols-[repeat(2,260px)]',
+                    'grid-cols-[repeat(2,330px)]',
                 )}
               >
                 {section.items.map((item) => (
@@ -1051,7 +1061,9 @@ function LibrariesMenuContent({
           />
         ))}
       </div>
-      <div className="border-t border-border-subtle pt-1.5">{allLibraries}</div>
+      <div className="flex justify-center border-t border-border-subtle pt-1.5">
+        {allLibraries}
+      </div>
     </div>
   )
 }
@@ -1081,7 +1093,7 @@ function LibraryCategoryColumn({
       >
         {column.label}
       </div>
-      <div className="flex flex-col items-stretch">
+      <div className="flex flex-col items-stretch gap-1">
         {column.libraries.map((library) => (
           <LibraryMenuRow
             key={library.id}
@@ -1107,12 +1119,19 @@ function LibraryMenuRow({
   const Icon = library.icon
   const external = library.to.startsWith('http')
   const className = twMerge(
-    'group/lib flex items-center gap-2 rounded-[14px] py-2 pl-[9px] pr-3 text-text-secondary transition-colors hover:bg-surface-state-hover hover:text-text-primary focus:bg-surface-state-hover focus:text-text-primary focus:outline-none',
+    // Subtle hover/pressed overlay matching the other mega menus (hover white/4%,
+    // pressed white/12%, mode-adaptive via text-primary). Replaces the dead
+    // `surface-state-hover` token, which was never defined.
+    'group/lib flex items-center gap-2 rounded-[14px] py-2 pl-[9px] pr-3 text-text-secondary transition-colors hover:bg-text-primary/[0.04] hover:text-text-primary focus:bg-text-primary/[0.04] focus:text-text-primary focus:outline-none active:bg-text-primary/[0.12]',
     variant === 'desktop' ? 'h-[38px]' : 'py-2.5',
   )
   const content = (
     <>
-      <Icon className="size-5 shrink-0" />
+      {/* Plain template string: the category hover color is a `text-*` utility
+          and twMerge would drop it against a base color. */}
+      <Icon
+        className={`size-5 shrink-0 transition-colors ${library.iconHoverColor}`}
+      />
       <span className="whitespace-nowrap font-ds-display text-[16px] tracking-[0.32px]">
         {library.name}
       </span>
@@ -1500,8 +1519,11 @@ function MenuRail({
 
   const external =
     rail.item.to.startsWith('http') || rail.item.to.startsWith('mailto:')
-  const getInTouchClassName =
-    'mt-3 inline-flex items-center gap-1.5 font-ds-mono text-ds-mono-xs uppercase tracking-wider text-text-secondary transition-colors hover:text-text-primary focus:text-text-primary focus:outline-none'
+  // Figma inset "well" shadow (neutral-400 glow + soft bottom shade), shared by
+  // the rail panel and the "Get in touch" button.
+  const insetWellShadow =
+    'shadow-[inset_0_0_3px_0_var(--color-ds-neutral-400),inset_0_-3px_1.2px_0_rgba(0,0,0,0.25)]'
+  const getInTouchClassName = `inline-flex items-center gap-1.5 self-start rounded-[11px] px-4 py-2.5 font-ds-display text-ds-body-sm font-bold text-text-muted transition-colors hover:text-text-primary focus:text-text-primary focus:outline-none ${insetWellShadow}`
   const getInTouch = (
     <>
       {rail.item.label}
@@ -1512,52 +1534,56 @@ function MenuRail({
   )
 
   return (
-    <aside className="flex h-full flex-col justify-between self-stretch border-l border-border-subtle pl-6">
-      <div>
-        <div className="font-ds-mono text-ds-mono-xs uppercase tracking-wider text-category-data">
-          {rail.eyebrow}
-        </div>
-        <p className="mt-2 text-ds-body-sm text-text-secondary">
+    <aside
+      className={`flex h-full flex-col gap-2.5 self-stretch rounded-2xl bg-black/[0.03] p-6 dark:bg-black/30 ${insetWellShadow}`}
+    >
+      <div className="font-ds-mono text-ds-mono-sm uppercase text-category-data">
+        {rail.eyebrow}
+      </div>
+      <div className="flex flex-1 flex-col justify-between gap-6">
+        <p className="text-ds-body-sm text-text-secondary">
           {rail.description}
         </p>
-      </div>
-      <div className="mt-8">
-        <div className="font-ds-display text-ds-heading-5 text-text-primary">
-          {rail.title}
+        <div className="flex flex-col items-start gap-2.5">
+          {/* "Work with" + the TanStack lockup read together as "Work with
+              TanStack" (Figma: terracotta/200 label above the landscape mark). */}
+          <div className="font-ds-display text-base font-normal text-ds-terracotta-200">
+            {rail.title}
+          </div>
+          <img
+            src="/images/brand/tanstack-landscape-black.svg"
+            alt="TanStack"
+            className="h-9 w-auto dark:hidden"
+          />
+          <img
+            src="/images/brand/tanstack-landscape-white.svg"
+            alt=""
+            aria-hidden="true"
+            className="hidden h-9 w-auto dark:block"
+          />
         </div>
-        <img
-          src="/images/brand/tanstack-stacked-black.svg"
-          alt="TanStack"
-          className="mt-3 h-11 w-auto dark:hidden"
-        />
-        <img
-          src="/images/brand/tanstack-stacked-cream.svg"
-          alt=""
-          aria-hidden="true"
-          className="mt-3 hidden h-11 w-auto dark:block"
-        />
-        {external ? (
-          <a
-            href={rail.item.to}
-            onClick={onNavigate}
-            className={getInTouchClassName}
-            {...(rail.item.to.startsWith('mailto:')
-              ? {}
-              : { target: '_blank', rel: 'noopener noreferrer' })}
-          >
-            {getInTouch}
-          </a>
-        ) : (
-          <Link
-            to={rail.item.to}
-            onClick={onNavigate}
-            preload="intent"
-            className={getInTouchClassName}
-          >
-            {getInTouch}
-          </Link>
-        )}
       </div>
+      {external ? (
+        <a
+          href={rail.item.to}
+          onClick={onNavigate}
+          className={getInTouchClassName}
+          {...(rail.item.to.startsWith('mailto:')
+            ? {}
+            : { target: '_blank', rel: 'noopener noreferrer' })}
+        >
+          {getInTouch}
+        </a>
+      ) : (
+        <Link
+          to={rail.item.to}
+          onClick={onNavigate}
+          preload="intent"
+          className={getInTouchClassName}
+        >
+          {getInTouch}
+        </Link>
+      )}
     </aside>
   )
 }

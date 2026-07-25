@@ -421,8 +421,6 @@ export const ranger: LibrarySlim = {
   tagline: 'Headless range and multi-range slider utilities.',
   description:
     'Headless, lightweight, and extensible primitives for building range and multi-range sliders.',
-  bgRadial:
-    'from-black via-gray-600/50 to-transparent dark:from-gray-100 dark:via-gray-400/50',
   badge: undefined,
   repo: 'tanstack/ranger',
   frameworks: ['react'],
@@ -692,8 +690,6 @@ export const config: LibrarySlim = {
     'Configuration and tools for publishing and maintaining high-quality JavaScript packages',
   description:
     'Opinionated tooling to lint, build, test, version, and publish JS/TS packages — minimal config, consistent results.',
-  bgRadial:
-    'from-black via-gray-600/50 to-transparent dark:from-gray-100 dark:via-gray-400/50',
   badge: undefined,
   repo: 'tanstack/config',
   frameworks: [],
@@ -718,8 +714,6 @@ export const devtools: LibrarySlim = {
   description:
     'A unified devtools panel that houses all TanStack devtools and allows you to create and integrate your own custom devtools.',
   badge: 'alpha',
-  bgRadial:
-    'from-black via-gray-600/50 to-transparent dark:from-gray-100 dark:via-gray-400/50',
   repo: 'tanstack/devtools',
   frameworks: [
     'react',
@@ -760,8 +754,6 @@ export const mcp: LibrarySlim = {
   description:
     'Connect your AI assistant to TanStack documentation. Search docs, fetch pages, and explore the ecosystem programmatically via the Model Context Protocol.',
   badge: 'alpha',
-  bgRadial:
-    'from-black via-gray-600/50 to-transparent dark:from-gray-100 dark:via-gray-400/50',
   repo: 'tanstack/tanstack.com',
   frameworks: [],
   latestVersion: 'v1',

@@ -43,6 +43,13 @@ const LANDSCAPE: Array<LogoAsset> = [
   { tone: 'white', file: 'tanstack-landscape-white.svg', onDark: true },
 ]
 
+const EMBLEM: Array<LogoAsset> = [
+  { tone: 'black', file: 'tanstack-emblem-black.svg', onDark: false },
+  { tone: 'charcoal', file: 'tanstack-emblem-charcoal.svg', onDark: false },
+  { tone: 'cream', file: 'tanstack-emblem-cream.svg', onDark: true },
+  { tone: 'white', file: 'tanstack-emblem-white.svg', onDark: true },
+]
+
 function LogoCard({
   asset,
   lockup,
@@ -123,6 +130,41 @@ function LogosPage() {
             />
           ))}
         </div>
+      </DsSection>
+
+      <DsSection
+        title="Emblem"
+        description="The palm-island mark on its own — for avatars, favicons, and tight squares where the wordmark would not read."
+      >
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {EMBLEM.map((asset) => (
+            <LogoCard
+              key={asset.file}
+              asset={asset}
+              lockup="emblem"
+              imgClass="h-16"
+            />
+          ))}
+        </div>
+      </DsSection>
+
+      <DsSection
+        title="Usage"
+        description="These marks are for use in connection with TanStack projects, educational materials, and content that supports the ecosystem."
+      >
+        <ul className="list-disc space-y-2 pl-5 text-ds-body-sm text-text-secondary">
+          <li>
+            Keep the original proportions — never stretch or distort a mark.
+          </li>
+          <li>
+            Leave clear space around the mark equal to the height of the “T” in
+            TanStack.
+          </li>
+          <li>
+            Keep contrast high — dark marks on light surfaces, light marks on
+            dark.
+          </li>
+        </ul>
       </DsSection>
     </DsPage>
   )

@@ -337,7 +337,7 @@ function NavbarPage() {
         <div className="grid gap-3 sm:grid-cols-3">
           <RegionCard index={1} title="Brand">
             Logo mark and wordmark, linking home. Right-clicking opens the brand
-            context menu (logo assets, Brand Guide).
+            context menu (logo assets).
           </RegionCard>
           <RegionCard index={2} title="Primary nav">
             Libraries, Blog, Community, Tools, Merch, and Support — each a

@@ -15,7 +15,7 @@ type SponsorSectionProps = {
   showCTA?: boolean
 }
 
-function SponsorPackWithQuery() {
+export function SponsorPackWithQuery() {
   const { data: sponsors } = useQuery({
     queryKey: ['sponsors'],
     queryFn: () => getSponsorsForSponsorPack(),

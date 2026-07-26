@@ -1,11 +1,13 @@
 ---
-title: 'We Removed React Server Components from TanStack.com'
+title: 'We Stopped Using RSC on TanStack.com'
 published: 2026-07-24
 draft: false
 excerpt: React Server Components solved a real performance problem for tanstack.com, but once our markdown and highlighting stack got small, we were left with a set of runtime and code-shape tradeoffs we didn't want anymore.
 library: start
 authors:
   - Tanner Linsley
+redirect_from:
+  - we-removed-rsc-from-tanstack-com
 ---
 
 Earlier this year, tanstack.com became one of my favorite examples for React Server Components. Our content-heavy pages were shipping a giant markdown and syntax highlighting stack to the browser, we moved that work to the server, a meaningful amount of JavaScript disappeared, and the site got faster. We wrote about it, measured it, and felt pretty good about the result because it was exactly the kind of problem RSC is supposed to solve.

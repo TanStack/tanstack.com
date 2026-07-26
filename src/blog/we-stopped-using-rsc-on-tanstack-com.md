@@ -169,6 +169,8 @@ For us, RSC bought relief from a huge markdown and highlighting stack, then that
 
 ## Supporting RSC is different from requiring it
 
+[Manuel's recent talk, TanStack Start and How It Supports React Server Components](https://gitnation.com/contents/tanstack-start-and-how-it-supports-react-server-components), is almost a perfect snapshot of where we were right before this change. TanStack.com was still our main RSC playground, markdown and syntax highlighting were exactly the kind of heavy server-rendered UI the design was built for, and Manuel was clear that RSC should be a primitive rather than the architecture, something you use when it makes sense instead of the default for every new project.
+
 I don't want this post to flatten the amount of work behind TanStack Start's RSC support either. Manuel did a significant amount of difficult framework and bundler work to make Flight streams usable without forcing the rest of your application to orbit them, and we're going to keep supporting that work.
 
 The fact that RSC is opt-in is what makes this decision so uneventful. Tanstack.com can stop using it without TanStack Start removing the capability, changing direction, or asking every other Start user to agree with us.

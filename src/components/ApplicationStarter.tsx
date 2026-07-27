@@ -209,6 +209,7 @@ export function ApplicationStarter({
 
   const palette = toneClasses[tone]
   const compact = mode === 'compact'
+  const isHomeStarter = context === 'home'
   const [showMoreActions, setShowMoreActions] = React.useState(false)
   const [pendingHostingDeployPartner, setPendingHostingDeployPartner] =
     React.useState<HostingDeployPartnerId | null>(null)
@@ -806,11 +807,35 @@ export function ApplicationStarter({
               </Collapsible>
             </>
           ) : (
-            <div className="relative overflow-hidden rounded-[1rem] border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950">
+            <div
+              className={twMerge(
+                'relative overflow-hidden rounded-[1rem] border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950',
+                // Home: Figma StackBuilder look — dark surface with a terracotta glow.
+                isHomeStarter &&
+                  'rounded-[14px] border-transparent bg-[#0a0a0a] shadow-[0_8px_39px_-28px_var(--color-ds-terracotta-300)] dark:border-transparent dark:bg-[#0a0a0a]',
+              )}
+            >
               <div>
-                <div className="border-b border-gray-200 bg-gray-50/70 px-5 py-4 dark:border-gray-800 dark:bg-gray-900/50">
-                  <div className="flex items-center justify-between gap-3">
-                    <h3 className="font-semibold tracking-[-0.04em] text-[1.375rem] md:text-[1.5rem] text-gray-950 dark:text-white">
+                <div
+                  className={twMerge(
+                    'border-b border-gray-200 bg-gray-50/70 px-5 py-4 dark:border-gray-800 dark:bg-gray-900/50',
+                    isHomeStarter &&
+                      'border-b-0 bg-transparent px-6 pb-1 pt-6 text-center dark:bg-transparent',
+                  )}
+                >
+                  <div
+                    className={twMerge(
+                      'flex items-center justify-between gap-3',
+                      isHomeStarter && 'justify-center',
+                    )}
+                  >
+                    <h3
+                      className={twMerge(
+                        'font-semibold tracking-[-0.04em] text-[1.375rem] md:text-[1.5rem] text-gray-950 dark:text-white',
+                        isHomeStarter &&
+                          'font-ds-display text-ds-heading-3 font-light tracking-normal text-white',
+                      )}
+                    >
                       {title}
                     </h3>
                     {headerAction ? (
@@ -819,7 +844,12 @@ export function ApplicationStarter({
                   </div>
                 </div>
 
-                <div className="relative border-b border-gray-200 dark:border-gray-800">
+                <div
+                  className={twMerge(
+                    'relative border-b border-gray-200 dark:border-gray-800',
+                    isHomeStarter && 'border-b-0',
+                  )}
+                >
                   {showMigrationRepositoryInput ? (
                     <div className="border-b border-gray-200 px-5 py-4 dark:border-gray-800">
                       <div className="text-[10px] font-medium uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">
@@ -848,9 +878,11 @@ export function ApplicationStarter({
                     </div>
                   ) : null}
 
-                  <div className="px-5 pt-4 text-[10px] font-medium uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">
-                    Prompt
-                  </div>
+                  {isHomeStarter ? null : (
+                    <div className="px-5 pt-4 text-[10px] font-medium uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">
+                      Prompt
+                    </div>
+                  )}
                   <textarea
                     value={input}
                     onChange={(event) => {
@@ -879,27 +911,43 @@ export function ApplicationStarter({
                     className={twMerge(
                       'w-full min-h-28 bg-transparent px-5 pb-4 pt-1 text-sm leading-6 text-gray-900 outline-none transition-colors dark:text-white',
                       palette.ring,
+                      isHomeStarter &&
+                        'px-6 text-white placeholder:text-[#8f8f98]',
                     )}
                   />
 
                   {!showActionSection ? (
-                    <div className="border-t border-gray-200 px-5 py-4 dark:border-gray-800">
+                    <div
+                      className={twMerge(
+                        'border-t border-gray-200 px-5 py-4 dark:border-gray-800',
+                        isHomeStarter && 'border-t-0 px-6 pb-6 pt-2',
+                      )}
+                    >
                       <div className="flex flex-wrap items-center gap-3">
-                        {/* Figma "Filled" CTA: TanStack brand rainbow gradient,
-                            dark ink. Sends the prompt / reveals the stack. */}
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          type="submit"
-                          disabled={!canRevealOptions}
-                          className="rounded-[11px] border-transparent bg-[linear-gradient(117deg,#ff5f5f,#ffa05c,#fff27c,#74dcff)] font-ds-display font-bold text-ds-neutral-500 shadow-md transition-[filter] hover:text-ds-neutral-500 hover:brightness-105 disabled:grayscale"
-                        >
-                          Go
-                          <ArrowRight className="h-4 w-4" />
-                          {enableHotkeys ? (
-                            <SubmitShortcutHint isMac={isMacShortcutPlatform} />
-                          ) : null}
-                        </Button>
+                        {/* Home resting: a quiet Shift+Enter hint; once there's
+                            input the Figma "Filled" CTA (brand rainbow gradient)
+                            takes over. */}
+                        {isHomeStarter && !hasInput ? (
+                          <span className="font-ds-display text-xs font-extralight text-[#8f8f98]">
+                            Press Shift + Enter
+                          </span>
+                        ) : (
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            type="submit"
+                            disabled={!canRevealOptions}
+                            className="rounded-[11px] border-transparent bg-[linear-gradient(117deg,#ff5f5f,#ffa05c,#fff27c,#74dcff)] font-ds-display font-bold text-ds-neutral-500 shadow-md transition-[filter] hover:text-ds-neutral-500 hover:brightness-105 disabled:grayscale"
+                          >
+                            Go
+                            <ArrowRight className="h-4 w-4" />
+                            {enableHotkeys ? (
+                              <SubmitShortcutHint
+                                isMac={isMacShortcutPlatform}
+                              />
+                            ) : null}
+                          </Button>
+                        )}
                       </div>
                     </div>
                   ) : null}

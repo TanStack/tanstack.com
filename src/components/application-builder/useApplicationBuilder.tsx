@@ -102,7 +102,9 @@ export function useApplicationBuilder({
     () => getApplicationStarterPartnerSuggestions(partnerPlacementContext),
     [partnerPlacementContext],
   )
-  const [input, setInput] = React.useState(() => suggestions[0]?.input ?? '')
+  // Start empty so the prompt field shows the rotating suggestion placeholder;
+  // the user types their own, dictates, or accepts a suggestion via Shift+Enter.
+  const [input, setInput] = React.useState('')
   const [hasRevealedOptions, setHasRevealedOptions] = React.useState(
     revealOptionsImmediately,
   )

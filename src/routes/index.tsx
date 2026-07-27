@@ -1,8 +1,7 @@
 import * as React from 'react'
-import { ClientOnly, Link, createFileRoute } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 
 import discordImage from '~/images/discord-logo-white.svg'
-import { BrandContextMenu } from '~/components/BrandContextMenu'
 import { OptimizedImage } from '~/components/OptimizedImage'
 import { twMerge } from 'tailwind-merge'
 
@@ -49,33 +48,6 @@ export const Route = createFileRoute('/')({
   component: Index,
 })
 
-function HomeSplashLogo() {
-  return (
-    <>
-      <OptimizedImage
-        src="/images/logos/splash-light.png"
-        width={500}
-        height={500}
-        quality={85}
-        className="absolute inset-0 block h-full w-full object-contain dark:hidden"
-        alt="TanStack Logo"
-        loading="eager"
-        fetchPriority="high"
-      />
-      <OptimizedImage
-        src="/images/logos/splash-dark.png"
-        width={500}
-        height={500}
-        quality={85}
-        className="absolute inset-0 hidden h-full w-full object-contain dark:block"
-        alt="TanStack Logo"
-        loading="eager"
-        fetchPriority="high"
-      />
-    </>
-  )
-}
-
 function Index() {
   const { recentPosts } = Route.useLoaderData()
   const { openLibraries } = useLibrariesOverlay()
@@ -84,76 +56,55 @@ function Index() {
     <>
       <div className="max-w-full z-10 space-y-24">
         <div className="space-y-8">
-          <div className="flex flex-col items-center gap-4 xl:grid xl:grid-cols-[400px_minmax(0,44rem)] 2xl:grid-cols-[500px_minmax(0,48rem)] xl:items-center xl:justify-center xl:gap-8 xl:pt-24">
-            <div
-              className="relative w-[300px] pt-8 xl:w-[400px] xl:pt-0 2xl:w-[500px] [--ship-x:50px] [--ship-y:1.5rem] 
-            lg:[--ship-x:50px] lg:[--ship-y:1.5rem]
-            xl:[--ship-x:80px] xl:[--ship-y:2.5rem]
-            2xl:[--ship-x:90px] 2xl:[--ship-y:3rem]"
-            >
-              <ClientOnly>
-                <div className="absolute left-1/3 bottom-[25%] z-0 animate-ship-peek">
-                  <OptimizedImage
-                    src="/images/ship.png"
-                    alt=""
-                    width={240}
-                    height={240}
-                    className="w-16 xl:w-20"
-                  />
-                </div>
-                <Link
-                  to="/explore"
-                  className="absolute left-1/3 bottom-[25%] z-20 animate-ship-peek-clickable"
-                  title="Explore TanStack"
+          {/* Hero — Figma node 802:2027. Full-bleed palm/gradient photo card:
+              headline bottom-left, description + CTA bottom-right. The photo is
+              always light, so text uses a mode-stable dark token (neutral-500)
+              rather than a theme-flipping semantic. */}
+          <div className="mx-auto w-full max-w-[1021px] px-4 sm:px-6">
+            <div className="relative isolate flex min-h-[420px] flex-col justify-end gap-8 overflow-hidden rounded-xl p-6 sm:p-8 xl:min-h-[455px] xl:flex-row xl:items-end xl:justify-between xl:gap-12 xl:px-20 xl:py-10">
+              {/* Plain <img> (not OptimizedImage): the Cloudflare transform
+                  resolves against the production origin, so a newly-added asset
+                  404s until deployed. The source is pre-sized (2400px, q80). */}
+              <img
+                src="/images/hero-palm-gradient.jpg"
+                alt=""
+                width={2400}
+                height={1600}
+                loading="eager"
+                fetchPriority="high"
+                className="absolute inset-0 -z-20 h-full w-full object-cover object-[72%_center] xl:object-center"
+              />
+              {/* Below xl the text stacks over the palm; nudging the crop and a
+                  soft scrim keep the dark copy legible. Both removed at xl where
+                  the headline and description split around the centered palm
+                  (matching Figma). */}
+              <div
+                aria-hidden
+                className="absolute inset-0 -z-10 bg-white/35 xl:hidden"
+              />
+              <h1 className="max-w-[613px] font-ds-display text-ds-display-sm text-ds-neutral-500 sm:text-ds-display-md lg:text-ds-display-lg xl:text-ds-display-xl">
+                The{' '}
+                <span className="underline decoration-from-font underline-offset-[6px]">
+                  open source
+                </span>{' '}
+                application stack for the web
+              </h1>
+              <div className="flex flex-col items-start gap-6 xl:max-w-[454px]">
+                <p className="text-ds-body-xl text-ds-neutral-500">
+                  Headless, type-safe, composable tools for building modern web
+                  applications that work naturally for developers and reliably
+                  for agents
+                </p>
+                <Button
+                  as={Link}
+                  to="/libraries"
+                  variant="secondary"
+                  size="sm"
+                  className="h-10 rounded-[11px] border-transparent bg-white px-3.5 font-ds-display text-xs font-bold text-ds-neutral-400 shadow-sm hover:bg-white/90 hover:text-ds-neutral-500"
                 >
-                  <OptimizedImage
-                    src="/images/ship.png"
-                    alt="Explore TanStack"
-                    width={240}
-                    height={240}
-                    className="w-16 xl:w-20 opacity-0"
-                  />
-                </Link>
-              </ClientOnly>
-              <div className="relative z-10 aspect-square">
-                <BrandContextMenu className="cursor-pointer relative h-full w-full">
-                  <HomeSplashLogo />
-                </BrandContextMenu>
+                  Browse the Stack
+                </Button>
               </div>
-            </div>
-            <div className="flex w-full max-w-md flex-col items-center gap-6 px-4 text-center md:max-w-2xl xl:max-w-[44rem] xl:items-start xl:px-0 xl:text-left 2xl:max-w-[48rem]">
-              <div className="flex gap-2 lg:gap-4 items-center">
-                <h1
-                  className={`inline-block
-            font-black text-5xl
-            md:text-6xl
-            lg:text-8xl`}
-                >
-                  <span
-                    className={`
-            inline-block text-black dark:text-white
-            mb-2 uppercase [letter-spacing:-.02em] pr-1.5
-            `}
-                  >
-                    TanStack
-                  </span>
-                </h1>
-              </div>
-              <h2
-                className="font-bold text-2xl max-w-md
-            md:text-4xl md:max-w-2xl
-            2xl:text-5xl lg:max-w-2xl text-balance"
-              >
-                The <OpenSourceGradientText /> application stack for the web.
-              </h2>
-              <p
-                className="text opacity-90 max-w-sm
-             lg:text-xl lg:max-w-2xl text-balance"
-              >
-                Headless, type-safe, composable tools for building modern web
-                applications that work naturally for <strong>developers</strong>{' '}
-                and reliably for <strong>agents</strong>.
-              </p>
             </div>
           </div>
           <div className="mx-auto mt-8 w-full max-w-[1021px] px-4 sm:px-6 md:mt-10">
@@ -891,8 +842,4 @@ function IndependenceProof({ accentClassName }: { accentClassName: string }) {
       ))}
     </dl>
   )
-}
-
-function OpenSourceGradientText() {
-  return <span className="home-open-source-gradient">open-source</span>
 }

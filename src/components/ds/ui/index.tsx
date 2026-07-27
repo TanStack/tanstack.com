@@ -19,7 +19,13 @@ import type { LibraryCategory } from '~/libraries/categories'
 
 /* ----------------------------------------------------------------- Button -- */
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'icon' | 'link'
+type ButtonVariant =
+  | 'primary'
+  | 'secondary'
+  | 'ghost'
+  | 'icon'
+  | 'link'
+  | 'gradient'
 type ButtonColor =
   | 'neutral'
   | 'blue'
@@ -32,7 +38,7 @@ type ButtonColor =
   | 'cyan'
   | 'yellow'
 type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'icon-sm' | 'icon-md'
-type ButtonRounded = 'none' | 'md' | 'lg' | 'full'
+type ButtonRounded = 'none' | 'md' | 'lg' | 'xl' | 'full'
 
 // Polymorphic: defaults to <button>, but `as={Link}` / `as="a"` lets a CTA
 // render as a link while keeping the button styling. Mirrors the production
@@ -104,6 +110,31 @@ const linkColorStyles: Record<ButtonColor, string> = {
   yellow: 'text-ds-amber-400 hover:text-ds-amber-300',
 }
 
+// Gradient (landing-CTA) colors. Each color feeds the four --btn-grad-* vars
+// the `gradient` variant paints with: accent → bright gradient, tint inner
+// highlight, ink text, and a glow RGB triplet for the drop shadow. Sourced from
+// the category role tokens (src/styles/app.css) so this stays the single place
+// to manage the landing primary-CTA styling; purple has no category, so it maps
+// straight to the ds-purple ramp.
+const gradientColorStyles: Record<ButtonColor, string> = {
+  neutral:
+    '[--btn-grad-accent:var(--color-category-tooling-accent)] [--btn-grad-bright:var(--color-category-tooling-bright)] [--btn-grad-tint:var(--color-category-tooling-tint)] [--btn-grad-ink:var(--color-category-tooling-ink)] [--btn-grad-glow:var(--color-category-tooling-glow)]',
+  blue: '[--btn-grad-accent:var(--color-category-ui-accent)] [--btn-grad-bright:var(--color-category-ui-bright)] [--btn-grad-tint:var(--color-category-ui-tint)] [--btn-grad-ink:var(--color-category-ui-ink)] [--btn-grad-glow:var(--color-category-ui-glow)]',
+  green:
+    '[--btn-grad-accent:var(--color-category-framework-accent)] [--btn-grad-bright:var(--color-category-framework-bright)] [--btn-grad-tint:var(--color-category-framework-tint)] [--btn-grad-ink:var(--color-category-framework-ink)] [--btn-grad-glow:var(--color-category-framework-glow)]',
+  red: '[--btn-grad-accent:var(--color-category-data-accent)] [--btn-grad-bright:var(--color-category-data-bright)] [--btn-grad-tint:var(--color-category-data-tint)] [--btn-grad-ink:var(--color-category-data-ink)] [--btn-grad-glow:var(--color-category-data-glow)]',
+  orange:
+    '[--btn-grad-accent:var(--color-category-performance-accent)] [--btn-grad-bright:var(--color-category-performance-bright)] [--btn-grad-tint:var(--color-category-performance-tint)] [--btn-grad-ink:var(--color-category-performance-ink)] [--btn-grad-glow:var(--color-category-performance-glow)]',
+  purple:
+    '[--btn-grad-accent:var(--color-ds-purple-400)] [--btn-grad-bright:var(--color-ds-purple-300)] [--btn-grad-tint:var(--color-ds-purple-100)] [--btn-grad-ink:#ffffff] [--btn-grad-glow:175_87_188]',
+  gray: '[--btn-grad-accent:var(--color-category-tooling-accent)] [--btn-grad-bright:var(--color-category-tooling-bright)] [--btn-grad-tint:var(--color-category-tooling-tint)] [--btn-grad-ink:var(--color-category-tooling-ink)] [--btn-grad-glow:var(--color-category-tooling-glow)]',
+  emerald:
+    '[--btn-grad-accent:var(--color-category-framework-accent)] [--btn-grad-bright:var(--color-category-framework-bright)] [--btn-grad-tint:var(--color-category-framework-tint)] [--btn-grad-ink:var(--color-category-framework-ink)] [--btn-grad-glow:var(--color-category-framework-glow)]',
+  cyan: '[--btn-grad-accent:var(--color-category-ui-accent)] [--btn-grad-bright:var(--color-category-ui-bright)] [--btn-grad-tint:var(--color-category-ui-tint)] [--btn-grad-ink:var(--color-category-ui-ink)] [--btn-grad-glow:var(--color-category-ui-glow)]',
+  yellow:
+    '[--btn-grad-accent:var(--color-category-performance-accent)] [--btn-grad-bright:var(--color-category-performance-bright)] [--btn-grad-tint:var(--color-category-performance-tint)] [--btn-grad-ink:var(--color-category-performance-ink)] [--btn-grad-glow:var(--color-category-performance-glow)]',
+}
+
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
     'border font-medium shadow-[0_1px_2px_0_rgba(0,0,0,0.12),inset_0_1px_0_0_rgba(255,255,255,0.18)] hover:-translate-y-px hover:shadow-[0_6px_16px_-4px_rgba(0,0,0,0.28),inset_0_1px_0_0_rgba(255,255,255,0.25)] active:translate-y-0 active:shadow-[0_1px_2px_0_rgba(0,0,0,0.12)]',
@@ -113,6 +144,11 @@ const variantStyles: Record<ButtonVariant, string> = {
     'border border-border-default text-text-primary hover:bg-background-subtle hover:border-border-strong font-medium hover:shadow-sm',
   icon: 'border-transparent active:scale-90',
   link: 'border-transparent font-medium underline-offset-2 hover:underline',
+  // Library-landing primary CTA: accent→bright gradient with an inner highlight,
+  // a colored glow, ink text, and a hover lift. Colors come from
+  // gradientColorStyles (the --btn-grad-* vars).
+  gradient:
+    'border-transparent font-medium text-[var(--btn-grad-ink)] [background-image:linear-gradient(105deg,var(--btn-grad-accent),var(--btn-grad-bright))] shadow-[inset_-5px_-5px_7px_-5px_var(--btn-grad-tint),0_12px_35px_-6px_rgb(var(--btn-grad-glow)/0.35)] transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-[inset_-5px_-5px_7px_-5px_var(--btn-grad-tint),0_18px_45px_-6px_rgb(var(--btn-grad-glow)/0.5)] active:translate-y-0 focus-visible:ring-[var(--btn-grad-bright)]',
 }
 
 const sizeStyles: Record<ButtonSize, string> = {
@@ -128,6 +164,7 @@ const roundedStyles: Record<ButtonRounded, string> = {
   none: 'rounded-none',
   md: 'rounded-md',
   lg: 'rounded-lg',
+  xl: 'rounded-xl',
   full: 'rounded-full',
 }
 
@@ -136,6 +173,7 @@ const baseStyles =
 
 function getDefaultSize(variant: ButtonVariant): ButtonSize {
   if (variant === 'icon') return 'icon-md'
+  if (variant === 'gradient') return 'lg'
   return 'md'
 }
 
@@ -160,7 +198,8 @@ export const Button: ButtonComponent = React.forwardRef<
   } = props as ButtonOwnProps & Record<string, unknown>
   const Component = as || 'button'
   const resolvedSize = size ?? getDefaultSize(variant)
-  const resolvedRounded = rounded ?? getDefaultRounded(resolvedSize)
+  const resolvedRounded =
+    rounded ?? (variant === 'gradient' ? 'xl' : getDefaultRounded(resolvedSize))
   const colorStyles =
     variant === 'primary'
       ? primaryColorStyles[color]
@@ -168,7 +207,9 @@ export const Button: ButtonComponent = React.forwardRef<
         ? iconColorStyles[color]
         : variant === 'link'
           ? linkColorStyles[color]
-          : ''
+          : variant === 'gradient'
+            ? gradientColorStyles[color]
+            : ''
 
   return React.createElement(
     Component,

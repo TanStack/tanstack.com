@@ -1,6 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
 import {
   ArrowRight,
+  CaretDown,
+  Check,
   Download,
   Plus,
   MagnifyingGlass,
@@ -8,7 +10,14 @@ import {
   Trash,
 } from '@phosphor-icons/react'
 import { seo } from '~/utils/seo'
-import { Button } from '~/components/ds/ui'
+import {
+  Button,
+  Dropdown,
+  DropdownContent,
+  DropdownItem,
+  DropdownSeparator,
+  DropdownTrigger,
+} from '~/components/ds/ui'
 import { ButtonGroup } from '~/components/ButtonGroup'
 import { ComponentPreview, DsPage, DsSection } from '~/components/ds/DsKit'
 
@@ -57,6 +66,39 @@ function ButtonsPage() {
           <Button variant="link">Link</Button>
           <Button variant="icon" aria-label="Add">
             <Plus className="h-4 w-4" />
+          </Button>
+        </ComponentPreview>
+      </DsSection>
+
+      <DsSection
+        title="Gradient (landing CTA)"
+        description="The library-landing primary call-to-action, promoted to a Button variant so the styling lives here: an accent→bright gradient with an inner highlight, a colored glow, ink text, and a hover lift. Colors map to the category accents (src/styles/app.css)."
+      >
+        <ComponentPreview
+          code={`<Button variant="gradient" color="green">Get started</Button>
+<Button variant="gradient" color="red">Get started</Button>
+<Button variant="gradient" color="blue">Get started</Button>
+<Button variant="gradient" color="orange">Get started</Button>
+<Button variant="gradient" color="purple">Get started</Button>
+<Button variant="gradient">Copy prompt <ArrowRight /></Button>`}
+        >
+          <Button variant="gradient" color="green">
+            Get started
+          </Button>
+          <Button variant="gradient" color="red">
+            Get started
+          </Button>
+          <Button variant="gradient" color="blue">
+            Get started
+          </Button>
+          <Button variant="gradient" color="orange">
+            Get started
+          </Button>
+          <Button variant="gradient" color="purple">
+            Get started
+          </Button>
+          <Button variant="gradient">
+            Copy prompt <ArrowRight className="h-4 w-4" />
           </Button>
         </ComponentPreview>
       </DsSection>
@@ -191,6 +233,90 @@ function ButtonsPage() {
               Month
             </Button>
           </ButtonGroup>
+        </ComponentPreview>
+      </DsSection>
+
+      <DsSection
+        title="Leading & trailing icons"
+        description="Icons sit inline with the label (baseStyles gap-2). Lead with an icon to reinforce the action, or trail one for direction, disclosure, or download — across any variant and color."
+      >
+        <ComponentPreview
+          code={`{/* leading */}
+<Button><Plus /> New project</Button>
+<Button variant="secondary"><Gear /> Settings</Button>
+<Button variant="ghost" color="red"><Trash /> Delete</Button>
+{/* trailing */}
+<Button>Continue <ArrowRight /></Button>
+<Button variant="secondary">Export <Download /></Button>
+<Button variant="ghost">Options <CaretDown /></Button>
+<Button color="green">Save <Check /></Button>`}
+        >
+          <Button>
+            <Plus className="h-4 w-4" /> New project
+          </Button>
+          <Button variant="secondary">
+            <Gear className="h-4 w-4" /> Settings
+          </Button>
+          <Button variant="ghost" color="red">
+            <Trash className="h-4 w-4" /> Delete
+          </Button>
+          <Button>
+            Continue <ArrowRight className="h-4 w-4" />
+          </Button>
+          <Button variant="secondary">
+            Export <Download className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost">
+            Options <CaretDown className="h-4 w-4" />
+          </Button>
+          <Button color="green">
+            Save <Check className="h-4 w-4" />
+          </Button>
+        </ComponentPreview>
+      </DsSection>
+
+      <DsSection
+        title="Split button"
+        description="A primary action paired with a dropdown selector for related choices. Click the caret to open the menu. Composed from Button + the Dropdown primitives."
+      >
+        <ComponentPreview
+          code={`<div className="inline-flex overflow-hidden rounded-lg">
+  <Button rounded="none">Deploy</Button>
+  <Dropdown>
+    <DropdownTrigger>
+      <Button rounded="none" aria-label="More deploy options" className="border-l border-white/20 px-2">
+        <CaretDown />
+      </Button>
+    </DropdownTrigger>
+    <DropdownContent align="end">
+      <DropdownItem>Deploy to production</DropdownItem>
+      <DropdownItem>Deploy a preview</DropdownItem>
+      <DropdownSeparator />
+      <DropdownItem>Configure…</DropdownItem>
+    </DropdownContent>
+  </Dropdown>
+</div>`}
+        >
+          <div className="inline-flex overflow-hidden rounded-lg">
+            <Button rounded="none">Deploy</Button>
+            <Dropdown>
+              <DropdownTrigger>
+                <Button
+                  rounded="none"
+                  aria-label="More deploy options"
+                  className="border-l border-white/20 px-2"
+                >
+                  <CaretDown className="h-4 w-4" />
+                </Button>
+              </DropdownTrigger>
+              <DropdownContent align="end">
+                <DropdownItem>Deploy to production</DropdownItem>
+                <DropdownItem>Deploy a preview</DropdownItem>
+                <DropdownSeparator />
+                <DropdownItem>Configure…</DropdownItem>
+              </DropdownContent>
+            </Dropdown>
+          </div>
         </ComponentPreview>
       </DsSection>
     </DsPage>

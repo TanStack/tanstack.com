@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Link } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
-import { ArrowSquareOut } from '@phosphor-icons/react'
+import { ArrowSquareOut, IconContext } from '@phosphor-icons/react'
 
 type IconComponent = React.ComponentType<{ className?: string }>
 
@@ -67,11 +67,15 @@ export function MegaMenuItem({
   const content = (
     <>
       {/* Figma "Menu Icon": 44px box (rounded-6) with 6px padding around a
-          32px glyph, so the icon reads consistently across rows. */}
+          32px glyph, so the icon reads consistently across rows. `weight=light`
+          (via IconContext) thins the Phosphor strokes; custom SVG icons ignore
+          it. */}
       {Icon ? (
-        <span className="flex size-11 shrink-0 items-center justify-center rounded-md">
-          <Icon className="h-8 w-8 text-text-secondary" />
-        </span>
+        <IconContext.Provider value={{ weight: 'light' }}>
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-md">
+            <Icon className="h-8 w-8 text-text-secondary" />
+          </span>
+        </IconContext.Provider>
       ) : null}
       <span className="flex min-w-0 flex-1 flex-col gap-1.5">
         <span className="flex items-center gap-2">
@@ -82,7 +86,7 @@ export function MegaMenuItem({
             {title}
           </span>
           {badge ? (
-            <span className="rounded-md border border-status-success/50 px-1.5 py-0.5 text-[0.6rem] font-black uppercase leading-none text-status-success">
+            <span className="rounded-md bg-status-success px-1.5 py-0.5 text-[0.6rem] font-black uppercase leading-none text-text-inverse">
               {badge}
             </span>
           ) : null}

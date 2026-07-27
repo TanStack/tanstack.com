@@ -594,7 +594,6 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       className={twMerge(
         'w-full h-[var(--navbar-height)] px-3 py-2 min-[900px]:px-5 fixed top-0 z-[100] bg-white/90 dark:bg-black/90 backdrop-blur-lg',
         'flex items-center justify-between gap-2 min-[1120px]:gap-4',
-        'border-b border-gray-500/20',
       )}
       ref={containerRef}
     >
@@ -741,7 +740,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         data-site-content
         className={twMerge(
           `min-h-[calc(100dvh-var(--navbar-height))] flex flex-col
-          min-w-0 w-full transition-[filter] duration-200 motion-reduce:transition-none
+          min-w-0 w-full overflow-x-clip transition-[filter] duration-200 motion-reduce:transition-none
           pt-[var(--navbar-height)]`,
           siteBackdropActive ? 'blur-[4px]' : 'filter-none',
         )}
@@ -769,7 +768,7 @@ function DesktopNavTrigger({
   const { openLibraries } = useLibrariesOverlay()
   const triggerClassName = twMerge(
     'ts-mega-trigger inline-flex items-center gap-1 rounded-md px-2 py-2 text-xs font-medium min-[1120px]:gap-1.5 min-[1120px]:px-3 min-[1120px]:text-[13px]',
-    'text-gray-700 transition-colors hover:bg-gray-500/10 hover:text-gray-950',
+    'text-gray-700 transition-colors hover:bg-text-primary/[0.04] hover:text-gray-950',
     'dark:text-gray-300 dark:hover:text-white',
   )
 

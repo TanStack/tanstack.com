@@ -65,6 +65,15 @@ export function resolveDocsPathRedirect({
     return { type: 'redirect', docsPath: frameworkRedirectTarget }
   }
 
+  const sectionIndexRedirectTarget = getSectionIndexRedirectTarget({
+    knownPaths,
+    requestedPath,
+  })
+
+  if (sectionIndexRedirectTarget !== null) {
+    return { type: 'redirect', docsPath: sectionIndexRedirectTarget }
+  }
+
   return { type: 'not-found' }
 }
 
@@ -174,6 +183,25 @@ function getExistingCandidate(
   }
 
   return null
+}
+
+function getSectionIndexRedirectTarget(opts: {
+  knownPaths: Set<string>
+  requestedPath: string
+}) {
+  const [firstSegment] = opts.requestedPath.split('/')
+  const indexableSections = new Set(['api', 'reference'])
+
+  if (
+    !firstSegment ||
+    !indexableSections.has(firstSegment) ||
+    firstSegment === opts.requestedPath ||
+    !opts.knownPaths.has(firstSegment)
+  ) {
+    return null
+  }
+
+  return firstSegment
 }
 
 function normalizeManifestPath(path: string) {

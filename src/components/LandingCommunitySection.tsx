@@ -41,7 +41,7 @@ export function LandingCommunitySection({
     >
       <div className="flex flex-col gap-20 md:gap-24">
         <MaintainersSection libraryId={libraryId} />
-        <PartnersSection libraryId={libraryId} />
+        <PartnersSection />
       </div>
     </Hydrate>
   )

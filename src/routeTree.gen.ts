@@ -131,8 +131,10 @@ import { Route as LibraryRouterVersionIndexRouteImport } from './routes/_library
 import { Route as LibraryRangerVersionIndexRouteImport } from './routes/_library/ranger.$version.index'
 import { Route as LibraryQueryVersionIndexRouteImport } from './routes/_library/query.$version.index'
 import { Route as LibraryPacerVersionIndexRouteImport } from './routes/_library/pacer.$version.index'
+import { Route as LibraryMarkdownVersionIndexRouteImport } from './routes/_library/markdown.$version.index'
 import { Route as LibraryIntentVersionIndexRouteImport } from './routes/_library/intent.$version.index'
 import { Route as LibraryHotkeysVersionIndexRouteImport } from './routes/_library/hotkeys.$version.index'
+import { Route as LibraryHighlightVersionIndexRouteImport } from './routes/_library/highlight.$version.index'
 import { Route as LibraryFormVersionIndexRouteImport } from './routes/_library/form.$version.index'
 import { Route as LibraryDevtoolsVersionIndexRouteImport } from './routes/_library/devtools.$version.index'
 import { Route as LibraryDbVersionIndexRouteImport } from './routes/_library/db.$version.index'
@@ -790,6 +792,12 @@ const LibraryPacerVersionIndexRoute =
     path: '/pacer/$version/',
     getParentRoute: () => LibraryRoute,
   } as any)
+const LibraryMarkdownVersionIndexRoute =
+  LibraryMarkdownVersionIndexRouteImport.update({
+    id: '/markdown/$version/',
+    path: '/markdown/$version/',
+    getParentRoute: () => LibraryRoute,
+  } as any)
 const LibraryIntentVersionIndexRoute =
   LibraryIntentVersionIndexRouteImport.update({
     id: '/intent/$version/',
@@ -800,6 +808,12 @@ const LibraryHotkeysVersionIndexRoute =
   LibraryHotkeysVersionIndexRouteImport.update({
     id: '/hotkeys/$version/',
     path: '/hotkeys/$version/',
+    getParentRoute: () => LibraryRoute,
+  } as any)
+const LibraryHighlightVersionIndexRoute =
+  LibraryHighlightVersionIndexRouteImport.update({
+    id: '/highlight/$version/',
+    path: '/highlight/$version/',
     getParentRoute: () => LibraryRoute,
   } as any)
 const LibraryFormVersionIndexRoute = LibraryFormVersionIndexRouteImport.update({
@@ -1099,8 +1113,10 @@ export interface FileRoutesByFullPath {
   '/db/$version/': typeof LibraryDbVersionIndexRoute
   '/devtools/$version/': typeof LibraryDevtoolsVersionIndexRoute
   '/form/$version/': typeof LibraryFormVersionIndexRoute
+  '/highlight/$version/': typeof LibraryHighlightVersionIndexRoute
   '/hotkeys/$version/': typeof LibraryHotkeysVersionIndexRoute
   '/intent/$version/': typeof LibraryIntentVersionIndexRoute
+  '/markdown/$version/': typeof LibraryMarkdownVersionIndexRoute
   '/pacer/$version/': typeof LibraryPacerVersionIndexRoute
   '/query/$version/': typeof LibraryQueryVersionIndexRoute
   '/ranger/$version/': typeof LibraryRangerVersionIndexRoute
@@ -1243,8 +1259,10 @@ export interface FileRoutesByTo {
   '/db/$version': typeof LibraryDbVersionIndexRoute
   '/devtools/$version': typeof LibraryDevtoolsVersionIndexRoute
   '/form/$version': typeof LibraryFormVersionIndexRoute
+  '/highlight/$version': typeof LibraryHighlightVersionIndexRoute
   '/hotkeys/$version': typeof LibraryHotkeysVersionIndexRoute
   '/intent/$version': typeof LibraryIntentVersionIndexRoute
+  '/markdown/$version': typeof LibraryMarkdownVersionIndexRoute
   '/pacer/$version': typeof LibraryPacerVersionIndexRoute
   '/query/$version': typeof LibraryQueryVersionIndexRoute
   '/ranger/$version': typeof LibraryRangerVersionIndexRoute
@@ -1399,8 +1417,10 @@ export interface FileRoutesById {
   '/_library/db/$version/': typeof LibraryDbVersionIndexRoute
   '/_library/devtools/$version/': typeof LibraryDevtoolsVersionIndexRoute
   '/_library/form/$version/': typeof LibraryFormVersionIndexRoute
+  '/_library/highlight/$version/': typeof LibraryHighlightVersionIndexRoute
   '/_library/hotkeys/$version/': typeof LibraryHotkeysVersionIndexRoute
   '/_library/intent/$version/': typeof LibraryIntentVersionIndexRoute
+  '/_library/markdown/$version/': typeof LibraryMarkdownVersionIndexRoute
   '/_library/pacer/$version/': typeof LibraryPacerVersionIndexRoute
   '/_library/query/$version/': typeof LibraryQueryVersionIndexRoute
   '/_library/ranger/$version/': typeof LibraryRangerVersionIndexRoute
@@ -1555,8 +1575,10 @@ export interface FileRouteTypes {
     | '/db/$version/'
     | '/devtools/$version/'
     | '/form/$version/'
+    | '/highlight/$version/'
     | '/hotkeys/$version/'
     | '/intent/$version/'
+    | '/markdown/$version/'
     | '/pacer/$version/'
     | '/query/$version/'
     | '/ranger/$version/'
@@ -1699,8 +1721,10 @@ export interface FileRouteTypes {
     | '/db/$version'
     | '/devtools/$version'
     | '/form/$version'
+    | '/highlight/$version'
     | '/hotkeys/$version'
     | '/intent/$version'
+    | '/markdown/$version'
     | '/pacer/$version'
     | '/query/$version'
     | '/ranger/$version'
@@ -1854,8 +1878,10 @@ export interface FileRouteTypes {
     | '/_library/db/$version/'
     | '/_library/devtools/$version/'
     | '/_library/form/$version/'
+    | '/_library/highlight/$version/'
     | '/_library/hotkeys/$version/'
     | '/_library/intent/$version/'
+    | '/_library/markdown/$version/'
     | '/_library/pacer/$version/'
     | '/_library/query/$version/'
     | '/_library/ranger/$version/'
@@ -2819,6 +2845,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryPacerVersionIndexRouteImport
       parentRoute: typeof LibraryRoute
     }
+    '/_library/markdown/$version/': {
+      id: '/_library/markdown/$version/'
+      path: '/markdown/$version'
+      fullPath: '/markdown/$version/'
+      preLoaderRoute: typeof LibraryMarkdownVersionIndexRouteImport
+      parentRoute: typeof LibraryRoute
+    }
     '/_library/intent/$version/': {
       id: '/_library/intent/$version/'
       path: '/intent/$version'
@@ -2831,6 +2864,13 @@ declare module '@tanstack/react-router' {
       path: '/hotkeys/$version'
       fullPath: '/hotkeys/$version/'
       preLoaderRoute: typeof LibraryHotkeysVersionIndexRouteImport
+      parentRoute: typeof LibraryRoute
+    }
+    '/_library/highlight/$version/': {
+      id: '/_library/highlight/$version/'
+      path: '/highlight/$version'
+      fullPath: '/highlight/$version/'
+      preLoaderRoute: typeof LibraryHighlightVersionIndexRouteImport
       parentRoute: typeof LibraryRoute
     }
     '/_library/form/$version/': {
@@ -3184,8 +3224,10 @@ interface LibraryRouteChildren {
   LibraryDbVersionIndexRoute: typeof LibraryDbVersionIndexRoute
   LibraryDevtoolsVersionIndexRoute: typeof LibraryDevtoolsVersionIndexRoute
   LibraryFormVersionIndexRoute: typeof LibraryFormVersionIndexRoute
+  LibraryHighlightVersionIndexRoute: typeof LibraryHighlightVersionIndexRoute
   LibraryHotkeysVersionIndexRoute: typeof LibraryHotkeysVersionIndexRoute
   LibraryIntentVersionIndexRoute: typeof LibraryIntentVersionIndexRoute
+  LibraryMarkdownVersionIndexRoute: typeof LibraryMarkdownVersionIndexRoute
   LibraryPacerVersionIndexRoute: typeof LibraryPacerVersionIndexRoute
   LibraryQueryVersionIndexRoute: typeof LibraryQueryVersionIndexRoute
   LibraryRangerVersionIndexRoute: typeof LibraryRangerVersionIndexRoute
@@ -3205,8 +3247,10 @@ const LibraryRouteChildren: LibraryRouteChildren = {
   LibraryDbVersionIndexRoute: LibraryDbVersionIndexRoute,
   LibraryDevtoolsVersionIndexRoute: LibraryDevtoolsVersionIndexRoute,
   LibraryFormVersionIndexRoute: LibraryFormVersionIndexRoute,
+  LibraryHighlightVersionIndexRoute: LibraryHighlightVersionIndexRoute,
   LibraryHotkeysVersionIndexRoute: LibraryHotkeysVersionIndexRoute,
   LibraryIntentVersionIndexRoute: LibraryIntentVersionIndexRoute,
+  LibraryMarkdownVersionIndexRoute: LibraryMarkdownVersionIndexRoute,
   LibraryPacerVersionIndexRoute: LibraryPacerVersionIndexRoute,
   LibraryQueryVersionIndexRoute: LibraryQueryVersionIndexRoute,
   LibraryRangerVersionIndexRoute: LibraryRangerVersionIndexRoute,

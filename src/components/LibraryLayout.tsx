@@ -1284,7 +1284,7 @@ export function LibraryLayout({
         <div className="relative flex min-w-0 flex-1 items-stretch">
           <nav
             aria-label="Documentation sections"
-            className="flex min-w-0 flex-1 items-stretch gap-3 overflow-x-auto px-3 text-xs min-[1120px]:gap-6 min-[1120px]:px-6 min-[1120px]:text-[13px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="flex min-w-0 flex-1 items-stretch gap-3 overflow-x-auto overflow-y-hidden px-3 text-xs min-[1120px]:gap-6 min-[1120px]:px-6 min-[1120px]:text-[13px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             {tabbedMenuConfig.map((tab) => {
               const target = tab.firstItem

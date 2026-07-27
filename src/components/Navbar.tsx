@@ -63,6 +63,11 @@ import { groupToSlug } from '~/components/stack/stack-categories'
 import { getProducts } from '~/utils/shop.functions'
 import { formatMoney, shopifyImageUrl } from '~/utils/shopify-format'
 import type { ProductListItem } from '~/utils/shopify-queries'
+import type { PartnerPlacement } from '~/utils/analytics'
+import {
+  PARTNER_INQUIRY_HREF,
+  trackPartnerInquiry,
+} from '~/utils/partner-inquiry'
 
 type LogoProps = {
   title?: React.ComponentType | null
@@ -112,6 +117,7 @@ type NavMenuKey =
   | 'support'
 
 type NavMenuItem = {
+  analyticsPlacement?: PartnerPlacement
   label: string
   to: string
   hash?: string
@@ -344,8 +350,9 @@ const NAV_GROUPS = [
       title: 'Work with TanStack',
       description: 'Sponsorships, placements, and partner pages.',
       item: {
+        analyticsPlacement: 'navbar',
         label: 'Partnership Inquiry',
-        to: 'mailto:partners@tanstack.com?subject=TanStack Partnership Inquiry',
+        to: PARTNER_INQUIRY_HREF,
         icon: Mail,
       },
     },
@@ -1414,7 +1421,12 @@ function MenuItemLink({
         target={item.to.startsWith('mailto:') ? undefined : '_blank'}
         rel={item.to.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
         className={className}
-        onClick={onNavigate}
+        onClick={() => {
+          onNavigate()
+          if (item.analyticsPlacement) {
+            trackPartnerInquiry(item.analyticsPlacement)
+          }
+        }}
       >
         {content}
       </a>

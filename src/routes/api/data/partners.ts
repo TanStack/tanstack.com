@@ -24,8 +24,19 @@ export const Route = createFileRoute('/api/data/partners')({
             description: p.llmDescription,
             category: p.category,
             categoryLabel: partnerCategoryLabels[p.category],
-            libraries: p.libraries || [],
+            partnershipScope: 'tanstack',
+            relatedProducts: p.relatedProducts || [],
+            tier: p.tier,
+            lastReviewedAt: p.lastReviewedAt,
             url: p.href,
+            websiteUrl: p.canonicalHref ?? p.href,
+            partnerPageUrl: `https://tanstack.com/partners/${p.id}`,
+            resources: (p.resources ?? []).map((resource) => ({
+              ...resource,
+              href: resource.href.startsWith('/')
+                ? `https://tanstack.com${resource.href}`
+                : resource.href,
+            })),
           }))
 
         return new Response(

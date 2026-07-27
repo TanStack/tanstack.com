@@ -12,6 +12,7 @@ import {
 } from '@radix-ui/react-dropdown-menu'
 import { twMerge } from 'tailwind-merge'
 import { Tooltip } from '~/components/Tooltip'
+import { observablePlotClassName } from '~/components/charts/PlotContainer'
 import {
   binningOptionsByType,
   getHistoryStartDate,
@@ -4256,6 +4257,7 @@ export function NPMStatsChart({
           plotRef={plotRef}
           showLegend={showLegend}
           options={{
+            className: observablePlotClassName,
             marginLeft,
             marginRight,
             marginBottom: isLatestVerticalBar
@@ -4263,7 +4265,7 @@ export function NPMStatsChart({
               : 70,
             width,
             height,
-            clip: hasTimelineZoom ? true : undefined,
+            style: { overflow: 'visible' },
             marks: (
               [
                 isHorizontalBar
@@ -4289,6 +4291,7 @@ export function NPMStatsChart({
                         strokeDasharray: '2 4',
                         strokeOpacity: 0.8,
                         curve: 'monotone-x',
+                        clip: hasTimelineZoom ? true : undefined,
                       },
                     )
                   : undefined,
@@ -4300,6 +4303,7 @@ export function NPMStatsChart({
                         stroke: getStrokeColor,
                         strokeWidth: 2,
                         curve: 'monotone-x',
+                        clip: hasTimelineZoom ? true : undefined,
                       },
                     )
                   : undefined,
@@ -4329,6 +4333,7 @@ export function NPMStatsChart({
                       z: 'seriesName',
                       fill: getSeriesGradientFill,
                       curve: 'monotone-x',
+                      clip: hasTimelineZoom ? true : undefined,
                     })
                   : undefined,
                 viewMode === 'history' && chartType === 'stacked-stream'
@@ -4339,6 +4344,7 @@ export function NPMStatsChart({
                       z: 'seriesName',
                       fill: getSeriesGradientFill,
                       curve: 'monotone-x',
+                      clip: hasTimelineZoom ? true : undefined,
                     })
                   : undefined,
                 viewMode === 'history' &&
@@ -4353,6 +4359,7 @@ export function NPMStatsChart({
                       strokeWidth: 1.4,
                       strokeOpacity: 0.95,
                       curve: 'monotone-x',
+                      clip: hasTimelineZoom ? true : undefined,
                     })
                   : undefined,
                 viewMode === 'history' &&

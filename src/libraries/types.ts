@@ -6,6 +6,7 @@ export type { LibraryId } from './ids'
 export type Framework =
   | 'angular'
   | 'alpine'
+  | 'ember'
   | 'lit'
   | 'marko'
   | 'preact'

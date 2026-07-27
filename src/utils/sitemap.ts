@@ -2,6 +2,7 @@ import { getBranch, libraries } from '~/libraries'
 import type { LibrarySlim } from '~/libraries/types'
 import { getPublishedPosts } from '~/utils/blog'
 import { getDocsManifest } from '~/utils/docs'
+import { getPartnerSitemapEntries } from '~/utils/partner-pages'
 import { SITE_URL } from '~/utils/site'
 
 export type SitemapEntry = {
@@ -117,6 +118,7 @@ export async function getSitemapEntries(): Promise<Array<SitemapEntry>> {
     ...getLibraryEntries(),
     ...docsEntries.flat(),
     ...getBlogEntries(),
+    ...getPartnerSitemapEntries(),
   ].filter(
     (entry) =>
       entry.path !== '/intent/registry' &&

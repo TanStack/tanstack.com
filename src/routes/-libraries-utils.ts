@@ -41,3 +41,17 @@ export function getFrameworkLibraryCounts(allLibraries: Array<LibrarySlim>) {
 
   return counts
 }
+
+export function orderFrameworksForBrowse<
+  TFramework extends { value: Framework },
+>(
+  frameworks: ReadonlyArray<TFramework>,
+  counts: Partial<Record<Framework, number>>,
+) {
+  return [...frameworks].sort((a, b) => {
+    if (a.value === 'vanilla') return 1
+    if (b.value === 'vanilla') return -1
+
+    return (counts[b.value] ?? 0) - (counts[a.value] ?? 0)
+  })
+}

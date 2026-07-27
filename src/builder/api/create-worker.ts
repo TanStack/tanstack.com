@@ -21,6 +21,7 @@ type GeneratedTemplateContext = WorkerTemplateContext & {
   projectName: unknown
   typescript: unknown
   tailwind: unknown
+  blank: unknown
   js: unknown
   jsx: unknown
   fileRouter: unknown
@@ -62,6 +63,7 @@ type WorkerAddOnPhase = WorkerAddOnManifest['phase']
 type WorkerAddOnCategory = NonNullable<WorkerAddOnManifest['category']>
 type WorkerAddOnExclusive = NonNullable<WorkerAddOnManifest['exclusive']>[number]
 type WorkerAddOnEnvVar = NonNullable<WorkerAddOnManifest['envVars']>[number]
+type WorkerAddOnPartner = NonNullable<WorkerAddOnManifest['partner']>
 type WorkerAddOnOptions = NonNullable<WorkerAddOnManifest['options']>
 type WorkerAddOnOption = WorkerAddOnOptions[string]
 type WorkerAddOnPackageAdditions = NonNullable<
@@ -71,6 +73,10 @@ type GeneratedStringRecord = Record<string, string | undefined>
 type GeneratedAddOnPackageAdditions = {
   dependencies?: GeneratedStringRecord
   devDependencies?: GeneratedStringRecord
+  engines?: GeneratedStringRecord
+  pnpm?: {
+    onlyBuiltDependencies?: Array<string>
+  }
   scripts?: GeneratedStringRecord
 }
 type GeneratedAddOnEnvVar = Omit<WorkerAddOnEnvVar, 'file'> & {
@@ -78,6 +84,9 @@ type GeneratedAddOnEnvVar = Omit<WorkerAddOnEnvVar, 'file'> & {
 }
 type GeneratedAddOnOption = Omit<WorkerAddOnOption, 'type'> & {
   type: string
+}
+type GeneratedAddOnPartner = Omit<WorkerAddOnPartner, 'tier'> & {
+  tier: string
 }
 type GeneratedAddOnOptions = Record<string, GeneratedAddOnOption | undefined>
 type GeneratedAddOnFields = {
@@ -87,6 +96,7 @@ type GeneratedAddOnFields = {
   exclusive?: Array<string>
   envVars?: Array<GeneratedAddOnEnvVar>
   options?: GeneratedAddOnOptions
+  partner?: GeneratedAddOnPartner
 }
 type GeneratedAddOnManifest = Omit<
   WorkerAddOnManifest,
@@ -96,6 +106,7 @@ type GeneratedAddOnManifest = Omit<
   | 'exclusive'
   | 'envVars'
   | 'options'
+  | 'partner'
   | 'packageAdditions'
 > &
   GeneratedAddOnFields & {
@@ -109,6 +120,7 @@ type GeneratedAddOnMetadata = Omit<
   | 'exclusive'
   | 'envVars'
   | 'options'
+  | 'partner'
   | 'packageAdditions'
 > &
   GeneratedAddOnFields & {
@@ -136,6 +148,7 @@ function getGeneratedTemplateContext(
     projectName: context.projectName,
     typescript: context.typescript,
     tailwind: context.tailwind,
+    blank: context.blank,
     js: context.js,
     jsx: context.jsx,
     fileRouter: context.fileRouter,
@@ -238,6 +251,28 @@ function getAddOnExclusive(exclusive: string): WorkerAddOnExclusive {
   }
 }
 
+function getAddOnPartnerTier(tier: string): WorkerAddOnPartner['tier'] {
+  switch (tier) {
+    case 'gold':
+    case 'silver':
+    case 'bronze':
+      return tier
+    default:
+      throw new Error(`Unsupported partner tier: ${tier}`)
+  }
+}
+
+function getAddOnPartner(
+  partner: GeneratedAddOnPartner | undefined,
+): WorkerAddOnManifest['partner'] {
+  if (!partner) return undefined
+
+  return {
+    ...partner,
+    tier: getAddOnPartnerTier(partner.tier),
+  }
+}
+
 function getAddOnEnvFile(file: string | undefined): WorkerAddOnEnvVar['file'] {
   switch (file) {
     case undefined:
@@ -310,6 +345,8 @@ function getPackageAdditions(
   const normalizedPackageAdditions: WorkerAddOnPackageAdditions = {
     dependencies: getStringRecord(packageAdditions.dependencies),
     devDependencies: getStringRecord(packageAdditions.devDependencies),
+    engines: getStringRecord(packageAdditions.engines),
+    pnpm: packageAdditions.pnpm,
     scripts: getStringRecord(packageAdditions.scripts),
   }
 
@@ -327,6 +364,7 @@ function getAddOnMetadata(
     exclusive: addOn.exclusive?.map(getAddOnExclusive),
     envVars: getAddOnEnvVars(addOn.envVars),
     options: getAddOnOptions(addOn.options),
+    partner: getAddOnPartner(addOn.partner),
     packageAdditions: getPackageAdditions(addOn.packageAdditions),
   }
 }
@@ -340,6 +378,7 @@ function getAddOnManifest(addOn: GeneratedAddOnManifest): WorkerAddOnManifest {
     exclusive: addOn.exclusive?.map(getAddOnExclusive),
     envVars: getAddOnEnvVars(addOn.envVars),
     options: getAddOnOptions(addOn.options),
+    partner: getAddOnPartner(addOn.partner),
     packageAdditions: getPackageAdditions(addOn.packageAdditions),
   }
 }
@@ -376,6 +415,12 @@ function loadAddOn(
   }
 }
 
+function defineAddOnLoaders(
+  loaders: Record<string, () => Promise<WorkerAddOnManifestModule>>,
+) {
+  return loaders
+}
+
 const frameworkLoaders: Record<
   string,
   () => Promise<WorkerFrameworkManifestModule>
@@ -388,7 +433,7 @@ const frameworkLoaders: Record<
   ),
 }
 
-const reactAddOnLoaders = {
+const reactAddOnLoaders = defineAddOnLoaders({
   ai: loadAddOn(() =>
     import('@tanstack/create/worker-manifest/frameworks/react/add-ons/ai'),
   ),
@@ -512,9 +557,9 @@ const reactAddOnLoaders = {
   workos: loadAddOn(() =>
     import('@tanstack/create/worker-manifest/frameworks/react/add-ons/workos'),
   ),
-} satisfies Record<string, () => Promise<WorkerAddOnManifestModule>>
+})
 
-const solidAddOnLoaders = {
+const solidAddOnLoaders = defineAddOnLoaders({
   'better-auth': loadAddOn(() =>
     import(
       '@tanstack/create/worker-manifest/frameworks/solid/add-ons/better-auth'
@@ -571,7 +616,7 @@ const solidAddOnLoaders = {
       '@tanstack/create/worker-manifest/frameworks/solid/add-ons/tanstack-query'
     ),
   ),
-} satisfies Record<string, () => Promise<WorkerAddOnManifestModule>>
+})
 
 const addOnLoaders: Record<
   string,

@@ -942,13 +942,24 @@ export function useApplicationBuilder({
     [invalidateResult, markUserEditedStarter],
   )
 
-  const submitCurrentInput = React.useCallback(async () => {
-    if (!input.trim()) {
-      return
-    }
+  const submitCurrentInput = React.useCallback(
+    // `overrideInput` lets callers submit a value that isn't in state yet (e.g.
+    // accepting the rotating placeholder via Shift+Enter) without a state race.
+    async (overrideInput?: string) => {
+      const value = overrideInput ?? input
+      if (!value.trim()) {
+        return
+      }
 
-    setHasRevealedOptions(true)
-  }, [input])
+      if (overrideInput !== undefined && overrideInput !== input) {
+        markInputDirty()
+        setInput(overrideInput)
+      }
+
+      setHasRevealedOptions(true)
+    },
+    [input, markInputDirty],
+  )
 
   return {
     copiedKind,

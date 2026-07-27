@@ -222,6 +222,37 @@ export function ApplicationStarter({
   const [showPackageManagerOptions, setShowPackageManagerOptions] =
     React.useState(false)
   const [showToolchainOptions, setShowToolchainOptions] = React.useState(false)
+
+  // Rotating placeholder: cycle the starter suggestions through the empty prompt
+  // field (replaces the preset chips). Pauses once the field has content or
+  // focus. Shift+Enter accepts the shown suggestion (handlePromptShiftEnter).
+  const [placeholderIndex, setPlaceholderIndex] = React.useState(0)
+  React.useEffect(() => {
+    if (suggestions.length === 0 || hasInput || isPromptFocused) {
+      return
+    }
+    const timer = window.setInterval(() => {
+      setPlaceholderIndex((index) => (index + 1) % suggestions.length)
+    }, 3600)
+    return () => window.clearInterval(timer)
+  }, [suggestions.length, hasInput, isPromptFocused])
+  const currentSuggestion =
+    suggestions.length > 0
+      ? suggestions[placeholderIndex % suggestions.length]
+      : undefined
+  const rotatingPlaceholder =
+    currentSuggestion?.input ??
+    'Build a SaaS app with auth, Postgres, nested routes, and Sentry. Use pnpm and deploy to Cloudflare.'
+  const handlePromptShiftEnter = (
+    event: React.KeyboardEvent<HTMLTextAreaElement>,
+  ) => {
+    if (event.key !== 'Enter' || !event.shiftKey) {
+      return
+    }
+    event.preventDefault()
+    void submitCurrentInput(hasInput ? undefined : currentSuggestion?.input)
+  }
+
   const canRevealOptions =
     hasInput && !hasMigrationRepositoryUrlError && !isGenerating
   const canUseFinalActions =
@@ -784,20 +815,6 @@ export function ApplicationStarter({
                       <div className="shrink-0">{headerAction}</div>
                     ) : null}
                   </div>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {suggestions.map((suggestion) => (
-                      <StarterChipButton
-                        key={suggestion.label}
-                        onClick={() => {
-                          void selectSuggestion({ suggestion })
-                        }}
-                        palette={palette}
-                        selected={input === suggestion.input}
-                      >
-                        {suggestion.label}
-                      </StarterChipButton>
-                    ))}
-                  </div>
                 </div>
 
                 <div className="relative border-b border-gray-200 dark:border-gray-800">
@@ -854,8 +871,9 @@ export function ApplicationStarter({
                         }
                       }
                     }}
+                    onKeyDown={handlePromptShiftEnter}
                     rows={4}
-                    placeholder="Build a SaaS app with auth, Postgres, nested routes, and Sentry. Use pnpm and deploy to Cloudflare."
+                    placeholder={rotatingPlaceholder}
                     className={twMerge(
                       'w-full min-h-28 bg-transparent px-5 pb-4 pt-1 text-sm leading-6 text-gray-900 outline-none transition-colors dark:text-white',
                       palette.ring,

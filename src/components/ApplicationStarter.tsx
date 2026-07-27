@@ -883,15 +883,17 @@ export function ApplicationStarter({
                   {!showActionSection ? (
                     <div className="border-t border-gray-200 px-5 py-4 dark:border-gray-800">
                       <div className="flex flex-wrap items-center gap-3">
+                        {/* Figma "Filled" CTA: TanStack brand rainbow gradient,
+                            dark ink. Sends the prompt / reveals the stack. */}
                         <Button
-                          color="emerald"
-                          className="pr-1.5"
+                          variant="secondary"
                           size="sm"
                           type="submit"
                           disabled={!canRevealOptions}
+                          className="rounded-[11px] border-transparent bg-[linear-gradient(117deg,#ff5f5f,#ffa05c,#fff27c,#74dcff)] font-ds-display font-bold text-ds-neutral-500 shadow-md transition-[filter] hover:text-ds-neutral-500 hover:brightness-105"
                         >
+                          Go
                           <ArrowRight className="h-4 w-4" />
-                          Next
                           {enableHotkeys ? (
                             <SubmitShortcutHint isMac={isMacShortcutPlatform} />
                           ) : null}

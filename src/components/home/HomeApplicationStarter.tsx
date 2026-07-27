@@ -15,6 +15,7 @@ export function HomeApplicationStarter() {
         context="home"
         enableHotkeys
         showPromptPreview={false}
+        title="Whatcha want to build?"
         tone="cyan"
       />
     </Hydrate>

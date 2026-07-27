@@ -62,7 +62,7 @@ function Index() {
               always light, so text uses a mode-stable dark token (neutral-500)
               rather than a theme-flipping semantic. */}
           <div className="w-full">
-            <div className="relative isolate flex min-h-[640px] flex-col justify-end gap-8 overflow-hidden px-6 py-10 sm:px-10 xl:h-[640px] xl:min-h-0 xl:flex-row xl:items-end xl:justify-between xl:gap-12 xl:px-20 xl:py-16">
+            <div className="relative isolate flex min-h-[720px] flex-col justify-between gap-8 overflow-hidden px-6 py-10 sm:px-10 xl:h-[720px] xl:min-h-0 xl:flex-row xl:items-end xl:justify-between xl:gap-12 xl:px-20 xl:py-16">
               {/* Plain <img> (not OptimizedImage): the Cloudflare transform
                   resolves against the production origin, so a newly-added asset
                   404s until deployed. The source is pre-sized (2400px, q80). */}
@@ -73,15 +73,7 @@ function Index() {
                 height={1600}
                 loading="eager"
                 fetchPriority="high"
-                className="absolute inset-0 -z-20 h-full w-full object-cover object-[72%_center] xl:object-center"
-              />
-              {/* Below xl the text stacks over the palm; nudging the crop and a
-                  soft scrim keep the dark copy legible. Both removed at xl where
-                  the headline and description split around the centered palm
-                  (matching Figma). */}
-              <div
-                aria-hidden
-                className="absolute inset-0 -z-10 bg-white/35 xl:hidden"
+                className="absolute inset-0 -z-10 h-full w-full object-cover object-center"
               />
               <h1 className="max-w-[613px] font-ds-display text-ds-display-sm text-ds-neutral-500 sm:text-ds-display-md lg:text-ds-display-lg xl:text-ds-display-xl">
                 The{' '}
@@ -91,7 +83,7 @@ function Index() {
                 application stack for the web
               </h1>
               <div className="flex flex-col items-start gap-6 xl:max-w-[454px]">
-                <p className="text-ds-body-xl text-ds-neutral-500">
+                <p className="text-ds-body-md text-ds-neutral-500 xl:text-ds-body-xl">
                   Headless, type-safe, composable tools for building modern web
                   applications that work naturally for developers and reliably
                   for agents

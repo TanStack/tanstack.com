@@ -838,7 +838,7 @@ export function ApplicationStarter({
                   // Home: dark surface, 24px full-squircle corners, terracotta glow
                   // (Figma drop shadow: 0 / 21 / 39.2 / -28, terracotta-300).
                   isHomeStarter &&
-                    'rounded-[24px] [corner-shape:squircle] border-transparent bg-[#0a0a0a] shadow-[0px_21px_39.2px_-28px_var(--color-ds-terracotta-300)] dark:border-transparent dark:bg-[#0a0a0a]',
+                    'rounded-[24px] [corner-shape:squircle] border-transparent bg-[#171717] shadow-[0px_21px_39.2px_-28px_var(--color-ds-terracotta-300)] dark:border-transparent dark:bg-[#171717]',
                 )}
               >
                 <div>
@@ -927,7 +927,7 @@ export function ApplicationStarter({
                         'w-full min-h-28 bg-transparent px-5 pb-4 pt-1 text-sm leading-6 text-gray-900 outline-none transition-colors dark:text-white',
                         palette.ring,
                         isHomeStarter &&
-                          'px-6 pt-6 text-white placeholder:text-[#8f8f98]',
+                          'px-6 pb-6 pr-24 pt-6 text-base text-white placeholder:text-[#8f8f98]',
                       )}
                     />
 
@@ -937,7 +937,7 @@ export function ApplicationStarter({
                       <span
                         aria-hidden
                         className={twMerge(
-                          'pointer-events-none absolute left-6 top-6 whitespace-nowrap text-sm leading-6 text-[#8f8f98]',
+                          'pointer-events-none absolute left-6 top-6 whitespace-nowrap text-base leading-6 text-[#8f8f98]',
                           !reducedMotion &&
                             (placeholderShowing
                               ? 'home-prompt-ph-in'
@@ -948,38 +948,47 @@ export function ApplicationStarter({
                       </span>
                     ) : null}
 
-                    {!showActionSection ? (
-                      <div
-                        className={twMerge(
-                          'border-t border-gray-200 px-5 py-4 dark:border-gray-800',
-                          isHomeStarter && 'border-t-0 px-6 pb-6 pt-2',
+                    {/* Home: the hint sits lateral to the prompt text (top-right);
+                        once the user types, the gradient Go CTA replaces it. */}
+                    {isHomeStarter && !showActionSection ? (
+                      <div className="absolute right-6 top-5 flex items-center">
+                        {!hasInput ? (
+                          <span className="font-ds-display text-sm font-extralight text-[#8f8f98]">
+                            Press Shift + Enter
+                          </span>
+                        ) : (
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            type="submit"
+                            disabled={!canRevealOptions}
+                            className="rounded-[11px] border-transparent bg-[linear-gradient(117deg,#ff5f5f,#ffa05c,#fff27c,#74dcff)] font-ds-display font-bold text-ds-neutral-500 shadow-md transition-[filter] hover:text-ds-neutral-500 hover:brightness-105 disabled:grayscale"
+                          >
+                            Go
+                            <ArrowRight className="h-4 w-4" />
+                          </Button>
                         )}
-                      >
+                      </div>
+                    ) : null}
+
+                    {!isHomeStarter && !showActionSection ? (
+                      <div className="border-t border-gray-200 px-5 py-4 dark:border-gray-800">
                         <div className="flex flex-wrap items-center gap-3">
-                          {/* Home resting: a quiet Shift+Enter hint; once there's
-                            input the Figma "Filled" CTA (brand rainbow gradient)
-                            takes over. */}
-                          {isHomeStarter && !hasInput ? (
-                            <span className="font-ds-display text-xs font-extralight text-[#8f8f98]">
-                              Press Shift + Enter
-                            </span>
-                          ) : (
-                            <Button
-                              variant="secondary"
-                              size="sm"
-                              type="submit"
-                              disabled={!canRevealOptions}
-                              className="rounded-[11px] border-transparent bg-[linear-gradient(117deg,#ff5f5f,#ffa05c,#fff27c,#74dcff)] font-ds-display font-bold text-ds-neutral-500 shadow-md transition-[filter] hover:text-ds-neutral-500 hover:brightness-105 disabled:grayscale"
-                            >
-                              Go
-                              <ArrowRight className="h-4 w-4" />
-                              {enableHotkeys ? (
-                                <SubmitShortcutHint
-                                  isMac={isMacShortcutPlatform}
-                                />
-                              ) : null}
-                            </Button>
-                          )}
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            type="submit"
+                            disabled={!canRevealOptions}
+                            className="rounded-[11px] border-transparent bg-[linear-gradient(117deg,#ff5f5f,#ffa05c,#fff27c,#74dcff)] font-ds-display font-bold text-ds-neutral-500 shadow-md transition-[filter] hover:text-ds-neutral-500 hover:brightness-105 disabled:grayscale"
+                          >
+                            Go
+                            <ArrowRight className="h-4 w-4" />
+                            {enableHotkeys ? (
+                              <SubmitShortcutHint
+                                isMac={isMacShortcutPlatform}
+                              />
+                            ) : null}
+                          </Button>
                         </div>
                       </div>
                     ) : null}

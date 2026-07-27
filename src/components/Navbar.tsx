@@ -741,7 +741,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         data-site-content
         className={twMerge(
           `min-h-[calc(100dvh-var(--navbar-height))] flex flex-col
-          min-w-0 w-full transition-[filter] duration-200 motion-reduce:transition-none
+          min-w-0 w-full overflow-x-clip transition-[filter] duration-200 motion-reduce:transition-none
           pt-[var(--navbar-height)]`,
           siteBackdropActive ? 'blur-[4px]' : 'filter-none',
         )}

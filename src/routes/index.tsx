@@ -82,19 +82,26 @@ function Index() {
               always light, so text uses a mode-stable dark token (neutral-500)
               rather than a theme-flipping semantic. */}
           <div className="w-full">
-            <div className="relative isolate flex min-h-[720px] flex-col justify-between gap-8 px-6 py-10 sm:px-10 xl:h-[720px] xl:min-h-0 xl:flex-row xl:items-end xl:justify-between xl:gap-12 xl:px-16 xl:py-16">
-              {/* Plain <img> (not OptimizedImage): the Cloudflare transform
-                  resolves against the production origin, so a newly-added asset
-                  404s until deployed. The source is pre-sized (2400px, q80). */}
-              <img
-                src="/images/hero-palm-gradient.jpg"
-                alt=""
-                width={2400}
-                height={1600}
-                loading="eager"
-                fetchPriority="high"
-                className="absolute inset-2 -z-10 rounded-[2rem] object-cover object-center [corner-shape:squircle]"
-              />
+            <div className="relative isolate flex h-[calc(100dvh-var(--navbar-height))] max-h-[720px] min-h-[560px] flex-col justify-between gap-8 px-6 py-10 sm:px-10 xl:flex-row xl:items-end xl:justify-between xl:gap-12 xl:px-16 xl:py-16">
+              {/* Wrapper carries the 8px inset + squircle clip so the <img>
+                  (which has intrinsic width/height) fills it exactly instead of
+                  overflowing the right/bottom. Plain <img> (not OptimizedImage):
+                  the Cloudflare transform resolves against the production origin,
+                  so a newly-added asset 404s until deployed. */}
+              <div
+                aria-hidden
+                className="absolute inset-2 -z-10 overflow-hidden rounded-[2rem] [corner-shape:squircle]"
+              >
+                <img
+                  src="/images/hero-palm-gradient.jpg"
+                  alt=""
+                  width={2400}
+                  height={1600}
+                  loading="eager"
+                  fetchPriority="high"
+                  className="h-full w-full object-cover object-center"
+                />
+              </div>
               <h1 className="max-w-[613px] font-ds-display text-ds-display-sm font-bold text-ds-neutral-500 sm:text-ds-display-md lg:text-ds-display-lg xl:text-ds-display-xl">
                 The{' '}
                 <span className="underline decoration-from-font underline-offset-[6px]">

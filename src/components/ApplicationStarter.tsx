@@ -3,10 +3,10 @@ import { ClientOnly } from '@tanstack/react-router'
 import {
   ArrowRight,
   Check,
-  CaretDown as ChevronDown,
+  CaretDown,
   Copy,
   Download,
-  CircleNotch as Loader2,
+  CircleNotch,
   Rocket,
 } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
@@ -39,6 +39,7 @@ import {
   type StarterTone,
 } from '~/components/application-builder/shared'
 import { useApplicationBuilder } from '~/components/application-builder/useApplicationBuilder'
+import { usePrefersReducedMotion } from '~/utils/usePrefersReducedMotion'
 import { Button, GitHub } from '~/ui'
 
 export interface ApplicationStarterProps {
@@ -225,18 +226,35 @@ export function ApplicationStarter({
   const [showToolchainOptions, setShowToolchainOptions] = React.useState(false)
 
   // Rotating placeholder: cycle the starter suggestions through the empty prompt
-  // field (replaces the preset chips). Pauses once the field has content or
-  // focus. Shift+Enter accepts the shown suggestion (handlePromptShiftEnter).
+  // field (replaces the preset chips). On home the short label shows in an
+  // animated overlay that gently dissolves out, then reveals the next
+  // left-to-right; elsewhere it's the native placeholder. Pauses once the field
+  // has content or focus. Shift+Enter accepts the shown suggestion.
+  const reducedMotion = usePrefersReducedMotion() === true
   const [placeholderIndex, setPlaceholderIndex] = React.useState(0)
+  const [placeholderShowing, setPlaceholderShowing] = React.useState(true)
   React.useEffect(() => {
-    if (suggestions.length === 0 || hasInput || isPromptFocused) {
+    if (suggestions.length <= 1 || hasInput || isPromptFocused) {
       return
     }
-    const timer = window.setInterval(() => {
-      setPlaceholderIndex((index) => (index + 1) % suggestions.length)
-    }, 3600)
-    return () => window.clearInterval(timer)
-  }, [suggestions.length, hasInput, isPromptFocused])
+    let swapTimer: ReturnType<typeof setTimeout>
+    const cycle = window.setInterval(() => {
+      if (reducedMotion) {
+        setPlaceholderIndex((index) => (index + 1) % suggestions.length)
+        return
+      }
+      // Fade the current prompt fully out, then swap + reveal the next.
+      setPlaceholderShowing(false)
+      swapTimer = setTimeout(() => {
+        setPlaceholderIndex((index) => (index + 1) % suggestions.length)
+        setPlaceholderShowing(true)
+      }, 420)
+    }, 4200)
+    return () => {
+      window.clearInterval(cycle)
+      clearTimeout(swapTimer)
+    }
+  }, [suggestions.length, hasInput, isPromptFocused, reducedMotion])
   const currentSuggestion =
     suggestions.length > 0
       ? suggestions[placeholderIndex % suggestions.length]
@@ -376,7 +394,7 @@ export function ApplicationStarter({
       className="rounded-[11px] border-transparent bg-[linear-gradient(117deg,#ff5f5f,#ffa05c,#fff27c,#74dcff)] font-ds-display font-bold text-ds-neutral-500 shadow-md transition-[filter] hover:text-ds-neutral-500 hover:brightness-105 disabled:grayscale"
     >
       {isGeneratingPrompt ? (
-        <Loader2 className="h-4 w-4 animate-spin" />
+        <CircleNotch className="h-4 w-4 animate-spin" />
       ) : isPromptCopied ? (
         <Check className="h-4 w-4" />
       ) : (
@@ -400,7 +418,7 @@ export function ApplicationStarter({
       disabled={!canUseFinalActions}
     >
       {isGeneratingPrompt ? (
-        <Loader2 className="h-4 w-4 animate-spin" />
+        <CircleNotch className="h-4 w-4 animate-spin" />
       ) : isCommandCopied ? (
         <Check className="h-4 w-4" />
       ) : (
@@ -464,7 +482,7 @@ export function ApplicationStarter({
         )}
       >
         {transientAction === action || waitingForHref ? (
-          <Loader2
+          <CircleNotch
             className={twMerge(
               'animate-spin',
               size === 'xs' ? 'h-3 w-3' : 'h-4 w-4',
@@ -517,7 +535,7 @@ export function ApplicationStarter({
           aria-label={`Deploy to ${hostingDeployPartnerLabels[selectedHostingDeployPartner]}`}
         >
           {isDeployFeedbackActive || waitingForHref ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <CircleNotch className="h-4 w-4 animate-spin" />
           ) : (
             <Rocket className="h-4 w-4" />
           )}
@@ -548,7 +566,7 @@ export function ApplicationStarter({
         aria-label={`Deploy to ${hostingDeployPartnerLabels[selectedHostingDeployPartner]}`}
       >
         {isDeployFeedbackActive ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <CircleNotch className="h-4 w-4 animate-spin" />
         ) : (
           <Rocket className="h-4 w-4" />
         )}
@@ -807,464 +825,481 @@ export function ApplicationStarter({
               </Collapsible>
             </>
           ) : (
-            <div
-              className={twMerge(
-                'relative overflow-hidden rounded-[1rem] border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950',
-                // Home: Figma StackBuilder look — dark surface with a terracotta glow.
-                isHomeStarter &&
-                  'rounded-[14px] border-transparent bg-[#0a0a0a] shadow-[0_8px_39px_-28px_var(--color-ds-terracotta-300)] dark:border-transparent dark:bg-[#0a0a0a]',
-              )}
-            >
-              <div>
-                <div
-                  className={twMerge(
-                    'border-b border-gray-200 bg-gray-50/70 px-5 py-4 dark:border-gray-800 dark:bg-gray-900/50',
-                    isHomeStarter &&
-                      'border-b-0 bg-transparent px-6 pb-1 pt-6 text-center dark:bg-transparent',
+            <>
+              {/* Figma StackBuilder: the heading floats above the box. */}
+              {isHomeStarter ? (
+                <p className="mb-6 text-center font-ds-display text-ds-heading-3 font-light text-white">
+                  {title}
+                </p>
+              ) : null}
+              <div
+                className={twMerge(
+                  'relative overflow-hidden rounded-[1rem] border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950',
+                  // Home: dark surface, 24px full-squircle corners, terracotta glow
+                  // (Figma drop shadow: 0 / 21 / 39.2 / -28, terracotta-300).
+                  isHomeStarter &&
+                    'rounded-[24px] [corner-shape:squircle] border-transparent bg-[#0a0a0a] shadow-[0px_21px_39.2px_-28px_var(--color-ds-terracotta-300)] dark:border-transparent dark:bg-[#0a0a0a]',
+                )}
+              >
+                <div>
+                  {/* Home renders its heading above the box (see the fragment
+                    above); other contexts keep the in-box header bar. */}
+                  {isHomeStarter ? null : (
+                    <div className="border-b border-gray-200 bg-gray-50/70 px-5 py-4 dark:border-gray-800 dark:bg-gray-900/50">
+                      <div className="flex items-center justify-between gap-3">
+                        <h3 className="font-semibold tracking-[-0.04em] text-[1.375rem] md:text-[1.5rem] text-gray-950 dark:text-white">
+                          {title}
+                        </h3>
+                        {headerAction ? (
+                          <div className="shrink-0">{headerAction}</div>
+                        ) : null}
+                      </div>
+                    </div>
                   )}
-                >
+
                   <div
                     className={twMerge(
-                      'flex items-center justify-between gap-3',
-                      isHomeStarter && 'justify-center',
+                      'relative border-b border-gray-200 dark:border-gray-800',
+                      isHomeStarter && 'border-b-0',
                     )}
                   >
-                    <h3
-                      className={twMerge(
-                        'font-semibold tracking-[-0.04em] text-[1.375rem] md:text-[1.5rem] text-gray-950 dark:text-white',
-                        isHomeStarter &&
-                          'font-ds-display text-ds-heading-3 font-light tracking-normal text-white',
-                      )}
-                    >
-                      {title}
-                    </h3>
-                    {headerAction ? (
-                      <div className="shrink-0">{headerAction}</div>
-                    ) : null}
-                  </div>
-                </div>
-
-                <div
-                  className={twMerge(
-                    'relative border-b border-gray-200 dark:border-gray-800',
-                    isHomeStarter && 'border-b-0',
-                  )}
-                >
-                  {showMigrationRepositoryInput ? (
-                    <div className="border-b border-gray-200 px-5 py-4 dark:border-gray-800">
-                      <div className="text-[10px] font-medium uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">
-                        Existing Repository URL
-                      </div>
-                      <input
-                        ref={migrationRepositoryInputRef}
-                        type="text"
-                        value={migrationRepositoryUrl}
-                        onChange={(event) => {
-                          updateMigrationRepositoryUrl(event.target.value)
-                        }}
-                        placeholder="https://github.com/acme/legacy-next-app"
-                        className={twMerge(
-                          'mt-3 h-10 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none transition-colors placeholder:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-white dark:placeholder:text-gray-500',
-                          palette.ring,
-                          hasMigrationRepositoryUrlError &&
-                            'border-red-300 dark:border-red-800',
-                        )}
-                      />
-                      {hasMigrationRepositoryUrlError ? (
-                        <div className="mt-2 text-xs text-red-600 dark:text-red-400">
-                          Enter a valid Git or GitHub repository URL.
+                    {showMigrationRepositoryInput ? (
+                      <div className="border-b border-gray-200 px-5 py-4 dark:border-gray-800">
+                        <div className="text-[10px] font-medium uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">
+                          Existing Repository URL
                         </div>
-                      ) : null}
-                    </div>
-                  ) : null}
-
-                  {isHomeStarter ? null : (
-                    <div className="px-5 pt-4 text-[10px] font-medium uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">
-                      Prompt
-                    </div>
-                  )}
-                  <textarea
-                    value={input}
-                    onChange={(event) => {
-                      updateInput(event.target.value)
-                    }}
-                    onFocus={() => {
-                      setHasFocusedPromptInput(true)
-                      setIsPromptFocused(true)
-                    }}
-                    onBlur={() => {
-                      setIsPromptFocused(false)
-                    }}
-                    onClick={(event) => {
-                      if (enableHotkeys && isModHeld) {
-                        event.preventDefault()
-                        if (showActionSection) {
-                          void generatePrompt()
-                        } else {
-                          void submitCurrentInput()
-                        }
-                      }
-                    }}
-                    onKeyDown={handlePromptShiftEnter}
-                    rows={4}
-                    placeholder={rotatingPlaceholder}
-                    className={twMerge(
-                      'w-full min-h-28 bg-transparent px-5 pb-4 pt-1 text-sm leading-6 text-gray-900 outline-none transition-colors dark:text-white',
-                      palette.ring,
-                      isHomeStarter &&
-                        'px-6 text-white placeholder:text-[#8f8f98]',
-                    )}
-                  />
-
-                  {!showActionSection ? (
-                    <div
-                      className={twMerge(
-                        'border-t border-gray-200 px-5 py-4 dark:border-gray-800',
-                        isHomeStarter && 'border-t-0 px-6 pb-6 pt-2',
-                      )}
-                    >
-                      <div className="flex flex-wrap items-center gap-3">
-                        {/* Home resting: a quiet Shift+Enter hint; once there's
-                            input the Figma "Filled" CTA (brand rainbow gradient)
-                            takes over. */}
-                        {isHomeStarter && !hasInput ? (
-                          <span className="font-ds-display text-xs font-extralight text-[#8f8f98]">
-                            Press Shift + Enter
-                          </span>
-                        ) : (
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            type="submit"
-                            disabled={!canRevealOptions}
-                            className="rounded-[11px] border-transparent bg-[linear-gradient(117deg,#ff5f5f,#ffa05c,#fff27c,#74dcff)] font-ds-display font-bold text-ds-neutral-500 shadow-md transition-[filter] hover:text-ds-neutral-500 hover:brightness-105 disabled:grayscale"
-                          >
-                            Go
-                            <ArrowRight className="h-4 w-4" />
-                            {enableHotkeys ? (
-                              <SubmitShortcutHint
-                                isMac={isMacShortcutPlatform}
-                              />
-                            ) : null}
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  ) : null}
-                </div>
-
-                <Collapsible open={showOptionsSection}>
-                  <CollapsibleContent>
-                    {showOptionsSection ? (
-                      <div className="bg-gray-50/70 px-5 py-4 dark:bg-gray-900/50">
-                        <StarterTooltipProvider>
-                          <div>
-                            <div className="mb-4">
-                              <div className="text-[10px] font-medium uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">
-                                TanStack Libraries
-                              </div>
-
-                              <div className="mt-3 space-y-2.5">
-                                <StarterLibraryRows
-                                  selectedLibraries={selectedLibraries}
-                                  toggleLibrary={toggleLibrary}
-                                />
-                              </div>
-                            </div>
-
-                            <div className="text-[10px] font-medium uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">
-                              Add Integrations
-                            </div>
-                            <div className="mt-3">
-                              <StarterPartnerRows
-                                palette={palette}
-                                partnerSuggestions={partnerSuggestions}
-                                selectedPartners={selectedPartners}
-                                size="compact"
-                                togglePartner={togglePartner}
-                              />
-                            </div>
-                            <StarterCustomizationSection
-                              onOpenChange={setShowToolchainOptions}
-                              open={showToolchainOptions}
-                              title="Toolchain"
-                            >
-                              <div className="mt-3 flex flex-wrap gap-2">
-                                {starterToolchains.map((toolchain) => (
-                                  <StarterChipButton
-                                    key={toolchain}
-                                    onClick={() => {
-                                      toggleToolchain(toolchain)
-                                    }}
-                                    palette={palette}
-                                    selected={selectedToolchain === toolchain}
-                                    size="compact"
-                                  >
-                                    {toolchain}
-                                  </StarterChipButton>
-                                ))}
-                              </div>
-                            </StarterCustomizationSection>
-                            <StarterCustomizationSection
-                              onOpenChange={setShowPackageManagerOptions}
-                              open={showPackageManagerOptions}
-                              title="Package Manager"
-                            >
-                              <div className="mt-3 flex flex-wrap gap-2">
-                                {starterPackageManagers.map(
-                                  (packageManager) => (
-                                    <StarterChipButton
-                                      key={packageManager}
-                                      onClick={() => {
-                                        togglePackageManager(packageManager)
-                                      }}
-                                      palette={palette}
-                                      selected={
-                                        selectedPackageManager ===
-                                        packageManager
-                                      }
-                                      size="compact"
-                                    >
-                                      {packageManager}
-                                    </StarterChipButton>
-                                  ),
-                                )}
-                              </div>
-                            </StarterCustomizationSection>
+                        <input
+                          ref={migrationRepositoryInputRef}
+                          type="text"
+                          value={migrationRepositoryUrl}
+                          onChange={(event) => {
+                            updateMigrationRepositoryUrl(event.target.value)
+                          }}
+                          placeholder="https://github.com/acme/legacy-next-app"
+                          className={twMerge(
+                            'mt-3 h-10 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none transition-colors placeholder:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-white dark:placeholder:text-gray-500',
+                            palette.ring,
+                            hasMigrationRepositoryUrlError &&
+                              'border-red-300 dark:border-red-800',
+                          )}
+                        />
+                        {hasMigrationRepositoryUrlError ? (
+                          <div className="mt-2 text-xs text-red-600 dark:text-red-400">
+                            Enter a valid Git or GitHub repository URL.
                           </div>
-                        </StarterTooltipProvider>
-
-                        {footerContent ? (
-                          <div className="mt-4">{footerContent}</div>
                         ) : null}
                       </div>
                     ) : null}
-                  </CollapsibleContent>
-                </Collapsible>
 
-                <Collapsible open={showActionSection}>
-                  <CollapsibleContent>
-                    {showActionSection ? (
-                      <div className="bg-gray-50/70 px-5 py-4 dark:bg-gray-900/50">
-                        <div className="flex flex-col gap-4">
-                          {!showCliExportActions ? (
-                            <div className="flex flex-wrap items-center gap-3">
-                              {!selectedHostingDeployPartner
-                                ? renderActionAnchor({
-                                    action: 'netlify',
-                                    className:
-                                      'border-[#00AD9F] bg-[#00AD9F] text-white hover:bg-[#009a8e]',
-                                    href: netlifyStartHref,
-                                    icon: <Rocket className="h-4 w-4" />,
-                                    label: secondaryActionLabel,
-                                    onTrack: () => {
-                                      trackActivation({
-                                        action: 'netlify_start',
-                                        surface: 'result_panel',
-                                        provider: 'netlify',
-                                      })
-                                    },
-                                    size: 'sm',
-                                  })
-                                : null}
+                    {isHomeStarter ? null : (
+                      <div className="px-5 pt-4 text-[10px] font-medium uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">
+                        Prompt
+                      </div>
+                    )}
+                    <textarea
+                      value={input}
+                      onChange={(event) => {
+                        updateInput(event.target.value)
+                      }}
+                      onFocus={() => {
+                        setHasFocusedPromptInput(true)
+                        setIsPromptFocused(true)
+                      }}
+                      onBlur={() => {
+                        setIsPromptFocused(false)
+                      }}
+                      onClick={(event) => {
+                        if (enableHotkeys && isModHeld) {
+                          event.preventDefault()
+                          if (showActionSection) {
+                            void generatePrompt()
+                          } else {
+                            void submitCurrentInput()
+                          }
+                        }
+                      }}
+                      onKeyDown={handlePromptShiftEnter}
+                      rows={4}
+                      // Home hides the native placeholder — the animated overlay
+                      // below renders the rotating (short) suggestion instead.
+                      placeholder={isHomeStarter ? '' : rotatingPlaceholder}
+                      className={twMerge(
+                        'w-full min-h-28 bg-transparent px-5 pb-4 pt-1 text-sm leading-6 text-gray-900 outline-none transition-colors dark:text-white',
+                        palette.ring,
+                        isHomeStarter &&
+                          'px-6 pt-6 text-white placeholder:text-[#8f8f98]',
+                      )}
+                    />
 
-                              {renderActionAnchor({
-                                action: 'codex',
-                                className:
-                                  'border-gray-900 bg-gray-900 text-white hover:bg-gray-800 dark:border-gray-100 dark:bg-gray-100 dark:text-gray-950 dark:hover:bg-gray-200',
-                                href: codexStartHref,
-                                icon: (
-                                  <span className="relative h-4 w-4 shrink-0">
-                                    <img
-                                      src={openaiDarkLogo}
-                                      alt=""
-                                      aria-hidden="true"
-                                      className="h-4 w-4 dark:hidden"
-                                    />
-                                    <img
-                                      src={openaiLightLogo}
-                                      alt=""
-                                      aria-hidden="true"
-                                      className="hidden h-4 w-4 dark:block"
-                                    />
-                                  </span>
-                                ),
-                                label: 'Open in Codex',
-                                onTrack: () => {
-                                  trackActivation({
-                                    action: 'open_codex',
-                                    surface: 'result_panel',
-                                  })
-                                },
-                                size: 'sm',
-                              })}
-                            </div>
-                          ) : null}
+                    {/* Animated rotating placeholder (home): the short suggestion
+                      label dissolves out, then the next reveals left-to-right. */}
+                    {isHomeStarter && !hasInput ? (
+                      <span
+                        aria-hidden
+                        className={twMerge(
+                          'pointer-events-none absolute left-6 top-6 whitespace-nowrap text-sm leading-6 text-[#8f8f98]',
+                          !reducedMotion &&
+                            (placeholderShowing
+                              ? 'home-prompt-ph-in'
+                              : 'home-prompt-ph-out'),
+                        )}
+                      >
+                        {currentSuggestion?.label}
+                      </span>
+                    ) : null}
 
-                          <div className="flex flex-wrap items-center gap-3">
-                            {renderSelectedHostingDeployButton()}
-                            {renderCopyPromptButton()}
-                            {showCliExportActions
-                              ? renderCopyCliCommandButton()
-                              : null}
-                          </div>
-
-                          {showCliExportActions && !showMoreActions ? (
-                            <div className="flex flex-wrap items-center gap-3">
-                              <Button
-                                variant="ghost"
-                                size="xs"
-                                type="button"
-                                onClick={() => setShowMoreActions(true)}
-                                className="h-auto border-transparent bg-transparent px-1 py-0 text-[11px] font-medium text-gray-500 hover:bg-transparent hover:text-gray-700 dark:text-gray-500 dark:hover:bg-transparent dark:hover:text-gray-300"
-                              >
-                                Show More
-                              </Button>
-                            </div>
-                          ) : null}
-
-                          {showCliExportActions && showMoreActions ? (
-                            <div className="flex flex-wrap items-center gap-2">
-                              {renderActionAnchor({
-                                action: 'codex',
-                                className:
-                                  'h-6 gap-1 px-2 text-[11px] border-gray-900 bg-gray-900 text-white hover:bg-gray-800 dark:border-gray-100 dark:bg-gray-100 dark:text-gray-950 dark:hover:bg-gray-200',
-                                href: codexStartHref,
-                                icon: (
-                                  <span className="relative h-3 w-3 shrink-0">
-                                    <img
-                                      src={openaiDarkLogo}
-                                      alt=""
-                                      aria-hidden="true"
-                                      className="h-3 w-3 dark:hidden"
-                                    />
-                                    <img
-                                      src={openaiLightLogo}
-                                      alt=""
-                                      aria-hidden="true"
-                                      className="hidden h-3 w-3 dark:block"
-                                    />
-                                  </span>
-                                ),
-                                label: 'Open in Codex',
-                                onTrack: () => {
-                                  trackActivation({
-                                    action: 'open_codex',
-                                    surface: 'result_panel',
-                                  })
-                                },
-                                size: 'xs',
-                              })}
-
-                              {renderActionAnchor({
-                                action: 'claude',
-                                className:
-                                  'h-6 gap-1 px-2 text-[11px] border-[#D4A373] bg-[#D4A373] text-white hover:bg-[#C6905C] dark:border-[#E6C49A] dark:bg-[#E6C49A] dark:text-gray-950 dark:hover:bg-[#DBB684]',
-                                href: claudeStartHref,
-                                icon: (
-                                  <span className="relative h-3 w-3 shrink-0">
-                                    <img
-                                      src={anthropicDarkLogo}
-                                      alt=""
-                                      aria-hidden="true"
-                                      className="h-3 w-3 dark:hidden"
-                                    />
-                                    <img
-                                      src={anthropicLightLogo}
-                                      alt=""
-                                      aria-hidden="true"
-                                      className="hidden h-3 w-3 dark:block"
-                                    />
-                                  </span>
-                                ),
-                                label: 'Open in Claude',
-                                onTrack: () => {
-                                  trackActivation({
-                                    action: 'open_claude',
-                                    surface: 'result_panel',
-                                  })
-                                },
-                                size: 'xs',
-                              })}
-
-                              {renderActionAnchor({
-                                action: 'cursor',
-                                className:
-                                  'h-6 gap-1 px-2 text-[11px] border-black bg-black text-white hover:bg-gray-900 dark:border-white dark:bg-white dark:text-black dark:hover:bg-gray-100',
-                                href: cursorStartHref,
-                                icon: <CursorIcon className="h-3 w-3" />,
-                                label: 'Open in Cursor',
-                                onTrack: () => {
-                                  trackActivation({
-                                    action: 'open_cursor',
-                                    surface: 'result_panel',
-                                  })
-                                },
-                                size: 'xs',
-                              })}
-
-                              <Button
-                                variant="secondary"
-                                size="xs"
-                                type="button"
-                                onClick={() => {
-                                  showTransientActionFeedback('clone')
-                                  void openDeployDialog(null)
-                                }}
-                                disabled={
-                                  !canUseFinalActions ||
-                                  transientAction === 'clone'
-                                }
-                                className="h-6 gap-1 px-2 text-[11px]"
-                              >
-                                {transientAction === 'clone' ? (
-                                  <Loader2 className="h-3 w-3 animate-spin" />
-                                ) : (
-                                  <GitHub className="h-3 w-3" />
-                                )}
-                                {transientAction === 'clone'
-                                  ? 'Opening...'
-                                  : 'Clone to GitHub'}
-                              </Button>
-
-                              {renderActionAnchor({
-                                action: 'download',
-                                className: 'h-6 gap-1 px-2 text-[11px]',
-                                href: downloadHref,
-                                icon: <Download className="h-3 w-3" />,
-                                label: 'Download ZIP',
-                                onTrack: () => {
-                                  trackActivation({
-                                    action: 'download',
-                                    surface: 'result_panel',
-                                  })
-                                },
-                                size: 'xs',
-                                variant: 'secondary',
-                              })}
-                            </div>
-                          ) : null}
+                    {!showActionSection ? (
+                      <div
+                        className={twMerge(
+                          'border-t border-gray-200 px-5 py-4 dark:border-gray-800',
+                          isHomeStarter && 'border-t-0 px-6 pb-6 pt-2',
+                        )}
+                      >
+                        <div className="flex flex-wrap items-center gap-3">
+                          {/* Home resting: a quiet Shift+Enter hint; once there's
+                            input the Figma "Filled" CTA (brand rainbow gradient)
+                            takes over. */}
+                          {isHomeStarter && !hasInput ? (
+                            <span className="font-ds-display text-xs font-extralight text-[#8f8f98]">
+                              Press Shift + Enter
+                            </span>
+                          ) : (
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              type="submit"
+                              disabled={!canRevealOptions}
+                              className="rounded-[11px] border-transparent bg-[linear-gradient(117deg,#ff5f5f,#ffa05c,#fff27c,#74dcff)] font-ds-display font-bold text-ds-neutral-500 shadow-md transition-[filter] hover:text-ds-neutral-500 hover:brightness-105 disabled:grayscale"
+                            >
+                              Go
+                              <ArrowRight className="h-4 w-4" />
+                              {enableHotkeys ? (
+                                <SubmitShortcutHint
+                                  isMac={isMacShortcutPlatform}
+                                />
+                              ) : null}
+                            </Button>
+                          )}
                         </div>
                       </div>
                     ) : null}
-                  </CollapsibleContent>
-                </Collapsible>
-
-                {showPromptPreview && hasGeneratedPrompt ? (
-                  <div className="border-t border-gray-200 dark:border-gray-800">
-                    <GeneratedPromptPreviewHeader
-                      copiedPrompt={copiedKind === 'prompt'}
-                      copyNotice={promptCopyNotice}
-                      onDismissCopyNotice={dismissPromptCopyNotice}
-                      onCopyPrompt={() => {
-                        void copyResultValue('prompt')
-                      }}
-                    />
-                    <GeneratedPromptPreviewBody prompt={result?.prompt ?? ''} />
                   </div>
-                ) : null}
+
+                  <Collapsible open={showOptionsSection}>
+                    <CollapsibleContent>
+                      {showOptionsSection ? (
+                        <div className="bg-gray-50/70 px-5 py-4 dark:bg-gray-900/50">
+                          <StarterTooltipProvider>
+                            <div>
+                              <div className="mb-4">
+                                <div className="text-[10px] font-medium uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">
+                                  TanStack Libraries
+                                </div>
+
+                                <div className="mt-3 space-y-2.5">
+                                  <StarterLibraryRows
+                                    selectedLibraries={selectedLibraries}
+                                    toggleLibrary={toggleLibrary}
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="text-[10px] font-medium uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">
+                                Add Integrations
+                              </div>
+                              <div className="mt-3">
+                                <StarterPartnerRows
+                                  palette={palette}
+                                  partnerSuggestions={partnerSuggestions}
+                                  selectedPartners={selectedPartners}
+                                  size="compact"
+                                  togglePartner={togglePartner}
+                                />
+                              </div>
+                              <StarterCustomizationSection
+                                onOpenChange={setShowToolchainOptions}
+                                open={showToolchainOptions}
+                                title="Toolchain"
+                              >
+                                <div className="mt-3 flex flex-wrap gap-2">
+                                  {starterToolchains.map((toolchain) => (
+                                    <StarterChipButton
+                                      key={toolchain}
+                                      onClick={() => {
+                                        toggleToolchain(toolchain)
+                                      }}
+                                      palette={palette}
+                                      selected={selectedToolchain === toolchain}
+                                      size="compact"
+                                    >
+                                      {toolchain}
+                                    </StarterChipButton>
+                                  ))}
+                                </div>
+                              </StarterCustomizationSection>
+                              <StarterCustomizationSection
+                                onOpenChange={setShowPackageManagerOptions}
+                                open={showPackageManagerOptions}
+                                title="Package Manager"
+                              >
+                                <div className="mt-3 flex flex-wrap gap-2">
+                                  {starterPackageManagers.map(
+                                    (packageManager) => (
+                                      <StarterChipButton
+                                        key={packageManager}
+                                        onClick={() => {
+                                          togglePackageManager(packageManager)
+                                        }}
+                                        palette={palette}
+                                        selected={
+                                          selectedPackageManager ===
+                                          packageManager
+                                        }
+                                        size="compact"
+                                      >
+                                        {packageManager}
+                                      </StarterChipButton>
+                                    ),
+                                  )}
+                                </div>
+                              </StarterCustomizationSection>
+                            </div>
+                          </StarterTooltipProvider>
+
+                          {footerContent ? (
+                            <div className="mt-4">{footerContent}</div>
+                          ) : null}
+                        </div>
+                      ) : null}
+                    </CollapsibleContent>
+                  </Collapsible>
+
+                  <Collapsible open={showActionSection}>
+                    <CollapsibleContent>
+                      {showActionSection ? (
+                        <div className="bg-gray-50/70 px-5 py-4 dark:bg-gray-900/50">
+                          <div className="flex flex-col gap-4">
+                            {!showCliExportActions ? (
+                              <div className="flex flex-wrap items-center gap-3">
+                                {!selectedHostingDeployPartner
+                                  ? renderActionAnchor({
+                                      action: 'netlify',
+                                      className:
+                                        'border-[#00AD9F] bg-[#00AD9F] text-white hover:bg-[#009a8e]',
+                                      href: netlifyStartHref,
+                                      icon: <Rocket className="h-4 w-4" />,
+                                      label: secondaryActionLabel,
+                                      onTrack: () => {
+                                        trackActivation({
+                                          action: 'netlify_start',
+                                          surface: 'result_panel',
+                                          provider: 'netlify',
+                                        })
+                                      },
+                                      size: 'sm',
+                                    })
+                                  : null}
+
+                                {renderActionAnchor({
+                                  action: 'codex',
+                                  className:
+                                    'border-gray-900 bg-gray-900 text-white hover:bg-gray-800 dark:border-gray-100 dark:bg-gray-100 dark:text-gray-950 dark:hover:bg-gray-200',
+                                  href: codexStartHref,
+                                  icon: (
+                                    <span className="relative h-4 w-4 shrink-0">
+                                      <img
+                                        src={openaiDarkLogo}
+                                        alt=""
+                                        aria-hidden="true"
+                                        className="h-4 w-4 dark:hidden"
+                                      />
+                                      <img
+                                        src={openaiLightLogo}
+                                        alt=""
+                                        aria-hidden="true"
+                                        className="hidden h-4 w-4 dark:block"
+                                      />
+                                    </span>
+                                  ),
+                                  label: 'Open in Codex',
+                                  onTrack: () => {
+                                    trackActivation({
+                                      action: 'open_codex',
+                                      surface: 'result_panel',
+                                    })
+                                  },
+                                  size: 'sm',
+                                })}
+                              </div>
+                            ) : null}
+
+                            <div className="flex flex-wrap items-center gap-3">
+                              {renderSelectedHostingDeployButton()}
+                              {renderCopyPromptButton()}
+                              {showCliExportActions
+                                ? renderCopyCliCommandButton()
+                                : null}
+                            </div>
+
+                            {showCliExportActions && !showMoreActions ? (
+                              <div className="flex flex-wrap items-center gap-3">
+                                <Button
+                                  variant="ghost"
+                                  size="xs"
+                                  type="button"
+                                  onClick={() => setShowMoreActions(true)}
+                                  className="h-auto border-transparent bg-transparent px-1 py-0 text-[11px] font-medium text-gray-500 hover:bg-transparent hover:text-gray-700 dark:text-gray-500 dark:hover:bg-transparent dark:hover:text-gray-300"
+                                >
+                                  Show More
+                                </Button>
+                              </div>
+                            ) : null}
+
+                            {showCliExportActions && showMoreActions ? (
+                              <div className="flex flex-wrap items-center gap-2">
+                                {renderActionAnchor({
+                                  action: 'codex',
+                                  className:
+                                    'h-6 gap-1 px-2 text-[11px] border-gray-900 bg-gray-900 text-white hover:bg-gray-800 dark:border-gray-100 dark:bg-gray-100 dark:text-gray-950 dark:hover:bg-gray-200',
+                                  href: codexStartHref,
+                                  icon: (
+                                    <span className="relative h-3 w-3 shrink-0">
+                                      <img
+                                        src={openaiDarkLogo}
+                                        alt=""
+                                        aria-hidden="true"
+                                        className="h-3 w-3 dark:hidden"
+                                      />
+                                      <img
+                                        src={openaiLightLogo}
+                                        alt=""
+                                        aria-hidden="true"
+                                        className="hidden h-3 w-3 dark:block"
+                                      />
+                                    </span>
+                                  ),
+                                  label: 'Open in Codex',
+                                  onTrack: () => {
+                                    trackActivation({
+                                      action: 'open_codex',
+                                      surface: 'result_panel',
+                                    })
+                                  },
+                                  size: 'xs',
+                                })}
+
+                                {renderActionAnchor({
+                                  action: 'claude',
+                                  className:
+                                    'h-6 gap-1 px-2 text-[11px] border-[#D4A373] bg-[#D4A373] text-white hover:bg-[#C6905C] dark:border-[#E6C49A] dark:bg-[#E6C49A] dark:text-gray-950 dark:hover:bg-[#DBB684]',
+                                  href: claudeStartHref,
+                                  icon: (
+                                    <span className="relative h-3 w-3 shrink-0">
+                                      <img
+                                        src={anthropicDarkLogo}
+                                        alt=""
+                                        aria-hidden="true"
+                                        className="h-3 w-3 dark:hidden"
+                                      />
+                                      <img
+                                        src={anthropicLightLogo}
+                                        alt=""
+                                        aria-hidden="true"
+                                        className="hidden h-3 w-3 dark:block"
+                                      />
+                                    </span>
+                                  ),
+                                  label: 'Open in Claude',
+                                  onTrack: () => {
+                                    trackActivation({
+                                      action: 'open_claude',
+                                      surface: 'result_panel',
+                                    })
+                                  },
+                                  size: 'xs',
+                                })}
+
+                                {renderActionAnchor({
+                                  action: 'cursor',
+                                  className:
+                                    'h-6 gap-1 px-2 text-[11px] border-black bg-black text-white hover:bg-gray-900 dark:border-white dark:bg-white dark:text-black dark:hover:bg-gray-100',
+                                  href: cursorStartHref,
+                                  icon: <CursorIcon className="h-3 w-3" />,
+                                  label: 'Open in Cursor',
+                                  onTrack: () => {
+                                    trackActivation({
+                                      action: 'open_cursor',
+                                      surface: 'result_panel',
+                                    })
+                                  },
+                                  size: 'xs',
+                                })}
+
+                                <Button
+                                  variant="secondary"
+                                  size="xs"
+                                  type="button"
+                                  onClick={() => {
+                                    showTransientActionFeedback('clone')
+                                    void openDeployDialog(null)
+                                  }}
+                                  disabled={
+                                    !canUseFinalActions ||
+                                    transientAction === 'clone'
+                                  }
+                                  className="h-6 gap-1 px-2 text-[11px]"
+                                >
+                                  {transientAction === 'clone' ? (
+                                    <CircleNotch className="h-3 w-3 animate-spin" />
+                                  ) : (
+                                    <GitHub className="h-3 w-3" />
+                                  )}
+                                  {transientAction === 'clone'
+                                    ? 'Opening...'
+                                    : 'Clone to GitHub'}
+                                </Button>
+
+                                {renderActionAnchor({
+                                  action: 'download',
+                                  className: 'h-6 gap-1 px-2 text-[11px]',
+                                  href: downloadHref,
+                                  icon: <Download className="h-3 w-3" />,
+                                  label: 'Download ZIP',
+                                  onTrack: () => {
+                                    trackActivation({
+                                      action: 'download',
+                                      surface: 'result_panel',
+                                    })
+                                  },
+                                  size: 'xs',
+                                  variant: 'secondary',
+                                })}
+                              </div>
+                            ) : null}
+                          </div>
+                        </div>
+                      ) : null}
+                    </CollapsibleContent>
+                  </Collapsible>
+
+                  {showPromptPreview && hasGeneratedPrompt ? (
+                    <div className="border-t border-gray-200 dark:border-gray-800">
+                      <GeneratedPromptPreviewHeader
+                        copiedPrompt={copiedKind === 'prompt'}
+                        copyNotice={promptCopyNotice}
+                        onDismissCopyNotice={dismissPromptCopyNotice}
+                        onCopyPrompt={() => {
+                          void copyResultValue('prompt')
+                        }}
+                      />
+                      <GeneratedPromptPreviewBody
+                        prompt={result?.prompt ?? ''}
+                      />
+                    </div>
+                  ) : null}
+                </div>
               </div>
-            </div>
+            </>
           )}
 
           {compact ? submitButton : null}
@@ -1318,7 +1353,7 @@ function StarterCustomizationSection({
           )}
         >
           {title}
-          <ChevronDown
+          <CaretDown
             className={twMerge(
               'h-3 w-3 transition-transform duration-200',
               open && 'rotate-180',

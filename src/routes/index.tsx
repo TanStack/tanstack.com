@@ -53,6 +53,26 @@ function Index() {
   const { recentPosts } = Route.useLoaderData()
   const { openLibraries } = useLibrariesOverlay()
 
+  // "Start with a prompt": smooth-scroll to the app starter and focus its prompt
+  // field. The starter hydrates lazily when scrolled into view, so poll briefly
+  // for the textarea before focusing.
+  const startWithPrompt = (e: React.MouseEvent) => {
+    e.preventDefault()
+    const section = document.getElementById('start-with-a-prompt')
+    section?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    let tries = 0
+    const focusPrompt = () => {
+      const field = section?.querySelector<HTMLTextAreaElement>('textarea')
+      if (field) {
+        field.focus()
+        field.select()
+      } else if (tries++ < 40) {
+        window.setTimeout(focusPrompt, 100)
+      }
+    }
+    window.setTimeout(focusPrompt, 350)
+  }
+
   return (
     <>
       <div className="max-w-full z-10 space-y-24">
@@ -61,8 +81,8 @@ function Index() {
               headline bottom-left, description + CTA bottom-right. The photo is
               always light, so text uses a mode-stable dark token (neutral-500)
               rather than a theme-flipping semantic. */}
-          <div className="w-full">
-            <div className="relative isolate flex min-h-[720px] flex-col justify-between gap-8 overflow-hidden px-6 py-10 sm:px-10 xl:h-[720px] xl:min-h-0 xl:flex-row xl:items-end xl:justify-between xl:gap-12 xl:px-20 xl:py-16">
+          <div className="w-full xl:px-10">
+            <div className="relative isolate flex min-h-[720px] flex-col justify-between gap-8 overflow-hidden px-6 py-10 sm:px-10 xl:h-[720px] xl:min-h-0 xl:flex-row xl:items-end xl:justify-between xl:gap-12 xl:rounded-2xl xl:px-16 xl:py-16">
               {/* Plain <img> (not OptimizedImage): the Cloudflare transform
                   resolves against the production origin, so a newly-added asset
                   404s until deployed. The source is pre-sized (2400px, q80). */}
@@ -75,7 +95,7 @@ function Index() {
                 fetchPriority="high"
                 className="absolute inset-0 -z-10 h-full w-full object-cover object-center"
               />
-              <h1 className="max-w-[613px] font-ds-display text-ds-display-sm text-ds-neutral-500 sm:text-ds-display-md lg:text-ds-display-lg xl:text-ds-display-xl">
+              <h1 className="max-w-[613px] font-ds-display text-ds-display-sm font-bold text-ds-neutral-500 sm:text-ds-display-md lg:text-ds-display-lg xl:text-ds-display-xl">
                 The{' '}
                 <span className="underline decoration-from-font underline-offset-[6px]">
                   open source
@@ -102,11 +122,12 @@ function Index() {
                   <Button
                     as="a"
                     href="#start-with-a-prompt"
+                    onClick={startWithPrompt}
                     variant="link"
                     size="md"
                     className="text-ds-neutral-500 hover:text-ds-neutral-500/70"
                   >
-                    Start with a prompt
+                    Start with a prompt <ArrowRight className="h-4 w-4" />
                   </Button>
                 </div>
               </div>

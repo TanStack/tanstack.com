@@ -364,13 +364,15 @@ export function ApplicationStarter({
     }
   }
   const renderCopyPromptButton = () => (
+    // Figma results CTA: "Copy Prompt to build this stack" — TanStack brand
+    // rainbow gradient with dark ink.
     <Button
-      color="emerald"
-      variant={selectedHostingDeployPartner ? 'secondary' : 'primary'}
+      variant="secondary"
       size="sm"
       type="button"
       onClick={() => void generatePrompt()}
       disabled={!canUseFinalActions}
+      className="rounded-[11px] border-transparent bg-[linear-gradient(117deg,#ff5f5f,#ffa05c,#fff27c,#74dcff)] font-ds-display font-bold text-ds-neutral-500 shadow-md transition-[filter] hover:text-ds-neutral-500 hover:brightness-105 disabled:grayscale"
     >
       {isGeneratingPrompt ? (
         <Loader2 className="h-4 w-4 animate-spin" />
@@ -890,7 +892,7 @@ export function ApplicationStarter({
                           size="sm"
                           type="submit"
                           disabled={!canRevealOptions}
-                          className="rounded-[11px] border-transparent bg-[linear-gradient(117deg,#ff5f5f,#ffa05c,#fff27c,#74dcff)] font-ds-display font-bold text-ds-neutral-500 shadow-md transition-[filter] hover:text-ds-neutral-500 hover:brightness-105"
+                          className="rounded-[11px] border-transparent bg-[linear-gradient(117deg,#ff5f5f,#ffa05c,#fff27c,#74dcff)] font-ds-display font-bold text-ds-neutral-500 shadow-md transition-[filter] hover:text-ds-neutral-500 hover:brightness-105 disabled:grayscale"
                         >
                           Go
                           <ArrowRight className="h-4 w-4" />

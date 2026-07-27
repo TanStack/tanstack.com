@@ -611,27 +611,8 @@ button {
   pointer-events: auto;
 }
 
-.ts-mega-trigger::after {
-  content: '';
-  position: absolute;
-  right: 0.625rem;
-  bottom: 0.3rem;
-  left: 0.625rem;
-  height: 1px;
-  background: currentcolor;
-  opacity: 0.35;
-  transform: scaleX(0);
-  transform-origin: left;
-  transition:
-    opacity 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
-    transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-.ts-mega-trigger:hover::after,
-.ts-mega-trigger-wrap:focus-within > .ts-mega-trigger::after {
-  opacity: 0.55;
-  transform: scaleX(1);
-}
+/* Nav-trigger hover is a subtle background fill (matching the mega-menu item
+   hover), applied via the trigger's Tailwind classes — no underline. */
 
 .ts-mega-dropdown {
   /* Centered in the viewport (under the centered nav), not left-aligned to

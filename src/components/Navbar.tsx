@@ -769,7 +769,7 @@ function DesktopNavTrigger({
   const { openLibraries } = useLibrariesOverlay()
   const triggerClassName = twMerge(
     'ts-mega-trigger inline-flex items-center gap-1 rounded-md px-2 py-2 text-xs font-medium min-[1120px]:gap-1.5 min-[1120px]:px-3 min-[1120px]:text-[13px]',
-    'text-gray-700 transition-colors hover:bg-gray-500/10 hover:text-gray-950',
+    'text-gray-700 transition-colors hover:bg-text-primary/[0.04] hover:text-gray-950',
     'dark:text-gray-300 dark:hover:text-white',
   )
 

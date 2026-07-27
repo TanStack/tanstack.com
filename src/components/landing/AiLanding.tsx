@@ -1,57 +1,73 @@
 import * as React from 'react'
-import { Link, useParams } from '@tanstack/react-router'
 import {
-  ArrowRight,
-  Robot,
-  BookOpen,
-  GitBranch,
+  BracketsCurly,
   Microphone,
-  MonitorArrowUp,
   Plug,
   Radio,
-  MagnifyingGlass,
-  Sparkle,
-  ArrowsSplit,
-  MagicWand,
+  Robot,
+  Waveform,
+  type Icon,
 } from '@phosphor-icons/react'
 
-import { BottomCTA } from '~/components/BottomCTA'
-import { Footer } from '~/components/Footer'
-import { GithubIcon } from '~/components/icons/GithubIcon'
-import { LandingCommunitySection } from '~/components/LandingCommunitySection'
-import { SponsorSection } from '~/components/SponsorSection'
-import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
-import { LibraryWordmark } from '~/components/LibraryWordmark'
-import LandingPageGad from '~/components/LandingPageGad'
-import { getLibrary } from '~/libraries'
+import {
+  LandingSection,
+  LandingSectionIntro,
+  LandingWindow,
+  LibraryLandingShell,
+} from './LibraryLanding'
 
-import { LandingEcosystemProof } from '~/components/landing/LandingEcosystemProof'
-import { LandingCopyPromptButton } from '~/components/landing/LandingCopyPromptButton'
-const library = getLibrary('ai')
-const aiAgentPrompt = [
+const aiPrompt = [
   'Build a TanStack AI feature for a TypeScript app.',
-  'Use the headless client or framework adapter, AG-UI-compatible request/event streams, provider adapters, typed client/server tools, structured output, and observable runtime state without routing traffic through a hosted gateway.',
-  'Show provider portability, tool approval, streaming UI, and media/realtime capabilities where useful.',
+  'Use the headless client or framework adapter, AG-UI-compatible request and event streams, provider adapters, typed client and server tools, structured output, and observable runtime state without requiring a hosted gateway.',
+  'Show provider-specific capabilities honestly, make tool approval explicit, and include media or realtime primitives only where the selected model supports them.',
 ].join(' ')
 
-const heroProof = [
+const providers = [
   {
-    label: 'AG-UI native',
-    value: 'portable client and event protocol',
+    name: 'OpenAI',
+    model: 'gpt-5',
+    capabilities: ['text', 'reasoning', 'tools', 'image'],
   },
   {
-    label: 'Provider adapters',
-    value: 'OpenRouter, OpenAI, Anthropic, Gemini',
+    name: 'Anthropic',
+    model: 'claude-sonnet-4',
+    capabilities: ['text', 'reasoning', 'tools'],
   },
   {
-    label: 'Typed tools',
-    value: 'client, server, approvals, media',
+    name: 'Gemini',
+    model: 'gemini-2.5-pro',
+    capabilities: ['text', 'reasoning', 'tools', 'media'],
+  },
+  {
+    name: 'Ollama',
+    model: 'local model',
+    capabilities: ['text', 'tools'],
   },
 ]
 
+type AiHeroServer = {
+  detail?: string
+  dotted?: boolean
+  kind?: 'tanstack'
+  label: string
+}
+
+type GraphNodePosition = {
+  height: number
+  label: string
+  width: number
+  x: number
+  y: number
+}
+
+type GraphPoint = {
+  x: number
+  y: number
+}
+
 const aiHeroClients = ['Vanilla', 'React', 'Vue', 'Solid', 'Svelte', 'Preact']
-const aiHeroServers = [
-  { label: 'TanStack AI', detail: 'TypeScript', kind: 'tanstack' as const },
+const aiHeroServers: Array<AiHeroServer> = [
+  { label: 'TanStack AI', detail: 'TypeScript', kind: 'tanstack' },
   { label: 'Python', dotted: true },
   { label: 'Go', dotted: true },
   { label: 'PHP', dotted: true },
@@ -64,10 +80,13 @@ const graphClientNodes = aiHeroClients.map((label, index) => ({
   width: 86,
   height: 34,
 }))
-const graphAgUiNode = {
+const graphAgUiNode: GraphNodePosition & {
+  detail: string
+  kind: 'tanstack'
+} = {
   label: 'TanStack AI Client',
   detail: 'AG-UI',
-  kind: 'tanstack' as const,
+  kind: 'tanstack',
   x: 142,
   y: 138,
   width: 136,
@@ -112,296 +131,67 @@ type AiHeroChatMessage = {
   user: string
 }
 
-const featureCards = [
-  {
-    title: 'Protocol first, gateway never required.',
-    body: 'Clients and servers speak AG-UI-compatible requests and event streams, so teams can own their transport, runtime, and deployment shape.',
-    icon: <Radio size={18} />,
-  },
-  {
-    title: 'Providers are adapters, not the architecture.',
-    body: 'Use OpenRouter, OpenAI, Anthropic, Gemini, Ollama, Groq, Grok/xAI, ElevenLabs, and fal.ai without making the app proprietary to one vendor.',
-    icon: <Plug size={18} />,
-  },
-  {
-    title: 'Tools stay typed where they run.',
-    body: 'Define client, server, isomorphic, and provider-native tools with input/output types, approvals, and runtime boundaries that remain visible.',
-    icon: <Robot size={18} />,
-  },
-  {
-    title: 'Media is part of the same SDK story.',
-    body: 'Text, structured output, reasoning streams, image, speech, transcription, realtime voice, and video can share provider-aware primitives.',
-    icon: <Microphone size={18} />,
-  },
-]
-
-const pipelineSteps = [
-  {
-    label: 'Client',
-    body: 'Headless client or framework hook starts the interaction from your UI.',
-  },
-  {
-    label: 'Protocol',
-    body: 'AG-UI request and event streams keep client/server interop explicit.',
-  },
-  {
-    label: 'Provider',
-    body: 'Adapters translate into model-specific capabilities and options.',
-  },
-  {
-    label: 'Observe',
-    body: 'Devtools, middleware, logs, and hooks make the runtime explainable.',
-  },
-]
-
-const runtimeSignals = [
-  {
-    label: 'tool approval',
-    value: 'pending: chargeCard',
-  },
-  {
-    label: 'stream event',
-    value: 'reasoning.delta',
-  },
-  {
-    label: 'structured output',
-    value: 'schema matched',
-  },
-  {
-    label: 'media job',
-    value: 'image generation complete',
-  },
-]
-
-const frameworkAdapters = [
-  'React',
-  'Vue',
-  'Solid',
-  'Svelte',
-  'Preact',
-  'Vanilla',
-]
-
 export default function AiLanding() {
-  const { version } = useParams({ strict: false })
-  const resolvedVersion = version ?? library.latestVersion
-
   return (
-    <div className="w-full min-w-0 overflow-x-hidden bg-[#fff1f7] text-zinc-950 dark:bg-zinc-950 dark:text-white">
-      <section className="max-w-full overflow-hidden border-b border-pink-950/10 bg-[#ffe4f0] dark:border-pink-300/10 dark:bg-[#190612]">
-        <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-10 lg:max-w-[80rem] lg:grid-cols-[0.84fr_1.16fr] lg:items-start lg:py-12 xl:max-w-[92rem]">
-          <div className="min-w-0 max-w-full sm:max-w-3xl">
-            <SectionKicker icon={<MagicWand size={14} />}>
-              Open AI application SDK
-            </SectionKicker>
-
-            <div className="mt-4 flex flex-wrap items-start gap-x-3 gap-y-2">
-              <h1 className="text-5xl font-black leading-[0.95] sm:text-6xl lg:text-7xl">
-                <LibraryWordmark library={library} />
-              </h1>
-              {library.badge ? (
-                <span className="rounded-md bg-zinc-950 px-2 py-1 text-xs font-black uppercase text-white dark:bg-white dark:text-zinc-950">
-                  {library.badge}
-                </span>
-              ) : null}
-            </div>
-
-            <p className="mt-5 max-w-2xl text-lg font-bold leading-8 text-zinc-900 dark:text-zinc-100 sm:text-xl">
-              Own the AI stack between your UI and your models.
-            </p>
-
-            <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-700 dark:text-zinc-300 sm:text-lg">
-              AI is an open-source SDK for building provider-portable AI
-              features with AG-UI-compatible clients, server helpers, typed
-              tools, media generation, and observable runtime primitives without
-              a hosted gateway in the middle.
-            </p>
-
-            <LibraryDownloadsMicro
-              animateIncreaseTrend
-              library={library}
-              className="mt-5"
-              label="weekly downloads"
-              period="weekly"
-              showTotals
-            />
-
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <AiLink
-                to="/$libraryId/$version/docs"
-                params={{ libraryId: library.id, version: resolvedVersion }}
-                label="Read the docs"
-                icon={<BookOpen size={16} aria-hidden="true" />}
-              />
-              <LandingCopyPromptButton
-                prompt={aiAgentPrompt}
-                label="Copy AI Prompt"
-              />
-            </div>
-
-            <div className="mt-8 grid gap-3 sm:grid-cols-3">
-              {heroProof.map((proof) => (
-                <ProofPill key={proof.label} {...proof} />
-              ))}
-            </div>
-            <LandingEcosystemProof />
-          </div>
-
-          <AiGraphChatPanel />
+    <LibraryLandingShell
+      libraryId="ai"
+      headline="Own the path between your interface and every model."
+      description="TanStack AI is a typed, composable SDK for streaming model output, tools, structured data, media, and realtime experiences through infrastructure you control."
+      hero={<AiGraphChatHero />}
+      prompt={aiPrompt}
+      promptLabel="Copy AI prompt"
+    >
+      <LandingSection tone="ink">
+        <div className="grid items-center gap-12 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16">
+          <LandingSectionIntro
+            eyebrow="Typed tools"
+            icon={<BracketsCurly aria-hidden="true" size={15} />}
+            title="One contract. Two execution boundaries."
+            body="Define the input and output once, then choose where the work belongs. Client tools can touch local UI state. Server tools can reach private systems. Isomorphic tools share the same definition and can still pause for approval."
+          />
+          <ToolBoundary />
         </div>
-      </section>
+      </LandingSection>
 
-      <section className="border-b border-pink-950/10 bg-[#fff7fb] dark:border-pink-300/10 dark:bg-[#1f0916]">
-        <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.74fr_1.26fr] xl:max-w-[92rem]">
-          <div>
-            <SectionKicker icon={<Sparkle size={14} />}>Why AI</SectionKicker>
-            <h2 className="mt-3 max-w-xl text-3xl font-black leading-tight sm:text-4xl">
-              AI apps need protocols and boundaries, not another black box.
-            </h2>
-            <p className="mt-4 max-w-xl text-base leading-7 text-zinc-700 dark:text-zinc-300">
-              A useful AI layer has to cross clients, servers, providers, tools,
-              streaming events, approvals, and observability. AI keeps those
-              boundaries explicit so teams can swap pieces without rewriting the
-              product.
-            </p>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            {featureCards.map((feature) => (
-              <FeatureCard key={feature.title} {...feature} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-        <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[1.05fr_0.95fr] lg:items-center xl:max-w-[92rem]">
-          <LifecyclePanel />
-          <div>
-            <SectionKicker icon={<GitBranch size={14} />}>
-              Runtime pipeline
-            </SectionKicker>
-            <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
-              From UI intent to model output, every hop stays visible.
-            </h2>
-            <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300">
-              AI features are distributed systems wearing a chat box. The SDK
-              gives each hop a typed place to live so the app can stream, tool
-              call, approve, retry, observe, and render intentionally.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section className="border-b border-zinc-200 bg-[#fbfaf6] dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.82fr_1.18fr] lg:items-start xl:max-w-[92rem]">
-          <div>
-            <SectionKicker icon={<MagnifyingGlass size={14} />}>
-              Observable runtime
-            </SectionKicker>
-            <h2 className="mt-3 max-w-xl text-3xl font-black leading-tight sm:text-4xl">
-              Debug the interaction, not just the final answer.
-            </h2>
-            <p className="mt-4 max-w-xl text-base leading-7 text-zinc-700 dark:text-zinc-300">
-              Tool calls, approvals, model options, provider events, structured
-              output, middleware, and media jobs all need to be inspectable if
-              the feature is going to be operated with confidence.
-            </p>
-          </div>
-
-          <RuntimePanel />
-        </div>
-      </section>
-
-      <section className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-        <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.72fr_1.28fr] lg:items-start xl:max-w-[92rem]">
-          <div className="max-w-xl">
-            <SectionKicker icon={<ArrowsSplit size={14} />}>
-              Framework adapters
-            </SectionKicker>
-            <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
-              Headless core, renderer-specific ergonomics.
-            </h2>
-            <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300">
-              Start from the headless client or use the adapter for your UI
-              runtime. The provider, protocol, tools, and event model stay the
-              same.
-            </p>
-            <div className="mt-5 flex flex-wrap gap-2">
-              {frameworkAdapters.map((framework) => (
-                <span
-                  key={framework}
-                  className="rounded-md border border-pink-200 bg-pink-50 px-3 py-1.5 text-sm font-bold text-pink-800 dark:border-pink-900 dark:bg-pink-950/40 dark:text-pink-200"
-                >
-                  {framework}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="border-b border-zinc-200 bg-[#fff1f7] py-12 dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="mx-auto w-full max-w-[80rem] px-4 xl:max-w-[92rem]">
-          <div className="max-w-3xl">
-            <SectionKicker icon={<MonitorArrowUp size={14} />}>
-              Product control
-            </SectionKicker>
-            <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
-              Bring your providers, servers, and product constraints.
-            </h2>
-            <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300">
-              AI should help teams standardize the app layer without flattening
-              provider capabilities or forcing a hosted platform into the
-              critical path.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-white py-12 dark:bg-zinc-950">
-        <div className="mx-auto w-full max-w-[80rem] px-4 xl:max-w-[92rem]">
-          <div className="max-w-3xl">
-            <SectionKicker icon={<GithubIcon className="h-4 w-4" />}>
-              Open source ecosystem
-            </SectionKicker>
-            <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
-              AI stays useful by staying close to real product work.
-            </h2>
-            <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300">
-              Maintainers, adapters, examples, partners, and GitHub sponsors
-              keep the SDK honest as models, providers, and app expectations
-              keep changing.
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-10 flex flex-col gap-14">
-          <LandingCommunitySection libraryId="ai" />
-          <SponsorSection
-            title="GitHub Sponsors"
-            aspectRatio="1/1"
-            packMaxWidth="900px"
-            showCTA
+      <LandingSection tone="raised">
+        <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
+          <ProviderWorkbench />
+          <LandingSectionIntro
+            eyebrow="Provider types"
+            icon={<Plug aria-hidden="true" size={15} />}
+            title="The adapter changes. The capability surface stays honest."
+            body="Providers share a common SDK shape without pretending every model is identical. Model names, options, tool support, and modality-specific results remain typed at the adapter boundary."
           />
         </div>
-      </section>
+      </LandingSection>
 
-      <LandingPageGad />
-      <BottomCTA
-        linkProps={{
-          to: '/$libraryId/$version/docs',
-          params: { libraryId: library.id, version: resolvedVersion },
-        }}
-        label="Get Started!"
-        className="border-pink-500 bg-pink-500 text-white hover:bg-pink-600"
-      />
-      <Footer />
-    </div>
+      <LandingSection tone="accent">
+        <LandingSectionIntro
+          centered
+          eyebrow="AG-UI both ways"
+          icon={<Radio aria-hidden="true" size={15} />}
+          title="The protocol is the seam, not a hosted middleman."
+          body="Headless clients send AG-UI-compatible requests and consume AG-UI events. Your runtime can live in TypeScript or interoperate with another AG-UI server while your application keeps control of transport, auth, and deployment."
+        />
+        <ProtocolMap />
+      </LandingSection>
+
+      <LandingSection tone="ink">
+        <div className="grid gap-12 lg:grid-cols-[0.78fr_1.22fr] lg:items-start lg:gap-16">
+          <LandingSectionIntro
+            eyebrow="Beyond chat"
+            icon={<Microphone aria-hidden="true" size={15} />}
+            title="Different media. The same observable runtime."
+            body="Text and structured output sit beside image generation, speech, transcription, realtime voice, and video. Middleware, hooks, devtools, and OpenTelemetry can observe work at the activity level."
+          />
+          <ModalityRail />
+        </div>
+      </LandingSection>
+    </LibraryLandingShell>
   )
 }
 
-function AiGraphChatPanel() {
+function AiGraphChatHero() {
   const [activeClient, setActiveClient] = React.useState(0)
   const [activeProvider, setActiveProvider] = React.useState(0)
   const [chatMessages, setChatMessages] = React.useState<
@@ -413,6 +203,10 @@ function AiGraphChatPanel() {
   const chatLockedToBottomRef = React.useRef(true)
 
   React.useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return
+    }
+
     const clientIntervalId = window.setInterval(() => {
       setActiveClient((current) => (current + 1) % aiHeroClients.length)
     }, 2300)
@@ -427,6 +221,19 @@ function AiGraphChatPanel() {
   }, [])
 
   React.useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      const message = aiHeroMessages[0]
+
+      setChatMessages([
+        {
+          ...message,
+          id: 'reduced-motion-example',
+          isStreaming: false,
+        },
+      ])
+      return
+    }
+
     let cancelled = false
     const timeouts: Array<number> = []
 
@@ -554,9 +361,7 @@ function AiGraphChatPanel() {
     }
 
     element.addEventListener('scroll', handleScroll, { passive: true })
-    return () => {
-      element.removeEventListener('scroll', handleScroll)
-    }
+    return () => element.removeEventListener('scroll', handleScroll)
   }, [])
 
   React.useEffect(() => {
@@ -572,14 +377,22 @@ function AiGraphChatPanel() {
   }, [chatMessages])
 
   return (
-    <div className="grid w-full min-w-0 max-w-full items-start gap-5 lg:grid-cols-[1.05fr_0.95fr]">
-      <AiDemoWindow title="client graph">
-        <div className="relative h-[26rem] overflow-hidden bg-[#fff7fb] dark:bg-[#120914]">
-          <div className="absolute inset-0 opacity-45 [background-image:linear-gradient(rgba(236,72,153,.14)_1px,transparent_1px),linear-gradient(90deg,rgba(236,72,153,.14)_1px,transparent_1px)] [background-size:28px_28px]" />
+    <div className="grid w-full min-w-0 max-w-full items-start gap-4 lg:grid-cols-[1.05fr_0.95fr]">
+      <span className="sr-only">
+        A client graph shows six UI adapters converging on the TanStack AI
+        Client over AG-UI, then reaching a TypeScript runtime and
+        interchangeable model providers.
+      </span>
+
+      <LandingWindow label="client graph">
+        <div
+          aria-hidden="true"
+          className="relative h-[23rem] overflow-hidden bg-background-default [container-type:inline-size] sm:h-[26rem]"
+        >
+          <div className="absolute inset-0 opacity-40 [background-image:linear-gradient(rgb(var(--landing-glow)/0.18)_1px,transparent_1px),linear-gradient(90deg,rgb(var(--landing-glow)/0.18)_1px,transparent_1px)] [background-size:28px_28px]" />
           <svg
             className="pointer-events-none absolute inset-0 h-full w-full"
             viewBox="0 0 420 420"
-            aria-hidden="true"
           >
             {graphClientNodes.map((node, index) => (
               <GraphLine
@@ -661,10 +474,13 @@ function AiGraphChatPanel() {
             />
           ))}
         </div>
-      </AiDemoWindow>
+      </LandingWindow>
 
-      <AiDemoWindow title="chat runtime">
-        <div className="flex h-[26rem] min-w-0 flex-col bg-zinc-50 dark:bg-zinc-900">
+      <LandingWindow label="chat runtime">
+        <div
+          aria-hidden="true"
+          className="flex h-[23rem] min-w-0 flex-col bg-background-default sm:h-[26rem]"
+        >
           <div
             ref={chatScrollRef}
             className="min-h-0 flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
@@ -672,34 +488,34 @@ function AiGraphChatPanel() {
             <div className="flex min-h-full flex-col justify-end gap-2.5 p-4">
               {chatMessages.map((message) => (
                 <React.Fragment key={message.id}>
-                  <div className="ml-auto max-w-[86%] rounded-xl bg-pink-500 px-3 py-2 text-xs font-bold leading-5 text-white shadow-sm">
+                  <div className="ml-auto max-w-[86%] rounded-xl bg-[var(--landing-accent)] px-3 py-2 text-ds-body-xs text-[var(--landing-accent-ink)] shadow-sm">
                     {message.user}
                   </div>
                   {message.assistant || message.isStreaming ? (
-                    <div className="max-w-[90%] rounded-xl border border-zinc-200 bg-white px-3 py-2 text-xs leading-5 text-zinc-800 shadow-sm dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-200">
+                    <div className="max-w-[90%] rounded-xl border border-border-default bg-background-subtle px-3 py-2 text-ds-body-xs text-text-primary/65 shadow-sm">
                       {message.assistant}
                       {message.isStreaming ? (
-                        <span className="ml-1 inline-block h-3.5 w-1 rounded-sm bg-pink-500 align-[-0.2rem] motion-safe:animate-pulse" />
+                        <span className="ml-1 inline-block h-3.5 w-1 rounded-sm bg-[var(--landing-accent)] align-[-0.2rem] motion-safe:animate-pulse" />
                       ) : null}
                     </div>
                   ) : null}
                 </React.Fragment>
               ))}
-              <div className="grid gap-2 pt-2 text-xs font-bold sm:grid-cols-2">
+              <div className="grid gap-2 pt-2 font-ds-mono text-ds-mono-2xs sm:grid-cols-2">
                 {[
-                  ['event', 'assistant.delta'],
-                  ['tool', 'approval required'],
+                  ['event', 'text content'],
+                  ['tool', 'approval gate'],
                   ['provider', aiHeroProviders[activeProvider]],
-                  ['server', 'TanStack AI'],
+                  ['runtime', 'TanStack AI'],
                 ].map(([label, value]) => (
                   <div
                     key={label}
-                    className="rounded-lg bg-white px-3 py-2 dark:bg-zinc-950"
+                    className="rounded-lg bg-background-subtle px-3 py-2"
                   >
-                    <p className="text-[0.58rem] uppercase text-zinc-500 dark:text-zinc-500">
+                    <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
                       {label}
                     </p>
-                    <p className="mt-1 truncate text-pink-700 dark:text-pink-300">
+                    <p className="mt-1 truncate text-[var(--landing-accent-bright)]">
                       {value}
                     </p>
                   </div>
@@ -708,61 +524,24 @@ function AiGraphChatPanel() {
             </div>
           </div>
 
-          <div className="shrink-0 border-t border-zinc-200 p-4 dark:border-zinc-800">
+          <div className="shrink-0 border-t border-border-subtle p-4">
             <div
               className={
                 typingUserMessage
-                  ? 'rounded-lg border border-pink-300 bg-white px-3 py-2 text-sm font-bold text-zinc-950 ring-1 ring-pink-500/30 dark:border-pink-900 dark:bg-zinc-950 dark:text-zinc-100'
-                  : 'rounded-lg border border-pink-200 bg-white px-3 py-2 text-sm font-bold text-zinc-500 dark:border-pink-950 dark:bg-zinc-950 dark:text-zinc-500'
+                  ? 'rounded-lg border border-[var(--landing-accent)] bg-background-subtle px-3 py-2 text-ds-body-xs text-text-primary ring-1 ring-[color:rgb(var(--landing-glow)/0.3)]'
+                  : 'rounded-lg border border-border-default bg-background-subtle px-3 py-2 text-ds-body-xs text-text-primary/30'
               }
             >
               {typingUserMessage || 'Type a message...'}
               {typingUserMessage ? (
-                <span className="ml-1 inline-block h-4 w-1 rounded-sm bg-pink-500 align-[-0.2rem] motion-safe:animate-pulse" />
+                <span className="ml-1 inline-block h-4 w-1 rounded-sm bg-[var(--landing-accent)] align-[-0.2rem] motion-safe:animate-pulse" />
               ) : null}
             </div>
           </div>
         </div>
-      </AiDemoWindow>
+      </LandingWindow>
     </div>
   )
-}
-
-function AiDemoWindow({
-  children,
-  title,
-}: {
-  children: React.ReactNode
-  title: string
-}) {
-  return (
-    <div className="w-full min-w-0 overflow-hidden rounded-lg border border-pink-200 bg-white shadow-sm shadow-pink-950/5 dark:border-pink-900 dark:bg-zinc-950">
-      <div className="flex items-center justify-between gap-3 border-b border-pink-100 px-4 py-3 dark:border-pink-950/70">
-        <div className="flex items-center gap-2">
-          <span className="h-2.5 w-2.5 rounded-md bg-red-400" />
-          <span className="h-2.5 w-2.5 rounded-md bg-yellow-400" />
-          <span className="h-2.5 w-2.5 rounded-md bg-emerald-400" />
-        </div>
-        <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400">
-          {title}
-        </span>
-      </div>
-      {children}
-    </div>
-  )
-}
-
-type GraphNodePosition = {
-  height: number
-  label: string
-  width: number
-  x: number
-  y: number
-}
-
-type GraphPoint = {
-  x: number
-  y: number
 }
 
 function topAnchor(node: GraphNodePosition): GraphPoint {
@@ -804,14 +583,18 @@ function GraphLine({ active, d }: { active?: boolean; d: string }) {
     <path
       d={d}
       fill="none"
-      stroke={active ? 'currentColor' : 'rgb(113 113 122 / 0.28)'}
       strokeLinecap="round"
       strokeWidth={active ? 3 : 1.5}
       className={
         active
-          ? 'text-zinc-950 transition-all duration-500 dark:text-white'
-          : 'transition-all duration-500'
+          ? 'stroke-[var(--landing-accent-bright)] transition-all duration-500 motion-reduce:transition-none'
+          : 'stroke-text-primary/15 transition-all duration-500 motion-reduce:transition-none'
       }
+      style={{
+        filter: active
+          ? 'drop-shadow(0 0 4px rgb(var(--landing-glow) / 0.72))'
+          : undefined,
+      }}
     />
   )
 }
@@ -827,7 +610,7 @@ function GraphLabel({
 }) {
   return (
     <div
-      className="absolute z-10 text-[0.62rem] font-black uppercase text-zinc-500 dark:text-zinc-500"
+      className="absolute z-10 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25"
       style={{
         left: `${(x / 420) * 100}%`,
         top: `${(y / 420) * 100}%`,
@@ -854,31 +637,21 @@ function GraphNode({
   node: GraphNodePosition
 }) {
   const isTanStack = kind === 'tanstack'
+  const className = isTanStack
+    ? active
+      ? 'absolute z-20 flex flex-col items-center justify-center rounded-lg border-2 border-[var(--landing-accent-dark)] bg-[linear-gradient(135deg,var(--landing-accent-dark),var(--landing-accent))] px-2 text-center font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-ink)] shadow-[0_12px_28px_rgb(var(--landing-glow)/0.28)] ring-2 ring-[color:rgb(var(--landing-glow)/0.24)] transition-all duration-500 motion-reduce:transition-none'
+      : 'absolute z-20 flex flex-col items-center justify-center rounded-lg border-2 border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.15)] px-2 text-center font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)] transition-all duration-500 motion-reduce:transition-none'
+    : active
+      ? 'absolute z-20 flex flex-col items-center justify-center rounded-lg border border-text-primary bg-text-primary px-2 text-center font-ds-mono text-ds-mono-2xs text-background-default shadow-sm transition-all duration-500 motion-reduce:transition-none'
+      : dotted
+        ? 'absolute z-20 flex flex-col items-center justify-center rounded-lg border border-dashed border-text-primary/25 bg-background-subtle/80 px-2 text-center font-ds-mono text-ds-mono-2xs text-text-primary/30 transition-all duration-500 motion-reduce:transition-none'
+        : 'absolute z-20 flex flex-col items-center justify-center rounded-lg border border-border-default bg-background-subtle/90 px-2 text-center font-ds-mono text-ds-mono-2xs text-text-primary/40 transition-all duration-500 motion-reduce:transition-none'
 
   return (
-    <div
-      style={graphStyle(node)}
-      className={
-        isTanStack
-          ? active
-            ? 'absolute z-20 flex flex-col items-center justify-center rounded-lg border-2 border-pink-300 bg-linear-to-br from-pink-400 to-pink-700 px-2 text-center text-xs font-black leading-tight text-white shadow-xl shadow-pink-950/30 ring-2 ring-pink-200/70 transition-all duration-500 dark:from-pink-300 dark:to-pink-600 dark:ring-pink-400/25'
-            : 'absolute z-20 flex flex-col items-center justify-center rounded-lg border-2 border-pink-300 bg-linear-to-br from-white to-pink-100 px-2 text-center text-xs font-black leading-tight text-pink-700 shadow-md shadow-pink-950/10 transition-all duration-500 dark:border-pink-500/70 dark:from-pink-950/70 dark:to-pink-900/25 dark:text-pink-100'
-          : active
-            ? 'absolute z-20 flex flex-col items-center justify-center rounded-lg border border-zinc-950 bg-zinc-950 px-2 text-center text-xs font-black leading-tight text-white shadow-lg shadow-zinc-950/20 transition-all duration-500 dark:border-white dark:bg-white dark:text-zinc-950 dark:shadow-white/10'
-            : dotted
-              ? 'absolute z-20 flex flex-col items-center justify-center rounded-lg border border-dashed border-zinc-400 bg-white/70 px-2 text-center text-xs font-bold leading-tight text-zinc-500 transition-all duration-500 dark:border-zinc-600 dark:bg-zinc-950/65 dark:text-zinc-500'
-              : 'absolute z-20 flex flex-col items-center justify-center rounded-lg border border-zinc-300 bg-white/85 px-2 text-center text-xs font-bold leading-tight text-zinc-600 transition-all duration-500 dark:border-zinc-700 dark:bg-zinc-950/80 dark:text-zinc-400'
-      }
-    >
+    <div style={graphStyle(node)} className={className}>
       <span>{label}</span>
       {detail ? (
-        <span
-          className={
-            active
-              ? 'mt-0.5 block text-[0.58rem] uppercase opacity-75'
-              : 'mt-0.5 block text-[0.58rem] uppercase text-zinc-400 dark:text-zinc-500'
-          }
-        >
+        <span className="mt-0.5 block font-ds-mono text-ds-mono-caps-xs uppercase opacity-65">
           {detail}
         </span>
       ) : null}
@@ -886,135 +659,197 @@ function GraphNode({
   )
 }
 
-function LifecyclePanel() {
+function ToolBoundary() {
+  const [boundary, setBoundary] = React.useState<'client' | 'server'>('server')
+  const boundaries: Array<'client' | 'server'> = ['client', 'server']
+
   return (
-    <div className="grid gap-3 sm:grid-cols-2">
-      {pipelineSteps.map((step, index) => (
+    <LandingWindow label="tool contract">
+      <div className="p-5 sm:p-6">
         <div
-          key={step.label}
-          className="rounded-lg border border-zinc-200 bg-[#fff1f7] p-4 dark:border-zinc-800 dark:bg-zinc-900"
+          className="flex gap-2"
+          role="group"
+          aria-label="Tool execution boundary"
         >
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-pink-100 text-sm font-black text-pink-800 dark:bg-pink-950 dark:text-pink-200">
-            {index + 1}
-          </span>
-          <h3 className="mt-4 text-lg font-black leading-tight">
-            {step.label}
-          </h3>
-          <p className="mt-2 text-sm leading-6 text-zinc-700 dark:text-zinc-300">
-            {step.body}
+          {boundaries.map((option) => (
+            <button
+              key={option}
+              type="button"
+              aria-pressed={boundary === option}
+              className="flex-1 rounded-lg border border-border-default px-3 py-2 text-ds-label-sm capitalize text-text-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[var(--landing-accent)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.14)] aria-pressed:text-[var(--landing-accent-bright)]"
+              onClick={() => setBoundary(option)}
+            >
+              {option}
+            </button>
+          ))}
+        </div>
+        <div className="mt-5 overflow-x-auto rounded-lg bg-ds-neutral-500 p-4 font-ds-mono text-ds-mono-xs text-white/65">
+          <p>
+            <span className="text-pink-300">const</span> lookupInvoice =
+            toolDefinition({'{'}
+          </p>
+          <p>&nbsp;&nbsp;name: 'lookup_invoice',</p>
+          <p>
+            &nbsp;&nbsp;inputSchema: z.object({'{'} id: z.string() {'}'}),
+          </p>
+          <p>&nbsp;&nbsp;outputSchema: invoiceSchema,</p>
+          <p>&nbsp;&nbsp;needsApproval: true,</p>
+          <p>{'}'})</p>
+          <p className="text-[var(--landing-accent-bright)]">
+            lookupInvoice.{boundary}(
+            {boundary === 'client' ? 'openInvoicePanel' : 'readPrivateLedger'})
           </p>
         </div>
+        <p
+          className="mt-4 text-ds-body-xs text-text-primary/35"
+          aria-live="polite"
+        >
+          {boundary === 'client'
+            ? 'Runs beside the UI and can update local application state.'
+            : 'Runs behind your server boundary with private credentials and data.'}
+        </p>
+      </div>
+    </LandingWindow>
+  )
+}
+
+function ProviderWorkbench() {
+  const [activeIndex, setActiveIndex] = React.useState(0)
+  const provider = providers[activeIndex] ?? providers[0]
+
+  return (
+    <LandingWindow label="provider capability types">
+      <div className="grid sm:grid-cols-[10rem_1fr]">
+        <div className="border-border-subtle p-3 sm:border-r">
+          {providers.map((item, index) => (
+            <button
+              key={item.name}
+              type="button"
+              aria-pressed={index === activeIndex}
+              className="mb-1 block w-full rounded-lg px-3 py-2 text-left text-ds-label-sm text-text-primary/35 hover:bg-text-primary/5 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.14)] aria-pressed:text-[var(--landing-accent-bright)]"
+              onClick={() => setActiveIndex(index)}
+            >
+              {item.name}
+            </button>
+          ))}
+        </div>
+        <div className="p-5" aria-live="polite">
+          <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+            selected model
+          </p>
+          <p className="mt-2 font-ds-mono text-ds-mono-xs text-text-primary">
+            {provider.model}
+          </p>
+          <div className="mt-6 flex flex-wrap gap-2">
+            {['text', 'reasoning', 'tools', 'image', 'media'].map(
+              (capability) => {
+                const supported = provider.capabilities.includes(capability)
+                return (
+                  <span
+                    key={capability}
+                    className={
+                      supported
+                        ? 'rounded-full border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.14)] px-3 py-1.5 font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]'
+                        : 'rounded-full border border-border-subtle px-3 py-1.5 font-ds-mono text-ds-mono-2xs text-text-primary/20 line-through'
+                    }
+                  >
+                    {capability}
+                  </span>
+                )
+              },
+            )}
+          </div>
+          <p className="mt-6 text-ds-body-xs text-text-primary/35">
+            Adapter-specific types expose the options and outputs available for
+            this model.
+          </p>
+        </div>
+      </div>
+    </LandingWindow>
+  )
+}
+
+function ProtocolMap() {
+  const nodes = [
+    ['UI', 'headless client'],
+    ['AG-UI', 'request + events'],
+    ['Runtime', 'your server'],
+    ['Provider', 'typed adapter'],
+  ]
+
+  return (
+    <div className="mx-auto mt-14 flex max-w-[68rem] flex-col items-stretch gap-2 md:flex-row md:items-center md:gap-0">
+      {nodes.map(([label, detail], index) => (
+        <React.Fragment key={label}>
+          <div className="min-w-0 flex-1 rounded-xl border border-[color:rgb(var(--landing-glow)/0.45)] bg-background-subtle p-5 text-center">
+            <p className="text-ds-heading-4 text-text-primary">{label}</p>
+            <p className="mt-2 font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)]">
+              {detail}
+            </p>
+          </div>
+          {index < nodes.length - 1 ? (
+            <div
+              aria-hidden="true"
+              className="mx-auto h-6 w-px bg-[var(--landing-accent)] md:h-px md:w-10"
+            />
+          ) : null}
+        </React.Fragment>
       ))}
     </div>
   )
 }
 
-function RuntimePanel() {
-  return (
-    <div className="min-w-0 rounded-lg border border-pink-200 bg-white p-4 dark:border-pink-900 dark:bg-zinc-950">
-      <div className="rounded-lg bg-zinc-950 p-4 text-sm text-pink-100 dark:bg-black">
-        <p className="font-mono leading-6">
-          const {'{'} messages, addToolApprovalResponse {'}'} = useChat({'{'}
-          <br />
-          &nbsp;&nbsp;connection: fetchServerSentEvents(&quot;/api/chat&quot;),
-          <br />
-          &nbsp;&nbsp;tools,
-          <br />
-          &nbsp;&nbsp;devtools: {'{'} name: &quot;Support Chat&quot; {'}'}
-          <br />
-          {'}'})
-        </p>
-      </div>
+function ModalityRail() {
+  const modalities: Array<{ detail: string; icon: Icon; label: string }> = [
+    {
+      label: 'Text + objects',
+      detail: 'chat · outputSchema',
+      icon: Robot,
+    },
+    {
+      label: 'Speech + transcription',
+      detail: 'generateSpeech · generateTranscription',
+      icon: Microphone,
+    },
+    {
+      label: 'Realtime voice',
+      detail: 'realtimeToken · RealtimeClient',
+      icon: Waveform,
+    },
+    {
+      label: 'Images + video',
+      detail: 'generateImage · generateVideo',
+      icon: Radio,
+    },
+  ]
 
-      <div className="mt-4 grid gap-3 md:grid-cols-2">
-        {runtimeSignals.map((signal) => (
+  return (
+    <div className="overflow-hidden rounded-xl border border-border-default bg-background-surface">
+      {modalities.map((modality, index) => {
+        const Icon = modality.icon
+
+        return (
           <div
-            key={signal.label}
-            className="rounded-lg border border-zinc-200 bg-[#fff7fb] p-4 dark:border-zinc-800 dark:bg-zinc-900"
+            key={modality.label}
+            className="grid gap-3 border-b border-border-subtle p-5 last:border-b-0 sm:grid-cols-[3rem_1fr_auto] sm:items-center"
           >
-            <p className="text-[0.65rem] font-black uppercase text-zinc-500 dark:text-zinc-400">
-              {signal.label}
-            </p>
-            <p className="mt-2 text-sm font-bold leading-6 text-zinc-950 dark:text-white">
-              {signal.value}
-            </p>
+            <span className="flex size-10 items-center justify-center rounded-full bg-[color:rgb(var(--landing-glow)/0.18)] text-[var(--landing-accent-bright)]">
+              <Icon aria-hidden="true" size={19} />
+            </span>
+            <div>
+              <p className="text-ds-label-md text-text-primary">
+                {modality.label}
+              </p>
+              <p className="mt-1 font-ds-mono text-ds-mono-2xs text-text-primary/30">
+                {modality.detail}
+              </p>
+            </div>
+            <span className="font-ds-mono text-ds-mono-2xs text-text-primary/20">
+              0{index + 1}
+            </span>
           </div>
-        ))}
-      </div>
+        )
+      })}
     </div>
-  )
-}
-
-function FeatureCard({
-  body,
-  icon,
-  title,
-}: {
-  body: string
-  icon: React.ReactNode
-  title: string
-}) {
-  return (
-    <div className="rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
-      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-pink-100 text-pink-800 dark:bg-pink-950 dark:text-pink-200">
-        {icon}
-      </span>
-      <h3 className="mt-4 text-xl font-black leading-tight">{title}</h3>
-      <p className="mt-3 text-sm leading-6 text-zinc-700 dark:text-zinc-300">
-        {body}
-      </p>
-    </div>
-  )
-}
-
-function SectionKicker({
-  children,
-  icon,
-}: {
-  children: React.ReactNode
-  icon: React.ReactNode
-}) {
-  return (
-    <p className="inline-flex items-center gap-2 text-sm font-black uppercase text-pink-700 dark:text-pink-300">
-      {icon}
-      {children}
-    </p>
-  )
-}
-
-function ProofPill({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="border-l-2 border-pink-500 pl-3">
-      <p className="text-sm font-black text-zinc-950 dark:text-white">
-        {label}
-      </p>
-      <p className="mt-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">
-        {value}
-      </p>
-    </div>
-  )
-}
-
-function AiLink({
-  icon,
-  label,
-  params,
-  to,
-}: {
-  icon: React.ReactNode
-  label: string
-  params: Record<string, string>
-  to: string
-}) {
-  return (
-    <Link
-      to={to}
-      params={params}
-      className="inline-flex w-full max-w-full items-center justify-center gap-2 rounded-lg border border-zinc-950 bg-zinc-950 px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-zinc-800 dark:border-white dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200 sm:w-auto"
-    >
-      {icon}
-      {label}
-      <ArrowRight size={15} aria-hidden="true" />
-    </Link>
   )
 }

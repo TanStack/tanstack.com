@@ -37,6 +37,7 @@ import { BrandContextMenu } from './BrandContextMenu'
 import { useSearchContext } from '~/contexts/SearchContext'
 import { useLibrariesOverlay } from '~/contexts/LibrariesOverlayContext'
 import {
+  findLibrary,
   isPublicLibrary,
   librariesByGroup,
   librariesGroupNamesMap,
@@ -436,6 +437,9 @@ function AiDockMount() {
 export function Navbar({ children }: { children: React.ReactNode }) {
   const matches = useMatches()
   const location = useLocation()
+  const pathSegments = location.pathname.split('/').filter(Boolean)
+  const isLibraryLanding =
+    pathSegments.length === 2 && Boolean(findLibrary(pathSegments[0]))
 
   const { Title } = React.useMemo(() => {
     const match = [...matches].reverse().find((m) => m.staticData.Title)
@@ -594,9 +598,9 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           <BrandContextMenu
             className={twMerge(`flex items-center group shrink-0`)}
           >
-            <LogoSection title={Title} />
+            <LogoSection title={isLibraryLanding ? null : Title} />
           </BrandContextMenu>
-          {Title ? (
+          {Title && !isLibraryLanding ? (
             <div className="truncate">
               <Title />
             </div>

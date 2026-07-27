@@ -1,482 +1,438 @@
 import * as React from 'react'
-import { ClientOnly, Link, useParams } from '@tanstack/react-router'
 import {
-  ArrowRight,
-  BookOpen,
+  ArrowsLeftRight,
+  Clock,
+  Command,
   Crosshair,
   Keyboard,
-  ListNumbers,
-  Monitor,
-  Cursor,
-  Radio,
-  Sparkle,
+  Stack,
+  WarningCircle,
 } from '@phosphor-icons/react'
 
-import { BottomCTA } from '~/components/BottomCTA'
-import { Footer } from '~/components/Footer'
-import { GithubIcon } from '~/components/icons/GithubIcon'
-import LandingPageGad from '~/components/LandingPageGad'
-import { LandingCommunitySection } from '~/components/LandingCommunitySection'
-import { SponsorSection } from '~/components/SponsorSection'
-import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
-import { LibraryWordmark } from '~/components/LibraryWordmark'
-import { getLibrary } from '~/libraries'
+import {
+  LandingEyebrow,
+  LandingSection,
+  LandingSectionIntro,
+  LandingWindow,
+  LibraryLandingShell,
+} from './LibraryLanding'
 
-import { LandingCopyPromptButton } from '~/components/landing/LandingCopyPromptButton'
-const library = getLibrary('hotkeys')
+const hotkeysPrompt =
+  'Build a command system with TanStack Hotkeys. Define typed shortcuts, portable Mod bindings, scopes, input filtering, conflict handling, sequences, held keys, recording, and platform-aware display. Keep commands separate from their bindings so users can customize them.'
 
-const LazyHotkeysShortcutBinding = React.lazy(() =>
-  import('~/components/landing/HotkeysShortcut.client').then((m) => ({
-    default: m.HotkeysShortcutBinding,
-  })),
-)
+const commands = [
+  {
+    name: 'Open search',
+    binding: 'Mod+K',
+    scope: 'workspace',
+    inputs: 'blocked',
+  },
+  {
+    name: 'Show shortcuts',
+    binding: 'Shift+?',
+    scope: 'global',
+    inputs: 'allowed',
+  },
+  {
+    name: 'Archive card',
+    binding: 'E',
+    scope: 'board',
+    inputs: 'blocked',
+  },
+] as const
 
-const hotkeysAgentPrompt = [
-  'Build a keyboard shortcut system with TanStack Hotkeys.',
-  'Use type-safe hotkey strings, cross-platform Mod handling, scoping, input filtering, key state tracking, sequences, recording, display formatting, and framework adapters.',
-  'Include a visible shortcut help surface and avoid global shortcuts firing inside text inputs unless explicitly intended.',
-].join(' ')
+const scopes = [
+  {
+    name: 'global',
+    body: 'Help, navigation, and app-wide commands',
+    keys: ['Shift+?', 'Mod+K'],
+  },
+  {
+    name: 'workspace',
+    body: 'Commands that only make sense inside a project',
+    keys: ['G then D', 'Mod+P'],
+  },
+  {
+    name: 'modal',
+    body: 'A temporary scope that wins while a dialog is open',
+    keys: ['Enter', 'Escape'],
+  },
+] as const
 
-const heroProof = [
+const gestures = [
   {
-    label: 'Type-safe strings',
-    value: 'validated modifiers and keys',
+    icon: Command,
+    label: 'Chord',
+    binding: 'Mod + Shift + P',
+    body: 'Several keys resolve as one command.',
   },
   {
-    label: 'Cross-platform',
-    value: 'Mod maps to Cmd or Ctrl',
+    icon: ArrowsLeftRight,
+    label: 'Sequence',
+    binding: 'G then D',
+    body: 'Ordered keys create a tiny command language.',
   },
   {
-    label: 'Context-aware',
-    value: 'scopes, inputs, cleanup, conflicts',
+    icon: Clock,
+    label: 'Held key',
+    binding: 'Space · 400ms',
+    body: 'Press duration can become part of the gesture.',
   },
-]
-
-const shortcutRows = [
-  ['Mod+K', 'open search'],
-  ['G then D', 'go to dashboard'],
-  ['Shift+?', 'show shortcuts'],
-  ['Esc', 'close current panel'],
-]
-
-const featureCards = [
-  {
-    title: 'Shortcut strings are part of the type system.',
-    body: 'Define combinations with a type-safe Hotkey string so invalid modifiers and keys get caught before users do.',
-    icon: <Keyboard size={18} />,
-  },
-  {
-    title: 'Mod means the right thing on each platform.',
-    body: 'Use one shortcut definition while macOS gets Cmd and other platforms get Ctrl without hand-written platform checks.',
-    icon: <Monitor size={18} />,
-  },
-  {
-    title: 'Sequences and holds unlock richer UI.',
-    body: 'Support Vim-style sequences, multi-step commands, key hold detection, and contextual command flows.',
-    icon: <ListNumbers size={18} />,
-  },
-  {
-    title: 'Recording belongs in the product.',
-    body: 'Let users capture and customize shortcuts with recorder utilities instead of building keyboard parsing from scratch.',
-    icon: <Radio size={18} />,
-  },
-]
-
-const lifecycleSteps = [
-  {
-    label: 'Define',
-    body: 'Write a type-safe shortcut string with platform-aware modifiers.',
-  },
-  {
-    label: 'Scope',
-    body: 'Attach it globally, to a document, or to a specific element/ref.',
-  },
-  {
-    label: 'Filter',
-    body: 'Avoid accidental firing in text inputs or conflicting UI regions.',
-  },
-  {
-    label: 'Handle',
-    body: 'Run the command, track key state, record input, or render help text.',
-  },
-]
-
-const frameworkAdapters = [
-  'React',
-  'Preact',
-  'Solid',
-  'Svelte',
-  'Vue',
-  'Angular',
-]
+] as const
 
 export default function HotkeysLanding() {
-  const { version } = useParams({ strict: false })
-  const resolvedVersion = version ?? library.latestVersion
-
   return (
-    <div className="w-full min-w-0 overflow-x-hidden bg-[#fff1f2] text-zinc-950 dark:bg-zinc-950 dark:text-white">
-      <ClientOnly>
-        <React.Suspense fallback={null}>
-          <LazyHotkeysShortcutBinding />
-        </React.Suspense>
-      </ClientOnly>
+    <LibraryLandingShell
+      description="Hotkeys turns keyboard input into a typed command system with scopes, sequences, held keys, recording, conflict detection, and platform-aware display."
+      headline="Every shortcut needs more than a keydown listener."
+      hero={<ShortcutStudio />}
+      libraryId="hotkeys"
+      prompt={hotkeysPrompt}
+      promptLabel="Copy Hotkeys prompt"
+    >
+      <LandingSection tone="ink">
+        <div className="grid gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:items-center">
+          <LandingSectionIntro
+            body="The same key can mean one thing globally, another thing inside an editor, and nothing while the user is typing. Scopes make that context explicit."
+            eyebrow="Command scope"
+            icon={<Crosshair aria-hidden="true" size={17} />}
+            title="A shortcut needs an address."
+          />
+          <ScopeStack />
+        </div>
+      </LandingSection>
 
-      <section className="max-w-full overflow-hidden border-b border-rose-950/10 bg-[#ffe4e6] dark:border-rose-300/10 dark:bg-[#1d0710]">
-        <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-10 lg:max-w-[80rem] lg:grid-cols-[0.84fr_1.16fr] lg:items-start lg:py-12 xl:max-w-[92rem]">
-          <div className="min-w-0 max-w-full sm:max-w-3xl">
-            <SectionKicker icon={<Keyboard size={14} />}>
-              Type-safe keyboard interactions
-            </SectionKicker>
+      <LandingSection tone="raised">
+        <LandingSectionIntro
+          body="A command palette chord is useful. So are Vim-like sequences, press-and-hold actions, key releases, and keys that remain active while the pointer moves."
+          eyebrow="Gesture grammar"
+          icon={<Keyboard aria-hidden="true" size={17} />}
+          title="Chords are only the first sentence."
+        />
+        <div className="mt-10 grid gap-4 md:grid-cols-3">
+          {gestures.map((gesture, index) => {
+            const Icon = gesture.icon
+            return (
+              <div
+                key={gesture.label}
+                className="rounded-xl border border-border-subtle bg-background-surface p-5"
+              >
+                <div className="flex items-center justify-between">
+                  <Icon
+                    aria-hidden="true"
+                    className="text-[var(--landing-accent-bright)]"
+                    size={22}
+                  />
+                  <span className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/20">
+                    0{index + 1}
+                  </span>
+                </div>
+                <h3 className="mt-7 text-ds-heading-4">{gesture.label}</h3>
+                <KeySequence binding={gesture.binding} className="mt-4" />
+                <p className="mt-5 text-ds-body-xs text-text-primary/40">
+                  {gesture.body}
+                </p>
+              </div>
+            )
+          })}
+        </div>
+      </LandingSection>
 
-            <div className="mt-4 flex flex-wrap items-start gap-x-3 gap-y-2">
-              <h1 className="text-5xl font-black leading-[0.95] sm:text-6xl lg:text-7xl">
-                <LibraryWordmark library={library} />
-              </h1>
-              {library.badge ? (
-                <span className="rounded-md bg-zinc-950 px-2 py-1 text-xs font-black uppercase text-white dark:bg-white dark:text-zinc-950">
-                  {library.badge}
-                </span>
-              ) : null}
-            </div>
-
-            <p className="mt-5 max-w-2xl text-lg font-bold leading-8 text-zinc-900 dark:text-zinc-100 sm:text-xl">
-              Keyboard shortcuts that know where they are allowed to fire.
-            </p>
-
-            <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-700 dark:text-zinc-300 sm:text-lg">
-              Hotkeys gives apps type-safe shortcut strings, cross-platform Mod
-              handling, scopes, sequences, recording, key state tracking, and
-              framework adapters for serious keyboard interaction systems.
-            </p>
-
-            <LibraryDownloadsMicro
-              animateIncreaseTrend
-              library={library}
-              className="mt-5"
-              label="weekly downloads"
-              period="weekly"
-              showTotals
+      <LandingSection tone="accent">
+        <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
+          <div>
+            <LandingSectionIntro
+              body="Treat bindings as user data. Record a gesture, normalize it into a portable definition, format it for the current platform, and reuse it everywhere the command appears."
+              eyebrow="Custom bindings"
+              icon={<ArrowsLeftRight aria-hidden="true" size={17} />}
+              title="Let users own the muscle memory."
             />
-
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <HotkeysLink
-                to="/$libraryId/$version/docs"
-                params={{ libraryId: library.id, version: resolvedVersion }}
-                label="Read the docs"
-                icon={<BookOpen size={16} aria-hidden="true" />}
+            <p className="mt-7 flex items-start gap-3 text-ds-body-xs text-text-primary/40">
+              <WarningCircle
+                aria-hidden="true"
+                className="mt-0.5 shrink-0 text-[var(--landing-accent-bright)]"
+                size={17}
               />
-              <LandingCopyPromptButton
-                prompt={hotkeysAgentPrompt}
-                label="Copy Hotkeys Prompt"
-              />
-            </div>
+              Conflicts, reserved browser keys, and input filtering stay visible
+              instead of becoming mystery behavior.
+            </p>
+          </div>
 
-            <div className="mt-8 grid gap-3 sm:grid-cols-3">
-              {heroProof.map((proof) => (
-                <ProofPill key={proof.label} {...proof} />
+          <LandingWindow label="binding pipeline">
+            <div className="grid gap-px bg-border-subtle sm:grid-cols-4">
+              {[
+                ['01 / record', '⌘ ⇧ P', 'Raw keyboard event'],
+                ['02 / normalize', 'Mod+Shift+P', 'Portable definition'],
+                ['03 / display', '⌘⇧P', 'Platform label'],
+                ['04 / publish', 'Open palette', 'Menu + cheat sheet'],
+              ].map(([label, value, body]) => (
+                <div key={label} className="bg-background-surface p-5">
+                  <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
+                    {label}
+                  </p>
+                  <p className="mt-8 font-ds-mono text-ds-mono-sm text-text-primary">
+                    {value}
+                  </p>
+                  <p className="mt-3 text-ds-body-xs text-text-primary/30">
+                    {body}
+                  </p>
+                </div>
               ))}
             </div>
-          </div>
-
-          <ShortcutPanel />
+          </LandingWindow>
         </div>
-      </section>
+      </LandingSection>
+    </LibraryLandingShell>
+  )
+}
 
-      <section className="border-b border-rose-950/10 bg-[#fff7f8] dark:border-rose-300/10 dark:bg-[#230914]">
-        <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.74fr_1.26fr] xl:max-w-[92rem]">
-          <div>
-            <SectionKicker icon={<Sparkle size={14} />}>
-              Why Hotkeys
-            </SectionKicker>
-            <h2 className="mt-3 max-w-xl text-3xl font-black leading-tight sm:text-4xl">
-              Keyboard UX is product logic, not an event listener.
-            </h2>
-            <p className="mt-4 max-w-xl text-base leading-7 text-zinc-700 dark:text-zinc-300">
-              Great shortcuts need platform-aware labels, scoped behavior, input
-              safety, conflict avoidance, sequences, recording, and help
-              surfaces. Hotkeys gives those mechanics a typed home.
-            </p>
-          </div>
+function ShortcutStudio() {
+  const [activeIndex, setActiveIndex] = React.useState(0)
+  const [platform, setPlatform] = React.useState<'mac' | 'windows'>('mac')
+  const [recordedBinding, setRecordedBinding] = React.useState<string>()
+  const [isRecording, setIsRecording] = React.useState(false)
+  const inputRef = React.useRef<HTMLInputElement>(null)
+  const triggerRef = React.useRef<HTMLButtonElement>(null)
+  const activeCommand = commands[activeIndex]
+  const binding = recordedBinding ?? activeCommand.binding
 
-          <div className="grid gap-4 md:grid-cols-2">
-            {featureCards.map((feature) => (
-              <FeatureCard key={feature.title} {...feature} />
+  function beginRecording() {
+    setIsRecording(true)
+    inputRef.current?.focus()
+  }
+
+  function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key === 'Tab') return
+    event.preventDefault()
+    if (['Alt', 'Control', 'Meta', 'Shift'].includes(event.key)) return
+
+    const parts = [
+      event.metaKey || event.ctrlKey ? 'Mod' : '',
+      event.altKey ? 'Alt' : '',
+      event.shiftKey ? 'Shift' : '',
+      normalizeKey(event.key),
+    ].filter(Boolean)
+    setRecordedBinding(parts.join('+'))
+    setIsRecording(false)
+    triggerRef.current?.focus()
+  }
+
+  return (
+    <LandingWindow label="shortcut settings">
+      <div className="grid min-h-[23rem] md:grid-cols-[0.92fr_1.08fr]">
+        <div className="border-border-subtle p-4 md:border-r">
+          <LandingEyebrow icon={<Stack aria-hidden="true" size={14} />}>
+            commands
+          </LandingEyebrow>
+          <div className="mt-4 space-y-2">
+            {commands.map((command, index) => (
+              <button
+                key={command.name}
+                aria-pressed={activeIndex === index}
+                className="flex w-full items-center justify-between gap-4 rounded-lg border border-transparent bg-background-subtle px-3 py-3 text-left hover:border-border-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[color:rgb(var(--landing-glow)/0.45)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.1)]"
+                onClick={() => {
+                  setActiveIndex(index)
+                  setRecordedBinding(undefined)
+                }}
+                type="button"
+              >
+                <span className="text-ds-label-sm text-text-primary/70">
+                  {command.name}
+                </span>
+                <span className="font-ds-mono text-ds-mono-2xs text-text-primary/35">
+                  {formatBinding(command.binding, platform)}
+                </span>
+              </button>
             ))}
           </div>
         </div>
-      </section>
 
-      <section className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-        <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[1.05fr_0.95fr] lg:items-center xl:max-w-[92rem]">
-          <LifecyclePanel />
-          <div>
-            <SectionKicker icon={<Crosshair size={14} />}>
-              Shortcut lifecycle
-            </SectionKicker>
-            <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
-              Define, scope, filter, handle.
-            </h2>
-            <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300">
-              Hotkeys keeps the full lifecycle explicit so shortcuts feel fast
-              without surprising people while they type, edit, or work inside a
-              focused panel.
+        <div className="flex min-w-0 flex-col p-5">
+          <div className="flex items-center justify-between gap-4">
+            <p className="text-ds-label-md text-text-primary">
+              {activeCommand.name}
             </p>
-          </div>
-        </div>
-      </section>
-
-      <section className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-        <div className="mx-auto grid w-full min-w-0 max-w-full gap-8 px-4 py-12 lg:max-w-[80rem] lg:grid-cols-[0.72fr_1.28fr] lg:items-start xl:max-w-[92rem]">
-          <div className="max-w-xl">
-            <SectionKicker icon={<Cursor size={14} />}>
-              Framework adapters
-            </SectionKicker>
-            <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
-              One keyboard core, product-specific command systems.
-            </h2>
-            <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300">
-              Use the core shortcut model across UI runtimes, then wire it into
-              the framework adapter and command surface your product needs.
-            </p>
-            <div className="mt-5 flex flex-wrap gap-2">
-              {frameworkAdapters.map((framework) => (
-                <span
-                  key={framework}
-                  className="rounded-md border border-rose-200 bg-rose-50 px-3 py-1.5 text-sm font-bold text-rose-800 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-200"
+            <div className="flex rounded-md border border-border-default p-0.5">
+              {(['mac', 'windows'] as const).map((item) => (
+                <button
+                  key={item}
+                  aria-pressed={platform === item}
+                  className="rounded px-2 py-1 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:bg-text-primary/10 aria-pressed:text-text-primary"
+                  onClick={() => setPlatform(item)}
+                  type="button"
                 >
-                  {framework}
-                </span>
+                  {item === 'mac' ? 'macOS' : 'Win'}
+                </button>
               ))}
             </div>
           </div>
-        </div>
-      </section>
 
-      <section className="bg-white py-12 dark:bg-zinc-950">
-        <div className="mx-auto w-full max-w-[80rem] px-4 xl:max-w-[92rem]">
-          <div className="max-w-3xl">
-            <SectionKicker icon={<GithubIcon className="h-4 w-4" />}>
-              Open source ecosystem
-            </SectionKicker>
-            <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
-              Hotkeys is for apps where keyboard UX is part of the product.
-            </h2>
-            <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300">
-              Maintainers, adapters, examples, partners, and GitHub sponsors
-              keep the shortcut system grounded in real command-heavy
-              interfaces.
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-10 flex flex-col gap-14">
-          <LandingCommunitySection libraryId="hotkeys" />
-          <SponsorSection
-            title="GitHub Sponsors"
-            aspectRatio="1/1"
-            packMaxWidth="900px"
-            showCTA
-          />
-        </div>
-      </section>
-
-      <LandingPageGad />
-      <BottomCTA
-        linkProps={{
-          to: '/$libraryId/$version/docs',
-          params: { libraryId: library.id, version: resolvedVersion },
-        }}
-        label="Get Started!"
-        className="border-rose-600 bg-rose-600 text-white hover:bg-rose-700"
-      />
-      <Footer />
-    </div>
-  )
-}
-
-function ShortcutPanel() {
-  const [activeShortcut, setActiveShortcut] = React.useState('Mod+K')
-  const sequenceRef = React.useRef<string | null>(null)
-
-  React.useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      const key = event.key.toLowerCase()
-
-      if ((event.metaKey || event.ctrlKey) && key === 'k') {
-        setActiveShortcut('Mod+K')
-        return
-      }
-
-      if (event.shiftKey && event.key === '?') {
-        setActiveShortcut('Shift+?')
-        return
-      }
-
-      if (event.key === 'Escape') {
-        setActiveShortcut('Esc')
-        return
-      }
-
-      if (sequenceRef.current === 'g' && key === 'd') {
-        setActiveShortcut('G then D')
-        sequenceRef.current = null
-        return
-      }
-
-      sequenceRef.current = key === 'g' ? 'g' : null
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [])
-
-  return (
-    <div className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-rose-200 bg-white p-4 shadow-sm shadow-rose-950/5 dark:border-rose-900 dark:bg-zinc-950">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <span className="h-2.5 w-2.5 rounded-md bg-red-400" />
-          <span className="h-2.5 w-2.5 rounded-md bg-yellow-400" />
-          <span className="h-2.5 w-2.5 rounded-md bg-emerald-400" />
-        </div>
-        <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400">
-          shortcut map
-        </span>
-      </div>
-
-      <div className="mt-4 space-y-3">
-        {shortcutRows.map(([keys, action]) => (
-          <button
-            key={keys}
-            aria-pressed={activeShortcut === keys}
-            className={
-              activeShortcut === keys
-                ? 'grid w-full gap-3 rounded-lg border border-rose-500 bg-rose-500 p-3 text-left text-white sm:grid-cols-[0.42fr_1fr] sm:items-center'
-                : 'grid w-full gap-3 rounded-lg border border-zinc-200 bg-rose-50 p-3 text-left transition-colors hover:border-rose-300 dark:border-zinc-800 dark:bg-rose-950/20 dark:hover:border-rose-800 sm:grid-cols-[0.42fr_1fr] sm:items-center'
-            }
-            type="button"
-            onClick={() => setActiveShortcut(keys)}
-          >
-            <kbd
-              className={
-                activeShortcut === keys
-                  ? 'rounded-md bg-white px-3 py-2 text-center font-mono text-sm font-black text-rose-700'
-                  : 'rounded-md bg-zinc-950 px-3 py-2 text-center font-mono text-sm font-black text-white dark:bg-white dark:text-zinc-950'
-              }
-            >
-              {keys}
-            </kbd>
-            <span className="font-bold">{action}</span>
-          </button>
-        ))}
-      </div>
-
-      <div className="mt-4 rounded-lg bg-zinc-950 p-4 text-sm text-rose-100 dark:bg-black">
-        <p className="font-mono leading-6">
-          useHotkey(&quot;{activeShortcut}&quot;, runCommand, {'{'} enabled:{' '}
-          isPanelOpen {'}'})
-        </p>
-      </div>
-    </div>
-  )
-}
-
-function LifecyclePanel() {
-  return (
-    <div className="grid gap-3 sm:grid-cols-2">
-      {lifecycleSteps.map((step, index) => (
-        <div
-          key={step.label}
-          className="rounded-lg border border-zinc-200 bg-[#fff1f2] p-4 dark:border-zinc-800 dark:bg-zinc-900"
-        >
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-rose-100 text-sm font-black text-rose-800 dark:bg-rose-950 dark:text-rose-200">
-            {index + 1}
-          </span>
-          <h3 className="mt-4 text-lg font-black leading-tight">
-            {step.label}
-          </h3>
-          <p className="mt-2 text-sm leading-6 text-zinc-700 dark:text-zinc-300">
-            {step.body}
+          <p className="sr-only" id="hotkeys-recorder-instructions">
+            Activate the recorder, then press the complete shortcut. Press Tab
+            to leave without capturing it.
           </p>
+          <button
+            ref={triggerRef}
+            aria-describedby="hotkeys-recorder-instructions hotkeys-recorder-status"
+            className="mt-6 rounded-xl border border-dashed border-[color:rgb(var(--landing-glow)/0.55)] bg-[color:rgb(var(--landing-glow)/0.08)] px-4 py-7 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
+            onClick={beginRecording}
+            type="button"
+          >
+            <KeySequence binding={formatBinding(binding, platform)} centered />
+            <span className="mt-4 block font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/30">
+              {isRecording ? 'Press a shortcut…' : 'Click to record'}
+            </span>
+          </button>
+          <span
+            aria-live="polite"
+            className="sr-only"
+            id="hotkeys-recorder-status"
+          >
+            {isRecording
+              ? 'Recording. Press the complete shortcut now.'
+              : recordedBinding
+                ? `Recorded ${formatBinding(recordedBinding, platform)}. Focus returned to the recorder.`
+                : 'Recorder ready.'}
+          </span>
+          <input
+            ref={inputRef}
+            aria-label="Record a keyboard shortcut"
+            className="sr-only"
+            onBlur={() => setIsRecording(false)}
+            onKeyDown={handleKeyDown}
+            readOnly
+            value={binding}
+          />
+
+          <dl className="mt-6 grid grid-cols-2 gap-3">
+            <CommandFact label="scope" value={activeCommand.scope} />
+            <CommandFact label="in inputs" value={activeCommand.inputs} />
+            <CommandFact label="conflicts" value="none" />
+            <CommandFact label="status" value="active" />
+          </dl>
         </div>
-      ))}
+      </div>
+    </LandingWindow>
+  )
+}
+
+function ScopeStack() {
+  const [activeScope, setActiveScope] = React.useState('modal')
+
+  return (
+    <div className="relative mx-auto w-full max-w-[46rem] pb-8 sm:pb-0">
+      {scopes.map((scope, index) => {
+        const isActive = scope.name === activeScope
+        const offsetClassName =
+          index === 0
+            ? 'sm:ml-24 sm:w-[calc(100%-6rem)]'
+            : index === 1
+              ? 'sm:ml-12 sm:w-[calc(100%-3rem)]'
+              : ''
+        return (
+          <button
+            key={scope.name}
+            aria-pressed={isActive}
+            className={`relative block w-full rounded-xl border border-border-subtle bg-background-surface p-5 text-left shadow-[0_20px_45px_rgb(0_0_0/0.12)] transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] aria-pressed:border-[color:rgb(var(--landing-glow)/0.55)] aria-pressed:bg-[color:rgb(var(--landing-glow)/0.1)] sm:mt-[-0.75rem] ${offsetClassName}`}
+            onClick={() => setActiveScope(scope.name)}
+            type="button"
+          >
+            <span className="flex flex-wrap items-start justify-between gap-3">
+              <span>
+                <span className="font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
+                  {index === scopes.length - 1 ? 'highest priority' : 'scope'}
+                </span>
+                <span className="mt-2 block text-ds-heading-4 text-text-primary">
+                  {scope.name}
+                </span>
+              </span>
+              <span className="flex gap-2">
+                {scope.keys.map((key) => (
+                  <KeySequence key={key} binding={key} />
+                ))}
+              </span>
+            </span>
+            <span className="mt-3 block text-ds-body-xs text-text-primary/35">
+              {scope.body}
+            </span>
+          </button>
+        )
+      })}
     </div>
   )
 }
 
-function FeatureCard({
-  body,
-  icon,
-  title,
+function KeySequence({
+  binding,
+  centered = false,
+  className = '',
 }: {
-  body: string
-  icon: React.ReactNode
-  title: string
+  binding: string
+  centered?: boolean
+  className?: string
 }) {
+  const groups = binding.split(/\s+then\s+/i)
   return (
-    <div className="rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
-      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-200">
-        {icon}
-      </span>
-      <h3 className="mt-4 text-xl font-black leading-tight">{title}</h3>
-      <p className="mt-3 text-sm leading-6 text-zinc-700 dark:text-zinc-300">
-        {body}
-      </p>
-    </div>
-  )
-}
-
-function SectionKicker({
-  children,
-  icon,
-}: {
-  children: React.ReactNode
-  icon: React.ReactNode
-}) {
-  return (
-    <p className="inline-flex items-center gap-2 text-sm font-black uppercase text-rose-700 dark:text-rose-300">
-      {icon}
-      {children}
-    </p>
-  )
-}
-
-function ProofPill({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="border-l-2 border-rose-500 pl-3">
-      <p className="text-sm font-black text-zinc-950 dark:text-white">
-        {label}
-      </p>
-      <p className="mt-1 text-sm leading-5 text-zinc-600 dark:text-zinc-400">
-        {value}
-      </p>
-    </div>
-  )
-}
-
-function HotkeysLink({
-  icon,
-  label,
-  params,
-  to,
-}: {
-  icon: React.ReactNode
-  label: string
-  params: Record<string, string>
-  to: string
-}) {
-  return (
-    <Link
-      to={to}
-      params={params}
-      className="inline-flex w-full max-w-full items-center justify-center gap-2 rounded-lg border border-zinc-950 bg-zinc-950 px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-zinc-800 dark:border-white dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200 sm:w-auto"
+    <span
+      className={`flex flex-wrap gap-1.5 ${centered ? 'justify-center' : ''} ${className}`}
     >
-      {icon}
-      {label}
-      <ArrowRight size={15} aria-hidden="true" />
-    </Link>
+      {groups.map((group, groupIndex) => (
+        <React.Fragment key={`${group}-${groupIndex}`}>
+          {groupIndex > 0 ? (
+            <span className="self-center font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+              then
+            </span>
+          ) : null}
+          {group
+            .split(/\s*\+\s*|\s+/)
+            .filter(Boolean)
+            .map((key, keyIndex) =>
+              key === '·' ? (
+                <span
+                  key={`${key}-${keyIndex}`}
+                  className="self-center text-text-primary/25"
+                >
+                  ·
+                </span>
+              ) : (
+                <kbd
+                  key={`${key}-${keyIndex}`}
+                  className="min-w-8 rounded-md border border-border-default bg-background-subtle px-2 py-1.5 text-center font-ds-mono text-ds-mono-xs text-text-primary shadow-[inset_0_-2px_0_rgb(0_0_0/0.07)] dark:shadow-[inset_0_-2px_0_rgb(255_255_255/0.04)]"
+                >
+                  {key}
+                </kbd>
+              ),
+            )}
+        </React.Fragment>
+      ))}
+    </span>
   )
+}
+
+function CommandFact({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg bg-background-subtle p-3">
+      <dt className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+        {label}
+      </dt>
+      <dd className="mt-1 font-ds-mono text-ds-mono-xs text-text-primary/70">
+        {value}
+      </dd>
+    </div>
+  )
+}
+
+function normalizeKey(key: string) {
+  if (key === ' ') return 'Space'
+  if (key === 'Escape') return 'Esc'
+  return key.length === 1 ? key.toUpperCase() : key
+}
+
+function formatBinding(binding: string, platform: 'mac' | 'windows') {
+  if (platform === 'windows') return binding.replace('Mod', 'Ctrl')
+  return binding
+    .replace('Mod', '⌘')
+    .replace('Shift', '⇧')
+    .replace('Alt', '⌥')
+    .replaceAll('+', ' ')
 }

@@ -60,8 +60,8 @@ function Index() {
               headline bottom-left, description + CTA bottom-right. The photo is
               always light, so text uses a mode-stable dark token (neutral-500)
               rather than a theme-flipping semantic. */}
-          <div className="mx-auto w-full max-w-[1021px] px-4 sm:px-6">
-            <div className="relative isolate flex min-h-[420px] flex-col justify-end gap-8 overflow-hidden rounded-xl p-6 sm:p-8 xl:min-h-[455px] xl:flex-row xl:items-end xl:justify-between xl:gap-12 xl:px-20 xl:py-10">
+          <div className="w-full">
+            <div className="relative isolate flex min-h-[calc(100dvh-var(--navbar-height))] flex-col justify-end gap-8 overflow-hidden px-6 py-10 sm:px-10 xl:flex-row xl:items-end xl:justify-between xl:gap-12 xl:px-20 xl:py-16">
               {/* Plain <img> (not OptimizedImage): the Cloudflare transform
                   resolves against the production origin, so a newly-added asset
                   404s until deployed. The source is pre-sized (2400px, q80). */}

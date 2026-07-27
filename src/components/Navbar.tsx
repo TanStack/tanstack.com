@@ -594,7 +594,6 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       className={twMerge(
         'w-full h-[var(--navbar-height)] px-3 py-2 min-[900px]:px-5 fixed top-0 z-[100] bg-white/90 dark:bg-black/90 backdrop-blur-lg',
         'flex items-center justify-between gap-2 min-[1120px]:gap-4',
-        'border-b border-gray-500/20',
       )}
       ref={containerRef}
     >

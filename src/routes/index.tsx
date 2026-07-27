@@ -3,6 +3,7 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 
 import discordImage from '~/images/discord-logo-white.svg'
 import { OptimizedImage } from '~/components/OptimizedImage'
+import { useLibrariesOverlay } from '~/contexts/LibrariesOverlayContext'
 import { twMerge } from 'tailwind-merge'
 
 import {
@@ -61,7 +62,7 @@ function Index() {
               always light, so text uses a mode-stable dark token (neutral-500)
               rather than a theme-flipping semantic. */}
           <div className="w-full">
-            <div className="relative isolate flex min-h-[calc(100dvh-var(--navbar-height))] flex-col justify-end gap-8 overflow-hidden px-6 py-10 sm:px-10 xl:flex-row xl:items-end xl:justify-between xl:gap-12 xl:px-20 xl:py-16">
+            <div className="relative isolate flex min-h-[640px] flex-col justify-end gap-8 overflow-hidden px-6 py-10 sm:px-10 xl:h-[640px] xl:min-h-0 xl:flex-row xl:items-end xl:justify-between xl:gap-12 xl:px-20 xl:py-16">
               {/* Plain <img> (not OptimizedImage): the Cloudflare transform
                   resolves against the production origin, so a newly-added asset
                   404s until deployed. The source is pre-sized (2400px, q80). */}
@@ -95,22 +96,37 @@ function Index() {
                   applications that work naturally for developers and reliably
                   for agents
                 </p>
-                <Button
-                  as={Link}
-                  to="/libraries"
-                  variant="secondary"
-                  size="sm"
-                  className="h-10 rounded-[11px] border-transparent bg-white px-3.5 font-ds-display text-xs font-bold text-ds-neutral-400 shadow-sm hover:bg-white/90 hover:text-ds-neutral-500"
-                >
-                  Browse the Stack
-                </Button>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    type="button"
+                    onClick={() => openLibraries()}
+                    variant="primary"
+                    size="md"
+                  >
+                    Browse the Stack
+                  </Button>
+                  {/* Link-style button; color pinned to a mode-stable dark token
+                      because the photo is always light. */}
+                  <Button
+                    as="a"
+                    href="#start-with-a-prompt"
+                    variant="link"
+                    size="md"
+                    className="text-ds-neutral-500 hover:text-ds-neutral-500/70"
+                  >
+                    Start with a prompt
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
           <div className="mx-auto mt-8 w-full max-w-[1021px] px-4 sm:px-6 md:mt-10">
             <HomeStatsSection />
           </div>
-          <div className="mx-auto mt-16 w-full max-w-[1021px] px-4 sm:px-6 md:mt-20 lg:mt-14 xl:mt-12">
+          <div
+            id="start-with-a-prompt"
+            className="mx-auto mt-16 w-full max-w-[1021px] scroll-mt-24 px-4 sm:px-6 md:mt-20 lg:mt-14 xl:mt-12"
+          >
             <HomeApplicationStarter />
           </div>
         </div>

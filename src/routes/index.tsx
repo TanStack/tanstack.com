@@ -93,7 +93,7 @@ function Index() {
                 height={1600}
                 loading="eager"
                 fetchPriority="high"
-                className="absolute inset-0 -z-10 h-full w-full object-cover object-center"
+                className="absolute inset-2 -z-10 rounded-xl object-cover object-center"
               />
               <h1 className="max-w-[613px] font-ds-display text-ds-display-sm font-bold text-ds-neutral-500 sm:text-ds-display-md lg:text-ds-display-lg xl:text-ds-display-xl">
                 The{' '}

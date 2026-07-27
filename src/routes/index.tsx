@@ -81,7 +81,7 @@ function Index() {
               headline bottom-left, description + CTA bottom-right. The photo is
               always light, so text uses a mode-stable dark token (neutral-500)
               rather than a theme-flipping semantic. */}
-          <div className="w-full xl:px-10">
+          <div className="w-full">
             <div className="relative isolate flex min-h-[720px] flex-col justify-between gap-8 px-6 py-10 sm:px-10 xl:h-[720px] xl:min-h-0 xl:flex-row xl:items-end xl:justify-between xl:gap-12 xl:px-16 xl:py-16">
               {/* Plain <img> (not OptimizedImage): the Cloudflare transform
                   resolves against the production origin, so a newly-added asset

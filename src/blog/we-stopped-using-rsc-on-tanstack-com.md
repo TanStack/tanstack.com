@@ -1,11 +1,13 @@
 ---
-title: 'We Removed React Server Components from TanStack.com'
-published: 2026-06-23
-draft: true
+title: 'We Stopped Using RSC on TanStack.com'
+published: 2026-07-24
+draft: false
 excerpt: React Server Components solved a real performance problem for tanstack.com, but once our markdown and highlighting stack got small, we were left with a set of runtime and code-shape tradeoffs we didn't want anymore.
 library: start
 authors:
   - Tanner Linsley
+redirect_from:
+  - we-removed-rsc-from-tanstack-com
 ---
 
 Earlier this year, tanstack.com became one of my favorite examples for React Server Components. Our content-heavy pages were shipping a giant markdown and syntax highlighting stack to the browser, we moved that work to the server, a meaningful amount of JavaScript disappeared, and the site got faster. We wrote about it, measured it, and felt pretty good about the result because it was exactly the kind of problem RSC is supposed to solve.
@@ -48,7 +50,7 @@ So we decided to find out whether the huge dependency was the use case.
 
 ## We made the expensive part small
 
-We replaced the old stack with `@tanstack/markdown` and `@tanstack/highlight`, small packages built around the exact markdown and code rendering contract tanstack.com needs. We stopped depending on a general-purpose highlighting engine for a site that mostly needs predictable docs code blocks, stopped generating duplicate light and dark markup, stopped shipping inline token styles, and moved to class-based output with theme CSS.
+We replaced the old stack with `@tanstack/markdown` and `@tanstack/highlight`, small packages built around the exact markdown and code rendering contract tanstack.com needs. [Introducing TanStack Markdown and TanStack Highlight](/blog/introducing-tanstack-markdown-and-highlight) covers why they're separate libraries, what each one does, and the deliberately narrow contracts that keep them small.
 
 The result wasn't zero JavaScript, but it was small enough that shipping it stopped feeling irresponsible. On the production routes we measured, the explicit markdown and code renderer is about **27 KiB transferred**, roughly **18 to 19 KiB** more than the RSC version.
 
@@ -166,6 +168,8 @@ Maybe there are many more use cases where that benefit justifies the machinery a
 For us, RSC bought relief from a huge markdown and highlighting stack, then that stack stopped being huge and we were left paying for runtime boundaries, bundler context, serialization, special files, and a content path that was harder for humans and coding agents to follow. The standard APIs weren't bad, the architecture just stopped earning its keep.
 
 ## Supporting RSC is different from requiring it
+
+[Manuel's recent talk, TanStack Start and How It Supports React Server Components](https://gitnation.com/contents/tanstack-start-and-how-it-supports-react-server-components), is almost a perfect snapshot of where we were right before this change. TanStack.com was still our main RSC playground, markdown and syntax highlighting were exactly the kind of heavy server-rendered UI the design was built for, and Manuel was clear that RSC should be a primitive rather than the architecture, something you use when it makes sense instead of the default for every new project.
 
 I don't want this post to flatten the amount of work behind TanStack Start's RSC support either. Manuel did a significant amount of difficult framework and bundler work to make Flight streams usable without forcing the rest of your application to orbit them, and we're going to keep supporting that work.
 

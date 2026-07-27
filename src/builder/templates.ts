@@ -46,18 +46,10 @@ export const TEMPLATES: Array<Template> = [
   {
     id: 'saas',
     name: 'SaaS Starter',
-    description: 'Auth, database, monitoring',
+    description: 'Auth, database, and UI',
     icon: Rocket,
     color: '#F97316', // orange
-    features: [
-      'cloudflare',
-      'better-auth',
-      'neon',
-      'drizzle',
-      'sentry',
-      'shadcn',
-      'form',
-    ],
+    features: ['cloudflare', 'better-auth', 'prisma', 'shadcn', 'form'],
   },
   {
     id: 'ai-chat',
@@ -81,7 +73,7 @@ export const TEMPLATES: Array<Template> = [
     description: 'Content-driven site',
     icon: FileText,
     color: '#EC4899', // pink
-    features: ['cloudflare', 'strapi', 'tanstack-query'],
+    features: ['cloudflare', 'tanstack-query'],
   },
   {
     id: 'api-first',
@@ -97,7 +89,7 @@ export const TEMPLATES: Array<Template> = [
     description: 'Live, collaborative features',
     icon: Radio,
     color: '#EF4444', // red
-    features: ['cloudflare', 'convex', 'tanstack-query'],
+    features: ['cloudflare', 'db', 'tanstack-query'],
   },
   {
     id: 'i18n',

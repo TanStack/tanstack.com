@@ -1,20 +1,20 @@
 ---
 title: TanStack + OpenRouter Partnership
 published: 2026-03-09
-excerpt: OpenRouter is now an official TanStack sponsor. The most concrete result is already shipped — a first-class TanStack AI adapter giving you access to 300+ models from 60+ providers through a single API.
+excerpt: OpenRouter is an official TanStack sponsor, with a first-class TanStack AI adapter for accessing hundreds of models through one API.
 authors:
   - Tanner Linsley
 ---
 
 ![TanStack + OpenRouter](/blog-assets/openrouter-partnership/header.png)
 
-**OpenRouter is now an official TanStack sponsor.** And the most concrete expression of that is already shipped: [`@tanstack/ai-openrouter`](https://tanstack.com/ai/latest/docs/adapters/openrouter) — a first-class TanStack AI adapter that gives you access to 300+ models from 60+ providers through a single, unified API.
+**OpenRouter is now an official TanStack sponsor.** The most concrete expression of that is already shipped: [`@tanstack/ai-openrouter`](https://tanstack.com/ai/latest/docs/adapters/openrouter), a first-class TanStack AI adapter that gives you access to hundreds of models through one API.
 
 ## Why OpenRouter
 
 When we started building TanStack AI, one of our core beliefs was that you shouldn't have to bet your integration on a single provider. The AI model landscape is moving faster than anyone can predict. The model that wins this quarter might not be the one you want next quarter, and rewriting your AI layer every time a new frontier model drops is exactly the kind of undifferentiated toil we want to help you avoid.
 
-OpenRouter solves this cleanly. One API key. One integration. GPT-5, Claude, Gemini, Llama, Mistral, DeepSeek — and whatever ships next month. When you want to try a different model, you change a string. When a provider goes down, OpenRouter routes around it automatically. That's the kind of leverage I want TanStack developers to have.
+OpenRouter solves this cleanly. One API key and one integration for GPT, Claude, Gemini, Llama, Mistral, DeepSeek, and whatever ships next. When you want to try a different model, you change a string. When a provider goes down, OpenRouter can route around it. That's the kind of leverage I want TanStack developers to have.
 
 ## The Adapter
 
@@ -32,7 +32,7 @@ const stream = chat({
 })
 ```
 
-Swap the model string for any of the [300+ models on OpenRouter](https://openrouter.ai/models?utm_source=tanstack). Everything else stays the same.
+Swap the model string for any model in the [OpenRouter catalog](https://openrouter.ai/models?utm_source=tanstack). Everything else stays the same.
 
 One feature I particularly love is the auto-router with fallbacks. It's dead simple to set up and gives your app real production resilience without any retry logic of your own:
 
@@ -40,18 +40,17 @@ One feature I particularly love is the auto-router with fallbacks. It's dead sim
 const stream = chat({
   adapter: openRouterText('openrouter/auto'),
   messages,
-  providerOptions: {
+  modelOptions: {
     models: [
-      'openai/gpt-5',
+      'openai/gpt-5.5',
       'anthropic/claude-sonnet-4.5',
-      'google/gemini-3-pro-preview',
+      'google/gemini-3.1-pro-preview',
     ],
-    route: 'fallback',
   },
 })
 ```
 
-If the primary model fails or gets rate-limited, OpenRouter falls through to the next one. No outage pages, no extra infrastructure.
+If the primary model is unavailable, OpenRouter falls through the configured list. The fallback order stays in the request instead of becoming hand-written retry logic.
 
 ## Jack's Image Generation Demo
 
@@ -69,7 +68,7 @@ Our own Jack Herrington put together a demo showing off TanStack AI with the Ope
 
 ## What This Means Going Forward
 
-OpenRouter's sponsorship of TanStack means the adapter is actively maintained, tested, and will stay in sync with both libraries as they evolve. More importantly, both teams are genuinely aligned on the same goal: give developers the most flexible AI integration possible without locking them into anything.
+The sponsorship supports ongoing maintenance and testing as TanStack AI and OpenRouter evolve. More importantly, both teams are aligned on the same goal: give developers a flexible AI integration without locking them into a single model provider.
 
 If you're building AI features with TanStack, the OpenRouter adapter is the one I'd reach for first.
 

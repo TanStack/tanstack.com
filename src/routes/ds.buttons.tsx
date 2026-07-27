@@ -71,6 +71,39 @@ function ButtonsPage() {
       </DsSection>
 
       <DsSection
+        title="Gradient (landing CTA)"
+        description="The library-landing primary call-to-action, promoted to a Button variant so the styling lives here: an accent→bright gradient with an inner highlight, a colored glow, ink text, and a hover lift. Colors map to the category accents (src/styles/app.css)."
+      >
+        <ComponentPreview
+          code={`<Button variant="gradient" color="green">Get started</Button>
+<Button variant="gradient" color="red">Get started</Button>
+<Button variant="gradient" color="blue">Get started</Button>
+<Button variant="gradient" color="orange">Get started</Button>
+<Button variant="gradient" color="purple">Get started</Button>
+<Button variant="gradient">Copy prompt <ArrowRight /></Button>`}
+        >
+          <Button variant="gradient" color="green">
+            Get started
+          </Button>
+          <Button variant="gradient" color="red">
+            Get started
+          </Button>
+          <Button variant="gradient" color="blue">
+            Get started
+          </Button>
+          <Button variant="gradient" color="orange">
+            Get started
+          </Button>
+          <Button variant="gradient" color="purple">
+            Get started
+          </Button>
+          <Button variant="gradient">
+            Copy prompt <ArrowRight className="h-4 w-4" />
+          </Button>
+        </ComponentPreview>
+      </DsSection>
+
+      <DsSection
         title="Colors"
         description="Primary variant across the full color set."
       >

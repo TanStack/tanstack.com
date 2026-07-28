@@ -5,7 +5,6 @@ import { ArrowRight } from '@phosphor-icons/react'
 import { Button, Card } from '~/components/ds/ui'
 import { PartnersGrid, TierBand } from '~/components/PartnersGrid'
 import { SponsorPackWithQuery } from '~/components/SponsorSection'
-import PlaceholderSponsorPack from '~/components/PlaceholderSponsorPack'
 import { formatAuthors, formatPublishedDate } from '~/utils/blog-format'
 import type { RecentPost } from '~/utils/blog.functions'
 
@@ -23,12 +22,7 @@ function OssSponsorsBand() {
           className="relative mx-auto flex w-full max-w-[560px] flex-wrap overflow-hidden [&>div]:h-full [&>div]:w-full"
           style={{ aspectRatio: '1/1' }}
         >
-          <Hydrate
-            when={visible({ rootMargin: '50%' })}
-            fallback={<PlaceholderSponsorPack />}
-          >
-            <SponsorPackWithQuery />
-          </Hydrate>
+          <SponsorPackWithQuery />
         </div>
         <p className="mx-auto mt-8 max-w-(--breakpoint-sm) text-center italic text-gray-500 dark:text-gray-400">
           Sponsors get special perks like{' '}

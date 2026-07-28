@@ -707,25 +707,17 @@ pre {
   @apply text-black overflow-x-auto relative leading-tight;
 }
 
-span.line {
-  display: inline-block;
-  width: 100%;
+.th-line--deleted,
+.th-line--inserted {
+  margin-inline: -1rem;
+  padding-inline: 1rem;
 }
 
-pre.has-diff span.diff {
-  width: calc(100% + 20px);
-  margin-left: -10px;
-  padding-right: 20px;
-  padding-left: 10px;
-  padding-top: 4px;
-  padding-bottom: 4px;
-}
-
-pre.has-diff span.remove {
+.th-line--deleted {
   background-color: #f43f5e29;
 }
 
-pre.has-diff span.add {
+.th-line--inserted {
   background-color: #10b98129;
 }
 /* Visually differentiates twoslash code samples  */

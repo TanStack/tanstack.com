@@ -1,4 +1,5 @@
-import { renderCodeBlockData } from '@tanstack/highlight'
+import { defaultHighlighter } from '@tanstack/highlight'
+import { renderCodeFence } from '@tanstack/highlight/markdown'
 import * as React from 'react'
 import { CodeBlockView } from './CodeBlockView'
 import { MermaidBlock } from './MermaidBlock'
@@ -37,7 +38,7 @@ function HighlightedCodeBlock({
   title?: string
 }) {
   const rendered = React.useMemo(() => {
-    return renderCodeBlockData({ code, lang, title })
+    return renderCodeFence({ code, lang, title }, defaultHighlighter)
   }, [code, lang, title])
 
   return (

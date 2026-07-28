@@ -29,7 +29,7 @@ import { LandingCommunitySection } from '~/components/LandingCommunitySection'
 import LandingPageGad from '~/components/LandingPageGad'
 import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
 import { LibraryWordmark } from '~/components/LibraryWordmark'
-import { SponsorSection } from '~/components/SponsorSection'
+import { OssSponsorsSection } from '~/components/OssSponsorsSection'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { getLibrary } from '~/libraries'
 import { copyTextToClipboard } from '~/utils/browser-effects'
@@ -467,10 +467,10 @@ const extensions = [streamingMarkdownExtension()]
 
         <div className="mt-10 flex flex-col gap-14">
           <LandingCommunitySection libraryId="markdown" />
-          <SponsorSection
+          <OssSponsorsSection
             title="GitHub Sponsors"
             aspectRatio="1/1"
-            packMaxWidth="900px"
+            maxWidth="900px"
             showCTA
           />
         </div>

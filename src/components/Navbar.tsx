@@ -54,7 +54,6 @@ import {
 } from '~/components/Dropdown'
 import { DiscordIcon } from '~/components/icons/DiscordIcon'
 import { InstagramIcon } from '~/components/icons/InstagramIcon'
-import { OptimizedImage } from '~/components/OptimizedImage'
 import { BSkyIcon } from '~/components/icons/BSkyIcon'
 import { BrandXIcon } from '~/components/icons/BrandXIcon'
 import { YouTubeIcon } from '~/components/icons/YouTubeIcon'
@@ -84,31 +83,23 @@ const LogoSection = ({ title }: LogoProps) => {
   return (
     <Link
       to="/"
+      aria-label="TanStack"
       className={twMerge(
-        `inline-flex items-center gap-1.5 cursor-pointer`,
+        `inline-flex items-center cursor-pointer`,
         title ? 'shrink-0' : '',
       )}
     >
-      <div className="w-[30px] inline-grid items-center grid-cols-1 grid-rows-1 [&>*]:transition-opacity [&>*]:duration-1000">
-        <OptimizedImage
-          src="/images/logos/logo-color-100.png"
-          alt=""
-          width={30}
-          quality={90}
-          className="row-start-1 col-start-1 w-full group-hover:opacity-0"
-        />
-        <img
-          src={'/images/logos/logo-black.svg'}
-          alt=""
-          className="row-start-1 col-start-1 w-full dark:opacity-0 opacity-0 group-hover:opacity-100"
-        />
-        <img
-          src={'/images/logos/logo-white.svg'}
-          alt=""
-          className="row-start-1 col-start-1 w-full light:opacity-0 dark:block opacity-0 group-hover:opacity-100"
-        />
-      </div>
-      <div>TanStack</div>
+      <img
+        src="/images/brand/tanstack-landscape-black.svg"
+        alt="TanStack"
+        className="h-7 w-auto dark:hidden"
+      />
+      <img
+        src="/images/brand/tanstack-landscape-white.svg"
+        alt=""
+        aria-hidden="true"
+        className="hidden h-7 w-auto dark:block"
+      />
     </Link>
   )
 }
@@ -610,32 +601,32 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             </div>
           ) : null}
         </div>
-
-        <nav
-          ref={desktopNavRef}
-          aria-label="Primary navigation"
-          className={twMerge(
-            DESKTOP_NAV_CLASS,
-            'relative shrink-0 items-center gap-0',
-          )}
-        >
-          {NAV_GROUPS.map((group) => (
-            <DesktopNavTrigger
-              key={group.key}
-              group={group}
-              dismissed={dismissedDesktopMenuKey === group.key}
-              onDismiss={() => dismissDesktopMenu(group.key)}
-              onResetDismissed={() => {
-                setDismissedDesktopMenuKey((dismissedKey) =>
-                  dismissedKey === group.key ? null : dismissedKey,
-                )
-              }}
-            />
-          ))}
-        </nav>
       </div>
 
-      <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+      <nav
+        ref={desktopNavRef}
+        aria-label="Primary navigation"
+        className={twMerge(
+          DESKTOP_NAV_CLASS,
+          'relative self-stretch shrink-0 items-center justify-center gap-1',
+        )}
+      >
+        {NAV_GROUPS.map((group) => (
+          <DesktopNavTrigger
+            key={group.key}
+            group={group}
+            dismissed={dismissedDesktopMenuKey === group.key}
+            onDismiss={() => dismissDesktopMenu(group.key)}
+            onResetDismissed={() => {
+              setDismissedDesktopMenuKey((dismissedKey) =>
+                dismissedKey === group.key ? null : dismissedKey,
+              )
+            }}
+          />
+        ))}
+      </nav>
+
+      <div className="flex flex-1 items-center justify-end gap-2 sm:gap-2.5">
         <div className={DESKTOP_SOCIAL_CLASS}>{socialLinks}</div>
         <ThemeToggle />
         <NavbarCartButton />

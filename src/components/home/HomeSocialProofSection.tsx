@@ -3,8 +3,8 @@ import { Hydrate } from '@tanstack/react-start'
 import { visible } from '@tanstack/react-start/hydration'
 import { ArrowRight } from '@phosphor-icons/react'
 import { Button, Card } from '~/components/ds/ui'
+import { OssSponsorsWithQuery } from '~/components/OssSponsorsSection'
 import { PartnersGrid, TierBand } from '~/components/PartnersGrid'
-import { SponsorPackWithQuery } from '~/components/SponsorSection'
 import { formatAuthors, formatPublishedDate } from '~/utils/blog-format'
 import type { RecentPost } from '~/utils/blog.functions'
 
@@ -18,11 +18,8 @@ function OssSponsorsBand() {
     <div id="sponsors" className="scroll-mt-24">
       <TierBand label="OSS Sponsors" colorClassName="bg-ds-green-400" />
       <div className="px-4 py-10">
-        <div
-          className="relative mx-auto flex w-full max-w-[560px] flex-wrap overflow-hidden [&>div]:h-full [&>div]:w-full"
-          style={{ aspectRatio: '1/1' }}
-        >
-          <SponsorPackWithQuery />
+        <div className="relative mx-auto h-[420px] w-full overflow-hidden sm:h-[480px] lg:h-[540px] [&>div]:h-full [&>div]:w-full">
+          <OssSponsorsWithQuery />
         </div>
         <p className="mx-auto mt-8 max-w-(--breakpoint-sm) text-center italic text-gray-500 dark:text-gray-400">
           Sponsors get special perks like{' '}

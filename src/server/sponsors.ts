@@ -26,7 +26,7 @@ export type Sponsor = {
 
 const sponsorMaintainerLogin = 'tannerlinsley'
 
-export const getSponsorsForSponsorPack = createServerFn({
+export const getOssSponsors = createServerFn({
   method: 'GET',
 }).handler(async () => {
   const sponsors = await fetchCached({

@@ -12,10 +12,7 @@ import {
   type Icon,
 } from '@phosphor-icons/react'
 
-import {
-  libraryCategories,
-  type LibraryCategory,
-} from '~/components/LibraryGridCard'
+import { libraryCategories, type LibraryCategory } from '~/libraries/categories'
 import { getLibrary } from '~/libraries'
 import type { LibraryId } from '~/libraries'
 import { ossStatsQuery, recentDownloadsQuery } from '~/queries/stats'
@@ -99,49 +96,46 @@ type LibraryLandingTheme = {
   glow: string
 }
 
-// Each category's landing accent is composed from the SINGLE SOURCE OF TRUTH
-// category tokens (`--color-category-<cat>-*` in app.css). Swap a category's hue
-// there and the mega-menu, docs, and these landings all follow together.
 const libraryLandingCategoryThemes = {
   data: theme(
-    'var(--color-category-data-accent)',
-    'var(--color-category-data-bright)',
-    'var(--color-category-data-ink)',
-    'var(--color-category-data-tint)',
-    'var(--color-category-data-glow)',
-    'var(--color-category-data-deep)',
+    'var(--color-ds-terracotta-400)',
+    'var(--color-ds-terracotta-300)',
+    '#000000',
+    'var(--color-ds-terracotta-100)',
+    '195 80 43',
+    'var(--color-ds-terracotta-500)',
   ),
   framework: theme(
-    'var(--color-category-framework-accent)',
-    'var(--color-category-framework-bright)',
-    'var(--color-category-framework-ink)',
-    'var(--color-category-framework-tint)',
-    'var(--color-category-framework-glow)',
-    'var(--color-category-framework-deep)',
+    'var(--color-ds-green-400)',
+    'var(--color-ds-green-300)',
+    '#04130a',
+    'var(--color-ds-green-100)',
+    '68 165 78',
+    'var(--color-ds-green-500)',
   ),
   performance: theme(
-    'var(--color-category-performance-accent)',
-    'var(--color-category-performance-bright)',
-    'var(--color-category-performance-ink)',
-    'var(--color-category-performance-tint)',
-    'var(--color-category-performance-glow)',
-    'var(--color-category-performance-deep)',
+    'var(--color-ds-amber-400)',
+    'var(--color-ds-amber-300)',
+    '#171003',
+    'var(--color-ds-amber-100)',
+    '235 158 42',
+    'var(--color-ds-amber-500)',
   ),
   tooling: theme(
-    'var(--color-category-tooling-accent)',
-    'var(--color-category-tooling-bright)',
-    'var(--color-category-tooling-ink)',
-    'var(--color-category-tooling-tint)',
-    'var(--color-category-tooling-glow)',
-    'var(--color-category-tooling-deep)',
+    'var(--color-ds-neutral-200)',
+    'var(--color-ds-neutral-100)',
+    '#111111',
+    'var(--color-ds-neutral-100)',
+    '171 165 148',
+    'var(--color-ds-neutral-400)',
   ),
   ui: theme(
-    'var(--color-category-ui-accent)',
-    'var(--color-category-ui-bright)',
-    'var(--color-category-ui-ink)',
-    'var(--color-category-ui-tint)',
-    'var(--color-category-ui-glow)',
-    'var(--color-category-ui-deep)',
+    'var(--color-ds-blue-400)',
+    'var(--color-ds-blue-300)',
+    '#031219',
+    'var(--color-ds-blue-100)',
+    '70 157 184',
+    'var(--color-ds-blue-500)',
   ),
 } satisfies Record<LibraryCategory, LibraryLandingTheme>
 

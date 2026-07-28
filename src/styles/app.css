@@ -424,6 +424,11 @@ html.theme-switching *::after {
   --text-ds-mono-caps--line-height: 14px;
   --text-ds-mono-caps--letter-spacing: 1.5px;
   --text-ds-mono-caps--font-weight: 400;
+  --text-ds-mono-caps-xs: 10px;
+  --text-ds-mono-caps-xs--line-height: 12px;
+  --text-ds-mono-caps-xs--letter-spacing: 1.2px;
+  --text-ds-mono-caps-xs--font-weight: 400;
+
   /* Eyebrow (mono, uppercase, wide tracking) — labels above headings */
   --text-ds-eyebrow-lg: 13px;
   --text-ds-eyebrow-lg--line-height: 16px;

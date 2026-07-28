@@ -190,7 +190,7 @@ const NAV_GROUPS = [
             label: 'Release Notes',
             to: '/blog',
             description: 'The latest releases and changelog.',
-            icon: Sparkle,
+            icon: Sparkles,
           },
         ],
       },

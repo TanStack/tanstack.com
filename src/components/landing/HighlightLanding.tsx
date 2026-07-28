@@ -3,16 +3,16 @@ import { Link, useParams } from '@tanstack/react-router'
 import {
   ArrowRight,
   BookOpen,
-  Boxes,
-  Braces,
+  Cube as Boxes,
+  BracketsCurly as Braces,
   Check,
-  CircleGauge,
+  Gauge as CircleGauge,
   Highlighter,
-  Layers3,
+  Stack as Layers3,
   Palette,
-  ScanText,
-  Zap,
-} from 'lucide-react'
+  Scan as ScanText,
+  Lightning as Zap,
+} from '@phosphor-icons/react'
 
 import { Footer } from '~/components/Footer'
 import { LandingCommunitySection } from '~/components/LandingCommunitySection'

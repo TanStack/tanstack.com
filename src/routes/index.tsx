@@ -2,8 +2,6 @@ import * as React from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 
 import discordImage from '~/images/discord-logo-white.svg'
-import { OptimizedImage } from '~/components/OptimizedImage'
-import { useLibrariesOverlay } from '~/contexts/LibrariesOverlayContext'
 import { twMerge } from 'tailwind-merge'
 
 import {

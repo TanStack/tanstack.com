@@ -1,7 +1,7 @@
 import * as React from 'react'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { CaretDown, Check, X } from '@phosphor-icons/react'
-import { type Framework, type Library } from '~/libraries'
+import { type Framework } from '~/libraries'
 import { frameworkOptions } from '~/libraries/frameworks'
 import LibraryGridCard from '~/components/LibraryGridCard'
 import { libraryCategories, type LibraryCategory } from '~/libraries/categories'
@@ -218,7 +218,7 @@ export function LibrariesOverlay({
                         className="h-full animate-library-card-reveal"
                         style={{ animationDelay: `${delay}ms` }}
                       >
-                        <LibraryGridCard library={library as Library} />
+                        <LibraryGridCard library={library} />
                       </div>
                     ))}
                   </div>

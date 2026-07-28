@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { ArrowRight, CaretRight } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
-import type { Library } from '~/libraries'
+import type { PublicLibrarySlim } from '~/libraries'
 import { libraryCategories, type LibraryCategory } from '~/libraries/categories'
 import { fallbackLibraryIcon, libraryIcons } from '~/libraries/icons'
 
@@ -29,7 +29,11 @@ const categoryHoverBorder: Record<LibraryCategory, string> = {
   tooling: 'hover:border-ds-neutral-300/60',
 }
 
-export default function LibraryGridCard({ library }: { library: Library }) {
+export default function LibraryGridCard({
+  library,
+}: {
+  library: PublicLibrarySlim
+}) {
   const category = libraryCategories[library.id] ?? 'tooling'
   const IconComponent = libraryIcons[library.id] ?? fallbackLibraryIcon
   const name = library.name.replace(/^TanStack\s+/, '')

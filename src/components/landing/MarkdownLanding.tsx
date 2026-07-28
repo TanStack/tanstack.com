@@ -8,21 +8,21 @@ import { streamingMarkdownExtension } from '@tanstack/markdown/extensions/stream
 import {
   ArrowRight,
   BookOpen,
-  Braces,
+  BracketsCurly as Braces,
   Check,
-  CheckCircle2,
+  CheckCircle as CheckCircle2,
   Copy,
   FileText,
   Highlighter,
-  LockKeyhole,
-  PackageOpen,
+  LockKey as LockKeyhole,
+  Package as PackageOpen,
   Pause,
   Play,
   Radio,
-  RotateCcw,
+  ArrowCounterClockwise as RotateCcw,
   ShieldCheck,
   X,
-} from 'lucide-react'
+} from '@phosphor-icons/react'
 
 import { Footer } from '~/components/Footer'
 import { LandingCommunitySection } from '~/components/LandingCommunitySection'

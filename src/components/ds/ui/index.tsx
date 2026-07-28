@@ -681,6 +681,7 @@ export function Breadcrumbs({
 }
 
 export { PalmSpinner } from './PalmSpinner'
+export { PixelSpinner } from './PixelSpinner'
 export {
   StatsSection,
   type StatsPage,

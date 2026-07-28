@@ -27,6 +27,8 @@ export const libraryCategories: Record<string, LibraryCategory> = {
   table: 'ui',
   form: 'ui',
   hotkeys: 'ui',
+  markdown: 'ui',
+  highlight: 'ui',
   virtual: 'performance',
   pacer: 'performance',
   devtools: 'tooling',

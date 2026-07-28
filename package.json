@@ -12,6 +12,8 @@
     "dev:cloudflare": "pnpm run with-env -- sh -c 'DISABLE_REDACT=true vite dev'",
     "build": "vite build --logLevel warn",
     "build:cloudflare": "pnpm run build",
+    "charts:generate-landing-svg": "tsx scripts/generate-charts-landing-svg.ts",
+    "charts:check-landing-svg": "tsx scripts/generate-charts-landing-svg.ts --check",
     "preview": "vite preview",
     "preview:cloudflare": "pnpm run preview",
     "deploy:cloudflare": "pnpm run build:cloudflare && wrangler deploy --name tanstack-com && pnpm run purge:cloudflare",

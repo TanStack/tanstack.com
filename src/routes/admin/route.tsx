@@ -8,17 +8,17 @@ import {
 } from '@tanstack/react-router'
 import {
   X,
-  TextAlignStart,
-  LayoutDashboard,
-  LogIn,
-  MessagesSquare,
+  TextAlignLeft,
+  SquaresFour,
+  SignIn,
+  ChatsCircle,
   Shield,
-  ShieldHalf,
-  StickyNote,
+  ShieldCheckered,
+  Note,
   Users,
   User,
   BookOpen,
-} from 'lucide-react'
+} from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 // Using public asset URL
 import { ClientAdminAuth } from '~/components/ClientAuth'
@@ -26,7 +26,7 @@ import { requireAnyAdminCapability } from '~/utils/auth.functions'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { NpmIcon } from '~/components/icons/NpmIcon'
-import { Sparkles } from 'lucide-react'
+import { Sparkle } from '@phosphor-icons/react'
 import { hasCapability, type Capability } from '~/db/types'
 
 export const Route = createFileRoute('/admin')({
@@ -73,7 +73,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   })[] = [
     {
       label: 'Dashboard',
-      icon: <LayoutDashboard />,
+      icon: <SquaresFour />,
       to: '/admin',
     },
     {
@@ -84,13 +84,13 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     },
     {
       label: 'Roles',
-      icon: <ShieldHalf />,
+      icon: <ShieldCheckered />,
       to: '/admin/roles',
       requiredCapability: 'admin',
     },
     {
       label: 'Login History',
-      icon: <LogIn />,
+      icon: <SignIn />,
       to: '/admin/logins',
       requiredCapability: 'admin',
     },
@@ -102,19 +102,19 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     },
     {
       label: 'Feedback',
-      icon: <MessagesSquare />,
+      icon: <ChatsCircle />,
       to: '/admin/feedback',
       requiredCapability: 'moderate-feedback',
     },
     {
       label: 'Notes',
-      icon: <StickyNote />,
+      icon: <Note />,
       to: '/admin/notes',
       requiredCapability: 'moderate-feedback',
     },
     {
       label: 'Showcases',
-      icon: <Sparkles />,
+      icon: <Sparkle />,
       to: '/admin/showcases',
       requiredCapability: 'moderate-showcases',
     },
@@ -190,7 +190,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       >
         <summary className="py-2 px-4 flex gap-2 items-center justify-between">
           <div className="flex-1 flex gap-4 items-center">
-            <TextAlignStart className="icon-open cursor-pointer" />
+            <TextAlignLeft className="icon-open cursor-pointer" />
             <X className="icon-close cursor-pointer" />
             Admin Menu
           </div>

@@ -2,52 +2,52 @@ import type { CSSProperties, ReactNode } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Hydrate } from '@tanstack/react-start'
 import { visible } from '@tanstack/react-start/hydration'
-import { ArrowRight } from 'lucide-react'
-import { getSponsorsForSponsorPack } from '~/utils/sponsors.functions'
+import { ArrowRight } from '@phosphor-icons/react'
+import { getOssSponsors } from '~/utils/sponsors.functions'
 import { Button } from '~/ui'
-import PlaceholderSponsorPack from './PlaceholderSponsorPack'
-import SponsorPack from './SponsorPack'
+import OssSponsors from './OssSponsors'
+import PlaceholderOssSponsors from './PlaceholderOssSponsors'
 
-type SponsorSectionProps = {
+type OssSponsorsSectionProps = {
   title?: ReactNode
   aspectRatio?: string
-  packMaxWidth?: CSSProperties['maxWidth']
+  maxWidth?: CSSProperties['maxWidth']
   showCTA?: boolean
 }
 
-function SponsorPackWithQuery() {
+export function OssSponsorsWithQuery() {
   const { data: sponsors } = useQuery({
     queryKey: ['sponsors'],
-    queryFn: () => getSponsorsForSponsorPack(),
+    queryFn: () => getOssSponsors(),
     staleTime: 5 * 60 * 1000, // 5 minutes
   })
 
   if (!sponsors) {
-    return <PlaceholderSponsorPack />
+    return <PlaceholderOssSponsors />
   }
 
-  return <SponsorPack sponsors={sponsors} />
+  return <OssSponsors sponsors={sponsors} />
 }
 
-export function SponsorSection({
-  title = 'Sponsors',
-  aspectRatio = '1/1',
-  packMaxWidth,
+export function OssSponsorsSection({
+  title = 'OSS Sponsors',
+  aspectRatio = '16/10',
+  maxWidth,
   showCTA = true,
-}: SponsorSectionProps) {
+}: OssSponsorsSectionProps) {
   return (
     <div className="px-4 w-full lg:max-w-(--breakpoint-lg) md:mx-auto">
       <div className="space-y-8">
         <h3 className="text-3xl font-bold">{title}</h3>
         <div
           className="relative mx-auto flex w-full flex-wrap overflow-hidden [&>div]:h-full [&>div]:w-full"
-          style={{ aspectRatio, maxWidth: packMaxWidth }}
+          style={{ aspectRatio, maxWidth }}
         >
           <Hydrate
             when={visible({ rootMargin: '50%' })}
-            fallback={<PlaceholderSponsorPack />}
+            fallback={<PlaceholderOssSponsors />}
           >
-            <SponsorPackWithQuery />
+            <OssSponsorsWithQuery />
           </Hydrate>
         </div>
         {showCTA ? (

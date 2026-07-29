@@ -1,4 +1,4 @@
-import { Card } from '~/components/Card'
+import { Card } from '~/components/ds/ui'
 import { NewsletterSignup } from '~/components/NewsletterSignup'
 import { Footer } from '~/components/Footer'
 

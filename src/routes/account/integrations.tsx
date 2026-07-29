@@ -18,14 +18,14 @@ import { Button, FormInput } from '~/ui'
 import {
   Key,
   Plus,
-  Trash2,
-  Ban,
+  Trash,
+  Prohibit,
   Copy,
   Check,
-  AlertTriangle,
+  Warning,
   Clock,
-  Link2,
-} from 'lucide-react'
+  LinkSimple,
+} from '@phosphor-icons/react'
 export const Route = createFileRoute('/account/integrations')({
   component: IntegrationsPage,
 })
@@ -325,7 +325,7 @@ function IntegrationsPage() {
                     )}
                     {key.isActive && isExpired(key.expiresAt) && (
                       <span className="text-xs px-1.5 py-0.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 rounded flex items-center gap-1">
-                        <AlertTriangle className="w-3 h-3" />
+                        <Warning className="w-3 h-3" />
                         Expired
                       </span>
                     )}
@@ -354,7 +354,7 @@ function IntegrationsPage() {
                     disabled={revokeMutation.isPending}
                     title="Revoke key"
                   >
-                    <Ban className="w-3.5 h-3.5" />
+                    <Prohibit className="w-3.5 h-3.5" />
                     Revoke
                   </Button>
                 )}
@@ -366,7 +366,7 @@ function IntegrationsPage() {
                   title="Delete key"
                   className="text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
                 >
-                  <Trash2 className="w-3.5 h-3.5" />
+                  <Trash className="w-3.5 h-3.5" />
                 </Button>
               </div>
             </div>
@@ -391,7 +391,7 @@ function IntegrationsPage() {
           <div className="p-4 text-sm text-gray-500">Loading...</div>
         ) : connectedAppsQuery.data?.length === 0 ? (
           <div className="p-8 text-center">
-            <Link2 className="w-10 h-10 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+            <LinkSimple className="w-10 h-10 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
             <p className="text-gray-500 dark:text-gray-400 text-sm">
               No connected apps
             </p>
@@ -407,7 +407,7 @@ function IntegrationsPage() {
             >
               <div className="flex items-center gap-3 min-w-0">
                 <div className="p-2 rounded-lg bg-purple-50 dark:bg-purple-950/30">
-                  <Link2 className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                  <LinkSimple className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                 </div>
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
@@ -437,7 +437,7 @@ function IntegrationsPage() {
                   title="Revoke access"
                   className="text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
                 >
-                  <Ban className="w-3.5 h-3.5" />
+                  <Prohibit className="w-3.5 h-3.5" />
                   Revoke
                 </Button>
               </div>

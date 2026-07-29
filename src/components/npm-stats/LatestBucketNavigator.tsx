@@ -1,15 +1,15 @@
 import * as React from 'react'
 import {
   Check,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-  MoreHorizontal,
+  CaretDown as ChevronDown,
+  CaretLeft as ChevronLeft,
+  CaretRight as ChevronRight,
+  CaretDoubleLeft as ChevronsLeft,
+  CaretDoubleRight as ChevronsRight,
+  DotsThree as MoreHorizontal,
   Pause,
   Play,
-} from 'lucide-react'
+} from '@phosphor-icons/react'
 import {
   DropdownMenu,
   DropdownMenuContent,

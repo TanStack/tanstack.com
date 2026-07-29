@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Check, LogIn, Mail } from 'lucide-react'
+import { Check, SignIn, Envelope } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { useToast } from '~/components/ToastProvider'
 import { useLoginModal } from '~/contexts/LoginModalContext'
@@ -94,7 +94,11 @@ export function NewsletterSignup({
         disabled={isPending}
         className={twMerge('w-full', buttonClassName)}
       >
-        {user ? <Mail className="h-4 w-4" /> : <LogIn className="h-4 w-4" />}
+        {user ? (
+          <Envelope className="h-4 w-4" />
+        ) : (
+          <SignIn className="h-4 w-4" />
+        )}
         {isPending
           ? 'Subscribing...'
           : user

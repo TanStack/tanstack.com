@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { ChevronLeft, ChevronRight, Menu, X } from 'lucide-react'
+import { CaretLeft, CaretRight, List, X } from '@phosphor-icons/react'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { DiscordIcon } from '~/components/icons/DiscordIcon'
 import { Link, useMatches, useParams } from '@tanstack/react-router'
@@ -598,7 +598,7 @@ function DocNavigationCard({
   const children =
     direction === 'previous' ? (
       <>
-        <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
+        <CaretLeft className="w-3 h-3 sm:w-4 sm:h-4" />
         <div className="flex flex-col">
           <span className="hidden sm:block text-[10px] uppercase tracking-wider opacity-60 mb-0.5">
             Previous
@@ -618,7 +618,7 @@ function DocNavigationCard({
             {item.label}
           </span>
         </div>
-        <ChevronRight className={twMerge('w-3 h-3 sm:w-4 sm:h-4', textColor)} />
+        <CaretRight className={twMerge('w-3 h-3 sm:w-4 sm:h-4', textColor)} />
       </>
     )
 
@@ -1196,7 +1196,9 @@ export function LibraryLayout({
         data-docs-desktop-menu
         ref={expandedMenuRef}
         className={twMerge(
-          'max-w-[250px] xl:max-w-[300px] 2xl:max-w-[400px]',
+          isLandingPage
+            ? 'max-w-[240px] xl:w-[240px] xl:max-w-[240px]'
+            : 'max-w-[250px] xl:max-w-[300px] 2xl:max-w-[400px]',
           'flex-col overflow-hidden',
           'h-[calc(100dvh-var(--navbar-height)-var(--docs-tabs-height))] top-[calc(var(--navbar-height)+var(--docs-tabs-height))]',
           'border-r border-gray-500/20',
@@ -1230,7 +1232,12 @@ export function LibraryLayout({
           }
         }}
       >
-        <div className="flex-1 flex flex-col overflow-y-auto min-w-[230px]">
+        <div
+          className={twMerge(
+            'flex flex-1 flex-col overflow-y-auto',
+            isLandingPage ? 'min-w-[239px]' : 'min-w-[230px]',
+          )}
+        >
           <div className="flex flex-col gap-1 p-4">
             <FrameworkSelect libraryId={libraryId} />
             <VersionSelect libraryId={libraryId} />
@@ -1244,7 +1251,12 @@ export function LibraryLayout({
   )
 
   const docsTabs = (
-    <div className="sticky top-[var(--navbar-height)] z-30 border-b border-gray-500/20 bg-white/90 dark:bg-black/80 backdrop-blur-lg">
+    <div
+      className={twMerge(
+        'sticky top-[var(--navbar-height)] z-30 border-b border-gray-500/20 bg-white/90 dark:bg-black/80 backdrop-blur-lg',
+        isLandingPage && 'min-h-12',
+      )}
+    >
       <div className="flex items-stretch">
         <button
           type="button"
@@ -1255,7 +1267,7 @@ export function LibraryLayout({
           data-docs-mobile-trigger
           className="min-[900px]:hidden flex items-center gap-1.5 shrink-0 px-3 border-r border-gray-500/20 text-slate-600 dark:text-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-current"
         >
-          <Menu className="w-4 h-4" data-docs-mobile-closed-icon />
+          <List className="w-4 h-4" data-docs-mobile-closed-icon />
           <X className="w-4 h-4" data-docs-mobile-open-icon />
           <span className="text-xs font-medium max-[479.98px]:sr-only">
             Menu
@@ -1278,7 +1290,7 @@ export function LibraryLayout({
           data-docs-menu-trigger
           className="hidden min-[900px]:flex xl:hidden items-center gap-1 shrink-0 px-2 border-r border-gray-500/20 text-xs font-medium text-slate-600 dark:text-slate-300 min-[1120px]:gap-1.5 min-[1120px]:px-3 min-[1120px]:text-[13px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-current"
         >
-          <Menu className="w-4 h-4" />
+          <List className="w-4 h-4" />
           <span className="text-xs font-medium">Menu</span>
         </button>
         <div className="relative flex min-w-0 flex-1 items-stretch">
@@ -1313,6 +1325,7 @@ export function LibraryLayout({
                   aria-current={isActive ? 'page' : undefined}
                   className={twMerge(
                     'relative whitespace-nowrap py-3 font-semibold transition-colors',
+                    isLandingPage && 'py-[15px]',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-current rounded-sm',
                     isActive
                       ? `text-transparent bg-clip-text bg-linear-to-r ${colorFrom} ${colorTo}`
@@ -1340,6 +1353,31 @@ export function LibraryLayout({
             className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-linear-to-r from-white/0 to-white/95 dark:from-black/0 dark:to-black/90 min-[640px]:w-10"
           />
         </div>
+        {isLandingPage ? (
+          <div className="hidden shrink-0 items-center gap-4 px-5 text-[11px] text-text-primary/35 xl:flex">
+            <a
+              href={`https://github.com/${repo}`}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 font-semibold transition-colors hover:text-text-primary/65"
+            >
+              <GithubIcon className="size-3" />
+              Built in public
+            </a>
+            <Link
+              to="/partners"
+              className="transition-colors hover:text-text-primary/65"
+            >
+              Partner-backed
+            </Link>
+            <Link
+              to="/support"
+              className="transition-colors hover:text-text-primary/65"
+            >
+              Sponsor-supported
+            </Link>
+          </div>
+        ) : null}
         {shouldShowDocsPartnerSlot && activePartners.length ? (
           <DocsPartnerSlot
             orderPlacementContext={docsPartnerOrderContext}
@@ -1365,12 +1403,12 @@ export function LibraryLayout({
       >
         <div
           data-docs-layout
+          data-library-landing={isLandingPage ? '' : undefined}
           data-docs-menu-open={showLargeMenu ? 'true' : undefined}
-          className={`
-           md:min-h-[calc(100dvh-var(--navbar-height))]
-           flex flex-col
-          w-full transition-all duration-300
-          [overflow-x:clip]`}
+          className={twMerge(
+            'flex w-full flex-col [overflow-x:clip] md:min-h-[calc(100dvh-var(--navbar-height))] transition-all duration-300',
+            isLandingPage && 'bg-background-default text-text-primary',
+          )}
         >
           {smallMenu}
           {docsTabs}

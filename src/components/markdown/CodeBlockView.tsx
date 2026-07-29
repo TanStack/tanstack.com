@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Copy } from 'lucide-react'
+import { Copy } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { useToast } from '~/components/ToastProvider'
 import { Button } from '~/ui'

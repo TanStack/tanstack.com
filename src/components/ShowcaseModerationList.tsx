@@ -16,11 +16,11 @@ import {
   Check,
   X,
   Star,
-  ExternalLink,
-  Trash2,
+  ArrowSquareOut,
+  Trash,
   ThumbsUp,
   ThumbsDown,
-} from 'lucide-react'
+} from '@phosphor-icons/react'
 import { libraries } from '~/libraries'
 import { Badge, Button } from '~/ui'
 import { getRowFieldId } from '~/utils/route-encoding'
@@ -405,7 +405,7 @@ export function ShowcaseModerationList({
                           }}
                           title="Delete"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Trash className="w-3.5 h-3.5" />
                         </Button>
                       </div>
                     )}
@@ -443,7 +443,7 @@ export function ShowcaseModerationList({
                               className="text-sm text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
                             >
                               {showcase.url}
-                              <ExternalLink className="w-3 h-3" />
+                              <ArrowSquareOut className="w-3 h-3" />
                             </a>
                           </div>
                           <div>

@@ -1,13 +1,13 @@
 import * as React from 'react'
 import { Link } from '@tanstack/react-router'
 import {
-  ChevronDown,
-  Settings,
+  CaretDown,
+  Gear,
   Lock,
-  LogOut,
-  Sparkles,
+  SignOut,
+  Sparkle,
   Key,
-} from 'lucide-react'
+} from '@phosphor-icons/react'
 import { Avatar } from '~/components/Avatar'
 import {
   Dropdown,
@@ -47,7 +47,7 @@ export function AuthenticatedUserMenu({
             size="xs"
             className="w-[26px] h-[26px]"
           />
-          <ChevronDown className="w-3 h-3 opacity-50" />
+          <CaretDown className="w-3 h-3 opacity-50" />
         </div>
       </DropdownTrigger>
       <DropdownContent align="end">
@@ -57,13 +57,13 @@ export function AuthenticatedUserMenu({
         <DropdownSeparator />
         <DropdownItem asChild>
           <Link to="/account" className="flex items-center gap-2">
-            <Settings className="w-4 h-4" />
+            <Gear className="w-4 h-4" />
             <span>Account</span>
           </Link>
         </DropdownItem>
         <DropdownItem asChild>
           <Link to="/account/submissions" className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4" />
+            <Sparkle className="w-4 h-4" />
             <span>My Showcases</span>
           </Link>
         </DropdownItem>
@@ -88,7 +88,7 @@ export function AuthenticatedUserMenu({
         )}
         <DropdownSeparator />
         <DropdownItem onSelect={onSignOut}>
-          <LogOut className="w-4 h-4" />
+          <SignOut className="w-4 h-4" />
           <span>Sign out</span>
         </DropdownItem>
       </DropdownContent>

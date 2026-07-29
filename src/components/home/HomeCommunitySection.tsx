@@ -1,10 +1,9 @@
 import { Link } from '@tanstack/react-router'
 import { Hydrate } from '@tanstack/react-start'
 import { visible } from '@tanstack/react-start/hydration'
-import { SponsorSection } from '~/components/SponsorSection'
 import { MaintainerCard } from '~/components/MaintainerCard'
 import { coreMaintainers } from '~/libraries/maintainers'
-import { Button } from '~/ui'
+import { Button } from '~/components/ds/ui'
 
 export function HomeCommunitySection() {
   return (
@@ -30,10 +29,6 @@ function CommunitySkeleton() {
             />
           ))}
         </div>
-      </div>
-      <div className="lg:max-w-(--breakpoint-lg) px-4 mx-auto">
-        <div className="h-10 w-44 rounded bg-gray-200/70 dark:bg-gray-800/70 animate-pulse mb-8" />
-        <div className="aspect-square max-w-[900px] mx-auto rounded-full bg-gray-100/70 dark:bg-gray-900/60 animate-pulse" />
       </div>
     </div>
   )
@@ -61,30 +56,6 @@ function HomeCommunityContent() {
             View All Maintainers
           </Button>
         </div>
-      </div>
-
-      <div className="lg:max-w-(--breakpoint-lg) px-4 mx-auto">
-        <div id="sponsors" className="scroll-mt-24">
-          <SponsorSection
-            title={
-              <a
-                href="#sponsors"
-                className="hover:underline decoration-gray-400 dark:decoration-gray-600"
-              >
-                OSS Sponsors
-              </a>
-            }
-          />
-        </div>
-        <div className="h-4" />
-        <p className="italic mx-auto max-w-(--breakpoint-sm) text-gray-500 dark:text-gray-400 text-center">
-          Sponsors get special perks like{' '}
-          <strong>
-            private discord channels, priority issue requests, and direct
-            support
-          </strong>
-          !
-        </p>
       </div>
     </div>
   )

@@ -21,15 +21,15 @@ import {
   type Row,
 } from '@tanstack/react-table'
 import {
-  SquarePen,
+  PencilSimpleLine,
   Plus,
-  Save,
+  FloppyDisk,
   X,
   Trash,
   Users,
-  Mail,
+  Envelope,
   Shield,
-} from 'lucide-react'
+} from '@phosphor-icons/react'
 import { VALID_CAPABILITIES, type Capability } from '~/db/types'
 import {
   AdminAccessDenied,
@@ -330,7 +330,7 @@ function RolesPage() {
                   onClick={handleSaveRole}
                   className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
                 >
-                  <Save className="w-4 h-4" />
+                  <FloppyDisk className="w-4 h-4" />
                 </button>
                 <button
                   onClick={handleCancelEdit}
@@ -355,7 +355,7 @@ function RolesPage() {
                 onClick={() => handleEditRole(role)}
                 className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
               >
-                <SquarePen className="w-4 h-4" />
+                <PencilSimpleLine className="w-4 h-4" />
               </button>
               <button
                 onClick={() => handleDeleteRole(role)}
@@ -466,7 +466,7 @@ function RolesPage() {
                 color="gray"
                 size="sm"
               >
-                <Mail className="w-4 h-4" />
+                <Envelope className="w-4 h-4" />
                 {testEmailStatus.loading ? 'Sending...' : 'Test Email'}
               </Button>
             </div>
@@ -535,7 +535,7 @@ function RolesPage() {
                 </div>
                 <div className="flex space-x-2">
                   <Button onClick={handleSaveRole} color="green">
-                    <Save className="w-4 h-4" />
+                    <FloppyDisk className="w-4 h-4" />
                     Save
                   </Button>
                   <Button onClick={handleCancelEdit} color="gray">

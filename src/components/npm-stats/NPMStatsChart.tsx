@@ -3,7 +3,13 @@ import { createPortal } from 'react-dom'
 import * as Plot from '@observablehq/plot'
 import * as d3 from 'd3'
 import { GIFEncoder, applyPalette, quantize } from 'gifenc'
-import { Check, Code2, Copy, Download, List } from 'lucide-react'
+import {
+  Check,
+  Code as Code2,
+  Copy,
+  Download,
+  List,
+} from '@phosphor-icons/react'
 import {
   DropdownMenu,
   DropdownMenuContent,

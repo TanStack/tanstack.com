@@ -8,7 +8,7 @@ import { useToast } from '~/components/ToastProvider'
 import { useEffect, useState } from 'react'
 import { setInterestedInHidingAds } from '~/utils/users.functions'
 import { GithubIcon } from '~/components/icons/GithubIcon'
-import { CheckCircleIcon } from '~/components/icons/CheckCircleIcon'
+import { CheckCircle } from '@phosphor-icons/react'
 import { GoogleIcon } from '~/components/icons/GoogleIcon'
 
 export const Route = createFileRoute('/ads')({
@@ -258,7 +258,7 @@ function OptInButton() {
     return (
       <div className="bg-white dark:bg-black/30 rounded-lg shadow-lg p-8 w-[100vw] max-w-sm mx-auto text-center">
         <div className="flex items-center justify-center mb-4">
-          <CheckCircleIcon className="text-green-500 text-4xl" />
+          <CheckCircle className="text-green-500 text-4xl" />
         </div>
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
           You're on the waitlist!

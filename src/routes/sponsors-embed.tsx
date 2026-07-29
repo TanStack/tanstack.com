@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-import SponsorPack from '~/components/SponsorPack'
-import { getSponsorsForSponsorPack } from '~/utils/sponsors.functions'
+import OssSponsors from '~/components/OssSponsors'
+import { getOssSponsors } from '~/utils/sponsors.functions'
 
 const cacheHeaders = {
   'Cache-Control': 'public, max-age=300',
@@ -10,7 +10,7 @@ const cacheHeaders = {
 
 export const Route = createFileRoute('/sponsors-embed')({
   staleTime: Infinity,
-  loader: () => getSponsorsForSponsorPack(),
+  loader: () => getOssSponsors(),
   headers: () => {
     // Cache the entire HTML response for 5 minutes
     return cacheHeaders
@@ -39,7 +39,7 @@ function SponsorsEmbed() {
 `,
           }}
         />
-        <SponsorPack sponsors={sponsors} />
+        <OssSponsors sponsors={sponsors} />
       </div>
     </>
   )

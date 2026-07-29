@@ -2,14 +2,14 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { BlogCard, type BlogCardPost } from '~/components/BlogCard'
 import { BlogAuthorFilter } from '~/components/BlogAuthorFilter'
-import { getPublishedPosts } from '~/utils/blog'
+import { getVisiblePosts } from '~/utils/blog'
 import { getDistinctAuthors } from '~/utils/blog-format'
 
 import { Footer } from '~/components/Footer'
 import { PostNotFound } from './blog'
 import { createServerFn } from '@tanstack/react-start'
 import { setResponseHeaders } from '@tanstack/react-start/server'
-import { RssIcon } from 'lucide-react'
+import { Rss as RssIcon } from '@phosphor-icons/react'
 import { libraries, type LibrarySlim } from '~/libraries'
 import { LibrariesWidget } from '~/components/LibrariesWidget'
 import { Card } from '~/components/Card'
@@ -31,7 +31,7 @@ const fetchFrontMatters = createServerFn({ method: 'GET' }).handler(
       }),
     )
 
-    return getPublishedPosts().map((post) => {
+    return getVisiblePosts().map((post) => {
       return {
         slug: post.slug,
         title: post.title,

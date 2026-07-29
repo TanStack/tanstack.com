@@ -3,23 +3,23 @@ import { Link, useParams } from '@tanstack/react-router'
 import {
   ArrowRight,
   BookOpen,
-  Boxes,
-  Braces,
+  Cube as Boxes,
+  BracketsCurly as Braces,
   Check,
-  CircleGauge,
+  Gauge as CircleGauge,
   Highlighter,
-  Layers3,
+  Stack as Layers3,
   Palette,
-  ScanText,
-  Zap,
-} from 'lucide-react'
+  Scan as ScanText,
+  Lightning as Zap,
+} from '@phosphor-icons/react'
 
 import { Footer } from '~/components/Footer'
 import { LandingCommunitySection } from '~/components/LandingCommunitySection'
 import LandingPageGad from '~/components/LandingPageGad'
 import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
 import { LibraryWordmark } from '~/components/LibraryWordmark'
-import { SponsorSection } from '~/components/SponsorSection'
+import { OssSponsorsSection } from '~/components/OssSponsorsSection'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { getLibrary } from '~/libraries'
 
@@ -375,10 +375,10 @@ export default function HighlightLanding() {
 
         <div className="mt-10 flex flex-col gap-14">
           <LandingCommunitySection libraryId="highlight" />
-          <SponsorSection
+          <OssSponsorsSection
             title="GitHub Sponsors"
             aspectRatio="1/1"
-            packMaxWidth="900px"
+            maxWidth="900px"
             showCTA
           />
         </div>

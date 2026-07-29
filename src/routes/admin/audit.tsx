@@ -20,7 +20,7 @@ import {
 } from '@tanstack/react-table'
 import * as v from 'valibot'
 import { listAuditLogs } from '~/utils/audit.functions'
-import { Shield, ChevronDown, ChevronUp } from 'lucide-react'
+import { Shield, CaretDown, CaretUp } from '@phosphor-icons/react'
 import {
   AdminAccessDenied,
   AdminLoading,
@@ -132,9 +132,9 @@ function DetailsCell({ details }: { details: string | null }) {
         className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
       >
         {expanded ? (
-          <ChevronUp className="w-3 h-3" />
+          <CaretUp className="w-3 h-3" />
         ) : (
-          <ChevronDown className="w-3 h-3" />
+          <CaretDown className="w-3 h-3" />
         )}
         {expanded ? 'Hide' : 'Show'} Details
       </button>

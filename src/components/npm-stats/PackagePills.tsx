@@ -1,6 +1,12 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
-import { X, Plus, Eye, EyeOff, EllipsisVertical } from 'lucide-react'
+import {
+  X,
+  Plus,
+  Eye,
+  EyeSlash as EyeOff,
+  DotsThreeVertical as EllipsisVertical,
+} from '@phosphor-icons/react'
 import {
   DropdownMenu,
   DropdownMenuContent,

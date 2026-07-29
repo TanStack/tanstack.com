@@ -1,4 +1,4 @@
-import { scaleLinear } from 'd3-scale'
+import { scaleLinear } from 'd3'
 import { defineChart, dot } from '@tanstack/charts'
 
 import { kineticDarkTheme, productSignals } from './kinetic-data'

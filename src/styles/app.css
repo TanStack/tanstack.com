@@ -117,6 +117,8 @@ html.theme-switching *::after {
   --color-shop-accent-ink: var(--shop-accent-ink);
   --color-shop-green: #22c993;
   --color-shop-orange: #ff7a3a;
+  --font-shop-display: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-shop-mono: 'DM Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 /* ============================================================================

@@ -99,6 +99,9 @@ importers:
       '@tanstack/ai-openai':
         specifier: ^0.9.5
         version: 0.9.5(@tanstack/ai-client@0.11.3(@opentelemetry/api@1.9.1))(@tanstack/ai@0.20.1(@opentelemetry/api@1.9.1))(ws@8.21.0)(zod@4.3.6)
+      '@tanstack/charts':
+        specifier: 0.0.0
+        version: 0.0.0
       '@tanstack/create':
         specifier: ^0.69.0
         version: 0.69.0(tslib@2.8.1)
@@ -3292,6 +3295,9 @@ packages:
     peerDependenciesMeta:
       '@opentelemetry/api':
         optional: true
+
+  '@tanstack/charts@0.0.0':
+    resolution: {integrity: sha512-hDsCx2AmYd4P/Bygqdkxxk2MERmGludXxHrLZv3YRh3aVuq18+y7rFgDCpqOz5YHMyoWz0Umzf1XQIoSzE2jkQ==}
 
   '@tanstack/create@0.69.0':
     resolution: {integrity: sha512-LVbzkTWiCK+JCKa/1Qwax0JddfJt4rxwekrDyHzhDWsSeNodJrTwbUg4eqqbQsxEWcrk0kHEJSfiTVzMnmI+kQ==}
@@ -9551,6 +9557,15 @@ snapshots:
       partial-json: 0.1.7
     optionalDependencies:
       '@opentelemetry/api': 1.9.1
+
+  '@tanstack/charts@0.0.0':
+    dependencies:
+      '@types/d3-geo': 3.1.0
+      '@types/d3-shape': 3.1.8
+      d3-array: 3.2.4
+      d3-geo: 3.1.1
+      d3-scale: 4.0.2
+      d3-shape: 3.2.0
 
   '@tanstack/create@0.69.0(tslib@2.8.1)':
     dependencies:

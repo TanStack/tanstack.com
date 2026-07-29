@@ -1,5 +1,4 @@
-import { scaleLinear } from 'd3-scale'
-import { curveMonotoneX } from 'd3-shape'
+import { curveMonotoneX, scaleLinear } from 'd3'
 import {
   areaY,
   d3Curve,

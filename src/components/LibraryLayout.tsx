@@ -1254,7 +1254,6 @@ export function LibraryLayout({
     <div
       className={twMerge(
         'sticky top-[var(--navbar-height)] z-30 border-b border-gray-500/20 bg-white/90 dark:bg-black/80 backdrop-blur-lg',
-        isLandingPage && 'min-h-12',
       )}
     >
       <div className="flex items-stretch">
@@ -1325,7 +1324,6 @@ export function LibraryLayout({
                   aria-current={isActive ? 'page' : undefined}
                   className={twMerge(
                     'relative whitespace-nowrap py-3 font-semibold transition-colors',
-                    isLandingPage && 'py-[15px]',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-current rounded-sm',
                     isActive
                       ? `text-transparent bg-clip-text bg-linear-to-r ${colorFrom} ${colorTo}`
@@ -1403,7 +1401,6 @@ export function LibraryLayout({
       >
         <div
           data-docs-layout
-          data-library-landing={isLandingPage ? '' : undefined}
           data-docs-menu-open={showLargeMenu ? 'true' : undefined}
           className={twMerge(
             'flex w-full flex-col [overflow-x:clip] md:min-h-[calc(100dvh-var(--navbar-height))] transition-all duration-300',

@@ -29,7 +29,7 @@ import { LandingCommunitySection } from '~/components/LandingCommunitySection'
 import LandingPageGad from '~/components/LandingPageGad'
 import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
 import { LibraryWordmark } from '~/components/LibraryWordmark'
-import { OssSponsorsSection } from '~/components/OssSponsorsSection'
+import { PartnersSponsorsSection } from '~/components/PartnersSponsorsSection'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { getLibrary } from '~/libraries'
 import { copyTextToClipboard } from '~/utils/browser-effects'
@@ -465,14 +465,8 @@ const extensions = [streamingMarkdownExtension()]
           </p>
         </div>
 
-        <div className="mt-10 flex flex-col gap-14">
+        <div className="mt-10">
           <LandingCommunitySection libraryId="markdown" />
-          <OssSponsorsSection
-            title="GitHub Sponsors"
-            aspectRatio="1/1"
-            maxWidth="900px"
-            showCTA
-          />
         </div>
       </section>
 
@@ -492,6 +486,7 @@ const extensions = [streamingMarkdownExtension()]
           Start with the parser <ArrowRight size={16} aria-hidden="true" />
         </Link>
       </section>
+      <PartnersSponsorsSection className="bg-background-default py-20 lg:py-24" />
       <Footer />
     </div>
   )

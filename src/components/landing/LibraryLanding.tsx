@@ -15,6 +15,7 @@ import {
 import { libraryCategories, type LibraryCategory } from '~/libraries/categories'
 import { getLibrary } from '~/libraries'
 import type { LibraryId } from '~/libraries'
+import { PartnersSponsorsSection } from '~/components/PartnersSponsorsSection'
 import { ossStatsQuery, recentDownloadsQuery } from '~/queries/stats'
 import { LandingCopyPromptButton } from './LandingCopyPromptButton'
 
@@ -313,6 +314,8 @@ export function LibraryLandingShell({
       </section>
 
       {children}
+
+      <PartnersSponsorsSection className="border-b border-border-subtle bg-background-default py-20 lg:py-24" />
 
       <div aria-hidden="true" className="h-24 bg-background-default" />
     </main>

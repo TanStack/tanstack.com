@@ -7,6 +7,7 @@ import {
   ChartsCatalogChart,
   type ChartsCatalogModuleReference,
 } from './ChartsCatalogChart'
+import { Resizable, type ResizableSizeChange } from '../npm-stats/Resizable'
 
 type CatalogCaseMetadata = Pick<
   ChartsCatalogCase,
@@ -96,11 +97,12 @@ export function ChartsCatalog({
               </span>
             </div>
             <div className="mt-4">
-              <ChartsCatalogChart
+              <ResizableCatalogChart
+                key={`${catalogCase.id}:${fullWidth ? 'full' : 'grid'}`}
                 artifactRevision={artifactRevision}
                 caseId={catalogCase.id}
                 defer
-                height={fullWidth ? 420 : 320}
+                initialHeight={fullWidth ? 420 : 320}
                 module={catalogCase.modules.tanstack}
               />
             </div>
@@ -124,8 +126,6 @@ export function ChartsCatalogDetail({
     }
   }
 }) {
-  const [revision, setRevision] = React.useState(0)
-  const [width, setWidth] = React.useState<'wide' | 'compact'>('wide')
   const comparison = catalogCase.modules.comparison
 
   return (
@@ -154,51 +154,22 @@ export function ChartsCatalogDetail({
             </a>
           </div>
         </div>
-        <div className="flex rounded-lg border border-gray-200 p-1 text-xs dark:border-gray-800">
-          <button
-            type="button"
-            className={`rounded px-3 py-2 ${width === 'compact' ? 'bg-gray-100 dark:bg-gray-800' : ''}`}
-            onClick={() => setWidth('compact')}
-          >
-            640
-          </button>
-          <button
-            type="button"
-            className={`rounded px-3 py-2 ${width === 'wide' ? 'bg-gray-100 dark:bg-gray-800' : ''}`}
-            onClick={() => setWidth('wide')}
-          >
-            960
-          </button>
-          <button
-            type="button"
-            className="rounded px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800"
-            onClick={() => setRevision((value) => (value === 0 ? 1 : 0))}
-          >
-            Revision {revision}
-          </button>
-        </div>
       </div>
 
-      <div
-        className={`mx-auto grid gap-6 ${comparison ? 'xl:grid-cols-2' : ''} ${
-          width === 'compact' ? 'max-w-[640px]' : 'max-w-[960px]'
-        }`}
-      >
+      <div className={`grid gap-6 ${comparison ? 'xl:grid-cols-2' : ''}`}>
         <ChartPanel label="TanStack">
-          <ChartsCatalogChart
+          <ResizableCatalogChart
             artifactRevision={artifactRevision}
             caseId={catalogCase.id}
             module={catalogCase.modules.tanstack}
-            revision={revision}
           />
         </ChartPanel>
         {comparison ? (
           <ChartPanel label={rendererLabel(comparison.renderer)}>
-            <ChartsCatalogChart
+            <ResizableCatalogChart
               artifactRevision={artifactRevision}
               caseId={`${catalogCase.id}-comparison`}
               module={comparison}
-              revision={revision}
             />
           </ChartPanel>
         ) : null}
@@ -217,6 +188,40 @@ export function ChartsCatalogDetail({
         ) : null}
       </div>
     </CatalogSurface>
+  )
+}
+
+function ResizableCatalogChart({
+  artifactRevision,
+  caseId,
+  defer = false,
+  initialHeight = 360,
+  module,
+}: {
+  artifactRevision: string
+  caseId: string
+  defer?: boolean
+  initialHeight?: number
+  module: ChartsCatalogModuleReference
+}) {
+  const [height, setHeight] = React.useState(initialHeight)
+  const [width, setWidth] = React.useState<number | undefined>(undefined)
+
+  const onSizeChange = React.useCallback((size: ResizableSizeChange) => {
+    if (size.height !== undefined) setHeight(size.height)
+    if ('width' in size) setWidth(size.width)
+  }, [])
+
+  return (
+    <Resizable height={height} width={width} onSizeChange={onSizeChange}>
+      <ChartsCatalogChart
+        artifactRevision={artifactRevision}
+        caseId={caseId}
+        defer={defer}
+        height={height}
+        module={module}
+      />
+    </Resizable>
   )
 }
 

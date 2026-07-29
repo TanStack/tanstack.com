@@ -1498,3 +1498,21 @@ mark {
 button[aria-label='Open TanStack Devtools'] {
   display: none !important;
 }
+
+.charts-catalog-chart {
+  --ts-chart-1: #2563eb;
+  --ts-chart-2: #f97316;
+  --ts-chart-3: #10b981;
+  --ts-chart-4: #8b5cf6;
+  --ts-chart-5: #ec4899;
+  --ts-chart-6: #06b6d4;
+}
+
+.dark .charts-catalog-chart {
+  --ts-chart-1: #6ea8fe;
+  --ts-chart-2: #ff9b65;
+  --ts-chart-3: #4fd1a1;
+  --ts-chart-4: #ae8cff;
+  --ts-chart-5: #f679bc;
+  --ts-chart-6: #4fd4e7;
+}

@@ -17,6 +17,7 @@ import {
   runWithRequestDiagnostics,
 } from '~/utils/prod-diagnostics.server'
 import { docsContentNegotiationVaryHeader } from '~/utils/http'
+import { isFrameEmbeddingAllowed } from '~/utils/frame-embedding'
 
 const SECURITY_HEADERS = {
   'X-Frame-Options': 'DENY',
@@ -73,7 +74,7 @@ function applyHostingHeaders(response: Response, url: URL) {
     headers.set(key, value)
   }
 
-  if (url.pathname === '/stats/npm/embed') {
+  if (isFrameEmbeddingAllowed(url.pathname)) {
     headers.delete('X-Frame-Options')
   }
 

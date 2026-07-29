@@ -108,6 +108,7 @@ function Index() {
                 application stack for the web
               </h1>
               <div className="flex flex-col items-start gap-6 xl:max-w-[454px]">
+                <HomeStatsSection />
                 <p className="text-ds-body-md text-ds-neutral-500 xl:text-ds-body-xl">
                   Headless, type-safe, composable tools for building modern web
                   applications that work naturally for developers and reliably
@@ -138,12 +139,9 @@ function Index() {
               </div>
             </div>
           </div>
-          <div className="mx-auto mt-8 w-full max-w-[1021px] px-4 sm:px-6 md:mt-10">
-            <HomeStatsSection />
-          </div>
           <div
             id="start-with-a-prompt"
-            className="mx-auto mt-16 w-full max-w-[1021px] scroll-mt-24 px-4 sm:px-6 md:mt-20 lg:mt-14 xl:mt-12"
+            className="mx-auto mt-16 w-full max-w-[1021px] scroll-mt-24 px-4 sm:px-6 md:mt-20"
           >
             <HomeApplicationStarter />
           </div>
@@ -508,10 +506,10 @@ function WhyTanStackSection() {
         <div className="flex flex-col items-center gap-12 text-center">
           <Eyebrow className="text-text-warning">Principles</Eyebrow>
           <div className="flex flex-col items-center gap-4">
-            <h3 className="text-4xl font-black leading-[1.05] tracking-[-0.8px] sm:text-5xl lg:text-[72px]">
+            <h3 className="text-4xl font-[500] leading-[1.05] tracking-[-0.8px] sm:text-5xl lg:text-[64px]">
               Why TanStack?
             </h3>
-            <p className="max-w-[376px] text-sm leading-[1.45] text-gray-600 dark:text-gray-400">
+            <p className="max-w-[376px] text-base leading-[1.45] text-gray-600 dark:text-gray-400">
               Our libraries are built around real products and the developers
               shipping them.
             </p>
@@ -519,20 +517,20 @@ function WhyTanStackSection() {
         </div>
 
         {/* features-stack — 478:1742 */}
-        <ol className="mt-12 rounded-[20px] border border-gray-200 dark:border-gray-800">
+        <ol className="mt-12 rounded-[20px]">
           {whyTanStackPrinciples.map((principle, index) => (
             <li
               key={principle.title}
               className={twMerge(
-                'flex flex-col gap-8 p-6 sm:p-10 lg:flex-row lg:items-start lg:gap-12',
+                'flex flex-col gap-8 p-6 sm:p-10 lg:flex-row lg:items-center lg:justify-center lg:gap-[70px]',
                 index < whyTanStackPrinciples.length - 1 &&
                   'border-b border-gray-200 dark:border-gray-800',
               )}
             >
               {/* copy column — 478:1745. Everything is left-aligned to the
-                  card edge; justify-between keeps the eyebrow/title at the top
-                  and the description pinned to the bottom of the 233px column. */}
-              <div className="flex min-w-0 flex-1 flex-col gap-8 lg:h-[233px] lg:justify-between lg:gap-0">
+                  card edge; at desktop sizes the title and description stay
+                  grouped at the center of the 233px proof panel. */}
+              <div className="flex min-w-0 flex-1 flex-col gap-8 lg:h-[233px] lg:justify-center lg:gap-0">
                 <div className="flex w-full flex-col gap-2">
                   <Eyebrow className={principle.eyebrowClassName}>
                     {principle.label}
@@ -541,7 +539,7 @@ function WhyTanStackSection() {
                     {principle.title}
                   </h4>
                 </div>
-                <p className="w-full text-sm font-light leading-[1.45] text-gray-600 dark:text-gray-400">
+                <p className="w-full text-sm font-light leading-[1.45] text-gray-600 dark:text-gray-400 lg:pt-4">
                   {principle.body}
                 </p>
               </div>
@@ -579,7 +577,7 @@ function WhyTanStackSection() {
  *
  * Deliberately chrome-less: no border, no fill. The design draws a surface
  * here, but the proofs read better floating directly on the card — the row
- * dividers and the 48px gutter already separate them from the copy, so a
+ * dividers and the 70px gutter already separate them from the copy, so a
  * second frame around each one was redundant weight.
  */
 function PrinciplePanel({ children }: { children: React.ReactNode }) {

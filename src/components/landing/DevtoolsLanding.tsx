@@ -267,7 +267,7 @@ function DevtoolsCockpit() {
                   <span
                     className={
                       index === 0
-                        ? 'size-2 rounded-full bg-emerald-400'
+                        ? 'size-2 rounded-full bg-status-success'
                         : 'size-2 rounded-full bg-text-primary/15'
                     }
                   />
@@ -352,8 +352,8 @@ function PluginEventLab() {
             <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
               typed event stream
             </p>
-            <span className="inline-flex items-center gap-2 font-ds-mono text-ds-mono-2xs text-emerald-300">
-              <span className="size-1.5 rounded-full bg-emerald-400 motion-safe:animate-pulse" />{' '}
+            <span className="inline-flex items-center gap-2 font-ds-mono text-ds-mono-2xs text-text-success">
+              <span className="size-1.5 rounded-full bg-status-success motion-safe:animate-pulse" />{' '}
               connected
             </span>
           </div>
@@ -507,7 +507,7 @@ function SourceToBuild() {
           <BuildLine label="<TanStackDevtools /> JSX" />
           <BuildLine label="plugin-only imports" />
         </div>
-        <div className="mt-5 rounded-lg bg-emerald-400 px-4 py-3 text-center font-ds-mono text-ds-mono-caps-xs uppercase text-emerald-950">
+        <div className="mt-5 rounded-lg bg-status-success-bg px-4 py-3 text-center font-ds-mono text-ds-mono-caps-xs uppercase text-text-success">
           imports + JSX removed
         </div>
         <p className="mt-5 text-ds-body-xs text-text-primary/35">
@@ -522,7 +522,7 @@ function BuildLine({ label }: { label: string }) {
   return (
     <div className="flex items-center justify-between gap-4 rounded-lg border border-border-subtle bg-background-subtle px-3 py-3">
       <span className="truncate text-text-primary/45">{label}</span>
-      <span className="shrink-0 text-emerald-300">removed</span>
+      <span className="shrink-0 text-text-success">removed</span>
     </div>
   )
 }

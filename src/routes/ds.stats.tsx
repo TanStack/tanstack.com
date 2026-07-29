@@ -1,3 +1,4 @@
+import * as React from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { Download, Star, TrendUp } from '@phosphor-icons/react'
 import { seo } from '~/utils/seo'
@@ -41,68 +42,83 @@ const stats: Array<StatItem> = [
 ]
 
 function StatsPage() {
+  const [page, setPage] = React.useState<
+    'hero' | 'home' | 'library' | 'unified'
+  >('hero')
+  const [layout, setLayout] = React.useState<
+    'landscape' | 'stacked' | 'stacked-landscape'
+  >('stacked')
+
+  const appearanceOptions = [
+    ['home', 'Cards'],
+    ['unified', 'Unified'],
+    ['hero', 'Minimal'],
+    ['library', 'Inline'],
+  ] as const
+  const layoutOptions = [
+    ['landscape', 'Row'],
+    ['stacked', 'Stack'],
+    ['stacked-landscape', 'Icon top'],
+  ] as const
+
   return (
     <DsPage
       title="Stats Section"
-      description="Open-source stats. Two pages (home / library) across three layouts, modeled on the Figma component set. Values are sample data — the component is presentational and takes resolved values as props, so it can be revised here and propagated back to the homepage and library landings."
+      description="Open-source metrics with switchable visual treatments and layouts. Values are sample data; the component remains presentational and takes resolved values as props."
     >
       <DsSection
-        title="Home · Landscape"
-        description="Bordered surface cards in a row, icon leading. The primary homepage treatment."
+        title="Preview"
+        description="Choose an appearance and arrangement to inspect every stats treatment in one place."
       >
-        <ComponentPreview
-          className="block"
-          code={`<StatsSection page="home" layout="landscape" stats={stats} />`}
-        >
-          <StatsSection page="home" layout="landscape" stats={stats} />
-        </ComponentPreview>
-      </DsSection>
+        <div className="flex flex-wrap gap-4">
+          <div>
+            <div className="mb-2 font-ds-mono text-ds-mono-caps-xs uppercase text-text-muted">
+              Appearance
+            </div>
+            <div className="inline-flex rounded-lg border border-border-default bg-background-surface p-1">
+              {appearanceOptions.map(([option, label]) => (
+                <button
+                  key={option}
+                  type="button"
+                  aria-pressed={page === option}
+                  onClick={() => setPage(option)}
+                  className="rounded-md px-3 py-1.5 text-ds-label-sm text-text-muted transition-colors aria-pressed:bg-background-subtle aria-pressed:text-text-primary"
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <div className="mb-2 font-ds-mono text-ds-mono-caps-xs uppercase text-text-muted">
+              Layout
+            </div>
+            <div className="inline-flex rounded-lg border border-border-default bg-background-surface p-1">
+              {layoutOptions.map(([option, label]) => (
+                <button
+                  key={option}
+                  type="button"
+                  aria-pressed={layout === option}
+                  onClick={() => setLayout(option)}
+                  className="rounded-md px-3 py-1.5 text-ds-label-sm text-text-muted transition-colors aria-pressed:bg-background-subtle aria-pressed:text-text-primary"
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
 
-      <DsSection
-        title="Home · Stacked"
-        description="The same cards in a column — for narrow columns and sidebars."
-      >
         <ComponentPreview
-          className="block"
-          code={`<StatsSection page="home" layout="stacked" stats={stats} />`}
+          className={
+            page === 'hero'
+              ? "block bg-[url('/images/hero-palm-gradient.jpg')] bg-cover bg-center"
+              : 'block'
+          }
+          code={`<StatsSection page="${page}" layout="${layout}" stats={stats} />`}
+          codePlacement="side"
         >
-          <StatsSection page="home" layout="stacked" stats={stats} />
-        </ComponentPreview>
-      </DsSection>
-
-      <DsSection
-        title="Home · Stacked-landscape"
-        description="Cards in a row with the icon on top, value and label stacked beneath."
-      >
-        <ComponentPreview
-          className="block"
-          code={`<StatsSection page="home" layout="stacked-landscape" stats={stats} />`}
-        >
-          <StatsSection page="home" layout="stacked-landscape" stats={stats} />
-        </ComponentPreview>
-      </DsSection>
-
-      <DsSection
-        title="Library · Stacked"
-        description="Borderless value/label rows for a library hero — icon, value, mono-caps label."
-      >
-        <ComponentPreview
-          className="block"
-          code={`<StatsSection page="library" layout="stacked" stats={stats} />`}
-        >
-          <StatsSection page="library" layout="stacked" stats={stats} />
-        </ComponentPreview>
-      </DsSection>
-
-      <DsSection
-        title="Library · Landscape"
-        description="All three metrics on a single line — for compact, wide placements."
-      >
-        <ComponentPreview
-          className="block"
-          code={`<StatsSection page="library" layout="landscape" stats={stats} />`}
-        >
-          <StatsSection page="library" layout="landscape" stats={stats} />
+          <StatsSection page={page} layout={layout} stats={stats} />
         </ComponentPreview>
       </DsSection>
     </DsPage>

@@ -5,13 +5,14 @@ import { twMerge } from 'tailwind-merge'
  * DS Stats Section — a workshop surface (Phase 1).
  *
  * Models the Figma "Stats" component set (node 733:2110) as a two-axis matrix:
- *   - `page`:   'home' (bordered surface cards) | 'library' (borderless inline)
+ *   - `page`:   'home' (bordered surface cards) | 'hero' / 'library' (borderless inline)
  *   - `layout`: 'landscape' | 'stacked' | 'stacked-landscape'
  *
  * Defined combinations:
  *   home    · landscape          → cards in a row, icon left
  *   home    · stacked            → cards in a column, icon left
  *   home    · stacked-landscape  → cards in a row, icon on top
+ *   hero    · landscape          → transparent metrics for the light homepage image
  *   library · stacked            → value/label rows in a column
  *   library · landscape          → value/label metrics on a single line
  *
@@ -21,7 +22,7 @@ import { twMerge } from 'tailwind-merge'
  * until a revised version is promoted back.
  */
 
-export type StatsPage = 'home' | 'library'
+export type StatsPage = 'hero' | 'home' | 'library' | 'unified'
 export type StatsLayout = 'landscape' | 'stacked' | 'stacked-landscape'
 
 export type StatItem = {
@@ -124,11 +125,58 @@ function HomeStatCard({ stat, iconTop }: { stat: StatItem; iconTop: boolean }) {
   return <div className={className}>{body}</div>
 }
 
+function UnifiedStat({ stat, iconTop }: { stat: StatItem; iconTop: boolean }) {
+  const className = twMerge(
+    'flex min-w-0 p-5',
+    iconTop ? 'flex-col items-start gap-4' : 'items-center gap-4',
+  )
+  const content = (
+    <>
+      {stat.icon ? (
+        <span className="shrink-0 text-icon-default [&>svg]:size-6">
+          {stat.icon}
+        </span>
+      ) : null}
+      <span className="min-w-0">
+        <span className="block font-ds-display text-ds-heading-2 leading-none text-text-primary">
+          <StatValue placeholder={stat.placeholder} valueRef={stat.valueRef}>
+            {stat.value}
+          </StatValue>
+        </span>
+        <span className={`mt-2 block ${statLabelClassName}`}>{stat.label}</span>
+      </span>
+    </>
+  )
+
+  if (stat.href) {
+    return (
+      <a
+        href={stat.href}
+        target={stat.external ? '_blank' : undefined}
+        rel={stat.external ? 'noreferrer' : undefined}
+        className={twMerge(
+          className,
+          'transition-colors hover:bg-background-subtle',
+        )}
+      >
+        {content}
+      </a>
+    )
+  }
+
+  return <div className={className}>{content}</div>
+}
+
 /* ------------------------------------------------------------ library rows -- */
 
-function LibraryStat({ stat }: { stat: StatItem }) {
+function LibraryStat({ iconTop, stat }: { iconTop: boolean; stat: StatItem }) {
   return (
-    <span className="inline-flex items-center gap-2.5">
+    <span
+      className={twMerge(
+        'inline-flex gap-2.5',
+        iconTop ? 'flex-col items-start' : 'items-center',
+      )}
+    >
       {stat.icon ? (
         <span className="shrink-0 text-icon-muted [&>svg]:size-[18px]">
           {stat.icon}
@@ -147,6 +195,38 @@ function LibraryStat({ stat }: { stat: StatItem }) {
   )
 }
 
+/* --------------------------------------------------------------- hero stats -- */
+
+function HeroStat({ iconTop, stat }: { iconTop: boolean; stat: StatItem }) {
+  return (
+    <span
+      className={twMerge(
+        'inline-flex min-w-0 gap-3 text-ds-neutral-400',
+        iconTop ? 'flex-col items-start' : 'items-center',
+      )}
+    >
+      {stat.icon ? (
+        <span className="shrink-0 text-ds-neutral-400/90 [&>svg]:size-[22px]">
+          {stat.icon}
+        </span>
+      ) : null}
+      <span className="min-w-0">
+        <span
+          className="block font-ds-display text-xl font-black leading-none"
+          style={{ fontVariantNumeric: 'tabular-nums' }}
+        >
+          <StatValue placeholder={stat.placeholder} valueRef={stat.valueRef}>
+            {stat.value}
+          </StatValue>
+        </span>
+        <span className="mt-2 block font-ds-mono text-ds-mono-caps-xs font-bold uppercase text-ds-neutral-400/90">
+          {stat.label}
+        </span>
+      </span>
+    </span>
+  )
+}
+
 /* ----------------------------------------------------------------- export -- */
 
 export function StatsSection({
@@ -160,9 +240,49 @@ export function StatsSection({
   stats: Array<StatItem>
   className?: string
 }) {
+  if (page === 'unified') {
+    const stacked = layout === 'stacked'
+    const iconTop = layout === 'stacked-landscape'
+
+    return (
+      <div
+        className={twMerge(
+          'overflow-hidden rounded-xl border border-border-subtle bg-background-surface',
+          stacked
+            ? 'flex max-w-xs flex-col divide-y divide-border-subtle'
+            : 'grid divide-y divide-border-subtle sm:grid-cols-3 sm:divide-x sm:divide-y-0',
+          className,
+        )}
+      >
+        {stats.map((stat) => (
+          <UnifiedStat key={stat.key} iconTop={iconTop} stat={stat} />
+        ))}
+      </div>
+    )
+  }
+
+  if (page === 'hero') {
+    const iconTop = layout === 'stacked-landscape'
+
+    return (
+      <div
+        className={twMerge(
+          layout === 'stacked'
+            ? 'flex flex-col items-start gap-5'
+            : 'flex flex-wrap items-center gap-x-8 gap-y-5',
+          className,
+        )}
+      >
+        {stats.map((stat) => (
+          <HeroStat key={stat.key} iconTop={iconTop} stat={stat} />
+        ))}
+      </div>
+    )
+  }
+
   if (page === 'library') {
-    // stacked-landscape isn't a defined library combination; treat it as a row.
     const isRow = layout !== 'stacked'
+    const iconTop = layout === 'stacked-landscape'
     return (
       <div
         className={twMerge(
@@ -173,7 +293,7 @@ export function StatsSection({
         )}
       >
         {stats.map((stat) => (
-          <LibraryStat key={stat.key} stat={stat} />
+          <LibraryStat key={stat.key} iconTop={iconTop} stat={stat} />
         ))}
       </div>
     )

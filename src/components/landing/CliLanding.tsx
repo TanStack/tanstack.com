@@ -243,7 +243,7 @@ function BuilderHero() {
               <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
                 generated plan
               </p>
-              <span className="font-ds-mono text-ds-mono-2xs text-emerald-400">
+              <span className="font-ds-mono text-ds-mono-2xs text-text-success">
                 {files.length} files
               </span>
             </div>

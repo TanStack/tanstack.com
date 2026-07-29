@@ -59,7 +59,7 @@ export function MegaMenuItem({
     // light menu panels).
     'hover:rounded-[14px] hover:bg-text-primary/[0.04] focus:bg-text-primary/[0.04] focus:outline-none active:bg-text-primary/[0.12]',
     compact && 'border border-border-subtle bg-background-surface',
-    variant === 'desktop' && !compact && 'w-[330px]',
+    variant === 'desktop' && !compact && 'w-full',
     variant === 'mobile' && 'py-2.5',
     className,
   )
@@ -97,10 +97,10 @@ export function MegaMenuItem({
         {description ? (
           // Plain string (not twMerge) — the DS text-size and text-color
           // utilities both start with `text-`, and twMerge would drop the color.
-          // Desktop rows never wrap the subtext (keeps the column balanced);
-          // descriptions are copy-constrained to fit the 330px item width.
+          // Desktop rows share a bounded column width, but descriptions may
+          // wrap so longer copy never overflows the panel.
           <span
-            className={`block text-text-secondary ${variant === 'desktop' ? 'text-ds-body-xs whitespace-nowrap' : 'text-ds-body-sm'}`}
+            className={`block text-text-secondary ${variant === 'desktop' ? 'text-ds-body-xs leading-relaxed' : 'text-ds-body-sm'}`}
           >
             {description}
           </span>

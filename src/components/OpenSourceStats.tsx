@@ -7,7 +7,12 @@ import {
   recentDownloadsQuery,
 } from '~/queries/stats'
 import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
-import { StatsSection, type StatItem } from '~/components/ds/ui'
+import {
+  StatsSection,
+  type StatItem,
+  type StatsLayout,
+  type StatsPage,
+} from '~/components/ds/ui'
 import { tanStackTotalNpmStatsLibrary } from '~/utils/tanstack-npm-stats'
 
 /** Compact count with a single-letter magnitude, e.g. 2_340_000_000 → "2.3B". */
@@ -28,7 +33,17 @@ function isValidMetric(value: number | undefined | null): boolean {
   )
 }
 
-export default function OssStats({ library }: { library?: Library }) {
+export default function OssStats({
+  className,
+  layout = 'landscape',
+  library,
+  page = 'home',
+}: {
+  className?: string
+  layout?: StatsLayout
+  library?: Library
+  page?: StatsPage
+}) {
   const { data: stats, isLoading } = useQuery(ossStatsQuery({ library }))
   const { data: homepageNpmSummary, isLoading: isLoadingHomepageNpmSummary } =
     useQuery({
@@ -116,5 +131,12 @@ export default function OssStats({ library }: { library?: Library }) {
     return null
   }
 
-  return <StatsSection page="home" layout="landscape" stats={items} />
+  return (
+    <StatsSection
+      className={className}
+      page={page}
+      layout={layout}
+      stats={items}
+    />
+  )
 }

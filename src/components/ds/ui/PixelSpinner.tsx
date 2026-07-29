@@ -15,8 +15,21 @@ import {
  * with `image-rendering: pixelated` so it stays crisp. Honors
  * `prefers-reduced-motion` by holding on the first frame.
  */
-export function PixelSpinner({ className }: { className?: string }) {
+export function PixelSpinner({
+  className,
+  loops,
+  onComplete,
+}: {
+  className?: string
+  loops?: number
+  onComplete?: () => void
+}) {
   const canvasRef = React.useRef<HTMLCanvasElement>(null)
+  const onCompleteRef = React.useRef(onComplete)
+
+  React.useEffect(() => {
+    onCompleteRef.current = onComplete
+  }, [onComplete])
 
   React.useEffect(() => {
     const canvas = canvasRef.current
@@ -39,16 +52,29 @@ export function PixelSpinner({ className }: { className?: string }) {
     drawFrame(PIXEL_SPINNER_FRAMES[0])
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)')
-    if (reduced.matches) return
+    if (reduced.matches) {
+      onCompleteRef.current?.()
+      return
+    }
 
     let index = 0
+    let elapsedFrames = 0
     const id = window.setInterval(() => {
       index = (index + 1) % PIXEL_SPINNER_FRAMES.length
       drawFrame(PIXEL_SPINNER_FRAMES[index])
+      elapsedFrames += 1
+
+      if (
+        loops !== undefined &&
+        elapsedFrames >= PIXEL_SPINNER_FRAMES.length * loops
+      ) {
+        window.clearInterval(id)
+        onCompleteRef.current?.()
+      }
     }, PIXEL_SPINNER_FRAME_MS)
 
     return () => window.clearInterval(id)
-  }, [])
+  }, [loops])
 
   return (
     <canvas

@@ -9,6 +9,7 @@ import {
   Path,
   TreeStructure,
 } from '@phosphor-icons/react'
+import { Badge } from '~/ui/Badge'
 
 import {
   LandingSection,
@@ -145,7 +146,7 @@ export default function RouterLanding() {
             </p>
           </div>
           <div className="bg-background-surface p-7 md:p-9">
-            <p className="font-ds-mono text-ds-mono-caps uppercase text-cyan-300">
+            <p className="font-ds-mono text-ds-mono-caps uppercase text-lib-start">
               TanStack Start
             </p>
             <h3 className="mt-5 text-ds-heading-3">
@@ -179,9 +180,12 @@ function RouteContractHero() {
             <span className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/30">
               route files
             </span>
-            <span className="rounded bg-emerald-400 px-2 py-1 font-ds-mono text-ds-mono-caps-xs uppercase text-emerald-950">
+            <Badge
+              variant="success"
+              className="rounded font-ds-mono text-ds-mono-caps-xs uppercase"
+            >
               generated
-            </span>
+            </Badge>
           </div>
           <div className="space-y-2">
             {routeSpecs.map((route, index) => (
@@ -223,7 +227,7 @@ function RouteContractHero() {
             <span className="inline-flex items-center gap-1.5 text-ds-body-xs text-text-primary/35">
               <CheckCircle
                 aria-hidden="true"
-                className="text-emerald-400"
+                className="text-icon-success"
                 size={15}
               />
               contract updated

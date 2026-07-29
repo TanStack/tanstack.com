@@ -24,6 +24,7 @@ import {
   SlidersHorizontal,
   Stack,
 } from '@phosphor-icons/react'
+import { Badge } from '~/ui/Badge'
 
 import {
   LandingSection,
@@ -702,11 +703,18 @@ function StateSwitchboard() {
 
 function StatusBadge({ status }: { status: TableIssue['status'] }) {
   return (
-    <span
-      className={`inline-flex rounded px-2 py-1 font-ds-mono text-ds-mono-caps-xs uppercase ${status === 'active' ? 'bg-emerald-400/12 text-emerald-300' : status === 'review' ? 'bg-amber-400/12 text-amber-300' : 'bg-blue-400/12 text-blue-300'}`}
+    <Badge
+      variant={
+        status === 'active'
+          ? 'success'
+          : status === 'review'
+            ? 'warning'
+            : 'info'
+      }
+      className="rounded font-ds-mono text-ds-mono-caps-xs uppercase"
     >
       {status}
-    </span>
+    </Badge>
   )
 }
 

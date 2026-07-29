@@ -963,6 +963,27 @@ export function useApplicationBuilder({
     [input, markInputDirty],
   )
 
+  const resetBuilder = React.useCallback(() => {
+    latestRequestIdRef.current += 1
+    hasUserEditedStarterRef.current = false
+    sessionContextRef.current = defaultBuilderSessionContext
+    setInput('')
+    setHasRevealedOptions(revealOptionsImmediately)
+    setResult(null)
+    setCopiedKind(null)
+    setShowPromptCopyNotice(false)
+    setDeployDialogProvider(null)
+    setIsDeployDialogOpen(false)
+    setIsDirtySinceLastResult(false)
+    setIsRebuildingResult(false)
+    setMigrationRepositoryUrl('')
+    setExplicitLibrarySelections({})
+    setExplicitPartnerSelections({})
+    setSelectedPackageManager(undefined)
+    setSelectedToolchain(undefined)
+    onResolvedResult?.(null)
+  }, [onResolvedResult, revealOptionsImmediately])
+
   return {
     copiedKind,
     copyResultValue,
@@ -992,6 +1013,7 @@ export function useApplicationBuilder({
     partnerSuggestions: visiblePartnerSuggestions,
     promptCopyNotice: showPromptCopyNotice,
     result,
+    resetBuilder,
     selectSuggestion,
     selectedPackageManager,
     selectedLibraries,

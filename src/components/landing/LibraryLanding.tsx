@@ -94,6 +94,8 @@ type LibraryLandingTheme = {
   accentLight: string
   accentMuted: string
   glow: string
+  lightGradientEnd: string
+  lightGradientStart: string
 }
 
 const libraryLandingCategoryThemes = {
@@ -104,6 +106,8 @@ const libraryLandingCategoryThemes = {
     'var(--color-ds-terracotta-100)',
     '195 80 43',
     'var(--color-ds-terracotta-500)',
+    'var(--color-ds-terracotta-200)',
+    'var(--color-ds-terracotta-300)',
   ),
   framework: theme(
     'var(--color-ds-green-400)',
@@ -112,6 +116,8 @@ const libraryLandingCategoryThemes = {
     'var(--color-ds-green-100)',
     '68 165 78',
     'var(--color-ds-green-500)',
+    'var(--color-ds-green-200)',
+    'var(--color-ds-green-300)',
   ),
   performance: theme(
     'var(--color-ds-amber-400)',
@@ -120,6 +126,8 @@ const libraryLandingCategoryThemes = {
     'var(--color-ds-amber-100)',
     '235 158 42',
     'var(--color-ds-amber-500)',
+    'var(--color-ds-amber-200)',
+    'var(--color-ds-amber-300)',
   ),
   tooling: theme(
     'var(--color-ds-neutral-200)',
@@ -128,6 +136,8 @@ const libraryLandingCategoryThemes = {
     'var(--color-ds-neutral-100)',
     '171 165 148',
     'var(--color-ds-neutral-400)',
+    'var(--color-ds-neutral-200)',
+    'var(--color-ds-neutral-300)',
   ),
   ui: theme(
     'var(--color-ds-blue-400)',
@@ -136,6 +146,8 @@ const libraryLandingCategoryThemes = {
     'var(--color-ds-blue-100)',
     '70 157 184',
     'var(--color-ds-blue-500)',
+    'var(--color-ds-blue-200)',
+    'var(--color-ds-blue-300)',
   ),
 } satisfies Record<LibraryCategory, LibraryLandingTheme>
 
@@ -146,8 +158,19 @@ function theme(
   accentMuted: string,
   glow: string,
   accentLight = accent,
+  lightGradientStart = accentBright,
+  lightGradientEnd = accent,
 ): LibraryLandingTheme {
-  return { accent, accentBright, accentInk, accentLight, accentMuted, glow }
+  return {
+    accent,
+    accentBright,
+    accentInk,
+    accentLight,
+    accentMuted,
+    glow,
+    lightGradientEnd,
+    lightGradientStart,
+  }
 }
 
 type LibraryLandingStyle = React.CSSProperties & {
@@ -157,6 +180,8 @@ type LibraryLandingStyle = React.CSSProperties & {
   '--landing-accent-light': string
   '--landing-accent-muted-dark': string
   '--landing-glow': string
+  '--landing-light-gradient-end': string
+  '--landing-light-gradient-start': string
 }
 
 export function LibraryLanding({ config }: { config: LibraryLandingConfig }) {
@@ -201,11 +226,13 @@ export function LibraryLandingShell({
     '--landing-accent-light': colors.accentLight,
     '--landing-accent-muted-dark': colors.accentMuted,
     '--landing-glow': colors.glow,
+    '--landing-light-gradient-end': colors.lightGradientEnd,
+    '--landing-light-gradient-start': colors.lightGradientStart,
   }
 
   return (
     <main
-      className="w-full min-w-0 overflow-x-hidden bg-background-default font-sans text-text-primary [--landing-accent-bright:var(--landing-accent-light)] [--landing-accent-muted:var(--landing-accent-light)] [--landing-hero-glow:0.18] [--landing-hero-wash:0.04] dark:[--landing-accent-bright:var(--landing-accent-dark)] dark:[--landing-accent-muted:var(--landing-accent-muted-dark)] dark:[--landing-hero-glow:0.5] dark:[--landing-hero-wash:0.08]"
+      className="library-landing w-full min-w-0 overflow-x-hidden bg-background-default font-sans text-text-primary [--landing-accent-bright:var(--landing-accent-light)] [--landing-accent-muted:var(--landing-accent-light)] [--landing-cta-end:var(--landing-light-gradient-end)] [--landing-cta-start:var(--landing-light-gradient-start)] [--landing-headline-end:var(--landing-light-gradient-end)] [--landing-headline-start:var(--landing-light-gradient-start)] [--landing-hero-glow:0] [--landing-hero-wash:0] dark:[--landing-accent-bright:var(--landing-accent-dark)] dark:[--landing-accent-muted:var(--landing-accent-muted-dark)] dark:[--landing-cta-end:var(--landing-accent-dark)] dark:[--landing-cta-start:var(--landing-accent)] dark:[--landing-headline-end:var(--landing-accent)] dark:[--landing-headline-start:var(--landing-accent-bright)] dark:[--landing-hero-glow:0.5] dark:[--landing-hero-wash:0.08]"
       style={landingStyle}
     >
       <section className="relative overflow-hidden border-b border-border-subtle">
@@ -235,7 +262,7 @@ export function LibraryLandingShell({
                     className="hidden h-[18px] w-auto dark:block"
                   />
                   <h1 className="mt-1">
-                    <span className="block bg-[linear-gradient(110deg,var(--landing-accent-bright),var(--landing-accent))] bg-clip-text pr-1 font-ds-display text-ds-display-lg uppercase text-transparent [filter:drop-shadow(0_4px_4px_rgb(0_0_0/0.25))] sm:text-ds-display-xl lg:text-ds-display-2xl">
+                    <span className="block bg-[linear-gradient(110deg,var(--landing-headline-start),var(--landing-headline-end))] bg-clip-text pr-1 font-ds-display text-ds-display-lg uppercase text-transparent dark:[filter:drop-shadow(0_4px_4px_rgb(0_0_0/0.25))] sm:text-ds-display-xl lg:text-ds-display-2xl">
                       {library.name.replace(/^TanStack\s+/i, '')}
                     </span>
                   </h1>
@@ -261,17 +288,17 @@ export function LibraryLandingShell({
                     libraryId,
                     version: resolvedVersion,
                   }}
-                  className="inline-flex items-center gap-3 rounded-xl px-5 py-3 text-ds-label-lg text-[var(--landing-accent-ink)] shadow-[inset_-5px_-5px_7px_-5px_var(--landing-accent-muted),0_12px_35px_rgb(var(--landing-glow)/0.2)] transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] motion-reduce:transition-none"
+                  className="inline-flex items-center gap-3 rounded-xl px-5 py-3 text-ds-label-lg text-[var(--landing-accent-ink)] shadow-[inset_-5px_-5px_7px_-5px_var(--landing-accent-muted),0_12px_24px_-14px_rgb(var(--landing-glow)/0.55)] transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] motion-reduce:transition-none dark:shadow-[inset_-5px_-5px_7px_-5px_var(--landing-accent-muted),0_12px_35px_rgb(var(--landing-glow)/0.2)]"
                   style={{
                     backgroundImage:
-                      'linear-gradient(105deg, var(--landing-accent), var(--landing-accent-dark))',
+                      'linear-gradient(105deg, var(--landing-cta-start), var(--landing-cta-end))',
                   }}
                 >
                   Docs
                   <ArrowRight aria-hidden="true" size={20} weight="bold" />
                 </Link>
                 <LandingCopyPromptButton
-                  className="border-0 bg-transparent px-0 py-2 font-ds-mono text-ds-mono-caps uppercase text-text-primary/75 hover:bg-transparent hover:text-text-primary dark:border-0 dark:bg-transparent dark:text-text-primary/75 dark:hover:bg-transparent dark:hover:text-text-primary sm:w-auto"
+                  className="rounded-xl border-[var(--landing-accent)] bg-transparent px-5 py-3 font-ds-mono text-ds-mono-caps uppercase text-[var(--landing-accent-bright)] hover:border-[var(--landing-accent-bright)] hover:bg-[color:rgb(var(--landing-glow)/0.1)] sm:w-auto"
                   label={promptLabel ?? 'Copy prompt'}
                   prompt={prompt}
                 />
@@ -355,7 +382,7 @@ export function LandingWindow({
 }) {
   return (
     <div
-      className={`min-w-0 overflow-hidden rounded-xl border border-[color:rgb(var(--landing-glow)/0.45)] bg-background-surface shadow-[inset_-3px_-4px_18px_-7px_var(--landing-accent),0_24px_70px_rgb(0_0_0/0.18)] ${className}`}
+      className={`library-landing-graphic min-w-0 overflow-hidden rounded-xl border border-[color:rgb(var(--landing-glow)/0.45)] bg-background-surface shadow-[0_24px_70px_-28px_rgb(var(--landing-glow)/0.45)] dark:shadow-[inset_-3px_-4px_18px_-7px_var(--landing-accent),0_24px_70px_rgb(0_0_0/0.18)] ${className}`}
     >
       <div className="flex items-center justify-between border-b border-border-subtle px-4 py-3">
         <div aria-hidden="true" className="flex gap-1.5">
@@ -382,7 +409,7 @@ function LandingWorkbench({
   const activeItem = config.items[activeIndex]
 
   return (
-    <div className="min-w-0 overflow-hidden rounded-xl border border-[color:rgb(var(--landing-glow)/0.45)] bg-background-surface shadow-[inset_-3px_-4px_18px_-7px_var(--landing-accent),0_24px_70px_rgb(0_0_0/0.18)]">
+    <div className="library-landing-graphic min-w-0 overflow-hidden rounded-xl border border-[color:rgb(var(--landing-glow)/0.45)] bg-background-surface shadow-[0_24px_70px_-28px_rgb(var(--landing-glow)/0.45)] dark:shadow-[inset_-3px_-4px_18px_-7px_var(--landing-accent),0_24px_70px_rgb(0_0_0/0.18)]">
       <div className="flex items-center justify-between border-b border-border-subtle px-4 py-3">
         <div aria-hidden="true" className="flex gap-1.5">
           <span className="size-2.5 rounded-full bg-[#ff5f57]" />
@@ -523,7 +550,7 @@ function LandingStats({ libraryId }: { libraryId: LibraryLandingId }) {
   ]
 
   return (
-    <div className="mx-auto mt-12 grid w-full max-w-[44rem] overflow-hidden rounded-xl border border-[color:rgb(var(--landing-glow)/0.22)] bg-background-surface shadow-[inset_-3px_-4px_18px_-7px_var(--landing-accent)] sm:grid-cols-3">
+    <div className="mx-auto mt-12 grid w-full max-w-[44rem] overflow-hidden rounded-xl border border-[color:rgb(var(--landing-glow)/0.22)] bg-background-surface sm:grid-cols-3">
       {metrics.map((metric) => {
         const Icon = metric.icon
 

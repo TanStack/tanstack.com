@@ -7,6 +7,7 @@ import {
   ShieldCheck,
   Terminal,
 } from '@phosphor-icons/react'
+import { Badge } from '~/ui/Badge'
 
 import {
   LandingSection,
@@ -145,9 +146,12 @@ function MaintenanceConsole() {
                 {surface.file}
               </p>
             </div>
-            <span className="rounded bg-emerald-400 px-2 py-1 font-ds-mono text-ds-mono-caps-xs uppercase text-emerald-950">
+            <Badge
+              variant="success"
+              className="rounded font-ds-mono text-ds-mono-caps-xs uppercase"
+            >
               explicit
-            </span>
+            </Badge>
           </div>
 
           <div className="mt-5 rounded-lg border border-border-subtle bg-background-subtle p-4">

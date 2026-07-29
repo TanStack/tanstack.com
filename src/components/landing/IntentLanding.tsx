@@ -9,6 +9,7 @@ import {
   Scan,
   ShieldCheck,
 } from '@phosphor-icons/react'
+import { Badge } from '~/ui/Badge'
 
 import {
   LandingSection,
@@ -302,9 +303,12 @@ function FreshnessWorkbench() {
               <span className="truncate font-ds-mono text-ds-mono-2xs text-text-primary/60">
                 {skill}
               </span>
-              <span className="shrink-0 rounded bg-amber-300 px-2 py-1 font-ds-mono text-ds-mono-caps-xs uppercase text-amber-950">
+              <Badge
+                variant="warning"
+                className="shrink-0 rounded font-ds-mono text-ds-mono-caps-xs uppercase"
+              >
                 review
-              </span>
+              </Badge>
             </div>
           ))}
         </div>
@@ -345,7 +349,7 @@ function PublicationTimeline() {
               </div>
               <CheckCircle
                 aria-hidden="true"
-                className="text-emerald-400"
+                className="text-icon-success"
                 size={17}
               />
             </li>

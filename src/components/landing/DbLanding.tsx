@@ -10,6 +10,7 @@ import {
   Stack,
   XCircle,
 } from '@phosphor-icons/react'
+import { Badge } from '~/ui/Badge'
 
 import {
   LandingSection,
@@ -196,16 +197,21 @@ function OptimisticWorkbench() {
             <p className="font-ds-mono text-ds-mono-2xs text-text-primary/70">
               useLiveQuery(openTodos)
             </p>
-            <span
-              className={
+            <Badge
+              variant={
                 state === 'failed'
-                  ? 'rounded bg-red-400 px-2 py-1 font-ds-mono text-ds-mono-caps-xs uppercase text-red-950'
-                  : 'rounded bg-[var(--landing-accent)] px-2 py-1 font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-ink)]'
+                  ? 'error'
+                  : state === 'completed'
+                    ? 'success'
+                    : state === 'persisting'
+                      ? 'info'
+                      : 'default'
               }
+              className="rounded font-ds-mono text-ds-mono-caps-xs uppercase"
               aria-live="polite"
             >
               {transactionLabel}
-            </span>
+            </Badge>
           </div>
 
           <div className="mt-4 overflow-hidden rounded-lg border border-border-subtle">
@@ -226,7 +232,7 @@ function OptimisticWorkbench() {
             {state === 'idle' || state === 'failed' || state === 'completed' ? (
               <button
                 type="button"
-                className="rounded-lg bg-[var(--landing-accent)] px-3 py-2 text-ds-label-sm text-[var(--landing-accent-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
+                className="rounded-lg bg-action-primary px-3 py-2 text-ds-label-sm text-action-primary-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
                 onClick={() => setState('persisting')}
               >
                 Complete first task
@@ -235,14 +241,14 @@ function OptimisticWorkbench() {
               <>
                 <button
                   type="button"
-                  className="inline-flex items-center gap-2 rounded-lg bg-emerald-400 px-3 py-2 text-ds-label-sm text-emerald-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                  className="inline-flex items-center gap-2 rounded-lg bg-action-primary px-3 py-2 text-ds-label-sm text-action-primary-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
                   onClick={() => setState('completed')}
                 >
                   <CheckCircle aria-hidden="true" size={15} /> Server confirms
                 </button>
                 <button
                   type="button"
-                  className="inline-flex items-center gap-2 rounded-lg border border-red-400 px-3 py-2 text-ds-label-sm text-red-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
+                  className="inline-flex items-center gap-2 rounded-lg border border-border-error px-3 py-2 text-ds-label-sm text-text-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-error"
                   onClick={() => setState('failed')}
                 >
                   <XCircle aria-hidden="true" size={15} /> Server rejects

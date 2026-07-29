@@ -35,7 +35,7 @@ export function StarterChipButton({
   onClick?: () => void
   palette: StarterPalette
   selected: boolean
-  size?: 'compact' | 'default'
+  size?: 'compact' | 'default' | 'large'
 }) {
   return (
     <button
@@ -48,7 +48,9 @@ export function StarterChipButton({
           ? 'rounded-lg border-2 px-2.5 py-1.5 text-[12px] font-medium transition-all duration-200'
           : size === 'compact'
             ? 'rounded-lg border-2 px-2.5 py-1.5 text-[12px] font-medium transition-all duration-200'
-            : 'rounded-lg border-2 px-3 py-1.5 text-[13px] font-medium transition-all duration-200',
+            : size === 'large'
+              ? 'rounded-lg border-2 px-3.5 py-2 text-[13px] font-medium transition-all duration-200'
+              : 'rounded-lg border-2 px-3 py-1.5 text-[13px] font-medium transition-all duration-200',
         selected
           ? twMerge(
               palette.chipSelected,
@@ -78,11 +80,15 @@ export function StarterTooltipProvider({
 
 export function StarterLibraryRows({
   compact = false,
+  revealedSelectionCount,
   selectedLibraries,
+  size = 'default',
   toggleLibrary,
 }: {
   compact?: boolean
+  revealedSelectionCount?: number
   selectedLibraries: Array<LibraryId>
+  size?: 'default' | 'large'
   toggleLibrary: (libraryId: LibraryId) => void
 }) {
   const libraries = [
@@ -90,25 +96,45 @@ export function StarterLibraryRows({
     ...starterTryLibraries.filter((library) => library.locked),
   ]
 
+  let selectedOrdinal = 0
+
   return (
-    <div className="flex flex-wrap gap-1.5">
-      {libraries.map((library) => (
-        <StarterHoverTooltip
-          key={library.id}
-          content={<StarterLibraryTooltip library={library} />}
-        >
-          <StarterLibraryChipButton
-            compact={compact}
-            library={library}
-            onClick={() => {
-              if (!isPinnedStarterLibrary(library.id)) {
-                toggleLibrary(library.id)
-              }
-            }}
-            selected={library.locked || selectedLibraries.includes(library.id)}
-          />
-        </StarterHoverTooltip>
-      ))}
+    <div
+      className={twMerge(
+        'flex flex-wrap gap-1.5',
+        size === 'large' &&
+          'w-full gap-[2px] overflow-hidden rounded-xl bg-gray-950/[0.10] dark:bg-white/[0.12]',
+      )}
+    >
+      {libraries.map((library) => {
+        const selected =
+          library.locked || selectedLibraries.includes(library.id)
+        const selectionIndex = selected ? selectedOrdinal++ : -1
+        const visuallySelected =
+          selected &&
+          (revealedSelectionCount === undefined ||
+            selectionIndex < revealedSelectionCount)
+
+        return (
+          <StarterHoverTooltip
+            key={library.id}
+            content={<StarterLibraryTooltip library={library} />}
+          >
+            <StarterLibraryChipButton
+              compact={compact}
+              library={library}
+              size={size}
+              onClick={() => {
+                if (!isPinnedStarterLibrary(library.id)) {
+                  toggleLibrary(library.id)
+                }
+              }}
+              selected={selected}
+              visuallySelected={visuallySelected}
+            />
+          </StarterHoverTooltip>
+        )
+      })}
     </div>
   )
 }
@@ -119,19 +145,33 @@ const StarterLibraryChipButton = React.forwardRef<
     compact?: boolean
     library: StarterTryLibrary
     selected: boolean
+    size?: 'default' | 'large'
+    visuallySelected: boolean
   } & React.ComponentPropsWithoutRef<'button'>
 >(function StarterLibraryChipButton(
-  { compact = false, library, selected, ...buttonProps },
+  {
+    compact = false,
+    library,
+    selected,
+    size = 'default',
+    visuallySelected,
+    ...buttonProps
+  },
   ref,
 ) {
   const baseClass = compact
     ? 'inline-flex items-center rounded-md border-2 px-2 py-1 text-[10px] leading-none transition-all duration-200'
-    : 'inline-flex items-center rounded-md border-2 px-2.5 py-1 text-[11px] leading-none transition-all duration-200'
+    : size === 'large'
+      ? 'inline-flex min-h-10 flex-1 basis-28 items-center justify-center rounded-none border-0 px-5 py-3 text-[13px] leading-none transition-all duration-200 min-[1180px]:basis-[9.5rem]'
+      : 'inline-flex items-center rounded-md border-2 px-2.5 py-1 text-[11px] leading-none transition-all duration-200'
   const selectedClass =
-    'translate-y-[-1px] border-current bg-white shadow-[0_4px_12px_rgba(15,23,42,0.08)] dark:bg-gray-950'
-  const stateClass =
-    library.locked || selected
-      ? selectedClass
+    size === 'large'
+      ? 'bg-gray-950 text-white shadow-none hover:bg-gray-950 dark:bg-white dark:text-gray-950 dark:hover:bg-white'
+      : 'translate-y-[-1px] border-current bg-white shadow-[0_4px_12px_rgba(15,23,42,0.08)] dark:bg-gray-950'
+  const stateClass = visuallySelected
+    ? selectedClass
+    : size === 'large'
+      ? 'bg-gray-50 hover:bg-gray-100 dark:bg-[#202020] dark:hover:bg-[#242424]'
       : 'border-gray-200 hover:border-current/45 dark:border-gray-800'
 
   return (
@@ -151,7 +191,12 @@ const StarterLibraryChipButton = React.forwardRef<
     >
       <span className="inline-flex items-center gap-1 leading-none font-black uppercase tracking-[-0.03em]">
         {library.locked ? (
-          <StarterLockedGlyph className="h-2.5 w-2.5 shrink-0 opacity-80" />
+          <StarterLockedGlyph
+            className={twMerge(
+              'h-2.5 w-2.5 shrink-0 opacity-80',
+              size === 'large' && 'h-3 w-3',
+            )}
+          />
         ) : null}
         {library.label}
       </span>
@@ -199,7 +244,8 @@ const StarterPartnerButton = React.forwardRef<
     partner: ApplicationStarterPartnerSuggestion
     muted: boolean
     selected: boolean
-    size?: 'compact' | 'default'
+    size?: 'compact' | 'default' | 'large'
+    visuallySelected: boolean
   } & React.ComponentPropsWithoutRef<'button'>
 >(function StarterPartnerButton(
   {
@@ -209,6 +255,7 @@ const StarterPartnerButton = React.forwardRef<
     partner,
     selected,
     size = 'default',
+    visuallySelected,
     ...buttonProps
   },
   ref,
@@ -224,29 +271,43 @@ const StarterPartnerButton = React.forwardRef<
   const buttonSizeClass = showsLogoOnly
     ? compact
       ? 'rounded-xl text-[13px] font-semibold'
-      : 'rounded-xl text-sm font-semibold'
+      : size === 'large'
+        ? 'rounded-xl text-base font-semibold'
+        : 'rounded-xl text-sm font-semibold'
     : compact || size === 'compact'
       ? 'rounded-lg px-2.5 py-1.5 text-[12px] font-medium'
-      : 'rounded-lg px-3 py-1.5 text-[13px] font-medium'
+      : size === 'large'
+        ? 'rounded-lg px-4 py-2.5 text-[13px] font-medium'
+        : 'rounded-lg px-3 py-1.5 text-[13px] font-medium'
   const logoFrameClass = isTierOne
-    ? 'h-17 min-w-18'
+    ? size === 'large'
+      ? 'h-22 min-w-20'
+      : 'h-17 min-w-18'
     : compact
       ? 'h-11 min-w-16'
-      : 'h-12 min-w-18'
+      : size === 'large'
+        ? 'h-16 min-w-20'
+        : 'h-12 min-w-18'
   const logoWidthClass = isTierOne
-    ? 'w-36'
+    ? size === 'large'
+      ? 'w-full min-[480px]:w-40'
+      : 'w-36'
     : compact || size === 'compact'
       ? 'w-20'
-      : 'w-22'
-  const logoStackAlignmentClass = isTierTwo ? 'items-center' : 'items-start'
-  const logoTagClass = isTierTwo ? 'text-center self-center' : ''
+      : size === 'large'
+        ? 'w-full min-[480px]:w-28'
+        : 'w-22'
+  const logoStackAlignmentClass =
+    size === 'large' || isTierTwo ? 'items-center' : 'items-start'
+  const logoTagClass =
+    size === 'large' || isTierTwo ? 'text-center self-center' : ''
   const tierOneTone = isTierOne
-    ? selected
+    ? visuallySelected
       ? 'translate-y-[-1px] border-transparent'
       : 'border-gray-200 bg-white hover:border-[var(--starter-partner-hover-border-color)] active:border-[var(--starter-partner-active-border-color)] dark:border-gray-800 dark:bg-gray-950 dark:hover:border-[var(--starter-partner-hover-border-color)] dark:active:border-[var(--starter-partner-active-border-color)]'
     : null
   const tierThreeTone = isTierThree
-    ? selected
+    ? visuallySelected
       ? 'translate-y-[-1px] border-current bg-white shadow-[0_4px_12px_rgba(15,23,42,0.08)] dark:bg-gray-950'
       : 'border-gray-200 bg-white text-gray-700 hover:border-[var(--starter-partner-hover-border-color)] hover:text-current active:border-[var(--starter-partner-active-border-color)] dark:border-gray-800 dark:bg-gray-950 dark:text-gray-200 dark:hover:border-[var(--starter-partner-hover-border-color)] dark:active:border-[var(--starter-partner-active-border-color)]'
     : null
@@ -259,19 +320,29 @@ const StarterPartnerButton = React.forwardRef<
     '--starter-partner-hover-border-color': hoverBorderColor,
     backgroundColor: undefined,
     borderColor:
-      isTierOne && selected
-        ? accent
-        : selected && usesPaletteSurface
+      size === 'large'
+        ? undefined
+        : isTierOne && visuallySelected
+          ? accent
+          : visuallySelected && usesPaletteSurface
+            ? accent
+            : undefined,
+    color:
+      size === 'large'
+        ? undefined
+        : isTierThree && visuallySelected
           ? accent
           : undefined,
-    color: isTierThree && selected ? accent : undefined,
-    boxShadow: selected
-      ? usesPaletteSurface
+    boxShadow:
+      size === 'large'
         ? undefined
-        : `0 6px 16px ${colorWithAlpha(accent, 0.12)}`
-      : usesPaletteSurface
-        ? undefined
-        : `0 1px 2px ${colorWithAlpha(accent, 0.08)}`,
+        : visuallySelected
+          ? usesPaletteSurface
+            ? undefined
+            : `0 6px 16px ${colorWithAlpha(accent, 0.12)}`
+          : usesPaletteSurface
+            ? undefined
+            : `0 1px 2px ${colorWithAlpha(accent, 0.08)}`,
   }
 
   return (
@@ -287,15 +358,21 @@ const StarterPartnerButton = React.forwardRef<
       }
       className={twMerge(
         'inline-flex items-center text-gray-800 transition-all duration-200 dark:text-gray-100',
-        'border-2',
+        size === 'large' ? 'overflow-hidden border-0' : 'border-2',
         buttonSizeClass,
-        selected && 'translate-y-[-1px]',
+        visuallySelected && 'translate-y-[-1px]',
         showsLogoOnly ? 'justify-start text-left' : 'gap-2 text-left',
         tierOneTone,
         usesPaletteSurface && palette.chip,
         usesPaletteSurface &&
           'hover:border-[var(--starter-partner-border-hover)] active:border-[var(--starter-partner-active-border-color)]',
         tierThreeTone,
+        size === 'large' &&
+          !visuallySelected &&
+          'translate-y-0 rounded-none bg-gray-50 shadow-none hover:bg-gray-100 dark:bg-[#202020] dark:hover:bg-[#242424]',
+        size === 'large' &&
+          visuallySelected &&
+          'translate-y-0 rounded-none bg-gray-950 text-white shadow-none hover:bg-gray-950 dark:bg-white dark:text-gray-950 dark:hover:bg-white',
         muted &&
           'border-transparent opacity-60 saturate-50 grayscale hover:border-transparent hover:text-gray-700 active:border-transparent dark:border-transparent dark:hover:border-transparent dark:hover:text-gray-200 dark:active:border-transparent',
         buttonProps.className,
@@ -305,7 +382,10 @@ const StarterPartnerButton = React.forwardRef<
       {showsLogoOnly ? (
         <span
           className={twMerge(
-            'flex h-full flex-col px-3 py-1.5',
+            'flex h-full min-w-0 flex-col',
+            size === 'large'
+              ? 'w-full px-2 py-3 min-[480px]:px-5'
+              : 'px-3 py-1.5',
             logoStackAlignmentClass,
             logoFrameClass,
           )}
@@ -317,7 +397,13 @@ const StarterPartnerButton = React.forwardRef<
             )}
           >
             <PartnerImage
-              className="block w-full max-h-7 object-contain"
+              className={twMerge(
+                'block w-full object-contain',
+                size === 'large' ? (isTierOne ? 'h-8' : 'h-7') : 'max-h-7',
+                size === 'large' &&
+                  visuallySelected &&
+                  'brightness-0 invert dark:invert-0',
+              )}
               config={partner.image}
               alt=""
             />
@@ -327,6 +413,9 @@ const StarterPartnerButton = React.forwardRef<
               className={twMerge(
                 'mt-auto text-[9px] font-medium tracking-[0.02em] text-gray-400 dark:text-gray-500',
                 logoTagClass,
+                size === 'large' &&
+                  visuallySelected &&
+                  'text-white/55 dark:text-gray-950/55',
               )}
             >
               {partnerTag}
@@ -335,10 +424,23 @@ const StarterPartnerButton = React.forwardRef<
           <span className="sr-only">{accessibleLabel}</span>
         </span>
       ) : (
-        <span className="flex flex-col items-start gap-px">
+        <span
+          className={twMerge(
+            'flex flex-col items-start gap-px',
+            size === 'large' &&
+              'min-[1180px]:items-center min-[1180px]:text-center',
+          )}
+        >
           <span>{partner.label}</span>
           {partnerTag ? (
-            <span className="text-[9px] font-medium tracking-[0.02em] text-gray-400 dark:text-gray-500">
+            <span
+              className={twMerge(
+                'text-[9px] font-medium tracking-[0.02em] text-gray-400 dark:text-gray-500',
+                size === 'large' &&
+                  selected &&
+                  'text-white/55 dark:text-gray-950/55',
+              )}
+            >
               {partnerTag}
             </span>
           ) : null}
@@ -352,6 +454,7 @@ export function StarterPartnerRows({
   compact = false,
   palette,
   partnerSuggestions,
+  revealedSelectionCount,
   selectedPartners,
   size = 'default',
   togglePartner,
@@ -359,8 +462,9 @@ export function StarterPartnerRows({
   compact?: boolean
   palette: StarterPalette
   partnerSuggestions: Array<ApplicationStarterPartnerSuggestion>
+  revealedSelectionCount?: number
   selectedPartners: Array<string>
-  size?: 'compact' | 'default'
+  size?: 'compact' | 'default' | 'large'
   togglePartner: (
     partner: ApplicationStarterPartnerSuggestion,
     selected: boolean,
@@ -398,14 +502,53 @@ export function StarterPartnerRows({
       partners: partnerSuggestions.filter((partner) => partner.tier === tier),
     }))
     .filter((row) => row.partners.length > 0)
+  let selectedOrdinal = 0
+
+  const getLargeGridColumns = (partnerCount: number) => {
+    switch (partnerCount) {
+      case 1:
+        return 'grid-cols-1'
+      case 2:
+        return 'grid-cols-2'
+      case 3:
+        return 'grid-cols-3'
+      case 4:
+        return 'grid-cols-2 min-[900px]:grid-cols-4'
+      case 5:
+        return 'grid-cols-3 min-[900px]:grid-cols-5'
+      case 6:
+        return 'grid-cols-2 min-[480px]:grid-cols-3 min-[900px]:grid-cols-6'
+      case 7:
+        return 'grid-cols-4 min-[900px]:grid-cols-7'
+      default:
+        return 'grid-cols-2 min-[480px]:grid-cols-3'
+    }
+  }
 
   return (
-    <div className="space-y-4.5">
+    <div
+      className={twMerge('space-y-4.5', size === 'large' && 'w-full space-y-3')}
+    >
       {rows.map((row) => (
-        <div key={row.tier} className="flex flex-wrap gap-1.5">
+        <div
+          key={row.tier}
+          className={twMerge(
+            'flex flex-wrap gap-1.5',
+            size === 'large' &&
+              twMerge(
+                'grid w-full gap-[2px] overflow-hidden rounded-xl bg-gray-950/[0.10] dark:bg-white/[0.12]',
+                getLargeGridColumns(row.partners.length),
+              ),
+          )}
+        >
           {row.partners.map((partner) => {
             const selected = selectedPartners.includes(partner.id)
             const muted = mutedPartnerIds.has(partner.id)
+            const selectionIndex = selected ? selectedOrdinal++ : -1
+            const visuallySelected =
+              selected &&
+              (revealedSelectionCount === undefined ||
+                selectionIndex < revealedSelectionCount)
 
             return (
               <StarterHoverTooltip
@@ -420,6 +563,10 @@ export function StarterPartnerRows({
                   partner={partner}
                   selected={selected}
                   size={size}
+                  visuallySelected={visuallySelected}
+                  className={twMerge(
+                    size === 'large' && 'min-w-0 w-full justify-center',
+                  )}
                 />
               </StarterHoverTooltip>
             )

@@ -823,8 +823,10 @@ function DesktopNavDropdown({
         className={twMerge(
           'ts-mega-dropdown-panel ts-glass-menu rounded-xl',
           'w-max min-w-[var(--ts-primary-nav-target-width,0px)] max-w-[calc(100vw-2rem)]',
-          'border border-white/45 bg-white/80 pt-10 px-9 pb-8 shadow-2xl shadow-black/15 backdrop-blur-2xl backdrop-saturate-150',
-          'dark:border-white/10 dark:bg-black/70 dark:shadow-black/50',
+          'border border-white/45 pt-10 px-9 pb-8 shadow-2xl shadow-black/15',
+          'dark:border-white/10 dark:shadow-black/50',
+          group.key === 'libraries' &&
+            'min-[1120px]:px-[43px] min-[1120px]:pt-12 min-[1120px]:pb-[38px]',
         )}
       >
         <MegaMenuContent
@@ -953,7 +955,9 @@ function MegaMenuContent({
             'grid gap-3',
             variant === 'desktop' &&
               group.sections.length > 1 &&
-              'grid-cols-[repeat(2,330px)]',
+              (group.rail
+                ? 'grid-cols-[repeat(2,260px)] min-[1120px]:grid-cols-[repeat(2,340px)]'
+                : 'grid-cols-[repeat(2,minmax(300px,360px))]'),
           )}
         >
           {group.sections.map((section, sectionIndex) => (
@@ -972,10 +976,10 @@ function MegaMenuContent({
                   'grid gap-2',
                   variant === 'desktop' &&
                     group.key === 'learn' &&
-                    'grid-cols-[repeat(2,330px)]',
+                    'grid-cols-[repeat(2,minmax(300px,360px))]',
                   variant === 'desktop' &&
                     group.key === 'tools' &&
-                    'grid-cols-[repeat(2,330px)]',
+                    'grid-cols-[repeat(2,minmax(300px,360px))]',
                 )}
               >
                 {section.items.map((item) => (
@@ -1015,11 +1019,25 @@ function LibrariesMenuContent({
         openLibraries()
         onNavigate()
       }}
-      className="group/all flex items-center gap-1.5 rounded-lg px-[9px] py-2 font-ds-mono text-ds-mono-xs uppercase tracking-wider text-text-muted transition-colors hover:text-text-primary focus:text-text-primary focus:outline-none"
+      className={twMerge(
+        'group/all flex items-center gap-1.5 rounded-lg px-[9px] py-2 font-ds-mono text-ds-mono-xs uppercase tracking-wider text-text-muted transition-colors hover:text-text-primary focus:text-text-primary focus:outline-none',
+        variant === 'desktop' &&
+          'min-[1120px]:gap-[7px] min-[1120px]:rounded-[10px] min-[1120px]:px-[11px] min-[1120px]:py-2.5 min-[1120px]:text-[14px]',
+      )}
     >
-      <GridFour className="size-4" />
+      <GridFour
+        className={twMerge(
+          'size-4',
+          variant === 'desktop' && 'min-[1120px]:size-[19px]',
+        )}
+      />
       Browse all libraries
-      <ArrowRight className="size-3.5 transition-transform group-hover/all:translate-x-0.5" />
+      <ArrowRight
+        className={twMerge(
+          'size-3.5 transition-transform group-hover/all:translate-x-0.5',
+          variant === 'desktop' && 'min-[1120px]:size-[17px]',
+        )}
+      />
     </button>
   )
 
@@ -1040,8 +1058,8 @@ function LibrariesMenuContent({
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-start gap-9">
+    <div className="flex flex-col gap-4 min-[1120px]:gap-5">
+      <div className="flex items-start gap-9 min-[1120px]:gap-12">
         {columns.map((column) => (
           <LibraryCategoryColumn
             key={column.category}
@@ -1051,7 +1069,7 @@ function LibrariesMenuContent({
           />
         ))}
       </div>
-      <div className="flex justify-center border-t border-border-subtle pt-1.5">
+      <div className="flex justify-center border-t border-border-subtle pt-1.5 min-[1120px]:pt-2">
         {allLibraries}
       </div>
     </div>
@@ -1071,15 +1089,15 @@ function LibraryCategoryColumn({
     <div
       className={twMerge(
         'flex flex-col',
-        variant === 'desktop' ? 'w-[120px] gap-4' : 'gap-1',
+        variant === 'desktop'
+          ? 'w-[120px] gap-4 min-[1120px]:w-36 min-[1120px]:gap-5'
+          : 'gap-1',
       )}
     >
-      {/* Plain template string (not twMerge): the DS mono size utility and the
-          category color are both `text-*` utilities, and twMerge would drop one. */}
       <div
         className={`pl-[9px] font-ds-mono uppercase ${
           variant === 'desktop' ? 'text-ds-mono-sm' : 'text-ds-mono-xs'
-        } ${column.colorClass}`}
+        } ${variant === 'desktop' ? 'min-[1120px]:pl-[11px]' : ''} ${column.colorClass}`}
       >
         {column.label}
       </div>
@@ -1113,16 +1131,26 @@ function LibraryMenuRow({
     // pressed white/12%, mode-adaptive via text-primary). Replaces the dead
     // `surface-state-hover` token, which was never defined.
     'group/lib flex items-center gap-2 rounded-[14px] py-2 pl-[9px] pr-3 text-text-secondary transition-colors hover:bg-text-primary/[0.04] hover:text-text-primary focus:bg-text-primary/[0.04] focus:text-text-primary focus:outline-none active:bg-text-primary/[0.12]',
-    variant === 'desktop' ? 'h-[38px]' : 'py-2.5',
+    variant === 'desktop'
+      ? 'h-[38px] min-[1120px]:h-[46px] min-[1120px]:gap-2.5 min-[1120px]:rounded-[17px] min-[1120px]:pl-[11px] min-[1120px]:pr-[14px]'
+      : 'py-2.5',
   )
   const content = (
     <>
       {/* Plain template string: the category hover color is a `text-*` utility
           and twMerge would drop it against a base color. */}
       <Icon
-        className={`size-5 shrink-0 transition-colors ${library.iconHoverColor}`}
+        className={`size-5 shrink-0 transition-colors ${
+          variant === 'desktop' ? 'min-[1120px]:size-6' : ''
+        } ${library.iconHoverColor}`}
       />
-      <span className="whitespace-nowrap font-ds-display text-[16px] tracking-[0.32px]">
+      <span
+        className={twMerge(
+          'whitespace-nowrap font-ds-display text-[16px] tracking-[0.32px]',
+          variant === 'desktop' &&
+            'min-[1120px]:text-[19px] min-[1120px]:tracking-[0.38px]',
+        )}
+      >
         {library.name}
       </span>
     </>
@@ -1216,7 +1244,7 @@ function BlogMenuContent({
       ref={rootRef}
       className={twMerge(
         'flex flex-col gap-5',
-        variant === 'desktop' && 'w-[840px]',
+        variant === 'desktop' && 'w-[calc(100vw-6.5rem)] max-w-[840px] min-w-0',
       )}
     >
       <section>
@@ -1410,7 +1438,7 @@ function MerchMenuContent({
       ref={rootRef}
       className={twMerge(
         'flex flex-col gap-4',
-        variant === 'desktop' && 'w-[560px]',
+        variant === 'desktop' && 'w-[calc(100vw-6.5rem)] max-w-[560px] min-w-0',
       )}
     >
       <div

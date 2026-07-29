@@ -73,17 +73,20 @@ export function ComponentPreview({
   title,
   description,
   code,
+  codePlacement = 'below',
   children,
   className,
 }: {
   title?: string
   description?: string
   code?: string
+  codePlacement?: 'below' | 'side'
   children: React.ReactNode
   className?: string
 }) {
   const [showCode, setShowCode] = React.useState(false)
   const [copied, setCopied] = React.useState(false)
+  const codePanelId = React.useId()
 
   const handleCopy = React.useCallback(async () => {
     if (!code) return
@@ -92,7 +95,9 @@ export function ComponentPreview({
     window.setTimeout(() => setCopied(false), 1500)
   }, [code])
 
-  const hasHeader = Boolean(title || description || code)
+  const hasHeader = Boolean(
+    title || description || (code && codePlacement === 'below'),
+  )
 
   return (
     <div className="overflow-hidden rounded-xl border border-border-default bg-background-surface">
@@ -145,14 +150,55 @@ export function ComponentPreview({
 
       <div
         className={twMerge(
-          'flex flex-wrap items-center gap-4 bg-background-subtle p-8',
+          'relative flex flex-wrap items-center gap-4 overflow-hidden bg-background-subtle p-8',
           className,
         )}
       >
         {children}
+
+        {code && codePlacement === 'side' ? (
+          <>
+            <div className="absolute top-3 right-3 z-20 flex flex-col gap-1 rounded-lg border border-border-default bg-background-surface/95 p-1 shadow-sm backdrop-blur-sm">
+              <button
+                type="button"
+                aria-controls={codePanelId}
+                aria-expanded={showCode}
+                onClick={() => setShowCode((visible) => !visible)}
+                className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-text-muted transition-colors hover:bg-background-subtle hover:text-text-primary"
+              >
+                <Code className="h-3.5 w-3.5" />
+                Code
+              </button>
+              <button
+                type="button"
+                onClick={handleCopy}
+                aria-label="Copy code"
+                className="inline-flex items-center justify-center rounded-md px-2 py-1 text-xs font-medium text-text-muted transition-colors hover:bg-background-subtle hover:text-text-primary"
+              >
+                {copied ? (
+                  <Check className="h-3.5 w-3.5 text-green-500" />
+                ) : (
+                  <Copy className="h-3.5 w-3.5" />
+                )}
+              </button>
+            </div>
+            <aside
+              id={codePanelId}
+              aria-hidden={!showCode}
+              className={twMerge(
+                'absolute inset-y-0 right-0 z-10 w-[min(28rem,85%)] translate-x-full border-l border-border-default bg-background-default shadow-[-12px_0_32px_-20px_rgb(0_0_0/0.3)] transition-transform duration-[180ms] [transition-timing-function:cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none',
+                showCode && 'translate-x-0',
+              )}
+            >
+              <pre className="h-full overflow-auto p-4 pr-24 font-ds-mono text-xs leading-relaxed text-text-secondary!">
+                <code>{code}</code>
+              </pre>
+            </aside>
+          </>
+        ) : null}
       </div>
 
-      {code && showCode ? (
+      {code && codePlacement === 'below' && showCode ? (
         <pre className="overflow-x-auto border-t border-border-default bg-background-default p-4 font-ds-mono text-xs leading-relaxed text-text-secondary!">
           <code>{code}</code>
         </pre>

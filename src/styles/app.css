@@ -440,6 +440,60 @@ html.theme-switching *::after {
   --text-ds-eyebrow-md--font-weight: 500;
 }
 
+/* Light surfaces need slightly stronger glyph density than dark surfaces.
+   Shift semantic weights by one step here so existing typography utilities and
+   DS text styles gain contrast without per-component overrides. */
+html.light {
+  --font-weight-thin: 200;
+  --font-weight-extralight: 300;
+  --font-weight-light: 400;
+  --font-weight-normal: 500;
+  --font-weight-medium: 600;
+  --font-weight-semibold: 700;
+  --font-weight-bold: 800;
+  --font-weight-extrabold: 900;
+  --font-weight-black: 900;
+
+  --text-ds-display-2xl--font-weight: 800;
+  --text-ds-display-xl--font-weight: 800;
+  --text-ds-display-lg--font-weight: 800;
+  --text-ds-display-md--font-weight: 600;
+  --text-ds-display-sm--font-weight: 600;
+
+  --text-ds-heading-1--font-weight: 600;
+  --text-ds-heading-2--font-weight: 600;
+  --text-ds-heading-3--font-weight: 800;
+  --text-ds-heading-4--font-weight: 800;
+  --text-ds-heading-5--font-weight: 800;
+  --text-ds-heading-6--font-weight: 600;
+
+  --text-ds-body-xl--font-weight: 400;
+  --text-ds-body-lg--font-weight: 400;
+  --text-ds-body-md--font-weight: 400;
+  --text-ds-body-sm--font-weight: 500;
+  --text-ds-body-xs--font-weight: 500;
+
+  --text-ds-label-lg--font-weight: 600;
+  --text-ds-label-md--font-weight: 600;
+  --text-ds-label-sm--font-weight: 600;
+
+  --text-ds-mono-display--font-weight: 500;
+  --text-ds-mono-lg--font-weight: 500;
+  --text-ds-mono-md--font-weight: 400;
+  --text-ds-mono-sm--font-weight: 400;
+  --text-ds-mono-xs--font-weight: 400;
+  --text-ds-mono-2xs--font-weight: 400;
+  --text-ds-mono-caps--font-weight: 500;
+  --text-ds-mono-caps-xs--font-weight: 500;
+
+  --text-ds-eyebrow-lg--font-weight: 700;
+  --text-ds-eyebrow-md--font-weight: 600;
+}
+
+html.light body {
+  font-weight: 500;
+}
+
 /* Dark-mode values for the DS semantic tokens (from Figma "Color Specimens /
    Dark Mode"). Applied when the site theme resolves to dark (html.dark), so the
    /ds style book and /staging pages flip with the global theme toggle.
@@ -697,13 +751,18 @@ button {
 .ts-mega-dropdown-panel {
   position: relative;
   isolation: isolate;
-  background-color: rgb(255 255 255 / 0.94);
-  backdrop-filter: blur(100px) saturate(1.9);
-  -webkit-backdrop-filter: blur(100px) saturate(1.9);
+  background-color: color-mix(
+    in srgb,
+    var(--color-background-subtle) 95%,
+    transparent
+  );
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 
-.dark .ts-mega-dropdown-panel {
-  background-color: rgb(0 0 0 / 0.88);
+.ts-mega-dropdown-panel.ts-glass-menu::after,
+.dark .ts-mega-dropdown-panel.ts-glass-menu::after {
+  background: none;
 }
 
 .ts-glass-menu {
@@ -1653,6 +1712,59 @@ mark {
   animation: home-prompt-ph-in 520ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+@keyframes home-stack-builder-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+    filter: blur(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.home-stack-builder-reveal {
+  animation: home-stack-builder-reveal 350ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.home-stack-builder-reveal-delayed {
+  animation-delay: 60ms;
+}
+
+.home-stack-builder-section-reveal {
+  animation: home-stack-builder-reveal 350ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.home-stack-builder-section-reveal-delayed {
+  animation-delay: 90ms;
+}
+
+.home-stack-builder-section-reveal-third {
+  animation-delay: 180ms;
+}
+
+.home-stack-builder-section-reveal-fourth {
+  animation-delay: 270ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-stack-builder-reveal,
+  .home-stack-builder-reveal-delayed,
+  .home-stack-builder-section-reveal,
+  .home-stack-builder-section-reveal-delayed,
+  .home-stack-builder-section-reveal-third,
+  .home-stack-builder-section-reveal-fourth {
+    animation: none;
+  }
+}
+
+#start-with-a-prompt:has([data-expanded='true']) {
+  max-width: 1200px;
+}
+
 @keyframes pulseScale {
   0% {
     transform: scale(1);
@@ -1686,27 +1798,26 @@ mark {
   }
 }
 
-/* Reverse vignette for the /libraries overlay glass: most opaque toward the
-   centre, fading to ~60% at the rim so more of the page shows through the edges.
-   Matches the mega-menu blur/saturation. */
+/* The /libraries overlay glass matches the mega-menu blur/saturation. */
 .libraries-overlay-glass {
-  background-color: rgb(255 255 255 / 0.4);
-  background-image: radial-gradient(
-    ellipse farthest-side at center,
-    rgb(255 255 255 / 0.9) 0%,
-    rgb(255 255 255 / 0.6) 100%
-  );
+  background: rgb(255 255 255 / 0.95);
   -webkit-backdrop-filter: blur(40px) saturate(1.5);
   backdrop-filter: blur(40px) saturate(1.5);
 }
 
 .dark .libraries-overlay-glass {
-  background-color: rgb(0 0 0 / 0.4);
-  background-image: radial-gradient(
-    ellipse farthest-side at center,
-    rgb(0 0 0 / 0.85) 0%,
-    rgb(0 0 0 / 0.6) 100%
-  );
+  background: rgb(0 0 0 / 0.95);
+}
+
+/* Library landing illustrations use crisp, category-colored depth in light
+   mode. Individual demos can keep their expressive glow treatments in dark
+   mode, where those effects do not muddy a light surface. */
+html:not(.dark) .library-landing-graphic [class*='shadow-['] {
+  box-shadow: 0 10px 24px -12px rgb(var(--landing-glow) / 0.45);
+}
+
+html:not(.dark) .library-landing-graphic [style*='drop-shadow'] {
+  filter: none !important;
 }
 
 /* Staggered grid reveal for the /libraries waypoint cards. The transform rests

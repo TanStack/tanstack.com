@@ -9,6 +9,7 @@ import {
   PlayCircle,
   ShieldCheck,
 } from '@phosphor-icons/react'
+import { Badge } from '~/ui/Badge'
 
 import {
   LandingSection,
@@ -166,17 +167,18 @@ function ReplayHero() {
                 order-4832
               </p>
             </div>
-            <span
-              className={
+            <Badge
+              variant={
                 phase === 'crashed'
-                  ? 'rounded bg-red-400 px-2 py-1 font-ds-mono text-ds-mono-caps-xs uppercase text-red-950'
+                  ? 'error'
                   : phase === 'finished'
-                    ? 'rounded bg-emerald-400 px-2 py-1 font-ds-mono text-ds-mono-caps-xs uppercase text-emerald-950'
-                    : 'rounded bg-amber-300 px-2 py-1 font-ds-mono text-ds-mono-caps-xs uppercase text-amber-950'
+                    ? 'success'
+                    : 'warning'
               }
+              className="rounded font-ds-mono text-ds-mono-caps-xs uppercase"
             >
               {phase}
-            </span>
+            </Badge>
           </div>
           <div className="mt-5 space-y-2" aria-live="polite">
             {rows.map((row, index) => (

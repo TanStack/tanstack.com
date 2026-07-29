@@ -535,15 +535,7 @@ export function DocNavigation() {
   const context = useDocNavigation()
   if (!context) return null
 
-  const {
-    libraryId,
-    version,
-    prevItem,
-    nextItem,
-    colorFrom,
-    colorTo,
-    textColor,
-  } = context
+  const { libraryId, version, prevItem, nextItem } = context
 
   if (!prevItem && !nextItem) return null
 
@@ -562,12 +554,9 @@ export function DocNavigation() {
       <div className="flex-1 flex justify-end">
         {nextItem ? (
           <DocNavigationCard
-            colorFrom={colorFrom}
-            colorTo={colorTo}
             direction="next"
             item={nextItem}
             libraryId={libraryId}
-            textColor={textColor}
             version={version}
           />
         ) : null}
@@ -577,20 +566,14 @@ export function DocNavigation() {
 }
 
 function DocNavigationCard({
-  colorFrom,
-  colorTo,
   direction,
   item,
   libraryId,
-  textColor,
   version,
 }: {
-  colorFrom?: string
-  colorTo?: string
   direction: 'previous' | 'next'
   item: DocNavItem
   libraryId: LibraryId
-  textColor?: string
   version: string
 }) {
   const frameworkDocsTarget = getFrameworkDocsLinkTarget(item.to)
@@ -612,13 +595,11 @@ function DocNavigationCard({
           <span className="hidden sm:block text-[10px] uppercase tracking-wider opacity-60 mb-0.5">
             Next
           </span>
-          <span
-            className={`font-bold text-right bg-linear-to-r ${colorFrom} ${colorTo} bg-clip-text text-transparent`}
-          >
+          <span className="text-right font-bold text-text-primary">
             {item.label}
           </span>
         </div>
-        <CaretRight className={twMerge('w-3 h-3 sm:w-4 sm:h-4', textColor)} />
+        <CaretRight className="h-3 w-3 text-text-primary sm:h-4 sm:w-4" />
       </>
     )
 
@@ -979,9 +960,7 @@ export function LibraryLayout({
                 <div
                   className={twMerge(
                     'w-full',
-                    isActive
-                      ? `font-bold text-transparent bg-clip-text bg-linear-to-r ${colorFrom} ${colorTo}`
-                      : '',
+                    isActive ? 'font-bold text-text-primary' : '',
                   )}
                 >
                   {child.label}
@@ -1017,9 +996,7 @@ export function LibraryLayout({
                       <div
                         className={twMerge(
                           'w-full',
-                          !docsMatch
-                            ? `font-bold text-transparent bg-clip-text bg-linear-to-r ${colorFrom} ${colorTo}`
-                            : '',
+                          !docsMatch ? 'font-bold text-text-primary' : '',
                         )}
                       >
                         {child.label}
@@ -1254,7 +1231,6 @@ export function LibraryLayout({
     <div
       className={twMerge(
         'sticky top-[var(--navbar-height)] z-30 border-b border-gray-500/20 bg-white/90 dark:bg-black/80 backdrop-blur-lg',
-        isLandingPage && 'min-h-12',
       )}
     >
       <div className="flex items-stretch">
@@ -1325,22 +1301,17 @@ export function LibraryLayout({
                   aria-current={isActive ? 'page' : undefined}
                   className={twMerge(
                     'relative whitespace-nowrap py-3 font-semibold transition-colors',
-                    isLandingPage && 'py-[15px]',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-current rounded-sm',
                     isActive
-                      ? `text-transparent bg-clip-text bg-linear-to-r ${colorFrom} ${colorTo}`
-                      : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100',
+                      ? 'text-text-primary'
+                      : 'text-text-secondary hover:text-text-primary',
                   )}
                 >
                   {tab.label}
                   {isActive ? (
                     <span
                       aria-hidden="true"
-                      className={twMerge(
-                        'absolute left-0 right-0 -bottom-px h-[3px] rounded-t-full bg-linear-to-r',
-                        colorFrom,
-                        colorTo,
-                      )}
+                      className="absolute right-0 -bottom-px left-0 h-[3px] rounded-t-full bg-text-primary"
                     />
                   ) : null}
                 </Link>
@@ -1403,7 +1374,6 @@ export function LibraryLayout({
       >
         <div
           data-docs-layout
-          data-library-landing={isLandingPage ? '' : undefined}
           data-docs-menu-open={showLargeMenu ? 'true' : undefined}
           className={twMerge(
             'flex w-full flex-col [overflow-x:clip] md:min-h-[calc(100dvh-var(--navbar-height))] transition-all duration-300',

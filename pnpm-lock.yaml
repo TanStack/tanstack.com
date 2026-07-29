@@ -349,6 +349,9 @@ importers:
       oxlint-tsgolint:
         specifier: ^0.19.0
         version: 0.19.0
+      sharp:
+        specifier: 0.34.5
+        version: 0.34.5
       source-map-explorer:
         specifier: ^2.5.3
         version: 2.5.3

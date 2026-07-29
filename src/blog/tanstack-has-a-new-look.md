@@ -1,6 +1,6 @@
 ---
 title: TanStack Has a New Look
-published: 2026-07-15
+published: 2026-07-29
 excerpt: TanStack has a new logo, a design system, and a brand that finally looks like actual people care about the details, because we do.
 authors:
   - Tanner Linsley

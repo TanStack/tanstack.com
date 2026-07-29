@@ -15,6 +15,7 @@ import {
 import { libraryCategories, type LibraryCategory } from '~/libraries/categories'
 import { getLibrary } from '~/libraries'
 import type { LibraryId } from '~/libraries'
+import { PartnersSponsorsSection } from '~/components/PartnersSponsorsSection'
 import { ossStatsQuery, recentDownloadsQuery } from '~/queries/stats'
 import { LandingCopyPromptButton } from './LandingCopyPromptButton'
 
@@ -262,7 +263,7 @@ export function LibraryLandingShell({
                     className="hidden h-[18px] w-auto dark:block"
                   />
                   <h1 className="mt-1">
-                    <span className="block bg-[linear-gradient(110deg,var(--landing-headline-start),var(--landing-headline-end))] bg-clip-text pr-1 font-ds-display text-ds-display-lg uppercase text-transparent dark:[filter:drop-shadow(0_4px_4px_rgb(0_0_0/0.25))] sm:text-ds-display-xl lg:text-ds-display-2xl">
+                    <span className="block bg-[linear-gradient(110deg,var(--landing-headline-start),var(--landing-headline-end))] bg-clip-text pr-1 font-ds-display text-ds-display-lg uppercase text-transparent dark:[filter:drop-shadow(0_4px_4px_rgb(0_0_0/0.25))] sm:text-ds-display-xl 2xl:text-ds-display-2xl">
                       {library.name.replace(/^TanStack\s+/i, '')}
                     </span>
                   </h1>
@@ -313,6 +314,8 @@ export function LibraryLandingShell({
       </section>
 
       {children}
+
+      <PartnersSponsorsSection className="border-b border-border-subtle bg-background-default py-20 lg:py-24" />
 
       <div aria-hidden="true" className="h-24 bg-background-default" />
     </main>

@@ -4,9 +4,8 @@ import { resolve } from 'node:path'
 import { fetchStaticAsset } from '~/server/runtime/host.server'
 
 const interRegularUrl = '/fonts/Inter-Regular.ttf'
-const interExtraBoldUrl = '/fonts/Inter-ExtraBold.ttf'
-const interBlackUrl = '/fonts/Inter-Black.ttf'
-const islandPngUrl = '/images/logos/splash-dark.png'
+const bricolageBoldUrl = '/fonts/BricolageGrotesque-Bold.ttf'
+const brandLogoPngUrl = '/images/brand/tanstack-landscape-black-640.png'
 
 function tryReadBinary(relPath: string): Buffer | null {
   // Resolve from the project root for local dev and tests. Workers normally
@@ -30,25 +29,26 @@ async function readAssetUrl(assetUrl: string, requestUrl: string) {
 
 let cached: {
   interRegular: Buffer
-  interExtraBold: Buffer
-  interBlack: Buffer
-  islandPng: Buffer
+  bricolageBold: Buffer
+  brandLogoPng: Buffer
 } | null = null
 
 export async function loadOgAssets(requestUrl?: string) {
   if (cached) return cached
 
   const interRegular = tryReadBinary('public/fonts/Inter-Regular.ttf')
-  const interExtraBold = tryReadBinary('public/fonts/Inter-ExtraBold.ttf')
-  const interBlack = tryReadBinary('public/fonts/Inter-Black.ttf')
-  const islandPng = tryReadBinary('public/images/logos/splash-dark.png')
+  const bricolageBold = tryReadBinary(
+    'public/fonts/BricolageGrotesque-Bold.ttf',
+  )
+  const brandLogoPng = tryReadBinary(
+    'public/images/brand/tanstack-landscape-black-640.png',
+  )
 
-  if (interRegular && interExtraBold && interBlack && islandPng) {
+  if (interRegular && bricolageBold && brandLogoPng) {
     cached = {
       interRegular,
-      interExtraBold,
-      interBlack,
-      islandPng,
+      bricolageBold,
+      brandLogoPng,
     }
     return cached
   }
@@ -59,9 +59,8 @@ export async function loadOgAssets(requestUrl?: string) {
 
   cached = {
     interRegular: await readAssetUrl(interRegularUrl, requestUrl),
-    interExtraBold: await readAssetUrl(interExtraBoldUrl, requestUrl),
-    interBlack: await readAssetUrl(interBlackUrl, requestUrl),
-    islandPng: await readAssetUrl(islandPngUrl, requestUrl),
+    bricolageBold: await readAssetUrl(bricolageBoldUrl, requestUrl),
+    brandLogoPng: await readAssetUrl(brandLogoPngUrl, requestUrl),
   }
   return cached
 }

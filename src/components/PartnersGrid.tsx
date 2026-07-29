@@ -25,14 +25,14 @@ type PartnersGridProps = {
   partnersList?: PartnerItem[]
   /**
    * Optional final band rendered inside the same bordered container as the tier
-   * bands — used on the homepage to fold the OSS Sponsors band into the stack.
+   * bands — used to fold the OSS Sponsors band into the stack.
    */
   trailingBand?: React.ReactNode
 }
 
 /**
- * A full-bleed tier header bar (Figma 640:3878). Exported so the homepage can
- * render a matching OSS Sponsors band with the same treatment.
+ * A full-bleed tier header bar (Figma 640:3878). Exported so the shared
+ * partners/sponsors block can render its final band with the same treatment.
  */
 export function TierBand({
   label,

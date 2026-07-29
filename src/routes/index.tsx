@@ -64,6 +64,18 @@ function Index() {
     }
   }
 
+  const heroVideoRef = React.useRef<HTMLVideoElement>(null)
+
+  // Autoplay is declarative so the loop starts without waiting for hydration;
+  // this only walks it back for users who asked for less motion.
+  React.useEffect(() => {
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const video = heroVideoRef.current
+    if (!video) return
+    video.pause()
+    video.currentTime = 0
+  }, [])
+
   return (
     <>
       <div className="max-w-full z-10 space-y-24">
@@ -74,31 +86,43 @@ function Index() {
               rather than a theme-flipping semantic. */}
           <div className="w-full">
             <div className="relative isolate flex h-[calc(100dvh-var(--navbar-height))] max-h-[720px] min-h-[560px] flex-col justify-between gap-8 px-6 py-10 sm:px-10 xl:flex-row xl:items-end xl:justify-between xl:gap-12 xl:px-16 xl:py-16">
-              {/* Wrapper carries the 8px inset + squircle clip so the <img>
+              {/* Wrapper carries the 8px inset + squircle clip so the <video>
                   (which has intrinsic width/height) fills it exactly instead of
-                  overflowing the right/bottom. Plain <img> (not OptimizedImage):
-                  the Cloudflare transform resolves against the production origin,
-                  so a newly-added asset 404s until deployed. */}
+                  overflowing the right/bottom. Assets are served straight from
+                  /public: the Cloudflare transform resolves against the
+                  production origin, so a newly-added asset 404s until
+                  deployed. */}
               <div
                 aria-hidden
                 className="absolute inset-2 -z-10 overflow-hidden rounded-[2rem] [corner-shape:squircle]"
               >
-                <picture className="contents">
+                {/* The poster is frame 0 of the loop, so the still and the
+                    video are the same picture and there is no pop when playback
+                    starts. Under `prefers-reduced-motion` we hold on that frame.
+                    Codecs are spelled out so Safari skips the 10-bit VP9 and
+                    picks the HEVC file instead of failing on it. */}
+                <video
+                  ref={heroVideoRef}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  disableRemotePlayback
+                  preload="auto"
+                  poster="/images/hero-palm-gradient-loop.webp"
+                  width={1168}
+                  height={768}
+                  className="h-full w-full object-cover object-center"
+                >
                   <source
-                    type="image/webp"
-                    srcSet="/images/hero-palm-gradient-960.webp 960w, /images/hero-palm-gradient-1600.webp 1600w, /images/hero-palm-gradient-2400.webp 2400w"
-                    sizes="100vw"
+                    src="/images/hero-palm-gradient-loop.webm"
+                    type='video/webm; codecs="vp09.02.30.10"'
                   />
-                  <img
-                    src="/images/hero-palm-gradient.jpg"
-                    alt=""
-                    width={2400}
-                    height={1600}
-                    loading="eager"
-                    fetchPriority="high"
-                    className="h-full w-full object-cover object-center"
+                  <source
+                    src="/images/hero-palm-gradient-loop.mp4"
+                    type='video/mp4; codecs="hvc1.2.4.L93.B0"'
                   />
-                </picture>
+                </video>
               </div>
               <h1 className="max-w-[613px] font-ds-display text-ds-display-sm font-bold text-ds-neutral-500 sm:text-ds-display-md lg:text-ds-display-lg xl:text-ds-display-xl">
                 The{' '}

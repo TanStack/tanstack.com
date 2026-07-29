@@ -12,8 +12,13 @@ import {
   ChartsCatalogIntegrityError,
   ChartsCatalogResourceNotFoundError,
   classifyChartsCatalogAssetError,
+  getChartsCatalogManifestAtRevision,
 } from '../src/utils/charts-catalog.server'
 import { GitHubContentError } from '../src/utils/documents.server'
+import {
+  listDocsCacheRepoStats,
+  resetGitHubContentCacheForTest,
+} from '../src/utils/github-content-cache.server'
 import {
   artifactRevision,
   createChartsCatalogManifest,
@@ -122,4 +127,66 @@ test('catalog asset failures preserve missing, transient, and integrity semantic
     ),
     'internal',
   )
+})
+
+test('catalog assets admit recent published revisions without caching random SHAs', async () => {
+  resetGitHubContentCacheForTest()
+
+  const originalFetch = globalThis.fetch
+  const historicalRevision = '3'.repeat(40)
+  const unpublishedRevisions = ['4'.repeat(40), '5'.repeat(40)]
+  const requests = new Array<string>()
+
+  globalThis.fetch = async (input) => {
+    const url = String(input)
+    requests.push(url)
+
+    if (
+      url.startsWith('https://api.github.com/repos/tanstack/charts/commits?')
+    ) {
+      return Response.json([
+        { sha: artifactRevision },
+        { sha: historicalRevision },
+      ])
+    }
+
+    if (
+      url ===
+      `https://raw.githubusercontent.com/tanstack/charts/${historicalRevision}/catalog.json`
+    ) {
+      return Response.json(createChartsCatalogManifest())
+    }
+
+    return new Response('Not found', { status: 404 })
+  }
+
+  try {
+    for (const unpublishedRevision of unpublishedRevisions) {
+      await assert.rejects(
+        getChartsCatalogManifestAtRevision(unpublishedRevision),
+        ChartsCatalogResourceNotFoundError,
+      )
+    }
+    assert.equal(requests.length, 1)
+
+    const statsAfterRejection = await listDocsCacheRepoStats()
+    assert.equal(statsAfterRejection[0]?.contentEntries, 1)
+    assert.equal(statsAfterRejection[0]?.cachedRefCount, 1)
+
+    const historicalManifest =
+      await getChartsCatalogManifestAtRevision(historicalRevision)
+    assert.equal(historicalManifest.revision, '1'.repeat(40))
+    assert.equal(requests.length, 2)
+    assert.equal(
+      requests[1],
+      `https://raw.githubusercontent.com/tanstack/charts/${historicalRevision}/catalog.json`,
+    )
+
+    const statsAfterHistoricalRead = await listDocsCacheRepoStats()
+    assert.equal(statsAfterHistoricalRead[0]?.contentEntries, 2)
+    assert.equal(statsAfterHistoricalRead[0]?.cachedRefCount, 2)
+  } finally {
+    globalThis.fetch = originalFetch
+    resetGitHubContentCacheForTest()
+  }
 })

@@ -679,6 +679,60 @@ export async function resolveGitHubRef(repoPair: string, gitRef: string) {
   return value.object.sha
 }
 
+export async function fetchGitHubCommitHistory(
+  repoPair: string,
+  gitRef: string,
+  limit: number,
+) {
+  assertValidGitHubRepoPair(repoPair)
+  assertValidGitHubRef(gitRef)
+  if (!Number.isInteger(limit) || limit < 1 || limit > 100) {
+    throw new InvalidCacheKeyError('commitHistoryLimit', String(limit))
+  }
+
+  const url = new URL(`https://api.github.com/repos/${repoPair}/commits`)
+  url.searchParams.set('sha', gitRef)
+  url.searchParams.set('per_page', String(limit))
+
+  const response = await fetchGitHubApiJson(url.href)
+  if (
+    !Array.isArray(response) ||
+    response.length === 0 ||
+    response.length > limit
+  ) {
+    throw new GitHubContentError(
+      'invalid-response',
+      `Unexpected commit history response for ${repoPair}@${gitRef}`,
+    )
+  }
+
+  const revisions = new Array<string>()
+  for (const commit of response) {
+    if (
+      typeof commit !== 'object' ||
+      commit === null ||
+      !('sha' in commit) ||
+      typeof commit.sha !== 'string' ||
+      !/^[a-f0-9]{40}$/.test(commit.sha)
+    ) {
+      throw new GitHubContentError(
+        'invalid-response',
+        `Unexpected commit history response for ${repoPair}@${gitRef}`,
+      )
+    }
+    revisions.push(commit.sha)
+  }
+
+  if (new Set(revisions).size !== revisions.length) {
+    throw new GitHubContentError(
+      'invalid-response',
+      `Duplicate commit in history for ${repoPair}@${gitRef}`,
+    )
+  }
+
+  return revisions
+}
+
 function assertValidGitHubRepoPair(repoPair: string) {
   const segments = repoPair.split('/')
   if (

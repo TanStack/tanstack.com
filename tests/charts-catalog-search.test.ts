@@ -48,12 +48,22 @@ test('catalog embeds never enable comparison modules', () => {
 })
 
 test('validated catalog search preserves exact comparison loader deps', () => {
-  for (const value of ['1', ['1']]) {
+  for (const value of ['1', 1, ['1'], [1]]) {
     const search = validateChartsCatalogRouteSearch({ compare: value })
     assert.equal(parseChartsCatalogRouteSearch(search).comparison, true)
   }
 
-  for (const value of [undefined, '', '0', 'true', ['1', '1'], ['0', '1'], 1]) {
+  for (const value of [
+    undefined,
+    '',
+    '0',
+    'true',
+    true,
+    1.1,
+    ['1', '1'],
+    [1, 1],
+    ['0', '1'],
+  ]) {
     const search = validateChartsCatalogRouteSearch({ compare: value })
     assert.equal(parseChartsCatalogRouteSearch(search).comparison, false)
   }
@@ -63,8 +73,8 @@ test('validated embed search produces stable loader deps', () => {
   assert.deepEqual(
     parseChartsCatalogEmbedRouteSearch(
       validateChartsCatalogEmbedRouteSearch({
-        height: '420',
-        revision: '3',
+        height: 420,
+        revision: 3,
         theme: 'dark',
       }),
     ),

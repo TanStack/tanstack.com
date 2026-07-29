@@ -425,17 +425,28 @@ export function parseChartsCatalogSearch(
 }
 
 export type ChartsCatalogRouteSearch = {
-  compare?: string | Array<string>
+  compare?: string | number | boolean | Array<string | number | boolean>
 }
 
 export function validateChartsCatalogRouteSearch(
   search: Record<string, unknown>,
 ): ChartsCatalogRouteSearch {
   const compare = search.compare
-  if (typeof compare === 'string') return { compare }
+  if (
+    typeof compare === 'string' ||
+    typeof compare === 'number' ||
+    typeof compare === 'boolean'
+  ) {
+    return { compare }
+  }
   if (
     Array.isArray(compare) &&
-    compare.every((value): value is string => typeof value === 'string')
+    compare.every(
+      (value): value is string | number | boolean =>
+        typeof value === 'string' ||
+        typeof value === 'number' ||
+        typeof value === 'boolean',
+    )
   ) {
     return { compare }
   }
@@ -447,7 +458,7 @@ export function parseChartsCatalogRouteSearch(
   options: { embed?: boolean } = {},
 ) {
   const comparisonValues =
-    typeof search.compare === 'string'
+    !Array.isArray(search.compare) && search.compare !== undefined
       ? [search.compare]
       : (search.compare ?? [])
 
@@ -457,13 +468,13 @@ export function parseChartsCatalogRouteSearch(
 }
 
 function isChartsCatalogComparisonEnabled(
-  comparisonValues: Array<string>,
+  comparisonValues: Array<string | number | boolean>,
   options: { embed?: boolean },
 ) {
   return (
     options.embed !== true &&
     comparisonValues.length === 1 &&
-    comparisonValues[0] === '1'
+    (comparisonValues[0] === '1' || comparisonValues[0] === 1)
   )
 }
 

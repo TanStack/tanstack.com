@@ -14,9 +14,9 @@ export type ChartsCatalogEmbedLoaderDeps = {
 }
 
 export type ChartsCatalogEmbedRouteSearch = {
-  height?: string | Array<string>
-  revision?: string | Array<string>
-  theme?: string | Array<string>
+  height?: string | number | Array<string | number>
+  revision?: string | number | Array<string | number>
+  theme?: string | number | Array<string | number>
 }
 
 export function isChartsCatalogEmbedPath(pathname: string) {
@@ -79,6 +79,14 @@ export function parseChartsCatalogEmbedInteger(
   minimum: number,
   maximum: number,
 ) {
+  if (
+    typeof value === 'number' &&
+    Number.isSafeInteger(value) &&
+    value >= minimum &&
+    value <= maximum
+  ) {
+    return value
+  }
   if (typeof value !== 'string' || !isBoundedInteger(value, minimum, maximum)) {
     return fallback
   }
@@ -116,10 +124,13 @@ function isBoundedInteger(value: string, minimum: number, maximum: number) {
 }
 
 function getChartsCatalogEmbedRouteSearchValue(value: unknown) {
-  if (typeof value === 'string') return value
+  if (typeof value === 'string' || typeof value === 'number') return value
   if (
     Array.isArray(value) &&
-    value.every((entry): entry is string => typeof entry === 'string')
+    value.every(
+      (entry): entry is string | number =>
+        typeof entry === 'string' || typeof entry === 'number',
+    )
   ) {
     return value
   }

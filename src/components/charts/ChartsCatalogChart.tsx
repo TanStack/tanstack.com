@@ -42,8 +42,14 @@ export function ChartsCatalogChart({
   revision?: number
 }) {
   const containerRef = React.useRef<HTMLDivElement>(null)
+  const handleRef = React.useRef<ChartMountHandle | undefined>(undefined)
+  const inputRef = React.useRef({ height, interactive, revision })
+  const onStatusRef = React.useRef(onStatus)
   const [visible, setVisible] = React.useState(!defer)
   const [failed, setFailed] = React.useState(false)
+
+  inputRef.current = { height, interactive, revision }
+  onStatusRef.current = onStatus
 
   React.useEffect(() => {
     const container = containerRef.current
@@ -71,7 +77,7 @@ export function ChartsCatalogChart({
     if (!container || !visible) return
 
     let cancelled = false
-    let handle: ChartMountHandle | undefined
+    let mountedHandle: ChartMountHandle | undefined
     let width = measureWidth(container)
     const preloadLinks = module.preload.map((assetPath) => {
       const link = document.createElement('link')
@@ -95,54 +101,60 @@ export function ChartsCatalogChart({
 
         const mounted = loaded.mount(container, {
           width,
-          height,
-          revision,
-          interactive,
+          ...inputRef.current,
         })
         if (!isChartMountHandle(mounted)) {
           throw new TypeError('Invalid Charts catalog mount handle')
         }
-        handle = mounted
-        requestAnimationFrame(() => onStatus?.('ready'))
+        mountedHandle = mounted
+        handleRef.current = mounted
+        requestAnimationFrame(() => {
+          if (!cancelled) onStatusRef.current?.('ready')
+        })
       })
       .catch((error: unknown) => {
         if (cancelled) return
         console.error(`Unable to mount Charts catalog case ${caseId}`, error)
         setFailed(true)
-        onStatus?.('error')
+        onStatusRef.current?.('error')
       })
 
     const resizeObserver = new ResizeObserver(() => {
       const nextWidth = measureWidth(container)
       if (nextWidth === width || nextWidth < 1) return
       width = nextWidth
-      handle?.update({
+      handleRef.current?.update({
         width,
-        height,
-        revision,
-        interactive,
+        ...inputRef.current,
       })
-      onStatus?.('resize')
+      onStatusRef.current?.('resize')
     })
     resizeObserver.observe(container)
 
     return () => {
       cancelled = true
       resizeObserver.disconnect()
-      handle?.destroy()
+      mountedHandle?.destroy()
+      if (handleRef.current === mountedHandle) {
+        handleRef.current = undefined
+      }
       for (const link of preloadLinks) link.remove()
       container.replaceChildren()
     }
-  }, [
-    artifactRevision,
-    caseId,
-    height,
-    interactive,
-    module,
-    onStatus,
-    revision,
-    visible,
-  ])
+  }, [artifactRevision, caseId, module, visible])
+
+  React.useEffect(() => {
+    const container = containerRef.current
+    const handle = handleRef.current
+    if (!container || !handle) return
+
+    handle.update({
+      width: measureWidth(container),
+      height,
+      interactive,
+      revision,
+    })
+  }, [height, interactive, revision])
 
   return (
     <div

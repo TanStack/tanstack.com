@@ -15,6 +15,7 @@ import {
   InvalidCacheKeyError,
 } from './github-content-cache.server'
 import { normalizeRedirectFrom } from './redirects'
+import { isValidRepoPath } from './repo-path'
 import { multiSortBy, removeLeadingSlash } from './utils'
 import { env } from './env'
 import { fetchWithTimeout } from './outbound-fetch.server'
@@ -536,6 +537,12 @@ export async function fetchRepoRawFile(
   ref: string,
   filepath: string,
 ) {
+  assertValidGitHubRepoPair(repoPair)
+  assertValidGitHubRef(ref)
+  if (!filepath || !isValidRepoPath(filepath)) {
+    throw new InvalidCacheKeyError('path', filepath)
+  }
+
   const key = `raw:${repoPair}:${ref}:${filepath}`
 
   if (shouldUseLocalDocsFiles()) {
@@ -593,24 +600,8 @@ export async function fetchRepoFile(
 }
 
 export async function resolveGitHubRef(repoPair: string, gitRef: string) {
-  if (
-    repoPair.length === 0 ||
-    repoPair.length > 100 ||
-    !/^[a-zA-Z0-9._-]+\/[a-zA-Z0-9._-]+$/.test(repoPair)
-  ) {
-    throw new InvalidCacheKeyError('repo', repoPair)
-  }
-  if (
-    gitRef.length === 0 ||
-    gitRef.length > 100 ||
-    !/^[a-zA-Z0-9._/-]+$/.test(gitRef) ||
-    gitRef.includes('..') ||
-    gitRef.startsWith('/') ||
-    gitRef.endsWith('/') ||
-    gitRef.includes('//')
-  ) {
-    throw new InvalidCacheKeyError('gitRef', gitRef)
-  }
+  assertValidGitHubRepoPair(repoPair)
+  assertValidGitHubRef(gitRef)
 
   const encodedRef = gitRef
     .split('/')
@@ -686,6 +677,32 @@ export async function resolveGitHubRef(repoPair: string, gitRef: string) {
   }
 
   return value.object.sha
+}
+
+function assertValidGitHubRepoPair(repoPair: string) {
+  const segments = repoPair.split('/')
+  if (
+    repoPair.length === 0 ||
+    repoPair.length > 100 ||
+    !/^[a-zA-Z0-9._-]+\/[a-zA-Z0-9._-]+$/.test(repoPair) ||
+    segments.some((segment) => segment === '.' || segment === '..')
+  ) {
+    throw new InvalidCacheKeyError('repo', repoPair)
+  }
+}
+
+function assertValidGitHubRef(gitRef: string) {
+  if (
+    gitRef.length === 0 ||
+    gitRef.length > 100 ||
+    !/^[a-zA-Z0-9._/-]+$/.test(gitRef) ||
+    gitRef.includes('..') ||
+    gitRef.startsWith('/') ||
+    gitRef.endsWith('/') ||
+    gitRef.includes('//')
+  ) {
+    throw new InvalidCacheKeyError('gitRef', gitRef)
+  }
 }
 
 export function extractFrontMatter(content: string) {

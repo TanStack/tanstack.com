@@ -59,6 +59,10 @@ expectRejected('a different site origin', (manifest) => {
   manifest.site.origin = 'https://example.com'
 })
 
+expectRejected('a non-HTTPS source URL', (manifest) => {
+  manifest.cases[0].source.url = 'http://observablehq.com/plot/marks/line'
+})
+
 expectRejected('an altered embed protocol', (manifest) => {
   manifest.embed.protocol.version = 2
 })

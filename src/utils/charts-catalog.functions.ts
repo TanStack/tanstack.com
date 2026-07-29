@@ -5,23 +5,24 @@ import type {
   ChartsCatalogCase,
   ChartsCatalogPublication,
 } from './charts-catalog'
-import { chartsCatalogPublicationCacheTag } from './charts-catalog'
+import {
+  chartsCatalogCaseIdSchema,
+  chartsCatalogPublicationCacheHeaders,
+} from './charts-catalog'
 
 const defaultReferenceRenderer = 'observable-plot'
-
-const caseIdSchema = v.pipe(v.string(), v.regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/))
 
 const comparisonInputSchema = v.strictObject({
   comparison: v.boolean(),
 })
 
 const caseInputSchema = v.strictObject({
-  caseId: caseIdSchema,
+  caseId: chartsCatalogCaseIdSchema,
   comparison: v.boolean(),
 })
 
 const embedCaseInputSchema = v.strictObject({
-  caseId: caseIdSchema,
+  caseId: chartsCatalogCaseIdSchema,
 })
 
 export const getChartsCatalogIndex = createServerFn({
@@ -63,16 +64,18 @@ export const getChartsCatalogCase = createServerFn({ method: 'GET' })
     if (!catalogCase) return null
 
     const { getChartsCatalogSource } = await import('./charts-catalog.server')
-    const tanstackSource = await getChartsCatalogSource(
-      publication.manifest.revision,
-      catalogCase.code.tanstack,
-    )
-    const comparisonSource = data.comparison
-      ? await getChartsCatalogSource(
-          publication.manifest.revision,
-          catalogCase.code.reference,
-        )
-      : undefined
+    const [tanstackSource, comparisonSource] = await Promise.all([
+      getChartsCatalogSource(
+        publication.manifest.revision,
+        catalogCase.code.tanstack,
+      ),
+      data.comparison
+        ? getChartsCatalogSource(
+            publication.manifest.revision,
+            catalogCase.code.reference,
+          )
+        : Promise.resolve(undefined),
+    ])
 
     setCatalogResponseHeaders()
     return {
@@ -148,10 +151,9 @@ function getCaseMetadata(catalogCase: ChartsCatalogCase) {
 }
 
 function setCatalogResponseHeaders() {
-  setResponseHeader('Cache-Control', 'public, max-age=60, must-revalidate')
-  setResponseHeader(
-    'Cloudflare-CDN-Cache-Control',
-    'public, max-age=300, stale-while-revalidate=300',
-  )
-  setResponseHeader('Cache-Tag', chartsCatalogPublicationCacheTag)
+  for (const [name, value] of Object.entries(
+    chartsCatalogPublicationCacheHeaders,
+  )) {
+    setResponseHeader(name, value)
+  }
 }

@@ -1,5 +1,6 @@
 import {
   fetchRepoRawFile,
+  GitHubContentError,
   resolveGitHubRef,
   shouldUseLocalDocsFiles,
 } from './documents.server'
@@ -15,6 +16,33 @@ const catalogManifestPath = 'catalog.json'
 const localCatalogRoot = '.catalog-artifact'
 const catalogHeadCachePath = '.tanstack/catalog-dist-head'
 const exactGitShaPattern = /^[a-f0-9]{40}$/
+
+export class ChartsCatalogResourceNotFoundError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'ChartsCatalogResourceNotFoundError'
+  }
+}
+
+export class ChartsCatalogIntegrityError extends Error {
+  constructor(message: string, cause?: unknown) {
+    super(message, { cause })
+    this.name = 'ChartsCatalogIntegrityError'
+  }
+}
+
+export function classifyChartsCatalogAssetError(error: unknown) {
+  if (error instanceof ChartsCatalogResourceNotFoundError) {
+    return 'not-found'
+  }
+  if (
+    error instanceof GitHubContentError &&
+    ['network', 'rate-limit', 'server'].includes(error.kind)
+  ) {
+    return 'unavailable'
+  }
+  return 'internal'
+}
 
 export async function getChartsCatalogPublication(): Promise<ChartsCatalogPublication> {
   if (shouldUseLocalDocsFiles()) {
@@ -38,7 +66,9 @@ export async function getChartsCatalogManifestAtRevision(
   artifactRevision: string,
 ) {
   if (!exactGitShaPattern.test(artifactRevision)) {
-    throw new TypeError('Invalid Charts catalog artifact revision')
+    throw new ChartsCatalogResourceNotFoundError(
+      'Invalid Charts catalog artifact revision',
+    )
   }
   return readChartsCatalogManifest(artifactRevision)
 }
@@ -58,7 +88,9 @@ export async function getVerifiedChartsCatalogAssetSource(
   )
 
   if (source === null) {
-    throw new Error(`Charts catalog asset not found: ${assetPath}`)
+    throw new ChartsCatalogResourceNotFoundError(
+      `Charts catalog asset not found: ${assetPath}`,
+    )
   }
 
   const bytes = new TextEncoder().encode(source)
@@ -68,7 +100,9 @@ export async function getVerifiedChartsCatalogAssetSource(
   ).join('')
 
   if (bytes.byteLength !== expected.bytes || sha256 !== expected.sha256) {
-    throw new Error(`Charts catalog asset failed integrity check: ${assetPath}`)
+    throw new ChartsCatalogIntegrityError(
+      `Charts catalog asset failed integrity check: ${assetPath}`,
+    )
   }
 
   return source
@@ -84,7 +118,9 @@ export async function getChartsCatalogSource(
     sourcePath,
   )
   if (source === null) {
-    throw new Error(`Charts catalog source not found: ${sourcePath}`)
+    throw new ChartsCatalogResourceNotFoundError(
+      `Charts catalog source not found: ${sourcePath}`,
+    )
   }
   return source
 }
@@ -100,16 +136,28 @@ async function readChartsCatalogManifest(artifactRevision: string) {
   )
 
   if (source === null) {
-    throw new Error('Charts catalog manifest is unavailable')
+    throw new ChartsCatalogResourceNotFoundError(
+      'Charts catalog manifest is unavailable',
+    )
   }
 
   let value: unknown
   try {
     value = JSON.parse(source)
-  } catch {
-    throw new TypeError('Invalid Charts catalog manifest: expected JSON')
+  } catch (error) {
+    throw new ChartsCatalogIntegrityError(
+      'Invalid Charts catalog manifest: expected JSON',
+      error,
+    )
   }
-  return parseChartsCatalogManifest(value)
+  try {
+    return parseChartsCatalogManifest(value)
+  } catch (error) {
+    throw new ChartsCatalogIntegrityError(
+      'Invalid Charts catalog manifest contract',
+      error,
+    )
+  }
 }
 
 async function resolveChartsCatalogArtifactRevision() {

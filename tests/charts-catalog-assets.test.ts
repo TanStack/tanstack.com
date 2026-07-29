@@ -9,6 +9,12 @@ import {
   parseChartsCatalogManifest,
 } from '../src/utils/charts-catalog'
 import {
+  ChartsCatalogIntegrityError,
+  ChartsCatalogResourceNotFoundError,
+  classifyChartsCatalogAssetError,
+} from '../src/utils/charts-catalog.server'
+import { GitHubContentError } from '../src/utils/documents.server'
+import {
   artifactRevision,
   createChartsCatalogManifest,
   tanstackAsset,
@@ -87,4 +93,33 @@ test('catalog JavaScript uses immutable same-origin response headers', () => {
   assert.equal(headers.get('Cross-Origin-Resource-Policy'), 'same-origin')
   assert.equal(headers.get('X-Content-Type-Options'), 'nosniff')
   assert.equal(headers.get('Access-Control-Allow-Origin'), null)
+})
+
+test('catalog asset failures preserve missing, transient, and integrity semantics', () => {
+  assert.equal(
+    classifyChartsCatalogAssetError(
+      new ChartsCatalogResourceNotFoundError('missing'),
+    ),
+    'not-found',
+  )
+
+  for (const kind of ['network', 'rate-limit', 'server'] as const) {
+    assert.equal(
+      classifyChartsCatalogAssetError(new GitHubContentError(kind, kind)),
+      'unavailable',
+    )
+  }
+
+  assert.equal(
+    classifyChartsCatalogAssetError(
+      new ChartsCatalogIntegrityError('digest mismatch'),
+    ),
+    'internal',
+  )
+  assert.equal(
+    classifyChartsCatalogAssetError(
+      new GitHubContentError('invalid-response', 'invalid response'),
+    ),
+    'internal',
+  )
 })

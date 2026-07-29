@@ -247,7 +247,7 @@ export function ChartsCatalogDetail({
 
       <div
         className={`mx-auto grid gap-6 ${comparison ? 'xl:grid-cols-2' : ''} ${
-          width === 'compact' ? 'max-w-2xl' : ''
+          width === 'compact' ? 'max-w-[640px]' : 'max-w-[960px]'
         }`}
       >
         <ChartPanel label="TanStack">

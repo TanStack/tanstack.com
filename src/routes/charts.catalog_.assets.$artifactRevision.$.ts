@@ -19,35 +19,83 @@ async function serveCatalogAsset({
   request: Request
   params: { artifactRevision: string; _splat: string }
 }) {
+  const {
+    classifyChartsCatalogAssetError,
+    getChartsCatalogManifestAtRevision,
+    getVerifiedChartsCatalogAssetSource,
+  } = await import('~/utils/charts-catalog.server')
+
+  let manifest: Awaited<ReturnType<typeof getChartsCatalogManifestAtRevision>>
   try {
-    const {
-      getChartsCatalogManifestAtRevision,
-      getVerifiedChartsCatalogAssetSource,
-    } = await import('~/utils/charts-catalog.server')
-    const manifest = await getChartsCatalogManifestAtRevision(
-      params.artifactRevision,
+    manifest = await getChartsCatalogManifestAtRevision(params.artifactRevision)
+  } catch (error) {
+    return handleCatalogAssetError(
+      error,
+      classifyChartsCatalogAssetError,
+      request.method,
     )
-    const asset = parseChartsCatalogAssetRequest({
+  }
+
+  let asset: ReturnType<typeof parseChartsCatalogAssetRequest>
+  try {
+    asset = parseChartsCatalogAssetRequest({
       artifactRevision: params.artifactRevision,
       assetPath: params._splat,
       manifest,
     })
-    const descriptor = manifest.assets[asset.repoPath]
-    if (!descriptor) throw new TypeError('Unlisted Charts catalog asset')
+  } catch (error) {
+    if (error instanceof TypeError) throw notFound()
+    throw error
+  }
 
-    const source = await getVerifiedChartsCatalogAssetSource(
+  const descriptor = manifest.assets[asset.repoPath]
+  if (!descriptor) throw notFound()
+
+  let source: string
+  try {
+    source = await getVerifiedChartsCatalogAssetSource(
       params.artifactRevision,
       asset.repoPath,
       descriptor,
     )
-
-    return new Response(request.method === 'HEAD' ? null : source, {
-      headers: {
-        ...asset.headers,
-        'Content-Length': String(descriptor.bytes),
-      },
-    })
-  } catch {
-    throw notFound()
+  } catch (error) {
+    return handleCatalogAssetError(
+      error,
+      classifyChartsCatalogAssetError,
+      request.method,
+    )
   }
+
+  return new Response(request.method === 'HEAD' ? null : source, {
+    headers: {
+      ...asset.headers,
+      'Content-Length': String(descriptor.bytes),
+    },
+  })
+}
+
+function handleCatalogAssetError(
+  error: unknown,
+  classify: (error: unknown) => 'not-found' | 'unavailable' | 'internal',
+  method: string,
+) {
+  const classification = classify(error)
+  if (classification === 'not-found') throw notFound()
+
+  console.error('[Charts catalog asset] Failed to serve asset', error)
+  if (classification === 'unavailable') {
+    return new Response(
+      method === 'HEAD' ? null : 'Charts catalog asset temporarily unavailable',
+      {
+        status: 503,
+        headers: {
+          'Cache-Control': 'no-store',
+          'Cloudflare-CDN-Cache-Control': 'no-store',
+          'Retry-After': '60',
+        },
+      },
+    )
+  }
+
+  throw error
 }

@@ -1,3 +1,5 @@
+import { isChartsCatalogCaseId } from './charts-catalog'
+
 export const chartsCatalogEmbedPrefix = '/charts/catalog/embed/'
 
 export type ChartsCatalogEmbed = {
@@ -20,7 +22,15 @@ export type ChartsCatalogEmbedRouteSearch = {
 }
 
 export function isChartsCatalogEmbedPath(pathname: string) {
-  return /^\/charts\/catalog\/embed\/[a-z0-9]+(?:-[a-z0-9]+)*\/$/.test(pathname)
+  if (
+    !pathname.startsWith(chartsCatalogEmbedPrefix) ||
+    !pathname.endsWith('/')
+  ) {
+    return false
+  }
+  return isChartsCatalogCaseId(
+    pathname.slice(chartsCatalogEmbedPrefix.length, -1),
+  )
 }
 
 export function parseChartsCatalogEmbed(

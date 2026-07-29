@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
+  chartsCatalogPublicationCacheHeaders,
   chartsCatalogPublicationCacheTag,
   getChartsCatalogSitemapEntries,
   parseChartsCatalogManifest,
@@ -55,4 +56,13 @@ test('catalog publication pushes invalidate the GitHub content pipeline', () => 
   )
   assert.ok(chartsSource)
   assert.ok(chartsSource.refs.includes('catalog-dist'))
+})
+
+test('catalog publication responses share one cache contract', () => {
+  assert.deepEqual(chartsCatalogPublicationCacheHeaders, {
+    'Cache-Control': 'public, max-age=60, must-revalidate',
+    'Cloudflare-CDN-Cache-Control':
+      'public, max-age=300, stale-while-revalidate=300',
+    'Cache-Tag': chartsCatalogPublicationCacheTag,
+  })
 })

@@ -6,6 +6,12 @@ export const chartsCatalogPublicationCacheTag =
   'charts-catalog:tanstack/charts:catalog-dist'
 export const chartsCatalogBasePath = '/charts/catalog/'
 export const chartsCatalogAssetBasePath = '/charts/catalog/assets/'
+export const chartsCatalogPublicationCacheHeaders = {
+  'Cache-Control': 'public, max-age=60, must-revalidate',
+  'Cloudflare-CDN-Cache-Control':
+    'public, max-age=300, stale-while-revalidate=300',
+  'Cache-Tag': chartsCatalogPublicationCacheTag,
+}
 
 const gitShaSchema = v.pipe(
   v.string(),
@@ -17,10 +23,16 @@ const sha256Schema = v.pipe(
   v.regex(/^[a-f0-9]{64}$/, 'Expected a lowercase SHA-256 digest'),
 )
 
-const caseIdSchema = v.pipe(
+const chartsCatalogCaseIdPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
+
+export const chartsCatalogCaseIdSchema = v.pipe(
   v.string(),
-  v.regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Invalid catalog case ID'),
+  v.regex(chartsCatalogCaseIdPattern, 'Invalid catalog case ID'),
 )
+
+export function isChartsCatalogCaseId(value: string) {
+  return chartsCatalogCaseIdPattern.test(value)
+}
 
 export const chartsCatalogAssetPathSchema = v.pipe(
   v.string(),
@@ -49,10 +61,10 @@ const sourcePathSchema = v.pipe(
 const sourceUrlSchema = v.pipe(
   v.string(),
   v.url(),
-  v.check((value) => {
-    const protocol = new URL(value).protocol
-    return protocol === 'https:' || protocol === 'http:'
-  }, 'Expected an HTTP source URL'),
+  v.check(
+    (value) => new URL(value).protocol === 'https:',
+    'Expected an HTTPS source URL',
+  ),
 )
 
 const rendererSchema = v.picklist(['observable-plot', 'recharts', 'echarts'])
@@ -87,7 +99,7 @@ const catalogCaseSchema = v.strictObject({
   schemaVersion: v.literal(1),
   referenceRenderer: v.optional(rendererSchema),
   order: v.pipe(v.number(), v.integer(), v.minValue(0)),
-  id: caseIdSchema,
+  id: chartsCatalogCaseIdSchema,
   title: v.pipe(v.string(), v.nonEmpty()),
   family: v.pipe(v.string(), v.nonEmpty()),
   intent: v.pipe(v.string(), v.nonEmpty()),
@@ -496,8 +508,8 @@ export function getChartsCatalogSitemapEntries(
   manifest: ChartsCatalogManifest,
 ) {
   return [
-    { path: '/charts/catalog/' },
-    { path: '/charts/catalog/all/' },
+    { path: chartsCatalogBasePath },
+    { path: `${chartsCatalogBasePath}all/` },
     ...manifest.cases.map((catalogCase) => ({
       path: catalogCase.routes.page,
     })),

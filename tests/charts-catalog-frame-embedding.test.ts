@@ -8,13 +8,13 @@ import { isFrameEmbeddingAllowed } from '../src/utils/frame-embedding'
 
 test('only exact catalog embed documents bypass the global frame denial', () => {
   assert.equal(isFrameEmbeddingAllowed('/charts/catalog/embed/01-line/'), true)
+  assert.equal(isFrameEmbeddingAllowed('/charts/catalog/embed/01-line'), true)
   assert.equal(isFrameEmbeddingAllowed('/stats/npm/embed'), true)
 
   for (const pathname of [
     '/charts/catalog/',
     '/charts/catalog/charts/01-line/',
     '/charts/catalog/embed/',
-    '/charts/catalog/embed/01-line',
     '/charts/catalog/embed/01-line/source/',
     '/charts/catalog/embed-malicious/01-line/',
     '/charts/catalog/embed/../admin/',

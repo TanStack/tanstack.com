@@ -8,13 +8,13 @@ import { useToast } from '~/components/ToastProvider'
 import { seo } from '~/utils/seo'
 import {
   Plus,
-  Trash2,
-  ExternalLink,
+  Trash,
+  ArrowSquareOut,
   Clock,
   Check,
   X,
   Pencil,
-} from 'lucide-react'
+} from '@phosphor-icons/react'
 import type { Showcase } from '~/db/types'
 import { Badge, Button } from '~/ui'
 
@@ -196,7 +196,7 @@ function AccountSubmissionsPage() {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <ExternalLink className="w-3 h-3" />
+                      <ArrowSquareOut className="w-3 h-3" />
                       Visit
                     </Button>
                     <Link to="/showcase/edit/$id" params={{ id: showcase.id }}>
@@ -206,7 +206,7 @@ function AccountSubmissionsPage() {
                       </Button>
                     </Link>
                     <Button onClick={() => handleDelete(showcase.id)}>
-                      <Trash2 className="w-3 h-3" />
+                      <Trash className="w-3 h-3" />
                       Delete
                     </Button>
                   </div>

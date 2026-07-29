@@ -12,7 +12,7 @@ import {
   USE_CASE_LABELS,
 } from '~/utils/showcase.shared'
 import { useToast } from './ToastProvider'
-import { Check, AlertCircle } from 'lucide-react'
+import { Check, WarningCircle } from '@phosphor-icons/react'
 import { Button, FormInput } from '~/ui'
 import { ImageUpload } from './ImageUpload'
 import { FormEvent, useMemo, useState } from 'react'
@@ -377,7 +377,7 @@ export function ShowcaseSubmitForm({ showcase }: ShowcaseSubmitFormProps) {
             </div>
             {selectedLibraries.length === 0 && (
               <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
-                <AlertCircle className="w-4 h-4" />
+                <WarningCircle className="w-4 h-4" />
                 Select at least one library
               </p>
             )}

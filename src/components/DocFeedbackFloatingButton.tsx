@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
-import { Lightbulb, MessageSquare, Plus } from 'lucide-react'
+import { Lightbulb, ChatCentered, Plus } from '@phosphor-icons/react'
 
 interface DocFeedbackFloatingButtonProps {
   onAddNote: () => void
@@ -130,7 +130,7 @@ export function DocFeedbackFloatingButton({
                 onClick={handleNoteClick}
                 className="w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left"
               >
-                <MessageSquare className="text-blue-500" />
+                <ChatCentered className="text-blue-500" />
                 <div>
                   <div className="font-medium text-sm text-gray-900 dark:text-white">
                     Add Note

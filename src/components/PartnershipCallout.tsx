@@ -1,4 +1,4 @@
-import { HeartHandshake } from 'lucide-react'
+import { HandHeart as HeartHandshake } from '@phosphor-icons/react'
 import { Card } from './Card'
 import {
   PARTNER_INQUIRY_HREF,

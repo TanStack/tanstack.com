@@ -31,7 +31,7 @@ export function orderLibrariesForBrowse<TLibrary extends LibrarySlim>(
 }
 
 export function getFrameworkLibraryCounts(allLibraries: Array<LibrarySlim>) {
-  const counts = {} as Partial<Record<Framework, number>>
+  const counts: Partial<Record<Framework, number>> = {}
 
   for (const library of allLibraries) {
     for (const framework of library.frameworks) {

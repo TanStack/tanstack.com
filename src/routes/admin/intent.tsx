@@ -2,18 +2,18 @@ import * as React from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
-  RefreshCw,
+  ArrowsClockwise as RefreshCw,
   Play,
-  RotateCcw,
-  Trash2,
+  ArrowCounterClockwise as RotateCcw,
+  Trash as Trash2,
   BookOpen,
-  ChevronDown,
-  ChevronRight,
-  AlertTriangle,
-  CheckCircle2,
+  CaretDown as ChevronDown,
+  CaretRight as ChevronRight,
+  Warning as AlertTriangle,
+  CheckCircle as CheckCircle2,
   Clock,
   Wrench,
-} from 'lucide-react'
+} from '@phosphor-icons/react'
 import { Button } from '~/ui'
 import { Card } from '~/components/Card'
 import { formatDistanceToNow } from '~/utils/dates'

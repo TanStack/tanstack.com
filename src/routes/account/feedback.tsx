@@ -6,7 +6,7 @@ import { PaginationControls } from '~/components/PaginationControls'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { DocFeedbackNote } from '~/components/DocFeedbackNote'
 import { Spinner } from '~/components/Spinner'
-import { Award, ExternalLink } from 'lucide-react'
+import { Medal, ArrowSquareOut } from '@phosphor-icons/react'
 
 export const Route = createFileRoute('/account/feedback')({
   component: AccountFeedbackPage,
@@ -54,7 +54,7 @@ function AccountFeedbackPage() {
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <Award className="text-2xl text-blue-600 dark:text-blue-400" />
+              <Medal className="text-2xl text-blue-600 dark:text-blue-400" />
               <h3 className="text-lg font-bold text-gray-900 dark:text-white">
                 Feedback Points
               </h3>
@@ -98,7 +98,7 @@ function AccountFeedbackPage() {
             className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1"
           >
             View Leaderboard
-            <ExternalLink className="text-xs" />
+            <ArrowSquareOut className="text-xs" />
           </Link>
         </div>
       </div>
@@ -134,7 +134,7 @@ function AccountFeedbackPage() {
                   >
                     {item.libraryId}
                     {item.pagePath}
-                    <ExternalLink className="text-[10px]" />
+                    <ArrowSquareOut className="text-[10px]" />
                   </Link>
 
                   {/* Feedback card */}

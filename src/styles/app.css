@@ -66,34 +66,38 @@ html.theme-switching *::after {
 
   --color-discord: #536bbd;
 
-  /* Neutral gray scale (no blue tint) */
-  --color-gray-50: #fafafa;
-  --color-gray-100: #f5f5f5;
-  --color-gray-200: #e5e5e5;
-  --color-gray-300: #d4d4d4;
-  --color-gray-400: #a3a3a3;
-  --color-gray-500: #737373;
-  --color-gray-600: #525252;
-  --color-gray-700: #404040;
-  --color-gray-800: #262626;
-  --color-gray-900: #171717;
-  --color-gray-950: #0a0a0a;
+  /* Neutral scale — BRIDGED to the warm DS neutral hue so the whole site adopts
+     the new palette without touching components. Anchored to the DS neutral ramp
+     at key steps (100=DS background-subtle, 200=ds-neutral-100, 400=ds-neutral-200,
+     800=ds-neutral-400, 950=ds-neutral-500); mids interpolated to preserve the
+     original lightness curve (and therefore contrast) in both light and dark. */
+  --color-gray-50: #faf8f2;
+  --color-gray-100: #f5f2e9;
+  --color-gray-200: #eae5d7;
+  --color-gray-300: #d6cfbd;
+  --color-gray-400: #aea691;
+  --color-gray-500: #7c7464;
+  --color-gray-600: #5f574a;
+  --color-gray-700: #453f34;
+  --color-gray-800: #332d24;
+  --color-gray-900: #201b15;
+  --color-gray-950: #111111;
 }
 
 /* Keep neutral grays stable before client CSS injection reorders Tailwind layers. */
 :root,
 :host {
-  --color-gray-50: #fafafa;
-  --color-gray-100: #f5f5f5;
-  --color-gray-200: #e5e5e5;
-  --color-gray-300: #d4d4d4;
-  --color-gray-400: #a3a3a3;
-  --color-gray-500: #737373;
-  --color-gray-600: #525252;
-  --color-gray-700: #404040;
-  --color-gray-800: #262626;
-  --color-gray-900: #171717;
-  --color-gray-950: #0a0a0a;
+  --color-gray-50: #faf8f2;
+  --color-gray-100: #f5f2e9;
+  --color-gray-200: #eae5d7;
+  --color-gray-300: #d6cfbd;
+  --color-gray-400: #aea691;
+  --color-gray-500: #7c7464;
+  --color-gray-600: #5f574a;
+  --color-gray-700: #453f34;
+  --color-gray-800: #332d24;
+  --color-gray-900: #201b15;
+  --color-gray-950: #111111;
 }
 
 /* Shop color tokens — inline so they resolve via var() at runtime (scoped to .shop-scope / html.dark .shop-scope) */
@@ -115,6 +119,461 @@ html.theme-switching *::after {
   --color-shop-orange: #ff7a3a;
 }
 
+/* ============================================================================
+   TanStack DS tokens — sourced from Figma ("Tanstack.com" file).
+   Single source of truth for the /ds style book. Primitive ramps feed the
+   semantic tokens (via var()), so changing a primitive propagates everywhere
+   the semantic token is used. Namespaced (ds-/lib-) to avoid colliding with
+   Tailwind's built-in palette during the transition.
+   ============================================================================ */
+/* `static` forces every token to be emitted to :root even when unused, so the
+   /ds style book (and var() lookups) always resolve them. */
+@theme static {
+  /* --- Primitive color ramps (100 = lightest, 500 = darkest) --- */
+  --color-ds-green-100: #d8f0da;
+  --color-ds-green-200: #a2e1a9;
+  --color-ds-green-300: #69bc75;
+  --color-ds-green-400: #39af46;
+  --color-ds-green-500: #1d4226;
+
+  --color-ds-terracotta-100: #f9d8c4;
+  --color-ds-terracotta-200: #edaa8d;
+  --color-ds-terracotta-300: #e06e49;
+  --color-ds-terracotta-400: #d3481b;
+  --color-ds-terracotta-500: #5f1a06;
+
+  --color-ds-blue-100: #d8f0f3;
+  --color-ds-blue-200: #9cd5e2;
+  --color-ds-blue-300: #61adbf;
+  --color-ds-blue-400: #3aa3c4;
+  --color-ds-blue-500: #003e53;
+
+  --color-ds-purple-100: #cabfcc;
+  --color-ds-purple-200: #ca8ec5;
+  --color-ds-purple-300: #c56dcf;
+  --color-ds-purple-400: #b64cc7;
+  --color-ds-purple-500: #541f5d;
+
+  --color-ds-amber-100: #fef6cc;
+  --color-ds-amber-200: #fae884;
+  --color-ds-amber-300: #f4d648;
+  --color-ds-amber-400: #ffa216;
+  --color-ds-amber-500: #624a00;
+
+  --color-ds-neutral-0: #ffffff;
+  --color-ds-neutral-100: #eeebd4;
+  --color-ds-neutral-200: #aea691;
+  --color-ds-neutral-300: #756c5b;
+  --color-ds-neutral-400: #3e3529;
+  --color-ds-neutral-500: #111111;
+
+  /* Cool neutral tints (distinct from the warm neutral ramp above) */
+  --color-ds-neutral-tint-100: #e8e7e5;
+  --color-ds-neutral-tint-200: #c5c3bf;
+
+  /* --- Category brand colors ---
+     Libraries inherit their category's color as their core brand color. These
+     are semantic (reference the DS ramps at the 400 step) and flip to the 300
+     step in dark mode (see html.dark), so a single utility class like
+     `text-category-data` is mode-aware without a `dark:` variant. */
+  --color-category-framework: var(--color-ds-green-400);
+  --color-category-data: var(--color-ds-terracotta-400);
+  --color-category-ui: var(--color-ds-blue-400);
+  --color-category-performance: var(--color-ds-amber-400);
+  --color-category-tooling: var(--color-ds-neutral-300);
+
+  /* --- Library brand colors ---
+     Collapsed to the five category colors: each library aliases its category
+     rather than declaring a bespoke hue. */
+  --color-lib-start: var(--color-category-framework);
+  --color-lib-router: var(--color-category-framework);
+  --color-lib-query: var(--color-category-data);
+  --color-lib-table: var(--color-category-ui);
+  --color-lib-db: var(--color-category-data);
+  --color-lib-ai: var(--color-category-data);
+  --color-lib-form: var(--color-category-ui);
+  --color-lib-virtual: var(--color-category-performance);
+  --color-lib-pacer: var(--color-category-performance);
+  --color-lib-hotkeys: var(--color-category-ui);
+  --color-lib-store: var(--color-category-data);
+  --color-lib-devtools: var(--color-category-tooling);
+  --color-lib-cli: var(--color-category-tooling);
+  --color-lib-intent: var(--color-category-tooling);
+
+  /* ================================================================
+     LIBRARY CATEGORY COLORS — SINGLE SOURCE OF TRUTH.
+     Each category maps to ONE DS palette ramp. Change a category's hue
+     by swapping its ramp here and it flows everywhere it's themed:
+     the mega-menu, docs pages, and library landing pages.
+       framework → green   data → terracotta   ui → blue
+       performance → amber   tooling → neutral
+     `--color-category-<cat>` is the mode-aware LABEL color (400 light /
+     300 dark, overridden in html.dark below) used by the mega-menu and
+     docs. The `-<role>` tokens are mode-stable ramp steps the landing
+     shell composes itself (it does its own light/dark switching), so
+     they are NOT overridden in html.dark.
+     ================================================================ */
+  --color-category-framework: var(--color-ds-green-400);
+  --color-category-framework-accent: var(--color-ds-green-400);
+  --color-category-framework-bright: var(--color-ds-green-300);
+  --color-category-framework-deep: var(--color-ds-green-500);
+  --color-category-framework-tint: var(--color-ds-green-100);
+  --color-category-framework-ink: #04130a;
+  --color-category-framework-glow: 68 165 78;
+
+  --color-category-data: var(--color-ds-terracotta-400);
+  --color-category-data-accent: var(--color-ds-terracotta-400);
+  --color-category-data-bright: var(--color-ds-terracotta-300);
+  --color-category-data-deep: var(--color-ds-terracotta-500);
+  --color-category-data-tint: var(--color-ds-terracotta-100);
+  --color-category-data-ink: #000000;
+  --color-category-data-glow: 195 80 43;
+
+  --color-category-ui: var(--color-ds-blue-400);
+  --color-category-ui-accent: var(--color-ds-blue-400);
+  --color-category-ui-bright: var(--color-ds-blue-300);
+  --color-category-ui-deep: var(--color-ds-blue-500);
+  --color-category-ui-tint: var(--color-ds-blue-100);
+  --color-category-ui-ink: #031219;
+  --color-category-ui-glow: 70 157 184;
+
+  --color-category-performance: var(--color-ds-amber-400);
+  --color-category-performance-accent: var(--color-ds-amber-400);
+  --color-category-performance-bright: var(--color-ds-amber-300);
+  --color-category-performance-deep: var(--color-ds-amber-500);
+  --color-category-performance-tint: var(--color-ds-amber-100);
+  --color-category-performance-ink: #171003;
+  --color-category-performance-glow: 235 158 42;
+
+  /* tooling → neutral. The label base is a dark warm-gray for legibility on
+     light surfaces (flips to a light gray on dark, below); the landing accent
+     stays a lighter gray so the wordmark reads on the dark landing hero. */
+  --color-category-tooling: var(--color-ds-neutral-400);
+  --color-category-tooling-accent: var(--color-ds-neutral-200);
+  --color-category-tooling-bright: var(--color-ds-neutral-100);
+  --color-category-tooling-deep: var(--color-ds-neutral-400);
+  --color-category-tooling-tint: var(--color-ds-neutral-100);
+  --color-category-tooling-ink: #111111;
+  --color-category-tooling-glow: 171 165 148;
+
+  /* --- Semantic tokens (reference primitives so edits propagate) --- */
+  /* NOTE: Figma reported text/primary as #ffffff (a dark-mode/mode artifact);
+     using neutral-500 for the light context. Confirm intended value. */
+  --color-text-primary: var(--color-ds-neutral-500);
+  --color-text-secondary: var(--color-ds-neutral-400);
+  --color-text-muted: var(--color-ds-neutral-300);
+  /* Mega-menu item title rest color; brightens to text-primary on hover.
+     Light menu → muted dark; dark menu → neutral tint (see html.dark). */
+  --color-text-menu-title: var(--color-ds-neutral-400);
+  --color-text-accent: var(--color-ds-blue-500);
+  --color-text-disabled: var(--color-ds-neutral-200);
+  --color-text-inverse: #ffffff;
+  --color-text-success: var(--color-ds-green-500);
+  --color-text-warning: var(--color-ds-amber-500);
+  --color-text-error: var(--color-ds-terracotta-500);
+  --color-text-info: var(--color-ds-blue-400);
+
+  --color-background-default: #ffffff;
+  --color-background-surface: #ffffff;
+  --color-background-elevated: #ffffff;
+  --color-background-subtle: #fafafa;
+  --color-background-inverse: var(--color-ds-neutral-500);
+
+  --color-border-default: var(--color-ds-neutral-200);
+  --color-border-strong: var(--color-ds-neutral-400);
+  --color-border-subtle: var(--color-ds-neutral-100);
+  --color-border-focus: var(--color-ds-blue-400);
+  --color-border-error: var(--color-ds-terracotta-400);
+  --color-border-success: var(--color-ds-green-400);
+
+  --color-icon-default: var(--color-ds-neutral-400);
+  --color-icon-accent: var(--color-ds-blue-500);
+  --color-icon-muted: var(--color-ds-neutral-300);
+  --color-icon-inverse: #ffffff;
+  --color-icon-success: var(--color-ds-green-400);
+  --color-icon-warning: var(--color-ds-amber-400);
+  --color-icon-error: var(--color-ds-terracotta-400);
+
+  --color-action-primary: var(--color-ds-blue-500);
+  --color-action-primary-hover: var(--color-ds-blue-400);
+  --color-action-primary-text: #ffffff;
+  --color-action-secondary: var(--color-ds-neutral-100);
+  --color-action-secondary-hover: var(--color-ds-neutral-200);
+  --color-action-destructive: var(--color-ds-terracotta-400);
+  --color-action-disabled: var(--color-ds-neutral-200);
+
+  --color-status-success: var(--color-ds-green-400);
+  --color-status-success-bg: var(--color-ds-green-100);
+  --color-status-warning: var(--color-ds-amber-400);
+  --color-status-warning-bg: var(--color-ds-amber-100);
+  --color-status-error: var(--color-ds-terracotta-400);
+  --color-status-error-bg: var(--color-ds-terracotta-100);
+  --color-status-info: var(--color-ds-blue-400);
+  --color-status-info-bg: var(--color-ds-blue-100);
+
+  --color-accent-brand: var(--color-ds-blue-500);
+  --color-accent-warm: var(--color-ds-terracotta-300);
+  --color-accent-highlight: var(--color-ds-amber-300);
+  --color-accent-nature: var(--color-ds-green-400);
+  --color-accent-creative: var(--color-ds-purple-400);
+
+  /* --- Interaction-state overlays (from Figma; semi-transparent tints laid
+     over a surface). Figma exported these flat across modes; light values are
+     black tints, dark values (in html.dark) are white tints. --- */
+  --color-surface-state-hover: #1111110f; /* black 6% */
+  --color-surface-state-pressed: #1111111f; /* black 12% */
+  --color-input-bg-hover: #11111108; /* black ~3% */
+  --color-menu-item-pressed: #1111111f; /* black 12% */
+  --color-divider-subtle: var(--color-ds-neutral-100);
+  --color-divider-on-inverse: var(--color-ds-neutral-100);
+
+  /* --- Font families ---
+     display/heading = Bricolage Grotesque, body/label = Inter (--font-sans),
+     mono = IBM Plex Mono. Loaded globally from __root.tsx. */
+  --font-ds-display:
+    'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+  --font-ds-mono:
+    'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* --- Text styles (size / line-height / tracking / weight) --- */
+  --text-ds-display-2xl: 96px;
+  --text-ds-display-2xl--line-height: 96px;
+  --text-ds-display-2xl--letter-spacing: -1px;
+  --text-ds-display-2xl--font-weight: 800;
+  --text-ds-display-xl: 72px;
+  --text-ds-display-xl--line-height: 76px;
+  --text-ds-display-xl--letter-spacing: -0.8px;
+  --text-ds-display-xl--font-weight: 700;
+  --text-ds-display-lg: 56px;
+  --text-ds-display-lg--line-height: 60px;
+  --text-ds-display-lg--letter-spacing: -0.5px;
+  --text-ds-display-lg--font-weight: 700;
+  --text-ds-display-md: 48px;
+  --text-ds-display-md--line-height: 53px;
+  --text-ds-display-md--letter-spacing: -0.3px;
+  --text-ds-display-md--font-weight: 500;
+  --text-ds-display-sm: 40px;
+  --text-ds-display-sm--line-height: 46px;
+  --text-ds-display-sm--font-weight: 500;
+
+  --text-ds-heading-1: 36px;
+  --text-ds-heading-1--line-height: 41px;
+  --text-ds-heading-1--font-weight: 500;
+  --text-ds-heading-2: 28px;
+  --text-ds-heading-2--line-height: 34px;
+  --text-ds-heading-2--font-weight: 500;
+  --text-ds-heading-3: 24px;
+  --text-ds-heading-3--line-height: 29px;
+  --text-ds-heading-3--font-weight: 700;
+  --text-ds-heading-4: 20px;
+  --text-ds-heading-4--line-height: 25px;
+  --text-ds-heading-4--font-weight: 700;
+  --text-ds-heading-5: 16px;
+  --text-ds-heading-5--line-height: 21px;
+  --text-ds-heading-5--font-weight: 700;
+  --text-ds-heading-6: 14px;
+  --text-ds-heading-6--line-height: 18px;
+  --text-ds-heading-6--font-weight: 500;
+
+  --text-ds-body-xl: 20px;
+  --text-ds-body-xl--line-height: 32px;
+  --text-ds-body-xl--font-weight: 300;
+  --text-ds-body-lg: 18px;
+  --text-ds-body-lg--line-height: 28px;
+  --text-ds-body-lg--font-weight: 300;
+  --text-ds-body-md: 16px;
+  --text-ds-body-md--line-height: 24px;
+  --text-ds-body-md--font-weight: 300;
+  --text-ds-body-sm: 14px;
+  --text-ds-body-sm--line-height: 20px;
+  --text-ds-body-sm--font-weight: 400;
+  --text-ds-body-xs: 12px;
+  --text-ds-body-xs--line-height: 17px;
+  --text-ds-body-xs--font-weight: 400;
+
+  --text-ds-label-lg: 16px;
+  --text-ds-label-lg--line-height: 19px;
+  --text-ds-label-lg--font-weight: 500;
+  --text-ds-label-md: 14px;
+  --text-ds-label-md--line-height: 17px;
+  --text-ds-label-md--font-weight: 500;
+  --text-ds-label-sm: 12px;
+  --text-ds-label-sm--line-height: 14px;
+  --text-ds-label-sm--letter-spacing: 0.5px;
+  --text-ds-label-sm--font-weight: 500;
+
+  --text-ds-mono-display: 24px;
+  --text-ds-mono-display--line-height: 31px;
+  --text-ds-mono-display--font-weight: 400;
+  --text-ds-mono-lg: 18px;
+  --text-ds-mono-lg--line-height: 27px;
+  --text-ds-mono-lg--font-weight: 400;
+  --text-ds-mono-md: 16px;
+  --text-ds-mono-md--line-height: 24px;
+  --text-ds-mono-md--font-weight: 300;
+  --text-ds-mono-sm: 14px;
+  --text-ds-mono-sm--line-height: 21px;
+  --text-ds-mono-sm--font-weight: 300;
+  --text-ds-mono-xs: 12px;
+  --text-ds-mono-xs--line-height: 16px;
+  --text-ds-mono-xs--font-weight: 300;
+  --text-ds-mono-2xs: 10px;
+  --text-ds-mono-2xs--line-height: 14px;
+  --text-ds-mono-2xs--font-weight: 300;
+  --text-ds-mono-caps: 12px;
+  --text-ds-mono-caps--line-height: 14px;
+  --text-ds-mono-caps--letter-spacing: 1.5px;
+  --text-ds-mono-caps--font-weight: 400;
+  --text-ds-mono-caps-xs: 10px;
+  --text-ds-mono-caps-xs--line-height: 12px;
+  --text-ds-mono-caps-xs--letter-spacing: 1.2px;
+  --text-ds-mono-caps-xs--font-weight: 400;
+
+  /* Eyebrow (mono, uppercase, wide tracking) — labels above headings */
+  --text-ds-eyebrow-lg: 13px;
+  --text-ds-eyebrow-lg--line-height: 16px;
+  --text-ds-eyebrow-lg--letter-spacing: 2px;
+  --text-ds-eyebrow-lg--font-weight: 600;
+  --text-ds-eyebrow-md: 11px;
+  --text-ds-eyebrow-md--line-height: 13px;
+  --text-ds-eyebrow-md--letter-spacing: 1.75px;
+  --text-ds-eyebrow-md--font-weight: 500;
+}
+
+/* Light surfaces need slightly stronger glyph density than dark surfaces.
+   Shift semantic weights by one step here so existing typography utilities and
+   DS text styles gain contrast without per-component overrides. */
+html.light {
+  --font-weight-thin: 200;
+  --font-weight-extralight: 300;
+  --font-weight-light: 400;
+  --font-weight-normal: 500;
+  --font-weight-medium: 600;
+  --font-weight-semibold: 700;
+  --font-weight-bold: 800;
+  --font-weight-extrabold: 900;
+  --font-weight-black: 900;
+
+  --text-ds-display-2xl--font-weight: 800;
+  --text-ds-display-xl--font-weight: 800;
+  --text-ds-display-lg--font-weight: 800;
+  --text-ds-display-md--font-weight: 600;
+  --text-ds-display-sm--font-weight: 600;
+
+  --text-ds-heading-1--font-weight: 600;
+  --text-ds-heading-2--font-weight: 600;
+  --text-ds-heading-3--font-weight: 800;
+  --text-ds-heading-4--font-weight: 800;
+  --text-ds-heading-5--font-weight: 800;
+  --text-ds-heading-6--font-weight: 600;
+
+  --text-ds-body-xl--font-weight: 400;
+  --text-ds-body-lg--font-weight: 400;
+  --text-ds-body-md--font-weight: 400;
+  --text-ds-body-sm--font-weight: 500;
+  --text-ds-body-xs--font-weight: 500;
+
+  --text-ds-label-lg--font-weight: 600;
+  --text-ds-label-md--font-weight: 600;
+  --text-ds-label-sm--font-weight: 600;
+
+  --text-ds-mono-display--font-weight: 500;
+  --text-ds-mono-lg--font-weight: 500;
+  --text-ds-mono-md--font-weight: 400;
+  --text-ds-mono-sm--font-weight: 400;
+  --text-ds-mono-xs--font-weight: 400;
+  --text-ds-mono-2xs--font-weight: 400;
+  --text-ds-mono-caps--font-weight: 500;
+  --text-ds-mono-caps-xs--font-weight: 500;
+
+  --text-ds-eyebrow-lg--font-weight: 700;
+  --text-ds-eyebrow-md--font-weight: 600;
+}
+
+html.light body {
+  font-weight: 500;
+}
+
+/* Dark-mode values for the DS semantic tokens (from Figma "Color Specimens /
+   Dark Mode"). Applied when the site theme resolves to dark (html.dark), so the
+   /ds style book and /staging pages flip with the global theme toggle.
+   Primitives don't change between modes — only these semantic mappings do. */
+html.dark {
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #aea691;
+  --color-text-muted: #756c5b;
+  --color-text-menu-title: var(--color-ds-neutral-tint-200);
+  --color-text-accent: #61adbf;
+  --color-text-disabled: #3e3529;
+  --color-text-inverse: #111111;
+  --color-text-success: #69bc75;
+  --color-text-warning: #f4d648;
+  --color-text-error: #e06e49;
+  --color-text-info: #9cd5e2;
+
+  --color-background-default: #111111;
+  --color-background-surface: #1f1f1f;
+  --color-background-elevated: #2b2b2b;
+  --color-background-subtle: #1b1b1b;
+  --color-background-inverse: #ffffff;
+
+  --color-border-default: #2d2d2d;
+  --color-border-strong: #aea691;
+  --color-border-subtle: #232323;
+  --color-border-focus: #61adbf;
+  --color-border-error: #e06e49;
+  --color-border-success: #69bc75;
+
+  --color-icon-default: #aea691;
+  --color-icon-accent: #61adbf;
+  --color-icon-muted: #756c5b;
+  --color-icon-inverse: #111111;
+  --color-icon-success: #69bc75;
+  --color-icon-warning: #f4d648;
+  --color-icon-error: #e06e49;
+
+  --color-action-primary: #3aa3c4;
+  --color-action-primary-hover: #61adbf;
+  --color-action-primary-text: #ffffff;
+  --color-action-secondary: #2b2b2b;
+  --color-action-secondary-hover: #3a3a3a;
+  --color-action-destructive: #e06e49;
+  --color-action-disabled: #2b2b2b;
+
+  --color-status-success: #69bc75;
+  --color-status-success-bg: #1d4226;
+  --color-status-warning: #f4d648;
+  --color-status-warning-bg: #624a00;
+  --color-status-error: #e06e49;
+  --color-status-error-bg: #5f1a06;
+  --color-status-info: #61adbf;
+  --color-status-info-bg: #003e53;
+
+  --color-accent-brand: #3aa3c4;
+  --color-accent-warm: #edaa8d;
+  --color-accent-highlight: #fae884;
+  --color-accent-nature: #69bc75;
+  --color-accent-creative: #c56dcf;
+
+  /* Category brand colors step one lighter (300; tooling → neutral-200) so
+     they stay legible on dark surfaces. */
+  --color-category-framework: var(--color-ds-green-300);
+  --color-category-data: var(--color-ds-terracotta-300);
+  --color-category-ui: var(--color-ds-blue-300);
+  --color-category-performance: var(--color-ds-amber-300);
+  --color-category-tooling: var(--color-ds-neutral-200);
+
+  /* Interaction-state overlays — white tints for dark surfaces (Figma values
+     used directly where provided: input/background/hover, menu/item/pressed,
+     divider/subtle). */
+  --color-surface-state-hover: #ffffff14; /* white 8% */
+  --color-surface-state-pressed: #ffffff1f; /* white 12% */
+  --color-input-bg-hover: #ffffff0a; /* white 4% */
+  --color-menu-item-pressed: #ffffff1f; /* white 12% */
+  --color-divider-subtle: #1e1e1e;
+  --color-divider-on-inverse: #1e1e1e;
+}
+
 /* Safelist for dynamic colors */
 @source inline('{bg-blue-{4,5,6}00,bg-emerald-500,bg-purple-500,bg-pink-500,bg-cyan-500,bg-slate-{4,5}00,bg-twine-700,bg-orange-{5,6,7}00,bg-yellow-500,bg-lime-700,bg-red-500,bg-green-500}/{20,30,40,80}');
 @source inline('{hover:{bg-blue-{4,5,6}00,bg-emerald-500,bg-purple-500,bg-pink-500,bg-cyan-500,bg-slate-{4,5}00,bg-twine-700,bg-orange-{5,6,7}00,bg-yellow-500,bg-lime-700,bg-red-500,bg-green-500}/40}');
@@ -122,6 +581,54 @@ html.theme-switching *::after {
 @source inline('dark:text-gray-100 dark:bg-gray-100 dark:border-gray-100/50 dark:from-gray-100 dark:via-gray-400/50 text-black bg-black border-black/50 from-black via-gray-600/50 to-gray-600 to-gray-400 dark:text-gray-900');
 /* Accent colors for docs UI (sidebar, TOC, prev/next) */
 @source inline('from-gray-700 to-gray-900 text-gray-700 dark:text-gray-300');
+
+/*
+ * Semantic heading classes — a convenience alias layer over the DS heading
+ * scale. `class="h1"` renders a complete heading (display font + size +
+ * line-height + weight) mapping 1:1 to text-ds-heading-1…6. Values reference
+ * the same --text-ds-heading-* tokens (@theme), so this stays the single
+ * source of truth. See /ds/typography.
+ */
+@layer components {
+  .h1,
+  .h2,
+  .h3,
+  .h4,
+  .h5,
+  .h6 {
+    font-family: var(--font-ds-display);
+  }
+  .h1 {
+    font-size: var(--text-ds-heading-1);
+    line-height: var(--text-ds-heading-1--line-height);
+    font-weight: var(--text-ds-heading-1--font-weight);
+  }
+  .h2 {
+    font-size: var(--text-ds-heading-2);
+    line-height: var(--text-ds-heading-2--line-height);
+    font-weight: var(--text-ds-heading-2--font-weight);
+  }
+  .h3 {
+    font-size: var(--text-ds-heading-3);
+    line-height: var(--text-ds-heading-3--line-height);
+    font-weight: var(--text-ds-heading-3--font-weight);
+  }
+  .h4 {
+    font-size: var(--text-ds-heading-4);
+    line-height: var(--text-ds-heading-4--line-height);
+    font-weight: var(--text-ds-heading-4--font-weight);
+  }
+  .h5 {
+    font-size: var(--text-ds-heading-5);
+    line-height: var(--text-ds-heading-5--line-height);
+    font-weight: var(--text-ds-heading-5--font-weight);
+  }
+  .h6 {
+    font-size: var(--text-ds-heading-6);
+    line-height: var(--text-ds-heading-6--line-height);
+    font-weight: var(--text-ds-heading-6--font-weight);
+  }
+}
 
 @layer base {
   *,
@@ -133,7 +640,7 @@ html.theme-switching *::after {
   }
 
   :root {
-    --navbar-height: 52px;
+    --navbar-height: 58px;
     --docs-tabs-height: 0px;
     --anchor-scroll-padding-top: calc(
       var(--navbar-height) + var(--docs-tabs-height)
@@ -149,6 +656,11 @@ html.theme-switching *::after {
     :root:has([data-docs-layout]) {
       --docs-tabs-height: 42px;
     }
+  }
+
+  :root:has([data-library-landing]) {
+    --navbar-height: 64px;
+    --docs-tabs-height: 48px;
   }
 }
 
@@ -174,40 +686,46 @@ button {
   display: inline-flex;
   align-self: stretch;
   align-items: center;
+  position: relative;
 }
 
-.ts-mega-trigger::after {
+/* Invisible hover bridge. The open dropdown sits a few px below the trigger,
+   leaving a dead zone that drops `:hover` (and the dropdown's pointer-events)
+   when the cursor travels from the nav item down into the menu — dismissing it
+   too early. This spans the gap so the hover is continuous. It's only as wide
+   as the trigger (never overlays sibling triggers) and is pointer-active only
+   while the menu is open, so it never blocks clicks below the navbar. */
+.ts-mega-trigger-wrap::after {
   content: '';
   position: absolute;
-  right: 0.625rem;
-  bottom: 0.3rem;
-  left: 0.625rem;
-  height: 1px;
-  background: currentcolor;
-  opacity: 0.35;
-  transform: scaleX(0);
-  transform-origin: left;
-  transition:
-    opacity 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
-    transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  top: 100%;
+  left: 0;
+  right: 0;
+  height: 0.75rem;
+  pointer-events: none;
 }
 
-.ts-mega-trigger:hover::after,
-.ts-mega-trigger-wrap:focus-within > .ts-mega-trigger::after {
-  opacity: 0.55;
-  transform: scaleX(1);
+.ts-mega-trigger-wrap:not([data-menu-dismissed='true']):hover::after,
+.ts-mega-trigger-wrap:not([data-menu-dismissed='true']):focus-within::after {
+  pointer-events: auto;
 }
+
+/* Nav-trigger hover is a subtle background fill (matching the mega-menu item
+   hover), applied via the trigger's Tailwind classes — no underline. */
 
 .ts-mega-dropdown {
-  --ts-mega-dropdown-x: 0;
-  position: absolute;
-  left: -1rem;
-  top: 100%;
+  /* Centered in the viewport (under the centered nav), not left-aligned to
+     the trigger. */
+  --ts-mega-dropdown-x: -50%;
+  position: fixed;
+  left: 50%;
+  right: auto;
+  top: calc(var(--navbar-height) - 0.625rem);
   z-index: 90;
   width: max-content;
   min-width: var(--ts-primary-nav-target-width, 0px);
   max-width: min(calc(100vw - 2rem), 70rem);
-  padding-top: 1rem;
+  padding-top: calc(1rem + 0.625rem);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -233,13 +751,18 @@ button {
 .ts-mega-dropdown-panel {
   position: relative;
   isolation: isolate;
-  background-color: rgb(255 255 255 / 0.94);
-  backdrop-filter: blur(100px) saturate(1.9);
-  -webkit-backdrop-filter: blur(100px) saturate(1.9);
+  background-color: color-mix(
+    in srgb,
+    var(--color-background-subtle) 95%,
+    transparent
+  );
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 
-.dark .ts-mega-dropdown-panel {
-  background-color: rgb(0 0 0 / 0.88);
+.ts-mega-dropdown-panel.ts-glass-menu::after,
+.dark .ts-mega-dropdown-panel.ts-glass-menu::after {
+  background: none;
 }
 
 .ts-glass-menu {
@@ -449,6 +972,21 @@ button {
     background-color: #0a0a0a; /* 96% black */
   }
 
+  /* Design-system typography — headings use the display face (Bricolage
+     Grotesque, via --font-ds-display) so the DS is the source of truth for type
+     across the whole site: change the token and every heading updates. Body &
+     labels inherit Inter (--font-sans). Sizes/weights stay with each element's
+     own utilities; add `font-sans` to opt a specific heading back to Inter. */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-ds-display);
+    letter-spacing: -0.01em;
+  }
+
   .using-mouse * {
     outline: none !important;
   }
@@ -506,6 +1044,40 @@ button {
       border-radius: 0.5rem;
       border: 3px solid var(--color-gray-800);
     }
+  }
+
+  /* Subtle, track-less scrollbar for the "All Libraries" overlay. Uses the
+     primary text token at low opacity so the thumb reads on both the light
+     and dark glass surfaces. Selectors are prefixed with `html` so they
+     out-specify the global `html.dark *` scrollbar rules above (equal
+     specificity, later source order wins). */
+  html .libraries-overlay-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(
+        in srgb,
+        var(--color-text-primary) 25%,
+        transparent
+      )
+      transparent;
+  }
+
+  html .libraries-overlay-scroll::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  html .libraries-overlay-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  html .libraries-overlay-scroll::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--color-text-primary) 25%, transparent);
+    border: 0;
+    border-radius: 9999px;
+  }
+
+  html .libraries-overlay-scroll::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb, var(--color-text-primary) 40%, transparent);
   }
 
   [disabled] {
@@ -740,13 +1312,7 @@ pre.twoslash data-lsp:hover::before {
   text-align: left;
   padding: 5px 8px;
   border-radius: 2px;
-  font-family:
-    'JetBrains Mono',
-    Menlo,
-    Monaco,
-    Consolas,
-    monospace,
-    Courier New;
+  font-family: var(--font-ds-mono);
   font-size: 14px;
   white-space: pre-wrap;
   z-index: 100;
@@ -785,13 +1351,7 @@ pre .code-container:hover a {
 
 pre code {
   font-size: 12px;
-  font-family:
-    'JetBrains Mono',
-    Menlo,
-    Monaco,
-    Consolas,
-    monospace,
-    Courier New;
+  font-family: var(--font-ds-mono);
   white-space: pre;
   -webkit-overflow-scrolling: touch;
 }
@@ -930,13 +1490,7 @@ data-lsp {
 }
 .tag-container .twoslash-annotation {
   position: absolute;
-  font-family:
-    'JetBrains Mono',
-    Menlo,
-    Monaco,
-    Consolas,
-    monospace,
-    Courier New;
+  font-family: var(--font-ds-mono);
   right: -10px;
   /** Default annotation text to 200px */
   width: 200px;
@@ -1128,6 +1682,89 @@ mark {
   }
 }
 
+/* Home stack-builder rotating placeholder: the current prompt gently dissolves
+   out, then the next reveals left-to-right. Sequenced in JS so the previous is
+   fully gone before the next appears. */
+@keyframes home-prompt-ph-out {
+  from {
+    opacity: 1;
+    filter: blur(0);
+  }
+  to {
+    opacity: 0;
+    filter: blur(2px);
+  }
+}
+@keyframes home-prompt-ph-in {
+  from {
+    opacity: 0;
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+  }
+}
+.home-prompt-ph-out {
+  animation: home-prompt-ph-out 400ms ease-in forwards;
+}
+.home-prompt-ph-in {
+  animation: home-prompt-ph-in 520ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes home-stack-builder-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+    filter: blur(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.home-stack-builder-reveal {
+  animation: home-stack-builder-reveal 350ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.home-stack-builder-reveal-delayed {
+  animation-delay: 60ms;
+}
+
+.home-stack-builder-section-reveal {
+  animation: home-stack-builder-reveal 350ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.home-stack-builder-section-reveal-delayed {
+  animation-delay: 90ms;
+}
+
+.home-stack-builder-section-reveal-third {
+  animation-delay: 180ms;
+}
+
+.home-stack-builder-section-reveal-fourth {
+  animation-delay: 270ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-stack-builder-reveal,
+  .home-stack-builder-reveal-delayed,
+  .home-stack-builder-section-reveal,
+  .home-stack-builder-section-reveal-delayed,
+  .home-stack-builder-section-reveal-third,
+  .home-stack-builder-section-reveal-fourth {
+    animation: none;
+  }
+}
+
+#start-with-a-prompt:has([data-expanded='true']) {
+  max-width: 1200px;
+}
+
 @keyframes pulseScale {
   0% {
     transform: scale(1);
@@ -1137,6 +1774,100 @@ mark {
   }
   100% {
     transform: scale(1);
+  }
+}
+
+/* The /libraries overlay glass dissolves in first (~150ms), then the cards
+   cascade in by row on top of it. */
+@keyframes library-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-library-overlay-in {
+  animation: library-overlay-in 0.15s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-library-overlay-in {
+    animation: none;
+  }
+}
+
+/* The /libraries overlay glass matches the mega-menu blur/saturation. */
+.libraries-overlay-glass {
+  background: rgb(255 255 255 / 0.95);
+  -webkit-backdrop-filter: blur(40px) saturate(1.5);
+  backdrop-filter: blur(40px) saturate(1.5);
+}
+
+.dark .libraries-overlay-glass {
+  background: rgb(0 0 0 / 0.95);
+}
+
+/* Library landing illustrations use crisp, category-colored depth in light
+   mode. Individual demos can keep their expressive glow treatments in dark
+   mode, where those effects do not muddy a light surface. */
+html:not(.dark) .library-landing-graphic [class*='shadow-['] {
+  box-shadow: 0 10px 24px -12px rgb(var(--landing-glow) / 0.45);
+}
+
+html:not(.dark) .library-landing-graphic [style*='drop-shadow'] {
+  filter: none !important;
+}
+
+/* Staggered grid reveal for the /libraries waypoint cards. The transform rests
+   at its identity value (fill: both), so per-card hover transforms are unaffected. */
+@keyframes library-card-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-library-card-reveal {
+  animation: library-card-reveal 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-library-card-reveal {
+    animation: none;
+  }
+}
+
+/* Figma-style continuous corner smoothing (squircle). Progressive enhancement:
+   browsers without corner-shape keep the plain border-radius. */
+@utility corner-squircle {
+  corner-shape: squircle;
+}
+
+/* Palm-tree loading spinner — sways at the trunk base like a palm in the wind */
+@keyframes palm-sway {
+  0%,
+  100% {
+    transform: rotate(-7deg);
+  }
+  50% {
+    transform: rotate(7deg);
+  }
+}
+
+.animate-palm-sway {
+  transform-origin: 40% 88%;
+  animation: palm-sway 1.1s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-palm-sway {
+    animation: none;
   }
 }
 

@@ -1,16 +1,13 @@
-import { WandSparkles, Zap } from 'lucide-react'
+import { MagicWand, Lightning, Gear } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
-import { CogsIcon } from '~/components/icons/CogsIcon'
 import { form } from './libraries'
 
-const textStyles = 'text-yellow-600 dark:text-yellow-300'
+const textStyles = 'text-category-ui'
 
 export const formProject = {
   ...form,
   description: `Headless, performant, and type-safe form state management for TS/JS, React, Vue, Angular, Solid, Lit and Svelte.`,
   latestBranch: 'main',
-  bgRadial: 'from-yellow-500 via-yellow-600/50 to-transparent',
-  textColor: 'text-yellow-600',
   testimonials: [
     {
       quote:
@@ -37,7 +34,7 @@ export const formProject = {
   featureHighlights: [
     {
       title: 'First-Class TypeScript Support',
-      icon: <WandSparkles className="text-yellow-400" />,
+      icon: <MagicWand className="text-category-ui" />,
       description: (
         <div>
           TanStack Form touts first-class TypeScript support with outstanding
@@ -54,7 +51,7 @@ export const formProject = {
     },
     {
       title: 'Headless and Framework Agnostic',
-      icon: <Zap className="text-yellow-500" />,
+      icon: <Lightning className="text-category-ui" />,
       description: (
         <div>
           Form's headless and framework agnostic approach ensures maximum
@@ -71,7 +68,7 @@ export const formProject = {
     },
     {
       title: 'Granular Reactive Performance',
-      icon: <CogsIcon className="text-amber-500" />,
+      icon: <Gear className="text-category-ui" />,
       description: (
         <div>
           When it comes to performance, TanStack Form delivers amazing speed and

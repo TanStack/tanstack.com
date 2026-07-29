@@ -12,7 +12,7 @@ import { hasCapability } from '~/db/types'
 import { useToast } from '~/components/ToastProvider'
 import { updateAdPreference } from '~/utils/users.functions'
 import { getMyStreak } from '~/utils/activity.functions'
-import { LogOut, Flame, Trophy, Calendar } from 'lucide-react'
+import { SignOut, Flame, Trophy, Calendar } from '@phosphor-icons/react'
 import { Card } from '~/components/Card'
 import { Button } from '~/ui'
 
@@ -181,7 +181,7 @@ function AccountSettingsPage() {
       </div>
       <div>
         <Button variant="ghost" size="xs" onClick={signOut}>
-          <LogOut className="w-3.5 h-3.5" />
+          <SignOut className="w-3.5 h-3.5" />
           Logout
         </Button>
       </div>

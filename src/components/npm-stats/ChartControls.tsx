@@ -1,19 +1,19 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import {
-  ArrowDownWideNarrow,
-  ChartArea,
+  SortDescending as ArrowDownWideNarrow,
+  ChartLineUp as ChartArea,
   ChartBar,
-  ChartBarStacked,
+  ChartBar as ChartBarStacked,
   ChartLine,
-  Clock3,
-  Columns3,
-  History,
-  Layers,
-  Rows3,
+  Clock as Clock3,
+  Columns as Columns3,
+  ClockCounterClockwise as History,
+  Stack as Layers,
+  Rows as Rows3,
   Waves,
-  type LucideIcon,
-} from 'lucide-react'
+  type Icon as LucideIcon,
+} from '@phosphor-icons/react'
 import {
   DropdownMenu,
   DropdownMenuContent,

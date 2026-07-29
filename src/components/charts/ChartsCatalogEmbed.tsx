@@ -66,16 +66,20 @@ export function ChartsCatalogEmbed({
   }, [chartEmbed, resolvedEmbedTheme, shouldLoad])
 
   React.useEffect(() => {
-    const target = frameRef.current?.contentWindow
-    if (!chartEmbed || !target || !shouldLoad) return
+    const frame = frameRef.current
+    const target = frame?.contentWindow
+    if (!chartEmbed || !frame || !target || !shouldLoad) return
 
     const handleMessage = (event: MessageEvent<unknown>) => {
       if (
         event.origin !== chartEmbed.origin ||
         event.source !== target ||
-        !isReadyChartEmbedMessage(event.data, chartEmbed.caseId)
+        !isChartEmbedStatusMessage(event.data, chartEmbed.caseId)
       ) {
         return
+      }
+      if (chartEmbed.source !== 'hidden') {
+        frame.style.height = `${event.data.height}px`
       }
       postChartTheme()
     }
@@ -105,7 +109,16 @@ export function ChartsCatalogEmbed({
   )
 }
 
-function isReadyChartEmbedMessage(value: unknown, caseId: string) {
+function isChartEmbedStatusMessage(
+  value: unknown,
+  caseId: string,
+): value is {
+  type: 'tanstack-charts:embed'
+  version: 1
+  status: 'ready' | 'resize' | 'error'
+  caseId: string
+  height: number
+} {
   return (
     value !== null &&
     typeof value === 'object' &&
@@ -114,8 +127,14 @@ function isReadyChartEmbedMessage(value: unknown, caseId: string) {
     'version' in value &&
     value.version === 1 &&
     'status' in value &&
-    value.status === 'ready' &&
+    (value.status === 'ready' ||
+      value.status === 'resize' ||
+      value.status === 'error') &&
     'caseId' in value &&
-    value.caseId === caseId
+    value.caseId === caseId &&
+    'height' in value &&
+    typeof value.height === 'number' &&
+    Number.isFinite(value.height) &&
+    value.height > 0
   )
 }

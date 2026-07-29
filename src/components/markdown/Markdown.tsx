@@ -2,7 +2,11 @@ import { renderMarkdownReact } from '@tanstack/markdown/react'
 import * as React from 'react'
 import { InlineCode, MarkdownImg } from '~/ui'
 import { ChartsCatalogEmbed } from '~/components/charts/ChartsCatalogEmbed'
-import { parseChartsCatalogEmbed } from '~/utils/charts-catalog-embed'
+import {
+  mapChartsCatalogEmbeds,
+  parseChartsCatalogEmbed,
+  type ChartsCatalogEmbedSource,
+} from '~/utils/charts-catalog-embed'
 import {
   findFirstImageSrc,
   parseSiteMarkdown,
@@ -24,6 +28,7 @@ type MarkdownRenderOptions = {
 export type MarkdownProps = {
   content?: string
   document?: MarkdownDocument
+  chartEmbedSource?: ChartsCatalogEmbedSource
   preserveTabPanels?: boolean
   /** Render the first image in the document as high-priority/eager (e.g. blog post hero images) */
   eagerFirstImage?: boolean
@@ -32,6 +37,7 @@ export type MarkdownProps = {
 export function Markdown({
   content,
   document,
+  chartEmbedSource,
   preserveTabPanels,
   eagerFirstImage,
 }: MarkdownProps) {
@@ -39,13 +45,20 @@ export function Markdown({
     () => document ?? parseSiteMarkdown(content ?? ''),
     [content, document],
   )
+  const renderDocument = React.useMemo(
+    () =>
+      chartEmbedSource
+        ? mapChartsCatalogEmbeds(parsed, chartEmbedSource)
+        : parsed,
+    [chartEmbedSource, parsed],
+  )
 
   return React.useMemo(() => {
     const firstImageSrc = eagerFirstImage
-      ? findFirstImageSrc(parsed)
+      ? findFirstImageSrc(renderDocument)
       : undefined
 
-    return renderMarkdownReact(parsed, {
+    return renderMarkdownReact(renderDocument, {
       allowHtml: true,
       components: createMarkdownComponents({
         preserveTabPanels,
@@ -53,7 +66,7 @@ export function Markdown({
       }),
       headingAnchors,
     })
-  }, [parsed, preserveTabPanels, eagerFirstImage])
+  }, [renderDocument, preserveTabPanels, eagerFirstImage])
 }
 
 const headingAnchors = {
@@ -219,6 +232,7 @@ function createMarkdownComponents(
 
   return {
     a: LinkElement,
+    'chart-catalog-embed': ChartsCatalogEmbed,
     code: CodeElement,
     figcaption: CodeFigcaption,
     figure: CodeFigure,

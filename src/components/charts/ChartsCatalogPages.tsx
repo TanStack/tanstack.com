@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import * as React from 'react'
+import { CodeBlock } from '~/components/markdown/CodeBlock'
 import type { ChartsCatalogCase } from '~/utils/charts-catalog'
 import {
   ChartsCatalogChart,
@@ -370,9 +371,12 @@ function SourceBlock({ path, source }: { path: string; source: string }) {
       <summary className="cursor-pointer px-4 py-3 font-mono text-xs text-gray-600 dark:text-gray-400">
         {path}
       </summary>
-      <pre className="max-h-[32rem] overflow-auto border-t border-gray-200 p-4 text-xs dark:border-gray-800">
-        <code>{source}</code>
-      </pre>
+      <CodeBlock
+        showTypeCopyButton={false}
+        className="max-h-[32rem] rounded-none border-x-0 border-b-0 [&_pre]:max-h-[32rem] [&_pre]:overflow-auto"
+      >
+        <code className="language-ts">{source}</code>
+      </CodeBlock>
     </details>
   )
 }

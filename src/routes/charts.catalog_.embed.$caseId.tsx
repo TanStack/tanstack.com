@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { createFileRoute, notFound } from '@tanstack/react-router'
 import { ChartsCatalogChart } from '~/components/charts/ChartsCatalogChart'
+import { CodeBlock } from '~/components/markdown/CodeBlock'
 import {
   isChartsCatalogEmbedTheme,
   parseChartsCatalogEmbedRouteSearch,
@@ -15,7 +16,10 @@ export const Route = createFileRoute('/charts/catalog_/embed/$caseId')({
   loaderDeps: ({ search }) => parseChartsCatalogEmbedRouteSearch(search),
   loader: async ({ deps, params }) => {
     const data = await getChartsCatalogEmbedCase({
-      data: { caseId: params.caseId },
+      data: {
+        caseId: params.caseId,
+        source: deps.source !== 'hidden',
+      },
     })
     if (!data) throw notFound()
 
@@ -44,6 +48,7 @@ function ChartsCatalogEmbedRoute() {
   const data = Route.useLoaderData()
   const [theme, setTheme] = React.useState<ChartsCatalogEmbedTheme>(data.theme)
   const [parentOrigin, setParentOrigin] = React.useState<string | null>(null)
+  const contentRef = React.useRef<HTMLElement>(null)
 
   React.useEffect(() => {
     setParentOrigin(resolveParentOrigin())
@@ -77,13 +82,16 @@ function ChartsCatalogEmbedRoute() {
   const postStatus = React.useCallback(
     (status: 'ready' | 'resize' | 'error') => {
       if (window.parent === window || !parentOrigin) return
+      const height = Math.ceil(
+        contentRef.current?.getBoundingClientRect().height ?? data.height,
+      )
       window.parent.postMessage(
         {
           type: 'tanstack-charts:embed',
           version: 1,
           status,
           caseId: data.case.id,
-          height: data.height,
+          height,
         },
         parentOrigin,
       )
@@ -91,8 +99,20 @@ function ChartsCatalogEmbedRoute() {
     [data.case.id, data.height, parentOrigin],
   )
 
+  React.useEffect(() => {
+    const content = contentRef.current
+    if (!content || !parentOrigin) return
+
+    const observer = new ResizeObserver(() => {
+      postStatus('resize')
+    })
+    observer.observe(content)
+    postStatus('resize')
+    return () => observer.disconnect()
+  }, [parentOrigin, postStatus])
+
   return (
-    <main className="charts-catalog-embed overflow-hidden p-0">
+    <main ref={contentRef} className="charts-catalog-embed overflow-hidden p-0">
       <ChartsCatalogChart
         artifactRevision={data.artifactRevision}
         caseId={data.case.id}
@@ -101,6 +121,22 @@ function ChartsCatalogEmbedRoute() {
         onStatus={postStatus}
         revision={data.revision}
       />
+      {data.case.code ? (
+        <details
+          open={data.source === 'expanded'}
+          className="border-t border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950"
+        >
+          <summary className="cursor-pointer px-4 py-3 font-mono text-xs text-gray-600 dark:text-gray-400">
+            Source
+          </summary>
+          <CodeBlock
+            data-code-title={data.case.code.path}
+            className="max-h-[32rem] rounded-none border-x-0 border-b-0 [&_pre]:max-h-[29rem] [&_pre]:overflow-auto"
+          >
+            <code className="language-ts">{data.case.code.source}</code>
+          </CodeBlock>
+        </details>
+      ) : null}
     </main>
   )
 }

@@ -33,9 +33,6 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: ^1.29.0
         version: 1.29.0(zod@4.3.6)
-      '@observablehq/plot':
-        specifier: ^0.6.17
-        version: 0.6.17
       '@octokit/graphql':
         specifier: ^9.0.3
         version: 9.0.3
@@ -114,6 +111,9 @@ importers:
       '@tanstack/pacer':
         specifier: ^0.21.1
         version: 0.21.1
+      '@tanstack/react-charts':
+        specifier: 0.0.0
+        version: 0.0.0(react@19.2.3)
       '@tanstack/react-hotkeys':
         specifier: ^0.10.0
         version: 0.10.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -177,6 +177,12 @@ importers:
       d3:
         specifier: ^7.9.0
         version: 7.9.0
+      d3-scale:
+        specifier: 4.0.2
+        version: 4.0.2
+      d3-shape:
+        specifier: 3.2.0
+        version: 3.2.0
       diff:
         specifier: ^8.0.4
         version: 8.0.4
@@ -301,6 +307,12 @@ importers:
       '@tanstack/redact':
         specifier: ^0.0.19
         version: 0.0.19(vite@8.0.13(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
+      '@types/d3-scale':
+        specifier: 4.0.9
+        version: 4.0.9
+      '@types/d3-shape':
+        specifier: 3.1.8
+        version: 3.1.8
       '@types/hast':
         specifier: ^3.0.4
         version: 3.0.4
@@ -1666,10 +1678,6 @@ packages:
     peerDependencies:
       '@emnapi/core': ^1.7.1
       '@emnapi/runtime': ^1.7.1
-
-  '@observablehq/plot@0.6.17':
-    resolution: {integrity: sha512-/qaXP/7mc4MUS0s4cPPFASDRjtsWp85/TbfsciqDgU1HwYixbSbbytNuInD8AcTYC3xaxACgVX06agdfQy9W+g==}
-    engines: {node: '>=12'}
 
   '@octokit/endpoint@11.0.3':
     resolution: {integrity: sha512-FWFlNxghg4HrXkD3ifYbS/IdL/mDHjh9QcsNyhQjN8dplUoZbejsdpmuqdA76nxj2xoWPs7p8uX2SNr9rYu0Ag==}
@@ -3371,6 +3379,11 @@ packages:
   '@tanstack/query-devtools@5.100.11':
     resolution: {integrity: sha512-47rVBDuGMW/A4ekt3YQdz+q0JSIwktwGnWCYyQUvSs2/g/Oa+6Fi2/IQk4/Y4vf6u1uwI7hOogHslgMC8f3X/Q==}
 
+  '@tanstack/react-charts@0.0.0':
+    resolution: {integrity: sha512-Ng56AOsMnE84uBH5woOmqqAQIQF4sZv3N0peh53QjFj5+teLDgPTKUPpt1WtcGjab5UhzTzl4835Jl0kaMcJZg==}
+    peerDependencies:
+      react: ^19.0.0
+
   '@tanstack/react-devtools@0.10.5':
     resolution: {integrity: sha512-orVsRJ7oAXFb7oyafQCgx9YuK44jpILh5T/ddYuxAsolNfN5DZBr5/NLrWErD7HCGIzvYzg1TZI4sPxmiKvtvA==}
     engines: {node: '>=18'}
@@ -4033,9 +4046,6 @@ packages:
 
   bidi-js@1.0.3:
     resolution: {integrity: sha512-RKshQI1R3YQ+n9YJz2QQ147P66ELpa1FQEg20Dk8oW9t2KgLbpDLLp9aGZ7y8WHSshDknG0bknqGw5/tyCs5tw==}
-
-  binary-search-bounds@2.0.5:
-    resolution: {integrity: sha512-H0ea4Fd3lS1+sTEB2TgcLoK21lLhwEJzlQv3IN47pJS976Gx4zoWe0ak3q+uYh60ppQxg9F16Ri4tS1sfD4+jA==}
 
   blake3-wasm@2.1.5:
     resolution: {integrity: sha512-F1+K8EbfOZE49dtoPtmxUQrpXaBIl3ICvasLh+nJta0xkz+9kF/7uet9fLnwKqhDrmj6g+6K3Tw9yQPUg2ka5g==}
@@ -5114,9 +5124,6 @@ packages:
     resolution: {integrity: sha512-5Hh7Y1wQbvY5ooGgPbDaL5iYLAPzMTUrjMulskHLH6wnv/A+1q5rgEaiuqEjB+oxGXIVZs1FF+R/KPN3ZSQYYg==}
     engines: {node: '>=12'}
 
-  interval-tree-1d@1.0.4:
-    resolution: {integrity: sha512-wY8QJH+6wNI0uh4pDQzMvl+478Qh7Rl4qLmqiluxALlNvl+I+o5x38Pw3/z7mDPTPS1dQalZJXsmbvxx5gclhQ==}
-
   ip-address@10.1.0:
     resolution: {integrity: sha512-XXADHxXmvT9+CRxhXg56LJovE+bmWnEWB78LB83VZTprKTmaC5QfruXocxzTZ2Kl0DNwKuBdlIhjL8LeY8Sf8Q==}
     engines: {node: '>= 12'}
@@ -5275,9 +5282,6 @@ packages:
 
   isexe@2.0.0:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
-
-  isoformat@0.2.1:
-    resolution: {integrity: sha512-tFLRAygk9NqrRPhJSnNGh7g7oaVWDwR0wKh/GM2LgmPa50Eg4UfyaCO4I8k6EqJHl1/uh2RAD6g06n5ygEnrjQ==}
 
   its-fine@2.0.0:
     resolution: {integrity: sha512-KLViCmWx94zOvpLwSlsx6yOCeMhZYaxrJV87Po5k/FoZzcPSahvK5qJ7fYhS61sZi5ikmh2S3Hz55A2l3U69ng==}
@@ -8133,12 +8137,6 @@ snapshots:
       '@tybys/wasm-util': 0.10.1
     optional: true
 
-  '@observablehq/plot@0.6.17':
-    dependencies:
-      d3: 7.9.0
-      interval-tree-1d: 1.0.4
-      isoformat: 0.2.1
-
   '@octokit/endpoint@11.0.3':
     dependencies:
       '@octokit/types': 16.0.0
@@ -9655,6 +9653,11 @@ snapshots:
 
   '@tanstack/query-devtools@5.100.11': {}
 
+  '@tanstack/react-charts@0.0.0(react@19.2.3)':
+    dependencies:
+      '@tanstack/charts': 0.0.0
+      react: 19.2.3
+
   '@tanstack/react-devtools@0.10.5(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(csstype@3.2.3)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(solid-js@1.9.12)':
     dependencies:
       '@tanstack/devtools': 0.12.2(csstype@3.2.3)(solid-js@1.9.12)
@@ -10418,8 +10421,6 @@ snapshots:
   bidi-js@1.0.3:
     dependencies:
       require-from-string: 2.0.2
-
-  binary-search-bounds@2.0.5: {}
 
   blake3-wasm@2.1.5: {}
 
@@ -11678,10 +11679,6 @@ snapshots:
 
   internmap@2.0.3: {}
 
-  interval-tree-1d@1.0.4:
-    dependencies:
-      binary-search-bounds: 2.0.5
-
   ip-address@10.1.0: {}
 
   ipaddr.js@1.9.1: {}
@@ -11826,8 +11823,6 @@ snapshots:
   isbot@5.1.37: {}
 
   isexe@2.0.0: {}
-
-  isoformat@0.2.1: {}
 
   its-fine@2.0.0(@types/react@19.2.14)(react@19.2.3):
     dependencies:

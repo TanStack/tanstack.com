@@ -48,8 +48,13 @@ export function ChartsCatalogChart({
   const [visible, setVisible] = React.useState(!defer)
   const [failed, setFailed] = React.useState(false)
 
-  inputRef.current = { height, interactive, revision }
-  onStatusRef.current = onStatus
+  React.useEffect(() => {
+    inputRef.current = { height, interactive, revision }
+  }, [height, interactive, revision])
+
+  React.useEffect(() => {
+    onStatusRef.current = onStatus
+  }, [onStatus])
 
   React.useEffect(() => {
     const container = containerRef.current

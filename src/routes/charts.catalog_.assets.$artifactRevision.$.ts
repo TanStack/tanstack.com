@@ -1,5 +1,13 @@
-import { createFileRoute, notFound } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { parseChartsCatalogAssetRequest } from '~/utils/charts-catalog-assets'
+
+const catalogAssetNotFoundBody = 'Charts catalog asset not found'
+const catalogAssetNoStoreHeaders = {
+  'Cache-Control': 'no-store',
+  'Cloudflare-CDN-Cache-Control': 'no-store',
+  'Content-Type': 'text/plain; charset=utf-8',
+  'X-Content-Type-Options': 'nosniff',
+}
 
 export const Route = createFileRoute(
   '/charts/catalog_/assets/$artifactRevision/$',
@@ -12,7 +20,7 @@ export const Route = createFileRoute(
   },
 })
 
-async function serveCatalogAsset({
+export async function serveCatalogAsset({
   request,
   params,
 }: {
@@ -44,12 +52,16 @@ async function serveCatalogAsset({
       manifest,
     })
   } catch (error) {
-    if (error instanceof TypeError) throw notFound()
+    if (error instanceof TypeError) {
+      return createCatalogAssetNotFoundResponse(request.method)
+    }
     throw error
   }
 
   const descriptor = manifest.assets[asset.repoPath]
-  if (!descriptor) throw notFound()
+  if (!descriptor) {
+    return createCatalogAssetNotFoundResponse(request.method)
+  }
 
   let source: string
   try {
@@ -80,7 +92,9 @@ function handleCatalogAssetError(
   method: string,
 ) {
   const classification = classify(error)
-  if (classification === 'not-found') throw notFound()
+  if (classification === 'not-found') {
+    return createCatalogAssetNotFoundResponse(method)
+  }
 
   console.error('[Charts catalog asset] Failed to serve asset', error)
   if (classification === 'unavailable') {
@@ -89,8 +103,7 @@ function handleCatalogAssetError(
       {
         status: 503,
         headers: {
-          'Cache-Control': 'no-store',
-          'Cloudflare-CDN-Cache-Control': 'no-store',
+          ...catalogAssetNoStoreHeaders,
           'Retry-After': '60',
         },
       },
@@ -98,4 +111,16 @@ function handleCatalogAssetError(
   }
 
   throw error
+}
+
+function createCatalogAssetNotFoundResponse(method: string) {
+  return new Response(method === 'HEAD' ? null : catalogAssetNotFoundBody, {
+    status: 404,
+    headers: {
+      ...catalogAssetNoStoreHeaders,
+      'Content-Length': String(
+        new TextEncoder().encode(catalogAssetNotFoundBody).byteLength,
+      ),
+    },
+  })
 }

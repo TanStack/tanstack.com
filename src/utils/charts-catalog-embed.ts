@@ -7,6 +7,18 @@ export type ChartsCatalogEmbed = {
 
 export type ChartsCatalogEmbedTheme = 'system' | 'light' | 'dark'
 
+export type ChartsCatalogEmbedLoaderDeps = {
+  height: number
+  revision: number
+  theme: ChartsCatalogEmbedTheme
+}
+
+export type ChartsCatalogEmbedRouteSearch = {
+  height?: string | Array<string>
+  revision?: string | Array<string>
+  theme?: string | Array<string>
+}
+
 export function isChartsCatalogEmbedPath(pathname: string) {
   return /^\/charts\/catalog\/embed\/[a-z0-9]+(?:-[a-z0-9]+)*\/$/.test(pathname)
 }
@@ -62,19 +74,54 @@ export function isChartsCatalogEmbedTheme(
 }
 
 export function parseChartsCatalogEmbedInteger(
-  value: string | null,
+  value: unknown,
   fallback: number,
   minimum: number,
   maximum: number,
 ) {
-  if (value === null || !isBoundedInteger(value, minimum, maximum)) {
+  if (typeof value !== 'string' || !isBoundedInteger(value, minimum, maximum)) {
     return fallback
   }
   return Number(value)
+}
+
+export function validateChartsCatalogEmbedRouteSearch(
+  search: Record<string, unknown>,
+): ChartsCatalogEmbedRouteSearch {
+  const height = getChartsCatalogEmbedRouteSearchValue(search.height)
+  const revision = getChartsCatalogEmbedRouteSearchValue(search.revision)
+  const theme = getChartsCatalogEmbedRouteSearchValue(search.theme)
+
+  return {
+    ...(height === undefined ? {} : { height }),
+    ...(revision === undefined ? {} : { revision }),
+    ...(theme === undefined ? {} : { theme }),
+  }
+}
+
+export function parseChartsCatalogEmbedRouteSearch(
+  search: ChartsCatalogEmbedRouteSearch,
+): ChartsCatalogEmbedLoaderDeps {
+  return {
+    height: parseChartsCatalogEmbedInteger(search.height, 360, 120, 1_200),
+    revision: parseChartsCatalogEmbedInteger(search.revision, 0, 0, 10_000),
+    theme: isChartsCatalogEmbedTheme(search.theme) ? search.theme : 'system',
+  }
 }
 
 function isBoundedInteger(value: string, minimum: number, maximum: number) {
   if (!/^\d+$/.test(value)) return false
   const number = Number(value)
   return Number.isSafeInteger(number) && number >= minimum && number <= maximum
+}
+
+function getChartsCatalogEmbedRouteSearchValue(value: unknown) {
+  if (typeof value === 'string') return value
+  if (
+    Array.isArray(value) &&
+    value.every((entry): entry is string => typeof entry === 'string')
+  ) {
+    return value
+  }
+  return undefined
 }

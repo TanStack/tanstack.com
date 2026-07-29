@@ -3,38 +3,25 @@ import { createFileRoute, notFound } from '@tanstack/react-router'
 import { ChartsCatalogChart } from '~/components/charts/ChartsCatalogChart'
 import {
   isChartsCatalogEmbedTheme,
-  parseChartsCatalogEmbedInteger,
+  parseChartsCatalogEmbedRouteSearch,
+  validateChartsCatalogEmbedRouteSearch,
   type ChartsCatalogEmbedTheme,
 } from '~/utils/charts-catalog-embed'
 import { getChartsCatalogEmbedCase } from '~/utils/charts-catalog.functions'
 import { seo } from '~/utils/seo'
 
 export const Route = createFileRoute('/charts/catalog_/embed/$caseId')({
-  loader: async ({ location, params }) => {
+  validateSearch: validateChartsCatalogEmbedRouteSearch,
+  loaderDeps: ({ search }) => parseChartsCatalogEmbedRouteSearch(search),
+  loader: async ({ deps, params }) => {
     const data = await getChartsCatalogEmbedCase({
       data: { caseId: params.caseId },
     })
     if (!data) throw notFound()
 
-    const search = new URLSearchParams(location.searchStr)
-    const requestedTheme = search.get('theme')
     return {
       ...data,
-      height: parseChartsCatalogEmbedInteger(
-        search.get('height'),
-        360,
-        120,
-        1_200,
-      ),
-      revision: parseChartsCatalogEmbedInteger(
-        search.get('revision'),
-        0,
-        0,
-        10_000,
-      ),
-      theme: isChartsCatalogEmbedTheme(requestedTheme)
-        ? requestedTheme
-        : 'system',
+      ...deps,
     }
   },
   component: ChartsCatalogEmbedRoute,
@@ -56,7 +43,11 @@ export const Route = createFileRoute('/charts/catalog_/embed/$caseId')({
 function ChartsCatalogEmbedRoute() {
   const data = Route.useLoaderData()
   const [theme, setTheme] = React.useState<ChartsCatalogEmbedTheme>(data.theme)
-  const parentOrigin = React.useMemo(resolveParentOrigin, [])
+  const [parentOrigin, setParentOrigin] = React.useState<string | null>(null)
+
+  React.useEffect(() => {
+    setParentOrigin(resolveParentOrigin())
+  }, [])
 
   React.useEffect(() => {
     applyEmbedTheme(theme)
@@ -115,6 +106,7 @@ function ChartsCatalogEmbedRoute() {
 }
 
 function resolveParentOrigin() {
+  if (typeof document === 'undefined') return null
   if (!document.referrer) return null
   try {
     const url = new URL(document.referrer)

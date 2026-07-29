@@ -1,13 +1,18 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { ChartsCatalogAll } from '~/components/charts/ChartsCatalogPages'
-import { parseChartsCatalogSearch } from '~/utils/charts-catalog'
+import {
+  parseChartsCatalogRouteSearch,
+  validateChartsCatalogRouteSearch,
+} from '~/utils/charts-catalog'
 import { getChartsCatalogAll } from '~/utils/charts-catalog.functions'
 import { seo } from '~/utils/seo'
 
 export const Route = createFileRoute('/charts/catalog/all')({
-  loader: ({ location }) =>
+  validateSearch: validateChartsCatalogRouteSearch,
+  loaderDeps: ({ search }) => parseChartsCatalogRouteSearch(search),
+  loader: ({ deps }) =>
     getChartsCatalogAll({
-      data: parseChartsCatalogSearch(location.searchStr),
+      data: deps,
     }),
   component: ChartsCatalogAllRoute,
   head: () => ({

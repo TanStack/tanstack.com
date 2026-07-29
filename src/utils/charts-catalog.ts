@@ -420,11 +420,51 @@ export function parseChartsCatalogSearch(
   const comparisonValues = parameters.getAll('compare')
 
   return {
-    comparison:
-      options.embed !== true &&
-      comparisonValues.length === 1 &&
-      comparisonValues[0] === '1',
+    comparison: isChartsCatalogComparisonEnabled(comparisonValues, options),
   }
+}
+
+export type ChartsCatalogRouteSearch = {
+  compare?: string | Array<string>
+}
+
+export function validateChartsCatalogRouteSearch(
+  search: Record<string, unknown>,
+): ChartsCatalogRouteSearch {
+  const compare = search.compare
+  if (typeof compare === 'string') return { compare }
+  if (
+    Array.isArray(compare) &&
+    compare.every((value): value is string => typeof value === 'string')
+  ) {
+    return { compare }
+  }
+  return {}
+}
+
+export function parseChartsCatalogRouteSearch(
+  search: ChartsCatalogRouteSearch,
+  options: { embed?: boolean } = {},
+) {
+  const comparisonValues =
+    typeof search.compare === 'string'
+      ? [search.compare]
+      : (search.compare ?? [])
+
+  return {
+    comparison: isChartsCatalogComparisonEnabled(comparisonValues, options),
+  }
+}
+
+function isChartsCatalogComparisonEnabled(
+  comparisonValues: Array<string>,
+  options: { embed?: boolean },
+) {
+  return (
+    options.embed !== true &&
+    comparisonValues.length === 1 &&
+    comparisonValues[0] === '1'
+  )
 }
 
 export function findChartsCatalogCase(

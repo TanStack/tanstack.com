@@ -1,17 +1,10 @@
 import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
-import {
-  curveMonotoneX,
-  curveStepAfter,
-  scaleBand,
-  scaleLinear,
-  scaleOrdinal,
-} from 'd3'
+import { curveMonotoneX, curveStepAfter, scaleLinear } from 'd3'
 
 import {
   areaY,
-  barY,
   createChartScene,
   d3Curve,
   defineChart,
@@ -19,201 +12,37 @@ import {
   lineY,
   renderChartSvg,
 } from '../../packages/charts-core/src/index.ts'
+import { activationChart } from './charts-landing/activation-chart'
+import { kineticAreaChart } from './charts-landing/kinetic-area-chart'
+import { kineticDumbbellChart } from './charts-landing/kinetic-dumbbell-chart'
+import { kineticLayeredChart } from './charts-landing/kinetic-layered-chart'
+import { kineticLineChart } from './charts-landing/kinetic-line-chart'
+import { kineticLollipopChart } from './charts-landing/kinetic-lollipop-chart'
+import { kineticScatterChart } from './charts-landing/kinetic-scatter-chart'
 
 const outputFile = resolve(
   process.cwd(),
   'src/components/landing/chartsCommonSvg.ts',
 )
+const activationOutputFile = resolve(
+  process.cwd(),
+  'src/components/landing/chartsActivationSvg.ts',
+)
+const kineticOutputFile = resolve(
+  process.cwd(),
+  'src/components/landing/chartsKineticSvg.ts',
+)
 const checkOnly = process.argv.includes('--check')
-
-const darkTheme = {
-  foreground: '#e2e8f0',
-  muted: '#94a3b8',
-  grid: '#f8fafc',
-  background: 'transparent',
-  palette: ['#60a5fa', '#fb923c', '#2dd4bf'],
-}
-
-const activeTeams = [72, 78, 83, 81, 92, 101, 108, 117, 124, 136, 142, 156].map(
-  (teams, index) => ({ week: index + 1, teams }),
-)
-
-const channels = [
-  { channel: 'Search', signups: 76 },
-  { channel: 'Direct', signups: 58 },
-  { channel: 'Partner', signups: 44 },
-  { channel: 'Social', signups: 31 },
-]
-
-const apiRequests = [42, 48, 53, 61, 58, 74, 82, 91, 97, 112, 124, 138].map(
-  (requests, index) => ({ week: index + 1, requests }),
-)
-
-const retention = [
-  { id: 'a', setup: 12, retention: 91, segment: 'Enterprise' },
-  { id: 'b', setup: 18, retention: 82, segment: 'Growth' },
-  { id: 'c', setup: 24, retention: 77, segment: 'Growth' },
-  { id: 'd', setup: 31, retention: 69, segment: 'SMB' },
-  { id: 'e', setup: 16, retention: 87, segment: 'Enterprise' },
-  { id: 'f', setup: 27, retention: 73, segment: 'SMB' },
-  { id: 'g', setup: 10, retention: 94, segment: 'Enterprise' },
-  { id: 'h', setup: 22, retention: 80, segment: 'Growth' },
-]
-
-const latency = [114, 108, 112, 99, 101, 92, 96, 88, 90, 81, 84, 76]
+const activationAriaLabel =
+  'Weekly activation rate with expected range, 70 percent goal, and two product release events'
+const activationAriaDescription =
+  'Illustrative weekly activation data from January through May 2026. The actual rate rises from 48 to 78 percent, compared with an expected range and a 70 percent goal. Onboarding v2 and Invite flow are marked as release events.'
 
 const themeBaseline = 40
 const themeDomain: [number, number] = [40, 105]
 const themeSeries = [48, 52, 57, 55, 64, 71, 78, 86, 91, 98].map(
   (value, index) => ({ month: index + 1, value }),
 )
-
-const commonLine = defineChart({
-  marks: [
-    lineY(activeTeams, {
-      x: 'week',
-      y: 'teams',
-      key: 'week',
-      stroke: '#60a5fa',
-      strokeWidth: 3,
-      curve: d3Curve(curveMonotoneX),
-    }),
-    dot(activeTeams, {
-      x: 'week',
-      y: 'teams',
-      key: 'week',
-      fill: '#0b1728',
-      stroke: '#93c5fd',
-      strokeWidth: 2,
-      r: 3,
-    }),
-  ],
-  x: {
-    scale: scaleLinear().domain([1, 12]),
-    ticks: 4,
-    format: (week: number) => `W${week}`,
-  },
-  y: {
-    scale: scaleLinear().domain([60, 160]).nice(),
-    ticks: 4,
-    grid: true,
-  },
-  theme: darkTheme,
-})
-
-const commonBar = defineChart({
-  marks: [
-    barY(channels, {
-      x: 'channel',
-      y: 'signups',
-      key: 'channel',
-      fill: (row) =>
-        ({
-          Search: '#60a5fa',
-          Direct: '#fb923c',
-          Partner: '#2dd4bf',
-          Social: '#a78bfa',
-        })[row.channel] ?? '#60a5fa',
-      radius: 4,
-      inset: 4,
-    }),
-  ],
-  x: {
-    scale: scaleBand<string>()
-      .domain(channels.map((row) => row.channel))
-      .padding(0.12),
-  },
-  y: {
-    scale: scaleLinear().domain([0, 80]).nice(),
-    ticks: 4,
-    grid: true,
-  },
-  theme: darkTheme,
-})
-
-const commonArea = defineChart({
-  marks: [
-    areaY(apiRequests, {
-      x: 'week',
-      y: 'requests',
-      key: 'week',
-      fill: '#2563eb',
-      fillOpacity: 0.28,
-      curve: d3Curve(curveMonotoneX),
-    }),
-    lineY(apiRequests, {
-      x: 'week',
-      y: 'requests',
-      key: 'week',
-      stroke: '#60a5fa',
-      strokeWidth: 3,
-      curve: d3Curve(curveMonotoneX),
-    }),
-  ],
-  x: {
-    scale: scaleLinear().domain([1, 12]),
-    ticks: 4,
-    format: (week: number) => `W${week}`,
-  },
-  y: {
-    scale: scaleLinear().domain([0, 150]).nice(),
-    ticks: 4,
-    grid: true,
-  },
-  theme: darkTheme,
-})
-
-const segmentColor = scaleOrdinal<string, string>()
-  .domain(['Enterprise', 'Growth', 'SMB'])
-  .range(['#2dd4bf', '#fb923c', '#60a5fa'])
-
-const commonScatter = defineChart({
-  marks: [
-    dot(retention, {
-      x: 'setup',
-      y: 'retention',
-      z: 'segment',
-      key: 'id',
-      fillOpacity: 0.9,
-      stroke: '#f8fafc',
-      strokeOpacity: 0.5,
-      strokeWidth: 1.5,
-      r: 7,
-    }),
-  ],
-  x: {
-    scale: scaleLinear().domain([8, 34]),
-    ticks: 4,
-  },
-  y: {
-    scale: scaleLinear().domain([65, 96]),
-    ticks: 4,
-    format: (value: number) => `${value}%`,
-    grid: true,
-  },
-  color: { scale: segmentColor },
-  theme: darkTheme,
-})
-
-const commonSparkline = defineChart({
-  marks: [
-    areaY(latency, {
-      fill: '#14b8a6',
-      fillOpacity: 0.18,
-      curve: d3Curve(curveMonotoneX),
-    }),
-    lineY(latency, {
-      stroke: '#2dd4bf',
-      strokeWidth: 4,
-      curve: d3Curve(curveMonotoneX),
-    }),
-  ],
-  guides: false,
-  margin: 12,
-  x: { scale: scaleLinear().domain([0, latency.length - 1]) },
-  y: { scale: scaleLinear().domain([70, 120]) },
-  theme: darkTheme,
-})
 
 const editorialTheme = defineChart({
   marks: [
@@ -222,7 +51,7 @@ const editorialTheme = defineChart({
       y: 'value',
       y1: themeBaseline,
       key: 'month',
-      fill: '#df5a35',
+      fill: '#d3481b',
       fillOpacity: 0.12,
       curve: d3Curve(curveMonotoneX),
     }),
@@ -230,7 +59,7 @@ const editorialTheme = defineChart({
       x: 'month',
       y: 'value',
       key: 'month',
-      stroke: '#211d18',
+      stroke: '#3e3529',
       strokeWidth: 3,
       curve: d3Curve(curveMonotoneX),
     }),
@@ -245,11 +74,11 @@ const editorialTheme = defineChart({
     ticks: 3,
   },
   theme: {
-    foreground: '#211d18',
-    muted: '#756b60',
-    grid: '#211d18',
+    foreground: '#3e3529',
+    muted: '#756c5b',
+    grid: '#aea691',
     background: 'transparent',
-    palette: ['#df5a35'],
+    palette: ['#d3481b'],
   },
 })
 
@@ -259,7 +88,7 @@ const productTheme = defineChart({
       x: 'month',
       y: 'value',
       key: 'month',
-      stroke: '#2563eb',
+      stroke: '#3aa3c4',
       strokeWidth: 4,
       curve: d3Curve(curveMonotoneX),
     }),
@@ -267,8 +96,8 @@ const productTheme = defineChart({
       x: 'month',
       y: 'value',
       key: 'month',
-      fill: '#eff6ff',
-      stroke: '#2563eb',
+      fill: '#d8f0f3',
+      stroke: '#3aa3c4',
       strokeWidth: 2,
       r: 4,
     }),
@@ -284,11 +113,11 @@ const productTheme = defineChart({
     grid: true,
   },
   theme: {
-    foreground: '#172554',
-    muted: '#64748b',
-    grid: '#bfdbfe',
+    foreground: '#003e53',
+    muted: '#756c5b',
+    grid: '#9cd5e2',
     background: 'transparent',
-    palette: ['#2563eb'],
+    palette: ['#3aa3c4'],
   },
 })
 
@@ -299,7 +128,7 @@ const terminalTheme = defineChart({
       y: 'value',
       y1: themeBaseline,
       key: 'month',
-      fill: '#22c55e',
+      fill: '#39af46',
       fillOpacity: 0.1,
       curve: d3Curve(curveStepAfter),
     }),
@@ -307,7 +136,7 @@ const terminalTheme = defineChart({
       x: 'month',
       y: 'value',
       key: 'month',
-      stroke: '#4ade80',
+      stroke: '#69bc75',
       strokeWidth: 2,
       strokeDasharray: '6 3',
       curve: d3Curve(curveStepAfter),
@@ -324,28 +153,15 @@ const terminalTheme = defineChart({
     grid: true,
   },
   theme: {
-    foreground: '#bbf7d0',
-    muted: '#86efac',
-    grid: '#14532d',
+    foreground: '#a2e1a9',
+    muted: '#69bc75',
+    grid: '#1d4226',
     background: 'transparent',
-    palette: ['#4ade80'],
+    palette: ['#69bc75'],
   },
 })
 
 const charts = {
-  chartsCommonAreaSvg: render(commonArea, 'Weekly API requests'),
-  chartsCommonBarSvg: render(commonBar, 'Trial signups by channel'),
-  chartsCommonLineSvg: render(commonLine, 'Weekly active teams'),
-  chartsCommonScatterSvg: render(
-    commonScatter,
-    'Retention compared with setup time',
-  ),
-  chartsCommonSparklineSvg: render(
-    commonSparkline,
-    'API response time over the last twelve hours',
-    520,
-    180,
-  ),
   chartsThemeEditorialSvg: render(
     editorialTheme,
     'Monthly active teams in an editorial theme',
@@ -360,27 +176,103 @@ const charts = {
   ),
 }
 
+const activationCharts = {
+  chartsActivationSvg: render(
+    activationChart,
+    activationAriaLabel,
+    1200,
+    620,
+    activationAriaDescription,
+    -1,
+  ),
+  chartsActivationCompactSvg: render(
+    activationChart,
+    activationAriaLabel,
+    520,
+    560,
+    activationAriaDescription,
+    -1,
+  ),
+}
+
+const kineticCharts = {
+  chartsKineticAreaSvg: render(
+    kineticAreaChart,
+    'Forecast product signal over eight months',
+    920,
+    520,
+  ),
+  chartsKineticDumbbellSvg: render(
+    kineticDumbbellChart,
+    'Previous and current product signals',
+    920,
+    520,
+  ),
+  chartsKineticLayeredSvg: render(
+    kineticLayeredChart,
+    'Layered product signal with forecast range and release labels',
+    920,
+    520,
+  ),
+  chartsKineticLineSvg: render(
+    kineticLineChart,
+    'Product signal over eight months',
+    920,
+    520,
+  ),
+  chartsKineticLollipopSvg: render(
+    kineticLollipopChart,
+    'Product signals as a ranked lollipop chart',
+    920,
+    520,
+  ),
+  chartsKineticScatterSvg: render(
+    kineticScatterChart,
+    'Product impact compared with implementation effort',
+    920,
+    520,
+  ),
+}
+
 verifyAreaBounds(charts.chartsThemeEditorialSvg, 'Editorial')
 verifyAreaBounds(charts.chartsThemeTerminalSvg, 'Terminal')
 
-const source = [
-  '// Generated by pnpm charts:generate-landing-svg.',
-  '// Source: scripts/generate-charts-landing-svg.ts',
-  '',
-  ...Object.entries(charts).map(
-    ([name, svg]) => `export const ${name} =\n  ${quoteTypeScriptString(svg)}`,
-  ),
-  '',
-].join('\n')
+const generatedModules = [
+  {
+    file: outputFile,
+    source: createGeneratedModule(
+      charts,
+      'scripts/generate-charts-landing-svg.ts',
+    ),
+  },
+  {
+    file: activationOutputFile,
+    source: createGeneratedModule(
+      activationCharts,
+      'scripts/charts-landing/activation-chart.ts',
+    ),
+  },
+  {
+    file: kineticOutputFile,
+    source: createGeneratedModule(
+      kineticCharts,
+      'scripts/charts-landing/kinetic-*-chart.ts',
+    ),
+  },
+]
 
 if (checkOnly) {
-  if (readFileSync(outputFile, 'utf8') !== source) {
-    throw new Error(
-      'Charts landing SVG assets are stale. Run pnpm charts:generate-landing-svg.',
-    )
+  for (const generatedModule of generatedModules) {
+    if (readFileSync(generatedModule.file, 'utf8') !== generatedModule.source) {
+      throw new Error(
+        'Charts landing SVG assets are stale. Run pnpm charts:generate-landing-svg.',
+      )
+    }
   }
 } else {
-  writeFileSync(outputFile, source)
+  for (const generatedModule of generatedModules) {
+    writeFileSync(generatedModule.file, generatedModule.source)
+  }
 }
 
 function render(
@@ -388,10 +280,30 @@ function render(
   ariaLabel: string,
   width = 520,
   height = 320,
+  ariaDescription?: string,
+  tabIndex?: number,
 ) {
   return renderChartSvg(createChartScene(definition, { width, height }), {
+    ariaDescription,
     ariaLabel,
+    tabIndex,
   })
+}
+
+function createGeneratedModule(
+  renderedCharts: Record<string, string>,
+  sourceFile: string,
+) {
+  return [
+    '// Generated by pnpm charts:generate-landing-svg.',
+    `// Source: ${sourceFile}`,
+    '',
+    ...Object.entries(renderedCharts).map(
+      ([name, svg]) =>
+        `export const ${name} =\n  ${quoteTypeScriptString(svg)}`,
+    ),
+    '',
+  ].join('\n')
 }
 
 function verifyAreaBounds(svg: string, label: string) {

@@ -166,6 +166,7 @@ import { Route as LibraryDevtoolsVersionIndexRouteImport } from './routes/_libra
 import { Route as LibraryDbVersionIndexRouteImport } from './routes/_library/db.$version.index'
 import { Route as LibraryConfigVersionIndexRouteImport } from './routes/_library/config.$version.index'
 import { Route as LibraryCliVersionIndexRouteImport } from './routes/_library/cli.$version.index'
+import { Route as LibraryChartsVersionIndexRouteImport } from './routes/_library/charts.$version.index'
 import { Route as LibraryAiVersionIndexRouteImport } from './routes/_library/ai.$version.index'
 import { Route as LibraryLibraryIdVersionIndexRouteImport } from './routes/_library/$libraryId/$version.index'
 import { Route as IntentRegistryPackageNameChar123Char125DotmdRouteImport } from './routes/intent/registry/$packageName.{$}[.]md'
@@ -1005,6 +1006,12 @@ const LibraryCliVersionIndexRoute = LibraryCliVersionIndexRouteImport.update({
   path: '/cli/$version/',
   getParentRoute: () => LibraryRoute,
 } as any)
+const LibraryChartsVersionIndexRoute =
+  LibraryChartsVersionIndexRouteImport.update({
+    id: '/charts/$version/',
+    path: '/charts/$version/',
+    getParentRoute: () => LibraryRoute,
+  } as any)
 const LibraryAiVersionIndexRoute = LibraryAiVersionIndexRouteImport.update({
   id: '/ai/$version/',
   path: '/ai/$version/',
@@ -1316,6 +1323,7 @@ export interface FileRoutesByFullPath {
   '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   '/$libraryId/$version/': typeof LibraryLibraryIdVersionIndexRoute
   '/ai/$version/': typeof LibraryAiVersionIndexRoute
+  '/charts/$version/': typeof LibraryChartsVersionIndexRoute
   '/cli/$version/': typeof LibraryCliVersionIndexRoute
   '/config/$version/': typeof LibraryConfigVersionIndexRoute
   '/db/$version/': typeof LibraryDbVersionIndexRoute
@@ -1489,6 +1497,7 @@ export interface FileRoutesByTo {
   '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   '/$libraryId/$version': typeof LibraryLibraryIdVersionIndexRoute
   '/ai/$version': typeof LibraryAiVersionIndexRoute
+  '/charts/$version': typeof LibraryChartsVersionIndexRoute
   '/cli/$version': typeof LibraryCliVersionIndexRoute
   '/config/$version': typeof LibraryConfigVersionIndexRoute
   '/db/$version': typeof LibraryDbVersionIndexRoute
@@ -1676,6 +1685,7 @@ export interface FileRoutesById {
   '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   '/_library/$libraryId/$version/': typeof LibraryLibraryIdVersionIndexRoute
   '/_library/ai/$version/': typeof LibraryAiVersionIndexRoute
+  '/_library/charts/$version/': typeof LibraryChartsVersionIndexRoute
   '/_library/cli/$version/': typeof LibraryCliVersionIndexRoute
   '/_library/config/$version/': typeof LibraryConfigVersionIndexRoute
   '/_library/db/$version/': typeof LibraryDbVersionIndexRoute
@@ -1863,6 +1873,7 @@ export interface FileRouteTypes {
     | '/intent/registry/$packageName/{$}.md'
     | '/$libraryId/$version/'
     | '/ai/$version/'
+    | '/charts/$version/'
     | '/cli/$version/'
     | '/config/$version/'
     | '/db/$version/'
@@ -2036,6 +2047,7 @@ export interface FileRouteTypes {
     | '/intent/registry/$packageName/{$}.md'
     | '/$libraryId/$version'
     | '/ai/$version'
+    | '/charts/$version'
     | '/cli/$version'
     | '/config/$version'
     | '/db/$version'
@@ -2222,6 +2234,7 @@ export interface FileRouteTypes {
     | '/intent/registry/$packageName/{$}.md'
     | '/_library/$libraryId/$version/'
     | '/_library/ai/$version/'
+    | '/_library/charts/$version/'
     | '/_library/cli/$version/'
     | '/_library/config/$version/'
     | '/_library/db/$version/'
@@ -3445,6 +3458,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryCliVersionIndexRouteImport
       parentRoute: typeof LibraryRoute
     }
+    '/_library/charts/$version/': {
+      id: '/_library/charts/$version/'
+      path: '/charts/$version'
+      fullPath: '/charts/$version/'
+      preLoaderRoute: typeof LibraryChartsVersionIndexRouteImport
+      parentRoute: typeof LibraryRoute
+    }
     '/_library/ai/$version/': {
       id: '/_library/ai/$version/'
       path: '/ai/$version'
@@ -3777,6 +3797,7 @@ const LibraryLibraryIdRouteRouteWithChildren =
 interface LibraryRouteChildren {
   LibraryLibraryIdRouteRoute: typeof LibraryLibraryIdRouteRouteWithChildren
   LibraryAiVersionIndexRoute: typeof LibraryAiVersionIndexRoute
+  LibraryChartsVersionIndexRoute: typeof LibraryChartsVersionIndexRoute
   LibraryCliVersionIndexRoute: typeof LibraryCliVersionIndexRoute
   LibraryConfigVersionIndexRoute: typeof LibraryConfigVersionIndexRoute
   LibraryDbVersionIndexRoute: typeof LibraryDbVersionIndexRoute
@@ -3800,6 +3821,7 @@ interface LibraryRouteChildren {
 const LibraryRouteChildren: LibraryRouteChildren = {
   LibraryLibraryIdRouteRoute: LibraryLibraryIdRouteRouteWithChildren,
   LibraryAiVersionIndexRoute: LibraryAiVersionIndexRoute,
+  LibraryChartsVersionIndexRoute: LibraryChartsVersionIndexRoute,
   LibraryCliVersionIndexRoute: LibraryCliVersionIndexRoute,
   LibraryConfigVersionIndexRoute: LibraryConfigVersionIndexRoute,
   LibraryDbVersionIndexRoute: LibraryDbVersionIndexRoute,

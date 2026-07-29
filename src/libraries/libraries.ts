@@ -333,6 +333,32 @@ export const table: LibrarySlim = {
   },
 }
 
+export const charts: LibrarySlim = {
+  id: 'charts',
+  ...categoryStyles.ui,
+  name: 'TanStack Charts',
+  to: '/charts',
+  tagline: "A chart grammar you don't have to outgrow.",
+  description:
+    'Compose typed data, marks, channels, and D3 scales into responsive SVG charts or custom visualizations.',
+  repo: 'tanstack/charts',
+  frameworks: ['react', 'vanilla'],
+  corePackageName: '@tanstack/charts',
+  npmPackageNames: [
+    '@tanstack/charts',
+    '@tanstack/react-charts',
+    '@tanstack/octane-charts',
+  ],
+  latestVersion: 'v0',
+  latestBranch: 'main',
+  availableVersions: ['v0'],
+  statsAvailable: false,
+  sitemap: {
+    includeLandingPage: true,
+    includeDocsPages: true,
+  },
+}
+
 // prettier-ignore
 const reactTableV7List = [
     {from: 'docs/api/overview',to: 'docs/overview',},
@@ -816,6 +842,7 @@ export const libraries: LibrarySlim[] = [
   router,
   query,
   table,
+  charts,
   form,
   db,
   ai,
@@ -877,7 +904,7 @@ export const publicLibraries = libraries.filter(isPublicLibrary)
 export const librariesByGroup = {
   framework: [start, router],
   state: [query, db, store, ai],
-  headlessUI: [table, form, hotkeys, markdown, highlight],
+  headlessUI: [table, charts, form, hotkeys, markdown, highlight],
   performance: [virtual, pacer],
   tooling: [devtools, config, cli, intent],
 }

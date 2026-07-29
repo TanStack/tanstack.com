@@ -1,5 +1,5 @@
 import { notFound } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
+import { createServerFn, createServerOnlyFn } from '@tanstack/react-start'
 import { setResponseHeader } from '@tanstack/react-start/server'
 import removeMarkdown from 'remove-markdown'
 import * as v from 'valibot'
@@ -116,13 +116,13 @@ const temporarilyUnavailableMarkdown = `# Content temporarily unavailable
 
 We are having trouble fetching this document from GitHub right now. Please try again in a minute.`
 
-async function loadDocumentsServerModule() {
-  return import('./documents.server')
-}
+const loadDocumentsServerModule = createServerOnlyFn(
+  () => import('./documents.server'),
+)
 
-async function loadGitHubContentCacheServerModule() {
-  return import('./github-content-cache.server')
-}
+const loadGitHubContentCacheServerModule = createServerOnlyFn(
+  () => import('./github-content-cache.server'),
+)
 
 function buildUnavailableFile(filePath: string) {
   if (filePath.toLowerCase().endsWith('.md')) {

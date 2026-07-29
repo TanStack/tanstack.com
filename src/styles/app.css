@@ -189,6 +189,7 @@ html.theme-switching *::after {
   --color-lib-router: var(--color-category-framework);
   --color-lib-query: var(--color-category-data);
   --color-lib-table: var(--color-category-ui);
+  --color-lib-charts: var(--color-category-ui);
   --color-lib-db: var(--color-category-data);
   --color-lib-ai: var(--color-category-data);
   --color-lib-form: var(--color-category-ui);
@@ -2226,19 +2227,19 @@ button[aria-label='Open TanStack Devtools'] {
 }
 
 .charts-catalog-chart {
-  --ts-chart-1: #2563eb;
-  --ts-chart-2: #f97316;
-  --ts-chart-3: #10b981;
-  --ts-chart-4: #8b5cf6;
-  --ts-chart-5: #ec4899;
-  --ts-chart-6: #06b6d4;
+  --ts-chart-1: var(--color-ds-blue-400);
+  --ts-chart-2: var(--color-ds-terracotta-400);
+  --ts-chart-3: var(--color-ds-green-400);
+  --ts-chart-4: var(--color-ds-purple-400);
+  --ts-chart-5: var(--color-ds-amber-400);
+  --ts-chart-6: var(--color-ds-neutral-400);
 }
 
 .dark .charts-catalog-chart {
-  --ts-chart-1: #6ea8fe;
-  --ts-chart-2: #ff9b65;
-  --ts-chart-3: #4fd1a1;
-  --ts-chart-4: #ae8cff;
-  --ts-chart-5: #f679bc;
-  --ts-chart-6: #4fd4e7;
+  --ts-chart-1: var(--color-ds-blue-200);
+  --ts-chart-2: var(--color-ds-terracotta-200);
+  --ts-chart-3: var(--color-ds-green-200);
+  --ts-chart-4: var(--color-ds-purple-200);
+  --ts-chart-5: var(--color-ds-amber-200);
+  --ts-chart-6: var(--color-ds-neutral-200);
 }

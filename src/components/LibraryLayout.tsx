@@ -9,7 +9,7 @@ import { useClickOutside } from '~/hooks/useClickOutside'
 import { last } from '~/utils/utils'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
 import { getActiveDocsNavTabId, getTabbedMenuConfig } from '~/utils/docsNavTabs'
-import { Framework, LibraryId } from '~/libraries'
+import { getLibrary, type Framework, type LibraryId } from '~/libraries'
 import { frameworkOptions } from '~/libraries/frameworks'
 import { twMerge } from 'tailwind-merge'
 import {
@@ -660,6 +660,8 @@ const useMenuConfig = ({
   libraryId: string
 }): MenuItem[] => {
   const currentFramework = useCurrentFramework(frameworks)
+  const statsAvailable =
+    getLibrary(libraryId as LibraryId).statsAvailable !== false
 
   const localMenu: MenuItem = {
     label: 'Menu',
@@ -692,10 +694,14 @@ const useMenuConfig = ({
         label: 'Contributors',
         to: '/$libraryId/$version/docs/contributors',
       },
-      {
-        label: 'NPM Stats',
-        to: '/$libraryId/$version/docs/npm-stats',
-      },
+      ...(statsAvailable
+        ? [
+            {
+              label: 'NPM Stats',
+              to: '/$libraryId/$version/docs/npm-stats',
+            },
+          ]
+        : []),
       ...(config.sections.find((d) => d.label === 'Community Resources')
         ? [
             {

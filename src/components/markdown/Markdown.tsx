@@ -1,6 +1,8 @@
 import { renderMarkdownReact } from '@tanstack/markdown/react'
 import * as React from 'react'
 import { InlineCode, MarkdownImg } from '~/ui'
+import { ChartsCatalogEmbed } from '~/components/charts/ChartsCatalogEmbed'
+import { parseChartsCatalogEmbed } from '~/utils/charts-catalog-embed'
 import {
   findFirstImageSrc,
   parseSiteMarkdown,
@@ -111,6 +113,10 @@ function isTrustedIframeSrc(src: string | undefined) {
     return false
   }
 
+  if (parseChartsCatalogEmbed(src)) {
+    return true
+  }
+
   try {
     const url = new URL(src)
     return trustedIframeHosts.some(
@@ -122,11 +128,29 @@ function isTrustedIframeSrc(src: string | undefined) {
 }
 
 function MarkdownIframe(props: React.IframeHTMLAttributes<HTMLIFrameElement>) {
-  if (!isTrustedIframeSrc(props.src)) {
-    return null
+  const { className, title, ...iframeProps } = props
+  const iframeTitle = title?.trim() || 'Embedded content'
+
+  if (!isTrustedIframeSrc(props.src)) return null
+
+  if (props.src && parseChartsCatalogEmbed(props.src)) {
+    return (
+      <ChartsCatalogEmbed
+        title={iframeTitle}
+        {...iframeProps}
+        src={props.src}
+        className={className}
+      />
+    )
   }
 
-  return <iframe {...props} className="w-full" title="Embedded Content" />
+  return (
+    <iframe
+      title={iframeTitle}
+      {...iframeProps}
+      className={`w-full ${className ?? ''}`.trim()}
+    />
+  )
 }
 
 function CodeElement({

@@ -42,11 +42,17 @@ export async function loadLibraryLandingRouteData(
   config: ConfigSchema
 }> {
   const library = getLibrary(libraryId)
-  const [config] = await Promise.all([
-    queryClient.ensureQueryData(docsConfigQueryOptions(libraryId, version)),
-    queryClient.ensureQueryData(ossStatsQuery({ library })),
-    queryClient.ensureQueryData(recentDownloadsQuery({ library })),
-  ])
+  const configPromise = queryClient.ensureQueryData(
+    docsConfigQueryOptions(libraryId, version),
+  )
+  const statsPromise =
+    library.statsAvailable === false
+      ? Promise.resolve()
+      : Promise.all([
+          queryClient.ensureQueryData(ossStatsQuery({ library })),
+          queryClient.ensureQueryData(recentDownloadsQuery({ library })),
+        ]).then(() => undefined)
+  const [config] = await Promise.all([configPromise, statsPromise])
 
   return {
     config,

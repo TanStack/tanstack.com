@@ -128,6 +128,11 @@ export function getLibraryMainPackage(library: LibrarySlim): string {
 export function getLibraryColor(library: LibrarySlim): string {
   // Map Tailwind color classes to hex values
   const colorMap: Record<string, string> = {
+    'from-category-framework': '#39AF46',
+    'from-category-data': '#D3481B',
+    'from-category-ui': '#3AA3C4',
+    'from-category-performance': '#FFA216',
+    'from-category-tooling': '#756C5B',
     'from-red-500': '#EF4444',
     'from-amber-500': '#F59E0B',
     'from-emerald-500': '#10B981',

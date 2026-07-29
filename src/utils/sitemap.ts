@@ -4,6 +4,7 @@ import { getPublishedPosts } from '~/utils/blog'
 import { getDocsManifest } from '~/utils/docs'
 import { getPartnerSitemapEntries } from '~/utils/partner-pages'
 import { SITE_URL } from '~/utils/site'
+import { getChartsCatalogSitemapEntries } from './charts-catalog'
 
 export type SitemapEntry = {
   path: string
@@ -109,9 +110,10 @@ export function getSiteOrigin() {
 }
 
 export async function getSitemapEntries(): Promise<Array<SitemapEntry>> {
-  const docsEntries = await Promise.all(
-    libraries.map((library) => getLibraryDocsEntries(library)),
-  )
+  const [docsEntries, chartsCatalogEntries] = await Promise.all([
+    Promise.all(libraries.map((library) => getLibraryDocsEntries(library))),
+    getPublishedChartsCatalogEntries(),
+  ])
 
   const entries = [
     ...HIGH_VALUE_NON_DOC_PAGES.map((path) => ({ path })),
@@ -119,6 +121,7 @@ export async function getSitemapEntries(): Promise<Array<SitemapEntry>> {
     ...docsEntries.flat(),
     ...getBlogEntries(),
     ...getPartnerSitemapEntries(),
+    ...chartsCatalogEntries,
   ].filter(
     (entry) =>
       entry.path !== '/intent/registry' &&
@@ -128,6 +131,20 @@ export async function getSitemapEntries(): Promise<Array<SitemapEntry>> {
   return Array.from(
     new Map(entries.map((entry) => [entry.path, entry])).values(),
   )
+}
+
+async function getPublishedChartsCatalogEntries(): Promise<
+  Array<SitemapEntry>
+> {
+  try {
+    const { getChartsCatalogPublication } =
+      await import('./charts-catalog.server')
+    const publication = await getChartsCatalogPublication()
+    return getChartsCatalogSitemapEntries(publication.manifest)
+  } catch (error) {
+    console.error('[sitemap] Charts catalog unavailable', error)
+    return [{ path: '/charts/catalog/' }]
+  }
 }
 
 export async function generateSitemapXml(origin: string) {

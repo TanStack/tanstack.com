@@ -82,7 +82,6 @@ const serverBundledClientPackages = [
   '@tanstack/react-hotkeys',
   '@tanstack/react-pacer',
   '@tanstack/react-table',
-  'lucide-react',
   'zustand',
   /^@fingerprintjs\//,
 ]
@@ -188,9 +187,6 @@ export default defineConfig({
       'takumi-js',
       // Don't pre-bundle CLI so we always get fresh changes during dev
       ...(isDev ? ['@tanstack/cli'] : []),
-      // Lucide can resolve differently across Vite environments when combined
-      // with our React shim. Excluding it keeps resolution deterministic.
-      'lucide-react',
     ],
   },
   build: {
@@ -231,11 +227,6 @@ export default defineConfig({
 
           // Vendor chunk splitting for better caching
           if (id.includes('node_modules')) {
-            // Lucide icons (tree-shaken but still significant)
-            if (id.includes('lucide-react')) {
-              return 'icons'
-            }
-
             if (
               id.includes('node_modules/react-dom/') ||
               id.includes('node_modules/react/') ||

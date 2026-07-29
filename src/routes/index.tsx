@@ -51,24 +51,17 @@ function Index() {
   const { recentPosts } = Route.useLoaderData()
   const { openLibraries } = useLibrariesOverlay()
 
-  // "Start with a prompt": smooth-scroll to the app starter and focus its prompt
-  // field. The starter hydrates lazily when scrolled into view, so poll briefly
-  // for the textarea before focusing.
   const startWithPrompt = (e: React.MouseEvent) => {
     e.preventDefault()
     const section = document.getElementById('start-with-a-prompt')
     section?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    let tries = 0
-    const focusPrompt = () => {
-      const field = section?.querySelector<HTMLTextAreaElement>('textarea')
-      if (field) {
-        field.focus()
-        field.select()
-      } else if (tries++ < 40) {
-        window.setTimeout(focusPrompt, 100)
-      }
+    const field = section?.querySelector<HTMLTextAreaElement>('textarea')
+    if (field) {
+      field.focus()
+      field.select()
+    } else if (section) {
+      section.dataset.focusPrompt = 'true'
     }
-    window.setTimeout(focusPrompt, 350)
   }
 
   return (
@@ -90,15 +83,22 @@ function Index() {
                 aria-hidden
                 className="absolute inset-2 -z-10 overflow-hidden rounded-[2rem] [corner-shape:squircle]"
               >
-                <img
-                  src="/images/hero-palm-gradient.jpg"
-                  alt=""
-                  width={2400}
-                  height={1600}
-                  loading="eager"
-                  fetchPriority="high"
-                  className="h-full w-full object-cover object-center"
-                />
+                <picture className="contents">
+                  <source
+                    type="image/webp"
+                    srcSet="/images/hero-palm-gradient-960.webp 960w, /images/hero-palm-gradient-1600.webp 1600w, /images/hero-palm-gradient-2400.webp 2400w"
+                    sizes="100vw"
+                  />
+                  <img
+                    src="/images/hero-palm-gradient.jpg"
+                    alt=""
+                    width={2400}
+                    height={1600}
+                    loading="eager"
+                    fetchPriority="high"
+                    className="h-full w-full object-cover object-center"
+                  />
+                </picture>
               </div>
               <h1 className="max-w-[613px] font-ds-display text-ds-display-sm font-bold text-ds-neutral-500 sm:text-ds-display-md lg:text-ds-display-lg xl:text-ds-display-xl">
                 The{' '}

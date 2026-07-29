@@ -25,7 +25,6 @@ export const dsNav: Array<DsNavSection> = [
       { label: 'Colors', to: '/ds/colors' },
       { label: 'Typography', to: '/ds/typography' },
       { label: 'Iconography', to: '/ds/iconography' },
-      { label: 'Icon Migration', to: '/ds/icon-migration' },
       { label: 'Shadows', to: '/ds/shadows' },
       { label: 'Effects', to: '/ds/effects' },
     ],

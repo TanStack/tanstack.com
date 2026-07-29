@@ -28,6 +28,7 @@ import { Route as MaintainersRouteImport } from './routes/maintainers'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
 import { Route as LlmsFullDottxtRouteImport } from './routes/llms-full[.]txt'
+import { Route as LibrariesRouteImport } from './routes/libraries'
 import { Route as LearnRouteImport } from './routes/learn'
 import { Route as FeedbackLeaderboardRouteImport } from './routes/feedback-leaderboard'
 import { Route as ExploreRouteImport } from './routes/explore'
@@ -35,6 +36,7 @@ import { Route as EthosRouteImport } from './routes/ethos'
 import { Route as DsRouteImport } from './routes/ds'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as BuilderRouteImport } from './routes/builder'
+import { Route as BrandGuideRouteImport } from './routes/brand-guide'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AdsRouteImport } from './routes/ads'
 import { Route as AccountRouteImport } from './routes/account'
@@ -61,6 +63,7 @@ import { Route as PartnersPartnerRouteImport } from './routes/partners.$partner'
 import { Route as OauthTokenRouteImport } from './routes/oauth/token'
 import { Route as OauthRegisterRouteImport } from './routes/oauth/register'
 import { Route as OauthAuthorizeRouteImport } from './routes/oauth/authorize'
+import { Route as LibrariesFrameworkRouteImport } from './routes/libraries_.$framework'
 import { Route as DsTypographyRouteImport } from './routes/ds.typography'
 import { Route as DsStatsRouteImport } from './routes/ds.stats'
 import { Route as DsSpinnerRouteImport } from './routes/ds.spinner'
@@ -71,7 +74,6 @@ import { Route as DsNavbarRouteImport } from './routes/ds.navbar'
 import { Route as DsLogosRouteImport } from './routes/ds.logos'
 import { Route as DsInputsRouteImport } from './routes/ds.inputs'
 import { Route as DsIconographyRouteImport } from './routes/ds.iconography'
-import { Route as DsIconMigrationRouteImport } from './routes/ds.icon-migration'
 import { Route as DsEyebrowRouteImport } from './routes/ds.eyebrow'
 import { Route as DsEffectsRouteImport } from './routes/ds.effects'
 import { Route as DsDropdownRouteImport } from './routes/ds.dropdown'
@@ -280,6 +282,11 @@ const LlmsFullDottxtRoute = LlmsFullDottxtRouteImport.update({
   path: '/llms-full.txt',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LibrariesRoute = LibrariesRouteImport.update({
+  id: '/libraries',
+  path: '/libraries',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LearnRoute = LearnRouteImport.update({
   id: '/learn',
   path: '/learn',
@@ -313,6 +320,11 @@ const DashboardRoute = DashboardRouteImport.update({
 const BuilderRoute = BuilderRouteImport.update({
   id: '/builder',
   path: '/builder',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BrandGuideRoute = BrandGuideRouteImport.update({
+  id: '/brand-guide',
+  path: '/brand-guide',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BlogRoute = BlogRouteImport.update({
@@ -444,6 +456,11 @@ const OauthAuthorizeRoute = OauthAuthorizeRouteImport.update({
   path: '/oauth/authorize',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LibrariesFrameworkRoute = LibrariesFrameworkRouteImport.update({
+  id: '/libraries_/$framework',
+  path: '/libraries/$framework',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DsTypographyRoute = DsTypographyRouteImport.update({
   id: '/typography',
   path: '/typography',
@@ -493,12 +510,9 @@ const DsIconographyRoute = DsIconographyRouteImport.update({
   id: '/iconography',
   path: '/iconography',
   getParentRoute: () => DsRoute,
-} as any)
-const DsIconMigrationRoute = DsIconMigrationRouteImport.update({
-  id: '/icon-migration',
-  path: '/icon-migration',
-  getParentRoute: () => DsRoute,
-} as any)
+} as any).lazy(() =>
+  import('./routes/ds.iconography.lazy').then((d) => d.Route),
+)
 const DsEyebrowRoute = DsEyebrowRouteImport.update({
   id: '/eyebrow',
   path: '/eyebrow',
@@ -1112,6 +1126,7 @@ export interface FileRoutesByFullPath {
   '/account': typeof AccountRouteWithChildren
   '/ads': typeof AdsRoute
   '/blog': typeof BlogRouteWithChildren
+  '/brand-guide': typeof BrandGuideRoute
   '/builder': typeof BuilderRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/ds': typeof DsRouteWithChildren
@@ -1119,6 +1134,7 @@ export interface FileRoutesByFullPath {
   '/explore': typeof ExploreRoute
   '/feedback-leaderboard': typeof FeedbackLeaderboardRoute
   '/learn': typeof LearnRoute
+  '/libraries': typeof LibrariesRoute
   '/llms-full.txt': typeof LlmsFullDottxtRoute
   '/llms.txt': typeof LlmsDottxtRoute
   '/login': typeof LoginRoute
@@ -1167,7 +1183,6 @@ export interface FileRoutesByFullPath {
   '/ds/dropdown': typeof DsDropdownRoute
   '/ds/effects': typeof DsEffectsRoute
   '/ds/eyebrow': typeof DsEyebrowRoute
-  '/ds/icon-migration': typeof DsIconMigrationRoute
   '/ds/iconography': typeof DsIconographyRoute
   '/ds/inputs': typeof DsInputsRoute
   '/ds/logos': typeof DsLogosRoute
@@ -1178,6 +1193,7 @@ export interface FileRoutesByFullPath {
   '/ds/spinner': typeof DsSpinnerRoute
   '/ds/stats': typeof DsStatsRoute
   '/ds/typography': typeof DsTypographyRoute
+  '/libraries/$framework': typeof LibrariesFrameworkRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
   '/oauth/token': typeof OauthTokenRoute
@@ -1285,11 +1301,13 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ads': typeof AdsRoute
+  '/brand-guide': typeof BrandGuideRoute
   '/dashboard': typeof DashboardRoute
   '/ethos': typeof EthosRoute
   '/explore': typeof ExploreRoute
   '/feedback-leaderboard': typeof FeedbackLeaderboardRoute
   '/learn': typeof LearnRoute
+  '/libraries': typeof LibrariesRoute
   '/llms-full.txt': typeof LlmsFullDottxtRoute
   '/llms.txt': typeof LlmsDottxtRoute
   '/login': typeof LoginRoute
@@ -1335,7 +1353,6 @@ export interface FileRoutesByTo {
   '/ds/dropdown': typeof DsDropdownRoute
   '/ds/effects': typeof DsEffectsRoute
   '/ds/eyebrow': typeof DsEyebrowRoute
-  '/ds/icon-migration': typeof DsIconMigrationRoute
   '/ds/iconography': typeof DsIconographyRoute
   '/ds/inputs': typeof DsInputsRoute
   '/ds/logos': typeof DsLogosRoute
@@ -1346,6 +1363,7 @@ export interface FileRoutesByTo {
   '/ds/spinner': typeof DsSpinnerRoute
   '/ds/stats': typeof DsStatsRoute
   '/ds/typography': typeof DsTypographyRoute
+  '/libraries/$framework': typeof LibrariesFrameworkRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
   '/oauth/token': typeof OauthTokenRoute
@@ -1455,6 +1473,7 @@ export interface FileRoutesById {
   '/account': typeof AccountRouteWithChildren
   '/ads': typeof AdsRoute
   '/blog': typeof BlogRouteWithChildren
+  '/brand-guide': typeof BrandGuideRoute
   '/builder': typeof BuilderRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/ds': typeof DsRouteWithChildren
@@ -1462,6 +1481,7 @@ export interface FileRoutesById {
   '/explore': typeof ExploreRoute
   '/feedback-leaderboard': typeof FeedbackLeaderboardRoute
   '/learn': typeof LearnRoute
+  '/libraries': typeof LibrariesRoute
   '/llms-full.txt': typeof LlmsFullDottxtRoute
   '/llms.txt': typeof LlmsDottxtRoute
   '/login': typeof LoginRoute
@@ -1510,7 +1530,6 @@ export interface FileRoutesById {
   '/ds/dropdown': typeof DsDropdownRoute
   '/ds/effects': typeof DsEffectsRoute
   '/ds/eyebrow': typeof DsEyebrowRoute
-  '/ds/icon-migration': typeof DsIconMigrationRoute
   '/ds/iconography': typeof DsIconographyRoute
   '/ds/inputs': typeof DsInputsRoute
   '/ds/logos': typeof DsLogosRoute
@@ -1521,6 +1540,7 @@ export interface FileRoutesById {
   '/ds/spinner': typeof DsSpinnerRoute
   '/ds/stats': typeof DsStatsRoute
   '/ds/typography': typeof DsTypographyRoute
+  '/libraries_/$framework': typeof LibrariesFrameworkRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
   '/oauth/token': typeof OauthTokenRoute
@@ -1633,6 +1653,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/ads'
     | '/blog'
+    | '/brand-guide'
     | '/builder'
     | '/dashboard'
     | '/ds'
@@ -1640,6 +1661,7 @@ export interface FileRouteTypes {
     | '/explore'
     | '/feedback-leaderboard'
     | '/learn'
+    | '/libraries'
     | '/llms-full.txt'
     | '/llms.txt'
     | '/login'
@@ -1688,7 +1710,6 @@ export interface FileRouteTypes {
     | '/ds/dropdown'
     | '/ds/effects'
     | '/ds/eyebrow'
-    | '/ds/icon-migration'
     | '/ds/iconography'
     | '/ds/inputs'
     | '/ds/logos'
@@ -1699,6 +1720,7 @@ export interface FileRouteTypes {
     | '/ds/spinner'
     | '/ds/stats'
     | '/ds/typography'
+    | '/libraries/$framework'
     | '/oauth/authorize'
     | '/oauth/register'
     | '/oauth/token'
@@ -1806,11 +1828,13 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/ads'
+    | '/brand-guide'
     | '/dashboard'
     | '/ethos'
     | '/explore'
     | '/feedback-leaderboard'
     | '/learn'
+    | '/libraries'
     | '/llms-full.txt'
     | '/llms.txt'
     | '/login'
@@ -1856,7 +1880,6 @@ export interface FileRouteTypes {
     | '/ds/dropdown'
     | '/ds/effects'
     | '/ds/eyebrow'
-    | '/ds/icon-migration'
     | '/ds/iconography'
     | '/ds/inputs'
     | '/ds/logos'
@@ -1867,6 +1890,7 @@ export interface FileRouteTypes {
     | '/ds/spinner'
     | '/ds/stats'
     | '/ds/typography'
+    | '/libraries/$framework'
     | '/oauth/authorize'
     | '/oauth/register'
     | '/oauth/token'
@@ -1975,6 +1999,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/ads'
     | '/blog'
+    | '/brand-guide'
     | '/builder'
     | '/dashboard'
     | '/ds'
@@ -1982,6 +2007,7 @@ export interface FileRouteTypes {
     | '/explore'
     | '/feedback-leaderboard'
     | '/learn'
+    | '/libraries'
     | '/llms-full.txt'
     | '/llms.txt'
     | '/login'
@@ -2030,7 +2056,6 @@ export interface FileRouteTypes {
     | '/ds/dropdown'
     | '/ds/effects'
     | '/ds/eyebrow'
-    | '/ds/icon-migration'
     | '/ds/iconography'
     | '/ds/inputs'
     | '/ds/logos'
@@ -2041,6 +2066,7 @@ export interface FileRouteTypes {
     | '/ds/spinner'
     | '/ds/stats'
     | '/ds/typography'
+    | '/libraries_/$framework'
     | '/oauth/authorize'
     | '/oauth/register'
     | '/oauth/token'
@@ -2153,6 +2179,7 @@ export interface RootRouteChildren {
   AccountRoute: typeof AccountRouteWithChildren
   AdsRoute: typeof AdsRoute
   BlogRoute: typeof BlogRouteWithChildren
+  BrandGuideRoute: typeof BrandGuideRoute
   BuilderRoute: typeof BuilderRouteWithChildren
   DashboardRoute: typeof DashboardRoute
   DsRoute: typeof DsRouteWithChildren
@@ -2160,6 +2187,7 @@ export interface RootRouteChildren {
   ExploreRoute: typeof ExploreRoute
   FeedbackLeaderboardRoute: typeof FeedbackLeaderboardRoute
   LearnRoute: typeof LearnRoute
+  LibrariesRoute: typeof LibrariesRoute
   LlmsFullDottxtRoute: typeof LlmsFullDottxtRoute
   LlmsDottxtRoute: typeof LlmsDottxtRoute
   LoginRoute: typeof LoginRoute
@@ -2184,6 +2212,7 @@ export interface RootRouteChildren {
   AuthCliRoute: typeof AuthCliRoute
   AuthPopupSuccessRoute: typeof AuthPopupSuccessRoute
   AuthSignoutRoute: typeof AuthSignoutRoute
+  LibrariesFrameworkRoute: typeof LibrariesFrameworkRoute
   OauthAuthorizeRoute: typeof OauthAuthorizeRoute
   OauthRegisterRoute: typeof OauthRegisterRoute
   OauthTokenRoute: typeof OauthTokenRoute
@@ -2360,6 +2389,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LlmsFullDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/libraries': {
+      id: '/libraries'
+      path: '/libraries'
+      fullPath: '/libraries'
+      preLoaderRoute: typeof LibrariesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/learn': {
       id: '/learn'
       path: '/learn'
@@ -2407,6 +2443,13 @@ declare module '@tanstack/react-router' {
       path: '/builder'
       fullPath: '/builder'
       preLoaderRoute: typeof BuilderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/brand-guide': {
+      id: '/brand-guide'
+      path: '/brand-guide'
+      fullPath: '/brand-guide'
+      preLoaderRoute: typeof BrandGuideRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/blog': {
@@ -2591,6 +2634,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OauthAuthorizeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/libraries_/$framework': {
+      id: '/libraries_/$framework'
+      path: '/libraries/$framework'
+      fullPath: '/libraries/$framework'
+      preLoaderRoute: typeof LibrariesFrameworkRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ds/typography': {
       id: '/ds/typography'
       path: '/typography'
@@ -2659,13 +2709,6 @@ declare module '@tanstack/react-router' {
       path: '/iconography'
       fullPath: '/ds/iconography'
       preLoaderRoute: typeof DsIconographyRouteImport
-      parentRoute: typeof DsRoute
-    }
-    '/ds/icon-migration': {
-      id: '/ds/icon-migration'
-      path: '/icon-migration'
-      fullPath: '/ds/icon-migration'
-      preLoaderRoute: typeof DsIconMigrationRouteImport
       parentRoute: typeof DsRoute
     }
     '/ds/eyebrow': {
@@ -3696,7 +3739,6 @@ interface DsRouteChildren {
   DsDropdownRoute: typeof DsDropdownRoute
   DsEffectsRoute: typeof DsEffectsRoute
   DsEyebrowRoute: typeof DsEyebrowRoute
-  DsIconMigrationRoute: typeof DsIconMigrationRoute
   DsIconographyRoute: typeof DsIconographyRoute
   DsInputsRoute: typeof DsInputsRoute
   DsLogosRoute: typeof DsLogosRoute
@@ -3721,7 +3763,6 @@ const DsRouteChildren: DsRouteChildren = {
   DsDropdownRoute: DsDropdownRoute,
   DsEffectsRoute: DsEffectsRoute,
   DsEyebrowRoute: DsEyebrowRoute,
-  DsIconMigrationRoute: DsIconMigrationRoute,
   DsIconographyRoute: DsIconographyRoute,
   DsInputsRoute: DsInputsRoute,
   DsLogosRoute: DsLogosRoute,
@@ -3804,6 +3845,7 @@ const rootRouteChildren: RootRouteChildren = {
   AccountRoute: AccountRouteWithChildren,
   AdsRoute: AdsRoute,
   BlogRoute: BlogRouteWithChildren,
+  BrandGuideRoute: BrandGuideRoute,
   BuilderRoute: BuilderRouteWithChildren,
   DashboardRoute: DashboardRoute,
   DsRoute: DsRouteWithChildren,
@@ -3811,6 +3853,7 @@ const rootRouteChildren: RootRouteChildren = {
   ExploreRoute: ExploreRoute,
   FeedbackLeaderboardRoute: FeedbackLeaderboardRoute,
   LearnRoute: LearnRoute,
+  LibrariesRoute: LibrariesRoute,
   LlmsFullDottxtRoute: LlmsFullDottxtRoute,
   LlmsDottxtRoute: LlmsDottxtRoute,
   LoginRoute: LoginRoute,
@@ -3836,6 +3879,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthCliRoute: AuthCliRoute,
   AuthPopupSuccessRoute: AuthPopupSuccessRoute,
   AuthSignoutRoute: AuthSignoutRoute,
+  LibrariesFrameworkRoute: LibrariesFrameworkRoute,
   OauthAuthorizeRoute: OauthAuthorizeRoute,
   OauthRegisterRoute: OauthRegisterRoute,
   OauthTokenRoute: OauthTokenRoute,

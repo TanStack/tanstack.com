@@ -112,7 +112,7 @@ function StatsPage() {
         <ComponentPreview
           className={
             page === 'hero'
-              ? "block bg-[url('/images/hero-palm-gradient.jpg')] bg-cover bg-center"
+              ? "block bg-[url('/images/hero-palm-gradient-960.webp')] bg-cover bg-center"
               : 'block'
           }
           code={`<StatsSection page="${page}" layout="${layout}" stats={stats} />`}

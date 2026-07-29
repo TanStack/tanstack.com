@@ -13,6 +13,7 @@ export type SitemapEntry = {
 const HIGH_VALUE_NON_DOC_PAGES = [
   '/',
   '/blog',
+  '/libraries',
   '/learn',
   '/showcase',
   '/support',

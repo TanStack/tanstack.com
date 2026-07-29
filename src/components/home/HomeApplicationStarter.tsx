@@ -46,6 +46,14 @@ function RotatingHomeApplicationStarter() {
       headlineStorageKey,
       String((currentIndex + 1) % headlines.length),
     )
+
+    const section = document.getElementById('start-with-a-prompt')
+    if (section?.dataset.focusPrompt === 'true') {
+      const field = section.querySelector<HTMLTextAreaElement>('textarea')
+      field?.focus()
+      field?.select()
+      delete section.dataset.focusPrompt
+    }
   }, [])
 
   return (

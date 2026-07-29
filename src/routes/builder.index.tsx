@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { ClientOnly, createFileRoute, Link } from '@tanstack/react-router'
+import { ClientOnly, createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 import { seo } from '~/utils/seo'
 
@@ -32,17 +32,6 @@ export const Route = createFileRoute('/builder/')({
   component: RouteComponent,
   staticData: {
     includeSearchInCanonical: true,
-    Title: () => (
-      <Link
-        to="/builder"
-        className="hover:text-blue-500 flex items-center gap-2 text-gray-500"
-      >
-        Builder
-        <span className="px-1.5 py-0.5 text-[.6rem] font-black border border-amber-500 text-amber-500 rounded-md uppercase">
-          Alpha
-        </span>
-      </Link>
-    ),
   },
   head: () => ({
     meta: seo({

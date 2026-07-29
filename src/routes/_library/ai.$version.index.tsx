@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import AiLanding from '~/components/landing/AiLanding'
 import {
-  LibraryNavbarTitle,
   beforeLoadLibraryLanding,
   getLibraryLandingHead,
   getLibraryLandingHeaders,
@@ -18,15 +17,8 @@ export const Route = createFileRoute('/_library/ai/$version/')({
     loadLibraryLandingRouteData('ai', params.version, queryClient),
   head: () => getLibraryLandingHead('ai'),
   headers: () => getLibraryLandingHeaders('ai'),
-  staticData: {
-    Title: AiNavbarTitle,
-  },
   component: AiLandingRoute,
 })
-
-function AiNavbarTitle() {
-  return <LibraryNavbarTitle libraryId="ai" />
-}
 
 function AiLandingRoute() {
   return <AiLanding />

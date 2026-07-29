@@ -2,13 +2,6 @@ import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/charts/catalog')({
   component: ChartsCatalogLayout,
-  staticData: {
-    Title: () => (
-      <Link to="/charts/catalog" className="text-gray-500 hover:text-blue-500">
-        Charts
-      </Link>
-    ),
-  },
 })
 
 function ChartsCatalogLayout() {

@@ -10,7 +10,7 @@ const LazyNavbarAuthControls = React.lazy(() =>
 )
 import { NavbarCartButton } from './NavbarCartButton'
 import { MegaMenuItem } from './MegaMenuItem'
-import { Link, useLocation, useMatches } from '@tanstack/react-router'
+import { Link, useLocation } from '@tanstack/react-router'
 import {
   ArrowRight,
   ArrowSquareOut,
@@ -36,7 +36,7 @@ import { AiDockButton, SearchButton } from './SearchButton'
 import { BrandContextMenu } from './BrandContextMenu'
 import { useSearchContext } from '~/contexts/SearchContext'
 import { useLibrariesOverlay } from '~/contexts/LibrariesOverlayContext'
-import { findLibrary, publicLibraries, type LibrarySlim } from '~/libraries'
+import { publicLibraries, type LibrarySlim } from '~/libraries'
 import {
   categoryLabels,
   categoryOrder,
@@ -75,19 +75,12 @@ import { formatAuthors, formatPublishedDate } from '~/utils/blog-format'
 import { getOptimizedImageUrl } from '~/utils/optimizedImage'
 import { CoverFallback } from '~/components/CoverFallback'
 
-type LogoProps = {
-  title?: React.ComponentType | null
-}
-
-const LogoSection = ({ title }: LogoProps) => {
+const LogoSection = () => {
   return (
     <Link
       to="/"
       aria-label="TanStack"
-      className={twMerge(
-        `inline-flex items-center cursor-pointer`,
-        title ? 'shrink-0' : '',
-      )}
+      className="inline-flex items-center cursor-pointer"
     >
       <img
         src="/images/brand/tanstack-landscape-black.svg"
@@ -431,19 +424,7 @@ function AiDockMount() {
 }
 
 export function Navbar({ children }: { children: React.ReactNode }) {
-  const matches = useMatches()
   const location = useLocation()
-  const pathSegments = location.pathname.split('/').filter(Boolean)
-  const isLibraryLanding =
-    pathSegments.length === 2 && Boolean(findLibrary(pathSegments[0]))
-
-  const { Title } = React.useMemo(() => {
-    const match = [...matches].reverse().find((m) => m.staticData.Title)
-
-    return {
-      Title: match?.staticData.Title ?? null,
-    }
-  }, [matches])
 
   const containerRef = React.useRef<HTMLDivElement>(null)
   const desktopNavRef = React.useRef<HTMLElement>(null)
@@ -589,18 +570,11 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       ref={containerRef}
     >
       <div className="flex min-w-0 flex-1 items-center gap-2 min-[1120px]:gap-3">
-        <div className="flex items-center gap-2 font-black text-xl uppercase min-w-0">
-          <BrandContextMenu
-            className={twMerge(`flex items-center group shrink-0`)}
-          >
-            <LogoSection title={isLibraryLanding ? null : Title} />
-          </BrandContextMenu>
-          {Title && !isLibraryLanding ? (
-            <div className="truncate">
-              <Title />
-            </div>
-          ) : null}
-        </div>
+        <BrandContextMenu
+          className={twMerge(`flex items-center group shrink-0`)}
+        >
+          <LogoSection />
+        </BrandContextMenu>
       </div>
 
       <nav

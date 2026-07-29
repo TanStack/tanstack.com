@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Link, createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { useThrottledCallback, useThrottler } from '@tanstack/react-pacer'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
@@ -239,16 +239,6 @@ export const Route = createFileRoute('/stats/npm/')({
   component: RouteComponent,
   staticData: {
     includeSearchInCanonical: true,
-    Title: () => {
-      return (
-        <Link
-          to="."
-          className="hover:text-blue-500 flex items-center gap-2 text-gray-500"
-        >
-          NPM Stats
-        </Link>
-      )
-    },
   },
 })
 

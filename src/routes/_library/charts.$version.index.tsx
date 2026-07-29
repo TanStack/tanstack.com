@@ -2,7 +2,6 @@ import { createFileRoute } from '@tanstack/react-router'
 import ChartsLanding from '~/components/landing/ChartsLanding'
 import { getChartsCatalogAll } from '~/utils/charts-catalog.functions'
 import {
-  LibraryNavbarTitle,
   beforeLoadLibraryLanding,
   getLibraryLandingHead,
   getLibraryLandingHeaders,
@@ -25,15 +24,8 @@ export const Route = createFileRoute('/_library/charts/$version/')({
   },
   head: () => getLibraryLandingHead('charts'),
   headers: () => getLibraryLandingHeaders('charts'),
-  staticData: {
-    Title: ChartsNavbarTitle,
-  },
   component: ChartsLandingRoute,
 })
-
-function ChartsNavbarTitle() {
-  return <LibraryNavbarTitle libraryId="charts" />
-}
 
 function ChartsLandingRoute() {
   const { version } = Route.useParams()

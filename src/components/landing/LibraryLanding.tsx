@@ -263,7 +263,7 @@ export function LibraryLandingShell({
                     className="hidden h-[18px] w-auto dark:block"
                   />
                   <h1 className="mt-1">
-                    <span className="block bg-[linear-gradient(110deg,var(--landing-headline-start),var(--landing-headline-end))] bg-clip-text pr-1 font-ds-display text-ds-display-lg uppercase text-transparent dark:[filter:drop-shadow(0_4px_4px_rgb(0_0_0/0.25))] sm:text-ds-display-xl lg:text-ds-display-2xl">
+                    <span className="block bg-[linear-gradient(110deg,var(--landing-headline-start),var(--landing-headline-end))] bg-clip-text pr-1 font-ds-display text-ds-display-lg uppercase text-transparent dark:[filter:drop-shadow(0_4px_4px_rgb(0_0_0/0.25))] sm:text-ds-display-xl 2xl:text-ds-display-2xl">
                       {library.name.replace(/^TanStack\s+/i, '')}
                     </span>
                   </h1>

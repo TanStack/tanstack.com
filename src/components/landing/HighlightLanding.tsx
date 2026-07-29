@@ -1,31 +1,26 @@
 import * as React from 'react'
-import { Link, useParams } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 import {
   ArrowRight,
-  BookOpen,
   Cube as Boxes,
   BracketsCurly as Braces,
   Check,
   Gauge as CircleGauge,
-  Highlighter,
   Stack as Layers3,
   Palette,
   Scan as ScanText,
   Lightning as Zap,
 } from '@phosphor-icons/react'
 
-import { Footer } from '~/components/Footer'
-import { LandingCommunitySection } from '~/components/LandingCommunitySection'
-import LandingPageGad from '~/components/LandingPageGad'
-import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
 import { LibraryWordmark } from '~/components/LibraryWordmark'
-import { PartnersSponsorsSection } from '~/components/PartnersSponsorsSection'
-import { GithubIcon } from '~/components/icons/GithubIcon'
 import { getLibrary } from '~/libraries'
 
-import { LandingCopyPromptButton } from './LandingCopyPromptButton'
+import {
+  LandingSection,
+  LandingSectionIntro,
+  LibraryLandingShell,
+} from './LibraryLanding'
 
-const library = getLibrary('highlight')
 const markdownLibrary = getLibrary('markdown')
 
 const highlightPrompt = [
@@ -69,235 +64,99 @@ const languageGroups = [
 ]
 
 export default function HighlightLanding() {
-  const { version } = useParams({ strict: false })
-  const resolvedVersion = version ?? library.latestVersion
   const [isLightTheme, setIsLightTheme] = React.useState(false)
 
   return (
-    <div className="w-full min-w-0 overflow-x-hidden bg-[#f8f5ec] text-zinc-950 dark:bg-[#090b0e] dark:text-zinc-100">
-      <section className="relative overflow-hidden border-b border-amber-950/10 bg-[#f3eddd] dark:border-amber-300/15 dark:bg-[#0b0e12]">
-        <SpectrumGrid />
-        <div className="relative mx-auto grid w-full gap-9 px-4 py-10 lg:max-w-[80rem] lg:grid-cols-[0.82fr_1.18fr] lg:items-center lg:py-14 xl:max-w-[92rem]">
-          <div className="max-w-3xl">
-            <LabLabel>
-              <Highlighter size={14} aria-hidden="true" /> Web-first syntax
-              highlighting
-            </LabLabel>
-
-            <div className="mt-5 flex flex-wrap items-start gap-3">
-              <h1 className="text-5xl font-black leading-[0.93] sm:text-6xl lg:text-7xl">
-                <LibraryWordmark library={library} />
-              </h1>
-              {library.badge ? (
-                <span className="rounded-sm bg-zinc-950 px-2 py-1 text-xs font-black uppercase text-white dark:bg-amber-300 dark:text-zinc-950">
-                  {library.badge}
-                </span>
-              ) : null}
-            </div>
-
-            <p className="mt-6 max-w-2xl text-2xl font-black leading-tight text-zinc-950 dark:text-white sm:text-3xl">
-              Highlighting that knows it is going into a webpage.
-            </p>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-700 dark:text-zinc-400 sm:text-lg">
-              Register the languages your docs use, highlight synchronously, and
-              ship one compact semantic HTML tree that every theme can share. No
-              editor engine or initialization phase required.
-            </p>
-
-            <LibraryDownloadsMicro
-              animateIncreaseTrend
-              library={library}
-              className="mt-5"
-              label="weekly downloads"
-              period="weekly"
-              showTotals
-            />
-
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <Link
-                to="/$libraryId/$version/docs"
-                params={{ libraryId: library.id, version: resolvedVersion }}
-                className="inline-flex items-center justify-center gap-2 rounded-md border border-amber-500 bg-amber-400 px-4 py-2.5 text-sm font-black text-zinc-950 transition-colors hover:bg-amber-300 dark:border-amber-300 dark:bg-amber-300 dark:hover:bg-amber-200"
-              >
-                <BookOpen size={16} aria-hidden="true" /> Build a highlighter
-              </Link>
-              <LandingCopyPromptButton
-                prompt={highlightPrompt}
-                label="Copy Highlight Prompt"
-              />
-            </div>
-
-            <div className="mt-8 grid grid-cols-3 border-y border-zinc-950/10 py-4 font-mono dark:border-white/10">
-              <HeroStat value="1.74 KB" label="empty core" />
-              <HeroStat value="25" label="languages" />
-              <HeroStat value="1 tree" label="every theme" />
-            </div>
-          </div>
-
-          <CodeLab
-            isLightTheme={isLightTheme}
-            setIsLightTheme={setIsLightTheme}
+    <LibraryLandingShell
+      libraryId="highlight"
+      headline="Highlighting built for the web."
+      description="Register the languages your docs use, highlight synchronously, and ship one compact semantic HTML tree that every theme can share."
+      hero={
+        <CodeLab
+          isLightTheme={isLightTheme}
+          setIsLightTheme={setIsLightTheme}
+        />
+      }
+      prompt={highlightPrompt}
+      promptLabel="Copy Highlight prompt"
+    >
+      <LandingSection tone="accent">
+        <div className="grid items-center gap-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
+          <LandingSectionIntro
+            eyebrow="Selective assembly"
+            icon={<Boxes aria-hidden="true" size={15} />}
+            title="The registry is the bundle plan."
+            body="The core knows no languages. Direct imports make the site’s language set explicit and let the bundler discard everything else."
           />
-        </div>
-      </section>
-
-      <section className="border-b border-zinc-200 bg-[#f4f1e8] text-zinc-950 dark:border-zinc-800 dark:bg-[#15120c] dark:text-zinc-100">
-        <div className="mx-auto grid w-full gap-10 px-4 py-14 lg:max-w-[80rem] lg:grid-cols-[0.7fr_1.3fr] xl:max-w-[92rem]">
-          <div className="max-w-xl">
-            <LightLabel>
-              <Boxes size={14} aria-hidden="true" /> Selective assembly
-            </LightLabel>
-            <h2 className="mt-4 text-3xl font-black leading-tight sm:text-4xl">
-              The registry is the bundle plan.
-            </h2>
-            <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300">
-              The core knows no languages. Direct imports make the site’s
-              language set explicit, keep missing languages visible, and let the
-              bundler discard everything else.
-            </p>
-            <div className="mt-6 font-mono text-xs leading-6 text-zinc-500 dark:text-zinc-400">
-              <div>createHighlighter({'{'}</div>
-              <div className="pl-5 text-amber-800 dark:text-amber-300">
-                languages: [tsx, css, markdown]
-              </div>
-              <div>{'}'})</div>
-            </div>
-          </div>
-
           <BundleDial />
         </div>
-      </section>
+      </LandingSection>
 
-      <section className="border-b border-amber-950/10 bg-[#fff8e7] text-zinc-950 dark:border-amber-300/15 dark:bg-[#10141a] dark:text-zinc-100">
-        <div className="mx-auto grid w-full gap-10 px-4 py-14 lg:max-w-[80rem] lg:grid-cols-[0.76fr_1.24fr] lg:items-center xl:max-w-[92rem]">
-          <div className="max-w-xl">
-            <LabLabel>
-              <Palette size={14} aria-hidden="true" /> Semantic output
-            </LabLabel>
-            <h2 className="mt-4 text-3xl font-black leading-tight sm:text-4xl">
-              Change the palette. Keep the markup.
-            </h2>
-            <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-400">
-              Tokens carry stable{' '}
-              <code className="text-amber-800 dark:text-amber-300">th-*</code>{' '}
-              classes instead of theme colors. CSS variables recolor the same
-              tree, so dark mode does not require a second highlighting pass or
-              a second copy of the HTML.
-            </p>
-          </div>
-
+      <LandingSection tone="ink">
+        <div className="grid items-center gap-12 lg:grid-cols-[0.76fr_1.24fr] lg:gap-16">
+          <LandingSectionIntro
+            eyebrow="Semantic output"
+            icon={<Palette aria-hidden="true" size={15} />}
+            title="Change the palette. Keep the markup."
+            body="Tokens carry stable semantic classes instead of theme colors. CSS variables recolor the same tree without a second highlighting pass."
+          />
           <ThemeContract />
         </div>
-      </section>
-
-      <section className="border-b border-zinc-200 bg-white text-zinc-950 dark:border-zinc-800 dark:bg-[#090b0e] dark:text-zinc-100">
-        <div className="mx-auto w-full px-4 py-14 lg:max-w-[80rem] xl:max-w-[92rem]">
-          <div className="grid gap-10 lg:grid-cols-[0.7fr_1.3fr]">
-            <div className="max-w-xl">
-              <LightLabel>
-                <Layers3 size={14} aria-hidden="true" /> Context-aware scanners
-              </LightLabel>
-              <h2 className="mt-4 text-3xl font-black leading-tight sm:text-4xl">
-                Web languages rarely stay in their lane.
-              </h2>
-              <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300">
-                HTML, Vue, Svelte, EJS, Markdown, and JavaScript templates embed
-                other languages. Highlight delegates those regions only when the
-                nested language is registered, while preserving every source
-                character around them.
-              </p>
-            </div>
-
+        <div className="mt-12 grid items-center gap-12 border-t border-border-subtle pt-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
+          <LandingSectionIntro
+            eyebrow="Context-aware scanners"
+            icon={<Layers3 aria-hidden="true" size={15} />}
+            title="Web languages rarely stay in their lane."
+            body="HTML, Vue, Svelte, EJS, Markdown, and JavaScript templates delegate embedded regions only when the nested language is registered."
+          />
+          <div>
             <EmbeddedLanguageMap />
-          </div>
-
-          <div className="mt-12 grid gap-3 border-t border-zinc-200 pt-8 dark:border-zinc-800 sm:grid-cols-2 lg:grid-cols-4">
-            {languageGroups.map(([group, languages]) => (
-              <div key={group}>
-                <div className="font-mono text-xs font-black uppercase tracking-widest text-amber-700 dark:text-amber-300">
-                  {group}
+            <div className="mt-8 grid gap-5 border-t border-border-subtle pt-8 sm:grid-cols-2 lg:grid-cols-4">
+              {languageGroups.map(([group, languages]) => (
+                <div key={group}>
+                  <p className="font-ds-mono text-ds-mono-caps uppercase text-[var(--landing-accent-bright)]">
+                    {group}
+                  </p>
+                  <p className="mt-2 text-ds-body-xs text-text-primary/55">
+                    {languages}
+                  </p>
                 </div>
-                <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
-                  {languages}
-                </p>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
-      </section>
+      </LandingSection>
 
-      <section className="border-b border-amber-950/10 bg-[#f3eddd] text-zinc-950 dark:border-amber-300/15 dark:bg-[#0b0e12] dark:text-zinc-100">
-        <div className="mx-auto grid w-full gap-10 px-4 py-14 lg:max-w-[80rem] lg:grid-cols-[1.2fr_0.8fr] lg:items-center xl:max-w-[92rem]">
+      <LandingSection tone="raised">
+        <div className="grid items-center gap-12 lg:grid-cols-[1.2fr_0.8fr] lg:gap-16">
           <AnnotationPanel />
-          <div className="max-w-xl">
-            <LabLabel>
-              <ScanText size={14} aria-hidden="true" /> Presentation metadata
-            </LabLabel>
-            <h2 className="mt-4 text-3xl font-black leading-tight sm:text-4xl">
-              Annotate the lesson, not the token stream.
-            </h2>
-            <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-400">
-              Highlight lines, exact character ranges, insertions, deletions,
-              focus, errors, and warnings. Decorations split token boundaries
-              cleanly without changing the underlying source or tokenizer.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-2 font-mono text-xs">
-              {['{2,4-6}', 'ins', 'del', 'focus', 'warning', 'title'].map(
-                (annotation) => (
-                  <span
-                    key={annotation}
-                    className="border border-amber-950/15 bg-white/40 px-3 py-2 text-amber-900 dark:border-amber-300/20 dark:bg-amber-300/5 dark:text-amber-200"
-                  >
-                    {annotation}
-                  </span>
-                ),
-              )}
-            </div>
-          </div>
+          <LandingSectionIntro
+            eyebrow="Presentation metadata"
+            icon={<ScanText aria-hidden="true" size={15} />}
+            title="Annotate the lesson, not the token stream."
+            body="Highlight lines, exact character ranges, insertions, deletions, focus, errors, and warnings without changing the source or tokenizer."
+          />
         </div>
-      </section>
-
-      <section className="border-b border-zinc-200 bg-[#f4f1e8] text-zinc-950 dark:border-zinc-800 dark:bg-[#15120c] dark:text-zinc-100">
-        <div className="mx-auto w-full px-4 py-14 lg:max-w-[80rem] xl:max-w-[92rem]">
-          <div className="grid gap-10 lg:grid-cols-[0.7fr_1.3fr]">
-            <div className="max-w-xl">
-              <LightLabel>
-                <CircleGauge size={14} aria-hidden="true" /> Corpus, not toys
-              </LightLabel>
-              <h2 className="mt-4 text-3xl font-black leading-tight sm:text-4xl">
-                Tuned against the docs it will actually render.
-              </h2>
-              <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300">
-                The committed corpus samples 333 fixtures from 2,940 TanStack
-                documentation files. Release checks cover token fidelity,
-                deterministic HTML, bundle profiles, and at least 10,000 blocks
-                per runtime run.
-              </p>
-            </div>
-
-            <BenchmarkTape />
-          </div>
+        <div className="mt-12 grid items-center gap-12 border-t border-border-subtle pt-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
+          <LandingSectionIntro
+            eyebrow="Corpus, not toys"
+            icon={<CircleGauge aria-hidden="true" size={15} />}
+            title="Tuned against the docs it will render."
+            body="The committed corpus samples 333 fixtures from 2,940 TanStack documentation files. Release checks cover fidelity, deterministic HTML, bundle profiles, and runtime throughput."
+          />
+          <BenchmarkTape />
         </div>
-      </section>
+      </LandingSection>
 
-      <section className="border-b border-zinc-200 bg-white text-zinc-950 dark:border-zinc-800 dark:bg-[#090b0e] dark:text-zinc-100">
-        <div className="mx-auto grid w-full gap-10 px-4 py-14 lg:max-w-[80rem] lg:grid-cols-[0.72fr_1.28fr] xl:max-w-[92rem]">
-          <div className="max-w-xl">
-            <LightLabel>
-              <Zap size={14} aria-hidden="true" /> Choose by job
-            </LightLabel>
-            <h2 className="mt-4 text-3xl font-black leading-tight sm:text-4xl">
-              A docs highlighter is not an editor highlighter.
-            </h2>
-            <p className="mt-4 text-base leading-7 text-zinc-700 dark:text-zinc-300">
-              Highlight is optimized for known web languages and compact page
-              output. It deliberately does not chase TextMate completeness,
-              automatic detection, hundreds of languages, or incremental editor
-              state.
-            </p>
-          </div>
-
-          <div className="divide-y divide-zinc-200 border-y border-zinc-300 dark:divide-zinc-800 dark:border-zinc-700">
+      <LandingSection tone="accent">
+        <div className="grid items-start gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
+          <LandingSectionIntro
+            eyebrow="Choose by job"
+            icon={<Zap aria-hidden="true" size={15} />}
+            title="A docs highlighter is not an editor highlighter."
+            body="Highlight is optimized for known web languages and compact page output, not TextMate completeness, automatic detection, or incremental editor state."
+          />
+          <div className="overflow-hidden rounded-xl border border-border-subtle bg-background-surface">
             <ChoiceRow
               name="TanStack Highlight"
               useWhen="Known docs languages, compact HTML, CSS themes, and annotations matter most."
@@ -312,102 +171,40 @@ export default function HighlightLanding() {
             />
           </div>
         </div>
-      </section>
-
-      <section className="border-b border-amber-950/10 bg-[#fff8e7] text-zinc-950 dark:border-amber-300/15 dark:bg-[#10141a] dark:text-zinc-100">
-        <div className="mx-auto grid w-full gap-10 px-4 py-14 lg:max-w-[80rem] lg:grid-cols-[1.08fr_0.92fr] lg:items-center xl:max-w-[92rem]">
-          <div>
-            <LabLabel>
-              <Braces size={14} aria-hidden="true" /> Explicit integrations
-            </LabLabel>
-            <h2 className="mt-4 max-w-3xl text-3xl font-black leading-tight sm:text-4xl">
-              Drop it into Markdown without hiding the language set.
-            </h2>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-700 dark:text-zinc-400">
-              Use the direct renderer, a structured remark adapter, an
-              idempotent rehype adapter, or the Octane MDX path. Every adapter
-              receives the highlighter you assembled; none imports every
-              language behind your back.
-            </p>
-          </div>
-
+        <div className="mt-12 grid items-center gap-12 border-t border-border-subtle pt-12 lg:grid-cols-[1.08fr_0.92fr] lg:gap-16">
+          <LandingSectionIntro
+            eyebrow="Explicit integrations"
+            icon={<Braces aria-hidden="true" size={15} />}
+            title="Drop it into Markdown without hiding the language set."
+            body="Every renderer and adapter receives the highlighter you assembled; none imports every language behind your back."
+          />
           <Link
             to="/$libraryId"
             params={{ libraryId: markdownLibrary.id }}
-            className="group border border-amber-950/15 bg-white/45 p-6 transition-colors hover:bg-white/75 dark:border-amber-300/20 dark:bg-amber-300/5 dark:hover:bg-amber-300/10"
+            className="group rounded-xl border border-border-subtle bg-background-surface p-6 transition-colors hover:border-border-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]"
           >
-            <div className="font-mono text-xs font-bold uppercase tracking-widest text-amber-800 dark:text-amber-300">
+            <p className="font-ds-mono text-ds-mono-caps uppercase text-[var(--landing-accent-bright)]">
               Natural companion
-            </div>
-            <div className="mt-4 text-2xl font-black">
+            </p>
+            <div className="mt-4 text-ds-heading-4">
               <LibraryWordmark library={markdownLibrary} />
             </div>
-            <p className="mt-3 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
-              A serializable document model that keeps code highlighting at an
+            <p className="mt-3 text-ds-body-sm text-text-primary/55">
+              A serializable document model that keeps highlighting at an
               explicit boundary.
             </p>
-            <div className="mt-6 inline-flex items-center gap-2 text-sm font-black text-zinc-950 dark:text-white">
+            <span className="mt-6 inline-flex items-center gap-2 text-ds-label-md">
               Explore Markdown
               <ArrowRight
-                size={16}
                 aria-hidden="true"
                 className="transition-transform group-hover:translate-x-1"
+                size={16}
               />
-            </div>
+            </span>
           </Link>
         </div>
-      </section>
-
-      <section className="bg-[#f3eddd] py-14 text-zinc-950 dark:bg-[#0b0e12] dark:text-zinc-100">
-        <div className="mx-auto w-full max-w-[80rem] px-4 xl:max-w-[92rem]">
-          <LabLabel>
-            <GithubIcon className="h-3.5 w-3.5" /> Open source, measured in
-            public
-          </LabLabel>
-          <h2 className="mt-4 max-w-3xl text-3xl font-black leading-tight sm:text-4xl">
-            Every byte and every fixture has a job.
-          </h2>
-          <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-700 dark:text-zinc-400">
-            Language scanners, embedded delegation, renderer output, adapters,
-            and bundle profiles are checked against the same committed corpus.
-          </p>
-        </div>
-
-        <div className="mt-10">
-          <LandingCommunitySection libraryId="highlight" />
-        </div>
-      </section>
-
-      <LandingPageGad />
-      <section className="border-y border-amber-500/30 bg-amber-300 px-4 py-14 text-center text-zinc-950 dark:border-amber-300/20 dark:bg-amber-400">
-        <p className="font-mono text-xs font-black uppercase tracking-widest">
-          Register. Highlight. Ship.
-        </p>
-        <h2 className="mx-auto mt-3 max-w-2xl text-3xl font-black sm:text-4xl">
-          Put the code on the page, not an editor in the bundle.
-        </h2>
-        <Link
-          to="/$libraryId/$version/docs"
-          params={{ libraryId: library.id, version: resolvedVersion }}
-          className="mt-7 inline-flex items-center gap-2 rounded-md bg-zinc-950 px-5 py-3 text-sm font-black text-white transition-colors hover:bg-zinc-800"
-        >
-          Build your language set <ArrowRight size={16} aria-hidden="true" />
-        </Link>
-      </section>
-      <PartnersSponsorsSection className="bg-background-default py-20 lg:py-24" />
-      <Footer />
-    </div>
-  )
-}
-
-function SpectrumGrid() {
-  return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden opacity-70">
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(251,191,36,0.055)_1px,transparent_1px),linear-gradient(to_bottom,rgba(251,191,36,0.055)_1px,transparent_1px)] bg-[size:28px_28px]" />
-      <div className="absolute -right-24 top-12 h-px w-[70%] rotate-[-8deg] bg-linear-to-r from-transparent via-fuchsia-400 to-transparent shadow-[0_0_24px_rgba(232,121,249,0.65)]" />
-      <div className="absolute -right-24 top-32 h-px w-[65%] rotate-[-4deg] bg-linear-to-r from-transparent via-cyan-300 to-transparent shadow-[0_0_24px_rgba(103,232,249,0.65)]" />
-      <div className="absolute -right-24 top-52 h-px w-[60%] bg-linear-to-r from-transparent via-amber-300 to-transparent shadow-[0_0_24px_rgba(252,211,77,0.65)]" />
-    </div>
+      </LandingSection>
+    </LibraryLandingShell>
   )
 }
 
@@ -419,7 +216,7 @@ function CodeLab({
   setIsLightTheme: React.Dispatch<React.SetStateAction<boolean>>
 }) {
   return (
-    <div className="min-w-0 overflow-hidden border border-white/15 bg-[#11151b] shadow-[0_24px_70px_rgba(0,0,0,0.35)]">
+    <div className="library-landing-graphic min-w-0 overflow-hidden rounded-xl border border-[color:rgb(var(--landing-glow)/0.45)] bg-[#11151b] shadow-[0_24px_70px_-28px_rgb(var(--landing-glow)/0.45)]">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
         <div className="flex items-center gap-2 font-mono text-[11px] font-bold uppercase tracking-widest text-zinc-500">
           <span className="h-2 w-2 rounded-full bg-fuchsia-400" /> live output
@@ -436,7 +233,7 @@ function CodeLab({
           <button
             type="button"
             onClick={() => setIsLightTheme(true)}
-            className={`px-3 py-1.5 transition-colors ${isLightTheme ? 'bg-amber-200 text-zinc-950' : 'text-zinc-500 hover:text-white'}`}
+            className={`px-3 py-1.5 transition-colors ${isLightTheme ? 'bg-ds-neutral-200 text-ds-neutral-500' : 'text-zinc-500 hover:text-white'}`}
             aria-pressed={isLightTheme}
           >
             paper
@@ -535,8 +332,8 @@ function CodeLine({
   const stateClass =
     state === 'focus'
       ? isLightTheme
-        ? 'bg-amber-200/70 -mx-2 px-2'
-        : 'bg-amber-300/10 -mx-2 px-2'
+        ? 'bg-[color:rgb(var(--landing-glow)/0.18)] -mx-2 px-2'
+        : 'bg-[color:rgb(var(--landing-glow)/0.13)] -mx-2 px-2'
       : state === 'insert'
         ? isLightTheme
           ? 'bg-emerald-100 -mx-2 border-l-2 border-emerald-500 px-2'
@@ -585,23 +382,10 @@ function Token({
   return <span className={colorClass}>{children}</span>
 }
 
-function HeroStat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="border-r border-zinc-950/10 px-3 first:pl-0 last:border-r-0 dark:border-white/10">
-      <div className="text-sm font-black text-amber-800 dark:text-amber-300 sm:text-base">
-        {value}
-      </div>
-      <div className="mt-1 text-[10px] uppercase tracking-wider text-zinc-600 dark:text-zinc-500">
-        {label}
-      </div>
-    </div>
-  )
-}
-
 function BundleDial() {
   return (
-    <div className="border border-zinc-300 bg-white p-5 shadow-sm dark:border-zinc-700 dark:bg-[#0f1115] sm:p-6">
-      <div className="flex items-center justify-between gap-4 border-b border-zinc-200 pb-3 font-mono text-[10px] font-bold uppercase tracking-widest text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
+    <div className="rounded-xl border border-border-subtle bg-background-surface p-5 sm:p-6">
+      <div className="flex items-center justify-between gap-4 border-b border-border-subtle pb-3 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/45">
         <span>gzip profile</span>
         <span>add only what is used →</span>
       </div>
@@ -609,17 +393,15 @@ function BundleDial() {
         {bundleProfiles.map((profile) => (
           <div key={profile.name}>
             <div className="mb-2 grid grid-cols-[4rem_1fr_auto] items-center gap-3 font-mono text-xs">
-              <span className="font-black text-amber-800 dark:text-amber-300">
+              <span className="font-black text-[var(--landing-accent-bright)]">
                 {profile.name}
               </span>
-              <span className="text-zinc-500 dark:text-zinc-400">
-                {profile.detail}
-              </span>
+              <span className="text-text-primary/45">{profile.detail}</span>
               <span className="font-black">{profile.size}</span>
             </div>
-            <div className="h-2 bg-zinc-100 dark:bg-zinc-800">
+            <div className="h-2 rounded-full bg-text-primary/10">
               <div
-                className={`h-full bg-linear-to-r from-amber-400 via-orange-400 to-fuchsia-500 ${profile.width}`}
+                className={`h-full rounded-full bg-[var(--landing-accent)] ${profile.width}`}
               />
             </div>
           </div>
@@ -631,8 +413,8 @@ function BundleDial() {
 
 function ThemeContract() {
   return (
-    <div className="grid overflow-hidden border border-amber-950/15 font-mono text-xs dark:border-white/15 md:grid-cols-2">
-      <div className="border-b border-amber-950/10 bg-white/70 p-5 dark:border-white/10 dark:bg-[#0b0e12] md:border-b-0 md:border-r">
+    <div className="grid overflow-hidden rounded-xl border border-border-subtle bg-background-surface font-ds-mono text-ds-mono-xs md:grid-cols-2">
+      <div className="border-b border-border-subtle p-5 md:border-b-0 md:border-r">
         <div className="text-zinc-500">output.html</div>
         <div className="mt-4 leading-7 text-zinc-700 dark:text-zinc-300">
           <span className="text-zinc-500">&lt;span class=</span>
@@ -645,11 +427,11 @@ function ThemeContract() {
           <br />
           <span className="text-zinc-500">&lt;/span&gt;</span>
         </div>
-        <div className="mt-6 border-t border-amber-950/10 pt-3 text-[10px] uppercase tracking-widest text-amber-800 dark:border-white/10 dark:text-amber-300">
+        <div className="mt-6 border-t border-border-subtle pt-3 text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
           emitted once
         </div>
       </div>
-      <div className="bg-amber-100/45 p-5 dark:bg-[#151a22]">
+      <div className="bg-background-subtle p-5">
         <div className="text-zinc-500">themes.css</div>
         <div className="mt-4 space-y-4 leading-6">
           <div>
@@ -673,7 +455,7 @@ function ThemeContract() {
             </span>
           </div>
         </div>
-        <div className="mt-6 border-t border-amber-950/10 pt-3 text-[10px] uppercase tracking-widest text-amber-800 dark:border-white/10 dark:text-amber-300">
+        <div className="mt-6 border-t border-border-subtle pt-3 text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
           recolored by CSS
         </div>
       </div>
@@ -683,7 +465,7 @@ function ThemeContract() {
 
 function EmbeddedLanguageMap() {
   return (
-    <div className="overflow-hidden border border-zinc-300 bg-[#11151b] p-4 font-mono text-xs text-zinc-300 shadow-sm sm:p-5">
+    <div className="overflow-hidden rounded-xl border border-border-subtle bg-[#11151b] p-4 font-ds-mono text-ds-mono-xs text-zinc-300 sm:p-5">
       <div className="flex items-center justify-between border-b border-white/10 pb-3 text-[10px] font-bold uppercase tracking-widest text-zinc-500">
         <span>component.vue</span>
         <span>registered: html · ts · css</span>
@@ -749,7 +531,7 @@ function LanguageBand({
 
 function AnnotationPanel() {
   return (
-    <div className="overflow-hidden border border-white/15 bg-[#11151b] font-mono text-xs leading-7 shadow-[0_20px_60px_rgba(0,0,0,0.25)] sm:text-sm">
+    <div className="overflow-hidden rounded-xl border border-border-subtle bg-[#11151b] font-ds-mono text-ds-mono-xs leading-7 sm:text-ds-mono-sm">
       <div className="flex items-center justify-between border-b border-white/10 px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-zinc-500">
         <span>cache.ts</span>
         <span>{'{2,4-5} ins=5'}</span>
@@ -799,8 +581,8 @@ function AnnotatedLine({
 
 function BenchmarkTape() {
   return (
-    <div className="border border-zinc-300 bg-white shadow-sm dark:border-zinc-700 dark:bg-[#0f1115]">
-      <div className="grid grid-cols-[1fr_auto_auto] gap-4 border-b border-zinc-200 px-4 py-3 font-mono text-[10px] font-bold uppercase tracking-widest text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
+    <div className="overflow-hidden rounded-xl border border-border-subtle bg-background-surface">
+      <div className="grid grid-cols-[1fr_auto_auto] gap-4 border-b border-border-subtle px-4 py-3 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/45">
         <span>TanStack docs corpus</span>
         <span>time</span>
         <span>HTML</span>
@@ -817,21 +599,19 @@ function BenchmarkTape() {
         output="1,252 KiB"
         emphasis={false}
       />
-      <div className="grid gap-3 border-t border-zinc-200 bg-zinc-50 px-4 py-4 font-mono text-[11px] text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400 sm:grid-cols-3">
+      <div className="grid gap-3 border-t border-border-subtle bg-background-subtle px-4 py-4 font-ds-mono text-ds-mono-xs text-text-primary/55 sm:grid-cols-3">
         <span>
-          <strong className="text-zinc-950 dark:text-zinc-100">2,940</strong>{' '}
-          docs files scanned
+          <strong className="text-text-primary">2,940</strong> docs files
+          scanned
         </span>
         <span>
-          <strong className="text-zinc-950 dark:text-zinc-100">333</strong>{' '}
-          committed fixtures
+          <strong className="text-text-primary">333</strong> committed fixtures
         </span>
         <span>
-          <strong className="text-zinc-950 dark:text-zinc-100">10,000+</strong>{' '}
-          blocks per gate
+          <strong className="text-text-primary">10,000+</strong> blocks per gate
         </span>
       </div>
-      <p className="border-t border-zinc-200 px-4 py-3 text-xs leading-5 text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
+      <p className="border-t border-border-subtle px-4 py-3 text-ds-body-xs text-text-primary/45">
         Project benchmark report. This measures the tested corpus and output
         shape, not equivalent grammar accuracy; Shiki targets deeper TextMate
         fidelity.
@@ -853,13 +633,13 @@ function BenchmarkRow({
 }) {
   return (
     <div
-      className={`grid grid-cols-[1fr_auto_auto] gap-4 border-b border-zinc-200 px-4 py-4 font-mono text-xs last:border-b-0 dark:border-zinc-800 ${emphasis ? 'bg-amber-50 dark:bg-amber-300/10' : ''}`}
+      className={`grid grid-cols-[1fr_auto_auto] gap-4 border-b border-border-subtle px-4 py-4 font-ds-mono text-ds-mono-xs last:border-b-0 ${emphasis ? 'bg-[color:rgb(var(--landing-glow)/0.1)]' : ''}`}
     >
       <span
         className={
           emphasis
-            ? 'font-black text-amber-900 dark:text-amber-200'
-            : 'text-zinc-600 dark:text-zinc-400'
+            ? 'font-black text-[var(--landing-accent-bright)]'
+            : 'text-text-primary/55'
         }
       >
         {name}
@@ -872,34 +652,16 @@ function BenchmarkRow({
 
 function ChoiceRow({ name, useWhen }: { name: string; useWhen: string }) {
   return (
-    <div className="grid gap-2 py-5 sm:grid-cols-[12rem_1fr] sm:gap-5">
+    <div className="grid gap-2 border-b border-border-subtle px-5 py-5 last:border-b-0 sm:grid-cols-[12rem_1fr] sm:gap-5">
       <div className="inline-flex items-center gap-2 font-black">
         <Check
           size={15}
           aria-hidden="true"
-          className="text-amber-600 dark:text-amber-300"
+          className="text-[var(--landing-accent-bright)]"
         />{' '}
         {name}
       </div>
-      <p className="text-sm leading-6 text-zinc-600 dark:text-zinc-400">
-        {useWhen}
-      </p>
-    </div>
-  )
-}
-
-function LabLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="inline-flex items-center gap-2 font-mono text-xs font-black uppercase tracking-widest text-amber-800 dark:text-amber-300">
-      {children}
-    </div>
-  )
-}
-
-function LightLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="inline-flex items-center gap-2 font-mono text-xs font-black uppercase tracking-widest text-amber-700 dark:text-amber-300">
-      {children}
+      <p className="text-ds-body-sm text-text-primary/55">{useWhen}</p>
     </div>
   )
 }

@@ -1,10 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { ChartsCatalogIndex } from '~/components/charts/ChartsCatalogPages'
-import { getChartsCatalogIndex } from '~/utils/charts-catalog.functions'
+import { ChartsCatalog } from '~/components/charts/ChartsCatalogPages'
+import { getChartsCatalogAll } from '~/utils/charts-catalog.functions'
 import { seo } from '~/utils/seo'
 
 export const Route = createFileRoute('/charts/catalog/')({
-  loader: () => getChartsCatalogIndex(),
+  loader: () => getChartsCatalogAll({ data: { comparison: false } }),
   component: ChartsCatalogIndexRoute,
   head: () => ({
     meta: seo({
@@ -16,5 +16,10 @@ export const Route = createFileRoute('/charts/catalog/')({
 
 function ChartsCatalogIndexRoute() {
   const data = Route.useLoaderData()
-  return <ChartsCatalogIndex cases={data.cases} />
+  return (
+    <ChartsCatalog
+      artifactRevision={data.artifactRevision}
+      cases={data.cases}
+    />
+  )
 }

@@ -1,3 +1,4 @@
+import { ArrowsOutSimple, GridFour } from '@phosphor-icons/react'
 import { Link } from '@tanstack/react-router'
 import * as React from 'react'
 import { CodeBlock } from '~/components/markdown/CodeBlock'
@@ -32,13 +33,16 @@ type CatalogCaseModules = {
   }
 }
 
-export function ChartsCatalogIndex({
+export function ChartsCatalog({
+  artifactRevision,
   cases,
 }: {
-  cases: Array<CatalogCaseMetadata>
+  artifactRevision: string
+  cases: Array<CatalogCaseMetadata & { modules: CatalogCaseModules }>
 }) {
   const [query, setQuery] = React.useState('')
   const [family, setFamily] = React.useState('all')
+  const [fullWidth, setFullWidth] = React.useState(false)
   const families = React.useMemo(
     () => [...new Set(cases.map((catalogCase) => catalogCase.family))].sort(),
     [cases],
@@ -62,114 +66,43 @@ export function ChartsCatalogIndex({
         count={filtered.length}
         family={family}
         families={families}
+        fullWidth={fullWidth}
         query={query}
         setFamily={setFamily}
+        setFullWidth={setFullWidth}
         setQuery={setQuery}
       />
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {filtered.map((catalogCase) => (
-          <Link
-            key={catalogCase.id}
-            to="/charts/catalog/charts/$caseId"
-            params={{ caseId: catalogCase.id }}
-            search={true}
-            className="group rounded-xl border border-gray-200 bg-white p-4 transition-colors hover:border-blue-400 dark:border-gray-800 dark:bg-gray-950 dark:hover:border-blue-600"
-          >
-            <div className="flex items-start justify-between gap-4">
-              <h2 className="font-semibold leading-snug text-gray-950 group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400">
-                {catalogCase.title}
-              </h2>
-              <span className="shrink-0 font-mono text-xs text-gray-400">
-                {String(catalogCase.order).padStart(2, '0')}
-              </span>
-            </div>
-            <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
-              {catalogCase.family}
-            </p>
-          </Link>
-        ))}
-      </div>
-    </CatalogSurface>
-  )
-}
-
-export function ChartsCatalogAll({
-  artifactRevision,
-  cases,
-}: {
-  artifactRevision: string
-  cases: Array<CatalogCaseMetadata & { modules: CatalogCaseModules }>
-}) {
-  const [query, setQuery] = React.useState('')
-  const [family, setFamily] = React.useState('all')
-  const families = React.useMemo(
-    () => [...new Set(cases.map((catalogCase) => catalogCase.family))].sort(),
-    [cases],
-  )
-  const filtered = cases.filter((catalogCase) => {
-    const search = query.trim().toLowerCase()
-    return (
-      (family === 'all' || catalogCase.family === family) &&
-      (!search || catalogCase.title.toLowerCase().includes(search))
-    )
-  })
-
-  return (
-    <CatalogSurface wide>
-      <CatalogToolbar
-        count={filtered.length}
-        family={family}
-        families={families}
-        query={query}
-        setFamily={setFamily}
-        setQuery={setQuery}
-      />
-      <div className="space-y-4">
+      <div
+        className={`grid gap-4 ${
+          fullWidth ? '' : 'sm:grid-cols-2 lg:grid-cols-3'
+        }`}
+      >
         {filtered.map((catalogCase) => (
           <article
             key={catalogCase.id}
-            className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-950"
+            className="min-w-0 rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-950"
           >
-            <div className="mb-4 flex items-center justify-between gap-4">
+            <div className="flex items-start justify-between gap-4">
               <Link
                 to="/charts/catalog/charts/$caseId"
                 params={{ caseId: catalogCase.id }}
                 search={true}
-                className="font-semibold text-gray-950 hover:text-blue-600 dark:text-white dark:hover:text-blue-400"
+                className="font-semibold leading-snug text-gray-950 hover:text-blue-600 dark:text-white dark:hover:text-blue-400"
               >
                 {catalogCase.title}
               </Link>
-              <span className="text-xs text-gray-500">
+              <span className="shrink-0 text-xs text-gray-500">
                 {catalogCase.family}
               </span>
             </div>
-            <div
-              className={
-                catalogCase.modules.comparison
-                  ? 'grid gap-6 xl:grid-cols-2'
-                  : ''
-              }
-            >
-              <ChartPanel label="TanStack">
-                <ChartsCatalogChart
-                  artifactRevision={artifactRevision}
-                  caseId={catalogCase.id}
-                  defer
-                  module={catalogCase.modules.tanstack}
-                />
-              </ChartPanel>
-              {catalogCase.modules.comparison ? (
-                <ChartPanel
-                  label={rendererLabel(catalogCase.modules.comparison.renderer)}
-                >
-                  <ChartsCatalogChart
-                    artifactRevision={artifactRevision}
-                    caseId={`${catalogCase.id}-comparison`}
-                    defer
-                    module={catalogCase.modules.comparison}
-                  />
-                </ChartPanel>
-              ) : null}
+            <div className="mt-4">
+              <ChartsCatalogChart
+                artifactRevision={artifactRevision}
+                caseId={catalogCase.id}
+                defer
+                height={fullWidth ? 420 : 320}
+                module={catalogCase.modules.tanstack}
+              />
             </div>
           </article>
         ))}
@@ -296,7 +229,7 @@ function CatalogSurface({
 }) {
   return (
     <main
-      className={`mx-auto min-h-[calc(100vh-var(--navbar-height))] px-4 py-8 ${
+      className={`mx-auto min-h-[calc(100vh-var(--navbar-height))] w-full px-4 py-8 ${
         wide ? 'max-w-[1680px]' : 'max-w-6xl'
       }`}
     >
@@ -309,15 +242,19 @@ function CatalogToolbar({
   count,
   family,
   families,
+  fullWidth,
   query,
   setFamily,
+  setFullWidth,
   setQuery,
 }: {
   count: number
   family: string
   families: Array<string>
+  fullWidth: boolean
   query: string
   setFamily: (family: string) => void
+  setFullWidth: (fullWidth: boolean) => void
   setQuery: (query: string) => void
 }) {
   return (
@@ -343,8 +280,21 @@ function CatalogToolbar({
           </option>
         ))}
       </select>
-      <span className="w-16 text-right font-mono text-xs text-gray-500">
-        {count}
+      <button
+        type="button"
+        aria-pressed={fullWidth}
+        onClick={() => setFullWidth(!fullWidth)}
+        className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600 hover:text-gray-950 aria-pressed:border-blue-500 aria-pressed:text-blue-600 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-400 dark:hover:text-white dark:aria-pressed:border-blue-500 dark:aria-pressed:text-blue-400"
+      >
+        {fullWidth ? (
+          <GridFour aria-hidden="true" className="size-4" />
+        ) : (
+          <ArrowsOutSimple aria-hidden="true" className="size-4" />
+        )}
+        Full width
+      </button>
+      <span className="text-right font-mono text-xs text-gray-500">
+        {count} examples
       </span>
     </div>
   )

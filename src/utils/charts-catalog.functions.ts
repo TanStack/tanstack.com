@@ -26,18 +26,6 @@ const embedCaseInputSchema = v.strictObject({
   source: v.boolean(),
 })
 
-export const getChartsCatalogIndex = createServerFn({
-  method: 'GET',
-}).handler(async () => {
-  const publication = await loadPublication()
-  setCatalogResponseHeaders()
-  return {
-    artifactRevision: publication.artifactRevision,
-    revision: publication.manifest.revision,
-    cases: publication.manifest.cases.map(getCaseMetadata),
-  }
-})
-
 export const getChartsCatalogAll = createServerFn({ method: 'GET' })
   .validator(comparisonInputSchema)
   .handler(async ({ data }) => {

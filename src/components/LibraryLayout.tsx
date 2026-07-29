@@ -662,6 +662,18 @@ const useMenuConfig = ({
   const currentFramework = useCurrentFramework(frameworks)
   const statsAvailable =
     getLibrary(libraryId as LibraryId).statsAvailable !== false
+  const chartsExamplesMenuItems: MenuItem['children'] = [
+    {
+      label: 'Examples',
+      to: '/charts/catalog',
+      tab: 'home',
+    },
+    {
+      label: 'Examples',
+      to: '/charts/catalog',
+      tab: 'examples',
+    },
+  ]
 
   const localMenu: MenuItem = {
     label: 'Menu',
@@ -670,6 +682,7 @@ const useMenuConfig = ({
         label: 'Home',
         to: '..',
       },
+      ...(libraryId === 'charts' ? chartsExamplesMenuItems : []),
       {
         label: 'Blog',
         to: '/$libraryId/$version/docs/blog',
@@ -826,8 +839,23 @@ export function LibraryLayout({
   }, [closeMobileMenu, mobileMenuOpen])
 
   const tabbedMenuConfig = React.useMemo(() => {
-    return getTabbedMenuConfig(menuConfig)
-  }, [menuConfig])
+    const tabs = getTabbedMenuConfig(menuConfig)
+
+    return libraryId === 'charts'
+      ? tabs.map((tab) =>
+          tab.id === 'examples'
+            ? {
+                ...tab,
+                firstItem: {
+                  label: 'Examples',
+                  to: '/charts/catalog',
+                  tab: 'examples',
+                },
+              }
+            : tab,
+        )
+      : tabs
+  }, [libraryId, menuConfig])
 
   const activeTabId = React.useMemo(() => {
     return getActiveDocsNavTabId({
@@ -951,6 +979,7 @@ export function LibraryLayout({
                 ? ({ libraryId, version } as never)
                 : undefined
             const isHomeLink = child.to === '..'
+            const isChartsExamplesLink = child.to === '/charts/catalog'
             const frameworkDocsTarget = getFrameworkDocsLinkTarget(child.to)
 
             const recency = getDocRecency(child.addedAt, child.updatedAt)
@@ -1051,7 +1080,11 @@ export function LibraryLayout({
                   </Link>
                 ) : (
                   <Link
-                    from="/$libraryId/$version/docs"
+                    from={
+                      isChartsExamplesLink
+                        ? undefined
+                        : '/$libraryId/$version/docs'
+                    }
                     to={child.to}
                     params={linkParams}
                     onClick={closeMobileMenu}
@@ -1296,7 +1329,11 @@ export function LibraryLayout({
               return (
                 <Link
                   key={tab.id}
-                  from="/$libraryId/$version/docs"
+                  from={
+                    target.to === '/charts/catalog'
+                      ? undefined
+                      : '/$libraryId/$version/docs'
+                  }
                   to={target.to}
                   params={linkParams}
                   activeOptions={{

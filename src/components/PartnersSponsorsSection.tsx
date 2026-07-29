@@ -62,8 +62,9 @@ export function PartnersSponsorsContent({
       />
       <div className="mt-6 flex justify-center">
         <Link to="/partners" search={{ status: 'inactive' }}>
-          <Button as="span" variant="secondary">
+          <Button as="span" variant="subtle-link" color="gray">
             View Previous Partners
+            <ArrowRight />
           </Button>
         </Link>
       </div>

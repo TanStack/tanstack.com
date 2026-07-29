@@ -3,6 +3,31 @@ import { twMerge } from 'tailwind-merge'
 import { Check, CaretDown, Code, Copy } from '@phosphor-icons/react'
 import { copyTextToClipboard } from '~/utils/browser-effects'
 
+const descriptionStyles = {
+  page: 'mt-3 max-w-2xl text-ds-body-md text-text-secondary',
+  section: 'mt-1 max-w-2xl text-ds-body-sm text-text-secondary',
+  preview: 'truncate text-ds-body-sm text-text-muted',
+} as const
+
+/** Semantic explanatory copy used throughout the design-system catalog. */
+export function DsDescription({
+  children,
+  className,
+  role,
+}: {
+  children: React.ReactNode
+  className?: string
+  role: keyof typeof descriptionStyles
+}) {
+  return (
+    <p
+      className={[descriptionStyles[role], className].filter(Boolean).join(' ')}
+    >
+      {children}
+    </p>
+  )
+}
+
 /**
  * Presentational building blocks for the Design System pages (`/ds`).
  *
@@ -28,9 +53,7 @@ export function DsPage({
           {title}
         </h1>
         {description ? (
-          <p className="mt-3 max-w-2xl text-ds-body-md text-text-secondary">
-            {description}
-          </p>
+          <DsDescription role="page">{description}</DsDescription>
         ) : null}
       </header>
       <div className="space-y-12">{children}</div>
@@ -54,9 +77,7 @@ export function DsSection({
           {title}
         </h2>
         {description ? (
-          <p className="mt-1 max-w-2xl text-ds-body-sm text-text-muted">
-            {description}
-          </p>
+          <DsDescription role="section">{description}</DsDescription>
         ) : null}
       </div>
       {children}
@@ -110,9 +131,7 @@ export function ComponentPreview({
               </div>
             ) : null}
             {description ? (
-              <div className="truncate text-ds-body-sm text-text-muted">
-                {description}
-              </div>
+              <DsDescription role="preview">{description}</DsDescription>
             ) : null}
           </div>
           {code ? (

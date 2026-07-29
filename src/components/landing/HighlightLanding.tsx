@@ -18,6 +18,7 @@ import { Footer } from '~/components/Footer'
 import { LandingCommunitySection } from '~/components/LandingCommunitySection'
 import LandingPageGad from '~/components/LandingPageGad'
 import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
+import { LibraryStatusBadge } from '~/components/LibraryStatusBadge'
 import { LibraryWordmark } from '~/components/LibraryWordmark'
 import { PartnersSponsorsSection } from '~/components/PartnersSponsorsSection'
 import { GithubIcon } from '~/components/icons/GithubIcon'
@@ -89,9 +90,7 @@ export default function HighlightLanding() {
                 <LibraryWordmark library={library} />
               </h1>
               {library.badge ? (
-                <span className="rounded-sm bg-zinc-950 px-2 py-1 text-xs font-black uppercase text-white dark:bg-amber-300 dark:text-zinc-950">
-                  {library.badge}
-                </span>
+                <LibraryStatusBadge badge={library.badge} />
               ) : null}
             </div>
 

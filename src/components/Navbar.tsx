@@ -13,6 +13,7 @@ import { MegaMenuItem } from './MegaMenuItem'
 import { Link, useLocation, useMatches } from '@tanstack/react-router'
 import {
   ArrowRight,
+  ArrowLeft,
   ArrowSquareOut,
   Briefcase,
   Code,
@@ -23,11 +24,12 @@ import {
   Lifebuoy,
   Mailbox,
   List as Menu,
+  MagnifyingGlass,
   ShieldCheck,
   ShoppingBag,
+  SignIn,
   Sparkle as Sparkles,
   TrendUp as TrendingUp,
-  User,
   Users,
   X,
 } from '@phosphor-icons/react'
@@ -57,11 +59,9 @@ import { InstagramIcon } from '~/components/icons/InstagramIcon'
 import { BSkyIcon } from '~/components/icons/BSkyIcon'
 import { BrandXIcon } from '~/components/icons/BrandXIcon'
 import { YouTubeIcon } from '~/components/icons/YouTubeIcon'
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '~/components/Collapsible'
+import { BlogPostCard } from '~/components/ds/ui/BlogPostCard'
+import { Button } from '~/components/ds/ui'
+import { Collapsible, CollapsibleContent } from '~/components/Collapsible'
 import { getProducts } from '~/utils/shop.functions'
 import { formatMoney, shopifyImageUrl } from '~/utils/shopify-format'
 import type { ProductListItem } from '~/utils/shopify-queries'
@@ -71,9 +71,6 @@ import {
   trackPartnerInquiry,
 } from '~/utils/partner-inquiry'
 import { fetchRecentPosts, type RecentPost } from '~/utils/blog.functions'
-import { formatAuthors, formatPublishedDate } from '~/utils/blog-format'
-import { getOptimizedImageUrl } from '~/utils/optimizedImage'
-import { CoverFallback } from '~/components/CoverFallback'
 
 type LogoProps = {
   title?: React.ComponentType | null
@@ -447,6 +444,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
 
   const containerRef = React.useRef<HTMLDivElement>(null)
   const desktopNavRef = React.useRef<HTMLElement>(null)
+  const { openLibraries } = useLibrariesOverlay()
 
   React.useEffect(() => {
     const desktopNav = desktopNavRef.current
@@ -499,13 +497,37 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   }, [])
 
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
+  const [mobileMenuKey, setMobileMenuKey] = React.useState<NavMenuKey | null>(
+    null,
+  )
   const [dismissedDesktopMenuKey, setDismissedDesktopMenuKey] =
     React.useState<NavMenuKey | null>(null)
   const [canLoadAuthControls, setCanLoadAuthControls] = React.useState(false)
+  const [isScrolled, setIsScrolled] = React.useState(false)
+
+  React.useEffect(() => {
+    const updateScrolledState = () => {
+      setIsScrolled(window.scrollY > 0)
+    }
+
+    updateScrolledState()
+    window.addEventListener('scroll', updateScrolledState, { passive: true })
+
+    return () => {
+      window.removeEventListener('scroll', updateScrolledState)
+    }
+  }, [])
 
   React.useEffect(() => {
     setMobileMenuOpen(false)
+    setMobileMenuKey(null)
   }, [location.href])
+
+  React.useEffect(() => {
+    if (!mobileMenuOpen) {
+      setMobileMenuKey(null)
+    }
+  }, [mobileMenuOpen])
 
   const blurActiveNavigationElement = React.useCallback(() => {
     if (typeof document === 'undefined') {
@@ -564,8 +586,8 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         className,
       )}
     >
-      <User className="w-3.5 h-3.5" />
       <span className="hidden min-[430px]:inline">Log In</span>
+      <SignIn className="size-4" weight="bold" />
     </Link>
   )
   const renderAuthControls = (className?: string) =>
@@ -583,11 +605,18 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   const navbar = (
     <div
       className={twMerge(
-        'w-full h-[var(--navbar-height)] px-3 py-2 min-[900px]:px-5 fixed top-0 z-[100] bg-white/90 dark:bg-black/90 backdrop-blur-lg',
+        'relative w-full h-[var(--navbar-height)] px-3 py-2 min-[900px]:px-5 fixed top-0 z-[100] bg-white/90 dark:bg-black/90 backdrop-blur-lg',
         'flex items-center justify-between gap-2 min-[1120px]:gap-4',
       )}
       ref={containerRef}
     >
+      <div
+        aria-hidden="true"
+        className={twMerge(
+          'pointer-events-none absolute inset-x-0 bottom-0 h-px bg-border-subtle opacity-0 transition-opacity duration-150 ease-[cubic-bezier(0.2,0,0,1)] motion-reduce:transition-none',
+          isScrolled && 'opacity-100',
+        )}
+      />
       <div className="flex min-w-0 flex-1 items-center gap-2 min-[1120px]:gap-3">
         <div className="flex items-center gap-2 font-black text-xl uppercase min-w-0">
           <BrandContextMenu
@@ -626,11 +655,17 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         ))}
       </nav>
 
+      <div className={DESKTOP_NAV_CLASS}>
+        <SearchButton iconOnly className="h-8 w-8" />
+      </div>
+
       <div className="flex flex-1 items-center justify-end gap-2 sm:gap-2.5">
         <div className={DESKTOP_SOCIAL_CLASS}>{socialLinks}</div>
         <ThemeToggle />
         <NavbarCartButton />
-        <SearchButton iconOnly />
+        <div className={MOBILE_NAV_CLASS}>
+          <SearchButton iconOnly />
+        </div>
         <AiDockButton />
         <div
           className={twMerge(DESKTOP_NAV_CLASS, 'items-center gap-2')}
@@ -681,33 +716,24 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           data-mobile-menu
           aria-hidden={!mobileMenuOpen}
           className={twMerge(
-            'ts-glass-menu max-h-[calc(100dvh-var(--navbar-height))] overflow-y-auto',
-            'border-b border-white/45 bg-white/80 text-base shadow-2xl shadow-black/15 backdrop-blur-2xl backdrop-saturate-150',
-            'dark:border-white/10 dark:bg-black/70 dark:shadow-black/50',
+            'ds-mode-dark min-h-[calc(100dvh-var(--navbar-height))] max-h-[calc(100dvh-var(--navbar-height))] overflow-y-auto',
+            'border-b border-white/10 bg-[rgba(10,10,10,0.88)] text-base shadow-2xl shadow-black/50 backdrop-blur-2xl backdrop-saturate-150',
           )}
         >
-          <div className="border-t border-white/30 dark:border-white/10">
-            <div
-              className="flex items-center justify-end gap-2 p-2"
-              onFocusCapture={requestAuthControls}
-              onPointerEnter={requestAuthControls}
-              onTouchStart={requestAuthControls}
-            >
-              {socialLinks}
-              {renderAuthControls('h-9 px-3 text-sm')}
-            </div>
-            <nav
-              className="grid gap-1.5 px-2 pb-2"
-              aria-label="Mobile navigation"
-            >
-              {NAV_GROUPS.map((group) => (
-                <MobileMenuGroup
-                  key={group.key}
-                  group={group}
-                  onNavigate={() => setMobileMenuOpen(false)}
-                />
-              ))}
-            </nav>
+          <div>
+            <MobileNavigation
+              key={mobileMenuOpen ? 'open' : 'closed'}
+              activeKey={mobileMenuKey}
+              onBack={() => setMobileMenuKey(null)}
+              onNavigate={() => setMobileMenuOpen(false)}
+              onOpenLibraries={() => {
+                openLibraries({
+                  onBack: () => setMobileMenuOpen(true),
+                })
+                setMobileMenuOpen(false)
+              }}
+              onSelect={setMobileMenuKey}
+            />
           </div>
         </div>
       </CollapsibleContent>
@@ -723,7 +749,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         data-site-menu-tint
         className={twMerge(
           'pointer-events-none fixed inset-x-0 bottom-0 top-[var(--navbar-height)] z-[80]',
-          'bg-white/45 transition-opacity duration-200 motion-reduce:transition-none dark:bg-black/45',
+          'bg-black/45 transition-opacity duration-200 motion-reduce:transition-none',
           siteBackdropActive ? 'opacity-100' : 'opacity-0',
         )}
       />
@@ -759,13 +785,13 @@ function DesktopNavTrigger({
   const { openLibraries } = useLibrariesOverlay()
   const triggerClassName = twMerge(
     'ts-mega-trigger inline-flex items-center gap-1 rounded-md px-2 py-2 text-xs font-medium min-[1120px]:gap-1.5 min-[1120px]:px-3 min-[1120px]:text-[13px]',
-    'text-gray-700 transition-colors hover:bg-text-primary/[0.04] hover:text-gray-950',
-    'dark:text-gray-300 dark:hover:text-white',
+    'text-gray-700 transition-colors group-hover/nav:bg-surface-state-hover group-hover/nav:text-gray-950 group-focus-within/nav:bg-surface-state-hover group-focus-within/nav:text-gray-950',
+    'dark:text-gray-300 dark:group-hover/nav:text-white dark:group-focus-within/nav:text-white',
   )
 
   return (
     <div
-      className="ts-mega-trigger-wrap"
+      className="ts-mega-trigger-wrap group/nav"
       data-menu-key={group.key}
       data-menu-dismissed={dismissed ? 'true' : undefined}
       onPointerLeave={onResetDismissed}
@@ -839,76 +865,118 @@ function DesktopNavDropdown({
   )
 }
 
-function MobileMenuGroup({
-  group,
+function MobileNavigation({
+  activeKey,
+  onBack,
   onNavigate,
+  onOpenLibraries,
+  onSelect,
 }: {
-  group: NavMenuGroup
+  activeKey: NavMenuKey | null
+  onBack: () => void
   onNavigate: () => void
+  onOpenLibraries: () => void
+  onSelect: (key: NavMenuKey) => void
 }) {
-  const { openLibraries } = useLibrariesOverlay()
+  const activeGroup = NAV_GROUPS.find((group) => group.key === activeKey)
+  const { openAiDock, openSearch } = useSearchContext()
 
-  // Libraries defers to the full-screen browse overlay rather than expanding a
-  // tall inline list — one tap opens the same browser the desktop trigger uses.
-  if (group.key === 'libraries') {
-    return (
-      <button
-        type="button"
-        onClick={() => {
-          openLibraries()
-          onNavigate()
-        }}
-        className={twMerge(
-          'flex w-full items-center gap-2 rounded-lg border border-gray-500/10 bg-white/35 px-3 py-3 text-left font-black text-gray-800',
-          'hover:text-gray-950 focus:outline-none dark:border-white/10 dark:bg-white/[0.03] dark:text-gray-200 dark:hover:text-white',
-        )}
-      >
-        <span className="min-w-0 flex-1 truncate">{group.label}</span>
-        <ArrowRight className="size-4 shrink-0 text-gray-500 dark:text-gray-400" />
-      </button>
-    )
+  const openUtility = (utility: 'ai' | 'search') => {
+    onNavigate()
+    if (utility === 'search') {
+      openSearch()
+    } else {
+      openAiDock()
+    }
   }
 
   return (
-    <Collapsible className="overflow-hidden rounded-lg border border-gray-500/10 bg-white/35 dark:border-white/10 dark:bg-white/[0.03]">
-      {({ open }) => (
-        <>
-          {group.to ? (
-            <div className="flex items-center">
-              <CollapsibleTrigger
-                aria-label={`${open ? 'Collapse' : 'Expand'} ${group.label}`}
-                className={twMerge(
-                  'flex min-w-0 flex-1 items-center px-3 py-3 text-left font-black text-gray-800',
-                  'hover:text-gray-950 focus:outline-none dark:text-gray-200 dark:hover:text-white',
-                  open && 'text-gray-950 dark:text-white',
-                )}
+    <nav aria-label="Mobile navigation" className="overflow-hidden">
+      <div
+        className={twMerge(
+          'flex w-[200%] items-start transition-transform duration-200 ease-[cubic-bezier(0.2,0,0,1)] motion-reduce:transition-none',
+          activeGroup && '-translate-x-1/2',
+        )}
+      >
+        <div
+          className="w-1/2 shrink-0 px-6 pb-12 pt-12 min-[480px]:pr-10"
+          aria-hidden={Boolean(activeGroup)}
+        >
+          <div className="mobile-mega-menu-enter grid gap-4">
+            {NAV_GROUPS.map((group) => (
+              <button
+                key={group.key}
+                type="button"
+                tabIndex={activeGroup ? -1 : 0}
+                onClick={() => {
+                  if (group.key === 'libraries') {
+                    onOpenLibraries()
+                  } else {
+                    onSelect(group.key)
+                  }
+                }}
+                className={`mobile-mega-menu-enter-item flex w-full items-center rounded-[18px] p-3 text-left font-ds-display text-ds-heading-1 text-white transition-colors hover:bg-[#171717] focus-visible:bg-[#171717] focus-visible:outline-none ${
+                  group.key === 'libraries' ? 'bg-[#171717]' : ''
+                }`}
               >
-                <span className="min-w-0 flex-1 truncate">{group.label}</span>
-              </CollapsibleTrigger>
-            </div>
-          ) : (
-            <CollapsibleTrigger
-              className={twMerge(
-                'flex w-full items-center px-3 py-3 text-left font-black text-gray-800',
-                'hover:text-gray-950 dark:text-gray-200 dark:hover:text-white',
-                open && 'text-gray-950 dark:text-white',
-              )}
+                <span className="min-w-0 flex-1">{group.label}</span>
+              </button>
+            ))}
+          </div>
+
+          <div className="mt-6 grid gap-3 border-t border-[#2e2e2e] pt-6">
+            <button
+              type="button"
+              tabIndex={activeGroup ? -1 : 0}
+              onClick={() => openUtility('search')}
+              className="flex w-full items-center gap-3.5 rounded-xl px-3 py-4 text-left font-ds-display text-ds-heading-1 text-[#a3a3a3] transition-colors hover:bg-[#171717] hover:text-white focus-visible:bg-[#171717] focus-visible:text-white focus-visible:outline-none"
             >
-              {group.label}
-            </CollapsibleTrigger>
-          )}
-          <CollapsibleContent className="border-t border-gray-500/10 motion-reduce:transition-none dark:border-white/10">
-            <div className="px-2 pb-3 pt-1">
+              <MagnifyingGlass className="size-8 shrink-0" />
+              Search
+            </button>
+            <button
+              type="button"
+              tabIndex={activeGroup ? -1 : 0}
+              onClick={() => openUtility('ai')}
+              className="flex w-full items-center gap-3.5 rounded-xl px-3 py-4 text-left font-ds-display text-ds-heading-1 text-[#a3a3a3] transition-colors hover:bg-[#171717] hover:text-white focus-visible:bg-[#171717] focus-visible:text-white focus-visible:outline-none"
+            >
+              <Sparkles className="size-8 shrink-0" />
+              Ask AI
+            </button>
+            <Link
+              to="/login"
+              tabIndex={activeGroup ? -1 : 0}
+              onClick={onNavigate}
+              className="flex w-full items-center gap-3.5 rounded-xl px-3 py-4 text-left font-ds-display text-ds-heading-1 text-[#a3a3a3] transition-colors hover:bg-[#171717] hover:text-white focus-visible:bg-[#171717] focus-visible:text-white focus-visible:outline-none"
+            >
+              <SignIn className="size-8 shrink-0" />
+              Sign In
+            </Link>
+          </div>
+        </div>
+
+        <div className="w-1/2 shrink-0 px-6 pb-12 pt-8">
+          <button
+            type="button"
+            tabIndex={activeGroup ? 0 : -1}
+            onClick={onBack}
+            className="mb-4 inline-flex items-center gap-2 rounded-xl bg-[#171717] px-3 py-2 font-ds-display text-ds-body-lg font-medium text-white transition-colors hover:bg-[#262626] focus-visible:bg-[#262626] focus-visible:outline-none"
+          >
+            <ArrowLeft className="size-5" />
+            Back
+          </button>
+          {activeGroup ? (
+            <div key={activeGroup.key} className="mobile-mega-menu-enter">
               <MegaMenuContent
-                group={group}
+                group={activeGroup}
                 onNavigate={onNavigate}
                 variant="mobile"
               />
             </div>
-          </CollapsibleContent>
-        </>
-      )}
-    </Collapsible>
+          ) : null}
+        </div>
+      </div>
+    </nav>
   )
 }
 
@@ -968,7 +1036,7 @@ function MegaMenuContent({
                 variant === 'mobile' && sectionIndex > 0 && 'pt-3',
               )}
             >
-              <div className="mb-2 px-2 font-ds-mono text-ds-mono-sm uppercase text-text-muted">
+              <div className="mb-2 px-2 font-ds-mono text-ds-mono-sm uppercase text-ds-neutral-100">
                 {section.label}
               </div>
               <div
@@ -1013,14 +1081,16 @@ function LibrariesMenuContent({
   const columns = getLibraryCategoryColumns()
 
   const allLibraries = (
-    <button
+    <Button
       type="button"
       onClick={() => {
         openLibraries()
         onNavigate()
       }}
+      variant="subtle-link"
+      color="gray"
       className={twMerge(
-        'group/all flex items-center gap-1.5 rounded-lg px-[9px] py-2 font-ds-mono text-ds-mono-xs uppercase tracking-wider text-text-muted transition-colors hover:text-text-primary focus:text-text-primary focus:outline-none',
+        'group/all gap-1.5 rounded-lg px-[9px] py-2 text-ds-mono-xs focus:text-text-primary focus:outline-none',
         variant === 'desktop' &&
           'min-[1120px]:gap-[7px] min-[1120px]:rounded-[10px] min-[1120px]:px-[11px] min-[1120px]:py-2.5 min-[1120px]:text-[14px]',
       )}
@@ -1038,7 +1108,7 @@ function LibrariesMenuContent({
           variant === 'desktop' && 'min-[1120px]:size-[17px]',
         )}
       />
-    </button>
+    </Button>
   )
 
   if (variant === 'mobile') {
@@ -1197,11 +1267,13 @@ function BlogMenuContent({
   const [loading, setLoading] = React.useState(true)
 
   React.useEffect(() => {
+    if (variant === 'mobile') {
+      setShouldLoad(true)
+      return
+    }
+
     const root = rootRef.current
-    const triggerWrap =
-      variant === 'desktop'
-        ? root?.closest<HTMLElement>('.ts-mega-trigger-wrap')
-        : null
+    const triggerWrap = root?.closest<HTMLElement>('.ts-mega-trigger-wrap')
     const target = triggerWrap ?? root
     if (!target) return
 
@@ -1248,12 +1320,12 @@ function BlogMenuContent({
       )}
     >
       <section>
-        <div className="mb-3 px-1 font-ds-mono text-ds-mono-xs uppercase tracking-wider text-text-muted">
+        <div className="mb-3 px-1 font-ds-mono text-ds-mono-xs uppercase tracking-wider text-ds-neutral-100">
           Blog &amp; Release Notes
         </div>
         <div
           className={twMerge(
-            'grid gap-3',
+            'grid gap-4',
             variant === 'desktop' ? 'grid-cols-3' : 'grid-cols-1',
           )}
         >
@@ -1270,10 +1342,15 @@ function BlogMenuContent({
                 </div>
               ))
             : posts.map((post) => (
-                <BlogMenuCard
+                <BlogPostCard
                   key={post.slug}
                   post={post}
                   onNavigate={onNavigate}
+                  className={
+                    variant === 'mobile'
+                      ? 'mobile-mega-menu-enter-item'
+                      : undefined
+                  }
                 />
               ))}
         </div>
@@ -1281,7 +1358,7 @@ function BlogMenuContent({
 
       {aboutSection && aboutSection.items.length > 0 ? (
         <section className="border-t border-border-subtle pt-4">
-          <div className="mb-2 px-1 font-ds-mono text-ds-mono-xs uppercase tracking-wider text-text-muted">
+          <div className="mb-2 px-1 font-ds-mono text-ds-mono-xs uppercase tracking-wider text-ds-neutral-100">
             {aboutSection.label}
           </div>
           <div
@@ -1302,57 +1379,6 @@ function BlogMenuContent({
         </section>
       ) : null}
     </div>
-  )
-}
-
-function BlogMenuCard({
-  post,
-  onNavigate,
-}: {
-  post: RecentPost
-  onNavigate: () => void
-}) {
-  return (
-    <Link
-      to="/blog/$"
-      params={{ _splat: post.slug } as never}
-      onClick={onNavigate}
-      preload="intent"
-      className="group/post flex flex-col gap-2.5 rounded-xl p-2 transition-colors hover:bg-surface-state-hover"
-    >
-      {post.headerImage ? (
-        <div className="aspect-video w-full overflow-hidden rounded-lg border border-border-subtle">
-          <img
-            src={getOptimizedImageUrl(post.headerImage, {
-              fit: 'cover',
-              format: 'auto',
-              quality: 80,
-              width: 640,
-            })}
-            alt=""
-            loading="lazy"
-            decoding="async"
-            className="h-full w-full object-cover"
-          />
-        </div>
-      ) : (
-        <CoverFallback
-          slug={post.slug}
-          className="aspect-video w-full rounded-lg"
-        />
-      )}
-      <div className="flex flex-col gap-1 px-0.5">
-        <div className="line-clamp-1 font-ds-display text-ds-heading-5 text-text-primary">
-          {post.title}
-        </div>
-        <p className="line-clamp-2 text-ds-body-xs text-text-secondary">
-          {post.excerpt}
-        </p>
-        <div className="mt-0.5 font-ds-mono text-ds-mono-xs text-text-muted">
-          {formatAuthors(post.authors)} · {formatPublishedDate(post.published)}
-        </div>
-      </div>
-    </Link>
   )
 }
 
@@ -1467,7 +1493,10 @@ function MerchMenuContent({
         to="/shop"
         onClick={onNavigate}
         preload="intent"
-        className="mx-auto inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-ds-mono text-ds-mono-xs uppercase tracking-wider text-text-secondary transition-colors hover:text-text-primary focus:text-text-primary focus:outline-none"
+        className={twMerge(
+          'mx-auto inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-ds-mono text-ds-mono-xs uppercase tracking-wider text-text-secondary transition-colors hover:text-text-primary focus:text-text-primary focus:outline-none',
+          variant === 'mobile' && 'mobile-mega-menu-enter-item',
+        )}
       >
         View all
         <ArrowRight className="size-3.5" />
@@ -1492,7 +1521,7 @@ function MerchProductLink({
       params={{ handle: product.handle }}
       onClick={onNavigate}
       preload="intent"
-      className="group/merch block overflow-hidden rounded-xl border border-border-subtle bg-background-subtle transition-colors hover:border-border-strong focus:outline-none focus-visible:border-border-strong"
+      className="mobile-mega-menu-enter-item group/merch block overflow-hidden rounded-xl border border-border-subtle bg-background-subtle transition-colors hover:border-border-strong focus:outline-none focus-visible:border-border-strong"
       title={`${product.title} · ${formatMoney(price.amount, price.currencyCode)}`}
     >
       <div className="aspect-square w-full overflow-hidden">
@@ -1634,6 +1663,9 @@ function MenuItemLink({
       }}
       variant={variant}
       compact={compact}
+      className={
+        variant === 'mobile' ? 'mobile-mega-menu-enter-item' : undefined
+      }
     />
   )
 }
@@ -1681,19 +1713,19 @@ function SocialStack() {
           type="button"
           aria-label="TanStack social channels"
           title="Social channels"
-          className="inline-flex h-9 items-center px-0"
+          className="group/social inline-flex h-8 items-center px-0"
         >
           <span className="relative inline-flex items-center">
             {stackTop.map(({ label, Icon }, i) => (
               <span
                 key={label}
                 className={twMerge(
-                  'inline-flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 shadow-sm transition-transform dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300',
+                  'inline-flex h-8 w-8 items-center justify-center rounded-full border border-border-default bg-background-default text-icon-default shadow-sm transition-[transform,color,background-color] group-hover/social:text-text-primary',
                   i > 0 && '-ml-3',
                 )}
                 style={{ zIndex: stackTop.length - i }}
               >
-                <Icon className="h-3 w-3" />
+                <Icon className="size-4" />
               </span>
             ))}
           </span>
@@ -1708,7 +1740,7 @@ function SocialStack() {
               rel="noopener noreferrer"
               aria-label={`TanStack on ${label}`}
             >
-              <Icon className="h-3.5 w-3.5" />
+              <Icon className="size-4" />
               <span>{label}</span>
             </a>
           </DropdownItem>

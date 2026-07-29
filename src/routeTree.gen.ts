@@ -71,6 +71,7 @@ import { Route as DsShadowsRouteImport } from './routes/ds.shadows'
 import { Route as DsSemanticRouteImport } from './routes/ds.semantic'
 import { Route as DsPaletteRouteImport } from './routes/ds.palette'
 import { Route as DsNavbarRouteImport } from './routes/ds.navbar'
+import { Route as DsMaintainersRouteImport } from './routes/ds.maintainers'
 import { Route as DsLogosRouteImport } from './routes/ds.logos'
 import { Route as DsInputsRouteImport } from './routes/ds.inputs'
 import { Route as DsIconographyRouteImport } from './routes/ds.iconography'
@@ -501,6 +502,11 @@ const DsPaletteRoute = DsPaletteRouteImport.update({
 const DsNavbarRoute = DsNavbarRouteImport.update({
   id: '/navbar',
   path: '/navbar',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsMaintainersRoute = DsMaintainersRouteImport.update({
+  id: '/maintainers',
+  path: '/maintainers',
   getParentRoute: () => DsRoute,
 } as any)
 const DsLogosRoute = DsLogosRouteImport.update({
@@ -1233,6 +1239,7 @@ export interface FileRoutesByFullPath {
   '/ds/iconography': typeof DsIconographyRoute
   '/ds/inputs': typeof DsInputsRoute
   '/ds/logos': typeof DsLogosRoute
+  '/ds/maintainers': typeof DsMaintainersRoute
   '/ds/navbar': typeof DsNavbarRoute
   '/ds/palette': typeof DsPaletteRoute
   '/ds/semantic': typeof DsSemanticRoute
@@ -1409,6 +1416,7 @@ export interface FileRoutesByTo {
   '/ds/iconography': typeof DsIconographyRoute
   '/ds/inputs': typeof DsInputsRoute
   '/ds/logos': typeof DsLogosRoute
+  '/ds/maintainers': typeof DsMaintainersRoute
   '/ds/navbar': typeof DsNavbarRoute
   '/ds/palette': typeof DsPaletteRoute
   '/ds/semantic': typeof DsSemanticRoute
@@ -1593,6 +1601,7 @@ export interface FileRoutesById {
   '/ds/iconography': typeof DsIconographyRoute
   '/ds/inputs': typeof DsInputsRoute
   '/ds/logos': typeof DsLogosRoute
+  '/ds/maintainers': typeof DsMaintainersRoute
   '/ds/navbar': typeof DsNavbarRoute
   '/ds/palette': typeof DsPaletteRoute
   '/ds/semantic': typeof DsSemanticRoute
@@ -1780,6 +1789,7 @@ export interface FileRouteTypes {
     | '/ds/iconography'
     | '/ds/inputs'
     | '/ds/logos'
+    | '/ds/maintainers'
     | '/ds/navbar'
     | '/ds/palette'
     | '/ds/semantic'
@@ -1956,6 +1966,7 @@ export interface FileRouteTypes {
     | '/ds/iconography'
     | '/ds/inputs'
     | '/ds/logos'
+    | '/ds/maintainers'
     | '/ds/navbar'
     | '/ds/palette'
     | '/ds/semantic'
@@ -2139,6 +2150,7 @@ export interface FileRouteTypes {
     | '/ds/iconography'
     | '/ds/inputs'
     | '/ds/logos'
+    | '/ds/maintainers'
     | '/ds/navbar'
     | '/ds/palette'
     | '/ds/semantic'
@@ -2778,6 +2790,13 @@ declare module '@tanstack/react-router' {
       path: '/navbar'
       fullPath: '/ds/navbar'
       preLoaderRoute: typeof DsNavbarRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/maintainers': {
+      id: '/ds/maintainers'
+      path: '/maintainers'
+      fullPath: '/ds/maintainers'
+      preLoaderRoute: typeof DsMaintainersRouteImport
       parentRoute: typeof DsRoute
     }
     '/ds/logos': {
@@ -3881,6 +3900,7 @@ interface DsRouteChildren {
   DsIconographyRoute: typeof DsIconographyRoute
   DsInputsRoute: typeof DsInputsRoute
   DsLogosRoute: typeof DsLogosRoute
+  DsMaintainersRoute: typeof DsMaintainersRoute
   DsNavbarRoute: typeof DsNavbarRoute
   DsPaletteRoute: typeof DsPaletteRoute
   DsSemanticRoute: typeof DsSemanticRoute
@@ -3905,6 +3925,7 @@ const DsRouteChildren: DsRouteChildren = {
   DsIconographyRoute: DsIconographyRoute,
   DsInputsRoute: DsInputsRoute,
   DsLogosRoute: DsLogosRoute,
+  DsMaintainersRoute: DsMaintainersRoute,
   DsNavbarRoute: DsNavbarRoute,
   DsPaletteRoute: DsPaletteRoute,
   DsSemanticRoute: DsSemanticRoute,

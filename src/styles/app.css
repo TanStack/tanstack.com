@@ -286,7 +286,7 @@ html.theme-switching *::after {
   --color-border-error: var(--color-ds-terracotta-400);
   --color-border-success: var(--color-ds-green-400);
 
-  --color-icon-default: var(--color-ds-neutral-400);
+  --color-icon-default: var(--color-ds-neutral-500);
   --color-icon-accent: var(--color-ds-blue-500);
   --color-icon-muted: var(--color-ds-neutral-300);
   --color-icon-inverse: #ffffff;
@@ -566,12 +566,65 @@ html.dark {
   /* Interaction-state overlays — white tints for dark surfaces (Figma values
      used directly where provided: input/background/hover, menu/item/pressed,
      divider/subtle). */
-  --color-surface-state-hover: #ffffff14; /* white 8% */
-  --color-surface-state-pressed: #ffffff1f; /* white 12% */
+  --color-surface-state-hover: #ffffff1f; /* white 12% */
+  --color-surface-state-pressed: #ffffff29; /* white 16% */
   --color-input-bg-hover: #ffffff0a; /* white 4% */
   --color-menu-item-pressed: #ffffff1f; /* white 12% */
   --color-divider-subtle: #1e1e1e;
   --color-divider-on-inverse: #1e1e1e;
+}
+
+/* Fixed theme scopes for side-by-side design-system specimens. These mirror
+   the semantic values above so previews can show both modes independently of
+   the active site theme. */
+.ds-mode-light {
+  color-scheme: light;
+  --color-text-primary: var(--color-ds-neutral-500);
+  --color-text-secondary: var(--color-ds-neutral-400);
+  --color-text-muted: var(--color-ds-neutral-300);
+  --color-text-inverse: #ffffff;
+  --color-background-default: #ffffff;
+  --color-background-surface: #ffffff;
+  --color-background-subtle: #fafafa;
+  --color-background-inverse: var(--color-ds-neutral-500);
+  --color-border-default: var(--color-ds-neutral-200);
+  --color-border-subtle: var(--color-ds-neutral-100);
+  --color-border-strong: var(--color-ds-neutral-400);
+  --color-border-focus: var(--color-ds-blue-400);
+  --color-action-secondary: var(--color-ds-neutral-100);
+  --color-action-secondary-hover: var(--color-ds-neutral-200);
+  --color-category-framework: var(--color-ds-green-400);
+  --color-category-data: var(--color-ds-terracotta-400);
+  --color-category-ui: var(--color-ds-blue-400);
+  --color-category-performance: var(--color-ds-amber-400);
+  --color-category-tooling: var(--color-ds-neutral-400);
+  --color-surface-state-hover: #1111110f;
+  --color-surface-state-pressed: #1111111f;
+}
+
+.ds-mode-dark {
+  color-scheme: dark;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #aea691;
+  --color-text-muted: #756c5b;
+  --color-text-inverse: #111111;
+  --color-background-default: #111111;
+  --color-background-surface: #1f1f1f;
+  --color-background-subtle: #1b1b1b;
+  --color-background-inverse: #ffffff;
+  --color-border-default: #2d2d2d;
+  --color-border-subtle: #232323;
+  --color-border-strong: #aea691;
+  --color-border-focus: #61adbf;
+  --color-action-secondary: #2b2b2b;
+  --color-action-secondary-hover: #3a3a3a;
+  --color-category-framework: var(--color-ds-green-300);
+  --color-category-data: var(--color-ds-terracotta-300);
+  --color-category-ui: var(--color-ds-blue-300);
+  --color-category-performance: var(--color-ds-amber-300);
+  --color-category-tooling: var(--color-ds-neutral-200);
+  --color-surface-state-hover: #ffffff1f;
+  --color-surface-state-pressed: #ffffff29;
 }
 
 /* Safelist for dynamic colors */
@@ -748,12 +801,51 @@ button {
   transition-delay: 0s;
 }
 
+@keyframes mobile-mega-menu-item-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+    filter: blur(2px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.mobile-mega-menu-enter .mobile-mega-menu-enter-item {
+  animation: mobile-mega-menu-item-in 160ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: 40ms;
+}
+
+.mobile-mega-menu-enter .mobile-mega-menu-enter-item:nth-child(2) {
+  animation-delay: 60ms;
+}
+
+.mobile-mega-menu-enter .mobile-mega-menu-enter-item:nth-child(3) {
+  animation-delay: 80ms;
+}
+
+.mobile-mega-menu-enter .mobile-mega-menu-enter-item:nth-child(4) {
+  animation-delay: 100ms;
+}
+
+.mobile-mega-menu-enter .mobile-mega-menu-enter-item:nth-child(5) {
+  animation-delay: 120ms;
+}
+
+.mobile-mega-menu-enter .mobile-mega-menu-enter-item:nth-child(n + 6) {
+  animation-delay: 140ms;
+}
+
 .ts-mega-dropdown-panel {
   position: relative;
   isolation: isolate;
   background-color: color-mix(
     in srgb,
-    var(--color-background-subtle) 95%,
+    var(--color-background-default) 95%,
     transparent
   );
   backdrop-filter: blur(6px);
@@ -957,6 +1049,10 @@ button {
   .ts-mega-trigger::after,
   .ts-mega-dropdown {
     transition: none;
+  }
+
+  .mobile-mega-menu-enter .mobile-mega-menu-enter-item {
+    animation: none;
   }
 }
 

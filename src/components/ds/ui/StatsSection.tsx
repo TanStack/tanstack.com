@@ -201,25 +201,25 @@ function HeroStat({ iconTop, stat }: { iconTop: boolean; stat: StatItem }) {
   return (
     <span
       className={twMerge(
-        'inline-flex min-w-0 gap-3 text-ds-neutral-400',
+        'inline-flex min-w-0 gap-4 text-text-primary md:gap-3.5 xl:gap-4',
         iconTop ? 'flex-col items-start' : 'items-center',
       )}
     >
       {stat.icon ? (
-        <span className="shrink-0 text-ds-neutral-400/90 [&>svg]:size-[22px]">
+        <span className="shrink-0 text-icon-muted [&>svg]:size-6 md:[&>svg]:size-5 xl:[&>svg]:size-6">
           {stat.icon}
         </span>
       ) : null}
-      <span className="min-w-0">
+      <span className="flex min-w-0 items-center gap-4 whitespace-nowrap md:gap-3.5 xl:gap-4">
         <span
-          className="block font-ds-display text-xl font-black leading-none"
+          className="font-ds-display text-ds-heading-3 font-bold leading-none md:text-[21px] xl:text-ds-heading-3"
           style={{ fontVariantNumeric: 'tabular-nums' }}
         >
           <StatValue placeholder={stat.placeholder} valueRef={stat.valueRef}>
             {stat.value}
           </StatValue>
         </span>
-        <span className="mt-2 block font-ds-mono text-ds-mono-caps-xs font-bold uppercase text-ds-neutral-400/90">
+        <span className="font-ds-mono text-ds-mono-caps-xs font-medium uppercase tracking-[1.75px] text-text-secondary md:text-[9.5px] md:tracking-[1.5px] xl:text-ds-mono-caps-xs xl:tracking-[1.75px]">
           {stat.label}
         </span>
       </span>
@@ -269,7 +269,7 @@ export function StatsSection({
         className={twMerge(
           layout === 'stacked'
             ? 'flex flex-col items-start gap-5'
-            : 'flex flex-wrap items-center gap-x-8 gap-y-5',
+            : 'flex flex-col items-center gap-4 md:flex-row md:flex-wrap md:justify-center md:gap-x-3.5 md:gap-y-5 xl:gap-x-9',
           className,
         )}
       >

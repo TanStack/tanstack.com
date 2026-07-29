@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 
-import discordImage from '~/images/discord-logo-white.svg'
 import { twMerge } from 'tailwind-merge'
 
 import {
@@ -10,10 +9,10 @@ import {
   Stack,
   Shield,
   Lightning,
+  Pause,
   Play,
   type Icon,
 } from '@phosphor-icons/react'
-import { YouTubeIcon } from '~/components/icons/YouTubeIcon'
 import { HomeApplicationStarter } from '~/components/home/HomeApplicationStarter'
 import { HomeCommunitySection } from '~/components/home/HomeCommunitySection'
 import { HomeNewsletterSection } from '~/components/home/HomeNewsletterSection'
@@ -72,44 +71,24 @@ function Index() {
               headline bottom-left, description + CTA bottom-right. The photo is
               always light, so text uses a mode-stable dark token (neutral-500)
               rather than a theme-flipping semantic. */}
-          <div className="w-full">
-            <div className="relative isolate flex h-[calc(100dvh-var(--navbar-height))] max-h-[720px] min-h-[560px] flex-col justify-between gap-8 px-6 py-10 sm:px-10 xl:flex-row xl:items-end xl:justify-between xl:gap-12 xl:px-16 xl:py-16">
-              {/* Wrapper carries the 8px inset + squircle clip so the <img>
-                  (which has intrinsic width/height) fills it exactly instead of
-                  overflowing the right/bottom. Plain <img> (not OptimizedImage):
+          <div className="mx-2 rounded-2xl bg-background-subtle p-1">
+            <div className="group relative isolate flex h-[calc(100dvh-var(--navbar-height))] max-h-[720px] min-h-[560px] flex-col justify-between gap-8 overflow-hidden rounded-xl px-6 py-10 sm:px-10 md:flex-row md:items-end md:justify-between md:gap-8 xl:gap-12 xl:px-16 xl:py-16">
+              {/* The parent supplies the 4px frame shared by the hero and stats.
+                  This wrapper clips the image to the inner radius so the <img>
+                  fills it exactly instead of overflowing. Plain <img> (not OptimizedImage):
                   the Cloudflare transform resolves against the production origin,
                   so a newly-added asset 404s until deployed. */}
-              <div
-                aria-hidden
-                className="absolute inset-2 -z-10 overflow-hidden rounded-[2rem] [corner-shape:squircle]"
-              >
-                <picture className="contents">
-                  <source
-                    type="image/webp"
-                    srcSet="/images/hero-palm-gradient-960.webp 960w, /images/hero-palm-gradient-1600.webp 1600w, /images/hero-palm-gradient-2400.webp 2400w"
-                    sizes="100vw"
-                  />
-                  <img
-                    src="/images/hero-palm-gradient.jpg"
-                    alt=""
-                    width={2400}
-                    height={1600}
-                    loading="eager"
-                    fetchPriority="high"
-                    className="h-full w-full object-cover object-center"
-                  />
-                </picture>
-              </div>
-              <h1 className="max-w-[613px] font-ds-display text-ds-display-sm font-bold text-ds-neutral-500 sm:text-ds-display-md lg:text-ds-display-lg xl:text-ds-display-xl">
+              <HeroPalmMedia />
+              <h1 className="max-w-[613px] font-ds-display text-ds-display-sm font-bold text-ds-neutral-500 md:w-[47%] md:text-[clamp(2.5rem,4.7vw,4rem)] md:leading-[1.1] xl:leading-[1.08]">
                 The{' '}
                 <span className="underline decoration-from-font underline-offset-[6px]">
                   open source
-                </span>{' '}
-                application stack for the web
+                </span>
+                <br className="hidden md:block" /> the application stack
+                <br className="hidden md:block" /> for the web
               </h1>
-              <div className="flex flex-col items-start gap-6 xl:max-w-[454px]">
-                <HomeStatsSection />
-                <p className="text-ds-body-md text-ds-neutral-500 xl:text-ds-body-xl">
+              <div className="flex flex-col items-start gap-6 md:w-[29%] md:max-w-[454px]">
+                <p className="text-ds-body-md text-ds-neutral-500 [text-shadow:0_3px_10px_rgb(255_255_255/0.1)] md:text-ds-body-lg md:[text-shadow:none] xl:text-ds-body-xl">
                   Headless, type-safe, composable tools for building modern web
                   applications that work naturally for developers and reliably
                   for agents
@@ -138,6 +117,9 @@ function Index() {
                 </div>
               </div>
             </div>
+            <div className="flex items-center justify-center px-2.5 py-6">
+              <HomeStatsSection />
+            </div>
           </div>
           <div
             id="start-with-a-prompt"
@@ -153,103 +135,91 @@ function Index() {
 
         <HomeCommunitySection />
 
-        <div className="px-4 mx-auto max-w-(--breakpoint-lg)">
-          <div
-            className={`
-          rounded-md p-4 grid gap-6
-          bg-discord text-white overflow-hidden relative
-          shadow-xl shadow-indigo-700/30
-          sm:p-8 sm:grid-cols-3 items-center`}
-          >
-            <div
-              className={`absolute transform opacity-10 z-0
-            right-0 top-0 -translate-y-1/3 translate-x-1/3
-            sm:opacity-20`}
-            >
-              <img
-                src={discordImage}
-                alt="Discord Logo"
-                loading="lazy"
-                width={300}
-                height={300}
-              />
-            </div>
-            <div className={`sm:col-span-2`}>
-              <h3 id="discord" className="text-3xl font-bold scroll-mt-24">
-                <a
-                  href="#discord"
-                  className="hover:underline decoration-white/50"
-                >
-                  TanStack on Discord
-                </a>
-              </h3>
-              <p className={`mt-4`}>
-                The official TanStack community to ask questions, network and
-                make new friends and get lightning fast news about what's coming
-                next for TanStack!
-              </p>
-            </div>
-            <div className={`flex items-center justify-center`}>
-              <Button
-                as="a"
-                href="https://discord.com/invite/WrRKjPJ"
-                target="_blank"
-                rel="noreferrer"
-                className="w-full mt-4 bg-white border-white hover:bg-gray-100 text-discord justify-center shadow-lg text-sm"
-              >
-                Join TanStack Discord
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        <div className="px-4 mx-auto max-w-(--breakpoint-lg)">
-          <div
-            className={`
-          rounded-md p-4 grid gap-6
-          bg-gradient-to-br from-red-500 to-red-700 text-white overflow-hidden relative
-          shadow-xl shadow-red-700/30
-          sm:p-8 sm:grid-cols-3 items-center`}
-          >
-            <div
-              className={`absolute transform opacity-10 z-0
-            right-0 top-0 -translate-y-1/3 translate-x-1/3
-            sm:opacity-20`}
-            >
-              <YouTubeIcon width={300} height={300} />
-            </div>
-            <div className={`sm:col-span-2`}>
-              <h3 id="youtube" className="text-3xl font-bold scroll-mt-24">
-                <a
-                  href="#youtube"
-                  className="hover:underline decoration-white/50"
-                >
-                  TanStack on YouTube
-                </a>
-              </h3>
-              <p className={`mt-4`}>
-                The official TanStack YouTube channel. Tutorials, deep dives,
-                release walkthroughs, and more — free for everyone!
-              </p>
-            </div>
-            <div className={`flex items-center justify-center`}>
-              <Button
-                as="a"
-                href="https://youtube.com/@tan_stack"
-                target="_blank"
-                rel="noreferrer"
-                className="w-full mt-4 bg-white border-white hover:bg-gray-100 text-red-600 justify-center shadow-lg text-sm"
-              >
-                <Play className="w-4 h-4" />
-                Subscribe on YouTube
-              </Button>
-            </div>
-          </div>
-        </div>
-
         <div className="h-4" />
         <HomeNewsletterSection />
       </div>
+    </>
+  )
+}
+
+function HeroPalmMedia() {
+  const videoRef = React.useRef<HTMLVideoElement>(null)
+  const [isPlaying, setIsPlaying] = React.useState(true)
+
+  React.useEffect(() => {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+
+    const syncMotionPreference = () => {
+      if (reducedMotion.matches) {
+        videoRef.current?.pause()
+      }
+    }
+
+    syncMotionPreference()
+    reducedMotion.addEventListener('change', syncMotionPreference)
+    return () =>
+      reducedMotion.removeEventListener('change', syncMotionPreference)
+  }, [])
+
+  const togglePlayback = () => {
+    const video = videoRef.current
+    if (!video) return
+
+    if (video.paused) {
+      void video.play()
+    } else {
+      video.pause()
+    }
+  }
+
+  return (
+    <>
+      <div
+        aria-hidden
+        className="absolute inset-0 -z-10 overflow-hidden rounded-xl [corner-shape:squircle]"
+      >
+        <picture className="contents">
+          <source
+            type="image/webp"
+            srcSet="/images/hero-palm-gradient-960.webp 960w, /images/hero-palm-gradient-1600.webp 1600w, /images/hero-palm-gradient-2400.webp 2400w"
+            sizes="100vw"
+          />
+          <img
+            src="/images/hero-palm-gradient.jpg"
+            alt=""
+            width={2400}
+            height={1600}
+            loading="eager"
+            fetchPriority="high"
+            className="h-full w-full object-cover object-center"
+          />
+        </picture>
+        <video
+          ref={videoRef}
+          autoPlay
+          loop
+          muted
+          playsInline
+          poster="/images/hero-palm-gradient.jpg"
+          onPause={() => setIsPlaying(false)}
+          onPlay={() => setIsPlaying(true)}
+          className="absolute inset-0 h-full w-full object-cover object-center motion-reduce:hidden"
+        >
+          <source src="/images/hero-palm-motion.mp4" type="video/mp4" />
+        </video>
+      </div>
+      <button
+        type="button"
+        onClick={togglePlayback}
+        aria-label={isPlaying ? 'Pause hero animation' : 'Play hero animation'}
+        className="absolute right-4 top-4 z-20 grid size-8 place-items-center rounded-full bg-ds-neutral-500/65 text-white opacity-0 backdrop-blur-sm transition-opacity hover:bg-ds-neutral-500/80 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white group-hover:opacity-100 motion-reduce:hidden"
+      >
+        {isPlaying ? (
+          <Pause className="size-4" weight="fill" />
+        ) : (
+          <Play className="size-4" weight="fill" />
+        )}
+      </button>
     </>
   )
 }

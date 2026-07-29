@@ -73,7 +73,7 @@ export function MegaMenuItem({
       {Icon ? (
         <IconContext.Provider value={{ weight: 'light' }}>
           <span className="flex size-11 shrink-0 items-center justify-center rounded-md">
-            <Icon className="h-8 w-8 text-text-secondary" />
+            <Icon className="h-8 w-8 text-text-secondary group-hover/mmi:text-text-primary group-focus/mmi:text-text-primary group-active/mmi:text-text-primary" />
           </span>
         </IconContext.Provider>
       ) : null}

@@ -28,6 +28,7 @@ import { Footer } from '~/components/Footer'
 import { LandingCommunitySection } from '~/components/LandingCommunitySection'
 import LandingPageGad from '~/components/LandingPageGad'
 import { LibraryDownloadsMicro } from '~/components/LibraryDownloadsMicro'
+import { LibraryStatusBadge } from '~/components/LibraryStatusBadge'
 import { LibraryWordmark } from '~/components/LibraryWordmark'
 import { PartnersSponsorsSection } from '~/components/PartnersSponsorsSection'
 import { GithubIcon } from '~/components/icons/GithubIcon'
@@ -186,9 +187,7 @@ export default function MarkdownLanding() {
                 <LibraryWordmark library={library} />
               </h1>
               {library.badge ? (
-                <span className="rounded-sm bg-[#201725] px-2 py-1 text-xs font-black uppercase text-white dark:bg-white dark:text-[#201725]">
-                  {library.badge}
-                </span>
+                <LibraryStatusBadge badge={library.badge} />
               ) : null}
             </div>
 

@@ -10,10 +10,10 @@ export function ButtonGroup({ children, className }: ButtonGroupProps) {
   return (
     <div
       className={twMerge(
-        'inline-flex items-stretch rounded-md overflow-hidden',
-        'border border-gray-200 dark:border-gray-700',
-        'divide-x divide-gray-200 dark:divide-gray-700',
-        'bg-white dark:bg-gray-800',
+        'inline-flex items-stretch overflow-hidden rounded-md',
+        'border border-border-default',
+        'divide-x divide-border-default',
+        'bg-background-surface text-text-primary',
         'shadow-sm',
         className,
       )}

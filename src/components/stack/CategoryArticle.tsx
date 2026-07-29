@@ -23,6 +23,7 @@ import {
 } from '@phosphor-icons/react'
 
 import { LibraryWordmark } from '~/components/LibraryWordmark'
+import { LibraryStatusBadge } from '~/components/LibraryStatusBadge'
 import type { LibraryId, LibrarySlim } from '~/libraries'
 import { formatPublishedDate } from '~/utils/blog-format'
 import type { RelatedPost as RelatedPostData } from '~/utils/blog.functions'
@@ -1075,25 +1076,14 @@ function LibraryTitle({
       ) : null}
       <div
         className={twMerge(
-          'flex flex-wrap items-center gap-2',
+          'flex flex-wrap items-start gap-2',
           overline ? 'mt-1' : undefined,
         )}
       >
         <h3 className="text-xl font-black leading-tight">
           <LibraryWordmark library={library} />
         </h3>
-        {library.badge ? (
-          <span
-            className={twMerge(
-              'rounded-md bg-linear-to-r px-1.5 py-0.5 text-xs font-black uppercase',
-              library.colorFrom,
-              library.colorTo,
-              library.badgeTextStyle ?? 'text-white',
-            )}
-          >
-            {library.badge}
-          </span>
-        ) : null}
+        {library.badge ? <LibraryStatusBadge badge={library.badge} /> : null}
       </div>
     </div>
   )

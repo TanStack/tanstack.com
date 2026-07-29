@@ -84,6 +84,7 @@ import { Route as DsButtonsRouteImport } from './routes/ds.buttons'
 import { Route as DsBreadcrumbsRouteImport } from './routes/ds.breadcrumbs'
 import { Route as DsBadgesRouteImport } from './routes/ds.badges'
 import { Route as DsAvatarRouteImport } from './routes/ds.avatar'
+import { Route as ChartsCatalogRouteImport } from './routes/charts.catalog'
 import { Route as BuilderDocsRouteImport } from './routes/builder.docs'
 import { Route as BlogSplatRouteImport } from './routes/blog.$'
 import { Route as AuthSignoutRouteImport } from './routes/auth/signout'
@@ -105,6 +106,7 @@ import { Route as DotwellKnownOauthAuthorizationServerRouteImport } from './rout
 import { Route as LibraryLibraryIdRouteRouteImport } from './routes/_library/$libraryId/route'
 import { Route as StatsNpmIndexRouteImport } from './routes/stats/npm/index'
 import { Route as IntentRegistryIndexRouteImport } from './routes/intent/registry/index'
+import { Route as ChartsCatalogIndexRouteImport } from './routes/charts.catalog.index'
 import { Route as ApiMcpIndexRouteImport } from './routes/api/mcp/index'
 import { Route as AdminShowcasesIndexRouteImport } from './routes/admin/showcases.index'
 import { Route as AdminRolesIndexRouteImport } from './routes/admin/roles.index'
@@ -119,6 +121,8 @@ import { Route as ShopPoliciesHandleRouteImport } from './routes/shop.policies.$
 import { Route as ShopPagesHandleRouteImport } from './routes/shop.pages.$handle'
 import { Route as ShopCollectionsHandleRouteImport } from './routes/shop.collections.$handle'
 import { Route as IntentRegistryPackageNameRouteImport } from './routes/intent/registry/$packageName'
+import { Route as ChartsCatalogCatalogDotjsonRouteImport } from './routes/charts.catalog_.catalog[.]json'
+import { Route as ChartsCatalogAllRouteImport } from './routes/charts.catalog.all'
 import { Route as AuthProviderStartRouteImport } from './routes/auth/$provider/start'
 import { Route as ApiOgChar123Char125DotpngRouteImport } from './routes/api/og/{$}[.]png'
 import { Route as ApiMcpSplatRouteImport } from './routes/api/mcp/$'
@@ -166,6 +170,8 @@ import { Route as LibraryAiVersionIndexRouteImport } from './routes/_library/ai.
 import { Route as LibraryLibraryIdVersionIndexRouteImport } from './routes/_library/$libraryId/$version.index'
 import { Route as IntentRegistryPackageNameChar123Char125DotmdRouteImport } from './routes/intent/registry/$packageName.{$}[.]md'
 import { Route as IntentRegistryPackageNameSkillNameRouteImport } from './routes/intent/registry/$packageName.$skillName'
+import { Route as ChartsCatalogEmbedCaseIdRouteImport } from './routes/charts.catalog_.embed.$caseId'
+import { Route as ChartsCatalogChartsCaseIdRouteImport } from './routes/charts.catalog.charts.$caseId'
 import { Route as ApiBuilderDeployGithubRouteImport } from './routes/api/builder/deploy/github'
 import { Route as ApiBuilderDeployCheckNameRouteImport } from './routes/api/builder/deploy/check-name'
 import { Route as ApiAuthCliCreateTicketRouteImport } from './routes/api/auth/cli/create-ticket'
@@ -173,6 +179,7 @@ import { Route as ApiAuthCallbackProviderRouteImport } from './routes/api/auth/c
 import { Route as LibraryLibraryIdVersionLlmsDottxtRouteImport } from './routes/_library/$libraryId/$version.llms[.]txt'
 import { Route as LibraryLibraryIdVersionDocsRouteImport } from './routes/_library/$libraryId/$version.docs'
 import { Route as LibraryLibraryIdVersionDocsIndexRouteImport } from './routes/_library/$libraryId/$version.docs.index'
+import { Route as ChartsCatalogAssetsArtifactRevisionSplatRouteImport } from './routes/charts.catalog_.assets.$artifactRevision.$'
 import { Route as ApiAuthCliStatusTicketIdRouteImport } from './routes/api/auth/cli/status.$ticketId'
 import { Route as LibraryLibraryIdVersionDocsChar123Char125DotmdRouteImport } from './routes/_library/$libraryId/$version.docs.{$}[.]md'
 import { Route as LibraryLibraryIdVersionDocsNpmStatsRouteImport } from './routes/_library/$libraryId/$version.docs.npm-stats'
@@ -563,6 +570,11 @@ const DsAvatarRoute = DsAvatarRouteImport.update({
   path: '/avatar',
   getParentRoute: () => DsRoute,
 } as any)
+const ChartsCatalogRoute = ChartsCatalogRouteImport.update({
+  id: '/charts/catalog',
+  path: '/charts/catalog',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BuilderDocsRoute = BuilderDocsRouteImport.update({
   id: '/docs',
   path: '/docs',
@@ -669,6 +681,11 @@ const IntentRegistryIndexRoute = IntentRegistryIndexRouteImport.update({
   path: '/intent/registry/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ChartsCatalogIndexRoute = ChartsCatalogIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ChartsCatalogRoute,
+} as any)
 const ApiMcpIndexRoute = ApiMcpIndexRouteImport.update({
   id: '/api/mcp/',
   path: '/api/mcp/',
@@ -740,6 +757,17 @@ const IntentRegistryPackageNameRoute =
     path: '/intent/registry/$packageName',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ChartsCatalogCatalogDotjsonRoute =
+  ChartsCatalogCatalogDotjsonRouteImport.update({
+    id: '/charts/catalog_/catalog.json',
+    path: '/charts/catalog/catalog.json',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ChartsCatalogAllRoute = ChartsCatalogAllRouteImport.update({
+  id: '/all',
+  path: '/all',
+  getParentRoute: () => ChartsCatalogRoute,
+} as any)
 const AuthProviderStartRoute = AuthProviderStartRouteImport.update({
   id: '/auth/$provider/start',
   path: '/auth/$provider/start',
@@ -1000,6 +1028,18 @@ const IntentRegistryPackageNameSkillNameRoute =
     path: '/$skillName',
     getParentRoute: () => IntentRegistryPackageNameRoute,
   } as any)
+const ChartsCatalogEmbedCaseIdRoute =
+  ChartsCatalogEmbedCaseIdRouteImport.update({
+    id: '/charts/catalog_/embed/$caseId',
+    path: '/charts/catalog/embed/$caseId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ChartsCatalogChartsCaseIdRoute =
+  ChartsCatalogChartsCaseIdRouteImport.update({
+    id: '/charts/$caseId',
+    path: '/charts/$caseId',
+    getParentRoute: () => ChartsCatalogRoute,
+  } as any)
 const ApiBuilderDeployGithubRoute = ApiBuilderDeployGithubRouteImport.update({
   id: '/api/builder/deploy/github',
   path: '/api/builder/deploy/github',
@@ -1038,6 +1078,12 @@ const LibraryLibraryIdVersionDocsIndexRoute =
     id: '/',
     path: '/',
     getParentRoute: () => LibraryLibraryIdVersionDocsRoute,
+  } as any)
+const ChartsCatalogAssetsArtifactRevisionSplatRoute =
+  ChartsCatalogAssetsArtifactRevisionSplatRouteImport.update({
+    id: '/charts/catalog_/assets/$artifactRevision/$',
+    path: '/charts/catalog/assets/$artifactRevision/$',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const ApiAuthCliStatusTicketIdRoute =
   ApiAuthCliStatusTicketIdRouteImport.update({
@@ -1173,6 +1219,7 @@ export interface FileRoutesByFullPath {
   '/auth/signout': typeof AuthSignoutRoute
   '/blog/$': typeof BlogSplatRoute
   '/builder/docs': typeof BuilderDocsRoute
+  '/charts/catalog': typeof ChartsCatalogRouteWithChildren
   '/ds/avatar': typeof DsAvatarRoute
   '/ds/badges': typeof DsBadgesRoute
   '/ds/breadcrumbs': typeof DsBreadcrumbsRoute
@@ -1238,6 +1285,8 @@ export interface FileRoutesByFullPath {
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/api/og/{$}.png': typeof ApiOgChar123Char125DotpngRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
+  '/charts/catalog/all': typeof ChartsCatalogAllRoute
+  '/charts/catalog/catalog.json': typeof ChartsCatalogCatalogDotjsonRoute
   '/intent/registry/$packageName': typeof IntentRegistryPackageNameRouteWithChildren
   '/shop/collections/$handle': typeof ShopCollectionsHandleRoute
   '/shop/pages/$handle': typeof ShopPagesHandleRoute
@@ -1252,6 +1301,7 @@ export interface FileRoutesByFullPath {
   '/admin/roles/': typeof AdminRolesIndexRoute
   '/admin/showcases/': typeof AdminShowcasesIndexRoute
   '/api/mcp/': typeof ApiMcpIndexRoute
+  '/charts/catalog/': typeof ChartsCatalogIndexRoute
   '/intent/registry/': typeof IntentRegistryIndexRoute
   '/stats/npm/': typeof StatsNpmIndexRoute
   '/$libraryId/$version/docs': typeof LibraryLibraryIdVersionDocsRouteWithChildren
@@ -1260,6 +1310,8 @@ export interface FileRoutesByFullPath {
   '/api/auth/cli/create-ticket': typeof ApiAuthCliCreateTicketRoute
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
   '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
+  '/charts/catalog/charts/$caseId': typeof ChartsCatalogChartsCaseIdRoute
+  '/charts/catalog/embed/$caseId': typeof ChartsCatalogEmbedCaseIdRoute
   '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
   '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   '/$libraryId/$version/': typeof LibraryLibraryIdVersionIndexRoute
@@ -1291,6 +1343,7 @@ export interface FileRoutesByFullPath {
   '/$libraryId/$version/docs/npm-stats': typeof LibraryLibraryIdVersionDocsNpmStatsRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryLibraryIdVersionDocsChar123Char125DotmdRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
+  '/charts/catalog/assets/$artifactRevision/$': typeof ChartsCatalogAssetsArtifactRevisionSplatRoute
   '/$libraryId/$version/docs/': typeof LibraryLibraryIdVersionDocsIndexRoute
   '/$libraryId/$version/docs/framework/': typeof LibraryLibraryIdVersionDocsFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/$': typeof LibraryLibraryIdVersionDocsFrameworkFrameworkSplatRoute
@@ -1407,6 +1460,8 @@ export interface FileRoutesByTo {
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/api/og/{$}.png': typeof ApiOgChar123Char125DotpngRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
+  '/charts/catalog/all': typeof ChartsCatalogAllRoute
+  '/charts/catalog/catalog.json': typeof ChartsCatalogCatalogDotjsonRoute
   '/shop/collections/$handle': typeof ShopCollectionsHandleRoute
   '/shop/pages/$handle': typeof ShopPagesHandleRoute
   '/shop/policies/$handle': typeof ShopPoliciesHandleRoute
@@ -1420,6 +1475,7 @@ export interface FileRoutesByTo {
   '/admin/roles': typeof AdminRolesIndexRoute
   '/admin/showcases': typeof AdminShowcasesIndexRoute
   '/api/mcp': typeof ApiMcpIndexRoute
+  '/charts/catalog': typeof ChartsCatalogIndexRoute
   '/intent/registry': typeof IntentRegistryIndexRoute
   '/stats/npm': typeof StatsNpmIndexRoute
   '/$libraryId/$version/llms.txt': typeof LibraryLibraryIdVersionLlmsDottxtRoute
@@ -1427,6 +1483,8 @@ export interface FileRoutesByTo {
   '/api/auth/cli/create-ticket': typeof ApiAuthCliCreateTicketRoute
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
   '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
+  '/charts/catalog/charts/$caseId': typeof ChartsCatalogChartsCaseIdRoute
+  '/charts/catalog/embed/$caseId': typeof ChartsCatalogEmbedCaseIdRoute
   '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
   '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   '/$libraryId/$version': typeof LibraryLibraryIdVersionIndexRoute
@@ -1458,6 +1516,7 @@ export interface FileRoutesByTo {
   '/$libraryId/$version/docs/npm-stats': typeof LibraryLibraryIdVersionDocsNpmStatsRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryLibraryIdVersionDocsChar123Char125DotmdRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
+  '/charts/catalog/assets/$artifactRevision/$': typeof ChartsCatalogAssetsArtifactRevisionSplatRoute
   '/$libraryId/$version/docs': typeof LibraryLibraryIdVersionDocsIndexRoute
   '/$libraryId/$version/docs/framework': typeof LibraryLibraryIdVersionDocsFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/$': typeof LibraryLibraryIdVersionDocsFrameworkFrameworkSplatRoute
@@ -1520,6 +1579,7 @@ export interface FileRoutesById {
   '/auth/signout': typeof AuthSignoutRoute
   '/blog/$': typeof BlogSplatRoute
   '/builder/docs': typeof BuilderDocsRoute
+  '/charts/catalog': typeof ChartsCatalogRouteWithChildren
   '/ds/avatar': typeof DsAvatarRoute
   '/ds/badges': typeof DsBadgesRoute
   '/ds/breadcrumbs': typeof DsBreadcrumbsRoute
@@ -1585,6 +1645,8 @@ export interface FileRoutesById {
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/api/og/{$}.png': typeof ApiOgChar123Char125DotpngRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
+  '/charts/catalog/all': typeof ChartsCatalogAllRoute
+  '/charts/catalog_/catalog.json': typeof ChartsCatalogCatalogDotjsonRoute
   '/intent/registry/$packageName': typeof IntentRegistryPackageNameRouteWithChildren
   '/shop/collections/$handle': typeof ShopCollectionsHandleRoute
   '/shop/pages/$handle': typeof ShopPagesHandleRoute
@@ -1599,6 +1661,7 @@ export interface FileRoutesById {
   '/admin/roles/': typeof AdminRolesIndexRoute
   '/admin/showcases/': typeof AdminShowcasesIndexRoute
   '/api/mcp/': typeof ApiMcpIndexRoute
+  '/charts/catalog/': typeof ChartsCatalogIndexRoute
   '/intent/registry/': typeof IntentRegistryIndexRoute
   '/stats/npm/': typeof StatsNpmIndexRoute
   '/_library/$libraryId/$version/docs': typeof LibraryLibraryIdVersionDocsRouteWithChildren
@@ -1607,6 +1670,8 @@ export interface FileRoutesById {
   '/api/auth/cli/create-ticket': typeof ApiAuthCliCreateTicketRoute
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
   '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
+  '/charts/catalog/charts/$caseId': typeof ChartsCatalogChartsCaseIdRoute
+  '/charts/catalog_/embed/$caseId': typeof ChartsCatalogEmbedCaseIdRoute
   '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
   '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   '/_library/$libraryId/$version/': typeof LibraryLibraryIdVersionIndexRoute
@@ -1638,6 +1703,7 @@ export interface FileRoutesById {
   '/_library/$libraryId/$version/docs/npm-stats': typeof LibraryLibraryIdVersionDocsNpmStatsRoute
   '/_library/$libraryId/$version/docs/{$}.md': typeof LibraryLibraryIdVersionDocsChar123Char125DotmdRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
+  '/charts/catalog_/assets/$artifactRevision/$': typeof ChartsCatalogAssetsArtifactRevisionSplatRoute
   '/_library/$libraryId/$version/docs/': typeof LibraryLibraryIdVersionDocsIndexRoute
   '/_library/$libraryId/$version/docs/framework/': typeof LibraryLibraryIdVersionDocsFrameworkIndexRoute
   '/_library/$libraryId/$version/docs/framework/$framework/$': typeof LibraryLibraryIdVersionDocsFrameworkFrameworkSplatRoute
@@ -1700,6 +1766,7 @@ export interface FileRouteTypes {
     | '/auth/signout'
     | '/blog/$'
     | '/builder/docs'
+    | '/charts/catalog'
     | '/ds/avatar'
     | '/ds/badges'
     | '/ds/breadcrumbs'
@@ -1765,6 +1832,8 @@ export interface FileRouteTypes {
     | '/api/mcp/$'
     | '/api/og/{$}.png'
     | '/auth/$provider/start'
+    | '/charts/catalog/all'
+    | '/charts/catalog/catalog.json'
     | '/intent/registry/$packageName'
     | '/shop/collections/$handle'
     | '/shop/pages/$handle'
@@ -1779,6 +1848,7 @@ export interface FileRouteTypes {
     | '/admin/roles/'
     | '/admin/showcases/'
     | '/api/mcp/'
+    | '/charts/catalog/'
     | '/intent/registry/'
     | '/stats/npm/'
     | '/$libraryId/$version/docs'
@@ -1787,6 +1857,8 @@ export interface FileRouteTypes {
     | '/api/auth/cli/create-ticket'
     | '/api/builder/deploy/check-name'
     | '/api/builder/deploy/github'
+    | '/charts/catalog/charts/$caseId'
+    | '/charts/catalog/embed/$caseId'
     | '/intent/registry/$packageName/$skillName'
     | '/intent/registry/$packageName/{$}.md'
     | '/$libraryId/$version/'
@@ -1818,6 +1890,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/npm-stats'
     | '/$libraryId/$version/docs/{$}.md'
     | '/api/auth/cli/status/$ticketId'
+    | '/charts/catalog/assets/$artifactRevision/$'
     | '/$libraryId/$version/docs/'
     | '/$libraryId/$version/docs/framework/'
     | '/$libraryId/$version/docs/framework/$framework/$'
@@ -1934,6 +2007,8 @@ export interface FileRouteTypes {
     | '/api/mcp/$'
     | '/api/og/{$}.png'
     | '/auth/$provider/start'
+    | '/charts/catalog/all'
+    | '/charts/catalog/catalog.json'
     | '/shop/collections/$handle'
     | '/shop/pages/$handle'
     | '/shop/policies/$handle'
@@ -1947,6 +2022,7 @@ export interface FileRouteTypes {
     | '/admin/roles'
     | '/admin/showcases'
     | '/api/mcp'
+    | '/charts/catalog'
     | '/intent/registry'
     | '/stats/npm'
     | '/$libraryId/$version/llms.txt'
@@ -1954,6 +2030,8 @@ export interface FileRouteTypes {
     | '/api/auth/cli/create-ticket'
     | '/api/builder/deploy/check-name'
     | '/api/builder/deploy/github'
+    | '/charts/catalog/charts/$caseId'
+    | '/charts/catalog/embed/$caseId'
     | '/intent/registry/$packageName/$skillName'
     | '/intent/registry/$packageName/{$}.md'
     | '/$libraryId/$version'
@@ -1985,6 +2063,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/npm-stats'
     | '/$libraryId/$version/docs/{$}.md'
     | '/api/auth/cli/status/$ticketId'
+    | '/charts/catalog/assets/$artifactRevision/$'
     | '/$libraryId/$version/docs'
     | '/$libraryId/$version/docs/framework'
     | '/$libraryId/$version/docs/framework/$framework/$'
@@ -2046,6 +2125,7 @@ export interface FileRouteTypes {
     | '/auth/signout'
     | '/blog/$'
     | '/builder/docs'
+    | '/charts/catalog'
     | '/ds/avatar'
     | '/ds/badges'
     | '/ds/breadcrumbs'
@@ -2111,6 +2191,8 @@ export interface FileRouteTypes {
     | '/api/mcp/$'
     | '/api/og/{$}.png'
     | '/auth/$provider/start'
+    | '/charts/catalog/all'
+    | '/charts/catalog_/catalog.json'
     | '/intent/registry/$packageName'
     | '/shop/collections/$handle'
     | '/shop/pages/$handle'
@@ -2125,6 +2207,7 @@ export interface FileRouteTypes {
     | '/admin/roles/'
     | '/admin/showcases/'
     | '/api/mcp/'
+    | '/charts/catalog/'
     | '/intent/registry/'
     | '/stats/npm/'
     | '/_library/$libraryId/$version/docs'
@@ -2133,6 +2216,8 @@ export interface FileRouteTypes {
     | '/api/auth/cli/create-ticket'
     | '/api/builder/deploy/check-name'
     | '/api/builder/deploy/github'
+    | '/charts/catalog/charts/$caseId'
+    | '/charts/catalog_/embed/$caseId'
     | '/intent/registry/$packageName/$skillName'
     | '/intent/registry/$packageName/{$}.md'
     | '/_library/$libraryId/$version/'
@@ -2164,6 +2249,7 @@ export interface FileRouteTypes {
     | '/_library/$libraryId/$version/docs/npm-stats'
     | '/_library/$libraryId/$version/docs/{$}.md'
     | '/api/auth/cli/status/$ticketId'
+    | '/charts/catalog_/assets/$artifactRevision/$'
     | '/_library/$libraryId/$version/docs/'
     | '/_library/$libraryId/$version/docs/framework/'
     | '/_library/$libraryId/$version/docs/framework/$framework/$'
@@ -2212,6 +2298,7 @@ export interface RootRouteChildren {
   AuthCliRoute: typeof AuthCliRoute
   AuthPopupSuccessRoute: typeof AuthPopupSuccessRoute
   AuthSignoutRoute: typeof AuthSignoutRoute
+  ChartsCatalogRoute: typeof ChartsCatalogRouteWithChildren
   LibrariesFrameworkRoute: typeof LibrariesFrameworkRoute
   OauthAuthorizeRoute: typeof OauthAuthorizeRoute
   OauthRegisterRoute: typeof OauthRegisterRoute
@@ -2240,6 +2327,7 @@ export interface RootRouteChildren {
   ApiMcpSplatRoute: typeof ApiMcpSplatRoute
   ApiOgChar123Char125DotpngRoute: typeof ApiOgChar123Char125DotpngRoute
   AuthProviderStartRoute: typeof AuthProviderStartRoute
+  ChartsCatalogCatalogDotjsonRoute: typeof ChartsCatalogCatalogDotjsonRoute
   IntentRegistryPackageNameRoute: typeof IntentRegistryPackageNameRouteWithChildren
   ShowcaseEditIdRoute: typeof ShowcaseEditIdRoute
   StatsNpmPackagesRoute: typeof StatsNpmPackagesRoute
@@ -2251,7 +2339,9 @@ export interface RootRouteChildren {
   ApiAuthCliCreateTicketRoute: typeof ApiAuthCliCreateTicketRoute
   ApiBuilderDeployCheckNameRoute: typeof ApiBuilderDeployCheckNameRoute
   ApiBuilderDeployGithubRoute: typeof ApiBuilderDeployGithubRoute
+  ChartsCatalogEmbedCaseIdRoute: typeof ChartsCatalogEmbedCaseIdRoute
   ApiAuthCliStatusTicketIdRoute: typeof ApiAuthCliStatusTicketIdRoute
+  ChartsCatalogAssetsArtifactRevisionSplatRoute: typeof ChartsCatalogAssetsArtifactRevisionSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -2781,6 +2871,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DsAvatarRouteImport
       parentRoute: typeof DsRoute
     }
+    '/charts/catalog': {
+      id: '/charts/catalog'
+      path: '/charts/catalog'
+      fullPath: '/charts/catalog'
+      preLoaderRoute: typeof ChartsCatalogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/builder/docs': {
       id: '/builder/docs'
       path: '/docs'
@@ -2928,6 +3025,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IntentRegistryIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/charts/catalog/': {
+      id: '/charts/catalog/'
+      path: '/'
+      fullPath: '/charts/catalog/'
+      preLoaderRoute: typeof ChartsCatalogIndexRouteImport
+      parentRoute: typeof ChartsCatalogRoute
+    }
     '/api/mcp/': {
       id: '/api/mcp/'
       path: '/api/mcp'
@@ -3025,6 +3129,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/intent/registry/$packageName'
       preLoaderRoute: typeof IntentRegistryPackageNameRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/charts/catalog_/catalog.json': {
+      id: '/charts/catalog_/catalog.json'
+      path: '/charts/catalog/catalog.json'
+      fullPath: '/charts/catalog/catalog.json'
+      preLoaderRoute: typeof ChartsCatalogCatalogDotjsonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/charts/catalog/all': {
+      id: '/charts/catalog/all'
+      path: '/all'
+      fullPath: '/charts/catalog/all'
+      preLoaderRoute: typeof ChartsCatalogAllRouteImport
+      parentRoute: typeof ChartsCatalogRoute
     }
     '/auth/$provider/start': {
       id: '/auth/$provider/start'
@@ -3355,6 +3473,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IntentRegistryPackageNameSkillNameRouteImport
       parentRoute: typeof IntentRegistryPackageNameRoute
     }
+    '/charts/catalog_/embed/$caseId': {
+      id: '/charts/catalog_/embed/$caseId'
+      path: '/charts/catalog/embed/$caseId'
+      fullPath: '/charts/catalog/embed/$caseId'
+      preLoaderRoute: typeof ChartsCatalogEmbedCaseIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/charts/catalog/charts/$caseId': {
+      id: '/charts/catalog/charts/$caseId'
+      path: '/charts/$caseId'
+      fullPath: '/charts/catalog/charts/$caseId'
+      preLoaderRoute: typeof ChartsCatalogChartsCaseIdRouteImport
+      parentRoute: typeof ChartsCatalogRoute
+    }
     '/api/builder/deploy/github': {
       id: '/api/builder/deploy/github'
       path: '/api/builder/deploy/github'
@@ -3403,6 +3535,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/$libraryId/$version/docs/'
       preLoaderRoute: typeof LibraryLibraryIdVersionDocsIndexRouteImport
       parentRoute: typeof LibraryLibraryIdVersionDocsRoute
+    }
+    '/charts/catalog_/assets/$artifactRevision/$': {
+      id: '/charts/catalog_/assets/$artifactRevision/$'
+      path: '/charts/catalog/assets/$artifactRevision/$'
+      fullPath: '/charts/catalog/assets/$artifactRevision/$'
+      preLoaderRoute: typeof ChartsCatalogAssetsArtifactRevisionSplatRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/auth/cli/status/$ticketId': {
       id: '/api/auth/cli/status/$ticketId'
@@ -3818,6 +3957,22 @@ const ShopRouteChildren: ShopRouteChildren = {
 
 const ShopRouteWithChildren = ShopRoute._addFileChildren(ShopRouteChildren)
 
+interface ChartsCatalogRouteChildren {
+  ChartsCatalogAllRoute: typeof ChartsCatalogAllRoute
+  ChartsCatalogIndexRoute: typeof ChartsCatalogIndexRoute
+  ChartsCatalogChartsCaseIdRoute: typeof ChartsCatalogChartsCaseIdRoute
+}
+
+const ChartsCatalogRouteChildren: ChartsCatalogRouteChildren = {
+  ChartsCatalogAllRoute: ChartsCatalogAllRoute,
+  ChartsCatalogIndexRoute: ChartsCatalogIndexRoute,
+  ChartsCatalogChartsCaseIdRoute: ChartsCatalogChartsCaseIdRoute,
+}
+
+const ChartsCatalogRouteWithChildren = ChartsCatalogRoute._addFileChildren(
+  ChartsCatalogRouteChildren,
+)
+
 interface IntentRegistryPackageNameRouteChildren {
   IntentRegistryPackageNameSkillNameRoute: typeof IntentRegistryPackageNameSkillNameRoute
   IntentRegistryPackageNameChar123Char125DotmdRoute: typeof IntentRegistryPackageNameChar123Char125DotmdRoute
@@ -3879,6 +4034,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthCliRoute: AuthCliRoute,
   AuthPopupSuccessRoute: AuthPopupSuccessRoute,
   AuthSignoutRoute: AuthSignoutRoute,
+  ChartsCatalogRoute: ChartsCatalogRouteWithChildren,
   LibrariesFrameworkRoute: LibrariesFrameworkRoute,
   OauthAuthorizeRoute: OauthAuthorizeRoute,
   OauthRegisterRoute: OauthRegisterRoute,
@@ -3907,6 +4063,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiMcpSplatRoute: ApiMcpSplatRoute,
   ApiOgChar123Char125DotpngRoute: ApiOgChar123Char125DotpngRoute,
   AuthProviderStartRoute: AuthProviderStartRoute,
+  ChartsCatalogCatalogDotjsonRoute: ChartsCatalogCatalogDotjsonRoute,
   IntentRegistryPackageNameRoute: IntentRegistryPackageNameRouteWithChildren,
   ShowcaseEditIdRoute: ShowcaseEditIdRoute,
   StatsNpmPackagesRoute: StatsNpmPackagesRoute,
@@ -3918,7 +4075,10 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthCliCreateTicketRoute: ApiAuthCliCreateTicketRoute,
   ApiBuilderDeployCheckNameRoute: ApiBuilderDeployCheckNameRoute,
   ApiBuilderDeployGithubRoute: ApiBuilderDeployGithubRoute,
+  ChartsCatalogEmbedCaseIdRoute: ChartsCatalogEmbedCaseIdRoute,
   ApiAuthCliStatusTicketIdRoute: ApiAuthCliStatusTicketIdRoute,
+  ChartsCatalogAssetsArtifactRevisionSplatRoute:
+    ChartsCatalogAssetsArtifactRevisionSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

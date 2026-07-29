@@ -15,6 +15,7 @@ import {
   InvalidCacheKeyError,
 } from './github-content-cache.server'
 import { normalizeRedirectFrom } from './redirects'
+import { isValidRepoPath } from './repo-path'
 import { multiSortBy, removeLeadingSlash } from './utils'
 import { env } from './env'
 import { fetchWithTimeout } from './outbound-fetch.server'
@@ -520,6 +521,51 @@ async function fetchRepoFileFromOrigin(
   return null
 }
 
+async function fetchRepoRawFileFromOrigin(
+  repoPair: string,
+  ref: string,
+  filepath: string,
+) {
+  const [owner, repo] = repoPair.split('/')
+  return shouldUseLocalDocsFiles()
+    ? fetchFs(repo, filepath)
+    : fetchRemote(owner, repo, ref, filepath)
+}
+
+export async function fetchRepoRawFile(
+  repoPair: string,
+  ref: string,
+  filepath: string,
+) {
+  assertValidGitHubRepoPair(repoPair)
+  assertValidGitHubRef(ref)
+  if (!filepath || !isValidRepoPath(filepath)) {
+    throw new InvalidCacheKeyError('path', filepath)
+  }
+
+  const key = `raw:${repoPair}:${ref}:${filepath}`
+
+  if (shouldUseLocalDocsFiles()) {
+    return fetchCached({
+      key,
+      ttl: 1,
+      fn: () => fetchRepoRawFileFromOrigin(repoPair, ref, filepath),
+    })
+  }
+
+  try {
+    return await getCachedGitHubTextFile({
+      repo: repoPair,
+      gitRef: ref,
+      path: `.tanstack-raw/${filepath}`,
+      origin: () => fetchRepoRawFileFromOrigin(repoPair, ref, filepath),
+    })
+  } catch (error) {
+    if (error instanceof InvalidCacheKeyError) return null
+    throw error
+  }
+}
+
 export async function fetchRepoFile(
   repoPair: string,
   ref: string,
@@ -550,6 +596,166 @@ export async function fetchRepoFile(
       return null
     }
     throw error
+  }
+}
+
+export async function resolveGitHubRef(repoPair: string, gitRef: string) {
+  assertValidGitHubRepoPair(repoPair)
+  assertValidGitHubRef(gitRef)
+
+  const encodedRef = gitRef
+    .split('/')
+    .map((segment) => encodeURIComponent(segment))
+    .join('/')
+  const url = `https://api.github.com/repos/${repoPair}/git/ref/heads/${encodedRef}`
+
+  let response: Response
+  try {
+    response = await fetchWithTimeout(url, {
+      ...(await getGitHubContentFetchOptionsAsync({
+        userAgent: `docs-ref:${repoPair}`,
+      })),
+    })
+
+    if (isGitHubAuthFailureStatus(response.status)) {
+      await cancelUnusedResponseBody(response)
+      response = await fetchWithTimeout(url, {
+        ...(await getGitHubContentFetchOptionsAsync({
+          includeAuthorization: false,
+          userAgent: `docs-ref:${repoPair}`,
+        })),
+      })
+    }
+  } catch (error) {
+    throw new GitHubContentError(
+      'network',
+      `Failed to resolve ${repoPair}@${gitRef}`,
+      { cause: error },
+    )
+  }
+
+  if (!response.ok) {
+    await cancelUnusedResponseBody(response)
+    if (response.status === 404) return null
+    throw new GitHubContentError(
+      response.status === 403
+        ? 'forbidden'
+        : response.status === 429
+          ? 'rate-limit'
+          : response.status >= 500
+            ? 'server'
+            : 'invalid-response',
+      `Failed to resolve ${repoPair}@${gitRef}`,
+      { status: response.status },
+    )
+  }
+
+  let value: unknown
+  try {
+    value = await response.json()
+  } catch (error) {
+    throw new GitHubContentError(
+      'invalid-response',
+      `GitHub returned invalid JSON for ${repoPair}@${gitRef}`,
+      { cause: error },
+    )
+  }
+  if (
+    typeof value !== 'object' ||
+    value === null ||
+    !('object' in value) ||
+    typeof value.object !== 'object' ||
+    value.object === null ||
+    !('sha' in value.object) ||
+    typeof value.object.sha !== 'string' ||
+    !/^[a-f0-9]{40}$/.test(value.object.sha)
+  ) {
+    throw new GitHubContentError(
+      'invalid-response',
+      `GitHub returned an invalid ref for ${repoPair}@${gitRef}`,
+    )
+  }
+
+  return value.object.sha
+}
+
+export async function fetchGitHubCommitHistory(
+  repoPair: string,
+  gitRef: string,
+  limit: number,
+) {
+  assertValidGitHubRepoPair(repoPair)
+  assertValidGitHubRef(gitRef)
+  if (!Number.isInteger(limit) || limit < 1 || limit > 100) {
+    throw new InvalidCacheKeyError('commitHistoryLimit', String(limit))
+  }
+
+  const url = new URL(`https://api.github.com/repos/${repoPair}/commits`)
+  url.searchParams.set('sha', gitRef)
+  url.searchParams.set('per_page', String(limit))
+
+  const response = await fetchGitHubApiJson(url.href)
+  if (
+    !Array.isArray(response) ||
+    response.length === 0 ||
+    response.length > limit
+  ) {
+    throw new GitHubContentError(
+      'invalid-response',
+      `Unexpected commit history response for ${repoPair}@${gitRef}`,
+    )
+  }
+
+  const revisions = new Array<string>()
+  for (const commit of response) {
+    if (
+      typeof commit !== 'object' ||
+      commit === null ||
+      !('sha' in commit) ||
+      typeof commit.sha !== 'string' ||
+      !/^[a-f0-9]{40}$/.test(commit.sha)
+    ) {
+      throw new GitHubContentError(
+        'invalid-response',
+        `Unexpected commit history response for ${repoPair}@${gitRef}`,
+      )
+    }
+    revisions.push(commit.sha)
+  }
+
+  if (new Set(revisions).size !== revisions.length) {
+    throw new GitHubContentError(
+      'invalid-response',
+      `Duplicate commit in history for ${repoPair}@${gitRef}`,
+    )
+  }
+
+  return revisions
+}
+
+function assertValidGitHubRepoPair(repoPair: string) {
+  const segments = repoPair.split('/')
+  if (
+    repoPair.length === 0 ||
+    repoPair.length > 100 ||
+    !/^[a-zA-Z0-9._-]+\/[a-zA-Z0-9._-]+$/.test(repoPair) ||
+    segments.some((segment) => segment === '.' || segment === '..')
+  ) {
+    throw new InvalidCacheKeyError('repo', repoPair)
+  }
+}
+
+function assertValidGitHubRef(gitRef: string) {
+  if (
+    gitRef.length === 0 ||
+    gitRef.length > 100 ||
+    !/^[a-zA-Z0-9._/-]+$/.test(gitRef) ||
+    gitRef.includes('..') ||
+    gitRef.startsWith('/') ||
+    gitRef.endsWith('/') ||
+    gitRef.includes('//')
+  ) {
+    throw new InvalidCacheKeyError('gitRef', gitRef)
   }
 }
 

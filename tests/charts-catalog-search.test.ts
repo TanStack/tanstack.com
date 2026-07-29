@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import { defaultParseSearch } from '@tanstack/react-router'
 import {
   parseChartsCatalogRouteSearch,
   parseChartsCatalogSearch,
@@ -31,6 +32,8 @@ test('catalog comparison mode requires one exact compare=1 parameter', () => {
     '?compare=1&compare=1',
     '?compare=0&compare=1',
     '?compare=1&compare=0',
+    '?compare=%5B1%5D',
+    '?compare=%5B%221%22%5D',
   ]) {
     assert.equal(
       parseChartsCatalogSearch(search).comparison,
@@ -48,7 +51,7 @@ test('catalog embeds never enable comparison modules', () => {
 })
 
 test('validated catalog search preserves exact comparison loader deps', () => {
-  for (const value of ['1', 1, ['1'], [1]]) {
+  for (const value of ['1', 1]) {
     const search = validateChartsCatalogRouteSearch({ compare: value })
     assert.equal(parseChartsCatalogRouteSearch(search).comparison, true)
   }
@@ -60,11 +63,21 @@ test('validated catalog search preserves exact comparison loader deps', () => {
     'true',
     true,
     1.1,
+    ['1'],
+    [1],
     ['1', '1'],
     [1, 1],
     ['0', '1'],
   ]) {
     const search = validateChartsCatalogRouteSearch({ compare: value })
+    assert.equal(parseChartsCatalogRouteSearch(search).comparison, false)
+  }
+})
+
+test('Router-decoded array values never enable catalog comparison mode', () => {
+  for (const value of ['%5B1%5D', '%5B%221%22%5D']) {
+    const decoded = defaultParseSearch(`?compare=${value}`)
+    const search = validateChartsCatalogRouteSearch(decoded)
     assert.equal(parseChartsCatalogRouteSearch(search).comparison, false)
   }
 })

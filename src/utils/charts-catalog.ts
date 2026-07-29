@@ -470,9 +470,9 @@ export function parseChartsCatalogRouteSearch(
   options: { embed?: boolean } = {},
 ) {
   const comparisonValues =
-    !Array.isArray(search.compare) && search.compare !== undefined
+    search.compare !== undefined && !Array.isArray(search.compare)
       ? [search.compare]
-      : (search.compare ?? [])
+      : []
 
   return {
     comparison: isChartsCatalogComparisonEnabled(comparisonValues, options),

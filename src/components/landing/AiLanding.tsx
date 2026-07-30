@@ -1,6 +1,7 @@
 import * as React from 'react'
 import {
   BracketsCurly,
+  Bug,
   Code,
   Cube,
   Database,
@@ -8,6 +9,7 @@ import {
   Plug,
   Radio,
   Robot,
+  Scales,
   Terminal,
   Waveform,
   type Icon,
@@ -165,6 +167,17 @@ export default function AiLanding() {
       promptLabel="Copy AI prompt"
     >
       <LandingSection tone="ink">
+        <LandingSectionIntro
+          centered
+          eyebrow="Two files"
+          icon={<Terminal aria-hidden="true" size={15} />}
+          title="An agent on your own server, end to end."
+          body="One route on the server, one hook in the client, and the transport between them is yours. Nothing here is a wrapper around a service we run."
+        />
+        <QuickStart />
+      </LandingSection>
+
+      <LandingSection tone="raised">
         <div className="grid items-center gap-12 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16">
           <LandingSectionIntro
             eyebrow="The agent loop"
@@ -176,7 +189,7 @@ export default function AiLanding() {
         </div>
       </LandingSection>
 
-      <LandingSection tone="raised">
+      <LandingSection tone="ink">
         <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
           <ProviderWorkbench />
           <LandingSectionIntro
@@ -222,7 +235,152 @@ export default function AiLanding() {
           <FeatureRail items={modalities} />
         </div>
       </LandingSection>
+
+      <LandingSection tone="raised">
+        <div className="grid gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:items-center lg:gap-16">
+          <LandingSectionIntro
+            eyebrow="Devtools"
+            icon={<Bug aria-hidden="true" size={15} />}
+            title="Watch the loop run instead of guessing."
+            body="Agent bugs live between the turns: which tool ran, what came back, what memory injected, where the run stopped. The TanStack Devtools panel finds every AI hook on the page and gives each one a turn-by-turn timeline with tool inputs and outputs, state snapshots, and errors. You can even replay a tool from a saved fixture instead of prompting your way back to the same state."
+          />
+          <DevtoolsPanel />
+        </div>
+      </LandingSection>
+
+      <LandingSection tone="accent">
+        <LandingSectionIntro
+          centered
+          eyebrow="Honest comparison"
+          icon={<Scales aria-hidden="true" size={15} />}
+          title="Pick the tradeoffs you want to live with."
+          body="TanStack AI is not the only good option in TypeScript, and these projects are not trying to be the same thing. The differences that actually matter are about ownership: what speaks to your UI, where the agent runs, and who else is involved."
+        />
+        <ComparisonTable />
+      </LandingSection>
     </LibraryLandingShell>
+  )
+}
+
+function CodeLine({
+  children,
+  indent = 0,
+}: {
+  children?: React.ReactNode
+  indent?: number
+}) {
+  return <p style={{ paddingLeft: `${indent * 0.75}rem` }}>{children || ' '}</p>
+}
+
+function Kw({ children }: { children: React.ReactNode }) {
+  return <span className="text-pink-300">{children}</span>
+}
+
+// ponytail: the code surface is always dark, so these use fixed token colors.
+// --landing-accent-bright resolves to a dark terracotta in light mode and is
+// unreadable here.
+function Fn({ children }: { children: React.ReactNode }) {
+  return <span className="text-orange-300">{children}</span>
+}
+
+function Str({ children }: { children: React.ReactNode }) {
+  return <span className="text-emerald-300">{children}</span>
+}
+
+function Cmt({ children }: { children: React.ReactNode }) {
+  return <span className="text-white/30">{children}</span>
+}
+
+function CodeSurface({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex-1 overflow-x-auto bg-ds-neutral-500 p-5 font-ds-mono text-ds-mono-xs leading-relaxed text-white/70">
+      {children}
+    </div>
+  )
+}
+
+function QuickStart() {
+  return (
+    <div className="mt-14 grid gap-5 lg:grid-cols-2">
+      <LandingWindow className="flex flex-col" label="server · app/api/chat.ts">
+        <CodeSurface>
+          <CodeLine>
+            <Kw>import</Kw> {'{ chat, toServerSentEventsResponse }'}{' '}
+            <Kw>from</Kw> <Str>'@tanstack/ai'</Str>
+          </CodeLine>
+          <CodeLine>
+            <Kw>import</Kw> {'{ openrouterText }'} <Kw>from</Kw>{' '}
+            <Str>'@tanstack/ai-openrouter'</Str>
+          </CodeLine>
+          <CodeLine />
+          <CodeLine>
+            <Kw>export async function</Kw> <Fn>POST</Fn>(request: Request) {'{'}
+          </CodeLine>
+          <CodeLine indent={2}>
+            <Kw>const</Kw> {'{ messages }'} = <Kw>await</Kw> request.
+            <Fn>json</Fn>()
+          </CodeLine>
+          <CodeLine />
+          <CodeLine indent={2}>
+            <Kw>const</Kw> stream = <Fn>chat</Fn>({'{'}
+          </CodeLine>
+          <CodeLine indent={4}>
+            adapter: <Fn>openrouterText</Fn>(
+            <Str>'anthropic/claude-sonnet-4.5'</Str>),
+          </CodeLine>
+          <CodeLine indent={4}>messages,</CodeLine>
+          <CodeLine indent={4}>tools: [lookupInvoice],</CodeLine>
+          <CodeLine indent={2}>{'})'}</CodeLine>
+          <CodeLine />
+          <CodeLine indent={2}>
+            <Cmt>// your route, your auth, your deploy target</Cmt>
+          </CodeLine>
+          <CodeLine indent={2}>
+            <Kw>return</Kw> <Fn>toServerSentEventsResponse</Fn>(stream)
+          </CodeLine>
+          <CodeLine>{'}'}</CodeLine>
+        </CodeSurface>
+      </LandingWindow>
+
+      <LandingWindow className="flex flex-col" label="client · chat.tsx">
+        <CodeSurface>
+          <CodeLine>
+            <Kw>import</Kw> {'{ useChat, fetchServerSentEvents }'} <Kw>from</Kw>{' '}
+            <Str>'@tanstack/ai-react'</Str>
+          </CodeLine>
+          <CodeLine />
+          <CodeLine>
+            <Kw>export function</Kw> <Fn>Chat</Fn>() {'{'}
+          </CodeLine>
+          <CodeLine indent={2}>
+            <Kw>const</Kw> {'{ messages, sendMessage, interrupts }'} ={' '}
+            <Fn>useChat</Fn>({'{'}
+          </CodeLine>
+          <CodeLine indent={4}>
+            connection: <Fn>fetchServerSentEvents</Fn>(<Str>'/api/chat'</Str>),
+          </CodeLine>
+          <CodeLine indent={2}>{'})'}</CodeLine>
+          <CodeLine />
+          <CodeLine indent={2}>
+            <Cmt>// typed state and events. no components, no styles.</Cmt>
+          </CodeLine>
+          <CodeLine indent={2}>
+            <Kw>return</Kw> messages.<Fn>map</Fn>((message) =&gt; (
+          </CodeLine>
+          <CodeLine indent={4}>
+            &lt;<Fn>Bubble</Fn> key={'{'}message.id{'}'} {'{'}...message{'}'}{' '}
+            /&gt;
+          </CodeLine>
+          <CodeLine indent={2}>))</CodeLine>
+          <CodeLine>{'}'}</CodeLine>
+        </CodeSurface>
+      </LandingWindow>
+
+      <p className="text-center text-ds-body-xs text-text-primary/35 lg:col-span-2">
+        Swap ai-react for ai-vue, ai-solid, ai-svelte, ai-preact, ai-angular, or
+        the framework-free ai-client. The server route never changes.
+      </p>
+    </div>
   )
 }
 
@@ -904,6 +1062,214 @@ const modalities: Array<RailItem> = [
     icon: Radio,
   },
 ]
+
+const devtoolsHooks = [
+  { detail: 'useChat · 12 msgs', name: 'Support Chat', selected: true },
+  { detail: 'useGenerateImage', name: 'Image Studio' },
+  { detail: 'useObject', name: 'Invoice Extract' },
+  { detail: 'useTranscription', name: 'Call Notes' },
+]
+
+const devtoolsTimeline: Array<{
+  detail: string
+  label: string
+  tone: 'accent' | 'muted' | 'warn'
+}> = [
+  {
+    label: 'user turn',
+    detail: '"refund the duplicate charge"',
+    tone: 'muted',
+  },
+  {
+    label: 'memory recall',
+    detail: '3 facts injected · 214 tokens',
+    tone: 'accent',
+  },
+  {
+    label: 'tool call',
+    detail: 'lookupInvoice { id: "inv_8841" }',
+    tone: 'accent',
+  },
+  {
+    label: 'tool result',
+    detail: '{ total: 4200, status: "paid" }',
+    tone: 'accent',
+  },
+  {
+    label: 'interrupt',
+    detail: 'chargeCard · awaiting approval',
+    tone: 'warn',
+  },
+  {
+    label: 'finish reason',
+    detail: 'interrupt · run resumable',
+    tone: 'muted',
+  },
+]
+
+function DevtoolsPanel() {
+  return (
+    <LandingWindow label="tanstack devtools · ai">
+      <div className="grid bg-background-default sm:grid-cols-[11rem_1fr]">
+        <div className="border-border-subtle p-3 sm:border-r">
+          <p className="px-2 pb-2 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+            hooks
+          </p>
+          {devtoolsHooks.map((hook) => (
+            <div
+              key={hook.name}
+              className={
+                hook.selected
+                  ? 'mb-1 rounded-lg bg-[color:rgb(var(--landing-glow)/0.14)] px-3 py-2'
+                  : 'mb-1 rounded-lg px-3 py-2'
+              }
+            >
+              <p
+                className={
+                  hook.selected
+                    ? 'text-ds-label-sm text-[var(--landing-accent-bright)]'
+                    : 'text-ds-label-sm text-text-primary/40'
+                }
+              >
+                {hook.name}
+              </p>
+              <p className="mt-0.5 font-ds-mono text-ds-mono-2xs text-text-primary/25">
+                {hook.detail}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <div className="p-4">
+          <div className="flex items-center justify-between">
+            <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+              run timeline
+            </p>
+            <p className="font-ds-mono text-ds-mono-2xs text-text-primary/25">
+              thread_7f2 · run_3
+            </p>
+          </div>
+          <div className="mt-3 space-y-1.5">
+            {devtoolsTimeline.map((event) => (
+              <div
+                key={event.label}
+                className="grid gap-1 rounded-lg bg-background-subtle px-3 py-2 sm:grid-cols-[8.5rem_1fr] sm:items-baseline"
+              >
+                <span
+                  className={
+                    event.tone === 'accent'
+                      ? 'font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]'
+                      : event.tone === 'warn'
+                        ? 'font-ds-mono text-ds-mono-caps-xs uppercase text-amber-500'
+                        : 'font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/30'
+                  }
+                >
+                  {event.label}
+                </span>
+                <span className="truncate font-ds-mono text-ds-mono-2xs text-text-primary/50">
+                  {event.detail}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </LandingWindow>
+  )
+}
+
+const comparisonColumns = ['TanStack AI', 'Vercel AI SDK', 'Mastra']
+const comparisonRows: Array<{ label: string; values: Array<string> }> = [
+  {
+    label: 'Protocol to your UI',
+    values: [
+      'AG-UI, both directions',
+      'Its own UI message stream',
+      'Its own HTTP API, AG-UI via CopilotKit',
+    ],
+  },
+  {
+    label: 'Client bindings',
+    values: [
+      'React, Vue, Solid, Svelte, Preact, Angular, plus a framework-free core',
+      'React, Vue, Svelte, Angular',
+      'React, plus a framework-free client',
+    ],
+  },
+  {
+    label: 'Where the agent runs',
+    values: [
+      'Any server you already have',
+      'Any server you already have',
+      'Its own Hono server, or embedded in your app',
+    ],
+  },
+  {
+    label: 'Hosted service in the loop',
+    values: ['None', 'Optional Vercel platform', 'Optional Mastra platform'],
+  },
+  {
+    label: 'License',
+    values: ['MIT', 'Apache 2.0', 'Apache 2.0, with ee/ under separate terms'],
+  },
+]
+
+function ComparisonTable() {
+  return (
+    <div className="mx-auto mt-14 max-w-[72rem]">
+      <div className="overflow-x-auto rounded-xl border border-border-default bg-background-surface">
+        <table className="w-full min-w-[46rem] border-collapse text-left">
+          <thead>
+            <tr>
+              <th className="border-b border-border-subtle px-5 py-4 font-ds-mono text-ds-mono-caps-xs font-normal uppercase text-text-primary/25">
+                Dimension
+              </th>
+              {comparisonColumns.map((column, index) => (
+                <th
+                  key={column}
+                  className={
+                    index === 0
+                      ? 'border-b border-border-subtle px-5 py-4 text-ds-label-md text-[var(--landing-accent-bright)]'
+                      : 'border-b border-border-subtle px-5 py-4 text-ds-label-md text-text-primary/50'
+                  }
+                >
+                  {column}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {comparisonRows.map((row) => (
+              <tr key={row.label}>
+                <th className="border-b border-border-subtle px-5 py-4 align-top text-ds-label-sm font-normal text-text-primary/60 last:border-b-0">
+                  {row.label}
+                </th>
+                {row.values.map((value, index) => (
+                  <td
+                    key={`${row.label}-${comparisonColumns[index]}`}
+                    className={
+                      index === 0
+                        ? 'border-b border-border-subtle bg-[color:rgb(var(--landing-glow)/0.06)] px-5 py-4 align-top text-ds-body-xs text-text-primary/70'
+                        : 'border-b border-border-subtle px-5 py-4 align-top text-ds-body-xs text-text-primary/40'
+                    }
+                  >
+                    {value}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="mt-5 text-center text-ds-body-xs text-text-primary/35">
+        Checked against @tanstack/ai 0.42, ai 7.0, and @mastra/core 1.56 in July
+        2026. All three ship typed tools, MCP, memory, sandboxed code execution,
+        and coding-agent harnesses, so those are not differentiators. If we have
+        a detail wrong, tell us and we will fix it.
+      </p>
+    </div>
+  )
+}
 
 function FeatureRail({ items }: { items: Array<RailItem> }) {
   return (

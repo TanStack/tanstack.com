@@ -1,12 +1,15 @@
 import { ArrowsOutSimple, GridFour } from '@phosphor-icons/react'
 import { Link } from '@tanstack/react-router'
 import * as React from 'react'
-import { CodeBlock } from '~/components/markdown/CodeBlock'
-import type { ChartsCatalogCase } from '~/utils/charts-catalog'
+import type {
+  ChartsCatalogAuthoredSource,
+  ChartsCatalogCase,
+} from '~/utils/charts-catalog'
 import {
   ChartsCatalogChart,
   type ChartsCatalogModuleReference,
 } from './ChartsCatalogChart'
+import { ChartsCatalogSource } from './ChartsCatalogSource'
 import { Resizable, type ResizableSizeChange } from '../npm-stats/Resizable'
 
 type CatalogCaseMetadata = Pick<
@@ -120,9 +123,9 @@ export function ChartsCatalogDetail({
   artifactRevision: string
   catalogCase: CatalogCaseMetadata & {
     modules: CatalogCaseModules
-    code: {
-      tanstack: { path: string; source: string }
-      comparison?: { path: string; source?: string }
+    authoredSource: {
+      tanstack: ChartsCatalogAuthoredSource
+      comparison?: ChartsCatalogAuthoredSource
     }
   }
 }) {
@@ -166,15 +169,15 @@ export function ChartsCatalogDetail({
       </div>
 
       <div className={`mt-6 grid gap-3 ${comparison ? 'xl:grid-cols-2' : ''}`}>
-        <SourceBlock
-          path={catalogCase.code.tanstack.path}
-          source={catalogCase.code.tanstack.source}
-        />
-        {catalogCase.code.comparison?.source ? (
-          <SourceBlock
-            path={catalogCase.code.comparison.path}
-            source={catalogCase.code.comparison.source}
-          />
+        <ChartPanel label="TanStack source">
+          <ChartsCatalogSource source={catalogCase.authoredSource.tanstack} />
+        </ChartPanel>
+        {catalogCase.authoredSource.comparison && comparison ? (
+          <ChartPanel label={`${rendererLabel(comparison.renderer)} source`}>
+            <ChartsCatalogSource
+              source={catalogCase.authoredSource.comparison}
+            />
+          </ChartPanel>
         ) : null}
       </div>
     </CatalogSurface>
@@ -307,22 +310,6 @@ function ChartPanel({
       <p className="mb-2 text-xs font-medium text-gray-500">{label}</p>
       {children}
     </div>
-  )
-}
-
-function SourceBlock({ path, source }: { path: string; source: string }) {
-  return (
-    <details className="min-w-0 rounded-lg border border-gray-200 dark:border-gray-800">
-      <summary className="cursor-pointer px-4 py-3 font-mono text-xs text-gray-600 dark:text-gray-400">
-        {path}
-      </summary>
-      <CodeBlock
-        showTypeCopyButton={false}
-        className="max-h-[32rem] rounded-none border-x-0 border-b-0 [&_pre]:max-h-[32rem] [&_pre]:overflow-auto"
-      >
-        <code className="language-ts">{source}</code>
-      </CodeBlock>
-    </details>
   )
 }
 

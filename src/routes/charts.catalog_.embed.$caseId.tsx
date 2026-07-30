@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { createFileRoute, notFound } from '@tanstack/react-router'
 import { ChartsCatalogChart } from '~/components/charts/ChartsCatalogChart'
-import { CodeBlock } from '~/components/markdown/CodeBlock'
+import { ChartsCatalogSource } from '~/components/charts/ChartsCatalogSource'
 import {
   isChartsCatalogEmbedTheme,
   parseChartsCatalogEmbedRouteSearch,
@@ -145,7 +145,7 @@ function ChartsCatalogEmbedRoute() {
         onStatus={postStatus}
         revision={data.revision}
       />
-      {data.case.code ? (
+      {data.case.authoredSource ? (
         <details
           ref={sourceRef}
           open={data.source === 'expanded'}
@@ -154,12 +154,7 @@ function ChartsCatalogEmbedRoute() {
           <summary className="cursor-pointer px-4 py-3 font-mono text-xs text-gray-600 dark:text-gray-400">
             Source
           </summary>
-          <CodeBlock
-            data-code-title={data.case.code.path}
-            className="max-h-[32rem] rounded-none border-x-0 border-b-0 [&_pre]:max-h-[29rem] [&_pre]:overflow-auto"
-          >
-            <code className="language-ts">{data.case.code.source}</code>
-          </CodeBlock>
+          <ChartsCatalogSource source={data.case.authoredSource} />
         </details>
       ) : null}
     </main>

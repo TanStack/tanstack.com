@@ -18,7 +18,7 @@ import {
 } from './ChartsCatalogGallery'
 import { LandingCopyPromptButton } from './LandingCopyPromptButton'
 
-const chartPrompt = `Using TanStack Charts and the accounts array in this project, plot monthlyRevenue on x and retention on y. Size each point by seats, color it by segment, and keep the original Account type in tooltip and focus callbacks. Use explicit D3 scales with empty-data fallbacks, add a useful ariaLabel, and render it through the React adapter with a tooltip.`
+const chartPrompt = `Using TanStack Charts and the accounts array in this project, plot monthlyRevenue on x and retention on y. Size each point by seats, color it by segment, and keep the original Account type in tooltip and focus callbacks. Use D3 scale factories so TanStack Charts can infer the domains, enable the tooltip on the chart definition, add a useful ariaLabel, and render it through the React adapter.`
 
 export default function ChartsLanding({
   catalog,
@@ -29,7 +29,7 @@ export default function ChartsLanding({
 }) {
   return (
     <LibraryLandingShell
-      description="Build the chart you need from typed data, marks, channels, and D3 scales—then render responsive SVG in React or vanilla TypeScript."
+      description="Build from typed data, marks, channels, and D3 scales. Render responsive SVG through vanilla TypeScript or adapters for React, Vue, Svelte, Solid, Angular, Preact, Lit, Alpine, and Octane."
       headline="A chart grammar you don't have to outgrow."
       hero={<KineticChartsHero />}
       libraryId="charts"
@@ -73,8 +73,8 @@ export default function ChartsLanding({
             </h2>
             <p className="mt-6 max-w-xl text-ds-body-sm text-text-secondary sm:text-ds-body-md">
               Every example compiles under strict TypeScript. Fields, datum
-              types, domains, tooltips, and focus callbacks stay connected to
-              the source datum; the type suite rejects eight invalid
+              types, inferred domains and keys, tooltips, and focus callbacks
+              stay connected to the source datum; the type suite rejects invalid
               definitions.
             </p>
 
@@ -121,12 +121,17 @@ export default function ChartsLanding({
       <LandingSection tone="raised">
         <div className="grid gap-8 lg:grid-cols-[0.88fr_1.12fr] lg:items-end lg:gap-16">
           <h2 className="max-w-3xl font-ds-display text-ds-heading-1 md:text-ds-display-md">
-            Complete SVG charts. 18.5–19.2 kB gzip.
+            Complete SVG charts. 24.2–24.8 KiB gzip.
           </h2>
           <p className="max-w-2xl text-ds-body-sm text-text-secondary sm:text-ds-body-md">
-            Measured minified and gzipped from one-series charts using the
-            vanilla renderer. Granular imports leave unrelated marks and D3
-            modules out.
+            Measured minified and gzipped from one-series charts in the{' '}
+            <a
+              href="/charts/latest/docs/comparison"
+              className="text-[var(--landing-accent-bright)] underline decoration-current/30 underline-offset-4 hover:decoration-current"
+            >
+              reproducible comparison suite
+            </a>
+            . Granular imports leave unrelated marks and D3 modules out.
           </p>
         </div>
 
@@ -218,9 +223,6 @@ function TypedDotExample() {
           <span className="text-ds-neutral-200">{`,\n`}</span>
           <span className="text-ds-neutral-300"> z: </span>
           <span className="text-ds-amber-200">&apos;segment&apos;</span>
-          <span className="text-ds-neutral-200">{`,\n`}</span>
-          <span className="text-ds-neutral-300"> key: </span>
-          <span className="text-ds-amber-200">&apos;id&apos;</span>
           <span className="text-ds-neutral-200">{`,\n})`}</span>
         </code>
       </pre>

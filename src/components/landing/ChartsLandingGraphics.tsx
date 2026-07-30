@@ -324,30 +324,31 @@ const bundleRows = [
     color: 'bg-[#69bc75]',
     label: 'Scatter',
     paint: '#69bc75',
-    value: 18.515,
+    value: 24.188,
   },
   {
     color: 'bg-[#9cd5e2]',
     label: 'Area',
     paint: '#9cd5e2',
-    value: 18.687,
+    value: 24.257,
   },
   {
     color: 'bg-[#61adbf]',
     label: 'Line',
     paint: '#61adbf',
-    value: 18.701,
+    value: 24.261,
   },
   {
     color: 'bg-[#e06e49]',
     label: 'Bar',
     paint: '#e06e49',
-    value: 19.239,
+    value: 24.809,
   },
 ] as const
 
 const kineticChartIntervalMs = 4_000
 const kineticChartTransitionMs = 1_200
+const bundleChartMaximumKiB = 26
 
 export function KineticChartsHero() {
   const rootRef = React.useRef<HTMLElement>(null)
@@ -677,7 +678,7 @@ export function BundleSizeFigure() {
         {bundleRows.map((row, index) => (
           <button
             key={row.label}
-            aria-label={`${row.label}: ${row.value.toFixed(1)} kilobytes gzip`}
+            aria-label={`${row.label}: ${row.value.toFixed(1)} kibibytes gzip`}
             className={`grid w-full grid-cols-[4.5rem_1fr_4.5rem] items-center gap-3 rounded-md text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)] ${
               activeIndex === index ? 'translate-x-0.5' : ''
             }`}
@@ -697,11 +698,13 @@ export function BundleSizeFigure() {
             <span className="h-4 overflow-hidden rounded-full bg-background-subtle">
               <span
                 className={`block h-full rounded-full ${row.color}`}
-                style={{ width: `${(row.value / 20) * 100}%` }}
+                style={{
+                  width: `${(row.value / bundleChartMaximumKiB) * 100}%`,
+                }}
               />
             </span>
             <span className="text-right font-ds-mono text-ds-mono-xs text-text-primary">
-              {row.value.toFixed(1)} kB
+              {row.value.toFixed(1)} KiB
             </span>
           </button>
         ))}
@@ -714,7 +717,7 @@ export function BundleSizeFigure() {
                 {
                   color: activeRow.paint,
                   label: 'Bundle size',
-                  value: `${activeRow.value.toFixed(1)} kB`,
+                  value: `${activeRow.value.toFixed(1)} KiB`,
                 },
               ],
               title: activeRow.label,

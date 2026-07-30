@@ -7,6 +7,7 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { libraries } from '../src/libraries/libraries'
 import { generateReadmeHeaderResponse } from '../src/server/og/generate.server'
+import { OG_THEMES, type OgTheme } from '../src/server/og/colors'
 import type { Framework } from '../src/libraries/types'
 import {
   MAX_OG_DESCRIPTION_LENGTH,
@@ -84,9 +85,14 @@ async function main() {
 
     const files: Array<{ file: string; url: string }> = []
 
-    const base = `${lib.id}-readme.png`
-    if (await renderToFile(base, { libraryId: lib.id })) {
-      files.push({ file: base, url: `/api/readme/${lib.id}.png` })
+    // Both themes, since a README serves them through a single <picture>.
+    for (const theme of OG_THEMES) {
+      const suffix = theme === 'dark' ? '-dark' : ''
+      const query = theme === 'dark' ? '?theme=dark' : ''
+      const base = `${lib.id}-readme${suffix}.png`
+      if (await renderToFile(base, { libraryId: lib.id, theme })) {
+        files.push({ file: base, url: `/api/readme/${lib.id}.png${query}` })
+      }
     }
 
     // Per-package variants, for repos whose framework packages ship their own
@@ -127,7 +133,18 @@ async function main() {
       title: 'W'.repeat(MAX_OG_TITLE_LENGTH),
       subtitle: 'W'.repeat(MAX_OG_DESCRIPTION_LENGTH),
     },
-  ]
+    {
+      id: 'max-length-widest-glyphs-dark',
+      title: 'W'.repeat(MAX_OG_TITLE_LENGTH),
+      subtitle: 'W'.repeat(MAX_OG_DESCRIPTION_LENGTH),
+      theme: 'dark' as OgTheme,
+    },
+  ] satisfies Array<{
+    id: string
+    title: string
+    subtitle: string
+    theme?: OgTheme
+  }>
 
   for (const boundary of boundaries) {
     const file = `zz-boundary-${boundary.id}.png`
@@ -136,6 +153,7 @@ async function main() {
         libraryId: 'query',
         title: boundary.title,
         subtitle: boundary.subtitle,
+        theme: boundary.theme,
       })
     ) {
       // Full query string, so the caption can be pasted to regenerate the
@@ -143,6 +161,7 @@ async function main() {
       const query = new URLSearchParams({
         title: boundary.title,
         subtitle: boundary.subtitle,
+        ...(boundary.theme ? { theme: boundary.theme } : {}),
       })
       boundaryFiles.push({ file, url: `/api/readme/query.png?${query}` })
     }

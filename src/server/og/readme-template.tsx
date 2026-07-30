@@ -6,6 +6,8 @@ type ReadmeHeaderProps = {
   tagline: string
   accentColor: string
   emblemSrc: string
+  background: string
+  secondaryText: string
 }
 
 const WIDTH = 1800
@@ -80,9 +82,9 @@ export function buildReadmeHeaderTree(props: ReadmeHeaderProps): ReactElement {
         display: 'flex',
         alignItems: 'center',
         position: 'relative',
-        color: '#3e3529',
+        color: props.secondaryText,
         fontFamily: 'Inter',
-        backgroundColor: '#eeebd4',
+        backgroundColor: props.background,
         paddingLeft: PADDING_X,
         paddingRight: PADDING_X,
         paddingBottom: ACCENT_BAR_HEIGHT,

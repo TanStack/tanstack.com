@@ -20,6 +20,38 @@ fold.
 />
 ```
 
+### Light and dark
+
+`?theme=dark` renders the banner on the dark surface. Serve both through a
+`<picture>` so GitHub picks the one matching the reader's theme — this is the
+approach GitHub documents in
+[How to make your images in Markdown on GitHub adjust for dark mode and light mode](https://github.blog/developer-skills/github/how-to-make-your-images-in-markdown-on-github-adjust-for-dark-mode-and-light-mode/):
+
+```html
+<picture>
+  <source
+    media="(prefers-color-scheme: dark)"
+    srcset="https://tanstack.com/api/readme/query.png?theme=dark"
+  />
+  <source
+    media="(prefers-color-scheme: light)"
+    srcset="https://tanstack.com/api/readme/query.png"
+  />
+  <img
+    src="https://tanstack.com/api/readme/query.png"
+    alt="TanStack Query"
+    width="900"
+  />
+</picture>
+```
+
+The trailing `<img>` is the fallback for renderers that ignore `<picture>`
+(npm, most editors), so it should stay the light variant.
+
+The same post describes a `#gh-dark-mode-only` URL-fragment trick. Prefer
+`<picture>`: the fragment approach renders both images in any client that
+doesn't special-case it.
+
 For a package README inside a multi-framework repo (e.g.
 `packages/react-start/README.md`), add `?framework=`:
 
@@ -42,6 +74,7 @@ The framework label is inserted after the `TanStack` prefix:
 | `framework` | no       | Must be one of the library's supported frameworks. Anything else → `400` listing the accepted values.                   |
 | `title`     | no       | Replaces the rendered name entirely. Clamped to 80 chars. Takes precedence over `framework`, which is then not applied. |
 | `subtitle`  | no       | Replaces the tagline. Clamped to 160 chars.                                                                             |
+| `theme`     | no       | `light` (default) or `dark`. Anything else → `400`.                                                                     |
 
 An invalid `framework` is rejected rather than ignored, so a typo in a README
 shows up as a broken image during review instead of a banner naming the wrong
@@ -61,11 +94,11 @@ assets; don't use this endpoint for anything time-sensitive.
 pnpm run readme:preview
 ```
 
-Renders every library's header — plus one per supported framework — to
-`.readme-preview/`, along with an `index.html` gallery that displays them at
-GitHub's 900px render width. Open `.readme-preview/index.html` to check that no
-long name or tagline overflows. Run this after touching
-`src/server/og/readme-template.tsx`.
+Renders every library's header in both themes — plus one per supported
+framework — to `.readme-preview/`, along with an `index.html` gallery that
+displays them at GitHub's 900px render width, each on its own theme surface.
+Open `.readme-preview/index.html` to check that no long name or tagline
+overflows. Run this after touching `src/server/og/readme-template.tsx`.
 
 (`scripts/og-preview.ts` is the equivalent for the 1200×630 social cards.)
 
@@ -76,6 +109,7 @@ long name or tagline overflows. Run this after touching
 | `src/routes/api/readme/{$}[.]png.ts` | Route handler: param parsing, validation, cache headers          |
 | `src/server/og/generate.server.ts`   | `generateReadmeHeaderResponse` + the render path shared with OG  |
 | `src/server/og/readme-template.tsx`  | The 1800×450 layout                                              |
-| `src/server/og/assets.server.ts`     | Loads fonts and the raster brand emblem                          |
-| `scripts/generate-brand-assets.mjs`  | Generates `public/images/brand/tanstack-emblem-charcoal-256.png` |
+| `src/server/og/assets.server.ts`     | Loads fonts and both raster brand emblems                        |
+| `src/server/og/colors.ts`            | Category accents and surfaces per theme                          |
+| `scripts/generate-brand-assets.mjs`  | Generates the charcoal and cream 256px emblem rasters            |
 | `scripts/readme-header-preview.ts`   | Local render + gallery for reviewing layout changes              |

@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { findLibrary } from '~/libraries'
 import type { Framework } from '~/libraries/types'
+import { OG_THEMES, isOgTheme } from '~/server/og/colors'
 
 type GenerateReadmeHeaderResponse = typeof import(
   '~/server/og/generate.server'
@@ -45,6 +46,15 @@ export const Route = createFileRoute('/api/readme/{$}.png')({
           )
         }
 
+        // Same contract as `framework`: supplied means it must be valid.
+        const themeParam = url.searchParams.get('theme') ?? undefined
+        if (themeParam !== undefined && !isOgTheme(themeParam)) {
+          return new Response(
+            `Unknown theme "${themeParam}". Expected one of: ${OG_THEMES.join(', ')}`,
+            { status: 400 },
+          )
+        }
+
         let result: Awaited<ReturnType<GenerateReadmeHeaderResponse>>
         try {
           const { generateReadmeHeaderResponse } = await import(
@@ -57,6 +67,7 @@ export const Route = createFileRoute('/api/readme/{$}.png')({
               framework: framework as Framework | undefined,
               title: url.searchParams.get('title') ?? undefined,
               subtitle: url.searchParams.get('subtitle') ?? undefined,
+              theme: themeParam,
             },
             { headers: CACHE_HEADERS },
           )

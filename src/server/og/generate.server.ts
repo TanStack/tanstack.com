@@ -8,7 +8,7 @@ import { findLibrary } from '~/libraries'
 import type { LibraryId } from '~/libraries'
 import type { Framework } from '~/libraries/types'
 import { loadOgAssets as loadNodeOgAssets } from './assets.server'
-import { getAccentColor } from './colors'
+import { getAccentColor, getThemeSurface, type OgTheme } from './colors'
 import { buildOgTree } from './template'
 import { buildReadmeHeaderTree } from './readme-template'
 import {
@@ -19,6 +19,7 @@ import {
 
 const BRAND_LOGO_KEY = 'brand-logo'
 const BRAND_EMBLEM_KEY = 'brand-emblem'
+const BRAND_EMBLEM_CREAM_KEY = 'brand-emblem-cream'
 
 type GenerateInput = {
   libraryId: LibraryId | string
@@ -34,6 +35,8 @@ export type ReadmeHeaderInput = {
   framework?: Framework
   title?: string
   subtitle?: string
+  /** Defaults to the light (cream) surface. */
+  theme?: OgTheme
 }
 
 export type OgLibraryNotFoundError = {
@@ -70,6 +73,7 @@ async function renderOgImage(
     images: [
       { src: BRAND_LOGO_KEY, data: assets.brandLogoPng },
       { src: BRAND_EMBLEM_KEY, data: assets.brandEmblemPng },
+      { src: BRAND_EMBLEM_CREAM_KEY, data: assets.brandEmblemCreamPng },
     ],
     module: takumiWasmModule,
     ...init,
@@ -138,12 +142,16 @@ export async function generateReadmeHeaderResponse(
       : library.name
 
   const tagline = input.subtitle?.trim() ? input.subtitle : library.tagline
+  const theme = input.theme ?? 'light'
+  const surface = getThemeSurface(theme)
 
   const tree = buildReadmeHeaderTree({
     name,
     tagline: clampOgText(tagline ?? '', MAX_OG_DESCRIPTION_LENGTH),
-    accentColor: getAccentColor(library.id),
-    emblemSrc: BRAND_EMBLEM_KEY,
+    accentColor: getAccentColor(library.id, theme),
+    emblemSrc: theme === 'dark' ? BRAND_EMBLEM_CREAM_KEY : BRAND_EMBLEM_KEY,
+    background: surface.background,
+    secondaryText: surface.secondaryText,
   })
 
   return renderOgImage(

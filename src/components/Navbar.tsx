@@ -370,17 +370,12 @@ type LibraryMenuColumn = {
  * taxonomy. Iterating `libraryCategories` preserves the intended per-category
  * order; only public, navigable libraries are shown.
  */
-// Public libraries intentionally omitted from the Libraries mega-menu (still
-// reachable via the full-screen "Browse all libraries" overlay).
-const LIBRARY_MENU_EXCLUDED_IDS = new Set(['ranger'])
-
 function getLibraryCategoryColumns(): LibraryMenuColumn[] {
   const byCategory = new Map<LibraryCategory, LibraryMenuEntry[]>(
     categoryOrder.map((category) => [category, []]),
   )
 
   for (const [id, category] of Object.entries(libraryCategories)) {
-    if (LIBRARY_MENU_EXCLUDED_IDS.has(id)) continue
     const library = publicLibraries.find((lib) => lib.id === id)
     if (!library || !library.to) continue
     byCategory.get(category)?.push({

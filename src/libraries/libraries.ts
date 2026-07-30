@@ -457,6 +457,7 @@ export const ranger: LibrarySlim = {
   latestBranch: 'main',
   availableVersions: ['v0'],
   scarfId: 'dd278e06-bb3f-420c-85c6-6e42d14d8f61',
+  visible: false,
   sitemap: {
     includeLandingPage: true,
     includeDocsPages: true,

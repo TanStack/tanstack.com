@@ -8,25 +8,20 @@ export function orderLibrariesForBrowse<TLibrary extends LibrarySlim>(
   allLibraries: Array<TLibrary>,
 ) {
   const others = allLibraries.filter(
-    (library) =>
-      library.id !== 'ranger' &&
-      library.id !== 'config' &&
-      library.id !== 'react-charts',
+    (library) => library.id !== 'config' && library.id !== 'react-charts',
   )
-  const ranger = allLibraries.filter((library) => library.id === 'ranger')
   const config = allLibraries.filter((library) => library.id === 'config')
 
   const devtoolsIndex = others.findIndex((library) => library.id === 'devtools')
 
   if (devtoolsIndex === -1) {
-    return [...others, ...config, ...ranger]
+    return [...others, ...config]
   }
 
   return [
     ...others.slice(0, devtoolsIndex + 1),
     ...config,
     ...others.slice(devtoolsIndex + 1),
-    ...ranger,
   ]
 }
 

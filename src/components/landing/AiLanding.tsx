@@ -203,10 +203,10 @@ export default function AiLanding() {
       <LandingSection tone="accent">
         <LandingSectionIntro
           centered
-          eyebrow="AG-UI both ways"
+          eyebrow="Open protocol"
           icon={<Radio aria-hidden="true" size={15} />}
-          title="An open protocol is the seam. Not our servers."
-          body="AG-UI events run end to end, not a proprietary stream format with a translation layer bolted on. So the agent on the other end doesn't have to be ours, or even TypeScript. Point the same client at a Python, Go, or PHP AG-UI runtime and it keeps working. Transport is yours too: SSE, HTTP streams, XHR, RPC, a raw async iterable, or a fetcher you wrote. There is no gateway to sign up for, no key to hand over, and no traffic routed through us."
+          title="AG-UI compliant, in both directions."
+          body="The client sends AG-UI requests and consumes AG-UI events, with no proprietary stream format and no translation layer in between. That is what makes the agent on the other end replaceable: point the same client at a Python, Go, or PHP AG-UI runtime and it keeps working. The transport is yours too, whether that is SSE, HTTP streams, XHR, RPC, a raw async iterable, or a fetcher you wrote. Nothing to sign up for, no key to hand over, no traffic through us."
         />
         <ProtocolMap />
       </LandingSection>

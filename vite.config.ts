@@ -11,7 +11,6 @@ import { analyzer } from 'vite-bundle-analyzer'
 import viteReact from '@vitejs/plugin-react'
 import { randomUUID } from 'node:crypto'
 import fs from 'node:fs'
-import { createRequire } from 'node:module'
 import os from 'node:os'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -21,12 +20,7 @@ import {
   localDocsDevTokenHeader,
 } from './src/utils/local-repo-path.server'
 
-const nodeRequire = createRequire(import.meta.url)
 const isDev = process.env.NODE_ENV !== 'production'
-const takumiWasmRuntimePath = path.join(
-  path.dirname(path.dirname(nodeRequire.resolve('@takumi-rs/wasm/no-bundler'))),
-  'bundlers/workerd.js',
-)
 const shouldUseRedact = process.env.DISABLE_REDACT !== 'true'
 const localRedactPackageRoot = process.env.LOCAL_REDACT_PACKAGE_ROOT
 const shouldUseSentryPlugin =
@@ -44,21 +38,6 @@ const envDir =
   fs.existsSync(path.join(defaultCheckoutEnvDir, '.env.local'))
     ? defaultCheckoutEnvDir
     : __dirname
-
-function edgeTakumiWasmImport(): PluginOption {
-  return {
-    name: 'tanstack-edge-takumi-wasm-import',
-    enforce: 'pre',
-    transform(code, id) {
-      if (!id.includes('/node_modules/takumi-js/dist/render-')) return
-
-      return code.replace(
-        /import\(\s*\/\*\s*@vite-ignore\s*\*\/\s*['"]@takumi-rs\/wasm['"]\s*\)/g,
-        'import("@takumi-rs/wasm/no-bundler")',
-      )
-    },
-  }
-}
 
 function localDocsDevFiles(): PluginOption {
   return {
@@ -227,10 +206,6 @@ export default defineConfig({
         find: 'unicorn-magic',
         replacement: 'unicorn-magic/node',
       },
-      {
-        find: '@takumi-rs/wasm/auto',
-        replacement: takumiWasmRuntimePath,
-      },
       ...(shouldUseRedact
         ? [
             useSyncExternalStoreShimIndexAlias,
@@ -286,11 +261,6 @@ export default defineConfig({
       // CTA packages use execa which has a broken unicorn-magic dependency
       '@tanstack/create',
       'discord-interactions',
-      // OG image generation: takumi ships a native .node binary
-      '@takumi-rs/core',
-      '@takumi-rs/image-response',
-      '@takumi-rs/helpers',
-      'takumi-js',
       // Don't pre-bundle CLI so we always get fresh changes during dev
       ...(isDev ? ['@tanstack/cli'] : []),
     ],
@@ -349,7 +319,6 @@ export default defineConfig({
     },
   },
   plugins: [
-    edgeTakumiWasmImport(),
     localDocsDevFiles(),
     cloudflare({
       viteEnvironment: { name: 'ssr' },

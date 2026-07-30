@@ -1,8 +1,4 @@
-import {
-  ImageResponse,
-  type ImageResponseOptions,
-} from '@takumi-rs/image-response'
-import takumiWasmModule from '@takumi-rs/wasm/auto'
+import { ImageResponse, type ImageResponseOptions } from 'takumi-js/response'
 import { findLibrary } from '~/libraries'
 import type { LibraryId } from '~/libraries'
 import { loadOgAssets as loadNodeOgAssets } from './assets.server'
@@ -70,7 +66,6 @@ export async function generateOgImageResponse(
       },
     ],
     images: [{ src: BRAND_LOGO_KEY, data: assets.brandLogoPng }],
-    module: takumiWasmModule,
     ...init,
   }
 

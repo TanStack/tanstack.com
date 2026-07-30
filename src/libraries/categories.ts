@@ -25,6 +25,7 @@ export const libraryCategories: Record<string, LibraryCategory> = {
   store: 'data',
   ai: 'data',
   table: 'ui',
+  charts: 'ui',
   form: 'ui',
   hotkeys: 'ui',
   markdown: 'ui',

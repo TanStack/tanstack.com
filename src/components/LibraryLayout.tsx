@@ -9,7 +9,7 @@ import { useClickOutside } from '~/hooks/useClickOutside'
 import { last } from '~/utils/utils'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
 import { getActiveDocsNavTabId, getTabbedMenuConfig } from '~/utils/docsNavTabs'
-import { Framework, LibraryId } from '~/libraries'
+import { getLibrary, type Framework, type LibraryId } from '~/libraries'
 import { frameworkOptions } from '~/libraries/frameworks'
 import { twMerge } from 'tailwind-merge'
 import {
@@ -660,6 +660,20 @@ const useMenuConfig = ({
   libraryId: string
 }): MenuItem[] => {
   const currentFramework = useCurrentFramework(frameworks)
+  const statsAvailable =
+    getLibrary(libraryId as LibraryId).statsAvailable !== false
+  const chartsExamplesMenuItems: MenuItem['children'] = [
+    {
+      label: 'Examples',
+      to: '/charts/catalog',
+      tab: 'home',
+    },
+    {
+      label: 'Examples',
+      to: '/charts/catalog',
+      tab: 'examples',
+    },
+  ]
 
   const localMenu: MenuItem = {
     label: 'Menu',
@@ -668,6 +682,7 @@ const useMenuConfig = ({
         label: 'Home',
         to: '..',
       },
+      ...(libraryId === 'charts' ? chartsExamplesMenuItems : []),
       {
         label: 'Blog',
         to: '/$libraryId/$version/docs/blog',
@@ -692,10 +707,14 @@ const useMenuConfig = ({
         label: 'Contributors',
         to: '/$libraryId/$version/docs/contributors',
       },
-      {
-        label: 'NPM Stats',
-        to: '/$libraryId/$version/docs/npm-stats',
-      },
+      ...(statsAvailable
+        ? [
+            {
+              label: 'NPM Stats',
+              to: '/$libraryId/$version/docs/npm-stats',
+            },
+          ]
+        : []),
       ...(config.sections.find((d) => d.label === 'Community Resources')
         ? [
             {
@@ -772,6 +791,7 @@ type LibraryLayoutProps = {
 
 export function LibraryLayout({
   libraryId,
+  version: layoutVersion,
   colorFrom,
   colorTo,
   textColor,
@@ -781,16 +801,19 @@ export function LibraryLayout({
   children,
   isLandingPage = false,
 }: LibraryLayoutProps) {
-  const { version } = useParams({
-    strict: false,
-  }) as { version: string }
-  const { _splat } = useParams({ strict: false })
+  const { _splat, version: routeVersion } = useParams({ strict: false })
+  const version =
+    typeof routeVersion === 'string' ? routeVersion : layoutVersion
   const menuConfig = useMenuConfig({ config, frameworks, repo, libraryId })
 
   const matches = useMatches()
   const lastMatch = last(matches)
 
-  const isExample = matches.some((d) => d.pathname.includes('/examples/'))
+  const isExample = matches.some(
+    (d) =>
+      d.pathname.includes('/examples/') ||
+      d.routeId.startsWith('/_library/charts/catalog'),
+  )
 
   const isNpmStats = matches.some((d) => d.pathname.includes('/docs/npm-stats'))
 
@@ -820,8 +843,23 @@ export function LibraryLayout({
   }, [closeMobileMenu, mobileMenuOpen])
 
   const tabbedMenuConfig = React.useMemo(() => {
-    return getTabbedMenuConfig(menuConfig)
-  }, [menuConfig])
+    const tabs = getTabbedMenuConfig(menuConfig)
+
+    return libraryId === 'charts'
+      ? tabs.map((tab) =>
+          tab.id === 'examples'
+            ? {
+                ...tab,
+                firstItem: {
+                  label: 'Examples',
+                  to: '/charts/catalog',
+                  tab: 'examples',
+                },
+              }
+            : tab,
+        )
+      : tabs
+  }, [libraryId, menuConfig])
 
   const activeTabId = React.useMemo(() => {
     return getActiveDocsNavTabId({
@@ -945,6 +983,7 @@ export function LibraryLayout({
                 ? ({ libraryId, version } as never)
                 : undefined
             const isHomeLink = child.to === '..'
+            const isChartsExamplesLink = child.to === '/charts/catalog'
             const frameworkDocsTarget = getFrameworkDocsLinkTarget(child.to)
 
             const recency = getDocRecency(child.addedAt, child.updatedAt)
@@ -1045,7 +1084,11 @@ export function LibraryLayout({
                   </Link>
                 ) : (
                   <Link
-                    from="/$libraryId/$version/docs"
+                    from={
+                      isChartsExamplesLink
+                        ? undefined
+                        : '/$libraryId/$version/docs'
+                    }
                     to={child.to}
                     params={linkParams}
                     onClick={closeMobileMenu}
@@ -1173,9 +1216,7 @@ export function LibraryLayout({
         data-docs-desktop-menu
         ref={expandedMenuRef}
         className={twMerge(
-          isLandingPage
-            ? 'max-w-[240px] xl:w-[240px] xl:max-w-[240px]'
-            : 'max-w-[250px] xl:max-w-[300px] 2xl:max-w-[400px]',
+          'w-[240px] max-w-[240px]',
           'flex-col overflow-hidden',
           'h-[calc(100dvh-var(--navbar-height)-var(--docs-tabs-height))] top-[calc(var(--navbar-height)+var(--docs-tabs-height))]',
           'border-r border-gray-500/20',
@@ -1209,12 +1250,7 @@ export function LibraryLayout({
           }
         }}
       >
-        <div
-          className={twMerge(
-            'flex flex-1 flex-col overflow-y-auto',
-            isLandingPage ? 'min-w-[239px]' : 'min-w-[230px]',
-          )}
-        >
+        <div className="flex min-w-[239px] flex-1 flex-col overflow-y-auto">
           <div className="flex flex-col gap-1 p-4">
             <FrameworkSelect libraryId={libraryId} />
             <VersionSelect libraryId={libraryId} />
@@ -1290,7 +1326,11 @@ export function LibraryLayout({
               return (
                 <Link
                   key={tab.id}
-                  from="/$libraryId/$version/docs"
+                  from={
+                    target.to === '/charts/catalog'
+                      ? undefined
+                      : '/$libraryId/$version/docs'
+                  }
                   to={target.to}
                   params={linkParams}
                   activeOptions={{

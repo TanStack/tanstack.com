@@ -20,7 +20,10 @@ import { FormEvent, useMemo, useState } from 'react'
 // Filter to only show libraries with proper configuration
 const selectableLibraries = libraries.filter(
   (lib) =>
-    lib.name && lib.id !== 'react-charts' && lib.id !== 'create-tsrouter-app',
+    lib.name &&
+    lib.visible !== false &&
+    lib.id !== 'react-charts' &&
+    lib.id !== 'create-tsrouter-app',
 )
 
 interface ShowcaseSubmitFormProps {

@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import IntentLanding from '~/components/landing/IntentLanding'
 import {
-  LibraryNavbarTitle,
   beforeLoadLibraryLanding,
   getLibraryLandingHead,
   getLibraryLandingHeaders,
@@ -18,15 +17,8 @@ export const Route = createFileRoute('/_library/intent/$version/')({
     loadLibraryLandingRouteData('intent', params.version, queryClient),
   head: () => getLibraryLandingHead('intent'),
   headers: () => getLibraryLandingHeaders('intent'),
-  staticData: {
-    Title: IntentNavbarTitle,
-  },
   component: IntentLandingRoute,
 })
-
-function IntentNavbarTitle() {
-  return <LibraryNavbarTitle libraryId="intent" />
-}
 
 function IntentLandingRoute() {
   return <IntentLanding />

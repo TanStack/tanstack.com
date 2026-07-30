@@ -1,6 +1,12 @@
 import { renderMarkdownReact } from '@tanstack/markdown/react'
 import * as React from 'react'
 import { InlineCode, MarkdownImg } from '~/ui'
+import { ChartsCatalogEmbed } from '~/components/charts/ChartsCatalogEmbed'
+import {
+  mapChartsCatalogEmbeds,
+  parseChartsCatalogEmbed,
+  type ChartsCatalogEmbedSource,
+} from '~/utils/charts-catalog-embed'
 import {
   findFirstImageSrc,
   parseSiteMarkdown,
@@ -22,6 +28,7 @@ type MarkdownRenderOptions = {
 export type MarkdownProps = {
   content?: string
   document?: MarkdownDocument
+  chartEmbedSource?: ChartsCatalogEmbedSource
   preserveTabPanels?: boolean
   /** Render the first image in the document as high-priority/eager (e.g. blog post hero images) */
   eagerFirstImage?: boolean
@@ -30,6 +37,7 @@ export type MarkdownProps = {
 export function Markdown({
   content,
   document,
+  chartEmbedSource,
   preserveTabPanels,
   eagerFirstImage,
 }: MarkdownProps) {
@@ -37,13 +45,20 @@ export function Markdown({
     () => document ?? parseSiteMarkdown(content ?? ''),
     [content, document],
   )
+  const renderDocument = React.useMemo(
+    () =>
+      chartEmbedSource
+        ? mapChartsCatalogEmbeds(parsed, chartEmbedSource)
+        : parsed,
+    [chartEmbedSource, parsed],
+  )
 
   return React.useMemo(() => {
     const firstImageSrc = eagerFirstImage
-      ? findFirstImageSrc(parsed)
+      ? findFirstImageSrc(renderDocument)
       : undefined
 
-    return renderMarkdownReact(parsed, {
+    return renderMarkdownReact(renderDocument, {
       allowHtml: true,
       components: createMarkdownComponents({
         preserveTabPanels,
@@ -51,7 +66,7 @@ export function Markdown({
       }),
       headingAnchors,
     })
-  }, [parsed, preserveTabPanels, eagerFirstImage])
+  }, [renderDocument, preserveTabPanels, eagerFirstImage])
 }
 
 const headingAnchors = {
@@ -111,6 +126,10 @@ function isTrustedIframeSrc(src: string | undefined) {
     return false
   }
 
+  if (parseChartsCatalogEmbed(src)) {
+    return true
+  }
+
   try {
     const url = new URL(src)
     return trustedIframeHosts.some(
@@ -122,11 +141,29 @@ function isTrustedIframeSrc(src: string | undefined) {
 }
 
 function MarkdownIframe(props: React.IframeHTMLAttributes<HTMLIFrameElement>) {
-  if (!isTrustedIframeSrc(props.src)) {
-    return null
+  const { className, title, ...iframeProps } = props
+  const iframeTitle = title?.trim() || 'Embedded content'
+
+  if (!isTrustedIframeSrc(props.src)) return null
+
+  if (props.src && parseChartsCatalogEmbed(props.src)) {
+    return (
+      <ChartsCatalogEmbed
+        title={iframeTitle}
+        {...iframeProps}
+        src={props.src}
+        className={className}
+      />
+    )
   }
 
-  return <iframe {...props} className="w-full" title="Embedded Content" />
+  return (
+    <iframe
+      title={iframeTitle}
+      {...iframeProps}
+      className={`w-full ${className ?? ''}`.trim()}
+    />
+  )
 }
 
 function CodeElement({
@@ -195,6 +232,7 @@ function createMarkdownComponents(
 
   return {
     a: LinkElement,
+    'chart-catalog-embed': ChartsCatalogEmbed,
     code: CodeElement,
     figcaption: CodeFigcaption,
     figure: CodeFigure,

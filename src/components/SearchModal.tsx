@@ -42,7 +42,8 @@ import {
   useChat,
   type StreamSource,
 } from '@kapaai/react-sdk'
-import { Streamdown } from 'streamdown'
+import { streamingMarkdownExtension } from '@tanstack/markdown/extensions/streaming'
+import { Markdown as TanStackMarkdown } from '@tanstack/markdown/react'
 import { Link, useRouterState } from '@tanstack/react-router'
 import { useSearchContext } from '~/contexts/SearchContext'
 import { publicLibraries, type Framework } from '~/libraries'
@@ -768,7 +769,7 @@ function KapaMarkdownTableHeaderCell({
   )
 }
 
-const streamdownComponents = {
+const kapaMarkdownComponents = {
   pre: CodeBlock,
   code: InlineCode,
   a: KapaMarkdownLink,
@@ -789,6 +790,8 @@ const streamdownComponents = {
     <li className="leading-relaxed">{children}</li>
   ),
 }
+
+const kapaMarkdownExtensions = [streamingMarkdownExtension()]
 
 function parseSourceGroupIDs(value: string | undefined) {
   if (!value) {
@@ -1644,12 +1647,14 @@ function KapaAnswer({
                 compact ? 'text-[13px]' : 'text-sm',
               )}
             >
-              <Streamdown
-                components={streamdownComponents}
-                isAnimating={isStreaming}
+              <TanStackMarkdown
+                components={kapaMarkdownComponents}
+                extensions={kapaMarkdownExtensions}
+                frontmatter={false}
+                headingIds={false}
               >
                 {qa.answer}
-              </Streamdown>
+              </TanStackMarkdown>
             </div>
           ) : (
             <div className="flex items-center gap-1 py-0.5">

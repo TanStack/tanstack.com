@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, notFound } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { useThrottledCallback, useThrottler } from '@tanstack/react-pacer'
 import { Plus } from '@phosphor-icons/react'
@@ -93,6 +93,13 @@ const timelineZoomTimeSchema = v.pipe(v.number(), v.integer(), v.minValue(0))
 export const Route = createFileRoute(
   '/_library/$libraryId/$version/docs/npm-stats',
 )({
+  beforeLoad: ({ params }) => {
+    const library = getLibrary(params.libraryId)
+
+    if (library.statsAvailable === false) {
+      throw notFound()
+    }
+  },
   validateSearch: v.object({
     packageGroups: v.fallback(v.optional(packageGroupsSchema), undefined),
     range: v.fallback(

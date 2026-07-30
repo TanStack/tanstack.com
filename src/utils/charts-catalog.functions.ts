@@ -23,18 +23,7 @@ const caseInputSchema = v.strictObject({
 
 const embedCaseInputSchema = v.strictObject({
   caseId: chartsCatalogCaseIdSchema,
-})
-
-export const getChartsCatalogIndex = createServerFn({
-  method: 'GET',
-}).handler(async () => {
-  const publication = await loadPublication()
-  setCatalogResponseHeaders()
-  return {
-    artifactRevision: publication.artifactRevision,
-    revision: publication.manifest.revision,
-    cases: publication.manifest.cases.map(getCaseMetadata),
-  }
+  source: v.boolean(),
 })
 
 export const getChartsCatalogAll = createServerFn({ method: 'GET' })
@@ -113,6 +102,15 @@ export const getChartsCatalogEmbedCase = createServerFn({ method: 'GET' })
     )
     if (!catalogCase) return null
 
+    const source = data.source
+      ? await (
+          await import('./charts-catalog.server')
+        ).getChartsCatalogSource(
+          publication.manifest.revision,
+          catalogCase.code.tanstack,
+        )
+      : undefined
+
     setCatalogResponseHeaders()
     return {
       artifactRevision: publication.artifactRevision,
@@ -121,6 +119,12 @@ export const getChartsCatalogEmbedCase = createServerFn({ method: 'GET' })
         id: catalogCase.id,
         title: catalogCase.title,
         module: catalogCase.modules.tanstack,
+        code: source
+          ? {
+              path: catalogCase.code.tanstack,
+              source,
+            }
+          : undefined,
       },
     }
   })

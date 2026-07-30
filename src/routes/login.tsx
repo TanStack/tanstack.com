@@ -7,12 +7,7 @@ import * as v from 'valibot'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { GoogleIcon } from '~/components/icons/GoogleIcon'
 import { Card } from '~/components/Card'
-
-const LazyBrandContextMenu = React.lazy(() =>
-  import('~/components/BrandContextMenu').then((m) => ({
-    default: m.BrandContextMenu,
-  })),
-)
+import { BrandContextMenu } from '~/components/BrandContextMenu'
 
 const searchSchema = v.object({
   error: v.optional(v.string()),
@@ -60,11 +55,9 @@ function SplashImage() {
   return (
     <div className="flex items-center justify-center mb-4">
       <ClientOnly fallback={fallback}>
-        <React.Suspense fallback={fallback}>
-          <LazyBrandContextMenu className="cursor-pointer">
-            <SplashImages />
-          </LazyBrandContextMenu>
-        </React.Suspense>
+        <BrandContextMenu className="cursor-pointer">
+          <SplashImages />
+        </BrandContextMenu>
       </ClientOnly>
     </div>
   )

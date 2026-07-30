@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import RouterLanding from '~/components/landing/RouterLanding'
 import {
-  LibraryNavbarTitle,
   beforeLoadLibraryLanding,
   getLibraryLandingHead,
   getLibraryLandingHeaders,
@@ -18,15 +17,8 @@ export const Route = createFileRoute('/_library/router/$version/')({
     loadLibraryLandingRouteData('router', params.version, queryClient),
   head: () => getLibraryLandingHead('router'),
   headers: () => getLibraryLandingHeaders('router'),
-  staticData: {
-    Title: RouterNavbarTitle,
-  },
   component: RouterLandingRoute,
 })
-
-function RouterNavbarTitle() {
-  return <LibraryNavbarTitle libraryId="router" />
-}
 
 function RouterLandingRoute() {
   return <RouterLanding />

@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import MarkdownLanding from '~/components/landing/MarkdownLanding'
 import {
-  LibraryNavbarTitle,
   beforeLoadLibraryLanding,
   getLibraryLandingHead,
   getLibraryLandingHeaders,
@@ -18,15 +17,8 @@ export const Route = createFileRoute('/_library/markdown/$version/')({
     loadLibraryLandingRouteData('markdown', params.version, queryClient),
   head: () => getLibraryLandingHead('markdown'),
   headers: () => getLibraryLandingHeaders('markdown'),
-  staticData: {
-    Title: MarkdownNavbarTitle,
-  },
   component: MarkdownLandingRoute,
 })
-
-function MarkdownNavbarTitle() {
-  return <LibraryNavbarTitle libraryId="markdown" />
-}
 
 function MarkdownLandingRoute() {
   return <MarkdownLanding />

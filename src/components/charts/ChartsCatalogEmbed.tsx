@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { useTheme } from '~/components/ThemeProvider'
 import { parseChartsCatalogEmbed } from '~/utils/charts-catalog-embed'
+import { Resizable, type ResizableSizeChange } from '../npm-stats/Resizable'
 
 type ChartsCatalogEmbedProps = Omit<
   React.IframeHTMLAttributes<HTMLIFrameElement>,
@@ -14,6 +15,7 @@ type ChartsCatalogEmbedProps = Omit<
 export function ChartsCatalogEmbed({
   className,
   deferUntilVisible = false,
+  height: heightProp,
   loading = 'lazy',
   onLoad,
   src,
@@ -25,6 +27,10 @@ export function ChartsCatalogEmbed({
   const frameRef = React.useRef<HTMLIFrameElement>(null)
   const [shouldLoad, setShouldLoad] = React.useState(!deferUntilVisible)
   const chartEmbed = React.useMemo(() => parseChartsCatalogEmbed(src), [src])
+  const [height, setHeight] = React.useState(() =>
+    getInitialHeight(heightProp, chartEmbed ? src : undefined),
+  )
+  const [width, setWidth] = React.useState<number | undefined>(undefined)
   const iframeTitle = title?.trim() || 'TanStack Charts example'
   const resolvedEmbedTheme = theme === 'system' ? resolvedTheme : theme
 
@@ -66,16 +72,20 @@ export function ChartsCatalogEmbed({
   }, [chartEmbed, resolvedEmbedTheme, shouldLoad])
 
   React.useEffect(() => {
-    const target = frameRef.current?.contentWindow
-    if (!chartEmbed || !target || !shouldLoad) return
+    const frame = frameRef.current
+    const target = frame?.contentWindow
+    if (!chartEmbed || !frame || !target || !shouldLoad) return
 
     const handleMessage = (event: MessageEvent<unknown>) => {
       if (
         event.origin !== chartEmbed.origin ||
         event.source !== target ||
-        !isReadyChartEmbedMessage(event.data, chartEmbed.caseId)
+        !isChartEmbedStatusMessage(event.data, chartEmbed.caseId)
       ) {
         return
+      }
+      if (chartEmbed.source !== 'hidden') {
+        setHeight(event.data.height)
       }
       postChartTheme()
     }
@@ -87,25 +97,67 @@ export function ChartsCatalogEmbed({
 
   if (!chartEmbed) return null
 
+  const onSizeChange = (size: ResizableSizeChange) => {
+    if (size.height !== undefined) setHeight(size.height)
+    if ('width' in size) setWidth(size.width)
+  }
+
   return (
-    <iframe
-      title={iframeTitle}
-      {...iframeProps}
-      ref={frameRef}
-      src={shouldLoad ? src : undefined}
-      loading={loading}
-      referrerPolicy="strict-origin-when-cross-origin"
-      className={`block w-full ${className ?? ''}`.trim()}
-      data-chart-catalog-embed={chartEmbed.caseId}
-      onLoad={(event) => {
-        onLoad?.(event)
-        postChartTheme()
-      }}
-    />
+    <Resizable
+      height={height}
+      width={width}
+      minHeight={120}
+      onSizeChange={onSizeChange}
+    >
+      <iframe
+        title={iframeTitle}
+        {...iframeProps}
+        ref={frameRef}
+        src={shouldLoad ? src : undefined}
+        height={height}
+        loading={loading}
+        referrerPolicy="strict-origin-when-cross-origin"
+        style={{ ...iframeProps.style, width: '100%', height, border: 0 }}
+        className={`block w-full ${className ?? ''}`.trim()}
+        data-chart-catalog-embed={chartEmbed.caseId}
+        onLoad={(event) => {
+          onLoad?.(event)
+          postChartTheme()
+        }}
+      />
+    </Resizable>
   )
 }
 
-function isReadyChartEmbedMessage(value: unknown, caseId: string) {
+function getInitialHeight(
+  height: React.IframeHTMLAttributes<HTMLIFrameElement>['height'],
+  src: string | undefined,
+) {
+  const numericHeight =
+    typeof height === 'number'
+      ? height
+      : typeof height === 'string'
+        ? Number(height)
+        : Number.NaN
+  if (Number.isSafeInteger(numericHeight) && numericHeight >= 120) {
+    return numericHeight
+  }
+
+  if (!src) return 360
+  const urlHeight = Number(new URL(src).searchParams.get('height'))
+  return Number.isSafeInteger(urlHeight) && urlHeight >= 120 ? urlHeight : 360
+}
+
+function isChartEmbedStatusMessage(
+  value: unknown,
+  caseId: string,
+): value is {
+  type: 'tanstack-charts:embed'
+  version: 1
+  status: 'ready' | 'resize' | 'error'
+  caseId: string
+  height: number
+} {
   return (
     value !== null &&
     typeof value === 'object' &&
@@ -114,8 +166,14 @@ function isReadyChartEmbedMessage(value: unknown, caseId: string) {
     'version' in value &&
     value.version === 1 &&
     'status' in value &&
-    value.status === 'ready' &&
+    (value.status === 'ready' ||
+      value.status === 'resize' ||
+      value.status === 'error') &&
     'caseId' in value &&
-    value.caseId === caseId
+    value.caseId === caseId &&
+    'height' in value &&
+    typeof value.height === 'number' &&
+    Number.isFinite(value.height) &&
+    value.height > 0
   )
 }

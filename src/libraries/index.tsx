@@ -15,6 +15,7 @@ export {
   router,
   start,
   table,
+  charts,
   form,
   virtual,
   ranger,

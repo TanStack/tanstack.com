@@ -1,4 +1,4 @@
-import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
+import { Outlet, createFileRoute } from '@tanstack/react-router'
 import shopCss from '~/styles/shop.css?url'
 import { ShopLayout } from '~/components/shop/ShopLayout'
 import { CART_QUERY_KEY } from '~/hooks/useCart'
@@ -26,15 +26,6 @@ export const Route = createFileRoute('/shop')({
       { rel: 'stylesheet', href: SHOP_FONTS_HREF },
     ],
   }),
-  staticData: {
-    Title: () => (
-      <Link to="/shop" className="relative whitespace-nowrap">
-        <span className="inline-block text-transparent bg-clip-text bg-linear-to-r from-blue-500 to-cyan-400">
-          Shop
-        </span>
-      </Link>
-    ),
-  },
   component: () => (
     <ShopLayout>
       <Outlet />

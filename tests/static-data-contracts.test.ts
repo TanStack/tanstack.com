@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { allMaintainers } from '../src/libraries/maintainers'
 import {
+  findLibrary,
   isPublicLibrary,
   libraries,
   publicLibraries,
@@ -13,6 +14,17 @@ assert.deepEqual(
   publicLibraries,
   libraries.filter(isPublicLibrary),
   'publicLibraries stays in sync with the public-library selector',
+)
+
+assert.equal(
+  publicLibraries.some((library) => library.id === 'ranger'),
+  false,
+  'Ranger stays delisted from public library discovery',
+)
+assert.equal(
+  findLibrary('ranger')?.to,
+  '/ranger',
+  'Ranger keeps its permalink while delisted',
 )
 
 for (const library of publicLibraries) {

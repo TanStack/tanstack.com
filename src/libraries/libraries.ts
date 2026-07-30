@@ -333,6 +333,32 @@ export const table: LibrarySlim = {
   },
 }
 
+export const charts: LibrarySlim = {
+  id: 'charts',
+  ...categoryStyles.ui,
+  name: 'TanStack Charts',
+  to: '/charts',
+  tagline: "A chart grammar you don't have to outgrow.",
+  description:
+    'Compose typed data, marks, channels, and D3 scales into responsive SVG charts or custom visualizations.',
+  repo: 'tanstack/charts',
+  frameworks: ['react', 'vanilla'],
+  corePackageName: '@tanstack/charts',
+  npmPackageNames: [
+    '@tanstack/charts',
+    '@tanstack/react-charts',
+    '@tanstack/octane-charts',
+  ],
+  latestVersion: 'v0',
+  latestBranch: 'main',
+  availableVersions: ['v0'],
+  statsAvailable: false,
+  sitemap: {
+    includeLandingPage: true,
+    includeDocsPages: true,
+  },
+}
+
 // prettier-ignore
 const reactTableV7List = [
     {from: 'docs/api/overview',to: 'docs/overview',},
@@ -431,6 +457,7 @@ export const ranger: LibrarySlim = {
   latestBranch: 'main',
   availableVersions: ['v0'],
   scarfId: 'dd278e06-bb3f-420c-85c6-6e42d14d8f61',
+  visible: false,
   sitemap: {
     includeLandingPage: true,
     includeDocsPages: true,
@@ -623,13 +650,20 @@ export const ai: LibrarySlim = {
   ...categoryStyles.data,
   name: 'TanStack AI',
   to: '/ai',
-  tagline:
-    'A powerful, open-source AI SDK with a unified interface across multiple providers',
+  tagline: 'The headless agent framework for TypeScript. Bring your own stack',
   description:
-    'A powerful, open-source AI SDK with a unified interface across multiple providers. No vendor lock-in, no proprietary formats, just clean TypeScript and honest open source.',
+    'The headless agent framework for TypeScript. TanStack AI runs the agent loop as typed primitives you compose yourself: tool calls, reasoning, human-in-the-loop interrupts, memory, and streaming state. Eleven provider adapters, seven UI framework bindings, sandboxed code execution, MCP, and coding-agent harnesses behind one interface. Native AG-UI over the wire, MIT licensed, no hosted gateway and no platform to buy into.',
   badge: 'beta',
   repo: 'tanstack/ai',
-  frameworks: ['react', 'vue', 'solid', 'svelte', 'preact', 'vanilla'],
+  frameworks: [
+    'react',
+    'vue',
+    'solid',
+    'svelte',
+    'preact',
+    'angular',
+    'vanilla',
+  ],
   corePackageName: '@tanstack/ai-client',
   npmPackageNames: ['@tanstack/ai-client'],
   latestVersion: 'v0',
@@ -642,6 +676,7 @@ export const ai: LibrarySlim = {
     solid: '@tanstack/ai-solid',
     svelte: '@tanstack/ai-svelte',
     preact: '@tanstack/ai-preact',
+    angular: '@tanstack/ai-angular',
     vanilla: '@tanstack/ai-client',
   },
   frameworkDocs: {
@@ -650,6 +685,7 @@ export const ai: LibrarySlim = {
     solid: 'api/ai-solid',
     svelte: 'getting-started/quick-start-svelte',
     preact: 'api/ai-preact',
+    angular: 'getting-started/quick-start-angular',
     vanilla: 'api/ai-client',
   },
   sitemap: {
@@ -816,6 +852,7 @@ export const libraries: LibrarySlim[] = [
   router,
   query,
   table,
+  charts,
   form,
   db,
   ai,
@@ -877,7 +914,7 @@ export const publicLibraries = libraries.filter(isPublicLibrary)
 export const librariesByGroup = {
   framework: [start, router],
   state: [query, db, store, ai],
-  headlessUI: [table, form, hotkeys, markdown, highlight],
+  headlessUI: [table, charts, form, hotkeys, markdown, highlight],
   performance: [virtual, pacer],
   tooling: [devtools, config, cli, intent],
 }

@@ -35,6 +35,34 @@ export interface NpmSearchResult {
   time: string
 }
 
+type SearchableNpmPackage = {
+  name: string
+  description: string
+  keywords?: Array<string>
+}
+
+export function npmPackageMatchesSearch(
+  pkg: SearchableNpmPackage,
+  search: string,
+) {
+  const normalizedSearch = search.trim().toLowerCase()
+  if (!normalizedSearch) return true
+
+  const packageText = [
+    pkg.name,
+    pkg.description,
+    ...(pkg.keywords?.filter(
+      (keyword) => keyword.toLowerCase() !== 'tanstack-intent',
+    ) ?? []),
+  ]
+    .join(' ')
+    .toLowerCase()
+
+  return normalizedSearch
+    .split(/\s+/)
+    .every((term) => packageText.includes(term))
+}
+
 export interface NpmPackument {
   name: string
   description?: string

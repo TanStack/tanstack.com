@@ -309,7 +309,9 @@ export function LibraryLandingShell({
             {hero}
           </div>
 
-          <LandingStats libraryId={libraryId} />
+          {library.statsAvailable === false ? null : (
+            <LandingStats libraryId={libraryId} />
+          )}
         </div>
       </section>
 
@@ -325,10 +327,12 @@ export function LibraryLandingShell({
 export function LandingSection({
   children,
   className = '',
+  id,
   tone = 'ink',
 }: {
   children: React.ReactNode
   className?: string
+  id?: string
   tone?: 'accent' | 'ink' | 'raised'
 }) {
   const toneClassName = {
@@ -339,6 +343,7 @@ export function LandingSection({
 
   return (
     <section
+      id={id}
       className={`border-b px-5 py-16 md:px-10 lg:px-12 lg:py-20 2xl:px-20 ${toneClassName} ${className}`}
     >
       <div className="mx-auto w-full max-w-[90rem]">{children}</div>

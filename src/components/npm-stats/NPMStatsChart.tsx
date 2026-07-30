@@ -1,7 +1,22 @@
 import * as React from 'react'
 import { createPortal } from 'react-dom'
-import * as Plot from '@observablehq/plot'
 import * as d3 from 'd3'
+import {
+  areaY,
+  barX,
+  barY,
+  createChartScene,
+  d3Curve,
+  defineChart,
+  lineY,
+  ruleX,
+  ruleY,
+  type ChartLinearGradient,
+  type ChartPoint,
+} from '@tanstack/charts'
+import { focusX, focusY } from '@tanstack/charts/focus'
+import { renderChartSvgWithResources } from '@tanstack/charts/svg/resources'
+import { Chart } from '@tanstack/react-charts'
 import { GIFEncoder, applyPalette, quantize } from 'gifenc'
 import {
   Check,
@@ -18,7 +33,6 @@ import {
 } from '@radix-ui/react-dropdown-menu'
 import { twMerge } from 'tailwind-merge'
 import { Tooltip } from '~/components/Tooltip'
-import { observablePlotClassName } from '~/components/charts/PlotContainer'
 import {
   binningOptionsByType,
   getHistoryStartDate,
@@ -56,7 +70,6 @@ const percentFormatter = new Intl.NumberFormat('en-US', {
 })
 const compactAxisNumberFormatter = d3.format('.3~s')
 const chartUpdateTransitionDurationMs = 500
-const chartUpdateEase = d3.easeExpOut
 
 function formatCompactAxisNumber(value: number) {
   if (!Number.isFinite(value) || value === 0) return '0'
@@ -69,49 +82,6 @@ type StackedDateRow<Datum> = {
   [seriesName: string]: Date | Map<string, Datum> | number
 }
 
-declare global {
-  interface SVGSVGElement {
-    updateBarPlot?: (options: BarPlotUpdateOptions) => void
-  }
-}
-
-type CategoricalAxis = 'x' | 'y'
-type BarRectAttributes = {
-  height: number | undefined
-  width: number | undefined
-  x: number | undefined
-  y: number | undefined
-}
-type BarPlotUpdateOptions = {
-  nextBarKeys: Array<string>
-  nextDomain: Array<string>
-  nextPlot: ReturnType<typeof Plot.plot>
-}
-type KeyedBarRect = {
-  key: string
-  rect: SVGRectElement
-}
-type AxisTickPart = 'tick' | 'label' | 'grid'
-type AxisTickPositionAttribute =
-  | 'transform'
-  | 'x'
-  | 'y'
-  | 'x1'
-  | 'x2'
-  | 'y1'
-  | 'y2'
-type AxisTickElementAttributes = Record<
-  AxisTickPositionAttribute,
-  string | undefined
-> & {
-  opacity: number | undefined
-}
-type KeyedTickElement = {
-  category: string
-  element: SVGElement
-  key: string
-  part: AxisTickPart
-}
 type TimelineRangeValue = {
   end: number | undefined
   start: number | undefined
@@ -134,15 +104,6 @@ type TimelineScrubberPanState = {
   startIndex: number
 }
 
-const axisTickPositionAttributes: Array<AxisTickPositionAttribute> = [
-  'transform',
-  'x',
-  'y',
-  'x1',
-  'x2',
-  'y1',
-  'y2',
-]
 const timelineScrubberDateFormatter = new Intl.DateTimeFormat('en-US', {
   day: 'numeric',
   month: 'short',
@@ -154,11 +115,6 @@ const timelineScrubberStartInputStyles =
   '[&::-moz-range-thumb]:rounded-l-sm [&::-moz-range-thumb]:rounded-r-[1px] [&::-webkit-slider-thumb]:rounded-l-sm [&::-webkit-slider-thumb]:rounded-r-[1px]'
 const timelineScrubberEndInputStyles =
   '[&::-moz-range-thumb]:rounded-l-[1px] [&::-moz-range-thumb]:rounded-r-sm [&::-webkit-slider-thumb]:rounded-l-[1px] [&::-webkit-slider-thumb]:rounded-r-sm'
-
-function getNumberAttribute(element: Element | undefined, attribute: string) {
-  const value = Number(element?.getAttribute(attribute))
-  return Number.isFinite(value) ? value : undefined
-}
 
 function clampTimelineIndex(index: number, maxIndex: number) {
   return Math.max(0, Math.min(index, maxIndex))
@@ -228,956 +184,6 @@ function getTimelineIndexFromPointer({
   return clampTimelineIndex(Math.round(progress * maxIndex), maxIndex)
 }
 
-function getChartUpdateTransition() {
-  return d3
-    .transition()
-    .duration(chartUpdateTransitionDurationMs)
-    .ease(chartUpdateEase)
-}
-
-function getBarRectAttributes(rect: SVGRectElement): BarRectAttributes {
-  return {
-    height: getNumberAttribute(rect, 'height'),
-    width: getNumberAttribute(rect, 'width'),
-    x: getNumberAttribute(rect, 'x'),
-    y: getNumberAttribute(rect, 'y'),
-  }
-}
-
-function getBarRects(svg: SVGSVGElement) {
-  return [...svg.querySelectorAll<SVGRectElement>('g[aria-label="bar"] rect')]
-}
-
-function getBarGroup(svg: SVGSVGElement) {
-  return svg.querySelector<SVGGElement>('g[aria-label="bar"]')
-}
-
-function getBarCapLayer(svg: SVGSVGElement) {
-  return svg.querySelector<SVGElement>('g[aria-label="tick"]')
-}
-
-function getBarCapElements(svg: SVGSVGElement) {
-  return [...svg.querySelectorAll<SVGElement>('g[aria-label="tick"]>*')]
-}
-
-function getKeyedBarRects({
-  barKeys,
-  svg,
-}: {
-  barKeys: Array<string>
-  svg: SVGSVGElement
-}) {
-  const keyedBars: Array<KeyedBarRect> = []
-
-  getBarRects(svg).forEach((bar, index) => {
-    const key = barKeys[index]
-    if (!key) return
-
-    bar.setAttribute('data-bar-key', key)
-    keyedBars.push({ key, rect: bar })
-  })
-
-  return keyedBars
-}
-
-function getKeyedBarCapElements({
-  barKeys,
-  svg,
-}: {
-  barKeys: Array<string>
-  svg: SVGSVGElement
-}) {
-  const keyedCaps: Array<KeyedTickElement> = []
-
-  getBarCapElements(svg).forEach((element, index) => {
-    const key = barKeys[index]
-    if (!key) return
-
-    element.setAttribute('data-bar-cap-key', key)
-    keyedCaps.push({ category: key, element, key, part: 'tick' })
-  })
-
-  return keyedCaps
-}
-
-function getLiveKeyedBarRects(svg: SVGSVGElement) {
-  const keyedBars: Array<KeyedBarRect> = []
-
-  getBarRects(svg).forEach((bar) => {
-    const key = bar.getAttribute('data-bar-key')
-    if (!key) return
-
-    keyedBars.push({ key, rect: bar })
-  })
-
-  return keyedBars
-}
-
-function getLiveKeyedBarCapElements(svg: SVGSVGElement) {
-  const keyedCaps: Array<KeyedTickElement> = []
-
-  getBarCapElements(svg).forEach((element) => {
-    const key = element.getAttribute('data-bar-cap-key')
-    if (!key) return
-
-    keyedCaps.push({ category: key, element, key, part: 'tick' })
-  })
-
-  return keyedCaps
-}
-
-function getBarRectAttributesByKey({
-  barKeys,
-  svg,
-}: {
-  barKeys: Array<string>
-  svg: SVGSVGElement
-}) {
-  const attributesByKey = new Map<string, BarRectAttributes>()
-
-  getKeyedBarRects({ barKeys, svg }).forEach(({ key, rect }) => {
-    attributesByKey.set(key, getBarRectAttributes(rect))
-  })
-
-  return attributesByKey
-}
-
-function getBarRectsByKey({
-  barKeys,
-  svg,
-}: {
-  barKeys: Array<string>
-  svg: SVGSVGElement
-}) {
-  const rectsByKey = new Map<string, SVGRectElement>()
-
-  getKeyedBarRects({ barKeys, svg }).forEach(({ key, rect }) => {
-    rectsByKey.set(key, rect)
-  })
-
-  return rectsByKey
-}
-
-function getBarCapElementsByKey({
-  barKeys,
-  svg,
-}: {
-  barKeys: Array<string>
-  svg: SVGSVGElement
-}) {
-  const elementByKey = new Map<string, KeyedTickElement>()
-
-  getKeyedBarCapElements({ barKeys, svg }).forEach((keyedCap) => {
-    elementByKey.set(keyedCap.key, keyedCap)
-  })
-
-  return elementByKey
-}
-
-function getUniqueKeyedBarRects(svg: SVGSVGElement) {
-  const keyedBarsByKey = new Map<string, SVGRectElement>()
-
-  getLiveKeyedBarRects(svg).forEach(({ key, rect }) => {
-    if (!keyedBarsByKey.has(key)) {
-      keyedBarsByKey.set(key, rect)
-    }
-  })
-
-  return [...keyedBarsByKey].map(([key, rect]) => ({ key, rect }))
-}
-
-function getElementOpacity(element: Element) {
-  const opacity = Number(element.getAttribute('opacity'))
-  return Number.isFinite(opacity) ? opacity : undefined
-}
-
-function getCollapsedBarRectAttributes({
-  axis,
-  attributes,
-}: {
-  axis: CategoricalAxis
-  attributes: BarRectAttributes
-}): BarRectAttributes {
-  const x = attributes.x ?? 0
-  const y = attributes.y ?? 0
-  const width = attributes.width ?? 0
-  const height = attributes.height ?? 0
-
-  if (axis === 'x') {
-    return {
-      x,
-      y: y + height,
-      width,
-      height: 0,
-    }
-  }
-
-  return {
-    x,
-    y,
-    width: 0,
-    height,
-  }
-}
-
-function setBarRectAttributes(
-  rect: SVGRectElement,
-  attributes: BarRectAttributes,
-) {
-  if (attributes.x !== undefined) rect.setAttribute('x', `${attributes.x}`)
-  if (attributes.y !== undefined) rect.setAttribute('y', `${attributes.y}`)
-  if (attributes.width !== undefined) {
-    rect.setAttribute('width', `${attributes.width}`)
-  }
-  if (attributes.height !== undefined) {
-    rect.setAttribute('height', `${attributes.height}`)
-  }
-}
-
-function cloneBarRect(rect: SVGRectElement) {
-  const clone = rect.cloneNode(true)
-  return clone instanceof SVGRectElement ? clone : undefined
-}
-
-function getCategoricalTickElements({
-  axis,
-  domain,
-  svg,
-}: {
-  axis: CategoricalAxis
-  domain: Array<string>
-  svg: SVGSVGElement
-}) {
-  const keyedTicks: Array<KeyedTickElement> = []
-  const tickParts: Array<{
-    part: AxisTickPart
-    elements: Array<SVGElement>
-  }> = [
-    {
-      part: 'tick',
-      elements: [
-        ...svg.querySelectorAll<SVGElement>(
-          `[aria-label='${axis}-axis tick']>*`,
-        ),
-      ],
-    },
-    {
-      part: 'label',
-      elements: [
-        ...svg.querySelectorAll<SVGElement>(
-          `[aria-label='${axis}-axis tick label']>*`,
-        ),
-      ],
-    },
-  ]
-
-  tickParts.forEach(({ elements, part }) => {
-    elements.forEach((element, index) => {
-      const category = element.textContent?.trim() || domain[index] || ''
-      if (!category) return
-
-      const key = `${part}:${category}`
-      element.setAttribute('data-axis-tick-category', category)
-      element.setAttribute('data-axis-tick-key', key)
-      element.setAttribute('data-axis-tick-part', part)
-      keyedTicks.push({ category, element, key, part })
-    })
-  })
-
-  return keyedTicks
-}
-
-function getLiveCategoricalTickElements({
-  axis,
-  svg,
-}: {
-  axis: CategoricalAxis
-  svg: SVGSVGElement
-}) {
-  const keyedTicks: Array<KeyedTickElement> = []
-  const tickElements = [
-    ...svg.querySelectorAll<SVGElement>(`[aria-label='${axis}-axis tick']>*`),
-    ...svg.querySelectorAll<SVGElement>(
-      `[aria-label='${axis}-axis tick label']>*`,
-    ),
-  ]
-
-  tickElements.forEach((element) => {
-    const key = element.getAttribute('data-axis-tick-key')
-    if (!key) return
-
-    const category = element.getAttribute('data-axis-tick-category') ?? key
-    const part =
-      element.getAttribute('data-axis-tick-part') === 'label' ? 'label' : 'tick'
-    keyedTicks.push({ category, element, key, part })
-  })
-
-  return keyedTicks
-}
-
-function getCategoricalTickElementsByKey({
-  axis,
-  domain,
-  svg,
-}: {
-  axis: CategoricalAxis
-  domain: Array<string>
-  svg: SVGSVGElement
-}) {
-  const elementByKey = new Map<string, KeyedTickElement>()
-
-  getCategoricalTickElements({ axis, domain, svg }).forEach((keyedTick) => {
-    elementByKey.set(keyedTick.key, keyedTick)
-  })
-
-  return elementByKey
-}
-
-function getTickElementTransform(element: SVGElement | undefined) {
-  return element?.getAttribute('transform') || undefined
-}
-
-function cloneTickElement(element: SVGElement) {
-  const clone = element.cloneNode(true)
-  return clone instanceof SVGElement ? clone : undefined
-}
-
-function getAxisTickElementAttributes(
-  element: SVGElement,
-): AxisTickElementAttributes {
-  const attributes: AxisTickElementAttributes = {
-    opacity: getElementOpacity(element),
-    transform: undefined,
-    x: undefined,
-    y: undefined,
-    x1: undefined,
-    x2: undefined,
-    y1: undefined,
-    y2: undefined,
-  }
-
-  axisTickPositionAttributes.forEach((attribute) => {
-    attributes[attribute] = element.getAttribute(attribute) || undefined
-  })
-
-  return attributes
-}
-
-function setAxisTickElementAttributes(
-  element: SVGElement,
-  attributes: AxisTickElementAttributes,
-) {
-  axisTickPositionAttributes.forEach((attribute) => {
-    const value = attributes[attribute]
-    if (value === undefined) {
-      element.removeAttribute(attribute)
-      return
-    }
-
-    element.setAttribute(attribute, value)
-  })
-
-  if (attributes.opacity === undefined) {
-    element.removeAttribute('opacity')
-    return
-  }
-
-  element.setAttribute('opacity', `${attributes.opacity}`)
-}
-
-function transitionAxisTickElementsToTarget({
-  targetAttributesByKey,
-  ticks,
-  transition,
-}: {
-  targetAttributesByKey: Map<string, AxisTickElementAttributes>
-  ticks: Array<KeyedTickElement>
-  transition: d3.Transition<d3.BaseType, unknown, null, undefined>
-}) {
-  const tickTransition = d3
-    .selectAll<SVGElement, string>(ticks.map(({ element }) => element))
-    .data(ticks.map(({ key }) => key))
-    .transition(transition)
-    .attr('opacity', 1)
-
-  axisTickPositionAttributes.forEach((attribute) => {
-    tickTransition.attr(attribute, function (key) {
-      const targetAttributes = targetAttributesByKey.get(key)
-      if (!targetAttributes) return this.getAttribute(attribute)
-
-      return targetAttributes[attribute] ?? null
-    })
-  })
-}
-
-function getValueAxisTickElements({
-  axis,
-  svg,
-}: {
-  axis: CategoricalAxis
-  svg: SVGSVGElement
-}) {
-  const keyedTicks: Array<KeyedTickElement> = []
-  const labelValues = [
-    ...svg.querySelectorAll<SVGElement>(
-      `[aria-label='${axis}-axis tick label']>*`,
-    ),
-  ].map((element) => element.textContent?.trim() || '')
-  const tickParts: Array<{
-    part: AxisTickPart
-    elements: Array<SVGElement>
-  }> = [
-    {
-      part: 'grid',
-      elements: [
-        ...svg.querySelectorAll<SVGElement>(`[aria-label='${axis}-grid']>*`),
-      ],
-    },
-    {
-      part: 'tick',
-      elements: [
-        ...svg.querySelectorAll<SVGElement>(
-          `[aria-label='${axis}-axis tick']>*`,
-        ),
-      ],
-    },
-    {
-      part: 'label',
-      elements: [
-        ...svg.querySelectorAll<SVGElement>(
-          `[aria-label='${axis}-axis tick label']>*`,
-        ),
-      ],
-    },
-  ]
-
-  tickParts.forEach(({ elements, part }) => {
-    elements.forEach((element, index) => {
-      const category = labelValues[index] || element.textContent?.trim() || ''
-      if (!category) return
-
-      const key = `value:${part}:${category}`
-      element.setAttribute('data-value-axis-tick-category', category)
-      element.setAttribute('data-value-axis-tick-key', key)
-      element.setAttribute('data-value-axis-tick-part', part)
-      keyedTicks.push({ category, element, key, part })
-    })
-  })
-
-  return keyedTicks
-}
-
-function getLiveValueAxisTickElements({
-  axis,
-  svg,
-}: {
-  axis: CategoricalAxis
-  svg: SVGSVGElement
-}) {
-  const keyedTicks: Array<KeyedTickElement> = []
-  const tickElements = [
-    ...svg.querySelectorAll<SVGElement>(`[aria-label='${axis}-grid']>*`),
-    ...svg.querySelectorAll<SVGElement>(`[aria-label='${axis}-axis tick']>*`),
-    ...svg.querySelectorAll<SVGElement>(
-      `[aria-label='${axis}-axis tick label']>*`,
-    ),
-  ]
-
-  tickElements.forEach((element) => {
-    const key = element.getAttribute('data-value-axis-tick-key')
-    if (!key) return
-
-    const category =
-      element.getAttribute('data-value-axis-tick-category') ?? key
-    const partAttribute = element.getAttribute('data-value-axis-tick-part')
-    const part =
-      partAttribute === 'grid'
-        ? 'grid'
-        : partAttribute === 'label'
-          ? 'label'
-          : 'tick'
-    keyedTicks.push({ category, element, key, part })
-  })
-
-  return keyedTicks
-}
-
-function getValueAxisTickElementsByKey({
-  axis,
-  svg,
-}: {
-  axis: CategoricalAxis
-  svg: SVGSVGElement
-}) {
-  const elementByKey = new Map<string, KeyedTickElement>()
-
-  getValueAxisTickElements({ axis, svg }).forEach((keyedTick) => {
-    if (!elementByKey.has(keyedTick.key)) {
-      elementByKey.set(keyedTick.key, keyedTick)
-    }
-  })
-
-  return elementByKey
-}
-
-function getCategoricalTickLayerByPart({
-  axis,
-  svg,
-}: {
-  axis: CategoricalAxis
-  svg: SVGSVGElement
-}) {
-  const layerByPart = new Map<AxisTickPart, SVGElement>()
-  const gridLayer = svg.querySelector<SVGElement>(`[aria-label='${axis}-grid']`)
-  const tickLayer = svg.querySelector<SVGElement>(
-    `[aria-label='${axis}-axis tick']`,
-  )
-  const tickLabelLayer = svg.querySelector<SVGElement>(
-    `[aria-label='${axis}-axis tick label']`,
-  )
-
-  if (gridLayer) layerByPart.set('grid', gridLayer)
-  if (tickLayer) layerByPart.set('tick', tickLayer)
-  if (tickLabelLayer) layerByPart.set('label', tickLabelLayer)
-
-  return layerByPart
-}
-
-function attachCategoricalDomainUpdater({
-  axis,
-  barKeys,
-  domain,
-  svg,
-}: {
-  axis: CategoricalAxis
-  barKeys: Array<string>
-  domain: Array<string>
-  svg: SVGSVGElement
-}) {
-  const valueAxis: CategoricalAxis = axis === 'x' ? 'y' : 'x'
-
-  getKeyedBarRects({ barKeys, svg })
-  getKeyedBarCapElements({ barKeys, svg })
-  getCategoricalTickElements({ axis, domain, svg })
-  getValueAxisTickElements({ axis: valueAxis, svg })
-
-  svg.updateBarPlot = ({ nextBarKeys, nextDomain, nextPlot }) => {
-    const nextSvg = getPlotSvg(nextPlot)
-    if (!nextSvg) return
-
-    const currentKeyedBars = getUniqueKeyedBarRects(svg)
-    const currentBarAttributesByKey = new Map<string, BarRectAttributes>()
-    const currentBarsByKey = new Map<string, SVGRectElement>()
-
-    currentKeyedBars.forEach(({ key, rect }) => {
-      currentBarAttributesByKey.set(key, getBarRectAttributes(rect))
-      currentBarsByKey.set(key, rect)
-    })
-
-    const targetBarAttributesByKey = getBarRectAttributesByKey({
-      barKeys: nextBarKeys,
-      svg: nextSvg,
-    })
-    const targetBarsByKey = getBarRectsByKey({
-      barKeys: nextBarKeys,
-      svg: nextSvg,
-    })
-    const nextBarGroup = getBarGroup(nextSvg)
-    const currentBarCaps = getLiveKeyedBarCapElements(svg)
-    const currentBarCapElementsByKey = new Map<string, KeyedTickElement>()
-
-    currentBarCaps.forEach((cap) => {
-      if (!currentBarCapElementsByKey.has(cap.key)) {
-        currentBarCapElementsByKey.set(cap.key, cap)
-      }
-    })
-
-    const targetBarCapElementsByKey = getBarCapElementsByKey({
-      barKeys: nextBarKeys,
-      svg: nextSvg,
-    })
-    const targetBarCapAttributesByKey = new Map<
-      string,
-      AxisTickElementAttributes
-    >()
-
-    targetBarCapElementsByKey.forEach(({ element }, key) => {
-      targetBarCapAttributesByKey.set(
-        key,
-        getAxisTickElementAttributes(element),
-      )
-    })
-
-    const nextBarCapLayer = getBarCapLayer(nextSvg)
-    const currentKeyedTicks = getLiveCategoricalTickElements({ axis, svg })
-    const currentTickElementsByKey = new Map<string, KeyedTickElement>()
-
-    currentKeyedTicks.forEach((tick) => {
-      if (!currentTickElementsByKey.has(tick.key)) {
-        currentTickElementsByKey.set(tick.key, tick)
-      }
-    })
-
-    const targetTickElementsByKey = getCategoricalTickElementsByKey({
-      axis,
-      domain: nextDomain,
-      svg: nextSvg,
-    })
-    const targetTickTransformByKey = new Map<string, string>()
-
-    targetTickElementsByKey.forEach(({ element }, key) => {
-      const transform = getTickElementTransform(element)
-      if (transform) {
-        targetTickTransformByKey.set(key, transform)
-      }
-    })
-
-    const targetTickLayersByPart = getCategoricalTickLayerByPart({
-      axis,
-      svg: nextSvg,
-    })
-    const currentValueTicks = getLiveValueAxisTickElements({
-      axis: valueAxis,
-      svg,
-    })
-    const currentValueTickElementsByKey = new Map<string, KeyedTickElement>()
-
-    currentValueTicks.forEach((tick) => {
-      if (!currentValueTickElementsByKey.has(tick.key)) {
-        currentValueTickElementsByKey.set(tick.key, tick)
-      }
-    })
-
-    const targetValueTickElementsByKey = getValueAxisTickElementsByKey({
-      axis: valueAxis,
-      svg: nextSvg,
-    })
-    const targetValueTickAttributesByKey = new Map<
-      string,
-      AxisTickElementAttributes
-    >()
-
-    targetValueTickElementsByKey.forEach(({ element }, key) => {
-      targetValueTickAttributesByKey.set(
-        key,
-        getAxisTickElementAttributes(element),
-      )
-    })
-
-    const targetValueTickLayersByPart = getCategoricalTickLayerByPart({
-      axis: valueAxis,
-      svg: nextSvg,
-    })
-    const transition = getChartUpdateTransition()
-    const retainedBars: Array<KeyedBarRect> = []
-    const enteringBars: Array<KeyedBarRect> = []
-
-    nextBarKeys.forEach((key) => {
-      const targetBar = targetBarsByKey.get(key)
-      const targetAttributes = targetBarAttributesByKey.get(key)
-      if (!targetBar || !targetAttributes) return
-
-      const currentAttributes = currentBarAttributesByKey.get(key)
-      if (currentAttributes) {
-        setBarRectAttributes(targetBar, currentAttributes)
-        const currentBar = currentBarsByKey.get(key)
-        const currentOpacity = currentBar
-          ? getElementOpacity(currentBar)
-          : undefined
-        if (currentOpacity !== undefined) {
-          targetBar.setAttribute('opacity', `${currentOpacity}`)
-        }
-        retainedBars.push({ key, rect: targetBar })
-        return
-      }
-
-      setBarRectAttributes(
-        targetBar,
-        getCollapsedBarRectAttributes({
-          axis,
-          attributes: targetAttributes,
-        }),
-      )
-      targetBar.setAttribute('opacity', '0')
-      enteringBars.push({ key, rect: targetBar })
-    })
-
-    if (nextBarGroup) {
-      currentKeyedBars.forEach(({ key, rect }) => {
-        if (targetBarAttributesByKey.has(key)) return
-
-        const exitingBar = cloneBarRect(rect)
-        if (!exitingBar) return
-
-        const currentAttributes = getBarRectAttributes(rect)
-        setBarRectAttributes(exitingBar, currentAttributes)
-        const currentOpacity = getElementOpacity(rect)
-        if (currentOpacity !== undefined) {
-          exitingBar.setAttribute('opacity', `${currentOpacity}`)
-        }
-        exitingBar.setAttribute('data-bar-key', key)
-        nextBarGroup.append(exitingBar)
-        d3.select<SVGRectElement, BarRectAttributes>(exitingBar)
-          .datum(
-            getCollapsedBarRectAttributes({
-              axis,
-              attributes: currentAttributes,
-            }),
-          )
-          .transition(transition)
-          .attr('opacity', 0)
-          .attr('x', (attributes) => attributes.x ?? 0)
-          .attr('y', (attributes) => attributes.y ?? 0)
-          .attr('width', (attributes) => attributes.width ?? 0)
-          .attr('height', (attributes) => attributes.height ?? 0)
-          .remove()
-      })
-    }
-
-    const retainedTicks: Array<KeyedTickElement> = []
-    const enteringTicks: Array<KeyedTickElement> = []
-    const retainedBarCaps: Array<KeyedTickElement> = []
-    const enteringBarCaps: Array<KeyedTickElement> = []
-
-    targetBarCapElementsByKey.forEach((targetCap, key) => {
-      const currentCap = currentBarCapElementsByKey.get(key)
-
-      if (currentCap) {
-        setAxisTickElementAttributes(
-          targetCap.element,
-          getAxisTickElementAttributes(currentCap.element),
-        )
-        retainedBarCaps.push(targetCap)
-        return
-      }
-
-      targetCap.element.setAttribute('opacity', '0')
-      enteringBarCaps.push(targetCap)
-    })
-
-    currentBarCaps.forEach((currentCap) => {
-      if (targetBarCapElementsByKey.has(currentCap.key) || !nextBarCapLayer) {
-        return
-      }
-
-      const exitingCap = cloneTickElement(currentCap.element)
-      if (!exitingCap) return
-
-      setAxisTickElementAttributes(
-        exitingCap,
-        getAxisTickElementAttributes(currentCap.element),
-      )
-      exitingCap.setAttribute('data-bar-cap-key', currentCap.key)
-      nextBarCapLayer.append(exitingCap)
-      d3.select(exitingCap).transition(transition).attr('opacity', 0).remove()
-    })
-
-    targetTickElementsByKey.forEach((targetTick, key) => {
-      const currentTick = currentTickElementsByKey.get(key)
-      const targetTransform = targetTickTransformByKey.get(key)
-
-      if (currentTick) {
-        const currentTransform = getTickElementTransform(currentTick.element)
-        if (currentTransform) {
-          targetTick.element.setAttribute('transform', currentTransform)
-        }
-        const currentOpacity = getElementOpacity(currentTick.element)
-        if (currentOpacity !== undefined) {
-          targetTick.element.setAttribute('opacity', `${currentOpacity}`)
-        }
-        retainedTicks.push(targetTick)
-        return
-      }
-
-      if (targetTransform) {
-        targetTick.element.setAttribute('transform', targetTransform)
-      }
-      targetTick.element.setAttribute('opacity', '0')
-      enteringTicks.push(targetTick)
-    })
-
-    currentKeyedTicks.forEach((currentTick) => {
-      if (targetTickElementsByKey.has(currentTick.key)) return
-
-      const targetLayer = targetTickLayersByPart.get(currentTick.part)
-      if (!targetLayer) return
-
-      const exitingTick = cloneTickElement(currentTick.element)
-      if (!exitingTick) return
-
-      const currentTransform = getTickElementTransform(currentTick.element)
-      if (currentTransform) {
-        exitingTick.setAttribute('transform', currentTransform)
-      }
-      const currentOpacity = getElementOpacity(currentTick.element)
-      if (currentOpacity !== undefined) {
-        exitingTick.setAttribute('opacity', `${currentOpacity}`)
-      }
-      exitingTick.setAttribute('data-axis-tick-category', currentTick.category)
-      exitingTick.setAttribute('data-axis-tick-key', currentTick.key)
-      exitingTick.setAttribute('data-axis-tick-part', currentTick.part)
-      targetLayer.append(exitingTick)
-      d3.select(exitingTick).transition(transition).attr('opacity', 0).remove()
-    })
-
-    const retainedValueTicks: Array<KeyedTickElement> = []
-    const enteringValueTicks: Array<KeyedTickElement> = []
-
-    targetValueTickElementsByKey.forEach((targetTick, key) => {
-      const currentTick = currentValueTickElementsByKey.get(key)
-
-      if (currentTick) {
-        setAxisTickElementAttributes(
-          targetTick.element,
-          getAxisTickElementAttributes(currentTick.element),
-        )
-        retainedValueTicks.push(targetTick)
-        return
-      }
-
-      targetTick.element.setAttribute('opacity', '0')
-      enteringValueTicks.push(targetTick)
-    })
-
-    currentValueTicks.forEach((currentTick) => {
-      if (targetValueTickElementsByKey.has(currentTick.key)) return
-
-      const targetLayer = targetValueTickLayersByPart.get(currentTick.part)
-      if (!targetLayer) return
-
-      const exitingTick = cloneTickElement(currentTick.element)
-      if (!exitingTick) return
-
-      setAxisTickElementAttributes(
-        exitingTick,
-        getAxisTickElementAttributes(currentTick.element),
-      )
-      exitingTick.setAttribute(
-        'data-value-axis-tick-category',
-        currentTick.category,
-      )
-      exitingTick.setAttribute('data-value-axis-tick-key', currentTick.key)
-      exitingTick.setAttribute('data-value-axis-tick-part', currentTick.part)
-      targetLayer.append(exitingTick)
-      d3.select(exitingTick).transition(transition).attr('opacity', 0).remove()
-    })
-
-    d3.selectAll<SVGRectElement, string>(retainedBars.map(({ rect }) => rect))
-      .data(retainedBars.map(({ key }) => key))
-      .transition(transition)
-      .attr('opacity', 1)
-      .attr('x', function (key) {
-        return (
-          targetBarAttributesByKey.get(key)?.x ??
-          getNumberAttribute(this, 'x') ??
-          0
-        )
-      })
-      .attr('y', function (key) {
-        return (
-          targetBarAttributesByKey.get(key)?.y ??
-          getNumberAttribute(this, 'y') ??
-          0
-        )
-      })
-      .attr('width', function (key) {
-        return (
-          targetBarAttributesByKey.get(key)?.width ??
-          getNumberAttribute(this, 'width') ??
-          0
-        )
-      })
-      .attr('height', function (key) {
-        return (
-          targetBarAttributesByKey.get(key)?.height ??
-          getNumberAttribute(this, 'height') ??
-          0
-        )
-      })
-
-    d3.selectAll<SVGRectElement, string>(enteringBars.map(({ rect }) => rect))
-      .data(enteringBars.map(({ key }) => key))
-      .transition(transition)
-      .attr('opacity', 1)
-      .attr('x', function (key) {
-        return (
-          targetBarAttributesByKey.get(key)?.x ??
-          getNumberAttribute(this, 'x') ??
-          0
-        )
-      })
-      .attr('y', function (key) {
-        return (
-          targetBarAttributesByKey.get(key)?.y ??
-          getNumberAttribute(this, 'y') ??
-          0
-        )
-      })
-      .attr('width', function (key) {
-        return (
-          targetBarAttributesByKey.get(key)?.width ??
-          getNumberAttribute(this, 'width') ??
-          0
-        )
-      })
-      .attr('height', function (key) {
-        return (
-          targetBarAttributesByKey.get(key)?.height ??
-          getNumberAttribute(this, 'height') ??
-          0
-        )
-      })
-
-    d3.selectAll<SVGElement, string>(
-      retainedTicks.map(({ element }) => element),
-    )
-      .data(retainedTicks.map(({ key }) => key))
-      .transition(transition)
-      .attr('opacity', 1)
-      .attr('transform', function (key) {
-        return (
-          targetTickTransformByKey.get(key) ?? this.getAttribute('transform')
-        )
-      })
-
-    d3.selectAll<SVGElement, string>(
-      enteringTicks.map(({ element }) => element),
-    )
-      .data(enteringTicks.map(({ key }) => key))
-      .transition(transition)
-      .attr('opacity', 1)
-      .attr('transform', function (key) {
-        return (
-          targetTickTransformByKey.get(key) ?? this.getAttribute('transform')
-        )
-      })
-
-    transitionAxisTickElementsToTarget({
-      targetAttributesByKey: targetValueTickAttributesByKey,
-      ticks: retainedValueTicks,
-      transition,
-    })
-
-    transitionAxisTickElementsToTarget({
-      targetAttributesByKey: targetValueTickAttributesByKey,
-      ticks: enteringValueTicks,
-      transition,
-    })
-
-    transitionAxisTickElementsToTarget({
-      targetAttributesByKey: targetBarCapAttributesByKey,
-      ticks: retainedBarCaps,
-      transition,
-    })
-
-    transitionAxisTickElementsToTarget({
-      targetAttributesByKey: targetBarCapAttributesByKey,
-      ticks: enteringBarCaps,
-      transition,
-    })
-  }
-}
-
 function getInsideOutOrderByLatestValue({
   latestValues,
   sums,
@@ -1231,8 +237,6 @@ function getSubPackageColorForPackages({
     : color.brighter(packageIndex * 0.35).toString()
 }
 
-// Plot figure component
-type PlotOptions = NonNullable<Parameters<typeof Plot.plot>[0]>
 type ChartExportFormat = 'svg' | 'png' | 'jpeg' | 'gif' | 'webm'
 type ColorLegendEntry = {
   label: string
@@ -1308,7 +312,6 @@ const chartActionDropdownItemStyles =
   'flex w-full cursor-pointer items-center rounded px-1.5 py-1 text-left text-xs outline-none hover:bg-gray-500/20 data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500'
 const chartEmbedInputStyles =
   'w-full rounded border border-gray-500/20 bg-gray-50 px-2 py-1.5 font-mono text-[11px] leading-snug outline-none focus:border-blue-500 dark:bg-gray-900'
-const svgNamespace = 'http://www.w3.org/2000/svg'
 
 function clampNumber(value: number, min: number, max: number) {
   return Math.max(min, Math.min(value, max))
@@ -1374,7 +377,7 @@ function getVerticalCategoricalXAxisLayout({
   }
 }
 
-function getPlotContentHeight({
+function getChartContentHeight({
   reservedHeight,
   totalHeight,
 }: {
@@ -1434,6 +437,26 @@ function getChartFillGradients({
   return gradients
 }
 
+function getTanStackGradients(
+  gradients: Array<ChartFillGradient>,
+): Array<ChartLinearGradient> {
+  return gradients.map((gradient) => ({
+    id: gradient.id,
+    stops: [
+      {
+        offset: 0,
+        color: gradient.color,
+        opacity: gradient.bottomOpacity,
+      },
+      {
+        offset: 1,
+        color: gradient.color,
+        opacity: gradient.topOpacity,
+      },
+    ],
+  }))
+}
+
 function getChartFillGradientUrl({
   color,
   gradients,
@@ -1444,54 +467,6 @@ function getChartFillGradientUrl({
   const gradient = gradients.find((entry) => entry.color === color)
 
   return gradient ? `url(#${gradient.id})` : color
-}
-
-function applyChartFillGradients({
-  gradients,
-  svg,
-}: {
-  gradients: Array<ChartFillGradient>
-  svg: SVGSVGElement
-}) {
-  if (!gradients.length) return
-
-  const ownerDocument = svg.ownerDocument
-  const defs =
-    svg.querySelector('defs') ??
-    ownerDocument.createElementNS(svgNamespace, 'defs')
-
-  if (!defs.parentNode) {
-    svg.prepend(defs)
-  }
-
-  gradients.forEach((entry) => {
-    let gradient = defs.querySelector<SVGLinearGradientElement>(`#${entry.id}`)
-
-    if (!gradient) {
-      gradient = ownerDocument.createElementNS(svgNamespace, 'linearGradient')
-      gradient.setAttribute('id', entry.id)
-      defs.append(gradient)
-    } else {
-      gradient.replaceChildren()
-    }
-
-    gradient.setAttribute('x1', '0')
-    gradient.setAttribute('x2', '0')
-    gradient.setAttribute('y1', '1')
-    gradient.setAttribute('y2', '0')
-
-    const bottomStop = ownerDocument.createElementNS(svgNamespace, 'stop')
-    bottomStop.setAttribute('offset', '0%')
-    bottomStop.setAttribute('stop-color', entry.color)
-    bottomStop.setAttribute('stop-opacity', `${entry.bottomOpacity}`)
-    gradient.append(bottomStop)
-
-    const topStop = ownerDocument.createElementNS(svgNamespace, 'stop')
-    topStop.setAttribute('offset', '100%')
-    topStop.setAttribute('stop-color', entry.color)
-    topStop.setAttribute('stop-opacity', `${entry.topOpacity}`)
-    gradient.append(topStop)
-  })
 }
 
 function getUniqueColorLegendEntries(entries: Array<ColorLegendEntry>) {
@@ -1506,10 +481,8 @@ function getUniqueColorLegendEntries(entries: Array<ColorLegendEntry>) {
   return [...colorByLabel].map(([label, color]) => ({ label, color }))
 }
 
-function getPlotSvg(plot: ReturnType<typeof Plot.plot> | null) {
-  if (!plot) return undefined
-  if (plot instanceof SVGSVGElement) return plot
-  return plot.querySelector('svg') ?? undefined
+function getChartSvg(svg: SVGSVGElement | null) {
+  return svg ?? undefined
 }
 
 function getLatestExportPackageData({
@@ -1639,13 +612,14 @@ function getLatestExportPackageData({
     })
 }
 
-function createLatestBarExportPlot({
+function createLatestBarExportChart({
   barOrientation,
   barSort,
   binType,
   chartType,
   gradientIdPrefix,
   height,
+  ownerDocument,
   packages,
   queryData,
   width,
@@ -1656,6 +630,7 @@ function createLatestBarExportPlot({
   chartType: ChartType
   gradientIdPrefix: string
   height: number
+  ownerDocument: Document
   packages: Array<PackageGroup>
   queryData: NpmQueryData
   width: number
@@ -1757,82 +732,112 @@ function createLatestBarExportPlot({
       color: getSubPackageColor(d),
       gradients: fillGradients,
     })
-  const plot = Plot.plot({
-    marginLeft,
-    marginRight,
-    marginBottom: isHorizontalBar ? 64 : verticalXAxisLayout.marginBottom,
-    width,
-    height,
-    marks: (
-      [
-        isHorizontalBar
-          ? Plot.ruleX([0], {
-              stroke: 'currentColor',
-              strokeWidth: 1.5,
-              strokeOpacity: 0.5,
-            })
-          : Plot.ruleY([0], {
-              stroke: 'currentColor',
-              strokeWidth: 1.5,
-              strokeOpacity: 0.5,
-            }),
-        !isStackedBar && !isHorizontalBar
-          ? Plot.barY(latestGroupedBarData, {
-              x: 'name',
-              y: 'downloads',
-              fill: getSeriesGradientFill,
-            })
-          : undefined,
-        !isStackedBar && isHorizontalBar
-          ? Plot.barX(latestGroupedBarData, {
-              x: 'downloads',
-              y: 'name',
-              fill: getSeriesGradientFill,
-            })
-          : undefined,
-        isStackedBar && !isHorizontalBar
-          ? Plot.barY(latestStackedBarData, {
-              x: 'groupName',
-              y1: 'y0',
-              y2: 'y1',
-              fill: getSubPackageGradientFill,
-            })
-          : undefined,
-        isStackedBar && isHorizontalBar
-          ? Plot.barX(latestStackedBarData, {
-              y: 'groupName',
-              x1: 'y0',
-              x2: 'y1',
-              fill: getSubPackageGradientFill,
-            })
-          : undefined,
-      ] as const
-    ).filter(Boolean),
-    x: {
-      domain: isHorizontalBar ? undefined : latestBarDomain,
-      label: isHorizontalBar ? 'Downloads' : null,
-      labelOffset: isHorizontalBar ? 35 : verticalXAxisLayout.labelOffset,
-      tickFormat: isHorizontalBar ? formatCompactAxisNumber : undefined,
-      tickRotate: isHorizontalBar ? undefined : verticalXAxisLayout.tickRotate,
-    },
-    y: {
-      domain: isHorizontalBar ? latestBarDomain : undefined,
-      label: null,
-      labelOffset: 35,
-    },
-    grid: true,
-    color: {
-      domain: colorLegendEntries.map((entry) => entry.label),
-      range: colorLegendEntries.map((entry) => entry.color),
-      legend: false,
+  const maxDownloads =
+    (isStackedBar
+      ? d3.max(latestStackedBarData, (datum) => datum.y1)
+      : d3.max(latestGroupedBarData, (datum) => datum.downloads)) ?? 1
+  const categoricalScale = d3
+    .scaleBand<string>()
+    .domain(latestBarDomain)
+    .paddingInner(0.1)
+    .paddingOuter(0.05)
+  const numericScale = d3.scaleLinear().domain([0, maxDownloads]).nice(7)
+  const chart = defineChart({
+    marks: isHorizontalBar
+      ? [
+          ruleX([0], {
+            stroke: 'currentColor',
+            strokeWidth: 1.5,
+            strokeOpacity: 0.5,
+          }),
+          isStackedBar
+            ? barX(latestStackedBarData, {
+                id: 'latest-stacked-bars-x',
+                y: 'groupName',
+                x1: 'y0',
+                x2: 'y1',
+                key: (datum) =>
+                  `${datum.groupName}:${datum.packageName}:${datum.packageIndex}`,
+                fill: getSubPackageGradientFill,
+                inset: 1,
+              })
+            : barX(latestGroupedBarData, {
+                id: 'latest-bars-x',
+                x: 'downloads',
+                y: 'name',
+                key: 'name',
+                fill: getSeriesGradientFill,
+                inset: 2,
+                radius: 2,
+              }),
+        ]
+      : [
+          ruleY([0], {
+            stroke: 'currentColor',
+            strokeWidth: 1.5,
+            strokeOpacity: 0.5,
+          }),
+          isStackedBar
+            ? barY(latestStackedBarData, {
+                id: 'latest-stacked-bars-y',
+                x: 'groupName',
+                y1: 'y0',
+                y2: 'y1',
+                key: (datum) =>
+                  `${datum.groupName}:${datum.packageName}:${datum.packageIndex}`,
+                fill: getSubPackageGradientFill,
+                inset: 1,
+              })
+            : barY(latestGroupedBarData, {
+                id: 'latest-bars-y',
+                x: 'name',
+                y: 'downloads',
+                key: 'name',
+                fill: getSeriesGradientFill,
+                inset: 2,
+                radius: 2,
+              }),
+        ],
+    x: isHorizontalBar
+      ? {
+          scale: numericScale,
+          label: 'Downloads',
+          labelOffset: 35,
+          format: formatCompactAxisNumber,
+          grid: true,
+        }
+      : {
+          scale: categoricalScale,
+          labelOffset: verticalXAxisLayout.labelOffset,
+          tickRotate: verticalXAxisLayout.tickRotate,
+        },
+    y: isHorizontalBar
+      ? { scale: categoricalScale }
+      : {
+          scale: numericScale,
+          label: 'Downloads',
+          format: formatCompactAxisNumber,
+          grid: true,
+        },
+    gradients: getTanStackGradients(fillGradients),
+    margin: {
+      top: 20,
+      right: marginRight,
+      bottom: isHorizontalBar ? 64 : verticalXAxisLayout.marginBottom,
+      left: marginLeft,
     },
   })
-  const svg = getPlotSvg(plot)
-  if (svg) {
-    applyChartFillGradients({ gradients: fillGradients, svg })
-  }
-
-  return plot
+  const source = renderChartSvgWithResources(
+    createChartScene(chart, { width, height }),
+    {
+      ariaLabel: 'npm download totals',
+      idPrefix: gradientIdPrefix,
+    },
+  )
+  const container = ownerDocument.createElement('div')
+  container.innerHTML = source
+  const svg = container.querySelector<SVGSVGElement>('svg')
+  return svg ?? undefined
 }
 
 function getSvgDimensions(svg: SVGSVGElement) {
@@ -1916,15 +921,12 @@ function getExportLegendItems({
 }) {
   if (!container || !showLegend) return []
 
-  return [...container.querySelectorAll<HTMLElement>('[class$="-swatch"]')]
-    .map((swatch): ExportLegendItem | undefined => {
-      const label = swatch.textContent?.trim()
-      const swatchSvg = swatch.querySelector<SVGElement>('svg')
-      const color =
-        swatchSvg?.getAttribute('fill') ||
-        swatchSvg?.style.fill ||
-        swatch.querySelector<SVGElement>('[fill]')?.getAttribute('fill')
-
+  return [
+    ...container.querySelectorAll<HTMLElement>('[data-chart-legend-item]'),
+  ]
+    .map((item): ExportLegendItem | undefined => {
+      const label = item.textContent?.trim()
+      const color = item.dataset.color
       if (!label || !color || color === 'none') return undefined
 
       return { color, label }
@@ -2437,6 +1439,7 @@ function getSnapshotAnimationFrames({
   gradientIdPrefix,
   height,
   legendItems,
+  ownerDocument,
   packages,
   playbackIntervalMs,
   queryData,
@@ -2451,6 +1454,7 @@ function getSnapshotAnimationFrames({
   gradientIdPrefix: string
   height: number
   legendItems: Array<ExportLegendItem>
+  ownerDocument: Document
   packages: Array<PackageGroup>
   playbackIntervalMs: number | undefined
   queryData: NpmQueryData
@@ -2467,22 +1471,21 @@ function getSnapshotAnimationFrames({
       })
       if (!bucketQueryData) return undefined
 
-      const plot = createLatestBarExportPlot({
+      const svg = createLatestBarExportChart({
         barOrientation,
         barSort,
         binType,
         chartType,
         gradientIdPrefix: `${gradientIdPrefix}-frame-${bucketOffset}`,
         height,
+        ownerDocument,
         packages,
         queryData: bucketQueryData,
         width,
       })
-      const svg = getPlotSvg(plot)
       const serializedSvg = svg
         ? serializeSvg({ exportStyle, legendItems, svg })
         : undefined
-      plot.remove()
       if (!serializedSvg) return undefined
 
       return {
@@ -2491,27 +1494,6 @@ function getSnapshotAnimationFrames({
       }
     })
     .filter((frame): frame is SerializedAnimationFrame => frame !== undefined)
-}
-
-function renderPlotLegend({
-  container,
-  plot,
-  showLegend,
-}: {
-  container: HTMLDivElement | null
-  plot: ReturnType<typeof Plot.plot> | null
-  showLegend: boolean
-}) {
-  if (!container) return
-
-  container.replaceChildren()
-
-  if (!showLegend || !plot) return
-
-  const legend = plot.legend('color', { legend: 'swatches' })
-  if (legend) {
-    container.append(legend)
-  }
 }
 
 function ChartActions({
@@ -2587,14 +1569,14 @@ function ChartActions({
       <Tooltip
         content={
           disabled
-            ? 'Plot legend available after render'
+            ? 'Chart legend available after render'
             : showLegend
-              ? 'Hide Plot legend'
-              : 'Show Plot legend'
+              ? 'Hide chart legend'
+              : 'Show chart legend'
         }
       >
         <button
-          aria-label={showLegend ? 'Hide Plot legend' : 'Show Plot legend'}
+          aria-label={showLegend ? 'Hide chart legend' : 'Show chart legend'}
           aria-pressed={showLegend}
           className={twMerge(
             buttonStyles,
@@ -3166,50 +2148,279 @@ function TimelineRangeScrubber({
   )
 }
 
-function PlotFigure({
-  barKeys,
-  domain,
-  domainAxis,
-  domainIdentityKey,
-  dataUpdateKey,
-  fillGradients,
+type NpmHistoryPoint = {
+  color: string
+  date: Date
+  id: string
+  label: string
+  seriesName: string
+  value: number
+}
+
+type NpmStackedHistoryPoint = NpmHistoryPoint & {
+  fill: string
+  value1: number
+  value2: number
+}
+
+type NpmBarPoint = {
+  category: string
+  color: string
+  fill: string
+  id: string
+  label: string
+  seriesName: string
+  value1: number
+  value2: number
+}
+
+type NpmStatsChartInput = {
+  barOrientation: BarOrientation
+  bars: Array<NpmBarPoint>
+  chartType: ChartType
+  gradients: Array<ChartLinearGradient>
+  historyComplete: Array<NpmHistoryPoint>
+  historyPartial: Array<NpmHistoryPoint>
+  marginBottom: number
+  marginLeft: number
+  marginRight: number
+  stackedHistory: Array<NpmStackedHistoryPoint>
+  timelineDomain?: [Date, Date]
+  viewMode: ViewMode
+  xLabel?: string
+  yFormat?: (value: number) => string
+  yLabel?: string
+}
+
+const npmStatsChart = defineChart<NpmStatsChartInput>()(({ input }) => {
+  const common = {
+    gradients: input.gradients,
+    margin: {
+      top: 20,
+      right: input.marginRight,
+      bottom: input.marginBottom,
+      left: input.marginLeft,
+    },
+    theme: { background: 'transparent' },
+  }
+
+  if (input.viewMode === 'latest') {
+    const categories = input.bars.map((bar) => bar.category)
+    const categoryDomain = [...new Set(categories)]
+    const maximum = d3.max(input.bars, (bar) => bar.value2) ?? 1
+    const categoricalScale = d3
+      .scaleBand<string>()
+      .domain(categoryDomain)
+      .paddingInner(0.1)
+      .paddingOuter(0.05)
+    const numericScale = d3.scaleLinear().domain([0, maximum]).nice(7)
+
+    if (input.barOrientation === 'horizontal') {
+      return {
+        ...common,
+        marks: [
+          ruleX([0], {
+            stroke: 'currentColor',
+            strokeWidth: 1.5,
+            strokeOpacity: 0.5,
+          }),
+          barX(input.bars, {
+            id: 'npm-latest-bars-x',
+            x1: 'value1',
+            x2: 'value2',
+            y: 'category',
+            z: 'seriesName',
+            key: 'id',
+            fill: (datum) => datum.fill,
+            inset: input.chartType === 'stacked-bar' ? 1 : 2,
+            radius: input.chartType === 'stacked-bar' ? undefined : 2,
+          }),
+        ],
+        x: {
+          scale: numericScale,
+          label: input.xLabel,
+          format: formatCompactAxisNumber,
+          grid: true,
+        },
+        y: { scale: categoricalScale },
+      }
+    }
+
+    return {
+      ...common,
+      marks: [
+        ruleY([0], {
+          stroke: 'currentColor',
+          strokeWidth: 1.5,
+          strokeOpacity: 0.5,
+        }),
+        barY(input.bars, {
+          id: 'npm-latest-bars-y',
+          x: 'category',
+          y1: 'value1',
+          y2: 'value2',
+          z: 'seriesName',
+          key: 'id',
+          fill: (datum) => datum.fill,
+          inset: input.chartType === 'stacked-bar' ? 1 : 2,
+          radius: input.chartType === 'stacked-bar' ? undefined : 2,
+        }),
+      ],
+      x: { scale: categoricalScale },
+      y: {
+        scale: numericScale,
+        label: input.yLabel,
+        format: input.yFormat,
+        grid: true,
+      },
+    }
+  }
+
+  const allDates = [
+    ...input.historyComplete.map((point) => point.date),
+    ...input.historyPartial.map((point) => point.date),
+    ...input.stackedHistory.map((point) => point.date),
+  ]
+  const dateExtent = d3.extent(allDates)
+  const dateDomain =
+    input.timelineDomain ??
+    (dateExtent[0] && dateExtent[1]
+      ? [dateExtent[0], dateExtent[1]]
+      : [new Date(0), new Date(86_400_000)])
+  const x = {
+    scale: d3.scaleUtc().domain(dateDomain),
+    label: input.xLabel,
+    grid: true,
+  }
+  const curve = d3Curve(d3.curveMonotoneX)
+
+  if (input.chartType === 'line') {
+    const values = [
+      ...input.historyComplete.map((point) => point.value),
+      ...input.historyPartial.map((point) => point.value),
+    ]
+    const valueExtent = d3.extent([...values, 0])
+
+    return {
+      ...common,
+      marks: [
+        ruleY([0], {
+          stroke: 'currentColor',
+          strokeWidth: 1.5,
+          strokeOpacity: 0.5,
+        }),
+        lineY(input.historyPartial, {
+          id: 'npm-history-partial',
+          x: 'date',
+          y: 'value',
+          z: 'seriesName',
+          key: 'id',
+          stroke: (datum) => datum.color,
+          strokeWidth: 1.5,
+          strokeOpacity: 0.8,
+          strokeDasharray: '2 4',
+          curve,
+        }),
+        lineY(input.historyComplete, {
+          id: 'npm-history-complete',
+          x: 'date',
+          y: 'value',
+          z: 'seriesName',
+          key: 'id',
+          stroke: (datum) => datum.color,
+          strokeWidth: 2,
+          curve,
+        }),
+      ],
+      x,
+      y: {
+        scale: d3
+          .scaleLinear()
+          .domain([valueExtent[0] ?? 0, valueExtent[1] ?? 1])
+          .nice(5),
+        label: input.yLabel,
+        format: input.yFormat,
+        grid: true,
+      },
+      clip: !!input.timelineDomain,
+    }
+  }
+
+  const stackedValues = input.stackedHistory.flatMap((point) => [
+    point.value1,
+    point.value2,
+  ])
+  const stackedExtent = d3.extent([...stackedValues, 0])
+
+  return {
+    ...common,
+    marks: [
+      ruleY([0], {
+        stroke: 'currentColor',
+        strokeWidth: 1.5,
+        strokeOpacity: 0.5,
+      }),
+      areaY(input.stackedHistory, {
+        id: `npm-history-${input.chartType}-areas`,
+        x: 'date',
+        y1: 'value1',
+        y2: 'value2',
+        z: 'seriesName',
+        key: 'id',
+        fill: (datum) => datum.fill,
+        curve,
+      }),
+      lineY(input.stackedHistory, {
+        id: `npm-history-${input.chartType}-caps`,
+        x: 'date',
+        y: 'value2',
+        z: 'seriesName',
+        key: 'id',
+        stroke: (datum) => datum.color,
+        strokeWidth: 1.4,
+        strokeOpacity: 0.95,
+        curve,
+      }),
+    ],
+    x,
+    y: {
+      scale: d3
+        .scaleLinear()
+        .domain([stackedExtent[0] ?? 0, stackedExtent[1] ?? 1])
+        .nice(5),
+      label: input.yLabel,
+      format: input.yFormat,
+      grid: true,
+    },
+    clip: !!input.timelineDomain,
+  }
+})
+
+function ChartFigure({
+  colorLegendEntries,
   footer,
+  height,
+  input,
   legendRef,
-  layoutKey,
   onRenderedChange,
-  options,
-  plotRef,
+  svgRef,
   showLegend,
+  width,
 }: {
-  barKeys?: Array<string>
-  domain?: Array<string>
-  domainAxis?: CategoricalAxis
-  domainIdentityKey?: string
-  dataUpdateKey?: string
-  fillGradients: Array<ChartFillGradient>
+  colorLegendEntries: Array<ColorLegendEntry>
   footer?: React.ReactNode
+  height: number
+  input: NpmStatsChartInput
   legendRef: { current: HTMLDivElement | null }
-  layoutKey?: string
   onRenderedChange: (rendered: boolean) => void
-  options: PlotOptions
-  plotRef: { current: ReturnType<typeof Plot.plot> | null }
+  svgRef: { current: SVGSVGElement | null }
   showLegend: boolean
+  width: number
 }) {
-  const containerRef = React.useRef<HTMLDivElement>(null)
-  const domainOrderKeyRef = React.useRef<string | undefined>(undefined)
-  const domainIdentityKeyRef = React.useRef<string | undefined>(undefined)
-  const dataUpdateKeyRef = React.useRef<string | undefined>(undefined)
-  const layoutKeyRef = React.useRef<string | undefined>(undefined)
-  const showLegendRef = React.useRef(showLegend)
   const { height: legendHeight, ref: measuredLegendRef } =
     useMeasuredElementHeight<HTMLDivElement>()
   const { height: footerHeight, ref: footerRef } =
     useMeasuredElementHeight<HTMLDivElement>()
-  const sizeRef = React.useRef<{
-    height: number | undefined
-    width: number | undefined
-  } | null>(null)
-
   const setLegendRef = React.useCallback(
     (element: HTMLDivElement | null) => {
       legendRef.current = element
@@ -3217,135 +2428,68 @@ function PlotFigure({
     },
     [legendRef, measuredLegendRef],
   )
-  const plotOptions = React.useMemo(
-    () => ({
-      ...options,
-      height: getPlotContentHeight({
-        reservedHeight: legendHeight + footerHeight,
-        totalHeight: options.height,
-      }),
-    }),
-    [footerHeight, legendHeight, options],
-  )
+  const chartHeight = getChartContentHeight({
+    reservedHeight: legendHeight + footerHeight,
+    totalHeight: height,
+  })
 
   React.useEffect(() => {
-    const container = containerRef.current
-    if (!container) return
-
-    const nextSize = {
-      height: plotOptions.height,
-      width: plotOptions.width,
-    }
-    const previousSize = sizeRef.current
-    const sizeChanged =
-      previousSize !== null &&
-      (previousSize.height !== nextSize.height ||
-        previousSize.width !== nextSize.width)
-
-    const commitPlot = (plot: ReturnType<typeof Plot.plot>) => {
-      container.replaceChildren(plot)
-      plotRef.current = plot
-      onRenderedChange(true)
-      renderPlotLegend({
-        container: legendRef.current,
-        plot,
-        showLegend: showLegendRef.current,
-      })
-      const svg = getPlotSvg(plot)
-      if (svg) {
-        applyChartFillGradients({ gradients: fillGradients, svg })
-      }
-      if (svg && domain && domainAxis && barKeys) {
-        attachCategoricalDomainUpdater({
-          axis: domainAxis,
-          barKeys,
-          domain,
-          svg,
-        })
-      }
-      domainOrderKeyRef.current = domain?.join('\u0000')
-      domainIdentityKeyRef.current = domainIdentityKey
-      dataUpdateKeyRef.current = dataUpdateKey
-      layoutKeyRef.current = layoutKey
-      sizeRef.current = nextSize
-    }
-
-    const replacePlot = () => {
-      commitPlot(Plot.plot(plotOptions))
-    }
-
-    const domainOrderKey = domain?.join('\u0000')
-    const domainOrderChanged = domainOrderKeyRef.current !== domainOrderKey
-    const domainIdentityChanged =
-      domainIdentityKeyRef.current !== domainIdentityKey
-    const dataChanged = dataUpdateKeyRef.current !== dataUpdateKey
-    const layoutChanged = layoutKeyRef.current !== layoutKey
-
-    const plotSvg = getPlotSvg(plotRef.current)
-
-    if (
-      domain &&
-      domainIdentityKey !== undefined &&
-      barKeys &&
-      !sizeChanged &&
-      !layoutChanged &&
-      plotSvg?.updateBarPlot
-    ) {
-      if (domainOrderChanged || domainIdentityChanged || dataChanged) {
-        const nextPlot = Plot.plot(plotOptions)
-        commitPlot(nextPlot)
-        plotSvg.updateBarPlot({
-          nextBarKeys: barKeys,
-          nextDomain: domain,
-          nextPlot,
-        })
-      }
-      return
-    }
-
-    replacePlot()
-  }, [
-    barKeys,
-    dataUpdateKey,
-    domain,
-    domainAxis,
-    domainIdentityKey,
-    fillGradients,
-    legendRef,
-    layoutKey,
-    onRenderedChange,
-    plotOptions,
-    plotRef,
-  ])
-
-  React.useEffect(() => {
-    showLegendRef.current = showLegend
-    renderPlotLegend({
-      container: legendRef.current,
-      plot: plotRef.current,
-      showLegend,
-    })
-  }, [legendRef, plotRef, showLegend])
-
-  React.useEffect(
-    () => () => {
-      plotRef.current?.remove()
-      plotRef.current = null
+    return () => {
+      svgRef.current = null
       onRenderedChange(false)
-    },
-    [onRenderedChange, plotRef],
-  )
+    }
+  }, [onRenderedChange, svgRef])
 
   return (
-    <div className="relative" style={{ height: options.height }}>
+    <div className="relative" style={{ height }}>
       <div
         className={twMerge(
-          'flex justify-center overflow-x-auto px-2 pb-2 text-xs',
+          'flex flex-wrap justify-center gap-x-3 gap-y-1 overflow-x-auto px-2 pb-2 text-xs',
           !showLegend && 'hidden',
         )}
         ref={setLegendRef}
+      >
+        {colorLegendEntries.map((entry) => (
+          <span
+            className="flex items-center gap-1.5"
+            data-chart-legend-item=""
+            data-color={entry.color}
+            key={entry.label}
+          >
+            <span
+              className="size-2.5 rounded-sm"
+              style={{ backgroundColor: entry.color }}
+            />
+            {entry.label}
+          </span>
+        ))}
+      </div>
+      <Chart
+        definition={npmStatsChart}
+        input={input}
+        width={width}
+        height={chartHeight}
+        ariaLabel={
+          input.viewMode === 'latest'
+            ? 'npm download totals by package'
+            : 'npm downloads by date'
+        }
+        animate={{
+          duration: chartUpdateTransitionDurationMs,
+          easing: 'ease-out',
+        }}
+        focus={
+          input.viewMode === 'latest' && input.barOrientation === 'horizontal'
+            ? focusY
+            : focusX
+        }
+        tooltip={{ formatGroup: formatNpmChartTooltip }}
+        renderSvg={renderChartSvgWithResources}
+        onRender={({ svg }) => {
+          svgRef.current = svg
+          onRenderedChange(true)
+        }}
       />
-      <div ref={containerRef} />
       {footer ? (
         <div className="flow-root pt-1" ref={footerRef}>
           {footer}
@@ -3354,6 +2498,26 @@ function PlotFigure({
     </div>
   )
 }
+
+function formatNpmChartTooltip(
+  points: ReadonlyArray<ChartPoint<NpmChartDatum>>,
+) {
+  const first = points[0]
+  if (!first) return ''
+
+  const date =
+    'date' in first.datum
+      ? first.datum.date.toLocaleDateString('en-US', {
+          month: 'long',
+          day: 'numeric',
+          year: 'numeric',
+        })
+      : undefined
+  const labels = [...new Set(points.map((point) => point.datum.label))]
+  return [date, ...labels].filter(Boolean).join('\n')
+}
+
+type NpmChartDatum = NpmHistoryPoint | NpmStackedHistoryPoint | NpmBarPoint
 
 // Props for the NPMStatsChart component
 export type NPMStatsChartProps = {
@@ -3416,7 +2580,7 @@ export function NPMStatsChart({
     '',
   )}`
   const legendRef = React.useRef<HTMLDivElement>(null)
-  const plotRef = React.useRef<ReturnType<typeof Plot.plot> | null>(null)
+  const svgRef = React.useRef<SVGSVGElement | null>(null)
   const [uncontrolledShowLegend, setUncontrolledShowLegend] =
     React.useState(false)
   const showLegend = controlledShowLegend ?? uncontrolledShowLegend
@@ -3454,7 +2618,7 @@ export function NPMStatsChart({
     async (format: ChartExportFormat) => {
       if (exportingFormat) return
 
-      const svg = getPlotSvg(plotRef.current)
+      const svg = getChartSvg(svgRef.current)
       if (!svg) return
 
       setExportingFormat(format)
@@ -3499,6 +2663,7 @@ export function NPMStatsChart({
             gradientIdPrefix,
             height,
             legendItems,
+            ownerDocument: svg.ownerDocument,
             packages,
             playbackIntervalMs: animationFrameIntervalMs,
             queryData: animationQueryData,
@@ -3774,7 +2939,7 @@ export function NPMStatsChart({
           baselineGroups[0]?.downloads.forEach((d) => {
             single.set(d.date.getTime(), d.downloads)
           })
-          return single
+          return single.size ? single : undefined
         }
         // Equal-weighted index: index each baseline to its own T0 then average.
         const perPackageIndex = baselineGroups.map((group) => {
@@ -3802,7 +2967,7 @@ export function NPMStatsChart({
           })
           if (count > 0) averaged.set(key, sum / count)
         })
-        return averaged
+        return averaged.size ? averaged : undefined
       })()
     : undefined
 
@@ -3874,14 +3039,6 @@ export function NPMStatsChart({
     )
   }
 
-  const baseOptions: Plot.LineYOptions = {
-    x: 'date',
-    y: effectiveTransform === 'normalize-y' ? 'change' : 'downloads',
-  } as const
-  const lineOptions: Plot.LineYOptions = {
-    ...baseOptions,
-    z: 'seriesName',
-  }
   const getStrokeColor = (d: { name?: string; seriesName?: string }) => {
     if (d.seriesName === BASELINE_LINE_SERIES) return BASELINE_LINE_COLOR
     return d.name ? getPackageColor(d.name, packages) : 'currentColor'
@@ -3937,12 +3094,6 @@ export function NPMStatsChart({
   const hasTimelineZoom =
     timelineScrubberMaxIndex > 0 &&
     (timelineStartIndex > 0 || timelineEndIndex < timelineScrubberMaxIndex)
-  const timelineZoomDomain = hasTimelineZoom
-    ? [
-        timelineScrubberDates[timelineStartIndex],
-        timelineScrubberDates[timelineEndIndex],
-      ]
-    : undefined
   const seriesOrder = [
     ...new Set(
       filteredPackageData.map((packageGroup) => packageGroup.groupName),
@@ -4059,14 +3210,6 @@ export function NPMStatsChart({
     downloads: group.downloads,
     label: `${group.name}: ${formatNumber(group.downloads)}`,
   }))
-  const latestBarDomainIdentityKey = [...latestBarDomain].sort().join('|')
-  const latestGroupedBarDataUpdateKey = latestGroupedBarData
-    .map(
-      (bar) =>
-        `${bar.name}:${bar.downloads}:${getPackageColor(bar.name, packages)}`,
-    )
-    .sort()
-    .join('|')
 
   const latestStackedBarData = latestBarGroups.flatMap((group) => {
     let y0 = 0
@@ -4096,26 +3239,6 @@ export function NPMStatsChart({
   })
   const getSubPackageColor = (d: { groupName: string; packageIndex: number }) =>
     getSubPackageColorForPackages({ ...d, packages })
-  const latestStackedBarDataUpdateKey = latestStackedBarData
-    .map(
-      (bar) =>
-        `${bar.groupName}:${bar.packageName}:${bar.downloads}:${bar.y0}:${
-          bar.y1
-        }:${getSubPackageColor(bar)}`,
-    )
-    .sort()
-    .join('|')
-  const latestBarDataUpdateKey =
-    chartType === 'stacked-bar'
-      ? latestStackedBarDataUpdateKey
-      : latestGroupedBarDataUpdateKey
-  const latestBarKeys =
-    chartType === 'stacked-bar'
-      ? latestStackedBarData.map(
-          (bar) =>
-            `${bar.groupName}\u0000${bar.packageName}\u0000${bar.packageIndex}`,
-        )
-      : latestGroupedBarData.map((bar) => bar.name)
 
   const isLatestGroupedBar = viewMode === 'latest' && chartType === 'bar'
   const isLatestStackedBar =
@@ -4162,7 +3285,9 @@ export function NPMStatsChart({
     : usePercentYAxis
       ? (value: number) => percentFormatter.format(value)
       : formatCompactAxisNumber
-  const xTickFormat = isHorizontalBar ? formatCompactAxisNumber : undefined
+  const formatHistoryTooltipValue = usePercentYAxis
+    ? (value: number) => percentFormatter.format(value)
+    : formatNumber
   const colorLegendEntries = getUniqueColorLegendEntries(
     isLatestStackedBar
       ? latestStackedBarData.map((bar) => ({
@@ -4210,25 +3335,90 @@ export function NPMStatsChart({
       gradients: fillGradients,
     })
 
+  const historyComplete: Array<NpmHistoryPoint> = plotData
+    .filter((datum) => datum.date < partialBinEnd)
+    .map((datum) => {
+      const value =
+        effectiveTransform === 'normalize-y' ? datum.change : datum.downloads
+      return {
+        color: getStrokeColor(datum),
+        date: datum.date,
+        id: `${datum.seriesName}:${datum.date.getTime()}:complete`,
+        label: `${datum.name}: ${formatHistoryTooltipValue(value)}`,
+        seriesName: datum.seriesName,
+        value,
+      }
+    })
+  const historyPartial: Array<NpmHistoryPoint> =
+    effectiveShowDataMode === 'all'
+      ? plotData
+          .filter((datum) => datum.date >= partialBinStart)
+          .map((datum) => {
+            const value =
+              effectiveTransform === 'normalize-y'
+                ? datum.change
+                : datum.downloads
+            return {
+              color: getStrokeColor(datum),
+              date: datum.date,
+              id: `${datum.seriesName}:${datum.date.getTime()}:partial`,
+              label: `${datum.name}: ${formatHistoryTooltipValue(value)}`,
+              seriesName: datum.seriesName,
+              value,
+            }
+          })
+      : []
+  const stackedHistory: Array<NpmStackedHistoryPoint> = stackedTimeData.map(
+    (datum) => ({
+      color: getStrokeColor(datum),
+      date: datum.date,
+      fill: getSeriesGradientFill(datum),
+      id: `${datum.seriesName}:${datum.date.getTime()}`,
+      label: datum.label,
+      seriesName: datum.seriesName,
+      value: datum.y1,
+      value1: datum.y0,
+      value2: datum.y1,
+    }),
+  )
+  const bars: Array<NpmBarPoint> = isLatestStackedBar
+    ? latestStackedBarData.map((datum) => ({
+        category: datum.groupName,
+        color: getSubPackageColor(datum),
+        fill: getSubPackageGradientFill(datum),
+        id: `${datum.groupName}:${datum.packageName}:${datum.packageIndex}`,
+        label: datum.label,
+        seriesName: datum.packageName,
+        value1: datum.y0,
+        value2: datum.y1,
+      }))
+    : latestGroupedBarData.map((datum) => ({
+        category: datum.name,
+        color: getPackageColor(datum.name, packages),
+        fill: getSeriesGradientFill(datum),
+        id: datum.name,
+        label: datum.label,
+        seriesName: datum.seriesName,
+        value1: 0,
+        value2: datum.downloads,
+      }))
+  const timelineDomainStart = hasTimelineZoom
+    ? timelineScrubberDates[timelineStartIndex]
+    : undefined
+  const timelineDomainEnd = hasTimelineZoom
+    ? timelineScrubberDates[timelineEndIndex]
+    : undefined
+  const chartTimelineDomain: [Date, Date] | undefined =
+    timelineDomainStart && timelineDomainEnd
+      ? [timelineDomainStart, timelineDomainEnd]
+      : undefined
+
   return (
     <div ref={containerRef} className="w-full">
       {chartActions}
       {width > 0 ? (
-        <PlotFigure
-          barKeys={isLatestBar ? latestBarKeys : undefined}
-          domain={isLatestBar ? latestBarDomain : undefined}
-          domainAxis={
-            isLatestBar
-              ? barOrientation === 'vertical'
-                ? 'x'
-                : 'y'
-              : undefined
-          }
-          domainIdentityKey={
-            isLatestBar ? latestBarDomainIdentityKey : undefined
-          }
-          dataUpdateKey={isLatestBar ? latestBarDataUpdateKey : undefined}
-          fillGradients={fillGradients}
+        <ChartFigure
+          colorLegendEntries={colorLegendEntries}
           footer={
             viewMode === 'history' && timelineScrubberMaxIndex > 0 ? (
               <TimelineRangeScrubber
@@ -4257,246 +3447,31 @@ export function NPMStatsChart({
               />
             ) : null
           }
-          legendRef={legendRef}
-          layoutKey={isLatestBar ? `${chartType}:${barOrientation}` : undefined}
-          onRenderedChange={handleChartRenderedChange}
-          plotRef={plotRef}
-          showLegend={showLegend}
-          options={{
-            className: observablePlotClassName,
-            marginLeft,
-            marginRight,
+          height={height}
+          input={{
+            barOrientation,
+            bars,
+            chartType,
+            gradients: getTanStackGradients(fillGradients),
+            historyComplete,
+            historyPartial,
             marginBottom: isLatestVerticalBar
               ? latestVerticalXAxisLayout.marginBottom
               : 70,
-            width,
-            height,
-            style: { overflow: 'visible' },
-            marks: (
-              [
-                isHorizontalBar
-                  ? Plot.ruleX([0], {
-                      stroke: 'currentColor',
-                      strokeWidth: 1.5,
-                      strokeOpacity: 0.5,
-                    })
-                  : Plot.ruleY([0], {
-                      stroke: 'currentColor',
-                      strokeWidth: 1.5,
-                      strokeOpacity: 0.5,
-                    }),
-                viewMode === 'history' &&
-                chartType === 'line' &&
-                effectiveShowDataMode === 'all'
-                  ? Plot.lineY(
-                      plotData.filter((d) => d.date >= partialBinStart),
-                      {
-                        ...lineOptions,
-                        stroke: getStrokeColor,
-                        strokeWidth: 1.5,
-                        strokeDasharray: '2 4',
-                        strokeOpacity: 0.8,
-                        curve: 'monotone-x',
-                        clip: hasTimelineZoom ? true : undefined,
-                      },
-                    )
-                  : undefined,
-                viewMode === 'history' && chartType === 'line'
-                  ? Plot.lineY(
-                      plotData.filter((d) => d.date < partialBinEnd),
-                      {
-                        ...lineOptions,
-                        stroke: getStrokeColor,
-                        strokeWidth: 2,
-                        curve: 'monotone-x',
-                        clip: hasTimelineZoom ? true : undefined,
-                      },
-                    )
-                  : undefined,
-                viewMode === 'history' && chartType === 'line'
-                  ? Plot.tip(
-                      completeTimeData,
-                      Plot.pointer({
-                        ...baseOptions,
-                        stroke: 'name',
-                        format: {
-                          x: (d) =>
-                            d.toLocaleDateString('en-US', {
-                              month: 'long',
-                              day: 'numeric',
-                              year: 'numeric',
-                            }),
-                        },
-                      } as Plot.TipOptions),
-                    )
-                  : undefined,
-                viewMode === 'history' &&
-                (chartType === 'stacked' || chartType === 'stacked-area')
-                  ? Plot.areaY(stackedTimeData, {
-                      x: 'date',
-                      y1: 'y0',
-                      y2: 'y1',
-                      z: 'seriesName',
-                      fill: getSeriesGradientFill,
-                      curve: 'monotone-x',
-                      clip: hasTimelineZoom ? true : undefined,
-                    })
-                  : undefined,
-                viewMode === 'history' && chartType === 'stacked-stream'
-                  ? Plot.areaY(stackedTimeData, {
-                      x: 'date',
-                      y1: 'y0',
-                      y2: 'y1',
-                      z: 'seriesName',
-                      fill: getSeriesGradientFill,
-                      curve: 'monotone-x',
-                      clip: hasTimelineZoom ? true : undefined,
-                    })
-                  : undefined,
-                viewMode === 'history' &&
-                (chartType === 'stacked' ||
-                  chartType === 'stacked-area' ||
-                  chartType === 'stacked-stream')
-                  ? Plot.lineY(stackedTimeData, {
-                      x: 'date',
-                      y: 'y1',
-                      z: 'seriesName',
-                      stroke: getStrokeColor,
-                      strokeWidth: 1.4,
-                      strokeOpacity: 0.95,
-                      curve: 'monotone-x',
-                      clip: hasTimelineZoom ? true : undefined,
-                    })
-                  : undefined,
-                viewMode === 'history' &&
-                (chartType === 'stacked' ||
-                  chartType === 'stacked-area' ||
-                  chartType === 'stacked-stream')
-                  ? Plot.tip(
-                      stackedTimeData,
-                      Plot.pointerX({
-                        x: 'date',
-                        y1: 'y0',
-                        y2: 'y1',
-                        title: 'label',
-                        maxRadius: 80,
-                        format: {
-                          x: (d) =>
-                            d.toLocaleDateString('en-US', {
-                              month: 'long',
-                              day: 'numeric',
-                              year: 'numeric',
-                            }),
-                        },
-                      }),
-                    )
-                  : undefined,
-                isLatestGroupedBar && barOrientation === 'vertical'
-                  ? Plot.barY(latestGroupedBarData, {
-                      x: 'name',
-                      y: 'downloads',
-                      fill: getSeriesGradientFill,
-                    })
-                  : undefined,
-                isLatestGroupedBar && barOrientation === 'vertical'
-                  ? Plot.tip(
-                      latestGroupedBarData,
-                      Plot.pointerX({
-                        x: 'name',
-                        y1: 0,
-                        y2: 'downloads',
-                        title: 'label',
-                        maxRadius: 80,
-                      }),
-                    )
-                  : undefined,
-                isLatestGroupedBar && barOrientation === 'horizontal'
-                  ? Plot.barX(latestGroupedBarData, {
-                      x: 'downloads',
-                      y: 'name',
-                      fill: getSeriesGradientFill,
-                    })
-                  : undefined,
-                isLatestGroupedBar && barOrientation === 'horizontal'
-                  ? Plot.tip(
-                      latestGroupedBarData,
-                      Plot.pointerY({
-                        x1: 0,
-                        x2: 'downloads',
-                        y: 'name',
-                        title: 'label',
-                        maxRadius: 80,
-                      }),
-                    )
-                  : undefined,
-                isLatestStackedBar && barOrientation === 'vertical'
-                  ? Plot.barY(latestStackedBarData, {
-                      x: 'groupName',
-                      y1: 'y0',
-                      y2: 'y1',
-                      fill: getSubPackageGradientFill,
-                    })
-                  : undefined,
-                isLatestStackedBar && barOrientation === 'vertical'
-                  ? Plot.tip(
-                      latestStackedBarData,
-                      Plot.pointerX({
-                        x: 'groupName',
-                        y1: 'y0',
-                        y2: 'y1',
-                        title: 'label',
-                        maxRadius: 80,
-                      }),
-                    )
-                  : undefined,
-                isLatestStackedBar && barOrientation === 'horizontal'
-                  ? Plot.barX(latestStackedBarData, {
-                      y: 'groupName',
-                      x1: 'y0',
-                      x2: 'y1',
-                      fill: getSubPackageGradientFill,
-                    })
-                  : undefined,
-                isLatestStackedBar && barOrientation === 'horizontal'
-                  ? Plot.tip(
-                      latestStackedBarData,
-                      Plot.pointerY({
-                        x1: 'y0',
-                        x2: 'y1',
-                        y: 'groupName',
-                        title: 'label',
-                        maxRadius: 80,
-                      }),
-                    )
-                  : undefined,
-              ] as const
-            ).filter(Boolean),
-            x: {
-              domain: isLatestVerticalBar
-                ? latestBarDomain
-                : timelineZoomDomain,
-              label: xLabel,
-              labelOffset: isLatestVerticalBar
-                ? latestVerticalXAxisLayout.labelOffset
-                : 35,
-              tickFormat: xTickFormat,
-              tickRotate: isLatestVerticalBar
-                ? latestVerticalXAxisLayout.tickRotate
-                : undefined,
-            },
-            y: {
-              domain: isHorizontalBar ? latestBarDomain : undefined,
-              label: yLabel,
-              labelOffset: 35,
-              tickFormat: yTickFormat,
-            },
-            grid: true,
-            color: {
-              domain: colorLegendEntries.map((entry) => entry.label),
-              range: colorLegendEntries.map((entry) => entry.color),
-              legend: false,
-            },
+            marginLeft,
+            marginRight,
+            stackedHistory,
+            timelineDomain: chartTimelineDomain,
+            viewMode,
+            xLabel: xLabel ?? undefined,
+            yFormat: yTickFormat,
+            yLabel: yLabel ?? undefined,
           }}
+          legendRef={legendRef}
+          onRenderedChange={handleChartRenderedChange}
+          showLegend={showLegend}
+          svgRef={svgRef}
+          width={width}
         />
       ) : (
         <div style={{ height }} />

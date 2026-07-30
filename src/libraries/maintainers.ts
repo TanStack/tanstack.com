@@ -58,6 +58,7 @@ export const allMaintainers: Maintainer[] = [
       'router',
       'query',
       'table',
+      'charts',
       'form',
       'virtual',
       'ranger',

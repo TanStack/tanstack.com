@@ -28,6 +28,7 @@ export function ChartsCatalogChart({
   defer = false,
   height = 360,
   interactive = true,
+  logicalWidth,
   module,
   onStatus,
   revision = 0,
@@ -37,6 +38,7 @@ export function ChartsCatalogChart({
   defer?: boolean
   height?: number
   interactive?: boolean
+  logicalWidth?: number
   module: ChartsCatalogModuleReference
   onStatus?: (status: 'ready' | 'resize' | 'error') => void
   revision?: number
@@ -83,7 +85,7 @@ export function ChartsCatalogChart({
 
     let cancelled = false
     let mountedHandle: ChartMountHandle | undefined
-    let width = measureWidth(container)
+    let width = measureWidth(container, logicalWidth)
     const preloadLinks = module.preload.map((assetPath) => {
       const link = document.createElement('link')
       link.rel = 'modulepreload'
@@ -125,7 +127,7 @@ export function ChartsCatalogChart({
       })
 
     const resizeObserver = new ResizeObserver(() => {
-      const nextWidth = measureWidth(container)
+      const nextWidth = measureWidth(container, logicalWidth)
       if (nextWidth === width || nextWidth < 1) return
       width = nextWidth
       handleRef.current?.update({
@@ -146,7 +148,7 @@ export function ChartsCatalogChart({
       for (const link of preloadLinks) link.remove()
       container.replaceChildren()
     }
-  }, [artifactRevision, caseId, module, visible])
+  }, [artifactRevision, caseId, logicalWidth, module, visible])
 
   React.useEffect(() => {
     const container = containerRef.current
@@ -154,18 +156,18 @@ export function ChartsCatalogChart({
     if (!container || !handle) return
 
     handle.update({
-      width: measureWidth(container),
+      width: measureWidth(container, logicalWidth),
       height,
       interactive,
       revision,
     })
-  }, [height, interactive, revision])
+  }, [height, interactive, logicalWidth, revision])
 
   return (
     <div
       className="charts-catalog-chart relative w-full overflow-visible"
       data-chart-case={caseId}
-      style={{ minHeight: height }}
+      style={{ height }}
     >
       <div ref={containerRef} className="h-full w-full" />
       {!visible || failed ? (
@@ -183,8 +185,11 @@ export function ChartsCatalogChart({
   )
 }
 
-function measureWidth(container: HTMLElement) {
-  return Math.max(1, Math.floor(container.getBoundingClientRect().width))
+function measureWidth(container: HTMLElement, logicalWidth?: number) {
+  return Math.max(
+    1,
+    Math.floor(logicalWidth ?? container.getBoundingClientRect().width),
+  )
 }
 
 function isChartRuntimeModule(value: unknown): value is ChartRuntimeModule {

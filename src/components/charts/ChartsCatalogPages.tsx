@@ -142,17 +142,7 @@ export function ChartsCatalogDetail({
           <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-950 dark:text-white sm:text-3xl">
             {catalogCase.title}
           </h1>
-          <div className="mt-3 flex items-center gap-3 text-xs text-gray-500">
-            <span>{catalogCase.family}</span>
-            <a
-              href={catalogCase.source.url}
-              rel="noreferrer"
-              target="_blank"
-              className="hover:text-blue-600 dark:hover:text-blue-400"
-            >
-              Reference
-            </a>
-          </div>
+          <div className="mt-3 text-xs text-gray-500">{catalogCase.family}</div>
         </div>
       </div>
 

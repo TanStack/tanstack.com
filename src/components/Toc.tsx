@@ -63,7 +63,6 @@ export function Toc({ headings, activeHeadings, currentFramework }: TocProps) {
                   ? 'border-current text-text-primary opacity-100'
                   : 'border-transparent',
               )}
-              resetScroll={false}
               hashScrollIntoView={{
                 behavior: 'smooth',
               }}

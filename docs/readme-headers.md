@@ -104,12 +104,12 @@ overflows. Run this after touching `src/server/og/readme-template.tsx`.
 
 ## Implementation
 
-| File                                 | Role                                                             |
-| ------------------------------------ | ---------------------------------------------------------------- |
-| `src/routes/api/readme/{$}[.]png.ts` | Route handler: param parsing, validation, cache headers          |
-| `src/server/og/generate.server.ts`   | `generateReadmeHeaderResponse` + the render path shared with OG  |
-| `src/server/og/readme-template.tsx`  | The 1800×450 layout                                              |
-| `src/server/og/assets.server.ts`     | Loads fonts and both raster brand emblems                        |
-| `src/server/og/colors.ts`            | Category accents and surfaces per theme                          |
-| `scripts/generate-brand-assets.mjs`  | Generates the charcoal and cream 256px emblem rasters            |
-| `scripts/readme-header-preview.ts`   | Local render + gallery for reviewing layout changes              |
+| File                                 | Role                                                            |
+| ------------------------------------ | --------------------------------------------------------------- |
+| `src/routes/api/readme/{$}[.]png.ts` | Route handler: param parsing, validation, cache headers         |
+| `src/server/og/generate.server.ts`   | `generateReadmeHeaderResponse` + the render path shared with OG |
+| `src/server/og/readme-template.tsx`  | The 1800×450 layout                                             |
+| `src/server/og/assets.server.ts`     | Loads fonts and both raster brand emblems                       |
+| `src/server/og/colors.ts`            | Category accents and surfaces per theme                         |
+| `scripts/generate-brand-assets.mjs`  | Generates the charcoal and cream 256px emblem rasters           |
+| `scripts/readme-header-preview.ts`   | Local render + gallery for reviewing layout changes             |

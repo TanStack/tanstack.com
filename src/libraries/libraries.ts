@@ -650,13 +650,20 @@ export const ai: LibrarySlim = {
   ...categoryStyles.data,
   name: 'TanStack AI',
   to: '/ai',
-  tagline:
-    'A powerful, open-source AI SDK with a unified interface across multiple providers',
+  tagline: 'The headless agent framework for TypeScript. Bring your own stack',
   description:
-    'A powerful, open-source AI SDK with a unified interface across multiple providers. No vendor lock-in, no proprietary formats, just clean TypeScript and honest open source.',
+    'The headless agent framework for TypeScript. TanStack AI runs the agent loop as typed primitives you compose yourself: tool calls, reasoning, human-in-the-loop interrupts, memory, and streaming state. Eleven provider adapters, seven UI framework bindings, sandboxed code execution, MCP, and coding-agent harnesses behind one interface. Native AG-UI over the wire, MIT licensed, no hosted gateway and no platform to buy into.',
   badge: 'beta',
   repo: 'tanstack/ai',
-  frameworks: ['react', 'vue', 'solid', 'svelte', 'preact', 'vanilla'],
+  frameworks: [
+    'react',
+    'vue',
+    'solid',
+    'svelte',
+    'preact',
+    'angular',
+    'vanilla',
+  ],
   corePackageName: '@tanstack/ai-client',
   npmPackageNames: ['@tanstack/ai-client'],
   latestVersion: 'v0',
@@ -669,6 +676,7 @@ export const ai: LibrarySlim = {
     solid: '@tanstack/ai-solid',
     svelte: '@tanstack/ai-svelte',
     preact: '@tanstack/ai-preact',
+    angular: '@tanstack/ai-angular',
     vanilla: '@tanstack/ai-client',
   },
   frameworkDocs: {
@@ -677,6 +685,7 @@ export const ai: LibrarySlim = {
     solid: 'api/ai-solid',
     svelte: 'getting-started/quick-start-svelte',
     preact: 'api/ai-preact',
+    angular: 'getting-started/quick-start-angular',
     vanilla: 'api/ai-client',
   },
   sitemap: {

@@ -1,10 +1,14 @@
 import * as React from 'react'
 import {
   BracketsCurly,
+  Code,
+  Cube,
+  Database,
   Microphone,
   Plug,
   Radio,
   Robot,
+  Terminal,
   Waveform,
   type Icon,
 } from '@phosphor-icons/react'
@@ -17,12 +21,18 @@ import {
 } from './LibraryLanding'
 
 const aiPrompt = [
-  'Build a TanStack AI feature for a TypeScript app.',
-  'Use the headless client or framework adapter, AG-UI-compatible request and event streams, provider adapters, typed client and server tools, structured output, and observable runtime state without requiring a hosted gateway.',
-  'Show provider-specific capabilities honestly, make tool approval explicit, and include media or realtime primitives only where the selected model supports them.',
+  'Build an agent with TanStack AI, the headless agent framework for TypeScript.',
+  'Drive the agent loop with chat(): isomorphic tools via toolDefinition().server() / .client(), composable (state) => boolean stop strategies, needsApproval interrupts resolved on the client, and native AG-UI request and event streams consumed by the headless client or a framework adapter.',
+  'Reach for the rest of the stack only when the task needs it: Code Mode in an isolate for multi-tool orchestration, a sandboxed coding-agent harness, @tanstack/ai-mcp for MCP servers, memoryMiddleware for cross-session recall, @tanstack/ai-persistence for durable threads and resumable streams.',
+  'Never introduce a hosted gateway, a prescribed UI kit, or a provider-specific wire format. Keep provider capabilities honest: model options, tool support, and modality-specific results stay typed at the adapter boundary, and media or realtime primitives appear only where the selected model supports them.',
 ].join(' ')
 
 const providers = [
+  {
+    name: 'OpenRouter',
+    model: 'any of 300+ models',
+    capabilities: ['text', 'reasoning', 'tools', 'image'],
+  },
   {
     name: 'OpenAI',
     model: 'gpt-5',
@@ -65,27 +75,35 @@ type GraphPoint = {
   y: number
 }
 
-const aiHeroClients = ['Vanilla', 'React', 'Vue', 'Solid', 'Svelte', 'Preact']
+const aiHeroClients = [
+  'Vanilla',
+  'React',
+  'Vue',
+  'Solid',
+  'Svelte',
+  'Preact',
+  'Angular',
+  'Octane',
+]
 const aiHeroServers: Array<AiHeroServer> = [
-  { label: 'TanStack AI', detail: 'TypeScript', kind: 'tanstack' },
+  { label: 'TanStack AI', detail: 'Server', kind: 'tanstack' },
   { label: 'Python', dotted: true },
   { label: 'Go', dotted: true },
   { label: 'PHP', dotted: true },
 ]
 const aiHeroProviders = ['OpenRouter', 'OpenAI', 'Anthropic', 'Gemini']
+// ponytail: 8 clients on a fixed 4x2 grid; recompute the columns if the list changes length
 const graphClientNodes = aiHeroClients.map((label, index) => ({
   label,
-  x: [34, 154, 274][index % 3] ?? 154,
-  y: index < 3 ? 44 : 90,
-  width: 86,
-  height: 34,
+  x: [10, 112, 214, 316][index % 4] ?? 112,
+  y: index < 4 ? 36 : 84,
+  width: 94,
+  height: 36,
 }))
 const graphAgUiNode: GraphNodePosition & {
-  detail: string
   kind: 'tanstack'
 } = {
   label: 'TanStack AI Client',
-  detail: 'AG-UI',
   kind: 'tanstack',
   x: 142,
   y: 138,
@@ -108,21 +126,26 @@ const graphProviderNodes = aiHeroProviders.map((label, index) => ({
 }))
 const aiHeroMessages = [
   {
-    user: 'Build the invoice assistant on our stack.',
+    user: 'Build the invoice agent on our stack, not yours.',
     assistant:
-      'Using TanStack AI for TypeScript, AG-UI events, a server tool for invoices, and OpenRouter for model routing.',
+      'Done. Headless client in your app, the agent loop on your server, AG-UI between them. No gateway, no hosted state.',
   },
   {
-    user: 'Ask before it charges a card.',
+    user: 'It should ask before it charges a card.',
     assistant:
-      'Tool approval added. The UI will pause on chargeCard until your app confirms it.',
+      'chargeCard is marked needsApproval, so the run ends as an interrupt. Resolve it and the loop continues from that exact step.',
   },
   {
-    user: 'Can we switch providers later?',
+    user: 'And if we move off this provider?',
     assistant:
-      'Yes. The provider stays behind an adapter; the app keeps the same event stream and typed tools.',
+      'Swap the adapter. Your tools, events, and UI never learn the difference.',
   },
 ]
+
+// ponytail: the shared --landing-accent-ink is pure black, which reads badly on the
+// orange accent fill. Darken the fill instead and use white text on it.
+const accentFillClass =
+  'bg-[linear-gradient(135deg,color-mix(in_srgb,var(--landing-accent)_84%,black),color-mix(in_srgb,var(--landing-accent)_52%,black))] text-white'
 
 type AiHeroChatMessage = {
   assistant: string
@@ -135,8 +158,8 @@ export default function AiLanding() {
   return (
     <LibraryLandingShell
       libraryId="ai"
-      headline="Own the path between your interface and every model."
-      description="TanStack AI is a typed, composable SDK for streaming model output, tools, structured data, media, and realtime experiences through infrastructure you control."
+      headline="The headless agent framework. Bring your own stack."
+      description="TanStack AI runs the agent loop as typed TypeScript primitives you compose yourself: tool calls, reasoning, human-in-the-loop interrupts, sandboxed code execution, memory, and streaming state. Eleven provider adapters, seven UI framework bindings on top of a framework-free core, native AG-UI over the wire. No hosted gateway, no proprietary stream format, no platform to buy into."
       hero={<AiGraphChatHero />}
       prompt={aiPrompt}
       promptLabel="Copy AI prompt"
@@ -144,10 +167,10 @@ export default function AiLanding() {
       <LandingSection tone="ink">
         <div className="grid items-center gap-12 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16">
           <LandingSectionIntro
-            eyebrow="Typed tools"
+            eyebrow="The agent loop"
             icon={<BracketsCurly aria-hidden="true" size={15} />}
-            title="One contract. Two execution boundaries."
-            body="Define the input and output once, then choose where the work belongs. Client tools can touch local UI state. Server tools can reach private systems. Isomorphic tools share the same definition and can still pause for approval."
+            title="An agent loop you can read, and stop where you want."
+            body="chat() runs the cycle: the model calls a tool, the result goes back, it keeps reasoning. You decide the boundary. Client tools touch local UI state, server tools use your credentials, isomorphic tools share one definition. Stop conditions are plain (state) => boolean functions you compose. Mark a tool needsApproval and the run ends as an interrupt your UI resolves, then resumes exactly where it stopped, on a stateless server, no database required."
           />
           <ToolBoundary />
         </div>
@@ -159,8 +182,8 @@ export default function AiLanding() {
           <LandingSectionIntro
             eyebrow="Provider types"
             icon={<Plug aria-hidden="true" size={15} />}
-            title="The adapter changes. The capability surface stays honest."
-            body="Providers share a common SDK shape without pretending every model is identical. Model names, options, tool support, and modality-specific results remain typed at the adapter boundary."
+            title="Swap the model. Keep the agent."
+            body="OpenRouter, OpenAI, Anthropic, Gemini, Bedrock, Mistral, Groq, Grok, Ollama, ElevenLabs, and fal.ai ship as official adapters, and openaiCompatible covers any endpoint that speaks the same shape, including a model on your own hardware. Switching is a line of config, not a migration. And no adapter pretends every model is identical: write openaiText('gpt-5.5') and TypeScript narrows to that model's real options, capabilities, and input modalities."
           />
         </div>
       </LandingSection>
@@ -170,10 +193,22 @@ export default function AiLanding() {
           centered
           eyebrow="AG-UI both ways"
           icon={<Radio aria-hidden="true" size={15} />}
-          title="The protocol is the seam, not a hosted middleman."
-          body="Headless clients send AG-UI-compatible requests and consume AG-UI events. Your runtime can live in TypeScript or interoperate with another AG-UI server while your application keeps control of transport, auth, and deployment."
+          title="An open protocol is the seam. Not our servers."
+          body="AG-UI events run end to end, not a proprietary stream format with a translation layer bolted on. So the agent on the other end doesn't have to be ours, or even TypeScript. Point the same client at a Python, Go, or PHP AG-UI runtime and it keeps working. Transport is yours too: SSE, HTTP streams, XHR, RPC, a raw async iterable, or a fetcher you wrote. There is no gateway to sign up for, no key to hand over, and no traffic routed through us."
         />
         <ProtocolMap />
+      </LandingSection>
+
+      <LandingSection tone="raised">
+        <div className="grid gap-12 lg:grid-cols-[0.78fr_1.22fr] lg:items-start lg:gap-16">
+          <LandingSectionIntro
+            eyebrow="The rest of the agent stack"
+            icon={<Cube aria-hidden="true" size={15} />}
+            title="Sandboxes, code mode, MCP, memory. Shipped, not planned."
+            body="An agent framework is more than a loop around a model. Each of these is a separate package you opt into, running on infrastructure you already own. Each ships an Agent Skill so your coding assistant wires it up correctly."
+          />
+          <FeatureRail items={agentStack} />
+        </div>
       </LandingSection>
 
       <LandingSection tone="ink">
@@ -181,10 +216,10 @@ export default function AiLanding() {
           <LandingSectionIntro
             eyebrow="Beyond chat"
             icon={<Microphone aria-hidden="true" size={15} />}
-            title="Different media. The same observable runtime."
-            body="Text and structured output sit beside image generation, speech, transcription, realtime voice, and video. Middleware, hooks, devtools, and OpenTelemetry can observe work at the activity level."
+            title="Not a chatbot library. Every modality, one runtime."
+            body="Text and structured output sit beside image, video, speech, transcription, music, and realtime voice. One hook per activity, each a separate tree-shakeable import, none of it wrapped in a chat UI you have to accept. Middleware, devtools, and OpenTelemetry observe every run at the activity level."
           />
-          <ModalityRail />
+          <FeatureRail items={modalities} />
         </div>
       </LandingSection>
     </LibraryLandingShell>
@@ -193,12 +228,13 @@ export default function AiLanding() {
 
 function AiGraphChatHero() {
   const [activeClient, setActiveClient] = React.useState(0)
+  const [activeServer, setActiveServer] = React.useState(0)
   const [activeProvider, setActiveProvider] = React.useState(0)
   const [chatMessages, setChatMessages] = React.useState<
     Array<AiHeroChatMessage>
   >([])
   const [typingUserMessage, setTypingUserMessage] = React.useState('')
-  const primaryServerNode = graphServerNodes[0]
+  const activeServerNode = graphServerNodes[activeServer] ?? graphServerNodes[0]
   const chatScrollRef = React.useRef<HTMLDivElement>(null)
   const chatLockedToBottomRef = React.useRef(true)
 
@@ -210,12 +246,16 @@ function AiGraphChatHero() {
     const clientIntervalId = window.setInterval(() => {
       setActiveClient((current) => (current + 1) % aiHeroClients.length)
     }, 2300)
+    const serverIntervalId = window.setInterval(() => {
+      setActiveServer((current) => (current + 1) % aiHeroServers.length)
+    }, 3300)
     const providerIntervalId = window.setInterval(() => {
       setActiveProvider((current) => (current + 1) % aiHeroProviders.length)
     }, 4100)
 
     return () => {
       window.clearInterval(clientIntervalId)
+      window.clearInterval(serverIntervalId)
       window.clearInterval(providerIntervalId)
     }
   }, [])
@@ -379,9 +419,9 @@ function AiGraphChatHero() {
   return (
     <div className="grid w-full min-w-0 max-w-full items-start gap-4 lg:grid-cols-[1.05fr_0.95fr]">
       <span className="sr-only">
-        A client graph shows six UI adapters converging on the TanStack AI
-        Client over AG-UI, then reaching a TypeScript runtime and
-        interchangeable model providers.
+        A client graph shows eight UI adapters converging on the TanStack AI
+        Client over AG-UI, then reaching an agent runtime in TypeScript, Python,
+        Go, or PHP, and interchangeable model providers.
       </span>
 
       <LandingWindow label="client graph">
@@ -408,7 +448,7 @@ function AiGraphChatHero() {
             {graphServerNodes.map((node, index) => (
               <GraphLine
                 key={`server-${node.label}`}
-                active={index === 0}
+                active={index === activeServer}
                 d={curveBetween(
                   bottomAnchor(graphAgUiNode),
                   topAnchor(node),
@@ -421,7 +461,7 @@ function AiGraphChatHero() {
                 key={`provider-${node.label}`}
                 active={activeProvider === index}
                 d={curveBetween(
-                  bottomAnchor(primaryServerNode),
+                  bottomAnchor(activeServerNode),
                   topAnchor(node),
                   0.55,
                 )}
@@ -449,7 +489,6 @@ function AiGraphChatHero() {
           ))}
           <GraphNode
             active
-            detail={graphAgUiNode.detail}
             kind={graphAgUiNode.kind}
             label={graphAgUiNode.label}
             node={graphAgUiNode}
@@ -457,7 +496,7 @@ function AiGraphChatHero() {
           {graphServerNodes.map((node, index) => (
             <GraphNode
               key={node.label}
-              active={index === 0}
+              active={index === activeServer}
               detail={node.detail}
               dotted={node.dotted}
               kind={node.kind}
@@ -488,7 +527,9 @@ function AiGraphChatHero() {
             <div className="flex min-h-full flex-col justify-end gap-2.5 p-4">
               {chatMessages.map((message) => (
                 <React.Fragment key={message.id}>
-                  <div className="ml-auto max-w-[86%] rounded-xl bg-[var(--landing-accent)] px-3 py-2 text-ds-body-xs text-[var(--landing-accent-ink)] shadow-sm">
+                  <div
+                    className={`ml-auto max-w-[86%] rounded-xl px-3 py-2 text-ds-body-xs shadow-sm ${accentFillClass}`}
+                  >
                     {message.user}
                   </div>
                   {message.assistant || message.isStreaming ? (
@@ -506,7 +547,10 @@ function AiGraphChatHero() {
                   ['event', 'text content'],
                   ['tool', 'approval gate'],
                   ['provider', aiHeroProviders[activeProvider]],
-                  ['runtime', 'TanStack AI'],
+                  [
+                    'runtime',
+                    aiHeroServers[activeServer]?.label ?? 'TanStack AI',
+                  ],
                 ].map(([label, value]) => (
                   <div
                     key={label}
@@ -639,7 +683,7 @@ function GraphNode({
   const isTanStack = kind === 'tanstack'
   const className = isTanStack
     ? active
-      ? 'absolute z-20 flex flex-col items-center justify-center rounded-lg border-2 border-[var(--landing-accent-dark)] bg-[linear-gradient(135deg,var(--landing-accent-dark),var(--landing-accent))] px-2 text-center font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-ink)] shadow-[0_12px_28px_rgb(var(--landing-glow)/0.28)] ring-2 ring-[color:rgb(var(--landing-glow)/0.24)] transition-all duration-500 motion-reduce:transition-none'
+      ? `absolute z-20 flex flex-col items-center justify-center rounded-lg border-2 border-[var(--landing-accent)] px-2 text-center font-ds-mono text-ds-mono-2xs shadow-[0_12px_28px_rgb(var(--landing-glow)/0.28)] ring-2 ring-[color:rgb(var(--landing-glow)/0.24)] transition-all duration-500 motion-reduce:transition-none ${accentFillClass}`
       : 'absolute z-20 flex flex-col items-center justify-center rounded-lg border-2 border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.15)] px-2 text-center font-ds-mono text-ds-mono-2xs text-[var(--landing-accent-bright)] transition-all duration-500 motion-reduce:transition-none'
     : active
       ? 'absolute z-20 flex flex-col items-center justify-center rounded-lg border border-text-primary bg-text-primary px-2 text-center font-ds-mono text-ds-mono-2xs text-background-default shadow-sm transition-all duration-500 motion-reduce:transition-none'
@@ -705,8 +749,8 @@ function ToolBoundary() {
           aria-live="polite"
         >
           {boundary === 'client'
-            ? 'Runs beside the UI and can update local application state.'
-            : 'Runs behind your server boundary with private credentials and data.'}
+            ? 'Runs beside the UI and can update local application state. The loop waits for it and feeds the result back to the model.'
+            : 'Runs behind your server boundary with private credentials and data. The model never sees them.'}
         </p>
       </div>
     </LandingWindow>
@@ -760,8 +804,9 @@ function ProviderWorkbench() {
             )}
           </div>
           <p className="mt-6 text-ds-body-xs text-text-primary/35">
-            Adapter-specific types expose the options and outputs available for
-            this model.
+            Types narrow to this exact model: its options, its capabilities, its
+            input modalities. Pass an image to a text-only model and it fails at
+            compile time, not in production.
           </p>
         </div>
       </div>
@@ -773,7 +818,7 @@ function ProtocolMap() {
   const nodes = [
     ['UI', 'headless client'],
     ['AG-UI', 'request + events'],
-    ['Runtime', 'your server'],
+    ['Agent loop', 'your server'],
     ['Provider', 'typed adapter'],
   ]
 
@@ -799,49 +844,88 @@ function ProtocolMap() {
   )
 }
 
-function ModalityRail() {
-  const modalities: Array<{ detail: string; icon: Icon; label: string }> = [
-    {
-      label: 'Text + objects',
-      detail: 'chat · outputSchema',
-      icon: Robot,
-    },
-    {
-      label: 'Speech + transcription',
-      detail: 'generateSpeech · generateTranscription',
-      icon: Microphone,
-    },
-    {
-      label: 'Realtime voice',
-      detail: 'realtimeToken · RealtimeClient',
-      icon: Waveform,
-    },
-    {
-      label: 'Images + video',
-      detail: 'generateImage · generateVideo',
-      icon: Radio,
-    },
-  ]
+type RailItem = {
+  body: string
+  detail: string
+  icon: Icon
+  label: string
+}
 
+const agentStack: Array<RailItem> = [
+  {
+    label: 'Code Mode',
+    detail: '@tanstack/ai-code-mode',
+    body: 'The model writes one TypeScript program that calls your tools with loops and Promise.all, instead of a round trip per call. It runs in a V8 isolate, QuickJS WASM, or a Cloudflare Worker, with no host filesystem, network, or process.',
+    icon: Code,
+  },
+  {
+    label: 'Coding-agent harnesses',
+    detail: '@tanstack/ai-sandbox',
+    body: 'Run Claude Code, Codex, OpenCode, Grok Build, or any ACP agent as a chat backend, inside a local process, Docker, Daytona, Vercel, Sprites, or Cloudflare sandbox. Their tool activity streams back as AG-UI events your UI already renders.',
+    icon: Terminal,
+  },
+  {
+    label: 'MCP + MCP Apps',
+    detail: '@tanstack/ai-mcp',
+    body: 'A host-side MCP client with a type-generating CLI, provider-routed mcpTool(), and interactive ui:// widgets rendered from tool results across multiple servers.',
+    icon: Cube,
+  },
+  {
+    label: 'Memory + persistence',
+    detail: '@tanstack/ai-memory · -persistence',
+    body: 'memoryMiddleware recalls across sessions through Redis, mem0, Honcho, or Hindsight adapters. Persistence keeps an authoritative server thread, resumes a stream through a dropped connection, and survives a reload.',
+    icon: Database,
+  },
+]
+
+const modalities: Array<RailItem> = [
+  {
+    label: 'Text, objects, reasoning',
+    detail: 'chat · outputSchema · summarize',
+    body: 'Structured output streams as a typed message part beside tool calls and is preserved per turn in history, not a separate one-shot call.',
+    icon: Robot,
+  },
+  {
+    label: 'Speech, transcription, music',
+    detail: 'generateSpeech · generateTranscription · generateAudio',
+    body: 'Six speech formats with speed control, transcription with word timestamps and diarization, plus music and sound effects.',
+    icon: Microphone,
+  },
+  {
+    label: 'Realtime voice',
+    detail: 'realtimeToken · RealtimeClient',
+    body: 'OpenAI, Grok, and ElevenLabs with VAD modes and tool calling inside a live session.',
+    icon: Waveform,
+  },
+  {
+    label: 'Images + video',
+    detail: 'generateImage · generateVideo',
+    body: 'Per-model typed options across OpenAI, Gemini, Grok, OpenRouter, and fal.ai, with an async job lifecycle for video.',
+    icon: Radio,
+  },
+]
+
+function FeatureRail({ items }: { items: Array<RailItem> }) {
   return (
     <div className="overflow-hidden rounded-xl border border-border-default bg-background-surface">
-      {modalities.map((modality, index) => {
-        const Icon = modality.icon
+      {items.map((item, index) => {
+        const Icon = item.icon
 
         return (
           <div
-            key={modality.label}
-            className="grid gap-3 border-b border-border-subtle p-5 last:border-b-0 sm:grid-cols-[3rem_1fr_auto] sm:items-center"
+            key={item.label}
+            className="grid gap-3 border-b border-border-subtle p-5 last:border-b-0 sm:grid-cols-[3rem_1fr_auto] sm:items-start"
           >
             <span className="flex size-10 items-center justify-center rounded-full bg-[color:rgb(var(--landing-glow)/0.18)] text-[var(--landing-accent-bright)]">
               <Icon aria-hidden="true" size={19} />
             </span>
             <div>
-              <p className="text-ds-label-md text-text-primary">
-                {modality.label}
-              </p>
+              <p className="text-ds-label-md text-text-primary">{item.label}</p>
               <p className="mt-1 font-ds-mono text-ds-mono-2xs text-text-primary/30">
-                {modality.detail}
+                {item.detail}
+              </p>
+              <p className="mt-2 text-ds-body-xs text-text-primary/45">
+                {item.body}
               </p>
             </div>
             <span className="font-ds-mono text-ds-mono-2xs text-text-primary/20">

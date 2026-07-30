@@ -1,8 +1,4 @@
-import {
-  ImageResponse,
-  type ImageResponseOptions,
-} from '@takumi-rs/image-response'
-import takumiWasmModule from '@takumi-rs/wasm/auto'
+import { ImageResponse, type ImageResponseOptions } from 'takumi-js/response'
 import type { ReactElement } from 'react'
 import { findLibrary } from '~/libraries'
 import type { LibraryId } from '~/libraries'
@@ -75,7 +71,6 @@ async function renderOgImage(
       { src: BRAND_EMBLEM_KEY, data: assets.brandEmblemPng },
       { src: BRAND_EMBLEM_CREAM_KEY, data: assets.brandEmblemCreamPng },
     ],
-    module: takumiWasmModule,
     ...init,
   }
 

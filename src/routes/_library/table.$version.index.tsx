@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import TableLanding from '~/components/landing/TableLanding'
 import {
-  LibraryNavbarTitle,
   beforeLoadLibraryLanding,
   getLibraryLandingHead,
   getLibraryLandingHeaders,
@@ -18,15 +17,8 @@ export const Route = createFileRoute('/_library/table/$version/')({
     loadLibraryLandingRouteData('table', params.version, queryClient),
   head: () => getLibraryLandingHead('table'),
   headers: () => getLibraryLandingHeaders('table'),
-  staticData: {
-    Title: TableNavbarTitle,
-  },
   component: TableLandingRoute,
 })
-
-function TableNavbarTitle() {
-  return <LibraryNavbarTitle libraryId="table" />
-}
 
 function TableLandingRoute() {
   return <TableLanding />

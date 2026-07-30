@@ -1,15 +1,21 @@
-import { Bot, Layers, Puzzle, Rocket, Terminal } from 'lucide-react'
+import {
+  Robot,
+  Stack,
+  PuzzlePiece,
+  Rocket,
+  Terminal,
+} from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
 import { cli } from './libraries'
 
-const textStyles = 'text-indigo-600 dark:text-indigo-400'
+const textStyles = 'text-category-tooling'
 
 export const cliProject = {
   ...cli,
   featureHighlights: [
     {
       title: 'MCP Server',
-      icon: <Bot className={textStyles} />,
+      icon: <Robot className={textStyles} />,
       description: (
         <div>
           Connect your AI assistant to TanStack via the{' '}
@@ -23,7 +29,7 @@ export const cliProject = {
     },
     {
       title: 'Modular Integrations',
-      icon: <Puzzle className={textStyles} />,
+      icon: <PuzzlePiece className={textStyles} />,
       description: (
         <div>
           Choose from a growing ecosystem of{' '}
@@ -36,7 +42,7 @@ export const cliProject = {
     },
     {
       title: 'Interactive Builder',
-      icon: <Layers className={textStyles} />,
+      icon: <Stack className={textStyles} />,
       description: (
         <div>
           Use the{' '}

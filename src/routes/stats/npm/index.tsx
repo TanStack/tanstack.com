@@ -1,11 +1,11 @@
 import * as React from 'react'
-import { Link, createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import * as v from 'valibot'
 import { useThrottledCallback, useThrottler } from '@tanstack/react-pacer'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
-import { HelpCircle, X } from 'lucide-react'
+import { Question as HelpCircle, X } from '@phosphor-icons/react'
 import { useQuery } from '@tanstack/react-query'
-import { Card } from '~/components/Card'
+import { Card } from '~/components/ds/ui'
 import { Tooltip } from '~/components/Tooltip'
 import { seo } from '~/utils/seo'
 import { chartHeightSchema, chartWidthSchema } from '~/utils/schemas'
@@ -239,16 +239,6 @@ export const Route = createFileRoute('/stats/npm/')({
   component: RouteComponent,
   staticData: {
     includeSearchInCanonical: true,
-    Title: () => {
-      return (
-        <Link
-          to="."
-          className="hover:text-blue-500 flex items-center gap-2 text-gray-500"
-        >
-          NPM Stats
-        </Link>
-      )
-    },
   },
 })
 

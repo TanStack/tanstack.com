@@ -1,16 +1,13 @@
-import { PersonStanding, Zap } from 'lucide-react'
+import { PersonSimple, Lightning, Gear } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
-import { CogsIcon } from '~/components/icons/CogsIcon'
 import { virtual } from './libraries'
 
-const textStyles = 'text-violet-700 dark:text-violet-400'
+const textStyles = 'text-category-performance'
 
 export const virtualProject = {
   ...virtual,
   description: `Virtualize only the visible content for massive scrollable DOM nodes at 60FPS in TS/JS, React, Vue, Solid, Svelte, Lit, Angular & Marko while retaining 100% control over markup and styles.`,
   latestBranch: 'main',
-  bgRadial: 'from-purple-500 via-violet-600/50 to-transparent',
-  textColor: 'text-purple-600',
   defaultDocs: 'introduction',
   legacyPackages: ['react-virtual'],
   testimonials: [
@@ -41,7 +38,7 @@ export const virtualProject = {
       title: 'Designed for zero design',
       icon: (
         <div className="text-center overflow-hidden">
-          <PersonStanding className="text-purple-400" />
+          <PersonSimple className="text-category-performance" />
         </div>
       ),
       description: (
@@ -57,7 +54,7 @@ export const virtualProject = {
     },
     {
       title: 'Big Power, Small Package',
-      icon: <Zap className="text-purple-500" />,
+      icon: <Lightning className="text-category-performance" />,
       description: (
         <div>
           Don't be fooled by the small bundle size. TanStack Virtual uses every
@@ -72,7 +69,7 @@ export const virtualProject = {
     },
     {
       title: 'Maximum Composability',
-      icon: <CogsIcon className="text-purple-600" />,
+      icon: <Gear className="text-category-performance" />,
       description: (
         <div>
           With a single function/hook, you'll get limitless virtualization for{' '}

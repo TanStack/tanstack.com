@@ -5,25 +5,25 @@
  * Users can select a template to pre-populate features, then modify freely.
  */
 
-import type { LucideIcon } from 'lucide-react'
+import type { Icon } from '@phosphor-icons/react'
 import {
   Rocket,
-  Bot,
-  LayoutDashboard,
+  Robot,
+  SquaresFour,
   FileText,
-  Server,
+  HardDrives,
   Radio,
   Globe,
   HardDrive,
   Plus,
   ShoppingBag,
-} from 'lucide-react'
+} from '@phosphor-icons/react'
 
 export interface Template {
   id: string
   name: string
   description: string
-  icon: LucideIcon
+  icon: Icon
   color: string
   features: Array<string>
   /**
@@ -46,24 +46,16 @@ export const TEMPLATES: Array<Template> = [
   {
     id: 'saas',
     name: 'SaaS Starter',
-    description: 'Auth, database, monitoring',
+    description: 'Auth, database, and UI',
     icon: Rocket,
     color: '#F97316', // orange
-    features: [
-      'cloudflare',
-      'better-auth',
-      'neon',
-      'drizzle',
-      'sentry',
-      'shadcn',
-      'form',
-    ],
+    features: ['cloudflare', 'better-auth', 'prisma', 'shadcn', 'form'],
   },
   {
     id: 'ai-chat',
     name: 'AI Chat',
     description: 'LLM-powered app',
-    icon: Bot,
+    icon: Robot,
     color: '#8B5CF6', // violet
     features: ['cloudflare', 'ai', 'store', 'shadcn'],
   },
@@ -71,7 +63,7 @@ export const TEMPLATES: Array<Template> = [
     id: 'dashboard',
     name: 'Dashboard',
     description: 'Admin panels, data tables',
-    icon: LayoutDashboard,
+    icon: SquaresFour,
     color: '#3B82F6', // blue
     features: ['cloudflare', 'table', 'tanstack-query', 'shadcn', 'form'],
   },
@@ -81,13 +73,13 @@ export const TEMPLATES: Array<Template> = [
     description: 'Content-driven site',
     icon: FileText,
     color: '#EC4899', // pink
-    features: ['cloudflare', 'strapi', 'tanstack-query'],
+    features: ['cloudflare', 'tanstack-query'],
   },
   {
     id: 'api-first',
     name: 'API-First',
     description: 'Type-safe backend APIs',
-    icon: Server,
+    icon: HardDrives,
     color: '#10B981', // emerald
     features: ['cloudflare', 'tRPC', 'tanstack-query', 'drizzle'],
   },
@@ -97,7 +89,7 @@ export const TEMPLATES: Array<Template> = [
     description: 'Live, collaborative features',
     icon: Radio,
     color: '#EF4444', // red
-    features: ['cloudflare', 'convex', 'tanstack-query'],
+    features: ['cloudflare', 'db', 'tanstack-query'],
   },
   {
     id: 'i18n',

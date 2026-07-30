@@ -33,12 +33,12 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: ^1.29.0
         version: 1.29.0(zod@4.3.6)
-      '@observablehq/plot':
-        specifier: ^0.6.17
-        version: 0.6.17
       '@octokit/graphql':
         specifier: ^9.0.3
         version: 9.0.3
+      '@phosphor-icons/react':
+        specifier: ^2.1.10
+        version: 2.1.10(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@radix-ui/react-dialog':
         specifier: ^1.1.15
         version: 1.1.15(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -84,18 +84,24 @@ importers:
       '@tanstack/ai-openai':
         specifier: ^0.9.5
         version: 0.9.5(@tanstack/ai-client@0.11.3(@opentelemetry/api@1.9.1))(@tanstack/ai@0.20.1(@opentelemetry/api@1.9.1))(ws@8.21.0)(zod@4.3.6)
+      '@tanstack/charts':
+        specifier: 0.0.0
+        version: 0.0.0
       '@tanstack/create':
-        specifier: ^0.68.4
-        version: 0.68.4(tslib@2.8.1)
+        specifier: ^0.69.0
+        version: 0.69.0(tslib@2.8.1)
       '@tanstack/highlight':
-        specifier: ^0.0.2
-        version: 0.0.2
+        specifier: ^0.0.9
+        version: 0.0.9
       '@tanstack/markdown':
-        specifier: ^0.0.5
-        version: 0.0.5(react@19.2.3)
+        specifier: ^0.0.11
+        version: 0.0.11(react@19.2.3)
       '@tanstack/pacer':
         specifier: ^0.21.1
         version: 0.21.1
+      '@tanstack/react-charts':
+        specifier: 0.0.0
+        version: 0.0.0(react@19.2.3)
       '@tanstack/react-hotkeys':
         specifier: ^0.10.0
         version: 0.10.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -124,23 +130,20 @@ importers:
         specifier: ^8.21.3
         version: 8.21.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@tanstack/workflow-core':
-        specifier: 0.0.3
-        version: 0.0.3
-      '@tanstack/workflow-runtime':
-        specifier: 0.0.2
-        version: 0.0.2
-      '@tanstack/workflow-store-drizzle-postgres':
         specifier: 0.0.4
-        version: 0.0.4(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(postgres@3.4.8)
+        version: 0.0.4(@opentelemetry/api@1.9.1)
+      '@tanstack/workflow-runtime':
+        specifier: 0.0.3
+        version: 0.0.3(@opentelemetry/api@1.9.1)
+      '@tanstack/workflow-store-drizzle-postgres':
+        specifier: 0.0.5
+        version: 0.0.5(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(postgres@3.4.8)
       '@types/d3':
         specifier: ^7.4.3
         version: 7.4.3
       '@uploadthing/react':
         specifier: ^7.3.3
         version: 7.3.3(react@19.2.3)(uploadthing@7.7.4(express@5.2.1)(tailwindcss@4.2.2))
-      '@visx/hierarchy':
-        specifier: ^3.12.0
-        version: 3.12.0(react@19.2.3)
       '@vitejs/plugin-react':
         specifier: ^6.0.1
         version: 6.0.1(vite@8.0.13(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
@@ -162,6 +165,12 @@ importers:
       d3:
         specifier: ^7.9.0
         version: 7.9.0
+      d3-scale:
+        specifier: 4.0.2
+        version: 4.0.2
+      d3-shape:
+        specifier: 3.2.0
+        version: 3.2.0
       diff:
         specifier: ^8.0.4
         version: 8.0.4
@@ -189,9 +198,6 @@ importers:
       lru-cache:
         specifier: ^11.2.7
         version: 11.2.7
-      lucide-react:
-        specifier: ^1.7.0
-        version: 1.7.0(react@19.2.3)
       maath:
         specifier: ^0.10.8
         version: 0.10.8(@types/three@0.183.1)(three@0.183.2)
@@ -234,9 +240,6 @@ importers:
       sonner:
         specifier: ^2.0.7
         version: 2.0.7(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      streamdown:
-        specifier: ^2.5.0
-        version: 2.5.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       tailwind-merge:
         specifier: ^3.5.0
         version: 3.5.0
@@ -293,8 +296,14 @@ importers:
         specifier: ^5.100.11
         version: 5.100.11(@tanstack/react-query@5.100.11(react@19.2.3))(react@19.2.3)
       '@tanstack/redact':
-        specifier: ^0.0.17
-        version: 0.0.17(vite@8.0.13(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
+        specifier: ^0.0.19
+        version: 0.0.19(vite@8.0.13(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
+      '@types/d3-scale':
+        specifier: 4.0.9
+        version: 4.0.9
+      '@types/d3-shape':
+        specifier: 3.1.8
+        version: 3.1.8
       '@types/hast':
         specifier: ^3.0.4
         version: 3.0.4
@@ -343,6 +352,9 @@ importers:
       oxlint-tsgolint:
         specifier: ^0.19.0
         version: 0.19.0
+      sharp:
+        specifier: 0.34.5
+        version: 0.34.5
       source-map-explorer:
         specifier: ^2.5.3
         version: 2.5.3
@@ -1658,10 +1670,6 @@ packages:
       '@emnapi/core': ^1.7.1
       '@emnapi/runtime': ^1.7.1
 
-  '@observablehq/plot@0.6.17':
-    resolution: {integrity: sha512-/qaXP/7mc4MUS0s4cPPFASDRjtsWp85/TbfsciqDgU1HwYixbSbbytNuInD8AcTYC3xaxACgVX06agdfQy9W+g==}
-    engines: {node: '>=12'}
-
   '@octokit/endpoint@11.0.3':
     resolution: {integrity: sha512-FWFlNxghg4HrXkD3ifYbS/IdL/mDHjh9QcsNyhQjN8dplUoZbejsdpmuqdA76nxj2xoWPs7p8uX2SNr9rYu0Ag==}
     engines: {node: '>= 20'}
@@ -2310,6 +2318,13 @@ packages:
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [win32]
+
+  '@phosphor-icons/react@2.1.10':
+    resolution: {integrity: sha512-vt8Tvq8GLjheAZZYa+YG/pW7HDbov8El/MANW8pOAz4eGxrwhnbfrQZq0Cp4q8zBEu8NIhHdnr+r8thnfRSNYA==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      react: '>= 16.8'
+      react-dom: '>= 16.8'
 
   '@poppinss/colors@4.1.6':
     resolution: {integrity: sha512-H9xkIdFswbS8n1d6vmRd8+c10t2Qe+rZITbbDHHkQixH5+2x1FDGmi/0K+WgWiqQFKPSlIYB7jlH6Kpfn6Fleg==}
@@ -3335,8 +3350,11 @@ packages:
       '@opentelemetry/api':
         optional: true
 
-  '@tanstack/create@0.68.4':
-    resolution: {integrity: sha512-LJ4eGQQPxyh88rEfod21P2HSAnlNFLVxlCw5GphhTBgzQTTw1FUA86N1VnIrI8h7LofDY4LfP0X84KVavXZKxQ==}
+  '@tanstack/charts@0.0.0':
+    resolution: {integrity: sha512-hDsCx2AmYd4P/Bygqdkxxk2MERmGludXxHrLZv3YRh3aVuq18+y7rFgDCpqOz5YHMyoWz0Umzf1XQIoSzE2jkQ==}
+
+  '@tanstack/create@0.69.0':
+    resolution: {integrity: sha512-LVbzkTWiCK+JCKa/1Qwax0JddfJt4rxwekrDyHzhDWsSeNodJrTwbUg4eqqbQsxEWcrk0kHEJSfiTVzMnmI+kQ==}
     engines: {node: '>=20'}
 
   '@tanstack/devtools-client@0.0.6':
@@ -3372,8 +3390,9 @@ packages:
     peerDependencies:
       solid-js: '>=1.9.7'
 
-  '@tanstack/highlight@0.0.2':
-    resolution: {integrity: sha512-zxC5bJwG8BOJkAEzPHhW8djKbIsNca7CBA27CBs5LVDgoecw3Kaqf4E6YyOHpyuJAwVPwe9SMmyBTbQ/F0Ycjw==}
+  '@tanstack/highlight@0.0.9':
+    resolution: {integrity: sha512-vWuVpuSprbsEq5gle5vp2CEBNVue65m09idkbv0rcCPFn3XnxzZg1Q9kownk24iCag6tJdfd/gtKSwllPbQvSA==}
+    engines: {node: '>=18'}
 
   '@tanstack/history@1.162.0':
     resolution: {integrity: sha512-79pf/RkhteYZTRgcR4F9kbk84P2N8rugQJswxfIqovlbRiT3yI7eBE+5QorIrZaOKktsgzRlXh1l/du/xpl4iA==}
@@ -3383,11 +3402,14 @@ packages:
     resolution: {integrity: sha512-vqH7X9nb0MTJ/O08++dB5bP9jgj4+BIPOUu/U+6myG86lDsirZSVSobpq5UQpE7nBuk62i8eIYeOhd+OMl/UrA==}
     engines: {node: '>=18'}
 
-  '@tanstack/markdown@0.0.5':
-    resolution: {integrity: sha512-npKs8RdEoPIa9C+ujeKBeLZoEbHw1DivBiy/yBmCIL3ajQbYaMaj03KD4gyQ9wVqSLIJ5nX2StzjJ9l/ft4Rag==}
+  '@tanstack/markdown@0.0.11':
+    resolution: {integrity: sha512-Awu1PXI8VQ3limqRFe2GRFVnYAKzhEE9h/D5g6iTQYSpZVDn1kZ/1W40EFP3HWy8hVuop0fAlIhB+aEhrerpGw==}
     peerDependencies:
+      octane: '>=0.1.12'
       react: '>=18'
     peerDependenciesMeta:
+      octane:
+        optional: true
       react:
         optional: true
 
@@ -3405,6 +3427,11 @@ packages:
 
   '@tanstack/query-devtools@5.100.11':
     resolution: {integrity: sha512-47rVBDuGMW/A4ekt3YQdz+q0JSIwktwGnWCYyQUvSs2/g/Oa+6Fi2/IQk4/Y4vf6u1uwI7hOogHslgMC8f3X/Q==}
+
+  '@tanstack/react-charts@0.0.0':
+    resolution: {integrity: sha512-Ng56AOsMnE84uBH5woOmqqAQIQF4sZv3N0peh53QjFj5+teLDgPTKUPpt1WtcGjab5UhzTzl4835Jl0kaMcJZg==}
+    peerDependencies:
+      react: ^19.0.0
 
   '@tanstack/react-devtools@0.10.5':
     resolution: {integrity: sha512-orVsRJ7oAXFb7oyafQCgx9YuK44jpILh5T/ddYuxAsolNfN5DZBr5/NLrWErD7HCGIzvYzg1TZI4sPxmiKvtvA==}
@@ -3536,8 +3563,8 @@ packages:
       react: '>=16.8'
       react-dom: '>=16.8'
 
-  '@tanstack/redact@0.0.17':
-    resolution: {integrity: sha512-BVzozXbmWr9X95KlULZSofSz6T/+VulphBGuXOlPwaGdHzul/ogpyrLlHcvAo6LEWM1RPaY836Fc1UWWy6+yJw==}
+  '@tanstack/redact@0.0.19':
+    resolution: {integrity: sha512-fsEaG6sCooTQawyXff83FnLaZjhGoKoAWLPPTkEib/lqxATeloZc7Rq3TDRn9nQE1HAkQfuMjjCsYNRW3swRnQ==}
     peerDependencies:
       vite: '>=5'
     peerDependenciesMeta:
@@ -3636,16 +3663,20 @@ packages:
     resolution: {integrity: sha512-uhOeFyxLcU41HzvrxsGpiWdcMbScY1EDgbZ5K7DVRMYInbLYWAC0EA/kx9wXAoSM8q82bUG2hRl8+EAjE6XAbA==}
     engines: {node: '>=20.19'}
 
-  '@tanstack/workflow-core@0.0.3':
-    resolution: {integrity: sha512-0ev5ISQR8knUBAco46bc8h2/bMGS3ZPlEC/I/EgeD7PXE0DnmNJLvrkwZ5KfdzcbdM8pqJQLR5coBHtNurOcEg==}
+  '@tanstack/workflow-core@0.0.4':
+    resolution: {integrity: sha512-Ytl8uF1v+xKDCez1P7Qcfoe6OZ2HskQzfey8Kci5h83UoEOt8azi/KmfrkrE28ev46QPSqkOn4tTLvILgCi67w==}
     engines: {node: '>=18'}
+    peerDependencies:
+      '@opentelemetry/api': ^1.9.0
 
-  '@tanstack/workflow-runtime@0.0.2':
-    resolution: {integrity: sha512-v+cv8rIOaE0a50Md6WSPge11wLn9NVxcGbVanKQe2BlZuNtDVIayZFUgn3RXHQp68MQmrdu2bK6aT9BSMZ4z2g==}
+  '@tanstack/workflow-runtime@0.0.3':
+    resolution: {integrity: sha512-U2IRw+sednNI7kqG301o6RBrgAB7zob9uDjcsVr5RPQPjIWHk2a9tAJkVYQKCCWUbE6L37GW+Pl8nU2HqIISRQ==}
     engines: {node: '>=18'}
+    peerDependencies:
+      '@opentelemetry/api': ^1.9.0
 
-  '@tanstack/workflow-store-drizzle-postgres@0.0.4':
-    resolution: {integrity: sha512-IguipqLh04rvO3FnWxuPp/BiTJPnJiB7jlGH/M/qlfhUkFA0x4bPJ+MjYxa1sQaJLJbpYJI/Z2AVzRwfhDAFRw==}
+  '@tanstack/workflow-store-drizzle-postgres@0.0.5':
+    resolution: {integrity: sha512-f7t5gI56Cy4hucnuY0hA1W5tKCjH1gKtQ+xX3uRX8/GDK5AeMIaGw4pL/YxiRwHFZYPxYppkTFmbb3i8z17g6w==}
     engines: {node: '>=18'}
 
   '@tweenjs/tween.js@23.1.3':
@@ -3701,9 +3732,6 @@ packages:
 
   '@types/d3-geo@3.1.0':
     resolution: {integrity: sha512-856sckF0oP/diXtS4jNsiQw/UuK5fQG8l/a9VVLeSouf1/PPbBE1i1W852zVwKwYCBkFJJB7nCFTbk6UMEXBOQ==}
-
-  '@types/d3-hierarchy@1.1.11':
-    resolution: {integrity: sha512-lnQiU7jV+Gyk9oQYk0GGYccuexmQPTp08E0+4BidgFdiJivjEvf+esPSdZqCZ2C7UwTWejWpqetVaU8A+eX3FA==}
 
   '@types/d3-hierarchy@3.1.7':
     resolution: {integrity: sha512-tJFtNoYBtRtkNysX1Xq4sxtjK8YgoWUNpIiUee0/jHGRwqvzYxkq0hGVbbOGSz+JgFxxRu4K8nb3YpG3CMARtg==}
@@ -3877,16 +3905,6 @@ packages:
     resolution: {integrity: sha512-Yy19y6O2GJq8f7CHf7L0nxL8bf4PZCPaVOCgJrusOeFHY1LvHgYXnmnXg6N5iwAnbgbZCDjo60SiM6IPJi9C5g==}
     peerDependencies:
       react: '>= 16.8.0'
-
-  '@visx/group@3.12.0':
-    resolution: {integrity: sha512-Dye8iS1alVXPv7nj/7M37gJe6sSKqJLH7x6sEWAsRQ9clI0kFvjbKcKgF+U3aAVQr0NCohheFV+DtR8trfK/Ag==}
-    peerDependencies:
-      react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
-
-  '@visx/hierarchy@3.12.0':
-    resolution: {integrity: sha512-+X1HOeLEOODxjAD7ixrWJ4KCVei4wFe8ra3dYU0uZ14RdPPgUeiuyBfdeXWZuAHM6Ix9qrryneatQjkC3h4mvA==}
-    peerDependencies:
-      react: ^16.3.0-0 || ^17.0.0-0 || ^18.0.0-0
 
   '@vitejs/plugin-react@6.0.1':
     resolution: {integrity: sha512-l9X/E3cDb+xY3SWzlG1MOGt2usfEHGMNIaegaUGFsLkb3RCn/k8/TOXBcab+OndDI4TBtktT8/9BwwW8Vi9KUQ==}
@@ -4078,9 +4096,6 @@ packages:
   bidi-js@1.0.3:
     resolution: {integrity: sha512-RKshQI1R3YQ+n9YJz2QQ147P66ELpa1FQEg20Dk8oW9t2KgLbpDLLp9aGZ7y8WHSshDknG0bknqGw5/tyCs5tw==}
 
-  binary-search-bounds@2.0.5:
-    resolution: {integrity: sha512-H0ea4Fd3lS1+sTEB2TgcLoK21lLhwEJzlQv3IN47pJS976Gx4zoWe0ak3q+uYh60ppQxg9F16Ri4tS1sfD4+jA==}
-
   blake3-wasm@2.1.5:
     resolution: {integrity: sha512-F1+K8EbfOZE49dtoPtmxUQrpXaBIl3ICvasLh+nJta0xkz+9kF/7uet9fLnwKqhDrmj6g+6K3Tw9yQPUg2ka5g==}
 
@@ -4198,9 +4213,6 @@ packages:
 
   cjs-module-lexer@2.2.0:
     resolution: {integrity: sha512-4bHTS2YuzUvtoLjdy+98ykbNB5jS0+07EvFNXerqZQJ89F7DI6ET7OQo/HJuW6K0aVsKA9hj9/RVb2kQVOrPDQ==}
-
-  classnames@2.5.1:
-    resolution: {integrity: sha512-saHYOzhIQs6wy2sVxTM6bUDsQO4F50V9RQ22qBpEdCW+I+/Wmke2HOl6lS6dTpdxVhb88/I6+Hs+438c3lfUow==}
 
   cliui@7.0.4:
     resolution: {integrity: sha512-OcRE68cOsVMXp1Yvonl/fzkQOyjLSu/8bhPDfQt0e0/Eb283TKP20Fs2MqoPsr9SwA595rRCA+QMzYc9nBP+JQ==}
@@ -4388,9 +4400,6 @@ packages:
   d3-geo@3.1.1:
     resolution: {integrity: sha512-637ln3gXKXOwhalDzinUgY83KzNWZRKbYubaG+fGVuc/dxO64RRljtCTnf5ecMyE1RIdtqpkVcq0IbtU2S8j2Q==}
     engines: {node: '>=12'}
-
-  d3-hierarchy@1.1.9:
-    resolution: {integrity: sha512-j8tPxlqh1srJHAtxfvOUwKNYJkQuBFdM1+JAUfq6xqH5eAqf93L7oG1NVqDa4CpFZNvnNKtCYEUC8KY9yEn9lQ==}
 
   d3-hierarchy@3.1.2:
     resolution: {integrity: sha512-FX/9frcub54beBdugHjDCdikxThEqjnR93Qt7PvQTOHxyiNCAlvMrHhclk3cD5VeAaq9fxmfRp+CnWw9rEMBuA==}
@@ -5164,9 +5173,6 @@ packages:
     resolution: {integrity: sha512-5Hh7Y1wQbvY5ooGgPbDaL5iYLAPzMTUrjMulskHLH6wnv/A+1q5rgEaiuqEjB+oxGXIVZs1FF+R/KPN3ZSQYYg==}
     engines: {node: '>=12'}
 
-  interval-tree-1d@1.0.4:
-    resolution: {integrity: sha512-wY8QJH+6wNI0uh4pDQzMvl+478Qh7Rl4qLmqiluxALlNvl+I+o5x38Pw3/z7mDPTPS1dQalZJXsmbvxx5gclhQ==}
-
   ip-address@10.1.0:
     resolution: {integrity: sha512-XXADHxXmvT9+CRxhXg56LJovE+bmWnEWB78LB83VZTprKTmaC5QfruXocxzTZ2Kl0DNwKuBdlIhjL8LeY8Sf8Q==}
     engines: {node: '>= 12'}
@@ -5325,9 +5331,6 @@ packages:
 
   isexe@2.0.0:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
-
-  isoformat@0.2.1:
-    resolution: {integrity: sha512-tFLRAygk9NqrRPhJSnNGh7g7oaVWDwR0wKh/GM2LgmPa50Eg4UfyaCO4I8k6EqJHl1/uh2RAD6g06n5ygEnrjQ==}
 
   its-fine@2.0.0:
     resolution: {integrity: sha512-KLViCmWx94zOvpLwSlsx6yOCeMhZYaxrJV87Po5k/FoZzcPSahvK5qJ7fYhS61sZi5ikmh2S3Hz55A2l3U69ng==}
@@ -5519,21 +5522,12 @@ packages:
   longest-streak@3.1.0:
     resolution: {integrity: sha512-9Ri+o0JYgehTaVBBDoMqIl8GXtbWg711O3srftcHhZ0dqnETqLaoIK0x17fUw9rFSlK/0NlsKe0Ahhyl5pXE2g==}
 
-  loose-envify@1.4.0:
-    resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
-    hasBin: true
-
   lru-cache@11.2.7:
     resolution: {integrity: sha512-aY/R+aEsRelme17KGQa/1ZSIpLpNYYrhcrepKTZgE+W3WM16YMCaPwOHLHsmopZHELU0Ojin1lPVxKR0MihncA==}
     engines: {node: 20 || >=22}
 
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
-
-  lucide-react@1.7.0:
-    resolution: {integrity: sha512-yI7BeItCLZJTXikmK4KNUGCKoGzSvbKlfCvw44bU4fXAL6v3gYS4uHD1jzsLkfwODYwI6Drw5Tu9Z5ulDe0TSg==}
-    peerDependencies:
-      react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   maath@0.10.8:
     resolution: {integrity: sha512-tRvbDF0Pgqz+9XUa4jjfgAQ8/aPKmQdWXilFu2tMy4GWj4NOsx99HlULO4IeREfbO3a0sA145DZYyvXPkybm0g==}
@@ -6092,9 +6086,6 @@ packages:
   promise-worker-transferable@1.0.4:
     resolution: {integrity: sha512-bN+0ehEnrXfxV2ZQvU2PetO0n4gqBD4ulq3MI1WOPLgr7/Mg9yRQkX5+0v1vagr74ZTsl7XtzlaYDo2EuCeYJw==}
 
-  prop-types@15.8.1:
-    resolution: {integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==}
-
   property-information@7.1.0:
     resolution: {integrity: sha512-TwEZ+X+yCJmYfL7TPUOcvBZ4QfoT5YenQiJuX//0th53DE6w0xxLEtfK3iyryQFddXuvkIk51EEgrJQ0WJkOmQ==}
 
@@ -6149,9 +6140,6 @@ packages:
       algoliasearch: '>= 3.1 < 6'
       react: '>= 16.8.0 < 20'
       react-dom: '>= 16.8.0 < 20'
-
-  react-is@16.13.1:
-    resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
 
   react-remove-scroll-bar@2.3.8:
     resolution: {integrity: sha512-9r+yi9+mgU33AKcj6IbT9oRCO78WriSj6t/cF8DWBZJ9aOGPOTEDvdUDz1FwKim7QXWwmHqtdHnRJfhAxEG46Q==}
@@ -6509,12 +6497,6 @@ packages:
   stop-iteration-iterator@1.1.0:
     resolution: {integrity: sha512-eLoXW/DHyl62zxY4SCaIgnRhuMr6ri4juEYARS8E6sCEqzKpOiE521Ucofdx+KnDZl5xmvGYaaKCk5FEOxJCoQ==}
     engines: {node: '>= 0.4'}
-
-  streamdown@2.5.0:
-    resolution: {integrity: sha512-/tTnURfIOxZK/pqJAxsfCvETG/XCJHoWnk3jq9xLcuz6CSpnjjuxSRBTTL4PKGhxiZQf0lqPxGhImdpwcZ2XwA==}
-    peerDependencies:
-      react: ^18.0.0 || ^19.0.0
-      react-dom: ^18.0.0 || ^19.0.0
 
   streamx@2.25.0:
     resolution: {integrity: sha512-0nQuG6jf1w+wddNEEXCF4nTg3LtufWINB5eFEN+5TNZW7KWJp6x87+JFL43vaAUPyCfH1wID+mNVyW6OHtFamg==}
@@ -8204,12 +8186,6 @@ snapshots:
       '@tybys/wasm-util': 0.10.1
     optional: true
 
-  '@observablehq/plot@0.6.17':
-    dependencies:
-      d3: 7.9.0
-      interval-tree-1d: 1.0.4
-      isoformat: 0.2.1
-
   '@octokit/endpoint@11.0.3':
     dependencies:
       '@octokit/types': 16.0.0
@@ -8720,6 +8696,11 @@ snapshots:
 
   '@oxlint/binding-win32-x64-msvc@1.58.0':
     optional: true
+
+  '@phosphor-icons/react@2.1.10(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
+    dependencies:
+      react: 19.2.3
+      react-dom: 19.2.3(react@19.2.3)
 
   '@poppinss/colors@4.1.6':
     dependencies:
@@ -9644,7 +9625,16 @@ snapshots:
     optionalDependencies:
       '@opentelemetry/api': 1.9.1
 
-  '@tanstack/create@0.68.4(tslib@2.8.1)':
+  '@tanstack/charts@0.0.0':
+    dependencies:
+      '@types/d3-geo': 3.1.0
+      '@types/d3-shape': 3.1.8
+      d3-array: 3.2.4
+      d3-geo: 3.1.1
+      d3-scale: 4.0.2
+      d3-shape: 3.2.0
+
+  '@tanstack/create@0.69.0(tslib@2.8.1)':
     dependencies:
       ejs: 3.1.10
       execa: 9.6.1
@@ -9711,7 +9701,7 @@ snapshots:
       - csstype
       - utf-8-validate
 
-  '@tanstack/highlight@0.0.2': {}
+  '@tanstack/highlight@0.0.9': {}
 
   '@tanstack/history@1.162.0': {}
 
@@ -9719,7 +9709,7 @@ snapshots:
     dependencies:
       '@tanstack/store': 0.11.0
 
-  '@tanstack/markdown@0.0.5(react@19.2.3)':
+  '@tanstack/markdown@0.0.11(react@19.2.3)':
     optionalDependencies:
       react: 19.2.3
 
@@ -9740,6 +9730,11 @@ snapshots:
   '@tanstack/query-core@5.100.11': {}
 
   '@tanstack/query-devtools@5.100.11': {}
+
+  '@tanstack/react-charts@0.0.0(react@19.2.3)':
+    dependencies:
+      '@tanstack/charts': 0.0.0
+      react: 19.2.3
 
   '@tanstack/react-devtools@0.10.5(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(csstype@3.2.3)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(solid-js@1.9.12)':
     dependencies:
@@ -9892,7 +9887,7 @@ snapshots:
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
 
-  '@tanstack/redact@0.0.17(vite@8.0.13(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))':
+  '@tanstack/redact@0.0.19(vite@8.0.13(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))':
     optionalDependencies:
       vite: 8.0.13(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0)
 
@@ -10023,18 +10018,20 @@ snapshots:
 
   '@tanstack/virtual-file-routes@1.162.0': {}
 
-  '@tanstack/workflow-core@0.0.3':
+  '@tanstack/workflow-core@0.0.4(@opentelemetry/api@1.9.1)':
     dependencies:
+      '@opentelemetry/api': 1.9.1
       '@standard-schema/spec': 1.1.0
 
-  '@tanstack/workflow-runtime@0.0.2':
+  '@tanstack/workflow-runtime@0.0.3(@opentelemetry/api@1.9.1)':
     dependencies:
-      '@tanstack/workflow-core': 0.0.3
+      '@opentelemetry/api': 1.9.1
+      '@tanstack/workflow-core': 0.0.4(@opentelemetry/api@1.9.1)
 
-  '@tanstack/workflow-store-drizzle-postgres@0.0.4(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(postgres@3.4.8)':
+  '@tanstack/workflow-store-drizzle-postgres@0.0.5(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(postgres@3.4.8)':
     dependencies:
-      '@tanstack/workflow-core': 0.0.3
-      '@tanstack/workflow-runtime': 0.0.2
+      '@tanstack/workflow-core': 0.0.4(@opentelemetry/api@1.9.1)
+      '@tanstack/workflow-runtime': 0.0.3(@opentelemetry/api@1.9.1)
       drizzle-orm: 0.45.2(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(postgres@3.4.8)
     transitivePeerDependencies:
       - '@aws-sdk/client-rds-data'
@@ -10120,8 +10117,6 @@ snapshots:
   '@types/d3-geo@3.1.0':
     dependencies:
       '@types/geojson': 7946.0.16
-
-  '@types/d3-hierarchy@1.1.11': {}
 
   '@types/d3-hierarchy@3.1.7': {}
 
@@ -10326,23 +10321,6 @@ snapshots:
       '@use-gesture/core': 10.3.1
       react: 19.2.3
 
-  '@visx/group@3.12.0(react@19.2.3)':
-    dependencies:
-      '@types/react': 19.2.14
-      classnames: 2.5.1
-      prop-types: 15.8.1
-      react: 19.2.3
-
-  '@visx/hierarchy@3.12.0(react@19.2.3)':
-    dependencies:
-      '@types/d3-hierarchy': 1.1.11
-      '@types/react': 19.2.14
-      '@visx/group': 3.12.0(react@19.2.3)
-      classnames: 2.5.1
-      d3-hierarchy: 1.1.9
-      prop-types: 15.8.1
-      react: 19.2.3
-
   '@vitejs/plugin-react@6.0.1(vite@8.0.13(@types/node@25.5.0)(esbuild@0.27.4)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))':
     dependencies:
       '@rolldown/pluginutils': 1.0.0-rc.7
@@ -10522,8 +10500,6 @@ snapshots:
     dependencies:
       require-from-string: 2.0.2
 
-  binary-search-bounds@2.0.5: {}
-
   blake3-wasm@2.1.5: {}
 
   body-parser@2.2.2:
@@ -10668,8 +10644,6 @@ snapshots:
       readdirp: 5.0.0
 
   cjs-module-lexer@2.2.0: {}
-
-  classnames@2.5.1: {}
 
   cliui@7.0.4:
     dependencies:
@@ -10842,8 +10816,6 @@ snapshots:
   d3-geo@3.1.1:
     dependencies:
       d3-array: 3.2.4
-
-  d3-hierarchy@1.1.9: {}
 
   d3-hierarchy@3.1.2: {}
 
@@ -11785,10 +11757,6 @@ snapshots:
 
   internmap@2.0.3: {}
 
-  interval-tree-1d@1.0.4:
-    dependencies:
-      binary-search-bounds: 2.0.5
-
   ip-address@10.1.0: {}
 
   ipaddr.js@1.9.1: {}
@@ -11933,8 +11901,6 @@ snapshots:
   isbot@5.1.37: {}
 
   isexe@2.0.0: {}
-
-  isoformat@0.2.1: {}
 
   its-fine@2.0.0(@types/react@19.2.14)(react@19.2.3):
     dependencies:
@@ -12101,19 +12067,11 @@ snapshots:
 
   longest-streak@3.1.0: {}
 
-  loose-envify@1.4.0:
-    dependencies:
-      js-tokens: 4.0.0
-
   lru-cache@11.2.7: {}
 
   lru-cache@5.1.1:
     dependencies:
       yallist: 3.1.1
-
-  lucide-react@1.7.0(react@19.2.3):
-    dependencies:
-      react: 19.2.3
 
   maath@0.10.8(@types/three@0.183.1)(three@0.183.2):
     dependencies:
@@ -12941,12 +12899,6 @@ snapshots:
       is-promise: 2.2.2
       lie: 3.3.0
 
-  prop-types@15.8.1:
-    dependencies:
-      loose-envify: 1.4.0
-      object-assign: 4.1.1
-      react-is: 16.13.1
-
   property-information@7.1.0: {}
 
   proxy-addr@2.0.7:
@@ -13008,8 +12960,6 @@ snapshots:
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
       react-instantsearch-core: 7.29.0(algoliasearch@5.50.0)(react@19.2.3)
-
-  react-is@16.13.1: {}
 
   react-remove-scroll-bar@2.3.8(@types/react@19.2.14)(react@19.2.3):
     dependencies:
@@ -13491,29 +13441,6 @@ snapshots:
     dependencies:
       es-errors: 1.3.0
       internal-slot: 1.1.0
-
-  streamdown@2.5.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
-    dependencies:
-      clsx: 2.1.1
-      hast-util-to-jsx-runtime: 2.3.6
-      html-url-attributes: 3.0.1
-      marked: 17.0.6
-      mermaid: 11.14.0
-      react: 19.2.3
-      react-dom: 19.2.3(react@19.2.3)
-      rehype-harden: 1.1.8
-      rehype-raw: 7.0.0
-      rehype-sanitize: 6.0.0
-      remark-gfm: 4.0.1
-      remark-parse: 11.0.0
-      remark-rehype: 11.1.2
-      remend: 1.3.0
-      tailwind-merge: 3.5.0
-      unified: 11.0.5
-      unist-util-visit: 5.1.0
-      unist-util-visit-parents: 6.0.2
-    transitivePeerDependencies:
-      - supports-color
 
   streamx@2.25.0:
     dependencies:

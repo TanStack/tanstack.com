@@ -10,24 +10,20 @@ import { createAuthorizationCode } from '~/utils/oauthClient.functions'
 import { getCurrentUser } from '~/utils/auth.functions'
 import { Card } from '~/components/Card'
 import { Button } from '~/ui'
-
-const LazyBrandContextMenu = React.lazy(() =>
-  import('~/components/BrandContextMenu').then((m) => ({
-    default: m.BrandContextMenu,
-  })),
-)
+import { BrandContextMenu } from '~/components/BrandContextMenu'
 
 function SplashImages() {
   return (
     <>
       <img
-        src="/images/logos/splash-light.png"
+        src="/images/brand/tanstack-emblem-black.svg"
         alt="TanStack"
         className="w-24 h-24 dark:hidden"
       />
       <img
-        src="/images/logos/splash-dark.png"
+        src="/images/brand/tanstack-emblem-white.svg"
         alt="TanStack"
+        aria-hidden="true"
         className="w-24 h-24 hidden dark:block"
       />
     </>
@@ -174,11 +170,9 @@ function SplashImage() {
   return (
     <div className="flex items-center justify-center mb-4">
       <ClientOnly fallback={fallback}>
-        <React.Suspense fallback={fallback}>
-          <LazyBrandContextMenu className="cursor-pointer">
-            <SplashImages />
-          </LazyBrandContextMenu>
-        </React.Suspense>
+        <BrandContextMenu className="cursor-pointer">
+          <SplashImages />
+        </BrandContextMenu>
       </ClientOnly>
     </div>
   )

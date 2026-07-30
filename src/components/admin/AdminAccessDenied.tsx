@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { Lock } from 'lucide-react'
+import { Lock } from '@phosphor-icons/react'
 import { Button } from '~/ui'
 
 export function AdminAccessDenied() {

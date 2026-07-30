@@ -1,30 +1,16 @@
 import type { LibraryId } from '~/libraries'
+import { categoryOf, type LibraryCategory } from '~/libraries/categories'
 
-// Each entry matches the textStyle in `src/libraries/libraries.ts`.
-// Values are Tailwind v4 default palette (500 shades) with an override
-// for black/gray-100 libraries so they stay legible on the dark canvas.
-const LIBRARY_ACCENT_COLORS: Partial<Record<LibraryId, string>> = {
-  query: '#fb2c36', // red-500
-  router: '#00bc7d', // emerald-500
-  start: '#00b8db', // cyan-500
-  table: '#2b7fff', // blue-500
-  form: '#f0b100', // yellow-500
-  db: '#ff6900', // orange-500
-  ai: '#f6339a', // pink-500
-  intent: '#00a6f4', // sky-500
-  virtual: '#ad46ff', // purple-500
-  pacer: '#7ccf00', // lime-500
-  hotkeys: '#ff2056', // rose-500
-  store: '#ae7d44', // twine-500 (custom token in app.css)
-  ranger: '#f5f5f5', // gray-100 (black/gray-100 library)
-  config: '#f5f5f5', // gray-100
-  devtools: '#f5f5f5', // gray-100
-  cli: '#615fff', // indigo-500
-  mcp: '#f5f5f5', // gray-100 (hidden library, fallback)
-}
-
-const DEFAULT_ACCENT = '#f5f5f5'
+// Server-rendered OG cards cannot resolve CSS custom properties. Keep these
+// literals aligned with the category 400 tokens in src/styles/app.css.
+const CATEGORY_ACCENT_COLORS = {
+  framework: '#39af46',
+  data: '#d3481b',
+  ui: '#3aa3c4',
+  performance: '#ffa216',
+  tooling: '#3e3529',
+} satisfies Record<LibraryCategory, string>
 
 export function getAccentColor(libraryId: LibraryId): string {
-  return LIBRARY_ACCENT_COLORS[libraryId] ?? DEFAULT_ACCENT
+  return CATEGORY_ACCENT_COLORS[categoryOf(libraryId)]
 }

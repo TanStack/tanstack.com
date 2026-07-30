@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { create } from 'zustand'
 import { useNavigate, useParams } from '@tanstack/react-router'
-import { Tag } from 'lucide-react'
+import { Tag } from '@phosphor-icons/react'
 import { Select, SelectOption } from './Select'
 import { getLibrary, LibraryId } from '~/libraries'
 import {

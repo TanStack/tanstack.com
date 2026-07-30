@@ -8,7 +8,7 @@ import {
 } from '@tanstack/react-router'
 import { useSuspenseQuery, useQuery } from '@tanstack/react-query'
 import * as v from 'valibot'
-import { Copy, Check } from 'lucide-react'
+import { Copy, Check } from '@phosphor-icons/react'
 import { Collapsible, CollapsibleContent } from '~/components/Collapsible'
 import { seo } from '~/utils/seo'
 import {

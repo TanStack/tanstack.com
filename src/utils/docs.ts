@@ -34,13 +34,30 @@ export const loadDocs = async ({
     })
   }
 
-  const doc = await fetchDocs({
-    data: {
-      repo,
-      branch,
-      filePath: `${removeLeadingSlash(docsRoot)}/${docsPath}.md`,
-    },
-  })
+  const filePath = `${removeLeadingSlash(docsRoot)}/${docsPath}`
+  let doc
+
+  try {
+    doc = await fetchDocs({
+      data: {
+        repo,
+        branch,
+        filePath: `${filePath}.md`,
+      },
+    })
+  } catch (error) {
+    if (!isDocsNotFoundError(error)) {
+      throw error
+    }
+
+    doc = await fetchDocs({
+      data: {
+        repo,
+        branch,
+        filePath: `${filePath}/index.md`,
+      },
+    })
+  }
 
   if (!doc) {
     throw notFound({

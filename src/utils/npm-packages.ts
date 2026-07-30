@@ -26,10 +26,11 @@ export const frameworkMeta: Record<Framework, { name: string; color: string }> =
     solid: { name: 'Solid', color: '#2C4F7C' },
     vue: { name: 'Vue', color: '#42B883' },
     svelte: { name: 'Svelte', color: '#FF3E00' },
-    marko: { name: 'Marko', color: '#44bfef' },
     angular: { name: 'Angular', color: '#DD0031' },
-    alpine: { name: 'Alpine', color: '#77C1D2' },
     lit: { name: 'Lit', color: '#325CFF' },
+    alpine: { name: 'Alpine', color: '#77C1D2' },
+    marko: { name: 'Marko', color: '#44bfef' },
+    ember: { name: 'Ember', color: '#E04E39' },
     qwik: { name: 'Qwik', color: '#18B6F6' },
     vanilla: { name: 'Vanilla', color: '#F7DF1E' },
   }
@@ -127,6 +128,11 @@ export function getLibraryMainPackage(library: LibrarySlim): string {
 export function getLibraryColor(library: LibrarySlim): string {
   // Map Tailwind color classes to hex values
   const colorMap: Record<string, string> = {
+    'from-category-framework': '#39AF46',
+    'from-category-data': '#D3481B',
+    'from-category-ui': '#3AA3C4',
+    'from-category-performance': '#FFA216',
+    'from-category-tooling': '#756C5B',
     'from-red-500': '#EF4444',
     'from-amber-500': '#F59E0B',
     'from-emerald-500': '#10B981',

@@ -1,4 +1,5 @@
 node_modules
+.pnpm-store/
 package-lock.json
 yarn.lock
 drizzle/migrations

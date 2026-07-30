@@ -21,12 +21,7 @@ type TocProps = {
   currentFramework?: string
 }
 
-export function Toc({
-  headings,
-  textColor,
-  activeHeadings,
-  currentFramework,
-}: TocProps) {
+export function Toc({ headings, activeHeadings, currentFramework }: TocProps) {
   // Filter headings based on framework scope
   const visibleHeadings = React.useMemo(() => {
     return headings.filter((heading) => {
@@ -65,7 +60,7 @@ export function Toc({
               className={twMerge(
                 'block py-1 pl-2 border-l-2 rounded-r transition-colors duration-200 opacity-60 hover:opacity-100 hover:bg-gray-500/10',
                 activeHeadings.includes(heading.id)
-                  ? `opacity-100 border-current ${textColor}`
+                  ? 'border-current text-text-primary opacity-100'
                   : 'border-transparent',
               )}
               resetScroll={false}

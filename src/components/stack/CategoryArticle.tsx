@@ -1,25 +1,26 @@
 import * as React from 'react'
 import { Link } from '@tanstack/react-router'
+import { useLibrariesOverlay } from '~/contexts/LibrariesOverlayContext'
 import { twMerge } from 'tailwind-merge'
 import {
   ArrowRight,
-  Braces,
-  CheckCircle2,
-  ChevronRight,
-  Clock3,
+  BracketsCurly,
+  CheckCircle,
+  CaretRight,
+  Clock,
   Database,
   Keyboard,
   Newspaper,
-  PackageCheck,
+  Package,
   Rocket,
-  Search,
+  MagnifyingGlass,
   SlidersHorizontal,
-  Sparkles,
+  Sparkle,
   Table as TableIcon,
   Terminal,
   Wrench,
-  Zap,
-} from 'lucide-react'
+  Lightning,
+} from '@phosphor-icons/react'
 
 import { LibraryWordmark } from '~/components/LibraryWordmark'
 import type { LibraryId, LibrarySlim } from '~/libraries'
@@ -102,6 +103,7 @@ function reconstructRelatedPosts(
 }
 
 function Breadcrumb({ categoryName }: { categoryName: string }) {
+  const { openLibraries } = useLibrariesOverlay()
   return (
     <nav
       aria-label="Breadcrumb"
@@ -111,14 +113,15 @@ function Breadcrumb({ categoryName }: { categoryName: string }) {
         <Link to="/" className="hover:text-zinc-950 dark:hover:text-white">
           Home
         </Link>
-        <ChevronRight size={12} aria-hidden="true" />
-        <Link
-          to="/libraries"
+        <CaretRight size={12} aria-hidden="true" />
+        <button
+          type="button"
+          onClick={() => openLibraries()}
           className="hover:text-zinc-950 dark:hover:text-white"
         >
           Libraries
-        </Link>
-        <ChevronRight size={12} aria-hidden="true" />
+        </button>
+        <CaretRight size={12} aria-hidden="true" />
         <span className="font-semibold text-zinc-700 dark:text-zinc-300">
           {categoryName}
         </span>
@@ -142,7 +145,7 @@ function FrameworkCategory({
       <section className="border-b border-cyan-950/10 bg-[#f6fbfb] dark:border-cyan-300/10 dark:bg-[#041010]">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 lg:grid-cols-[0.88fr_1.12fr] lg:items-start lg:py-12">
           <div className="max-w-3xl">
-            <SectionKicker icon={<Sparkles size={14} />}>
+            <SectionKicker icon={<Sparkle size={14} />}>
               Framework
             </SectionKicker>
             <h1 className={heroTitleClassName}>
@@ -597,7 +600,7 @@ function FormSample() {
         </div>
       ))}
       <div className="flex items-center gap-1.5 text-yellow-800 dark:text-yellow-200">
-        <CheckCircle2 size={14} aria-hidden="true" />
+        <CheckCircle size={14} aria-hidden="true" />
         Schema and field state agree
       </div>
     </div>
@@ -637,7 +640,9 @@ function PerformanceCategory({
       <section className="border-b border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-[#0b0d08]">
         <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <div>
-            <SectionKicker icon={<Zap size={14} />}>Performance</SectionKicker>
+            <SectionKicker icon={<Lightning size={14} />}>
+              Performance
+            </SectionKicker>
             <h1 className={heroTitleClassName}>
               Render less, schedule less, stay fast.
             </h1>
@@ -678,7 +683,7 @@ function FrameBudgetLab() {
     <div className="rounded-lg border border-zinc-200 bg-white p-5 shadow-sm shadow-zinc-950/5 dark:border-zinc-800 dark:bg-zinc-950">
       <div className="mb-5 flex items-center justify-between gap-3">
         <p className="font-bold">16ms frame lab</p>
-        <Clock3 className="text-lime-700 dark:text-lime-300" size={18} />
+        <Clock className="text-lime-700 dark:text-lime-300" size={18} />
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         <div
@@ -835,19 +840,19 @@ function ToolingCategory({
             />
             <ToolingStep
               detail="Lint, build, test, version, and publish packages."
-              icon={<PackageCheck size={18} />}
+              icon={<Package size={18} />}
               library={config}
               step="Package"
             />
             <ToolingStep
               detail="Inspect TanStack libraries through one dockable panel."
-              icon={<Search size={18} />}
+              icon={<MagnifyingGlass size={18} />}
               library={devtools}
               step="Inspect"
             />
             <ToolingStep
               detail="Ship package-scoped guidance for assistants."
-              icon={<Braces size={18} />}
+              icon={<BracketsCurly size={18} />}
               library={intent}
               step="Remember"
             />
@@ -877,17 +882,17 @@ function ToolingWorkbench() {
         />
         <WorkbenchCell
           code={['shared lint/build/test', 'publish: versions ready']}
-          icon={<PackageCheck size={16} />}
+          icon={<Package size={16} />}
           label="Package"
         />
         <WorkbenchCell
           code={['runtime panel open', 'custom dock: app metrics']}
-          icon={<Search size={16} />}
+          icon={<MagnifyingGlass size={16} />}
           label="Inspect"
         />
         <WorkbenchCell
           code={['package notes installed', 'context: dependency-scoped']}
-          icon={<Braces size={16} />}
+          icon={<BracketsCurly size={16} />}
           label="Remember"
         />
       </div>

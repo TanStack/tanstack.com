@@ -10,7 +10,7 @@ import {
   clampOgText,
 } from '~/utils/og-limits'
 
-const ISLAND_KEY = 'island'
+const BRAND_LOGO_KEY = 'brand-logo'
 
 type GenerateInput = {
   libraryId: LibraryId | string
@@ -37,7 +37,7 @@ export async function generateOgImageResponse(
   const tree = buildOgTree({
     libraryName: library.name,
     accentColor: getAccentColor(library.id),
-    islandSrc: ISLAND_KEY,
+    brandLogoSrc: BRAND_LOGO_KEY,
     pitch: clampOgText(library.tagline ?? '', MAX_OG_DESCRIPTION_LENGTH),
     docTitle: input.title?.trim()
       ? clampOgText(input.title, MAX_OG_TITLE_LENGTH)
@@ -59,19 +59,13 @@ export async function generateOgImageResponse(
         style: 'normal',
       },
       {
-        name: 'Inter',
-        data: assets.interExtraBold,
-        weight: 800,
-        style: 'normal',
-      },
-      {
-        name: 'Inter',
-        data: assets.interBlack,
-        weight: 900,
+        name: 'Bricolage Grotesque',
+        data: assets.bricolageBold,
+        weight: 700,
         style: 'normal',
       },
     ],
-    images: [{ src: ISLAND_KEY, data: assets.islandPng }],
+    images: [{ src: BRAND_LOGO_KEY, data: assets.brandLogoPng }],
     ...init,
   }
 

@@ -1,5 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { BookOpen, Clock3, Database, GitBranch, RefreshCw } from 'lucide-react'
+import {
+  BookOpen,
+  Clock,
+  Database,
+  GitBranch,
+  ArrowsClockwise,
+} from '@phosphor-icons/react'
 import {
   AdminEmptyState,
   AdminLoading,
@@ -124,7 +130,7 @@ export function DocsCacheTab() {
             }
             title="Mark every cached docs row stale so the next docs request repopulates it"
           >
-            <RefreshCw
+            <ArrowsClockwise
               className={invalidatingAll ? 'h-4 w-4 animate-spin' : 'h-4 w-4'}
             />
             {invalidatingAll ? 'Invalidating...' : 'Invalidate All Docs'}
@@ -200,7 +206,7 @@ export function DocsCacheTab() {
         <StatsCard
           label="Artifact Rows"
           value={data?.summary.artifactEntries ?? 0}
-          icon={<Clock3 className="h-5 w-5" />}
+          icon={<Clock className="h-5 w-5" />}
         />
       </div>
 
@@ -307,7 +313,7 @@ export function DocsCacheTab() {
                         }
                         title={`Mark ${repo.repo} docs cache entries stale`}
                       >
-                        <RefreshCw
+                        <ArrowsClockwise
                           className={
                             isInvalidatingRepo
                               ? 'h-4 w-4 animate-spin'

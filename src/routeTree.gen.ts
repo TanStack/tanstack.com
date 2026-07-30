@@ -33,6 +33,7 @@ import { Route as LearnRouteImport } from './routes/learn'
 import { Route as FeedbackLeaderboardRouteImport } from './routes/feedback-leaderboard'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as EthosRouteImport } from './routes/ethos'
+import { Route as DsRouteImport } from './routes/ds'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as BuilderRouteImport } from './routes/builder'
 import { Route as BrandGuideRouteImport } from './routes/brand-guide'
@@ -46,6 +47,7 @@ import { Route as StatsIndexRouteImport } from './routes/stats/index'
 import { Route as ShowcaseIndexRouteImport } from './routes/showcase/index'
 import { Route as ShopIndexRouteImport } from './routes/shop.index'
 import { Route as PartnersIndexRouteImport } from './routes/partners.index'
+import { Route as DsIndexRouteImport } from './routes/ds.index'
 import { Route as BuilderIndexRouteImport } from './routes/builder.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
@@ -62,6 +64,26 @@ import { Route as OauthTokenRouteImport } from './routes/oauth/token'
 import { Route as OauthRegisterRouteImport } from './routes/oauth/register'
 import { Route as OauthAuthorizeRouteImport } from './routes/oauth/authorize'
 import { Route as LibrariesFrameworkRouteImport } from './routes/libraries_.$framework'
+import { Route as DsTypographyRouteImport } from './routes/ds.typography'
+import { Route as DsStatsRouteImport } from './routes/ds.stats'
+import { Route as DsSpinnerRouteImport } from './routes/ds.spinner'
+import { Route as DsShadowsRouteImport } from './routes/ds.shadows'
+import { Route as DsSemanticRouteImport } from './routes/ds.semantic'
+import { Route as DsPaletteRouteImport } from './routes/ds.palette'
+import { Route as DsNavbarRouteImport } from './routes/ds.navbar'
+import { Route as DsLogosRouteImport } from './routes/ds.logos'
+import { Route as DsInputsRouteImport } from './routes/ds.inputs'
+import { Route as DsIconographyRouteImport } from './routes/ds.iconography'
+import { Route as DsEyebrowRouteImport } from './routes/ds.eyebrow'
+import { Route as DsEffectsRouteImport } from './routes/ds.effects'
+import { Route as DsDropdownRouteImport } from './routes/ds.dropdown'
+import { Route as DsColorsRouteImport } from './routes/ds.colors'
+import { Route as DsCollapsibleRouteImport } from './routes/ds.collapsible'
+import { Route as DsCardsRouteImport } from './routes/ds.cards'
+import { Route as DsButtonsRouteImport } from './routes/ds.buttons'
+import { Route as DsBreadcrumbsRouteImport } from './routes/ds.breadcrumbs'
+import { Route as DsBadgesRouteImport } from './routes/ds.badges'
+import { Route as DsAvatarRouteImport } from './routes/ds.avatar'
 import { Route as BuilderDocsRouteImport } from './routes/builder.docs'
 import { Route as BlogSplatRouteImport } from './routes/blog.$'
 import { Route as AuthSignoutRouteImport } from './routes/auth/signout'
@@ -97,6 +119,7 @@ import { Route as ShopPoliciesHandleRouteImport } from './routes/shop.policies.$
 import { Route as ShopPagesHandleRouteImport } from './routes/shop.pages.$handle'
 import { Route as ShopCollectionsHandleRouteImport } from './routes/shop.collections.$handle'
 import { Route as IntentRegistryPackageNameRouteImport } from './routes/intent/registry/$packageName'
+import { Route as ChartsCatalogCatalogDotjsonRouteImport } from './routes/charts.catalog_.catalog[.]json'
 import { Route as AuthProviderStartRouteImport } from './routes/auth/$provider/start'
 import { Route as ApiOgChar123Char125DotpngRouteImport } from './routes/api/og/{$}[.]png'
 import { Route as ApiMcpSplatRouteImport } from './routes/api/mcp/$'
@@ -120,6 +143,7 @@ import { Route as AdminUsersUserIdRouteImport } from './routes/admin/users.$user
 import { Route as AdminShowcasesIdRouteImport } from './routes/admin/showcases_.$id'
 import { Route as AdminRolesRoleIdRouteImport } from './routes/admin/roles.$roleId'
 import { Route as AdminFeedbackIdRouteImport } from './routes/admin/feedback_.$id'
+import { Route as LibraryChartsCatalogRouteImport } from './routes/_library/charts.catalog'
 import { Route as LibraryLibraryIdVersionRouteImport } from './routes/_library/$libraryId/$version'
 import { Route as IntentRegistryPackageNameIndexRouteImport } from './routes/intent/registry/$packageName.index'
 import { Route as LibraryWorkflowVersionIndexRouteImport } from './routes/_library/workflow.$version.index'
@@ -131,25 +155,33 @@ import { Route as LibraryRouterVersionIndexRouteImport } from './routes/_library
 import { Route as LibraryRangerVersionIndexRouteImport } from './routes/_library/ranger.$version.index'
 import { Route as LibraryQueryVersionIndexRouteImport } from './routes/_library/query.$version.index'
 import { Route as LibraryPacerVersionIndexRouteImport } from './routes/_library/pacer.$version.index'
+import { Route as LibraryMarkdownVersionIndexRouteImport } from './routes/_library/markdown.$version.index'
 import { Route as LibraryIntentVersionIndexRouteImport } from './routes/_library/intent.$version.index'
 import { Route as LibraryHotkeysVersionIndexRouteImport } from './routes/_library/hotkeys.$version.index'
+import { Route as LibraryHighlightVersionIndexRouteImport } from './routes/_library/highlight.$version.index'
 import { Route as LibraryFormVersionIndexRouteImport } from './routes/_library/form.$version.index'
 import { Route as LibraryDevtoolsVersionIndexRouteImport } from './routes/_library/devtools.$version.index'
 import { Route as LibraryDbVersionIndexRouteImport } from './routes/_library/db.$version.index'
 import { Route as LibraryConfigVersionIndexRouteImport } from './routes/_library/config.$version.index'
 import { Route as LibraryCliVersionIndexRouteImport } from './routes/_library/cli.$version.index'
+import { Route as LibraryChartsCatalogIndexRouteImport } from './routes/_library/charts.catalog.index'
+import { Route as LibraryChartsVersionIndexRouteImport } from './routes/_library/charts.$version.index'
 import { Route as LibraryAiVersionIndexRouteImport } from './routes/_library/ai.$version.index'
 import { Route as LibraryLibraryIdVersionIndexRouteImport } from './routes/_library/$libraryId/$version.index'
 import { Route as IntentRegistryPackageNameChar123Char125DotmdRouteImport } from './routes/intent/registry/$packageName.{$}[.]md'
 import { Route as IntentRegistryPackageNameSkillNameRouteImport } from './routes/intent/registry/$packageName.$skillName'
+import { Route as ChartsCatalogEmbedCaseIdRouteImport } from './routes/charts.catalog_.embed.$caseId'
 import { Route as ApiBuilderDeployGithubRouteImport } from './routes/api/builder/deploy/github'
 import { Route as ApiBuilderDeployCheckNameRouteImport } from './routes/api/builder/deploy/check-name'
 import { Route as ApiAuthCliCreateTicketRouteImport } from './routes/api/auth/cli/create-ticket'
 import { Route as ApiAuthCallbackProviderRouteImport } from './routes/api/auth/callback/$provider'
+import { Route as LibraryChartsCatalogAllRouteImport } from './routes/_library/charts.catalog.all'
 import { Route as LibraryLibraryIdVersionLlmsDottxtRouteImport } from './routes/_library/$libraryId/$version.llms[.]txt'
 import { Route as LibraryLibraryIdVersionDocsRouteImport } from './routes/_library/$libraryId/$version.docs'
 import { Route as LibraryLibraryIdVersionDocsIndexRouteImport } from './routes/_library/$libraryId/$version.docs.index'
+import { Route as ChartsCatalogAssetsArtifactRevisionSplatRouteImport } from './routes/charts.catalog_.assets.$artifactRevision.$'
 import { Route as ApiAuthCliStatusTicketIdRouteImport } from './routes/api/auth/cli/status.$ticketId'
+import { Route as LibraryChartsCatalogChartsCaseIdRouteImport } from './routes/_library/charts.catalog.charts.$caseId'
 import { Route as LibraryLibraryIdVersionDocsChar123Char125DotmdRouteImport } from './routes/_library/$libraryId/$version.docs.{$}[.]md'
 import { Route as LibraryLibraryIdVersionDocsNpmStatsRouteImport } from './routes/_library/$libraryId/$version.docs.npm-stats'
 import { Route as LibraryLibraryIdVersionDocsIndexDotmdRouteImport } from './routes/_library/$libraryId/$version.docs.index[.]md'
@@ -283,6 +315,11 @@ const EthosRoute = EthosRouteImport.update({
   path: '/ethos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DsRoute = DsRouteImport.update({
+  id: '/ds',
+  path: '/ds',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -346,6 +383,11 @@ const PartnersIndexRoute = PartnersIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => PartnersRoute,
+} as any)
+const DsIndexRoute = DsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DsRoute,
 } as any)
 const BuilderIndexRoute = BuilderIndexRouteImport.update({
   id: '/',
@@ -426,6 +468,108 @@ const LibrariesFrameworkRoute = LibrariesFrameworkRouteImport.update({
   id: '/libraries_/$framework',
   path: '/libraries/$framework',
   getParentRoute: () => rootRouteImport,
+} as any)
+const DsTypographyRoute = DsTypographyRouteImport.update({
+  id: '/typography',
+  path: '/typography',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsStatsRoute = DsStatsRouteImport.update({
+  id: '/stats',
+  path: '/stats',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsSpinnerRoute = DsSpinnerRouteImport.update({
+  id: '/spinner',
+  path: '/spinner',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsShadowsRoute = DsShadowsRouteImport.update({
+  id: '/shadows',
+  path: '/shadows',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsSemanticRoute = DsSemanticRouteImport.update({
+  id: '/semantic',
+  path: '/semantic',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsPaletteRoute = DsPaletteRouteImport.update({
+  id: '/palette',
+  path: '/palette',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsNavbarRoute = DsNavbarRouteImport.update({
+  id: '/navbar',
+  path: '/navbar',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsLogosRoute = DsLogosRouteImport.update({
+  id: '/logos',
+  path: '/logos',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsInputsRoute = DsInputsRouteImport.update({
+  id: '/inputs',
+  path: '/inputs',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsIconographyRoute = DsIconographyRouteImport.update({
+  id: '/iconography',
+  path: '/iconography',
+  getParentRoute: () => DsRoute,
+} as any).lazy(() =>
+  import('./routes/ds.iconography.lazy').then((d) => d.Route),
+)
+const DsEyebrowRoute = DsEyebrowRouteImport.update({
+  id: '/eyebrow',
+  path: '/eyebrow',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsEffectsRoute = DsEffectsRouteImport.update({
+  id: '/effects',
+  path: '/effects',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsDropdownRoute = DsDropdownRouteImport.update({
+  id: '/dropdown',
+  path: '/dropdown',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsColorsRoute = DsColorsRouteImport.update({
+  id: '/colors',
+  path: '/colors',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsCollapsibleRoute = DsCollapsibleRouteImport.update({
+  id: '/collapsible',
+  path: '/collapsible',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsCardsRoute = DsCardsRouteImport.update({
+  id: '/cards',
+  path: '/cards',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsButtonsRoute = DsButtonsRouteImport.update({
+  id: '/buttons',
+  path: '/buttons',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsBreadcrumbsRoute = DsBreadcrumbsRouteImport.update({
+  id: '/breadcrumbs',
+  path: '/breadcrumbs',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsBadgesRoute = DsBadgesRouteImport.update({
+  id: '/badges',
+  path: '/badges',
+  getParentRoute: () => DsRoute,
+} as any)
+const DsAvatarRoute = DsAvatarRouteImport.update({
+  id: '/avatar',
+  path: '/avatar',
+  getParentRoute: () => DsRoute,
 } as any)
 const BuilderDocsRoute = BuilderDocsRouteImport.update({
   id: '/docs',
@@ -604,6 +748,12 @@ const IntentRegistryPackageNameRoute =
     path: '/intent/registry/$packageName',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ChartsCatalogCatalogDotjsonRoute =
+  ChartsCatalogCatalogDotjsonRouteImport.update({
+    id: '/charts/catalog_/catalog.json',
+    path: '/charts/catalog/catalog.json',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthProviderStartRoute = AuthProviderStartRouteImport.update({
   id: '/auth/$provider/start',
   path: '/auth/$provider/start',
@@ -725,6 +875,11 @@ const AdminFeedbackIdRoute = AdminFeedbackIdRouteImport.update({
   path: '/feedback/$id',
   getParentRoute: () => AdminRouteRoute,
 } as any)
+const LibraryChartsCatalogRoute = LibraryChartsCatalogRouteImport.update({
+  id: '/charts/catalog',
+  path: '/charts/catalog',
+  getParentRoute: () => LibraryRoute,
+} as any)
 const LibraryLibraryIdVersionRoute = LibraryLibraryIdVersionRouteImport.update({
   id: '/$version',
   path: '/$version',
@@ -790,6 +945,12 @@ const LibraryPacerVersionIndexRoute =
     path: '/pacer/$version/',
     getParentRoute: () => LibraryRoute,
   } as any)
+const LibraryMarkdownVersionIndexRoute =
+  LibraryMarkdownVersionIndexRouteImport.update({
+    id: '/markdown/$version/',
+    path: '/markdown/$version/',
+    getParentRoute: () => LibraryRoute,
+  } as any)
 const LibraryIntentVersionIndexRoute =
   LibraryIntentVersionIndexRouteImport.update({
     id: '/intent/$version/',
@@ -800,6 +961,12 @@ const LibraryHotkeysVersionIndexRoute =
   LibraryHotkeysVersionIndexRouteImport.update({
     id: '/hotkeys/$version/',
     path: '/hotkeys/$version/',
+    getParentRoute: () => LibraryRoute,
+  } as any)
+const LibraryHighlightVersionIndexRoute =
+  LibraryHighlightVersionIndexRouteImport.update({
+    id: '/highlight/$version/',
+    path: '/highlight/$version/',
     getParentRoute: () => LibraryRoute,
   } as any)
 const LibraryFormVersionIndexRoute = LibraryFormVersionIndexRouteImport.update({
@@ -829,6 +996,18 @@ const LibraryCliVersionIndexRoute = LibraryCliVersionIndexRouteImport.update({
   path: '/cli/$version/',
   getParentRoute: () => LibraryRoute,
 } as any)
+const LibraryChartsCatalogIndexRoute =
+  LibraryChartsCatalogIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => LibraryChartsCatalogRoute,
+  } as any)
+const LibraryChartsVersionIndexRoute =
+  LibraryChartsVersionIndexRouteImport.update({
+    id: '/charts/$version/',
+    path: '/charts/$version/',
+    getParentRoute: () => LibraryRoute,
+  } as any)
 const LibraryAiVersionIndexRoute = LibraryAiVersionIndexRouteImport.update({
   id: '/ai/$version/',
   path: '/ai/$version/',
@@ -852,6 +1031,12 @@ const IntentRegistryPackageNameSkillNameRoute =
     path: '/$skillName',
     getParentRoute: () => IntentRegistryPackageNameRoute,
   } as any)
+const ChartsCatalogEmbedCaseIdRoute =
+  ChartsCatalogEmbedCaseIdRouteImport.update({
+    id: '/charts/catalog_/embed/$caseId',
+    path: '/charts/catalog/embed/$caseId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiBuilderDeployGithubRoute = ApiBuilderDeployGithubRouteImport.update({
   id: '/api/builder/deploy/github',
   path: '/api/builder/deploy/github',
@@ -873,6 +1058,11 @@ const ApiAuthCallbackProviderRoute = ApiAuthCallbackProviderRouteImport.update({
   path: '/api/auth/callback/$provider',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LibraryChartsCatalogAllRoute = LibraryChartsCatalogAllRouteImport.update({
+  id: '/all',
+  path: '/all',
+  getParentRoute: () => LibraryChartsCatalogRoute,
+} as any)
 const LibraryLibraryIdVersionLlmsDottxtRoute =
   LibraryLibraryIdVersionLlmsDottxtRouteImport.update({
     id: '/llms.txt',
@@ -891,11 +1081,23 @@ const LibraryLibraryIdVersionDocsIndexRoute =
     path: '/',
     getParentRoute: () => LibraryLibraryIdVersionDocsRoute,
   } as any)
+const ChartsCatalogAssetsArtifactRevisionSplatRoute =
+  ChartsCatalogAssetsArtifactRevisionSplatRouteImport.update({
+    id: '/charts/catalog_/assets/$artifactRevision/$',
+    path: '/charts/catalog/assets/$artifactRevision/$',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAuthCliStatusTicketIdRoute =
   ApiAuthCliStatusTicketIdRouteImport.update({
     id: '/api/auth/cli/status/$ticketId',
     path: '/api/auth/cli/status/$ticketId',
     getParentRoute: () => rootRouteImport,
+  } as any)
+const LibraryChartsCatalogChartsCaseIdRoute =
+  LibraryChartsCatalogChartsCaseIdRouteImport.update({
+    id: '/charts/$caseId',
+    path: '/charts/$caseId',
+    getParentRoute: () => LibraryChartsCatalogRoute,
   } as any)
 const LibraryLibraryIdVersionDocsChar123Char125DotmdRoute =
   LibraryLibraryIdVersionDocsChar123Char125DotmdRouteImport.update({
@@ -981,6 +1183,7 @@ export interface FileRoutesByFullPath {
   '/brand-guide': typeof BrandGuideRoute
   '/builder': typeof BuilderRouteWithChildren
   '/dashboard': typeof DashboardRoute
+  '/ds': typeof DsRouteWithChildren
   '/ethos': typeof EthosRoute
   '/explore': typeof ExploreRoute
   '/feedback-leaderboard': typeof FeedbackLeaderboardRoute
@@ -1024,6 +1227,26 @@ export interface FileRoutesByFullPath {
   '/auth/signout': typeof AuthSignoutRoute
   '/blog/$': typeof BlogSplatRoute
   '/builder/docs': typeof BuilderDocsRoute
+  '/ds/avatar': typeof DsAvatarRoute
+  '/ds/badges': typeof DsBadgesRoute
+  '/ds/breadcrumbs': typeof DsBreadcrumbsRoute
+  '/ds/buttons': typeof DsButtonsRoute
+  '/ds/cards': typeof DsCardsRoute
+  '/ds/collapsible': typeof DsCollapsibleRoute
+  '/ds/colors': typeof DsColorsRoute
+  '/ds/dropdown': typeof DsDropdownRoute
+  '/ds/effects': typeof DsEffectsRoute
+  '/ds/eyebrow': typeof DsEyebrowRoute
+  '/ds/iconography': typeof DsIconographyRoute
+  '/ds/inputs': typeof DsInputsRoute
+  '/ds/logos': typeof DsLogosRoute
+  '/ds/navbar': typeof DsNavbarRoute
+  '/ds/palette': typeof DsPaletteRoute
+  '/ds/semantic': typeof DsSemanticRoute
+  '/ds/shadows': typeof DsShadowsRoute
+  '/ds/spinner': typeof DsSpinnerRoute
+  '/ds/stats': typeof DsStatsRoute
+  '/ds/typography': typeof DsTypographyRoute
   '/libraries/$framework': typeof LibrariesFrameworkRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
@@ -1040,11 +1263,13 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/builder/': typeof BuilderIndexRoute
+  '/ds/': typeof DsIndexRoute
   '/partners/': typeof PartnersIndexRoute
   '/shop/': typeof ShopIndexRoute
   '/showcase/': typeof ShowcaseIndexRoute
   '/stats/': typeof StatsIndexRoute
   '/$libraryId/$version': typeof LibraryLibraryIdVersionRouteWithChildren
+  '/charts/catalog': typeof LibraryChartsCatalogRouteWithChildren
   '/admin/feedback/$id': typeof AdminFeedbackIdRoute
   '/admin/roles/$roleId': typeof AdminRolesRoleIdRoute
   '/admin/showcases/$id': typeof AdminShowcasesIdRoute
@@ -1068,6 +1293,7 @@ export interface FileRoutesByFullPath {
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/api/og/{$}.png': typeof ApiOgChar123Char125DotpngRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
+  '/charts/catalog/catalog.json': typeof ChartsCatalogCatalogDotjsonRoute
   '/intent/registry/$packageName': typeof IntentRegistryPackageNameRouteWithChildren
   '/shop/collections/$handle': typeof ShopCollectionsHandleRoute
   '/shop/pages/$handle': typeof ShopPagesHandleRoute
@@ -1086,21 +1312,27 @@ export interface FileRoutesByFullPath {
   '/stats/npm/': typeof StatsNpmIndexRoute
   '/$libraryId/$version/docs': typeof LibraryLibraryIdVersionDocsRouteWithChildren
   '/$libraryId/$version/llms.txt': typeof LibraryLibraryIdVersionLlmsDottxtRoute
+  '/charts/catalog/all': typeof LibraryChartsCatalogAllRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
   '/api/auth/cli/create-ticket': typeof ApiAuthCliCreateTicketRoute
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
   '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
+  '/charts/catalog/embed/$caseId': typeof ChartsCatalogEmbedCaseIdRoute
   '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
   '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   '/$libraryId/$version/': typeof LibraryLibraryIdVersionIndexRoute
   '/ai/$version/': typeof LibraryAiVersionIndexRoute
+  '/charts/$version/': typeof LibraryChartsVersionIndexRoute
+  '/charts/catalog/': typeof LibraryChartsCatalogIndexRoute
   '/cli/$version/': typeof LibraryCliVersionIndexRoute
   '/config/$version/': typeof LibraryConfigVersionIndexRoute
   '/db/$version/': typeof LibraryDbVersionIndexRoute
   '/devtools/$version/': typeof LibraryDevtoolsVersionIndexRoute
   '/form/$version/': typeof LibraryFormVersionIndexRoute
+  '/highlight/$version/': typeof LibraryHighlightVersionIndexRoute
   '/hotkeys/$version/': typeof LibraryHotkeysVersionIndexRoute
   '/intent/$version/': typeof LibraryIntentVersionIndexRoute
+  '/markdown/$version/': typeof LibraryMarkdownVersionIndexRoute
   '/pacer/$version/': typeof LibraryPacerVersionIndexRoute
   '/query/$version/': typeof LibraryQueryVersionIndexRoute
   '/ranger/$version/': typeof LibraryRangerVersionIndexRoute
@@ -1118,7 +1350,9 @@ export interface FileRoutesByFullPath {
   '/$libraryId/$version/docs/index.md': typeof LibraryLibraryIdVersionDocsIndexDotmdRoute
   '/$libraryId/$version/docs/npm-stats': typeof LibraryLibraryIdVersionDocsNpmStatsRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryLibraryIdVersionDocsChar123Char125DotmdRoute
+  '/charts/catalog/charts/$caseId': typeof LibraryChartsCatalogChartsCaseIdRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
+  '/charts/catalog/assets/$artifactRevision/$': typeof ChartsCatalogAssetsArtifactRevisionSplatRoute
   '/$libraryId/$version/docs/': typeof LibraryLibraryIdVersionDocsIndexRoute
   '/$libraryId/$version/docs/framework/': typeof LibraryLibraryIdVersionDocsFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/$': typeof LibraryLibraryIdVersionDocsFrameworkFrameworkSplatRoute
@@ -1171,6 +1405,26 @@ export interface FileRoutesByTo {
   '/auth/signout': typeof AuthSignoutRoute
   '/blog/$': typeof BlogSplatRoute
   '/builder/docs': typeof BuilderDocsRoute
+  '/ds/avatar': typeof DsAvatarRoute
+  '/ds/badges': typeof DsBadgesRoute
+  '/ds/breadcrumbs': typeof DsBreadcrumbsRoute
+  '/ds/buttons': typeof DsButtonsRoute
+  '/ds/cards': typeof DsCardsRoute
+  '/ds/collapsible': typeof DsCollapsibleRoute
+  '/ds/colors': typeof DsColorsRoute
+  '/ds/dropdown': typeof DsDropdownRoute
+  '/ds/effects': typeof DsEffectsRoute
+  '/ds/eyebrow': typeof DsEyebrowRoute
+  '/ds/iconography': typeof DsIconographyRoute
+  '/ds/inputs': typeof DsInputsRoute
+  '/ds/logos': typeof DsLogosRoute
+  '/ds/navbar': typeof DsNavbarRoute
+  '/ds/palette': typeof DsPaletteRoute
+  '/ds/semantic': typeof DsSemanticRoute
+  '/ds/shadows': typeof DsShadowsRoute
+  '/ds/spinner': typeof DsSpinnerRoute
+  '/ds/stats': typeof DsStatsRoute
+  '/ds/typography': typeof DsTypographyRoute
   '/libraries/$framework': typeof LibrariesFrameworkRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
@@ -1187,6 +1441,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/blog': typeof BlogIndexRoute
   '/builder': typeof BuilderIndexRoute
+  '/ds': typeof DsIndexRoute
   '/partners': typeof PartnersIndexRoute
   '/shop': typeof ShopIndexRoute
   '/showcase': typeof ShowcaseIndexRoute
@@ -1214,6 +1469,7 @@ export interface FileRoutesByTo {
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/api/og/{$}.png': typeof ApiOgChar123Char125DotpngRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
+  '/charts/catalog/catalog.json': typeof ChartsCatalogCatalogDotjsonRoute
   '/shop/collections/$handle': typeof ShopCollectionsHandleRoute
   '/shop/pages/$handle': typeof ShopPagesHandleRoute
   '/shop/policies/$handle': typeof ShopPoliciesHandleRoute
@@ -1230,21 +1486,27 @@ export interface FileRoutesByTo {
   '/intent/registry': typeof IntentRegistryIndexRoute
   '/stats/npm': typeof StatsNpmIndexRoute
   '/$libraryId/$version/llms.txt': typeof LibraryLibraryIdVersionLlmsDottxtRoute
+  '/charts/catalog/all': typeof LibraryChartsCatalogAllRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
   '/api/auth/cli/create-ticket': typeof ApiAuthCliCreateTicketRoute
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
   '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
+  '/charts/catalog/embed/$caseId': typeof ChartsCatalogEmbedCaseIdRoute
   '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
   '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   '/$libraryId/$version': typeof LibraryLibraryIdVersionIndexRoute
   '/ai/$version': typeof LibraryAiVersionIndexRoute
+  '/charts/$version': typeof LibraryChartsVersionIndexRoute
+  '/charts/catalog': typeof LibraryChartsCatalogIndexRoute
   '/cli/$version': typeof LibraryCliVersionIndexRoute
   '/config/$version': typeof LibraryConfigVersionIndexRoute
   '/db/$version': typeof LibraryDbVersionIndexRoute
   '/devtools/$version': typeof LibraryDevtoolsVersionIndexRoute
   '/form/$version': typeof LibraryFormVersionIndexRoute
+  '/highlight/$version': typeof LibraryHighlightVersionIndexRoute
   '/hotkeys/$version': typeof LibraryHotkeysVersionIndexRoute
   '/intent/$version': typeof LibraryIntentVersionIndexRoute
+  '/markdown/$version': typeof LibraryMarkdownVersionIndexRoute
   '/pacer/$version': typeof LibraryPacerVersionIndexRoute
   '/query/$version': typeof LibraryQueryVersionIndexRoute
   '/ranger/$version': typeof LibraryRangerVersionIndexRoute
@@ -1262,7 +1524,9 @@ export interface FileRoutesByTo {
   '/$libraryId/$version/docs/index.md': typeof LibraryLibraryIdVersionDocsIndexDotmdRoute
   '/$libraryId/$version/docs/npm-stats': typeof LibraryLibraryIdVersionDocsNpmStatsRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryLibraryIdVersionDocsChar123Char125DotmdRoute
+  '/charts/catalog/charts/$caseId': typeof LibraryChartsCatalogChartsCaseIdRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
+  '/charts/catalog/assets/$artifactRevision/$': typeof ChartsCatalogAssetsArtifactRevisionSplatRoute
   '/$libraryId/$version/docs': typeof LibraryLibraryIdVersionDocsIndexRoute
   '/$libraryId/$version/docs/framework': typeof LibraryLibraryIdVersionDocsFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/$': typeof LibraryLibraryIdVersionDocsFrameworkFrameworkSplatRoute
@@ -1281,6 +1545,7 @@ export interface FileRoutesById {
   '/brand-guide': typeof BrandGuideRoute
   '/builder': typeof BuilderRouteWithChildren
   '/dashboard': typeof DashboardRoute
+  '/ds': typeof DsRouteWithChildren
   '/ethos': typeof EthosRoute
   '/explore': typeof ExploreRoute
   '/feedback-leaderboard': typeof FeedbackLeaderboardRoute
@@ -1324,6 +1589,26 @@ export interface FileRoutesById {
   '/auth/signout': typeof AuthSignoutRoute
   '/blog/$': typeof BlogSplatRoute
   '/builder/docs': typeof BuilderDocsRoute
+  '/ds/avatar': typeof DsAvatarRoute
+  '/ds/badges': typeof DsBadgesRoute
+  '/ds/breadcrumbs': typeof DsBreadcrumbsRoute
+  '/ds/buttons': typeof DsButtonsRoute
+  '/ds/cards': typeof DsCardsRoute
+  '/ds/collapsible': typeof DsCollapsibleRoute
+  '/ds/colors': typeof DsColorsRoute
+  '/ds/dropdown': typeof DsDropdownRoute
+  '/ds/effects': typeof DsEffectsRoute
+  '/ds/eyebrow': typeof DsEyebrowRoute
+  '/ds/iconography': typeof DsIconographyRoute
+  '/ds/inputs': typeof DsInputsRoute
+  '/ds/logos': typeof DsLogosRoute
+  '/ds/navbar': typeof DsNavbarRoute
+  '/ds/palette': typeof DsPaletteRoute
+  '/ds/semantic': typeof DsSemanticRoute
+  '/ds/shadows': typeof DsShadowsRoute
+  '/ds/spinner': typeof DsSpinnerRoute
+  '/ds/stats': typeof DsStatsRoute
+  '/ds/typography': typeof DsTypographyRoute
   '/libraries_/$framework': typeof LibrariesFrameworkRoute
   '/oauth/authorize': typeof OauthAuthorizeRoute
   '/oauth/register': typeof OauthRegisterRoute
@@ -1340,11 +1625,13 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/builder/': typeof BuilderIndexRoute
+  '/ds/': typeof DsIndexRoute
   '/partners/': typeof PartnersIndexRoute
   '/shop/': typeof ShopIndexRoute
   '/showcase/': typeof ShowcaseIndexRoute
   '/stats/': typeof StatsIndexRoute
   '/_library/$libraryId/$version': typeof LibraryLibraryIdVersionRouteWithChildren
+  '/_library/charts/catalog': typeof LibraryChartsCatalogRouteWithChildren
   '/admin/feedback_/$id': typeof AdminFeedbackIdRoute
   '/admin/roles/$roleId': typeof AdminRolesRoleIdRoute
   '/admin/showcases_/$id': typeof AdminShowcasesIdRoute
@@ -1368,6 +1655,7 @@ export interface FileRoutesById {
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/api/og/{$}.png': typeof ApiOgChar123Char125DotpngRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
+  '/charts/catalog_/catalog.json': typeof ChartsCatalogCatalogDotjsonRoute
   '/intent/registry/$packageName': typeof IntentRegistryPackageNameRouteWithChildren
   '/shop/collections/$handle': typeof ShopCollectionsHandleRoute
   '/shop/pages/$handle': typeof ShopPagesHandleRoute
@@ -1386,21 +1674,27 @@ export interface FileRoutesById {
   '/stats/npm/': typeof StatsNpmIndexRoute
   '/_library/$libraryId/$version/docs': typeof LibraryLibraryIdVersionDocsRouteWithChildren
   '/_library/$libraryId/$version/llms.txt': typeof LibraryLibraryIdVersionLlmsDottxtRoute
+  '/_library/charts/catalog/all': typeof LibraryChartsCatalogAllRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
   '/api/auth/cli/create-ticket': typeof ApiAuthCliCreateTicketRoute
   '/api/builder/deploy/check-name': typeof ApiBuilderDeployCheckNameRoute
   '/api/builder/deploy/github': typeof ApiBuilderDeployGithubRoute
+  '/charts/catalog_/embed/$caseId': typeof ChartsCatalogEmbedCaseIdRoute
   '/intent/registry/$packageName/$skillName': typeof IntentRegistryPackageNameSkillNameRoute
   '/intent/registry/$packageName/{$}.md': typeof IntentRegistryPackageNameChar123Char125DotmdRoute
   '/_library/$libraryId/$version/': typeof LibraryLibraryIdVersionIndexRoute
   '/_library/ai/$version/': typeof LibraryAiVersionIndexRoute
+  '/_library/charts/$version/': typeof LibraryChartsVersionIndexRoute
+  '/_library/charts/catalog/': typeof LibraryChartsCatalogIndexRoute
   '/_library/cli/$version/': typeof LibraryCliVersionIndexRoute
   '/_library/config/$version/': typeof LibraryConfigVersionIndexRoute
   '/_library/db/$version/': typeof LibraryDbVersionIndexRoute
   '/_library/devtools/$version/': typeof LibraryDevtoolsVersionIndexRoute
   '/_library/form/$version/': typeof LibraryFormVersionIndexRoute
+  '/_library/highlight/$version/': typeof LibraryHighlightVersionIndexRoute
   '/_library/hotkeys/$version/': typeof LibraryHotkeysVersionIndexRoute
   '/_library/intent/$version/': typeof LibraryIntentVersionIndexRoute
+  '/_library/markdown/$version/': typeof LibraryMarkdownVersionIndexRoute
   '/_library/pacer/$version/': typeof LibraryPacerVersionIndexRoute
   '/_library/query/$version/': typeof LibraryQueryVersionIndexRoute
   '/_library/ranger/$version/': typeof LibraryRangerVersionIndexRoute
@@ -1418,7 +1712,9 @@ export interface FileRoutesById {
   '/_library/$libraryId/$version/docs/index.md': typeof LibraryLibraryIdVersionDocsIndexDotmdRoute
   '/_library/$libraryId/$version/docs/npm-stats': typeof LibraryLibraryIdVersionDocsNpmStatsRoute
   '/_library/$libraryId/$version/docs/{$}.md': typeof LibraryLibraryIdVersionDocsChar123Char125DotmdRoute
+  '/_library/charts/catalog/charts/$caseId': typeof LibraryChartsCatalogChartsCaseIdRoute
   '/api/auth/cli/status/$ticketId': typeof ApiAuthCliStatusTicketIdRoute
+  '/charts/catalog_/assets/$artifactRevision/$': typeof ChartsCatalogAssetsArtifactRevisionSplatRoute
   '/_library/$libraryId/$version/docs/': typeof LibraryLibraryIdVersionDocsIndexRoute
   '/_library/$libraryId/$version/docs/framework/': typeof LibraryLibraryIdVersionDocsFrameworkIndexRoute
   '/_library/$libraryId/$version/docs/framework/$framework/$': typeof LibraryLibraryIdVersionDocsFrameworkFrameworkSplatRoute
@@ -1437,6 +1733,7 @@ export interface FileRouteTypes {
     | '/brand-guide'
     | '/builder'
     | '/dashboard'
+    | '/ds'
     | '/ethos'
     | '/explore'
     | '/feedback-leaderboard'
@@ -1480,6 +1777,26 @@ export interface FileRouteTypes {
     | '/auth/signout'
     | '/blog/$'
     | '/builder/docs'
+    | '/ds/avatar'
+    | '/ds/badges'
+    | '/ds/breadcrumbs'
+    | '/ds/buttons'
+    | '/ds/cards'
+    | '/ds/collapsible'
+    | '/ds/colors'
+    | '/ds/dropdown'
+    | '/ds/effects'
+    | '/ds/eyebrow'
+    | '/ds/iconography'
+    | '/ds/inputs'
+    | '/ds/logos'
+    | '/ds/navbar'
+    | '/ds/palette'
+    | '/ds/semantic'
+    | '/ds/shadows'
+    | '/ds/spinner'
+    | '/ds/stats'
+    | '/ds/typography'
     | '/libraries/$framework'
     | '/oauth/authorize'
     | '/oauth/register'
@@ -1496,11 +1813,13 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/blog/'
     | '/builder/'
+    | '/ds/'
     | '/partners/'
     | '/shop/'
     | '/showcase/'
     | '/stats/'
     | '/$libraryId/$version'
+    | '/charts/catalog'
     | '/admin/feedback/$id'
     | '/admin/roles/$roleId'
     | '/admin/showcases/$id'
@@ -1524,6 +1843,7 @@ export interface FileRouteTypes {
     | '/api/mcp/$'
     | '/api/og/{$}.png'
     | '/auth/$provider/start'
+    | '/charts/catalog/catalog.json'
     | '/intent/registry/$packageName'
     | '/shop/collections/$handle'
     | '/shop/pages/$handle'
@@ -1542,21 +1862,27 @@ export interface FileRouteTypes {
     | '/stats/npm/'
     | '/$libraryId/$version/docs'
     | '/$libraryId/$version/llms.txt'
+    | '/charts/catalog/all'
     | '/api/auth/callback/$provider'
     | '/api/auth/cli/create-ticket'
     | '/api/builder/deploy/check-name'
     | '/api/builder/deploy/github'
+    | '/charts/catalog/embed/$caseId'
     | '/intent/registry/$packageName/$skillName'
     | '/intent/registry/$packageName/{$}.md'
     | '/$libraryId/$version/'
     | '/ai/$version/'
+    | '/charts/$version/'
+    | '/charts/catalog/'
     | '/cli/$version/'
     | '/config/$version/'
     | '/db/$version/'
     | '/devtools/$version/'
     | '/form/$version/'
+    | '/highlight/$version/'
     | '/hotkeys/$version/'
     | '/intent/$version/'
+    | '/markdown/$version/'
     | '/pacer/$version/'
     | '/query/$version/'
     | '/ranger/$version/'
@@ -1574,7 +1900,9 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/index.md'
     | '/$libraryId/$version/docs/npm-stats'
     | '/$libraryId/$version/docs/{$}.md'
+    | '/charts/catalog/charts/$caseId'
     | '/api/auth/cli/status/$ticketId'
+    | '/charts/catalog/assets/$artifactRevision/$'
     | '/$libraryId/$version/docs/'
     | '/$libraryId/$version/docs/framework/'
     | '/$libraryId/$version/docs/framework/$framework/$'
@@ -1627,6 +1955,26 @@ export interface FileRouteTypes {
     | '/auth/signout'
     | '/blog/$'
     | '/builder/docs'
+    | '/ds/avatar'
+    | '/ds/badges'
+    | '/ds/breadcrumbs'
+    | '/ds/buttons'
+    | '/ds/cards'
+    | '/ds/collapsible'
+    | '/ds/colors'
+    | '/ds/dropdown'
+    | '/ds/effects'
+    | '/ds/eyebrow'
+    | '/ds/iconography'
+    | '/ds/inputs'
+    | '/ds/logos'
+    | '/ds/navbar'
+    | '/ds/palette'
+    | '/ds/semantic'
+    | '/ds/shadows'
+    | '/ds/spinner'
+    | '/ds/stats'
+    | '/ds/typography'
     | '/libraries/$framework'
     | '/oauth/authorize'
     | '/oauth/register'
@@ -1643,6 +1991,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/blog'
     | '/builder'
+    | '/ds'
     | '/partners'
     | '/shop'
     | '/showcase'
@@ -1670,6 +2019,7 @@ export interface FileRouteTypes {
     | '/api/mcp/$'
     | '/api/og/{$}.png'
     | '/auth/$provider/start'
+    | '/charts/catalog/catalog.json'
     | '/shop/collections/$handle'
     | '/shop/pages/$handle'
     | '/shop/policies/$handle'
@@ -1686,21 +2036,27 @@ export interface FileRouteTypes {
     | '/intent/registry'
     | '/stats/npm'
     | '/$libraryId/$version/llms.txt'
+    | '/charts/catalog/all'
     | '/api/auth/callback/$provider'
     | '/api/auth/cli/create-ticket'
     | '/api/builder/deploy/check-name'
     | '/api/builder/deploy/github'
+    | '/charts/catalog/embed/$caseId'
     | '/intent/registry/$packageName/$skillName'
     | '/intent/registry/$packageName/{$}.md'
     | '/$libraryId/$version'
     | '/ai/$version'
+    | '/charts/$version'
+    | '/charts/catalog'
     | '/cli/$version'
     | '/config/$version'
     | '/db/$version'
     | '/devtools/$version'
     | '/form/$version'
+    | '/highlight/$version'
     | '/hotkeys/$version'
     | '/intent/$version'
+    | '/markdown/$version'
     | '/pacer/$version'
     | '/query/$version'
     | '/ranger/$version'
@@ -1718,7 +2074,9 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/index.md'
     | '/$libraryId/$version/docs/npm-stats'
     | '/$libraryId/$version/docs/{$}.md'
+    | '/charts/catalog/charts/$caseId'
     | '/api/auth/cli/status/$ticketId'
+    | '/charts/catalog/assets/$artifactRevision/$'
     | '/$libraryId/$version/docs'
     | '/$libraryId/$version/docs/framework'
     | '/$libraryId/$version/docs/framework/$framework/$'
@@ -1736,6 +2094,7 @@ export interface FileRouteTypes {
     | '/brand-guide'
     | '/builder'
     | '/dashboard'
+    | '/ds'
     | '/ethos'
     | '/explore'
     | '/feedback-leaderboard'
@@ -1779,6 +2138,26 @@ export interface FileRouteTypes {
     | '/auth/signout'
     | '/blog/$'
     | '/builder/docs'
+    | '/ds/avatar'
+    | '/ds/badges'
+    | '/ds/breadcrumbs'
+    | '/ds/buttons'
+    | '/ds/cards'
+    | '/ds/collapsible'
+    | '/ds/colors'
+    | '/ds/dropdown'
+    | '/ds/effects'
+    | '/ds/eyebrow'
+    | '/ds/iconography'
+    | '/ds/inputs'
+    | '/ds/logos'
+    | '/ds/navbar'
+    | '/ds/palette'
+    | '/ds/semantic'
+    | '/ds/shadows'
+    | '/ds/spinner'
+    | '/ds/stats'
+    | '/ds/typography'
     | '/libraries_/$framework'
     | '/oauth/authorize'
     | '/oauth/register'
@@ -1795,11 +2174,13 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/blog/'
     | '/builder/'
+    | '/ds/'
     | '/partners/'
     | '/shop/'
     | '/showcase/'
     | '/stats/'
     | '/_library/$libraryId/$version'
+    | '/_library/charts/catalog'
     | '/admin/feedback_/$id'
     | '/admin/roles/$roleId'
     | '/admin/showcases_/$id'
@@ -1823,6 +2204,7 @@ export interface FileRouteTypes {
     | '/api/mcp/$'
     | '/api/og/{$}.png'
     | '/auth/$provider/start'
+    | '/charts/catalog_/catalog.json'
     | '/intent/registry/$packageName'
     | '/shop/collections/$handle'
     | '/shop/pages/$handle'
@@ -1841,21 +2223,27 @@ export interface FileRouteTypes {
     | '/stats/npm/'
     | '/_library/$libraryId/$version/docs'
     | '/_library/$libraryId/$version/llms.txt'
+    | '/_library/charts/catalog/all'
     | '/api/auth/callback/$provider'
     | '/api/auth/cli/create-ticket'
     | '/api/builder/deploy/check-name'
     | '/api/builder/deploy/github'
+    | '/charts/catalog_/embed/$caseId'
     | '/intent/registry/$packageName/$skillName'
     | '/intent/registry/$packageName/{$}.md'
     | '/_library/$libraryId/$version/'
     | '/_library/ai/$version/'
+    | '/_library/charts/$version/'
+    | '/_library/charts/catalog/'
     | '/_library/cli/$version/'
     | '/_library/config/$version/'
     | '/_library/db/$version/'
     | '/_library/devtools/$version/'
     | '/_library/form/$version/'
+    | '/_library/highlight/$version/'
     | '/_library/hotkeys/$version/'
     | '/_library/intent/$version/'
+    | '/_library/markdown/$version/'
     | '/_library/pacer/$version/'
     | '/_library/query/$version/'
     | '/_library/ranger/$version/'
@@ -1873,7 +2261,9 @@ export interface FileRouteTypes {
     | '/_library/$libraryId/$version/docs/index.md'
     | '/_library/$libraryId/$version/docs/npm-stats'
     | '/_library/$libraryId/$version/docs/{$}.md'
+    | '/_library/charts/catalog/charts/$caseId'
     | '/api/auth/cli/status/$ticketId'
+    | '/charts/catalog_/assets/$artifactRevision/$'
     | '/_library/$libraryId/$version/docs/'
     | '/_library/$libraryId/$version/docs/framework/'
     | '/_library/$libraryId/$version/docs/framework/$framework/$'
@@ -1892,6 +2282,7 @@ export interface RootRouteChildren {
   BrandGuideRoute: typeof BrandGuideRoute
   BuilderRoute: typeof BuilderRouteWithChildren
   DashboardRoute: typeof DashboardRoute
+  DsRoute: typeof DsRouteWithChildren
   EthosRoute: typeof EthosRoute
   ExploreRoute: typeof ExploreRoute
   FeedbackLeaderboardRoute: typeof FeedbackLeaderboardRoute
@@ -1949,6 +2340,7 @@ export interface RootRouteChildren {
   ApiMcpSplatRoute: typeof ApiMcpSplatRoute
   ApiOgChar123Char125DotpngRoute: typeof ApiOgChar123Char125DotpngRoute
   AuthProviderStartRoute: typeof AuthProviderStartRoute
+  ChartsCatalogCatalogDotjsonRoute: typeof ChartsCatalogCatalogDotjsonRoute
   IntentRegistryPackageNameRoute: typeof IntentRegistryPackageNameRouteWithChildren
   ShowcaseEditIdRoute: typeof ShowcaseEditIdRoute
   StatsNpmPackagesRoute: typeof StatsNpmPackagesRoute
@@ -1960,7 +2352,9 @@ export interface RootRouteChildren {
   ApiAuthCliCreateTicketRoute: typeof ApiAuthCliCreateTicketRoute
   ApiBuilderDeployCheckNameRoute: typeof ApiBuilderDeployCheckNameRoute
   ApiBuilderDeployGithubRoute: typeof ApiBuilderDeployGithubRoute
+  ChartsCatalogEmbedCaseIdRoute: typeof ChartsCatalogEmbedCaseIdRoute
   ApiAuthCliStatusTicketIdRoute: typeof ApiAuthCliStatusTicketIdRoute
+  ChartsCatalogAssetsArtifactRevisionSplatRoute: typeof ChartsCatalogAssetsArtifactRevisionSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -2133,6 +2527,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EthosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ds': {
+      id: '/ds'
+      path: '/ds'
+      fullPath: '/ds'
+      preLoaderRoute: typeof DsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -2223,6 +2624,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/partners/'
       preLoaderRoute: typeof PartnersIndexRouteImport
       parentRoute: typeof PartnersRoute
+    }
+    '/ds/': {
+      id: '/ds/'
+      path: '/'
+      fullPath: '/ds/'
+      preLoaderRoute: typeof DsIndexRouteImport
+      parentRoute: typeof DsRoute
     }
     '/builder/': {
       id: '/builder/'
@@ -2335,6 +2743,146 @@ declare module '@tanstack/react-router' {
       fullPath: '/libraries/$framework'
       preLoaderRoute: typeof LibrariesFrameworkRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/ds/typography': {
+      id: '/ds/typography'
+      path: '/typography'
+      fullPath: '/ds/typography'
+      preLoaderRoute: typeof DsTypographyRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/stats': {
+      id: '/ds/stats'
+      path: '/stats'
+      fullPath: '/ds/stats'
+      preLoaderRoute: typeof DsStatsRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/spinner': {
+      id: '/ds/spinner'
+      path: '/spinner'
+      fullPath: '/ds/spinner'
+      preLoaderRoute: typeof DsSpinnerRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/shadows': {
+      id: '/ds/shadows'
+      path: '/shadows'
+      fullPath: '/ds/shadows'
+      preLoaderRoute: typeof DsShadowsRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/semantic': {
+      id: '/ds/semantic'
+      path: '/semantic'
+      fullPath: '/ds/semantic'
+      preLoaderRoute: typeof DsSemanticRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/palette': {
+      id: '/ds/palette'
+      path: '/palette'
+      fullPath: '/ds/palette'
+      preLoaderRoute: typeof DsPaletteRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/navbar': {
+      id: '/ds/navbar'
+      path: '/navbar'
+      fullPath: '/ds/navbar'
+      preLoaderRoute: typeof DsNavbarRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/logos': {
+      id: '/ds/logos'
+      path: '/logos'
+      fullPath: '/ds/logos'
+      preLoaderRoute: typeof DsLogosRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/inputs': {
+      id: '/ds/inputs'
+      path: '/inputs'
+      fullPath: '/ds/inputs'
+      preLoaderRoute: typeof DsInputsRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/iconography': {
+      id: '/ds/iconography'
+      path: '/iconography'
+      fullPath: '/ds/iconography'
+      preLoaderRoute: typeof DsIconographyRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/eyebrow': {
+      id: '/ds/eyebrow'
+      path: '/eyebrow'
+      fullPath: '/ds/eyebrow'
+      preLoaderRoute: typeof DsEyebrowRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/effects': {
+      id: '/ds/effects'
+      path: '/effects'
+      fullPath: '/ds/effects'
+      preLoaderRoute: typeof DsEffectsRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/dropdown': {
+      id: '/ds/dropdown'
+      path: '/dropdown'
+      fullPath: '/ds/dropdown'
+      preLoaderRoute: typeof DsDropdownRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/colors': {
+      id: '/ds/colors'
+      path: '/colors'
+      fullPath: '/ds/colors'
+      preLoaderRoute: typeof DsColorsRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/collapsible': {
+      id: '/ds/collapsible'
+      path: '/collapsible'
+      fullPath: '/ds/collapsible'
+      preLoaderRoute: typeof DsCollapsibleRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/cards': {
+      id: '/ds/cards'
+      path: '/cards'
+      fullPath: '/ds/cards'
+      preLoaderRoute: typeof DsCardsRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/buttons': {
+      id: '/ds/buttons'
+      path: '/buttons'
+      fullPath: '/ds/buttons'
+      preLoaderRoute: typeof DsButtonsRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/breadcrumbs': {
+      id: '/ds/breadcrumbs'
+      path: '/breadcrumbs'
+      fullPath: '/ds/breadcrumbs'
+      preLoaderRoute: typeof DsBreadcrumbsRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/badges': {
+      id: '/ds/badges'
+      path: '/badges'
+      fullPath: '/ds/badges'
+      preLoaderRoute: typeof DsBadgesRouteImport
+      parentRoute: typeof DsRoute
+    }
+    '/ds/avatar': {
+      id: '/ds/avatar'
+      path: '/avatar'
+      fullPath: '/ds/avatar'
+      preLoaderRoute: typeof DsAvatarRouteImport
+      parentRoute: typeof DsRoute
     }
     '/builder/docs': {
       id: '/builder/docs'
@@ -2581,6 +3129,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IntentRegistryPackageNameRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/charts/catalog_/catalog.json': {
+      id: '/charts/catalog_/catalog.json'
+      path: '/charts/catalog/catalog.json'
+      fullPath: '/charts/catalog/catalog.json'
+      preLoaderRoute: typeof ChartsCatalogCatalogDotjsonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/$provider/start': {
       id: '/auth/$provider/start'
       path: '/auth/$provider/start'
@@ -2742,6 +3297,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminFeedbackIdRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/_library/charts/catalog': {
+      id: '/_library/charts/catalog'
+      path: '/charts/catalog'
+      fullPath: '/charts/catalog'
+      preLoaderRoute: typeof LibraryChartsCatalogRouteImport
+      parentRoute: typeof LibraryRoute
+    }
     '/_library/$libraryId/$version': {
       id: '/_library/$libraryId/$version'
       path: '/$version'
@@ -2819,6 +3381,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryPacerVersionIndexRouteImport
       parentRoute: typeof LibraryRoute
     }
+    '/_library/markdown/$version/': {
+      id: '/_library/markdown/$version/'
+      path: '/markdown/$version'
+      fullPath: '/markdown/$version/'
+      preLoaderRoute: typeof LibraryMarkdownVersionIndexRouteImport
+      parentRoute: typeof LibraryRoute
+    }
     '/_library/intent/$version/': {
       id: '/_library/intent/$version/'
       path: '/intent/$version'
@@ -2831,6 +3400,13 @@ declare module '@tanstack/react-router' {
       path: '/hotkeys/$version'
       fullPath: '/hotkeys/$version/'
       preLoaderRoute: typeof LibraryHotkeysVersionIndexRouteImport
+      parentRoute: typeof LibraryRoute
+    }
+    '/_library/highlight/$version/': {
+      id: '/_library/highlight/$version/'
+      path: '/highlight/$version'
+      fullPath: '/highlight/$version/'
+      preLoaderRoute: typeof LibraryHighlightVersionIndexRouteImport
       parentRoute: typeof LibraryRoute
     }
     '/_library/form/$version/': {
@@ -2868,6 +3444,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryCliVersionIndexRouteImport
       parentRoute: typeof LibraryRoute
     }
+    '/_library/charts/catalog/': {
+      id: '/_library/charts/catalog/'
+      path: '/'
+      fullPath: '/charts/catalog/'
+      preLoaderRoute: typeof LibraryChartsCatalogIndexRouteImport
+      parentRoute: typeof LibraryChartsCatalogRoute
+    }
+    '/_library/charts/$version/': {
+      id: '/_library/charts/$version/'
+      path: '/charts/$version'
+      fullPath: '/charts/$version/'
+      preLoaderRoute: typeof LibraryChartsVersionIndexRouteImport
+      parentRoute: typeof LibraryRoute
+    }
     '/_library/ai/$version/': {
       id: '/_library/ai/$version/'
       path: '/ai/$version'
@@ -2895,6 +3485,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/intent/registry/$packageName/$skillName'
       preLoaderRoute: typeof IntentRegistryPackageNameSkillNameRouteImport
       parentRoute: typeof IntentRegistryPackageNameRoute
+    }
+    '/charts/catalog_/embed/$caseId': {
+      id: '/charts/catalog_/embed/$caseId'
+      path: '/charts/catalog/embed/$caseId'
+      fullPath: '/charts/catalog/embed/$caseId'
+      preLoaderRoute: typeof ChartsCatalogEmbedCaseIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/builder/deploy/github': {
       id: '/api/builder/deploy/github'
@@ -2924,6 +3521,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthCallbackProviderRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_library/charts/catalog/all': {
+      id: '/_library/charts/catalog/all'
+      path: '/all'
+      fullPath: '/charts/catalog/all'
+      preLoaderRoute: typeof LibraryChartsCatalogAllRouteImport
+      parentRoute: typeof LibraryChartsCatalogRoute
+    }
     '/_library/$libraryId/$version/llms.txt': {
       id: '/_library/$libraryId/$version/llms.txt'
       path: '/llms.txt'
@@ -2945,12 +3549,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryLibraryIdVersionDocsIndexRouteImport
       parentRoute: typeof LibraryLibraryIdVersionDocsRoute
     }
+    '/charts/catalog_/assets/$artifactRevision/$': {
+      id: '/charts/catalog_/assets/$artifactRevision/$'
+      path: '/charts/catalog/assets/$artifactRevision/$'
+      fullPath: '/charts/catalog/assets/$artifactRevision/$'
+      preLoaderRoute: typeof ChartsCatalogAssetsArtifactRevisionSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/cli/status/$ticketId': {
       id: '/api/auth/cli/status/$ticketId'
       path: '/api/auth/cli/status/$ticketId'
       fullPath: '/api/auth/cli/status/$ticketId'
       preLoaderRoute: typeof ApiAuthCliStatusTicketIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_library/charts/catalog/charts/$caseId': {
+      id: '/_library/charts/catalog/charts/$caseId'
+      path: '/charts/$caseId'
+      fullPath: '/charts/catalog/charts/$caseId'
+      preLoaderRoute: typeof LibraryChartsCatalogChartsCaseIdRouteImport
+      parentRoute: typeof LibraryChartsCatalogRoute
     }
     '/_library/$libraryId/$version/docs/{$}.md': {
       id: '/_library/$libraryId/$version/docs/{$}.md'
@@ -3176,16 +3794,35 @@ const LibraryLibraryIdRouteRouteWithChildren =
     LibraryLibraryIdRouteRouteChildren,
   )
 
+interface LibraryChartsCatalogRouteChildren {
+  LibraryChartsCatalogAllRoute: typeof LibraryChartsCatalogAllRoute
+  LibraryChartsCatalogIndexRoute: typeof LibraryChartsCatalogIndexRoute
+  LibraryChartsCatalogChartsCaseIdRoute: typeof LibraryChartsCatalogChartsCaseIdRoute
+}
+
+const LibraryChartsCatalogRouteChildren: LibraryChartsCatalogRouteChildren = {
+  LibraryChartsCatalogAllRoute: LibraryChartsCatalogAllRoute,
+  LibraryChartsCatalogIndexRoute: LibraryChartsCatalogIndexRoute,
+  LibraryChartsCatalogChartsCaseIdRoute: LibraryChartsCatalogChartsCaseIdRoute,
+}
+
+const LibraryChartsCatalogRouteWithChildren =
+  LibraryChartsCatalogRoute._addFileChildren(LibraryChartsCatalogRouteChildren)
+
 interface LibraryRouteChildren {
   LibraryLibraryIdRouteRoute: typeof LibraryLibraryIdRouteRouteWithChildren
+  LibraryChartsCatalogRoute: typeof LibraryChartsCatalogRouteWithChildren
   LibraryAiVersionIndexRoute: typeof LibraryAiVersionIndexRoute
+  LibraryChartsVersionIndexRoute: typeof LibraryChartsVersionIndexRoute
   LibraryCliVersionIndexRoute: typeof LibraryCliVersionIndexRoute
   LibraryConfigVersionIndexRoute: typeof LibraryConfigVersionIndexRoute
   LibraryDbVersionIndexRoute: typeof LibraryDbVersionIndexRoute
   LibraryDevtoolsVersionIndexRoute: typeof LibraryDevtoolsVersionIndexRoute
   LibraryFormVersionIndexRoute: typeof LibraryFormVersionIndexRoute
+  LibraryHighlightVersionIndexRoute: typeof LibraryHighlightVersionIndexRoute
   LibraryHotkeysVersionIndexRoute: typeof LibraryHotkeysVersionIndexRoute
   LibraryIntentVersionIndexRoute: typeof LibraryIntentVersionIndexRoute
+  LibraryMarkdownVersionIndexRoute: typeof LibraryMarkdownVersionIndexRoute
   LibraryPacerVersionIndexRoute: typeof LibraryPacerVersionIndexRoute
   LibraryQueryVersionIndexRoute: typeof LibraryQueryVersionIndexRoute
   LibraryRangerVersionIndexRoute: typeof LibraryRangerVersionIndexRoute
@@ -3199,14 +3836,18 @@ interface LibraryRouteChildren {
 
 const LibraryRouteChildren: LibraryRouteChildren = {
   LibraryLibraryIdRouteRoute: LibraryLibraryIdRouteRouteWithChildren,
+  LibraryChartsCatalogRoute: LibraryChartsCatalogRouteWithChildren,
   LibraryAiVersionIndexRoute: LibraryAiVersionIndexRoute,
+  LibraryChartsVersionIndexRoute: LibraryChartsVersionIndexRoute,
   LibraryCliVersionIndexRoute: LibraryCliVersionIndexRoute,
   LibraryConfigVersionIndexRoute: LibraryConfigVersionIndexRoute,
   LibraryDbVersionIndexRoute: LibraryDbVersionIndexRoute,
   LibraryDevtoolsVersionIndexRoute: LibraryDevtoolsVersionIndexRoute,
   LibraryFormVersionIndexRoute: LibraryFormVersionIndexRoute,
+  LibraryHighlightVersionIndexRoute: LibraryHighlightVersionIndexRoute,
   LibraryHotkeysVersionIndexRoute: LibraryHotkeysVersionIndexRoute,
   LibraryIntentVersionIndexRoute: LibraryIntentVersionIndexRoute,
+  LibraryMarkdownVersionIndexRoute: LibraryMarkdownVersionIndexRoute,
   LibraryPacerVersionIndexRoute: LibraryPacerVersionIndexRoute,
   LibraryQueryVersionIndexRoute: LibraryQueryVersionIndexRoute,
   LibraryRangerVersionIndexRoute: LibraryRangerVersionIndexRoute,
@@ -3264,6 +3905,56 @@ const BuilderRouteChildren: BuilderRouteChildren = {
 
 const BuilderRouteWithChildren =
   BuilderRoute._addFileChildren(BuilderRouteChildren)
+
+interface DsRouteChildren {
+  DsAvatarRoute: typeof DsAvatarRoute
+  DsBadgesRoute: typeof DsBadgesRoute
+  DsBreadcrumbsRoute: typeof DsBreadcrumbsRoute
+  DsButtonsRoute: typeof DsButtonsRoute
+  DsCardsRoute: typeof DsCardsRoute
+  DsCollapsibleRoute: typeof DsCollapsibleRoute
+  DsColorsRoute: typeof DsColorsRoute
+  DsDropdownRoute: typeof DsDropdownRoute
+  DsEffectsRoute: typeof DsEffectsRoute
+  DsEyebrowRoute: typeof DsEyebrowRoute
+  DsIconographyRoute: typeof DsIconographyRoute
+  DsInputsRoute: typeof DsInputsRoute
+  DsLogosRoute: typeof DsLogosRoute
+  DsNavbarRoute: typeof DsNavbarRoute
+  DsPaletteRoute: typeof DsPaletteRoute
+  DsSemanticRoute: typeof DsSemanticRoute
+  DsShadowsRoute: typeof DsShadowsRoute
+  DsSpinnerRoute: typeof DsSpinnerRoute
+  DsStatsRoute: typeof DsStatsRoute
+  DsTypographyRoute: typeof DsTypographyRoute
+  DsIndexRoute: typeof DsIndexRoute
+}
+
+const DsRouteChildren: DsRouteChildren = {
+  DsAvatarRoute: DsAvatarRoute,
+  DsBadgesRoute: DsBadgesRoute,
+  DsBreadcrumbsRoute: DsBreadcrumbsRoute,
+  DsButtonsRoute: DsButtonsRoute,
+  DsCardsRoute: DsCardsRoute,
+  DsCollapsibleRoute: DsCollapsibleRoute,
+  DsColorsRoute: DsColorsRoute,
+  DsDropdownRoute: DsDropdownRoute,
+  DsEffectsRoute: DsEffectsRoute,
+  DsEyebrowRoute: DsEyebrowRoute,
+  DsIconographyRoute: DsIconographyRoute,
+  DsInputsRoute: DsInputsRoute,
+  DsLogosRoute: DsLogosRoute,
+  DsNavbarRoute: DsNavbarRoute,
+  DsPaletteRoute: DsPaletteRoute,
+  DsSemanticRoute: DsSemanticRoute,
+  DsShadowsRoute: DsShadowsRoute,
+  DsSpinnerRoute: DsSpinnerRoute,
+  DsStatsRoute: DsStatsRoute,
+  DsTypographyRoute: DsTypographyRoute,
+  DsIndexRoute: DsIndexRoute,
+}
+
+const DsRouteWithChildren = DsRoute._addFileChildren(DsRouteChildren)
 
 interface PartnersRouteChildren {
   PartnersPartnerRoute: typeof PartnersPartnerRoute
@@ -3335,6 +4026,7 @@ const rootRouteChildren: RootRouteChildren = {
   BrandGuideRoute: BrandGuideRoute,
   BuilderRoute: BuilderRouteWithChildren,
   DashboardRoute: DashboardRoute,
+  DsRoute: DsRouteWithChildren,
   EthosRoute: EthosRoute,
   ExploreRoute: ExploreRoute,
   FeedbackLeaderboardRoute: FeedbackLeaderboardRoute,
@@ -3393,6 +4085,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiMcpSplatRoute: ApiMcpSplatRoute,
   ApiOgChar123Char125DotpngRoute: ApiOgChar123Char125DotpngRoute,
   AuthProviderStartRoute: AuthProviderStartRoute,
+  ChartsCatalogCatalogDotjsonRoute: ChartsCatalogCatalogDotjsonRoute,
   IntentRegistryPackageNameRoute: IntentRegistryPackageNameRouteWithChildren,
   ShowcaseEditIdRoute: ShowcaseEditIdRoute,
   StatsNpmPackagesRoute: StatsNpmPackagesRoute,
@@ -3404,7 +4097,10 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthCliCreateTicketRoute: ApiAuthCliCreateTicketRoute,
   ApiBuilderDeployCheckNameRoute: ApiBuilderDeployCheckNameRoute,
   ApiBuilderDeployGithubRoute: ApiBuilderDeployGithubRoute,
+  ChartsCatalogEmbedCaseIdRoute: ChartsCatalogEmbedCaseIdRoute,
   ApiAuthCliStatusTicketIdRoute: ApiAuthCliStatusTicketIdRoute,
+  ChartsCatalogAssetsArtifactRevisionSplatRoute:
+    ChartsCatalogAssetsArtifactRevisionSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

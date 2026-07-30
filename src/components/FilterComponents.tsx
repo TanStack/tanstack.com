@@ -3,12 +3,12 @@ import { useState, useRef, useEffect } from 'react'
 import {
   Table,
   List,
-  ChevronDown,
+  CaretDown,
   Plus,
   X,
-  RotateCcw,
+  ArrowCounterClockwise,
   SlidersHorizontal,
-} from 'lucide-react'
+} from '@phosphor-icons/react'
 import { useDebouncer } from '@tanstack/react-pacer'
 import { twMerge } from 'tailwind-merge'
 type FeedViewMode = 'table' | 'timeline'
@@ -91,7 +91,7 @@ export function TopBarFilter({
                 !
               </span>
             )}
-            <ChevronDown
+            <CaretDown
               className={twMerge(
                 'w-3.5 h-3.5 transition-transform',
                 mobileExpanded && 'rotate-180',
@@ -110,7 +110,7 @@ export function TopBarFilter({
                 onClick={onClearAll}
                 className="mt-2 flex items-center gap-1 px-2 py-1 text-[11px] font-medium bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-md transition-colors"
               >
-                <RotateCcw className="w-3 h-3" />
+                <ArrowCounterClockwise className="w-3 h-3" />
                 <span>Reset all filters</span>
               </button>
             )}
@@ -137,7 +137,7 @@ export function TopBarFilter({
               onClick={onClearAll}
               className="flex items-center gap-1 px-2 py-1 text-[11px] font-medium bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-md transition-colors"
             >
-              <RotateCcw className="w-3 h-3" />
+              <ArrowCounterClockwise className="w-3 h-3" />
               <span>Reset</span>
             </button>
           )}
@@ -233,7 +233,7 @@ export function AddFilterButton({
       >
         <Plus className="w-3.5 h-3.5" />
         <span>{label}</span>
-        <ChevronDown
+        <CaretDown
           className={twMerge(
             'w-3.5 h-3.5 transition-transform',
             isOpen && 'rotate-180',
@@ -309,7 +309,7 @@ export function FacetFilterButton({
                 {selectionCount}
               </span>
             )}
-          <ChevronDown
+          <CaretDown
             className={twMerge(
               'w-3 h-3 transition-transform',
               isOpen && 'rotate-180',
@@ -394,7 +394,7 @@ export function FilterDropdownSection({
           className="flex items-center gap-1 flex-1 text-xs font-medium text-gray-900 dark:text-gray-100 hover:text-gray-700 dark:hover:text-gray-300"
         >
           <span>{title}</span>
-          <ChevronDown
+          <CaretDown
             className={twMerge(
               'w-3.5 h-3.5 transition-transform ml-auto',
               !isExpanded && '-rotate-90',
@@ -485,7 +485,7 @@ export function FilterSection({
           className="flex items-center gap-1.5 text-sm font-medium text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex-1 py-0"
         >
           <span>{title}</span>
-          <ChevronDown
+          <CaretDown
             className={twMerge(
               'w-3.5 h-3.5 transition-transform',
               !isExpanded && 'rotate-90',

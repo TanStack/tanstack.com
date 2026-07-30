@@ -1,4 +1,4 @@
-import { Link, redirect } from '@tanstack/react-router'
+import { redirect } from '@tanstack/react-router'
 import type { QueryClient } from '@tanstack/react-query'
 import { getLibrary } from '~/libraries'
 import type { LibraryId } from '~/libraries'
@@ -76,27 +76,4 @@ export function getLibraryLandingHeaders(libraryId: LandingLibraryId) {
   return stackBlitzLandingLibraryIds.has(libraryId)
     ? stackBlitzEmbedHeaders
     : {}
-}
-
-export function LibraryNavbarTitle({
-  libraryId,
-}: {
-  libraryId: LandingLibraryId
-}) {
-  const library = getLibrary(libraryId)
-  const libraryName = library.name.replace('TanStack ', '')
-  // DS type role for the navbar wordmark: heading-4 (20px / 700) in the display
-  // font. `text-transparent` sets color only, so it coexists with the size/
-  // weight from `text-ds-heading-4` (no conflict) and keeps the gradient clip.
-  const gradientText = `inline-block font-ds-display text-ds-heading-4 text-transparent bg-clip-text bg-linear-to-r ${library.colorFrom} ${library.colorTo}`
-
-  return (
-    <Link
-      to="/$libraryId"
-      params={{ libraryId: library.id }}
-      className="whitespace-nowrap"
-    >
-      <span className={gradientText}>{libraryName}</span>
-    </Link>
-  )
 }

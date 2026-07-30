@@ -3,23 +3,6 @@ import { seo } from '~/utils/seo'
 
 export const Route = createFileRoute('/builder/docs')({
   component: RouteComponent,
-  staticData: {
-    Title: () => (
-      <div className="flex items-center gap-2 text-gray-500">
-        <Link
-          to="/builder"
-          className="hover:text-blue-500 flex items-center gap-2"
-        >
-          Builder
-          <span className="px-1.5 py-0.5 text-[.6rem] font-black border border-amber-500 text-amber-500 rounded-md uppercase">
-            Alpha
-          </span>
-        </Link>
-        <span>/</span>
-        <span>Docs</span>
-      </div>
-    ),
-  },
   head: () => ({
     meta: seo({
       title: 'TanStack Builder Docs',

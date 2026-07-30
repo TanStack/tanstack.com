@@ -11,7 +11,7 @@ import {
   dot,
   lineY,
   renderChartSvg,
-} from '../../packages/charts-core/src/index.ts'
+} from '@tanstack/charts'
 import { activationChart } from './charts-landing/activation-chart'
 import { kineticAreaChart } from './charts-landing/kinetic-area-chart'
 import { kineticDumbbellChart } from './charts-landing/kinetic-dumbbell-chart'

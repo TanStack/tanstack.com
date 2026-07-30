@@ -296,6 +296,9 @@ export default defineConfig({
     ],
   },
   build: {
+    // The lazy iconography route intentionally ships the complete Phosphor
+    // registry so every icon can be browsed without follow-up requests.
+    chunkSizeWarningLimit: 4_000,
     minify: 'esbuild',
     sourcemap: shouldBuildSourcemaps,
     reportCompressedSize: false,

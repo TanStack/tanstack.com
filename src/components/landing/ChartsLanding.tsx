@@ -159,8 +159,10 @@ export default function ChartsLanding({
         </div>
 
         <p className="mt-6 max-w-3xl text-ds-body-xs text-text-muted">
-          Marks and channels are inspired by Observable Plot. TanStack Charts is
-          an independent implementation for typed application runtimes.
+          TanStack Charts builds on Leland Wilkinson&apos;s grammar of graphics
+          and the work of ggplot2, Vega-Lite, and Observable Plot. Its
+          marks-and-channels API is most directly inspired by Observable Plot,
+          but the runtime is an independent implementation.
         </p>
       </LandingSection>
 

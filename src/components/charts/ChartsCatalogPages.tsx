@@ -1,10 +1,13 @@
+import { ArrowsOutSimple, GridFour } from '@phosphor-icons/react'
 import { Link } from '@tanstack/react-router'
 import * as React from 'react'
+import { CodeBlock } from '~/components/markdown/CodeBlock'
 import type { ChartsCatalogCase } from '~/utils/charts-catalog'
 import {
   ChartsCatalogChart,
   type ChartsCatalogModuleReference,
 } from './ChartsCatalogChart'
+import { Resizable, type ResizableSizeChange } from '../npm-stats/Resizable'
 
 type CatalogCaseMetadata = Pick<
   ChartsCatalogCase,
@@ -31,13 +34,16 @@ type CatalogCaseModules = {
   }
 }
 
-export function ChartsCatalogIndex({
+export function ChartsCatalog({
+  artifactRevision,
   cases,
 }: {
-  cases: Array<CatalogCaseMetadata>
+  artifactRevision: string
+  cases: Array<CatalogCaseMetadata & { modules: CatalogCaseModules }>
 }) {
   const [query, setQuery] = React.useState('')
   const [family, setFamily] = React.useState('all')
+  const [fullWidth, setFullWidth] = React.useState(false)
   const families = React.useMemo(
     () => [...new Set(cases.map((catalogCase) => catalogCase.family))].sort(),
     [cases],
@@ -61,114 +67,44 @@ export function ChartsCatalogIndex({
         count={filtered.length}
         family={family}
         families={families}
+        fullWidth={fullWidth}
         query={query}
         setFamily={setFamily}
+        setFullWidth={setFullWidth}
         setQuery={setQuery}
       />
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {filtered.map((catalogCase) => (
-          <Link
-            key={catalogCase.id}
-            to="/charts/catalog/charts/$caseId"
-            params={{ caseId: catalogCase.id }}
-            search={true}
-            className="group rounded-xl border border-gray-200 bg-white p-4 transition-colors hover:border-blue-400 dark:border-gray-800 dark:bg-gray-950 dark:hover:border-blue-600"
-          >
-            <div className="flex items-start justify-between gap-4">
-              <h2 className="font-semibold leading-snug text-gray-950 group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400">
-                {catalogCase.title}
-              </h2>
-              <span className="shrink-0 font-mono text-xs text-gray-400">
-                {String(catalogCase.order).padStart(2, '0')}
-              </span>
-            </div>
-            <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
-              {catalogCase.family}
-            </p>
-          </Link>
-        ))}
-      </div>
-    </CatalogSurface>
-  )
-}
-
-export function ChartsCatalogAll({
-  artifactRevision,
-  cases,
-}: {
-  artifactRevision: string
-  cases: Array<CatalogCaseMetadata & { modules: CatalogCaseModules }>
-}) {
-  const [query, setQuery] = React.useState('')
-  const [family, setFamily] = React.useState('all')
-  const families = React.useMemo(
-    () => [...new Set(cases.map((catalogCase) => catalogCase.family))].sort(),
-    [cases],
-  )
-  const filtered = cases.filter((catalogCase) => {
-    const search = query.trim().toLowerCase()
-    return (
-      (family === 'all' || catalogCase.family === family) &&
-      (!search || catalogCase.title.toLowerCase().includes(search))
-    )
-  })
-
-  return (
-    <CatalogSurface wide>
-      <CatalogToolbar
-        count={filtered.length}
-        family={family}
-        families={families}
-        query={query}
-        setFamily={setFamily}
-        setQuery={setQuery}
-      />
-      <div className="space-y-4">
+      <div
+        className={`grid gap-4 ${
+          fullWidth ? '' : 'sm:grid-cols-2 lg:grid-cols-3'
+        }`}
+      >
         {filtered.map((catalogCase) => (
           <article
             key={catalogCase.id}
-            className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-950"
+            className="min-w-0 rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-950"
           >
-            <div className="mb-4 flex items-center justify-between gap-4">
+            <div className="flex items-start justify-between gap-4">
               <Link
                 to="/charts/catalog/charts/$caseId"
                 params={{ caseId: catalogCase.id }}
                 search={true}
-                className="font-semibold text-gray-950 hover:text-blue-600 dark:text-white dark:hover:text-blue-400"
+                className="font-semibold leading-snug text-gray-950 hover:text-blue-600 dark:text-white dark:hover:text-blue-400"
               >
                 {catalogCase.title}
               </Link>
-              <span className="text-xs text-gray-500">
+              <span className="shrink-0 text-xs text-gray-500">
                 {catalogCase.family}
               </span>
             </div>
-            <div
-              className={
-                catalogCase.modules.comparison
-                  ? 'grid gap-6 xl:grid-cols-2'
-                  : ''
-              }
-            >
-              <ChartPanel label="TanStack">
-                <ChartsCatalogChart
-                  artifactRevision={artifactRevision}
-                  caseId={catalogCase.id}
-                  defer
-                  module={catalogCase.modules.tanstack}
-                />
-              </ChartPanel>
-              {catalogCase.modules.comparison ? (
-                <ChartPanel
-                  label={rendererLabel(catalogCase.modules.comparison.renderer)}
-                >
-                  <ChartsCatalogChart
-                    artifactRevision={artifactRevision}
-                    caseId={`${catalogCase.id}-comparison`}
-                    defer
-                    module={catalogCase.modules.comparison}
-                  />
-                </ChartPanel>
-              ) : null}
+            <div className="mt-4">
+              <ResizableCatalogChart
+                key={`${catalogCase.id}:${fullWidth ? 'full' : 'grid'}`}
+                artifactRevision={artifactRevision}
+                caseId={catalogCase.id}
+                defer
+                initialHeight={fullWidth ? 420 : 320}
+                module={catalogCase.modules.tanstack}
+              />
             </div>
           </article>
         ))}
@@ -190,8 +126,6 @@ export function ChartsCatalogDetail({
     }
   }
 }) {
-  const [revision, setRevision] = React.useState(0)
-  const [width, setWidth] = React.useState<'wide' | 'compact'>('wide')
   const comparison = catalogCase.modules.comparison
 
   return (
@@ -208,63 +142,24 @@ export function ChartsCatalogDetail({
           <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-950 dark:text-white sm:text-3xl">
             {catalogCase.title}
           </h1>
-          <div className="mt-3 flex items-center gap-3 text-xs text-gray-500">
-            <span>{catalogCase.family}</span>
-            <a
-              href={catalogCase.source.url}
-              rel="noreferrer"
-              target="_blank"
-              className="hover:text-blue-600 dark:hover:text-blue-400"
-            >
-              Reference
-            </a>
-          </div>
-        </div>
-        <div className="flex rounded-lg border border-gray-200 p-1 text-xs dark:border-gray-800">
-          <button
-            type="button"
-            className={`rounded px-3 py-2 ${width === 'compact' ? 'bg-gray-100 dark:bg-gray-800' : ''}`}
-            onClick={() => setWidth('compact')}
-          >
-            640
-          </button>
-          <button
-            type="button"
-            className={`rounded px-3 py-2 ${width === 'wide' ? 'bg-gray-100 dark:bg-gray-800' : ''}`}
-            onClick={() => setWidth('wide')}
-          >
-            960
-          </button>
-          <button
-            type="button"
-            className="rounded px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800"
-            onClick={() => setRevision((value) => (value === 0 ? 1 : 0))}
-          >
-            Revision {revision}
-          </button>
+          <div className="mt-3 text-xs text-gray-500">{catalogCase.family}</div>
         </div>
       </div>
 
-      <div
-        className={`mx-auto grid gap-6 ${comparison ? 'xl:grid-cols-2' : ''} ${
-          width === 'compact' ? 'max-w-[640px]' : 'max-w-[960px]'
-        }`}
-      >
+      <div className={`grid gap-6 ${comparison ? 'xl:grid-cols-2' : ''}`}>
         <ChartPanel label="TanStack">
-          <ChartsCatalogChart
+          <ResizableCatalogChart
             artifactRevision={artifactRevision}
             caseId={catalogCase.id}
             module={catalogCase.modules.tanstack}
-            revision={revision}
           />
         </ChartPanel>
         {comparison ? (
           <ChartPanel label={rendererLabel(comparison.renderer)}>
-            <ChartsCatalogChart
+            <ResizableCatalogChart
               artifactRevision={artifactRevision}
               caseId={`${catalogCase.id}-comparison`}
               module={comparison}
-              revision={revision}
             />
           </ChartPanel>
         ) : null}
@@ -286,6 +181,40 @@ export function ChartsCatalogDetail({
   )
 }
 
+function ResizableCatalogChart({
+  artifactRevision,
+  caseId,
+  defer = false,
+  initialHeight = 360,
+  module,
+}: {
+  artifactRevision: string
+  caseId: string
+  defer?: boolean
+  initialHeight?: number
+  module: ChartsCatalogModuleReference
+}) {
+  const [height, setHeight] = React.useState(initialHeight)
+  const [width, setWidth] = React.useState<number | undefined>(undefined)
+
+  const onSizeChange = React.useCallback((size: ResizableSizeChange) => {
+    if (size.height !== undefined) setHeight(size.height)
+    if ('width' in size) setWidth(size.width)
+  }, [])
+
+  return (
+    <Resizable height={height} width={width} onSizeChange={onSizeChange}>
+      <ChartsCatalogChart
+        artifactRevision={artifactRevision}
+        caseId={caseId}
+        defer={defer}
+        height={height}
+        module={module}
+      />
+    </Resizable>
+  )
+}
+
 function CatalogSurface({
   children,
   wide = false,
@@ -295,7 +224,7 @@ function CatalogSurface({
 }) {
   return (
     <main
-      className={`mx-auto min-h-[calc(100vh-var(--navbar-height))] px-4 py-8 ${
+      className={`mx-auto min-h-[calc(100vh-var(--navbar-height))] w-full px-4 py-8 ${
         wide ? 'max-w-[1680px]' : 'max-w-6xl'
       }`}
     >
@@ -308,15 +237,19 @@ function CatalogToolbar({
   count,
   family,
   families,
+  fullWidth,
   query,
   setFamily,
+  setFullWidth,
   setQuery,
 }: {
   count: number
   family: string
   families: Array<string>
+  fullWidth: boolean
   query: string
   setFamily: (family: string) => void
+  setFullWidth: (fullWidth: boolean) => void
   setQuery: (query: string) => void
 }) {
   return (
@@ -342,8 +275,21 @@ function CatalogToolbar({
           </option>
         ))}
       </select>
-      <span className="w-16 text-right font-mono text-xs text-gray-500">
-        {count}
+      <button
+        type="button"
+        aria-pressed={fullWidth}
+        onClick={() => setFullWidth(!fullWidth)}
+        className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600 hover:text-gray-950 aria-pressed:border-blue-500 aria-pressed:text-blue-600 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-400 dark:hover:text-white dark:aria-pressed:border-blue-500 dark:aria-pressed:text-blue-400"
+      >
+        {fullWidth ? (
+          <GridFour aria-hidden="true" className="size-4" />
+        ) : (
+          <ArrowsOutSimple aria-hidden="true" className="size-4" />
+        )}
+        Full width
+      </button>
+      <span className="text-right font-mono text-xs text-gray-500">
+        {count} examples
       </span>
     </div>
   )
@@ -370,9 +316,12 @@ function SourceBlock({ path, source }: { path: string; source: string }) {
       <summary className="cursor-pointer px-4 py-3 font-mono text-xs text-gray-600 dark:text-gray-400">
         {path}
       </summary>
-      <pre className="max-h-[32rem] overflow-auto border-t border-gray-200 p-4 text-xs dark:border-gray-800">
-        <code>{source}</code>
-      </pre>
+      <CodeBlock
+        showTypeCopyButton={false}
+        className="max-h-[32rem] rounded-none border-x-0 border-b-0 [&_pre]:max-h-[32rem] [&_pre]:overflow-auto"
+      >
+        <code className="language-ts">{source}</code>
+      </CodeBlock>
     </details>
   )
 }

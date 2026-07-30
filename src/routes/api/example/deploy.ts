@@ -7,6 +7,11 @@ import {
   validateJsonRequest,
 } from "~/utils/api-boundary.server";
 import { parseBuilderRequest } from "~/builder/api/request-schema.server";
+import {
+  checkIpRateLimit,
+  rateLimitedResponse,
+  RATE_LIMITS,
+} from "~/utils/rateLimit.server";
 
 interface DeployRequest {
   repoName: string;
@@ -86,14 +91,12 @@ export const Route = createFileRoute("/api/example/deploy")({
           githubRepo,
           githubExample,
           providerConfig,
-          rateLimitModule,
         ] = await Promise.all([
           import("~/auth/index.server"),
           import("~/auth/github.server"),
           import("~/utils/github-repo.server"),
           import("~/utils/github-example.server"),
           import("~/utils/provider-config.server"),
-          import("~/utils/rateLimit.server"),
         ]);
         const { getAuthService } = authIndex;
         const { getGitHubAuthState } = authGithub;
@@ -109,8 +112,6 @@ export const Route = createFileRoute("/api/example/deploy")({
           generateExampleDescription,
           isStartApp: _isStartApp,
         } = providerConfig;
-        const { checkIpRateLimit, rateLimitedResponse, RATE_LIMITS } =
-          rateLimitModule;
         // Rate limiting (10 requests/minute per IP)
         const rateLimit = await checkIpRateLimit(request, RATE_LIMITS.deploy);
         if (!rateLimit.allowed) {

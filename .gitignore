@@ -38,3 +38,4 @@ test-results
 .tsbuildinfo
 src/routeTree.gen.ts
 .og-preview/
+.readme-preview/

@@ -166,6 +166,14 @@ await writeFile(
   landscapePng,
 )
 
+// Raster emblem for the README header renderer (takumi takes raster data).
+const emblemPng = await sharp(emblemPath, { density: 1200 })
+  .resize({ width: 256, height: 256, fit: 'contain', background: colors.cream })
+  .png()
+  .toBuffer()
+
+await writeFile(join(brandDir, 'tanstack-emblem-charcoal-256.png'), emblemPng)
+
 const ogLogo = await sharp(landscapePng).resize({ width: 360 }).png().toBuffer()
 const ogHeadline = await renderText(
   'The open source\napplication stack\nfor the web',
@@ -198,6 +206,7 @@ const outputs = [
   'public/android-chrome-192x192.png',
   'public/android-chrome-512x512.png',
   'public/images/brand/tanstack-landscape-black-640.png',
+  'public/images/brand/tanstack-emblem-charcoal-256.png',
   'src/images/og.png',
   'src/images/og-light.png',
 ]

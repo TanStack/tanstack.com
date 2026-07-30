@@ -3,7 +3,7 @@ import { ChartsCatalog } from '~/components/charts/ChartsCatalogPages'
 import { getChartsCatalogAll } from '~/utils/charts-catalog.functions'
 import { seo } from '~/utils/seo'
 
-export const Route = createFileRoute('/charts/catalog/')({
+export const Route = createFileRoute('/_library/charts/catalog/')({
   loader: () => getChartsCatalogAll({ data: { comparison: false } }),
   component: ChartsCatalogIndexRoute,
   head: () => ({

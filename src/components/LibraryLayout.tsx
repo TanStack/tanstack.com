@@ -791,6 +791,7 @@ type LibraryLayoutProps = {
 
 export function LibraryLayout({
   libraryId,
+  version: layoutVersion,
   colorFrom,
   colorTo,
   textColor,
@@ -800,16 +801,19 @@ export function LibraryLayout({
   children,
   isLandingPage = false,
 }: LibraryLayoutProps) {
-  const { version } = useParams({
-    strict: false,
-  }) as { version: string }
-  const { _splat } = useParams({ strict: false })
+  const { _splat, version: routeVersion } = useParams({ strict: false })
+  const version =
+    typeof routeVersion === 'string' ? routeVersion : layoutVersion
   const menuConfig = useMenuConfig({ config, frameworks, repo, libraryId })
 
   const matches = useMatches()
   const lastMatch = last(matches)
 
-  const isExample = matches.some((d) => d.pathname.includes('/examples/'))
+  const isExample = matches.some(
+    (d) =>
+      d.pathname.includes('/examples/') ||
+      d.routeId.startsWith('/_library/charts/catalog'),
+  )
 
   const isNpmStats = matches.some((d) => d.pathname.includes('/docs/npm-stats'))
 

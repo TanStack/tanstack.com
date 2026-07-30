@@ -32,8 +32,13 @@ export const Route = createFileRoute('/api/readme/{$}.png')({
 
         // Validated rather than ignored: a typo'd framework in a README should
         // surface as a broken image, not as a banner naming the wrong package.
+        // An omitted param means "no framework"; a present-but-blank one
+        // (`?framework=`) is a malformed URL, not a request for the default.
         const framework = url.searchParams.get('framework') ?? undefined
-        if (framework && !library.frameworks.includes(framework as Framework)) {
+        if (
+          framework !== undefined &&
+          !library.frameworks.includes(framework as Framework)
+        ) {
           return new Response(
             `Unknown framework "${framework}" for ${library.name}. Expected one of: ${library.frameworks.join(', ')}`,
             { status: 400 },

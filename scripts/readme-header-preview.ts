@@ -8,6 +8,10 @@ import { resolve } from 'node:path'
 import { libraries } from '../src/libraries/libraries'
 import { generateReadmeHeaderResponse } from '../src/server/og/generate.server'
 import type { Framework } from '../src/libraries/types'
+import {
+  MAX_OG_DESCRIPTION_LENGTH,
+  MAX_OG_TITLE_LENGTH,
+} from '../src/utils/og-limits'
 
 const OUT_DIR = resolve(process.cwd(), '.readme-preview')
 
@@ -99,6 +103,48 @@ async function main() {
 
     entries.push({ name: lib.name, files })
   }
+
+  // Boundary cases: `title`/`subtitle` are clamped by character count, not by
+  // rendered width, so the worst input is a single unbreakable token at the
+  // limit. These must stay inside the canvas rather than bleeding off the edge.
+  const boundaryFiles: Array<{ file: string; url: string }> = []
+  const boundaries = [
+    {
+      id: 'max-length-words',
+      title: 'TanStack Extremely Long Product Name That Fills The Whole Line',
+      subtitle:
+        'A tagline long enough to reach the clamp limit, with ordinary spaces in it so the renderer has somewhere to wrap the text onto a second line',
+    },
+    {
+      id: 'max-length-single-token',
+      title: 'A'.repeat(MAX_OG_TITLE_LENGTH),
+      subtitle: 'b'.repeat(MAX_OG_DESCRIPTION_LENGTH),
+    },
+    {
+      // Widest glyphs in the set — the case most likely to defeat the
+      // average-width estimate in the template's font fitting.
+      id: 'max-length-widest-glyphs',
+      title: 'W'.repeat(MAX_OG_TITLE_LENGTH),
+      subtitle: 'W'.repeat(MAX_OG_DESCRIPTION_LENGTH),
+    },
+  ]
+
+  for (const boundary of boundaries) {
+    const file = `zz-boundary-${boundary.id}.png`
+    if (
+      await renderToFile(file, {
+        libraryId: 'query',
+        title: boundary.title,
+        subtitle: boundary.subtitle,
+      })
+    ) {
+      boundaryFiles.push({
+        file,
+        url: `/api/readme/query.png?title=${encodeURIComponent(boundary.title).slice(0, 40)}…&subtitle=…`,
+      })
+    }
+  }
+  entries.push({ name: 'Boundary cases (clamp limits)', files: boundaryFiles })
 
   writeFileSync(resolve(OUT_DIR, 'index.html'), buildGallery(entries))
   console.log(`[ok] index.html`)

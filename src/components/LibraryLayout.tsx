@@ -1216,9 +1216,7 @@ export function LibraryLayout({
         data-docs-desktop-menu
         ref={expandedMenuRef}
         className={twMerge(
-          isLandingPage
-            ? 'max-w-[240px] xl:w-[240px] xl:max-w-[240px]'
-            : 'max-w-[250px] xl:max-w-[300px] 2xl:max-w-[400px]',
+          'w-[240px] max-w-[240px]',
           'flex-col overflow-hidden',
           'h-[calc(100dvh-var(--navbar-height)-var(--docs-tabs-height))] top-[calc(var(--navbar-height)+var(--docs-tabs-height))]',
           'border-r border-gray-500/20',
@@ -1252,12 +1250,7 @@ export function LibraryLayout({
           }
         }}
       >
-        <div
-          className={twMerge(
-            'flex flex-1 flex-col overflow-y-auto',
-            isLandingPage ? 'min-w-[239px]' : 'min-w-[230px]',
-          )}
-        >
+        <div className="flex min-w-[239px] flex-1 flex-col overflow-y-auto">
           <div className="flex flex-col gap-1 p-4">
             <FrameworkSelect libraryId={libraryId} />
             <VersionSelect libraryId={libraryId} />

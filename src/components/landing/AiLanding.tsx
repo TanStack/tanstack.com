@@ -9,7 +9,6 @@ import {
   Plug,
   Radio,
   Robot,
-  Scales,
   Terminal,
   Waveform,
   type Icon,
@@ -247,17 +246,6 @@ export default function AiLanding() {
           <DevtoolsPanel />
         </div>
       </LandingSection>
-
-      <LandingSection tone="accent">
-        <LandingSectionIntro
-          centered
-          eyebrow="Honest comparison"
-          icon={<Scales aria-hidden="true" size={15} />}
-          title="Pick the tradeoffs you want to live with."
-          body="TanStack AI is not the only good option in TypeScript, and these projects are not trying to be the same thing. The differences that actually matter are about ownership: what speaks to your UI, where the agent runs, and who else is involved."
-        />
-        <ComparisonTable />
-      </LandingSection>
     </LibraryLandingShell>
   )
 }
@@ -302,43 +290,59 @@ function CodeSurface({ children }: { children: React.ReactNode }) {
 function QuickStart() {
   return (
     <div className="mt-14 grid gap-5 lg:grid-cols-2">
-      <LandingWindow className="flex flex-col" label="server · app/api/chat.ts">
+      <LandingWindow
+        className="flex flex-col"
+        label="server · routes/api.chat.ts"
+      >
         <CodeSurface>
           <CodeLine>
             <Kw>import</Kw> {'{ chat, toServerSentEventsResponse }'}{' '}
             <Kw>from</Kw> <Str>'@tanstack/ai'</Str>
           </CodeLine>
           <CodeLine>
-            <Kw>import</Kw> {'{ openrouterText }'} <Kw>from</Kw>{' '}
+            <Kw>import</Kw> {'{ openRouterText }'} <Kw>from</Kw>{' '}
             <Str>'@tanstack/ai-openrouter'</Str>
+          </CodeLine>
+          <CodeLine>
+            <Kw>import</Kw> {'{ createFileRoute }'} <Kw>from</Kw>{' '}
+            <Str>'@tanstack/react-router'</Str>
           </CodeLine>
           <CodeLine />
           <CodeLine>
-            <Kw>export async function</Kw> <Fn>POST</Fn>(request: Request) {'{'}
+            <Kw>export const</Kw> Route = <Fn>createFileRoute</Fn>(
+            <Str>'/api/chat'</Str>)({'{'}
           </CodeLine>
-          <CodeLine indent={2}>
+          <CodeLine indent={2}>server: {'{'}</CodeLine>
+          <CodeLine indent={4}>handlers: {'{'}</CodeLine>
+          <CodeLine indent={6}>
+            <Fn>POST</Fn>: <Kw>async</Kw> ({'{ request }'}) =&gt; {'{'}
+          </CodeLine>
+          <CodeLine indent={8}>
             <Kw>const</Kw> {'{ messages }'} = <Kw>await</Kw> request.
             <Fn>json</Fn>()
           </CodeLine>
           <CodeLine />
-          <CodeLine indent={2}>
+          <CodeLine indent={8}>
             <Kw>const</Kw> stream = <Fn>chat</Fn>({'{'}
           </CodeLine>
-          <CodeLine indent={4}>
-            adapter: <Fn>openrouterText</Fn>(
+          <CodeLine indent={10}>
+            adapter: <Fn>openRouterText</Fn>(
             <Str>'anthropic/claude-sonnet-4.5'</Str>),
           </CodeLine>
-          <CodeLine indent={4}>messages,</CodeLine>
-          <CodeLine indent={4}>tools: [lookupInvoice],</CodeLine>
-          <CodeLine indent={2}>{'})'}</CodeLine>
+          <CodeLine indent={10}>messages,</CodeLine>
+          <CodeLine indent={10}>tools: [lookupInvoice],</CodeLine>
+          <CodeLine indent={8}>{'})'}</CodeLine>
           <CodeLine />
-          <CodeLine indent={2}>
+          <CodeLine indent={8}>
             <Cmt>// your route, your auth, your deploy target</Cmt>
           </CodeLine>
-          <CodeLine indent={2}>
+          <CodeLine indent={8}>
             <Kw>return</Kw> <Fn>toServerSentEventsResponse</Fn>(stream)
           </CodeLine>
-          <CodeLine>{'}'}</CodeLine>
+          <CodeLine indent={6}>{'},'}</CodeLine>
+          <CodeLine indent={4}>{'},'}</CodeLine>
+          <CodeLine indent={2}>{'},'}</CodeLine>
+          <CodeLine>{'})'}</CodeLine>
         </CodeSurface>
       </LandingWindow>
 
@@ -365,13 +369,42 @@ function QuickStart() {
             <Cmt>// typed state and events. no components, no styles.</Cmt>
           </CodeLine>
           <CodeLine indent={2}>
-            <Kw>return</Kw> messages.<Fn>map</Fn>((message) =&gt; (
+            <Kw>return</Kw> (
           </CodeLine>
-          <CodeLine indent={4}>
+          <CodeLine indent={4}>&lt;&gt;</CodeLine>
+          <CodeLine indent={6}>
+            {'{'}messages.<Fn>map</Fn>((message) =&gt; (
+          </CodeLine>
+          <CodeLine indent={8}>
             &lt;<Fn>Bubble</Fn> key={'{'}message.id{'}'} {'{'}...message{'}'}{' '}
             /&gt;
           </CodeLine>
-          <CodeLine indent={2}>))</CodeLine>
+          <CodeLine indent={6}>)){'}'}</CodeLine>
+          <CodeLine />
+          <CodeLine indent={6}>
+            <Cmt>
+              {'{/* the loop paused. you decide when it continues. */}'}
+            </Cmt>
+          </CodeLine>
+          <CodeLine indent={6}>
+            {'{'}interrupts.<Fn>map</Fn>((interrupt) =&gt; (
+          </CodeLine>
+          <CodeLine indent={8}>
+            &lt;<Fn>button</Fn> key={'{'}interrupt.id{'}'}
+          </CodeLine>
+          <CodeLine indent={10}>
+            onClick={'{'}() =&gt; interrupt.<Fn>resolveInterrupt</Fn>(
+            <Kw>true</Kw>){'}'}&gt;
+          </CodeLine>
+          <CodeLine indent={10}>
+            Approve {'{'}interrupt.toolName{'}'}
+          </CodeLine>
+          <CodeLine indent={8}>
+            &lt;/<Fn>button</Fn>&gt;
+          </CodeLine>
+          <CodeLine indent={6}>)){'}'}</CodeLine>
+          <CodeLine indent={4}>&lt;/&gt;</CodeLine>
+          <CodeLine indent={2}>)</CodeLine>
           <CodeLine>{'}'}</CodeLine>
         </CodeSurface>
       </LandingWindow>
@@ -1051,7 +1084,7 @@ const modalities: Array<RailItem> = [
   },
   {
     label: 'Realtime voice',
-    detail: 'realtimeToken · RealtimeClient',
+    detail: 'openaiRealtimeToken · RealtimeClient',
     body: 'OpenAI, Grok, and ElevenLabs with VAD modes and tool calling inside a live session.',
     icon: Waveform,
   },
@@ -1175,99 +1208,6 @@ function DevtoolsPanel() {
         </div>
       </div>
     </LandingWindow>
-  )
-}
-
-const comparisonColumns = ['TanStack AI', 'Vercel AI SDK', 'Mastra']
-const comparisonRows: Array<{ label: string; values: Array<string> }> = [
-  {
-    label: 'Protocol to your UI',
-    values: [
-      'AG-UI, both directions',
-      'Its own UI message stream',
-      'Its own HTTP API, AG-UI via CopilotKit',
-    ],
-  },
-  {
-    label: 'Client bindings',
-    values: [
-      'React, Vue, Solid, Svelte, Preact, Angular, plus a framework-free core',
-      'React, Vue, Svelte, Angular',
-      'React, plus a framework-free client',
-    ],
-  },
-  {
-    label: 'Where the agent runs',
-    values: [
-      'Any server you already have',
-      'Any server you already have',
-      'Its own Hono server, or embedded in your app',
-    ],
-  },
-  {
-    label: 'Hosted service in the loop',
-    values: ['None', 'Optional Vercel platform', 'Optional Mastra platform'],
-  },
-  {
-    label: 'License',
-    values: ['MIT', 'Apache 2.0', 'Apache 2.0, with ee/ under separate terms'],
-  },
-]
-
-function ComparisonTable() {
-  return (
-    <div className="mx-auto mt-14 max-w-[72rem]">
-      <div className="overflow-x-auto rounded-xl border border-border-default bg-background-surface">
-        <table className="w-full min-w-[46rem] border-collapse text-left">
-          <thead>
-            <tr>
-              <th className="border-b border-border-subtle px-5 py-4 font-ds-mono text-ds-mono-caps-xs font-normal uppercase text-text-primary/25">
-                Dimension
-              </th>
-              {comparisonColumns.map((column, index) => (
-                <th
-                  key={column}
-                  className={
-                    index === 0
-                      ? 'border-b border-border-subtle px-5 py-4 text-ds-label-md text-[var(--landing-accent-bright)]'
-                      : 'border-b border-border-subtle px-5 py-4 text-ds-label-md text-text-primary/50'
-                  }
-                >
-                  {column}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {comparisonRows.map((row) => (
-              <tr key={row.label}>
-                <th className="border-b border-border-subtle px-5 py-4 align-top text-ds-label-sm font-normal text-text-primary/60 last:border-b-0">
-                  {row.label}
-                </th>
-                {row.values.map((value, index) => (
-                  <td
-                    key={`${row.label}-${comparisonColumns[index]}`}
-                    className={
-                      index === 0
-                        ? 'border-b border-border-subtle bg-[color:rgb(var(--landing-glow)/0.06)] px-5 py-4 align-top text-ds-body-xs text-text-primary/70'
-                        : 'border-b border-border-subtle px-5 py-4 align-top text-ds-body-xs text-text-primary/40'
-                    }
-                  >
-                    {value}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <p className="mt-5 text-center text-ds-body-xs text-text-primary/35">
-        Checked against @tanstack/ai 0.42, ai 7.0, and @mastra/core 1.56 in July
-        2026. All three ship typed tools, MCP, memory, sandboxed code execution,
-        and coding-agent harnesses, so those are not differentiators. If we have
-        a detail wrong, tell us and we will fix it.
-      </p>
-    </div>
   )
 }
 

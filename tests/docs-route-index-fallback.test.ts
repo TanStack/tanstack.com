@@ -53,10 +53,7 @@ function load(docsPath: string, fetchDocs: FetchDocs) {
 test('canonical reference paths load their index files', async () => {
   for (const [docsPath, expectedFilePath] of [
     ['reference', 'docs/reference/index.md'],
-    [
-      'framework/react/reference',
-      'docs/framework/react/reference/index.md',
-    ],
+    ['framework/react/reference', 'docs/framework/react/reference/index.md'],
   ]) {
     const { fetchDocs, fetchedFilePaths } = createFetchDocs()
     const doc = await load(docsPath, fetchDocs)

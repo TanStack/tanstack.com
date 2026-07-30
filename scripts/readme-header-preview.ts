@@ -48,7 +48,7 @@ function buildGallery(
        opacity: .55; margin: 0 0 12px; font-weight: 600; }
   figure { margin: 0 0 20px; }
   figcaption { font-size: 12px; opacity: .5; margin-bottom: 6px;
-               font-family: ui-monospace, monospace; }
+               font-family: ui-monospace, monospace; overflow-wrap: anywhere; }
   /* 900px matches how GitHub renders these inside a README. */
   img { width: 900px; max-width: 100%; display: block; border: 1px solid #2e2e2e; }
 </style>
@@ -138,10 +138,13 @@ async function main() {
         subtitle: boundary.subtitle,
       })
     ) {
-      boundaryFiles.push({
-        file,
-        url: `/api/readme/query.png?title=${encodeURIComponent(boundary.title).slice(0, 40)}…&subtitle=…`,
+      // Full query string, so the caption can be pasted to regenerate the
+      // exact image shown.
+      const query = new URLSearchParams({
+        title: boundary.title,
+        subtitle: boundary.subtitle,
       })
+      boundaryFiles.push({ file, url: `/api/readme/query.png?${query}` })
     }
   }
   entries.push({ name: 'Boundary cases (clamp limits)', files: boundaryFiles })

@@ -57,14 +57,17 @@ function fitFontSize(
     limit(longestToken, TEXT_MAX_WIDTH),
   )
 
-  return Math.max(16, Math.floor(fitted))
+  // Floor only guards against a zero/negative size; it must stay below what
+  // the clamped inputs can compute (160 wide glyphs land around 12px) so the
+  // width calculation, not the floor, decides the final size.
+  return Math.max(8, Math.floor(fitted))
 }
 
 // Deliberately pessimistic — closer to the widest glyphs ('W', 'M') than to the
 // average, so an all-caps worst case still lands inside the padding instead of
 // exactly on it. Only text that already needs shrinking is affected.
-const DISPLAY_GLYPH_RATIO = 0.78
-const BODY_GLYPH_RATIO = 0.66
+const DISPLAY_GLYPH_RATIO = 0.95
+const BODY_GLYPH_RATIO = 0.82
 
 export function buildReadmeHeaderTree(props: ReadmeHeaderProps): ReactElement {
   const [nameLine1, nameLine2] = splitName(props.name)

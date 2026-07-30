@@ -186,9 +186,7 @@ const catalogCaseEntries = {
   ),
 }
 
-const catalogCaseV2Schema = v.strictObject(catalogCaseEntries)
-
-const catalogCaseV4Schema = v.strictObject({
+const catalogCaseSchema = v.strictObject({
   ...catalogCaseEntries,
   authoredSource: v.strictObject({
     tanstack: catalogSourceClosureSchema,
@@ -252,21 +250,7 @@ const catalogAssetsSchema = v.pipe(
   v.maxEntries(1_000),
 )
 
-const chartsCatalogManifestV2Schema = v.strictObject({
-  schemaVersion: v.literal(2),
-  revision: gitShaSchema,
-  source: v.strictObject({
-    repo: v.literal(chartsCatalogRepo),
-    ref: gitShaSchema,
-  }),
-  runtime: catalogRuntimeSchema,
-  site: catalogSiteSchema,
-  embed: catalogEmbedSchema,
-  assets: catalogAssetsSchema,
-  cases: v.pipe(v.array(catalogCaseV2Schema), v.nonEmpty()),
-})
-
-const chartsCatalogManifestV4Schema = v.strictObject({
+const chartsCatalogManifestSchema = v.strictObject({
   schemaVersion: v.literal(4),
   revision: gitShaSchema,
   source: v.strictObject({
@@ -279,19 +263,11 @@ const chartsCatalogManifestV4Schema = v.strictObject({
   embed: catalogEmbedSchema,
   datasets: v.record(v.string(), catalogDatasetSchema),
   assets: catalogAssetsSchema,
-  cases: v.pipe(v.array(catalogCaseV4Schema), v.nonEmpty()),
+  cases: v.pipe(v.array(catalogCaseSchema), v.nonEmpty()),
 })
-
-const chartsCatalogManifestSchema = v.variant('schemaVersion', [
-  chartsCatalogManifestV2Schema,
-  chartsCatalogManifestV4Schema,
-])
 
 export type ChartsCatalogManifest = v.InferOutput<
   typeof chartsCatalogManifestSchema
->
-export type ChartsCatalogManifestV4 = v.InferOutput<
-  typeof chartsCatalogManifestV4Schema
 >
 export type ChartsCatalogCase = ChartsCatalogManifest['cases'][number]
 export type ChartsCatalogDataset = v.InferOutput<typeof catalogDatasetSchema>
@@ -372,19 +348,13 @@ function validateManifestRelationships(manifest: ChartsCatalogManifest) {
       }
     }
   }
-  const totalAssetLimit =
-    manifest.schemaVersion === 4 ? 6 * 1024 * 1024 : 5 * 1024 * 1024
-  if (totalAssetBytes > totalAssetLimit) {
+  if (totalAssetBytes > 6 * 1024 * 1024) {
     throw new TypeError(
-      `Invalid Charts catalog manifest: assets exceed ${
-        manifest.schemaVersion === 4 ? 6 : 5
-      } MiB total`,
+      'Invalid Charts catalog manifest: assets exceed 6 MiB total',
     )
   }
 
-  if (manifest.schemaVersion === 4) {
-    validateCatalogDatasets(manifest)
-  }
+  validateCatalogDatasets(manifest)
 
   const caseIds = new Set<string>()
   const caseOrders = new Set<number>()
@@ -449,21 +419,19 @@ function validateManifestRelationships(manifest: ChartsCatalogManifest) {
     )
   }
 
-  if (manifest.schemaVersion === 4) {
-    for (const catalogCase of manifest.cases) {
-      validateCatalogSourceClosure(
-        catalogCase.authoredSource.tanstack,
-        `${catalogCase.id} TanStack authored source`,
-        catalogCase.code.tanstack.slice(manifest.source.pathRoot.length),
-        manifest.datasets,
-      )
-      validateCatalogSourceClosure(
-        catalogCase.authoredSource.reference,
-        `${catalogCase.id} reference authored source`,
-        catalogCase.code.reference.slice(manifest.source.pathRoot.length),
-        manifest.datasets,
-      )
-    }
+  for (const catalogCase of manifest.cases) {
+    validateCatalogSourceClosure(
+      catalogCase.authoredSource.tanstack,
+      `${catalogCase.id} TanStack authored source`,
+      catalogCase.code.tanstack.slice(manifest.source.pathRoot.length),
+      manifest.datasets,
+    )
+    validateCatalogSourceClosure(
+      catalogCase.authoredSource.reference,
+      `${catalogCase.id} reference authored source`,
+      catalogCase.code.reference.slice(manifest.source.pathRoot.length),
+      manifest.datasets,
+    )
   }
 
   const reachableAssets = new Set<string>()
@@ -473,7 +441,6 @@ function validateManifestRelationships(manifest: ChartsCatalogManifest) {
       'tanstack',
       catalogCase.modules.tanstack,
       manifest,
-      manifest.schemaVersion === 4,
     )
     collectReachableAssets(
       catalogCase.modules.tanstack.path,
@@ -486,7 +453,6 @@ function validateManifestRelationships(manifest: ChartsCatalogManifest) {
       'comparison',
       catalogCase.modules.comparison,
       manifest,
-      manifest.schemaVersion === 4,
     )
     collectReachableAssets(
       catalogCase.modules.comparison.path,
@@ -524,7 +490,6 @@ function validateStaticPreloadClosure(
   renderer: string,
   module: { path: string; preload: Array<string> },
   manifest: ChartsCatalogManifest,
-  requireCanonicalOrder: boolean,
 ) {
   const expectedPreload = new Set<string>()
   collectStaticImports(module.path, manifest, expectedPreload)
@@ -536,8 +501,7 @@ function validateStaticPreloadClosure(
     actualPreload.size !== module.preload.length ||
     actualPreload.size !== expected.length ||
     expected.some((assetPath) => !actualPreload.has(assetPath)) ||
-    (requireCanonicalOrder &&
-      JSON.stringify(module.preload) !== JSON.stringify(expected))
+    JSON.stringify(module.preload) !== JSON.stringify(expected)
 
   if (invalid) {
     throw new TypeError(
@@ -547,7 +511,7 @@ function validateStaticPreloadClosure(
 }
 
 type ChartsCatalogSourceClosureMetadata =
-  ChartsCatalogManifestV4['cases'][number]['authoredSource']['tanstack']
+  ChartsCatalogManifest['cases'][number]['authoredSource']['tanstack']
 type ChartsCatalogSourceRole = keyof ChartsCatalogSourceClosureMetadata['roles']
 
 const chartsCatalogSourceRoles: Array<ChartsCatalogSourceRole> = [
@@ -557,7 +521,7 @@ const chartsCatalogSourceRoles: Array<ChartsCatalogSourceRole> = [
   'harness',
 ]
 
-function validateCatalogDatasets(manifest: ChartsCatalogManifestV4) {
+function validateCatalogDatasets(manifest: ChartsCatalogManifest) {
   for (const [id, dataset] of Object.entries(manifest.datasets)) {
     if (
       dataset.id !== id ||
@@ -576,7 +540,7 @@ function validateCatalogSourceClosure(
   closure: ChartsCatalogSourceClosureMetadata,
   label: string,
   entryPath: string,
-  datasets: ChartsCatalogManifestV4['datasets'],
+  datasets: ChartsCatalogManifest['datasets'],
 ) {
   if (
     !Number.isSafeInteger(closure.totalFiles) ||

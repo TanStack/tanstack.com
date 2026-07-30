@@ -162,17 +162,6 @@ export function createChartsCatalogManifest(): Record<string, any> {
   }
 }
 
-export function createChartsCatalogV2Manifest(): Record<string, any> {
-  const manifest = createChartsCatalogManifest()
-  manifest.schemaVersion = 2
-  delete manifest.source.pathRoot
-  delete manifest.datasets
-  for (const catalogCase of manifest.cases) {
-    delete catalogCase.authoredSource
-  }
-  return manifest
-}
-
 function createSourceClosure(paths: {
   entry: Array<string>
   support: Array<string>

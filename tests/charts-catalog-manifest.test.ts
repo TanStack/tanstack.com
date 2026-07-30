@@ -4,7 +4,6 @@ import { parseChartsCatalogManifest } from '../src/utils/charts-catalog'
 import {
   comparisonAsset,
   createChartsCatalogManifest,
-  createChartsCatalogV2Manifest,
   datasetId,
   sharedAsset,
   sourceRevision,
@@ -40,11 +39,16 @@ test('catalog manifest accepts the generated v4 contract', () => {
   ])
 })
 
-test('catalog manifest keeps accepting the published v2 contract', () => {
-  const manifest = parseChartsCatalogManifest(createChartsCatalogV2Manifest())
+test('catalog manifest rejects the retired v2 contract', () => {
+  const manifest = createChartsCatalogManifest()
+  manifest.schemaVersion = 2
+  delete manifest.source.pathRoot
+  delete manifest.datasets
+  for (const catalogCase of manifest.cases) {
+    delete catalogCase.authoredSource
+  }
 
-  assert.equal(manifest.schemaVersion, 2)
-  assert.equal(manifest.cases[0]?.id, '01-line')
+  assert.throws(() => parseChartsCatalogManifest(manifest))
 })
 
 expectRejected('an unsupported schema version', (manifest) => {
@@ -224,13 +228,6 @@ test('catalog v4 accepts assets above 5 MiB through the 6 MiB limit', () => {
   expandAssetClosureToSixMiB(manifest)
 
   assert.doesNotThrow(() => parseChartsCatalogManifest(manifest))
-})
-
-test('catalog v2 retains its 5 MiB asset limit', () => {
-  const manifest = createChartsCatalogV2Manifest()
-  expandAssetClosureToSixMiB(manifest)
-
-  assert.throws(() => parseChartsCatalogManifest(manifest))
 })
 
 test('catalog v4 rejects assets above the 6 MiB limit', () => {

@@ -9,9 +9,7 @@ import { resetGitHubContentCacheForTest } from '../src/utils/github-content-cach
 import {
   catalogSources,
   createChartsCatalogManifest,
-  createChartsCatalogV2Manifest,
   datasetId,
-  sourceRevision,
 } from './charts-catalog-test-fixture'
 
 test('catalog v4 loads complete authored source roles without harness code', async () => {
@@ -81,40 +79,6 @@ test('catalog source loading verifies v4 role metrics against immutable files', 
       getChartsCatalogAuthoredSource(manifest, '01-line', 'tanstack'),
       ChartsCatalogIntegrityError,
     )
-  } finally {
-    globalThis.fetch = originalFetch
-    resetGitHubContentCacheForTest()
-  }
-})
-
-test('catalog v2 source loading preserves its entry-only fallback', async () => {
-  const manifest = parseChartsCatalogManifest(createChartsCatalogV2Manifest())
-  const requests = new Array<string>()
-  const originalFetch = globalThis.fetch
-  resetGitHubContentCacheForTest()
-  globalThis.fetch = async (input) => {
-    const url = String(input)
-    requests.push(url)
-    return new Response(catalogSources['cases/01-line/tanstack.ts'])
-  }
-
-  try {
-    const source = await getChartsCatalogAuthoredSource(
-      manifest,
-      '01-line',
-      'tanstack',
-    )
-
-    assert.equal(source.totalFiles, 1)
-    assert.deepEqual(
-      source.files.map((file) => file.path),
-      ['benchmarks/conformance/cases/01-line/tanstack.ts'],
-    )
-    assert.deepEqual(source.datasets, [])
-    assert.deepEqual(source.excludedHarness.paths, [])
-    assert.deepEqual(requests, [
-      `https://raw.githubusercontent.com/tanstack/charts/${sourceRevision}/benchmarks/conformance/cases/01-line/tanstack.ts`,
-    ])
   } finally {
     globalThis.fetch = originalFetch
     resetGitHubContentCacheForTest()

@@ -2192,7 +2192,23 @@ type NpmStatsChartInput = {
   yLabel?: string
 }
 
-const npmStatsChart = defineChart<NpmStatsChartInput>()(({ input }) => {
+function createNpmStatsChart(input: NpmStatsChartInput) {
+  const definition = defineChart(() => createNpmStatsChartSpec(input))
+
+  return defineChart(definition, {
+    animate: {
+      duration: chartUpdateTransitionDurationMs,
+      easing: 'ease-out',
+    },
+    focus:
+      input.viewMode === 'latest' && input.barOrientation === 'horizontal'
+        ? focusY
+        : focusX,
+    tooltip: { formatGroup: formatNpmChartTooltip },
+  })
+}
+
+function createNpmStatsChartSpec(input: NpmStatsChartInput) {
   const common = {
     gradients: input.gradients,
     margin: {
@@ -2394,7 +2410,7 @@ const npmStatsChart = defineChart<NpmStatsChartInput>()(({ input }) => {
     },
     clip: !!input.timelineDomain,
   }
-})
+}
 
 function ChartFigure({
   colorLegendEntries,
@@ -2432,6 +2448,7 @@ function ChartFigure({
     reservedHeight: legendHeight + footerHeight,
     totalHeight: height,
   })
+  const definition = React.useMemo(() => createNpmStatsChart(input), [input])
 
   React.useEffect(() => {
     return () => {
@@ -2465,8 +2482,7 @@ function ChartFigure({
         ))}
       </div>
       <Chart
-        definition={npmStatsChart}
-        input={input}
+        definition={definition}
         width={width}
         height={chartHeight}
         ariaLabel={
@@ -2474,16 +2490,6 @@ function ChartFigure({
             ? 'npm download totals by package'
             : 'npm downloads by date'
         }
-        animate={{
-          duration: chartUpdateTransitionDurationMs,
-          easing: 'ease-out',
-        }}
-        focus={
-          input.viewMode === 'latest' && input.barOrientation === 'horizontal'
-            ? focusY
-            : focusX
-        }
-        tooltip={{ formatGroup: formatNpmChartTooltip }}
         renderSvg={renderChartSvgWithResources}
         onRender={({ svg }) => {
           svgRef.current = svg

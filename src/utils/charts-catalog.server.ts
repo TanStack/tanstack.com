@@ -9,7 +9,10 @@ import {
   chartsCatalogPublicationRef,
   chartsCatalogRepo,
   parseChartsCatalogManifest,
+  type ChartsCatalogAuthoredSource,
+  type ChartsCatalogManifest,
   type ChartsCatalogPublication,
+  type ChartsCatalogSourceKind,
 } from './charts-catalog'
 
 const catalogManifestPath = 'catalog.json'
@@ -148,6 +151,100 @@ export async function getChartsCatalogSource(
   return source
 }
 
+export async function getChartsCatalogAuthoredSource(
+  manifest: ChartsCatalogManifest,
+  caseId: string,
+  implementation: 'tanstack' | 'reference',
+): Promise<ChartsCatalogAuthoredSource> {
+  if (manifest.schemaVersion === 2) {
+    const catalogCase = manifest.cases.find((entry) => entry.id === caseId)
+    if (!catalogCase) {
+      throw new ChartsCatalogResourceNotFoundError(
+        `Charts catalog case not found: ${caseId}`,
+      )
+    }
+    const path =
+      implementation === 'tanstack'
+        ? catalogCase.code.tanstack
+        : catalogCase.code.reference
+    const source = await getChartsCatalogSource(manifest.revision, path)
+    const lines = countCatalogSourceLines(source)
+    const bytes = countCatalogSourceBytes(source)
+    return {
+      totalFiles: 1,
+      totalLines: lines,
+      totalBytes: bytes,
+      roles: {
+        entry: { files: 1, lines, bytes },
+        support: { files: 0, lines: 0, bytes: 0 },
+        fixture: { files: 0, lines: 0, bytes: 0 },
+      },
+      files: [{ path, source, kind: 'entry', lines, bytes }],
+      datasets: [],
+      excludedHarness: { files: 0, lines: 0, bytes: 0, paths: [] },
+    }
+  }
+
+  const catalogCase = manifest.cases.find((entry) => entry.id === caseId)
+  if (!catalogCase) {
+    throw new ChartsCatalogResourceNotFoundError(
+      `Charts catalog case not found: ${caseId}`,
+    )
+  }
+  const closure = catalogCase.authoredSource[implementation]
+  const sourceKinds: Array<ChartsCatalogSourceKind> = [
+    'entry',
+    'support',
+    'fixture',
+  ]
+  const files = await Promise.all(
+    sourceKinds.flatMap((kind) =>
+      closure.roles[kind].paths.map(async (path) => {
+        const source = await getChartsCatalogSource(
+          manifest.revision,
+          `${manifest.source.pathRoot}${path}`,
+        )
+        return {
+          path,
+          source,
+          kind,
+          lines: countCatalogSourceLines(source),
+          bytes: countCatalogSourceBytes(source),
+        }
+      }),
+    ),
+  )
+  const roles = {
+    entry: getCatalogSourceMetrics(files, 'entry'),
+    support: getCatalogSourceMetrics(files, 'support'),
+    fixture: getCatalogSourceMetrics(files, 'fixture'),
+  }
+
+  for (const kind of sourceKinds) {
+    const expected = closure.roles[kind]
+    const actual = roles[kind]
+    if (
+      actual.files !== expected.files ||
+      actual.lines !== expected.lines ||
+      actual.bytes !== expected.bytes
+    ) {
+      throw new ChartsCatalogIntegrityError(
+        `Charts catalog ${caseId} ${implementation} ${kind} source failed its metadata check`,
+      )
+    }
+  }
+
+  return {
+    totalFiles: closure.totalFiles,
+    totalLines: closure.totalLines,
+    totalBytes: closure.totalBytes,
+    roles,
+    files,
+    datasets: closure.datasetIds.map((id) => manifest.datasets[id]),
+    excludedHarness: closure.roles.harness,
+  }
+}
+
 async function readChartsCatalogManifest(artifactRevision: string) {
   const filePath = shouldUseLocalDocsFiles()
     ? `${localCatalogRoot}/${catalogManifestPath}`
@@ -181,6 +278,33 @@ async function readChartsCatalogManifest(artifactRevision: string) {
       error,
     )
   }
+}
+
+function getCatalogSourceMetrics(
+  files: ChartsCatalogAuthoredSource['files'],
+  kind: ChartsCatalogSourceKind,
+) {
+  return files.reduce(
+    (metrics, file) =>
+      file.kind === kind
+        ? {
+            files: metrics.files + 1,
+            lines: metrics.lines + file.lines,
+            bytes: metrics.bytes + file.bytes,
+          }
+        : metrics,
+    { files: 0, lines: 0, bytes: 0 },
+  )
+}
+
+function countCatalogSourceLines(source: string) {
+  if (source.length === 0) return 0
+  const lineBreaks = source.match(/\r\n|\r|\n/g)?.length ?? 0
+  return lineBreaks + (/(?:\r\n|\r|\n)$/.test(source) ? 0 : 1)
+}
+
+function countCatalogSourceBytes(source: string) {
+  return new TextEncoder().encode(source).byteLength
 }
 
 async function getPublishedChartsCatalogRevisions() {

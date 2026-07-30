@@ -52,16 +52,19 @@ export const getChartsCatalogCase = createServerFn({ method: 'GET' })
     )
     if (!catalogCase) return null
 
-    const { getChartsCatalogSource } = await import('./charts-catalog.server')
+    const { getChartsCatalogAuthoredSource } =
+      await import('./charts-catalog.server')
     const [tanstackSource, comparisonSource] = await Promise.all([
-      getChartsCatalogSource(
-        publication.manifest.revision,
-        catalogCase.code.tanstack,
+      getChartsCatalogAuthoredSource(
+        publication.manifest,
+        catalogCase.id,
+        'tanstack',
       ),
       data.comparison
-        ? getChartsCatalogSource(
-            publication.manifest.revision,
-            catalogCase.code.reference,
+        ? getChartsCatalogAuthoredSource(
+            publication.manifest,
+            catalogCase.id,
+            'reference',
           )
         : Promise.resolve(undefined),
     ])
@@ -75,19 +78,9 @@ export const getChartsCatalogCase = createServerFn({ method: 'GET' })
         modules: data.comparison
           ? catalogCase.modules
           : { tanstack: catalogCase.modules.tanstack },
-        code: {
-          tanstack: {
-            path: catalogCase.code.tanstack,
-            source: tanstackSource,
-          },
-          ...(data.comparison
-            ? {
-                comparison: {
-                  path: catalogCase.code.reference,
-                  source: comparisonSource,
-                },
-              }
-            : {}),
+        authoredSource: {
+          tanstack: tanstackSource,
+          ...(comparisonSource ? { comparison: comparisonSource } : {}),
         },
       },
     }
@@ -102,12 +95,13 @@ export const getChartsCatalogEmbedCase = createServerFn({ method: 'GET' })
     )
     if (!catalogCase) return null
 
-    const source = data.source
+    const authoredSource = data.source
       ? await (
           await import('./charts-catalog.server')
-        ).getChartsCatalogSource(
-          publication.manifest.revision,
-          catalogCase.code.tanstack,
+        ).getChartsCatalogAuthoredSource(
+          publication.manifest,
+          catalogCase.id,
+          'tanstack',
         )
       : undefined
 
@@ -119,12 +113,7 @@ export const getChartsCatalogEmbedCase = createServerFn({ method: 'GET' })
         id: catalogCase.id,
         title: catalogCase.title,
         module: catalogCase.modules.tanstack,
-        code: source
-          ? {
-              path: catalogCase.code.tanstack,
-              source,
-            }
-          : undefined,
+        authoredSource,
       },
     }
   })

@@ -17,7 +17,7 @@ export const Route = createFileRoute('/_library/charts/$version/')({
   loader: async ({ params, context: { queryClient } }) => {
     const [landing, catalog] = await Promise.all([
       loadLibraryLandingRouteData('charts', params.version, queryClient),
-      getChartsCatalogAll({ data: { comparison: false } }),
+      getChartsCatalogAll({ data: { comparison: false } }).catch(() => null),
     ])
 
     return { ...landing, catalog }

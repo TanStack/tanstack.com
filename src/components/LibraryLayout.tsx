@@ -1097,7 +1097,7 @@ export function LibraryLayout({
                     to={child.to}
                     params={linkParams}
                     onClick={closeMobileMenu}
-                    preload="intent"
+                    preload={isChartsExamplesLink ? false : 'intent'}
                     activeOptions={{
                       exact: true,
                       includeHash: false,
@@ -1210,6 +1210,9 @@ export function LibraryLayout({
                       to={target.to}
                       params={linkParams}
                       onClick={closeMobileMenu}
+                      preload={
+                        target.to === '/charts/catalog' ? false : 'intent'
+                      }
                       aria-current={isActive ? 'page' : undefined}
                       className={twMerge(
                         'relative block whitespace-nowrap pb-2 font-semibold',
@@ -1395,6 +1398,7 @@ export function LibraryLayout({
                   }
                   to={target.to}
                   params={linkParams}
+                  preload={target.to === '/charts/catalog' ? false : 'intent'}
                   activeOptions={{
                     exact: true,
                     includeHash: false,

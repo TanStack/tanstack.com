@@ -140,7 +140,7 @@ export function parseChartsCatalogEmbedRouteSearch(
   search: ChartsCatalogEmbedRouteSearch,
 ): ChartsCatalogEmbedLoaderDeps {
   return {
-    height: parseChartsCatalogEmbedInteger(search.height, 360, 120, 1_200),
+    height: parseChartsCatalogEmbedInteger(search.height, 480, 120, 1_200),
     revision: parseChartsCatalogEmbedInteger(search.revision, 0, 0, 10_000),
     source: isChartsCatalogEmbedSource(search.source)
       ? search.source

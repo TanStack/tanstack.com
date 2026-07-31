@@ -235,7 +235,7 @@ const catalogEmbedSchema = v.strictObject({
     height: v.strictObject({
       minimum: v.literal(120),
       maximum: v.literal(1_200),
-      default: v.literal(360),
+      default: v.literal(480),
     }),
     revision: v.strictObject({
       minimum: v.literal(0),

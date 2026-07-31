@@ -2,9 +2,13 @@ import {
   fetchGitHubCommitHistory,
   fetchRepoRawFile,
   GitHubContentError,
+  resolveGitHubRef,
   shouldUseLocalDocsFiles,
 } from './documents.server'
-import { getCachedGitHubJsonContent } from './github-content-cache.server'
+import {
+  getCachedDocsArtifact,
+  getCachedGitHubJsonContent,
+} from './github-content-cache.server'
 import {
   chartsCatalogPublicationRef,
   chartsCatalogRepo,
@@ -20,6 +24,8 @@ const localCatalogRoot = '.catalog-artifact'
 const catalogRevisionHistoryCachePath =
   '.tanstack/catalog-dist-revision-history'
 const catalogRevisionHistoryLimit = 100
+const catalogPublicationArtifactType = 'charts-catalog'
+const catalogPublicationArtifactKey = 'v4'
 const exactGitShaPattern = /^[a-f0-9]{40}$/
 
 export class ChartsCatalogResourceNotFoundError extends Error {
@@ -60,12 +66,15 @@ export async function getChartsCatalogPublication(): Promise<ChartsCatalogPublic
     }
   }
 
-  const revisions = await getPublishedChartsCatalogRevisions()
-  const artifactRevision = revisions[0]
-  return {
-    artifactRevision,
-    manifest: await readChartsCatalogManifest(artifactRevision),
-  }
+  return getCachedDocsArtifact({
+    repo: chartsCatalogRepo,
+    gitRef: chartsCatalogPublicationRef,
+    docsRoot: '',
+    artifactType: catalogPublicationArtifactType,
+    artifactKey: catalogPublicationArtifactKey,
+    isValue: isChartsCatalogPublication,
+    build: buildChartsCatalogPublication,
+  })
 }
 
 export async function getChartsCatalogManifestAtRevision(
@@ -87,6 +96,11 @@ export async function getChartsCatalogManifestAtRevision(
       )
     }
     return manifest
+  }
+
+  const publication = await getChartsCatalogPublication()
+  if (artifactRevision === publication.artifactRevision) {
+    return publication.manifest
   }
 
   const publishedRevisions = await getPublishedChartsCatalogRevisions()
@@ -276,6 +290,45 @@ function countCatalogSourceLines(source: string) {
 
 function countCatalogSourceBytes(source: string) {
   return new TextEncoder().encode(source).byteLength
+}
+
+async function buildChartsCatalogPublication(): Promise<ChartsCatalogPublication> {
+  const artifactRevision = await resolveGitHubRef(
+    chartsCatalogRepo,
+    chartsCatalogPublicationRef,
+  )
+  if (!artifactRevision) {
+    throw new ChartsCatalogResourceNotFoundError(
+      'Charts catalog publication is unavailable',
+    )
+  }
+
+  return {
+    artifactRevision,
+    manifest: await readChartsCatalogManifest(artifactRevision),
+  }
+}
+
+function isChartsCatalogPublication(
+  value: unknown,
+): value is ChartsCatalogPublication {
+  if (
+    typeof value !== 'object' ||
+    value === null ||
+    !('artifactRevision' in value) ||
+    typeof value.artifactRevision !== 'string' ||
+    !exactGitShaPattern.test(value.artifactRevision) ||
+    !('manifest' in value)
+  ) {
+    return false
+  }
+
+  try {
+    parseChartsCatalogManifest(value.manifest)
+    return true
+  } catch {
+    return false
+  }
 }
 
 async function getPublishedChartsCatalogRevisions() {

@@ -138,6 +138,7 @@ export function ChartsCatalogDetail({
           <Link
             to="/charts/catalog"
             search={true}
+            preload={false}
             className="text-sm text-gray-500 hover:text-blue-600 dark:hover:text-blue-400"
           >
             Catalog

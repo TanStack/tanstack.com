@@ -24,7 +24,7 @@ export default function ChartsLanding({
   catalog,
   version,
 }: {
-  catalog: ChartsLandingCatalog
+  catalog: ChartsLandingCatalog | null
   version: string
 }) {
   return (
@@ -38,32 +38,34 @@ export default function ChartsLanding({
     >
       <style>{chartsLandingStyles}</style>
 
-      <LandingSection
-        id="common-charts"
-        tone="raised"
-        className="py-12 lg:py-14"
-      >
-        <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
-          <h2 className="font-ds-display text-ds-heading-1 md:text-ds-display-sm">
-            Examples, not presets.
-          </h2>
-          <a
-            href="/charts/catalog/"
-            className="group inline-flex items-center gap-3 font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)] transition-colors hover:text-text-primary"
-          >
-            Browse all examples
-            <ArrowRight
-              aria-hidden="true"
-              className="size-4 transition-transform group-hover:translate-x-1"
-            />
-          </a>
-        </div>
-        <ChartsCatalogGallery
-          catalog={catalog}
-          variant="compact"
-          version={version}
-        />
-      </LandingSection>
+      {catalog ? (
+        <LandingSection
+          id="common-charts"
+          tone="raised"
+          className="py-12 lg:py-14"
+        >
+          <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
+            <h2 className="font-ds-display text-ds-heading-1 md:text-ds-display-sm">
+              Examples, not presets.
+            </h2>
+            <a
+              href="/charts/catalog/"
+              className="group inline-flex items-center gap-3 font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)] transition-colors hover:text-text-primary"
+            >
+              Browse all examples
+              <ArrowRight
+                aria-hidden="true"
+                className="size-4 transition-transform group-hover:translate-x-1"
+              />
+            </a>
+          </div>
+          <ChartsCatalogGallery
+            catalog={catalog}
+            variant="compact"
+            version={version}
+          />
+        </LandingSection>
+      ) : null}
 
       <LandingSection id="agent-authoring" tone="ink">
         <div className="grid gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:items-start lg:gap-14">
@@ -171,31 +173,33 @@ export default function ChartsLanding({
         </p>
       </LandingSection>
 
-      <LandingSection id="chart-atlas" tone="accent">
-        <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
-          <h2 className="max-w-4xl font-ds-display text-ds-heading-1 md:text-ds-display-sm">
-            Choose the chart by the question you&apos;re answering.
-          </h2>
-          <a
-            href="/charts/catalog/"
-            className="group inline-flex items-center gap-3 font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)] transition-colors hover:text-text-primary"
-          >
-            All 100 examples
-            <ArrowRight
-              aria-hidden="true"
-              className="size-4 transition-transform group-hover:translate-x-1"
-            />
-          </a>
-        </div>
+      {catalog ? (
+        <LandingSection id="chart-atlas" tone="accent">
+          <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
+            <h2 className="max-w-4xl font-ds-display text-ds-heading-1 md:text-ds-display-sm">
+              Choose the chart by the question you&apos;re answering.
+            </h2>
+            <a
+              href="/charts/catalog/"
+              className="group inline-flex items-center gap-3 font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)] transition-colors hover:text-text-primary"
+            >
+              All 100 examples
+              <ArrowRight
+                aria-hidden="true"
+                className="size-4 transition-transform group-hover:translate-x-1"
+              />
+            </a>
+          </div>
 
-        <div className="mt-8 sm:mt-10">
-          <ChartsCatalogGallery
-            catalog={catalog}
-            variant="expanded"
-            version={version}
-          />
-        </div>
-      </LandingSection>
+          <div className="mt-8 sm:mt-10">
+            <ChartsCatalogGallery
+              catalog={catalog}
+              variant="expanded"
+              version={version}
+            />
+          </div>
+        </LandingSection>
+      ) : null}
     </LibraryLandingShell>
   )
 }

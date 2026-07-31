@@ -50,7 +50,7 @@ export function createChartsCatalogManifest(): Record<string, any> {
         height: {
           minimum: 120,
           maximum: 1_200,
-          default: 360,
+          default: 480,
         },
         revision: {
           minimum: 0,

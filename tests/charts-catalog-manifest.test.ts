@@ -26,6 +26,7 @@ test('catalog manifest accepts the generated v4 contract', () => {
 
   assert.equal(manifest.schemaVersion, 4)
   assert.equal(manifest.revision, sourceRevision)
+  assert.equal(manifest.embed.parameters.height.default, 480)
   assert.equal(manifest.cases[0]?.id, '01-line')
   assert.equal(manifest.cases[0]?.modules.tanstack.path, tanstackAsset)
   assert.deepEqual(manifest.cases[0]?.authoredSource.tanstack.datasetIds, [

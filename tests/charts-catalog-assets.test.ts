@@ -152,6 +152,20 @@ test('catalog assets admit recent published revisions without caching random SHA
 
     if (
       url ===
+      'https://api.github.com/repos/tanstack/charts/git/ref/heads/catalog-dist'
+    ) {
+      return Response.json({ object: { sha: artifactRevision } })
+    }
+
+    if (
+      url ===
+      `https://raw.githubusercontent.com/tanstack/charts/${artifactRevision}/catalog.json`
+    ) {
+      return Response.json(createChartsCatalogManifest())
+    }
+
+    if (
+      url ===
       `https://raw.githubusercontent.com/tanstack/charts/${historicalRevision}/catalog.json`
     ) {
       return Response.json(createChartsCatalogManifest())
@@ -167,24 +181,24 @@ test('catalog assets admit recent published revisions without caching random SHA
         ChartsCatalogResourceNotFoundError,
       )
     }
-    assert.equal(requests.length, 1)
+    assert.equal(requests.length, 3)
 
     const statsAfterRejection = await listDocsCacheRepoStats()
-    assert.equal(statsAfterRejection[0]?.contentEntries, 1)
-    assert.equal(statsAfterRejection[0]?.cachedRefCount, 1)
+    assert.equal(statsAfterRejection[0]?.contentEntries, 2)
+    assert.equal(statsAfterRejection[0]?.cachedRefCount, 2)
 
     const historicalManifest =
       await getChartsCatalogManifestAtRevision(historicalRevision)
     assert.equal(historicalManifest.revision, '1'.repeat(40))
-    assert.equal(requests.length, 2)
+    assert.equal(requests.length, 4)
     assert.equal(
-      requests[1],
+      requests[3],
       `https://raw.githubusercontent.com/tanstack/charts/${historicalRevision}/catalog.json`,
     )
 
     const statsAfterHistoricalRead = await listDocsCacheRepoStats()
-    assert.equal(statsAfterHistoricalRead[0]?.contentEntries, 2)
-    assert.equal(statsAfterHistoricalRead[0]?.cachedRefCount, 2)
+    assert.equal(statsAfterHistoricalRead[0]?.contentEntries, 3)
+    assert.equal(statsAfterHistoricalRead[0]?.cachedRefCount, 3)
   } finally {
     globalThis.fetch = originalFetch
     resetGitHubContentCacheForTest()

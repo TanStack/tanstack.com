@@ -109,7 +109,7 @@ test('validated embed search produces stable loader deps', () => {
       }),
     ),
     {
-      height: 360,
+      height: 480,
       revision: 0,
       source: 'hidden',
       theme: 'system',

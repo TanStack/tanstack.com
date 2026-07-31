@@ -2207,8 +2207,7 @@ function getNpmChartTooltipContent(
 
   const formatValue = (point: ChartPoint<NpmChartDatum>) => {
     const datum = point.datum
-    const value =
-      'value1' in datum ? datum.value2 - datum.value1 : datum.value
+    const value = 'value1' in datum ? datum.value2 - datum.value1 : datum.value
 
     return input.yFormat?.(value) ?? value.toLocaleString()
   }

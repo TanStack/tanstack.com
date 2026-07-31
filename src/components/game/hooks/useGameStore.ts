@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { create } from 'zustand'
 import type { IslandData } from '../utils/islandGenerator'
 import {
@@ -997,20 +998,24 @@ export const useGameStore = create<GameState>()((set, get) => ({
   },
 }))
 
-// Periodic auto-save and beforeunload handler (client-side only)
-if (typeof window !== 'undefined') {
-  // Auto-save every 5 seconds
-  setInterval(() => {
-    const state = useGameStore.getState()
-    // Only save if game is active
-    if (state.phase === 'playing' || state.phase === 'gameover') {
+export function useGamePersistence() {
+  useEffect(() => {
+    const persist = () => {
+      const state = useGameStore.getState()
       saveToLocalStorage(extractPersistedState(state))
     }
-  }, 5000)
+    const interval = window.setInterval(() => {
+      const state = useGameStore.getState()
+      if (state.phase === 'playing' || state.phase === 'gameover') {
+        saveToLocalStorage(extractPersistedState(state))
+      }
+    }, 5000)
 
-  // Also save when page is about to unload
-  window.addEventListener('beforeunload', () => {
-    const state = useGameStore.getState()
-    saveToLocalStorage(extractPersistedState(state))
-  })
+    window.addEventListener('beforeunload', persist)
+    return () => {
+      window.clearInterval(interval)
+      window.removeEventListener('beforeunload', persist)
+      persist()
+    }
+  }, [])
 }

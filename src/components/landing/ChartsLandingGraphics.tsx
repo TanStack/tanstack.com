@@ -581,7 +581,7 @@ export function AccountChart() {
 
 export function ThemeGallery() {
   return (
-    <div className="-mx-4 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 md:mx-auto md:max-w-[54rem] md:overflow-visible md:px-0">
+    <div className="fade-x fade-size-x-sm -mx-4 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 md:mx-auto md:max-w-[54rem] md:overflow-visible md:px-0 md:fade-none-x">
       <div className="grid min-w-max grid-flow-col auto-cols-[18rem] gap-3 md:min-w-0 md:grid-flow-row md:auto-cols-auto md:grid-cols-3">
         {themePreviews.map((preview) => (
           <figure

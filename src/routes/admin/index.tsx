@@ -174,7 +174,7 @@ function AdminDashboard() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 mb-6 border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
+        <div className="fade-x fade-size-x-sm mb-6 flex gap-1 overflow-x-auto border-b border-gray-200 dark:border-gray-700">
           <div className="flex gap-1 min-w-max">
             {tabs.map((t) => (
               <Link

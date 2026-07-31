@@ -166,7 +166,7 @@ export function ChartsCatalogGallery({
     )
 
     return (
-      <div className="-mx-5 overflow-x-auto px-5 pb-3 [scrollbar-color:rgb(var(--landing-glow)/0.48)_transparent] md:-mx-10 md:px-10 lg:-mx-12 lg:px-12 2xl:-mx-20 2xl:px-20">
+      <div className="fade-x fade-size-x-sm -mx-5 overflow-x-auto px-5 pb-3 [scrollbar-color:rgb(var(--landing-glow)/0.48)_transparent] md:-mx-10 md:px-10 lg:-mx-12 lg:px-12 2xl:-mx-20 2xl:px-20">
         <div className="grid min-w-max grid-flow-col grid-rows-2 border-l border-t border-border-subtle">
           {orderedCases.map((catalogCase) => (
             <CatalogChartTile

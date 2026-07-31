@@ -255,6 +255,9 @@ importers:
       troika-three-text:
         specifier: ^0.52.4
         version: 0.52.4(three@0.183.2)
+      tw-fade:
+        specifier: ^0.8.0
+        version: 0.8.0(tailwindcss@4.2.2)
       uploadthing:
         specifier: ^7.7.4
         version: 7.7.4(express@5.2.1)(tailwindcss@4.2.2)
@@ -6408,6 +6411,14 @@ packages:
 
   tunnel-rat@0.1.2:
     resolution: {integrity: sha512-lR5VHmkPhzdhrM092lI2nACsLO4QubF0/yoOhzX7c+wIpbN1GjHNzCc91QlpxBi+cnx8vVJ+Ur6vL5cEoQPFpQ==}
+
+  tw-fade@0.8.0:
+    resolution: {integrity: sha512-9ewfWqOiMaUKrsiN4+jsu1IyFnqzr9coZrVRzGlB0G1HuEPcvpCG2sRo8F1rEoRXxFVmrL6WxT8CRIlmYPV0Qw==}
+    peerDependencies:
+      tailwindcss: '>=4.0.0'
+    peerDependenciesMeta:
+      tailwindcss:
+        optional: true
 
   type-fest@4.41.0:
     resolution: {integrity: sha512-TeTSQ6H5YHvpqVwBRcnLDCBnDOHWYu7IvGbHT6N8AOymcr9PJGjc1GTtiWZTYg0NCgYwvnYWEkVChQAr9bjfwA==}
@@ -12773,6 +12784,10 @@ snapshots:
       - immer
       - react
       - use-sync-external-store
+
+  tw-fade@0.8.0(tailwindcss@4.2.2):
+    optionalDependencies:
+      tailwindcss: 4.2.2
 
   type-fest@4.41.0: {}
 

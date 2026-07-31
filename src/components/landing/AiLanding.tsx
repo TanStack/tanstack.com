@@ -713,7 +713,7 @@ function AiGraphChatHero() {
         >
           <div
             ref={chatScrollRef}
-            className="min-h-0 flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="fade-y fade-size-y-sm min-h-0 flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             <div className="flex min-h-full flex-col justify-end gap-2.5 p-4">
               {chatMessages.map((message) => (

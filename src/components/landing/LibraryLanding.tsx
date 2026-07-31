@@ -625,7 +625,7 @@ function FeatureSection({
           <div
             role="tablist"
             aria-label="Product capabilities"
-            className="flex gap-5 overflow-x-auto pb-2 lg:flex-col lg:items-start lg:overflow-visible lg:pb-0"
+            className="fade-x fade-size-x-sm flex gap-5 overflow-x-auto pb-2 lg:flex-col lg:items-start lg:overflow-visible lg:pb-0 lg:fade-none-x"
           >
             {features.map((feature, index) => {
               const FeatureIcon = feature.icon

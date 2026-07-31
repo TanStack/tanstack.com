@@ -508,7 +508,7 @@ function MobileSkillsDrawer({
       </button>
       <Collapsible open={open}>
         <CollapsibleContent>
-          <div className="px-4 pb-4 max-h-64 overflow-y-auto">
+          <div className="fade-y fade-size-y-sm max-h-64 overflow-y-auto px-4 pb-4">
             <SkillsNav
               skills={skills}
               packageName={packageName}

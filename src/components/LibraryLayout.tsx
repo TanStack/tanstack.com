@@ -1370,7 +1370,7 @@ export function LibraryLayout({
         <div className="relative hidden min-w-0 flex-1 items-stretch md:flex">
           <nav
             aria-label="Documentation sections"
-            className="flex min-w-0 flex-1 items-stretch gap-3 overflow-x-auto overflow-y-hidden px-3 text-xs min-[1120px]:gap-6 min-[1120px]:px-6 min-[1120px]:text-[13px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="fade-x fade-size-x-sm flex min-w-0 flex-1 items-stretch gap-3 overflow-x-auto overflow-y-hidden px-3 text-xs min-[1120px]:gap-6 min-[1120px]:px-6 min-[1120px]:text-[13px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             {tabbedMenuConfig.map((tab) => {
               const target = tab.firstItem
@@ -1420,11 +1420,6 @@ export function LibraryLayout({
               )
             })}
           </nav>
-          <div
-            aria-hidden="true"
-            data-docs-tabs-scroll-fade
-            className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-linear-to-r from-white/0 to-white/95 dark:from-black/0 dark:to-black/90 min-[640px]:w-10"
-          />
         </div>
         {isLandingPage ? (
           <div className="hidden shrink-0 items-center gap-4 px-5 text-[11px] text-text-primary/35 xl:flex">

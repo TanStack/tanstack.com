@@ -21,6 +21,7 @@
     "cf:typegen": "wrangler types",
     "content:build": "node scripts/build-content-collections.mjs",
     "brand:generate": "node scripts/generate-brand-assets.mjs",
+    "readme:preview": "tsx scripts/readme-header-preview.ts",
     "icons:generate": "node scripts/generate-phosphor-icon-registry.mjs",
     "lint": "pnpm run content:build && pnpm run lint:code",
     "lint:code": "oxlint --type-aware --disable-nested-config",

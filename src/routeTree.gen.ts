@@ -121,6 +121,7 @@ import { Route as ShopCollectionsHandleRouteImport } from './routes/shop.collect
 import { Route as IntentRegistryPackageNameRouteImport } from './routes/intent/registry/$packageName'
 import { Route as ChartsCatalogCatalogDotjsonRouteImport } from './routes/charts.catalog_.catalog[.]json'
 import { Route as AuthProviderStartRouteImport } from './routes/auth/$provider/start'
+import { Route as ApiReadmeChar123Char125DotpngRouteImport } from './routes/api/readme/{$}[.]png'
 import { Route as ApiOgChar123Char125DotpngRouteImport } from './routes/api/og/{$}[.]png'
 import { Route as ApiMcpSplatRouteImport } from './routes/api/mcp/$'
 import { Route as ApiGithubWebhookRouteImport } from './routes/api/github/webhook'
@@ -759,6 +760,12 @@ const AuthProviderStartRoute = AuthProviderStartRouteImport.update({
   path: '/auth/$provider/start',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiReadmeChar123Char125DotpngRoute =
+  ApiReadmeChar123Char125DotpngRouteImport.update({
+    id: '/api/readme/{$}.png',
+    path: '/api/readme/{$}.png',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiOgChar123Char125DotpngRoute =
   ApiOgChar123Char125DotpngRouteImport.update({
     id: '/api/og/{$}.png',
@@ -1292,6 +1299,7 @@ export interface FileRoutesByFullPath {
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/api/og/{$}.png': typeof ApiOgChar123Char125DotpngRoute
+  '/api/readme/{$}.png': typeof ApiReadmeChar123Char125DotpngRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
   '/charts/catalog/catalog.json': typeof ChartsCatalogCatalogDotjsonRoute
   '/intent/registry/$packageName': typeof IntentRegistryPackageNameRouteWithChildren
@@ -1468,6 +1476,7 @@ export interface FileRoutesByTo {
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/api/og/{$}.png': typeof ApiOgChar123Char125DotpngRoute
+  '/api/readme/{$}.png': typeof ApiReadmeChar123Char125DotpngRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
   '/charts/catalog/catalog.json': typeof ChartsCatalogCatalogDotjsonRoute
   '/shop/collections/$handle': typeof ShopCollectionsHandleRoute
@@ -1654,6 +1663,7 @@ export interface FileRoutesById {
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/api/mcp/$': typeof ApiMcpSplatRoute
   '/api/og/{$}.png': typeof ApiOgChar123Char125DotpngRoute
+  '/api/readme/{$}.png': typeof ApiReadmeChar123Char125DotpngRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
   '/charts/catalog_/catalog.json': typeof ChartsCatalogCatalogDotjsonRoute
   '/intent/registry/$packageName': typeof IntentRegistryPackageNameRouteWithChildren
@@ -1842,6 +1852,7 @@ export interface FileRouteTypes {
     | '/api/github/webhook'
     | '/api/mcp/$'
     | '/api/og/{$}.png'
+    | '/api/readme/{$}.png'
     | '/auth/$provider/start'
     | '/charts/catalog/catalog.json'
     | '/intent/registry/$packageName'
@@ -2018,6 +2029,7 @@ export interface FileRouteTypes {
     | '/api/github/webhook'
     | '/api/mcp/$'
     | '/api/og/{$}.png'
+    | '/api/readme/{$}.png'
     | '/auth/$provider/start'
     | '/charts/catalog/catalog.json'
     | '/shop/collections/$handle'
@@ -2203,6 +2215,7 @@ export interface FileRouteTypes {
     | '/api/github/webhook'
     | '/api/mcp/$'
     | '/api/og/{$}.png'
+    | '/api/readme/{$}.png'
     | '/auth/$provider/start'
     | '/charts/catalog_/catalog.json'
     | '/intent/registry/$packageName'
@@ -2339,6 +2352,7 @@ export interface RootRouteChildren {
   ApiGithubWebhookRoute: typeof ApiGithubWebhookRoute
   ApiMcpSplatRoute: typeof ApiMcpSplatRoute
   ApiOgChar123Char125DotpngRoute: typeof ApiOgChar123Char125DotpngRoute
+  ApiReadmeChar123Char125DotpngRoute: typeof ApiReadmeChar123Char125DotpngRoute
   AuthProviderStartRoute: typeof AuthProviderStartRoute
   ChartsCatalogCatalogDotjsonRoute: typeof ChartsCatalogCatalogDotjsonRoute
   IntentRegistryPackageNameRoute: typeof IntentRegistryPackageNameRouteWithChildren
@@ -3141,6 +3155,13 @@ declare module '@tanstack/react-router' {
       path: '/auth/$provider/start'
       fullPath: '/auth/$provider/start'
       preLoaderRoute: typeof AuthProviderStartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/readme/{$}.png': {
+      id: '/api/readme/{$}.png'
+      path: '/api/readme/{$}.png'
+      fullPath: '/api/readme/{$}.png'
+      preLoaderRoute: typeof ApiReadmeChar123Char125DotpngRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/og/{$}.png': {
@@ -4084,6 +4105,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiGithubWebhookRoute: ApiGithubWebhookRoute,
   ApiMcpSplatRoute: ApiMcpSplatRoute,
   ApiOgChar123Char125DotpngRoute: ApiOgChar123Char125DotpngRoute,
+  ApiReadmeChar123Char125DotpngRoute: ApiReadmeChar123Char125DotpngRoute,
   AuthProviderStartRoute: AuthProviderStartRoute,
   ChartsCatalogCatalogDotjsonRoute: ChartsCatalogCatalogDotjsonRoute,
   IntentRegistryPackageNameRoute: IntentRegistryPackageNameRouteWithChildren,

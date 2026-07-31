@@ -2265,7 +2265,7 @@ function createNpmStatsChart(input: NpmStatsChartInput) {
         : 'group-x',
     tooltip: {
       use: tooltip,
-      anchor: 'group-center',
+      anchor: 'pointer',
       content: (points, context) =>
         getNpmChartTooltipContent(points, context, input),
       placement: ['top', 'right', 'left', 'bottom'],

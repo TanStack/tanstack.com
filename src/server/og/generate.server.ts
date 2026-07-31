@@ -3,7 +3,7 @@ import type { ReactElement } from 'react'
 import { findLibrary } from '~/libraries'
 import type { LibraryId } from '~/libraries'
 import type { Framework } from '~/libraries/types'
-import { loadOgAssets as loadNodeOgAssets } from './assets.server'
+import { loadOgAssets } from './assets.server'
 import { getAccentColor, getThemeSurface, type OgTheme } from './colors'
 import { buildOgTree } from './template'
 import { buildReadmeHeaderTree } from './readme-template'
@@ -43,11 +43,13 @@ export type OgLibraryNotFoundError = {
 async function renderOgImage(
   tree: ReactElement,
   size: { width: number; height: number },
-  requestUrl: string | undefined,
+  assets: {
+    interRegular: Buffer
+    bricolageBold: Buffer
+    images: NonNullable<ImageResponseOptions['images']>
+  },
   init?: ResponseInit,
 ): Promise<ImageResponse> {
-  const assets = await loadNodeOgAssets(requestUrl)
-
   const options: ImageResponseOptions = {
     width: size.width,
     height: size.height,
@@ -66,11 +68,7 @@ async function renderOgImage(
         style: 'normal',
       },
     ],
-    images: [
-      { src: BRAND_LOGO_KEY, data: assets.brandLogoPng },
-      { src: BRAND_EMBLEM_KEY, data: assets.brandEmblemPng },
-      { src: BRAND_EMBLEM_CREAM_KEY, data: assets.brandEmblemCreamPng },
-    ],
+    images: assets.images,
     ...init,
   }
 
@@ -86,6 +84,7 @@ export async function generateOgImageResponse(
     return { kind: 'library-not-found', libraryId: input.libraryId }
   }
 
+  const assets = await loadOgAssets('logo', input.requestUrl)
   const tree = buildOgTree({
     libraryName: library.name,
     accentColor: getAccentColor(library.id),
@@ -102,7 +101,11 @@ export async function generateOgImageResponse(
   return renderOgImage(
     tree,
     { width: 1200, height: 630 },
-    input.requestUrl,
+    {
+      interRegular: assets.interRegular,
+      bricolageBold: assets.bricolageBold,
+      images: [{ src: BRAND_LOGO_KEY, data: assets.imageData }],
+    },
     init,
   )
 }
@@ -128,6 +131,12 @@ export async function generateReadmeHeaderResponse(
     return { kind: 'library-not-found', libraryId: input.libraryId }
   }
 
+  const theme = input.theme ?? 'light'
+  const assets = await loadOgAssets(
+    theme === 'dark' ? 'emblem-cream' : 'emblem',
+    input.requestUrl,
+  )
+
   // An explicit title replaces the whole name, so the framework label is not
   // applied on top of it.
   const name = input.title?.trim()
@@ -137,14 +146,14 @@ export async function generateReadmeHeaderResponse(
       : library.name
 
   const tagline = input.subtitle?.trim() ? input.subtitle : library.tagline
-  const theme = input.theme ?? 'light'
   const surface = getThemeSurface(theme)
+  const emblemSrc = theme === 'dark' ? BRAND_EMBLEM_CREAM_KEY : BRAND_EMBLEM_KEY
 
   const tree = buildReadmeHeaderTree({
     name,
     tagline: clampOgText(tagline ?? '', MAX_OG_DESCRIPTION_LENGTH),
     accentColor: getAccentColor(library.id, theme),
-    emblemSrc: theme === 'dark' ? BRAND_EMBLEM_CREAM_KEY : BRAND_EMBLEM_KEY,
+    emblemSrc,
     background: surface.background,
     secondaryText: surface.secondaryText,
   })
@@ -152,7 +161,11 @@ export async function generateReadmeHeaderResponse(
   return renderOgImage(
     tree,
     { width: 1800, height: 450 },
-    input.requestUrl,
+    {
+      interRegular: assets.interRegular,
+      bricolageBold: assets.bricolageBold,
+      images: [{ src: emblemSrc, data: assets.imageData }],
+    },
     init,
   )
 }

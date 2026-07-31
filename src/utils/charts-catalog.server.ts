@@ -156,35 +156,6 @@ export async function getChartsCatalogAuthoredSource(
   caseId: string,
   implementation: 'tanstack' | 'reference',
 ): Promise<ChartsCatalogAuthoredSource> {
-  if (manifest.schemaVersion === 2) {
-    const catalogCase = manifest.cases.find((entry) => entry.id === caseId)
-    if (!catalogCase) {
-      throw new ChartsCatalogResourceNotFoundError(
-        `Charts catalog case not found: ${caseId}`,
-      )
-    }
-    const path =
-      implementation === 'tanstack'
-        ? catalogCase.code.tanstack
-        : catalogCase.code.reference
-    const source = await getChartsCatalogSource(manifest.revision, path)
-    const lines = countCatalogSourceLines(source)
-    const bytes = countCatalogSourceBytes(source)
-    return {
-      totalFiles: 1,
-      totalLines: lines,
-      totalBytes: bytes,
-      roles: {
-        entry: { files: 1, lines, bytes },
-        support: { files: 0, lines: 0, bytes: 0 },
-        fixture: { files: 0, lines: 0, bytes: 0 },
-      },
-      files: [{ path, source, kind: 'entry', lines, bytes }],
-      datasets: [],
-      excludedHarness: { files: 0, lines: 0, bytes: 0, paths: [] },
-    }
-  }
-
   const catalogCase = manifest.cases.find((entry) => entry.id === caseId)
   if (!catalogCase) {
     throw new ChartsCatalogResourceNotFoundError(

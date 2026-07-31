@@ -2192,7 +2192,23 @@ type NpmStatsChartInput = {
   yLabel?: string
 }
 
-const npmStatsChart = defineChart<NpmStatsChartInput>()(({ input }) => {
+function createNpmStatsChart(input: NpmStatsChartInput) {
+  const definition = defineChart(() => createNpmStatsChartSpec(input))
+
+  return defineChart(definition, {
+    animate: {
+      duration: chartUpdateTransitionDurationMs,
+      easing: 'ease-out',
+    },
+    focus:
+      input.viewMode === 'latest' && input.barOrientation === 'horizontal'
+        ? focusY
+        : focusX,
+    tooltip: { formatGroup: formatNpmChartTooltip },
+  })
+}
+
+function createNpmStatsChartSpec(input: NpmStatsChartInput) {
   const common = {
     gradients: input.gradients,
     margin: {
@@ -2394,10 +2410,51 @@ const npmStatsChart = defineChart<NpmStatsChartInput>()(({ input }) => {
     },
     clip: !!input.timelineDomain,
   }
-})
+}
+
+type NpmStatsChartDefinitionRevision = {
+  barOrientation: BarOrientation
+  barSort: LatestBarSort
+  binType: BinType
+  chartType: ChartType
+  gradientIdPrefix: string
+  height: number
+  normalizeBaseline: boolean
+  packages: PackageGroup[]
+  queryData: NpmQueryData | undefined
+  range: TimeRange
+  showBaseline: boolean
+  showDataMode: ShowDataMode
+  timelineEnd: number | undefined
+  timelineStart: number | undefined
+  today: number
+  transform: TransformMode
+  viewMode: ViewMode
+  width: number
+}
+
+function useNpmStatsChartDefinition(
+  input: NpmStatsChartInput,
+  revision: NpmStatsChartDefinitionRevision,
+) {
+  const cached = React.useRef<{
+    definition: ReturnType<typeof createNpmStatsChart>
+    revision: NpmStatsChartDefinitionRevision
+  }>(undefined)
+
+  if (!cached.current || cached.current.revision !== revision) {
+    cached.current = {
+      definition: createNpmStatsChart(input),
+      revision,
+    }
+  }
+
+  return cached.current.definition
+}
 
 function ChartFigure({
   colorLegendEntries,
+  definitionRevision,
   footer,
   height,
   input,
@@ -2408,6 +2465,7 @@ function ChartFigure({
   width,
 }: {
   colorLegendEntries: Array<ColorLegendEntry>
+  definitionRevision: NpmStatsChartDefinitionRevision
   footer?: React.ReactNode
   height: number
   input: NpmStatsChartInput
@@ -2432,6 +2490,7 @@ function ChartFigure({
     reservedHeight: legendHeight + footerHeight,
     totalHeight: height,
   })
+  const definition = useNpmStatsChartDefinition(input, definitionRevision)
 
   React.useEffect(() => {
     return () => {
@@ -2465,8 +2524,7 @@ function ChartFigure({
         ))}
       </div>
       <Chart
-        definition={npmStatsChart}
-        input={input}
+        definition={definition}
         width={width}
         height={chartHeight}
         ariaLabel={
@@ -2474,16 +2532,6 @@ function ChartFigure({
             ? 'npm download totals by package'
             : 'npm downloads by date'
         }
-        animate={{
-          duration: chartUpdateTransitionDurationMs,
-          easing: 'ease-out',
-        }}
-        focus={
-          input.viewMode === 'latest' && input.barOrientation === 'horizontal'
-            ? focusY
-            : focusX
-        }
-        tooltip={{ formatGroup: formatNpmChartTooltip }}
         renderSvg={renderChartSvgWithResources}
         onRender={({ svg }) => {
           svgRef.current = svg
@@ -2579,6 +2627,50 @@ export function NPMStatsChart({
     /[^a-zA-Z0-9_-]/g,
     '',
   )}`
+  const now = getUtcToday()
+  const today = now.getTime()
+  const chartDefinitionRevision = React.useMemo(
+    (): NpmStatsChartDefinitionRevision => ({
+      barOrientation,
+      barSort,
+      binType,
+      chartType,
+      gradientIdPrefix,
+      height,
+      normalizeBaseline,
+      packages,
+      queryData,
+      range,
+      showBaseline,
+      showDataMode,
+      timelineEnd,
+      timelineStart,
+      today,
+      transform,
+      viewMode,
+      width,
+    }),
+    [
+      barOrientation,
+      barSort,
+      binType,
+      chartType,
+      gradientIdPrefix,
+      height,
+      normalizeBaseline,
+      packages,
+      queryData,
+      range,
+      showBaseline,
+      showDataMode,
+      timelineEnd,
+      timelineStart,
+      today,
+      transform,
+      viewMode,
+      width,
+    ],
+  )
   const legendRef = React.useRef<HTMLDivElement>(null)
   const svgRef = React.useRef<SVGSVGElement | null>(null)
   const [uncontrolledShowLegend, setUncontrolledShowLegend] =
@@ -2767,8 +2859,6 @@ export function NPMStatsChart({
   const effectiveTransform =
     viewMode === 'history' && chartType === 'line' ? transform : 'none'
   const useBaseline = viewMode === 'history'
-
-  const now = getUtcToday()
 
   let startDate = (() => {
     if (viewMode === 'latest') {
@@ -3419,6 +3509,7 @@ export function NPMStatsChart({
       {width > 0 ? (
         <ChartFigure
           colorLegendEntries={colorLegendEntries}
+          definitionRevision={chartDefinitionRevision}
           footer={
             viewMode === 'history' && timelineScrubberMaxIndex > 0 ? (
               <TimelineRangeScrubber

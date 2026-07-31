@@ -28,7 +28,6 @@ export const Route = createFileRoute('/_library/charts/$version/')({
 })
 
 function ChartsLandingRoute() {
-  const { version } = Route.useParams()
   const { catalog } = Route.useLoaderData()
-  return <ChartsLanding catalog={catalog} version={version} />
+  return <ChartsLanding catalog={catalog} />
 }

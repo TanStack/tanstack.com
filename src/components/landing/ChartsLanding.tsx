@@ -22,10 +22,8 @@ const chartPrompt = `Using TanStack Charts and the accounts array in this projec
 
 export default function ChartsLanding({
   catalog,
-  version,
 }: {
   catalog: ChartsLandingCatalog | null
-  version: string
 }) {
   return (
     <LibraryLandingShell
@@ -59,11 +57,7 @@ export default function ChartsLanding({
               />
             </a>
           </div>
-          <ChartsCatalogGallery
-            catalog={catalog}
-            variant="compact"
-            version={version}
-          />
+          <ChartsCatalogGallery catalog={catalog} variant="compact" />
         </LandingSection>
       ) : null}
 
@@ -192,11 +186,7 @@ export default function ChartsLanding({
           </div>
 
           <div className="mt-8 sm:mt-10">
-            <ChartsCatalogGallery
-              catalog={catalog}
-              variant="expanded"
-              version={version}
-            />
+            <ChartsCatalogGallery catalog={catalog} variant="expanded" />
           </div>
         </LandingSection>
       ) : null}

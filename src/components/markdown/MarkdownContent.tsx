@@ -89,7 +89,7 @@ export function MarkdownContent({
   const renderedMarkdown = (
     <Markdown
       document={markdown}
-      chartEmbedSource={libraryId === 'charts' ? 'expanded' : undefined}
+      chartEmbedSource={libraryId === 'charts' ? 'collapsed' : undefined}
       preserveTabPanels={preserveTabPanels}
       eagerFirstImage={eagerFirstImage}
     />

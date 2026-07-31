@@ -7,7 +7,6 @@ import {
   type ChartsCatalogModuleReference,
 } from '~/components/charts/ChartsCatalogChart'
 import type { ChartsCatalogCase } from '~/utils/charts-catalog'
-import { chartsCatalogDocsTargets } from './chartsCatalogDocsTargets'
 
 type CatalogCase = Pick<
   ChartsCatalogCase,
@@ -150,11 +149,9 @@ const catalogFamilies = [
 export function ChartsCatalogGallery({
   catalog,
   variant,
-  version,
 }: {
   catalog: ChartsLandingCatalog
   variant: 'compact' | 'expanded'
-  version: string
 }) {
   const casesById = new Map(
     catalog.cases.map((catalogCase) => [catalogCase.id, catalogCase]),
@@ -173,7 +170,6 @@ export function ChartsCatalogGallery({
               key={catalogCase.id}
               artifactRevision={catalog.artifactRevision}
               catalogCase={catalogCase}
-              version={version}
             />
           ))}
         </div>
@@ -208,7 +204,6 @@ export function ChartsCatalogGallery({
                     <CatalogCaseLink
                       catalogCase={catalogCase}
                       label={example.label}
-                      version={version}
                     >
                       {example.label}
                     </CatalogCaseLink>
@@ -222,7 +217,6 @@ export function ChartsCatalogGallery({
             artifactRevision={catalog.artifactRevision}
             catalogCase={casesById.get(family.representative.caseId)}
             family={family}
-            version={version}
           />
         </section>
       ))}
@@ -233,11 +227,9 @@ export function ChartsCatalogGallery({
 function CatalogChartTile({
   artifactRevision,
   catalogCase,
-  version,
 }: {
   artifactRevision: string
   catalogCase: CatalogCase
-  version: string
 }) {
   const displayHeight = 112
   const renderHeight = displayHeight * 2
@@ -266,7 +258,6 @@ function CatalogChartTile({
         <CatalogCaseLink
           catalogCase={catalogCase}
           label={catalogCase.title}
-          version={version}
           className="flex h-12 items-center justify-between gap-2 border-t border-border-subtle px-3 font-ds-mono text-[9px] font-semibold uppercase leading-4 tracking-[0.08em] text-text-secondary transition-colors hover:bg-[color:rgb(var(--landing-glow)/0.1)] hover:text-[var(--landing-accent-bright)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--landing-accent-bright)]"
         >
           <span className="line-clamp-2">{catalogCase.title}</span>
@@ -284,12 +275,10 @@ function CatalogFamilyPreview({
   artifactRevision,
   catalogCase,
   family,
-  version,
 }: {
   artifactRevision: string
   catalogCase: CatalogCase | undefined
   family: CatalogFamily
-  version: string
 }) {
   if (!catalogCase) return null
 
@@ -312,7 +301,6 @@ function CatalogFamilyPreview({
         <CatalogCaseLink
           catalogCase={catalogCase}
           label={family.representative.label}
-          version={version}
           className="flex min-h-10 items-center justify-between gap-3 border-t border-border-subtle px-4 font-ds-mono text-ds-mono-caps-xs uppercase text-text-secondary transition-colors hover:bg-[color:rgb(var(--landing-glow)/0.1)] hover:text-[var(--landing-accent-bright)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--landing-accent-bright)]"
         >
           <span>Open {family.representative.label}</span>
@@ -331,65 +319,20 @@ function CatalogCaseLink({
   children,
   className = 'inline-flex items-center gap-1 border-b border-border-default text-ds-body-xs font-semibold leading-5 text-text-secondary transition-colors hover:border-[var(--landing-accent-bright)] hover:text-[var(--landing-accent-bright)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]',
   label,
-  version,
 }: {
   catalogCase: CatalogCase
   children: ReactNode
   className?: string
   label: string
-  version: string
 }) {
-  const docsTarget = chartsCatalogDocsTargets[catalogCase.id]
-
-  if (!docsTarget) {
-    return (
-      <Link
-        to="/charts/catalog/charts/$caseId"
-        params={{ caseId: catalogCase.id }}
-        search={{}}
-        preload={false}
-        className={className}
-        aria-label={`Open the ${label} catalog example`}
-      >
-        {children}
-      </Link>
-    )
-  }
-
-  const frameworkTarget = docsTarget.path.match(/^framework\/([^/]+)\/(.+)$/)
-
-  if (frameworkTarget) {
-    return (
-      <Link
-        to="/$libraryId/$version/docs/framework/$framework/$"
-        params={{
-          libraryId: 'charts',
-          version,
-          framework: frameworkTarget[1],
-          _splat: frameworkTarget[2],
-        }}
-        hash={docsTarget.anchor}
-        preload={false}
-        className={className}
-        aria-label={`Open the ${label} example in the Charts docs`}
-      >
-        {children}
-      </Link>
-    )
-  }
-
   return (
     <Link
-      to="/$libraryId/$version/docs/$"
-      params={{
-        libraryId: 'charts',
-        version,
-        _splat: docsTarget.path,
-      }}
-      hash={docsTarget.anchor}
+      to="/charts/catalog/charts/$caseId"
+      params={{ caseId: catalogCase.id }}
+      search={{}}
       preload={false}
       className={className}
-      aria-label={`Open the ${label} example in the Charts docs`}
+      aria-label={`Open the ${label} catalog example`}
     >
       {children}
     </Link>

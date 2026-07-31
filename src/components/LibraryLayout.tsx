@@ -10,7 +10,9 @@ import { last } from '~/utils/utils'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
 import { getActiveDocsNavTabId, getTabbedMenuConfig } from '~/utils/docsNavTabs'
 import { getLibrary, type Framework, type LibraryId } from '~/libraries'
+import { categoryOf, categoryTextColor } from '~/libraries/categories'
 import { frameworkOptions } from '~/libraries/frameworks'
+import { fallbackLibraryIcon, libraryIcons } from '~/libraries/icons'
 import { twMerge } from 'tailwind-merge'
 import {
   partners,
@@ -791,6 +793,7 @@ type LibraryLayoutProps = {
 
 export function LibraryLayout({
   libraryId,
+  name,
   version: layoutVersion,
   colorFrom,
   colorTo,
@@ -805,6 +808,8 @@ export function LibraryLayout({
   const version =
     typeof routeVersion === 'string' ? routeVersion : layoutVersion
   const menuConfig = useMenuConfig({ config, frameworks, repo, libraryId })
+  const LibraryIcon = libraryIcons[libraryId] ?? fallbackLibraryIcon
+  const libraryGroupColor = categoryTextColor[categoryOf(libraryId)]
 
   const matches = useMatches()
   const lastMatch = last(matches)
@@ -1161,7 +1166,7 @@ export function LibraryLayout({
         bg-white dark:bg-black/95 backdrop-blur-lg border-b border-gray-500/20 shadow-xl"
       >
         <div className="flex items-center justify-between py-2 px-4 border-b border-gray-500/20">
-          <span className="font-bold">Docs</span>
+          <span className="font-bold">{name} Docs</span>
           <button
             type="button"
             aria-label="Close menu"
@@ -1178,7 +1183,53 @@ export function LibraryLayout({
             <VersionSelect libraryId={libraryId} />
           </div>
           <SearchButton />
-          {menuItems}
+          <nav aria-label={`${name} documentation`}>
+            <ul className="mb-4 flex list-none gap-4 overflow-x-auto border-b border-gray-500/20 px-2 text-sm [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:hidden">
+              {tabbedMenuConfig.map((tab) => {
+                const target = tab.firstItem
+
+                if (!target) {
+                  return null
+                }
+
+                const linkParams =
+                  !target.to.startsWith('/') ||
+                  target.to.includes('/$libraryId')
+                    ? ({ libraryId, version } as never)
+                    : undefined
+                const isActive = tab.id === activeTabId
+
+                return (
+                  <li key={tab.id}>
+                    <Link
+                      from={
+                        target.to === '/charts/catalog'
+                          ? undefined
+                          : '/$libraryId/$version/docs'
+                      }
+                      to={target.to}
+                      params={linkParams}
+                      onClick={closeMobileMenu}
+                      aria-current={isActive ? 'page' : undefined}
+                      className={twMerge(
+                        'relative block whitespace-nowrap pb-2 font-semibold',
+                        isActive ? 'text-text-primary' : 'text-text-secondary',
+                      )}
+                    >
+                      {tab.label}
+                      {isActive ? (
+                        <span
+                          aria-hidden="true"
+                          className="absolute right-0 -bottom-px left-0 h-[3px] rounded-t-full bg-text-primary"
+                        />
+                      ) : null}
+                    </Link>
+                  </li>
+                )
+              })}
+            </ul>
+            <div className="flex flex-col gap-4">{menuItems}</div>
+          </nav>
         </div>
       </div>
     </div>
@@ -1266,10 +1317,21 @@ export function LibraryLayout({
   const docsTabs = (
     <div
       className={twMerge(
-        'sticky top-[var(--navbar-height)] z-30 border-b border-gray-500/20 bg-white/90 dark:bg-black/80 backdrop-blur-lg',
+        'sticky top-[var(--navbar-height)] z-30 h-[var(--docs-tabs-height)] border-b border-gray-500/20 bg-white/90 dark:bg-black/80 backdrop-blur-lg',
       )}
     >
-      <div className="flex items-stretch">
+      <div className="flex h-full items-stretch">
+        <Link
+          to={libraryHomePath}
+          aria-label={`${name} home`}
+          className={twMerge(
+            'flex max-w-[50vw] shrink-0 items-center gap-2 border-r border-gray-500/20 px-3 font-ds-display text-[20px] font-semibold leading-none hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-current md:max-w-none md:text-[24px] min-[900px]:px-5',
+            libraryGroupColor,
+          )}
+        >
+          <LibraryIcon className="size-5 shrink-0 md:size-6" weight="bold" />
+          <span className="truncate">{name}</span>
+        </Link>
         <button
           type="button"
           aria-label="Documentation menu"
@@ -1305,7 +1367,7 @@ export function LibraryLayout({
           <List className="w-4 h-4" />
           <span className="text-xs font-medium">Menu</span>
         </button>
-        <div className="relative flex min-w-0 flex-1 items-stretch">
+        <div className="relative hidden min-w-0 flex-1 items-stretch md:flex">
           <nav
             aria-label="Documentation sections"
             className="flex min-w-0 flex-1 items-stretch gap-3 overflow-x-auto overflow-y-hidden px-3 text-xs min-[1120px]:gap-6 min-[1120px]:px-6 min-[1120px]:text-[13px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"

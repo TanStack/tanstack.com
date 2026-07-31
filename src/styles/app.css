@@ -645,6 +645,7 @@ html.dark {
 
   :root {
     --navbar-height: 58px;
+    --ts-mega-open-delay: 80ms;
     --docs-tabs-height: 0px;
     --anchor-scroll-padding-top: calc(
       var(--navbar-height) + var(--docs-tabs-height)
@@ -735,6 +736,16 @@ button {
   visibility: visible;
   pointer-events: auto;
   transform: translate3d(var(--ts-mega-dropdown-x), 0, 0) scale(1);
+}
+
+/* Keep hover intent in CSS so the SSR menu works before React hydrates. */
+.ts-mega-trigger-wrap:not([data-menu-dismissed='true']):hover
+  > .ts-mega-dropdown {
+  transition-delay: var(--ts-mega-open-delay);
+}
+
+.ts-mega-trigger-wrap:not([data-menu-dismissed='true']):focus-within
+  > .ts-mega-dropdown {
   transition-delay: 0s;
 }
 
@@ -920,33 +931,58 @@ button {
       .ts-mega-trigger-wrap:not([data-menu-dismissed='true']):hover
         > .ts-mega-dropdown
     )
-    [data-site-menu-tint],
+    [data-site-menu-tint] {
+    opacity: 1;
+    transition-delay: var(--ts-mega-open-delay);
+  }
+
   body:has(
       .ts-mega-trigger-wrap:not([data-menu-dismissed='true']):focus-within
         > .ts-mega-dropdown
     )
     [data-site-menu-tint] {
     opacity: 1;
+    transition-delay: 0s;
   }
 
   body:has(
       .ts-mega-trigger-wrap:not([data-menu-dismissed='true']):hover
         > .ts-mega-dropdown
     )
-    [data-site-content],
+    [data-site-content] {
+    filter: blur(4px);
+    transition-delay: var(--ts-mega-open-delay);
+  }
+
   body:has(
       .ts-mega-trigger-wrap:not([data-menu-dismissed='true']):focus-within
         > .ts-mega-dropdown
     )
     [data-site-content] {
     filter: blur(4px);
+    transition-delay: 0s;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ts-mega-trigger::after,
   .ts-mega-dropdown {
-    transition: none;
+    transition: visibility 0s linear 0s;
+  }
+
+  body:has(
+      .ts-mega-trigger-wrap:not([data-menu-dismissed='true']):hover
+        > .ts-mega-dropdown
+    )
+    [data-site-menu-tint] {
+    transition: opacity 0s linear var(--ts-mega-open-delay);
+  }
+
+  body:has(
+      .ts-mega-trigger-wrap:not([data-menu-dismissed='true']):hover
+        > .ts-mega-dropdown
+    )
+    [data-site-content] {
+    transition: filter 0s linear var(--ts-mega-open-delay);
   }
 }
 

@@ -107,11 +107,9 @@ function createDependencyGraph(input: DependencyGraphInput) {
     ],
     x: {
       scale: scaleLinear().domain([0, input.width]),
-      guide: false,
     },
     y: {
       scale: scaleLinear().domain([input.height, 0]),
-      guide: false,
     },
     color: {
       scale: scaleOrdinal<string, string>()

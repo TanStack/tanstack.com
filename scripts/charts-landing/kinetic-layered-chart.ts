@@ -66,12 +66,11 @@ export const kineticLayeredChart = defineChart({
   ],
   x: {
     scale: scaleLinear().domain([1, 8]),
-    ticks: 4,
-    format: (month) => `M${month}`,
+    axis: { ticks: { count: 4, format: (month) => `M${month}` } },
   },
   y: {
     scale: scaleLinear().domain([30, 100]),
-    ticks: 4,
+    axis: { ticks: { count: 4 } },
     grid: true,
   },
   theme: kineticDarkTheme,

@@ -66,12 +66,11 @@ const editorialTheme = defineChart({
   ],
   x: {
     scale: scaleLinear().domain([1, 10]),
-    ticks: 4,
-    format: (month: number) => `M${month}`,
+    axis: { ticks: { count: 4, format: (month) => `M${month}` } },
   },
   y: {
     scale: scaleLinear().domain(themeDomain).nice(),
-    ticks: 3,
+    axis: { ticks: { count: 3 } },
   },
   theme: {
     foreground: '#3e3529',
@@ -104,12 +103,11 @@ const productTheme = defineChart({
   ],
   x: {
     scale: scaleLinear().domain([1, 10]),
-    ticks: 4,
-    format: (month: number) => `M${month}`,
+    axis: { ticks: { count: 4, format: (month) => `M${month}` } },
   },
   y: {
     scale: scaleLinear().domain(themeDomain).nice(),
-    ticks: 4,
+    axis: { ticks: { count: 4 } },
     grid: true,
   },
   theme: {
@@ -144,12 +142,11 @@ const terminalTheme = defineChart({
   ],
   x: {
     scale: scaleLinear().domain([1, 10]),
-    ticks: 4,
-    format: (month: number) => `0${month}`,
+    axis: { ticks: { count: 4, format: (month) => `0${month}` } },
   },
   y: {
     scale: scaleLinear().domain(themeDomain).nice(),
-    ticks: 4,
+    axis: { ticks: { count: 4 } },
     grid: true,
   },
   theme: {

@@ -80,12 +80,12 @@ function createTimeSeriesChart(input: TimeSeriesChartInput) {
           ],
     x: {
       scale: d3.scaleUtc().domain([firstDate, lastDate]).nice(),
-      label: 'Date',
+      axis: { label: 'Date' },
       grid: true,
     },
     y: {
       scale: d3.scaleLinear().domain([0, maxValue]).nice(),
-      label: input.yLabel,
+      axis: { label: input.yLabel },
       grid: true,
     },
     margin: { top: 20, right: 20, bottom: 40, left: 60 },

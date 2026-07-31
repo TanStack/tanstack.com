@@ -35,7 +35,7 @@ export const kineticDumbbellChart = defineChart({
   ],
   x: {
     scale: scaleLinear().domain([30, 100]),
-    ticks: 4,
+    axis: { ticks: { count: 4 } },
     grid: true,
   },
   y: {

@@ -31,7 +31,7 @@ export const kineticLollipopChart = defineChart({
   },
   y: {
     scale: scaleLinear().domain([0, 100]),
-    ticks: 4,
+    axis: { ticks: { count: 4 } },
     grid: true,
   },
   theme: kineticDarkTheme,

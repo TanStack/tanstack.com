@@ -85,8 +85,8 @@ importers:
         specifier: ^0.9.5
         version: 0.9.5(@tanstack/ai-client@0.11.3(@opentelemetry/api@1.9.1))(@tanstack/ai@0.20.1(@opentelemetry/api@1.9.1))(ws@8.21.0)(zod@4.3.6)
       '@tanstack/charts':
-        specifier: 0.1.0
-        version: 0.1.0
+        specifier: 0.3.0
+        version: 0.3.0
       '@tanstack/create':
         specifier: ^0.69.0
         version: 0.69.0(tslib@2.8.1)
@@ -100,8 +100,8 @@ importers:
         specifier: ^0.21.1
         version: 0.21.1
       '@tanstack/react-charts':
-        specifier: 0.1.0
-        version: 0.1.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        specifier: 0.3.0
+        version: 0.3.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@tanstack/react-hotkeys':
         specifier: ^0.10.0
         version: 0.10.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -3353,8 +3353,8 @@ packages:
       '@opentelemetry/api':
         optional: true
 
-  '@tanstack/charts@0.1.0':
-    resolution: {integrity: sha512-NNCnRvzv0+7wLZ/k1gcZLt/9tKhyICSgrl8v4rjRHMRbkX0V21iOiPLXjNTEEblwcYkLhOjenqhL8W6tHq9izw==}
+  '@tanstack/charts@0.3.0':
+    resolution: {integrity: sha512-XwLWplazzF/cvbins+UXaLSOY132jY9P9K3Eo0E0tX+mo0kw7FnsLqs58RZRe/IC9DdRFcZLTsG4GdZTNAkDPA==}
 
   '@tanstack/create@0.69.0':
     resolution: {integrity: sha512-LVbzkTWiCK+JCKa/1Qwax0JddfJt4rxwekrDyHzhDWsSeNodJrTwbUg4eqqbQsxEWcrk0kHEJSfiTVzMnmI+kQ==}
@@ -3431,8 +3431,8 @@ packages:
   '@tanstack/query-devtools@5.100.11':
     resolution: {integrity: sha512-47rVBDuGMW/A4ekt3YQdz+q0JSIwktwGnWCYyQUvSs2/g/Oa+6Fi2/IQk4/Y4vf6u1uwI7hOogHslgMC8f3X/Q==}
 
-  '@tanstack/react-charts@0.1.0':
-    resolution: {integrity: sha512-oUeuaEntlH3N2S+brrNsQIB0dLSQOXA2Z4eyo+UPnUe51gjrC5bQ+mTvK+WpSs2Z5aWgdLUatsxDpfa9Elft7g==}
+  '@tanstack/react-charts@0.3.0':
+    resolution: {integrity: sha512-5pRzgymn54WlxP2McDSKsQabb226vpWJ0VOWf1/OVc7nAXrCcx6SYSF2Kxng0qnimd9yvIYQarsFmg7QzDL0TA==}
     peerDependencies:
       react: ^19.0.0
       react-dom: ^19.0.0
@@ -9311,7 +9311,7 @@ snapshots:
     optionalDependencies:
       '@opentelemetry/api': 1.9.1
 
-  '@tanstack/charts@0.1.0':
+  '@tanstack/charts@0.3.0':
     dependencies:
       '@types/d3-geo': 3.1.0
       '@types/d3-shape': 3.1.8
@@ -9416,9 +9416,9 @@ snapshots:
 
   '@tanstack/query-devtools@5.100.11': {}
 
-  '@tanstack/react-charts@0.1.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
+  '@tanstack/react-charts@0.3.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
-      '@tanstack/charts': 0.1.0
+      '@tanstack/charts': 0.3.0
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
 

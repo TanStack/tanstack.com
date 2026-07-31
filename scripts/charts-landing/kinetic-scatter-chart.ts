@@ -20,12 +20,11 @@ export const kineticScatterChart = defineChart({
   ],
   x: {
     scale: scaleLinear().domain([8, 34]),
-    ticks: 4,
+    axis: { ticks: { count: 4 } },
   },
   y: {
     scale: scaleLinear().domain([65, 96]),
-    ticks: 4,
-    format: (value) => `${value}%`,
+    axis: { ticks: { count: 4, format: (value) => `${value}%` } },
     grid: true,
   },
   theme: kineticDarkTheme,

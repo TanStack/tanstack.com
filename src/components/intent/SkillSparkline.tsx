@@ -104,13 +104,11 @@ function createSkillSparkline(
       ],
       x: {
         scale: d3.scaleLinear().domain([-0.5, slots - 0.5]),
-        guide: false,
       },
       y: {
         scale: d3
           .scaleLinear()
           .domain([0, d3.max(history, (entry) => entry.total) ?? 1]),
-        guide: false,
       },
       color: {
         scale: d3

@@ -16,6 +16,7 @@ import {
 } from '@tanstack/charts'
 import { focusX, focusY } from '@tanstack/charts/focus'
 import { renderChartSvgWithResources } from '@tanstack/charts/svg/resources'
+import { tooltip } from '@tanstack/charts/tooltip'
 import { Chart } from '@tanstack/react-charts'
 import { GIFEncoder, applyPalette, quantize } from 'gifenc'
 import {
@@ -2204,7 +2205,7 @@ function createNpmStatsChart(input: NpmStatsChartInput) {
       input.viewMode === 'latest' && input.barOrientation === 'horizontal'
         ? focusY
         : focusX,
-    tooltip: { formatGroup: formatNpmChartTooltip },
+    tooltip: { use: tooltip, formatGroup: formatNpmChartTooltip },
   })
 }
 

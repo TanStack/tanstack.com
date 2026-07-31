@@ -1,6 +1,7 @@
 import * as React from 'react'
 import * as d3 from 'd3'
 import { defineChart, rect, type ChartPoint } from '@tanstack/charts'
+import { tooltip } from '@tanstack/charts/tooltip'
 import { Chart } from '@tanstack/react-charts'
 import type { SkillHistoryEntry } from '~/utils/intent.functions'
 
@@ -125,7 +126,7 @@ function createSkillSparkline(
 
   return defineChart(responsiveDefinition, {
     keyboard,
-    tooltip: { format: formatSparkTooltip },
+    tooltip: { use: tooltip, format: formatSparkTooltip },
   })
 }
 

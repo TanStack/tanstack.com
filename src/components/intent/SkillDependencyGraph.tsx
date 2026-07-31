@@ -11,6 +11,7 @@ import {
   type SimulationNodeDatum,
 } from 'd3'
 import { arrow, defineChart, dot, text } from '@tanstack/charts'
+import { tooltip } from '@tanstack/charts/tooltip'
 import { Chart } from '@tanstack/react-charts'
 import { useNavigate } from '@tanstack/react-router'
 import { SKILL_TYPE_STYLES } from '~/routes/intent/registry/$packageName'
@@ -121,6 +122,7 @@ function createDependencyGraph(input: DependencyGraphInput) {
     margin: 0,
     theme: { background: 'transparent' },
     tooltip: {
+      use: tooltip,
       format: (point) =>
         point.datum.kind === 'node' ? point.datum.id : 'Dependency',
     },

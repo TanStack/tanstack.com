@@ -29,7 +29,7 @@ export default function ChartsLanding({
 }) {
   return (
     <LibraryLandingShell
-      description="TanStack Charts 0.0.1 is on npm. Install @tanstack/charts for vanilla TypeScript or add the 0.0.1 adapter for React, Vue, Svelte, Solid, Angular, Preact, Lit, Alpine, or Octane."
+      description="TanStack Charts 0.1.0 is on npm. Install @tanstack/charts for vanilla TypeScript or add the 0.1.0 adapter for React, Vue, Svelte, Solid, Angular, Preact, Lit, Alpine, or Octane."
       headline="A chart grammar you don't have to outgrow."
       hero={<KineticChartsHero />}
       libraryId="charts"

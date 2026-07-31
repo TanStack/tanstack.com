@@ -9,6 +9,7 @@ import {
   lineY,
   type ChartPoint,
 } from '@tanstack/charts'
+import { tooltip } from '@tanstack/charts/tooltip'
 import { Chart } from '@tanstack/react-charts'
 import { type BinType, binTimeSeriesData } from '~/utils/chart'
 
@@ -90,7 +91,7 @@ function createTimeSeriesChart(input: TimeSeriesChartInput) {
     margin: { top: 20, right: 20, bottom: 40, left: 60 },
     theme: { background: 'transparent' },
     animate: true,
-    tooltip: { format: formatTooltip },
+    tooltip: { use: tooltip, format: formatTooltip },
   })
 }
 

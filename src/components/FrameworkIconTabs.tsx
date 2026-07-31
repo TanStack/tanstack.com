@@ -24,7 +24,7 @@ export function FrameworkIconTabs({
   return (
     <div
       className={twMerge(
-        `flex items-center justify-start gap-2 border-b border-gray-200 dark:border-gray-700 overflow-x-auto scrollbar-hide`,
+        `flex items-center justify-start gap-2 border-b border-gray-200 dark:border-gray-700 overflow-x-auto overflow-y-hidden scrollbar-hide`,
         className,
       )}
     >

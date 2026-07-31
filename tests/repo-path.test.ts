@@ -61,4 +61,10 @@ assert.equal(
   'Router examples default to main.tsx when directory contents are unavailable',
 )
 
+assert.equal(
+  getExampleStartingPath('octane', 'table'),
+  'src/main.tsrx',
+  'Octane examples default to main.tsrx',
+)
+
 console.log('repo-path tests passed')

@@ -236,7 +236,8 @@ export function useApplicationBuilder({
   )
   const showMigrationRepositoryInput =
     context !== 'home' &&
-    (isNextJsMigrationInput(input) || normalizedMigrationRepositoryUrl.length > 0)
+    (isNextJsMigrationInput(input) ||
+      normalizedMigrationRepositoryUrl.length > 0)
   const hasMigrationRepositoryUrlError =
     normalizedMigrationRepositoryUrl.length > 0 &&
     !isValidMigrationRepositoryUrl(normalizedMigrationRepositoryUrl)

@@ -405,7 +405,15 @@ export function MaintainerCard({ maintainer }: MaintainerCardProps) {
         aria-label={`View ${maintainer.name}'s GitHub profile`}
         className="block aspect-square w-full overflow-hidden rounded-[22px] corner-squircle bg-[#d9d9d9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
         tabIndex={0}
-      />
+      >
+        <img
+          alt={`Avatar of ${maintainer.name}`}
+          className="h-full w-full object-cover"
+          src={maintainer.avatar}
+          loading="lazy"
+          decoding="async"
+        />
+      </a>
       <div className="flex w-full flex-col items-center gap-5 pb-[27px] pt-5">
         <span
           className="text-center font-ds-mono text-ds-mono-lg text-text-primary"

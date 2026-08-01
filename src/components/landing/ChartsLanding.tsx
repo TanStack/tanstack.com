@@ -1,5 +1,3 @@
-import { ArrowRight } from '@phosphor-icons/react'
-
 import { CodeBlock } from '~/components/markdown/CodeBlock'
 
 import activationChartSource from '../../../scripts/charts-landing/activation-chart.ts?raw'
@@ -8,14 +6,13 @@ import {
   AccountChart,
   ActivationChart,
   BundleSizeFigure,
-  KineticChartsHero,
   ThemeGallery,
 } from './ChartsLandingGraphics'
 import {
+  CatalogChartsHero,
   ChartsCatalogGallery,
   type ChartsLandingCatalog,
 } from './ChartsCatalogGallery'
-import { LandingCopyPromptButton } from './LandingCopyPromptButton'
 
 const chartPrompt = `Using TanStack Charts and the accounts array in this project, plot monthlyRevenue on x and retention on y. Size each point by seats, color it by segment, and keep the original Account type in tooltip and focus callbacks. Use D3 scale factories so TanStack Charts can infer the domains, enable the tooltip on the chart definition, add a useful ariaLabel, and render it through the React adapter.`
 
@@ -28,7 +25,7 @@ export default function ChartsLanding({
     <LibraryLandingShell
       description="TanStack Charts 0.3.1 is on npm. A compact React line consumer is 16.48 KiB gzip; its framework-neutral scene is 8.12 KiB."
       headline="A chart grammar you don't have to outgrow."
-      hero={<KineticChartsHero />}
+      hero={catalog ? <CatalogChartsHero catalog={catalog} /> : null}
       libraryId="charts"
       prompt={chartPrompt}
       promptLabel="Copy Charts prompt"
@@ -41,22 +38,15 @@ export default function ChartsLanding({
           tone="raised"
           className="py-12 lg:py-14"
         >
-          <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
+          <div className="mb-7">
             <h2 className="font-ds-display text-ds-heading-1 md:text-ds-display-sm">
-              Examples, not presets.
+              All mark, no chart.
             </h2>
-            <a
-              href="/charts/catalog/"
-              className="group inline-flex items-center gap-3 font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)] transition-colors hover:text-text-primary"
-            >
-              Browse all examples
-              <ArrowRight
-                aria-hidden="true"
-                className="size-4 transition-transform group-hover:translate-x-1"
-              />
-            </a>
+            <p className="mt-2 text-ds-body-md text-text-secondary">
+              Just a few examples. The possibilities are endless.
+            </p>
           </div>
-          <ChartsCatalogGallery catalog={catalog} variant="compact" />
+          <ChartsCatalogGallery catalog={catalog} />
         </LandingSection>
       ) : null}
 
@@ -64,7 +54,7 @@ export default function ChartsLanding({
         <div className="grid gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:items-start lg:gap-14">
           <div className="lg:sticky lg:top-24">
             <h2 className="max-w-xl font-ds-display text-ds-heading-1 md:text-ds-display-md">
-              Agents write the chart. TypeScript checks the result.
+              Type Safe &amp; Declarative for both Humans &amp; Agents
             </h2>
             <p className="mt-6 max-w-xl text-ds-body-sm text-text-secondary sm:text-ds-body-md">
               Every example compiles under strict TypeScript. Fields, datum
@@ -72,23 +62,6 @@ export default function ChartsLanding({
               stay connected to the source datum; the type suite rejects invalid
               definitions.
             </p>
-
-            <div className="mt-8 rounded-xl border border-[color:rgb(var(--landing-glow)/0.3)] bg-background-surface p-5 shadow-[0_18px_50px_-30px_rgb(var(--landing-glow)/0.45)]">
-              <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)]">
-                Example prompt
-              </p>
-              <p className="mt-3 text-ds-body-sm text-text-secondary">
-                Plot monthly revenue against retention. Size each account by
-                seats, color it by segment, add tooltips, and keep the Account
-                type in every callback.
-              </p>
-              <div className="mt-4">
-                <LandingCopyPromptButton
-                  label="Copy full prompt"
-                  prompt={chartPrompt}
-                />
-              </div>
-            </div>
 
             <TypedDotExample />
           </div>
@@ -113,7 +86,7 @@ export default function ChartsLanding({
         </div>
       </LandingSection>
 
-      <LandingSection id="bundle-size" tone="raised">
+      <LandingSection tone="raised">
         <div className="grid gap-8 lg:grid-cols-[0.88fr_1.12fr] lg:items-end lg:gap-16">
           <h2 className="max-w-3xl font-ds-display text-ds-heading-1 md:text-ds-display-md">
             16.48 KiB for a compact React line.
@@ -127,9 +100,8 @@ export default function ChartsLanding({
             >
               pinned 12-case suite
             </a>{' '}
-            measures full cold-page browser bundles across line, bar, area, and
-            scatter × basic, interactive, and advanced; TanStack spans
-            26.58–32.08 KiB gzip.
+            measures full cold-page browser bundles; Bklit&apos;s interactive
+            line is included alongside the published library ranges.
           </p>
         </div>
 
@@ -149,7 +121,7 @@ export default function ChartsLanding({
           </p>
         </div>
 
-        <div className="mt-10 grid min-w-0 overflow-hidden rounded-xl border border-[color:rgb(var(--landing-glow)/0.38)] bg-[#0b1728] shadow-[0_24px_70px_-35px_rgb(var(--landing-glow)/0.5)] lg:grid-cols-[1.15fr_0.85fr]">
+        <div className="mt-10 grid min-w-0 overflow-hidden rounded-xl border border-border-subtle bg-background-surface shadow-[0_24px_70px_-35px_rgb(var(--landing-glow)/0.5)] lg:grid-cols-[1.15fr_0.85fr]">
           <ActivationChart />
 
           <CodeBlock
@@ -167,77 +139,187 @@ export default function ChartsLanding({
           but the runtime is an independent implementation.
         </p>
       </LandingSection>
-
-      {catalog ? (
-        <LandingSection id="chart-atlas" tone="accent">
-          <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
-            <h2 className="max-w-4xl font-ds-display text-ds-heading-1 md:text-ds-display-sm">
-              Choose the chart by the question you&apos;re answering.
-            </h2>
-            <a
-              href="/charts/catalog/"
-              className="group inline-flex items-center gap-3 font-ds-mono text-ds-mono-caps-xs uppercase text-[var(--landing-accent-bright)] transition-colors hover:text-text-primary"
-            >
-              All 100 examples
-              <ArrowRight
-                aria-hidden="true"
-                className="size-4 transition-transform group-hover:translate-x-1"
-              />
-            </a>
-          </div>
-
-          <div className="mt-8 sm:mt-10">
-            <ChartsCatalogGallery catalog={catalog} variant="expanded" />
-          </div>
-        </LandingSection>
-      ) : null}
     </LibraryLandingShell>
   )
 }
 
 function TypedDotExample() {
   return (
-    <div className="mt-5 overflow-hidden rounded-xl border border-[color:rgb(var(--landing-glow)/0.3)] bg-[#0c1420] text-ds-neutral-100 shadow-[0_18px_50px_-30px_rgb(var(--landing-glow)/0.45)]">
-      <div className="flex justify-end border-b border-white/10 px-4 py-3 font-ds-mono text-ds-mono-caps-xs uppercase text-ds-neutral-200">
-        <span className="text-ds-green-200">Account → SVG</span>
-      </div>
-      <pre className="overflow-x-auto p-4 font-ds-mono text-ds-mono-xs leading-6">
-        <code>
-          <span className="text-ds-blue-200">dot</span>
-          <span className="text-ds-neutral-200">(</span>
-          <span className="text-white">accounts</span>
-          <span className="text-ds-neutral-200">{`, {\n`}</span>
-          <span className="text-ds-neutral-300"> x: </span>
-          <span className="text-ds-amber-200">&apos;monthlyRevenue&apos;</span>
-          <span className="text-ds-neutral-200">{`,\n`}</span>
-          <span className="text-ds-neutral-300"> y: </span>
-          <span className="text-ds-amber-200">&apos;retention&apos;</span>
-          <span className="text-ds-neutral-200">{`,\n`}</span>
-          <span className="text-ds-neutral-300"> r: </span>
-          <span className="text-ds-amber-200">&apos;seats&apos;</span>
-          <span className="text-ds-neutral-200">{`,\n`}</span>
-          <span className="text-ds-neutral-300"> z: </span>
-          <span className="text-ds-amber-200">&apos;segment&apos;</span>
-          <span className="text-ds-neutral-200">{`,\n})`}</span>
-        </code>
-      </pre>
-    </div>
+    <CodeBlock
+      dataCodeTitle="account-health.ts"
+      className="mt-8 overflow-hidden rounded-xl border border-[color:rgb(var(--landing-glow)/0.3)] bg-[#0c1420] shadow-[0_18px_50px_-30px_rgb(var(--landing-glow)/0.45)] [&>div:first-child]:rounded-none [&_pre]:max-h-[30rem] [&_pre]:overflow-auto [&_pre]:rounded-none [&_pre]:text-[11px] [&_pre]:leading-5 sm:[&_pre]:text-xs"
+    >
+      <code className="language-ts">{accountChartSource}</code>
+    </CodeBlock>
   )
 }
 
+const accountChartSource = `const accountHealth = defineChart({
+  marks: [
+    dot(accounts, {
+      x: 'monthlyRevenue',
+      y: 'retention',
+      r: 'seats',
+      z: 'segment',
+      key: 'id',
+    }),
+  ],
+  x: {
+    scale: scaleLinear(),
+    label: 'Monthly revenue ($k)',
+  },
+  y: {
+    scale: scaleLinear(),
+    label: '90-day retention',
+    format: (value) => percent.format(value),
+  },
+  tooltip: true,
+})`
+
 const chartsLandingStyles = `
+  .charts-activation {
+    --activation-bg: #f8f5ed;
+    --activation-foreground: #15242b;
+    --activation-muted: #66767c;
+    --activation-border: rgb(21 36 43 / 0.13);
+    --activation-grid: #4b7280;
+    --activation-grid-opacity: 0.12;
+    --activation-line: #087f8c;
+    --activation-range: #48b9d4;
+    --activation-range-opacity: 0.2;
+    --activation-goal: #e4543d;
+    --activation-release: #7c4dff;
+  }
+
+  .dark .charts-activation {
+    --activation-bg: #071219;
+    --activation-foreground: #edf8f8;
+    --activation-muted: #91a9b2;
+    --activation-border: rgb(237 248 248 / 0.13);
+    --activation-grid: #8bb5c0;
+    --activation-grid-opacity: 0.14;
+    --activation-line: #5ee7ff;
+    --activation-range: #3c98db;
+    --activation-range-opacity: 0.28;
+    --activation-goal: #ff806f;
+    --activation-release: #ffd85e;
+  }
+
   .charts-activation-graphic svg {
     overflow: hidden !important;
   }
 
-  .charts-kinetic-meta-enter {
-    animation: charts-kinetic-meta-enter 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  .charts-activation-graphic .ts-chart__grid {
+    stroke-opacity: var(--activation-grid-opacity);
   }
 
-  @keyframes charts-kinetic-meta-enter {
+  .charts-activation-graphic .ts-chart__area path {
+    fill-opacity: var(--activation-range-opacity);
+  }
+
+  .charts-catalog-card-light {
+    background: #fff;
+  }
+
+  .charts-catalog-card-dark {
+    background: #071219;
+  }
+
+  .charts-catalog-card-light .charts-catalog-chart {
+    --ts-chart-1: #2497bd;
+    --ts-chart-2: #e46244;
+    --ts-chart-3: #39a84b;
+    --ts-chart-4: #805ad5;
+    --ts-chart-5: #e69a16;
+    --ts-chart-6: #667c87;
+  }
+
+  .charts-catalog-card-dark .charts-catalog-chart {
+    --ts-chart-1: #61e8ff;
+    --ts-chart-2: #ff806f;
+    --ts-chart-3: #b9f227;
+    --ts-chart-4: #c4a7ff;
+    --ts-chart-5: #ffd85e;
+    --ts-chart-6: #91a9b4;
+  }
+
+  .charts-catalog-card-light .charts-catalog-chart > div,
+  .charts-catalog-card-light .charts-catalog-chart svg.ts-chart {
+    background: #fff;
+  }
+
+  .charts-catalog-card-dark .charts-catalog-chart > div,
+  .charts-catalog-card-dark .charts-catalog-chart svg.ts-chart {
+    background: #071219;
+  }
+
+  .charts-catalog-hero-frame .ts-chart__legend,
+  .charts-catalog-gallery-card .ts-chart__legend {
+    display: none;
+  }
+
+  .charts-catalog-hero-frame .ts-chart text,
+  .charts-catalog-gallery-card .ts-chart text {
+    font-size: 9px;
+  }
+
+  .charts-catalog-card-light .ts-chart__grid {
+    stroke: #071219;
+    stroke-opacity: 0.1;
+  }
+
+  .charts-catalog-card-dark .ts-chart__grid {
+    stroke: #d9edf1;
+    stroke-opacity: 0.13;
+  }
+
+  .charts-catalog-card-light .ts-chart__axes line,
+  .charts-catalog-card-light .ts-chart__axes path {
+    stroke: #071219;
+    stroke-opacity: 0.32;
+  }
+
+  .charts-catalog-card-dark .ts-chart__axes line,
+  .charts-catalog-card-dark .ts-chart__axes path {
+    stroke: #d9edf1;
+    stroke-opacity: 0.28;
+  }
+
+  .charts-catalog-card-light .ts-chart__axes text {
+    fill: #071219;
+    fill-opacity: 0.6;
+  }
+
+  .charts-catalog-card-dark .ts-chart__axes text {
+    fill: #d9edf1;
+    fill-opacity: 0.62;
+  }
+
+  .charts-catalog-hero-frame {
+    animation: charts-catalog-hero-enter 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .charts-catalog-title-enter {
+    animation: charts-catalog-title-enter 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @keyframes charts-catalog-hero-enter {
+    from {
+      opacity: 0.25;
+      filter: blur(4px);
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      filter: blur(0);
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes charts-catalog-title-enter {
     from {
       opacity: 0;
-      transform: translateY(3px);
+      transform: translateY(4px);
     }
     to {
       opacity: 1;
@@ -246,7 +328,8 @@ const chartsLandingStyles = `
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .charts-kinetic-meta-enter {
+    .charts-catalog-hero-frame,
+    .charts-catalog-title-enter {
       animation: none;
     }
   }

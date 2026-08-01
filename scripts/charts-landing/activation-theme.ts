@@ -1,7 +1,12 @@
 export const activationTheme = {
-  foreground: '#eeebd4',
-  muted: '#aea691',
-  grid: '#aea691',
+  foreground: 'var(--activation-foreground)',
+  muted: 'var(--activation-muted)',
+  grid: 'var(--activation-grid)',
   background: 'transparent',
-  palette: ['#61adbf', '#e06e49', '#69bc75'],
+  palette: [
+    'var(--activation-line)',
+    'var(--activation-goal)',
+    'var(--activation-release)',
+    'var(--activation-range)',
+  ],
 }

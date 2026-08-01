@@ -1,9 +1,11 @@
+import { pie } from 'd3-shape'
+
 export const kineticDarkTheme = {
   background: 'transparent',
-  foreground: '#eeebd4',
-  grid: '#eeebd4',
-  muted: '#aea691',
-  palette: ['#61adbf', '#e06e49', '#69bc75'],
+  foreground: '#eff7f4',
+  grid: '#91c7d1',
+  muted: '#77929f',
+  palette: ['#61e8ff', '#ff806f', '#b9f227'],
 }
 
 export const productSignals = [
@@ -106,3 +108,49 @@ export const productSignals = [
 ]
 
 export const productNames = productSignals.map((row) => row.product)
+
+export const heatmapMetrics = [
+  'Adoption',
+  'Performance',
+  'Reliability',
+  'DX',
+] as const
+
+export const heatmapSignals = productSignals.flatMap((product, productIndex) =>
+  heatmapMetrics.map((metric, metricIndex) => {
+    const score =
+      48 + ((product.value + productIndex * 9 + metricIndex * 17) % 50)
+    return {
+      band: score >= 82 ? 'Peak' : score >= 66 ? 'Strong' : 'Building',
+      id: `${product.id}-${metric}`,
+      metric,
+      product: product.product,
+      score,
+    }
+  }),
+)
+
+export const radarDimensions = [
+  { dimension: 'Speed', score: 92 },
+  { dimension: 'Control', score: 83 },
+  { dimension: 'Types', score: 96 },
+  { dimension: 'A11y', score: 78 },
+  { dimension: 'Motion', score: 88 },
+  { dimension: 'Themes', score: 86 },
+] as const
+
+export const radarDimensionNames = radarDimensions.map((row) => row.dimension)
+
+export const productShare = [
+  { share: 31, segment: 'Core' },
+  { share: 25, segment: 'Data' },
+  { share: 19, segment: 'Runtime' },
+  { share: 14, segment: 'UI' },
+  { share: 11, segment: 'Other' },
+]
+
+export const productShareSlices = pie<(typeof productShare)[number]>()
+  .sort(null)
+  .value((row) => row.share)(productShare)
+
+export const ringCenter = [{ angle: 0, label: '100%', radius: 0 }] as const

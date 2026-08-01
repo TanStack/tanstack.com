@@ -25,9 +25,7 @@ export const Route = createFileRoute('/paid-support')({
 })
 
 function PaidSupportComp() {
-  const [viewMode, setViewMode] = useState<'compact' | 'full' | 'row'>(
-    'compact',
-  )
+  const [viewMode, setViewMode] = useState<'compact' | 'full' | 'row'>('full')
 
   return (
     <>

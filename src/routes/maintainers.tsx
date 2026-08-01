@@ -27,7 +27,7 @@ const sortBySchema = v.picklist(['none', 'name', 'role', 'contributions'])
 
 const searchSchema = v.object({
   libraries: v.fallback(v.optional(v.array(libraryIdSchema)), undefined),
-  viewMode: v.fallback(v.optional(viewModeSchema, 'compact'), 'compact'),
+  viewMode: v.fallback(v.optional(viewModeSchema, 'full'), 'full'),
   groupBy: v.fallback(v.optional(groupBySchema, 'none'), 'none'),
   sortBy: v.fallback(v.optional(sortBySchema, 'none'), 'none'),
 })

@@ -168,25 +168,25 @@ function DevtoolsCockpit() {
       <div className="grid min-h-[23rem] lg:grid-cols-[0.72fr_1.28fr]">
         <div className="border-border-subtle bg-background-surface p-4 lg:border-r">
           <div className="flex items-center justify-between gap-3">
-            <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+            <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-secondary">
               your app
             </p>
             <button
               type="button"
               aria-pressed={isInspecting}
-              className="inline-flex items-center gap-1.5 rounded-md border border-border-default px-2 py-1.5 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
+              className="inline-flex items-center gap-1.5 rounded-md border border-border-strong px-2 py-1.5 font-ds-mono text-ds-mono-caps-xs uppercase text-text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary aria-pressed:border-[var(--landing-accent)] aria-pressed:text-[var(--landing-accent-bright)]"
               onClick={() => setIsInspecting((current) => !current)}
             >
               <MagnifyingGlass aria-hidden="true" size={12} /> Inspect
             </button>
           </div>
-          <div className="mt-4 overflow-hidden rounded-lg border border-border-subtle bg-background-subtle">
+          <div className="mt-4 overflow-hidden rounded-lg border border-border-default bg-background-subtle">
             <button
               type="button"
               className={
                 isInspecting
                   ? 'block w-full border-b border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.13)] px-3 py-3 text-left text-ds-label-sm text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--landing-accent-bright)]'
-                  : 'block w-full border-b border-border-subtle px-3 py-3 text-left text-ds-label-sm text-text-primary/70'
+                  : 'block w-full border-b border-border-default px-3 py-3 text-left text-ds-label-sm text-text-primary'
               }
               onClick={() => selectSource('src/components/AppHeader.tsx:18')}
             >
@@ -204,7 +204,7 @@ function DevtoolsCockpit() {
                   className={
                     isInspecting
                       ? 'rounded-lg border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.08)] px-3 py-3 text-left text-ds-body-xs text-text-primary/70 hover:bg-[color:rgb(var(--landing-glow)/0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--landing-accent-bright)]'
-                      : 'rounded-lg border border-border-subtle bg-background-surface px-3 py-3 text-left text-ds-body-xs text-text-primary/40'
+                      : 'rounded-lg border border-border-default bg-background-surface px-3 py-3 text-left text-ds-body-xs text-text-secondary'
                   }
                   onClick={() => selectSource(nextSource)}
                 >
@@ -214,7 +214,7 @@ function DevtoolsCockpit() {
             </div>
           </div>
           <div
-            className="mt-3 min-w-0 rounded-lg bg-ds-neutral-500 px-3 py-2 font-ds-mono text-ds-mono-xs text-[var(--landing-accent-bright)]"
+            className="mt-3 min-w-0 rounded-lg bg-background-inverse px-3 py-2 font-ds-mono text-ds-mono-xs text-background-subtle"
             aria-live="polite"
           >
             <span className="block truncate">{source}</span>
@@ -232,7 +232,7 @@ function DevtoolsCockpit() {
                 key={panel.id}
                 type="button"
                 aria-pressed={activeId === panel.id}
-                className="shrink-0 rounded-lg border border-border-subtle bg-background-subtle px-3 py-2 text-ds-label-sm text-text-primary/35 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary aria-pressed:bg-text-primary aria-pressed:text-background-default"
+                className="shrink-0 rounded-lg border border-border-default bg-background-subtle px-3 py-2 text-ds-label-sm text-text-secondary hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary aria-pressed:bg-text-primary aria-pressed:text-background-default"
                 onClick={() => setActiveId(panel.id)}
               >
                 {panel.label}
@@ -246,7 +246,7 @@ function DevtoolsCockpit() {
                   key={label}
                   className="rounded-lg bg-background-subtle p-3"
                 >
-                  <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/25">
+                  <p className="font-ds-mono text-ds-mono-caps-xs uppercase text-text-secondary">
                     {label}
                   </p>
                   <p className="mt-2 text-ds-heading-4 text-text-primary">
@@ -259,16 +259,16 @@ function DevtoolsCockpit() {
               {active.rows.map((row, index) => (
                 <div
                   key={row}
-                  className="flex items-center justify-between gap-3 rounded-lg border border-border-subtle bg-background-surface px-3 py-2.5"
+                  className="flex items-center justify-between gap-3 rounded-lg border border-border-default bg-background-surface px-3 py-2.5"
                 >
-                  <span className="truncate font-ds-mono text-ds-mono-2xs text-text-primary/55">
+                  <span className="truncate font-ds-mono text-ds-mono-2xs text-text-secondary">
                     {row}
                   </span>
                   <span
                     className={
                       index === 0
                         ? 'size-2 rounded-full bg-status-success'
-                        : 'size-2 rounded-full bg-text-primary/15'
+                        : 'size-2 rounded-full bg-icon-muted'
                     }
                   />
                 </div>
@@ -331,8 +331,8 @@ function PluginEventLab() {
     <LandingWindow label="custom jobs plugin">
       <div className="grid lg:grid-cols-[1.05fr_0.95fr]">
         <div className="min-w-0 border-border-subtle p-5 lg:border-r">
-          <pre className="overflow-x-auto rounded-lg bg-ds-neutral-500 p-4">
-            <code className="font-ds-mono text-ds-mono-xs text-white/60">
+          <pre className="overflow-x-auto rounded-lg bg-background-inverse p-4">
+            <code className="font-ds-mono text-ds-mono-xs text-text-inverse/60">
               {
                 "type JobEvents = {\n  progress: { jobId: string; percent: number }\n}\nclass JobsClient extends EventClient<JobEvents> {\n  constructor() { super({ pluginId: 'jobs' }) }\n}\nconst jobs = new JobsClient()"
               }
@@ -487,7 +487,7 @@ function SourceToBuild() {
         </LandingEyebrow>
         <div className="mt-7 rounded-lg border border-[var(--landing-accent)] bg-[color:rgb(var(--landing-glow)/0.12)] p-5">
           <p className="text-ds-heading-4">Project summary</p>
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded bg-ds-neutral-500 px-3 py-2 font-ds-mono text-ds-mono-xs text-[var(--landing-accent-bright)]">
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded bg-background-inverse px-3 py-2 font-ds-mono text-ds-mono-xs text-text-inverse">
             <span>Summary.tsx:14</span>
             <ArrowSquareOut aria-hidden="true" size={15} />
           </div>

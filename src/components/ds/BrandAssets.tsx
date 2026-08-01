@@ -9,6 +9,16 @@ interface LogoAsset {
   onDark: boolean
 }
 
+interface GalleryAsset {
+  name: string
+  category: string
+  preview: string
+  alt: string
+  onDark: boolean
+  imgClass: string
+  downloads: Array<{ format: string; href: string }>
+}
+
 const TONE_LABEL: Record<LogoTone, string> = {
   black: 'Black',
   charcoal: 'Charcoal',
@@ -36,94 +46,155 @@ const EMBLEM: Array<LogoAsset> = [
   { tone: 'white', file: 'tanstack-emblem-white.svg', onDark: true },
 ]
 
-function LogoCard({
-  asset,
-  lockup,
-  imgClass,
-}: {
-  asset: LogoAsset
-  lockup: string
-  imgClass: string
-}) {
-  const src = `/images/brand/${asset.file}`
+function brandGalleryAssets(
+  lockup: string,
+  assets: Array<LogoAsset>,
+  imgClass: string,
+): Array<GalleryAsset> {
+  return assets.map((asset) => {
+    const src = `/images/brand/${asset.file}`
+    const tone = TONE_LABEL[asset.tone]
 
+    return {
+      name: `${lockup} · ${tone}`,
+      category: 'Brand logo',
+      preview: src,
+      alt: `TanStack ${lockup.toLowerCase()} logo — ${tone}`,
+      onDark: asset.onDark,
+      imgClass,
+      downloads: [{ format: 'SVG', href: src }],
+    }
+  })
+}
+
+const SOCIAL_LOGOS: Array<GalleryAsset> = [
+  ['Mark · Dark', 'mark-dark'],
+  ['Mark · Light', 'mark-light'],
+  ['Stacked · Dark', 'stacked-dark'],
+  ['Stacked · Light', 'stacked-light'],
+].map(([name, file]) => ({
+  name,
+  category: 'Social logo',
+  preview: `/images/brand/social/${file}.svg`,
+  alt: `TanStack social logo — ${name}`,
+  onDark: false,
+  imgClass: 'h-full w-full',
+  downloads: [
+    { format: 'SVG', href: `/images/brand/social/${file}.svg` },
+    { format: 'PNG · 2×', href: `/images/brand/social/${file}@2x.png` },
+  ],
+}))
+
+const FAVICONS: Array<GalleryAsset> = [
+  {
+    name: 'Favicon · Light mode',
+    category: 'Favicon',
+    preview: '/favicon-light.svg',
+    alt: 'TanStack favicon for light browser themes',
+    onDark: false,
+    imgClass: 'h-24 w-24',
+    downloads: [{ format: 'SVG', href: '/favicon-light.svg' }],
+  },
+  {
+    name: 'Favicon · Dark mode',
+    category: 'Favicon',
+    preview: '/favicon-dark.svg',
+    alt: 'TanStack favicon for dark browser themes',
+    onDark: true,
+    imgClass: 'h-24 w-24',
+    downloads: [{ format: 'SVG', href: '/favicon-dark.svg' }],
+  },
+]
+
+const BRAND_LOGO_FORMATS = [
+  {
+    name: 'Stacked',
+    assets: brandGalleryAssets('Stacked', STACKED, 'h-20 max-w-full'),
+  },
+  {
+    name: 'Landscape',
+    assets: brandGalleryAssets('Landscape', LANDSCAPE, 'h-10 max-w-full'),
+  },
+  {
+    name: 'Emblem',
+    assets: brandGalleryAssets('Emblem', EMBLEM, 'h-16 max-w-full'),
+  },
+]
+
+function AssetCard({ asset }: { asset: GalleryAsset }) {
   return (
-    <div className="overflow-hidden rounded-xl border border-border-default bg-background-surface">
+    <article className="group overflow-hidden rounded-xl border border-border-default bg-background-surface">
       <div
-        className={`flex items-center justify-center px-8 py-12 ${
+        className={`relative flex aspect-square items-center justify-center overflow-hidden p-8 ${
           asset.onDark ? 'bg-ds-neutral-500' : 'bg-ds-neutral-100'
         }`}
       >
-        <img
-          src={src}
-          alt={`TanStack ${lockup} logo — ${TONE_LABEL[asset.tone]}`}
-          className={`w-auto max-w-full ${imgClass}`}
-        />
+        <img src={asset.preview} alt={asset.alt} className={asset.imgClass} />
+        <div className="absolute inset-x-0 bottom-0 flex justify-end gap-2 bg-gradient-to-t from-black/45 to-transparent p-3 pt-10 opacity-100 transition-opacity duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
+          {asset.downloads.map((download) => (
+            <a
+              key={download.href}
+              href={download.href}
+              download
+              className="inline-flex items-center gap-1.5 rounded-md border border-border-default bg-background-surface px-3 py-2 text-xs font-medium text-text-primary hover:bg-background-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
+            >
+              <DownloadSimple size={14} aria-hidden="true" />
+              {download.format}
+            </a>
+          ))}
+        </div>
       </div>
-      <div className="flex items-center justify-between gap-3 border-t border-border-default px-4 py-3">
-        <span className="font-ds-mono text-xs text-text-secondary">
-          {TONE_LABEL[asset.tone]}
-        </span>
-        <a
-          href={src}
-          download
-          className="inline-flex items-center gap-1.5 rounded-md border border-border-default px-2.5 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:bg-background-subtle hover:text-text-primary"
-        >
-          <DownloadSimple size={14} />
-          SVG
-        </a>
+      <div className="border-t border-border-default px-4 py-3">
+        <div className="text-sm font-medium text-text-primary">
+          {asset.name}
+        </div>
+        <p className="mt-0.5 font-ds-mono text-[10px] uppercase tracking-wider text-text-muted">
+          {asset.category}
+        </p>
       </div>
-    </div>
+    </article>
   )
 }
 
-export function CurrentBrandAssets() {
+export function BrandAssetGallery() {
   return (
     <>
+      <div className="space-y-8">
+        {BRAND_LOGO_FORMATS.map((format) => (
+          <section key={format.name} className="space-y-3">
+            <h2 className="text-ds-heading-4 font-semibold text-text-primary">
+              {format.name}
+            </h2>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {format.assets.map((asset) => (
+                <AssetCard
+                  key={`${asset.category}-${asset.name}`}
+                  asset={asset}
+                />
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
+
       <DsSection
-        title="Stacked"
-        description="Emblem over the wordmark — the primary lockup."
+        title="Favicons"
+        description="Theme-aware marks for browser tabs and compact product surfaces."
       >
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {STACKED.map((asset) => (
-            <LogoCard
-              key={asset.file}
-              asset={asset}
-              lockup="stacked"
-              imgClass="h-20"
-            />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {FAVICONS.map((asset) => (
+            <AssetCard key={`${asset.category}-${asset.name}`} asset={asset} />
           ))}
         </div>
       </DsSection>
 
       <DsSection
-        title="Landscape"
-        description="Emblem beside the wordmark — for headers and horizontal space."
+        title="Social logos"
+        description="Square artwork for avatars, profile images, and social posts."
       >
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {LANDSCAPE.map((asset) => (
-            <LogoCard
-              key={asset.file}
-              asset={asset}
-              lockup="landscape"
-              imgClass="h-10"
-            />
-          ))}
-        </div>
-      </DsSection>
-
-      <DsSection
-        title="Emblem"
-        description="The palm-island mark on its own — for avatars, favicons, and tight squares where the wordmark would not read."
-      >
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {EMBLEM.map((asset) => (
-            <LogoCard
-              key={asset.file}
-              asset={asset}
-              lockup="emblem"
-              imgClass="h-16"
-            />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {SOCIAL_LOGOS.map((asset) => (
+            <AssetCard key={`${asset.category}-${asset.name}`} asset={asset} />
           ))}
         </div>
       </DsSection>
@@ -140,3 +211,5 @@ export function CurrentBrandAssets() {
     </>
   )
 }
+
+export { BrandAssetGallery as CurrentBrandAssets }

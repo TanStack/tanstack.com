@@ -3,7 +3,7 @@ import { useLocation } from '@tanstack/react-router'
 import { LibrariesOverlay } from '~/components/LibrariesOverlay'
 
 interface LibrariesOverlayContextValue {
-  openLibraries: () => void
+  openLibraries: (options?: { onBack?: () => void }) => void
   closeLibraries: () => void
 }
 
@@ -35,15 +35,35 @@ export function LibrariesOverlayProvider({
   children: React.ReactNode
 }) {
   const [isOpen, setIsOpen] = React.useState(false)
+  const [returnTarget, setReturnTarget] = React.useState<{
+    onBack: () => void
+  } | null>(null)
 
-  const openLibraries = React.useCallback(() => setIsOpen(true), [])
-  const closeLibraries = React.useCallback(() => setIsOpen(false), [])
+  const openLibraries = React.useCallback(
+    (options?: { onBack?: () => void }) => {
+      setReturnTarget(options?.onBack ? { onBack: options.onBack } : null)
+      setIsOpen(true)
+    },
+    [],
+  )
+  const closeLibraries = React.useCallback(() => {
+    setIsOpen(false)
+    setReturnTarget(null)
+  }, [])
+
+  const returnToMenu = React.useCallback(() => {
+    const onBack = returnTarget?.onBack
+    setIsOpen(false)
+    setReturnTarget(null)
+    onBack?.()
+  }, [returnTarget])
 
   // Any navigation (e.g. clicking a library card) closes the overlay so it
   // never lingers over the destination page.
   const pathname = useLocation({ select: (location) => location.pathname })
   React.useEffect(() => {
     setIsOpen(false)
+    setReturnTarget(null)
   }, [pathname])
 
   const value = React.useMemo(
@@ -54,7 +74,11 @@ export function LibrariesOverlayProvider({
   return (
     <LibrariesOverlayContext.Provider value={value}>
       {children}
-      <LibrariesOverlay open={isOpen} onClose={closeLibraries} />
+      <LibrariesOverlay
+        open={isOpen}
+        onBack={returnTarget ? returnToMenu : undefined}
+        onClose={closeLibraries}
+      />
     </LibrariesOverlayContext.Provider>
   )
 }

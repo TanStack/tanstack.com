@@ -45,6 +45,7 @@ export const dsNav: Array<DsNavSection> = [
       { label: 'Inputs', to: '/ds/inputs' },
       { label: 'Dropdown', to: '/ds/dropdown' },
       { label: 'Avatar', to: '/ds/avatar' },
+      { label: 'Maintainers', to: '/ds/maintainers' },
       { label: 'Spinner', to: '/ds/spinner' },
       { label: 'Collapsible', to: '/ds/collapsible' },
       { label: 'Breadcrumbs', to: '/ds/breadcrumbs' },

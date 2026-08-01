@@ -38,6 +38,7 @@ export function Tooltip({
               'shadow-lg',
               'animate-in fade-in-0 zoom-in-95',
               'data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',
+              '[transform-origin:var(--radix-tooltip-content-transform-origin)] motion-reduce:animate-none',
               className,
             )}
           >

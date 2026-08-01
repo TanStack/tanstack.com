@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { Download, Star, TrendUp } from '@phosphor-icons/react'
+import { CalendarDots, DownloadSimple, Star } from '@phosphor-icons/react'
 import { type Library } from '~/libraries'
 import {
   homepageNpmStatsSummaryQuery,
@@ -97,7 +97,7 @@ export default function OssStats({
   if (npmLoading || hasNpmDownloads) {
     items.push({
       key: 'total',
-      icon: <TrendUp weight="regular" />,
+      icon: <DownloadSimple weight="regular" />,
       value: hasNpmDownloads ? formatCompact(npmDownloads) : '',
       placeholder: '00.0B',
       label: 'Total Downloads',
@@ -107,7 +107,7 @@ export default function OssStats({
   if (weeklyLoading || hasWeeklyDownloads) {
     items.push({
       key: 'weekly',
-      icon: <Download weight="regular" />,
+      icon: <CalendarDots weight="regular" />,
       value: hasWeeklyDownloads ? weeklyDownloads.toLocaleString() : '',
       placeholder: '00,000,000',
       label: 'Weekly Downloads',

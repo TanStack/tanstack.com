@@ -1,8 +1,9 @@
 import * as React from 'react'
 import { PartnersGrid } from './PartnersGrid'
 import { PartnershipCallout } from './PartnershipCallout'
-import { Button } from '~/ui'
 import { Link } from '@tanstack/react-router'
+import { ArrowRight } from '@phosphor-icons/react'
+import { Button } from '~/components/ds/ui'
 
 type PartnersSectionProps = {
   title?: string
@@ -22,7 +23,10 @@ export function PartnersSection({
         {showPreviousLink ? (
           <div className="flex justify-center mt-6">
             <Link to="/partners" search={{ status: 'inactive' }}>
-              <Button as="span">View Previous Partners</Button>
+              <Button as="span" variant="subtle-link" color="gray">
+                View Previous Partners
+                <ArrowRight />
+              </Button>
             </Link>
           </div>
         ) : null}

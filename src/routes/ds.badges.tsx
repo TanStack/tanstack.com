@@ -53,6 +53,25 @@ function BadgesPage() {
       </DsSection>
 
       <DsSection
+        title="Corner styles"
+        description="Use rounded corners for compact labels, or the default pill for statuses."
+      >
+        <ComponentPreview
+          code={`<Badge rounded="md">Rounded</Badge>
+<Badge rounded="full">Pill</Badge>`}
+        >
+          <Badge rounded="md">Rounded</Badge>
+          <Badge rounded="full">Pill</Badge>
+          <Badge rounded="md" variant="success">
+            Stable
+          </Badge>
+          <Badge rounded="md" variant="warning">
+            Beta
+          </Badge>
+        </ComponentPreview>
+      </DsSection>
+
+      <DsSection
         title="In context"
         description="Badges sit inline alongside text and headings."
       >

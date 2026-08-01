@@ -2,11 +2,9 @@ import * as React from 'react'
 import { ClientOnly } from '@tanstack/react-router'
 import {
   ArrowRight,
-  Atom,
   Check,
   CaretDown,
   Copy,
-  Cube,
   DownloadSimple,
   GithubLogo,
   OpenAiLogo,
@@ -15,6 +13,7 @@ import {
   Rocket,
 } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
+import { ClaudeIcon, CursorIcon } from '~/components/CopyPageDropdown'
 import type {
   ApplicationStarterContext,
   ApplicationStarterResult,
@@ -81,6 +80,8 @@ const LazyDeployDialog = React.lazy(() =>
 
 const starterPackageManagers = ['pnpm', 'npm', 'yarn', 'bun'] as const
 const starterToolchains = ['biome', 'eslint'] as const
+const starterEyebrowClassName =
+  'font-ds-mono text-ds-mono-xs uppercase tracking-wider text-text-muted'
 
 type HostingDeployPartnerId = 'cloudflare' | 'lovable' | 'netlify' | 'railway'
 type StarterTransientAction =
@@ -775,9 +776,7 @@ export function ApplicationStarter({
             <>
               <div className="overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950">
                 <div className="border-b border-gray-200 px-3 py-2 dark:border-gray-800">
-                  <div className="font-ds-mono text-ds-mono-xs uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                    Ideas
-                  </div>
+                  <div className={starterEyebrowClassName}>Ideas</div>
                   <div className="mt-2 flex flex-wrap gap-2">
                     {suggestions.map((suggestion) => (
                       <StarterChipButton
@@ -797,7 +796,7 @@ export function ApplicationStarter({
 
                 {showMigrationRepositoryInput ? (
                   <div className="border-b border-gray-200 px-3 py-2 dark:border-gray-800">
-                    <div className="font-ds-mono text-ds-mono-xs uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                    <div className={starterEyebrowClassName}>
                       Existing Repository URL
                     </div>
                     <input
@@ -824,7 +823,9 @@ export function ApplicationStarter({
                 ) : null}
 
                 <div className="relative">
-                  <div className="px-3 pt-2 font-ds-mono text-ds-mono-xs uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                  <div
+                    className={twMerge('px-3 pt-2', starterEyebrowClassName)}
+                  >
                     Prompt
                   </div>
                   <textarea
@@ -873,7 +874,7 @@ export function ApplicationStarter({
                     <StarterTooltipProvider>
                       <div className="space-y-2 rounded-lg border border-gray-200 bg-white px-3 py-3 dark:border-gray-800 dark:bg-gray-950">
                         <div className="mb-3">
-                          <div className="font-ds-mono text-ds-mono-xs uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                          <div className={starterEyebrowClassName}>
                             TanStack Libraries
                           </div>
 
@@ -886,7 +887,7 @@ export function ApplicationStarter({
                           </div>
                         </div>
 
-                        <div className="font-ds-mono text-ds-mono-xs uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                        <div className={starterEyebrowClassName}>
                           Partner Integrations
                         </div>
                         <StarterPartnerRows
@@ -988,7 +989,7 @@ export function ApplicationStarter({
                   >
                     {showMigrationRepositoryInput ? (
                       <div className="border-b border-gray-200 px-5 py-4 dark:border-gray-800">
-                        <div className="font-ds-mono text-ds-mono-xs uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                        <div className={starterEyebrowClassName}>
                           Existing Repository URL
                         </div>
                         <input
@@ -1015,7 +1016,12 @@ export function ApplicationStarter({
                     ) : null}
 
                     {isHomeStarter ? null : (
-                      <div className="px-5 pt-4 font-ds-mono text-ds-mono-xs uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                      <div
+                        className={twMerge(
+                          'px-5 pt-4',
+                          starterEyebrowClassName,
+                        )}
+                      >
                         Prompt
                       </div>
                     )}
@@ -1081,7 +1087,7 @@ export function ApplicationStarter({
                             size="sm"
                             type="button"
                             onClick={resetHomeBuilder}
-                            className="rounded-lg text-xs font-medium text-gray-500 hover:bg-gray-950/5 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-white"
+                            className="rounded-lg border-0 bg-transparent text-xs font-medium text-gray-500 shadow-none hover:bg-gray-950/5 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-white"
                           >
                             <ArrowCounterClockwise className="h-3.5 w-3.5" />
                             Start over
@@ -1159,7 +1165,7 @@ export function ApplicationStarter({
                                     'home-stack-builder-section-reveal',
                                 )}
                               >
-                                <div className="font-ds-mono text-ds-mono-xs uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                                <div className={starterEyebrowClassName}>
                                   TanStack Libraries
                                 </div>
 
@@ -1182,7 +1188,7 @@ export function ApplicationStarter({
                                     'home-stack-builder-section-reveal home-stack-builder-section-reveal-delayed',
                                 )}
                               >
-                                <div className="font-ds-mono text-ds-mono-xs uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                                <div className={starterEyebrowClassName}>
                                   Add Integrations
                                 </div>
                                 <div className="mt-3 w-full">
@@ -1391,12 +1397,7 @@ export function ApplicationStarter({
                                   className:
                                     'text-text-secondary hover:text-text-primary',
                                   href: claudeStartHref,
-                                  icon: (
-                                    <Atom
-                                      className="h-6 w-6"
-                                      weight="regular"
-                                    />
-                                  ),
+                                  icon: <ClaudeIcon className="h-6 w-6" />,
                                   iconOnly: true,
                                   label: 'Open in Claude',
                                   onTrack: () => {
@@ -1413,12 +1414,7 @@ export function ApplicationStarter({
                                   className:
                                     'text-text-secondary hover:text-text-primary',
                                   href: cursorStartHref,
-                                  icon: (
-                                    <Cube
-                                      className="h-6 w-6"
-                                      weight="regular"
-                                    />
-                                  ),
+                                  icon: <CursorIcon className="h-6 w-6" />,
                                   iconOnly: true,
                                   label: 'Open in Cursor',
                                   onTrack: () => {
@@ -1546,10 +1542,11 @@ function StarterCustomizationSection({
 }) {
   return (
     <Collapsible open={open} onOpenChange={onOpenChange}>
-      <div className={twMerge(compact ? 'pt-1' : 'pt-2')}>
+      <div className={twMerge(compact ? 'pt-1' : 'pt-4')}>
         <CollapsibleTrigger
           className={twMerge(
-            'inline-flex items-center gap-1 font-ds-mono text-ds-mono-xs uppercase tracking-wider text-gray-400 transition-colors hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300',
+            starterEyebrowClassName,
+            'inline-flex appearance-none items-center gap-1 border-0 bg-transparent p-0 text-left transition-colors hover:text-text-secondary',
           )}
         >
           {title}

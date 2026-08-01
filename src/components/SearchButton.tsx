@@ -1,22 +1,12 @@
 import * as React from 'react'
-import { Command, MagnifyingGlass } from '@phosphor-icons/react'
+import { Command, MagnifyingGlass, Sparkle } from '@phosphor-icons/react'
 import { twMerge } from 'tailwind-merge'
-import { Button } from '~/ui'
+import { Button, Tooltip } from '~/ui'
 import { useSearchContext } from '~/contexts/SearchContext'
 
 interface SearchButtonProps {
   className?: string
   iconOnly?: boolean
-}
-
-function AiGlyph() {
-  return (
-    <span className="relative flex h-5 w-5 items-center justify-center">
-      <span className="text-xs font-black leading-none tracking-normal">
-        AI
-      </span>
-    </span>
-  )
 }
 
 export function SearchButton({
@@ -38,12 +28,15 @@ export function SearchButton({
       title="Search"
       className={twMerge(
         iconOnly
-          ? 'h-7 w-7 rounded-md p-0'
+          ? 'h-8 w-8 rounded-md border-0 p-0 text-icon-default shadow-none hover:bg-surface-state-hover hover:text-text-primary'
           : 'gap-2 bg-gray-500/5 dark:bg-gray-500/30',
         className,
       )}
     >
-      <MagnifyingGlass className="w-3.5 h-3.5" />
+      <MagnifyingGlass
+        className={iconOnly ? 'size-[18px]' : 'size-3.5'}
+        weight={iconOnly ? 'bold' : undefined}
+      />
       {iconOnly ? (
         <span className="sr-only">Search</span>
       ) : (
@@ -109,26 +102,28 @@ export function AiDockButton({ className }: { className?: string }) {
   }
 
   return (
-    <Button
-      type="button"
-      onClick={handleClick}
-      onPointerEnter={handlePointerEnter}
-      onPointerLeave={handlePointerLeave}
-      aria-label={isAiDockOpen ? 'Close AI panel' : 'Open AI panel'}
-      aria-haspopup="dialog"
-      aria-pressed={isAiDockOpen}
-      variant="ghost"
-      size="icon-sm"
-      title="Ask AI"
-      className={twMerge(
-        'h-7 w-8 rounded-md p-0 bg-gray-500/5 dark:bg-gray-500/30',
-        isAiDockOpen &&
-          'bg-cyan-500/10 text-cyan-700 dark:bg-cyan-400/15 dark:text-cyan-300 border-cyan-500/20 dark:border-cyan-300/20',
-        className,
-      )}
-    >
-      <AiGlyph />
-      <span className="sr-only">Ask AI</span>
-    </Button>
+    <Tooltip content="Ask AI" side="bottom" delayDuration={0}>
+      <Button
+        type="button"
+        onClick={handleClick}
+        onPointerEnter={handlePointerEnter}
+        onPointerLeave={handlePointerLeave}
+        aria-label={isAiDockOpen ? 'Close AI panel' : 'Open AI panel'}
+        aria-haspopup="dialog"
+        aria-pressed={isAiDockOpen}
+        variant="icon"
+        color="gray"
+        size="icon-sm"
+        className={twMerge(
+          'h-8 w-8 rounded-md border-0 p-0 text-icon-default shadow-none hover:bg-surface-state-hover hover:text-text-primary',
+          isAiDockOpen &&
+            'bg-cyan-500/10 text-cyan-700 dark:bg-cyan-400/15 dark:text-cyan-300',
+          className,
+        )}
+      >
+        <Sparkle aria-hidden="true" className="size-[18px]" weight="bold" />
+        <span className="sr-only">Ask AI</span>
+      </Button>
+    </Tooltip>
   )
 }

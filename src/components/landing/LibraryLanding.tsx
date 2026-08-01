@@ -16,6 +16,7 @@ import { libraryCategories, type LibraryCategory } from '~/libraries/categories'
 import { getLibrary } from '~/libraries'
 import type { LibraryId } from '~/libraries'
 import { PartnersSponsorsSection } from '~/components/PartnersSponsorsSection'
+import { LibraryStatusBadge } from '~/components/LibraryStatusBadge'
 import { ossStatsQuery, recentDownloadsQuery } from '~/queries/stats'
 import { LandingCopyPromptButton } from './LandingCopyPromptButton'
 
@@ -269,9 +270,10 @@ export function LibraryLandingShell({
                   </h1>
                 </div>
                 {library.badge ? (
-                  <span className="mt-1 rounded-md border border-text-primary/15 bg-text-primary/5 px-2 py-1 font-ds-mono text-ds-mono-caps-xs uppercase text-text-primary/60">
-                    {library.badge}
-                  </span>
+                  <LibraryStatusBadge
+                    badge={library.badge}
+                    className="mt-[22px]"
+                  />
                 ) : null}
               </div>
 

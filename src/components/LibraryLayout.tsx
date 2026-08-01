@@ -1477,7 +1477,7 @@ export function LibraryLayout({
           data-docs-layout
           data-docs-menu-open={showLargeMenu ? 'true' : undefined}
           className={twMerge(
-            'flex w-full flex-col [overflow-x:clip] md:min-h-[calc(100dvh-var(--navbar-height))] transition-all duration-300',
+            'flex w-full flex-col md:min-h-[calc(100dvh-var(--navbar-height))] transition-all duration-300',
             isLandingPage && 'bg-background-default text-text-primary',
           )}
         >
@@ -1487,7 +1487,7 @@ export function LibraryLayout({
             {largeMenu}
             <div
               className={twMerge(
-                'flex flex-col max-w-full min-w-0 flex-1 min-h-0 relative',
+                'relative flex min-h-0 min-w-0 max-w-full flex-1 flex-col [overflow-x:clip]',
               )}
             >
               <div

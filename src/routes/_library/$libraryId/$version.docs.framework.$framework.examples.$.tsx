@@ -487,7 +487,13 @@ function determineStartingFilePath(
   const preferenceFiles = new Set([
     getExampleStartingFileName(framework, libraryId),
     ...['__root', 'App', 'main', 'index', 'page', 'action']
-      .map((name) => [`${name}.tsx`, `${name}.ts`, `${name}.js`, `${name}.jsx`])
+      .map((name) => [
+        `${name}.tsrx`,
+        `${name}.tsx`,
+        `${name}.ts`,
+        `${name}.js`,
+        `${name}.jsx`,
+      ])
       .flat(),
     'README.md',
   ])

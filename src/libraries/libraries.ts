@@ -340,7 +340,7 @@ export const charts: LibrarySlim = {
   to: '/charts',
   tagline: "A chart grammar you don't have to outgrow.",
   description:
-    'Compose typed data, marks, channels, and D3 scales into responsive SVG charts or custom visualizations.',
+    'Typed, tree-shakable SVG and Canvas charts. Pinned bundle fixtures: 16.48 KiB for a compact React line; 8.12 KiB for its framework-neutral scene.',
   repo: 'tanstack/charts',
   frameworks: ['react', 'vanilla'],
   corePackageName: '@tanstack/charts',

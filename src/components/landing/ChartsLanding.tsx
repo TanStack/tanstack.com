@@ -9,7 +9,6 @@ import {
   ActivationChart,
   BundleSizeFigure,
   KineticChartsHero,
-  ResponsiveChartComparison,
   ThemeGallery,
 } from './ChartsLandingGraphics'
 import {
@@ -27,7 +26,7 @@ export default function ChartsLanding({
 }) {
   return (
     <LibraryLandingShell
-      description="TanStack Charts 0.1.0 is on npm. Install @tanstack/charts for vanilla TypeScript or add the 0.1.0 adapter for React, Vue, Svelte, Solid, Angular, Preact, Lit, Alpine, or Octane."
+      description="TanStack Charts 0.3.1 is on npm. A compact React line consumer is 16.48 KiB gzip; its framework-neutral scene is 8.12 KiB."
       headline="A chart grammar you don't have to outgrow."
       hero={<KineticChartsHero />}
       libraryId="charts"
@@ -114,26 +113,28 @@ export default function ChartsLanding({
         </div>
       </LandingSection>
 
-      <LandingSection tone="raised">
+      <LandingSection id="bundle-size" tone="raised">
         <div className="grid gap-8 lg:grid-cols-[0.88fr_1.12fr] lg:items-end lg:gap-16">
           <h2 className="max-w-3xl font-ds-display text-ds-heading-1 md:text-ds-display-md">
-            Complete SVG charts. 24.2–24.8 KiB gzip.
+            16.48 KiB for a compact React line.
           </h2>
           <p className="max-w-2xl text-ds-body-sm text-text-secondary sm:text-ds-body-md">
-            Measured minified and gzipped from one-series charts in the{' '}
+            The framework-neutral scene is 8.12 KiB and retains neither D3 nor
+            InternMap. For an apples-to-apples comparison, the{' '}
             <a
               href="/charts/latest/docs/comparison"
               className="text-[var(--landing-accent-bright)] underline decoration-current/30 underline-offset-4 hover:decoration-current"
             >
-              reproducible comparison suite
-            </a>
-            . Granular imports leave unrelated marks and D3 modules out.
+              pinned 12-case suite
+            </a>{' '}
+            measures full cold-page browser bundles across line, bar, area, and
+            scatter × basic, interactive, and advanced; TanStack spans
+            26.58–32.08 KiB gzip.
           </p>
         </div>
 
-        <div className="mt-10 grid gap-5 xl:grid-cols-[0.62fr_1.38fr]">
+        <div className="mt-10">
           <BundleSizeFigure />
-          <ResponsiveChartComparison />
         </div>
       </LandingSection>
 
